@@ -1,0 +1,132 @@
+version: 1
+policy:
+  id: "sovereignty"
+  title: "OpenClaw Sovereignty Boundary Policy"
+  layer: "governance"
+  status: "draft"
+
+purpose:
+  primary: >
+    Define the hard boundary between autonomous system authority and human
+    sovereign authority so OpenClaw can run with maximal autonomy without
+    losing ultimate controllability.
+  guarantee:
+    - "Autonomy is default for non-sovereign work."
+    - "Sovereign-grade mutations never self-approve."
+    - "Breach response is automatic, not advisory."
+
+reserved_authorities:
+  human_sovereign_only:
+    - "constitution_amendment"
+    - "root_privilege_expansion"
+    - "global_high_risk_network_opening"
+    - "irreversible_data_destruction"
+    - "system_freeze_shutdown_resume"
+    - "removal_of_audit_or_rollback_requirements"
+  never_delegated:
+    - "self_authorize_sovereign_change"
+    - "self_remove_boundary_enforcement"
+    - "silently_expand_global_execution_surface"
+
+autonomous_zone:
+  permitted_without_human_approval:
+    - "goal_decomposition"
+    - "task_execution"
+    - "task_recovery"
+    - "skill_creation_in_sandbox"
+    - "plugin_prototyping_in_sandbox"
+    - "strategy_asset_iteration"
+    - "algorithm_experimentation"
+    - "organization_trials_in_sandbox"
+  conditions:
+    - "audit_attribution_required"
+    - "rollback_path_required_for_promotions"
+    - "sandbox_validation_required_for_high_risk_mutation"
+
+decision_matrix:
+  low_risk:
+    scope:
+      - "execution_templates"
+      - "retry_policies"
+      - "task_scheduling_weights"
+    authority: "autonomous_with_audit"
+  medium_risk:
+    scope:
+      - "skills"
+      - "plugins"
+      - "strategy_assets"
+      - "algorithm_candidates"
+    authority: "autonomous_after_sandbox_and_qa"
+  high_risk:
+    scope:
+      - "agent_blueprints"
+      - "jurisdiction_changes"
+      - "capability_promotion_to_default"
+      - "shared_runtime_policy_changes"
+    authority: "promotion_council_plus_auditor"
+  critical_risk:
+    scope:
+      - "constitution"
+      - "global_exec_policy"
+      - "root_or_host_privilege"
+      - "audit_stream_integrity"
+    authority: "human_sovereign_only"
+
+breach_detection:
+  indicators:
+    - "mutation_without_audit_trace"
+    - "policy_change_without_authority"
+    - "audit_stream_missing_or_tampered"
+    - "rollback_path_removed"
+    - "unapproved_global_network_surface_growth"
+    - "agent_operating_outside_declared_jurisdiction"
+  severity_mapping:
+    info:
+      - "recoverable_local_policy_mismatch"
+    high:
+      - "unauthorized_mutation_scope"
+      - "promotion_without_qa"
+    critical:
+      - "constitution_bypass"
+      - "audit_tampering"
+      - "root_escalation_attempt"
+
+automatic_enforcement:
+  on_high_or_critical_breach:
+    - "freeze_mutating_subsystems"
+    - "block_new_promotions"
+    - "preserve_forensic_snapshot"
+    - "open_sovereignty_incident"
+    - "notify_human_sovereign"
+  freeze_targets:
+    - "evolution_layer_promotions"
+    - "capability_publish_pipeline"
+    - "organization_mutation_runtime"
+  release_conditions:
+    - "root_cause_identified"
+    - "rollback_or_fix_applied"
+    - "sovereignty_auditor_clearance"
+    - "human_clearance_for_critical_breach"
+
+audit_requirements:
+  mandatory_records:
+    - "actor_id"
+    - "authority_basis"
+    - "mutation_scope"
+    - "pre_state_reference"
+    - "post_state_reference"
+    - "rollback_reference"
+    - "evidence_bundle"
+  tamper_response:
+    - "treat_as_critical_incident"
+    - "halt_mutations"
+    - "preserve_snapshot"
+
+runtime_mapping:
+  existing_project_hooks:
+    - "src/acp/policy.ts"
+    - "src/agents/sandbox-tool-policy.ts"
+    - "src/security/audit.ts"
+    - "src/agents/agent-scope-config.ts"
+    - "src/tasks/task-registry.ts"
+

@@ -1,0 +1,142 @@
+version: 1
+policy:
+  id: "evolution-policy"
+  title: "OpenClaw Autonomous Evolution Policy"
+  layer: "evolution"
+  status: "draft"
+
+purpose:
+  primary: >
+    Govern how OpenClaw initiates, executes, validates, promotes, and rolls
+    back self-improvement so the system can evolve continuously instead of
+    waiting for human redesign.
+  mission:
+    - "Turn execution bottlenecks into internal evolution projects."
+    - "Continuously create and retire capability assets."
+    - "Allow organization and algorithm evolution under hard boundaries."
+
+evolution_domains:
+  - id: "capability"
+    owners:
+      - "genesis_team"
+      - "librarian"
+    examples:
+      - "new_skill"
+      - "skill_upgrade"
+      - "plugin_patch"
+  - id: "strategy"
+    owners:
+      - "strategist"
+    examples:
+      - "task_decomposition_template"
+      - "recovery_playbook"
+      - "coordination_doctrine"
+  - id: "algorithm"
+    owners:
+      - "algorithmist"
+    examples:
+      - "compaction_policy"
+      - "agent_selection_model"
+      - "memory_selection_algorithm"
+  - id: "organization"
+    owners:
+      - "founder"
+    examples:
+      - "new_agent_role"
+      - "jurisdiction_change"
+      - "genesis_team_split_or_merge"
+
+initiation_rules:
+  automatic_triggers:
+    - "repeated_task_failure_pattern"
+    - "persistent_manual_workaround"
+    - "context_cost_growth"
+    - "capability_gap_detected"
+    - "security_surface_mismatch"
+    - "throughput_plateau"
+  mandatory_project_fields:
+    - "problem_statement"
+    - "target_metric"
+    - "owner_agent"
+    - "experiment_scope"
+    - "rollback_plan"
+    - "promotion_gate"
+
+experiment_protocol:
+  required_stages:
+    - "proposal"
+    - "sandbox_snapshot"
+    - "candidate_build"
+    - "historical_replay"
+    - "qa_validation"
+    - "audit_review"
+    - "promotion_or_rejection"
+  sandbox_required_for:
+    - "all_high_risk_changes"
+    - "all_algorithm_changes"
+    - "all_org_changes"
+    - "all_new_capability_defaults"
+  evidence_bundle:
+    - "baseline_reference"
+    - "candidate_reference"
+    - "metric_delta"
+    - "regression_notes"
+    - "rollback_reference"
+
+promotion_authority:
+  capability:
+    required:
+      - "qa"
+      - "publisher"
+      - "librarian"
+      - "sovereignty_auditor"
+  strategy:
+    required:
+      - "strategist"
+      - "qa"
+      - "sovereignty_auditor"
+  algorithm:
+    required:
+      - "algorithmist"
+      - "qa"
+      - "sovereignty_auditor"
+  organization:
+    required:
+      - "founder"
+      - "qa"
+      - "sovereignty_auditor"
+      - "promotion_vote_record"
+  sovereign:
+    required:
+      - "human_sovereign"
+
+retirement_policy:
+  retire_when:
+    - "asset_superseded"
+    - "asset_unmaintained"
+    - "asset_causes_repeated_regression"
+    - "role_no_longer_improves_throughput"
+  retirement_requirements:
+    - "dependency_scan"
+    - "replacement_or_fallback"
+    - "audit_record"
+
+kill_switches:
+  stop_evolution_when:
+    - "sovereignty_incident_open"
+    - "audit_integrity_failed"
+    - "sandbox_comparison_invalid"
+    - "rollback_path_missing"
+  recovery_requires:
+    - "incident_resolution"
+    - "restored_audit_integrity"
+    - "fresh_validation"
+
+runtime_mapping:
+  intended_project_hooks:
+    - "src/tasks/task-registry.ts"
+    - "src/tasks/task-flow-registry.ts"
+    - "src/security/audit.ts"
+    - "src/agents/agent-scope-config.ts"
+    - "governance/sandbox-universe-minimal-design.zh-CN.md"
+

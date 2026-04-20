@@ -1,0 +1,77 @@
+version: 1
+team:
+  id: "genesis_team"
+  title: "Genesis Team"
+  layer: "evolution"
+  class: "autonomous-capability-factory"
+  status: "draft"
+
+mission:
+  primary: >
+    Detect missing capability, design the fix, implement the asset, validate
+    it, and publish it into the governed capability layer without requiring
+    continuous human instruction.
+  success_metrics:
+    - "capability_gap_closure_time"
+    - "first_pass_qa_rate"
+    - "promotion_success_rate"
+    - "post_promotion_regression_rate"
+
+members:
+  - "sentinel"
+  - "archaeologist"
+  - "tdd_developer"
+  - "qa"
+  - "publisher"
+
+workflow:
+  stages:
+    - "gap_detection"
+    - "root_cause_analysis"
+    - "candidate_design"
+    - "implementation"
+    - "qa_and_replay"
+    - "registration"
+    - "promotion_or_rollback"
+  handoff_contracts:
+    sentinel_to_archaeologist:
+      produces:
+        - "gap_signal"
+        - "risk_summary"
+    archaeologist_to_tdd_developer:
+      produces:
+        - "root_cause_map"
+        - "change_plan"
+    tdd_developer_to_qa:
+      produces:
+        - "candidate_asset"
+        - "test_delta"
+    qa_to_publisher:
+      produces:
+        - "qa_report"
+        - "replay_report"
+    publisher_to_librarian:
+      produces:
+        - "asset_manifest"
+        - "promotion_record"
+
+operating_constraints:
+  allowed:
+    - "self_start_capability_projects"
+    - "open_sandbox_trials"
+    - "prototype_skills_plugins_and_playbooks"
+    - "retire_failed_candidates"
+  forbidden:
+    - "bypass_qa"
+    - "publish_without_audit"
+    - "modify_constitution"
+    - "grant_root_or_global_exec_expansion"
+
+runtime_mapping:
+  intended_project_hooks:
+    - "skills"
+    - "plugins"
+    - "qa-runtime"
+    - "src/tasks/task-registry.ts"
+    - "src/security/audit.ts"
+
