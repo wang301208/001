@@ -4,6 +4,7 @@ import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
 import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
+import { resolveGovernanceToolPolicy } from "../governance/charter-runtime.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import {
   parseRawSessionConversationRef,
@@ -303,6 +304,7 @@ export function resolveEffectiveToolPolicy(params: {
   agentId?: string;
   modelProvider?: string;
   modelId?: string;
+  charterDir?: string;
 }) {
   const explicitAgentId =
     typeof params.agentId === "string" && params.agentId.trim()
@@ -336,6 +338,9 @@ export function resolveEffectiveToolPolicy(params: {
           new Set([...(explicitProfileAlsoAllow ?? []), ...(implicitProfileAlsoAllow ?? [])]),
         )
       : undefined;
+  const governancePolicy = params.config
+    ? resolveGovernanceToolPolicy(params.config, { charterDir: params.charterDir })
+    : undefined;
   return {
     agentId,
     globalPolicy: pickSandboxToolPolicy(globalTools),
@@ -351,6 +356,7 @@ export function resolveEffectiveToolPolicy(params: {
       : Array.isArray(providerPolicy?.alsoAllow)
         ? providerPolicy?.alsoAllow
         : undefined,
+    governancePolicy,
   };
 }
 

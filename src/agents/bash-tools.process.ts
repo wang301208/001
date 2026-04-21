@@ -1,4 +1,10 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import type { OpenClawConfig } from "../config/types.openclaw.js";
+import { getRuntimeConfigSnapshot } from "../config/runtime-snapshot.js";
+import {
+  formatGovernanceEnforcementMessage,
+  resolveGovernanceEnforcementState,
+} from "../governance/charter-runtime.js";
 import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
 import { getDiagnosticSessionState } from "../logging/diagnostic-session-state.js";
 import { killProcessTree } from "../process/kill-tree.js";
@@ -27,6 +33,8 @@ export type ProcessToolDefaults = {
   cleanupMs?: number;
   hasCronTool?: boolean;
   scopeKey?: string;
+  config?: OpenClawConfig;
+  charterDir?: string;
 };
 
 const DEFAULT_LOG_TAIL_LINES = 200;
@@ -104,6 +112,22 @@ export function createProcessTool(
   const supervisor = getProcessSupervisor();
   const isInScope = (session?: { scopeKey?: string } | null) =>
     !scopeKey || session?.scopeKey === scopeKey;
+  const resolveGovernanceFrozenMessage = () => {
+    const cfg = defaults?.config ?? getRuntimeConfigSnapshot() ?? undefined;
+    if (!cfg) {
+      return null;
+    }
+    const enforcement = resolveGovernanceEnforcementState(cfg, {
+      charterDir: defaults?.charterDir,
+    });
+    if (!enforcement.active) {
+      return null;
+    }
+    return formatGovernanceEnforcementMessage({
+      subject: "process",
+      enforcement,
+    });
+  };
 
   const cancelManagedSession = (sessionId: string) => {
     const record = supervisor.getRecord(sessionId);
@@ -154,6 +178,10 @@ export function createProcessTool(
         limit?: number;
         timeout?: unknown;
       };
+      const governanceFrozenMessage = resolveGovernanceFrozenMessage();
+      if (governanceFrozenMessage) {
+        return failText(governanceFrozenMessage);
+      }
 
       if (params.action === "list") {
         const running = listRunningSessions()

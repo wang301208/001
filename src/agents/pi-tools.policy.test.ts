@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import fsPromises from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -11,6 +12,47 @@ import {
   resolveSubagentToolPolicyForSession,
 } from "./pi-tools.policy.js";
 import { createStubTool } from "./test-helpers/pi-tool-stubs.js";
+
+async function createTempCharterRoot(): Promise<{ root: string; charterDir: string }> {
+  const root = await fsPromises.mkdtemp(path.join(os.tmpdir(), "openclaw-tool-policy-"));
+  const charterDir = path.join(root, "governance", "charter");
+  await fsPromises.mkdir(path.join(charterDir, "policies"), { recursive: true });
+  return { root, charterDir };
+}
+
+async function seedMinimalCharter(charterDir: string): Promise<void> {
+  await fsPromises.writeFile(
+    path.join(charterDir, "constitution.yaml"),
+    [
+      "version: 1",
+      "charter_artifacts:",
+      "  policies:",
+      '    - "governance/charter/policies/sovereignty.yaml"',
+      '    - "governance/charter/policies/evolution-policy.yaml"',
+      "sovereign_boundaries:",
+      "  human_reserved_powers:",
+      '    - "external_high_risk_network_opening"',
+      '    - "root_privilege_expansion"',
+    ].join("\n"),
+    "utf8",
+  );
+  await fsPromises.writeFile(
+    path.join(charterDir, "policies", "sovereignty.yaml"),
+    [
+      "version: 1",
+      "reserved_authorities:",
+      "  human_sovereign_only:",
+      '    - "global_high_risk_network_opening"',
+      '    - "root_privilege_expansion"',
+    ].join("\n"),
+    "utf8",
+  );
+  await fsPromises.writeFile(
+    path.join(charterDir, "policies", "evolution-policy.yaml"),
+    "version: 1\n",
+    "utf8",
+  );
+}
 
 describe("pi-tools.policy", () => {
   it("treats * in allow as allow-all", () => {
@@ -292,5 +334,25 @@ describe("resolveEffectiveToolPolicy", () => {
     } as OpenClawConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg, agentId: "coder" });
     expect(result.profileAlsoAllow).toEqual(["read", "write", "edit"]);
+  });
+
+  it("adds a governance freeze deny policy for sovereign-grade violations", async () => {
+    const { root, charterDir } = await createTempCharterRoot();
+    try {
+      await seedMinimalCharter(charterDir);
+      const cfg = {
+        gateway: {
+          bind: "lan",
+        },
+      } as OpenClawConfig;
+      const result = resolveEffectiveToolPolicy({ config: cfg, charterDir });
+      expect(result.governancePolicy?.deny).toEqual(
+        expect.arrayContaining(["exec", "write", "apply_patch", "gateway"]),
+      );
+      expect(isToolAllowedByPolicyName("exec", result.governancePolicy)).toBe(false);
+      expect(isToolAllowedByPolicyName("read", result.governancePolicy)).toBe(true);
+    } finally {
+      await fsPromises.rm(root, { recursive: true, force: true });
+    }
   });
 });

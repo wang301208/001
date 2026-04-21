@@ -515,6 +515,20 @@ describe("spawnAcpDirect", () => {
       .mockImplementation(() => hoisted.areHeartbeatsEnabledMock());
   });
 
+  it("forbids spawn when governance policy freezes ACP dispatch", async () => {
+    replaceSpawnConfig({
+      ...createDefaultSpawnConfig(),
+      gateway: {
+        bind: "lan",
+      },
+    });
+
+    const result = await spawnAcpDirect(createSpawnRequest(), createRequesterContext());
+
+    expect(expectFailedSpawn(result, "forbidden").errorCode).toBe("runtime_policy");
+    expect(result.error).toContain("governance policy");
+  });
+
   afterEach(() => {
     resetTaskRegistryForTests();
     sessionBindingServiceTesting.resetSessionBindingAdaptersForTests();

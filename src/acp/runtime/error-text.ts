@@ -5,6 +5,9 @@ function resolveAcpRuntimeErrorNextStep(error: AcpRuntimeError): string | undefi
     return "Run `/acp doctor`, install/enable the backend plugin, then retry.";
   }
   if (error.code === "ACP_DISPATCH_DISABLED") {
+    if (error.message.toLowerCase().includes("governance policy")) {
+      return "Restore charter integrity or reduce sovereign-grade exposure, then retry.";
+    }
     return "Enable `acp.dispatch.enabled=true` to allow thread-message ACP turns.";
   }
   if (error.code === "ACP_SESSION_INIT_FAILED") {

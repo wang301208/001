@@ -347,6 +347,7 @@ export async function handleBashChatCommand(params: {
       allowBackground: true,
       timeoutSec,
       sessionKey: params.sessionKey,
+      config: params.cfg,
       notifyOnExit,
       notifyOnExitEmptySuccess,
       elevated: {

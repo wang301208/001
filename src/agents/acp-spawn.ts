@@ -5,7 +5,11 @@ import {
   cleanupFailedAcpSpawn,
   type AcpSpawnRuntimeCloseHandle,
 } from "../acp/control-plane/spawn.js";
-import { isAcpEnabledByPolicy, resolveAcpAgentPolicyError } from "../acp/policy.js";
+import {
+  isAcpEnabledByPolicy,
+  resolveAcpAgentPolicyError,
+  resolveAcpDispatchPolicyError,
+} from "../acp/policy.js";
 import {
   resolveAcpSessionCwd,
   resolveAcpThreadSessionDetailLines,
@@ -1001,6 +1005,14 @@ export async function spawnAcpDirect(
       status: "forbidden",
       errorCode: "acp_disabled",
       error: "ACP is disabled by policy (`acp.enabled=false`).",
+    });
+  }
+  const dispatchPolicyError = resolveAcpDispatchPolicyError(cfg);
+  if (dispatchPolicyError) {
+    return createAcpSpawnFailure({
+      status: "forbidden",
+      errorCode: "runtime_policy",
+      error: dispatchPolicyError.message,
     });
   }
   const streamToParentRequested = params.streamTo === "parent";

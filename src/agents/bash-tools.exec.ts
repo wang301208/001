@@ -1,5 +1,10 @@
 import path from "node:path";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import { getRuntimeConfigSnapshot } from "../config/runtime-snapshot.js";
+import {
+  formatGovernanceEnforcementMessage,
+  resolveGovernanceEnforcementState,
+} from "../governance/charter-runtime.js";
 import { analyzeShellCommand } from "../infra/exec-approvals-analysis.js";
 import { type ExecHost, loadExecApprovals, maxAsk, minSecurity } from "../infra/exec-approvals.js";
 import { resolveExecSafeBinRuntimePolicy } from "../infra/exec-safe-bin-runtime-policy.js";
@@ -1335,6 +1340,22 @@ export function createExecTool(
   const agentId =
     defaults?.agentId ??
     (parsedAgentSession ? resolveAgentIdFromSessionKey(defaults?.sessionKey) : undefined);
+  const resolveGovernanceFrozenMessage = () => {
+    const cfg = defaults?.config ?? getRuntimeConfigSnapshot() ?? undefined;
+    if (!cfg) {
+      return null;
+    }
+    const enforcement = resolveGovernanceEnforcementState(cfg, {
+      charterDir: defaults?.charterDir,
+    });
+    if (!enforcement.active) {
+      return null;
+    }
+    return formatGovernanceEnforcementMessage({
+      subject: "exec",
+      enforcement,
+    });
+  };
 
   return {
     name: "exec",
@@ -1362,6 +1383,16 @@ export function createExecTool(
 
       if (!params.command) {
         throw new Error("Provide a command to start.");
+      }
+      const governanceFrozenMessage = resolveGovernanceFrozenMessage();
+      if (governanceFrozenMessage) {
+        return failedTextResult(governanceFrozenMessage, {
+          status: "failed",
+          exitCode: null,
+          durationMs: 0,
+          aggregated: "",
+          cwd: defaults?.cwd,
+        });
       }
 
       const maxOutput = DEFAULT_MAX_OUTPUT;

@@ -323,6 +323,8 @@ export function createOpenClawCodingTools(options?: {
   senderIsOwner?: boolean;
   /** Callback invoked when sessions_yield tool is called. */
   onYield?: (message: string) => Promise<void> | void;
+  /** Test/runtime override for governance charter resolution. */
+  charterDir?: string;
 }): AnyAgentTool[] {
   const execToolName = "exec";
   const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
@@ -337,6 +339,7 @@ export function createOpenClawCodingTools(options?: {
     globalProviderPolicy,
     agentPolicy,
     agentProviderPolicy,
+    governancePolicy,
     profile,
     providerProfile,
     profileAlsoAllow,
@@ -347,6 +350,7 @@ export function createOpenClawCodingTools(options?: {
     agentId: options?.agentId,
     modelProvider: options?.modelProvider,
     modelId: options?.modelId,
+    charterDir: options?.charterDir,
   });
   // Prefer the already-resolved sandbox context policy. Recomputing from
   // sessionKey/config can lose the real sandbox agent when callers pass a
@@ -389,6 +393,7 @@ export function createOpenClawCodingTools(options?: {
     globalProviderPolicy,
     agentPolicy,
     agentProviderPolicy,
+    governancePolicy,
     groupPolicy,
     sandboxToolPolicy,
     subagentPolicy,
@@ -493,6 +498,8 @@ export function createOpenClawCodingTools(options?: {
     notifyOnExit: options?.exec?.notifyOnExit ?? execConfig.notifyOnExit,
     notifyOnExitEmptySuccess:
       options?.exec?.notifyOnExitEmptySuccess ?? execConfig.notifyOnExitEmptySuccess,
+    config: options?.config,
+    charterDir: options?.charterDir,
     sandbox: sandbox
       ? {
           containerName: sandbox.containerName,
@@ -507,6 +514,8 @@ export function createOpenClawCodingTools(options?: {
   const processTool = createLazyProcessTool({
     cleanupMs: cleanupMsOverride ?? execConfig.cleanupMs,
     scopeKey,
+    config: options?.config,
+    charterDir: options?.charterDir,
   });
   const applyPatchTool =
     !applyPatchEnabled || (sandboxRoot && !allowWorkspaceWrites)
@@ -579,6 +588,7 @@ export function createOpenClawCodingTools(options?: {
         globalProviderPolicy,
         agentPolicy,
         agentProviderPolicy,
+        governancePolicy,
         groupPolicy,
         sandboxToolPolicy,
         subagentPolicy,
@@ -657,6 +667,7 @@ export function createOpenClawCodingTools(options?: {
         groupPolicy,
         agentId,
       }),
+      { policy: governancePolicy, label: "governance freeze" },
       { policy: sandboxToolPolicy, label: "sandbox tools.allow" },
       { policy: subagentPolicy, label: "subagent tools.allow" },
     ],

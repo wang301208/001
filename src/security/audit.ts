@@ -24,6 +24,10 @@ import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
 } from "../shared/string-coerce.js";
+import {
+  collectGovernanceBoundaryExposures,
+  loadGovernanceCharter,
+} from "../governance/charter-runtime.js";
 import { collectDeepCodeSafetyFindings } from "./audit-deep-code-safety.js";
 import { collectDeepProbeFindings } from "./audit-deep-probe-findings.js";
 import {
@@ -75,6 +79,8 @@ export type SecurityAuditOptions = {
   configSnapshot?: ConfigFileSnapshot | null;
   /** Optional cache for code-safety summaries across repeated deep audits. */
   codeSafetySummaryCache?: Map<string, Promise<unknown>>;
+  /** Optional override for governance charter location. */
+  charterDir?: string;
   /** Optional explicit auth for deep gateway probe. */
   deepProbeAuth?: { token?: string; password?: string };
   /** Dependency injection for tests. */
@@ -98,6 +104,7 @@ type AuditExecutionContext = {
   plugins?: ReturnType<typeof listChannelPlugins>;
   configSnapshot: ConfigFileSnapshot | null;
   codeSafetySummaryCache: Map<string, Promise<unknown>>;
+  charterDir?: string;
   deepProbeAuth?: { token?: string; password?: string };
 };
 
@@ -1109,6 +1116,121 @@ export function collectExecRuntimeFindings(cfg: OpenClawConfig): SecurityAuditFi
   return findings;
 }
 
+export function collectGovernanceCharterFindings(params: {
+  cfg: OpenClawConfig;
+  charterDir?: string;
+}): SecurityAuditFinding[] {
+  const snapshot = loadGovernanceCharter({ charterDir: params.charterDir });
+  if (!snapshot.discovered) {
+    return [];
+  }
+
+  const findings: SecurityAuditFinding[] = [];
+  const requiredDocs = [
+    {
+      doc: snapshot.constitution,
+      checkId: "governance.charter.constitution_missing",
+      title: "Governance constitution missing",
+      remediation: "Restore governance/charter/constitution.yaml before relying on autonomous governance.",
+    },
+    {
+      doc: snapshot.sovereigntyPolicy,
+      checkId: "governance.charter.sovereignty_policy_missing",
+      title: "Sovereignty policy missing",
+      remediation: "Restore governance/charter/policies/sovereignty.yaml so sovereign boundaries remain machine-readable.",
+    },
+    {
+      doc: snapshot.evolutionPolicy,
+      checkId: "governance.charter.evolution_policy_missing",
+      title: "Evolution policy missing",
+      remediation: "Restore governance/charter/policies/evolution-policy.yaml so autonomous evolution remains gated.",
+    },
+  ] as const;
+
+  for (const entry of requiredDocs) {
+    if (!entry.doc.exists) {
+      findings.push({
+        checkId: entry.checkId,
+        severity: "critical",
+        title: entry.title,
+        detail: `${entry.doc.path} is missing even though governance/charter is present.`,
+        remediation: entry.remediation,
+      });
+      continue;
+    }
+    if (entry.doc.parseError) {
+      findings.push({
+        checkId: entry.checkId.replace("_missing", "_invalid"),
+        severity: "critical",
+        title: `${entry.title.replace(" missing", "")} is invalid`,
+        detail: `${entry.doc.path} could not be parsed: ${entry.doc.parseError}.`,
+        remediation: "Fix the YAML syntax so governance rules can be enforced at runtime.",
+      });
+    }
+  }
+
+  if (snapshot.missingArtifactPaths.length > 0) {
+    findings.push({
+      checkId: "governance.charter.artifact_missing",
+      severity: snapshot.missingArtifactPaths.some((entry) => entry.includes("sovereignty-auditor"))
+        ? "critical"
+        : "warn",
+      title: "Charter lists missing governed artifacts",
+      detail:
+        "The constitution references artifacts that are missing from the repo:\n" +
+        snapshot.missingArtifactPaths.map((entry) => `- ${entry}`).join("\n"),
+      remediation:
+        "Restore or remove stale charter_artifacts entries so the charter remains authoritative.",
+    });
+  }
+
+  if (
+    snapshot.freezeTargets.length > 0 &&
+    !snapshot.artifactPaths.some((entry) => entry.endsWith("sovereignty-auditor.yaml"))
+  ) {
+    findings.push({
+      checkId: "governance.charter.freeze_without_auditor",
+      severity: "critical",
+      title: "Freeze policy exists without a sovereignty auditor blueprint",
+      detail:
+        "Sovereignty policy declares automatic freeze targets, but the constitution does not reference a sovereignty auditor artifact.",
+      remediation:
+        "Add governance/charter/agents/sovereignty-auditor.yaml to charter_artifacts before enabling automatic freeze enforcement.",
+    });
+  }
+
+  const exposures = collectGovernanceBoundaryExposures(params.cfg, snapshot);
+  const networkExposures = exposures.filter((entry) => entry.kind === "network");
+  if (networkExposures.length > 0) {
+    findings.push({
+      checkId: "governance.sovereignty.network_boundary_opened",
+      severity: networkExposures.some((entry) => entry.scope === "critical") ? "critical" : "warn",
+      title: "Runtime config opens a sovereign-grade network boundary",
+      detail:
+        "The charter reserves high-risk network opening for human sovereign approval, but the current config enables:\n" +
+        networkExposures.map((entry) => `- ${entry.detail}`).join("\n"),
+      remediation:
+        "Keep the gateway on loopback-only defaults, or require an explicit sovereign approval/promotion record before enabling these network surfaces.",
+    });
+  }
+
+  const executionExposures = exposures.filter((entry) => entry.kind === "execution");
+  if (executionExposures.length > 0) {
+    findings.push({
+      checkId: "governance.sovereignty.exec_boundary_opened",
+      severity: executionExposures.some((entry) => entry.scope === "critical") ? "critical" : "warn",
+      title: "Runtime config expands a sovereign-grade execution surface",
+      detail:
+        "The charter reserves root or global execution-surface expansion for human sovereign approval, but the current config enables:\n" +
+        executionExposures.map((entry) => `- ${entry.detail}`).join("\n"),
+      remediation:
+        "Reduce exec exposure or introduce an explicit sovereign approval record before running with this configuration.",
+    });
+  }
+
+  return findings;
+}
+
 function collectOpenExecSurfacePaths(cfg: OpenClawConfig): string[] {
   const channels = asNullableRecord(cfg.channels);
   if (!channels) {
@@ -1266,6 +1388,7 @@ async function createAuditExecutionContext(
     plugins: opts.plugins,
     configSnapshot,
     codeSafetySummaryCache: opts.codeSafetySummaryCache ?? new Map<string, Promise<unknown>>(),
+    charterDir: opts.charterDir,
     deepProbeAuth: opts.deepProbeAuth,
   };
 }
@@ -1280,6 +1403,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...auditNonDeep.collectSyncedFolderFindings({ stateDir, configPath }));
 
   findings.push(...collectGatewayConfigFindings(cfg, context.sourceConfig, env));
+  findings.push(...collectGovernanceCharterFindings({ cfg, charterDir: context.charterDir }));
   findings.push(...(await collectPluginSecurityAuditFindings(context)));
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
