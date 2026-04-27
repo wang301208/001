@@ -153,6 +153,9 @@ describe("handleBashChatCommand stop", () => {
             deny: { source: "default", key: "agents.defaults.tools.sandbox.tools.deny" },
           },
         },
+        governance: {
+          frozen: false,
+        },
       });
 
     const result = await handleBashChatCommand(buildElevatedDeniedParams("/bash pwd"));

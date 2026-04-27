@@ -19,6 +19,8 @@ describe("buildStatusAllReportLines", () => {
     const lines = await buildStatusAllReportLines({
       progress,
       overviewRows: [{ Item: "Gateway", Value: "ok" }],
+      governanceLines: ["Governance summary"],
+      autonomyLines: ["Autonomy summary"],
       channels: {
         rows: [],
         details: [],
@@ -31,6 +33,18 @@ describe("buildStatusAllReportLines", () => {
             bootstrapPending: true,
             sessionsCount: 1,
             lastActiveAgeMs: 12_000,
+            governance: {
+              charterDeclared: true,
+              charterTitle: "Founder",
+              charterLayer: "evolution",
+              charterToolDeny: ["web_fetch"],
+              charterRequireAgentId: true,
+              charterExecutionContract: "strict-agentic",
+              charterElevatedLocked: true,
+              freezeActive: false,
+              freezeDeny: [],
+              freezeDetails: [],
+            },
             sessionsPath: "/tmp/main-sessions.json",
           },
           {
@@ -38,6 +52,16 @@ describe("buildStatusAllReportLines", () => {
             bootstrapPending: false,
             sessionsCount: 0,
             lastActiveAgeMs: null,
+            governance: {
+              charterDeclared: false,
+              charterToolDeny: [],
+              charterRequireAgentId: false,
+              charterElevatedLocked: false,
+              freezeActive: true,
+              freezeReasonCode: "network_boundary_opened",
+              freezeDeny: ["exec"],
+              freezeDetails: [],
+            },
             sessionsPath: "/tmp/ops-sessions.json",
           },
         ],
@@ -70,9 +94,16 @@ describe("buildStatusAllReportLines", () => {
     });
 
     const output = lines.join("\n");
+    const normalizedOutput = output.replace(/\s+/g, " ");
     expect(output).toContain("Bootstrap file");
+    expect(output).toContain("Governance");
+    expect(output).toContain("Governance summary");
+    expect(output).toContain("Autonomy summary");
     expect(output).toContain("PRESENT");
     expect(output).toContain("ABSENT");
+    expect(normalizedOutput).toContain("execution=strict-");
+    expect(normalizedOutput).toContain("agentic; elevated locked");
+    expect(normalizedOutput).toContain("freeze (network_boundary_opened)");
     expect(diagnosisSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         secretDiagnostics: [],

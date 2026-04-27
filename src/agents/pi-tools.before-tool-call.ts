@@ -1,4 +1,9 @@
+import { loadConfig } from "../config/config.js";
 import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
+import {
+  explainAgentGovernanceToolDenial,
+  resolveAgentGovernanceRuntimeContract,
+} from "../governance/runtime-contract.js";
 import type { SessionState } from "../logging/diagnostic-session-state.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
@@ -18,6 +23,7 @@ export type HookContext = {
   sessionId?: string;
   runId?: string;
   loopDetection?: ToolLoopDetectionConfig;
+  charterDir?: string;
 };
 
 type HookOutcome = { blocked: true; reason: string } | { blocked: false; params: unknown };
@@ -125,6 +131,38 @@ async function recordLoopOutcome(args: {
   }
 }
 
+function resolveGovernanceHookBlock(args: {
+  toolName: string;
+  ctx?: HookContext;
+}): HookOutcome | undefined {
+  const agentId = args.ctx?.agentId?.trim();
+  if (!agentId) {
+    return undefined;
+  }
+  try {
+    const cfg = loadConfig();
+    const contract = resolveAgentGovernanceRuntimeContract({
+      cfg,
+      agentId,
+      charterDir: args.ctx?.charterDir,
+    });
+    const denial = explainAgentGovernanceToolDenial({
+      contract,
+      toolName: args.toolName,
+    });
+    if (!denial) {
+      return undefined;
+    }
+    return {
+      blocked: true,
+      reason: denial.message,
+    };
+  } catch (err) {
+    log.warn(`governance before_tool_call check failed: tool=${args.toolName} error=${String(err)}`);
+    return undefined;
+  }
+}
+
 export async function runBeforeToolCallHook(args: {
   toolName: string;
   params: unknown;
@@ -183,6 +221,14 @@ export async function runBeforeToolCallHook(args: {
     }
 
     recordToolCall(sessionState, toolName, params, args.toolCallId, args.ctx.loopDetection);
+  }
+
+  const governanceBlock = resolveGovernanceHookBlock({
+    toolName,
+    ctx: args.ctx,
+  });
+  if (governanceBlock) {
+    return governanceBlock;
   }
 
   const hookRunner = getGlobalHookRunner();

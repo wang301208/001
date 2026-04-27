@@ -100,6 +100,61 @@ rollback_policy:
     - "restore_previous_agent_blueprints"
     - "open_incident_review"
 
+contract:
+  role: "organization_evolution_director"
+  allowed_subagents:
+    - "strategist"
+    - "algorithmist"
+    - "librarian"
+    - "sentinel"
+    - "archaeologist"
+    - "tdd_developer"
+    - "qa"
+    - "publisher"
+    - "executor"
+    - "sovereignty_auditor"
+  allowed_tools:
+    - "governance.overview"
+    - "governance.proposals"
+    - "autonomy.capability.inventory"
+    - "autonomy.genesis.plan"
+    - "autonomy.history"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "task_history"
+    - "capability_inventory"
+    - "agent_graph"
+    - "governance_proposals"
+    - "sandbox_experiments"
+  qa_requirements:
+    - "sandbox_universe_validation"
+    - "qa_acceptance"
+    - "audit_trace"
+    - "rollback_plan"
+  write_scope:
+    - "governance/charter/agents/**"
+    - "governance/charter/evolution/**"
+    - "governance/charter/policies/**"
+    - "state/governance/proposals/**"
+  network_policy:
+    default: "broad"
+    allowed_domains:
+      - "github.com"
+      - "arxiv.org"
+      - "openai.com"
+    requires_citation: true
+  escalation_policy:
+    boundary_conflict: "sovereignty_auditor"
+    critical_change: "human_sovereign_for_sovereign_changes"
+    blocked_promotion: "sovereignty_auditor"
+  promotion_gates:
+    - "sandbox_universe_validation"
+    - "qa_acceptance"
+    - "audit_trace"
+    - "rollback_plan"
+    - "promotion_vote_request"
+
 runtime_mapping:
   intended_project_hooks:
     - "task-registry"

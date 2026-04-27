@@ -652,4 +652,36 @@ describe("listSessionsFromStore search", () => {
       },
     });
   });
+
+  test("surfaces governance runtime snapshots on session rows", () => {
+    const governanceRuntime = {
+      agentId: "founder",
+      observedAt: Date.now(),
+      summary: {
+        charterDeclared: true,
+        charterTitle: "Founder",
+        charterLayer: "evolution",
+        charterToolDeny: ["exec"],
+        charterRequireAgentId: true,
+        charterExecutionContract: "strict-agentic" as const,
+        charterElevatedLocked: true,
+        freezeActive: false,
+        freezeDeny: [],
+        freezeDetails: [],
+      },
+    };
+
+    const result = listSingleSession({
+      cfg: baseCfg,
+      storePath: "/tmp/sessions.json",
+      key: "agent:main:main",
+      entry: {
+        sessionId: "sess-governed",
+        updatedAt: Date.now(),
+        governanceRuntime,
+      } as SessionEntry,
+    });
+
+    expect(result.sessions[0]?.governanceRuntime).toEqual(governanceRuntime);
+  });
 });

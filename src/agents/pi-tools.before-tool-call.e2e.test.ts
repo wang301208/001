@@ -14,6 +14,37 @@ import { CRITICAL_THRESHOLD, GLOBAL_CIRCUIT_BREAKER_THRESHOLD } from "./tool-loo
 import type { AnyAgentTool } from "./tools/common.js";
 import { callGatewayTool } from "./tools/gateway.js";
 
+const governanceMocks = vi.hoisted(() => ({
+  loadConfig: vi.fn(() => ({})),
+  resolveAgentGovernanceRuntimeContract: vi.fn(() => ({
+    agentId: "main",
+    charterDeclared: false,
+    collaborators: [],
+    reportsTo: [],
+    mutationAllow: [],
+    mutationDeny: [],
+    networkConditions: [],
+    runtimeHooks: [],
+    charterToolDeny: [],
+    charterRequireAgentId: false,
+    charterElevatedLocked: false,
+    freezeActive: false,
+    freezeDeny: [],
+    freezeDetails: [],
+    effectiveToolDeny: [],
+  })),
+  explainAgentGovernanceToolDenial: vi.fn<
+    (params: unknown) =>
+      | {
+          toolName: string;
+          deniedByCharter: boolean;
+          deniedByFreeze: boolean;
+          message: string;
+        }
+      | undefined
+  >(() => undefined),
+}));
+
 vi.mock("../plugins/hook-runner-global.js", async () => {
   const actual = await vi.importActual<typeof import("../plugins/hook-runner-global.js")>(
     "../plugins/hook-runner-global.js",
@@ -26,8 +57,40 @@ vi.mock("../plugins/hook-runner-global.js", async () => {
 vi.mock("./tools/gateway.js", () => ({
   callGatewayTool: vi.fn(),
 }));
+vi.mock("../config/config.js", () => ({
+  loadConfig: governanceMocks.loadConfig,
+}));
+vi.mock("../governance/runtime-contract.js", () => ({
+  resolveAgentGovernanceRuntimeContract: governanceMocks.resolveAgentGovernanceRuntimeContract,
+  explainAgentGovernanceToolDenial: governanceMocks.explainAgentGovernanceToolDenial,
+}));
 
 const mockGetGlobalHookRunner = vi.mocked(getGlobalHookRunner);
+
+beforeEach(() => {
+  governanceMocks.loadConfig.mockReset();
+  governanceMocks.loadConfig.mockReturnValue({});
+  governanceMocks.resolveAgentGovernanceRuntimeContract.mockReset();
+  governanceMocks.resolveAgentGovernanceRuntimeContract.mockReturnValue({
+    agentId: "main",
+    charterDeclared: false,
+    collaborators: [],
+    reportsTo: [],
+    mutationAllow: [],
+    mutationDeny: [],
+    networkConditions: [],
+    runtimeHooks: [],
+    charterToolDeny: [],
+    charterRequireAgentId: false,
+    charterElevatedLocked: false,
+    freezeActive: false,
+    freezeDeny: [],
+    freezeDetails: [],
+    effectiveToolDeny: [],
+  });
+  governanceMocks.explainAgentGovernanceToolDenial.mockReset();
+  governanceMocks.explainAgentGovernanceToolDenial.mockReturnValue(undefined);
+});
 
 describe("before_tool_call loop detection behavior", () => {
   let hookRunner: {
@@ -545,6 +608,36 @@ describe("before_tool_call requireApproval handling", () => {
 
     expect(result.blocked).toBe(true);
     expect(result).toHaveProperty("reason", "Plugin approval required (gateway unavailable)");
+  });
+
+  it("blocks governance-denied tools before plugin hooks run", async () => {
+    governanceMocks.explainAgentGovernanceToolDenial.mockReturnValue({
+      toolName: "exec",
+      deniedByCharter: false,
+      deniedByFreeze: true,
+      message:
+        'Tool "exec" is blocked by an active governance freeze for agent "main" (network_boundary_opened).',
+    });
+    hookRunner.hasHooks.mockReturnValue(true);
+
+    const result = await runBeforeToolCallHook({
+      toolName: "exec",
+      params: { command: "uname -a" },
+      ctx: { agentId: "main" },
+    });
+
+    expect(result).toEqual({
+      blocked: true,
+      reason:
+        'Tool "exec" is blocked by an active governance freeze for agent "main" (network_boundary_opened).',
+    });
+    expect(governanceMocks.loadConfig).toHaveBeenCalled();
+    expect(governanceMocks.resolveAgentGovernanceRuntimeContract).toHaveBeenCalledWith({
+      cfg: {},
+      agentId: "main",
+      charterDir: undefined,
+    });
+    expect(hookRunner.runBeforeToolCall).not.toHaveBeenCalled();
   });
 
   it("blocks when gateway returns no id", async () => {

@@ -1,4 +1,5 @@
 import { Type } from "@sinclair/typebox";
+import { AgentGovernanceRuntimeSnapshotSchema } from "./agents-models-skills.js";
 import { NonEmptyString, SessionLabelString } from "./primitives.js";
 
 export const SessionCompactionCheckpointReasonSchema = Type.Union([
@@ -175,6 +176,9 @@ export const SessionsPatchParamsSchema = Type.Object(
     ),
     subagentControlScope: Type.Optional(
       Type.Union([Type.Literal("children"), Type.Literal("none"), Type.Null()]),
+    ),
+    governanceRuntime: Type.Optional(
+      Type.Union([AgentGovernanceRuntimeSnapshotSchema, Type.Null()]),
     ),
     sendPolicy: Type.Optional(
       Type.Union([Type.Literal("allow"), Type.Literal("deny"), Type.Null()]),

@@ -124,6 +124,10 @@ export async function resolveCommandsSystemPromptBundle(
         enabled: true,
         workspaceDir,
         workspaceAccess: "rw" as const,
+        ...(sandboxRuntime.governance?.frozen ? { governanceFrozen: true } : {}),
+        ...(sandboxRuntime.governance?.message
+          ? { governanceMessage: sandboxRuntime.governance.message }
+          : {}),
         elevated: {
           allowed: params.elevated.allowed,
           defaultLevel: (params.resolvedElevatedLevel ?? "off") as "on" | "off" | "ask" | "full",

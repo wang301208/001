@@ -499,7 +499,7 @@ describe("gateway session utils", () => {
     );
   });
 
-  test("listAgentsForGateway keeps explicit agents.list scope over disk-only agents (scope boundary)", async () => {
+  test("listAgentsForGateway keeps explicit agents.list scope over disk-only agents while allowing charter agents", async () => {
     await withStateDirEnv("openclaw-agent-list-scope-", async ({ stateDir }) => {
       fs.mkdirSync(path.join(stateDir, "agents", "main"), { recursive: true });
       fs.mkdirSync(path.join(stateDir, "agents", "codex"), { recursive: true });
@@ -510,7 +510,41 @@ describe("gateway session utils", () => {
       } as OpenClawConfig;
 
       const { agents } = listAgentsForGateway(cfg);
-      expect(agents.map((agent) => agent.id)).toEqual(["main"]);
+      expect(agents.map((agent) => agent.id)).toContain("main");
+      expect(agents.map((agent) => agent.id)).toContain("founder");
+      expect(agents.map((agent) => agent.id)).not.toContain("codex");
+    });
+  });
+
+  test("listAgentsForGateway appends governance charter agents as virtual runtime entries", () => {
+    const cfg = {
+      session: { mainKey: "main" },
+      agents: { list: [{ id: "main", default: true }] },
+    } as OpenClawConfig;
+
+    const result = listAgentsForGateway(cfg);
+    const founder = result.agents.find((agent) => agent.id === "founder");
+
+    expect(result.agents.map((agent) => agent.id)).toContain("founder");
+    expect(founder).toMatchObject({
+      id: "founder",
+      configured: false,
+      charterDeclared: true,
+    });
+    expect(founder?.name).toBeTruthy();
+    expect(founder?.charterTitle).toBeTruthy();
+    expect(founder?.charterLayer).toBeTruthy();
+    expect(founder?.governance).toMatchObject({
+      charterDeclared: true,
+      charterTitle: founder?.charterTitle,
+      charterLayer: founder?.charterLayer,
+      freezeActive: false,
+    });
+    expect(founder?.governanceContract).toMatchObject({
+      agentId: "founder",
+      charterDeclared: true,
+      charterTitle: founder?.charterTitle,
+      charterLayer: founder?.charterLayer,
     });
   });
 
@@ -532,7 +566,7 @@ describe("gateway session utils", () => {
     const result = listAgentsForGateway(cfg);
     expect(result.agents[0]).toMatchObject({
       id: "main",
-      workspace: "/tmp/default-workspace",
+      workspace: path.resolve("/tmp/default-workspace"),
       model: {
         primary: "openai/gpt-5.4",
         fallbacks: ["openai-codex/gpt-5.4"],

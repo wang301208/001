@@ -5,6 +5,18 @@ import {
   normalizeAgentId,
   parseAgentSessionKey,
 } from "../../routing/session-key.js";
+import {
+  resolveGovernanceCharterCollaborationPolicy,
+  resolveGovernanceCharterAgentBlueprint,
+} from "../../governance/charter-agents.js";
+import {
+  resolveAgentToolGovernanceSummary,
+  type AgentToolGovernanceSummary,
+} from "../../governance/tool-governance-summary.js";
+import {
+  resolveAgentGovernanceRuntimeContract,
+  type AgentGovernanceRuntimeContract,
+} from "../../governance/runtime-contract.js";
 import { resolveAgentConfig } from "../agent-scope.js";
 import type { AnyAgentTool } from "./common.js";
 import { jsonResult } from "./common.js";
@@ -16,6 +28,12 @@ type AgentListEntry = {
   id: string;
   name?: string;
   configured: boolean;
+  charterDeclared: boolean;
+  charterTitle?: string;
+  charterLayer?: string;
+  governance: AgentToolGovernanceSummary;
+  contract: AgentGovernanceRuntimeContract;
+  allowedBy: Array<"self" | "config" | "charter">;
 };
 
 export function createAgentsListTool(opts?: {
@@ -27,7 +45,7 @@ export function createAgentsListTool(opts?: {
     label: "Agents",
     name: "agents_list",
     description:
-      'List OpenClaw agent ids you can target with `sessions_spawn` when `runtime="subagent"` (based on subagent allowlists).',
+      'List OpenClaw agent ids you can target with `sessions_spawn` when `runtime="subagent"` (based on subagent allowlists and governance charter topology).',
     parameters: AgentsListToolSchema,
     execute: async () => {
       const cfg = loadConfig();
@@ -46,16 +64,19 @@ export function createAgentsListTool(opts?: {
           DEFAULT_AGENT_ID,
       );
 
-      const allowAgents =
+      const resolvedAllowAgents =
         resolveAgentConfig(cfg, requesterAgentId)?.subagents?.allowAgents ??
-        cfg?.agents?.defaults?.subagents?.allowAgents ??
-        [];
+        cfg?.agents?.defaults?.subagents?.allowAgents;
+      const allowAgents = Array.isArray(resolvedAllowAgents) ? resolvedAllowAgents : [];
+      const hasConfigAllowConstraint = Array.isArray(resolvedAllowAgents);
       const allowAny = allowAgents.some((value) => value.trim() === "*");
       const allowSet = new Set(
         allowAgents
           .filter((value) => value.trim() && value.trim() !== "*")
           .map((value) => normalizeAgentId(value)),
       );
+      const charterPolicy = resolveGovernanceCharterCollaborationPolicy(requesterAgentId);
+      const charterCollaborators = new Set(charterPolicy.collaboratorAgentIds);
 
       const configuredAgents = Array.isArray(cfg.agents?.list) ? cfg.agents?.list : [];
       const configuredIds = configuredAgents.map((entry) => normalizeAgentId(entry.id));
@@ -68,32 +89,59 @@ export function createAgentsListTool(opts?: {
         configuredNameMap.set(normalizeAgentId(entry.id), name);
       }
 
-      const allowed = new Set<string>();
-      allowed.add(requesterAgentId);
-      if (allowAny) {
+      const allowedBy = new Map<string, Set<"self" | "config" | "charter">>();
+      const markAllowed = (id: string, source: "self" | "config" | "charter") => {
+        const normalized = normalizeAgentId(id);
+        const existing = allowedBy.get(normalized) ?? new Set<"self" | "config" | "charter">();
+        existing.add(source);
+        allowedBy.set(normalized, existing);
+      };
+      markAllowed(requesterAgentId, "self");
+      if (charterPolicy.charterDeclared) {
+        for (const id of charterCollaborators) {
+          if (!hasConfigAllowConstraint || allowAny || allowSet.has(id)) {
+            markAllowed(id, "charter");
+          }
+          if (allowSet.has(id)) {
+            markAllowed(id, "config");
+          }
+        }
+      } else if (allowAny) {
         for (const id of configuredIds) {
-          allowed.add(id);
+          markAllowed(id, "config");
         }
       } else {
         for (const id of allowSet) {
-          allowed.add(id);
+          markAllowed(id, "config");
         }
       }
 
-      const all = Array.from(allowed);
+      const all = Array.from(allowedBy.keys());
       const rest = all
         .filter((id) => id !== requesterAgentId)
         .toSorted((a, b) => a.localeCompare(b));
       const ordered = [requesterAgentId, ...rest];
-      const agents: AgentListEntry[] = ordered.map((id) => ({
-        id,
-        name: configuredNameMap.get(id),
-        configured: configuredIds.includes(id),
-      }));
+      const agents: AgentListEntry[] = ordered.map((id) => {
+        const blueprint = resolveGovernanceCharterAgentBlueprint(id);
+        const governance = resolveAgentToolGovernanceSummary({ cfg, agentId: id });
+        const contract = resolveAgentGovernanceRuntimeContract({ cfg, agentId: id });
+        return {
+          id,
+          name: configuredNameMap.get(id),
+          configured: configuredIds.includes(id),
+          charterDeclared: Boolean(blueprint),
+          charterTitle: blueprint?.title,
+          charterLayer: blueprint?.layer,
+          governance,
+          contract,
+          allowedBy: Array.from(allowedBy.get(id) ?? []).toSorted(),
+        };
+      });
 
       return jsonResult({
         requester: requesterAgentId,
-        allowAny,
+        allowAny: charterPolicy.charterDeclared ? false : allowAny,
+        charterEnforced: charterPolicy.charterDeclared,
         agents,
       });
     },

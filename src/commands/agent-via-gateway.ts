@@ -7,6 +7,10 @@ import { loadConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { callGateway, randomIdempotencyKey } from "../gateway/call.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../gateway/protocol/client-info.js";
+import {
+  buildAgentGovernanceSelectionHint,
+  buildUnknownAgentIdMessage,
+} from "../governance/agent-selection-feedback.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { type RuntimeEnv, writeRuntimeJson } from "../runtime.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
@@ -100,7 +104,11 @@ export async function agentViaGatewayCommand(opts: AgentCliOpts, runtime: Runtim
     const knownAgents = listAgentIds(cfg);
     if (!knownAgents.includes(agentId)) {
       throw new Error(
-        `Unknown agent id "${agentIdRaw}". Use "${formatCliCommand("openclaw agents list")}" to see configured agents.`,
+        buildUnknownAgentIdMessage({
+          cfg,
+          rawAgentId: agentIdRaw ?? agentId,
+          inspectHint: `Use "${formatCliCommand("openclaw agents list")}" to inspect available agents.`,
+        }),
       );
     }
   }
@@ -191,7 +199,13 @@ export async function agentCliCommand(opts: AgentCliOpts, runtime: RuntimeEnv, d
   try {
     return await agentViaGatewayCommand(opts, runtime);
   } catch (err) {
-    runtime.error?.(`Gateway agent failed; falling back to embedded: ${String(err)}`);
+    const cfg = loadConfig();
+    const agentId = opts.agent?.trim() ? normalizeAgentId(opts.agent) : undefined;
+    const governanceHint =
+      agentId != null ? buildAgentGovernanceSelectionHint({ cfg, agentId }) : undefined;
+    runtime.error?.(
+      `Gateway agent failed; falling back to embedded: ${String(err)}${governanceHint ? ` ${governanceHint}` : ""}`,
+    );
     return await agentCommand(localOpts, runtime, deps);
   }
 }

@@ -17,6 +17,7 @@ import { formatConfigIssueLines } from "../../config/issue-format.js";
 import { toAgentModelListLike } from "../../config/model-input.js";
 import type { AgentModelEntryConfig } from "../../config/types.agent-defaults.js";
 import type { AgentModelConfig } from "../../config/types.agents-shared.js";
+import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 export { normalizeAlias } from "./alias-name.js";
 export { isLocalBaseUrl } from "./list.local-url.js";
@@ -139,7 +140,11 @@ export function resolveKnownAgentId(params: {
   const knownAgents = listAgentIds(params.cfg);
   if (!knownAgents.includes(agentId)) {
     throw new Error(
-      `Unknown agent id "${raw}". Use "${formatCliCommand("openclaw agents list")}" to see configured agents.`,
+      buildUnknownAgentIdMessage({
+        cfg: params.cfg,
+        rawAgentId: raw,
+        inspectHint: `Use "${formatCliCommand("openclaw agents list")}" to inspect available agents.`,
+      }),
     );
   }
   return agentId;

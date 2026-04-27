@@ -667,7 +667,7 @@ export function createOpenClawCodingTools(options?: {
         groupPolicy,
         agentId,
       }),
-      { policy: governancePolicy, label: "governance freeze" },
+      { policy: governancePolicy, label: "governance contract" },
       { policy: sandboxToolPolicy, label: "sandbox tools.allow" },
       { policy: subagentPolicy, label: "subagent tools.allow" },
     ],
@@ -689,6 +689,7 @@ export function createOpenClawCodingTools(options?: {
       sessionId: options?.sessionId,
       runId: options?.runId,
       loopDetection: resolveToolLoopDetectionConfig({ cfg: options?.config, agentId }),
+      charterDir: options?.charterDir,
     }),
   );
   const withAbort = options?.abortSignal

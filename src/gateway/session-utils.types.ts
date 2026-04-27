@@ -1,5 +1,6 @@
 import type { ChatType } from "../channels/chat-type.js";
 import type { SessionCompactionCheckpoint, SessionEntry } from "../config/sessions/types.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import type {
   GatewayAgentRow as SharedGatewayAgentRow,
   SessionsListResultBase,
@@ -60,6 +61,7 @@ export type GatewaySessionRow = {
   modelProvider?: string;
   model?: string;
   contextTokens?: number;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   deliveryContext?: DeliveryContext;
   lastChannel?: SessionEntry["lastChannel"];
   lastTo?: string;

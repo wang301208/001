@@ -29,6 +29,7 @@ export {
   setTaskRegistryControlRuntimeForTests,
   setTaskRegistryDeliveryRuntimeForTests,
   setTaskCleanupAfterById,
+  setTaskGovernanceRuntimeById,
   setTaskProgressById,
   setTaskRunDeliveryStatusByRunId,
   setTaskTimingById,

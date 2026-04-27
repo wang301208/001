@@ -18,6 +18,18 @@ describe("status-all report tables", () => {
               bootstrapPending: true,
               sessionsCount: 2,
               lastActiveAgeMs: 12_000,
+              governance: {
+                charterDeclared: true,
+                charterTitle: "Founder",
+                charterLayer: "evolution",
+                charterToolDeny: ["web_fetch", "web_search"],
+                charterRequireAgentId: true,
+                charterExecutionContract: "strict-agentic",
+                charterElevatedLocked: true,
+                freezeActive: false,
+                freezeDeny: [],
+                freezeDetails: [],
+              },
               sessionsPath: "/tmp/main.json",
             },
             {
@@ -25,6 +37,16 @@ describe("status-all report tables", () => {
               bootstrapPending: false,
               sessionsCount: 0,
               lastActiveAgeMs: null,
+              governance: {
+                charterDeclared: false,
+                charterToolDeny: [],
+                charterRequireAgentId: false,
+                charterElevatedLocked: false,
+                freezeActive: true,
+                freezeReasonCode: "network_boundary_opened",
+                freezeDeny: ["exec"],
+                freezeDetails: [],
+              },
               sessionsPath: "/tmp/ops.json",
             },
           ],
@@ -38,6 +60,8 @@ describe("status-all report tables", () => {
         BootstrapFile: "warn(PRESENT)",
         Sessions: "2",
         Active: "just now",
+        Governance:
+          "evolution/Founder; deny web_fetch, web_search; explicit ids; execution=strict-agentic; elevated locked",
         Store: "/tmp/main.json",
       },
       {
@@ -45,6 +69,7 @@ describe("status-all report tables", () => {
         BootstrapFile: "ok(ABSENT)",
         Sessions: "0",
         Active: "unknown",
+        Governance: "freeze (network_boundary_opened); freeze deny exec",
         Store: "/tmp/ops.json",
       },
     ]);
@@ -89,7 +114,8 @@ describe("status-all report tables", () => {
       { key: "BootstrapFile", header: "Bootstrap file", minWidth: 14 },
       { key: "Sessions", header: "Sessions", align: "right", minWidth: 8 },
       { key: "Active", header: "Active", minWidth: 10 },
-      { key: "Store", header: "Store", flex: true, minWidth: 34 },
+      { key: "Governance", header: "Governance", flex: true, minWidth: 28 },
+      { key: "Store", header: "Store", minWidth: 24 },
     ]);
   });
 });

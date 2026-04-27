@@ -21,6 +21,7 @@ import {
 } from "../../video-generation/runtime.js";
 import { listWebSearchProviders, runWebSearch } from "../../web-search/runtime.js";
 import { createRuntimeAgent } from "./runtime-agent.js";
+import { createRuntimeAutonomy } from "./runtime-autonomy.js";
 import { defineCachedValue } from "./runtime-cache.js";
 import { createRuntimeChannel } from "./runtime-channel.js";
 import { createRuntimeConfig } from "./runtime-config.js";
@@ -206,6 +207,9 @@ export function createPluginRuntime(_options: CreatePluginRuntimeOptions = {}): 
   const tasks = createRuntimeTasks({
     legacyTaskFlow: taskFlow,
   });
+  const autonomy = createRuntimeAutonomy({
+    legacyTaskFlow: taskFlow,
+  });
   const runtime = {
     // Sourced from the shared OpenClaw version resolver (#52899) so plugins
     // always see the same version the CLI reports, avoiding API-version drift.
@@ -226,6 +230,7 @@ export function createPluginRuntime(_options: CreatePluginRuntimeOptions = {}): 
     events: createRuntimeEvents(),
     logging: createRuntimeLogging(),
     state: { resolveStateDir },
+    autonomy,
     tasks,
     taskFlow,
   } satisfies Omit<

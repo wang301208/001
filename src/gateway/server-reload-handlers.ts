@@ -30,6 +30,7 @@ import { buildGatewayCronService, type GatewayCronState } from "./server-cron.js
 import type { HookClientIpConfig } from "./server-http.js";
 import {
   type GatewayChannelManager,
+  reconcileGatewayAutonomyLoops,
   startGatewayChannelHealthMonitor,
   startGatewayCronWithLogging,
 } from "./server-runtime-services.js";
@@ -97,6 +98,21 @@ export function createGatewayReloadHandlers(params: {
       startGatewayCronWithLogging({
         cron: nextState.cronState.cron,
         logCron: params.logCron,
+        onStarted: async () => {
+          await reconcileGatewayAutonomyLoops({
+            minimalTestGateway: false,
+            cfgAtStart: nextConfig,
+            cron: nextState.cronState.cron,
+            log: {
+              child: (name: string) => ({
+                info: (message: string) => params.logReload.info(`[${name}] ${message}`),
+                warn: (message: string) => params.logReload.warn(`[${name}] ${message}`),
+                error: (message: string) => params.logCron.error(`[${name}] ${message}`),
+              }),
+              error: params.logCron.error,
+            },
+          });
+        },
       });
     }
 

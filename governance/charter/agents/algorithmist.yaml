@@ -107,6 +107,51 @@ rollback_policy:
     - "replay_last_stable_profile"
     - "open_algorithm_incident"
 
+contract:
+  role: "algorithm_evolution_lead"
+  allowed_subagents:
+    - "strategist"
+    - "qa"
+    - "librarian"
+    - "sovereignty_auditor"
+  allowed_tools:
+    - "governance.overview"
+    - "autonomy.history"
+    - "autonomy.capability.inventory"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "algorithm_benchmarks"
+    - "task_history"
+    - "qa_reports"
+    - "sandbox_experiments"
+  qa_requirements:
+    - "sandbox_ab_gain"
+    - "historical_replay_gain"
+    - "qa_validation"
+    - "audit_trace"
+    - "rollback_plan"
+  write_scope:
+    - "state/governance/proposals/**"
+    - "qa/**"
+    - "skills/**"
+  network_policy:
+    default: "broad"
+    allowed_domains:
+      - "github.com"
+      - "arxiv.org"
+    requires_citation: true
+  escalation_policy:
+    boundary_conflict: "sovereignty_auditor"
+    critical_change: "human_sovereign"
+    blocked_promotion: "qa"
+  promotion_gates:
+    - "sandbox_ab_gain"
+    - "historical_replay_gain"
+    - "qa_validation"
+    - "audit_trace"
+    - "rollback_plan"
+
 runtime_mapping:
   intended_project_hooks:
     - "compaction runtime telemetry"

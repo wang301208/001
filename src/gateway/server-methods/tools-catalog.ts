@@ -12,6 +12,9 @@ import {
 import { summarizeToolDescriptionText } from "../../agents/tool-description-summary.js";
 import { loadConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
+import { resolveAgentGovernanceRuntimeContract } from "../../governance/runtime-contract.js";
+import { resolveAgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
 import { getPluginToolMeta, resolvePluginTools } from "../../plugins/tools.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import {
@@ -50,7 +53,14 @@ function resolveAgentIdOrRespondError(rawAgentId: unknown, respond: RespondFn) {
     respond(
       false,
       undefined,
-      errorShape(ErrorCodes.INVALID_REQUEST, `unknown agent id "${requestedAgentId}"`),
+      errorShape(
+        ErrorCodes.INVALID_REQUEST,
+        buildUnknownAgentIdMessage({
+          cfg,
+          rawAgentId: requestedAgentId,
+          inspectHint: "Inspect available agents with agents.list.",
+        }),
+      ),
     );
     return null;
   }
@@ -135,6 +145,14 @@ export function buildToolsCatalogResult(params: {
   const agentId = normalizeOptionalString(params.agentId) || resolveDefaultAgentId(params.cfg);
   const includePlugins = params.includePlugins !== false;
   const groups = buildCoreGroups();
+  const governance = resolveAgentToolGovernanceSummary({
+    cfg: params.cfg,
+    agentId,
+  });
+  const governanceContract = resolveAgentGovernanceRuntimeContract({
+    cfg: params.cfg,
+    agentId,
+  });
   if (includePlugins) {
     const existingToolNames = new Set(
       groups.flatMap((group) => group.tools.map((tool) => tool.id)),
@@ -150,6 +168,8 @@ export function buildToolsCatalogResult(params: {
   return {
     agentId,
     profiles: PROFILE_OPTIONS.map((profile) => ({ id: profile.id, label: profile.label })),
+    governance,
+    governanceContract,
     groups,
   };
 }

@@ -113,6 +113,28 @@ describe("buildEmbeddedSandboxInfo", () => {
       },
     });
   });
+
+  it("includes governance freeze details when sandbox governance is active", () => {
+    const sandbox = createSandboxContext({
+      governance: {
+        frozen: true,
+        message: "Sandbox runtime is frozen by governance policy because charter audit failed.",
+      },
+    });
+
+    expect(buildEmbeddedSandboxInfo(sandbox)).toEqual({
+      enabled: true,
+      workspaceDir: "/tmp/openclaw-sandbox",
+      containerWorkspaceDir: "/workspace",
+      workspaceAccess: "none",
+      agentWorkspaceMount: undefined,
+      browserBridgeUrl: "http://localhost:9222",
+      hostBrowserAllowed: true,
+      governanceFrozen: true,
+      governanceMessage:
+        "Sandbox runtime is frozen by governance policy because charter audit failed.",
+    });
+  });
 });
 
 describe("resolveEmbeddedFullAccessState", () => {

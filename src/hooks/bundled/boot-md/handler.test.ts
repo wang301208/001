@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { InternalHookEvent } from "../../internal-hooks.js";
 
 const runBootOnce = vi.fn();
-const listAgentIds = vi.fn();
+const listWorkspaceScopedAgentIds = vi.fn();
 const resolveAgentWorkspaceDir = vi.fn();
 const logWarn = vi.fn();
 const logDebug = vi.fn();
@@ -20,7 +20,7 @@ function createMockLogger() {
 
 vi.mock("../../../gateway/boot.js", () => ({ runBootOnce }));
 vi.mock("../../../agents/agent-scope.js", () => ({
-  listAgentIds,
+  listWorkspaceScopedAgentIds,
   resolveAgentWorkspaceDir,
 }));
 vi.mock("../../../logging/subsystem.js", () => ({
@@ -44,7 +44,7 @@ function makeEvent(overrides?: Partial<InternalHookEvent>): InternalHookEvent {
 describe("boot-md handler", () => {
   function setupTwoAgentBootConfig() {
     const cfg = { agents: { list: [{ id: "main" }, { id: "ops" }] } };
-    listAgentIds.mockReturnValue(["main", "ops"]);
+    listWorkspaceScopedAgentIds.mockReturnValue(["main", "ops"]);
     resolveAgentWorkspaceDir.mockImplementation((_cfg: unknown, id: string) =>
       id === "main" ? MAIN_WORKSPACE_DIR : OPS_WORKSPACE_DIR,
     );
@@ -52,7 +52,7 @@ describe("boot-md handler", () => {
   }
 
   function setupSingleMainAgentBootConfig(cfg: unknown) {
-    listAgentIds.mockReturnValue(["main"]);
+    listWorkspaceScopedAgentIds.mockReturnValue(["main"]);
     resolveAgentWorkspaceDir.mockReturnValue(MAIN_WORKSPACE_DIR);
     return cfg;
   }
@@ -82,7 +82,7 @@ describe("boot-md handler", () => {
 
     await runBootChecklist(makeEvent({ context: { cfg } }));
 
-    expect(listAgentIds).toHaveBeenCalledWith(cfg);
+    expect(listWorkspaceScopedAgentIds).toHaveBeenCalledWith(cfg);
     expect(runBootOnce).toHaveBeenCalledTimes(2);
     expect(runBootOnce).toHaveBeenCalledWith(
       expect.objectContaining({ cfg, workspaceDir: MAIN_WORKSPACE_DIR, agentId: "main" }),

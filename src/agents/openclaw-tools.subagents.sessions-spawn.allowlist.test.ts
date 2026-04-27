@@ -277,4 +277,51 @@ describe("subagent spawn allowlist + sandbox guards", () => {
     const result = await spawn({ agentId: "research" });
     expect(result).toMatchObject({ status: "accepted" });
   });
+
+  it("allows charter-declared collaborators without an explicit config allowlist", async () => {
+    setConfig({
+      agents: {
+        list: [{ id: "executor" }],
+      },
+    });
+    const result = await spawn({
+      requesterSessionKey: "agent:executor:main",
+      agentId: "librarian",
+    });
+    expect(result).toMatchObject({
+      status: "accepted",
+      childSessionKey: expect.stringMatching(/^agent:librarian:subagent:/),
+    });
+  });
+
+  it("still forbids non-collaborators when only the charter fallback is available", async () => {
+    setConfig({
+      agents: {
+        list: [{ id: "executor" }],
+      },
+    });
+    const result = await spawn({
+      requesterSessionKey: "agent:executor:main",
+      agentId: "algorithmist",
+    });
+    expect(result).toMatchObject({ status: "forbidden" });
+    expect(result.error ?? "").toContain("allowed:");
+    expect(result.error ?? "").toContain("librarian");
+  });
+
+  it("does not let allowAgents=* widen a chartered agent beyond the charter graph", async () => {
+    setConfig({
+      agents: {
+        list: [{ id: "executor", subagents: { allowAgents: ["*"] } }],
+      },
+    });
+    const result = await spawn({
+      requesterSessionKey: "agent:executor:main",
+      agentId: "algorithmist",
+    });
+    expect(result).toMatchObject({ status: "forbidden" });
+    expect(result.error ?? "").toContain("allowed:");
+    expect(result.error ?? "").toContain("librarian");
+    expect(result.error ?? "").not.toContain("algorithmist");
+  });
 });

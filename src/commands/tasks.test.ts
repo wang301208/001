@@ -10,7 +10,12 @@ import {
   resetTaskRegistryForTests,
 } from "../tasks/task-registry.js";
 import { withTempDir } from "../test-helpers/temp-dir.js";
-import { tasksAuditCommand, tasksMaintenanceCommand } from "./tasks.js";
+import {
+  tasksAuditCommand,
+  tasksListCommand,
+  tasksMaintenanceCommand,
+  tasksShowCommand,
+} from "./tasks.js";
 
 const ORIGINAL_STATE_DIR = process.env.OPENCLAW_STATE_DIR;
 
@@ -20,6 +25,25 @@ function createRuntime(): RuntimeEnv {
     error: vi.fn(),
     exit: vi.fn(),
   } as unknown as RuntimeEnv;
+}
+
+function createGovernanceRuntime(agentId = "founder", observedAt = 1_710_000_000_000) {
+  return {
+    agentId,
+    observedAt,
+    summary: {
+      charterDeclared: true,
+      charterTitle: "Autonomy Charter",
+      charterLayer: "governance",
+      charterToolDeny: ["git reset --hard"],
+      charterRequireAgentId: true,
+      charterExecutionContract: "strict-agentic" as const,
+      charterElevatedLocked: true,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    },
+  };
 }
 
 async function withTaskCommandStateDir(run: () => Promise<void>): Promise<void> {
@@ -67,6 +91,7 @@ describe("tasks commands", () => {
         runId: "task-stale-queued",
         status: "running",
         task: "Inspect issue backlog",
+        governanceRuntime: createGovernanceRuntime("strategist"),
       });
       vi.setSystemTime(now);
       createManagedTaskFlow({
@@ -159,6 +184,58 @@ describe("tasks commands", () => {
       expect(payload.auditBefore.taskFlows.byCode.stale_running).toBe(0);
       expect(payload.auditAfter.byCode).toBeDefined();
       expect(payload.auditAfter.taskFlows.byCode.stale_running).toBe(0);
+    });
+  });
+
+  it("shows governance maintenance counts in human-readable output", async () => {
+    await withTaskCommandStateDir(async () => {
+      const runtime = createRuntime();
+      await tasksMaintenanceCommand({ apply: false }, runtime);
+
+      const output = vi
+        .mocked(runtime.log)
+        .mock.calls.map((call) => String(call[0]))
+        .join("\n");
+
+      expect(output).toContain("0 governance stamp");
+      expect(output).toContain("Dry run only.");
+    });
+  });
+
+  it("shows governance coverage in list output and governance details in show output", async () => {
+    await withTaskCommandStateDir(async () => {
+      const governanceRuntime = createGovernanceRuntime("founder");
+      const task = createTaskRecord({
+        runtime: "acp",
+        ownerKey: "agent:main:main",
+        scopeKind: "session",
+        childSessionKey: "agent:main:acp:child",
+        runId: "task-governed-show",
+        agentId: "founder",
+        task: "Governed task",
+        status: "running",
+        deliveryStatus: "pending",
+        governanceRuntime,
+      });
+
+      const listRuntime = createRuntime();
+      await tasksListCommand({}, listRuntime);
+      const listOutput = vi
+        .mocked(listRuntime.log)
+        .mock.calls.map((call) => String(call[0]))
+        .join("\n");
+      expect(listOutput).toContain("Governance coverage: 1/1 traced");
+      expect(listOutput).toContain("gov:founder strict-agentic");
+
+      const showRuntime = createRuntime();
+      await tasksShowCommand({ lookup: task.taskId }, showRuntime);
+      const showOutput = vi
+        .mocked(showRuntime.log)
+        .mock.calls.map((call) => String(call[0]))
+        .join("\n");
+      expect(showOutput).toContain("governanceAgentId: founder");
+      expect(showOutput).toContain("governanceCharter: governance / Autonomy Charter");
+      expect(showOutput).toContain("governanceExecutionContract: strict-agentic");
     });
   });
 });

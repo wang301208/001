@@ -355,4 +355,23 @@ describe("resolveEffectiveToolPolicy", () => {
       await fsPromises.rm(root, { recursive: true, force: true });
     }
   });
+
+  it("adds charter deny tools into the explicit governance policy for declared agents", () => {
+    const cfg = {
+      agents: {
+        list: [{ id: "main", workspace: "/repo" }],
+      },
+    } as OpenClawConfig;
+
+    const result = resolveEffectiveToolPolicy({
+      config: cfg,
+      agentId: "publisher",
+    });
+
+    expect(result.governancePolicy?.deny).toEqual(
+      expect.arrayContaining(["web_fetch", "web_search"]),
+    );
+    expect(isToolAllowedByPolicyName("web_fetch", result.governancePolicy)).toBe(false);
+    expect(isToolAllowedByPolicyName("read", result.governancePolicy)).toBe(true);
+  });
 });

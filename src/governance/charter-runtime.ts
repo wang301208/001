@@ -5,6 +5,7 @@ import YAML from "yaml";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
+import { summarizeGovernanceSovereigntyIncidentsSync } from "./sovereignty-incidents.js";
 
 const GOVERNANCE_FREEZE_TOOL_DENY = [
   "apply_patch",
@@ -56,22 +57,38 @@ export type GovernanceBoundaryExposure = {
   detail: string;
 };
 
+export type GovernanceEnforcementReasonCode =
+  | "constitution_missing"
+  | "constitution_invalid"
+  | "sovereignty_policy_missing"
+  | "sovereignty_policy_invalid"
+  | "evolution_policy_missing"
+  | "evolution_policy_invalid"
+  | "freeze_without_auditor"
+  | "network_boundary_opened"
+  | "exec_boundary_opened"
+  | "sovereignty_incident_open";
+
+export type GovernanceEnforcementSignalSeverity = "warn" | "critical";
+
+export type GovernanceEnforcementSignal = {
+  reasonCode: Exclude<GovernanceEnforcementReasonCode, "sovereignty_incident_open">;
+  severity: GovernanceEnforcementSignalSeverity;
+  freezeActive: boolean;
+  title: string;
+  message: string;
+  details: string[];
+};
+
 export type GovernanceEnforcementState = {
   active: boolean;
-  reasonCode?:
-    | "constitution_missing"
-    | "constitution_invalid"
-    | "sovereignty_policy_missing"
-    | "sovereignty_policy_invalid"
-    | "evolution_policy_missing"
-    | "evolution_policy_invalid"
-    | "freeze_without_auditor"
-    | "network_boundary_opened"
-    | "exec_boundary_opened";
+  reasonCode?: GovernanceEnforcementReasonCode;
   message?: string;
   details: string[];
   denyTools: string[];
   snapshot: GovernanceCharterSnapshot;
+  activeSovereigntyIncidentIds: string[];
+  activeSovereigntyFreezeIncidentIds: string[];
 };
 
 function moduleRepoRoot(): string {
@@ -322,6 +339,8 @@ function createGovernanceEnforcementState(params: {
   reasonCode?: GovernanceEnforcementState["reasonCode"];
   message?: string;
   details?: string[];
+  activeSovereigntyIncidentIds?: string[];
+  activeSovereigntyFreezeIncidentIds?: string[];
 }): GovernanceEnforcementState {
   return {
     active: params.active,
@@ -330,18 +349,18 @@ function createGovernanceEnforcementState(params: {
     details: params.details ?? [],
     denyTools: params.active ? [...GOVERNANCE_FREEZE_TOOL_DENY] : [],
     snapshot: params.snapshot,
+    activeSovereigntyIncidentIds: [...(params.activeSovereigntyIncidentIds ?? [])],
+    activeSovereigntyFreezeIncidentIds: [...(params.activeSovereigntyFreezeIncidentIds ?? [])],
   };
 }
 
-export function resolveGovernanceEnforcementState(
+export function collectGovernanceEnforcementSignals(
   cfg: OpenClawConfig,
-  options: { charterDir?: string } = {},
-): GovernanceEnforcementState {
-  const snapshot = loadGovernanceCharter({ charterDir: options.charterDir });
+  snapshot: GovernanceCharterSnapshot,
+): GovernanceEnforcementSignal[] {
   if (!snapshot.discovered) {
-    return createGovernanceEnforcementState({ snapshot, active: false });
+    return [];
   }
-
   const requiredDocs = [
     {
       doc: snapshot.constitution,
@@ -363,34 +382,40 @@ export function resolveGovernanceEnforcementState(
     },
   ] as const;
 
+  const signals: GovernanceEnforcementSignal[] = [];
   for (const entry of requiredDocs) {
     if (!entry.doc.exists) {
-      return createGovernanceEnforcementState({
-        snapshot,
-        active: true,
+      signals.push({
         reasonCode: entry.missingCode,
+        severity: "critical",
+        freezeActive: true,
+        title: `${entry.label} missing`,
         message: `ACP dispatch is frozen by governance policy because the ${entry.label} document is missing: ${entry.doc.path}.`,
         details: [entry.doc.path],
       });
+      continue;
     }
     if (entry.doc.parseError) {
-      return createGovernanceEnforcementState({
-        snapshot,
-        active: true,
+      signals.push({
         reasonCode: entry.invalidCode,
+        severity: "critical",
+        freezeActive: true,
+        title: `${entry.label} invalid`,
         message:
           `ACP dispatch is frozen by governance policy because the ${entry.label} document is invalid: ` +
           `${entry.doc.path} (${entry.doc.parseError}).`,
         details: [entry.doc.path, entry.doc.parseError],
       });
+      continue;
     }
   }
 
   if (snapshot.freezeTargets.length > 0 && !hasHealthySovereigntyAuditorArtifact(snapshot)) {
-    return createGovernanceEnforcementState({
-      snapshot,
-      active: true,
+    signals.push({
       reasonCode: "freeze_without_auditor",
+      severity: "critical",
+      freezeActive: true,
+      title: "Freeze policy exists without a usable sovereignty auditor",
       message:
         "ACP dispatch is frozen by governance policy because automatic freeze targets exist without a usable sovereignty auditor blueprint.",
       details: snapshot.freezeTargets,
@@ -401,32 +426,91 @@ export function resolveGovernanceEnforcementState(
   const criticalNetworkExposures = exposures.filter(
     (entry) => entry.kind === "network" && entry.scope === "critical",
   );
-  if (criticalNetworkExposures.length > 0) {
-    return createGovernanceEnforcementState({
-      snapshot,
-      active: true,
+  const networkExposures = exposures.filter((entry) => entry.kind === "network");
+  if (networkExposures.length > 0) {
+    const networkFreezeActive = criticalNetworkExposures.length > 0;
+    signals.push({
       reasonCode: "network_boundary_opened",
-      message:
-        "ACP dispatch is frozen by governance policy because the current config opens a sovereign-grade network boundary.",
-      details: criticalNetworkExposures.map((entry) => entry.detail),
+      severity: networkFreezeActive ? "critical" : "warn",
+      freezeActive: networkFreezeActive,
+      title: "Sovereign-grade network boundary opened",
+      message: networkFreezeActive
+        ? "ACP dispatch is frozen by governance policy because the current config opens a sovereign-grade network boundary."
+        : "The current config opens a sovereign-grade network boundary that requires sovereign review.",
+      details: networkExposures.map((entry) => entry.detail),
     });
   }
 
   const criticalExecExposures = exposures.filter(
     (entry) => entry.kind === "execution" && entry.scope === "critical",
   );
-  if (criticalExecExposures.length > 0) {
-    return createGovernanceEnforcementState({
-      snapshot,
-      active: true,
+  const executionExposures = exposures.filter((entry) => entry.kind === "execution");
+  if (executionExposures.length > 0) {
+    const execFreezeActive = criticalExecExposures.length > 0;
+    signals.push({
       reasonCode: "exec_boundary_opened",
-      message:
-        "ACP dispatch is frozen by governance policy because the current config expands a sovereign-grade execution surface.",
-      details: criticalExecExposures.map((entry) => entry.detail),
+      severity: execFreezeActive ? "critical" : "warn",
+      freezeActive: execFreezeActive,
+      title: "Sovereign-grade execution surface expanded",
+      message: execFreezeActive
+        ? "ACP dispatch is frozen by governance policy because the current config expands a sovereign-grade execution surface."
+        : "The current config expands a sovereign-grade execution surface that requires sovereign review.",
+      details: executionExposures.map((entry) => entry.detail),
     });
   }
 
-  return createGovernanceEnforcementState({ snapshot, active: false });
+  return signals;
+}
+
+export function resolveGovernanceEnforcementState(
+  cfg: OpenClawConfig,
+  options: { charterDir?: string; stateDir?: string; env?: NodeJS.ProcessEnv } = {},
+): GovernanceEnforcementState {
+  const snapshot = loadGovernanceCharter({ charterDir: options.charterDir });
+  if (!snapshot.discovered) {
+    return createGovernanceEnforcementState({ snapshot, active: false });
+  }
+
+  const sovereignty = summarizeGovernanceSovereigntyIncidentsSync({
+    ...(options.stateDir ? { stateDir: options.stateDir } : {}),
+    ...(options.env ? { env: options.env } : {}),
+  });
+  const signals = collectGovernanceEnforcementSignals(cfg, snapshot);
+  const freezeSignal = signals.find((entry) => entry.freezeActive);
+  if (freezeSignal) {
+    return createGovernanceEnforcementState({
+      snapshot,
+      active: true,
+      reasonCode: freezeSignal.reasonCode,
+      message: freezeSignal.message,
+      details: freezeSignal.details,
+      activeSovereigntyIncidentIds: sovereignty.activeIncidentIds,
+      activeSovereigntyFreezeIncidentIds: sovereignty.freezeIncidentIds,
+    });
+  }
+
+  if (sovereignty.freezeActive) {
+    const freezeIncidents = sovereignty.incidents
+      .filter((entry) => entry.status === "open" && entry.freezeRequested)
+      .slice(0, 8);
+    return createGovernanceEnforcementState({
+      snapshot,
+      active: true,
+      reasonCode: "sovereignty_incident_open",
+      message:
+        "ACP dispatch is frozen by governance policy because open sovereignty incidents still require containment.",
+      details: freezeIncidents.map((entry) => `${entry.id}: ${entry.title}`),
+      activeSovereigntyIncidentIds: sovereignty.activeIncidentIds,
+      activeSovereigntyFreezeIncidentIds: sovereignty.freezeIncidentIds,
+    });
+  }
+
+  return createGovernanceEnforcementState({
+    snapshot,
+    active: false,
+    activeSovereigntyIncidentIds: sovereignty.activeIncidentIds,
+    activeSovereigntyFreezeIncidentIds: sovereignty.freezeIncidentIds,
+  });
 }
 
 function replaceGovernanceMessageSubject(message: string | undefined, subject: string): string {
@@ -451,7 +535,7 @@ export function formatGovernanceEnforcementMessage(params: {
 
 export function resolveGovernanceToolPolicy(
   cfg: OpenClawConfig,
-  options: { charterDir?: string } = {},
+  options: { charterDir?: string; stateDir?: string; env?: NodeJS.ProcessEnv } = {},
 ): { deny: string[] } | undefined {
   const enforcement = resolveGovernanceEnforcementState(cfg, options);
   if (!enforcement.active || enforcement.denyTools.length === 0) {

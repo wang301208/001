@@ -526,7 +526,7 @@ describe("spawnAcpDirect", () => {
     const result = await spawnAcpDirect(createSpawnRequest(), createRequesterContext());
 
     expect(expectFailedSpawn(result, "forbidden").errorCode).toBe("runtime_policy");
-    expect(result.error).toContain("governance policy");
+    expect(expectFailedSpawn(result, "forbidden").error).toContain("governance policy");
   });
 
   afterEach(() => {
@@ -562,6 +562,13 @@ describe("spawnAcpDirect", () => {
     expect(patchCall?.params).toMatchObject({
       key: accepted.childSessionKey,
       spawnedBy: "agent:main:main",
+      governanceRuntime: {
+        agentId: "codex",
+        summary: {
+          charterDeclared: false,
+          freezeActive: false,
+        },
+      },
     });
     expect(hoisted.sessionBindingBindMock).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -56,6 +56,37 @@ describe("agents helpers", () => {
     expect(work?.isDefault).toBe(true);
   });
 
+  it("buildAgentSummaries can append governance charter agents as virtual runtime actors", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [{ id: "main", default: true, workspace: "/main-ws" }],
+      },
+    };
+
+    const summaries = buildAgentSummaries(cfg, { includeGovernanceCharter: true });
+    const founder = summaries.find((summary) => summary.id === "founder");
+
+    expect(founder).toBeTruthy();
+    expect(founder?.configured).toBe(false);
+    expect(founder?.charterDeclared).toBe(true);
+    expect(founder?.charterTitle).toBeTruthy();
+    expect(founder?.governance).toMatchObject({
+      charterDeclared: true,
+      charterLayer: founder?.charterLayer,
+      charterTitle: founder?.charterTitle,
+      freezeActive: false,
+    });
+    expect(founder?.governanceContract).toMatchObject({
+      agentId: "founder",
+      charterDeclared: true,
+      charterTitle: founder?.charterTitle,
+      charterLayer: founder?.charterLayer,
+    });
+    expect(founder?.governanceContract.collaborators).toContain("librarian");
+    expect(founder?.governanceContract.mutationDeny).toContain("constitution");
+    expect(founder?.workspace).toBeTruthy();
+  });
+
   it("applyAgentConfig merges updates", () => {
     const cfg: OpenClawConfig = {
       agents: {

@@ -31,6 +31,8 @@ export function buildColdStartStatusSummary() {
     },
     channelSummary: [],
     queuedSystemEvents: [],
+    governance: undefined,
+    autonomy: undefined,
     tasks: createEmptyTaskRegistrySummary(),
     taskAudit: createEmptyTaskAuditSummary(),
     sessions: {

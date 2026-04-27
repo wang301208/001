@@ -1,4 +1,11 @@
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { GovernanceGenesisPlanStageStatus } from "../../governance/capability-registry.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
+import type {
+  SandboxUniverseControllerState,
+  SandboxUniverseExperimentPlan,
+  SandboxUniverseReplayRunnerState,
+} from "../../governance/sandbox-universe.js";
 import type { JsonValue, TaskFlowRecord } from "../../tasks/task-flow-registry.types.js";
 import type {
   TaskDeliveryState,
@@ -13,6 +20,142 @@ import type { OpenClawPluginToolContext } from "../tool-types.js";
 export type ManagedTaskFlowRecord = TaskFlowRecord & {
   syncMode: "managed";
   controllerId: string;
+};
+
+export type ManagedTaskFlowGenesisStageRuntime = {
+  kind: "genesis_stage";
+  teamId: string;
+  teamTitle?: string | null;
+  mode: "repair" | "build" | "steady_state";
+  stage: {
+    id: string;
+    title: string;
+    ownerAgentId: string;
+    status: GovernanceGenesisPlanStageStatus;
+    goal: string;
+    dependsOn: string[];
+    inputRefs: string[];
+    outputRefs: string[];
+    actions: string[];
+    rationale?: string | null;
+  };
+  focusGapIds: string[];
+  blockers: string[];
+  stageGraph: Array<{
+    id: string;
+    title: string;
+    ownerAgentId: string;
+    status: GovernanceGenesisPlanStageStatus;
+    dependsOn: string[];
+  }>;
+  sandboxUniverse: SandboxUniverseExperimentPlan;
+  sandboxController?: SandboxUniverseControllerState;
+  sandboxReplayRunner?: SandboxUniverseReplayRunnerState;
+};
+
+export type ManagedTaskFlowExecutionGraphNode = {
+  id: string;
+  title: string;
+  dependsOn: string[];
+  output: string;
+};
+
+export type ManagedTaskFlowExecutionCapabilityRequest = {
+  status: "required" | "recommended" | "not_needed";
+  focusGapIds: string[];
+  handoffTeamId: string;
+  reason: string;
+  blockers: string[];
+};
+
+export type ManagedTaskFlowExecutionSystemRuntime = {
+  kind: "execution_system";
+  goalContract: {
+    goal: string;
+    layer?: string | null;
+    authorityLevel?: string | null;
+  };
+  taskGraph: ManagedTaskFlowExecutionGraphNode[];
+  executionPlan: {
+    phases: ManagedTaskFlowExecutionGraphNode[];
+    runtimeHooks: string[];
+    collaborators: string[];
+  };
+  capabilityRequest: ManagedTaskFlowExecutionCapabilityRequest;
+  observedCapabilityGaps: string[];
+  genesisPlan: {
+    teamId: string;
+    mode: "repair" | "build" | "steady_state";
+    focusGapIds: string[];
+    blockers: string[];
+  };
+  sandboxUniverse?: SandboxUniverseExperimentPlan;
+  sandboxController?: SandboxUniverseControllerState;
+  sandboxReplayRunner?: SandboxUniverseReplayRunnerState;
+};
+
+export type ManagedTaskFlowAlgorithmResearchRuntime = {
+  kind: "algorithm_research";
+  focusGapIds: string[];
+  observedAlgorithmGaps: string[];
+  inventorySummary: {
+    gapCount: number;
+    criticalGapCount: number;
+    algorithmCount: number;
+    algorithmReady: number;
+    algorithmAttention: number;
+    algorithmBlocked: number;
+  };
+  researchPlan: {
+    phases: ManagedTaskFlowExecutionGraphNode[];
+    targetDomains: string[];
+    runtimeHooks: string[];
+    collaborators: string[];
+  };
+  promotionPolicy: {
+    requiredEvidence: string[];
+    blockers: string[];
+  };
+  sandboxUniverse?: SandboxUniverseExperimentPlan;
+  sandboxController?: SandboxUniverseControllerState;
+  sandboxReplayRunner?: SandboxUniverseReplayRunnerState;
+};
+
+export type ManagedTaskFlowSovereigntyWatchRuntime = {
+  kind: "sovereignty_watch";
+  governanceOverview: {
+    discovered: boolean;
+    missingArtifactCount: number;
+    findingCount: number;
+    proposalPendingCount: number;
+    enforcementActive: boolean;
+    freezeReasonCode?: string | null;
+  };
+  watchPlan: {
+    phases: ManagedTaskFlowExecutionGraphNode[];
+    reservedAuthorities: string[];
+    freezeTargets: string[];
+  };
+  incidentPolicy: {
+    automaticEnforcementActions: string[];
+    criticalFindings: string[];
+  };
+};
+
+export type ManagedTaskFlowAutonomyProjectRuntime =
+  | ManagedTaskFlowGenesisStageRuntime
+  | ManagedTaskFlowExecutionSystemRuntime
+  | ManagedTaskFlowAlgorithmResearchRuntime
+  | ManagedTaskFlowSovereigntyWatchRuntime;
+
+export type ManagedTaskFlowAutonomyRuntimeState = {
+  agentId: string;
+  controllerId: string;
+  goal: string;
+  currentStep?: string;
+  workspaceDirs: string[];
+  primaryWorkspaceDir?: string;
+  project?: ManagedTaskFlowAutonomyProjectRuntime;
 };
 
 export type ManagedTaskFlowMutationErrorCode = "not_found" | "not_managed" | "revision_conflict";
@@ -70,6 +213,22 @@ export type BoundTaskFlowRuntime = {
   findLatest: () => TaskFlowRecord | undefined;
   resolve: (token: string) => TaskFlowRecord | undefined;
   getTaskSummary: (flowId: string) => TaskRegistrySummary | undefined;
+  getManagedAutonomy: (flowId: string) => ManagedTaskFlowAutonomyRuntimeState | undefined;
+  setManagedAutonomy: (params: {
+    flowId: string;
+    expectedRevision: number;
+    autonomy: ManagedTaskFlowAutonomyRuntimeState;
+    currentStep?: string | null;
+    updatedAt?: number;
+  }) => ManagedTaskFlowMutationResult;
+  getManagedExecution: (flowId: string) => ManagedTaskFlowExecutionSystemRuntime | undefined;
+  setManagedExecution: (params: {
+    flowId: string;
+    expectedRevision: number;
+    execution: ManagedTaskFlowExecutionSystemRuntime;
+    currentStep?: string | null;
+    updatedAt?: number;
+  }) => ManagedTaskFlowMutationResult;
   setWaiting: (params: {
     flowId: string;
     expectedRevision: number;
@@ -91,6 +250,7 @@ export type BoundTaskFlowRuntime = {
   finish: (params: {
     flowId: string;
     expectedRevision: number;
+    currentStep?: string | null;
     stateJson?: JsonValue | null;
     updatedAt?: number;
     endedAt?: number;
@@ -98,6 +258,7 @@ export type BoundTaskFlowRuntime = {
   fail: (params: {
     flowId: string;
     expectedRevision: number;
+    currentStep?: string | null;
     stateJson?: JsonValue | null;
     blockedTaskId?: string | null;
     blockedSummary?: string | null;
@@ -118,6 +279,7 @@ export type BoundTaskFlowRuntime = {
     parentTaskId?: string;
     agentId?: string;
     runId?: string;
+    governanceRuntime?: AgentGovernanceRuntimeSnapshot;
     label?: string;
     task: string;
     preferMetadata?: boolean;

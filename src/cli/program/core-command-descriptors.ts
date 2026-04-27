@@ -86,8 +86,18 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
     hasSubcommands: true,
   },
   {
+    name: "governance",
+    description: "Inspect organizational charter and governance control-plane state",
+    hasSubcommands: true,
+  },
+  {
     name: "tasks",
     description: "Inspect durable background task state",
+    hasSubcommands: true,
+  },
+  {
+    name: "autonomy",
+    description: "Inspect and launch managed autonomy profiles",
     hasSubcommands: true,
   },
 ] as const satisfies ReadonlyArray<CoreCliCommandDescriptor>);

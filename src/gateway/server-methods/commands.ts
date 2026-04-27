@@ -9,6 +9,7 @@ import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import { loadConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { getPluginCommandSpecs } from "../../plugins/command-registry-state.js";
 import { listPluginCommands } from "../../plugins/commands.js";
 import { normalizeOptionalLowercaseString } from "../../shared/string-coerce.js";
@@ -61,7 +62,14 @@ function resolveAgentIdOrRespondError(rawAgentId: unknown, respond: RespondFn) {
     respond(
       false,
       undefined,
-      errorShape(ErrorCodes.INVALID_REQUEST, `unknown agent id "${requestedAgentId}"`),
+      errorShape(
+        ErrorCodes.INVALID_REQUEST,
+        buildUnknownAgentIdMessage({
+          cfg,
+          rawAgentId: requestedAgentId,
+          inspectHint: "Inspect available agents with agents.list.",
+        }),
+      ),
     );
     return null;
   }

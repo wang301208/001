@@ -14,9 +14,15 @@ async function makeRepoRoot(root: string): Promise<void> {
   await fs.mkdir(path.join(root, ".git"), { recursive: true });
 }
 
-function buildParams(params: { config?: OpenClawConfig; workspaceDir?: string; cwd?: string }) {
+function buildParams(params: {
+  config?: OpenClawConfig;
+  workspaceDir?: string;
+  cwd?: string;
+  agentId?: string;
+}) {
   return buildSystemPromptParams({
     config: params.config,
+    agentId: params.agentId,
     workspaceDir: params.workspaceDir,
     cwd: params.cwd,
     runtime: {
@@ -109,5 +115,26 @@ describe("buildSystemPromptParams repo root", () => {
     const { runtimeInfo } = buildParams({ workspaceDir });
 
     expect(runtimeInfo.canvasRootDir).toBe(path.resolve(path.join(resolveStateDir(), "canvas")));
+  });
+
+  it("includes combined charter and runtime governance prompt when agentId is provided", async () => {
+    const workspaceDir = await makeTempDir("governance");
+    const config: OpenClawConfig = {
+      agents: {
+        list: [{ id: "main", workspace: workspaceDir }],
+      },
+    };
+
+    const { runtimeInfo } = buildParams({
+      config,
+      workspaceDir,
+      agentId: "executor",
+    });
+
+    expect(runtimeInfo.governancePrompt).toContain("## Organizational Charter");
+    expect(runtimeInfo.governancePrompt).toContain("Charter role: Executor (executor)");
+    expect(runtimeInfo.governancePrompt).toContain("## Governance Runtime State");
+    expect(runtimeInfo.governancePrompt).toContain("execution=strict-agentic");
+    expect(runtimeInfo.governancePrompt).toContain("explicit subagent ids");
   });
 });

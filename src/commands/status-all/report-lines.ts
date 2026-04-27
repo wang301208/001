@@ -1,4 +1,5 @@
 import type { ProgressReporter } from "../../cli/progress.js";
+import type { AgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
 import { getTerminalTableWidth, renderTable } from "../../terminal/table.js";
 import { isRich, theme } from "../../terminal/theme.js";
 import { appendStatusAllDiagnosis } from "./diagnosis.js";
@@ -39,6 +40,7 @@ type AgentStatusLike = {
     bootstrapPending?: boolean | null;
     sessionsCount: number;
     lastActiveAgeMs?: number | null;
+    governance?: AgentToolGovernanceSummary;
     sessionsPath: string;
   }>;
 };
@@ -46,6 +48,8 @@ type AgentStatusLike = {
 export async function buildStatusAllReportLines(params: {
   progress: ProgressReporter;
   overviewRows: OverviewRow[];
+  governanceLines?: string[];
+  autonomyLines?: string[];
   channels: ChannelsTable;
   channelIssues: ChannelIssueLike[];
   agentStatus: AgentStatusLike;
@@ -75,6 +79,18 @@ export async function buildStatusAllReportLines(params: {
         renderTable,
         rows: params.overviewRows,
       }),
+      {
+        kind: "lines",
+        title: "Governance",
+        body: params.governanceLines ?? [],
+        skipIfEmpty: true,
+      },
+      {
+        kind: "lines",
+        title: "Autonomy",
+        body: params.autonomyLines ?? [],
+        skipIfEmpty: true,
+      },
       buildStatusChannelsSection({
         width: tableWidth,
         renderTable,

@@ -3,15 +3,20 @@ import type { StreamFn } from "@mariozechner/pi-agent-core";
 import { describe, expect, it } from "vitest";
 import { createAnthropicPayloadLogger } from "./anthropic-payload-log.js";
 
+function createMemoryWriter(lines: string[]) {
+  return {
+    filePath: "memory",
+    write: (line: string) => lines.push(line),
+    flush: async () => {},
+  };
+}
+
 describe("createAnthropicPayloadLogger", () => {
   it("sanitizes credential fields and image base64 payload data before writing logs", async () => {
     const lines: string[] = [];
     const logger = createAnthropicPayloadLogger({
       env: { OPENCLAW_ANTHROPIC_PAYLOAD_LOG: "1" },
-      writer: {
-        filePath: "memory",
-        write: (line) => lines.push(line),
-      },
+      writer: createMemoryWriter(lines),
     });
     expect(logger).not.toBeNull();
 

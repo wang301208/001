@@ -34,8 +34,31 @@ describe("agents_list", () => {
   }
 
   function readAgentList(result: unknown) {
-    return (result as { details?: { agents?: Array<{ id: string; configured?: boolean }> } })
-      .details?.agents;
+    return (
+      result as {
+        details?: {
+          agents?: Array<{
+            id: string;
+            configured?: boolean;
+            charterDeclared?: boolean;
+            charterLayer?: string;
+            governance?: {
+              charterDeclared?: boolean;
+              charterLayer?: string;
+              charterExecutionContract?: string;
+            };
+            contract?: {
+              agentId?: string;
+              charterDeclared?: boolean;
+              charterLayer?: string;
+              collaborators?: string[];
+              runtimeHooks?: string[];
+            };
+            allowedBy?: string[];
+          }>;
+        };
+      }
+    ).details?.agents;
   }
 
   it("defaults to the requester agent only", async () => {
@@ -144,5 +167,75 @@ describe("agents_list", () => {
     expect(agents?.map((agent) => agent.id)).toEqual(["main", "research"]);
     const research = agents?.find((agent) => agent.id === "research");
     expect(research?.configured).toBe(false);
+  });
+
+  it("includes governance charter collaborators for charter-declared agents", async () => {
+    setConfigWithAgentList([
+      {
+        id: "executor",
+        name: "Executor",
+      },
+    ]);
+
+    const tool = createAgentsListTool({
+      agentSessionKey: "agent:executor:main",
+    });
+    const result = await tool.execute("call5", {});
+    const agents = readAgentList(result);
+
+    expect(agents?.map((agent) => agent.id)).toContain("librarian");
+    expect(agents?.map((agent) => agent.id)).toContain("qa");
+    expect(agents?.map((agent) => agent.id)).toContain("strategist");
+    expect(agents?.map((agent) => agent.id)).toContain("sovereignty_auditor");
+    expect(agents?.map((agent) => agent.id)).toContain("founder");
+
+    const librarian = agents?.find((agent) => agent.id === "librarian");
+    expect(librarian).toMatchObject({
+      configured: false,
+      charterDeclared: true,
+      charterLayer: "capability",
+      governance: {
+        charterDeclared: true,
+        charterLayer: "capability",
+      },
+      contract: {
+        agentId: "librarian",
+        charterDeclared: true,
+        charterLayer: "capability",
+      },
+      allowedBy: expect.arrayContaining(["charter"]),
+    });
+    expect(librarian?.contract?.collaborators).toContain("algorithmist");
+    expect(librarian?.contract?.runtimeHooks).toContain("skills");
+  });
+
+  it("does not let config widen a chartered agent beyond declared collaborators", async () => {
+    setConfigWithAgentList([
+      {
+        id: "executor",
+        name: "Executor",
+        subagents: {
+          allowAgents: ["*"],
+        },
+      },
+      {
+        id: "algorithmist",
+        name: "Algorithmist",
+      },
+    ]);
+
+    const tool = createAgentsListTool({
+      agentSessionKey: "agent:executor:main",
+    });
+    const result = await tool.execute("call6", {});
+    const agents = readAgentList(result);
+
+    expect(result.details).toMatchObject({
+      requester: "executor",
+      allowAny: false,
+      charterEnforced: true,
+    });
+    expect(agents?.map((agent) => agent.id)).not.toContain("algorithmist");
+    expect(agents?.map((agent) => agent.id)).toContain("librarian");
   });
 });

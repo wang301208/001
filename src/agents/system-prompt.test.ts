@@ -833,6 +833,42 @@ describe("buildAgentSystemPrompt", () => {
     );
   });
 
+  it("surfaces governance freeze in sandbox prompts and suppresses elevation guidance", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      sandboxInfo: {
+        enabled: true,
+        workspaceDir: "/tmp/sandbox",
+        containerWorkspaceDir: "/workspace",
+        workspaceAccess: "rw",
+        governanceFrozen: true,
+        governanceMessage:
+          "Sandbox runtime is frozen by governance policy because the sovereignty policy document is missing.\ndetails:\n- /repo/governance/charter/policies/sovereignty.yaml",
+        elevated: {
+          allowed: true,
+          defaultLevel: "full",
+          fullAccessAvailable: true,
+        },
+      },
+    });
+
+    expect(prompt).toContain(
+      "Governance freeze is active. Use read-only file inspection against host workspace: /tmp/openclaw.",
+    );
+    expect(prompt).toContain("This sandbox is frozen by governance policy.");
+    expect(prompt).toContain(
+      "Read-only file inspection may still work, but the sandbox runtime backend is not started while frozen.",
+    );
+    expect(prompt).toContain(
+      "Do not attempt exec/process/write/edit/apply_patch or runtime elevation until governance is restored.",
+    );
+    expect(prompt).toContain(
+      "Governance note: Sandbox runtime is frozen by governance policy because the sovereignty policy document is missing.",
+    );
+    expect(prompt).not.toContain("User can toggle with /elevated on|off|ask|full.");
+    expect(prompt).not.toContain("Elevated exec is available for this session.");
+  });
+
   it("includes reaction guidance when provided", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/openclaw",
@@ -844,6 +880,52 @@ describe("buildAgentSystemPrompt", () => {
 
     expect(prompt).toContain("## Reactions");
     expect(prompt).toContain("Reactions are enabled for Telegram in MINIMAL mode.");
+  });
+
+  it("injects governance charter role guidance when the runtime agent is declared", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      runtimeInfo: {
+        agentId: "executor",
+      },
+    });
+
+    expect(prompt).toContain("## Organizational Charter");
+    expect(prompt).toContain("Charter role: Executor (executor)");
+    expect(prompt).toContain("Layer: execution");
+    expect(prompt).toContain("Authority level: high");
+    expect(prompt).toContain("You may decide:");
+    expect(prompt).toContain("decompose_goal");
+    expect(prompt).toContain("You must not decide:");
+    expect(prompt).toContain("rewrite_constitution");
+    expect(prompt).toContain("Network posture:");
+    expect(prompt).toContain("Resource budget:");
+    expect(prompt).toContain("Project hooks:");
+    expect(prompt).toContain("Declared collaborators:");
+    expect(prompt).toContain("librarian");
+    expect(prompt).toContain(
+      "Coordination boundary: use agents_list/sessions_spawn only within the declared collaborator graph",
+    );
+  });
+
+  it("prefers precomputed governance prompt from runtimeInfo when provided", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      runtimeInfo: {
+        agentId: "executor",
+        governancePrompt: [
+          "## Organizational Charter",
+          "Charter role: Executor (executor)",
+          "",
+          "## Governance Runtime State",
+          "Charter restrictions: explicit subagent ids; execution=strict-agentic; elevated locked",
+        ].join("\n"),
+      },
+    });
+
+    expect(prompt).toContain("## Governance Runtime State");
+    expect(prompt).toContain("execution=strict-agentic");
+    expect(prompt).toContain("explicit subagent ids");
   });
 });
 

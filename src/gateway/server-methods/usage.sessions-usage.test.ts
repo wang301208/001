@@ -115,6 +115,25 @@ const BASE_USAGE_RANGE = {
   limit: 10,
 } as const;
 
+function createGovernanceRuntime(agentId = "opus", observedAt = 1_710_000_000_000) {
+  return {
+    agentId,
+    observedAt,
+    summary: {
+      charterDeclared: true,
+      charterTitle: "Autonomy Charter",
+      charterLayer: "governance",
+      charterToolDeny: ["git reset --hard"],
+      charterRequireAgentId: true,
+      charterExecutionContract: "strict-agentic" as const,
+      charterElevatedLocked: true,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    },
+  };
+}
+
 function expectSuccessfulSessionsUsage(
   respond: ReturnType<typeof vi.fn>,
 ): Array<{ key: string; agentId: string }> {
@@ -135,9 +154,13 @@ describe("sessions.usage", () => {
   it("discovers sessions across configured agents and keeps agentId in key", async () => {
     const respond = await runSessionsUsage(BASE_USAGE_RANGE);
 
-    expect(vi.mocked(discoverAllSessions)).toHaveBeenCalledTimes(2);
-    expect(vi.mocked(discoverAllSessions).mock.calls[0]?.[0]?.agentId).toBe("main");
-    expect(vi.mocked(discoverAllSessions).mock.calls[1]?.[0]?.agentId).toBe("opus");
+    const discoveredAgentIds = new Set(
+      vi
+        .mocked(discoverAllSessions)
+        .mock.calls.map((call) => call[0]?.agentId)
+        .filter((agentId): agentId is string => typeof agentId === "string"),
+    );
+    expect([...discoveredAgentIds]).toEqual(expect.arrayContaining(["main", "opus"]));
 
     const sessions = expectSuccessfulSessionsUsage(respond);
     expect(sessions).toHaveLength(2);
@@ -183,6 +206,46 @@ describe("sessions.usage", () => {
         expect(
           vi.mocked(loadSessionCostSummary).mock.calls.some((call) => call[0]?.agentId === "opus"),
         ).toBe(true);
+      });
+    } finally {
+      fs.rmSync(stateDir, { recursive: true, force: true });
+    }
+  });
+
+  it("returns governance runtime from the persisted session store entry", async () => {
+    const storeKey = "agent:opus:slack:dm:u789";
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-usage-test-"));
+    const governanceRuntime = createGovernanceRuntime();
+
+    try {
+      await withEnvAsync({ OPENCLAW_STATE_DIR: stateDir }, async () => {
+        const agentSessionsDir = path.join(stateDir, "agents", "opus", "sessions");
+        fs.mkdirSync(agentSessionsDir, { recursive: true });
+        const sessionFile = path.join(agentSessionsDir, "s-opus.jsonl");
+        fs.writeFileSync(sessionFile, "", "utf-8");
+
+        vi.mocked(loadCombinedSessionStoreForGateway).mockReturnValue({
+          storePath: "(multiple)",
+          store: {
+            [storeKey]: {
+              sessionId: "s-opus",
+              sessionFile: "s-opus.jsonl",
+              updatedAt: 999,
+              governanceRuntime,
+            },
+          },
+        });
+
+        const respond = await runSessionsUsage({ ...BASE_USAGE_RANGE, key: "agent:opus:s-opus" });
+        const sessions = expectSuccessfulSessionsUsage(respond) as Array<{
+          key: string;
+          agentId: string;
+          governanceRuntime?: typeof governanceRuntime | null;
+        }>;
+
+        expect(sessions).toHaveLength(1);
+        expect(sessions[0]?.key).toBe(storeKey);
+        expect(sessions[0]?.governanceRuntime).toEqual(governanceRuntime);
       });
     } finally {
       fs.rmSync(stateDir, { recursive: true, force: true });

@@ -16,6 +16,8 @@ import {
 } from "../infra/agent-events.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { buildOutboundSessionContext } from "../infra/outbound/session-context.js";
+import { buildUnknownAgentIdMessage } from "../governance/agent-selection-feedback.js";
+import { createAgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
@@ -267,7 +269,11 @@ async function prepareAgentCommandExecution(
     const knownAgents = listAgentIds(cfg);
     if (!knownAgents.includes(agentIdOverride)) {
       throw new Error(
-        `Unknown agent id "${agentIdOverrideRaw}". Use "${formatCliCommand("openclaw agents list")}" to see configured agents.`,
+        buildUnknownAgentIdMessage({
+          cfg,
+          rawAgentId: agentIdOverrideRaw ?? agentIdOverride,
+          inspectHint: `Use "${formatCliCommand("openclaw agents list")}" to inspect available agents.`,
+        }),
       );
     }
   }
@@ -424,6 +430,10 @@ async function agentCommandInternal(
     acpResolution,
   } = prepared;
   let sessionEntry = prepared.sessionEntry;
+  const governanceRuntime = createAgentGovernanceRuntimeSnapshot({
+    cfg,
+    agentId: sessionAgentId,
+  });
 
   try {
     if (opts.deliver === true) {
@@ -448,6 +458,8 @@ async function agentCommandInternal(
       const startedAt = Date.now();
       registerAgentRunContext(runId, {
         sessionKey,
+        agentId: sessionAgentId,
+        ...(governanceRuntime ? { governanceRuntime } : {}),
       });
       attemptExecutionRuntime.emitAcpLifecycleStart({ runId, startedAt });
 
@@ -537,12 +549,33 @@ async function agentCommandInternal(
           `ACP transcript persistence failed for ${sessionKey}: ${formatErrorMessage(error)}`,
         );
       }
+      if (sessionStore && sessionKey && governanceRuntime) {
+        const current = sessionStore[sessionKey] ?? sessionEntry ?? {
+          sessionId,
+          updatedAt: Date.now(),
+        };
+        const next: SessionEntry = {
+          ...current,
+          sessionId,
+          updatedAt: Date.now(),
+          governanceRuntime,
+        };
+        await persistSessionEntry({
+          sessionStore,
+          sessionKey,
+          storePath,
+          entry: next,
+        });
+        sessionEntry = next;
+      }
 
       const result = attemptExecutionRuntime.buildAcpResult({
         payloadText: finalText,
         startedAt,
+        sessionId,
         stopReason,
         abortSignal: opts.abortSignal,
+        governanceRuntime,
       });
       const payloads = result.payloads;
       const { deliverAgentCommandResult } = await loadDeliveryRuntime();
@@ -566,6 +599,8 @@ async function agentCommandInternal(
     if (sessionKey) {
       registerAgentRunContext(runId, {
         sessionKey,
+        agentId: sessionAgentId,
+        ...(governanceRuntime ? { governanceRuntime } : {}),
         verboseLevel: resolvedVerboseLevel,
       });
     }

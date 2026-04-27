@@ -13,6 +13,13 @@ import {
 import { listRouteBindings } from "../config/bindings.js";
 import type { IdentityConfig } from "../config/types.base.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+import { listGovernanceCharterAgentBlueprints } from "../governance/charter-agents.js";
+import type { AgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
+import { resolveAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
+import {
+  resolveAgentToolGovernanceSummary,
+  type AgentToolGovernanceSummary,
+} from "../governance/tool-governance-summary.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeOptionalString, resolvePrimaryStringValue } from "../shared/string-coerce.js";
 
@@ -30,6 +37,12 @@ export type AgentSummary = {
   routes?: string[];
   providers?: string[];
   isDefault: boolean;
+  configured: boolean;
+  charterDeclared: boolean;
+  charterTitle?: string;
+  charterLayer?: string;
+  governance: AgentToolGovernanceSummary;
+  governanceContract: AgentGovernanceRuntimeContract;
 };
 
 type AgentEntry = NonNullable<NonNullable<OpenClawConfig["agents"]>["list"]>[number];
@@ -65,13 +78,29 @@ export function loadAgentIdentity(workspace: string): AgentIdentity | null {
   return identityHasValues(parsed) ? parsed : null;
 }
 
-export function buildAgentSummaries(cfg: OpenClawConfig): AgentSummary[] {
+export function buildAgentSummaries(
+  cfg: OpenClawConfig,
+  options: { includeGovernanceCharter?: boolean } = {},
+): AgentSummary[] {
   const defaultAgentId = normalizeAgentId(resolveDefaultAgentId(cfg));
   const configuredAgents = listAgentEntries(cfg);
+  const configuredById = new Map(
+    configuredAgents.map((agent) => [normalizeAgentId(agent.id), agent] as const),
+  );
+  const charterAgents =
+    options.includeGovernanceCharter && configuredAgents.length > 0
+      ? listGovernanceCharterAgentBlueprints()
+      : [];
+  const charterById = new Map(charterAgents.map((agent) => [agent.id, agent] as const));
   const orderedIds =
     configuredAgents.length > 0
       ? configuredAgents.map((agent) => normalizeAgentId(agent.id))
       : [defaultAgentId];
+  for (const charterAgent of charterAgents) {
+    if (!orderedIds.includes(charterAgent.id)) {
+      orderedIds.push(charterAgent.id);
+    }
+  }
   const bindingCounts = new Map<string, number>();
   for (const binding of listRouteBindings(cfg)) {
     const agentId = normalizeAgentId(binding.agentId);
@@ -83,9 +112,11 @@ export function buildAgentSummaries(cfg: OpenClawConfig): AgentSummary[] {
   return ordered.map((id) => {
     const workspace = resolveAgentWorkspaceDir(cfg, id);
     const identity = loadAgentIdentity(workspace);
-    const configIdentity = configuredAgents.find(
-      (agent) => normalizeAgentId(agent.id) === id,
-    )?.identity;
+    const configuredAgent = configuredById.get(id);
+    const configIdentity = configuredAgent?.identity;
+    const charterAgent = charterById.get(id);
+    const governance = resolveAgentToolGovernanceSummary({ cfg, agentId: id });
+    const governanceContract = resolveAgentGovernanceRuntimeContract({ cfg, agentId: id });
     const identityName = identity?.name ?? configIdentity?.name?.trim();
     const identityEmoji = identity?.emoji ?? configIdentity?.emoji?.trim();
     const identitySource = identity
@@ -95,9 +126,7 @@ export function buildAgentSummaries(cfg: OpenClawConfig): AgentSummary[] {
         : undefined;
     return {
       id,
-      name: normalizeOptionalString(
-        configuredAgents.find((agent) => normalizeAgentId(agent.id) === id)?.name,
-      ),
+      name: normalizeOptionalString(configuredAgent?.name) ?? charterAgent?.title,
       identityName,
       identityEmoji,
       identitySource,
@@ -106,6 +135,12 @@ export function buildAgentSummaries(cfg: OpenClawConfig): AgentSummary[] {
       model: resolveAgentModel(cfg, id),
       bindings: bindingCounts.get(id) ?? 0,
       isDefault: id === defaultAgentId,
+      configured: Boolean(configuredAgent),
+      charterDeclared: governance.charterDeclared,
+      charterTitle: governance.charterTitle ?? charterAgent?.title,
+      charterLayer: governance.charterLayer ?? charterAgent?.layer,
+      governance,
+      governanceContract,
     };
   });
 }

@@ -1,4 +1,7 @@
-import { listAgentIds, resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
+import {
+  listWorkspaceScopedAgentIds,
+  resolveAgentWorkspaceDir,
+} from "../../../agents/agent-scope.js";
 import { createDefaultDeps } from "../../../cli/deps.js";
 import { runBootOnce } from "../../../gateway/boot.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
@@ -18,7 +21,7 @@ const runBootChecklist: HookHandler = async (event) => {
 
   const cfg = event.context.cfg;
   const deps = event.context.deps ?? createDefaultDeps();
-  const agentIds = listAgentIds(cfg);
+  const agentIds = listWorkspaceScopedAgentIds(cfg);
 
   for (const agentId of agentIds) {
     const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);

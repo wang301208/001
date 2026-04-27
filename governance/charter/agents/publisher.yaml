@@ -88,6 +88,45 @@ rollback_policy:
     - "mark_release_unstable"
     - "notify_librarian_and_qa"
 
+contract:
+  role: "capability_publisher"
+  allowed_subagents:
+    - "librarian"
+    - "qa"
+    - "sovereignty_auditor"
+  allowed_tools:
+    - "governance.proposals"
+    - "governance.overview"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "acceptance_records"
+    - "asset_manifests"
+    - "audit_traces"
+    - "rollback_notices"
+  qa_requirements:
+    - "qa_acceptance_record"
+    - "audit_trace"
+    - "rollback_reference"
+    - "registry_handoff"
+  write_scope:
+    - "skills/**"
+    - "extensions/**"
+    - "state/governance/**"
+  network_policy:
+    default: "internal_only"
+    allowed_domains: []
+    requires_citation: false
+  escalation_policy:
+    boundary_conflict: "sovereignty_auditor"
+    critical_change: "human_sovereign"
+    blocked_promotion: "qa"
+  promotion_gates:
+    - "qa_acceptance_record"
+    - "audit_trace"
+    - "rollback_reference"
+    - "registry_handoff"
+
 runtime_mapping:
   intended_project_hooks:
     - "skills"

@@ -363,6 +363,89 @@ async function createMockStatusScanResult(params: { includePluginCompatibility?:
       heartbeat: { defaultAgentId: "main", agents: [] },
       channelSummary: [],
       queuedSystemEvents: [],
+      governance: {
+        observedAt: 1,
+        discovered: true,
+        freezeActive: false,
+        proposalSummary: {
+          total: 2,
+          pending: 1,
+          approved: 1,
+          rejected: 0,
+          applied: 0,
+        },
+        findingSummary: {
+          critical: 0,
+          warn: 1,
+          info: 0,
+        },
+        capabilitySummary: {
+          requestedAgentIds: ["founder"],
+          totalEntries: 4,
+          gapCount: 1,
+          criticalGapCount: 0,
+          warningGapCount: 1,
+          infoGapCount: 0,
+          topGapIds: ["missing-plugin"],
+        },
+        genesisSummary: {
+          teamId: "genesis",
+          mode: "repair",
+          blockerCount: 1,
+          blockers: ["missing-plugin"],
+          focusGapIds: ["missing-plugin"],
+          stageCounts: {
+            ready: 0,
+            waiting: 1,
+            blocked: 1,
+          },
+        },
+      },
+      autonomy: {
+        observedAt: 2,
+        fleetSummary: {
+          totalProfiles: 3,
+          healthy: 1,
+          idle: 1,
+          drift: 1,
+          missingLoop: 1,
+          activeFlows: 2,
+          driftAgentIds: ["strategist"],
+          missingLoopAgentIds: ["librarian"],
+        },
+        replaySummary: {
+          totalRunners: 2,
+          ready: 1,
+          passed: 1,
+          failed: 0,
+          promotable: 1,
+          blocked: 1,
+          readyAgentIds: ["strategist"],
+          promotableAgentIds: ["founder"],
+          blockedAgentIds: ["strategist"],
+        },
+        capabilitySummary: {
+          requestedAgentIds: ["founder", "strategist", "librarian"],
+          totalEntries: 5,
+          gapCount: 1,
+          criticalGapCount: 0,
+          warningGapCount: 1,
+          infoGapCount: 0,
+          topGapIds: ["stale-index"],
+        },
+        genesisSummary: {
+          teamId: "genesis",
+          mode: "build",
+          blockerCount: 1,
+          blockers: ["stale-index"],
+          focusGapIds: ["stale-index"],
+          stageCounts: {
+            ready: 1,
+            waiting: 1,
+            blocked: 0,
+          },
+        },
+      },
       tasks: mocks.getInspectableTaskRegistrySummary(),
       taskAudit: mocks.getInspectableTaskAuditSummary(),
       sessions,
@@ -442,6 +525,7 @@ const mocks = vi.hoisted(() => ({
       stale_running: 0,
       lost: 0,
       delivery_failed: 0,
+      missing_governance_runtime: 0,
       missing_cleanup: 0,
       inconsistent_timestamps: 0,
     },
@@ -913,6 +997,7 @@ describe("statusCommand", () => {
         stale_running: 0,
         lost: 0,
         delivery_failed: 0,
+        missing_governance_runtime: 0,
         missing_cleanup: 0,
         inconsistent_timestamps: 0,
       },
@@ -992,6 +1077,20 @@ describe("statusCommand", () => {
         byStatus: expect.objectContaining({ queued: 0, running: 0 }),
       }),
     );
+    expect(payload.governance).toEqual(
+      expect.objectContaining({
+        freezeActive: false,
+        proposalSummary: expect.objectContaining({ pending: 1 }),
+        capabilitySummary: expect.objectContaining({ gapCount: 1 }),
+      }),
+    );
+    expect(payload.autonomy).toEqual(
+      expect.objectContaining({
+        fleetSummary: expect.objectContaining({ totalProfiles: 3, drift: 1 }),
+        replaySummary: expect.objectContaining({ totalRunners: 2, promotable: 1 }),
+        capabilitySummary: expect.objectContaining({ gapCount: 1 }),
+      }),
+    );
     expect(mocks.runSecurityAudit).not.toHaveBeenCalled();
 
     runtimeLogMock.mockClear();
@@ -1034,6 +1133,8 @@ describe("statusCommand", () => {
       "Dashboard",
       "macos 14.0 (arm64)",
       "Memory",
+      "Governance",
+      "Autonomy",
       "Plugin compatibility",
       "Channels",
       "WhatsApp",
@@ -1096,6 +1197,7 @@ describe("statusCommand", () => {
         stale_running: 1,
         lost: 0,
         delivery_failed: 0,
+        missing_governance_runtime: 0,
         missing_cleanup: 0,
         inconsistent_timestamps: 0,
       },

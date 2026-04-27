@@ -14,6 +14,7 @@ import {
   maybeDeliverTaskTerminalUpdate,
   resolveTaskForLookupToken,
   setTaskCleanupAfterById,
+  setTaskGovernanceRuntimeById,
 } from "./runtime-internal.js";
 import {
   configureTaskAuditTaskProvider,
@@ -53,6 +54,7 @@ type TaskRegistryMaintenanceRuntime = {
   maybeDeliverTaskTerminalUpdate: typeof maybeDeliverTaskTerminalUpdate;
   resolveTaskForLookupToken: typeof resolveTaskForLookupToken;
   setTaskCleanupAfterById: typeof setTaskCleanupAfterById;
+  setTaskGovernanceRuntimeById: typeof setTaskGovernanceRuntimeById;
 };
 
 const defaultTaskRegistryMaintenanceRuntime: TaskRegistryMaintenanceRuntime = {
@@ -70,6 +72,7 @@ const defaultTaskRegistryMaintenanceRuntime: TaskRegistryMaintenanceRuntime = {
   maybeDeliverTaskTerminalUpdate,
   resolveTaskForLookupToken,
   setTaskCleanupAfterById,
+  setTaskGovernanceRuntimeById,
 };
 
 let taskRegistryMaintenanceRuntime: TaskRegistryMaintenanceRuntime =
@@ -77,6 +80,7 @@ let taskRegistryMaintenanceRuntime: TaskRegistryMaintenanceRuntime =
 
 export type TaskRegistryMaintenanceSummary = {
   reconciled: number;
+  governanceStamped: number;
   cleanupStamped: number;
   pruned: number;
 };
@@ -188,6 +192,44 @@ function resolveCleanupAfter(task: TaskRecord): number {
   return terminalAt + TASK_RETENTION_MS;
 }
 
+function resolveGovernanceRuntimePatch(task: TaskRecord): {
+  agentId?: string;
+  governanceRuntime: NonNullable<TaskRecord["governanceRuntime"]>;
+} | null {
+  if (task.governanceRuntime || task.runtime === "cron") {
+    return null;
+  }
+  const runIds = [task.runId, task.sourceId]
+    .map((candidate) => candidate?.trim())
+    .filter((candidate): candidate is string => Boolean(candidate));
+  for (const runId of runIds) {
+    const runContext = taskRegistryMaintenanceRuntime.getAgentRunContext(runId);
+    if (!runContext?.governanceRuntime) {
+      continue;
+    }
+    const agentId =
+      task.agentId?.trim() || runContext.agentId?.trim() || runContext.governanceRuntime.agentId;
+    return {
+      ...(agentId ? { agentId } : {}),
+      governanceRuntime: runContext.governanceRuntime,
+    };
+  }
+  return null;
+}
+
+function stampGovernanceRuntime(task: TaskRecord): TaskRecord {
+  const patch = resolveGovernanceRuntimePatch(task);
+  if (!patch) {
+    return task;
+  }
+  return (
+    taskRegistryMaintenanceRuntime.setTaskGovernanceRuntimeById({
+      taskId: task.taskId,
+      ...patch,
+    }) ?? task
+  );
+}
+
 function markTaskLost(task: TaskRecord, now: number): TaskRecord {
   const cleanupAfter = task.cleanupAfter ?? projectTaskLost(task, now).cleanupAfter;
   const updated =
@@ -254,6 +296,7 @@ export function previewTaskRegistryMaintenance(): TaskRegistryMaintenanceSummary
   taskRegistryMaintenanceRuntime.ensureTaskRegistryReady();
   const now = Date.now();
   let reconciled = 0;
+  let governanceStamped = 0;
   let cleanupStamped = 0;
   let pruned = 0;
   for (const task of taskRegistryMaintenanceRuntime.listTaskRecords()) {
@@ -265,11 +308,14 @@ export function previewTaskRegistryMaintenance(): TaskRegistryMaintenanceSummary
       pruned += 1;
       continue;
     }
+    if (resolveGovernanceRuntimePatch(task)) {
+      governanceStamped += 1;
+    }
     if (shouldStampCleanupAfter(task)) {
       cleanupStamped += 1;
     }
   }
-  return { reconciled, cleanupStamped, pruned };
+  return { reconciled, governanceStamped, cleanupStamped, pruned };
 }
 
 /**
@@ -296,12 +342,13 @@ export async function runTaskRegistryMaintenance(): Promise<TaskRegistryMaintena
   taskRegistryMaintenanceRuntime.ensureTaskRegistryReady();
   const now = Date.now();
   let reconciled = 0;
+  let governanceStamped = 0;
   let cleanupStamped = 0;
   let pruned = 0;
   const tasks = taskRegistryMaintenanceRuntime.listTaskRecords();
   let processed = 0;
   for (const task of tasks) {
-    const current = taskRegistryMaintenanceRuntime.getTaskById(task.taskId);
+    let current = taskRegistryMaintenanceRuntime.getTaskById(task.taskId);
     if (!current) {
       continue;
     }
@@ -327,6 +374,13 @@ export async function runTaskRegistryMaintenance(): Promise<TaskRegistryMaintena
       }
       continue;
     }
+    if (resolveGovernanceRuntimePatch(current)) {
+      const updated = stampGovernanceRuntime(current);
+      if (updated.governanceRuntime) {
+        governanceStamped += 1;
+      }
+      current = updated;
+    }
     if (
       shouldStampCleanupAfter(current) &&
       taskRegistryMaintenanceRuntime.setTaskCleanupAfterById({
@@ -341,7 +395,7 @@ export async function runTaskRegistryMaintenance(): Promise<TaskRegistryMaintena
       await yieldToEventLoop();
     }
   }
-  return { reconciled, cleanupStamped, pruned };
+  return { reconciled, governanceStamped, cleanupStamped, pruned };
 }
 
 export async function sweepTaskRegistry(): Promise<TaskRegistryMaintenanceSummary> {

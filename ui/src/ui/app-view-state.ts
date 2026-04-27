@@ -1,6 +1,7 @@
 import type { EventLogEntry } from "./app-events.ts";
 import type { CompactionStatus, FallbackStatus } from "./app-tool-stream.ts";
 import type { ChatSideResult } from "./chat/side-result.ts";
+import type { AutonomyState } from "./controllers/autonomy.ts";
 import type { CronModelSuggestionsState, CronState } from "./controllers/cron.ts";
 import type { DevicePairingList } from "./controllers/devices.ts";
 import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
@@ -22,6 +23,19 @@ import type {
   AgentsFilesListResult,
   AgentIdentityResult,
   AttentionItem,
+  AutonomyCapabilityInventoryResult,
+  AutonomyCancelResult,
+  AutonomyGenesisPlanResult,
+  AutonomyGovernanceProposalsResult,
+  AutonomyGovernanceReconcileResult,
+  AutonomyHistoryResult,
+  AutonomyOverviewResult,
+  AutonomyLoopRemoveResult,
+  AutonomyLoopUpsertResult,
+  AutonomyReplaySubmitResult,
+  AutonomyShowResult,
+  AutonomyStartResult,
+  AutonomySuperviseResult,
   ChannelsStatusSnapshot,
   ConfigSnapshot,
   ConfigUiHints,
@@ -35,6 +49,16 @@ import type {
   PresenceEntry,
   SessionsUsageResult,
   CostUsageSummary,
+  GovernanceAgentResult,
+  GovernanceCapabilityAssetRegistryResult,
+  GovernanceCapabilityInventoryResult,
+  GovernanceGenesisPlanResult,
+  GovernanceOverviewResult,
+  GovernanceProposalsCreateResult,
+  GovernanceProposalsListResult,
+  GovernanceProposalsReconcileResult,
+  GovernanceProposalsSynthesizeResult,
+  GovernanceTeamResult,
   SessionUsageTimeSeries,
   SessionsListResult,
   SessionCompactionCheckpoint,
@@ -200,7 +224,15 @@ export type AppViewState = {
   toolsEffectiveResultKey: string | null;
   toolsEffectiveError: string | null;
   toolsEffectiveResult: import("./types.js").ToolsEffectiveResult | null;
-  agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron";
+  agentsPanel:
+    | "overview"
+    | "files"
+    | "tools"
+    | "skills"
+    | "channels"
+    | "cron"
+    | "governance"
+    | "autonomy";
   agentFilesLoading: boolean;
   agentFilesError: string | null;
   agentFilesList: AgentsFilesListResult | null;
@@ -215,6 +247,128 @@ export type AppViewState = {
   agentSkillsError: string | null;
   agentSkillsReport: SkillStatusReport | null;
   agentSkillsAgentId: string | null;
+  governanceOverviewLoading: boolean;
+  governanceOverviewError: string | null;
+  governanceOverviewResult: GovernanceOverviewResult | null;
+  governanceAssetRegistryLoading: boolean;
+  governanceAssetRegistryLoadingKey: string | null;
+  governanceAssetRegistryError: string | null;
+  governanceAssetRegistryResult: GovernanceCapabilityAssetRegistryResult | null;
+  governanceCapabilitiesLoading: boolean;
+  governanceCapabilitiesLoadingKey: string | null;
+  governanceCapabilitiesError: string | null;
+  governanceCapabilitiesResult: GovernanceCapabilityInventoryResult | null;
+  governanceGenesisLoading: boolean;
+  governanceGenesisLoadingKey: string | null;
+  governanceGenesisError: string | null;
+  governanceGenesisResult: GovernanceGenesisPlanResult | null;
+  governanceAgentLoading: boolean;
+  governanceAgentLoadingId: string | null;
+  governanceAgentError: string | null;
+  governanceAgentResult: GovernanceAgentResult | null;
+  governanceTeamLoading: boolean;
+  governanceTeamLoadingId: string | null;
+  governanceTeamError: string | null;
+  governanceTeamResult: GovernanceTeamResult | null;
+  governanceProposalsLoading: boolean;
+  governanceProposalsLoadingKey: string | null;
+  governanceProposalsResultKey: string | null;
+  governanceProposalsError: string | null;
+  governanceProposalsResult: GovernanceProposalsListResult | null;
+  governanceProposalSynthesizeBusy: boolean;
+  governanceProposalSynthesizeError: string | null;
+  governanceProposalSynthesizeResult: GovernanceProposalsSynthesizeResult | null;
+  governanceProposalReconcileBusy: boolean;
+  governanceProposalReconcileError: string | null;
+  governanceProposalReconcileResult: GovernanceProposalsReconcileResult | null;
+  governanceProposalCreateBusy: boolean;
+  governanceProposalCreateError: string | null;
+  governanceProposalCreateResult: GovernanceProposalsCreateResult | null;
+  governanceProposalActionBusyId: string | null;
+  governanceProposalActionError: string | null;
+  governanceProposalOperator: string;
+  governanceProposalDecisionNote: string;
+  governanceProposalStatusFilter: import("./controllers/governance.js").GovernanceProposalStatusFilter;
+  governanceProposalReconcileMode: import("./controllers/governance.js").GovernanceProposalReconcileMode;
+  governanceProposalLimit: string;
+  governanceScopeAgentIds: string;
+  governanceScopeWorkspaceDirs: string;
+  governanceGenesisTeamId: string;
+  governanceProposalCreateTitle: string;
+  governanceProposalCreateRationale: string;
+  governanceProposalCreateByAgentId: string;
+  governanceProposalCreateBySessionKey: string;
+  governanceProposalOperationsJson: string;
+  autonomyLoading: boolean;
+  autonomyLoadingKey: string | null;
+  autonomyResultKey: string | null;
+  autonomyError: string | null;
+  autonomyResult: AutonomyShowResult | null;
+  autonomyOverviewLoading: boolean;
+  autonomyOverviewLoadingKey: string | null;
+  autonomyOverviewError: string | null;
+  autonomyOverviewResult: AutonomyOverviewResult | null;
+  autonomyCapabilitiesLoading: boolean;
+  autonomyCapabilitiesLoadingKey: string | null;
+  autonomyCapabilitiesError: string | null;
+  autonomyCapabilitiesResult: AutonomyCapabilityInventoryResult | null;
+  autonomyGenesisLoading: boolean;
+  autonomyGenesisLoadingKey: string | null;
+  autonomyGenesisError: string | null;
+  autonomyGenesisResult: AutonomyGenesisPlanResult | null;
+  autonomyHistoryLoading: boolean;
+  autonomyHistoryLoadingKey: string | null;
+  autonomyHistoryError: string | null;
+  autonomyHistoryResult: AutonomyHistoryResult | null;
+  autonomyStartBusy: boolean;
+  autonomyStartBusyKey: string | null;
+  autonomyStartError: string | null;
+  autonomyStartResult: AutonomyStartResult | null;
+  autonomyReplayBusy: boolean;
+  autonomyReplayBusyKey: string | null;
+  autonomyReplayError: string | null;
+  autonomyReplayResult: AutonomyReplaySubmitResult | null;
+  autonomyCancelBusy: boolean;
+  autonomyCancelBusyKey: string | null;
+  autonomyCancelError: string | null;
+  autonomyCancelResult: AutonomyCancelResult | null;
+  autonomyLoopBusy: boolean;
+  autonomyLoopBusyKey: string | null;
+  autonomyLoopError: string | null;
+  autonomyLoopResult: AutonomyLoopUpsertResult | AutonomyLoopRemoveResult | null;
+  autonomyHealBusy: boolean;
+  autonomyHealError: string | null;
+  autonomySuperviseBusy: boolean;
+  autonomySuperviseError: string | null;
+  autonomySuperviseResult: AutonomySuperviseResult | null;
+  autonomyGovernanceBusy: boolean;
+  autonomyGovernanceError: string | null;
+  autonomyGovernanceResult: AutonomyGovernanceProposalsResult | null;
+  autonomyGovernanceReconcileBusy: boolean;
+  autonomyGovernanceReconcileError: string | null;
+  autonomyGovernanceReconcileResult: AutonomyGovernanceReconcileResult | null;
+  autonomyGovernanceReconcileMode: import("./controllers/autonomy.js").AutonomyGovernanceReconcileMode;
+  autonomyGovernanceReconcileNote: string;
+  autonomyReconcileBusy: boolean;
+  autonomyReconcileError: string | null;
+  autonomyHistoryMode: import("./controllers/autonomy.js").AutonomyHistoryModeFilter;
+  autonomyHistorySource: import("./controllers/autonomy.js").AutonomyHistorySourceFilter;
+  autonomyHistoryLimit: string;
+  autonomyGoal: string;
+  autonomyControllerId: string;
+  autonomyCurrentStep: string;
+  autonomyNotifyPolicy: import("./controllers/autonomy.js").AutonomyNotifyPolicy;
+  autonomyFlowStatus: import("./controllers/autonomy.js").AutonomyFlowStatus;
+  autonomySeedTaskEnabled: boolean;
+  autonomySeedTaskRuntime: import("./controllers/autonomy.js").AutonomySeedTaskRuntime;
+  autonomySeedTaskStatus: import("./controllers/autonomy.js").AutonomySeedTaskStatus;
+  autonomySeedTaskLabel: string;
+  autonomySeedTaskTask: string;
+  autonomyReplayVerdict: import("./controllers/autonomy.js").AutonomyReplayVerdictDraft;
+  autonomyReplayQaVerdict: import("./controllers/autonomy.js").AutonomyReplayVerdictDraft;
+  autonomyReplayAuditVerdict: import("./controllers/autonomy.js").AutonomyReplayVerdictDraft;
+  autonomyLoopEveryMinutes: string;
+  autonomyWorkspaceScope: string;
   sessionsLoading: boolean;
   sessionsResult: SessionsListResult | null;
   sessionsError: string | null;
@@ -310,6 +464,52 @@ export type AppViewState = {
   | "cronRunsSortDir"
   | "cronBusy"
 > &
+  Pick<
+    AutonomyState,
+    | "autonomyLoading"
+    | "autonomyLoadingKey"
+    | "autonomyResultKey"
+    | "autonomyError"
+    | "autonomyResult"
+    | "autonomyOverviewLoading"
+    | "autonomyOverviewLoadingKey"
+    | "autonomyOverviewError"
+    | "autonomyOverviewResult"
+    | "autonomyCapabilitiesLoading"
+    | "autonomyCapabilitiesLoadingKey"
+    | "autonomyCapabilitiesError"
+    | "autonomyCapabilitiesResult"
+    | "autonomyGenesisLoading"
+    | "autonomyGenesisLoadingKey"
+    | "autonomyGenesisError"
+    | "autonomyGenesisResult"
+    | "autonomyHistoryLoading"
+    | "autonomyHistoryLoadingKey"
+    | "autonomyHistoryError"
+    | "autonomyHistoryResult"
+    | "autonomyStartBusy"
+    | "autonomyStartBusyKey"
+    | "autonomyStartError"
+    | "autonomyStartResult"
+    | "autonomyCancelBusy"
+    | "autonomyCancelBusyKey"
+    | "autonomyCancelError"
+    | "autonomyCancelResult"
+    | "autonomyLoopBusy"
+    | "autonomyLoopBusyKey"
+    | "autonomyLoopError"
+    | "autonomyLoopResult"
+    | "autonomyHealBusy"
+    | "autonomyHealError"
+    | "autonomySuperviseBusy"
+    | "autonomySuperviseError"
+    | "autonomySuperviseResult"
+    | "autonomyGovernanceBusy"
+    | "autonomyGovernanceError"
+    | "autonomyGovernanceResult"
+    | "autonomyReconcileBusy"
+    | "autonomyReconcileError"
+  > &
   Pick<CronModelSuggestionsState, "cronModelSuggestions"> & {
     skillsLoading: boolean;
     skillsReport: SkillStatusReport | null;

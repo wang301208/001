@@ -91,10 +91,48 @@ rollback_policy:
     - "open_incident"
     - "request_asset_rollback"
 
+contract:
+  role: "promotion_gatekeeper"
+  allowed_subagents:
+    - "publisher"
+    - "librarian"
+    - "sovereignty_auditor"
+  allowed_tools:
+    - "autonomy.history"
+    - "governance.overview"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "candidate_assets"
+    - "test_suites"
+    - "historical_replay_sets"
+    - "security_audit_reports"
+  qa_requirements:
+    - "functional_pass"
+    - "no_unexplained_regression"
+    - "audit_trace"
+    - "rollback_reference"
+  write_scope:
+    - "qa/**"
+    - "state/governance/**"
+    - "state/autonomy/**"
+  network_policy:
+    default: "internal_only"
+    allowed_domains: []
+    requires_citation: false
+  escalation_policy:
+    boundary_conflict: "sovereignty_auditor"
+    critical_change: "publisher"
+    blocked_promotion: "publisher"
+  promotion_gates:
+    - "functional_pass"
+    - "no_unexplained_regression"
+    - "audit_trace"
+    - "rollback_reference"
+
 runtime_mapping:
   intended_project_hooks:
     - "qa-runtime"
     - "src/security/audit.ts"
     - "src/tasks/task-registry.ts"
     - "src/tasks/task-flow-registry.ts"
-

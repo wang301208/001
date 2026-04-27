@@ -87,10 +87,49 @@ rollback_policy:
     - "revert_candidate_changes"
     - "return_to_archaeologist"
 
+contract:
+  role: "bounded_capability_builder"
+  allowed_subagents:
+    - "qa"
+    - "publisher"
+    - "librarian"
+  allowed_tools:
+    - "autonomy.capability.inventory"
+    - "governance.overview"
+    - "agents_list"
+    - "sessions_spawn"
+    - "apply_patch"
+  memory_scope:
+    - "change_plan"
+    - "existing_tests"
+    - "asset_manifests"
+    - "sandbox_reports"
+  qa_requirements:
+    - "candidate_tests_present"
+    - "bounded_workspace"
+    - "promotion_ready_artifacts"
+  write_scope:
+    - "skills/**"
+    - "extensions/**"
+    - "src/**"
+    - "qa/**"
+  network_policy:
+    default: "task_bounded"
+    allowed_domains: []
+    requires_citation: false
+  escalation_policy:
+    boundary_conflict: "archaeologist"
+    critical_change: "qa"
+    blocked_promotion: "publisher"
+  promotion_gates:
+    - "candidate_tests_present"
+    - "qa_report"
+    - "replay_report"
+    - "rollback_reference"
+
 runtime_mapping:
   intended_project_hooks:
     - "skills"
     - "plugins"
     - "qa-runtime"
     - "src/tasks/task-registry.ts"
-

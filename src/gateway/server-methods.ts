@@ -6,6 +6,7 @@ import { ErrorCodes, errorShape } from "./protocol/index.js";
 import { isRoleAuthorizedForMethod, parseGatewayRole } from "./role-policy.js";
 import { agentHandlers } from "./server-methods/agent.js";
 import { agentsHandlers } from "./server-methods/agents.js";
+import { autonomyHandlers } from "./server-methods/autonomy.js";
 import { channelsHandlers } from "./server-methods/channels.js";
 import { chatHandlers } from "./server-methods/chat.js";
 import { commandsHandlers } from "./server-methods/commands.js";
@@ -15,6 +16,7 @@ import { cronHandlers } from "./server-methods/cron.js";
 import { deviceHandlers } from "./server-methods/devices.js";
 import { doctorHandlers } from "./server-methods/doctor.js";
 import { execApprovalsHandlers } from "./server-methods/exec-approvals.js";
+import { governanceHandlers } from "./server-methods/governance.js";
 import { healthHandlers } from "./server-methods/health.js";
 import { logsHandlers } from "./server-methods/logs.js";
 import { modelsAuthStatusHandlers } from "./server-methods/models-auth-status.js";
@@ -99,6 +101,8 @@ export const coreGatewayHandlers: GatewayRequestHandlers = {
   ...usageHandlers,
   ...agentHandlers,
   ...agentsHandlers,
+  ...autonomyHandlers,
+  ...governanceHandlers,
 };
 
 export async function handleGatewayRequest(

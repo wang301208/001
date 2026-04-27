@@ -15,6 +15,143 @@ export type PresenceEntry = SchemaType<"PresenceEntry">;
 export type ErrorShape = SchemaType<"ErrorShape">;
 export type StateVersion = SchemaType<"StateVersion">;
 export type AgentEvent = SchemaType<"AgentEvent">;
+export type AutonomySeedTaskTemplate = SchemaType<"AutonomySeedTaskTemplate">;
+export type AutonomyLoopTemplate = SchemaType<"AutonomyLoopTemplate">;
+export type AutonomyBootstrapTemplate = SchemaType<"AutonomyBootstrapTemplate">;
+export type AutonomyAgentProfile = SchemaType<"AutonomyAgentProfile">;
+export type AutonomyFleetHistorySource = SchemaType<"AutonomyFleetHistorySource">;
+export type AutonomyFleetHistoryMode = SchemaType<"AutonomyFleetHistoryMode">;
+export type AutonomyFleetHistoryTotals = SchemaType<"AutonomyFleetHistoryTotals">;
+export type AutonomyFleetHistoryEntry = SchemaType<"AutonomyFleetHistoryEntry">;
+export type AutonomyFleetHistoryEvent = SchemaType<"AutonomyFleetHistoryEvent">;
+export type AutonomyListParams = SchemaType<"AutonomyListParams">;
+export type AutonomyListResult = SchemaType<"AutonomyListResult">;
+export type AutonomyOverviewParams = SchemaType<"AutonomyOverviewParams">;
+export type AutonomyOverviewResult = SchemaType<"AutonomyOverviewResult">;
+export type AutonomyCapabilityInventoryEnvelope =
+  SchemaType<"AutonomyCapabilityInventoryEnvelope">;
+export type AutonomyCapabilityInventoryEntryActivation =
+  SchemaType<"AutonomyCapabilityInventoryEntryActivation">;
+export type AutonomyCapabilityInventoryEntry = SchemaType<"AutonomyCapabilityInventoryEntry">;
+export type AutonomyCapabilityGap = SchemaType<"AutonomyCapabilityGap">;
+export type AutonomyCapabilityInventorySummary = SchemaType<"AutonomyCapabilityInventorySummary">;
+export type AutonomyCapabilityInventoryParams = SchemaType<"AutonomyCapabilityInventoryParams">;
+export type AutonomyCapabilityInventoryResult = SchemaType<"AutonomyCapabilityInventoryResult">;
+export type AutonomyFleetStatusHealth = SchemaType<"AutonomyFleetStatusHealth">;
+export type AutonomyFleetStatusSuggestedAction = SchemaType<"AutonomyFleetStatusSuggestedAction">;
+export type AutonomyFleetStatusEntry = SchemaType<"AutonomyFleetStatusEntry">;
+export type AutonomyFleetStatusResult = SchemaType<"AutonomyFleetStatusResult">;
+export type AutonomyGenesisPlanStage = SchemaType<"AutonomyGenesisPlanStage">;
+export type AutonomyGenesisPlanParams = SchemaType<"AutonomyGenesisPlanParams">;
+export type AutonomyGenesisPlanResult = SchemaType<"AutonomyGenesisPlanResult">;
+export type AutonomyGenesisPlanEnvelope = SchemaType<"AutonomyGenesisPlanEnvelope">;
+export type AutonomyHealParams = SchemaType<"AutonomyHealParams">;
+export type AutonomyHealResultEnvelope = SchemaType<"AutonomyHealResultEnvelope">;
+export type AutonomyFleetHealLoopAction = SchemaType<"AutonomyFleetHealLoopAction">;
+export type AutonomyFleetHealFlowAction = SchemaType<"AutonomyFleetHealFlowAction">;
+export type AutonomyFleetHealEntry = SchemaType<"AutonomyFleetHealEntry">;
+export type AutonomyFleetHealResult = SchemaType<"AutonomyFleetHealResult">;
+export type AutonomySupervisorGovernanceMode = SchemaType<"AutonomySupervisorGovernanceMode">;
+export type AutonomySupervisorSummary = SchemaType<"AutonomySupervisorSummary">;
+export type AutonomySuperviseParams = SchemaType<"AutonomySuperviseParams">;
+export type AutonomySuperviseResult = SchemaType<"AutonomySuperviseResult">;
+export type AutonomySuperviseResultEnvelope =
+  SchemaType<"AutonomySuperviseResultEnvelope">;
+export type AutonomyHistoryParams = SchemaType<"AutonomyHistoryParams">;
+export type AutonomyFleetHistoryResult = SchemaType<"AutonomyFleetHistoryResult">;
+export type AutonomyHistoryResultEnvelope =
+  SchemaType<"AutonomyHistoryResultEnvelope">;
+export type AutonomyGovernanceProposalItem = SchemaType<"AutonomyGovernanceProposalItem">;
+export type AutonomyGovernanceProposalsParams = SchemaType<"AutonomyGovernanceProposalsParams">;
+export type AutonomyGovernanceProposalsResult = SchemaType<"AutonomyGovernanceProposalsResult">;
+export type AutonomyGovernanceProposalsEnvelope =
+  SchemaType<"AutonomyGovernanceProposalsEnvelope">;
+export type AutonomyGovernanceReconcileParams = SchemaType<"AutonomyGovernanceReconcileParams">;
+export type AutonomyGovernanceReconcileResult = SchemaType<"AutonomyGovernanceReconcileResult">;
+export type AutonomyGovernanceReconcileEnvelope =
+  SchemaType<"AutonomyGovernanceReconcileEnvelope">;
+export type AutonomyShowParams = SchemaType<"AutonomyShowParams">;
+export type AutonomyShowResult = SchemaType<"AutonomyShowResult">;
+export type AutonomyStartParams = SchemaType<"AutonomyStartParams">;
+export type AutonomySubmitSandboxReplayParams = SchemaType<"AutonomySubmitSandboxReplayParams">;
+export type AutonomySubmitSandboxReplayResult = SchemaType<"AutonomySubmitSandboxReplayResult">;
+export type AutonomySubmitSandboxReplayEnvelope =
+  SchemaType<"AutonomySubmitSandboxReplayEnvelope">;
+export type AutonomyCancelParams = SchemaType<"AutonomyCancelParams">;
+export type AutonomyLoopShowParams = SchemaType<"AutonomyLoopShowParams">;
+export type AutonomyLoopUpsertParams = SchemaType<"AutonomyLoopUpsertParams">;
+export type AutonomyLoopReconcileParams = SchemaType<"AutonomyLoopReconcileParams">;
+export type AutonomyLoopRemoveParams = SchemaType<"AutonomyLoopRemoveParams">;
+export type SandboxUniversePromotionGateDecision =
+  SchemaType<"SandboxUniversePromotionGateDecision">;
+export type AgentGovernanceRuntimeContract = SchemaType<"AgentGovernanceRuntimeContract">;
+export type AgentGovernanceRuntimeSnapshot = SchemaType<"AgentGovernanceRuntimeSnapshot">;
+export type GovernanceOverviewParams = SchemaType<"GovernanceOverviewParams">;
+export type GovernanceOverviewResult = SchemaType<"GovernanceOverviewResult">;
+export type GovernanceAgentParams = SchemaType<"GovernanceAgentParams">;
+export type GovernanceAgentResult = SchemaType<"GovernanceAgentResult">;
+export type GovernanceTeamMemberRecord = SchemaType<"GovernanceTeamMemberRecord">;
+export type GovernanceTeamParams = SchemaType<"GovernanceTeamParams">;
+export type GovernanceTeamResult = SchemaType<"GovernanceTeamResult">;
+export type GovernanceCapabilityInventoryEntryActivation =
+  SchemaType<"GovernanceCapabilityInventoryEntryActivation">;
+export type GovernanceCapabilityInventoryEntry =
+  SchemaType<"GovernanceCapabilityInventoryEntry">;
+export type GovernanceCapabilityGap = SchemaType<"GovernanceCapabilityGap">;
+export type GovernanceCapabilityInventorySummary =
+  SchemaType<"GovernanceCapabilityInventorySummary">;
+export type GovernanceCapabilityInventoryParams = SchemaType<"GovernanceCapabilityInventoryParams">;
+export type GovernanceCapabilityInventoryResult = SchemaType<"GovernanceCapabilityInventoryResult">;
+export type GovernanceCapabilityAssetRecord = SchemaType<"GovernanceCapabilityAssetRecord">;
+export type GovernanceCapabilityAssetRegistryFile =
+  SchemaType<"GovernanceCapabilityAssetRegistryFile">;
+export type GovernanceCapabilityAssetRegistrySnapshot =
+  SchemaType<"GovernanceCapabilityAssetRegistrySnapshot">;
+export type GovernanceCapabilityAssetRegistryParams =
+  SchemaType<"GovernanceCapabilityAssetRegistryParams">;
+export type GovernanceCapabilityAssetRegistryResult =
+  SchemaType<"GovernanceCapabilityAssetRegistryResult">;
+export type GovernanceGenesisPlanStage = SchemaType<"GovernanceGenesisPlanStage">;
+export type GovernanceGenesisPlanParams = SchemaType<"GovernanceGenesisPlanParams">;
+export type GovernanceGenesisPlanResult = SchemaType<"GovernanceGenesisPlanResult">;
+export type GovernanceProposalOperation = SchemaType<"GovernanceProposalOperation">;
+export type GovernanceProposalReviewRecord = SchemaType<"GovernanceProposalReviewRecord">;
+export type GovernanceProposalApplyRecord = SchemaType<"GovernanceProposalApplyRecord">;
+export type GovernanceProposalBatchSelection = SchemaType<"GovernanceProposalBatchSelection">;
+export type GovernanceProposalBatchEntry = SchemaType<"GovernanceProposalBatchEntry">;
+export type GovernanceProposalRecord = SchemaType<"GovernanceProposalRecord">;
+export type GovernanceProposalSummary = SchemaType<"GovernanceProposalSummary">;
+export type GovernanceProposalLedger = SchemaType<"GovernanceProposalLedger">;
+export type GovernanceProposalsListParams = SchemaType<"GovernanceProposalsListParams">;
+export type GovernanceProposalsListResult = SchemaType<"GovernanceProposalsListResult">;
+export type GovernanceProposalsReconcileParams =
+  SchemaType<"GovernanceProposalsReconcileParams">;
+export type GovernanceProposalsReconcileResult =
+  SchemaType<"GovernanceProposalsReconcileResult">;
+export type GovernanceProposalsSynthesizeParams =
+  SchemaType<"GovernanceProposalsSynthesizeParams">;
+export type GovernanceProposalsSynthesizeResult =
+  SchemaType<"GovernanceProposalsSynthesizeResult">;
+export type GovernanceProposalsCreateParams = SchemaType<"GovernanceProposalsCreateParams">;
+export type GovernanceProposalsCreateResult = SchemaType<"GovernanceProposalsCreateResult">;
+export type GovernanceProposalsReviewParams = SchemaType<"GovernanceProposalsReviewParams">;
+export type GovernanceProposalsReviewResult = SchemaType<"GovernanceProposalsReviewResult">;
+export type GovernanceProposalsReviewManyParams =
+  SchemaType<"GovernanceProposalsReviewManyParams">;
+export type GovernanceProposalsReviewManyResult =
+  SchemaType<"GovernanceProposalsReviewManyResult">;
+export type GovernanceProposalsApplyParams = SchemaType<"GovernanceProposalsApplyParams">;
+export type GovernanceProposalsApplyResult = SchemaType<"GovernanceProposalsApplyResult">;
+export type GovernanceProposalsApplyManyParams =
+  SchemaType<"GovernanceProposalsApplyManyParams">;
+export type GovernanceProposalsApplyManyResult =
+  SchemaType<"GovernanceProposalsApplyManyResult">;
+export type GovernanceProposalsRevertParams = SchemaType<"GovernanceProposalsRevertParams">;
+export type GovernanceProposalsRevertResult = SchemaType<"GovernanceProposalsRevertResult">;
+export type GovernanceProposalsRevertManyParams =
+  SchemaType<"GovernanceProposalsRevertManyParams">;
+export type GovernanceProposalsRevertManyResult =
+  SchemaType<"GovernanceProposalsRevertManyResult">;
 export type AgentIdentityParams = SchemaType<"AgentIdentityParams">;
 export type AgentIdentityResult = SchemaType<"AgentIdentityResult">;
 export type MessageActionParams = SchemaType<"MessageActionParams">;
@@ -114,6 +251,7 @@ export type ToolsCatalogParams = SchemaType<"ToolsCatalogParams">;
 export type ToolCatalogProfile = SchemaType<"ToolCatalogProfile">;
 export type ToolCatalogEntry = SchemaType<"ToolCatalogEntry">;
 export type ToolCatalogGroup = SchemaType<"ToolCatalogGroup">;
+export type ToolGovernanceSummary = SchemaType<"ToolGovernanceSummary">;
 export type ToolsCatalogResult = SchemaType<"ToolsCatalogResult">;
 export type ToolsEffectiveParams = SchemaType<"ToolsEffectiveParams">;
 export type ToolsEffectiveEntry = SchemaType<"ToolsEffectiveEntry">;

@@ -487,6 +487,9 @@ export async function runEmbeddedAttempt(
 
     const sessionLabel = params.sessionKey ?? params.sessionId;
     const contextInjectionMode = resolveContextInjectionMode(params.config);
+    const bootstrapCheckpointContinuation = (
+      params.sessionKey ? loadGatewaySessionRow(params.sessionKey) : null
+    )?.latestCompactionCheckpoint?.continuation as SessionTaskContinuation | undefined;
     const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
     const toolsRaw = params.disableTools
       ? []
@@ -580,7 +583,7 @@ export async function runEmbeddedAttempt(
       bootstrapContextRunKind: params.bootstrapContextRunKind ?? "default",
       bootstrapMode,
       sessionFile: params.sessionFile,
-      checkpointContinuation,
+      checkpointContinuation: bootstrapCheckpointContinuation,
       hasCompletedBootstrapTurn,
       resolveBootstrapContextForRun: async () =>
         await resolveBootstrapContextForRun({
@@ -1487,7 +1490,7 @@ export async function runEmbeddedAttempt(
           sessionManager,
           sessionId: params.sessionId,
           policy: transcriptPolicy,
-          taskStatusOverride,
+          taskStatusOverride: projectedTaskStatusOverride,
         });
         cacheTrace?.recordStage("session:sanitized", { messages: prior });
         const validated = await validateReplayTurns({

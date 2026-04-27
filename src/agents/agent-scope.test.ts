@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import {
   hasConfiguredModelFallbacks,
+  listAgentIds,
   resolveAgentConfig,
   resolveAgentDir,
   resolveAgentEffectiveModelPrimary,
@@ -463,6 +464,72 @@ describe("resolveAgentConfig", () => {
     expect(result?.workspace).toBe("~/openclaw");
   });
 
+  it("appends governance charter agents to discoverable agent ids when config agents exist", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [{ id: "main", workspace: "~/openclaw" }],
+      },
+    };
+
+    const ids = listAgentIds(cfg);
+
+    expect(ids[0]).toBe("main");
+    expect(ids).toContain("executor");
+    expect(ids).toContain("founder");
+    expect(ids).toContain("librarian");
+  });
+
+  it("preserves bare main-only discovery when no agent list is configured", () => {
+    const cfg: OpenClawConfig = {};
+    expect(listAgentIds(cfg)).toEqual(["main"]);
+  });
+
+  it("synthesizes runtime config for charter-only agents once agents.list is enabled", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [{ id: "main", workspace: "/repo" }],
+      },
+    };
+
+    const founder = resolveAgentConfig(cfg, "founder");
+
+    expect(founder?.name).toBe("Founder");
+    expect(founder?.identity?.name).toBe("Founder");
+    expect(founder?.subagents?.allowAgents).toContain("librarian");
+    expect(founder?.subagents?.requireAgentId).toBe(true);
+    expect(founder?.embeddedPi?.executionContract).toBe("strict-agentic");
+    expect(founder?.tools?.elevated?.enabled).toBe(false);
+    expect(founder?.contextLimits?.memoryGetMaxChars).toBeGreaterThan(20_000);
+  });
+
+  it("narrows configured allowAgents through the charter graph for declared agents", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [{ id: "executor", subagents: { allowAgents: ["*"] } }],
+      },
+    };
+
+    const executor = resolveAgentConfig(cfg, "executor");
+
+    expect(executor?.subagents?.allowAgents).toContain("librarian");
+    expect(executor?.subagents?.allowAgents).not.toContain("algorithmist");
+  });
+
+  it("lets charter-only agents inherit the default agent workspace", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [{ id: "main", workspace: "/repo" }],
+      },
+    };
+
+    expect(resolveAgentWorkspaceDir(cfg, "founder")).toBe(path.resolve("/repo"));
+  });
+
+  it("does not synthesize charter runtime config before agents.list is enabled", () => {
+    const cfg: OpenClawConfig = {};
+    expect(resolveAgentConfig(cfg, "founder")).toBeUndefined();
+  });
+
   it("uses OPENCLAW_HOME for default agent workspace", () => {
     const home = path.join(path.sep, "srv", "openclaw-home");
     vi.stubEnv("OPENCLAW_HOME", home);
@@ -512,7 +579,7 @@ describe("resolveAgentConfig", () => {
       },
     };
     const workspace = resolveAgentWorkspaceDir(cfg, "main");
-    expect(workspace).toBe(path.join(stateDir, "workspace-main"));
+    expect(workspace).toBe(path.resolve(stateDir, "workspace-main"));
   });
 });
 
@@ -602,6 +669,17 @@ describe("resolveAgentIdsByWorkspacePath", () => {
       "ops",
       "main",
     ]);
+  });
+
+  it("excludes charter-only agents that inherit the default workspace", () => {
+    const workspaceRoot = `/tmp/openclaw-agent-scope-${Date.now()}-root`;
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [{ id: "main", workspace: workspaceRoot }],
+      },
+    };
+
+    expect(resolveAgentIdsByWorkspacePath(cfg, `${workspaceRoot}/pkg`)).toEqual(["main"]);
   });
 });
 

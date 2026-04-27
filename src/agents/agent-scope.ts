@@ -18,6 +18,7 @@ import { resolveUserPath } from "../utils.js";
 import {
   listAgentEntries,
   listAgentIds,
+  listWorkspaceScopedAgentIds,
   resolveAgentConfig,
   resolveAgentContextLimits,
   resolveAgentDir,
@@ -29,6 +30,7 @@ import { resolveEffectiveAgentSkillFilter } from "./skills/agent-filter.js";
 export {
   listAgentEntries,
   listAgentIds,
+  listWorkspaceScopedAgentIds,
   resolveAgentConfig,
   resolveAgentContextLimits,
   resolveAgentDir,
@@ -202,7 +204,7 @@ export function resolveAgentIdsByWorkspacePath(
   workspacePath: string,
 ): string[] {
   const normalizedWorkspacePath = normalizePathForComparison(workspacePath);
-  const ids = listAgentIds(cfg);
+  const ids = listWorkspaceScopedAgentIds(cfg);
   const matches: Array<{ id: string; workspaceDir: string; order: number }> = [];
 
   for (let index = 0; index < ids.length; index += 1) {

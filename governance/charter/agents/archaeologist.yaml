@@ -83,10 +83,45 @@ rollback_policy:
     - "reopen_investigation"
     - "invalidate_change_plan"
 
+contract:
+  role: "root_cause_archaeologist"
+  allowed_subagents:
+    - "tdd_developer"
+    - "qa"
+    - "executor"
+  allowed_tools:
+    - "autonomy.history"
+    - "autonomy.capability.inventory"
+    - "governance.overview"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "failure_paths"
+    - "dependency_maps"
+    - "source_tree_indexes"
+    - "security_audit_reports"
+  qa_requirements:
+    - "evidence_citations"
+    - "reproducible_failure_path"
+  write_scope:
+    - "state/autonomy/**"
+    - "state/governance/proposals/**"
+  network_policy:
+    default: "narrow_research"
+    allowed_domains:
+      - "github.com"
+    requires_citation: true
+  escalation_policy:
+    boundary_conflict: "sentinel"
+    critical_change: "sovereignty_auditor"
+    blocked_promotion: "qa"
+  promotion_gates:
+    - "evidence_citations"
+    - "reproducible_failure_path"
+
 runtime_mapping:
   intended_project_hooks:
     - "src/tasks/task-registry.ts"
     - "src/tasks/task-flow-registry.ts"
     - "src/security/audit.ts"
     - "src/agents/agent-scope-config.ts"
-

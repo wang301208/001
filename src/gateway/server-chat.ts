@@ -564,6 +564,7 @@ export function createAgentEventHandler({
       responseUsage: row?.responseUsage,
       modelProvider: row?.modelProvider,
       model: row?.model,
+      ...(row?.governanceRuntime ? { governanceRuntime: row.governanceRuntime } : {}),
       status: snapshotSource.status,
       startedAt: snapshotSource.startedAt,
       endedAt: snapshotSource.endedAt,

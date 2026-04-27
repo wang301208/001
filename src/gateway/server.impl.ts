@@ -772,6 +772,7 @@ export async function startGatewayServer(
       minimalTestGateway,
       cfgAtStart,
       cron: runtimeState.cronState.cron,
+      getCron: () => runtimeState.cronState.cron,
       logCron,
       log,
     });

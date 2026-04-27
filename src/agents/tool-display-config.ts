@@ -461,6 +461,36 @@ export const TOOL_DISPLAY_CONFIG: ToolDisplayConfig = {
       title: "Agents",
       detailKeys: [],
     },
+    governance: {
+      emoji: "馃彅",
+      title: "Governance",
+      actions: {
+        overview: {
+          label: "overview",
+        },
+        agent: {
+          label: "agent",
+          detailKeys: ["agentId"],
+        },
+      },
+    },
+    autonomy: {
+      emoji: "馃",
+      title: "Autonomy",
+      actions: {
+        list: {
+          label: "list",
+        },
+        show: {
+          label: "show",
+          detailKeys: ["agentId"],
+        },
+        start: {
+          label: "start",
+          detailKeys: ["agentId", "goal", "currentStep", "controllerId"],
+        },
+      },
+    },
     memory_search: {
       emoji: "🧠",
       title: "Memory Search",

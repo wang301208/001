@@ -26,7 +26,6 @@ import {
 } from "../agents/subagent-registry-read.js";
 import { loadConfig } from "../config/config.js";
 import { resolveAgentModelFallbackValues } from "../config/model-input.js";
-import { resolveStateDir } from "../config/paths.js";
 import {
   buildGroupDisplayName,
   loadSessionStore,
@@ -40,11 +39,7 @@ import {
 } from "../config/sessions.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
-import {
-  normalizeAgentId,
-  normalizeMainKey,
-  parseAgentSessionKey,
-} from "../routing/session-key.js";
+import { normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
 import { isCronRunSessionKey } from "../sessions/session-key-utils.js";
 import {
   AVATAR_MAX_BYTES,
@@ -61,6 +56,7 @@ import {
 } from "../shared/string-coerce.js";
 import { normalizeSessionDeliveryFields } from "../utils/delivery-context.shared.js";
 import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
+import { listGatewayAgentsBasic } from "./agent-list.js";
 import {
   canonicalizeSessionKeyForAgent,
   canonicalizeSpawnedByForAgent,
@@ -578,42 +574,6 @@ function isStorePathTemplate(store?: string): boolean {
   return typeof store === "string" && store.includes("{agentId}");
 }
 
-function listExistingAgentIdsFromDisk(): string[] {
-  const root = resolveStateDir();
-  const agentsDir = path.join(root, "agents");
-  try {
-    const entries = fs.readdirSync(agentsDir, { withFileTypes: true });
-    return entries
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => normalizeAgentId(entry.name))
-      .filter(Boolean);
-  } catch {
-    return [];
-  }
-}
-
-function listConfiguredAgentIds(cfg: OpenClawConfig): string[] {
-  const ids = new Set<string>();
-  const defaultId = normalizeAgentId(resolveDefaultAgentId(cfg));
-  ids.add(defaultId);
-
-  for (const entry of cfg.agents?.list ?? []) {
-    if (entry?.id) {
-      ids.add(normalizeAgentId(entry.id));
-    }
-  }
-
-  for (const id of listExistingAgentIdsFromDisk()) {
-    ids.add(id);
-  }
-
-  const sorted = Array.from(ids).filter(Boolean);
-  sorted.sort((a, b) => a.localeCompare(b));
-  return sorted.includes(defaultId)
-    ? [defaultId, ...sorted.filter((id) => id !== defaultId)]
-    : sorted;
-}
-
 function normalizeFallbackList(values: readonly string[]): string[] {
   const out: string[] = [];
   const seen = new Set<string>();
@@ -655,13 +615,8 @@ export function listAgentsForGateway(cfg: OpenClawConfig): {
   scope: SessionScope;
   agents: GatewayAgentRow[];
 } {
-  const defaultId = normalizeAgentId(resolveDefaultAgentId(cfg));
-  const mainKey = normalizeMainKey(cfg.session?.mainKey);
-  const scope = cfg.session?.scope ?? "per-sender";
-  const configuredById = new Map<
-    string,
-    { name?: string; identity?: GatewayAgentRow["identity"] }
-  >();
+  const gatewayAgents = listGatewayAgentsBasic(cfg);
+  const configuredById = new Map<string, { identity?: GatewayAgentRow["identity"] }>();
   for (const entry of cfg.agents?.list ?? []) {
     if (!entry?.id) {
       continue;
@@ -680,34 +635,25 @@ export function listAgentsForGateway(cfg: OpenClawConfig): {
         }
       : undefined;
     configuredById.set(normalizeAgentId(entry.id), {
-      name: normalizeOptionalString(entry.name),
       identity,
     });
   }
-  const explicitIds = new Set(
-    (cfg.agents?.list ?? [])
-      .map((entry) => (entry?.id ? normalizeAgentId(entry.id) : ""))
-      .filter(Boolean),
-  );
-  const allowedIds = explicitIds.size > 0 ? new Set([...explicitIds, defaultId]) : null;
-  let agentIds = listConfiguredAgentIds(cfg).filter((id) =>
-    allowedIds ? allowedIds.has(id) : true,
-  );
-  if (mainKey && !agentIds.includes(mainKey) && (!allowedIds || allowedIds.has(mainKey))) {
-    agentIds = [...agentIds, mainKey];
-  }
-  const agents = agentIds.map((id) => {
-    const meta = configuredById.get(id);
-    const model = resolveGatewayAgentModel(cfg, id);
+  const agents = gatewayAgents.agents.map((agent) => {
+    const meta = configuredById.get(agent.id);
+    const model = resolveGatewayAgentModel(cfg, agent.id);
     return {
-      id,
-      name: meta?.name,
+      ...agent,
       identity: meta?.identity,
-      workspace: resolveAgentWorkspaceDir(cfg, id),
+      workspace: resolveAgentWorkspaceDir(cfg, agent.id),
       ...(model ? { model } : {}),
     };
   });
-  return { defaultId, mainKey, scope, agents };
+  return {
+    defaultId: gatewayAgents.defaultId,
+    mainKey: gatewayAgents.mainKey,
+    scope: gatewayAgents.scope,
+    agents,
+  };
 }
 
 function buildGatewaySessionStoreScanTargets(params: {
@@ -1295,6 +1241,7 @@ export function buildGatewaySessionRow(params: {
     modelProvider: selectedModel?.provider ?? modelProvider,
     model: selectedModel?.model ?? model,
     contextTokens,
+    ...(entry?.governanceRuntime ? { governanceRuntime: entry.governanceRuntime } : {}),
     deliveryContext: deliveryFields.deliveryContext,
     lastChannel: deliveryFields.lastChannel ?? entry?.lastChannel,
     lastTo: deliveryFields.lastTo ?? entry?.lastTo,

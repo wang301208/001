@@ -4,6 +4,7 @@ import {
   AGENT_INTERNAL_EVENT_STATUSES,
   AGENT_INTERNAL_EVENT_TYPE_TASK_COMPLETION,
 } from "../../../agents/internal-event-contract.js";
+import { AgentGovernanceRuntimeSnapshotSchema } from "./agents-models-skills.js";
 import { InputProvenanceSchema, NonEmptyString, SessionLabelString } from "./primitives.js";
 
 export const AgentInternalEventSchema = Type.Object(
@@ -31,6 +32,9 @@ export const AgentEventSchema = Type.Object(
     stream: NonEmptyString,
     ts: Type.Integer({ minimum: 0 }),
     data: Type.Record(Type.String(), Type.Unknown()),
+    sessionKey: Type.Optional(NonEmptyString),
+    agentId: Type.Optional(NonEmptyString),
+    governanceRuntime: Type.Optional(AgentGovernanceRuntimeSnapshotSchema),
   },
   { additionalProperties: false },
 );

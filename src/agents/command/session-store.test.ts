@@ -204,6 +204,63 @@ describe("updateSessionStoreAfterAgentRun", () => {
     });
   });
 
+  it("persists governance runtime snapshots for session-level audit", async () => {
+    await withTempSessionStore(async ({ storePath }) => {
+      const sessionKey = `agent:founder:governance:${randomUUID()}`;
+      const sessionId = randomUUID();
+      const governanceRuntime = {
+        agentId: "founder",
+        observedAt: Date.now(),
+        summary: {
+          charterDeclared: true,
+          charterTitle: "Founder",
+          charterLayer: "evolution",
+          charterToolDeny: ["exec"],
+          charterRequireAgentId: true,
+          charterExecutionContract: "strict-agentic" as const,
+          charterElevatedLocked: true,
+          freezeActive: true,
+          freezeReasonCode: "freeze_without_auditor",
+          freezeDeny: ["exec"],
+          freezeDetails: ["manual freeze active"],
+        },
+      };
+
+      const sessionStore: Record<string, SessionEntry> = {
+        [sessionKey]: {
+          sessionId,
+          updatedAt: Date.now(),
+        },
+      };
+      await fs.writeFile(storePath, JSON.stringify(sessionStore, null, 2), "utf8");
+
+      await updateSessionStoreAfterAgentRun({
+        cfg: {} as never,
+        sessionId,
+        sessionKey,
+        storePath,
+        sessionStore,
+        contextTokensOverride: 200_000,
+        defaultProvider: "openai",
+        defaultModel: "gpt-5.4",
+        result: {
+          payloads: [],
+          meta: {
+            agentMeta: {
+              provider: "openai",
+              model: "gpt-5.4",
+              governanceRuntime,
+            },
+          },
+        } as never,
+      });
+
+      const persisted = loadSessionStore(storePath, { skipCache: true })[sessionKey];
+      expect(persisted?.governanceRuntime).toEqual(governanceRuntime);
+      expect(sessionStore[sessionKey]?.governanceRuntime).toEqual(governanceRuntime);
+    });
+  });
+
   it("stores and reloads the runtime model for explicit session-id-only runs", async () => {
     await withTempSessionStore(async ({ storePath }) => {
       const cfg = {

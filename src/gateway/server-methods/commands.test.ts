@@ -427,7 +427,13 @@ describe("commands.list handler", () => {
   it("rejects unknown agentId", () => {
     const { ok, error } = callHandler({ agentId: "nonexistent" });
     expect(ok).toBe(false);
-    expect(error).toEqual(errorShape(ErrorCodes.INVALID_REQUEST, 'unknown agent id "nonexistent"'));
+    expect(error).toEqual(
+      expect.objectContaining({
+        code: ErrorCodes.INVALID_REQUEST,
+        message: expect.stringContaining('Unknown agent id "nonexistent"'),
+      }),
+    );
+    expect((error as { message: string }).message).toContain("Known agents:");
   });
 
   it("rejects invalid params", () => {

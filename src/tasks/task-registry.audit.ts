@@ -45,6 +45,13 @@ function taskReferenceAt(task: TaskRecord): number {
   return task.lastEventAt ?? task.startedAt ?? task.createdAt;
 }
 
+function requiresGovernanceRuntime(task: TaskRecord): boolean {
+  if (task.scopeKind !== "session" || task.runtime === "cron") {
+    return false;
+  }
+  return Boolean(task.runId?.trim() || task.agentId?.trim() || task.childSessionKey?.trim());
+}
+
 function findTimestampInconsistency(task: TaskRecord): TaskAuditFinding | null {
   if (task.startedAt && task.startedAt < task.createdAt) {
     return createFinding({
@@ -142,6 +149,18 @@ export function listTaskAuditFindings(options: TaskAuditOptions = {}): TaskAudit
           task,
           ageMs,
           detail: "terminal update delivery failed",
+        }),
+      );
+    }
+
+    if (!task.governanceRuntime && requiresGovernanceRuntime(task)) {
+      findings.push(
+        createFinding({
+          severity: "warn",
+          code: "missing_governance_runtime",
+          task,
+          ageMs,
+          detail: "task is missing governance runtime metadata",
         }),
       );
     }

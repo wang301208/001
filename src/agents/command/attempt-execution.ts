@@ -5,6 +5,7 @@ import type { ThinkLevel, VerboseLevel } from "../../auto-reply/thinking.js";
 import { resolveSessionTranscriptFile } from "../../config/sessions/transcript.js";
 import type { SessionEntry } from "../../config/sessions/types.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import { emitAgentEvent } from "../../infra/agent-events.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
@@ -404,8 +405,10 @@ export function runAgentAttempt(params: {
 export function buildAcpResult(params: {
   payloadText: string;
   startedAt: number;
+  sessionId?: string;
   stopReason?: string;
   abortSignal?: AbortSignal;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
 }) {
   const normalizedFinalPayload = normalizeReplyPayload({
     text: params.payloadText,
@@ -413,11 +416,21 @@ export function buildAcpResult(params: {
   const payloads = normalizedFinalPayload ? [normalizedFinalPayload] : [];
   return {
     payloads,
-    meta: {
-      durationMs: Date.now() - params.startedAt,
-      aborted: params.abortSignal?.aborted === true,
-      stopReason: params.stopReason,
-    },
+      meta: {
+        durationMs: Date.now() - params.startedAt,
+        aborted: params.abortSignal?.aborted === true,
+        stopReason: params.stopReason,
+        ...(params.sessionId
+          ? {
+              agentMeta: {
+                sessionId: params.sessionId,
+                provider: "openclaw",
+                model: "acp-runtime",
+                ...(params.governanceRuntime ? { governanceRuntime: params.governanceRuntime } : {}),
+              },
+            }
+          : {}),
+      },
   };
 }
 

@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { appendAuditFact } from "../infra/audit-stream.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
@@ -141,15 +142,65 @@ function snapshotFlowRecords(source: ReadonlyMap<string, TaskFlowRecord>): TaskF
 }
 
 function emitFlowRegistryObserverEvent(createEvent: () => TaskFlowRegistryObserverEvent): void {
+  const event = createEvent();
   const observers = getTaskFlowRegistryObservers();
-  if (!observers?.onEvent) {
-    return;
+  if (observers?.onEvent) {
+    try {
+      observers.onEvent(event);
+    } catch {
+      // Flow observers are best-effort only. They must not break registry writes.
+    }
   }
-  try {
-    observers.onEvent(createEvent());
-  } catch {
-    // Flow observers are best-effort only. They must not break registry writes.
-  }
+  void appendAuditFact({
+    fact:
+      event.kind === "restored"
+        ? {
+            domain: "task_flow",
+            action: "task_flow.restored",
+            actor: {
+              type: "runtime",
+              id: "task-flow-registry",
+            },
+            summary: `restored ${event.flows.length} flows`,
+            payload: {
+              count: event.flows.length,
+            },
+          }
+        : event.kind === "deleted"
+          ? {
+              domain: "task_flow",
+              action: "task_flow.deleted",
+              actor: {
+                type: "runtime",
+                id: "task-flow-registry",
+              },
+              refs: {
+                flowId: event.flowId,
+              },
+              summary: `deleted flow ${event.flowId}`,
+              payload: {
+                status: event.previous.status,
+                ownerKey: event.previous.ownerKey,
+              },
+            }
+          : {
+              domain: "task_flow",
+              action: "task_flow.upserted",
+              actor: {
+                type: "runtime",
+                id: "task-flow-registry",
+              },
+              refs: {
+                flowId: event.flow.flowId,
+              },
+              summary: `upserted flow ${event.flow.flowId}`,
+              payload: {
+                status: event.flow.status,
+                ownerKey: event.flow.ownerKey,
+                previousStatus: event.previous?.status,
+              },
+            },
+  }).catch(() => undefined);
 }
 
 function ensureNotifyPolicy(notifyPolicy?: TaskNotifyPolicy): TaskNotifyPolicy {

@@ -10,6 +10,25 @@ const EMPTY_CFG = {} as OpenClawConfig;
 
 type ApplySessionsPatchArgs = Parameters<typeof applySessionsPatchToStore>[0];
 
+function createGovernanceRuntime(agentId = "main", observedAt = 1_710_000_000_000) {
+  return {
+    agentId,
+    observedAt,
+    summary: {
+      charterDeclared: agentId !== "main",
+      charterTitle: agentId === "main" ? undefined : "Autonomy Charter",
+      charterLayer: agentId === "main" ? undefined : "governance",
+      charterToolDeny: [],
+      charterRequireAgentId: true,
+      charterExecutionContract: "strict-agentic" as const,
+      charterElevatedLocked: true,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    },
+  };
+}
+
 async function runPatch(params: {
   patch: ApplySessionsPatchArgs["patch"];
   store?: Record<string, SessionEntry>;
@@ -365,6 +384,49 @@ describe("gateway sessions patch", () => {
       }),
     );
     expect(entry.spawnDepth).toBe(2);
+  });
+
+  test("sets governanceRuntime when it matches the session agent", async () => {
+    const governanceRuntime = createGovernanceRuntime("main");
+    const entry = expectPatchOk(
+      await runPatch({
+        storeKey: "agent:main:subagent:child",
+        patch: {
+          key: "agent:main:subagent:child",
+          governanceRuntime,
+        },
+      }),
+    );
+    expect(entry.governanceRuntime).toEqual(governanceRuntime);
+  });
+
+  test("rejects governanceRuntime when the snapshot agent mismatches the session agent", async () => {
+    const result = await runPatch({
+      storeKey: "agent:main:subagent:child",
+      patch: {
+        key: "agent:main:subagent:child",
+        governanceRuntime: createGovernanceRuntime("founder"),
+      },
+    });
+    expectPatchError(result, 'governanceRuntime.agentId must match session agent "main"');
+  });
+
+  test("rejects changing governanceRuntime once it has been set", async () => {
+    const result = await runPatch({
+      storeKey: "agent:main:subagent:child",
+      store: {
+        "agent:main:subagent:child": {
+          sessionId: "sess-child",
+          updatedAt: 1,
+          governanceRuntime: createGovernanceRuntime("main", 1_710_000_000_000),
+        } as SessionEntry,
+      },
+      patch: {
+        key: "agent:main:subagent:child",
+        governanceRuntime: createGovernanceRuntime("main", 1_710_000_000_123),
+      },
+    });
+    expectPatchError(result, "governanceRuntime cannot be changed once set");
   });
 
   test("rejects spawnDepth on non-subagent sessions", async () => {

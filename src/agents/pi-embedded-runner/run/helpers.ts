@@ -1,5 +1,6 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../../../governance/runtime-snapshot.js";
 import { generateSecureToken } from "../../../infra/secure-random.js";
 import { extractAssistantTextForPhase } from "../../../shared/chat-message-content.js";
 import { extractAssistantVisibleText } from "../../pi-embedded-utils.js";
@@ -124,6 +125,7 @@ export function buildErrorAgentMeta(params: {
   sessionId: string;
   provider: string;
   model: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   usageAccumulator: UsageAccumulator;
   lastRunPromptUsage: UsageSnapshot | undefined;
   lastAssistant?: { usage?: unknown } | null;
@@ -139,6 +141,7 @@ export function buildErrorAgentMeta(params: {
     sessionId: params.sessionId,
     provider: params.provider,
     model: params.model,
+    ...(params.governanceRuntime ? { governanceRuntime: params.governanceRuntime } : {}),
     ...(usageMeta.usage ? { usage: usageMeta.usage } : {}),
     ...(usageMeta.lastCallUsage ? { lastCallUsage: usageMeta.lastCallUsage } : {}),
     ...(usageMeta.promptTokens ? { promptTokens: usageMeta.promptTokens } : {}),

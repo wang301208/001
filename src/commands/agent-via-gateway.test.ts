@@ -10,6 +10,14 @@ import type { agentCommand as AgentCommand } from "./agent.js";
 const loadConfig = vi.hoisted(() => vi.fn());
 const callGateway = vi.hoisted(() => vi.fn());
 const agentCommand = vi.hoisted(() => vi.fn());
+const governanceFeedback = vi.hoisted(() => ({
+  buildAgentGovernanceSelectionHint: vi.fn<
+    (params: { cfg: unknown; agentId: string }) => string | undefined
+  >(() => undefined),
+  buildUnknownAgentIdMessage: vi.fn((params: { rawAgentId: string; inspectHint?: string }) =>
+    `Unknown agent id "${params.rawAgentId}". ${params.inspectHint ?? ""}`.trim(),
+  ),
+}));
 
 const runtime: RuntimeEnv = {
   log: vi.fn(),
@@ -74,6 +82,7 @@ vi.mock("../gateway/call.js", () => ({
   callGateway,
   randomIdempotencyKey: () => "idem-1",
 }));
+vi.mock("../governance/agent-selection-feedback.js", () => governanceFeedback);
 vi.mock("./agent.js", () => ({ agentCommand }));
 
 beforeEach(() => {
@@ -152,5 +161,28 @@ describe("agentCliCommand", () => {
         cleanupBundleMcpOnRunEnd: true,
       });
     });
+  });
+
+  it("includes governance hints when gateway fallback targets a governed agent", async () => {
+    await withTempStore(
+      async () => {
+        callGateway.mockRejectedValue(new Error("gateway not connected"));
+        governanceFeedback.buildAgentGovernanceSelectionHint.mockReturnValueOnce(
+          'Governance for "ops": charter execution / Executor; execution=strict-agentic',
+        );
+        mockLocalAgentReply();
+
+        await agentCliCommand({ message: "hi", to: "+1555", agent: "ops" }, runtime);
+
+        expect(runtime.error).toHaveBeenCalledWith(
+          expect.stringContaining('Governance for "ops": charter execution / Executor'),
+        );
+      },
+      {
+        agents: {
+          list: [{ id: "ops", default: true }],
+        },
+      },
+    );
   });
 });

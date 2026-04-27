@@ -5,6 +5,11 @@ import type {
   AgentDefaultsConfig,
 } from "../config/types.agent-defaults.js";
 import type { OpenClawConfig } from "../config/types.js";
+import {
+  listGovernanceCharterAgentBlueprints,
+  resolveGovernanceCharterAgentBlueprint,
+  resolveGovernanceCharterAgentRuntimeProfile,
+} from "../governance/charter-agents.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../routing/session-key.js";
 import { readStringValue } from "../shared/string-coerce.js";
@@ -72,6 +77,32 @@ export function listAgentIds(cfg: OpenClawConfig): string[] {
     seen.add(id);
     ids.push(id);
   }
+  for (const blueprint of listGovernanceCharterAgentBlueprints()) {
+    const id = normalizeAgentId(blueprint.id);
+    if (seen.has(id)) {
+      continue;
+    }
+    seen.add(id);
+    ids.push(id);
+  }
+  return ids.length > 0 ? ids : [DEFAULT_AGENT_ID];
+}
+
+export function listWorkspaceScopedAgentIds(cfg: OpenClawConfig): string[] {
+  const agents = listAgentEntries(cfg);
+  if (agents.length === 0) {
+    return [DEFAULT_AGENT_ID];
+  }
+  const seen = new Set<string>();
+  const ids: string[] = [];
+  for (const entry of agents) {
+    const id = normalizeAgentId(entry?.id);
+    if (seen.has(id)) {
+      continue;
+    }
+    seen.add(id);
+    ids.push(id);
+  }
   return ids.length > 0 ? ids : [DEFAULT_AGENT_ID];
 }
 
@@ -94,15 +125,139 @@ function resolveAgentEntry(cfg: OpenClawConfig, agentId: string): AgentEntry | u
   return listAgentEntries(cfg).find((entry) => normalizeAgentId(entry.id) === id);
 }
 
-export function resolveAgentConfig(
-  cfg: OpenClawConfig,
-  agentId: string,
-): ResolvedAgentConfig | undefined {
-  const id = normalizeAgentId(agentId);
-  const entry = resolveAgentEntry(cfg, id);
-  if (!entry) {
-    return undefined;
+function mergeContextLimitsWithCharterHints(
+  base: AgentContextLimitsConfig | undefined,
+  charter: AgentContextLimitsConfig | undefined,
+): AgentContextLimitsConfig | undefined {
+  if (!base) {
+    return charter;
   }
+  if (!charter) {
+    return base;
+  }
+  return {
+    memoryGetMaxChars: Math.max(base.memoryGetMaxChars ?? 0, charter.memoryGetMaxChars ?? 0) || undefined,
+    memoryGetDefaultLines:
+      Math.max(base.memoryGetDefaultLines ?? 0, charter.memoryGetDefaultLines ?? 0) || undefined,
+    toolResultMaxChars:
+      Math.max(base.toolResultMaxChars ?? 0, charter.toolResultMaxChars ?? 0) || undefined,
+    postCompactionMaxChars:
+      Math.max(base.postCompactionMaxChars ?? 0, charter.postCompactionMaxChars ?? 0) || undefined,
+  };
+}
+
+function mergeAllowAgentsWithCharter(
+  configuredAllowAgents: string[] | undefined,
+  charterAllowAgents: string[] | undefined,
+): string[] | undefined {
+  if (!charterAllowAgents || charterAllowAgents.length === 0) {
+    return configuredAllowAgents;
+  }
+  if (!configuredAllowAgents || configuredAllowAgents.length === 0) {
+    return charterAllowAgents;
+  }
+  if (configuredAllowAgents.some((value) => value.trim() === "*")) {
+    return charterAllowAgents;
+  }
+  const configuredSet = new Set(configuredAllowAgents.map((value) => normalizeAgentId(value)));
+  const narrowed = charterAllowAgents.filter((value) => configuredSet.has(normalizeAgentId(value)));
+  return narrowed;
+}
+
+function mergeIdentityWithCharter(
+  configuredIdentity: ResolvedAgentConfig["identity"],
+  charterIdentity: ResolvedAgentConfig["identity"],
+): ResolvedAgentConfig["identity"] {
+  if (!configuredIdentity) {
+    return charterIdentity;
+  }
+  if (!charterIdentity) {
+    return configuredIdentity;
+  }
+  return {
+    ...charterIdentity,
+    ...configuredIdentity,
+  };
+}
+
+function mergeSubagentsWithCharter(
+  configuredSubagents: ResolvedAgentConfig["subagents"],
+  charterSubagents: ResolvedAgentConfig["subagents"],
+): ResolvedAgentConfig["subagents"] {
+  if (!configuredSubagents) {
+    return charterSubagents;
+  }
+  if (!charterSubagents) {
+    return configuredSubagents;
+  }
+  return {
+    ...charterSubagents,
+    ...configuredSubagents,
+    allowAgents: mergeAllowAgentsWithCharter(
+      configuredSubagents.allowAgents,
+      charterSubagents.allowAgents,
+    ),
+    requireAgentId: configuredSubagents.requireAgentId ?? charterSubagents.requireAgentId,
+  };
+}
+
+function mergeEmbeddedPiWithCharter(
+  configuredEmbeddedPi: ResolvedAgentConfig["embeddedPi"],
+  charterEmbeddedPi: ResolvedAgentConfig["embeddedPi"],
+): ResolvedAgentConfig["embeddedPi"] {
+  if (!configuredEmbeddedPi) {
+    return charterEmbeddedPi;
+  }
+  if (!charterEmbeddedPi) {
+    return configuredEmbeddedPi;
+  }
+  return {
+    ...charterEmbeddedPi,
+    ...configuredEmbeddedPi,
+    executionContract:
+      configuredEmbeddedPi.executionContract ?? charterEmbeddedPi.executionContract,
+  };
+}
+
+function mergeToolsWithCharter(
+  configuredTools: ResolvedAgentConfig["tools"],
+  charterTools: ResolvedAgentConfig["tools"],
+): ResolvedAgentConfig["tools"] {
+  if (!configuredTools) {
+    return charterTools;
+  }
+  if (!charterTools) {
+    return configuredTools;
+  }
+  const charterDeny = Array.isArray(charterTools.deny) ? charterTools.deny : [];
+  const configuredDeny = Array.isArray(configuredTools.deny) ? configuredTools.deny : [];
+  const deny = Array.from(
+    new Set([...charterDeny, ...configuredDeny].map((value) => value.trim()).filter(Boolean)),
+  );
+  const charterElevated = charterTools.elevated;
+  const configuredElevated = configuredTools.elevated;
+  return {
+    ...charterTools,
+    ...configuredTools,
+    ...(deny.length > 0 ? { deny } : {}),
+    elevated:
+      charterElevated || configuredElevated
+        ? {
+            ...charterElevated,
+            ...configuredElevated,
+            enabled:
+              charterElevated?.enabled === false
+                ? false
+                : configuredElevated?.enabled ?? charterElevated?.enabled,
+          }
+        : undefined,
+  };
+}
+
+function buildResolvedConfiguredAgentConfig(
+  cfg: OpenClawConfig,
+  entry: AgentEntry,
+): ResolvedAgentConfig {
   const agentDefaults = cfg.agents?.defaults;
   return {
     name: readStringValue(entry.name),
@@ -135,6 +290,51 @@ export function resolveAgentConfig(
   };
 }
 
+export function resolveAgentConfig(
+  cfg: OpenClawConfig,
+  agentId: string,
+): ResolvedAgentConfig | undefined {
+  const id = normalizeAgentId(agentId);
+  const entry = resolveAgentEntry(cfg, id);
+  const charterRuntimeProfile =
+    listAgentEntries(cfg).length > 0 ? resolveGovernanceCharterAgentRuntimeProfile(id) : undefined;
+  const configured = entry ? buildResolvedConfiguredAgentConfig(cfg, entry) : undefined;
+  if (!configured && !charterRuntimeProfile) {
+    return undefined;
+  }
+  const agentDefaults = cfg.agents?.defaults;
+  const charterContextLimits = mergeContextLimitsWithCharterHints(
+    agentDefaults?.contextLimits,
+    charterRuntimeProfile?.contextLimits,
+  );
+  if (!configured) {
+    return {
+      name: charterRuntimeProfile?.name,
+      verboseDefault: agentDefaults?.verboseDefault,
+      contextLimits: charterContextLimits,
+      identity: charterRuntimeProfile?.identity,
+      subagents: charterRuntimeProfile?.subagents,
+      embeddedPi: charterRuntimeProfile?.embeddedPi,
+      tools: charterRuntimeProfile?.tools,
+    };
+  }
+  return {
+    ...configured,
+    name: configured.name ?? charterRuntimeProfile?.name,
+    contextLimits: mergeContextLimitsWithCharterHints(
+      configured.contextLimits,
+      charterRuntimeProfile?.contextLimits,
+    ),
+    identity: mergeIdentityWithCharter(configured.identity, charterRuntimeProfile?.identity),
+    subagents: mergeSubagentsWithCharter(configured.subagents, charterRuntimeProfile?.subagents),
+    embeddedPi: mergeEmbeddedPiWithCharter(
+      configured.embeddedPi,
+      charterRuntimeProfile?.embeddedPi,
+    ),
+    tools: mergeToolsWithCharter(configured.tools, charterRuntimeProfile?.tools),
+  };
+}
+
 export function resolveAgentContextLimits(
   cfg: OpenClawConfig | undefined,
   agentId?: string | null,
@@ -146,11 +346,22 @@ export function resolveAgentContextLimits(
   return resolveAgentConfig(cfg, agentId)?.contextLimits ?? defaults;
 }
 
-export function resolveAgentWorkspaceDir(cfg: OpenClawConfig, agentId: string) {
+export function resolveAgentWorkspaceDir(cfg: OpenClawConfig, agentId: string): string {
   const id = normalizeAgentId(agentId);
   const configured = resolveAgentConfig(cfg, id)?.workspace?.trim();
   if (configured) {
     return stripNullBytes(resolveUserPath(configured));
+  }
+  if (
+    listAgentEntries(cfg).length > 0 &&
+    !resolveAgentEntry(cfg, id) &&
+    resolveGovernanceCharterAgentBlueprint(id)
+  ) {
+    const defaultAgentWorkspace: string = resolveAgentWorkspaceDir(
+      cfg,
+      resolveDefaultAgentId(cfg),
+    );
+    return stripNullBytes(defaultAgentWorkspace);
   }
   const defaultAgentId = resolveDefaultAgentId(cfg);
   const fallback = cfg.agents?.defaults?.workspace?.trim();

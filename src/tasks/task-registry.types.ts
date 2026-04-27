@@ -1,4 +1,5 @@
 import type { DeliveryContext } from "../utils/delivery-context.types.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 
 export type TaskRuntime = "subagent" | "acp" | "cli" | "cron";
 
@@ -63,6 +64,7 @@ export type TaskRecord = {
   parentTaskId?: string;
   agentId?: string;
   runId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   label?: string;
   task: string;
   status: TaskStatus;

@@ -32,11 +32,16 @@ describe("buildStatusCommandReportData", () => {
 
     expect(result.overviewRows[0]).toEqual({
       Item: "OS",
-      Value: "macOS · node " + process.versions.node,
+      Value: "macOS | node " + process.versions.node,
     });
     expect(result.taskMaintenanceHint).toBe(
       "Task maintenance: cmd:openclaw tasks maintenance --apply",
     );
+    expect(result.governanceLines[0]).toContain("Summary:");
+    expect(result.governanceLines.join("\n")).toContain("Capability inventory:");
+    expect(result.autonomyLines.join("\n")).toContain("Replay: 2 scoped");
+    expect(result.autonomyLines.join("\n")).toContain("Latest supervisor: heal");
+    expect(result.autonomyLines.join("\n")).toContain("Changed agents: founder");
     expect(result.pluginCompatibilityLines).toEqual(["  warn(WARN) legacy"]);
     expect(result.pairingRecoveryLines[0]).toBe("warn(Gateway pairing approval required.)");
     expect(result.channelsRows[0]?.Channel).toBe("Discord");

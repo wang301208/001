@@ -8,12 +8,20 @@ vi.mock("../tools/agents-list-tool.js", () => ({
   createAgentsListTool: () => stubTool("agents_list"),
 }));
 
+vi.mock("../tools/autonomy-tool.js", () => ({
+  createAutonomyTool: () => stubTool("autonomy"),
+}));
+
 vi.mock("../tools/cron-tool.js", () => ({
   createCronTool: () => stubTool("cron"),
 }));
 
 vi.mock("../tools/gateway-tool.js", () => ({
   createGatewayTool: () => stubTool("gateway"),
+}));
+
+vi.mock("../tools/governance-tool.js", () => ({
+  createGovernanceTool: () => stubTool("governance"),
 }));
 
 vi.mock("../tools/message-tool.js", () => ({

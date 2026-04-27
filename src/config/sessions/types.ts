@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import type { Skill } from "@mariozechner/pi-coding-agent";
 import type { ChatType } from "../../channels/chat-type.js";
 import type { ChannelId } from "../../channels/plugins/channel-id.types.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import type { DeliveryContext } from "../../utils/delivery-context.types.js";
 import type { TtsAutoMode } from "../types.tts.js";
@@ -279,6 +280,7 @@ export type SessionEntry = {
   lastThreadId?: string | number;
   skillsSnapshot?: SessionSkillSnapshot;
   systemPromptReport?: SessionSystemPromptReport;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   /**
    * Generic plugin-owned runtime debug entries shown in verbose status surfaces.
    * Each plugin owns and may overwrite only its own entry between turns.

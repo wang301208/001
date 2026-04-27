@@ -896,6 +896,49 @@ export function buildToolsMessage(
   result: EffectiveToolInventoryResult,
   options?: { verbose?: boolean },
 ): string {
+  const verbose = options?.verbose === true;
+  const governanceLines = (() => {
+    const governance = result.governance;
+    if (!governance || (!governance.charterDeclared && !governance.freezeActive)) {
+      return [];
+    }
+    const lines: string[] = [];
+    if (governance.charterDeclared) {
+      lines.push(
+        `Governance charter: ${[governance.charterLayer, governance.charterTitle]
+          .filter((value): value is string => Boolean(value))
+          .join(" / ")}`,
+      );
+      const restrictions: string[] = [];
+      if (governance.charterToolDeny.length > 0) {
+        restrictions.push(`deny ${governance.charterToolDeny.join(", ")}`);
+      }
+      if (governance.charterElevatedLocked) {
+        restrictions.push("elevated locked");
+      }
+      if (governance.charterRequireAgentId) {
+        restrictions.push("explicit subagent ids");
+      }
+      if (governance.charterExecutionContract) {
+        restrictions.push(`execution=${governance.charterExecutionContract}`);
+      }
+      if (restrictions.length > 0) {
+        lines.push(`Charter restrictions: ${restrictions.join("; ")}`);
+      }
+    }
+    if (governance.freezeActive) {
+      lines.push(
+        `Governance freeze: active${governance.freezeReasonCode ? ` (${governance.freezeReasonCode})` : ""}`,
+      );
+      if (governance.freezeDeny.length > 0) {
+        lines.push(`Freeze deny: ${governance.freezeDeny.join(", ")}`);
+      }
+      if (verbose && governance.freezeDetails.length > 0) {
+        lines.push(`Freeze details: ${governance.freezeDetails.join(" | ")}`);
+      }
+    }
+    return lines;
+  })();
   const groups = result.groups
     .map((group) => ({
       label: group.label,
@@ -918,14 +961,17 @@ export function buildToolsMessage(
       "No tools are available for this agent right now.",
       "",
       `Profile: ${result.profile}`,
+      ...governanceLines,
     ];
     return lines.join("\n");
   }
 
-  const verbose = options?.verbose === true;
   const lines = verbose
     ? ["Available tools", "", `Profile: ${result.profile}`, "What this agent can use right now:"]
     : ["Available tools", "", `Profile: ${result.profile}`];
+  if (governanceLines.length > 0) {
+    lines.push(...governanceLines);
+  }
 
   for (const group of groups) {
     lines.push("", group.label);

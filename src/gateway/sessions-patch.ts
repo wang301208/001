@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 import { randomUUID } from "node:crypto";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
@@ -18,6 +19,7 @@ import {
   supportsXHighThinking,
 } from "../auto-reply/thinking.js";
 import type { SessionEntry } from "../config/sessions.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { normalizeExecTarget } from "../infra/exec-approvals.js";
 import {
@@ -213,6 +215,36 @@ export async function applySessionsPatchToStore(params: {
         return invalid("subagentControlScope cannot be changed once set");
       }
       next.subagentControlScope = normalized;
+    }
+  }
+
+  if ("governanceRuntime" in patch) {
+    const raw = patch.governanceRuntime;
+    if (raw === null) {
+      if (existing?.governanceRuntime) {
+        return invalid("governanceRuntime cannot be cleared once set");
+      }
+    } else if (raw !== undefined) {
+      const normalizedAgentId = normalizeAgentId(raw.agentId);
+      if (normalizedAgentId !== sessionAgentId) {
+        return invalid(`governanceRuntime.agentId must match session agent "${sessionAgentId}"`);
+      }
+      const normalizedGovernanceRuntime = {
+        ...raw,
+        agentId: normalizedAgentId,
+        summary: {
+          ...raw.summary,
+          freezeReasonCode:
+            raw.summary.freezeReasonCode as AgentGovernanceRuntimeSnapshot["summary"]["freezeReasonCode"],
+        },
+      } satisfies AgentGovernanceRuntimeSnapshot;
+      if (
+        existing?.governanceRuntime &&
+        !isDeepStrictEqual(existing.governanceRuntime, normalizedGovernanceRuntime)
+      ) {
+        return invalid("governanceRuntime cannot be changed once set");
+      }
+      next.governanceRuntime = normalizedGovernanceRuntime;
     }
   }
 

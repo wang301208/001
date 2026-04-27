@@ -10,7 +10,9 @@ import {
 } from "./status-overview-surface.ts";
 import {
   buildStatusAllAgentsValue,
+  buildStatusAutonomyValue,
   buildStatusEventsValue,
+  buildStatusGovernanceValue,
   buildStatusPluginCompatibilityValue,
   buildStatusProbesValue,
   buildStatusSecretsValue,
@@ -105,6 +107,18 @@ export function buildStatusCommandOverviewRows(params: {
     ok: params.ok,
     warn: params.warn,
   });
+  const governanceValue = buildStatusGovernanceValue({
+    governance: params.summary.governance,
+    ok: params.ok,
+    warn: params.warn,
+    muted: params.muted,
+  });
+  const autonomyValue = buildStatusAutonomyValue({
+    autonomy: params.summary.autonomy,
+    ok: params.ok,
+    warn: params.warn,
+    muted: params.muted,
+  });
 
   return buildStatusOverviewRowsFromSurface({
     surface: params.surface,
@@ -112,11 +126,13 @@ export function buildStatusCommandOverviewRows(params: {
     decorateWarn: params.warn,
     decorateTailscaleOff: params.muted,
     decorateTailscaleWarn: params.warn,
-    prefixRows: [{ Item: "OS", Value: `${params.osLabel} · node ${process.versions.node}` }],
+    prefixRows: [{ Item: "OS", Value: `${params.osLabel} | node ${process.versions.node}` }],
     updateValue: params.updateValue,
     agentsValue,
     suffixRows: [
       { Item: "Memory", Value: memoryValue },
+      { Item: "Governance", Value: governanceValue },
+      { Item: "Autonomy", Value: autonomyValue },
       { Item: "Plugin compatibility", Value: pluginCompatibilityValue },
       { Item: "Probes", Value: probesValue },
       { Item: "Events", Value: eventsValue },
@@ -142,6 +158,7 @@ export function buildStatusAllOverviewRows(params: {
   osLabel: string;
   configPath: string;
   secretDiagnosticsCount: number;
+  summary?: Pick<StatusSummary, "governance" | "autonomy">;
   agentStatus: {
     bootstrapPendingCount: number;
     totalSessions: number;
@@ -152,6 +169,18 @@ export function buildStatusAllOverviewRows(params: {
   };
   tailscaleBackendState?: string | null;
 }) {
+  const governanceValue = buildStatusGovernanceValue({
+    governance: params.summary?.governance,
+    ok: (value) => value,
+    warn: (value) => value,
+    muted: (value) => value,
+  });
+  const autonomyValue = buildStatusAutonomyValue({
+    autonomy: params.summary?.autonomy,
+    ok: (value) => value,
+    warn: (value) => value,
+    muted: (value) => value,
+  });
   return buildStatusOverviewRowsFromSurface({
     surface: params.surface,
     tailscaleBackendState: params.tailscaleBackendState,
@@ -171,6 +200,8 @@ export function buildStatusAllOverviewRows(params: {
       agentStatus: params.agentStatus,
     }),
     suffixRows: [
+      { Item: "Governance", Value: governanceValue },
+      { Item: "Autonomy", Value: autonomyValue },
       {
         Item: "Secrets",
         Value: buildStatusSecretsValue(params.secretDiagnosticsCount),

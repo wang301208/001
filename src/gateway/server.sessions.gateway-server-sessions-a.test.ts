@@ -911,6 +911,20 @@ describe("gateway server sessions", () => {
           spawnDepth: 2,
           subagentRole: "orchestrator",
           subagentControlScope: "children",
+          governanceRuntime: {
+            agentId: "main",
+            observedAt: 1_710_000_000_000,
+            summary: {
+              charterDeclared: false,
+              charterToolDeny: [],
+              charterRequireAgentId: true,
+              charterExecutionContract: "strict-agentic",
+              charterElevatedLocked: true,
+              freezeActive: false,
+              freezeDeny: [],
+              freezeDetails: [],
+            },
+          },
         },
       },
     });
@@ -950,6 +964,13 @@ describe("gateway server sessions", () => {
         spawnDepth: 2,
         subagentRole: "orchestrator",
         subagentControlScope: "children",
+        governanceRuntime: expect.objectContaining({
+          agentId: "main",
+          summary: expect.objectContaining({
+            charterDeclared: false,
+            freezeActive: false,
+          }),
+        }),
       }),
       new Set(["conn-1"]),
       { dropIfSlow: true },

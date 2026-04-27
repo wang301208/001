@@ -28,6 +28,7 @@ import {
   collectGovernanceBoundaryExposures,
   loadGovernanceCharter,
 } from "../governance/charter-runtime.js";
+import { loadGovernanceCharterOrganization } from "../governance/charter-agents.js";
 import { collectDeepCodeSafetyFindings } from "./audit-deep-code-safety.js";
 import { collectDeepProbeFindings } from "./audit-deep-probe-findings.js";
 import {
@@ -1196,6 +1197,25 @@ export function collectGovernanceCharterFindings(params: {
         "Sovereignty policy declares automatic freeze targets, but the constitution does not reference a sovereignty auditor artifact.",
       remediation:
         "Add governance/charter/agents/sovereignty-auditor.yaml to charter_artifacts before enabling automatic freeze enforcement.",
+    });
+  }
+
+  const organization = loadGovernanceCharterOrganization({
+    charterDir: params.charterDir,
+  });
+  for (const blueprint of organization.agents) {
+    if (blueprint.contractValid) {
+      continue;
+    }
+    findings.push({
+      checkId: `governance.charter.agent_contract_invalid.${blueprint.id}`,
+      severity: blueprint.id === "sovereignty_auditor" ? "critical" : "warn",
+      title: `Agent contract invalid: ${blueprint.title ?? blueprint.id}`,
+      detail:
+        `The agent blueprint ${blueprint.sourcePath} is missing mandatory governance contract fields:\n` +
+        blueprint.contractIssues.map((entry) => `- ${entry}`).join("\n"),
+      remediation:
+        "Add the missing contract fields so the blueprint can serve as a runtime-enforceable organizational charter.",
     });
   }
 

@@ -34,6 +34,53 @@ import {
   refreshVisibleToolsEffectiveForCurrentSession,
   saveAgentsConfig,
 } from "./controllers/agents.ts";
+import {
+  buildAutonomyRequestKey,
+  cancelAutonomyFlow,
+  loadAutonomyCapabilityInventory,
+  loadAutonomyGenesisPlan,
+  healAutonomyFleet,
+  loadAutonomyHistory,
+  loadAutonomyOverview,
+  loadAutonomyProfile,
+  parseAutonomyHistoryLimitDraft,
+  parseAutonomyWorkspaceDirsDraft,
+  reconcileAutonomyGovernanceProposals,
+  reconcileAutonomyLoops,
+  removeAutonomyLoop,
+  resolveAutonomySessionKey,
+  submitAutonomySandboxReplay,
+  superviseAutonomyFleet,
+  synthesizeAutonomyGovernanceProposals,
+  startAutonomyFlow,
+  upsertAutonomyLoop,
+} from "./controllers/autonomy.ts";
+import {
+  applyGovernanceProposalEntry,
+  applyGovernanceProposalEntries,
+  buildGovernanceProposalOperationsDraftTemplate,
+  createGovernanceProposalEntry,
+  formatGovernanceAgentIdsDraft,
+  formatGovernanceWorkspaceDirsDraft,
+  loadGovernanceAgent,
+  loadGovernanceCapabilityAssetRegistry,
+  loadGovernanceCapabilityInventory,
+  loadGovernanceGenesisPlan,
+  loadGovernanceOverview,
+  loadGovernanceProposals,
+  loadGovernanceTeam,
+  parseGovernanceAgentIdsDraft,
+  parseGovernanceListLimitDraft,
+  parseGovernanceProposalOperationsDraft,
+  parseGovernanceWorkspaceDirsDraft,
+  reconcileGovernanceProposals,
+  revertGovernanceProposalEntries,
+  revertGovernanceProposalEntry,
+  resetGovernanceState,
+  reviewGovernanceProposalEntries,
+  reviewGovernanceProposalEntry,
+  synthesizeGovernanceProposals,
+} from "./controllers/governance.ts";
 import { loadChannels } from "./controllers/channels.ts";
 import { loadChatHistory } from "./controllers/chat.ts";
 import {
@@ -1148,6 +1195,46 @@ export function renderApp(state: AppViewState) {
         void loadToolsCatalog(state, agentId);
         void refreshVisibleToolsEffectiveForCurrentSession(state);
         return;
+      case "governance":
+      {
+        void loadGovernanceOverview(state);
+        void loadGovernanceCapabilityInventory(state, {
+          ...resolveGovernanceScopeAgentInput(agentId),
+          ...resolveGovernanceWorkspaceScopeInput(),
+        });
+        void loadGovernanceGenesisAndMaybeTeam(agentId);
+        void loadGovernanceProposals(state, resolveGovernanceProposalListInput());
+        void loadGovernanceAgent(state, {
+          agentId,
+        });
+        return;
+      }
+      case "autonomy":
+      {
+        const workspaceScopeInput = resolveAutonomyWorkspaceScopeInput();
+        void loadAutonomyOverview(state, {
+          sessionKey: state.sessionKey,
+          ...workspaceScopeInput,
+        });
+        void loadAutonomyCapabilityInventory(state, {
+          sessionKey: state.sessionKey,
+          ...workspaceScopeInput,
+        });
+        void loadAutonomyGenesisPlan(state, {
+          sessionKey: state.sessionKey,
+          ...workspaceScopeInput,
+        });
+        void loadAutonomyHistory(state, {
+          sessionKey: state.sessionKey,
+          ...workspaceScopeInput,
+          ...resolveAutonomyHistoryInput(),
+        });
+        void loadAutonomyProfile(state, {
+          agentId,
+          sessionKey: state.sessionKey,
+        });
+        return;
+      }
     }
   };
   const refreshAgentsPanelSupplementalData = (panel: AppViewState["agentsPanel"]) => {
@@ -1169,6 +1256,451 @@ export function renderApp(state: AppViewState) {
       state.agentFilesLoading = false;
     }
   };
+  const resetAutonomyDraftState = () => {
+    state.autonomyHistoryMode = "";
+    state.autonomyHistorySource = "";
+    state.autonomyHistoryLimit = "";
+    state.autonomyGoal = "";
+    state.autonomyControllerId = "";
+    state.autonomyCurrentStep = "";
+    state.autonomyNotifyPolicy = "";
+    state.autonomyFlowStatus = "";
+    state.autonomySeedTaskEnabled = true;
+    state.autonomySeedTaskRuntime = "";
+    state.autonomySeedTaskStatus = "";
+    state.autonomySeedTaskLabel = "";
+    state.autonomySeedTaskTask = "";
+    state.autonomyReplayVerdict = "pass";
+    state.autonomyReplayQaVerdict = "pass";
+    state.autonomyReplayAuditVerdict = "pass";
+    state.autonomyLoopEveryMinutes = "";
+    state.autonomyWorkspaceScope = "";
+    state.autonomyGovernanceReconcileMode = "apply_safe";
+    state.autonomyGovernanceReconcileNote = "";
+  };
+  const primeGovernanceProposalCreateDraft = (agentId?: string, force = false) => {
+    const normalizedAgentId = agentId?.trim() ?? "";
+    if (force || !state.governanceProposalCreateByAgentId.trim()) {
+      state.governanceProposalCreateByAgentId = normalizedAgentId;
+    }
+    if (force || !state.governanceProposalCreateBySessionKey.trim()) {
+      state.governanceProposalCreateBySessionKey = normalizedAgentId
+        ? buildAgentMainSessionKey({ agentId: normalizedAgentId })
+        : state.sessionKey;
+    }
+    if (force || !state.governanceProposalOperationsJson.trim()) {
+      state.governanceProposalOperationsJson =
+        buildGovernanceProposalOperationsDraftTemplate(normalizedAgentId);
+    }
+  };
+  const resetGovernanceProposalCreateDraft = (agentId?: string) => {
+    state.governanceProposalCreateTitle = "";
+    state.governanceProposalCreateRationale = "";
+    state.governanceProposalCreateError = null;
+    state.governanceProposalCreateResult = null;
+    primeGovernanceProposalCreateDraft(agentId, true);
+  };
+  const resetGovernanceWorkbenchScopeDraft = () => {
+    state.governanceProposalLimit = "";
+    state.governanceScopeAgentIds = "";
+    state.governanceScopeWorkspaceDirs = "";
+    state.governanceGenesisTeamId = "";
+  };
+  const resolveAutonomyWorkspaceScopeInput = () => {
+    const workspaceDirs = parseAutonomyWorkspaceDirsDraft(state.autonomyWorkspaceScope);
+    return workspaceDirs.length > 0 ? { workspaceDirs } : {};
+  };
+  const resolveAutonomyOverviewWorkspaceDirs = (
+    entries: Array<{
+      workspaceDirs?: string[];
+      primaryWorkspaceDir?: string | null;
+    }>,
+  ) =>
+    Array.from(
+      new Set(
+        entries
+          .flatMap((entry) => [
+            ...(entry.workspaceDirs ?? []),
+            ...(entry.primaryWorkspaceDir ? [entry.primaryWorkspaceDir] : []),
+          ])
+          .map((value) => value.trim())
+          .filter(Boolean),
+      ),
+    ).toSorted((left, right) => left.localeCompare(right));
+  const resolveAutonomyOverviewEntryWorkspaceScopeInput = (entry: {
+    workspaceDirs?: string[];
+    primaryWorkspaceDir?: string | null;
+  }) => {
+    const workspaceDirs = resolveAutonomyOverviewWorkspaceDirs([entry]);
+    return workspaceDirs.length > 0 ? { workspaceDirs } : {};
+  };
+  const resolveAutonomyHistoryInput = () => {
+    const historyLimit = parseAutonomyHistoryLimitDraft(state.autonomyHistoryLimit);
+    return {
+      ...(typeof historyLimit === "number" ? { limit: historyLimit } : {}),
+      ...(state.autonomyHistoryMode ? { mode: state.autonomyHistoryMode } : {}),
+      ...(state.autonomyHistorySource ? { source: state.autonomyHistorySource } : {}),
+    };
+  };
+  const resolveAutonomyHistoryControlInput = () => {
+    const historyLimit = parseAutonomyHistoryLimitDraft(state.autonomyHistoryLimit);
+    return {
+      ...(typeof historyLimit === "number" ? { historyLimit } : {}),
+      ...(state.autonomyHistoryMode ? { historyMode: state.autonomyHistoryMode } : {}),
+      ...(state.autonomyHistorySource ? { historySource: state.autonomyHistorySource } : {}),
+    };
+  };
+  const resolveAutonomyGovernanceReconcileMode = () =>
+    state.autonomyGovernanceReconcileMode === "force_apply_all"
+      ? "force_apply_all"
+      : "apply_safe";
+  const resolveGovernanceScopeAgentIds = (fallbackAgentId?: string | null) => {
+    const scopeAgentIds = parseGovernanceAgentIdsDraft(state.governanceScopeAgentIds);
+    if (scopeAgentIds.length > 0) {
+      return scopeAgentIds;
+    }
+    const normalizedFallbackAgentId = fallbackAgentId?.trim();
+    return normalizedFallbackAgentId ? [normalizedFallbackAgentId] : undefined;
+  };
+  const resolveGovernanceScopeAgentInput = (fallbackAgentId?: string | null) => {
+    const agentIds = resolveGovernanceScopeAgentIds(fallbackAgentId);
+    return agentIds ? { agentIds } : {};
+  };
+  const resolveGovernanceWorkspaceScopeInput = () => {
+    const workspaceDirs = parseGovernanceWorkspaceDirsDraft(state.governanceScopeWorkspaceDirs);
+    return workspaceDirs.length > 0 ? { workspaceDirs } : {};
+  };
+  const resolveGovernanceGenesisTeamInput = () => {
+    const teamId = state.governanceGenesisTeamId.trim();
+    return teamId ? { teamId } : {};
+  };
+  const resolveGovernanceTeamId = () =>
+    state.governanceGenesisTeamId.trim() ||
+    state.governanceTeamResult?.teamId?.trim() ||
+    state.governanceGenesisResult?.teamId?.trim() ||
+    "";
+  const refreshGovernanceTeamIfAvailable = () => {
+    const teamId = resolveGovernanceTeamId();
+    if (!teamId) {
+      return Promise.resolve();
+    }
+    return loadGovernanceTeam(state, { teamId });
+  };
+  const loadGovernanceGenesisAndMaybeTeam = (fallbackAgentId?: string | null) =>
+    loadGovernanceGenesisPlan(state, {
+      ...resolveGovernanceScopeAgentInput(fallbackAgentId),
+      ...resolveGovernanceGenesisTeamInput(),
+      ...resolveGovernanceWorkspaceScopeInput(),
+    }).then(() => refreshGovernanceTeamIfAvailable());
+  const refreshGovernanceWorkbenchScopedData = (fallbackAgentId?: string | null) =>
+    Promise.all([
+      fallbackAgentId
+        ? loadGovernanceCapabilityAssetRegistry(state, {
+            ...resolveGovernanceScopeAgentInput(fallbackAgentId),
+            ...resolveGovernanceWorkspaceScopeInput(),
+          })
+        : Promise.resolve(),
+      fallbackAgentId
+        ? loadGovernanceCapabilityInventory(state, {
+            ...resolveGovernanceScopeAgentInput(fallbackAgentId),
+            ...resolveGovernanceWorkspaceScopeInput(),
+          })
+        : Promise.resolve(),
+      fallbackAgentId ? loadGovernanceGenesisAndMaybeTeam(fallbackAgentId) : Promise.resolve(),
+      refreshGovernanceTeamIfAvailable(),
+      loadGovernanceProposals(state, resolveGovernanceProposalListInput()),
+    ]).then(() => undefined);
+  const applyGovernanceWorkbenchScope = (params: {
+    agentIds?: string[];
+    workspaceDirs?: string[];
+    teamId?: string | null;
+  }) => {
+    state.governanceScopeAgentIds = formatGovernanceAgentIdsDraft(params.agentIds);
+    state.governanceScopeWorkspaceDirs = formatGovernanceWorkspaceDirsDraft(
+      params.workspaceDirs,
+    );
+    state.governanceGenesisTeamId = params.teamId?.trim() ?? "";
+    const selectedAgentId = resolvedAgentId ?? state.agentsSelectedId ?? null;
+    return selectedAgentId ? refreshGovernanceWorkbenchScopedData(selectedAgentId) : Promise.resolve();
+  };
+  const seedGovernanceProposalDraft = (params: {
+    title: string;
+    rationale?: string | null;
+    operations: Array<{ kind: string; path: string; content?: string }>;
+    scopeAgentIds?: string[];
+    scopeWorkspaceDirs?: string[];
+    scopeTeamId?: string | null;
+    createdByAgentId?: string | null;
+  }) => {
+    const createdByAgentId =
+      params.createdByAgentId?.trim() ||
+      resolvedAgentId?.trim() ||
+      state.agentsSelectedId?.trim() ||
+      state.governanceProposalOperator.trim() ||
+      "founder";
+    state.governanceProposalCreateTitle = params.title.trim();
+    state.governanceProposalCreateRationale = params.rationale?.trim() ?? "";
+    state.governanceProposalCreateByAgentId = createdByAgentId;
+    state.governanceProposalCreateBySessionKey = buildAgentMainSessionKey({
+      agentId: createdByAgentId,
+    });
+    state.governanceProposalOperationsJson = JSON.stringify(params.operations, null, 2);
+    if (params.scopeAgentIds) {
+      state.governanceScopeAgentIds = formatGovernanceAgentIdsDraft(params.scopeAgentIds);
+    }
+    if (params.scopeWorkspaceDirs) {
+      state.governanceScopeWorkspaceDirs = formatGovernanceWorkspaceDirsDraft(
+        params.scopeWorkspaceDirs,
+      );
+    }
+    if (typeof params.scopeTeamId === "string") {
+      state.governanceGenesisTeamId = params.scopeTeamId.trim();
+    }
+  };
+  const refreshAutonomyAfterGovernanceMutation = () => {
+    const shouldRefreshOverview =
+      state.agentsPanel === "autonomy" || Boolean(state.autonomyOverviewResult);
+    const shouldRefreshCapabilities =
+      state.agentsPanel === "autonomy" || Boolean(state.autonomyCapabilitiesResult);
+    const shouldRefreshGenesis =
+      state.agentsPanel === "autonomy" || Boolean(state.autonomyGenesisResult);
+    const shouldRefreshHistory =
+      state.agentsPanel === "autonomy" || Boolean(state.autonomyHistoryResult);
+    const shouldRefreshProfile =
+      state.agentsPanel === "autonomy" || Boolean(state.autonomyResult);
+    const selectedAutonomyAgentId = state.agentsSelectedId?.trim() || resolvedAgentId?.trim() || null;
+    const tasks: Array<Promise<unknown>> = [];
+    if (shouldRefreshOverview) {
+      tasks.push(
+        loadAutonomyOverview(state, {
+          sessionKey: state.sessionKey,
+          ...resolveAutonomyWorkspaceScopeInput(),
+        }),
+      );
+    }
+    if (shouldRefreshCapabilities) {
+      tasks.push(
+        loadAutonomyCapabilityInventory(state, {
+          sessionKey: state.sessionKey,
+          ...resolveAutonomyWorkspaceScopeInput(),
+        }),
+      );
+    }
+    if (shouldRefreshGenesis) {
+      tasks.push(
+        loadAutonomyGenesisPlan(state, {
+          sessionKey: state.sessionKey,
+          ...resolveAutonomyWorkspaceScopeInput(),
+        }),
+      );
+    }
+    if (shouldRefreshHistory) {
+      tasks.push(
+        loadAutonomyHistory(state, {
+          sessionKey: state.sessionKey,
+          ...resolveAutonomyWorkspaceScopeInput(),
+          ...resolveAutonomyHistoryInput(),
+        }),
+      );
+    }
+    if (shouldRefreshProfile && selectedAutonomyAgentId) {
+      tasks.push(
+        loadAutonomyProfile(state, {
+          agentId: selectedAutonomyAgentId,
+          sessionKey: state.sessionKey,
+        }),
+      );
+    }
+    return tasks.length > 0 ? Promise.all(tasks).then(() => undefined) : Promise.resolve();
+  };
+  const resolveGovernanceProposalListInput = () => {
+    const proposalLimit = parseGovernanceListLimitDraft(state.governanceProposalLimit);
+    return {
+      ...(state.governanceProposalStatusFilter
+        ? { status: state.governanceProposalStatusFilter }
+        : {}),
+      ...(typeof proposalLimit === "number" ? { limit: proposalLimit } : {}),
+    };
+  };
+  const resolveGovernanceProposalReconcileMode = () =>
+    state.governanceProposalReconcileMode === "force_apply_all"
+      ? "force_apply_all"
+      : "apply_safe";
+  const runAutonomyOverviewSuggestedAction = (
+    entry: NonNullable<typeof state.autonomyOverviewResult>["overview"]["entries"][number],
+  ) => {
+    state.agentsSelectedId = entry.agentId;
+    const workspaceScopeInput = resolveAutonomyOverviewEntryWorkspaceScopeInput(entry);
+    switch (entry.suggestedAction) {
+      case "reconcile_loop":
+        return reconcileAutonomyLoops(state, {
+          sessionKey: state.sessionKey,
+          agentIds: [entry.agentId],
+          ...workspaceScopeInput,
+          ...resolveAutonomyHistoryControlInput(),
+        });
+      case "start_flow":
+        return startAutonomyFlow(state, {
+          agentId: entry.agentId,
+          sessionKey: state.sessionKey,
+          ...workspaceScopeInput,
+        });
+      case "inspect_flow":
+      case "observe":
+      default:
+        return loadAutonomyProfile(state, {
+          agentId: entry.agentId,
+          sessionKey: state.sessionKey,
+        });
+    }
+  };
+  const runAutonomyOverviewSuggestedActionBatch = async (
+    action: NonNullable<typeof state.autonomyOverviewResult>["overview"]["entries"][number]["suggestedAction"],
+  ) => {
+    const entries =
+      state.autonomyOverviewResult?.overview.entries.filter(
+        (entry) => entry.suggestedAction === action,
+      ) ?? [];
+    if (entries.length === 0) {
+      return;
+    }
+    const previousSelectedAgentId =
+      state.agentsSelectedId?.trim() || resolvedAgentId?.trim() || null;
+    if (action === "reconcile_loop") {
+      const workspaceDirs = resolveAutonomyOverviewWorkspaceDirs(entries);
+      await reconcileAutonomyLoops(state, {
+        sessionKey: state.sessionKey,
+        agentIds: entries.map((entry) => entry.agentId),
+        ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+        ...resolveAutonomyHistoryControlInput(),
+      });
+    } else {
+      for (const entry of entries) {
+        await runAutonomyOverviewSuggestedAction(entry);
+      }
+      await loadAutonomyOverview(state, {
+        sessionKey: state.sessionKey,
+        ...resolveAutonomyWorkspaceScopeInput(),
+      });
+      await loadAutonomyHistory(state, {
+        sessionKey: state.sessionKey,
+        ...resolveAutonomyWorkspaceScopeInput(),
+        ...resolveAutonomyHistoryInput(),
+      });
+    }
+    const restoreAgentId = previousSelectedAgentId ?? entries[0]?.agentId ?? null;
+    if (restoreAgentId) {
+      state.agentsSelectedId = restoreAgentId;
+      await loadAutonomyProfile(state, {
+        agentId: restoreAgentId,
+        sessionKey: state.sessionKey,
+      });
+    }
+  };
+  const runGovernanceVisibleProposalBatch = async (
+    action: "approve_pending" | "apply_approved" | "revert_applied",
+  ) => {
+    const visibleProposals = state.governanceProposalsResult?.proposals ?? [];
+    const targetProposalIds = visibleProposals
+      .filter((proposal) =>
+        action === "approve_pending"
+          ? proposal.status === "pending"
+          : action === "apply_approved"
+            ? proposal.status === "approved"
+            : proposal.status === "applied" && !proposal.apply?.revertedAt,
+      )
+      .map((proposal) => proposal.id);
+    if (targetProposalIds.length === 0) {
+      return;
+    }
+    const governanceScopeInput = resolveGovernanceScopeAgentInput(resolvedAgentId);
+    const governanceTeamInput = resolveGovernanceGenesisTeamInput();
+    const governanceWorkspaceInput = resolveGovernanceWorkspaceScopeInput();
+    const proposalListInput = resolveGovernanceProposalListInput();
+    const operator = state.governanceProposalOperator.trim() || "human-architect";
+    if (action === "approve_pending") {
+      await reviewGovernanceProposalEntries(state, {
+        proposalIds: targetProposalIds,
+        decision: "approve",
+        decidedBy: operator,
+        ...(state.governanceProposalDecisionNote.trim()
+          ? { decisionNote: state.governanceProposalDecisionNote.trim() }
+          : {}),
+        continueOnError: true,
+        ...governanceScopeInput,
+        ...governanceTeamInput,
+        ...governanceWorkspaceInput,
+        ...proposalListInput,
+      });
+    } else if (action === "apply_approved") {
+      await applyGovernanceProposalEntries(state, {
+        proposalIds: targetProposalIds,
+        appliedBy: operator,
+        continueOnError: true,
+        ...governanceScopeInput,
+        ...governanceTeamInput,
+        ...governanceWorkspaceInput,
+        ...proposalListInput,
+      });
+    } else {
+      await revertGovernanceProposalEntries(state, {
+        proposalIds: targetProposalIds,
+        revertedBy: operator,
+        continueOnError: true,
+        ...governanceScopeInput,
+        ...governanceTeamInput,
+        ...governanceWorkspaceInput,
+        ...proposalListInput,
+      });
+    }
+    if (!state.governanceProposalActionError) {
+      state.governanceProposalDecisionNote = "";
+    }
+    await refreshAutonomyAfterGovernanceMutation();
+  };
+  const resetAutonomyPanelState = (clearLoading = false) => {
+    state.autonomyResult = null;
+    state.autonomyResultKey = null;
+    state.autonomyError = null;
+    state.autonomyOverviewError = null;
+    state.autonomyOverviewResult = null;
+    state.autonomyCapabilitiesError = null;
+    state.autonomyCapabilitiesResult = null;
+    state.autonomyGenesisError = null;
+    state.autonomyGenesisResult = null;
+    state.autonomyHistoryError = null;
+    state.autonomyHistoryResult = null;
+    state.autonomyStartError = null;
+    state.autonomyStartResult = null;
+    state.autonomyCancelError = null;
+    state.autonomyCancelResult = null;
+    state.autonomyLoopError = null;
+    state.autonomyLoopResult = null;
+    state.autonomyHealError = null;
+    state.autonomyGovernanceError = null;
+    state.autonomyGovernanceResult = null;
+    state.autonomyReconcileError = null;
+    if (clearLoading) {
+      state.autonomyLoading = false;
+      state.autonomyLoadingKey = null;
+      state.autonomyOverviewLoading = false;
+      state.autonomyCapabilitiesLoading = false;
+      state.autonomyGenesisLoading = false;
+      state.autonomyHistoryLoading = false;
+      state.autonomyStartBusy = false;
+      state.autonomyStartBusyKey = null;
+      state.autonomyCancelBusy = false;
+      state.autonomyCancelBusyKey = null;
+      state.autonomyLoopBusy = false;
+      state.autonomyLoopBusyKey = null;
+      state.autonomyHealBusy = false;
+      state.autonomyGovernanceBusy = false;
+      state.autonomyReconcileBusy = false;
+    }
+  };
+  const resetGovernancePanelState = (clearLoading = false) => {
+    resetGovernanceState(state, clearLoading);
+  };
   const resetAgentSelectionPanelState = () => {
     resetAgentFilesState(true);
     state.agentSkillsReport = null;
@@ -1178,6 +1710,11 @@ export function renderApp(state: AppViewState) {
     state.toolsCatalogError = null;
     state.toolsCatalogLoading = false;
     resetToolsEffectiveState(state);
+    resetGovernancePanelState(true);
+    resetAutonomyPanelState(true);
+    resetGovernanceWorkbenchScopeDraft();
+    resetGovernanceProposalCreateDraft(state.agentsSelectedId ?? undefined);
+    resetAutonomyDraftState();
   };
 
   return html`
@@ -1453,6 +1990,7 @@ export function renderApp(state: AppViewState) {
               lastChannelsRefresh: state.channelsLastSuccess,
               warnQueryToken,
               modelAuthStatus: state.modelAuthStatusResult,
+              statusSummary: state.debugStatus,
               usageResult: state.usageResult,
               sessionsResult: state.sessionsResult,
               skillsReport: state.skillsReport,
@@ -1489,6 +2027,25 @@ export function renderApp(state: AppViewState) {
               onConnect: () => state.connect(),
               onRefresh: () => state.loadOverview({ refresh: true }),
               onNavigate: (tab) => state.setTab(tab as import("./navigation.ts").Tab),
+              onNavigateToGovernance: () => {
+                const agentId =
+                  state.agentsSelectedId ?? resolvedAgentId ?? state.agentsList?.defaultId ?? null;
+                state.agentsPanel = "governance";
+                if (agentId) {
+                  state.agentsSelectedId = agentId;
+                  primeGovernanceProposalCreateDraft(agentId);
+                }
+                state.setTab("agents" as import("./navigation.ts").Tab);
+              },
+              onNavigateToAutonomy: () => {
+                const agentId =
+                  state.agentsSelectedId ?? resolvedAgentId ?? state.agentsList?.defaultId ?? null;
+                state.agentsPanel = "autonomy";
+                if (agentId) {
+                  state.agentsSelectedId = agentId;
+                }
+                state.setTab("agents" as import("./navigation.ts").Tab);
+              },
               onRefreshLogs: () => state.loadOverview({ refresh: true }),
             })
           : nothing}
@@ -1799,6 +2356,79 @@ export function renderApp(state: AppViewState) {
                   agentId: state.agentSkillsAgentId,
                   filter: state.skillsFilter,
                 },
+                governance: {
+                  overviewLoading: state.governanceOverviewLoading,
+                  overviewError: state.governanceOverviewError,
+                  overviewResult: state.governanceOverviewResult,
+                  assetRegistryLoading: state.governanceAssetRegistryLoading,
+                  assetRegistryError: state.governanceAssetRegistryError,
+                  assetRegistryResult: state.governanceAssetRegistryResult,
+                  capabilitiesLoading: state.governanceCapabilitiesLoading,
+                  capabilitiesError: state.governanceCapabilitiesError,
+                  capabilitiesResult: state.governanceCapabilitiesResult,
+                  genesisLoading: state.governanceGenesisLoading,
+                  genesisError: state.governanceGenesisError,
+                  genesisResult: state.governanceGenesisResult,
+                  agentLoading: state.governanceAgentLoading,
+                  agentError: state.governanceAgentError,
+                  agentResult: state.governanceAgentResult,
+                  teamLoading: state.governanceTeamLoading,
+                  teamError: state.governanceTeamError,
+                  teamResult: state.governanceTeamResult,
+                  proposalsLoading: state.governanceProposalsLoading,
+                  proposalsError: state.governanceProposalsError,
+                  proposalsResult: state.governanceProposalsResult,
+                  proposalSynthesizeBusy: state.governanceProposalSynthesizeBusy,
+                  proposalSynthesizeError: state.governanceProposalSynthesizeError,
+                  proposalSynthesizeResult: state.governanceProposalSynthesizeResult,
+                  proposalReconcileBusy: state.governanceProposalReconcileBusy,
+                  proposalReconcileError: state.governanceProposalReconcileError,
+                  proposalReconcileResult: state.governanceProposalReconcileResult,
+                  proposalCreateBusy: state.governanceProposalCreateBusy,
+                  proposalCreateError: state.governanceProposalCreateError,
+                  proposalCreateResult: state.governanceProposalCreateResult,
+                  proposalActionBusyId: state.governanceProposalActionBusyId,
+                  proposalActionError: state.governanceProposalActionError,
+                },
+                autonomy: {
+                  loading: state.autonomyLoading,
+                  error: state.autonomyError,
+                  result: state.autonomyResult,
+                  overviewLoading: state.autonomyOverviewLoading,
+                  overviewError: state.autonomyOverviewError,
+                  overviewResult: state.autonomyOverviewResult,
+                  capabilitiesLoading: state.autonomyCapabilitiesLoading,
+                  capabilitiesError: state.autonomyCapabilitiesError,
+                  capabilitiesResult: state.autonomyCapabilitiesResult,
+                  genesisLoading: state.autonomyGenesisLoading,
+                  genesisError: state.autonomyGenesisError,
+                  genesisResult: state.autonomyGenesisResult,
+                  historyLoading: state.autonomyHistoryLoading,
+                  historyError: state.autonomyHistoryError,
+                  historyResult: state.autonomyHistoryResult,
+                  startBusy: state.autonomyStartBusy,
+                  startError: state.autonomyStartError,
+                  replayBusy: state.autonomyReplayBusy,
+                  replayError: state.autonomyReplayError,
+                  replayResult: state.autonomyReplayResult,
+                  cancelBusy: state.autonomyCancelBusy,
+                  cancelError: state.autonomyCancelError,
+                  loopBusy: state.autonomyLoopBusy,
+                  loopError: state.autonomyLoopError,
+                  healBusy: state.autonomyHealBusy,
+                  healError: state.autonomyHealError,
+                  superviseBusy: state.autonomySuperviseBusy,
+                  superviseError: state.autonomySuperviseError,
+                  superviseResult: state.autonomySuperviseResult,
+                  governanceBusy: state.autonomyGovernanceBusy,
+                  governanceError: state.autonomyGovernanceError,
+                  governanceResult: state.autonomyGovernanceResult,
+                  governanceReconcileBusy: state.autonomyGovernanceReconcileBusy,
+                  governanceReconcileError: state.autonomyGovernanceReconcileError,
+                  governanceReconcileResult: state.autonomyGovernanceReconcileResult,
+                  reconcileBusy: state.autonomyReconcileBusy,
+                  reconcileError: state.autonomyReconcileError,
+                },
                 toolsCatalog: {
                   loading: state.toolsCatalogLoading,
                   error: state.toolsCatalogError,
@@ -1866,6 +2496,91 @@ export function renderApp(state: AppViewState) {
                       }
                     } else {
                       resetToolsEffectiveState(state);
+                    }
+                  }
+                  if (panel === "governance" && resolvedAgentId) {
+                    primeGovernanceProposalCreateDraft(resolvedAgentId);
+                    if (!state.governanceOverviewResult || state.governanceOverviewError) {
+                      void loadGovernanceOverview(state);
+                    }
+                    if (
+                      !state.governanceAssetRegistryResult ||
+                      state.governanceAssetRegistryError
+                    ) {
+                      void loadGovernanceCapabilityAssetRegistry(state, {
+                        ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                        ...resolveGovernanceWorkspaceScopeInput(),
+                      });
+                    }
+                    if (!state.governanceCapabilitiesResult || state.governanceCapabilitiesError) {
+                      void loadGovernanceCapabilityInventory(state, {
+                        ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                        ...resolveGovernanceWorkspaceScopeInput(),
+                      });
+                    }
+                    if (!state.governanceGenesisResult || state.governanceGenesisError) {
+                      void loadGovernanceGenesisAndMaybeTeam(resolvedAgentId);
+                    } else if (
+                      state.governanceTeamError ||
+                      state.governanceTeamResult?.teamId !== resolveGovernanceTeamId()
+                    ) {
+                      void refreshGovernanceTeamIfAvailable();
+                    }
+                    if (!state.governanceProposalsResult || state.governanceProposalsError) {
+                      void loadGovernanceProposals(state, resolveGovernanceProposalListInput());
+                    }
+                    if (
+                      state.governanceAgentResult?.agentId !== resolvedAgentId ||
+                      state.governanceAgentError
+                    ) {
+                      void loadGovernanceAgent(state, {
+                        agentId: resolvedAgentId,
+                      });
+                    }
+                  }
+                  if (panel === "autonomy" && resolvedAgentId) {
+                    const autonomyWorkspaceScopeInput = resolveAutonomyWorkspaceScopeInput();
+                    const autonomyHistoryInput = resolveAutonomyHistoryInput();
+                    if (!state.autonomyOverviewResult || state.autonomyOverviewError) {
+                      void loadAutonomyOverview(state, {
+                        sessionKey: state.sessionKey,
+                        ...autonomyWorkspaceScopeInput,
+                      });
+                    }
+                    if (!state.autonomyCapabilitiesResult || state.autonomyCapabilitiesError) {
+                      void loadAutonomyCapabilityInventory(state, {
+                        sessionKey: state.sessionKey,
+                        ...autonomyWorkspaceScopeInput,
+                      });
+                    }
+                    if (!state.autonomyGenesisResult || state.autonomyGenesisError) {
+                      void loadAutonomyGenesisPlan(state, {
+                        sessionKey: state.sessionKey,
+                        ...autonomyWorkspaceScopeInput,
+                      });
+                    }
+                    if (!state.autonomyHistoryResult || state.autonomyHistoryError) {
+                      void loadAutonomyHistory(state, {
+                        sessionKey: state.sessionKey,
+                        ...autonomyWorkspaceScopeInput,
+                        ...autonomyHistoryInput,
+                      });
+                    }
+                    const autonomyRequestKey = buildAutonomyRequestKey({
+                      agentId: resolvedAgentId,
+                      sessionKey: resolveAutonomySessionKey({
+                        agentId: resolvedAgentId,
+                        sessionKey: state.sessionKey,
+                      }),
+                    });
+                    if (
+                      state.autonomyResultKey !== autonomyRequestKey ||
+                      state.autonomyError
+                    ) {
+                      void loadAutonomyProfile(state, {
+                        agentId: resolvedAgentId,
+                        sessionKey: state.sessionKey,
+                      });
                     }
                   }
                   refreshAgentsPanelSupplementalData(panel);
@@ -1936,6 +2651,584 @@ export function renderApp(state: AppViewState) {
                     return;
                   }
                   void runCronJob(state, job, "force");
+                },
+                onGovernanceOverviewRefresh: () =>
+                  Promise.all([
+                    loadGovernanceOverview(state),
+                    ...(resolvedAgentId
+                      ? [
+                          loadGovernanceCapabilityAssetRegistry(state, {
+                            ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                            ...resolveGovernanceWorkspaceScopeInput(),
+                          }),
+                          loadGovernanceCapabilityInventory(state, {
+                            ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                            ...resolveGovernanceWorkspaceScopeInput(),
+                          }),
+                          loadGovernanceGenesisAndMaybeTeam(resolvedAgentId),
+                        ]
+                      : []),
+                    refreshGovernanceTeamIfAvailable(),
+                    loadGovernanceProposals(state, resolveGovernanceProposalListInput()),
+                  ]).then(() => undefined),
+                onGovernanceAssetRegistryRefresh: () =>
+                  resolvedAgentId
+                    ? loadGovernanceCapabilityAssetRegistry(state, {
+                        ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                        ...resolveGovernanceWorkspaceScopeInput(),
+                      })
+                    : Promise.resolve(),
+                onGovernanceCapabilitiesRefresh: () =>
+                  resolvedAgentId
+                    ? loadGovernanceCapabilityInventory(state, {
+                        ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                        ...resolveGovernanceWorkspaceScopeInput(),
+                      })
+                    : Promise.resolve(),
+                onGovernanceScopeUseCapabilities: () =>
+                  state.governanceCapabilitiesResult
+                    ? applyGovernanceWorkbenchScope({
+                        agentIds: state.governanceCapabilitiesResult.requestedAgentIds,
+                        workspaceDirs: state.governanceCapabilitiesResult.workspaceDirs,
+                        teamId: state.governanceGenesisResult?.teamId ?? state.governanceTeamResult?.teamId,
+                      })
+                    : Promise.resolve(),
+                onGovernanceScopeUseGenesis: () =>
+                  state.governanceGenesisResult
+                    ? applyGovernanceWorkbenchScope({
+                        agentIds: state.governanceGenesisResult.requestedAgentIds,
+                        workspaceDirs: state.governanceGenesisResult.workspaceDirs,
+                        teamId: state.governanceGenesisResult.teamId,
+                      })
+                    : Promise.resolve(),
+                onGovernanceWorkbenchScopeReset: () => {
+                  resetGovernanceWorkbenchScopeDraft();
+                  const selectedAgentId = resolvedAgentId ?? state.agentsSelectedId ?? null;
+                  return selectedAgentId
+                    ? refreshGovernanceWorkbenchScopedData(selectedAgentId)
+                    : Promise.resolve();
+                },
+                onGovernanceGenesisRefresh: () =>
+                  resolvedAgentId
+                    ? loadGovernanceGenesisAndMaybeTeam(resolvedAgentId)
+                    : Promise.resolve(),
+                onGovernanceAgentRefresh: () =>
+                  resolvedAgentId
+                    ? loadGovernanceAgent(state, {
+                        agentId: resolvedAgentId,
+                      })
+                    : Promise.resolve(),
+                onGovernanceTeamRefresh: () => refreshGovernanceTeamIfAvailable(),
+                onGovernanceProposalsRefresh: () =>
+                  loadGovernanceProposals(state, resolveGovernanceProposalListInput()),
+                onGovernanceProposalSynthesize: () => {
+                  const selectedAgentId = resolvedAgentId ?? state.agentsSelectedId ?? null;
+                  if (!selectedAgentId) {
+                    return Promise.resolve();
+                  }
+                  return synthesizeGovernanceProposals(state, {
+                    ...resolveGovernanceScopeAgentInput(selectedAgentId),
+                    ...resolveGovernanceGenesisTeamInput(),
+                    ...resolveGovernanceWorkspaceScopeInput(),
+                    ...resolveGovernanceProposalListInput(),
+                  }).then(() => {
+                    if (!state.governanceProposalSynthesizeError) {
+                      return refreshAutonomyAfterGovernanceMutation();
+                    }
+                  });
+                },
+                onGovernanceProposalReconcile: () => {
+                  const selectedAgentId = resolvedAgentId ?? state.agentsSelectedId ?? null;
+                  if (!selectedAgentId) {
+                    return Promise.resolve();
+                  }
+                  const operator = state.governanceProposalOperator.trim() || "human-architect";
+                  const createdBySessionKey = buildAgentMainSessionKey({ agentId: operator });
+                  return reconcileGovernanceProposals(state, {
+                    ...resolveGovernanceScopeAgentInput(selectedAgentId),
+                    ...resolveGovernanceGenesisTeamInput(),
+                    ...resolveGovernanceWorkspaceScopeInput(),
+                    ...resolveGovernanceProposalListInput(),
+                    mode: resolveGovernanceProposalReconcileMode(),
+                    createdByAgentId: operator,
+                    createdBySessionKey,
+                    decidedBy: operator,
+                    appliedBy: operator,
+                    ...(state.governanceProposalDecisionNote.trim()
+                      ? { decisionNote: state.governanceProposalDecisionNote.trim() }
+                      : {}),
+                  }).then(() => {
+                    if (!state.governanceProposalReconcileError) {
+                      state.governanceProposalDecisionNote = "";
+                      return refreshAutonomyAfterGovernanceMutation();
+                    }
+                  });
+                },
+                onGovernanceProposalCreate: () => {
+                  const selectedAgentId = resolvedAgentId ?? state.agentsSelectedId ?? null;
+                  if (!selectedAgentId) {
+                    return Promise.resolve();
+                  }
+                  const title = state.governanceProposalCreateTitle.trim();
+                  if (!title) {
+                    state.governanceProposalCreateError = "Proposal title required.";
+                    return Promise.resolve();
+                  }
+                  let operations;
+                  try {
+                    operations = parseGovernanceProposalOperationsDraft(
+                      state.governanceProposalOperationsJson,
+                    );
+                  } catch (err) {
+                    state.governanceProposalCreateError =
+                      err instanceof Error ? err.message : String(err);
+                    return Promise.resolve();
+                  }
+                  const createdByAgentId =
+                    state.governanceProposalCreateByAgentId.trim() || selectedAgentId;
+                  const createdBySessionKey =
+                    state.governanceProposalCreateBySessionKey.trim() ||
+                    buildAgentMainSessionKey({ agentId: createdByAgentId });
+                  return createGovernanceProposalEntry(state, {
+                    title,
+                    ...(state.governanceProposalCreateRationale.trim()
+                      ? { rationale: state.governanceProposalCreateRationale.trim() }
+                      : {}),
+                    createdByAgentId,
+                    createdBySessionKey,
+                    operations,
+                    ...resolveGovernanceScopeAgentInput(selectedAgentId),
+                    ...resolveGovernanceGenesisTeamInput(),
+                    ...resolveGovernanceWorkspaceScopeInput(),
+                    ...resolveGovernanceProposalListInput(),
+                  }).then(() => {
+                    if (!state.governanceProposalCreateError) {
+                      state.governanceProposalCreateTitle = "";
+                      state.governanceProposalCreateRationale = "";
+                      state.governanceProposalCreateByAgentId = createdByAgentId;
+                      state.governanceProposalCreateBySessionKey = createdBySessionKey;
+                      state.governanceProposalOperationsJson =
+                        buildGovernanceProposalOperationsDraftTemplate(createdByAgentId);
+                      return refreshAutonomyAfterGovernanceMutation();
+                    }
+                  });
+                },
+                onGovernanceProposalCreateReset: () => {
+                  resetGovernanceProposalCreateDraft(resolvedAgentId ?? undefined);
+                },
+                onGovernanceProposalReview: (proposalId, decision) => {
+                  const decidedBy = state.governanceProposalOperator.trim() || "human-architect";
+                  return reviewGovernanceProposalEntry(state, {
+                    proposalId,
+                    decision,
+                    decidedBy,
+                    ...(state.governanceProposalDecisionNote.trim()
+                      ? { decisionNote: state.governanceProposalDecisionNote.trim() }
+                      : {}),
+                    ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                    ...resolveGovernanceGenesisTeamInput(),
+                    ...resolveGovernanceWorkspaceScopeInput(),
+                    ...resolveGovernanceProposalListInput(),
+                  }).then(() => {
+                    if (!state.governanceProposalActionError) {
+                      state.governanceProposalDecisionNote = "";
+                      return refreshAutonomyAfterGovernanceMutation();
+                    }
+                  });
+                },
+                onGovernanceProposalApply: (proposalId) => {
+                  const appliedBy = state.governanceProposalOperator.trim() || "human-architect";
+                  return applyGovernanceProposalEntry(state, {
+                    proposalId,
+                    appliedBy,
+                    ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                    ...resolveGovernanceGenesisTeamInput(),
+                    ...resolveGovernanceWorkspaceScopeInput(),
+                    ...resolveGovernanceProposalListInput(),
+                  }).then(() => {
+                    if (!state.governanceProposalActionError) {
+                      return refreshAutonomyAfterGovernanceMutation();
+                    }
+                  });
+                },
+                onGovernanceProposalRevert: (proposalId) => {
+                  const revertedBy = state.governanceProposalOperator.trim() || "human-architect";
+                  return revertGovernanceProposalEntry(state, {
+                    proposalId,
+                    revertedBy,
+                    ...resolveGovernanceScopeAgentInput(resolvedAgentId),
+                    ...resolveGovernanceGenesisTeamInput(),
+                    ...resolveGovernanceWorkspaceScopeInput(),
+                    ...resolveGovernanceProposalListInput(),
+                  }).then(() => {
+                    if (!state.governanceProposalActionError) {
+                      return refreshAutonomyAfterGovernanceMutation();
+                    }
+                  });
+                },
+                onGovernanceProposalApproveVisible: () =>
+                  runGovernanceVisibleProposalBatch("approve_pending"),
+                onGovernanceProposalApplyVisible: () =>
+                  runGovernanceVisibleProposalBatch("apply_approved"),
+                onGovernanceProposalRevertVisible: () =>
+                  runGovernanceVisibleProposalBatch("revert_applied"),
+                onGovernanceProposalLoadSynthesisDraft: (entry) => {
+                  seedGovernanceProposalDraft({
+                    title: entry.title,
+                    rationale: entry.rationale ?? null,
+                    operations: entry.operations,
+                    scopeAgentIds:
+                      state.governanceProposalSynthesizeResult?.requestedAgentIds ??
+                      resolveGovernanceScopeAgentIds(resolvedAgentId),
+                    scopeWorkspaceDirs:
+                      state.governanceCapabilitiesResult?.workspaceDirs ??
+                      state.governanceGenesisResult?.workspaceDirs,
+                    scopeTeamId:
+                      state.governanceGenesisResult?.teamId ?? state.governanceTeamResult?.teamId,
+                  });
+                },
+                onGovernanceProposalLoadReconcileDraft: (entry) => {
+                  seedGovernanceProposalDraft({
+                    title: entry.title,
+                    rationale: entry.reason ?? null,
+                    operations: entry.operations,
+                    scopeAgentIds:
+                      state.governanceProposalReconcileResult?.requestedAgentIds ??
+                      resolveGovernanceScopeAgentIds(resolvedAgentId),
+                    scopeWorkspaceDirs:
+                      state.governanceCapabilitiesResult?.workspaceDirs ??
+                      state.governanceGenesisResult?.workspaceDirs,
+                    scopeTeamId:
+                      state.governanceGenesisResult?.teamId ?? state.governanceTeamResult?.teamId,
+                  });
+                },
+                onAutonomyRefresh: () =>
+                  resolvedAgentId
+                    ? Promise.all([
+                        loadAutonomyOverview(state, {
+                          sessionKey: state.sessionKey,
+                          ...resolveAutonomyWorkspaceScopeInput(),
+                        }),
+                        loadAutonomyCapabilityInventory(state, {
+                          sessionKey: state.sessionKey,
+                          ...resolveAutonomyWorkspaceScopeInput(),
+                        }),
+                        loadAutonomyGenesisPlan(state, {
+                          sessionKey: state.sessionKey,
+                          ...resolveAutonomyWorkspaceScopeInput(),
+                        }),
+                        loadAutonomyHistory(state, {
+                          sessionKey: state.sessionKey,
+                          ...resolveAutonomyWorkspaceScopeInput(),
+                          ...resolveAutonomyHistoryInput(),
+                        }),
+                        loadAutonomyProfile(state, {
+                          agentId: resolvedAgentId,
+                          sessionKey: state.sessionKey,
+                        }),
+                      ]).then(() => undefined)
+                    : Promise.resolve(),
+                onAutonomyStart: () =>
+                  resolvedAgentId
+                    ? startAutonomyFlow(state, {
+                        agentId: resolvedAgentId,
+                        sessionKey: state.sessionKey,
+                        ...(state.autonomyGoal.trim() ? { goal: state.autonomyGoal.trim() } : {}),
+                        ...(state.autonomyControllerId.trim()
+                          ? { controllerId: state.autonomyControllerId.trim() }
+                          : {}),
+                        ...(state.autonomyCurrentStep.trim()
+                          ? { currentStep: state.autonomyCurrentStep.trim() }
+                          : {}),
+                        ...resolveAutonomyWorkspaceScopeInput(),
+                        ...(state.autonomyNotifyPolicy
+                          ? { notifyPolicy: state.autonomyNotifyPolicy }
+                          : {}),
+                        ...(state.autonomyFlowStatus
+                          ? { status: state.autonomyFlowStatus }
+                          : {}),
+                        seedTaskEnabled: state.autonomySeedTaskEnabled,
+                        ...(state.autonomySeedTaskRuntime
+                          ? { seedTaskRuntime: state.autonomySeedTaskRuntime }
+                          : {}),
+                        ...(state.autonomySeedTaskStatus
+                          ? { seedTaskStatus: state.autonomySeedTaskStatus }
+                          : {}),
+                        ...(state.autonomySeedTaskLabel.trim()
+                          ? { seedTaskLabel: state.autonomySeedTaskLabel.trim() }
+                          : {}),
+                        ...(state.autonomySeedTaskTask.trim()
+                          ? { seedTaskTask: state.autonomySeedTaskTask.trim() }
+                          : {}),
+                      })
+                    : Promise.resolve(),
+                onAutonomyReplaySubmit: () =>
+                  resolvedAgentId
+                    ? submitAutonomySandboxReplay(state, {
+                        agentId: resolvedAgentId,
+                        sessionKey: state.sessionKey,
+                        ...(state.autonomyResult?.latestFlow?.id
+                          ? { flowId: state.autonomyResult.latestFlow.id }
+                          : {}),
+                        replayPassed: state.autonomyReplayVerdict === "pass",
+                        qaPassed: state.autonomyReplayQaVerdict === "pass",
+                        auditPassed: state.autonomyReplayAuditVerdict === "pass",
+                      })
+                    : Promise.resolve(),
+                onAutonomyCancel: () =>
+                  resolvedAgentId
+                    ? cancelAutonomyFlow(state, {
+                        agentId: resolvedAgentId,
+                        sessionKey: state.sessionKey,
+                        ...(state.autonomyResult?.latestFlow?.id
+                          ? { flowId: state.autonomyResult.latestFlow.id }
+                          : {}),
+                      })
+                    : Promise.resolve(),
+                onAutonomyLoopUpsert: () => {
+                  if (!resolvedAgentId) {
+                    return Promise.resolve();
+                  }
+                  const trimmed = state.autonomyLoopEveryMinutes.trim();
+                  if (!trimmed) {
+                    return upsertAutonomyLoop(state, {
+                      agentId: resolvedAgentId,
+                      sessionKey: state.sessionKey,
+                      ...resolveAutonomyWorkspaceScopeInput(),
+                    });
+                  }
+                  const minutes = Number.parseInt(trimmed, 10);
+                  if (!Number.isFinite(minutes) || minutes <= 0) {
+                    state.autonomyLoopError = "Loop interval must be a positive integer in minutes.";
+                    return Promise.resolve();
+                  }
+                  return upsertAutonomyLoop(state, {
+                    agentId: resolvedAgentId,
+                    sessionKey: state.sessionKey,
+                    everyMs: minutes * 60_000,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                  });
+                },
+                onAutonomyLoopRemove: () =>
+                  resolvedAgentId
+                    ? removeAutonomyLoop(state, {
+                        agentId: resolvedAgentId,
+                        sessionKey: state.sessionKey,
+                        ...(state.autonomyResult?.loopJob?.job.id
+                          ? { jobId: state.autonomyResult.loopJob.job.id }
+                          : {}),
+                        })
+                    : Promise.resolve(),
+                onAutonomyOverviewRefresh: () =>
+                  loadAutonomyOverview(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                  }),
+                onAutonomyCapabilitiesRefresh: () =>
+                  loadAutonomyCapabilityInventory(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                  }),
+                onAutonomyGenesisRefresh: () =>
+                  loadAutonomyGenesisPlan(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                  }),
+                onAutonomyHistoryRefresh: () =>
+                  loadAutonomyHistory(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                    ...resolveAutonomyHistoryInput(),
+                  }),
+                onAutonomyHeal: () =>
+                  healAutonomyFleet(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                    ...resolveAutonomyHistoryControlInput(),
+                  }),
+                onAutonomySupervise: () =>
+                  superviseAutonomyFleet(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                    ...resolveAutonomyHistoryControlInput(),
+                    governanceMode: resolveAutonomyGovernanceReconcileMode(),
+                    ...(state.autonomyGovernanceReconcileNote.trim()
+                      ? { decisionNote: state.autonomyGovernanceReconcileNote.trim() }
+                      : {}),
+                    restartBlockedFlows: true,
+                    includeCapabilityInventory: true,
+                    includeGenesisPlan: true,
+                    recordHistory: true,
+                  }).then(() => {
+                    if (!state.autonomySuperviseError) {
+                      state.autonomyGovernanceReconcileNote = "";
+                    }
+                  }),
+                onAutonomyGovernanceProposals: () =>
+                  synthesizeAutonomyGovernanceProposals(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                  }),
+                onAutonomyGovernanceReconcile: () =>
+                  reconcileAutonomyGovernanceProposals(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                    ...resolveAutonomyHistoryControlInput(),
+                    mode: resolveAutonomyGovernanceReconcileMode(),
+                    ...(state.autonomyGovernanceReconcileNote.trim()
+                      ? { decisionNote: state.autonomyGovernanceReconcileNote.trim() }
+                      : {}),
+                  }).then(() => {
+                    if (!state.autonomyGovernanceReconcileError) {
+                      state.autonomyGovernanceReconcileNote = "";
+                    }
+                  }),
+                onAutonomyReconcile: () =>
+                  reconcileAutonomyLoops(state, {
+                    sessionKey: state.sessionKey,
+                    ...resolveAutonomyWorkspaceScopeInput(),
+                    ...resolveAutonomyHistoryControlInput(),
+                  }),
+                onAutonomyRunSuggestedAction: (entry) =>
+                  runAutonomyOverviewSuggestedAction(entry),
+                onAutonomyRunSuggestedActionBatch: (action) =>
+                  runAutonomyOverviewSuggestedActionBatch(action),
+                onAutonomyInspectOverviewAgent: (agentId) => {
+                  state.agentsSelectedId = agentId;
+                  void loadAutonomyProfile(state, {
+                    agentId,
+                    sessionKey: state.sessionKey,
+                  });
+                },
+                onAutonomyResetDraft: () => {
+                  resetAutonomyDraftState();
+                },
+                autonomyDraft: {
+                  historyMode: state.autonomyHistoryMode,
+                  historySource: state.autonomyHistorySource,
+                  historyLimit: state.autonomyHistoryLimit,
+                  goal: state.autonomyGoal,
+                  controllerId: state.autonomyControllerId,
+                  currentStep: state.autonomyCurrentStep,
+                  notifyPolicy: state.autonomyNotifyPolicy,
+                  flowStatus: state.autonomyFlowStatus,
+                  seedTaskEnabled: state.autonomySeedTaskEnabled,
+                  seedTaskRuntime: state.autonomySeedTaskRuntime,
+                  seedTaskStatus: state.autonomySeedTaskStatus,
+                  seedTaskLabel: state.autonomySeedTaskLabel,
+                  seedTaskTask: state.autonomySeedTaskTask,
+                  replayVerdict: state.autonomyReplayVerdict,
+                  replayQaVerdict: state.autonomyReplayQaVerdict,
+                  replayAuditVerdict: state.autonomyReplayAuditVerdict,
+                  loopEveryMinutes: state.autonomyLoopEveryMinutes,
+                  workspaceScope: state.autonomyWorkspaceScope,
+                  governanceReconcileMode: state.autonomyGovernanceReconcileMode,
+                  governanceReconcileNote: state.autonomyGovernanceReconcileNote,
+                },
+                onAutonomyGoalChange: (value) => (state.autonomyGoal = value),
+                onAutonomyControllerIdChange: (value) => (state.autonomyControllerId = value),
+                onAutonomyCurrentStepChange: (value) => (state.autonomyCurrentStep = value),
+                onAutonomyNotifyPolicyChange: (value) => (state.autonomyNotifyPolicy = value),
+                onAutonomyFlowStatusChange: (value) => (state.autonomyFlowStatus = value),
+                onAutonomySeedTaskEnabledChange: (value) => (state.autonomySeedTaskEnabled = value),
+                onAutonomySeedTaskRuntimeChange: (value) => (state.autonomySeedTaskRuntime = value),
+                onAutonomySeedTaskStatusChange: (value) => (state.autonomySeedTaskStatus = value),
+                onAutonomySeedTaskLabelChange: (value) => (state.autonomySeedTaskLabel = value),
+                onAutonomySeedTaskTaskChange: (value) => (state.autonomySeedTaskTask = value),
+                onAutonomyReplayVerdictChange: (value) => (state.autonomyReplayVerdict = value),
+                onAutonomyReplayQaVerdictChange: (value) => (state.autonomyReplayQaVerdict = value),
+                onAutonomyReplayAuditVerdictChange: (value) =>
+                  (state.autonomyReplayAuditVerdict = value),
+                onAutonomyLoopEveryMinutesChange: (value) => (state.autonomyLoopEveryMinutes = value),
+                onAutonomyWorkspaceScopeChange: (value) => (state.autonomyWorkspaceScope = value),
+                onAutonomyGovernanceReconcileModeChange: (value) =>
+                  (state.autonomyGovernanceReconcileMode = value),
+                onAutonomyGovernanceReconcileNoteChange: (value) =>
+                  (state.autonomyGovernanceReconcileNote = value),
+                onAutonomyHistoryModeChange: (value) => {
+                  state.autonomyHistoryMode = value;
+                  if (state.agentsPanel === "autonomy") {
+                    void loadAutonomyHistory(state, {
+                      sessionKey: state.sessionKey,
+                      ...resolveAutonomyWorkspaceScopeInput(),
+                      ...resolveAutonomyHistoryInput(),
+                    });
+                  }
+                },
+                onAutonomyHistorySourceChange: (value) => {
+                  state.autonomyHistorySource = value;
+                  if (state.agentsPanel === "autonomy") {
+                    void loadAutonomyHistory(state, {
+                      sessionKey: state.sessionKey,
+                      ...resolveAutonomyWorkspaceScopeInput(),
+                      ...resolveAutonomyHistoryInput(),
+                    });
+                  }
+                },
+                onAutonomyHistoryLimitChange: (value) => {
+                  state.autonomyHistoryLimit = value;
+                  if (state.agentsPanel === "autonomy") {
+                    void loadAutonomyHistory(state, {
+                      sessionKey: state.sessionKey,
+                      ...resolveAutonomyWorkspaceScopeInput(),
+                      ...resolveAutonomyHistoryInput(),
+                    });
+                  }
+                },
+                onAutonomyUseRecommendedGoal: (value) => {
+                  state.autonomyGoal = value;
+                },
+                governanceDraft: {
+                  scopeAgentIds: state.governanceScopeAgentIds,
+                  scopeWorkspaceDirs: state.governanceScopeWorkspaceDirs,
+                  scopeTeamId: state.governanceGenesisTeamId,
+                  proposalLimit: state.governanceProposalLimit,
+                  operator: state.governanceProposalOperator,
+                  decisionNote: state.governanceProposalDecisionNote,
+                  statusFilter: state.governanceProposalStatusFilter,
+                  reconcileMode: state.governanceProposalReconcileMode,
+                  createTitle: state.governanceProposalCreateTitle,
+                  createRationale: state.governanceProposalCreateRationale,
+                  createAgentId: state.governanceProposalCreateByAgentId,
+                  createSessionKey: state.governanceProposalCreateBySessionKey,
+                  createOperationsJson: state.governanceProposalOperationsJson,
+                },
+                onGovernanceOperatorChange: (value) => (state.governanceProposalOperator = value),
+                onGovernanceDecisionNoteChange: (value) =>
+                  (state.governanceProposalDecisionNote = value),
+                onGovernanceStatusFilterChange: (value) => {
+                  state.governanceProposalStatusFilter = value;
+                  if (state.agentsPanel === "governance") {
+                    void loadGovernanceProposals(state, resolveGovernanceProposalListInput());
+                  }
+                },
+                onGovernanceReconcileModeChange: (value) =>
+                  (state.governanceProposalReconcileMode = value),
+                onGovernanceProposalLimitChange: (value) => {
+                  state.governanceProposalLimit = value;
+                  if (state.agentsPanel === "governance") {
+                    void loadGovernanceProposals(state, resolveGovernanceProposalListInput());
+                  }
+                },
+                onGovernanceCreateTitleChange: (value) =>
+                  (state.governanceProposalCreateTitle = value),
+                onGovernanceCreateRationaleChange: (value) =>
+                  (state.governanceProposalCreateRationale = value),
+                onGovernanceCreateAgentIdChange: (value) =>
+                  (state.governanceProposalCreateByAgentId = value),
+                onGovernanceCreateSessionKeyChange: (value) =>
+                  (state.governanceProposalCreateBySessionKey = value),
+                onGovernanceCreateOperationsJsonChange: (value) =>
+                  (state.governanceProposalOperationsJson = value),
+                onGovernanceScopeAgentIdsChange: (value) =>
+                  (state.governanceScopeAgentIds = value),
+                onGovernanceScopeWorkspaceDirsChange: (value) =>
+                  (state.governanceScopeWorkspaceDirs = value),
+                onGovernanceScopeTeamIdChange: (value) => {
+                  state.governanceGenesisTeamId = value;
+                  if (state.agentsPanel === "governance" && resolvedAgentId) {
+                    void loadGovernanceGenesisAndMaybeTeam(resolvedAgentId);
+                  }
                 },
                 onSkillsFilterChange: (next) => (state.skillsFilter = next),
                 onSkillsRefresh: () => {

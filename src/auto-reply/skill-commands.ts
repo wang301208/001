@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import {
-  listAgentIds,
+  listWorkspaceScopedAgentIds,
   resolveAgentSkillsFilter,
   resolveAgentWorkspaceDir,
 } from "../agents/agent-scope.js";
@@ -77,7 +77,7 @@ export function listSkillCommandsForAgents(params: {
     return Array.from(new Set([...existing, ...incoming]));
   };
 
-  const agentIds = params.agentIds ?? listAgentIds(params.cfg);
+  const agentIds = params.agentIds ?? listWorkspaceScopedAgentIds(params.cfg);
   const used = listReservedChatSlashCommandNames();
   const entries: SkillCommandSpec[] = [];
   // Group by canonical workspace to avoid duplicate registration when multiple

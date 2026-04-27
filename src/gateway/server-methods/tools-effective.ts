@@ -1,4 +1,5 @@
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import { ADMIN_SCOPE } from "../method-scopes.js";
 import {
@@ -33,7 +34,14 @@ function resolveRequestedAgentIdOrRespondError(params: {
     params.respond(
       false,
       undefined,
-      errorShape(ErrorCodes.INVALID_REQUEST, `unknown agent id "${requestedAgentId}"`),
+      errorShape(
+        ErrorCodes.INVALID_REQUEST,
+        buildUnknownAgentIdMessage({
+          cfg: params.cfg,
+          rawAgentId: requestedAgentId,
+          inspectHint: "Inspect available agents with agents.list.",
+        }),
+      ),
     );
     return null;
   }

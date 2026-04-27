@@ -24,6 +24,7 @@ import {
   updateSessionStore,
 } from "../../config/sessions.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import {
   resolveAgentDeliveryPlan,
@@ -212,6 +213,9 @@ function emitSessionsChanged(
             responseUsage: sessionRow.responseUsage,
             modelProvider: sessionRow.modelProvider,
             model: sessionRow.model,
+            ...(sessionRow.governanceRuntime
+              ? { governanceRuntime: sessionRow.governanceRuntime }
+              : {}),
             status: sessionRow.status,
             startedAt: sessionRow.startedAt,
             endedAt: sessionRow.endedAt,
@@ -477,7 +481,11 @@ export const agentHandlers: GatewayRequestHandlers = {
           undefined,
           errorShape(
             ErrorCodes.INVALID_REQUEST,
-            `invalid agent params: unknown agent id "${request.agentId}"`,
+            `invalid agent params: ${buildUnknownAgentIdMessage({
+              cfg,
+              rawAgentId: String(request.agentId),
+              inspectHint: "Inspect available agents with agents.list.",
+            })}`,
           ),
         );
         return;

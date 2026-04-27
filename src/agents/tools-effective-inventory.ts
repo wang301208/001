@@ -1,4 +1,6 @@
 import type { OpenClawConfig } from "../config/config.js";
+import { resolveAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
+import { resolveAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 import {
   normalizeLowercaseStringOrEmpty,
@@ -150,8 +152,19 @@ export function resolveEffectiveToolInventory(
     sessionKey: params.sessionKey,
     modelProvider: params.modelProvider,
     modelId: params.modelId,
+    charterDir: params.charterDir,
   });
   const profile = effectivePolicy.providerProfile ?? effectivePolicy.profile ?? "full";
+  const governanceContract = resolveAgentGovernanceRuntimeContract({
+    cfg: params.cfg,
+    agentId,
+    charterDir: params.charterDir,
+  });
+  const governance = resolveAgentToolGovernanceSummary({
+    cfg: params.cfg,
+    agentId,
+    charterDir: params.charterDir,
+  });
 
   const entries = disambiguateLabels(
     effectiveTools
@@ -189,5 +202,5 @@ export function resolveEffectiveToolInventory(
     })
     .filter((group): group is EffectiveToolInventoryGroup => group !== null);
 
-  return { agentId, profile, groups };
+  return { agentId, profile, governance, governanceContract, groups };
 }

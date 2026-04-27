@@ -7,10 +7,12 @@ import { readRestartSentinel } from "../../infra/restart-sentinel.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { buildPluginCompatibilityNotices } from "../../plugins/status.js";
 import { buildStatusAllOverviewRows } from "../status-overview-rows.ts";
+import { buildStatusAutonomyLines, buildStatusGovernanceLines } from "../status.command-sections.ts";
 import {
   buildStatusOverviewSurfaceFromOverview,
   type StatusOverviewSurface,
 } from "../status-overview-surface.ts";
+import { resolveStatusSummaryFromOverview } from "../status.scan-overview.ts";
 import {
   resolveStatusGatewayHealthSafe,
   type resolveStatusServiceSummaries,
@@ -174,17 +176,37 @@ export async function buildStatusAllReportData(params: {
     nodeService: params.nodeService,
     nodeOnlyGateway: params.nodeOnlyGateway,
   });
+  const summary = await resolveStatusSummaryFromOverview({
+    overview: params.overview,
+  });
+  const summaryForOverviewRows = {
+    governance: summary.governance,
+    autonomy: summary.autonomy,
+  };
   const overviewRows = buildStatusAllOverviewRows({
     surface: overviewSurface,
     osLabel: params.overview.osSummary.label,
     configPath,
     secretDiagnosticsCount: params.overview.secretDiagnostics.length,
+    summary: summaryForOverviewRows,
     agentStatus: params.overview.agentStatus,
     tailscaleBackendState: diagnosis.tailscale.backendState,
   });
 
   return {
     overviewRows,
+    governanceLines: buildStatusGovernanceLines({
+      governance: summary.governance,
+      ok: (value) => value,
+      warn: (value) => value,
+      muted: (value) => value,
+    }),
+    autonomyLines: buildStatusAutonomyLines({
+      autonomy: summary.autonomy,
+      ok: (value) => value,
+      warn: (value) => value,
+      muted: (value) => value,
+    }),
     channels: params.overview.channels,
     channelIssues: params.overview.channelIssues.map((issue) => ({
       channel: issue.channel,

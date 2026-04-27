@@ -100,6 +100,9 @@ export async function updateSessionStoreAfterAgentRun(params: {
   if (result.meta.systemPromptReport) {
     next.systemPromptReport = result.meta.systemPromptReport;
   }
+  if (result.meta.agentMeta?.governanceRuntime) {
+    next.governanceRuntime = result.meta.agentMeta.governanceRuntime;
+  }
   if (hasNonzeroUsage(usage)) {
     const { estimateUsageCost, resolveModelCostConfig } = await getUsageFormatModule();
     const input = usage.input ?? 0;

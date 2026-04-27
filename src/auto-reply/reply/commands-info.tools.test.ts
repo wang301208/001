@@ -1,6 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { EffectiveToolInventoryResult } from "../../agents/tools-effective-inventory.types.js";
 import type { OpenClawConfig } from "../../config/config.js";
+import type { AgentGovernanceRuntimeContract } from "../../governance/runtime-contract.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createChannelTestPluginBase,
@@ -25,6 +26,16 @@ function makeDefaultInventory(): EffectiveToolInventoryResult {
   return {
     agentId: "main",
     profile: "coding",
+    governance: {
+      charterDeclared: false,
+      charterToolDeny: [],
+      charterRequireAgentId: false,
+      charterElevatedLocked: false,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    },
+    governanceContract: makeGovernanceContract(),
     groups: [
       {
         id: "core",
@@ -54,6 +65,29 @@ function makeDefaultInventory(): EffectiveToolInventoryResult {
         ],
       },
     ],
+  };
+}
+
+function makeGovernanceContract(
+  overrides: Partial<AgentGovernanceRuntimeContract> = {},
+): AgentGovernanceRuntimeContract {
+  return {
+    agentId: "main",
+    charterDeclared: false,
+    collaborators: [],
+    reportsTo: [],
+    mutationAllow: [],
+    mutationDeny: [],
+    networkConditions: [],
+    runtimeHooks: [],
+    charterToolDeny: [],
+    charterRequireAgentId: false,
+    charterElevatedLocked: false,
+    freezeActive: false,
+    freezeDeny: [],
+    freezeDetails: [],
+    effectiveToolDeny: [],
+    ...overrides,
   };
 }
 
@@ -177,6 +211,36 @@ describe("handleToolsCommand", () => {
         replyToMode: "all",
       }),
     );
+  });
+
+  it("renders governance summary when the effective tool inventory is constrained", async () => {
+    const { buildCommandTestParams, handleToolsCommand } = await loadToolsHarness({
+      resolveTools: () => ({
+        ...makeDefaultInventory(),
+        governance: {
+          charterDeclared: true,
+          charterTitle: "Founder",
+          charterLayer: "evolution",
+          charterToolDeny: ["web_fetch", "web_search"],
+          charterRequireAgentId: true,
+          charterExecutionContract: "strict-agentic",
+          charterElevatedLocked: true,
+          freezeActive: true,
+          freezeReasonCode: "network_boundary_opened",
+          freezeDeny: ["exec", "write"],
+          freezeDetails: ["gateway.bind=lan"],
+        },
+      }),
+    });
+    const params = buildCommandTestParams("/tools verbose", buildConfig(), undefined, {
+      workspaceDir: "/tmp",
+    });
+    params.agentId = "main";
+
+    const result = await handleToolsCommand(params, true);
+
+    expect(result?.reply?.text).toContain("Governance charter: evolution / Founder");
+    expect(result?.reply?.text).toContain("Governance freeze: active (network_boundary_opened)");
   });
 
   it("returns usage when arguments are provided", async () => {

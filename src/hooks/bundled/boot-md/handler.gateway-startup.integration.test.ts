@@ -62,4 +62,26 @@ describe("boot-md startup hook integration", () => {
       expect.objectContaining({ cfg, deps, workspaceDir: opsWorkspaceDir, agentId: "ops" }),
     );
   });
+
+  it("does not rerun BOOT for charter-only agents that inherit the default workspace", async () => {
+    const cfg = {
+      hooks: { internal: { enabled: true } },
+      agents: {
+        list: [{ id: "main", default: true, workspace: "/ws/main" }],
+      },
+    } as OpenClawConfig;
+    const deps = {} as CliDeps;
+    runBootOnce.mockResolvedValue({ status: "ran" });
+
+    registerInternalHook("gateway:startup", runBootChecklist);
+    const event = createInternalHookEvent("gateway", "startup", "gateway:startup", { cfg, deps });
+    await triggerInternalHook(event);
+
+    const mainWorkspaceDir = resolveAgentWorkspaceDir(cfg, "main");
+
+    expect(runBootOnce).toHaveBeenCalledTimes(1);
+    expect(runBootOnce).toHaveBeenCalledWith(
+      expect.objectContaining({ cfg, deps, workspaceDir: mainWorkspaceDir, agentId: "main" }),
+    );
+  });
 });

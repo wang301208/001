@@ -217,6 +217,23 @@ describe("openclaw-tools update_plan gating", () => {
     ).toBe(true);
   });
 
+  it("treats charter-only evolution agents as strict-agentic when the project enables agents.list", () => {
+    const cfg = {
+      agents: {
+        list: [{ id: "main" }],
+      },
+    } as OpenClawConfig;
+
+    expect(
+      isUpdatePlanToolEnabledForOpenClawTools({
+        config: cfg,
+        agentId: "founder",
+        modelProvider: "openai",
+        modelId: "gpt-5.4",
+      }),
+    ).toBe(true);
+  });
+
   it("applies per-agent overrides without leaking the contract to other agents", () => {
     const cfg = {
       agents: {

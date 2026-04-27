@@ -6,7 +6,72 @@ import type {
   SessionsListResultBase,
   SessionsPatchResultBase,
 } from "../../../src/shared/session-types.js";
+import type {
+  AutonomyCapabilityInventoryEnvelope as SharedAutonomyCapabilityInventoryEnvelope,
+  AutonomyCapabilityInventoryResult as SharedAutonomyCapabilityInventory,
+  AutonomyGenesisPlanEnvelope as SharedAutonomyGenesisPlanEnvelope,
+  AutonomyGovernanceProposalsEnvelope as SharedAutonomyGovernanceProposalsEnvelope,
+  AutonomyGovernanceReconcileResult as SharedAutonomyGovernanceReconcileResult,
+  AutonomyGovernanceProposalsResult as SharedAutonomyGovernanceProposalsResult,
+  AutonomyGenesisPlanResult as SharedAutonomyGenesisPlan,
+  AutonomyHealResultEnvelope as SharedAutonomyHealResultEnvelope,
+  AutonomyHistoryResultEnvelope as SharedAutonomyHistoryResultEnvelope,
+  AutonomyListResult as SharedAutonomyListResult,
+  AutonomyOverviewResult as SharedAutonomyOverviewResult,
+  AutonomyShowResult as SharedAutonomyShowResult,
+  AutonomySubmitSandboxReplayEnvelope as SharedAutonomySubmitSandboxReplayEnvelope,
+  AutonomySuperviseResultEnvelope as SharedAutonomySuperviseResultEnvelope,
+  GovernanceAgentResult as SharedGovernanceAgentResult,
+  GovernanceCapabilityAssetRegistryResult as SharedGovernanceCapabilityAssetRegistryResult,
+  GovernanceCapabilityInventoryResult as SharedGovernanceCapabilityInventoryResult,
+  GovernanceGenesisPlanResult as SharedGovernanceGenesisPlanResult,
+  GovernanceOverviewResult as SharedGovernanceOverviewResult,
+  GovernanceProposalApplyRecord as SharedGovernanceProposalApplyRecord,
+  GovernanceProposalOperation as SharedGovernanceProposalOperation,
+  GovernanceProposalRecord as SharedGovernanceProposalRecord,
+  GovernanceProposalReviewRecord as SharedGovernanceProposalReviewRecord,
+  GovernanceProposalsApplyManyResult as SharedGovernanceProposalsApplyManyResult,
+  GovernanceProposalsApplyResult as SharedGovernanceProposalsApplyResult,
+  GovernanceProposalsCreateResult as SharedGovernanceProposalsCreateResult,
+  GovernanceProposalsListResult as SharedGovernanceProposalsListResult,
+  GovernanceProposalsReconcileResult as SharedGovernanceProposalsReconcileResult,
+  GovernanceProposalsRevertManyResult as SharedGovernanceProposalsRevertManyResult,
+  GovernanceProposalsRevertResult as SharedGovernanceProposalsRevertResult,
+  GovernanceProposalsReviewManyResult as SharedGovernanceProposalsReviewManyResult,
+  GovernanceProposalsReviewResult as SharedGovernanceProposalsReviewResult,
+  GovernanceProposalsSynthesizeResult as SharedGovernanceProposalsSynthesizeResult,
+  GovernanceTeamMemberRecord as SharedGovernanceTeamMemberRecord,
+  GovernanceTeamResult as SharedGovernanceTeamResult,
+} from "../../../src/gateway/protocol/schema/types.js";
 export type { ConfigUiHint, ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
+
+export type GovernanceOverviewResult = SharedGovernanceOverviewResult;
+export type GovernanceAgentResult = SharedGovernanceAgentResult;
+export type GovernanceCapabilityAssetRegistryResult =
+  SharedGovernanceCapabilityAssetRegistryResult;
+export type GovernanceCapabilityInventoryResult = SharedGovernanceCapabilityInventoryResult;
+export type GovernanceGenesisPlanResult = SharedGovernanceGenesisPlanResult;
+export type GovernanceTeamMemberRecord = SharedGovernanceTeamMemberRecord;
+export type GovernanceTeamResult = SharedGovernanceTeamResult;
+export type AutonomyCapabilityInventory = SharedAutonomyCapabilityInventory;
+export type AutonomyGovernanceProposalsResult = SharedAutonomyGovernanceProposalsResult;
+export type AutonomyGovernanceProposalsEnvelope = SharedAutonomyGovernanceProposalsEnvelope;
+export type AutonomyGovernanceReconcileResult = SharedAutonomyGovernanceReconcileResult;
+export type AutonomyGenesisPlan = SharedAutonomyGenesisPlan;
+export type GovernanceProposalOperation = SharedGovernanceProposalOperation;
+export type GovernanceProposalReviewRecord = SharedGovernanceProposalReviewRecord;
+export type GovernanceProposalApplyRecord = SharedGovernanceProposalApplyRecord;
+export type GovernanceProposalRecord = SharedGovernanceProposalRecord;
+export type GovernanceProposalsListResult = SharedGovernanceProposalsListResult;
+export type GovernanceProposalsReconcileResult = SharedGovernanceProposalsReconcileResult;
+export type GovernanceProposalsSynthesizeResult = SharedGovernanceProposalsSynthesizeResult;
+export type GovernanceProposalsCreateResult = SharedGovernanceProposalsCreateResult;
+export type GovernanceProposalsReviewManyResult = SharedGovernanceProposalsReviewManyResult;
+export type GovernanceProposalsReviewResult = SharedGovernanceProposalsReviewResult;
+export type GovernanceProposalsApplyManyResult = SharedGovernanceProposalsApplyManyResult;
+export type GovernanceProposalsApplyResult = SharedGovernanceProposalsApplyResult;
+export type GovernanceProposalsRevertManyResult = SharedGovernanceProposalsRevertManyResult;
+export type GovernanceProposalsRevertResult = SharedGovernanceProposalsRevertResult;
 
 export type ChannelsStatusSnapshot = {
   ts: number;
@@ -367,6 +432,77 @@ export type AgentsFilesSetResult = {
   file: AgentFileEntry;
 };
 
+export type AutonomyAgentProfile =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyAgentProfile;
+export type AutonomyLoopTemplate =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyLoopTemplate;
+export type AutonomyLoopJobSnapshot =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyLoopJobSnapshot;
+export type AutonomyStartManagedFlowResult =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyStartManagedFlowResult;
+export type AutonomyCancelManagedFlowResult =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyCancelManagedFlowResult;
+export type AutonomyLoopShowRuntimeResult =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyLoopShowResult;
+export type AutonomyLoopUpsertRuntimeResult =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyLoopUpsertResult;
+export type AutonomyLoopRemoveRuntimeResult =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyLoopRemoveResult;
+export type AutonomyFleetHistoryEvent =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyFleetHistoryEvent;
+export type AutonomyFleetHistoryRuntimeResult =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyFleetHistoryResult;
+export type AutonomyFleetStatusHealth =
+  import("../../../src/plugins/runtime/runtime-autonomy.types.js").AutonomyFleetStatusHealth;
+export type AutonomyFleetStatusEntry =
+  import("../../../src/gateway/protocol/schema/types.js").AutonomyFleetStatusEntry;
+export type AutonomyFleetStatusRuntimeResult =
+  import("../../../src/gateway/protocol/schema/types.js").AutonomyFleetStatusResult;
+export type AutonomyFleetHealRuntimeResult =
+  import("../../../src/gateway/protocol/schema/types.js").AutonomyFleetHealResult;
+export type AutonomySupervisorGovernanceMode =
+  import("../../../src/gateway/protocol/schema/types.js").AutonomySupervisorGovernanceMode;
+export type AutonomySupervisorRuntimeResult =
+  import("../../../src/gateway/protocol/schema/types.js").AutonomySuperviseResult;
+export type TaskFlowDetail =
+  import("../../../src/plugins/runtime/task-domain-types.js").TaskFlowDetail;
+export type TaskRunDetail =
+  import("../../../src/plugins/runtime/task-domain-types.js").TaskRunDetail;
+export type AutonomyListResult = SharedAutonomyListResult;
+export type AutonomyShowResult = SharedAutonomyShowResult;
+export type AutonomyOverviewResult = SharedAutonomyOverviewResult;
+export type AutonomyCapabilityInventoryResult = SharedAutonomyCapabilityInventoryEnvelope;
+export type AutonomyHealResult = SharedAutonomyHealResultEnvelope;
+export type AutonomySuperviseResult = SharedAutonomySuperviseResultEnvelope;
+export type AutonomyHistoryResult = SharedAutonomyHistoryResultEnvelope;
+export type AutonomyGenesisPlanResult = SharedAutonomyGenesisPlanEnvelope;
+export type AutonomyReplaySubmitResult = SharedAutonomySubmitSandboxReplayEnvelope;
+
+export type AutonomyStartResult = {
+  sessionKey: string;
+  started: AutonomyStartManagedFlowResult;
+};
+
+export type AutonomyCancelResult = {
+  sessionKey: string;
+  cancelled: AutonomyCancelManagedFlowResult;
+};
+
+export type AutonomyLoopShowResult = {
+  sessionKey: string;
+  loop: AutonomyLoopShowRuntimeResult;
+};
+
+export type AutonomyLoopUpsertResult = {
+  sessionKey: string;
+  upserted: AutonomyLoopUpsertRuntimeResult;
+};
+
+export type AutonomyLoopRemoveResult = {
+  sessionKey: string;
+  removed: AutonomyLoopRemoveRuntimeResult;
+};
+
 export type SessionRunStatus = "running" | "done" | "failed" | "killed" | "timeout";
 
 export type SessionCompactionCheckpointReason =
@@ -679,7 +815,7 @@ export type SkillStatusReport = {
   skills: SkillStatusEntry[];
 };
 
-export type StatusSummary = Record<string, unknown>;
+export type StatusSummary = import("../../../src/commands/status.types.js").StatusSummary;
 
 export type HealthSnapshot = Record<string, unknown>;
 

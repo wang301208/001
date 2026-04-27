@@ -97,13 +97,15 @@ function formatTaskRows(tasks: TaskRecord[], rich: boolean) {
   ].join(" ");
   const lines = [rich ? theme.heading(header) : header];
   for (const task of tasks) {
+    const governance = formatTaskGovernanceInline(task);
     const summary = truncate(
       normalizeOptionalString(task.terminalSummary) ||
         normalizeOptionalString(task.progressSummary) ||
         normalizeOptionalString(task.label) ||
         task.task.trim(),
-      80,
+      governance ? 64 : 80,
     );
+    const combinedSummary = governance ? `${summary} | ${governance}` : summary;
     const line = [
       shortToken(task.taskId).padEnd(ID_PAD),
       task.runtime.padEnd(RUNTIME_PAD),
@@ -111,11 +113,73 @@ function formatTaskRows(tasks: TaskRecord[], rich: boolean) {
       task.deliveryStatus.padEnd(DELIVERY_PAD),
       shortToken(task.runId, RUN_PAD).padEnd(RUN_PAD),
       truncate(normalizeOptionalString(task.childSessionKey) || "n/a", 36).padEnd(36),
-      summary,
+      combinedSummary,
     ].join(" ");
     lines.push(line.trimEnd());
   }
   return lines;
+}
+
+function taskRequiresGovernanceRuntime(task: TaskRecord): boolean {
+  if (task.scopeKind !== "session" || task.runtime === "cron") {
+    return false;
+  }
+  return Boolean(task.runId?.trim() || task.agentId?.trim() || task.childSessionKey?.trim());
+}
+
+function formatTaskGovernanceInline(task: TaskRecord): string {
+  if (!task.governanceRuntime) {
+    return taskRequiresGovernanceRuntime(task) ? "gov:missing" : "";
+  }
+  const parts = [`gov:${task.governanceRuntime.agentId}`];
+  const contract = task.governanceRuntime.summary.charterExecutionContract;
+  if (contract) {
+    parts.push(contract);
+  }
+  if (task.governanceRuntime.summary.freezeActive) {
+    parts.push("freeze");
+  }
+  return truncate(parts.join(" "), 28);
+}
+
+function summarizeTaskGovernanceCoverage(tasks: TaskRecord[]) {
+  const required = tasks.filter((task) => taskRequiresGovernanceRuntime(task)).length;
+  const present = tasks.filter(
+    (task) => taskRequiresGovernanceRuntime(task) && task.governanceRuntime,
+  ).length;
+  const freezeActive = tasks.filter((task) => task.governanceRuntime?.summary.freezeActive).length;
+  return {
+    required,
+    present,
+    missing: Math.max(0, required - present),
+    freezeActive,
+  };
+}
+
+function formatTaskGovernanceSummary(summary: ReturnType<typeof summarizeTaskGovernanceCoverage>) {
+  if (summary.required <= 0) {
+    return "Governance coverage: n/a";
+  }
+  return `Governance coverage: ${summary.present}/${summary.required} traced 路 ${summary.missing} missing 路 ${summary.freezeActive} frozen`;
+}
+
+function formatTaskGovernanceDetails(task: TaskRecord): string[] {
+  if (!task.governanceRuntime) {
+    return [`governanceRuntime: ${taskRequiresGovernanceRuntime(task) ? "missing" : "n/a"}`];
+  }
+  const snapshot = task.governanceRuntime;
+  const charter = [snapshot.summary.charterLayer, snapshot.summary.charterTitle]
+    .filter((value): value is string => Boolean(value))
+    .join(" / ");
+  const deny = [...snapshot.summary.charterToolDeny, ...snapshot.summary.freezeDeny];
+  return [
+    `governanceAgentId: ${snapshot.agentId}`,
+    `governanceObservedAt: ${new Date(snapshot.observedAt).toISOString()}`,
+    `governanceCharter: ${charter || "undeclared"}`,
+    `governanceExecutionContract: ${snapshot.summary.charterExecutionContract ?? "default"}`,
+    `governanceFreeze: ${snapshot.summary.freezeActive ? "active" : "inactive"}`,
+    `governanceDeny: ${deny.length > 0 ? deny.join(", ") : "n/a"}`,
+  ];
 }
 
 function formatTaskListSummary(tasks: TaskRecord[]) {
@@ -300,6 +364,7 @@ export async function tasksListCommand(
 
   runtime.log(info(`Background tasks: ${tasks.length}`));
   runtime.log(info(`Task pressure: ${formatTaskListSummary(tasks)}`));
+  runtime.log(info(formatTaskGovernanceSummary(summarizeTaskGovernanceCoverage(tasks))));
   if (runtimeFilter) {
     runtime.log(info(`Runtime filter: ${runtimeFilter}`));
   }
@@ -353,6 +418,7 @@ export async function tasksShowCommand(
     `endedAt: ${task.endedAt ? new Date(task.endedAt).toISOString() : "n/a"}`,
     `lastEventAt: ${task.lastEventAt ? new Date(task.lastEventAt).toISOString() : "n/a"}`,
     `cleanupAfter: ${task.cleanupAfter ? new Date(task.cleanupAfter).toISOString() : "n/a"}`,
+    ...formatTaskGovernanceDetails(task),
     ...(task.error ? [`error: ${task.error}`] : []),
     ...(task.progressSummary ? [`progressSummary: ${task.progressSummary}`] : []),
     ...(task.terminalSummary ? [`terminalSummary: ${task.terminalSummary}`] : []),
@@ -532,6 +598,7 @@ export async function tasksMaintenanceCommand(
     return;
   }
 
+  /*
   runtime.log(
     info(
       `Tasks maintenance (${opts.apply ? "applied" : "preview"}): tasks ${taskMaintenance.reconciled} reconcile · ${taskMaintenance.cleanupStamped} cleanup stamp · ${taskMaintenance.pruned} prune; task-flows ${flowMaintenance.reconciled} reconcile · ${flowMaintenance.pruned} prune`,
@@ -546,6 +613,27 @@ export async function tasksMaintenanceCommand(
     runtime.log(
       info(
         `Tasks health before apply: ${auditBefore.errors + flowAuditBefore.errors} audit errors · ${auditBefore.warnings + flowAuditBefore.warnings} audit warnings`,
+      ),
+    );
+  }
+  if (!opts.apply) {
+    runtime.log("Dry run only. Re-run with `openclaw tasks maintenance --apply` to write changes.");
+  }
+  */
+  runtime.log(
+    info(
+      `Tasks maintenance (${opts.apply ? "applied" : "preview"}): tasks ${taskMaintenance.reconciled} reconcile | ${taskMaintenance.governanceStamped} governance stamp | ${taskMaintenance.cleanupStamped} cleanup stamp | ${taskMaintenance.pruned} prune; task-flows ${flowMaintenance.reconciled} reconcile | ${flowMaintenance.pruned} prune`,
+    ),
+  );
+  runtime.log(
+    info(
+      `${opts.apply ? "Tasks health after apply" : "Tasks health"}: ${summary.byStatus.queued} queued 路 ${summary.byStatus.running} running 路 ${auditAfter.errors + flowAuditAfter.errors} audit errors 路 ${auditAfter.warnings + flowAuditAfter.warnings} audit warnings`,
+    ),
+  );
+  if (opts.apply) {
+    runtime.log(
+      info(
+        `Tasks health before apply: ${auditBefore.errors + flowAuditBefore.errors} audit errors 路 ${auditBefore.warnings + flowAuditBefore.warnings} audit warnings`,
       ),
     );
   }

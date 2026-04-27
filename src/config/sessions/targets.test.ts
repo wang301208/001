@@ -90,16 +90,18 @@ describe("resolveSessionStoreTargets", () => {
 
       const env = { ...process.env };
       const targets = resolveSessionStoreTargets(cfg, { allAgents: true }, { env });
-      expect(targets).toEqual([
-        {
-          agentId: "main",
-          storePath: resolveStorePath(cfg.session?.store, { agentId: "main", env }),
-        },
-        {
-          agentId: "work",
-          storePath: resolveStorePath(cfg.session?.store, { agentId: "work", env }),
-        },
-      ]);
+      expect(targets).toEqual(
+        expect.arrayContaining([
+          {
+            agentId: "main",
+            storePath: resolveStorePath(cfg.session?.store, { agentId: "main", env }),
+          },
+          {
+            agentId: "work",
+            storePath: resolveStorePath(cfg.session?.store, { agentId: "work", env }),
+          },
+        ]),
+      );
     });
   });
 

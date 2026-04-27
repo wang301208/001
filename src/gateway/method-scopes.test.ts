@@ -27,6 +27,17 @@ describe("method scope resolution", () => {
   it.each([
     ["sessions.resolve", ["operator.read"]],
     ["config.schema.lookup", ["operator.read"]],
+    ["autonomy.list", ["operator.read"]],
+    ["autonomy.overview", ["operator.read"]],
+    ["autonomy.capability.inventory", ["operator.read"]],
+    ["autonomy.genesis.plan", ["operator.read"]],
+    ["governance.capability.inventory", ["operator.read"]],
+    ["governance.capability.assetRegistry", ["operator.read"]],
+    ["governance.team", ["operator.read"]],
+    ["governance.genesis.plan", ["operator.read"]],
+    ["governance.proposals.synthesize", ["operator.admin"]],
+    ["governance.proposals.reconcile", ["operator.admin"]],
+    ["autonomy.loop.show", ["operator.read"]],
     ["sessions.create", ["operator.write"]],
     ["sessions.send", ["operator.write"]],
     ["sessions.abort", ["operator.write"]],
@@ -34,6 +45,12 @@ describe("method scope resolution", () => {
     ["sessions.messages.unsubscribe", ["operator.read"]],
     ["node.pair.approve", ["operator.pairing"]],
     ["poll", ["operator.write"]],
+    ["autonomy.start", ["operator.admin"]],
+    ["autonomy.heal", ["operator.admin"]],
+    ["autonomy.supervise", ["operator.admin"]],
+    ["autonomy.loop.upsert", ["operator.admin"]],
+    ["autonomy.loop.reconcile", ["operator.admin"]],
+    ["autonomy.loop.remove", ["operator.admin"]],
     ["config.patch", ["operator.admin"]],
     ["wizard.start", ["operator.admin"]],
     ["update.run", ["operator.admin"]],
@@ -74,6 +91,19 @@ describe("operator scope authorization", () => {
   it.each([
     ["health", ["operator.read"], { allowed: true }],
     ["health", ["operator.write"], { allowed: true }],
+    ["autonomy.show", ["operator.read"], { allowed: true }],
+    ["autonomy.overview", ["operator.read"], { allowed: true }],
+    ["autonomy.capability.inventory", ["operator.read"], { allowed: true }],
+    ["autonomy.genesis.plan", ["operator.read"], { allowed: true }],
+    ["governance.capability.inventory", ["operator.read"], { allowed: true }],
+    ["governance.capability.assetRegistry", ["operator.read"], { allowed: true }],
+    ["governance.team", ["operator.read"], { allowed: true }],
+    ["governance.genesis.plan", ["operator.read"], { allowed: true }],
+    ["governance.proposals.synthesize", ["operator.admin"], { allowed: true }],
+    ["governance.proposals.reconcile", ["operator.admin"], { allowed: true }],
+    ["autonomy.loop.show", ["operator.read"], { allowed: true }],
+    ["autonomy.heal", ["operator.admin"], { allowed: true }],
+    ["autonomy.supervise", ["operator.admin"], { allowed: true }],
     ["config.schema.lookup", ["operator.read"], { allowed: true }],
     ["config.patch", ["operator.admin"], { allowed: true }],
   ])("authorizes %s for scopes %j", (method, scopes, expected) => {
@@ -151,6 +181,20 @@ describe("plugin approval method registration", () => {
     expect(methods).toContain("plugin.approval.request");
     expect(methods).toContain("plugin.approval.waitDecision");
     expect(methods).toContain("plugin.approval.resolve");
+  });
+
+  it("lists capability inventory and genesis plan methods", () => {
+    const methods = listGatewayMethods();
+    expect(methods).toContain("autonomy.capability.inventory");
+    expect(methods).toContain("autonomy.genesis.plan");
+    expect(methods).toContain("governance.capability.inventory");
+    expect(methods).toContain("governance.capability.assetRegistry");
+    expect(methods).toContain("governance.team");
+    expect(methods).toContain("governance.genesis.plan");
+    expect(methods).toContain("governance.proposals.synthesize");
+    expect(methods).toContain("governance.proposals.reconcile");
+    expect(methods).toContain("autonomy.governance.reconcile");
+    expect(methods).toContain("autonomy.supervise");
   });
 
   it("classifies plugin approval methods", () => {

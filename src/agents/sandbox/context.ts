@@ -16,6 +16,7 @@ import { requireSandboxBackendFactory } from "./backend.js";
 import { ensureSandboxBrowser } from "./browser.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
 import { createSandboxFsBridge } from "./fs-bridge.js";
+import { createGovernanceFrozenSandboxFsBridge } from "./governance-fs-bridge.js";
 import { maybePruneSandboxes } from "./prune.js";
 import { updateRegistry } from "./registry.js";
 import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
@@ -104,7 +105,11 @@ export async function resolveSandboxDockerUser(params: {
   }
 }
 
-function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: string }) {
+function resolveSandboxSession(params: {
+  config?: OpenClawConfig;
+  sessionKey?: string;
+  charterDir?: string;
+}) {
   const rawSessionKey = params.sessionKey?.trim();
   if (!rawSessionKey) {
     return null;
@@ -113,6 +118,7 @@ function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: s
   const runtime = resolveSandboxRuntimeStatus({
     cfg: params.config,
     sessionKey: rawSessionKey,
+    charterDir: params.charterDir,
   });
   if (!runtime.sandboxed) {
     return null;
@@ -126,14 +132,13 @@ export async function resolveSandboxContext(params: {
   config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
+  charterDir?: string;
 }): Promise<SandboxContext | null> {
   const resolved = resolveSandboxSession(params);
   if (!resolved) {
     return null;
   }
   const { rawSessionKey, cfg, runtime } = resolved;
-
-  await maybePruneSandboxes(cfg);
 
   const { agentWorkspaceDir, scopeKey, workspaceDir } = await ensureSandboxWorkspaceLayout({
     cfg,
@@ -148,6 +153,35 @@ export async function resolveSandboxContext(params: {
     workspaceDir,
   });
   const resolvedCfg = docker === cfg.docker ? cfg : { ...cfg, docker };
+
+  if (runtime.governance.frozen) {
+    const sandboxContext: SandboxContext = {
+      enabled: true,
+      backendId: resolvedCfg.backend,
+      sessionKey: rawSessionKey,
+      workspaceDir,
+      agentWorkspaceDir,
+      workspaceAccess: resolvedCfg.workspaceAccess,
+      runtimeId: "governance-frozen",
+      runtimeLabel: "Governance Frozen",
+      containerName: "governance-frozen",
+      containerWorkdir: resolvedCfg.docker.workdir,
+      docker: resolvedCfg.docker,
+      tools: resolvedCfg.tools,
+      browserAllowHostControl: false,
+      governance: {
+        frozen: true,
+        message: runtime.governance.message,
+      },
+    };
+    sandboxContext.fsBridge = createGovernanceFrozenSandboxFsBridge({
+      sandbox: sandboxContext,
+      failureMessage: runtime.governance.message,
+    });
+    return sandboxContext;
+  }
+
+  await maybePruneSandboxes(cfg);
 
   const backendFactory = requireSandboxBackendFactory(resolvedCfg.backend);
   const backend = await backendFactory({
@@ -220,6 +254,9 @@ export async function resolveSandboxContext(params: {
     browserAllowHostControl: resolvedCfg.browser.allowHostControl,
     browser: browser ?? undefined,
     backend,
+    governance: {
+      frozen: false,
+    },
   };
 
   sandboxContext.fsBridge =
@@ -233,6 +270,7 @@ export async function ensureSandboxWorkspaceForSession(params: {
   config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
+  charterDir?: string;
 }): Promise<SandboxWorkspaceInfo | null> {
   const resolved = resolveSandboxSession(params);
   if (!resolved) {

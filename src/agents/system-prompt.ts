@@ -16,6 +16,7 @@ import {
   buildLimitedBootstrapPromptLines,
 } from "./bootstrap-prompt.js";
 import type { ResolvedTimeFormat } from "./date-time.js";
+import { buildGovernanceCharterAgentPrompt } from "../governance/charter-agents.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 import type {
   EmbeddedFullAccessBlockedReason,
@@ -410,6 +411,14 @@ function formatFullAccessBlockedReason(reason?: EmbeddedFullAccessBlockedReason)
   }
   return "runtime constraints";
 }
+
+function summarizeGovernanceMessageForPrompt(message?: string): string | undefined {
+  if (typeof message !== "string") {
+    return undefined;
+  }
+  const firstLine = message.replace(/\r\n?/g, "\n").split("\n", 1)[0]?.trim();
+  return firstLine ? sanitizeForPromptLiteral(firstLine) : undefined;
+}
 export function buildAgentSystemPrompt(params: {
   workspaceDir: string;
   defaultThinkLevel?: ThinkLevel;
@@ -448,6 +457,7 @@ export function buildAgentSystemPrompt(params: {
     capabilities?: string[];
     repoRoot?: string;
     canvasRootDir?: string;
+    governancePrompt?: string;
   };
   messageToolHints?: string[];
   sandboxInfo?: EmbeddedSandboxInfo;
@@ -479,12 +489,14 @@ export function buildAgentSystemPrompt(params: {
     browser: "Control web browser",
     canvas: "Present/eval/snapshot the Canvas",
     nodes: "List/describe/notify/camera/screen on paired nodes",
-    cron: "Manage cron jobs and wake events (use for reminders; when scheduling a reminder, write the systemEvent text as something that will read like a reminder when it fires, and mention that it is a reminder depending on the time gap between setting and firing; include recent context in reminder text if appropriate)",
-    message: "Send messages and channel actions",
-    gateway: "Restart, apply config, or run updates on the running OpenClaw process",
-    agents_list: acpSpawnRuntimeEnabled
-      ? 'List OpenClaw agent ids allowed for sessions_spawn when runtime="subagent" (not ACP harness ids)'
-      : "List OpenClaw agent ids allowed for sessions_spawn",
+      cron: "Manage cron jobs and wake events (use for reminders; when scheduling a reminder, write the systemEvent text as something that will read like a reminder when it fires, and mention that it is a reminder depending on the time gap between setting and firing; include recent context in reminder text if appropriate)",
+      message: "Send messages and channel actions",
+      gateway: "Restart, apply config, or run updates on the running OpenClaw process",
+      governance: "Inspect charter state, freeze posture, and per-agent governance contracts",
+      autonomy: "List governance-backed autonomy profiles or start a managed autonomy flow",
+      agents_list: acpSpawnRuntimeEnabled
+        ? 'List OpenClaw agent ids allowed for sessions_spawn when runtime="subagent" (not ACP harness ids)'
+        : "List OpenClaw agent ids allowed for sessions_spawn",
     sessions_list: "List other sessions (incl. sub-agents) with filters/last",
     sessions_history: "Fetch history for another session/sub-agent",
     sessions_send: "Send a message to another session/sub-agent",
@@ -513,11 +525,13 @@ export function buildAgentSystemPrompt(params: {
     "browser",
     "canvas",
     "nodes",
-    "cron",
-    "message",
-    "gateway",
-    "agents_list",
-    "sessions_list",
+      "cron",
+      "message",
+      "gateway",
+      "governance",
+      "autonomy",
+      "agents_list",
+      "sessions_list",
     "sessions_history",
     "sessions_send",
     "subagents",
@@ -604,7 +618,13 @@ export function buildAgentSystemPrompt(params: {
   const userTimezone = params.userTimezone?.trim();
   const skillsPrompt = params.skillsPrompt?.trim();
   const heartbeatPrompt = params.heartbeatPrompt?.trim();
+  const promptMode = params.promptMode ?? "full";
   const runtimeInfo = params.runtimeInfo;
+  const charterAgentPrompt =
+    promptMode !== "none"
+      ? runtimeInfo?.governancePrompt ??
+        (runtimeInfo?.agentId ? buildGovernanceCharterAgentPrompt(runtimeInfo.agentId) : undefined)
+      : undefined;
   const runtimeChannel = normalizeOptionalLowercaseString(runtimeInfo?.channel);
   const runtimeCapabilities = runtimeInfo?.capabilities ?? [];
   const runtimeCapabilitiesLower = new Set(
@@ -612,14 +632,17 @@ export function buildAgentSystemPrompt(params: {
   );
   const inlineButtonsEnabled = runtimeCapabilitiesLower.has("inlinebuttons");
   const messageChannelOptions = listDeliverableMessageChannels().join("|");
-  const promptMode = params.promptMode ?? "full";
   const isMinimal = promptMode === "minimal" || promptMode === "none";
   const sandboxContainerWorkspace = params.sandboxInfo?.containerWorkspaceDir?.trim();
   const sanitizedWorkspaceDir = sanitizeForPromptLiteral(params.workspaceDir);
   const sanitizedSandboxContainerWorkspace = sandboxContainerWorkspace
     ? sanitizeForPromptLiteral(sandboxContainerWorkspace)
     : "";
-  const elevated = params.sandboxInfo?.elevated;
+  const governanceFrozen = params.sandboxInfo?.governanceFrozen === true;
+  const governanceMessage = summarizeGovernanceMessageForPrompt(
+    params.sandboxInfo?.governanceMessage,
+  );
+  const elevated = governanceFrozen ? undefined : params.sandboxInfo?.elevated;
   const fullAccessBlockedReasonLabel =
     elevated?.fullAccessAvailable === false
       ? formatFullAccessBlockedReason(elevated.fullAccessBlockedReason)
@@ -629,9 +652,11 @@ export function buildAgentSystemPrompt(params: {
       ? sanitizedSandboxContainerWorkspace
       : sanitizedWorkspaceDir;
   const workspaceGuidance =
-    params.sandboxInfo?.enabled && sanitizedSandboxContainerWorkspace
-      ? `For read/write/edit/apply_patch, file paths resolve against host workspace: ${sanitizedWorkspaceDir}. For bash/exec commands, use sandbox container paths under ${sanitizedSandboxContainerWorkspace} (or relative paths from that workdir), not host paths. Prefer relative paths so both sandboxed exec and file tools work consistently.`
-      : "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise.";
+    governanceFrozen
+      ? `Governance freeze is active. Use read-only file inspection against host workspace: ${sanitizedWorkspaceDir}. Do not attempt bash/exec, process, write, edit, apply_patch, or runtime elevation until governance is restored.`
+      : params.sandboxInfo?.enabled && sanitizedSandboxContainerWorkspace
+        ? `For read/write/edit/apply_patch, file paths resolve against host workspace: ${sanitizedWorkspaceDir}. For bash/exec commands, use sandbox container paths under ${sanitizedSandboxContainerWorkspace} (or relative paths from that workdir), not host paths. Prefer relative paths so both sandboxed exec and file tools work consistently.`
+        : "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise.";
   const safetySection = [
     "## Safety",
     "You have no independent goals: do not pursue self-preservation, replication, resource acquisition, or power-seeking; avoid long-term plans beyond the user's request.",
@@ -734,6 +759,8 @@ export function buildAgentSystemPrompt(params: {
       fallback: [],
     }),
     ...safetySection,
+    charterAgentPrompt ? charterAgentPrompt : "",
+    charterAgentPrompt ? "" : "",
     "## OpenClaw CLI Quick Reference",
     "OpenClaw is controlled via subcommands. Do not invent commands.",
     "To manage the Gateway daemon service (start/stop/restart):",
@@ -783,6 +810,14 @@ export function buildAgentSystemPrompt(params: {
       ? [
           "You are running in a sandboxed runtime (tools execute in Docker).",
           "Some tools may be unavailable due to sandbox policy.",
+          governanceFrozen ? "This sandbox is frozen by governance policy." : "",
+          governanceFrozen
+            ? "Read-only file inspection may still work, but the sandbox runtime backend is not started while frozen."
+            : "",
+          governanceFrozen
+            ? "Do not attempt exec/process/write/edit/apply_patch or runtime elevation until governance is restored."
+            : "",
+          governanceMessage ? `Governance note: ${governanceMessage}` : "",
           "Sub-agents stay sandboxed (no elevated/host access). Need outside-sandbox read/write? Don't spawn; ask first.",
           hasSessionsSpawn && acpEnabled
             ? 'ACP harness spawns are blocked from sandboxed sessions (`sessions_spawn` with `runtime: "acp"`). Use `runtime: "subagent"` instead.'

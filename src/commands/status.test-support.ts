@@ -81,6 +81,118 @@ export const baseStatusOverviewSurface = {
 } as unknown as StatusOverviewSurface;
 
 export const baseStatusSummary = {
+  governance: {
+    observedAt: 1,
+    discovered: true,
+    freezeActive: false,
+    proposalSummary: {
+      total: 3,
+      pending: 1,
+      approved: 1,
+      rejected: 0,
+      applied: 1,
+    },
+    findingSummary: {
+      critical: 0,
+      warn: 1,
+      info: 2,
+    },
+    capabilitySummary: {
+      requestedAgentIds: ["founder", "librarian"],
+      totalEntries: 6,
+      gapCount: 2,
+      criticalGapCount: 1,
+      warningGapCount: 1,
+      infoGapCount: 0,
+      topGapIds: ["missing-plugin", "stale-skill"],
+    },
+    genesisSummary: {
+      teamId: "genesis",
+      teamTitle: "Genesis Team",
+      mode: "repair",
+      blockerCount: 1,
+      blockers: ["missing-plugin"],
+      focusGapIds: ["missing-plugin"],
+      stageCounts: {
+        ready: 1,
+        waiting: 1,
+        blocked: 1,
+      },
+    },
+    teamSummary: {
+      teamId: "genesis",
+      declared: true,
+      memberCount: 3,
+      missingMemberCount: 1,
+      missingMemberIds: ["qa"],
+      freezeActiveMemberCount: 1,
+      freezeActiveMemberIds: ["founder"],
+      runtimeHookCount: 4,
+      effectiveToolDenyCount: 2,
+    },
+  },
+  autonomy: {
+    observedAt: 2,
+    fleetSummary: {
+      totalProfiles: 3,
+      healthy: 1,
+      idle: 0,
+      drift: 1,
+      missingLoop: 1,
+      activeFlows: 2,
+      driftAgentIds: ["strategist"],
+      missingLoopAgentIds: ["librarian"],
+    },
+    replaySummary: {
+      totalRunners: 2,
+      ready: 1,
+      passed: 1,
+      failed: 0,
+      promotable: 1,
+      blocked: 1,
+      readyAgentIds: ["strategist"],
+      promotableAgentIds: ["founder"],
+      blockedAgentIds: ["strategist"],
+    },
+    capabilitySummary: {
+      requestedAgentIds: ["founder", "strategist", "librarian"],
+      totalEntries: 7,
+      gapCount: 2,
+      criticalGapCount: 1,
+      warningGapCount: 1,
+      infoGapCount: 0,
+      topGapIds: ["missing-loop", "stale-index"],
+    },
+    genesisSummary: {
+      teamId: "genesis",
+      teamTitle: "Genesis Team",
+      mode: "build",
+      blockerCount: 1,
+      blockers: ["missing-loop"],
+      focusGapIds: ["missing-loop"],
+      stageCounts: {
+        ready: 2,
+        waiting: 0,
+        blocked: 1,
+      },
+    },
+    lastSupervisorRun: {
+      observedAt: 3,
+      mode: "heal",
+      changed: true,
+      agentIds: ["founder", "strategist"],
+      changedAgentIds: ["founder"],
+      totals: {
+        totalProfiles: 3,
+        changed: 1,
+        unchanged: 2,
+        loopCreated: 1,
+        loopUpdated: 0,
+        flowStarted: 1,
+        flowRestarted: 0,
+      },
+    },
+  },
   tasks: { total: 3, active: 1, failures: 0, byStatus: { queued: 1, running: 1 } },
   taskAudit: { errors: 1, warnings: 0 },
   heartbeat: {
@@ -116,7 +228,26 @@ export const baseStatusAgentStatus = {
   defaultId: "main",
   bootstrapPendingCount: 1,
   totalSessions: 2,
-  agents: [{ id: "main", lastActiveAgeMs: 60_000 }] as AgentLocalStatus[],
+  agents: [
+    {
+      id: "main",
+      lastActiveAgeMs: 60_000,
+      governance: {
+        charterDeclared: true,
+        charterToolDeny: [],
+        charterRequireAgentId: false,
+        charterElevatedLocked: false,
+        freezeActive: false,
+        freezeDeny: [],
+        freezeDetails: [],
+      },
+      workspaceDir: null,
+      bootstrapPending: null,
+      sessionsPath: "",
+      sessionsCount: 0,
+      lastUpdatedAt: null,
+    },
+  ] as AgentLocalStatus[],
 };
 
 export const baseStatusMemory = {
@@ -160,7 +291,7 @@ export const statusTestFormatting = {
   formatKTokens: (value: number) => `${Math.round(value / 1000)}k`,
   formatTokensCompact: () => "12k",
   formatPromptCacheCompact: () => "cache ok",
-  formatHealthChannelLines: () => ["Discord: OK · ready"],
+  formatHealthChannelLines: () => ["Discord: OK | ready"],
   formatPluginCompatibilityNotice: (notice: { message?: unknown }) => String(notice.message),
   formatUpdateAvailableHint: () => "update available",
 };
@@ -210,7 +341,7 @@ export function createStatusCommandOverviewRowsParams(
     ...statusTestDecorators,
     ...statusTestFormatting,
     ...statusTestMemoryResolvers,
-    updateValue: "available · custom update",
+    updateValue: "available | custom update",
     ...overrides,
   };
 }
@@ -268,7 +399,7 @@ export function createStatusCommandReportDataParams(
     ...statusTestMemoryResolvers,
     theme: statusTestTheme,
     renderTable: ({ rows }: { rows: Array<Record<string, string>> }) => `table:${rows.length}`,
-    updateValue: "available · custom update",
+    updateValue: "available | custom update",
     ...overrides,
   };
 }

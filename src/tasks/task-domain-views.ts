@@ -5,6 +5,10 @@ import type {
   TaskRunDetail,
   TaskRunView,
 } from "../plugins/runtime/task-domain-types.js";
+import {
+  extractManagedAutonomyRuntimeState,
+  extractManagedExecutionRuntimeState,
+} from "../plugins/runtime/runtime-taskflow.managed-state.js";
 import type { TaskFlowRecord } from "./task-flow-registry.types.js";
 import { summarizeTaskRecords } from "./task-registry.summary.js";
 import type { TaskRecord, TaskRegistrySummary } from "./task-registry.types.js";
@@ -33,6 +37,7 @@ export function mapTaskRunView(task: TaskRecord): TaskRunView {
     ...(task.parentTaskId ? { parentTaskId: task.parentTaskId } : {}),
     ...(task.agentId ? { agentId: task.agentId } : {}),
     ...(task.runId ? { runId: task.runId } : {}),
+    ...(task.governanceRuntime ? { governanceRuntime: task.governanceRuntime } : {}),
     ...(task.label ? { label: task.label } : {}),
     title: task.task,
     status: task.status,
@@ -77,10 +82,14 @@ export function mapTaskFlowDetail(params: {
 }): TaskFlowDetail {
   const summary = params.summary ?? summarizeTaskRecords(params.tasks);
   const base = mapTaskFlowView(params.flow);
+  const managedAutonomy = extractManagedAutonomyRuntimeState(params.flow);
+  const managedExecution = extractManagedExecutionRuntimeState(params.flow);
   return {
     ...base,
     ...(params.flow.stateJson !== undefined ? { state: params.flow.stateJson } : {}),
     ...(params.flow.waitJson !== undefined ? { wait: params.flow.waitJson } : {}),
+    ...(managedAutonomy ? { managedAutonomy } : {}),
+    ...(managedExecution ? { managedExecution } : {}),
     ...(params.flow.blockedTaskId || params.flow.blockedSummary
       ? {
           blocked: {

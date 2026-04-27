@@ -18,9 +18,15 @@ import {
   requestFlowCancel,
   resumeFlow,
   setFlowWaiting,
+  updateFlowRecordByIdExpectedRevision,
 } from "../../tasks/task-flow-runtime-internal.js";
 import type { TaskDeliveryState } from "../../tasks/task-registry.types.js";
 import { normalizeDeliveryContext } from "../../utils/delivery-context.shared.js";
+import {
+  extractManagedAutonomyRuntimeState,
+  extractManagedExecutionRuntimeState,
+  mergeManagedAutonomyRuntimeState,
+} from "./runtime-taskflow.managed-state.js";
 import type {
   BoundTaskFlowRuntime,
   ManagedTaskFlowMutationResult,
@@ -143,6 +149,101 @@ function createBoundTaskFlowRuntime(params: {
       });
       return flow ? getFlowTaskSummary(flow.flowId) : undefined;
     },
+    getManagedAutonomy: (flowId) => {
+      const flow = getTaskFlowByIdForOwner({
+        flowId,
+        callerOwnerKey: ownerKey,
+      });
+      const managed = asManagedTaskFlowRecord(flow);
+      return managed ? extractManagedAutonomyRuntimeState(managed) : undefined;
+    },
+    setManagedAutonomy: (input) => {
+      const flow = resolveManagedFlowForOwner({
+        flowId: input.flowId,
+        ownerKey,
+      });
+      if (!flow.ok) {
+        return {
+          applied: false,
+          code: flow.code,
+          ...(flow.current ? { current: flow.current } : {}),
+        };
+      }
+      const patch: Parameters<typeof updateFlowRecordByIdExpectedRevision>[0]["patch"] = {
+        stateJson: mergeManagedAutonomyRuntimeState({
+          stateJson: flow.flow.stateJson,
+          autonomy: input.autonomy,
+        }),
+        updatedAt: input.updatedAt,
+      };
+      if (input.currentStep !== undefined) {
+        patch.currentStep = input.currentStep;
+      } else if (input.autonomy.currentStep !== undefined) {
+        patch.currentStep = input.autonomy.currentStep;
+      }
+      return mapFlowUpdateResult(
+        updateFlowRecordByIdExpectedRevision({
+          flowId: flow.flow.flowId,
+          expectedRevision: input.expectedRevision,
+          patch,
+        }),
+      );
+    },
+    getManagedExecution: (flowId) => {
+      const flow = getTaskFlowByIdForOwner({
+        flowId,
+        callerOwnerKey: ownerKey,
+      });
+      const managed = asManagedTaskFlowRecord(flow);
+      return managed ? extractManagedExecutionRuntimeState(managed) : undefined;
+    },
+    setManagedExecution: (input) => {
+      const flow = resolveManagedFlowForOwner({
+        flowId: input.flowId,
+        ownerKey,
+      });
+      if (!flow.ok) {
+        return {
+          applied: false,
+          code: flow.code,
+          ...(flow.current ? { current: flow.current } : {}),
+        };
+      }
+      const currentAutonomy = extractManagedAutonomyRuntimeState(flow.flow);
+      const autonomy = {
+        agentId: currentAutonomy?.agentId ?? "executor",
+        controllerId: currentAutonomy?.controllerId ?? flow.flow.controllerId,
+        goal: currentAutonomy?.goal ?? flow.flow.goal,
+        ...(input.currentStep !== undefined
+          ? { currentStep: input.currentStep ?? undefined }
+          : currentAutonomy?.currentStep
+            ? { currentStep: currentAutonomy.currentStep }
+            : {}),
+        workspaceDirs: currentAutonomy?.workspaceDirs ?? [],
+        ...(currentAutonomy?.primaryWorkspaceDir
+          ? { primaryWorkspaceDir: currentAutonomy.primaryWorkspaceDir }
+          : {}),
+        project: input.execution,
+      };
+      return mapFlowUpdateResult(
+        updateFlowRecordByIdExpectedRevision({
+          flowId: flow.flow.flowId,
+          expectedRevision: input.expectedRevision,
+          patch: {
+            stateJson: mergeManagedAutonomyRuntimeState({
+              stateJson: flow.flow.stateJson,
+              autonomy,
+            }),
+            updatedAt: input.updatedAt,
+            ...(input.currentStep !== undefined
+              ? { currentStep: input.currentStep }
+              : currentAutonomy?.currentStep
+                ? { currentStep: currentAutonomy.currentStep }
+                : {}),
+          },
+        }),
+      );
+    },
     setWaiting: (input) => {
       const flow = resolveManagedFlowForOwner({
         flowId: input.flowId,
@@ -207,6 +308,7 @@ function createBoundTaskFlowRuntime(params: {
         finishFlow({
           flowId: flow.flow.flowId,
           expectedRevision: input.expectedRevision,
+          currentStep: input.currentStep,
           stateJson: input.stateJson,
           updatedAt: input.updatedAt,
           endedAt: input.endedAt,
@@ -229,6 +331,7 @@ function createBoundTaskFlowRuntime(params: {
         failFlow({
           flowId: flow.flow.flowId,
           expectedRevision: input.expectedRevision,
+          currentStep: input.currentStep,
           stateJson: input.stateJson,
           blockedTaskId: input.blockedTaskId,
           blockedSummary: input.blockedSummary,
@@ -273,6 +376,7 @@ function createBoundTaskFlowRuntime(params: {
         parentTaskId: input.parentTaskId,
         agentId: input.agentId,
         runId: input.runId,
+        governanceRuntime: input.governanceRuntime,
         label: input.label,
         task: input.task,
         preferMetadata: input.preferMetadata,

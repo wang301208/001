@@ -4,12 +4,25 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { resolveStateDir } from "../config/paths.js";
 import type { SessionScope } from "../config/sessions.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+import { listGovernanceCharterAgentBlueprints } from "../governance/charter-agents.js";
+import { resolveAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
+import { resolveAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { normalizeAgentId, normalizeMainKey } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
+import type {
+  GatewayAgentGovernance,
+  GatewayAgentGovernanceContract,
+} from "../shared/session-types.js";
 
 export type GatewayAgentListRow = {
   id: string;
   name?: string;
+  configured: boolean;
+  charterDeclared: boolean;
+  charterTitle?: string;
+  charterLayer?: string;
+  governance: GatewayAgentGovernance;
+  governanceContract: GatewayAgentGovernanceContract;
 };
 
 function listExistingAgentIdsFromDisk(): string[] {
@@ -71,18 +84,34 @@ export function listGatewayAgentsBasic(cfg: OpenClawConfig): {
       .map((entry) => (entry?.id ? normalizeAgentId(entry.id) : ""))
       .filter(Boolean),
   );
+  const charterAgents = explicitIds.size > 0 ? listGovernanceCharterAgentBlueprints() : [];
+  const charterById = new Map(charterAgents.map((agent) => [agent.id, agent] as const));
   const allowedIds = explicitIds.size > 0 ? new Set([...explicitIds, defaultId]) : null;
   let agentIds = listConfiguredAgentIds(cfg).filter((id) =>
     allowedIds ? allowedIds.has(id) : true,
   );
+  for (const charterAgent of charterAgents) {
+    if (!agentIds.includes(charterAgent.id)) {
+      agentIds = [...agentIds, charterAgent.id];
+    }
+  }
   if (mainKey && !agentIds.includes(mainKey) && (!allowedIds || allowedIds.has(mainKey))) {
     agentIds = [...agentIds, mainKey];
   }
   const agents = agentIds.map((id) => {
     const meta = configuredById.get(id);
+    const charterAgent = charterById.get(id);
+    const governanceContract = resolveAgentGovernanceRuntimeContract({ cfg, agentId: id });
+    const governance = resolveAgentToolGovernanceSummary({ cfg, agentId: id });
     return {
       id,
-      name: meta?.name,
+      name: meta?.name ?? charterAgent?.title,
+      configured: explicitIds.has(id),
+      charterDeclared: governance.charterDeclared,
+      charterTitle: governance.charterTitle,
+      charterLayer: governance.charterLayer,
+      governance,
+      governanceContract,
     };
   });
   return { defaultId, mainKey, scope, agents };

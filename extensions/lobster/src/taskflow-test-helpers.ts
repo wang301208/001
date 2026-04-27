@@ -24,6 +24,16 @@ export function createFakeTaskFlow(overrides?: Partial<BoundTaskFlow>): BoundTas
     findLatest: vi.fn(),
     resolve: vi.fn(),
     getTaskSummary: vi.fn(),
+    getManagedAutonomy: vi.fn(),
+    setManagedAutonomy: vi.fn().mockImplementation((input) => ({
+      applied: true,
+      flow: { ...baseFlow, revision: input.expectedRevision + 1, status: "running" as const },
+    })),
+    getManagedExecution: vi.fn(),
+    setManagedExecution: vi.fn().mockImplementation((input) => ({
+      applied: true,
+      flow: { ...baseFlow, revision: input.expectedRevision + 1, status: "running" as const },
+    })),
     setWaiting: vi.fn().mockImplementation((input) => ({
       applied: true,
       flow: { ...baseFlow, revision: input.expectedRevision + 1, status: "waiting" as const },
@@ -34,7 +44,7 @@ export function createFakeTaskFlow(overrides?: Partial<BoundTaskFlow>): BoundTas
     })),
     finish: vi.fn().mockImplementation((input) => ({
       applied: true,
-      flow: { ...baseFlow, revision: input.expectedRevision + 1, status: "completed" as const },
+      flow: { ...baseFlow, revision: input.expectedRevision + 1, status: "succeeded" as const },
     })),
     fail: vi.fn().mockImplementation((input) => ({
       applied: true,

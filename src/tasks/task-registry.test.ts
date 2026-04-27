@@ -11,6 +11,7 @@ import {
   hasPendingHeartbeatWake,
   resetHeartbeatWakeStateForTests,
 } from "../infra/heartbeat-wake.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
 import type { ParsedAgentSessionKey } from "../routing/session-key.js";
 import { withTempDir } from "../test-helpers/temp-dir.js";
@@ -86,7 +87,11 @@ vi.mock("../agents/subagent-control.js", () => ({
 function configureTaskRegistryMaintenanceRuntimeForTest(params: {
   currentTasks: Map<string, ReturnType<typeof createTaskRecord>>;
   snapshotTasks: ReturnType<typeof createTaskRecord>[];
-}): void {
+    getAgentRunContext?: (runId: string) => {
+      agentId?: string;
+      governanceRuntime?: AgentGovernanceRuntimeSnapshot;
+    } | undefined;
+  }): void {
   const emptyAcpEntry = {
     cfg: {} as never,
     storePath: "",
@@ -101,7 +106,7 @@ function configureTaskRegistryMaintenanceRuntimeForTest(params: {
     resolveStorePath: () => "",
     parseAgentSessionKey: () => null as ParsedAgentSessionKey | null,
     isCronJobActive: () => false,
-    getAgentRunContext: () => undefined,
+    getAgentRunContext: params.getAgentRunContext ?? (() => undefined),
     deleteTaskRecordById: (taskId: string) => params.currentTasks.delete(taskId),
     ensureTaskRegistryReady: () => {},
     getTaskById: (taskId: string) => params.currentTasks.get(taskId),
@@ -138,6 +143,23 @@ function configureTaskRegistryMaintenanceRuntimeForTest(params: {
       const next = {
         ...current,
         cleanupAfter: patch.cleanupAfter,
+      };
+      params.currentTasks.set(patch.taskId, next);
+      return next;
+    },
+    setTaskGovernanceRuntimeById: (patch: {
+      taskId: string;
+      agentId?: string;
+      governanceRuntime: AgentGovernanceRuntimeSnapshot;
+    }) => {
+      const current = params.currentTasks.get(patch.taskId);
+      if (!current) {
+        return null;
+      }
+      const next = {
+        ...current,
+        ...(patch.agentId !== undefined ? { agentId: patch.agentId } : {}),
+        governanceRuntime: patch.governanceRuntime,
       };
       params.currentTasks.set(patch.taskId, next);
       return next;
@@ -205,6 +227,28 @@ function configureInMemoryTaskStoresForLinkValidationTests() {
       close: () => {},
     },
   });
+}
+
+function createGovernanceRuntime(
+  agentId = "founder",
+  observedAt = 1_710_000_000_000,
+): AgentGovernanceRuntimeSnapshot {
+  return {
+    agentId,
+    observedAt,
+    summary: {
+      charterDeclared: true,
+      charterTitle: "Autonomy Charter",
+      charterLayer: "governance",
+      charterToolDeny: ["git reset --hard"],
+      charterRequireAgentId: true,
+      charterExecutionContract: "strict-agentic" as const,
+      charterElevatedLocked: true,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    },
+  };
 }
 
 describe("task-registry", () => {
@@ -276,6 +320,96 @@ describe("task-registry", () => {
 
       expect(findTaskByRunId("run-1")).toMatchObject({
         runtime: "acp",
+        status: "succeeded",
+        endedAt: 250,
+      });
+    });
+  });
+
+  it("hydrates governance runtime when ACP task creation reuses an existing run-scoped task", async () => {
+    await withTaskRegistryTempDir(async (root) => {
+      process.env.OPENCLAW_STATE_DIR = root;
+      resetTaskRegistryForTests();
+
+      const original = createTaskRecord({
+        runtime: "acp",
+        ownerKey: "agent:main:main",
+        scopeKind: "session",
+        childSessionKey: "agent:main:acp:child",
+        runId: "run-governed-reuse",
+        task: "Initial ACP task",
+        status: "queued",
+        deliveryStatus: "not_applicable",
+      });
+      const governanceRuntime = createGovernanceRuntime("founder");
+
+      registerAgentRunContext("run-governed-reuse", {
+        sessionKey: "agent:main:acp:child",
+        agentId: "founder",
+        governanceRuntime,
+      });
+
+      const reused = createTaskRecord({
+        runtime: "acp",
+        ownerKey: "agent:main:main",
+        scopeKind: "session",
+        childSessionKey: "agent:main:acp:child",
+        runId: "run-governed-reuse",
+        label: "Reconciled task metadata",
+        task: "Reconciled ACP task",
+        preferMetadata: true,
+        status: "running",
+        deliveryStatus: "not_applicable",
+      });
+
+      expect(reused.taskId).toBe(original.taskId);
+      expect(reused).toMatchObject({
+        agentId: "founder",
+        governanceRuntime,
+        label: "Reconciled task metadata",
+        task: "Reconciled ACP task",
+      });
+      expect(findTaskByRunId("run-governed-reuse")).toMatchObject({
+        taskId: original.taskId,
+        governanceRuntime,
+      });
+    });
+  });
+
+  it("backfills governance runtime from lifecycle events when the task was created without it", async () => {
+    await withTaskRegistryTempDir(async (root) => {
+      process.env.OPENCLAW_STATE_DIR = root;
+      resetTaskRegistryForTests();
+
+      createTaskRecord({
+        runtime: "acp",
+        ownerKey: "agent:main:main",
+        scopeKind: "session",
+        childSessionKey: "agent:main:acp:child",
+        runId: "run-governed-event",
+        task: "Deferred governance task",
+        status: "running",
+        deliveryStatus: "not_applicable",
+        startedAt: 100,
+      });
+
+      expect(findTaskByRunId("run-governed-event")?.governanceRuntime).toBeUndefined();
+
+      const governanceRuntime = createGovernanceRuntime("strategist", 1_710_000_000_123);
+      emitAgentEvent({
+        runId: "run-governed-event",
+        stream: "lifecycle",
+        governanceRuntime,
+        agentId: "strategist",
+        data: {
+          phase: "end",
+          endedAt: 250,
+        },
+      });
+
+      expect(findTaskByRunId("run-governed-event")).toMatchObject({
+        agentId: "strategist",
+        governanceRuntime,
         status: "succeeded",
         endedAt: 250,
       });
@@ -1500,6 +1634,7 @@ describe("task-registry", () => {
 
       expect(await runTaskRegistryMaintenance()).toEqual({
         reconciled: 1,
+        governanceStamped: 0,
         cleanupStamped: 0,
         pruned: 0,
       });
@@ -1535,6 +1670,7 @@ describe("task-registry", () => {
 
       expect(await sweepTaskRegistry()).toEqual({
         reconciled: 0,
+        governanceStamped: 0,
         cleanupStamped: 0,
         pruned: 1,
       });
@@ -1578,16 +1714,61 @@ describe("task-registry", () => {
 
       expect(previewTaskRegistryMaintenance()).toEqual({
         reconciled: 0,
+        governanceStamped: 0,
         cleanupStamped: 1,
         pruned: 0,
       });
 
       expect(await runTaskRegistryMaintenance()).toEqual({
         reconciled: 0,
+        governanceStamped: 0,
         cleanupStamped: 1,
         pruned: 0,
       });
       expect(getTaskById("task-missing-cleanup")?.cleanupAfter).toBeGreaterThan(now);
+    });
+  });
+
+  it("previews and repairs missing governance runtime from active run context", async () => {
+    const governanceRuntime = createGovernanceRuntime("strategist", 1_710_000_000_123);
+    const snapshotTask = createTaskRecord({
+      runtime: "acp",
+      ownerKey: "agent:main:main",
+      scopeKind: "session",
+      childSessionKey: "agent:main:acp:governed-child",
+      runId: "run-maintenance-governance",
+      task: "Repair governance",
+      status: "running",
+      deliveryStatus: "pending",
+    });
+    const currentTasks = new Map([[snapshotTask.taskId, snapshotTask]]);
+    configureTaskRegistryMaintenanceRuntimeForTest({
+      currentTasks,
+      snapshotTasks: [snapshotTask],
+      getAgentRunContext: (runId: string) =>
+        runId === "run-maintenance-governance"
+          ? {
+              agentId: "strategist",
+              governanceRuntime,
+            }
+          : undefined,
+    });
+
+    expect(previewTaskRegistryMaintenance()).toEqual({
+      reconciled: 0,
+      governanceStamped: 1,
+      cleanupStamped: 0,
+      pruned: 0,
+    });
+    expect(await runTaskRegistryMaintenance()).toEqual({
+      reconciled: 0,
+      governanceStamped: 1,
+      cleanupStamped: 0,
+      pruned: 0,
+    });
+    expect(currentTasks.get(snapshotTask.taskId)).toMatchObject({
+      agentId: "strategist",
+      governanceRuntime,
     });
   });
 
@@ -1661,6 +1842,7 @@ describe("task-registry", () => {
         maybeDeliverTaskTerminalUpdate: async () => null,
         resolveTaskForLookupToken: () => undefined,
         setTaskCleanupAfterById: () => null,
+        setTaskGovernanceRuntimeById: () => null,
       });
 
       try {
@@ -1702,6 +1884,7 @@ describe("task-registry", () => {
 
     expect(await runTaskRegistryMaintenance()).toEqual({
       reconciled: 0,
+      governanceStamped: 0,
       cleanupStamped: 0,
       pruned: 0,
     });
@@ -1742,6 +1925,7 @@ describe("task-registry", () => {
 
     expect(await sweepTaskRegistry()).toEqual({
       reconciled: 0,
+      governanceStamped: 0,
       cleanupStamped: 0,
       pruned: 0,
     });
@@ -1786,14 +1970,15 @@ describe("task-registry", () => {
       });
 
       expect(getInspectableTaskAuditSummary()).toEqual({
-        total: 1,
-        warnings: 0,
+        total: 2,
+        warnings: 1,
         errors: 1,
         byCode: {
           stale_queued: 0,
           stale_running: 1,
           lost: 0,
           delivery_failed: 0,
+          missing_governance_runtime: 1,
           missing_cleanup: 0,
           inconsistent_timestamps: 0,
         },

@@ -66,6 +66,7 @@ vi.mock("../../config/config.js", async () => {
 
 vi.mock("../../agents/agent-scope.js", () => ({
   listAgentIds: () => ["main"],
+  resolveDefaultAgentId: () => "main",
   resolveAgentWorkspaceDir: (cfg: { agents?: { defaults?: { workspace?: string } } }) =>
     cfg?.agents?.defaults?.workspace ?? "/tmp/workspace",
   resolveAgentEffectiveModelPrimary: () => undefined,
@@ -429,6 +430,39 @@ describe("gateway agent handler", () => {
       undefined,
       expect.objectContaining({
         message: "provider/model overrides are not authorized for this caller.",
+      }),
+    );
+  });
+
+  it("rejects unknown agent ids with governance-aware hints", async () => {
+    mocks.agentCommand.mockClear();
+    const respond = vi.fn();
+
+    await invokeAgent(
+      {
+        message: "test unknown agent",
+        agentId: "ghost",
+        idempotencyKey: "test-idem-unknown-agent",
+      },
+      {
+        reqId: "test-idem-unknown-agent",
+        respond,
+      },
+    );
+
+    expect(mocks.agentCommand).not.toHaveBeenCalled();
+    expect(respond).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({
+        message: expect.stringContaining('invalid agent params: Unknown agent id "ghost".'),
+      }),
+    );
+    expect(respond).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({
+        message: expect.stringContaining("Known agents:"),
       }),
     );
   });

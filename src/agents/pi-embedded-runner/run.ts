@@ -3,9 +3,10 @@ import fs from "node:fs/promises";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import { ensureContextEnginesInitialized } from "../../context-engine/init.js";
 import { resolveContextEngine } from "../../context-engine/registry.js";
-import { emitAgentPlanEvent } from "../../infra/agent-events.js";
+import { emitAgentPlanEvent, registerAgentRunContext } from "../../infra/agent-events.js";
 import { sleepWithAbort } from "../../infra/backoff.js";
 import { formatErrorMessage } from "../../infra/errors.js";
+import { createAgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
@@ -261,6 +262,16 @@ export async function runEmbeddedPiAgent(
         resolveAgentWorkspaceDir(params.config ?? {}, workspaceResolution.agentId),
       );
       const isCanonicalWorkspace = canonicalWorkspace === resolvedWorkspace;
+      const governanceRuntime = createAgentGovernanceRuntimeSnapshot({
+        cfg: params.config,
+        agentId: workspaceResolution.agentId,
+        observedAt: started,
+      });
+      registerAgentRunContext(params.runId, {
+        sessionKey: params.sessionKey,
+        agentId: workspaceResolution.agentId,
+        ...(governanceRuntime ? { governanceRuntime } : {}),
+      });
       const redactedSessionId = redactRunIdentifier(params.sessionId);
       const redactedSessionKey = redactRunIdentifier(params.sessionKey);
       const redactedWorkspace = redactRunIdentifier(resolvedWorkspace);
@@ -641,6 +652,7 @@ export async function runEmbeddedPiAgent(
                 sessionId: params.sessionId,
                 provider,
                 model: model.id,
+                governanceRuntime,
                 usageAccumulator,
                 lastRunPromptUsage,
                 lastTurnTotal,
@@ -1206,6 +1218,7 @@ export async function runEmbeddedPiAgent(
                   sessionId: sessionIdUsed,
                   provider,
                   model: model.id,
+                  governanceRuntime,
                   usageAccumulator,
                   lastRunPromptUsage,
                   lastAssistant: sessionLastAssistant,
@@ -1261,6 +1274,7 @@ export async function runEmbeddedPiAgent(
                     sessionId: sessionIdUsed,
                     provider,
                     model: model.id,
+                    governanceRuntime,
                     usageAccumulator,
                     lastRunPromptUsage,
                     lastAssistant: sessionLastAssistant,
@@ -1300,6 +1314,7 @@ export async function runEmbeddedPiAgent(
                     sessionId: sessionIdUsed,
                     provider,
                     model: model.id,
+                    governanceRuntime,
                     usageAccumulator,
                     lastRunPromptUsage,
                     lastAssistant: sessionLastAssistant,
@@ -1611,6 +1626,7 @@ export async function runEmbeddedPiAgent(
             sessionId: sessionIdUsed,
             provider: sessionLastAssistant?.provider ?? provider,
             model: sessionLastAssistant?.model ?? model.id,
+            ...(governanceRuntime ? { governanceRuntime } : {}),
             usage: usageMeta.usage,
             lastCallUsage: usageMeta.lastCallUsage,
             promptTokens: usageMeta.promptTokens,

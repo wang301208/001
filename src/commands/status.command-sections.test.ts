@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { HealthSummary } from "./health.js";
 import {
+  buildStatusAutonomyLines,
   buildStatusFooterLines,
+  buildStatusGovernanceLines,
   buildStatusHealthRows,
   buildStatusPairingRecoveryLines,
   buildStatusPluginCompatibilityLines,
@@ -11,6 +13,7 @@ import {
   buildStatusSystemEventsTrailer,
   statusHealthColumns,
 } from "./status.command-sections.ts";
+import { baseStatusSummary } from "./status.test-support.ts";
 
 describe("status.command-sections", () => {
   it("formats security audit lines with finding caps and follow-up commands", () => {
@@ -45,11 +48,11 @@ describe("status.command-sections", () => {
       formatCliCommand: (value) => `cmd:${value}`,
     });
 
-    expect(lines[0]).toBe("muted(Summary: error(1 critical) · warn(6 warn) · muted(2 info))");
+    expect(lines[0]).toBe("muted(Summary: error(1 critical) | warn(6 warn) | muted(2 info))");
     expect(lines).toContain("  error(CRITICAL) Critical first");
     expect(lines).toContain("    critical detail");
     expect(lines).toContain("    muted(Fix: fix it)");
-    expect(lines).toContain("muted(… +1 more)");
+    expect(lines).toContain("muted(... +1 more)");
     expect(lines.at(-2)).toBe("muted(Full report: cmd:openclaw security audit)");
     expect(lines.at(-1)).toBe("muted(Deep probe: cmd:openclaw security audit --deep)");
   });
@@ -116,8 +119,8 @@ describe("status.command-sections", () => {
     const rows = buildStatusHealthRows({
       health: { durationMs: 42 } as HealthSummary,
       formatHealthChannelLines: () => [
-        "Telegram: OK · ready",
-        "Slack: failed · auth",
+        "Telegram: OK | ready",
+        "Slack: failed | auth",
         "Discord: not configured",
         "Matrix: linked",
         "Signal: not linked",
@@ -129,8 +132,8 @@ describe("status.command-sections", () => {
 
     expect(rows).toEqual([
       { Item: "Gateway", Status: "ok(reachable)", Detail: "42ms" },
-      { Item: "Telegram", Status: "ok(OK)", Detail: "OK · ready" },
-      { Item: "Slack", Status: "warn(WARN)", Detail: "failed · auth" },
+      { Item: "Telegram", Status: "ok(OK)", Detail: "OK | ready" },
+      { Item: "Slack", Status: "warn(WARN)", Detail: "failed | auth" },
       { Item: "Discord", Status: "muted(OFF)", Detail: "not configured" },
       { Item: "Matrix", Status: "ok(LINKED)", Detail: "linked" },
       { Item: "Signal", Status: "warn(UNLINKED)", Detail: "not linked" },
@@ -171,7 +174,7 @@ describe("status.command-sections", () => {
         warn: (value) => `warn(${value})`,
         muted: (value) => `muted(${value})`,
       }),
-    ).toEqual(["  warn(WARN) legacy", "  muted(INFO) heads-up", "muted(  … +1 more)"]);
+    ).toEqual(["  warn(WARN) legacy", "  muted(INFO) heads-up", "muted(  ... +1 more)"]);
 
     expect(
       buildStatusPairingRecoveryLines({
@@ -201,11 +204,37 @@ describe("status.command-sections", () => {
         limit: 2,
         muted: (value) => `muted(${value})`,
       }),
-    ).toBe("muted(… +1 more)");
+    ).toBe("muted(... +1 more)");
     expect(statusHealthColumns).toEqual([
       { key: "Item", header: "Item", minWidth: 10 },
       { key: "Status", header: "Status", minWidth: 8 },
       { key: "Detail", header: "Detail", flex: true, minWidth: 28 },
     ]);
+  });
+
+  it("builds governance and autonomy detail lines", () => {
+    const governanceLines = buildStatusGovernanceLines({
+      governance: baseStatusSummary.governance,
+      ok: (value) => `ok(${value})`,
+      warn: (value) => `warn(${value})`,
+      muted: (value) => `muted(${value})`,
+    });
+    const autonomyLines = buildStatusAutonomyLines({
+      autonomy: baseStatusSummary.autonomy,
+      ok: (value) => `ok(${value})`,
+      warn: (value) => `warn(${value})`,
+      muted: (value) => `muted(${value})`,
+    });
+
+    expect(governanceLines[0]).toContain("Summary:");
+    expect(governanceLines.join("\n")).toContain("Top gaps: missing-plugin, stale-skill");
+    expect(governanceLines.join("\n")).toContain("Missing members: qa");
+    expect(autonomyLines[0]).toContain("Fleet: 3 profiles");
+    expect(autonomyLines.join("\n")).toContain("Drift agents: strategist");
+    expect(autonomyLines.join("\n")).toContain("Replay: 2 scoped");
+    expect(autonomyLines.join("\n")).toContain("Replay ready: strategist");
+    expect(autonomyLines.join("\n")).toContain("Promotable agents: founder");
+    expect(autonomyLines.join("\n")).toContain("Latest supervisor: heal");
+    expect(autonomyLines.join("\n")).toContain("Changed agents: founder");
   });
 });

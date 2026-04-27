@@ -768,6 +768,7 @@ export const usageHandlers: GatewayRequestHandlers = {
         contextWeight: includeContextWeight
           ? (merged.storeEntry?.systemPromptReport ?? null)
           : undefined,
+        governanceRuntime: merged.storeEntry?.governanceRuntime ?? null,
       });
     }
 

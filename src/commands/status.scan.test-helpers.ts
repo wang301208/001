@@ -266,6 +266,8 @@ export function createStatusSummary(
 ) {
   return {
     linkChannel: options.linkChannel,
+    governance: undefined,
+    autonomy: undefined,
     tasks: {
       total: 0,
       active: 0,

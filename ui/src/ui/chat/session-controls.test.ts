@@ -12,6 +12,16 @@ import type { GatewayBrowserClient } from "../gateway.ts";
 import type { ModelCatalogEntry } from "../types.ts";
 import { renderChatSessionSelect } from "./session-controls.ts";
 
+const governanceSummary = {
+  charterDeclared: false,
+  charterToolDeny: [],
+  charterRequireAgentId: false,
+  charterElevatedLocked: false,
+  freezeActive: false,
+  freezeDeny: [],
+  freezeDetails: [],
+};
+
 function createChatHeaderState(
   overrides: {
     model?: string | null;
@@ -65,6 +75,7 @@ function createChatHeaderState(
       return {
         agentId: "main",
         profile: "coding",
+        governance: governanceSummary,
         groups: [],
       };
     }
@@ -181,6 +192,7 @@ describe("chat session controls", () => {
     state.toolsEffectiveResult = {
       agentId: "main",
       profile: "coding",
+      governance: governanceSummary,
       groups: [],
     };
     const container = document.createElement("div");

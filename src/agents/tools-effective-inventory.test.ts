@@ -1,6 +1,8 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { createOpenClawCodingTools } from "./pi-tools.js";
 import type { AnyAgentTool } from "./tools/common.js";
+import type { AgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
+import type { AgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 
 function mockTool(params: {
   name: string;
@@ -15,6 +17,29 @@ function mockTool(params: {
   } as unknown as AnyAgentTool;
 }
 
+function createGovernanceContract(
+  overrides: Partial<AgentGovernanceRuntimeContract> = {},
+): AgentGovernanceRuntimeContract {
+  return {
+    agentId: "main",
+    charterDeclared: false,
+    collaborators: [],
+    reportsTo: [],
+    mutationAllow: [],
+    mutationDeny: [],
+    networkConditions: [],
+    runtimeHooks: [],
+    charterToolDeny: [],
+    charterRequireAgentId: false,
+    charterElevatedLocked: false,
+    freezeActive: false,
+    freezeDeny: [],
+    freezeDetails: [],
+    effectiveToolDeny: [],
+    ...overrides,
+  };
+}
+
 const effectiveInventoryState = vi.hoisted(() => ({
   tools: [
     mockTool({ name: "exec", label: "Exec", description: "Run shell commands" }),
@@ -23,6 +48,16 @@ const effectiveInventoryState = vi.hoisted(() => ({
   pluginMeta: {} as Record<string, { pluginId: string } | undefined>,
   channelMeta: {} as Record<string, { channelId: string } | undefined>,
   effectivePolicy: {} as { profile?: string; providerProfile?: string },
+  governance: {
+    charterDeclared: false,
+    charterToolDeny: [],
+    charterRequireAgentId: false,
+    charterElevatedLocked: false,
+    freezeActive: false,
+    freezeDeny: [],
+    freezeDetails: [],
+  } as AgentToolGovernanceSummary,
+  governanceContract: createGovernanceContract(),
   resolvedModelCompat: undefined as Record<string, unknown> | undefined,
   createToolsMock: vi.fn<typeof createOpenClawCodingTools>(
     (_options) =>
@@ -71,6 +106,14 @@ vi.mock("./pi-tools.policy.js", () => ({
   resolveEffectiveToolPolicy: () => effectiveInventoryState.effectivePolicy,
 }));
 
+vi.mock("../governance/tool-governance-summary.js", () => ({
+  resolveAgentToolGovernanceSummary: () => effectiveInventoryState.governance,
+}));
+
+vi.mock("../governance/runtime-contract.js", () => ({
+  resolveAgentGovernanceRuntimeContract: () => effectiveInventoryState.governanceContract,
+}));
+
 let resolveEffectiveToolInventory: typeof import("./tools-effective-inventory.js").resolveEffectiveToolInventory;
 
 async function loadHarness(options?: {
@@ -79,6 +122,8 @@ async function loadHarness(options?: {
   pluginMeta?: Record<string, { pluginId: string } | undefined>;
   channelMeta?: Record<string, { channelId: string } | undefined>;
   effectivePolicy?: { profile?: string; providerProfile?: string };
+  governance?: AgentToolGovernanceSummary;
+  governanceContract?: AgentGovernanceRuntimeContract;
   resolvedModelCompat?: Record<string, unknown>;
 }) {
   effectiveInventoryState.tools = options?.tools ?? [
@@ -88,6 +133,19 @@ async function loadHarness(options?: {
   effectiveInventoryState.pluginMeta = options?.pluginMeta ?? {};
   effectiveInventoryState.channelMeta = options?.channelMeta ?? {};
   effectiveInventoryState.effectivePolicy = options?.effectivePolicy ?? {};
+  effectiveInventoryState.governance =
+    options?.governance ??
+    ({
+      charterDeclared: false,
+      charterToolDeny: [],
+      charterRequireAgentId: false,
+      charterElevatedLocked: false,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    } as AgentToolGovernanceSummary);
+  effectiveInventoryState.governanceContract =
+    options?.governanceContract ?? createGovernanceContract();
   effectiveInventoryState.resolvedModelCompat = options?.resolvedModelCompat;
   effectiveInventoryState.createToolsMock =
     options?.createToolsMock ??
@@ -111,6 +169,16 @@ describe("resolveEffectiveToolInventory", () => {
     effectiveInventoryState.pluginMeta = {};
     effectiveInventoryState.channelMeta = {};
     effectiveInventoryState.effectivePolicy = {};
+    effectiveInventoryState.governance = {
+      charterDeclared: false,
+      charterToolDeny: [],
+      charterRequireAgentId: false,
+      charterElevatedLocked: false,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    };
+    effectiveInventoryState.governanceContract = createGovernanceContract();
     effectiveInventoryState.resolvedModelCompat = undefined;
     effectiveInventoryState.createToolsMock = vi.fn<typeof createOpenClawCodingTools>(
       (_options) => effectiveInventoryState.tools,
@@ -137,6 +205,32 @@ describe("resolveEffectiveToolInventory", () => {
     expect(result).toEqual({
       agentId: "main",
       profile: "full",
+      governance: {
+        charterDeclared: false,
+        charterToolDeny: [],
+        charterRequireAgentId: false,
+        charterElevatedLocked: false,
+        freezeActive: false,
+        freezeDeny: [],
+        freezeDetails: [],
+      },
+      governanceContract: {
+        agentId: "main",
+        charterDeclared: false,
+        collaborators: [],
+        reportsTo: [],
+        mutationAllow: [],
+        mutationDeny: [],
+        networkConditions: [],
+        runtimeHooks: [],
+        charterToolDeny: [],
+        charterRequireAgentId: false,
+        charterElevatedLocked: false,
+        freezeActive: false,
+        freezeDeny: [],
+        freezeDetails: [],
+        effectiveToolDeny: [],
+      },
       groups: [
         {
           id: "core",
@@ -260,6 +354,72 @@ describe("resolveEffectiveToolInventory", () => {
     const result = resolveEffectiveToolInventory({ cfg: {} });
 
     expect(result.profile).toBe("coding");
+  });
+
+  it("includes governance summary for the current agent", async () => {
+    const { resolveEffectiveToolInventory } = await loadHarness({
+      governance: {
+        charterDeclared: true,
+        charterTitle: "Founder",
+        charterLayer: "evolution",
+        charterToolDeny: ["web_fetch", "web_search"],
+        charterRequireAgentId: true,
+        charterExecutionContract: "strict-agentic",
+        charterElevatedLocked: true,
+        freezeActive: true,
+        freezeReasonCode: "network_boundary_opened",
+        freezeDeny: ["exec", "write"],
+        freezeDetails: ["gateway.bind=lan"],
+      },
+      governanceContract: createGovernanceContract({
+        agentId: "main",
+        charterDeclared: true,
+        charterTitle: "Founder",
+        charterLayer: "evolution",
+        charterToolDeny: ["web_fetch", "web_search"],
+        charterRequireAgentId: true,
+        charterExecutionContract: "strict-agentic",
+        charterElevatedLocked: true,
+        freezeActive: true,
+        freezeReasonCode: "network_boundary_opened",
+        freezeDeny: ["exec", "write"],
+        freezeDetails: ["gateway.bind=lan"],
+        effectiveToolDeny: ["exec", "web_fetch", "web_search", "write"],
+      }),
+    });
+
+    const result = resolveEffectiveToolInventory({ cfg: {} });
+
+    expect(result.governance).toEqual({
+      charterDeclared: true,
+      charterTitle: "Founder",
+      charterLayer: "evolution",
+      charterToolDeny: ["web_fetch", "web_search"],
+      charterRequireAgentId: true,
+      charterExecutionContract: "strict-agentic",
+      charterElevatedLocked: true,
+      freezeActive: true,
+      freezeReasonCode: "network_boundary_opened",
+      freezeDeny: ["exec", "write"],
+      freezeDetails: ["gateway.bind=lan"],
+    });
+    expect(result.governanceContract).toEqual(
+      createGovernanceContract({
+        agentId: "main",
+        charterDeclared: true,
+        charterTitle: "Founder",
+        charterLayer: "evolution",
+        charterToolDeny: ["web_fetch", "web_search"],
+        charterRequireAgentId: true,
+        charterExecutionContract: "strict-agentic",
+        charterElevatedLocked: true,
+        freezeActive: true,
+        freezeReasonCode: "network_boundary_opened",
+        freezeDeny: ["exec", "write"],
+        freezeDetails: ["gateway.bind=lan"],
+        effectiveToolDeny: ["exec", "web_fetch", "web_search", "write"],
+      }),
+    );
   });
 
   it("passes resolved model compat into effective tool creation", async () => {

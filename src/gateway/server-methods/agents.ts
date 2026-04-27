@@ -30,6 +30,7 @@ import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { resolveSessionTranscriptsDirForAgent } from "../../config/sessions/paths.js";
 import type { IdentityConfig } from "../../config/types.base.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { sameFileIdentity } from "../../infra/file-identity.js";
 import {
   openFileWithinRoot,
@@ -114,7 +115,21 @@ function resolveAgentWorkspaceFileOrRespondError(
     cfg,
   );
   if (!agentId) {
-    respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "unknown agent id"));
+    respond(
+      false,
+      undefined,
+      errorShape(
+        ErrorCodes.INVALID_REQUEST,
+        buildUnknownAgentIdMessage({
+          cfg,
+          rawAgentId:
+            typeof rawAgentId === "string" || typeof rawAgentId === "number"
+              ? String(rawAgentId)
+              : "",
+          inspectHint: "Inspect available agents with agents.list.",
+        }),
+      ),
+    );
     return null;
   }
   const rawName = params.name;
@@ -677,7 +692,18 @@ export const agentsHandlers: GatewayRequestHandlers = {
     const cfg = loadConfig();
     const agentId = resolveAgentIdOrError(params.agentId, cfg);
     if (!agentId) {
-      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "unknown agent id"));
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          buildUnknownAgentIdMessage({
+            cfg,
+            rawAgentId: params.agentId,
+            inspectHint: "Inspect available agents with agents.list.",
+          }),
+        ),
+      );
       return;
     }
     const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);

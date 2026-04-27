@@ -385,6 +385,11 @@ export function createPluginRuntimeMock(overrides: DeepPartial<PluginRuntime> = 
     state: {
       resolveStateDir: vi.fn(() => "/tmp/openclaw"),
     },
+    autonomy: {
+      bindSession: vi.fn(() => ({})) as unknown as PluginRuntime["autonomy"]["bindSession"],
+      fromToolContext:
+        vi.fn(() => ({})) as unknown as PluginRuntime["autonomy"]["fromToolContext"],
+    },
     tasks: {
       runs: {
         bindSession: vi.fn(),

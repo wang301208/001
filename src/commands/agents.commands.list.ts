@@ -20,6 +20,94 @@ type AgentsListOptions = {
   bindings?: boolean;
 };
 
+function formatLimited(values: string[], limit = 5): string | undefined {
+  if (values.length === 0) {
+    return undefined;
+  }
+  const head = values.slice(0, limit).join(", ");
+  return values.length > limit ? `${head} (+${values.length - limit} more)` : head;
+}
+
+function buildGovernanceLines(summary: AgentSummary): string[] {
+  const governance = summary.governance;
+  const contract = summary.governanceContract;
+  if (!governance.charterDeclared && !governance.freezeActive) {
+    return [];
+  }
+
+  const lines: string[] = [];
+  if (governance.charterDeclared) {
+    const charterLabel = governance.charterTitle ?? summary.name ?? summary.id;
+    const charterLayer = governance.charterLayer ? ` [${governance.charterLayer}]` : "";
+    const virtualTag = summary.configured ? "" : " (virtual)";
+    lines.push(`  Governance: ${charterLabel}${charterLayer}${virtualTag}`);
+
+    const restrictions: string[] = [];
+    if (governance.charterToolDeny.length > 0) {
+      restrictions.push(`deny ${governance.charterToolDeny.join(", ")}`);
+    }
+    if (governance.charterRequireAgentId) {
+      restrictions.push("explicit subagent ids");
+    }
+    if (governance.charterExecutionContract) {
+      restrictions.push(`execution=${governance.charterExecutionContract}`);
+    }
+    if (governance.charterElevatedLocked) {
+      restrictions.push("elevated locked");
+    }
+    if (restrictions.length > 0) {
+      lines.push(`  Governance policy: ${restrictions.join("; ")}`);
+    }
+    if (contract.missionPrimary) {
+      lines.push(`  Governance mission: ${contract.missionPrimary}`);
+    }
+    const collaborators = formatLimited(contract.collaborators, 6);
+    if (collaborators) {
+      lines.push(`  Governance collaborators: ${collaborators}`);
+    }
+    const reportsTo = formatLimited(contract.reportsTo, 4);
+    if (reportsTo) {
+      lines.push(`  Governance reports-to: ${reportsTo}`);
+    }
+    const mutationAllow = formatLimited(contract.mutationAllow, 4);
+    const mutationDeny = formatLimited(contract.mutationDeny, 4);
+    if (mutationAllow || mutationDeny) {
+      lines.push(
+        `  Governance mutation: allow ${mutationAllow ?? "none"}; deny ${mutationDeny ?? "none"}`,
+      );
+    }
+    if (contract.networkDefault || contract.networkConditions.length > 0) {
+      const conditions = formatLimited(contract.networkConditions, 4);
+      lines.push(
+        `  Governance network: ${contract.networkDefault ?? "unspecified"}${conditions ? `; ${conditions}` : ""}`,
+      );
+    }
+    if (contract.resourceBudget) {
+      lines.push(
+        `  Governance budget: tokens=${contract.resourceBudget.tokens ?? "unspecified"}, parallelism=${contract.resourceBudget.parallelism ?? "unspecified"}, runtime=${contract.resourceBudget.runtime ?? "unspecified"}`,
+      );
+    }
+    const hooks = formatLimited(contract.runtimeHooks, 4);
+    if (hooks) {
+      lines.push(`  Governance hooks: ${hooks}`);
+    }
+  }
+
+  if (governance.freezeActive) {
+    lines.push(
+      `  Governance freeze: active${governance.freezeReasonCode ? ` (${governance.freezeReasonCode})` : ""}`,
+    );
+    if (governance.freezeDeny.length > 0) {
+      lines.push(`  Freeze deny: ${governance.freezeDeny.join(", ")}`);
+    }
+    if (governance.freezeDetails.length > 0) {
+      lines.push(`  Freeze details: ${governance.freezeDetails.join(" | ")}`);
+    }
+  }
+
+  return lines;
+}
+
 function formatSummary(summary: AgentSummary) {
   const defaultTag = summary.isDefault ? " (default)" : "";
   const header =
@@ -51,6 +139,7 @@ function formatSummary(summary: AgentSummary) {
   if (summary.model) {
     lines.push(`  Model: ${summary.model}`);
   }
+  lines.push(...buildGovernanceLines(summary));
   lines.push(`  Routing rules: ${summary.bindings}`);
 
   if (summary.routes?.length) {
@@ -81,7 +170,7 @@ export async function agentsListCommand(
     return;
   }
 
-  const summaries = buildAgentSummaries(cfg);
+  const summaries = buildAgentSummaries(cfg, { includeGovernanceCharter: true });
   const bindingMap = new Map<string, AgentRouteBinding[]>();
   for (const binding of listRouteBindings(cfg)) {
     const agentId = normalizeAgentId(binding.agentId);

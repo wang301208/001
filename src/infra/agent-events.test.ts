@@ -135,6 +135,52 @@ describe("agent-events sequencing", () => {
     expect(receivedSessionKey).toBe("session-main");
   });
 
+  test("attaches governance runtime metadata from run context to emitted events", async () => {
+    resetAgentRunContextForTest();
+    registerAgentRunContext("run-governed", {
+      sessionKey: "session-main",
+      agentId: "founder",
+      governanceRuntime: {
+        agentId: "founder",
+        observedAt: 123,
+        summary: {
+          charterDeclared: true,
+          charterTitle: "Founder",
+          charterLayer: "evolution",
+          charterToolDeny: ["exec"],
+          charterRequireAgentId: true,
+          charterExecutionContract: "strict-agentic",
+          charterElevatedLocked: true,
+          freezeActive: false,
+          freezeDeny: [],
+          freezeDetails: [],
+        },
+      },
+    });
+
+    let received:
+      | { agentId?: string; governanceRuntime?: { agentId: string; observedAt: number } }
+      | undefined;
+    const stop = onAgentEvent((evt) => {
+      received = evt;
+    });
+    emitAgentEvent({
+      runId: "run-governed",
+      stream: "assistant",
+      data: { text: "hi" },
+      sessionKey: "   ",
+    });
+    stop();
+
+    expect(received).toMatchObject({
+      agentId: "founder",
+      governanceRuntime: {
+        agentId: "founder",
+        observedAt: 123,
+      },
+    });
+  });
+
   test("keeps notifying later listeners when one throws", async () => {
     const seen: string[] = [];
     const stopBad = onAgentEvent(() => {

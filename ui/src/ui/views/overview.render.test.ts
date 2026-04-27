@@ -37,6 +37,7 @@ function createOverviewProps(overrides: Partial<OverviewProps> = {}): OverviewPr
     cronNext: null,
     lastChannelsRefresh: null,
     modelAuthStatus: null,
+    statusSummary: null,
     usageResult: null,
     sessionsResult: null,
     skillsReport: null,
@@ -55,6 +56,8 @@ function createOverviewProps(overrides: Partial<OverviewProps> = {}): OverviewPr
     onConnect: () => undefined,
     onRefresh: () => undefined,
     onNavigate: () => undefined,
+    onNavigateToGovernance: () => undefined,
+    onNavigateToAutonomy: () => undefined,
     onRefreshLogs: () => undefined,
     ...overrides,
   };

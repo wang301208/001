@@ -32,6 +32,38 @@ const runtimeMocks = vi.hoisted(() => ({
   resolveEffectiveToolInventory: vi.fn(() => ({
     agentId: "main",
     profile: "coding",
+    governance: {
+      charterDeclared: true,
+      charterTitle: "Founder",
+      charterLayer: "evolution",
+      charterToolDeny: ["web_fetch", "web_search"],
+      charterRequireAgentId: true,
+      charterExecutionContract: "strict-agentic",
+      charterElevatedLocked: true,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    },
+    governanceContract: {
+      agentId: "main",
+      charterDeclared: true,
+      charterTitle: "Founder",
+      charterLayer: "evolution",
+      collaborators: ["librarian"],
+      reportsTo: ["architect"],
+      mutationAllow: ["skills"],
+      mutationDeny: ["constitution"],
+      networkConditions: ["approval-required"],
+      runtimeHooks: ["skills"],
+      charterToolDeny: ["web_fetch", "web_search"],
+      charterRequireAgentId: true,
+      charterExecutionContract: "strict-agentic",
+      charterElevatedLocked: true,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+      effectiveToolDeny: ["web_fetch", "web_search"],
+    },
     groups: [
       {
         id: "core",
@@ -115,7 +147,8 @@ describe("tools.effective handler", () => {
     const call = respond.mock.calls[0] as RespondCall | undefined;
     expect(call?.[0]).toBe(false);
     expect(call?.[2]?.code).toBe(ErrorCodes.INVALID_REQUEST);
-    expect(call?.[2]?.message).toContain("unknown agent id");
+    expect(call?.[2]?.message).toContain('Unknown agent id "unknown-agent"');
+    expect(call?.[2]?.message).toContain("Known agents:");
   });
 
   it("rejects unknown session keys", async () => {
@@ -142,6 +175,15 @@ describe("tools.effective handler", () => {
     expect(call?.[1]).toMatchObject({
       agentId: "main",
       profile: "coding",
+      governance: {
+        charterDeclared: true,
+        charterLayer: "evolution",
+      },
+      governanceContract: {
+        agentId: "main",
+        charterDeclared: true,
+        charterLayer: "evolution",
+      },
       groups: [
         {
           id: "core",
@@ -242,6 +284,6 @@ describe("tools.effective handler", () => {
     const call = respond.mock.calls[0] as RespondCall | undefined;
     expect(call?.[0]).toBe(false);
     expect(call?.[2]?.code).toBe(ErrorCodes.INVALID_REQUEST);
-    expect(call?.[2]?.message).toContain('unknown agent id "other"');
+    expect(call?.[2]?.message).toContain('Unknown agent id "other"');
   });
 });

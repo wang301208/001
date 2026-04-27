@@ -356,6 +356,31 @@ describe("Agent-specific tool filtering", () => {
     });
   });
 
+  it("should enforce charter-derived web deny for charter-only agents", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [
+          {
+            id: "main",
+            workspace: "/repo",
+          },
+        ],
+      },
+    };
+
+    const tools = createOpenClawCodingTools({
+      config: cfg,
+      sessionKey: "agent:publisher:main",
+      workspaceDir: "/tmp/test-publisher",
+      agentDir: "/tmp/agent-publisher",
+    });
+
+    const toolNames = tools.map((tool) => tool.name);
+    expect(toolNames).not.toContain("web_fetch");
+    expect(toolNames).not.toContain("web_search");
+    expect(toolNames).toContain("read");
+  });
+
   it("should resolve group tool policy overrides (group-specific beats wildcard)", () => {
     const cfg: OpenClawConfig = {
       channels: {

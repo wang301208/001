@@ -12,6 +12,7 @@ import type {
   CronJob,
   CronStatus,
   ModelAuthStatusResult,
+  StatusSummary,
   SessionsListResult,
   SessionsUsageResult,
   SkillStatusReport,
@@ -42,6 +43,7 @@ export type OverviewProps = {
   warnQueryToken: boolean;
   // New dashboard data
   modelAuthStatus: ModelAuthStatusResult | null;
+  statusSummary: StatusSummary | null;
   usageResult: SessionsUsageResult | null;
   sessionsResult: SessionsListResult | null;
   skillsReport: SkillStatusReport | null;
@@ -60,6 +62,8 @@ export type OverviewProps = {
   onConnect: () => void;
   onRefresh: () => void;
   onNavigate: (tab: string) => void;
+  onNavigateToGovernance: () => void;
+  onNavigateToAutonomy: () => void;
   onRefreshLogs: () => void;
 };
 
@@ -413,6 +417,7 @@ export function renderOverview(props: OverviewProps) {
     <div class="ov-section-divider"></div>
 
     ${renderOverviewCards({
+      statusSummary: props.statusSummary,
       usageResult: props.usageResult,
       sessionsResult: props.sessionsResult,
       skillsReport: props.skillsReport,
@@ -421,6 +426,8 @@ export function renderOverview(props: OverviewProps) {
       modelAuthStatus: props.modelAuthStatus,
       presenceCount: props.presenceCount,
       onNavigate: props.onNavigate,
+      onNavigateToGovernance: props.onNavigateToGovernance,
+      onNavigateToAutonomy: props.onNavigateToAutonomy,
     })}
     ${renderOverviewAttention({ items: props.attentionItems })}
 

@@ -4,6 +4,10 @@ import {
   resolveAgentMainSessionKey,
 } from "../../config/sessions/main-session.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import {
+  formatGovernanceEnforcementMessage,
+  resolveGovernanceEnforcementState,
+} from "../../governance/charter-runtime.js";
 import { normalizeOptionalLowercaseString } from "../../shared/string-coerce.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
@@ -51,6 +55,7 @@ function resolveComparableSessionKeyForSandbox(params: {
 export function resolveSandboxRuntimeStatus(params: {
   cfg?: OpenClawConfig;
   sessionKey?: string;
+  charterDir?: string;
 }): {
   agentId: string;
   sessionKey: string;
@@ -58,6 +63,10 @@ export function resolveSandboxRuntimeStatus(params: {
   mode: SandboxConfig["mode"];
   sandboxed: boolean;
   toolPolicy: SandboxToolPolicyResolved;
+  governance: {
+    frozen: boolean;
+    message?: string;
+  };
 } {
   const sessionKey = params.sessionKey?.trim() ?? "";
   const agentId = resolveSessionAgentId({
@@ -74,6 +83,9 @@ export function resolveSandboxRuntimeStatus(params: {
         mainSessionKey,
       )
     : false;
+  const governanceEnforcement = cfg
+    ? resolveGovernanceEnforcementState(cfg, { charterDir: params.charterDir })
+    : null;
   return {
     agentId,
     sessionKey,
@@ -81,6 +93,17 @@ export function resolveSandboxRuntimeStatus(params: {
     mode: sandboxCfg.mode,
     sandboxed,
     toolPolicy: resolveSandboxToolPolicyForAgent(cfg, agentId),
+    governance: governanceEnforcement?.active
+      ? {
+          frozen: true,
+          message: formatGovernanceEnforcementMessage({
+            subject: "Sandbox runtime",
+            enforcement: governanceEnforcement,
+          }),
+        }
+      : {
+          frozen: false,
+        },
   };
 }
 

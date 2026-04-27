@@ -5,15 +5,17 @@ import { formatCost, formatTokens, formatRelativeTimestamp } from "../format.ts"
 import { isMonitoredAuthProvider } from "../model-auth-helpers.ts";
 import { formatNextRun } from "../presenter.ts";
 import type {
-  SessionsUsageResult,
-  SessionsListResult,
-  SkillStatusReport,
   CronJob,
   CronStatus,
   ModelAuthStatusResult,
+  SessionsListResult,
+  SessionsUsageResult,
+  SkillStatusReport,
+  StatusSummary,
 } from "../types.ts";
 
 export type OverviewCardsProps = {
+  statusSummary: StatusSummary | null;
   usageResult: SessionsUsageResult | null;
   sessionsResult: SessionsListResult | null;
   skillsReport: SkillStatusReport | null;
@@ -22,27 +24,34 @@ export type OverviewCardsProps = {
   modelAuthStatus: ModelAuthStatusResult | null;
   presenceCount: number;
   onNavigate: (tab: string) => void;
+  onNavigateToGovernance: () => void;
+  onNavigateToAutonomy: () => void;
 };
 
 const DIGIT_RUN = /\d{3,}/g;
+const HINT_SEPARATOR = " | ";
 
 function blurDigits(value: string): TemplateResult {
   const escaped = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const blurred = escaped.replace(DIGIT_RUN, (m) => `<span class="blur-digits">${m}</span>`);
+  const blurred = escaped.replace(DIGIT_RUN, (match) => `<span class="blur-digits">${match}</span>`);
   return html`${unsafeHTML(blurred)}`;
+}
+
+function joinHintParts(parts: Array<string | null | undefined>) {
+  return parts.filter((entry): entry is string => Boolean(entry)).join(HINT_SEPARATOR);
 }
 
 type StatCard = {
   kind: string;
-  tab: string;
   label: string;
   value: string | TemplateResult;
   hint: string | TemplateResult;
+  onClick: () => void;
 };
 
-function renderStatCard(card: StatCard, onNavigate: (tab: string) => void) {
+function renderStatCard(card: StatCard) {
   return html`
-    <button class="ov-card" data-kind=${card.kind} @click=${() => onNavigate(card.tab)}>
+    <button class="ov-card" data-kind=${card.kind} @click=${card.onClick}>
       <span class="ov-card__label">${card.label}</span>
       <span class="ov-card__value">${card.value}</span>
       <span class="ov-card__hint">${card.hint}</span>
@@ -51,19 +60,14 @@ function renderStatCard(card: StatCard, onNavigate: (tab: string) => void) {
 }
 
 function renderSkeletonCards() {
-  // Render 4 skeletons — matching the always-present cards (cost, sessions,
-  // skills, cron). The Model Auth card is conditional on OAuth providers
-  // existing, so rendering it in the skeleton would cause a layout shift
-  // when real data arrives for a setup without OAuth. Accept a brief empty
-  // slot instead for setups that DO have OAuth.
   return html`
     <section class="ov-cards">
       ${[0, 1, 2, 3].map(
-        (i) => html`
-          <div class="ov-card" style="cursor:default;animation-delay:${i * 50}ms">
-            <span class="skeleton skeleton-line" style="width:60px;height:10px"></span>
+        (index) => html`
+          <div class="ov-card" style="cursor: default; animation-delay: ${index * 50}ms">
+            <span class="skeleton skeleton-line" style="width: 60px; height: 10px"></span>
             <span class="skeleton skeleton-stat"></span>
-            <span class="skeleton skeleton-line skeleton-line--medium" style="height:12px"></span>
+            <span class="skeleton skeleton-line skeleton-line--medium" style="height: 12px"></span>
           </div>
         `,
       )}
@@ -73,7 +77,10 @@ function renderSkeletonCards() {
 
 export function renderOverviewCards(props: OverviewCardsProps) {
   const dataLoaded =
-    props.usageResult != null || props.sessionsResult != null || props.skillsReport != null;
+    props.usageResult != null ||
+    props.sessionsResult != null ||
+    props.skillsReport != null ||
+    props.statusSummary != null;
   if (!dataLoaded) {
     return renderSkeletonCards();
   }
@@ -85,14 +92,14 @@ export function renderOverviewCards(props: OverviewCardsProps) {
   const sessionCount = props.sessionsResult?.count ?? null;
 
   const skills = props.skillsReport?.skills ?? [];
-  const enabledSkills = skills.filter((s) => !s.disabled).length;
-  const blockedSkills = skills.filter((s) => s.blockedByAllowlist).length;
+  const enabledSkills = skills.filter((entry) => !entry.disabled).length;
+  const blockedSkills = skills.filter((entry) => entry.blockedByAllowlist).length;
   const totalSkills = skills.length;
 
   const cronEnabled = props.cronStatus?.enabled ?? null;
   const cronNext = props.cronStatus?.nextWakeAtMs ?? null;
   const cronJobCount = props.cronJobs.length;
-  const failedCronCount = props.cronJobs.filter((j) => j.state?.lastStatus === "error").length;
+  const failedCronCount = props.cronJobs.filter((job) => job.state?.lastStatus === "error").length;
 
   const cronValue =
     cronEnabled == null
@@ -100,7 +107,6 @@ export function renderOverviewCards(props: OverviewCardsProps) {
       : cronEnabled
         ? `${cronJobCount} jobs`
         : t("common.disabled");
-
   const cronHint =
     failedCronCount > 0
       ? html`<span class="danger">${failedCronCount} failed</span>`
@@ -111,58 +117,50 @@ export function renderOverviewCards(props: OverviewCardsProps) {
   const cards: StatCard[] = [
     {
       kind: "cost",
-      tab: "usage",
       label: t("overview.cards.cost"),
       value: totalCost,
-      hint: `${totalTokens} tokens · ${totalMessages} msgs`,
+      hint: `${totalTokens} tokens${HINT_SEPARATOR}${totalMessages} msgs`,
+      onClick: () => props.onNavigate("usage"),
     },
     {
       kind: "sessions",
-      tab: "sessions",
       label: t("overview.stats.sessions"),
       value: String(sessionCount ?? t("common.na")),
       hint: t("overview.stats.sessionsHint"),
+      onClick: () => props.onNavigate("sessions"),
     },
     {
       kind: "skills",
-      tab: "skills",
       label: t("overview.cards.skills"),
       value: `${enabledSkills}/${totalSkills}`,
       hint: blockedSkills > 0 ? `${blockedSkills} blocked` : `${enabledSkills} active`,
+      onClick: () => props.onNavigate("skills"),
     },
     {
       kind: "cron",
-      tab: "cron",
       label: t("overview.stats.cron"),
       value: cronValue,
       hint: cronHint,
+      onClick: () => props.onNavigate("cron"),
     },
   ];
 
-  // Model auth card — show providers whose auth needs monitoring.
-  // See isMonitoredAuthProvider for the exact predicate.
-  //
-  // Rendered while loading (modelAuthStatus === null) so the card slot stays
-  // in the grid instead of snapping in on data arrival, matching the cron
-  // card's N/A-placeholder pattern. Still hidden entirely for api-key-only
-  // setups post-load (nothing to monitor), which accepts a one-time hide
-  // rather than the recurring load-time layout shift.
   const authLoading = props.modelAuthStatus === null;
   const authProviders = props.modelAuthStatus?.providers ?? [];
   const monitoredProviders = authProviders.filter(isMonitoredAuthProvider);
   if (authLoading) {
     cards.push({
       kind: "auth",
-      tab: "overview",
       label: t("overview.cards.modelAuth"),
       value: t("common.na"),
       hint: "",
+      onClick: () => props.onNavigate("overview"),
     });
   } else if (monitoredProviders.length > 0) {
     const expired = monitoredProviders.filter(
-      (p) => p.status === "expired" || p.status === "missing",
+      (provider) => provider.status === "expired" || provider.status === "missing",
     ).length;
-    const expiring = monitoredProviders.filter((p) => p.status === "expiring").length;
+    const expiring = monitoredProviders.filter((provider) => provider.status === "expiring").length;
     const authValue =
       expired > 0
         ? html`<span class="danger"
@@ -174,66 +172,135 @@ export function renderOverviewCards(props: OverviewCardsProps) {
             >`
           : t("overview.cards.modelAuthOk", { count: String(monitoredProviders.length) });
 
-    // Format a window reset time compactly (e.g. "2:43 PM", "Apr 16").
-    // Hidden for windows with plenty of headroom to keep the hint readable;
-    // shown when a window is below 25% to signal urgency.
     const formatReset = (resetAt: number | undefined, pctLeft: number): string | null => {
       if (!resetAt || !Number.isFinite(resetAt) || pctLeft >= 25) {
         return null;
       }
-      const d = new Date(resetAt);
-      if (Number.isNaN(d.getTime())) {
+      const date = new Date(resetAt);
+      if (Number.isNaN(date.getTime())) {
         return null;
       }
       const withinADay = resetAt - Date.now() < 24 * 60 * 60 * 1000;
       return withinADay
-        ? d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
-        : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+        ? date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+        : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
     };
 
     const hintParts = monitoredProviders
-      .map((p) => {
-        const bits: string[] = [];
-        for (const w of p.usage?.windows ?? []) {
-          // Clamp to [0, 100] — providers can report usedPercent > 100 when
-          // fully exhausted, which would render as "-5% left" without this.
-          const pctLeft = Math.max(0, Math.min(100, Math.round(100 - w.usedPercent)));
-          const label = (w.label || "").trim();
-          const prefix = label ? `${label} ` : "";
-          const pctStr = t("overview.cards.modelAuthUsageLeft", { pct: String(pctLeft) });
-          const resetStr = formatReset(w.resetAt, pctLeft);
-          bits.push(resetStr ? `${prefix}${pctStr} (${resetStr})` : `${prefix}${pctStr}`);
+      .map((provider) => {
+        const segments: string[] = [];
+        for (const windowUsage of provider.usage?.windows ?? []) {
+          const pctLeft = Math.max(0, Math.min(100, Math.round(100 - windowUsage.usedPercent)));
+          const prefix = windowUsage.label?.trim() ? `${windowUsage.label.trim()} ` : "";
+          const pctLabel = t("overview.cards.modelAuthUsageLeft", { pct: String(pctLeft) });
+          const resetLabel = formatReset(windowUsage.resetAt, pctLeft);
+          segments.push(resetLabel ? `${prefix}${pctLabel} (${resetLabel})` : `${prefix}${pctLabel}`);
         }
         if (
-          p.expiry &&
-          Number.isFinite(p.expiry.at) &&
-          p.status !== "static" &&
-          p.expiry.label &&
-          p.expiry.label !== "unknown"
+          provider.expiry &&
+          Number.isFinite(provider.expiry.at) &&
+          provider.status !== "static" &&
+          provider.expiry.label &&
+          provider.expiry.label !== "unknown"
         ) {
-          bits.push(t("overview.cards.modelAuthExpiresIn", { when: p.expiry.label }));
+          segments.push(t("overview.cards.modelAuthExpiresIn", { when: provider.expiry.label }));
         }
-        return bits.length > 0 ? `${p.displayName}: ${bits.join(", ")}` : null;
+        return segments.length > 0 ? `${provider.displayName}: ${segments.join(", ")}` : null;
       })
-      .filter((s): s is string => s !== null)
+      .filter((entry): entry is string => entry !== null)
       .slice(0, 2);
     const authHint =
-      hintParts.join(" · ") ||
+      hintParts.join(HINT_SEPARATOR) ||
       t("overview.cards.modelAuthProviders", { count: String(monitoredProviders.length) });
 
     cards.push({
       kind: "auth",
-      tab: "overview",
       label: t("overview.cards.modelAuth"),
       value: authValue,
       hint: authHint,
+      onClick: () => props.onNavigate("overview"),
+    });
+  }
+
+  const governance = props.statusSummary?.governance;
+  if (governance) {
+    const critical = governance.findingSummary.critical;
+    const warn = governance.findingSummary.warn;
+    const pending = governance.proposalSummary.pending;
+    const team = governance.teamSummary;
+    const governanceValue = governance.freezeActive
+      ? html`<span class="danger">Freeze</span>`
+      : critical > 0
+        ? html`<span class="danger">${critical} critical</span>`
+        : (team?.missingMemberCount ?? 0) > 0
+          ? html`<span class="warn">${team?.missingMemberCount} missing</span>`
+          : pending > 0
+            ? html`<span class="warn">${pending} pending</span>`
+            : (team?.freezeActiveMemberCount ?? 0) > 0
+              ? html`<span class="warn">${team?.freezeActiveMemberCount} frozen</span>`
+              : `${governance.capabilitySummary.criticalGapCount} gaps`;
+    const teamHint = !team
+      ? null
+      : !team.declared
+        ? `team ${team.teamId} undeclared`
+        : team.missingMemberCount > 0
+          ? `${team.missingMemberCount} missing member${team.missingMemberCount === 1 ? "" : "s"}`
+          : team.freezeActiveMemberCount > 0
+            ? `${team.freezeActiveMemberCount}/${team.memberCount} frozen members`
+            : joinHintParts([
+                `${team.memberCount} members`,
+                `${team.runtimeHookCount} hooks`,
+                team.effectiveToolDenyCount > 0
+                  ? `${team.effectiveToolDenyCount} ${team.effectiveToolDenyCount === 1 ? "deny" : "denies"}`
+                  : null,
+              ]);
+    const governanceHint = joinHintParts([
+      pending > 0 ? `${pending} pending` : null,
+      critical > 0 || warn > 0 ? `${critical} critical, ${warn} warn` : null,
+      teamHint,
+      governance.freezeActive && governance.freezeReasonCode
+        ? governance.freezeReasonCode
+        : governance.genesisSummary.blockerCount > 0
+          ? `${governance.genesisSummary.blockerCount} blocker${governance.genesisSummary.blockerCount === 1 ? "" : "s"}`
+          : `observed ${formatRelativeTimestamp(governance.observedAt)}`,
+    ]);
+    cards.push({
+      kind: "governance",
+      label: "Governance",
+      value: governanceValue,
+      hint: governanceHint,
+      onClick: props.onNavigateToGovernance,
+    });
+  }
+
+  const autonomy = props.statusSummary?.autonomy;
+  if (autonomy) {
+    const fleet = autonomy.fleetSummary;
+    const fleetPressure = fleet.drift + fleet.missingLoop;
+    const autonomyValue =
+      fleetPressure > 0
+        ? html`<span class="warn">${fleetPressure} drift</span>`
+        : `${fleet.healthy}/${fleet.totalProfiles} healthy`;
+    const autonomyHint = joinHintParts([
+      `${fleet.activeFlows} active`,
+      fleet.missingLoop > 0 ? `${fleet.missingLoop} missing loops` : null,
+      autonomy.capabilitySummary.criticalGapCount > 0
+        ? `${autonomy.capabilitySummary.criticalGapCount} critical gaps`
+        : `observed ${formatRelativeTimestamp(autonomy.observedAt)}`,
+    ]);
+    cards.push({
+      kind: "autonomy",
+      label: "Autonomy",
+      value: autonomyValue,
+      hint: autonomyHint,
+      onClick: props.onNavigateToAutonomy,
     });
   }
 
   const sessions = props.sessionsResult?.sessions.slice(0, 5) ?? [];
 
   return html`
-    <section class="ov-cards">${cards.map((c) => renderStatCard(c, props.onNavigate))}</section>
+    <section class="ov-cards">${cards.map((card) => renderStatCard(card))}</section>
 
     ${sessions.length > 0
       ? html`
@@ -241,14 +308,14 @@ export function renderOverviewCards(props: OverviewCardsProps) {
             <h3 class="ov-recent__title">${t("overview.cards.recentSessions")}</h3>
             <ul class="ov-recent__list">
               ${sessions.map(
-                (s) => html`
+                (session) => html`
                   <li class="ov-recent__row">
                     <span class="ov-recent__key"
-                      >${blurDigits(s.displayName || s.label || s.key)}</span
+                      >${blurDigits(session.displayName || session.label || session.key)}</span
                     >
-                    <span class="ov-recent__model">${s.model ?? ""}</span>
+                    <span class="ov-recent__model">${session.model ?? ""}</span>
                     <span class="ov-recent__time"
-                      >${s.updatedAt ? formatRelativeTimestamp(s.updatedAt) : ""}</span
+                      >${session.updatedAt ? formatRelativeTimestamp(session.updatedAt) : ""}</span
                     >
                   </li>
                 `,

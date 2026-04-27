@@ -1,4 +1,5 @@
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   cancelTaskById,
@@ -96,6 +97,7 @@ export function createQueuedTaskRun(params: {
   parentTaskId?: string;
   agentId?: string;
   runId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   label?: string;
   task: string;
   preferMetadata?: boolean;
@@ -129,6 +131,7 @@ export function createRunningTaskRun(params: {
   parentTaskId?: string;
   agentId?: string;
   runId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   label?: string;
   task: string;
   notifyPolicy?: TaskNotifyPolicy;
@@ -627,6 +630,7 @@ export function runTaskInFlow(params: {
   parentTaskId?: string;
   agentId?: string;
   runId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   label?: string;
   task: string;
   preferMetadata?: boolean;
@@ -681,6 +685,7 @@ export function runTaskInFlow(params: {
     parentTaskId: params.parentTaskId,
     agentId: params.agentId,
     runId: params.runId,
+    governanceRuntime: params.governanceRuntime,
     label: params.label,
     task: params.task,
     preferMetadata: params.preferMetadata,
@@ -722,6 +727,7 @@ export function runTaskInFlowForOwner(params: {
   parentTaskId?: string;
   agentId?: string;
   runId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   label?: string;
   task: string;
   preferMetadata?: boolean;
@@ -751,6 +757,7 @@ export function runTaskInFlowForOwner(params: {
     parentTaskId: params.parentTaskId,
     agentId: params.agentId,
     runId: params.runId,
+    governanceRuntime: params.governanceRuntime,
     label: params.label,
     task: params.task,
     preferMetadata: params.preferMetadata,

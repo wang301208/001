@@ -82,9 +82,44 @@ rollback_policy:
     - "close_gap_signal"
     - "lower_signal_confidence"
 
+contract:
+  role: "capability_gap_sentinel"
+  allowed_subagents:
+    - "archaeologist"
+    - "strategist"
+    - "founder"
+    - "qa"
+  allowed_tools:
+    - "autonomy.capability.inventory"
+    - "autonomy.history"
+    - "governance.overview"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "task_history"
+    - "task_flow_history"
+    - "security_audit_reports"
+    - "capability_inventory"
+  qa_requirements:
+    - "audit_trace"
+    - "clear_problem_statement"
+  write_scope:
+    - "state/autonomy/**"
+    - "state/governance/proposals/**"
+  network_policy:
+    default: "internal_only"
+    allowed_domains: []
+    requires_citation: false
+  escalation_policy:
+    boundary_conflict: "founder"
+    critical_change: "sovereignty_auditor"
+    blocked_promotion: "archaeologist"
+  promotion_gates:
+    - "audit_trace"
+    - "clear_problem_statement"
+
 runtime_mapping:
   intended_project_hooks:
     - "src/tasks/task-registry.ts"
     - "src/tasks/task-flow-registry.ts"
     - "src/security/audit.ts"
-

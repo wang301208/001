@@ -100,10 +100,50 @@ rollback_policy:
     - "requeue_safe_work"
     - "escalate_incident"
 
+contract:
+  role: "goal_execution_orchestrator"
+  allowed_subagents:
+    - "librarian"
+    - "strategist"
+    - "qa"
+    - "founder"
+    - "sovereignty_auditor"
+  allowed_tools:
+    - "autonomy.capability.inventory"
+    - "autonomy.genesis.plan"
+    - "autonomy.history"
+    - "governance.overview"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "incoming_goals"
+    - "task_registry"
+    - "task_flow_registry"
+    - "capability_catalog"
+    - "policy_state"
+  qa_requirements:
+    - "audit_trace"
+    - "rollback_reference"
+    - "handoff_to_genesis_team"
+  write_scope:
+    - "state/tasks/**"
+    - "state/autonomy/**"
+  network_policy:
+    default: "policy-derived"
+    allowed_domains: []
+    requires_citation: false
+  escalation_policy:
+    boundary_conflict: "sovereignty_auditor"
+    critical_change: "founder"
+    blocked_promotion: "qa"
+  promotion_gates:
+    - "audit_trace"
+    - "rollback_reference"
+    - "handoff_to_genesis_team"
+
 runtime_mapping:
   intended_project_hooks:
     - "src/tasks/task-registry.ts"
     - "src/tasks/task-flow-registry.ts"
     - "src/acp/policy.ts"
     - "src/agents/agent-scope-config.ts"
-

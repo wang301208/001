@@ -1,4 +1,5 @@
 import type { SessionSystemPromptReport } from "../config/sessions/types.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import type {
   CostUsageSummary,
   SessionCostSummary,
@@ -34,6 +35,7 @@ export type SessionUsageEntry = {
   model?: string;
   usage: SessionCostSummary | null;
   contextWeight?: SessionSystemPromptReport | null;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot | null;
 };
 
 export type SessionsUsageAggregates = {

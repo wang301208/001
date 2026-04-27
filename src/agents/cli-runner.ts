@@ -1,4 +1,6 @@
 import { formatErrorMessage } from "../infra/errors.js";
+import { registerAgentRunContext } from "../infra/agent-events.js";
+import { createAgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import type { PreparedCliRunContext, RunCliAgentParams } from "./cli-runner/types.js";
 import { FailoverError, isFailoverError, resolveFailoverStatus } from "./failover-error.js";
 import { classifyFailoverReason, isFailoverErrorMessage } from "./pi-embedded-helpers.js";
@@ -15,6 +17,11 @@ export async function runPreparedCliAgent(
 ): Promise<EmbeddedPiRunResult> {
   const { executePreparedCliRun } = await import("./cli-runner/execute.runtime.js");
   const { params } = context;
+  const governanceRuntime = createAgentGovernanceRuntimeSnapshot({
+    cfg: params.config,
+    agentId: params.agentId,
+    observedAt: context.started,
+  });
   const buildCliRunResult = (resultParams: {
     output: Awaited<ReturnType<typeof executePreparedCliRun>>;
     effectiveCliSessionId?: string;
@@ -63,6 +70,7 @@ export async function runPreparedCliAgent(
           sessionId: resultParams.effectiveCliSessionId ?? params.sessionId ?? "",
           provider: params.provider,
           model: context.modelId,
+          ...(governanceRuntime ? { governanceRuntime } : {}),
           usage: resultParams.output.usage,
           ...(resultParams.effectiveCliSessionId
             ? {
@@ -83,6 +91,11 @@ export async function runPreparedCliAgent(
       },
     };
   };
+  registerAgentRunContext(params.runId, {
+    sessionKey: params.sessionKey,
+    agentId: params.agentId,
+    ...(governanceRuntime ? { governanceRuntime } : {}),
+  });
 
   // Try with the provided CLI session ID first
   try {

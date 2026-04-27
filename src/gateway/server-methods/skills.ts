@@ -18,6 +18,7 @@ import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import { fetchClawHubSkillDetail } from "../../infra/clawhub.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
+import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
@@ -87,7 +88,14 @@ export const skillsHandlers: GatewayRequestHandlers = {
         respond(
           false,
           undefined,
-          errorShape(ErrorCodes.INVALID_REQUEST, `unknown agent id "${agentIdRaw}"`),
+          errorShape(
+            ErrorCodes.INVALID_REQUEST,
+            buildUnknownAgentIdMessage({
+              cfg,
+              rawAgentId: agentIdRaw,
+              inspectHint: "Inspect available agents with agents.list.",
+            }),
+          ),
         );
         return;
       }

@@ -2,6 +2,7 @@ import type { SkillSnapshot } from "../../agents/skills.js";
 import type { ThinkLevel, VerboseLevel } from "../../auto-reply/thinking.js";
 import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import { createAgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import type { CronJob } from "../types.js";
 import { resolveCronPayloadOutcome } from "./helpers.js";
 import {
@@ -245,8 +246,14 @@ export async function executeCronRun(params: {
     normalizeVerboseLevel(params.cronSession.sessionEntry.verboseLevel) ??
     normalizeVerboseLevel(params.agentVerboseDefault) ??
     "off";
+  const governanceRuntime = createAgentGovernanceRuntimeSnapshot({
+    cfg: params.cfg,
+    agentId: params.agentId,
+  });
   registerAgentRunContext(params.cronSession.sessionEntry.sessionId, {
     sessionKey: params.agentSessionKey,
+    agentId: params.agentId,
+    ...(governanceRuntime ? { governanceRuntime } : {}),
     verboseLevel: resolvedVerboseLevel,
   });
   const executor = createCronPromptExecutor({

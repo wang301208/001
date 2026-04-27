@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+import { buildGovernanceCharterAgentPrompt } from "../governance/charter-agents.js";
+import { buildAgentToolGovernancePrompt } from "../governance/tool-governance-summary.js";
 import { findGitRoot } from "../infra/git-root.js";
 import { resolveHomeRelativePath } from "../infra/home-dir.js";
 import {
@@ -26,6 +28,7 @@ export type RuntimeInfoInput = {
   channelActions?: string[];
   repoRoot?: string;
   canvasRootDir?: string;
+  governancePrompt?: string;
 };
 
 export type SystemPromptRuntimeParams = {
@@ -55,17 +58,37 @@ export function buildSystemPromptParams(params: {
     config: params.config,
     stateDir,
   });
+  const governancePrompt = resolveGovernancePrompt({
+    config: params.config,
+    agentId: params.agentId,
+  });
   return {
     runtimeInfo: {
       agentId: params.agentId,
       ...params.runtime,
       repoRoot,
       canvasRootDir,
+      ...(governancePrompt ? { governancePrompt } : {}),
     },
     userTimezone,
     userTime,
     userTimeFormat,
   };
+}
+
+function resolveGovernancePrompt(params: {
+  config?: OpenClawConfig;
+  agentId?: string;
+}): string | undefined {
+  const agentId = params.agentId?.trim();
+  if (!agentId) {
+    return undefined;
+  }
+  const sections = [
+    buildGovernanceCharterAgentPrompt(agentId),
+    params.config ? buildAgentToolGovernancePrompt({ cfg: params.config, agentId }) : undefined,
+  ].filter((value): value is string => Boolean(value?.trim()));
+  return sections.length > 0 ? sections.join("\n\n") : undefined;
 }
 
 function resolveCanvasRootDir(params: { config?: OpenClawConfig; stateDir: string }): string {

@@ -9,7 +9,12 @@ import type {
   TaskStatusCounts,
   TaskTerminalOutcome,
 } from "../../tasks/task-registry.types.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import type { DeliveryContext } from "../../utils/delivery-context.types.js";
+import type {
+  ManagedTaskFlowAutonomyRuntimeState,
+  ManagedTaskFlowExecutionSystemRuntime,
+} from "./runtime-taskflow.types.js";
 
 export type TaskRunAggregateSummary = {
   total: number;
@@ -32,6 +37,7 @@ export type TaskRunView = {
   parentTaskId?: string;
   agentId?: string;
   runId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   label?: string;
   title: string;
   status: TaskStatus;
@@ -74,6 +80,8 @@ export type TaskFlowView = {
 export type TaskFlowDetail = TaskFlowView & {
   state?: JsonValue;
   wait?: JsonValue;
+  managedAutonomy?: ManagedTaskFlowAutonomyRuntimeState;
+  managedExecution?: ManagedTaskFlowExecutionSystemRuntime;
   blocked?: {
     taskId?: string;
     summary?: string;

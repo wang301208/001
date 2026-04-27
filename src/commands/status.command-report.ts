@@ -15,6 +15,8 @@ export async function buildStatusCommandReportLines(params: {
   renderTable: (input: RenderTableOptions) => string;
   width: number;
   overviewRows: Array<{ Item: string; Value: string }>;
+  governanceLines?: string[];
+  autonomyLines?: string[];
   showTaskMaintenanceHint: boolean;
   taskMaintenanceHint: string;
   pluginCompatibilityLines: string[];
@@ -44,6 +46,18 @@ export async function buildStatusCommandReportLines(params: {
           renderTable: params.renderTable,
           rows: params.overviewRows,
         }),
+      },
+      {
+        kind: "lines",
+        title: "Governance",
+        body: params.governanceLines ?? [],
+        skipIfEmpty: true,
+      },
+      {
+        kind: "lines",
+        title: "Autonomy",
+        body: params.autonomyLines ?? [],
+        skipIfEmpty: true,
       },
       {
         kind: "raw",

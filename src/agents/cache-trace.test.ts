@@ -4,6 +4,14 @@ import type { OpenClawConfig } from "../config/config.js";
 import { resolveUserPath } from "../utils.js";
 import { createCacheTrace } from "./cache-trace.js";
 
+function createMemoryWriter(lines: string[]) {
+  return {
+    filePath: "memory",
+    write: (line: string) => lines.push(line),
+    flush: async () => {},
+  };
+}
+
 describe("createCacheTrace", () => {
   it("returns null when diagnostics cache tracing is disabled", () => {
     const trace = createCacheTrace({
@@ -26,10 +34,7 @@ describe("createCacheTrace", () => {
         },
       },
       env: {},
-      writer: {
-        filePath: "memory",
-        write: (line) => lines.push(line),
-      },
+      writer: createMemoryWriter(lines),
     });
 
     expect(trace).not.toBeNull();
@@ -56,10 +61,7 @@ describe("createCacheTrace", () => {
         },
       },
       env: {},
-      writer: {
-        filePath: "memory",
-        write: (line) => lines.push(line),
-      },
+      writer: createMemoryWriter(lines),
     });
 
     trace?.recordStage("prompt:before", { prompt: "", system: "" });
@@ -81,10 +83,7 @@ describe("createCacheTrace", () => {
         },
       },
       env: {},
-      writer: {
-        filePath: "memory",
-        write: (line) => lines.push(line),
-      },
+      writer: createMemoryWriter(lines),
     });
 
     const wrapped = trace?.wrapStreamFn(((model: unknown, context: unknown, options: unknown) => ({
@@ -125,10 +124,7 @@ describe("createCacheTrace", () => {
       env: {
         OPENCLAW_CACHE_TRACE: "0",
       },
-      writer: {
-        filePath: "memory",
-        write: (line) => lines.push(line),
-      },
+      writer: createMemoryWriter(lines),
     });
 
     expect(trace).toBeNull();
@@ -145,10 +141,7 @@ describe("createCacheTrace", () => {
         },
       },
       env: {},
-      writer: {
-        filePath: "memory",
-        write: (line) => lines.push(line),
-      },
+      writer: createMemoryWriter(lines),
     });
 
     trace?.recordStage("stream:context", {
@@ -251,10 +244,7 @@ describe("createCacheTrace", () => {
         },
       },
       env: {},
-      writer: {
-        filePath: "memory",
-        write: (line) => lines.push(line),
-      },
+      writer: createMemoryWriter(lines),
     });
 
     const parent: Record<string, unknown> = { role: "user", content: "hello" };

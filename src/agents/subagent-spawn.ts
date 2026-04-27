@@ -1,12 +1,15 @@
 import crypto from "node:crypto";
 import { promises as fs } from "node:fs";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+import { createAgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import type { SubagentLifecycleHookRunner } from "../plugins/hooks.js";
 import { isValidAgentId, normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
+import { resolveGovernanceCharterDeclaredCollaborators } from "../governance/charter-agents.js";
+import { resolveGovernanceCharterCollaborationPolicy } from "../governance/charter-agents.js";
 import type { DeliveryContext } from "../utils/delivery-context.types.js";
 import type { BootstrapContextMode } from "./bootstrap-files.js";
 import {
@@ -466,10 +469,11 @@ export async function spawnSubagentDirect(
   }
   const targetAgentId = requestedAgentId ? normalizeAgentId(requestedAgentId) : requesterAgentId;
   if (targetAgentId !== requesterAgentId) {
-    const allowAgents =
+    const resolvedAllowAgents =
       resolveAgentConfig(cfg, requesterAgentId)?.subagents?.allowAgents ??
-      cfg?.agents?.defaults?.subagents?.allowAgents ??
-      [];
+      cfg?.agents?.defaults?.subagents?.allowAgents;
+    const allowAgents = Array.isArray(resolvedAllowAgents) ? resolvedAllowAgents : [];
+    const hasConfigAllowConstraint = Array.isArray(resolvedAllowAgents);
     const allowAny = allowAgents.some((value) => value.trim() === "*");
     const normalizedTargetId = normalizeLowercaseStringOrEmpty(targetAgentId);
     const allowSet = new Set(
@@ -477,8 +481,26 @@ export async function spawnSubagentDirect(
         .filter((value) => value.trim() && value.trim() !== "*")
         .map((value) => normalizeLowercaseStringOrEmpty(normalizeAgentId(value))),
     );
-    if (!allowAny && !allowSet.has(normalizedTargetId)) {
-      const allowedText = allowSet.size > 0 ? Array.from(allowSet).join(", ") : "none";
+    const charterPolicy = resolveGovernanceCharterCollaborationPolicy(requesterAgentId);
+    const charterAllowSet = new Set(
+      charterPolicy.collaboratorAgentIds.map((value) =>
+        normalizeLowercaseStringOrEmpty(normalizeAgentId(value)),
+      ),
+    );
+    const configAllowsTarget = allowAny || allowSet.has(normalizedTargetId);
+    const charterAllowsTarget = charterAllowSet.has(normalizedTargetId);
+    const targetAllowed = charterPolicy.charterDeclared
+      ? charterAllowsTarget && (!hasConfigAllowConstraint || configAllowsTarget)
+      : allowAny || allowSet.has(normalizedTargetId);
+    if (!targetAllowed) {
+      const mergedAllowed = charterPolicy.charterDeclared
+        ? new Set(
+            Array.from(charterAllowSet).filter(
+              (candidate) => !hasConfigAllowConstraint || allowAny || allowSet.has(candidate),
+            ),
+          )
+        : new Set([...allowSet, ...resolveGovernanceCharterDeclaredCollaborators(requesterAgentId)]);
+      const allowedText = mergedAllowed.size > 0 ? Array.from(mergedAllowed).sort().join(", ") : "none";
       return {
         status: "forbidden",
         error: `agentId is not allowed for sessions_spawn (allowed: ${allowedText})`,
@@ -529,6 +551,10 @@ export async function spawnSubagentDirect(
     };
   }
   const { resolvedModel, thinkingOverride } = plan;
+  const childGovernanceRuntime = createAgentGovernanceRuntimeSnapshot({
+    cfg,
+    agentId: targetAgentId,
+  });
   const patchChildSession = async (patch: Record<string, unknown>): Promise<string | undefined> => {
     try {
       await callSubagentGateway({
@@ -546,6 +572,7 @@ export async function spawnSubagentDirect(
     spawnDepth: childDepth,
     subagentRole: childCapabilities.role === "main" ? null : childCapabilities.role,
     subagentControlScope: childCapabilities.controlScope,
+    ...(childGovernanceRuntime ? { governanceRuntime: childGovernanceRuntime } : {}),
     ...plan.initialSessionPatch,
   };
 

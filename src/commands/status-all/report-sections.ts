@@ -1,4 +1,5 @@
 import type { RenderTableOptions, TableColumn } from "../../terminal/table.js";
+import type { AgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
 import { buildStatusChannelsTableRows, statusChannelsTableColumns } from "./channels-table.js";
 import {
   buildStatusAgentTableRows,
@@ -107,12 +108,13 @@ export function buildStatusAgentsSection(params: {
   agentStatus: {
     agents: Array<{
       id: string;
-      name?: string | null;
-      bootstrapPending?: boolean | null;
-      sessionsCount: number;
-      lastActiveAgeMs?: number | null;
-      sessionsPath: string;
-    }>;
+    name?: string | null;
+    bootstrapPending?: boolean | null;
+    sessionsCount: number;
+    lastActiveAgeMs?: number | null;
+    governance?: AgentToolGovernanceSummary;
+    sessionsPath: string;
+  }>;
   };
   ok: (text: string) => string;
   warn: (text: string) => string;

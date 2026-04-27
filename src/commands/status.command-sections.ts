@@ -3,15 +3,21 @@ import type { Tone } from "../memory-host-sdk/status.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import type { TableColumn } from "../terminal/table.js";
 import type { HealthSummary } from "./health.js";
+import { summarizeStatusAgents } from "./status-overview-values.ts";
 import type { AgentLocalStatus } from "./status.agent-local.js";
 import type { MemoryStatusSnapshot, MemoryPluginStatus } from "./status.scan.shared.js";
-import type { SessionStatus, StatusSummary } from "./status.types.js";
+import type {
+  SessionStatus,
+  StatusAutonomySnapshot,
+  StatusGovernanceSnapshot,
+  StatusSummary,
+} from "./status.types.js";
 
 type AgentStatusLike = {
   defaultId?: string | null;
   bootstrapPendingCount: number;
   totalSessions: number;
-  agents: AgentLocalStatus[];
+  agents: Array<Pick<AgentLocalStatus, "id" | "lastActiveAgeMs" | "governance">>;
 };
 
 type SummaryLike = Pick<StatusSummary, "tasks" | "taskAudit" | "heartbeat" | "sessions">;
@@ -27,6 +33,20 @@ type PairingRecoveryLike = {
   requestId?: string | null;
 };
 
+const STATUS_SEPARATOR = " | ";
+
+function formatInlineList(values: string[], empty = "none"): string {
+  return values.length > 0 ? values.join(", ") : empty;
+}
+
+function formatStageCounts(stageCounts: {
+  ready: number;
+  waiting: number;
+  blocked: number;
+}): string {
+  return `ready ${stageCounts.ready}${STATUS_SEPARATOR}waiting ${stageCounts.waiting}${STATUS_SEPARATOR}blocked ${stageCounts.blocked}`;
+}
+
 export const statusHealthColumns: TableColumn[] = [
   { key: "Item", header: "Item", minWidth: 10 },
   { key: "Status", header: "Status", minWidth: 8 },
@@ -37,6 +57,9 @@ export function buildStatusAgentsValue(params: {
   agentStatus: AgentStatusLike;
   formatTimeAgo: (ageMs: number) => string;
 }) {
+  const summary = summarizeStatusAgents({
+    agentStatus: params.agentStatus,
+  });
   const pending =
     params.agentStatus.bootstrapPendingCount > 0
       ? `${params.agentStatus.bootstrapPendingCount} bootstrap file${params.agentStatus.bootstrapPendingCount === 1 ? "" : "s"} present`
@@ -44,8 +67,14 @@ export function buildStatusAgentsValue(params: {
   const def = params.agentStatus.agents.find((a) => a.id === params.agentStatus.defaultId);
   const defActive =
     def?.lastActiveAgeMs != null ? params.formatTimeAgo(def.lastActiveAgeMs) : "unknown";
-  const defSuffix = def ? ` · default ${def.id} active ${defActive}` : "";
-  return `${params.agentStatus.agents.length} · ${pending} · sessions ${params.agentStatus.totalSessions}${defSuffix}`;
+  const defSuffix = def ? `${STATUS_SEPARATOR}default ${def.id} active ${defActive}` : "";
+  return [
+    `${summary.totalAgents} total`,
+    `${summary.charteredAgents} chartered`,
+    `${summary.frozenAgents} frozen`,
+    pending,
+    `${summary.totalSessions} sessions`,
+  ].join(STATUS_SEPARATOR) + defSuffix;
 }
 
 export function buildStatusTasksValue(params: {
@@ -67,13 +96,13 @@ export function buildStatusTasksValue(params: {
       : params.muted("no issues"),
     params.summary.taskAudit.errors > 0
       ? params.warn(
-          `audit ${params.summary.taskAudit.errors} error${params.summary.taskAudit.errors === 1 ? "" : "s"} · ${params.summary.taskAudit.warnings} warn`,
+          `audit ${params.summary.taskAudit.errors} error${params.summary.taskAudit.errors === 1 ? "" : "s"}${STATUS_SEPARATOR}${params.summary.taskAudit.warnings} warn`,
         )
       : params.summary.taskAudit.warnings > 0
         ? params.muted(`audit ${params.summary.taskAudit.warnings} warn`)
         : params.muted("audit clean"),
     `${params.summary.tasks.total} tracked`,
-  ].join(" · ");
+  ].join(STATUS_SEPARATOR);
 }
 
 export function buildStatusHeartbeatValue(params: { summary: Pick<SummaryLike, "heartbeat"> }) {
@@ -112,7 +141,7 @@ export function buildStatusLastHeartbeatValue(params: {
     : null;
   return [params.lastHeartbeat.status, `${age} ago`, channel, accountLabel]
     .filter(Boolean)
-    .join(" · ");
+    .join(STATUS_SEPARATOR);
 }
 
 export function buildStatusMemoryValue(params: {
@@ -140,11 +169,11 @@ export function buildStatusMemoryValue(params: {
   }
   if (!params.memory) {
     const slot = params.memoryPlugin.slot ? `plugin ${params.memoryPlugin.slot}` : "plugin";
-    return params.muted(`enabled (${slot}) · unavailable`);
+    return params.muted(`enabled (${slot})${STATUS_SEPARATOR}unavailable`);
   }
   const parts: string[] = [];
-  const dirtySuffix = params.memory.dirty ? ` · ${params.warn("dirty")}` : "";
-  parts.push(`${params.memory.files} files · ${params.memory.chunks} chunks${dirtySuffix}`);
+  const dirtySuffix = params.memory.dirty ? `${STATUS_SEPARATOR}${params.warn("dirty")}` : "";
+  parts.push(`${params.memory.files} files${STATUS_SEPARATOR}${params.memory.chunks} chunks${dirtySuffix}`);
   if (params.memory.sources?.length) {
     parts.push(`sources ${params.memory.sources.join(", ")}`);
   }
@@ -167,7 +196,7 @@ export function buildStatusMemoryValue(params: {
     const summary = params.resolveMemoryCacheSummary(params.memory.cache);
     parts.push(colorByTone(summary.tone, summary.text));
   }
-  return parts.join(" · ");
+  return parts.join(STATUS_SEPARATOR);
 }
 
 export function buildStatusSecurityAuditLines(params: {
@@ -193,7 +222,7 @@ export function buildStatusSecurityAuditLines(params: {
       params.theme.error(`${value.critical} critical`),
       params.theme.warn(`${value.warn} warn`),
       params.theme.muted(`${value.info} info`),
-    ].join(" · ");
+    ].join(STATUS_SEPARATOR);
   };
   const lines = [params.theme.muted(`Summary: ${fmtSummary(params.securityAudit.summary)}`)];
   const importantFindings = params.securityAudit.findings.filter(
@@ -221,7 +250,7 @@ export function buildStatusSecurityAuditLines(params: {
       }
     }
     if (importantFindings.length > shown.length) {
-      lines.push(params.theme.muted(`… +${importantFindings.length - shown.length} more`));
+      lines.push(params.theme.muted(`... +${importantFindings.length - shown.length} more`));
     }
   }
   lines.push(
@@ -301,9 +330,251 @@ export function buildStatusSessionsRows(params: {
     Model: sess.model ?? "unknown",
     Tokens: params.formatTokensCompact(sess),
     ...(params.verbose
-      ? { Cache: params.formatPromptCacheCompact(sess) || params.muted("—") }
+      ? { Cache: params.formatPromptCacheCompact(sess) || params.muted("-") }
       : {}),
   }));
+}
+
+export function buildStatusGovernanceLines(params: {
+  governance?: StatusGovernanceSnapshot;
+  ok: (value: string) => string;
+  warn: (value: string) => string;
+  muted: (value: string) => string;
+}) {
+  if (!params.governance) {
+    return [];
+  }
+
+  const lines: string[] = [];
+  lines.push(
+    [
+      `Summary: ${params.governance.discovered ? params.ok("charter present") : params.warn("charter missing")}`,
+      params.governance.freezeActive
+        ? params.warn(`freeze ${params.governance.freezeReasonCode ?? "active"}`)
+        : params.ok("freeze open"),
+      `proposals ${params.governance.proposalSummary.pending}/${params.governance.proposalSummary.total} pending/total`,
+    ].join(STATUS_SEPARATOR),
+  );
+  lines.push(
+    params.muted(
+      [
+        "Findings:",
+        `${params.governance.findingSummary.critical} critical`,
+        `${params.governance.findingSummary.warn} warn`,
+        `${params.governance.findingSummary.info} info`,
+      ].join(` ${STATUS_SEPARATOR} `),
+    ),
+  );
+  lines.push(
+    params.muted(
+      [
+        `Capability inventory: ${params.governance.capabilitySummary.totalEntries} entries`,
+        `${params.governance.capabilitySummary.gapCount} gaps`,
+        `${params.governance.capabilitySummary.criticalGapCount} critical`,
+        `${params.governance.capabilitySummary.warningGapCount} warn`,
+        `${params.governance.capabilitySummary.infoGapCount} info`,
+      ].join(STATUS_SEPARATOR),
+    ),
+  );
+  if (params.governance.capabilitySummary.topGapIds.length > 0) {
+    lines.push(
+      params.muted(
+        `  Top gaps: ${formatInlineList(params.governance.capabilitySummary.topGapIds)}`,
+      ),
+    );
+  }
+  lines.push(
+    params.muted(
+      [
+        `Genesis: team ${params.governance.genesisSummary.teamId}`,
+        params.governance.genesisSummary.teamTitle ?? "untitled",
+        `mode ${params.governance.genesisSummary.mode}`,
+        `${params.governance.genesisSummary.blockerCount} blockers`,
+        formatStageCounts(params.governance.genesisSummary.stageCounts),
+      ].join(STATUS_SEPARATOR),
+    ),
+  );
+  if (params.governance.genesisSummary.blockers.length > 0) {
+    lines.push(
+      params.muted(`  Blockers: ${formatInlineList(params.governance.genesisSummary.blockers)}`),
+    );
+  }
+  if (params.governance.genesisSummary.focusGapIds.length > 0) {
+    lines.push(
+      params.muted(
+        `  Focus gaps: ${formatInlineList(params.governance.genesisSummary.focusGapIds)}`,
+      ),
+    );
+  }
+  if (params.governance.teamSummary) {
+    lines.push(
+      params.muted(
+        [
+          `Team: ${params.governance.teamSummary.declared ? "declared" : "undeclared"}`,
+          `${params.governance.teamSummary.memberCount} members`,
+          `${params.governance.teamSummary.missingMemberCount} missing`,
+          `${params.governance.teamSummary.freezeActiveMemberCount} frozen`,
+          `${params.governance.teamSummary.runtimeHookCount} hooks`,
+          `${params.governance.teamSummary.effectiveToolDenyCount} denies`,
+        ].join(STATUS_SEPARATOR),
+      ),
+    );
+    if (params.governance.teamSummary.missingMemberIds.length > 0) {
+      lines.push(
+        params.muted(
+          `  Missing members: ${formatInlineList(params.governance.teamSummary.missingMemberIds)}`,
+        ),
+      );
+    }
+    if (params.governance.teamSummary.freezeActiveMemberIds.length > 0) {
+      lines.push(
+        params.muted(
+          `  Frozen members: ${formatInlineList(params.governance.teamSummary.freezeActiveMemberIds)}`,
+        ),
+      );
+    }
+  }
+  return lines;
+}
+
+export function buildStatusAutonomyLines(params: {
+  autonomy?: StatusAutonomySnapshot;
+  ok: (value: string) => string;
+  warn: (value: string) => string;
+  muted: (value: string) => string;
+}) {
+  if (!params.autonomy) {
+    return [];
+  }
+
+  const lines: string[] = [];
+  lines.push(
+    params.muted(
+      [
+        `Fleet: ${params.autonomy.fleetSummary.totalProfiles} profiles`,
+        `${params.autonomy.fleetSummary.healthy} healthy`,
+        `${params.autonomy.fleetSummary.idle} idle`,
+        `${params.autonomy.fleetSummary.drift} drift`,
+        `${params.autonomy.fleetSummary.missingLoop} missing loops`,
+        `${params.autonomy.fleetSummary.activeFlows} active flows`,
+      ].join(STATUS_SEPARATOR),
+    ),
+  );
+  if (params.autonomy.fleetSummary.driftAgentIds.length > 0) {
+    lines.push(
+      params.warn(
+        `  Drift agents: ${formatInlineList(params.autonomy.fleetSummary.driftAgentIds)}`,
+      ),
+    );
+  }
+  if (params.autonomy.fleetSummary.missingLoopAgentIds.length > 0) {
+    lines.push(
+      params.warn(
+        `  Missing loops: ${formatInlineList(params.autonomy.fleetSummary.missingLoopAgentIds)}`,
+      ),
+    );
+  }
+  if (params.autonomy.replaySummary && params.autonomy.replaySummary.totalRunners > 0) {
+    lines.push(
+      params.muted(
+        [
+          `Replay: ${params.autonomy.replaySummary.totalRunners} scoped`,
+          `${params.autonomy.replaySummary.ready} ready`,
+          `${params.autonomy.replaySummary.passed} passed`,
+          `${params.autonomy.replaySummary.failed} failed`,
+          `${params.autonomy.replaySummary.promotable} promotable`,
+          `${params.autonomy.replaySummary.blocked} blocked`,
+        ].join(STATUS_SEPARATOR),
+      ),
+    );
+    if (params.autonomy.replaySummary.readyAgentIds.length > 0) {
+      lines.push(
+        params.warn(
+          `  Replay ready: ${formatInlineList(params.autonomy.replaySummary.readyAgentIds)}`,
+        ),
+      );
+    }
+    if (params.autonomy.replaySummary.blockedAgentIds.length > 0) {
+      lines.push(
+        params.warn(
+          `  Blocked replay: ${formatInlineList(params.autonomy.replaySummary.blockedAgentIds)}`,
+        ),
+      );
+    }
+    if (params.autonomy.replaySummary.promotableAgentIds.length > 0) {
+      lines.push(
+        params.ok(
+          `  Promotable agents: ${formatInlineList(params.autonomy.replaySummary.promotableAgentIds)}`,
+        ),
+      );
+    }
+  }
+  lines.push(
+    params.muted(
+      [
+        `Capability inventory: ${params.autonomy.capabilitySummary.totalEntries} entries`,
+        `${params.autonomy.capabilitySummary.gapCount} gaps`,
+        `${params.autonomy.capabilitySummary.criticalGapCount} critical`,
+        `${params.autonomy.capabilitySummary.warningGapCount} warn`,
+        `${params.autonomy.capabilitySummary.infoGapCount} info`,
+      ].join(STATUS_SEPARATOR),
+    ),
+  );
+  if (params.autonomy.capabilitySummary.topGapIds.length > 0) {
+    lines.push(
+      params.muted(`  Top gaps: ${formatInlineList(params.autonomy.capabilitySummary.topGapIds)}`),
+    );
+  }
+  lines.push(
+    params.muted(
+      [
+        `Genesis: team ${params.autonomy.genesisSummary.teamId}`,
+        params.autonomy.genesisSummary.teamTitle ?? "untitled",
+        `mode ${params.autonomy.genesisSummary.mode}`,
+        `${params.autonomy.genesisSummary.blockerCount} blockers`,
+        formatStageCounts(params.autonomy.genesisSummary.stageCounts),
+      ].join(STATUS_SEPARATOR),
+    ),
+  );
+  if (params.autonomy.genesisSummary.blockers.length > 0) {
+    lines.push(
+      params.muted(`  Blockers: ${formatInlineList(params.autonomy.genesisSummary.blockers)}`),
+    );
+  }
+  if (params.autonomy.genesisSummary.focusGapIds.length > 0) {
+    lines.push(
+      params.muted(`  Focus gaps: ${formatInlineList(params.autonomy.genesisSummary.focusGapIds)}`),
+    );
+  }
+  if (params.autonomy.lastSupervisorRun) {
+    lines.push(
+      [
+        `Latest supervisor: ${params.autonomy.lastSupervisorRun.mode}`,
+        params.autonomy.lastSupervisorRun.changed
+          ? params.warn(
+              `${params.autonomy.lastSupervisorRun.totals.changed}/${params.autonomy.lastSupervisorRun.totals.totalProfiles} changed`,
+            )
+          : params.ok("no changes"),
+        `loops +${params.autonomy.lastSupervisorRun.totals.loopCreated}/~${params.autonomy.lastSupervisorRun.totals.loopUpdated}`,
+        `flows +${params.autonomy.lastSupervisorRun.totals.flowStarted}/~${params.autonomy.lastSupervisorRun.totals.flowRestarted}`,
+      ].join(STATUS_SEPARATOR),
+    );
+    lines.push(
+      params.muted(
+        `  Supervisor scope: ${formatInlineList(params.autonomy.lastSupervisorRun.agentIds)}`,
+      ),
+    );
+    if (params.autonomy.lastSupervisorRun.changedAgentIds.length > 0) {
+      lines.push(
+        params.muted(
+          `  Changed agents: ${formatInlineList(params.autonomy.lastSupervisorRun.changedAgentIds)}`,
+        ),
+      );
+    }
+  } else {
+    lines.push(params.muted("Latest supervisor: none recorded"));
+  }
+  return lines;
 }
 
 export function buildStatusFooterLines(params: {
@@ -347,7 +618,7 @@ export function buildStatusPluginCompatibilityLines<
       return `  ${label} ${params.formatNotice(notice)}`;
     }),
     ...(params.notices.length > limit
-      ? [params.muted(`  … +${params.notices.length - limit} more`)]
+      ? [params.muted(`  ... +${params.notices.length - limit} more`)]
       : []),
   ];
 }
@@ -393,6 +664,6 @@ export function buildStatusSystemEventsTrailer(params: {
 }) {
   const limit = params.limit ?? 5;
   return params.queuedSystemEvents.length > limit
-    ? params.muted(`… +${params.queuedSystemEvents.length - limit} more`)
+    ? params.muted(`... +${params.queuedSystemEvents.length - limit} more`)
     : null;
 }

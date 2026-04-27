@@ -108,6 +108,7 @@ describe("resolveSandboxContext", () => {
         agents: {
           defaults: {
             sandbox: { mode: "all", backend: "test-backend", scope: "session" },
+            skipBootstrap: true,
           },
         },
       };

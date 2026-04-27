@@ -1,10 +1,23 @@
 import { describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+import { createEmptyAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
 import { buildCommandsMessage, buildHelpMessage, buildToolsMessage } from "./status.js";
 
 vi.mock("../plugins/commands.js", () => ({
   listPluginCommands: () => [],
 }));
+
+const emptyGovernance = {
+  charterDeclared: false,
+  charterToolDeny: [],
+  charterRequireAgentId: false,
+  charterElevatedLocked: false,
+  freezeActive: false,
+  freezeDeny: [],
+  freezeDetails: [],
+};
+
+const emptyGovernanceContract = createEmptyAgentGovernanceRuntimeContract("main");
 
 describe("tools product copy", () => {
   it("mentions /tools in command discovery copy", () => {
@@ -22,6 +35,8 @@ describe("tools product copy", () => {
     const text = buildToolsMessage({
       agentId: "main",
       profile: "coding",
+      governance: emptyGovernance,
+      governanceContract: emptyGovernanceContract,
       groups: [
         {
           id: "core",
@@ -77,6 +92,8 @@ describe("tools product copy", () => {
       {
         agentId: "main",
         profile: "minimal",
+        governance: emptyGovernance,
+        governanceContract: emptyGovernanceContract,
         groups: [
           {
             id: "core",
@@ -109,6 +126,8 @@ describe("tools product copy", () => {
       {
         agentId: "main",
         profile: "coding",
+        governance: emptyGovernance,
+        governanceContract: emptyGovernanceContract,
         groups: [
           {
             id: "core",
@@ -142,8 +161,57 @@ describe("tools product copy", () => {
       buildToolsMessage({
         agentId: "main",
         profile: "full",
+        governance: emptyGovernance,
+        governanceContract: emptyGovernanceContract,
         groups: [],
       }),
     ).toBe("No tools are available for this agent right now.\n\nProfile: full");
+  });
+
+  it("surfaces governance charter and freeze details", () => {
+    const text = buildToolsMessage(
+      {
+        agentId: "founder",
+        profile: "coding",
+        governance: {
+          charterDeclared: true,
+          charterTitle: "Founder",
+          charterLayer: "evolution",
+          charterToolDeny: ["web_fetch", "web_search"],
+          charterRequireAgentId: true,
+          charterExecutionContract: "strict-agentic",
+          charterElevatedLocked: true,
+          freezeActive: true,
+          freezeReasonCode: "network_boundary_opened",
+          freezeDeny: ["exec", "write"],
+          freezeDetails: ["gateway.bind=lan"],
+        },
+        governanceContract: {
+          ...createEmptyAgentGovernanceRuntimeContract("founder"),
+          charterDeclared: true,
+          charterTitle: "Founder",
+          charterLayer: "evolution",
+          charterToolDeny: ["web_fetch", "web_search"],
+          charterRequireAgentId: true,
+          charterExecutionContract: "strict-agentic",
+          charterElevatedLocked: true,
+          freezeActive: true,
+          freezeReasonCode: "network_boundary_opened",
+          freezeDeny: ["exec", "write"],
+          freezeDetails: ["gateway.bind=lan"],
+          effectiveToolDeny: ["exec", "web_fetch", "web_search", "write"],
+        },
+        groups: [],
+      },
+      { verbose: true },
+    );
+
+    expect(text).toContain("Governance charter: evolution / Founder");
+    expect(text).toContain(
+      "Charter restrictions: deny web_fetch, web_search; elevated locked; explicit subagent ids; execution=strict-agentic",
+    );
+    expect(text).toContain("Governance freeze: active (network_boundary_opened)");
+    expect(text).toContain("Freeze deny: exec, write");
+    expect(text).toContain("Freeze details: gateway.bind=lan");
   });
 });

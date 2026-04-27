@@ -158,6 +158,15 @@ describe("plugin runtime command execution", () => {
 
   it.each([
     {
+      name: "exposes runtime.autonomy helpers",
+      assert: (runtime: ReturnType<typeof createPluginRuntime>) => {
+        expectFunctionKeys(runtime.autonomy as Record<string, unknown>, [
+          "bindSession",
+          "fromToolContext",
+        ]);
+      },
+    },
+    {
       name: "exposes runtime.mediaUnderstanding helpers and keeps stt as an alias",
       assert: (runtime: ReturnType<typeof createPluginRuntime>) => {
         expectFunctionKeys(runtime.mediaUnderstanding as Record<string, unknown>, [

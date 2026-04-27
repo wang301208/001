@@ -16,6 +16,29 @@ import {
 } from "./controllers/agent-identity.ts";
 import { loadAgentSkills, type AgentSkillsState } from "./controllers/agent-skills.ts";
 import { loadAgents, type AgentsState } from "./controllers/agents.ts";
+import {
+  loadAutonomyCapabilityInventory,
+  loadAutonomyGenesisPlan,
+  loadAutonomyHistory,
+  loadAutonomyOverview,
+  loadAutonomyProfile,
+  parseAutonomyHistoryLimitDraft,
+  parseAutonomyWorkspaceDirsDraft,
+  type AutonomyState,
+} from "./controllers/autonomy.ts";
+import {
+  parseGovernanceAgentIdsDraft,
+  parseGovernanceListLimitDraft,
+  parseGovernanceWorkspaceDirsDraft,
+  loadGovernanceAgent,
+  loadGovernanceCapabilityAssetRegistry,
+  loadGovernanceCapabilityInventory,
+  loadGovernanceGenesisPlan,
+  loadGovernanceOverview,
+  loadGovernanceProposals,
+  loadGovernanceTeam,
+  type GovernanceState,
+} from "./controllers/governance.ts";
 import { loadChannels, type ChannelsState } from "./controllers/channels.ts";
 import { loadConfig, loadConfigSchema, type ConfigState } from "./controllers/config.ts";
 import {
@@ -79,7 +102,24 @@ type SettingsHost = {
   basePath: string;
   agentsList?: AgentsListResult | null;
   agentsSelectedId?: string | null;
-  agentsPanel?: "overview" | "files" | "tools" | "skills" | "channels" | "cron";
+  agentsPanel?:
+    | "overview"
+    | "files"
+    | "tools"
+    | "skills"
+    | "channels"
+    | "cron"
+    | "governance"
+    | "autonomy";
+  autonomyWorkspaceScope?: string;
+  autonomyHistoryMode?: import("./controllers/autonomy.js").AutonomyHistoryModeFilter;
+  autonomyHistorySource?: import("./controllers/autonomy.js").AutonomyHistorySourceFilter;
+  autonomyHistoryLimit?: string;
+  governanceScopeAgentIds?: string;
+  governanceScopeWorkspaceDirs?: string;
+  governanceGenesisTeamId?: string;
+  governanceProposalStatusFilter?: import("./controllers/governance.js").GovernanceProposalStatusFilter;
+  governanceProposalLimit?: string;
   pendingGatewayUrl?: string | null;
   systemThemeCleanup?: (() => void) | null;
   pendingGatewayToken?: string | null;
@@ -98,6 +138,8 @@ type SettingsAppHost = SettingsHost &
   AgentIdentityState &
   AgentSkillsState &
   AgentsState &
+  AutonomyState &
+  GovernanceState &
   ChannelsState &
   ConfigState &
   CronState &
@@ -290,6 +332,73 @@ async function refreshAgentsTab(host: SettingsHost, app: SettingsAppHost) {
     case "skills":
       void loadAgentSkills(app, agentId);
       return;
+    case "autonomy":
+      {
+        const workspaceDirs = parseAutonomyWorkspaceDirsDraft(host.autonomyWorkspaceScope);
+        const historyLimit = parseAutonomyHistoryLimitDraft(host.autonomyHistoryLimit);
+        void loadAutonomyOverview(app, {
+          sessionKey: host.sessionKey,
+          ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+        });
+        void loadAutonomyCapabilityInventory(app, {
+          sessionKey: host.sessionKey,
+          ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+        });
+        void loadAutonomyGenesisPlan(app, {
+          sessionKey: host.sessionKey,
+          ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+        });
+        void loadAutonomyHistory(app, {
+          sessionKey: host.sessionKey,
+          ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+          ...(typeof historyLimit === "number" ? { limit: historyLimit } : {}),
+          ...(host.autonomyHistoryMode ? { mode: host.autonomyHistoryMode } : {}),
+          ...(host.autonomyHistorySource ? { source: host.autonomyHistorySource } : {}),
+        });
+        void loadAutonomyProfile(app, { agentId, sessionKey: host.sessionKey });
+        return;
+      }
+    case "governance": {
+      const scopeAgentIds = parseGovernanceAgentIdsDraft(host.governanceScopeAgentIds);
+      const workspaceDirs = parseGovernanceWorkspaceDirsDraft(host.governanceScopeWorkspaceDirs);
+      const proposalLimit = parseGovernanceListLimitDraft(host.governanceProposalLimit);
+      const refreshGovernanceTeam = () => {
+        const teamId =
+          host.governanceGenesisTeamId?.trim() ||
+          app.governanceTeamResult?.teamId?.trim() ||
+          app.governanceGenesisResult?.teamId?.trim();
+        if (teamId) {
+          void loadGovernanceTeam(app, { teamId });
+        }
+      };
+      void loadGovernanceOverview(app);
+      void loadGovernanceCapabilityAssetRegistry(app, {
+        agentIds: scopeAgentIds.length > 0 ? scopeAgentIds : [agentId],
+        ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+      });
+      void loadGovernanceCapabilityInventory(app, {
+        agentIds: scopeAgentIds.length > 0 ? scopeAgentIds : [agentId],
+        ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+      });
+      void loadGovernanceGenesisPlan(app, {
+        agentIds: scopeAgentIds.length > 0 ? scopeAgentIds : [agentId],
+        ...(host.governanceGenesisTeamId?.trim()
+          ? { teamId: host.governanceGenesisTeamId.trim() }
+          : {}),
+        ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+      }).then(() => {
+        refreshGovernanceTeam();
+      });
+      refreshGovernanceTeam();
+      void loadGovernanceProposals(app, {
+        ...(app.governanceProposalStatusFilter
+          ? { status: app.governanceProposalStatusFilter }
+          : {}),
+        ...(typeof proposalLimit === "number" ? { limit: proposalLimit } : {}),
+      });
+      void loadGovernanceAgent(app, { agentId });
+      return;
+    }
     case "channels":
       void loadChannels(app, false);
       return;
@@ -647,6 +756,61 @@ function buildAttentionItems(host: SettingsAppHost) {
         "This connection does not have the operator.read scope. Some features may be unavailable.",
       href: "https://docs.openclaw.ai/web/dashboard",
       external: true,
+    });
+  }
+
+  const governance = host.debugStatus?.governance;
+  if (governance?.freezeActive) {
+    items.push({
+      severity: "warning",
+      icon: "shield",
+      title: "Governance freeze active",
+      description: governance.freezeReasonCode
+        ? `Freeze reason: ${governance.freezeReasonCode}. Pending proposals: ${governance.proposalSummary.pending}.`
+        : `Pending proposals: ${governance.proposalSummary.pending}.`,
+    });
+  }
+  if (governance?.teamSummary && !governance.teamSummary.declared) {
+    items.push({
+      severity: "warning",
+      icon: "users",
+      title: "Governance team undeclared",
+      description: `Team ${governance.teamSummary.teamId} is not declared in the charter.`,
+    });
+  } else if ((governance?.teamSummary?.missingMemberCount ?? 0) > 0) {
+    items.push({
+      severity: "warning",
+      icon: "users",
+      title: "Governance team incomplete",
+      description: `${governance?.teamSummary?.missingMemberCount ?? 0} declared governance team member${governance?.teamSummary?.missingMemberCount === 1 ? "" : "s"} are missing from the chartered roster.`,
+    });
+  }
+  if ((governance?.findingSummary.critical ?? 0) > 0) {
+    items.push({
+      severity: "error",
+      icon: "shield",
+      title: "Governance findings require review",
+      description: `${governance?.findingSummary.critical ?? 0} critical findings and ${governance?.proposalSummary.pending ?? 0} pending proposals are blocking governed progress.`,
+    });
+  }
+
+  const autonomy = host.debugStatus?.autonomy;
+  const autonomyDrift = autonomy?.fleetSummary.drift ?? 0;
+  const autonomyMissingLoop = autonomy?.fleetSummary.missingLoop ?? 0;
+  if (autonomyDrift > 0 || autonomyMissingLoop > 0) {
+    items.push({
+      severity: "warning",
+      icon: "radio",
+      title: "Autonomy fleet drift detected",
+      description: `${autonomyDrift} drifted agents, ${autonomyMissingLoop} missing loops, ${autonomy?.fleetSummary.activeFlows ?? 0} active flows.`,
+    });
+  }
+  if ((autonomy?.capabilitySummary.criticalGapCount ?? 0) > 0) {
+    items.push({
+      severity: "warning",
+      icon: "zap",
+      title: "Autonomy capability gaps need repair",
+      description: `${autonomy?.capabilitySummary.criticalGapCount ?? 0} critical autonomy capability gaps remain open.`,
     });
   }
 

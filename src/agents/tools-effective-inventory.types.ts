@@ -1,4 +1,6 @@
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { AgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
+import type { AgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 
 export type EffectiveToolSource = "core" | "plugin" | "channel";
 
@@ -22,6 +24,8 @@ export type EffectiveToolInventoryGroup = {
 export type EffectiveToolInventoryResult = {
   agentId: string;
   profile: string;
+  governance: AgentToolGovernanceSummary;
+  governanceContract: AgentGovernanceRuntimeContract;
   groups: EffectiveToolInventoryGroup[];
 };
 
@@ -50,4 +54,5 @@ export type ResolveEffectiveToolInventoryParams = {
   modelHasVision?: boolean;
   requireExplicitMessageTarget?: boolean;
   disableMessageTool?: boolean;
+  charterDir?: string;
 };

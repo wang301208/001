@@ -60,6 +60,15 @@ import {
   loadToolsEffective as loadToolsEffectiveInternal,
   refreshVisibleToolsEffectiveForCurrentSession as refreshVisibleToolsEffectiveForCurrentSessionInternal,
 } from "./controllers/agents.ts";
+import {
+  loadAutonomyCapabilityInventory as loadAutonomyCapabilityInventoryInternal,
+  loadAutonomyGenesisPlan as loadAutonomyGenesisPlanInternal,
+  loadAutonomyHistory as loadAutonomyHistoryInternal,
+  loadAutonomyOverview as loadAutonomyOverviewInternal,
+  loadAutonomyProfile as loadAutonomyProfileInternal,
+  parseAutonomyHistoryLimitDraft,
+  parseAutonomyWorkspaceDirsDraft,
+} from "./controllers/autonomy.ts";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity.ts";
 import type { DevicePairingList } from "./controllers/devices.ts";
 import type {
@@ -83,12 +92,29 @@ import type {
   AgentsListResult,
   AgentsFilesListResult,
   AgentIdentityResult,
+  AutonomyCapabilityInventoryResult,
+  AutonomyCancelResult,
+  AutonomyGenesisPlanResult,
+  AutonomyOverviewResult,
+  AutonomyLoopRemoveResult,
+  AutonomyLoopUpsertResult,
+  AutonomyReplaySubmitResult,
+  AutonomyShowResult,
+  AutonomyStartResult,
+  AutonomySuperviseResult,
   ConfigSnapshot,
   ConfigUiHints,
   ChatModelOverride,
   CronJob,
   CronRunLogEntry,
   CronStatus,
+  GovernanceAgentResult,
+  GovernanceCapabilityInventoryResult,
+  GovernanceGenesisPlanResult,
+  GovernanceOverviewResult,
+  GovernanceProposalsCreateResult,
+  GovernanceProposalsSynthesizeResult,
+  GovernanceTeamResult,
   HealthSummary,
   LogEntry,
   LogLevel,
@@ -305,7 +331,15 @@ export class OpenClawApp extends LitElement {
   @state() toolsEffectiveResultKey: string | null = null;
   @state() toolsEffectiveError: string | null = null;
   @state() toolsEffectiveResult: ToolsEffectiveResult | null = null;
-  @state() agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron" = "files";
+  @state() agentsPanel:
+    | "overview"
+    | "files"
+    | "tools"
+    | "skills"
+    | "channels"
+    | "cron"
+    | "governance"
+    | "autonomy" = "files";
   @state() agentFilesLoading = false;
   @state() agentFilesError: string | null = null;
   @state() agentFilesList: AgentsFilesListResult | null = null;
@@ -320,6 +354,144 @@ export class OpenClawApp extends LitElement {
   @state() agentSkillsError: string | null = null;
   @state() agentSkillsReport: SkillStatusReport | null = null;
   @state() agentSkillsAgentId: string | null = null;
+  @state() governanceOverviewLoading = false;
+  @state() governanceOverviewError: string | null = null;
+  @state() governanceOverviewResult: GovernanceOverviewResult | null = null;
+  @state() governanceAssetRegistryLoading = false;
+  @state() governanceAssetRegistryLoadingKey: string | null = null;
+  @state() governanceAssetRegistryError: string | null = null;
+  @state() governanceAssetRegistryResult: import("./types.ts").GovernanceCapabilityAssetRegistryResult | null =
+    null;
+  @state() governanceCapabilitiesLoading = false;
+  @state() governanceCapabilitiesLoadingKey: string | null = null;
+  @state() governanceCapabilitiesError: string | null = null;
+  @state() governanceCapabilitiesResult: GovernanceCapabilityInventoryResult | null = null;
+  @state() governanceGenesisLoading = false;
+  @state() governanceGenesisLoadingKey: string | null = null;
+  @state() governanceGenesisError: string | null = null;
+  @state() governanceGenesisResult: GovernanceGenesisPlanResult | null = null;
+  @state() governanceAgentLoading = false;
+  @state() governanceAgentLoadingId: string | null = null;
+  @state() governanceAgentError: string | null = null;
+  @state() governanceAgentResult: GovernanceAgentResult | null = null;
+  @state() governanceTeamLoading = false;
+  @state() governanceTeamLoadingId: string | null = null;
+  @state() governanceTeamError: string | null = null;
+  @state() governanceTeamResult: GovernanceTeamResult | null = null;
+  @state() governanceProposalsLoading = false;
+  @state() governanceProposalsLoadingKey: string | null = null;
+  @state() governanceProposalsResultKey: string | null = null;
+  @state() governanceProposalsError: string | null = null;
+  @state() governanceProposalsResult: import("./types.ts").GovernanceProposalsListResult | null =
+    null;
+  @state() governanceProposalSynthesizeBusy = false;
+  @state() governanceProposalSynthesizeError: string | null = null;
+  @state() governanceProposalSynthesizeResult: GovernanceProposalsSynthesizeResult | null = null;
+  @state() governanceProposalReconcileBusy = false;
+  @state() governanceProposalReconcileError: string | null = null;
+  @state() governanceProposalReconcileResult: import("./types.ts").GovernanceProposalsReconcileResult | null =
+    null;
+  @state() governanceProposalCreateBusy = false;
+  @state() governanceProposalCreateError: string | null = null;
+  @state() governanceProposalCreateResult: GovernanceProposalsCreateResult | null = null;
+  @state() governanceProposalActionBusyId: string | null = null;
+  @state() governanceProposalActionError: string | null = null;
+  @state() governanceProposalOperator = "human-architect";
+  @state() governanceProposalDecisionNote = "";
+  @state() governanceProposalStatusFilter:
+    import("./controllers/governance.ts").GovernanceProposalStatusFilter = "pending";
+  @state() governanceProposalReconcileMode:
+    import("./controllers/governance.ts").GovernanceProposalReconcileMode = "apply_safe";
+  @state() governanceProposalLimit = "";
+  @state() governanceScopeAgentIds = "";
+  @state() governanceScopeWorkspaceDirs = "";
+  @state() governanceGenesisTeamId = "";
+  @state() governanceProposalCreateTitle = "";
+  @state() governanceProposalCreateRationale = "";
+  @state() governanceProposalCreateByAgentId = "";
+  @state() governanceProposalCreateBySessionKey = "";
+  @state() governanceProposalOperationsJson = "";
+  @state() autonomyLoading = false;
+  @state() autonomyLoadingKey: string | null = null;
+  @state() autonomyResultKey: string | null = null;
+  @state() autonomyError: string | null = null;
+  @state() autonomyResult: AutonomyShowResult | null = null;
+  @state() autonomyOverviewLoading = false;
+  @state() autonomyOverviewLoadingKey: string | null = null;
+  @state() autonomyOverviewError: string | null = null;
+  @state() autonomyOverviewResult: AutonomyOverviewResult | null = null;
+  @state() autonomyCapabilitiesLoading = false;
+  @state() autonomyCapabilitiesLoadingKey: string | null = null;
+  @state() autonomyCapabilitiesError: string | null = null;
+  @state() autonomyCapabilitiesResult: AutonomyCapabilityInventoryResult | null = null;
+  @state() autonomyGenesisLoading = false;
+  @state() autonomyGenesisLoadingKey: string | null = null;
+  @state() autonomyGenesisError: string | null = null;
+  @state() autonomyGenesisResult: AutonomyGenesisPlanResult | null = null;
+  @state() autonomyHistoryLoading = false;
+  @state() autonomyHistoryLoadingKey: string | null = null;
+  @state() autonomyHistoryError: string | null = null;
+  @state() autonomyHistoryResult: import("./types.ts").AutonomyHistoryResult | null = null;
+  @state() autonomyStartBusy = false;
+  @state() autonomyStartBusyKey: string | null = null;
+  @state() autonomyStartError: string | null = null;
+  @state() autonomyStartResult: AutonomyStartResult | null = null;
+  @state() autonomyReplayBusy = false;
+  @state() autonomyReplayBusyKey: string | null = null;
+  @state() autonomyReplayError: string | null = null;
+  @state() autonomyReplayResult: AutonomyReplaySubmitResult | null = null;
+  @state() autonomyCancelBusy = false;
+  @state() autonomyCancelBusyKey: string | null = null;
+  @state() autonomyCancelError: string | null = null;
+  @state() autonomyCancelResult: AutonomyCancelResult | null = null;
+  @state() autonomyLoopBusy = false;
+  @state() autonomyLoopBusyKey: string | null = null;
+  @state() autonomyLoopError: string | null = null;
+  @state() autonomyLoopResult: AutonomyLoopUpsertResult | AutonomyLoopRemoveResult | null = null;
+  @state() autonomyHealBusy = false;
+  @state() autonomyHealError: string | null = null;
+  @state() autonomySuperviseBusy = false;
+  @state() autonomySuperviseError: string | null = null;
+  @state() autonomySuperviseResult: AutonomySuperviseResult | null = null;
+  @state() autonomyGovernanceBusy = false;
+  @state() autonomyGovernanceError: string | null = null;
+  @state() autonomyGovernanceResult: import("./types.ts").AutonomyGovernanceProposalsResult | null =
+    null;
+  @state() autonomyGovernanceReconcileBusy = false;
+  @state() autonomyGovernanceReconcileError: string | null = null;
+  @state() autonomyGovernanceReconcileResult:
+    import("./types.ts").AutonomyGovernanceReconcileResult | null = null;
+  @state() autonomyGovernanceReconcileMode:
+    import("./controllers/autonomy.ts").AutonomyGovernanceReconcileMode = "apply_safe";
+  @state() autonomyGovernanceReconcileNote = "";
+  @state() autonomyReconcileBusy = false;
+  @state() autonomyReconcileError: string | null = null;
+  @state() autonomyHistoryMode:
+    import("./controllers/autonomy.ts").AutonomyHistoryModeFilter = "";
+  @state() autonomyHistorySource:
+    import("./controllers/autonomy.ts").AutonomyHistorySourceFilter = "";
+  @state() autonomyHistoryLimit = "";
+  @state() autonomyGoal = "";
+  @state() autonomyControllerId = "";
+  @state() autonomyCurrentStep = "";
+  @state() autonomyNotifyPolicy: import("./controllers/autonomy.ts").AutonomyNotifyPolicy = "";
+  @state() autonomyFlowStatus: import("./controllers/autonomy.ts").AutonomyFlowStatus = "";
+  @state() autonomySeedTaskEnabled = true;
+  @state() autonomySeedTaskRuntime: import("./controllers/autonomy.ts").AutonomySeedTaskRuntime =
+    "";
+  @state() autonomySeedTaskStatus: import("./controllers/autonomy.ts").AutonomySeedTaskStatus =
+    "";
+  @state() autonomySeedTaskLabel = "";
+  @state() autonomySeedTaskTask = "";
+  @state() autonomyReplayVerdict: import("./controllers/autonomy.ts").AutonomyReplayVerdictDraft =
+    "pass";
+  @state() autonomyReplayQaVerdict: import("./controllers/autonomy.ts").AutonomyReplayVerdictDraft =
+    "pass";
+  @state()
+  autonomyReplayAuditVerdict: import("./controllers/autonomy.ts").AutonomyReplayVerdictDraft =
+    "pass";
+  @state() autonomyLoopEveryMinutes = "";
+  @state() autonomyWorkspaceScope = "";
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -571,22 +743,52 @@ export class OpenClawApp extends LitElement {
 
   protected updated(changed: Map<PropertyKey, unknown>) {
     handleUpdated(this as unknown as Parameters<typeof handleUpdated>[0], changed);
-    if (!changed.has("sessionKey") || this.agentsPanel !== "tools") {
+    if (!changed.has("sessionKey") || !this.agentsSelectedId) {
       return;
     }
-    const activeSessionAgentId = resolveAgentIdFromSessionKey(this.sessionKey);
-    if (this.agentsSelectedId && this.agentsSelectedId === activeSessionAgentId) {
-      void loadToolsEffectiveInternal(this, {
+    if (this.agentsPanel === "tools") {
+      const activeSessionAgentId = resolveAgentIdFromSessionKey(this.sessionKey);
+      if (this.agentsSelectedId === activeSessionAgentId) {
+        void loadToolsEffectiveInternal(this, {
+          agentId: this.agentsSelectedId,
+          sessionKey: this.sessionKey,
+        });
+        return;
+      }
+      this.toolsEffectiveResult = null;
+      this.toolsEffectiveResultKey = null;
+      this.toolsEffectiveError = null;
+      this.toolsEffectiveLoading = false;
+      this.toolsEffectiveLoadingKey = null;
+      return;
+    }
+    if (this.agentsPanel === "autonomy") {
+      const workspaceDirs = parseAutonomyWorkspaceDirsDraft(this.autonomyWorkspaceScope);
+      const historyLimit = parseAutonomyHistoryLimitDraft(this.autonomyHistoryLimit);
+      void loadAutonomyOverviewInternal(this as never, {
+        sessionKey: this.sessionKey,
+        ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+      });
+      void loadAutonomyCapabilityInventoryInternal(this as never, {
+        sessionKey: this.sessionKey,
+        ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+      });
+      void loadAutonomyGenesisPlanInternal(this as never, {
+        sessionKey: this.sessionKey,
+        ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+      });
+      void loadAutonomyHistoryInternal(this as never, {
+        sessionKey: this.sessionKey,
+        ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+        ...(typeof historyLimit === "number" ? { limit: historyLimit } : {}),
+        ...(this.autonomyHistoryMode ? { mode: this.autonomyHistoryMode } : {}),
+        ...(this.autonomyHistorySource ? { source: this.autonomyHistorySource } : {}),
+      });
+      void loadAutonomyProfileInternal(this as never, {
         agentId: this.agentsSelectedId,
         sessionKey: this.sessionKey,
       });
-      return;
     }
-    this.toolsEffectiveResult = null;
-    this.toolsEffectiveResultKey = null;
-    this.toolsEffectiveError = null;
-    this.toolsEffectiveLoading = false;
-    this.toolsEffectiveLoadingKey = null;
   }
 
   connect() {

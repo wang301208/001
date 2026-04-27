@@ -1,6 +1,8 @@
 import type { VerboseLevel } from "../auto-reply/thinking.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import { resolveGlobalSingleton } from "../shared/global-singleton.js";
 import { notifyListeners, registerListener } from "../shared/listeners.js";
+import { publishLocalEventBusEvent } from "./local-event-bus.js";
 
 export type AgentEventStream =
   | "lifecycle"
@@ -103,10 +105,14 @@ export type AgentEventPayload = {
   ts: number;
   data: Record<string, unknown>;
   sessionKey?: string;
+  agentId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
 };
 
 export type AgentRunContext = {
   sessionKey?: string;
+  agentId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   verboseLevel?: VerboseLevel;
   isHeartbeat?: boolean;
   /** Whether control UI clients should receive chat/agent updates for this run. */
@@ -148,6 +154,12 @@ export function registerAgentRunContext(runId: string, context: AgentRunContext)
   }
   if (context.sessionKey && existing.sessionKey !== context.sessionKey) {
     existing.sessionKey = context.sessionKey;
+  }
+  if (context.agentId && existing.agentId !== context.agentId) {
+    existing.agentId = context.agentId;
+  }
+  if (context.governanceRuntime) {
+    existing.governanceRuntime = context.governanceRuntime;
   }
   if (context.verboseLevel && existing.verboseLevel !== context.verboseLevel) {
     existing.verboseLevel = context.verboseLevel;
@@ -208,14 +220,36 @@ export function emitAgentEvent(event: Omit<AgentEventPayload, "seq" | "ts">) {
   const isControlUiVisible = context?.isControlUiVisible ?? true;
   const eventSessionKey =
     typeof event.sessionKey === "string" && event.sessionKey.trim() ? event.sessionKey : undefined;
+  const eventAgentId =
+    typeof event.agentId === "string" && event.agentId.trim() ? event.agentId : undefined;
+  const agentId = eventAgentId ?? context?.agentId;
+  const governanceRuntime = event.governanceRuntime ?? context?.governanceRuntime;
   const sessionKey = isControlUiVisible ? (eventSessionKey ?? context?.sessionKey) : undefined;
+  const eventBase: Omit<AgentEventPayload, "seq" | "ts"> = { ...event };
+  delete eventBase.sessionKey;
+  delete eventBase.agentId;
+  delete eventBase.governanceRuntime;
   const enriched: AgentEventPayload = {
-    ...event,
-    sessionKey,
+    ...eventBase,
     seq: nextSeq,
     ts: Date.now(),
+    ...(sessionKey ? { sessionKey } : {}),
+    ...(agentId ? { agentId } : {}),
+    ...(governanceRuntime ? { governanceRuntime } : {}),
   };
   notifyListeners(state.listeners, enriched);
+  publishLocalEventBusEvent({
+    topic: `agent.${enriched.stream}`,
+    source: "agent-events",
+    payload: {
+      ...enriched.data,
+      seq: enriched.seq,
+      agentId: enriched.agentId,
+      governanceRuntime: enriched.governanceRuntime,
+    },
+    ...(enriched.sessionKey ? { sessionKey: enriched.sessionKey } : {}),
+    runId: enriched.runId,
+  });
 }
 
 export function emitAgentItemEvent(params: {

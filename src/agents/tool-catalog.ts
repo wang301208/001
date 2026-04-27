@@ -7,6 +7,8 @@ import {
   SESSIONS_SEND_TOOL_DISPLAY_SUMMARY,
   SESSIONS_SPAWN_TOOL_DISPLAY_SUMMARY,
   SESSION_STATUS_TOOL_DISPLAY_SUMMARY,
+  AUTONOMY_TOOL_DISPLAY_SUMMARY,
+  GOVERNANCE_TOOL_DISPLAY_SUMMARY,
   UPDATE_PLAN_TOOL_DISPLAY_SUMMARY,
 } from "./tool-description-presets.js";
 
@@ -243,6 +245,22 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Nodes + devices",
     sectionId: "nodes",
     profiles: [],
+    includeInOpenClawGroup: true,
+  },
+  {
+    id: "governance",
+    label: "governance",
+    description: GOVERNANCE_TOOL_DISPLAY_SUMMARY,
+    sectionId: "agents",
+    profiles: ["coding"],
+    includeInOpenClawGroup: true,
+  },
+  {
+    id: "autonomy",
+    label: "autonomy",
+    description: AUTONOMY_TOOL_DISPLAY_SUMMARY,
+    sectionId: "agents",
+    profiles: ["coding"],
     includeInOpenClawGroup: true,
   },
   {

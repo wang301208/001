@@ -133,6 +133,7 @@ vi.mock("../../agents/agent-scope.js", () => ({
   resolveAgentEffectiveModelPrimary: mocks.resolveAgentEffectiveModelPrimary,
   resolveAgentModelFallbacksOverride: mocks.resolveAgentModelFallbacksOverride,
   listAgentIds: mocks.listAgentIds,
+  resolveDefaultAgentId: vi.fn(() => "main"),
 }));
 vi.mock("../../agents/auth-profiles/display.js", () => ({
   resolveAuthProfileDisplayLabel: mocks.resolveAuthProfileDisplayLabel,
@@ -444,7 +445,7 @@ describe("modelsStatusCommand auth overview", () => {
   it("throws when agent id is unknown", async () => {
     const localRuntime = createRuntime();
     await expect(modelsStatusCommand({ agent: "unknown" }, localRuntime as never)).rejects.toThrow(
-      'Unknown agent id "unknown".',
+      /Unknown agent id "unknown"\..*Known agents:/s,
     );
   });
   it("exits non-zero when auth is missing", async () => {

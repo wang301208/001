@@ -9,6 +9,25 @@ import { createRuntimeTaskFlows, createRuntimeTaskRuns } from "./runtime-tasks.j
 
 const runtimeTaskMocks = getRuntimeTaskMocks();
 
+function createGovernanceRuntime(agentId = "founder", observedAt = 1_710_000_000_000) {
+  return {
+    agentId,
+    observedAt,
+    summary: {
+      charterDeclared: true,
+      charterTitle: "Autonomy Charter",
+      charterLayer: "governance",
+      charterToolDeny: ["git reset --hard"],
+      charterRequireAgentId: true,
+      charterExecutionContract: "strict-agentic" as const,
+      charterElevatedLocked: true,
+      freezeActive: false,
+      freezeDeny: [],
+      freezeDetails: [],
+    },
+  };
+}
+
 afterEach(() => {
   resetRuntimeTaskTestState();
 });
@@ -45,11 +64,13 @@ describe("runtime tasks", () => {
       currentStep: "triage",
       stateJson: { lane: "priority" },
     });
+    const governanceRuntime = createGovernanceRuntime();
     const child = legacyTaskFlow.runTask({
       flowId: created.flowId,
       runtime: "acp",
       childSessionKey: "agent:main:subagent:child",
       runId: "runtime-task-run",
+      governanceRuntime,
       label: "Inbox triage",
       task: "Review PR 1",
       status: "running",
@@ -88,6 +109,7 @@ describe("runtime tasks", () => {
           title: "Review PR 1",
           label: "Inbox triage",
           runId: "runtime-task-run",
+          governanceRuntime,
         }),
       ],
     });
@@ -99,6 +121,7 @@ describe("runtime tasks", () => {
           sessionKey: "agent:main:main",
           title: "Review PR 1",
           status: "running",
+          governanceRuntime,
         }),
       ]),
     );
@@ -107,6 +130,7 @@ describe("runtime tasks", () => {
       flowId: created.flowId,
       title: "Review PR 1",
       progressSummary: "Inspecting",
+      governanceRuntime,
     });
     expect(taskRuns.findLatest()?.id).toBe(child.task.taskId);
     expect(taskRuns.resolve("runtime-task-run")?.id).toBe(child.task.taskId);

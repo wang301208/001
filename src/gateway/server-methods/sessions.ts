@@ -198,6 +198,9 @@ function emitSessionsChanged(
             responseUsage: sessionRow.responseUsage,
             modelProvider: sessionRow.modelProvider,
             model: sessionRow.model,
+            ...(sessionRow.governanceRuntime
+              ? { governanceRuntime: sessionRow.governanceRuntime }
+              : {}),
             status: sessionRow.status,
             startedAt: sessionRow.startedAt,
             endedAt: sessionRow.endedAt,

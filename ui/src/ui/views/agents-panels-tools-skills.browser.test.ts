@@ -2,6 +2,16 @@ import { render } from "lit";
 import { describe, expect, it } from "vitest";
 import { renderAgentTools } from "./agents-panels-tools-skills.ts";
 
+const governanceSummary = {
+  charterDeclared: false,
+  charterToolDeny: [],
+  charterRequireAgentId: false,
+  charterElevatedLocked: false,
+  freezeActive: false,
+  freezeDeny: [],
+  freezeDetails: [],
+};
+
 function createBaseParams(overrides: Partial<Parameters<typeof renderAgentTools>[0]> = {}) {
   return {
     agentId: "main",
@@ -43,6 +53,7 @@ describe("agents tools panel (browser)", () => {
               { id: "messaging", label: "Messaging" },
               { id: "full", label: "Full" },
             ],
+            governance: governanceSummary,
             groups: [
               {
                 id: "media",
@@ -113,6 +124,7 @@ describe("agents tools panel (browser)", () => {
           toolsEffectiveResult: {
             agentId: "main",
             profile: "messaging",
+            governance: governanceSummary,
             groups: [
               {
                 id: "channel",

@@ -103,6 +103,10 @@ export type SandboxContext = {
   browser?: SandboxBrowserContext;
   fsBridge?: SandboxFsBridge;
   backend?: SandboxBackendHandle;
+  governance?: {
+    frozen: boolean;
+    message?: string;
+  };
 };
 
 export type SandboxWorkspaceInfo = {

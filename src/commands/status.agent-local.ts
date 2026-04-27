@@ -5,10 +5,13 @@ import { resolveStorePath } from "../config/sessions/paths.js";
 import { readSessionStoreReadOnly } from "../config/sessions/store-read.js";
 import type { OpenClawConfig } from "../config/types.js";
 import { listGatewayAgentsBasic } from "../gateway/agent-list.js";
+import type { AgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 
 export type AgentLocalStatus = {
   id: string;
   name?: string;
+  configured?: boolean;
+  governance?: AgentToolGovernanceSummary;
   workspaceDir: string | null;
   bootstrapPending: boolean | null;
   sessionsPath: string;
@@ -66,6 +69,8 @@ export async function getAgentLocalStatuses(
     statuses.push({
       id: agentId,
       name: agent.name,
+      configured: agent.configured,
+      governance: agent.governance,
       workspaceDir,
       bootstrapPending,
       sessionsPath,

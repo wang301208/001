@@ -1,10 +1,12 @@
 import type { CliSessionBinding, SessionSystemPromptReport } from "../../config/sessions/types.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import type { MessagingToolSend } from "../pi-embedded-messaging.types.js";
 
 export type EmbeddedPiAgentMeta = {
   sessionId: string;
   provider: string;
   model: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   cliSessionBinding?: CliSessionBinding;
   compactionCount?: number;
   promptTokens?: number;
@@ -176,6 +178,8 @@ export type EmbeddedSandboxInfo = {
   agentWorkspaceMount?: string;
   browserBridgeUrl?: string;
   hostBrowserAllowed?: boolean;
+  governanceFrozen?: boolean;
+  governanceMessage?: string;
   elevated?: {
     allowed: boolean;
     defaultLevel: "on" | "off" | "ask" | "full";

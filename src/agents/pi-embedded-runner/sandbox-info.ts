@@ -31,6 +31,7 @@ export function buildEmbeddedSandboxInfo(
   if (!sandbox?.enabled) {
     return undefined;
   }
+  const governanceFrozen = sandbox.governance?.frozen === true;
   const elevatedConfigured = execElevated?.enabled === true;
   const elevatedAllowed = Boolean(execElevated?.enabled && execElevated.allowed);
   const fullAccess = resolveEmbeddedFullAccessState({
@@ -44,6 +45,8 @@ export function buildEmbeddedSandboxInfo(
     agentWorkspaceMount: sandbox.workspaceAccess === "ro" ? "/agent" : undefined,
     browserBridgeUrl: sandbox.browser?.bridgeUrl,
     hostBrowserAllowed: sandbox.browserAllowHostControl,
+    ...(governanceFrozen ? { governanceFrozen: true } : {}),
+    ...(sandbox.governance?.message ? { governanceMessage: sandbox.governance.message } : {}),
     ...(elevatedConfigured
       ? {
           elevated: {

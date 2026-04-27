@@ -13,6 +13,7 @@ import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { TypingMode } from "../../config/types.js";
 import { logVerbose } from "../../globals.js";
+import { createAgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { defaultRuntime } from "../../runtime.js";
@@ -162,9 +163,15 @@ export function createFollowupRunner(params: {
           provider: run.messageProvider,
         }),
       );
+      const governanceRuntime = createAgentGovernanceRuntimeSnapshot({
+        cfg: runtimeConfig,
+        agentId: run.agentId,
+      });
       if (run.sessionKey) {
         registerAgentRunContext(runId, {
           sessionKey: run.sessionKey,
+          agentId: run.agentId,
+          ...(governanceRuntime ? { governanceRuntime } : {}),
           verboseLevel: run.verboseLevel,
           isControlUiVisible: shouldSurfaceToControlUi,
         });

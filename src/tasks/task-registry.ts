@@ -1,7 +1,12 @@
 import crypto from "node:crypto";
 import { createRequire } from "node:module";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
-import { onAgentEvent } from "../infra/agent-events.js";
+import {
+  getAgentRunContext,
+  onAgentEvent,
+  type AgentRunContext,
+} from "../infra/agent-events.js";
+import { appendAuditFact } from "../infra/audit-stream.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
@@ -10,6 +15,7 @@ import { parseAgentSessionKey } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.shared.js";
 import { isDeliverableMessageChannel } from "../utils/message-channel.js";
+import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import {
   formatTaskBlockedFollowupMessage,
   formatTaskStateChangeMessage,
@@ -185,6 +191,21 @@ function cloneTaskRecord(record: TaskRecord): TaskRecord {
   return { ...record };
 }
 
+function resolveTaskRunContextMetadata(params: {
+  runId?: string;
+  agentId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
+}): Pick<TaskRecord, "agentId" | "governanceRuntime"> {
+  const runId = normalizeOptionalString(params.runId);
+  const runContext: AgentRunContext | undefined = runId ? getAgentRunContext(runId) : undefined;
+  const agentId = normalizeOptionalString(params.agentId) ?? normalizeOptionalString(runContext?.agentId);
+  const governanceRuntime = params.governanceRuntime ?? runContext?.governanceRuntime;
+  return {
+    ...(agentId ? { agentId } : {}),
+    ...(governanceRuntime ? { governanceRuntime } : {}),
+  };
+}
+
 function cloneTaskDeliveryState(state: TaskDeliveryState): TaskDeliveryState {
   return {
     ...state,
@@ -197,18 +218,77 @@ function snapshotTaskRecords(source: ReadonlyMap<string, TaskRecord>): TaskRecor
 }
 
 function emitTaskRegistryObserverEvent(createEvent: () => TaskRegistryObserverEvent): void {
+  const event = createEvent();
   const observers = getTaskRegistryObservers();
-  if (!observers?.onEvent) {
-    return;
+  if (observers?.onEvent) {
+    try {
+      observers.onEvent(event);
+    } catch (error) {
+      log.warn("Task registry observer failed", {
+        event: "task-registry",
+        error,
+      });
+    }
   }
-  try {
-    observers.onEvent(createEvent());
-  } catch (error) {
-    log.warn("Task registry observer failed", {
-      event: "task-registry",
-      error,
-    });
-  }
+  void appendAuditFact({
+    fact:
+      event.kind === "restored"
+        ? {
+            domain: "task",
+            action: "task.restored",
+            actor: {
+              type: "runtime",
+              id: "task-registry",
+            },
+            summary: `restored ${event.tasks.length} tasks`,
+            payload: {
+              count: event.tasks.length,
+            },
+          }
+        : event.kind === "deleted"
+          ? {
+              domain: "task",
+              action: "task.deleted",
+              actor: {
+                type: "runtime",
+                id: "task-registry",
+              },
+              refs: {
+                taskId: event.taskId,
+                ...(event.previous.requesterSessionKey
+                  ? { sessionKey: event.previous.requesterSessionKey }
+                  : {}),
+                ...(event.previous.runId ? { runId: event.previous.runId } : {}),
+                ...(event.previous.parentFlowId ? { flowId: event.previous.parentFlowId } : {}),
+              },
+              summary: `deleted task ${event.taskId}`,
+              payload: {
+                status: event.previous.status,
+                runtime: event.previous.runtime,
+              },
+            }
+          : {
+              domain: "task",
+              action: "task.upserted",
+              actor: {
+                type: "runtime",
+                id: "task-registry",
+              },
+              refs: {
+                taskId: event.task.taskId,
+                ...(event.task.requesterSessionKey ? { sessionKey: event.task.requesterSessionKey } : {}),
+                ...(event.task.runId ? { runId: event.task.runId } : {}),
+                ...(event.task.parentFlowId ? { flowId: event.task.parentFlowId } : {}),
+              },
+              summary: `upserted task ${event.task.taskId}`,
+              payload: {
+                status: event.task.status,
+                runtime: event.task.runtime,
+                ownerKey: event.task.ownerKey,
+                previousStatus: event.previous?.status,
+              },
+            },
+  }).catch(() => undefined);
 }
 
 function persistTaskRegistry() {
@@ -679,6 +759,8 @@ function mergeExistingTaskForCreate(
     parentFlowId?: string;
     parentTaskId?: string;
     agentId?: string;
+    runId?: string;
+    governanceRuntime?: AgentGovernanceRuntimeSnapshot;
     label?: string;
     task: string;
     preferMetadata?: boolean;
@@ -713,8 +795,16 @@ function mergeExistingTaskForCreate(
   if (params.parentTaskId?.trim() && !existing.parentTaskId?.trim()) {
     patch.parentTaskId = params.parentTaskId.trim();
   }
-  if (params.agentId?.trim() && !existing.agentId?.trim()) {
-    patch.agentId = params.agentId.trim();
+  const contextMetadata = resolveTaskRunContextMetadata({
+    runId: params.runId,
+    agentId: params.agentId,
+    governanceRuntime: params.governanceRuntime,
+  });
+  if (contextMetadata.agentId && !existing.agentId?.trim()) {
+    patch.agentId = contextMetadata.agentId;
+  }
+  if (contextMetadata.governanceRuntime && !existing.governanceRuntime) {
+    patch.governanceRuntime = contextMetadata.governanceRuntime;
   }
   const nextLabel = params.label?.trim();
   if (params.preferMetadata) {
@@ -1349,6 +1439,26 @@ export function setTaskCleanupAfterById(params: {
   });
 }
 
+export function setTaskGovernanceRuntimeById(params: {
+  taskId: string;
+  agentId?: string;
+  governanceRuntime: AgentGovernanceRuntimeSnapshot;
+}): TaskRecord | null {
+  ensureTaskRegistryReady();
+  const current = tasks.get(params.taskId);
+  if (!current) {
+    return null;
+  }
+  const patch: Partial<TaskRecord> = {
+    governanceRuntime: params.governanceRuntime,
+  };
+  const agentId = normalizeOptionalString(params.agentId);
+  if (agentId && !current.agentId?.trim()) {
+    patch.agentId = agentId;
+  }
+  return updateTask(params.taskId, patch);
+}
+
 export function markTaskTerminalById(params: {
   taskId: string;
   status: Extract<TaskStatus, "succeeded" | "failed" | "timed_out" | "cancelled">;
@@ -1437,6 +1547,12 @@ function ensureListener() {
       const patch: Partial<TaskRecord> = {
         lastEventAt: now,
       };
+      if (evt.agentId && !current.agentId?.trim()) {
+        patch.agentId = evt.agentId;
+      }
+      if (evt.governanceRuntime && !current.governanceRuntime) {
+        patch.governanceRuntime = evt.governanceRuntime;
+      }
       if (evt.stream === "lifecycle") {
         const phase = typeof evt.data?.phase === "string" ? evt.data.phase : undefined;
         const startedAt =
@@ -1493,6 +1609,7 @@ export function createTaskRecord(params: {
   parentTaskId?: string;
   agentId?: string;
   runId?: string;
+  governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   label?: string;
   task: string;
   preferMetadata?: boolean;
@@ -1554,6 +1671,11 @@ export function createTaskRecord(params: {
     scopeKind,
   });
   const lastEventAt = params.lastEventAt ?? params.startedAt ?? now;
+  const runContextMetadata = resolveTaskRunContextMetadata({
+    runId: params.runId,
+    agentId: params.agentId,
+    governanceRuntime: params.governanceRuntime,
+  });
   const record: TaskRecord = {
     taskId,
     runtime: params.runtime,
@@ -1565,8 +1687,11 @@ export function createTaskRecord(params: {
     childSessionKey: params.childSessionKey,
     parentFlowId: normalizeOptionalString(params.parentFlowId),
     parentTaskId: normalizeOptionalString(params.parentTaskId),
-    agentId: normalizeOptionalString(params.agentId),
+    agentId: runContextMetadata.agentId,
     runId: normalizeOptionalString(params.runId),
+    ...(runContextMetadata.governanceRuntime
+      ? { governanceRuntime: runContextMetadata.governanceRuntime }
+      : {}),
     label: normalizeOptionalString(params.label),
     task: params.task,
     status,

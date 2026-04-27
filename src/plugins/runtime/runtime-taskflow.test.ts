@@ -135,4 +135,108 @@ describe("runtime TaskFlow", () => {
       active: 1,
     });
   });
+
+  it("projects managed autonomy and execution state through first-class runtime helpers", () => {
+    const runtime = createRuntimeTaskFlow();
+    const taskFlow = runtime.bindSession({
+      sessionKey: "agent:main:managed-execution",
+    });
+
+    const created = taskFlow.createManaged({
+      controllerId: "runtime.autonomy/executor",
+      goal: "Deliver the governed outcome",
+      currentStep: "execution.goal_intake",
+      stateJson: {
+        autonomy: {
+          agentId: "executor",
+          controllerId: "runtime.autonomy/executor",
+          goal: "Deliver the governed outcome",
+          currentStep: "execution.goal_intake",
+          workspaceDirs: ["/tmp/workspace"],
+          primaryWorkspaceDir: "/tmp/workspace",
+        },
+      },
+    });
+
+    expect(taskFlow.getManagedAutonomy(created.flowId)).toMatchObject({
+      agentId: "executor",
+      controllerId: "runtime.autonomy/executor",
+      workspaceDirs: ["/tmp/workspace"],
+    });
+
+    const updated = taskFlow.setManagedExecution({
+      flowId: created.flowId,
+      expectedRevision: created.revision,
+      currentStep: "execution.capability_selection",
+      execution: {
+        kind: "execution_system",
+        goalContract: {
+          goal: "Deliver the governed outcome",
+          layer: "execution",
+          authorityLevel: "high",
+        },
+        taskGraph: [
+          {
+            id: "goal_intake",
+            title: "Goal Intake",
+            dependsOn: [],
+            output: "goal_contract",
+          },
+          {
+            id: "capability_selection",
+            title: "Capability Selection",
+            dependsOn: ["goal_intake"],
+            output: "execution_plan",
+          },
+        ],
+        executionPlan: {
+          phases: [
+            {
+              id: "goal_intake",
+              title: "Goal Intake",
+              dependsOn: [],
+              output: "goal_contract",
+            },
+            {
+              id: "capability_selection",
+              title: "Capability Selection",
+              dependsOn: ["goal_intake"],
+              output: "execution_plan",
+            },
+          ],
+          runtimeHooks: ["src/tasks/task-registry.ts"],
+          collaborators: ["qa", "librarian"],
+        },
+        capabilityRequest: {
+          status: "recommended",
+          focusGapIds: ["capability_inventory.skills_missing"],
+          handoffTeamId: "genesis_team",
+          reason: "delivery confidence is reduced without additional governed skills",
+          blockers: [],
+        },
+        observedCapabilityGaps: ["capability_inventory.skills_missing: No governed skill assets"],
+        genesisPlan: {
+          teamId: "genesis_team",
+          mode: "repair",
+          focusGapIds: ["capability_inventory.skills_missing"],
+          blockers: [],
+        },
+      },
+    });
+
+    expect(updated.applied).toBe(true);
+    if (!updated.applied) {
+      throw new Error("expected execution projection update to apply");
+    }
+    expect(taskFlow.getManagedExecution(created.flowId)).toMatchObject({
+      kind: "execution_system",
+      capabilityRequest: {
+        handoffTeamId: "genesis_team",
+      },
+      executionPlan: {
+        collaborators: ["qa", "librarian"],
+      },
+    });
+    expect(getTaskFlowById(created.flowId)?.currentStep).toBe("execution.capability_selection");
+  });
 });

@@ -13,7 +13,9 @@ import { buildStatusCommandOverviewRows } from "./status-overview-rows.ts";
 import type { StatusOverviewSurface } from "./status-overview-surface.ts";
 import type { AgentLocalStatus } from "./status.agent-local.js";
 import {
+  buildStatusAutonomyLines,
   buildStatusFooterLines,
+  buildStatusGovernanceLines,
   buildStatusHealthRows,
   buildStatusPairingRecoveryLines,
   buildStatusPluginCompatibilityLines,
@@ -137,6 +139,18 @@ export async function buildStatusCommandReportData(params: {
     renderTable: params.renderTable,
     width: params.tableWidth,
     overviewRows,
+    governanceLines: buildStatusGovernanceLines({
+      governance: params.summary.governance,
+      ok: params.ok,
+      warn: params.warn,
+      muted: params.muted,
+    }),
+    autonomyLines: buildStatusAutonomyLines({
+      autonomy: params.summary.autonomy,
+      ok: params.ok,
+      warn: params.warn,
+      muted: params.muted,
+    }),
     showTaskMaintenanceHint: params.summary.taskAudit.errors > 0,
     taskMaintenanceHint: `Task maintenance: ${params.formatCliCommand("openclaw tasks maintenance --apply")}`,
     pluginCompatibilityLines: buildStatusPluginCompatibilityLines({

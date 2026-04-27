@@ -237,4 +237,28 @@ describe("resolveCommandsSystemPromptBundle", () => {
       }),
     );
   });
+
+  it("forwards sandbox governance freeze state into the system prompt bundle", async () => {
+    vi.mocked(resolveSandboxRuntimeStatus).mockReturnValue({
+      sandboxed: true,
+      mode: "workspace-write",
+      governance: {
+        frozen: true,
+        message: "Sandbox runtime is frozen by governance policy because charter audit failed.",
+      },
+    } as never);
+
+    await resolveCommandsSystemPromptBundle(makeParams());
+
+    expect(vi.mocked(buildAgentSystemPrompt)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sandboxInfo: expect.objectContaining({
+          enabled: true,
+          governanceFrozen: true,
+          governanceMessage:
+            "Sandbox runtime is frozen by governance policy because charter audit failed.",
+        }),
+      }),
+    );
+  });
 });

@@ -6,6 +6,7 @@ export type TaskAuditCode =
   | "stale_running"
   | "lost"
   | "delivery_failed"
+  | "missing_governance_runtime"
   | "missing_cleanup"
   | "inconsistent_timestamps";
 
@@ -34,6 +35,7 @@ export function createEmptyTaskAuditSummary(): TaskAuditSummary {
       stale_running: 0,
       lost: 0,
       delivery_failed: 0,
+      missing_governance_runtime: 0,
       missing_cleanup: 0,
       inconsistent_timestamps: 0,
     },

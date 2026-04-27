@@ -12,6 +12,7 @@ import {
   normalizeDeliveryContext,
 } from "../utils/delivery-context.shared.js";
 import type { DeliveryContext } from "../utils/delivery-context.types.js";
+import { publishLocalEventBusEvent } from "./local-event-bus.js";
 
 export type SystemEvent = {
   text: string;
@@ -108,6 +109,16 @@ export function enqueueSystemEvent(text: string, options: SystemEventOptions) {
     deliveryContext: normalizedDeliveryContext,
     trusted: options.trusted !== false,
   });
+  publishLocalEventBusEvent({
+    topic: "system.event.enqueued",
+    source: "system-events",
+    payload: {
+      text: cleaned,
+      contextKey: normalizedContextKey,
+      trusted: options.trusted !== false,
+    },
+    sessionKey: key,
+  });
   if (entry.queue.length > MAX_EVENTS) {
     entry.queue.shift();
   }
@@ -125,6 +136,14 @@ export function drainSystemEventEntries(sessionKey: string): SystemEvent[] {
   entry.lastText = null;
   entry.lastContextKey = null;
   queues.delete(key);
+  publishLocalEventBusEvent({
+    topic: "system.event.drained",
+    source: "system-events",
+    payload: {
+      count: out.length,
+    },
+    sessionKey: key,
+  });
   return out;
 }
 

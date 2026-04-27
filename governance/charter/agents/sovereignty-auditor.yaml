@@ -94,10 +94,48 @@ rollback_policy:
     - "keep_high_risk_subsystems_frozen"
     - "reopen_incident"
 
+contract:
+  role: "sovereignty_boundary_auditor"
+  allowed_subagents:
+    - "founder"
+    - "executor"
+    - "qa"
+  allowed_tools:
+    - "governance.overview"
+    - "governance.proposals"
+    - "autonomy.history"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "audit_stream"
+    - "governance_proposals"
+    - "security_audit_reports"
+    - "freeze_incidents"
+  qa_requirements:
+    - "root_cause_identified"
+    - "remediation_applied"
+    - "audit_integrity_restored"
+    - "human_clearance_if_critical"
+  write_scope:
+    - "state/governance/**"
+    - "governance/charter/**"
+  network_policy:
+    default: "internal_only"
+    allowed_domains: []
+    requires_citation: false
+  escalation_policy:
+    boundary_conflict: "human_sovereign_for_critical_breaches"
+    critical_change: "human_sovereign_for_critical_breaches"
+    blocked_promotion: "human_sovereign_for_critical_breaches"
+  promotion_gates:
+    - "root_cause_identified"
+    - "remediation_applied"
+    - "audit_integrity_restored"
+    - "human_clearance_if_critical"
+
 runtime_mapping:
   intended_project_hooks:
     - "src/security/audit.ts"
     - "src/acp/policy.ts"
     - "src/agents/sandbox-tool-policy.ts"
     - "src/agents/agent-scope-config.ts"
-

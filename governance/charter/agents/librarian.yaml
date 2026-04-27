@@ -99,6 +99,47 @@ rollback_policy:
     - "quarantine_candidate"
     - "rebuild_indexes"
 
+contract:
+  role: "governed_asset_librarian"
+  allowed_subagents:
+    - "publisher"
+    - "qa"
+    - "strategist"
+    - "algorithmist"
+    - "executor"
+  allowed_tools:
+    - "governance.overview"
+    - "autonomy.capability.inventory"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "asset_registry"
+    - "dependency_index"
+    - "capability_inventory"
+    - "qa_reports"
+  qa_requirements:
+    - "qa_pass"
+    - "audit_trace"
+    - "version_reference"
+    - "rollback_reference"
+  write_scope:
+    - "skills/**"
+    - "extensions/**"
+    - "state/governance/**"
+  network_policy:
+    default: "internal_only"
+    allowed_domains: []
+    requires_citation: false
+  escalation_policy:
+    boundary_conflict: "publisher"
+    critical_change: "sovereignty_auditor"
+    blocked_promotion: "qa"
+  promotion_gates:
+    - "qa_pass"
+    - "audit_trace"
+    - "version_reference"
+    - "rollback_reference"
+
 runtime_mapping:
   intended_project_hooks:
     - "skills"
@@ -106,4 +147,3 @@ runtime_mapping:
     - "memory"
     - "qa-runtime"
     - "plugin-sdk"
-

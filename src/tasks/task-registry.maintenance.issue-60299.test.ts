@@ -117,6 +117,19 @@ function createTaskRegistryMaintenanceHarness(params: {
       currentTasks.set(patch.taskId, next);
       return next;
     },
+    setTaskGovernanceRuntimeById: (patch) => {
+      const current = currentTasks.get(patch.taskId);
+      if (!current) {
+        return null;
+      }
+      const next = {
+        ...current,
+        ...(patch.agentId !== undefined ? { agentId: patch.agentId } : {}),
+        governanceRuntime: patch.governanceRuntime,
+      };
+      currentTasks.set(patch.taskId, next);
+      return next;
+    },
   };
 
   setTaskRegistryMaintenanceRuntimeForTests(runtime);

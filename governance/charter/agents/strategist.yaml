@@ -93,6 +93,48 @@ rollback_policy:
     - "restore_previous_playbook"
     - "mark_pattern_as_unstable"
 
+contract:
+  role: "strategy_evolution_director"
+  allowed_subagents:
+    - "executor"
+    - "qa"
+    - "librarian"
+    - "algorithmist"
+  allowed_tools:
+    - "governance.overview"
+    - "autonomy.history"
+    - "autonomy.capability.inventory"
+    - "autonomy.genesis.plan"
+    - "agents_list"
+    - "sessions_spawn"
+  memory_scope:
+    - "task_history"
+    - "failure_history"
+    - "strategy_assets"
+    - "task_flows"
+  qa_requirements:
+    - "historical_replay_gain"
+    - "qa_validation"
+    - "audit_trace"
+  write_scope:
+    - "state/governance/proposals/**"
+    - "skills/**"
+    - "qa/**"
+  network_policy:
+    default: "broad"
+    allowed_domains:
+      - "github.com"
+      - "arxiv.org"
+    requires_citation: true
+  escalation_policy:
+    boundary_conflict: "founder"
+    critical_change: "sovereignty_auditor"
+    blocked_promotion: "qa"
+  promotion_gates:
+    - "historical_replay_gain"
+    - "qa_validation"
+    - "audit_trace"
+
 runtime_mapping:
   intended_project_hooks:
     - "task-registry"

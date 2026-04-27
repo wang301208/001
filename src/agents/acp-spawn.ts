@@ -70,6 +70,7 @@ import {
   normalizeDeliveryContext,
   resolveConversationDeliveryTarget,
 } from "../utils/delivery-context.js";
+import { createAgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import {
   type AcpSpawnParentRelayHandle,
   resolveAcpSpawnStreamLogPath,
@@ -1130,12 +1131,17 @@ export async function spawnAcpDirect(
   let binding: SessionBindingRecord | null = null;
   let sessionCreated = false;
   let initializedRuntime: AcpSpawnRuntimeCloseHandle | undefined;
+  const governanceRuntime = createAgentGovernanceRuntimeSnapshot({
+    cfg,
+    agentId: targetAgentId,
+  });
   try {
     await callGateway({
       method: "sessions.patch",
       params: {
         key: sessionKey,
         spawnedBy: requesterInternalKey,
+        ...(governanceRuntime ? { governanceRuntime } : {}),
         ...(params.label ? { label: params.label } : {}),
       },
       timeoutMs: 10_000,

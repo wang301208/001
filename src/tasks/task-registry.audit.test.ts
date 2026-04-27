@@ -77,10 +77,33 @@ describe("task-registry audit", () => {
         stale_running: 1,
         lost: 0,
         delivery_failed: 1,
+        missing_governance_runtime: 0,
         missing_cleanup: 0,
         inconsistent_timestamps: 0,
       },
     });
+  });
+
+  it("flags agent-scoped tasks that are missing governance runtime metadata", () => {
+    const now = Date.parse("2026-03-30T01:00:00.000Z");
+    const findings = listTaskAuditFindings({
+      now,
+      tasks: [
+        createTask({
+          taskId: "missing-governance",
+          runtime: "acp",
+          childSessionKey: "agent:main:acp:child",
+          runId: "run-governance-missing",
+          createdAt: now,
+          status: "queued",
+          governanceRuntime: undefined,
+        }),
+      ],
+    });
+
+    expect(findings.map((finding) => [finding.code, finding.task.taskId, finding.severity])).toEqual([
+      ["missing_governance_runtime", "missing-governance", "warn"],
+    ]);
   });
 
   it("does not double-report lost tasks as missing cleanup", () => {

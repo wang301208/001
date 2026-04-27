@@ -2,6 +2,7 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { listAgentIds, resolveDefaultAgentId } from "../../agents/agent-scope.js";
+import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import {
   resolveAgentSessionDirsFromAgentsDir,
   resolveAgentSessionDirsFromAgentsDirSync,
@@ -327,7 +328,11 @@ export function resolveSessionStoreTargets(
     const requested = normalizeAgentId(opts.agent ?? "");
     if (!knownAgents.includes(requested)) {
       throw new Error(
-        `Unknown agent id "${opts.agent}". Use "openclaw agents list" to see configured agents.`,
+        buildUnknownAgentIdMessage({
+          cfg,
+          rawAgentId: opts.agent ?? "",
+          inspectHint: 'Use "openclaw agents list" to inspect available agents.',
+        }),
       );
     }
     return [

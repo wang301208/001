@@ -29,6 +29,105 @@ describe("redactSensitiveStatusSummary", () => {
       },
       channelSummary: ["ok"],
       queuedSystemEvents: ["none"],
+      governance: {
+        observedAt: 1,
+        discovered: true,
+        freezeActive: false,
+        proposalSummary: {
+          total: 1,
+          pending: 1,
+          approved: 0,
+          rejected: 0,
+          applied: 0,
+        },
+        findingSummary: {
+          critical: 0,
+          warn: 1,
+          info: 0,
+        },
+        capabilitySummary: {
+          requestedAgentIds: ["founder"],
+          totalEntries: 2,
+          gapCount: 1,
+          criticalGapCount: 0,
+          warningGapCount: 1,
+          infoGapCount: 0,
+          topGapIds: ["missing-plugin"],
+        },
+        genesisSummary: {
+          teamId: "genesis",
+          mode: "repair",
+          blockerCount: 1,
+          blockers: ["missing-plugin"],
+          focusGapIds: ["missing-plugin"],
+          stageCounts: {
+            ready: 0,
+            waiting: 1,
+            blocked: 1,
+          },
+        },
+        teamSummary: {
+          teamId: "genesis",
+          declared: true,
+          memberCount: 3,
+          missingMemberCount: 1,
+          missingMemberIds: ["qa"],
+          freezeActiveMemberCount: 1,
+          freezeActiveMemberIds: ["founder"],
+          runtimeHookCount: 4,
+          effectiveToolDenyCount: 2,
+        },
+      },
+      autonomy: {
+        observedAt: 2,
+        fleetSummary: {
+          totalProfiles: 3,
+          healthy: 1,
+          idle: 1,
+          drift: 1,
+          missingLoop: 0,
+          activeFlows: 2,
+          driftAgentIds: ["strategist"],
+          missingLoopAgentIds: [],
+        },
+        capabilitySummary: {
+          requestedAgentIds: ["founder", "strategist", "librarian"],
+          totalEntries: 4,
+          gapCount: 1,
+          criticalGapCount: 0,
+          warningGapCount: 1,
+          infoGapCount: 0,
+          topGapIds: ["stale-index"],
+        },
+        genesisSummary: {
+          teamId: "genesis",
+          mode: "build",
+          blockerCount: 1,
+          blockers: ["stale-index"],
+          focusGapIds: ["stale-index"],
+          stageCounts: {
+            ready: 1,
+            waiting: 1,
+            blocked: 0,
+          },
+        },
+        lastSupervisorRun: {
+          observedAt: 3,
+          mode: "heal",
+          changed: true,
+          agentIds: ["founder", "strategist"],
+          changedAgentIds: ["founder"],
+          totals: {
+            totalProfiles: 3,
+            changed: 1,
+            unchanged: 2,
+            loopCreated: 1,
+            loopUpdated: 0,
+            flowStarted: 1,
+            flowRestarted: 0,
+          },
+        },
+      },
       tasks: {
         total: 2,
         active: 1,
@@ -59,6 +158,7 @@ describe("redactSensitiveStatusSummary", () => {
           stale_running: 0,
           lost: 0,
           delivery_failed: 1,
+          missing_governance_runtime: 0,
           missing_cleanup: 0,
           inconsistent_timestamps: 0,
         },
@@ -88,6 +188,8 @@ describe("redactSensitiveStatusSummary", () => {
     expect(redacted.runtimeVersion).toBe("2026.3.8");
     expect(redacted.heartbeat).toEqual(input.heartbeat);
     expect(redacted.channelSummary).toEqual(input.channelSummary);
+    expect(redacted.governance).toEqual(input.governance);
+    expect(redacted.autonomy).toEqual(input.autonomy);
     expect(redacted.tasks).toEqual(input.tasks);
     expect(redacted.taskAudit).toEqual(input.taskAudit);
   });

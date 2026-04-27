@@ -29,6 +29,48 @@ vi.mock("../../plugins/tools.js", () => ({
   getPluginToolMeta: vi.fn((tool: { name: string }) => pluginToolMetaState.get(tool.name)),
 }));
 
+const governanceSummary = {
+  charterDeclared: true,
+  charterTitle: "Founder",
+  charterLayer: "evolution",
+  charterToolDeny: ["web_fetch", "web_search"],
+  charterRequireAgentId: true,
+  charterExecutionContract: "strict-agentic" as const,
+  charterElevatedLocked: true,
+  freezeActive: false,
+  freezeDeny: [],
+  freezeDetails: [],
+};
+
+const governanceContract = {
+  agentId: "main",
+  charterDeclared: true,
+  charterTitle: "Founder",
+  charterLayer: "evolution",
+  collaborators: ["librarian"],
+  reportsTo: ["architect"],
+  mutationAllow: ["skills"],
+  mutationDeny: ["constitution"],
+  networkConditions: ["approval-required"],
+  runtimeHooks: ["skills"],
+  charterToolDeny: ["web_fetch", "web_search"],
+  charterRequireAgentId: true,
+  charterExecutionContract: "strict-agentic" as const,
+  charterElevatedLocked: true,
+  freezeActive: false,
+  freezeDeny: [],
+  freezeDetails: [],
+  effectiveToolDeny: ["web_fetch", "web_search"],
+};
+
+vi.mock("../../governance/tool-governance-summary.js", () => ({
+  resolveAgentToolGovernanceSummary: vi.fn(() => governanceSummary),
+}));
+
+vi.mock("../../governance/runtime-contract.js", () => ({
+  resolveAgentGovernanceRuntimeContract: vi.fn(() => governanceContract),
+}));
+
 type RespondCall = [boolean, unknown?, { code: number; message: string }?];
 
 function createInvokeParams(params: Record<string, unknown>) {
@@ -69,7 +111,8 @@ describe("tools.catalog handler", () => {
     const call = respond.mock.calls[0] as RespondCall | undefined;
     expect(call?.[0]).toBe(false);
     expect(call?.[2]?.code).toBe(ErrorCodes.INVALID_REQUEST);
-    expect(call?.[2]?.message).toContain("unknown agent id");
+    expect(call?.[2]?.message).toContain('Unknown agent id "unknown-agent"');
+    expect(call?.[2]?.message).toContain("Known agents:");
   });
 
   it("returns core groups including tts and excludes plugins when includePlugins=false", async () => {
@@ -80,6 +123,8 @@ describe("tools.catalog handler", () => {
     const payload = call?.[1] as
       | {
           agentId: string;
+          governance: typeof governanceSummary;
+          governanceContract: typeof governanceContract;
           groups: Array<{
             id: string;
             source: "core" | "plugin";
@@ -88,6 +133,8 @@ describe("tools.catalog handler", () => {
         }
       | undefined;
     expect(payload?.agentId).toBe("main");
+    expect(payload?.governance).toEqual(governanceSummary);
+    expect(payload?.governanceContract).toEqual(governanceContract);
     expect(payload?.groups.some((group) => group.source === "plugin")).toBe(false);
     const media = payload?.groups.find((group) => group.id === "media");
     expect(media?.tools.some((tool) => tool.id === "tts" && tool.source === "core")).toBe(true);
@@ -100,6 +147,8 @@ describe("tools.catalog handler", () => {
     expect(call?.[0]).toBe(true);
     const payload = call?.[1] as
       | {
+          governance: typeof governanceSummary;
+          governanceContract: typeof governanceContract;
           groups: Array<{
             source: "core" | "plugin";
             pluginId?: string;
@@ -113,6 +162,8 @@ describe("tools.catalog handler", () => {
         }
       | undefined;
     const pluginGroups = (payload?.groups ?? []).filter((group) => group.source === "plugin");
+    expect(payload?.governance?.charterDeclared).toBe(true);
+    expect(payload?.governanceContract?.charterDeclared).toBe(true);
     expect(pluginGroups.length).toBeGreaterThan(0);
     const voiceCall = pluginGroups
       .flatMap((group) => group.tools)
