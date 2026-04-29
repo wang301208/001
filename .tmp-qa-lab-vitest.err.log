@@ -1,0 +1,16 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > tracks inbound messages in bus state
+Error: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ extensions/qa-lab/src/lab-server.test.ts:117:3
+    115|               }
+    116|             : {}),
+    117|         },
+       |   ^
+    118|       },
+    119|       (res) => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

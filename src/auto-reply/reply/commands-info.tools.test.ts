@@ -1,7 +1,11 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { EffectiveToolInventoryResult } from "../../agents/tools-effective-inventory.types.js";
 import type { OpenClawConfig } from "../../config/config.js";
-import type { AgentGovernanceRuntimeContract } from "../../governance/runtime-contract.js";
+import {
+  createEmptyAgentGovernanceRuntimeContract,
+  type AgentGovernanceRuntimeContract,
+} from "../../governance/runtime-contract.js";
+import { createEmptyAgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createChannelTestPluginBase,
@@ -26,15 +30,7 @@ function makeDefaultInventory(): EffectiveToolInventoryResult {
   return {
     agentId: "main",
     profile: "coding",
-    governance: {
-      charterDeclared: false,
-      charterToolDeny: [],
-      charterRequireAgentId: false,
-      charterElevatedLocked: false,
-      freezeActive: false,
-      freezeDeny: [],
-      freezeDetails: [],
-    },
+    governance: createEmptyAgentToolGovernanceSummary(),
     governanceContract: makeGovernanceContract(),
     groups: [
       {
@@ -72,21 +68,7 @@ function makeGovernanceContract(
   overrides: Partial<AgentGovernanceRuntimeContract> = {},
 ): AgentGovernanceRuntimeContract {
   return {
-    agentId: "main",
-    charterDeclared: false,
-    collaborators: [],
-    reportsTo: [],
-    mutationAllow: [],
-    mutationDeny: [],
-    networkConditions: [],
-    runtimeHooks: [],
-    charterToolDeny: [],
-    charterRequireAgentId: false,
-    charterElevatedLocked: false,
-    freezeActive: false,
-    freezeDeny: [],
-    freezeDetails: [],
-    effectiveToolDeny: [],
+    ...createEmptyAgentGovernanceRuntimeContract("main"),
     ...overrides,
   };
 }
@@ -218,6 +200,7 @@ describe("handleToolsCommand", () => {
       resolveTools: () => ({
         ...makeDefaultInventory(),
         governance: {
+          ...createEmptyAgentToolGovernanceSummary(),
           charterDeclared: true,
           charterTitle: "Founder",
           charterLayer: "evolution",

@@ -382,6 +382,7 @@ export type AutonomySupervisorParams = {
   includeCapabilityInventory?: boolean;
   includeGenesisPlan?: boolean;
   recordHistory?: boolean;
+  telemetrySource?: AutonomyFleetHistorySource;
 };
 
 export type AutonomySupervisorSummary = {

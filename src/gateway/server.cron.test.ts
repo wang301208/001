@@ -118,6 +118,7 @@ async function cleanupCronTestRun(params: {
   ws: { close: () => void };
   server: { close: () => Promise<void> };
   prevSkipCron: string | undefined;
+  prevAllowScheduledServicesInMinimalGateway: string | undefined;
   clearSessionConfig?: boolean;
 }) {
   params.ws.close();
@@ -129,9 +130,15 @@ async function cleanupCronTestRun(params: {
   testState.cronEnabled = undefined;
   if (params.prevSkipCron === undefined) {
     delete process.env.OPENCLAW_SKIP_CRON;
+  } else {
+    process.env.OPENCLAW_SKIP_CRON = params.prevSkipCron;
+  }
+  if (params.prevAllowScheduledServicesInMinimalGateway === undefined) {
+    delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
     return;
   }
-  process.env.OPENCLAW_SKIP_CRON = params.prevSkipCron;
+  process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES =
+    params.prevAllowScheduledServicesInMinimalGateway;
 }
 
 async function setupCronTestRun(params: {
@@ -139,9 +146,16 @@ async function setupCronTestRun(params: {
   cronEnabled?: boolean;
   sessionConfig?: { mainKey: string };
   jobs?: unknown[];
-}): Promise<{ prevSkipCron: string | undefined; dir: string }> {
+}): Promise<{
+  prevSkipCron: string | undefined;
+  prevAllowScheduledServicesInMinimalGateway: string | undefined;
+  dir: string;
+}> {
   const prevSkipCron = process.env.OPENCLAW_SKIP_CRON;
+  const prevAllowScheduledServicesInMinimalGateway =
+    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
   process.env.OPENCLAW_SKIP_CRON = "0";
+  process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES = "1";
   const { dir, storePath } = await createCronCasePaths(params.tempPrefix);
   testState.cronStorePath = storePath;
   testState.sessionConfig = params.sessionConfig;
@@ -150,7 +164,7 @@ async function setupCronTestRun(params: {
     testState.cronStorePath,
     params.jobs ? JSON.stringify({ version: 1, jobs: params.jobs }) : EMPTY_CRON_STORE_CONTENT,
   );
-  return { prevSkipCron, dir };
+  return { prevSkipCron, prevAllowScheduledServicesInMinimalGateway, dir };
 }
 
 function expectCronJobIdFromResponse(response: { ok?: unknown; payload?: unknown }) {
@@ -255,7 +269,7 @@ describe("gateway server cron", () => {
   });
 
   test("handles cron CRUD, normalization, and patch semantics", { timeout: 45_000 }, async () => {
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-",
       sessionConfig: { mainKey: "primary" },
       cronEnabled: false,
@@ -477,13 +491,14 @@ describe("gateway server cron", () => {
         ws,
         server,
         prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
         clearSessionConfig: true,
       });
     }
   });
 
   test("rejects unsafe custom session ids on add and update", async () => {
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-bad-session-target-",
       cronEnabled: false,
     });
@@ -524,12 +539,17 @@ describe("gateway server cron", () => {
       expect(updateRes.ok).toBe(false);
       expect(updateRes.error?.message).toContain("invalid cron sessionTarget session id");
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   });
 
   test("writes cron run history and auto-runs due jobs", async () => {
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-log-",
     });
 
@@ -621,13 +641,18 @@ describe("gateway server cron", () => {
       const runs = autoEntries?.entries ?? [];
       expect(runs.at(-1)?.jobId).toBe(autoJobId);
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   }, 45_000);
 
   test("fails closed for persisted unsafe custom session ids", async () => {
     const now = Date.now();
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-persisted-bad-session-target-",
       cronEnabled: false,
       jobs: [
@@ -659,12 +684,17 @@ describe("gateway server cron", () => {
       expect(runRes.payload).toEqual({ ok: true, ran: false, reason: "invalid-spec" });
       expect(cronIsolatedRun).not.toHaveBeenCalled();
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   });
 
   test("returns from cron.run immediately while isolated work continues in background", async () => {
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-run-detached-",
     });
 
@@ -717,7 +747,12 @@ describe("gateway server cron", () => {
         summary: "background finished",
       });
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   });
 
@@ -731,7 +766,7 @@ describe("gateway server cron", () => {
         }),
     );
 
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-run-busy-",
       jobs: [
         {
@@ -778,13 +813,18 @@ describe("gateway server cron", () => {
       resolveRun?.({ status: "ok", summary: "busy done" });
       await finishedRun;
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   });
 
   test("returns not-due without starting background work", async () => {
     const now = Date.now();
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-run-not-due-",
       jobs: [
         {
@@ -815,7 +855,12 @@ describe("gateway server cron", () => {
       expect(runRes.payload).toEqual({ ok: true, ran: false, reason: "not-due" });
       expect(cronIsolatedRun).not.toHaveBeenCalled();
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   });
 
@@ -833,7 +878,7 @@ describe("gateway server cron", () => {
       payload: { kind: "systemEvent", text: "legacy webhook" },
       state: {},
     };
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-webhook-",
       cronEnabled: false,
       jobs: [legacyNotifyJob],
@@ -992,12 +1037,17 @@ describe("gateway server cron", () => {
       await noSummaryFinished;
       expect(fetchWithSsrFGuardMock).not.toHaveBeenCalled();
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   }, 60_000);
 
   test("falls back to the primary delivery channel on job failure and preserves sessionKey", async () => {
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-failure-primary-fallback-",
       cronEnabled: false,
     });
@@ -1047,12 +1097,17 @@ describe("gateway server cron", () => {
         '⚠️ Cron job "primary delivery fallback" failed: unknown error',
       );
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   }, 45_000);
 
   test("ignores non-string cron.webhookToken values without crashing webhook delivery", async () => {
-    const { prevSkipCron } = await setupCronTestRun({
+    const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-webhook-secretinput-",
       cronEnabled: false,
     });
@@ -1091,7 +1146,12 @@ describe("gateway server cron", () => {
       expect(notifyArgs.init?.headers?.Authorization).toBeUndefined();
       expect(notifyArgs.init?.headers?.["Content-Type"]).toBe("application/json");
     } finally {
-      await cleanupCronTestRun({ ws, server, prevSkipCron });
+      await cleanupCronTestRun({
+        ws,
+        server,
+        prevSkipCron,
+        prevAllowScheduledServicesInMinimalGateway,
+      });
     }
   }, 45_000);
 });

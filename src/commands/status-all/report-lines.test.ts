@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ProgressReporter } from "../../cli/progress.js";
+import { createEmptyAgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
 import { buildStatusAllReportLines } from "./report-lines.js";
 
 const diagnosisSpy = vi.hoisted(() => vi.fn(async () => {}));
@@ -34,6 +35,7 @@ describe("buildStatusAllReportLines", () => {
             sessionsCount: 1,
             lastActiveAgeMs: 12_000,
             governance: {
+              ...createEmptyAgentToolGovernanceSummary(),
               charterDeclared: true,
               charterTitle: "Founder",
               charterLayer: "evolution",
@@ -53,10 +55,7 @@ describe("buildStatusAllReportLines", () => {
             sessionsCount: 0,
             lastActiveAgeMs: null,
             governance: {
-              charterDeclared: false,
-              charterToolDeny: [],
-              charterRequireAgentId: false,
-              charterElevatedLocked: false,
+              ...createEmptyAgentToolGovernanceSummary(),
               freezeActive: true,
               freezeReasonCode: "network_boundary_opened",
               freezeDeny: ["exec"],

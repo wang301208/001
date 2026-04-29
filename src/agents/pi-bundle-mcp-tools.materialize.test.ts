@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   cleanupBundleMcpHarness,
@@ -12,8 +13,12 @@ import {
 import { createBundleMcpToolRuntime } from "./pi-bundle-mcp-tools.js";
 
 const require = createRequire(import.meta.url);
-const SDK_SERVER_MCP_PATH = require.resolve("@modelcontextprotocol/sdk/server/mcp.js");
-const SDK_SERVER_STDIO_PATH = require.resolve("@modelcontextprotocol/sdk/server/stdio.js");
+const SDK_SERVER_MCP_SPECIFIER = pathToFileURL(
+  require.resolve("@modelcontextprotocol/sdk/server/mcp.js"),
+).href;
+const SDK_SERVER_STDIO_SPECIFIER = pathToFileURL(
+  require.resolve("@modelcontextprotocol/sdk/server/stdio.js"),
+).href;
 
 afterEach(async () => {
   await cleanupBundleMcpHarness();
@@ -160,8 +165,8 @@ describe("createBundleMcpToolRuntime", () => {
     await writeExecutable(
       serverScriptPath,
       `#!/usr/bin/env node
-import { McpServer } from ${JSON.stringify(SDK_SERVER_MCP_PATH)};
-import { StdioServerTransport } from ${JSON.stringify(SDK_SERVER_STDIO_PATH)};
+import { McpServer } from ${JSON.stringify(SDK_SERVER_MCP_SPECIFIER)};
+import { StdioServerTransport } from ${JSON.stringify(SDK_SERVER_STDIO_SPECIFIER)};
 const server = new McpServer({ name: "multi", version: "1.0.0" });
 server.tool("zeta", "z", async () => ({ content: [{ type: "text", text: "z" }] }));
 server.tool("alpha", "a", async () => ({ content: [{ type: "text", text: "a" }] }));

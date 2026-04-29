@@ -187,14 +187,6 @@ export async function hardenManualCompactionBoundary(params: {
   const normalized = await normalizeLatestCompactionEntry({
     sessionFile: params.sessionFile,
   });
-  if (!normalized.applied) {
-    return {
-      applied: false,
-      firstKeptEntryId: leaf.firstKeptEntryId,
-      leafId: normalized.leafId,
-      messages: normalized.messages,
-    };
-  }
 
   const refreshed = SessionManager.open(params.sessionFile) as Partial<SessionManagerLike>;
   if (

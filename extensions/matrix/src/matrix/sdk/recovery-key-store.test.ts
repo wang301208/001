@@ -88,6 +88,15 @@ describe("MatrixRecoveryKeyStore", () => {
     vi.restoreAllMocks();
   });
 
+  function expectSecureFileMode(pathname: string): void {
+    const mode = fs.statSync(pathname).mode & 0o777;
+    if (process.platform === "win32") {
+      expect(mode & 0o111).toBe(0);
+      return;
+    }
+    expect(mode).toBe(0o600);
+  }
+
   it("loads a stored recovery key for requested secret-storage keys", async () => {
     const recoveryKeyPath = createTempRecoveryKeyPath();
     fs.writeFileSync(
@@ -131,9 +140,7 @@ describe("MatrixRecoveryKeyStore", () => {
     };
     expect(saved.keyId).toBe("KEY123");
     expect(saved.privateKeyBase64).toBe(Buffer.from([9, 8, 7]).toString("base64"));
-
-    const mode = fs.statSync(recoveryKeyPath).mode & 0o777;
-    expect(mode).toBe(0o600);
+    expectSecureFileMode(recoveryKeyPath);
   });
 
   it("creates and persists a recovery key when secret storage is missing", async () => {

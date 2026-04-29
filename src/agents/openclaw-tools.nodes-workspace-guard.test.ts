@@ -1,11 +1,25 @@
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { applyNodesToolWorkspaceGuard } from "./openclaw-tools.nodes-workspace-guard.js";
 import type { AnyAgentTool } from "./tools/common.js";
 
 const mocks = vi.hoisted(() => ({
   assertSandboxPath: vi.fn(async (params: { filePath: string; cwd: string; root: string }) => {
+    const rootWindows = path.resolve(params.root).replace(/\\/g, "/");
     const root = `/${params.root.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "")}`;
     const candidate = params.filePath.replace(/\\/g, "/");
+    if (/^[A-Za-z]:\//.test(candidate)) {
+      const insideWindows = candidate === rootWindows || candidate.startsWith(`${rootWindows}/`);
+      if (!insideWindows) {
+        throw new Error(`Path escapes sandbox root (${rootWindows}): ${params.filePath}`);
+      }
+      const relativeWindows =
+        candidate === rootWindows ? "" : candidate.slice(rootWindows.length + 1);
+      return {
+        resolved: path.win32.normalize(params.filePath),
+        relative: relativeWindows,
+      };
+    }
     const input = candidate.startsWith("/") ? candidate : `${root}/${candidate}`;
     const segments = input.split("/");
     const stack: string[] = [];
@@ -123,7 +137,7 @@ describe("applyNodesToolWorkspaceGuard", () => {
     });
 
     expect(mocks.assertSandboxPath).toHaveBeenCalledWith({
-      filePath: `${WORKSPACE_ROOT}/videos/capture.mp4`,
+      filePath: path.resolve(WORKSPACE_ROOT, "videos", "capture.mp4"),
       cwd: WORKSPACE_ROOT,
       root: WORKSPACE_ROOT,
     });
@@ -131,7 +145,7 @@ describe("applyNodesToolWorkspaceGuard", () => {
       "call-sandbox",
       {
         action: "screen_record",
-        outPath: `${WORKSPACE_ROOT}/videos/capture.mp4`,
+        outPath: path.resolve(WORKSPACE_ROOT, "videos", "capture.mp4"),
       },
       undefined,
       undefined,

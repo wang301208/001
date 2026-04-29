@@ -293,7 +293,10 @@ export function startManagedGatewayConfigReloader(params: {
   sharedGatewaySessionGenerationState: SharedGatewaySessionGenerationState;
   clients: Iterable<SharedGatewayAuthClient>;
 }) {
-  if (params.minimalTestGateway) {
+  if (
+    params.minimalTestGateway &&
+    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD !== "1"
+  ) {
     return { stop: async () => {} };
   }
 

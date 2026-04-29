@@ -35,11 +35,13 @@ afterEach(() => {
   resetPluginRuntimeStateForTest();
 });
 
-test("minimal gateway tracks later channel registry updates", async () => {
+test.each(["1", "true"])(
+  "minimal gateway tracks later channel registry updates when VITEST=%s",
+  async (vitestValue) => {
   const prevRegistry = getActivePluginRegistry();
   const prevVitest = process.env.VITEST;
   resetPluginRuntimeStateForTest();
-  process.env.VITEST = "1";
+  process.env.VITEST = vitestValue;
   const port = await getFreePort();
   const server = await startGatewayServer(port);
   try {
@@ -54,4 +56,5 @@ test("minimal gateway tracks later channel registry updates", async () => {
       setActivePluginRegistry(prevRegistry);
     }
   }
-});
+  },
+);

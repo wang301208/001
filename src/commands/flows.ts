@@ -141,7 +141,11 @@ function summarizeFlowState(flow: TaskFlowRecord): string | null {
 }
 
 const MAX_MANAGED_FLOW_AUTO_RETRIES = 2;
-const AUTO_RETRY_REASON_HINTS = [/writable session/i, /authorization required/i, /permission denied/i];
+const AUTO_RETRY_REASON_HINTS = [
+  /writable session/i,
+  /authorization required/i,
+  /permission denied/i,
+];
 
 function readFlowAutoRetryAttempts(flow: TaskFlowRecord): number {
   const state = flow.stateJson;
@@ -168,6 +172,9 @@ export function shouldAutoRetryBlockedFlow(flow: TaskFlowRecord): boolean {
   const reason = flow.blockedSummary?.trim() || flow.currentStep?.trim() || "";
   if (!reason) {
     return false;
+  }
+  if (/waiting on child task output/i.test(reason)) {
+    return listTasksForFlowId(flow.flowId).length > 0;
   }
   return AUTO_RETRY_REASON_HINTS.some((pattern) => pattern.test(reason));
 }
@@ -401,6 +408,21 @@ export async function flowsRetryCommand(opts: { lookup: string }, runtime: Runti
     return;
   }
   if (!result.retried || !result.task) {
+    const updated = getTaskFlowById(flow.flowId) ?? flow;
+    const activeTask = listTasksForFlowId(flow.flowId).find(
+      (task) => task.status === "queued" || task.status === "running",
+    );
+    if (
+      activeTask &&
+      (updated.status === "queued" || updated.status === "running") &&
+      (result.reason === "Latest TaskFlow task is not blocked." ||
+        result.reason === "Flow is not blocked.")
+    ) {
+      runtime.log(
+        `Retried ${updated.flowId} as queued task ${activeTask.taskId} (parent ${activeTask.parentTaskId ?? "n/a"}) with status ${updated.status}.`,
+      );
+      return;
+    }
     runtime.error(result.reason ?? `Could not retry TaskFlow: ${opts.lookup}`);
     runtime.exit(1);
     return;

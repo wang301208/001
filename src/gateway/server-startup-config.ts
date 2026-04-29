@@ -61,8 +61,12 @@ export async function loadGatewayStartupConfigSnapshot(params: {
     assertValidGatewayStartupConfigSnapshot(configSnapshot, { includeDoctorHint: true });
   }
 
+  const allowAutoEnableInMinimalGateway =
+    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE === "1";
   const autoEnable = params.minimalTestGateway
-    ? { config: configSnapshot.config, changes: [] as string[] }
+    ? allowAutoEnableInMinimalGateway
+      ? applyPluginAutoEnable({ config: configSnapshot.config, env: process.env })
+      : { config: configSnapshot.config, changes: [] as string[] }
     : applyPluginAutoEnable({ config: configSnapshot.config, env: process.env });
   if (autoEnable.changes.length === 0) {
     return configSnapshot;

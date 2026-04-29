@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { createScriptTestHarness } from "./test-helpers.js";
+import { createScriptTestHarness, resolveBashScriptInvocation } from "./test-helpers.js";
 
 const scriptPath = path.join(process.cwd(), "scripts", "committer");
 const { createTempDir } = createScriptTestHarness();
@@ -48,11 +48,13 @@ function installHook(repo: string, relativePath: string, contents: string) {
 }
 
 function commitWithHelper(repo: string, commitMessage: string, ...args: string[]) {
-  return run(repo, "bash", [scriptPath, commitMessage, ...args]);
+  const invocation = resolveBashScriptInvocation(scriptPath, [commitMessage, ...args]);
+  return run(repo, invocation.command, invocation.args);
 }
 
 function commitWithHelperArgs(repo: string, ...args: string[]) {
-  return run(repo, "bash", [scriptPath, ...args]);
+  const invocation = resolveBashScriptInvocation(scriptPath, args);
+  return run(repo, invocation.command, invocation.args);
 }
 
 function committedPaths(repo: string) {

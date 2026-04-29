@@ -1,0 +1,23 @@
+
+ RUN  v4.1.4 G:/项目/-
+
+ × |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > tracks inbound messages in bus state 579193ms
+   → Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > writes a self-check report to an explicit output path 28531ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > anchors direct self-check runs under the explicit repo root by default 1428ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > injects the kickoff task on demand and on startup 848ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > proxies control-ui paths through /control-ui 814ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > serves the built QA UI bundle when available 704ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > uses the explicit repo root for ui assets and runner model discovery 1081ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > does not eagerly load the runner model catalog before bootstrap is requested 1201ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > aborts an in-flight runner model catalog when the lab stops 1100ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > can disable the embedded echo gateway for real-suite runs 1367ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > exposes structured outcomes and can attach control-ui after startup 686ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > serves proxy capture sessions, events, and query rows 654ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  09:00:52
+   Duration  708.85s (transform 70.90s, setup 3.21s, import 87.24s, tests 617.62s, environment 0ms)
+

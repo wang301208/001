@@ -17,12 +17,34 @@ function mockTool(params: {
   } as unknown as AnyAgentTool;
 }
 
+function createGovernanceSummary(
+  overrides: Partial<AgentToolGovernanceSummary> = {},
+): AgentToolGovernanceSummary {
+  return {
+    charterDeclared: false,
+    charterContractValid: true,
+    charterContractIssues: [],
+    charterToolDeny: [],
+    charterRequireAgentId: false,
+    charterElevatedLocked: false,
+    freezeActive: false,
+    freezeDeny: [],
+    freezeDetails: [],
+    activeSovereigntyIncidentCount: 0,
+    activeSovereigntyIncidentIds: [],
+    activeSovereigntyFreezeIncidentIds: [],
+    ...overrides,
+  };
+}
+
 function createGovernanceContract(
   overrides: Partial<AgentGovernanceRuntimeContract> = {},
 ): AgentGovernanceRuntimeContract {
   return {
     agentId: "main",
     charterDeclared: false,
+    charterContractValid: true,
+    charterContractIssues: [],
     collaborators: [],
     reportsTo: [],
     mutationAllow: [],
@@ -35,6 +57,9 @@ function createGovernanceContract(
     freezeActive: false,
     freezeDeny: [],
     freezeDetails: [],
+    activeSovereigntyIncidentCount: 0,
+    activeSovereigntyIncidentIds: [],
+    activeSovereigntyFreezeIncidentIds: [],
     effectiveToolDeny: [],
     ...overrides,
   };
@@ -48,15 +73,7 @@ const effectiveInventoryState = vi.hoisted(() => ({
   pluginMeta: {} as Record<string, { pluginId: string } | undefined>,
   channelMeta: {} as Record<string, { channelId: string } | undefined>,
   effectivePolicy: {} as { profile?: string; providerProfile?: string },
-  governance: {
-    charterDeclared: false,
-    charterToolDeny: [],
-    charterRequireAgentId: false,
-    charterElevatedLocked: false,
-    freezeActive: false,
-    freezeDeny: [],
-    freezeDetails: [],
-  } as AgentToolGovernanceSummary,
+  governance: createGovernanceSummary(),
   governanceContract: createGovernanceContract(),
   resolvedModelCompat: undefined as Record<string, unknown> | undefined,
   createToolsMock: vi.fn<typeof createOpenClawCodingTools>(
@@ -106,13 +123,25 @@ vi.mock("./pi-tools.policy.js", () => ({
   resolveEffectiveToolPolicy: () => effectiveInventoryState.effectivePolicy,
 }));
 
-vi.mock("../governance/tool-governance-summary.js", () => ({
-  resolveAgentToolGovernanceSummary: () => effectiveInventoryState.governance,
-}));
+vi.mock("../governance/tool-governance-summary.js", async () => {
+  const actual = await vi.importActual<typeof import("../governance/tool-governance-summary.js")>(
+    "../governance/tool-governance-summary.js",
+  );
+  return {
+    ...actual,
+    resolveAgentToolGovernanceSummary: () => effectiveInventoryState.governance,
+  };
+});
 
-vi.mock("../governance/runtime-contract.js", () => ({
-  resolveAgentGovernanceRuntimeContract: () => effectiveInventoryState.governanceContract,
-}));
+vi.mock("../governance/runtime-contract.js", async () => {
+  const actual = await vi.importActual<typeof import("../governance/runtime-contract.js")>(
+    "../governance/runtime-contract.js",
+  );
+  return {
+    ...actual,
+    resolveAgentGovernanceRuntimeContract: () => effectiveInventoryState.governanceContract,
+  };
+});
 
 let resolveEffectiveToolInventory: typeof import("./tools-effective-inventory.js").resolveEffectiveToolInventory;
 
@@ -133,17 +162,7 @@ async function loadHarness(options?: {
   effectiveInventoryState.pluginMeta = options?.pluginMeta ?? {};
   effectiveInventoryState.channelMeta = options?.channelMeta ?? {};
   effectiveInventoryState.effectivePolicy = options?.effectivePolicy ?? {};
-  effectiveInventoryState.governance =
-    options?.governance ??
-    ({
-      charterDeclared: false,
-      charterToolDeny: [],
-      charterRequireAgentId: false,
-      charterElevatedLocked: false,
-      freezeActive: false,
-      freezeDeny: [],
-      freezeDetails: [],
-    } as AgentToolGovernanceSummary);
+  effectiveInventoryState.governance = options?.governance ?? createGovernanceSummary();
   effectiveInventoryState.governanceContract =
     options?.governanceContract ?? createGovernanceContract();
   effectiveInventoryState.resolvedModelCompat = options?.resolvedModelCompat;
@@ -169,15 +188,7 @@ describe("resolveEffectiveToolInventory", () => {
     effectiveInventoryState.pluginMeta = {};
     effectiveInventoryState.channelMeta = {};
     effectiveInventoryState.effectivePolicy = {};
-    effectiveInventoryState.governance = {
-      charterDeclared: false,
-      charterToolDeny: [],
-      charterRequireAgentId: false,
-      charterElevatedLocked: false,
-      freezeActive: false,
-      freezeDeny: [],
-      freezeDetails: [],
-    };
+    effectiveInventoryState.governance = createGovernanceSummary();
     effectiveInventoryState.governanceContract = createGovernanceContract();
     effectiveInventoryState.resolvedModelCompat = undefined;
     effectiveInventoryState.createToolsMock = vi.fn<typeof createOpenClawCodingTools>(
@@ -205,32 +216,8 @@ describe("resolveEffectiveToolInventory", () => {
     expect(result).toEqual({
       agentId: "main",
       profile: "full",
-      governance: {
-        charterDeclared: false,
-        charterToolDeny: [],
-        charterRequireAgentId: false,
-        charterElevatedLocked: false,
-        freezeActive: false,
-        freezeDeny: [],
-        freezeDetails: [],
-      },
-      governanceContract: {
-        agentId: "main",
-        charterDeclared: false,
-        collaborators: [],
-        reportsTo: [],
-        mutationAllow: [],
-        mutationDeny: [],
-        networkConditions: [],
-        runtimeHooks: [],
-        charterToolDeny: [],
-        charterRequireAgentId: false,
-        charterElevatedLocked: false,
-        freezeActive: false,
-        freezeDeny: [],
-        freezeDetails: [],
-        effectiveToolDeny: [],
-      },
+      governance: createGovernanceSummary(),
+      governanceContract: createGovernanceContract(),
       groups: [
         {
           id: "core",
@@ -359,6 +346,7 @@ describe("resolveEffectiveToolInventory", () => {
   it("includes governance summary for the current agent", async () => {
     const { resolveEffectiveToolInventory } = await loadHarness({
       governance: {
+        ...createGovernanceSummary(),
         charterDeclared: true,
         charterTitle: "Founder",
         charterLayer: "evolution",
@@ -391,6 +379,7 @@ describe("resolveEffectiveToolInventory", () => {
     const result = resolveEffectiveToolInventory({ cfg: {} });
 
     expect(result.governance).toEqual({
+      ...createGovernanceSummary(),
       charterDeclared: true,
       charterTitle: "Founder",
       charterLayer: "evolution",

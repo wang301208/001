@@ -38,6 +38,8 @@ import {
   buildTaskStatusSnapshot,
   formatTaskStatusDetail,
   formatTaskStatusTitle,
+  sanitizeTaskStatusText,
+  TASK_STATUS_DETAIL_MAX_CHARS,
 } from "../tasks/task-status.js";
 
 export type BuildStatusTextParams = {
@@ -128,7 +130,9 @@ function formatSessionTaskLine(sessionKey: string): string | undefined {
         ? `${snapshot.recentFailureCount} recent failure${snapshot.recentFailureCount === 1 ? "" : "s"}`
         : "recently finished";
   const title = formatTaskStatusTitle(task);
-  const detail = flow?.currentStep?.trim() || formatTaskStatusDetail(task);
+  const detail =
+    sanitizeTaskStatusText(flow?.currentStep, { maxChars: TASK_STATUS_DETAIL_MAX_CHARS }) ||
+    formatTaskStatusDetail(task);
   const parts = [headline, task.runtime, title, detail].filter(Boolean);
   return parts.length ? `📌 Tasks: ${parts.join(" · ")}` : undefined;
 }

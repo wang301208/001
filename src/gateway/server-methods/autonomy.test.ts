@@ -818,6 +818,7 @@ describe("autonomy handlers", () => {
       includeCapabilityInventory: true,
       includeGenesisPlan: true,
       recordHistory: false,
+      telemetrySource: "manual",
     });
     expect(call?.[0]).toBe(true);
     expect(call?.[1]).toEqual({

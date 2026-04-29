@@ -1,4 +1,7 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import "./test-helpers/fast-openclaw-tools.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -11,6 +14,7 @@ function createExecHostDefaultsConfig(
 ): OpenClawConfig {
   return {
     tools: {
+      allow: ["read", "exec"],
       exec: {
         host: "auto",
         security: "full",
@@ -35,13 +39,40 @@ function createExecHostDefaultsConfig(
 }
 
 describe("Agent-specific exec tool defaults", () => {
+  let emptyCharterDir: string;
+
   beforeEach(() => {
     setActivePluginRegistry(createSessionConversationTestRegistry());
+  });
+
+  beforeEach(async () => {
+    emptyCharterDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-empty-charter-"));
+    await fs.mkdir(path.join(emptyCharterDir, "policies"), { recursive: true });
+    await fs.writeFile(
+      path.join(emptyCharterDir, "constitution.yaml"),
+      ["version: 1", "charter_artifacts: {}", "sovereign_boundaries: {}", ""].join("\n"),
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(emptyCharterDir, "policies", "sovereignty.yaml"),
+      ["version: 1", "reserved_authorities: {}", "automatic_enforcement: {}", ""].join("\n"),
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(emptyCharterDir, "policies", "evolution-policy.yaml"),
+      ["version: 1", "policy: {}", ""].join("\n"),
+      "utf8",
+    );
+  });
+
+  afterEach(async () => {
+    await fs.rm(emptyCharterDir, { recursive: true, force: true }).catch(() => undefined);
   });
 
   it("should run exec synchronously when process is denied", async () => {
     const cfg: OpenClawConfig = {
       tools: {
+        allow: ["read", "exec"],
         deny: ["process"],
         exec: {
           host: "gateway",
@@ -56,6 +87,8 @@ describe("Agent-specific exec tool defaults", () => {
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-main",
       agentDir: "/tmp/agent-main",
+      senderIsOwner: true,
+      charterDir: emptyCharterDir,
     });
     const execTool = tools.find((tool) => tool.name === "exec");
     expect(execTool).toBeDefined();
@@ -73,6 +106,7 @@ describe("Agent-specific exec tool defaults", () => {
     const tools = createOpenClawCodingTools({
       config: {
         tools: {
+          allow: ["read", "exec"],
           exec: {
             security: "full",
             ask: "off",
@@ -82,6 +116,8 @@ describe("Agent-specific exec tool defaults", () => {
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-main-implicit-gateway",
       agentDir: "/tmp/agent-main-implicit-gateway",
+      senderIsOwner: true,
+      charterDir: emptyCharterDir,
     });
     const execTool = tools.find((tool) => tool.name === "exec");
     expect(execTool).toBeDefined();
@@ -99,6 +135,8 @@ describe("Agent-specific exec tool defaults", () => {
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-main-fail-closed",
       agentDir: "/tmp/agent-main-fail-closed",
+      senderIsOwner: true,
+      charterDir: emptyCharterDir,
     });
     const execTool = tools.find((tool) => tool.name === "exec");
     expect(execTool).toBeDefined();
@@ -121,6 +159,8 @@ describe("Agent-specific exec tool defaults", () => {
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-main-exec-defaults",
       agentDir: "/tmp/agent-main-exec-defaults",
+      senderIsOwner: true,
+      charterDir: emptyCharterDir,
     });
     const mainExecTool = mainTools.find((tool) => tool.name === "exec");
     expect(mainExecTool).toBeDefined();
@@ -142,6 +182,8 @@ describe("Agent-specific exec tool defaults", () => {
       sessionKey: "agent:helper:main",
       workspaceDir: "/tmp/test-helper-exec-defaults",
       agentDir: "/tmp/agent-helper-exec-defaults",
+      senderIsOwner: true,
+      charterDir: emptyCharterDir,
     });
     const helperExecTool = helperTools.find((tool) => tool.name === "exec");
     expect(helperExecTool).toBeDefined();
@@ -169,6 +211,8 @@ describe("Agent-specific exec tool defaults", () => {
       sessionKey: "run-opaque-123",
       workspaceDir: "/tmp/test-main-opaque-session",
       agentDir: "/tmp/agent-main-opaque-session",
+      senderIsOwner: true,
+      charterDir: emptyCharterDir,
     });
     const execTool = tools.find((tool) => tool.name === "exec");
     expect(execTool).toBeDefined();

@@ -29,6 +29,7 @@ export type GatewayInstallPlan = {
 };
 
 const MANAGED_SERVICE_ENV_KEYS_VAR = "OPENCLAW_SERVICE_MANAGED_ENV_KEYS";
+const WINDOWS_ABSOLUTE_PATH_RE = /^[A-Za-z]:[\\/]/;
 
 let daemonInstallAuthProfileSourceRuntimePromise:
   | Promise<typeof import("./daemon-install-auth-profiles-source.runtime.js")>
@@ -106,6 +107,50 @@ function mergeServicePath(
   existingPath: string | undefined,
   tmpDir: string | undefined,
 ): string | undefined {
+  const splitPortablePathList = (value: string): string[] => {
+    const segments: string[] = [];
+    let current = "";
+    const flush = () => {
+      const trimmed = current.trim();
+      if (trimmed) {
+        segments.push(trimmed);
+      }
+      current = "";
+    };
+
+    for (let index = 0; index < value.length; index += 1) {
+      const char = value[index];
+      if (char === ";") {
+        flush();
+        continue;
+      }
+      if (char === ":") {
+        const nextChar = value[index + 1] ?? "";
+        const isWindowsDriveSeparator =
+          current.length === 1 &&
+          /[A-Za-z]/.test(current) &&
+          (nextChar === "\\" || nextChar === "/");
+        if (!isWindowsDriveSeparator) {
+          flush();
+          continue;
+        }
+      }
+      current += char;
+    }
+    flush();
+    return segments;
+  };
+  const isPortableAbsolutePath = (value: string) =>
+    value.startsWith("/") || value.startsWith("\\\\") || WINDOWS_ABSOLUTE_PATH_RE.test(value);
+  const inferPreferredDelimiter = (value: string | undefined): string | undefined => {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      return undefined;
+    }
+    if (value.includes(";")) {
+      return ";";
+    }
+    return splitPortablePathList(value).length > 1 ? ":" : undefined;
+  };
   const segments: string[] = [];
   const seen = new Set<string>();
   const normalizedTmpDirs = [tmpDir, os.tmpdir()]
@@ -113,7 +158,7 @@ function mergeServicePath(
     .filter((value): value is string => Boolean(value))
     .map((value) => path.resolve(value));
   const shouldPreservePathSegment = (segment: string) => {
-    if (!path.isAbsolute(segment)) {
+    if (!isPortableAbsolutePath(segment) && !path.isAbsolute(segment)) {
       return false;
     }
     const resolved = path.resolve(segment);
@@ -125,7 +170,7 @@ function mergeServicePath(
     if (typeof value !== "string" || value.trim().length === 0) {
       return;
     }
-    for (const segment of value.split(path.delimiter)) {
+    for (const segment of splitPortablePathList(value)) {
       const trimmed = segment.trim();
       if (options?.preserve && !shouldPreservePathSegment(trimmed)) {
         continue;
@@ -139,7 +184,9 @@ function mergeServicePath(
   };
   addPath(nextPath);
   addPath(existingPath, { preserve: true });
-  return segments.length > 0 ? segments.join(path.delimiter) : undefined;
+  const joinDelimiter =
+    inferPreferredDelimiter(nextPath) ?? inferPreferredDelimiter(existingPath) ?? path.delimiter;
+  return segments.length > 0 ? segments.join(joinDelimiter) : undefined;
 }
 
 function readManagedServiceEnvKeys(

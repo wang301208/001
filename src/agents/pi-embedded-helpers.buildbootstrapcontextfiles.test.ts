@@ -37,8 +37,15 @@ describe("ensureSessionHeader", () => {
       const sessionFile = path.join(tempDir, "nested", "session.jsonl");
       await ensureSessionHeader({ sessionFile, sessionId: "session-1", cwd: tempDir });
 
-      expect((await fs.stat(path.dirname(sessionFile))).mode & 0o777).toBe(0o700);
-      expect((await fs.stat(sessionFile)).mode & 0o777).toBe(0o600);
+      const dirMode = (await fs.stat(path.dirname(sessionFile))).mode & 0o777;
+      const fileMode = (await fs.stat(sessionFile)).mode & 0o777;
+      if (process.platform === "win32") {
+        expect(dirMode & 0o111).toBe(0);
+        expect(fileMode & 0o111).toBe(0);
+      } else {
+        expect(dirMode).toBe(0o700);
+        expect(fileMode).toBe(0o600);
+      }
     } finally {
       await fs.rm(tempDir, { recursive: true, force: true });
     }

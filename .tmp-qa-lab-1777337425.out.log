@@ -1,0 +1,23 @@
+
+ RUN  v4.1.4 G:/项目/-
+
+ × |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > tracks inbound messages in bus state 392875ms
+   → Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > writes a self-check report to an explicit output path 17523ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > anchors direct self-check runs under the explicit repo root by default 786ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > injects the kickoff task on demand and on startup 732ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > proxies control-ui paths through /control-ui 701ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > serves the built QA UI bundle when available 517ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > uses the explicit repo root for ui assets and runner model discovery 626ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > does not eagerly load the runner model catalog before bootstrap is requested 939ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > aborts an in-flight runner model catalog when the lab stops 600ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > can disable the embedded echo gateway for real-suite runs 1302ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > exposes structured outcomes and can attach control-ui after startup 615ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > serves proxy capture sessions, events, and query rows 751ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  08:50:30
+   Duration  429.22s (transform 7.28s, setup 380ms, import 10.34s, tests 417.97s, environment 0ms)
+

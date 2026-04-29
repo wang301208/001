@@ -5,17 +5,9 @@ import {
   resolveManifestContractPluginIds,
 } from "../manifest-registry.js";
 import {
-  imageGenerationProviderContractRegistry,
-  mediaUnderstandingProviderContractRegistry,
   pluginRegistrationContractRegistry,
   providerContractLoadError,
   providerContractPluginIds,
-  realtimeTranscriptionProviderContractRegistry,
-  realtimeVoiceProviderContractRegistry,
-  resolveWebFetchProviderContractEntriesForPluginId,
-  resolveWebSearchProviderContractEntriesForPluginId,
-  speechProviderContractRegistry,
-  webFetchProviderContractRegistry,
 } from "./registry.js";
 
 const REGISTRY_CONTRACT_TIMEOUT_MS = 300_000;
@@ -59,6 +51,12 @@ describe("plugin contract registry", () => {
       .toSorted((left, right) => left.localeCompare(right));
   }
 
+  function resolveRegisteredProviderIds(
+    pick: (entry: (typeof pluginRegistrationContractRegistry)[number]) => readonly string[],
+  ) {
+    return uniqueSortedStrings(pluginRegistrationContractRegistry.flatMap((entry) => pick(entry)));
+  }
+
   it("loads bundled non-provider capability registries without import-time failure", () => {
     expect(providerContractLoadError).toBeUndefined();
     expect(pluginRegistrationContractRegistry.length).toBeGreaterThan(0);
@@ -79,19 +77,19 @@ describe("plugin contract registry", () => {
     },
     {
       name: "does not duplicate bundled media provider ids",
-      ids: () => mediaUnderstandingProviderContractRegistry.map((entry) => entry.provider.id),
+      ids: () => resolveRegisteredProviderIds((entry) => entry.mediaUnderstandingProviderIds),
     },
     {
       name: "does not duplicate bundled realtime transcription provider ids",
-      ids: () => realtimeTranscriptionProviderContractRegistry.map((entry) => entry.provider.id),
+      ids: () => resolveRegisteredProviderIds((entry) => entry.realtimeTranscriptionProviderIds),
     },
     {
       name: "does not duplicate bundled realtime voice provider ids",
-      ids: () => realtimeVoiceProviderContractRegistry.map((entry) => entry.provider.id),
+      ids: () => resolveRegisteredProviderIds((entry) => entry.realtimeVoiceProviderIds),
     },
     {
       name: "does not duplicate bundled image-generation provider ids",
-      ids: () => imageGenerationProviderContractRegistry.map((entry) => entry.provider.id),
+      ids: () => resolveRegisteredProviderIds((entry) => entry.imageGenerationProviderIds),
     },
   ] as const)("$name", ({ ids }) => {
     expectUniqueIds(ids());
@@ -101,7 +99,7 @@ describe("plugin contract registry", () => {
     "does not duplicate bundled speech provider ids",
     { timeout: REGISTRY_CONTRACT_TIMEOUT_MS },
     () => {
-      expectUniqueIds(speechProviderContractRegistry.map((entry) => entry.provider.id));
+      expectUniqueIds(resolveRegisteredProviderIds((entry) => entry.speechProviderIds));
     },
   );
 
@@ -114,7 +112,9 @@ describe("plugin contract registry", () => {
 
   it("covers every bundled speech plugin discovered from manifests", () => {
     expectRegistryPluginIds({
-      actualPluginIds: speechProviderContractRegistry.map((entry) => entry.pluginId),
+      actualPluginIds: pluginRegistrationContractRegistry
+        .filter((entry) => entry.speechProviderIds.length > 0)
+        .map((entry) => entry.pluginId),
       predicate: (plugin) =>
         plugin.origin === "bundled" && (plugin.contracts?.speechProviders?.length ?? 0) > 0,
     });
@@ -122,7 +122,9 @@ describe("plugin contract registry", () => {
 
   it("covers every bundled realtime voice plugin discovered from manifests", () => {
     expectRegistryPluginIds({
-      actualPluginIds: realtimeVoiceProviderContractRegistry.map((entry) => entry.pluginId),
+      actualPluginIds: pluginRegistrationContractRegistry
+        .filter((entry) => entry.realtimeVoiceProviderIds.length > 0)
+        .map((entry) => entry.pluginId),
       predicate: (plugin) =>
         plugin.origin === "bundled" && (plugin.contracts?.realtimeVoiceProviders?.length ?? 0) > 0,
     });
@@ -130,7 +132,9 @@ describe("plugin contract registry", () => {
 
   it("covers every bundled realtime transcription plugin discovered from manifests", () => {
     expectRegistryPluginIds({
-      actualPluginIds: realtimeTranscriptionProviderContractRegistry.map((entry) => entry.pluginId),
+      actualPluginIds: pluginRegistrationContractRegistry
+        .filter((entry) => entry.realtimeTranscriptionProviderIds.length > 0)
+        .map((entry) => entry.pluginId),
       predicate: (plugin) =>
         plugin.origin === "bundled" &&
         (plugin.contracts?.realtimeTranscriptionProviders?.length ?? 0) > 0,
@@ -156,15 +160,18 @@ describe("plugin contract registry", () => {
     "loads bundled web fetch providers for each shared-resolver plugin",
     { timeout: REGISTRY_CONTRACT_TIMEOUT_MS },
     () => {
+      const webFetchProviderIdsByPluginId = new Map(
+        pluginRegistrationContractRegistry.map((entry) => [entry.pluginId, entry.webFetchProviderIds]),
+      );
       for (const pluginId of resolveManifestContractPluginIds({
         contract: "webFetchProviders",
         origin: "bundled",
       })) {
-        expect(resolveWebFetchProviderContractEntriesForPluginId(pluginId).length).toBeGreaterThan(
-          0,
-        );
+        expect(webFetchProviderIdsByPluginId.get(pluginId)?.length ?? 0).toBeGreaterThan(0);
       }
-      expect(webFetchProviderContractRegistry.length).toBeGreaterThan(0);
+      expect(
+        pluginRegistrationContractRegistry.some((entry) => entry.webFetchProviderIds.length > 0),
+      ).toBe(true);
     },
   );
 
@@ -187,13 +194,14 @@ describe("plugin contract registry", () => {
     "loads bundled web search providers for each shared-resolver plugin",
     { timeout: REGISTRY_CONTRACT_TIMEOUT_MS },
     () => {
+      const webSearchProviderIdsByPluginId = new Map(
+        pluginRegistrationContractRegistry.map((entry) => [entry.pluginId, entry.webSearchProviderIds]),
+      );
       for (const pluginId of resolveManifestContractPluginIds({
         contract: "webSearchProviders",
         origin: "bundled",
       })) {
-        expect(resolveWebSearchProviderContractEntriesForPluginId(pluginId).length).toBeGreaterThan(
-          0,
-        );
+        expect(webSearchProviderIdsByPluginId.get(pluginId)?.length ?? 0).toBeGreaterThan(0);
       }
     },
   );

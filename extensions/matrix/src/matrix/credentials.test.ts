@@ -57,6 +57,15 @@ describe("matrix credentials storage", () => {
     return { stateDir, legacyPath, currentPath };
   }
 
+  function expectSecureFileMode(pathname: string): void {
+    const mode = fs.statSync(pathname).mode & 0o777;
+    if (process.platform === "win32") {
+      expect(mode & 0o111).toBe(0);
+      return;
+    }
+    expect(mode).toBe(0o600);
+  }
+
   it("writes credentials atomically with secure file permissions", async () => {
     const stateDir = setupStateDir();
     await saveMatrixCredentials(
@@ -73,8 +82,7 @@ describe("matrix credentials storage", () => {
     const credPath = resolveMatrixCredentialsPath({}, "ops");
     expect(fs.existsSync(credPath)).toBe(true);
     expect(credPath).toBe(path.join(stateDir, "credentials", "matrix", "credentials-ops.json"));
-    const mode = fs.statSync(credPath).mode & 0o777;
-    expect(mode).toBe(0o600);
+    expectSecureFileMode(credPath);
   });
 
   it("touch updates lastUsedAt while preserving createdAt", async () => {

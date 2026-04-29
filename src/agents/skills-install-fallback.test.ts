@@ -90,6 +90,21 @@ function assertNoAptGetFallbackCalls() {
   expect(aptCalls).toHaveLength(0);
 }
 
+function mockProcessGetuid(uid: number): () => void {
+  const original = Object.getOwnPropertyDescriptor(process, "getuid");
+  Object.defineProperty(process, "getuid", {
+    configurable: true,
+    value: () => uid,
+  });
+  return () => {
+    if (original) {
+      Object.defineProperty(process, "getuid", original);
+      return;
+    }
+    delete (process as NodeJS.Process & { getuid?: unknown }).getuid;
+  };
+}
+
 describe("skills-install fallback edge cases", () => {
   let workspaceDir: string;
 
@@ -120,79 +135,86 @@ describe("skills-install fallback edge cases", () => {
   });
 
   it("handles sudo probe failures for go install without apt fallback", async () => {
-    vi.spyOn(process, "getuid").mockReturnValue(1000);
-
-    for (const testCase of [
-      {
-        label: "sudo returns password required",
-        setup: () =>
-          runCommandWithTimeoutMock.mockResolvedValueOnce({
-            code: 1,
-            stdout: "",
-            stderr: "sudo: a password is required",
-          }),
-        assert: (result: { message: string; stderr: string }) => {
-          expect(result.message).toContain("sudo is not usable");
-          expect(result.message).toContain("https://go.dev/doc/install");
-          expect(result.stderr).toContain("sudo: a password is required");
+    const restoreGetuid = mockProcessGetuid(1000);
+    try {
+      for (const testCase of [
+        {
+          label: "sudo returns password required",
+          setup: () =>
+            runCommandWithTimeoutMock.mockResolvedValueOnce({
+              code: 1,
+              stdout: "",
+              stderr: "sudo: a password is required",
+            }),
+          assert: (result: { message: string; stderr: string }) => {
+            expect(result.message).toContain("sudo is not usable");
+            expect(result.message).toContain("https://go.dev/doc/install");
+            expect(result.stderr).toContain("sudo: a password is required");
+          },
         },
-      },
-      {
-        label: "sudo probe throws executable-not-found",
-        setup: () =>
-          runCommandWithTimeoutMock.mockRejectedValueOnce(
-            new Error('Executable not found in $PATH: "sudo"'),
-          ),
-        assert: (result: { message: string; stderr: string }) => {
-          expect(result.message).toContain("sudo is not usable");
-          expect(result.message).toContain("https://go.dev/doc/install");
-          expect(result.stderr).toContain("Executable not found");
+        {
+          label: "sudo probe throws executable-not-found",
+          setup: () =>
+            runCommandWithTimeoutMock.mockRejectedValueOnce(
+              new Error('Executable not found in $PATH: "sudo"'),
+            ),
+          assert: (result: { message: string; stderr: string }) => {
+            expect(result.message).toContain("sudo is not usable");
+            expect(result.message).toContain("https://go.dev/doc/install");
+            expect(result.stderr).toContain("Executable not found");
+          },
         },
-      },
-    ]) {
-      runCommandWithTimeoutMock.mockClear();
-      mockAvailableBinaries(["apt-get", "sudo"]);
-      testCase.setup();
+      ]) {
+        runCommandWithTimeoutMock.mockClear();
+        mockAvailableBinaries(["apt-get", "sudo"]);
+        testCase.setup();
 
-      const result = await installSkill({
-        workspaceDir,
-        skillName: "go-tool-single",
-        installId: "deps",
-      });
+        const result = await installSkill({
+          workspaceDir,
+          skillName: "go-tool-single",
+          installId: "deps",
+        });
 
-      expect(result.ok, testCase.label).toBe(false);
-      testCase.assert(result);
-      expect(runCommandWithTimeoutMock, testCase.label).toHaveBeenCalledWith(
-        ["sudo", "-n", "true"],
-        expect.objectContaining({ timeoutMs: 5_000 }),
-      );
-      assertNoAptGetFallbackCalls();
+        expect(result.ok, testCase.label).toBe(false);
+        testCase.assert(result);
+        expect(runCommandWithTimeoutMock, testCase.label).toHaveBeenCalledWith(
+          ["sudo", "-n", "true"],
+          expect.objectContaining({ timeoutMs: 5_000 }),
+        );
+        assertNoAptGetFallbackCalls();
+      }
+    } finally {
+      restoreGetuid();
     }
   });
 
   it("status-selected go installer fails gracefully when apt fallback needs sudo", async () => {
-    vi.spyOn(process, "getuid").mockReturnValue(1000);
-    mockAvailableBinaries(["apt-get", "sudo"]);
+    const restoreGetuid = mockProcessGetuid(1000);
+    try {
+      mockAvailableBinaries(["apt-get", "sudo"]);
 
-    runCommandWithTimeoutMock.mockResolvedValueOnce({
-      code: 1,
-      stdout: "",
-      stderr: "sudo: a password is required",
-    });
+      runCommandWithTimeoutMock.mockResolvedValueOnce({
+        code: 1,
+        stdout: "",
+        stderr: "sudo: a password is required",
+      });
 
-    const status = buildWorkspaceSkillStatus(workspaceDir);
-    const skill = status.skills.find((entry) => entry.name === "go-tool-multi");
-    expect(skill?.install[0]?.id).toBe("go");
+      const status = buildWorkspaceSkillStatus(workspaceDir);
+      const skill = status.skills.find((entry) => entry.name === "go-tool-multi");
+      expect(skill?.install[0]?.id).toBe("go");
 
-    const result = await installSkill({
-      workspaceDir,
-      skillName: "go-tool-multi",
-      installId: skill?.install[0]?.id ?? "",
-    });
+      const result = await installSkill({
+        workspaceDir,
+        skillName: "go-tool-multi",
+        installId: skill?.install[0]?.id ?? "",
+      });
 
-    expect(result.ok).toBe(false);
-    expect(result.message).toContain("sudo is not usable");
-    expect(result.stderr).toContain("sudo: a password is required");
+      expect(result.ok).toBe(false);
+      expect(result.message).toContain("sudo is not usable");
+      expect(result.stderr).toContain("sudo: a password is required");
+    } finally {
+      restoreGetuid();
+    }
   });
 
   it("uv not installed and no brew returns helpful error without curl auto-install", async () => {

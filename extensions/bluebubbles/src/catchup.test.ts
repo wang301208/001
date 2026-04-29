@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fetchBlueBubblesMessagesSince,
   loadBlueBubblesCatchupCursor,
+  resetBlueBubblesCatchupStateForTest,
   runBlueBubblesCatchup,
   saveBlueBubblesCatchupCursor,
 } from "./catchup.js";
@@ -101,6 +102,7 @@ describe("runBlueBubblesCatchup", () => {
   });
   afterEach(() => {
     clearStateDir(stateDir);
+    resetBlueBubblesCatchupStateForTest();
     vi.restoreAllMocks();
   });
 
@@ -136,8 +138,12 @@ describe("runBlueBubblesCatchup", () => {
       },
     });
 
-    // Wait a tick for call1 to enter fetchMessages, then fire call2.
-    await new Promise<void>((resolve) => setTimeout(resolve, 5));
+    // Wait until call1 has actually entered fetchMessages before starting
+    // call2; under full-suite load the warmup path before fetch can take
+    // longer than a fixed tick.
+    await vi.waitFor(() => {
+      expect(resolveFetch).not.toBeNull();
+    });
     const call2 = runBlueBubblesCatchup(makeTarget(), {
       now: () => now,
       fetchMessages: async () => {

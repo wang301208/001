@@ -264,7 +264,7 @@ describe("checkUpdateStatus", () => {
         "utf8",
       );
       await runCommandWithTimeout(["git", "init"], { cwd: repoRoot, timeoutMs: 1000 });
-      await fs.symlink(repoRoot, linkedRoot);
+      await fs.symlink(repoRoot, linkedRoot, process.platform === "win32" ? "junction" : "dir");
 
       await expect(
         checkUpdateStatus({

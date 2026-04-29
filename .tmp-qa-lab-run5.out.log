@@ -1,0 +1,25 @@
+
+ RUN  v4.1.4 G:/项目/-
+
+ × |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > tracks inbound messages in bus state 559879ms
+   → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ × |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > writes a self-check report to an explicit output path 15766ms
+   → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > anchors direct self-check runs under the explicit repo root by default 630ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > injects the kickoff task on demand and on startup 630ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > proxies control-ui paths through /control-ui 490ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > serves the built QA UI bundle when available 393ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > uses the explicit repo root for ui assets and runner model discovery 578ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > does not eagerly load the runner model catalog before bootstrap is requested 872ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > aborts an in-flight runner model catalog when the lab stops 585ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > can disable the embedded echo gateway for real-suite runs 1307ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > exposes structured outcomes and can attach control-ui after startup 488ms
+ ✓ |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > serves proxy capture sessions, events, and query rows 429ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  09:14:14
+   Duration  623.22s (transform 29.21s, setup 1.11s, import 39.52s, tests 582.05s, environment 0ms)
+

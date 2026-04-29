@@ -1,21 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import { createEmptyAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
+import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { buildCommandsMessage, buildHelpMessage, buildToolsMessage } from "./status.js";
 
 vi.mock("../plugins/commands.js", () => ({
   listPluginCommands: () => [],
 }));
 
-const emptyGovernance = {
-  charterDeclared: false,
-  charterToolDeny: [],
-  charterRequireAgentId: false,
-  charterElevatedLocked: false,
-  freezeActive: false,
-  freezeDeny: [],
-  freezeDetails: [],
-};
+const emptyGovernance = createEmptyAgentToolGovernanceSummary();
 
 const emptyGovernanceContract = createEmptyAgentGovernanceRuntimeContract("main");
 
@@ -174,6 +167,7 @@ describe("tools product copy", () => {
         agentId: "founder",
         profile: "coding",
         governance: {
+          ...createEmptyAgentToolGovernanceSummary(),
           charterDeclared: true,
           charterTitle: "Founder",
           charterLayer: "evolution",

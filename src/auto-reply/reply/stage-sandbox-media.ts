@@ -18,6 +18,10 @@ import type { MsgContext, TemplateContext } from "../templating.js";
 
 const STAGED_MEDIA_MAX_BYTES = MEDIA_MAX_BYTES;
 
+function encodeSessionKeyPathSegment(sessionKey: string): string {
+  return encodeURIComponent(sessionKey);
+}
+
 export async function stageSandboxMedia(params: {
   ctx: MsgContext;
   sessionCtx: TemplateContext;
@@ -40,7 +44,7 @@ export async function stageSandboxMedia(params: {
 
   // For remote attachments without sandbox, use ~/.openclaw/media (not agent workspace for privacy)
   const remoteMediaCacheDir = ctx.MediaRemoteHost
-    ? path.join(CONFIG_DIR, "media", "remote-cache", sessionKey)
+    ? path.join(CONFIG_DIR, "media", "remote-cache", encodeSessionKeyPathSegment(sessionKey))
     : null;
   const effectiveWorkspaceDir = sandbox?.workspaceDir ?? remoteMediaCacheDir;
   if (!effectiveWorkspaceDir) {
@@ -48,7 +52,9 @@ export async function stageSandboxMedia(params: {
   }
 
   await fs.mkdir(effectiveWorkspaceDir, { recursive: true });
-  const remoteAttachmentRoots = resolveChannelRemoteInboundAttachmentRoots({ cfg, ctx }) ?? [];
+  const remoteAttachmentRoots = ctx.MediaRemoteHost
+    ? (resolveChannelRemoteInboundAttachmentRoots({ cfg, ctx }) ?? [])
+    : [];
 
   const usedNames = new Set<string>();
   const staged = new Map<string, string>(); // absolute source -> relative sandbox path

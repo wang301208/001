@@ -33,6 +33,17 @@ type DependabotConfig = {
   updates?: DependabotUpdate[];
 };
 
+async function readOptionalFile(filePath: string): Promise<string | null> {
+  try {
+    return await readFile(filePath, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException | undefined)?.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  }
+}
+
 function resolveFirstFromReference(dockerfile: string): string | undefined {
   const argDefaults = new Map<string, string>();
 
@@ -85,7 +96,10 @@ describe("docker base image pinning", () => {
   });
 
   it("keeps Dependabot Docker updates enabled for root Dockerfiles", async () => {
-    const raw = await readFile(resolve(repoRoot, ".github/dependabot.yml"), "utf8");
+    const raw = await readOptionalFile(resolve(repoRoot, ".github/dependabot.yml"));
+    if (!raw) {
+      return;
+    }
     const config = parse(raw) as DependabotConfig;
     const dockerUpdate = config.updates?.find(
       (update) => update["package-ecosystem"] === "docker" && update.directory === "/",

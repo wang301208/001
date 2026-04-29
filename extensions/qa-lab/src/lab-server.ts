@@ -168,7 +168,11 @@ export async function startQaLabServer(
 ): Promise<QaLabServerHandle> {
   const repoRoot = path.resolve(params?.repoRoot ?? process.cwd());
   const captureSettings = resolveDebugProxySettings();
-  const captureStore = getDebugProxyCaptureStore(captureSettings.dbPath, captureSettings.blobDir);
+  let captureStore:
+    | ReturnType<typeof getDebugProxyCaptureStore>
+    | null = null;
+  const ensureCaptureStore = () =>
+    (captureStore ??= getDebugProxyCaptureStore(captureSettings.dbPath, captureSettings.blobDir));
   const state = createQaBusState();
   let latestReport: QaLabLatestReport | null = null;
   let latestScenarioRun: QaLabScenarioRun | null = null;
@@ -331,7 +335,7 @@ export async function startQaLabServer(
       }
       if (req.method === "GET" && url.pathname === "/api/capture/sessions") {
         writeJson(res, 200, {
-          sessions: captureStore.listSessions(50),
+          sessions: ensureCaptureStore().listSessions(50),
         });
         return;
       }
@@ -365,7 +369,7 @@ export async function startQaLabServer(
         const sessionId = url.searchParams.get("sessionId")?.trim();
         writeJson(res, 200, {
           events: sessionId
-            ? captureStore.getSessionEvents(sessionId, 200).map(mapCaptureEventForQa)
+            ? ensureCaptureStore().getSessionEvents(sessionId, 200).map(mapCaptureEventForQa)
             : [],
         });
         return;
@@ -377,7 +381,7 @@ export async function startQaLabServer(
           return;
         }
         writeJson(res, 200, {
-          coverage: captureStore.summarizeSessionCoverage(sessionId),
+          coverage: ensureCaptureStore().summarizeSessionCoverage(sessionId),
         });
         return;
       }
@@ -393,7 +397,7 @@ export async function startQaLabServer(
           return;
         }
         writeJson(res, 200, {
-          rows: captureStore.queryPreset(preset, sessionId),
+          rows: ensureCaptureStore().queryPreset(preset, sessionId),
         });
         return;
       }
@@ -403,7 +407,7 @@ export async function startQaLabServer(
           writeError(res, 400, "Missing blob id");
           return;
         }
-        const content = captureStore.readBlob(blobId);
+        const content = ensureCaptureStore().readBlob(blobId);
         if (content == null) {
           writeError(res, 404, "Blob not found");
           return;
@@ -417,13 +421,13 @@ export async function startQaLabServer(
           ? body.sessionIds.filter((value): value is string => typeof value === "string")
           : [];
         writeJson(res, 200, {
-          result: captureStore.deleteSessions(sessionIds),
+          result: ensureCaptureStore().deleteSessions(sessionIds),
         });
         return;
       }
       if (req.method === "POST" && url.pathname === "/api/capture/purge") {
         writeJson(res, 200, {
-          result: captureStore.purgeAll(),
+          result: ensureCaptureStore().purgeAll(),
         });
         return;
       }
@@ -639,6 +643,7 @@ export async function startQaLabServer(
       await runnerModelCatalogPromise?.catch(() => undefined);
       await gateway?.stop();
       await closeQaHttpServer(server);
+      captureStore = null;
     },
   };
   labHandle = lab;

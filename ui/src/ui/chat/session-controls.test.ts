@@ -20,6 +20,9 @@ const governanceSummary = {
   freezeActive: false,
   freezeDeny: [],
   freezeDetails: [],
+  activeSovereigntyIncidentCount: 0,
+  activeSovereigntyIncidentIds: [],
+  activeSovereigntyFreezeIncidentIds: [],
 };
 
 function createChatHeaderState(

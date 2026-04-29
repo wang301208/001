@@ -1,4 +1,4 @@
-import { listAgentIds } from "../agents/agent-scope.js";
+import { listWorkspaceScopedAgentIds } from "../agents/agent-scope.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import {
@@ -10,7 +10,7 @@ export async function startGatewayMemoryBackend(params: {
   cfg: OpenClawConfig;
   log: { info?: (msg: string) => void; warn: (msg: string) => void };
 }): Promise<void> {
-  const agentIds = listAgentIds(params.cfg);
+  const agentIds = listWorkspaceScopedAgentIds(params.cfg);
   for (const agentId of agentIds) {
     if (!resolveMemorySearchConfig(params.cfg, agentId)) {
       continue;

@@ -15,8 +15,8 @@ type WebhookModule = typeof import("../src/monitor.webhook.js");
 const monitorModuleUrl = new URL("../src/monitor.ts", import.meta.url).href;
 const secretInputModuleUrl = new URL("../src/secret-input.ts", import.meta.url).href;
 const webhookModuleUrl = new URL("../src/monitor.webhook.ts", import.meta.url).href;
-const apiModuleId = new URL("../src/api.js", import.meta.url).pathname;
-const runtimeModuleId = new URL("../src/runtime.js", import.meta.url).pathname;
+const apiModuleSpecifier = "../src/api.js";
+const runtimeModuleSpecifier = "../src/runtime.js";
 
 type UnknownMock = Mock<(...args: unknown[]) => unknown>;
 type AsyncUnknownMock = Mock<(...args: unknown[]) => Promise<unknown>>;
@@ -57,8 +57,8 @@ export const sendPhotoMock = lifecycleMocks.sendPhotoMock;
 export const getZaloRuntimeMock: UnknownMock = lifecycleMocks.getZaloRuntimeMock;
 
 function installLifecycleModuleMocks() {
-  vi.doMock(apiModuleId, async () => {
-    const actual = await vi.importActual<object>(apiModuleId);
+  vi.doMock(apiModuleSpecifier, async () => {
+    const actual = await vi.importActual<object>(apiModuleSpecifier);
     return {
       ...actual,
       deleteWebhook: lifecycleMocks.deleteWebhookMock,
@@ -71,7 +71,7 @@ function installLifecycleModuleMocks() {
     };
   });
 
-  vi.doMock(runtimeModuleId, () => ({
+  vi.doMock(runtimeModuleSpecifier, () => ({
     getZaloRuntime: lifecycleMocks.getZaloRuntimeMock,
   }));
 }
@@ -84,8 +84,8 @@ async function importMonitorModule(params: {
   if (params.mocked) {
     installLifecycleModuleMocks();
   } else {
-    vi.doUnmock(apiModuleId);
-    vi.doUnmock(runtimeModuleId);
+    vi.doUnmock(apiModuleSpecifier);
+    vi.doUnmock(runtimeModuleSpecifier);
   }
   return (await import(`${monitorModuleUrl}?t=${params.cacheBust}-${Date.now()}`)) as MonitorModule;
 }

@@ -1,7 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadBundledPluginPublicSurfaceModuleSync } from "../plugin-sdk/facade-loader.js";
+import {
+  loadBundledPluginPublicSurfaceModule,
+  loadBundledPluginPublicSurfaceModuleSync,
+} from "../plugin-sdk/facade-loader.js";
 import { resolveBundledPluginsDir } from "../plugins/bundled-dir.js";
 import {
   findBundledPluginMetadataById,
@@ -76,8 +79,26 @@ export function loadBundledPluginPublicSurfaceSync<T extends object>(params: {
   });
 }
 
+export async function loadBundledPluginPublicSurface<T extends object>(params: {
+  pluginId: string;
+  artifactBasename: string;
+}): Promise<T> {
+  const metadata = findBundledPluginMetadata(params.pluginId);
+  return loadBundledPluginPublicSurfaceModule<T>({
+    dirName: metadata.dirName,
+    artifactBasename: normalizeBundledPluginArtifactSubpath(params.artifactBasename),
+  });
+}
+
 export function loadBundledPluginApiSync<T extends object>(pluginId: string): T {
   return loadBundledPluginPublicSurfaceSync<T>({
+    pluginId,
+    artifactBasename: "api.js",
+  });
+}
+
+export async function loadBundledPluginApi<T extends object>(pluginId: string): Promise<T> {
+  return loadBundledPluginPublicSurface<T>({
     pluginId,
     artifactBasename: "api.js",
   });
@@ -90,6 +111,15 @@ export function loadBundledPluginContractApiSync<T extends object>(pluginId: str
   });
 }
 
+export async function loadBundledPluginContractApi<T extends object>(
+  pluginId: string,
+): Promise<T> {
+  return loadBundledPluginPublicSurface<T>({
+    pluginId,
+    artifactBasename: "contract-api.js",
+  });
+}
+
 export function loadBundledPluginRuntimeApiSync<T extends object>(pluginId: string): T {
   return loadBundledPluginPublicSurfaceSync<T>({
     pluginId,
@@ -97,8 +127,22 @@ export function loadBundledPluginRuntimeApiSync<T extends object>(pluginId: stri
   });
 }
 
+export async function loadBundledPluginRuntimeApi<T extends object>(pluginId: string): Promise<T> {
+  return loadBundledPluginPublicSurface<T>({
+    pluginId,
+    artifactBasename: "runtime-api.js",
+  });
+}
+
 export function loadBundledPluginTestApiSync<T extends object>(pluginId: string): T {
   return loadBundledPluginPublicSurfaceSync<T>({
+    pluginId,
+    artifactBasename: "test-api.js",
+  });
+}
+
+export async function loadBundledPluginTestApi<T extends object>(pluginId: string): Promise<T> {
+  return loadBundledPluginPublicSurface<T>({
     pluginId,
     artifactBasename: "test-api.js",
   });

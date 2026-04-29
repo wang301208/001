@@ -271,6 +271,9 @@ function parseQaYamlWithContext<T>(schema: z.ZodType<T>, value: unknown, label: 
 }
 
 export function readQaScenarioPackMarkdown(): string {
+  if (!hasQaScenarioPack()) {
+    return "# QA Scenario Pack\n\nQA scenarios not available in this distribution.";
+  }
   const chunks = [readTextFile(QA_SCENARIO_PACK_INDEX_PATH).trim()];
   for (const relativePath of listQaScenarioMarkdownPaths()) {
     chunks.push(readTextFile(relativePath).trim());

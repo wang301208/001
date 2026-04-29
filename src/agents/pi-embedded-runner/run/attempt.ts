@@ -340,19 +340,30 @@ export function remapInjectedContextFilesToWorkspace(params: {
   if (params.sourceWorkspaceDir === params.targetWorkspaceDir) {
     return params.files;
   }
+  const pathApi =
+    isPosixAbsolutePath(params.sourceWorkspaceDir) &&
+    isPosixAbsolutePath(params.targetWorkspaceDir) &&
+    params.files.every((file) => isPosixAbsolutePath(file.path))
+      ? path.posix
+      : path;
   return params.files.map((file) => {
-    const relative = path.relative(params.sourceWorkspaceDir, file.path);
-    const canRemap = relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+    const relative = pathApi.relative(params.sourceWorkspaceDir, file.path);
+    const canRemap =
+      relative === "" || (!relative.startsWith("..") && !pathApi.isAbsolute(relative));
     return canRemap
       ? {
           ...file,
           path:
             relative === ""
               ? params.targetWorkspaceDir
-              : path.join(params.targetWorkspaceDir, relative),
+              : pathApi.join(params.targetWorkspaceDir, relative),
         }
       : file;
   });
+}
+
+function isPosixAbsolutePath(filePath: string): boolean {
+  return filePath.startsWith("/") && !filePath.startsWith("//");
 }
 
 function summarizeMessagePayload(msg: AgentMessage): { textChars: number; imageBlocks: number } {

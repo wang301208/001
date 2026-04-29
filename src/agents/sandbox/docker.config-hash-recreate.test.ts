@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import path from "node:path";
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computeSandboxConfigHash } from "./config-hash.js";
@@ -46,11 +47,12 @@ function createMockDockerChild(): MockDockerChild {
 function spawnDockerProcess(command: string, args: string[]) {
   spawnState.calls.push({ command, args });
   const child = createMockDockerChild();
+  const normalizedCommand = path.basename(command).toLowerCase();
 
   let code = 0;
   let stdout = "";
   let stderr = "";
-  if (command !== "docker") {
+  if (normalizedCommand !== "docker" && normalizedCommand !== "docker.exe") {
     code = 1;
     stderr = `unexpected command: ${command}`;
   } else if (args[0] === "inspect" && args[1] === "-f" && args[2] === "{{.State.Running}}") {
@@ -83,6 +85,11 @@ function spawnDockerProcess(command: string, args: string[]) {
     child.emit("close", code);
   });
   return child;
+}
+
+function isDockerCommand(command: string): boolean {
+  const basename = path.basename(command).toLowerCase();
+  return basename === "docker" || basename === "docker.exe";
 }
 
 async function createChildProcessMock() {
@@ -211,7 +218,7 @@ describe("ensureSandboxContainer config-hash recreation", () => {
     });
 
     expect(containerName).toBe("oc-test-shared");
-    const dockerCalls = spawnState.calls.filter((call) => call.command === "docker");
+    const dockerCalls = spawnState.calls.filter((call) => isDockerCommand(call.command));
     expect(
       dockerCalls.some(
         (call) =>
@@ -267,7 +274,7 @@ describe("ensureSandboxContainer config-hash recreation", () => {
     });
 
     const createCall = spawnState.calls.find(
-      (call) => call.command === "docker" && call.args[0] === "create",
+      (call) => isDockerCommand(call.command) && call.args[0] === "create",
     );
     expect(createCall).toBeDefined();
     expect(createCall?.args).toContain(`openclaw.configHash=${expectedHash}`);
@@ -302,7 +309,7 @@ describe("ensureSandboxContainer config-hash recreation", () => {
       });
 
       const createCall = spawnState.calls.find(
-        (call) => call.command === "docker" && call.args[0] === "create",
+        (call) => isDockerCommand(call.command) && call.args[0] === "create",
       );
       expect(createCall).toBeDefined();
 
@@ -327,7 +334,7 @@ describe("ensureSandboxContainer config-hash recreation", () => {
     });
 
     const createCall = spawnState.calls.find(
-      (call) => call.command === "docker" && call.args[0] === "create",
+      (call) => isDockerCommand(call.command) && call.args[0] === "create",
     );
     expect(createCall).toBeDefined();
     expect(createCall?.args).toContain(

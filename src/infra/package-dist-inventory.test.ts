@@ -94,10 +94,7 @@ describe("package dist inventory", () => {
       await fs.writeFile(omittedQaLabPluginSdk, "export {};\n", "utf8");
       await fs.writeFile(omittedQaLabTypes, "export {};\n", "utf8");
       await fs.writeFile(omittedQaRuntimeChunk, "export {};\n", "utf8");
-      await fs.symlink(
-        path.join(packageRoot, "color-support.js"),
-        omittedExtensionNodeModuleSymlink,
-      );
+      await fs.writeFile(omittedExtensionNodeModuleSymlink, "shim\n", "utf8");
       await fs.writeFile(omittedMap, "{}", "utf8");
 
       await expect(writePackageDistInventory(packageRoot)).resolves.toEqual([
@@ -115,7 +112,7 @@ describe("package dist inventory", () => {
     });
   });
 
-  it("rejects symlinked dist entries", async () => {
+  it.runIf(process.platform !== "win32")("rejects symlinked dist entries", async () => {
     await withTempDir({ prefix: "openclaw-dist-inventory-symlink-" }, async (packageRoot) => {
       const distDir = path.join(packageRoot, "dist");
       await fs.mkdir(distDir, { recursive: true });

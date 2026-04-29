@@ -40,7 +40,7 @@ describe("gateway tools.catalog", () => {
 
       const unknownAgent = await rpcReq(ws, "tools.catalog", { agentId: "does-not-exist" });
       expect(unknownAgent.ok).toBe(false);
-      expect(unknownAgent.error?.message ?? "").toContain("unknown agent id");
+      expect(unknownAgent.error?.message ?? "").toMatch(/unknown agent id/i);
     });
   });
 });

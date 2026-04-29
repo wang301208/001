@@ -128,11 +128,13 @@ const createQmdManagerMock = vi.mocked(QmdMemoryManager.create);
 
 type SearchManagerResult = Awaited<ReturnType<typeof getMemorySearchManager>>;
 type SearchManager = NonNullable<SearchManagerResult["manager"]>;
+const TEST_WORKSPACE = path.resolve("/tmp/workspace");
+const TEST_INDEX_PATH = path.resolve("/tmp/index.sqlite");
 
 function createQmdCfg(agentId: string): OpenClawConfig {
   return {
     memory: { backend: "qmd", qmd: {} },
-    agents: { list: [{ id: agentId, default: true, workspace: "/tmp/workspace" }] },
+    agents: { list: [{ id: agentId, default: true, workspace: TEST_WORKSPACE }] },
   };
 }
 
@@ -140,12 +142,12 @@ function createBuiltinCfg(agentId: string): OpenClawConfig {
   return {
     agents: {
       defaults: {
-        workspace: "/tmp/workspace",
+        workspace: TEST_WORKSPACE,
         memorySearch: {
           provider: "openai",
           model: "text-embedding-3-small",
           store: {
-            path: "/tmp/index.sqlite",
+            path: TEST_INDEX_PATH,
             vector: { enabled: false },
           },
           sync: { watch: false, onSessionStart: false, onSearch: false },
@@ -154,7 +156,7 @@ function createBuiltinCfg(agentId: string): OpenClawConfig {
           experimental: { sessionMemory: false },
         },
       },
-      list: [{ id: agentId, default: true, workspace: "/tmp/workspace" }],
+      list: [{ id: agentId, default: true, workspace: TEST_WORKSPACE }],
     },
   } as OpenClawConfig;
 }
@@ -255,7 +257,7 @@ describe("getMemorySearchManager caching", () => {
     expect(checkQmdBinaryAvailability).toHaveBeenCalledWith({
       command: "qmd",
       env: process.env,
-      cwd: "/tmp/workspace",
+      cwd: TEST_WORKSPACE,
     });
   });
 

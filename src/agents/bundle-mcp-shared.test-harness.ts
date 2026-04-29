@@ -1,10 +1,15 @@
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const require = createRequire(import.meta.url);
-const SDK_SERVER_MCP_PATH = require.resolve("@modelcontextprotocol/sdk/server/mcp.js");
-const SDK_SERVER_STDIO_PATH = require.resolve("@modelcontextprotocol/sdk/server/stdio.js");
+const SDK_SERVER_MCP_SPECIFIER = pathToFileURL(
+  require.resolve("@modelcontextprotocol/sdk/server/mcp.js"),
+).href;
+const SDK_SERVER_STDIO_SPECIFIER = pathToFileURL(
+  require.resolve("@modelcontextprotocol/sdk/server/stdio.js"),
+).href;
 
 export async function writeExecutable(filePath: string, content: string): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -26,8 +31,8 @@ export async function writeBundleProbeMcpServer(
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
-import { McpServer } from ${JSON.stringify(SDK_SERVER_MCP_PATH)};
-import { StdioServerTransport } from ${JSON.stringify(SDK_SERVER_STDIO_PATH)};
+import { McpServer } from ${JSON.stringify(SDK_SERVER_MCP_SPECIFIER)};
+import { StdioServerTransport } from ${JSON.stringify(SDK_SERVER_STDIO_SPECIFIER)};
 
 const startupCounterPath = ${JSON.stringify(params.startupCounterPath ?? "")};
 if (startupCounterPath) {

@@ -8,6 +8,7 @@ import type { OpenClawConfig } from "../../../src/config/config.js";
 import type { LineProbeResult } from "../../../src/plugin-sdk/line.js";
 import {
   loadBundledPluginApiSync,
+  loadBundledPluginContractApi,
   loadBundledPluginContractApiSync,
 } from "../../../src/test-utils/bundled-plugin-public-surface.js";
 import { withEnvAsync } from "../../../src/test-utils/env.js";
@@ -33,14 +34,15 @@ type TelegramProbe = import("@openclaw/telegram/api.js").TelegramProbe;
 type TelegramTokenResolution = import("@openclaw/telegram/api.js").TelegramTokenResolution;
 type WhatsAppApiSurface = typeof import("@openclaw/whatsapp/api.js");
 
-let discordContractApi: DiscordContractApiSurface | undefined;
+let discordContractApiPromise: Promise<DiscordContractApiSurface> | undefined;
 let slackContractApi: SlackContractApiSurface | undefined;
 let telegramContractApi: TelegramContractApiSurface | undefined;
 let whatsappApi: WhatsAppApiSurface | undefined;
 
-function getDiscordContractApi(): DiscordContractApiSurface {
-  discordContractApi ??= loadBundledPluginContractApiSync<DiscordContractApiSurface>("discord");
-  return discordContractApi;
+function getDiscordContractApi(): Promise<DiscordContractApiSurface> {
+  discordContractApiPromise ??=
+    loadBundledPluginContractApi<DiscordContractApiSurface>("discord");
+  return discordContractApiPromise;
 }
 
 function getSlackContractApi(): SlackContractApiSurface {
@@ -87,8 +89,10 @@ async function expectDirectoryIds(
 
 export function describeDiscordPluginsCoreExtensionContract() {
   describe("discord plugins-core extension contract", () => {
-    const listPeers = () => getDiscordContractApi().listDiscordDirectoryPeersFromConfig;
-    const listGroups = () => getDiscordContractApi().listDiscordDirectoryGroupsFromConfig;
+    const listPeers = async () =>
+      (await getDiscordContractApi()).listDiscordDirectoryPeersFromConfig;
+    const listGroups = async () =>
+      (await getDiscordContractApi()).listDiscordDirectoryGroupsFromConfig;
 
     it("DiscordProbe satisfies BaseProbeResult", () => {
       expectTypeOf<DiscordProbe>().toMatchTypeOf<BaseProbeResult>();
@@ -121,15 +125,20 @@ export function describeDiscordPluginsCoreExtensionContract() {
       } as unknown as OpenClawConfig;
 
       await expectDirectoryIds(
-        listPeers(),
+        await listPeers(),
         cfg,
         ["user:111", "user:12345", "user:222", "user:333", "user:444"],
         { sorted: true },
       );
-      await expectDirectoryIds(listGroups(), cfg, ["channel:555", "channel:666", "channel:777"], {
-        sorted: true,
-      });
-    });
+      await expectDirectoryIds(
+        await listGroups(),
+        cfg,
+        ["channel:555", "channel:666", "channel:777"],
+        {
+          sorted: true,
+        },
+      );
+    }, 180_000);
 
     it("keeps directories readable when tokens are unresolved SecretRefs", async () => {
       const envSecret = {
@@ -153,8 +162,8 @@ export function describeDiscordPluginsCoreExtensionContract() {
         },
       } as unknown as OpenClawConfig;
 
-      await expectDirectoryIds(listPeers(), cfg, ["user:111"]);
-      await expectDirectoryIds(listGroups(), cfg, ["channel:555"]);
+      await expectDirectoryIds(await listPeers(), cfg, ["user:111"]);
+      await expectDirectoryIds(await listGroups(), cfg, ["channel:555"]);
     });
 
     it("applies query and limit filtering for config-backed directories", async () => {
@@ -175,7 +184,7 @@ export function describeDiscordPluginsCoreExtensionContract() {
         },
       } as unknown as OpenClawConfig;
 
-      const groups = await listGroups()({
+      const groups = await (await listGroups())({
         cfg,
         accountId: "default",
         query: "666",

@@ -23,8 +23,9 @@ import { note } from "../terminal/note.js";
 import { shortenHomePath } from "../utils.js";
 
 const CLAUDE_CLI_PROVIDER = "claude-cli";
-const CLAUDE_PROJECTS_DIRNAME = path.join(".claude", "projects");
+const CLAUDE_PROJECTS_DIR_SEGMENTS = [".claude", "projects"] as const;
 const MAX_SANITIZED_PROJECT_LENGTH = 200;
+const WINDOWS_ABSOLUTE_PATH_RE = /^[A-Za-z]:[\\/]/;
 
 type ClaudeCliReadableCredential =
   | Pick<OAuthCredential, "type" | "expires">
@@ -98,8 +99,32 @@ function sanitizeClaudeCliProjectKey(workspaceDir: string): string {
   return `${sanitized.slice(0, MAX_SANITIZED_PROJECT_LENGTH)}-${simpleHash36(workspaceDir)}`;
 }
 
+function isPosixAbsolutePath(value: string): boolean {
+  return value.startsWith("/") && !WINDOWS_ABSOLUTE_PATH_RE.test(value);
+}
+
+function normalizePortableAbsolutePath(value: string): string {
+  const trimmed = value.trim();
+  if (WINDOWS_ABSOLUTE_PATH_RE.test(trimmed)) {
+    return path.win32.normalize(trimmed).normalize("NFC");
+  }
+  if (isPosixAbsolutePath(trimmed)) {
+    return path.posix.normalize(trimmed).normalize("NFC");
+  }
+  return path.resolve(trimmed).normalize("NFC");
+}
+
+function joinPortablePath(basePath: string, ...segments: string[]): string {
+  return isPosixAbsolutePath(basePath)
+    ? path.posix.join(basePath, ...segments)
+    : path.join(basePath, ...segments);
+}
+
 function canonicalizeWorkspaceDir(workspaceDir: string): string {
-  const resolved = path.resolve(workspaceDir).normalize("NFC");
+  const resolved = normalizePortableAbsolutePath(workspaceDir);
+  if (process.platform === "win32" && isPosixAbsolutePath(resolved)) {
+    return resolved;
+  }
   try {
     return fs.realpathSync.native(resolved).normalize("NFC");
   } catch {
@@ -113,9 +138,9 @@ export function resolveClaudeCliProjectDirForWorkspace(params: {
 }): string {
   const homeDir = normalizeOptionalString(params.homeDir) || process.env.HOME || os.homedir();
   const canonicalWorkspaceDir = canonicalizeWorkspaceDir(params.workspaceDir);
-  return path.join(
+  return joinPortablePath(
     homeDir,
-    CLAUDE_PROJECTS_DIRNAME,
+    ...CLAUDE_PROJECTS_DIR_SEGMENTS,
     sanitizeClaudeCliProjectKey(canonicalWorkspaceDir),
   );
 }

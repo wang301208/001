@@ -1,0 +1,16 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |extension-qa| extensions/qa-lab/src/lab-server.test.ts > qa-lab server > tracks inbound messages in bus state
+Error: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ extensions/qa-lab/src/lab-server.test.ts:158:3
+    156|   });
+    157|
+    158|   it("anchors direct self-check runs under the explicit repo root by d…
+       |   ^
+    159|     const repoRoot = await mkdtemp(path.join(os.tmpdir(), "qa-lab-self…
+    160|     cleanups.push(async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

@@ -1,0 +1,19 @@
+node:internal/modules/esm/resolve:314
+  return new ERR_PACKAGE_PATH_NOT_EXPORTED(
+         ^
+
+Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './oauth' is not defined by "exports" in G:\项目\-\node_modules\@mariozechner\pi-ai\package.json
+    at exportsNotFound (node:internal/modules/esm/resolve:314:10)
+    at packageExportsResolve (node:internal/modules/esm/resolve:605:13)
+    at resolveExports (node:internal/modules/cjs/loader:685:36)
+    at Module._findPath (node:internal/modules/cjs/loader:752:31)
+    at node:internal/modules/cjs/loader:1441:27
+    at nextResolveSimple (G:\项目\-\node_modules\tsx\dist\register-D46fvsV_.cjs:4:1004)
+    at G:\项目\-\node_modules\tsx\dist\register-D46fvsV_.cjs:3:2630
+    at G:\项目\-\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1542
+    at resolveTsPaths (G:\项目\-\node_modules\tsx\dist\register-D46fvsV_.cjs:4:760)
+    at G:\项目\-\node_modules\tsx\dist\register-D46fvsV_.cjs:4:1102 {
+  code: 'ERR_PACKAGE_PATH_NOT_EXPORTED'
+}
+
+Node.js v24.14.1

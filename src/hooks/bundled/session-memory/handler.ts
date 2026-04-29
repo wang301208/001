@@ -14,6 +14,7 @@ import {
 } from "../../../agents/agent-scope.js";
 import { resolveStateDir } from "../../../config/paths.js";
 import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import { isTruthyEnvValue } from "../../../infra/env.js";
 import { writeFileWithinRoot } from "../../../infra/fs-safe.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
 import {
@@ -145,8 +146,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
       // Avoid calling the model provider in unit tests; keep hooks fast and deterministic.
       const isTestEnv =
         process.env.OPENCLAW_TEST_FAST === "1" ||
-        process.env.VITEST === "true" ||
-        process.env.VITEST === "1" ||
+        isTruthyEnvValue(process.env.VITEST) ||
         process.env.NODE_ENV === "test";
       const allowLlmSlug = !isTestEnv && hookConfig?.llmSlug !== false;
 

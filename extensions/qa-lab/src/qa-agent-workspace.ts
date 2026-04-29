@@ -40,6 +40,10 @@ The mounted repo source should be available read-only under \`./repo/\`.
   if (params.repoRoot) {
     const repoLinkPath = path.join(params.workspaceDir, "repo");
     await fs.rm(repoLinkPath, { force: true, recursive: true });
-    await fs.symlink(params.repoRoot, repoLinkPath, "dir");
+    await fs.symlink(
+      params.repoRoot,
+      repoLinkPath,
+      process.platform === "win32" ? "junction" : "dir",
+    );
   }
 }

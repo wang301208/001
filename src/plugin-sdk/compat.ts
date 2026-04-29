@@ -1,8 +1,9 @@
 // Legacy compat surface for external plugins that still depend on older
 // broad plugin-sdk imports. Keep this file intentionally small.
+import { isTruthyEnvValue } from "../infra/env.js";
 
 const shouldWarnCompatImport =
-  process.env.VITEST !== "true" &&
+  !isTruthyEnvValue(process.env.VITEST) &&
   process.env.NODE_ENV !== "test" &&
   process.env.OPENCLAW_SUPPRESS_PLUGIN_SDK_COMPAT_WARNING !== "1";
 

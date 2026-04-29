@@ -28,6 +28,27 @@ import { createMemoryCoreTestHarness } from "./test-helpers.js";
 const { createTempWorkspace } = createMemoryCoreTestHarness();
 const DREAMS_FILE_LOCKS_KEY = Symbol.for("openclaw.memoryCore.dreamingNarrative.fileLocks");
 
+async function tryCreateSymlink(
+  targetPath: string,
+  linkPath: string,
+  type: "file" | "dir" = "file",
+): Promise<boolean> {
+  try {
+    await fs.symlink(
+      targetPath,
+      linkPath,
+      process.platform === "win32" && type === "dir" ? "junction" : type,
+    );
+    return true;
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (process.platform === "win32" && (code === "EPERM" || code === "EACCES")) {
+      return false;
+    }
+    throw error;
+  }
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   resolveGlobalMap<string, unknown>(DREAMS_FILE_LOCKS_KEY).clear();
@@ -256,7 +277,10 @@ describe("backfill diary entries", () => {
     const targetPath = path.join(workspaceDir, "outside.txt");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(targetPath, "outside\n", "utf-8");
-    await fs.symlink(targetPath, dreamsPath);
+    const linked = await tryCreateSymlink(targetPath, dreamsPath);
+    if (!linked) {
+      return;
+    }
 
     await expect(
       writeBackfillDiaryEntries({
@@ -383,6 +407,7 @@ describe("appendNarrativeEntry", () => {
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(dreamsPath, "# Existing\n", { encoding: "utf-8", mode: 0o600 });
     await fs.chmod(dreamsPath, 0o600);
+    const initialMode = (await fs.stat(dreamsPath)).mode & 0o777;
 
     await appendNarrativeEntry({
       workspaceDir,
@@ -392,6 +417,10 @@ describe("appendNarrativeEntry", () => {
     });
 
     const stat = await fs.stat(dreamsPath);
+    if (process.platform === "win32") {
+      expect(stat.mode & 0o777).toBe(initialMode);
+      return;
+    }
     expect(stat.mode & 0o777).toBe(0o600);
   });
 

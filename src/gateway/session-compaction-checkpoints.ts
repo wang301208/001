@@ -13,7 +13,7 @@ import type {
 } from "../config/sessions.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveGatewaySessionStoreTarget } from "./session-utils.js";
+import { migrateAndPruneGatewaySessionStoreKey, resolveGatewaySessionStoreTarget } from "./session-utils.js";
 
 const log = createSubsystemLogger("gateway/session-compaction-checkpoints");
 const MAX_COMPACTION_CHECKPOINTS_PER_SESSION = 25;
@@ -56,12 +56,25 @@ export function resolveSessionCompactionCheckpointReason(params: {
 }
 
 export function captureCompactionCheckpointSnapshot(params: {
-  sessionManager: Pick<SessionManager, "getLeafId">;
+  sessionManager: Pick<SessionManager, "getLeafId"> &
+    Partial<Pick<SessionManager, "getSessionId" | "getHeader" | "getEntries">>;
   sessionFile: string;
 }): CapturedCompactionCheckpointSnapshot | null {
   const getLeafId =
     params.sessionManager && typeof params.sessionManager.getLeafId === "function"
       ? params.sessionManager.getLeafId.bind(params.sessionManager)
+      : null;
+  const getSessionId =
+    params.sessionManager && typeof params.sessionManager.getSessionId === "function"
+      ? params.sessionManager.getSessionId.bind(params.sessionManager)
+      : null;
+  const getHeader =
+    params.sessionManager && typeof params.sessionManager.getHeader === "function"
+      ? params.sessionManager.getHeader.bind(params.sessionManager)
+      : null;
+  const getEntries =
+    params.sessionManager && typeof params.sessionManager.getEntries === "function"
+      ? params.sessionManager.getEntries.bind(params.sessionManager)
       : null;
   const sessionFile = params.sessionFile.trim();
   if (!getLeafId || !sessionFile) {
@@ -77,9 +90,27 @@ export function captureCompactionCheckpointSnapshot(params: {
     `${parsedSessionFile.name}.checkpoint.${randomUUID()}${parsedSessionFile.ext || ".jsonl"}`,
   );
   try {
-    fsSync.copyFileSync(sessionFile, snapshotFile);
+    if (fsSync.existsSync(sessionFile)) {
+      fsSync.copyFileSync(sessionFile, snapshotFile);
+    } else {
+      const header = getHeader?.();
+      const entries = getEntries?.();
+      if (!header || !Array.isArray(entries)) {
+        return null;
+      }
+      const content = [header, ...entries].map((entry) => JSON.stringify(entry)).join("\n");
+      fsSync.writeFileSync(snapshotFile, `${content}\n`, "utf8");
+    }
   } catch {
     return null;
+  }
+  const sessionId = getSessionId?.();
+  if (sessionId) {
+    return {
+      sessionId,
+      sessionFile: snapshotFile,
+      leafId,
+    };
   }
   let snapshotSession: SessionManager;
   try {
@@ -92,15 +123,15 @@ export function captureCompactionCheckpointSnapshot(params: {
     }
     return null;
   }
-  const getSessionId =
+  const getSnapshotSessionId =
     snapshotSession && typeof snapshotSession.getSessionId === "function"
       ? snapshotSession.getSessionId.bind(snapshotSession)
       : null;
-  if (!getSessionId) {
+  if (!getSnapshotSessionId) {
     return null;
   }
   return {
-    sessionId: getSessionId(),
+    sessionId: getSnapshotSessionId(),
     sessionFile: snapshotFile,
     leafId,
   };
@@ -174,13 +205,17 @@ export async function persistSessionCompactionCheckpoint(params: {
 
   let stored = false;
   await updateSessionStore(target.storePath, (store) => {
-    const existing = store[target.canonicalKey];
+    const { primaryKey, entry: existing } = migrateAndPruneGatewaySessionStoreKey({
+      cfg: params.cfg,
+      key: params.sessionKey,
+      store,
+    });
     if (!existing?.sessionId) {
       return;
     }
     const checkpoints = sessionStoreCheckpoints(existing);
     checkpoints.push(checkpoint);
-    store[target.canonicalKey] = {
+    store[primaryKey] = {
       ...existing,
       updatedAt: Math.max(existing.updatedAt ?? 0, createdAt),
       compactionCheckpoints: trimSessionCheckpoints(checkpoints),

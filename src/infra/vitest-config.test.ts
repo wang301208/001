@@ -1,3 +1,4 @@
+import path from "node:path";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parseVitestProcessStats } from "../../test/vitest/vitest.system-load.ts";
@@ -193,6 +194,11 @@ describe("parseVitestProcessStats", () => {
 });
 
 describe("base vitest config", () => {
+  const normalizeForMatch = (value: string | undefined) =>
+    value ? path.normalize(value).toLowerCase() : "";
+  const endsWithPath = (value: string | undefined, suffix: string) =>
+    normalizeForMatch(value).endsWith(path.normalize(suffix).toLowerCase());
+
   it("defaults the base pool to threads", () => {
     expect(resolveDefaultVitestPool()).toBe("threads");
     expect(baseConfig.test?.pool).toBe("threads");
@@ -204,12 +210,16 @@ describe("base vitest config", () => {
 
   it("keeps the base setup file minimal", () => {
     expect(baseConfig.test?.setupFiles).toHaveLength(1);
-    expect(baseConfig.test?.setupFiles?.[0]).toMatch(/(?:^|\/)test\/setup\.ts$/u);
+    expect(endsWithPath(baseConfig.test?.setupFiles?.[0], path.join("test", "setup.ts"))).toBe(
+      true,
+    );
   });
 
   it("keeps the base runner non-isolated by default", () => {
     expect(baseConfig.test?.isolate).toBe(false);
-    expect(baseConfig.test?.runner).toMatch(/(?:^|\/)test\/non-isolated-runner\.ts$/u);
+    expect(
+      endsWithPath(baseConfig.test?.runner, path.join("test", "non-isolated-runner.ts")),
+    ).toBe(true);
   });
 });
 

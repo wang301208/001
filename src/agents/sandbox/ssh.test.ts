@@ -47,7 +47,7 @@ describe("sandbox ssh helpers", () => {
     expect(config).toContain("StrictHostKeyChecking yes");
     expect(config).toContain("UpdateHostKeys no");
 
-    const configDir = session.configPath.slice(0, session.configPath.lastIndexOf("/"));
+    const configDir = path.dirname(session.configPath);
     expect(await fs.readFile(`${configDir}/identity`, "utf8")).toBe("PRIVATE KEY\n");
     expect(await fs.readFile(`${configDir}/certificate.pub`, "utf8")).toBe("SSH CERT\n");
     expect(await fs.readFile(`${configDir}/known_hosts`, "utf8")).toBe(
@@ -67,7 +67,7 @@ describe("sandbox ssh helpers", () => {
     });
     sessions.push(session);
 
-    const configDir = session.configPath.slice(0, session.configPath.lastIndexOf("/"));
+    const configDir = path.dirname(session.configPath);
     expect(await fs.readFile(`${configDir}/identity`, "utf8")).toBe(
       "-----BEGIN OPENSSH PRIVATE KEY-----\n" +
         "bGluZTE=\n" +
@@ -88,7 +88,7 @@ describe("sandbox ssh helpers", () => {
     });
     sessions.push(session);
 
-    const configDir = session.configPath.slice(0, session.configPath.lastIndexOf("/"));
+    const configDir = path.dirname(session.configPath);
     expect(await fs.readFile(`${configDir}/identity`, "utf8")).toBe(
       "-----BEGIN OPENSSH PRIVATE KEY-----\n" +
         "line-1\n" +

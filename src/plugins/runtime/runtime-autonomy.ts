@@ -3747,6 +3747,7 @@ function createBoundAutonomyRuntime(params: {
     input: AutonomySupervisorParams,
   ): Promise<AutonomySupervisorResult> => {
     const governanceMode: AutonomySupervisorGovernanceMode = input.governanceMode ?? "apply_safe";
+    const telemetrySource = input.telemetrySource ?? "manual";
     const overviewBefore = await getFleetStatus({
       ...(input.agentIds?.length ? { agentIds: input.agentIds } : {}),
       ...(input.workspaceDirs?.length ? { workspaceDirs: input.workspaceDirs } : {}),
@@ -3757,7 +3758,7 @@ function createBoundAutonomyRuntime(params: {
       ...(typeof input.restartBlockedFlows === "boolean"
         ? { restartBlockedFlows: input.restartBlockedFlows }
         : {}),
-      telemetrySource: "supervisor",
+      telemetrySource,
       recordHistory: input.recordHistory ?? true,
       synthesizeGovernanceProposals: governanceMode === "none",
     });

@@ -84,20 +84,6 @@ describe("openVerifiedFileSync", () => {
       },
     },
     {
-      name: "symlink paths when rejectPathSymlink is enabled",
-      expectedReason: "validation" as const,
-      setup: async (root: string) => {
-        const targetFile = path.join(root, "target.txt");
-        const linkFile = path.join(root, "link.txt");
-        await fsp.writeFile(targetFile, "hello");
-        await fsp.symlink(targetFile, linkFile);
-        return {
-          filePath: linkFile,
-          rejectPathSymlink: true,
-        };
-      },
-    },
-    {
       name: "files larger than maxBytes",
       expectedReason: "validation" as const,
       setup: async (root: string) => {
@@ -112,6 +98,25 @@ describe("openVerifiedFileSync", () => {
   ])("fails for $name", async ({ setup, expectedReason }) => {
     await expectOpenFailure({ setup, expectedReason });
   });
+
+  it.runIf(process.platform !== "win32")(
+    "fails for symlink paths when rejectPathSymlink is enabled",
+    async () => {
+      await expectOpenFailure({
+        expectedReason: "validation",
+        setup: async (root: string) => {
+          const targetFile = path.join(root, "target.txt");
+          const linkFile = path.join(root, "link.txt");
+          await fsp.writeFile(targetFile, "hello");
+          await fsp.symlink(targetFile, linkFile);
+          return {
+            filePath: linkFile,
+            rejectPathSymlink: true,
+          };
+        },
+      });
+    },
+  );
 
   it("accepts directories when allowedType is directory", async () => {
     await withTempDir({ prefix: "openclaw-safe-open-" }, async (root) => {

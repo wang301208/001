@@ -14,6 +14,10 @@ const createBackupVerifyRuntime = () => ({
   exit: vi.fn(),
 });
 
+function normalizeTarFixtureSourcePath(filePath: string): string {
+  return path.resolve(filePath).replaceAll("\\", "/");
+}
+
 function createBackupManifest(assetArchivePath: string, archiveRoot = TEST_ARCHIVE_ROOT) {
   return {
     schemaVersion: 1,
@@ -55,7 +59,7 @@ async function withBrokenArchiveFixture(
     }),
   );
   const payloadEntryPathBySource = new Map(
-    payloadSpecs.map((payload) => [payload.path, payload.archivePath]),
+    payloadSpecs.map((payload) => [normalizeTarFixtureSourcePath(payload.path), payload.archivePath]),
   );
 
   try {
@@ -71,11 +75,16 @@ async function withBrokenArchiveFixture(
         portable: true,
         preservePaths: true,
         onWriteEntry: (entry) => {
-          if (entry.path === manifestPath) {
+          if (
+            normalizeTarFixtureSourcePath(entry.path) ===
+            normalizeTarFixtureSourcePath(manifestPath)
+          ) {
             entry.path = `${TEST_ARCHIVE_ROOT}/manifest.json`;
             return;
           }
-          const payloadEntryPath = payloadEntryPathBySource.get(entry.path);
+          const payloadEntryPath = payloadEntryPathBySource.get(
+            normalizeTarFixtureSourcePath(entry.path),
+          );
           if (payloadEntryPath) {
             entry.path = payloadEntryPath;
           }
@@ -117,17 +126,23 @@ describe("backupVerifyCommand", () => {
         {
           file: archivePath,
           gzip: true,
-          portable: true,
-          preservePaths: true,
-          onWriteEntry: (entry) => {
-            if (entry.path === manifestPath) {
-              entry.path = `${archiveRoot}/manifest.json`;
-              return;
-            }
-            if (entry.path === payloadPath) {
-              entry.path = payloadArchivePath;
-            }
-          },
+        portable: true,
+        preservePaths: true,
+        onWriteEntry: (entry) => {
+          if (
+            normalizeTarFixtureSourcePath(entry.path) ===
+            normalizeTarFixtureSourcePath(manifestPath)
+          ) {
+            entry.path = `${archiveRoot}/manifest.json`;
+            return;
+          }
+          if (
+            normalizeTarFixtureSourcePath(entry.path) ===
+            normalizeTarFixtureSourcePath(payloadPath)
+          ) {
+            entry.path = payloadArchivePath;
+          }
+        },
         },
         [manifestPath, payloadPath],
       );
@@ -206,7 +221,7 @@ describe("backupVerifyCommand", () => {
       {
         tempPrefix: "openclaw-backup-backslash-",
         archivePath: `${TEST_ARCHIVE_ROOT}/payload\\..\\escaped.txt`,
-        error: /forward slashes/i,
+        error: /forward slashes|path traversal segments/i,
       },
     ]) {
       await withBrokenArchiveFixture(
@@ -270,21 +285,30 @@ describe("backupVerifyCommand", () => {
         {
           file: archivePath,
           gzip: true,
-          portable: true,
-          preservePaths: true,
-          onWriteEntry: (entry) => {
-            if (entry.path === manifestPath) {
-              entry.path = `${archiveRoot}/manifest.json`;
-              return;
-            }
-            if (entry.path === statePayloadPath) {
-              entry.path = stateArchivePath;
-              return;
-            }
-            if (entry.path === workspaceManifestPayloadPath) {
-              entry.path = workspaceArchivePath;
-            }
-          },
+        portable: true,
+        preservePaths: true,
+        onWriteEntry: (entry) => {
+          if (
+            normalizeTarFixtureSourcePath(entry.path) ===
+            normalizeTarFixtureSourcePath(manifestPath)
+          ) {
+            entry.path = `${archiveRoot}/manifest.json`;
+            return;
+          }
+          if (
+            normalizeTarFixtureSourcePath(entry.path) ===
+            normalizeTarFixtureSourcePath(statePayloadPath)
+          ) {
+            entry.path = stateArchivePath;
+            return;
+          }
+          if (
+            normalizeTarFixtureSourcePath(entry.path) ===
+            normalizeTarFixtureSourcePath(workspaceManifestPayloadPath)
+          ) {
+            entry.path = workspaceArchivePath;
+          }
+        },
         },
         [manifestPath, statePayloadPath, workspaceManifestPayloadPath],
       );

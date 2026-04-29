@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { resolveUserPath } from "../utils.js";
 
 const hoisted = vi.hoisted(() => ({
   resolveRuntimePluginRegistry: vi.fn(),
@@ -39,7 +40,7 @@ describe("ensureRuntimePluginsLoaded", () => {
 
     expect(hoisted.resolveRuntimePluginRegistry).toHaveBeenCalledWith({
       config: {} as never,
-      workspaceDir: "/tmp/workspace",
+      workspaceDir: resolveUserPath("/tmp/workspace"),
       runtimeOptions: {
         allowGatewaySubagentBinding: true,
       },

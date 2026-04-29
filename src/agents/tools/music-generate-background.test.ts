@@ -1,15 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MUSIC_GENERATION_TASK_KIND } from "../music-generation-task-status.js";
 import {
-  announceDeliveryMocks,
   expectDirectMediaSend,
   expectFallbackMediaAnnouncement,
   expectQueuedTaskRun,
   expectRecordedTaskProgress,
   resetMediaBackgroundMocks,
-  taskDeliveryRuntimeMocks,
-  taskExecutorMocks,
 } from "./media-generate-background.test-support.js";
+
+const taskExecutorMocks = vi.hoisted(() => ({
+  createRunningTaskRun: vi.fn(),
+  recordTaskRunProgressByRunId: vi.fn(),
+  completeTaskRunByRunId: vi.fn(),
+  failTaskRunByRunId: vi.fn(),
+}));
+
+const taskDeliveryRuntimeMocks = vi.hoisted(() => ({
+  sendMessage: vi.fn(),
+}));
+
+const announceDeliveryMocks = vi.hoisted(() => ({
+  deliverSubagentAnnouncement: vi.fn(),
+}));
 
 vi.mock("../../tasks/task-executor.js", () => taskExecutorMocks);
 vi.mock("../../tasks/task-registry-delivery-runtime.js", () => taskDeliveryRuntimeMocks);

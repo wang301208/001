@@ -12,6 +12,7 @@ import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { callGateway } from "../gateway/call.js";
 import { logVerbose } from "../globals.js";
 import { formatErrorMessage } from "../infra/errors.js";
+import { isTruthyEnvValue } from "../infra/env.js";
 import { isSubagentSessionKey, parseAgentSessionKey } from "../routing/session-key.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../utils/message-channel.js";
 import { AGENT_LANE_SUBAGENT } from "./lanes.js";
@@ -485,7 +486,7 @@ export async function steerControlledSubagentRun(params: {
   }
 
   const rateKey = `${params.controller.callerSessionKey}:${params.entry.childSessionKey}`;
-  if (process.env.VITEST !== "true") {
+  if (!isTruthyEnvValue(process.env.VITEST)) {
     const now = Date.now();
     const lastSentAt = steerRateLimit.get(rateKey) ?? 0;
     if (now - lastSentAt < STEER_RATE_LIMIT_MS) {

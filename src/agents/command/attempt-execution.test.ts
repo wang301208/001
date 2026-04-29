@@ -157,7 +157,17 @@ describe("sessionFileHasContent", () => {
       "utf-8",
     );
     const link = path.join(tmpDir, "link.jsonl");
-    await fs.symlink(realFile, link);
+    try {
+      await fs.symlink(realFile, link);
+    } catch (error) {
+      if (
+        process.platform === "win32" &&
+        ["EPERM", "EACCES"].includes((error as NodeJS.ErrnoException).code ?? "")
+      ) {
+        return;
+      }
+      throw error;
+    }
     expect(await sessionFileHasContent(link)).toBe(false);
   });
 });

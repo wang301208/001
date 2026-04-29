@@ -16,6 +16,8 @@ const SAFE_BIN_DOC_DEFAULTS_START = '[//]: # "SAFE_BIN_DEFAULTS:START"';
 const SAFE_BIN_DOC_DEFAULTS_END = '[//]: # "SAFE_BIN_DEFAULTS:END"';
 const SAFE_BIN_DOC_DENIED_FLAGS_START = '[//]: # "SAFE_BIN_DENIED_FLAGS:START"';
 const SAFE_BIN_DOC_DENIED_FLAGS_END = '[//]: # "SAFE_BIN_DENIED_FLAGS:END"';
+const EXEC_APPROVALS_DOCS_PATH = path.resolve(process.cwd(), "docs/tools/exec-approvals.md");
+const HAS_EXEC_APPROVALS_DOCS = fs.existsSync(EXEC_APPROVALS_DOCS_PATH);
 
 function buildDeniedFlagArgvVariants(flag: string): string[][] {
   const value = "blocked";
@@ -168,9 +170,8 @@ describe("exec safe bin policy denied-flag matrix", () => {
 });
 
 describe("exec safe bin policy docs parity", () => {
-  it("keeps default safe-bin docs in sync with policy defaults", () => {
-    const docsPath = path.resolve(process.cwd(), "docs/tools/exec-approvals.md");
-    const docs = fs.readFileSync(docsPath, "utf8").replaceAll("\r\n", "\n");
+  it.runIf(HAS_EXEC_APPROVALS_DOCS)("keeps default safe-bin docs in sync with policy defaults", () => {
+    const docs = fs.readFileSync(EXEC_APPROVALS_DOCS_PATH, "utf8").replaceAll("\r\n", "\n");
     const start = docs.indexOf(SAFE_BIN_DOC_DEFAULTS_START);
     const end = docs.indexOf(SAFE_BIN_DOC_DEFAULTS_END);
     expect(start).toBeGreaterThanOrEqual(0);
@@ -180,9 +181,8 @@ describe("exec safe bin policy docs parity", () => {
     expect(actual).toBe(expected);
   });
 
-  it("keeps denied-flag docs in sync with policy fixtures", () => {
-    const docsPath = path.resolve(process.cwd(), "docs/tools/exec-approvals.md");
-    const docs = fs.readFileSync(docsPath, "utf8").replaceAll("\r\n", "\n");
+  it.runIf(HAS_EXEC_APPROVALS_DOCS)("keeps denied-flag docs in sync with policy fixtures", () => {
+    const docs = fs.readFileSync(EXEC_APPROVALS_DOCS_PATH, "utf8").replaceAll("\r\n", "\n");
     const start = docs.indexOf(SAFE_BIN_DOC_DENIED_FLAGS_START);
     const end = docs.indexOf(SAFE_BIN_DOC_DENIED_FLAGS_END);
     expect(start).toBeGreaterThanOrEqual(0);

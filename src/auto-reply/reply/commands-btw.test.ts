@@ -1,3 +1,4 @@
+import path from "node:path";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { resolveAgentDir } from "../../agents/agent-scope.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -132,7 +133,7 @@ describe("handleBtwCommand", () => {
     expect(runBtwSideQuestionMock).toHaveBeenCalledWith(
       expect.objectContaining({
         question: "what changed?",
-        agentDir: expect.stringContaining("/agents/main/agent"),
+        agentDir: expect.stringContaining(path.join("agents", "main", "agent")),
         sessionEntry: params.sessionEntry,
         resolvedThinkLevel: "off",
         resolvedReasoningLevel: "off",
@@ -159,7 +160,7 @@ describe("handleBtwCommand", () => {
 
     expect(runBtwSideQuestionMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: expect.stringContaining("/agents/worker-1/agent"),
+        agentDir: expect.stringContaining(path.join("agents", "worker-1", "agent")),
       }),
     );
     expect(result).toEqual({
@@ -188,7 +189,7 @@ describe("handleBtwCommand", () => {
     });
     expect(runBtwSideQuestionMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        agentDir: expect.stringContaining("/agents/worker-1/agent"),
+        agentDir: expect.stringContaining(path.join("agents", "worker-1", "agent")),
       }),
     );
     expect(result).toEqual({

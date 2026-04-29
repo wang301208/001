@@ -120,6 +120,19 @@ describe("handleControlUiHttpRequest", () => {
     return { assetsDir, filePath };
   }
 
+  async function createSymlinkOrSkip(targetPath: string, linkPath: string): Promise<boolean> {
+    try {
+      await fs.symlink(targetPath, linkPath);
+      return true;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (process.platform === "win32" && (code === "EPERM" || code === "EACCES")) {
+        return false;
+      }
+      throw error;
+    }
+  }
+
   async function createHardlinkedAssetFile(rootPath: string) {
     const { filePath } = await writeAssetFile(rootPath, "app.js", "console.log('hi');");
     const hardlinkPath = path.join(path.dirname(filePath), "app.hl.js");
@@ -418,7 +431,9 @@ describe("handleControlUiHttpRequest", () => {
       const outsideFile = path.join(outside, "secret.txt");
       await fs.writeFile(outsideFile, "outside-secret\n");
       const linkPath = path.join(tmp, "avatar-link.png");
-      await fs.symlink(outsideFile, linkPath);
+      if (!(await createSymlinkOrSkip(outsideFile, linkPath))) {
+        return;
+      }
 
       const { res, end, handled } = runAvatarRequest({
         url: "/avatar/main",
@@ -442,7 +457,9 @@ describe("handleControlUiHttpRequest", () => {
           const outsideFile = path.join(outsideDir, "secret.txt");
           await fs.mkdir(assetsDir, { recursive: true });
           await fs.writeFile(outsideFile, "outside-secret\n");
-          await fs.symlink(outsideFile, path.join(assetsDir, "leak.txt"));
+          if (!(await createSymlinkOrSkip(outsideFile, path.join(assetsDir, "leak.txt")))) {
+            return;
+          }
 
           const { res, end } = makeMockHttpResponse();
           const handled = handleControlUiHttpRequest(
@@ -464,7 +481,9 @@ describe("handleControlUiHttpRequest", () => {
     await withControlUiRoot({
       fn: async (tmp) => {
         const { assetsDir, filePath } = await writeAssetFile(tmp, "actual.txt", "inside-ok\n");
-        await fs.symlink(filePath, path.join(assetsDir, "linked.txt"));
+        if (!(await createSymlinkOrSkip(filePath, path.join(assetsDir, "linked.txt")))) {
+          return;
+        }
 
         const { res, end, handled } = runControlUiRequest({
           url: "/assets/linked.txt",
@@ -505,7 +524,9 @@ describe("handleControlUiHttpRequest", () => {
           const outsideIndex = path.join(outsideDir, "index.html");
           await fs.writeFile(outsideIndex, "<html>outside</html>\n");
           await fs.rm(path.join(tmp, "index.html"));
-          await fs.symlink(outsideIndex, path.join(tmp, "index.html"));
+          if (!(await createSymlinkOrSkip(outsideIndex, path.join(tmp, "index.html")))) {
+            return;
+          }
 
           const { res, end, handled } = runControlUiRequest({
             url: "/app/route",

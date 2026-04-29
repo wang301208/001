@@ -542,9 +542,21 @@ describe("gateway server misc", () => {
       "utf-8",
     );
 
-    const autoPort = await getFreePort();
-    const autoServer = await startGatewayServer(autoPort);
-    await autoServer.close();
+    const prevAllowAutoEnableInMinimalGateway =
+      process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE;
+    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE = "1";
+    try {
+      const autoPort = await getFreePort();
+      const autoServer = await startGatewayServer(autoPort);
+      await autoServer.close();
+    } finally {
+      if (prevAllowAutoEnableInMinimalGateway === undefined) {
+        delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE;
+      } else {
+        process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE =
+          prevAllowAutoEnableInMinimalGateway;
+      }
+    }
 
     const updated = JSON.parse(await fs.readFile(configPath, "utf-8")) as Record<string, unknown>;
     const channels = updated.channels as Record<string, unknown> | undefined;

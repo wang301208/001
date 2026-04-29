@@ -10,6 +10,10 @@ import { isQmdScopeAllowed } from "./qmd-scope.js";
 const resolveComparablePath = (value: string, workspaceDir = "/workspace/root"): string =>
   path.isAbsolute(value) ? path.resolve(value) : path.resolve(workspaceDir, value);
 
+async function createDirectoryAlias(targetPath: string, aliasPath: string) {
+  await fs.symlink(targetPath, aliasPath, process.platform === "win32" ? "junction" : "dir");
+}
+
 function resolveCollectionNamesForAgent(cfg: OpenClawConfig, agentId: string): Set<string> {
   return new Set(
     (resolveMemoryBackendConfig({ cfg, agentId }).qmd?.collections ?? []).map(
@@ -233,7 +237,7 @@ describe("resolveMemoryBackendConfig", () => {
     const workspaceAliasDir = path.join(tmpRoot, "workspace-alias");
     try {
       await fs.mkdir(workspaceDir, { recursive: true });
-      await fs.symlink(workspaceDir, workspaceAliasDir);
+      await createDirectoryAlias(workspaceDir, workspaceAliasDir);
       const cfg = {
         agents: {
           defaults: { workspace: workspaceDir },
@@ -263,7 +267,7 @@ describe("resolveMemoryBackendConfig", () => {
     const workspaceAliasDir = path.join(aliasRootDir, "workspace");
     try {
       await fs.mkdir(workspaceDir, { recursive: true });
-      await fs.symlink(realRootDir, aliasRootDir);
+      await createDirectoryAlias(realRootDir, aliasRootDir);
       const cfg = {
         agents: {
           defaults: { workspace: workspaceDir },

@@ -65,7 +65,11 @@ describe("qa suite planning helpers", () => {
     const outsideRoot = await mkdtemp(path.join(os.tmpdir(), "qa-suite-outside-"));
     try {
       await mkdir(path.join(repoRoot, ".artifacts"), { recursive: true });
-      await symlink(outsideRoot, path.join(repoRoot, ".artifacts", "qa-e2e"), "dir");
+      await symlink(
+        outsideRoot,
+        path.join(repoRoot, ".artifacts", "qa-e2e"),
+        process.platform === "win32" ? "junction" : "dir",
+      );
 
       await expect(resolveQaSuiteOutputDir(repoRoot, ".artifacts/qa-e2e/custom")).rejects.toThrow(
         "QA suite outputDir must not traverse symlinks.",

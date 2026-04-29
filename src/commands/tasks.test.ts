@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import type { RuntimeEnv } from "../runtime.js";
 import {
   createManagedTaskFlow,
@@ -32,6 +33,7 @@ function createGovernanceRuntime(agentId = "founder", observedAt = 1_710_000_000
     agentId,
     observedAt,
     summary: {
+      ...createEmptyAgentToolGovernanceSummary(),
       charterDeclared: true,
       charterTitle: "Autonomy Charter",
       charterLayer: "governance",
@@ -39,9 +41,6 @@ function createGovernanceRuntime(agentId = "founder", observedAt = 1_710_000_000
       charterRequireAgentId: true,
       charterExecutionContract: "strict-agentic" as const,
       charterElevatedLocked: true,
-      freezeActive: false,
-      freezeDeny: [],
-      freezeDetails: [],
     },
   };
 }

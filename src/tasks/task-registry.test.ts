@@ -11,6 +11,7 @@ import {
   hasPendingHeartbeatWake,
   resetHeartbeatWakeStateForTests,
 } from "../infra/heartbeat-wake.js";
+import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
 import type { ParsedAgentSessionKey } from "../routing/session-key.js";
@@ -237,6 +238,7 @@ function createGovernanceRuntime(
     agentId,
     observedAt,
     summary: {
+      ...createEmptyAgentToolGovernanceSummary(),
       charterDeclared: true,
       charterTitle: "Autonomy Charter",
       charterLayer: "governance",
@@ -244,9 +246,6 @@ function createGovernanceRuntime(
       charterRequireAgentId: true,
       charterExecutionContract: "strict-agentic" as const,
       charterElevatedLocked: true,
-      freezeActive: false,
-      freezeDeny: [],
-      freezeDetails: [],
     },
   };
 }

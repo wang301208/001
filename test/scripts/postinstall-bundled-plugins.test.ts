@@ -356,9 +356,12 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("rejects symlink entries in packaged dist trees", () => {
+    const packageRoot = "/pkg";
+    const distDir = path.join(packageRoot, "dist");
+
     expect(() =>
       pruneInstalledPackageDist({
-        packageRoot: "/pkg",
+        packageRoot,
         expectedFiles: new Set(),
         existsSync: vi.fn(() => true),
         lstatSync: vi.fn(() => ({
@@ -367,7 +370,7 @@ describe("bundled plugin postinstall", () => {
         })),
         realpathSync: vi.fn((filePath) => filePath),
         readdirSync: vi.fn((filePath) => {
-          if (filePath === "/pkg/dist") {
+          if (filePath === distDir) {
             return [
               {
                 name: "escape",
@@ -386,11 +389,13 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("unlinks stale files instead of recursive pruning them", () => {
+    const packageRoot = "/pkg";
+    const distDir = path.join(packageRoot, "dist");
     const unlinkSync = vi.fn();
 
     expect(
       pruneInstalledPackageDist({
-        packageRoot: "/pkg",
+        packageRoot,
         expectedFiles: new Set(),
         existsSync: vi.fn(() => true),
         lstatSync: vi.fn(() => ({
@@ -399,7 +404,7 @@ describe("bundled plugin postinstall", () => {
         })),
         realpathSync: vi.fn((filePath) => filePath),
         readdirSync: vi.fn((filePath, options) => {
-          if (filePath === "/pkg/dist" && options?.withFileTypes) {
+          if (filePath === distDir && options?.withFileTypes) {
             return [
               {
                 name: "stale.js",
@@ -416,7 +421,7 @@ describe("bundled plugin postinstall", () => {
       }),
     ).toEqual(["dist/stale.js"]);
 
-    expect(unlinkSync).toHaveBeenCalledWith("/pkg/dist/stale.js");
+    expect(unlinkSync).toHaveBeenCalledWith(path.join(packageRoot, "dist", "stale.js"));
   });
 
   it("runs nested local installs with sanitized env when the sentinel package is missing", async () => {

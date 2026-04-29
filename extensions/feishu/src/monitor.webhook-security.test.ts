@@ -80,6 +80,71 @@ async function waitForSlowBodyTimeoutResponse(
   });
 }
 
+async function sendWebhookRequestAndCaptureRawResponse(params: {
+  url: string;
+  contentLength: number;
+  bodyPrefix?: string;
+  timeoutMs: number;
+}): Promise<string> {
+  return await new Promise<string>((resolve, reject) => {
+    const target = new URL(params.url);
+    let response = "";
+    let settled = false;
+    const finish = (handler: () => void) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(failTimer);
+      socket.destroy();
+      handler();
+    };
+    const socket = createConnection(
+      {
+        host: target.hostname,
+        port: Number(target.port),
+      },
+      () => {
+        socket.write(`POST ${target.pathname} HTTP/1.1\r\n`);
+        socket.write(`Host: ${target.hostname}\r\n`);
+        socket.write("Content-Type: application/json\r\n");
+        socket.write("Connection: close\r\n");
+        socket.write(`Content-Length: ${params.contentLength}\r\n`);
+        socket.write("\r\n");
+        if (params.bodyPrefix) {
+          socket.write(params.bodyPrefix);
+        }
+      },
+    );
+
+    socket.setEncoding("utf8");
+    socket.on("data", (chunk) => {
+      response += chunk;
+      if (response.includes("Payload too large")) {
+        finish(() => resolve(response));
+      }
+    });
+    socket.on("error", (error) => {
+      if (response.includes("Payload too large")) {
+        finish(() => resolve(response));
+        return;
+      }
+      finish(() => reject(error));
+    });
+    socket.on("close", () => {
+      if (response) {
+        finish(() => resolve(response));
+        return;
+      }
+      finish(() => reject(new Error("connection closed before webhook response was captured")));
+    });
+
+    const failTimer = setTimeout(() => {
+      finish(() => reject(new Error(`raw webhook response did not arrive within ${params.timeoutMs}ms`)));
+    }, params.timeoutMs);
+  });
+}
+
 afterEach(() => {
   clearFeishuWebhookRateLimitStateForTest();
   stopFeishuMonitor();
@@ -174,14 +239,15 @@ describe("Feishu webhook security hardening", () => {
       },
       monitorFeishuProvider,
       async (url) => {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ payload: "x".repeat(70 * 1024) }),
+        const response = await sendWebhookRequestAndCaptureRawResponse({
+          url,
+          contentLength: Buffer.byteLength('{"payload":"') + 70 * 1024 + Buffer.byteLength('"}'),
+          bodyPrefix: '{"payload":"',
+          timeoutMs: 15_000,
         });
 
-        expect(response.status).toBe(413);
-        expect(await response.text()).toBe("Payload too large");
+        expect(response).toContain("413 Payload Too Large");
+        expect(response).toContain("Payload too large");
       },
     );
   });

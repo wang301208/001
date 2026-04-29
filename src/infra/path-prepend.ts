@@ -74,6 +74,11 @@ export function applyPathPrepend(
   }
   const merged = mergePathPrepend(env[pathKey], prepend);
   if (merged) {
+    for (const key of Object.keys(env)) {
+      if (key.toUpperCase() === "PATH") {
+        env[key] = merged;
+      }
+    }
     env[pathKey] = merged;
   }
 }

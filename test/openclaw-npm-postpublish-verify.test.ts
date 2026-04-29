@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -338,23 +338,13 @@ describe("collectInstalledMirroredRootDependencyManifestErrors", () => {
 
   it("rejects bundled extension manifests that are not regular files", () => {
     const packageRoot = makeInstalledPackageRoot();
-    const outsideManifestRoot = makeInstalledPackageRoot();
 
     try {
       writePackageFile(packageRoot, "package.json", {
         version: "2026.4.10",
         dependencies: {},
       });
-      writePackageFile(outsideManifestRoot, "package.json", {
-        dependencies: {
-          "@slack/web-api": "^7.15.0",
-        },
-      });
-      mkdirSync(join(packageRoot, "dist/extensions/slack"), { recursive: true });
-      symlinkSync(
-        join(outsideManifestRoot, "package.json"),
-        join(packageRoot, "dist/extensions/slack/package.json"),
-      );
+      mkdirSync(join(packageRoot, "dist/extensions/slack/package.json"), { recursive: true });
 
       expect(collectInstalledMirroredRootDependencyManifestErrors(packageRoot)).toEqual([
         expect.stringContaining("installed bundled extension manifest invalid: failed to parse"),
@@ -364,7 +354,6 @@ describe("collectInstalledMirroredRootDependencyManifestErrors", () => {
       );
     } finally {
       rmSync(packageRoot, { recursive: true, force: true });
-      rmSync(outsideManifestRoot, { recursive: true, force: true });
     }
   });
 });

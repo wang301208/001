@@ -10,8 +10,10 @@ import {
   SANDBOX_PINNED_MUTATION_PYTHON_CANDIDATES,
 } from "./fs-bridge-mutation-helper.js";
 
+const PINNED_MUTATION_PYTHON_COMMAND = process.platform === "win32" ? "python" : "python3";
+
 function runMutation(args: string[], input?: string) {
-  return spawnSync("python3", ["-c", SANDBOX_PINNED_MUTATION_PYTHON, ...args], {
+  return spawnSync(PINNED_MUTATION_PYTHON_COMMAND, ["-c", SANDBOX_PINNED_MUTATION_PYTHON, ...args], {
     input,
     encoding: "utf8",
     stdio: ["pipe", "pipe", "pipe"],
@@ -19,7 +21,7 @@ function runMutation(args: string[], input?: string) {
 }
 
 function runMutationWithSource(source: string, args: string[], input?: string) {
-  return spawnSync("python3", ["-c", source, ...args], {
+  return spawnSync(PINNED_MUTATION_PYTHON_COMMAND, ["-c", source, ...args], {
     input,
     encoding: "utf8",
     stdio: ["pipe", "pipe", "pipe"],
@@ -66,7 +68,7 @@ const FORCED_EXDEV_MUTATION_PYTHON = SANDBOX_PINNED_MUTATION_PYTHON.replace(
 );
 
 describe("sandbox pinned mutation helper", () => {
-  it("writes through a pinned directory fd", async () => {
+  it.runIf(process.platform !== "win32")("writes through a pinned directory fd", async () => {
     await withTempDir({ prefix: "openclaw-mutation-helper-" }, async (root) => {
       const workspace = path.join(root, "workspace");
       await fs.mkdir(workspace, { recursive: true });

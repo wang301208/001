@@ -29,8 +29,10 @@ async function emitCredsUpdate(authDir?: string) {
 }
 
 function createTempAuthDir(prefix: string) {
-  return fsSync.mkdtempSync(
-    path.join((process.env.TMPDIR ?? "/tmp").replace(/\/+$/, ""), `${prefix}-`),
+  return path.resolve(
+    fsSync.mkdtempSync(
+      path.join((process.env.TMPDIR ?? "/tmp").replace(/\/+$/, ""), `${prefix}-`),
+    ),
   );
 }
 

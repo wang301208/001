@@ -110,7 +110,7 @@ export function normalizeHostPath(raw: string): string {
  */
 export function getBlockedBindReason(bind: string): BlockedBindReason | null {
   const sourceRaw = parseBindSourcePath(bind);
-  if (!sourceRaw.startsWith("/")) {
+  if (!path.isAbsolute(sourceRaw)) {
     return { kind: "non_absolute", sourcePath: sourceRaw };
   }
 
@@ -179,7 +179,7 @@ function normalizeAllowedRoots(roots: string[] | undefined): string[] {
   }
   const normalized = roots
     .map((entry) => entry.trim())
-    .filter((entry) => entry.startsWith("/"))
+    .filter((entry) => path.isAbsolute(entry))
     .map(normalizeHostPath);
   const expanded = new Set<string>();
   for (const root of normalized) {

@@ -4,6 +4,7 @@ import { clearConfigCache, clearRuntimeConfigSnapshot, loadConfig } from "../con
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { captureEnv, withEnvAsync } from "../test-utils/env.js";
+import { resolveUserPath } from "../utils.js";
 import {
   activateSecretsRuntimeSnapshot,
   clearSecretsRuntimeSnapshot,
@@ -227,8 +228,8 @@ describe("secrets runtime snapshot core lanes", () => {
 
     expect(snapshot.warnings.map((warning) => warning.path)).toEqual(
       expect.arrayContaining([
-        "/tmp/openclaw-agent-main.auth-profiles.openai:default.key",
-        "/tmp/openclaw-agent-main.auth-profiles.github-copilot:default.token",
+        `${resolveUserPath("/tmp/openclaw-agent-main")}.auth-profiles.openai:default.key`,
+        `${resolveUserPath("/tmp/openclaw-agent-main")}.auth-profiles.github-copilot:default.token`,
       ]),
     );
     expect(snapshot.authStores[0]?.store.profiles["openai:default"]).toMatchObject({

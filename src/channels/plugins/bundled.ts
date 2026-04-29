@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -149,6 +150,19 @@ function resolveGeneratedBundledChannelModulePath(params: {
 }): string | null {
   if (!params.entry) {
     return null;
+  }
+  if (process.platform === "win32" && !params.rootScope.pluginsDir) {
+    const builtRelativePath = params.entry.built.replace(/^\.\//u, "");
+    const builtCandidate = path.resolve(
+      params.rootScope.packageRoot,
+      "dist",
+      "extensions",
+      params.metadata.dirName,
+      builtRelativePath,
+    );
+    if (fs.existsSync(builtCandidate)) {
+      return builtCandidate;
+    }
   }
   return resolveBundledChannelGeneratedPath(
     params.rootScope.packageRoot,

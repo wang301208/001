@@ -346,6 +346,7 @@ export const autonomyHandlers: GatewayRequestHandlers = {
         ...(typeof params.recordHistory === "boolean"
           ? { recordHistory: params.recordHistory }
           : {}),
+        telemetrySource: "manual",
       });
       respond(
         true,

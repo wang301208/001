@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import path from "node:path";
 import AjvPkg from "ajv";
 import { describe, expect, it } from "vitest";
 import {
@@ -32,6 +33,7 @@ describe("resolveMemoryWikiConfig", () => {
   });
 
   it("expands ~/ paths and preserves explicit modes", () => {
+    const homedir = "/Users/tester";
     const config = resolveMemoryWikiConfig(
       {
         vaultMode: "bridge",
@@ -40,11 +42,11 @@ describe("resolveMemoryWikiConfig", () => {
           renderMode: "obsidian",
         },
       },
-      { homedir: "/Users/tester" },
+      { homedir },
     );
 
     expect(config.vaultMode).toBe("bridge");
-    expect(config.vault.path).toBe("/Users/tester/vaults/wiki");
+    expect(config.vault.path).toBe(path.join(homedir, "vaults", "wiki"));
     expect(config.vault.renderMode).toBe("obsidian");
   });
 

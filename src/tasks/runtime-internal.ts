@@ -1,6 +1,7 @@
 export {
   cancelTaskById,
   createTaskRecord,
+  drainTaskRegistryBackgroundWorkForTests,
   deleteTaskRecordById,
   ensureTaskRegistryReady,
   resetTaskRegistryControlRuntimeForTests,

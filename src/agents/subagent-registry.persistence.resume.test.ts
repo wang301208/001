@@ -8,6 +8,7 @@ import {
   drainSessionStoreLockQueuesForTest,
 } from "../config/sessions/store.js";
 import { captureEnv } from "../test-utils/env.js";
+import { resetTaskRegistryForTests } from "../tasks/runtime-internal.js";
 import {
   createSubagentRegistryTestDeps,
   writeSubagentSessionEntry,
@@ -129,10 +130,23 @@ describe("subagent registry persistence resume", () => {
     announceSpy.mockClear();
     mod.__testing.setDepsForTest();
     mod.resetSubagentRegistryForTests({ persist: false });
+    resetTaskRegistryForTests({ persist: false });
     await drainSessionStoreLockQueuesForTest();
     clearSessionStoreCacheForTest();
     if (tempStateDir) {
-      await fs.rm(tempStateDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+      await fs
+        .rm(tempStateDir, {
+          recursive: true,
+          force: true,
+          maxRetries: 5,
+          retryDelay: 50,
+        })
+        .catch((error: unknown) => {
+          const code = error && typeof error === "object" ? (error as { code?: string }).code : "";
+          if (code !== "EBUSY" && code !== "EPERM") {
+            throw error;
+          }
+        });
       tempStateDir = null;
     }
     hoisted.registryPath = undefined;

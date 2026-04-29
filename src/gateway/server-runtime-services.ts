@@ -1,5 +1,6 @@
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
+import { isTruthyEnvValue } from "../infra/env.js";
 import { startHeartbeatRunner, type HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import type { ChannelHealthMonitor } from "./channel-health-monitor.js";
 import { startChannelHealthMonitor } from "./channel-health-monitor.js";
@@ -30,6 +31,13 @@ type GatewayAutonomyMaintenanceResult =
       mode: "heal";
       healed: Awaited<
         ReturnType<import("../plugins/runtime/runtime-autonomy.types.js").BoundAutonomyRuntime["healFleet"]>
+      >;
+      changedCount: number;
+    }
+  | {
+      mode: "supervise";
+      supervised: Awaited<
+        ReturnType<import("../plugins/runtime/runtime-autonomy.types.js").BoundAutonomyRuntime["superviseFleet"]>
       >;
       changedCount: number;
     };
@@ -121,7 +129,8 @@ async function runGatewayAutonomyMaintenance(params: {
   }).bindSession({
     sessionKey: resolveMainSessionKey(params.cfgAtStart),
   });
-  if (process.env.OPENCLAW_SKIP_AUTONOMY_FLOW_HEAL === "1") {
+  const mode = resolveGatewayAutonomyMaintenanceMode();
+  if (mode === "reconcile") {
     const reconciled = await autonomy.reconcileLoopJobs({
       telemetrySource: params.source,
     });
@@ -132,14 +141,33 @@ async function runGatewayAutonomyMaintenance(params: {
     };
   }
 
-  const healed = await autonomy.healFleet({
+  if (mode === "heal") {
+    const healed = await autonomy.healFleet({
+      restartBlockedFlows: false,
+      telemetrySource: params.source,
+    });
+    return {
+      mode: "heal",
+      healed,
+      changedCount: healed.totals.changed,
+    };
+  }
+
+  const supervised = await autonomy.superviseFleet({
+    governanceMode: resolveAutonomySupervisorGovernanceMode(),
+    includeCapabilityInventory: resolveAutonomySupervisorIncludeCapabilityInventory(),
+    includeGenesisPlan: resolveAutonomySupervisorIncludeGenesisPlan(),
+    recordHistory: true,
     restartBlockedFlows: false,
     telemetrySource: params.source,
   });
   return {
-    mode: "heal",
-    healed,
-    changedCount: healed.totals.changed,
+    mode: "supervise",
+    supervised,
+    changedCount:
+      supervised.summary.changedProfiles +
+      supervised.summary.governanceCreatedCount +
+      supervised.summary.governanceAppliedCount,
   };
 }
 
@@ -156,9 +184,56 @@ function logGatewayAutonomyMaintenanceSummary(params: {
     );
     return;
   }
+  if (params.result.mode === "supervise") {
+    logAutonomy.info(
+      `${prefix}supervised ${params.result.supervised.summary.totalProfiles} managed autonomy profile(s) (changed ${params.result.supervised.summary.changedProfiles}, healthy ${params.result.supervised.summary.healthyProfiles}, drift ${params.result.supervised.summary.driftProfiles}, missingLoop ${params.result.supervised.summary.missingLoopProfiles}, activeFlows ${params.result.supervised.summary.activeFlows}, governanceCreated ${params.result.supervised.summary.governanceCreatedCount}, governanceApplied ${params.result.supervised.summary.governanceAppliedCount}, governancePending ${params.result.supervised.summary.governancePendingCount}, capabilityGaps ${params.result.supervised.summary.capabilityGapCount}, criticalCapabilityGaps ${params.result.supervised.summary.criticalCapabilityGapCount}, genesisStages ${params.result.supervised.summary.genesisStageCount}, genesisBlocked ${params.result.supervised.summary.genesisBlockedStageCount})`,
+    );
+    return;
+  }
   logAutonomy.info(
     `${prefix}healed ${params.result.healed.totals.totalProfiles} managed autonomy profile(s) (changed ${params.result.healed.totals.changed}, loopCreated ${params.result.healed.totals.loopCreated}, loopUpdated ${params.result.healed.totals.loopUpdated}, flowStarted ${params.result.healed.totals.flowStarted}, flowRestarted ${params.result.healed.totals.flowRestarted})`,
   );
+}
+
+function resolveBooleanEnvFlag(name: string): boolean | undefined {
+  const raw = process.env[name]?.trim().toLowerCase();
+  if (!raw) {
+    return undefined;
+  }
+  if (raw === "1" || raw === "true" || raw === "yes" || raw === "on") {
+    return true;
+  }
+  if (raw === "0" || raw === "false" || raw === "no" || raw === "off") {
+    return false;
+  }
+  return undefined;
+}
+
+function resolveGatewayAutonomyMaintenanceMode(): "reconcile" | "heal" | "supervise" {
+  if (process.env.OPENCLAW_SKIP_AUTONOMY_FLOW_HEAL === "1") {
+    return "reconcile";
+  }
+  const explicit = process.env.OPENCLAW_AUTONOMY_SUPERVISOR_MODE?.trim().toLowerCase();
+  if (explicit === "reconcile" || explicit === "heal" || explicit === "supervise") {
+    return explicit;
+  }
+  return "supervise";
+}
+
+function resolveAutonomySupervisorGovernanceMode(): "none" | "apply_safe" | "force_apply_all" {
+  const explicit = process.env.OPENCLAW_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE?.trim();
+  if (explicit === "none" || explicit === "apply_safe" || explicit === "force_apply_all") {
+    return explicit;
+  }
+  return "apply_safe";
+}
+
+function resolveAutonomySupervisorIncludeCapabilityInventory(): boolean {
+  return resolveBooleanEnvFlag("OPENCLAW_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY") ?? true;
+}
+
+function resolveAutonomySupervisorIncludeGenesisPlan(): boolean {
+  return resolveBooleanEnvFlag("OPENCLAW_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN") ?? true;
 }
 
 function resolveAutonomySupervisorIntervalMs(): number | undefined {
@@ -341,7 +416,7 @@ export function startGatewayRuntimeServices(params: {
     heartbeatRunner: createNoopHeartbeatRunner(),
     channelHealthMonitor,
     stopModelPricingRefresh:
-      !params.minimalTestGateway && process.env.VITEST !== "1"
+      !params.minimalTestGateway && !isTruthyEnvValue(process.env.VITEST)
         ? startGatewayModelPricingRefresh({ config: params.cfgAtStart })
         : () => {},
   };
@@ -359,7 +434,10 @@ export function activateGatewayScheduledServices(params: {
   logCron: { error: (message: string) => void };
   log: GatewayRuntimeServiceLogger;
 }): { heartbeatRunner: HeartbeatRunner } {
-  if (params.minimalTestGateway) {
+  if (
+    params.minimalTestGateway &&
+    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES !== "1"
+  ) {
     return { heartbeatRunner: createNoopHeartbeatRunner() };
   }
   const heartbeatRunner = startHeartbeatRunner({ cfg: params.cfgAtStart });

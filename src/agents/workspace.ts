@@ -39,6 +39,44 @@ const WORKSPACE_STATE_VERSION = 1;
 const workspaceTemplateCache = new Map<string, Promise<string>>();
 let gitAvailabilityPromise: Promise<boolean> | null = null;
 const MAX_WORKSPACE_BOOTSTRAP_FILE_BYTES = 2 * 1024 * 1024;
+const BUILTIN_WORKSPACE_TEMPLATES: Record<string, string> = {
+  [DEFAULT_AGENTS_FILENAME]: `# AGENTS.md
+
+Follow the repository's explicit instructions first.
+Read SOUL.md, IDENTITY.md, USER.md, and TOOLS.md before making non-trivial changes.
+Keep edits minimal, verify behavior, and avoid rewriting unrelated work.
+`,
+  [DEFAULT_SOUL_FILENAME]: `# SOUL.md
+
+You are a direct, pragmatic engineering agent.
+Prefer concrete actions, clear reasoning, and safe incremental changes.
+`,
+  [DEFAULT_TOOLS_FILENAME]: `# TOOLS.md
+
+Use the project's existing tooling and test commands when available.
+Before large edits, inspect the relevant files and keep changes scoped.
+`,
+  [DEFAULT_IDENTITY_FILENAME]: `# IDENTITY.md - Agent Identity
+
+Name: OpenClaw Workspace Agent
+Role: Repository-aware autonomous engineering assistant
+`,
+  [DEFAULT_USER_FILENAME]: `# USER.md
+
+Capture local user preferences, workflow notes, and repository-specific constraints here.
+`,
+  [DEFAULT_HEARTBEAT_FILENAME]: `\`\`\`markdown
+# Keep this file empty (or with only comments) to skip heartbeat API calls.
+# Add tasks below when you want the agent to check something periodically.
+\`\`\`
+`,
+  [DEFAULT_BOOTSTRAP_FILENAME]: `# BOOTSTRAP.md
+
+1. Read the workspace context files.
+2. Personalize IDENTITY.md and USER.md if needed.
+3. Delete this file once bootstrap is complete.
+`,
+};
 
 // File content cache keyed by stable file identity to avoid stale reads.
 const workspaceFileCache = new Map<string, { content: string; identity: string }>();
@@ -115,6 +153,10 @@ async function loadTemplate(name: string): Promise<string> {
       const content = await fs.readFile(templatePath, "utf-8");
       return stripFrontMatter(content);
     } catch {
+      const builtin = BUILTIN_WORKSPACE_TEMPLATES[name];
+      if (typeof builtin === "string") {
+        return builtin;
+      }
       throw new Error(
         `Missing workspace template: ${name} (${templatePath}). Ensure docs/reference/templates are packaged.`,
       );

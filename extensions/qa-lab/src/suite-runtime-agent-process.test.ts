@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const spawnMock = vi.hoisted(() => vi.fn());
@@ -83,10 +84,11 @@ describe("qa suite runtime agent process helpers", () => {
     await expect(pending).resolves.toBe("ok");
     expect(spawnMock).toHaveBeenCalledWith(
       "/usr/bin/node",
-      ["/repo/dist/index.js", "qa", "suite"],
+      [path.join("/repo", "dist", "index.js"), "qa", "suite"],
       expect.objectContaining({
         cwd: "/tmp/runtime",
         env: { PATH: "/usr/bin" },
+        stdio: ["ignore", "pipe", "pipe"],
       }),
     );
   });

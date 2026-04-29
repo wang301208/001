@@ -1,3 +1,4 @@
+import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { HookRunner } from "../../plugins/hooks.js";
 import type { HandleCommandsParams } from "./commands-types.js";
@@ -144,7 +145,7 @@ describe("emitResetCommandHooks", () => {
     await vi.waitFor(() => expect(hookRunnerMocks.runBeforeReset).toHaveBeenCalledTimes(1));
     expect(hookRunnerMocks.runBeforeReset).toHaveBeenCalledWith(
       expect.objectContaining({
-        sessionFile: "/tmp/prev-session.jsonl.reset.2026-02-16T22-26-33.000Z",
+        sessionFile: path.join("/tmp", "prev-session.jsonl.reset.2026-02-16T22-26-33.000Z"),
         messages: [{ role: "user", content: "Recovered from archive" }],
         reason: "new",
       }),

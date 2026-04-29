@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
+import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { applySessionsPatchToStore } from "./sessions-patch.js";
 
 const SUBAGENT_MODEL = "synthetic/hf:moonshotai/Kimi-K2.5";
@@ -15,6 +16,7 @@ function createGovernanceRuntime(agentId = "main", observedAt = 1_710_000_000_00
     agentId,
     observedAt,
     summary: {
+      ...createEmptyAgentToolGovernanceSummary(),
       charterDeclared: agentId !== "main",
       charterTitle: agentId === "main" ? undefined : "Autonomy Charter",
       charterLayer: agentId === "main" ? undefined : "governance",
@@ -22,9 +24,6 @@ function createGovernanceRuntime(agentId = "main", observedAt = 1_710_000_000_00
       charterRequireAgentId: true,
       charterExecutionContract: "strict-agentic" as const,
       charterElevatedLocked: true,
-      freezeActive: false,
-      freezeDeny: [],
-      freezeDetails: [],
     },
   };
 }

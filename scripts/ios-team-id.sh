@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ "${HOME:-}" == *\\* ]]; then
+  HOME="${HOME//\\//}"
+  export HOME
+fi
+
 if [[ -n "${IOS_DEVELOPMENT_TEAM:-}" ]]; then
   printf '%s\n' "${IOS_DEVELOPMENT_TEAM}"
   exit 0
@@ -19,11 +24,16 @@ declare -a team_names=()
 python_cmd=""
 
 detect_python() {
-  local candidate
+  local candidate normalized_candidate
   for candidate in "${IOS_PYTHON_BIN:-}" python3 python /usr/bin/python3; do
     [[ -n "$candidate" ]] || continue
-    if command -v "$candidate" >/dev/null 2>&1; then
-      printf '%s\n' "$candidate"
+    normalized_candidate="${candidate//\\//}"
+    if [[ "$normalized_candidate" == */* ]] && [[ -x "$normalized_candidate" ]]; then
+      printf '%s\n' "$normalized_candidate"
+      return 0
+    fi
+    if command -v "$normalized_candidate" >/dev/null 2>&1; then
+      printf '%s\n' "$normalized_candidate"
       return 0
     fi
   done

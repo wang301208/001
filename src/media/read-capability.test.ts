@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/types.js";
+import { resolveUserPath } from "../utils.js";
 import { resolveAgentScopedOutboundMediaAccess } from "./read-capability.js";
 
 vi.mock("../channels/plugins/index.js", () => ({
@@ -91,7 +92,7 @@ describe("resolveAgentScopedOutboundMediaAccess", () => {
     });
 
     expect(result.readFile).toBeTypeOf("function");
-    expect(result.localRoots).toContain("/Users/peter/Pictures");
+    expect(result.localRoots).toContain(resolveUserPath("/Users/peter/Pictures"));
   });
 
   it("keeps host reads enabled when no group policy applies", () => {

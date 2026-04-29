@@ -162,9 +162,12 @@ export function collectInstalledContextEngineRuntimeErrors(packageRoot: string):
 }
 
 export function resolveInstalledBinaryPath(prefixDir: string, platform = process.platform): string {
+  const separator = prefixDir.includes("\\") ? "\\" : "/";
+  const prefix = prefixDir.replace(/[\\/]+$/u, "");
+
   return platform === "win32"
-    ? join(prefixDir, "openclaw.cmd")
-    : join(prefixDir, "bin", "openclaw");
+    ? `${prefix}${separator}openclaw.cmd`
+    : `${prefix}${separator}bin${separator}openclaw`;
 }
 
 function collectExpectedBundledExtensionPackageIds(): ReadonlySet<string> {

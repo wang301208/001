@@ -210,11 +210,19 @@ async function symlinkQaStagedDirEntry(params: {
   targetPath: string;
   directory?: boolean;
 }) {
-  await fs.symlink(
-    params.sourcePath,
-    params.targetPath,
-    params.directory ? (process.platform === "win32" ? "junction" : "dir") : "file",
-  );
+  try {
+    await fs.symlink(
+      params.sourcePath,
+      params.targetPath,
+      params.directory ? (process.platform === "win32" ? "junction" : "dir") : "file",
+    );
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (params.directory || process.platform !== "win32" || (code !== "EPERM" && code !== "EACCES")) {
+      throw error;
+    }
+    await fs.copyFile(params.sourcePath, params.targetPath);
+  }
 }
 
 async function resolveQaStagedDirEntryDirectory(params: {

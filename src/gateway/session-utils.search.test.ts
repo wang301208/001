@@ -8,6 +8,7 @@ import {
 } from "../agents/subagent-registry.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
+import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { listSessionsFromStore } from "./session-utils.js";
 
 function createModelDefaultsConfig(params: {
@@ -658,6 +659,7 @@ describe("listSessionsFromStore search", () => {
       agentId: "founder",
       observedAt: Date.now(),
       summary: {
+        ...createEmptyAgentToolGovernanceSummary(),
         charterDeclared: true,
         charterTitle: "Founder",
         charterLayer: "evolution",
@@ -665,9 +667,6 @@ describe("listSessionsFromStore search", () => {
         charterRequireAgentId: true,
         charterExecutionContract: "strict-agentic" as const,
         charterElevatedLocked: true,
-        freezeActive: false,
-        freezeDeny: [],
-        freezeDetails: [],
       },
     };
 

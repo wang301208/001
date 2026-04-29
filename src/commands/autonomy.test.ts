@@ -408,6 +408,7 @@ describe("autonomy commands", () => {
       includeCapabilityInventory: true,
       includeGenesisPlan: true,
       recordHistory: false,
+      telemetrySource: "manual",
     });
     expect(logs.join("\n")).toContain("workspaceScope: /tmp/a, /tmp/b");
     expect(logs.join("\n")).toContain("governanceMode: force_apply_all");

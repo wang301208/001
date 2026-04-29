@@ -19,6 +19,15 @@ describe("Matrix IndexedDB persistence", () => {
   let tmpDir: string;
   let warnSpy: ReturnType<typeof vi.spyOn>;
 
+  function expectSecureFileMode(pathname: string): void {
+    const mode = fs.statSync(pathname).mode & 0o777;
+    if (process.platform === "win32") {
+      expect(mode & 0o111).toBe(0);
+      return;
+    }
+    expect(mode).toBe(0o600);
+  }
+
   beforeEach(async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "matrix-idb-persist-"));
     warnSpy = vi.spyOn(LogService, "warn").mockImplementation(() => {});
@@ -50,9 +59,7 @@ describe("Matrix IndexedDB persistence", () => {
       databasePrefix: "openclaw-matrix-test",
     });
     expect(fs.existsSync(snapshotPath)).toBe(true);
-
-    const mode = fs.statSync(snapshotPath).mode & 0o777;
-    expect(mode).toBe(0o600);
+    expectSecureFileMode(snapshotPath);
 
     await clearAllIndexedDbState();
 

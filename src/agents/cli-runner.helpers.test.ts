@@ -209,7 +209,9 @@ describe("writeCliImages", () => {
     try {
       expect(first.paths).toHaveLength(1);
       expect(second.paths).toEqual(first.paths);
-      expect(first.paths[0]).toContain(`${resolvePreferredOpenClawTmpDir()}/openclaw-cli-images/`);
+      expect(first.paths[0]).toContain(
+        path.join(resolvePreferredOpenClawTmpDir(), "openclaw-cli-images"),
+      );
       expect(first.paths[0]).toMatch(/\.png$/);
       await expect(fs.readFile(first.paths[0])).resolves.toEqual(Buffer.from(image.data, "base64"));
     } finally {

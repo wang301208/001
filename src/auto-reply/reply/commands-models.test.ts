@@ -1,13 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
-import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createChannelTestPluginBase,
   createTestRegistry,
 } from "../../test-utils/channel-plugins.js";
-import { handleModelsCommand } from "./commands-models.js";
 import type { HandleCommandsParams } from "./commands-types.js";
+import type { handleModelsCommand as handleModelsCommandType } from "./commands-models.js";
+import type {
+  resetPluginRuntimeStateForTest as resetPluginRuntimeStateForTestType,
+  setActivePluginRegistry as setActivePluginRegistryType,
+} from "../../plugins/runtime.js";
 
 const modelCatalogMocks = vi.hoisted(() => ({
   loadModelCatalog: vi.fn(),
@@ -60,7 +63,11 @@ const textSurfaceModelsTestPlugins = (["discord", "whatsapp"] as const).map((id)
   source: "test",
 }));
 
-beforeEach(() => {
+let handleModelsCommand: typeof handleModelsCommandType;
+let resetPluginRuntimeStateForTest: typeof resetPluginRuntimeStateForTestType;
+let setActivePluginRegistry: typeof setActivePluginRegistryType;
+
+beforeEach(async () => {
   modelCatalogMocks.loadModelCatalog.mockReset();
   modelCatalogMocks.loadModelCatalog.mockResolvedValue([
     { provider: "anthropic", id: "claude-opus-4-5", name: "Claude Opus" },
@@ -71,6 +78,7 @@ beforeEach(() => {
   ]);
   modelAuthLabelMocks.resolveModelAuthLabel.mockReset();
   modelAuthLabelMocks.resolveModelAuthLabel.mockReturnValue(undefined);
+  resetPluginRuntimeStateForTest();
   setActivePluginRegistry(
     createTestRegistry([
       ...textSurfaceModelsTestPlugins,
@@ -82,6 +90,11 @@ beforeEach(() => {
     ]),
   );
 });
+
+({ handleModelsCommand } = await import("./commands-models.js"));
+({ resetPluginRuntimeStateForTest, setActivePluginRegistry } = await import(
+  "../../plugins/runtime.js"
+));
 
 function buildModelsParams(
   commandBody: string,

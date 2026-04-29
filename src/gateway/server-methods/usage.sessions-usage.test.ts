@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createEmptyAgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
 import { withEnvAsync } from "../../test-utils/env.js";
 
 vi.mock("../../config/config.js", () => {
@@ -120,6 +121,7 @@ function createGovernanceRuntime(agentId = "opus", observedAt = 1_710_000_000_00
     agentId,
     observedAt,
     summary: {
+      ...createEmptyAgentToolGovernanceSummary(),
       charterDeclared: true,
       charterTitle: "Autonomy Charter",
       charterLayer: "governance",
@@ -127,9 +129,6 @@ function createGovernanceRuntime(agentId = "opus", observedAt = 1_710_000_000_00
       charterRequireAgentId: true,
       charterExecutionContract: "strict-agentic" as const,
       charterElevatedLocked: true,
-      freezeActive: false,
-      freezeDeny: [],
-      freezeDetails: [],
     },
   };
 }

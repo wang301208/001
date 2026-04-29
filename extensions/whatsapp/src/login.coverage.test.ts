@@ -1,5 +1,6 @@
 import { rmSync } from "node:fs";
 import fs from "node:fs/promises";
+import path from "node:path";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { loginWeb } from "./login.js";
 import {
@@ -15,7 +16,7 @@ const testState = vi.hoisted(() => ({
 }));
 
 function resolveTestAuthDir() {
-  return testState.authDir;
+  return path.resolve(testState.authDir);
 }
 
 vi.mock("openclaw/plugin-sdk/config-runtime", async () => {
@@ -95,7 +96,7 @@ describe("loginWeb coverage", () => {
     vi.useRealTimers();
   });
   afterAll(() => {
-    rmSync(testState.authDir, { recursive: true, force: true });
+    rmSync(resolveTestAuthDir(), { recursive: true, force: true });
   });
 
   it("restarts once when WhatsApp requests code 515", async () => {
@@ -114,7 +115,7 @@ describe("loginWeb coverage", () => {
 
     expect(createWaSocketMock).toHaveBeenCalledTimes(1);
     expect(waitForCredsSaveQueueWithTimeoutMock).toHaveBeenCalledOnce();
-    expect(waitForCredsSaveQueueWithTimeoutMock).toHaveBeenCalledWith(testState.authDir);
+    expect(waitForCredsSaveQueueWithTimeoutMock).toHaveBeenCalledWith(resolveTestAuthDir());
 
     releaseCredsFlush?.();
     await pendingLogin;
@@ -135,7 +136,7 @@ describe("loginWeb coverage", () => {
     await expect(loginWeb(false, waitForWaConnectionMock as never)).rejects.toThrow(
       /cache cleared/i,
     );
-    expect(rmMock).toHaveBeenCalledWith(testState.authDir, {
+    expect(rmMock).toHaveBeenCalledWith(resolveTestAuthDir(), {
       recursive: true,
       force: true,
     });

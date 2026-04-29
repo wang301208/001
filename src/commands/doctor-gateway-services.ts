@@ -33,6 +33,25 @@ import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 import { isDoctorUpdateRepairMode } from "./doctor-repair-mode.js";
 
 const execFileAsync = promisify(execFile);
+const WINDOWS_ABSOLUTE_PATH_RE = /^[A-Za-z]:[\\/]/;
+
+function isPosixAbsolutePath(value: string): boolean {
+  return value.startsWith("/") && !WINDOWS_ABSOLUTE_PATH_RE.test(value);
+}
+
+function normalizePortableAbsolutePath(value: string): string {
+  const trimmed = normalizeOptionalString(value) ?? "";
+  if (!trimmed) {
+    return "";
+  }
+  if (WINDOWS_ABSOLUTE_PATH_RE.test(trimmed)) {
+    return path.win32.normalize(trimmed).normalize("NFC");
+  }
+  if (isPosixAbsolutePath(trimmed)) {
+    return path.posix.normalize(trimmed).normalize("NFC");
+  }
+  return path.resolve(trimmed).normalize("NFC");
+}
 
 function detectGatewayRuntime(programArguments: string[] | undefined): GatewayDaemonRuntime {
   const first = programArguments?.[0];
@@ -60,9 +79,9 @@ function findGatewayEntrypoint(programArguments?: string[]): string | null {
 }
 
 async function normalizeExecutablePath(value: string): Promise<string> {
-  const resolvedPath = path.resolve(value);
+  const resolvedPath = normalizePortableAbsolutePath(value);
   try {
-    return await fs.realpath(resolvedPath);
+    return (await fs.realpath(resolvedPath)).normalize("NFC");
   } catch {
     return resolvedPath;
   }

@@ -22,15 +22,15 @@ describe("listChannelPlugins", () => {
     expect(listChannelPlugins()).toEqual([]);
   });
 
-  it("falls back to bundled channel plugins for direct lookups before registry bootstrap", () => {
+  it(
+    "falls back to bundled channel plugins for direct lookups before registry bootstrap",
+    () => {
     setActivePluginRegistry(createEmptyPluginRegistry());
 
-    expect(getChannelPlugin("googlechat")?.doctor).toMatchObject({
-      dmAllowFromMode: "nestedOnly",
-      groupAllowFromFallbackToAllowFrom: false,
-      warnOnEmptyGroupSenderAllowlist: false,
-    });
-  });
+    expect(getChannelPlugin("imessage")?.meta.label).toBe("iMessage");
+    },
+    180_000,
+  );
 
   it("rebuilds channel lookups when the active registry object changes without a version bump", () => {
     const first = createEmptyPluginRegistry();

@@ -1,5 +1,6 @@
 import type { HeartbeatEventPayload } from "../infra/heartbeat-events.js";
 import type { Tone } from "../memory-host-sdk/status.js";
+import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import type { PluginCompatibilityNotice } from "../plugins/status.js";
 import type { buildStatusCommandOverviewRows } from "./status-overview-rows.ts";
 import type { StatusOverviewSurface } from "./status-overview-surface.ts";
@@ -233,13 +234,8 @@ export const baseStatusAgentStatus = {
       id: "main",
       lastActiveAgeMs: 60_000,
       governance: {
+        ...createEmptyAgentToolGovernanceSummary(),
         charterDeclared: true,
-        charterToolDeny: [],
-        charterRequireAgentId: false,
-        charterElevatedLocked: false,
-        freezeActive: false,
-        freezeDeny: [],
-        freezeDetails: [],
       },
       workspaceDir: null,
       bootstrapPending: null,

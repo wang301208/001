@@ -173,7 +173,7 @@ describe("exec approvals store helpers", () => {
     expect(fs.statSync(approvalsPath).ino).not.toBe(fs.statSync(linkedPath).ino);
   });
 
-  it("refuses to write approvals through a symlink destination", () => {
+  it.runIf(process.platform !== "win32")("refuses to write approvals through a symlink destination", () => {
     const dir = createHomeDir();
     const approvalsPath = approvalsFilePath(dir);
     const targetPath = path.join(dir, "elsewhere.json");
@@ -191,7 +191,7 @@ describe("exec approvals store helpers", () => {
     const realHome = makeTempDir();
     const linkedHome = `${realHome}-link`;
     tempDirs.push(realHome);
-    fs.symlinkSync(realHome, linkedHome);
+    fs.symlinkSync(realHome, linkedHome, process.platform === "win32" ? "junction" : "dir");
     process.env.OPENCLAW_HOME = linkedHome;
 
     expect(() =>

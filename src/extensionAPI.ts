@@ -1,8 +1,9 @@
 // Legacy compat surface for plugins that still import openclaw/extension-api.
 // Keep this file intentionally narrow and forward-only.
+import { isTruthyEnvValue } from "./infra/env.js";
 
 const shouldWarnExtensionApiImport =
-  process.env.VITEST !== "true" &&
+  !isTruthyEnvValue(process.env.VITEST) &&
   process.env.NODE_ENV !== "test" &&
   process.env.OPENCLAW_SUPPRESS_EXTENSION_API_WARNING !== "1";
 

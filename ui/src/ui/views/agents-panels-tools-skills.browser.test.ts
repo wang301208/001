@@ -10,6 +10,9 @@ const governanceSummary = {
   freezeActive: false,
   freezeDeny: [],
   freezeDetails: [],
+  activeSovereigntyIncidentCount: 0,
+  activeSovereigntyIncidentIds: [],
+  activeSovereigntyFreezeIncidentIds: [],
 };
 
 function createBaseParams(overrides: Partial<Parameters<typeof renderAgentTools>[0]> = {}) {

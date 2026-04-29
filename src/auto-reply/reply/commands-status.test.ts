@@ -16,6 +16,11 @@ import {
 } from "../../tasks/task-executor.js";
 import { resetTaskRegistryForTests } from "../../tasks/task-registry.js";
 import { configureTaskRegistryRuntime } from "../../tasks/task-registry.store.js";
+import {
+  sanitizeTaskStatusText,
+  TASK_STATUS_DETAIL_MAX_CHARS,
+  TASK_STATUS_TITLE_MAX_CHARS,
+} from "../../tasks/task-status.js";
 import { buildStatusReply, buildStatusText } from "./commands-status.js";
 import { buildCommandTestParams } from "./commands.test-harness.js";
 
@@ -353,24 +358,29 @@ describe("buildStatusReply subagent summary", () => {
   });
 
   it("truncates long task titles and details in the session task line", async () => {
+    const longTaskTitle =
+      "This is a deliberately long task prompt that should never be emitted in full by /status because it can include internal instructions and file paths that are not appropriate for the headline line shown to users.";
+    const longProgressDetail =
+      "This progress detail is also intentionally long so the status surface proves it truncates verbose task context instead of dumping a multi-sentence internal update into the reply output.";
     createRunningTaskRun({
       runtime: "subagent",
       requesterSessionKey: "agent:main:main",
       childSessionKey: "agent:main:subagent:status-task-truncated",
       runId: "run-status-task-truncated",
-      task: "This is a deliberately long task prompt that should never be emitted in full by /status because it can include internal instructions and file paths that are not appropriate for the headline line shown to users.",
-      progressSummary:
-        "This progress detail is also intentionally long so the status surface proves it truncates verbose task context instead of dumping a multi-sentence internal update into the reply output.",
+      task: longTaskTitle,
+      progressSummary: longProgressDetail,
     });
 
     const reply = await buildStatusReplyForTest({});
+    const expectedTitle = sanitizeTaskStatusText(longTaskTitle, {
+      maxChars: TASK_STATUS_TITLE_MAX_CHARS,
+    });
+    const expectedDetail = sanitizeTaskStatusText(longProgressDetail, {
+      maxChars: TASK_STATUS_DETAIL_MAX_CHARS,
+    });
 
-    expect(reply?.text).toContain(
-      "This is a deliberately long task prompt that should never be emitted in full by…",
-    );
-    expect(reply?.text).toContain(
-      "This progress detail is also intentionally long so the status surface proves it truncates verbose task context instead…",
-    );
+    expect(reply?.text).toContain(expectedTitle);
+    expect(reply?.text).toContain(expectedDetail);
     expect(reply?.text).not.toContain("internal instructions and file paths");
     expect(reply?.text).not.toContain("dumping a multi-sentence internal update");
   });

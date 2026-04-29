@@ -290,14 +290,6 @@ export function resolveRetryableBlockedFlowTask(flowId: string): {
       reason: "Flow has no retryable task.",
     };
   }
-  if (flow.status !== "blocked") {
-    return {
-      flowFound: true,
-      retryable: false,
-      latestTask,
-      reason: "Flow is not blocked.",
-    };
-  }
   if (latestTask.status !== "succeeded" || latestTask.terminalOutcome !== "blocked") {
     return {
       flowFound: true,

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import path from "node:path";
 import { SafeOpenError } from "../../infra/fs-safe.js";
 /* ------------------------------------------------------------------ */
 /* Mocks                                                              */
@@ -1081,14 +1082,15 @@ describe("agents.files.list", () => {
       throw createErrnoError("EACCES");
     });
     agentsTesting.setDepsForTests({ openFileWithinRoot });
+    const workspaceFilePath = path.resolve("/workspace/main/AGENTS.md");
     mocks.fsLstat.mockImplementation(async (...args: unknown[]) => {
-      if (args[0] === "/workspace/main/AGENTS.md") {
+      if (args[0] === workspaceFilePath) {
         return makeFileStat({ size: 17, mtimeMs: 4567 });
       }
       throw createEnoentError();
     });
     mocks.fsStat.mockImplementation(async (...args: unknown[]) => {
-      if (args[0] === "/workspace/main/AGENTS.md") {
+      if (args[0] === workspaceFilePath) {
         return makeFileStat({ size: 17, mtimeMs: 4567 });
       }
       throw createEnoentError();

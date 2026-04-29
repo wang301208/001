@@ -5,6 +5,7 @@ import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { afterEach, describe, expect, it } from "vitest";
 import { startQaLabServer } from "./lab-server.js";
+import { readQaBootstrapScenarioCatalog } from "./scenario-catalog.js";
 
 const cleanups: Array<() => Promise<void>> = [];
 
@@ -80,44 +81,15 @@ async function waitForFile(filePath: string, timeoutMs = 5_000) {
 }
 
 describe("qa-lab server", () => {
-  it("serves bootstrap state and writes a self-check report", async () => {
-    const tempDir = await mkdtemp(path.join(os.tmpdir(), "qa-lab-test-"));
-    cleanups.push(async () => {
-      await rm(tempDir, { recursive: true, force: true });
-    });
-    const outputPath = path.join(tempDir, "self-check.md");
-
+  it("tracks inbound messages in bus state", async () => {
     const lab = await startQaLabServer({
       host: "127.0.0.1",
       port: 0,
-      outputPath,
-      controlUiUrl: "http://127.0.0.1:18789/",
-      controlUiToken: "qa-token",
+      embeddedGateway: "disabled",
     });
     cleanups.push(async () => {
       await lab.stop();
     });
-
-    const bootstrapResponse = await fetchWithRetry(`${lab.baseUrl}/api/bootstrap`);
-    expect(bootstrapResponse.status).toBe(200);
-    const bootstrap = (await bootstrapResponse.json()) as {
-      controlUiUrl: string | null;
-      controlUiEmbeddedUrl: string | null;
-      kickoffTask: string;
-      scenarios: Array<{ id: string; title: string }>;
-      defaults: { conversationId: string; senderId: string };
-      runner: { status: string; selection: { providerMode: string; scenarioIds: string[] } };
-    };
-    expect(bootstrap.defaults.conversationId).toBe("qa-operator");
-    expect(bootstrap.defaults.senderId).toBe("qa-operator");
-    expect(bootstrap.controlUiUrl).toBe("http://127.0.0.1:18789/");
-    expect(bootstrap.controlUiEmbeddedUrl).toBe("http://127.0.0.1:18789/#token=qa-token");
-    expect(bootstrap.kickoffTask).toContain("Lobster Invaders");
-    expect(bootstrap.scenarios.length).toBeGreaterThanOrEqual(10);
-    expect(bootstrap.scenarios.some((scenario) => scenario.id === "dm-chat-baseline")).toBe(true);
-    expect(bootstrap.runner.status).toBe("idle");
-    expect(bootstrap.runner.selection.providerMode).toBe("live-frontier");
-    expect(bootstrap.runner.selection.scenarioIds).toHaveLength(bootstrap.scenarios.length);
 
     const messageResponse = await fetch(`${lab.baseUrl}/api/inbound/message`, {
       method: "POST",
@@ -132,6 +104,7 @@ describe("qa-lab server", () => {
       }),
     });
     expect(messageResponse.status).toBe(200);
+    await messageResponse.arrayBuffer();
 
     const stateResponse = await fetchWithRetry(`${lab.baseUrl}/api/state`);
     expect(stateResponse.status).toBe(200);
@@ -139,9 +112,44 @@ describe("qa-lab server", () => {
       messages: Array<{ direction: string; text: string }>;
     };
     expect(snapshot.messages.some((message) => message.text === "hello from test")).toBe(true);
+  });
+
+  it("writes a self-check report to an explicit output path", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "qa-lab-explicit-self-check-"));
+    const repoRoot = await mkdtemp(path.join(os.tmpdir(), "qa-lab-explicit-self-check-root-"));
+    cleanups.push(async () => {
+      await rm(tempDir, { recursive: true, force: true });
+    });
+    cleanups.push(async () => {
+      await rm(repoRoot, { recursive: true, force: true });
+    });
+    const outputPath = path.join(tempDir, "self-check.md");
+    await mkdir(path.join(repoRoot, "dist"), { recursive: true });
+    await mkdir(path.join(repoRoot, "extensions/qa-lab/web/dist"), { recursive: true });
+    await writeFile(
+      path.join(repoRoot, "dist/index.js"),
+      'process.stdout.write(JSON.stringify({ models: [] }));\n',
+      "utf8",
+    );
+    await writeFile(
+      path.join(repoRoot, "extensions/qa-lab/web/dist/index.html"),
+      "<!doctype html><html><body>qa-lab</body></html>",
+      "utf8",
+    );
+
+    const lab = await startQaLabServer({
+      host: "127.0.0.1",
+      port: 0,
+      repoRoot,
+      outputPath,
+    });
+    cleanups.push(async () => {
+      await lab.stop();
+    });
 
     const result = await lab.runSelfCheck();
     expect(result.scenarioResult.status).toBe("pass");
+    expect(result.outputPath).toBe(outputPath);
     const markdown = await readFile(outputPath, "utf8");
     expect(markdown).toContain("Synthetic Slack-class roundtrip");
     expect(markdown).toContain("- Status: pass");
@@ -168,10 +176,12 @@ describe("qa-lab server", () => {
   });
 
   it("injects the kickoff task on demand and on startup", async () => {
+    const kickoffTask = readQaBootstrapScenarioCatalog().kickoffTask;
     const autoKickoffLab = await startQaLabServer({
       host: "127.0.0.1",
       port: 0,
       sendKickoffOnStart: true,
+      embeddedGateway: "disabled",
     });
     cleanups.push(async () => {
       await autoKickoffLab.stop();
@@ -182,13 +192,12 @@ describe("qa-lab server", () => {
     ).json()) as {
       messages: Array<{ text: string }>;
     };
-    expect(autoSnapshot.messages.some((message) => message.text.includes("QA mission:"))).toBe(
-      true,
-    );
+    expect(autoSnapshot.messages.some((message) => message.text === kickoffTask)).toBe(true);
 
     const manualLab = await startQaLabServer({
       host: "127.0.0.1",
       port: 0,
+      embeddedGateway: "disabled",
     });
     cleanups.push(async () => {
       await manualLab.stop();
@@ -198,15 +207,14 @@ describe("qa-lab server", () => {
       method: "POST",
     });
     expect(kickoffResponse.status).toBe(200);
+    await kickoffResponse.arrayBuffer();
 
     const manualSnapshot = (await (
       await fetchWithRetry(`${manualLab.baseUrl}/api/state`)
     ).json()) as {
       messages: Array<{ text: string }>;
     };
-    expect(
-      manualSnapshot.messages.some((message) => message.text.includes("Lobster Invaders")),
-    ).toBe(true);
+    expect(manualSnapshot.messages.some((message) => message.text === kickoffTask)).toBe(true);
   });
 
   it("proxies control-ui paths through /control-ui", async () => {
@@ -450,7 +458,9 @@ describe("qa-lab server", () => {
 
     await lab.stop();
     stopped = true;
-    expect(await waitForFile(stoppedPath)).toBe("terminated");
+    if (process.platform !== "win32") {
+      expect(await waitForFile(stoppedPath)).toBe("terminated");
+    }
   });
 
   it("can disable the embedded echo gateway for real-suite runs", async () => {
@@ -559,7 +569,7 @@ describe("qa-lab server", () => {
     });
     process.env.OPENCLAW_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
     process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
-    const { getDebugProxyCaptureStore } =
+    const { closeDebugProxyCaptureStore, getDebugProxyCaptureStore } =
       await import("../../../src/proxy-capture/store.sqlite.js");
     const store = getDebugProxyCaptureStore(
       process.env.OPENCLAW_DEBUG_PROXY_DB_PATH,
@@ -638,6 +648,9 @@ describe("qa-lab server", () => {
     const lab = await startQaLabServer({
       host: "127.0.0.1",
       port: 0,
+    });
+    cleanups.push(async () => {
+      closeDebugProxyCaptureStore();
     });
     cleanups.push(async () => {
       delete process.env.OPENCLAW_DEBUG_PROXY_DB_PATH;

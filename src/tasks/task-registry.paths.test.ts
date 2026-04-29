@@ -1,6 +1,7 @@
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { resolveStateDir } from "../config/paths.js";
 import { resolveTaskStateDir } from "./task-registry.paths.js";
 
 describe("task registry paths", () => {
@@ -14,12 +15,13 @@ describe("task registry paths", () => {
   });
 
   it("prefers explicit state dir overrides over Vitest sharding", () => {
+    const env = {
+      OPENCLAW_STATE_DIR: "/tmp/openclaw-custom-state",
+      VITEST: "true",
+      VITEST_POOL_ID: "7",
+    } as NodeJS.ProcessEnv;
     expect(
-      resolveTaskStateDir({
-        OPENCLAW_STATE_DIR: "/tmp/openclaw-custom-state",
-        VITEST: "true",
-        VITEST_POOL_ID: "7",
-      } as NodeJS.ProcessEnv),
-    ).toBe("/tmp/openclaw-custom-state");
+      resolveTaskStateDir(env),
+    ).toBe(resolveStateDir(env));
   });
 });

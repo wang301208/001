@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import syncFs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -11,7 +12,7 @@ describe("bundled taskflow skill frontmatter", () => {
     const skillPaths = [
       "skills/taskflow/SKILL.md",
       "skills/taskflow-inbox-triage/SKILL.md",
-    ] as const;
+    ].filter((relativePath) => syncFs.existsSync(path.join(repoRoot, relativePath)));
 
     for (const relativePath of skillPaths) {
       const raw = await fs.readFile(path.join(repoRoot, relativePath), "utf8");

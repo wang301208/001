@@ -1,11 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { MODEL_CONTEXT_TOKEN_CACHE } from "../../agents/context-cache.js";
-import { loadModelCatalog } from "../../agents/model-catalog.runtime.js";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
-import { createModelSelectionState, resolveContextTokens } from "./model-selection.js";
+import type { createModelSelectionState as createModelSelectionStateType } from "./model-selection.js";
+import type { resolveContextTokens as resolveContextTokensType } from "./model-selection.js";
 
-vi.mock("../../agents/model-catalog.runtime.js", () => ({
+const modelCatalogRuntimeMocks = vi.hoisted(() => ({
   loadModelCatalog: vi.fn(async () => [
     { provider: "anthropic", id: "claude-opus-4-6", name: "Claude Opus 4.5" },
     { provider: "inferencer", id: "deepseek-v3-4bit-mlx", name: "DeepSeek V3" },
@@ -17,10 +16,33 @@ vi.mock("../../agents/model-catalog.runtime.js", () => ({
   ]),
 }));
 
+vi.mock("../../agents/model-catalog.runtime.js", () => ({
+  loadModelCatalog: modelCatalogRuntimeMocks.loadModelCatalog,
+}));
+
 vi.mock("../../channels/plugins/session-conversation.js", () => ({
   resolveSessionParentSessionKey: (sessionKey?: string) =>
     sessionKey?.replace(/:thread:[^:]+$/, "").replace(/:topic:[^:]+$/, "") ?? null,
 }));
+
+let createModelSelectionState: typeof createModelSelectionStateType;
+let resolveContextTokens: typeof resolveContextTokensType;
+let MODEL_CONTEXT_TOKEN_CACHE: typeof import("../../agents/context-cache.js").MODEL_CONTEXT_TOKEN_CACHE;
+
+beforeEach(async () => {
+  modelCatalogRuntimeMocks.loadModelCatalog.mockReset().mockImplementation(async () => [
+    { provider: "anthropic", id: "claude-opus-4-6", name: "Claude Opus 4.5" },
+    { provider: "inferencer", id: "deepseek-v3-4bit-mlx", name: "DeepSeek V3" },
+    { provider: "kimi", id: "kimi-code", name: "Kimi Code" },
+    { provider: "openai", id: "gpt-4o-mini", name: "GPT-4o mini" },
+    { provider: "openai", id: "gpt-4o", name: "GPT-4o" },
+    { provider: "xai", id: "grok-4", name: "Grok 4" },
+    { provider: "xai", id: "grok-4.20-reasoning", name: "Grok 4.20 (Reasoning)" },
+  ]);
+  vi.resetModules();
+  ({ createModelSelectionState, resolveContextTokens } = await import("./model-selection.js"));
+  ({ MODEL_CONTEXT_TOKEN_CACHE } = await import("../../agents/context-cache.js"));
+});
 
 afterEach(() => {
   MODEL_CONTEXT_TOKEN_CACHE.clear();
@@ -39,7 +61,7 @@ const makeConfiguredModel = (overrides: Record<string, unknown> = {}) => ({
 
 describe("createModelSelectionState catalog loading", () => {
   it("skips full catalog loading for ordinary allowlist-backed turns", async () => {
-    vi.mocked(loadModelCatalog).mockClear();
+    modelCatalogRuntimeMocks.loadModelCatalog.mockClear();
     const cfg = {
       agents: {
         defaults: {
@@ -72,11 +94,11 @@ describe("createModelSelectionState catalog loading", () => {
     expect(state.allowedModelKeys.has("openai-codex/gpt-5.4")).toBe(true);
     await expect(state.resolveDefaultThinkingLevel()).resolves.toBe("low");
     await expect(state.resolveDefaultReasoningLevel()).resolves.toBe("on");
-    expect(loadModelCatalog).not.toHaveBeenCalled();
+    expect(modelCatalogRuntimeMocks.loadModelCatalog).not.toHaveBeenCalled();
   });
 
   it("prefers per-agent thinkingDefault over model and global defaults", async () => {
-    vi.mocked(loadModelCatalog).mockClear();
+    modelCatalogRuntimeMocks.loadModelCatalog.mockClear();
     const cfg = {
       agents: {
         defaults: {
@@ -111,7 +133,7 @@ describe("createModelSelectionState catalog loading", () => {
   });
 
   it("loads the full catalog for explicit model directives", async () => {
-    vi.mocked(loadModelCatalog).mockClear();
+    modelCatalogRuntimeMocks.loadModelCatalog.mockClear();
     const cfg = {
       agents: {
         defaults: {
@@ -132,7 +154,7 @@ describe("createModelSelectionState catalog loading", () => {
       hasModelDirective: true,
     });
 
-    expect(loadModelCatalog).toHaveBeenCalledOnce();
+    expect(modelCatalogRuntimeMocks.loadModelCatalog).toHaveBeenCalledOnce();
   });
 });
 
@@ -531,8 +553,7 @@ describe("createModelSelectionState respects session model override", () => {
 
 describe("createModelSelectionState resolveDefaultReasoningLevel", () => {
   it("returns on when catalog model has reasoning true", async () => {
-    const { loadModelCatalog } = await import("../../agents/model-catalog.runtime.js");
-    vi.mocked(loadModelCatalog).mockResolvedValueOnce([
+    modelCatalogRuntimeMocks.loadModelCatalog.mockResolvedValueOnce([
       { provider: "openrouter", id: "x-ai/grok-4.1-fast", name: "Grok", reasoning: true },
     ]);
     const state = await createModelSelectionState({

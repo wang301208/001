@@ -299,6 +299,20 @@ const createRunNodeOutputTee = (deps) => {
     return null;
   }
   deps.fs.mkdirSync(path.dirname(outputLogPath), { recursive: true });
+  try {
+    if (deps.fs.existsSync(outputLogPath) && deps.fs.statSync(outputLogPath).isDirectory()) {
+      const error = new Error(`EISDIR: illegal operation on a directory, open '${outputLogPath}'`);
+      return {
+        outputLogPath,
+        write() {},
+        async close() {
+          throw error;
+        },
+      };
+    }
+  } catch {
+    // Fall through to the stream path so close() can surface the write error.
+  }
   const stream = deps.fs.createWriteStream(outputLogPath, {
     flags: "a",
     mode: 0o600,

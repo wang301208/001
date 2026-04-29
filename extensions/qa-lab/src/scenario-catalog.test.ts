@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { QA_AGENTIC_PARITY_SCENARIO_IDS } from "./agentic-parity.js";
 import {
+  hasQaScenarioPack,
   listQaScenarioMarkdownPaths,
   readQaBootstrapScenarioCatalog,
   readQaScenarioById,
@@ -15,6 +16,12 @@ describe("qa scenario catalog", () => {
 
     expect(pack.version).toBe(1);
     expect(pack.agent.identityMarkdown).toContain("Dev C-3PO");
+    if (!hasQaScenarioPack()) {
+      expect(pack.kickoffTask).toBe("QA scenarios not available in this distribution.");
+      expect(pack.scenarios).toEqual([]);
+      expect(listQaScenarioMarkdownPaths()).toEqual([]);
+      return;
+    }
     expect(pack.kickoffTask).toContain("Lobster Invaders");
     expect(listQaScenarioMarkdownPaths().length).toBe(pack.scenarios.length);
     expect(listQaScenarioMarkdownPaths()).toContain(
@@ -33,6 +40,11 @@ describe("qa scenario catalog", () => {
     const catalog = readQaBootstrapScenarioCatalog();
 
     expect(catalog.agentIdentityMarkdown).toContain("protocol-minded");
+    if (!hasQaScenarioPack()) {
+      expect(catalog.kickoffTask).toBe("QA scenarios not available in this distribution.");
+      expect(catalog.scenarios).toEqual([]);
+      return;
+    }
     expect(catalog.kickoffTask).toContain("Track what worked");
     expect(catalog.scenarios.some((scenario) => scenario.id === "subagent-fanout-synthesis")).toBe(
       true,
@@ -45,6 +57,16 @@ describe("qa scenario catalog", () => {
   });
 
   it("loads scenario-specific execution config from per-scenario markdown", () => {
+    if (!hasQaScenarioPack()) {
+      expect(() => readQaScenarioById("source-docs-discovery-report")).toThrow(
+        "unknown qa scenario: source-docs-discovery-report",
+      );
+      expect(readQaScenarioExecutionConfig("source-docs-discovery-report")).toBeUndefined();
+      expect(readQaScenarioExecutionConfig("codex-harness-no-meta-leak")).toBeUndefined();
+      expect(readQaScenarioExecutionConfig("bundled-plugin-skill-runtime")).toBeUndefined();
+      expect(readQaScenarioExecutionConfig("subagent-fanout-synthesis")).toBeUndefined();
+      return;
+    }
     const discovery = readQaScenarioById("source-docs-discovery-report");
     const discoveryConfig = readQaScenarioExecutionConfig("source-docs-discovery-report");
     const codexLeak = readQaScenarioById("codex-harness-no-meta-leak");
@@ -85,12 +107,22 @@ describe("qa scenario catalog", () => {
   });
 
   it("loads scenario-declared gateway runtime options from markdown", () => {
+    if (!hasQaScenarioPack()) {
+      expect(() => readQaScenarioById("control-ui-qa-channel-image-roundtrip")).toThrow(
+        "unknown qa scenario: control-ui-qa-channel-image-roundtrip",
+      );
+      return;
+    }
     const scenario = readQaScenarioById("control-ui-qa-channel-image-roundtrip");
 
     expect(scenario.gatewayRuntime?.forwardHostHome).toBe(true);
   });
 
   it("keeps the character eval scenario natural and task-shaped", () => {
+    if (!hasQaScenarioPack()) {
+      expect(readQaScenarioExecutionConfig("character-vibes-gollum")).toBeUndefined();
+      return;
+    }
     const characterConfig = readQaScenarioExecutionConfig("character-vibes-gollum") as
       | {
           workspaceFiles?: Record<string, string>;
@@ -115,6 +147,10 @@ describe("qa scenario catalog", () => {
       (candidate) => candidate.id === "codex-harness-no-meta-leak",
     );
 
+    if (!hasQaScenarioPack()) {
+      expect(scenario).toBeUndefined();
+      return;
+    }
     expect(scenario?.sourcePath).toBe("qa/scenarios/models/codex-harness-no-meta-leak.md");
     expect(scenario?.execution.flow?.steps.map((step) => step.name)).toContain(
       "keeps codex coordination chatter out of the visible reply",
@@ -128,6 +164,14 @@ describe("qa scenario catalog", () => {
       "empty-response-recovery-replay-safe-read",
       "empty-response-retry-budget-exhausted",
     ];
+
+    if (!hasQaScenarioPack()) {
+      for (const scenarioId of scenarioIds) {
+        expect(() => readQaScenarioById(scenarioId)).toThrow(`unknown qa scenario: ${scenarioId}`);
+        expect(readQaScenarioExecutionConfig(scenarioId)).toBeUndefined();
+      }
+      return;
+    }
 
     for (const scenarioId of scenarioIds) {
       const scenario = readQaScenarioById(scenarioId);
@@ -149,6 +193,10 @@ describe("qa scenario catalog", () => {
     const scenario = readQaScenarioPack().scenarios.find(
       (candidate) => candidate.id === "image-understanding-attachment",
     );
+    if (!hasQaScenarioPack()) {
+      expect(scenario).toBeUndefined();
+      return;
+    }
     const imageRequestAction = scenario?.execution.flow?.steps
       .flatMap((step) => step.actions ?? [])
       .find(
@@ -170,6 +218,13 @@ describe("qa scenario catalog", () => {
   });
 
   it("adds a repo-instruction followthrough scenario to the parity pack", () => {
+    if (!hasQaScenarioPack()) {
+      expect(() => readQaScenarioById("instruction-followthrough-repo-contract")).toThrow(
+        "unknown qa scenario: instruction-followthrough-repo-contract",
+      );
+      expect(readQaScenarioExecutionConfig("instruction-followthrough-repo-contract")).toBeUndefined();
+      return;
+    }
     const scenario = readQaScenarioById("instruction-followthrough-repo-contract");
     const config = readQaScenarioExecutionConfig("instruction-followthrough-repo-contract") as
       | {

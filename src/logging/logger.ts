@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { Logger as TsLogger } from "tslog";
 import type { OpenClawConfig } from "../config/types.js";
+import { isTruthyEnvValue } from "../infra/env.js";
 import {
   POSIX_OPENCLAW_TMP_DIR,
   resolvePreferredOpenClawTmpDir,
@@ -79,7 +80,7 @@ function attachExternalTransport(logger: TsLogger<LogObj>, transport: LogTranspo
 
 function canUseSilentVitestFileLogFastPath(envLevel: LogLevel | undefined): boolean {
   return (
-    process.env.VITEST === "true" &&
+    isTruthyEnvValue(process.env.VITEST) &&
     process.env.OPENCLAW_TEST_FILE_LOG !== "1" &&
     !envLevel &&
     !loggingState.overrideSettings
@@ -121,7 +122,9 @@ function resolveSettings(): ResolvedSettings {
     }
   }
   const defaultLevel =
-    process.env.VITEST === "true" && process.env.OPENCLAW_TEST_FILE_LOG !== "1" ? "silent" : "info";
+    isTruthyEnvValue(process.env.VITEST) && process.env.OPENCLAW_TEST_FILE_LOG !== "1"
+      ? "silent"
+      : "info";
   const fromConfig = normalizeLogLevel(cfg?.level, defaultLevel);
   const level = envLevel ?? fromConfig;
   const file = cfg?.file ?? defaultRollingPathForToday();

@@ -99,7 +99,7 @@ describe("skills-clawhub", () => {
       ok: true,
       slug: "agentreceipt",
       version: "1.0.0",
-      targetDir: "/tmp/workspace/skills/agentreceipt",
+      targetDir: path.resolve("/tmp/workspace", "skills", "agentreceipt"),
     });
     expect(archiveCleanupMock).toHaveBeenCalledTimes(1);
   });

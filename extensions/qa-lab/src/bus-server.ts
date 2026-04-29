@@ -41,18 +41,45 @@ export function writeError(res: ServerResponse, statusCode: number, error: unkno
 
 export async function closeQaHttpServer(server: Server): Promise<void> {
   let forceCloseTimer: NodeJS.Timeout | undefined;
+  let settleTimer: NodeJS.Timeout | undefined;
   try {
     await new Promise<void>((resolve, reject) => {
-      server.close((error) => (error ? reject(error) : resolve()));
+      let settled = false;
+      const finish = (handler: () => void) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        if (forceCloseTimer) {
+          clearTimeout(forceCloseTimer);
+        }
+        if (settleTimer) {
+          clearTimeout(settleTimer);
+        }
+        handler();
+      };
+      server.unref();
+      server.close((error) => finish(() => (error ? reject(error) : resolve())));
+      server.closeAllConnections?.();
       server.closeIdleConnections?.();
       forceCloseTimer = setTimeout(() => {
         server.closeAllConnections?.();
+        server.closeIdleConnections?.();
       }, 250);
       forceCloseTimer.unref();
+      settleTimer = setTimeout(() => {
+        server.closeAllConnections?.();
+        server.closeIdleConnections?.();
+        finish(resolve);
+      }, 1_000);
+      settleTimer.unref();
     });
   } finally {
     if (forceCloseTimer) {
       clearTimeout(forceCloseTimer);
+    }
+    if (settleTimer) {
+      clearTimeout(settleTimer);
     }
   }
 }

@@ -1,5 +1,6 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { resolveUserPath } from "../../utils.js";
 import {
   applyExtraParamsToAgentMock,
   contextEngineCompactMock,
@@ -180,10 +181,12 @@ describe("compactEmbeddedPiSessionDirect hooks", () => {
       workspaceDir: "/tmp/workspace",
     });
 
-    expect(ensureRuntimePluginsLoaded).toHaveBeenCalledWith({
-      config: undefined,
-      workspaceDir: "/tmp/workspace",
-    });
+    expect(ensureRuntimePluginsLoaded).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: undefined,
+        workspaceDir: resolveUserPath("/tmp/workspace"),
+      }),
+    );
   });
 
   it("forwards gateway subagent binding opt-in during compaction bootstrap", async () => {
@@ -203,11 +206,13 @@ describe("compactEmbeddedPiSessionDirect hooks", () => {
       allowGatewaySubagentBinding: true,
     });
 
-    expect(ensureRuntimePluginsLoaded).toHaveBeenCalledWith({
-      config: undefined,
-      workspaceDir: "/tmp/workspace",
-      allowGatewaySubagentBinding: true,
-    });
+    expect(ensureRuntimePluginsLoaded).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: undefined,
+        workspaceDir: resolveUserPath("/tmp/workspace"),
+        allowGatewaySubagentBinding: true,
+      }),
+    );
   });
 
   it("routes compaction through shared stream resolution and extra params", async () => {

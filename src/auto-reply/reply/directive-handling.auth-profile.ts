@@ -1,6 +1,6 @@
-import { ensureAuthProfileStore } from "../../agents/auth-profiles.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
+import { resolveDirectiveHandlingAuthProfileStore } from "./directive-handling.auth-store.js";
 
 export function resolveProfileOverride(params: {
   rawProfile?: string;
@@ -12,9 +12,7 @@ export function resolveProfileOverride(params: {
   if (!raw) {
     return {};
   }
-  const store = ensureAuthProfileStore(params.agentDir, {
-    allowKeychainPrompt: false,
-  });
+  const store = resolveDirectiveHandlingAuthProfileStore(params.agentDir);
   const profile = store.profiles[raw];
   if (!profile) {
     return { error: `Auth profile "${raw}" not found.` };

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   collectRuntimeDependencyInstallManifest,
   collectRuntimeDependencyInstallSpecs,
@@ -9,6 +9,11 @@ import {
 import { createScriptTestHarness } from "./test-helpers.js";
 
 const { createTempDir } = createScriptTestHarness();
+const directoryLinkType = process.platform === "win32" ? "junction" : "dir";
+
+function createDirectoryLink(targetPath: string, linkPath: string) {
+  fs.symlinkSync(targetPath, linkPath, directoryLinkType);
+}
 
 describe("stageBundledPluginRuntimeDeps", () => {
   function createBundledPluginFixture(params: {
@@ -302,7 +307,7 @@ describe("stageBundledPluginRuntimeDeps", () => {
       "utf8",
     );
     fs.writeFileSync(path.join(directDir, "index.js"), "module.exports = 'direct';\n", "utf8");
-    fs.symlinkSync(outsideDir, nodeModulesDir);
+    createDirectoryLink(outsideDir, nodeModulesDir);
 
     expect(() => stageBundledPluginRuntimeDeps({ cwd: repoRoot })).toThrow(
       /refusing to replace runtime deps via symlinked path/u,
@@ -329,11 +334,23 @@ describe("stageBundledPluginRuntimeDeps", () => {
     );
     fs.writeFileSync(path.join(directDir, "index.js"), "module.exports = 'direct';\n", "utf8");
     fs.writeFileSync(outsideStamp, '{"outside":true}\n', "utf8");
-    fs.symlinkSync(outsideStamp, stampPath);
-
-    expect(() => stageBundledPluginRuntimeDeps({ cwd: repoRoot })).toThrow(
-      /refusing to write runtime deps stamp via symlinked path/u,
+    const originalLstatSync = fs.lstatSync.bind(fs);
+    const lstatSpy = vi.spyOn(fs, "lstatSync").mockImplementation(
+      ((targetPath: fs.PathLike) => {
+        if (path.resolve(String(targetPath)) === path.resolve(stampPath)) {
+          return { isSymbolicLink: () => true } as fs.Stats;
+        }
+        return originalLstatSync(targetPath);
+      }) as typeof fs.lstatSync,
     );
+
+    try {
+      expect(() => stageBundledPluginRuntimeDeps({ cwd: repoRoot })).toThrow(
+        /refusing to write runtime deps stamp via symlinked path/u,
+      );
+    } finally {
+      lstatSpy.mockRestore();
+    }
   });
 
   it("stages runtime deps from the root node_modules when already installed", () => {
@@ -575,7 +592,7 @@ describe("stageBundledPluginRuntimeDeps", () => {
     );
     fs.writeFileSync(path.join(directDir, "index.js"), "module.exports = 'direct';\n", "utf8");
     fs.writeFileSync(path.join(linkedTargetDir, "marker.txt"), "first\n", "utf8");
-    fs.symlinkSync(linkedTargetDir, linkedPath);
+    createDirectoryLink(linkedTargetDir, linkedPath);
 
     let installCount = 0;
     stageBundledPluginRuntimeDeps({
@@ -630,10 +647,10 @@ describe("stageBundledPluginRuntimeDeps", () => {
     );
     fs.writeFileSync(path.join(bStoreDir, "index.js"), "module.exports = 'b';\n", "utf8");
     fs.mkdirSync(rootNodeModulesDir, { recursive: true });
-    fs.symlinkSync(aStoreDir, path.join(rootNodeModulesDir, "a"));
-    fs.symlinkSync(bStoreDir, path.join(rootNodeModulesDir, "b"));
-    fs.symlinkSync(bStoreDir, path.join(aStoreDir, "node_modules", "b"));
-    fs.symlinkSync(aStoreDir, path.join(bStoreDir, "node_modules", "a"));
+    createDirectoryLink(aStoreDir, path.join(rootNodeModulesDir, "a"));
+    createDirectoryLink(bStoreDir, path.join(rootNodeModulesDir, "b"));
+    createDirectoryLink(bStoreDir, path.join(aStoreDir, "node_modules", "b"));
+    createDirectoryLink(aStoreDir, path.join(bStoreDir, "node_modules", "a"));
 
     stageBundledPluginRuntimeDeps({ cwd: repoRoot });
 
@@ -701,7 +718,7 @@ describe("stageBundledPluginRuntimeDeps", () => {
     );
     fs.writeFileSync(path.join(directDir, "index.js"), "module.exports = 'direct';\n", "utf8");
     fs.writeFileSync(path.join(escapedDir, "secret.txt"), "host secret\n", "utf8");
-    fs.symlinkSync(escapedDir, path.join(directDir, "node_modules", "escaped"));
+    createDirectoryLink(escapedDir, path.join(directDir, "node_modules", "escaped"));
 
     let installCount = 0;
     stageBundledPluginRuntimeDeps({

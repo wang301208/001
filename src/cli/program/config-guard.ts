@@ -1,4 +1,5 @@
 import { readConfigFileSnapshot } from "../../config/config.js";
+import { isTruthyEnvValue } from "../../infra/env.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { shouldMigrateStateFromPath } from "../argv.js";
 
@@ -26,7 +27,7 @@ function resetConfigGuardStateForTests() {
 
 async function getConfigSnapshot() {
   // Tests often mutate config fixtures; caching can make those flaky.
-  if (process.env.VITEST === "true") {
+  if (isTruthyEnvValue(process.env.VITEST)) {
     return readConfigFileSnapshot();
   }
   configSnapshotPromise ??= readConfigFileSnapshot();

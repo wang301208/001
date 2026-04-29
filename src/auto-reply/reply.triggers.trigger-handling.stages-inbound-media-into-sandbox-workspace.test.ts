@@ -14,14 +14,12 @@ const sandboxMocks = vi.hoisted(() => ({
 const childProcessMocks = vi.hoisted(() => ({
   spawn: vi.fn(),
 }));
-const sandboxModuleId = new URL("../agents/sandbox.js", import.meta.url).pathname;
-const fsSafeModuleId = new URL("../infra/fs-safe.js", import.meta.url).pathname;
 
 let stageSandboxMedia: typeof import("./reply/stage-sandbox-media.js").stageSandboxMedia;
 
 async function loadFreshStageSandboxMediaModuleForTest() {
   vi.resetModules();
-  vi.doMock(sandboxModuleId, () => sandboxMocks);
+  vi.doMock("../agents/sandbox.js", () => sandboxMocks);
   vi.doMock("node:child_process", async () => {
     const actual = await vi.importActual<typeof import("node:child_process")>("node:child_process");
     return {
@@ -29,8 +27,10 @@ async function loadFreshStageSandboxMediaModuleForTest() {
       spawn: childProcessMocks.spawn,
     };
   });
-  vi.doMock(fsSafeModuleId, async () => {
-    const actual = await vi.importActual<typeof import("../infra/fs-safe.js")>(fsSafeModuleId);
+  vi.doMock("../infra/fs-safe.js", async () => {
+    const actual = await vi.importActual<typeof import("../infra/fs-safe.js")>(
+      "../infra/fs-safe.js",
+    );
     return {
       ...actual,
       copyFileWithinRoot: vi.fn(async ({ sourcePath, rootDir, relativePath, maxBytes }) => {
@@ -198,7 +198,7 @@ describe("stageSandboxMedia", () => {
         expect(ctx.MediaPath).toBe("/etc/passwd");
       }
     });
-  });
+  }, 180_000);
 
   it("blocks destination symlink escapes when staging into sandbox workspace", async () => {
     await withSandboxMediaTempHome("openclaw-triggers-", async (home) => {
@@ -214,8 +214,13 @@ describe("stageSandboxMedia", () => {
       await fs.writeFile(victimPath, "ORIGINAL");
 
       await fs.mkdir(sandboxDir, { recursive: true });
-      await fs.symlink(outsideDir, join(sandboxDir, "media"));
-      await fs.symlink(victimPath, join(outsideInboundDir, basename(mediaPath)));
+      await fs.symlink(outsideDir, join(sandboxDir, "media"), process.platform === "win32" ? "junction" : "dir");
+      const outsideMediaPath = join(outsideInboundDir, basename(mediaPath));
+      if (process.platform === "win32") {
+        await fs.link(victimPath, outsideMediaPath);
+      } else {
+        await fs.symlink(victimPath, outsideMediaPath);
+      }
 
       const { ctx, sessionCtx } = createSandboxMediaContexts(mediaPath);
       await stageSandboxMedia({

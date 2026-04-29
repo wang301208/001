@@ -691,12 +691,12 @@ describe("stageSystemdService", () => {
         fs.stat(envFilePath),
       ]);
 
-      expect(unit).toContain(`EnvironmentFile=-${envFilePath}`);
+      expect(unit).toContain(`EnvironmentFile=-"${envFilePath}"`);
       expect(unit).toContain("Environment=OPENCLAW_GATEWAY_PORT=18789");
       expect(unit).not.toContain("Environment=OPENCLAW_GATEWAY_TOKEN=dotenv-token");
       expect(unit).not.toContain("Environment=LLM_API_KEY=dotenv-key");
       expect(envFile).toBe("OPENCLAW_GATEWAY_TOKEN=dotenv-token\nLLM_API_KEY=dotenv-key\n");
-      expect(envFileStat.mode & 0o777).toBe(0o600);
+      expect(envFileStat.mode & 0o777).toBe(process.platform === "win32" ? 0o666 : 0o600);
     } finally {
       await fs.rm(tempHomeRoot, { recursive: true, force: true });
     }
@@ -743,7 +743,7 @@ describe("stageSystemdService", () => {
         fs.readFile(envFilePath, "utf8"),
       ]);
 
-      expect(unit).toContain(`EnvironmentFile=-${envFilePath}`);
+      expect(unit).toContain(`EnvironmentFile=-"${envFilePath}"`);
       expect(unit).toContain("Environment=OPENCLAW_GATEWAY_TOKEN=fresh-token");
       expect(envFile).toBe("LLM_API_KEY=dotenv-key\n");
     } finally {

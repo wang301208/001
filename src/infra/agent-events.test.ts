@@ -154,6 +154,9 @@ describe("agent-events sequencing", () => {
           freezeActive: false,
           freezeDeny: [],
           freezeDetails: [],
+          activeSovereigntyIncidentCount: 0,
+          activeSovereigntyIncidentIds: [],
+          activeSovereigntyFreezeIncidentIds: [],
         },
       },
     });

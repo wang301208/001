@@ -17,7 +17,7 @@ vi.mock("../../agents/auth-profiles.js", () => ({
       store?: { profiles?: Record<string, { type: "api_key"; provider: string; key: string }> };
     }>,
   ) => {
-    authProfilesStoreMock.profiles = snapshots[0]?.store?.profiles ?? {};
+    authProfilesStoreMock.profiles = { ...(snapshots[0]?.store?.profiles ?? {}) };
   },
   resolveAuthProfileDisplayLabel: ({ profileId }: { profileId: string }) => profileId,
   resolveAuthProfileOrder: () => [],
@@ -35,6 +35,7 @@ import type { SessionEntry } from "../../config/sessions.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import type { ElevatedLevel } from "../thinking.js";
 import { handleDirectiveOnly } from "./directive-handling.impl.js";
+import { setDirectiveHandlingAuthProfileStoreResolverForTest } from "./directive-handling.auth-store.js";
 import {
   maybeHandleModelDirectiveInfo,
   resolveModelSelectionFromDirective,
@@ -68,7 +69,7 @@ vi.mock("../../agents/sandbox.js", () => ({
   resolveSandboxRuntimeStatus: vi.fn(() => ({ sandboxed: false })),
 }));
 
-vi.mock("../../config/sessions.js", () => ({
+vi.mock("../../config/sessions/store.js", () => ({
   updateSessionStore: vi.fn(async () => {}),
 }));
 
@@ -118,15 +119,20 @@ beforeEach(() => {
       store: { version: 1, profiles: {} },
     },
   ]);
+  setDirectiveHandlingAuthProfileStoreResolverForTest(() => ({
+    version: 1,
+    profiles: authProfilesStoreMock.profiles,
+  }));
   vi.mocked(resolveAgentDir).mockReset().mockReturnValue(TEST_AGENT_DIR);
   vi.mocked(resolveSessionAgentId).mockReset().mockReturnValue("main");
-  vi.mocked(enqueueSystemEvent).mockClear();
+  vi.mocked(enqueueSystemEvent).mockReset();
   liveModelSwitchMocks.requestLiveSessionModelSwitch.mockReset().mockReturnValue(false);
   queueMocks.refreshQueuedFollowupSession.mockReset();
 });
 
 afterEach(() => {
   clearRuntimeAuthProfileStoreSnapshots();
+  setDirectiveHandlingAuthProfileStoreResolverForTest(undefined);
 });
 
 function setAuthProfiles(profiles: Record<string, ApiKeyProfile>) {

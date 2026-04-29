@@ -41,7 +41,7 @@ const skillsLogger = createSubsystemLogger("skills");
  */
 function resolveUserHomeDir(): string | undefined {
   try {
-    return path.resolve(os.homedir());
+    return os.homedir();
   } catch {
     return undefined;
   }
@@ -49,13 +49,24 @@ function resolveUserHomeDir(): string | undefined {
 
 function resolveCompactHomePrefixes(): string[] {
   const homes = [resolveHomeDir(), resolveUserHomeDir()].filter((home): home is string => !!home);
-  const resolvedHomes = homes.map((home) => path.resolve(home));
-  const realHomes = resolvedHomes
-    .map((home) => tryRealpath(home))
-    .filter((home): home is string => !!home);
-  return [...resolvedHomes, ...realHomes]
-    .filter((home, index, all) => all.indexOf(home) === index)
-    .sort((a, b) => b.length - a.length);
+  const candidates = homes.flatMap((home) => {
+    const resolvedHome = path.resolve(home);
+    return [home, resolvedHome, tryRealpath(home), tryRealpath(resolvedHome)].filter(
+      (candidate): candidate is string => !!candidate,
+    );
+  });
+  return candidates
+    .filter(
+      (home, index, all) =>
+        all.findIndex(
+          (candidate) =>
+            normalizePathForHomeComparison(candidate) === normalizePathForHomeComparison(home),
+        ) === index,
+    )
+    .sort(
+      (a, b) =>
+        normalizePathForHomeComparison(b).length - normalizePathForHomeComparison(a).length,
+    );
 }
 
 function compactSkillPaths(skills: Skill[]): Skill[] {
@@ -68,13 +79,22 @@ function compactSkillPaths(skills: Skill[]): Skill[] {
 }
 
 function compactHomePath(filePath: string, homes: readonly string[]): string {
+  const normalizedFilePath = normalizePathForHomeComparison(filePath);
   for (const home of homes) {
-    const prefix = home.endsWith(path.sep) ? home : home + path.sep;
-    if (filePath.startsWith(prefix)) {
-      return "~/" + filePath.slice(prefix.length);
+    const normalizedHome = normalizePathForHomeComparison(home);
+    if (normalizedFilePath === normalizedHome) {
+      return "~";
+    }
+    const prefix = normalizedHome.endsWith("/") ? normalizedHome : `${normalizedHome}/`;
+    if (normalizedFilePath.startsWith(prefix)) {
+      return `~/${normalizedFilePath.slice(prefix.length)}`;
     }
   }
   return filePath;
+}
+
+function normalizePathForHomeComparison(filePath: string): string {
+  return filePath.replace(/\\/g, "/").replace(/\/+$/u, "");
 }
 
 function compactPathForConsoleMessage(filePath: string): string {

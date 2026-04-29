@@ -72,11 +72,17 @@ let sessionStoreRuntimePromise:
   | undefined;
 
 function loadModelCatalogRuntime() {
+  if (process.env.VITEST) {
+    return import("../../agents/model-catalog.runtime.js");
+  }
   modelCatalogRuntimePromise ??= import("../../agents/model-catalog.runtime.js");
   return modelCatalogRuntimePromise;
 }
 
 function loadSessionStoreRuntime() {
+  if (process.env.VITEST) {
+    return import("../../config/sessions/store.runtime.js");
+  }
   sessionStoreRuntimePromise ??= import("../../config/sessions/store.runtime.js");
   return sessionStoreRuntimePromise;
 }

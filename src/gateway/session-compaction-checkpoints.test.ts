@@ -6,6 +6,7 @@ import type { AssistantMessage, UserMessage } from "@mariozechner/pi-ai";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 import { afterEach, describe, expect, test } from "vitest";
 import { loadSessionStore } from "../config/sessions/store.js";
+import { resolveGatewaySessionStoreTarget } from "./session-utils.js";
 import {
   captureCompactionCheckpointSnapshot,
   cleanupCompactionCheckpointSnapshot,
@@ -110,7 +111,12 @@ describe("session-compaction-checkpoints", () => {
     });
 
     const store = loadSessionStore(storePath, { skipCache: true });
-    const persisted = store.main?.compactionCheckpoints?.[0];
+    const persistedTarget = resolveGatewaySessionStoreTarget({
+      cfg: { session: { store: storePath, mainKey: "main" } },
+      key: "main",
+      store,
+    });
+    const persisted = store[persistedTarget.canonicalKey]?.compactionCheckpoints?.[0];
     expect(persisted?.continuation).toMatchObject({
       taskId: "task-1",
       runId: "run-1",

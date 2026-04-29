@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { createEmptyAgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
 import {
   buildStatusAgentTableRows,
   buildStatusChannelDetailSections,
@@ -19,6 +20,7 @@ describe("status-all report tables", () => {
               sessionsCount: 2,
               lastActiveAgeMs: 12_000,
               governance: {
+                ...createEmptyAgentToolGovernanceSummary(),
                 charterDeclared: true,
                 charterTitle: "Founder",
                 charterLayer: "evolution",
@@ -38,10 +40,7 @@ describe("status-all report tables", () => {
               sessionsCount: 0,
               lastActiveAgeMs: null,
               governance: {
-                charterDeclared: false,
-                charterToolDeny: [],
-                charterRequireAgentId: false,
-                charterElevatedLocked: false,
+                ...createEmptyAgentToolGovernanceSummary(),
                 freezeActive: true,
                 freezeReasonCode: "network_boundary_opened",
                 freezeDeny: ["exec"],

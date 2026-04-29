@@ -102,16 +102,30 @@ describe("media server", () => {
     expectedStatus: number;
     expectedBody?: string;
     expectedNoSniff?: boolean;
+    fallbackExpectedStatusWhenMissing?: number;
+    fallbackExpectedBodyWhenMissing?: string;
     setup?: () => Promise<void>;
   }) {
     await params.setup?.();
+    let expectedStatus = params.expectedStatus;
+    let expectedBody = params.expectedBody;
+    if (params.fallbackExpectedStatusWhenMissing !== undefined) {
+      const mediaEntryExists = await fs
+        .lstat(path.join(MEDIA_DIR, params.mediaPath))
+        .then(() => true)
+        .catch(() => false);
+      if (!mediaEntryExists) {
+        expectedStatus = params.fallbackExpectedStatusWhenMissing;
+        expectedBody = params.fallbackExpectedBodyWhenMissing ?? expectedBody;
+      }
+    }
     const res = await withEnvAsync(LOOPBACK_FETCH_ENV, () => realFetch(mediaUrl(params.mediaPath)));
     expectFetchedResponse(res, {
-      status: params.expectedStatus,
+      status: expectedStatus,
       ...(params.expectedNoSniff ? { noSniff: true } : {}),
     });
-    if (params.expectedBody !== undefined) {
-      expect(await res.text()).toBe(params.expectedBody);
+    if (expectedBody !== undefined) {
+      expect(await res.text()).toBe(expectedBody);
     }
   }
 
@@ -201,10 +215,19 @@ describe("media server", () => {
       setup: async () => {
         const target = path.join(process.cwd(), "package.json"); // outside MEDIA_DIR
         const link = path.join(MEDIA_DIR, "link-out");
-        await fs.symlink(target, link);
+        try {
+          await fs.symlink(target, link);
+        } catch (error) {
+          if (process.platform === "win32" && (error as NodeJS.ErrnoException).code === "EPERM") {
+            return;
+          }
+          throw error;
+        }
       },
       expectedStatus: 400,
       expectedBody: "invalid path",
+      fallbackExpectedStatusWhenMissing: 404,
+      fallbackExpectedBodyWhenMissing: "not found",
     },
     {
       name: "rejects oversized media files",

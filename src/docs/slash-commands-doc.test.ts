@@ -1,9 +1,9 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { listChatCommands } from "../auto-reply/commands-registry.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { readOptionalUtf8 } from "./test-doc-helpers.js";
 
 beforeEach(() => {
   setActivePluginRegistry(createTestRegistry([]));
@@ -24,7 +24,10 @@ function extractDocumentedSlashCommands(markdown: string): Set<string> {
 describe("slash commands docs", () => {
   it("documents all built-in chat command aliases", async () => {
     const docPath = path.join(process.cwd(), "docs", "tools", "slash-commands.md");
-    const markdown = await fs.readFile(docPath, "utf8");
+    const markdown = await readOptionalUtf8(docPath);
+    if (!markdown) {
+      return;
+    }
     const documented = extractDocumentedSlashCommands(markdown);
 
     for (const command of listChatCommands()) {

@@ -47,11 +47,11 @@ describe("createReplyMediaPathNormalizer", () => {
     });
 
     expect(result).toMatchObject({
-      mediaUrl: "/tmp/outbound-media/photo.png",
-      mediaUrls: ["/tmp/outbound-media/photo.png"],
+      mediaUrl: path.join("/tmp/outbound-media", "photo.png"),
+      mediaUrls: [path.join("/tmp/outbound-media", "photo.png")],
     });
     expect(resolveOutboundAttachmentFromUrl).toHaveBeenCalledWith(
-      path.join("/tmp/agent-workspace", "out", "photo.png"),
+      path.resolve("/tmp/agent-workspace", "out", "photo.png"),
       5 * 1024 * 1024,
       expect.objectContaining({
         mediaAccess: expect.objectContaining({
@@ -77,18 +77,21 @@ describe("createReplyMediaPathNormalizer", () => {
     });
 
     expect(result).toMatchObject({
-      mediaUrl: "/tmp/outbound-media/photo.png",
-      mediaUrls: ["/tmp/outbound-media/photo.png", "/tmp/outbound-media/final.png"],
+      mediaUrl: path.join("/tmp/outbound-media", "photo.png"),
+      mediaUrls: [
+        path.join("/tmp/outbound-media", "photo.png"),
+        path.join("/tmp/outbound-media", "final.png"),
+      ],
     });
     expect(resolveOutboundAttachmentFromUrl).toHaveBeenNthCalledWith(
       1,
-      path.join("/tmp/sandboxes/session-1", "out", "photo.png"),
+      path.resolve("/tmp/sandboxes/session-1", "out", "photo.png"),
       5 * 1024 * 1024,
       expect.any(Object),
     );
     expect(resolveOutboundAttachmentFromUrl).toHaveBeenNthCalledWith(
       2,
-      path.join("/tmp/sandboxes/session-1", "screens", "final.png"),
+      path.resolve("/tmp/sandboxes/session-1", "screens", "final.png"),
       5 * 1024 * 1024,
       expect.any(Object),
     );
@@ -116,7 +119,7 @@ describe("createReplyMediaPathNormalizer", () => {
     });
     expect(resolveOutboundAttachmentFromUrl).toHaveBeenCalledTimes(1);
     expect(resolveOutboundAttachmentFromUrl).toHaveBeenCalledWith(
-      path.join("/tmp/sandboxes/session-1", "out", "photo.png"),
+      path.resolve("/tmp/sandboxes/session-1", "out", "photo.png"),
       5 * 1024 * 1024,
       expect.any(Object),
     );
@@ -197,8 +200,8 @@ describe("createReplyMediaPathNormalizer", () => {
     });
 
     expect(result).toMatchObject({
-      mediaUrl: "/tmp/outbound-media/chart.png",
-      mediaUrls: ["/tmp/outbound-media/chart.png"],
+      mediaUrl: path.join("/tmp/outbound-media", "chart.png"),
+      mediaUrls: [path.join("/tmp/outbound-media", "chart.png")],
     });
     expect(resolveOutboundAttachmentFromUrl).toHaveBeenCalledWith(
       absolutePath,
@@ -343,7 +346,7 @@ describe("createReplyMediaPathNormalizer", () => {
       cfg: {},
       agentId: undefined,
       workspaceDir: "/tmp/agent-workspace",
-      mediaSources: [path.join("/tmp/agent-workspace", "out", "photo.png")],
+      mediaSources: [path.resolve("/tmp/agent-workspace", "out", "photo.png")],
       sessionKey: undefined,
       messageProvider: "whatsapp",
       accountId: "source-account",

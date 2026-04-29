@@ -1,3 +1,4 @@
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("node:child_process", async () => {
@@ -35,7 +36,21 @@ const { resolveBrowserExecutableForPlatform } = await import("./chrome.executabl
 
 describe("browser default executable detection", () => {
   const launchServicesPlist = "com.apple.launchservices.secure.plist";
-  const chromeExecutablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  const chromeExecutablePath = path.join(
+    "/Applications",
+    "Google Chrome.app",
+    "Contents",
+    "MacOS",
+    "Google Chrome",
+  );
+  const homeChromeExecutablePath = path.join(
+    "/Users/test",
+    "Applications",
+    "Google Chrome.app",
+    "Contents",
+    "MacOS",
+    "Google Chrome",
+  );
 
   function mockMacDefaultBrowser(bundleId: string, appPath = ""): void {
     vi.mocked(execFileSync).mockImplementation((cmd, args) => {
@@ -77,12 +92,18 @@ describe("browser default executable detection", () => {
       "darwin",
     );
 
-    expect(exe?.path).toContain("Google Chrome.app/Contents/MacOS/Google Chrome");
+    expect(exe?.path).toBe(chromeExecutablePath);
     expect(exe?.kind).toBe("chrome");
   });
 
   it("detects Edge via LaunchServices bundle ID (com.microsoft.edgemac)", async () => {
-    const edgeExecutablePath = "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge";
+    const edgeExecutablePath = path.join(
+      "/Applications",
+      "Microsoft Edge.app",
+      "Contents",
+      "MacOS",
+      "Microsoft Edge",
+    );
     // macOS LaunchServices registers Edge as "com.microsoft.edgemac", which
     // differs from the CFBundleIdentifier "com.microsoft.Edge" in the app's
     // own Info.plist. Both must be recognised.
@@ -146,7 +167,7 @@ describe("browser default executable detection", () => {
       "darwin",
     );
 
-    expect(exe?.path).toContain("Google Chrome.app/Contents/MacOS/Google Chrome");
+    expect(exe?.path).toBe(homeChromeExecutablePath);
     expect(exe?.kind).toBe("chrome");
   });
 
@@ -159,6 +180,6 @@ describe("browser default executable detection", () => {
       "darwin",
     );
 
-    expect(exe?.path).toContain("Google Chrome.app/Contents/MacOS/Google Chrome");
+    expect(exe?.path).toBe(homeChromeExecutablePath);
   });
 });

@@ -1282,9 +1282,11 @@ describe("runtime autonomy", () => {
           }),
         }),
       });
-      expect(flow?.managedAutonomy?.project.kind === "algorithm_research"
-        ? flow.managedAutonomy.project.sandboxReplayRunner.lastRun
-        : undefined).toBeUndefined();
+      const algorithmResearchProject =
+        flow?.managedAutonomy?.project?.kind === "algorithm_research"
+          ? flow.managedAutonomy.project
+          : undefined;
+      expect(algorithmResearchProject?.sandboxReplayRunner?.lastRun).toBeUndefined();
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
@@ -1357,12 +1359,13 @@ describe("runtime autonomy", () => {
         sessionKey: "agent:main:supervisor-runtime-test",
       });
 
-      const supervised = await runtime.superviseFleet({
-        agentIds: ["founder", "strategist"],
-        workspaceDirs: [workspaceDir],
-        governanceMode: "force_apply_all",
-        decisionNote: "Escalate deterministic governance repairs during supervisor pass.",
-      });
+        const supervised = await runtime.superviseFleet({
+          agentIds: ["founder", "strategist"],
+          workspaceDirs: [workspaceDir],
+          governanceMode: "force_apply_all",
+          decisionNote: "Escalate deterministic governance repairs during supervisor pass.",
+          telemetrySource: "manual",
+        });
 
       expect(supervised.governanceMode).toBe("force_apply_all");
       expect(supervised.overviewBefore.totals.totalProfiles).toBe(2);
@@ -1404,20 +1407,33 @@ describe("runtime autonomy", () => {
         missingLoop: 0,
         activeFlows: 2,
       });
-      expect(supervised.summary).toMatchObject({
-        totalProfiles: 2,
-        changedProfiles: 2,
-        healthyProfiles: 2,
-        driftProfiles: 0,
-        missingLoopProfiles: 0,
-        activeFlows: 2,
-      });
-      expect(supervised.summary.governanceAppliedCount).toBeGreaterThanOrEqual(1);
-      expect(supervised.summary.recommendedNextActions.length).toBeGreaterThan(0);
-    } finally {
-      await fs.rm(root, { recursive: true, force: true });
-    }
-  });
+        expect(supervised.summary).toMatchObject({
+          totalProfiles: 2,
+          changedProfiles: 2,
+          healthyProfiles: 2,
+          driftProfiles: 0,
+          missingLoopProfiles: 0,
+          activeFlows: 2,
+        });
+        expect(supervised.summary.governanceAppliedCount).toBeGreaterThanOrEqual(1);
+        expect(supervised.summary.recommendedNextActions.length).toBeGreaterThan(0);
+        const history = await runtime.getFleetHistory({
+          mode: "heal",
+          source: "manual",
+        });
+        expect(history.events).toEqual([
+          expect.objectContaining({
+            mode: "heal",
+            source: "manual",
+            agentIds: ["founder", "strategist"],
+            workspaceDirs: [workspaceDir],
+            primaryWorkspaceDir: workspaceDir,
+          }),
+        ]);
+      } finally {
+        await fs.rm(root, { recursive: true, force: true });
+      }
+    });
 
   it("persists autonomy maintenance history and supports filtering", async () => {
     const cron = await createCronService();

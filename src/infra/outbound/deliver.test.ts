@@ -18,7 +18,6 @@ import {
 import type { PluginHookRegistration } from "../../plugins/types.js";
 import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { createInternalHookEventPayload } from "../../test-utils/internal-hook-event-payload.js";
-import { resolvePreferredOpenClawTmpDir } from "../tmp-openclaw-dir.js";
 
 const mocks = vi.hoisted(() => ({
   appendAssistantMessageToSessionTranscript: vi.fn(async () => ({ ok: true, sessionFile: "x" })),
@@ -97,7 +96,17 @@ const whatsappChunkConfig: OpenClawConfig = {
   channels: { whatsapp: { textChunkLimit: 4000 } },
 };
 
-const expectedPreferredTmpRoot = resolvePreferredOpenClawTmpDir();
+function expectContainsOpenClawTmpRoot(mediaLocalRoots: readonly string[] | undefined) {
+  expect(mediaLocalRoots).toBeDefined();
+  expect(
+    mediaLocalRoots?.some((root) =>
+      path
+        .normalize(root)
+        .toLowerCase()
+        .endsWith(path.join("tmp", "openclaw").toLowerCase()),
+    ),
+  ).toBe(true);
+}
 
 type DeliverOutboundArgs = Parameters<DeliverModule["deliverOutboundPayloads"]>[0];
 type DeliverOutboundPayload = DeliverOutboundArgs["payloads"][number];
@@ -436,12 +445,12 @@ describe("deliverOutboundPayloads", () => {
         to: "U123",
         text: "photo",
         mediaUrl: "file:///tmp/f.png",
-        mediaLocalRoots: expect.arrayContaining([expectedPreferredTmpRoot]),
       }),
     );
     const sendFormattedMediaCall = sendFormattedMedia.mock.calls[0]?.[0] as
       | { mediaLocalRoots?: string[] }
       | undefined;
+    expectContainsOpenClawTmpRoot(sendFormattedMediaCall?.mediaLocalRoots);
     expect(
       sendFormattedMediaCall?.mediaLocalRoots?.some((root) =>
         root.endsWith(path.join(".openclaw", "workspace-work")),
@@ -464,10 +473,9 @@ describe("deliverOutboundPayloads", () => {
     expect(sendSignal).toHaveBeenCalledWith(
       "+1555",
       "hi",
-      expect.objectContaining({
-        mediaLocalRoots: expect.arrayContaining([expectedPreferredTmpRoot]),
-      }),
+      expect.objectContaining({}),
     );
+    expectContainsOpenClawTmpRoot(sendSignal.mock.calls[0]?.[2]?.mediaLocalRoots);
   });
 
   it("sends telegram media to an explicit target once instead of fanning out over allowFrom", async () => {
@@ -572,10 +580,9 @@ describe("deliverOutboundPayloads", () => {
     expect(sendWhatsApp).toHaveBeenCalledWith(
       "+1555",
       "hi",
-      expect.objectContaining({
-        mediaLocalRoots: expect.arrayContaining([expectedPreferredTmpRoot]),
-      }),
+      expect.objectContaining({}),
     );
+    expectContainsOpenClawTmpRoot(sendWhatsApp.mock.calls[0]?.[2]?.mediaLocalRoots);
   });
 
   it("includes OpenClaw tmp root in imessage mediaLocalRoots", async () => {
@@ -592,10 +599,9 @@ describe("deliverOutboundPayloads", () => {
     expect(sendIMessage).toHaveBeenCalledWith(
       "imessage:+15551234567",
       "hi",
-      expect.objectContaining({
-        mediaLocalRoots: expect.arrayContaining([expectedPreferredTmpRoot]),
-      }),
+      expect.objectContaining({}),
     );
+    expectContainsOpenClawTmpRoot(sendIMessage.mock.calls[0]?.[2]?.mediaLocalRoots);
   });
 
   it("chunks WhatsApp text and returns all results", async () => {

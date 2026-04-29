@@ -335,6 +335,10 @@ export type RunBlueBubblesCatchupDeps = {
  */
 const inFlightCatchups = new Map<string, Promise<BlueBubblesCatchupSummary | null>>();
 
+export function resetBlueBubblesCatchupStateForTest(): void {
+  inFlightCatchups.clear();
+}
+
 export function runBlueBubblesCatchup(
   target: WebhookTarget,
   deps: RunBlueBubblesCatchupDeps = {},

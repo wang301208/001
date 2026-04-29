@@ -269,6 +269,80 @@ function resolveRegister(mod: OpenClawPluginModule): {
   return {};
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function listContainsNormalized(value: unknown, expected: string): boolean {
+  return Array.isArray(value) && value.some((entry) => normalizeProviderId(String(entry)) === expected);
+}
+
+function toolPolicyReferencesBrowser(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    (listContainsNormalized(value.allow, "browser") ||
+      listContainsNormalized(value.alsoAllow, "browser"))
+  );
+}
+
+function hasBrowserSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
+  if (config.browser?.enabled === false || config.plugins?.entries?.browser?.enabled === false) {
+    return false;
+  }
+  if (Object.prototype.hasOwnProperty.call(config, "browser")) {
+    return true;
+  }
+  if (
+    config.plugins?.entries &&
+    Object.prototype.hasOwnProperty.call(config.plugins.entries, "browser")
+  ) {
+    return true;
+  }
+  if (toolPolicyReferencesBrowser(config.tools)) {
+    return true;
+  }
+  return Array.isArray(config.agents?.list)
+    ? config.agents.list.some((entry) => isRecord(entry) && toolPolicyReferencesBrowser(entry.tools))
+    : false;
+}
+
+function hasAcpxSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
+  const backend = normalizeProviderId(String(config.acp?.backend ?? ""));
+  return (
+    config.acp?.enabled === true ||
+    config.acp?.dispatch?.enabled === true ||
+    backend === "acpx"
+  ) && (!backend || backend === "acpx");
+}
+
+function hasXaiSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
+  const pluginConfig = config.plugins?.entries?.xai?.config;
+  const web = config.tools?.web as Record<string, unknown> | undefined;
+  return (
+    isRecord(web?.x_search) ||
+    (isRecord(pluginConfig) &&
+      (isRecord(pluginConfig.xSearch) || isRecord(pluginConfig.codeExecution)))
+  );
+}
+
+function collectLikelySetupAutoEnablePluginIds(config: OpenClawConfig): string[] {
+  const ids = new Set(
+    Object.keys(config.plugins?.entries ?? {})
+      .map((pluginId) => pluginId.trim())
+      .filter(Boolean),
+  );
+  if (hasBrowserSetupAutoEnableRelevantConfig(config)) {
+    ids.add("browser");
+  }
+  if (hasAcpxSetupAutoEnableRelevantConfig(config)) {
+    ids.add("acpx");
+  }
+  if (hasXaiSetupAutoEnableRelevantConfig(config)) {
+    ids.add("xai");
+  }
+  return [...ids].toSorted((left, right) => left.localeCompare(right));
+}
+
 function ignoreAsyncSetupRegisterResult(result: void | Promise<void>): void {
   if (!result || typeof result.then !== "function") {
     return;
@@ -693,10 +767,16 @@ export function resolvePluginSetupAutoEnableReasons(params: {
   const env = params.env ?? process.env;
   const reasons: SetupAutoEnableReason[] = [];
   const seen = new Set<string>();
+  const pluginIds = collectLikelySetupAutoEnablePluginIds(params.config);
+
+  if (pluginIds.length === 0) {
+    return reasons;
+  }
 
   for (const entry of resolvePluginSetupRegistry({
     workspaceDir: params.workspaceDir,
     env,
+    pluginIds,
   }).autoEnableProbes) {
     const raw = entry.probe({
       config: params.config,

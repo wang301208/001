@@ -5,12 +5,17 @@ import { afterEach, describe, expect, it } from "vitest";
 import { DebugProxyCaptureStore, persistEventPayload } from "./store.sqlite.js";
 
 const cleanupDirs: string[] = [];
+const cleanupStores: DebugProxyCaptureStore[] = [];
 
 afterEach(() => {
+  while (cleanupStores.length > 0) {
+    const store = cleanupStores.pop();
+    store?.close();
+  }
   while (cleanupDirs.length > 0) {
     const dir = cleanupDirs.pop();
     if (dir) {
-      rmSync(dir, { recursive: true, force: true });
+      rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
     }
   }
 });
@@ -18,7 +23,9 @@ afterEach(() => {
 function makeStore() {
   const root = mkdtempSync(path.join(os.tmpdir(), "openclaw-proxy-capture-"));
   cleanupDirs.push(root);
-  return new DebugProxyCaptureStore(path.join(root, "capture.sqlite"), path.join(root, "blobs"));
+  const store = new DebugProxyCaptureStore(path.join(root, "capture.sqlite"), path.join(root, "blobs"));
+  cleanupStores.push(store);
+  return store;
 }
 
 describe("DebugProxyCaptureStore", () => {

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { defaultQaModelForMode as defaultQaProviderModelForMode } from "./model-selection.js";
 import { defaultQaRuntimeModelForMode } from "./model-selection.runtime.js";
 import {
   DEFAULT_QA_LIVE_PROVIDER_MODE,
@@ -36,16 +37,31 @@ export type QaLabRunnerSnapshot = {
   error: string | null;
 };
 
-export function defaultQaModelForMode(mode: QaProviderMode, alternate = false) {
+export function defaultQaModelForMode(
+  mode: QaProviderMode,
+  alternate = false,
+  options?: { resolveRuntimePreferredModel?: boolean },
+) {
+  if (options?.resolveRuntimePreferredModel === false) {
+    return defaultQaProviderModelForMode(mode, alternate ? { alternate: true } : undefined);
+  }
   return defaultQaRuntimeModelForMode(mode, alternate ? { alternate: true } : undefined);
 }
 
-export function createDefaultQaRunSelection(scenarios: QaSeedScenario[]): QaLabRunSelection {
+export function createDefaultQaRunSelection(
+  scenarios: QaSeedScenario[],
+  options?: { resolveRuntimePreferredModels?: boolean },
+): QaLabRunSelection {
   const providerMode: QaProviderMode = DEFAULT_QA_LIVE_PROVIDER_MODE;
+  const resolveRuntimePreferredModel = options?.resolveRuntimePreferredModels !== false;
   return {
     providerMode,
-    primaryModel: defaultQaModelForMode(providerMode),
-    alternateModel: defaultQaModelForMode(providerMode, true),
+    primaryModel: defaultQaModelForMode(providerMode, false, {
+      resolveRuntimePreferredModel,
+    }),
+    alternateModel: defaultQaModelForMode(providerMode, true, {
+      resolveRuntimePreferredModel,
+    }),
     fastMode: true,
     scenarioIds: scenarios.map((scenario) => scenario.id),
   };
@@ -101,7 +117,9 @@ export function normalizeQaRunSelection(
 export function createIdleQaRunnerSnapshot(scenarios: QaSeedScenario[]): QaLabRunnerSnapshot {
   return {
     status: "idle",
-    selection: createDefaultQaRunSelection(scenarios),
+    selection: createDefaultQaRunSelection(scenarios, {
+      resolveRuntimePreferredModels: false,
+    }),
     artifacts: null,
     error: null,
   };

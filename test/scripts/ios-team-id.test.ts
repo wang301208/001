@@ -4,10 +4,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { cleanupTempDirs, makeTempDir } from "../helpers/temp-dir.js";
+import { normalizePathForBash, resolveBashScriptInvocation } from "./test-helpers.js";
 
 const SCRIPT = path.join(process.cwd(), "scripts", "ios-team-id.sh");
-const BASH_BIN = process.platform === "win32" ? "bash" : "/bin/bash";
-const BASH_ARGS = process.platform === "win32" ? [SCRIPT] : ["--noprofile", "--norc", SCRIPT];
 const BASE_PATH = process.env.PATH ?? "/usr/bin:/bin";
 const BASE_LANG = process.env.LANG ?? "C";
 let fixtureRoot = "";
@@ -95,14 +94,22 @@ function runScript(
     return cached;
   }
   const binDir = path.join(homeDir, "bin");
-  const env = {
-    HOME: homeDir,
-    PATH: `${binDir}${path.delimiter}${sharedBinDir}${path.delimiter}${BASE_PATH}`,
-    LANG: BASE_LANG,
+  const invocation = resolveBashScriptInvocation(SCRIPT);
+  const normalizedExtraEnv = {
     ...extraEnv,
+    IOS_PYTHON_BIN:
+      typeof extraEnv.IOS_PYTHON_BIN === "string"
+        ? normalizePathForBash(extraEnv.IOS_PYTHON_BIN)
+        : extraEnv.IOS_PYTHON_BIN,
+  };
+  const env = {
+    HOME: normalizePathForBash(homeDir),
+    PATH: `${normalizePathForBash(binDir)}${path.delimiter}${normalizePathForBash(sharedBinDir)}${path.delimiter}${BASE_PATH}`,
+    LANG: BASE_LANG,
+    ...normalizedExtraEnv,
   };
   try {
-    const stdout = execFileSync(BASH_BIN, BASH_ARGS, {
+    const stdout = execFileSync(invocation.command, invocation.args, {
       env,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],

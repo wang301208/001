@@ -414,12 +414,13 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       const cfg = readTestConfig<{
         gateway?: { mode?: string; bind?: string };
       }>();
+      const timing = resolveInstallDaemonGatewayHealthTiming(process.platform);
 
       expect(cfg?.gateway?.mode).toBe("local");
       expect(cfg?.gateway?.bind).toBe("loopback");
       expect(installGatewayDaemonNonInteractiveMock).toHaveBeenCalledTimes(1);
-      expect(captured.deadlineMs).toBe(45_000);
-      expect(captured.probeTimeoutMs).toBe(10_000);
+      expect(captured.deadlineMs).toBe(timing.deadlineMs);
+      expect(captured.probeTimeoutMs).toBe(timing.probeTimeoutMs);
     });
   }, 60_000);
 

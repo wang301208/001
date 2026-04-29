@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RuntimeEnv } from "../runtime.js";
 
+function normalizePathForAssertion(filePath: string): string {
+  return filePath.replaceAll("\\", "/").replace(/^[A-Za-z]:/u, "");
+}
+
 const loadConfigMock = vi.hoisted(() =>
   vi.fn(() => ({
     agents: {
@@ -143,7 +147,17 @@ describe("sessionsCommand default store agent selection", () => {
     };
     expect(payload.count).toBe(2);
     expect(payload.allAgents).toBe(true);
-    expect(payload.stores).toEqual([{ agentId: "main", path: "/tmp/shared-sessions.json" }]);
+    expect(payload.stores).toEqual(
+      expect.arrayContaining([
+        {
+          agentId: "main",
+          path: expect.any(String),
+        },
+      ]),
+    );
+    expect(normalizePathForAssertion(String(payload.stores?.[0]?.path ?? ""))).toBe(
+      "/tmp/shared-sessions.json",
+    );
     expect(payload.sessions?.map((session) => session.agentId).toSorted()).toEqual([
       "main",
       "voice",
@@ -158,8 +172,10 @@ describe("sessionsCommand default store agent selection", () => {
 
     await sessionsCommand({}, runtime);
 
-    expect(loadSessionStoreMock).toHaveBeenCalledWith("/tmp/sessions-voice.json");
-    expect(logs[0]).toContain("Session store: /tmp/sessions-voice.json");
+    expect(normalizePathForAssertion(String(loadSessionStoreMock.mock.calls[0]?.[0]))).toBe(
+      "/tmp/sessions-voice.json",
+    );
+    expect(normalizePathForAssertion(logs[0] ?? "")).toContain("/tmp/sessions-voice.json");
   });
 
   it("uses all configured agent stores with --all-agents", async () => {
@@ -173,9 +189,15 @@ describe("sessionsCommand default store agent selection", () => {
 
     await sessionsCommand({ allAgents: true }, runtime);
 
-    expect(loadSessionStoreMock).toHaveBeenNthCalledWith(1, "/tmp/sessions-main.json");
-    expect(loadSessionStoreMock).toHaveBeenNthCalledWith(2, "/tmp/sessions-voice.json");
-    expect(logs[0]).toContain("Session stores: 2 (main, voice)");
+    expect(normalizePathForAssertion(String(loadSessionStoreMock.mock.calls[0]?.[0]))).toBe(
+      "/tmp/sessions-main.json",
+    );
+    expect(normalizePathForAssertion(String(loadSessionStoreMock.mock.calls[1]?.[0]))).toBe(
+      "/tmp/sessions-voice.json",
+    );
+    expect(logs[0]).toContain("Session stores:");
+    expect(logs[0]).toContain("main");
+    expect(logs[0]).toContain("voice");
     expect(logs[2]).toContain("Agent");
   });
 });

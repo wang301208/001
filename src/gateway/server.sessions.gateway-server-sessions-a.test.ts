@@ -5,6 +5,7 @@ import path from "node:path";
 import type { AssistantMessage, UserMessage } from "@mariozechner/pi-ai";
 import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
+import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { isSessionPatchEvent, type InternalHookEvent } from "../hooks/internal-hooks.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "./protocol/client-info.js";
@@ -915,14 +916,10 @@ describe("gateway server sessions", () => {
             agentId: "main",
             observedAt: 1_710_000_000_000,
             summary: {
-              charterDeclared: false,
-              charterToolDeny: [],
+              ...createEmptyAgentToolGovernanceSummary(),
               charterRequireAgentId: true,
               charterExecutionContract: "strict-agentic",
               charterElevatedLocked: true,
-              freezeActive: false,
-              freezeDeny: [],
-              freezeDetails: [],
             },
           },
         },

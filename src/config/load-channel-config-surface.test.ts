@@ -258,10 +258,14 @@ describe("loadChannelConfigSurfaceModule", () => {
       );
       fs.mkdirSync(poisonedStorePackage, { recursive: true });
       fs.mkdirSync(path.join(packageRoot, "node_modules"), { recursive: true });
+      const targetPackage = path.join(poisonedStorePackage);
+      const localNodeModulesZod = path.join(packageRoot, "node_modules", "zod");
       fs.symlinkSync(
-        "../../../node_modules/.pnpm/zod@0.0.0/node_modules/zod",
-        path.join(packageRoot, "node_modules", "zod"),
-        "dir",
+        process.platform === "win32"
+          ? targetPackage
+          : "../../../node_modules/.pnpm/zod@0.0.0/node_modules/zod",
+        localNodeModulesZod,
+        process.platform === "win32" ? "junction" : "dir",
       );
 
       await expect(loadChannelConfigSurfaceModule(modulePath, { repoRoot })).resolves.toMatchObject(

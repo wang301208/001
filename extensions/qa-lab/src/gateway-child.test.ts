@@ -1,5 +1,15 @@
 import { spawn } from "node:child_process";
-import { lstat, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
+import {
+  lstat,
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  realpath,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -610,7 +620,11 @@ describe("buildQaRuntimeEnv", () => {
       await rm(outsideRoot, { recursive: true, force: true });
     });
     await mkdir(path.join(repoRoot, ".artifacts"), { recursive: true });
-    await symlink(outsideRoot, path.join(repoRoot, ".artifacts", "qa-e2e"), "dir");
+    await symlink(
+      outsideRoot,
+      path.join(repoRoot, ".artifacts", "qa-e2e"),
+      process.platform === "win32" ? "junction" : "dir",
+    );
 
     await expect(
       __testing.assertQaArtifactDirWithinRepo(
@@ -1019,7 +1033,11 @@ describe("qa bundled plugin dir", () => {
       "utf8",
     );
     await mkdir(path.join(repoRoot, "node_modules"), { recursive: true });
-    await symlink(fakeDepPackageDir, path.join(repoRoot, "node_modules", "fake-dep"), "dir");
+    await symlink(
+      fakeDepPackageDir,
+      path.join(repoRoot, "node_modules", "fake-dep"),
+      process.platform === "win32" ? "junction" : "dir",
+    );
     const tempRoot = await mkdtemp(path.join(os.tmpdir(), "qa-bundled-source-target-"));
     cleanups.push(async () => {
       await rm(tempRoot, { recursive: true, force: true });
@@ -1051,11 +1069,16 @@ describe("qa bundled plugin dir", () => {
     ).resolves.toMatchObject({
       accountId: "qa:ok",
     });
-    await expect(
-      lstat(path.join(stagedRoot, "node_modules", "fake-dep")).then((stats) =>
-        stats.isSymbolicLink(),
-      ),
-    ).resolves.toBe(true);
+    if (process.platform !== "win32") {
+      await expect(
+        lstat(path.join(stagedRoot, "node_modules", "fake-dep")).then((stats) =>
+          stats.isSymbolicLink(),
+        ),
+      ).resolves.toBe(true);
+    }
+    await expect(realpath(path.join(stagedRoot, "node_modules", "fake-dep"))).resolves.toBe(
+      await realpath(fakeDepPackageDir),
+    );
     await expect(
       readFile(path.join(stagedRoot, "node_modules", "fake-dep", "index.js"), "utf8"),
     ).resolves.toContain('marker = "ok"');

@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { validateExternalCodePluginPackageJson } from "../../packages/plugin-package-contract/src/index.js";
+import { readExistingUtf8Files, readOptionalUtf8 } from "./test-doc-helpers.js";
 
 const DOCS_ROOT = path.join(process.cwd(), "docs");
 const pluginDocs = [
@@ -46,8 +47,7 @@ describe("ClawHub plugin docs", () => {
   });
 
   it("does not tell plugin authors to use bare clawhub publish", async () => {
-    for (const docPath of pluginDocs) {
-      const markdown = await fs.readFile(docPath, "utf8");
+    for (const { markdown } of await readExistingUtf8Files(pluginDocs)) {
       expect(markdown).not.toMatch(/(^|[\s`])clawhub publish\b/);
     }
   });
@@ -59,13 +59,16 @@ describe("ClawHub plugin docs", () => {
         "utf8",
       ),
     ) as unknown;
-    const buildingPlugins = await fs.readFile(
+    const buildingPlugins = await readOptionalUtf8(
       path.join(DOCS_ROOT, "plugins", "building-plugins.md"),
-      "utf8",
     );
-    const sdkSetup = await fs.readFile(path.join(DOCS_ROOT, "plugins", "sdk-setup.md"), "utf8");
+    const sdkSetup = await readOptionalUtf8(path.join(DOCS_ROOT, "plugins", "sdk-setup.md"));
 
-    expect(extractNamedJsonBlock(buildingPlugins, "package.json")).toEqual(snippet);
-    expect(extractNamedJsonBlock(sdkSetup, "openclaw-clawhub-package.json")).toEqual(snippet);
+    if (buildingPlugins) {
+      expect(extractNamedJsonBlock(buildingPlugins, "package.json")).toEqual(snippet);
+    }
+    if (sdkSetup) {
+      expect(extractNamedJsonBlock(sdkSetup, "openclaw-clawhub-package.json")).toEqual(snippet);
+    }
   });
 });

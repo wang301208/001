@@ -147,11 +147,11 @@ describe("runReplyAgent media path normalization", () => {
     });
 
     expect(result).toMatchObject({
-      mediaUrl: "/tmp/outbound-media/generated.png",
-      mediaUrls: ["/tmp/outbound-media/generated.png"],
+      mediaUrl: path.join("/tmp/outbound-media", "generated.png"),
+      mediaUrls: [path.join("/tmp/outbound-media", "generated.png")],
     });
     expect(resolveOutboundAttachmentFromUrlMock).toHaveBeenCalledWith(
-      path.join("/tmp/workspace", "out", "generated.png"),
+      path.resolve("/tmp/workspace", "out", "generated.png"),
       5 * 1024 * 1024,
       expect.objectContaining({
         mediaAccess: expect.objectContaining({

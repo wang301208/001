@@ -11,6 +11,10 @@ import { resolveMemoryBackendConfig } from "./backend-config.js";
 const resolveComparablePath = (value: string, workspaceDir = "/workspace/root"): string =>
   path.isAbsolute(value) ? path.resolve(value) : path.resolve(workspaceDir, value);
 
+async function createDirectoryAlias(targetPath: string, aliasPath: string) {
+  await fs.symlink(targetPath, aliasPath, process.platform === "win32" ? "junction" : "dir");
+}
+
 describe("resolveMemoryBackendConfig", () => {
   it("defaults to builtin backend when config missing", () => {
     const cfg = { agents: { defaults: { workspace: "/tmp/memory-test" } } } as OpenClawConfig;
@@ -50,14 +54,24 @@ describe("resolveMemoryBackendConfig", () => {
 
   it("uses lowercase memory.md as the root fallback when MEMORY.md is absent", () => {
     const workspaceDir = "/workspace/root";
+    const resolvedWorkspaceDir = path.resolve(workspaceDir);
     const legacyEntry = {
       name: "memory.md",
       isFile: () => true,
       isSymbolicLink: () => false,
     } as Dirent;
+    const realReaddirSync = syncFs.readdirSync;
     const readdirSpy = vi
       .spyOn(syncFs, "readdirSync")
-      .mockReturnValue([legacyEntry] as unknown as ReturnType<typeof syncFs.readdirSync>);
+      .mockImplementation(((targetPath: syncFs.PathLike, options?: syncFs.ObjectEncodingOptions & {
+        withFileTypes?: boolean;
+        recursive?: boolean;
+      }) => {
+        if (path.resolve(String(targetPath)) === resolvedWorkspaceDir && options?.withFileTypes) {
+          return [legacyEntry] as unknown as ReturnType<typeof syncFs.readdirSync>;
+        }
+        return realReaddirSync(targetPath as never, options as never);
+      }) as typeof syncFs.readdirSync);
     try {
       const cfg = {
         agents: {
@@ -98,9 +112,18 @@ describe("resolveMemoryBackendConfig", () => {
         isSymbolicLink: () => false,
       },
     ] as Dirent[];
+    const realReaddirSync = syncFs.readdirSync;
     const readdirSpy = vi
       .spyOn(syncFs, "readdirSync")
-      .mockReturnValue(entries as unknown as ReturnType<typeof syncFs.readdirSync>);
+      .mockImplementation(((targetPath: syncFs.PathLike, options?: syncFs.ObjectEncodingOptions & {
+        withFileTypes?: boolean;
+        recursive?: boolean;
+      }) => {
+        if (String(targetPath) === workspaceDir && options?.withFileTypes) {
+          return entries as unknown as ReturnType<typeof syncFs.readdirSync>;
+        }
+        return realReaddirSync(targetPath as never, options as never);
+      }) as typeof syncFs.readdirSync);
     try {
       const cfg = {
         agents: {
@@ -284,7 +307,7 @@ describe("resolveMemoryBackendConfig", () => {
     const workspaceAliasDir = path.join(tmpRoot, "workspace-alias");
     try {
       await fs.mkdir(workspaceDir, { recursive: true });
-      await fs.symlink(workspaceDir, workspaceAliasDir);
+      await createDirectoryAlias(workspaceDir, workspaceAliasDir);
       const cfg = {
         agents: {
           defaults: { workspace: workspaceDir },
@@ -315,7 +338,7 @@ describe("resolveMemoryBackendConfig", () => {
     const workspaceAliasDir = path.join(aliasRootDir, "workspace");
     try {
       await fs.mkdir(workspaceDir, { recursive: true });
-      await fs.symlink(realRootDir, aliasRootDir);
+      await createDirectoryAlias(realRootDir, aliasRootDir);
       const cfg = {
         agents: {
           defaults: { workspace: workspaceDir },

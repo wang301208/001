@@ -344,6 +344,7 @@ describe("runGatewayUpdate", () => {
     const { runner, calls } = createRunner({
       ...buildStableTagResponses(stableTag),
       "pnpm install": { code: 1, stderr: "ERR_PNPM_NETWORK" },
+      "pnpm install --ignore-scripts": { code: 1, stderr: "ERR_PNPM_NETWORK" },
     });
 
     const result = await runWithRunner(runner, { channel: "stable" });
@@ -1487,7 +1488,8 @@ describe("runGatewayUpdate", () => {
 
     platformSpy.mockRestore();
 
-    const mergedPath = installEnv?.Path ?? installEnv?.PATH ?? "";
+    const mergedPath =
+      Object.entries(installEnv ?? {}).find(([key]) => key.toUpperCase() === "PATH")?.[1] ?? "";
     expect(mergedPath.split(path.delimiter).slice(0, 2)).toEqual([
       portableGitMingw,
       portableGitUsr,

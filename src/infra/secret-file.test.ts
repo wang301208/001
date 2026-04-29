@@ -103,18 +103,6 @@ describe("readSecretFileSync", () => {
       expectedMessage: (file: string) => `Gateway password file at ${file} must be a regular file.`,
     },
     {
-      name: "rejects symlinks when configured",
-      setup: async (dir: string) => {
-        const target = path.join(dir, "target.txt");
-        const link = path.join(dir, "secret-link.txt");
-        await writeFile(target, "top-secret\n", "utf8");
-        await symlink(target, link);
-        return link;
-      },
-      options: { rejectSymlink: true },
-      expectedMessage: (file: string) => `Gateway password file at ${file} must not be a symlink.`,
-    },
-    {
       name: "rejects empty secret files after trimming",
       setup: async (dir: string) => {
         const file = path.join(dir, "secret.txt");
@@ -125,6 +113,20 @@ describe("readSecretFileSync", () => {
     },
   ])("$name", async ({ setup, expectedMessage, options }) => {
     await expectSecretFileError({ setup, expectedMessage, options });
+  });
+
+  it.runIf(process.platform !== "win32")("rejects symlinks when configured", async () => {
+    await expectSecretFileError({
+      setup: async (dir: string) => {
+        const target = path.join(dir, "target.txt");
+        const link = path.join(dir, "secret-link.txt");
+        await writeFile(target, "top-secret\n", "utf8");
+        await symlink(target, link);
+        return link;
+      },
+      options: { rejectSymlink: true },
+      expectedMessage: (file: string) => `Gateway password file at ${file} must not be a symlink.`,
+    });
   });
 
   it.each([
@@ -144,21 +146,6 @@ describe("readSecretFileSync", () => {
         resolvedPath: file,
         message: `Gateway password file at ${file} is empty.`,
       }),
-    },
-    {
-      name: "returns undefined from the non-throwing helper for rejected files",
-      pathValue: async () =>
-        createSecretPath(async (dir) => {
-          const target = path.join(dir, "target.txt");
-          const link = path.join(dir, "secret-link.txt");
-          await writeFile(target, "top-secret\n", "utf8");
-          await symlink(target, link);
-          return link;
-        }),
-      label: "Telegram bot token",
-      options: { rejectSymlink: true },
-      helper: "try" as const,
-      expected: () => undefined,
     },
     {
       name: "returns undefined from the non-throwing helper for blank file paths",
@@ -186,4 +173,20 @@ describe("readSecretFileSync", () => {
     }
     expect(tryReadSecretFileSync(file, label, options)).toBe((expected as () => undefined)());
   });
+
+  it.runIf(process.platform !== "win32")(
+    "returns undefined from the non-throwing helper for rejected symlink files",
+    async () => {
+      const file = await createSecretPath(async (dir) => {
+        const target = path.join(dir, "target.txt");
+        const link = path.join(dir, "secret-link.txt");
+        await writeFile(target, "top-secret\n", "utf8");
+        await symlink(target, link);
+        return link;
+      });
+      expect(tryReadSecretFileSync(file, "Telegram bot token", { rejectSymlink: true })).toBe(
+        undefined,
+      );
+    },
+  );
 });

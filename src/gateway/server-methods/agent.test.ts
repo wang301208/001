@@ -84,6 +84,7 @@ vi.mock("../../auto-reply/reply/session-reset-prompt.js", async () => {
 
 vi.mock("../../infra/agent-events.js", () => ({
   registerAgentRunContext: mocks.registerAgentRunContext,
+  getAgentRunContext: vi.fn(() => undefined),
   onAgentEvent: vi.fn(),
 }));
 
@@ -1016,11 +1017,13 @@ describe("gateway agent handler", () => {
         { reqId: "task-registry-agent-run" },
       );
 
-      expect(findTaskByRunId("task-registry-agent-run")).toMatchObject({
-        runtime: "cli",
-        childSessionKey: "agent:main:main",
-        status: "running",
-      });
+      await waitForAssertion(() =>
+        expect(findTaskByRunId("task-registry-agent-run")).toMatchObject({
+          runtime: "cli",
+          childSessionKey: "agent:main:main",
+          status: "running",
+        }),
+      );
     });
   });
 

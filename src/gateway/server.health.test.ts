@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { WebSocket } from "ws";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { emitHeartbeatEvent } from "../infra/heartbeat-events.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { startGatewayServerHarness, type GatewayServerHarness } from "./server.e2e-ws-harness.js";
-import { installGatewayTestHooks, onceMessage } from "./test-helpers.js";
+import { installGatewayTestHooks, onceMessage } from "./test-helpers.server.js";
 
 installGatewayTestHooks({ scope: "suite" });
 const HEALTH_E2E_TIMEOUT_MS = 20_000;
@@ -22,6 +23,51 @@ beforeAll(async () => {
 afterAll(async () => {
   await harness.close();
 });
+
+async function closeWs(ws: WebSocket, timeoutMs = 2_000): Promise<void> {
+  if (ws.readyState === WebSocket.CLOSED) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    let settled = false;
+    const finish = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      ws.off("close", onClose);
+      ws.off("error", onError);
+      resolve();
+    };
+    const onClose = () => {
+      finish();
+    };
+    const onError = () => {
+      finish();
+    };
+    const timer = setTimeout(() => {
+      try {
+        ws.terminate();
+      } catch {
+        // ignore force-close failures during test cleanup
+      }
+      finish();
+    }, timeoutMs);
+    timer.unref?.();
+    ws.once("close", onClose);
+    ws.once("error", onError);
+    try {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      } else if (ws.readyState === WebSocket.CONNECTING) {
+        ws.terminate();
+      }
+    } catch {
+      finish();
+    }
+  });
+}
 
 describe("gateway server health/presence", () => {
   test(
@@ -48,7 +94,7 @@ describe("gateway server health/presence", () => {
       expect(presence.ok).toBe(true);
       expect(Array.isArray(presence.payload)).toBe(true);
 
-      ws.close();
+      await closeWs(ws);
     },
   );
 
@@ -104,7 +150,7 @@ describe("gateway server health/presence", () => {
     expect(toggle.ok).toBe(true);
     expect((toggle.payload as { enabled?: boolean } | undefined)?.enabled).toBe(false);
 
-    ws.close();
+    await closeWs(ws);
   });
 
   test(
@@ -129,7 +175,7 @@ describe("gateway server health/presence", () => {
       const evtPayload = evt.payload as { presence?: unknown } | undefined;
       expect(Array.isArray(evtPayload?.presence)).toBe(true);
 
-      ws.close();
+      await closeWs(ws);
     },
   );
 
@@ -153,7 +199,7 @@ describe("gateway server health/presence", () => {
     const data = payload?.data as Record<string, unknown> | undefined;
     expect(data?.msg).toBe("hi");
 
-    ws.close();
+    await closeWs(ws);
   });
 
   test("shutdown event is broadcast on close", { timeout: PRESENCE_EVENT_TIMEOUT_MS }, async () => {
@@ -168,6 +214,7 @@ describe("gateway server health/presence", () => {
     const evt = await shutdownP;
     const evtPayload = evt.payload as { reason?: unknown } | undefined;
     expect(evtPayload?.reason).toBeDefined();
+    await closeWs(ws);
   });
 
   test(
@@ -197,7 +244,7 @@ describe("gateway server health/presence", () => {
         expect(typeof evt.seq).toBe("number");
       }
       for (const { ws } of clients) {
-        ws.close();
+        await closeWs(ws);
       }
     },
   );
@@ -249,7 +296,7 @@ describe("gateway server health/presence", () => {
     expect(clientEntry?.deviceFamily).toBe("iPad");
     expect(clientEntry?.modelIdentifier).toBe("iPad16,6");
 
-    ws.close();
+    await closeWs(ws);
   });
 
   test("cli connections are not tracked as instances", async () => {
@@ -281,6 +328,6 @@ describe("gateway server health/presence", () => {
     const entries = (presenceRes.payload ?? []) as Array<Record<string, unknown>>;
     expect(entries.some((e) => e.instanceId === cliId)).toBe(false);
 
-    ws.close();
+    await closeWs(ws);
   });
 });

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createConfigIO } from "../../config/config.js";
 import { configHandlers, resolveConfigOpenCommand } from "./config.js";
 import { createConfigHandlerHarness } from "./config.test-helpers.js";
 
@@ -58,9 +59,11 @@ describe("config.openFile", () => {
 
   it("opens the configured file without shell interpolation", async () => {
     process.env.OPENCLAW_CONFIG_PATH = "/tmp/config $(touch pwned).json";
+    const expectedPath = createConfigIO().configPath;
+    const expectedCommand = resolveConfigOpenCommand(expectedPath);
     execFileMock.mockImplementation((...args: unknown[]) => {
-      expect(["open", "xdg-open", "powershell.exe"]).toContain(args[0]);
-      expect(args[1]).toEqual(["/tmp/config $(touch pwned).json"]);
+      expect(args[0]).toBe(expectedCommand.command);
+      expect(args[1]).toEqual(expectedCommand.args);
       invokeExecFileCallback(args, null);
       return {} as never;
     });
@@ -72,7 +75,7 @@ describe("config.openFile", () => {
       true,
       {
         ok: true,
-        path: "/tmp/config $(touch pwned).json",
+        path: expectedPath,
       },
       undefined,
     );
@@ -80,6 +83,7 @@ describe("config.openFile", () => {
 
   it("returns a generic error and logs details when the opener fails", async () => {
     process.env.OPENCLAW_CONFIG_PATH = "/tmp/config.json";
+    const expectedPath = createConfigIO().configPath;
     execFileMock.mockImplementation((...args: unknown[]) => {
       invokeExecFileCallback(
         args,
@@ -97,7 +101,7 @@ describe("config.openFile", () => {
       true,
       {
         ok: false,
-        path: "/tmp/config.json",
+        path: expectedPath,
         error: "failed to open config file",
       },
       undefined,

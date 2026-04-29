@@ -26,7 +26,10 @@ describe("seedQaAgentWorkspace", () => {
 
     const repoLinkPath = path.join(workspaceDir, "repo");
     const stat = await fs.lstat(repoLinkPath);
-    expect(stat.isSymbolicLink()).toBe(true);
+    if (process.platform !== "win32") {
+      expect(stat.isSymbolicLink()).toBe(true);
+    }
+    expect(await fs.realpath(repoLinkPath)).toBe(await fs.realpath(repoRoot));
     expect(await fs.readFile(path.join(repoLinkPath, "README.md"), "utf8")).toContain(
       "repo marker",
     );

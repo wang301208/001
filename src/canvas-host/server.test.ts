@@ -56,6 +56,39 @@ function createMockWatcherState() {
   };
 }
 
+async function createBlockedA2uiEscapeFixture(a2uiRoot: string) {
+  const token = `test-link-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const fileAliasPath = path.join(a2uiRoot, `${token}.txt`);
+  try {
+    await fs.symlink(path.join(process.cwd(), "package.json"), fileAliasPath);
+    return {
+      requestPath: `${token}.txt`,
+      cleanup: async () => {
+        await fs.rm(fileAliasPath, { force: true });
+      },
+    };
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException | undefined)?.code;
+    if (code !== "EPERM" && code !== "EACCES") {
+      throw error;
+    }
+  }
+
+  const outsideRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-a2ui-escape-"));
+  const outsideFileName = "escape.txt";
+  const outsideFilePath = path.join(outsideRoot, outsideFileName);
+  const directoryAliasPath = path.join(a2uiRoot, token);
+  await fs.writeFile(outsideFilePath, "outside root", "utf8");
+  await fs.symlink(outsideRoot, directoryAliasPath, process.platform === "win32" ? "junction" : "dir");
+  return {
+    requestPath: `${token}/${outsideFileName}`,
+    cleanup: async () => {
+      await fs.rm(directoryAliasPath, { recursive: true, force: true });
+      await fs.rm(outsideRoot, { recursive: true, force: true });
+    },
+  };
+}
+
 describe("canvas host", () => {
   const quietRuntime = {
     ...defaultRuntime,
@@ -372,10 +405,9 @@ describe("canvas host", () => {
     const dir = await createCaseDir();
     const a2uiRoot = path.resolve(process.cwd(), "src/canvas-host/a2ui");
     const bundlePath = path.join(a2uiRoot, "a2ui.bundle.js");
-    const linkName = `test-link-${Date.now()}-${Math.random().toString(16).slice(2)}.txt`;
-    const linkPath = path.join(a2uiRoot, linkName);
     let createdBundle = false;
-    let createdLink = false;
+    let cleanupEscapeFixture: (() => Promise<void>) | undefined;
+    let symlinkEscapeRequestPath = "";
     let server: Awaited<ReturnType<typeof startFixtureCanvasHost>> | undefined;
 
     try {
@@ -385,8 +417,9 @@ describe("canvas host", () => {
       createdBundle = true;
     }
 
-    await fs.symlink(path.join(process.cwd(), "package.json"), linkPath);
-    createdLink = true;
+    const escapeFixture = await createBlockedA2uiEscapeFixture(a2uiRoot);
+    cleanupEscapeFixture = escapeFixture.cleanup;
+    symlinkEscapeRequestPath = escapeFixture.requestPath;
 
     try {
       try {
@@ -415,14 +448,14 @@ describe("canvas host", () => {
       );
       expect(traversalRes.status).toBe(404);
       expect(await traversalRes.text()).toBe("not found");
-      const symlinkRes = await realFetch(`http://127.0.0.1:${server.port}${A2UI_PATH}/${linkName}`);
+      const symlinkRes = await realFetch(
+        `http://127.0.0.1:${server.port}${A2UI_PATH}/${symlinkEscapeRequestPath}`,
+      );
       expect(symlinkRes.status).toBe(404);
       expect(await symlinkRes.text()).toBe("not found");
     } finally {
       await server?.close();
-      if (createdLink) {
-        await fs.rm(linkPath, { force: true });
-      }
+      await cleanupEscapeFixture?.();
       if (createdBundle) {
         await fs.rm(bundlePath, { force: true });
       }

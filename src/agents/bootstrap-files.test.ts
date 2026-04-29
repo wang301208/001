@@ -507,7 +507,17 @@ describe("hasCompletedBootstrapTurn", () => {
       `${JSON.stringify({ type: "custom", customType: FULL_BOOTSTRAP_COMPLETED_CUSTOM_TYPE, data: { timestamp: 1 } })}\n`,
       "utf8",
     );
-    await fs.symlink(realFile, linkFile);
+    try {
+      await fs.symlink(realFile, linkFile);
+    } catch (error) {
+      if (
+        process.platform === "win32" &&
+        ["EPERM", "EACCES"].includes((error as NodeJS.ErrnoException).code ?? "")
+      ) {
+        return;
+      }
+      throw error;
+    }
     expect(await hasCompletedBootstrapTurn(linkFile)).toBe(false);
   });
 });

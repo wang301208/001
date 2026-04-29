@@ -2,12 +2,24 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { cleanupSessionStateForTest } from "../test-utils/session-state-cleanup.js";
 
 const asyncPrefixRoots = new Map<string, string>();
 const pendingAsyncPrefixRoots = new Map<string, Promise<string>>();
 const syncPrefixRoots = new Map<string, string>();
 let nextAsyncDirIndex = 0;
 let nextSyncDirIndex = 0;
+
+function tempRootContainsActiveStateDir(root: string): boolean {
+  const stateDir = process.env.OPENCLAW_STATE_DIR?.trim();
+  if (!stateDir) {
+    return false;
+  }
+  const normalizedRoot = path.resolve(root);
+  const normalizedStateDir = path.resolve(stateDir);
+  const relative = path.relative(normalizedRoot, normalizedStateDir);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
 
 function getRootKey(options: { prefix: string; parentDir?: string }): string {
   return `${options.parentDir ?? os.tmpdir()}\u0000${options.prefix}`;
@@ -67,6 +79,9 @@ export async function withTempDir<T>(
   try {
     return await run(dir);
   } finally {
+    if (tempRootContainsActiveStateDir(base)) {
+      await cleanupSessionStateForTest().catch(() => undefined);
+    }
     await fs.rm(base, {
       recursive: true,
       force: true,
@@ -98,6 +113,9 @@ export function createSuiteTempRootTracker(options: { prefix: string; parentDir?
       const currentRoot = root;
       root = "";
       nextIndex = 0;
+      if (tempRootContainsActiveStateDir(currentRoot)) {
+        await cleanupSessionStateForTest().catch(() => undefined);
+      }
       await fs.rm(currentRoot, {
         recursive: true,
         force: true,

@@ -1,4 +1,3 @@
-import { ensureAuthProfileStore } from "../../agents/auth-profiles.js";
 import {
   type ModelAliasIndex,
   modelKey,
@@ -7,6 +6,7 @@ import {
 import { resolveProviderIdForAuth } from "../../agents/provider-auth-aliases.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import { resolveProfileOverride } from "./directive-handling.auth-profile.js";
+import { resolveDirectiveHandlingAuthProfileStore } from "./directive-handling.auth-store.js";
 import type { InlineDirectives } from "./directive-handling.parse.js";
 import { type ModelDirectiveSelection, resolveModelDirectiveSelection } from "./model-selection.js";
 
@@ -32,9 +32,7 @@ function resolveStoredNumericProfileModelDirective(params: { raw: string; agentD
     return null;
   }
 
-  const store = ensureAuthProfileStore(params.agentDir, {
-    allowKeychainPrompt: false,
-  });
+  const store = resolveDirectiveHandlingAuthProfileStore(params.agentDir);
   const profile = store.profiles[profileId];
   if (!profile) {
     return null;

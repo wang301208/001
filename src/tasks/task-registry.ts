@@ -1,11 +1,8 @@
 import crypto from "node:crypto";
 import { createRequire } from "node:module";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
-import {
-  getAgentRunContext,
-  onAgentEvent,
-  type AgentRunContext,
-} from "../infra/agent-events.js";
+import * as agentEvents from "../infra/agent-events.js";
+import type { AgentRunContext } from "../infra/agent-events.js";
 import { appendAuditFact } from "../infra/audit-stream.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
@@ -69,6 +66,7 @@ const taskIdsByOwnerKey = new Map<string, Set<string>>();
 const taskIdsByParentFlowId = new Map<string, Set<string>>();
 const taskIdsByRelatedSessionKey = new Map<string, Set<string>>();
 const tasksWithPendingDelivery = new Set<string>();
+const pendingBackgroundWork = new Set<Promise<unknown>>();
 let listenerStarted = false;
 let listenerStop: (() => void) | null = null;
 let restoreAttempted = false;
@@ -94,6 +92,19 @@ type TaskRegistryGlobalWithRuntimeOverrides = typeof globalThis & {
 let deliveryRuntimePromise: Promise<typeof import("./task-registry-delivery-runtime.js")> | null =
   null;
 let controlRuntimePromise: Promise<TaskRegistryControlRuntime> | null = null;
+
+function trackBackgroundWork<T>(work: Promise<T>): void {
+  pendingBackgroundWork.add(work);
+  void work.finally(() => {
+    pendingBackgroundWork.delete(work);
+  });
+}
+
+export async function drainTaskRegistryBackgroundWorkForTests(): Promise<void> {
+  while (pendingBackgroundWork.size > 0) {
+    await Promise.allSettled([...pendingBackgroundWork]);
+  }
+}
 
 type TaskDeliveryOwner = {
   sessionKey?: string;
@@ -197,8 +208,12 @@ function resolveTaskRunContextMetadata(params: {
   governanceRuntime?: AgentGovernanceRuntimeSnapshot;
 }): Pick<TaskRecord, "agentId" | "governanceRuntime"> {
   const runId = normalizeOptionalString(params.runId);
-  const runContext: AgentRunContext | undefined = runId ? getAgentRunContext(runId) : undefined;
-  const agentId = normalizeOptionalString(params.agentId) ?? normalizeOptionalString(runContext?.agentId);
+  const runContext: AgentRunContext | undefined =
+    runId && typeof agentEvents.getAgentRunContext === "function"
+      ? agentEvents.getAgentRunContext(runId)
+      : undefined;
+  const agentId =
+    normalizeOptionalString(params.agentId) ?? normalizeOptionalString(runContext?.agentId);
   const governanceRuntime = params.governanceRuntime ?? runContext?.governanceRuntime;
   return {
     ...(agentId ? { agentId } : {}),
@@ -1530,7 +1545,7 @@ function ensureListener() {
     return;
   }
   listenerStarted = true;
-  listenerStop = onAgentEvent((evt) => {
+  listenerStop = agentEvents.onAgentEvent?.((evt) => {
     restoreTaskRegistryOnce();
     const scopedTasks = getTasksByRunScope({
       runId: evt.runId,
@@ -1589,8 +1604,8 @@ function ensureListener() {
           : undefined;
       const updated = updateTask(current.taskId, patch);
       if (updated) {
-        void maybeDeliverTaskStateChangeUpdate(current.taskId, stateChangeEvent);
-        void maybeDeliverTaskTerminalUpdate(current.taskId);
+        trackBackgroundWork(maybeDeliverTaskStateChangeUpdate(current.taskId, stateChangeEvent));
+        trackBackgroundWork(maybeDeliverTaskTerminalUpdate(current.taskId));
       }
     }
   });
@@ -1736,7 +1751,7 @@ export function createTaskRecord(params: {
     task: cloneTaskRecord(record),
   }));
   if (isTerminalTaskStatus(record.status)) {
-    void maybeDeliverTaskTerminalUpdate(taskId);
+    trackBackgroundWork(maybeDeliverTaskTerminalUpdate(taskId));
   }
   return cloneTaskRecord(record);
 }
@@ -1815,8 +1830,8 @@ function updateTaskStateByRunId(params: {
     const task = updateTask(current.taskId, patch);
     if (task) {
       updated.push(task);
-      void maybeDeliverTaskStateChangeUpdate(task.taskId, nextEvent);
-      void maybeDeliverTaskTerminalUpdate(task.taskId);
+      trackBackgroundWork(maybeDeliverTaskStateChangeUpdate(task.taskId, nextEvent));
+      trackBackgroundWork(maybeDeliverTaskTerminalUpdate(task.taskId));
     }
   }
   return updated;
@@ -2020,7 +2035,7 @@ export async function cancelTaskById(params: {
       error: "Cancelled by operator.",
     });
     if (updated) {
-      void maybeDeliverTaskTerminalUpdate(updated.taskId);
+      trackBackgroundWork(maybeDeliverTaskTerminalUpdate(updated.taskId));
     }
     return {
       found: true,

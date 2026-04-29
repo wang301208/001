@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { createEmptyAgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
 import {
   getRuntimeTaskMocks,
   installRuntimeTaskDeliveryMock,
@@ -14,6 +15,7 @@ function createGovernanceRuntime(agentId = "founder", observedAt = 1_710_000_000
     agentId,
     observedAt,
     summary: {
+      ...createEmptyAgentToolGovernanceSummary(),
       charterDeclared: true,
       charterTitle: "Autonomy Charter",
       charterLayer: "governance",
@@ -21,9 +23,6 @@ function createGovernanceRuntime(agentId = "founder", observedAt = 1_710_000_000
       charterRequireAgentId: true,
       charterExecutionContract: "strict-agentic" as const,
       charterElevatedLocked: true,
-      freezeActive: false,
-      freezeDeny: [],
-      freezeDetails: [],
     },
   };
 }

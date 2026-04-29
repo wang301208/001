@@ -256,6 +256,7 @@ function dispatchAgentRunFromGateway(params: {
         childSessionKey: params.ingressOpts.sessionKey,
         runId: params.runId,
         task: params.ingressOpts.message,
+        status: "running",
         deliveryStatus: "not_applicable",
         startedAt: Date.now(),
       });

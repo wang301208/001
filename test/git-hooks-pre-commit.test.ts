@@ -1,8 +1,9 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanupTempDirs, makeTempRepoRoot } from "./helpers/temp-repo.js";
+import { resolveBashScriptInvocation } from "./scripts/test-helpers.js";
 
 const baseGitEnv = {
   GIT_CONFIG_NOSYSTEM: "1",
@@ -29,9 +30,13 @@ function writeExecutable(dir: string, name: string, contents: string): void {
 function installPreCommitFixture(dir: string): string {
   mkdirSync(path.join(dir, "git-hooks"), { recursive: true });
   mkdirSync(path.join(dir, "scripts", "pre-commit"), { recursive: true });
-  symlinkSync(
-    path.join(process.cwd(), "git-hooks", "pre-commit"),
+  writeFileSync(
     path.join(dir, "git-hooks", "pre-commit"),
+    readFileSync(path.join(process.cwd(), "git-hooks", "pre-commit"), "utf8"),
+    {
+      encoding: "utf8",
+      mode: 0o755,
+    },
   );
   writeFileSync(
     path.join(dir, "scripts", "pre-commit", "run-node-tool.sh"),
@@ -76,8 +81,9 @@ describe("git-hooks/pre-commit (integration)", () => {
     run(dir, "git", ["add", "--", "--all"]);
 
     // Run the hook directly (same logic as when installed via core.hooksPath).
-    run(dir, "bash", ["git-hooks/pre-commit"], {
-      PATH: `${fakeBinDir}:${process.env.PATH ?? ""}`,
+    const hookInvocation = resolveBashScriptInvocation(path.join(dir, "git-hooks", "pre-commit"));
+    run(dir, hookInvocation.command, hookInvocation.args, {
+      PATH: `${fakeBinDir}${path.delimiter}${process.env.PATH ?? ""}`,
     });
 
     const staged = run(dir, "git", ["diff", "--cached", "--name-only"]).split("\n").filter(Boolean);
@@ -101,8 +107,9 @@ describe("git-hooks/pre-commit (integration)", () => {
     writeFileSync(path.join(dir, "tracked.txt"), "hello\n", "utf8");
     run(dir, "git", ["add", "--", "tracked.txt"]);
 
-    const output = run(dir, "bash", ["git-hooks/pre-commit"], {
-      PATH: `${fakeBinDir}:${process.env.PATH ?? ""}`,
+    const hookInvocation = resolveBashScriptInvocation(path.join(dir, "git-hooks", "pre-commit"));
+    const output = run(dir, hookInvocation.command, hookInvocation.args, {
+      PATH: `${fakeBinDir}${path.delimiter}${process.env.PATH ?? ""}`,
       FAST_COMMIT: "1",
     });
 

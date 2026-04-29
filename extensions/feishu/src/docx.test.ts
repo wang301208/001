@@ -61,6 +61,10 @@ type ToolResultWithDetails = {
   details: Record<string, unknown>;
 };
 
+function resolveWorkspaceRootForAssertions(): string {
+  return path.resolve("/workspace");
+}
+
 describe("feishu_doc image fetch hardening", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -518,7 +522,10 @@ describe("feishu_doc image fetch hardening", () => {
 
     expect(loadWebMediaMock).toHaveBeenCalledWith(
       expect.stringContaining("test-local.txt"),
-      expect.objectContaining({ optimizeImages: false, localRoots: ["/workspace"] }),
+      expect.objectContaining({
+        optimizeImages: false,
+        localRoots: [resolveWorkspaceRootForAssertions()],
+      }),
     );
   });
 
@@ -572,7 +579,10 @@ describe("feishu_doc image fetch hardening", () => {
 
     expect(loadWebMediaMock).toHaveBeenCalledWith(
       expect.stringContaining("test-local.png"),
-      expect.objectContaining({ optimizeImages: false, localRoots: ["/workspace"] }),
+      expect.objectContaining({
+        optimizeImages: false,
+        localRoots: [resolveWorkspaceRootForAssertions()],
+      }),
     );
   });
 
@@ -602,7 +612,10 @@ describe("feishu_doc image fetch hardening", () => {
 
       expect(loadWebMediaMock).toHaveBeenCalledWith(
         expect.stringContaining("absolute-image.png"),
-        expect.objectContaining({ optimizeImages: false, localRoots: ["/workspace"] }),
+        expect.objectContaining({
+          optimizeImages: false,
+          localRoots: [resolveWorkspaceRootForAssertions()],
+        }),
       );
     } finally {
       rmSync(fixtureDir, { recursive: true, force: true });

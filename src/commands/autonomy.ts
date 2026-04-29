@@ -889,6 +889,7 @@ export async function autonomySuperviseCommand(
       ? { includeGenesisPlan: opts.includeGenesisPlan }
       : {}),
     ...(typeof opts.recordHistory === "boolean" ? { recordHistory: opts.recordHistory } : {}),
+    telemetrySource: "manual",
   });
 
   if (opts.json) {

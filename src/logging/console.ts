@@ -1,6 +1,7 @@
 import util from "node:util";
 import type { OpenClawConfig } from "../config/types.js";
 import { isVerbose } from "../global-state.js";
+import { isTruthyEnvValue } from "../infra/env.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { readLoggingConfig, shouldSkipMutatingLoggingConfigRead } from "./config.js";
 import { resolveEnvLogLevelOverride } from "./env-log-level.js";
@@ -42,7 +43,11 @@ function normalizeConsoleLevel(level?: string): LogLevel {
   if (isVerbose()) {
     return "debug";
   }
-  if (!level && process.env.VITEST === "true" && process.env.OPENCLAW_TEST_CONSOLE !== "1") {
+  if (
+    !level &&
+    isTruthyEnvValue(process.env.VITEST) &&
+    process.env.OPENCLAW_TEST_CONSOLE !== "1"
+  ) {
     return "silent";
   }
   return normalizeLogLevel(level, "info");
@@ -63,7 +68,7 @@ function resolveConsoleSettings(): ConsoleSettings {
   // Test runs default to silent console logging unless explicitly overridden.
   // Skip config-file and full config fallback reads in this fast path.
   if (
-    process.env.VITEST === "true" &&
+    isTruthyEnvValue(process.env.VITEST) &&
     process.env.OPENCLAW_TEST_CONSOLE !== "1" &&
     !isVerbose() &&
     !envLevel &&

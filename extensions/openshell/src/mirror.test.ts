@@ -16,6 +16,27 @@ async function makeTmpDir(): Promise<string> {
   return dir;
 }
 
+async function tryCreateSymlink(
+  targetPath: string,
+  linkPath: string,
+  type: "file" | "dir",
+): Promise<boolean> {
+  try {
+    await fs.symlink(
+      targetPath,
+      linkPath,
+      process.platform === "win32" && type === "dir" ? "junction" : type,
+    );
+    return true;
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (process.platform === "win32" && (code === "EPERM" || code === "EACCES")) {
+      return false;
+    }
+    throw error;
+  }
+}
+
 afterEach(async () => {
   await Promise.all(dirs.map((d) => fs.rm(d, { recursive: true, force: true })));
   dirs.length = 0;
@@ -131,12 +152,28 @@ describe("replaceDirectoryContents", () => {
   it("skips symbolic links when copying into the host workspace", async () => {
     const source = await makeTmpDir();
     const target = await makeTmpDir();
+    const symlinkTargets = await makeTmpDir();
 
     await fs.writeFile(path.join(source, "safe.txt"), "ok");
     await fs.mkdir(path.join(source, "nested"), { recursive: true });
     await fs.writeFile(path.join(source, "nested", "file.txt"), "nested");
-    await fs.symlink("/tmp/host-secret", path.join(source, "escaped-link"));
-    await fs.symlink("/tmp/host-secret-dir", path.join(source, "nested", "escaped-dir"));
+    const escapedFileTarget = path.join(symlinkTargets, "host-secret.txt");
+    const escapedDirTarget = path.join(symlinkTargets, "host-secret-dir");
+    await fs.writeFile(escapedFileTarget, "secret");
+    await fs.mkdir(escapedDirTarget, { recursive: true });
+    const linkedFile = await tryCreateSymlink(
+      escapedFileTarget,
+      path.join(source, "escaped-link"),
+      "file",
+    );
+    const linkedDir = await tryCreateSymlink(
+      escapedDirTarget,
+      path.join(source, "nested", "escaped-dir"),
+      "dir",
+    );
+    if (!linkedFile || !linkedDir) {
+      return;
+    }
 
     await replaceDirectoryContents({ sourceDir: source, targetDir: target });
 
@@ -149,15 +186,28 @@ describe("replaceDirectoryContents", () => {
   it("preserves existing trusted host symlinks", async () => {
     const source = await makeTmpDir();
     const target = await makeTmpDir();
+    const symlinkTargets = await makeTmpDir();
 
     await fs.writeFile(path.join(source, "safe.txt"), "ok");
     await fs.writeFile(path.join(source, "linked-entry"), "remote-plain-file");
-    await fs.symlink("/tmp/trusted-host-target", path.join(target, "linked-entry"));
+    const trustedTarget = path.join(symlinkTargets, "trusted-host-target.txt");
+    await fs.writeFile(trustedTarget, "trusted");
+    const linked = await tryCreateSymlink(
+      trustedTarget,
+      path.join(target, "linked-entry"),
+      "file",
+    );
+    if (!linked) {
+      return;
+    }
 
     await replaceDirectoryContents({ sourceDir: source, targetDir: target });
 
     expect(await fs.readFile(path.join(target, "safe.txt"), "utf8")).toBe("ok");
-    expect(await fs.readlink(path.join(target, "linked-entry"))).toBe("/tmp/trusted-host-target");
+    expect((await fs.lstat(path.join(target, "linked-entry"))).isSymbolicLink()).toBe(true);
+    expect(path.normalize(await fs.realpath(path.join(target, "linked-entry")))).toBe(
+      path.normalize(await fs.realpath(trustedTarget)),
+    );
   });
 });
 
@@ -165,12 +215,28 @@ describe("stageDirectoryContents", () => {
   it("stages upload content without symbolic links", async () => {
     const source = await makeTmpDir();
     const staged = await makeTmpDir();
+    const symlinkTargets = await makeTmpDir();
 
     await fs.writeFile(path.join(source, "safe.txt"), "ok");
     await fs.mkdir(path.join(source, "nested"), { recursive: true });
     await fs.writeFile(path.join(source, "nested", "file.txt"), "nested");
-    await fs.symlink("/tmp/host-secret", path.join(source, "escaped-link"));
-    await fs.symlink("/tmp/host-secret-dir", path.join(source, "nested", "escaped-dir"));
+    const escapedFileTarget = path.join(symlinkTargets, "host-secret.txt");
+    const escapedDirTarget = path.join(symlinkTargets, "host-secret-dir");
+    await fs.writeFile(escapedFileTarget, "secret");
+    await fs.mkdir(escapedDirTarget, { recursive: true });
+    const linkedFile = await tryCreateSymlink(
+      escapedFileTarget,
+      path.join(source, "escaped-link"),
+      "file",
+    );
+    const linkedDir = await tryCreateSymlink(
+      escapedDirTarget,
+      path.join(source, "nested", "escaped-dir"),
+      "dir",
+    );
+    if (!linkedFile || !linkedDir) {
+      return;
+    }
 
     await stageDirectoryContents({ sourceDir: source, targetDir: staged });
 

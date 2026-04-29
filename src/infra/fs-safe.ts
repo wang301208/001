@@ -11,6 +11,7 @@ import { sameFileIdentity } from "./file-identity.js";
 import { isPinnedPathHelperSpawnError, runPinnedPathHelper } from "./fs-pinned-path-helper.js";
 import { runPinnedWriteHelper } from "./fs-pinned-write-helper.js";
 import { expandHomePrefix } from "./home-dir.js";
+import { isTruthyEnvValue } from "./env.js";
 import { assertNoPathAliasEscape, PATH_ALIAS_POLICIES } from "./path-alias-guards.js";
 import {
   hasNodeErrorCode,
@@ -59,7 +60,7 @@ export type FsSafeTestHooks = {
 let fsSafeTestHooks: FsSafeTestHooks | undefined;
 
 function allowFsSafeTestHooks(): boolean {
-  return process.env.NODE_ENV === "test" || process.env.VITEST === "true";
+  return process.env.NODE_ENV === "test" || isTruthyEnvValue(process.env.VITEST);
 }
 
 export function __setFsSafeTestHooksForTest(hooks?: FsSafeTestHooks): void {

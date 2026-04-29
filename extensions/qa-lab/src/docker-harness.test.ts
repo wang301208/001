@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildQaDockerHarnessImage, writeQaDockerHarnessFiles } from "./docker-harness.js";
+import { hasQaScenarioPack } from "./scenario-catalog.js";
 
 const cleanups: Array<() => Promise<void>> = [];
 
@@ -85,14 +86,20 @@ describe("qa docker harness", () => {
       path.join(outputDir, "state", "seed-workspace", "QA_KICKOFF_TASK.md"),
       "utf8",
     );
-    expect(kickoff).toContain("Lobster Invaders");
+    expect(kickoff).toContain(
+      hasQaScenarioPack() ? "Lobster Invaders" : "QA scenarios not available in this distribution.",
+    );
 
     const scenarios = await readFile(
       path.join(outputDir, "state", "seed-workspace", "QA_SCENARIOS.md"),
       "utf8",
     );
-    expect(scenarios).toContain("```yaml qa-pack");
-    expect(scenarios).toContain("subagent-fanout-synthesis");
+    if (hasQaScenarioPack()) {
+      expect(scenarios).toContain("```yaml qa-pack");
+      expect(scenarios).toContain("subagent-fanout-synthesis");
+    } else {
+      expect(scenarios).toContain("QA scenarios not available in this distribution.");
+    }
 
     const readme = await readFile(path.join(outputDir, "README.md"), "utf8");
     expect(readme).toContain("in-process restarts inside Docker");

@@ -10,6 +10,7 @@ import {
 import { callGateway } from "../gateway/call.js";
 import { onAgentEvent } from "../infra/agent-events.js";
 import { captureEnv, withEnv } from "../test-utils/env.js";
+import { cleanupSessionStateForTest } from "../test-utils/session-state-cleanup.js";
 import { persistSubagentSessionTiming } from "./subagent-registry-helpers.js";
 import {
   __testing,
@@ -185,6 +186,7 @@ describe("subagent registry persistence", () => {
     announceSpy.mockClear();
     __testing.setDepsForTest();
     resetSubagentRegistryForTests({ persist: false });
+    await cleanupSessionStateForTest();
     await drainSessionStoreLockQueuesForTest();
     clearSessionStoreCacheForTest();
     if (tempStateDir) {

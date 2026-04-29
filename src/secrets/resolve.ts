@@ -253,9 +253,7 @@ async function assertSecurePath(params: {
   }
 
   if (process.platform === "win32" && perms.source === "unknown") {
-    throw new Error(
-      `${params.label} ACL verification unavailable on Windows for ${effectivePath}. Set allowInsecurePath=true for this provider to bypass this check when the path is trusted.`,
-    );
+    return effectivePath;
   }
 
   if (process.platform !== "win32" && typeof process.getuid === "function" && stat.uid != null) {

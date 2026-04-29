@@ -16,6 +16,7 @@ describe("renderTable", () => {
   it("prefers shrinking flex columns to avoid wrapping non-flex labels", () => {
     const out = renderTable({
       width: 40,
+      border: "ascii",
       columns: [
         { key: "Item", header: "Item", minWidth: 10 },
         { key: "Value", header: "Value", flex: true, minWidth: 24 },
@@ -23,8 +24,12 @@ describe("renderTable", () => {
       rows: [{ Item: "Dashboard", Value: "http://127.0.0.1:18789/" }],
     });
 
-    expect(out).toContain("Dashboard");
-    expect(out).toMatch(/│ Dashboard\s+│/);
+    const dashboardLine = out
+      .trimEnd()
+      .split("\n")
+      .find((line) => line.includes("Dashboard"));
+    expect(dashboardLine).toBeDefined();
+    expect(dashboardLine).toContain("http://127.0.0.1:18789/");
   });
 
   it("expands flex columns to fill available width", () => {
@@ -71,6 +76,7 @@ describe("renderTable", () => {
     const reset = "\x1b[0m";
     const out = renderTable({
       width: 24,
+      border: "ascii",
       columns: [
         { key: "K", header: "K", minWidth: 3 },
         { key: "V", header: "V", flex: true, minWidth: 10 },
@@ -86,7 +92,7 @@ describe("renderTable", () => {
     const lines = out.split("\n").filter((line) => line.includes("a"));
     for (const line of lines) {
       const resetIndex = line.lastIndexOf(reset);
-      const lastSep = line.lastIndexOf("│");
+      const lastSep = line.lastIndexOf("|");
       expect(resetIndex).toBeGreaterThan(-1);
       expect(lastSep).toBeGreaterThan(resetIndex);
     }

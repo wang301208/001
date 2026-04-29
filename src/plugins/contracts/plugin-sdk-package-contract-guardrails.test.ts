@@ -41,7 +41,11 @@ function collectPluginSdkPackageExports(): string[] {
 function collectPluginSdkSubpathReferences() {
   const references: Array<{ file: string; subpath: string }> = [];
   for (const file of PUBLIC_CONTRACT_REFERENCE_FILES) {
-    const source = readFileSync(resolve(REPO_ROOT, file), "utf8");
+    const pathname = resolve(REPO_ROOT, file);
+    if (!existsSync(pathname)) {
+      continue;
+    }
+    const source = readFileSync(pathname, "utf8");
     for (const match of source.matchAll(PLUGIN_SDK_SUBPATH_PATTERN)) {
       const subpath = match[1];
       if (!subpath) {

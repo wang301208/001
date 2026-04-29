@@ -240,15 +240,22 @@ describe("gateway hot reload", () => {
   let prevSkipGmail: string | undefined;
   let prevSkipProviders: string | undefined;
   let prevOpenAiApiKey: string | undefined;
+  let prevAllowReloadInMinimalGateway: string | undefined;
+  let prevAllowScheduledServicesInMinimalGateway: string | undefined;
 
   beforeEach(() => {
     prevSkipChannels = process.env.OPENCLAW_SKIP_CHANNELS;
     prevSkipGmail = process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
     prevSkipProviders = process.env.OPENCLAW_SKIP_PROVIDERS;
     prevOpenAiApiKey = process.env.OPENAI_API_KEY;
+    prevAllowReloadInMinimalGateway = process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD;
+    prevAllowScheduledServicesInMinimalGateway =
+      process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
     process.env.OPENCLAW_SKIP_CHANNELS = "0";
     delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
     delete process.env.OPENCLAW_SKIP_PROVIDERS;
+    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD = "1";
+    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES = "1";
     hoisted.activeEmbeddedRunCount.value = 0;
     hoisted.totalPendingReplies.value = 0;
     hoisted.totalQueueSize.value = 0;
@@ -275,6 +282,17 @@ describe("gateway hot reload", () => {
       delete process.env.OPENAI_API_KEY;
     } else {
       process.env.OPENAI_API_KEY = prevOpenAiApiKey;
+    }
+    if (prevAllowReloadInMinimalGateway === undefined) {
+      delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD;
+    } else {
+      process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD = prevAllowReloadInMinimalGateway;
+    }
+    if (prevAllowScheduledServicesInMinimalGateway === undefined) {
+      delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
+    } else {
+      process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES =
+        prevAllowScheduledServicesInMinimalGateway;
     }
   });
 

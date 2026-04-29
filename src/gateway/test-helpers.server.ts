@@ -29,6 +29,8 @@ import {
 } from "../routing/session-key.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
+import { resetTaskFlowRegistryForTests } from "../tasks/task-flow-runtime-internal.js";
+import { resetTaskRegistryForTests } from "../tasks/runtime-internal.js";
 import { captureEnv } from "../test-utils/env.js";
 import { getDeterministicFreePortBlock } from "../test-utils/ports.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
@@ -74,6 +76,9 @@ const GATEWAY_TEST_ENV_KEYS = [
   "OPENCLAW_SKIP_PROVIDERS",
   "OPENCLAW_SKIP_CRON",
   "OPENCLAW_TEST_MINIMAL_GATEWAY",
+  "OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD",
+  "OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE",
+  "OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES",
 ] as const;
 
 let gatewayEnvSnapshot: ReturnType<typeof captureEnv> | undefined;
@@ -235,6 +240,9 @@ function applyGatewaySkipEnv() {
   process.env.OPENCLAW_SKIP_PROVIDERS = "1";
   process.env.OPENCLAW_SKIP_CRON = "1";
   process.env.OPENCLAW_TEST_MINIMAL_GATEWAY = "1";
+  delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD;
+  delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE;
+  delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
   process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = tempHome
     ? path.join(tempHome, "openclaw-test-no-bundled-extensions")
     : "openclaw-test-no-bundled-extensions";
@@ -298,6 +306,8 @@ async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
   resetConfigRuntimeState();
   resetTestPluginRegistry();
   clearGatewaySubagentRuntime();
+  resetTaskRegistryForTests({ persist: false });
+  resetTaskFlowRegistryForTests({ persist: false });
   sessionStoreSaveDelayMs.value = 0;
   testTailnetIPv4.value = undefined;
   testTailscaleWhois.value = null;
@@ -359,6 +369,8 @@ async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
 async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
   vi.useRealTimers();
   clearGatewaySubagentRuntime();
+  resetTaskRegistryForTests({ persist: false });
+  resetTaskFlowRegistryForTests({ persist: false });
   resetLogger();
   if (options.restoreEnv) {
     gatewayEnvSnapshot?.restore();
@@ -388,6 +400,8 @@ async function resetGatewayTestRuntimeOnly() {
   resetConfigRuntimeState();
   resetTestPluginRegistry();
   clearGatewaySubagentRuntime();
+  resetTaskRegistryForTests({ persist: false });
+  resetTaskFlowRegistryForTests({ persist: false });
   sessionStoreSaveDelayMs.value = 0;
   testTailnetIPv4.value = undefined;
   testTailscaleWhois.value = null;

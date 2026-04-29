@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { resolveUserPath } from "../utils.js";
 import { mergeMockedModule } from "../test-utils/vitest-module-mocks.js";
 
 const enqueueSystemEventMock = vi.fn();
@@ -366,7 +367,9 @@ describe("startAcpSpawnParentStreamRelay", () => {
       childSessionKey: "agent:codex:acp:child-1",
     });
 
-    expect(resolved).toBe("/tmp/openclaw/agents/codex/sessions/sess-123.acp-stream.jsonl");
+    expect(resolved).toBe(
+      resolveUserPath("/tmp/openclaw/agents/codex/sessions/sess-123.acp-stream.jsonl"),
+    );
     expect(readAcpSessionEntryMock).toHaveBeenCalledWith({
       sessionKey: "agent:codex:acp:child-1",
     });

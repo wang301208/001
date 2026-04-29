@@ -51,7 +51,7 @@ describe("qa multipass runtime", () => {
       JSON.stringify({ packageManager: "pnpm@10.32.1" }),
       "utf8",
     );
-    fs.symlinkSync(outsideRoot, symlinkPath);
+    fs.symlinkSync(outsideRoot, symlinkPath, process.platform === "win32" ? "junction" : "dir");
 
     try {
       expect(() =>

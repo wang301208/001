@@ -1,4 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { resolveUserPath } from "../utils.js";
 import {
   createSubagentSpawnTestConfig,
   loadSubagentSpawnModuleForTest,
@@ -62,7 +63,9 @@ function resolveTestAgentConfig(cfg: Record<string, unknown>, agentId: string) {
 }
 
 function resolveTestAgentWorkspace(cfg: Record<string, unknown>, agentId: string) {
-  return resolveTestAgentConfig(cfg, agentId)?.workspace ?? `/tmp/workspace-${agentId}`;
+  return resolveUserPath(
+    resolveTestAgentConfig(cfg, agentId)?.workspace ?? `/tmp/workspace-${agentId}`,
+  );
 }
 
 function getRegisteredRun() {
@@ -71,7 +74,11 @@ function getRegisteredRun() {
     | undefined;
 }
 
-async function expectAcceptedWorkspace(params: { agentId: string; expectedWorkspaceDir: string }) {
+async function expectAcceptedWorkspace(params: {
+  agentId: string;
+  expectedWorkspaceDir: string;
+  normalizeExpectedWorkspaceDir?: boolean;
+}) {
   const result = await spawnSubagentDirect(
     {
       task: "inspect workspace",
@@ -88,7 +95,9 @@ async function expectAcceptedWorkspace(params: { agentId: string; expectedWorksp
 
   expect(result.status).toBe("accepted");
   expect(getRegisteredRun()).toMatchObject({
-    workspaceDir: params.expectedWorkspaceDir,
+    workspaceDir: params.normalizeExpectedWorkspaceDir
+      ? resolveUserPath(params.expectedWorkspaceDir)
+      : params.expectedWorkspaceDir,
   });
 }
 
@@ -138,6 +147,7 @@ describe("spawnSubagentDirect workspace inheritance", () => {
     await expectAcceptedWorkspace({
       agentId: "ops",
       expectedWorkspaceDir: "/tmp/workspace-ops",
+      normalizeExpectedWorkspaceDir: true,
     });
   });
 

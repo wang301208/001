@@ -460,7 +460,15 @@ describe("runCliAgent spawn path", () => {
       const configArg = input.argv?.[configArgIndex + 1] ?? "";
       const match = /^model_instructions_file="(.+)"$/.exec(configArg);
       expect(match?.[1]).toBeTruthy();
-      promptFileText = await fs.readFile(match?.[1] ?? "", "utf-8");
+      const rawPromptFilePath = match?.[1] ?? "";
+      const normalizedPromptFilePath =
+        process.platform === "win32" && !/^[a-zA-Z]:[\\/]/.test(rawPromptFilePath)
+          ? path.join(
+              path.parse(process.cwd()).root,
+              rawPromptFilePath.replace(/^[\\/]+/, ""),
+            )
+          : path.resolve(rawPromptFilePath);
+      promptFileText = await fs.readFile(normalizedPromptFilePath, "utf-8");
       return createManagedRun({
         reason: "exit",
         exitCode: 0,

@@ -1,7 +1,12 @@
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const virtualRoot = path.resolve(path.sep, "virtual");
+const virtualDistDir = path.join(virtualRoot, "dist");
+const virtualSourceDir = path.join(virtualRoot, "extensions", "matrix", "src");
+
 const availabilityState = vi.hoisted(() => ({
-  currentFilePath: "/virtual/dist/matrix-migration.runtime.js",
+  currentFilePath: "",
   existingPaths: new Set<string>(),
   dirEntries: [] as Array<{ name: string; isFile: () => boolean }>,
 }));
@@ -31,16 +36,18 @@ const { isMatrixLegacyCryptoInspectorAvailable } =
 
 describe("isMatrixLegacyCryptoInspectorAvailable", () => {
   beforeEach(() => {
-    availabilityState.currentFilePath = "/virtual/dist/matrix-migration.runtime.js";
+    availabilityState.currentFilePath = path.join(virtualDistDir, "matrix-migration.runtime.js");
     availabilityState.existingPaths.clear();
     availabilityState.dirEntries = [];
   });
 
   it("detects the source inspector module directly", () => {
-    availabilityState.currentFilePath =
-      "/virtual/extensions/matrix/src/legacy-crypto-inspector-availability.js";
+    availabilityState.currentFilePath = path.join(
+      virtualSourceDir,
+      "legacy-crypto-inspector-availability.js",
+    );
     availabilityState.existingPaths.add(
-      "/virtual/extensions/matrix/src/matrix/legacy-crypto-inspector.ts",
+      path.join(virtualSourceDir, "matrix", "legacy-crypto-inspector.ts"),
     );
 
     expect(isMatrixLegacyCryptoInspectorAvailable()).toBe(true);
