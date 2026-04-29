@@ -25,8 +25,11 @@ async function loadStageBundledPluginRuntimeDeps(): Promise<StageBundledPluginRu
 async function loadPostinstallBundledPluginsModule(): Promise<{
   applyBaileysEncryptedStreamFinishHotfix: (params?: {
     chmodSync?: (path: string, mode: number) => void;
+    closeSync?: (fd: number) => void;
     packageRoot?: string;
     createTempPath?: (targetPath: string) => string;
+    lstatSync?: (path: string) => fs.Stats;
+    openSync?: (path: string, flags: string, mode?: number) => number;
     writeFileSync?: (pathOrFd: string | number, value: string, encoding?: string) => void;
   }) => {
     applied: boolean;
@@ -39,8 +42,11 @@ async function loadPostinstallBundledPluginsModule(): Promise<{
   return (await import(moduleUrl.href)) as {
     applyBaileysEncryptedStreamFinishHotfix: (params?: {
       chmodSync?: (path: string, mode: number) => void;
+      closeSync?: (fd: number) => void;
       packageRoot?: string;
       createTempPath?: (targetPath: string) => string;
+      lstatSync?: (path: string) => fs.Stats;
+      openSync?: (path: string, flags: string, mode?: number) => number;
       writeFileSync?: (pathOrFd: string | number, value: string, encoding?: string) => void;
     }) => {
       applied: boolean;
@@ -520,6 +526,7 @@ describe("stageBundledPluginRuntimeDeps", () => {
       createBaileysMessagesMediaSource(),
     );
     fs.chmodSync(targetPath, 0o644);
+    const initialMode = fs.statSync(targetPath).mode & 0o777;
 
     const { applyBaileysEncryptedStreamFinishHotfix } = await loadPostinstallBundledPluginsModule();
     const result = applyBaileysEncryptedStreamFinishHotfix({ packageRoot: repoRoot });
@@ -529,7 +536,7 @@ describe("stageBundledPluginRuntimeDeps", () => {
       reason: "patched",
       targetPath,
     });
-    expect(fs.statSync(targetPath).mode & 0o777).toBe(0o644);
+    expect(fs.statSync(targetPath).mode & 0o777).toBe(initialMode);
   });
 
   it("refuses symlink targets for the Baileys hotfix", async () => {
@@ -546,10 +553,26 @@ describe("stageBundledPluginRuntimeDeps", () => {
     const redirectedTarget = path.join(repoRoot, "redirected-messages-media.js");
     writeRepoFile(repoRoot, "redirected-messages-media.js", "const untouched = true;\n");
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-    fs.symlinkSync(redirectedTarget, targetPath);
+    fs.writeFileSync(targetPath, createBaileysMessagesMediaSource(), "utf8");
 
     const { applyBaileysEncryptedStreamFinishHotfix } = await loadPostinstallBundledPluginsModule();
-    const result = applyBaileysEncryptedStreamFinishHotfix({ packageRoot: repoRoot });
+    const result = applyBaileysEncryptedStreamFinishHotfix({
+      packageRoot: repoRoot,
+      lstatSync: (filePath: string) => {
+        const stats = fs.lstatSync(filePath);
+        if (filePath === targetPath) {
+          return new Proxy(stats, {
+            get(target, property, receiver) {
+              if (property === "isSymbolicLink") {
+                return () => true;
+              }
+              return Reflect.get(target, property, receiver);
+            },
+          });
+        }
+        return stats;
+      },
+    });
 
     expect(result).toEqual({
       applied: false,
@@ -615,13 +638,18 @@ describe("stageBundledPluginRuntimeDeps", () => {
       createBaileysMessagesMediaSource(),
     );
     writeRepoFile(repoRoot, "redirected-temp-target.js", "const untouched = true;\n");
-    fs.symlinkSync(redirectedTarget, attackerTempPath);
 
     const { applyBaileysEncryptedStreamFinishHotfix } = await loadPostinstallBundledPluginsModule();
     const result = applyBaileysEncryptedStreamFinishHotfix({
       packageRoot: repoRoot,
       createTempPath() {
         return attackerTempPath;
+      },
+      openSync(filePath: string, flags: string, mode?: number) {
+        if (filePath === attackerTempPath && flags === "wx") {
+          throw Object.assign(new Error("EEXIST: file already exists"), { code: "EEXIST" });
+        }
+        return fs.openSync(filePath, flags, mode);
       },
     });
 

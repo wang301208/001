@@ -49,6 +49,21 @@ const dynamicArchiveTemplatePathCache = new Map<string, string>();
 let installPluginFromDirTemplateDir = "";
 let manifestInstallTemplateDir = "";
 const suiteTempRootTracker = createSuiteTempRootTracker("openclaw-plugin-install");
+const INSTALL_PLUGIN_FROM_DIR_TEMPLATE_MANIFEST = {
+  name: "@openclaw/test-plugin",
+  version: "0.0.1",
+  openclaw: { extensions: ["./dist/index.js"] },
+  dependencies: { "left-pad": "1.3.0" },
+};
+const MANIFEST_INSTALL_TEMPLATE_PACKAGE_MANIFEST = {
+  name: "@openclaw/cognee-openclaw",
+  version: "0.0.1",
+  openclaw: { extensions: ["./dist/index.js"] },
+};
+const MANIFEST_INSTALL_TEMPLATE_OPENCLAW_MANIFEST = {
+  id: "manifest-template",
+  configSchema: { type: "object", properties: {} },
+};
 const DYNAMIC_ARCHIVE_TEMPLATE_PRESETS = [
   {
     outName: "traversal.tgz",
@@ -174,15 +189,16 @@ function setupInstallPluginFromDirFixture(params?: { devDependencies?: Record<st
   const stateDir = path.join(caseDir, "state");
   const pluginDir = path.join(caseDir, "plugin");
   fs.mkdirSync(stateDir, { recursive: true });
-  fs.cpSync(installPluginFromDirTemplateDir, pluginDir, { recursive: true });
-  if (params?.devDependencies) {
-    const packageJsonPath = path.join(pluginDir, "package.json");
-    const manifest = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")) as {
-      devDependencies?: Record<string, string>;
-    };
-    manifest.devDependencies = params.devDependencies;
-    fs.writeFileSync(packageJsonPath, JSON.stringify(manifest), "utf-8");
-  }
+  fs.mkdirSync(path.join(pluginDir, "dist"), { recursive: true });
+  fs.writeFileSync(
+    path.join(pluginDir, "package.json"),
+    JSON.stringify({
+      ...INSTALL_PLUGIN_FROM_DIR_TEMPLATE_MANIFEST,
+      ...(params?.devDependencies ? { devDependencies: params.devDependencies } : {}),
+    }),
+    "utf-8",
+  );
+  fs.writeFileSync(path.join(pluginDir, "dist", "index.js"), "export {};", "utf-8");
   return { pluginDir, extensionsDir: path.join(stateDir, "extensions") };
 }
 
@@ -229,23 +245,24 @@ function setupManifestInstallFixture(params: { manifestId: string; packageName?:
   const stateDir = path.join(caseDir, "state");
   const pluginDir = path.join(caseDir, "plugin-src");
   fs.mkdirSync(stateDir, { recursive: true });
-  fs.cpSync(manifestInstallTemplateDir, pluginDir, { recursive: true });
-  if (params.packageName) {
-    const packageJsonPath = path.join(pluginDir, "package.json");
-    const manifest = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")) as {
-      name?: string;
-    };
-    manifest.name = params.packageName;
-    fs.writeFileSync(packageJsonPath, JSON.stringify(manifest), "utf-8");
-  }
+  fs.mkdirSync(path.join(pluginDir, "dist"), { recursive: true });
   fs.writeFileSync(
-    path.join(pluginDir, "openclaw.plugin.json"),
+    path.join(pluginDir, "package.json"),
     JSON.stringify({
-      id: params.manifestId,
-      configSchema: { type: "object", properties: {} },
+      ...MANIFEST_INSTALL_TEMPLATE_PACKAGE_MANIFEST,
+      ...(params.packageName ? { name: params.packageName } : {}),
     }),
     "utf-8",
   );
+  fs.writeFileSync(
+    path.join(pluginDir, "openclaw.plugin.json"),
+    JSON.stringify({
+      ...MANIFEST_INSTALL_TEMPLATE_OPENCLAW_MANIFEST,
+      id: params.manifestId,
+    }),
+    "utf-8",
+  );
+  fs.writeFileSync(path.join(pluginDir, "dist", "index.js"), "export {};", "utf-8");
   return { pluginDir, extensionsDir: path.join(stateDir, "extensions") };
 }
 
@@ -509,12 +526,7 @@ beforeAll(async () => {
   fs.mkdirSync(path.join(installPluginFromDirTemplateDir, "dist"), { recursive: true });
   fs.writeFileSync(
     path.join(installPluginFromDirTemplateDir, "package.json"),
-    JSON.stringify({
-      name: "@openclaw/test-plugin",
-      version: "0.0.1",
-      openclaw: { extensions: ["./dist/index.js"] },
-      dependencies: { "left-pad": "1.3.0" },
-    }),
+    JSON.stringify(INSTALL_PLUGIN_FROM_DIR_TEMPLATE_MANIFEST),
     "utf-8",
   );
   fs.writeFileSync(
@@ -527,11 +539,7 @@ beforeAll(async () => {
   fs.mkdirSync(path.join(manifestInstallTemplateDir, "dist"), { recursive: true });
   fs.writeFileSync(
     path.join(manifestInstallTemplateDir, "package.json"),
-    JSON.stringify({
-      name: "@openclaw/cognee-openclaw",
-      version: "0.0.1",
-      openclaw: { extensions: ["./dist/index.js"] },
-    }),
+    JSON.stringify(MANIFEST_INSTALL_TEMPLATE_PACKAGE_MANIFEST),
     "utf-8",
   );
   fs.writeFileSync(
@@ -541,10 +549,7 @@ beforeAll(async () => {
   );
   fs.writeFileSync(
     path.join(manifestInstallTemplateDir, "openclaw.plugin.json"),
-    JSON.stringify({
-      id: "manifest-template",
-      configSchema: { type: "object", properties: {} },
-    }),
+    JSON.stringify(MANIFEST_INSTALL_TEMPLATE_OPENCLAW_MANIFEST),
     "utf-8",
   );
 

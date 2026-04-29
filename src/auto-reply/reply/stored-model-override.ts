@@ -35,6 +35,7 @@ export function resolveStoredModelOverride(params: {
     defaultProvider: params.defaultProvider,
     overrideProvider: params.sessionEntry?.providerOverride,
     overrideModel: params.sessionEntry?.modelOverride,
+    allowPluginNormalization: false,
   });
   if (direct) {
     return { ...direct, source: "session" };
@@ -51,6 +52,7 @@ export function resolveStoredModelOverride(params: {
     defaultProvider: params.defaultProvider,
     overrideProvider: parentEntry?.providerOverride,
     overrideModel: parentEntry?.modelOverride,
+    allowPluginNormalization: false,
   });
   if (!parentOverride) {
     return null;

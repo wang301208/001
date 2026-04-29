@@ -57,6 +57,22 @@ function withCwd<T>(cwd: string, run: () => T): T {
   }
 }
 
+function withPlatform<T>(platform: NodeJS.Platform, run: () => T): T {
+  const originalPlatform = process.platform;
+  Object.defineProperty(process, "platform", {
+    configurable: true,
+    value: platform,
+  });
+  try {
+    return run();
+  } finally {
+    Object.defineProperty(process, "platform", {
+      configurable: true,
+      value: originalPlatform,
+    });
+  }
+}
+
 function createPluginSdkAliasFixture(params?: {
   srcFile?: string;
   distFile?: string;
@@ -812,10 +828,12 @@ describe("plugin sdk alias helpers", () => {
   });
 
   it("uses transpiled Jiti loads for source TypeScript plugin entries", () => {
-    expect(shouldPreferNativeJiti("/repo/dist/plugins/runtime/index.js")).toBe(true);
-    expect(
-      shouldPreferNativeJiti(`/repo/${bundledPluginFile("discord", "src/channel.runtime.ts")}`),
-    ).toBe(false);
+    withPlatform("linux", () => {
+      expect(shouldPreferNativeJiti("/repo/dist/plugins/runtime/index.js")).toBe(true);
+      expect(
+        shouldPreferNativeJiti(`/repo/${bundledPluginFile("discord", "src/channel.runtime.ts")}`),
+      ).toBe(false);
+    });
   });
 
   it("disables native Jiti loads under Bun even for built JavaScript entries", () => {
@@ -842,33 +860,16 @@ describe("plugin sdk alias helpers", () => {
   });
 
   it("disables native Jiti loads on Windows even for built JavaScript entries", () => {
-    const originalPlatform = process.platform;
-    Object.defineProperty(process, "platform", {
-      configurable: true,
-      value: "win32",
-    });
-
-    try {
+    withPlatform("win32", () => {
       expect(shouldPreferNativeJiti("/repo/dist/plugins/runtime/index.js")).toBe(false);
       expect(shouldPreferNativeJiti(`/repo/${bundledDistPluginFile("browser", "index.js")}`)).toBe(
         false,
       );
-    } finally {
-      Object.defineProperty(process, "platform", {
-        configurable: true,
-        value: originalPlatform,
-      });
-    }
+    });
   });
 
   it("keeps plugin loader dist shortcuts off on Windows", () => {
-    const originalPlatform = process.platform;
-    Object.defineProperty(process, "platform", {
-      configurable: true,
-      value: "win32",
-    });
-
-    try {
+    withPlatform("win32", () => {
       expect(
         resolvePluginLoaderJitiTryNative(`/repo/${bundledDistPluginFile("browser", "index.js")}`, {
           preferBuiltDist: true,
@@ -879,30 +880,27 @@ describe("plugin sdk alias helpers", () => {
           preferBuiltDist: true,
         }),
       ).toBe(false);
-    } finally {
-      Object.defineProperty(process, "platform", {
-        configurable: true,
-        value: originalPlatform,
-      });
-    }
+    });
   });
 
   it("keeps bundled plugin dist modules on the aliased Jiti path", () => {
-    expect(
-      resolvePluginLoaderJitiTryNative(`/repo/${bundledDistPluginFile("browser", "index.js")}`, {
-        preferBuiltDist: true,
-      }),
-    ).toBe(false);
-    expect(
-      resolvePluginLoaderJitiTryNative(`/repo/${bundledDistPluginFile("browser", "helper.ts")}`, {
-        preferBuiltDist: true,
-      }),
-    ).toBe(false);
-    expect(
-      resolvePluginLoaderJitiTryNative("/repo/dist/plugins/runtime/index.js", {
-        preferBuiltDist: true,
-      }),
-    ).toBe(true);
+    withPlatform("linux", () => {
+      expect(
+        resolvePluginLoaderJitiTryNative(`/repo/${bundledDistPluginFile("browser", "index.js")}`, {
+          preferBuiltDist: true,
+        }),
+      ).toBe(false);
+      expect(
+        resolvePluginLoaderJitiTryNative(`/repo/${bundledDistPluginFile("browser", "helper.ts")}`, {
+          preferBuiltDist: true,
+        }),
+      ).toBe(false);
+      expect(
+        resolvePluginLoaderJitiTryNative("/repo/dist/plugins/runtime/index.js", {
+          preferBuiltDist: true,
+        }),
+      ).toBe(true);
+    });
   });
 
   it("keeps plugin loader Jiti cache keys stable across alias insertion order", () => {
@@ -964,22 +962,11 @@ describe("plugin sdk alias helpers", () => {
   });
 
   it("normalizes Windows alias targets before handing them to Jiti", () => {
-    const originalPlatform = process.platform;
-    Object.defineProperty(process, "platform", {
-      configurable: true,
-      value: "win32",
-    });
-
-    try {
+    withPlatform("win32", () => {
       expect(normalizeJitiAliasTargetPath(String.raw`C:\repo\dist\plugin-sdk\root-alias.cjs`)).toBe(
         "C:/repo/dist/plugin-sdk/root-alias.cjs",
       );
-    } finally {
-      Object.defineProperty(process, "platform", {
-        configurable: true,
-        value: originalPlatform,
-      });
-    }
+    });
   });
 
   it("loads source runtime shims through the non-native Jiti boundary", async () => {

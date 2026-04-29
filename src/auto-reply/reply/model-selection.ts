@@ -309,6 +309,7 @@ export async function createModelSelectionState(params: {
     defaultProvider,
     overrideProvider: sessionEntry?.providerOverride,
     overrideModel: sessionEntry?.modelOverride,
+    allowPluginNormalization: false,
   });
 
   if (needsModelCatalog) {

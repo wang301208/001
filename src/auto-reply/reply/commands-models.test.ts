@@ -6,7 +6,10 @@ import {
   createTestRegistry,
 } from "../../test-utils/channel-plugins.js";
 import type { HandleCommandsParams } from "./commands-types.js";
-import type { handleModelsCommand as handleModelsCommandType } from "./commands-models.js";
+import type {
+  handleModelsCommand as handleModelsCommandType,
+  resolveModelsCommandReply as resolveModelsCommandReplyType,
+} from "./commands-models.js";
 import type {
   resetPluginRuntimeStateForTest as resetPluginRuntimeStateForTestType,
   setActivePluginRegistry as setActivePluginRegistryType,
@@ -64,12 +67,13 @@ const textSurfaceModelsTestPlugins = (["discord", "whatsapp"] as const).map((id)
 }));
 
 let handleModelsCommand: typeof handleModelsCommandType;
+let resolveModelsCommandReply: typeof resolveModelsCommandReplyType;
 let resetPluginRuntimeStateForTest: typeof resetPluginRuntimeStateForTestType;
 let setActivePluginRegistry: typeof setActivePluginRegistryType;
 
 beforeAll(async () => {
   vi.resetModules();
-  ({ handleModelsCommand } = await import("./commands-models.js"));
+  ({ handleModelsCommand, resolveModelsCommandReply } = await import("./commands-models.js"));
   ({ resetPluginRuntimeStateForTest, setActivePluginRegistry } = await import(
     "../../plugins/runtime.js"
   ));
@@ -233,21 +237,20 @@ describe("handleModelsCommand", () => {
       },
     } as unknown as OpenClawConfig;
 
-    const providerList = await handleModelsCommand(
-      buildModelsParams("/models", customCfg, "discord"),
-      true,
-    );
-    expect(providerList?.reply?.text).toContain("localai");
-    expect(providerList?.reply?.text).toContain("visionpro");
+    const providerList = await resolveModelsCommandReply({
+      cfg: customCfg,
+      commandBodyNormalized: "/models",
+    });
+    expect(providerList?.text).toContain("localai");
+    expect(providerList?.text).toContain("visionpro");
 
-    const result = await handleModelsCommand(
-      buildModelsParams("/models localai", customCfg, "discord"),
-      true,
-    );
-    expect(result?.shouldContinue).toBe(false);
-    expect(result?.reply?.text).toContain("Models (localai");
-    expect(result?.reply?.text).toContain("localai/ultra-chat");
-    expect(result?.reply?.text).not.toContain("Unknown provider");
+    const result = await resolveModelsCommandReply({
+      cfg: customCfg,
+      commandBodyNormalized: "/models localai",
+    });
+    expect(result?.text).toContain("Models (localai");
+    expect(result?.text).toContain("localai/ultra-chat");
+    expect(result?.text).not.toContain("Unknown provider");
   });
 
   it("uses the active agent context for model list replies", async () => {

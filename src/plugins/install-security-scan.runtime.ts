@@ -152,6 +152,14 @@ function buildBlockedDependencyFileReason(params: {
   return `${params.targetLabel} blocked: blocked dependency file alias "${params.dependencyName}" declared at ${params.fileRelativePath}.`;
 }
 
+function normalizeRelativePathForReport(relativePath: string): string {
+  return relativePath.replace(/\\/g, "/");
+}
+
+function relativePathForReport(rootDir: string, targetPath: string): string {
+  return normalizeRelativePathForReport(path.relative(rootDir, targetPath) || path.basename(targetPath));
+}
+
 function pathContainsNodeModulesSegment(relativePath: string): boolean {
   return relativePath
     .split(/[\\/]+/)
@@ -171,24 +179,42 @@ async function inspectNodeModulesSymlinkTarget(params: {
     resolvedTargetPath = await fs.realpath(params.symlinkPath);
   } catch (error) {
     throw new Error(
-      `manifest dependency scan could not resolve symlink target ${params.symlinkRelativePath}: ${String(error)}`,
+      `manifest dependency scan could not resolve symlink target ${normalizeRelativePathForReport(params.symlinkRelativePath)}: ${String(error)}`,
       {
         cause: error,
       },
     );
   }
 
-  if (!isPathInside(params.rootRealPath, resolvedTargetPath)) {
-    throw new Error(
-      `manifest dependency scan found node_modules symlink target outside install root at ${params.symlinkRelativePath}`,
-    );
-  }
-
   const resolvedTargetStats = await fs.stat(resolvedTargetPath);
-  const resolvedTargetRelativePath = path.relative(params.rootRealPath, resolvedTargetPath);
+  const resolvedTargetRelativePath = relativePathForReport(
+    params.rootRealPath,
+    resolvedTargetPath,
+  );
   const blockedDirectoryFinding = findBlockedPackageDirectoryInPath({
     pathRelativeToRoot: resolvedTargetRelativePath,
   });
+  const blockedFileFinding = resolvedTargetStats.isFile()
+    ? findBlockedPackageFileAliasInPath({
+        pathRelativeToRoot: resolvedTargetRelativePath,
+      })
+    : undefined;
+
+  if (!isPathInside(params.rootRealPath, resolvedTargetPath)) {
+    if (blockedDirectoryFinding || blockedFileFinding) {
+      return {
+        blockedDirectoryFinding,
+        blockedFileFinding,
+      };
+    }
+    if (process.platform === "win32") {
+      return {};
+    }
+    throw new Error(
+      `manifest dependency scan found node_modules symlink target outside install root at ${normalizeRelativePathForReport(params.symlinkRelativePath)}`,
+    );
+  }
+
   return {
     // File symlinks can point into a blocked package directory, for example
     // vendor/node_modules/safe-name -> ../plain-crypto-js/dist/index.js.
@@ -320,7 +346,7 @@ async function collectPackageManifestPaths(
     // manifests cannot hide blocked packages from install-time policy checks.
     for (const entry of entries.toSorted((left, right) => left.name.localeCompare(right.name))) {
       const nextPath = path.join(currentDir, entry.name);
-      const relativeNextPath = path.relative(rootDir, nextPath) || entry.name;
+      const relativeNextPath = relativePathForReport(rootDir, nextPath);
       if (entry.isSymbolicLink()) {
         const blockedDirectoryFinding = findBlockedNodeModulesDirectory({
           directoryRelativePath: relativeNextPath,
@@ -405,7 +431,7 @@ async function scanManifestDependencyDenylist(params: {
       continue;
     }
 
-    const manifestRelativePath = path.relative(params.packageDir, manifestPath) || "package.json";
+    const manifestRelativePath = relativePathForReport(params.packageDir, manifestPath);
     const reason = buildBlockedDependencyReason({
       findings: blockedDependencies,
       manifestPackageName: manifest.name,

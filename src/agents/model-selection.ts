@@ -79,6 +79,7 @@ export function resolvePersistedOverrideModelRef(params: {
   defaultProvider: string;
   overrideProvider?: string;
   overrideModel?: string;
+  allowPluginNormalization?: boolean;
 }): ModelRef | null {
   const defaultProvider = params.defaultProvider.trim();
   const overrideProvider = params.overrideProvider?.trim();
@@ -88,7 +89,9 @@ export function resolvePersistedOverrideModelRef(params: {
   }
   const encodedOverride = overrideProvider ? `${overrideProvider}/${overrideModel}` : overrideModel;
   return (
-    parseModelRef(encodedOverride, defaultProvider) ?? {
+    parseModelRef(encodedOverride, defaultProvider, {
+      allowPluginNormalization: params.allowPluginNormalization,
+    }) ?? {
       provider: overrideProvider || defaultProvider,
       model: overrideModel,
     }

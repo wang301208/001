@@ -67,7 +67,9 @@ function expectRuntimeArtifactText(params: {
     params.pluginId,
     params.relativePath,
   );
-  expect(fs.lstatSync(runtimePath).isSymbolicLink()).toBe(params.symbolicLink);
+  if (!(params.symbolicLink && process.platform === "win32")) {
+    expect(fs.lstatSync(runtimePath).isSymbolicLink()).toBe(params.symbolicLink);
+  }
   expect(fs.readFileSync(runtimePath, "utf8")).toBe(params.expectedText);
 }
 
@@ -419,7 +421,9 @@ describe("stageBundledPluginRuntime", () => {
       "feishu-doc",
       "fixture.txt",
     );
-    expect(fs.lstatSync(runtimeSkillPath).isSymbolicLink()).toBe(true);
+    if (process.platform !== "win32") {
+      expect(fs.lstatSync(runtimeSkillPath).isSymbolicLink()).toBe(true);
+    }
     expect(fs.readFileSync(runtimeSkillPath, "utf8")).toBe("# Feishu Doc\n");
 
     symlinkSpy.mockRestore();

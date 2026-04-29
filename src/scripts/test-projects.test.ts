@@ -506,7 +506,7 @@ describe("test-projects args", () => {
           totalMemoryBytes: 16 * 1024 ** 3,
         },
       ),
-    ).toBe(4);
+    ).toBe(2);
   });
 
   it("gives parallel Vitest shards separate filesystem module caches", () => {

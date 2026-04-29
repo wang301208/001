@@ -24,6 +24,22 @@ function requireGatewayTool(agentSessionKey?: string) {
   });
 }
 
+async function removeTempDirBestEffort(dir: string) {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await fs.rm(dir, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code !== "EBUSY" && code !== "ENOTEMPTY" && code !== "EPERM") {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50 * (attempt + 1)));
+    }
+  }
+  await fs.rm(dir, { recursive: true, force: true }).catch(() => {});
+}
+
 function expectConfigMutationCall(params: {
   callGatewayTool: {
     mock: {
@@ -134,7 +150,7 @@ describe("gateway tool", () => {
     } finally {
       kill.mockRestore();
       vi.useRealTimers();
-      await fs.rm(stateDir, { recursive: true, force: true });
+      await removeTempDirBestEffort(stateDir);
     }
   });
 

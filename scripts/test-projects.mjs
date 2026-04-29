@@ -208,6 +208,7 @@ async function runVitestSpecsParallel(specs, concurrency) {
         return;
       }
       if (result.code !== 0) {
+        console.error(`[test] ${spec.config} failed with exit code ${result.code}`);
         exitCode = exitCode || result.code;
       }
     }
@@ -306,6 +307,7 @@ async function main() {
       return;
     }
     if (result.code !== 0) {
+      console.error(`[test] ${spec.config} failed with exit code ${result.code}`);
       exitCode = exitCode || result.code;
       if (spec.continueOnFailure !== true) {
         releaseLockOnce();

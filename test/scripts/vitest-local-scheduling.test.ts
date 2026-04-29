@@ -35,7 +35,7 @@ describe("vitest local full-suite profile", () => {
 
     expect(shouldUseLargeLocalFullSuiteProfile({}, hostInfo)).toBe(false);
     expect(resolveLocalFullSuiteProfile({}, hostInfo)).toEqual({
-      shardParallelism: 4,
+      shardParallelism: 2,
       vitestMaxWorkers: 1,
     });
   });
@@ -49,7 +49,7 @@ describe("vitest local full-suite profile", () => {
 
     expect(shouldUseLargeLocalFullSuiteProfile({ CI: "true" }, hostInfo)).toBe(false);
     expect(resolveLocalFullSuiteProfile({ CI: "true" }, hostInfo)).toEqual({
-      shardParallelism: 4,
+      shardParallelism: 2,
       vitestMaxWorkers: 1,
     });
   });

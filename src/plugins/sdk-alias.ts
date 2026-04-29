@@ -521,6 +521,16 @@ function isBundledPluginDistModulePath(modulePath: string): boolean {
   return modulePath.replace(/\\/g, "/").includes("/dist/extensions/");
 }
 
+function normalizePortablePath(filePath: string): string {
+  return filePath.replace(/\\/g, "/").replace(/\/+$/u, "");
+}
+
+function isPortablePathInside(rootPath: string, candidatePath: string): boolean {
+  const root = normalizePortablePath(rootPath);
+  const candidate = normalizePortablePath(candidatePath);
+  return candidate === root || candidate.startsWith(`${root}/`);
+}
+
 export function shouldPreferNativeJiti(modulePath: string): boolean {
   if (!supportsNativeJitiRuntime()) {
     return false;
@@ -549,7 +559,7 @@ export function resolvePluginLoaderJitiTryNative(
     shouldPreferNativeJiti(modulePath) ||
     (supportsNativeJitiRuntime() &&
       options?.preferBuiltDist === true &&
-      modulePath.includes(`${path.sep}dist${path.sep}`))
+      normalizePortablePath(modulePath).includes("/dist/"))
   );
 }
 
@@ -595,15 +605,14 @@ export function isBundledPluginExtensionPath(params: {
   openClawPackageRoot: string;
   bundledPluginsDir?: string;
 }): boolean {
-  const normalizedModulePath = path.resolve(params.modulePath);
+  const normalizedModulePath = normalizePortablePath(params.modulePath);
   const roots = [
-    params.bundledPluginsDir ? path.resolve(params.bundledPluginsDir) : null,
+    params.bundledPluginsDir ? params.bundledPluginsDir : null,
     path.join(params.openClawPackageRoot, "extensions"),
     path.join(params.openClawPackageRoot, "dist", "extensions"),
     path.join(params.openClawPackageRoot, "dist-runtime", "extensions"),
-  ].filter((root): root is string => typeof root === "string");
-  return roots.some(
-    (root) =>
-      normalizedModulePath === root || normalizedModulePath.startsWith(`${root}${path.sep}`),
-  );
+  ]
+    .filter((root): root is string => typeof root === "string")
+    .map(normalizePortablePath);
+  return roots.some((root) => isPortablePathInside(root, normalizedModulePath));
 }
