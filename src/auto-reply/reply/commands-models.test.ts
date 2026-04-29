@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import {
@@ -67,7 +67,15 @@ let handleModelsCommand: typeof handleModelsCommandType;
 let resetPluginRuntimeStateForTest: typeof resetPluginRuntimeStateForTestType;
 let setActivePluginRegistry: typeof setActivePluginRegistryType;
 
-beforeEach(async () => {
+beforeAll(async () => {
+  vi.resetModules();
+  ({ handleModelsCommand } = await import("./commands-models.js"));
+  ({ resetPluginRuntimeStateForTest, setActivePluginRegistry } = await import(
+    "../../plugins/runtime.js"
+  ));
+});
+
+beforeEach(() => {
   modelCatalogMocks.loadModelCatalog.mockReset();
   modelCatalogMocks.loadModelCatalog.mockResolvedValue([
     { provider: "anthropic", id: "claude-opus-4-5", name: "Claude Opus" },
@@ -90,11 +98,6 @@ beforeEach(async () => {
     ]),
   );
 });
-
-({ handleModelsCommand } = await import("./commands-models.js"));
-({ resetPluginRuntimeStateForTest, setActivePluginRegistry } = await import(
-  "../../plugins/runtime.js"
-));
 
 function buildModelsParams(
   commandBody: string,

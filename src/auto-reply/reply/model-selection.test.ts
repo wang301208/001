@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { createModelSelectionState as createModelSelectionStateType } from "./model-selection.js";
@@ -29,7 +29,13 @@ let createModelSelectionState: typeof createModelSelectionStateType;
 let resolveContextTokens: typeof resolveContextTokensType;
 let MODEL_CONTEXT_TOKEN_CACHE: typeof import("../../agents/context-cache.js").MODEL_CONTEXT_TOKEN_CACHE;
 
-beforeEach(async () => {
+beforeAll(async () => {
+  vi.resetModules();
+  ({ createModelSelectionState, resolveContextTokens } = await import("./model-selection.js"));
+  ({ MODEL_CONTEXT_TOKEN_CACHE } = await import("../../agents/context-cache.js"));
+});
+
+beforeEach(() => {
   modelCatalogRuntimeMocks.loadModelCatalog.mockReset().mockImplementation(async () => [
     { provider: "anthropic", id: "claude-opus-4-6", name: "Claude Opus 4.5" },
     { provider: "inferencer", id: "deepseek-v3-4bit-mlx", name: "DeepSeek V3" },
@@ -39,9 +45,6 @@ beforeEach(async () => {
     { provider: "xai", id: "grok-4", name: "Grok 4" },
     { provider: "xai", id: "grok-4.20-reasoning", name: "Grok 4.20 (Reasoning)" },
   ]);
-  vi.resetModules();
-  ({ createModelSelectionState, resolveContextTokens } = await import("./model-selection.js"));
-  ({ MODEL_CONTEXT_TOKEN_CACHE } = await import("../../agents/context-cache.js"));
 });
 
 afterEach(() => {

@@ -515,7 +515,9 @@ describe("subagent registry persistence", () => {
 
     await restartRegistryAndFlush();
 
-    await expect(fs.access(attachmentsDir)).rejects.toMatchObject({ code: "ENOENT" });
+    await vi.waitFor(async () => {
+      await expect(fs.access(attachmentsDir)).rejects.toMatchObject({ code: "ENOENT" });
+    });
     const after = JSON.parse(await fs.readFile(registryPath, "utf8")) as {
       runs?: Record<string, unknown>;
     };

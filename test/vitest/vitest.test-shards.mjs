@@ -103,7 +103,11 @@ export const fullSuiteVitestShards = [
     projects: [
       "test/vitest/vitest.extension-acpx.config.ts",
       "test/vitest/vitest.extension-bluebubbles.config.ts",
-      "test/vitest/vitest.extension-channels.config.ts",
+      "test/vitest/vitest.extension-channel-discord.config.ts",
+      "test/vitest/vitest.extension-channel-imessage.config.ts",
+      "test/vitest/vitest.extension-channel-line.config.ts",
+      "test/vitest/vitest.extension-channel-signal.config.ts",
+      "test/vitest/vitest.extension-channel-slack.config.ts",
       "test/vitest/vitest.extension-diffs.config.ts",
       "test/vitest/vitest.extension-feishu.config.ts",
       "test/vitest/vitest.extension-irc.config.ts",
