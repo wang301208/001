@@ -1,7 +1,7 @@
+import { loadSandboxUniverseStateByPathSync } from "../../governance/sandbox-universe.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import type { JsonValue, TaskFlowRecord } from "../../tasks/task-flow-registry.types.js";
 import { isRecord } from "../../utils.js";
-import { loadSandboxUniverseStateByPathSync } from "../../governance/sandbox-universe.js";
 import type {
   ManagedTaskFlowAlgorithmResearchRuntime,
   ManagedTaskFlowAutonomyProjectRuntime,
@@ -18,11 +18,7 @@ function normalizeStringArray(value: unknown): string[] {
     return [];
   }
   return Array.from(
-    new Set(
-      value
-        .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
-        .filter(Boolean),
-    ),
+    new Set(value.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean)),
   );
 }
 
@@ -124,7 +120,9 @@ function hydrateSandboxProjectPersistence<T extends SandboxHydratableProject>(pr
   return hydrated;
 }
 
-function normalizeExecutionProject(value: unknown): ManagedTaskFlowExecutionSystemRuntime | undefined {
+function normalizeExecutionProject(
+  value: unknown,
+): ManagedTaskFlowExecutionSystemRuntime | undefined {
   if (!isRecord(value) || value.kind !== "execution_system" || !isRecord(value.goalContract)) {
     return undefined;
   }
@@ -155,10 +153,12 @@ function normalizeExecutionProject(value: unknown): ManagedTaskFlowExecutionSyst
     taskGraph,
     executionPlan: {
       phases,
-      runtimeHooks:
-        isRecord(value.executionPlan) ? normalizeStringArray(value.executionPlan.runtimeHooks) : [],
-      collaborators:
-        isRecord(value.executionPlan) ? normalizeStringArray(value.executionPlan.collaborators) : [],
+      runtimeHooks: isRecord(value.executionPlan)
+        ? normalizeStringArray(value.executionPlan.runtimeHooks)
+        : [],
+      collaborators: isRecord(value.executionPlan)
+        ? normalizeStringArray(value.executionPlan.collaborators)
+        : [],
     },
     capabilityRequest,
     observedCapabilityGaps: normalizeStringArray(value.observedCapabilityGaps),
@@ -174,7 +174,9 @@ function normalizeExecutionProject(value: unknown): ManagedTaskFlowExecutionSyst
           value.genesisPlan.mode === "steady_state")
           ? value.genesisPlan.mode
           : "repair",
-      focusGapIds: isRecord(value.genesisPlan) ? normalizeStringArray(value.genesisPlan.focusGapIds) : [],
+      focusGapIds: isRecord(value.genesisPlan)
+        ? normalizeStringArray(value.genesisPlan.focusGapIds)
+        : [],
       blockers: isRecord(value.genesisPlan) ? normalizeStringArray(value.genesisPlan.blockers) : [],
     },
     ...(isRecord(value.sandboxUniverse)
@@ -246,20 +248,23 @@ function normalizeAlgorithmResearchProject(
     },
     researchPlan: {
       phases,
-      targetDomains:
-        isRecord(value.researchPlan) ? normalizeStringArray(value.researchPlan.targetDomains) : [],
-      runtimeHooks:
-        isRecord(value.researchPlan) ? normalizeStringArray(value.researchPlan.runtimeHooks) : [],
-      collaborators:
-        isRecord(value.researchPlan) ? normalizeStringArray(value.researchPlan.collaborators) : [],
+      targetDomains: isRecord(value.researchPlan)
+        ? normalizeStringArray(value.researchPlan.targetDomains)
+        : [],
+      runtimeHooks: isRecord(value.researchPlan)
+        ? normalizeStringArray(value.researchPlan.runtimeHooks)
+        : [],
+      collaborators: isRecord(value.researchPlan)
+        ? normalizeStringArray(value.researchPlan.collaborators)
+        : [],
     },
     promotionPolicy: {
-      requiredEvidence:
-        isRecord(value.promotionPolicy)
-          ? normalizeStringArray(value.promotionPolicy.requiredEvidence)
-          : [],
-      blockers:
-        isRecord(value.promotionPolicy) ? normalizeStringArray(value.promotionPolicy.blockers) : [],
+      requiredEvidence: isRecord(value.promotionPolicy)
+        ? normalizeStringArray(value.promotionPolicy.requiredEvidence)
+        : [],
+      blockers: isRecord(value.promotionPolicy)
+        ? normalizeStringArray(value.promotionPolicy.blockers)
+        : [],
     },
     ...(isRecord(value.sandboxUniverse)
       ? {
@@ -346,6 +351,35 @@ function normalizeGenesisProject(value: unknown): ManagedTaskFlowGenesisStageRun
           })
           .filter(isDefined)
       : [],
+    developmentPackage: {
+      packageId:
+        isRecord(value.developmentPackage) &&
+        typeof value.developmentPackage.packageId === "string" &&
+        value.developmentPackage.packageId.trim()
+          ? value.developmentPackage.packageId.trim()
+          : `${stageId}.development_package`,
+      candidateKinds: isRecord(value.developmentPackage)
+        ? normalizeStringArray(value.developmentPackage.candidateKinds)
+        : [],
+      targetArtifacts: isRecord(value.developmentPackage)
+        ? normalizeStringArray(value.developmentPackage.targetArtifacts)
+        : [],
+      writeScopes: isRecord(value.developmentPackage)
+        ? normalizeStringArray(value.developmentPackage.writeScopes)
+        : [],
+      qaGates: isRecord(value.developmentPackage)
+        ? normalizeStringArray(value.developmentPackage.qaGates)
+        : [],
+      promotionEvidence: isRecord(value.developmentPackage)
+        ? normalizeStringArray(value.developmentPackage.promotionEvidence)
+        : [],
+      rollbackPlan: isRecord(value.developmentPackage)
+        ? normalizeStringArray(value.developmentPackage.rollbackPlan)
+        : [],
+      publishTargets: isRecord(value.developmentPackage)
+        ? normalizeStringArray(value.developmentPackage.publishTargets)
+        : [],
+    },
     sandboxUniverse: cloneJsonValue(
       value.sandboxUniverse as JsonValue,
     ) as ManagedTaskFlowGenesisStageRuntime["sandboxUniverse"],
@@ -420,7 +454,9 @@ function normalizeSovereigntyWatchProject(
   };
 }
 
-function normalizeProjectRuntime(value: unknown): ManagedTaskFlowAutonomyProjectRuntime | undefined {
+function normalizeProjectRuntime(
+  value: unknown,
+): ManagedTaskFlowAutonomyProjectRuntime | undefined {
   return (
     normalizeExecutionProject(value) ??
     normalizeGenesisProject(value) ??
@@ -437,7 +473,8 @@ export function extractManagedAutonomyRuntimeState(
   }
   const autonomy = flow.stateJson.autonomy;
   const agentId = normalizeOptionalString(autonomy.agentId);
-  const controllerId = normalizeOptionalString(autonomy.controllerId) ?? normalizeOptionalString(flow.controllerId);
+  const controllerId =
+    normalizeOptionalString(autonomy.controllerId) ?? normalizeOptionalString(flow.controllerId);
   const goal = normalizeOptionalString(autonomy.goal) ?? normalizeOptionalString(flow.goal);
   const project = normalizeProjectRuntime(autonomy.project);
   if (!agentId || !controllerId || !goal) {
@@ -447,10 +484,11 @@ export function extractManagedAutonomyRuntimeState(
     agentId,
     controllerId,
     goal,
-    ...(normalizeOptionalString(autonomy.currentStep) ?? normalizeOptionalString(flow.currentStep)
+    ...((normalizeOptionalString(autonomy.currentStep) ?? normalizeOptionalString(flow.currentStep))
       ? {
           currentStep:
-            normalizeOptionalString(autonomy.currentStep) ?? normalizeOptionalString(flow.currentStep),
+            normalizeOptionalString(autonomy.currentStep) ??
+            normalizeOptionalString(flow.currentStep),
         }
       : {}),
     workspaceDirs: normalizeStringArray(autonomy.workspaceDirs),

@@ -2,10 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import {
-  clearRuntimeConfigSnapshot,
-  setRuntimeConfigSnapshot,
-} from "../../config/config.js";
+import { clearRuntimeConfigSnapshot, setRuntimeConfigSnapshot } from "../../config/config.js";
 import { resolveStorePath } from "../../config/sessions.js";
 import {
   installRuntimeTaskDeliveryMock,
@@ -54,9 +51,14 @@ async function createGovernedCapabilityCharterRoot() {
   );
   await fs.writeFile(
     path.join(workspaceDir, "skills", "demo-skill", "SKILL.md"),
-    ["---", "name: demo-skill", "description: Demo governed capability skill", "---", "", "# Demo"].join(
-      "\n",
-    ),
+    [
+      "---",
+      "name: demo-skill",
+      "description: Demo governed capability skill",
+      "---",
+      "",
+      "# Demo",
+    ].join("\n"),
     "utf8",
   );
   return { root, charterDir, workspaceDir };
@@ -290,6 +292,106 @@ describe("autonomy tool", () => {
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
+  });
+
+  it("bootstraps fleet-wide autonomy readiness from the tool layer", async () => {
+    const { root, charterDir, workspaceDir } = await createGovernedCapabilityCharterRoot();
+    try {
+      const result = await createAutonomyTool({
+        agentSessionKey: "agent:librarian:main",
+        workspaceDir,
+        charterDir,
+      }).execute("call-bootstrap", {
+        action: "bootstrap",
+        agentIds: ["librarian"],
+        governanceMode: "apply_safe",
+        decisionNote: "Bootstrap governed capability readiness.",
+        restartBlockedFlows: false,
+        includeCapabilityInventory: true,
+        includeGenesisPlan: true,
+        recordHistory: false,
+      });
+
+      expect(result.details).toMatchObject({
+        action: "bootstrap",
+        sessionKey: "agent:librarian:main",
+        requesterAgentId: "librarian",
+        bootstrapped: {
+          sessionKey: "agent:librarian:main",
+          supervised: {
+            governanceMode: "apply_safe",
+            overviewAfter: {
+              totals: expect.objectContaining({
+                totalProfiles: 1,
+                healthy: 1,
+                missingLoop: 0,
+                activeFlows: 1,
+              }),
+            },
+          },
+          readiness: {
+            ready: false,
+            profileReadyCount: 1,
+            profileNotReadyCount: 0,
+            missingLoopProfiles: 0,
+            driftProfiles: 0,
+            idleProfiles: 0,
+            activeFlows: 1,
+            blockers: expect.arrayContaining([
+              expect.stringContaining("critical capability gap"),
+              expect.stringContaining("Genesis stage"),
+            ]),
+          },
+        },
+      });
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("returns strong-autonomy architecture readiness from the tool layer", async () => {
+    const result = await createAutonomyTool({
+      agentSessionKey: "agent:main:main",
+    }).execute("call-architecture", {
+      action: "architecture",
+      governanceMode: "apply_safe",
+      includeCapabilityInventory: true,
+      includeGenesisPlan: true,
+      recordHistory: false,
+    });
+
+    const details = result.details as {
+      action: string;
+      architectureReadiness: {
+        summary: {
+          totalChecks: number;
+          readyChecks: number;
+        };
+        layers: Array<{ id: string }>;
+        loops: Array<{ id: string }>;
+        sandboxUniverse: { id: string };
+      };
+    };
+
+    expect(details.action).toBe("architecture");
+    expect(details.architectureReadiness.summary.totalChecks).toBeGreaterThanOrEqual(13);
+    expect(details.architectureReadiness.summary.readyChecks).toBeGreaterThan(0);
+    expect(details.architectureReadiness.layers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "governance" }),
+        expect.objectContaining({ id: "evolution" }),
+        expect.objectContaining({ id: "capability" }),
+        expect.objectContaining({ id: "execution" }),
+      ]),
+    );
+    expect(details.architectureReadiness.loops).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "value" }),
+        expect.objectContaining({ id: "maintenance" }),
+        expect.objectContaining({ id: "evolution" }),
+      ]),
+    );
+    expect(details.architectureReadiness.sandboxUniverse.id).toBe("sandbox_universe");
   });
 
   it("reads persistent autonomy maintenance history from the tool layer", async () => {

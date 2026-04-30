@@ -1,6 +1,4 @@
-import type { RuntimeEnv } from "../runtime.js";
 import { createRuntimeAutonomy } from "../plugins/runtime/runtime-autonomy.js";
-import type { TaskFlowDetail } from "../plugins/runtime/task-domain-types.js";
 import { createRuntimeTaskFlow } from "../plugins/runtime/runtime-taskflow.js";
 import type {
   ManagedTaskFlowAutonomyProjectRuntime,
@@ -9,7 +7,9 @@ import type {
   ManagedTaskFlowExecutionSystemRuntime,
   ManagedTaskFlowSovereigntyWatchRuntime,
 } from "../plugins/runtime/runtime-taskflow.types.js";
+import type { TaskFlowDetail } from "../plugins/runtime/task-domain-types.js";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../routing/session-key.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { theme } from "../terminal/theme.js";
 import { isRecord } from "../utils.js";
@@ -71,6 +71,10 @@ type AutonomySuperviseOptions = {
   includeGenesisPlan?: boolean;
   recordHistory?: boolean;
 };
+
+type AutonomyBootstrapOptions = AutonomySuperviseOptions;
+
+type AutonomyArchitectureReadinessOptions = AutonomySuperviseOptions;
 
 type AutonomyHistoryOptions = {
   agentIds?: string[];
@@ -137,7 +141,9 @@ type SandboxManagedTaskFlowProjectRuntime = Exclude<
   ManagedTaskFlowSovereigntyWatchRuntime
 >;
 
-type SandboxControllerRuntime = NonNullable<SandboxManagedTaskFlowProjectRuntime["sandboxController"]>;
+type SandboxControllerRuntime = NonNullable<
+  SandboxManagedTaskFlowProjectRuntime["sandboxController"]
+>;
 
 function resolveSandboxManagedProject(
   project: ManagedTaskFlowAutonomyProjectRuntime | undefined,
@@ -176,10 +182,7 @@ type AutonomyLoopDisableOptions = {
   jobId?: string;
 };
 
-function resolveAutonomySessionKey(params: {
-  agentId?: string;
-  sessionKey?: string;
-}): string {
+function resolveAutonomySessionKey(params: { agentId?: string; sessionKey?: string }): string {
   const sessionKey = normalizeOptionalString(params.sessionKey);
   if (sessionKey) {
     return sessionKey;
@@ -189,10 +192,7 @@ function resolveAutonomySessionKey(params: {
   });
 }
 
-function bindAutonomyRuntime(params: {
-  agentId?: string;
-  sessionKey?: string;
-}) {
+function bindAutonomyRuntime(params: { agentId?: string; sessionKey?: string }) {
   const sessionKey = resolveAutonomySessionKey(params);
   return {
     sessionKey,
@@ -341,40 +341,35 @@ function formatExecutionGraphNodes(nodes: ManagedTaskFlowExecutionGraphNode[]): 
     return "none";
   }
   return nodes
-    .map((node) =>
-      `${node.id}${node.dependsOn.length > 0 ? `<=${node.dependsOn.join("+")}` : ""}:${node.output}`,
+    .map(
+      (node) =>
+        `${node.id}${node.dependsOn.length > 0 ? `<=${node.dependsOn.join("+")}` : ""}:${node.output}`,
     )
     .join("; ");
 }
 
 function formatStageGraph(
-  nodes: Extract<
-    ManagedTaskFlowAutonomyProjectRuntime,
-    { kind: "genesis_stage" }
-  >["stageGraph"],
+  nodes: Extract<ManagedTaskFlowAutonomyProjectRuntime, { kind: "genesis_stage" }>["stageGraph"],
 ): string {
   if (nodes.length === 0) {
     return "none";
   }
   return nodes
-    .map((node) =>
-      `${node.id}[${node.status}]${node.dependsOn.length > 0 ? `<=${node.dependsOn.join("+")}` : ""}`,
+    .map(
+      (node) =>
+        `${node.id}[${node.status}]${node.dependsOn.length > 0 ? `<=${node.dependsOn.join("+")}` : ""}`,
     )
     .join("; ");
 }
 
-function formatSandboxControllerStages(
-  stages: SandboxControllerRuntime["stages"],
-): string {
+function formatSandboxControllerStages(stages: SandboxControllerRuntime["stages"]): string {
   if (stages.length === 0) {
     return "none";
   }
   return stages.map((stage) => `${stage.id}:${stage.status}`).join(", ");
 }
 
-function formatSandboxEvidenceLedger(
-  evidence: SandboxControllerRuntime["evidence"],
-): string {
+function formatSandboxEvidenceLedger(evidence: SandboxControllerRuntime["evidence"]): string {
   if (evidence.length === 0) {
     return "none";
   }
@@ -436,13 +431,17 @@ function logSandboxProjection(
     runtime.log(
       `sandboxController: activeStage=${sandboxController.activeStageId ?? "none"} blockers=${sandboxController.blockers.length} evidence=${collectedEvidence}/${sandboxController.evidence.length}${failedEvidence > 0 ? ` failed=${failedEvidence}` : ""}${persistedEvidence > 0 ? ` persisted=${persistedEvidence}` : ""}`,
     );
-    runtime.log(`sandboxControllerStages: ${formatSandboxControllerStages(sandboxController.stages)}`);
+    runtime.log(
+      `sandboxControllerStages: ${formatSandboxControllerStages(sandboxController.stages)}`,
+    );
     if (sandboxController.statePath || sandboxController.artifactDir) {
       runtime.log(
         `sandboxPersistence: state=${sandboxController.statePath ?? "n/a"} artifacts=${sandboxController.artifactDir ?? "n/a"}`,
       );
     }
-    runtime.log(`sandboxEvidenceLedger: ${formatSandboxEvidenceLedger(sandboxController.evidence)}`);
+    runtime.log(
+      `sandboxEvidenceLedger: ${formatSandboxEvidenceLedger(sandboxController.evidence)}`,
+    );
   }
   if (sandboxReplayRunner) {
     runtime.log(
@@ -624,7 +623,9 @@ export async function autonomyShowCommand(
   runtime.log(`latestFlowStatus: ${latest.flow.status}`);
   runtime.log(`latestFlowGoal: ${latest.flow.goal}`);
   runtime.log(`latestFlowStep: ${latest.flow.currentStep ?? "n/a"}`);
-  runtime.log(`latestFlowWorkspaceScope: ${formatWorkspaceScope(resolveFlowWorkspaceDirs(latest.flow))}`);
+  runtime.log(
+    `latestFlowWorkspaceScope: ${formatWorkspaceScope(resolveFlowWorkspaceDirs(latest.flow))}`,
+  );
   runtime.log(`latestFlowUpdatedAt: ${latest.flow.updatedAt}`);
   runtime.log(`latestTaskTotal: ${latest.flow.taskSummary.total}`);
   logFlowRuntimeProjection(runtime, latest.flow);
@@ -932,6 +933,151 @@ export async function autonomySuperviseCommand(
   }
 }
 
+export async function autonomyBootstrapCommand(
+  opts: AutonomyBootstrapOptions,
+  runtime: RuntimeEnv,
+): Promise<void> {
+  const { sessionKey, runtime: autonomy } = bindAutonomyRuntime({
+    sessionKey: opts.sessionKey,
+  });
+  const workspaceDirs = normalizeWorkspaceDirs(opts.workspaceDirs);
+  const bootstrapped = await autonomy.bootstrapFleet({
+    ...(opts.agentIds?.length ? { agentIds: opts.agentIds } : {}),
+    ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+    ...(opts.teamId ? { teamId: opts.teamId } : {}),
+    ...(typeof opts.restartBlockedFlows === "boolean"
+      ? { restartBlockedFlows: opts.restartBlockedFlows }
+      : {}),
+    ...(opts.governanceMode ? { governanceMode: opts.governanceMode } : {}),
+    ...(opts.decisionNote ? { decisionNote: opts.decisionNote } : {}),
+    ...(typeof opts.includeCapabilityInventory === "boolean"
+      ? { includeCapabilityInventory: opts.includeCapabilityInventory }
+      : {}),
+    ...(typeof opts.includeGenesisPlan === "boolean"
+      ? { includeGenesisPlan: opts.includeGenesisPlan }
+      : {}),
+    ...(typeof opts.recordHistory === "boolean" ? { recordHistory: opts.recordHistory } : {}),
+    telemetrySource: "manual",
+  });
+
+  if (opts.json) {
+    runtime.log(
+      JSON.stringify(
+        {
+          sessionKey,
+          bootstrapped,
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+
+  runtime.log("Autonomy bootstrap:");
+  runtime.log(`sessionKey: ${sessionKey}`);
+  runtime.log(`workspaceScope: ${formatWorkspaceScope(workspaceDirs)}`);
+  runtime.log(`ready: ${bootstrapped.readiness.ready ? "yes" : "no"}`);
+  runtime.log(
+    `profiles: ready=${bootstrapped.readiness.profileReadyCount}/${bootstrapped.supervised.summary.totalProfiles} notReady=${bootstrapped.readiness.profileNotReadyCount} missingLoop=${bootstrapped.readiness.missingLoopProfiles} drift=${bootstrapped.readiness.driftProfiles} idle=${bootstrapped.readiness.idleProfiles} activeFlows=${bootstrapped.readiness.activeFlows}`,
+  );
+  runtime.log(
+    `capabilityGaps: total=${bootstrapped.readiness.capabilityGapCount} critical=${bootstrapped.readiness.criticalCapabilityGapCount}`,
+  );
+  runtime.log(`genesisBlocked: ${bootstrapped.readiness.genesisBlockedStageCount}`);
+  if (bootstrapped.readiness.blockers.length > 0) {
+    runtime.log("blockers:");
+    for (const blocker of bootstrapped.readiness.blockers) {
+      runtime.log(`  - ${blocker}`);
+    }
+  }
+}
+
+export async function autonomyArchitectureReadinessCommand(
+  opts: AutonomyArchitectureReadinessOptions,
+  runtime: RuntimeEnv,
+): Promise<void> {
+  const { sessionKey, runtime: autonomy } = bindAutonomyRuntime({
+    sessionKey: opts.sessionKey,
+  });
+  const workspaceDirs = normalizeWorkspaceDirs(opts.workspaceDirs);
+  const readiness = await autonomy.getArchitectureReadiness({
+    ...(opts.agentIds?.length ? { agentIds: opts.agentIds } : {}),
+    ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+    ...(opts.teamId ? { teamId: opts.teamId } : {}),
+    ...(typeof opts.restartBlockedFlows === "boolean"
+      ? { restartBlockedFlows: opts.restartBlockedFlows }
+      : {}),
+    ...(opts.governanceMode ? { governanceMode: opts.governanceMode } : {}),
+    ...(opts.decisionNote ? { decisionNote: opts.decisionNote } : {}),
+    ...(typeof opts.includeCapabilityInventory === "boolean"
+      ? { includeCapabilityInventory: opts.includeCapabilityInventory }
+      : {}),
+    ...(typeof opts.includeGenesisPlan === "boolean"
+      ? { includeGenesisPlan: opts.includeGenesisPlan }
+      : {}),
+    ...(typeof opts.recordHistory === "boolean" ? { recordHistory: opts.recordHistory } : {}),
+    telemetrySource: "manual",
+  });
+
+  if (opts.json) {
+    runtime.log(
+      JSON.stringify(
+        {
+          sessionKey,
+          architectureReadiness: readiness,
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+
+  runtime.log("Autonomy architecture readiness:");
+  runtime.log(`sessionKey: ${sessionKey}`);
+  runtime.log(`charterDir: ${readiness.charterDir || "n/a"}`);
+  runtime.log(`workspaceScope: ${formatWorkspaceScope(readiness.workspaceDirs)}`);
+  runtime.log(`status: ${readiness.summary.status}`);
+  runtime.log(
+    `checks: ready=${readiness.summary.readyChecks}/${readiness.summary.totalChecks} attention=${readiness.summary.attentionChecks} blocked=${readiness.summary.blockedChecks}`,
+  );
+  runtime.log(
+    `bootstrap: ready=${readiness.bootstrapped.readiness.ready ? "yes" : "no"} healthy=${readiness.bootstrapped.readiness.profileReadyCount}/${readiness.bootstrapped.supervised.summary.totalProfiles} activeFlows=${readiness.bootstrapped.readiness.activeFlows}`,
+  );
+  runtime.log("layers:");
+  for (const layer of readiness.layers) {
+    runtime.log(`  ${layer.id}: ${layer.status} evidence=${formatList(layer.evidence)}`);
+    if (layer.blockers.length > 0) {
+      runtime.log(`    blockers=${formatList(layer.blockers)}`);
+    }
+  }
+  runtime.log("loops:");
+  for (const loop of readiness.loops) {
+    runtime.log(`  ${loop.id}: ${loop.status} evidence=${formatList(loop.evidence)}`);
+    if (loop.blockers.length > 0) {
+      runtime.log(`    blockers=${formatList(loop.blockers)}`);
+    }
+  }
+  for (const check of [
+    readiness.sandboxUniverse,
+    readiness.algorithmEvolutionProtocol,
+    readiness.autonomousDevelopment,
+    readiness.continuousRuntime,
+  ]) {
+    runtime.log(`${check.id}: ${check.status} evidence=${formatList(check.evidence)}`);
+    if (check.blockers.length > 0) {
+      runtime.log(`  blockers=${formatList(check.blockers)}`);
+    }
+  }
+  if (readiness.summary.blockers.length > 0) {
+    runtime.log("remainingBlockers:");
+    for (const blocker of readiness.summary.blockers) {
+      runtime.log(`  - ${blocker}`);
+    }
+  }
+}
+
 export async function autonomyGovernanceCommand(
   opts: AutonomyGovernanceOptions,
   runtime: RuntimeEnv,
@@ -1209,7 +1355,9 @@ export async function autonomyLoopEnableCommand(
     runtime.log(`updated: ${upserted.updated ? "yes" : "no"}`);
     runtime.log(`workspaceScope: ${formatWorkspaceScope(upserted.loop.workspaceDirs)}`);
     runtime.log(`jobId: ${upserted.loop.job.id}`);
-    runtime.log(`everyMs: ${upserted.loop.job.schedule.kind === "every" ? upserted.loop.job.schedule.everyMs : "n/a"}`);
+    runtime.log(
+      `everyMs: ${upserted.loop.job.schedule.kind === "every" ? upserted.loop.job.schedule.everyMs : "n/a"}`,
+    );
     if (upserted.reconciledRemovedJobIds?.length) {
       runtime.log(`reconciledRemovedJobIds: ${upserted.reconciledRemovedJobIds.join(", ")}`);
     }

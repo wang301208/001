@@ -47,9 +47,7 @@ async function writeAgentBlueprint(charterDir: string, agentId: string, title?: 
   );
 }
 
-async function createTempCapabilityRoot(options?: {
-  includePublisher?: boolean;
-}) {
+async function createTempCapabilityRoot(options?: { includePublisher?: boolean }) {
   const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-capability-registry-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
@@ -139,7 +137,7 @@ async function writeWorkspaceSkill(params: {
 }
 
 describe("capability registry", () => {
-  it("builds a deterministic capability inventory and surfaces missing skills", async () => {
+  it("builds a deterministic capability inventory", async () => {
     const { root, charterDir, workspaceDir } = await createTempCapabilityRoot();
     try {
       const inventory = getGovernanceCapabilityInventory({
@@ -166,7 +164,9 @@ describe("capability registry", () => {
       expect(fullInventory.summary.strategyCount).toBeGreaterThanOrEqual(1);
       expect(fullInventory.summary.algorithmCount).toBeGreaterThanOrEqual(1);
       expect(inventory.entries.some((entry) => entry.id === "agent_blueprint:founder")).toBe(true);
-      expect(inventory.entries.some((entry) => entry.id === "agent_blueprint:librarian")).toBe(true);
+      expect(inventory.entries.some((entry) => entry.id === "agent_blueprint:librarian")).toBe(
+        true,
+      );
       expect(inventory.entries.some((entry) => entry.id === "agent_blueprint:strategist")).toBe(
         false,
       );
@@ -176,10 +176,44 @@ describe("capability registry", () => {
       expect(inventory.entries.some((entry) => entry.kind === "memory")).toBe(true);
       expect(fullInventory.entries.some((entry) => entry.kind === "strategy")).toBe(true);
       expect(fullInventory.entries.some((entry) => entry.kind === "algorithm")).toBe(true);
-      expect(inventory.gaps.map((entry) => entry.id)).toContain("capability_inventory.skills_missing");
+      expect(inventory.summary.skillCount).toBeGreaterThanOrEqual(1);
       expect(
-        inventory.gaps.some((entry) => entry.id.startsWith("capability_inventory.governance_freeze")),
+        inventory.gaps.some((entry) =>
+          entry.id.startsWith("capability_inventory.governance_freeze"),
+        ),
       ).toBe(false);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("includes repository-root governed skills when workspace scope is implicit", async () => {
+    const { root, charterDir } = await createTempCapabilityRoot();
+    try {
+      await writeWorkspaceSkill({
+        workspaceDir: root,
+        id: "repo-governed-skill",
+        description: "Repository-level governed capability skill",
+      });
+
+      const inventory = getGovernanceCapabilityInventory({
+        charterDir,
+        observedAt: 321,
+      });
+
+      expect(inventory.workspaceDirs).toContain(root);
+      expect(inventory.summary.skillCount).toBeGreaterThanOrEqual(1);
+      expect(inventory.entries).toContainEqual(
+        expect.objectContaining({
+          kind: "skill",
+          title: "repo-governed-skill",
+          sourcePath: path.join(root, "skills", "repo-governed-skill", "SKILL.md"),
+          workspaceDir: root,
+        }),
+      );
+      expect(inventory.gaps.map((entry) => entry.id)).not.toContain(
+        "capability_inventory.skills_missing",
+      );
     } finally {
       await rm(root, { recursive: true, force: true });
     }
@@ -262,6 +296,110 @@ describe("capability registry", () => {
       expect(inventoryAfter.entries.some((entry) => entry.kind === "memory")).toBe(true);
       expect(inventoryAfter.entries.some((entry) => entry.kind === "strategy")).toBe(true);
       expect(inventoryAfter.entries.some((entry) => entry.kind === "algorithm")).toBe(true);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("includes supplemental memory, strategy, and algorithm assets from the synced registry", async () => {
+    const { root, charterDir, workspaceDir } = await createTempCapabilityRoot();
+    try {
+      await writeWorkspaceSkill({
+        workspaceDir,
+        id: "demo-skill",
+        description: "Demo governed capability skill",
+      });
+
+      const inventoryBefore = getGovernanceCapabilityInventory({
+        charterDir,
+        workspaceDirs: [workspaceDir],
+        observedAt: 890,
+      });
+      const registry = buildGovernanceCapabilityAssetRegistry({
+        observedAt: 891,
+        entries: inventoryBefore.entries,
+      });
+      registry.assets.push(
+        {
+          id: "algorithm:registered_dispatch_variant",
+          kind: "algorithm",
+          status: "ready",
+          title: "Registered Dispatch Variant",
+          layer: "execution",
+          ownerAgentId: "executor",
+          sourcePath: "src/plugins/runtime/runtime-autonomy.ts",
+          coverage: ["algorithm:dispatch_variant"],
+          dependencies: ["agent:executor"],
+          issues: [],
+          installOptions: [],
+        },
+        {
+          id: "memory:audit_stream",
+          kind: "memory",
+          status: "ready",
+          title: "Audit Stream Memory",
+          layer: "api_communication",
+          ownerAgentId: "librarian",
+          sourcePath: "src/infra/audit-stream.ts",
+          coverage: ["communication:audit_stream", "memory:audit_facts"],
+          dependencies: ["src/infra/local-event-bus.ts"],
+          issues: [],
+          installOptions: [],
+        },
+        {
+          id: "strategy:api_communication_fabric",
+          kind: "strategy",
+          status: "ready",
+          title: "API and Communication Fabric Strategy",
+          layer: "api_communication",
+          ownerAgentId: "strategist",
+          sourcePath: "src/cli/program/register.status-health-sessions.ts",
+          coverage: ["communication:event_bus", "strategy:api_communication"],
+          dependencies: ["src/plugins/runtime/runtime-autonomy.ts"],
+          issues: [],
+          installOptions: [],
+        },
+      );
+
+      await mkdir(path.join(charterDir, "capability"), { recursive: true });
+      await writeFile(
+        path.join(charterDir, "capability", "asset-registry.yaml"),
+        stringifyYaml(registry),
+        "utf8",
+      );
+
+      const inventoryAfter = getGovernanceCapabilityInventory({
+        charterDir,
+        workspaceDirs: [workspaceDir],
+        observedAt: 891,
+      });
+
+      expect(inventoryAfter.entries).toContainEqual(
+        expect.objectContaining({
+          id: "memory:audit_stream",
+          kind: "memory",
+          status: "ready",
+          layer: "api_communication",
+        }),
+      );
+      expect(inventoryAfter.entries).toContainEqual(
+        expect.objectContaining({
+          id: "strategy:api_communication_fabric",
+          kind: "strategy",
+          status: "ready",
+          layer: "api_communication",
+        }),
+      );
+      expect(inventoryAfter.entries).toContainEqual(
+        expect.objectContaining({
+          id: "algorithm:registered_dispatch_variant",
+          kind: "algorithm",
+          status: "ready",
+        }),
+      );
+      expect(inventoryAfter.gaps.map((entry) => entry.id)).not.toContain(
+        "capability_inventory.asset_registry_sync_required",
+      );
     } finally {
       await rm(root, { recursive: true, force: true });
     }

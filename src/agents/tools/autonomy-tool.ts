@@ -1,18 +1,13 @@
 import { Type } from "@sinclair/typebox";
-import { parseAgentSessionKey } from "../../routing/session-key.js";
 import { createRuntimeAutonomy } from "../../plugins/runtime/runtime-autonomy.js";
 import { createRuntimeTaskFlow } from "../../plugins/runtime/runtime-taskflow.js";
+import { parseAgentSessionKey } from "../../routing/session-key.js";
 import { stringEnum } from "../schema/typebox.js";
 import {
   AUTONOMY_TOOL_DISPLAY_SUMMARY,
   describeAutonomyTool,
 } from "../tool-description-presets.js";
-import {
-  type AnyAgentTool,
-  ToolInputError,
-  jsonResult,
-  readStringParam,
-} from "./common.js";
+import { type AnyAgentTool, ToolInputError, jsonResult, readStringParam } from "./common.js";
 
 const AUTONOMY_ACTIONS = [
   "list",
@@ -21,6 +16,8 @@ const AUTONOMY_ACTIONS = [
   "genesis_plan",
   "heal",
   "supervise",
+  "bootstrap",
+  "architecture",
   "history",
   "governance_proposals",
   "governance_reconcile",
@@ -53,10 +50,14 @@ const AutonomyToolSchema = Type.Object({
   action: stringEnum(AUTONOMY_ACTIONS),
   agentId: Type.Optional(Type.String({ description: "Autonomy profile id." })),
   flowId: Type.Optional(
-    Type.String({ description: "Target managed flow id. Defaults to the latest flow for the profile." }),
+    Type.String({
+      description: "Target managed flow id. Defaults to the latest flow for the profile.",
+    }),
   ),
   jobId: Type.Optional(
-    Type.String({ description: "Target managed loop job id. Defaults to the latest loop job for the profile." }),
+    Type.String({
+      description: "Target managed loop job id. Defaults to the latest loop job for the profile.",
+    }),
   ),
   goal: Type.Optional(Type.String({ description: "Override the managed flow goal." })),
   controllerId: Type.Optional(
@@ -96,7 +97,9 @@ const AutonomyToolSchema = Type.Object({
     }),
   ),
   teamId: Type.Optional(
-    Type.String({ description: "Target governed evolution team id for genesis_plan or supervise." }),
+    Type.String({
+      description: "Target governed evolution team id for genesis_plan or supervise.",
+    }),
   ),
   limit: Type.Optional(
     Type.Integer({ minimum: 1, maximum: 200, description: "Maximum history events to return." }),
@@ -117,12 +120,14 @@ const AutonomyToolSchema = Type.Object({
   ),
   includeCapabilityInventory: Type.Optional(
     Type.Boolean({
-      description: "Include capability inventory in supervise results when true; defaults to runtime behavior.",
+      description:
+        "Include capability inventory in supervise results when true; defaults to runtime behavior.",
     }),
   ),
   includeGenesisPlan: Type.Optional(
     Type.Boolean({
-      description: "Include genesis planning detail in supervise results when true; defaults to runtime behavior.",
+      description:
+        "Include genesis planning detail in supervise results when true; defaults to runtime behavior.",
     }),
   ),
   recordHistory: Type.Optional(
@@ -272,7 +277,9 @@ export function createAutonomyTool(opts?: {
           ...(typeof params.restartBlockedFlows === "boolean"
             ? { restartBlockedFlows: params.restartBlockedFlows }
             : {}),
-          ...(typeof params.recordHistory === "boolean" ? { recordHistory: params.recordHistory } : {}),
+          ...(typeof params.recordHistory === "boolean"
+            ? { recordHistory: params.recordHistory }
+            : {}),
         });
         return jsonResult({
           action,
@@ -302,22 +309,100 @@ export function createAutonomyTool(opts?: {
             ? { restartBlockedFlows: params.restartBlockedFlows }
             : {}),
           ...(governanceMode ? { governanceMode } : {}),
-          ...(typeof params.decisionNote === "string"
-            ? { decisionNote: params.decisionNote }
-            : {}),
+          ...(typeof params.decisionNote === "string" ? { decisionNote: params.decisionNote } : {}),
           ...(typeof params.includeCapabilityInventory === "boolean"
             ? { includeCapabilityInventory: params.includeCapabilityInventory }
             : {}),
           ...(typeof params.includeGenesisPlan === "boolean"
             ? { includeGenesisPlan: params.includeGenesisPlan }
             : {}),
-          ...(typeof params.recordHistory === "boolean" ? { recordHistory: params.recordHistory } : {}),
+          ...(typeof params.recordHistory === "boolean"
+            ? { recordHistory: params.recordHistory }
+            : {}),
         });
         return jsonResult({
           action,
           sessionKey,
           ...(requesterAgentId ? { requesterAgentId } : {}),
           supervised,
+        });
+      }
+
+      if (action === "bootstrap") {
+        const agentIds = Array.isArray(params.agentIds)
+          ? params.agentIds.filter((value): value is string => typeof value === "string")
+          : undefined;
+        const workspaceDirs = resolveScopedWorkspaceDirs(params, opts?.workspaceDir);
+        const governanceMode =
+          typeof params.governanceMode === "string" &&
+          (params.governanceMode === "none" ||
+            params.governanceMode === "apply_safe" ||
+            params.governanceMode === "force_apply_all")
+            ? params.governanceMode
+            : undefined;
+        const bootstrapped = await runtime.bootstrapFleet({
+          ...(agentIds?.length ? { agentIds } : {}),
+          ...(workspaceDirs?.length ? { workspaceDirs } : {}),
+          ...(typeof params.teamId === "string" ? { teamId: params.teamId } : {}),
+          ...(typeof params.restartBlockedFlows === "boolean"
+            ? { restartBlockedFlows: params.restartBlockedFlows }
+            : {}),
+          ...(governanceMode ? { governanceMode } : {}),
+          ...(typeof params.decisionNote === "string" ? { decisionNote: params.decisionNote } : {}),
+          ...(typeof params.includeCapabilityInventory === "boolean"
+            ? { includeCapabilityInventory: params.includeCapabilityInventory }
+            : {}),
+          ...(typeof params.includeGenesisPlan === "boolean"
+            ? { includeGenesisPlan: params.includeGenesisPlan }
+            : {}),
+          ...(typeof params.recordHistory === "boolean"
+            ? { recordHistory: params.recordHistory }
+            : {}),
+        });
+        return jsonResult({
+          action,
+          sessionKey,
+          ...(requesterAgentId ? { requesterAgentId } : {}),
+          bootstrapped,
+        });
+      }
+
+      if (action === "architecture") {
+        const agentIds = Array.isArray(params.agentIds)
+          ? params.agentIds.filter((value): value is string => typeof value === "string")
+          : undefined;
+        const workspaceDirs = resolveScopedWorkspaceDirs(params, opts?.workspaceDir);
+        const governanceMode =
+          typeof params.governanceMode === "string" &&
+          (params.governanceMode === "none" ||
+            params.governanceMode === "apply_safe" ||
+            params.governanceMode === "force_apply_all")
+            ? params.governanceMode
+            : undefined;
+        const architectureReadiness = await runtime.getArchitectureReadiness({
+          ...(agentIds?.length ? { agentIds } : {}),
+          ...(workspaceDirs?.length ? { workspaceDirs } : {}),
+          ...(typeof params.teamId === "string" ? { teamId: params.teamId } : {}),
+          ...(typeof params.restartBlockedFlows === "boolean"
+            ? { restartBlockedFlows: params.restartBlockedFlows }
+            : {}),
+          ...(governanceMode ? { governanceMode } : {}),
+          ...(typeof params.decisionNote === "string" ? { decisionNote: params.decisionNote } : {}),
+          ...(typeof params.includeCapabilityInventory === "boolean"
+            ? { includeCapabilityInventory: params.includeCapabilityInventory }
+            : {}),
+          ...(typeof params.includeGenesisPlan === "boolean"
+            ? { includeGenesisPlan: params.includeGenesisPlan }
+            : {}),
+          ...(typeof params.recordHistory === "boolean"
+            ? { recordHistory: params.recordHistory }
+            : {}),
+        });
+        return jsonResult({
+          action,
+          sessionKey,
+          ...(requesterAgentId ? { requesterAgentId } : {}),
+          architectureReadiness,
         });
       }
 
@@ -330,9 +415,7 @@ export function createAutonomyTool(opts?: {
           ...(agentIds?.length ? { agentIds } : {}),
           ...(workspaceDirs?.length ? { workspaceDirs } : {}),
           ...(typeof params.limit === "number" ? { limit: params.limit } : {}),
-          ...(params.mode === "heal" || params.mode === "reconcile"
-            ? { mode: params.mode }
-            : {}),
+          ...(params.mode === "heal" || params.mode === "reconcile" ? { mode: params.mode } : {}),
           ...(params.source === "manual" ||
           params.source === "startup" ||
           params.source === "supervisor"
@@ -375,9 +458,7 @@ export function createAutonomyTool(opts?: {
           ...(params.mode === "apply_safe" || params.mode === "force_apply_all"
             ? { mode: params.mode }
             : {}),
-          ...(typeof params.decisionNote === "string"
-            ? { decisionNote: params.decisionNote }
-            : {}),
+          ...(typeof params.decisionNote === "string" ? { decisionNote: params.decisionNote } : {}),
         });
         return jsonResult({
           action,
@@ -497,9 +578,7 @@ export function createAutonomyTool(opts?: {
           flowId: readStringParam(params, "flowId"),
           replayPassed: params.replayPassed,
           qaPassed: params.qaPassed,
-          ...(typeof params.auditPassed === "boolean"
-            ? { auditPassed: params.auditPassed }
-            : {}),
+          ...(typeof params.auditPassed === "boolean" ? { auditPassed: params.auditPassed } : {}),
         });
         return jsonResult({
           action,

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { registerStatusHealthSessionsCommands } from "./register.status-health-sessions.js";
 
 const mocks = vi.hoisted(() => ({
+  autonomyBootstrapCommand: vi.fn(),
   autonomyCapabilityInventoryCommand: vi.fn(),
   autonomyCancelCommand: vi.fn(),
   autonomyGenesisPlanCommand: vi.fn(),
@@ -57,6 +58,7 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
+const autonomyBootstrapCommand = mocks.autonomyBootstrapCommand;
 const autonomyCapabilityInventoryCommand = mocks.autonomyCapabilityInventoryCommand;
 const autonomyCancelCommand = mocks.autonomyCancelCommand;
 const autonomyGenesisPlanCommand = mocks.autonomyGenesisPlanCommand;
@@ -111,6 +113,7 @@ vi.mock("../../commands/status.js", () => ({
 }));
 
 vi.mock("../../commands/autonomy.js", () => ({
+  autonomyBootstrapCommand: mocks.autonomyBootstrapCommand,
   autonomyCapabilityInventoryCommand: mocks.autonomyCapabilityInventoryCommand,
   autonomyCancelCommand: mocks.autonomyCancelCommand,
   autonomyGenesisPlanCommand: mocks.autonomyGenesisPlanCommand,
@@ -941,6 +944,49 @@ describe("registerStatusHealthSessionsCommands", () => {
         workspaceDirs: ["/tmp/fleet-a", "/tmp/fleet-b"],
         governanceMode: "force_apply_all",
         decisionNote: "Escalate the supervisor pass.",
+        restartBlockedFlows: false,
+        includeCapabilityInventory: false,
+        includeGenesisPlan: false,
+        recordHistory: false,
+        json: true,
+      }),
+      runtime,
+    );
+  });
+
+  it("runs autonomy bootstrap with the forwarded governance and readiness controls", async () => {
+    await runCli([
+      "autonomy",
+      "--session-key",
+      "agent:control:main",
+      "bootstrap",
+      "founder",
+      "strategist",
+      "--team-id",
+      "genesis_team",
+      "--workspace",
+      "/tmp/fleet-a",
+      "--workspace",
+      "/tmp/fleet-b",
+      "--governance-mode",
+      "apply_safe",
+      "--note",
+      "Prepare continuous autonomy.",
+      "--no-restart-blocked",
+      "--no-capabilities",
+      "--no-genesis",
+      "--no-history",
+      "--json",
+    ]);
+
+    expect(autonomyBootstrapCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agentIds: ["founder", "strategist"],
+        sessionKey: "agent:control:main",
+        teamId: "genesis_team",
+        workspaceDirs: ["/tmp/fleet-a", "/tmp/fleet-b"],
+        governanceMode: "apply_safe",
+        decisionNote: "Prepare continuous autonomy.",
         restartBlockedFlows: false,
         includeCapabilityInventory: false,
         includeGenesisPlan: false,

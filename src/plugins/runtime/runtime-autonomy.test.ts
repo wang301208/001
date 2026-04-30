@@ -2,10 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  clearRuntimeConfigSnapshot,
-  setRuntimeConfigSnapshot,
-} from "../../config/config.js";
+import { clearRuntimeConfigSnapshot, setRuntimeConfigSnapshot } from "../../config/config.js";
 import { resolveStorePath } from "../../config/sessions.js";
 import { CronService } from "../../cron/service.js";
 import {
@@ -13,12 +10,12 @@ import {
   createNoopLogger,
   installCronTestHooks,
 } from "../../cron/service.test-harness.js";
+import { markTaskTerminalById } from "../../tasks/task-registry.js";
+import { createRuntimeAutonomy } from "./runtime-autonomy.js";
 import {
   installRuntimeTaskDeliveryMock,
   resetRuntimeTaskTestState,
 } from "./runtime-task-test-harness.js";
-import { markTaskTerminalById } from "../../tasks/task-registry.js";
-import { createRuntimeAutonomy } from "./runtime-autonomy.js";
 import { createRuntimeTaskFlow } from "./runtime-taskflow.js";
 
 const cronLogger = createNoopLogger();
@@ -27,10 +24,7 @@ const { makeStorePath } = createCronStoreHarness({
 });
 installCronTestHooks({ logger: cronLogger });
 
-function createAutonomyRuntime(options?: {
-  cronService?: CronService;
-  charterDir?: string;
-}) {
+function createAutonomyRuntime(options?: { cronService?: CronService; charterDir?: string }) {
   return createRuntimeAutonomy({
     legacyTaskFlow: createRuntimeTaskFlow(),
     ...(options?.cronService ? { cronService: options.cronService } : {}),
@@ -116,15 +110,19 @@ async function createGovernanceGapCharterRoot() {
     ].join("\n"),
     "utf8",
   );
-  await fs.writeFile(path.join(charterDir, "policies", "evolution-policy.yaml"), "version: 1\n", "utf8");
+  await fs.writeFile(
+    path.join(charterDir, "policies", "evolution-policy.yaml"),
+    "version: 1\n",
+    "utf8",
+  );
   await fs.writeFile(
     path.join(charterDir, "agents", "founder.yaml"),
-    ['version: 1', "agent:", '  id: "founder"', '  title: "Founder"'].join("\n"),
+    ["version: 1", "agent:", '  id: "founder"', '  title: "Founder"'].join("\n"),
     "utf8",
   );
   await fs.writeFile(
     path.join(charterDir, "agents", "strategist.yaml"),
-    ['version: 1', "agent:", '  id: "strategist"', '  title: "Strategist"'].join("\n"),
+    ["version: 1", "agent:", '  id: "strategist"', '  title: "Strategist"'].join("\n"),
     "utf8",
   );
   return { root, charterDir };
@@ -166,9 +164,14 @@ async function createGovernedCapabilityCharterRoot() {
   );
   await fs.writeFile(
     path.join(workspaceDir, "skills", "demo-skill", "SKILL.md"),
-    ["---", "name: demo-skill", "description: Demo governed capability skill", "---", "", "# Demo"].join(
-      "\n",
-    ),
+    [
+      "---",
+      "name: demo-skill",
+      "description: Demo governed capability skill",
+      "---",
+      "",
+      "# Demo",
+    ].join("\n"),
     "utf8",
   );
   return { root, charterDir, workspaceDir };
@@ -208,15 +211,49 @@ async function createAutonomyPipelineCharterRoot() {
   const blueprints = [
     { id: "founder", title: "Founder", layer: "evolution", hooks: ['"governance.proposals.*"'] },
     { id: "strategist", title: "Strategist", layer: "evolution", hooks: ['"autonomy.history"'] },
-    { id: "algorithmist", title: "Algorithmist", layer: "evolution", hooks: ['"compaction runtime telemetry"', '"task scheduling telemetry"', '"qa-runner-runtime"'] },
+    {
+      id: "algorithmist",
+      title: "Algorithmist",
+      layer: "evolution",
+      hooks: [
+        '"compaction runtime telemetry"',
+        '"task scheduling telemetry"',
+        '"qa-runner-runtime"',
+      ],
+    },
     { id: "librarian", title: "Librarian", layer: "capability", hooks: ['"skills"', '"plugins"'] },
     { id: "sentinel", title: "Sentinel", layer: "evolution", hooks: ['"runtime.telemetry"'] },
-    { id: "archaeologist", title: "Archaeologist", layer: "evolution", hooks: ['"src/tasks/task-registry.ts"'] },
-    { id: "tdd_developer", title: "TDD Developer", layer: "evolution", hooks: ['"skills"', '"plugins"'] },
+    {
+      id: "archaeologist",
+      title: "Archaeologist",
+      layer: "evolution",
+      hooks: ['"src/tasks/task-registry.ts"'],
+    },
+    {
+      id: "tdd_developer",
+      title: "TDD Developer",
+      layer: "evolution",
+      hooks: ['"skills"', '"plugins"'],
+    },
     { id: "qa", title: "QA", layer: "evolution", hooks: ['"qa-runtime"'] },
-    { id: "publisher", title: "Publisher", layer: "evolution", hooks: ['"capability/asset-registry.yaml"'] },
-    { id: "executor", title: "Executor", layer: "execution", hooks: ['"src/tasks/task-registry.ts"', '"src/tasks/task-flow-registry.ts"'] },
-    { id: "sovereignty_auditor", title: "Sovereignty Auditor", layer: "governance", hooks: ['"src/governance/control-plane.ts"', '"src/infra/audit-stream.ts"'] },
+    {
+      id: "publisher",
+      title: "Publisher",
+      layer: "evolution",
+      hooks: ['"capability/asset-registry.yaml"'],
+    },
+    {
+      id: "executor",
+      title: "Executor",
+      layer: "execution",
+      hooks: ['"src/tasks/task-registry.ts"', '"src/tasks/task-flow-registry.ts"'],
+    },
+    {
+      id: "sovereignty_auditor",
+      title: "Sovereignty Auditor",
+      layer: "governance",
+      hooks: ['"src/governance/control-plane.ts"', '"src/infra/audit-stream.ts"'],
+    },
   ];
   for (const blueprint of blueprints) {
     await fs.writeFile(
@@ -432,9 +469,9 @@ describe("runtime autonomy", () => {
       }),
     });
     expect(created.flow.tasks[0]?.governanceRuntime?.agentId).toBe("librarian");
-    expect(
-      (created.flow.state as { autonomy?: { agentId?: string } }).autonomy?.agentId,
-    ).toBe("librarian");
+    expect((created.flow.state as { autonomy?: { agentId?: string } }).autonomy?.agentId).toBe(
+      "librarian",
+    );
     expect(created.seedTask?.title).toContain(`Workspace scope: ${workspaceDir}.`);
     expect(created.flow.tasks[0]?.title).toContain(`Workspace scope: ${workspaceDir}.`);
   });
@@ -786,11 +823,7 @@ describe("runtime autonomy", () => {
         changed: 3,
         flowStarted: 3,
       });
-      expect(healed.entries.map((entry) => entry.agentId)).toEqual([
-        "sentinel",
-        "qa",
-        "librarian",
-      ]);
+      expect(healed.entries.map((entry) => entry.agentId)).toEqual(["sentinel", "qa", "librarian"]);
       for (const entry of healed.entries) {
         expect(entry.flowAction).toBe("started");
         expect(entry.startedFlow).toMatchObject({
@@ -817,6 +850,27 @@ describe("runtime autonomy", () => {
                 sandboxReplayRunner: expect.objectContaining({
                   status: "ready",
                 }),
+                developmentPackage: expect.objectContaining({
+                  candidateKinds: expect.arrayContaining([
+                    "skill",
+                    "plugin",
+                    "strategy",
+                    "algorithm",
+                  ]),
+                  qaGates: expect.arrayContaining([
+                    "functional_pass",
+                    "sandbox_replay_pass",
+                    "audit_trace_present",
+                  ]),
+                  promotionEvidence: expect.arrayContaining([
+                    "candidate_asset",
+                    "qa_report",
+                    "rollback_reference",
+                  ]),
+                  publishTargets: expect.arrayContaining([
+                    "governance/charter/capability/asset-registry.yaml",
+                  ]),
+                }),
               }),
             },
           },
@@ -824,20 +878,127 @@ describe("runtime autonomy", () => {
         expect(entry.startedFlow?.tasks.length ?? 0).toBeGreaterThan(0);
       }
       expect(
-        healed.entries.find((entry) => entry.agentId === "sentinel")?.startedFlow?.tasks.map(
-          (task) => task.label,
-        ),
+        healed.entries
+          .find((entry) => entry.agentId === "sentinel")
+          ?.startedFlow?.tasks.map((task) => task.label),
       ).toContain("Sentinel Detection");
       expect(
-        healed.entries.find((entry) => entry.agentId === "qa")?.startedFlow?.tasks.map(
-          (task) => task.label,
-        ),
+        healed.entries
+          .find((entry) => entry.agentId === "qa")
+          ?.startedFlow?.tasks.map((task) => task.label),
       ).toContain("QA Replay");
       expect(
-        healed.entries.find((entry) => entry.agentId === "librarian")?.startedFlow?.tasks.map(
-          (task) => task.label,
-        ),
+        healed.entries
+          .find((entry) => entry.agentId === "librarian")
+          ?.startedFlow?.tasks.map((task) => task.label),
       ).toContain("Librarian Registration");
+      expect(
+        healed.entries
+          .find((entry) => entry.agentId === "librarian")
+          ?.startedFlow?.tasks.map((task) => task.label),
+      ).toContain("Development package");
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("upgrades old Genesis managed flows that do not carry development packages", async () => {
+    const { root, charterDir, workspaceDir } = await createAutonomyPipelineCharterRoot();
+    try {
+      const controlRuntime = createAutonomyRuntime({
+        charterDir,
+      }).bindSession({
+        sessionKey: "agent:main:genesis-package-upgrade-test",
+      });
+      const agentRuntime = createAutonomyRuntime({
+        charterDir,
+      }).bindSession({
+        sessionKey: "agent:sentinel:main",
+      });
+
+      const legacy = agentRuntime.startManagedFlow({
+        agentId: "sentinel",
+        workspaceDirs: [workspaceDir],
+        stateJson: {
+          autonomy: {
+            project: {
+              kind: "genesis_stage",
+              teamId: "genesis_team",
+              mode: "build",
+              stage: {
+                id: "genesis.gap_detection",
+                title: "Sentinel Detection",
+                ownerAgentId: "sentinel",
+                status: "ready",
+                goal: "Legacy Genesis flow without development package.",
+                dependsOn: [],
+                inputRefs: [],
+                outputRefs: ["gap_signal"],
+                actions: ["detect gaps"],
+              },
+              focusGapIds: [],
+              blockers: [],
+              stageGraph: [],
+              sandboxUniverse: {
+                universeId: "legacy",
+                target: {
+                  kind: "capability",
+                  id: "legacy",
+                  teamId: "genesis_team",
+                  focusGapIds: [],
+                },
+                stages: [],
+                promotionGate: {
+                  freezeActive: false,
+                  blockers: [],
+                  requiredEvidence: [],
+                  canPromote: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      await controlRuntime.upsertLoopJob({
+        agentId: "sentinel",
+        workspaceDirs: [workspaceDir],
+      });
+
+      const before = await controlRuntime.getFleetStatus({
+        agentIds: ["sentinel"],
+        workspaceDirs: [workspaceDir],
+      });
+      expect(before.entries[0]).toMatchObject({
+        health: "drift",
+        driftReasons: expect.arrayContaining([
+          "latest Genesis managed flow is missing development package",
+        ]),
+      });
+
+      const healed = await controlRuntime.healFleet({
+        agentIds: ["sentinel"],
+        workspaceDirs: [workspaceDir],
+        restartBlockedFlows: false,
+        recordHistory: false,
+      });
+
+      expect(healed.entries[0]).toMatchObject({
+        flowAction: "restarted",
+        cancelledFlowBeforeRestart: expect.objectContaining({
+          id: legacy.flow.id,
+        }),
+        startedFlow: expect.objectContaining({
+          managedAutonomy: expect.objectContaining({
+            project: expect.objectContaining({
+              kind: "genesis_stage",
+              developmentPackage: expect.objectContaining({
+                candidateKinds: expect.arrayContaining(["skill", "plugin", "algorithm"]),
+                qaGates: expect.arrayContaining(["sandbox_replay_pass"]),
+              }),
+            }),
+          }),
+        }),
+      });
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
@@ -1359,13 +1520,13 @@ describe("runtime autonomy", () => {
         sessionKey: "agent:main:supervisor-runtime-test",
       });
 
-        const supervised = await runtime.superviseFleet({
-          agentIds: ["founder", "strategist"],
-          workspaceDirs: [workspaceDir],
-          governanceMode: "force_apply_all",
-          decisionNote: "Escalate deterministic governance repairs during supervisor pass.",
-          telemetrySource: "manual",
-        });
+      const supervised = await runtime.superviseFleet({
+        agentIds: ["founder", "strategist"],
+        workspaceDirs: [workspaceDir],
+        governanceMode: "force_apply_all",
+        decisionNote: "Escalate deterministic governance repairs during supervisor pass.",
+        telemetrySource: "manual",
+      });
 
       expect(supervised.governanceMode).toBe("force_apply_all");
       expect(supervised.overviewBefore.totals.totalProfiles).toBe(2);
@@ -1407,33 +1568,107 @@ describe("runtime autonomy", () => {
         missingLoop: 0,
         activeFlows: 2,
       });
-        expect(supervised.summary).toMatchObject({
-          totalProfiles: 2,
-          changedProfiles: 2,
-          healthyProfiles: 2,
-          driftProfiles: 0,
-          missingLoopProfiles: 0,
-          activeFlows: 2,
-        });
-        expect(supervised.summary.governanceAppliedCount).toBeGreaterThanOrEqual(1);
-        expect(supervised.summary.recommendedNextActions.length).toBeGreaterThan(0);
-        const history = await runtime.getFleetHistory({
+      expect(supervised.summary).toMatchObject({
+        totalProfiles: 2,
+        changedProfiles: 2,
+        healthyProfiles: 2,
+        driftProfiles: 0,
+        missingLoopProfiles: 0,
+        activeFlows: 2,
+      });
+      expect(supervised.summary.governanceAppliedCount).toBeGreaterThanOrEqual(1);
+      expect(supervised.summary.recommendedNextActions.length).toBeGreaterThan(0);
+      const history = await runtime.getFleetHistory({
+        mode: "heal",
+        source: "manual",
+      });
+      expect(history.events).toEqual([
+        expect.objectContaining({
           mode: "heal",
           source: "manual",
-        });
-        expect(history.events).toEqual([
-          expect.objectContaining({
-            mode: "heal",
-            source: "manual",
-            agentIds: ["founder", "strategist"],
-            workspaceDirs: [workspaceDir],
-            primaryWorkspaceDir: workspaceDir,
-          }),
-        ]);
-      } finally {
-        await fs.rm(root, { recursive: true, force: true });
-      }
+          agentIds: ["founder", "strategist"],
+          workspaceDirs: [workspaceDir],
+          primaryWorkspaceDir: workspaceDir,
+        }),
+      ]);
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("bootstraps the autonomy fleet and returns an explicit readiness verdict", async () => {
+    const runtime = createAutonomyRuntime().bindSession({
+      sessionKey: "agent:main:bootstrap-runtime-test",
     });
+
+    const bootstrapped = await runtime.bootstrapFleet({
+      agentIds: ["founder", "strategist"],
+      governanceMode: "none",
+      includeCapabilityInventory: true,
+      includeGenesisPlan: true,
+      recordHistory: false,
+      restartBlockedFlows: false,
+    });
+
+    expect(bootstrapped.sessionKey).toBe("agent:main:bootstrap-runtime-test");
+    expect(bootstrapped.supervised.summary).toMatchObject({
+      totalProfiles: 2,
+      changedProfiles: 2,
+      healthyProfiles: 2,
+      driftProfiles: 0,
+      missingLoopProfiles: 0,
+      activeFlows: 2,
+    });
+    expect(bootstrapped.readiness).toEqual({
+      ready: true,
+      profileReadyCount: 2,
+      profileNotReadyCount: 0,
+      missingLoopProfiles: 0,
+      driftProfiles: 0,
+      idleProfiles: 0,
+      activeFlows: 2,
+      capabilityGapCount: expect.any(Number),
+      criticalCapabilityGapCount: 0,
+      genesisBlockedStageCount: 0,
+      blockers: [],
+    });
+  });
+
+  it("evaluates strong-autonomy architecture readiness across layers and loops", async () => {
+    const runtime = createAutonomyRuntime().bindSession({
+      sessionKey: "agent:main:architecture-readiness-test",
+    });
+
+    const readiness = await runtime.getArchitectureReadiness({
+      governanceMode: "none",
+      includeCapabilityInventory: true,
+      includeGenesisPlan: true,
+      recordHistory: false,
+      restartBlockedFlows: false,
+    });
+
+    expect(readiness.sessionKey).toBe("agent:main:architecture-readiness-test");
+    expect(readiness.summary.totalChecks).toBe(13);
+    expect(readiness.layers.map((entry) => entry.id)).toEqual([
+      "governance",
+      "evolution",
+      "capability",
+      "execution",
+      "api_communication",
+      "interaction",
+    ]);
+    expect(readiness.loops.map((entry) => entry.id)).toEqual(["value", "maintenance", "evolution"]);
+    expect(readiness.sandboxUniverse.id).toBe("sandbox_universe");
+    expect(readiness.algorithmEvolutionProtocol.id).toBe("algorithm_evolution_protocol");
+    expect(readiness.autonomousDevelopment.id).toBe("autonomous_development");
+    expect(readiness.autonomousDevelopment.status).toBe("ready");
+    expect(readiness.autonomousDevelopment.evidence).toEqual(
+      expect.arrayContaining([expect.stringContaining("developmentPackages=")]),
+    );
+    expect(readiness.continuousRuntime.id).toBe("continuous_runtime");
+    expect(readiness.bootstrapped.readiness.ready).toBe(true);
+    expect(readiness.summary.readyChecks).toBeGreaterThan(0);
+  });
 
   it("persists autonomy maintenance history and supports filtering", async () => {
     const cron = await createCronService();
@@ -1670,8 +1905,7 @@ describe("runtime autonomy", () => {
         agentId: "strategist",
       });
       const keptJobId = upserted.loop.job.id;
-      const removedJobId =
-        keptJobId === first.loop.job.id ? duplicate.id : first.loop.job.id;
+      const removedJobId = keptJobId === first.loop.job.id ? duplicate.id : first.loop.job.id;
 
       expect(upserted.updated).toBe(true);
       expect(upserted.created).toBe(false);
@@ -1740,6 +1974,57 @@ describe("runtime autonomy", () => {
     }
   });
 
+  it("heals managed loop cadence drift back to the profile template", async () => {
+    const cron = await createCronService();
+    const workspaceDir = "/tmp/heal-cadence-workspace";
+    const runtime = createAutonomyRuntime({ cronService: cron }).bindSession({
+      sessionKey: "agent:main:main",
+    });
+
+    try {
+      await runtime.upsertLoopJob({
+        agentId: "founder",
+        everyMs: 3_600_000,
+        workspaceDirs: [workspaceDir],
+      });
+
+      const before = await runtime.getFleetStatus({
+        agentIds: ["founder"],
+        workspaceDirs: [workspaceDir],
+      });
+      expect(before.entries[0]).toMatchObject({
+        agentId: "founder",
+        health: "drift",
+        actualLoopEveryMs: 3_600_000,
+        expectedLoopEveryMs: 21_600_000,
+      });
+
+      const healed = await runtime.healFleet({
+        agentIds: ["founder"],
+        workspaceDirs: [workspaceDir],
+        recordHistory: false,
+        synthesizeGovernanceProposals: false,
+      });
+
+      expect(healed.entries[0]).toMatchObject({
+        agentId: "founder",
+        loopAction: "updated",
+        healthBefore: "drift",
+        healthAfter: "healthy",
+        loopAfter: expect.objectContaining({
+          job: expect.objectContaining({
+            schedule: expect.objectContaining({
+              kind: "every",
+              everyMs: 21_600_000,
+            }),
+          }),
+        }),
+      });
+    } finally {
+      cron.stop();
+    }
+  });
+
   it("builds fleet-wide autonomy status with health and drift signals", async () => {
     const cron = await createCronService();
     const runtime = createAutonomyRuntime({ cronService: cron }).bindSession({
@@ -1788,9 +2073,7 @@ describe("runtime autonomy", () => {
             hasActiveFlow: false,
             suggestedAction: "reconcile_loop",
             loopCadenceAligned: false,
-            driftReasons: expect.arrayContaining([
-              expect.stringContaining("cadence drifted"),
-            ]),
+            driftReasons: expect.arrayContaining([expect.stringContaining("cadence drifted")]),
           }),
           expect.objectContaining({
             agentId: "executor",
@@ -1936,10 +2219,7 @@ describe("runtime autonomy", () => {
           flowAction: "started",
           workspaceDirs: [workspaceDir],
           primaryWorkspaceDir: workspaceDir,
-          reasons: expect.arrayContaining([
-            "managed loop missing",
-            "no managed flow recorded yet",
-          ]),
+          reasons: expect.arrayContaining(["managed loop missing", "no managed flow recorded yet"]),
           loopAfter: expect.objectContaining({
             workspaceDirs: [workspaceDir],
             primaryWorkspaceDir: workspaceDir,
@@ -1981,6 +2261,53 @@ describe("runtime autonomy", () => {
     } finally {
       cron.stop();
     }
+  });
+
+  it("persists standalone fleet healing without arming an executable scheduler", async () => {
+    const runtime = createAutonomyRuntime().bindSession({
+      sessionKey: "agent:main:main",
+    });
+
+    const healed = await runtime.healFleet({
+      agentIds: ["founder"],
+      restartBlockedFlows: false,
+      synthesizeGovernanceProposals: false,
+      recordHistory: false,
+    });
+
+    expect(healed.totals).toEqual({
+      totalProfiles: 1,
+      changed: 1,
+      unchanged: 0,
+      loopCreated: 1,
+      loopUpdated: 0,
+      flowStarted: 1,
+      flowRestarted: 0,
+    });
+
+    const reloaded = createAutonomyRuntime().bindSession({
+      sessionKey: "agent:main:main",
+    });
+    const fleet = await reloaded.getFleetStatus({
+      agentIds: ["founder"],
+    });
+
+    expect(fleet.totals).toEqual({
+      totalProfiles: 1,
+      healthy: 1,
+      idle: 0,
+      drift: 0,
+      missingLoop: 0,
+      activeFlows: 1,
+    });
+    expect(fleet.entries[0]).toEqual(
+      expect.objectContaining({
+        agentId: "founder",
+        health: "healthy",
+        hasActiveFlow: true,
+        loopCadenceAligned: true,
+      }),
+    );
   });
 
   it("restarts blocked managed flows by cancelling the old flow before replacement", async () => {

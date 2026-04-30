@@ -1,5 +1,7 @@
 import type { Command } from "commander";
 import {
+  autonomyArchitectureReadinessCommand,
+  autonomyBootstrapCommand,
   autonomyCapabilityInventoryCommand,
   autonomyCancelCommand,
   autonomyGovernanceReconcileCommand,
@@ -704,7 +706,10 @@ export function registerStatusHealthSessionsCommands(program: Command) {
   governanceProposalsCmd
     .command("synthesize")
     .description("Synthesize pending governance proposals from deterministic charter findings")
-    .argument("[agentIds...]", "Governance agent ids (defaults to founder, strategist, and librarian)")
+    .argument(
+      "[agentIds...]",
+      "Governance agent ids (defaults to founder, strategist, and librarian)",
+    )
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
     .option("--json", "Output as JSON", false)
     .action(async (agentIds, opts, command) => {
@@ -733,7 +738,10 @@ export function registerStatusHealthSessionsCommands(program: Command) {
   governanceProposalsCmd
     .command("reconcile")
     .description("Review and apply deterministic governance proposals through the control plane")
-    .argument("[agentIds...]", "Governance agent ids (defaults to founder, strategist, and librarian)")
+    .argument(
+      "[agentIds...]",
+      "Governance agent ids (defaults to founder, strategist, and librarian)",
+    )
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
     .option("--mode <mode>", "Reconcile mode (apply_safe, force_apply_all)")
     .option("--created-by-agent <id>", "Actor agent id recorded on synthesized proposals")
@@ -885,7 +893,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
             decision: opts.decision as string,
             decidedBy: opts.decidedBy as string | undefined,
             decisionNote: opts.note as string | undefined,
-            ...(Boolean(opts.failFast) ? { continueOnError: false } : {}),
+            ...(opts.failFast ? { continueOnError: false } : {}),
             json: Boolean(opts.json || parentOpts?.json || rootOpts?.json),
           },
           defaultRuntime,
@@ -962,7 +970,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
                 ? { limit: parentLimit }
                 : {}),
             appliedBy: opts.appliedBy as string | undefined,
-            ...(Boolean(opts.failFast) ? { continueOnError: false } : {}),
+            ...(opts.failFast ? { continueOnError: false } : {}),
             json: Boolean(opts.json || parentOpts?.json || rootOpts?.json),
           },
           defaultRuntime,
@@ -1039,7 +1047,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
                 ? { limit: parentLimit }
                 : {}),
             revertedBy: opts.revertedBy as string | undefined,
-            ...(Boolean(opts.failFast) ? { continueOnError: false } : {}),
+            ...(opts.failFast ? { continueOnError: false } : {}),
             json: Boolean(opts.json || parentOpts?.json || rootOpts?.json),
           },
           defaultRuntime,
@@ -1200,14 +1208,13 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyCmd
     .command("supervise")
-    .description("Run an end-to-end autonomy supervisor pass across heal, governance, and genesis planning")
+    .description(
+      "Run an end-to-end autonomy supervisor pass across heal, governance, and genesis planning",
+    )
     .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
     .option("--team-id <id>", "Genesis team id to plan for")
     .option("--workspace <dir>", "Workspace scope to operate on (repeatable)", collectOption, [])
-    .option(
-      "--governance-mode <mode>",
-      "Governance mode (none, apply_safe, force_apply_all)",
-    )
+    .option("--governance-mode <mode>", "Governance mode (none, apply_safe, force_apply_all)")
     .option("--note <text>", "Decision note recorded on governance reconciliation")
     .option("--no-restart-blocked", "Do not restart blocked managed flows")
     .option("--no-capabilities", "Skip capability inventory refresh")
@@ -1224,6 +1231,96 @@ export function registerStatusHealthSessionsCommands(program: Command) {
         | undefined;
       await runCommandWithRuntime(defaultRuntime, async () => {
         await autonomySuperviseCommand(
+          {
+            ...(Array.isArray(agentIds) && agentIds.length > 0 ? { agentIds } : {}),
+            json: Boolean(opts.json || parentOpts?.json),
+            sessionKey: (opts.sessionKey as string | undefined) ?? parentOpts?.sessionKey,
+            teamId: opts.teamId as string | undefined,
+            workspaceDirs: Array.isArray(opts.workspace) ? (opts.workspace as string[]) : undefined,
+            restartBlockedFlows: opts.restartBlocked as boolean | undefined,
+            governanceMode: opts.governanceMode as
+              | "none"
+              | "apply_safe"
+              | "force_apply_all"
+              | undefined,
+            decisionNote: opts.note as string | undefined,
+            includeCapabilityInventory: opts.capabilities as boolean | undefined,
+            includeGenesisPlan: opts.genesis as boolean | undefined,
+            recordHistory: opts.history as boolean | undefined,
+          },
+          defaultRuntime,
+        );
+      });
+    });
+
+  autonomyCmd
+    .command("bootstrap")
+    .description("Prepare the autonomy fleet for continuous operation and report readiness")
+    .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
+    .option("--team-id <id>", "Genesis team id to plan for")
+    .option("--workspace <dir>", "Workspace scope to operate on (repeatable)", collectOption, [])
+    .option("--governance-mode <mode>", "Governance mode (none, apply_safe, force_apply_all)")
+    .option("--note <text>", "Decision note recorded on governance reconciliation")
+    .option("--no-restart-blocked", "Do not restart blocked managed flows")
+    .option("--no-capabilities", "Skip capability inventory refresh")
+    .option("--no-genesis", "Skip genesis plan refresh")
+    .option("--no-history", "Do not persist bootstrap heal history")
+    .option("--json", "Output as JSON", false)
+    .option("--session-key <key>", "Override the owner session key for autonomy operations")
+    .action(async (agentIds, opts, command) => {
+      const parentOpts = command.parent?.opts() as
+        | {
+            json?: boolean;
+            sessionKey?: string;
+          }
+        | undefined;
+      await runCommandWithRuntime(defaultRuntime, async () => {
+        await autonomyBootstrapCommand(
+          {
+            ...(Array.isArray(agentIds) && agentIds.length > 0 ? { agentIds } : {}),
+            json: Boolean(opts.json || parentOpts?.json),
+            sessionKey: (opts.sessionKey as string | undefined) ?? parentOpts?.sessionKey,
+            teamId: opts.teamId as string | undefined,
+            workspaceDirs: Array.isArray(opts.workspace) ? (opts.workspace as string[]) : undefined,
+            restartBlockedFlows: opts.restartBlocked as boolean | undefined,
+            governanceMode: opts.governanceMode as
+              | "none"
+              | "apply_safe"
+              | "force_apply_all"
+              | undefined,
+            decisionNote: opts.note as string | undefined,
+            includeCapabilityInventory: opts.capabilities as boolean | undefined,
+            includeGenesisPlan: opts.genesis as boolean | undefined,
+            recordHistory: opts.history as boolean | undefined,
+          },
+          defaultRuntime,
+        );
+      });
+    });
+
+  autonomyCmd
+    .command("architecture")
+    .description("Verify strong-autonomy architecture readiness against the target document")
+    .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
+    .option("--team-id <id>", "Genesis team id to plan for")
+    .option("--workspace <dir>", "Workspace scope to operate on (repeatable)", collectOption, [])
+    .option("--governance-mode <mode>", "Governance mode (none, apply_safe, force_apply_all)")
+    .option("--note <text>", "Decision note recorded on governance reconciliation")
+    .option("--no-restart-blocked", "Do not restart blocked managed flows")
+    .option("--no-capabilities", "Skip capability inventory refresh")
+    .option("--no-genesis", "Skip genesis plan refresh")
+    .option("--no-history", "Do not persist architecture readiness heal history")
+    .option("--json", "Output as JSON", false)
+    .option("--session-key <key>", "Override the owner session key for autonomy operations")
+    .action(async (agentIds, opts, command) => {
+      const parentOpts = command.parent?.opts() as
+        | {
+            json?: boolean;
+            sessionKey?: string;
+          }
+        | undefined;
+      await runCommandWithRuntime(defaultRuntime, async () => {
+        await autonomyArchitectureReadinessCommand(
           {
             ...(Array.isArray(agentIds) && agentIds.length > 0 ? { agentIds } : {}),
             json: Boolean(opts.json || parentOpts?.json),
@@ -1315,7 +1412,10 @@ export function registerStatusHealthSessionsCommands(program: Command) {
   autonomyCmd
     .command("governance-reconcile")
     .description("Reconcile deterministic governance proposals through the autonomy runtime")
-    .argument("[agentIds...]", "Autonomy profile ids (defaults to founder, strategist, and librarian)")
+    .argument(
+      "[agentIds...]",
+      "Autonomy profile ids (defaults to founder, strategist, and librarian)",
+    )
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
     .option("--mode <mode>", "Reconcile mode (apply_safe, force_apply_all)")
     .option("--note <text>", "Decision note recorded on auto-approved proposals")
@@ -1375,7 +1475,12 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--goal <text>", "Override the flow goal")
     .option("--controller-id <id>", "Override the autonomy controller id")
     .option("--current-step <step>", "Override the current flow step")
-    .option("--workspace <dir>", "Workspace scope to bind into the managed flow (repeatable)", collectOption, [])
+    .option(
+      "--workspace <dir>",
+      "Workspace scope to bind into the managed flow (repeatable)",
+      collectOption,
+      [],
+    )
     .option("--notify <policy>", "Notify policy (done_only, state_changes, silent)")
     .option("--status <status>", "Initial flow status (queued, running)")
     .option("--session-key <key>", "Override the owner session key for the managed flow")
@@ -1496,9 +1601,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
             flowId: opts.flowId as string | undefined,
             replayPassed,
             qaPassed,
-            ...(normalizedAuditPassed !== undefined
-              ? { auditPassed: normalizedAuditPassed }
-              : {}),
+            ...(normalizedAuditPassed !== undefined ? { auditPassed: normalizedAuditPassed } : {}),
           },
           defaultRuntime,
         );
@@ -1539,7 +1642,12 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .description("Enable or update the scheduled autonomy loop for one profile")
     .argument("<agentId>", "Autonomy profile id")
     .option("--every-ms <ms>", "Loop interval in milliseconds")
-    .option("--workspace <dir>", "Workspace scope to attach to the loop (repeatable)", collectOption, [])
+    .option(
+      "--workspace <dir>",
+      "Workspace scope to attach to the loop (repeatable)",
+      collectOption,
+      [],
+    )
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .option("--json", "Output as JSON", false)
     .action(async (agentId, opts, command) => {
@@ -1567,7 +1675,12 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .command("reconcile")
     .description("Reconcile scheduled autonomy loops against the governed profile set")
     .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
-    .option("--workspace <dir>", "Workspace scope to reconcile against (repeatable)", collectOption, [])
+    .option(
+      "--workspace <dir>",
+      "Workspace scope to reconcile against (repeatable)",
+      collectOption,
+      [],
+    )
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .option("--json", "Output as JSON", false)
     .action(async (agentIds, opts, command) => {

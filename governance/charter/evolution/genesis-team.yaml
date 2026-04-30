@@ -23,6 +23,7 @@ members:
   - "tdd_developer"
   - "qa"
   - "publisher"
+  - "librarian"
 
 workflow:
   stages:
@@ -74,4 +75,3 @@ runtime_mapping:
     - "qa-runtime"
     - "src/tasks/task-registry.ts"
     - "src/security/audit.ts"
-

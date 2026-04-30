@@ -1,0 +1,2244 @@
+version: 1
+registry:
+  id: capability_asset_registry
+  title: Governed Capability Asset Registry
+  status: active
+  observedAt: 1777500000000
+assets:
+  - id: algorithm:executor_dispatch_runtime
+    kind: algorithm
+    status: ready
+    title: Executor Dispatch Algorithm
+    description: Structured execution algorithm for goal intake, task decomposition,
+      capability selection, escalation, and delivery.
+    layer: execution
+    ownerAgentId: executor
+    sourcePath: src/plugins/runtime/runtime-autonomy.ts
+    coverage:
+      - algorithm:capability_request
+      - algorithm:execution_plan
+      - algorithm:task_graph
+    dependencies:
+      - agent:executor
+      - memory:capability_asset_registry
+      - team:genesis_team
+    issues: []
+    installOptions: []
+  - id: algorithm:sandbox_universe_control
+    kind: algorithm
+    status: ready
+    title: Sandbox Universe Control Algorithm
+    description: Governed sandbox algorithm for replay planning, promotion gating,
+      and rollback-aware experiment control.
+    layer: governance
+    ownerAgentId: publisher
+    sourcePath: src/governance/sandbox-universe.ts
+    coverage:
+      - algorithm:promotion_gate
+      - algorithm:replay_runner
+      - algorithm:sandbox_controller
+    dependencies:
+      - memory:capability_asset_registry
+      - memory:organizational_charter
+      - strategy:evolution_policy
+    issues: []
+    installOptions: []
+  - id: memory:capability_asset_registry
+    kind: memory
+    status: ready
+    title: Capability Asset Registry Memory
+    description: Persistent governed memory for capability assets, coverage
+      metadata, and rollback references.
+    layer: capability
+    ownerAgentId: librarian
+    sourcePath: capability/asset-registry.yaml
+    coverage:
+      - memory:capability_assets
+      - memory:coverage
+      - memory:rollback_reference
+    dependencies:
+      - governance/charter/capability
+      - librarian
+    issues: []
+    installOptions: []
+  - id: memory:organizational_charter
+    kind: memory
+    status: ready
+    title: Organizational Charter Memory
+    description: Persistent institutional memory for sovereign boundaries, charter
+      artifacts, and role blueprints.
+    layer: governance
+    ownerAgentId: founder
+    sourcePath: constitution.yaml
+    coverage:
+      - memory:artifact_registry
+      - memory:charter
+      - memory:sovereign_boundaries
+    dependencies:
+      - policy:evolution
+      - policy:sovereignty
+    issues: []
+    installOptions: []
+  - id: memory:audit_stream
+    kind: memory
+    status: ready
+    title: Audit Stream Memory
+    description: Persistent machine-verifiable fact stream for governance,
+      autonomy, sandbox, task, task-flow, and system events.
+    layer: api_communication
+    ownerAgentId: sovereignty_auditor
+    sourcePath: src/infra/audit-stream.ts
+    coverage:
+      - memory:audit_facts
+      - memory:event_trace
+      - memory:forensic_reference
+      - communication:audit_stream
+    dependencies:
+      - src/infra/local-event-bus.ts
+      - governance/charter/policies/sovereignty.yaml
+      - sovereignty_auditor
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:acpx::G:\项目\-\extensions\acpx
+    kind: plugin
+    status: ready
+    title: ACPX Runtime
+    description: Embedded ACP runtime backend with plugin-owned session and
+      transport management.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\acpx\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - skill:./skills
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:active-memory::G:\项目\-\extensions\active-memory
+    kind: plugin
+    status: blocked
+    title: Active Memory
+    description: Runs a bounded blocking memory sub-agent before eligible
+      conversational replies and injects relevant memory into prompt context.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\active-memory\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:alibaba::G:\项目\-\extensions\alibaba
+    kind: plugin
+    status: ready
+    title: "@openclaw/alibaba-provider"
+    description: OpenClaw Alibaba Model Studio video provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\alibaba\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - video:alibaba
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:amazon-bedrock-mantle::G:\项目\-\extensions\amazon-bedrock-mantle
+    kind: plugin
+    status: ready
+    title: "@openclaw/amazon-bedrock-mantle-provider"
+    description: OpenClaw Amazon Bedrock Mantle (OpenAI-compatible) provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\amazon-bedrock-mantle\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:amazon-bedrock-mantle
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:amazon-bedrock::G:\项目\-\extensions\amazon-bedrock
+    kind: plugin
+    status: ready
+    title: "@openclaw/amazon-bedrock-provider"
+    description: OpenClaw Amazon Bedrock provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\amazon-bedrock\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - memory:bedrock
+      - provider:amazon-bedrock
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:anthropic-vertex::G:\项目\-\extensions\anthropic-vertex
+    kind: plugin
+    status: ready
+    title: "@openclaw/anthropic-vertex-provider"
+    description: OpenClaw Anthropic Vertex provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\anthropic-vertex\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:anthropic-vertex
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:anthropic::G:\项目\-\extensions\anthropic
+    kind: plugin
+    status: ready
+    title: "@openclaw/anthropic-provider"
+    description: OpenClaw Anthropic provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\anthropic\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - backend:claude-cli
+      - media:anthropic
+      - provider:anthropic
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:arcee::G:\项目\-\extensions\arcee
+    kind: plugin
+    status: ready
+    title: "@openclaw/arcee-provider"
+    description: OpenClaw Arcee provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\arcee\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:arcee
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:bluebubbles::G:\项目\-\extensions\bluebubbles
+    kind: plugin
+    status: blocked
+    title: "@openclaw/bluebubbles"
+    description: OpenClaw BlueBubbles channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\bluebubbles\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:bluebubbles
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:brave::G:\项目\-\extensions\brave
+    kind: plugin
+    status: blocked
+    title: "@openclaw/brave-plugin"
+    description: OpenClaw Brave plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\brave\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - web_search:brave
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:browser::G:\项目\-\extensions\browser
+    kind: plugin
+    status: ready
+    title: "@openclaw/browser-plugin"
+    description: OpenClaw browser tool plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\browser\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage: []
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:byteplus::G:\项目\-\extensions\byteplus
+    kind: plugin
+    status: ready
+    title: "@openclaw/byteplus-provider"
+    description: OpenClaw BytePlus provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\byteplus\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:byteplus
+      - provider:byteplus-plan
+      - video:byteplus
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:chutes::G:\项目\-\extensions\chutes
+    kind: plugin
+    status: ready
+    title: "@openclaw/chutes-provider"
+    description: OpenClaw Chutes.ai provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\chutes\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:chutes
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:cloudflare-ai-gateway::G:\项目\-\extensions\cloudflare-ai-gateway
+    kind: plugin
+    status: ready
+    title: "@openclaw/cloudflare-ai-gateway-provider"
+    description: OpenClaw Cloudflare AI Gateway provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\cloudflare-ai-gateway\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:cloudflare-ai-gateway
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:codex::G:\项目\-\extensions\codex
+    kind: plugin
+    status: blocked
+    title: Codex
+    description: Codex app-server harness and Codex-managed GPT model catalog.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\codex\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - provider:codex
+    dependencies:
+      - harness:codex
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:comfy::G:\项目\-\extensions\comfy
+    kind: plugin
+    status: ready
+    title: "@openclaw/comfy-provider"
+    description: OpenClaw ComfyUI provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\comfy\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - image:comfy
+      - music:comfy
+      - provider:comfy
+      - video:comfy
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:copilot-proxy::G:\项目\-\extensions\copilot-proxy
+    kind: plugin
+    status: ready
+    title: "@openclaw/copilot-proxy"
+    description: OpenClaw Copilot Proxy provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\copilot-proxy\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:copilot-proxy
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:deepgram::G:\项目\-\extensions\deepgram
+    kind: plugin
+    status: ready
+    title: "@openclaw/deepgram-provider"
+    description: OpenClaw Deepgram media-understanding provider
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\deepgram\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - media:deepgram
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:deepseek::G:\项目\-\extensions\deepseek
+    kind: plugin
+    status: ready
+    title: "@openclaw/deepseek-provider"
+    description: OpenClaw DeepSeek provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\deepseek\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:deepseek
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:device-pair::G:\项目\-\extensions\device-pair
+    kind: plugin
+    status: ready
+    title: Device Pairing
+    description: Generate setup codes and approve device pairing requests.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\device-pair\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage: []
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:diagnostics-otel::G:\项目\-\extensions\diagnostics-otel
+    kind: plugin
+    status: blocked
+    title: "@openclaw/diagnostics-otel"
+    description: OpenClaw diagnostics OpenTelemetry exporter
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\diagnostics-otel\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:diffs::G:\项目\-\extensions\diffs
+    kind: plugin
+    status: blocked
+    title: Diffs
+    description: Read-only diff viewer and file renderer for agents.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\diffs\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - skill:./skills
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:discord::G:\项目\-\extensions\discord
+    kind: plugin
+    status: blocked
+    title: "@openclaw/discord"
+    description: OpenClaw Discord channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\discord\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:discord
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:duckduckgo::G:\项目\-\extensions\duckduckgo
+    kind: plugin
+    status: blocked
+    title: "@openclaw/duckduckgo-plugin"
+    description: OpenClaw DuckDuckGo plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\duckduckgo\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - web_search:duckduckgo
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:elevenlabs::G:\项目\-\extensions\elevenlabs
+    kind: plugin
+    status: ready
+    title: "@openclaw/elevenlabs-speech"
+    description: OpenClaw ElevenLabs speech plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\elevenlabs\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - speech:elevenlabs
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:exa::G:\项目\-\extensions\exa
+    kind: plugin
+    status: blocked
+    title: "@openclaw/exa-plugin"
+    description: OpenClaw Exa plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\exa\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - web_search:exa
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:fal::G:\项目\-\extensions\fal
+    kind: plugin
+    status: ready
+    title: "@openclaw/fal-provider"
+    description: OpenClaw fal provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\fal\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - image:fal
+      - provider:fal
+      - video:fal
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:feishu::G:\项目\-\extensions\feishu
+    kind: plugin
+    status: blocked
+    title: "@openclaw/feishu"
+    description: OpenClaw Feishu/Lark channel plugin (community maintained by @m1heng)
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\feishu\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:feishu
+      - skill:./skills
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:firecrawl::G:\项目\-\extensions\firecrawl
+    kind: plugin
+    status: blocked
+    title: "@openclaw/firecrawl-plugin"
+    description: OpenClaw Firecrawl plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\firecrawl\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - tool:firecrawl_scrape
+      - tool:firecrawl_search
+      - web_fetch:firecrawl
+      - web_search:firecrawl
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:fireworks::G:\项目\-\extensions\fireworks
+    kind: plugin
+    status: ready
+    title: "@openclaw/fireworks-provider"
+    description: OpenClaw Fireworks provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\fireworks\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:fireworks
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:github-copilot::G:\项目\-\extensions\github-copilot
+    kind: plugin
+    status: ready
+    title: "@openclaw/github-copilot-provider"
+    description: OpenClaw GitHub Copilot provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\github-copilot\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - memory:github-copilot
+      - provider:github-copilot
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:google::G:\项目\-\extensions\google
+    kind: plugin
+    status: ready
+    title: "@openclaw/google-plugin"
+    description: OpenClaw Google plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\google\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - backend:google-gemini-cli
+      - image:google
+      - media:google
+      - memory:gemini
+      - music:google
+      - provider:google
+      - provider:google-gemini-cli
+      - speech:google
+      - video:google
+      - web_search:gemini
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:googlechat::G:\项目\-\extensions\googlechat
+    kind: plugin
+    status: blocked
+    title: "@openclaw/googlechat"
+    description: OpenClaw Google Chat channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\googlechat\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:googlechat
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:groq::G:\项目\-\extensions\groq
+    kind: plugin
+    status: ready
+    title: "@openclaw/groq-provider"
+    description: OpenClaw Groq media-understanding provider
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\groq\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - media:groq
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:huggingface::G:\项目\-\extensions\huggingface
+    kind: plugin
+    status: ready
+    title: "@openclaw/huggingface-provider"
+    description: OpenClaw Hugging Face provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\huggingface\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:huggingface
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:imessage::G:\项目\-\extensions\imessage
+    kind: plugin
+    status: blocked
+    title: "@openclaw/imessage"
+    description: OpenClaw iMessage channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\imessage\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:imessage
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:irc::G:\项目\-\extensions\irc
+    kind: plugin
+    status: blocked
+    title: "@openclaw/irc"
+    description: OpenClaw IRC channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\irc\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:irc
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:kilocode::G:\项目\-\extensions\kilocode
+    kind: plugin
+    status: ready
+    title: "@openclaw/kilocode-provider"
+    description: OpenClaw Kilo Gateway provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\kilocode\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:kilocode
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:kimi::G:\项目\-\extensions\kimi-coding
+    kind: plugin
+    status: ready
+    title: "@openclaw/kimi-provider"
+    description: OpenClaw Kimi provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\kimi-coding\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:kimi
+      - provider:kimi-coding
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:line::G:\项目\-\extensions\line
+    kind: plugin
+    status: blocked
+    title: "@openclaw/line"
+    description: OpenClaw LINE channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\line\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:line
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:litellm::G:\项目\-\extensions\litellm
+    kind: plugin
+    status: ready
+    title: "@openclaw/litellm-provider"
+    description: OpenClaw LiteLLM provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\litellm\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:litellm
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:llm-task::G:\项目\-\extensions\llm-task
+    kind: plugin
+    status: blocked
+    title: LLM Task
+    description: Generic JSON-only LLM tool for structured tasks callable from workflows.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\llm-task\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:lmstudio::G:\项目\-\extensions\lmstudio
+    kind: plugin
+    status: ready
+    title: "@openclaw/lmstudio-provider"
+    description: OpenClaw LM Studio provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\lmstudio\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - memory:lmstudio
+      - provider:lmstudio
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:lobster::G:\项目\-\extensions\lobster
+    kind: plugin
+    status: blocked
+    title: Lobster
+    description: Typed workflow tool with resumable approvals.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\lobster\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:matrix::G:\项目\-\extensions\matrix
+    kind: plugin
+    status: blocked
+    title: "@openclaw/matrix"
+    description: OpenClaw Matrix channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\matrix\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:matrix
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:mattermost::G:\项目\-\extensions\mattermost
+    kind: plugin
+    status: blocked
+    title: "@openclaw/mattermost"
+    description: OpenClaw Mattermost channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\mattermost\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:mattermost
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:memory-core::G:\项目\-\extensions\memory-core
+    kind: plugin
+    status: ready
+    title: "@openclaw/memory-core"
+    description: OpenClaw core memory search plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\memory-core\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: true
+      source: explicit
+      reason: selected memory slot
+    coverage: []
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:memory-lancedb::G:\项目\-\extensions\memory-lancedb
+    kind: plugin
+    status: blocked
+    title: "@openclaw/memory-lancedb"
+    description: OpenClaw LanceDB-backed long-term memory plugin with auto-recall/capture
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\memory-lancedb\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:memory-wiki::G:\项目\-\extensions\memory-wiki
+    kind: plugin
+    status: blocked
+    title: Memory Wiki
+    description: Persistent wiki compiler and Obsidian-friendly knowledge vault for
+      OpenClaw.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\memory-wiki\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - skill:./skills
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:microsoft-foundry::G:\项目\-\extensions\microsoft-foundry
+    kind: plugin
+    status: ready
+    title: "@openclaw/microsoft-foundry"
+    description: OpenClaw Microsoft Foundry provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\microsoft-foundry\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:microsoft-foundry
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:microsoft::G:\项目\-\extensions\microsoft
+    kind: plugin
+    status: ready
+    title: "@openclaw/microsoft-speech"
+    description: OpenClaw Microsoft speech plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\microsoft\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - speech:microsoft
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:minimax::G:\项目\-\extensions\minimax
+    kind: plugin
+    status: ready
+    title: "@openclaw/minimax-provider"
+    description: OpenClaw MiniMax provider and OAuth plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\minimax\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - image:minimax
+      - image:minimax-portal
+      - media:minimax
+      - media:minimax-portal
+      - music:minimax
+      - provider:minimax
+      - provider:minimax-portal
+      - speech:minimax
+      - video:minimax
+      - web_search:minimax
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:mistral::G:\项目\-\extensions\mistral
+    kind: plugin
+    status: ready
+    title: "@openclaw/mistral-provider"
+    description: OpenClaw Mistral provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\mistral\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - media:mistral
+      - memory:mistral
+      - provider:mistral
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:moonshot::G:\项目\-\extensions\moonshot
+    kind: plugin
+    status: ready
+    title: "@openclaw/moonshot-provider"
+    description: OpenClaw Moonshot provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\moonshot\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - media:moonshot
+      - provider:moonshot
+      - web_search:kimi
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:msteams::G:\项目\-\extensions\msteams
+    kind: plugin
+    status: blocked
+    title: "@openclaw/msteams"
+    description: OpenClaw Microsoft Teams channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\msteams\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:msteams
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:nextcloud-talk::G:\项目\-\extensions\nextcloud-talk
+    kind: plugin
+    status: blocked
+    title: "@openclaw/nextcloud-talk"
+    description: OpenClaw Nextcloud Talk channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\nextcloud-talk\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:nextcloud-talk
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:nostr::G:\项目\-\extensions\nostr
+    kind: plugin
+    status: blocked
+    title: "@openclaw/nostr"
+    description: OpenClaw Nostr channel plugin for NIP-04 encrypted DMs
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\nostr\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:nostr
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:nvidia::G:\项目\-\extensions\nvidia
+    kind: plugin
+    status: ready
+    title: "@openclaw/nvidia-provider"
+    description: OpenClaw NVIDIA provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\nvidia\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:nvidia
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:ollama::G:\项目\-\extensions\ollama
+    kind: plugin
+    status: ready
+    title: "@openclaw/ollama-provider"
+    description: OpenClaw Ollama provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\ollama\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - memory:ollama
+      - provider:ollama
+      - web_search:ollama
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:open-prose::G:\项目\-\extensions\open-prose
+    kind: plugin
+    status: blocked
+    title: OpenProse
+    description: OpenProse VM skill pack with a /prose slash command.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\open-prose\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - skill:./skills
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:openai::G:\项目\-\extensions\openai
+    kind: plugin
+    status: ready
+    title: "@openclaw/openai-provider"
+    description: OpenClaw OpenAI provider plugins
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\openai\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - backend:codex-cli
+      - image:openai
+      - media:openai
+      - media:openai-codex
+      - memory:openai
+      - provider:openai
+      - provider:openai-codex
+      - rt_transcription:openai
+      - rt_voice:openai
+      - speech:openai
+      - video:openai
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:opencode-go::G:\项目\-\extensions\opencode-go
+    kind: plugin
+    status: ready
+    title: "@openclaw/opencode-go-provider"
+    description: OpenClaw OpenCode Go provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\opencode-go\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:opencode-go
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:opencode::G:\项目\-\extensions\opencode
+    kind: plugin
+    status: ready
+    title: "@openclaw/opencode-provider"
+    description: OpenClaw OpenCode Zen provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\opencode\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:opencode
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:openrouter::G:\项目\-\extensions\openrouter
+    kind: plugin
+    status: ready
+    title: "@openclaw/openrouter-provider"
+    description: OpenClaw OpenRouter provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\openrouter\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - media:openrouter
+      - provider:openrouter
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:openshell::G:\项目\-\extensions\openshell
+    kind: plugin
+    status: blocked
+    title: OpenShell Sandbox
+    description: Sandbox backend powered by OpenShell with mirrored local workspaces
+      and SSH-based command execution.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\openshell\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:perplexity::G:\项目\-\extensions\perplexity
+    kind: plugin
+    status: blocked
+    title: "@openclaw/perplexity-plugin"
+    description: OpenClaw Perplexity plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\perplexity\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - web_search:perplexity
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:phone-control::G:\项目\-\extensions\phone-control
+    kind: plugin
+    status: ready
+    title: Phone Control
+    description: Arm/disarm high-risk phone node commands (camera/screen/writes)
+      with an optional auto-expiry.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\phone-control\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage: []
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:qa-channel::G:\项目\-\extensions\qa-channel
+    kind: plugin
+    status: blocked
+    title: "@openclaw/qa-channel"
+    description: OpenClaw QA synthetic channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\qa-channel\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:qa-channel
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:qa-lab::G:\项目\-\extensions\qa-lab
+    kind: plugin
+    status: blocked
+    title: "@openclaw/qa-lab"
+    description: OpenClaw QA lab plugin with private debugger UI and scenario runner
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\qa-lab\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:qa-matrix::G:\项目\-\extensions\qa-matrix
+    kind: plugin
+    status: blocked
+    title: QA Matrix
+    description: Matrix QA transport runner and substrate
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\qa-matrix\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:qianfan::G:\项目\-\extensions\qianfan
+    kind: plugin
+    status: ready
+    title: "@openclaw/qianfan-provider"
+    description: OpenClaw Qianfan provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\qianfan\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:qianfan
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:qqbot::G:\项目\-\extensions\qqbot
+    kind: plugin
+    status: blocked
+    title: "@openclaw/qqbot"
+    description: OpenClaw QQ Bot channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\qqbot\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:qqbot
+      - skill:./skills
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:qwen::G:\项目\-\extensions\qwen
+    kind: plugin
+    status: ready
+    title: "@openclaw/qwen-provider"
+    description: OpenClaw Qwen Cloud provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\qwen\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - media:qwen
+      - provider:qwen
+      - video:qwen
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:runway::G:\项目\-\extensions\runway
+    kind: plugin
+    status: ready
+    title: "@openclaw/runway-provider"
+    description: OpenClaw Runway video provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\runway\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - video:runway
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:searxng::G:\项目\-\extensions\searxng
+    kind: plugin
+    status: blocked
+    title: "@openclaw/searxng-plugin"
+    description: OpenClaw SearXNG plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\searxng\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - web_search:searxng
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:sglang::G:\项目\-\extensions\sglang
+    kind: plugin
+    status: ready
+    title: "@openclaw/sglang-provider"
+    description: OpenClaw SGLang provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\sglang\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:sglang
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:signal::G:\项目\-\extensions\signal
+    kind: plugin
+    status: blocked
+    title: "@openclaw/signal"
+    description: OpenClaw Signal channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\signal\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:signal
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:slack::G:\项目\-\extensions\slack
+    kind: plugin
+    status: blocked
+    title: "@openclaw/slack"
+    description: OpenClaw Slack channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\slack\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:slack
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:stepfun::G:\项目\-\extensions\stepfun
+    kind: plugin
+    status: ready
+    title: "@openclaw/stepfun-provider"
+    description: OpenClaw StepFun provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\stepfun\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:stepfun
+      - provider:stepfun-plan
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:synology-chat::G:\项目\-\extensions\synology-chat
+    kind: plugin
+    status: blocked
+    title: "@openclaw/synology-chat"
+    description: Synology Chat channel plugin for OpenClaw
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\synology-chat\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:synology-chat
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:synthetic::G:\项目\-\extensions\synthetic
+    kind: plugin
+    status: ready
+    title: "@openclaw/synthetic-provider"
+    description: OpenClaw Synthetic provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\synthetic\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:synthetic
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:talk-voice::G:\项目\-\extensions\talk-voice
+    kind: plugin
+    status: ready
+    title: Talk Voice
+    description: Manage Talk voice selection (list/set).
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\talk-voice\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage: []
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:tavily::G:\项目\-\extensions\tavily
+    kind: plugin
+    status: blocked
+    title: "@openclaw/tavily-plugin"
+    description: OpenClaw Tavily plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\tavily\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - skill:./skills
+      - tool:tavily_extract
+      - tool:tavily_search
+      - web_search:tavily
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:telegram::G:\项目\-\extensions\telegram
+    kind: plugin
+    status: blocked
+    title: "@openclaw/telegram"
+    description: OpenClaw Telegram channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\telegram\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:telegram
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:thread-ownership::G:\项目\-\extensions\thread-ownership
+    kind: plugin
+    status: blocked
+    title: Thread Ownership
+    description: Prevents multiple agents from responding in the same Slack thread.
+      Uses HTTP calls to the slack-forwarder ownership API.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\thread-ownership\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:tlon::G:\项目\-\extensions\tlon
+    kind: plugin
+    status: blocked
+    title: "@openclaw/tlon"
+    description: OpenClaw Tlon/Urbit channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\tlon\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:tlon
+      - skill:node_modules/@tloncorp/tlon-skill
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:together::G:\项目\-\extensions\together
+    kind: plugin
+    status: ready
+    title: "@openclaw/together-provider"
+    description: OpenClaw Together provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\together\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:together
+      - video:together
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:twitch::G:\项目\-\extensions\twitch
+    kind: plugin
+    status: blocked
+    title: "@openclaw/twitch"
+    description: OpenClaw Twitch channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\twitch\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:twitch
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:venice::G:\项目\-\extensions\venice
+    kind: plugin
+    status: ready
+    title: "@openclaw/venice-provider"
+    description: OpenClaw Venice provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\venice\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:venice
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:vercel-ai-gateway::G:\项目\-\extensions\vercel-ai-gateway
+    kind: plugin
+    status: ready
+    title: "@openclaw/vercel-ai-gateway-provider"
+    description: OpenClaw Vercel AI Gateway provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\vercel-ai-gateway\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:vercel-ai-gateway
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:vllm::G:\项目\-\extensions\vllm
+    kind: plugin
+    status: ready
+    title: "@openclaw/vllm-provider"
+    description: OpenClaw vLLM provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\vllm\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:vllm
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:voice-call::G:\项目\-\extensions\voice-call
+    kind: plugin
+    status: blocked
+    title: "@openclaw/voice-call"
+    description: OpenClaw voice-call plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\voice-call\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:volcengine::G:\项目\-\extensions\volcengine
+    kind: plugin
+    status: ready
+    title: "@openclaw/volcengine-provider"
+    description: OpenClaw Volcengine provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\volcengine\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:volcengine
+      - provider:volcengine-plan
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:voyage::G:\项目\-\extensions\voyage
+    kind: plugin
+    status: ready
+    title: "@openclaw/voyage-provider"
+    description: OpenClaw Voyage embedding provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\voyage\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - memory:voyage
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:vydra::G:\项目\-\extensions\vydra
+    kind: plugin
+    status: ready
+    title: "@openclaw/vydra-provider"
+    description: OpenClaw Vydra media provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\vydra\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - image:vydra
+      - provider:vydra
+      - speech:vydra
+      - video:vydra
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:webhooks::G:\项目\-\extensions\webhooks
+    kind: plugin
+    status: blocked
+    title: Webhooks
+    description: Authenticated inbound webhooks that bind external automation to
+      OpenClaw TaskFlows.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\webhooks\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage: []
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:whatsapp::G:\项目\-\extensions\whatsapp
+    kind: plugin
+    status: blocked
+    title: "@openclaw/whatsapp"
+    description: OpenClaw WhatsApp channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\whatsapp\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:whatsapp
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:xai::G:\项目\-\extensions\xai
+    kind: plugin
+    status: ready
+    title: "@openclaw/xai-plugin"
+    description: OpenClaw xAI plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\xai\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:xai
+      - tool:code_execution
+      - tool:x_search
+      - video:xai
+      - web_search:grok
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:xiaomi::G:\项目\-\extensions\xiaomi
+    kind: plugin
+    status: ready
+    title: "@openclaw/xiaomi-provider"
+    description: OpenClaw Xiaomi provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\xiaomi\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - provider:xiaomi
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:zai::G:\项目\-\extensions\zai
+    kind: plugin
+    status: ready
+    title: "@openclaw/zai-provider"
+    description: OpenClaw Z.AI provider plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\zai\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: true
+      activated: true
+      explicitlyEnabled: false
+      source: default
+      reason: bundled default enablement
+    coverage:
+      - media:zai
+      - provider:zai
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: plugin:bundled:zalo::G:\项目\-\extensions\zalo
+    kind: plugin
+    status: blocked
+    title: "@openclaw/zalo"
+    description: OpenClaw Zalo channel plugin
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\zalo\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:zalo
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: plugin:bundled:zalouser::G:\项目\-\extensions\zalouser
+    kind: plugin
+    status: blocked
+    title: "@openclaw/zalouser"
+    description: OpenClaw Zalo Personal Account plugin via native zca-js integration
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\extensions\zalouser\openclaw.plugin.json
+    origin: bundled
+    activation:
+      enabled: false
+      activated: false
+      explicitlyEnabled: false
+      source: disabled
+      reason: bundled (disabled by default)
+    coverage:
+      - channel:zalouser
+    dependencies: []
+    issues:
+      - bundled (disabled by default)
+    installOptions: []
+  - id: skill:C:\Users\30676\.openclaw\workspace:openclaw-autonomy-governance
+    kind: skill
+    status: ready
+    title: openclaw-autonomy-governance
+    description: Governed workflow for maintaining OpenClaw autonomous governance,
+      capability assets, Genesis handoffs, sandbox validation, and promotion
+      evidence.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\skills\openclaw-autonomy-governance\SKILL.md
+    workspaceDir: C:\Users\30676\.openclaw\workspace
+    coverage:
+      - bundled
+      - skill_key:openclaw-autonomy-governance
+      - source:openclaw-bundled
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: skill:G:\项目\-:openclaw-autonomy-governance
+    kind: skill
+    status: ready
+    title: openclaw-autonomy-governance
+    description: Governed workflow for maintaining OpenClaw autonomous governance,
+      capability assets, Genesis handoffs, sandbox validation, and promotion
+      evidence.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\skills\openclaw-autonomy-governance\SKILL.md
+    workspaceDir: G:\项目\-
+    coverage:
+      - skill_key:openclaw-autonomy-governance
+      - source:openclaw-workspace
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: strategy:evolution_policy
+    kind: strategy
+    status: ready
+    title: Evolution Promotion Strategy
+    description: Governed strategy contract for promotion stages, validation order,
+      and evolution pacing.
+    layer: evolution
+    ownerAgentId: strategist
+    sourcePath: policies/evolution-policy.yaml
+    coverage:
+      - strategy:promotion_decision
+      - strategy:promotion_pipeline
+      - strategy:sandbox_validation
+    dependencies:
+      - founder
+      - genesis_team
+      - strategist
+    issues: []
+    installOptions: []
+  - id: strategy:api_communication_fabric
+    kind: strategy
+    status: ready
+    title: API and Communication Fabric Strategy
+    description: Runtime strategy that binds gateway entry points, ACP/session
+      control, local event bus facts, cron-backed autonomy loops, and audit
+      records into a governed communication fabric.
+    layer: api_communication
+    ownerAgentId: strategist
+    sourcePath: src/cli/program/register.status-health-sessions.ts
+    coverage:
+      - strategy:api_communication
+      - communication:gateway_fabric
+      - communication:acp_control_plane
+      - communication:event_bus
+      - communication:audit_stream
+    dependencies:
+      - src/infra/local-event-bus.ts
+      - src/infra/audit-stream.ts
+      - src/cron/service.ts
+      - src/plugins/runtime/runtime-autonomy.ts
+    issues: []
+    installOptions: []
+  - id: strategy:genesis_handoff
+    kind: strategy
+    status: attention
+    title: Genesis Team Handoff Strategy
+    description: Stage-by-stage handoff strategy for governed capability creation,
+      validation, promotion, and registration.
+    layer: evolution
+    ownerAgentId: strategist
+    sourcePath: evolution/genesis-team.yaml
+    coverage:
+      - strategy:gap_detection
+      - strategy:genesis_handoffs
+      - strategy:promotion_or_rollback
+    dependencies:
+      - agent:archaeologist
+      - agent:librarian
+      - agent:publisher
+      - agent:qa
+      - agent:sentinel
+      - agent:tdd_developer
+      - team:genesis_team
+    issues: []
+    installOptions: []

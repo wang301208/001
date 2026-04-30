@@ -1,11 +1,11 @@
-import type { AgentGovernanceRuntimeContract } from "../../governance/runtime-contract.js";
+import type { CronJob } from "../../cron/types.js";
 import type { GovernanceAutonomyProposalSynthesisResult } from "../../governance/autonomy-proposals.js";
-import type { GovernanceProposalsReconcileResult } from "../../governance/control-plane.js";
 import type {
   GovernanceCapabilityInventoryResult,
   GovernanceGenesisPlanResult,
 } from "../../governance/capability-registry.js";
-import type { CronJob } from "../../cron/types.js";
+import type { GovernanceProposalsReconcileResult } from "../../governance/control-plane.js";
+import type { AgentGovernanceRuntimeContract } from "../../governance/runtime-contract.js";
 import type {
   SandboxUniverseControllerState,
   SandboxUniversePromotionGateDecision,
@@ -414,6 +414,84 @@ export type AutonomySupervisorResult = {
   summary: AutonomySupervisorSummary;
 };
 
+export type AutonomyBootstrapParams = AutonomySupervisorParams;
+
+export type AutonomyBootstrapReadiness = {
+  ready: boolean;
+  profileReadyCount: number;
+  profileNotReadyCount: number;
+  missingLoopProfiles: number;
+  driftProfiles: number;
+  idleProfiles: number;
+  activeFlows: number;
+  capabilityGapCount: number;
+  criticalCapabilityGapCount: number;
+  genesisBlockedStageCount: number;
+  blockers: string[];
+};
+
+export type AutonomyBootstrapResult = {
+  observedAt: number;
+  sessionKey: string;
+  supervised: AutonomySupervisorResult;
+  readiness: AutonomyBootstrapReadiness;
+};
+
+export type AutonomyArchitectureReadinessParams = AutonomyBootstrapParams;
+
+export type AutonomyArchitectureReadinessStatus = "ready" | "attention" | "blocked";
+
+export type AutonomyArchitectureReadinessCheck = {
+  id: string;
+  title: string;
+  status: AutonomyArchitectureReadinessStatus;
+  evidence: string[];
+  blockers: string[];
+};
+
+export type AutonomyArchitectureReadinessLayerId =
+  | "governance"
+  | "evolution"
+  | "capability"
+  | "execution"
+  | "api_communication"
+  | "interaction";
+
+export type AutonomyArchitectureReadinessLayer = AutonomyArchitectureReadinessCheck & {
+  id: AutonomyArchitectureReadinessLayerId;
+};
+
+export type AutonomyArchitectureReadinessLoopId = "value" | "maintenance" | "evolution";
+
+export type AutonomyArchitectureReadinessLoop = AutonomyArchitectureReadinessCheck & {
+  id: AutonomyArchitectureReadinessLoopId;
+};
+
+export type AutonomyArchitectureReadinessSummary = {
+  ready: boolean;
+  status: AutonomyArchitectureReadinessStatus;
+  readyChecks: number;
+  attentionChecks: number;
+  blockedChecks: number;
+  totalChecks: number;
+  blockers: string[];
+};
+
+export type AutonomyArchitectureReadinessResult = {
+  observedAt: number;
+  sessionKey: string;
+  charterDir: string;
+  workspaceDirs: string[];
+  summary: AutonomyArchitectureReadinessSummary;
+  layers: AutonomyArchitectureReadinessLayer[];
+  loops: AutonomyArchitectureReadinessLoop[];
+  sandboxUniverse: AutonomyArchitectureReadinessCheck;
+  algorithmEvolutionProtocol: AutonomyArchitectureReadinessCheck;
+  autonomousDevelopment: AutonomyArchitectureReadinessCheck;
+  continuousRuntime: AutonomyArchitectureReadinessCheck;
+  bootstrapped: AutonomyBootstrapResult;
+};
+
 export type AutonomyLoopRemoveParams = {
   agentId: string;
   jobId?: string;
@@ -445,9 +523,7 @@ export type BoundAutonomyRuntime = {
   ) => Promise<AutonomySubmitSandboxReplayResult>;
   showLoopJob: (params: AutonomyLoopShowParams) => Promise<AutonomyLoopShowResult>;
   upsertLoopJob: (params: AutonomyLoopUpsertParams) => Promise<AutonomyLoopUpsertResult>;
-  reconcileLoopJobs: (
-    params: AutonomyLoopReconcileParams,
-  ) => Promise<AutonomyLoopReconcileResult>;
+  reconcileLoopJobs: (params: AutonomyLoopReconcileParams) => Promise<AutonomyLoopReconcileResult>;
   getFleetStatus: (params: AutonomyFleetStatusParams) => Promise<AutonomyFleetStatusResult>;
   getFleetHistory: (params: AutonomyFleetHistoryParams) => Promise<AutonomyFleetHistoryResult>;
   getCapabilityInventory: (
@@ -462,6 +538,10 @@ export type BoundAutonomyRuntime = {
   ) => Promise<AutonomyGovernanceReconcileResult>;
   healFleet: (params: AutonomyFleetHealParams) => Promise<AutonomyFleetHealResult>;
   superviseFleet: (params: AutonomySupervisorParams) => Promise<AutonomySupervisorResult>;
+  bootstrapFleet: (params: AutonomyBootstrapParams) => Promise<AutonomyBootstrapResult>;
+  getArchitectureReadiness: (
+    params: AutonomyArchitectureReadinessParams,
+  ) => Promise<AutonomyArchitectureReadinessResult>;
   removeLoopJob: (params: AutonomyLoopRemoveParams) => Promise<AutonomyLoopRemoveResult>;
 };
 

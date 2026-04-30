@@ -1,3 +1,4 @@
+import path from "node:path";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { listAgentWorkspaceDirs } from "../agents/workspace-dirs.js";
 import { getRuntimeConfigSnapshot, loadConfig } from "../config/config.js";
@@ -13,6 +14,11 @@ import {
 } from "../plugins/manifest-registry.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import {
+  planGovernanceCapabilityAssetRegistrySync,
+  type GovernanceCapabilityAssetRecord,
+  type GovernanceCapabilityAssetRegistrySyncResult,
+} from "./capability-asset-registry.js";
+import {
   loadGovernanceCharterOrganization,
   type GovernanceCharterAgentBlueprint,
   type GovernanceCharterTeamBlueprint,
@@ -22,10 +28,6 @@ import {
   resolveGovernanceEnforcementState,
   type GovernanceEnforcementState,
 } from "./charter-runtime.js";
-import {
-  planGovernanceCapabilityAssetRegistrySync,
-  type GovernanceCapabilityAssetRegistrySyncResult,
-} from "./capability-asset-registry.js";
 import {
   resolveAgentGovernanceRuntimeContract,
   type AgentGovernanceRuntimeContract,
@@ -250,7 +252,10 @@ function sortEntry(
   return left.id.localeCompare(right.id);
 }
 
-function sortGapSeverity(left: GovernanceCapabilityGapSeverity, right: GovernanceCapabilityGapSeverity) {
+function sortGapSeverity(
+  left: GovernanceCapabilityGapSeverity,
+  right: GovernanceCapabilityGapSeverity,
+) {
   const order: GovernanceCapabilityGapSeverity[] = ["critical", "warning", "info"];
   return order.indexOf(left) - order.indexOf(right);
 }
@@ -262,18 +267,31 @@ function listObservedWorkspaceDirs(cfg: OpenClawConfig, explicit?: string[]): st
   );
 }
 
+function resolveRepoRootFromCharterDir(charterDir: string): string {
+  return path.resolve(charterDir, "..", "..");
+}
+
+function listCapabilitySkillWorkspaceDirs(params: {
+  cfg: OpenClawConfig;
+  charterDir: string;
+  explicit?: string[];
+}): string[] {
+  const workspaceDirs = listObservedWorkspaceDirs(params.cfg, params.explicit);
+  if (params.explicit?.length) {
+    return workspaceDirs;
+  }
+  const repoRoot = resolveRepoRootFromCharterDir(params.charterDir);
+  return Array.from(new Set([repoRoot, ...workspaceDirs].filter(Boolean))).toSorted((left, right) =>
+    left.localeCompare(right),
+  );
+}
+
 function createSkillEntryId(workspaceDir: string, skillKey: string): string {
   return `skill:${workspaceDir}:${skillKey}`;
 }
 
 function createPluginEntryId(plugin: PluginManifestRecord): string {
-  return [
-    "plugin",
-    plugin.origin,
-    plugin.id,
-    plugin.workspaceDir ?? "",
-    plugin.rootDir,
-  ].join(":");
+  return ["plugin", plugin.origin, plugin.id, plugin.workspaceDir ?? "", plugin.rootDir].join(":");
 }
 
 function createMemoryEntryId(memoryId: string): string {
@@ -335,7 +353,9 @@ function resolveGenesisMissingRoles(params: {
   missingTeamRoles: string[];
   missingRoles: string[];
 } {
-  const teamMembers = new Set((params.genesisTeam?.members ?? []).map((entry) => normalizeAgentId(entry)));
+  const teamMembers = new Set(
+    (params.genesisTeam?.members ?? []).map((entry) => normalizeAgentId(entry)),
+  );
   const missingBlueprintRoles = Array.from(new Set(GENESIS_REQUIRED_ROLES)).filter(
     (entry) => !params.knownAgentIds.has(entry),
   );
@@ -371,7 +391,7 @@ function prioritizeGapsForRequestedAgents(params: {
     }
     return 3;
   };
-  return [...params.gaps].sort((left, right) => {
+  return params.gaps.toSorted((left, right) => {
     const scoreDelta = scoreGap(left) - scoreGap(right);
     if (scoreDelta !== 0) {
       return scoreDelta;
@@ -475,11 +495,9 @@ function collectPluginDependencies(plugin: PluginManifestRecord): string[] {
 }
 
 function mapPluginEntry(record: PluginInventoryRecord): GovernanceCapabilityInventoryEntry {
-  const issues = collectUniqueStrings([
-    ...(!record.activation.activated && record.activation.reason
-      ? [record.activation.reason]
-      : []),
-  ]);
+  const issues = collectUniqueStrings(
+    !record.activation.activated && record.activation.reason ? [record.activation.reason] : [],
+  );
   const status: GovernanceCapabilityInventoryEntryStatus = record.activation.activated
     ? "ready"
     : record.activation.source === "disabled"
@@ -513,8 +531,11 @@ function mapAgentBlueprintEntry(params: {
     ...(params.blueprint.runtimeHooks.length === 0 ? ["no runtime hooks declared"] : []),
     ...(!params.blueprint.contractValid ? params.blueprint.contractIssues : []),
   ]);
-  const status: GovernanceCapabilityInventoryEntryStatus =
-    !params.blueprint.contractValid ? "blocked" : issues.length === 0 ? "ready" : "attention";
+  const status: GovernanceCapabilityInventoryEntryStatus = !params.blueprint.contractValid
+    ? "blocked"
+    : issues.length === 0
+      ? "ready"
+      : "attention";
   return {
     id: createAgentBlueprintEntryId(params.blueprint.id),
     kind: "agent_blueprint",
@@ -543,7 +564,9 @@ function mapTeamBlueprintEntry(params: {
   blueprint: GovernanceCharterTeamBlueprint;
   knownAgentIds: Set<string>;
 }): GovernanceCapabilityInventoryEntry {
-  const missingMembers = params.blueprint.members.filter((entry) => !params.knownAgentIds.has(entry));
+  const missingMembers = params.blueprint.members.filter(
+    (entry) => !params.knownAgentIds.has(entry),
+  );
   const issues = collectUniqueStrings([
     ...(params.blueprint.status?.toLowerCase() === "draft" ? ["team status: draft"] : []),
     ...missingMembers.map((entry) => `missing member blueprint: ${entry}`),
@@ -650,6 +673,50 @@ function mapAlgorithmEntry(params: {
   };
 }
 
+function isSupplementalRegisteredAsset(
+  asset: GovernanceCapabilityAssetRecord,
+): asset is GovernanceCapabilityAssetRecord & {
+  kind: "memory" | "strategy" | "algorithm";
+} {
+  return asset.kind === "memory" || asset.kind === "strategy" || asset.kind === "algorithm";
+}
+
+function mapRegisteredGovernedAssetEntry(
+  asset: GovernanceCapabilityAssetRecord,
+): GovernanceCapabilityInventoryEntry | undefined {
+  if (!isSupplementalRegisteredAsset(asset)) {
+    return undefined;
+  }
+  return {
+    id: asset.id,
+    kind: asset.kind,
+    status: asset.status,
+    title: asset.title,
+    ...(asset.description ? { description: asset.description } : {}),
+    ...(asset.layer ? { layer: asset.layer } : {}),
+    ...(asset.ownerAgentId ? { ownerAgentId: asset.ownerAgentId } : {}),
+    ...(asset.sourcePath ? { sourcePath: asset.sourcePath } : {}),
+    ...(asset.workspaceDir ? { workspaceDir: asset.workspaceDir } : {}),
+    ...(asset.origin ? { origin: asset.origin } : {}),
+    ...(asset.activation ? { activation: asset.activation } : {}),
+    coverage: collectUniqueStrings(asset.coverage),
+    dependencies: collectUniqueStrings(asset.dependencies),
+    issues: collectUniqueStrings(asset.issues),
+    installOptions: collectUniqueStrings(asset.installOptions),
+  };
+}
+
+function buildRegisteredGovernedAssetEntries(params: {
+  assetRegistrySync: GovernanceCapabilityAssetRegistrySyncResult;
+  existingEntryIds: Set<string>;
+}): GovernanceCapabilityInventoryEntry[] {
+  return (params.assetRegistrySync.snapshot.registry?.assets ?? [])
+    .map((asset) => mapRegisteredGovernedAssetEntry(asset))
+    .filter((entry): entry is GovernanceCapabilityInventoryEntry =>
+      Boolean(entry && !params.existingEntryIds.has(entry.id)),
+    );
+}
+
 function buildDerivedGovernedAssetEntries(params: {
   charterDir: string;
   knownAgentIds: Set<string>;
@@ -667,21 +734,21 @@ function buildDerivedGovernedAssetEntries(params: {
     genesisTeam: params.genesisTeam,
     knownAgentIds: params.knownAgentIds,
   });
-  const assetRegistryIssues = collectUniqueStrings([
-    ...(params.assetRegistrySync.snapshot.parseError
-      ? [params.assetRegistrySync.snapshot.parseError]
-      : []),
-  ]);
-  const assetRegistryStatus: GovernanceCapabilityInventoryEntryStatus =
+  const assetRegistryIssues = collectUniqueStrings(
     params.assetRegistrySync.snapshot.parseError
-      ? "blocked"
+      ? [params.assetRegistrySync.snapshot.parseError]
+      : [],
+  );
+  const assetRegistryStatus: GovernanceCapabilityInventoryEntryStatus = params.assetRegistrySync
+    .snapshot.parseError
+    ? "blocked"
+    : "ready";
+  const evolutionPolicyStatus: GovernanceCapabilityInventoryEntryStatus = !snapshot.evolutionPolicy
+    .exists
+    ? "blocked"
+    : snapshot.evolutionPolicy.parseError
+      ? "attention"
       : "ready";
-  const evolutionPolicyStatus: GovernanceCapabilityInventoryEntryStatus =
-    !snapshot.evolutionPolicy.exists
-      ? "blocked"
-      : snapshot.evolutionPolicy.parseError
-        ? "attention"
-        : "ready";
   const genesisStrategyIssues = collectUniqueStrings([
     ...(missingBlueprintRoles.length > 0
       ? [`missing charter blueprints: ${missingBlueprintRoles.join(", ")}`]
@@ -690,21 +757,21 @@ function buildDerivedGovernedAssetEntries(params: {
       ? [`missing genesis team members: ${missingTeamRoles.join(", ")}`]
       : []),
   ]);
-  const genesisStrategyStatus: GovernanceCapabilityInventoryEntryStatus =
-    !params.genesisTeam
-      ? "blocked"
-      : missingRoles.length > 0
+  const genesisStrategyStatus: GovernanceCapabilityInventoryEntryStatus = !params.genesisTeam
+    ? "blocked"
+    : missingRoles.length > 0
+      ? "attention"
+      : params.genesisTeam.status?.toLowerCase() === "draft"
         ? "attention"
-        : params.genesisTeam.status?.toLowerCase() === "draft"
-          ? "attention"
-          : "ready";
-  const sandboxAlgorithmIssues = collectUniqueStrings([
-    ...(params.enforcement.active
+        : "ready";
+  const sandboxAlgorithmIssues = collectUniqueStrings(
+    params.enforcement.active
       ? [params.enforcement.message ?? "governance freeze blocks sandbox promotion"]
-      : []),
-  ]);
-  const sandboxAlgorithmStatus: GovernanceCapabilityInventoryEntryStatus =
-    params.enforcement.active ? "attention" : "ready";
+      : [],
+  );
+  const sandboxAlgorithmStatus: GovernanceCapabilityInventoryEntryStatus = params.enforcement.active
+    ? "attention"
+    : "ready";
   const executorAlgorithmStatus: GovernanceCapabilityInventoryEntryStatus =
     params.knownAgentIds.has("executor") ? "ready" : "blocked";
 
@@ -719,15 +786,8 @@ function buildDerivedGovernedAssetEntries(params: {
       description:
         "Persistent institutional memory for sovereign boundaries, charter artifacts, and role blueprints.",
       layer: "governance",
-      coverage: [
-        "memory:charter",
-        "memory:sovereign_boundaries",
-        "memory:artifact_registry",
-      ],
-      dependencies: [
-        "policy:sovereignty",
-        "policy:evolution",
-      ],
+      coverage: ["memory:charter", "memory:sovereign_boundaries", "memory:artifact_registry"],
+      dependencies: ["policy:sovereignty", "policy:evolution"],
       issues: collectUniqueStrings([
         ...(snapshot.constitution.exists ? [] : ["constitution missing"]),
         ...(snapshot.constitution.parseError ? [snapshot.constitution.parseError] : []),
@@ -742,11 +802,7 @@ function buildDerivedGovernedAssetEntries(params: {
       description:
         "Persistent governed memory for capability assets, coverage metadata, and rollback references.",
       layer: "capability",
-      coverage: [
-        "memory:capability_assets",
-        "memory:coverage",
-        "memory:rollback_reference",
-      ],
+      coverage: ["memory:capability_assets", "memory:coverage", "memory:rollback_reference"],
       dependencies: ["librarian", "governance/charter/capability"],
       issues: assetRegistryIssues,
     }),
@@ -833,10 +889,10 @@ function buildDerivedGovernedAssetEntries(params: {
   ];
 }
 
-function collectPluginInventory(params: {
-  cfg: OpenClawConfig;
-  workspaceDirs: string[];
-}): { plugins: PluginInventoryRecord[]; diagnostics: PluginDiagnosticRecord[] } {
+function collectPluginInventory(params: { cfg: OpenClawConfig; workspaceDirs: string[] }): {
+  plugins: PluginInventoryRecord[];
+  diagnostics: PluginDiagnosticRecord[];
+} {
   const normalizedPlugins = normalizePluginsConfig(params.cfg.plugins);
   const activationSource = createPluginActivationSource({
     config: params.cfg,
@@ -893,7 +949,9 @@ function collectPluginInventory(params: {
       left.plugin.id.localeCompare(right.plugin.id),
     ),
     diagnostics: Array.from(diagnostics.values()).toSorted((left, right) =>
-      `${left.pluginId ?? ""}:${left.source}`.localeCompare(`${right.pluginId ?? ""}:${right.source}`),
+      `${left.pluginId ?? ""}:${left.source}`.localeCompare(
+        `${right.pluginId ?? ""}:${right.source}`,
+      ),
     ),
   };
 }
@@ -910,7 +968,10 @@ function buildInventoryGaps(params: {
 }): GovernanceCapabilityGap[] {
   const gaps: GovernanceCapabilityGap[] = [];
   const visibleEntryIds = new Set(params.entries.map((entry) => entry.id));
-  const entryIdsByKind = (kind: GovernanceCapabilityInventoryEntryKind, predicate?: (entry: GovernanceCapabilityInventoryEntry) => boolean) =>
+  const entryIdsByKind = (
+    kind: GovernanceCapabilityInventoryEntryKind,
+    predicate?: (entry: GovernanceCapabilityInventoryEntry) => boolean,
+  ) =>
     params.entries
       .filter((entry) => entry.kind === kind && (!predicate || predicate(entry)))
       .map((entry) => entry.id);
@@ -986,7 +1047,9 @@ function buildInventoryGaps(params: {
         relatedEntryIds: scopeRelatedEntryIds([createTeamBlueprintEntryId(params.genesisTeam.id)]),
         suggestedActions: [
           ...(missingBlueprintRoles.length > 0 ? ["restore the missing agent blueprints"] : []),
-          ...(missingTeamRoles.length > 0 ? ["add the missing governed members to genesis_team"] : []),
+          ...(missingTeamRoles.length > 0
+            ? ["add the missing governed members to genesis_team"]
+            : []),
           "do not publish autonomous capability changes until the full handoff chain exists",
         ],
       });
@@ -996,7 +1059,10 @@ function buildInventoryGaps(params: {
   const missingAutonomyCore = AUTONOMY_CORE_AGENT_IDS.filter(
     (entry) => !params.knownAgentIds.has(entry),
   );
-  if (missingAutonomyCore.length > 0 || params.autonomyProfileCount < AUTONOMY_CORE_AGENT_IDS.length) {
+  if (
+    missingAutonomyCore.length > 0 ||
+    params.autonomyProfileCount < AUTONOMY_CORE_AGENT_IDS.length
+  ) {
     gaps.push({
       id: "capability_inventory.autonomy_core_missing",
       severity: "warning",
@@ -1023,8 +1089,7 @@ function buildInventoryGaps(params: {
       id: "capability_inventory.skills_missing",
       severity: "warning",
       title: "No governed skill assets were discovered",
-      detail:
-        "The capability inventory found no reusable skill assets in the observed workspaces.",
+      detail: "The capability inventory found no reusable skill assets in the observed workspaces.",
       ownerAgentId: "librarian",
       relatedEntryIds: scopeRelatedEntryIds([]),
       suggestedActions: [
@@ -1054,7 +1119,8 @@ function buildInventoryGaps(params: {
       id: "capability_inventory.plugins_missing",
       severity: "warning",
       title: "No plugin assets were discovered",
-      detail: "The capability inventory found no plugin manifests to bridge external tooling or runtime surfaces.",
+      detail:
+        "The capability inventory found no plugin manifests to bridge external tooling or runtime surfaces.",
       ownerAgentId: "tdd_developer",
       relatedEntryIds: scopeRelatedEntryIds([]),
       suggestedActions: [
@@ -1114,10 +1180,7 @@ function buildInventoryGaps(params: {
         "do not trust stale registry metadata until the charter registry parses cleanly again",
       ],
     });
-  } else if (
-    !params.assetRegistrySync.snapshot.exists &&
-    params.assetRegistrySync.assetCount > 0
-  ) {
+  } else if (!params.assetRegistrySync.snapshot.exists && params.assetRegistrySync.assetCount > 0) {
     gaps.push({
       id: "capability_inventory.asset_registry_missing",
       severity: "warning",
@@ -1176,9 +1239,8 @@ function buildInventorySummary(params: {
     kind: GovernanceCapabilityInventoryEntryKind,
     status?: GovernanceCapabilityInventoryEntryStatus,
   ) =>
-    params.entries.filter(
-      (entry) => entry.kind === kind && (!status || entry.status === status),
-    ).length;
+    params.entries.filter((entry) => entry.kind === kind && (!status || entry.status === status))
+      .length;
 
   const pluginActivated = params.entries.filter(
     (entry) => entry.kind === "plugin" && entry.activation?.activated,
@@ -1217,19 +1279,25 @@ function buildInventorySummary(params: {
   };
 }
 
-export function getGovernanceCapabilityInventory(params: {
-  cfg?: OpenClawConfig;
-  charterDir?: string;
-  workspaceDirs?: string[];
-  observedAt?: number;
-  agentIds?: string[];
-} = {}): GovernanceCapabilityInventoryResult {
+export function getGovernanceCapabilityInventory(
+  params: {
+    cfg?: OpenClawConfig;
+    charterDir?: string;
+    workspaceDirs?: string[];
+    observedAt?: number;
+    agentIds?: string[];
+  } = {},
+): GovernanceCapabilityInventoryResult {
   const cfg = resolveRuntimeConfig(params.cfg);
   const observedAt = params.observedAt ?? Date.now();
   const requestedAgentIds = normalizeRequestedAgentIds(params.agentIds);
-  const workspaceDirs = listObservedWorkspaceDirs(cfg, params.workspaceDirs);
   const organization = loadGovernanceCharterOrganization({
     charterDir: params.charterDir,
+  });
+  const workspaceDirs = listCapabilitySkillWorkspaceDirs({
+    cfg,
+    charterDir: organization.charterDir,
+    explicit: params.workspaceDirs,
   });
   const enforcement = resolveGovernanceEnforcementState(cfg, {
     charterDir: params.charterDir,
@@ -1287,8 +1355,15 @@ export function getGovernanceCapabilityInventory(params: {
       enforcement,
     }),
   );
-  const autonomyProfileCount = AUTONOMY_CORE_AGENT_IDS.filter((entry) => knownAgentIds.has(entry))
-    .length;
+  entries.push(
+    ...buildRegisteredGovernedAssetEntries({
+      assetRegistrySync,
+      existingEntryIds: new Set(entries.map((entry) => entry.id)),
+    }),
+  );
+  const autonomyProfileCount = AUTONOMY_CORE_AGENT_IDS.filter((entry) =>
+    knownAgentIds.has(entry),
+  ).length;
   const scopedEntries = filterInventoryEntriesByRequestedAgents({
     entries,
     requestedAgentIds,
@@ -1461,11 +1536,17 @@ function resolveGenesisStageOutputs(stageId: (typeof GENESIS_STAGE_ORDER)[number
   }
 }
 
-function resolveGenesisMode(inventory: GovernanceCapabilityInventoryResult): GovernanceGenesisPlanMode {
+function resolveGenesisMode(
+  inventory: GovernanceCapabilityInventoryResult,
+): GovernanceGenesisPlanMode {
   if (inventory.gaps.some((entry) => entry.severity === "critical")) {
     return "repair";
   }
-  if (inventory.gaps.length > 0 || inventory.summary.skillAttention > 0 || inventory.summary.pluginAttention > 0) {
+  if (
+    inventory.gaps.length > 0 ||
+    inventory.summary.skillAttention > 0 ||
+    inventory.summary.pluginAttention > 0
+  ) {
     return "build";
   }
   return "steady_state";
@@ -1498,11 +1579,7 @@ function buildGenesisProjectBlueprint(params: {
       return ["strategy"];
     }),
   );
-  const projectId = [
-    "genesis",
-    params.mode,
-    params.focusGapIds[0] ?? "steady-state",
-  ]
+  const projectId = ["genesis", params.mode, params.focusGapIds[0] ?? "steady-state"]
     .join(".")
     .replace(/[^A-Za-z0-9._-]+/gu, "-");
   return {
@@ -1546,15 +1623,17 @@ function buildGenesisProjectBlueprint(params: {
   };
 }
 
-export function planGovernanceGenesisWork(params: {
-  cfg?: OpenClawConfig;
-  charterDir?: string;
-  workspaceDirs?: string[];
-  observedAt?: number;
-  teamId?: string;
-  agentIds?: string[];
-  inventory?: GovernanceCapabilityInventoryResult;
-} = {}): GovernanceGenesisPlanResult {
+export function planGovernanceGenesisWork(
+  params: {
+    cfg?: OpenClawConfig;
+    charterDir?: string;
+    workspaceDirs?: string[];
+    observedAt?: number;
+    teamId?: string;
+    agentIds?: string[];
+    inventory?: GovernanceCapabilityInventoryResult;
+  } = {},
+): GovernanceGenesisPlanResult {
   const inventory =
     params.inventory ??
     getGovernanceCapabilityInventory({
@@ -1611,7 +1690,9 @@ export function planGovernanceGenesisWork(params: {
     if (!knownAgentIds.has(ownerAgentId)) {
       status = "blocked";
     } else if (
-      (stageId === "implementation" || stageId === "promotion_or_rollback" || stageId === "registration") &&
+      (stageId === "implementation" ||
+        stageId === "promotion_or_rollback" ||
+        stageId === "registration") &&
       enforcement.active
     ) {
       status = "blocked";
@@ -1632,10 +1713,7 @@ export function planGovernanceGenesisWork(params: {
       status,
       goal: resolveGenesisStageGoal(stageId),
       dependsOn,
-      inputRefs:
-        stageId === "gap_detection"
-          ? focusGapIds
-          : dependsOn,
+      inputRefs: stageId === "gap_detection" ? focusGapIds : dependsOn,
       outputRefs: resolveGenesisStageOutputs(stageId),
       actions: buildGenesisPlanActions({
         stageId,

@@ -48,6 +48,16 @@ export type ManagedTaskFlowGenesisStageRuntime = {
     status: GovernanceGenesisPlanStageStatus;
     dependsOn: string[];
   }>;
+  developmentPackage: {
+    packageId: string;
+    candidateKinds: string[];
+    targetArtifacts: string[];
+    writeScopes: string[];
+    qaGates: string[];
+    promotionEvidence: string[];
+    rollbackPlan: string[];
+    publishTargets: string[];
+  };
   sandboxUniverse: SandboxUniverseExperimentPlan;
   sandboxController?: SandboxUniverseControllerState;
   sandboxReplayRunner?: SandboxUniverseReplayRunnerState;

@@ -2,7 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RuntimeEnv } from "../runtime.js";
 
 const mocks = vi.hoisted(() => ({
-  buildAgentMainSessionKey: vi.fn(({ agentId }: { agentId?: string }) => `agent:${agentId ?? "main"}:main`),
+  buildAgentMainSessionKey: vi.fn(
+    ({ agentId }: { agentId?: string }) => `agent:${agentId ?? "main"}:main`,
+  ),
   createRuntimeAutonomy: vi.fn(),
   createRuntimeTaskFlow: vi.fn(() => ({ kind: "taskflow-runtime" })),
   normalizeAgentId: vi.fn((value?: string) => (value ?? "main").trim().toLowerCase()),
@@ -16,6 +18,8 @@ const mocks = vi.hoisted(() => ({
   getFleetHistory: vi.fn(),
   reconcileGovernanceProposals: vi.fn(),
   superviseFleet: vi.fn(),
+  bootstrapFleet: vi.fn(),
+  getArchitectureReadiness: vi.fn(),
   startManagedFlow: vi.fn(),
   submitSandboxReplay: vi.fn(),
 }));
@@ -41,8 +45,10 @@ vi.mock("../terminal/theme.js", () => ({
 
 import {
   autonomyCapabilityInventoryCommand,
+  autonomyArchitectureReadinessCommand,
   autonomyGovernanceReconcileCommand,
   autonomyGenesisPlanCommand,
+  autonomyBootstrapCommand,
   autonomyHistoryCommand,
   autonomyOverviewCommand,
   autonomyReplaySubmitCommand,
@@ -78,6 +84,8 @@ describe("autonomy commands", () => {
       getFleetHistory: mocks.getFleetHistory,
       reconcileGovernanceProposals: mocks.reconcileGovernanceProposals,
       superviseFleet: mocks.superviseFleet,
+      bootstrapFleet: mocks.bootstrapFleet,
+      getArchitectureReadiness: mocks.getArchitectureReadiness,
       startManagedFlow: mocks.startManagedFlow,
       submitSandboxReplay: mocks.submitSandboxReplay,
     });
@@ -314,7 +322,9 @@ describe("autonomy commands", () => {
         criticalCapabilityGapCount: 0,
         genesisStageCount: 2,
         genesisBlockedStageCount: 1,
-        recommendedNextActions: ["Execute the genesis plan stages to close the remaining governed capability gaps."],
+        recommendedNextActions: [
+          "Execute the genesis plan stages to close the remaining governed capability gaps.",
+        ],
       },
       capabilityInventory: {
         observedAt: 2,
@@ -412,9 +422,118 @@ describe("autonomy commands", () => {
     });
     expect(logs.join("\n")).toContain("workspaceScope: /tmp/a, /tmp/b");
     expect(logs.join("\n")).toContain("governanceMode: force_apply_all");
-    expect(logs.join("\n")).toContain("profiles: changed=2/2 healthy=2 drift=0 missingLoop=0 activeFlows=2");
+    expect(logs.join("\n")).toContain(
+      "profiles: changed=2/2 healthy=2 drift=0 missingLoop=0 activeFlows=2",
+    );
     expect(logs.join("\n")).toContain("governance: created=1 applied=1 pending=0");
     expect(logs.join("\n")).toContain("nextActions:");
+  });
+
+  it("bootstraps autonomy readiness with normalized scope and prints the readiness verdict", async () => {
+    mocks.bootstrapFleet.mockResolvedValue({
+      observedAt: 5,
+      sessionKey: "agent:control:main",
+      supervised: {
+        observedAt: 4,
+        governanceMode: "apply_safe",
+        overviewBefore: {
+          entries: [],
+          totals: {
+            totalProfiles: 2,
+            healthy: 0,
+            idle: 0,
+            drift: 0,
+            missingLoop: 2,
+            activeFlows: 0,
+          },
+        },
+        healed: {
+          entries: [],
+          totals: {
+            totalProfiles: 2,
+            changed: 2,
+            unchanged: 0,
+            loopCreated: 2,
+            loopUpdated: 0,
+            flowStarted: 2,
+            flowRestarted: 0,
+          },
+        },
+        overviewAfter: {
+          entries: [],
+          totals: {
+            totalProfiles: 2,
+            healthy: 2,
+            idle: 0,
+            drift: 0,
+            missingLoop: 0,
+            activeFlows: 2,
+          },
+        },
+        summary: {
+          totalProfiles: 2,
+          changedProfiles: 2,
+          healthyProfiles: 2,
+          driftProfiles: 0,
+          missingLoopProfiles: 0,
+          activeFlows: 2,
+          governanceCreatedCount: 0,
+          governanceAppliedCount: 0,
+          governancePendingCount: 0,
+          capabilityGapCount: 0,
+          criticalCapabilityGapCount: 0,
+          genesisStageCount: 0,
+          genesisBlockedStageCount: 0,
+          recommendedNextActions: ["No immediate intervention is required."],
+        },
+      },
+      readiness: {
+        ready: true,
+        profileReadyCount: 2,
+        profileNotReadyCount: 0,
+        missingLoopProfiles: 0,
+        driftProfiles: 0,
+        idleProfiles: 0,
+        activeFlows: 2,
+        capabilityGapCount: 0,
+        criticalCapabilityGapCount: 0,
+        genesisBlockedStageCount: 0,
+        blockers: [],
+      },
+    });
+
+    const { runtime, logs } = createRuntime();
+    await autonomyBootstrapCommand(
+      {
+        agentIds: ["founder", "strategist"],
+        sessionKey: "agent:control:main",
+        workspaceDirs: [" /tmp/b ", "/tmp/a", "/tmp/b"],
+        teamId: "genesis_team",
+        governanceMode: "apply_safe",
+        restartBlockedFlows: false,
+        includeCapabilityInventory: true,
+        includeGenesisPlan: true,
+        recordHistory: false,
+      },
+      runtime,
+    );
+
+    expect(mocks.bootstrapFleet).toHaveBeenCalledWith({
+      agentIds: ["founder", "strategist"],
+      workspaceDirs: ["/tmp/a", "/tmp/b"],
+      teamId: "genesis_team",
+      governanceMode: "apply_safe",
+      restartBlockedFlows: false,
+      includeCapabilityInventory: true,
+      includeGenesisPlan: true,
+      recordHistory: false,
+      telemetrySource: "manual",
+    });
+    expect(logs.join("\n")).toContain("Autonomy bootstrap:");
+    expect(logs.join("\n")).toContain("ready: yes");
+    expect(logs.join("\n")).toContain(
+      "profiles: ready=2/2 notReady=0 missingLoop=0 drift=0 idle=0 activeFlows=2",
+    );
   });
 
   it("renders managed execution and sandbox projections in autonomy show output", async () => {
@@ -540,7 +659,8 @@ describe("autonomy commands", () => {
                 {
                   id: "sandbox_change_set",
                   status: "collected",
-                  storagePath: "/tmp/autonomy-state/governance/sandbox-universe/demo/artifacts/sandbox_change_set.json",
+                  storagePath:
+                    "/tmp/autonomy-state/governance/sandbox-universe/demo/artifacts/sandbox_change_set.json",
                   sizeBytes: 512,
                   sha256: "1234567890abcdef1234567890abcdef",
                 },
@@ -643,7 +763,9 @@ describe("autonomy commands", () => {
     expect(logs.join("\n")).toContain("sandboxEvidenceLedger: sandbox_change_set:collected");
     expect(logs.join("\n")).toContain("sha=1234567890ab");
     expect(logs.join("\n")).toContain("sandboxReplayRunner: status=ready");
-    expect(logs.join("\n")).toContain("sandboxPromotionDecision: replay=pass qa=pass audit=pass promote=yes");
+    expect(logs.join("\n")).toContain(
+      "sandboxPromotionDecision: replay=pass qa=pass audit=pass promote=yes",
+    );
   });
 
   it("normalizes workspace scope for history queries and prints scoped events", async () => {
@@ -879,5 +1001,113 @@ describe("autonomy commands", () => {
     expect(logs.join("\n")).toContain("mode: apply_safe");
     expect(logs.join("\n")).toContain("reviewed: 1");
     expect(logs.join("\n")).toContain("applied: 1");
+  });
+
+  it("prints strong-autonomy architecture readiness and normalized scope", async () => {
+    mocks.getArchitectureReadiness.mockResolvedValue({
+      observedAt: 1,
+      sessionKey: "agent:control:main",
+      charterDir: "/tmp/governance/charter",
+      workspaceDirs: ["/tmp/a", "/tmp/b"],
+      summary: {
+        ready: true,
+        status: "ready",
+        readyChecks: 13,
+        attentionChecks: 0,
+        blockedChecks: 0,
+        totalChecks: 13,
+        blockers: [],
+      },
+      layers: [
+        {
+          id: "governance",
+          title: "Governance Layer",
+          status: "ready",
+          evidence: ["charter=/tmp/governance/charter"],
+          blockers: [],
+        },
+      ],
+      loops: [
+        {
+          id: "value",
+          title: "Value Loop",
+          status: "ready",
+          evidence: ["executor flow is healthy"],
+          blockers: [],
+        },
+      ],
+      sandboxUniverse: {
+        id: "sandbox_universe",
+        title: "Sandbox Universe",
+        status: "ready",
+        evidence: ["sandbox universe control algorithm registered"],
+        blockers: [],
+      },
+      algorithmEvolutionProtocol: {
+        id: "algorithm_evolution_protocol",
+        title: "Algorithm Evolution Protocol",
+        status: "ready",
+        evidence: ["Algorithmist loop is healthy"],
+        blockers: [],
+      },
+      autonomousDevelopment: {
+        id: "autonomous_development",
+        title: "Autonomous Development",
+        status: "ready",
+        evidence: [
+          "Genesis Team pipeline covers detection, root cause, implementation, QA, promotion, and registration",
+        ],
+        blockers: [],
+      },
+      continuousRuntime: {
+        id: "continuous_runtime",
+        title: "Continuous Runtime",
+        status: "ready",
+        evidence: ["healthyProfiles=11/11"],
+        blockers: [],
+      },
+      bootstrapped: {
+        observedAt: 1,
+        sessionKey: "agent:control:main",
+        supervised: {
+          summary: {
+            totalProfiles: 11,
+          },
+        },
+        readiness: {
+          ready: true,
+          profileReadyCount: 11,
+          activeFlows: 11,
+        },
+      },
+    });
+
+    const { runtime, logs } = createRuntime();
+    await autonomyArchitectureReadinessCommand(
+      {
+        agentIds: ["founder", "executor"],
+        sessionKey: "agent:control:main",
+        workspaceDirs: [" /tmp/b ", "/tmp/a", "/tmp/b"],
+        governanceMode: "apply_safe",
+        decisionNote: "Verify architecture readiness.",
+        restartBlockedFlows: true,
+      },
+      runtime,
+    );
+
+    expect(mocks.getArchitectureReadiness).toHaveBeenCalledWith({
+      agentIds: ["founder", "executor"],
+      workspaceDirs: ["/tmp/a", "/tmp/b"],
+      restartBlockedFlows: true,
+      governanceMode: "apply_safe",
+      decisionNote: "Verify architecture readiness.",
+      telemetrySource: "manual",
+    });
+    expect(logs.join("\n")).toContain("Autonomy architecture readiness:");
+    expect(logs.join("\n")).toContain("status: ready");
+    expect(logs.join("\n")).toContain("checks: ready=13/13 attention=0 blocked=0");
+    expect(logs.join("\n")).toContain("workspaceScope: /tmp/a, /tmp/b");
+    expect(logs.join("\n")).toContain("governance: ready");
+    expect(logs.join("\n")).toContain("sandbox_universe: ready");
   });
 });

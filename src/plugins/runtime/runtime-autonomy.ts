@@ -1,5 +1,5 @@
-import fs from "node:fs";
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
 import {
   resolveAgentConfig,
   resolveAgentWorkspaceDir,
@@ -16,14 +16,14 @@ import {
   resolveStorePath,
 } from "../../config/sessions.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
-import { CronService } from "../../cron/service.js";
 import type { CronServiceContract } from "../../cron/service-contract.js";
+import { CronService } from "../../cron/service.js";
 import { resolveCronStorePath } from "../../cron/store.js";
 import type { CronJob } from "../../cron/types.js";
 import {
-  listGovernanceCharterAgentBlueprints,
-  resolveGovernanceCharterAgentBlueprint,
-} from "../../governance/charter-agents.js";
+  synthesizeGovernanceAutonomyProposals,
+  type GovernanceAutonomyProposalSynthesisResult,
+} from "../../governance/autonomy-proposals.js";
 import {
   getGovernanceCapabilityInventory,
   planGovernanceGenesisWork,
@@ -32,16 +32,10 @@ import {
   type GovernanceGenesisPlanStage,
 } from "../../governance/capability-registry.js";
 import {
-  createSandboxUniverseController,
-  createSandboxUniverseReplayRunner,
-  planSandboxUniverseExperiment,
-  runSandboxUniverseReplayRunner,
-} from "../../governance/sandbox-universe.js";
+  listGovernanceCharterAgentBlueprints,
+  resolveGovernanceCharterAgentBlueprint,
+} from "../../governance/charter-agents.js";
 import { loadGovernanceCharter } from "../../governance/charter-runtime.js";
-import {
-  synthesizeGovernanceAutonomyProposals,
-  type GovernanceAutonomyProposalSynthesisResult,
-} from "../../governance/autonomy-proposals.js";
 import {
   getGovernanceOverview,
   reconcileGovernanceProposals as reconcileControlPlaneGovernanceProposals,
@@ -51,28 +45,40 @@ import {
   type AgentGovernanceRuntimeContract,
 } from "../../governance/runtime-contract.js";
 import { createAgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
+import {
+  createSandboxUniverseController,
+  createSandboxUniverseReplayRunner,
+  planSandboxUniverseExperiment,
+  runSandboxUniverseReplayRunner,
+} from "../../governance/sandbox-universe.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { normalizeAgentId, parseAgentSessionKey } from "../../routing/session-key.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
-import { isRecord } from "../../utils.js";
-import { normalizeDeliveryContext } from "../../utils/delivery-context.shared.js";
+import { listTasksForFlowId } from "../../tasks/runtime-internal.js";
 import { mapTaskFlowDetail, mapTaskRunDetail } from "../../tasks/task-domain-views.js";
 import { isTerminalTaskStatus } from "../../tasks/task-executor-policy.js";
 import { getFlowTaskSummary } from "../../tasks/task-executor.js";
 import { getTaskFlowByIdForOwner } from "../../tasks/task-flow-owner-access.js";
 import type { JsonValue } from "../../tasks/task-flow-registry.types.js";
-import { listTasksForFlowId } from "../../tasks/runtime-internal.js";
+import { isRecord } from "../../utils.js";
+import { normalizeDeliveryContext } from "../../utils/delivery-context.shared.js";
 import {
   appendAutonomyFleetHistoryEvent,
   listAutonomyFleetHistory,
 } from "./runtime-autonomy.telemetry.js";
 import type {
-  ManagedTaskFlowAutonomyProjectRuntime,
-  PluginRuntimeTaskFlow,
-} from "./runtime-taskflow.types.js";
-import type {
   AutonomyAgentProfile,
+  AutonomyArchitectureReadinessCheck,
+  AutonomyArchitectureReadinessLayer,
+  AutonomyArchitectureReadinessLoop,
+  AutonomyArchitectureReadinessParams,
+  AutonomyArchitectureReadinessResult,
+  AutonomyArchitectureReadinessSummary,
+  AutonomyArchitectureReadinessStatus,
   AutonomyBootstrapTemplate,
+  AutonomyBootstrapParams,
+  AutonomyBootstrapReadiness,
+  AutonomyBootstrapResult,
   AutonomyCancelManagedFlowParams,
   AutonomyCancelManagedFlowResult,
   AutonomyCapabilityInventoryParams,
@@ -117,6 +123,11 @@ import type {
   BoundAutonomyRuntime,
   PluginRuntimeAutonomy,
 } from "./runtime-autonomy.types.js";
+import type {
+  ManagedTaskFlowAutonomyProjectRuntime,
+  ManagedTaskFlowGenesisStageRuntime,
+  PluginRuntimeTaskFlow,
+} from "./runtime-taskflow.types.js";
 
 const AUTONOMY_PREFERRED_AGENT_ORDER = [
   "founder",
@@ -143,6 +154,14 @@ const AUTONOMY_GENESIS_STAGE_BY_AGENT_ID = {
   publisher: "promotion_or_rollback",
   librarian: "registration",
 } as const;
+const AUTONOMY_ARCHITECTURE_GENESIS_AGENT_IDS = [
+  "sentinel",
+  "archaeologist",
+  "tdd_developer",
+  "qa",
+  "publisher",
+  "librarian",
+] as const;
 
 function resolveAutonomySandboxStateDir(): string {
   return resolveStateDir(process.env);
@@ -167,6 +186,7 @@ type ManagedAutonomyFlowPlan = {
   stateJson?: JsonValue | null;
   tasks?: ManagedAutonomyTaskTemplate[];
 };
+type GenesisDevelopmentPackage = ManagedTaskFlowGenesisStageRuntime["developmentPackage"];
 
 const noopCronLogger = {
   debug: () => {},
@@ -360,9 +380,7 @@ function buildRecommendedGoals(params: {
         "Triangulate missing artifacts, critical findings, and freeze posture, then queue incident or clearance actions.",
       ];
     default:
-      return [
-        params.missionPrimary || `Bootstrap autonomy for ${params.title ?? params.agentId}.`,
-      ];
+      return [params.missionPrimary || `Bootstrap autonomy for ${params.title ?? params.agentId}.`];
   }
 }
 
@@ -428,16 +446,13 @@ function resolveDefaultLoopEveryMs(agentId: string): number {
   }
 }
 
-function buildLoopMessage(params: {
-  agentId: string;
-  title?: string;
-}): string {
+function buildLoopMessage(params: { agentId: string; title?: string }): string {
   const role = params.title ?? params.agentId;
   switch (params.agentId) {
     case "founder":
       return [
         `Run one governed autonomy control cycle for ${role}.`,
-        'Use the autonomy tool to inspect the founder profile and the latest managed flow on the bound control session.',
+        "Use the autonomy tool to inspect the founder profile and the latest managed flow on the bound control session.",
         "If there is no active managed flow, or the latest flow is blocked, failed, cancelled, or otherwise terminal, start a fresh managed flow from the governed default goal unless current evidence justifies a better one.",
         "If the current flow is active, inspect recent tasks and drive concrete evolution work forward instead of stopping at commentary.",
         "If machine-determinable governance gaps exist, use the autonomy governance proposal synthesis path to queue pending charter proposals for review instead of leaving the gap as commentary only.",
@@ -666,9 +681,7 @@ function formatWorkspaceScopeInline(workspaceDirs: string[] | undefined): string
   return normalizedWorkspaceDirs.length > 0 ? normalizedWorkspaceDirs.join(", ") : undefined;
 }
 
-function resolvePrimaryWorkspaceDir(
-  workspaceDirs: string[] | undefined,
-): string | undefined {
+function resolvePrimaryWorkspaceDir(workspaceDirs: string[] | undefined): string | undefined {
   return normalizeWorkspaceDirList(workspaceDirs)[0];
 }
 
@@ -702,10 +715,7 @@ function augmentLoopMessageWithWorkspaceScope(
   ].join("\n");
 }
 
-function buildLoopTemplate(params: {
-  agentId: string;
-  title?: string;
-}): AutonomyLoopTemplate {
+function buildLoopTemplate(params: { agentId: string; title?: string }): AutonomyLoopTemplate {
   return {
     mode: AUTONOMY_LOOP_MODE,
     name: `Autonomy Loop: ${params.title ?? params.agentId}`,
@@ -754,7 +764,7 @@ function resolveAutonomyStateJson(params: {
       ? params.stateJson.autonomy
       : undefined;
   const autonomyState = {
-    ...(existingAutonomyState ?? {}),
+    ...existingAutonomyState,
     agentId: params.profile.id,
     controllerId: params.controllerId,
     goal: params.goal,
@@ -787,7 +797,10 @@ function resolveAutonomyStateJson(params: {
   return params.stateJson ?? baseState;
 }
 
-function mergeAutonomyStateJson(baseState: JsonValue, extraState: JsonValue | null | undefined): JsonValue {
+function mergeAutonomyStateJson(
+  baseState: JsonValue,
+  extraState: JsonValue | null | undefined,
+): JsonValue {
   if (!extraState) {
     return baseState;
   }
@@ -806,15 +819,17 @@ function mergeAutonomyStateJson(baseState: JsonValue, extraState: JsonValue | nu
   return {
     ...merged,
     autonomy: {
-      ...(baseAutonomy ?? {}),
-      ...(extraAutonomy ?? {}),
+      ...baseAutonomy,
+      ...extraAutonomy,
     },
   };
 }
 
 function resolveGenesisAssignedStageId(
   agentId: string,
-): (typeof AUTONOMY_GENESIS_STAGE_BY_AGENT_ID)[keyof typeof AUTONOMY_GENESIS_STAGE_BY_AGENT_ID] | undefined {
+):
+  | (typeof AUTONOMY_GENESIS_STAGE_BY_AGENT_ID)[keyof typeof AUTONOMY_GENESIS_STAGE_BY_AGENT_ID]
+  | undefined {
   return AUTONOMY_GENESIS_STAGE_BY_AGENT_ID[
     normalizeAgentId(agentId) as keyof typeof AUTONOMY_GENESIS_STAGE_BY_AGENT_ID
   ];
@@ -824,9 +839,11 @@ function createGenesisActionTaskTemplates(params: {
   profile: AutonomyAgentProfile;
   stage: GovernanceGenesisPlanStage;
   plan: GovernanceGenesisPlanResult;
+  developmentPackage: GenesisDevelopmentPackage;
 }): ManagedAutonomyTaskTemplate[] {
-  const actions = params.stage.actions.length > 0 ? params.stage.actions : [`advance ${params.stage.id}`];
-  return actions.map((action, index) => ({
+  const actions =
+    params.stage.actions.length > 0 ? params.stage.actions : [`advance ${params.stage.id}`];
+  const actionTasks = actions.map((action, index) => ({
     runtime: "cli",
     status: "queued",
     label: index === 0 ? params.stage.title : `${params.stage.title} Action ${index + 1}`,
@@ -841,8 +858,12 @@ function createGenesisActionTaskTemplates(params: {
       `Stage: ${params.stage.title} (${params.stage.id})`,
       `Goal: ${params.stage.goal}`,
       `Action: ${action}`,
-      params.stage.dependsOn.length > 0 ? `Depends on: ${params.stage.dependsOn.join(", ")}` : undefined,
-      params.stage.inputRefs.length > 0 ? `Inputs: ${params.stage.inputRefs.join(", ")}` : undefined,
+      params.stage.dependsOn.length > 0
+        ? `Depends on: ${params.stage.dependsOn.join(", ")}`
+        : undefined,
+      params.stage.inputRefs.length > 0
+        ? `Inputs: ${params.stage.inputRefs.join(", ")}`
+        : undefined,
       params.stage.outputRefs.length > 0
         ? `Expected outputs: ${params.stage.outputRefs.join(", ")}`
         : undefined,
@@ -852,11 +873,102 @@ function createGenesisActionTaskTemplates(params: {
       params.plan.blockers.length > 0
         ? `Current blockers: ${params.plan.blockers.join("; ")}`
         : "Current blockers: none",
+      `Candidate kinds: ${params.developmentPackage.candidateKinds.join(", ") || "none"}`,
+      `Write scopes: ${params.developmentPackage.writeScopes.join(", ") || "none"}`,
+      `QA gates: ${params.developmentPackage.qaGates.join(", ") || "none"}`,
       "Leave machine-verifiable artifacts that can be consumed by the next governed Genesis stage.",
     ]
       .filter((value): value is string => Boolean(value))
       .join("\n"),
   }));
+  return [
+    ...actionTasks,
+    {
+      runtime: "cli",
+      status: params.stage.status === "blocked" ? "queued" : "queued",
+      label: "Development package",
+      progressSummary:
+        "materialize candidate assets, QA evidence, publication metadata, and rollback references",
+      task: [
+        "Materialize the governed autonomous development package for this Genesis stage.",
+        `Package: ${params.developmentPackage.packageId}`,
+        `Candidate kinds: ${params.developmentPackage.candidateKinds.join(", ") || "none"}`,
+        `Target artifacts: ${params.developmentPackage.targetArtifacts.join(", ") || "none"}`,
+        `Write scopes: ${params.developmentPackage.writeScopes.join(", ") || "none"}`,
+        `Promotion evidence: ${params.developmentPackage.promotionEvidence.join(", ") || "none"}`,
+        `Publish targets: ${params.developmentPackage.publishTargets.join(", ") || "none"}`,
+        `Rollback plan: ${params.developmentPackage.rollbackPlan.join(" | ") || "none"}`,
+      ].join("\n"),
+    },
+  ];
+}
+
+function resolveGenesisDevelopmentPackage(params: {
+  profile: AutonomyAgentProfile;
+  stage: GovernanceGenesisPlanStage;
+  plan: GovernanceGenesisPlanResult;
+  workspaceDirs?: string[];
+}): GenesisDevelopmentPackage {
+  const blueprint = params.plan.projectBlueprint;
+  const candidateKinds = collectSortedUniqueStrings([
+    ...(blueprint?.candidateKinds ?? []),
+    "skill",
+    "plugin",
+    "strategy",
+    "algorithm",
+    "agent_blueprint",
+  ]);
+  const targetArtifacts = collectSortedUniqueStrings([
+    ...(blueprint?.requiredArtifacts ?? []),
+    ...params.stage.outputRefs,
+    "candidate_manifest",
+    "qa_report",
+    "rollback_reference",
+  ]);
+  const writeScopes = collectSortedUniqueStrings([
+    ...params.profile.mutationAllow,
+    ...params.stage.outputRefs.map((entry) => `artifact:${entry}`),
+    ...(params.workspaceDirs ?? []).map((entry) => `workspace:${entry}`),
+  ]);
+  const qaGates = collectSortedUniqueStrings([
+    ...(blueprint?.qaGates ?? []),
+    "functional_pass",
+    "regression_pass",
+    "sandbox_replay_pass",
+    "audit_trace_present",
+  ]);
+  const promotionEvidence = collectSortedUniqueStrings([
+    "candidate_asset",
+    "manifest_delta",
+    "qa_report",
+    "sandbox_replay_report",
+    "audit_trace",
+    "rollback_reference",
+    ...params.plan.focusGapIds.map((entry) => `gap:${entry}`),
+  ]);
+  const rollbackPlan = collectSortedUniqueStrings([
+    ...(blueprint?.rollbackPlan ?? []),
+    "preserve previous registry entry before promotion",
+    "revert candidate artifacts if QA, replay, or audit gates fail",
+    "restore previous dependency index when publication regresses",
+  ]);
+  const publishTargets = collectSortedUniqueStrings([
+    "governance/charter/capability/asset-registry.yaml",
+    "skills/",
+    "extensions/",
+    "governance/charter/agents/",
+    "governance/charter/evolution/",
+  ]);
+  return {
+    packageId: [params.plan.teamId, params.stage.id, params.profile.id, params.plan.mode].join("/"),
+    candidateKinds,
+    targetArtifacts,
+    writeScopes,
+    qaGates,
+    promotionEvidence,
+    rollbackPlan,
+    publishTargets,
+  };
 }
 
 function buildGenesisManagedFlowPlan(params: {
@@ -902,6 +1014,12 @@ function buildGenesisManagedFlowPlan(params: {
     producedByAgentId: params.profile.id,
     stateDir: sandboxStateDir,
   });
+  const developmentPackage = resolveGenesisDevelopmentPackage({
+    profile: params.profile,
+    stage,
+    plan,
+    workspaceDirs: params.workspaceDirs,
+  });
   const projectState = {
     kind: "genesis_stage",
     teamId: plan.teamId,
@@ -928,6 +1046,7 @@ function buildGenesisManagedFlowPlan(params: {
       status: entry.status,
       dependsOn: [...entry.dependsOn],
     })),
+    developmentPackage,
     ...(plan.projectBlueprint ? { projectBlueprint: plan.projectBlueprint } : {}),
     sandboxUniverse: sandboxExperiment,
     sandboxController,
@@ -948,6 +1067,7 @@ function buildGenesisManagedFlowPlan(params: {
       profile: params.profile,
       stage,
       plan,
+      developmentPackage,
     }),
   };
 }
@@ -1292,9 +1412,7 @@ function buildExecutorManagedFlowPlan(params: {
       mode: genesisPlan.mode,
       focusGapIds: [...genesisPlan.focusGapIds],
       blockers: [...genesisPlan.blockers],
-      ...(genesisPlan.projectBlueprint
-        ? { projectBlueprint: genesisPlan.projectBlueprint }
-        : {}),
+      ...(genesisPlan.projectBlueprint ? { projectBlueprint: genesisPlan.projectBlueprint } : {}),
     },
     ...(sandboxExperiment ? { sandboxUniverse: sandboxExperiment } : {}),
     ...(sandboxController ? { sandboxController } : {}),
@@ -1574,22 +1692,22 @@ function sortManagedAutonomyAgentIds(agentIds: string[]): string[] {
   const preferredOrder = new Map<string, number>(
     AUTONOMY_PREFERRED_AGENT_ORDER.map((agentId, index) => [agentId, index] as const),
   );
-  return Array.from(new Set(agentIds.map((agentId) => normalizeAgentId(agentId)).filter(Boolean))).toSorted(
-    (left, right) => {
-      const leftRank = preferredOrder.get(left);
-      const rightRank = preferredOrder.get(right);
-      if (leftRank !== undefined && rightRank !== undefined) {
-        return leftRank - rightRank;
-      }
-      if (leftRank !== undefined) {
-        return -1;
-      }
-      if (rightRank !== undefined) {
-        return 1;
-      }
-      return left.localeCompare(right);
-    },
-  );
+  return Array.from(
+    new Set(agentIds.map((agentId) => normalizeAgentId(agentId)).filter(Boolean)),
+  ).toSorted((left, right) => {
+    const leftRank = preferredOrder.get(left);
+    const rightRank = preferredOrder.get(right);
+    if (leftRank !== undefined && rightRank !== undefined) {
+      return leftRank - rightRank;
+    }
+    if (leftRank !== undefined) {
+      return -1;
+    }
+    if (rightRank !== undefined) {
+      return 1;
+    }
+    return left.localeCompare(right);
+  });
 }
 
 function listAutonomyProfiles(params: {
@@ -1597,7 +1715,9 @@ function listAutonomyProfiles(params: {
   charterDir?: string;
 }): AutonomyAgentProfile[] {
   return sortManagedAutonomyAgentIds(
-    listGovernanceCharterAgentBlueprints({ charterDir: params.charterDir }).map((entry) => entry.id),
+    listGovernanceCharterAgentBlueprints({ charterDir: params.charterDir }).map(
+      (entry) => entry.id,
+    ),
   )
     .map((agentId) =>
       resolveAutonomyProfile({
@@ -1609,10 +1729,7 @@ function listAutonomyProfiles(params: {
     .filter((profile): profile is AutonomyAgentProfile => Boolean(profile));
 }
 
-function resolveFlowDetailForOwner(params: {
-  ownerKey: string;
-  flowId: string;
-}) {
+function resolveFlowDetailForOwner(params: { ownerKey: string; flowId: string }) {
   const flow = getTaskFlowByIdForOwner({
     flowId: params.flowId,
     callerOwnerKey: params.ownerKey,
@@ -1677,7 +1794,11 @@ function buildAutonomyLoopDescription(
   description: string,
   workspaceDirs?: string[],
 ): string {
-  return [buildAutonomyLoopMarker(agentId), buildAutonomyWorkspaceScopeMarker(workspaceDirs), description]
+  return [
+    buildAutonomyLoopMarker(agentId),
+    buildAutonomyWorkspaceScopeMarker(workspaceDirs),
+    description,
+  ]
     .filter((value): value is string => Boolean(value))
     .join(" ")
     .trim();
@@ -1723,7 +1844,11 @@ function resolveAutonomyFlowWorkspaceDirs(
     return undefined;
   }
   const state = "state" in flow ? flow.state : flow.stateJson;
-  if (!isRecord(state) || !isRecord(state.autonomy) || !Array.isArray(state.autonomy.workspaceDirs)) {
+  if (
+    !isRecord(state) ||
+    !isRecord(state.autonomy) ||
+    !Array.isArray(state.autonomy.workspaceDirs)
+  ) {
     return undefined;
   }
   return normalizeWorkspaceDirList(
@@ -1779,7 +1904,21 @@ function resolveAutonomyStateAgentId(stateJson: JsonValue | undefined): string |
   if (!isRecord(stateJson)) {
     return undefined;
   }
-  return normalizeOptionalAgentId(isRecord(stateJson.autonomy) ? stateJson.autonomy.agentId : undefined);
+  return normalizeOptionalAgentId(
+    isRecord(stateJson.autonomy) ? stateJson.autonomy.agentId : undefined,
+  );
+}
+
+function hasRawGenesisDevelopmentPackage(stateJson: JsonValue | undefined): boolean {
+  if (
+    !isRecord(stateJson) ||
+    !isRecord(stateJson.autonomy) ||
+    !isRecord(stateJson.autonomy.project) ||
+    stateJson.autonomy.project.kind !== "genesis_stage"
+  ) {
+    return true;
+  }
+  return isRecord(stateJson.autonomy.project.developmentPackage);
 }
 
 function matchesAutonomyManagedFlow(params: {
@@ -1812,10 +1951,7 @@ function matchesAutonomyManagedFlow(params: {
   );
 }
 
-function matchesAutonomyLoopJob(params: {
-  agentId: string;
-  job: CronJob;
-}): boolean {
+function matchesAutonomyLoopJob(params: { agentId: string; job: CronJob }): boolean {
   const targetAgentId = normalizeAgentId(params.agentId);
   if (normalizeOptionalAgentId(params.job.agentId) !== targetAgentId) {
     return false;
@@ -2081,7 +2217,10 @@ function inferManagedFlowSandboxReplaySubmission(params: {
   ) {
     return undefined;
   }
-  if (params.tasks.length === 0 || !params.tasks.every((task) => isTerminalTaskStatus(task.status))) {
+  if (
+    params.tasks.length === 0 ||
+    !params.tasks.every((task) => isTerminalTaskStatus(task.status))
+  ) {
     return undefined;
   }
 
@@ -2183,7 +2322,10 @@ async function maybeAutoSubmitManagedFlowSandboxReplay(params: {
 function createStandaloneCronService(cfg: OpenClawConfig): CronServiceContract {
   return new CronService({
     storePath: resolveCronStorePath(cfg.cron?.store),
-    cronEnabled: process.env.OPENCLAW_SKIP_CRON !== "1" && cfg.cron?.enabled !== false,
+    // This runtime path is used by CLI/plugin status calls when the gateway has
+    // not injected the real scheduler. It must read/write the persistent cron
+    // store, but it must not arm executable timers in a short-lived process.
+    cronEnabled: false,
     cronConfig: cfg.cron,
     defaultAgentId: resolveDefaultAgentId(cfg),
     log: noopCronLogger,
@@ -2257,11 +2399,11 @@ async function listAutonomyLoopJobSnapshots(params: {
       const agentId = normalizeOptionalAgentId(job.agentId);
       return Boolean(
         agentId &&
-          profileById.has(agentId) &&
-          matchesAutonomyLoopJob({
-            agentId,
-            job,
-          }),
+        profileById.has(agentId) &&
+        matchesAutonomyLoopJob({
+          agentId,
+          job,
+        }),
       );
     })
     .flatMap((job) => {
@@ -2329,9 +2471,7 @@ function resolveGovernanceProposalProfiles(params: {
   );
 }
 
-function resolveGovernanceProposalAuthor(
-  profiles: AutonomyAgentProfile[],
-): string | undefined {
+function resolveGovernanceProposalAuthor(profiles: AutonomyAgentProfile[]): string | undefined {
   if (profiles.some((profile) => profile.id === "founder")) {
     return "founder";
   }
@@ -2381,6 +2521,9 @@ function buildFleetStatusEntry(params: {
     ? ACTIVE_AUTONOMY_FLOW_STATUSES.has(params.latest.flow.status)
     : false;
   const flowBlocked = params.latest?.flow?.status === "blocked";
+  const missingGenesisDevelopmentPackage =
+    params.latest?.flow.managedAutonomy?.project?.kind === "genesis_stage" &&
+    !hasRawGenesisDevelopmentPackage(params.latest.flow.state);
   const driftReasons: string[] = [];
 
   if (!primary) {
@@ -2403,6 +2546,8 @@ function buildFleetStatusEntry(params: {
 
   if (flowBlocked) {
     driftReasons.push("latest managed flow is blocked");
+  } else if (missingGenesisDevelopmentPackage) {
+    driftReasons.push("latest Genesis managed flow is missing development package");
   } else if (!hasActiveFlow) {
     if (!params.latest?.flow) {
       driftReasons.push("no managed flow recorded yet");
@@ -2414,7 +2559,7 @@ function buildFleetStatusEntry(params: {
   let health: AutonomyFleetStatusHealth;
   if (!primary) {
     health = "missing_loop";
-  } else if (hasLoopDrift || flowBlocked) {
+  } else if (hasLoopDrift || flowBlocked || missingGenesisDevelopmentPackage) {
     health = "drift";
   } else if (hasActiveFlow) {
     health = "healthy";
@@ -2440,9 +2585,11 @@ function buildFleetStatusEntry(params: {
         ? "reconcile_loop"
         : flowBlocked
           ? "inspect_flow"
-          : hasActiveFlow
-            ? "observe"
-            : "start_flow",
+          : missingGenesisDevelopmentPackage
+            ? "inspect_flow"
+            : hasActiveFlow
+              ? "observe"
+              : "start_flow",
     health,
   };
 }
@@ -2488,9 +2635,7 @@ function buildFleetHistoryTotalsFromReconcile(
   };
 }
 
-function buildFleetHistoryEntryFromHeal(
-  entry: AutonomyFleetHealEntry,
-): AutonomyFleetHistoryEntry {
+function buildFleetHistoryEntryFromHeal(entry: AutonomyFleetHealEntry): AutonomyFleetHistoryEntry {
   const workspaceDirs = resolvePreferredWorkspaceDirs(
     entry.workspaceDirs,
     resolveAutonomyFlowWorkspaceDirs(entry.startedFlow),
@@ -2513,7 +2658,9 @@ function buildFleetHistoryEntryFromHeal(
     ...(entry.latestFlowBefore?.status
       ? { latestFlowStatusBefore: entry.latestFlowBefore.status }
       : {}),
-    ...(entry.latestFlowAfter?.status ? { latestFlowStatusAfter: entry.latestFlowAfter.status } : {}),
+    ...(entry.latestFlowAfter?.status
+      ? { latestFlowStatusAfter: entry.latestFlowAfter.status }
+      : {}),
     ...(entry.latestSeedTaskBefore?.status
       ? { latestSeedTaskStatusBefore: entry.latestSeedTaskBefore.status }
       : {}),
@@ -2666,6 +2813,561 @@ function buildAutonomySupervisorSummary(params: {
   };
 }
 
+function buildAutonomyBootstrapReadiness(
+  supervised: AutonomySupervisorResult,
+): AutonomyBootstrapReadiness {
+  const blockers: string[] = [];
+  const totals = supervised.overviewAfter.totals;
+  if (totals.missingLoop > 0) {
+    blockers.push(`${totals.missingLoop} autonomy profile(s) still missing managed loops`);
+  }
+  if (totals.drift > 0) {
+    blockers.push(`${totals.drift} autonomy profile(s) still have loop or flow drift`);
+  }
+  if (totals.idle > 0) {
+    blockers.push(`${totals.idle} autonomy profile(s) have no active managed flow`);
+  }
+  const criticalCapabilityGapCount = supervised.capabilityInventory?.summary.criticalGapCount ?? 0;
+  if (criticalCapabilityGapCount > 0) {
+    blockers.push(`${criticalCapabilityGapCount} critical capability gap(s) remain`);
+  }
+  const genesisBlockedStageCount =
+    supervised.genesisPlan?.stages.filter((stage) => stage.status === "blocked").length ?? 0;
+  if (genesisBlockedStageCount > 0) {
+    blockers.push(`${genesisBlockedStageCount} Genesis stage(s) remain blocked`);
+  }
+
+  return {
+    ready: blockers.length === 0,
+    profileReadyCount: totals.healthy,
+    profileNotReadyCount: totals.totalProfiles - totals.healthy,
+    missingLoopProfiles: totals.missingLoop,
+    driftProfiles: totals.drift,
+    idleProfiles: totals.idle,
+    activeFlows: totals.activeFlows,
+    capabilityGapCount: supervised.capabilityInventory?.summary.gapCount ?? 0,
+    criticalCapabilityGapCount,
+    genesisBlockedStageCount,
+    blockers,
+  };
+}
+
+function collectSortedUniqueStrings(values: Array<string | undefined | null>): string[] {
+  return Array.from(new Set(values.filter((entry): entry is string => Boolean(entry?.trim()))))
+    .map((entry) => entry.trim())
+    .toSorted((left, right) => left.localeCompare(right));
+}
+
+function resolveArchitectureCheckStatus(params: {
+  ready: boolean;
+  blockers: string[];
+}): AutonomyArchitectureReadinessStatus {
+  if (params.blockers.length > 0) {
+    return "blocked";
+  }
+  return params.ready ? "ready" : "attention";
+}
+
+function createArchitectureCheck(params: {
+  id: string;
+  title: string;
+  ready: boolean;
+  evidence: string[];
+  blockers?: string[];
+}): AutonomyArchitectureReadinessCheck {
+  const blockers = collectSortedUniqueStrings(params.blockers ?? []);
+  return {
+    id: params.id,
+    title: params.title,
+    status: resolveArchitectureCheckStatus({
+      ready: params.ready,
+      blockers,
+    }),
+    evidence: collectSortedUniqueStrings(params.evidence),
+    blockers,
+  };
+}
+
+function hasInventoryEntry(params: {
+  inventory: AutonomyCapabilityInventoryResult;
+  kind?: AutonomyCapabilityInventoryResult["entries"][number]["kind"];
+  idIncludes?: string;
+  coverageIncludes?: string;
+  titleIncludes?: string;
+}): boolean {
+  const titleNeedle = params.titleIncludes?.toLowerCase();
+  return params.inventory.entries.some((entry) => {
+    if (params.kind && entry.kind !== params.kind) {
+      return false;
+    }
+    if (params.idIncludes && !entry.id.includes(params.idIncludes)) {
+      return false;
+    }
+    if (
+      params.coverageIncludes &&
+      !entry.coverage.some((value) => value.includes(params.coverageIncludes!))
+    ) {
+      return false;
+    }
+    if (titleNeedle && !entry.title.toLowerCase().includes(titleNeedle)) {
+      return false;
+    }
+    return entry.status !== "blocked";
+  });
+}
+
+function createEmptyCapabilityInventory(): AutonomyCapabilityInventoryResult {
+  return {
+    observedAt: 0,
+    charterDir: "",
+    workspaceDirs: [],
+    requestedAgentIds: [],
+    summary: {
+      totalEntries: 0,
+      skillCount: 0,
+      skillReady: 0,
+      skillAttention: 0,
+      skillBlocked: 0,
+      pluginCount: 0,
+      pluginActivated: 0,
+      pluginAttention: 0,
+      pluginBlocked: 0,
+      memoryCount: 0,
+      memoryReady: 0,
+      memoryAttention: 0,
+      memoryBlocked: 0,
+      strategyCount: 0,
+      strategyReady: 0,
+      strategyAttention: 0,
+      strategyBlocked: 0,
+      algorithmCount: 0,
+      algorithmReady: 0,
+      algorithmAttention: 0,
+      algorithmBlocked: 0,
+      agentBlueprintCount: 0,
+      teamBlueprintCount: 0,
+      autonomyProfileCount: 0,
+      genesisMemberCount: 0,
+      gapCount: 0,
+      criticalGapCount: 0,
+      warningGapCount: 0,
+      infoGapCount: 0,
+    },
+    entries: [],
+    gaps: [],
+  };
+}
+
+function hasReadyProfile(overview: AutonomyFleetStatusResult, agentId: string): boolean {
+  return overview.entries.some((entry) => entry.agentId === agentId && entry.health === "healthy");
+}
+
+function createAutonomyArchitectureLayerChecks(params: {
+  bootstrapped: AutonomyBootstrapResult;
+}): AutonomyArchitectureReadinessLayer[] {
+  const supervised = params.bootstrapped.supervised;
+  const inventory = supervised.capabilityInventory;
+  const genesisPlan = supervised.genesisPlan;
+  const overview = supervised.overviewAfter;
+  const governance = supervised.governanceReconciled ?? supervised.healed.governanceProposals;
+  const inventorySnapshot = inventory ?? createEmptyCapabilityInventory();
+  const profileIds = new Set(overview.entries.map((entry) => entry.agentId));
+  const charterDir = inventory?.charterDir ?? genesisPlan?.charterDir ?? "";
+
+  const hasAgent = (agentId: string) => profileIds.has(agentId);
+  const hasHealthyAgent = (agentId: string) => hasReadyProfile(overview, agentId);
+  const hasAsset = inventory
+    ? (kind: AutonomyCapabilityInventoryResult["entries"][number]["kind"], idIncludes: string) =>
+        hasInventoryEntry({
+          inventory,
+          kind,
+          idIncludes,
+        })
+    : () => false;
+  const activeGenesisStages =
+    genesisPlan?.stages.filter((stage) => stage.status !== "blocked").length ?? 0;
+
+  return [
+    {
+      ...createArchitectureCheck({
+        id: "governance",
+        title: "Governance Layer",
+        ready:
+          Boolean(charterDir) &&
+          hasAgent("sovereignty_auditor") &&
+          supervised.summary.governancePendingCount === 0,
+        evidence: [
+          charterDir ? `charter=${charterDir}` : "",
+          `governanceMode=${supervised.governanceMode}`,
+          `governanceCreated=${supervised.summary.governanceCreatedCount}`,
+          `governanceApplied=${supervised.summary.governanceAppliedCount}`,
+          `governancePending=${supervised.summary.governancePendingCount}`,
+          hasAgent("sovereignty_auditor") ? "sovereignty_auditor profile declared" : "",
+          governance ? "governance proposal reconciliation available" : "",
+        ],
+        blockers: [
+          ...(!charterDir ? ["organizational charter is not resolved"] : []),
+          ...(!hasAgent("sovereignty_auditor")
+            ? ["sovereignty_auditor profile is not available"]
+            : []),
+          ...(supervised.summary.governancePendingCount > 0
+            ? [`${supervised.summary.governancePendingCount} governance proposal(s) still pending`]
+            : []),
+        ],
+      }),
+      id: "governance" as const,
+    },
+    {
+      ...createArchitectureCheck({
+        id: "evolution",
+        title: "Evolution Layer",
+        ready:
+          ["founder", "strategist", "algorithmist"].every(hasAgent) &&
+          activeGenesisStages >= AUTONOMY_ARCHITECTURE_GENESIS_AGENT_IDS.length &&
+          supervised.summary.genesisBlockedStageCount === 0,
+        evidence: [
+          hasAgent("founder") ? "founder profile declared" : "",
+          hasAgent("strategist") ? "strategist profile declared" : "",
+          hasAgent("algorithmist") ? "algorithmist profile declared" : "",
+          `genesisStages=${genesisPlan?.stages.length ?? 0}`,
+          `genesisBlocked=${supervised.summary.genesisBlockedStageCount}`,
+          genesisPlan?.teamId ? `genesisTeam=${genesisPlan.teamId}` : "",
+        ],
+        blockers: [
+          ...(["founder", "strategist", "algorithmist"] as const)
+            .filter((agentId) => !hasAgent(agentId))
+            .map((agentId) => `${agentId} profile is not available`),
+          ...(supervised.summary.genesisBlockedStageCount > 0
+            ? [`${supervised.summary.genesisBlockedStageCount} Genesis stage(s) blocked`]
+            : []),
+          ...(activeGenesisStages < AUTONOMY_ARCHITECTURE_GENESIS_AGENT_IDS.length
+            ? ["Genesis Team does not expose all required autonomous development stages"]
+            : []),
+        ],
+      }),
+      id: "evolution" as const,
+    },
+    {
+      ...createArchitectureCheck({
+        id: "capability",
+        title: "Capability Layer",
+        ready:
+          Boolean(inventory) &&
+          hasAgent("librarian") &&
+          (inventory?.summary.memoryReady ?? 0) > 0 &&
+          (inventory?.summary.strategyReady ?? 0) > 0 &&
+          (inventory?.summary.algorithmReady ?? 0) > 0 &&
+          (inventory?.summary.criticalGapCount ?? 0) === 0,
+        evidence: [
+          `skills=${inventory?.summary.skillCount ?? 0}`,
+          `plugins=${inventory?.summary.pluginCount ?? 0}`,
+          `memoryReady=${inventory?.summary.memoryReady ?? 0}`,
+          `strategyReady=${inventory?.summary.strategyReady ?? 0}`,
+          `algorithmReady=${inventory?.summary.algorithmReady ?? 0}`,
+          `criticalGaps=${inventory?.summary.criticalGapCount ?? 0}`,
+          hasAgent("librarian") ? "librarian profile declared" : "",
+        ],
+        blockers: [
+          ...(!inventory ? ["capability inventory is not included"] : []),
+          ...(!hasAgent("librarian") ? ["librarian profile is not available"] : []),
+          ...((inventory?.summary.memoryReady ?? 0) <= 0
+            ? ["memory fabric asset is not ready"]
+            : []),
+          ...((inventory?.summary.strategyReady ?? 0) <= 0 ? ["strategy asset is not ready"] : []),
+          ...((inventory?.summary.algorithmReady ?? 0) <= 0
+            ? ["algorithm asset is not ready"]
+            : []),
+          ...((inventory?.summary.criticalGapCount ?? 0) > 0
+            ? [`${inventory?.summary.criticalGapCount ?? 0} critical capability gap(s) remain`]
+            : []),
+        ],
+      }),
+      id: "capability" as const,
+    },
+    {
+      ...createArchitectureCheck({
+        id: "execution",
+        title: "Execution Layer",
+        ready: hasHealthyAgent("executor") && hasAsset("algorithm", "executor_dispatch_runtime"),
+        evidence: [
+          hasAgent("executor") ? "executor profile declared" : "",
+          hasHealthyAgent("executor") ? "executor managed loop and flow are healthy" : "",
+          hasAsset("algorithm", "executor_dispatch_runtime")
+            ? "executor dispatch algorithm registered"
+            : "",
+          `activeFlows=${overview.totals.activeFlows}`,
+        ],
+        blockers: [
+          ...(!hasAgent("executor") ? ["executor profile is not available"] : []),
+          ...(!hasHealthyAgent("executor")
+            ? ["executor managed autonomy loop or flow is not healthy"]
+            : []),
+          ...(!hasAsset("algorithm", "executor_dispatch_runtime")
+            ? ["executor dispatch algorithm is not registered"]
+            : []),
+        ],
+      }),
+      id: "execution" as const,
+    },
+    {
+      ...createArchitectureCheck({
+        id: "api_communication",
+        title: "API & Communication Layer",
+        ready:
+          hasInventoryEntry({
+            inventory: inventorySnapshot,
+            kind: "strategy",
+            idIncludes: "communication",
+          }) ||
+          hasInventoryEntry({
+            inventory: inventorySnapshot,
+            kind: "memory",
+            idIncludes: "audit",
+          }),
+        evidence: [
+          hasInventoryEntry({
+            inventory: inventorySnapshot,
+            kind: "memory",
+            idIncludes: "audit",
+          })
+            ? "audit stream memory registered"
+            : "",
+          `loopJobsHealthy=${overview.totals.healthy}/${overview.totals.totalProfiles}`,
+          "runtime exposes autonomy tool, CLI, cron store, and task flow surfaces",
+        ],
+        blockers: [],
+      }),
+      id: "api_communication" as const,
+    },
+    {
+      ...createArchitectureCheck({
+        id: "interaction",
+        title: "Interaction Layer",
+        ready: overview.totals.totalProfiles > 0 && hasAgent("executor"),
+        evidence: [
+          "CLI autonomy surface available",
+          "agent autonomy tool surface available",
+          hasAgent("executor") ? "executor can translate goals into task flows" : "",
+        ],
+        blockers: [
+          ...(overview.totals.totalProfiles <= 0 ? ["no autonomy profiles are exposed"] : []),
+          ...(!hasAgent("executor") ? ["executor profile is not available"] : []),
+        ],
+      }),
+      id: "interaction" as const,
+    },
+  ];
+}
+
+function createAutonomyArchitectureLoopChecks(params: {
+  bootstrapped: AutonomyBootstrapResult;
+}): AutonomyArchitectureReadinessLoop[] {
+  const supervised = params.bootstrapped.supervised;
+  const inventory = supervised.capabilityInventory;
+  const genesisPlan = supervised.genesisPlan;
+  const overview = supervised.overviewAfter;
+  const hasExecutor = hasReadyProfile(overview, "executor");
+  const hasGenesis =
+    (genesisPlan?.stages.length ?? 0) >= AUTONOMY_ARCHITECTURE_GENESIS_AGENT_IDS.length;
+  const criticalGaps = inventory?.summary.criticalGapCount ?? 0;
+
+  return [
+    {
+      ...createArchitectureCheck({
+        id: "value",
+        title: "Value Loop",
+        ready: hasExecutor && overview.totals.activeFlows > 0,
+        evidence: [
+          hasExecutor ? "executor flow is healthy" : "",
+          `activeFlows=${overview.totals.activeFlows}`,
+          "managed task flows record goal, execution graph, and delivery state",
+        ],
+        blockers: [
+          ...(!hasExecutor ? ["executor is not healthy"] : []),
+          ...(overview.totals.activeFlows <= 0 ? ["no active managed autonomy flow"] : []),
+        ],
+      }),
+      id: "value" as const,
+    },
+    {
+      ...createArchitectureCheck({
+        id: "maintenance",
+        title: "Maintenance Loop",
+        ready: hasGenesis && criticalGaps === 0,
+        evidence: [
+          `genesisStages=${genesisPlan?.stages.length ?? 0}`,
+          `criticalCapabilityGaps=${criticalGaps}`,
+          "healFleet and superviseFleet can repair loop/flow drift",
+        ],
+        blockers: [
+          ...(!hasGenesis ? ["Genesis Team maintenance pipeline is incomplete"] : []),
+          ...(criticalGaps > 0 ? [`${criticalGaps} critical capability gap(s) remain`] : []),
+        ],
+      }),
+      id: "maintenance" as const,
+    },
+    {
+      ...createArchitectureCheck({
+        id: "evolution",
+        title: "Evolution Loop",
+        ready:
+          hasReadyProfile(overview, "founder") &&
+          hasReadyProfile(overview, "strategist") &&
+          hasReadyProfile(overview, "algorithmist") &&
+          hasGenesis,
+        evidence: [
+          hasReadyProfile(overview, "founder") ? "Founder loop is healthy" : "",
+          hasReadyProfile(overview, "strategist") ? "Strategist loop is healthy" : "",
+          hasReadyProfile(overview, "algorithmist") ? "Algorithmist loop is healthy" : "",
+          hasGenesis ? "Genesis Team staged plan is available" : "",
+        ],
+        blockers: [
+          ...(["founder", "strategist", "algorithmist"] as const)
+            .filter((agentId) => !hasReadyProfile(overview, agentId))
+            .map((agentId) => `${agentId} loop is not healthy`),
+          ...(!hasGenesis ? ["Genesis Team staged plan is incomplete"] : []),
+        ],
+      }),
+      id: "evolution" as const,
+    },
+  ];
+}
+
+function createAutonomyArchitectureSpecialChecks(params: {
+  bootstrapped: AutonomyBootstrapResult;
+}): {
+  sandboxUniverse: AutonomyArchitectureReadinessCheck;
+  algorithmEvolutionProtocol: AutonomyArchitectureReadinessCheck;
+  autonomousDevelopment: AutonomyArchitectureReadinessCheck;
+  continuousRuntime: AutonomyArchitectureReadinessCheck;
+} {
+  const supervised = params.bootstrapped.supervised;
+  const inventory = supervised.capabilityInventory;
+  const genesisPlan = supervised.genesisPlan;
+  const overview = supervised.overviewAfter;
+  const inventorySnapshot = inventory ?? createEmptyCapabilityInventory();
+  const hasSandboxControl = hasInventoryEntry({
+    inventory: inventorySnapshot,
+    kind: "algorithm",
+    idIncludes: "sandbox_universe_control",
+  });
+  const hasAlgorithmProfile = hasReadyProfile(overview, "algorithmist");
+  const hasAlgorithmAsset = (inventory?.summary.algorithmReady ?? 0) > 0;
+  const genesisMembers = new Set(
+    genesisPlan?.stages.map((stage) => normalizeAgentId(stage.ownerAgentId)) ?? [],
+  );
+  const missingGenesisMembers = AUTONOMY_ARCHITECTURE_GENESIS_AGENT_IDS.filter(
+    (agentId) => !genesisMembers.has(agentId),
+  );
+  const genesisDevelopmentPackageProfiles = overview.entries
+    .filter(
+      (entry) =>
+        AUTONOMY_ARCHITECTURE_GENESIS_AGENT_IDS.includes(
+          entry.agentId as (typeof AUTONOMY_ARCHITECTURE_GENESIS_AGENT_IDS)[number],
+        ) &&
+        entry.latestFlow?.managedAutonomy?.project?.kind === "genesis_stage" &&
+        Boolean(entry.latestFlow.managedAutonomy.project.developmentPackage),
+    )
+    .map((entry) => entry.agentId);
+  const genesisDevelopmentPackageAgents = new Set(genesisDevelopmentPackageProfiles);
+  const missingDevelopmentPackageAgents = AUTONOMY_ARCHITECTURE_GENESIS_AGENT_IDS.filter(
+    (agentId) => !genesisDevelopmentPackageAgents.has(agentId),
+  );
+  const healthyProfiles = overview.totals.healthy;
+  const totalProfiles = overview.totals.totalProfiles;
+
+  return {
+    sandboxUniverse: createArchitectureCheck({
+      id: "sandbox_universe",
+      title: "Sandbox Universe",
+      ready: hasSandboxControl && (genesisPlan?.projectBlueprint?.qaGates.length ?? 0) > 0,
+      evidence: [
+        hasSandboxControl ? "sandbox universe control algorithm registered" : "",
+        `genesisQaGates=${genesisPlan?.projectBlueprint?.qaGates.length ?? 0}`,
+        "managed Genesis and Algorithmist flows include sandbox controller/replay projections",
+      ],
+      blockers: [
+        ...(!hasSandboxControl ? ["sandbox universe control algorithm is not registered"] : []),
+        ...((genesisPlan?.projectBlueprint?.qaGates.length ?? 0) <= 0
+          ? ["sandbox promotion QA gates are not present"]
+          : []),
+      ],
+    }),
+    algorithmEvolutionProtocol: createArchitectureCheck({
+      id: "algorithm_evolution_protocol",
+      title: "Algorithm Evolution Protocol",
+      ready: hasAlgorithmProfile && hasAlgorithmAsset,
+      evidence: [
+        hasAlgorithmProfile ? "Algorithmist loop is healthy" : "",
+        `algorithmReady=${inventory?.summary.algorithmReady ?? 0}`,
+        "algorithm research flows include signal review, hypothesis generation, sandbox A/B validation, and promotion recommendation",
+      ],
+      blockers: [
+        ...(!hasAlgorithmProfile ? ["algorithmist loop is not healthy"] : []),
+        ...(!hasAlgorithmAsset ? ["no ready algorithm assets are registered"] : []),
+      ],
+    }),
+    autonomousDevelopment: createArchitectureCheck({
+      id: "autonomous_development",
+      title: "Autonomous Development",
+      ready:
+        missingGenesisMembers.length === 0 &&
+        missingDevelopmentPackageAgents.length === 0 &&
+        (genesisPlan?.stages.length ?? 0) >= 6,
+      evidence: [
+        `genesisMembers=${Array.from(genesisMembers).join(", ") || "none"}`,
+        `genesisStages=${genesisPlan?.stages.length ?? 0}`,
+        `developmentPackages=${genesisDevelopmentPackageProfiles.join(", ") || "none"}`,
+        "Genesis Team pipeline covers detection, root cause, implementation, QA, promotion, and registration",
+      ],
+      blockers: [
+        ...missingGenesisMembers.map((agentId) => `${agentId} missing from Genesis staged plan`),
+        ...missingDevelopmentPackageAgents.map(
+          (agentId) => `${agentId} latest Genesis flow is missing a development package`,
+        ),
+      ],
+    }),
+    continuousRuntime: createArchitectureCheck({
+      id: "continuous_runtime",
+      title: "Continuous Runtime",
+      ready:
+        params.bootstrapped.readiness.ready &&
+        totalProfiles > 0 &&
+        healthyProfiles === totalProfiles &&
+        overview.totals.activeFlows === totalProfiles,
+      evidence: [
+        `readiness=${params.bootstrapped.readiness.ready ? "ready" : "not_ready"}`,
+        `healthyProfiles=${healthyProfiles}/${totalProfiles}`,
+        `activeFlows=${overview.totals.activeFlows}`,
+        "bootstrapFleet creates persistent cron loop records without arming standalone timers",
+      ],
+      blockers: params.bootstrapped.readiness.blockers,
+    }),
+  };
+}
+
+function buildAutonomyArchitectureReadinessSummary(
+  checks: AutonomyArchitectureReadinessCheck[],
+): AutonomyArchitectureReadinessSummary {
+  const blockedChecks = checks.filter((entry) => entry.status === "blocked").length;
+  const attentionChecks = checks.filter((entry) => entry.status === "attention").length;
+  const readyChecks = checks.filter((entry) => entry.status === "ready").length;
+  const blockers = checks.flatMap((entry) =>
+    entry.blockers.map((blocker) => `${entry.title}: ${blocker}`),
+  );
+  const status: AutonomyArchitectureReadinessStatus =
+    blockedChecks > 0 ? "blocked" : attentionChecks > 0 ? "attention" : "ready";
+  return {
+    ready: status === "ready",
+    status,
+    readyChecks,
+    attentionChecks,
+    blockedChecks,
+    totalChecks: checks.length,
+    blockers,
+  };
+}
+
 async function resolveFleetProfileRuntimeState(params: {
   cfg: OpenClawConfig;
   profile: AutonomyAgentProfile;
@@ -2738,6 +3440,15 @@ function resolveManagedFlowHealDecision(params: {
       reasons: ["latest managed flow is blocked"],
     };
   }
+  if (
+    params.latest?.flow.managedAutonomy?.project?.kind === "genesis_stage" &&
+    !hasRawGenesisDevelopmentPackage(params.latest.flow.state)
+  ) {
+    return {
+      action: "restart",
+      reasons: ["latest Genesis managed flow is missing development package"],
+    };
+  }
   return {
     action: "none",
     reasons: [],
@@ -2756,11 +3467,9 @@ async function cancelManagedAutonomyFlowById(params: {
     cfg: params.cfg,
   });
   const flowRecord =
-    cancelled.flow ??
-    (cancelled.found
-      ? params.taskFlow.get(params.targetFlowId)
-      : undefined);
-  const taskRecords = cancelled.tasks ?? (flowRecord ? listTasksForFlowId(flowRecord.flowId) : undefined);
+    cancelled.flow ?? (cancelled.found ? params.taskFlow.get(params.targetFlowId) : undefined);
+  const taskRecords =
+    cancelled.tasks ?? (flowRecord ? listTasksForFlowId(flowRecord.flowId) : undefined);
   const snapshot =
     flowRecord && taskRecords
       ? createManagedFlowSnapshot({
@@ -3037,8 +3746,8 @@ function createManagedAutonomyFlow(params: {
   const requestedCurrentStep =
     params.input.currentStep === null
       ? undefined
-      : normalizeOptionalString(params.input.currentStep) ??
-        params.profile.bootstrap.defaultCurrentStep;
+      : (normalizeOptionalString(params.input.currentStep) ??
+        params.profile.bootstrap.defaultCurrentStep);
   const workspaceDirs = resolveAutonomyWorkspaceDirs({
     cfg: params.cfg,
     sessionKey: params.ownerKey,
@@ -3077,25 +3786,24 @@ function createManagedAutonomyFlow(params: {
   let seedTask = undefined;
   const seedConfig = params.input.seedTask === false ? undefined : params.input.seedTask;
   const seedEnabled = params.input.seedTask === false ? false : seedConfig?.enabled !== false;
-  const taskTemplates =
-    seedEnabled
-      ? seedConfig
-        ? [
-            {
-              ...params.profile.bootstrap.seedTask,
-              ...(seedConfig.runtime ? { runtime: seedConfig.runtime } : {}),
-              ...(seedConfig.label !== undefined ? { label: seedConfig.label } : {}),
-              ...(seedConfig.task !== undefined ? { task: seedConfig.task } : {}),
-              ...(seedConfig.status ? { status: seedConfig.status } : {}),
-              ...(seedConfig.progressSummary !== undefined
-                ? { progressSummary: seedConfig.progressSummary }
-                : {}),
-            } satisfies ManagedAutonomyTaskTemplate,
-          ]
-        : structuredPlan?.tasks?.length
-          ? structuredPlan.tasks
-          : [params.profile.bootstrap.seedTask]
-      : [];
+  const taskTemplates = seedEnabled
+    ? seedConfig
+      ? [
+          {
+            ...params.profile.bootstrap.seedTask,
+            ...(seedConfig.runtime ? { runtime: seedConfig.runtime } : {}),
+            ...(seedConfig.label !== undefined ? { label: seedConfig.label } : {}),
+            ...(seedConfig.task !== undefined ? { task: seedConfig.task } : {}),
+            ...(seedConfig.status ? { status: seedConfig.status } : {}),
+            ...(seedConfig.progressSummary !== undefined
+              ? { progressSummary: seedConfig.progressSummary }
+              : {}),
+          } satisfies ManagedAutonomyTaskTemplate,
+        ]
+      : structuredPlan?.tasks?.length
+        ? structuredPlan.tasks
+        : [params.profile.bootstrap.seedTask]
+    : [];
   if (taskTemplates.length > 0) {
     const governanceRuntime = createAgentGovernanceRuntimeSnapshot({
       cfg: params.cfg,
@@ -3117,8 +3825,7 @@ function createManagedAutonomyFlow(params: {
         status: template.status,
         startedAt: index === 0 ? seedConfig?.startedAt : undefined,
         lastEventAt: index === 0 ? seedConfig?.lastEventAt : undefined,
-        progressSummary:
-          normalizeOptionalString(template.progressSummary) ?? null,
+        progressSummary: normalizeOptionalString(template.progressSummary) ?? null,
       });
       if (!seeded.created) {
         throw new Error(seeded.reason);
@@ -3165,7 +3872,7 @@ function createBoundAutonomyRuntime(params: {
   });
 
   const upsertLoopJob = async (
-    input: AutonomyLoopUpsertParams,
+    input: AutonomyLoopUpsertParams & { preferTemplateCadence?: boolean },
   ): Promise<AutonomyLoopUpsertResult> => {
     const cfg = resolveRuntimeConfig();
     const boundWorkspaceDir = resolveBoundAutonomyWorkspaceDir({
@@ -3197,9 +3904,11 @@ function createBoundAutonomyRuntime(params: {
     const [primary, ...duplicates] = existing;
     const loopTemplate = profile.bootstrap.loop;
     const fallbackEveryMs =
-      primary?.schedule.kind === "every"
-        ? primary.schedule.everyMs
-        : loopTemplate.schedule.everyMs;
+      input.preferTemplateCadence === true
+        ? loopTemplate.schedule.everyMs
+        : primary?.schedule.kind === "every"
+          ? primary.schedule.everyMs
+          : loopTemplate.schedule.everyMs;
     const everyMs = resolveLoopEveryMs(input.everyMs, fallbackEveryMs);
     const sessionKey = resolveAgentMainSessionKey({
       cfg,
@@ -3226,7 +3935,11 @@ function createBoundAutonomyRuntime(params: {
           wakeMode: loopTemplate.wakeMode,
           payload: {
             kind: "agentTurn",
-            message: buildAutonomyLoopPayloadMessage(profile.id, loopTemplate.message, workspaceDirs),
+            message: buildAutonomyLoopPayloadMessage(
+              profile.id,
+              loopTemplate.message,
+              workspaceDirs,
+            ),
           },
         })
       : await cron.update(primary.id, {
@@ -3247,7 +3960,11 @@ function createBoundAutonomyRuntime(params: {
           wakeMode: loopTemplate.wakeMode,
           payload: {
             kind: "agentTurn",
-            message: buildAutonomyLoopPayloadMessage(profile.id, loopTemplate.message, workspaceDirs),
+            message: buildAutonomyLoopPayloadMessage(
+              profile.id,
+              loopTemplate.message,
+              workspaceDirs,
+            ),
           },
         });
 
@@ -3541,9 +4258,7 @@ function createBoundAutonomyRuntime(params: {
     });
   };
 
-  const healFleet = async (
-    input: AutonomyFleetHealParams,
-  ): Promise<AutonomyFleetHealResult> => {
+  const healFleet = async (input: AutonomyFleetHealParams): Promise<AutonomyFleetHealResult> => {
     const cfg = resolveRuntimeConfig();
     const boundWorkspaceDir = resolveBoundAutonomyWorkspaceDir({
       cfg,
@@ -3576,18 +4291,15 @@ function createBoundAutonomyRuntime(params: {
 
       let loopAction: AutonomyFleetHealEntry["loopAction"] = "none";
       let flowAction: AutonomyFleetHealEntry["flowAction"] = "none";
-      let started:
-        | AutonomyStartManagedFlowResult
-        | undefined;
-      let cancelledBeforeRestart:
-        | AutonomyCancelManagedFlowResult
-        | undefined;
+      let started: AutonomyStartManagedFlowResult | undefined;
+      let cancelledBeforeRestart: AutonomyCancelManagedFlowResult | undefined;
       const reasons: string[] = [];
 
       if (hasLoopReconcileDrift(before.entry)) {
         const upserted = await upsertLoopJob({
           agentId: profile.id,
           ...(workspaceDirs?.length ? { workspaceDirs } : {}),
+          preferTemplateCadence: true,
         });
         loopAction = upserted.created ? "created" : "updated";
         reasons.push(
@@ -3603,6 +4315,7 @@ function createBoundAutonomyRuntime(params: {
       if (flowDecision.action === "restart") {
         const targetFlowId = before.latest?.flow?.id;
         if (targetFlowId) {
+          const startInput = workspaceDirs?.length ? { workspaceDirs } : {};
           cancelledBeforeRestart = await cancelManagedAutonomyFlowById({
             cfg,
             profile,
@@ -3618,9 +4331,7 @@ function createBoundAutonomyRuntime(params: {
               charterDir: params.charterDir,
               workspaceDir: boundWorkspaceDir,
               automationMode: "autonomous",
-              input: {
-                ...(workspaceDirs?.length ? { workspaceDirs } : {}),
-              },
+              input: startInput,
             });
             flowAction = "restarted";
             reasons.push(`cancelled blocked flow "${targetFlowId}" before restart`);
@@ -3632,6 +4343,7 @@ function createBoundAutonomyRuntime(params: {
           }
         }
       } else if (flowDecision.action === "start") {
+        const startInput = workspaceDirs?.length ? { workspaceDirs } : {};
         started = createManagedAutonomyFlow({
           cfg,
           ownerKey: before.profileSessionKey,
@@ -3640,9 +4352,7 @@ function createBoundAutonomyRuntime(params: {
           charterDir: params.charterDir,
           workspaceDir: boundWorkspaceDir,
           automationMode: "autonomous",
-          input: {
-            ...(workspaceDirs?.length ? { workspaceDirs } : {}),
-          },
+          input: startInput,
         });
         flowAction = "started";
       }
@@ -3674,7 +4384,9 @@ function createBoundAutonomyRuntime(params: {
         ),
         ...(before.entry.latestFlow ? { latestFlowBefore: before.entry.latestFlow } : {}),
         ...(after.entry.latestFlow ? { latestFlowAfter: after.entry.latestFlow } : {}),
-        ...(before.entry.latestSeedTask ? { latestSeedTaskBefore: before.entry.latestSeedTask } : {}),
+        ...(before.entry.latestSeedTask
+          ? { latestSeedTaskBefore: before.entry.latestSeedTask }
+          : {}),
         ...(after.entry.latestSeedTask ? { latestSeedTaskAfter: after.entry.latestSeedTask } : {}),
         ...(before.entry.loopJob ? { loopBefore: before.entry.loopJob } : {}),
         ...(after.entry.loopJob ? { loopAfter: after.entry.loopJob } : {}),
@@ -3812,6 +4524,72 @@ function createBoundAutonomyRuntime(params: {
         ...(capabilityInventory ? { capabilityInventory } : {}),
         ...(genesisPlan ? { genesisPlan } : {}),
       }),
+    };
+  };
+
+  const bootstrapFleet = async (
+    input: AutonomyBootstrapParams,
+  ): Promise<AutonomyBootstrapResult> => {
+    const supervised = await superviseFleet({
+      ...input,
+      includeCapabilityInventory: input.includeCapabilityInventory ?? true,
+      includeGenesisPlan: input.includeGenesisPlan ?? true,
+      recordHistory: input.recordHistory ?? true,
+      telemetrySource: input.telemetrySource ?? "manual",
+    });
+    return {
+      observedAt: Date.now(),
+      sessionKey: ownerKey,
+      supervised,
+      readiness: buildAutonomyBootstrapReadiness(supervised),
+    };
+  };
+
+  const getArchitectureReadiness = async (
+    input: AutonomyArchitectureReadinessParams,
+  ): Promise<AutonomyArchitectureReadinessResult> => {
+    const bootstrapped = await bootstrapFleet({
+      ...input,
+      includeCapabilityInventory: input.includeCapabilityInventory ?? true,
+      includeGenesisPlan: input.includeGenesisPlan ?? true,
+      recordHistory: input.recordHistory ?? true,
+    });
+    const layers = createAutonomyArchitectureLayerChecks({
+      bootstrapped,
+    });
+    const loops = createAutonomyArchitectureLoopChecks({
+      bootstrapped,
+    });
+    const special = createAutonomyArchitectureSpecialChecks({
+      bootstrapped,
+    });
+    const allChecks = [
+      ...layers,
+      ...loops,
+      special.sandboxUniverse,
+      special.algorithmEvolutionProtocol,
+      special.autonomousDevelopment,
+      special.continuousRuntime,
+    ];
+    const workspaceDirs = collectSortedUniqueStrings([
+      ...(bootstrapped.supervised.capabilityInventory?.workspaceDirs ?? []),
+      ...(bootstrapped.supervised.genesisPlan?.workspaceDirs ?? []),
+      ...(input.workspaceDirs ?? []),
+    ]);
+
+    return {
+      observedAt: Date.now(),
+      sessionKey: ownerKey,
+      charterDir:
+        bootstrapped.supervised.capabilityInventory?.charterDir ??
+        bootstrapped.supervised.genesisPlan?.charterDir ??
+        "",
+      workspaceDirs,
+      summary: buildAutonomyArchitectureReadinessSummary(allChecks),
+      layers,
+      loops,
+      ...special,
+      bootstrapped,
     };
   };
 
@@ -4076,9 +4854,9 @@ function createBoundAutonomyRuntime(params: {
     reconcileGovernanceProposals,
     healFleet,
     superviseFleet,
-    removeLoopJob: async (
-      input: AutonomyLoopRemoveParams,
-    ): Promise<AutonomyLoopRemoveResult> => {
+    bootstrapFleet,
+    getArchitectureReadiness,
+    removeLoopJob: async (input: AutonomyLoopRemoveParams): Promise<AutonomyLoopRemoveResult> => {
       const cfg = resolveRuntimeConfig();
       const profile = assertManagedAutonomyProfile({
         cfg,

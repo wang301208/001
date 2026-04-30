@@ -9,7 +9,7 @@ export const SESSIONS_SEND_TOOL_DISPLAY_SUMMARY = "Send a message to another vis
 export const SESSIONS_SPAWN_TOOL_DISPLAY_SUMMARY = "Spawn sub-agent or ACP sessions.";
 export const SESSION_STATUS_TOOL_DISPLAY_SUMMARY = "Show session status, usage, and model state.";
 export const AUTONOMY_TOOL_DISPLAY_SUMMARY =
-  "Inspect autonomy profiles, supervise fleet convergence, and start managed autonomy flows.";
+  "Inspect, bootstrap, supervise, and operate governed autonomy profiles.";
 export const GOVERNANCE_TOOL_DISPLAY_SUMMARY =
   "Inspect or mutate the charter proposal ledger, governance freeze state, and agent contracts.";
 export const UPDATE_PLAN_TOOL_DISPLAY_SUMMARY = "Track a short structured work plan.";
@@ -54,8 +54,8 @@ export function describeSessionStatusTool(): string {
 
 export function describeAutonomyTool(): string {
   return [
-    "List supported autonomy profiles, inspect a specific governance-backed autonomy profile, heal or supervise a scoped fleet, or start a managed autonomy flow bound to the current session.",
-    "Use this to launch Founder, Strategist, or Librarian autonomy loops, reconcile governed loop drift, and run a one-shot supervision pass that can synthesize or apply governance repairs automatically.",
+    "List supported autonomy profiles, inspect a specific governance-backed autonomy profile, bootstrap or supervise a scoped fleet, or start a managed autonomy flow bound to the current session.",
+    "Use this to prepare Founder, Strategist, Genesis Team, Executor, Librarian, and Sovereignty Auditor loops for continuous operation, reconcile governed loop drift, and run a one-shot supervision pass that can synthesize or apply governance repairs automatically.",
   ].join(" ");
 }
 

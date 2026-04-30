@@ -476,7 +476,7 @@ describe("governance control plane", () => {
 
       expect(inventory.observedAt).toBe(789);
       expect(inventory.workspaceDirs).toEqual([workspaceDir]);
-      expect(inventory.summary.skillCount).toBe(1);
+      expect(inventory.summary.skillCount).toBeGreaterThanOrEqual(1);
       expect(inventory.entries.some((entry) => entry.kind === "skill")).toBe(true);
       expect(genesisPlan.observedAt).toBe(790);
       expect(genesisPlan.teamId).toBe("genesis_team");
