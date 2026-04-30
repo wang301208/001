@@ -112,7 +112,15 @@ export function formatUncaughtError(err: unknown): string {
   return formatErrorMessage(err);
 }
 
-export type ErrorKind = "refusal" | "timeout" | "rate_limit" | "context_length" | "unknown";
+export type ErrorKind =
+  | "refusal"
+  | "timeout"
+  | "rate_limit"
+  | "context_length"
+  | "auth"
+  | "billing"
+  | "overloaded"
+  | "unknown";
 
 export function detectErrorKind(err: unknown): ErrorKind | undefined {
   if (err === undefined) {
@@ -139,6 +147,37 @@ export function detectErrorKind(err: unknown): ErrorKind | undefined {
     code === "429"
   ) {
     return "rate_limit";
+  }
+  if (
+    message.includes("unauthorized") ||
+    message.includes("invalid api key") ||
+    message.includes("authentication") ||
+    message.includes("permission denied") ||
+    message.includes("forbidden") ||
+    message.includes("403") ||
+    message.includes("401") ||
+    code === "401" ||
+    code === "403"
+  ) {
+    return "auth";
+  }
+  if (
+    message.includes("billing") ||
+    message.includes("payment required") ||
+    message.includes("insufficient quota") ||
+    message.includes("402") ||
+    code === "402"
+  ) {
+    return "billing";
+  }
+  if (
+    message.includes("overloaded") ||
+    message.includes("service unavailable") ||
+    message.includes("temporarily unavailable") ||
+    message.includes("503") ||
+    code === "503"
+  ) {
+    return "overloaded";
   }
   if (
     message.includes("context length") ||

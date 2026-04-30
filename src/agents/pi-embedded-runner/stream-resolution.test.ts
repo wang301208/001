@@ -63,6 +63,24 @@ describe("describeEmbeddedAgentStreamStrategy", () => {
       }),
     ).toBe("session-custom");
   });
+
+  it("routes configured compatible custom session streams through boundary-aware transports", () => {
+    expect(
+      describeEmbeddedAgentStreamStrategy({
+        currentStreamFn: vi.fn() as never,
+        shouldUseWebSocketTransport: false,
+        model: {
+          api: "openai-completions",
+          provider: "openai",
+          id: "gpt-5.2",
+          compat: {
+            supportsTools: false,
+            requiresStringContent: true,
+          },
+        } as never,
+      }),
+    ).toBe("boundary-aware:openai-completions");
+  });
 });
 
 describe("resolveEmbeddedAgentStreamFn", () => {
@@ -109,6 +127,99 @@ describe("resolveEmbeddedAgentStreamFn", () => {
     });
 
     expect(streamFn).not.toBe(streamSimple);
+  });
+
+  it("overrides custom session streams for configured compatible completions models", () => {
+    const currentStreamFn = vi.fn() as never;
+    const streamFn = resolveEmbeddedAgentStreamFn({
+      currentStreamFn,
+      shouldUseWebSocketTransport: false,
+      sessionId: "session-1",
+      model: {
+        api: "openai-completions",
+        provider: "openai",
+        id: "gpt-5.2",
+        compat: {
+          supportsTools: false,
+          requiresStringContent: true,
+        },
+      } as never,
+    });
+
+    expect(streamFn).not.toBe(currentStreamFn);
+    expect(streamFn).not.toBe(streamSimple);
+  });
+
+  it("injects the resolved run api key into boundary-aware transports", async () => {
+    const model = {
+      api: "anthropic-messages",
+      provider: "anthropic",
+      id: "claude-test",
+      input: ["text"],
+      maxTokens: 1024,
+    } as never;
+    const streamFn = resolveEmbeddedAgentStreamFn({
+      currentStreamFn: undefined,
+      shouldUseWebSocketTransport: false,
+      sessionId: "session-1",
+      model,
+      resolvedApiKey: "resolved-key",
+    });
+    const events: unknown[] = [];
+
+    const stream = await streamFn(
+      model,
+      { messages: [] } as never,
+      {
+        onPayload: (payload) => {
+          events.push(payload);
+          throw new Error("stop before network");
+        },
+      },
+    );
+
+    for await (const event of stream as AsyncIterable<unknown>) {
+      events.push(event);
+    }
+
+    expect(JSON.stringify(events)).not.toContain("No API key");
+    expect(JSON.stringify(events)).toContain("stop before network");
+  });
+
+  it("injects authStorage api keys into boundary-aware transports", async () => {
+    const model = {
+      api: "anthropic-messages",
+      provider: "anthropic",
+      id: "claude-test",
+      input: ["text"],
+      maxTokens: 1024,
+    } as never;
+    const authStorage = {
+      getApiKey: vi.fn(async () => "storage-key"),
+    };
+    const streamFn = resolveEmbeddedAgentStreamFn({
+      currentStreamFn: undefined,
+      shouldUseWebSocketTransport: false,
+      sessionId: "session-1",
+      model,
+      authStorage,
+    });
+
+    const stream = await streamFn(
+      model,
+      { messages: [] } as never,
+      {
+        onPayload: () => {
+          throw new Error("stop before network");
+        },
+      },
+    );
+
+    for await (const _event of stream as AsyncIterable<unknown>) {
+      // Drain stream so async transport errors are surfaced.
+    }
+
+    expect(authStorage.getApiKey).toHaveBeenCalledWith("anthropic");
   });
 
   it("injects the resolved run api key into provider-owned stream functions", async () => {

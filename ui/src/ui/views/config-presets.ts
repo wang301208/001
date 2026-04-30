@@ -16,8 +16,8 @@ export type ConfigPreset = {
 export const CONFIG_PRESETS: ConfigPreset[] = [
   {
     id: "personal",
-    label: "Personal Assistant",
-    description: "Balanced context and cost. Best for daily use.",
+    label: "个人助理",
+    description: "平衡上下文与成本，适合日常使用。",
     icon: "✨",
     patch: {
       agents: {
@@ -31,8 +31,8 @@ export const CONFIG_PRESETS: ConfigPreset[] = [
   },
   {
     id: "codeAgent",
-    label: "Code Agent",
-    description: "Higher context for coding tasks. More tokens per turn.",
+    label: "代码代理",
+    description: "为编码任务提供更高上下文，每轮可用 Token 更多。",
     icon: "🛠️",
     patch: {
       agents: {
@@ -46,8 +46,8 @@ export const CONFIG_PRESETS: ConfigPreset[] = [
   },
   {
     id: "teamBot",
-    label: "Team Bot",
-    description: "Multi-channel, group-aware. Leaner per-turn context.",
+    label: "团队机器人",
+    description: "面向多频道和群组协作，每轮上下文更精简。",
     icon: "👥",
     patch: {
       agents: {
@@ -61,8 +61,8 @@ export const CONFIG_PRESETS: ConfigPreset[] = [
   },
   {
     id: "minimal",
-    label: "Minimal",
-    description: "Lowest cost per turn. Fast and lean.",
+    label: "极简模式",
+    description: "单轮成本最低，快速且轻量。",
     icon: "⚡",
     patch: {
       agents: {

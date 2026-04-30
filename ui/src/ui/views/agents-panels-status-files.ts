@@ -383,7 +383,7 @@ export function renderAgentFiles(params: {
       </div>
       ${list
         ? html`<div class="muted mono" style="margin-top: 8px;">
-            Workspace: <span>${list.workspace}</span>
+            工作区：<span>${list.workspace}</span>
           </div>`
         : nothing}
       ${params.agentFilesError

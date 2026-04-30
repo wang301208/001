@@ -250,6 +250,8 @@ export class OpenClawApp extends LitElement {
   @state() configIssues: unknown[] = [];
   @state() configSaving = false;
   @state() configApplying = false;
+  @state() remoteModelImporting = false;
+  @state() remoteModelImportMessage: { kind: "success" | "error"; text: string } | null = null;
   @state() updateRunning = false;
   @state() applySessionKey = this.settings.lastActiveSessionKey;
   @state() configSnapshot: ConfigSnapshot | null = null;

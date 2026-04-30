@@ -1,5 +1,5 @@
 import { roleScopesAllow } from "../../../src/shared/operator-scope-compat.js";
-import { t } from "../i18n/index.ts";
+import { i18n, isSupportedLocale, t } from "../i18n/index.ts";
 import { refreshChat } from "./app-chat.ts";
 import {
   startLogsPolling,
@@ -170,6 +170,9 @@ export function applySettings(host: SettingsHost, next: UiSettings) {
   };
   host.settings = normalized;
   saveSettings(normalized);
+  if (isSupportedLocale(normalized.locale)) {
+    void i18n.setLocale(normalized.locale);
+  }
   if (next.theme !== host.theme || next.themeMode !== host.themeMode) {
     host.theme = next.theme;
     host.themeMode = next.themeMode;
@@ -740,7 +743,7 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "error",
       icon: "x",
-      title: "Gateway Error",
+      title: "网关错误",
       description: host.lastError,
     });
   }
@@ -751,9 +754,8 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "warning",
       icon: "key",
-      title: "Missing operator.read scope",
-      description:
-        "This connection does not have the operator.read scope. Some features may be unavailable.",
+      title: "缺少 operator.read 权限范围",
+      description: "当前连接没有 operator.read 权限范围，部分功能可能不可用。",
       href: "https://docs.openclaw.ai/web/dashboard",
       external: true,
     });
@@ -764,33 +766,33 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "warning",
       icon: "shield",
-      title: "Governance freeze active",
+      title: "治理冻结已生效",
       description: governance.freezeReasonCode
-        ? `Freeze reason: ${governance.freezeReasonCode}. Pending proposals: ${governance.proposalSummary.pending}.`
-        : `Pending proposals: ${governance.proposalSummary.pending}.`,
+        ? `冻结原因：${governance.freezeReasonCode}。待处理提案：${governance.proposalSummary.pending}。`
+        : `待处理提案：${governance.proposalSummary.pending}。`,
     });
   }
   if (governance?.teamSummary && !governance.teamSummary.declared) {
     items.push({
       severity: "warning",
       icon: "users",
-      title: "Governance team undeclared",
-      description: `Team ${governance.teamSummary.teamId} is not declared in the charter.`,
+      title: "治理团队未声明",
+      description: `团队 ${governance.teamSummary.teamId} 未在宪章中声明。`,
     });
   } else if ((governance?.teamSummary?.missingMemberCount ?? 0) > 0) {
     items.push({
       severity: "warning",
       icon: "users",
-      title: "Governance team incomplete",
-      description: `${governance?.teamSummary?.missingMemberCount ?? 0} declared governance team member${governance?.teamSummary?.missingMemberCount === 1 ? "" : "s"} are missing from the chartered roster.`,
+      title: "治理团队不完整",
+      description: `宪章成员名单缺少 ${governance?.teamSummary?.missingMemberCount ?? 0} 名已声明治理团队成员。`,
     });
   }
   if ((governance?.findingSummary.critical ?? 0) > 0) {
     items.push({
       severity: "error",
       icon: "shield",
-      title: "Governance findings require review",
-      description: `${governance?.findingSummary.critical ?? 0} critical findings and ${governance?.proposalSummary.pending ?? 0} pending proposals are blocking governed progress.`,
+      title: "治理发现需要审查",
+      description: `${governance?.findingSummary.critical ?? 0} 个严重发现和 ${governance?.proposalSummary.pending ?? 0} 个待处理提案正在阻塞治理推进。`,
     });
   }
 
@@ -801,16 +803,16 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "warning",
       icon: "radio",
-      title: "Autonomy fleet drift detected",
-      description: `${autonomyDrift} drifted agents, ${autonomyMissingLoop} missing loops, ${autonomy?.fleetSummary.activeFlows ?? 0} active flows.`,
+      title: "检测到自治集群漂移",
+      description: `${autonomyDrift} 个代理发生漂移，${autonomyMissingLoop} 个循环缺失，${autonomy?.fleetSummary.activeFlows ?? 0} 个流程活跃。`,
     });
   }
   if ((autonomy?.capabilitySummary.criticalGapCount ?? 0) > 0) {
     items.push({
       severity: "warning",
       icon: "zap",
-      title: "Autonomy capability gaps need repair",
-      description: `${autonomy?.capabilitySummary.criticalGapCount ?? 0} critical autonomy capability gaps remain open.`,
+      title: "自治能力缺口需要修复",
+      description: `仍有 ${autonomy?.capabilitySummary.criticalGapCount ?? 0} 个严重自治能力缺口未修复。`,
     });
   }
 
@@ -822,7 +824,7 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "warning",
       icon: "zap",
-      title: "Skills with missing dependencies",
+      title: "技能缺少依赖",
       description: `${names.join(", ")}${more}`,
     });
   }
@@ -832,7 +834,7 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "warning",
       icon: "shield",
-      title: `${blocked.length} skill${blocked.length > 1 ? "s" : ""} blocked`,
+      title: `${blocked.length} 个技能被阻止`,
       description: blocked.map((s) => s.name).join(", "),
     });
   }
@@ -843,7 +845,7 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "error",
       icon: "clock",
-      title: `${failedCron.length} cron job${failedCron.length > 1 ? "s" : ""} failed`,
+      title: `${failedCron.length} 个定时任务失败`,
       description: failedCron.map((j) => j.name).join(", "),
     });
   }
@@ -856,7 +858,7 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "warning",
       icon: "clock",
-      title: `${overdue.length} overdue job${overdue.length > 1 ? "s" : ""}`,
+      title: `${overdue.length} 个任务已逾期`,
       description: overdue.map((j) => j.name).join(", "),
     });
   }

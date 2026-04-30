@@ -16,6 +16,7 @@ import {
   syncThemeWithSettings,
 } from "./app-settings.ts";
 import { loadControlUiBootstrapConfig } from "./controllers/control-ui-bootstrap.ts";
+import { localizeControlUiDom } from "./localized-dom.ts";
 import type { Tab } from "./navigation.ts";
 
 type LifecycleHost = {
@@ -69,6 +70,7 @@ export function handleConnected(host: LifecycleHost) {
 
 export function handleFirstUpdated(host: LifecycleHost) {
   observeTopbar(host as unknown as Parameters<typeof observeTopbar>[0]);
+  localizeControlUiDom(document.body);
 }
 
 export function handleDisconnected(host: LifecycleHost) {
@@ -86,6 +88,7 @@ export function handleDisconnected(host: LifecycleHost) {
 }
 
 export function handleUpdated(host: LifecycleHost, changed: Map<PropertyKey, unknown>) {
+  queueMicrotask(() => localizeControlUiDom(document.body));
   if (host.tab === "chat" && host.chatManualRefreshInFlight) {
     return;
   }

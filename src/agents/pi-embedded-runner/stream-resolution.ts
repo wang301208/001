@@ -25,6 +25,23 @@ export function resetEmbeddedAgentBaseStreamFnCacheForTest(): void {
   embeddedAgentBaseStreamFnCache = new WeakMap<object, StreamFn | undefined>();
 }
 
+function hasConfiguredCompat(model: EmbeddedRunAttemptParams["model"]): boolean {
+  const compat = (model as { compat?: unknown }).compat;
+  return Boolean(compat && typeof compat === "object" && !Array.isArray(compat));
+}
+
+function shouldPreferBoundaryAwareStreamFn(params: {
+  currentStreamFn: StreamFn | undefined;
+  model: EmbeddedRunAttemptParams["model"];
+}): boolean {
+  if (params.currentStreamFn === undefined || params.currentStreamFn === streamSimple) {
+    return true;
+  }
+  // Custom OpenAI-compatible providers often need OpenClaw's normalized payload
+  // shaping even when the embedded SDK session installed its own default stream.
+  return hasConfiguredCompat(params.model) || Boolean(getModelProviderRequestTransport(params.model));
+}
+
 export function describeEmbeddedAgentStreamStrategy(params: {
   currentStreamFn: StreamFn | undefined;
   providerStreamFn?: StreamFn;
@@ -41,10 +58,12 @@ export function describeEmbeddedAgentStreamStrategy(params: {
   if (params.model.provider === "anthropic-vertex") {
     return "anthropic-vertex";
   }
+  const boundaryAwareStreamFn = createBoundaryAwareStreamFnForModel(params.model);
+  if (boundaryAwareStreamFn && shouldPreferBoundaryAwareStreamFn(params)) {
+    return `boundary-aware:${params.model.api}`;
+  }
   if (params.currentStreamFn === undefined || params.currentStreamFn === streamSimple) {
-    return createBoundaryAwareStreamFnForModel(params.model)
-      ? `boundary-aware:${params.model.api}`
-      : "stream-simple";
+    return "stream-simple";
   }
   return "session-custom";
 }
@@ -61,6 +80,42 @@ export async function resolveEmbeddedAgentApiKey(params: {
   return params.authStorage ? await params.authStorage.getApiKey(params.provider) : undefined;
 }
 
+function normalizeProviderOwnedContext(context: Parameters<StreamFn>[1]): Parameters<StreamFn>[1] {
+  return context.systemPrompt
+    ? {
+        ...context,
+        systemPrompt: stripSystemPromptCacheBoundary(context.systemPrompt),
+      }
+    : context;
+}
+
+function wrapStreamFnWithRuntimeApiKey(
+  inner: StreamFn,
+  params: {
+    model: EmbeddedRunAttemptParams["model"];
+    resolvedApiKey?: string;
+    authStorage?: { getApiKey(provider: string): Promise<string | undefined> };
+    normalizeContext?: (context: Parameters<StreamFn>[1]) => Parameters<StreamFn>[1];
+  },
+): StreamFn {
+  const normalizeContext = params.normalizeContext ?? ((context) => context);
+  if (!params.authStorage && !params.resolvedApiKey) {
+    return (m, context, options) => inner(m, normalizeContext(context), options);
+  }
+  const { authStorage, model, resolvedApiKey } = params;
+  return async (m, context, options) => {
+    const apiKey = await resolveEmbeddedAgentApiKey({
+      provider: model.provider,
+      resolvedApiKey,
+      authStorage,
+    });
+    return inner(m, normalizeContext(context), {
+      ...options,
+      apiKey: apiKey ?? options?.apiKey,
+    });
+  };
+}
+
 export function resolveEmbeddedAgentStreamFn(params: {
   currentStreamFn: StreamFn | undefined;
   providerStreamFn?: StreamFn;
@@ -73,32 +128,15 @@ export function resolveEmbeddedAgentStreamFn(params: {
   authStorage?: { getApiKey(provider: string): Promise<string | undefined> };
 }): StreamFn {
   if (params.providerStreamFn) {
-    const inner = params.providerStreamFn;
-    const normalizeContext = (context: Parameters<StreamFn>[1]) =>
-      context.systemPrompt
-        ? {
-            ...context,
-            systemPrompt: stripSystemPromptCacheBoundary(context.systemPrompt),
-          }
-        : context;
     // Provider-owned transports bypass pi-coding-agent's default auth lookup,
     // so keep injecting the resolved runtime apiKey for streamSimple-compatible
     // transports that still read credentials from options.apiKey.
-    if (params.authStorage || params.resolvedApiKey) {
-      const { authStorage, model, resolvedApiKey } = params;
-      return async (m, context, options) => {
-        const apiKey = await resolveEmbeddedAgentApiKey({
-          provider: model.provider,
-          resolvedApiKey,
-          authStorage,
-        });
-        return inner(m, normalizeContext(context), {
-          ...options,
-          apiKey: apiKey ?? options?.apiKey,
-        });
-      };
-    }
-    return (m, context, options) => inner(m, normalizeContext(context), options);
+    return wrapStreamFnWithRuntimeApiKey(params.providerStreamFn, {
+      model: params.model,
+      resolvedApiKey: params.resolvedApiKey,
+      authStorage: params.authStorage,
+      normalizeContext: normalizeProviderOwnedContext,
+    });
   }
 
   const currentStreamFn = params.currentStreamFn ?? streamSimple;
@@ -117,11 +155,21 @@ export function resolveEmbeddedAgentStreamFn(params: {
     return createAnthropicVertexStreamFnForModel(params.model);
   }
 
-  if (params.currentStreamFn === undefined || params.currentStreamFn === streamSimple) {
-    const boundaryAwareStreamFn = createBoundaryAwareStreamFnForModel(params.model);
-    if (boundaryAwareStreamFn) {
-      return boundaryAwareStreamFn;
-    }
+  const boundaryAwareStreamFn = createBoundaryAwareStreamFnForModel(params.model);
+  if (
+    boundaryAwareStreamFn &&
+    shouldPreferBoundaryAwareStreamFn({
+      currentStreamFn: params.currentStreamFn,
+      model: params.model,
+    })
+  ) {
+    // Boundary-aware OpenClaw transports replace the SDK default streamFn,
+    // so they must also receive the runtime credential the SDK normally adds.
+    return wrapStreamFnWithRuntimeApiKey(boundaryAwareStreamFn, {
+      model: params.model,
+      resolvedApiKey: params.resolvedApiKey,
+      authStorage: params.authStorage,
+    });
   }
 
   return currentStreamFn;

@@ -50,9 +50,13 @@ function loadModelSuppression() {
   return modelSuppressionPromise;
 }
 
-export function resetModelCatalogCacheForTest() {
+export function resetModelCatalogCache() {
   modelCatalogPromise = null;
   hasLoggedModelCatalogError = false;
+}
+
+export function resetModelCatalogCacheForTest() {
+  resetModelCatalogCache();
   importPiSdk = defaultImportPiSdk;
 }
 

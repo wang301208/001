@@ -146,6 +146,8 @@ export type AppViewState = {
   configIssues: unknown[];
   configSaving: boolean;
   configApplying: boolean;
+  remoteModelImporting: boolean;
+  remoteModelImportMessage: { kind: "success" | "error"; text: string } | null;
   updateRunning: boolean;
   applySessionKey: string;
   configSnapshot: ConfigSnapshot | null;

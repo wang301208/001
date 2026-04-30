@@ -195,6 +195,7 @@ export function loadSettings(): UiSettings {
     navWidth: 220,
     navGroupsCollapsed: {},
     borderRadius: 50,
+    locale: "zh-CN",
   };
 
   try {
@@ -255,7 +256,7 @@ export function loadSettings(): UiSettings {
         parsed.borderRadius <= 100
           ? snapBorderRadius(parsed.borderRadius)
           : defaults.borderRadius,
-      locale: isSupportedLocale(parsed.locale) ? parsed.locale : undefined,
+      locale: isSupportedLocale(parsed.locale) ? parsed.locale : defaults.locale,
     };
     if ("token" in parsed) {
       persistSettings(settings);

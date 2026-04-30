@@ -20,6 +20,7 @@ import { loadGatewayRuntimeConfigSchema } from "../../config/runtime-schema.js";
 import { lookupConfigSchema, type ConfigSchemaResponse } from "../../config/schema.js";
 import { extractDeliveryInfo } from "../../config/sessions.js";
 import type { ConfigValidationIssue, OpenClawConfig } from "../../config/types.openclaw.js";
+import { resetModelCatalogCache } from "../../agents/model-catalog.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import {
   formatDoctorNonInteractiveHint,
@@ -297,6 +298,12 @@ function shouldScheduleDirectConfigRestart(params: {
   return false;
 }
 
+function invalidateModelCatalogForChangedPaths(changedPaths: string[]) {
+  if (buildGatewayReloadPlan(changedPaths).invalidateModelCatalog) {
+    resetModelCatalogCache();
+  }
+}
+
 async function ensureResolvableSecretRefsOrRespond(params: {
   config: OpenClawConfig;
   respond: RespondFn;
@@ -456,7 +463,9 @@ export const configHandlers: GatewayRequestHandlers = {
     if (!(await ensureResolvableSecretRefsOrRespond({ config: parsed.config, respond }))) {
       return;
     }
+    const changedPaths = diffConfigPaths(snapshot.config, parsed.config);
     await writeConfigFile(parsed.config, writeOptions);
+    invalidateModelCatalogForChangedPaths(changedPaths);
     respond(
       true,
       {
@@ -577,6 +586,7 @@ export const configHandlers: GatewayRequestHandlers = {
       validated.config,
     );
     await writeConfigFile(validated.config, writeOptions);
+    invalidateModelCatalogForChangedPaths(changedPaths);
 
     const { sessionKey, note, restartDelayMs, deliveryContext, threadId } =
       resolveConfigRestartRequest(params);
@@ -650,6 +660,7 @@ export const configHandlers: GatewayRequestHandlers = {
     // previous shared secret immediately after the config update succeeds.
     const disconnectSharedAuthClients = didSharedGatewayAuthChange(snapshot.config, parsed.config);
     await writeConfigFile(parsed.config, writeOptions);
+    invalidateModelCatalogForChangedPaths(changedPaths);
 
     const { sessionKey, note, restartDelayMs, deliveryContext, threadId } =
       resolveConfigRestartRequest(params);

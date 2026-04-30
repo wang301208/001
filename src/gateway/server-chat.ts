@@ -443,6 +443,9 @@ const CHAT_ERROR_KINDS = new Set<ErrorKind>([
   "timeout",
   "rate_limit",
   "context_length",
+  "auth",
+  "billing",
+  "overloaded",
   "unknown",
 ]);
 

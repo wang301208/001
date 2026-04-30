@@ -283,6 +283,7 @@ function createChatContext(): Pick<
   | "chatDeltaSentAt"
   | "chatDeltaLastBroadcastLen"
   | "chatAbortedRuns"
+  | "addChatRun"
   | "removeChatRun"
   | "dedupe"
   | "loadGatewayModelCatalog"
@@ -298,6 +299,7 @@ function createChatContext(): Pick<
     chatDeltaSentAt: new Map(),
     chatDeltaLastBroadcastLen: new Map(),
     chatAbortedRuns: new Map(),
+    addChatRun: vi.fn(),
     removeChatRun: vi.fn(),
     dedupe: new Map(),
     loadGatewayModelCatalog: async () =>
@@ -456,6 +458,31 @@ describe("chat directive tag stripping for non-streaming final payloads", () => 
     expect(register).toHaveBeenCalledWith("run-current", "conn-1");
     expect(register).toHaveBeenCalledWith("run-same-session", "conn-1");
     expect(register).not.toHaveBeenCalledWith("run-other-session", "conn-1");
+  });
+
+  it("links started agent runs to the chat.send client run id", async () => {
+    createTranscriptFixture("openclaw-chat-send-run-link-");
+    mockState.finalText = "ok";
+    mockState.triggerAgentRunStart = true;
+    mockState.agentRunId = "run-internal-agent";
+    mockState.sessionEntry = {
+      canonicalKey: "agent:main:canon",
+    };
+    const respond = vi.fn();
+    const context = createChatContext();
+
+    await runNonStreamingChatSend({
+      context,
+      respond,
+      sessionKey: "legacy-key",
+      idempotencyKey: "idem-chat-client",
+      expectBroadcast: false,
+    });
+
+    expect(context.addChatRun).toHaveBeenCalledWith("run-internal-agent", {
+      sessionKey: "agent:main:canon",
+      clientRunId: "idem-chat-client",
+    });
   });
 
   it("does not register tool-event recipients without tool-events capability", async () => {

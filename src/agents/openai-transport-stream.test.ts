@@ -1293,6 +1293,157 @@ describe("openai transport stream", () => {
     expect(params.tools?.[0]?.function).not.toHaveProperty("strict");
   });
 
+  it("omits completions tools when a custom compatible model disables tool support", () => {
+    const params = buildOpenAICompletionsParams(
+      {
+        id: "gpt-5.2",
+        name: "GPT-5.2",
+        api: "openai-completions",
+        provider: "openai",
+        baseUrl: "https://proxy.example.com/v1",
+        reasoning: false,
+        input: ["text"],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 200000,
+        maxTokens: 8192,
+        compat: {
+          supportsTools: false,
+          requiresStringContent: true,
+          supportsUsageInStreaming: false,
+          supportsStore: false,
+          supportsReasoningEffort: false,
+          supportsDeveloperRole: false,
+          maxTokensField: "max_tokens",
+        } as Record<string, unknown>,
+      } satisfies Model<"openai-completions">,
+      {
+        systemPrompt: "system",
+        messages: [
+          {
+            role: "user",
+            content: [{ type: "text", text: "ping" }],
+            timestamp: Date.now(),
+          },
+        ],
+        tools: [
+          {
+            name: "lookup_weather",
+            description: "Get forecast",
+            parameters: { type: "object", properties: {} },
+          },
+        ],
+      } as never,
+      {
+        maxTokens: 256,
+        toolChoice: "required",
+      } as never,
+    ) as {
+      messages?: Array<{ role?: string; content?: unknown }>;
+      max_tokens?: number;
+    };
+
+    expect(params.messages?.[0]).toMatchObject({
+      role: "system",
+      content: "You are a helpful assistant.",
+    });
+    expect(params.messages?.[1]).toMatchObject({ role: "user", content: "ping" });
+    expect(params.max_tokens).toBe(256);
+    expect(params).not.toHaveProperty("tools");
+    expect(params).not.toHaveProperty("tool_choice");
+    expect(params).not.toHaveProperty("stream_options");
+    expect(params).not.toHaveProperty("store");
+    expect(params).not.toHaveProperty("reasoning_effort");
+  });
+
+  it("uses minimal messages for conservative custom compatible completions models", () => {
+    const params = buildOpenAICompletionsParams(
+      {
+        id: "gpt-5.2",
+        name: "GPT-5.2",
+        api: "openai-completions",
+        provider: "openai",
+        baseUrl: "https://proxy.example.com/v1",
+        reasoning: false,
+        input: ["text"],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 200000,
+        maxTokens: 8192,
+        compat: {
+          supportsTools: false,
+          requiresStringContent: true,
+          supportsUsageInStreaming: false,
+          supportsStore: false,
+        } as Record<string, unknown>,
+      } satisfies Model<"openai-completions">,
+      {
+        systemPrompt: "Very long OpenClaw system prompt that proxy filters should not see.",
+        messages: [
+          {
+            role: "user",
+            content: [{ type: "text", text: "old question" }],
+            timestamp: 1,
+          },
+          {
+            role: "assistant",
+            api: "openai-completions",
+            provider: "openai",
+            model: "gpt-5.2",
+            content: [{ type: "text", text: "old answer" }],
+            usage: { input: 0, output: 0, totalTokens: 0, cost: {} },
+            stopReason: "stop",
+            timestamp: 2,
+          },
+          {
+            role: "user",
+            content: [{ type: "text", text: "请只回复：pong" }],
+            timestamp: 3,
+          },
+        ],
+        tools: [],
+      } as never,
+      undefined,
+    ) as { messages?: Array<{ role?: string; content?: string }> };
+
+    expect(params.messages).toEqual([
+      { role: "system", content: "You are a helpful assistant." },
+      { role: "user", content: "请只回复：pong" },
+    ]);
+  });
+
+  it("omits responses tools when compat disables tool support", () => {
+    const params = buildOpenAIResponsesParams(
+      {
+        id: "gpt-5.4",
+        name: "GPT-5.4",
+        api: "openai-responses",
+        provider: "custom-openai",
+        baseUrl: "https://proxy.example.com/v1",
+        reasoning: false,
+        input: ["text"],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 200000,
+        maxTokens: 8192,
+        compat: {
+          supportsTools: false,
+        } as Record<string, unknown>,
+      } as never,
+      {
+        systemPrompt: "system",
+        messages: [],
+        tools: [
+          {
+            name: "lookup_weather",
+            description: "Get forecast",
+            parameters: { type: "object", properties: {} },
+          },
+        ],
+      } as never,
+      undefined,
+    );
+
+    expect(params).not.toHaveProperty("tools");
+  });
+
   it("flattens pure text content arrays for string-only completions backends when opted in", () => {
     const params = buildOpenAICompletionsParams(
       {

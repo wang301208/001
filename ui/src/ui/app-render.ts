@@ -10,6 +10,7 @@ import { getSafeLocalStorage } from "../local-storage.ts";
 import { refreshChatAvatar } from "./app-chat.ts";
 import { DEFAULT_CRON_FORM } from "./app-defaults.ts";
 import { renderUsageTab } from "./app-render-usage-tab.ts";
+import { createChatModelOverride } from "./chat-model-ref.ts";
 import {
   renderChatControls,
   renderChatMobileToggle,
@@ -142,6 +143,7 @@ import {
   updateExecApprovalsFormValue,
 } from "./controllers/exec-approvals.ts";
 import { loadLogs } from "./controllers/logs.ts";
+import { loadModels } from "./controllers/models.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
 import {
@@ -184,6 +186,8 @@ import {
   renderQuickSettings,
   type QuickSettingsChannel,
   type QuickSettingsApiKey,
+  type QuickSettingsRemoteModelDraft,
+  type QuickSettingsRemoteModelProvider,
 } from "./views/config-quick.ts";
 import { renderConfig, type ConfigProps } from "./views/config.ts";
 import {
@@ -274,6 +278,25 @@ const CRON_TIMEZONE_SUGGESTIONS = [
 
 function isHttpUrl(value: string): boolean {
   return /^https?:\/\//i.test(value.trim());
+}
+
+function isOfficialOpenAIBaseUrl(value: string): boolean {
+  try {
+    return new URL(value.trim()).hostname.toLowerCase() === "api.openai.com";
+  } catch {
+    return false;
+  }
+}
+
+function resolveQuickSettingsRemoteModelApi(
+  provider: string,
+  baseUrl: string,
+  api: QuickSettingsRemoteModelDraft["api"],
+): QuickSettingsRemoteModelDraft["api"] {
+  if (provider === "openai" && api === "openai-responses" && !isOfficialOpenAIBaseUrl(baseUrl)) {
+    return "openai-completions";
+  }
+  return api;
 }
 
 function normalizeSuggestionValue(value: unknown): string {
@@ -479,10 +502,49 @@ const KNOWN_PROVIDER_KEYS = [
   { provider: "openrouter", label: "OpenRouter", envKey: "OPENROUTER_API_KEY" },
 ] as const;
 
+const REMOTE_MODEL_PROVIDER_PRESETS: QuickSettingsRemoteModelProvider[] = [
+  {
+    id: "openai",
+    label: "OpenAI",
+    baseUrl: "https://api.openai.com/v1",
+    api: "openai-responses",
+  },
+  {
+    id: "openrouter",
+    label: "OpenRouter",
+    baseUrl: "https://openrouter.ai/api/v1",
+    api: "openai-completions",
+  },
+  {
+    id: "anthropic",
+    label: "Anthropic",
+    baseUrl: "https://api.anthropic.com",
+    api: "anthropic-messages",
+  },
+  {
+    id: "google",
+    label: "Google Gemini",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+    api: "google-generative-ai",
+  },
+  {
+    id: "ollama",
+    label: "Ollama / Local OpenAI-compatible",
+    baseUrl: "http://127.0.0.1:11434/v1",
+    api: "openai-completions",
+  },
+  {
+    id: "custom-openai",
+    label: "Custom OpenAI-compatible",
+    baseUrl: "https://example.com/v1",
+    api: "openai-completions",
+  },
+];
+
 function formatQuickSettingsLabel(id: string): string {
   const trimmed = id.trim();
   if (!trimmed) {
-    return "Unknown";
+    return "未知";
   }
   return trimmed
     .split(/[-_]+/)
@@ -519,7 +581,7 @@ function extractQuickSettingsChannels(state: AppViewState): QuickSettingsChannel
       id,
       label: knownLabels.get(id) ?? formatQuickSettingsLabel(id),
       connected: hasConfig,
-      detail: hasConfig ? "Configured" : undefined,
+      detail: hasConfig ? "已配置" : undefined,
     });
   }
   return channels;
@@ -531,8 +593,21 @@ function extractQuickSettingsApiKeys(state: AppViewState): QuickSettingsApiKey[]
   const envObj = env && typeof env === "object" ? (env as Record<string, unknown>) : {};
   const envVars =
     envObj.vars && typeof envObj.vars === "object" ? (envObj.vars as Record<string, unknown>) : {};
+  const models = config && typeof config === "object" ? config.models : null;
+  const modelsObj = models && typeof models === "object" ? (models as Record<string, unknown>) : {};
+  const providerConfigs =
+    modelsObj.providers && typeof modelsObj.providers === "object"
+      ? (modelsObj.providers as Record<string, unknown>)
+      : {};
   return KNOWN_PROVIDER_KEYS.map(({ provider, label, envKey }) => {
-    const value = typeof envVars[envKey] === "string" ? envVars[envKey] : envObj[envKey];
+    const providerConfig = asConfigRecord(providerConfigs[provider]);
+    const providerApiKey = providerConfig.apiKey;
+    const value =
+      typeof providerApiKey === "string"
+        ? providerApiKey
+        : typeof envVars[envKey] === "string"
+          ? envVars[envKey]
+          : envObj[envKey];
     const isSet = typeof value === "string" && value.trim().length > 0;
     const masked = isSet ? `••••${value.slice(-4)}` : undefined;
     return { provider, label, masked, isSet };
@@ -562,7 +637,7 @@ function extractQuickSettingsSecurity(state: AppViewState): {
 } {
   const config = state.configForm ?? state.configSnapshot?.config;
   if (!config || typeof config !== "object") {
-    return { gatewayAuth: "unknown", execPolicy: "unknown", deviceAuth: false };
+    return { gatewayAuth: "未知", execPolicy: "未知", deviceAuth: false };
   }
   const cfg = config;
   const gateway =
@@ -573,7 +648,7 @@ function extractQuickSettingsSecurity(state: AppViewState): {
     gateway && "auth" in gateway && gateway.auth && typeof gateway.auth === "object"
       ? (gateway.auth as Record<string, unknown>)
       : null;
-  let gatewayAuth = "unknown";
+  let gatewayAuth = "未知";
   if (auth) {
     const mode = typeof auth.mode === "string" ? auth.mode.trim() : "";
     if (mode) {
@@ -619,6 +694,281 @@ function resolveQuickSettingsSessionRow(state: AppViewState) {
   return state.sessionsResult?.sessions?.find((row) => row.key === state.sessionKey);
 }
 
+function asConfigRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function sanitizeProviderId(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+}
+
+function normalizeQuickSettingsRemoteModelId(provider: string, modelId: string): string {
+  const providerId = provider.trim();
+  const model = modelId.trim();
+  if (!providerId || !model.toLowerCase().startsWith(`${providerId.toLowerCase()}/`)) {
+    return model;
+  }
+  return model.slice(providerId.length + 1).trim();
+}
+
+function buildQuickSettingsModelRef(provider: string, modelId: string): string {
+  const providerId = provider.trim();
+  const model = modelId.trim();
+  if (!providerId) {
+    return model;
+  }
+  return model.toLowerCase().startsWith(`${providerId.toLowerCase()}/`)
+    ? model
+    : `${providerId}/${model}`;
+}
+
+function resolveQuickSettingsModelCatalogEntry(
+  state: AppViewState,
+  provider: string,
+  modelId: string,
+) {
+  const normalizedProvider = sanitizeProviderId(provider);
+  const normalizedModel = modelId.trim().toLowerCase();
+  return state.chatModelCatalog.find(
+    (entry) =>
+      sanitizeProviderId(entry.provider) === normalizedProvider &&
+      entry.id.trim().toLowerCase() === normalizedModel,
+  );
+}
+
+function assertQuickSettingsModelCatalogReady(
+  state: AppViewState,
+  provider: string,
+  modelId: string,
+  modelRef: string,
+) {
+  if (resolveQuickSettingsModelCatalogEntry(state, provider, modelId)) {
+    return;
+  }
+  throw new Error(
+    `配置已写入，但模型目录未返回 ${modelRef}。请检查提供商、模型 ID、基础 URL 或重启网关后重试。`,
+  );
+}
+
+function setQuickSettingsDefaultModel(config: Record<string, unknown>, modelRef: string) {
+  const agents = asConfigRecord(config.agents);
+  const defaults = asConfigRecord(agents.defaults);
+  const existing = defaults.model;
+  defaults.model =
+    existing && typeof existing === "object" && !Array.isArray(existing)
+      ? { ...(existing as Record<string, unknown>), primary: modelRef }
+      : { primary: modelRef };
+  agents.defaults = defaults;
+  config.agents = agents;
+}
+
+async function refreshQuickSettingsModelCatalog(state: AppViewState) {
+  if (!state.client || !state.connected) {
+    state.chatModelsLoading = false;
+    state.chatModelCatalog = [];
+    return;
+  }
+  state.chatModelsLoading = true;
+  try {
+    state.chatModelCatalog = await loadModels(state.client);
+  } finally {
+    state.chatModelsLoading = false;
+  }
+}
+
+async function switchQuickSettingsSessionModel(
+  state: AppViewState,
+  modelRef: string,
+  expected?: { provider: string; modelId: string },
+) {
+  if (!state.client || !state.connected) {
+    return;
+  }
+  const targetSessionKey = state.sessionKey;
+  const previousOverride = state.chatModelOverrides[targetSessionKey];
+  state.chatModelOverrides = {
+    ...state.chatModelOverrides,
+    [targetSessionKey]: createChatModelOverride(modelRef),
+  };
+  try {
+    const patchResult = await state.client.request<{
+      resolved?: { modelProvider?: string; model?: string };
+    }>("sessions.patch", {
+      key: targetSessionKey,
+      model: modelRef || null,
+    });
+    if (expected) {
+      const resolvedProvider = patchResult?.resolved?.modelProvider?.trim();
+      const resolvedModel = patchResult?.resolved?.model?.trim();
+      if (
+        sanitizeProviderId(resolvedProvider ?? "") !== sanitizeProviderId(expected.provider) ||
+        resolvedModel?.toLowerCase() !== expected.modelId.trim().toLowerCase()
+      ) {
+        throw new Error(
+          `会话模型切换未生效：目标 ${modelRef}，实际 ${resolvedProvider ?? "未知"}/${resolvedModel ?? "未知"}。`,
+        );
+      }
+    }
+    await loadSessions(state, {
+      activeMinutes: 0,
+      limit: 0,
+      includeGlobal: true,
+      includeUnknown: true,
+    });
+    void refreshVisibleToolsEffectiveForCurrentSession(state);
+  } catch (err) {
+    state.chatModelOverrides = {
+      ...state.chatModelOverrides,
+      [targetSessionKey]: previousOverride,
+    };
+    throw err;
+  }
+}
+
+async function applyQuickSettingsRemoteModelImport(
+  state: AppViewState,
+  draft: QuickSettingsRemoteModelDraft,
+) {
+  if (!state.client || !state.connected) {
+    return;
+  }
+  const provider = sanitizeProviderId(draft.provider);
+  const modelId = normalizeQuickSettingsRemoteModelId(provider, draft.modelId);
+  const baseUrl = draft.baseUrl.trim();
+  const apiKey = draft.apiKey.trim();
+  if (!provider) {
+    state.lastError = "远程模型导入失败：必须选择提供商。";
+    return;
+  }
+  if (!modelId) {
+    state.lastError = "远程模型导入失败：必须填写模型 ID。";
+    return;
+  }
+  if (!isHttpUrl(baseUrl)) {
+    state.lastError = "远程模型导入失败：基础 URL 必须以 http:// 或 https:// 开头。";
+    return;
+  }
+
+  state.configApplying = true;
+  state.remoteModelImporting = true;
+  state.remoteModelImportMessage = null;
+  state.lastError = null;
+  try {
+    if (!state.configSnapshot?.hash) {
+      await loadConfig(state);
+    }
+    const baseHash = state.configSnapshot?.hash?.trim();
+    if (!baseHash) {
+      throw new Error("Config base hash unavailable. Reload config and retry.");
+    }
+
+    const config = cloneConfigObject(state.configForm ?? state.configSnapshot?.config ?? {});
+    const models = asConfigRecord(config.models);
+    const providers = asConfigRecord(models.providers);
+    const existingProvider = asConfigRecord(providers[provider]);
+    const api = resolveQuickSettingsRemoteModelApi(provider, baseUrl, draft.api);
+    const existingModels = Array.isArray(existingProvider.models)
+      ? [...existingProvider.models]
+      : [];
+    const existingModelEntry = existingModels.find(
+      (entry) =>
+        entry &&
+        typeof entry === "object" &&
+        !Array.isArray(entry) &&
+        (entry as Record<string, unknown>).id === modelId,
+    );
+    const existingModelCompat = asConfigRecord(
+      existingModelEntry && typeof existingModelEntry === "object"
+        ? (existingModelEntry as Record<string, unknown>).compat
+        : undefined,
+    );
+    const compat =
+      api === "openai-completions" && !isOfficialOpenAIBaseUrl(baseUrl)
+        ? {
+            ...existingModelCompat,
+            maxTokensField: "max_tokens",
+            supportsStore: false,
+            supportsDeveloperRole: false,
+            supportsReasoningEffort: false,
+            supportsTools: false,
+            supportsUsageInStreaming: false,
+            supportsStrictMode: false,
+            requiresStringContent: true,
+          }
+        : undefined;
+    const existingModelIndex = existingModels.findIndex(
+      (entry) =>
+        entry &&
+        typeof entry === "object" &&
+        !Array.isArray(entry) &&
+        (entry as Record<string, unknown>).id === modelId,
+    );
+    const modelEntry = {
+      ...(existingModelIndex >= 0
+        ? (existingModels[existingModelIndex] as Record<string, unknown>)
+        : {}),
+      id: modelId,
+      name: modelId,
+      api,
+      reasoning: compat ? false : draft.reasoning,
+      input: draft.supportsImages ? ["text", "image"] : ["text"],
+      ...(compat ? { compat } : {}),
+      ...(draft.contextWindow ? { contextWindow: draft.contextWindow } : {}),
+      ...(draft.maxTokens ? { maxTokens: draft.maxTokens } : {}),
+    };
+    if (existingModelIndex >= 0) {
+      existingModels[existingModelIndex] = modelEntry;
+    } else {
+      existingModels.push(modelEntry);
+    }
+
+    providers[provider] = {
+      ...existingProvider,
+      baseUrl,
+      api,
+      auth: existingProvider.auth ?? "api-key",
+      ...(apiKey ? { apiKey } : {}),
+      models: existingModels,
+    };
+    models.mode = typeof models.mode === "string" ? models.mode : "merge";
+    models.providers = providers;
+    config.models = models;
+
+    const modelRef = buildQuickSettingsModelRef(provider, modelId);
+    if (draft.setDefault) {
+      setQuickSettingsDefaultModel(config, modelRef);
+    }
+
+    await state.client.request("config.patch", { raw: serializeConfigForm(config), baseHash });
+    await loadConfig(state);
+    await refreshQuickSettingsModelCatalog(state);
+    assertQuickSettingsModelCatalogReady(state, provider, modelId, modelRef);
+    if (draft.setDefault) {
+      await switchQuickSettingsSessionModel(state, modelRef, { provider, modelId });
+    }
+    state.remoteModelImportMessage = {
+      kind: "success",
+      text: draft.setDefault
+        ? `已导入 ${modelRef}，并已切换为当前会话模型。`
+        : `已导入 ${modelRef}。`,
+    };
+  } catch (err) {
+    const message = `远程模型导入失败：${String(err)}`;
+    state.lastError = message;
+    state.remoteModelImportMessage = { kind: "error", text: message };
+  } finally {
+    state.configApplying = false;
+    state.remoteModelImporting = false;
+  }
+}
+
 async function applyQuickSettingsPreset(state: AppViewState, presetId: ConfigPresetId) {
   if (!state.client || !state.connected) {
     return;
@@ -642,7 +992,7 @@ async function applyQuickSettingsPreset(state: AppViewState, presetId: ConfigPre
     await state.client.request("config.patch", { raw: serializeConfigForm(merged), baseHash });
     await loadConfig(state);
   } catch (err) {
-    state.lastError = `Failed to apply preset: ${String(err)}`;
+    state.lastError = `应用配置方案失败：${String(err)}`;
   } finally {
     state.configApplying = false;
   }
@@ -977,9 +1327,7 @@ export function renderApp(state: AppViewState) {
           const currentModel =
             typeof activeSession?.model === "string"
               ? activeSession.model
-              : typeof agentsDefaults.model === "string"
-                ? agentsDefaults.model
-                : "default";
+              : (resolveModelPrimary(agentsDefaults.model) ?? "default");
           const thinkingLevel =
             typeof activeSession?.thinkingLevel === "string"
               ? activeSession.thinkingLevel
@@ -1021,6 +1369,14 @@ export function renderApp(state: AppViewState) {
               state.configSettingsMode = "advanced";
               state.configActiveSection = "env";
               requestHostUpdate?.();
+            },
+            remoteModelProviders: REMOTE_MODEL_PROVIDER_PRESETS,
+            remoteModelImporting: state.remoteModelImporting,
+            remoteModelImportMessage: state.remoteModelImportMessage,
+            onRemoteModelImport: (draft) => {
+              void applyQuickSettingsRemoteModelImport(state, draft).then(() =>
+                requestHostUpdate?.(),
+              );
             },
             automation: {
               cronJobCount: state.cronJobs?.length ?? 0,

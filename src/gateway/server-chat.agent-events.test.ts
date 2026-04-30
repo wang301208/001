@@ -1291,6 +1291,39 @@ describe("agent event handler", () => {
     expect(nodePayload.errorKind).toBe("rate_limit");
   });
 
+  it("emits protocol-valid auth errorKind for provider 403 lifecycle errors", () => {
+    const { broadcast, nodeSendToSession, handler } = createHarness({
+      resolveSessionKeyForRun: () => "session-auth-error",
+      lifecycleErrorRetryGraceMs: 0,
+    });
+    registerAgentRunContext("run-auth-error", { sessionKey: "session-auth-error" });
+
+    handler({
+      runId: "run-auth-error",
+      seq: 1,
+      stream: "lifecycle",
+      ts: Date.now(),
+      data: {
+        phase: "error",
+        error: "403 Your request was blocked.",
+      },
+    });
+
+    const payload = chatBroadcastCalls(broadcast).at(-1)?.[1] as {
+      state?: string;
+      errorKind?: string;
+      errorMessage?: string;
+    };
+    expect(payload.state).toBe("error");
+    expect(payload.errorKind).toBe("auth");
+    expect(payload.errorMessage).toContain("403 Your request was blocked.");
+
+    const nodePayload = sessionChatCalls(nodeSendToSession).at(-1)?.[2] as {
+      errorKind?: string;
+    };
+    expect(nodePayload.errorKind).toBe("auth");
+  });
+
   it("suppresses delayed lifecycle chat errors for active chat.send runs while still cleaning up", () => {
     vi.useFakeTimers();
     const { broadcast, clearAgentRunContext, agentRunSeq, handler } = createHarness({
@@ -1324,6 +1357,53 @@ describe("agent event handler", () => {
     ).toBe(false);
     expect(clearAgentRunContext).toHaveBeenCalledWith("run-chat-send");
     expect(agentRunSeq.has("run-chat-send")).toBe(false);
+  });
+
+  it("emits linked chat.send lifecycle errors with the client run id", () => {
+    vi.useFakeTimers();
+    const {
+      broadcast,
+      nodeSendToSession,
+      chatRunState,
+      clearAgentRunContext,
+      agentRunSeq,
+      handler,
+    } = createHarness({
+      resolveSessionKeyForRun: () => "session-chat-send",
+      lifecycleErrorRetryGraceMs: 100,
+      isChatSendRunActive: (runId) => runId === "run-chat-send-internal",
+    });
+    chatRunState.registry.add("run-chat-send-internal", {
+      sessionKey: "session-chat-send",
+      clientRunId: "run-chat-send-client",
+    });
+    registerAgentRunContext("run-chat-send-internal", { sessionKey: "session-chat-send" });
+
+    handler({
+      runId: "run-chat-send-internal",
+      seq: 1,
+      stream: "lifecycle",
+      ts: Date.now(),
+      data: { phase: "error", error: "provider blocked" },
+    });
+
+    vi.advanceTimersByTime(100);
+
+    const payload = chatBroadcastCalls(broadcast).at(-1)?.[1] as {
+      state?: string;
+      runId?: string;
+      errorMessage?: string;
+    };
+    expect(payload.state).toBe("error");
+    expect(payload.runId).toBe("run-chat-send-client");
+    expect(payload.errorMessage).toBe("provider blocked");
+    const nodePayload = sessionChatCalls(nodeSendToSession).at(-1)?.[2] as {
+      state?: string;
+      runId?: string;
+    };
+    expect(nodePayload).toEqual(expect.objectContaining(payload));
+    expect(clearAgentRunContext).toHaveBeenCalledWith("run-chat-send-internal");
+    expect(agentRunSeq.has("run-chat-send-internal")).toBe(false);
   });
 
   it("suppresses chat and node session events for non-control-UI-visible runs", () => {

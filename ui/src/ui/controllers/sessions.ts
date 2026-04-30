@@ -214,6 +214,7 @@ export async function patchSession(
     fastMode?: boolean | null;
     verboseLevel?: string | null;
     reasoningLevel?: string | null;
+    model?: string | null;
   },
 ) {
   if (!state.client || !state.connected) {
@@ -226,6 +227,7 @@ export async function patchSession(
     "fastMode",
     "verboseLevel",
     "reasoningLevel",
+    "model",
   ] as const) {
     if (field in patch) {
       params[field] = patch[field];

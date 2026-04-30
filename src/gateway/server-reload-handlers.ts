@@ -1,4 +1,5 @@
 import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
+import { resetModelCatalogCache } from "../agents/model-catalog.js";
 import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
 import type { CliDeps } from "../cli/deps.types.js";
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
@@ -84,6 +85,10 @@ export function createGatewayReloadHandlers(params: {
 
     if (plan.restartHeartbeat) {
       nextState.heartbeatRunner.updateConfig(nextConfig);
+    }
+
+    if (plan.invalidateModelCatalog) {
+      resetModelCatalogCache();
     }
 
     resetDirectoryCache();

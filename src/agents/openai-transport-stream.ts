@@ -804,7 +804,7 @@ export function buildOpenAIResponsesParams(
   if (options?.serviceTier !== undefined && payloadPolicy.allowsServiceTier) {
     params.service_tier = options.serviceTier;
   }
-  if (context.tools) {
+  if (compat.supportsTools && context.tools) {
     params.tools = convertResponsesTools(context.tools, {
       strict: resolveOpenAIStrictToolSetting(model as OpenAIModeModel, {
         transport: "stream",
@@ -966,19 +966,105 @@ function hasToolHistory(messages: Context["messages"]): boolean {
   );
 }
 
-function createOpenAICompletionsClient(
-  model: Model<Api>,
-  context: Context,
-  apiKey: string,
-  optionHeaders?: Record<string, string>,
-) {
-  return new OpenAI({
-    apiKey,
-    baseURL: model.baseUrl,
-    dangerouslyAllowBrowser: true,
-    defaultHeaders: buildOpenAIClientHeaders(model, context, optionHeaders),
-    fetch: buildGuardedModelFetch(model),
-  });
+function resolveOpenAICompletionsUrl(baseUrl: string | undefined): string {
+  const trimmed = baseUrl?.trim();
+  if (!trimmed) {
+    return "https://api.openai.com/v1/chat/completions";
+  }
+  return `${trimmed.replace(/\/+$/, "")}/chat/completions`;
+}
+
+function buildOpenAICompletionsFetchHeaders(params: {
+  model: Model<Api>;
+  context: Context;
+  apiKey: string;
+  optionHeaders?: Record<string, string>;
+}): Record<string, string> {
+  const headers = {
+    ...buildOpenAIClientHeaders(params.model, params.context, params.optionHeaders),
+  };
+  if (params.apiKey.trim()) {
+    headers.Authorization = `Bearer ${params.apiKey}`;
+  }
+  headers.Accept = headers.Accept ?? "text/event-stream";
+  headers["Content-Type"] = headers["Content-Type"] ?? "application/json";
+  return headers;
+}
+
+function parseOpenAICompletionsSseLine(line: string): ChatCompletionChunk | null {
+  const trimmed = line.trim();
+  if (!trimmed || trimmed.startsWith(":")) {
+    return null;
+  }
+  if (!trimmed.startsWith("data:")) {
+    return null;
+  }
+  const data = trimmed.slice("data:".length).trim();
+  if (!data || data === "[DONE]") {
+    return null;
+  }
+  return JSON.parse(data) as ChatCompletionChunk;
+}
+
+async function* streamOpenAICompletionsWithFetch(params: {
+  model: Model<Api>;
+  context: Context;
+  apiKey: string;
+  payload: Record<string, unknown>;
+  optionHeaders?: Record<string, string>;
+  signal?: AbortSignal;
+}): AsyncIterable<ChatCompletionChunk> {
+  const response = await buildGuardedModelFetch(params.model)(
+    resolveOpenAICompletionsUrl(params.model.baseUrl),
+    {
+      method: "POST",
+      headers: buildOpenAICompletionsFetchHeaders({
+        model: params.model,
+        context: params.context,
+        apiKey: params.apiKey,
+        optionHeaders: params.optionHeaders,
+      }),
+      body: JSON.stringify(params.payload),
+      signal: params.signal,
+    },
+  );
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(errorText.trim() || `${response.status} ${response.statusText}`.trim());
+  }
+  if (!response.body) {
+    throw new Error("OpenAI completions response did not include a stream body");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split(/\r?\n/);
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        const chunk = parseOpenAICompletionsSseLine(line);
+        if (chunk) {
+          yield chunk;
+        }
+      }
+    }
+    buffer += decoder.decode();
+    for (const line of buffer.split(/\r?\n/)) {
+      const chunk = parseOpenAICompletionsSseLine(line);
+      if (chunk) {
+        yield chunk;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
 }
 
 export function createOpenAICompletionsTransportStreamFn(): StreamFn {
@@ -1005,7 +1091,6 @@ export function createOpenAICompletionsTransportStreamFn(): StreamFn {
       };
       try {
         const apiKey = options?.apiKey || getEnvApiKey(model.provider) || "";
-        const client = createOpenAICompletionsClient(model, context, apiKey, options?.headers);
         let params = buildOpenAICompletionsParams(
           model as OpenAIModeModel,
           context,
@@ -1015,9 +1100,14 @@ export function createOpenAICompletionsTransportStreamFn(): StreamFn {
         if (nextParams !== undefined) {
           params = nextParams as typeof params;
         }
-        const responseStream = (await client.chat.completions.create(params as never, {
+        const responseStream = streamOpenAICompletionsWithFetch({
+          model,
+          context,
+          apiKey,
+          payload: params,
+          optionHeaders: options?.headers,
           signal: options?.signal,
-        })) as unknown as AsyncIterable<ChatCompletionChunk>;
+        });
         stream.push({ type: "start", partial: output as never });
         await processOpenAICompletionsStream(responseStream, output, model, stream);
         if (options?.signal?.aborted) {
@@ -1252,6 +1342,7 @@ function detectCompat(model: OpenAIModeModel) {
     openRouterRouting: {},
     vercelGatewayRouting: {},
     supportsStrictMode: compatDefaults.supportsStrictMode,
+    supportsTools: true,
   };
 }
 
@@ -1269,6 +1360,7 @@ function getCompat(model: OpenAIModeModel): {
   openRouterRouting: Record<string, unknown>;
   vercelGatewayRouting: Record<string, unknown>;
   supportsStrictMode: boolean;
+  supportsTools: boolean;
   requiresStringContent: boolean;
 } {
   const detected = detectCompat(model);
@@ -1302,6 +1394,7 @@ function getCompat(model: OpenAIModeModel): {
       detected.vercelGatewayRouting,
     supportsStrictMode:
       (compat.supportsStrictMode as boolean | undefined) ?? detected.supportsStrictMode,
+    supportsTools: (compat.supportsTools as boolean | undefined) ?? detected.supportsTools,
     requiresStringContent: (compat.requiresStringContent as boolean | undefined) ?? false,
   };
 }
@@ -1365,6 +1458,64 @@ function convertTools(
   }));
 }
 
+function shouldUseMinimalCompletionsMessages(
+  compat: ReturnType<typeof getCompat>,
+  model: OpenAIModeModel,
+): boolean {
+  return (
+    model.api === "openai-completions" &&
+    compat.supportsTools === false &&
+    compat.requiresStringContent === true
+  );
+}
+
+function stringifyMinimalMessageContent(content: unknown): string {
+  if (typeof content === "string") {
+    return sanitizeTransportPayloadText(content);
+  }
+  if (Array.isArray(content)) {
+    return sanitizeTransportPayloadText(
+      content
+        .map((part) => {
+          if (!part || typeof part !== "object") {
+            return "";
+          }
+          const obj = part as Record<string, unknown>;
+          if (typeof obj.text === "string") {
+            return obj.text;
+          }
+          return "";
+        })
+        .filter(Boolean)
+        .join("\n"),
+    );
+  }
+  return "";
+}
+
+function buildMinimalCompletionsMessages(messages: unknown): Array<{ role: string; content: string }> {
+  const messageList = Array.isArray(messages) ? messages : [];
+  const normalized = messageList
+    .map((message) =>
+      message && typeof message === "object" ? (message as Record<string, unknown>) : undefined,
+    )
+    .filter((message): message is Record<string, unknown> => !!message);
+  const lastUser = normalized
+    .toReversed()
+    .find((message) => message.role === "user" && stringifyMinimalMessageContent(message.content));
+  const fallbackContent = normalized
+    .toReversed()
+    .map((message) => stringifyMinimalMessageContent(message.content))
+    .find((content) => content.trim().length > 0);
+  const userContent =
+    (lastUser ? stringifyMinimalMessageContent(lastUser.content) : fallbackContent)?.trim() ||
+    "Continue.";
+  return [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: userContent },
+  ];
+}
+
 export function buildOpenAICompletionsParams(
   model: OpenAIModeModel,
   context: Context,
@@ -1385,6 +1536,9 @@ export function buildOpenAICompletionsParams(
       : messages,
     stream: true,
   };
+  if (shouldUseMinimalCompletionsMessages(compat, model)) {
+    params.messages = buildMinimalCompletionsMessages(params.messages);
+  }
   if (compat.supportsUsageInStreaming) {
     params.stream_options = { include_usage: true };
   }
@@ -1401,12 +1555,12 @@ export function buildOpenAICompletionsParams(
   if (options?.temperature !== undefined) {
     params.temperature = options.temperature;
   }
-  if (context.tools) {
+  if (compat.supportsTools && context.tools) {
     params.tools = convertTools(context.tools, compat, model);
     if (options?.toolChoice) {
       params.tool_choice = options.toolChoice;
     }
-  } else if (hasToolHistory(context.messages)) {
+  } else if (compat.supportsTools && hasToolHistory(context.messages)) {
     params.tools = [];
   }
   const completionsReasoningEffort = resolveOpenAICompletionsReasoningEffort(options);

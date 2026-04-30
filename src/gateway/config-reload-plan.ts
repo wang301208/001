@@ -13,6 +13,7 @@ export type GatewayReloadPlan = {
   restartCron: boolean;
   restartHeartbeat: boolean;
   restartHealthMonitor: boolean;
+  invalidateModelCatalog: boolean;
   restartChannels: Set<ChannelKind>;
   noopPaths: string[];
 };
@@ -28,6 +29,7 @@ type ReloadAction =
   | "restart-gmail-watcher"
   | "restart-cron"
   | "restart-heartbeat"
+  | "invalidate-model-catalog"
   | "restart-health-monitor"
   | `restart-channel:${ChannelId}`;
 
@@ -61,17 +63,17 @@ const BASE_RELOAD_RULES: ReloadRule[] = [
   {
     prefix: "agents.defaults.models",
     kind: "hot",
-    actions: ["restart-heartbeat"],
+    actions: ["restart-heartbeat", "invalidate-model-catalog"],
   },
   {
     prefix: "agents.defaults.model",
     kind: "hot",
-    actions: ["restart-heartbeat"],
+    actions: ["restart-heartbeat", "invalidate-model-catalog"],
   },
   {
     prefix: "models",
     kind: "hot",
-    actions: ["restart-heartbeat"],
+    actions: ["restart-heartbeat", "invalidate-model-catalog"],
   },
   {
     prefix: "agents.list",
@@ -183,6 +185,7 @@ export function buildGatewayReloadPlan(changedPaths: string[]): GatewayReloadPla
     restartCron: false,
     restartHeartbeat: false,
     restartHealthMonitor: false,
+    invalidateModelCatalog: false,
     restartChannels: new Set(),
     noopPaths: [],
   };
@@ -205,6 +208,9 @@ export function buildGatewayReloadPlan(changedPaths: string[]): GatewayReloadPla
         break;
       case "restart-heartbeat":
         plan.restartHeartbeat = true;
+        break;
+      case "invalidate-model-catalog":
+        plan.invalidateModelCatalog = true;
         break;
       case "restart-health-monitor":
         plan.restartHealthMonitor = true;
