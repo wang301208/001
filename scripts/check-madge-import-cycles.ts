@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import madge from "madge";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const scanRoots = ["src", "extensions", "ui"] as const;
+const scanRoots = ["src", "extensions"] as const;
 
 function normalizeRepoPath(filePath: string): string {
   return filePath.split(path.sep).join("/");

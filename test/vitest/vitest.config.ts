@@ -42,7 +42,6 @@ export const rootVitestProjects = [
   "test/vitest/vitest.tasks.config.ts",
   "test/vitest/vitest.tooling.config.ts",
   "test/vitest/vitest.tui.config.ts",
-  "test/vitest/vitest.ui.config.ts",
   "test/vitest/vitest.utils.config.ts",
   "test/vitest/vitest.wizard.config.ts",
   "test/vitest/vitest.channels.config.ts",

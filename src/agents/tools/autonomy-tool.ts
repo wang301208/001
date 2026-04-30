@@ -18,6 +18,7 @@ const AUTONOMY_ACTIONS = [
   "supervise",
   "bootstrap",
   "architecture",
+  "activate",
   "history",
   "governance_proposals",
   "governance_reconcile",
@@ -86,14 +87,14 @@ const AutonomyToolSchema = Type.Object({
     Type.Array(Type.String({ minLength: 1 }), {
       minItems: 1,
       description:
-        "Autonomy profile ids for overview, capabilities, genesis_plan, heal, history, governance_proposals, or loop_reconcile. Defaults to all managed profiles.",
+        "Autonomy profile ids for overview, capabilities, genesis_plan, heal, activate, history, governance_proposals, or loop_reconcile. Defaults to all managed profiles.",
     }),
   ),
   workspaceDirs: Type.Optional(
     Type.Array(Type.String({ minLength: 1 }), {
       minItems: 1,
       description:
-        "Explicit workspace directories for start, capabilities, genesis_plan, heal, history, governance_proposals, loop_upsert, or loop_reconcile when scoped autonomy context is required.",
+        "Explicit workspace directories for start, capabilities, genesis_plan, heal, activate, history, governance_proposals, loop_upsert, or loop_reconcile when scoped autonomy context is required.",
     }),
   ),
   teamId: Type.Optional(
@@ -367,7 +368,7 @@ export function createAutonomyTool(opts?: {
         });
       }
 
-      if (action === "architecture") {
+      if (action === "architecture" || action === "activate") {
         const agentIds = Array.isArray(params.agentIds)
           ? params.agentIds.filter((value): value is string => typeof value === "string")
           : undefined;
@@ -378,25 +379,35 @@ export function createAutonomyTool(opts?: {
             params.governanceMode === "apply_safe" ||
             params.governanceMode === "force_apply_all")
             ? params.governanceMode
-            : undefined;
+            : action === "activate"
+              ? "apply_safe"
+              : undefined;
         const architectureReadiness = await runtime.getArchitectureReadiness({
           ...(agentIds?.length ? { agentIds } : {}),
           ...(workspaceDirs?.length ? { workspaceDirs } : {}),
           ...(typeof params.teamId === "string" ? { teamId: params.teamId } : {}),
           ...(typeof params.restartBlockedFlows === "boolean"
             ? { restartBlockedFlows: params.restartBlockedFlows }
-            : {}),
+            : action === "activate"
+              ? { restartBlockedFlows: true }
+              : {}),
           ...(governanceMode ? { governanceMode } : {}),
           ...(typeof params.decisionNote === "string" ? { decisionNote: params.decisionNote } : {}),
           ...(typeof params.includeCapabilityInventory === "boolean"
             ? { includeCapabilityInventory: params.includeCapabilityInventory }
-            : {}),
+            : action === "activate"
+              ? { includeCapabilityInventory: true }
+              : {}),
           ...(typeof params.includeGenesisPlan === "boolean"
             ? { includeGenesisPlan: params.includeGenesisPlan }
-            : {}),
+            : action === "activate"
+              ? { includeGenesisPlan: true }
+              : {}),
           ...(typeof params.recordHistory === "boolean"
             ? { recordHistory: params.recordHistory }
-            : {}),
+            : action === "activate"
+              ? { recordHistory: true }
+              : {}),
         });
         return jsonResult({
           action,
@@ -524,7 +535,7 @@ export function createAutonomyTool(opts?: {
             | undefined,
           seedTask:
             typeof params.seedTaskEnabled === "boolean" &&
-            params.seedTaskEnabled === false &&
+            !params.seedTaskEnabled &&
             params.seedTaskRuntime === undefined &&
             params.seedTaskStatus === undefined &&
             params.seedTaskLabel === undefined &&

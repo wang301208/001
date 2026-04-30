@@ -76,6 +76,7 @@ const BASE_METHODS = [
   "autonomy.genesis.plan",
   "autonomy.heal",
   "autonomy.supervise",
+  "autonomy.activate",
   "autonomy.history",
   "autonomy.governance.proposals",
   "autonomy.governance.reconcile",

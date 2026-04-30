@@ -12,8 +12,7 @@ import {
 } from "./lib/ts-guard-utils.mjs";
 
 const repoRoot = resolveRepoRoot(import.meta.url);
-const uiSourceDir = path.join(repoRoot, "ui", "src", "ui");
-const allowedCallsites = new Set([path.join(uiSourceDir, "open-external-url.ts")]);
+const removedUiSourceDir = path.join(repoRoot, "ui", "src", "ui");
 
 function asPropertyAccess(expression) {
   if (ts.isPropertyAccessExpression(expression)) {
@@ -53,17 +52,13 @@ export function findRawWindowOpenLines(content, fileName = "source.ts") {
 }
 
 export async function main() {
-  const files = await collectTypeScriptFiles(uiSourceDir, {
+  const files = await collectTypeScriptFiles(removedUiSourceDir, {
     extraTestSuffixes: [".browser.test.ts", ".node.test.ts"],
     ignoreMissing: true,
   });
   const violations = [];
 
   for (const filePath of files) {
-    if (allowedCallsites.has(filePath)) {
-      continue;
-    }
-
     const content = await fs.readFile(filePath, "utf8");
     for (const line of findRawWindowOpenLines(content, filePath)) {
       const relPath = path.relative(repoRoot, filePath);
@@ -75,11 +70,11 @@ export async function main() {
     return;
   }
 
-  console.error("Found raw window.open usage outside safe helper:");
+  console.error("Found raw window.open usage in removed UI source:");
   for (const violation of violations) {
     console.error(`- ${violation}`);
   }
-  console.error("Use openExternalUrlSafe(...) from ui/src/ui/open-external-url.ts instead.");
+  console.error("Project frontends are removed; do not add browser window-opening code.");
   process.exit(1);
 }
 

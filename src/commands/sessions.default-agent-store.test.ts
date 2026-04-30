@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RuntimeEnv } from "../runtime.js";
+import type { SessionEntry } from "../config/sessions.js";
+import type { LoadSessionStoreOptions } from "../config/sessions/store-load.js";
 
 function normalizePathForAssertion(filePath: string): string {
   return filePath.replaceAll("\\", "/").replace(/^[A-Za-z]:/u, "");
@@ -29,7 +31,11 @@ const resolveStorePathMock = vi.hoisted(() =>
     return `/tmp/sessions-${opts?.agentId ?? "missing"}.json`;
   }),
 );
-const loadSessionStoreMock = vi.hoisted(() => vi.fn(() => ({})));
+const loadSessionStoreMock = vi.hoisted(() =>
+  vi.fn(
+    (_storePath: string, _options?: LoadSessionStoreOptions): Record<string, SessionEntry> => ({}),
+  ),
+);
 
 vi.mock("../config/config.js", async () => {
   const actual = await vi.importActual<typeof import("../config/config.js")>("../config/config.js");
@@ -55,7 +61,9 @@ function createRuntime(): { runtime: RuntimeEnv; logs: string[] } {
   const logs: string[] = [];
   return {
     runtime: {
-      log: (msg: unknown) => logs.push(String(msg)),
+      log: (msg: unknown) => {
+        logs.push(String(msg));
+      },
       error: vi.fn(),
       exit: vi.fn(),
     },
@@ -155,7 +163,7 @@ describe("sessionsCommand default store agent selection", () => {
         },
       ]),
     );
-    expect(normalizePathForAssertion(String(payload.stores?.[0]?.path ?? ""))).toBe(
+    expect(normalizePathForAssertion(payload.stores?.[0]?.path ?? "")).toBe(
       "/tmp/shared-sessions.json",
     );
     expect(payload.sessions?.map((session) => session.agentId).toSorted()).toEqual([
@@ -172,7 +180,7 @@ describe("sessionsCommand default store agent selection", () => {
 
     await sessionsCommand({}, runtime);
 
-    expect(normalizePathForAssertion(String(loadSessionStoreMock.mock.calls[0]?.[0]))).toBe(
+    expect(normalizePathForAssertion(loadSessionStoreMock.mock.calls[0]?.[0])).toBe(
       "/tmp/sessions-voice.json",
     );
     expect(normalizePathForAssertion(logs[0] ?? "")).toContain("/tmp/sessions-voice.json");
@@ -189,10 +197,10 @@ describe("sessionsCommand default store agent selection", () => {
 
     await sessionsCommand({ allAgents: true }, runtime);
 
-    expect(normalizePathForAssertion(String(loadSessionStoreMock.mock.calls[0]?.[0]))).toBe(
+    expect(normalizePathForAssertion(loadSessionStoreMock.mock.calls[0]?.[0])).toBe(
       "/tmp/sessions-main.json",
     );
-    expect(normalizePathForAssertion(String(loadSessionStoreMock.mock.calls[1]?.[0]))).toBe(
+    expect(normalizePathForAssertion(loadSessionStoreMock.mock.calls[1]?.[0])).toBe(
       "/tmp/sessions-voice.json",
     );
     expect(logs[0]).toContain("Session stores:");

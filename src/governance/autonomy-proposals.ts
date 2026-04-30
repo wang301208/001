@@ -174,7 +174,7 @@ function listExistingYamlArtifacts(params: {
     .map((entry) =>
       path.posix.join("governance", "charter", params.subdir.replace(/\\/gu, "/"), entry.name),
     )
-    .sort((left, right) => left.localeCompare(right));
+    .toSorted((left, right) => left.localeCompare(right));
 }
 
 function buildConstitutionStub(params: {
@@ -334,7 +334,7 @@ function buildProposalDedupeKey(
           }
         : {}),
     }))
-    .sort((left, right) => {
+    .toSorted((left, right) => {
       const pathCompare = left.path.localeCompare(right.path);
       if (pathCompare !== 0) {
         return pathCompare;
@@ -400,7 +400,7 @@ function buildRestoreMissingArtifactsDraft(
   const charterMissing = missingArtifactPaths
     .map((entry) => normalizeCharterRelativePath(entry))
     .filter((entry): entry is string => Boolean(entry))
-    .sort((left, right) => left.localeCompare(right));
+    .toSorted((left, right) => left.localeCompare(right));
   if (charterMissing.length === 0) {
     return undefined;
   }
@@ -426,7 +426,7 @@ function buildConstitutionArtifactRegistryDraft(params: {
 }): GovernanceProposalDraft | undefined {
   const staleExternalArtifacts = params.missingArtifactPaths
     .filter((entry) => normalizeCharterRelativePath(entry) === undefined)
-    .sort((left, right) => left.localeCompare(right));
+    .toSorted((left, right) => left.localeCompare(right));
   const constitutionContent = rewriteConstitutionArtifacts({
     charterDir: params.charterDir,
     mutate: (constitution) => {

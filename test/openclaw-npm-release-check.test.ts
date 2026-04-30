@@ -5,11 +5,11 @@ import { describe, expect, it } from "vitest";
 import { WORKSPACE_TEMPLATE_PACK_PATHS } from "../scripts/lib/workspace-bootstrap-smoke.mjs";
 import {
   compareReleaseVersions,
-  collectControlUiPackErrors,
   collectForbiddenPackedContentErrors,
   collectForbiddenPackedPathErrors,
   collectPackedTestCargoErrors,
   collectReleasePackageMetadataErrors,
+  collectRequiredPackErrors,
   collectReleaseTagErrors,
   parseNpmPackJsonOutput,
   parseReleaseTagVersion,
@@ -275,16 +275,16 @@ describe("parseNpmPackJsonOutput", () => {
       'npm warn Unknown project config "node-linker".',
       "",
       "> openclaw@2026.3.23 prepack",
-      "> pnpm build && pnpm ui:build",
+      "> pnpm build",
       "",
       "[copy-hook-metadata] Copied 4 hook metadata files.",
-      '[{"filename":"openclaw.tgz","files":[{"path":"dist/control-ui/index.html"}]}]',
+      '[{"filename":"openclaw.tgz","files":[{"path":"dist/index.mjs"}]}]',
     ].join("\n");
 
     expect(parseNpmPackJsonOutput(stdout)).toEqual([
       {
         filename: "openclaw.tgz",
-        files: [{ path: "dist/control-ui/index.html" }],
+        files: [{ path: "dist/index.mjs" }],
       },
     ]);
   });
@@ -294,24 +294,20 @@ describe("parseNpmPackJsonOutput", () => {
   });
 });
 
-describe("collectControlUiPackErrors", () => {
-  it("rejects packs that ship the dashboard HTML without the asset payload", () => {
-    expect(collectControlUiPackErrors(["dist/control-ui/index.html"])).toEqual([
+describe("collectRequiredPackErrors", () => {
+  it("rejects packs missing required release paths", () => {
+    expect(collectRequiredPackErrors(["dist/index.mjs"])).toEqual([
       ...REQUIRED_PACKED_PATHS.map(
         (requiredPath) =>
-          `npm package is missing required path "${requiredPath}". Ensure UI assets are built and included before publish.`,
+          `npm package is missing required path "${requiredPath}". Ensure build artifacts are included before publish.`,
       ),
-      'npm package is missing Control UI asset payload under "dist/control-ui/assets/". Refuse release when the dashboard tarball would be empty.',
     ]);
   });
 
-  it("accepts packs that ship dashboard HTML and bundled assets", () => {
+  it("accepts packs that ship required release paths", () => {
     expect(
-      collectControlUiPackErrors([
-        "dist/control-ui/index.html",
+      collectRequiredPackErrors([
         ...REQUIRED_PACKED_PATHS,
-        "dist/control-ui/assets/index-Bu8rSoJV.js",
-        "dist/control-ui/assets/index-BK0yXA_h.css",
       ]),
     ).toEqual([]);
   });

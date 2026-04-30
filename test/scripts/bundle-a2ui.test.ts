@@ -56,7 +56,7 @@ describe("scripts/bundle-a2ui.mjs", () => {
     const repoRoot = path.resolve("repo-root");
     const inputPaths = getBundleHashRepoInputPaths(repoRoot);
 
-    expect(inputPaths).toContain(path.join(repoRoot, "ui", "package.json"));
+    expect(inputPaths).not.toContain(path.join(repoRoot, "ui", "package.json"));
     expect(inputPaths).not.toContain(path.join(repoRoot, "package.json"));
     expect(inputPaths).not.toContain(path.join(repoRoot, "pnpm-lock.yaml"));
   });
@@ -68,16 +68,14 @@ describe("scripts/bundle-a2ui.mjs", () => {
       path.relative(repoRoot, dependencyPath).replaceAll(path.sep, "/"),
     );
 
-    expect(
-      relativeDependencyPaths.map((relativePath) => relativePath.replace(/^ui\//u, "")),
-    ).toEqual([
+    expect(relativeDependencyPaths).toEqual([
       path.posix.join("node_modules", "lit", "package.json"),
       path.posix.join("node_modules", "@lit/context", "package.json"),
       path.posix.join("node_modules", "@lit-labs/signals", "package.json"),
       path.posix.join("node_modules", "signal-utils", "package.json"),
     ]);
     expect(
-      relativeDependencyPaths.every((relativePath) => /^(ui\/)?node_modules\//u.test(relativePath)),
+      relativeDependencyPaths.every((relativePath) => /^node_modules\//u.test(relativePath)),
     ).toBe(true);
     expect(getBundleHashInputPaths(repoRoot)).not.toContain(path.join(repoRoot, "package.json"));
     expect(getBundleHashInputPaths(repoRoot)).not.toContain(path.join(repoRoot, "pnpm-lock.yaml"));

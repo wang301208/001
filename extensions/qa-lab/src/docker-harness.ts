@@ -207,7 +207,7 @@ Suggested flow:
    - right: Slack-ish QA lab
 5. The repo-backed kickoff task auto-injects on startup.
 
-Fast UI refresh:
+QA Lab UI refresh:
 
 - Start once with a prebuilt image + bind-mounted QA Lab assets:
   - \`pnpm qa:lab:up --use-prebuilt-image --bind-ui-dist --skip-ui-build\`
@@ -218,7 +218,6 @@ Fast UI refresh:
 Gateway:
 
 - health: \`http://127.0.0.1:${params.gatewayPort}/healthz\`
-- Control UI: \`http://127.0.0.1:${params.gatewayPort}/\`
 - Mock OpenAI: internal \`http://qa-mock-openai:44080/v1\`
 
 This scaffold uses localhost Control UI insecure-auth compatibility for QA only.
@@ -262,7 +261,6 @@ export async function writeQaDockerHarnessFiles(params: {
     gatewayToken,
     providerBaseUrl,
     workspaceDir: "/tmp/openclaw/workspace",
-    controlUiRoot: "/app/dist/control-ui",
     transportPluginIds: QA_CHANNEL_REQUIRED_PLUGIN_IDS,
     transportConfig: createQaChannelGatewayConfig({
       baseUrl: qaBusBaseUrl,

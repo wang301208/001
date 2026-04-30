@@ -8,10 +8,7 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
-const outputPath = path.join(
-  repoRoot,
-  "apps/shared/OpenClawKit/Sources/OpenClawKit/Resources/tool-display.json",
-);
+const outputPath = path.join(repoRoot, "dist", "tool-display.json");
 const toolSources = [
   path.join(repoRoot, "src/agents/apply-patch.ts"),
   path.join(repoRoot, "src/agents/bash-tools.exec.ts"),

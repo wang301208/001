@@ -285,21 +285,20 @@ describe("buildQaGatewayConfig", () => {
     expect(cfg.gateway?.controlUi).not.toHaveProperty("allowedOrigins");
   });
 
-  it("pins control ui to a provided built root when available", () => {
+  it("omits browser control ui asset roots in terminal-only gateway config", () => {
     const cfg = buildQaGatewayConfig({
       bind: "loopback",
       gatewayPort: 18789,
       gatewayToken: "token",
       workspaceDir: "/tmp/qa-workspace",
-      controlUiRoot: "/tmp/openclaw/dist/control-ui",
       ...createQaChannelTransportParams(),
     });
 
     expect(cfg.gateway?.controlUi?.enabled).toBe(true);
-    expect(cfg.gateway?.controlUi?.root).toBe("/tmp/openclaw/dist/control-ui");
+    expect(cfg.gateway?.controlUi).not.toHaveProperty("root");
   });
 
-  it("merges dynamic qa-lab origins without dropping the built control ui root", () => {
+  it("merges dynamic qa-lab origins without adding browser control ui roots", () => {
     expect(mergeQaControlUiAllowedOrigins(["http://127.0.0.1:60196", "  "])).toEqual([
       ...DEFAULT_QA_CONTROL_UI_ALLOWED_ORIGINS,
       "http://127.0.0.1:60196",
@@ -310,12 +309,11 @@ describe("buildQaGatewayConfig", () => {
       gatewayPort: 18789,
       gatewayToken: "token",
       workspaceDir: "/tmp/qa-workspace",
-      controlUiRoot: "/tmp/openclaw/dist/control-ui",
       controlUiAllowedOrigins: ["http://127.0.0.1:60196"],
       ...createQaChannelTransportParams(),
     });
 
-    expect(cfg.gateway?.controlUi?.root).toBe("/tmp/openclaw/dist/control-ui");
+    expect(cfg.gateway?.controlUi).not.toHaveProperty("root");
     expect(cfg.gateway?.controlUi?.allowedOrigins).toEqual([
       ...DEFAULT_QA_CONTROL_UI_ALLOWED_ORIGINS,
       "http://127.0.0.1:60196",

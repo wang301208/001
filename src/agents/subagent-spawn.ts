@@ -500,7 +500,7 @@ export async function spawnSubagentDirect(
             ),
           )
         : new Set([...allowSet, ...resolveGovernanceCharterDeclaredCollaborators(requesterAgentId)]);
-      const allowedText = mergedAllowed.size > 0 ? Array.from(mergedAllowed).sort().join(", ") : "none";
+      const allowedText = mergedAllowed.size > 0 ? Array.from(mergedAllowed).toSorted().join(", ") : "none";
       return {
         status: "forbidden",
         error: `agentId is not allowed for sessions_spawn (allowed: ${allowedText})`,

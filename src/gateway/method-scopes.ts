@@ -175,6 +175,7 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "governance.proposals.revertMany",
     "autonomy.heal",
     "autonomy.supervise",
+    "autonomy.activate",
     "autonomy.governance.proposals",
     "autonomy.governance.reconcile",
     "autonomy.start",

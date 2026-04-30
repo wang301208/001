@@ -669,9 +669,7 @@ function buildSeedTaskTemplate(params: {
         runtime: "cli",
         status: "queued",
         label: `${params.title ?? params.agentId} bootstrap`,
-        task:
-          `${params.missionPrimary || `Bootstrap autonomy for ${params.title ?? params.agentId}.`}` +
-          suffix,
+        task: (params.missionPrimary || `Bootstrap autonomy for ${params.title ?? params.agentId}.`) + suffix,
       };
   }
 }
@@ -843,7 +841,7 @@ function createGenesisActionTaskTemplates(params: {
 }): ManagedAutonomyTaskTemplate[] {
   const actions =
     params.stage.actions.length > 0 ? params.stage.actions : [`advance ${params.stage.id}`];
-  const actionTasks = actions.map((action, index) => ({
+  const actionTasks: ManagedAutonomyTaskTemplate[] = actions.map((action, index) => ({
     runtime: "cli",
     status: "queued",
     label: index === 0 ? params.stage.title : `${params.stage.title} Action ${index + 1}`,
@@ -885,7 +883,7 @@ function createGenesisActionTaskTemplates(params: {
     ...actionTasks,
     {
       runtime: "cli",
-      status: params.stage.status === "blocked" ? "queued" : "queued",
+      status: "queued",
       label: "Development package",
       progressSummary:
         "materialize candidate assets, QA evidence, publication metadata, and rollback references",
@@ -2016,6 +2014,8 @@ function resolveSandboxReplayStepPrefix(project: ManagedTaskFlowAutonomyProjectR
       return "execution";
     case "sovereignty_watch":
       return "sovereignty";
+    default:
+      throw new Error("Unsupported autonomy project kind.");
   }
 }
 
@@ -2117,6 +2117,8 @@ function applySandboxReplayResultToProject(params: {
       };
     case "sovereignty_watch":
       return params.project;
+    default:
+      throw new Error("Unsupported autonomy project kind.");
   }
 }
 
@@ -2132,6 +2134,8 @@ function explainManagedFlowMutationFailure(params: {
       return `Autonomy flow "${params.flowId}" is no longer a managed flow.`;
     case "revision_conflict":
       return `Autonomy flow "${params.flowId}" changed concurrently while attempting to ${params.action}.`;
+    default:
+      throw new Error("Unsupported autonomy mutation failure code.");
   }
 }
 
@@ -2577,7 +2581,7 @@ function buildFleetStatusEntry(params: {
     duplicateLoopCount: duplicates.length,
     expectedLoopEveryMs,
     ...(actualLoopEveryMs !== undefined ? { actualLoopEveryMs } : {}),
-    loopCadenceAligned: Boolean(primary && actualLoopEveryMs === expectedLoopEveryMs),
+    loopCadenceAligned: primary !== undefined && actualLoopEveryMs === expectedLoopEveryMs,
     hasActiveFlow,
     driftReasons,
     suggestedAction:

@@ -1033,7 +1033,6 @@ export async function runEmbeddedAttempt(
         sessionKey: params.sessionKey,
         checkpointContinuation,
       });
-      const preferredContinuation = continuationState.continuation;
       const continuationAudit = buildAttemptContinuationAuditPayload(continuationState);
       const projectedTaskStatusOverride = continuationAudit.projectedTaskStatusOverride;
       const projectedTaskStatusExplanation = continuationAudit.explanation;

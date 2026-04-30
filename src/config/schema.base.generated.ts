@@ -20768,18 +20768,13 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 type: "boolean",
                 title: "Control UI Enabled",
                 description:
-                  "Enables serving the gateway Control UI from the gateway HTTP process when true. Keep enabled for local administration, and disable when an external control surface replaces it.",
+                  "Legacy operator-client enablement flag retained for compatibility. The browser Control UI is removed; use the terminal UI for local administration.",
               },
               basePath: {
                 type: "string",
                 title: "Control UI Base Path",
-                description: "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
-              },
-              root: {
-                type: "string",
-                title: "Control UI Assets Root",
                 description:
-                  "Optional filesystem root for Control UI assets (defaults to dist/control-ui).",
+                  "Legacy URL prefix retained for status and Tailscale compatibility. No browser assets are served.",
               },
               embedSandbox: {
                 anyOf: [
@@ -24348,15 +24343,9 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "gateway.controlUi.basePath": {
       label: "Control UI Base Path",
-      help: "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
+      help: "Legacy URL prefix retained for status and Tailscale compatibility. No browser assets are served.",
       placeholder: "/openclaw",
       tags: ["network", "storage"],
-    },
-    "gateway.controlUi.root": {
-      label: "Control UI Assets Root",
-      help: "Optional filesystem root for Control UI assets (defaults to dist/control-ui).",
-      placeholder: "dist/control-ui",
-      tags: ["network"],
     },
     "gateway.controlUi.embedSandbox": {
       label: "Control UI Embed Sandbox Mode",

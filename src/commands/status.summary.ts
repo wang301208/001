@@ -150,7 +150,7 @@ function countGovernanceFindings(
 
 function buildStatusCapabilitySummary(
   result: Pick<
-    GovernanceCapabilityInventoryResult | AutonomyCapabilityInventoryResult,
+    GovernanceCapabilityInventoryResult,
     "requestedAgentIds" | "summary" | "gaps"
   >,
 ): StatusCapabilitySummary {
@@ -167,7 +167,7 @@ function buildStatusCapabilitySummary(
 
 function buildStatusGenesisSummary(
   result: Pick<
-    GovernanceGenesisPlanResult | AutonomyGenesisPlanResult,
+    GovernanceGenesisPlanResult,
     "teamId" | "teamTitle" | "mode" | "blockers" | "focusGapIds" | "stages"
   >,
 ): StatusGenesisSummary {

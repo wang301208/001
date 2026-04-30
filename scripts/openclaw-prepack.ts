@@ -1,19 +1,16 @@
 #!/usr/bin/env -S node --import tsx
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { formatErrorMessage } from "../src/infra/errors.ts";
 import { writePackageDistInventory } from "../src/infra/package-dist-inventory.ts";
 const requiredPreparedPathGroups = [
   ["dist/index.js", "dist/index.mjs"],
-  ["dist/control-ui/index.html"],
 ];
-const requiredControlUiAssetPrefix = "dist/control-ui/assets/";
 
 type PreparedFileReader = {
   existsSync: typeof existsSync;
-  readdirSync: typeof readdirSync;
 };
 
 function normalizeFiles(files: Iterable<string>): Set<string> {
@@ -22,10 +19,9 @@ function normalizeFiles(files: Iterable<string>): Set<string> {
 
 export function collectPreparedPrepackErrors(
   files: Iterable<string>,
-  assetPaths: Iterable<string>,
+  _assetPaths: Iterable<string> = [],
 ): string[] {
   const normalizedFiles = normalizeFiles(files);
-  const normalizedAssets = normalizeFiles(assetPaths);
   const errors: string[] = [];
 
   for (const group of requiredPreparedPathGroups) {
@@ -35,24 +31,13 @@ export function collectPreparedPrepackErrors(
     errors.push(`missing required prepared artifact: ${group.join(" or ")}`);
   }
 
-  if (!normalizedAssets.values().next().done) {
-    return errors;
-  }
-
-  errors.push(`missing prepared Control UI asset payload under ${requiredControlUiAssetPrefix}`);
   return errors;
 }
 
-function collectPreparedFilePaths(reader: PreparedFileReader = { existsSync, readdirSync }): {
+function collectPreparedFilePaths(reader: PreparedFileReader = { existsSync }): {
   files: Set<string>;
   assets: string[];
 } {
-  const assets = reader
-    .readdirSync("dist/control-ui/assets", { withFileTypes: true })
-    .flatMap((entry) =>
-      entry.isDirectory() ? [] : [`${requiredControlUiAssetPrefix}${entry.name}`],
-    );
-
   const files = new Set<string>();
   for (const group of requiredPreparedPathGroups) {
     for (const path of group) {
@@ -64,7 +49,7 @@ function collectPreparedFilePaths(reader: PreparedFileReader = { existsSync, rea
 
   return {
     files,
-    assets,
+    assets: [],
   };
 }
 
@@ -85,7 +70,7 @@ function ensurePreparedArtifacts(): void {
   }
 
   console.error(
-    "prepack: requires an existing build and Control UI bundle. Run `pnpm build && pnpm ui:build` before packing or publishing.",
+    "prepack: requires an existing build. Run `pnpm build` before packing or publishing.",
   );
   process.exit(1);
 }
@@ -112,7 +97,6 @@ async function writeDistInventory(): Promise<void> {
 async function main(): Promise<void> {
   const pnpmCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
   run(pnpmCommand, ["build"]);
-  run(pnpmCommand, ["ui:build"]);
   ensurePreparedArtifacts();
   await writeDistInventory();
   runBuildSmoke();

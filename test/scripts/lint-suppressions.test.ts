@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 const repoRoot = path.resolve(import.meta.dirname, "../..");
 const CODE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
 const IGNORED_DIRS = new Set([".cache", ".git", "build", "coverage", "dist", "node_modules"]);
-const ROOTS = ["src", "extensions", "scripts", "ui"] as const;
+const ROOTS = ["src", "extensions", "scripts"] as const;
 const SUPPRESSION_PATTERN = /(?:oxlint|eslint)-disable(?:-next-line)?\s+([@/\w-]+)(?:\s+--|$)/u;
 
 type SuppressionEntry = {
@@ -89,7 +89,6 @@ describe("production lint suppressions", () => {
       "src/channels/plugins/types.plugin.ts|typescript/no-explicit-any|1",
       "src/config/types.channels.ts|@typescript-eslint/no-explicit-any|1",
       "src/test-utils/vitest-mock-fn.ts|typescript/no-explicit-any|1",
-      "ui/src/ui/views/overview-log-tail.ts|no-control-regex|1",
     ]);
   });
 

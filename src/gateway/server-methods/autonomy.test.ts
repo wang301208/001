@@ -22,6 +22,7 @@ const mocks = vi.hoisted(() => ({
   planGenesisWork: vi.fn(),
   synthesizeGovernanceProposals: vi.fn(),
   reconcileGovernanceProposals: vi.fn(),
+  getArchitectureReadiness: vi.fn(),
   healFleet: vi.fn(),
   superviseFleet: vi.fn(),
   removeLoopJob: vi.fn(),
@@ -150,6 +151,7 @@ describe("autonomy handlers", () => {
       planGenesisWork: mocks.planGenesisWork,
       synthesizeGovernanceProposals: mocks.synthesizeGovernanceProposals,
       reconcileGovernanceProposals: mocks.reconcileGovernanceProposals,
+      getArchitectureReadiness: mocks.getArchitectureReadiness,
       healFleet: mocks.healFleet,
       superviseFleet: mocks.superviseFleet,
       removeLoopJob: mocks.removeLoopJob,
@@ -646,6 +648,138 @@ describe("autonomy handlers", () => {
       appliedCount: 1,
       skippedCount: 0,
     });
+    mocks.getArchitectureReadiness.mockResolvedValue({
+      observedAt: 4,
+      sessionKey: "agent:main:main",
+      charterDir: "C:/charter",
+      workspaceDirs: [workspaceDir],
+      summary: {
+        ready: true,
+        status: "ready",
+        readyChecks: 13,
+        attentionChecks: 0,
+        blockedChecks: 0,
+        totalChecks: 13,
+        blockers: [],
+      },
+      layers: [
+        {
+          id: "governance",
+          title: "Governance Layer",
+          status: "ready",
+          evidence: ["charter loaded"],
+          blockers: [],
+        },
+      ],
+      loops: [
+        {
+          id: "evolution",
+          title: "Evolution Loop",
+          status: "ready",
+          evidence: ["founder loop is healthy"],
+          blockers: [],
+        },
+      ],
+      sandboxUniverse: {
+        id: "sandbox_universe",
+        title: "Sandbox Universe",
+        status: "ready",
+        evidence: ["sandbox universe control algorithm registered"],
+        blockers: [],
+      },
+      algorithmEvolutionProtocol: {
+        id: "algorithm_evolution_protocol",
+        title: "Algorithm Evolution Protocol",
+        status: "ready",
+        evidence: ["algorithmReady=1"],
+        blockers: [],
+      },
+      autonomousDevelopment: {
+        id: "autonomous_development",
+        title: "Autonomous Development",
+        status: "ready",
+        evidence: ["Genesis Team staged plan is available"],
+        blockers: [],
+      },
+      continuousRuntime: {
+        id: "continuous_runtime",
+        title: "Continuous Runtime",
+        status: "ready",
+        evidence: ["healthyProfiles=1/1"],
+        blockers: [],
+      },
+      bootstrapped: {
+        observedAt: 4,
+        sessionKey: "agent:main:main",
+        supervised: {
+          observedAt: 4,
+          governanceMode: "apply_safe",
+          overviewBefore: {
+            entries: [],
+            totals: {
+              totalProfiles: 1,
+              healthy: 0,
+              idle: 1,
+              drift: 0,
+              missingLoop: 0,
+              activeFlows: 0,
+            },
+          },
+          healed: {
+            entries: [],
+            totals: {
+              totalProfiles: 1,
+              changed: 1,
+              unchanged: 0,
+              loopCreated: 1,
+              loopUpdated: 0,
+              flowStarted: 1,
+              flowRestarted: 0,
+            },
+          },
+          overviewAfter: {
+            entries: [],
+            totals: {
+              totalProfiles: 1,
+              healthy: 1,
+              idle: 0,
+              drift: 0,
+              missingLoop: 0,
+              activeFlows: 1,
+            },
+          },
+          summary: {
+            totalProfiles: 1,
+            changedProfiles: 1,
+            healthyProfiles: 1,
+            driftProfiles: 0,
+            missingLoopProfiles: 0,
+            activeFlows: 1,
+            governanceCreatedCount: 0,
+            governanceAppliedCount: 0,
+            governancePendingCount: 0,
+            capabilityGapCount: 0,
+            criticalCapabilityGapCount: 0,
+            genesisStageCount: 6,
+            genesisBlockedStageCount: 0,
+            recommendedNextActions: [],
+          },
+        },
+        readiness: {
+          ready: true,
+          profileReadyCount: 1,
+          profileNotReadyCount: 0,
+          missingLoopProfiles: 0,
+          driftProfiles: 0,
+          idleProfiles: 0,
+          activeFlows: 1,
+          capabilityGapCount: 0,
+          criticalCapabilityGapCount: 0,
+          genesisBlockedStageCount: 0,
+          blockers: [],
+        },
+      },
+    });
   });
 
   it("lists autonomy profiles with the default control session key", async () => {
@@ -922,6 +1056,43 @@ describe("autonomy handlers", () => {
             autoApplied: true,
           }),
         ],
+      }),
+    });
+  });
+
+  it("activates governed maximum autonomy through architecture readiness defaults", async () => {
+    const respond = await invoke("autonomy.activate", {
+      agentIds: ["founder"],
+      workspaceDirs: ["C:/workspace"],
+      teamId: "genesis_team",
+      decisionNote: "Activate governed maximum autonomy.",
+    });
+    const call = respond.mock.calls[0] as RespondCall | undefined;
+
+    expect(mocks.getArchitectureReadiness).toHaveBeenCalledWith({
+      agentIds: ["founder"],
+      workspaceDirs: ["C:/workspace"],
+      teamId: "genesis_team",
+      restartBlockedFlows: true,
+      governanceMode: "apply_safe",
+      decisionNote: "Activate governed maximum autonomy.",
+      includeCapabilityInventory: true,
+      includeGenesisPlan: true,
+      recordHistory: true,
+    });
+    expect(call?.[0]).toBe(true);
+    expect(call?.[1]).toEqual({
+      sessionKey: "agent:main:main",
+      activated: expect.objectContaining({
+        summary: expect.objectContaining({
+          ready: true,
+          status: "ready",
+        }),
+        bootstrapped: expect.objectContaining({
+          readiness: expect.objectContaining({
+            ready: true,
+          }),
+        }),
       }),
     });
   });

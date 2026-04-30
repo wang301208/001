@@ -178,7 +178,7 @@ export function resolveAgentGovernanceRuntimeContract(params: {
     resourceBudget: blueprint?.resourceBudget ? { ...blueprint.resourceBudget } : undefined,
     charterToolDeny: collectUniqueStrings([
       ...charterToolDeny,
-      ...(blueprint && blueprint.contractValid === false ? [...INVALID_CHARTER_CONTRACT_TOOL_DENY] : []),
+      ...(blueprint && !blueprint.contractValid ? [...INVALID_CHARTER_CONTRACT_TOOL_DENY] : []),
     ]),
     charterRequireAgentId: runtimeProfile?.subagents?.requireAgentId === true,
     charterExecutionContract: runtimeProfile?.embeddedPi?.executionContract,

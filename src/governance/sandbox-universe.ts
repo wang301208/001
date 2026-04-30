@@ -1236,8 +1236,8 @@ export function evaluateSandboxUniversePromotionGate(params: {
   const enforcement = resolveGovernanceEnforcementState(cfg, {
     charterDir: params.charterDir ?? params.plan.charterDir,
   });
-  const qaPassed = params.qaPassed === true;
-  const replayPassed = params.replayPassed === true;
+  const qaPassed = params.qaPassed;
+  const replayPassed = params.replayPassed;
   const auditPassed = params.auditPassed !== false;
   const usePersistedEvidence = Boolean(
     params.stateDir || params.env || normalizeOptionalString(params.controller?.statePath),

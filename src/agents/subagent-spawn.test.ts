@@ -121,10 +121,10 @@ describe("spawnSubagentDirect seam flow", () => {
     expect(result.childSessionKey).toMatch(/^agent:main:subagent:/);
 
     const childSessionKey = result.childSessionKey as string;
-    const patchCalls = hoisted.callGatewayMock.mock.calls
+    const patchCall = hoisted.callGatewayMock.mock.calls
       .map((call: unknown[]) => call[0] as { method?: string; params?: Record<string, unknown> })
-      .filter((request) => request.method === "sessions.patch");
-    expect(patchCalls[0]?.params?.governanceRuntime).toMatchObject({
+      .find((request) => request.method === "sessions.patch");
+    expect(patchCall?.params?.governanceRuntime).toMatchObject({
       agentId: "main",
       summary: {
         charterDeclared: false,

@@ -33,7 +33,6 @@ export function buildQaGatewayConfig(params: {
   gatewayToken: string;
   providerBaseUrl?: string;
   workspaceDir: string;
-  controlUiRoot?: string;
   controlUiAllowedOrigins?: string[];
   controlUiEnabled?: boolean;
   providerMode?: QaProviderMode;
@@ -203,9 +202,6 @@ export function buildQaGatewayConfig(params: {
       },
       controlUi: {
         enabled: params.controlUiEnabled ?? true,
-        ...((params.controlUiEnabled ?? true) && params.controlUiRoot
-          ? { root: params.controlUiRoot }
-          : {}),
         ...((params.controlUiEnabled ?? true)
           ? {
               allowInsecureAuth: true,

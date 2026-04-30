@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { registerStatusHealthSessionsCommands } from "./register.status-health-sessions.js";
 
 const mocks = vi.hoisted(() => ({
+  autonomyActivateCommand: vi.fn(),
+  autonomyArchitectureReadinessCommand: vi.fn(),
   autonomyBootstrapCommand: vi.fn(),
   autonomyCapabilityInventoryCommand: vi.fn(),
   autonomyCancelCommand: vi.fn(),
@@ -58,6 +60,8 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
+const autonomyActivateCommand = mocks.autonomyActivateCommand;
+const autonomyArchitectureReadinessCommand = mocks.autonomyArchitectureReadinessCommand;
 const autonomyBootstrapCommand = mocks.autonomyBootstrapCommand;
 const autonomyCapabilityInventoryCommand = mocks.autonomyCapabilityInventoryCommand;
 const autonomyCancelCommand = mocks.autonomyCancelCommand;
@@ -113,6 +117,8 @@ vi.mock("../../commands/status.js", () => ({
 }));
 
 vi.mock("../../commands/autonomy.js", () => ({
+  autonomyActivateCommand: mocks.autonomyActivateCommand,
+  autonomyArchitectureReadinessCommand: mocks.autonomyArchitectureReadinessCommand,
   autonomyBootstrapCommand: mocks.autonomyBootstrapCommand,
   autonomyCapabilityInventoryCommand: mocks.autonomyCapabilityInventoryCommand,
   autonomyCancelCommand: mocks.autonomyCancelCommand,
@@ -197,6 +203,8 @@ describe("registerStatusHealthSessionsCommands", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     runtime.exit.mockImplementation(() => {});
+    autonomyActivateCommand.mockResolvedValue(undefined);
+    autonomyArchitectureReadinessCommand.mockResolvedValue(undefined);
     autonomyCapabilityInventoryCommand.mockResolvedValue(undefined);
     autonomyCancelCommand.mockResolvedValue(undefined);
     autonomyGenesisPlanCommand.mockResolvedValue(undefined);
@@ -991,6 +999,43 @@ describe("registerStatusHealthSessionsCommands", () => {
         includeCapabilityInventory: false,
         includeGenesisPlan: false,
         recordHistory: false,
+        json: true,
+      }),
+      runtime,
+    );
+  });
+
+  it("runs autonomy activate with governed maximum-autonomy defaults", async () => {
+    await runCli([
+      "autonomy",
+      "--session-key",
+      "agent:control:main",
+      "activate",
+      "founder",
+      "strategist",
+      "--team-id",
+      "genesis_team",
+      "--workspace",
+      "/tmp/fleet-a",
+      "--workspace",
+      "/tmp/fleet-b",
+      "--note",
+      "Activate governed maximum autonomy.",
+      "--json",
+    ]);
+
+    expect(autonomyActivateCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agentIds: ["founder", "strategist"],
+        sessionKey: "agent:control:main",
+        teamId: "genesis_team",
+        workspaceDirs: ["/tmp/fleet-a", "/tmp/fleet-b"],
+        governanceMode: "apply_safe",
+        decisionNote: "Activate governed maximum autonomy.",
+        restartBlockedFlows: true,
+        includeCapabilityInventory: true,
+        includeGenesisPlan: true,
+        recordHistory: true,
         json: true,
       }),
       runtime,

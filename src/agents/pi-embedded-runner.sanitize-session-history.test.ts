@@ -811,7 +811,7 @@ describe("sanitizeSessionHistory", () => {
     );
 
     const reopened = SessionManager.open(session.getSessionFile()!);
-    const rebuiltMessages = reopened.buildSessionContext().messages as AgentMessage[];
+    const rebuiltMessages = reopened.buildSessionContext().messages;
     expect(rebuiltMessages.some((message) => message.role === "compactionSummary")).toBe(true);
 
     const result = await sanitizeSessionHistory({

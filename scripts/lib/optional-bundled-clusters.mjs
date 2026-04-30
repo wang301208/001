@@ -9,7 +9,6 @@ export const optionalBundledClusters = [
   "nostr",
   "tlon",
   "twitch",
-  "ui",
   "whatsapp",
   "zalouser",
 ];

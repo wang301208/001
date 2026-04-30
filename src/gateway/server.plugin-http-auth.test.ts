@@ -70,16 +70,15 @@ function createMattermostCallbackConfig(callbackPath: string) {
   };
 }
 
-function createRootMountedControlUiOverrides(handlePluginRequest: PluginRequestHandler) {
+function createTerminalOnlyPluginOverrides(handlePluginRequest: PluginRequestHandler) {
   return {
-    controlUiEnabled: true,
-    controlUiBasePath: "",
-    controlUiRoot: { kind: "missing" as const },
+    controlUiEnabled: false as const,
+    controlUiBasePath: "" as const,
     handlePluginRequest,
   };
 }
 
-const withRootMountedControlUiServer = (params: {
+const withTerminalOnlyPluginServer = (params: {
   prefix: string;
   handlePluginRequest: PluginRequestHandler;
   run: Parameters<typeof withGatewayServer>[0]["run"];
@@ -87,7 +86,7 @@ const withRootMountedControlUiServer = (params: {
   withPluginGatewayServer({
     prefix: params.prefix,
     resolvedAuth: AUTH_NONE,
-    overrides: createRootMountedControlUiOverrides(params.handlePluginRequest),
+    overrides: createTerminalOnlyPluginOverrides(params.handlePluginRequest),
     run: params.run,
   });
 
@@ -611,7 +610,7 @@ describe("gateway plugin HTTP auth boundary", () => {
     });
   });
 
-  test("serves plugin routes before control ui spa fallback", async () => {
+  test("serves plugin routes before terminal-only 404 fallback", async () => {
     const handlePluginRequest = vi.fn(async (req: IncomingMessage, res: ServerResponse) => {
       const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
       if (pathname === "/plugins/diffs/view/demo-id/demo-token") {
@@ -623,8 +622,8 @@ describe("gateway plugin HTTP auth boundary", () => {
       return false;
     });
 
-    await withRootMountedControlUiServer({
-      prefix: "openclaw-plugin-http-control-ui-precedence-test-",
+    await withTerminalOnlyPluginServer({
+      prefix: "openclaw-plugin-http-terminal-precedence-test-",
       handlePluginRequest,
       run: async (server) => {
         const response = await sendRequest(server, {
@@ -638,7 +637,7 @@ describe("gateway plugin HTTP auth boundary", () => {
     });
   });
 
-  test("passes POST webhook routes through root-mounted control ui to plugins", async () => {
+  test("passes POST webhook routes to plugins in terminal-only mode", async () => {
     const handlePluginRequest = vi.fn(async (req: IncomingMessage, res: ServerResponse) => {
       const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
       if (req.method !== "POST" || pathname !== "/bluebubbles-webhook") {
@@ -650,8 +649,8 @@ describe("gateway plugin HTTP auth boundary", () => {
       return true;
     });
 
-    await withRootMountedControlUiServer({
-      prefix: "openclaw-plugin-http-control-ui-webhook-post-test-",
+    await withTerminalOnlyPluginServer({
+      prefix: "openclaw-plugin-http-terminal-webhook-post-test-",
       handlePluginRequest,
       run: async (server) => {
         const response = await sendRequest(server, {
@@ -666,7 +665,7 @@ describe("gateway plugin HTTP auth boundary", () => {
     });
   });
 
-  test("plugin routes take priority over control ui catch-all", async () => {
+  test("plugin routes take priority over terminal-only catch-all", async () => {
     const handlePluginRequest = vi.fn(async (req: IncomingMessage, res: ServerResponse) => {
       const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
       if (pathname === "/my-plugin/inbound") {
@@ -678,8 +677,8 @@ describe("gateway plugin HTTP auth boundary", () => {
       return false;
     });
 
-    await withRootMountedControlUiServer({
-      prefix: "openclaw-plugin-http-control-ui-shadow-test-",
+    await withTerminalOnlyPluginServer({
+      prefix: "openclaw-plugin-http-terminal-shadow-test-",
       handlePluginRequest,
       run: async (server) => {
         const response = await sendRequest(server, { path: "/my-plugin/inbound" });
@@ -691,27 +690,27 @@ describe("gateway plugin HTTP auth boundary", () => {
     });
   });
 
-  test("unmatched plugin paths fall through to control ui", async () => {
+  test("unmatched plugin paths fall through to gateway 404 in terminal-only mode", async () => {
     const handlePluginRequest = vi.fn(async () => false);
 
-    await withRootMountedControlUiServer({
-      prefix: "openclaw-plugin-http-control-ui-fallthrough-test-",
+    await withTerminalOnlyPluginServer({
+      prefix: "openclaw-plugin-http-terminal-fallthrough-test-",
       handlePluginRequest,
       run: async (server) => {
         const response = await sendRequest(server, { path: "/chat" });
 
         expect(handlePluginRequest).toHaveBeenCalledTimes(1);
-        expect(response.res.statusCode).toBe(503);
-        expect(response.getBody()).toContain("Control UI assets not found");
+        expect(response.res.statusCode).toBe(404);
+        expect(response.getBody()).toContain("Not Found");
       },
     });
   });
 
-  test("root-mounted control ui does not swallow gateway probe routes", async () => {
+  test("terminal-only plugin routing does not swallow gateway probe routes", async () => {
     const handlePluginRequest = vi.fn(async () => false);
 
-    await withRootMountedControlUiServer({
-      prefix: "openclaw-plugin-http-control-ui-probes-test-",
+    await withTerminalOnlyPluginServer({
+      prefix: "openclaw-plugin-http-terminal-probes-test-",
       handlePluginRequest,
       run: async (server) => {
         await expectProbeRoutesHealthy(server);
@@ -720,11 +719,11 @@ describe("gateway plugin HTTP auth boundary", () => {
     });
   });
 
-  test("root-mounted control ui still lets plugins claim probe paths first", async () => {
+  test("terminal-only plugin routing still lets plugins claim probe paths first", async () => {
     const handlePluginRequest = createHealthzPluginHandler();
 
-    await withRootMountedControlUiServer({
-      prefix: "openclaw-plugin-http-control-ui-probe-shadow-test-",
+    await withTerminalOnlyPluginServer({
+      prefix: "openclaw-plugin-http-terminal-probe-shadow-test-",
       handlePluginRequest,
       run: async (server) => {
         await expectHealthzPluginShadow({ server, handlePluginRequest });

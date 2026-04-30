@@ -160,7 +160,7 @@ export async function listAuditFacts(params: {
     throw error;
   }
   return collectParsedAuditFacts(raw, params.domain)
-    .sort((left, right) => right.ts - left.ts)
+    .toSorted((left, right) => right.ts - left.ts)
     .slice(0, limit);
 }
 
@@ -182,7 +182,7 @@ export function listAuditFactsSync(params: {
     throw error;
   }
   return collectParsedAuditFacts(raw, params.domain)
-    .sort((left, right) => right.ts - left.ts)
+    .toSorted((left, right) => right.ts - left.ts)
     .slice(0, limit);
 }
 
@@ -205,7 +205,7 @@ export async function summarizeAuditStream(params: {
     throw error;
   }
   const facts = collectParsedAuditFacts(raw);
-  const domains = Array.from(new Set(facts.map((entry) => entry.domain))).sort((left, right) =>
+  const domains = Array.from(new Set(facts.map((entry) => entry.domain))).toSorted((left, right) =>
     left.localeCompare(right),
   );
   return {
@@ -235,7 +235,7 @@ export function summarizeAuditStreamSync(params: {
     throw error;
   }
   const facts = collectParsedAuditFacts(raw);
-  const domains = Array.from(new Set(facts.map((entry) => entry.domain))).sort((left, right) =>
+  const domains = Array.from(new Set(facts.map((entry) => entry.domain))).toSorted((left, right) =>
     left.localeCompare(right),
   );
   return {

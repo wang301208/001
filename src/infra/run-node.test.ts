@@ -251,23 +251,17 @@ async function expectManifestId(tmp: string, relativePath: string, id: string) {
 
 describe("run-node script", () => {
   it.runIf(process.platform !== "win32")(
-    "preserves control-ui assets by building with tsdown --no-clean",
+    "forces rebuild with tsdown --no-clean",
     async () => {
       await withTempDir({ prefix: "openclaw-run-node-" }, async (tmp) => {
         const argsPath = resolvePath(tmp, ".build-args.txt");
-        const indexPath = resolvePath(tmp, "dist/control-ui/index.html");
 
         await writeRuntimePostBuildScaffold(tmp);
-        await fs.mkdir(path.dirname(indexPath), { recursive: true });
-        await fs.writeFile(indexPath, "<html>sentinel</html>\n", "utf-8");
 
         const nodeCalls: string[][] = [];
         const spawn = (cmd: string, args: string[]) => {
           if (cmd === process.execPath && args[0] === "scripts/tsdown-build.mjs") {
             fsSync.writeFileSync(argsPath, args.join(" "), "utf-8");
-            if (!args.includes("--no-clean")) {
-              fsSync.rmSync(resolvePath(tmp, "dist/control-ui"), { recursive: true, force: true });
-            }
           }
           if (cmd === process.execPath) {
             nodeCalls.push([cmd, ...args]);
@@ -292,7 +286,6 @@ describe("run-node script", () => {
         await expect(fs.readFile(argsPath, "utf-8")).resolves.toContain(
           "scripts/tsdown-build.mjs --no-clean",
         );
-        await expect(fs.readFile(indexPath, "utf-8")).resolves.toContain("sentinel");
         expect(nodeCalls).toEqual([
           [process.execPath, "scripts/tsdown-build.mjs", "--no-clean"],
           [process.execPath, "openclaw.mjs", "--version"],

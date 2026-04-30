@@ -220,10 +220,6 @@ vi.mock("../daemon/systemd.js", () => ({
   isSystemdUserServiceAvailable,
 }));
 
-vi.mock("../infra/control-ui-assets.js", () => ({
-  ensureControlUiAssetsBuilt,
-}));
-
 vi.mock("../plugins/status.js", () => ({
   buildPluginCompatibilityNotices,
   formatPluginCompatibilityNotice,

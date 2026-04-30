@@ -82,6 +82,23 @@ export type AutonomyLoopShowParams = SchemaType<"AutonomyLoopShowParams">;
 export type AutonomyLoopUpsertParams = SchemaType<"AutonomyLoopUpsertParams">;
 export type AutonomyLoopReconcileParams = SchemaType<"AutonomyLoopReconcileParams">;
 export type AutonomyLoopRemoveParams = SchemaType<"AutonomyLoopRemoveParams">;
+export type AutonomyActivateParams = SchemaType<"AutonomyActivateParams">;
+export type AutonomyActivateResultEnvelope =
+  SchemaType<"AutonomyActivateResultEnvelope">;
+export type AutonomyBootstrapReadiness = SchemaType<"AutonomyBootstrapReadiness">;
+export type AutonomyBootstrapResult = SchemaType<"AutonomyBootstrapResult">;
+export type AutonomyArchitectureReadinessStatus =
+  SchemaType<"AutonomyArchitectureReadinessStatus">;
+export type AutonomyArchitectureReadinessCheck =
+  SchemaType<"AutonomyArchitectureReadinessCheck">;
+export type AutonomyArchitectureReadinessLayer =
+  SchemaType<"AutonomyArchitectureReadinessLayer">;
+export type AutonomyArchitectureReadinessLoop =
+  SchemaType<"AutonomyArchitectureReadinessLoop">;
+export type AutonomyArchitectureReadinessSummary =
+  SchemaType<"AutonomyArchitectureReadinessSummary">;
+export type AutonomyArchitectureReadinessResult =
+  SchemaType<"AutonomyArchitectureReadinessResult">;
 export type SandboxUniversePromotionGateDecision =
   SchemaType<"SandboxUniversePromotionGateDecision">;
 export type AgentGovernanceRuntimeContract = SchemaType<"AgentGovernanceRuntimeContract">;

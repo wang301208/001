@@ -455,4 +455,4 @@ echo
 echo "Next:"
 echo "  ./scripts/run-openclaw-podman.sh launch"
 echo "  ./scripts/run-openclaw-podman.sh launch setup"
-echo "  openclaw --container $OPENCLAW_CONTAINER_NAME dashboard --no-open"
+echo "  openclaw --container $OPENCLAW_CONTAINER_NAME tui"

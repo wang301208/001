@@ -132,7 +132,7 @@ export function createTestGatewayServer(options: {
     canvasHost: null,
     clients: new Set(),
     controlUiEnabled: false,
-    controlUiBasePath: "/__control__",
+    controlUiBasePath: "",
     openAiChatCompletionsEnabled: false,
     openResponsesEnabled: false,
     handleHooksRequest: async () => false,

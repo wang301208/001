@@ -105,9 +105,6 @@ describe("docker build cache layout", () => {
     expectPatternBeforeInstall(
       /^COPY(?:\s+--chown=\S+)?\s+package\.json pnpm-lock\.yaml pnpm-workspace\.yaml \.npmrc \.\/$/m,
     );
-    expectPatternBeforeInstall(
-      /^COPY(?:\s+--chown=\S+)?\s+ui\/package\.json \.\/ui\/package\.json$/m,
-    );
     expectPatternBeforeInstall(/^COPY(?:\s+--chown=\S+)?\s+extensions \.\/extensions$/m);
     expectPatternBeforeInstall(/^COPY(?:\s+--chown=\S+)?\s+patches \.\/patches$/m);
     expectPatternBeforeInstall(
@@ -119,7 +116,7 @@ describe("docker build cache layout", () => {
     expectPatternAfterInstall(/^COPY(?:\s+--chown=\S+)?\s+src \.\/src$/m);
     expectPatternAfterInstall(/^COPY(?:\s+--chown=\S+)?\s+test \.\/test$/m);
     expectPatternAfterInstall(/^COPY(?:\s+--chown=\S+)?\s+scripts \.\/scripts$/m);
-    expectPatternAfterInstall(/^COPY(?:\s+--chown=\S+)?\s+ui \.\/ui$/m);
+    expect(indexOfPattern(dockerfile, /^COPY(?:\s+--chown=\S+)?\s+ui(?:\/|\s)/m)).toBe(-1);
   });
 
   it("copies manifests before install in the qr-import image", async () => {
@@ -132,12 +129,7 @@ describe("docker build cache layout", () => {
         /^COPY(?:\s+--chown=\S+)?\s+package\.json pnpm-lock\.yaml pnpm-workspace\.yaml \.\/$/m,
       ),
     ).toBeLessThan(installIndex);
-    expect(
-      indexOfPattern(
-        dockerfile,
-        /^COPY(?:\s+--chown=\S+)?\s+ui\/package\.json \.\/ui\/package\.json$/m,
-      ),
-    ).toBeLessThan(installIndex);
+    expect(indexOfPattern(dockerfile, /^COPY(?:\s+--chown=\S+)?\s+ui(?:\/|\s)/m)).toBe(-1);
     expect(dockerfile).toContain(
       "This image only exercises the root qrcode-terminal dependency path.",
     );

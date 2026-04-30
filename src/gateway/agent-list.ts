@@ -92,11 +92,11 @@ export function listGatewayAgentsBasic(cfg: OpenClawConfig): {
   );
   for (const charterAgent of charterAgents) {
     if (!agentIds.includes(charterAgent.id)) {
-      agentIds = [...agentIds, charterAgent.id];
+      agentIds.push(charterAgent.id);
     }
   }
   if (mainKey && !agentIds.includes(mainKey) && (!allowedIds || allowedIds.has(mainKey))) {
-    agentIds = [...agentIds, mainKey];
+    agentIds.push(mainKey);
   }
   const agents = agentIds.map((id) => {
     const meta = configuredById.get(id);

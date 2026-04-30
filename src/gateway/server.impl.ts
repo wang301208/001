@@ -44,7 +44,6 @@ import { closeMcpLoopbackServer } from "./mcp-http.js";
 import { createGatewayAuxHandlers } from "./server-aux-handlers.js";
 import { createChannelManager } from "./server-channels.js";
 import { createGatewayCloseHandler, runGatewayClosePrelude } from "./server-close.js";
-import { resolveGatewayControlUiRootState } from "./server-control-ui-root.js";
 import { buildGatewayCronService } from "./server-cron.js";
 import { applyGatewayLaneConcurrency } from "./server-lanes.js";
 import { createGatewayServerLiveState, type GatewayServerLiveState } from "./server-live-state.js";
@@ -90,7 +89,6 @@ import { resolveHookClientIpConfig } from "./server/hooks.js";
 import { createReadinessChecker } from "./server/readiness.js";
 import { loadGatewayTlsRuntime } from "./server/tls.js";
 import { resolveSharedGatewaySessionGeneration } from "./server/ws-shared-generation.js";
-import { maybeSeedControlUiAllowedOriginsAtStartup } from "./startup-control-ui-origins.js";
 
 export { __resetModelCatalogCacheForTest } from "./server-model-catalog.js";
 
@@ -164,8 +162,7 @@ export type GatewayServerOptions = {
    */
   host?: string;
   /**
-   * If false, do not serve the browser Control UI.
-   * Default: config `gateway.controlUi.enabled` (or true when absent).
+   * Legacy no-op: the browser Control UI has been removed.
    */
   controlUiEnabled?: boolean;
   /**
@@ -275,21 +272,11 @@ export async function startGatewayServer(
       getActiveEmbeddedRunCount() +
       getInspectableTaskRegistrySummary().active,
   );
-  // Unconditional startup migration: seed gateway.controlUi.allowedOrigins for existing
-  // non-loopback installs that upgraded to v2026.2.26+ without required origins.
-  const controlUiSeed = minimalTestGateway
-    ? { config: cfgAtStart, persistedAllowedOriginsSeed: false }
-    : await maybeSeedControlUiAllowedOriginsAtStartup({
-        config: cfgAtStart,
-        writeConfig: writeConfigFile,
-        log,
-      });
-  cfgAtStart = controlUiSeed.config;
   // Always capture the final config hash after all startup writes (plugin
-  // auto-enable, auth token generation, control-UI origin seeding) so the
+  // auto-enable and auth token generation) so the
   // config reloader can recognize its own startup writes and suppress the
   // spurious hot-reload that would otherwise trigger a SIGUSR1 restart loop.
-  // Previously the hash was only captured when auth or control-UI persisted
+  // Previously the hash was only captured when auth persisted
   // changes, missing the plugin auto-enable write performed earlier inside
   // loadGatewayStartupConfigSnapshot().  See #67436.
   {
@@ -328,7 +315,7 @@ export async function startGatewayServer(
     port,
     bind: opts.bind,
     host: opts.host,
-    controlUiEnabled: opts.controlUiEnabled,
+    controlUiEnabled: false,
     openAiChatCompletionsEnabled: opts.openAiChatCompletionsEnabled,
     openResponsesEnabled: opts.openResponsesEnabled,
     auth: opts.auth,
@@ -343,7 +330,6 @@ export async function startGatewayServer(
     openResponsesConfig,
     strictTransportSecurityHeader,
     controlUiBasePath,
-    controlUiRoot: controlUiRootOverride,
     resolvedAuth,
     tailscaleConfig,
     tailscaleMode,
@@ -388,13 +374,6 @@ export async function startGatewayServer(
   const rateLimitConfig = cfgAtStart.gateway?.auth?.rateLimit;
   const { rateLimiter: authRateLimiter, browserRateLimiter: browserAuthRateLimiter } =
     createGatewayAuthRateLimiters(rateLimitConfig);
-
-  const controlUiRootState = await resolveGatewayControlUiRootState({
-    controlUiRootOverride,
-    controlUiEnabled,
-    gatewayRuntime,
-    log,
-  });
 
   const wizardRunner = opts.wizardRunner ?? runSetupWizard;
   const { wizardSessions, findRunningWizard, purgeWizardSession } = createWizardSessionTracker();
@@ -449,7 +428,6 @@ export async function startGatewayServer(
     port,
     controlUiEnabled,
     controlUiBasePath,
-    controlUiRoot: controlUiRootState,
     openAiChatCompletionsEnabled,
     openAiChatCompletionsConfig,
     openResponsesEnabled,

@@ -23,7 +23,7 @@ const OPENAI_PREFIX = buildStableCachePrefix("openai");
 const OPENAI_MCP_PREFIX = buildStableCachePrefix("openai-mcp-style");
 const ANTHROPIC_PREFIX = buildStableCachePrefix("anthropic");
 const LIVE_TEST_PNG_URL = new URL(
-  "../../apps/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+  "../../test/fixtures/one-pixel.png.base64",
   import.meta.url,
 );
 
@@ -404,7 +404,7 @@ function assertAgainstBaseline(params: {
 }
 
 export async function runLiveCacheRegression(): Promise<LiveCacheRegressionResult> {
-  const pngBase64 = (await fs.readFile(LIVE_TEST_PNG_URL)).toString("base64");
+  const pngBase64 = (await fs.readFile(LIVE_TEST_PNG_URL, "utf8")).trim();
   const runToken = randomUUID().slice(0, 13);
   const openai = await resolveLiveDirectModel({
     provider: "openai",

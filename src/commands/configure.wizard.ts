@@ -7,7 +7,6 @@ import { readConfigFileSnapshot, replaceConfigFile, resolveGatewayPort } from ".
 import { logConfigUpdated } from "../config/logging.js";
 import { ConfigMutationConflictError } from "../config/mutate.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
-import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
@@ -42,7 +41,7 @@ import {
   ensureWorkspaceAndSessions,
   guardCancel,
   probeGatewayReachable,
-  resolveControlUiLinks,
+  resolveGatewayLinks,
   summarizeExistingConfig,
   waitForGatewayReachable,
 } from "./onboard-helpers.js";
@@ -93,11 +92,10 @@ async function runGatewayHealthCheck(params: {
   runtime: RuntimeEnv;
   port: number;
 }): Promise<void> {
-  const localLinks = resolveControlUiLinks({
+  const localLinks = resolveGatewayLinks({
     bind: params.cfg.gateway?.bind ?? "loopback",
     port: params.port,
     customBindHost: params.cfg.gateway?.customBindHost,
-    basePath: undefined,
   });
   const remoteUrl = params.cfg.gateway?.remote?.url?.trim();
   const wsUrl = params.cfg.gateway?.mode === "remote" && remoteUrl ? remoteUrl : localLinks.wsUrl;
@@ -724,17 +722,11 @@ export async function runConfigureWizard(
       }
     }
 
-    const controlUiAssets = await ensureControlUiAssetsBuilt(runtime);
-    if (!controlUiAssets.ok && controlUiAssets.message) {
-      runtime.error(controlUiAssets.message);
-    }
-
     const bind = nextConfig.gateway?.bind ?? "loopback";
-    const links = resolveControlUiLinks({
+    const links = resolveGatewayLinks({
       bind,
       port: gatewayPort,
       customBindHost: nextConfig.gateway?.customBindHost,
-      basePath: nextConfig.gateway?.controlUi?.basePath,
     });
     const newPassword =
       process.env.OPENCLAW_GATEWAY_PASSWORD ??
@@ -776,12 +768,12 @@ export async function runConfigureWizard(
 
     note(
       [
-        `Web UI: ${links.httpUrl}`,
+        `Terminal UI: ${formatCliCommand("openclaw tui")}`,
         `Gateway WS: ${links.wsUrl}`,
         gatewayStatusLine,
-        "Docs: https://docs.openclaw.ai/web/control-ui",
+        "Docs: https://docs.openclaw.ai/gateway",
       ].join("\n"),
-      "Control UI",
+      "Terminal",
     );
 
     outro("Configure complete.");

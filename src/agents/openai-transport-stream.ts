@@ -1464,8 +1464,8 @@ function shouldUseMinimalCompletionsMessages(
 ): boolean {
   return (
     model.api === "openai-completions" &&
-    compat.supportsTools === false &&
-    compat.requiresStringContent === true
+    !compat.supportsTools &&
+    compat.requiresStringContent
   );
 }
 

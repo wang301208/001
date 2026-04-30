@@ -307,7 +307,7 @@ function hasBrowserSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolea
 }
 
 function hasAcpxSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
-  const backend = normalizeProviderId(String(config.acp?.backend ?? ""));
+  const backend = normalizeProviderId(config.acp?.backend ?? "");
   return (
     config.acp?.enabled === true ||
     config.acp?.dispatch?.enabled === true ||

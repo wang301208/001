@@ -76,6 +76,8 @@ type AutonomyBootstrapOptions = AutonomySuperviseOptions;
 
 type AutonomyArchitectureReadinessOptions = AutonomySuperviseOptions;
 
+type AutonomyActivateOptions = AutonomySuperviseOptions;
+
 type AutonomyHistoryOptions = {
   agentIds?: string[];
   json?: boolean;
@@ -1070,6 +1072,74 @@ export async function autonomyArchitectureReadinessCommand(
       runtime.log(`  blockers=${formatList(check.blockers)}`);
     }
   }
+  if (readiness.summary.blockers.length > 0) {
+    runtime.log("remainingBlockers:");
+    for (const blocker of readiness.summary.blockers) {
+      runtime.log(`  - ${blocker}`);
+    }
+  }
+}
+
+export async function autonomyActivateCommand(
+  opts: AutonomyActivateOptions,
+  runtime: RuntimeEnv,
+): Promise<void> {
+  const { sessionKey, runtime: autonomy } = bindAutonomyRuntime({
+    sessionKey: opts.sessionKey,
+  });
+  const workspaceDirs = normalizeWorkspaceDirs(opts.workspaceDirs);
+  const restartBlockedFlows =
+    typeof opts.restartBlockedFlows === "boolean" ? opts.restartBlockedFlows : true;
+  const governanceMode = opts.governanceMode ?? "apply_safe";
+  const includeCapabilityInventory =
+    typeof opts.includeCapabilityInventory === "boolean" ? opts.includeCapabilityInventory : true;
+  const includeGenesisPlan =
+    typeof opts.includeGenesisPlan === "boolean" ? opts.includeGenesisPlan : true;
+  const recordHistory = typeof opts.recordHistory === "boolean" ? opts.recordHistory : true;
+  const readiness = await autonomy.getArchitectureReadiness({
+    ...(opts.agentIds?.length ? { agentIds: opts.agentIds } : {}),
+    ...(workspaceDirs.length > 0 ? { workspaceDirs } : {}),
+    ...(opts.teamId ? { teamId: opts.teamId } : {}),
+    restartBlockedFlows,
+    governanceMode,
+    ...(opts.decisionNote ? { decisionNote: opts.decisionNote } : {}),
+    includeCapabilityInventory,
+    includeGenesisPlan,
+    recordHistory,
+    telemetrySource: "manual",
+  });
+
+  if (opts.json) {
+    runtime.log(
+      JSON.stringify(
+        {
+          sessionKey,
+          activated: readiness,
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+
+  runtime.log("Autonomy governed activation:");
+  runtime.log(`sessionKey: ${sessionKey}`);
+  runtime.log(`charterDir: ${readiness.charterDir || "n/a"}`);
+  runtime.log(`workspaceScope: ${formatWorkspaceScope(readiness.workspaceDirs)}`);
+  runtime.log(`status: ${readiness.summary.status}`);
+  runtime.log(
+    `activationDefaults: governanceMode=${governanceMode} restartBlockedFlows=${restartBlockedFlows ? "yes" : "no"} capabilityInventory=${includeCapabilityInventory ? "yes" : "no"} genesisPlan=${includeGenesisPlan ? "yes" : "no"} history=${recordHistory ? "yes" : "no"}`,
+  );
+  runtime.log(
+    `checks: ready=${readiness.summary.readyChecks}/${readiness.summary.totalChecks} attention=${readiness.summary.attentionChecks} blocked=${readiness.summary.blockedChecks}`,
+  );
+  runtime.log(
+    `bootstrap: ready=${readiness.bootstrapped.readiness.ready ? "yes" : "no"} healthy=${readiness.bootstrapped.readiness.profileReadyCount}/${readiness.bootstrapped.supervised.summary.totalProfiles} activeFlows=${readiness.bootstrapped.readiness.activeFlows}`,
+  );
+  runtime.log(
+    `supervisor: changed=${readiness.bootstrapped.supervised.summary.changedProfiles ?? "n/a"} healthy=${readiness.bootstrapped.supervised.summary.healthyProfiles ?? "n/a"} activeFlows=${readiness.bootstrapped.supervised.summary.activeFlows ?? "n/a"}`,
+  );
   if (readiness.summary.blockers.length > 0) {
     runtime.log("remainingBlockers:");
     for (const blocker of readiness.summary.blockers) {

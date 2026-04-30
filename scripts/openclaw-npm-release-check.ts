@@ -65,11 +65,9 @@ const LEGACY_UPDATE_COMPAT_PACKED_PATHS = [
 ] as const;
 const REQUIRED_PACKED_PATHS = [
   PACKAGE_DIST_INVENTORY_RELATIVE_PATH,
-  "dist/control-ui/index.html",
   ...LEGACY_UPDATE_COMPAT_PACKED_PATHS,
   ...WORKSPACE_TEMPLATE_PACK_PATHS,
 ];
-const CONTROL_UI_ASSET_PREFIX = "dist/control-ui/assets/";
 const FORBIDDEN_PACKED_PATH_RULES = [
   {
     prefix: "docs/.generated/",
@@ -467,23 +465,16 @@ export function parseNpmPackJsonOutput(stdout: string): NpmPackResult[] | null {
   return null;
 }
 
-export function collectControlUiPackErrors(paths: Iterable<string>): string[] {
+export function collectRequiredPackErrors(paths: Iterable<string>): string[] {
   const packedPaths = new Set(paths);
-  const assetPaths = [...packedPaths].filter((path) => path.startsWith(CONTROL_UI_ASSET_PREFIX));
   const errors: string[] = [];
 
   for (const requiredPath of REQUIRED_PACKED_PATHS) {
     if (!packedPaths.has(requiredPath)) {
       errors.push(
-        `npm package is missing required path "${requiredPath}". Ensure UI assets are built and included before publish.`,
+        `npm package is missing required path "${requiredPath}". Ensure build artifacts are included before publish.`,
       );
     }
-  }
-
-  if (assetPaths.length === 0) {
-    errors.push(
-      `npm package is missing Control UI asset payload under "${CONTROL_UI_ASSET_PREFIX}". Refuse release when the dashboard tarball would be empty.`,
-    );
   }
 
   return errors;
@@ -522,7 +513,7 @@ function collectPackedTarballErrors(): string[] {
   );
 
   return [
-    ...collectControlUiPackErrors(packedPaths),
+    ...collectRequiredPackErrors(packedPaths),
     ...collectForbiddenPackedPathErrors(packedPaths),
     ...collectForbiddenPackedContentErrors(packedPaths),
     ...collectPackedTestCargoErrors(packedPaths),

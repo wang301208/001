@@ -84,7 +84,6 @@ const SHARED_CORE_VITEST_CONFIG = "test/vitest/vitest.shared-core.config.ts";
 const TASKS_VITEST_CONFIG = "test/vitest/vitest.tasks.config.ts";
 const TOOLING_VITEST_CONFIG = "test/vitest/vitest.tooling.config.ts";
 const TUI_VITEST_CONFIG = "test/vitest/vitest.tui.config.ts";
-const UI_VITEST_CONFIG = "test/vitest/vitest.ui.config.ts";
 const UTILS_VITEST_CONFIG = "test/vitest/vitest.utils.config.ts";
 const WIZARD_VITEST_CONFIG = "test/vitest/vitest.wizard.config.ts";
 const INCLUDE_FILE_ENV_KEY = "OPENCLAW_VITEST_INCLUDE_FILE";
@@ -138,7 +137,6 @@ const VITEST_CONFIG_BY_KIND = {
   tasks: TASKS_VITEST_CONFIG,
   tooling: TOOLING_VITEST_CONFIG,
   tui: TUI_VITEST_CONFIG,
-  ui: UI_VITEST_CONFIG,
   utils: UTILS_VITEST_CONFIG,
   wizard: WIZARD_VITEST_CONFIG,
 };
@@ -260,7 +258,7 @@ function shouldKeepBroadChangedRun(changedPaths) {
 }
 
 function isRoutableChangedTarget(changedPath) {
-  return /^(?:src|test|extensions|ui|packages|apps)(?:\/|$)/u.test(changedPath);
+  return /^(?:src|test|extensions|packages)(?:\/|$)/u.test(changedPath);
 }
 
 export function resolveChangedTargetArgs(
@@ -282,6 +280,13 @@ export function resolveChangedTargetArgs(
 
 function classifyTarget(arg, cwd) {
   const relative = toRepoRelativeTarget(arg, cwd);
+  if (
+    relative.startsWith("ui/") ||
+    relative.startsWith("apps/") ||
+    relative.startsWith("dist/control-ui/")
+  ) {
+    return "removedFrontend";
+  }
   if (resolveUnitFastTestIncludePattern(relative)) {
     return "unitFast";
   }
@@ -433,9 +438,6 @@ function classifyTarget(arg, cwd) {
   if (relative.startsWith("src/plugins/")) {
     return "plugin";
   }
-  if (relative.startsWith("ui/src/ui/")) {
-    return "ui";
-  }
   if (relative.startsWith("src/utils/")) {
     return "utils";
   }
@@ -533,6 +535,12 @@ export function buildVitestRunPlans(
   }
 
   const nonTargetArgs = activeForwardedArgs.filter((arg) => !activeTargetArgs.includes(arg));
+  const removedFrontendTargets = groupedTargets.get("removedFrontend");
+  if (removedFrontendTargets?.length) {
+    throw new Error(
+      `No Vitest project for removed frontend target(s): ${removedFrontendTargets.join(", ")}`,
+    );
+  }
   const orderedKinds = [
     "unitFast",
     "default",
@@ -563,7 +571,6 @@ export function buildVitestRunPlans(
     "autoReply",
     "agent",
     "plugin",
-    "ui",
     "utils",
     "wizard",
     "e2e",

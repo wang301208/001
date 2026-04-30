@@ -41,8 +41,8 @@ export type GovernanceCharterSnapshot = {
   repoRoot: string;
   charterDir: string;
   discovered: boolean;
-  constitution: GovernanceYamlDocument<ConstitutionRecord>;
-  sovereigntyPolicy: GovernanceYamlDocument<SovereigntyPolicyRecord>;
+  constitution: GovernanceYamlDocument;
+  sovereigntyPolicy: GovernanceYamlDocument;
   evolutionPolicy: GovernanceYamlDocument;
   artifactPaths: string[];
   missingArtifactPaths: string[];

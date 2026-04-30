@@ -748,7 +748,7 @@ function listProposalFilesSync(storageDir: string): string[] {
 }
 
 function sortProposals(proposals: GovernanceProposalRecord[]): GovernanceProposalRecord[] {
-  return [...proposals].sort((left, right) => {
+  return proposals.toSorted((left, right) => {
     if (left.updatedAt !== right.updatedAt) {
       return right.updatedAt - left.updatedAt;
     }
@@ -1170,7 +1170,7 @@ export async function reviewGovernanceProposal(params: {
 }): Promise<GovernanceProposalReviewResult> {
   const decision = params.decision;
   if (!isGovernanceProposalDecision(decision)) {
-    throw new Error(`Unsupported governance proposal decision: ${String(params.decision)}`);
+    throw new Error(`Unsupported governance proposal decision: ${params.decision}`);
   }
   const decidedBy = normalizeActorLabel(params.decidedBy, "decidedBy");
   const decidedByType = normalizeAuditActorType(params.decidedByType, "decidedByType", "human");
@@ -1243,7 +1243,7 @@ export async function reviewGovernanceProposals(params: {
 }): Promise<GovernanceProposalsReviewManyResult> {
   const decision = params.decision;
   if (!isGovernanceProposalDecision(decision)) {
-    throw new Error(`Unsupported governance proposal decision: ${String(params.decision)}`);
+    throw new Error(`Unsupported governance proposal decision: ${params.decision}`);
   }
   const decidedBy = normalizeActorLabel(params.decidedBy, "decidedBy");
   const { storageDir, selection } = await resolveGovernanceProposalBatchSelection(params);
@@ -1505,11 +1505,11 @@ export async function revertGovernanceProposalApply(params: {
   }
 
   const restoredPathsReversed: string[] = [];
-  for (const snapshot of [...ledger.snapshots].reverse()) {
+  for (const snapshot of ledger.snapshots.toReversed()) {
     const target = await restoreProposalSnapshot(snapshot, params.charterDir ?? ledger.charterDir);
     restoredPathsReversed.push(target.repoRelativePath);
   }
-  const restoredPaths = [...restoredPathsReversed].reverse();
+  const restoredPaths = restoredPathsReversed.toReversed();
   const revertedAt = params.now ?? Date.now();
   const revertedLedger: GovernanceProposalApplyLedger = {
     ...ledger,

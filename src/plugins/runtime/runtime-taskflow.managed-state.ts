@@ -307,7 +307,7 @@ function normalizeGenesisProject(value: unknown): ManagedTaskFlowGenesisStageRun
     kind: "genesis_stage",
     teamId,
     ...(typeof value.teamTitle === "string" || value.teamTitle === null
-      ? { teamTitle: value.teamTitle as string | null }
+      ? { teamTitle: value.teamTitle }
       : {}),
     mode:
       value.mode === "repair" || value.mode === "build" || value.mode === "steady_state"
@@ -324,7 +324,7 @@ function normalizeGenesisProject(value: unknown): ManagedTaskFlowGenesisStageRun
       outputRefs: normalizeStringArray(value.stage.outputRefs),
       actions: normalizeStringArray(value.stage.actions),
       ...(typeof value.stage.rationale === "string" || value.stage.rationale === null
-        ? { rationale: value.stage.rationale as string | null }
+        ? { rationale: value.stage.rationale }
         : {}),
     },
     focusGapIds: normalizeStringArray(value.focusGapIds),
@@ -436,7 +436,7 @@ function normalizeSovereigntyWatchProject(
       ...(typeof value.governanceOverview.freezeReasonCode === "string" ||
       value.governanceOverview.freezeReasonCode === null
         ? {
-            freezeReasonCode: value.governanceOverview.freezeReasonCode as string | null,
+            freezeReasonCode: value.governanceOverview.freezeReasonCode,
           }
         : {}),
     },

@@ -27,10 +27,7 @@ function classifyScope(relPath: string): ConsumerScope {
     return "package";
   }
   if (relPath.startsWith("apps/")) {
-    return "app";
-  }
-  if (relPath.startsWith("ui/")) {
-    return "ui";
+    return "other";
   }
   if (relPath.startsWith("scripts/")) {
     return "script";
@@ -59,12 +56,8 @@ function extractOwner(relPath: string): string | null {
       return parts[1] ? `extension:${parts[1]}` : "extension";
     case "package":
       return parts[1] ? `package:${parts[1]}` : "package";
-    case "app":
-      return parts[1] ? `app:${parts[1]}` : "app";
     case "src":
       return "src";
-    case "ui":
-      return "ui";
     case "script":
       return "scripts";
     case "other":

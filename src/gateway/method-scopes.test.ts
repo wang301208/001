@@ -48,6 +48,7 @@ describe("method scope resolution", () => {
     ["autonomy.start", ["operator.admin"]],
     ["autonomy.heal", ["operator.admin"]],
     ["autonomy.supervise", ["operator.admin"]],
+    ["autonomy.activate", ["operator.admin"]],
     ["autonomy.loop.upsert", ["operator.admin"]],
     ["autonomy.loop.reconcile", ["operator.admin"]],
     ["autonomy.loop.remove", ["operator.admin"]],
@@ -104,6 +105,7 @@ describe("operator scope authorization", () => {
     ["autonomy.loop.show", ["operator.read"], { allowed: true }],
     ["autonomy.heal", ["operator.admin"], { allowed: true }],
     ["autonomy.supervise", ["operator.admin"], { allowed: true }],
+    ["autonomy.activate", ["operator.admin"], { allowed: true }],
     ["config.schema.lookup", ["operator.read"], { allowed: true }],
     ["config.patch", ["operator.admin"], { allowed: true }],
   ])("authorizes %s for scopes %j", (method, scopes, expected) => {
@@ -195,6 +197,7 @@ describe("plugin approval method registration", () => {
     expect(methods).toContain("governance.proposals.reconcile");
     expect(methods).toContain("autonomy.governance.reconcile");
     expect(methods).toContain("autonomy.supervise");
+    expect(methods).toContain("autonomy.activate");
   });
 
   it("classifies plugin approval methods", () => {

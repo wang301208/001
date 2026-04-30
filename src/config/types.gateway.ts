@@ -79,14 +79,12 @@ export type TalkConfigResponse = TalkConfig & {
 };
 
 export type GatewayControlUiConfig = {
-  /** If false, the Gateway will not serve the Control UI (default /). */
+  /** Legacy operator-client flag retained for config compatibility; no browser UI is served. */
   enabled?: boolean;
-  /** Optional base path prefix for the Control UI (e.g. "/openclaw"). */
+  /** Legacy base path retained for tailscale/status compatibility; terminal UI does not serve assets. */
   basePath?: string;
-  /** Optional filesystem root for Control UI assets (defaults to dist/control-ui). */
-  root?: string;
   /**
-   * Embed sandbox mode for hosted Control UI previews.
+   * Embed sandbox mode for hosted operator previews.
    * - strict: no script execution inside embeds
    * - scripts: allow scripts while keeping embeds origin-isolated (default)
    * - trusted: allow scripts and same-origin privileges

@@ -6,8 +6,6 @@ export type ConsumerScope =
   | "src"
   | "extension"
   | "package"
-  | "app"
-  | "ui"
   | "script"
   | "test"
   | "other";

@@ -1,11 +1,12 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
+import type { ModelCatalogEntry } from "../../agents/model-catalog.js";
 import type { createModelSelectionState as createModelSelectionStateType } from "./model-selection.js";
 import type { resolveContextTokens as resolveContextTokensType } from "./model-selection.js";
 
 const modelCatalogRuntimeMocks = vi.hoisted(() => ({
-  loadModelCatalog: vi.fn(async () => [
+  loadModelCatalog: vi.fn(async (): Promise<ModelCatalogEntry[]> => [
     { provider: "anthropic", id: "claude-opus-4-6", name: "Claude Opus 4.5" },
     { provider: "inferencer", id: "deepseek-v3-4bit-mlx", name: "DeepSeek V3" },
     { provider: "kimi", id: "kimi-code", name: "Kimi Code" },
@@ -36,7 +37,9 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  modelCatalogRuntimeMocks.loadModelCatalog.mockReset().mockImplementation(async () => [
+  modelCatalogRuntimeMocks.loadModelCatalog
+    .mockReset()
+    .mockImplementation(async (): Promise<ModelCatalogEntry[]> => [
     { provider: "anthropic", id: "claude-opus-4-6", name: "Claude Opus 4.5" },
     { provider: "inferencer", id: "deepseek-v3-4bit-mlx", name: "DeepSeek V3" },
     { provider: "kimi", id: "kimi-code", name: "Kimi Code" },
@@ -44,7 +47,7 @@ beforeEach(() => {
     { provider: "openai", id: "gpt-4o", name: "GPT-4o" },
     { provider: "xai", id: "grok-4", name: "Grok 4" },
     { provider: "xai", id: "grok-4.20-reasoning", name: "Grok 4.20 (Reasoning)" },
-  ]);
+    ]);
 });
 
 afterEach(() => {

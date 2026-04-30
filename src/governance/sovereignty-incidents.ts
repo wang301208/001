@@ -189,7 +189,7 @@ function normalizeGovernanceSovereigntyIncidentCandidate(
     ...(reasonCode ? { reasonCode } : {}),
     detailLines: normalizeStringArray(candidate.detailLines),
     findingIds: normalizeStringArray(candidate.findingIds),
-    freezeRequested: candidate.freezeRequested === true,
+    freezeRequested: candidate.freezeRequested ?? false,
   };
 }
 

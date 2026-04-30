@@ -152,7 +152,7 @@ vi.mock("../../channels/plugins/index.js", () => ({
   }),
 }));
 
-import { ErrorCodes, errorShape } from "../protocol/index.js";
+import { ErrorCodes } from "../protocol/index.js";
 import {
   COMMAND_ALIAS_MAX_ITEMS,
   COMMAND_ARG_CHOICES_MAX_ITEMS,

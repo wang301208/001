@@ -17,13 +17,12 @@ const mocks = vi.hoisted(() => {
       await writeConfigFile(params.nextConfig);
     }),
     resolveGatewayPort: vi.fn(),
-    ensureControlUiAssetsBuilt: vi.fn(),
     createClackPrompter: vi.fn(),
     note: vi.fn(),
     printWizardHeader: vi.fn(),
     probeGatewayReachable: vi.fn(),
     waitForGatewayReachable: vi.fn(),
-    resolveControlUiLinks: vi.fn(),
+    resolveGatewayLinks: vi.fn(),
     summarizeExistingConfig: vi.fn(),
     isCodexNativeWebSearchRelevant: vi.fn(({ config }: { config: OpenClawConfig }) =>
       Boolean(config.auth?.profiles?.["openai-codex:default"]),
@@ -47,10 +46,6 @@ vi.mock("../config/config.js", () => ({
   resolveGatewayPort: mocks.resolveGatewayPort,
 }));
 
-vi.mock("../infra/control-ui-assets.js", () => ({
-  ensureControlUiAssetsBuilt: mocks.ensureControlUiAssetsBuilt,
-}));
-
 vi.mock("../wizard/clack-prompter.js", () => ({
   createClackPrompter: mocks.createClackPrompter,
 }));
@@ -66,7 +61,7 @@ vi.mock("./onboard-helpers.js", () => ({
   guardCancel: <T>(value: T) => value,
   printWizardHeader: mocks.printWizardHeader,
   probeGatewayReachable: mocks.probeGatewayReachable,
-  resolveControlUiLinks: mocks.resolveControlUiLinks,
+  resolveGatewayLinks: mocks.resolveGatewayLinks,
   summarizeExistingConfig: mocks.summarizeExistingConfig,
   waitForGatewayReachable: mocks.waitForGatewayReachable,
 }));
@@ -177,7 +172,10 @@ function setupBaseWizardState(config: OpenClawConfig = {}) {
   });
   mocks.resolveGatewayPort.mockReturnValue(18789);
   mocks.probeGatewayReachable.mockResolvedValue({ ok: false });
-  mocks.resolveControlUiLinks.mockReturnValue({ wsUrl: "ws://127.0.0.1:18789" });
+  mocks.resolveGatewayLinks.mockReturnValue({
+    httpUrl: "http://127.0.0.1:18789",
+    wsUrl: "ws://127.0.0.1:18789",
+  });
   mocks.summarizeExistingConfig.mockReturnValue("");
   mocks.createClackPrompter.mockReturnValue({
     intro: vi.fn(async () => {}),
@@ -208,7 +206,6 @@ async function runWebConfigureWizard() {
 describe("runConfigureWizard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.ensureControlUiAssetsBuilt.mockResolvedValue({ ok: true });
     mocks.resolveSearchProviderOptions.mockReturnValue([
       {
         id: "firecrawl",

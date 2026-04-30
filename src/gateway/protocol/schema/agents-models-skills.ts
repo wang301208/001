@@ -1827,6 +1827,8 @@ export const AutonomySuperviseParamsSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const AutonomyActivateParamsSchema = AutonomySuperviseParamsSchema;
+
 export const AutonomyHistoryParamsSchema = Type.Object(
   {
     sessionKey: Type.Optional(NonEmptyString),
@@ -2084,6 +2086,114 @@ export const AutonomySuperviseResultSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const AutonomyBootstrapReadinessSchema = Type.Object(
+  {
+    ready: Type.Boolean(),
+    profileReadyCount: Type.Integer({ minimum: 0 }),
+    profileNotReadyCount: Type.Integer({ minimum: 0 }),
+    missingLoopProfiles: Type.Integer({ minimum: 0 }),
+    driftProfiles: Type.Integer({ minimum: 0 }),
+    idleProfiles: Type.Integer({ minimum: 0 }),
+    activeFlows: Type.Integer({ minimum: 0 }),
+    capabilityGapCount: Type.Integer({ minimum: 0 }),
+    criticalCapabilityGapCount: Type.Integer({ minimum: 0 }),
+    genesisBlockedStageCount: Type.Integer({ minimum: 0 }),
+    blockers: Type.Array(Type.String()),
+  },
+  { additionalProperties: false },
+);
+
+export const AutonomyBootstrapResultSchema = Type.Object(
+  {
+    observedAt: Type.Integer({ minimum: 0 }),
+    sessionKey: NonEmptyString,
+    supervised: AutonomySuperviseResultSchema,
+    readiness: AutonomyBootstrapReadinessSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const AutonomyArchitectureReadinessStatusSchema = Type.Union([
+  Type.Literal("ready"),
+  Type.Literal("attention"),
+  Type.Literal("blocked"),
+]);
+
+export const AutonomyArchitectureReadinessCheckSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    title: NonEmptyString,
+    status: AutonomyArchitectureReadinessStatusSchema,
+    evidence: Type.Array(Type.String()),
+    blockers: Type.Array(Type.String()),
+  },
+  { additionalProperties: false },
+);
+
+export const AutonomyArchitectureReadinessLayerSchema = Type.Object(
+  {
+    id: Type.Union([
+      Type.Literal("governance"),
+      Type.Literal("evolution"),
+      Type.Literal("capability"),
+      Type.Literal("execution"),
+      Type.Literal("api_communication"),
+      Type.Literal("interaction"),
+    ]),
+    title: NonEmptyString,
+    status: AutonomyArchitectureReadinessStatusSchema,
+    evidence: Type.Array(Type.String()),
+    blockers: Type.Array(Type.String()),
+  },
+  { additionalProperties: false },
+);
+
+export const AutonomyArchitectureReadinessLoopSchema = Type.Object(
+  {
+    id: Type.Union([
+      Type.Literal("value"),
+      Type.Literal("maintenance"),
+      Type.Literal("evolution"),
+    ]),
+    title: NonEmptyString,
+    status: AutonomyArchitectureReadinessStatusSchema,
+    evidence: Type.Array(Type.String()),
+    blockers: Type.Array(Type.String()),
+  },
+  { additionalProperties: false },
+);
+
+export const AutonomyArchitectureReadinessSummarySchema = Type.Object(
+  {
+    ready: Type.Boolean(),
+    status: AutonomyArchitectureReadinessStatusSchema,
+    readyChecks: Type.Integer({ minimum: 0 }),
+    attentionChecks: Type.Integer({ minimum: 0 }),
+    blockedChecks: Type.Integer({ minimum: 0 }),
+    totalChecks: Type.Integer({ minimum: 0 }),
+    blockers: Type.Array(Type.String()),
+  },
+  { additionalProperties: false },
+);
+
+export const AutonomyArchitectureReadinessResultSchema = Type.Object(
+  {
+    observedAt: Type.Integer({ minimum: 0 }),
+    sessionKey: NonEmptyString,
+    charterDir: Type.String(),
+    workspaceDirs: Type.Array(Type.String()),
+    summary: AutonomyArchitectureReadinessSummarySchema,
+    layers: Type.Array(AutonomyArchitectureReadinessLayerSchema),
+    loops: Type.Array(AutonomyArchitectureReadinessLoopSchema),
+    sandboxUniverse: AutonomyArchitectureReadinessCheckSchema,
+    algorithmEvolutionProtocol: AutonomyArchitectureReadinessCheckSchema,
+    autonomousDevelopment: AutonomyArchitectureReadinessCheckSchema,
+    continuousRuntime: AutonomyArchitectureReadinessCheckSchema,
+    bootstrapped: AutonomyBootstrapResultSchema,
+  },
+  { additionalProperties: false },
+);
+
 export const GovernanceCapabilityInventoryEntryActivationSchema =
   AutonomyCapabilityInventoryEntryActivationSchema;
 
@@ -2258,6 +2368,14 @@ export const AutonomySuperviseResultEnvelopeSchema = Type.Object(
   {
     sessionKey: NonEmptyString,
     supervised: AutonomySuperviseResultSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const AutonomyActivateResultEnvelopeSchema = Type.Object(
+  {
+    sessionKey: NonEmptyString,
+    activated: AutonomyArchitectureReadinessResultSchema,
   },
   { additionalProperties: false },
 );

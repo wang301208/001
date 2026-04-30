@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
-import path, { join } from "node:path";
+import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { resolveSandboxHostPathViaExistingAncestor } from "./host-paths.js";
 import {

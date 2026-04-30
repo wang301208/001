@@ -23,7 +23,6 @@ import {
   shouldSuppressDuplicateTerminalDelivery,
 } from "./task-executor-policy.js";
 import {
-  resolveRetryableBlockedFlowTask,
   retryBlockedFlowAsQueuedTaskRun,
   retryManagedFlowFromBlockedTaskAsQueuedTaskRun,
 } from "./task-executor.js";
@@ -102,7 +101,7 @@ function trackBackgroundWork<T>(work: Promise<T>): void {
 
 export async function drainTaskRegistryBackgroundWorkForTests(): Promise<void> {
   while (pendingBackgroundWork.size > 0) {
-    await Promise.allSettled([...pendingBackgroundWork]);
+    await Promise.allSettled(pendingBackgroundWork);
   }
 }
 

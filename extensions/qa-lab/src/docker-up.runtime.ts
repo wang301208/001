@@ -67,7 +67,6 @@ export async function runQaDockerUp(
     providerBaseUrl: params.providerBaseUrl,
     imageName: params.image,
     usePrebuiltImage: params.usePrebuiltImage,
-    bindUiDist: params.bindUiDist,
     includeQaLabUi: true,
   });
 

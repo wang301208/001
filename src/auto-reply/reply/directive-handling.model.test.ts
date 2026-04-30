@@ -17,7 +17,7 @@ vi.mock("../../agents/auth-profiles.js", () => ({
       store?: { profiles?: Record<string, { type: "api_key"; provider: string; key: string }> };
     }>,
   ) => {
-    authProfilesStoreMock.profiles = { ...(snapshots[0]?.store?.profiles ?? {}) };
+    authProfilesStoreMock.profiles = { ...snapshots[0]?.store?.profiles };
   },
   resolveAuthProfileDisplayLabel: ({ profileId }: { profileId: string }) => profileId,
   resolveAuthProfileOrder: () => [],

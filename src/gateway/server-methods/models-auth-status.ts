@@ -21,12 +21,11 @@ import type { GatewayRequestHandlers } from "./types.js";
 
 const log = createSubsystemLogger("models-auth-status");
 
-/** The `ts` sentinel the UI uses to distinguish "never loaded" from "load failed". */
+/** The `ts` sentinel operator clients use to distinguish "never loaded" from "load failed". */
 export const MODEL_AUTH_STATUS_NEVER_LOADED = 0;
 
 /**
- * Models-auth status wire types. Mirrored in ui/src/ui/types.ts via an
- * `import(...)` re-export — edit here and the UI picks up the change.
+ * Models-auth status wire types consumed by terminal and operator clients.
  *
  * Expiry fields are grouped into a sub-object so they're present together or
  * not at all: a profile either has a time-bounded credential or it doesn't.

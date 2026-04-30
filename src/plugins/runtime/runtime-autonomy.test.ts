@@ -1359,7 +1359,7 @@ describe("runtime autonomy", () => {
       const [firstTask, ...remainingTasks] = startedFlow?.tasks ?? [];
       expect(firstTask?.id).toBeTruthy();
       markTaskTerminalById({
-        taskId: firstTask!.id,
+        taskId: firstTask.id,
         status: "failed",
         endedAt: Date.now(),
         error: `${firstTask?.label ?? firstTask?.title} failed validation.`,

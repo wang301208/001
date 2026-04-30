@@ -44,6 +44,7 @@ vi.mock("../terminal/theme.js", () => ({
 }));
 
 import {
+  autonomyActivateCommand,
   autonomyCapabilityInventoryCommand,
   autonomyArchitectureReadinessCommand,
   autonomyGovernanceReconcileCommand,
@@ -1109,5 +1110,97 @@ describe("autonomy commands", () => {
     expect(logs.join("\n")).toContain("workspaceScope: /tmp/a, /tmp/b");
     expect(logs.join("\n")).toContain("governance: ready");
     expect(logs.join("\n")).toContain("sandbox_universe: ready");
+  });
+
+  it("activates governed autonomy with safe defaults and distinct output", async () => {
+    mocks.getArchitectureReadiness.mockResolvedValue({
+      observedAt: 1,
+      sessionKey: "agent:control:main",
+      charterDir: "/tmp/governance/charter",
+      workspaceDirs: ["/tmp/a", "/tmp/b"],
+      summary: {
+        ready: true,
+        status: "ready",
+        readyChecks: 13,
+        attentionChecks: 0,
+        blockedChecks: 0,
+        totalChecks: 13,
+        blockers: [],
+      },
+      layers: [],
+      loops: [],
+      sandboxUniverse: {
+        id: "sandbox_universe",
+        title: "Sandbox Universe",
+        status: "ready",
+        evidence: ["sandbox universe control algorithm registered"],
+        blockers: [],
+      },
+      algorithmEvolutionProtocol: {
+        id: "algorithm_evolution_protocol",
+        title: "Algorithm Evolution Protocol",
+        status: "ready",
+        evidence: ["Algorithmist loop is healthy"],
+        blockers: [],
+      },
+      autonomousDevelopment: {
+        id: "autonomous_development",
+        title: "Autonomous Development",
+        status: "ready",
+        evidence: ["Genesis Team pipeline is available"],
+        blockers: [],
+      },
+      continuousRuntime: {
+        id: "continuous_runtime",
+        title: "Continuous Runtime",
+        status: "ready",
+        evidence: ["healthyProfiles=11/11"],
+        blockers: [],
+      },
+      bootstrapped: {
+        observedAt: 1,
+        sessionKey: "agent:control:main",
+        supervised: {
+          summary: {
+            totalProfiles: 11,
+            changedProfiles: 3,
+            healthyProfiles: 11,
+            activeFlows: 11,
+          },
+        },
+        readiness: {
+          ready: true,
+          profileReadyCount: 11,
+          activeFlows: 11,
+        },
+      },
+    });
+
+    const { runtime, logs } = createRuntime();
+    await autonomyActivateCommand(
+      {
+        agentIds: ["founder", "executor"],
+        sessionKey: "agent:control:main",
+        workspaceDirs: [" /tmp/b ", "/tmp/a", "/tmp/b"],
+        decisionNote: "Activate governed autonomy.",
+      },
+      runtime,
+    );
+
+    expect(mocks.getArchitectureReadiness).toHaveBeenCalledWith({
+      agentIds: ["founder", "executor"],
+      workspaceDirs: ["/tmp/a", "/tmp/b"],
+      restartBlockedFlows: true,
+      governanceMode: "apply_safe",
+      decisionNote: "Activate governed autonomy.",
+      includeCapabilityInventory: true,
+      includeGenesisPlan: true,
+      recordHistory: true,
+      telemetrySource: "manual",
+    });
+    expect(logs.join("\n")).toContain("Autonomy governed activation:");
+    expect(logs.join("\n")).toContain("status: ready");
+    expect(logs.join("\n")).toContain("activationDefaults: governanceMode=apply_safe");
+    expect(logs.join("\n")).toContain("workspaceScope: /tmp/a, /tmp/b");
   });
 });

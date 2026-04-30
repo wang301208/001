@@ -86,7 +86,7 @@ describe("gateway pre-auth hardening", () => {
       canvasHost: null,
       clients,
       controlUiEnabled: false,
-      controlUiBasePath: "/__control__",
+      controlUiBasePath: "",
       openAiChatCompletionsEnabled: false,
       openResponsesEnabled: false,
       handleHooksRequest: async () => false,

@@ -52,7 +52,6 @@ import { createSharedCoreVitestConfig } from "./vitest/vitest.shared-core.config
 import { createTasksVitestConfig } from "./vitest/vitest.tasks.config.ts";
 import { createToolingVitestConfig } from "./vitest/vitest.tooling.config.ts";
 import { createTuiVitestConfig } from "./vitest/vitest.tui.config.ts";
-import { createUiVitestConfig } from "./vitest/vitest.ui.config.ts";
 import { bundledPluginDependentUnitTestFiles } from "./vitest/vitest.unit-paths.mjs";
 import { createUtilsVitestConfig } from "./vitest/vitest.utils.config.ts";
 import { createWizardVitestConfig } from "./vitest/vitest.wizard.config.ts";
@@ -220,7 +219,6 @@ describe("scoped vitest configs", () => {
   const defaultProcessConfig = createProcessVitestConfig({});
   const defaultToolingConfig = createToolingVitestConfig({});
   const defaultTuiConfig = createTuiVitestConfig({});
-  const defaultUiConfig = createUiVitestConfig({});
   const defaultUtilsConfig = createUtilsVitestConfig({});
   const defaultWizardConfig = createWizardVitestConfig({});
 
@@ -249,9 +247,6 @@ describe("scoped vitest configs", () => {
       expect(normalizeConfigPath(config.test?.runner)).toBe("test/non-isolated-runner.ts");
     }
 
-    expect(defaultUiConfig.test?.pool).toBe("threads");
-    expect(defaultUiConfig.test?.isolate).toBe(true);
-    expect(defaultUiConfig.test?.runner).toBeUndefined();
   });
 
   it("keeps the process lane off the openclaw runtime setup", () => {
@@ -279,14 +274,6 @@ describe("scoped vitest configs", () => {
     expect(normalizeConfigPaths(defaultCommandsLightConfig.test?.setupFiles)).toEqual([
       "test/setup.ts",
     ]);
-  });
-
-  it("keeps the ui lane off both the openclaw runtime setup and unit-fast excludes", () => {
-    expect(normalizeConfigPaths(defaultUiConfig.test?.setupFiles)).toEqual([
-      "test/setup.ts",
-      "ui/src/test-helpers/lit-warnings.setup.ts",
-    ]);
-    expect(defaultUiConfig.test?.exclude).not.toContain("chat/slash-command-executor.node.test.ts");
   });
 
   it("defaults channel tests to threads with the non-isolated runner", () => {
@@ -694,11 +681,6 @@ describe("scoped vitest configs", () => {
     expect(defaultPluginsConfig.test?.dir).toBe(path.join(process.cwd(), "src", "plugins"));
     expect(defaultPluginsConfig.test?.include).toEqual(["**/*.test.ts"]);
     expect(defaultPluginsConfig.test?.exclude).toContain("contracts/**");
-  });
-
-  it("normalizes ui include patterns relative to the scoped dir", () => {
-    expect(defaultUiConfig.test?.dir).toBe(path.join(process.cwd(), "ui", "src", "ui"));
-    expect(defaultUiConfig.test?.include).toEqual(["**/*.test.ts"]);
   });
 
   it("normalizes utils include patterns relative to the scoped dir", () => {

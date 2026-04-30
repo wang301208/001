@@ -82,7 +82,12 @@ describe("readSecretFileSync", () => {
     assert(file);
   });
 
-  it.each([
+  const throwingSecretFileCases: Array<{
+    name: string;
+    setup: (dir: string) => Promise<string>;
+    expectedMessage: (file: string) => string;
+    options?: Parameters<typeof readSecretFileSync>[2];
+  }> = [
     {
       name: "rejects files larger than the secret-file limit",
       setup: async (dir: string) => {
@@ -111,7 +116,9 @@ describe("readSecretFileSync", () => {
       },
       expectedMessage: (file: string) => `Gateway password file at ${file} is empty.`,
     },
-  ])("$name", async ({ setup, expectedMessage, options }) => {
+  ];
+
+  it.each(throwingSecretFileCases)("$name", async ({ setup, expectedMessage, options }) => {
     await expectSecretFileError({ setup, expectedMessage, options });
   });
 

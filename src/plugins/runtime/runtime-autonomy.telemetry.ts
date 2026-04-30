@@ -7,10 +7,8 @@ import { normalizeAgentId } from "../../routing/session-key.js";
 import { isRecord } from "../../utils.js";
 import type {
   AutonomyFleetHistoryEvent,
-  AutonomyFleetHistoryMode,
   AutonomyFleetHistoryParams,
   AutonomyFleetHistoryResult,
-  AutonomyFleetHistorySource,
 } from "./runtime-autonomy.types.js";
 
 const writers = new Map<string, QueuedFileWriter>();
@@ -169,11 +167,11 @@ export async function listAutonomyFleetHistory(
       matchesHistoryFilters(event, {
         ...(params.agentIds?.length ? { agentIds: params.agentIds } : {}),
         ...(params.workspaceDirs?.length ? { workspaceDirs: params.workspaceDirs } : {}),
-        ...(params.mode ? { mode: params.mode as AutonomyFleetHistoryMode } : {}),
-        ...(params.source ? { source: params.source as AutonomyFleetHistorySource } : {}),
+        ...(params.mode ? { mode: params.mode } : {}),
+        ...(params.source ? { source: params.source } : {}),
       }),
     )
-    .sort((left, right) => right.ts - left.ts);
+    .toSorted((left, right) => right.ts - left.ts);
 
   const events = matched.slice(0, limit);
   return {

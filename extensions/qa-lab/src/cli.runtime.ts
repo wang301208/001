@@ -697,7 +697,6 @@ export async function runQaDockerScaffoldCommand(opts: {
   providerBaseUrl?: string;
   image?: string;
   usePrebuiltImage?: boolean;
-  bindUiDist?: boolean;
 }) {
   const repoRoot = path.resolve(opts.repoRoot ?? process.cwd());
   const outputDir = resolveRepoRelativeOutputDir(repoRoot, opts.outputDir);
@@ -712,7 +711,6 @@ export async function runQaDockerScaffoldCommand(opts: {
     providerBaseUrl: opts.providerBaseUrl,
     imageName: opts.image,
     usePrebuiltImage: opts.usePrebuiltImage,
-    bindUiDist: opts.bindUiDist,
   });
   process.stdout.write(`QA docker scaffold: ${result.outputDir}\n`);
 }

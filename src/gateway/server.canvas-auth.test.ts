@@ -233,7 +233,7 @@ async function withCanvasGatewayHarness(params: {
     canvasHost,
     clients,
     controlUiEnabled: false,
-    controlUiBasePath: "/__control__",
+    controlUiBasePath: "",
     openAiChatCompletionsEnabled: false,
     openResponsesEnabled: false,
     handleHooksRequest: async () => false,

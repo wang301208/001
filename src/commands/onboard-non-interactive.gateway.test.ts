@@ -108,7 +108,7 @@ vi.mock("./onboard-helpers.js", () => {
     ensureWorkspaceAndSessions: ensureWorkspaceAndSessionsMock,
     normalizeGatewayTokenInput,
     randomToken: () => "tok_generated_gateway_test_token",
-    resolveControlUiLinks: ({ port }: { port: number }) => ({
+    resolveGatewayLinks: ({ port }: { port: number }) => ({
       httpUrl: `http://127.0.0.1:${port}`,
       wsUrl: `ws://127.0.0.1:${port}`,
     }),

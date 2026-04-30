@@ -394,6 +394,34 @@ describe("autonomy tool", () => {
     expect(details.architectureReadiness.sandboxUniverse.id).toBe("sandbox_universe");
   });
 
+  it("activates governed maximum autonomy from the tool layer", async () => {
+    const result = await createAutonomyTool({
+      agentSessionKey: "agent:main:main",
+    }).execute("call-activate", {
+      action: "activate",
+      agentIds: ["founder"],
+      governanceMode: "force_apply_all",
+      includeCapabilityInventory: false,
+      includeGenesisPlan: false,
+      recordHistory: false,
+      restartBlockedFlows: false,
+    });
+
+    const details = result.details as {
+      action: string;
+      architectureReadiness: {
+        summary: {
+          totalChecks: number;
+          readyChecks: number;
+        };
+      };
+    };
+
+    expect(details.action).toBe("activate");
+    expect(details.architectureReadiness.summary.totalChecks).toBeGreaterThanOrEqual(13);
+    expect(details.architectureReadiness.summary.readyChecks).toBeGreaterThan(0);
+  });
+
   it("reads persistent autonomy maintenance history from the tool layer", async () => {
     const workspaceDir = "/tmp/tool-history-workspace";
     await createAutonomyTool({

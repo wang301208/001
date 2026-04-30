@@ -7,8 +7,7 @@ import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import { CONFIG_PATH } from "../config/paths.js";
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
-import { resolveControlUiLinks } from "../gateway/control-ui-links.js";
-import { normalizeControlUiBasePath } from "../gateway/control-ui-shared.js";
+import { resolveGatewayLinks } from "../gateway/gateway-links.js";
 import { probeGateway } from "../gateway/probe.js";
 import {
   detectBrowserOpenSupport,
@@ -28,7 +27,7 @@ export { randomToken } from "./random-token.js";
 
 export { detectBinary };
 export { detectBrowserOpenSupport, openUrl, openUrlInBackground, resolveBrowserOpenCommand };
-export { resolveControlUiLinks };
+export { resolveGatewayLinks };
 
 export function guardCancel<T>(value: T | symbol, runtime: RuntimeEnv): T {
   if (isCancel(value)) {
@@ -128,27 +127,18 @@ export function applyWizardMetadata(
   };
 }
 
-export function formatControlUiSshHint(params: {
+export function formatGatewaySshHint(params: {
   port: number;
-  basePath?: string;
-  token?: string;
 }): string {
-  const basePath = normalizeControlUiBasePath(params.basePath);
-  const uiPath = basePath ? `${basePath}/` : "/";
-  const localUrl = `http://localhost:${params.port}${uiPath}`;
-  const authedUrl = params.token
-    ? `${localUrl}#token=${encodeURIComponent(params.token)}`
-    : undefined;
+  const localWsUrl = `ws://localhost:${params.port}`;
   const sshTarget = resolveSshTargetHint();
   return [
-    "No GUI detected. Open from your computer:",
+    "Remote terminal session detected. Forward the Gateway port if this machine is not local:",
     `ssh -N -L ${params.port}:127.0.0.1:${params.port} ${sshTarget}`,
-    "Then open:",
-    localUrl,
-    authedUrl,
+    "Then connect with:",
+    `openclaw tui --url ${localWsUrl}`,
     "Docs:",
     "https://docs.openclaw.ai/gateway/remote",
-    "https://docs.openclaw.ai/web/control-ui",
   ]
     .filter(Boolean)
     .join("\n");

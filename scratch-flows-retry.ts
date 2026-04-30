@@ -2,9 +2,10 @@ import { createManagedTaskFlow, resetTaskFlowRegistryForTests } from "./src/task
 import { createRunningTaskRun } from "./src/tasks/task-executor.ts";
 import { markTaskTerminalById, resetTaskRegistryForTests, resetTaskRegistryDeliveryRuntimeForTests } from "./src/tasks/task-registry.ts";
 import { flowsRetryCommand } from "./src/commands/flows.ts";
+import type { RuntimeEnv } from "./src/runtime.ts";
 const flow = createManagedTaskFlow({ ownerKey: "agent:main:main", controllerId: "tests/flows-command", goal: "Retry blocked work", status: "blocked", blockedSummary: "Writable session required.", createdAt: 100, updatedAt: 100 });
 const blockedTask = createRunningTaskRun({ runtime: "acp", ownerKey: "agent:main:main", scopeKind: "session", parentFlowId: flow.flowId, childSessionKey: "agent:main:child", runId: "run-blocked-child", label: "Inspect PR 123", task: "Inspect PR 123", startedAt: 100, lastEventAt: 100 });
 markTaskTerminalById({ taskId: blockedTask.taskId, status: "succeeded", terminalOutcome: "blocked", endedAt: 150, terminalSummary: "Writable session required." });
-const runtime = { log: (...a) => console.log('LOG', ...a), error: (...a) => console.log('ERR', ...a), exit: (...a) => console.log('EXIT', ...a) };
-await flowsRetryCommand({ lookup: flow.flowId }, runtime as any);
+const runtime: RuntimeEnv = { log: (...a: unknown[]) => console.log('LOG', ...a), error: (...a: unknown[]) => console.log('ERR', ...a), exit: (...a: unknown[]) => console.log('EXIT', ...a) };
+await flowsRetryCommand({ lookup: flow.flowId }, runtime);
 resetTaskRegistryDeliveryRuntimeForTests(); resetTaskRegistryForTests({ persist: false }); resetTaskFlowRegistryForTests({ persist: false });

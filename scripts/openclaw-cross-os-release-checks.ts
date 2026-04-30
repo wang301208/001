@@ -387,7 +387,6 @@ async function main(argv) {
 async function prepareCandidate(params) {
   logPhase("prepare", "resolve-source-sha");
   const packageJson = readPackageJson(params.sourceDir);
-  const hasUiBuildScript = packageJsonHasScript(packageJson, "ui:build");
   const sourceSha = (
     await runCommand(gitCommand(), ["rev-parse", "HEAD"], {
       cwd: params.sourceDir,
@@ -415,18 +414,6 @@ async function prepareCandidate(params) {
     logPath: join(params.logsDir, "pnpm-build.log"),
     timeoutMs: 45 * 60 * 1000,
   });
-
-  if (hasUiBuildScript) {
-    // pnpm build does not regenerate dist/control-ui, and checked-in bundles can
-    // otherwise leak into npm pack when a ref changes UI assets.
-    logPhase("prepare", "pnpm-ui-build");
-    await runCommand(pnpmCommand(), ["ui:build"], {
-      cwd: params.sourceDir,
-      env: buildEnv,
-      logPath: join(params.logsDir, "pnpm-ui-build.log"),
-      timeoutMs: 30 * 60 * 1000,
-    });
-  }
 
   const packDir = join(params.outputDir, "package");
   mkdirSync(packDir, { recursive: true });
@@ -583,12 +570,6 @@ async function runFreshLane(params) {
       logPath: join(params.logsDir, "fresh-gateway-status.log"),
     });
 
-    logLanePhase(lane, "dashboard");
-    await runDashboardSmoke({
-      lane,
-      logPath: join(params.logsDir, "fresh-dashboard.log"),
-    });
-
     logLanePhase(lane, "models-set");
     await runModelsSet({
       lane,
@@ -609,7 +590,6 @@ async function runFreshLane(params) {
       status: "pass",
       installedVersion: installed.version,
       installedCommit: installed.commit,
-      dashboardStatus: "pass",
       gatewayPort: lane.gatewayPort,
       agentOutput: trimForSummary(agent.stdout),
     };
@@ -717,12 +697,6 @@ async function runUpgradeLane(params) {
       logPath: join(params.logsDir, "upgrade-gateway-status.log"),
     });
 
-    logLanePhase(lane, "dashboard");
-    await runDashboardSmoke({
-      lane,
-      logPath: join(params.logsDir, "upgrade-dashboard.log"),
-    });
-
     logLanePhase(lane, "models-set");
     await runModelsSet({
       lane,
@@ -744,7 +718,6 @@ async function runUpgradeLane(params) {
       baselineVersion: baseline.version,
       installedVersion: installed.version,
       installedCommit: installed.commit,
-      dashboardStatus: "pass",
       gatewayPort: lane.gatewayPort,
       agentOutput: trimForSummary(agent.stdout),
     };
@@ -849,12 +822,6 @@ async function runInstallerFreshSuite(params) {
       });
     }
 
-    logLanePhase(lane, "dashboard");
-    await runDashboardSmoke({
-      lane,
-      logPath: join(params.logsDir, "installer-fresh-dashboard.log"),
-    });
-
     logLanePhase(lane, "models-set");
     await runInstalledModelsSet({
       cliPath: freshShell.cliPath,
@@ -893,7 +860,6 @@ async function runInstallerFreshSuite(params) {
       installedVersion: installed.version,
       installedCommit: installed.commit,
       gatewayPort: lane.gatewayPort,
-      dashboardStatus: "pass",
       discordStatus,
       agentOutput: trimForSummary(agent.stdout),
     };
@@ -1020,12 +986,6 @@ async function runDevUpdateSuite(params) {
       });
     }
 
-    logLanePhase(lane, "dashboard");
-    await runDashboardSmoke({
-      lane,
-      logPath: join(params.logsDir, "dev-update-dashboard.log"),
-    });
-
     logLanePhase(lane, "models-set");
     await runInstalledModelsSet({
       cliPath: verifiedShell.cliPath,
@@ -1061,7 +1021,6 @@ async function runDevUpdateSuite(params) {
       installVersion: installTarget,
       cliPath: updatedShell.cliPath,
       gatewayPort: lane.gatewayPort,
-      dashboardStatus: "pass",
       discordStatus,
       agentOutput: trimForSummary(agent.stdout),
     };
@@ -2432,46 +2391,6 @@ function parseAgentPayloadTexts(stdout) {
   }
 }
 
-async function runDashboardSmoke(params) {
-  const dashboardUrl = `http://127.0.0.1:${params.lane.gatewayPort}/`;
-  const logStream = createWriteStream(params.logPath, { flags: "a" });
-  const deadline = Date.now() + 30_000;
-  let attempt = 0;
-  try {
-    while (Date.now() < deadline) {
-      attempt += 1;
-      logStream.write(`${new Date().toISOString()} attempt=${attempt} url=${dashboardUrl}\n`);
-      try {
-        const response = await fetch(dashboardUrl, {
-          signal: AbortSignal.timeout(5_000),
-        });
-        const html = await response.text();
-        if (
-          response.ok &&
-          html.includes("<title>OpenClaw Control</title>") &&
-          html.includes("<openclaw-app></openclaw-app>")
-        ) {
-          logStream.write(
-            `${new Date().toISOString()} dashboard-ready status=${response.status}\n`,
-          );
-          return;
-        }
-        logStream.write(
-          `${new Date().toISOString()} dashboard-not-ready status=${response.status} title=${html.includes("<title>OpenClaw Control</title>")} app=${html.includes("<openclaw-app></openclaw-app>")}\n`,
-        );
-      } catch (error) {
-        logStream.write(
-          `${new Date().toISOString()} dashboard-fetch-error ${formatError(error)}\n`,
-        );
-      }
-      await sleep(1_000);
-    }
-  } finally {
-    logStream.end();
-  }
-  throw new Error(`Dashboard HTML did not become ready at ${dashboardUrl}.`);
-}
-
 async function stopGateway(gateway) {
   try {
     if (!gateway?.child?.pid) {
@@ -2830,7 +2749,6 @@ function writeSummary(baseDir, summaryPayload) {
     result.installedCommit ? `- Installed commit: \`${result.installedCommit}\`` : "",
     result.cliPath ? `- CLI path: \`${result.cliPath}\`` : "",
     result.gatewayPort ? `- Gateway port: \`${result.gatewayPort}\`` : "",
-    result.dashboardStatus ? `- Dashboard: \`${result.dashboardStatus}\`` : "",
     result.discordStatus ? `- Discord: \`${result.discordStatus}\`` : "",
     result.agentOutput ? `- Agent output: \`${trimForSummary(result.agentOutput)}\`` : "",
     result.error ? `- Error: \`${trimForSummary(result.error)}\`` : "",

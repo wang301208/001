@@ -6,7 +6,6 @@ import { listBundledPluginPackArtifacts } from "../scripts/lib/bundled-plugin-bu
 import { listPluginSdkDistArtifacts } from "../scripts/lib/plugin-sdk-entries.mjs";
 import { WORKSPACE_TEMPLATE_PACK_PATHS } from "../scripts/lib/workspace-bootstrap-smoke.mjs";
 import {
-  collectAppcastSparkleVersionErrors,
   collectBundledExtensionManifestErrors,
   collectBundledPluginRootRuntimeMirrorErrors,
   collectForbiddenPackContentPaths,
@@ -19,38 +18,12 @@ import {
 import { PACKAGE_DIST_INVENTORY_RELATIVE_PATH } from "../src/infra/package-dist-inventory.ts";
 import { bundledDistPluginFile, bundledPluginFile } from "./helpers/bundled-plugin-paths.js";
 
-function makeItem(shortVersion: string, sparkleVersion: string): string {
-  return `<item><title>${shortVersion}</title><sparkle:shortVersionString>${shortVersion}</sparkle:shortVersionString><sparkle:version>${sparkleVersion}</sparkle:version></item>`;
-}
-
 function makePackResult(filename: string, unpackedSize: number) {
   return { filename, unpackedSize };
 }
 
 const requiredPluginSdkPackPaths = [...listPluginSdkDistArtifacts(), "dist/plugin-sdk/compat.js"];
 const requiredBundledPluginPackPaths = listBundledPluginPackArtifacts();
-
-describe("collectAppcastSparkleVersionErrors", () => {
-  it("accepts legacy 9-digit calver builds before lane-floor cutover", () => {
-    const xml = `<rss><channel>${makeItem("2026.2.26", "202602260")}</channel></rss>`;
-
-    expect(collectAppcastSparkleVersionErrors(xml)).toEqual([]);
-  });
-
-  it("requires lane-floor builds on and after lane-floor cutover", () => {
-    const xml = `<rss><channel>${makeItem("2026.3.1", "202603010")}</channel></rss>`;
-
-    expect(collectAppcastSparkleVersionErrors(xml)).toEqual([
-      "appcast item '2026.3.1' has sparkle:version 202603010 below lane floor 2026030190.",
-    ]);
-  });
-
-  it("accepts canonical stable lane builds on and after lane-floor cutover", () => {
-    const xml = `<rss><channel>${makeItem("2026.3.1", "2026030190")}</channel></rss>`;
-
-    expect(collectAppcastSparkleVersionErrors(xml)).toEqual([]);
-  });
-});
 
 describe("collectBundledExtensionManifestErrors", () => {
   it("flags invalid bundled extension install metadata", () => {
@@ -352,7 +325,7 @@ describe("collectForbiddenPackPaths", () => {
 });
 
 describe("collectMissingPackPaths", () => {
-  it("requires the shipped channel catalog, control ui, and optional bundled metadata", () => {
+  it("requires the shipped channel catalog and optional bundled metadata", () => {
     const missing = collectMissingPackPaths([
       "dist/index.js",
       "dist/entry.js",
@@ -367,7 +340,6 @@ describe("collectMissingPackPaths", () => {
       expect.arrayContaining([
         "dist/channel-catalog.json",
         PACKAGE_DIST_INVENTORY_RELATIVE_PATH,
-        "dist/control-ui/index.html",
         "scripts/npm-runner.mjs",
         "scripts/preinstall-package-manager-warning.mjs",
         "scripts/postinstall-bundled-plugins.mjs",
@@ -390,7 +362,6 @@ describe("collectMissingPackPaths", () => {
       collectMissingPackPaths([
         "dist/index.js",
         "dist/entry.js",
-        "dist/control-ui/index.html",
         "dist/extensions/qa-channel/runtime-api.js",
         "dist/extensions/qa-lab/runtime-api.js",
         "dist/extensions/acpx/mcp-proxy.mjs",

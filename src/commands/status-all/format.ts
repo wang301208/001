@@ -1,6 +1,4 @@
-import { resolveGatewayPort } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/types.js";
-import { resolveControlUiLinks } from "../../gateway/control-ui-links.js";
 import { formatDurationPrecise } from "../../infra/format-time/format-duration.ts";
 import {
   normalizeUpdateChannel,
@@ -92,9 +90,11 @@ export function buildStatusUpdateSurface(params: {
   };
 }
 
-export function formatStatusDashboardValue(value: string | null | undefined): string {
+export const STATUS_TERMINAL_UI_COMMAND = "openclaw tui";
+
+export function formatStatusTerminalValue(value: string | null | undefined): string {
   const trimmed = normalizeOptionalString(value);
-  return trimmed && trimmed.length > 0 ? trimmed : "disabled";
+  return trimmed && trimmed.length > 0 ? trimmed : STATUS_TERMINAL_UI_COMMAND;
 }
 
 export function formatStatusTailscaleValue(params: {
@@ -158,23 +158,13 @@ export function formatStatusServiceValue(params: {
   return `${params.label} ${installedPrefix}${params.loadedText}${runtimeSuffix}`;
 }
 
-export function resolveStatusDashboardUrl(params: {
-  cfg: Pick<OpenClawConfig, "gateway">;
-}): string | null {
-  if (!(params.cfg.gateway?.controlUi?.enabled ?? true)) {
-    return null;
-  }
-  return resolveControlUiLinks({
-    port: resolveGatewayPort(params.cfg),
-    bind: params.cfg.gateway?.bind,
-    customBindHost: params.cfg.gateway?.customBindHost,
-    basePath: params.cfg.gateway?.controlUi?.basePath,
-  }).httpUrl;
+export function resolveStatusTerminalCommand(): string {
+  return STATUS_TERMINAL_UI_COMMAND;
 }
 
 export function buildStatusOverviewRows(params: {
   prefixRows?: StatusOverviewRow[];
-  dashboardValue: string;
+  terminalUiValue: string;
   tailscaleValue: string;
   channelLabel: string;
   gitLabel?: string | null;
@@ -190,7 +180,7 @@ export function buildStatusOverviewRows(params: {
 }): StatusOverviewRow[] {
   const rows: StatusOverviewRow[] = [...(params.prefixRows ?? [])];
   rows.push(
-    { Item: "Dashboard", Value: params.dashboardValue },
+    { Item: "Terminal UI", Value: params.terminalUiValue },
     { Item: "Tailscale", Value: params.tailscaleValue },
     { Item: "Channel", Value: params.channelLabel },
   );
@@ -259,9 +249,8 @@ export function buildStatusOverviewSurfaceRows(params: {
     updateConfigChannel: params.cfg.update?.channel,
     update: params.update,
   });
-  const { dashboardUrl, gatewayValue, gatewaySelfValue, gatewayServiceValue, nodeServiceValue } =
+  const { gatewayValue, gatewaySelfValue, gatewayServiceValue, nodeServiceValue } =
     buildStatusGatewaySurfaceValues({
-      cfg: params.cfg,
       gatewayMode: params.gatewayMode,
       remoteUrlMissing: params.remoteUrlMissing,
       gatewayConnection: params.gatewayConnection,
@@ -277,7 +266,7 @@ export function buildStatusOverviewSurfaceRows(params: {
     });
   return buildStatusOverviewRows({
     prefixRows: params.prefixRows,
-    dashboardValue: formatStatusDashboardValue(dashboardUrl),
+    terminalUiValue: formatStatusTerminalValue(resolveStatusTerminalCommand()),
     tailscaleValue: formatStatusTailscaleValue({
       tailscaleMode: params.tailscaleMode,
       dnsName: params.tailscaleDns,
@@ -380,7 +369,6 @@ export function buildGatewayStatusSummaryParts(params: {
 }
 
 export function buildStatusGatewaySurfaceValues(params: {
-  cfg: Pick<OpenClawConfig, "gateway">;
   gatewayMode: "local" | "remote";
   remoteUrlMissing: boolean;
   gatewayConnection: StatusGatewayConnection;
@@ -424,7 +412,6 @@ export function buildStatusGatewaySurfaceValues(params: {
         : ""
     }${gatewaySelfValue ? ` · ${gatewaySelfValue}` : ""}`;
   return {
-    dashboardUrl: resolveStatusDashboardUrl({ cfg: params.cfg }),
     gatewayValue,
     gatewaySelfValue,
     gatewayServiceValue: formatStatusServiceValue({

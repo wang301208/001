@@ -752,15 +752,10 @@ describe("test-projects args", () => {
     ]);
   });
 
-  it("routes ui targets to the ui config", () => {
-    expect(buildVitestRunPlans(["ui/src/ui/views/channels.test.ts"])).toEqual([
-      {
-        config: "test/vitest/vitest.ui.config.ts",
-        forwardedArgs: [],
-        includePatterns: ["ui/src/ui/views/channels.test.ts"],
-        watchMode: false,
-      },
-    ]);
+  it("does not route removed ui targets", () => {
+    expect(() => buildVitestRunPlans(["ui/src/ui/views/channels.test.ts"])).toThrow(
+      /No Vitest project/i,
+    );
   });
 
   it("routes utils targets to the utils config", () => {

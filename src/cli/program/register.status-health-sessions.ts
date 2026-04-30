@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 import {
+  autonomyActivateCommand,
   autonomyArchitectureReadinessCommand,
   autonomyBootstrapCommand,
   autonomyCapabilityInventoryCommand,
@@ -1288,6 +1289,54 @@ export function registerStatusHealthSessionsCommands(program: Command) {
               | "apply_safe"
               | "force_apply_all"
               | undefined,
+            decisionNote: opts.note as string | undefined,
+            includeCapabilityInventory: opts.capabilities as boolean | undefined,
+            includeGenesisPlan: opts.genesis as boolean | undefined,
+            recordHistory: opts.history as boolean | undefined,
+          },
+          defaultRuntime,
+        );
+      });
+    });
+
+  autonomyCmd
+    .command("activate")
+    .description(
+      "Activate governed maximum autonomy by repairing loops, checking readiness, and refreshing capability evidence",
+    )
+    .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
+    .option("--team-id <id>", "Genesis team id to plan for")
+    .option("--workspace <dir>", "Workspace scope to operate on (repeatable)", collectOption, [])
+    .option(
+      "--governance-mode <mode>",
+      "Governance mode (defaults to apply_safe; allowed: none, apply_safe, force_apply_all)",
+    )
+    .option("--note <text>", "Decision note recorded on governance reconciliation")
+    .option("--no-restart-blocked", "Do not restart blocked managed flows")
+    .option("--no-capabilities", "Skip capability inventory refresh")
+    .option("--no-genesis", "Skip genesis plan refresh")
+    .option("--no-history", "Do not persist activation heal history")
+    .option("--json", "Output as JSON", false)
+    .option("--session-key <key>", "Override the owner session key for autonomy operations")
+    .action(async (agentIds, opts, command) => {
+      const parentOpts = command.parent?.opts() as
+        | {
+            json?: boolean;
+            sessionKey?: string;
+          }
+        | undefined;
+      await runCommandWithRuntime(defaultRuntime, async () => {
+        await autonomyActivateCommand(
+          {
+            ...(Array.isArray(agentIds) && agentIds.length > 0 ? { agentIds } : {}),
+            json: Boolean(opts.json || parentOpts?.json),
+            sessionKey: (opts.sessionKey as string | undefined) ?? parentOpts?.sessionKey,
+            teamId: opts.teamId as string | undefined,
+            workspaceDirs: Array.isArray(opts.workspace) ? (opts.workspace as string[]) : undefined,
+            restartBlockedFlows: opts.restartBlocked as boolean | undefined,
+            governanceMode:
+              (opts.governanceMode as "none" | "apply_safe" | "force_apply_all" | undefined) ??
+              "apply_safe",
             decisionNote: opts.note as string | undefined,
             includeCapabilityInventory: opts.capabilities as boolean | undefined,
             includeGenesisPlan: opts.genesis as boolean | undefined,

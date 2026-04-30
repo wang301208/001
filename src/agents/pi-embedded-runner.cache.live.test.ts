@@ -35,7 +35,7 @@ const OPENAI_TOOL_MIN_HIT_RATE = 0.85;
 const OPENAI_IMAGE_MIN_CACHE_READ = 3_840;
 const OPENAI_IMAGE_MIN_HIT_RATE = 0.82;
 const LIVE_TEST_PNG_URL = new URL(
-  "../../apps/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+  "../../test/fixtures/one-pixel.png.base64",
   import.meta.url,
 );
 
@@ -751,7 +751,7 @@ describeCacheLive("pi embedded runner prompt caching (live)", () => {
   beforeAll(async () => {
     liveRunnerRootDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-live-cache-"));
     liveCacheTraceFile = path.join(liveRunnerRootDir, "cache-trace.jsonl");
-    liveTestPngBase64 = (await fs.readFile(LIVE_TEST_PNG_URL)).toString("base64");
+    liveTestPngBase64 = (await fs.readFile(LIVE_TEST_PNG_URL, "utf8")).trim();
     previousCacheTraceEnv = {
       enabled: process.env.OPENCLAW_CACHE_TRACE,
       file: process.env.OPENCLAW_CACHE_TRACE_FILE,

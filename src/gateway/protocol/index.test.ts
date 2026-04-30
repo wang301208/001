@@ -4,6 +4,7 @@ import { TALK_TEST_PROVIDER_ID } from "../../test-utils/talk-test-provider.js";
 import {
   formatValidationErrors,
   validateAutonomyCapabilityInventoryParams,
+  validateAutonomyActivateParams,
   validateAutonomyGenesisPlanParams,
   validateAutonomyGovernanceReconcileParams,
   validateAutonomySuperviseParams,
@@ -330,6 +331,23 @@ describe("autonomy capability validators", () => {
         restartBlockedFlows: true,
         governanceMode: "force_apply_all",
         decisionNote: "Escalate the supervisor pass.",
+        includeCapabilityInventory: true,
+        includeGenesisPlan: true,
+        recordHistory: true,
+      }),
+    ).toBe(true);
+  });
+
+  it("accepts autonomy activation params", () => {
+    expect(
+      validateAutonomyActivateParams({
+        sessionKey: "agent:main:main",
+        agentIds: ["founder", "strategist"],
+        workspaceDirs: ["/tmp/workspace-a"],
+        teamId: "genesis_team",
+        restartBlockedFlows: true,
+        governanceMode: "apply_safe",
+        decisionNote: "Activate governed maximum autonomy.",
         includeCapabilityInventory: true,
         includeGenesisPlan: true,
         recordHistory: true,

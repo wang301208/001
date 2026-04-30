@@ -1067,8 +1067,6 @@ repair_legacy_dev_source_checkout_if_needed() {
   guest_current_user_exec_path "$bootstrap_bin:$GUEST_EXEC_PATH" \
     /usr/bin/env NODE_OPTIONS=--max-old-space-size=4096 \
     "$bootstrap_bin/pnpm" --dir "$update_root" build
-  guest_current_user_exec_path "$bootstrap_bin:$GUEST_EXEC_PATH" \
-    "$bootstrap_bin/pnpm" --dir "$update_root" ui:build
 }
 
 run_dev_channel_update() {
@@ -1193,10 +1191,6 @@ else:
 PY
 }
 
-current_control_ui_ready() {
-  [[ -f "dist/control-ui/index.html" ]]
-}
-
 acquire_build_lock() {
   local owner_pid=""
   while ! mkdir "$BUILD_LOCK_DIR" 2>/dev/null; do
@@ -1224,18 +1218,15 @@ ensure_current_build() {
   acquire_build_lock
   head="$(git rev-parse HEAD)"
   build_commit="$(current_build_commit)"
-  if [[ "$build_commit" == "$head" ]] && current_control_ui_ready; then
+  if [[ "$build_commit" == "$head" ]]; then
     release_build_lock
     return
   fi
   say "Build dist for current head"
   pnpm build
-  say "Build Control UI for current head"
-  pnpm ui:build
   build_commit="$(current_build_commit)"
   release_build_lock
   [[ "$build_commit" == "$head" ]] || die "dist/build-info.json still does not match HEAD after build"
-  current_control_ui_ready || die "dist/control-ui/index.html missing after ui build"
 }
 
 stage_pack_runtime_deps() {
@@ -1414,30 +1405,8 @@ EOF
 )"
 }
 
-resolve_dashboard_url() {
-  local dashboard_url
-  dashboard_url="$(
-    guest_current_user_cli "$GUEST_OPENCLAW_BIN" dashboard --no-open \
-      | awk '/^Dashboard URL: / { sub(/^Dashboard URL: /, ""); print; exit }'
-  )"
-  dashboard_url="${dashboard_url//$'\r'/}"
-  dashboard_url="${dashboard_url//$'\n'/}"
-  [[ -n "$dashboard_url" ]] || {
-    echo "failed to resolve dashboard URL from openclaw dashboard --no-open" >&2
-    return 1
-  }
-  printf '%s\n' "$dashboard_url"
-}
-
-verify_dashboard_load() {
-  local dashboard_url dashboard_http_url dashboard_url_q dashboard_http_url_q cmd headless_flag
-  # `openclaw dashboard --no-open` can hang under the Tahoe Parallels transport
-  # even when the dashboard itself is healthy. Probe the local dashboard URL
-  # directly so the smoke still validates HTML readiness and browser reachability.
-  dashboard_url="http://127.0.0.1:18789/"
-  dashboard_http_url="$dashboard_url"
-  dashboard_url_q="$(shell_quote "$dashboard_url")"
-  dashboard_http_url_q="$(shell_quote "$dashboard_http_url")"
+verify_terminal_ui() {
+  local cmd
   headless_flag=0
   if headless_guest_fallback; then
     headless_flag=1
@@ -1447,53 +1416,10 @@ set -eu
 export PATH="/opt/homebrew/bin:/opt/homebrew/opt/node/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin:\${PATH:-}"
 if [ -z "\${HOME:-}" ]; then export HOME="/Users/\$(id -un)"; fi
 cd "\$HOME"
-dashboard_url=$dashboard_url_q
-dashboard_http_url=$dashboard_http_url_q
-headless_flag=$(shell_quote "$headless_flag")
-dashboard_port=\$(printf '%s\n' "\$dashboard_http_url" | sed -E 's#^https?://[^:/]+:([0-9]+).*\$#\1#')
-if [ -z "\$dashboard_port" ] || [ "\$dashboard_port" = "\$dashboard_http_url" ]; then
-  echo "failed to parse dashboard port from \$dashboard_http_url" >&2
-  exit 1
-fi
-deadline=\$((SECONDS + 30))
-dashboard_ready=0
-while [ \$SECONDS -lt \$deadline ]; do
-  if curl -fsSL --connect-timeout 2 --max-time 5 "\$dashboard_http_url" >/tmp/openclaw-dashboard-smoke.html 2>/dev/null; then
-    if grep -F '<title>OpenClaw Control</title>' /tmp/openclaw-dashboard-smoke.html >/dev/null; then
-      if grep -F '<openclaw-app></openclaw-app>' /tmp/openclaw-dashboard-smoke.html >/dev/null; then
-        dashboard_ready=1
-        break
-      fi
-    fi
-  fi
-  sleep 1
-done
-[ "\$dashboard_ready" = "1" ] || {
-  echo "dashboard HTML did not become ready at \$dashboard_http_url" >&2
-  exit 1
-}
-grep -F '<title>OpenClaw Control</title>' /tmp/openclaw-dashboard-smoke.html >/dev/null
-grep -F '<openclaw-app></openclaw-app>' /tmp/openclaw-dashboard-smoke.html >/dev/null
-echo "dashboard HTML ready at \$dashboard_http_url"
-if [ "\$headless_flag" = "1" ]; then
-  exit 0
-fi
-pkill -x Safari >/dev/null 2>&1 || true
-open -a Safari "\$dashboard_url"
-deadline=\$((SECONDS + 20))
-while [ \$SECONDS -lt \$deadline ]; do
-  # Tahoe can hand dashboard sockets to WebKit helpers even after the Safari
-  # app process exits. Avoid lsof here because it can stall under Parallels;
-  # an established localhost client socket proves the browser reached the UI.
-  if netstat -anv -p tcp 2>/dev/null \
-    | awk -v port=".\$dashboard_port" '\$4 ~ port "\$" && \$6 == "ESTABLISHED" { found = 1 } END { exit found ? 0 : 1 }'; then
-    echo "dashboard browser connection ready on port \$dashboard_port"
-    exit 0
-  fi
-  sleep 1
-done
-echo "Safari did not establish a dashboard client connection on port \$dashboard_port" >&2
-exit 1
+$(shell_quote "$GUEST_OPENCLAW_BIN") tui --help >/tmp/openclaw-tui-help.txt
+grep -i "tui" /tmp/openclaw-tui-help.txt >/dev/null
+$(shell_quote "$GUEST_OPENCLAW_BIN") gateway status --json >/tmp/openclaw-gateway-status.json
+echo "terminal UI command and gateway status are ready"
 EOF
 )"
   guest_current_user_sh "$cmd"
@@ -1784,7 +1710,6 @@ summary = {
         "version": os.environ["SUMMARY_FRESH_MAIN_VERSION"],
         "gateway": os.environ["SUMMARY_FRESH_GATEWAY_STATUS"],
         "agent": os.environ["SUMMARY_FRESH_AGENT_STATUS"],
-        "dashboard": os.environ["SUMMARY_FRESH_DASHBOARD_STATUS"],
         "discord": os.environ["SUMMARY_FRESH_DISCORD_STATUS"],
     },
     "upgrade": {
@@ -1796,7 +1721,6 @@ summary = {
         "mainVersion": os.environ["SUMMARY_UPGRADE_MAIN_VERSION"],
         "gateway": os.environ["SUMMARY_UPGRADE_GATEWAY_STATUS"],
         "agent": os.environ["SUMMARY_UPGRADE_AGENT_STATUS"],
-        "dashboard": os.environ["SUMMARY_UPGRADE_DASHBOARD_STATUS"],
         "discord": os.environ["SUMMARY_UPGRADE_DISCORD_STATUS"],
     },
 }
@@ -1834,8 +1758,7 @@ run_fresh_main_lane() {
   phase_run "fresh.gateway-start" "$TIMEOUT_GATEWAY_S" start_manual_gateway_if_needed
   phase_run "fresh.gateway-status" "$TIMEOUT_GATEWAY_S" verify_gateway
   FRESH_GATEWAY_STATUS="pass"
-  phase_run "fresh.dashboard-load" "$TIMEOUT_DASHBOARD_S" verify_dashboard_load
-  FRESH_DASHBOARD_STATUS="pass"
+  phase_run "fresh.terminal-ui" "$TIMEOUT_DASHBOARD_S" verify_terminal_ui
   phase_run "fresh.first-agent-turn" "$TIMEOUT_AGENT_S" verify_turn
   FRESH_AGENT_STATUS="pass"
   if discord_smoke_enabled; then
@@ -1876,8 +1799,7 @@ run_upgrade_lane() {
   phase_run "upgrade.gateway-start" "$TIMEOUT_GATEWAY_S" start_manual_gateway_if_needed
   phase_run "upgrade.gateway-status" "$TIMEOUT_GATEWAY_S" verify_gateway
   UPGRADE_GATEWAY_STATUS="pass"
-  phase_run "upgrade.dashboard-load" "$TIMEOUT_DASHBOARD_S" verify_dashboard_load
-  UPGRADE_DASHBOARD_STATUS="pass"
+  phase_run "upgrade.terminal-ui" "$TIMEOUT_DASHBOARD_S" verify_terminal_ui
   phase_run "upgrade.first-agent-turn" "$TIMEOUT_AGENT_S" verify_turn
   UPGRADE_AGENT_STATUS="pass"
   if discord_smoke_enabled; then

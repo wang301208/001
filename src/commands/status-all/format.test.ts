@@ -7,8 +7,8 @@ import {
   buildGatewayStatusJsonPayload,
   buildGatewayStatusSummaryParts,
   formatGatewaySelfSummary,
-  resolveStatusDashboardUrl,
-  formatStatusDashboardValue,
+  resolveStatusTerminalCommand,
+  formatStatusTerminalValue,
   formatStatusServiceValue,
   formatStatusTailscaleValue,
 } from "./format.js";
@@ -49,10 +49,12 @@ describe("status-all format", () => {
     });
   });
 
-  it("formats dashboard values consistently", () => {
-    expect(formatStatusDashboardValue("https://openclaw.local")).toBe("https://openclaw.local");
-    expect(formatStatusDashboardValue("")).toBe("disabled");
-    expect(formatStatusDashboardValue(null)).toBe("disabled");
+  it("formats terminal UI values consistently", () => {
+    expect(formatStatusTerminalValue("openclaw tui --profile local")).toBe(
+      "openclaw tui --profile local",
+    );
+    expect(formatStatusTerminalValue("")).toBe("openclaw tui");
+    expect(formatStatusTerminalValue(null)).toBe("openclaw tui");
   });
 
   it("builds shared update surface values", () => {
@@ -90,26 +92,8 @@ describe("status-all format", () => {
     });
   });
 
-  it("resolves dashboard urls from gateway config", () => {
-    expect(
-      resolveStatusDashboardUrl({
-        cfg: {
-          gateway: {
-            bind: "loopback",
-            controlUi: { enabled: true, basePath: "/ui" },
-          },
-        },
-      }),
-    ).toBe("http://127.0.0.1:18789/ui/");
-    expect(
-      resolveStatusDashboardUrl({
-        cfg: {
-          gateway: {
-            controlUi: { enabled: false },
-          },
-        },
-      }),
-    ).toBeNull();
+  it("resolves terminal UI command", () => {
+    expect(resolveStatusTerminalCommand()).toBe("openclaw tui");
   });
 
   it("formats tailscale values for terse and detailed views", () => {
@@ -196,7 +180,6 @@ describe("status-all format", () => {
   it("builds shared gateway surface values for node and gateway views", () => {
     expect(
       buildStatusGatewaySurfaceValues({
-        cfg: { gateway: { bind: "loopback" } },
         gatewayMode: "remote",
         remoteUrlMissing: false,
         gatewayConnection: {
@@ -224,7 +207,6 @@ describe("status-all format", () => {
         decorateWarn: (value) => `warn(${value})`,
       }),
     ).toEqual({
-      dashboardUrl: "http://127.0.0.1:18789/",
       gatewayValue:
         "remote · wss://gateway.example.com (config) · ok(reachable 123ms) · auth token · gateway app 1.2.3",
       gatewaySelfValue: "gateway app 1.2.3",
@@ -236,7 +218,6 @@ describe("status-all format", () => {
   it("prefers node-only gateway values when present", () => {
     expect(
       buildStatusGatewaySurfaceValues({
-        cfg: { gateway: { controlUi: { enabled: false } } },
         gatewayMode: "local",
         remoteUrlMissing: false,
         gatewayConnection: {
@@ -262,7 +243,6 @@ describe("status-all format", () => {
         },
       }),
     ).toEqual({
-      dashboardUrl: null,
       gatewayValue: "node → remote.example:18789 · no local gateway",
       gatewaySelfValue: null,
       gatewayServiceValue: "LaunchAgent not installed",
@@ -274,7 +254,7 @@ describe("status-all format", () => {
     expect(
       buildStatusOverviewRows({
         prefixRows: [{ Item: "Version", Value: "1.0.0" }],
-        dashboardValue: "https://openclaw.local",
+        terminalUiValue: "openclaw tui",
         tailscaleValue: "serve · https://tail.example",
         channelLabel: "stable",
         gitLabel: "main @ v1.0.0",
@@ -290,7 +270,7 @@ describe("status-all format", () => {
       }),
     ).toEqual([
       { Item: "Version", Value: "1.0.0" },
-      { Item: "Dashboard", Value: "https://openclaw.local" },
+      { Item: "Terminal UI", Value: "openclaw tui" },
       { Item: "Tailscale", Value: "serve · https://tail.example" },
       { Item: "Channel", Value: "stable" },
       { Item: "Git", Value: "main @ v1.0.0" },
@@ -362,7 +342,7 @@ describe("status-all format", () => {
       }),
     ).toEqual([
       { Item: "Version", Value: "1.0.0" },
-      { Item: "Dashboard", Value: "http://127.0.0.1:18789/" },
+      { Item: "Terminal UI", Value: "openclaw tui" },
       { Item: "Tailscale", Value: "serve · box.tail.ts.net · https://box.tail.ts.net" },
       { Item: "Channel", Value: "stable (config)" },
       { Item: "Git", Value: "main · tag v1.2.3" },

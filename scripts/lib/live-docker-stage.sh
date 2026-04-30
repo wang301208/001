@@ -22,7 +22,6 @@ openclaw_live_stage_source_tree() {
     --exclude='*/*.sock' \
     --exclude='apps/*/.build' \
     --exclude='apps/*/*.bun-build' \
-    --exclude='apps/*/.gradle' \
     --exclude='apps/*/.kotlin' \
     --exclude='apps/*/build' \
     -cf - . | tar -C "$dest_dir" -xf -

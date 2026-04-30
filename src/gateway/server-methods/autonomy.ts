@@ -10,6 +10,7 @@ import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import type { TaskRuntime } from "../../tasks/task-registry.types.js";
 import {
   ErrorCodes,
+  validateAutonomyActivateParams,
   validateAutonomyCapabilityInventoryParams,
   validateAutonomyCancelParams,
   validateAutonomyGenesisPlanParams,
@@ -353,6 +354,46 @@ export const autonomyHandlers: GatewayRequestHandlers = {
         {
           sessionKey,
           supervised,
+        },
+        undefined,
+      );
+    } catch (error) {
+      respondAutonomyFailure(respond, error);
+    }
+  },
+  "autonomy.activate": async ({ params, respond, context }) => {
+    if (!assertValidParams(params, validateAutonomyActivateParams, "autonomy.activate", respond)) {
+      return;
+    }
+    const { sessionKey, runtime } = bindAutonomyRuntime({
+      sessionKey: params.sessionKey,
+      cronService: context.cron,
+    });
+    try {
+      const agentIds = resolveAgentIdsInput(params);
+      const workspaceDirs = resolveWorkspaceDirsInput(params);
+      const governanceMode = resolveAutonomySupervisorGovernanceModeInput(params) ?? "apply_safe";
+      const activated = await runtime.getArchitectureReadiness({
+        ...(agentIds ? { agentIds } : {}),
+        ...(workspaceDirs ? { workspaceDirs } : {}),
+        ...(typeof params.teamId === "string" ? { teamId: params.teamId } : {}),
+        restartBlockedFlows:
+          typeof params.restartBlockedFlows === "boolean" ? params.restartBlockedFlows : true,
+        governanceMode,
+        ...(typeof params.decisionNote === "string" ? { decisionNote: params.decisionNote } : {}),
+        includeCapabilityInventory:
+          typeof params.includeCapabilityInventory === "boolean"
+            ? params.includeCapabilityInventory
+            : true,
+        includeGenesisPlan:
+          typeof params.includeGenesisPlan === "boolean" ? params.includeGenesisPlan : true,
+        recordHistory: typeof params.recordHistory === "boolean" ? params.recordHistory : true,
+      });
+      respond(
+        true,
+        {
+          sessionKey,
+          activated,
         },
         undefined,
       );

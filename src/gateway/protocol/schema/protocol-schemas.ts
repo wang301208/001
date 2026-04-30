@@ -12,6 +12,16 @@ import {
 } from "./agent.js";
 import {
   AutonomyAgentProfileSchema,
+  AutonomyActivateParamsSchema,
+  AutonomyActivateResultEnvelopeSchema,
+  AutonomyArchitectureReadinessCheckSchema,
+  AutonomyArchitectureReadinessLayerSchema,
+  AutonomyArchitectureReadinessLoopSchema,
+  AutonomyArchitectureReadinessResultSchema,
+  AutonomyArchitectureReadinessStatusSchema,
+  AutonomyArchitectureReadinessSummarySchema,
+  AutonomyBootstrapReadinessSchema,
+  AutonomyBootstrapResultSchema,
   AutonomyBootstrapTemplateSchema,
   AutonomyCapabilityGapSchema,
   AutonomyCapabilityInventoryEnvelopeSchema,
@@ -534,6 +544,14 @@ type ProtocolSchemaMap = {
   AutonomySeedTaskTemplate: typeof AutonomySeedTaskTemplateSchema;
   AutonomyLoopTemplate: typeof AutonomyLoopTemplateSchema;
   AutonomyBootstrapTemplate: typeof AutonomyBootstrapTemplateSchema;
+  AutonomyBootstrapReadiness: typeof AutonomyBootstrapReadinessSchema;
+  AutonomyBootstrapResult: typeof AutonomyBootstrapResultSchema;
+  AutonomyArchitectureReadinessStatus: typeof AutonomyArchitectureReadinessStatusSchema;
+  AutonomyArchitectureReadinessCheck: typeof AutonomyArchitectureReadinessCheckSchema;
+  AutonomyArchitectureReadinessLayer: typeof AutonomyArchitectureReadinessLayerSchema;
+  AutonomyArchitectureReadinessLoop: typeof AutonomyArchitectureReadinessLoopSchema;
+  AutonomyArchitectureReadinessSummary: typeof AutonomyArchitectureReadinessSummarySchema;
+  AutonomyArchitectureReadinessResult: typeof AutonomyArchitectureReadinessResultSchema;
   AutonomyAgentProfile: typeof AutonomyAgentProfileSchema;
   AutonomyFleetHistorySource: typeof AutonomyFleetHistorySourceSchema;
   AutonomyFleetHistoryMode: typeof AutonomyFleetHistoryModeSchema;
@@ -591,6 +609,8 @@ type ProtocolSchemaMap = {
   AutonomyLoopUpsertParams: typeof AutonomyLoopUpsertParamsSchema;
   AutonomyLoopRemoveParams: typeof AutonomyLoopRemoveParamsSchema;
   AutonomyLoopReconcileParams: typeof AutonomyLoopReconcileParamsSchema;
+  AutonomyActivateParams: typeof AutonomyActivateParamsSchema;
+  AutonomyActivateResultEnvelope: typeof AutonomyActivateResultEnvelopeSchema;
   SandboxUniversePromotionGateDecision: typeof SandboxUniversePromotionGateDecisionSchema;
 };
 
@@ -820,6 +840,14 @@ const protocolSchemas: ProtocolSchemaMap = {
   AutonomySeedTaskTemplate: AutonomySeedTaskTemplateSchema,
   AutonomyLoopTemplate: AutonomyLoopTemplateSchema,
   AutonomyBootstrapTemplate: AutonomyBootstrapTemplateSchema,
+  AutonomyBootstrapReadiness: AutonomyBootstrapReadinessSchema,
+  AutonomyBootstrapResult: AutonomyBootstrapResultSchema,
+  AutonomyArchitectureReadinessStatus: AutonomyArchitectureReadinessStatusSchema,
+  AutonomyArchitectureReadinessCheck: AutonomyArchitectureReadinessCheckSchema,
+  AutonomyArchitectureReadinessLayer: AutonomyArchitectureReadinessLayerSchema,
+  AutonomyArchitectureReadinessLoop: AutonomyArchitectureReadinessLoopSchema,
+  AutonomyArchitectureReadinessSummary: AutonomyArchitectureReadinessSummarySchema,
+  AutonomyArchitectureReadinessResult: AutonomyArchitectureReadinessResultSchema,
   AutonomyAgentProfile: AutonomyAgentProfileSchema,
   AutonomyFleetHistorySource: AutonomyFleetHistorySourceSchema,
   AutonomyFleetHistoryMode: AutonomyFleetHistoryModeSchema,
@@ -877,6 +905,8 @@ const protocolSchemas: ProtocolSchemaMap = {
   AutonomyLoopUpsertParams: AutonomyLoopUpsertParamsSchema,
   AutonomyLoopRemoveParams: AutonomyLoopRemoveParamsSchema,
   AutonomyLoopReconcileParams: AutonomyLoopReconcileParamsSchema,
+  AutonomyActivateParams: AutonomyActivateParamsSchema,
+  AutonomyActivateResultEnvelope: AutonomyActivateResultEnvelopeSchema,
   SandboxUniversePromotionGateDecision: SandboxUniversePromotionGateDecisionSchema,
 } satisfies Record<string, TSchema>;
 
