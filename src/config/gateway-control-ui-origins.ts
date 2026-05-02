@@ -64,7 +64,7 @@ export function ensureControlUiAllowedOriginsForNonLoopbackBind(
   // When bind is unset (undefined) and we are inside a container, the runtime
   // will default to "auto" → 0.0.0.0 via defaultGatewayBindMode().  We must
   // seed origins *before* resolveGatewayRuntimeConfig runs, otherwise the
-  // non-loopback Control UI origin check will hard-fail on startup.
+  // non-loopback operator-client origin check will hard-fail on startup.
   const effectiveBind: typeof bind =
     bind ?? (opts?.isContainerEnvironment?.() ? "auto" : undefined);
   if (!isGatewayNonLoopbackBindMode(effectiveBind)) {

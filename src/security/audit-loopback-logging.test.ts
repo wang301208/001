@@ -20,7 +20,7 @@ function hasLoggingFinding(
 }
 
 describe("security audit loopback and logging findings", () => {
-  it("evaluates loopback control UI and logging exposure findings", async () => {
+  it("evaluates loopback operator client and logging exposure findings", async () => {
     await Promise.all([
       (async () => {
         const cfg: OpenClawConfig = {

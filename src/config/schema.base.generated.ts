@@ -20711,7 +20711,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
             maximum: 9007199254740991,
             title: "Gateway Port",
             description:
-              "TCP port used by the gateway listener for API, control UI, and channel-facing ingress paths. Use a dedicated port and avoid collisions with reverse proxies or local developer services.",
+              "TCP port used by the gateway listener for API, terminal/operator clients, and channel-facing ingress paths. Use a dedicated port and avoid collisions with reverse proxies or local developer services.",
           },
           mode: {
             anyOf: [
@@ -20766,13 +20766,13 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
             properties: {
               enabled: {
                 type: "boolean",
-                title: "Control UI Enabled",
+                title: "Operator Client Compatibility Enabled",
                 description:
                   "Legacy operator-client enablement flag retained for compatibility. The browser Control UI is removed; use the terminal UI for local administration.",
               },
               basePath: {
                 type: "string",
-                title: "Control UI Base Path",
+                title: "Operator Client Base Path",
                 description:
                   "Legacy URL prefix retained for status and Tailscale compatibility. No browser assets are served.",
               },
@@ -20791,48 +20791,48 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                     const: "trusted",
                   },
                 ],
-                title: "Control UI Embed Sandbox Mode",
+                title: "Operator Embed Sandbox Mode",
                 description:
-                  'Iframe sandbox policy for hosted Control UI embeds. "strict" disables scripts, "scripts" allows interactive embeds while keeping origin isolation (default), and "trusted" adds `allow-same-origin` for same-site documents that intentionally need stronger privileges.',
+                  'Iframe sandbox policy for hosted operator/webchat embeds. "strict" disables scripts, "scripts" allows interactive embeds while keeping origin isolation (default), and "trusted" adds `allow-same-origin` for same-site documents that intentionally need stronger privileges.',
               },
               allowExternalEmbedUrls: {
                 type: "boolean",
-                title: "Allow External Control UI Embed URLs",
+                title: "Allow External Operator Embed URLs",
                 description:
-                  "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your Control UI intentionally embeds trusted third-party pages; hosted /__openclaw__/canvas and /__openclaw__/a2ui documents do not need it.",
+                  "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__openclaw__/canvas and /__openclaw__/a2ui documents do not need it.",
               },
               allowedOrigins: {
                 type: "array",
                 items: {
                   type: "string",
                 },
-                title: "Control UI Allowed Origins",
+                title: "Operator Client Allowed Origins",
                 description:
-                  'Allowed browser origins for Control UI/WebChat websocket connections (full origins only, e.g. https://control.example.com). Required for non-loopback Control UI deployments unless dangerous Host-header fallback is explicitly enabled. Setting ["*"] means allow any browser origin and should be avoided outside tightly controlled local testing.',
+                  'Allowed browser origins for operator/WebChat websocket connections (full origins only, e.g. https://control.example.com). Required for non-loopback browser operator clients unless dangerous Host-header fallback is explicitly enabled. Setting ["*"] means allow any browser origin and should be avoided outside tightly controlled local testing.',
               },
               dangerouslyAllowHostHeaderOriginFallback: {
                 type: "boolean",
                 title: "Dangerously Allow Host-Header Origin Fallback",
                 description:
-                  "DANGEROUS toggle that enables Host-header based origin fallback for Control UI/WebChat websocket checks. This mode is supported when your deployment intentionally relies on Host-header origin policy; explicit gateway.controlUi.allowedOrigins remains the recommended hardened default.",
+                  "DANGEROUS toggle that enables Host-header based origin fallback for operator/WebChat websocket checks. This mode is supported when your deployment intentionally relies on Host-header origin policy; explicit gateway.controlUi.allowedOrigins remains the recommended hardened default.",
               },
               allowInsecureAuth: {
                 type: "boolean",
-                title: "Insecure Control UI Auth Toggle",
+                title: "Insecure Operator Client Auth Toggle",
                 description:
-                  "Loosens strict browser auth checks for Control UI when you must run a non-standard setup. Keep this off unless you trust your network and proxy path, because impersonation risk is higher.",
+                  "Loosens strict browser auth checks for operator clients when you must run a non-standard setup. Keep this off unless you trust your network and proxy path, because impersonation risk is higher.",
               },
               dangerouslyDisableDeviceAuth: {
                 type: "boolean",
-                title: "Dangerously Disable Control UI Device Auth",
+                title: "Dangerously Disable Operator Client Device Auth",
                 description:
-                  "Disables Control UI device identity checks and relies on token/password only. Use only for short-lived debugging on trusted networks, then turn it off immediately.",
+                  "Disables operator-client device identity checks and relies on token/password only. Use only for short-lived debugging on trusted networks, then turn it off immediately.",
               },
             },
             additionalProperties: false,
-            title: "Control UI",
+            title: "Operator Client Compatibility",
             description:
-              "Control UI hosting settings including enablement, pathing, and browser-origin/auth hardening behavior. Keep UI exposure minimal and pair with strong auth controls before internet-facing deployments.",
+              "Operator-client compatibility settings for terminal/WebSocket access hardening. Browser Control UI hosting has been removed.",
           },
           auth: {
             type: "object",
@@ -21790,7 +21790,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
         additionalProperties: false,
         title: "Gateway",
         description:
-          "Gateway runtime surface for bind mode, auth, control UI, remote transport, and operational safety controls. Keep conservative defaults unless you intentionally expose the gateway beyond trusted local interfaces.",
+          "Gateway runtime surface for bind mode, auth, terminal/operator clients, remote transport, and operational safety controls. Keep conservative defaults unless you intentionally expose the gateway beyond trusted local interfaces.",
       },
       memory: {
         type: "object",
@@ -22752,7 +22752,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
       label: "Gateway",
       group: "Gateway",
       order: 30,
-      help: "Gateway runtime surface for bind mode, auth, control UI, remote transport, and operational safety controls. Keep conservative defaults unless you intentionally expose the gateway beyond trusted local interfaces.",
+      help: "Gateway runtime surface for bind mode, auth, terminal/operator clients, remote transport, and operational safety controls. Keep conservative defaults unless you intentionally expose the gateway beyond trusted local interfaces.",
       tags: ["advanced"],
     },
     nodeHost: {
@@ -23289,7 +23289,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "gateway.port": {
       label: "Gateway Port",
-      help: "TCP port used by the gateway listener for API, control UI, and channel-facing ingress paths. Use a dedicated port and avoid collisions with reverse proxies or local developer services.",
+      help: "TCP port used by the gateway listener for API, terminal/operator clients, and channel-facing ingress paths. Use a dedicated port and avoid collisions with reverse proxies or local developer services.",
       tags: ["network"],
     },
     "gateway.mode": {
@@ -23308,13 +23308,13 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
       tags: ["network"],
     },
     "gateway.controlUi": {
-      label: "Control UI",
-      help: "Control UI hosting settings including enablement, pathing, and browser-origin/auth hardening behavior. Keep UI exposure minimal and pair with strong auth controls before internet-facing deployments.",
+      label: "Operator Client Compatibility",
+      help: "Operator-client compatibility settings for terminal/WebSocket access hardening. Browser Control UI hosting has been removed.",
       tags: ["network"],
     },
     "gateway.controlUi.enabled": {
-      label: "Control UI Enabled",
-      help: "Enables serving the gateway Control UI from the gateway HTTP process when true. Keep enabled for local administration, and disable when an external control surface replaces it.",
+      label: "Operator Client Compatibility Enabled",
+      help: "Legacy operator-client enablement flag retained for compatibility. The browser Control UI is removed; use the terminal UI for local administration.",
       tags: ["network"],
     },
     "gateway.auth": {
@@ -24342,40 +24342,40 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
       tags: ["access", "tools"],
     },
     "gateway.controlUi.basePath": {
-      label: "Control UI Base Path",
+      label: "Operator Client Base Path",
       help: "Legacy URL prefix retained for status and Tailscale compatibility. No browser assets are served.",
       placeholder: "/openclaw",
       tags: ["network", "storage"],
     },
     "gateway.controlUi.embedSandbox": {
-      label: "Control UI Embed Sandbox Mode",
-      help: 'Iframe sandbox policy for hosted Control UI embeds. "strict" disables scripts, "scripts" allows interactive embeds while keeping origin isolation (default), and "trusted" adds `allow-same-origin` for same-site documents that intentionally need stronger privileges.',
+      label: "Operator Embed Sandbox Mode",
+      help: 'Iframe sandbox policy for hosted operator/webchat embeds. "strict" disables scripts, "scripts" allows interactive embeds while keeping origin isolation (default), and "trusted" adds `allow-same-origin` for same-site documents that intentionally need stronger privileges.',
       tags: ["security", "access", "advanced"],
     },
     "gateway.controlUi.allowExternalEmbedUrls": {
-      label: "Allow External Control UI Embed URLs",
-      help: "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your Control UI intentionally embeds trusted third-party pages; hosted /__openclaw__/canvas and /__openclaw__/a2ui documents do not need it.",
+      label: "Allow External Operator Embed URLs",
+      help: "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__openclaw__/canvas and /__openclaw__/a2ui documents do not need it.",
       tags: ["security", "access", "network", "advanced"],
     },
     "gateway.controlUi.allowedOrigins": {
-      label: "Control UI Allowed Origins",
-      help: 'Allowed browser origins for Control UI/WebChat websocket connections (full origins only, e.g. https://control.example.com). Required for non-loopback Control UI deployments unless dangerous Host-header fallback is explicitly enabled. Setting ["*"] means allow any browser origin and should be avoided outside tightly controlled local testing.',
+      label: "Operator Client Allowed Origins",
+      help: 'Allowed browser origins for operator/WebChat websocket connections (full origins only, e.g. https://control.example.com). Required for non-loopback browser operator clients unless dangerous Host-header fallback is explicitly enabled. Setting ["*"] means allow any browser origin and should be avoided outside tightly controlled local testing.',
       placeholder: "https://control.example.com",
       tags: ["access", "network"],
     },
     "gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback": {
       label: "Dangerously Allow Host-Header Origin Fallback",
-      help: "DANGEROUS toggle that enables Host-header based origin fallback for Control UI/WebChat websocket checks. This mode is supported when your deployment intentionally relies on Host-header origin policy; explicit gateway.controlUi.allowedOrigins remains the recommended hardened default.",
+      help: "DANGEROUS toggle that enables Host-header based origin fallback for operator/WebChat websocket checks. This mode is supported when your deployment intentionally relies on Host-header origin policy; explicit gateway.controlUi.allowedOrigins remains the recommended hardened default.",
       tags: ["security", "access", "network", "advanced"],
     },
     "gateway.controlUi.allowInsecureAuth": {
-      label: "Insecure Control UI Auth Toggle",
-      help: "Loosens strict browser auth checks for Control UI when you must run a non-standard setup. Keep this off unless you trust your network and proxy path, because impersonation risk is higher.",
+      label: "Insecure Operator Client Auth Toggle",
+      help: "Loosens strict browser auth checks for operator clients when you must run a non-standard setup. Keep this off unless you trust your network and proxy path, because impersonation risk is higher.",
       tags: ["security", "access", "network", "advanced"],
     },
     "gateway.controlUi.dangerouslyDisableDeviceAuth": {
-      label: "Dangerously Disable Control UI Device Auth",
-      help: "Disables Control UI device identity checks and relies on token/password only. Use only for short-lived debugging on trusted networks, then turn it off immediately.",
+      label: "Dangerously Disable Operator Client Device Auth",
+      help: "Disables operator-client device identity checks and relies on token/password only. Use only for short-lived debugging on trusted networks, then turn it off immediately.",
       tags: ["security", "access", "network", "advanced"],
     },
     "gateway.push": {

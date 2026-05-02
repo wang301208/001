@@ -17,7 +17,7 @@ export function formatGatewayAuthFailureMessage(params: {
   const isCli = isGatewayCliClient(client);
   const isControlUi = isOperatorUiClient(client);
   const isWebchat = isWebchatClient(client);
-  const uiHint = "open the dashboard URL and paste the token in Control UI settings";
+  const uiHint = "set the gateway token in TUI settings or OPENCLAW_GATEWAY_TOKEN";
   const tokenHint = isCli
     ? "set gateway.remote.token to match gateway.auth.token"
     : isControlUi || isWebchat
@@ -26,7 +26,7 @@ export function formatGatewayAuthFailureMessage(params: {
   const passwordHint = isCli
     ? "set gateway.remote.password to match gateway.auth.password"
     : isControlUi || isWebchat
-      ? "enter the password in Control UI settings"
+      ? "set the gateway password in TUI settings or OPENCLAW_GATEWAY_PASSWORD"
       : "provide gateway auth password";
   switch (reason) {
     case "token_missing":

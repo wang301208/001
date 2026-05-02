@@ -1022,7 +1022,7 @@ export function createGatewayHttpServer(opts: {
           run: () => canvasHost.handleHttpRequest(req, res),
         });
       }
-      // Plugin routes run before the Control UI SPA catch-all so explicitly
+      // Plugin routes run before gateway fallback routes so explicitly
       // registered plugin endpoints stay reachable. Core built-in gateway
       // routes above still keep precedence on overlapping paths.
       requestStages.push(

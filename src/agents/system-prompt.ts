@@ -260,8 +260,8 @@ function buildAssistantOutputDirectivesSection(isMinimal: boolean) {
   return [
     "## Assistant Output Directives",
     "Use these when you need delivery metadata in an assistant message:",
-    "- `MEDIA:<path-or-url>` on its own line requests attachment delivery. The web UI strips supported MEDIA lines and renders them inline; channels still decide actual delivery behavior.",
-    "- `[[audio_as_voice]]` marks attached audio as a voice-note style delivery hint. The web UI may show a voice-note badge when audio is present; channels still own delivery semantics.",
+    "- `MEDIA:<path-or-url>` on its own line requests attachment delivery. Operator clients strip supported MEDIA lines and render them inline; channels still decide actual delivery behavior.",
+    "- `[[audio_as_voice]]` marks attached audio as a voice-note style delivery hint. Operator clients may show a voice-note badge when audio is present; channels still own delivery semantics.",
     "- To request a native reply/quote on supported surfaces, include one reply tag in your reply:",
     "- Reply tags must be the very first token in the message (no leading text/newlines): [[reply_to_current]] your reply.",
     "- [[reply_to_current]] replies to the triggering message.",
@@ -282,8 +282,8 @@ function buildWebchatCanvasSection(params: {
     return [];
   }
   return [
-    "## Control UI Embed",
-    "Use `[embed ...]` only in Control UI/webchat sessions for inline rich rendering inside the assistant bubble.",
+    "## Operator/Webchat Embed",
+    "Use `[embed ...]` only in operator/webchat sessions for inline rich rendering inside the assistant bubble.",
     "- Do not use `[embed ...]` for non-web channels.",
     "- `[embed ...]` is separate from `MEDIA:`. Use `MEDIA:` for attachments; use `[embed ...]` for web-only rich rendering.",
     '- Use self-closing form for hosted embed documents: `[embed ref="cv_123" title="Status" height="320" /]`.',

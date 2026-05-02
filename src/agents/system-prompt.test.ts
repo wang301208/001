@@ -245,8 +245,8 @@ describe("buildAgentSystemPrompt", () => {
       workspaceDir: "/tmp/openclaw",
     });
 
-    expect(prompt).not.toContain("## Control UI Embed");
-    expect(prompt).not.toContain("Use `[embed ...]` only in Control UI/webchat sessions");
+    expect(prompt).not.toContain("## Operator/Webchat Embed");
+    expect(prompt).not.toContain("Use `[embed ...]` only in operator/webchat sessions");
   });
 
   it("includes embed guidance only for webchat sessions", () => {
@@ -258,8 +258,8 @@ describe("buildAgentSystemPrompt", () => {
       },
     });
 
-    expect(prompt).toContain("## Control UI Embed");
-    expect(prompt).toContain("Use `[embed ...]` only in Control UI/webchat sessions");
+    expect(prompt).toContain("## Operator/Webchat Embed");
+    expect(prompt).toContain("Use `[embed ...]` only in operator/webchat sessions");
     expect(prompt).toContain('[embed ref="cv_123" title="Status" height="320" /]');
     expect(prompt).toContain(
       '[embed url="/__openclaw__/canvas/documents/cv_123/index.html" title="Status" height="320" /]',

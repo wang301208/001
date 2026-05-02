@@ -89,7 +89,7 @@ export function registerAuthModesSuite(): void {
         },
       });
       expect(res.ok).toBe(false);
-      expect(res.error?.message ?? "").toContain("Control UI settings");
+      expect(res.error?.message ?? "").toContain("OPENCLAW_GATEWAY_TOKEN");
       ws.close();
     });
 

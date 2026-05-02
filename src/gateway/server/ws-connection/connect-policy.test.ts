@@ -64,7 +64,7 @@ describe("ws connect policy", () => {
       controlUiConfig: { allowInsecureAuth: true, dangerouslyDisableDeviceAuth: false },
       deviceRaw: null,
     });
-    // Remote Control UI with allowInsecureAuth -> still rejected.
+    // Remote operator client with allowInsecureAuth -> still rejected.
     expect(
       evaluateMissingDeviceIdentity({
         hasDeviceIdentity: false,
@@ -79,7 +79,7 @@ describe("ws connect policy", () => {
       }).kind,
     ).toBe("reject-control-ui-insecure-auth");
 
-    // Local Control UI with allowInsecureAuth -> allowed.
+    // Local operator client with allowInsecureAuth -> allowed.
     expect(
       evaluateMissingDeviceIdentity({
         hasDeviceIdentity: false,
@@ -94,7 +94,7 @@ describe("ws connect policy", () => {
       }).kind,
     ).toBe("allow");
 
-    // Control UI without allowInsecureAuth, even on localhost -> rejected.
+    // Operator client without allowInsecureAuth, even on localhost -> rejected.
     const controlUiNoInsecure = resolveControlUiAuthPolicy({
       isControlUi: true,
       controlUiConfig: { dangerouslyDisableDeviceAuth: false },
@@ -156,7 +156,7 @@ describe("ws connect policy", () => {
       }).kind,
     ).toBe("reject-device-required");
 
-    // Trusted-proxy authenticated Control UI should bypass device-identity gating.
+    // Trusted-proxy authenticated operator client should bypass device-identity gating.
     expect(
       evaluateMissingDeviceIdentity({
         hasDeviceIdentity: false,
@@ -191,7 +191,7 @@ describe("ws connect policy", () => {
     ).toBe("allow");
 
     // Regression: dangerouslyDisableDeviceAuth bypass must NOT extend to node-role
-    // sessions — the break-glass flag is scoped to operator Control UI only.
+    // sessions — the break-glass flag is scoped to operator clients only.
     // A device-less node-role connection must still be rejected even when the flag
     // is set, to prevent the flag from being abused to admit unauthorized node
     // registrations.
@@ -238,16 +238,16 @@ describe("ws connect policy", () => {
       controlUiConfig: undefined,
       deviceRaw: null,
     });
-    // Control UI + operator + auth.mode=none: skip pairing (the fix for #42931)
+    // Operator client + operator + auth.mode=none: skip pairing (the fix for #42931)
     expect(shouldSkipControlUiPairing(controlUi, "operator", false, "none")).toBe(true);
-    // Control UI + node role + auth.mode=none: still require pairing
+    // Operator client + node role + auth.mode=none: still require pairing
     expect(shouldSkipControlUiPairing(controlUi, "node", false, "none")).toBe(false);
     // Non-Control-UI + operator + auth.mode=none: still require pairing
     // (prevents #43478 regression where ALL clients bypassed pairing)
     expect(shouldSkipControlUiPairing(nonControlUi, "operator", false, "none")).toBe(false);
-    // Control UI + operator + auth.mode=shared-key: no change
+    // Operator client + operator + auth.mode=shared-key: no change
     expect(shouldSkipControlUiPairing(controlUi, "operator", false, "shared-key")).toBe(false);
-    // Control UI + operator + no authMode: no change
+    // Operator client + operator + no authMode: no change
     expect(shouldSkipControlUiPairing(controlUi, "operator", false)).toBe(false);
   });
 

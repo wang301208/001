@@ -121,7 +121,7 @@ sync_gateway_config() {
   batch_json="$(printf '[{"path":"gateway.mode","value":"local"},{"path":"gateway.bind","value":"%s"}' "$OPENCLAW_GATEWAY_BIND")"
   if [[ -n "$allowed_origin_json" ]]; then
     if [[ -n "$current_allowed_origins" && "$current_allowed_origins" != "null" && "$current_allowed_origins" != "[]" ]]; then
-      echo "Control UI allowlist already configured; leaving gateway.controlUi.allowedOrigins unchanged."
+      echo "Operator client allowlist already configured; leaving gateway.controlUi.allowedOrigins unchanged."
     else
       batch_json+=",{\"path\":\"gateway.controlUi.allowedOrigins\",\"value\":$allowed_origin_json}"
     fi

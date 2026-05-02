@@ -75,7 +75,7 @@ describe("agent-events sequencing", () => {
     expect(phases).toEqual(["start", "end"]);
   });
 
-  test("omits sessionKey for runs hidden from Control UI", async () => {
+  test("omits sessionKey for runs hidden from operator clients", async () => {
     resetAgentRunContextForTest();
     registerAgentRunContext("run-hidden", {
       sessionKey: "session-imessage",

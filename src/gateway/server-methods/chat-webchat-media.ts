@@ -93,7 +93,7 @@ function mimeTypeForPath(filePath: string): string {
 }
 
 /**
- * Build Control UI / transcript `content` blocks for local TTS (or other) audio files
+ * Build operator-client / transcript `content` blocks for local TTS (or other) audio files
  * referenced by slash-command / agent replies when the webchat path only had text aggregation.
  */
 export async function buildWebchatAudioContentBlocksFromReplyPayloads(

@@ -81,7 +81,7 @@ export type AuthorizeGatewayConnectParams = {
   tailscaleWhois?: TailscaleWhoisLookup;
   /**
    * Explicit auth surface. HTTP keeps Tailscale forwarded-header auth disabled.
-   * WS Control UI enables it intentionally for tokenless trusted-host login.
+   * WS operator clients enable it intentionally for tokenless trusted-host login.
    */
   authSurface?: GatewayAuthSurface;
   /** Optional rate limiter instance; when provided, failed attempts are tracked per IP. */

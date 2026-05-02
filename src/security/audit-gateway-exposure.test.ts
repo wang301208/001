@@ -14,7 +14,7 @@ describe("security audit gateway exposure findings", () => {
   it("warns on insecure or dangerous flags", () => {
     const cases = [
       {
-        name: "control UI allows insecure auth",
+        name: "operator client allows insecure auth",
         cfg: {
           gateway: {
             controlUi: { allowInsecureAuth: true },
@@ -27,7 +27,7 @@ describe("security audit gateway exposure findings", () => {
         expectedDangerousDetails: ["gateway.controlUi.allowInsecureAuth=true"],
       },
       {
-        name: "control UI device auth is disabled",
+        name: "operator client device auth is disabled",
         cfg: {
           gateway: {
             controlUi: { dangerouslyDisableDeviceAuth: true },
@@ -98,7 +98,7 @@ describe("security audit gateway exposure findings", () => {
 
   it.each([
     {
-      name: "flags non-loopback Control UI without allowed origins",
+      name: "flags non-loopback operator client without allowed origins",
       cfg: {
         gateway: {
           bind: "lan",
@@ -111,7 +111,7 @@ describe("security audit gateway exposure findings", () => {
       },
     },
     {
-      name: "flags wildcard Control UI origins by exposure level on loopback",
+      name: "flags wildcard operator-client origins by exposure level on loopback",
       cfg: {
         gateway: {
           bind: "loopback",
@@ -124,7 +124,7 @@ describe("security audit gateway exposure findings", () => {
       },
     },
     {
-      name: "flags wildcard Control UI origins by exposure level when exposed",
+      name: "flags wildcard operator-client origins by exposure level when exposed",
       cfg: {
         gateway: {
           bind: "lan",

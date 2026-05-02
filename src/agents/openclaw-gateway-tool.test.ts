@@ -461,7 +461,7 @@ describe("gateway tool", () => {
     );
   });
 
-  it("rejects config.patch that enables allowInsecureAuth on control UI", async () => {
+  it("rejects config.patch that enables allowInsecureAuth on operator clients", async () => {
     const tool = requireGatewayTool();
 
     await expect(

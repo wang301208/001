@@ -208,17 +208,17 @@ describe("resolveGatewayRuntimeConfig", () => {
 
     it.each([
       {
-        name: "rejects non-loopback control UI when allowed origins are missing",
+        name: "allows non-loopback gateway with auth when operator origins are missing",
         cfg: {
           gateway: {
             bind: "lan" as const,
             auth: TOKEN_AUTH,
           },
         },
-        expectedError: "non-loopback Control UI requires gateway.controlUi.allowedOrigins",
+        expectedBindHost: "0.0.0.0",
       },
       {
-        name: "allows non-loopback control UI without allowed origins when dangerous fallback is enabled",
+        name: "allows non-loopback operator client without allowed origins when dangerous fallback is enabled",
         cfg: {
           gateway: {
             bind: "lan" as const,
@@ -231,7 +231,7 @@ describe("resolveGatewayRuntimeConfig", () => {
         expectedBindHost: "0.0.0.0",
       },
       {
-        name: "allows non-loopback control UI when allowed origins collapse after trimming",
+        name: "allows non-loopback operator client when allowed origins collapse after trimming",
         cfg: {
           gateway: {
             bind: "lan" as const,
@@ -243,13 +243,7 @@ describe("resolveGatewayRuntimeConfig", () => {
         },
         expectedBindHost: "0.0.0.0",
       },
-    ])("$name", async ({ cfg, expectedError, expectedBindHost }) => {
-      if (expectedError) {
-        await expect(resolveGatewayRuntimeConfig({ cfg, port: 18789 })).rejects.toThrow(
-          expectedError,
-        );
-        return;
-      }
+    ])("$name", async ({ cfg, expectedBindHost }) => {
       const result = await resolveGatewayRuntimeConfig({ cfg, port: 18789 });
       expect(result.bindHost).toBe(expectedBindHost);
     });
@@ -276,15 +270,15 @@ describe("resolveGatewayRuntimeConfig", () => {
       expect(result.bindHost).toBe("0.0.0.0");
     });
 
-    it("rejects container auto-bind with auth but without allowedOrigins (origin check preserved)", async () => {
+    it("allows container auto-bind with auth but without allowedOrigins because browser UI is not hosted", async () => {
       const fs = require("node:fs");
       vi.spyOn(fs, "accessSync").mockImplementation(() => undefined); // /.dockerenv exists
-      await expect(
-        resolveGatewayRuntimeConfig({
-          cfg: { gateway: { auth: TOKEN_AUTH } },
-          port: 18789,
-        }),
-      ).rejects.toThrow(/non-loopback Control UI requires gateway\.controlUi\.allowedOrigins/);
+      const result = await resolveGatewayRuntimeConfig({
+        cfg: { gateway: { auth: TOKEN_AUTH } },
+        port: 18789,
+      });
+      expect(result.bindHost).toBe("0.0.0.0");
+      expect(result.controlUiEnabled).toBe(false);
     });
 
     it("rejects container auto-bind without auth (security invariant preserved)", async () => {

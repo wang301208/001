@@ -159,7 +159,7 @@ describe("handshake auth helpers", () => {
     ).toBe("direct_local");
   });
 
-  it("classifies Docker-published loopback Control UI as browser-container-local", () => {
+  it("classifies Docker-published loopback operator client as browser-container-local", () => {
     const connectParams = {
       client: {
         id: GATEWAY_CLIENT_IDS.CONTROL_UI,
@@ -194,7 +194,7 @@ describe("handshake auth helpers", () => {
     ).toBe("browser_container_local");
   });
 
-  it("keeps Docker-published non-loopback Control UI origins remote", () => {
+  it("keeps Docker-published non-loopback operator-client origins remote", () => {
     const connectParams = {
       client: {
         id: GATEWAY_CLIENT_IDS.CONTROL_UI,

@@ -191,7 +191,7 @@ describe("configureGatewayForSetup", () => {
     expect(authConfig?.password).not.toBe("undefined");
   });
 
-  it("seeds control UI allowed origins for non-loopback binds", async () => {
+  it("seeds operator-client allowed origins for non-loopback binds", async () => {
     mocks.randomToken.mockReturnValue("generated-token");
     const result = await runGatewayConfig({
       bindChoice: "lan",

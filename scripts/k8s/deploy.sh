@@ -220,10 +220,10 @@ kubectl rollout status deployment/openclaw -n "$NS" --timeout=300s
 echo ""
 echo "Done. Access the gateway:"
 echo "  kubectl port-forward svc/openclaw 18789:18789 -n $NS"
-echo "  open http://localhost:18789"
+echo "  OPENCLAW_GATEWAY_URL=http://localhost:18789 OPENCLAW_GATEWAY_TOKEN=\$(kubectl get secret openclaw-secrets -n $NS -o jsonpath='{.data.OPENCLAW_GATEWAY_TOKEN}' | base64 -d) openclaw tui"
 echo ""
 if $SHOW_TOKEN; then
-  echo "Gateway token (paste into Control UI):"
+  echo "Gateway token (paste into TUI settings or OPENCLAW_GATEWAY_TOKEN):"
   echo "  $(kubectl get secret openclaw-secrets -n "$NS" -o jsonpath='{.data.OPENCLAW_GATEWAY_TOKEN}' | base64 -d)"
 echo ""
 fi

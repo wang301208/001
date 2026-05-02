@@ -425,10 +425,10 @@ export function collectGatewayConfigFindings(
       title: "Reverse proxy headers are not trusted",
       detail:
         "gateway.bind is loopback and gateway.trustedProxies is empty. " +
-        "If you expose the Control UI through a reverse proxy, configure trusted proxies " +
+        "If you expose operator clients through a reverse proxy, configure trusted proxies " +
         "so local-client checks cannot be spoofed.",
       remediation:
-        "Set gateway.trustedProxies to your proxy IPs or keep the Control UI local-only.",
+        "Set gateway.trustedProxies to your proxy IPs or keep operator clients local-only.",
     });
   }
 
@@ -439,8 +439,8 @@ export function collectGatewayConfigFindings(
       title: "Gateway auth missing on loopback",
       detail:
         "gateway.bind is loopback but no gateway auth secret is configured. " +
-        "If the Control UI is exposed through a reverse proxy, unauthenticated access is possible.",
-      remediation: "Set gateway.auth (token recommended) or keep the Control UI local-only.",
+        "If operator clients are exposed through a reverse proxy, unauthenticated access is possible.",
+      remediation: "Set gateway.auth (token recommended) or keep operator clients local-only.",
     });
   }
   if (
@@ -452,9 +452,9 @@ export function collectGatewayConfigFindings(
     findings.push({
       checkId: "gateway.control_ui.allowed_origins_required",
       severity: "critical",
-      title: "Non-loopback Control UI missing explicit allowed origins",
+      title: "Non-loopback operator client missing explicit allowed origins",
       detail:
-        "Control UI is enabled on a non-loopback bind but gateway.controlUi.allowedOrigins is empty. " +
+        "Operator client compatibility is enabled on a non-loopback bind but gateway.controlUi.allowedOrigins is empty. " +
         "Strict origin policy requires explicit allowed origins for non-loopback deployments.",
       remediation:
         "Set gateway.controlUi.allowedOrigins to full trusted origins (for example https://control.example.com). " +
@@ -466,9 +466,9 @@ export function collectGatewayConfigFindings(
     findings.push({
       checkId: "gateway.control_ui.allowed_origins_wildcard",
       severity: exposed ? "critical" : "warn",
-      title: "Control UI allowed origins contains wildcard",
+      title: "Operator client allowed origins contains wildcard",
       detail:
-        'gateway.controlUi.allowedOrigins includes "*" which means allow any browser origin for Control UI/WebChat requests. This disables origin allowlisting and should be treated as an intentional allow-all policy.',
+        'gateway.controlUi.allowedOrigins includes "*" which means allow any browser origin for operator/WebChat requests. This disables origin allowlisting and should be treated as an intentional allow-all policy.',
       remediation:
         'Replace wildcard origins with explicit trusted origins (for example https://control.example.com). Do not use "*" outside tightly controlled local testing.',
     });
@@ -481,7 +481,7 @@ export function collectGatewayConfigFindings(
       title: "DANGEROUS: Host-header origin fallback enabled",
       detail:
         "gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true enables Host-header origin fallback " +
-        "for Control UI/WebChat websocket checks and weakens DNS rebinding protections.",
+        "for operator/WebChat websocket checks and weakens DNS rebinding protections.",
       remediation:
         "Disable gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback and configure explicit gateway.controlUi.allowedOrigins.",
     });
@@ -541,9 +541,9 @@ export function collectGatewayConfigFindings(
     findings.push({
       checkId: "gateway.control_ui.insecure_auth",
       severity: "warn",
-      title: "Control UI insecure auth toggle enabled",
+      title: "Operator client insecure auth toggle enabled",
       detail:
-        "gateway.controlUi.allowInsecureAuth=true does not bypass secure context or device identity checks; only dangerouslyDisableDeviceAuth disables Control UI device identity checks.",
+        "gateway.controlUi.allowInsecureAuth=true does not bypass secure context or device identity checks; only dangerouslyDisableDeviceAuth disables operator-client device identity checks.",
       remediation: "Disable it or switch to HTTPS (Tailscale Serve) or localhost.",
     });
   }
@@ -552,9 +552,9 @@ export function collectGatewayConfigFindings(
     findings.push({
       checkId: "gateway.control_ui.device_auth_disabled",
       severity: "critical",
-      title: "DANGEROUS: Control UI device auth disabled",
+      title: "DANGEROUS: Operator client device auth disabled",
       detail:
-        "gateway.controlUi.dangerouslyDisableDeviceAuth=true disables device identity checks for the Control UI.",
+        "gateway.controlUi.dangerouslyDisableDeviceAuth=true disables device identity checks for operator clients.",
       remediation: "Disable it unless you are in a short-lived break-glass scenario.",
     });
   }

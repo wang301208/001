@@ -899,7 +899,7 @@ export function createAgentEventHandler({
     const eventForClients = chatLink ? { ...evt, runId: eventRunId } : evt;
     const isAborted =
       chatRunState.abortedRuns.has(clientRunId) || chatRunState.abortedRuns.has(evt.runId);
-    // Include sessionKey so Control UI can filter tool streams per session.
+    // Include sessionKey so operator clients can filter tool streams per session.
     const agentPayload = sessionKey ? { ...eventForClients, sessionKey } : eventForClients;
     const last = agentRunSeq.get(evt.runId) ?? 0;
     const isToolEvent = evt.stream === "tool";

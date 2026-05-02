@@ -95,7 +95,7 @@ export type GatewayControlUiConfig = {
    * Default off; prefer hosted /__openclaw__/canvas or /__openclaw__/a2ui content.
    */
   allowExternalEmbedUrls?: boolean;
-  /** Allowed browser origins for Control UI/WebChat websocket connections. */
+  /** Allowed browser origins for operator/WebChat websocket connections. */
   allowedOrigins?: string[];
   /**
    * DANGEROUS: Keep Host-header origin fallback behavior.
@@ -104,11 +104,11 @@ export type GatewayControlUiConfig = {
   dangerouslyAllowHostHeaderOriginFallback?: boolean;
   /**
    * Insecure-auth toggle.
-   * Control UI still requires secure context + device identity unless
+   * Operator clients still require secure context + device identity unless
    * dangerouslyDisableDeviceAuth is enabled.
    */
   allowInsecureAuth?: boolean;
-  /** DANGEROUS: Disable device identity checks for the Control UI (default: false). */
+  /** DANGEROUS: Disable device identity checks for operator clients (default: false). */
   dangerouslyDisableDeviceAuth?: boolean;
 };
 
@@ -171,7 +171,7 @@ export type GatewayAuthRateLimitConfig = {
 export type GatewayTailscaleMode = "off" | "serve" | "funnel";
 
 export type GatewayTailscaleConfig = {
-  /** Tailscale exposure mode for the Gateway control UI. */
+  /** Tailscale exposure mode for the Gateway operator surface. */
   mode?: GatewayTailscaleMode;
   /** Reset serve/funnel configuration on shutdown. */
   resetOnExit?: boolean;
@@ -396,7 +396,7 @@ export type GatewayConfig = {
    */
   mode?: "local" | "remote";
   /**
-   * Bind address policy for the Gateway WebSocket + Control UI HTTP server.
+   * Bind address policy for the Gateway WebSocket + HTTP server.
    * - auto: Loopback (127.0.0.1) if available, else 0.0.0.0 (fallback to all interfaces)
    * - lan: 0.0.0.0 (all interfaces, no fallback)
    * - loopback: 127.0.0.1 (local-only)

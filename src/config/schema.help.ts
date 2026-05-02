@@ -62,9 +62,9 @@ export const FIELD_HELP: Record<string, string> = {
     "Extra stable-channel rollout spread window in hours (default: 12).",
   "update.auto.betaCheckIntervalHours": "How often beta-channel checks run in hours (default: 1).",
   gateway:
-    "Gateway runtime surface for bind mode, auth, control UI, remote transport, and operational safety controls. Keep conservative defaults unless you intentionally expose the gateway beyond trusted local interfaces.",
+    "Gateway runtime surface for bind mode, auth, terminal/operator clients, remote transport, and operational safety controls. Keep conservative defaults unless you intentionally expose the gateway beyond trusted local interfaces.",
   "gateway.port":
-    "TCP port used by the gateway listener for API, control UI, and channel-facing ingress paths. Use a dedicated port and avoid collisions with reverse proxies or local developer services.",
+    "TCP port used by the gateway listener for API, terminal/operator clients, and channel-facing ingress paths. Use a dedicated port and avoid collisions with reverse proxies or local developer services.",
   "gateway.mode":
     'Gateway operation mode: "local" runs channels and agent runtime on this host, while "remote" connects through remote transport. Keep "local" unless you intentionally run a split remote gateway topology.',
   "gateway.bind":
@@ -403,17 +403,17 @@ export const FIELD_HELP: Record<string, string> = {
   "gateway.controlUi.basePath":
     "Legacy URL prefix retained for status and Tailscale compatibility. No browser assets are served.",
   "gateway.controlUi.embedSandbox":
-    'Iframe sandbox policy for hosted Control UI embeds. "strict" disables scripts, "scripts" allows interactive embeds while keeping origin isolation (default), and "trusted" adds `allow-same-origin` for same-site documents that intentionally need stronger privileges.',
+    'Iframe sandbox policy for hosted operator/webchat embeds. "strict" disables scripts, "scripts" allows interactive embeds while keeping origin isolation (default), and "trusted" adds `allow-same-origin` for same-site documents that intentionally need stronger privileges.',
   "gateway.controlUi.allowExternalEmbedUrls":
-    "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your Control UI intentionally embeds trusted third-party pages; hosted /__openclaw__/canvas and /__openclaw__/a2ui documents do not need it.",
+    "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__openclaw__/canvas and /__openclaw__/a2ui documents do not need it.",
   "gateway.controlUi.allowedOrigins":
-    'Allowed browser origins for Control UI/WebChat websocket connections (full origins only, e.g. https://control.example.com). Required for non-loopback Control UI deployments unless dangerous Host-header fallback is explicitly enabled. Setting ["*"] means allow any browser origin and should be avoided outside tightly controlled local testing.',
+    'Allowed browser origins for operator/WebChat websocket connections (full origins only, e.g. https://control.example.com). Required for non-loopback browser operator clients unless dangerous Host-header fallback is explicitly enabled. Setting ["*"] means allow any browser origin and should be avoided outside tightly controlled local testing.',
   "gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback":
-    "DANGEROUS toggle that enables Host-header based origin fallback for Control UI/WebChat websocket checks. This mode is supported when your deployment intentionally relies on Host-header origin policy; explicit gateway.controlUi.allowedOrigins remains the recommended hardened default.",
+    "DANGEROUS toggle that enables Host-header based origin fallback for operator/WebChat websocket checks. This mode is supported when your deployment intentionally relies on Host-header origin policy; explicit gateway.controlUi.allowedOrigins remains the recommended hardened default.",
   "gateway.controlUi.allowInsecureAuth":
-    "Loosens strict browser auth checks for Control UI when you must run a non-standard setup. Keep this off unless you trust your network and proxy path, because impersonation risk is higher.",
+    "Loosens strict browser auth checks for operator clients when you must run a non-standard setup. Keep this off unless you trust your network and proxy path, because impersonation risk is higher.",
   "gateway.controlUi.dangerouslyDisableDeviceAuth":
-    "Disables Control UI device identity checks and relies on token/password only. Use only for short-lived debugging on trusted networks, then turn it off immediately.",
+    "Disables operator-client device identity checks and relies on token/password only. Use only for short-lived debugging on trusted networks, then turn it off immediately.",
   "gateway.push":
     "Push-delivery settings used by the gateway when it needs to wake or notify paired devices. Configure relay-backed APNs here for official iOS builds; direct APNs auth remains env-based for local/manual builds.",
   "gateway.push.apns":
