@@ -16,6 +16,16 @@
 | `routing.*` | 网关/频道级别的路由配置 |
 | `providers.*` | `auth.profiles.<id>` |
 | `bot.name`、`bot.*` | `agents.defaults.*` |
+| `agent.*` | `agents.*` |
+| `memorySearch.*` | `agents.defaults.memorySearch.*` |
+| `heartbeat.*` | `agents.defaults.heartbeat.*` 或 `channels.defaults.heartbeat.*` |
+| `gateway.token` | `gateway.auth.token` |
+| `gateway.password` | `gateway.auth.password` |
+| `gateway.bind` 中的主机别名（如 `0.0.0.0`、`localhost`） | `gateway.bind=lan`、`loopback`、`custom`、`tailnet` 或 `auto` |
+| `agents.*.sandbox.perSession` | `agents.*.sandbox.scope` |
+| 顶级频道字段（如 `telegram.*`、`whatsapp.*`） | `channels.<channelId>.*` |
+| `tools.web.search.<provider>.*` | `plugins.entries.<provider>.config.webSearch.*` |
+| `tools.web.x_search.apiKey` | `plugins.entries.xai.config.webSearch.apiKey` |
 
 ---
 
@@ -43,7 +53,7 @@ openclaw doctor --fix
 
 ```bash
 # 查看当前配置文件路径
-openclaw config path
+openclaw config file
 
 # 打开编辑器
 $EDITOR ~/.openclaw/openclaw.json
@@ -176,7 +186,7 @@ openclaw configure --section web
 
 ## 回滚策略
 
-向导在修改配置前会自动创建快照（存储在 `~/.openclaw/.snapshots/`）。若迁移后出现问题，可通过以下方式回滚：
+向导在修改已有配置前会自动创建快照（存储在 `~/.openclaw/.snapshots/`）。若迁移后出现问题，可通过以下方式回滚：
 
 ```bash
 # 查看可用快照
@@ -186,12 +196,10 @@ openclaw config snapshots list
 openclaw config snapshots rollback <timestamp>
 ```
 
-也可以手动从快照目录中复制旧配置文件：
+也可以手动从快照目录中复制旧配置内容。快照文件包含 `{ timestamp, label, config }`，请将其中的 `config` 对象写回配置文件：
 
 ```bash
 ls ~/.openclaw/.snapshots/
-cp ~/.openclaw/.snapshots/config-snapshot-<timestamp>-<label>.json \
-   ~/.openclaw/openclaw.json
 ```
 
 ---
@@ -206,6 +214,6 @@ cp ~/.openclaw/.snapshots/config-snapshot-<timestamp>-<label>.json \
 
 部分旧版字段没有直接等价的新版字段，需要根据实际需求手动决定是否保留（删除或重新在新版路径下配置）。
 
-**Q: 环境变量 `OPENCLAW_*` 是否需要修改？**
+**Q: 配置向导是否继续识别旧字段或旧别名？**
 
-不需要。环境变量名称未发生变化，所有现有的 `OPENCLAW_GATEWAY_TOKEN`、`OPENCLAW_GATEWAY_PASSWORD` 等环境变量继续有效。
+不识别。向导只接受新项目语法；任何旧字段、旧别名或历史兼容路径都会被视为错误，需要删除或迁移到新版配置层级后再运行。

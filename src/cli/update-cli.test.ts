@@ -588,7 +588,7 @@ describe("update-cli", () => {
       },
       assert: () => {
         const logs = vi.mocked(defaultRuntime.log).mock.calls.map((call) => call[0]);
-        expect(logs.join("\n")).toContain("OpenClaw update status");
+        expect(logs.join("\n")).toContain("助手 update status");
       },
     },
     {

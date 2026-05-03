@@ -69,7 +69,7 @@ export async function buildStatusAllReportLines(params: {
   const tableWidth = getTerminalTableWidth();
 
   const lines: string[] = [];
-  lines.push(heading("OpenClaw status --all"));
+  lines.push(heading("助手 status --all"));
   appendStatusReportSections({
     lines,
     heading,

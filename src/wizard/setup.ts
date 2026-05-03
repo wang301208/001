@@ -19,9 +19,16 @@ import { defaultRuntime } from "../runtime.js";
 import { resolveUserPath } from "../utils.js";
 import { PRODUCT_NAME } from "./assistant-constants.js";
 import { WizardCancelledError, type WizardPrompter } from "./prompts.js";
+import { createSnapshot, saveConfigSnapshot } from "./rollback.js";
 import { resolveSetupSecretInputString } from "./setup.secret-input.js";
 import type { QuickstartGatewayDefaults, WizardFlow } from "./setup.types.js";
-import { detectConfigConflicts, formatValidationResult, validateWizardConfig } from "./validation.js";
+import { applyTemplate, findTemplate, templateSelectOptions } from "./templates.js";
+import {
+  detectConfigConflicts,
+  formatValidationResult,
+  validateWizardConfig,
+  validationResultToWizardIssues,
+} from "./validation.js";
 
 async function resolveAuthChoiceModelSelectionPolicy(params: {
   authChoice: string;
@@ -166,7 +173,9 @@ export async function runSetupWizard(
 
   // Strict validation: reject configs that contain legacy fields unsupported by this version.
   if (snapshot.exists && snapshot.valid) {
-    const validationResult = validateWizardConfig(baseConfig);
+    const validationResult = validateWizardConfig(baseConfig, {
+      legacyIssues: snapshot.legacyIssues,
+    });
     if (!validationResult.valid) {
       const formatted = formatValidationResult(validationResult);
       await prompter.note(formatted, "配置校验失败");
@@ -186,6 +195,42 @@ export async function runSetupWizard(
       );
     }
   }
+
+  const rollbackBaseConfig = structuredClone(baseConfig);
+  let rollbackSnapshotPath: string | undefined;
+  const ensureRollbackSnapshot = async () => {
+    if (rollbackSnapshotPath || !snapshot.exists || !snapshot.valid) {
+      return;
+    }
+    rollbackSnapshotPath = await saveConfigSnapshot(
+      createSnapshot(rollbackBaseConfig, "before-setup-wizard"),
+    );
+  };
+
+  const validateBeforeWrite = async (config: OpenClawConfig): Promise<boolean> => {
+    const validationResult = validateWizardConfig(config);
+    if (validationResult.valid) {
+      return true;
+    }
+    await prompter.showValidationErrors(
+      validationResultToWizardIssues(validationResult),
+      "写入前配置校验",
+    );
+    await prompter.outro(
+      `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重试。`,
+    );
+    runtime.exit(1);
+    return false;
+  };
+
+  const persistWizardConfig = async (config: OpenClawConfig): Promise<boolean> => {
+    if (!(await validateBeforeWrite(config))) {
+      return false;
+    }
+    await ensureRollbackSnapshot();
+    await writeConfigFile(config);
+    return true;
+  };
 
   const compatibilityNotices = snapshot.valid
     ? buildPluginCompatibilityNotices({ config: baseConfig })
@@ -281,15 +326,40 @@ export async function runSetupWizard(
     }
   }
 
+  let appliedInitializationTemplate = false;
+  if (Object.keys(baseConfig).length === 0) {
+    if (flow === "quickstart") {
+      const minimalTemplate = findTemplate("minimal");
+      if (minimalTemplate) {
+        baseConfig = applyTemplate(baseConfig, minimalTemplate);
+        appliedInitializationTemplate = true;
+      }
+    } else {
+      const templateId = await prompter.select({
+        message: "选择初始化模板",
+        options: templateSelectOptions(),
+        initialValue: opts.mode === "remote" ? "remote-gateway" : "minimal",
+      });
+      if (templateId !== "__skip__") {
+        const template = findTemplate(templateId);
+        if (template) {
+          baseConfig = applyTemplate(baseConfig, template);
+          appliedInitializationTemplate = true;
+        }
+      }
+    }
+  }
+
   const quickstartGateway: QuickstartGatewayDefaults = (() => {
     const hasExisting =
-      typeof baseConfig.gateway?.port === "number" ||
-      baseConfig.gateway?.bind !== undefined ||
-      baseConfig.gateway?.auth?.mode !== undefined ||
-      baseConfig.gateway?.auth?.token !== undefined ||
-      baseConfig.gateway?.auth?.password !== undefined ||
-      baseConfig.gateway?.customBindHost !== undefined ||
-      baseConfig.gateway?.tailscale?.mode !== undefined;
+      !appliedInitializationTemplate &&
+      (typeof baseConfig.gateway?.port === "number" ||
+        baseConfig.gateway?.bind !== undefined ||
+        baseConfig.gateway?.auth?.mode !== undefined ||
+        baseConfig.gateway?.auth?.token !== undefined ||
+        baseConfig.gateway?.auth?.password !== undefined ||
+        baseConfig.gateway?.customBindHost !== undefined ||
+        baseConfig.gateway?.tailscale?.mode !== undefined);
 
     const bindRaw = baseConfig.gateway?.bind;
     const bind =
@@ -494,7 +564,9 @@ export async function runSetupWizard(
       secretInputMode: opts.secretInputMode,
     });
     nextConfig = onboardHelpers.applyWizardMetadata(nextConfig, { command: "onboard", mode });
-    await writeConfigFile(nextConfig);
+    if (!(await persistWizardConfig(nextConfig))) {
+      return;
+    }
     logConfigUpdated(runtime);
     await prompter.outro("远程网关配置完成。");
     return;
@@ -650,7 +722,9 @@ export async function runSetupWizard(
     });
   }
 
-  await writeConfigFile(nextConfig);
+  if (!(await persistWizardConfig(nextConfig))) {
+    return;
+  }
   const { logConfigUpdated } = await import("../config/logging.js");
   logConfigUpdated(runtime);
   await onboardHelpers.ensureWorkspaceAndSessions(workspaceDir, runtime, {
@@ -687,7 +761,9 @@ export async function runSetupWizard(
   nextConfig = await setupInternalHooks(nextConfig, runtime, prompter);
 
   nextConfig = onboardHelpers.applyWizardMetadata(nextConfig, { command: "onboard", mode });
-  await writeConfigFile(nextConfig);
+  if (!(await persistWizardConfig(nextConfig))) {
+    return;
+  }
 
   const { finalizeSetupWizard } = await import("./setup.finalize.js");
   const { launchedTui } = await finalizeSetupWizard({

@@ -15,11 +15,13 @@ import { isPlainObject, resolveUserPath } from "../utils.js";
 import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
 import { createClackPrompter } from "../wizard/clack-prompter.js";
 import { WizardCancelledError } from "../wizard/prompts.js";
+import { createSnapshot, saveConfigSnapshot } from "../wizard/rollback.js";
 import { resolveSetupSecretInputString } from "../wizard/setup.secret-input.js";
 import {
   detectConfigConflicts,
   formatValidationResult,
   validateWizardConfig,
+  validationResultToWizardIssues,
 } from "../wizard/validation.js";
 import { removeChannelConfigWizard } from "./configure.channels.js";
 import { maybeInstallDaemon } from "./configure.daemon.js";
@@ -381,7 +383,9 @@ export async function runConfigureWizard(
       }
 
       // Strict validation: reject configs with legacy fields before allowing edits.
-      const validationResult = validateWizardConfig(baseConfig);
+      const validationResult = validateWizardConfig(baseConfig, {
+        legacyIssues: snapshot.legacyIssues,
+      });
       if (!validationResult.valid) {
         note(formatValidationResult(validationResult), "配置校验失败");
         outro(
@@ -404,6 +408,16 @@ export async function runConfigureWizard(
         );
       }
     }
+
+    let rollbackSnapshotPath: string | undefined;
+    const ensureRollbackSnapshot = async () => {
+      if (rollbackSnapshotPath || !snapshot.exists || !snapshot.valid) {
+        return;
+      }
+      rollbackSnapshotPath = await saveConfigSnapshot(
+        createSnapshot(baseConfig, "before-configure-wizard"),
+      );
+    };
 
     const localUrl = "ws://127.0.0.1:18789";
     const baseLocalProbeToken = await resolveGatewaySecretInputForWizard({
@@ -465,6 +479,19 @@ export async function runConfigureWizard(
         command: opts.command,
         mode,
       });
+      const validationResult = validateWizardConfig(remoteConfig);
+      if (!validationResult.valid) {
+        await prompter.showValidationErrors(
+          validationResultToWizardIssues(validationResult),
+          "写入前配置校验",
+        );
+        outro(
+          `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重试。`,
+        );
+        runtime.exit(1);
+        return;
+      }
+      await ensureRollbackSnapshot();
       await replaceConfigFile({
         nextConfig: remoteConfig,
         ...(currentBaseHash !== undefined ? { baseHash: currentBaseHash } : {}),
@@ -494,7 +521,7 @@ export async function runConfigureWizard(
       DEFAULT_WORKSPACE;
     let gatewayPort = resolveGatewayPort(baseConfig);
 
-    const persistConfig = async () => {
+    const persistConfig = async (): Promise<boolean> => {
       nextConfig = applyWizardMetadata(nextConfig, {
         command: opts.command,
         mode,
@@ -502,7 +529,21 @@ export async function runConfigureWizard(
 
       const maxRetries = 3;
       for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const validationResult = validateWizardConfig(nextConfig);
+        if (!validationResult.valid) {
+          await prompter.showValidationErrors(
+            validationResultToWizardIssues(validationResult),
+            "写入前配置校验",
+          );
+          outro(
+            `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重试。`,
+          );
+          runtime.exit(1);
+          return false;
+        }
+
         try {
+          await ensureRollbackSnapshot();
           await replaceConfigFile({
             nextConfig,
             ...(currentBaseHash !== undefined ? { baseHash: currentBaseHash } : {}),
@@ -513,7 +554,7 @@ export async function runConfigureWizard(
           mergeBaseConfig = structuredClone(nextConfig);
 
           logConfigUpdated(runtime);
-          return;
+          return true;
         } catch (err) {
           if (err instanceof ConfigMutationConflictError && attempt < maxRetries - 1) {
             const freshSnapshot = await readConfigFileSnapshot();
@@ -531,6 +572,7 @@ export async function runConfigureWizard(
           throw err;
         }
       }
+      return false;
     };
 
     const configureWorkspace = async () => {
@@ -653,7 +695,9 @@ export async function runConfigureWizard(
         nextConfig = await setupSkills(nextConfig, wsDir, runtime, prompter);
       }
 
-      await persistConfig();
+      if (!(await persistConfig())) {
+        return;
+      }
 
       if (selected.includes("daemon")) {
         if (!selected.includes("gateway")) {
@@ -679,17 +723,23 @@ export async function runConfigureWizard(
 
         if (choice === "workspace") {
           await configureWorkspace();
-          await persistConfig();
+          if (!(await persistConfig())) {
+            return;
+          }
         }
 
         if (choice === "model") {
           nextConfig = await promptAuthConfig(nextConfig, runtime, prompter);
-          await persistConfig();
+          if (!(await persistConfig())) {
+            return;
+          }
         }
 
         if (choice === "web") {
           nextConfig = await promptWebToolsConfig(nextConfig, runtime, prompter);
-          await persistConfig();
+          if (!(await persistConfig())) {
+            return;
+          }
         }
 
         if (choice === "gateway") {
@@ -697,12 +747,16 @@ export async function runConfigureWizard(
           nextConfig = gateway.config;
           gatewayPort = gateway.port;
           didConfigureGateway = true;
-          await persistConfig();
+          if (!(await persistConfig())) {
+            return;
+          }
         }
 
         if (choice === "channels") {
           await configureChannelsSection();
-          await persistConfig();
+          if (!(await persistConfig())) {
+            return;
+          }
         }
 
         if (choice === "plugins") {
@@ -712,13 +766,17 @@ export async function runConfigureWizard(
             prompter,
             workspaceDir: resolveUserPath(workspaceDir),
           });
-          await persistConfig();
+          if (!(await persistConfig())) {
+            return;
+          }
         }
 
         if (choice === "skills") {
           const wsDir = resolveUserPath(workspaceDir);
           nextConfig = await setupSkills(nextConfig, wsDir, runtime, prompter);
-          await persistConfig();
+          if (!(await persistConfig())) {
+            return;
+          }
         }
 
         if (choice === "daemon") {
@@ -738,7 +796,9 @@ export async function runConfigureWizard(
 
       if (!ranSection) {
         if (didSetGatewayMode) {
-          await persistConfig();
+          if (!(await persistConfig())) {
+            return;
+          }
           outro("网关模式已设置为本地。");
           return;
         }

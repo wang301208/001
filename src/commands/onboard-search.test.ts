@@ -167,6 +167,8 @@ function createPrompter(params: {
     text: vi.fn(async () => params.textValue ?? ""),
     confirm: vi.fn(async () => true),
     progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+    showValidationErrors: vi.fn(async () => {}),
+    showConfigDiff: vi.fn(async () => {}),
   };
   return { prompter, notes };
 }

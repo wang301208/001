@@ -26,6 +26,7 @@ import {
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
 import { note } from "../terminal/note.js";
+import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
 import { buildGatewayInstallPlan } from "./daemon-install-helpers.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME, type GatewayDaemonRuntime } from "./daemon-runtime.js";
 import { resolveGatewayAuthTokenForService } from "./doctor-gateway-auth-token.js";
@@ -461,7 +462,7 @@ export async function maybeScanExtraGatewayServices(
         note(failed.map((line) => `- ${line}`).join("\n"), "Legacy gateway cleanup skipped");
       }
       if (removed.length > 0) {
-        runtime.log("Legacy gateway services removed. Installing OpenClaw gateway next.");
+        runtime.log(`Legacy gateway services removed. Installing ${PRODUCT_NAME} gateway next.`);
       }
     }
   }

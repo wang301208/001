@@ -24,6 +24,12 @@ const mocks = vi.hoisted(() => {
     waitForGatewayReachable: vi.fn(),
     resolveGatewayLinks: vi.fn(),
     summarizeExistingConfig: vi.fn(),
+    createSnapshot: vi.fn((config: OpenClawConfig, label: string) => ({
+      timestamp: 1,
+      config: structuredClone(config),
+      label,
+    })),
+    saveConfigSnapshot: vi.fn(async () => "/tmp/config-snapshot.json"),
     isCodexNativeWebSearchRelevant: vi.fn(({ config }: { config: OpenClawConfig }) =>
       Boolean(config.auth?.profiles?.["openai-codex:default"]),
     ),
@@ -48,6 +54,11 @@ vi.mock("../config/config.js", () => ({
 
 vi.mock("../wizard/clack-prompter.js", () => ({
   createClackPrompter: mocks.createClackPrompter,
+}));
+
+vi.mock("../wizard/rollback.js", () => ({
+  createSnapshot: mocks.createSnapshot,
+  saveConfigSnapshot: mocks.saveConfigSnapshot,
 }));
 
 vi.mock("../terminal/note.js", () => ({
@@ -128,6 +139,8 @@ const EMPTY_CONFIG_SNAPSHOT = {
   valid: true,
   config: {},
   issues: [],
+  warnings: [],
+  legacyIssues: [],
 };
 
 function createRuntime() {
@@ -248,6 +261,79 @@ describe("runConfigureWizard", () => {
     await runConfigureWizard({ command: "configure" }, runtime);
 
     expect(runtime.exit).toHaveBeenCalledWith(1);
+  });
+
+  it("exits when a valid snapshot reports source legacy issues", async () => {
+    const runtime = createRuntime();
+    mocks.readConfigFileSnapshot.mockResolvedValue({
+      ...EMPTY_CONFIG_SNAPSHOT,
+      exists: true,
+      raw: "{}",
+      config: {
+        agents: { defaults: { memorySearch: { enabled: true } } },
+      },
+      sourceConfig: {
+        agents: { defaults: { memorySearch: { enabled: true } } },
+      },
+      legacyIssues: [{ path: "memorySearch", message: "legacy auto-migration" }],
+    });
+    mocks.summarizeExistingConfig.mockReturnValue("summary");
+
+    await runConfigureWizard({ command: "configure" }, runtime);
+
+    expect(runtime.exit).toHaveBeenCalledWith(1);
+    expect(mocks.note).toHaveBeenCalledWith(
+      expect.stringContaining("memorySearch"),
+      "配置校验失败",
+    );
+    expect(mocks.writeConfigFile).not.toHaveBeenCalled();
+  });
+
+  it("saves a rollback snapshot before writing over an existing config", async () => {
+    mocks.createSnapshot.mockClear();
+    mocks.saveConfigSnapshot.mockClear();
+    const existingConfig: OpenClawConfig = {
+      gateway: { mode: "local", bind: "loopback", auth: { mode: "token" } },
+    };
+    mocks.readConfigFileSnapshot.mockResolvedValue({
+      ...EMPTY_CONFIG_SNAPSHOT,
+      exists: true,
+      raw: "{}",
+      hash: "config-hash",
+      config: existingConfig,
+      sourceConfig: existingConfig,
+    });
+    mocks.resolveGatewayPort.mockReturnValue(18789);
+    mocks.probeGatewayReachable.mockResolvedValue({ ok: false });
+    mocks.resolveGatewayLinks.mockReturnValue({
+      httpUrl: "http://127.0.0.1:18789",
+      wsUrl: "ws://127.0.0.1:18789",
+    });
+    mocks.summarizeExistingConfig.mockReturnValue("summary");
+    mocks.createClackPrompter.mockReturnValue({
+      intro: vi.fn(async () => {}),
+      outro: vi.fn(async () => {}),
+      note: vi.fn(async () => {}),
+      select: vi.fn(async () => "firecrawl"),
+      multiselect: vi.fn(async () => []),
+      text: vi.fn(async () => ""),
+      confirm: vi.fn(async () => true),
+      progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+      showValidationErrors: vi.fn(async () => {}),
+      showConfigDiff: vi.fn(async () => {}),
+    });
+    queueWizardPrompts({
+      select: ["local"],
+      confirm: [],
+    });
+
+    await runConfigureWizard({ command: "configure", sections: ["workspace"] }, createRuntime());
+
+    expect(mocks.createSnapshot).toHaveBeenCalledWith(
+      existingConfig,
+      "before-configure-wizard",
+    );
+    expect(mocks.saveConfigSnapshot).toHaveBeenCalledOnce();
   });
 
   it("persists provider-owned web search config changes returned by setupSearch", async () => {

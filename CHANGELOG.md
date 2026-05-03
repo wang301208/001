@@ -9,9 +9,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Breaking Changes
 
-- **Legacy field rejection** — The wizard now refuses to start if the config file contains any
-  legacy top-level keys (`routing`, `providers`, `bot`). Run `openclaw doctor` to migrate
-  and remove those keys before re-running setup or configure.
+- **Legacy field rejection** — The wizard now refuses to start if the source config contains
+  removed or auto-migrated legacy keys, including `routing`, `providers`, `bot`, `agent`,
+  `memorySearch`, `heartbeat`, legacy top-level channel sections, legacy gateway auth aliases,
+  legacy gateway bind host aliases, sandbox `perSession`, and legacy provider-owned web search
+  config. Run `openclaw doctor` to migrate and remove those keys before re-running setup or
+  configure.
 
 - **Product name change** — All user-facing wizard text now uses the name "助手" instead of the
   previous project name. The CLI binary name and environment variable names are unchanged.
@@ -29,8 +32,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **`src/wizard/validation.ts`** — New config validation and conflict detection module.
   - `validateWizardConfig(config)` — returns `{ valid, errors, conflicts, warnings }` after
     checking for legacy fields, mutually-exclusive setting pairs, and missing required values.
+  - `validationResultToWizardIssues(result)` — converts validation output into
+    `WizardPrompter.showValidationErrors()` issues.
   - `detectConfigConflicts(config)` — returns only the list of conflicts.
-  - `hasLegacyFields(config)` — quick boolean check for legacy top-level keys.
+  - `hasLegacyFields(config, legacyIssues?)` — quick boolean check for legacy fields.
   - `formatValidationResult(result)` — formats a `ValidationResult` for display in wizard notes.
   - Known conflict rules: `tailscale-non-loopback-bind`, `tailscale-funnel-no-password`,
     `lan-bind-no-auth`, `remote-mode-with-local-only-settings`.
@@ -42,6 +47,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     mutating either input.
   - `findTemplate(id)` — look up a template by ID.
   - `templateSelectOptions()` — ready-to-use options list for a wizard `select` prompt.
+  - Templates now set `ui.assistant.name="助手"` and explicit `gateway.mode` defaults.
 
 - **`src/wizard/rollback.ts`** — Config snapshot and rollback strategy.
   - `createSnapshot(config, label)` — creates an in-memory snapshot with timestamp.
@@ -62,6 +68,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Conflict detection on startup** — `runSetupWizard` and `runConfigureWizard` now call
   `detectConfigConflicts` on the loaded base config and surface any conflicts as a note before
   wizard interaction begins.
+
+- **Write-time validation** — setup/configure now validate the final candidate config before
+  every write and block unsupported legacy fields or mutually-exclusive settings from being
+  persisted by the wizard.
+
+- **Rollback CLI** — `openclaw config snapshots list` and
+  `openclaw config snapshots rollback <timestamp>` expose wizard-created snapshots.
 
 - **Localized Chinese UI** — All user-facing wizard strings are now in Simplified Chinese,
   including section names, prompts, notes, and error messages.

@@ -34,7 +34,7 @@ describe("buildStatusCommandReportLines", () => {
     });
 
     expect(lines).toEqual([
-      "# OpenClaw status",
+      "# 助手 status",
       "",
       "# Overview",
       "table:Item:1",

@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { WizardCancelledError, type WizardProgress, type WizardPrompter } from "./prompts.js";
+import {
+  WizardCancelledError,
+  type WizardConfigDiffEntry,
+  type WizardProgress,
+  type WizardPrompter,
+  type WizardValidationIssue,
+} from "./prompts.js";
 
 export type WizardStepOption = {
   value: unknown;
@@ -150,6 +156,25 @@ class WizardSessionPrompter implements WizardPrompter {
       update: (_message) => {},
       stop: (_message) => {},
     };
+  }
+
+  async showValidationErrors(
+    issues: WizardValidationIssue[],
+    title = "配置检查",
+  ): Promise<void> {
+    await this.note(
+      issues.map((issue) => `${issue.severity}: ${issue.path}: ${issue.message}`).join("\n"),
+      title,
+    );
+  }
+
+  async showConfigDiff(entries: WizardConfigDiffEntry[], title = "配置变更预览"): Promise<void> {
+    await this.note(
+      entries
+        .map((entry) => `${entry.path}: ${String(entry.before)} -> ${String(entry.after)}`)
+        .join("\n"),
+      title,
+    );
   }
 
   private async prompt(step: Omit<WizardStep, "id">): Promise<unknown> {

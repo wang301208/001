@@ -3,6 +3,7 @@ import { resolveCommitHash } from "../../infra/git-commit.js";
 import { formatDocsLink } from "../../terminal/links.js";
 import { isRich, theme } from "../../terminal/theme.js";
 import { escapeRegExp } from "../../utils.js";
+import { PRODUCT_NAME } from "../../wizard/assistant-constants.js";
 import { hasFlag, hasRootVersionAlias } from "../argv.js";
 import { formatCliBannerLine, hasEmittedCliBanner } from "../banner.js";
 import { replaceCliName, resolveCliName } from "../cli-name.js";
@@ -116,7 +117,7 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
   ) {
     const commit = resolveCommitHash({ moduleUrl: import.meta.url });
     console.log(
-      commit ? `OpenClaw ${ctx.programVersion} (${commit})` : `OpenClaw ${ctx.programVersion}`,
+      commit ? `${PRODUCT_NAME} ${ctx.programVersion} (${commit})` : `${PRODUCT_NAME} ${ctx.programVersion}`,
     );
     process.exit(0);
   }

@@ -68,10 +68,10 @@ describe("agents set-identity command", () => {
   it("sets identity from workspace IDENTITY.md", async () => {
     const { root, workspace } = await createIdentityWorkspace();
     await writeIdentityFile(workspace, [
-      "- Name: OpenClaw",
+      "- Name: 助手",
       "- Creature: helpful sloth",
       "- Emoji: :)",
-      "- Avatar: avatars/openclaw.png",
+      "- Avatar: avatars/assistant.png",
       "",
     ]);
 
@@ -91,10 +91,10 @@ describe("agents set-identity command", () => {
 
     expect(configMocks.writeConfigFile).toHaveBeenCalledTimes(1);
     expect(getWrittenMainIdentity()).toEqual({
-      name: "OpenClaw",
+      name: "助手",
       theme: "helpful sloth",
       emoji: ":)",
-      avatar: "avatars/openclaw.png",
+      avatar: "avatars/assistant.png",
     });
   });
 
@@ -124,10 +124,10 @@ describe("agents set-identity command", () => {
   it("overrides identity file values with explicit flags", async () => {
     const { workspace } = await createIdentityWorkspace();
     await writeIdentityFile(workspace, [
-      "- Name: OpenClaw",
-      "- Theme: space lobster",
+      "- Name: 助手",
+      "- Theme: space helper",
       "- Emoji: :)",
-      "- Avatar: avatars/openclaw.png",
+      "- Avatar: avatars/assistant.png",
       "",
     ]);
 
@@ -141,7 +141,7 @@ describe("agents set-identity command", () => {
         workspace,
         fromIdentity: true,
         name: "Nova",
-        emoji: "🦞",
+        emoji: "🤖",
         avatar: "https://example.com/override.png",
       },
       runtime,
@@ -149,8 +149,8 @@ describe("agents set-identity command", () => {
 
     expect(getWrittenMainIdentity()).toEqual({
       name: "Nova",
-      theme: "space lobster",
-      emoji: "🦞",
+      theme: "space helper",
+      emoji: "🤖",
       avatar: "https://example.com/override.png",
     });
   });

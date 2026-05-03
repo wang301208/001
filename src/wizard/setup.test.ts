@@ -5,6 +5,7 @@ import type { ProviderPlugin } from "openclaw/plugin-sdk/provider-model-shared";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createWizardPrompter as buildWizardPrompter } from "../../test/helpers/wizard-prompter.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
+import type { OpenClawConfig } from "../config/types.openclaw.js";
 import type { PluginCompatibilityNotice } from "../plugins/status.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter, WizardSelectParams } from "./prompts.js";
@@ -54,7 +55,7 @@ const finalizeSetupWizard = vi.hoisted(() =>
     }
 
     const hatch = await options.prompter.select({
-      message: "How do you want to hatch your bot?",
+      message: "如何启动你的助手？",
       options: [],
     });
     if (hatch !== "tui") {
@@ -94,6 +95,14 @@ function providerPluginStub(
 const healthCommand = vi.hoisted(() => vi.fn(async () => {}));
 const ensureWorkspaceAndSessions = vi.hoisted(() => vi.fn(async () => {}));
 const writeConfigFile = vi.hoisted(() => vi.fn(async () => {}));
+const createSnapshot = vi.hoisted(() =>
+  vi.fn((config: OpenClawConfig, label: string) => ({
+    timestamp: 1,
+    config: structuredClone(config),
+    label,
+  })),
+);
+const saveConfigSnapshot = vi.hoisted(() => vi.fn(async () => "/tmp/config-snapshot.json"));
 const resolveGatewayPort = vi.hoisted(() =>
   vi.fn((_cfg?: unknown, env?: NodeJS.ProcessEnv) => {
     const raw = env?.OPENCLAW_GATEWAY_PORT ?? process.env.OPENCLAW_GATEWAY_PORT;
@@ -249,6 +258,11 @@ vi.mock("./setup.completion.js", () => ({
   setupWizardShellCompletion,
 }));
 
+vi.mock("./rollback.js", () => ({
+  createSnapshot,
+  saveConfigSnapshot,
+}));
+
 function createRuntime(opts?: { throwsOnExit?: boolean }): RuntimeEnv {
   if (opts?.throwsOnExit) {
     return {
@@ -389,6 +403,103 @@ describe("runSetupWizard", () => {
 
     expect(select).not.toHaveBeenCalled();
     expect(prompter.outro).toHaveBeenCalled();
+  });
+
+  it("exits when a valid snapshot reports source legacy issues", async () => {
+    writeConfigFile.mockClear();
+    readConfigFileSnapshot.mockResolvedValueOnce({
+      path: "/tmp/.openclaw/openclaw.json",
+      exists: true,
+      raw: "{}",
+      parsed: {},
+      resolved: {},
+      valid: true,
+      config: {
+        agents: { defaults: { memorySearch: { enabled: true } } },
+      },
+      issues: [],
+      warnings: [],
+      legacyIssues: [{ path: "memorySearch", message: "legacy auto-migration" }],
+    });
+
+    const select = vi.fn(
+      async (_params: WizardSelectParams<unknown>) => "quickstart",
+    ) as unknown as WizardPrompter["select"];
+    const note: WizardPrompter["note"] = vi.fn(async () => {});
+    const prompter = buildWizardPrompter({ note, select });
+    const runtime = createRuntime({ throwsOnExit: true });
+
+    await expect(
+      runSetupWizard(
+        {
+          acceptRisk: true,
+          flow: "quickstart",
+          authChoice: "skip",
+          installDaemon: false,
+          skipProviders: true,
+          skipSkills: true,
+          skipSearch: true,
+          skipHealth: true,
+          skipUi: true,
+        },
+        runtime,
+        prompter,
+      ),
+    ).rejects.toThrow("exit:1");
+
+    expect(select).not.toHaveBeenCalled();
+    expect(note).toHaveBeenCalledWith(expect.stringContaining("memorySearch"), "配置校验失败");
+    expect(writeConfigFile).not.toHaveBeenCalled();
+  });
+
+  it("saves a rollback snapshot before writing over an existing config", async () => {
+    createSnapshot.mockClear();
+    saveConfigSnapshot.mockClear();
+    writeConfigFile.mockClear();
+    const existingConfig: OpenClawConfig = {
+      gateway: { mode: "local", bind: "loopback", auth: { mode: "token" } },
+    } as OpenClawConfig;
+    readConfigFileSnapshot.mockResolvedValueOnce({
+      path: "/tmp/.openclaw/openclaw.json",
+      exists: true,
+      raw: "{}",
+      parsed: {},
+      resolved: existingConfig,
+      valid: true,
+      config: existingConfig,
+      issues: [],
+      warnings: [],
+      legacyIssues: [],
+    });
+
+    const select = vi.fn(async (opts: WizardSelectParams<unknown>) => {
+      if (opts.message === "配置处理方式") {
+        return "keep";
+      }
+      return "quickstart";
+    }) as unknown as WizardPrompter["select"];
+    const prompter = buildWizardPrompter({ select });
+    const runtime = createRuntime({ throwsOnExit: true });
+
+    await runSetupWizard(
+      {
+        acceptRisk: true,
+        flow: "quickstart",
+        authChoice: "skip",
+        installDaemon: false,
+        skipProviders: true,
+        skipSkills: true,
+        skipSearch: true,
+        skipHealth: true,
+        skipUi: true,
+      },
+      runtime,
+      prompter,
+    );
+
+    expect(createSnapshot).toHaveBeenCalledWith(existingConfig, "before-setup-wizard");
+    expect(saveConfigSnapshot).toHaveBeenCalledOnce();
+    expect(writeConfigFile).toHaveBeenCalled();
   });
 
   it("skips prompts and setup steps when flags are set", async () => {
@@ -766,7 +877,7 @@ describe("runSetupWizard", () => {
         (call) =>
           call?.[1] === "QuickStart" &&
           typeof call?.[0] === "string" &&
-          call[0].includes("Gateway port: 18791"),
+          call[0].includes("网关端口：18791"),
       ),
     ).toBe(true);
   });

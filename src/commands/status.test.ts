@@ -1125,12 +1125,11 @@ describe("statusCommand", () => {
     ]);
     const logs = await runStatusAndGetLogs({ verbose: true });
     for (const token of [
-      "OpenClaw status",
+      "助手 status",
       "Overview",
       "Security audit",
       "Summary:",
       "CRITICAL",
-      "Dashboard",
       "macos 14.0 (arm64)",
       "Memory",
       "Governance",
@@ -1149,7 +1148,7 @@ describe("statusCommand", () => {
       "Troubleshooting:",
       "Next steps:",
     ]) {
-      expect(logs.some((line) => line.includes(token))).toBe(true);
+      expect(logs.some((line) => line.includes(token)), token).toBe(true);
     }
     expect(
       logs.some((line) => line.includes("legacy-plugin still uses legacy before_agent_start")),

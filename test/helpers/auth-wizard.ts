@@ -32,6 +32,8 @@ export function createWizardPrompter(
     text: vi.fn(async () => "") as unknown as WizardPrompter["text"],
     confirm: vi.fn(async () => false),
     progress: vi.fn(() => ({ update: noop, stop: noop })),
+    showValidationErrors: vi.fn(noopAsync),
+    showConfigDiff: vi.fn(noopAsync),
     ...overrides,
   };
 }

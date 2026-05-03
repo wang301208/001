@@ -106,10 +106,16 @@ if (
     if (!isRootVersionInvocation(argv)) {
       return false;
     }
-    Promise.all([import("./version.js"), import("./infra/git-commit.js")])
-      .then(([{ VERSION }, { resolveCommitHash }]) => {
+    Promise.all([
+      import("./version.js"),
+      import("./infra/git-commit.js"),
+      import("./wizard/assistant-constants.js"),
+    ])
+      .then(([{ VERSION }, { resolveCommitHash }, { PRODUCT_NAME }]) => {
         const commit = resolveCommitHash({ moduleUrl: import.meta.url });
-        console.log(commit ? `OpenClaw ${VERSION} (${commit})` : `OpenClaw ${VERSION}`);
+        console.log(
+          commit ? `${PRODUCT_NAME} ${VERSION} (${commit})` : `${PRODUCT_NAME} ${VERSION}`,
+        );
         process.exit(0);
       })
       .catch((error) => {

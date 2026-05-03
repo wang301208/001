@@ -168,6 +168,8 @@ function createQueuedWizardPrompterHarness(textValues: string[]): {
       update: () => {},
       stop: () => {},
     }),
+    showValidationErrors: async () => {},
+    showConfigDiff: async () => {},
   };
   return { prompter, note, text };
 }

@@ -83,6 +83,8 @@ describe("applyTemplate", () => {
   it("applies template config on top of an empty base", () => {
     const template = findTemplate("minimal")!;
     const result = applyTemplate(emptyConfig(), template);
+    expect(result.ui?.assistant?.name).toBe("助手");
+    expect(result.gateway?.mode).toBe("local");
     expect(result.gateway?.bind).toBe("loopback");
     expect(result.gateway?.auth?.mode).toBe("token");
     expect(result.gateway?.tailscale?.mode).toBe("off");

@@ -130,12 +130,13 @@ type ConfigConflict = {
 
 ### 函数
 
-#### `validateWizardConfig(config: OpenClawConfig): ValidationResult`
+#### `validateWizardConfig(config: OpenClawConfig, opts?: { legacyIssues?: WizardLegacyIssue[] }): ValidationResult`
 
 对配置进行完整校验，检查：
-1. **旧版字段**（`routing`、`providers`、`bot`）→ error
+1. **旧版字段**（如 `routing`、`providers`、`bot`、`agent`、`memorySearch`、`heartbeat`、旧频道顶级字段、旧网关认证别名、旧搜索 provider 配置等）→ error
 2. **互斥配置对** → conflict
 3. **缺失必要配置** → warning
+4. **配置读取阶段报告的 `legacyIssues`** → error，用于拒绝已被读取层自动迁移但源文件仍包含旧语法的配置。
 
 ```typescript
 import { validateWizardConfig } from "./validation.js";
@@ -147,13 +148,17 @@ if (!result.valid) {
 }
 ```
 
+#### `validationResultToWizardIssues(result: ValidationResult): WizardValidationIssue[]`
+
+将校验结果转换为 `WizardPrompter.showValidationErrors()` 可直接渲染的结构化问题列表。
+
 #### `detectConfigConflicts(config: OpenClawConfig): ConfigConflict[]`
 
 仅检测并返回冲突列表，不检查旧版字段或缺失字段。
 
-#### `hasLegacyFields(config: OpenClawConfig): boolean`
+#### `hasLegacyFields(config: OpenClawConfig, legacyIssues?: WizardLegacyIssue[]): boolean`
 
-快速检查配置中是否包含任何旧版顶级字段。
+快速检查配置中是否包含任何旧版字段。可传入读取层报告的 `legacyIssues` 作为第二个参数。
 
 #### `formatValidationResult(result: ValidationResult): string`
 
@@ -269,6 +274,17 @@ if (!result.ok) {
 #### `pruneOldSnapshots(maxAgeMs: number, snapshotDir?: string): Promise<number>`
 
 删除早于 `maxAgeMs` 毫秒的快照文件，返回已删除的文件数。
+
+---
+
+### CLI 回滚入口
+
+向导会在覆盖已有配置前保存快照。用户可通过以下命令查看与恢复：
+
+```bash
+openclaw config snapshots list
+openclaw config snapshots rollback <timestamp>
+```
 
 ---
 

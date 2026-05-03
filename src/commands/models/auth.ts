@@ -33,6 +33,7 @@ import {
   normalizeStringifiedOptionalString,
 } from "../../shared/string-coerce.js";
 import { stylePromptHint, stylePromptMessage } from "../../terminal/prompt-style.js";
+import { PRODUCT_NAME } from "../../wizard/assistant-constants.js";
 import { createClackPrompter } from "../../wizard/clack-prompter.js";
 import { validateAnthropicSetupToken } from "../auth-token.js";
 import { isRemoteEnvironment } from "../oauth-env.js";
@@ -427,9 +428,9 @@ export async function modelsAuthPasteTokenCommand(
   logConfigUpdated(runtime);
   runtime.log(`Auth profile: ${profileId} (${provider}/token)`);
   if (provider === "anthropic") {
-    runtime.log("Anthropic setup-token auth is supported in OpenClaw.");
-    runtime.log("OpenClaw prefers Claude CLI reuse when it is available on the host.");
-    runtime.log("Anthropic staff told us this OpenClaw path is allowed again.");
+    runtime.log(`Anthropic setup-token auth is supported in ${PRODUCT_NAME}.`);
+    runtime.log(`${PRODUCT_NAME} prefers Claude CLI reuse when it is available on the host.`);
+    runtime.log(`Anthropic staff told us this ${PRODUCT_NAME} path is allowed again.`);
   }
 }
 

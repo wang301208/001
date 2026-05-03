@@ -17,6 +17,8 @@ function makePrompter(): WizardPrompter {
     text: async () => "",
     confirm: async () => false,
     progress: () => ({ update: () => {}, stop: () => {} }),
+    showValidationErrors: async () => {},
+    showConfigDiff: async () => {},
   };
 }
 

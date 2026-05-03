@@ -1,6 +1,7 @@
 import { resolveCommitHash } from "../infra/git-commit.js";
 import { visibleWidth } from "../terminal/ansi.js";
 import { isRich, theme } from "../terminal/theme.js";
+import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
 import { hasRootVersionAlias } from "./argv.js";
 import { parseTaglineMode, readCliBannerTaglineMode } from "./banner-config-lite.js";
 import { pickTagline, type TaglineMode, type TaglineOptions } from "./tagline.js";
@@ -13,22 +14,6 @@ type BannerOptions = TaglineOptions & {
 };
 
 let bannerEmitted = false;
-
-const graphemeSegmenter =
-  typeof Intl !== "undefined" && "Segmenter" in Intl
-    ? new Intl.Segmenter(undefined, { granularity: "grapheme" })
-    : null;
-
-function splitGraphemes(value: string): string[] {
-  if (!graphemeSegmenter) {
-    return Array.from(value);
-  }
-  try {
-    return Array.from(graphemeSegmenter.segment(value), (seg) => seg.segment);
-  } catch {
-    return Array.from(value);
-  }
-}
 
 const hasJsonFlag = (argv: string[]) =>
   argv.some((arg) => arg === "--json" || arg.startsWith("--json="));
@@ -50,8 +35,8 @@ export function formatCliBannerLine(version: string, options: BannerOptions = {}
   const commitLabel = commit ?? "unknown";
   const tagline = pickTagline({ ...options, mode: resolveTaglineMode(options) });
   const rich = options.richTty ?? isRich();
-  const title = "🦞 OpenClaw";
-  const prefix = "🦞 ";
+  const title = PRODUCT_NAME;
+  const prefix = `${PRODUCT_NAME} `;
   const columns = options.columns ?? process.stdout.columns ?? 120;
   const plainBaseLine = `${title} ${version} (${commitLabel})`;
   const plainFullLine = tagline ? `${plainBaseLine} — ${tagline}` : plainBaseLine;
@@ -85,45 +70,28 @@ export function formatCliBannerLine(version: string, options: BannerOptions = {}
   return `${line1}\n${line2}`;
 }
 
-const LOBSTER_ASCII = [
-  "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
-  "██░▄▄▄░██░▄▄░██░▄▄▄██░▀██░██░▄▄▀██░████░▄▄▀██░███░██",
-  "██░███░██░▀▀░██░▄▄▄██░█░█░██░█████░████░▀▀░██░█░█░██",
-  "██░▀▀▀░██░█████░▀▀▀██░██▄░██░▀▀▄██░▀▀░█░██░██▄▀▄▀▄██",
-  "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
-  "                  🦞 OPENCLAW 🦞                    ",
+const ASSISTANT_ASCII = [
+  "╭────────────────────────────────────────╮",
+  "│                  助手                  │",
+  "│        新项目语法 · 无旧字段兼容        │",
+  "╰────────────────────────────────────────╯",
   " ",
 ];
 
 export function formatCliBannerArt(options: BannerOptions = {}): string {
   const rich = options.richTty ?? isRich();
   if (!rich) {
-    return LOBSTER_ASCII.join("\n");
+    return ASSISTANT_ASCII.join("\n");
   }
 
-  const colorChar = (ch: string) => {
-    if (ch === "█") {
-      return theme.accentBright(ch);
+  const colored = ASSISTANT_ASCII.map((line) => {
+    if (line.includes(PRODUCT_NAME)) {
+      return theme.info(line);
     }
-    if (ch === "░") {
-      return theme.accentDim(ch);
+    if (line.includes("新项目语法")) {
+      return theme.accentDim(line);
     }
-    if (ch === "▀") {
-      return theme.accent(ch);
-    }
-    return theme.muted(ch);
-  };
-
-  const colored = LOBSTER_ASCII.map((line) => {
-    if (line.includes("OPENCLAW")) {
-      return (
-        theme.muted("              ") +
-        theme.accent("🦞") +
-        theme.info(" OPENCLAW ") +
-        theme.accent("🦞")
-      );
-    }
-    return splitGraphemes(line).map(colorChar).join("");
+    return theme.muted(line);
   });
 
   return colored.join("\n");

@@ -120,6 +120,8 @@ function createPrompter(params: {
       return confirmAnswers.shift() ?? false;
     }),
     progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+    showValidationErrors: vi.fn(async () => {}),
+    showConfigDiff: vi.fn(async () => {}),
   };
 
   return { prompter, notes };

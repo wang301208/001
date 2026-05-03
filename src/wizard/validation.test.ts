@@ -85,6 +85,71 @@ describe("validateWizardConfig", () => {
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThanOrEqual(2);
     });
+
+    it("flags legacy top-level agent config", () => {
+      const result = validateWizardConfig(cfg({ agent: { model: "old/model" } }));
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.path === "agent")).toBe(true);
+    });
+
+    it("flags legacy top-level channel config", () => {
+      const result = validateWizardConfig(cfg({ telegram: { botToken: "x" } }));
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.path === "telegram")).toBe(true);
+    });
+
+    it("flags legacy runtime aliases that may be auto-migrated during config read", () => {
+      const result = validateWizardConfig(
+        cfg({
+          memorySearch: { enabled: true },
+          heartbeat: { every: "30m" },
+        }),
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.path === "memorySearch")).toBe(true);
+      expect(result.errors.some((e) => e.path === "heartbeat")).toBe(true);
+    });
+
+    it("flags legacy gateway auth aliases", () => {
+      const result = validateWizardConfig(cfg({ gateway: { token: "old-token" } }));
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.path === "gateway.token")).toBe(true);
+    });
+
+    it("flags legacy gateway bind host aliases", () => {
+      const result = validateWizardConfig(cfg({ gateway: { bind: "0.0.0.0" } }));
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.path === "gateway.bind")).toBe(true);
+    });
+
+    it("flags legacy sandbox perSession aliases", () => {
+      const result = validateWizardConfig(
+        cfg({
+          agents: {
+            defaults: { sandbox: { perSession: true } },
+            list: [{ id: "main", sandbox: { perSession: false } }],
+          },
+        }),
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.path === "agents.*.sandbox.perSession")).toBe(true);
+    });
+
+    it("flags legacy provider-owned web search config", () => {
+      const result = validateWizardConfig(
+        cfg({ tools: { web: { search: { brave: { apiKey: "key" } } } } }),
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.path === "tools.web.search.<provider>")).toBe(true);
+    });
+
+    it("includes legacy issues reported by the config loader", () => {
+      const result = validateWizardConfig(cfg(), {
+        legacyIssues: [{ path: "agents.defaults.sandbox", message: "perSession is legacy" }],
+      });
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.path === "agents.defaults.sandbox")).toBe(true);
+    });
   });
 
   describe("conflict detection", () => {
@@ -178,6 +243,12 @@ describe("hasLegacyFields", () => {
 
   it("returns true when providers key is present", () => {
     expect(hasLegacyFields(cfg({ providers: {} }))).toBe(true);
+  });
+
+  it("returns true for loader-reported legacy issues", () => {
+    expect(
+      hasLegacyFields(cfg(), [{ path: "memorySearch", message: "legacy auto-migration" }]),
+    ).toBe(true);
   });
 
   it("returns false for a modern config with gateway.*", () => {

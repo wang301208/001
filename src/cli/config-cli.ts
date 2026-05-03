@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import JSON5 from "json5";
-import { readConfigFileSnapshot, replaceConfigFile } from "../config/config.js";
+import { readConfigFileSnapshot, replaceConfigFile, writeConfigFile } from "../config/config.js";
 import { formatConfigIssueLines, normalizeConfigIssues } from "../config/issue-format.js";
 import { CONFIG_PATH } from "../config/paths.js";
 import { isBlockedObjectKey } from "../config/prototype-keys.js";
@@ -40,6 +40,7 @@ import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { theme } from "../terminal/theme.js";
 import { shortenHomePath } from "../utils.js";
+import { listConfigSnapshots, rollbackToSnapshot } from "../wizard/rollback.js";
 import { formatCliCommand } from "./command-format.js";
 import type {
   ConfigSetDryRunError,
@@ -1323,6 +1324,61 @@ export async function runConfigValidate(opts: { json?: boolean; runtime?: Runtim
   }
 }
 
+export async function runConfigSnapshotsList(opts: {
+  json?: boolean;
+  runtime?: RuntimeEnv;
+} = {}) {
+  const runtime = opts.runtime ?? defaultRuntime;
+  try {
+    const snapshots = await listConfigSnapshots();
+    const rows = snapshots.map((snapshot) => ({
+      timestamp: snapshot.timestamp,
+      label: snapshot.label,
+    }));
+    if (opts.json) {
+      writeRuntimeJson(runtime, rows);
+      return;
+    }
+    if (rows.length === 0) {
+      runtime.log(info("No config snapshots found."));
+      return;
+    }
+    for (const row of rows) {
+      runtime.log(`${row.timestamp}\t${row.label}`);
+    }
+  } catch (err) {
+    runtime.error(danger(`Config snapshot list error: ${String(err)}`));
+    runtime.exit(1);
+  }
+}
+
+export async function runConfigSnapshotsRollback(opts: {
+  timestamp: string;
+  runtime?: RuntimeEnv;
+}) {
+  const runtime = opts.runtime ?? defaultRuntime;
+  try {
+    const requestedTimestamp = opts.timestamp.trim();
+    const snapshots = await listConfigSnapshots();
+    const snapshot = snapshots.find((entry) => String(entry.timestamp) === requestedTimestamp);
+    if (!snapshot) {
+      runtime.error(danger(`Config snapshot not found: ${requestedTimestamp}`));
+      runtime.exit(1);
+      return;
+    }
+    const result = await rollbackToSnapshot(snapshot, writeConfigFile);
+    if (!result.ok) {
+      runtime.error(danger(`Config rollback failed: ${result.reason}`));
+      runtime.exit(1);
+      return;
+    }
+    runtime.log(success(`Rolled back config to snapshot ${snapshot.timestamp} (${snapshot.label}).`));
+  } catch (err) {
+    runtime.error(danger(`Config rollback error: ${String(err)}`));
+    runtime.exit(1);
+  }
+}
+
 export function registerConfigCli(program: Command) {
   const cmd = program
     .command("config")
@@ -1460,5 +1516,25 @@ export function registerConfigCli(program: Command) {
     .option("--json", "Output validation result as JSON", false)
     .action(async (opts) => {
       await runConfigValidate({ json: Boolean(opts.json) });
+    });
+
+  const snapshots = cmd
+    .command("snapshots")
+    .description("List or restore configuration snapshots created by setup/configure wizards");
+
+  snapshots
+    .command("list")
+    .description("List available configuration snapshots")
+    .option("--json", "Output JSON", false)
+    .action(async (opts) => {
+      await runConfigSnapshotsList({ json: Boolean(opts.json) });
+    });
+
+  snapshots
+    .command("rollback")
+    .description("Restore a configuration snapshot by timestamp")
+    .argument("<timestamp>", "Snapshot timestamp from `openclaw config snapshots list`")
+    .action(async (timestamp: string) => {
+      await runConfigSnapshotsRollback({ timestamp });
     });
 }

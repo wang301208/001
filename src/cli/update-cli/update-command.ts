@@ -45,6 +45,7 @@ import { defaultRuntime } from "../../runtime.js";
 import { stylePromptMessage } from "../../terminal/prompt-style.js";
 import { theme } from "../../terminal/theme.js";
 import { pathExists } from "../../utils.js";
+import { PRODUCT_NAME } from "../../wizard/assistant-constants.js";
 import { replaceCliName, resolveCliName } from "../cli-name.js";
 import { formatCliCommand } from "../command-format.js";
 import { installCompletion } from "../completion-runtime.js";
@@ -87,16 +88,16 @@ const SERVICE_REFRESH_PATH_ENV_KEYS = [
 
 const UPDATE_QUIPS = [
   "Leveled up! New skills unlocked. You're welcome.",
-  "Fresh code, same lobster. Miss me?",
+  "Fresh code, same assistant. Miss me?",
   "Back and better. Did you even notice I was gone?",
   "Update complete. I learned some new tricks while I was out.",
   "Upgraded! Now with 23% more sass.",
   "I've evolved. Try to keep up.",
   "New version, who dis? Oh right, still me but shinier.",
-  "Patched, polished, and ready to pinch. Let's go.",
-  "The lobster has molted. Harder shell, sharper claws.",
+  "Patched, polished, and ready to help. Let's go.",
+  "The assistant has upgraded. Steadier hands, sharper checks.",
   "Update done! Check the changelog or just trust me, it's good.",
-  "Reborn from the boiling waters of npm. Stronger now.",
+  "Rebuilt from the warm waters of npm. Stronger now.",
   "I went away and came back smarter. You should try it sometime.",
   "Update complete. The bugs feared me, so they left.",
   "New version installed. Old version sends its regards.",
@@ -104,7 +105,7 @@ const UPDATE_QUIPS = [
   "I've seen things you wouldn't believe. Anyway, I'm updated.",
   "Back online. The changelog is long but our friendship is longer.",
   "Upgraded! Peter fixed stuff. Blame him if it breaks.",
-  "Molting complete. Please don't look at my soft shell phase.",
+  "Refresh complete. Please don't look too closely at my cache-warming phase.",
   "Version bump! Same chaos energy, fewer crashes (probably).",
 ];
 
@@ -1096,7 +1097,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     if (result.reason === "not-git-install") {
       defaultRuntime.log(
         theme.warn(
-          `Skipped: this OpenClaw install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\` and \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\`.`,
+          `Skipped: this ${PRODUCT_NAME} install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\` and \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\`.`,
         ),
       );
       defaultRuntime.log(

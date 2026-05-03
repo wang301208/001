@@ -1,4 +1,5 @@
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { WizardValidationIssue } from "./prompts.js";
 
 export type ValidationError = {
   path: string;
@@ -19,8 +20,13 @@ export type ValidationResult = {
   warnings: ValidationError[];
 };
 
+export type WizardLegacyIssue = {
+  path: string;
+  message: string;
+};
+
 /**
- * Legacy top-level keys that are no longer recognized.
+ * Legacy keys that are no longer recognized by the wizard.
  * Configs containing these keys must be migrated before the wizard can proceed.
  */
 const LEGACY_FIELD_PATHS: ReadonlyArray<{ path: string; replacement?: string; message: string }> = [
@@ -39,7 +45,79 @@ const LEGACY_FIELD_PATHS: ReadonlyArray<{ path: string; replacement?: string; me
     replacement: "agents.defaults",
     message: "Top-level bot.* is a legacy field; use agents.defaults instead.",
   },
+  {
+    path: "agent",
+    replacement: "agents",
+    message: "Top-level agent.* is a legacy field; use agents.* instead.",
+  },
+  {
+    path: "memorySearch",
+    replacement: "agents.defaults.memorySearch",
+    message: "Top-level memorySearch is a legacy field.",
+  },
+  {
+    path: "heartbeat",
+    replacement: "agents.defaults.heartbeat or channels.defaults.heartbeat",
+    message: "Top-level heartbeat is a legacy field.",
+  },
+  {
+    path: "gateway.token",
+    replacement: "gateway.auth.token",
+    message: "gateway.token is a legacy field.",
+  },
+  {
+    path: "gateway.password",
+    replacement: "gateway.auth.password",
+    message: "gateway.password is a legacy field.",
+  },
+  {
+    path: "tools.web.x_search.apiKey",
+    replacement: "plugins.entries.xai.config.webSearch.apiKey",
+    message: "tools.web.x_search.apiKey is a legacy field.",
+  },
+  {
+    path: "tools.web.search.apiKey",
+    replacement: "plugins.entries.<provider>.config.webSearch.apiKey",
+    message: "tools.web.search.apiKey is a legacy provider-owned field.",
+  },
 ];
+
+const LEGACY_TOP_LEVEL_CHANNEL_KEYS = [
+  "telegram",
+  "whatsapp",
+  "slack",
+  "discord",
+  "signal",
+  "imessage",
+  "msteams",
+  "googlechat",
+  "line",
+  "irc",
+  "nextcloudtalk",
+  "qqbot",
+] as const;
+
+const LEGACY_GATEWAY_BIND_HOST_ALIASES = new Set([
+  "0.0.0.0",
+  "::",
+  "[::]",
+  "*",
+  "127.0.0.1",
+  "localhost",
+  "::1",
+  "[::1]",
+]);
+
+const LEGACY_WEB_SEARCH_PROVIDER_KEYS = new Set([
+  "brave",
+  "firecrawl",
+  "google",
+  "perplexity",
+  "exa",
+  "serper",
+  "xai",
+  "grok",
+]);
 
 /** Conflicts: pairs of settings that cannot coexist. */
 const CONFLICT_RULES: ReadonlyArray<{
@@ -121,27 +199,137 @@ function hasLegacyField(config: OpenClawConfig, fieldPath: string): boolean {
   return cursor !== undefined;
 }
 
+function hasOwnRecordKey(value: unknown, key: string): boolean {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.prototype.hasOwnProperty.call(value, key),
+  );
+}
+
+function hasLegacySandboxPerSession(config: OpenClawConfig): boolean {
+  if (hasOwnRecordKey(config.agents?.defaults?.sandbox, "perSession")) {
+    return true;
+  }
+  const agents = config.agents?.list;
+  if (!Array.isArray(agents)) {
+    return false;
+  }
+  return agents.some((agent) => hasOwnRecordKey(agent?.sandbox, "perSession"));
+}
+
+function hasLegacyGatewayBindHostAlias(config: OpenClawConfig): boolean {
+  const bind = config.gateway?.bind;
+  return typeof bind === "string" && LEGACY_GATEWAY_BIND_HOST_ALIASES.has(bind.toLowerCase());
+}
+
+function hasLegacyProviderScopedWebSearch(config: OpenClawConfig): boolean {
+  const search = config.tools?.web?.search;
+  if (!search || typeof search !== "object") {
+    return false;
+  }
+  return Object.entries(search as Record<string, unknown>).some(
+    ([key, value]) =>
+      LEGACY_WEB_SEARCH_PROVIDER_KEYS.has(key) &&
+      value !== null &&
+      typeof value === "object" &&
+      !Array.isArray(value),
+  );
+}
+
+function pushLegacyError(
+  errors: ValidationError[],
+  path: string,
+  message: string,
+  replacement?: string,
+): void {
+  if (errors.some((err) => err.code === `legacy-field:${path}`)) {
+    return;
+  }
+  errors.push({
+    path,
+    code: `legacy-field:${path}`,
+    message: replacement ? `${message} Migrate to: ${replacement}.` : message,
+  });
+}
+
+function collectLegacyErrors(
+  config: OpenClawConfig,
+  externalLegacyIssues: readonly WizardLegacyIssue[] = [],
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const legacy of LEGACY_FIELD_PATHS) {
+    if (hasLegacyField(config, legacy.path)) {
+      pushLegacyError(errors, legacy.path, legacy.message, legacy.replacement);
+    }
+  }
+
+  for (const key of LEGACY_TOP_LEVEL_CHANNEL_KEYS) {
+    if (hasLegacyField(config, key)) {
+      pushLegacyError(
+        errors,
+        key,
+        `Top-level ${key}.* is a legacy channel field.`,
+        `channels.${key}`,
+      );
+    }
+  }
+
+  if (hasLegacyGatewayBindHostAlias(config)) {
+    pushLegacyError(
+      errors,
+      "gateway.bind",
+      "gateway.bind host aliases are legacy; use bind modes instead.",
+      "gateway.bind=lan, loopback, custom, tailnet, or auto",
+    );
+  }
+
+  if (hasLegacySandboxPerSession(config)) {
+    pushLegacyError(
+      errors,
+      "agents.*.sandbox.perSession",
+      "sandbox.perSession is a legacy field.",
+      "sandbox.scope",
+    );
+  }
+
+  if (hasLegacyProviderScopedWebSearch(config)) {
+    pushLegacyError(
+      errors,
+      "tools.web.search.<provider>",
+      "tools.web.search.<provider> provider-owned config is legacy.",
+      "plugins.entries.<provider>.config.webSearch",
+    );
+  }
+
+  for (const issue of externalLegacyIssues) {
+    if (!issue.path) {
+      continue;
+    }
+    pushLegacyError(errors, issue.path, issue.message);
+  }
+
+  return errors;
+}
+
+function hasAnyExternalLegacyIssue(legacyIssues: readonly WizardLegacyIssue[] = []): boolean {
+  return legacyIssues.some((issue) => issue.path.trim().length > 0);
+}
+
 /**
  * Validate a config against the current project schema.
  * Returns errors for legacy fields, conflicts between settings, and missing required values.
  * Warnings are non-blocking issues worth surfacing to the user.
  */
-export function validateWizardConfig(config: OpenClawConfig): ValidationResult {
-  const errors: ValidationError[] = [];
+export function validateWizardConfig(
+  config: OpenClawConfig,
+  opts: { legacyIssues?: readonly WizardLegacyIssue[] } = {},
+): ValidationResult {
+  const errors: ValidationError[] = collectLegacyErrors(config, opts.legacyIssues);
   const conflicts: ConfigConflict[] = [];
   const warnings: ValidationError[] = [];
-
-  for (const legacy of LEGACY_FIELD_PATHS) {
-    if (hasLegacyField(config, legacy.path)) {
-      errors.push({
-        path: legacy.path,
-        code: `legacy-field:${legacy.path}`,
-        message: legacy.replacement
-          ? `${legacy.message} Migrate to: ${legacy.replacement}.`
-          : legacy.message,
-      });
-    }
-  }
 
   for (const rule of CONFLICT_RULES) {
     if (rule.check(config)) {
@@ -185,8 +373,33 @@ export function detectConfigConflicts(config: OpenClawConfig): ConfigConflict[] 
 /**
  * Return true if the config contains any legacy (no longer supported) fields.
  */
-export function hasLegacyFields(config: OpenClawConfig): boolean {
-  return LEGACY_FIELD_PATHS.some((legacy) => hasLegacyField(config, legacy.path));
+export function hasLegacyFields(
+  config: OpenClawConfig,
+  legacyIssues: readonly WizardLegacyIssue[] = [],
+): boolean {
+  return collectLegacyErrors(config, legacyIssues).length > 0 || hasAnyExternalLegacyIssue(legacyIssues);
+}
+
+export function validationResultToWizardIssues(
+  result: ValidationResult,
+): WizardValidationIssue[] {
+  return [
+    ...result.errors.map((error) => ({
+      path: error.path,
+      message: error.message,
+      severity: "error" as const,
+    })),
+    ...result.conflicts.map((conflict) => ({
+      path: conflict.paths.join(", "),
+      message: conflict.message,
+      severity: "conflict" as const,
+    })),
+    ...result.warnings.map((warning) => ({
+      path: warning.path,
+      message: warning.message,
+      severity: "warning" as const,
+    })),
+  ];
 }
 
 /**
@@ -196,7 +409,7 @@ export function formatValidationResult(result: ValidationResult): string {
   const lines: string[] = [];
 
   if (result.errors.length > 0) {
-    lines.push("Errors (must fix before continuing):");
+    lines.push("错误（须修复后方可继续）：");
     for (const err of result.errors) {
       lines.push(`  ✗ ${err.path}: ${err.message}`);
     }
@@ -206,7 +419,7 @@ export function formatValidationResult(result: ValidationResult): string {
     if (lines.length > 0) {
       lines.push("");
     }
-    lines.push("Conflicts (incompatible settings):");
+    lines.push("冲突（互斥配置）：");
     for (const conflict of result.conflicts) {
       lines.push(`  ⚡ [${conflict.paths.join(", ")}]: ${conflict.message}`);
     }
@@ -216,7 +429,7 @@ export function formatValidationResult(result: ValidationResult): string {
     if (lines.length > 0) {
       lines.push("");
     }
-    lines.push("Warnings:");
+    lines.push("警告：");
     for (const warn of result.warnings) {
       lines.push(`  ⚠ ${warn.path}: ${warn.message}`);
     }

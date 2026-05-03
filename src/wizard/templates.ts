@@ -1,4 +1,5 @@
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+import { PRODUCT_NAME } from "./assistant-constants.js";
 
 export type WizardTemplate = {
   id: string;
@@ -20,7 +21,9 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     name: "最小化（本地回环）",
     description: "纯本地 loopback 网关，Token 认证，无 Tailscale。最低资源占用，适合单机个人使用。",
     config: {
+      ui: { assistant: { name: PRODUCT_NAME } },
       gateway: {
+        mode: "local",
         bind: "loopback",
         auth: { mode: "token" },
         tailscale: { mode: "off", resetOnExit: false },
@@ -32,7 +35,9 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     name: "局域网共享",
     description: "绑定至 0.0.0.0，局域网内可访问。强制 Token 认证以保护接入。",
     config: {
+      ui: { assistant: { name: PRODUCT_NAME } },
       gateway: {
+        mode: "local",
         bind: "lan",
         auth: { mode: "token" },
         tailscale: { mode: "off", resetOnExit: false },
@@ -45,7 +50,9 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     description:
       "通过 Tailscale Serve 将网关暴露至 Tailnet。需已安装并登录 Tailscale，gateway.bind 强制为 loopback。",
     config: {
+      ui: { assistant: { name: PRODUCT_NAME } },
       gateway: {
+        mode: "local",
         bind: "loopback",
         auth: { mode: "token" },
         tailscale: { mode: "serve", resetOnExit: true },
@@ -58,7 +65,9 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     description:
       "通过 Tailscale Funnel 将网关公开至公网。必须使用密码认证（funnel 要求）。请确保了解安全风险。",
     config: {
+      ui: { assistant: { name: PRODUCT_NAME } },
       gateway: {
+        mode: "local",
         bind: "loopback",
         auth: { mode: "password" },
         tailscale: { mode: "funnel", resetOnExit: true },
@@ -70,6 +79,7 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     name: "远程网关（仅客户端）",
     description: "本机作为远程网关的客户端，不在本地启动网关服务。",
     config: {
+      ui: { assistant: { name: PRODUCT_NAME } },
       gateway: {
         mode: "remote",
       },

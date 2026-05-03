@@ -22,6 +22,7 @@ import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
 import { CONFIG_DIR, shortenHomeInString, shortenHomePath, sleep } from "../utils.js";
 import { VERSION } from "../version.js";
+import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
 import type { NodeManagerChoice, OnboardMode, ResetScope } from "./onboard-types.js";
 export { randomToken } from "./random-token.js";
 
@@ -97,12 +98,10 @@ export function validateGatewayPasswordInput(value: unknown): string | undefined
 
 export function printWizardHeader(runtime: RuntimeEnv) {
   const header = [
-    "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
-    "██░▄▄▄░██░▄▄░██░▄▄▄██░▀██░██░▄▄▀██░████░▄▄▀██░███░██",
-    "██░███░██░▀▀░██░▄▄▄██░█░█░██░█████░████░▀▀░██░█░█░██",
-    "██░▀▀▀░██░█████░▀▀▀██░██▄░██░▀▀▄██░▀▀░█░██░██▄▀▄▀▄██",
-    "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
-    "                  🦞 OPENCLAW 🦞                    ",
+    "╭────────────────────────────────────────╮",
+    `│                  ${PRODUCT_NAME}                  │`,
+    "│        新项目语法 · 无旧字段兼容        │",
+    "╰────────────────────────────────────────╯",
     " ",
   ].join("\n");
   runtime.log(header);

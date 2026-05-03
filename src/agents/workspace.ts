@@ -58,7 +58,7 @@ Before large edits, inspect the relevant files and keep changes scoped.
 `,
   [DEFAULT_IDENTITY_FILENAME]: `# IDENTITY.md - Agent Identity
 
-Name: OpenClaw Workspace Agent
+Name: 助手 Workspace Agent
 Role: Repository-aware autonomous engineering assistant
 `,
   [DEFAULT_USER_FILENAME]: `# USER.md

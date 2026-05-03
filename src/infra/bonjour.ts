@@ -1,5 +1,6 @@
 import { logDebug, logWarn } from "../logger.js";
 import { getLogger } from "../logging.js";
+import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
 import { classifyCiaoUnhandledRejection } from "./bonjour-ciao.js";
 import { formatBonjourError } from "./bonjour-errors.js";
 import { isTruthyEnvValue } from "./env.js";
@@ -40,12 +41,15 @@ function isDisabledByEnv() {
 
 function safeServiceName(name: string) {
   const trimmed = name.trim();
-  return trimmed.length > 0 ? trimmed : "OpenClaw";
+  return trimmed.length > 0 ? trimmed : PRODUCT_NAME;
 }
 
 function prettifyInstanceName(name: string) {
   const normalized = name.trim().replace(/\s+/g, " ");
-  return normalized.replace(/\s+\(OpenClaw\)\s*$/i, "").trim() || normalized;
+  return (
+    normalized.replace(new RegExp(`\\s+\\(${PRODUCT_NAME}\\)\\s*$`, "i"), "").trim() ||
+    normalized
+  );
 }
 
 type BonjourService = import("@homebridge/ciao").CiaoService;
@@ -158,7 +162,7 @@ export async function startGatewayBonjourAdvertiser(
     const instanceName =
       typeof opts.instanceName === "string" && opts.instanceName.trim()
         ? opts.instanceName.trim()
-        : `${hostname} (OpenClaw)`;
+        : `${hostname} (${PRODUCT_NAME})`;
     const displayName = prettifyInstanceName(instanceName);
 
     const txtBase: Record<string, string> = {

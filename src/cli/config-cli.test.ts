@@ -18,6 +18,8 @@ const mockWriteConfigFile = vi.fn<
 >(async () => {});
 const mockResolveSecretRefValue = vi.fn();
 const mockReadBestEffortRuntimeConfigSchema = vi.fn();
+const mockListConfigSnapshots = vi.fn();
+const mockRollbackToSnapshot = vi.fn();
 
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
@@ -39,6 +41,11 @@ vi.mock("../secrets/resolve.js", () => ({
 
 vi.mock("../config/runtime-schema.js", () => ({
   readBestEffortRuntimeConfigSchema: () => mockReadBestEffortRuntimeConfigSchema(),
+}));
+
+vi.mock("../wizard/rollback.js", () => ({
+  listConfigSnapshots: () => mockListConfigSnapshots(),
+  rollbackToSnapshot: (...args: unknown[]) => mockRollbackToSnapshot(...args),
 }));
 
 const { defaultRuntime, resetRuntimeCapture } = createCliRuntimeCapture();
@@ -182,6 +189,8 @@ describe("config cli", () => {
       throw new Error(`__exit__:${code} - ${errorMessages}`);
     });
     mockResolveSecretRefValue.mockResolvedValue("resolved-secret");
+    mockListConfigSnapshots.mockResolvedValue([]);
+    mockRollbackToSnapshot.mockResolvedValue({ ok: true });
   });
 
   describe("config set - issue #6070", () => {
@@ -1669,6 +1678,47 @@ describe("config cli", () => {
       await runConfigCommand(["config", "file"]);
 
       expect(mockLog).toHaveBeenCalledWith("/home/user/.openclaw/openclaw.json");
+    });
+  });
+
+  describe("config snapshots", () => {
+    it("lists available rollback snapshots", async () => {
+      mockListConfigSnapshots.mockResolvedValueOnce([
+        { timestamp: 2000, label: "second", config: {} },
+        { timestamp: 1000, label: "first", config: {} },
+      ]);
+
+      await runConfigCommand(["config", "snapshots", "list"]);
+
+      expect(mockLog).toHaveBeenCalledWith("2000\tsecond");
+      expect(mockLog).toHaveBeenCalledWith("1000\tfirst");
+    });
+
+    it("rolls back to a snapshot by timestamp", async () => {
+      const snapshot = {
+        timestamp: 2000,
+        label: "before-setup-wizard",
+        config: { gateway: { mode: "local" } },
+      };
+      mockListConfigSnapshots.mockResolvedValueOnce([snapshot]);
+
+      await runConfigCommand(["config", "snapshots", "rollback", "2000"]);
+
+      expect(mockRollbackToSnapshot).toHaveBeenCalledWith(snapshot, expect.any(Function));
+      expect(mockLog).toHaveBeenCalledWith(
+        expect.stringContaining("Rolled back config to snapshot 2000"),
+      );
+    });
+
+    it("exits when a requested rollback snapshot is missing", async () => {
+      mockListConfigSnapshots.mockResolvedValueOnce([]);
+
+      await expect(
+        runConfigCommand(["config", "snapshots", "rollback", "404"]),
+      ).rejects.toThrow("__exit__:1");
+
+      expect(mockError).toHaveBeenCalledWith(expect.stringContaining("Config snapshot not found"));
+      expect(mockRollbackToSnapshot).not.toHaveBeenCalled();
     });
   });
 });

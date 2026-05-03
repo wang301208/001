@@ -70,9 +70,9 @@ describe("install.sh version resolution", () => {
   it.runIf(process.platform !== "win32")(
     "parses CLI versions and keeps stdin helpers isolated from cwd",
     () => {
-      const decorated = withFakeCli("OpenClaw 2026.3.10 (abcdef0)");
+      const decorated = withFakeCli("助手 2026.3.10 (abcdef0)");
       const raw = withFakeCli("OpenClaw dev's build");
-      const stdinFixture = withFakeCli("OpenClaw 2026.3.10 (abcdef0)");
+      const stdinFixture = withFakeCli("助手 2026.3.10 (abcdef0)");
 
       const hostileCwd = makeTempDir(tempRoots, "openclaw-install-stdin-");
       const hostileHelper = path.join(

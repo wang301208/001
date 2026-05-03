@@ -32,6 +32,8 @@ describe("onboard-hooks", () => {
       stop: vi.fn(),
       update: vi.fn(),
     }),
+    showValidationErrors: vi.fn().mockResolvedValue(undefined),
+    showConfigDiff: vi.fn().mockResolvedValue(undefined),
   });
 
   const createMockRuntime = (): RuntimeEnv => ({

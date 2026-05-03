@@ -16,6 +16,8 @@ type QueuedWizardPrompter = {
   text: AsyncUnknownMock;
   confirm: AsyncUnknownMock;
   progress: Mock<() => { update: UnknownMock; stop: UnknownMock }>;
+  showValidationErrors: AsyncUnknownMock;
+  showConfigDiff: AsyncUnknownMock;
   prompter: WizardPrompter;
 };
 
@@ -39,6 +41,8 @@ export function createTestWizardPrompter(overrides: Partial<WizardPrompter> = {}
     text: vi.fn(async () => "") as WizardPrompter["text"],
     confirm: vi.fn(async () => false),
     progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+    showValidationErrors: vi.fn(async () => {}),
+    showConfigDiff: vi.fn(async () => {}),
     ...overrides,
   };
 }
@@ -63,6 +67,8 @@ export function createQueuedWizardPrompter(params?: {
     update: vi.fn(),
     stop: vi.fn(),
   }));
+  const showValidationErrors = vi.fn(async () => undefined);
+  const showConfigDiff = vi.fn(async () => undefined);
 
   return {
     intro,
@@ -73,6 +79,8 @@ export function createQueuedWizardPrompter(params?: {
     text,
     confirm,
     progress,
+    showValidationErrors,
+    showConfigDiff,
     prompter: createTestWizardPrompter({
       intro,
       outro,
@@ -82,6 +90,8 @@ export function createQueuedWizardPrompter(params?: {
       text: text as WizardPrompter["text"],
       confirm,
       progress,
+      showValidationErrors,
+      showConfigDiff,
     }),
   };
 }

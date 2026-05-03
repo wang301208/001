@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getTailnetHostname } from "../infra/tailscale.js";
 import { runExec } from "../process/exec.js";
+import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
 
 export type ResolveBonjourCliPathOptions = {
   env?: NodeJS.ProcessEnv;
@@ -14,12 +15,12 @@ export type ResolveBonjourCliPathOptions = {
 export function formatBonjourInstanceName(displayName: string) {
   const trimmed = displayName.trim();
   if (!trimmed) {
-    return "OpenClaw";
+    return PRODUCT_NAME;
   }
-  if (/openclaw/i.test(trimmed)) {
+  if (trimmed.includes(PRODUCT_NAME)) {
     return trimmed;
   }
-  return `${trimmed} (OpenClaw)`;
+  return `${trimmed} (${PRODUCT_NAME})`;
 }
 
 export function resolveBonjourCliPath(opts: ResolveBonjourCliPathOptions = {}): string | undefined {

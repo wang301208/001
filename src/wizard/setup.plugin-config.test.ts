@@ -257,6 +257,8 @@ describe("setupPluginConfig", () => {
         text,
         confirm,
         progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+        showValidationErrors: vi.fn(async () => {}),
+        showConfigDiff: vi.fn(async () => {}),
       },
     });
 
@@ -322,6 +324,8 @@ describe("setupPluginConfig", () => {
         text: vi.fn(async () => ""),
         confirm: vi.fn(async () => true),
         progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+        showValidationErrors: vi.fn(async () => {}),
+        showConfigDiff: vi.fn(async () => {}),
       },
     });
 
@@ -375,6 +379,8 @@ describe("setupPluginConfig", () => {
         text: vi.fn(async () => "3") as unknown as WizardPrompter["text"],
         confirm: vi.fn(async () => true),
         progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+        showValidationErrors: vi.fn(async () => {}),
+        showConfigDiff: vi.fn(async () => {}),
       },
     });
 
