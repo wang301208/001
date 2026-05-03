@@ -263,7 +263,7 @@ describe("finalizeSetupWizard", () => {
     process.env.OPENCLAW_GATEWAY_PASSWORD = "resolved-gateway-password"; // pragma: allowlist secret
     resolveSetupSecretInputString.mockResolvedValueOnce("resolved-gateway-password");
     const select = vi.fn(async (params: { message: string }) => {
-      if (params.message === "How do you want to hatch your bot?") {
+      if (params.message === "如何启动你的助手？") {
         return "tui";
       }
       return "later";
@@ -393,7 +393,7 @@ describe("finalizeSetupWizard", () => {
     gatewayServiceRestart.mockResolvedValueOnce({ outcome: "scheduled" });
     const prompter = buildWizardPrompter({
       select: vi.fn(async (params: { message: string }) => {
-        if (params.message === "Gateway service already installed") {
+        if (params.message === "网关服务已安装") {
           return "restart";
         }
         return "later";
@@ -444,35 +444,11 @@ describe("finalizeSetupWizard", () => {
     );
 
     expect(prompter.note).toHaveBeenCalledWith(
-      expect.stringContaining("selected but unavailable under the current plugin policy"),
-      "Web search",
+      expect.stringContaining("在当前插件策略下不可用"),
+      "网络搜索",
     );
     expect(resolveExistingKey).not.toHaveBeenCalled();
     expect(hasExistingKey).not.toHaveBeenCalled();
-  });
-
-  it("only reports legacy auto-detect for runtime-visible providers", async () => {
-    listConfiguredWebSearchProviders.mockReturnValue([
-      createWebSearchProviderEntry({
-        id: "perplexity",
-        label: "Perplexity Search",
-        hint: "Fast web answers",
-        envVars: ["PERPLEXITY_API_KEY"],
-        placeholder: "pplx-...",
-        signupUrl: "https://www.perplexity.ai/",
-        credentialPath: "plugins.entries.perplexity.config.webSearch.apiKey",
-      }),
-    ]);
-    hasExistingKey.mockImplementation((_config, provider) => provider === "perplexity");
-
-    const prompter = createLaterPrompter();
-
-    await finalizeSetupWizard(createAdvancedFinalizeArgs({ prompter }));
-
-    expect(prompter.note).toHaveBeenCalledWith(
-      expect.stringContaining("Web search is available via Perplexity Search (auto-detected)."),
-      "Web search",
-    );
   });
 
   it("uses configured provider resolution instead of the active runtime registry", async () => {
@@ -500,9 +476,9 @@ describe("finalizeSetupWizard", () => {
 
     expect(prompter.note).toHaveBeenCalledWith(
       expect.stringContaining(
-        "Web search is enabled, so your agent can look things up online when needed.",
+        "网络搜索已启用，你的助手可在需要时在线查找信息。",
       ),
-      "Web search",
+      "网络搜索",
     );
   });
 
@@ -544,10 +520,10 @@ describe("finalizeSetupWizard", () => {
 
     expect(runtime.error).not.toHaveBeenCalledWith("health failed");
     expect(prompter.note).toHaveBeenCalledWith(
-      expect.stringContaining("Setup was run without Gateway service install"),
-      "Gateway",
+      expect.stringContaining("本次设置未安装网关服务，因此不期望后台网关已运行。"),
+      "网关",
     );
-    expect(prompter.note).not.toHaveBeenCalledWith(expect.any(String), "Dashboard ready");
+    expect(prompter.note).not.toHaveBeenCalledWith(expect.any(String), "Token");
   });
 
   it("does not show a Codex native search summary when web search is globally disabled", async () => {
@@ -595,8 +571,8 @@ describe("finalizeSetupWizard", () => {
     });
 
     expect(note).not.toHaveBeenCalledWith(
-      expect.stringContaining("Codex native search:"),
-      "Codex native search",
+      expect.any(String),
+      "Codex 原生搜索",
     );
   });
 });

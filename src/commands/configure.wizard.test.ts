@@ -186,6 +186,8 @@ function setupBaseWizardState(config: OpenClawConfig = {}) {
     text: vi.fn(async () => ""),
     confirm: vi.fn(async () => true),
     progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+    showValidationErrors: vi.fn(async () => {}),
+    showConfigDiff: vi.fn(async () => {}),
   });
 }
 
@@ -307,9 +309,9 @@ describe("runConfigureWizard", () => {
 
     expect(mocks.note).toHaveBeenCalledWith(
       expect.stringContaining(
-        "No web search providers are currently available under this plugin policy.",
+        "当前插件策略下没有可用的网络搜索提供商。",
       ),
-      "Web search",
+      "网络搜索",
     );
     expect(mocks.writeConfigFile).toHaveBeenCalledWith(
       expect.objectContaining({

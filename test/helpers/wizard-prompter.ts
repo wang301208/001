@@ -12,6 +12,8 @@ export function createWizardPrompter(overrides?: Partial<WizardPrompter>): Wizar
     text: vi.fn(async () => ""),
     confirm: vi.fn(async () => false),
     progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+    showValidationErrors: vi.fn(async () => {}),
+    showConfigDiff: vi.fn(async () => {}),
     ...overrides,
   };
 }

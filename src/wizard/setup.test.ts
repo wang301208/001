@@ -46,7 +46,7 @@ const configureGatewayForSetup = vi.hoisted(() =>
 const finalizeSetupWizard = vi.hoisted(() =>
   vi.fn(async (options) => {
     if (!options.nextConfig?.tools?.web?.search?.provider) {
-      await options.prompter.note("Web search was skipped.", "Web search");
+      await options.prompter.note("已跳过网络搜索。可稍后启用：", "网络搜索");
     }
 
     if (options.opts.skipUi) {
@@ -309,13 +309,13 @@ describe("runSetupWizard", () => {
 
     const caseDir = await makeCaseDir("provider-missing-id-");
     const select = vi.fn(async ({ message }: WizardSelectParams<unknown>) => {
-      if (message === "Select setup mode") {
+      if (message === "选择设置模式") {
         return "quickstart";
       }
       if (message === "Select channel (QuickStart)") {
         return "__skip__";
       }
-      if (message === "How do you want to hatch your bot?") {
+      if (message === "如何启动你的助手？") {
         return "skip";
       }
       return "skip";
@@ -436,7 +436,7 @@ describe("runSetupWizard", () => {
     }
 
     const select = vi.fn(async (opts: WizardSelectParams<unknown>) => {
-      if (opts.message === "How do you want to hatch your bot?") {
+      if (opts.message === "如何启动你的助手？") {
         return "tui";
       }
       return "quickstart";
@@ -505,7 +505,7 @@ describe("runSetupWizard", () => {
 
       const calls = getWizardNoteCalls(note);
       expect(calls.length).toBeGreaterThan(0);
-      expect(calls.some((call) => call?.[1] === "Web search")).toBe(true);
+      expect(calls.some((call) => call?.[1] === "网络搜索")).toBe(true);
     } finally {
       if (prevBraveKey === undefined) {
         delete process.env.BRAVE_API_KEY;
@@ -596,7 +596,7 @@ describe("runSetupWizard", () => {
 
     const note: WizardPrompter["note"] = vi.fn(async () => {});
     const select = vi.fn(async (opts: WizardSelectParams<unknown>) => {
-      if (opts.message === "Config handling") {
+      if (opts.message === "配置处理方式") {
         return "keep";
       }
       return "quickstart";
@@ -621,7 +621,7 @@ describe("runSetupWizard", () => {
     );
 
     const calls = getWizardNoteCalls(note);
-    expect(calls.some((call) => call?.[1] === "Plugin compatibility")).toBe(true);
+    expect(calls.some((call) => call?.[1] === "插件兼容性")).toBe(true);
     expect(
       calls.some((call) => {
         const body = call?.[0];
@@ -658,7 +658,7 @@ describe("runSetupWizard", () => {
       legacyIssues: [],
     });
     const select = vi.fn(async (opts: WizardSelectParams<unknown>) => {
-      if (opts.message === "Config handling") {
+      if (opts.message === "配置处理方式") {
         return "keep";
       }
       return "quickstart";

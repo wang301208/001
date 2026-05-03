@@ -34,6 +34,22 @@ export type WizardProgress = {
   stop: (message?: string) => void;
 };
 
+/** An individual validation issue shown in `showValidationErrors`. */
+export type WizardValidationIssue = {
+  /** Dot-separated config path the issue relates to (e.g. "gateway.auth.mode"). */
+  path: string;
+  message: string;
+  /** "error" blocks continuation; "conflict" is a mutually-exclusive pair; "warning" is advisory. */
+  severity: "error" | "conflict" | "warning";
+};
+
+/** A before/after config diff entry shown in `showConfigDiff`. */
+export type WizardConfigDiffEntry = {
+  path: string;
+  before: unknown;
+  after: unknown;
+};
+
 export type WizardPrompter = {
   intro: (title: string) => Promise<void>;
   outro: (message: string) => Promise<void>;
@@ -43,6 +59,10 @@ export type WizardPrompter = {
   text: (params: WizardTextParams) => Promise<string>;
   confirm: (params: WizardConfirmParams) => Promise<boolean>;
   progress: (label: string) => WizardProgress;
+  /** Display structured validation issues grouped by severity. */
+  showValidationErrors: (issues: WizardValidationIssue[], title?: string) => Promise<void>;
+  /** Display a before/after diff of config changes for user review. */
+  showConfigDiff: (entries: WizardConfigDiffEntry[], title?: string) => Promise<void>;
 };
 
 export class WizardCancelledError extends Error {

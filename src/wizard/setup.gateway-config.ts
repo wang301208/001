@@ -146,13 +146,13 @@ export async function configureGatewayForSetup(
   // - Tailscale wants bind=loopback so we never expose a non-loopback server + tailscale serve/funnel at once.
   // - Funnel requires password auth.
   if (tailscaleMode !== "off" && bind !== "loopback") {
-    await prompter.note("Tailscale requires bind=loopback. Adjusting bind to loopback.", "Note");
+    await prompter.note("Tailscale 要求 bind=loopback，已自动调整。", "提示");
     bind = "loopback";
     customBindHost = undefined;
   }
 
   if (tailscaleMode === "funnel" && authMode !== "password") {
-    await prompter.note("Tailscale funnel requires password auth.", "Note");
+    await prompter.note("Tailscale funnel 要求使用密码认证，已自动切换。", "提示");
     authMode = "password";
   }
 
@@ -173,11 +173,11 @@ export async function configureGatewayForSetup(
             prompter,
             explicitMode: opts.secretInputMode,
             copy: {
-              modeMessage: "How do you want to provide the gateway token?",
-              plaintextLabel: "Generate/store plaintext token",
-              plaintextHint: "Default",
-              refLabel: "Use SecretRef",
-              refHint: "Store a reference instead of plaintext",
+              modeMessage: "如何提供网关 Token？",
+              plaintextLabel: "生成/存储明文 Token",
+              plaintextHint: "默认",
+              refLabel: "使用 SecretRef",
+              refHint: "存储引用而非明文",
             },
           });
     if (tokenMode === "ref") {
@@ -196,7 +196,7 @@ export async function configureGatewayForSetup(
           prompter,
           preferredEnvVar: "OPENCLAW_GATEWAY_TOKEN",
           copy: {
-            sourceMessage: "Where is this gateway token stored?",
+            sourceMessage: "网关 Token 存储在哪里？",
             envVarPlaceholder: "OPENCLAW_GATEWAY_TOKEN",
           },
         });
@@ -210,8 +210,8 @@ export async function configureGatewayForSetup(
       gatewayTokenInput = gatewayToken;
     } else {
       const tokenInput = await prompter.text({
-        message: "Gateway token (blank to generate)",
-        placeholder: "Needed for multi-machine or non-loopback access",
+        message: "网关 Token（留空自动生成）",
+        placeholder: "多机或非 loopback 访问时必须设置",
         initialValue:
           quickstartTokenString ??
           normalizeGatewayTokenInput(process.env.OPENCLAW_GATEWAY_TOKEN) ??
@@ -230,9 +230,9 @@ export async function configureGatewayForSetup(
         prompter,
         explicitMode: opts.secretInputMode,
         copy: {
-          modeMessage: "How do you want to provide the gateway password?",
-          plaintextLabel: "Enter password now",
-          plaintextHint: "Stores the password directly in OpenClaw config",
+          modeMessage: "如何提供网关密码？",
+          plaintextLabel: "立即输入密码",
+          plaintextHint: "将密码直接存储在助手配置中",
         },
       });
       if (selectedMode === "ref") {
@@ -242,7 +242,7 @@ export async function configureGatewayForSetup(
           prompter,
           preferredEnvVar: "OPENCLAW_GATEWAY_PASSWORD",
           copy: {
-            sourceMessage: "Where is this gateway password stored?",
+            sourceMessage: "网关密码存储在哪里？",
             envVarPlaceholder: "OPENCLAW_GATEWAY_PASSWORD",
           },
         });

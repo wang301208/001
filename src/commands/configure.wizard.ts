@@ -12,9 +12,15 @@ import { defaultRuntime } from "../runtime.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { note } from "../terminal/note.js";
 import { isPlainObject, resolveUserPath } from "../utils.js";
+import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
 import { createClackPrompter } from "../wizard/clack-prompter.js";
 import { WizardCancelledError } from "../wizard/prompts.js";
 import { resolveSetupSecretInputString } from "../wizard/setup.secret-input.js";
+import {
+  detectConfigConflicts,
+  formatValidationResult,
+  validateWizardConfig,
+} from "../wizard/validation.js";
 import { removeChannelConfigWizard } from "./configure.channels.js";
 import { maybeInstallDaemon } from "./configure.daemon.js";
 import { promptAuthConfig } from "./configure.gateway-auth.js";
@@ -125,11 +131,11 @@ async function runGatewayHealthCheck(params: {
     params.runtime.error(formatHealthCheckFailure(err));
     note(
       [
-        "Docs:",
+        "文档：",
         "https://docs.openclaw.ai/gateway/health",
         "https://docs.openclaw.ai/gateway/troubleshooting",
       ].join("\n"),
-      "Health check help",
+      "健康检查帮助",
     );
   }
 }
@@ -140,13 +146,13 @@ async function promptConfigureSection(
 ): Promise<ConfigureSectionChoice> {
   return guardCancel(
     await select<ConfigureSectionChoice>({
-      message: "Select sections to configure",
+      message: "选择要配置的章节",
       options: [
         ...CONFIGURE_SECTION_OPTIONS,
         {
           value: "__continue",
-          label: "Continue",
-          hint: hasSelection ? "Done" : "Skip for now",
+          label: "继续",
+          hint: hasSelection ? "完成" : "暂时跳过",
         },
       ],
       initialValue: CONFIGURE_SECTION_OPTIONS[0]?.value,
@@ -158,17 +164,17 @@ async function promptConfigureSection(
 async function promptChannelMode(runtime: RuntimeEnv): Promise<ChannelsWizardMode> {
   return guardCancel(
     await select({
-      message: "Channels",
+      message: "频道",
       options: [
         {
           value: "configure",
-          label: "Configure/link",
-          hint: "Add/update channels; disable unselected accounts",
+          label: "配置/关联",
+          hint: "添加/更新频道；禁用未选中的账号",
         },
         {
           value: "remove",
-          label: "Remove channel config",
-          hint: "Delete channel tokens/settings from openclaw.json",
+          label: "移除频道配置",
+          hint: "从配置文件中删除频道 Token/设置",
         },
       ],
       initialValue: "configure",
@@ -191,16 +197,16 @@ async function promptWebToolsConfig(
 
   note(
     [
-      "Web search lets your agent look things up online using the `web_search` tool.",
-      "Choose a managed provider now, and Codex-capable models can also use native Codex web search.",
-      "Docs: https://docs.openclaw.ai/tools/web",
+      "网络搜索让你的助手能通过 web_search 工具在线查询信息。",
+      "选择一个托管提供商后，支持 Codex 的模型也可使用 Codex 原生网络搜索。",
+      "文档：https://docs.openclaw.ai/tools/web",
     ].join("\n"),
-    "Web search",
+    "网络搜索",
   );
 
   const enableSearch = guardCancel(
     await confirm({
-      message: "Enable web_search?",
+      message: "启用 web_search？",
       initialValue: existingSearch?.enabled ?? searchProviderOptions.length > 0,
     }),
     runtime,
@@ -219,19 +225,19 @@ async function promptWebToolsConfig(
     if (codexRelevant) {
       note(
         [
-          "Codex-capable models can optionally use native Codex web search.",
-          "Managed web_search still controls non-Codex models.",
-          "If no managed provider is configured, non-Codex models still rely on provider auto-detect and may have no search available.",
+          "支持 Codex 的模型可选择使用 Codex 原生网络搜索。",
+          "托管 web_search 仍控制非 Codex 模型。",
+          "如果未配置托管提供商，非 Codex 模型将依赖提供商自动检测，可能无法使用搜索。",
           ...(describeCodexNativeWebSearch(nextConfig)
             ? [describeCodexNativeWebSearch(nextConfig)!]
-            : ["Recommended mode: cached."]),
+            : ["推荐模式：cached（缓存）。"]),
         ].join("\n"),
-        "Codex native search",
+        "Codex 原生搜索",
       );
 
       const enableCodexNative = guardCancel(
         await confirm({
-          message: "Enable native Codex web search for Codex-capable models?",
+          message: "为支持 Codex 的模型启用原生 Codex 网络搜索？",
           initialValue: existingSearch?.openaiCodex?.enabled === true,
         }),
         runtime,
@@ -240,17 +246,17 @@ async function promptWebToolsConfig(
       if (enableCodexNative) {
         const codexMode = guardCancel(
           await select({
-            message: "Codex native web search mode",
+            message: "Codex 原生网络搜索模式",
             options: [
               {
                 value: "cached",
-                label: "cached (recommended)",
-                hint: "Uses cached web content",
+                label: "cached（推荐）",
+                hint: "使用缓存的网页内容",
               },
               {
                 value: "live",
                 label: "live",
-                hint: "Allows live external web access",
+                hint: "允许实时外部网络访问",
               },
             ],
             initialValue: existingSearch?.openaiCodex?.mode ?? "cached",
@@ -267,7 +273,7 @@ async function promptWebToolsConfig(
         };
         configureManagedProvider = guardCancel(
           await confirm({
-            message: "Configure or change a managed web search provider now?",
+            message: "现在配置或更换托管网络搜索提供商？",
             initialValue: Boolean(existingSearch?.provider),
           }),
           runtime,
@@ -287,11 +293,11 @@ async function promptWebToolsConfig(
       if (configureManagedProvider) {
         note(
           [
-            "No web search providers are currently available under this plugin policy.",
-            "Enable plugins or remove deny rules, then rerun configure.",
-            "Docs: https://docs.openclaw.ai/tools/web",
+            "当前插件策略下没有可用的网络搜索提供商。",
+            "启用插件或移除拒绝规则后重新运行配置。",
+            "文档：https://docs.openclaw.ai/tools/web",
           ].join("\n"),
-          "Web search",
+          "网络搜索",
         );
       }
       if (nextSearch.openaiCodex?.enabled !== true) {
@@ -315,7 +321,7 @@ async function promptWebToolsConfig(
 
   const enableFetch = guardCancel(
     await confirm({
-      message: "Enable web_fetch (keyless HTTP fetch)?",
+      message: "启用 web_fetch（无密钥 HTTP 抓取）？",
       initialValue: existingFetch?.enabled ?? true,
     }),
     runtime,
@@ -344,7 +350,7 @@ export async function runConfigureWizard(
   runtime: RuntimeEnv = defaultRuntime,
 ) {
   try {
-    intro(opts.command === "update" ? "OpenClaw update wizard" : "OpenClaw configure");
+    intro(opts.command === "update" ? `${PRODUCT_NAME} 更新向导` : `${PRODUCT_NAME} 配置`);
     const prompter = createClackPrompter();
 
     const snapshot = await readConfigFileSnapshot();
@@ -354,24 +360,48 @@ export async function runConfigureWizard(
       : {};
 
     if (snapshot.exists) {
-      const title = snapshot.valid ? "Existing config detected" : "Invalid config";
+      const title = snapshot.valid ? "检测到已有配置" : "配置无效";
       note(summarizeExistingConfig(baseConfig), title);
       if (!snapshot.valid && snapshot.issues.length > 0) {
         note(
           [
             ...snapshot.issues.map((iss) => `- ${iss.path}: ${iss.message}`),
             "",
-            "Docs: https://docs.openclaw.ai/gateway/configuration",
+            "文档：https://docs.openclaw.ai/gateway/configuration",
           ].join("\n"),
-          "Config issues",
+          "配置问题",
         );
       }
       if (!snapshot.valid) {
         outro(
-          `Config invalid. Run \`${formatCliCommand("openclaw doctor")}\` to repair it, then re-run configure.`,
+          `配置无效。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重新配置。`,
         );
         runtime.exit(1);
         return;
+      }
+
+      // Strict validation: reject configs with legacy fields before allowing edits.
+      const validationResult = validateWizardConfig(baseConfig);
+      if (!validationResult.valid) {
+        note(formatValidationResult(validationResult), "配置校验失败");
+        outro(
+          `检测到不支持的旧版配置字段。请运行 \`${formatCliCommand("openclaw doctor")}\` 迁移后重试。`,
+        );
+        runtime.exit(1);
+        return;
+      }
+
+      // Show detected conflicts as a non-blocking advisory note.
+      const conflicts = detectConfigConflicts(baseConfig);
+      if (conflicts.length > 0) {
+        await prompter.showValidationErrors(
+          conflicts.map((c) => ({
+            path: c.paths.join(", "),
+            message: c.message,
+            severity: "conflict" as const,
+          })),
+          "配置冲突检测",
+        );
       }
     }
 
@@ -406,23 +436,23 @@ export async function runConfigureWizard(
 
     const mode = guardCancel(
       await select({
-        message: "Where will the Gateway run?",
+        message: "网关运行在哪里？",
         options: [
           {
             value: "local",
-            label: "Local (this machine)",
+            label: "本地（此机器）",
             hint: localProbe.ok
-              ? `Gateway reachable (${localUrl})`
-              : `No gateway detected (${localUrl})`,
+              ? `网关可达（${localUrl}）`
+              : `未检测到网关（${localUrl}）`,
           },
           {
             value: "remote",
-            label: "Remote (info-only)",
+            label: "远程（仅信息配置）",
             hint: !remoteUrl
-              ? "No remote URL configured yet"
+              ? "尚未配置远程 URL"
               : remoteProbe?.ok
-                ? `Gateway reachable (${remoteUrl})`
-                : `Configured but unreachable (${remoteUrl})`,
+                ? `网关可达（${remoteUrl}）`
+                : `已配置但不可达（${remoteUrl}）`,
           },
         ],
       }),
@@ -441,7 +471,7 @@ export async function runConfigureWizard(
       });
       currentBaseHash = undefined;
       logConfigUpdated(runtime);
-      outro("Remote gateway configured.");
+      outro("远程网关配置完成。");
       return;
     }
 
@@ -470,7 +500,6 @@ export async function runConfigureWizard(
         mode,
       });
 
-      // Retry loop: if config was mutated by a plugin, re-read and merge before retry
       const maxRetries = 3;
       for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
@@ -479,7 +508,6 @@ export async function runConfigureWizard(
             ...(currentBaseHash !== undefined ? { baseHash: currentBaseHash } : {}),
           });
 
-          // After successful write, re-read the snapshot to get the new hash
           const freshSnapshot = await readConfigFileSnapshot();
           currentBaseHash = freshSnapshot.hash ?? undefined;
           mergeBaseConfig = structuredClone(nextConfig);
@@ -488,9 +516,6 @@ export async function runConfigureWizard(
           return;
         } catch (err) {
           if (err instanceof ConfigMutationConflictError && attempt < maxRetries - 1) {
-            // Config was mutated externally (e.g. plugin wrote token during auth setup).
-            // Re-read the on-disk config and merge plugin changes into nextConfig so
-            // the retry won't silently overwrite them.
             const freshSnapshot = await readConfigFileSnapshot();
             currentBaseHash = freshSnapshot.hash ?? undefined;
             const diskConfig = freshSnapshot.valid
@@ -511,7 +536,7 @@ export async function runConfigureWizard(
     const configureWorkspace = async () => {
       const workspaceInput = guardCancel(
         await text({
-          message: "Workspace directory",
+          message: "工作区目录",
           initialValue: workspaceDir,
         }),
         runtime,
@@ -538,10 +563,10 @@ export async function runConfigureWizard(
         if (hasExistingContent) {
           note(
             [
-              `Existing workspace detected at ${workspaceDir}`,
-              "Existing files are preserved. Missing templates may be created, never overwritten.",
+              `在 ${workspaceDir} 检测到已有工作区`,
+              "现有文件将被保留。缺失的模板可能会被创建，但不会被覆盖。",
             ].join("\n"),
-            "Existing workspace",
+            "已有工作区",
           );
         }
       }
@@ -576,9 +601,9 @@ export async function runConfigureWizard(
     const promptDaemonPort = async () => {
       const portInput = guardCancel(
         await text({
-          message: "Gateway port for service install",
+          message: "服务安装用网关端口",
           initialValue: String(gatewayPort),
-          validate: (value) => (Number.isFinite(Number(value)) ? undefined : "Invalid port"),
+          validate: (value) => (Number.isFinite(Number(value)) ? undefined : "无效端口"),
         }),
         runtime,
       );
@@ -588,7 +613,7 @@ export async function runConfigureWizard(
     if (opts.sections) {
       const selected = opts.sections;
       if (!selected || selected.length === 0) {
-        outro("No changes selected.");
+        outro("未选择任何变更。");
         return;
       }
 
@@ -714,10 +739,10 @@ export async function runConfigureWizard(
       if (!ranSection) {
         if (didSetGatewayMode) {
           await persistConfig();
-          outro("Gateway mode set to local.");
+          outro("网关模式已设置为本地。");
           return;
         }
-        outro("No changes selected.");
+        outro("未选择任何变更。");
         return;
       }
     }
@@ -763,20 +788,20 @@ export async function runConfigureWizard(
       });
     }
     const gatewayStatusLine = gatewayProbe.ok
-      ? "Gateway: reachable"
-      : `Gateway: not detected${gatewayProbe.detail ? ` (${gatewayProbe.detail})` : ""}`;
+      ? "网关：可达"
+      : `网关：未检测到${gatewayProbe.detail ? `（${gatewayProbe.detail}）` : ""}`;
 
     note(
       [
-        `Terminal UI: ${formatCliCommand("openclaw tui")}`,
-        `Gateway WS: ${links.wsUrl}`,
+        `终端界面：${formatCliCommand("openclaw tui")}`,
+        `网关 WS：${links.wsUrl}`,
         gatewayStatusLine,
-        "Docs: https://docs.openclaw.ai/gateway",
+        "文档：https://docs.openclaw.ai/gateway",
       ].join("\n"),
-      "Terminal",
+      "终端",
     );
 
-    outro("Configure complete.");
+    outro("配置完成。");
   } catch (err) {
     if (err instanceof WizardCancelledError) {
       runtime.exit(1);

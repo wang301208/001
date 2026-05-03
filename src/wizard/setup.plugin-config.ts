@@ -165,8 +165,8 @@ async function promptPluginFields(params: {
     // direct users to openclaw config set or the Web UI instead.
     if (hint.sensitive) {
       await prompter.note(
-        `"${label}" is sensitive. Set it via:\n  openclaw config set plugins.entries.${plugin.id}.config.${key} <value>\nor use the Web UI Settings page.`,
-        "Sensitive field",
+        `"${label}" 是敏感字段，请通过以下方式设置：\n  openclaw config set plugins.entries.${plugin.id}.config.${key} <值>\n或使用 Web 界面的设置页面。`,
+        "敏感字段",
       );
       continue;
     }
@@ -310,12 +310,12 @@ export async function setupPluginConfig(params: {
   }
 
   const selected = await params.prompter.multiselect({
-    message: "Configure plugins (select to set up now, or skip)",
+    message: "配置插件（选择立即设置，或跳过）",
     options: [
       {
         value: "__skip__",
-        label: "Skip for now",
-        hint: "Continue without configuring plugins",
+        label: "暂时跳过",
+        hint: "不配置插件，继续下一步",
       },
       ...unconfigured.map((p) => ({
         value: p.id,
@@ -331,7 +331,7 @@ export async function setupPluginConfig(params: {
     if (!plugin) {
       continue;
     }
-    await params.prompter.note(`Configure ${plugin.name}`, "Plugin setup");
+    await params.prompter.note(`配置 ${plugin.name}`, "插件设置");
     config = await promptPluginFields({
       plugin,
       config,
@@ -365,12 +365,12 @@ export async function configurePluginConfig(params: {
   });
 
   if (configurable.length === 0) {
-    await params.prompter.note("No plugins with configurable fields found.", "Plugins");
+    await params.prompter.note("未找到含有可配置字段的插件。", "插件");
     return params.config;
   }
 
   const selected = await params.prompter.select({
-    message: "Select plugin to configure",
+    message: "选择要配置的插件",
     options: [
       ...configurable.map((p) => {
         const existing = getExistingPluginConfig(params.config, p.id);
@@ -385,7 +385,7 @@ export async function configurePluginConfig(params: {
           hint: `${configuredCount}/${totalCount} configured`,
         };
       }),
-      { value: "__skip__", label: "Back", hint: "Return to section menu" },
+      { value: "__skip__", label: "返回", hint: "返回章节菜单" },
     ],
   });
 

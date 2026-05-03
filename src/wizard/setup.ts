@@ -17,9 +17,11 @@ import {
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { resolveUserPath } from "../utils.js";
+import { PRODUCT_NAME } from "./assistant-constants.js";
 import { WizardCancelledError, type WizardPrompter } from "./prompts.js";
 import { resolveSetupSecretInputString } from "./setup.secret-input.js";
 import type { QuickstartGatewayDefaults, WizardFlow } from "./setup.types.js";
+import { detectConfigConflicts, formatValidationResult, validateWizardConfig } from "./validation.js";
 
 async function resolveAuthChoiceModelSelectionPolicy(params: {
   authChoice: string;
@@ -87,39 +89,38 @@ async function requireRiskAcknowledgement(params: {
 
   await params.prompter.note(
     [
-      "Security warning — please read.",
+      "安全须知 — 请仔细阅读。",
       "",
-      "OpenClaw is a hobby project and still in beta. Expect sharp edges.",
-      "By default, OpenClaw is a personal agent: one trusted operator boundary.",
-      "This bot can read files and run actions if tools are enabled.",
-      "A bad prompt can trick it into doing unsafe things.",
+      `${PRODUCT_NAME} 目前处于测试阶段，请预期可能存在不稳定性。`,
+      `默认情况下，${PRODUCT_NAME} 是单用户个人代理，只有一个可信操作者边界。`,
+      "启用工具后，代理可以读取文件并执行操作。",
+      "恶意提示词可能诱导代理执行危险行为。",
       "",
-      "OpenClaw is not a hostile multi-tenant boundary by default.",
-      "If multiple users can message one tool-enabled agent, they share that delegated tool authority.",
+      `${PRODUCT_NAME} 默认不具备多租户隔离能力。`,
+      "若多名用户共用同一个启用了工具的代理，他们将共享该代理的操作权限。",
       "",
-      "If you’re not comfortable with security hardening and access control, don’t run OpenClaw.",
-      "Ask someone experienced to help before enabling tools or exposing it to the internet.",
+      "如果您不熟悉安全加固和访问控制，请勿将代理暴露给不可信的输入来源。",
+      "开启工具或将代理对外暴露前，请寻求有经验的人员协助。",
       "",
-      "Recommended baseline:",
-      "- Pairing/allowlists + mention gating.",
-      "- Multi-user/shared inbox: split trust boundaries (separate gateway/credentials, ideally separate OS users/hosts).",
-      "- Sandbox + least-privilege tools.",
-      "- Shared inboxes: isolate DM sessions (`session.dmScope: per-channel-peer`) and keep tool access minimal.",
-      "- Keep secrets out of the agent’s reachable filesystem.",
-      "- Use the strongest available model for any bot with tools or untrusted inboxes.",
+      "推荐安全基线：",
+      "- 配置配对/白名单 + 提及门控（mention gating）。",
+      "- 多用户/共享收件箱：拆分信任边界（分别使用独立网关/凭据，最好使用独立 OS 用户/主机）。",
+      "- 沙箱 + 最小权限工具。",
+      "- 共享收件箱：隔离 DM 会话（session.dmScope: per-channel-peer），并最小化工具访问权限。",
+      "- 将密钥保存在代理可访问文件系统之外。",
+      "- 对于带工具或不可信收件箱的代理，使用最强可用模型。",
       "",
-      "Run regularly:",
-      "openclaw security audit --deep",
-      "openclaw security audit --fix",
+      "定期运行安全审计：",
+      `${formatCliCommand("openclaw security audit --deep")}`,
+      `${formatCliCommand("openclaw security audit --fix")}`,
       "",
-      "Must read: https://docs.openclaw.ai/gateway/security",
+      "安全文档：https://docs.openclaw.ai/gateway/security",
     ].join("\n"),
-    "Security",
+    "安全须知",
   );
 
   const ok = await params.prompter.confirm({
-    message:
-      "I understand this is personal-by-default and shared/multi-user use requires lock-down. Continue?",
+    message: "我理解这是个人代理，共享/多用户场景需要额外安全加固。继续？",
     initialValue: false,
   });
   if (!ok) {
@@ -134,7 +135,7 @@ export async function runSetupWizard(
 ) {
   const onboardHelpers = await import("../commands/onboard-helpers.js");
   onboardHelpers.printWizardHeader(runtime);
-  await prompter.intro("OpenClaw setup");
+  await prompter.intro(`${PRODUCT_NAME} 设置`);
   await requireRiskAcknowledgement({ opts, prompter });
 
   const snapshot = await readConfigFileSnapshot();
@@ -145,22 +146,45 @@ export async function runSetupWizard(
     : {};
 
   if (snapshot.exists && !snapshot.valid) {
-    await prompter.note(onboardHelpers.summarizeExistingConfig(baseConfig), "Invalid config");
+    await prompter.note(onboardHelpers.summarizeExistingConfig(baseConfig), "配置无效");
     if (snapshot.issues.length > 0) {
       await prompter.note(
         [
           ...snapshot.issues.map((iss) => `- ${iss.path}: ${iss.message}`),
           "",
-          "Docs: https://docs.openclaw.ai/gateway/configuration",
+          "文档：https://docs.openclaw.ai/gateway/configuration",
         ].join("\n"),
-        "Config issues",
+        "配置问题",
       );
     }
     await prompter.outro(
-      `Config invalid. Run \`${formatCliCommand("openclaw doctor")}\` to repair it, then re-run setup.`,
+      `配置无效。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重新执行设置。`,
     );
     runtime.exit(1);
     return;
+  }
+
+  // Strict validation: reject configs that contain legacy fields unsupported by this version.
+  if (snapshot.exists && snapshot.valid) {
+    const validationResult = validateWizardConfig(baseConfig);
+    if (!validationResult.valid) {
+      const formatted = formatValidationResult(validationResult);
+      await prompter.note(formatted, "配置校验失败");
+      await prompter.outro(
+        `检测到不支持的旧版配置字段。请运行 \`${formatCliCommand("openclaw doctor")}\` 迁移后重试。`,
+      );
+      runtime.exit(1);
+      return;
+    }
+
+    // Show conflicts as warnings before proceeding (non-blocking — wizard will auto-resolve them).
+    const conflicts = detectConfigConflicts(baseConfig);
+    if (conflicts.length > 0) {
+      await prompter.showValidationErrors(
+        conflicts.map((c) => ({ path: c.paths.join(", "), message: c.message, severity: "conflict" as const })),
+        "配置冲突检测",
+      );
+    }
   }
 
   const compatibilityNotices = snapshot.valid
@@ -169,23 +193,23 @@ export async function runSetupWizard(
   if (compatibilityNotices.length > 0) {
     await prompter.note(
       [
-        `Detected ${compatibilityNotices.length} plugin compatibility notice${compatibilityNotices.length === 1 ? "" : "s"} in the current config.`,
+        `当前配置中检测到 ${compatibilityNotices.length} 条插件兼容性提示。`,
         ...compatibilityNotices
           .slice(0, 4)
           .map((notice) => `- ${formatPluginCompatibilityNotice(notice)}`),
         ...(compatibilityNotices.length > 4
-          ? [`- ... +${compatibilityNotices.length - 4} more`]
+          ? [`- ... 另有 ${compatibilityNotices.length - 4} 条`]
           : []),
         "",
-        `Review: ${formatCliCommand("openclaw doctor")}`,
-        `Inspect: ${formatCliCommand("openclaw plugins inspect --all")}`,
+        `检查：${formatCliCommand("openclaw doctor")}`,
+        `详情：${formatCliCommand("openclaw plugins inspect --all")}`,
       ].join("\n"),
-      "Plugin compatibility",
+      "插件兼容性",
     );
   }
 
-  const quickstartHint = `Configure details later via ${formatCliCommand("openclaw configure")}.`;
-  const manualHint = "Configure port, network, Tailscale, and auth options.";
+  const quickstartHint = `稍后可通过 ${formatCliCommand("openclaw configure")} 修改详细配置。`;
+  const manualHint = "配置端口、网络绑定、Tailscale 及认证选项。";
   const explicitFlowRaw = opts.flow?.trim();
   const normalizedExplicitFlow = explicitFlowRaw === "manual" ? "advanced" : explicitFlowRaw;
   if (
@@ -193,7 +217,7 @@ export async function runSetupWizard(
     normalizedExplicitFlow !== "quickstart" &&
     normalizedExplicitFlow !== "advanced"
   ) {
-    runtime.error("Invalid --flow (use quickstart, manual, or advanced).");
+    runtime.error("--flow 参数无效（可选值：quickstart、manual 或 advanced）。");
     runtime.exit(1);
     return;
   }
@@ -204,17 +228,17 @@ export async function runSetupWizard(
   let flow: WizardFlow =
     explicitFlow ??
     (await prompter.select({
-      message: "Setup mode",
+      message: "选择设置模式",
       options: [
-        { value: "quickstart", label: "QuickStart", hint: quickstartHint },
-        { value: "advanced", label: "Manual", hint: manualHint },
+        { value: "quickstart", label: "快速设置（QuickStart）", hint: quickstartHint },
+        { value: "advanced", label: "手动配置（Manual）", hint: manualHint },
       ],
       initialValue: "quickstart",
     }));
 
   if (opts.mode === "remote" && flow === "quickstart") {
     await prompter.note(
-      "QuickStart only supports local gateways. Switching to Manual mode.",
+      "快速设置仅支持本地网关，已自动切换至手动配置模式。",
       "QuickStart",
     );
     flow = "advanced";
@@ -223,15 +247,15 @@ export async function runSetupWizard(
   if (snapshot.exists) {
     await prompter.note(
       onboardHelpers.summarizeExistingConfig(baseConfig),
-      "Existing config detected",
+      "检测到已有配置",
     );
 
     const action = await prompter.select({
-      message: "Config handling",
+      message: "配置处理方式",
       options: [
-        { value: "keep", label: "Use existing values" },
-        { value: "modify", label: "Update values" },
-        { value: "reset", label: "Reset" },
+        { value: "keep", label: "保留现有值" },
+        { value: "modify", label: "更新值" },
+        { value: "reset", label: "重置" },
       ],
     });
 
@@ -239,16 +263,16 @@ export async function runSetupWizard(
       const workspaceDefault =
         baseConfig.agents?.defaults?.workspace ?? onboardHelpers.DEFAULT_WORKSPACE;
       const resetScope = (await prompter.select({
-        message: "Reset scope",
+        message: "重置范围",
         options: [
-          { value: "config", label: "Config only" },
+          { value: "config", label: "仅重置配置" },
           {
             value: "config+creds+sessions",
-            label: "Config + creds + sessions",
+            label: "配置 + 凭据 + 会话",
           },
           {
             value: "full",
-            label: "Full reset (config + creds + sessions + workspace)",
+            label: "完全重置（配置 + 凭据 + 会话 + 工作区）",
           },
         ],
       })) as ResetScope;
@@ -311,28 +335,28 @@ export async function runSetupWizard(
   if (flow === "quickstart") {
     const formatBind = (value: "loopback" | "lan" | "auto" | "custom" | "tailnet") => {
       if (value === "loopback") {
-        return "Loopback (127.0.0.1)";
+        return "本地回环（127.0.0.1）";
       }
       if (value === "lan") {
-        return "LAN";
+        return "局域网（LAN）";
       }
       if (value === "custom") {
-        return "Custom IP";
+        return "自定义 IP";
       }
       if (value === "tailnet") {
-        return "Tailnet (Tailscale IP)";
+        return "Tailnet（Tailscale IP）";
       }
-      return "Auto";
+      return "自动";
     };
     const formatAuth = (value: GatewayAuthChoice) => {
       if (value === "token") {
-        return "Token (default)";
+        return "Token（默认）";
       }
-      return "Password";
+      return "密码";
     };
     const formatTailscale = (value: "off" | "serve" | "funnel") => {
       if (value === "off") {
-        return "Off";
+        return "关闭";
       }
       if (value === "serve") {
         return "Serve";
@@ -341,22 +365,22 @@ export async function runSetupWizard(
     };
     const quickstartLines = quickstartGateway.hasExisting
       ? [
-          "Keeping your current gateway settings:",
-          `Gateway port: ${quickstartGateway.port}`,
-          `Gateway bind: ${formatBind(quickstartGateway.bind)}`,
+          "保留当前网关配置：",
+          `网关端口：${quickstartGateway.port}`,
+          `网关绑定：${formatBind(quickstartGateway.bind)}`,
           ...(quickstartGateway.bind === "custom" && quickstartGateway.customBindHost
-            ? [`Gateway custom IP: ${quickstartGateway.customBindHost}`]
+            ? [`自定义 IP：${quickstartGateway.customBindHost}`]
             : []),
-          `Gateway auth: ${formatAuth(quickstartGateway.authMode)}`,
-          `Tailscale exposure: ${formatTailscale(quickstartGateway.tailscaleMode)}`,
-          "Direct to chat channels.",
+          `网关认证：${formatAuth(quickstartGateway.authMode)}`,
+          `Tailscale 暴露：${formatTailscale(quickstartGateway.tailscaleMode)}`,
+          "直接进入频道配置。",
         ]
       : [
-          `Gateway port: ${quickstartGateway.port}`,
-          "Gateway bind: Loopback (127.0.0.1)",
-          "Gateway auth: Token (default)",
-          "Tailscale exposure: Off",
-          "Direct to chat channels.",
+          `网关端口：${quickstartGateway.port}`,
+          "网关绑定：本地回环（127.0.0.1）",
+          "网关认证：Token（默认）",
+          "Tailscale 暴露：关闭",
+          "直接进入频道配置。",
         ];
     await prompter.note(quickstartLines.join("\n"), "QuickStart");
   }
@@ -377,10 +401,10 @@ export async function runSetupWizard(
   } catch (error) {
     await prompter.note(
       [
-        "Could not resolve gateway.auth.token SecretRef for setup probe.",
+        "无法解析 gateway.auth.token SecretRef（用于设置探测）。",
         formatErrorMessage(error),
       ].join("\n"),
-      "Gateway auth",
+      "网关认证",
     );
   }
   let localGatewayPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
@@ -397,10 +421,10 @@ export async function runSetupWizard(
   } catch (error) {
     await prompter.note(
       [
-        "Could not resolve gateway.auth.password SecretRef for setup probe.",
+        "无法解析 gateway.auth.password SecretRef（用于设置探测）。",
         formatErrorMessage(error),
       ].join("\n"),
-      "Gateway auth",
+      "网关认证",
     );
   }
 
@@ -424,10 +448,10 @@ export async function runSetupWizard(
   } catch (error) {
     await prompter.note(
       [
-        "Could not resolve gateway.remote.token SecretRef for setup probe.",
+        "无法解析 gateway.remote.token SecretRef（用于设置探测）。",
         formatErrorMessage(error),
       ].join("\n"),
-      "Gateway auth",
+      "网关认证",
     );
   }
   const remoteProbe = remoteUrl
@@ -442,23 +466,23 @@ export async function runSetupWizard(
     (flow === "quickstart"
       ? "local"
       : ((await prompter.select({
-          message: "What do you want to set up?",
+          message: "要设置什么？",
           options: [
             {
               value: "local",
-              label: "Local gateway (this machine)",
+              label: "本地网关（此机器）",
               hint: localProbe.ok
-                ? `Gateway reachable (${localUrl})`
-                : `No gateway detected (${localUrl})`,
+                ? `网关可达（${localUrl}）`
+                : `未检测到网关（${localUrl}）`,
             },
             {
               value: "remote",
-              label: "Remote gateway (info-only)",
+              label: "远程网关（仅信息配置）",
               hint: !remoteUrl
-                ? "No remote URL configured yet"
+                ? "尚未配置远程 URL"
                 : remoteProbe?.ok
-                  ? `Gateway reachable (${remoteUrl})`
-                  : `Configured but unreachable (${remoteUrl})`,
+                  ? `网关可达（${remoteUrl}）`
+                  : `已配置但不可达（${remoteUrl}）`,
             },
           ],
         })) as OnboardMode));
@@ -472,7 +496,7 @@ export async function runSetupWizard(
     nextConfig = onboardHelpers.applyWizardMetadata(nextConfig, { command: "onboard", mode });
     await writeConfigFile(nextConfig);
     logConfigUpdated(runtime);
-    await prompter.outro("Remote gateway configured.");
+    await prompter.outro("远程网关配置完成。");
     return;
   }
 
@@ -481,7 +505,7 @@ export async function runSetupWizard(
     (flow === "quickstart"
       ? (baseConfig.agents?.defaults?.workspace ?? onboardHelpers.DEFAULT_WORKSPACE)
       : await prompter.text({
-          message: "Workspace directory",
+          message: "工作区目录",
           initialValue: baseConfig.agents?.defaults?.workspace ?? onboardHelpers.DEFAULT_WORKSPACE,
         }));
 
@@ -520,8 +544,6 @@ export async function runSetupWizard(
     });
     nextConfig = customResult.config;
   } else if (authChoice === "skip") {
-    // Explicit skip should stay cold: do not bootstrap auth/profile machinery
-    // or run model/auth checks when the caller already chose to skip setup.
     if (authChoiceFromPrompt) {
       const { applyPrimaryModel, promptDefaultModel } = await import("../commands/model-picker.js");
       const modelSelection = await promptDefaultModel({
@@ -608,7 +630,7 @@ export async function runSetupWizard(
   const settings = gateway.settings;
 
   if (opts.skipChannels ?? opts.skipProviders) {
-    await prompter.note("Skipping channel setup.", "Channels");
+    await prompter.note("跳过频道设置。", "频道");
   } else {
     const { listChannelPlugins } = await import("../channels/plugins/index.js");
     const { setupChannels } = await import("../commands/onboard-channels.js");
@@ -636,7 +658,7 @@ export async function runSetupWizard(
   });
 
   if (opts.skipSearch) {
-    await prompter.note("Skipping search setup.", "Search");
+    await prompter.note("跳过搜索设置。", "搜索");
   } else {
     const { setupSearch } = await import("../commands/onboard-search.js");
     nextConfig = await setupSearch(nextConfig, runtime, prompter, {
@@ -646,13 +668,12 @@ export async function runSetupWizard(
   }
 
   if (opts.skipSkills) {
-    await prompter.note("Skipping skills setup.", "Skills");
+    await prompter.note("跳过技能设置。", "技能");
   } else {
     const { setupSkills } = await import("../commands/onboard-skills.js");
     nextConfig = await setupSkills(nextConfig, workspaceDir, runtime, prompter);
   }
 
-  // Plugin configuration (sandbox backends, tool plugins, etc.)
   if (flow !== "quickstart") {
     const { setupPluginConfig } = await import("./setup.plugin-config.js");
     nextConfig = await setupPluginConfig({
@@ -662,7 +683,6 @@ export async function runSetupWizard(
     });
   }
 
-  // Setup hooks (session memory on /new)
   const { setupInternalHooks } = await import("../commands/onboard-hooks.js");
   nextConfig = await setupInternalHooks(nextConfig, runtime, prompter);
 
