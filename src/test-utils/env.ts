@@ -34,8 +34,8 @@ const PATH_RESOLUTION_ENV_KEYS = [
   "USERPROFILE",
   "HOMEDRIVE",
   "HOMEPATH",
-  "OPENCLAW_HOME",
-  "OPENCLAW_STATE_DIR",
+  "ZHUSHOU_HOME",
+  "ZHUSHOU_STATE_DIR",
   "OPENCLAW_BUNDLED_PLUGINS_DIR",
   "OPENCLAW_DISABLE_BUNDLED_PLUGINS",
 ] as const;
@@ -63,8 +63,8 @@ export function createPathResolutionEnv(
     ...process.env,
     HOME: resolvedHome,
     USERPROFILE: resolvedHome,
-    OPENCLAW_HOME: undefined,
-    OPENCLAW_STATE_DIR: undefined,
+    ZHUSHOU_HOME: undefined,
+    ZHUSHOU_STATE_DIR: undefined,
     OPENCLAW_BUNDLED_PLUGINS_DIR: undefined,
     OPENCLAW_DISABLE_BUNDLED_PLUGINS: undefined,
   };

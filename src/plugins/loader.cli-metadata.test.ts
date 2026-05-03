@@ -48,7 +48,7 @@ describe("plugin loader CLI metadata", () => {
 
     const warnings: string[] = [];
     const registry = await loadOpenClawPluginCliRegistry({
-      env: { ...process.env, OPENCLAW_STATE_DIR: stateDir },
+      env: { ...process.env, ZHUSHOU_STATE_DIR: stateDir },
       logger: {
         info: () => {},
         warn: (msg: string) => warnings.push(msg),
@@ -90,7 +90,7 @@ describe("plugin loader CLI metadata", () => {
 };`,
     });
     fs.writeFileSync(
-      path.join(plugin.dir, "openclaw.plugin.json"),
+      path.join(plugin.dir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "config-cli",
@@ -140,8 +140,8 @@ describe("plugin loader CLI metadata", () => {
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@openclaw/cli-metadata-channel",
-          openclaw: { extensions: ["./index.cjs"], setupEntry: "./setup-entry.cjs" },
+          name: "@zhushou/cli-metadata-channel",
+          zhushou: { extensions: ["./index.cjs"], setupEntry: "./setup-entry.cjs" },
         },
         null,
         2,
@@ -149,7 +149,7 @@ describe("plugin loader CLI metadata", () => {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "openclaw.plugin.json"),
+      path.join(pluginDir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "cli-metadata-channel",
@@ -247,8 +247,8 @@ module.exports = {
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@openclaw/bundled-skip-channel",
-          openclaw: { extensions: ["./index.cjs"] },
+          name: "@zhushou/bundled-skip-channel",
+          zhushou: { extensions: ["./index.cjs"] },
         },
         null,
         2,
@@ -256,7 +256,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "openclaw.plugin.json"),
+      path.join(pluginDir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "bundled-skip-channel",
@@ -315,8 +315,8 @@ module.exports = {
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@openclaw/bundled-cli-channel",
-          openclaw: { extensions: ["./index.cjs"] },
+          name: "@zhushou/bundled-cli-channel",
+          zhushou: { extensions: ["./index.cjs"] },
         },
         null,
         2,
@@ -324,7 +324,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "openclaw.plugin.json"),
+      path.join(pluginDir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "bundled-cli-channel",
@@ -399,8 +399,8 @@ module.exports = {
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@openclaw/bundled-skip-provider",
-          openclaw: { extensions: ["./index.cjs"] },
+          name: "@zhushou/bundled-skip-provider",
+          zhushou: { extensions: ["./index.cjs"] },
         },
         null,
         2,
@@ -408,7 +408,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "openclaw.plugin.json"),
+      path.join(pluginDir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "bundled-skip-provider",
@@ -463,8 +463,8 @@ module.exports = {
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@openclaw/full-cli-metadata-channel",
-          openclaw: { extensions: ["./index.cjs"] },
+          name: "@zhushou/full-cli-metadata-channel",
+          zhushou: { extensions: ["./index.cjs"] },
         },
         null,
         2,
@@ -472,7 +472,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "openclaw.plugin.json"),
+      path.join(pluginDir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "full-cli-metadata-channel",
@@ -609,7 +609,7 @@ module.exports = {
 };`,
     });
     fs.writeFileSync(
-      path.join(plugin.dir, "openclaw.plugin.json"),
+      path.join(plugin.dir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "memory-external",

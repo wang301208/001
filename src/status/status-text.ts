@@ -21,7 +21,7 @@ import type {
 } from "../auto-reply/thinking.js";
 import { toAgentModelListLike } from "../config/model-input.js";
 import type { SessionEntry, SessionScope } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   formatUsageWindowSummary,
   loadProviderUsageSummary,
@@ -43,7 +43,7 @@ import {
 } from "../tasks/task-status.js";
 
 export type BuildStatusTextParams = {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   sessionEntry?: SessionEntry;
   sessionKey: string;
   parentSessionKey?: string;

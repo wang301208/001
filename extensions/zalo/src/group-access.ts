@@ -1,12 +1,12 @@
-import { isNormalizedSenderAllowed } from "openclaw/plugin-sdk/allow-from";
+import { isNormalizedSenderAllowed } from "zhushou/plugin-sdk/allow-from";
 import {
   resolveOpenProviderRuntimeGroupPolicy,
   type GroupPolicy,
-} from "openclaw/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import {
   evaluateSenderGroupAccess,
   type SenderGroupAccessDecision,
-} from "openclaw/plugin-sdk/group-access";
+} from "zhushou/plugin-sdk/group-access";
 
 const ZALO_ALLOW_FROM_PREFIX_RE = /^(zalo|zl):/i;
 

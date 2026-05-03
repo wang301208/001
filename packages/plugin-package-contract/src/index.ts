@@ -21,17 +21,17 @@ export type ExternalCodePluginValidationResult = {
 };
 
 export const EXTERNAL_CODE_PLUGIN_REQUIRED_FIELD_PATHS = [
-  "openclaw.compat.pluginApi",
-  "openclaw.build.openclawVersion",
+  "zhushou.compat.pluginApi",
+  "zhushou.build.zhushouVersion",
 ] as const;
 
 function readOpenClawBlock(packageJson: unknown) {
   const root = isRecord(packageJson) ? packageJson : undefined;
-  const openclaw = isRecord(root?.openclaw) ? root.openclaw : undefined;
-  const compat = isRecord(openclaw?.compat) ? openclaw.compat : undefined;
-  const build = isRecord(openclaw?.build) ? openclaw.build : undefined;
-  const install = isRecord(openclaw?.install) ? openclaw.install : undefined;
-  return { root, openclaw, compat, build, install };
+  const zhushou = isRecord(root?.zhushou) ? root.zhushou : undefined;
+  const compat = isRecord(zhushou?.compat) ? zhushou.compat : undefined;
+  const build = isRecord(zhushou?.build) ? zhushou.build : undefined;
+  const install = isRecord(zhushou?.install) ? zhushou.install : undefined;
+  return { root, zhushou, compat, build, install };
 }
 
 export function normalizeExternalPluginCompatibility(
@@ -52,7 +52,7 @@ export function normalizeExternalPluginCompatibility(
     compatibility.minGatewayVersion = minGatewayVersion;
   }
 
-  const builtWithOpenClawVersion = normalizeOptionalString(build?.openclawVersion) ?? version;
+  const builtWithOpenClawVersion = normalizeOptionalString(build?.zhushouVersion) ?? version;
   if (builtWithOpenClawVersion) {
     compatibility.builtWithOpenClawVersion = builtWithOpenClawVersion;
   }
@@ -69,10 +69,10 @@ export function listMissingExternalCodePluginFieldPaths(packageJson: unknown): s
   const { compat, build } = readOpenClawBlock(packageJson);
   const missing: string[] = [];
   if (!normalizeOptionalString(compat?.pluginApi)) {
-    missing.push("openclaw.compat.pluginApi");
+    missing.push("zhushou.compat.pluginApi");
   }
-  if (!normalizeOptionalString(build?.openclawVersion)) {
-    missing.push("openclaw.build.openclawVersion");
+  if (!normalizeOptionalString(build?.zhushouVersion)) {
+    missing.push("zhushou.build.zhushouVersion");
   }
   return missing;
 }

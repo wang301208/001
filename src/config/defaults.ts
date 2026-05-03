@@ -7,7 +7,7 @@ import {
 } from "./provider-policy.js";
 import { normalizeTalkConfig } from "./talk.js";
 import type { ModelDefinitionConfig } from "./types.models.js";
-import type { OpenClawConfig } from "./types.openclaw.js";
+import type { ZhushouConfig } from "./types.zhushou.js";
 
 type WarnState = { warned: boolean };
 
@@ -88,7 +88,7 @@ export type SessionDefaultsOptions = {
   warnState?: WarnState;
 };
 
-export function applyMessageDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyMessageDefaults(cfg: ZhushouConfig): ZhushouConfig {
   const messages = cfg.messages;
   const hasAckScope = messages?.ackReactionScope !== undefined;
   if (hasAckScope) {
@@ -104,9 +104,9 @@ export function applyMessageDefaults(cfg: OpenClawConfig): OpenClawConfig {
 }
 
 export function applySessionDefaults(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   options: SessionDefaultsOptions = {},
-): OpenClawConfig {
+): ZhushouConfig {
   const session = cfg.session;
   if (!session || session.mainKey === undefined) {
     return cfg;
@@ -116,7 +116,7 @@ export function applySessionDefaults(
   const warn = options.warn ?? console.warn;
   const warnState = options.warnState ?? defaultWarnState;
 
-  const next: OpenClawConfig = {
+  const next: ZhushouConfig = {
     ...cfg,
     session: { ...session, mainKey: "main" },
   };
@@ -129,11 +129,11 @@ export function applySessionDefaults(
   return next;
 }
 
-export function applyTalkConfigNormalization(config: OpenClawConfig): OpenClawConfig {
+export function applyTalkConfigNormalization(config: ZhushouConfig): ZhushouConfig {
   return normalizeTalkConfig(config);
 }
 
-export function applyModelDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyModelDefaults(cfg: ZhushouConfig): ZhushouConfig {
   let mutated = false;
   let nextCfg = cfg;
 
@@ -281,7 +281,7 @@ export function applyModelDefaults(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyAgentDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyAgentDefaults(cfg: ZhushouConfig): ZhushouConfig {
   const agents = cfg.agents;
   const defaults = agents?.defaults;
   const hasMax =
@@ -322,7 +322,7 @@ export function applyAgentDefaults(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyLoggingDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyLoggingDefaults(cfg: ZhushouConfig): ZhushouConfig {
   const logging = cfg.logging;
   if (!logging) {
     return cfg;
@@ -339,7 +339,7 @@ export function applyLoggingDefaults(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyContextPruningDefaults(cfg: ZhushouConfig): ZhushouConfig {
   if (!cfg.agents?.defaults) {
     return cfg;
   }
@@ -352,7 +352,7 @@ export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig
   );
 }
 
-export function applyCompactionDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyCompactionDefaults(cfg: ZhushouConfig): ZhushouConfig {
   const defaults = cfg.agents?.defaults;
   if (!defaults) {
     return cfg;

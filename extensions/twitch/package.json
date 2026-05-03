@@ -1,7 +1,7 @@
 {
-  "name": "@openclaw/twitch",
+  "name": "@zhushou/twitch",
   "version": "2026.4.16",
-  "description": "OpenClaw Twitch channel plugin",
+  "description": "助手 Twitch channel plugin",
   "type": "module",
   "dependencies": {
     "@twurple/api": "^8.1.3",
@@ -9,9 +9,9 @@
     "@twurple/chat": "^8.1.3"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],

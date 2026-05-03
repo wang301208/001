@@ -8,7 +8,7 @@ import {
 } from "./config-paths.js";
 import { readConfigFileSnapshot } from "./config.js";
 import { findLegacyConfigIssues } from "./legacy.js";
-import { buildWebSearchProviderConfig, withTempHome, writeOpenClawConfig } from "./test-helpers.js";
+import { buildWebSearchProviderConfig, withTempHome, writeZhushouConfig } from "./test-helpers.js";
 import { validateConfigObject, validateConfigObjectRaw } from "./validation.js";
 import { OpenClawSchema } from "./zod-schema.js";
 import {
@@ -22,11 +22,11 @@ import { WhatsAppConfigSchema } from "./zod-schema.providers-whatsapp.js";
 describe("$schema key in config (#14998)", () => {
   it("accepts config with $schema string", () => {
     const result = OpenClawSchema.safeParse({
-      $schema: "https://openclaw.ai/config.json",
+      $schema: "https://zhushou.ai/config.json",
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.$schema).toBe("https://openclaw.ai/config.json");
+      expect(result.data.$schema).toBe("https://zhushou.ai/config.json");
     }
   });
 
@@ -362,7 +362,7 @@ describe("config identity/materialization regressions", () => {
               theme: "space lobster",
               emoji: "🦞",
             },
-            groupChat: { mentionPatterns: ["@openclaw"] },
+            groupChat: { mentionPatterns: ["@zhushou"] },
           },
         ],
       },
@@ -374,7 +374,7 @@ describe("config identity/materialization regressions", () => {
     expect(res.ok).toBe(true);
     if (res.ok) {
       expect(res.config.messages?.responsePrefix).toBe("✅");
-      expect(res.config.agents?.list?.[0]?.groupChat?.mentionPatterns).toEqual(["@openclaw"]);
+      expect(res.config.agents?.list?.[0]?.groupChat?.mentionPatterns).toEqual(["@zhushou"]);
     }
   });
 
@@ -517,7 +517,7 @@ describe("cron webhook schema", () => {
       textChunkLimit: 1111,
     });
     const messages = {
-      messagePrefix: "[openclaw]",
+      messagePrefix: "[zhushou]",
       responsePrefix: "🦞",
     };
 
@@ -672,7 +672,7 @@ describe("config strict validation", () => {
 
   it("accepts top-level memorySearch via auto-migration and reports legacyIssues", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeZhushouConfig(home, {
         memorySearch: {
           provider: "local",
           fallback: "none",
@@ -696,7 +696,7 @@ describe("config strict validation", () => {
 
   it("accepts top-level heartbeat agent settings via auto-migration and reports legacyIssues", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeZhushouConfig(home, {
         heartbeat: {
           every: "30m",
           model: "anthropic/claude-3-5-haiku-20241022",
@@ -717,7 +717,7 @@ describe("config strict validation", () => {
 
   it("accepts top-level heartbeat visibility via auto-migration and reports legacyIssues", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeZhushouConfig(home, {
         heartbeat: {
           showOk: true,
           showAlerts: false,
@@ -778,7 +778,7 @@ describe("config strict validation", () => {
 
   it("accepts legacy sandbox perSession via auto-migration and reports legacyIssues", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeZhushouConfig(home, {
         agents: {
           defaults: {
             sandbox: {
@@ -814,7 +814,7 @@ describe("config strict validation", () => {
 
   it("does not treat resolved-only gateway.bind aliases as source-literal legacy or invalid", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeZhushouConfig(home, {
         gateway: { bind: "${OPENCLAW_BIND}" },
       });
 
@@ -837,7 +837,7 @@ describe("config strict validation", () => {
 
   it("still marks literal gateway.bind host aliases as legacy", async () => {
     await withTempHome(async (home) => {
-      await writeOpenClawConfig(home, {
+      await writeZhushouConfig(home, {
         gateway: { bind: "0.0.0.0" },
       });
 

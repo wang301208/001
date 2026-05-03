@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveAgentDir } from "../../agents/agent-scope.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { handleCompactCommand } from "./commands-compact.js";
 import type { HandleCommandsParams } from "./commands-types.js";
 
@@ -36,7 +36,7 @@ const { compactEmbeddedPiSession, incrementCompactionCount, resolveSessionFilePa
 
 function buildCompactParams(
   commandBodyNormalized: string,
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
 ): HandleCommandsParams {
   return {
     cfg,
@@ -71,7 +71,7 @@ describe("handleCompactCommand", () => {
       buildCompactParams("/status", {
         commands: { text: true },
         channels: { whatsapp: { allowFrom: ["*"] } },
-      } as OpenClawConfig),
+      } as ZhushouConfig),
       true,
     );
 
@@ -83,7 +83,7 @@ describe("handleCompactCommand", () => {
     const params = buildCompactParams("/compact", {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig);
+    } as ZhushouConfig);
 
     const result = await handleCompactCommand(
       {
@@ -112,8 +112,8 @@ describe("handleCompactCommand", () => {
         ...buildCompactParams("/compact", {
           commands: { text: true },
           channels: { whatsapp: { allowFrom: ["*"] } },
-          session: { store: "/tmp/openclaw-session-store.json" },
-        } as OpenClawConfig),
+          session: { store: "/tmp/zhushou-session-store.json" },
+        } as ZhushouConfig),
         ctx: {
           Provider: "whatsapp",
           Surface: "whatsapp",
@@ -125,7 +125,7 @@ describe("handleCompactCommand", () => {
           SenderUsername: "alice_u",
           SenderE164: "+15551234567",
         },
-        agentDir: "/tmp/openclaw-agent-compact",
+        agentDir: "/tmp/zhushou-agent-compact",
         sessionEntry: {
           sessionId: "session-1",
           updatedAt: Date.now(),
@@ -157,7 +157,7 @@ describe("handleCompactCommand", () => {
         senderName: "Alice",
         senderUsername: "alice_u",
         senderE164: "+15551234567",
-        agentDir: "/tmp/openclaw-agent-compact",
+        agentDir: "/tmp/zhushou-agent-compact",
       }),
     );
   });
@@ -174,8 +174,8 @@ describe("handleCompactCommand", () => {
         ...buildCompactParams("/compact", {
           commands: { text: true },
           channels: { whatsapp: { allowFrom: ["*"] } },
-          session: { store: "/tmp/openclaw-session-store.json" },
-        } as OpenClawConfig),
+          session: { store: "/tmp/zhushou-session-store.json" },
+        } as ZhushouConfig),
         agentId: "main",
         sessionKey: "agent:target:whatsapp:direct:12345",
         sessionEntry: {
@@ -209,7 +209,7 @@ describe("handleCompactCommand", () => {
         ...buildCompactParams("/compact", {
           commands: { text: true },
           channels: { whatsapp: { allowFrom: ["*"] } },
-        } as OpenClawConfig),
+        } as ZhushouConfig),
         agentId: "main",
         agentDir: "/tmp/main-agent",
         sessionKey: "agent:target:whatsapp:direct:12345",
@@ -240,7 +240,7 @@ describe("handleCompactCommand", () => {
         ...buildCompactParams("/compact", {
           commands: { text: true },
           channels: { whatsapp: { allowFrom: ["*"] } },
-        } as OpenClawConfig),
+        } as ZhushouConfig),
         sessionKey: "agent:target:whatsapp:direct:12345",
         sessionEntry: {
           sessionId: "wrapper-session",
@@ -297,7 +297,7 @@ describe("handleCompactCommand", () => {
         ...buildCompactParams("/compact", {
           commands: { text: true },
           channels: { whatsapp: { allowFrom: ["*"] } },
-        } as OpenClawConfig),
+        } as ZhushouConfig),
         sessionKey: "agent:target:whatsapp:direct:12345",
         sessionEntry: {
           sessionId: "wrapper-session",

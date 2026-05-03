@@ -4,7 +4,7 @@ import { isRestartEnabled } from "../../config/commands.flags.js";
 import { parseConfigJson5, resolveConfigSnapshotHash } from "../../config/io.js";
 import { applyMergePatch } from "../../config/merge-patch.js";
 import { extractDeliveryInfo } from "../../config/sessions.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
@@ -121,11 +121,11 @@ function assertGatewayConfigMutationAllowed(params: {
   }
 
   // Block writes that newly enable any dangerous config flag.
-  // Uses the same flag enumeration as `openclaw security audit`.
+  // Uses the same flag enumeration as `zhushou security audit`.
   const currentFlags = new Set(
-    collectEnabledInsecureOrDangerousFlags(params.currentConfig as OpenClawConfig),
+    collectEnabledInsecureOrDangerousFlags(params.currentConfig as ZhushouConfig),
   );
-  const nextFlags = collectEnabledInsecureOrDangerousFlags(nextConfig as OpenClawConfig);
+  const nextFlags = collectEnabledInsecureOrDangerousFlags(nextConfig as ZhushouConfig);
   const newlyEnabled = nextFlags.filter((f) => !currentFlags.has(f));
   if (newlyEnabled.length > 0) {
     throw new Error(
@@ -172,7 +172,7 @@ const GatewayToolSchema = Type.Object({
 
 export function createGatewayTool(opts?: {
   agentSessionKey?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
 }): AnyAgentTool {
   return {
     label: "Gateway",

@@ -11,7 +11,7 @@ let nextAsyncDirIndex = 0;
 let nextSyncDirIndex = 0;
 
 function tempRootContainsActiveStateDir(root: string): boolean {
-  const stateDir = process.env.OPENCLAW_STATE_DIR?.trim();
+  const stateDir = process.env.ZHUSHOU_STATE_DIR?.trim();
   if (!stateDir) {
     return false;
   }

@@ -32,7 +32,7 @@ function buildProvider(
 
 describe("google-antigravity provider normalization", () => {
   it("normalizes bare gemini pro IDs only for google-antigravity providers", () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
     const providers = {
       "google-antigravity": buildProvider([
         "gemini-3-pro",
@@ -58,7 +58,7 @@ describe("google-antigravity provider normalization", () => {
   });
 
   it("returns original providers object when no antigravity IDs need normalization", () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
     const providers = {
       "google-antigravity": buildProvider(["gemini-3-pro-low", "claude-opus-4-6-thinking"]),
     };
@@ -71,7 +71,7 @@ describe("google-antigravity provider normalization", () => {
 
 describe("google-vertex provider normalization", () => {
   it("normalizes gemini flash-lite IDs for google-vertex providers", () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
     const providers = {
       "google-vertex": buildProvider(["gemini-3.1-flash-lite", "gemini-3-flash-preview"], {
         api: undefined,
@@ -90,7 +90,7 @@ describe("google-vertex provider normalization", () => {
   });
 
   it("returns original providers object when no google-vertex IDs need normalization", () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
     const providers = {
       "google-vertex": buildProvider(["gemini-3.1-flash-lite-preview", "gemini-3-flash-preview"], {
         api: undefined,

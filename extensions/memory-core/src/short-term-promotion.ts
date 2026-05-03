@@ -1,10 +1,10 @@
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { MemorySearchResult } from "openclaw/plugin-sdk/memory-core-host-runtime-files";
-import { formatMemoryDreamingDay } from "openclaw/plugin-sdk/memory-core-host-status";
-import { appendMemoryHostEvent } from "openclaw/plugin-sdk/memory-host-events";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import type { MemorySearchResult } from "zhushou/plugin-sdk/memory-core-host-runtime-files";
+import { formatMemoryDreamingDay } from "zhushou/plugin-sdk/memory-core-host-status";
+import { appendMemoryHostEvent } from "zhushou/plugin-sdk/memory-host-events";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import {
   deriveConceptTags,
   MAX_CONCEPT_TAGS,
@@ -23,7 +23,7 @@ const DEFAULT_RECENCY_HALF_LIFE_DAYS = 14;
 export const DEFAULT_PROMOTION_MIN_SCORE = 0.75;
 export const DEFAULT_PROMOTION_MIN_RECALL_COUNT = 3;
 export const DEFAULT_PROMOTION_MIN_UNIQUE_QUERIES = 2;
-const PROMOTION_MARKER_PREFIX = "openclaw-memory-promotion:";
+const PROMOTION_MARKER_PREFIX = "zhushou-memory-promotion:";
 const MAX_QUERY_HASHES = 32;
 const MAX_RECALL_DAYS = 16;
 const SHORT_TERM_STORE_RELATIVE_PATH = path.join("memory", ".dreams", "short-term-recall.json");
@@ -278,7 +278,7 @@ function isContaminatedDreamingSnippet(raw: string): boolean {
     return false;
   }
   if (
-    /<!--\s*openclaw-memory-promotion:/i.test(snippet) ||
+    /<!--\s*zhushou-memory-promotion:/i.test(snippet) ||
     DREAMING_TRANSCRIPT_PROMPT_LINE_RE.test(snippet)
   ) {
     return true;
@@ -1505,7 +1505,7 @@ function withTrailingNewline(content: string): string {
 
 function extractPromotionMarkers(memoryText: string): Set<string> {
   const markers = new Set<string>();
-  const matches = memoryText.matchAll(/<!--\s*openclaw-memory-promotion:([^\n]+?)\s*-->/gi);
+  const matches = memoryText.matchAll(/<!--\s*zhushou-memory-promotion:([^\n]+?)\s*-->/gi);
   for (const match of matches) {
     const key = match[1]?.trim();
     if (key) {

@@ -218,7 +218,7 @@ export function createConfigWriteAuditRecordBase(params: {
     cwd: processSnapshot.cwd,
     argv: processSnapshot.argv,
     execArgv: processSnapshot.execArgv,
-    watchMode: params.env.OPENCLAW_WATCH_MODE === "1",
+    watchMode: params.env.ZHUSHOU_WATCH_MODE === "1",
     watchSession: normalizeAuditLabel(params.env.OPENCLAW_WATCH_SESSION),
     watchCommand: normalizeAuditLabel(params.env.OPENCLAW_WATCH_COMMAND),
     existsBefore: params.existsBefore,

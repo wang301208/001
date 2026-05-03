@@ -11,7 +11,7 @@ import {
   resolveAgentMainSessionKey,
   resolveMainSessionKey,
 } from "../../config/sessions/main-session.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { sleepWithAbort } from "../../infra/backoff.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import type { OutboundDeliveryResult } from "../../infra/outbound/deliver.js";
@@ -96,8 +96,8 @@ export function resolveCronDeliveryBestEffort(job: CronJob): boolean {
 export type SuccessfulDeliveryTarget = Extract<DeliveryTargetResolution, { ok: true }>;
 
 type DispatchCronDeliveryParams = {
-  cfg: OpenClawConfig;
-  cfgWithAgentDefaults: OpenClawConfig;
+  cfg: ZhushouConfig;
+  cfgWithAgentDefaults: ZhushouConfig;
   deps: CliDeps;
   job: CronJob;
   agentId: string;
@@ -318,7 +318,7 @@ function shouldQueueCronAwareness(job: CronJob, deliveryBestEffort: boolean): bo
 }
 
 function resolveCronAwarenessMainSessionKey(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   agentId: string;
 }): string {
   return params.cfg.session?.scope === "global"
@@ -327,7 +327,7 @@ function resolveCronAwarenessMainSessionKey(params: {
 }
 
 async function queueCronAwarenessSystemEvent(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   jobId: string;
   agentId: string;
   deliveryIdempotencyKey: string;
@@ -600,7 +600,7 @@ export async function dispatchCronDelivery(
           // Keep all attempts out of the write-ahead delivery queue so a
           // late-successful first send cannot leave behind a failed queue
           // entry that replays on the next restart.
-          // See: https://github.com/openclaw/openclaw/issues/40545
+          // See: https://github.com/zhushou/zhushou/issues/40545
           skipQueue: true,
         });
       const deliveryResults = options?.retryTransient

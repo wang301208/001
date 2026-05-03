@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.js";
+import type { ZhushouConfig } from "../../config/types.js";
 import { formatDurationPrecise } from "../../infra/format-time/format-duration.ts";
 import {
   normalizeUpdateChannel,
@@ -90,7 +90,7 @@ export function buildStatusUpdateSurface(params: {
   };
 }
 
-export const STATUS_TERMINAL_UI_COMMAND = "openclaw tui";
+export const STATUS_TERMINAL_UI_COMMAND = "zhushou tui";
 
 export function formatStatusTerminalValue(value: string | null | undefined): string {
   const trimmed = normalizeOptionalString(value);
@@ -211,7 +211,7 @@ export function buildStatusOverviewRows(params: {
 }
 
 export function buildStatusOverviewSurfaceRows(params: {
-  cfg: Pick<OpenClawConfig, "update" | "gateway">;
+  cfg: Pick<ZhushouConfig, "update" | "gateway">;
   update: StatusUpdateLike;
   tailscaleMode: string;
   tailscaleDns?: string | null;

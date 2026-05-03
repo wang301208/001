@@ -1,34 +1,34 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import type { SignalReactionNotificationMode } from "openclaw/plugin-sdk/config-runtime";
-import { loadConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { SignalReactionNotificationMode } from "zhushou/plugin-sdk/config-runtime";
+import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "openclaw/plugin-sdk/config-runtime";
-import { waitForTransportReady } from "openclaw/plugin-sdk/infra-runtime";
-import { estimateBase64DecodedBytes, saveMediaBuffer } from "openclaw/plugin-sdk/media-runtime";
-import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "openclaw/plugin-sdk/reply-history";
+} from "zhushou/plugin-sdk/config-runtime";
+import { waitForTransportReady } from "zhushou/plugin-sdk/infra-runtime";
+import { estimateBase64DecodedBytes, saveMediaBuffer } from "zhushou/plugin-sdk/media-runtime";
+import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "zhushou/plugin-sdk/reply-history";
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
-} from "openclaw/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
+} from "zhushou/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
 import {
   chunkTextWithMode,
   resolveChunkMode,
   resolveTextChunkLimit,
-} from "openclaw/plugin-sdk/reply-runtime";
+} from "zhushou/plugin-sdk/reply-runtime";
 import {
   createNonExitingRuntime,
   type BackoffPolicy,
   type RuntimeEnv,
-} from "openclaw/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/runtime-env";
 import {
   normalizeE164,
   normalizeOptionalString,
   normalizeStringEntries,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 import { signalCheck, signalRpcRequest } from "./client.js";
 import { formatSignalDaemonExit, spawnSignalDaemon, type SignalDaemonHandle } from "./daemon.js";
@@ -47,7 +47,7 @@ export type MonitorSignalOpts = {
   abortSignal?: AbortSignal;
   account?: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   baseUrl?: string;
   autoStart?: boolean;
   startupTimeoutMs?: number;

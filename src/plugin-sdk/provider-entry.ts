@@ -8,7 +8,7 @@ import type {
 } from "../plugins/types.js";
 import { definePluginEntry } from "./plugin-entry.js";
 import type {
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   OpenClawPluginConfigSchema,
   OpenClawPluginDefinition,
 } from "./plugin-entry.js";
@@ -56,7 +56,7 @@ export type SingleProviderPluginOptions = {
     ProviderPlugin,
     "id" | "label" | "docsPath" | "aliases" | "envVars" | "auth" | "catalog"
   >;
-  register?: (api: OpenClawPluginApi) => void;
+  register?: (api: ZhushouPluginApi) => void;
 };
 
 function resolveWizardSetup(params: {

@@ -3,7 +3,7 @@ import fsPromises from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   filterToolsByPolicy,
   isToolAllowedByPolicyName,
@@ -14,7 +14,7 @@ import {
 import { createStubTool } from "./test-helpers/pi-tool-stubs.js";
 
 async function createTempCharterRoot(): Promise<{ root: string; charterDir: string }> {
-  const root = await fsPromises.mkdtemp(path.join(os.tmpdir(), "openclaw-tool-policy-"));
+  const root = await fsPromises.mkdtemp(path.join(os.tmpdir(), "zhushou-tool-policy-"));
   const charterDir = path.join(root, "governance", "charter");
   await fsPromises.mkdir(path.join(charterDir, "policies"), { recursive: true });
   return { root, charterDir };
@@ -84,21 +84,21 @@ describe("pi-tools.policy", () => {
 describe("resolveSubagentToolPolicy depth awareness", () => {
   const baseCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as ZhushouConfig;
 
   const deepCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 3 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as ZhushouConfig;
 
   const leafCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 1 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as ZhushouConfig;
 
   it("applies subagent tools.alsoAllow to re-enable default-denied tools", () => {
     const cfg = {
       agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
       tools: { subagents: { tools: { alsoAllow: ["sessions_send"] } } },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(isToolAllowedByPolicyName("sessions_send", policy)).toBe(true);
     expect(isToolAllowedByPolicyName("cron", policy)).toBe(false);
@@ -108,7 +108,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
     const cfg = {
       agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
       tools: { subagents: { tools: { allow: ["sessions_send"] } } },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(isToolAllowedByPolicyName("sessions_send", policy)).toBe(true);
   });
@@ -119,7 +119,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
       tools: {
         subagents: { tools: { allow: ["sessions_spawn"], alsoAllow: ["sessions_send"] } },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(policy.allow).toEqual(["sessions_spawn", "sessions_send"]);
   });
@@ -136,7 +136,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(isToolAllowedByPolicyName("sessions_send", policy)).toBe(false);
   });
@@ -151,7 +151,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(isToolAllowedByPolicyName("memory_search", policy)).toBe(false);
     expect(isToolAllowedByPolicyName("memory_get", policy)).toBe(false);
@@ -161,7 +161,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
     const cfg = {
       agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
       tools: { subagents: { tools: { alsoAllow: ["sessions_send"] } } },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
     const policy = resolveSubagentToolPolicy(cfg, 1);
     expect(policy.allow).toBeUndefined();
     expect(isToolAllowedByPolicyName("subagents", policy)).toBe(true);
@@ -234,7 +234,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
   it("uses stored leaf role for flat depth-1 session keys", () => {
     const storePath = path.join(
       os.tmpdir(),
-      `openclaw-subagent-policy-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+      `zhushou-subagent-policy-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
     );
     fs.mkdirSync(path.dirname(storePath), { recursive: true });
     fs.writeFileSync(
@@ -259,7 +259,7 @@ describe("resolveSubagentToolPolicy depth awareness", () => {
       session: {
         store: storePath,
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
 
     const policy = resolveSubagentToolPolicyForSession(cfg, "agent:main:subagent:flat-leaf");
     expect(isToolAllowedByPolicyName("sessions_spawn", policy)).toBe(false);
@@ -288,7 +288,7 @@ describe("resolveEffectiveToolPolicy", () => {
         profile: "messaging",
         exec: { host: "sandbox" },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg });
     expect(result.profileAlsoAllow).toEqual(["exec", "process"]);
   });
@@ -299,7 +299,7 @@ describe("resolveEffectiveToolPolicy", () => {
         profile: "messaging",
         fs: { workspaceOnly: false },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg });
     expect(result.profileAlsoAllow).toEqual(["read", "write", "edit"]);
   });
@@ -311,7 +311,7 @@ describe("resolveEffectiveToolPolicy", () => {
         alsoAllow: ["web_search"],
         exec: { host: "sandbox" },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg });
     expect(result.profileAlsoAllow).toEqual(["web_search", "exec", "process"]);
   });
@@ -331,7 +331,7 @@ describe("resolveEffectiveToolPolicy", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const result = resolveEffectiveToolPolicy({ config: cfg, agentId: "coder" });
     expect(result.profileAlsoAllow).toEqual(["read", "write", "edit"]);
   });
@@ -344,7 +344,7 @@ describe("resolveEffectiveToolPolicy", () => {
         gateway: {
           bind: "lan",
         },
-      } as OpenClawConfig;
+      } as ZhushouConfig;
       const result = resolveEffectiveToolPolicy({ config: cfg, charterDir });
       expect(result.governancePolicy?.deny).toEqual(
         expect.arrayContaining(["exec", "write", "apply_patch", "gateway"]),
@@ -361,7 +361,7 @@ describe("resolveEffectiveToolPolicy", () => {
       agents: {
         list: [{ id: "main", workspace: "/repo" }],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const result = resolveEffectiveToolPolicy({
       config: cfg,

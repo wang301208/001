@@ -47,19 +47,19 @@ export function describeBundledMetadataOnlyChannelCatalogContract(params: {
 }) {
   describe(`${params.pluginId} bundled metadata-only channel catalog contract`, () => {
     it("includes the bundled metadata-only channel entry when the runtime entrypoint is omitted", () => {
-      const packageRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-bundled-catalog-"));
+      const packageRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-bundled-catalog-"));
       const bundledDir = path.join(packageRoot, "dist", "extensions", params.pluginId);
       fs.mkdirSync(bundledDir, { recursive: true });
       fs.writeFileSync(
         path.join(packageRoot, "package.json"),
-        JSON.stringify({ name: "openclaw" }),
+        JSON.stringify({ name: "zhushou" }),
         "utf8",
       );
       fs.writeFileSync(
         path.join(bundledDir, "package.json"),
         JSON.stringify({
           name: params.packageName,
-          openclaw: {
+          zhushou: {
             extensions: ["./index.js"],
             channel: params.meta,
             install: {
@@ -72,7 +72,7 @@ export function describeBundledMetadataOnlyChannelCatalogContract(params: {
       );
       fs.writeFileSync(path.join(bundledDir, "index.js"), "export default {};\n", "utf8");
       fs.writeFileSync(
-        path.join(bundledDir, "openclaw.plugin.json"),
+        path.join(bundledDir, "zhushou.plugin.json"),
         JSON.stringify({ id: params.pluginId, channels: [params.meta.id], configSchema: {} }),
         "utf8",
       );
@@ -101,7 +101,7 @@ export function describeOfficialFallbackChannelCatalogContract(params: {
 }) {
   describe(`${params.channelId} official fallback channel catalog contract`, () => {
     it("includes shipped official channel catalog entries when bundled metadata is omitted", () => {
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-official-catalog-"));
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-official-catalog-"));
       const catalogPath = path.join(dir, "channel-catalog.json");
       fs.writeFileSync(
         catalogPath,
@@ -109,7 +109,7 @@ export function describeOfficialFallbackChannelCatalogContract(params: {
           entries: [
             {
               name: params.packageName,
-              openclaw: {
+              zhushou: {
                 channel: params.meta,
                 install: {
                   npmSpec: params.npmSpec,
@@ -134,7 +134,7 @@ export function describeOfficialFallbackChannelCatalogContract(params: {
     });
 
     it("lets external catalogs override shipped fallback channel metadata", () => {
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-fallback-catalog-"));
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-fallback-catalog-"));
       const bundledDir = path.join(dir, "dist", "extensions", params.pluginId);
       const officialCatalogPath = path.join(dir, "channel-catalog.json");
       const externalCatalogPath = path.join(dir, "catalog.json");
@@ -143,7 +143,7 @@ export function describeOfficialFallbackChannelCatalogContract(params: {
         path.join(bundledDir, "package.json"),
         JSON.stringify({
           name: params.packageName,
-          openclaw: {
+          zhushou: {
             channel: {
               ...params.meta,
               label: `${params.meta.label} Bundled`,
@@ -161,7 +161,7 @@ export function describeOfficialFallbackChannelCatalogContract(params: {
           entries: [
             {
               name: params.packageName,
-              openclaw: {
+              zhushou: {
                 channel: {
                   ...params.meta,
                   label: `${params.meta.label} Official`,
@@ -181,7 +181,7 @@ export function describeOfficialFallbackChannelCatalogContract(params: {
           entries: [
             {
               name: params.externalNpmSpec,
-              openclaw: {
+              zhushou: {
                 channel: {
                   ...params.meta,
                   label: params.externalLabel,

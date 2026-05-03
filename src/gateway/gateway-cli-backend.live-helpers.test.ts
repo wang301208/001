@@ -25,7 +25,7 @@ vi.mock("./client.js", () => ({
 describe("gateway cli backend live helpers", () => {
   afterEach(() => {
     gatewayClientState.lastOptions = undefined;
-    delete process.env.OPENCLAW_SKIP_CHANNELS;
+    delete process.env.ZHUSHOU_SKIP_CHANNELS;
     delete process.env.OPENCLAW_SKIP_PROVIDERS;
     delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
     delete process.env.OPENCLAW_SKIP_CRON;
@@ -41,7 +41,7 @@ describe("gateway cli backend live helpers", () => {
     const { applyCliBackendLiveEnv, restoreCliBackendLiveEnv, snapshotCliBackendLiveEnv } =
       await import("./gateway-cli-backend.live-helpers.js");
 
-    process.env.OPENCLAW_SKIP_CHANNELS = "old-channels";
+    process.env.ZHUSHOU_SKIP_CHANNELS = "old-channels";
     process.env.OPENCLAW_SKIP_PROVIDERS = "old-providers";
     process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "old-gmail";
     process.env.OPENCLAW_SKIP_CRON = "old-cron";
@@ -55,7 +55,7 @@ describe("gateway cli backend live helpers", () => {
     const snapshot = snapshotCliBackendLiveEnv();
     applyCliBackendLiveEnv(new Set<string>());
 
-    expect(process.env.OPENCLAW_SKIP_CHANNELS).toBe("1");
+    expect(process.env.ZHUSHOU_SKIP_CHANNELS).toBe("1");
     expect(process.env.OPENCLAW_SKIP_PROVIDERS).toBe("1");
     expect(process.env.OPENCLAW_SKIP_GMAIL_WATCHER).toBe("1");
     expect(process.env.OPENCLAW_SKIP_CRON).toBe("1");
@@ -68,7 +68,7 @@ describe("gateway cli backend live helpers", () => {
 
     restoreCliBackendLiveEnv(snapshot);
 
-    expect(process.env.OPENCLAW_SKIP_CHANNELS).toBe("old-channels");
+    expect(process.env.ZHUSHOU_SKIP_CHANNELS).toBe("old-channels");
     expect(process.env.OPENCLAW_SKIP_PROVIDERS).toBe("old-providers");
     expect(process.env.OPENCLAW_SKIP_GMAIL_WATCHER).toBe("old-gmail");
     expect(process.env.OPENCLAW_SKIP_CRON).toBe("old-cron");

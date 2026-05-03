@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { collectDiscordSecurityAuditFindings } from "../../test/helpers/channels/security-audit-contract.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { withChannelSecurityStateDir } from "./audit-channel-security.test-helpers.js";
 
 type DiscordAuditParams = Parameters<typeof collectDiscordSecurityAuditFindings>[0];
@@ -11,7 +11,7 @@ const { readChannelAllowFromStoreMock } = vi.hoisted(() => ({
   readChannelAllowFromStoreMock: vi.fn(async () => [] as string[]),
 }));
 
-vi.mock("openclaw/plugin-sdk/conversation-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/conversation-runtime", () => ({
   readChannelAllowFromStore: readChannelAllowFromStoreMock,
 }));
 
@@ -27,7 +27,7 @@ function createDiscordAccount(config: DiscordAccountConfig): ResolvedDiscordAcco
 
 describe("security audit discord command findings", () => {
   it("flags Discord slash commands when access-group enforcement is disabled and no users allowlist exists", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       commands: { native: true, useAccessGroups: false },
       channels: {
         discord: {
@@ -48,7 +48,7 @@ describe("security audit discord command findings", () => {
     await withChannelSecurityStateDir(async () => {
       readChannelAllowFromStoreMock.mockResolvedValue([]);
       const findings = await collectDiscordSecurityAuditFindings({
-        cfg: cfg as OpenClawConfig & {
+        cfg: cfg as ZhushouConfig & {
           channels: {
             discord: DiscordAccountConfig;
           };

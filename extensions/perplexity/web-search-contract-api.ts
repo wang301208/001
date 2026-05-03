@@ -1,7 +1,7 @@
 import {
   createWebSearchProviderContractFields,
   type WebSearchProviderPlugin,
-} from "openclaw/plugin-sdk/provider-web-search-config-contract";
+} from "zhushou/plugin-sdk/provider-web-search-config-contract";
 
 export function createPerplexityWebSearchProvider(): WebSearchProviderPlugin {
   const credentialPath = "plugins.entries.perplexity.config.webSearch.apiKey";
@@ -15,7 +15,7 @@ export function createPerplexityWebSearchProvider(): WebSearchProviderPlugin {
     envVars: ["PERPLEXITY_API_KEY", "OPENROUTER_API_KEY"],
     placeholder: "pplx-...",
     signupUrl: "https://www.perplexity.ai/settings/api",
-    docsUrl: "https://docs.openclaw.ai/perplexity",
+    docsUrl: "https://docs.zhushou.ai/perplexity",
     autoDetectOrder: 50,
     credentialPath,
     ...createWebSearchProviderContractFields({

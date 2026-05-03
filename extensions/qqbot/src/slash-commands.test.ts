@@ -102,7 +102,7 @@ describe("slash command authorization", () => {
     });
     const result = await matchSlashCommand(ctx);
     expect(result).toBeTypeOf("string");
-    expect(result as string).toContain("OpenClaw");
+    expect(result as string).toContain("助手");
   });
 
   // ---- unknown commands ----

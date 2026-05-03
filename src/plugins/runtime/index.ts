@@ -142,7 +142,7 @@ function createUnavailableSubagentRuntime(): PluginRuntime["subagent"] {
 // ordinary plugin runtimes.
 
 const GATEWAY_SUBAGENT_SYMBOL: unique symbol = Symbol.for(
-  "openclaw.plugin.gatewaySubagentRuntime",
+  "zhushou.plugin.gatewaySubagentRuntime",
 ) as unknown as typeof GATEWAY_SUBAGENT_SYMBOL;
 
 type GatewaySubagentState = {
@@ -211,7 +211,7 @@ export function createPluginRuntime(_options: CreatePluginRuntimeOptions = {}): 
     legacyTaskFlow: taskFlow,
   });
   const runtime = {
-    // Sourced from the shared OpenClaw version resolver (#52899) so plugins
+    // Sourced from the shared 助手 version resolver (#52899) so plugins
     // always see the same version the CLI reports, avoiding API-version drift.
     version: VERSION,
     config: createRuntimeConfig(),

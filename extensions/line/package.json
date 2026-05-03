@@ -1,25 +1,25 @@
 {
-  "name": "@openclaw/line",
+  "name": "@zhushou/line",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw LINE channel plugin",
+  "description": "助手 LINE channel plugin",
   "type": "module",
   "dependencies": {
     "@line/bot-sdk": "^11.0.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -37,7 +37,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/line",
+      "npmSpec": "@zhushou/line",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

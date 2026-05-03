@@ -1,7 +1,7 @@
 import { mkdtempSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildMicrosoftSpeechProvider,
@@ -10,7 +10,7 @@ import {
 } from "./speech-provider.js";
 import * as ttsModule from "./tts.js";
 
-const TEST_CFG = {} as OpenClawConfig;
+const TEST_CFG = {} as ZhushouConfig;
 
 describe("listMicrosoftVoices", () => {
   const originalFetch = globalThis.fetch;
@@ -105,8 +105,8 @@ describe("listMicrosoftVoices", () => {
       id: "ms-voices-session",
       startedAt: Date.now(),
       mode: "test",
-      sourceScope: "openclaw",
-      sourceProcess: "openclaw",
+      sourceScope: "zhushou",
+      sourceProcess: "zhushou",
       dbPath: process.env.OPENCLAW_DEBUG_PROXY_DB_PATH,
       blobDir: process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR,
     });
@@ -150,8 +150,8 @@ describe("listMicrosoftVoices", () => {
       id: "ms-voices-global-session",
       startedAt: Date.now(),
       mode: "test",
-      sourceScope: "openclaw",
-      sourceProcess: "openclaw",
+      sourceScope: "zhushou",
+      sourceProcess: "zhushou",
       dbPath: process.env.OPENCLAW_DEBUG_PROXY_DB_PATH,
       blobDir: process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR,
     });

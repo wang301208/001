@@ -78,8 +78,8 @@ async function assertUnmanagedGatewayRestartEnabled(port: number): Promise<void>
   const probe = await probeGateway({
     url: `${scheme}://127.0.0.1:${port}`,
     auth: {
-      token: normalizeOptionalString(process.env.OPENCLAW_GATEWAY_TOKEN),
-      password: normalizeOptionalString(process.env.OPENCLAW_GATEWAY_PASSWORD),
+      token: normalizeOptionalString(process.env.ZHUSHOU_GATEWAY_TOKEN),
+      password: normalizeOptionalString(process.env.ZHUSHOU_GATEWAY_PASSWORD),
     },
     timeoutMs: 1_000,
   }).catch(() => null);
@@ -225,7 +225,7 @@ export async function runDaemonRestart(opts: DaemonLifecycleOptions = {}): Promi
 
         fail(`Gateway restart timed out after ${restartWaitSeconds}s waiting for health checks.`, [
           formatCliCommand("openclaw gateway status --deep"),
-          formatCliCommand("openclaw doctor"),
+          formatCliCommand("zhushou doctor"),
         ]);
         throw new Error("unreachable after gateway restart health failure");
       }
@@ -292,7 +292,7 @@ export async function runDaemonRestart(opts: DaemonLifecycleOptions = {}): Promi
 
       fail(failure.failMessage, [
         formatCliCommand("openclaw gateway status --deep"),
-        formatCliCommand("openclaw doctor"),
+        formatCliCommand("zhushou doctor"),
       ]);
       throw new Error("unreachable after gateway restart failure");
     },

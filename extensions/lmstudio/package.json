@@ -1,10 +1,10 @@
 {
-  "name": "@openclaw/lmstudio-provider",
+  "name": "@zhushou/lmstudio-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw LM Studio provider plugin",
+  "description": "助手 LM Studio provider plugin",
   "type": "module",
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

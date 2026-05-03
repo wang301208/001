@@ -1,9 +1,9 @@
 import { execFile } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { asRecord, readString } from "../config-record-shared.js";
 import { debugLog, debugError, debugWarn } from "./debug-log.js";
 import { detectFfmpeg, isWindows } from "./platform.js";
@@ -304,7 +304,7 @@ export function resolveTTSConfig(cfg: Record<string, unknown>): TTSConfig | null
  * This does NOT guarantee a specific provider is registered/configured – it
  * only checks that TTS is not explicitly (or implicitly) disabled.
  */
-export function isGlobalTTSAvailable(cfg: OpenClawConfig): boolean {
+export function isGlobalTTSAvailable(cfg: ZhushouConfig): boolean {
   const msgTts = cfg.messages?.tts;
   if (!msgTts) {
     return false;

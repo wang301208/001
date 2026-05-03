@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isRecord } from "../utils.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
 import { resolveCodexNativeWebSearchConfig } from "./codex-native-web-search.shared.js";
@@ -61,7 +61,7 @@ export function hasCodexNativeWebSearchTool(tools: unknown): boolean {
 }
 
 export function hasAvailableCodexAuth(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
 }): boolean {
   if (
@@ -87,7 +87,7 @@ export function hasAvailableCodexAuth(params: {
 }
 
 export function resolveCodexNativeSearchActivation(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   modelProvider?: string;
   modelApi?: string;
   agentDir?: string;
@@ -156,7 +156,7 @@ export function resolveCodexNativeSearchActivation(params: {
 }
 
 export function buildCodexNativeWebSearchTool(
-  config: OpenClawConfig | undefined,
+  config: ZhushouConfig | undefined,
 ): Record<string, unknown> {
   const nativeConfig = resolveCodexNativeWebSearchConfig(config);
   const tool: Record<string, unknown> = {
@@ -186,7 +186,7 @@ export function buildCodexNativeWebSearchTool(
 
 export function patchCodexNativeWebSearchPayload(params: {
   payload: unknown;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
 }): CodexNativeSearchPayloadPatchResult {
   if (!isRecord(params.payload)) {
     return { status: "payload_not_object" };
@@ -204,7 +204,7 @@ export function patchCodexNativeWebSearchPayload(params: {
 }
 
 export function shouldSuppressManagedWebSearchTool(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   modelProvider?: string;
   modelApi?: string;
   agentDir?: string;
@@ -213,7 +213,7 @@ export function shouldSuppressManagedWebSearchTool(params: {
 }
 
 export function isCodexNativeWebSearchRelevant(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   agentId?: string;
   agentDir?: string;
 }): boolean {

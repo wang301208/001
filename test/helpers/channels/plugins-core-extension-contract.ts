@@ -4,7 +4,7 @@ import type {
   BaseTokenResolution,
   ChannelDirectoryEntry,
 } from "../../../src/channels/plugins/types.js";
-import type { OpenClawConfig } from "../../../src/config/config.js";
+import type { ZhushouConfig } from "../../../src/config/config.js";
 import type { LineProbeResult } from "../../../src/plugin-sdk/line.js";
 import {
   loadBundledPluginApiSync,
@@ -14,25 +14,25 @@ import {
 import { withEnvAsync } from "../../../src/test-utils/env.js";
 
 type DiscordContractApiSurface = Pick<
-  typeof import("@openclaw/discord/contract-api.js"),
+  typeof import("@zhushou/discord/contract-api.js"),
   "listDiscordDirectoryPeersFromConfig" | "listDiscordDirectoryGroupsFromConfig"
 >;
-type DiscordProbe = import("@openclaw/discord/api.js").DiscordProbe;
-type DiscordTokenResolution = import("@openclaw/discord/api.js").DiscordTokenResolution;
-type IMessageProbe = import("@openclaw/imessage/runtime-api.js").IMessageProbe;
-type SignalProbe = import("@openclaw/signal/api.js").SignalProbe;
+type DiscordProbe = import("@zhushou/discord/api.js").DiscordProbe;
+type DiscordTokenResolution = import("@zhushou/discord/api.js").DiscordTokenResolution;
+type IMessageProbe = import("@zhushou/imessage/runtime-api.js").IMessageProbe;
+type SignalProbe = import("@zhushou/signal/api.js").SignalProbe;
 type SlackContractApiSurface = Pick<
-  typeof import("@openclaw/slack/contract-api.js"),
+  typeof import("@zhushou/slack/contract-api.js"),
   "listSlackDirectoryPeersFromConfig" | "listSlackDirectoryGroupsFromConfig"
 >;
-type SlackProbe = import("@openclaw/slack/api.js").SlackProbe;
+type SlackProbe = import("@zhushou/slack/api.js").SlackProbe;
 type TelegramContractApiSurface = Pick<
-  typeof import("@openclaw/telegram/contract-api.js"),
+  typeof import("@zhushou/telegram/contract-api.js"),
   "listTelegramDirectoryPeersFromConfig" | "listTelegramDirectoryGroupsFromConfig"
 >;
-type TelegramProbe = import("@openclaw/telegram/api.js").TelegramProbe;
-type TelegramTokenResolution = import("@openclaw/telegram/api.js").TelegramTokenResolution;
-type WhatsAppApiSurface = typeof import("@openclaw/whatsapp/api.js");
+type TelegramProbe = import("@zhushou/telegram/api.js").TelegramProbe;
+type TelegramTokenResolution = import("@zhushou/telegram/api.js").TelegramTokenResolution;
+type WhatsAppApiSurface = typeof import("@zhushou/whatsapp/api.js");
 
 let discordContractApiPromise: Promise<DiscordContractApiSurface> | undefined;
 let slackContractApi: SlackContractApiSurface | undefined;
@@ -61,13 +61,13 @@ function getWhatsAppApi(): WhatsAppApiSurface {
 }
 
 type DirectoryListFn = (params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   accountId?: string;
   query?: string | null;
   limit?: number | null;
 }) => Promise<ChannelDirectoryEntry[]>;
 
-async function listDirectoryEntriesWithDefaults(listFn: DirectoryListFn, cfg: OpenClawConfig) {
+async function listDirectoryEntriesWithDefaults(listFn: DirectoryListFn, cfg: ZhushouConfig) {
   return await listFn({
     cfg,
     accountId: "default",
@@ -78,7 +78,7 @@ async function listDirectoryEntriesWithDefaults(listFn: DirectoryListFn, cfg: Op
 
 async function expectDirectoryIds(
   listFn: DirectoryListFn,
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   expected: string[],
   options?: { sorted?: boolean },
 ) {
@@ -122,7 +122,7 @@ export function describeDiscordPluginsCoreExtensionContract() {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(
         await listPeers(),
@@ -160,7 +160,7 @@ export function describeDiscordPluginsCoreExtensionContract() {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(await listPeers(), cfg, ["user:111"]);
       await expectDirectoryIds(await listGroups(), cfg, ["channel:555"]);
@@ -182,7 +182,7 @@ export function describeDiscordPluginsCoreExtensionContract() {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       const groups = await (await listGroups())({
         cfg,
@@ -215,7 +215,7 @@ export function describeSlackPluginsCoreExtensionContract() {
             channels: { C111: { users: ["U777"] } },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(
         listPeers(),
@@ -241,7 +241,7 @@ export function describeSlackPluginsCoreExtensionContract() {
             channels: { C111: {} },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(listPeers(), cfg, ["user:u123"]);
       await expectDirectoryIds(listGroups(), cfg, ["channel:c111"]);
@@ -257,7 +257,7 @@ export function describeSlackPluginsCoreExtensionContract() {
             dms: { U300: {} },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       const peers = await listPeers()({
         cfg,
@@ -294,7 +294,7 @@ export function describeTelegramPluginsCoreExtensionContract() {
             groups: { "-1001": {}, "*": {} },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(listPeers(), cfg, ["123", "456", "@alice", "@bob"], {
         sorted: true,
@@ -318,7 +318,7 @@ export function describeTelegramPluginsCoreExtensionContract() {
               },
             },
           },
-        } as unknown as OpenClawConfig;
+        } as unknown as ZhushouConfig;
 
         await expectDirectoryIds(listPeers(), cfg, ["@alice"]);
         await expectDirectoryIds(listGroups(), cfg, ["-1001"]);
@@ -339,7 +339,7 @@ export function describeTelegramPluginsCoreExtensionContract() {
             groups: { "-1001": {} },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(listPeers(), cfg, ["@alice"]);
       await expectDirectoryIds(listGroups(), cfg, ["-1001"]);
@@ -353,7 +353,7 @@ export function describeTelegramPluginsCoreExtensionContract() {
             groups: { "-1001": {}, "-1002": {}, "-2001": {} },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       const groups = await listGroups()({
         cfg,
@@ -379,7 +379,7 @@ export function describeWhatsAppPluginsCoreExtensionContract() {
             groups: { "999@g.us": { requireMention: true }, "*": {} },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(listPeers(), cfg, ["+15550000000"]);
       await expectDirectoryIds(listGroups(), cfg, ["999@g.us"]);
@@ -392,7 +392,7 @@ export function describeWhatsAppPluginsCoreExtensionContract() {
             groups: { "111@g.us": {}, "222@g.us": {}, "333@s.whatsapp.net": {} },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       const groups = await listGroups()({
         cfg,

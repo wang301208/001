@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { resolvePluginCapabilityProviders } from "../plugins/capability-provider-runtime.js";
 import {
   buildCapabilityProviderMaps,
@@ -13,27 +13,27 @@ export function normalizeSpeechProviderId(
   return normalizeCapabilityProviderId(providerId);
 }
 
-function resolveSpeechProviderPluginEntries(cfg?: OpenClawConfig): SpeechProviderPlugin[] {
+function resolveSpeechProviderPluginEntries(cfg?: ZhushouConfig): SpeechProviderPlugin[] {
   return resolvePluginCapabilityProviders({
     key: "speechProviders",
     cfg,
   });
 }
 
-function buildProviderMaps(cfg?: OpenClawConfig): {
+function buildProviderMaps(cfg?: ZhushouConfig): {
   canonical: Map<string, SpeechProviderPlugin>;
   aliases: Map<string, SpeechProviderPlugin>;
 } {
   return buildCapabilityProviderMaps(resolveSpeechProviderPluginEntries(cfg));
 }
 
-export function listSpeechProviders(cfg?: OpenClawConfig): SpeechProviderPlugin[] {
+export function listSpeechProviders(cfg?: ZhushouConfig): SpeechProviderPlugin[] {
   return [...buildProviderMaps(cfg).canonical.values()];
 }
 
 export function getSpeechProvider(
   providerId: string | undefined,
-  cfg?: OpenClawConfig,
+  cfg?: ZhushouConfig,
 ): SpeechProviderPlugin | undefined {
   const normalized = normalizeSpeechProviderId(providerId);
   if (!normalized) {
@@ -44,7 +44,7 @@ export function getSpeechProvider(
 
 export function canonicalizeSpeechProviderId(
   providerId: string | undefined,
-  cfg?: OpenClawConfig,
+  cfg?: ZhushouConfig,
 ): SpeechProviderId | undefined {
   const normalized = normalizeSpeechProviderId(providerId);
   if (!normalized) {

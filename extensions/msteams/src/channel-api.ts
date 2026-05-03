@@ -1,10 +1,10 @@
-export type { ChannelMessageActionName } from "openclaw/plugin-sdk/channel-contract";
-export type { ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-export { PAIRING_APPROVED_MESSAGE } from "openclaw/plugin-sdk/channel-status";
-export type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-export { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
+export type { ChannelMessageActionName } from "zhushou/plugin-sdk/channel-contract";
+export type { ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+export { PAIRING_APPROVED_MESSAGE } from "zhushou/plugin-sdk/channel-status";
+export type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+export { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
 export {
   buildProbeChannelStatusSummary,
   createDefaultChannelRuntimeState,
-} from "openclaw/plugin-sdk/status-helpers";
-export { chunkTextForOutbound } from "openclaw/plugin-sdk/text-chunking";
+} from "zhushou/plugin-sdk/status-helpers";
+export { chunkTextForOutbound } from "zhushou/plugin-sdk/text-chunking";

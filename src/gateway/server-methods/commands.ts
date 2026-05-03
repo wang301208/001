@@ -8,7 +8,7 @@ import type {
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import { loadConfig } from "../../config/config.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { getPluginCommandSpecs } from "../../plugins/command-registry-state.js";
 import { listPluginCommands } from "../../plugins/commands.js";
@@ -209,7 +209,7 @@ function buildPluginCommandEntries(params: {
 }
 
 export function buildCommandsListResult(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   provider?: string;
   scope?: "native" | "text" | "both";

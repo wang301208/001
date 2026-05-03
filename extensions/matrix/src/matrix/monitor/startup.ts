@@ -121,7 +121,7 @@ export async function runMatrixStartupMaintenance(
     );
     if (deviceHealth.staleOpenClawDevices.length > 0) {
       params.logger.warn(
-        `matrix: stale OpenClaw devices detected for ${params.auth.userId}: ${deviceHealth.staleOpenClawDevices.map((device) => device.deviceId).join(", ")}. Run 'openclaw matrix devices prune-stale --account ${params.effectiveAccountId}' to keep encrypted-room trust healthy.`,
+        `matrix: stale 助手 devices detected for ${params.auth.userId}: ${deviceHealth.staleOpenClawDevices.map((device) => device.deviceId).join(", ")}. Run 'zhushou matrix devices prune-stale --account ${params.effectiveAccountId}' to keep encrypted-room trust healthy.`,
       );
     }
   } catch (err) {
@@ -151,7 +151,7 @@ export async function runMatrixStartupMaintenance(
       startupVerification.kind === "request-failed"
     ) {
       params.logger.info(
-        "matrix: device not verified — run 'openclaw matrix verify device <key>' to enable E2EE",
+        "matrix: device not verified — run 'zhushou matrix verify device <key>' to enable E2EE",
       );
       if (startupVerification.kind === "pending") {
         params.logger.info(

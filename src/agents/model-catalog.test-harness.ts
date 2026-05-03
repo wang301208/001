@@ -9,7 +9,7 @@ vi.mock("./models-config.js", () => ({
 }));
 
 vi.mock("./agent-paths.js", () => ({
-  resolveOpenClawAgentDir: () => "/tmp/openclaw",
+  resolveOpenClawAgentDir: () => "/tmp/zhushou",
 }));
 
 vi.mock("../plugins/provider-runtime.runtime.js", () => ({

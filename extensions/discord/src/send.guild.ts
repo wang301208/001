@@ -7,8 +7,8 @@ import type {
   RESTPostAPIGuildScheduledEventJSONBody,
 } from "discord-api-types/v10";
 import { Routes } from "discord-api-types/v10";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
-import { loadWebMediaRaw } from "openclaw/plugin-sdk/web-media";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+import { loadWebMediaRaw } from "zhushou/plugin-sdk/web-media";
 import { resolveDiscordRest } from "./send.shared.js";
 import type {
   DiscordModerationTarget,

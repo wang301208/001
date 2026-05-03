@@ -1,5 +1,5 @@
 import { resolveProviderAuthAliasMap } from "../agents/provider-auth-aliases.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { loadPluginManifestRegistry } from "../plugins/manifest-registry.js";
 import type { PluginManifestRecord } from "../plugins/manifest-registry.js";
 import { hasKind } from "../plugins/slots.js";
@@ -19,13 +19,13 @@ const CORE_PROVIDER_SETUP_ENV_VAR_OVERRIDES = {
 } as const;
 
 export type ProviderEnvVarLookupParams = {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   includeUntrustedWorkspacePlugins?: boolean;
 };
 
-type PluginEntriesConfig = NonNullable<NonNullable<OpenClawConfig["plugins"]>["entries"]>;
+type PluginEntriesConfig = NonNullable<NonNullable<ZhushouConfig["plugins"]>["entries"]>;
 
 function normalizePluginConfigId(id: unknown): string {
   return normalizeOptionalLowercaseString(id) ?? "";
@@ -55,7 +55,7 @@ function findPluginEntry(
 
 function isWorkspacePluginTrustedForProviderEnvVars(
   plugin: PluginManifestRecord,
-  config: OpenClawConfig | undefined,
+  config: ZhushouConfig | undefined,
 ): boolean {
   const pluginsConfig = config?.plugins;
   if (pluginsConfig?.enabled === false) {
@@ -238,7 +238,7 @@ export function getProviderEnvVars(
 
 const EXTRA_PROVIDER_AUTH_ENV_VARS = ["MINIMAX_CODE_PLAN_KEY", "MINIMAX_CODING_API_KEY"] as const;
 
-// OPENCLAW_API_KEY authenticates the local OpenClaw bridge itself and must
+// OPENCLAW_API_KEY authenticates the local 助手 bridge itself and must
 // remain available to child bridge/runtime processes.
 export function listKnownProviderAuthEnvVarNames(params?: ProviderEnvVarLookupParams): string[] {
   return [

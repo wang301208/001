@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import {
   getSlackExecApprovalApprovers,
@@ -13,9 +13,9 @@ import {
 } from "./exec-approvals.js";
 
 function buildConfig(
-  execApprovals?: NonNullable<NonNullable<OpenClawConfig["channels"]>["slack"]>["execApprovals"],
-  channelOverrides?: Partial<NonNullable<NonNullable<OpenClawConfig["channels"]>["slack"]>>,
-): OpenClawConfig {
+  execApprovals?: NonNullable<NonNullable<ZhushouConfig["channels"]>["slack"]>["execApprovals"],
+  channelOverrides?: Partial<NonNullable<NonNullable<ZhushouConfig["channels"]>["slack"]>>,
+): ZhushouConfig {
   return {
     channels: {
       slack: {
@@ -25,7 +25,7 @@ function buildConfig(
         execApprovals,
       },
     },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
 }
 
 describe("slack exec approvals", () => {
@@ -46,7 +46,7 @@ describe("slack exec approvals", () => {
         cfg: {
           ...buildConfig(),
           commands: { ownerAllowFrom: ["slack:U123OWNER"] },
-        } as OpenClawConfig,
+        } as ZhushouConfig,
       }),
     ).toBe(true);
     expect(
@@ -85,7 +85,7 @@ describe("slack exec approvals", () => {
     const cfg = {
       ...buildConfig({ enabled: true }),
       commands: { ownerAllowFrom: ["slack:U123", "user:U456", "<@U789>"] },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(getSlackExecApprovalApprovers({ cfg })).toEqual(["U123", "U456", "U789"]);
     expect(isSlackExecApprovalApprover({ cfg, senderId: "U456" })).toBe(true);
@@ -115,7 +115,7 @@ describe("slack exec approvals", () => {
           ],
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(isSlackExecApprovalTargetRecipient({ cfg, senderId: "U123TARGET" })).toBe(true);
     expect(isSlackExecApprovalTargetRecipient({ cfg, senderId: "U999OTHER" })).toBe(false);

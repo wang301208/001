@@ -1,5 +1,5 @@
 import type { CliBackendConfig } from "../config/types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export type PluginTextReplacement = {
   from: string | RegExp;
@@ -9,7 +9,7 @@ export type PluginTextReplacement = {
 export type PluginTextTransforms = {
   /** Rewrites applied to outbound prompt text before provider/CLI transport. */
   input?: PluginTextReplacement[];
-  /** Rewrites applied to inbound assistant text before OpenClaw consumes it. */
+  /** Rewrites applied to inbound assistant text before 助手 consumes it. */
   output?: PluginTextReplacement[];
 };
 
@@ -40,9 +40,9 @@ export type CliBackendPlugin = {
     };
   };
   /**
-   * Whether OpenClaw should inject bundle MCP config for this backend.
+   * Whether 助手 should inject bundle MCP config for this backend.
    *
-   * Keep this opt-in. Only backends that explicitly consume OpenClaw's bundle
+   * Keep this opt-in. Only backends that explicitly consume 助手's bundle
    * MCP bridge should enable it.
    */
   bundleMcp?: boolean;
@@ -69,7 +69,7 @@ export type CliBackendPlugin = {
    * the generic CLI runner or prompt builder.
    */
   transformSystemPrompt?: (ctx: {
-    config?: OpenClawConfig;
+    config?: ZhushouConfig;
     workspaceDir?: string;
     provider: string;
     modelId: string;

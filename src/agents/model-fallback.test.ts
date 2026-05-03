@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resetLogger, setLoggerOverride } from "../logging/logger.js";
 import { createWarnLogCapture } from "../logging/test-helpers/warn-log-capture.js";
 import { AUTH_STORE_VERSION } from "./auth-profiles/constants.js";
@@ -25,7 +25,7 @@ const makeCfg = makeModelFallbackCfg;
 const OPENROUTER_MODEL_NOT_FOUND_PAYLOAD =
   '{"error":{"message":"Healer Alpha was a stealth model revealed on March 18th as an early testing version of MiMo-V2-Omni. Find it here: https://openrouter.ai/xiaomi/mimo-v2-omni","code":404},"user_id":"user_33GTyP8uDSYYbaeBO48AGHXyuMC"}';
 
-function makeFallbacksOnlyCfg(): OpenClawConfig {
+function makeFallbacksOnlyCfg(): ZhushouConfig {
   return {
     agents: {
       defaults: {
@@ -34,10 +34,10 @@ function makeFallbacksOnlyCfg(): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
 }
 
-function makeProviderFallbackCfg(provider: string): OpenClawConfig {
+function makeProviderFallbackCfg(provider: string): ZhushouConfig {
   return makeCfg({
     agents: {
       defaults: {
@@ -54,7 +54,7 @@ async function withTempAuthStore<T>(
   store: AuthProfileStore,
   run: (tempDir: string) => Promise<T>,
 ): Promise<T> {
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-auth-"));
   saveAuthProfileStore(store, tempDir);
   try {
     return await run(tempDir);
@@ -64,7 +64,7 @@ async function withTempAuthStore<T>(
 }
 
 async function runWithStoredAuth(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   store: AuthProfileStore;
   provider: string;
   run: (provider: string, model: string) => Promise<string>;
@@ -192,10 +192,10 @@ const OPENAI_RATE_LIMIT_MESSAGE =
 const ANTHROPIC_OVERLOADED_PAYLOAD =
   '{"type":"error","error":{"type":"overloaded_error","message":"Overloaded"},"request_id":"req_test"}';
 // Issue-backed Anthropic/OpenAI-compatible insufficient_quota payload under HTTP 400:
-// https://github.com/openclaw/openclaw/issues/23440
+// https://github.com/zhushou/zhushou/issues/23440
 const INSUFFICIENT_QUOTA_PAYLOAD =
   '{"type":"error","error":{"type":"insufficient_quota","message":"Your account has insufficient quota balance to run this request."}}';
-// Internal OpenClaw compatibility marker, not a provider API contract.
+// Internal 助手 compatibility marker, not a provider API contract.
 const MODEL_COOLDOWN_MESSAGE = "model_cooldown: All credentials for model gpt-5 are cooling down";
 // SDK/transport compatibility marker, not a provider API contract.
 const CONNECTION_ERROR_MESSAGE = "Connection error.";
@@ -213,12 +213,12 @@ describe("runWithModelFallback", () => {
         cfg: makeCfg(),
         provider: "openai",
         model: "gpt-4.1-mini",
-        agentDir: "/tmp/openclaw-no-auth-profiles",
+        agentDir: "/tmp/zhushou-no-auth-profiles",
         run,
       });
 
       expect(result.result).toBe("ok");
-      expect(hasSourcesSpy).toHaveBeenCalledWith("/tmp/openclaw-no-auth-profiles");
+      expect(hasSourcesSpy).toHaveBeenCalledWith("/tmp/zhushou-no-auth-profiles");
       expect(ensureStoreSpy).not.toHaveBeenCalled();
       expect(run).toHaveBeenCalledWith("openai", "gpt-4.1-mini");
     } finally {
@@ -647,7 +647,7 @@ describe("runWithModelFallback", () => {
   });
 
   it("sanitizes model identifiers in model_not_found warnings", async () => {
-    const warnLogs = createWarnLogCapture("openclaw-model-fallback-test");
+    const warnLogs = createWarnLogCapture("zhushou-model-fallback-test");
     try {
       const cfg = makeCfg();
       const run = vi
@@ -1359,7 +1359,7 @@ describe("runWithModelFallback", () => {
       provider: string,
       reason: "rate_limit" | "overloaded" | "timeout" | "auth" | "billing",
     ): Promise<{ store: AuthProfileStore; dir: string }> {
-      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-test-"));
       const now = Date.now();
       const store: AuthProfileStore = {
         version: AUTH_STORE_VERSION,
@@ -1530,7 +1530,7 @@ describe("runWithModelFallback", () => {
     });
 
     it("tries cross-provider fallbacks when same provider has rate limit", async () => {
-      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-test-"));
       const store: AuthProfileStore = {
         version: AUTH_STORE_VERSION,
         profiles: {

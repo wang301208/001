@@ -28,8 +28,8 @@ function extractToolText(result: unknown): string {
 
 describe("createOpenClawCodingTools read behavior", () => {
   it("applies sandbox path guards to canonical path", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sbx-"));
-    const outsidePath = path.join(os.tmpdir(), "openclaw-outside.txt");
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sbx-"));
+    const outsidePath = path.join(os.tmpdir(), "zhushou-outside.txt");
     await fs.writeFile(outsidePath, "outside", "utf8");
     try {
       const readTool = createSandboxedReadTool({
@@ -46,7 +46,7 @@ describe("createOpenClawCodingTools read behavior", () => {
   });
 
   it("auto-pages read output across chunks when context window budget allows", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-read-autopage-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-read-autopage-"));
     const filePath = path.join(tmpDir, "big.txt");
     const lines = Array.from(
       { length: 5000 },
@@ -71,7 +71,7 @@ describe("createOpenClawCodingTools read behavior", () => {
   });
 
   it("adds capped continuation guidance when aggregated read output reaches budget", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-read-cap-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-read-cap-"));
     const filePath = path.join(tmpDir, "huge.txt");
     const lines = Array.from(
       { length: 8000 },

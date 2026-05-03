@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 import { loadConfig } from "../../config/config.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { resolveConfiguredMediaMaxBytes } from "../../media/configured-max-bytes.js";
@@ -106,13 +106,13 @@ const MusicGenerateToolSchema = Type.Object({
   filename: Type.Optional(
     Type.String({
       description:
-        "Optional output filename hint. OpenClaw preserves the basename and saves under its managed media directory.",
+        "Optional output filename hint. 助手 preserves the basename and saves under its managed media directory.",
     }),
   ),
 });
 
 export function resolveMusicGenerationModelConfigForTool(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   agentDir?: string;
 }): ToolModelConfig | null {
   return resolveCapabilityModelConfigForTool({
@@ -124,7 +124,7 @@ export function resolveMusicGenerationModelConfigForTool(params: {
 }
 
 function resolveSelectedMusicGenerationProvider(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   musicGenerationModelConfig: ToolModelConfig;
   modelOverride?: string;
 }): MusicGenerationProvider | undefined {
@@ -325,7 +325,7 @@ type ExecutedMusicGeneration = {
 };
 
 async function executeMusicGenerationJob(params: {
-  effectiveCfg: OpenClawConfig;
+  effectiveCfg: ZhushouConfig;
   prompt: string;
   agentDir?: string;
   model?: string;
@@ -454,7 +454,7 @@ async function executeMusicGenerationJob(params: {
 }
 
 export function createMusicGenerateTool(options?: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   agentSessionKey?: string;
   requesterOrigin?: DeliveryContext;
@@ -463,7 +463,7 @@ export function createMusicGenerateTool(options?: {
   fsPolicy?: ToolFsPolicy;
   scheduleBackgroundWork?: MusicGenerateBackgroundScheduler;
 }): AnyAgentTool | null {
-  const cfg: OpenClawConfig = options?.config ?? loadConfig();
+  const cfg: ZhushouConfig = options?.config ?? loadConfig();
   const musicGenerationModelConfig = resolveMusicGenerationModelConfigForTool({
     cfg,
     agentDir: options?.agentDir,
@@ -487,7 +487,7 @@ export function createMusicGenerateTool(options?: {
     name: "music_generate",
     displaySummary: "Generate music",
     description:
-      "Generate music using configured providers. Generated tracks are saved under OpenClaw-managed media storage and delivered automatically as attachments.",
+      "Generate music using configured providers. Generated tracks are saved under 助手-managed media storage and delivered automatically as attachments.",
     parameters: MusicGenerateToolSchema,
     execute: async (_toolCallId, rawArgs) => {
       const args = rawArgs as Record<string, unknown>;

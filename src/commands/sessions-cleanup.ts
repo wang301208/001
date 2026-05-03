@@ -12,7 +12,7 @@ import {
   type SessionEntry,
   type SessionMaintenanceApplyReport,
 } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { type RuntimeEnv, writeRuntimeJson } from "../runtime.js";
 import { isRich, theme } from "../terminal/theme.js";
 import {
@@ -244,7 +244,7 @@ async function previewStoreCleanup(params: {
 }
 
 function renderStoreDryRunPlan(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   summary: SessionCleanupSummary;
   actionRows: SessionCleanupActionRow[];
   displayDefaults: ReturnType<typeof resolveSessionDisplayDefaults>;

@@ -1,13 +1,13 @@
 version: 1
 policy:
   id: "evolution-policy"
-  title: "OpenClaw Autonomous Evolution Policy"
+  title: "助手 Autonomous Evolution Policy"
   layer: "evolution"
   status: "draft"
 
 purpose:
   primary: >
-    Govern how OpenClaw initiates, executes, validates, promotes, and rolls
+    Govern how 助手 initiates, executes, validates, promotes, and rolls
     back self-improvement so the system can evolve continuously instead of
     waiting for human redesign.
   mission:

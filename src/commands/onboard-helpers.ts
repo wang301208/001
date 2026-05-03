@@ -6,7 +6,7 @@ import { DEFAULT_AGENT_WORKSPACE_DIR, ensureAgentWorkspace } from "../agents/wor
 import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import { CONFIG_PATH } from "../config/paths.js";
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveGatewayLinks } from "../gateway/gateway-links.js";
 import { probeGateway } from "../gateway/probe.js";
 import {
@@ -39,7 +39,7 @@ export function guardCancel<T>(value: T | symbol, runtime: RuntimeEnv): T {
   return value;
 }
 
-export function summarizeExistingConfig(config: OpenClawConfig): string {
+export function summarizeExistingConfig(config: ZhushouConfig): string {
   const rows: string[] = [];
   const defaults = config.agents?.defaults;
   if (defaults?.workspace) {
@@ -108,9 +108,9 @@ export function printWizardHeader(runtime: RuntimeEnv) {
 }
 
 export function applyWizardMetadata(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   params: { command: string; mode: OnboardMode },
-): OpenClawConfig {
+): ZhushouConfig {
   const commit =
     normalizeOptionalString(process.env.GIT_COMMIT) ?? normalizeOptionalString(process.env.GIT_SHA);
   return {
@@ -135,9 +135,9 @@ export function formatGatewaySshHint(params: {
     "Remote terminal session detected. Forward the Gateway port if this machine is not local:",
     `ssh -N -L ${params.port}:127.0.0.1:${params.port} ${sshTarget}`,
     "Then connect with:",
-    `openclaw tui --url ${localWsUrl}`,
+    `zhushou tui --url ${localWsUrl}`,
     "Docs:",
-    "https://docs.openclaw.ai/gateway/remote",
+    "https://docs.zhushou.ai/gateway/remote",
   ]
     .filter(Boolean)
     .join("\n");

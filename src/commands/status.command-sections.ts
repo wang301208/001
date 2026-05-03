@@ -254,10 +254,10 @@ export function buildStatusSecurityAuditLines(params: {
     }
   }
   lines.push(
-    params.theme.muted(`Full report: ${params.formatCliCommand("openclaw security audit")}`),
+    params.theme.muted(`Full report: ${params.formatCliCommand("zhushou security audit")}`),
   );
   lines.push(
-    params.theme.muted(`Deep probe: ${params.formatCliCommand("openclaw security audit --deep")}`),
+    params.theme.muted(`Deep probe: ${params.formatCliCommand("zhushou security audit --deep")}`),
   );
   return lines;
 }
@@ -585,16 +585,16 @@ export function buildStatusFooterLines(params: {
   gatewayReachable: boolean;
 }) {
   return [
-    "FAQ: https://docs.openclaw.ai/faq",
-    "Troubleshooting: https://docs.openclaw.ai/troubleshooting",
+    "FAQ: https://docs.zhushou.ai/faq",
+    "Troubleshooting: https://docs.zhushou.ai/troubleshooting",
     ...(params.updateHint ? ["", params.warn(params.updateHint)] : []),
     "Next steps:",
-    `  Need to share?      ${params.formatCliCommand("openclaw status --all")}`,
-    `  Need to debug live? ${params.formatCliCommand("openclaw logs --follow")}`,
+    `  Need to share?      ${params.formatCliCommand("zhushou status --all")}`,
+    `  Need to debug live? ${params.formatCliCommand("zhushou logs --follow")}`,
     params.nodeOnlyGateway
-      ? `  Need node service?  ${params.formatCliCommand("openclaw node status")}`
+      ? `  Need node service?  ${params.formatCliCommand("zhushou node status")}`
       : params.gatewayReachable
-        ? `  Need to test channels? ${params.formatCliCommand("openclaw status --deep")}`
+        ? `  Need to test channels? ${params.formatCliCommand("zhushou status --deep")}`
         : `  Fix reachability first: ${params.formatCliCommand("openclaw gateway probe")}`,
   ];
 }
@@ -637,12 +637,12 @@ export function buildStatusPairingRecoveryLines(params: {
     ...(params.pairingRecovery.requestId
       ? [
           params.muted(
-            `Recovery: ${params.formatCliCommand(`openclaw devices approve ${params.pairingRecovery.requestId}`)}`,
+            `Recovery: ${params.formatCliCommand(`zhushou devices approve ${params.pairingRecovery.requestId}`)}`,
           ),
         ]
       : []),
-    params.muted(`Fallback: ${params.formatCliCommand("openclaw devices approve --latest")}`),
-    params.muted(`Inspect: ${params.formatCliCommand("openclaw devices list")}`),
+    params.muted(`Fallback: ${params.formatCliCommand("zhushou devices approve --latest")}`),
+    params.muted(`Inspect: ${params.formatCliCommand("zhushou devices list")}`),
   ];
 }
 

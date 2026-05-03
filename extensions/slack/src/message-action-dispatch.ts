@@ -1,7 +1,7 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type { ChannelMessageActionContext } from "openclaw/plugin-sdk/channel-contract";
-import { normalizeInteractiveReply } from "openclaw/plugin-sdk/interactive-runtime";
-import { readNumberParam, readStringParam } from "openclaw/plugin-sdk/param-readers";
+import type { ChannelMessageActionContext } from "zhushou/plugin-sdk/channel-contract";
+import { normalizeInteractiveReply } from "zhushou/plugin-sdk/interactive-runtime";
+import { readNumberParam, readStringParam } from "zhushou/plugin-sdk/param-readers";
 import { parseSlackBlocksInput } from "./blocks-input.js";
 import { buildSlackInteractiveBlocks } from "./blocks-render.js";
 

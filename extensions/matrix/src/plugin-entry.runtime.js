@@ -11,8 +11,8 @@ const { createJiti } = require("jiti");
 
 const PLUGIN_ID = "matrix";
 const OPENCLAW_PLUGIN_SDK_PACKAGE_NAMES = [
-  ["openclaw", "plugin-sdk"].join("/"),
-  ["@openclaw", "plugin-sdk"].join("/"),
+  ["zhushou", "plugin-sdk"].join("/"),
+  ["@zhushou", "plugin-sdk"].join("/"),
 ];
 const PLUGIN_SDK_EXPORT_PREFIX = "./plugin-sdk/";
 const PLUGIN_SDK_SOURCE_EXTENSIONS = [".ts", ".mts", ".js", ".mjs", ".cts", ".cjs"];
@@ -50,11 +50,11 @@ function hasTrustedOpenClawRootIndicator(packageRoot, packageJson) {
   const hasCliEntryExport = Object.prototype.hasOwnProperty.call(packageExports, "./cli-entry");
   const hasOpenClawBin =
     (typeof packageJson?.bin === "string" &&
-      normalizeLowercaseStringOrEmpty(packageJson.bin).includes("openclaw")) ||
+      normalizeLowercaseStringOrEmpty(packageJson.bin).includes("zhushou")) ||
     (typeof packageJson?.bin === "object" &&
       packageJson.bin !== null &&
-      typeof packageJson.bin.openclaw === "string");
-  const hasOpenClawEntrypoint = fs.existsSync(path.join(packageRoot, "openclaw.mjs"));
+      typeof packageJson.bin.zhushou === "string");
+  const hasOpenClawEntrypoint = fs.existsSync(path.join(packageRoot, "zhushou.mjs"));
   return hasCliEntryExport || hasOpenClawBin || hasOpenClawEntrypoint;
 }
 
@@ -62,7 +62,7 @@ function findOpenClawPackageRoot(startDir) {
   let cursor = path.resolve(startDir);
   for (let i = 0; i < 12; i += 1) {
     const pkg = readPackageJson(cursor);
-    if (pkg?.name === "openclaw" && hasTrustedOpenClawRootIndicator(cursor, pkg)) {
+    if (pkg?.name === "zhushou" && hasTrustedOpenClawRootIndicator(cursor, pkg)) {
       return { packageRoot: cursor, packageJson: pkg };
     }
     const parent = path.dirname(cursor);
@@ -127,7 +127,7 @@ function buildPluginSdkAliasMap(moduleUrl) {
       PLUGIN_SDK_SOURCE_EXTENSIONS,
     ) ?? resolveExistingFile(path.join(packageRoot, "dist", "extensionAPI"), [".js"]);
   if (extensionApi) {
-    aliasMap["openclaw/extension-api"] = extensionApi;
+    aliasMap["zhushou/extension-api"] = extensionApi;
   }
 
   return aliasMap;

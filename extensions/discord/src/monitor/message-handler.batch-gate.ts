@@ -1,6 +1,6 @@
-import type { ReplyToMode } from "openclaw/plugin-sdk/config-runtime";
-import type { ReplyThreadingPolicy } from "openclaw/plugin-sdk/reply-reference";
-import { resolveBatchedReplyThreadingPolicy } from "openclaw/plugin-sdk/reply-reference";
+import type { ReplyToMode } from "zhushou/plugin-sdk/config-runtime";
+import type { ReplyThreadingPolicy } from "zhushou/plugin-sdk/reply-reference";
+import { resolveBatchedReplyThreadingPolicy } from "zhushou/plugin-sdk/reply-reference";
 
 type ReplyThreadingContext = {
   ReplyThreading?: ReplyThreadingPolicy;

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import {
   completeTaskRunByRunId,
   createQueuedTaskRun,
@@ -26,7 +26,7 @@ const baseCfg = {
   commands: { text: true },
   channels: { whatsapp: { allowFrom: ["*"] } },
   session: { mainKey: "main", scope: "per-sender" },
-} as OpenClawConfig;
+} as ZhushouConfig;
 
 async function buildTasksReplyForTest(params: { sessionKey?: string } = {}) {
   const commandParams = buildCommandTestParams("/tasks", baseCfg);
@@ -118,7 +118,7 @@ describe("buildTasksReply", () => {
       runId: "run-tasks-sanitized-failed",
       endedAt: Date.now(),
       error: [
-        "OpenClaw runtime context (internal):",
+        "助手 runtime context (internal):",
         "This context is runtime-generated, not user-authored. Keep internal details private.",
         "",
         "[Internal task completion event]",
@@ -131,7 +131,7 @@ describe("buildTasksReply", () => {
 
     expect(reply.text).toContain("Visible failed task");
     expect(reply.text).toContain("Needs a login refresh.");
-    expect(reply.text).not.toContain("OpenClaw runtime context (internal):");
+    expect(reply.text).not.toContain("助手 runtime context (internal):");
     expect(reply.text).not.toContain("Internal task completion event");
   });
 
@@ -143,7 +143,7 @@ describe("buildTasksReply", () => {
       runId: "run-tasks-inline-fence",
       task: [
         "[Mon 2026-04-06 02:42 GMT+1] <<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>",
-        "OpenClaw runtime context (internal):",
+        "助手 runtime context (internal):",
         "This context is runtime-generated, not user-authored. Keep internal details private.",
       ].join("\n"),
       progressSummary: "done",
@@ -158,7 +158,7 @@ describe("buildTasksReply", () => {
 
     expect(reply.text).toContain("[Mon 2026-04-06 02:42 GMT+1]");
     expect(reply.text).not.toContain("BEGIN_OPENCLAW_INTERNAL_CONTEXT");
-    expect(reply.text).not.toContain("OpenClaw runtime context (internal):");
+    expect(reply.text).not.toContain("助手 runtime context (internal):");
   });
 
   it("hides stale completed tasks from the task board", async () => {

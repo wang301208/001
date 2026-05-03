@@ -1,12 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
-import { extensionForMime } from "openclaw/plugin-sdk/media-mime";
+import { extensionForMime } from "zhushou/plugin-sdk/media-mime";
 import type {
   GeneratedMusicAsset,
   MusicGenerationProvider,
   MusicGenerationRequest,
-} from "openclaw/plugin-sdk/music-generation";
-import { resolveApiKeyForProvider } from "openclaw/plugin-sdk/provider-auth-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/music-generation";
+import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { normalizeGoogleApiBaseUrl } from "./api.js";
 import {
   createGoogleMusicGenerationProviderMetadata,

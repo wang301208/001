@@ -29,14 +29,14 @@ describe("loadVitestExperimentalConfig", () => {
     expect(
       loadVitestExperimentalConfig(
         {
-          OPENCLAW_VITEST_FS_MODULE_CACHE_PATH: "/tmp/openclaw-vitest-cache",
+          OPENCLAW_VITEST_FS_MODULE_CACHE_PATH: "/tmp/zhushou-vitest-cache",
         },
         "linux",
       ),
     ).toEqual({
       experimental: {
         fsModuleCache: true,
-        fsModuleCachePath: "/tmp/openclaw-vitest-cache",
+        fsModuleCachePath: "/tmp/zhushou-vitest-cache",
       },
     });
   });

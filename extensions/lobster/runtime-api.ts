@@ -1,12 +1,12 @@
-export { definePluginEntry } from "openclaw/plugin-sdk/core";
+export { definePluginEntry } from "zhushou/plugin-sdk/core";
 export type {
   AnyAgentTool,
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   OpenClawPluginToolContext,
   OpenClawPluginToolFactory,
-} from "openclaw/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 export {
   applyWindowsSpawnProgramPolicy,
   materializeWindowsSpawnProgram,
   resolveWindowsSpawnProgramCandidate,
-} from "openclaw/plugin-sdk/windows-spawn";
+} from "zhushou/plugin-sdk/windows-spawn";

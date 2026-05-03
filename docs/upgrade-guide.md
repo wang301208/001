@@ -34,7 +34,7 @@
 ### 第一步：诊断当前配置
 
 ```bash
-openclaw doctor
+zhushou doctor
 ```
 
 `doctor` 命令会扫描配置文件，列出所有旧版字段及推荐的替代路径。
@@ -42,7 +42,7 @@ openclaw doctor
 ### 第二步：自动修复（推荐）
 
 ```bash
-openclaw doctor --fix
+zhushou doctor --fix
 ```
 
 `--fix` 选项会自动将已知旧版字段迁移到新版路径。操作前会自动备份原始配置。
@@ -53,10 +53,10 @@ openclaw doctor --fix
 
 ```bash
 # 查看当前配置文件路径
-openclaw config file
+zhushou config file
 
 # 打开编辑器
-$EDITOR ~/.openclaw/openclaw.json
+$EDITOR ~/.zhushou/zhushou.json
 ```
 
 **示例：迁移 `routing.allowFrom`**
@@ -135,15 +135,15 @@ $EDITOR ~/.openclaw/openclaw.json
 迁移完成后，再次运行 `doctor` 确认无遗留问题：
 
 ```bash
-openclaw doctor
+zhushou doctor
 ```
 
 ### 第五步：重新运行向导
 
 ```bash
-openclaw onboard
+zhushou onboard
 # 或仅配置特定章节：
-openclaw configure
+zhushou configure
 ```
 
 ---
@@ -153,7 +153,7 @@ openclaw configure
 旧版配置中，网络搜索通过环境变量（如 `BRAVE_API_KEY`）自动检测。新版需要在配置中显式指定提供商：
 
 ```bash
-openclaw configure --section web
+zhushou configure --section web
 ```
 
 或在配置文件中手动添加：
@@ -186,29 +186,29 @@ openclaw configure --section web
 
 ## 回滚策略
 
-向导在修改已有配置前会自动创建快照（存储在 `~/.openclaw/.snapshots/`）。若迁移后出现问题，可通过以下方式回滚：
+向导在修改已有配置前会自动创建快照（存储在 `~/.zhushou/.snapshots/`）。若迁移后出现问题，可通过以下方式回滚：
 
 ```bash
 # 查看可用快照
-openclaw config snapshots list
+zhushou config snapshots list
 
 # 回滚到指定快照
-openclaw config snapshots rollback <timestamp>
+zhushou config snapshots rollback <timestamp>
 ```
 
 也可以手动从快照目录中复制旧配置内容。快照文件包含 `{ timestamp, label, config }`，请将其中的 `config` 对象写回配置文件：
 
 ```bash
-ls ~/.openclaw/.snapshots/
+ls ~/.zhushou/.snapshots/
 ```
 
 ---
 
 ## 常见问题
 
-**Q: 迁移后 `openclaw onboard` 报 "检测到不支持的旧版配置字段"**
+**Q: 迁移后 `zhushou onboard` 报 "检测到不支持的旧版配置字段"**
 
-运行 `openclaw doctor` 查看具体的旧版字段，按上述步骤手动迁移后重试。
+运行 `zhushou doctor` 查看具体的旧版字段，按上述步骤手动迁移后重试。
 
 **Q: `doctor --fix` 提示 "无法自动迁移某字段"**
 

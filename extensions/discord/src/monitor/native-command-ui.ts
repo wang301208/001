@@ -12,7 +12,7 @@ import {
   type StringSelectMenuInteraction,
 } from "@buape/carbon";
 import { ButtonStyle } from "discord-api-types/v10";
-import { resolveDefaultModelForAgent } from "openclaw/plugin-sdk/agent-runtime";
+import { resolveDefaultModelForAgent } from "zhushou/plugin-sdk/agent-runtime";
 import {
   buildCommandTextFromArgs,
   findCommandByNativeName,
@@ -23,17 +23,17 @@ import {
   type CommandArgDefinition,
   type CommandArgValues,
   type CommandArgs,
-} from "openclaw/plugin-sdk/command-auth";
-import type { OpenClawConfig, loadConfig } from "openclaw/plugin-sdk/config-runtime";
-import { loadSessionStore, resolveStorePath } from "openclaw/plugin-sdk/config-runtime";
-import type { ResolvedAgentRoute } from "openclaw/plugin-sdk/routing";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/command-auth";
+import type { ZhushouConfig, loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import { loadSessionStore, resolveStorePath } from "zhushou/plugin-sdk/config-runtime";
+import type { ResolvedAgentRoute } from "zhushou/plugin-sdk/routing";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import {
   chunkItems,
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
   withTimeout,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
 import {
   readDiscordModelPickerRecentModels,
@@ -54,7 +54,7 @@ import { resolveDiscordNativeInteractionRouteState } from "./native-command-rout
 import type { ThreadBindingManager } from "./thread-bindings.js";
 import { resolveDiscordThreadParentInfo } from "./threading.js";
 
-type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
+type DiscordConfig = NonNullable<ZhushouConfig["channels"]>["discord"];
 
 const DISCORD_COMMAND_ARG_CUSTOM_ID_KEY = "cmdarg";
 

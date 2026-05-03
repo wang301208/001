@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export type DiagnosticSessionState = "idle" | "processing" | "waiting";
 
@@ -193,7 +193,7 @@ function getDiagnosticEventsState(): DiagnosticEventsGlobalState {
   return globalStore.__openclawDiagnosticEventsState;
 }
 
-export function isDiagnosticsEnabled(config?: OpenClawConfig): boolean {
+export function isDiagnosticsEnabled(config?: ZhushouConfig): boolean {
   return config?.diagnostics?.enabled === true;
 }
 

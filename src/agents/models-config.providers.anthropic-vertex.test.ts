@@ -12,8 +12,8 @@ async function withAdcCredentialsFile(
   credentials: Record<string, string>,
   run: (params: { agentDir: string; credentialsPath: string }) => Promise<void>,
 ) {
-  const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
-  const adcDir = mkdtempSync(join(tmpdir(), "openclaw-adc-"));
+  const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
+  const adcDir = mkdtempSync(join(tmpdir(), "zhushou-adc-"));
   const credentialsPath = join(adcDir, "application_default_credentials.json");
   writeFileSync(credentialsPath, JSON.stringify(credentials), "utf8");
 
@@ -26,7 +26,7 @@ async function withAdcCredentialsFile(
 
 describe("anthropic-vertex implicit provider", () => {
   it("does not auto-enable from GOOGLE_CLOUD_PROJECT_ID alone", async () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
     const providers = await resolveImplicitProvidersForTest({
       agentDir,
       env: {
@@ -61,8 +61,8 @@ describe("anthropic-vertex implicit provider", () => {
   });
 
   it("accepts ADC credentials when the file only includes a quota_project_id", async () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
-    const adcDir = mkdtempSync(join(tmpdir(), "openclaw-adc-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
+    const adcDir = mkdtempSync(join(tmpdir(), "zhushou-adc-"));
     const credentialsPath = join(adcDir, "application_default_credentials.json");
     writeFileSync(credentialsPath, JSON.stringify({ quota_project_id: "vertex-quota" }), "utf8");
 
@@ -84,8 +84,8 @@ describe("anthropic-vertex implicit provider", () => {
   });
 
   it("accepts ADC credentials when project_id is resolved at runtime", async () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
-    const adcDir = mkdtempSync(join(tmpdir(), "openclaw-adc-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
+    const adcDir = mkdtempSync(join(tmpdir(), "zhushou-adc-"));
     const credentialsPath = join(adcDir, "application_default_credentials.json");
     writeFileSync(credentialsPath, "{}", "utf8");
 
@@ -141,7 +141,7 @@ describe("anthropic-vertex implicit provider", () => {
   });
 
   it("accepts explicit metadata auth opt-in without local credential files", async () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
     const providers = await resolveImplicitProvidersForTest({
       agentDir,
       env: {
@@ -156,7 +156,7 @@ describe("anthropic-vertex implicit provider", () => {
   });
 
   it("merges the bundled catalog into explicit anthropic-vertex provider overrides", async () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
     const providers = await resolveImplicitProvidersForTest({
       agentDir,
       env: {
@@ -184,7 +184,7 @@ describe("anthropic-vertex implicit provider", () => {
   });
 
   it("does not accept generic Kubernetes env without a GCP ADC signal", async () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const agentDir = mkdtempSync(join(tmpdir(), "zhushou-test-"));
     const providers = await resolveImplicitProvidersForTest({
       agentDir,
       env: {

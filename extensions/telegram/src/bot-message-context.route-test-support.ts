@@ -47,7 +47,7 @@ export const telegramRouteTestSessionRuntime = {
   resolveInboundLastRouteSessionKey: ({ route, sessionKey }) =>
     route.lastRoutePolicy === "main" ? route.mainSessionKey : sessionKey,
   resolvePinnedMainDmOwnerFromAllowlist: () => null,
-  resolveStorePath: () => "/tmp/openclaw/session-store.json",
+  resolveStorePath: () => "/tmp/zhushou/session-store.json",
 } satisfies TelegramTestSessionRuntime;
 
 export async function loadTelegramMessageContextRouteHarness() {

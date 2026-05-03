@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { resolveMemoryBackendConfig } from "./backend-config.js";
 import { isQmdScopeAllowed } from "./qmd-scope.js";
 
@@ -14,7 +14,7 @@ async function createDirectoryAlias(targetPath: string, aliasPath: string) {
   await fs.symlink(targetPath, aliasPath, process.platform === "win32" ? "junction" : "dir");
 }
 
-function resolveCollectionNamesForAgent(cfg: OpenClawConfig, agentId: string): Set<string> {
+function resolveCollectionNamesForAgent(cfg: ZhushouConfig, agentId: string): Set<string> {
   return new Set(
     (resolveMemoryBackendConfig({ cfg, agentId }).qmd?.collections ?? []).map(
       (collection) => collection.name,
@@ -22,7 +22,7 @@ function resolveCollectionNamesForAgent(cfg: OpenClawConfig, agentId: string): S
   );
 }
 
-function resolveCustomCollectionPathsForAgent(cfg: OpenClawConfig, agentId: string): string[] {
+function resolveCustomCollectionPathsForAgent(cfg: ZhushouConfig, agentId: string): string[] {
   return (resolveMemoryBackendConfig({ cfg, agentId }).qmd?.collections ?? [])
     .filter((collection) => collection.kind === "custom")
     .map((collection) => collection.path);
@@ -30,7 +30,7 @@ function resolveCustomCollectionPathsForAgent(cfg: OpenClawConfig, agentId: stri
 
 describe("resolveMemoryBackendConfig", () => {
   it("defaults to builtin backend when config missing", () => {
-    const cfg = { agents: { defaults: { workspace: "/tmp/memory-test" } } } as OpenClawConfig;
+    const cfg = { agents: { defaults: { workspace: "/tmp/memory-test" } } } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     expect(resolved.backend).toBe("builtin");
     expect(resolved.citations).toBe("auto");
@@ -44,7 +44,7 @@ describe("resolveMemoryBackendConfig", () => {
         backend: "qmd",
         qmd: {},
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     expect(resolved.backend).toBe("qmd");
     expect(resolved.qmd?.collections.length).toBe(2);
@@ -67,7 +67,7 @@ describe("resolveMemoryBackendConfig", () => {
         backend: "qmd",
         qmd: {},
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
 
     expect(isQmdScopeAllowed(resolved.qmd?.scope, "agent:main:discord:direct:user-123")).toBe(true);
@@ -88,7 +88,7 @@ describe("resolveMemoryBackendConfig", () => {
           command: '"/Applications/QMD Tools/qmd" --flag',
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     expect(resolved.qmd?.command).toBe("/Applications/QMD Tools/qmd");
   });
@@ -102,7 +102,7 @@ describe("resolveMemoryBackendConfig", () => {
           command: "/opt/homebrew/bin/qmd",
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     expect(resolved.qmd?.command).toBe("/opt/homebrew/bin/qmd");
   });
@@ -125,7 +125,7 @@ describe("resolveMemoryBackendConfig", () => {
           ],
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     const custom = resolved.qmd?.collections.find((c) => c.name.startsWith("custom-notes"));
     expect(custom).toBeDefined();
@@ -149,7 +149,7 @@ describe("resolveMemoryBackendConfig", () => {
           paths: [{ path: "notes", name: "workspace", pattern: "**/*.md" }],
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const mainNames = resolveCollectionNamesForAgent(cfg, "main");
     const devNames = resolveCollectionNamesForAgent(cfg, "dev");
     expect(mainNames.has("memory-dir-main")).toBe(true);
@@ -200,7 +200,7 @@ describe("resolveMemoryBackendConfig", () => {
           includeDefaultMemory: false,
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const names = resolveCollectionNamesForAgent(cfg, "main");
     expect(names.has("team-notes")).toBe(true);
     expect(names.has("notes-main")).toBe(true);
@@ -222,7 +222,7 @@ describe("resolveMemoryBackendConfig", () => {
           paths: [{ path: "/shared/notion-mirror", name: "notion-mirror", pattern: "**/*.md" }],
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const mainNames = resolveCollectionNamesForAgent(cfg, "main");
     const devNames = resolveCollectionNamesForAgent(cfg, "dev");
     expect(mainNames.has("memory-dir-main")).toBe(true);
@@ -250,7 +250,7 @@ describe("resolveMemoryBackendConfig", () => {
             paths: [{ path: workspaceAliasDir, name: "workspace", pattern: "**/*.md" }],
           },
         },
-      } as OpenClawConfig;
+      } as ZhushouConfig;
       const names = resolveCollectionNamesForAgent(cfg, "main");
       expect(names.has("workspace-main")).toBe(true);
       expect(names.has("workspace")).toBe(false);
@@ -282,7 +282,7 @@ describe("resolveMemoryBackendConfig", () => {
             ],
           },
         },
-      } as OpenClawConfig;
+      } as ZhushouConfig;
       const names = resolveCollectionNamesForAgent(cfg, "main");
       expect(names.has("notes-main")).toBe(true);
       expect(names.has("notes")).toBe(false);
@@ -305,7 +305,7 @@ describe("resolveMemoryBackendConfig", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     expect(resolved.qmd?.update.waitForBootSync).toBe(true);
     expect(resolved.qmd?.update.commandTimeoutMs).toBe(12_000);
@@ -322,7 +322,7 @@ describe("resolveMemoryBackendConfig", () => {
           searchMode: "vsearch",
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     expect(resolved.qmd?.searchMode).toBe("vsearch");
   });
@@ -337,7 +337,7 @@ describe("resolveMemoryBackendConfig", () => {
           searchTool: " hybrid_search ",
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     expect(resolved.qmd?.searchMode).toBe("query");
     expect(resolved.qmd?.searchTool).toBe("hybrid_search");
@@ -356,7 +356,7 @@ describe("memorySearch.extraPaths integration", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const result = resolveMemoryBackendConfig({ cfg, agentId: "test-agent" });
     expect(result.backend).toBe("qmd");
     const customCollections = (result.qmd?.collections ?? []).filter(
@@ -390,7 +390,7 @@ describe("memorySearch.extraPaths integration", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const result = resolveMemoryBackendConfig({ cfg, agentId: "my-agent" });
     expect(result.backend).toBe("qmd");
     const paths = resolveCustomCollectionPathsForAgent(cfg, "my-agent");
@@ -417,7 +417,7 @@ describe("memorySearch.extraPaths integration", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const result = resolveMemoryBackendConfig({ cfg, agentId: "my-agent" });
     expect(result.backend).toBe("qmd");
     const paths = resolveCustomCollectionPathsForAgent(cfg, "my-agent");
@@ -443,7 +443,7 @@ describe("memorySearch.extraPaths integration", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const paths = resolveCustomCollectionPathsForAgent(cfg, "my-agent");
 
@@ -464,7 +464,7 @@ describe("memorySearch.extraPaths integration", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const result = resolveMemoryBackendConfig({ cfg, agentId: "my-agent" });
     const customCollections = (result.qmd?.collections ?? []).filter(
       (collection) => collection.kind === "custom",
@@ -488,7 +488,7 @@ describe("memorySearch.extraPaths integration", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const result = resolveMemoryBackendConfig({ cfg, agentId: "my-agent" });
     const customCollections = (result.qmd?.collections ?? []).filter(
@@ -516,7 +516,7 @@ describe("memorySearch.extraPaths integration", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const result = resolveMemoryBackendConfig({ cfg, agentId: "main" });
     const customCollections = (result.qmd?.collections ?? []).filter(

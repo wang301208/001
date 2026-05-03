@@ -7,7 +7,7 @@ import { resolveOpenClawAgentDir } from "./agent-paths.js";
 
 describe("resolveOpenClawAgentDir", () => {
   const withTempStateDir = async (run: (stateDir: string) => void) => {
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-agent-"));
     try {
       run(stateDir);
     } finally {
@@ -19,7 +19,7 @@ describe("resolveOpenClawAgentDir", () => {
     await withTempStateDir((stateDir) => {
       withEnv(
         {
-          OPENCLAW_STATE_DIR: stateDir,
+          ZHUSHOU_STATE_DIR: stateDir,
           OPENCLAW_AGENT_DIR: undefined,
           PI_CODING_AGENT_DIR: undefined,
         },
@@ -36,7 +36,7 @@ describe("resolveOpenClawAgentDir", () => {
       const override = path.join(stateDir, "agent");
       withEnv(
         {
-          OPENCLAW_STATE_DIR: undefined,
+          ZHUSHOU_STATE_DIR: undefined,
           OPENCLAW_AGENT_DIR: override,
           PI_CODING_AGENT_DIR: undefined,
         },
@@ -53,7 +53,7 @@ describe("resolveOpenClawAgentDir", () => {
       const override = path.join(stateDir, "pi-agent");
       withEnv(
         {
-          OPENCLAW_STATE_DIR: undefined,
+          ZHUSHOU_STATE_DIR: undefined,
           OPENCLAW_AGENT_DIR: undefined,
           PI_CODING_AGENT_DIR: override,
         },
@@ -71,7 +71,7 @@ describe("resolveOpenClawAgentDir", () => {
       const fallbackOverride = path.join(stateDir, "fallback-agent");
       withEnv(
         {
-          OPENCLAW_STATE_DIR: undefined,
+          ZHUSHOU_STATE_DIR: undefined,
           OPENCLAW_AGENT_DIR: primaryOverride,
           PI_CODING_AGENT_DIR: fallbackOverride,
         },

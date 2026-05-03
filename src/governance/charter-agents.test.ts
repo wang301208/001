@@ -11,7 +11,7 @@ import {
 } from "./charter-agents.js";
 
 async function createTempCharterRoot(): Promise<{ root: string; charterDir: string }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-charter-agents-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-charter-agents-"));
   const charterDir = path.join(root, "governance", "charter");
   await mkdir(path.join(charterDir, "agents"), { recursive: true });
   await mkdir(path.join(charterDir, "evolution"), { recursive: true });

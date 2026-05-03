@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { resolveSendPolicy } from "./send-policy.js";
 
 describe("resolveSendPolicy", () => {
   const cfgWithRules = (
-    rules: NonNullable<NonNullable<OpenClawConfig["session"]>["sendPolicy"]>["rules"],
+    rules: NonNullable<NonNullable<ZhushouConfig["session"]>["sendPolicy"]>["rules"],
   ) =>
     ({
       session: {
@@ -14,17 +14,17 @@ describe("resolveSendPolicy", () => {
           rules,
         },
       },
-    }) as OpenClawConfig;
+    }) as ZhushouConfig;
 
   it("defaults to allow", () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as ZhushouConfig;
     expect(resolveSendPolicy({ cfg })).toBe("allow");
   });
 
   it("entry override wins", () => {
     const cfg = {
       session: { sendPolicy: { default: "allow" } },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const entry: SessionEntry = {
       sessionId: "s",
       updatedAt: 0,

@@ -42,14 +42,14 @@ describe("agent-selection-feedback", () => {
         },
       } as never,
       rawAgentId: "ghost",
-      inspectHint: 'Use "openclaw agents list" to inspect available agents.',
+      inspectHint: 'Use "zhushou agents list" to inspect available agents.',
     });
 
     expect(message).toContain('Unknown agent id "ghost".');
     expect(message).toContain("Known agents: main, founder, strategist.");
     expect(message).toContain("Default: main.");
     expect(message).toContain("Charter-only: founder, strategist.");
-    expect(message).toContain('Use "openclaw agents list" to inspect available agents.');
+    expect(message).toContain('Use "zhushou agents list" to inspect available agents.');
   });
 
   it("builds compact governance hints for selected agents", () => {

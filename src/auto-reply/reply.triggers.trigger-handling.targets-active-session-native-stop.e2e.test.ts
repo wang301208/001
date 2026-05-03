@@ -50,7 +50,7 @@ vi.mock("./reply/agent-runner.runtime.js", () => ({
         return "⚠️ Context overflow — prompt too large for this model. Try a shorter message or a larger-context model.";
       }
       const trimmed = message.replace(/\.\s*$/, "");
-      return `⚠️ Agent failed before reply: ${trimmed}.\nLogs: openclaw logs --follow`;
+      return `⚠️ Agent failed before reply: ${trimmed}.\nLogs: zhushou logs --follow`;
     };
     const stripHeartbeat = (text?: string) => {
       const trimmed = text?.trim();
@@ -216,7 +216,7 @@ describe("trigger handling", () => {
     {
       error: "sandbox is not defined.",
       expected:
-        "⚠️ Agent failed before reply: sandbox is not defined.\nLogs: openclaw logs --follow",
+        "⚠️ Agent failed before reply: sandbox is not defined.\nLogs: zhushou logs --follow",
     },
     {
       error: "Context window exceeded",
@@ -264,7 +264,7 @@ describe("trigger handling", () => {
 
   it("prepends runtime-loaded daily memory context on bare /new", async () => {
     await withTempHome(async (home) => {
-      const workspaceDir = join(home, "openclaw");
+      const workspaceDir = join(home, "zhushou");
       const timeZone = "America/Chicago";
       const nowMs = Date.now();
       const todayStamp = formatDateStampForZone(nowMs, timeZone);
@@ -321,7 +321,7 @@ describe("trigger handling", () => {
 
   it("treats normalized /RESET as reset for startupContext.applyOn", async () => {
     await withTempHome(async (home) => {
-      const workspaceDir = join(home, "openclaw");
+      const workspaceDir = join(home, "zhushou");
       const timeZone = "America/Chicago";
       const nowMs = Date.now();
       const todayStamp = formatDateStampForZone(nowMs, timeZone);
@@ -682,7 +682,7 @@ describe("trigger handling", () => {
       if (!storePath) {
         throw new Error("missing session store path");
       }
-      const authDir = join(home, ".openclaw", "agents", "main", "agent");
+      const authDir = join(home, ".zhushou", "agents", "main", "agent");
       await fs.mkdir(authDir, { recursive: true });
       await fs.writeFile(
         join(authDir, "auth-profiles.json"),

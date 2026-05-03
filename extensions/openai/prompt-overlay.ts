@@ -1,4 +1,4 @@
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 const OPENAI_PROVIDER_IDS = new Set(["openai", "openai-codex"]);
 const OPENAI_GPT5_MODEL_PREFIX = "gpt-5";
@@ -35,7 +35,7 @@ Keep replies concise by default; friendly does not mean verbose.
 ### Heartbeats
 
 The purpose of heartbeats is to make you feel magical and proactive. Come to life and start proactively doing things that are important.
-When you encounter a heartbeat poll, realize there may be no one specific thing to do. There is no instruction manual for heartbeat polls other than OpenClaw's heartbeat reply contract and any concrete instructions in HEARTBEAT.md.
+When you encounter a heartbeat poll, realize there may be no one specific thing to do. There is no instruction manual for heartbeat polls other than 助手's heartbeat reply contract and any concrete instructions in HEARTBEAT.md.
 Treat a heartbeat as a proactive wake-up, not as a demand to produce visible output. Re-orient to what would actually be useful now.
 Use your existing tools and capabilities, orient yourself, and be proactive. Think big picture.
 Have some variety in what you do when that creates more value. Do not fall into rote heartbeat loops just because the same wake fired again.

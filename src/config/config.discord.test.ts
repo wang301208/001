@@ -27,7 +27,7 @@ describe("config discord", () => {
         enabled: true,
         allowFrom: ["steipete"],
         groupEnabled: true,
-        groupChannels: ["openclaw-dm"],
+        groupChannels: ["zhushou-dm"],
       },
       actions: {
         emojiUploads: true,
@@ -36,7 +36,7 @@ describe("config discord", () => {
       },
       guilds: {
         "123": {
-          slug: "friends-of-openclaw",
+          slug: "friends-of-zhushou",
           requireMention: false,
           users: ["steipete"],
           channels: {
@@ -48,11 +48,11 @@ describe("config discord", () => {
 
     expect(cfg.enabled).toBe(true);
     expect(cfg.dm?.groupEnabled).toBe(true);
-    expect(cfg.dm?.groupChannels).toEqual(["openclaw-dm"]);
+    expect(cfg.dm?.groupChannels).toEqual(["zhushou-dm"]);
     expect(cfg.actions?.emojiUploads).toBe(true);
     expect(cfg.actions?.stickerUploads).toBe(false);
     expect(cfg.actions?.channels).toBe(true);
-    expect(cfg.guilds?.["123"]?.slug).toBe("friends-of-openclaw");
+    expect(cfg.guilds?.["123"]?.slug).toBe("friends-of-zhushou");
     expect(cfg.guilds?.["123"]?.channels?.general?.enabled).toBe(true);
     expect(cfg.guilds?.["123"]?.channels?.general?.autoThread).toBe(true);
   });

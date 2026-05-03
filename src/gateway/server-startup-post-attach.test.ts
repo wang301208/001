@@ -49,10 +49,10 @@ vi.mock("../config/paths.js", async () => {
   const actual = await vi.importActual<typeof import("../config/paths.js")>("../config/paths.js");
   return {
     ...actual,
-    STATE_DIR: "/tmp/openclaw-state",
-    resolveConfigPath: vi.fn(() => "/tmp/openclaw-state/openclaw.json"),
+    STATE_DIR: "/tmp/zhushou-state",
+    resolveConfigPath: vi.fn(() => "/tmp/zhushou-state/zhushou.json"),
     resolveGatewayPort: vi.fn(() => 18789),
-    resolveStateDir: vi.fn(() => "/tmp/openclaw-state"),
+    resolveStateDir: vi.fn(() => "/tmp/zhushou-state"),
   };
 });
 
@@ -221,7 +221,7 @@ function createPostAttachParams(overrides: Partial<PostAttachParams> = {}): Post
         { id: "broken", status: "error" },
       ],
     } as never,
-    defaultWorkspaceDir: "/tmp/openclaw-workspace",
+    defaultWorkspaceDir: "/tmp/zhushou-workspace",
     deps: {} as never,
     startChannels: vi.fn(async () => undefined),
     logHooks: {

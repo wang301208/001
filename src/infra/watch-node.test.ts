@@ -9,7 +9,7 @@ import { bundledPluginFile } from "../../test/helpers/bundled-plugin-paths.js";
 import { withTempDir } from "../test-helpers/temp-dir.js";
 
 const VOICE_CALL_README = bundledPluginFile("voice-call", "README.md");
-const VOICE_CALL_MANIFEST = bundledPluginFile("voice-call", "openclaw.plugin.json");
+const VOICE_CALL_MANIFEST = bundledPluginFile("voice-call", "zhushou.plugin.json");
 const VOICE_CALL_PACKAGE = bundledPluginFile("voice-call", "package.json");
 const VOICE_CALL_INDEX = bundledPluginFile("voice-call", "index.ts");
 const VOICE_CALL_RUNTIME = bundledPluginFile("voice-call", "src/runtime.ts");
@@ -50,7 +50,7 @@ const createWatchHarness = () => {
 describe("watch-node script", () => {
   it("wires chokidar watch to run-node with watched source/config paths", async () => {
     const { child, spawn, watcher, createWatcher, fakeProcess } = createWatchHarness();
-    await withTempDir({ prefix: "openclaw-watch-node-" }, async (cwd) => {
+    await withTempDir({ prefix: "zhushou-watch-node-" }, async (cwd) => {
       fs.mkdirSync(path.join(cwd, "src", "infra"), { recursive: true });
       fs.mkdirSync(path.join(cwd, "extensions", "voice-call"), { recursive: true });
 
@@ -105,7 +105,7 @@ describe("watch-node script", () => {
           stdio: "inherit",
           env: expect.objectContaining({
             PATH: "/usr/bin",
-            OPENCLAW_WATCH_MODE: "1",
+            ZHUSHOU_WATCH_MODE: "1",
             OPENCLAW_WATCH_SESSION: "1700000000000-4242",
             OPENCLAW_NO_RESPAWN: "1",
             OPENCLAW_WATCH_COMMAND: "gateway --force",
@@ -222,7 +222,7 @@ describe("watch-node script", () => {
       args: ["gateway", "--force"],
       createWatcher,
       env: {
-        LAUNCH_JOB_LABEL: "ai.openclaw.gateway",
+        LAUNCH_JOB_LABEL: "ai.zhushou.gateway",
         PATH: "/usr/bin",
       },
       lockDisabled: true,
@@ -235,7 +235,7 @@ describe("watch-node script", () => {
       ["scripts/run-node.mjs", "gateway", "--force"],
       expect.objectContaining({
         env: expect.objectContaining({
-          LAUNCH_JOB_LABEL: "ai.openclaw.gateway",
+          LAUNCH_JOB_LABEL: "ai.zhushou.gateway",
           OPENCLAW_NO_RESPAWN: "1",
         }),
       }),
@@ -348,7 +348,7 @@ describe("watch-node script", () => {
 
   it("replaces an existing watcher lock holder before starting", async () => {
     const { child, spawn, watcher, createWatcher, fakeProcess } = createWatchHarness();
-    await withTempDir({ prefix: "openclaw-watch-node-lock-" }, async (cwd) => {
+    await withTempDir({ prefix: "zhushou-watch-node-lock-" }, async (cwd) => {
       const lockPath = resolveTestWatchLockPath(cwd, ["gateway", "--force"]);
       fs.mkdirSync(path.dirname(lockPath), { recursive: true });
       fs.writeFileSync(

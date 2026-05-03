@@ -365,7 +365,7 @@ async function getFreePort(): Promise<number> {
 }
 
 async function runDirectPrompt(prompt: string): Promise<PromptResult> {
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-direct-prompt-probe-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-direct-prompt-probe-"));
   const proxyPort = ENABLE_CAPTURE ? await getFreePort() : undefined;
   const proxy =
     ENABLE_CAPTURE && proxyPort
@@ -425,16 +425,16 @@ async function startGatewayProcess(params: {
   const logFile = await fs.open(params.logPath, "a");
   const child = spawn(
     NODE_BIN,
-    ["openclaw.mjs", "gateway", "--port", String(params.port), "--bind", "loopback", "--force"],
+    ["zhushou.mjs", "gateway", "--port", String(params.port), "--bind", "loopback", "--force"],
     {
       cwd: process.cwd(),
       env: {
         ...process.env,
-        OPENCLAW_CONFIG_PATH: params.configPath,
-        OPENCLAW_STATE_DIR: params.stateDir,
+        ZHUSHOU_CONFIG_PATH: params.configPath,
+        ZHUSHOU_STATE_DIR: params.stateDir,
         OPENCLAW_AGENT_DIR: params.agentDir,
-        OPENCLAW_GATEWAY_TOKEN: params.gatewayToken,
-        OPENCLAW_SKIP_CHANNELS: "1",
+        ZHUSHOU_GATEWAY_TOKEN: params.gatewayToken,
+        ZHUSHOU_SKIP_CHANNELS: "1",
         OPENCLAW_SKIP_GMAIL_WATCHER: "1",
         OPENCLAW_SKIP_CANVAS_HOST: "1",
         OPENCLAW_SKIP_BROWSER_CONTROL_SERVER: "1",
@@ -490,11 +490,11 @@ async function readLogTail(logPath: string): Promise<string> {
 
 async function runGatewayPrompt(prompt: string): Promise<PromptResult> {
   const tokenSource = resolveSetupTokenSource();
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-prompt-probe-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gateway-prompt-probe-"));
   const stateDir = path.join(tmpDir, "state");
   const agentDir = path.join(stateDir, "agents", "main", "agent");
   const bundledPluginsDir = path.join(tmpDir, "bundled-plugins-empty");
-  const configPath = path.join(tmpDir, "openclaw.json");
+  const configPath = path.join(tmpDir, "zhushou.json");
   const logPath = path.join(tmpDir, "gateway.log");
   const gatewayToken = `gw-${randomUUID()}`;
   const port = await getFreePort();

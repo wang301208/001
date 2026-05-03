@@ -1,10 +1,10 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/browser-config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/browser-config-runtime";
 import {
   normalizePluginsConfig,
   resolveEffectiveEnableState,
-} from "openclaw/plugin-sdk/browser-config-runtime";
+} from "zhushou/plugin-sdk/browser-config-runtime";
 
-export function isDefaultBrowserPluginEnabled(cfg: OpenClawConfig): boolean {
+export function isDefaultBrowserPluginEnabled(cfg: ZhushouConfig): boolean {
   return resolveEffectiveEnableState({
     id: "browser",
     origin: "bundled",

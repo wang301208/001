@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import type { Mock } from "vitest";
 import { beforeEach, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import type { enqueueSystemEvent } from "../infra/system-events.js";
 import type { CliBackendPlugin } from "../plugin-sdk/cli-backend.js";
@@ -326,7 +326,7 @@ export const EXISTING_CODEX_CONFIG = {
       },
     },
   },
-} satisfies OpenClawConfig;
+} satisfies ZhushouConfig;
 
 export async function setupCliRunnerTestModule() {
   setupCliRunnerTestRegistry();
@@ -400,7 +400,7 @@ export async function runCliAgentWithBackendConfig(params: {
           },
         },
       },
-    } satisfies OpenClawConfig,
+    } satisfies ZhushouConfig,
     prompt: "hi",
     provider: "codex-cli",
     model: "gpt-5.4",

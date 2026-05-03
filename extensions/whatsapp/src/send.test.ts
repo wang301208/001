@@ -2,8 +2,8 @@ import crypto from "node:crypto";
 import fsSync from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { redactIdentifier } from "openclaw/plugin-sdk/logging-core";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { redactIdentifier } from "zhushou/plugin-sdk/logging-core";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActiveWebListener } from "./inbound/types.js";
 
@@ -15,8 +15,8 @@ const loadWebMediaMock = vi.fn();
 let sendMessageWhatsApp: typeof import("./send.js").sendMessageWhatsApp;
 let sendPollWhatsApp: typeof import("./send.js").sendPollWhatsApp;
 let sendReactionWhatsApp: typeof import("./send.js").sendReactionWhatsApp;
-let resetLogger: typeof import("openclaw/plugin-sdk/runtime-env").resetLogger;
-let setLoggerOverride: typeof import("openclaw/plugin-sdk/runtime-env").setLoggerOverride;
+let resetLogger: typeof import("zhushou/plugin-sdk/runtime-env").resetLogger;
+let setLoggerOverride: typeof import("zhushou/plugin-sdk/runtime-env").setLoggerOverride;
 
 vi.mock("./connection-controller-registry.js", async () => {
   const actual = await vi.importActual<typeof import("./connection-controller-registry.js")>(
@@ -53,7 +53,7 @@ describe("web outbound", () => {
 
   beforeAll(async () => {
     ({ sendMessageWhatsApp, sendPollWhatsApp, sendReactionWhatsApp } = await import("./send.js"));
-    ({ resetLogger, setLoggerOverride } = await import("openclaw/plugin-sdk/runtime-env"));
+    ({ resetLogger, setLoggerOverride } = await import("zhushou/plugin-sdk/runtime-env"));
   });
 
   beforeEach(() => {
@@ -123,7 +123,7 @@ describe("web outbound", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
     });
 
     expect(result).toEqual({
@@ -299,7 +299,7 @@ describe("web outbound", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     await sendMessageWhatsApp("+1555", "pic", {
       verbose: false,
@@ -338,7 +338,7 @@ describe("web outbound", () => {
   });
 
   it("redacts recipients and poll text in outbound logs", async () => {
-    const logPath = path.join(os.tmpdir(), `openclaw-outbound-${crypto.randomUUID()}.log`);
+    const logPath = path.join(os.tmpdir(), `zhushou-outbound-${crypto.randomUUID()}.log`);
     setLoggerOverride({ level: "trace", file: logPath });
 
     await sendPollWhatsApp(

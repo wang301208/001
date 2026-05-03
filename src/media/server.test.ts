@@ -21,7 +21,7 @@ vi.mock("./store.js", async () => {
 let startMediaServer: typeof import("./server.js").startMediaServer;
 let MEDIA_MAX_BYTES: typeof import("./store.js").MEDIA_MAX_BYTES;
 let realFetch: typeof import("undici").fetch;
-const mediaRootTracker = createSuiteTempRootTracker({ prefix: "openclaw-media-test-" });
+const mediaRootTracker = createSuiteTempRootTracker({ prefix: "zhushou-media-test-" });
 const LOOPBACK_FETCH_ENV = {
   HTTP_PROXY: undefined,
   HTTPS_PROXY: undefined,

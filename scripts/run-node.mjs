@@ -22,7 +22,7 @@ const ignoredRunNodeRepoPaths = new Set([
   "src/canvas-host/a2ui/a2ui.bundle.js",
 ]);
 const extensionSourceFilePattern = /\.(?:[cm]?[jt]sx?)$/;
-const extensionRestartMetadataFiles = new Set(["openclaw.plugin.json", "package.json"]);
+const extensionRestartMetadataFiles = new Set(["zhushou.plugin.json", "package.json"]);
 
 const normalizePath = (filePath) => String(filePath ?? "").replaceAll("\\", "/");
 
@@ -210,11 +210,11 @@ const hasSourceMtimeChanged = (stampMtime, deps) => {
 };
 
 export const resolveBuildRequirement = (deps) => {
-  if (deps.env.OPENCLAW_FORCE_BUILD === "1") {
+  if (deps.env.ZHUSHOU_FORCE_BUILD === "1") {
     return { shouldBuild: true, reason: "force_build" };
   }
   if (
-    deps.env.OPENCLAW_BUILD_PRIVATE_QA === "1" &&
+    deps.env.ZHUSHOU_BUILD_PRIVATE_QA === "1" &&
     (deps.privateQaRequiredDistEntries ?? resolvePrivateQaRequiredDistEntries(deps.distRoot)).some(
       (entry) => statMtime(entry, deps.fs) == null,
     )
@@ -260,7 +260,7 @@ export const resolveBuildRequirement = (deps) => {
 };
 
 const BUILD_REASON_LABELS = {
-  force_build: "forced by OPENCLAW_FORCE_BUILD",
+  force_build: "forced by ZHUSHOU_FORCE_BUILD",
   missing_build_stamp: "build stamp missing",
   missing_dist_entry: "dist entry missing",
   config_newer: "config newer than build stamp",
@@ -283,7 +283,7 @@ const isSignalKey = (signal) => Object.hasOwn(SIGNAL_EXIT_CODES, signal);
 
 const getSignalExitCode = (signal) => (isSignalKey(signal) ? SIGNAL_EXIT_CODES[signal] : 1);
 
-const RUN_NODE_OUTPUT_LOG_ENV = "OPENCLAW_RUN_NODE_OUTPUT_LOG";
+const RUN_NODE_OUTPUT_LOG_ENV = "ZHUSHOU_RUN_NODE_OUTPUT_LOG";
 
 const resolveRunNodeOutputLogPath = (deps) => {
   const outputLog = deps.env[RUN_NODE_OUTPUT_LOG_ENV]?.trim();
@@ -345,10 +345,10 @@ const createRunNodeOutputTee = (deps) => {
 };
 
 const logRunner = (message, deps) => {
-  if (deps.env.OPENCLAW_RUNNER_LOG === "0") {
+  if (deps.env.ZHUSHOU_RUNNER_LOG === "0") {
     return;
   }
-  const line = `[openclaw] ${message}\n`;
+  const line = `[zhushou] ${message}\n`;
   deps.stderr.write(line);
   deps.outputTee?.write(line);
 };
@@ -411,7 +411,7 @@ const getInterruptedSpawnExitCode = (res) => {
 };
 
 const runOpenClaw = async (deps) => {
-  const nodeProcess = deps.spawn(deps.execPath, ["openclaw.mjs", ...deps.args], {
+  const nodeProcess = deps.spawn(deps.execPath, ["zhushou.mjs", ...deps.args], {
     cwd: deps.cwd,
     env: deps.env,
     stdio: deps.outputTee ? ["inherit", "pipe", "pipe"] : "inherit",
@@ -447,7 +447,7 @@ const closeRunNodeOutputTee = async (deps, exitCode) => {
     await deps.outputTee.close();
   } catch (error) {
     deps.stderr.write(
-      `[openclaw] Failed to write output log: ${error?.message ?? "unknown error"}\n`,
+      `[zhushou] Failed to write output log: ${error?.message ?? "unknown error"}\n`,
     );
     return exitCode === 0 ? 1 : exitCode;
   }
@@ -480,7 +480,7 @@ const writeBuildStamp = (deps) => {
   }
 };
 
-const shouldSkipCleanWatchRuntimeSync = (deps) => deps.env.OPENCLAW_WATCH_MODE === "1";
+const shouldSkipCleanWatchRuntimeSync = (deps) => deps.env.ZHUSHOU_WATCH_MODE === "1";
 
 export async function runNodeMain(params = {}) {
   const deps = {
@@ -507,8 +507,8 @@ export async function runNodeMain(params = {}) {
   deps.configFiles = runNodeConfigFiles.map((filePath) => path.join(deps.cwd, filePath));
   deps.privateQaRequiredDistEntries = resolvePrivateQaRequiredDistEntries(deps.distRoot);
   if (deps.args[0] === "qa") {
-    deps.env.OPENCLAW_BUILD_PRIVATE_QA = "1";
-    deps.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI = "1";
+    deps.env.ZHUSHOU_BUILD_PRIVATE_QA = "1";
+    deps.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = "1";
   }
   deps.outputTee = createRunNodeOutputTee(deps);
 

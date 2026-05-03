@@ -1,8 +1,8 @@
-import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/channel-contract";
-import type { ChannelPlugin } from "openclaw/plugin-sdk/core";
-import { resolveOutboundSendDep } from "openclaw/plugin-sdk/outbound-runtime";
-import { collectStatusIssuesFromLastError } from "openclaw/plugin-sdk/status-helpers";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import type { ChannelOutboundAdapter } from "zhushou/plugin-sdk/channel-contract";
+import type { ChannelPlugin } from "zhushou/plugin-sdk/core";
+import { resolveOutboundSendDep } from "zhushou/plugin-sdk/outbound-runtime";
+import { collectStatusIssuesFromLastError } from "zhushou/plugin-sdk/status-helpers";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 function normalizeIMessageTestHandle(raw: string): string {
   let trimmed = raw.trim();

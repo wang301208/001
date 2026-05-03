@@ -1,13 +1,13 @@
-import { resolveConfiguredSecretInputString } from "openclaw/plugin-sdk/config-runtime";
+import { resolveConfiguredSecretInputString } from "zhushou/plugin-sdk/config-runtime";
 import {
   CUSTOM_LOCAL_AUTH_MARKER,
   isKnownEnvApiKeyMarker,
   isNonSecretApiKeyMarker,
   normalizeApiKeyConfig,
   normalizeOptionalSecretInput,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "openclaw/plugin-sdk/provider-auth-runtime";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
 import {
   LMSTUDIO_DEFAULT_API_KEY_ENV_VAR,
   LMSTUDIO_LOCAL_API_KEY_PLACEHOLDER,
@@ -71,7 +71,7 @@ function shouldSuppressResolvedRuntimeApiKeyForHeaderAuth(
 }
 
 export async function resolveLmstudioConfiguredApiKey(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   path?: string;
 }): Promise<string | undefined> {
@@ -120,7 +120,7 @@ export async function resolveLmstudioConfiguredApiKey(params: {
 }
 
 export async function resolveLmstudioProviderHeaders(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   headers?: unknown;
   path?: string;
@@ -161,7 +161,7 @@ export async function resolveLmstudioProviderHeaders(params: {
  * Use this as the standard auth setup step before discovery or model load calls.
  */
 export async function resolveLmstudioRequestContext(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   env?: NodeJS.ProcessEnv;
   providerHeaders?: unknown;
@@ -188,7 +188,7 @@ export async function resolveLmstudioRequestContext(params: {
  * Resolves LM Studio runtime API key from config.
  */
 export async function resolveLmstudioRuntimeApiKey(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   env?: NodeJS.ProcessEnv;
   headers?: unknown;
@@ -221,7 +221,7 @@ export async function resolveLmstudioRuntimeApiKey(params: {
       [
         "LM Studio API key is required.",
         `Set models.providers.lmstudio.apiKey (for example "${envMarker}")`,
-        'or run "openclaw models auth lmstudio".',
+        'or run "zhushou models auth lmstudio".',
       ].join(" "),
     );
   };

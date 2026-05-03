@@ -26,10 +26,10 @@ describe("gateway cli backend connect", () => {
     async () => {
       const envSnapshot = captureEnv([
         "HOME",
-        "OPENCLAW_STATE_DIR",
-        "OPENCLAW_CONFIG_PATH",
-        "OPENCLAW_GATEWAY_TOKEN",
-        "OPENCLAW_SKIP_CHANNELS",
+        "ZHUSHOU_STATE_DIR",
+        "ZHUSHOU_CONFIG_PATH",
+        "ZHUSHOU_GATEWAY_TOKEN",
+        "ZHUSHOU_SKIP_CHANNELS",
         "OPENCLAW_SKIP_PROVIDERS",
         "OPENCLAW_SKIP_GMAIL_WATCHER",
         "OPENCLAW_SKIP_CRON",
@@ -39,15 +39,15 @@ describe("gateway cli backend connect", () => {
         "OPENCLAW_TEST_MINIMAL_GATEWAY",
       ]);
 
-      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-connect-home-"));
-      const configPath = path.join(tempHome, ".openclaw", "openclaw.json");
-      const bundledPluginsDir = path.join(tempHome, "openclaw-test-no-bundled-extensions");
+      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gateway-connect-home-"));
+      const configPath = path.join(tempHome, ".zhushou", "zhushou.json");
+      const bundledPluginsDir = path.join(tempHome, "zhushou-test-no-bundled-extensions");
       const token = `test-${Date.now()}`;
       process.env.HOME = tempHome;
-      process.env.OPENCLAW_STATE_DIR = path.join(tempHome, ".openclaw");
-      process.env.OPENCLAW_CONFIG_PATH = configPath;
-      process.env.OPENCLAW_GATEWAY_TOKEN = token;
-      process.env.OPENCLAW_SKIP_CHANNELS = "1";
+      process.env.ZHUSHOU_STATE_DIR = path.join(tempHome, ".zhushou");
+      process.env.ZHUSHOU_CONFIG_PATH = configPath;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
+      process.env.ZHUSHOU_SKIP_CHANNELS = "1";
       process.env.OPENCLAW_SKIP_PROVIDERS = "1";
       process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
       process.env.OPENCLAW_SKIP_CRON = "1";

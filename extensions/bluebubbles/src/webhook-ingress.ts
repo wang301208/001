@@ -7,4 +7,4 @@ export {
   resolveRequestClientIp,
   resolveWebhookTargetWithAuthOrRejectSync,
   withResolvedWebhookRequestPipeline,
-} from "openclaw/plugin-sdk/webhook-ingress";
+} from "zhushou/plugin-sdk/webhook-ingress";

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { AgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
 import type { AgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 
@@ -30,7 +30,7 @@ export type EffectiveToolInventoryResult = {
 };
 
 export type ResolveEffectiveToolInventoryParams = {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   agentId?: string;
   sessionKey?: string;
   workspaceDir?: string;

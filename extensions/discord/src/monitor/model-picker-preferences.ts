@@ -1,11 +1,11 @@
 import os from "node:os";
 import path from "node:path";
-import { normalizeAccountId as normalizeSharedAccountId } from "openclaw/plugin-sdk/account-id";
-import { withFileLock } from "openclaw/plugin-sdk/file-lock";
-import { readJsonFileWithFallback, writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
-import { normalizeProviderId } from "openclaw/plugin-sdk/provider-model-shared";
-import { resolveStateDir } from "openclaw/plugin-sdk/state-paths";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeAccountId as normalizeSharedAccountId } from "zhushou/plugin-sdk/account-id";
+import { withFileLock } from "zhushou/plugin-sdk/file-lock";
+import { readJsonFileWithFallback, writeJsonFileAtomically } from "zhushou/plugin-sdk/json-store";
+import { normalizeProviderId } from "zhushou/plugin-sdk/provider-model-shared";
+import { resolveStateDir } from "zhushou/plugin-sdk/state-paths";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 
 const MODEL_PICKER_PREFERENCES_LOCK_OPTIONS = {
   retries: {

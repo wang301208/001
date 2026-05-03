@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 
 const ensureOpenClawModelsJsonMock = vi.fn<
   (config: unknown, agentDir: unknown) => Promise<{ agentDir: string; wrote: boolean }>
@@ -76,7 +76,7 @@ describe("gateway startup primary model warmup", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     await prewarmConfiguredPrimaryModel({
       cfg,
@@ -91,7 +91,7 @@ describe("gateway startup primary model warmup", () => {
 
   it("skips warmup when no explicit primary model is configured", async () => {
     await prewarmConfiguredPrimaryModel({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as ZhushouConfig,
       log: { warn: vi.fn() },
     });
 
@@ -115,7 +115,7 @@ describe("gateway startup primary model warmup", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       log: { warn: vi.fn() },
     });
 
@@ -133,7 +133,7 @@ describe("gateway startup primary model warmup", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     await prewarmConfiguredPrimaryModel({
       cfg,
@@ -160,7 +160,7 @@ describe("gateway startup primary model warmup", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       log: { warn: vi.fn() },
     });
 
@@ -179,7 +179,7 @@ describe("gateway startup primary model warmup", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     await prewarmConfiguredPrimaryModel({
       cfg,

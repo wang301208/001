@@ -1,20 +1,20 @@
-export { resolveAckReaction } from "openclaw/plugin-sdk/channel-feedback";
-export { logAckFailure, logTypingFailure } from "openclaw/plugin-sdk/channel-feedback";
-export { logInboundDrop } from "openclaw/plugin-sdk/channel-inbound";
-export { mapAllowFromEntries } from "openclaw/plugin-sdk/channel-config-helpers";
-export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
-export { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
+export { resolveAckReaction } from "zhushou/plugin-sdk/channel-feedback";
+export { logAckFailure, logTypingFailure } from "zhushou/plugin-sdk/channel-feedback";
+export { logInboundDrop } from "zhushou/plugin-sdk/channel-inbound";
+export { mapAllowFromEntries } from "zhushou/plugin-sdk/channel-config-helpers";
+export { createChannelPairingController } from "zhushou/plugin-sdk/channel-pairing";
+export { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
 export {
   DM_GROUP_ACCESS_REASON,
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
-} from "openclaw/plugin-sdk/channel-policy";
-export { resolveControlCommandGate } from "openclaw/plugin-sdk/command-auth";
-export { resolveChannelContextVisibilityMode } from "openclaw/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-policy";
+export { resolveControlCommandGate } from "zhushou/plugin-sdk/command-auth";
+export { resolveChannelContextVisibilityMode } from "zhushou/plugin-sdk/config-runtime";
 export {
   evictOldHistoryKeys,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "openclaw/plugin-sdk/reply-history";
-export { evaluateSupplementalContextVisibility } from "openclaw/plugin-sdk/security-runtime";
-export { stripMarkdown } from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/reply-history";
+export { evaluateSupplementalContextVisibility } from "zhushou/plugin-sdk/security-runtime";
+export { stripMarkdown } from "zhushou/plugin-sdk/text-runtime";

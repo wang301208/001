@@ -1,7 +1,7 @@
 import fs from "node:fs";
-import type { ChannelLegacyStateMigrationPlan } from "openclaw/plugin-sdk/channel-contract";
-import { resolveChannelAllowFromPath } from "openclaw/plugin-sdk/channel-pairing";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ChannelLegacyStateMigrationPlan } from "zhushou/plugin-sdk/channel-contract";
+import { resolveChannelAllowFromPath } from "zhushou/plugin-sdk/channel-pairing";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { resolveDefaultTelegramAccountId } from "./accounts.js";
 
 function fileExists(pathValue: string): boolean {
@@ -13,7 +13,7 @@ function fileExists(pathValue: string): boolean {
 }
 
 export function detectTelegramLegacyStateMigrations(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 }): ChannelLegacyStateMigrationPlan[] {
   const legacyPath = resolveChannelAllowFromPath("telegram", params.env);

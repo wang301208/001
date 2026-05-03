@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/elevenlabs-speech",
+  "name": "@zhushou/elevenlabs-speech",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw ElevenLabs speech plugin",
+  "description": "助手 ElevenLabs speech plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

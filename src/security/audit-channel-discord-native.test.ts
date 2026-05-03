@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { collectDiscordSecurityAuditFindings } from "../../test/helpers/channels/security-audit-contract.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 
 type DiscordAuditParams = Parameters<typeof collectDiscordSecurityAuditFindings>[0];
 type ResolvedDiscordAccount = DiscordAuditParams["account"];
@@ -10,7 +10,7 @@ const { readChannelAllowFromStoreMock } = vi.hoisted(() => ({
   readChannelAllowFromStoreMock: vi.fn(async () => [] as string[]),
 }));
 
-vi.mock("openclaw/plugin-sdk/conversation-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/conversation-runtime", () => ({
   readChannelAllowFromStore: readChannelAllowFromStoreMock,
 }));
 
@@ -45,7 +45,7 @@ describe("security audit discord native command findings", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as ZhushouConfig,
         expectFinding: true,
       },
       {
@@ -67,7 +67,7 @@ describe("security audit discord native command findings", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as ZhushouConfig,
         expectFinding: false,
       },
     ] as const;
@@ -79,7 +79,7 @@ describe("security audit discord native command findings", () => {
         throw new Error("discord config required");
       }
       const findings = await collectDiscordSecurityAuditFindings({
-        cfg: testCase.cfg as OpenClawConfig & { channels: { discord: DiscordAccountConfig } },
+        cfg: testCase.cfg as ZhushouConfig & { channels: { discord: DiscordAccountConfig } },
         account: createAccount(discord),
         accountId: "default",
         orderedAccountIds: ["default"],

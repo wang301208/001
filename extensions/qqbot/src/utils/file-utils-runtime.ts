@@ -1,1 +1,1 @@
-export { fetchRemoteMedia } from "openclaw/plugin-sdk/media-runtime";
+export { fetchRemoteMedia } from "zhushou/plugin-sdk/media-runtime";

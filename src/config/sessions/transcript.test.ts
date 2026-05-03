@@ -84,7 +84,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
         messageId: expect.any(String),
         message: expect.objectContaining({
           role: "assistant",
-          provider: "openclaw",
+          provider: "zhushou",
           model: "delivery-mirror",
           content: [{ type: "text", text: "Hello from delivery mirror!" }],
         }),
@@ -228,7 +228,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
       expect(lines.length).toBe(4);
 
       const messageLine = JSON.parse(lines[3]);
-      expect(messageLine.message.provider).toBe("openclaw");
+      expect(messageLine.message.provider).toBe("zhushou");
       expect(messageLine.message.model).toBe("delivery-mirror");
       expect(messageLine.message.content[0].text).toBe("Repeated answer");
     }
@@ -334,7 +334,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
           },
         ],
         api: "openai-responses",
-        provider: "openclaw",
+        provider: "zhushou",
         model: "delivery-mirror",
         usage: {
           input: 0,
@@ -380,7 +380,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
         role: "assistant",
         content: [{ type: "text", text: "Done." }],
         api: "openai-responses",
-        provider: "openclaw",
+        provider: "zhushou",
         model: "delivery-mirror",
         usage: {
           input: 0,

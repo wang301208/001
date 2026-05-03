@@ -161,7 +161,7 @@ export function loadBundledPluginPublicArtifactModuleSync<T extends object>(para
     rootPath: location.boundaryRoot,
     boundaryLabel:
       location.boundaryRoot === OPENCLAW_PACKAGE_ROOT
-        ? "OpenClaw package root"
+        ? "助手 package root"
         : "bundled plugin directory",
     rejectHardlinks: false,
   });

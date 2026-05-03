@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { normalizeTestText } from "../../test/helpers/normalize-text.js";
 import { withTempHome } from "../../test/helpers/temp-home.js";
 import { MODEL_CONTEXT_TOKEN_CACHE } from "../agents/context-cache.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { applyModelOverrideToSessionEntry } from "../sessions/model-overrides.js";
 import { createSuccessfulImageMediaDecision } from "./media-understanding.test-fixtures.js";
 import {
@@ -59,7 +59,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "anthropic/pi:opus",
         contextTokens: 32_000,
@@ -294,7 +294,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "openai-codex/gpt-5.4",
       },
@@ -332,7 +332,7 @@ describe("buildStatusMessage", () => {
             },
           ],
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agentId: "main",
       agent: {
         model: "openai-codex/gpt-5.4",
@@ -358,7 +358,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "openai/gpt-4.1",
       },
@@ -391,7 +391,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "anthropic/claude-opus-4-6",
       },
@@ -454,7 +454,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
       },
@@ -497,7 +497,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
       },
@@ -542,7 +542,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
       },
@@ -586,7 +586,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
         contextTokens: 120_000,
@@ -631,7 +631,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
         contextTokens: 128_000,
@@ -675,7 +675,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
         contextTokens: 1_048_576,
@@ -716,7 +716,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
         contextTokens: 1_048_576,
@@ -757,7 +757,7 @@ describe("buildStatusMessage", () => {
             { id: "discord", sandbox: { mode: "all" } },
           ],
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {},
       sessionKey: "agent:discord:discord:channel:1456350065223270435",
       sessionScope: "per-sender",
@@ -1107,7 +1107,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: { model: "anthropic/claude-opus-4-6" },
       sessionEntry: { sessionId: "c1", updatedAt: 0, inputTokens: 10 },
       sessionKey: "agent:main:main",
@@ -1134,7 +1134,7 @@ describe("buildStatusMessage", () => {
   }) {
     const logPath = path.join(
       params.dir,
-      ".openclaw",
+      ".zhushou",
       "agents",
       params.agentId,
       "sessions",
@@ -1213,7 +1213,7 @@ describe("buildStatusMessage", () => {
 
         expect(normalizeTestText(text)).toContain("Context: 1.0k/32k");
       },
-      { prefix: "openclaw-status-" },
+      { prefix: "zhushou-status-" },
     );
   });
 
@@ -1234,7 +1234,7 @@ describe("buildStatusMessage", () => {
 
         expect(normalizeTestText(text)).toContain("Context: 1.0k/32k");
       },
-      { prefix: "openclaw-status-" },
+      { prefix: "zhushou-status-" },
     );
   });
 
@@ -1276,7 +1276,7 @@ describe("buildStatusMessage", () => {
 
         expect(normalizeTestText(text)).toContain("Context: 1.2k/32k");
       },
-      { prefix: "openclaw-status-" },
+      { prefix: "zhushou-status-" },
     );
   });
 
@@ -1297,7 +1297,7 @@ describe("buildStatusMessage", () => {
 
         expect(normalizeTestText(text)).toContain("Cache: 100% hit · 1.0k cached, 0 new");
       },
-      { prefix: "openclaw-status-" },
+      { prefix: "zhushou-status-" },
     );
   });
 
@@ -1307,7 +1307,7 @@ describe("buildStatusMessage", () => {
         const sessionId = "sess-cache-delivery-mirror";
         const logPath = path.join(
           dir,
-          ".openclaw",
+          ".zhushou",
           "agents",
           "main",
           "sessions",
@@ -1337,7 +1337,7 @@ describe("buildStatusMessage", () => {
               type: "message",
               message: {
                 role: "assistant",
-                provider: "openclaw",
+                provider: "zhushou",
                 model: "delivery-mirror",
                 usage: {
                   input: 0,
@@ -1360,7 +1360,7 @@ describe("buildStatusMessage", () => {
         expect(normalizeTestText(text)).toContain("Cache: 100% hit · 1.0k cached, 0 new");
         expect(normalizeTestText(text)).toContain("Context: 1.0k/32k");
       },
-      { prefix: "openclaw-status-" },
+      { prefix: "zhushou-status-" },
     );
   });
 
@@ -1396,7 +1396,7 @@ describe("buildStatusMessage", () => {
 
         expect(normalizeTestText(text)).toContain("Cache: 26% hit · 12 cached, 34 new");
       },
-      { prefix: "openclaw-status-" },
+      { prefix: "zhushou-status-" },
     );
   });
 
@@ -1429,7 +1429,7 @@ describe("buildStatusMessage", () => {
                 },
               },
             },
-          } as unknown as OpenClawConfig,
+          } as unknown as ZhushouConfig,
           agent: {
             model: "openrouter/google/gemini-2.5-pro",
           },
@@ -1449,7 +1449,7 @@ describe("buildStatusMessage", () => {
         expect(normalized).toContain("Context: 1.2k/999k");
         expect(normalized).not.toContain("Context: 1.2k/2.0m");
       },
-      { prefix: "openclaw-status-" },
+      { prefix: "zhushou-status-" },
     );
   });
 
@@ -1465,7 +1465,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "openrouter/google/gemini-2.5-pro",
       },
@@ -1501,7 +1501,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
       },
@@ -1541,7 +1541,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "openai/gpt-4o",
       },
@@ -1604,7 +1604,7 @@ describe("buildStatusMessage", () => {
         expect(normalized).toContain("Context: 1.2k/1.0m");
         expect(normalized).not.toContain("Context: 1.2k/128k");
       },
-      { prefix: "openclaw-status-" },
+      { prefix: "zhushou-status-" },
     );
   });
 
@@ -1642,7 +1642,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       agent: {
         model: "xiaomi/mimo-v2-flash",
       },
@@ -1677,7 +1677,7 @@ describe("buildCommandsMessage", () => {
   it("lists commands with aliases and hints", () => {
     const text = buildCommandsMessage({
       commands: { config: false, debug: false },
-    } as unknown as OpenClawConfig);
+    } as unknown as ZhushouConfig);
     expect(text).toContain("ℹ️ Slash commands");
     expect(text).toContain("Status");
     expect(text).toContain("/commands - List all slash commands.");
@@ -1692,7 +1692,7 @@ describe("buildCommandsMessage", () => {
     const text = buildCommandsMessage(
       {
         commands: { config: false, debug: false },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       [
         {
           name: "demo_skill",
@@ -1709,7 +1709,7 @@ describe("buildHelpMessage", () => {
   it("hides config/debug when disabled", () => {
     const text = buildHelpMessage({
       commands: { config: false, debug: false },
-    } as unknown as OpenClawConfig);
+    } as unknown as ZhushouConfig);
     expect(text).toContain("Skills");
     expect(text).toContain("/skill <name> [input]");
     expect(text).not.toContain("/config");
@@ -1730,7 +1730,7 @@ describe("buildCommandsMessagePaginated", () => {
     const result = buildCommandsMessagePaginated(
       {
         commands: { config: false, debug: false },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       undefined,
       { surface: "telegram", page: 1, forcePaginatedList: true },
     );
@@ -1750,7 +1750,7 @@ describe("buildCommandsMessagePaginated", () => {
     const firstPage = buildPaginatedCommands(
       {
         commands: { config: false, debug: false },
-      } as unknown as OpenClawConfig,
+      } as unknown as ZhushouConfig,
       undefined,
       { surface: "telegram", page: 1, forcePaginatedList: true },
     );
@@ -1758,7 +1758,7 @@ describe("buildCommandsMessagePaginated", () => {
       buildPaginatedCommands(
         {
           commands: { config: false, debug: false },
-        } as unknown as OpenClawConfig,
+        } as unknown as ZhushouConfig,
         undefined,
         { surface: "telegram", page: index + 1, forcePaginatedList: true },
       ),

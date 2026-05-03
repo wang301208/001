@@ -6,7 +6,7 @@ export { handleBrowserGatewayRequest } from "./src/gateway/browser-request.js";
 export { browserHandlers } from "./src/gateway/browser-request.js";
 export {
   definePluginEntry,
-  type OpenClawPluginApi,
+  type ZhushouPluginApi,
   type OpenClawPluginToolContext,
   type OpenClawPluginToolFactory,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";

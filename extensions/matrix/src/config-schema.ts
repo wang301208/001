@@ -5,9 +5,9 @@ import {
   GroupPolicySchema,
   MarkdownConfigSchema,
   ToolPolicySchema,
-} from "openclaw/plugin-sdk/channel-config-schema";
-import { buildSecretInputSchema } from "openclaw/plugin-sdk/secret-input";
-import { z } from "openclaw/plugin-sdk/zod";
+} from "zhushou/plugin-sdk/channel-config-schema";
+import { buildSecretInputSchema } from "zhushou/plugin-sdk/secret-input";
+import { z } from "zhushou/plugin-sdk/zod";
 
 const matrixActionSchema = z
   .object({

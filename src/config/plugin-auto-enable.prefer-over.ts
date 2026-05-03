@@ -6,7 +6,7 @@ import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { normalizeStringEntries } from "../shared/string-normalization.js";
 import { isRecord, resolveConfigDir, resolveUserPath } from "../utils.js";
 import type { PluginAutoEnableCandidate } from "./plugin-auto-enable.types.js";
-import type { OpenClawConfig } from "./types.openclaw.js";
+import type { ZhushouConfig } from "./types.zhushou.js";
 
 type ExternalCatalogChannelEntry = {
   id: string;
@@ -54,10 +54,10 @@ function parseExternalCatalogChannelEntries(raw: unknown): ExternalCatalogChanne
 
   const channels: ExternalCatalogChannelEntry[] = [];
   for (const entry of list) {
-    if (!isRecord(entry) || !isRecord(entry.openclaw) || !isRecord(entry.openclaw.channel)) {
+    if (!isRecord(entry) || !isRecord(entry.zhushou) || !isRecord(entry.zhushou.channel)) {
       continue;
     }
-    const channel = entry.openclaw.channel;
+    const channel = entry.zhushou.channel;
     const id = normalizeOptionalString(channel.id) ?? "";
     if (!id) {
       continue;
@@ -127,13 +127,13 @@ function getPluginAutoEnableCandidateCacheKey(candidate: PluginAutoEnableCandida
 }
 
 export function shouldSkipPreferredPluginAutoEnable(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   entry: PluginAutoEnableCandidate;
   configured: readonly PluginAutoEnableCandidate[];
   env: NodeJS.ProcessEnv;
   registry: PluginManifestRegistry;
-  isPluginDenied: (config: OpenClawConfig, pluginId: string) => boolean;
-  isPluginExplicitlyDisabled: (config: OpenClawConfig, pluginId: string) => boolean;
+  isPluginDenied: (config: ZhushouConfig, pluginId: string) => boolean;
+  isPluginExplicitlyDisabled: (config: ZhushouConfig, pluginId: string) => boolean;
   preferOverCache: Map<string, string[]>;
 }): boolean {
   const getPreferredOverIds = (candidate: PluginAutoEnableCandidate): string[] => {

@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { collectDiscordSecurityAuditFindings } from "../../test/helpers/channels/security-audit-contract.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { withChannelSecurityStateDir } from "./audit-channel-security.test-helpers.js";
 import { collectChannelSecurityFindings } from "./audit-channel.js";
 
@@ -11,7 +11,7 @@ const { readChannelAllowFromStoreMock } = vi.hoisted(() => ({
   readChannelAllowFromStoreMock: vi.fn(async () => [] as string[]),
 }));
 
-vi.mock("openclaw/plugin-sdk/conversation-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/conversation-runtime", () => ({
   readChannelAllowFromStore: readChannelAllowFromStoreMock,
 }));
 
@@ -101,13 +101,13 @@ describe("security audit discord allowlists", () => {
             },
           },
         },
-      } satisfies OpenClawConfig,
+      } satisfies ZhushouConfig,
       expectNameBasedSeverity: "warn",
       detailIncludes: [
         "channels.discord.allowFrom:Alice#1234",
         "channels.discord.guilds.123.users:trusted.operator",
         "channels.discord.guilds.123.channels.general.users:security-team",
-        "~/.openclaw/credentials/discord-allowFrom.json:team.owner",
+        "~/.zhushou/credentials/discord-allowFrom.json:team.owner",
       ],
       detailExcludes: ["<@123456789012345678>"],
     },
@@ -122,7 +122,7 @@ describe("security audit discord allowlists", () => {
             allowFrom: ["Alice#1234"],
           },
         },
-      } satisfies OpenClawConfig,
+      } satisfies ZhushouConfig,
       expectNameBasedSeverity: "info",
       detailIncludes: ["out-of-scope"],
       expectFindingMatch: {
@@ -146,7 +146,7 @@ describe("security audit discord allowlists", () => {
             },
           },
         },
-      } satisfies OpenClawConfig,
+      } satisfies ZhushouConfig,
       expectNoNameBasedFinding: true,
       expectFindingMatch: {
         checkId: "channels.discord.allowFrom.dangerous_name_matching_enabled",
@@ -173,7 +173,7 @@ describe("security audit discord allowlists", () => {
             },
           },
         },
-      } satisfies OpenClawConfig,
+      } satisfies ZhushouConfig,
       expectNameBasedSeverity: "warn",
       detailIncludes: ["channels.discord.accounts.beta.allowFrom:Alice#1234"],
     },
@@ -203,7 +203,7 @@ describe("security audit discord allowlists", () => {
             },
           },
         },
-      } satisfies OpenClawConfig,
+      } satisfies ZhushouConfig,
       expectNoNameBasedFinding: true,
     },
   ])("$name", async (testCase) => {
@@ -211,7 +211,7 @@ describe("security audit discord allowlists", () => {
       await testCase.setup?.(tmp);
       readChannelAllowFromStoreMock.mockResolvedValue(
         testCase.detailIncludes?.includes(
-          "~/.openclaw/credentials/discord-allowFrom.json:team.owner",
+          "~/.zhushou/credentials/discord-allowFrom.json:team.owner",
         )
           ? ["team.owner"]
           : [],
@@ -254,7 +254,7 @@ describe("security audit discord allowlists", () => {
 
   it("does not treat prototype properties as explicit Discord account config paths", async () => {
     await withChannelSecurityStateDir(async () => {
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         channels: {
           discord: {
             enabled: true,

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig, type UserConfig } from "tsdown";
 import {
   collectBundledPluginBuildEntries,
@@ -7,6 +8,11 @@ import {
   NON_PACKAGED_BUNDLED_PLUGIN_DIRS,
 } from "./scripts/lib/bundled-plugin-build-entries.mjs";
 import { buildPluginSdkEntrySources } from "./scripts/lib/plugin-sdk-entries.mjs";
+
+// Ensure we always use the project root directory, regardless of where tsdown is invoked from
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROJECT_ROOT = __dirname;
 
 type InputOptionsFactory = Extract<NonNullable<UserConfig["inputOptions"]>, Function>;
 type InputOptionsArg = InputOptionsFactory extends (
@@ -91,12 +97,12 @@ function nodeBuildConfig(config: UserConfig): UserConfig {
   };
 }
 
-const bundledPluginBuildEntries = collectBundledPluginBuildEntries();
+const bundledPluginBuildEntries = collectBundledPluginBuildEntries({ cwd: PROJECT_ROOT });
 const bundledPluginRuntimeDependencies = listBundledPluginRuntimeDependencies();
-const shouldBuildPrivateQaEntries = process.env.OPENCLAW_BUILD_PRIVATE_QA === "1";
+const shouldBuildPrivateQaEntries = process.env.ZHUSHOU_BUILD_PRIVATE_QA === "1";
 
 function buildBundledHookEntries(): Record<string, string> {
-  const hooksRoot = path.join(process.cwd(), "src", "hooks", "bundled");
+  const hooksRoot = path.join(PROJECT_ROOT, "src", "hooks", "bundled");
   const entries: Record<string, string> = {};
 
   if (!fs.existsSync(hooksRoot)) {
@@ -141,7 +147,7 @@ function shouldStageBundledPluginRuntimeDependencies(packageJson: unknown): bool
   return (
     typeof packageJson === "object" &&
     packageJson !== null &&
-    (packageJson as { openclaw?: { bundle?: { stageRuntimeDependencies?: boolean } } }).openclaw
+    (packageJson as { zhushou?: { bundle?: { stageRuntimeDependencies?: boolean } } }).zhushou
       ?.bundle?.stageRuntimeDependencies === true
   );
 }
@@ -173,10 +179,10 @@ function normalizeBundledPluginOutEntry(entry: string): string {
 
 function isPluginSdkSelfReference(id: string): boolean {
   return (
-    id === "openclaw/plugin-sdk" ||
-    id.startsWith("openclaw/plugin-sdk/") ||
-    id === "@openclaw/plugin-sdk" ||
-    id.startsWith("@openclaw/plugin-sdk/")
+    id === "zhushou/plugin-sdk" ||
+    id.startsWith("zhushou/plugin-sdk/") ||
+    id === "@zhushou/plugin-sdk" ||
+    id.startsWith("@zhushou/plugin-sdk/")
   );
 }
 

@@ -8,7 +8,7 @@ agent:
 
 mission:
   primary: >
-    Optimize the long-term productive capacity of OpenClaw by redesigning its
+    Optimize the long-term productive capacity of 助手 by redesigning its
     organizational topology, introducing new roles, retiring obsolete roles,
     and launching system evolution programs.
   success_metrics:

@@ -161,7 +161,7 @@ describe("mapSensitivePaths", () => {
       target: "draft-07",
       unrepresentable: "any",
     });
-    schema.title = "OpenClawConfig";
+    schema.title = "ZhushouConfig";
     const hints = mapSensitivePaths(OpenClawSchema, "", {});
 
     expect(hints["agents.defaults.memorySearch.remote.apiKey"]?.sensitive).toBe(true);

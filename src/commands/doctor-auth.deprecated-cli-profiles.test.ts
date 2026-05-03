@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { ProviderPlugin } from "../plugins/types.js";
 import { maybeRepairLegacyOAuthProfileIds } from "./doctor-auth-legacy-oauth.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
@@ -118,7 +118,7 @@ describe("maybeRepairLegacyOAuthProfileIds", () => {
             anthropic: ["anthropic:default"],
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       makePrompter(true),
     );
 

@@ -107,7 +107,7 @@ function createExpiredOauthStore(params: {
 
 describe("resolveApiKeyForProfile OAuth refresh mirror-to-main (#26322)", () => {
   const envSnapshot = captureEnv([
-    "OPENCLAW_STATE_DIR",
+    "ZHUSHOU_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
@@ -122,8 +122,8 @@ describe("resolveApiKeyForProfile OAuth refresh mirror-to-main (#26322)", () => 
     formatProviderAuthProfileApiKeyWithPluginMock.mockReturnValue(undefined);
     externalAuthTesting.setResolveExternalAuthProfilesForTest(() => []);
     clearRuntimeAuthProfileStoreSnapshots();
-    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-oauth-mirror-"));
-    process.env.OPENCLAW_STATE_DIR = tempRoot;
+    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-oauth-mirror-"));
+    process.env.ZHUSHOU_STATE_DIR = tempRoot;
     mainAgentDir = path.join(tempRoot, "agents", "main", "agent");
     process.env.OPENCLAW_AGENT_DIR = mainAgentDir;
     process.env.PI_CODING_AGENT_DIR = mainAgentDir;

@@ -1,16 +1,16 @@
 {
-  "name": "@openclaw/openai-provider",
+  "name": "@zhushou/openai-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw OpenAI provider plugins",
+  "description": "助手 OpenAI provider plugins",
   "type": "module",
   "dependencies": {
     "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

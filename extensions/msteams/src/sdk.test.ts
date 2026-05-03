@@ -12,9 +12,9 @@ import type {
   MSTeamsFederatedCredentials,
 } from "./token.js";
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/ssrf-runtime")>(
-    "openclaw/plugin-sdk/ssrf-runtime",
+vi.mock("zhushou/plugin-sdk/ssrf-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/ssrf-runtime")>(
+    "zhushou/plugin-sdk/ssrf-runtime",
   );
   return {
     ...actual,
@@ -144,7 +144,7 @@ function createSdkStub(): MSTeamsTeamsSdk {
 
 describe("createMSTeamsApp", () => {
   it("does not crash with express 5 path-to-regexp (#55161)", async () => {
-    // Regression test for: https://github.com/openclaw/openclaw/issues/55161
+    // Regression test for: https://github.com/zhushou/zhushou/issues/55161
     // createMSTeamsApp passes a no-op httpServerAdapter to prevent the SDK from
     // creating its default HttpPlugin (which registers `/api*` — invalid in Express 5).
     const { App } = await import("@microsoft/teams.apps");
@@ -207,7 +207,7 @@ describe("createMSTeamsAdapter", () => {
     );
   });
 
-  it("passes the OpenClaw User-Agent to the Bot Framework connector client", async () => {
+  it("passes the 助手 User-Agent to the Bot Framework connector client", async () => {
     const creds = {
       type: "secret",
       appId: "app-id",
@@ -239,7 +239,7 @@ describe("createMSTeamsAdapter", () => {
       serviceUrl: "https://service.example.com/",
       options: {
         headers: {
-          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ OpenClaw\/.+$/),
+          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ 助手\/.+$/),
         },
       },
     });

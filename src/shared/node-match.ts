@@ -44,7 +44,7 @@ function formatNodeCandidateLabel(node: NodeMatchCandidate): string {
 
 function isCurrentOpenClawClient(clientId: string | undefined): boolean {
   const normalized = normalizeOptionalLowercaseString(clientId) ?? "";
-  return normalized.startsWith("openclaw-");
+  return normalized.startsWith("zhushou-");
 }
 
 function isLegacyClawdbotClient(clientId: string | undefined): boolean {

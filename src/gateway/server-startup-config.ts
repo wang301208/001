@@ -3,7 +3,7 @@ import {
   type ConfigFileSnapshot,
   type GatewayAuthConfig,
   type GatewayTailscaleConfig,
-  type OpenClawConfig,
+  type ZhushouConfig,
   applyConfigOverrides,
   isNixMode,
   readConfigFileSnapshot,
@@ -35,7 +35,7 @@ type GatewayStartupLog = {
 type GatewaySecretsStateEventCode = "SECRETS_RELOADER_DEGRADED" | "SECRETS_RELOADER_RECOVERED";
 
 export type ActivateRuntimeSecrets = (
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   params: { reason: "startup" | "reload" | "restart-check"; activate: boolean },
 ) => Promise<Awaited<ReturnType<typeof prepareSecretsRuntimeSnapshot>>>;
 
@@ -91,7 +91,7 @@ export function createRuntimeSecretsActivator(params: {
   emitStateEvent: (
     code: GatewaySecretsStateEventCode,
     message: string,
-    cfg: OpenClawConfig,
+    cfg: ZhushouConfig,
   ) => void;
   prepareRuntimeSecretsSnapshot?: PrepareRuntimeSecretsSnapshot;
   activateRuntimeSecretsSnapshot?: ActivateRuntimeSecretsSnapshot;
@@ -170,7 +170,7 @@ export function assertValidGatewayStartupConfigSnapshot(
       ? formatConfigIssueLines(snapshot.issues, "", { normalizeRoot: true }).join("\n")
       : "Unknown validation issue.";
   const doctorHint = options.includeDoctorHint
-    ? `\nRun "${formatCliCommand("openclaw doctor --fix")}" to repair, then retry.`
+    ? `\nRun "${formatCliCommand("zhushou doctor --fix")}" to repair, then retry.`
     : "";
   throw new Error(`Invalid config at ${snapshot.path}.\n${issues}${doctorHint}`);
 }
@@ -232,9 +232,9 @@ export async function prepareGatewayStartupConfig(params: {
   };
 }
 
-function pruneSkippedStartupSecretSurfaces(config: OpenClawConfig): OpenClawConfig {
+function pruneSkippedStartupSecretSurfaces(config: ZhushouConfig): ZhushouConfig {
   const skipChannels =
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_CHANNELS) ||
+    isTruthyEnvValue(process.env.ZHUSHOU_SKIP_CHANNELS) ||
     isTruthyEnvValue(process.env.OPENCLAW_SKIP_PROVIDERS);
   if (!skipChannels || !config.channels) {
     return config;
@@ -247,7 +247,7 @@ function pruneSkippedStartupSecretSurfaces(config: OpenClawConfig): OpenClawConf
 
 function logGatewayAuthSurfaceDiagnostics(
   prepared: {
-    sourceConfig: OpenClawConfig;
+    sourceConfig: ZhushouConfig;
     warnings: Array<{ code: string; path: string; message: string }>;
   },
   logSecrets: GatewayStartupLog,
@@ -278,9 +278,9 @@ function logGatewayAuthSurfaceDiagnostics(
 }
 
 function applyGatewayAuthOverridesForStartupPreflight(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   overrides: GatewayStartupConfigOverrides,
-): OpenClawConfig {
+): ZhushouConfig {
   if (!overrides.auth && !overrides.tailscale) {
     return config;
   }

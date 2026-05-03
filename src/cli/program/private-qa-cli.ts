@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { resolveOpenClawPackageRootSync } from "../../infra/openclaw-root.js";
+import { resolveOpenClawPackageRootSync } from "../../infra/zhushou-root.js";
 
 const PRIVATE_QA_DIST_RELATIVE_PATH = path.join("dist", "plugin-sdk", "qa-lab.js");
 
 export function isPrivateQaCliEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.OPENCLAW_ENABLE_PRIVATE_QA_CLI === "1";
+  return env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI === "1";
 }
 
 function resolvePrivateQaSourceModuleSpecifier(params?: {
@@ -59,7 +59,7 @@ export function loadPrivateQaCliModule(params?: {
 }): Promise<Record<string, unknown>> {
   const specifier = resolvePrivateQaSourceModuleSpecifier(params);
   if (!specifier) {
-    throw new Error("Private QA CLI is only available from an OpenClaw source checkout.");
+    throw new Error("Private QA CLI is only available from an 助手 source checkout.");
   }
   return (params?.importModule ?? dynamicImportPrivateQaCliModule)(specifier);
 }

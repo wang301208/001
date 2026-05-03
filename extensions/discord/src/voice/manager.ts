@@ -12,17 +12,17 @@ import {
   resolveTtsConfig,
   resolveTtsPrefsPath,
   type ResolvedTtsConfig,
-} from "openclaw/plugin-sdk/agent-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import type { DiscordAccountConfig, TtsConfig } from "openclaw/plugin-sdk/config-runtime";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import { logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
-import { parseTtsDirectives } from "openclaw/plugin-sdk/speech";
-import { formatErrorMessage } from "openclaw/plugin-sdk/ssrf-runtime";
-import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/agent-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { DiscordAccountConfig, TtsConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import { logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { parseTtsDirectives } from "zhushou/plugin-sdk/speech";
+import { formatErrorMessage } from "zhushou/plugin-sdk/ssrf-runtime";
+import { resolvePreferredOpenClawTmpDir } from "zhushou/plugin-sdk/temp-path";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { formatMention } from "../mentions.js";
 import { normalizeDiscordSlug, resolveDiscordOwnerAccess } from "../monitor/allow-list.js";
 import { formatDiscordUserTag } from "../monitor/format.js";
@@ -127,8 +127,8 @@ function mergeTtsConfig(base: TtsConfig, override?: TtsConfig): TtsConfig {
   };
 }
 
-function resolveVoiceTtsConfig(params: { cfg: OpenClawConfig; override?: TtsConfig }): {
-  cfg: OpenClawConfig;
+function resolveVoiceTtsConfig(params: { cfg: ZhushouConfig; override?: TtsConfig }): {
+  cfg: ZhushouConfig;
   resolved: ResolvedTtsConfig;
 } {
   if (!params.override) {
@@ -296,7 +296,7 @@ function scheduleTempCleanup(tempDir: string, delayMs: number = 30 * 60 * 1000):
 }
 
 async function transcribeAudio(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   filePath: string;
 }): Promise<string | undefined> {
@@ -330,7 +330,7 @@ export class DiscordVoiceManager {
   constructor(
     private params: {
       client: Client;
-      cfg: OpenClawConfig;
+      cfg: ZhushouConfig;
       discordConfig: DiscordAccountConfig;
       accountId: string;
       runtime: RuntimeEnv;

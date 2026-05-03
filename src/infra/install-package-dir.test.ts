@@ -94,7 +94,7 @@ async function withInstallBaseReboundOnRealpathCall<T>(params: {
 
 describe("installPackageDir", () => {
   const fixtureRootTracker = createSuiteTempRootTracker({
-    prefix: "openclaw-install-package-dir-",
+    prefix: "zhushou-install-package-dir-",
   });
 
   afterEach(async () => {
@@ -136,10 +136,10 @@ describe("installPackageDir", () => {
     });
     await expect(fs.readFile(path.join(targetDir, "marker.txt"), "utf8")).resolves.toBe("old");
     await expect(
-      listMatchingDirs(installBaseDir, ".openclaw-install-stage-"),
+      listMatchingDirs(installBaseDir, ".zhushou-install-stage-"),
     ).resolves.toHaveLength(0);
     await expect(
-      listMatchingDirs(installBaseDir, ".openclaw-install-backups"),
+      listMatchingDirs(installBaseDir, ".zhushou-install-backups"),
     ).resolves.toHaveLength(0);
   });
 
@@ -180,9 +180,9 @@ describe("installPackageDir", () => {
     });
     await expect(fs.readFile(path.join(targetDir, "marker.txt"), "utf8")).resolves.toBe("old");
     await expect(
-      listMatchingDirs(installBaseDir, ".openclaw-install-stage-"),
+      listMatchingDirs(installBaseDir, ".zhushou-install-stage-"),
     ).resolves.toHaveLength(0);
-    const backupRoot = path.join(installBaseDir, ".openclaw-install-backups");
+    const backupRoot = path.join(installBaseDir, ".zhushou-install-backups");
     await expect(fs.readdir(backupRoot)).resolves.toHaveLength(0);
   });
 
@@ -277,7 +277,7 @@ describe("installPackageDir", () => {
     ).rejects.toMatchObject({
       code: "ENOENT",
     });
-    const backupRoot = path.join(preservedInstallRoot, ".openclaw-install-backups");
+    const backupRoot = path.join(preservedInstallRoot, ".zhushou-install-backups");
     await expect(fs.readdir(backupRoot)).resolves.toHaveLength(1);
   });
 
@@ -322,7 +322,7 @@ describe("installPackageDir", () => {
     expect(vi.mocked(runCommandWithTimeout)).toHaveBeenCalledWith(
       ["npm", "install", "--omit=dev", "--silent", "--ignore-scripts"],
       expect.objectContaining({
-        cwd: expect.stringContaining(".openclaw-install-stage-"),
+        cwd: expect.stringContaining(".zhushou-install-stage-"),
       }),
     );
   });
@@ -354,7 +354,7 @@ describe("installPackageDir", () => {
         code: "ENOENT",
       });
       await expect(
-        listMatchingEntries(cwd ?? "", ".openclaw-install-hidden-npmrc-"),
+        listMatchingEntries(cwd ?? "", ".zhushou-install-hidden-npmrc-"),
       ).resolves.toHaveLength(1);
       return {
         stdout: "",
@@ -379,7 +379,7 @@ describe("installPackageDir", () => {
     expect(result).toEqual({ ok: true });
     await expect(fs.readFile(path.join(targetDir, ".npmrc"), "utf8")).resolves.toBe(npmrcContent);
     await expect(
-      listMatchingEntries(targetDir, ".openclaw-install-hidden-npmrc-"),
+      listMatchingEntries(targetDir, ".zhushou-install-hidden-npmrc-"),
     ).resolves.toHaveLength(0);
   });
 });

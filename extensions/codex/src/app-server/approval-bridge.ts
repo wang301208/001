@@ -3,7 +3,7 @@ import {
   type AgentApprovalEventData,
   type EmbeddedRunAttemptParams,
   type ExecApprovalDecision,
-} from "openclaw/plugin-sdk/agent-harness";
+} from "zhushou/plugin-sdk/agent-harness";
 import { isJsonObject, type JsonObject, type JsonValue } from "./protocol.js";
 
 const DEFAULT_CODEX_APPROVAL_TIMEOUT_MS = 120_000;
@@ -51,7 +51,7 @@ export async function handleCodexAppServerApprovalRequest(params: {
       "plugin.approval.request",
       { timeoutMs: timeoutMs + 10_000 },
       {
-        pluginId: "openclaw-codex-app-server",
+        pluginId: "zhushou-codex-app-server",
         title: context.title,
         description: context.description,
         severity: context.severity,

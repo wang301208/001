@@ -6,5 +6,5 @@ export {
   optimizeImageToJpeg,
   optimizeImageToPng,
   type WebMediaResult,
-} from "openclaw/plugin-sdk/web-media";
-export type { LocalMediaAccessErrorCode } from "openclaw/plugin-sdk/web-media";
+} from "zhushou/plugin-sdk/web-media";
+export type { LocalMediaAccessErrorCode } from "zhushou/plugin-sdk/web-media";

@@ -3,7 +3,7 @@ import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import {
   clearRuntimeConfigSnapshot,
   setRuntimeConfigSnapshot,
-  type OpenClawConfig,
+  type ZhushouConfig,
 } from "../config/config.js";
 import * as configSessions from "../config/sessions.js";
 import type { SessionEntry } from "../config/sessions/types.js";
@@ -126,7 +126,7 @@ const chatHistoryMock = vi.fn(async (_sessionKey?: string) => ({
   messages: [] as Array<unknown>,
 }));
 let sessionStore: SessionStoreFixture = {};
-let configOverride: OpenClawConfig = {
+let configOverride: ZhushouConfig = {
   session: {
     mainKey: "main",
     scope: "per-sender",
@@ -148,7 +148,7 @@ async function getSingleAgentCallParams() {
   return call?.params ?? {};
 }
 
-function setConfigOverride(next: OpenClawConfig): void {
+function setConfigOverride(next: ZhushouConfig): void {
   configOverride = next;
   setRuntimeConfigSnapshot(configOverride);
 }
@@ -196,7 +196,7 @@ describe("subagent announce formatting", () => {
     // Set FAST_TEST_MODE before importing the module to ensure the module-level
     // constant picks it up. This fixes flaky Windows CI failures where the test
     // timeout budget is too tight without fast mode enabled.
-    // See: https://github.com/openclaw/openclaw/issues/31298
+    // See: https://github.com/zhushou/zhushou/issues/31298
     previousFastTestEnv = process.env.OPENCLAW_TEST_FAST;
     process.env.OPENCLAW_TEST_FAST = "1";
     ({ runSubagentAnnounceFlow } = await import("./subagent-announce.js"));
@@ -369,7 +369,7 @@ describe("subagent announce formatting", () => {
     };
     const msg = call?.params?.message as string;
     expect(call?.params?.sessionKey).toBe("agent:main:main");
-    expect(msg).toContain("OpenClaw runtime context (internal):");
+    expect(msg).toContain("助手 runtime context (internal):");
     expect(msg).toContain("[Internal task completion event]");
     expect(msg).toContain("session_id: child-session-123");
     expect(msg).toContain("subagent task");

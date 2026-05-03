@@ -13,7 +13,7 @@ type EvaluatedModules = {
   idToModuleMap: Map<string, EvaluatedModuleNode>;
 };
 
-const SHARED_TEST_SETUP = Symbol.for("openclaw.sharedTestSetup");
+const SHARED_TEST_SETUP = Symbol.for("zhushou.sharedTestSetup");
 
 function getSharedTestHome(): string | undefined {
   const globalState = globalThis as typeof globalThis & {
@@ -50,8 +50,8 @@ function restoreSharedTestHomeAfterEnvUnstub(testHomeRaw: string | undefined): v
   process.env.HOME = testHome;
   process.env.USERPROFILE = testHome;
   process.env.OPENCLAW_TEST_HOME = testHome;
-  delete process.env.OPENCLAW_CONFIG_PATH;
-  delete process.env.OPENCLAW_STATE_DIR;
+  delete process.env.ZHUSHOU_CONFIG_PATH;
+  delete process.env.ZHUSHOU_STATE_DIR;
   delete process.env.OPENCLAW_AGENT_DIR;
   delete process.env.PI_CODING_AGENT_DIR;
   process.env.XDG_CONFIG_HOME = path.join(testHome, ".config");

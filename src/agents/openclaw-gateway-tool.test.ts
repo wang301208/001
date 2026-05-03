@@ -113,11 +113,11 @@ describe("gateway tool", () => {
   it("schedules SIGUSR1 restart", async () => {
     vi.useFakeTimers();
     const kill = vi.spyOn(process, "kill").mockImplementation(() => true);
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-test-"));
 
     try {
       await withEnvAsync(
-        { OPENCLAW_STATE_DIR: stateDir, OPENCLAW_PROFILE: "isolated" },
+        { ZHUSHOU_STATE_DIR: stateDir, ZHUSHOU_PROFILE: "isolated" },
         async () => {
           const tool = requireGatewayTool();
 
@@ -139,7 +139,7 @@ describe("gateway tool", () => {
           };
           expect(parsed.payload?.kind).toBe("restart");
           expect(parsed.payload?.doctorHint).toBe(
-            "Run: openclaw --profile isolated doctor --non-interactive",
+            "Run: zhushou --profile isolated doctor --non-interactive",
           );
 
           expect(kill).not.toHaveBeenCalled();
@@ -159,7 +159,7 @@ describe("gateway tool", () => {
     const tool = requireGatewayTool(sessionKey);
 
     const raw =
-      '{\n  agents: { defaults: { workspace: "~/openclaw" } },\n  tools: { exec: { ask: "on-miss", security: "allowlist" } }\n}\n';
+      '{\n  agents: { defaults: { workspace: "~/zhushou" } },\n  tools: { exec: { ask: "on-miss", security: "allowlist" } }\n}\n';
     await tool.execute("call2", {
       action: "config.apply",
       raw,
@@ -243,7 +243,7 @@ describe("gateway tool", () => {
                     allowedValueFlags: ["-c"],
                   },
                 },
-                safeBinTrustedDirs: ["/tmp/openclaw-bin"],
+                safeBinTrustedDirs: ["/tmp/zhushou-bin"],
                 strictInlineEval: true,
               },
             },
@@ -263,7 +263,7 @@ describe("gateway tool", () => {
               allowedValueFlags: ["-c"],
             },
           },
-          safeBinTrustedDirs: ["/tmp/openclaw-bin"],
+          safeBinTrustedDirs: ["/tmp/zhushou-bin"],
           strictInlineEval: true,
         },
       },
@@ -381,7 +381,7 @@ describe("gateway tool", () => {
     await expect(
       tool.execute("call-missing-protected", {
         action: "config.apply",
-        raw: '{ agents: { defaults: { workspace: "~/openclaw" } } }',
+        raw: '{ agents: { defaults: { workspace: "~/zhushou" } } }',
       }),
     ).rejects.toThrow(
       "gateway config.apply cannot change protected config paths: tools.exec.ask, tools.exec.security",
@@ -400,7 +400,7 @@ describe("gateway tool", () => {
     await expect(
       tool.execute("call-protected-safe-bin-trust-apply", {
         action: "config.apply",
-        raw: '{ tools: { exec: { ask: "on-miss", security: "allowlist", safeBinTrustedDirs: ["/tmp/openclaw-bin"] } } }',
+        raw: '{ tools: { exec: { ask: "on-miss", security: "allowlist", safeBinTrustedDirs: ["/tmp/zhushou-bin"] } } }',
       }),
     ).rejects.toThrow(
       "gateway config.apply cannot change protected config paths: tools.exec.safeBinTrustedDirs",

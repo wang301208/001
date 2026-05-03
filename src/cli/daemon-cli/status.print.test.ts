@@ -83,7 +83,7 @@ describe("printDaemonStatus", () => {
           notLoadedText: "not loaded",
           runtime: { status: "running", pid: 8000 },
         },
-        logFile: "/tmp/openclaw.log",
+        logFile: "/tmp/zhushou.log",
         gateway: {
           bindMode: "loopback",
           bindHost: "127.0.0.1",

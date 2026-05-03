@@ -33,7 +33,7 @@ function buildGoogleProvider(
 }
 
 function normalizeForTest(providers: Record<string, ProviderConfig>) {
-  const agentDir = mkdtempSync(join(tmpdir(), "openclaw-models-normalize-"));
+  const agentDir = mkdtempSync(join(tmpdir(), "zhushou-models-normalize-"));
   return normalizeProviders({ providers, agentDir }) ?? {};
 }
 

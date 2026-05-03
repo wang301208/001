@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
-import { jsonResult, readStringParam } from "openclaw/plugin-sdk/channel-actions";
-import { extractToolSend } from "openclaw/plugin-sdk/tool-send";
+import { jsonResult, readStringParam } from "zhushou/plugin-sdk/channel-actions";
+import { extractToolSend } from "zhushou/plugin-sdk/tool-send";
 import { resolveQaChannelAccount } from "./accounts.js";
 import {
   buildQaTarget,

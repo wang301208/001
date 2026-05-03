@@ -96,7 +96,7 @@ describe("createScopedVitestConfig", () => {
     expect(normalizeConfigPath(config.test?.runner)).toBe("test/non-isolated-runner.ts");
     expect(normalizeConfigPaths(config.test?.setupFiles)).toEqual([
       "test/setup.ts",
-      "test/setup-openclaw-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
     ]);
   });
 
@@ -132,7 +132,7 @@ describe("createScopedVitestConfig", () => {
   });
 
   it("loads scoped include overrides from OPENCLAW_VITEST_INCLUDE_FILE", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-vitest-scoped-"));
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-vitest-scoped-"));
     try {
       const includeFile = path.join(tempDir, "include.json");
       fs.writeFileSync(includeFile, JSON.stringify(["src/utils/utils-misc.test.ts"]), "utf8");
@@ -159,7 +159,7 @@ describe("createScopedVitestConfig", () => {
     expect(normalizeConfigPaths(config.test?.setupFiles)).toEqual([
       "test/setup.ts",
       "test/setup.extensions.ts",
-      "test/setup-openclaw-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
     ]);
   });
 
@@ -249,12 +249,12 @@ describe("scoped vitest configs", () => {
 
   });
 
-  it("keeps the process lane off the openclaw runtime setup", () => {
+  it("keeps the process lane off the zhushou runtime setup", () => {
     expect(normalizeConfigPaths(defaultProcessConfig.test?.setupFiles)).toEqual(["test/setup.ts"]);
     expect(normalizeConfigPaths(defaultRuntimeConfig.test?.setupFiles)).toEqual(["test/setup.ts"]);
     expect(normalizeConfigPaths(defaultPluginSdkConfig.test?.setupFiles)).toEqual([
       "test/setup.ts",
-      "test/setup-openclaw-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
     ]);
   });
 
@@ -267,7 +267,7 @@ describe("scoped vitest configs", () => {
     expect(defaultAutoReplyReplyConfig.test?.include).toEqual(["reply/**/*.test.ts"]);
   });
 
-  it("keeps selected plugin-sdk and commands light lanes off the openclaw runtime setup", () => {
+  it("keeps selected plugin-sdk and commands light lanes off the zhushou runtime setup", () => {
     expect(normalizeConfigPaths(defaultPluginSdkLightConfig.test?.setupFiles)).toEqual([
       "test/setup.ts",
     ]);
@@ -290,7 +290,7 @@ describe("scoped vitest configs", () => {
 
   it("loads channel include overrides from OPENCLAW_VITEST_INCLUDE_FILE", () => {
     const tempDirs: string[] = [];
-    const tempDir = makeTempDir(tempDirs, "openclaw-vitest-channels-");
+    const tempDir = makeTempDir(tempDirs, "zhushou-vitest-channels-");
     try {
       const includeFile = path.join(tempDir, "include.json");
       fs.writeFileSync(
@@ -444,12 +444,12 @@ describe("scoped vitest configs", () => {
     expect(normalizeConfigPaths(defaultExtensionsConfig.test?.setupFiles)).toEqual([
       "test/setup.ts",
       "test/setup.extensions.ts",
-      "test/setup-openclaw-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
     ]);
     expect(normalizeConfigPaths(defaultExtensionTelegramConfig.test?.setupFiles)).toEqual([
       "test/setup.ts",
       "test/setup.extensions.ts",
-      "test/setup-openclaw-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
     ]);
   });
 

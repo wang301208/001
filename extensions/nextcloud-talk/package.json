@@ -1,21 +1,21 @@
 {
-  "name": "@openclaw/nextcloud-talk",
+  "name": "@zhushou/nextcloud-talk",
   "version": "2026.4.16",
-  "description": "OpenClaw Nextcloud Talk channel plugin",
+  "description": "助手 Nextcloud Talk channel plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -35,7 +35,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/nextcloud-talk",
+      "npmSpec": "@zhushou/nextcloud-talk",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -43,7 +43,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "openclawVersion": "2026.4.16"
+      "zhushouVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

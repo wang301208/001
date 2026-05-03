@@ -6,15 +6,15 @@ export {
   listDevicePairing,
   revokeDeviceBootstrapToken,
   type DeviceBootstrapProfile,
-} from "openclaw/plugin-sdk/device-bootstrap";
-export { definePluginEntry, type OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/device-bootstrap";
+export { definePluginEntry, type ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-entry";
 export {
   resolveGatewayBindUrl,
   resolveGatewayPort,
   resolveTailnetHostWithRunner,
-} from "openclaw/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 export {
   resolvePreferredOpenClawTmpDir,
   runPluginCommandWithTimeout,
-} from "openclaw/plugin-sdk/sandbox";
+} from "zhushou/plugin-sdk/sandbox";
 export { renderQrPngBase64 } from "./qr-image.js";

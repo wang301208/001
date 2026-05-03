@@ -41,7 +41,7 @@ function resolveLaunchAgentLabel(env?: Record<string, string | undefined>): stri
   if (envLabel) {
     return assertValidLaunchAgentLabel(envLabel);
   }
-  return assertValidLaunchAgentLabel(resolveGatewayLaunchAgentLabel(env?.OPENCLAW_PROFILE));
+  return assertValidLaunchAgentLabel(resolveGatewayLaunchAgentLabel(env?.ZHUSHOU_PROFILE));
 }
 
 export function resolveLaunchdRestartTarget(
@@ -131,7 +131,7 @@ export function scheduleDetachedLaunchdRestartHandoff(params: {
       [
         "-c",
         buildLaunchdRestartScript(params.mode),
-        "openclaw-launchd-restart-handoff",
+        "zhushou-launchd-restart-handoff",
         target.serviceTarget,
         target.domain,
         target.plistPath,

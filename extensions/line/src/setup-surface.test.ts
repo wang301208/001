@@ -11,7 +11,7 @@ import {
   type WizardPrompter,
 } from "../../../test/helpers/plugins/setup-wizard.js";
 import { createStartAccountContext } from "../../../test/helpers/plugins/start-account-context.js";
-import type { OpenClawConfig, PluginRuntime, ResolvedLineAccount } from "../api.js";
+import type { ZhushouConfig, PluginRuntime, ResolvedLineAccount } from "../api.js";
 import { linePlugin } from "./channel.js";
 import { lineGatewayAdapter } from "./gateway.js";
 import { probeLineBot } from "./probe.js";
@@ -115,7 +115,7 @@ function collectRuntimeApiPreExports(runtimeApiPath: string): string[] {
     if (!moduleSpecifier) {
       continue;
     }
-    if (moduleSpecifier === "openclaw/plugin-sdk/line-runtime") {
+    if (moduleSpecifier === "zhushou/plugin-sdk/line-runtime") {
       pluginSdkLineRuntimeSeen = true;
       break;
     }
@@ -167,7 +167,7 @@ describe("line setup wizard", () => {
 
     const result = await runSetupWizardConfigure({
       configure: lineConfigure,
-      cfg: {} as OpenClawConfig,
+      cfg: {} as ZhushouConfig,
       prompter,
       options: {},
     });
@@ -194,14 +194,14 @@ describe("line setup wizard", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as ZhushouConfig,
         "work",
       ),
     ).toBe("allowlist");
   });
 
   it("reports account-scoped config keys for named accounts", async () => {
-    expect(lineSetupWizard.dmPolicy?.resolveConfigKeys?.({} as OpenClawConfig, "work")).toEqual({
+    expect(lineSetupWizard.dmPolicy?.resolveConfigKeys?.({} as ZhushouConfig, "work")).toEqual({
       policyKey: "channels.line.accounts.work.dmPolicy",
       allowFromKey: "channels.line.accounts.work.allowFrom",
     });
@@ -223,7 +223,7 @@ describe("line setup wizard", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(lineSetupWizard.dmPolicy?.getCurrent(cfg)).toBe("allowlist");
     expect(lineSetupWizard.dmPolicy?.resolveConfigKeys?.(cfg)).toEqual({
@@ -255,7 +255,7 @@ describe("line setup wizard", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       "open",
       "work",
     );
@@ -292,7 +292,7 @@ describe("line setup wizard", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
     });
 
     expect(configured).toBe(false);
@@ -328,9 +328,9 @@ describe("probeLineBot", () => {
 
   it("returns bot info when available", async () => {
     getBotInfoMock.mockResolvedValue({
-      displayName: "OpenClaw",
+      displayName: "助手",
       userId: "U123",
-      basicId: "@openclaw",
+      basicId: "@zhushou",
       pictureUrl: "https://example.com/bot.png",
     });
 
@@ -348,14 +348,14 @@ describe("linePlugin status.probeAccount", () => {
       return { getBotInfo: getBotInfoMock };
     });
     getBotInfoMock.mockResolvedValue({
-      displayName: "OpenClaw",
+      displayName: "助手",
       userId: "U123",
-      basicId: "@openclaw",
+      basicId: "@zhushou",
       pictureUrl: "https://example.com/bot.png",
     });
 
     const params = {
-      cfg: {} as OpenClawConfig,
+      cfg: {} as ZhushouConfig,
       account: {
         accountId: "default",
         enabled: true,
@@ -388,7 +388,7 @@ describe("line runtime api", () => {
           "probeLineBot",
           "pushMessageLine",
         ],
-        realPluginSdkSpecifiers: ["openclaw/plugin-sdk/line-runtime"],
+        realPluginSdkSpecifiers: ["zhushou/plugin-sdk/line-runtime"],
       }),
     ).toEqual({
       buildTemplateMessageFromPayload: "function",
@@ -404,7 +404,7 @@ describe("line runtime api", () => {
     expect(collectRuntimeApiPreExports(runtimeApiPath)).toEqual([]);
     const runtimeApiSource = readFileSync(runtimeApiPath, "utf8");
 
-    expect(runtimeApiSource).not.toContain("openclaw/plugin-sdk/line-runtime");
+    expect(runtimeApiSource).not.toContain("zhushou/plugin-sdk/line-runtime");
     expect(collectRuntimeApiPreExports(runtimeApiPath)).toEqual([]);
   });
 });

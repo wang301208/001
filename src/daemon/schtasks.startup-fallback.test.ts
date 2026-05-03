@@ -153,7 +153,7 @@ afterEach(() => {
 
 describe("Windows startup fallback", () => {
   it("falls back to a Startup-folder launcher when schtasks create is denied", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       schtasksResponses.push(
         { code: 0, stdout: "", stderr: "" },
         { code: 1, stdout: "", stderr: "not found" },
@@ -170,7 +170,7 @@ describe("Windows startup fallback", () => {
         env,
         stdout,
         programArguments: ["node", "gateway.js", "--port", "18789"],
-        environment: { OPENCLAW_GATEWAY_PORT: "18789" },
+        environment: { ZHUSHOU_GATEWAY_PORT: "18789" },
       });
 
       const startupEntryPath = resolveStartupEntryPath(env);
@@ -189,7 +189,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("falls back to a Startup-folder launcher when schtasks create hangs", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       schtasksResponses.push(
         { code: 0, stdout: "", stderr: "" },
         { code: 1, stdout: "", stderr: "not found" },
@@ -201,7 +201,7 @@ describe("Windows startup fallback", () => {
         env,
         stdout,
         programArguments: ["node", "gateway.js", "--port", "18789"],
-        environment: { OPENCLAW_GATEWAY_PORT: "18789" },
+        environment: { ZHUSHOU_GATEWAY_PORT: "18789" },
       });
 
       await expect(fs.access(resolveStartupEntryPath(env))).resolves.toBeUndefined();
@@ -210,7 +210,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("launches the task script directly when schtasks /Run is accepted but never starts the task", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       sleepMock.mockImplementationOnce(async () => {
         timeState.now += 15_000;
       });
@@ -229,7 +229,7 @@ describe("Windows startup fallback", () => {
         env,
         stdout: new PassThrough(),
         programArguments: ["node", "gateway.js", "--port", "18789"],
-        environment: { OPENCLAW_GATEWAY_PORT: "18789" },
+        environment: { ZHUSHOU_GATEWAY_PORT: "18789" },
       });
 
       expectStartupFallbackSpawn(env);
@@ -237,7 +237,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("does not relaunch the task script when schtasks shows startup progress after /Run", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       schtasksResponses.push(
         { code: 0, stdout: "", stderr: "" },
         { code: 1, stdout: "", stderr: "not found" },
@@ -261,7 +261,7 @@ describe("Windows startup fallback", () => {
         env,
         stdout: new PassThrough(),
         programArguments: ["node", "gateway.js", "--port", "18789"],
-        environment: { OPENCLAW_GATEWAY_PORT: "18789" },
+        environment: { ZHUSHOU_GATEWAY_PORT: "18789" },
       });
 
       expect(spawn).not.toHaveBeenCalled();
@@ -269,7 +269,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("does not relaunch the task script when the scheduled task process is already starting", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       vi.spyOn(process, "platform", "get").mockReturnValue("win32");
       const taskScriptPath = resolveTaskScriptPath(env);
       sleepMock.mockImplementationOnce(async () => {
@@ -321,7 +321,7 @@ describe("Windows startup fallback", () => {
         env,
         stdout: new PassThrough(),
         programArguments: ["node", "gateway.js", "--port", "18789"],
-        environment: { OPENCLAW_GATEWAY_PORT: "18789" },
+        environment: { ZHUSHOU_GATEWAY_PORT: "18789" },
       });
 
       expect(spawn).not.toHaveBeenCalled();
@@ -329,7 +329,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("reports a fallback-launched gateway as running even when schtasks still says not-yet-run", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       await writeGatewayScript(env);
       findVerifiedGatewayListenerPidsOnPortSync.mockReturnValue([4242]);
       schtasksResponses.push(
@@ -347,7 +347,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("does not trust an unverified busy port when schtasks still says not-yet-run", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       await writeGatewayScript(env);
       inspectPortUsage.mockResolvedValue({
         port: 18789,
@@ -369,7 +369,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("treats an installed Startup-folder launcher as loaded", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       addStartupFallbackMissingResponses();
       await writeStartupFallbackEntry(env);
 
@@ -378,7 +378,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("reports runtime from the gateway listener when using the Startup fallback", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       addStartupFallbackMissingResponses();
       await writeStartupFallbackEntry(env);
       inspectPortUsage.mockResolvedValue({
@@ -396,7 +396,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("restarts the Startup fallback by killing the current pid and relaunching the entry", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       addStartupFallbackMissingResponses([
         { code: 0, stdout: "", stderr: "" },
         { code: 1, stdout: "", stderr: "not found" },
@@ -419,7 +419,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("relaunches the task script when restart sees a scheduled-task run no-op", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       await writeGatewayScript(env);
       sleepMock.mockImplementationOnce(async () => {
         timeState.now += 15_000;
@@ -450,7 +450,7 @@ describe("Windows startup fallback", () => {
   });
 
   it("kills the Startup fallback runtime even when the CLI env omits the gateway port", async () => {
-    await withWindowsEnv("openclaw-win-startup-", async ({ env }) => {
+    await withWindowsEnv("zhushou-win-startup-", async ({ env }) => {
       schtasksResponses.push({ code: 0, stdout: "", stderr: "" });
       await writeGatewayScript(env);
       await writeStartupFallbackEntry(env);
@@ -476,7 +476,7 @@ describe("Windows startup fallback", () => {
 
       const stdout = new PassThrough();
       const envWithoutPort = { ...env };
-      delete envWithoutPort.OPENCLAW_GATEWAY_PORT;
+      delete envWithoutPort.ZHUSHOU_GATEWAY_PORT;
       await stopScheduledTask({ env: envWithoutPort, stdout });
 
       expectGatewayTermination(5151);

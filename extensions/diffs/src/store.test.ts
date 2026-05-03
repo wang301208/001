@@ -17,7 +17,7 @@ describe("DiffArtifactStore", () => {
       rootDir,
       store,
       cleanup: cleanupRootDir,
-    } = await createDiffStoreHarness("openclaw-diffs-store-"));
+    } = await createDiffStoreHarness("zhushou-diffs-store-"));
   });
 
   afterEach(async () => {
@@ -233,7 +233,7 @@ describe("createDiffsHttpHandler", () => {
   }
 
   beforeEach(async () => {
-    ({ store, cleanup: cleanupRootDir } = await createDiffStoreHarness("openclaw-diffs-http-"));
+    ({ store, cleanup: cleanupRootDir } = await createDiffStoreHarness("zhushou-diffs-http-"));
   });
 
   afterEach(async () => {

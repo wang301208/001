@@ -5,8 +5,8 @@ import {
   type RequestClient,
 } from "@buape/carbon";
 import { ChannelType, Routes } from "discord-api-types/v10";
-import { loadConfig, type OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { recordChannelActivity } from "openclaw/plugin-sdk/infra-runtime";
+import { loadConfig, type ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { recordChannelActivity } from "zhushou/plugin-sdk/infra-runtime";
 import { resolveDiscordAccount } from "./accounts.js";
 import { registerDiscordComponentEntries } from "./components-registry.js";
 import {
@@ -141,7 +141,7 @@ function collapseClassicComponentText(spec: DiscordComponentMessageSpec): string
 }
 
 type DiscordComponentSendOpts = {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   accountId?: string;
   token?: string;
   rest?: RequestClient;

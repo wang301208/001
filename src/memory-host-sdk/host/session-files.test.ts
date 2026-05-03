@@ -9,15 +9,15 @@ let originalStateDir: string | undefined;
 
 beforeEach(async () => {
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "session-entry-test-"));
-  originalStateDir = process.env.OPENCLAW_STATE_DIR;
-  process.env.OPENCLAW_STATE_DIR = tmpDir;
+  originalStateDir = process.env.ZHUSHOU_STATE_DIR;
+  process.env.ZHUSHOU_STATE_DIR = tmpDir;
 });
 
 afterEach(async () => {
   if (originalStateDir === undefined) {
-    delete process.env.OPENCLAW_STATE_DIR;
+    delete process.env.ZHUSHOU_STATE_DIR;
   } else {
-    process.env.OPENCLAW_STATE_DIR = originalStateDir;
+    process.env.ZHUSHOU_STATE_DIR = originalStateDir;
   }
   await fs.rm(tmpDir, { recursive: true, force: true });
 });
@@ -60,7 +60,7 @@ describe("buildSessionEntry", () => {
     // Line 7: user message
     const jsonlLines = [
       JSON.stringify({ type: "custom", customType: "model-snapshot", data: {} }),
-      JSON.stringify({ type: "custom", customType: "openclaw.cache-ttl", data: {} }),
+      JSON.stringify({ type: "custom", customType: "zhushou.cache-ttl", data: {} }),
       JSON.stringify({ type: "session-meta", agentId: "test" }),
       JSON.stringify({ type: "message", message: { role: "user", content: "Hello world" } }),
       JSON.stringify({ type: "custom", customType: "tool-result", data: {} }),
@@ -156,7 +156,7 @@ describe("buildSessionEntry", () => {
     // to the actual user text. Without stripping, the JSON envelope dominates
     // the corpus entry and the user's real words get truncated by the
     // SESSION_INGESTION_MAX_SNIPPET_CHARS cap downstream.
-    // See: https://github.com/openclaw/openclaw/issues/63921
+    // See: https://github.com/zhushou/zhushou/issues/63921
     const envelopedUserText = [
       "Conversation info (untrusted metadata):",
       "```json",
@@ -250,7 +250,7 @@ describe("buildSessionEntry", () => {
     const jsonlLines = [
       JSON.stringify({
         type: "custom",
-        customType: "openclaw:bootstrap-context:full",
+        customType: "zhushou:bootstrap-context:full",
         data: {
           runId: "dreaming-narrative-light-1775894400455",
           sessionId: "sid-1",

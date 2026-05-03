@@ -282,7 +282,7 @@ vi.mock("../config/sessions.js", async () => {
   return {
     ...actual,
     loadSessionStore: () => hoisted.sessionStore,
-    resolveStorePath: () => "/tmp/openclaw-sessions-spawn-test-store.json",
+    resolveStorePath: () => "/tmp/zhushou-sessions-spawn-test-store.json",
     updateSessionStore: async (
       _storePath: string,
       mutator: (store: typeof hoisted.sessionStore) => void | Promise<void>,

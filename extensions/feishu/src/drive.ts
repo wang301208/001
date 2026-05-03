@@ -1,6 +1,6 @@
 import type * as Lark from "@larksuiteoapi/node-sdk";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import type { OpenClawPluginApi } from "../runtime-api.js";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import type { ZhushouPluginApi } from "../runtime-api.js";
 import { listEnabledFeishuAccounts } from "./accounts.js";
 import { cleanupAmbientCommentTypingReaction } from "./comment-reaction.js";
 import { encodeQuery, extractReplyText, isRecord, readString } from "./comment-shared.js";
@@ -746,7 +746,7 @@ export async function deliverCommentThreadText(
 
 // ============ Tool Registration ============
 
-export function registerFeishuDriveTools(api: OpenClawPluginApi) {
+export function registerFeishuDriveTools(api: ZhushouPluginApi) {
   if (!api.config) {
     api.logger.debug?.("feishu_drive: No config available, skipping drive tools");
     return;

@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { isUpdatePlanToolEnabledForOpenClawTools } from "./openclaw-tools.registration.js";
+import type { ZhushouConfig } from "../config/config.js";
+import { isUpdatePlanToolEnabledForOpenClawTools } from "./zhushou-tools.registration.js";
 import { createUpdatePlanTool } from "./tools/update-plan-tool.js";
 
-describe("openclaw-tools update_plan gating", () => {
+describe("zhushou-tools update_plan gating", () => {
   it("keeps update_plan disabled by default", () => {
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
-        config: {} as OpenClawConfig,
+        config: {} as ZhushouConfig,
       }),
     ).toBe(false);
   });
@@ -19,7 +19,7 @@ describe("openclaw-tools update_plan gating", () => {
           planTool: true,
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -39,7 +39,7 @@ describe("openclaw-tools update_plan gating", () => {
       agents: {
         list: [{ id: "main" }],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -71,7 +71,7 @@ describe("openclaw-tools update_plan gating", () => {
         },
         list: [{ id: "main" }],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -88,7 +88,7 @@ describe("openclaw-tools update_plan gating", () => {
       agents: {
         list: [{ id: "main" }],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -118,7 +118,7 @@ describe("openclaw-tools update_plan gating", () => {
         },
         list: [{ id: "main" }],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -140,7 +140,7 @@ describe("openclaw-tools update_plan gating", () => {
         },
         list: [{ id: "main" }],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -175,7 +175,7 @@ describe("openclaw-tools update_plan gating", () => {
         },
         list: [{ id: "main" }],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -205,7 +205,7 @@ describe("openclaw-tools update_plan gating", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -222,7 +222,7 @@ describe("openclaw-tools update_plan gating", () => {
       agents: {
         list: [{ id: "main" }],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({
@@ -254,7 +254,7 @@ describe("openclaw-tools update_plan gating", () => {
           },
         ],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(
       isUpdatePlanToolEnabledForOpenClawTools({

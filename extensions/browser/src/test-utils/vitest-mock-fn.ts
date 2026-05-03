@@ -1,1 +1,1 @@
-export type { MockFn } from "openclaw/plugin-sdk/browser-setup-tools";
+export type { MockFn } from "zhushou/plugin-sdk/browser-setup-tools";

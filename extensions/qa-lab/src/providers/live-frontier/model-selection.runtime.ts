@@ -1,8 +1,8 @@
 import {
   listProfilesForProvider,
   loadAuthProfileStoreForRuntime,
-} from "openclaw/plugin-sdk/agent-runtime";
-import { resolveEnvApiKey } from "openclaw/plugin-sdk/provider-auth";
+} from "zhushou/plugin-sdk/agent-runtime";
+import { resolveEnvApiKey } from "zhushou/plugin-sdk/provider-auth";
 
 const QA_CODEX_OAUTH_LIVE_MODEL = "openai-codex/gpt-5.4";
 

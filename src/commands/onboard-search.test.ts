@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { PluginWebSearchProviderEntry } from "../plugins/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
@@ -36,12 +36,12 @@ const SEARCH_PROVIDER_PLUGINS: Record<
   tavily: { pluginId: "tavily", envVars: ["TAVILY_API_KEY"], label: "Tavily" },
 };
 
-function getWebSearchConfig(config: OpenClawConfig | undefined, pluginId: string) {
+function getWebSearchConfig(config: ZhushouConfig | undefined, pluginId: string) {
   return (config as WebSearchConfigRecord | undefined)?.plugins?.entries?.[pluginId]?.config
     ?.webSearch;
 }
 
-function ensureWebSearchConfig(config: OpenClawConfig, pluginId: string) {
+function ensureWebSearchConfig(config: ZhushouConfig, pluginId: string) {
   const entries = ((config.plugins ??= {}).entries ??= {});
   const pluginEntry = (entries[pluginId] ??= {}) as {
     enabled?: boolean;
@@ -78,9 +78,9 @@ function createSearchProviderEntry(id: string): PluginWebSearchProviderEntry {
     },
     createTool: () => null,
     applySelectionConfig: (config) => {
-      const next: OpenClawConfig = { ...config, plugins: { ...config.plugins } };
+      const next: ZhushouConfig = { ...config, plugins: { ...config.plugins } };
       const entries = { ...next.plugins?.entries } as NonNullable<
-        NonNullable<OpenClawConfig["plugins"]>["entries"]
+        NonNullable<ZhushouConfig["plugins"]>["entries"]
       >;
       entries[metadata.pluginId] = { ...entries[metadata.pluginId], enabled: true };
       next.plugins = { ...next.plugins, entries };
@@ -173,7 +173,7 @@ function createPrompter(params: {
   return { prompter, notes };
 }
 
-function createPerplexityConfig(apiKey: string, enabled?: boolean): OpenClawConfig {
+function createPerplexityConfig(apiKey: string, enabled?: boolean): ZhushouConfig {
   return {
     tools: {
       web: {
@@ -197,7 +197,7 @@ function createPerplexityConfig(apiKey: string, enabled?: boolean): OpenClawConf
   };
 }
 
-function pluginWebSearchApiKey(config: OpenClawConfig, pluginId: string): unknown {
+function pluginWebSearchApiKey(config: ZhushouConfig, pluginId: string): unknown {
   const entry = (
     config.plugins?.entries as
       | Record<string, { config?: { webSearch?: { apiKey?: unknown } } }>
@@ -206,7 +206,7 @@ function pluginWebSearchApiKey(config: OpenClawConfig, pluginId: string): unknow
   return entry?.config?.webSearch?.apiKey;
 }
 
-function createDisabledFirecrawlConfig(apiKey?: string): OpenClawConfig {
+function createDisabledFirecrawlConfig(apiKey?: string): ZhushouConfig {
   return {
     tools: {
       web: {
@@ -234,7 +234,7 @@ function createDisabledFirecrawlConfig(apiKey?: string): OpenClawConfig {
   };
 }
 
-function readFirecrawlPluginApiKey(config: OpenClawConfig): string | undefined {
+function readFirecrawlPluginApiKey(config: ZhushouConfig): string | undefined {
   const pluginConfig = config.plugins?.entries?.firecrawl?.config as
     | {
         webSearch?: {
@@ -248,7 +248,7 @@ function readFirecrawlPluginApiKey(config: OpenClawConfig): string | undefined {
 async function runBlankPerplexityKeyEntry(
   apiKey: string,
   enabled?: boolean,
-): Promise<OpenClawConfig> {
+): Promise<ZhushouConfig> {
   const cfg = createPerplexityConfig(apiKey, enabled);
   const { prompter } = createPrompter({
     selectValue: "perplexity",
@@ -260,7 +260,7 @@ async function runBlankPerplexityKeyEntry(
 async function runQuickstartPerplexitySetup(
   apiKey: string,
   enabled?: boolean,
-): Promise<{ result: OpenClawConfig; prompter: WizardPrompter }> {
+): Promise<{ result: ZhushouConfig; prompter: WizardPrompter }> {
   const cfg = createPerplexityConfig(apiKey, enabled);
   const { prompter } = createPrompter({ selectValue: "perplexity" });
   const result = await setupSearch(cfg, runtime, prompter, {
@@ -291,7 +291,7 @@ describe("setupSearch", () => {
   });
 
   it("returns config unchanged when user skips", async () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: ZhushouConfig = {};
     const { prompter } = createPrompter({ selectValue: "__skip__" });
     const result = await setupSearch(cfg, runtime, prompter);
     expect(result).toBe(cfg);
@@ -313,7 +313,7 @@ describe("setupSearch", () => {
     ];
 
     for (const entry of cases) {
-      const cfg: OpenClawConfig = {};
+      const cfg: ZhushouConfig = {};
       const { prompter } = createPrompter({
         selectValue: entry.provider,
         textValue: entry.key,
@@ -330,7 +330,7 @@ describe("setupSearch", () => {
       }
     }
 
-    const kimiCfg: OpenClawConfig = {};
+    const kimiCfg: ZhushouConfig = {};
     const { prompter: kimiPrompter } = createPrompter({
       selectValues: ["kimi", "https://api.moonshot.ai/v1", "__keep__"],
       textValue: "sk-moonshot",
@@ -365,7 +365,7 @@ describe("setupSearch", () => {
     const original = process.env.BRAVE_API_KEY;
     delete process.env.BRAVE_API_KEY;
     try {
-      const cfg: OpenClawConfig = {};
+      const cfg: ZhushouConfig = {};
       const { prompter, notes } = createPrompter({
         selectValue: "brave",
         textValue: "",
@@ -420,7 +420,7 @@ describe("setupSearch", () => {
   });
 
   it("quickstart skips key prompt when canonical plugin config key exists", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       tools: {
         web: {
           search: {
@@ -455,7 +455,7 @@ describe("setupSearch", () => {
     const original = process.env.XAI_API_KEY;
     delete process.env.XAI_API_KEY;
     try {
-      const cfg: OpenClawConfig = {};
+      const cfg: ZhushouConfig = {};
       const { prompter } = createPrompter({ selectValue: "grok", textValue: "" });
       const result = await setupSearch(cfg, runtime, prompter, {
         quickstartDefaults: true,
@@ -473,7 +473,7 @@ describe("setupSearch", () => {
   });
 
   it("uses provider-specific credential copy for kimi in onboarding", async () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: ZhushouConfig = {};
     const { prompter } = createPrompter({
       selectValue: "kimi",
       textValue: "",
@@ -490,7 +490,7 @@ describe("setupSearch", () => {
     const orig = process.env.BRAVE_API_KEY;
     process.env.BRAVE_API_KEY = "env-brave-key"; // pragma: allowlist secret
     try {
-      const cfg: OpenClawConfig = {};
+      const cfg: ZhushouConfig = {};
       const { prompter } = createPrompter({ selectValue: "brave" });
       const result = await setupSearch(cfg, runtime, prompter, {
         quickstartDefaults: true,
@@ -523,7 +523,7 @@ describe("setupSearch", () => {
   it("preserves disabled firecrawl plugin state and allowlist when web search stays disabled", async () => {
     const original = process.env.FIRECRAWL_API_KEY;
     process.env.FIRECRAWL_API_KEY = "env-firecrawl-key"; // pragma: allowlist secret
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       tools: {
         web: {
           search: {
@@ -634,7 +634,7 @@ describe("setupSearch", () => {
   });
 
   it("stores plaintext key when secretInputMode is unset", async () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: ZhushouConfig = {};
     const { prompter } = createPrompter({
       selectValue: "brave",
       textValue: "BSA-plain",

@@ -21,9 +21,9 @@ installGatewayTestHooks({ scope: "suite" });
 describe("gateway startup channel maintenance wiring", () => {
   it("runs startup channel maintenance with the resolved startup config", async () => {
     const previousBundledPluginsDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-    const previousSkipChannels = process.env.OPENCLAW_SKIP_CHANNELS;
+    const previousSkipChannels = process.env.ZHUSHOU_SKIP_CHANNELS;
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = path.resolve(process.cwd(), "extensions");
-    process.env.OPENCLAW_SKIP_CHANNELS = "0";
+    process.env.ZHUSHOU_SKIP_CHANNELS = "0";
     clearPluginDiscoveryCache();
     clearPluginManifestRegistryCache();
     runChannelPluginStartupMaintenanceMock.mockClear();
@@ -64,9 +64,9 @@ describe("gateway startup channel maintenance wiring", () => {
         process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
       }
       if (previousSkipChannels === undefined) {
-        delete process.env.OPENCLAW_SKIP_CHANNELS;
+        delete process.env.ZHUSHOU_SKIP_CHANNELS;
       } else {
-        process.env.OPENCLAW_SKIP_CHANNELS = previousSkipChannels;
+        process.env.ZHUSHOU_SKIP_CHANNELS = previousSkipChannels;
       }
       clearPluginDiscoveryCache();
       clearPluginManifestRegistryCache();

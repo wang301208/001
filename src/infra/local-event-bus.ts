@@ -25,7 +25,7 @@ type LocalEventBusState = {
   adapter?: LocalEventBusAdapter;
 };
 
-const LOCAL_EVENT_BUS_STATE_KEY = Symbol.for("openclaw.localEventBus.state");
+const LOCAL_EVENT_BUS_STATE_KEY = Symbol.for("zhushou.localEventBus.state");
 
 function getLocalEventBusState(): LocalEventBusState {
   return resolveGlobalSingleton<LocalEventBusState>(LOCAL_EVENT_BUS_STATE_KEY, () => ({

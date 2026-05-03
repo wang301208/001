@@ -1,1 +1,1 @@
-export { redactSensitiveText } from "openclaw/plugin-sdk/browser-security-runtime";
+export { redactSensitiveText } from "zhushou/plugin-sdk/browser-security-runtime";

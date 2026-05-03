@@ -1,7 +1,7 @@
 {
-  "name": "@openclaw/matrix",
+  "name": "@zhushou/matrix",
   "version": "2026.4.16",
-  "description": "OpenClaw Matrix channel plugin",
+  "description": "助手 Matrix channel plugin",
   "type": "module",
   "dependencies": {
     "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",
@@ -12,18 +12,18 @@
     "music-metadata": "^11.12.3"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -43,7 +43,7 @@
       }
     },
     "install": {
-      "npmSpec": "@openclaw/matrix",
+      "npmSpec": "@zhushou/matrix",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10",
       "allowInvalidConfigRecovery": true

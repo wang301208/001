@@ -2,7 +2,7 @@ export {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
   normalizeOptionalAccountId,
-} from "openclaw/plugin-sdk/account-id";
+} from "zhushou/plugin-sdk/account-id";
 export {
   createActionGate,
   jsonResult,
@@ -11,9 +11,9 @@ export {
   readStringArrayParam,
   readStringParam,
   ToolAuthorizationError,
-} from "openclaw/plugin-sdk/channel-actions";
-export { buildChannelConfigSchema } from "openclaw/plugin-sdk/channel-config-primitives";
-export type { ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
+} from "zhushou/plugin-sdk/channel-actions";
+export { buildChannelConfigSchema } from "zhushou/plugin-sdk/channel-config-primitives";
+export type { ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
 export type {
   BaseProbeResult,
   ChannelDirectoryEntry,
@@ -26,30 +26,30 @@ export type {
   ChannelResolveKind,
   ChannelResolveResult,
   ChannelToolSend,
-} from "openclaw/plugin-sdk/channel-contract";
+} from "zhushou/plugin-sdk/channel-contract";
 export {
   formatLocationText,
   toLocationContext,
   type NormalizedLocation,
-} from "openclaw/plugin-sdk/channel-location";
-export { logInboundDrop, logTypingFailure } from "openclaw/plugin-sdk/channel-logging";
-export { resolveAckReaction } from "openclaw/plugin-sdk/channel-feedback";
-export type { ChannelSetupInput } from "openclaw/plugin-sdk/setup";
+} from "zhushou/plugin-sdk/channel-location";
+export { logInboundDrop, logTypingFailure } from "zhushou/plugin-sdk/channel-logging";
+export { resolveAckReaction } from "zhushou/plugin-sdk/channel-feedback";
+export type { ChannelSetupInput } from "zhushou/plugin-sdk/setup";
 export type {
-  OpenClawConfig,
+  ZhushouConfig,
   ContextVisibilityMode,
   DmPolicy,
   GroupPolicy,
-} from "openclaw/plugin-sdk/config-runtime";
-export type { GroupToolPolicyConfig } from "openclaw/plugin-sdk/config-runtime";
-export type { WizardPrompter } from "openclaw/plugin-sdk/matrix-runtime-shared";
-export type { SecretInput } from "openclaw/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/config-runtime";
+export type { GroupToolPolicyConfig } from "zhushou/plugin-sdk/config-runtime";
+export type { WizardPrompter } from "zhushou/plugin-sdk/matrix-runtime-shared";
+export type { SecretInput } from "zhushou/plugin-sdk/secret-input";
 export {
   GROUP_POLICY_BLOCKED_LABEL,
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "openclaw/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 export {
   addWildcardAllowFrom,
   formatDocsLink,
@@ -59,8 +59,8 @@ export {
   promptAccountId,
   promptChannelAccessConfig,
   splitSetupEntries,
-} from "openclaw/plugin-sdk/setup";
-export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
+} from "zhushou/plugin-sdk/setup";
+export type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
 export {
   assertHttpUrlTargetsPrivateNetwork,
   closeDispatcher,
@@ -71,43 +71,43 @@ export {
   ssrfPolicyFromAllowPrivateNetwork,
   type LookupFn,
   type SsrFPolicy,
-} from "openclaw/plugin-sdk/ssrf-runtime";
-export { dispatchReplyFromConfigWithSettledDispatcher } from "openclaw/plugin-sdk/inbound-reply-dispatch";
+} from "zhushou/plugin-sdk/ssrf-runtime";
+export { dispatchReplyFromConfigWithSettledDispatcher } from "zhushou/plugin-sdk/inbound-reply-dispatch";
 export {
   ensureConfiguredAcpBindingReady,
   resolveConfiguredAcpBindingRecord,
-} from "openclaw/plugin-sdk/acp-binding-runtime";
+} from "zhushou/plugin-sdk/acp-binding-runtime";
 export {
   buildProbeChannelStatusSummary,
   collectStatusIssuesFromLastError,
   PAIRING_APPROVED_MESSAGE,
-} from "openclaw/plugin-sdk/channel-status";
+} from "zhushou/plugin-sdk/channel-status";
 export {
   getSessionBindingService,
   resolveThreadBindingIdleTimeoutMsForChannel,
   resolveThreadBindingMaxAgeMsForChannel,
-} from "openclaw/plugin-sdk/conversation-runtime";
-export { resolveOutboundSendDep } from "openclaw/plugin-sdk/outbound-runtime";
-export { resolveAgentIdFromSessionKey } from "openclaw/plugin-sdk/routing";
-export { chunkTextForOutbound } from "openclaw/plugin-sdk/text-chunking";
-export { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
-export { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk/outbound-media";
-export { normalizePollInput, type PollInput } from "openclaw/plugin-sdk/poll-runtime";
-export { writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
+} from "zhushou/plugin-sdk/conversation-runtime";
+export { resolveOutboundSendDep } from "zhushou/plugin-sdk/outbound-runtime";
+export { resolveAgentIdFromSessionKey } from "zhushou/plugin-sdk/routing";
+export { chunkTextForOutbound } from "zhushou/plugin-sdk/text-chunking";
+export { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+export { loadOutboundMediaFromUrl } from "zhushou/plugin-sdk/outbound-media";
+export { normalizePollInput, type PollInput } from "zhushou/plugin-sdk/poll-runtime";
+export { writeJsonFileAtomically } from "zhushou/plugin-sdk/json-store";
 export {
   buildChannelKeyCandidates,
   resolveChannelEntryMatch,
-} from "openclaw/plugin-sdk/channel-targets";
+} from "zhushou/plugin-sdk/channel-targets";
 export {
   evaluateGroupRouteAccessForPolicy,
   resolveSenderScopedGroupPolicy,
-} from "openclaw/plugin-sdk/channel-policy";
+} from "zhushou/plugin-sdk/channel-policy";
 export {
   formatZonedTimestamp,
   type PluginRuntime,
   type RuntimeLogger,
-} from "openclaw/plugin-sdk/matrix-runtime-shared";
-export type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
+} from "zhushou/plugin-sdk/matrix-runtime-shared";
+export type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
 // resolveMatrixAccountStringValues already comes from plugin-sdk/matrix.
 // Re-exporting auth-precedence here makes Jiti try to define the same export twice.
 

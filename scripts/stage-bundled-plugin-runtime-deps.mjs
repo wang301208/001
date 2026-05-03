@@ -35,7 +35,7 @@ function sanitizeTempPrefixSegment(value) {
 }
 
 function makePluginOwnedTempDir(pluginDir, label) {
-  return makeTempDir(pluginDir, `.openclaw-runtime-deps-${label}-`);
+  return makeTempDir(pluginDir, `.zhushou-runtime-deps-${label}-`);
 }
 
 function assertPathIsNotSymlink(targetPath, label) {
@@ -57,7 +57,7 @@ function replaceDirAtomically(targetPath, sourcePath) {
   fs.mkdirSync(targetParentDir, { recursive: true });
   const backupPath = makeTempDir(
     targetParentDir,
-    `.openclaw-runtime-deps-backup-${sanitizeTempPrefixSegment(path.basename(targetPath))}-`,
+    `.zhushou-runtime-deps-backup-${sanitizeTempPrefixSegment(path.basename(targetPath))}-`,
   );
   removePathIfExists(backupPath);
 
@@ -83,7 +83,7 @@ function writeJsonAtomically(targetPath, value) {
   fs.mkdirSync(targetParentDir, { recursive: true });
   const tempDir = makeTempDir(
     targetParentDir,
-    `.openclaw-runtime-deps-stamp-${sanitizeTempPrefixSegment(path.basename(targetPath))}-`,
+    `.zhushou-runtime-deps-stamp-${sanitizeTempPrefixSegment(path.basename(targetPath))}-`,
   );
   const tempPath = path.join(tempDir, path.basename(targetPath));
   try {
@@ -642,7 +642,7 @@ function hasRuntimeDeps(packageJson) {
 }
 
 function shouldStageRuntimeDeps(packageJson) {
-  return packageJson.openclaw?.bundle?.stageRuntimeDependencies === true;
+  return packageJson.zhushou?.bundle?.stageRuntimeDependencies === true;
 }
 
 function sanitizeBundledManifestForRuntimeInstall(pluginDir) {
@@ -798,7 +798,7 @@ export function collectRuntimeDependencyInstallSpecs(packageJson, params = {}) {
 
 function createRuntimeInstallManifest(pluginId, pinnedGroups) {
   const manifest = {
-    name: `openclaw-runtime-deps-${sanitizeTempPrefixSegment(pluginId)}`,
+    name: `zhushou-runtime-deps-${sanitizeTempPrefixSegment(pluginId)}`,
     private: true,
     version: "0.0.0",
   };
@@ -835,7 +835,7 @@ function runNpmInstall(params) {
 }
 
 function resolveRuntimeDepsStampPath(pluginDir) {
-  return path.join(pluginDir, ".openclaw-runtime-deps-stamp.json");
+  return path.join(pluginDir, ".zhushou-runtime-deps-stamp.json");
 }
 
 function createRuntimeDepsFingerprint(packageJson, pruneConfig, params = {}) {

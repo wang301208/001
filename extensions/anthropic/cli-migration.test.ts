@@ -1,7 +1,7 @@
 import type {
   ProviderAuthContext,
   ProviderAuthMethodNonInteractiveContext,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";
 import { describe, expect, it, vi } from "vitest";
 
 const { readClaudeCliCredentialsForSetup, readClaudeCliCredentialsForSetupNonInteractive } =
@@ -41,8 +41,8 @@ function createProviderAuthContext(
     config,
     opts: {},
     env: {},
-    agentDir: "/tmp/openclaw/agents/main",
-    workspaceDir: "/tmp/openclaw/workspace",
+    agentDir: "/tmp/zhushou/agents/main",
+    workspaceDir: "/tmp/zhushou/workspace",
     prompter: createTestWizardPrompter(),
     runtime: {
       log: vi.fn(),
@@ -71,8 +71,8 @@ function createProviderAuthMethodNonInteractiveContext(
       error: vi.fn(),
       exit: vi.fn(),
     },
-    agentDir: "/tmp/openclaw/agents/main",
-    workspaceDir: "/tmp/openclaw/workspace",
+    agentDir: "/tmp/zhushou/agents/main",
+    workspaceDir: "/tmp/zhushou/workspace",
     resolveApiKey: vi.fn(async () => null),
     toApiKeyCredential: vi.fn(() => null),
   };

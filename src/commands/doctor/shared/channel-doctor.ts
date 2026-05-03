@@ -9,14 +9,14 @@ import type {
   ChannelDoctorEmptyAllowlistAccountContext,
   ChannelDoctorSequenceResult,
 } from "../../../channels/plugins/types.adapters.js";
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 
 type ChannelDoctorEntry = {
   channelId: string;
   doctor: ChannelDoctorAdapter;
 };
 
-function collectConfiguredChannelIds(cfg: OpenClawConfig): string[] {
+function collectConfiguredChannelIds(cfg: ZhushouConfig): string[] {
   const channels =
     cfg.channels && typeof cfg.channels === "object" && !Array.isArray(cfg.channels)
       ? cfg.channels
@@ -76,7 +76,7 @@ function listChannelDoctorEntries(channelIds?: readonly string[]): ChannelDoctor
 }
 
 export async function runChannelDoctorConfigSequences(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   shouldRepair: boolean;
 }): Promise<ChannelDoctorSequenceResult> {
@@ -94,7 +94,7 @@ export async function runChannelDoctorConfigSequences(params: {
 }
 
 export function collectChannelDoctorCompatibilityMutations(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
 ): ChannelDoctorConfigMutation[] {
   const channelIds = collectConfiguredChannelIds(cfg);
   if (channelIds.length === 0) {
@@ -114,7 +114,7 @@ export function collectChannelDoctorCompatibilityMutations(
 }
 
 export async function collectChannelDoctorStaleConfigMutations(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
 ): Promise<ChannelDoctorConfigMutation[]> {
   const mutations: ChannelDoctorConfigMutation[] = [];
   let nextCfg = cfg;
@@ -130,7 +130,7 @@ export async function collectChannelDoctorStaleConfigMutations(
 }
 
 export async function collectChannelDoctorPreviewWarnings(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   doctorFixCommand: string;
 }): Promise<string[]> {
   const warnings: string[] = [];
@@ -144,7 +144,7 @@ export async function collectChannelDoctorPreviewWarnings(params: {
 }
 
 export async function collectChannelDoctorMutableAllowlistWarnings(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
 }): Promise<string[]> {
   const warnings: string[] = [];
   for (const entry of listChannelDoctorEntries(collectConfiguredChannelIds(params.cfg))) {
@@ -157,7 +157,7 @@ export async function collectChannelDoctorMutableAllowlistWarnings(params: {
 }
 
 export async function collectChannelDoctorRepairMutations(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   doctorFixCommand: string;
 }): Promise<ChannelDoctorConfigMutation[]> {
   const mutations: ChannelDoctorConfigMutation[] = [];

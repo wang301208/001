@@ -46,8 +46,8 @@ afterEach(() => {
 
 describe("bundled root-aware caches", () => {
   it("partitions bundled channel ids by active bundled root without re-importing", async () => {
-    const rootA = makeBundledRoot("openclaw-bundled-ids-a-");
-    const rootB = makeBundledRoot("openclaw-bundled-ids-b-");
+    const rootA = makeBundledRoot("zhushou-bundled-ids-a-");
+    const rootB = makeBundledRoot("zhushou-bundled-ids-b-");
 
     vi.doMock("../../plugins/channel-catalog-registry.js", () => ({
       listChannelCatalogEntries: (params?: { env?: NodeJS.ProcessEnv }) => {
@@ -75,8 +75,8 @@ describe("bundled root-aware caches", () => {
   });
 
   it("partitions bootstrap plugin caches by active bundled root without re-importing", async () => {
-    const rootA = makeBundledRoot("openclaw-bootstrap-a-");
-    const rootB = makeBundledRoot("openclaw-bootstrap-b-");
+    const rootA = makeBundledRoot("zhushou-bootstrap-a-");
+    const rootB = makeBundledRoot("zhushou-bootstrap-b-");
 
     vi.doMock("./bundled-ids.js", () => ({
       listBundledChannelPluginIdsForRoot: (cacheKey: string) => {

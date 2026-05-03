@@ -1,7 +1,7 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/plugin-entry";
-import { CUSTOM_LOCAL_AUTH_MARKER } from "openclaw/plugin-sdk/provider-auth";
-import type { ModelProviderConfig } from "openclaw/plugin-sdk/provider-model-shared";
-import { capturePluginRegistration } from "openclaw/plugin-sdk/testing";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/plugin-entry";
+import { CUSTOM_LOCAL_AUTH_MARKER } from "zhushou/plugin-sdk/provider-auth";
+import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-shared";
+import { capturePluginRegistration } from "zhushou/plugin-sdk/testing";
 import { describe, expect, it } from "vitest";
 import plugin from "./index.js";
 import { LMSTUDIO_LOCAL_API_KEY_PLACEHOLDER } from "./src/defaults.js";
@@ -159,12 +159,12 @@ describe("lmstudio plugin", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
 
     expect(
       provider?.augmentModelCatalog?.({
         config,
-        agentDir: "/tmp/openclaw",
+        agentDir: "/tmp/zhushou",
         env: {},
         entries: [],
       }),

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isRecord } from "../utils.js";
 import {
   mergeProviders,
@@ -13,10 +13,10 @@ import {
   type ProviderConfig,
 } from "./models-config.providers.js";
 
-type ModelsConfig = NonNullable<OpenClawConfig["models"]>;
+type ModelsConfig = NonNullable<ZhushouConfig["models"]>;
 export type ResolveImplicitProvidersForModelsJson = (params: {
   agentDir: string;
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   explicitProviders: Record<string, ProviderConfig>;
 }) => Promise<Record<string, ProviderConfig>>;
@@ -35,7 +35,7 @@ export type ModelsJsonPlan =
 
 export async function resolveProvidersForModelsJsonWithDeps(
   params: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     agentDir: string;
     env: NodeJS.ProcessEnv;
   },
@@ -84,8 +84,8 @@ function resolveProvidersForMode(params: {
 
 export async function planOpenClawModelsJsonWithDeps(
   params: {
-    cfg: OpenClawConfig;
-    sourceConfigForSecrets?: OpenClawConfig;
+    cfg: ZhushouConfig;
+    sourceConfigForSecrets?: ZhushouConfig;
     agentDir: string;
     env: NodeJS.ProcessEnv;
     existingRaw: string;

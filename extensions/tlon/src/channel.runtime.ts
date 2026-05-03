@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
-import type { ChannelAccountSnapshot } from "openclaw/plugin-sdk/channel-contract";
-import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/channel-send-result";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import type { ChannelPlugin } from "openclaw/plugin-sdk/core";
+import type { ChannelAccountSnapshot } from "zhushou/plugin-sdk/channel-contract";
+import type { ChannelOutboundAdapter } from "zhushou/plugin-sdk/channel-send-result";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { ChannelPlugin } from "zhushou/plugin-sdk/core";
 import { monitorTlonProvider } from "./monitor/index.js";
 import { tlonSetupWizard } from "./setup-surface.js";
 import {
@@ -91,7 +91,7 @@ async function createHttpPokeApi(params: {
 }
 
 function resolveOutboundContext(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   to: string;
 }) {

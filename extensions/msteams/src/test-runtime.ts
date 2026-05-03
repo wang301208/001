@@ -5,12 +5,12 @@ import type { PluginRuntime } from "../runtime-api.js";
 export const msteamsRuntimeStub = {
   state: {
     resolveStateDir: (env: NodeJS.ProcessEnv = process.env, homedir?: () => string) => {
-      const override = env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim();
+      const override = env.ZHUSHOU_STATE_DIR?.trim() || env.ZHUSHOU_STATE_DIR?.trim();
       if (override) {
         return override;
       }
       const resolvedHome = homedir ? homedir() : os.homedir();
-      return path.join(resolvedHome, ".openclaw");
+      return path.join(resolvedHome, ".zhushou");
     },
   },
 } as unknown as PluginRuntime;

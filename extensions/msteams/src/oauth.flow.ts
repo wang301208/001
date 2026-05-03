@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createServer } from "node:http";
-import { isWSL2Sync } from "openclaw/plugin-sdk/runtime-env";
+import { isWSL2Sync } from "zhushou/plugin-sdk/runtime-env";
 import {
   MSTEAMS_DEFAULT_DELEGATED_SCOPES,
   MSTEAMS_OAUTH_CALLBACK_PATH,
@@ -132,7 +132,7 @@ export async function waitForLocalCallback(params: {
         res.end(
           "<!doctype html><html><head><meta charset='utf-8'/></head>" +
             "<body><h2>MSTeams Delegated OAuth complete</h2>" +
-            "<p>You can close this window and return to OpenClaw.</p></body></html>",
+            "<p>You can close this window and return to 助手.</p></body></html>",
         );
 
         finish(undefined, { code, state });

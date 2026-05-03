@@ -47,7 +47,7 @@ const coreTools = [
   stubTool("pdf"),
 ];
 
-vi.mock("../openclaw-tools.js", () => ({
+vi.mock("../zhushou-tools.js", () => ({
   createOpenClawTools: () => coreTools.map((tool) => ({ ...tool })),
   __testing: {
     setDepsForTest: () => {},

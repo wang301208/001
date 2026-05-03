@@ -1,8 +1,8 @@
-import { resolveChannelGroupRequireMention } from "openclaw/plugin-sdk/channel-policy";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/core";
+import { resolveChannelGroupRequireMention } from "zhushou/plugin-sdk/channel-policy";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/core";
 
 type GoogleChatGroupContext = {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   groupId?: string | null;
 };

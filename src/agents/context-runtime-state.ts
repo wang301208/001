@@ -1,11 +1,11 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { MODEL_CONTEXT_TOKEN_CACHE } from "./context-cache.js";
 
-const CONTEXT_WINDOW_RUNTIME_STATE_KEY = Symbol.for("openclaw.contextWindowRuntimeState");
+const CONTEXT_WINDOW_RUNTIME_STATE_KEY = Symbol.for("zhushou.contextWindowRuntimeState");
 
 type ContextWindowRuntimeState = {
   loadPromise: Promise<void> | null;
-  configuredConfig: OpenClawConfig | undefined;
+  configuredConfig: ZhushouConfig | undefined;
   configLoadFailures: number;
   nextConfigLoadAttemptAtMs: number;
   modelsConfigRuntimePromise: Promise<typeof import("./models-config.runtime.js")> | undefined;

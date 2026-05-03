@@ -219,7 +219,7 @@ export function loadFacadeModuleAtLocationSync<T extends object>(params: {
     rootPath: params.location.boundaryRoot,
     boundaryLabel:
       params.location.boundaryRoot === getOpenClawPackageRoot()
-        ? "OpenClaw package root"
+        ? "助手 package root"
         : (() => {
             const bundledDir = resolveBundledPluginsDir();
             return bundledDir &&
@@ -297,7 +297,7 @@ export async function loadBundledPluginPublicSurfaceModule<T extends object>(par
     absolutePath: location.modulePath,
     rootPath: location.boundaryRoot,
     boundaryLabel:
-      location.boundaryRoot === getOpenClawPackageRoot() ? "OpenClaw package root" : "plugin root",
+      location.boundaryRoot === getOpenClawPackageRoot() ? "助手 package root" : "plugin root",
     rejectHardlinks: false,
   });
   if (!opened.ok) {

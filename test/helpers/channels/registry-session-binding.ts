@@ -4,7 +4,7 @@ import path from "node:path";
 import { expect } from "vitest";
 import { createChannelConversationBindingManager } from "../../../src/channels/plugins/conversation-bindings.js";
 import type { ChannelPlugin } from "../../../src/channels/plugins/types.js";
-import type { OpenClawConfig } from "../../../src/config/config.js";
+import type { ZhushouConfig } from "../../../src/config/config.js";
 import {
   getSessionBindingService,
   type SessionBindingCapabilities,
@@ -31,7 +31,7 @@ type SessionBindingContractEntry = {
 const contractApiPromises = new Map<string, Promise<Record<string, unknown>>>();
 
 const matrixSessionBindingStateDir = fs.mkdtempSync(
-  path.join(os.tmpdir(), "openclaw-matrix-session-binding-contract-"),
+  path.join(os.tmpdir(), "zhushou-matrix-session-binding-contract-"),
 );
 const matrixSessionBindingAuth = {
   accountId: "ops",
@@ -119,7 +119,7 @@ async function createContractMatrixThreadBindingManager() {
 
 const baseSessionBindingCfg = {
   session: { mainKey: "main", scope: "per-sender" },
-} satisfies OpenClawConfig;
+} satisfies ZhushouConfig;
 
 type ChannelConversationBindingManagerFactory = NonNullable<
   NonNullable<ChannelPlugin["conversationBindings"]>["createManager"]
@@ -135,7 +135,7 @@ type BlueBubblesContractApi = {
 type DiscordContractApi = {
   createThreadBindingManager: (params: {
     accountId: string;
-    cfg?: OpenClawConfig;
+    cfg?: ZhushouConfig;
     persist: boolean;
     enableSweeper: boolean;
   }) => unknown;
@@ -147,7 +147,7 @@ type DiscordContractApi = {
 type FeishuContractApi = {
   createFeishuThreadBindingManager: (params: {
     accountId?: string;
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
   }) => unknown;
   feishuThreadBindingTesting: {
     resetFeishuThreadBindingsForTests: () => void;

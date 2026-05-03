@@ -196,7 +196,7 @@ export function createProfileAvailability({
           return;
         }
       }
-      // Browser control service can restart while a loopback OpenClaw browser is still
+      // Browser control service can restart while a loopback 助手 browser is still
       // alive. Give that pre-existing browser one longer probe window before falling
       // back to local executable resolution.
       if (!attachOnly && !remoteCdp && profile.cdpIsLoopback && !profileState.running) {
@@ -253,7 +253,7 @@ export function createProfileAvailability({
     // HTTP responds but WebSocket fails - port in use by something else.
     if (!profileState.running) {
       throw new BrowserProfileUnavailableError(
-        `Port ${profile.cdpPort} is in use for profile "${profile.name}" but not by openclaw. ` +
+        `Port ${profile.cdpPort} is in use for profile "${profile.name}" but not by zhushou. ` +
           `Run action=reset-profile profile=${profile.name} to kill the process.`,
       );
     }

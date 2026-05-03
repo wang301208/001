@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { AgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
@@ -763,7 +763,7 @@ export function runTaskInFlowForOwner(params: {
 }
 
 export async function cancelFlowById(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   flowId: string;
 }): Promise<CancelFlowResult> {
   const flow = getTaskFlowById(params.flowId);
@@ -845,7 +845,7 @@ export async function cancelFlowById(params: {
 }
 
 export async function cancelFlowByIdForOwner(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   flowId: string;
   callerOwnerKey: string;
 }): Promise<CancelFlowResult> {
@@ -866,6 +866,6 @@ export async function cancelFlowByIdForOwner(params: {
   });
 }
 
-export async function cancelDetachedTaskRunById(params: { cfg: OpenClawConfig; taskId: string }) {
+export async function cancelDetachedTaskRunById(params: { cfg: ZhushouConfig; taskId: string }) {
   return cancelTaskById(params);
 }

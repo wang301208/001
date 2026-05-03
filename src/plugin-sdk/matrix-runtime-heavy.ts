@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "./config-runtime.js";
+import type { ZhushouConfig } from "./config-runtime.js";
 import { loadBundledPluginPublicSurfaceModuleSync } from "./facade-loader.js";
 
 type MatrixLegacyLog = {
@@ -50,29 +50,29 @@ type MatrixMigrationSnapshotResult = {
 
 type MatrixRuntimeHeavyModule = {
   autoPrepareLegacyMatrixCrypto: (params: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     env?: NodeJS.ProcessEnv;
     log?: MatrixLegacyLog;
     deps?: Partial<Record<string, unknown>>;
   }) => Promise<MatrixLegacyMigrationResult>;
   detectLegacyMatrixCrypto: (params: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     env?: NodeJS.ProcessEnv;
   }) => MatrixLegacyCryptoDetection;
   autoMigrateLegacyMatrixState: (params: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     env?: NodeJS.ProcessEnv;
     log?: MatrixLegacyLog;
   }) => Promise<MatrixLegacyMigrationResult>;
   detectLegacyMatrixState: (params: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     env?: NodeJS.ProcessEnv;
   }) => MatrixLegacyStateDetection;
   hasActionableMatrixMigration: (params: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     env?: NodeJS.ProcessEnv;
   }) => boolean;
-  hasPendingMatrixMigration: (params: { cfg: OpenClawConfig; env?: NodeJS.ProcessEnv }) => boolean;
+  hasPendingMatrixMigration: (params: { cfg: ZhushouConfig; env?: NodeJS.ProcessEnv }) => boolean;
   maybeCreateMatrixMigrationSnapshot: (params: {
     trigger: string;
     env?: NodeJS.ProcessEnv;

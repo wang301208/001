@@ -2,8 +2,8 @@ export {
   buildPluginConfigSchema,
   definePluginEntry,
   type AnyAgentTool,
-  type OpenClawConfig,
-  type OpenClawPluginApi,
+  type ZhushouConfig,
+  type ZhushouPluginApi,
   type OpenClawPluginConfigSchema,
-} from "openclaw/plugin-sdk/plugin-entry";
-export { z } from "openclaw/plugin-sdk/zod";
+} from "zhushou/plugin-sdk/plugin-entry";
+export { z } from "zhushou/plugin-sdk/zod";

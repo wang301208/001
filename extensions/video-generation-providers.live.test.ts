@@ -11,7 +11,7 @@ import {
   isServerErrorMessage,
   isTimeoutErrorMessage,
 } from "../src/agents/pi-embedded-helpers/failover-matches.js";
-import { loadConfig, type OpenClawConfig } from "../src/config/config.js";
+import { loadConfig, type ZhushouConfig } from "../src/config/config.js";
 import { isTruthyEnvValue } from "../src/infra/env.js";
 import { getShellEnvAppliedKeys, loadShellEnvFallback } from "../src/infra/shell-env.js";
 import { encodePngRgba, fillPixel } from "../src/media/png-encode.js";
@@ -133,7 +133,7 @@ function readPositiveIntegerEnv(raw: string | undefined, fallback: number): numb
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
-function withPluginsEnabled(cfg: OpenClawConfig): OpenClawConfig {
+function withPluginsEnabled(cfg: ZhushouConfig): ZhushouConfig {
   return {
     ...cfg,
     plugins: {

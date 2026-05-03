@@ -33,9 +33,9 @@ import {
   shouldUseManagedGatewayForInstallerRuntime,
   shouldUseManagedGatewayService,
   verifyDevUpdateStatus,
-} from "../../scripts/openclaw-cross-os-release-checks.ts";
+} from "../../scripts/zhushou-cross-os-release-checks.ts";
 
-describe("scripts/openclaw-cross-os-release-checks", () => {
+describe("scripts/zhushou-cross-os-release-checks", () => {
   it("treats explicit empty-string args as values instead of boolean flags", () => {
     expect(parseArgs(["--ubuntu-runner", "", "--mode", "both"])).toEqual({
       "ubuntu-runner": "",
@@ -152,8 +152,8 @@ describe("scripts/openclaw-cross-os-release-checks", () => {
     );
     expect(script).toContain("Get-Command npm.cmd -ErrorAction SilentlyContinue");
     expect(script).toContain('$env:Path = "$npmPrefix;$env:Path"');
-    expect(script).toContain("(Join-Path $npmPrefix 'openclaw.cmd')");
-    expect(script).toContain("$cmd = Get-Command openclaw -ErrorAction Stop");
+    expect(script).toContain("(Join-Path $npmPrefix 'zhushou.cmd')");
+    expect(script).toContain("$cmd = Get-Command zhushou -ErrorAction Stop");
   });
 
   it("keeps Windows dev-update toolchain checks compatible with setup-node PATH shims", () => {
@@ -204,13 +204,13 @@ describe("scripts/openclaw-cross-os-release-checks", () => {
   it("serves installer scripts as UTF-8 text and package payloads as binary", () => {
     expect(resolveStaticFileContentType("scripts/install.sh")).toBe("text/plain; charset=utf-8");
     expect(resolveStaticFileContentType("scripts/install.ps1")).toBe("text/plain; charset=utf-8");
-    expect(resolveStaticFileContentType("openclaw-2026.4.14.tgz")).toBe("application/octet-stream");
+    expect(resolveStaticFileContentType("zhushou-2026.4.14.tgz")).toBe("application/octet-stream");
   });
 
   it("uses the published installer URLs for native installer lanes", () => {
-    expect(resolvePublishedInstallerUrl("darwin")).toBe("https://openclaw.ai/install.sh");
-    expect(resolvePublishedInstallerUrl("linux")).toBe("https://openclaw.ai/install.sh");
-    expect(resolvePublishedInstallerUrl("win32")).toBe("https://openclaw.ai/install.ps1");
+    expect(resolvePublishedInstallerUrl("darwin")).toBe("https://zhushou.ai/install.sh");
+    expect(resolvePublishedInstallerUrl("linux")).toBe("https://zhushou.ai/install.sh");
+    expect(resolvePublishedInstallerUrl("win32")).toBe("https://zhushou.ai/install.ps1");
   });
 
   it("uses managed gateway services only on native Windows runners", () => {
@@ -241,14 +241,14 @@ describe("scripts/openclaw-cross-os-release-checks", () => {
   it("normalizes Windows installed CLI paths to the cmd shim", () => {
     expect(
       normalizeWindowsInstalledCliPath(
-        String.raw`C:\Users\runner\AppData\Roaming\npm\openclaw.ps1`,
+        String.raw`C:\Users\runner\AppData\Roaming\npm\zhushou.ps1`,
       ),
-    ).toBe(String.raw`C:\Users\runner\AppData\Roaming\npm\openclaw.cmd`);
+    ).toBe(String.raw`C:\Users\runner\AppData\Roaming\npm\zhushou.cmd`);
     expect(
       normalizeWindowsInstalledCliPath(
-        String.raw`C:\Users\runner\AppData\Roaming\npm\openclaw.cmd`,
+        String.raw`C:\Users\runner\AppData\Roaming\npm\zhushou.cmd`,
       ),
-    ).toBe(String.raw`C:\Users\runner\AppData\Roaming\npm\openclaw.cmd`);
+    ).toBe(String.raw`C:\Users\runner\AppData\Roaming\npm\zhushou.cmd`);
   });
 
   it("normalizes generic Windows PowerShell shims to cmd shims", () => {
@@ -266,12 +266,12 @@ describe("scripts/openclaw-cross-os-release-checks", () => {
   it("derives the installed prefix from resolved CLI paths", () => {
     expect(
       resolveInstalledPrefixDirFromCliPath(
-        String.raw`C:\Users\runner\AppData\Roaming\npm\openclaw.ps1`,
+        String.raw`C:\Users\runner\AppData\Roaming\npm\zhushou.ps1`,
         "win32",
       ),
     ).toBe(String.raw`C:\Users\runner\AppData\Roaming\npm`);
     expect(
-      resolveInstalledPrefixDirFromCliPath("/Users/runner/.npm-global/bin/openclaw", "darwin"),
+      resolveInstalledPrefixDirFromCliPath("/Users/runner/.npm-global/bin/zhushou", "darwin"),
     ).toBe("/Users/runner/.npm-global");
   });
 
@@ -340,23 +340,23 @@ describe("scripts/openclaw-cross-os-release-checks", () => {
 
   it("only treats pinned baseline specs as exact installer version assertions", () => {
     expect(resolveExplicitBaselineVersion("")).toBe("");
-    expect(resolveExplicitBaselineVersion("openclaw@latest")).toBe("");
-    expect(resolveExplicitBaselineVersion("openclaw@2026.4.10")).toBe("2026.4.10");
+    expect(resolveExplicitBaselineVersion("zhushou@latest")).toBe("");
+    expect(resolveExplicitBaselineVersion("zhushou@2026.4.10")).toBe("2026.4.10");
     expect(resolveExplicitBaselineVersion("2026.4.10")).toBe("2026.4.10");
   });
 
   it("reads an installed baseline version without requiring build metadata", () => {
-    const prefixDir = mkdtempSync(join(tmpdir(), "openclaw-cross-os-installed-version-"));
+    const prefixDir = mkdtempSync(join(tmpdir(), "zhushou-cross-os-installed-version-"));
     try {
       const packageRoot =
         process.platform === "win32"
-          ? join(prefixDir, "node_modules", "openclaw")
-          : join(prefixDir, "lib", "node_modules", "openclaw");
+          ? join(prefixDir, "node_modules", "zhushou")
+          : join(prefixDir, "lib", "node_modules", "zhushou");
       mkdirSync(packageRoot, { recursive: true });
       writeFileSync(
         join(packageRoot, "package.json"),
         JSON.stringify({
-          name: "openclaw",
+          name: "zhushou",
           version: "2026.4.10",
         }),
         "utf8",
@@ -369,12 +369,12 @@ describe("scripts/openclaw-cross-os-release-checks", () => {
   });
 
   it("treats missing package scripts as optional in older refs", () => {
-    const packageRoot = mkdtempSync(join(tmpdir(), "openclaw-cross-os-scripts-"));
+    const packageRoot = mkdtempSync(join(tmpdir(), "zhushou-cross-os-scripts-"));
     try {
       writeFileSync(
         join(packageRoot, "package.json"),
         JSON.stringify({
-          name: "openclaw",
+          name: "zhushou",
           scripts: {
             build: "pnpm build",
           },

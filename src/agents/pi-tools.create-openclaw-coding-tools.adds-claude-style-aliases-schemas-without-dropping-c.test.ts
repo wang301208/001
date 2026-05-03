@@ -10,7 +10,7 @@ import {
 } from "../plugin-sdk/provider-tools.js";
 import "./test-helpers/fast-bash-tools.js";
 import "./test-helpers/fast-coding-tools.js";
-import "./test-helpers/fast-openclaw-tools.js";
+import "./test-helpers/fast-zhushou-tools.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
 
 describe("createOpenClawCodingTools", () => {
@@ -41,7 +41,7 @@ describe("createOpenClawCodingTools", () => {
   });
 
   it("uses stored spawnDepth to apply leaf tool policy for flat depth-2 session keys", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-depth-policy-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-depth-policy-"));
     const storeTemplate = path.join(tmpDir, "sessions-{agentId}.json");
     const storePath = storeTemplate.replaceAll("{agentId}", "main");
     await fs.writeFile(

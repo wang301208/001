@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import YAML from "yaml";
 import { getRuntimeConfigSnapshot, loadConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { collectGovernanceCharterFindings, type SecurityAuditFinding } from "../security/audit.js";
@@ -72,7 +72,7 @@ export type GovernanceAutonomyProposalSynthesisResult = {
   skippedCount: number;
 };
 
-function resolveRuntimeConfig(cfg?: OpenClawConfig): OpenClawConfig {
+function resolveRuntimeConfig(cfg?: ZhushouConfig): ZhushouConfig {
   return cfg ?? getRuntimeConfigSnapshot() ?? loadConfig();
 }
 
@@ -194,8 +194,8 @@ function buildConstitutionStub(params: {
   });
   return stringifyYaml({
     version: 1,
-    charter_id: "openclaw-constitution",
-    title: "OpenClaw Sovereign Constitution",
+    charter_id: "zhushou-constitution",
+    title: "助手 Sovereign Constitution",
     status: "draft",
     sovereign_boundaries: {
       human_reserved_powers: [
@@ -786,7 +786,7 @@ function findExistingProposal(
 }
 
 export async function synthesizeGovernanceAutonomyProposals(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   stateDir?: string;
   env?: NodeJS.ProcessEnv;

@@ -10,9 +10,9 @@ import {
   type MatrixEvent,
 } from "matrix-js-sdk/lib/matrix.js";
 import { VerificationMethod } from "matrix-js-sdk/lib/types.js";
-import { KeyedAsyncQueue } from "openclaw/plugin-sdk/keyed-async-queue";
-import type { PinnedDispatcherPolicy } from "openclaw/plugin-sdk/ssrf-dispatcher";
-import { normalizeNullableString } from "openclaw/plugin-sdk/string-coerce-runtime";
+import { KeyedAsyncQueue } from "zhushou/plugin-sdk/keyed-async-queue";
+import type { PinnedDispatcherPolicy } from "zhushou/plugin-sdk/ssrf-dispatcher";
+import { normalizeNullableString } from "zhushou/plugin-sdk/string-coerce-runtime";
 import type { SsrFPolicy } from "../runtime-api.js";
 import { resolveMatrixRoomKeyBackupReadinessError } from "./backup-health.js";
 import { FileBackedMatrixSyncStore } from "./client/file-sync-store.js";

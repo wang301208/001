@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizeProviderId } from "../agents/provider-id.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { buildPluginApi } from "./api-builder.js";
 import { collectPluginConfigContractMatches } from "./config-contracts.js";
 import { discoverOpenClawPlugins } from "./discovery.js";
@@ -211,7 +211,7 @@ function resolveSetupApiPath(rootDir: string): string | null {
   return null;
 }
 
-function collectConfiguredPluginEntryIds(config: OpenClawConfig): string[] {
+function collectConfiguredPluginEntryIds(config: ZhushouConfig): string[] {
   const entries = config.plugins?.entries;
   if (!entries || typeof entries !== "object") {
     return [];
@@ -223,7 +223,7 @@ function collectConfiguredPluginEntryIds(config: OpenClawConfig): string[] {
 }
 
 function resolveRelevantSetupMigrationPluginIds(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): string[] {
@@ -285,7 +285,7 @@ function toolPolicyReferencesBrowser(value: unknown): boolean {
   );
 }
 
-function hasBrowserSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
+function hasBrowserSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean {
   if (config.browser?.enabled === false || config.plugins?.entries?.browser?.enabled === false) {
     return false;
   }
@@ -306,7 +306,7 @@ function hasBrowserSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolea
     : false;
 }
 
-function hasAcpxSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
+function hasAcpxSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean {
   const backend = normalizeProviderId(config.acp?.backend ?? "");
   return (
     config.acp?.enabled === true ||
@@ -315,7 +315,7 @@ function hasAcpxSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
   ) && (!backend || backend === "acpx");
 }
 
-function hasXaiSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
+function hasXaiSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean {
   const pluginConfig = config.plugins?.entries?.xai?.config;
   const web = config.tools?.web as Record<string, unknown> | undefined;
   return (
@@ -325,7 +325,7 @@ function hasXaiSetupAutoEnableRelevantConfig(config: OpenClawConfig): boolean {
   );
 }
 
-function collectLikelySetupAutoEnablePluginIds(config: OpenClawConfig): string[] {
+function collectLikelySetupAutoEnablePluginIds(config: ZhushouConfig): string[] {
   const ids = new Set(
     Object.keys(config.plugins?.entries ?? {})
       .map((pluginId) => pluginId.trim())
@@ -468,7 +468,7 @@ export function resolvePluginSetupRegistry(params?: {
       source: setupSource,
       rootDir: record.rootDir,
       registrationMode: "setup-only",
-      config: {} as OpenClawConfig,
+      config: {} as ZhushouConfig,
       runtime: EMPTY_RUNTIME,
       logger: NOOP_LOGGER,
       resolvePath: (input) => input,
@@ -592,7 +592,7 @@ export function resolvePluginSetupProvider(params: {
     source: setupSource,
     rootDir: record.rootDir,
     registrationMode: "setup-only",
-    config: {} as OpenClawConfig,
+    config: {} as ZhushouConfig,
     runtime: EMPTY_RUNTIME,
     logger: NOOP_LOGGER,
     resolvePath: (input) => input,
@@ -691,7 +691,7 @@ export function resolvePluginSetupCliBackend(params: {
     source: setupSource,
     rootDir: record.rootDir,
     registrationMode: "setup-only",
-    config: {} as OpenClawConfig,
+    config: {} as ZhushouConfig,
     runtime: EMPTY_RUNTIME,
     logger: NOOP_LOGGER,
     resolvePath: (input) => input,
@@ -729,11 +729,11 @@ export function resolvePluginSetupCliBackend(params: {
 }
 
 export function runPluginSetupConfigMigrations(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   changes: string[];
 } {
   let next = params.config;
@@ -760,7 +760,7 @@ export function runPluginSetupConfigMigrations(params: {
 }
 
 export function resolvePluginSetupAutoEnableReasons(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): SetupAutoEnableReason[] {

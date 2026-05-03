@@ -1,9 +1,9 @@
 import {
   defineBundledChannelEntry,
   loadBundledEntryExportSync,
-  type OpenClawPluginApi,
+  type ZhushouPluginApi,
   type PluginCommandContext,
-} from "openclaw/plugin-sdk/channel-entry-contract";
+} from "zhushou/plugin-sdk/channel-entry-contract";
 
 type QQBotAccount = {
   accountId: string;
@@ -73,16 +73,16 @@ function getFrameworkCommands(): QQBotFrameworkCommand[] {
   return getCommands();
 }
 
-function registerChannelTool(api: OpenClawPluginApi): void {
-  const register = loadBundledEntryExportSync<(api: OpenClawPluginApi) => void>(import.meta.url, {
+function registerChannelTool(api: ZhushouPluginApi): void {
+  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
     specifier: "./api.js",
     exportName: "registerChannelTool",
   });
   register(api);
 }
 
-function registerRemindTool(api: OpenClawPluginApi): void {
-  const register = loadBundledEntryExportSync<(api: OpenClawPluginApi) => void>(import.meta.url, {
+function registerRemindTool(api: ZhushouPluginApi): void {
+  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
     specifier: "./api.js",
     exportName: "registerRemindTool",
   });
@@ -102,7 +102,7 @@ export default defineBundledChannelEntry({
     specifier: "./runtime-api.js",
     exportName: "setQQBotRuntime",
   },
-  registerFull(api: OpenClawPluginApi) {
+  registerFull(api: ZhushouPluginApi) {
     registerChannelTool(api);
     registerRemindTool(api);
 

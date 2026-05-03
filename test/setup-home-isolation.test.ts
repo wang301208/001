@@ -8,6 +8,6 @@ describe("shared test setup home isolation", () => {
     expect(testHome).toBeTruthy();
     expect(process.env.HOME).toBe(testHome);
     expect(process.env.USERPROFILE).toBe(testHome);
-    expect(createConfigIO().configPath).toBe(path.join(testHome!, ".openclaw", "openclaw.json"));
+    expect(createConfigIO().configPath).toBe(path.join(testHome!, ".zhushou", "zhushou.json"));
   });
 });

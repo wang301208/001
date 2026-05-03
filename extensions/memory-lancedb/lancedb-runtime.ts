@@ -83,7 +83,7 @@ export function resolveLanceDbDependencySpec(
 const MEMORY_LANCEDB_RUNTIME_MANIFEST: RuntimeManifest = (() => {
   const lanceDbSpec = resolveLanceDbDependencySpec(fileURLToPath(import.meta.url));
   return {
-    name: "openclaw-memory-lancedb-runtime",
+    name: "zhushou-memory-lancedb-runtime",
     private: true,
     type: "module",
     dependencies: {

@@ -130,7 +130,7 @@ type ConfigConflict = {
 
 ### 函数
 
-#### `validateWizardConfig(config: OpenClawConfig, opts?: { legacyIssues?: WizardLegacyIssue[] }): ValidationResult`
+#### `validateWizardConfig(config: ZhushouConfig, opts?: { legacyIssues?: WizardLegacyIssue[] }): ValidationResult`
 
 对配置进行完整校验，检查：
 1. **旧版字段**（如 `routing`、`providers`、`bot`、`agent`、`memorySearch`、`heartbeat`、旧频道顶级字段、旧网关认证别名、旧搜索 provider 配置等）→ error
@@ -152,11 +152,11 @@ if (!result.valid) {
 
 将校验结果转换为 `WizardPrompter.showValidationErrors()` 可直接渲染的结构化问题列表。
 
-#### `detectConfigConflicts(config: OpenClawConfig): ConfigConflict[]`
+#### `detectConfigConflicts(config: ZhushouConfig): ConfigConflict[]`
 
 仅检测并返回冲突列表，不检查旧版字段或缺失字段。
 
-#### `hasLegacyFields(config: OpenClawConfig, legacyIssues?: WizardLegacyIssue[]): boolean`
+#### `hasLegacyFields(config: ZhushouConfig, legacyIssues?: WizardLegacyIssue[]): boolean`
 
 快速检查配置中是否包含任何旧版字段。可传入读取层报告的 `legacyIssues` 作为第二个参数。
 
@@ -189,7 +189,7 @@ type WizardTemplate = {
   name: string;
   description: string;
   /** 叠加到基础配置上的部分配置 */
-  config: Partial<OpenClawConfig>;
+  config: Partial<ZhushouConfig>;
 };
 ```
 
@@ -205,7 +205,7 @@ type WizardTemplate = {
 
 ### 函数
 
-#### `applyTemplate(base: OpenClawConfig, template: WizardTemplate): OpenClawConfig`
+#### `applyTemplate(base: ZhushouConfig, template: WizardTemplate): ZhushouConfig`
 
 将模板配置深度合并到基础配置上，返回新对象，不修改原始参数。
 
@@ -232,7 +232,7 @@ const result = applyTemplate(existingConfig, findTemplate("minimal")!);
 ```typescript
 type ConfigSnapshot = {
   timestamp: number;    // Unix 毫秒时间戳
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   label: string;        // 如 "before-setup-wizard"
 };
 ```
@@ -247,19 +247,19 @@ type RollbackResult =
 
 ### 函数
 
-#### `createSnapshot(config: OpenClawConfig, label: string): ConfigSnapshot`
+#### `createSnapshot(config: ZhushouConfig, label: string): ConfigSnapshot`
 
 创建配置的深拷贝快照（内存中，不写入磁盘）。
 
 #### `saveConfigSnapshot(snapshot: ConfigSnapshot, snapshotDir?: string): Promise<string>`
 
-将快照写入磁盘，返回文件绝对路径。默认目录：`~/.openclaw/.snapshots/`。
+将快照写入磁盘，返回文件绝对路径。默认目录：`~/.zhushou/.snapshots/`。
 
 #### `listConfigSnapshots(snapshotDir?: string): Promise<ConfigSnapshot[]>`
 
 从磁盘加载所有快照，按时间戳降序（最新在前）排列。目录不存在时返回空数组。
 
-#### `rollbackToSnapshot(snapshot: ConfigSnapshot, writeConfig: (config: OpenClawConfig) => Promise<void>): Promise<RollbackResult>`
+#### `rollbackToSnapshot(snapshot: ConfigSnapshot, writeConfig: (config: ZhushouConfig) => Promise<void>): Promise<RollbackResult>`
 
 通过调用 `writeConfig` 函数将快照配置写回，返回操作结果。
 
@@ -282,8 +282,8 @@ if (!result.ok) {
 向导会在覆盖已有配置前保存快照。用户可通过以下命令查看与恢复：
 
 ```bash
-openclaw config snapshots list
-openclaw config snapshots rollback <timestamp>
+zhushou config snapshots list
+zhushou config snapshots rollback <timestamp>
 ```
 
 ---

@@ -1,11 +1,11 @@
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/routing";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/routing";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createQueuedWizardPrompter } from "../../../test/helpers/plugins/setup-wizard.js";
 import { whatsappApprovalAuth } from "./approval-auth.js";
 import { whatsappPlugin } from "./channel.js";
 import { checkWhatsAppHeartbeatReady } from "./heartbeat.js";
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { ZhushouConfig } from "./runtime-api.js";
 import { finalizeWhatsAppSetup } from "./setup-finalize.js";
 import {
   createWhatsAppAllowlistModeInput,
@@ -26,7 +26,7 @@ const hoisted = vi.hoisted(() => ({
   loginWeb: vi.fn(async () => {}),
   pathExists: vi.fn(async () => false),
   resolveWhatsAppAuthDir: vi.fn(() => ({
-    authDir: "/tmp/openclaw-whatsapp-test",
+    authDir: "/tmp/zhushou-whatsapp-test",
   })),
 }));
 
@@ -34,9 +34,9 @@ vi.mock("./login.js", () => ({
   loginWeb: hoisted.loginWeb,
 }));
 
-vi.mock("openclaw/plugin-sdk/setup", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/setup")>(
-    "openclaw/plugin-sdk/setup",
+vi.mock("zhushou/plugin-sdk/setup", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/setup")>(
+    "zhushou/plugin-sdk/setup",
   );
   const normalizeE164 = (value?: string | null) => {
     const raw = (value ?? "").trim();
@@ -60,12 +60,12 @@ vi.mock("openclaw/plugin-sdk/setup", async () => {
         .split(",")
         .map((entry) => entry.trim())
         .filter(Boolean),
-    setSetupChannelEnabled: (cfg: OpenClawConfig, channel: string, enabled: boolean) => ({
+    setSetupChannelEnabled: (cfg: ZhushouConfig, channel: string, enabled: boolean) => ({
       ...cfg,
       channels: {
         ...cfg.channels,
         [channel]: {
-          ...(cfg.channels?.[channel as keyof NonNullable<OpenClawConfig["channels"]>] as object),
+          ...(cfg.channels?.[channel as keyof NonNullable<ZhushouConfig["channels"]>] as object),
           enabled,
         },
       },
@@ -89,12 +89,12 @@ function createRuntime(): RuntimeEnv {
 
 async function runConfigureWithHarness(params: {
   harness: ReturnType<typeof createQueuedWizardPrompter>;
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   runtime?: RuntimeEnv;
   forceAllowFrom?: boolean;
 }) {
   const result = await finalizeWhatsAppSetup({
-    cfg: params.cfg ?? ({} as OpenClawConfig),
+    cfg: params.cfg ?? ({} as ZhushouConfig),
     accountId: DEFAULT_ACCOUNT_ID,
     forceAllowFrom: params.forceAllowFrom ?? false,
     prompter: params.harness.prompter,
@@ -132,7 +132,7 @@ describe("whatsapp setup wizard", () => {
     hoisted.pathExists.mockReset();
     hoisted.pathExists.mockResolvedValue(false);
     hoisted.resolveWhatsAppAuthDir.mockReset();
-    hoisted.resolveWhatsAppAuthDir.mockReturnValue({ authDir: "/tmp/openclaw-whatsapp-test" });
+    hoisted.resolveWhatsAppAuthDir.mockReturnValue({ authDir: "/tmp/zhushou-whatsapp-test" });
   });
 
   it("exposes approval auth through approvalCapability only", () => {
@@ -213,7 +213,7 @@ describe("whatsapp setup wizard", () => {
 
     const result = await runConfigureWithHarness({
       harness,
-      cfg: createWhatsAppRootAllowFromConfig() as OpenClawConfig,
+      cfg: createWhatsAppRootAllowFromConfig() as ZhushouConfig,
     });
 
     expectWhatsAppOpenPolicySetup(result.cfg, harness);
@@ -272,7 +272,7 @@ describe("whatsapp setup wizard", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       deps: {
         webAuthExists: async () => true,
         hasActiveWebListener: (accountId?: string) => accountId === "work",

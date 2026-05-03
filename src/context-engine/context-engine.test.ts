@@ -1,7 +1,7 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MemoryCitationsMode } from "../config/types.memory.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { clearMemoryPluginState, registerMemoryPromptSection } from "../plugins/memory-state.js";
 // ---------------------------------------------------------------------------
 // We dynamically import the registry so we can get a fresh module per test
@@ -55,7 +55,7 @@ function installCompactRuntimeSpy() {
 // ---------------------------------------------------------------------------
 
 /** Build a config object with a contextEngine slot for testing. */
-function configWithSlot(engineId: string): OpenClawConfig {
+function configWithSlot(engineId: string): ZhushouConfig {
   return { plugins: { slots: { contextEngine: engineId } } };
 }
 
@@ -716,7 +716,7 @@ describe("Invalid engine fallback", () => {
     // private CONTEXT_ENGINE_REGISTRY_STATE constant in registry.ts — guard
     // against a silent key mismatch so a rename surfaces loudly.
     const registryState = (globalThis as Record<symbol, unknown>)[
-      Symbol.for("openclaw.contextEngineRegistryState")
+      Symbol.for("zhushou.contextEngineRegistryState")
     ] as { engines: Map<string, unknown> } | undefined;
     expect(registryState).toBeDefined();
     const snapshot = new Map(registryState!.engines);

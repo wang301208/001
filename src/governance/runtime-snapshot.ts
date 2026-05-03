@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
@@ -13,7 +13,7 @@ export type AgentGovernanceRuntimeSnapshot = {
 };
 
 export function createAgentGovernanceRuntimeSnapshot(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   agentId?: string;
   observedAt?: number;
   charterDir?: string;

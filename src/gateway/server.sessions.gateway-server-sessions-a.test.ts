@@ -211,7 +211,7 @@ let sessionStoreCaseSeq = 0;
 
 beforeAll(async () => {
   harness = await startGatewayServerHarness();
-  sharedSessionStoreDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-"));
+  sharedSessionStoreDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sessions-"));
 });
 
 afterAll(async () => {
@@ -649,7 +649,7 @@ describe("gateway server sessions", () => {
         JSON.stringify({
           message: {
             role: "assistant",
-            provider: "openclaw",
+            provider: "zhushou",
             model: "delivery-mirror",
             usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
           },
@@ -1531,7 +1531,7 @@ describe("gateway server sessions", () => {
   });
 
   test("sessions.patch preserves nested model ids under provider overrides", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-sessions-nested-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-sessions-nested-"));
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(
       storePath,
@@ -1544,7 +1544,7 @@ describe("gateway server sessions", () => {
       "utf-8",
     );
 
-    await withEnvAsync({ OPENCLAW_CONFIG_PATH: undefined }, async () => {
+    await withEnvAsync({ ZHUSHOU_CONFIG_PATH: undefined }, async () => {
       const { clearConfigCache, clearRuntimeConfigSnapshot } = await getGatewayConfigModule();
       clearConfigCache();
       clearRuntimeConfigSnapshot();
@@ -1557,10 +1557,10 @@ describe("gateway server sessions", () => {
           list: [{ id: "main", default: true, workspace: dir }],
         },
       };
-      const configPath = path.join(dir, "openclaw.json");
+      const configPath = path.join(dir, "zhushou.json");
       await fs.writeFile(configPath, JSON.stringify(cfg, null, 2), "utf-8");
 
-      await withEnvAsync({ OPENCLAW_CONFIG_PATH: configPath }, async () => {
+      await withEnvAsync({ ZHUSHOU_CONFIG_PATH: configPath }, async () => {
         const started = await startConnectedServerWithClient();
         const { server, ws } = started;
         try {
@@ -3336,7 +3336,7 @@ describe("gateway server sessions", () => {
   });
 
   test("session:patch hook fires with correct context", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-patch-hook-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sessions-patch-hook-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
 
@@ -3382,7 +3382,7 @@ describe("gateway server sessions", () => {
   });
 
   test("session:patch hook does not fire for webchat clients", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-webchat-hook-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sessions-webchat-hook-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
 
@@ -3424,7 +3424,7 @@ describe("gateway server sessions", () => {
   });
 
   test("session:patch hook only fires after successful patch", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-success-hook-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sessions-success-hook-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
 
@@ -3536,7 +3536,7 @@ describe("gateway server sessions", () => {
   });
 
   test("control-ui client can delete sessions even in webchat mode", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-control-ui-delete-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sessions-control-ui-delete-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
 

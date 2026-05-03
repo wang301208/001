@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import { loadSessionStore } from "../../config/sessions.js";
 import type { EmbeddedPiRunResult } from "../pi-embedded.js";
@@ -24,7 +24,7 @@ function acpMeta() {
 async function withTempSessionStore<T>(
   run: (params: { dir: string; storePath: string }) => Promise<T>,
 ): Promise<T> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-session-store-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-session-store-"));
   try {
     return await run({ dir, storePath: path.join(dir, "sessions.json") });
   } finally {
@@ -45,9 +45,9 @@ describe("updateSessionStoreAfterAgentRun", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as ZhushouConfig;
       const sessionKey = "agent:main:explicit:test-claude-cli";
-      const sessionId = "test-openclaw-session";
+      const sessionId = "test-zhushou-session";
       const sessionStore: Record<string, SessionEntry> = {
         [sessionKey]: {
           sessionId,

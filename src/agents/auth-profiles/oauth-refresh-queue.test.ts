@@ -97,7 +97,7 @@ function createExpiredOauthStore(params: {
 
 describe("OAuth refresh in-process queue", () => {
   const envSnapshot = captureEnv([
-    "OPENCLAW_STATE_DIR",
+    "ZHUSHOU_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
@@ -111,8 +111,8 @@ describe("OAuth refresh in-process queue", () => {
     formatProviderAuthProfileApiKeyWithPluginMock.mockReset();
     formatProviderAuthProfileApiKeyWithPluginMock.mockReturnValue(undefined);
     clearRuntimeAuthProfileStoreSnapshots();
-    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-oauth-queue-"));
-    process.env.OPENCLAW_STATE_DIR = tempRoot;
+    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-oauth-queue-"));
+    process.env.ZHUSHOU_STATE_DIR = tempRoot;
     agentDir = path.join(tempRoot, "agents", "main", "agent");
     process.env.OPENCLAW_AGENT_DIR = agentDir;
     process.env.PI_CODING_AGENT_DIR = agentDir;

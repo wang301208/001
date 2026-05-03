@@ -1,7 +1,7 @@
 {
-  "name": "@openclaw/tlon",
+  "name": "@zhushou/tlon",
   "version": "2026.4.16",
-  "description": "OpenClaw Tlon/Urbit channel plugin",
+  "description": "助手 Tlon/Urbit channel plugin",
   "type": "module",
   "dependencies": {
     "@aws-sdk/client-s3": "3.1028.0",
@@ -10,18 +10,18 @@
     "@urbit/aura": "^3.0.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -37,7 +37,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/tlon",
+      "npmSpec": "@zhushou/tlon",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

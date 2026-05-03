@@ -1,4 +1,4 @@
-import { readClaudeCliCredentialsCached } from "openclaw/plugin-sdk/provider-auth";
+import { readClaudeCliCredentialsCached } from "zhushou/plugin-sdk/provider-auth";
 
 export function readClaudeCliCredentialsForSetup() {
   return readClaudeCliCredentialsCached();

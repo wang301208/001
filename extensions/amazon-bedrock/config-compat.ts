@@ -1,4 +1,4 @@
-import { isRecord } from "openclaw/plugin-sdk/text-runtime";
+import { isRecord } from "zhushou/plugin-sdk/text-runtime";
 
 type JsonRecord = Record<string, unknown>;
 

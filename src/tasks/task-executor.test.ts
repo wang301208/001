@@ -35,7 +35,7 @@ import {
   setTaskRegistryControlRuntimeForTests,
 } from "./task-registry.js";
 
-const ORIGINAL_STATE_DIR = process.env.OPENCLAW_STATE_DIR;
+const ORIGINAL_STATE_DIR = process.env.ZHUSHOU_STATE_DIR;
 const hoisted = vi.hoisted(() => {
   const sendMessageMock = vi.fn();
   const cancelSessionMock = vi.fn();
@@ -58,7 +58,7 @@ vi.mock("../agents/subagent-control.js", () => ({
 }));
 
 async function withTaskExecutorStateDir(run: (stateDir: string) => Promise<void>): Promise<void> {
-  await withStateDirEnv("openclaw-task-executor-", async ({ stateDir }) => {
+  await withStateDirEnv("zhushou-task-executor-", async ({ stateDir }) => {
     resetSystemEventsForTest();
     resetHeartbeatWakeStateForTests();
     resetAgentEventsForTest();
@@ -94,9 +94,9 @@ async function withTaskExecutorStateDir(run: (stateDir: string) => Promise<void>
 describe("task-executor", () => {
   afterEach(() => {
     if (ORIGINAL_STATE_DIR === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.ZHUSHOU_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = ORIGINAL_STATE_DIR;
+      process.env.ZHUSHOU_STATE_DIR = ORIGINAL_STATE_DIR;
     }
     resetSystemEventsForTest();
     resetHeartbeatWakeStateForTests();

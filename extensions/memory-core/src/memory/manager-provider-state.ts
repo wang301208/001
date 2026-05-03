@@ -1,7 +1,7 @@
 import type {
-  OpenClawConfig,
+  ZhushouConfig,
   ResolvedMemorySearchConfig,
-} from "openclaw/plugin-sdk/memory-core-host-engine-foundation";
+} from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
 import {
   resolveEmbeddingProviderFallbackModel,
   type EmbeddingProvider,
@@ -68,7 +68,7 @@ export function applyMemoryFallbackProviderState(params: {
 }
 
 export function resolveMemoryFallbackProviderRequest(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   settings: ResolvedMemorySearchConfig;
   currentProviderId: string | null;
 }): {

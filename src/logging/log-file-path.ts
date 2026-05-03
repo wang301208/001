@@ -1,11 +1,11 @@
 import path from "node:path";
-import type { OpenClawConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import {
   POSIX_OPENCLAW_TMP_DIR,
   resolvePreferredOpenClawTmpDir,
-} from "../infra/tmp-openclaw-dir.js";
+} from "../infra/tmp-zhushou-dir.js";
 
-const LOG_PREFIX = "openclaw";
+const LOG_PREFIX = "zhushou";
 const LOG_SUFFIX = ".log";
 
 function canUseNodeFs(): boolean {
@@ -36,6 +36,6 @@ export function resolveDefaultRollingLogFile(date = new Date()): string {
   return path.join(logDir, `${LOG_PREFIX}-${formatLocalDate(date)}${LOG_SUFFIX}`);
 }
 
-export function resolveConfiguredLogFilePath(config?: OpenClawConfig | null): string {
+export function resolveConfiguredLogFilePath(config?: ZhushouConfig | null): string {
   return config?.logging?.file ?? resolveDefaultRollingLogFile();
 }

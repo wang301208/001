@@ -3,7 +3,7 @@ import path from "node:path";
 import {
   getRuntimeConfigSourceSnapshot,
   projectConfigOntoRuntimeSourceSnapshot,
-  type OpenClawConfig,
+  type ZhushouConfig,
   loadConfig,
 } from "../config/config.js";
 import { createConfigRuntimeEnv } from "../config/env-vars.js";
@@ -38,8 +38,8 @@ function stableStringify(value: unknown): string {
 }
 
 async function buildModelsJsonFingerprint(params: {
-  config: OpenClawConfig;
-  sourceConfigForSecrets: OpenClawConfig;
+  config: ZhushouConfig;
+  sourceConfigForSecrets: ZhushouConfig;
   agentDir: string;
 }): Promise<string> {
   const authProfilesMtimeMs = await readFileMtimeMs(
@@ -89,9 +89,9 @@ export async function writeModelsFileAtomicForModelsJson(
   await fs.rename(tempPath, targetPath);
 }
 
-function resolveModelsConfigInput(config?: OpenClawConfig): {
-  config: OpenClawConfig;
-  sourceConfigForSecrets: OpenClawConfig;
+function resolveModelsConfigInput(config?: ZhushouConfig): {
+  config: ZhushouConfig;
+  sourceConfigForSecrets: ZhushouConfig;
 } {
   const runtimeSource = getRuntimeConfigSourceSnapshot();
   if (!config) {
@@ -136,7 +136,7 @@ async function withModelsJsonWriteLock<T>(targetPath: string, run: () => Promise
 }
 
 export async function ensureOpenClawModelsJson(
-  config?: OpenClawConfig,
+  config?: ZhushouConfig,
   agentDirOverride?: string,
 ): Promise<{ agentDir: string; wrote: boolean }> {
   const resolved = resolveModelsConfigInput(config);

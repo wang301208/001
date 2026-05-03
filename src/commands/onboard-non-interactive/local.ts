@@ -1,7 +1,7 @@
 import { formatCliCommand } from "../../cli/command-format.js";
 import { replaceConfigFile, resolveGatewayPort } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { resolveGatewayAuthToken } from "../../gateway/auth-token-resolution.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME } from "../daemon-runtime.js";
@@ -94,7 +94,7 @@ async function collectGatewayHealthFailureDiagnostics(): Promise<
 }
 
 export async function resolveGatewayHealthProbeToken(
-  nextConfig: OpenClawConfig,
+  nextConfig: ZhushouConfig,
 ): Promise<{ token?: string; unresolvedRefReason?: string }> {
   const resolved = await resolveGatewayAuthToken({
     cfg: nextConfig,
@@ -123,7 +123,7 @@ function formatGatewayHealthFailureDetail(params: {
 export async function runNonInteractiveLocalSetup(params: {
   opts: OnboardOptions;
   runtime: RuntimeEnv;
-  baseConfig: OpenClawConfig;
+  baseConfig: ZhushouConfig;
   baseHash?: string;
 }) {
   const { opts, runtime, baseConfig, baseHash } = params;
@@ -135,7 +135,7 @@ export async function runNonInteractiveLocalSetup(params: {
     defaultWorkspaceDir: DEFAULT_WORKSPACE,
   });
 
-  let nextConfig: OpenClawConfig = applyLocalSetupWorkspaceConfig(baseConfig, workspaceDir);
+  let nextConfig: ZhushouConfig = applyLocalSetupWorkspaceConfig(baseConfig, workspaceDir);
 
   const inferredAuthChoice = opts.authChoice
     ? undefined
@@ -243,7 +243,7 @@ export async function runNonInteractiveLocalSetup(params: {
           daemonInstall.skippedReason === "systemd-user-unavailable"
             ? [
                 "Fix: rerun without `--install-daemon` for one-shot setup, or enable a working user-systemd session and retry.",
-                "If your auth profile uses env-backed refs, keep those env vars set in the shell that runs `openclaw gateway run` or `openclaw agent --local`.",
+                "If your auth profile uses env-backed refs, keep those env vars set in the shell that runs `openclaw gateway run` or `zhushou agent --local`.",
               ]
             : [`Run \`${formatCliCommand("openclaw gateway status --deep")}\` for more detail.`],
       });
@@ -339,7 +339,7 @@ export async function runNonInteractiveLocalSetup(params: {
 
   if (!opts.json) {
     runtime.log(
-      `Tip: run \`${formatCliCommand("openclaw configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.openclaw.ai/tools/web`,
+      `Tip: run \`${formatCliCommand("zhushou configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.zhushou.ai/tools/web`,
     );
   }
 }

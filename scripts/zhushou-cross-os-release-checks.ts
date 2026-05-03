@@ -20,7 +20,7 @@ import { dirname, join, resolve, win32 as pathWin32 } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const PUBLISHED_INSTALLER_BASE_URL = "https://openclaw.ai";
+const PUBLISHED_INSTALLER_BASE_URL = "https://zhushou.ai";
 
 const SUPPORTED_MODES = new Set(["fresh", "upgrade", "both"]);
 const SUPPORTED_SUITES = new Set([
@@ -190,15 +190,15 @@ export function readRunnerOverrideEnv(env = process.env) {
   return {
     varUbuntuRunner: preferNonEmptyEnv(
       env.VAR_UBUNTU_RUNNER,
-      env.OPENCLAW_RELEASE_CHECKS_UBUNTU_RUNNER,
+      env.zhushou_RELEASE_CHECKS_UBUNTU_RUNNER,
     ),
     varWindowsRunner: preferNonEmptyEnv(
       env.VAR_WINDOWS_RUNNER,
-      env.OPENCLAW_RELEASE_CHECKS_WINDOWS_RUNNER,
+      env.zhushou_RELEASE_CHECKS_WINDOWS_RUNNER,
     ),
     varMacosRunner: preferNonEmptyEnv(
       env.VAR_MACOS_RUNNER,
-      env.OPENCLAW_RELEASE_CHECKS_MACOS_RUNNER,
+      env.zhushou_RELEASE_CHECKS_MACOS_RUNNER,
     ),
   };
 }
@@ -248,7 +248,7 @@ async function main(argv) {
   const previousVersion = args["previous-version"]?.trim() || "";
   const baselineSpec =
     args["baseline-spec"]?.trim() ||
-    (previousVersion ? `openclaw@${previousVersion}` : "openclaw@latest");
+    (previousVersion ? `zhushou@${previousVersion}` : "zhushou@latest");
   const providedBaselineTgz = args["baseline-tgz"]?.trim()
     ? resolve(args["baseline-tgz"].trim())
     : "";
@@ -291,8 +291,8 @@ async function main(argv) {
 
   const summary = {
     platform: process.platform,
-    runnerOs: process.env.OPENCLAW_RELEASE_CHECK_OS ?? "",
-    runnerLabel: process.env.OPENCLAW_RELEASE_CHECK_RUNNER ?? "",
+    runnerOs: process.env.zhushou_RELEASE_CHECK_OS ?? "",
+    runnerLabel: process.env.zhushou_RELEASE_CHECK_RUNNER ?? "",
     provider,
     mode,
     suite,
@@ -648,7 +648,7 @@ async function runUpgradeLane(params) {
       "--timeout",
       String(updateStepTimeoutSeconds()),
     ];
-    await runOpenClaw({
+    await runzhushou({
       lane,
       env: updateEnv,
       args: updateArgs,
@@ -657,7 +657,7 @@ async function runUpgradeLane(params) {
     });
 
     logLanePhase(lane, "update-status");
-    await runOpenClaw({
+    await runzhushou({
       lane,
       env,
       args: ["update", "status", "--json"],
@@ -916,7 +916,7 @@ async function runDevUpdateSuite(params) {
       args: ["update", "--channel", "dev", "--yes", "--json"],
       env: {
         ...buildRealUpdateEnv(env),
-        OPENCLAW_UPDATE_DEV_TARGET_REF: verificationRef,
+        zhushou_UPDATE_DEV_TARGET_REF: verificationRef,
       },
       cwd: lane.homeDir,
       logPath: join(params.logsDir, "dev-update.log"),
@@ -927,7 +927,7 @@ async function runDevUpdateSuite(params) {
     const updatedShell = await verifyFreshShellCommand({
       lane,
       env,
-      expectedNeedle: "OpenClaw",
+      expectedNeedle: "助手",
       logPath: join(params.logsDir, "dev-update-shell.log"),
     });
 
@@ -1030,10 +1030,10 @@ async function runDevUpdateSuite(params) {
 }
 
 function createLaneState(name) {
-  const rootDir = mkdtempSync(join(tmpdir(), `openclaw-${name}-`));
+  const rootDir = mkdtempSync(join(tmpdir(), `zhushou-${name}-`));
   const prefixDir = join(rootDir, "prefix");
   const homeDir = join(rootDir, "home");
-  const stateDir = join(homeDir, ".openclaw");
+  const stateDir = join(homeDir, ".zhushou");
   const appDataDir = process.platform === "win32" ? join(homeDir, "AppData", "Roaming") : stateDir;
   mkdirSync(prefixDir, { recursive: true });
   mkdirSync(homeDir, { recursive: true });
@@ -1062,11 +1062,11 @@ function buildLaneEnv(lane, providerMeta, providerSecretValue) {
     USERPROFILE: lane.homeDir,
     APPDATA: lane.appDataDir,
     LOCALAPPDATA: join(lane.homeDir, "AppData", "Local"),
-    OPENCLAW_HOME: lane.homeDir,
-    OPENCLAW_STATE_DIR: lane.stateDir,
-    OPENCLAW_CONFIG_PATH: join(lane.stateDir, "openclaw.json"),
-    OPENCLAW_DISABLE_BONJOUR: "1",
-    OPENCLAW_DISABLE_BUNDLED_PLUGIN_POSTINSTALL: "1",
+    ZHUSHOU_HOME: lane.homeDir,
+    ZHUSHOU_STATE_DIR: lane.stateDir,
+    ZHUSHOU_CONFIG_PATH: join(lane.stateDir, "zhushou.json"),
+    zhushou_DISABLE_BONJOUR: "1",
+    zhushou_DISABLE_BUNDLED_PLUGIN_POSTINSTALL: "1",
     NPM_CONFIG_PREFIX: lane.prefixDir,
     PATH: `${binDirForPrefix(lane.prefixDir)}${process.platform === "win32" ? ";" : ":"}${process.env.PATH ?? ""}`,
     [providerMeta.secretEnv]: providerSecretValue,
@@ -1082,12 +1082,12 @@ function buildInstallerEnv(lane, providerMeta, providerSecretValue) {
     USERPROFILE: lane.homeDir,
     APPDATA: lane.appDataDir,
     LOCALAPPDATA: localAppData,
-    OPENCLAW_HOME: lane.homeDir,
-    OPENCLAW_STATE_DIR: lane.stateDir,
-    OPENCLAW_CONFIG_PATH: join(lane.stateDir, "openclaw.json"),
-    OPENCLAW_DISABLE_BONJOUR: "1",
-    OPENCLAW_NO_ONBOARD: "1",
-    OPENCLAW_NO_PROMPT: "1",
+    ZHUSHOU_HOME: lane.homeDir,
+    ZHUSHOU_STATE_DIR: lane.stateDir,
+    ZHUSHOU_CONFIG_PATH: join(lane.stateDir, "zhushou.json"),
+    zhushou_DISABLE_BONJOUR: "1",
+    zhushou_NO_ONBOARD: "1",
+    zhushou_NO_PROMPT: "1",
     CI: "1",
     NODE_OPTIONS: "--max-old-space-size=6144",
     [providerMeta.secretEnv]: providerSecretValue,
@@ -1143,17 +1143,17 @@ export function shouldSkipInstallerDaemonHealthCheck(platform = process.platform
 
 export function buildRealUpdateEnv(env) {
   const updateEnv = { ...env };
-  delete updateEnv.OPENCLAW_DISABLE_BUNDLED_PLUGIN_POSTINSTALL;
+  delete updateEnv.zhushou_DISABLE_BUNDLED_PLUGIN_POSTINSTALL;
   return updateEnv;
 }
 
 export function resolveExplicitBaselineVersion(baselineSpec) {
   const trimmed = baselineSpec.trim();
-  if (!trimmed || trimmed === "openclaw@latest") {
+  if (!trimmed || trimmed === "zhushou@latest") {
     return "";
   }
-  if (trimmed.startsWith("openclaw@")) {
-    return trimmed.slice("openclaw@".length);
+  if (trimmed.startsWith("zhushou@")) {
+    return trimmed.slice("zhushou@".length);
   }
   return trimmed;
 }
@@ -1163,13 +1163,13 @@ async function resolveInstallerTargetVersion(params) {
   if (resolvedVersion) {
     return resolvedVersion;
   }
-  const latestResult = await runCommand(npmCommand(), ["view", "openclaw@latest", "version"], {
+  const latestResult = await runCommand(npmCommand(), ["view", "zhushou@latest", "version"], {
     logPath: join(params.logsDir, `${params.suiteName}-latest-version.log`),
     timeoutMs: 2 * 60 * 1000,
   });
   const latestVersion = latestResult.stdout.trim();
   if (!latestVersion) {
-    throw new Error("npm view openclaw@latest version did not return a version.");
+    throw new Error("npm view zhushou@latest version did not return a version.");
   }
   return latestVersion;
 }
@@ -1330,8 +1330,8 @@ if ($null -ne $npmCommand) {
   if (-not [string]::IsNullOrWhiteSpace($npmPrefix)) {
     $env:Path = "$npmPrefix;$env:Path"
     foreach ($candidate in @(
-      (Join-Path $npmPrefix 'openclaw.cmd'),
-      (Join-Path $npmPrefix 'openclaw.ps1')
+      (Join-Path $npmPrefix 'zhushou.cmd'),
+      (Join-Path $npmPrefix 'zhushou.ps1')
     )) {
       if (Test-Path -LiteralPath $candidate) {
         $commandPath = $candidate
@@ -1341,7 +1341,7 @@ if ($null -ne $npmCommand) {
   }
 }
 if ([string]::IsNullOrWhiteSpace($commandPath)) {
-  $cmd = Get-Command openclaw -ErrorAction Stop
+  $cmd = Get-Command zhushou -ErrorAction Stop
   $commandPath = $cmd.Source
 }
 if ($commandPath -match '(?i)\\.ps1$') {
@@ -1351,7 +1351,7 @@ if ($commandPath -match '(?i)\\.ps1$') {
   }
 }
 $version = (& $commandPath --version 2>&1 | Out-String).Trim()
-Write-Output "__OPENCLAW_PATH__=$commandPath"
+Write-Output "__zhushou_PATH__=$commandPath"
 Write-Output $version
 if ('${expectedNeedle}'.Length -gt 0 -and $version -notmatch [regex]::Escape('${expectedNeedle}')) {
   throw "version mismatch: expected substring ${expectedNeedle}"
@@ -1413,10 +1413,10 @@ async function verifyFreshShellCommand(params) {
       timeoutMs: 2 * 60 * 1000,
     });
     const cliPath = normalizeWindowsInstalledCliPath(
-      parseMarkerLine(result.stdout, "__OPENCLAW_PATH__="),
+      parseMarkerLine(result.stdout, "__zhushou_PATH__="),
     );
     if (!cliPath) {
-      throw new Error("Failed to resolve installed openclaw path from fresh Windows shell.");
+      throw new Error("Failed to resolve installed zhushou path from fresh Windows shell.");
     }
     return {
       cliPath,
@@ -1427,9 +1427,9 @@ async function verifyFreshShellCommand(params) {
   const script = [
     "set -euo pipefail",
     'if [ -f "$HOME/.bashrc" ]; then . "$HOME/.bashrc"; fi',
-    "command -v openclaw >/dev/null 2>&1",
-    'printf "__OPENCLAW_PATH__=%s\\n" "$(command -v openclaw)"',
-    "openclaw --version",
+    "command -v zhushou >/dev/null 2>&1",
+    'printf "__zhushou_PATH__=%s\\n" "$(command -v zhushou)"',
+    "zhushou --version",
   ].join("\n");
   const result = await runPosixShellScript(script, {
     cwd: params.lane.homeDir,
@@ -1437,10 +1437,10 @@ async function verifyFreshShellCommand(params) {
     logPath: params.logPath,
     timeoutMs: 2 * 60 * 1000,
   });
-  const cliPath = parseMarkerLine(result.stdout, "__OPENCLAW_PATH__=");
+  const cliPath = parseMarkerLine(result.stdout, "__zhushou_PATH__=");
   const versionOutput = `${result.stdout}\n${result.stderr}`.trim();
   if (!cliPath) {
-    throw new Error("Failed to resolve installed openclaw path from fresh POSIX shell.");
+    throw new Error("Failed to resolve installed zhushou path from fresh POSIX shell.");
   }
   if (params.expectedNeedle && !versionOutput.includes(params.expectedNeedle)) {
     throw new Error(
@@ -1479,7 +1479,7 @@ async function ensureDevUpdateGitInstall(params) {
     env: params.env,
     logPath: join(params.logsDir, "dev-update-status.log"),
   });
-  // The dev-update lane must prove that `openclaw update --channel dev` landed on
+  // The dev-update lane must prove that `zhushou update --channel dev` landed on
   // the expected git checkout. Falling back to a manual repair here would hide
   // updater regressions and turn the suite into a false green.
   verifyDevUpdateStatus(updateStatus.stdout, { ref: params.requestedRef });
@@ -1852,7 +1852,7 @@ async function configureDiscordSmoke(params) {
       lane: params.lane,
       cliPath: params.cliPath,
       env: gatewayEnv,
-      logPath: join(params.cwd, `.openclaw/logs/${params.lane.name}-discord-gateway.log`),
+      logPath: join(params.cwd, `.zhushou/logs/${params.lane.name}-discord-gateway.log`),
     });
     if (params.gatewayHolder) {
       params.gatewayHolder.current = gateway;
@@ -1979,11 +1979,11 @@ async function waitForInstalledDiscordReadback(params) {
 
 async function maybeRunDiscordRoundtrip(params) {
   const token =
-    process.env.OPENCLAW_DISCORD_SMOKE_BOT_TOKEN?.trim() ||
+    process.env.zhushou_DISCORD_SMOKE_BOT_TOKEN?.trim() ||
     process.env.DISCORD_BOT_TOKEN?.trim() ||
     "";
-  const guildId = process.env.OPENCLAW_DISCORD_SMOKE_GUILD_ID?.trim() || "";
-  const channelId = process.env.OPENCLAW_DISCORD_SMOKE_CHANNEL_ID?.trim() || "";
+  const guildId = process.env.zhushou_DISCORD_SMOKE_GUILD_ID?.trim() || "";
+  const channelId = process.env.zhushou_DISCORD_SMOKE_CHANNEL_ID?.trim() || "";
   if (!token || !guildId || !channelId) {
     return "skipped-missing-config";
   }
@@ -2126,7 +2126,7 @@ async function runBundledPluginPostinstall(params) {
   const installEnv = {
     ...params.env,
   };
-  delete installEnv.OPENCLAW_DISABLE_BUNDLED_PLUGIN_POSTINSTALL;
+  delete installEnv.zhushou_DISABLE_BUNDLED_PLUGIN_POSTINSTALL;
   delete installEnv.NPM_CONFIG_PREFIX;
   delete installEnv.npm_config_global;
   delete installEnv.npm_config_location;
@@ -2168,7 +2168,7 @@ function ensureLocalNpmShim(lane) {
 
 async function runOnboard(params) {
   await withAllocatedGatewayPort(params.lane, async () => {
-    await runOpenClaw({
+    await runzhushou({
       lane: params.lane,
       env: params.env,
       args: [
@@ -2300,7 +2300,7 @@ async function waitForGateway(params) {
   while (Date.now() < deadline) {
     let result;
     try {
-      result = await runOpenClaw({
+      result = await runzhushou({
         lane: params.lane,
         env: params.env,
         args: statusArgs,
@@ -2325,7 +2325,7 @@ function gatewayReadyDeadlineMs() {
 }
 
 async function resolveGatewayStatusArgs(lane, env, logPath) {
-  const help = await runOpenClaw({
+  const help = await runzhushou({
     lane,
     env,
     args: ["gateway", "status", "--help"],
@@ -2340,7 +2340,7 @@ async function resolveGatewayStatusArgs(lane, env, logPath) {
 }
 
 async function runModelsSet(params) {
-  await runOpenClaw({
+  await runzhushou({
     lane: params.lane,
     env: params.env,
     args: ["models", "set", params.providerConfig.model],
@@ -2351,7 +2351,7 @@ async function runModelsSet(params) {
 
 async function runAgentTurn(params) {
   const sessionId = `cross-os-release-check-${params.label}-${Date.now()}`;
-  const result = await runOpenClaw({
+  const result = await runzhushou({
     lane: params.lane,
     env: params.env,
     args: [
@@ -2468,7 +2468,7 @@ async function runCleanup(cleanupFns) {
   }
 }
 
-async function runOpenClaw(params) {
+async function runzhushou(params) {
   return runCommand(process.execPath, [installedEntryPath(params.lane.prefixDir), ...params.args], {
     cwd: params.lane.homeDir,
     env: params.env,
@@ -2525,12 +2525,12 @@ function verifyInstalledCandidate(installed, build) {
 
 function installedPackageRoot(prefixDir) {
   return process.platform === "win32"
-    ? join(prefixDir, "node_modules", "openclaw")
-    : join(prefixDir, "lib", "node_modules", "openclaw");
+    ? join(prefixDir, "node_modules", "zhushou")
+    : join(prefixDir, "lib", "node_modules", "zhushou");
 }
 
 function installedEntryPath(prefixDir) {
-  return join(installedPackageRoot(prefixDir), "openclaw.mjs");
+  return join(installedPackageRoot(prefixDir), "zhushou.mjs");
 }
 
 function npmShimPath(prefixDir) {

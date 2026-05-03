@@ -3,15 +3,15 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
-import "./test-helpers/fast-openclaw-tools.js";
-import type { OpenClawConfig } from "../config/config.js";
+import "./test-helpers/fast-zhushou-tools.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createSessionConversationTestRegistry } from "../test-utils/session-conversation-registry.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
 
 function createExecHostDefaultsConfig(
   agents: Array<{ id: string; execHost?: "auto" | "gateway" | "sandbox" }>,
-): OpenClawConfig {
+): ZhushouConfig {
   return {
     tools: {
       allow: ["read", "exec"],
@@ -46,7 +46,7 @@ describe("Agent-specific exec tool defaults", () => {
   });
 
   beforeEach(async () => {
-    emptyCharterDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-empty-charter-"));
+    emptyCharterDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-empty-charter-"));
     await fs.mkdir(path.join(emptyCharterDir, "policies"), { recursive: true });
     await fs.writeFile(
       path.join(emptyCharterDir, "constitution.yaml"),
@@ -70,7 +70,7 @@ describe("Agent-specific exec tool defaults", () => {
   });
 
   it("should run exec synchronously when process is denied", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       tools: {
         allow: ["read", "exec"],
         deny: ["process"],

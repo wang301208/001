@@ -3,10 +3,10 @@ import path from "node:path";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   definePluginEntry,
-  type OpenClawPluginApi,
+  type ZhushouPluginApi,
   type OpenClawPluginService,
 } from "./runtime-api.js";
 
@@ -161,18 +161,18 @@ async function writeArmState(statePath: string, state: ArmStateFile | null): Pro
   await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 }
 
-function normalizeDenyList(cfg: OpenClawPluginApi["config"]): string[] {
+function normalizeDenyList(cfg: ZhushouPluginApi["config"]): string[] {
   return uniqSorted([...(cfg.gateway?.nodes?.denyCommands ?? [])]);
 }
 
-function normalizeAllowList(cfg: OpenClawPluginApi["config"]): string[] {
+function normalizeAllowList(cfg: ZhushouPluginApi["config"]): string[] {
   return uniqSorted([...(cfg.gateway?.nodes?.allowCommands ?? [])]);
 }
 
 function patchConfigNodeLists(
-  cfg: OpenClawPluginApi["config"],
+  cfg: ZhushouPluginApi["config"],
   next: { allowCommands: string[]; denyCommands: string[] },
-): OpenClawPluginApi["config"] {
+): ZhushouPluginApi["config"] {
   return {
     ...cfg,
     gateway: {
@@ -187,7 +187,7 @@ function patchConfigNodeLists(
 }
 
 async function disarmNow(params: {
-  api: OpenClawPluginApi;
+  api: ZhushouPluginApi;
   stateDir: string;
   statePath: string;
   reason: string;
@@ -303,7 +303,7 @@ export default definePluginEntry({
   id: "phone-control",
   name: "Phone Control",
   description: "Temporary allowlist control for phone automation commands",
-  register(api: OpenClawPluginApi) {
+  register(api: ZhushouPluginApi) {
     let expiryInterval: ReturnType<typeof setInterval> | null = null;
 
     const timerService: OpenClawPluginService = {

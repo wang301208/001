@@ -1,8 +1,8 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
-import { adaptScopedAccountAccessor } from "openclaw/plugin-sdk/channel-config-helpers";
-import { createScopedChannelConfigAdapter } from "openclaw/plugin-sdk/channel-config-helpers";
-import type { ChannelDoctorAdapter } from "openclaw/plugin-sdk/channel-contract";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
+import { adaptScopedAccountAccessor } from "zhushou/plugin-sdk/channel-config-helpers";
+import { createScopedChannelConfigAdapter } from "zhushou/plugin-sdk/channel-config-helpers";
+import type { ChannelDoctorAdapter } from "zhushou/plugin-sdk/channel-contract";
 import { inspectDiscordAccount } from "./account-inspect.js";
 import {
   listDiscordAccountIds,

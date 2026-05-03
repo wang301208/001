@@ -1,12 +1,12 @@
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
-import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
 import type {
   SpeechDirectiveTokenParseContext,
   SpeechProviderConfig,
   SpeechProviderOverrides,
   SpeechProviderPlugin,
   SpeechVoiceOption,
-} from "openclaw/plugin-sdk/speech";
+} from "zhushou/plugin-sdk/speech";
 import {
   asBoolean,
   asFiniteNumber,
@@ -16,8 +16,8 @@ import {
   normalizeSeed,
   requireInRange,
   trimToUndefined,
-} from "openclaw/plugin-sdk/speech";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/speech";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { resolveElevenLabsApiKeyWithProfileFallback } from "./config-api.js";
 import { isValidElevenLabsVoiceId, normalizeElevenLabsBaseUrl } from "./shared.js";
 import { elevenLabsTTS } from "./tts.js";

@@ -139,7 +139,7 @@ describe("runDaemonRestart health checks", () => {
   });
 
   beforeEach(() => {
-    envSnapshot = captureEnv(["OPENCLAW_CONTAINER_HINT", "OPENCLAW_PROFILE"]);
+    envSnapshot = captureEnv(["OPENCLAW_CONTAINER_HINT", "ZHUSHOU_PROFILE"]);
     delete process.env.OPENCLAW_CONTAINER_HINT;
     service.readCommand.mockReset();
     service.restart.mockReset();
@@ -161,7 +161,7 @@ describe("runDaemonRestart health checks", () => {
     recoverInstalledLaunchAgent.mockReset();
 
     service.readCommand.mockResolvedValue({
-      programArguments: ["openclaw", "gateway", "--port", "18789"],
+      programArguments: ["zhushou", "gateway", "--port", "18789"],
       environment: {},
     });
     service.restart.mockResolvedValue({ outcome: "completed" });
@@ -282,7 +282,7 @@ describe("runDaemonRestart health checks", () => {
       message: "Gateway restart timed out after 60s waiting for health checks.",
       hints: [
         formatCliCommand("openclaw gateway status --deep"),
-        formatCliCommand("openclaw doctor"),
+        formatCliCommand("zhushou doctor"),
       ],
     });
     expect(terminateStaleGatewayPids).not.toHaveBeenCalled();
@@ -306,7 +306,7 @@ describe("runDaemonRestart health checks", () => {
         "Gateway restart failed after 13s: service stayed stopped and health checks never came up.",
       hints: [
         formatCliCommand("openclaw gateway status --deep"),
-        formatCliCommand("openclaw doctor"),
+        formatCliCommand("zhushou doctor"),
       ],
     });
     expect(terminateStaleGatewayPids).not.toHaveBeenCalled();

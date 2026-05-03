@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveOpenClawPluginToolsForOptions } from "./openclaw-plugin-tools.js";
+import type { ZhushouConfig } from "../config/config.js";
+import { resolveOpenClawPluginToolsForOptions } from "./zhushou-plugin-tools.js";
 
 const hoisted = vi.hoisted(() => ({
   resolvePluginTools: vi.fn(),
@@ -36,7 +36,7 @@ describe("createOpenClawTools browser plugin integration", () => {
       plugins: {
         allow: ["browser"],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const tools = resolveOpenClawPluginToolsForOptions({
       options: { config },
@@ -58,7 +58,7 @@ describe("createOpenClawTools browser plugin integration", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const tools = resolveOpenClawPluginToolsForOptions({
       options: { config },
@@ -97,14 +97,14 @@ describe("createOpenClawTools browser plugin integration", () => {
           plugins: {
             allow: ["browser"],
           },
-        } as OpenClawConfig,
+        } as ZhushouConfig,
         fsPolicy: { workspaceOnly: true },
       },
       resolvedConfig: {
         plugins: {
           allow: ["browser"],
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
     });
 
     const browserTool = tools.find((tool) => tool.name === "browser");

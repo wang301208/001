@@ -35,7 +35,7 @@ describe("buildStatusCommandReportData", () => {
       Value: "macOS | node " + process.versions.node,
     });
     expect(result.taskMaintenanceHint).toBe(
-      "Task maintenance: cmd:openclaw tasks maintenance --apply",
+      "Task maintenance: cmd:zhushou tasks maintenance --apply",
     );
     expect(result.governanceLines[0]).toContain("Summary:");
     expect(result.governanceLines.join("\n")).toContain("Capability inventory:");
@@ -51,6 +51,6 @@ describe("buildStatusCommandReportData", () => {
       Status: "ok(reachable)",
       Detail: "42ms",
     });
-    expect(result.footerLines.at(-1)).toBe("  Need to test channels? cmd:openclaw status --deep");
+    expect(result.footerLines.at(-1)).toBe("  Need to test channels? cmd:zhushou status --deep");
   });
 });

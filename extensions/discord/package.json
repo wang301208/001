@@ -1,7 +1,7 @@
 {
-  "name": "@openclaw/discord",
+  "name": "@zhushou/discord",
   "version": "2026.4.16",
-  "description": "OpenClaw Discord channel plugin",
+  "description": "助手 Discord channel plugin",
   "type": "module",
   "dependencies": {
     "@buape/carbon": "0.15.0",
@@ -12,21 +12,21 @@
     "opusscript": "^0.1.1"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
   "optionalDependencies": {
     "@discordjs/opus": "^0.10.0"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -47,7 +47,7 @@
       }
     },
     "install": {
-      "npmSpec": "@openclaw/discord",
+      "npmSpec": "@zhushou/discord",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -55,7 +55,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "openclawVersion": "2026.4.16"
+      "zhushouVersion": "2026.4.16"
     },
     "bundle": {
       "stageRuntimeDependencies": true

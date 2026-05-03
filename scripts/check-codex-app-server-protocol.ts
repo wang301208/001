@@ -74,5 +74,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Codex app-server generated protocol matches OpenClaw bridge assumptions: ${schemaRoot}`,
+  `Codex app-server generated protocol matches 助手 bridge assumptions: ${schemaRoot}`,
 );

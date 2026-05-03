@@ -5,12 +5,12 @@ import { describe, expect, it, vi } from "vitest";
 import { createTestPluginApi } from "../../test/helpers/plugins/plugin-api.js";
 import registerPhoneControl from "./index.js";
 import type {
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   OpenClawPluginCommandDefinition,
   PluginCommandContext,
 } from "./runtime-api.js";
 
-const PHONE_CONTROL_STATE_PREFIX = "openclaw-phone-control-test-";
+const PHONE_CONTROL_STATE_PREFIX = "zhushou-phone-control-test-";
 const WRITE_COMMANDS = ["calendar.add", "contacts.add", "reminders.add", "sms.send"] as const;
 
 function createApi(params: {
@@ -18,7 +18,7 @@ function createApi(params: {
   getConfig: () => Record<string, unknown>;
   writeConfig: (next: Record<string, unknown>) => Promise<void>;
   registerCommand: (command: OpenClawPluginCommandDefinition) => void;
-}): OpenClawPluginApi {
+}): ZhushouPluginApi {
   return createTestPluginApi({
     id: "phone-control",
     name: "phone-control",
@@ -33,7 +33,7 @@ function createApi(params: {
         loadConfig: () => params.getConfig(),
         writeConfigFile: (next: Record<string, unknown>) => params.writeConfig(next),
       },
-    } as OpenClawPluginApi["runtime"],
+    } as ZhushouPluginApi["runtime"],
     registerCommand: params.registerCommand,
   });
 }

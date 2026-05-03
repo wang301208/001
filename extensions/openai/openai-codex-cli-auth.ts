@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { AuthProfileStore, OAuthCredential } from "openclaw/plugin-sdk/provider-auth";
-import { resolveRequiredHomeDir } from "openclaw/plugin-sdk/provider-auth";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
+import type { AuthProfileStore, OAuthCredential } from "zhushou/plugin-sdk/provider-auth";
+import { resolveRequiredHomeDir } from "zhushou/plugin-sdk/provider-auth";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
 import {
   resolveCodexAccessTokenExpiry,
   resolveCodexAuthIdentity,

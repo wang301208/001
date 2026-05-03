@@ -4,7 +4,7 @@ import {
   markOpenClawExecEnv,
   OPENCLAW_CLI_ENV_VALUE,
   OPENCLAW_CLI_ENV_VAR,
-} from "./openclaw-exec-env.js";
+} from "./zhushou-exec-env.js";
 
 describe("markOpenClawExecEnv", () => {
   it("returns a cloned env object with the exec marker set", () => {

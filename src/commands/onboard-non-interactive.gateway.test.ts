@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
 import { captureEnv } from "../test-utils/env.js";
@@ -9,7 +9,7 @@ import { createThrowingRuntime } from "./onboard-non-interactive.test-helpers.js
 import type { installGatewayDaemonNonInteractive } from "./onboard-non-interactive/local/daemon-install.js";
 
 const ensureWorkspaceAndSessionsMock = vi.fn(async (..._args: unknown[]) => {});
-const testConfigStore = new Map<string, OpenClawConfig>();
+const testConfigStore = new Map<string, ZhushouConfig>();
 type InstallGatewayDaemonResult = Awaited<ReturnType<typeof installGatewayDaemonNonInteractive>>;
 const installGatewayDaemonNonInteractiveMock = vi.hoisted(() =>
   vi.fn(async (): Promise<InstallGatewayDaemonResult> => ({ installed: true })),
@@ -42,18 +42,18 @@ let waitForGatewayReachableMock:
   | undefined;
 
 function resolveTestConfigPath() {
-  const override = process.env.OPENCLAW_CONFIG_PATH?.trim();
+  const override = process.env.ZHUSHOU_CONFIG_PATH?.trim();
   if (override) {
     return override;
   }
-  const stateDir = process.env.OPENCLAW_STATE_DIR?.trim();
+  const stateDir = process.env.ZHUSHOU_STATE_DIR?.trim();
   if (!stateDir) {
-    throw new Error("OPENCLAW_STATE_DIR must be set before config IO in this test");
+    throw new Error("ZHUSHOU_STATE_DIR must be set before config IO in this test");
   }
-  return path.join(stateDir, "openclaw.json");
+  return path.join(stateDir, "zhushou.json");
 }
 
-function readTestConfig<T = OpenClawConfig>(): T {
+function readTestConfig<T = ZhushouConfig>(): T {
   return (testConfigStore.get(resolveTestConfigPath()) ?? {}) as T;
 }
 
@@ -88,10 +88,10 @@ vi.mock("../config/io.js", () => ({
 }));
 
 vi.mock("../config/config.js", () => ({
-  replaceConfigFile: async ({ nextConfig }: { nextConfig: OpenClawConfig }) => {
+  replaceConfigFile: async ({ nextConfig }: { nextConfig: ZhushouConfig }) => {
     testConfigStore.set(resolveTestConfigPath(), nextConfig);
   },
-  resolveGatewayPort: (cfg: OpenClawConfig) => cfg.gateway?.port ?? 18789,
+  resolveGatewayPort: (cfg: ZhushouConfig) => cfg.gateway?.port ?? 18789,
 }));
 
 vi.mock("./onboard-helpers.js", () => {
@@ -103,7 +103,7 @@ vi.mock("./onboard-helpers.js", () => {
     return trimmed === "undefined" || trimmed === "null" ? "" : trimmed;
   };
   return {
-    DEFAULT_WORKSPACE: "/tmp/openclaw-workspace",
+    DEFAULT_WORKSPACE: "/tmp/zhushou-workspace",
     applyWizardMetadata: (cfg: unknown) => cfg,
     ensureWorkspaceAndSessions: ensureWorkspaceAndSessionsMock,
     normalizeGatewayTokenInput,
@@ -193,7 +193,7 @@ async function expectLocalJsonSetupFailure(stateDir: string, runtimeWithCapture:
       {
         nonInteractive: true,
         mode: "local",
-        workspace: path.join(stateDir, "openclaw"),
+        workspace: path.join(stateDir, "zhushou"),
         authChoice: "skip",
         skipSkills: true,
         skipHealth: false,
@@ -210,7 +210,7 @@ function createLocalDaemonSetupOptions(stateDir: string) {
   return {
     nonInteractive: true,
     mode: "local" as const,
-    workspace: path.join(stateDir, "openclaw"),
+    workspace: path.join(stateDir, "zhushou"),
     authChoice: "skip" as const,
     skipSkills: true,
     skipHealth: false,
@@ -258,8 +258,8 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       throw new Error("temp home not initialized");
     }
     const stateDir = await fs.mkdtemp(path.join(tempHome, prefix));
-    process.env.OPENCLAW_STATE_DIR = stateDir;
-    delete process.env.OPENCLAW_CONFIG_PATH;
+    process.env.ZHUSHOU_STATE_DIR = stateDir;
+    delete process.env.ZHUSHOU_CONFIG_PATH;
     return stateDir;
   };
   const withStateDir = async (
@@ -276,25 +276,25 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
   beforeAll(async () => {
     envSnapshot = captureEnv([
       "HOME",
-      "OPENCLAW_STATE_DIR",
-      "OPENCLAW_CONFIG_PATH",
-      "OPENCLAW_SKIP_CHANNELS",
+      "ZHUSHOU_STATE_DIR",
+      "ZHUSHOU_CONFIG_PATH",
+      "ZHUSHOU_SKIP_CHANNELS",
       "OPENCLAW_SKIP_GMAIL_WATCHER",
       "OPENCLAW_SKIP_CRON",
       "OPENCLAW_SKIP_CANVAS_HOST",
       "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
-      "OPENCLAW_GATEWAY_TOKEN",
-      "OPENCLAW_GATEWAY_PASSWORD",
+      "ZHUSHOU_GATEWAY_TOKEN",
+      "ZHUSHOU_GATEWAY_PASSWORD",
     ]);
-    process.env.OPENCLAW_SKIP_CHANNELS = "1";
+    process.env.ZHUSHOU_SKIP_CHANNELS = "1";
     process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
     process.env.OPENCLAW_SKIP_CRON = "1";
     process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
     process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
-    delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+    delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+    delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
 
-    tempHome = await makeTempWorkspace("openclaw-onboard-");
+    tempHome = await makeTempWorkspace("zhushou-onboard-");
     process.env.HOME = tempHome;
 
     await loadGatewayOnboardModules();
@@ -320,7 +320,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
   it("writes gateway token auth into config", async () => {
     await withStateDir("state-noninteractive-", async (stateDir) => {
       const token = "tok_test_123";
-      const workspace = path.join(stateDir, "openclaw");
+      const workspace = path.join(stateDir, "zhushou");
 
       await runNonInteractiveSetup(
         {
@@ -390,7 +390,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
           {
             nonInteractive: true,
             mode: "local",
-            workspace: path.join(stateDir, "openclaw"),
+            workspace: path.join(stateDir, "zhushou"),
             authChoice: "skip",
             skipSkills: true,
             skipHealth: false,
@@ -526,11 +526,11 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       return;
     }
     await withStateDir("state-lan-", async (stateDir) => {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
-      process.env.OPENCLAW_CONFIG_PATH = path.join(stateDir, "openclaw.json");
+      process.env.ZHUSHOU_STATE_DIR = stateDir;
+      process.env.ZHUSHOU_CONFIG_PATH = path.join(stateDir, "zhushou.json");
 
       const port = getPseudoPort(40_000);
-      const workspace = path.join(stateDir, "openclaw");
+      const workspace = path.join(stateDir, "zhushou");
 
       await runNonInteractiveSetup(
         {

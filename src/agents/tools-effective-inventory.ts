@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
 import { resolveAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
@@ -86,7 +86,7 @@ function disambiguateLabels(entries: EffectiveToolInventoryEntry[]): EffectiveTo
 }
 
 function resolveEffectiveModelCompat(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   agentDir: string;
   modelProvider?: string;
   modelId?: string;

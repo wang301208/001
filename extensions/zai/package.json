@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/zai-provider",
+  "name": "@zhushou/zai-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw Z.AI provider plugin",
+  "description": "助手 Z.AI provider plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

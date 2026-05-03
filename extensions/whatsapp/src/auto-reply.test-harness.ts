@@ -2,9 +2,9 @@ import "./test-helpers.js";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { resetInboundDedupe } from "openclaw/plugin-sdk/reply-runtime";
-import { resetLogger, setLoggerOverride } from "openclaw/plugin-sdk/runtime-env";
-import { mockPinnedHostnameResolution } from "openclaw/plugin-sdk/testing";
+import { resetInboundDedupe } from "zhushou/plugin-sdk/reply-runtime";
+import { resetLogger, setLoggerOverride } from "zhushou/plugin-sdk/runtime-env";
+import { mockPinnedHostnameResolution } from "zhushou/plugin-sdk/testing";
 import { afterAll, afterEach, beforeAll, beforeEach, vi, type Mock } from "vitest";
 import type { WebInboundMessage, WebListenerCloseReason } from "./inbound.js";
 import {
@@ -56,7 +56,7 @@ vi.mock("./session.js", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/agent-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/agent-runtime", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
   appendCronStyleCurrentTimeLine: (text: string) => text,
   isEmbeddedPiRunActive: vi.fn().mockReturnValue(false),
@@ -116,7 +116,7 @@ let tempHomeId = 0;
 
 export function installWebAutoReplyTestHomeHooks() {
   beforeAll(async () => {
-    tempHomeRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-web-home-suite-"));
+    tempHomeRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-web-home-suite-"));
   });
 
   beforeEach(async () => {
@@ -144,7 +144,7 @@ export function installWebAutoReplyTestHomeHooks() {
 export async function makeSessionStore(
   entries: Record<string, unknown> = {},
 ): Promise<{ storePath: string; cleanup: () => Promise<void> }> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-session-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-session-"));
   const storePath = path.join(dir, "sessions.json");
   await fs.writeFile(storePath, JSON.stringify(entries));
   const cleanup = async () => {

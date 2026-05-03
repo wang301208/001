@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import "./test-helpers/fast-bash-tools.js";
 import "./test-helpers/fast-coding-tools.js";
-import "./test-helpers/fast-openclaw-tools.js";
+import "./test-helpers/fast-zhushou-tools.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
 
 describe("createOpenClawCodingTools", () => {
-  const testConfig: OpenClawConfig = {};
+  const testConfig: ZhushouConfig = {};
 
   it("preserves action enums in normalized schemas", () => {
     const defaultTools = createOpenClawCodingTools({ config: testConfig, senderIsOwner: true });
@@ -77,7 +77,7 @@ describe("createOpenClawCodingTools", () => {
     });
     expect(codexTools.some((tool) => tool.name === "apply_patch")).toBe(true);
 
-    const disabledConfig: OpenClawConfig = {
+    const disabledConfig: ZhushouConfig = {
       tools: {
         exec: {
           applyPatch: { enabled: false },
@@ -98,7 +98,7 @@ describe("createOpenClawCodingTools", () => {
     });
     expect(anthropicTools.some((tool) => tool.name === "apply_patch")).toBe(false);
 
-    const allowModelsConfig: OpenClawConfig = {
+    const allowModelsConfig: ZhushouConfig = {
       tools: {
         exec: {
           applyPatch: { allowModels: ["gpt-5.4"] },

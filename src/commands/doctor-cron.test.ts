@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { maybeRepairLegacyCronStore } from "./doctor-cron.js";
 
 type TerminalNote = (message: string, title?: string) => void;
@@ -16,7 +16,7 @@ vi.mock("../terminal/note.js", () => ({
 let tempRoot: string | null = null;
 
 async function makeTempStorePath() {
-  tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-doctor-cron-"));
+  tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-doctor-cron-"));
   return path.join(tempRoot, "cron", "jobs.json");
 }
 
@@ -34,7 +34,7 @@ function makePrompter(confirmResult = true) {
   };
 }
 
-function createCronConfig(storePath: string): OpenClawConfig {
+function createCronConfig(storePath: string): ZhushouConfig {
   return {
     cron: {
       store: storePath,

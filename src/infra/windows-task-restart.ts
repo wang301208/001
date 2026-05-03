@@ -7,7 +7,7 @@ import { resolveGatewayWindowsTaskName } from "../daemon/constants.js";
 import { resolveTaskScriptPath } from "../daemon/schtasks.js";
 import { formatErrorMessage } from "./errors.js";
 import type { RestartAttempt } from "./restart.types.js";
-import { resolvePreferredOpenClawTmpDir } from "./tmp-openclaw-dir.js";
+import { resolvePreferredOpenClawTmpDir } from "./tmp-zhushou-dir.js";
 
 const TASK_RESTART_RETRY_LIMIT = 12;
 const TASK_RESTART_RETRY_DELAY_SEC = 1;
@@ -17,7 +17,7 @@ function resolveWindowsTaskName(env: NodeJS.ProcessEnv): string {
   if (override) {
     return override;
   }
-  return resolveGatewayWindowsTaskName(env.OPENCLAW_PROFILE);
+  return resolveGatewayWindowsTaskName(env.ZHUSHOU_PROFILE);
 }
 
 function buildScheduledTaskRestartScript(taskName: string, taskScriptPath?: string): string {
@@ -50,7 +50,7 @@ export function relaunchGatewayScheduledTask(env: NodeJS.ProcessEnv = process.en
   const taskScriptPath = resolveTaskScriptPath(env);
   const scriptPath = path.join(
     resolvePreferredOpenClawTmpDir(),
-    `openclaw-schtasks-restart-${randomUUID()}.cmd`,
+    `zhushou-schtasks-restart-${randomUUID()}.cmd`,
   );
   const quotedScriptPath = quoteCmdScriptArg(scriptPath);
   try {

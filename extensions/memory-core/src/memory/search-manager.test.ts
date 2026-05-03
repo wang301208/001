@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/memory-core-host-engine-foundation";
-import type { checkQmdBinaryAvailability as checkQmdBinaryAvailabilityFn } from "openclaw/plugin-sdk/memory-core-host-engine-qmd";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
+import type { checkQmdBinaryAvailability as checkQmdBinaryAvailabilityFn } from "zhushou/plugin-sdk/memory-core-host-engine-qmd";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 type CheckQmdBinaryAvailability = typeof checkQmdBinaryAvailabilityFn;
@@ -111,7 +111,7 @@ vi.mock("./qmd-manager.js", () => ({
   },
 }));
 
-vi.mock("openclaw/plugin-sdk/memory-core-host-engine-qmd", () => ({
+vi.mock("zhushou/plugin-sdk/memory-core-host-engine-qmd", () => ({
   checkQmdBinaryAvailability,
 }));
 
@@ -131,14 +131,14 @@ type SearchManager = NonNullable<SearchManagerResult["manager"]>;
 const TEST_WORKSPACE = path.resolve("/tmp/workspace");
 const TEST_INDEX_PATH = path.resolve("/tmp/index.sqlite");
 
-function createQmdCfg(agentId: string): OpenClawConfig {
+function createQmdCfg(agentId: string): ZhushouConfig {
   return {
     memory: { backend: "qmd", qmd: {} },
     agents: { list: [{ id: agentId, default: true, workspace: TEST_WORKSPACE }] },
   };
 }
 
-function createBuiltinCfg(agentId: string): OpenClawConfig {
+function createBuiltinCfg(agentId: string): ZhushouConfig {
   return {
     agents: {
       defaults: {
@@ -158,7 +158,7 @@ function createBuiltinCfg(agentId: string): OpenClawConfig {
       },
       list: [{ id: agentId, default: true, workspace: TEST_WORKSPACE }],
     },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
 }
 
 function requireManager(result: SearchManagerResult): SearchManager {
@@ -262,13 +262,13 @@ describe("getMemorySearchManager caching", () => {
   });
 
   it("creates a missing agent workspace before probing qmd availability", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-qmd-workspace-"));
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-qmd-workspace-"));
     const workspace = path.join(tempRoot, "missing", "workspace");
     const agentId = "missing-workspace";
     const cfg = {
       memory: { backend: "qmd", qmd: {} },
       agents: { list: [{ id: agentId, default: true, workspace }] },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     try {
       await getMemorySearchManager({ cfg, agentId });

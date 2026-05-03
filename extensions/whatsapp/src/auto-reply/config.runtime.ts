@@ -14,4 +14,4 @@ export {
   resolveThreadFlag,
   resolveChannelResetConfig,
   updateLastRoute,
-} from "openclaw/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";

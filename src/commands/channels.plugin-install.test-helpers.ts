@@ -17,7 +17,7 @@ export function createMockChannelSetupPluginInstallModule(
 export function createMSTeamsCatalogEntry(): ChannelPluginCatalogEntry {
   return {
     id: "msteams",
-    pluginId: "@openclaw/msteams-plugin",
+    pluginId: "@zhushou/msteams-plugin",
     meta: {
       id: "msteams",
       label: "Microsoft Teams",
@@ -26,7 +26,7 @@ export function createMSTeamsCatalogEntry(): ChannelPluginCatalogEntry {
       blurb: "teams channel",
     },
     install: {
-      npmSpec: "@openclaw/msteams",
+      npmSpec: "@zhushou/msteams",
     },
   };
 }

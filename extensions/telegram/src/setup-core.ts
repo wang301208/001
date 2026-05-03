@@ -1,14 +1,14 @@
-import type { TelegramNetworkConfig } from "openclaw/plugin-sdk/config-runtime";
-import type { ChannelSetupAdapter } from "openclaw/plugin-sdk/setup-runtime";
+import type { TelegramNetworkConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { ChannelSetupAdapter } from "zhushou/plugin-sdk/setup-runtime";
 import {
   createEnvPatchedAccountSetupAdapter,
   patchChannelConfigForAccount,
   promptResolvedAllowFrom,
   splitSetupEntries,
-  type OpenClawConfig,
+  type ZhushouConfig,
   type WizardPrompter,
-} from "openclaw/plugin-sdk/setup-runtime";
-import { formatCliCommand, formatDocsLink } from "openclaw/plugin-sdk/setup-tools";
+} from "zhushou/plugin-sdk/setup-runtime";
+import { formatCliCommand, formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
 import { resolveDefaultTelegramAccountId, resolveTelegramAccount } from "./accounts.js";
 import { isNumericTelegramSenderUserId } from "./allow-from.js";
 import { lookupTelegramChatId } from "./api-fetch.js";
@@ -21,15 +21,15 @@ export const TELEGRAM_TOKEN_HELP_LINES = [
   "3) Copy the token (looks like 123456:ABC...)",
   "Tip: you can also set TELEGRAM_BOT_TOKEN in your env.",
   `Docs: ${formatDocsLink("/telegram")}`,
-  "Website: https://openclaw.ai",
+  "Website: https://zhushou.ai",
 ];
 
 export const TELEGRAM_USER_ID_HELP_LINES = [
-  `1) DM your bot, then read from.id in \`${formatCliCommand("openclaw logs --follow")}\` (safest)`,
+  `1) DM your bot, then read from.id in \`${formatCliCommand("zhushou logs --follow")}\` (safest)`,
   "2) Or call https://api.telegram.org/bot<bot_token>/getUpdates and read message.from.id",
   "3) Third-party: DM @userinfobot or @getidsbot",
   `Docs: ${formatDocsLink("/telegram")}`,
-  "Website: https://openclaw.ai",
+  "Website: https://zhushou.ai",
 ];
 
 export function normalizeTelegramAllowFromInput(raw: string): string {
@@ -75,7 +75,7 @@ export async function resolveTelegramAllowFromEntries(params: {
 }
 
 export async function promptTelegramAllowFromForAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   prompter: WizardPrompter;
   accountId?: string;
 }) {

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 
 vi.mock("../../config/sessions/store-load.js", () => ({
   loadSessionStore: vi.fn(),
@@ -48,7 +48,7 @@ function resolveWithStoredEntry(params?: {
   vi.mocked(evaluateSessionFreshness).mockReturnValue({ fresh: params?.fresh ?? true });
 
   return resolveCronSession({
-    cfg: {} as OpenClawConfig,
+    cfg: {} as ZhushouConfig,
     sessionKey,
     agentId: "main",
     nowMs: NOW_MS,

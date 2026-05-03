@@ -1,4 +1,4 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 import { deepgramMediaUnderstandingProvider } from "./media-understanding-provider.js";
 
 export default definePluginEntry({

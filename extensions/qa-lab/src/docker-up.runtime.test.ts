@@ -36,7 +36,7 @@ describe("runQaDockerUp", () => {
     const fetchCalls: string[] = [];
     const responseQueue = [false, true, true];
     const outputDir = await mkdtemp(path.join(os.tmpdir(), "qa-docker-up-"));
-    const repoRoot = path.resolve("/repo/openclaw");
+    const repoRoot = path.resolve("/repo/zhushou");
 
     try {
       const result = await runQaDockerUp(
@@ -49,7 +49,7 @@ describe("runQaDockerUp", () => {
         {
           async runCommand(command, args, cwd) {
             calls.push([command, ...args, `@${cwd}`].join(" "));
-            if (args.join(" ").includes("ps --format json openclaw-qa-gateway")) {
+            if (args.join(" ").includes("ps --format json zhushou-qa-gateway")) {
               return { stdout: '[{"Health":"healthy","State":"running"}]\n', stderr: "" };
             }
             return { stdout: "", stderr: "" };
@@ -68,7 +68,7 @@ describe("runQaDockerUp", () => {
         expect.stringContaining(
           `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} up --build -d @${repoRoot}`,
         ),
-        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json openclaw-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json zhushou-qa-gateway @${repoRoot}`,
       ]);
       expect(fetchCalls).toEqual([
         "http://127.0.0.1:43124/healthz",
@@ -89,7 +89,7 @@ describe("runQaDockerUp", () => {
   it("skips UI build and compose --build for prebuilt images", async () => {
     const calls: string[] = [];
     const outputDir = await mkdtemp(path.join(os.tmpdir(), "qa-docker-up-"));
-    const repoRoot = path.resolve("/repo/openclaw");
+    const repoRoot = path.resolve("/repo/zhushou");
 
     try {
       await runQaDockerUp(
@@ -103,7 +103,7 @@ describe("runQaDockerUp", () => {
         {
           async runCommand(command, args, cwd) {
             calls.push([command, ...args, `@${cwd}`].join(" "));
-            if (args.join(" ").includes("ps --format json openclaw-qa-gateway")) {
+            if (args.join(" ").includes("ps --format json zhushou-qa-gateway")) {
               return { stdout: '{"Health":"healthy","State":"running"}\n', stderr: "" };
             }
             return { stdout: "", stderr: "" };
@@ -116,10 +116,10 @@ describe("runQaDockerUp", () => {
       expect(calls).toEqual([
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} down --remove-orphans @${repoRoot}`,
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} up -d @${repoRoot}`,
-        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json openclaw-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json zhushou-qa-gateway @${repoRoot}`,
       ]);
       const compose = await readFile(path.join(outputDir, "docker-compose.qa.yml"), "utf8");
-      expect(compose).toContain(":/opt/openclaw-qa-lab-ui:ro");
+      expect(compose).toContain(":/opt/zhushou-qa-lab-ui:ro");
       expect(compose).toContain("      - --ui-dist-dir");
     } finally {
       await rm(outputDir, { recursive: true, force: true });
@@ -140,7 +140,7 @@ describe("runQaDockerUp", () => {
         {
           async runCommand(command, args, cwd) {
             calls.push([command, ...args, `@${cwd}`].join(" "));
-            if (args.join(" ").includes("ps --format json openclaw-qa-gateway")) {
+            if (args.join(" ").includes("ps --format json zhushou-qa-gateway")) {
               return { stdout: '{"Health":"healthy","State":"running"}\n', stderr: "" };
             }
             return { stdout: "", stderr: "" };
@@ -157,7 +157,7 @@ describe("runQaDockerUp", () => {
       expect(calls).toEqual([
         `docker compose -f ${path.join(repoRoot, ".artifacts/qa-docker/docker-compose.qa.yml")} down --remove-orphans @${repoRoot}`,
         `docker compose -f ${path.join(repoRoot, ".artifacts/qa-docker/docker-compose.qa.yml")} up -d @${repoRoot}`,
-        `docker compose -f ${path.join(repoRoot, ".artifacts/qa-docker/docker-compose.qa.yml")} ps --format json openclaw-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(repoRoot, ".artifacts/qa-docker/docker-compose.qa.yml")} ps --format json zhushou-qa-gateway @${repoRoot}`,
       ]);
     } finally {
       await rm(repoRoot, { recursive: true, force: true });
@@ -183,7 +183,7 @@ describe("runQaDockerUp", () => {
     try {
       const result = await runQaDockerUp(
         {
-          repoRoot: "/repo/openclaw",
+          repoRoot: "/repo/zhushou",
           outputDir,
           gatewayPort,
           qaLabPort,
@@ -218,7 +218,7 @@ describe("runQaDockerUp", () => {
     const calls: string[] = [];
     const fetchCalls: string[] = [];
     const outputDir = await mkdtemp(path.join(os.tmpdir(), "qa-docker-up-"));
-    const repoRoot = path.resolve("/repo/openclaw");
+    const repoRoot = path.resolve("/repo/zhushou");
 
     try {
       const result = await runQaDockerUp(
@@ -234,10 +234,10 @@ describe("runQaDockerUp", () => {
           async runCommand(command, args, cwd) {
             calls.push([command, ...args, `@${cwd}`].join(" "));
             const joined = args.join(" ");
-            if (joined.includes("ps --format json openclaw-qa-gateway")) {
+            if (joined.includes("ps --format json zhushou-qa-gateway")) {
               return { stdout: '{"Health":"healthy","State":"running"}\n', stderr: "" };
             }
-            if (joined.includes("ps -q openclaw-qa-gateway")) {
+            if (joined.includes("ps -q zhushou-qa-gateway")) {
               return { stdout: "gateway-container\n", stderr: "" };
             }
             if (command === "docker" && args[0] === "inspect") {
@@ -260,8 +260,8 @@ describe("runQaDockerUp", () => {
       expect(calls).toEqual([
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} down --remove-orphans @${repoRoot}`,
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} up -d @${repoRoot}`,
-        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json openclaw-qa-gateway @${repoRoot}`,
-        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps -q openclaw-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json zhushou-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps -q zhushou-qa-gateway @${repoRoot}`,
         `docker inspect --format {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} gateway-container @${repoRoot}`,
       ]);
       expect(fetchCalls).toEqual([

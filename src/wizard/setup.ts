@@ -7,7 +7,7 @@ import type {
   ResetScope,
 } from "../commands/onboard-types.js";
 import { readConfigFileSnapshot, resolveGatewayPort, writeConfigFile } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeSecretInputString } from "../config/types.secrets.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import {
@@ -32,12 +32,12 @@ import {
 
 async function resolveAuthChoiceModelSelectionPolicy(params: {
   authChoice: string;
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   resolvePreferredProviderForAuthChoice: (params: {
     choice: string;
-    config?: OpenClawConfig;
+    config?: ZhushouConfig;
     workspaceDir?: string;
     env?: NodeJS.ProcessEnv;
   }) => Promise<string | undefined>;
@@ -118,10 +118,10 @@ async function requireRiskAcknowledgement(params: {
       "- 对于带工具或不可信收件箱的代理，使用最强可用模型。",
       "",
       "定期运行安全审计：",
-      `${formatCliCommand("openclaw security audit --deep")}`,
-      `${formatCliCommand("openclaw security audit --fix")}`,
+      `${formatCliCommand("zhushou security audit --deep")}`,
+      `${formatCliCommand("zhushou security audit --fix")}`,
       "",
-      "安全文档：https://docs.openclaw.ai/gateway/security",
+      "安全文档：https://docs.zhushou.ai/gateway/security",
     ].join("\n"),
     "安全须知",
   );
@@ -146,7 +146,7 @@ export async function runSetupWizard(
   await requireRiskAcknowledgement({ opts, prompter });
 
   const snapshot = await readConfigFileSnapshot();
-  let baseConfig: OpenClawConfig = snapshot.valid
+  let baseConfig: ZhushouConfig = snapshot.valid
     ? snapshot.exists
       ? (snapshot.sourceConfig ?? snapshot.config)
       : {}
@@ -159,13 +159,13 @@ export async function runSetupWizard(
         [
           ...snapshot.issues.map((iss) => `- ${iss.path}: ${iss.message}`),
           "",
-          "文档：https://docs.openclaw.ai/gateway/configuration",
+          "文档：https://docs.zhushou.ai/gateway/configuration",
         ].join("\n"),
         "配置问题",
       );
     }
     await prompter.outro(
-      `配置无效。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重新执行设置。`,
+      `配置无效。请运行 \`${formatCliCommand("zhushou doctor")}\` 修复后重新执行设置。`,
     );
     runtime.exit(1);
     return;
@@ -180,7 +180,7 @@ export async function runSetupWizard(
       const formatted = formatValidationResult(validationResult);
       await prompter.note(formatted, "配置校验失败");
       await prompter.outro(
-        `检测到不支持的旧版配置字段。请运行 \`${formatCliCommand("openclaw doctor")}\` 迁移后重试。`,
+        `检测到不支持的旧版配置字段。请运行 \`${formatCliCommand("zhushou doctor")}\` 迁移后重试。`,
       );
       runtime.exit(1);
       return;
@@ -207,7 +207,7 @@ export async function runSetupWizard(
     );
   };
 
-  const validateBeforeWrite = async (config: OpenClawConfig): Promise<boolean> => {
+  const validateBeforeWrite = async (config: ZhushouConfig): Promise<boolean> => {
     const validationResult = validateWizardConfig(config);
     if (validationResult.valid) {
       return true;
@@ -217,13 +217,13 @@ export async function runSetupWizard(
       "写入前配置校验",
     );
     await prompter.outro(
-      `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重试。`,
+      `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("zhushou doctor")}\` 修复后重试。`,
     );
     runtime.exit(1);
     return false;
   };
 
-  const persistWizardConfig = async (config: OpenClawConfig): Promise<boolean> => {
+  const persistWizardConfig = async (config: ZhushouConfig): Promise<boolean> => {
     if (!(await validateBeforeWrite(config))) {
       return false;
     }
@@ -246,14 +246,14 @@ export async function runSetupWizard(
           ? [`- ... 另有 ${compatibilityNotices.length - 4} 条`]
           : []),
         "",
-        `检查：${formatCliCommand("openclaw doctor")}`,
-        `详情：${formatCliCommand("openclaw plugins inspect --all")}`,
+        `检查：${formatCliCommand("zhushou doctor")}`,
+        `详情：${formatCliCommand("zhushou plugins inspect --all")}`,
       ].join("\n"),
       "插件兼容性",
     );
   }
 
-  const quickstartHint = `稍后可通过 ${formatCliCommand("openclaw configure")} 修改详细配置。`;
+  const quickstartHint = `稍后可通过 ${formatCliCommand("zhushou configure")} 修改详细配置。`;
   const manualHint = "配置端口、网络绑定、Tailscale 及认证选项。";
   const explicitFlowRaw = opts.flow?.trim();
   const normalizedExplicitFlow = explicitFlowRaw === "manual" ? "advanced" : explicitFlowRaw;
@@ -457,7 +457,7 @@ export async function runSetupWizard(
 
   const localPort = resolveGatewayPort(baseConfig);
   const localUrl = `ws://127.0.0.1:${localPort}`;
-  let localGatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+  let localGatewayToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
   try {
     const resolvedGatewayToken = await resolveSetupSecretInputString({
       config: baseConfig,
@@ -477,7 +477,7 @@ export async function runSetupWizard(
       "网关认证",
     );
   }
-  let localGatewayPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
+  let localGatewayPassword = process.env.ZHUSHOU_GATEWAY_PASSWORD;
   try {
     const resolvedGatewayPassword = await resolveSetupSecretInputString({
       config: baseConfig,
@@ -584,7 +584,7 @@ export async function runSetupWizard(
   const workspaceDir = resolveUserPath(workspaceInput.trim() || onboardHelpers.DEFAULT_WORKSPACE);
 
   const { applyLocalSetupWorkspaceConfig } = await import("../commands/onboard-config.js");
-  let nextConfig: OpenClawConfig = applyLocalSetupWorkspaceConfig(baseConfig, workspaceDir);
+  let nextConfig: ZhushouConfig = applyLocalSetupWorkspaceConfig(baseConfig, workspaceDir);
 
   const authChoiceFromPrompt = opts.authChoice === undefined;
   let authChoice: AuthChoice | undefined = opts.authChoice;

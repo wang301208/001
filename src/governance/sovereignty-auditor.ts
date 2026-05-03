@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { SecurityAuditFinding } from "../security/audit.js";
 import {
   collectGovernanceCharterFindings,
@@ -107,7 +107,7 @@ function buildIncidentCandidates(params: {
 }
 
 export function evaluateGovernanceSovereigntyIncidents(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
   observedAt?: number;
   findings?: SecurityAuditFinding[];
@@ -135,7 +135,7 @@ export function evaluateGovernanceSovereigntyIncidents(params: {
 }
 
 export function reconcileGovernanceSovereigntyAuditSync(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
   observedAt?: number;
   findings?: SecurityAuditFinding[];

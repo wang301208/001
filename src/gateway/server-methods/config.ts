@@ -19,7 +19,7 @@ import {
 import { loadGatewayRuntimeConfigSchema } from "../../config/runtime-schema.js";
 import { lookupConfigSchema, type ConfigSchemaResponse } from "../../config/schema.js";
 import { extractDeliveryInfo } from "../../config/sessions.js";
-import type { ConfigValidationIssue, OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ConfigValidationIssue, ZhushouConfig } from "../../config/types.zhushou.js";
 import { resetModelCatalogCache } from "../../agents/model-catalog.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import {
@@ -193,7 +193,7 @@ function parseValidateConfigFromRawOrRespond(
   requestName: string,
   snapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>,
   respond: RespondFn,
-): { config: OpenClawConfig; schema: ConfigSchemaResponse } | null {
+): { config: ZhushouConfig; schema: ConfigSchemaResponse } | null {
   const rawValue = parseRawConfigOrRespond(params, requestName, respond);
   if (!rawValue) {
     return null;
@@ -227,7 +227,7 @@ function parseValidateConfigFromRawOrRespond(
   return { config: validated.config, schema };
 }
 
-function didSharedGatewayAuthChange(prev: OpenClawConfig, next: OpenClawConfig): boolean {
+function didSharedGatewayAuthChange(prev: ZhushouConfig, next: ZhushouConfig): boolean {
   const prevAuth = resolveEffectiveSharedGatewayAuth({
     authConfig: prev.gateway?.auth,
     env: process.env,
@@ -258,7 +258,7 @@ function queueSharedGatewayAuthDisconnect(
 
 function queueSharedGatewayAuthGenerationRefresh(
   shouldRefresh: boolean,
-  nextConfig: OpenClawConfig,
+  nextConfig: ZhushouConfig,
   context?: GatewayRequestContext,
 ): void {
   if (!shouldRefresh) {
@@ -285,7 +285,7 @@ function summarizeConfigValidationIssues(issues: ReadonlyArray<ConfigValidationI
 
 function shouldScheduleDirectConfigRestart(params: {
   changedPaths: string[];
-  nextConfig: OpenClawConfig;
+  nextConfig: ZhushouConfig;
 }): boolean {
   const reloadSettings = resolveGatewayReloadSettings(params.nextConfig);
   if (reloadSettings.mode === "off") {
@@ -305,7 +305,7 @@ function invalidateModelCatalogForChangedPaths(changedPaths: string[]) {
 }
 
 async function ensureResolvableSecretRefsOrRespond(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   respond: RespondFn;
 }): Promise<boolean> {
   try {

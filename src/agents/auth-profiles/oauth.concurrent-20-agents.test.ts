@@ -96,7 +96,7 @@ function createExpiredOauthStore(params: {
 
 describe("resolveApiKeyForProfile cross-agent refresh coordination (#26322)", () => {
   const envSnapshot = captureEnv([
-    "OPENCLAW_STATE_DIR",
+    "ZHUSHOU_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
@@ -110,8 +110,8 @@ describe("resolveApiKeyForProfile cross-agent refresh coordination (#26322)", ()
     formatProviderAuthProfileApiKeyWithPluginMock.mockReset();
     formatProviderAuthProfileApiKeyWithPluginMock.mockReturnValue(undefined);
     clearRuntimeAuthProfileStoreSnapshots();
-    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-oauth-concurrent-"));
-    process.env.OPENCLAW_STATE_DIR = tempRoot;
+    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-oauth-concurrent-"));
+    process.env.ZHUSHOU_STATE_DIR = tempRoot;
     mainAgentDir = path.join(tempRoot, "agents", "main", "agent");
     process.env.OPENCLAW_AGENT_DIR = mainAgentDir;
     process.env.PI_CODING_AGENT_DIR = mainAgentDir;

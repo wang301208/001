@@ -64,7 +64,7 @@ afterEach(() => {
 
 describe("git-hooks/pre-commit (integration)", () => {
   it("does not treat staged filenames as git-add flags (e.g. --all)", () => {
-    const dir = makeTempRepoRoot(tempDirs, "openclaw-pre-commit-");
+    const dir = makeTempRepoRoot(tempDirs, "zhushou-pre-commit-");
     run(dir, "git", ["init", "-q", "--initial-branch=main"]);
 
     // Use the real hook script and lightweight helper stubs.
@@ -91,7 +91,7 @@ describe("git-hooks/pre-commit (integration)", () => {
   });
 
   it("skips pnpm check when FAST_COMMIT is enabled", () => {
-    const dir = makeTempRepoRoot(tempDirs, "openclaw-pre-commit-yolo-");
+    const dir = makeTempRepoRoot(tempDirs, "zhushou-pre-commit-yolo-");
     run(dir, "git", ["init", "-q", "--initial-branch=main"]);
 
     const fakeBinDir = installPreCommitFixture(dir);

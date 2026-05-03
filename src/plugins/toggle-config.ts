@@ -1,15 +1,15 @@
 import { normalizeChatChannelId } from "../channels/ids.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export function setPluginEnabledInConfig(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   pluginId: string,
   enabled: boolean,
-): OpenClawConfig {
+): ZhushouConfig {
   const builtInChannelId = normalizeChatChannelId(pluginId);
   const resolvedId = builtInChannelId ?? pluginId;
 
-  const next: OpenClawConfig = {
+  const next: ZhushouConfig = {
     ...config,
     plugins: {
       ...config.plugins,

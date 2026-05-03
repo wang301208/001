@@ -1,11 +1,11 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "openclaw/plugin-sdk/provider-auth-api-key";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
 import {
   readConfiguredProviderCatalogEntries,
   type ProviderCatalogContext,
-} from "openclaw/plugin-sdk/provider-catalog-shared";
-import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "openclaw/plugin-sdk/provider-model-shared";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/provider-onboard";
+} from "zhushou/plugin-sdk/provider-catalog-shared";
+import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "zhushou/plugin-sdk/provider-model-shared";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/provider-onboard";
 import {
   applyArceeConfig,
   applyArceeOpenRouterConfig,
@@ -70,7 +70,7 @@ function buildArceeAuthMethods() {
   ];
 }
 
-function readConfiguredArceeCatalogEntries(config: OpenClawConfig | undefined) {
+function readConfiguredArceeCatalogEntries(config: ZhushouConfig | undefined) {
   return readConfiguredProviderCatalogEntries({
     config,
     providerId: PROVIDER_ID,

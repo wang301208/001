@@ -6,7 +6,7 @@ import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import * as configIoModule from "../config/io.js";
 import * as runtimeSnapshotModule from "../config/runtime-snapshot.js";
 import { clearSessionStoreCacheForTest } from "../config/sessions/store.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resetAgentEventsForTest, resetAgentRunContextForTest } from "../infra/agent-events.js";
 import { resetPluginRuntimeStateForTest } from "../plugins/runtime.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -76,7 +76,7 @@ export function resetSharedAgentCommandRuntimeState(
   vi.mocked(loadModelCatalog).mockResolvedValue([]);
   vi.mocked(modelSelectionModule.isCliProvider).mockImplementation(() => false);
   vi.mocked(readConfigFileSnapshotForWriteSpy).mockResolvedValue({
-    snapshot: { valid: false, resolved: {} as OpenClawConfig },
+    snapshot: { valid: false, resolved: {} as ZhushouConfig },
     writeOptions: {},
   } as Awaited<ReturnType<typeof configIoModule.readConfigFileSnapshotForWrite>>);
 }

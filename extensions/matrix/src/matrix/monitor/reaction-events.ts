@@ -1,4 +1,4 @@
-import { getSessionBindingService } from "openclaw/plugin-sdk/session-binding-runtime";
+import { getSessionBindingService } from "zhushou/plugin-sdk/session-binding-runtime";
 import { isMatrixApprovalReactionAuthorizedSender } from "../../approval-reaction-auth.js";
 import {
   resolveMatrixApprovalReactionTarget,

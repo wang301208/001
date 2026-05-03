@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-zhushou-dir.js";
 import { readStringValue } from "../shared/string-coerce.js";
 export { asRecord } from "../shared/record-coerce.js";
 

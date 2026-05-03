@@ -100,5 +100,5 @@ export function resolveBundledPluginInstallCommandHint(params: {
   if (!bundledSource?.localPath) {
     return null;
   }
-  return `openclaw plugins install ${bundledSource.localPath}`;
+  return `zhushou plugins install ${bundledSource.localPath}`;
 }

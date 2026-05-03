@@ -1,14 +1,14 @@
 version: 1
 policy:
   id: "sovereignty"
-  title: "OpenClaw Sovereignty Boundary Policy"
+  title: "助手 Sovereignty Boundary Policy"
   layer: "governance"
   status: "draft"
 
 purpose:
   primary: >
     Define the hard boundary between autonomous system authority and human
-    sovereign authority so OpenClaw can run with maximal autonomy without
+    sovereign authority so 助手 can run with maximal autonomy without
     losing ultimate controllability.
   guarantee:
     - "Autonomy is default for non-sovereign work."

@@ -1,22 +1,22 @@
 {
-  "name": "@openclaw/qa-channel",
+  "name": "@zhushou/qa-channel",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw QA synthetic channel plugin",
+  "description": "助手 QA synthetic channel plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -28,7 +28,7 @@
       "detailLabel": "QA Channel",
       "docsPath": "/channels/qa-channel",
       "docsLabel": "qa-channel",
-      "blurb": "Synthetic Slack-class transport for automated OpenClaw QA scenarios.",
+      "blurb": "Synthetic Slack-class transport for automated 助手 QA scenarios.",
       "systemImage": "checklist",
       "order": 999,
       "exposure": {

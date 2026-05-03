@@ -1,11 +1,11 @@
-import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
+import { normalizeAccountId } from "zhushou/plugin-sdk/account-id";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
 import {
   listConfiguredAccountIds,
   resolveMergedAccountConfig,
   resolveNormalizedAccountEntry,
-} from "openclaw/plugin-sdk/account-resolution-runtime";
-import { hasConfiguredSecretInput } from "openclaw/plugin-sdk/secret-input-runtime";
+} from "zhushou/plugin-sdk/account-resolution-runtime";
+import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input-runtime";
 import type { CoreConfig, MatrixAccountConfig, MatrixConfig } from "../types.js";
 
 type MatrixRoomEntries = Record<string, NonNullable<MatrixConfig["groups"]>[string]>;

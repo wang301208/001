@@ -30,8 +30,8 @@ describe("parsePluginReleaseSelection", () => {
 
   it("dedupes and sorts comma or whitespace separated package names", () => {
     expect(
-      parsePluginReleaseSelection(" @openclaw/zalo, @openclaw/feishu  @openclaw/zalo "),
-    ).toEqual(["@openclaw/feishu", "@openclaw/zalo"]);
+      parsePluginReleaseSelection(" @zhushou/zalo, @zhushou/feishu  @zhushou/zalo "),
+    ).toEqual(["@zhushou/feishu", "@zhushou/zalo"]);
   });
 });
 
@@ -67,7 +67,7 @@ describe("parsePluginReleaseArgs", () => {
         "--selection-mode",
         "all-publishable",
         "--plugins",
-        "@openclaw/zalo",
+        "@zhushou/zalo",
       ]),
     ).toThrowError("`--selection-mode all-publishable` must not be combined with `--plugins`.");
   });
@@ -88,9 +88,9 @@ describe("collectPublishablePluginPackageErrors", () => {
         extensionId: "zalo",
         packageDir: bundledPluginRoot("zalo"),
         packageJson: {
-          name: "@openclaw/zalo",
+          name: "@zhushou/zalo",
           version: "2026.3.15",
-          openclaw: {
+          zhushou: {
             extensions: ["./index.ts"],
             release: {
               publishToNpm: true,
@@ -110,7 +110,7 @@ describe("collectPublishablePluginPackageErrors", () => {
           name: "broken",
           version: "latest",
           private: true,
-          openclaw: {
+          zhushou: {
             extensions: [""],
             release: {
               publishToNpm: true,
@@ -119,25 +119,25 @@ describe("collectPublishablePluginPackageErrors", () => {
         },
       }),
     ).toEqual([
-      'package name must start with "@openclaw/"; found "broken".',
+      'package name must start with "@zhushou/"; found "broken".',
       "package.json private must not be true.",
       'package.json version must match YYYY.M.D, YYYY.M.D-N, or YYYY.M.D-beta.N; found "latest".',
-      "openclaw.extensions must contain only non-empty strings.",
+      "zhushou.extensions must contain only non-empty strings.",
     ]);
   });
 });
 
 describe("collectPublishablePluginPackages", () => {
   it("collects publishable npm plugins from extension package manifests", () => {
-    const repoDir = makeTempRepoRoot(tempDirs, "openclaw-plugin-npm-release-");
+    const repoDir = makeTempRepoRoot(tempDirs, "zhushou-plugin-npm-release-");
     mkdirSync(join(repoDir, "extensions", "demo-plugin"), { recursive: true });
     writeJsonFile(join(repoDir, "extensions", "demo-plugin", "package.json"), {
-      name: "@openclaw/demo-plugin",
+      name: "@zhushou/demo-plugin",
       version: "2026.4.10",
-      openclaw: {
+      zhushou: {
         extensions: ["./index.ts"],
         install: {
-          npmSpec: "@openclaw/demo-plugin",
+          npmSpec: "@zhushou/demo-plugin",
         },
         release: {
           publishToNpm: true,
@@ -149,11 +149,11 @@ describe("collectPublishablePluginPackages", () => {
       {
         extensionId: "demo-plugin",
         packageDir: "extensions/demo-plugin",
-        packageName: "@openclaw/demo-plugin",
+        packageName: "@zhushou/demo-plugin",
         version: "2026.4.10",
         channel: "stable",
         publishTag: "latest",
-        installNpmSpec: "@openclaw/demo-plugin",
+        installNpmSpec: "@zhushou/demo-plugin",
       },
     ]);
   });
@@ -164,7 +164,7 @@ describe("resolveSelectedPublishablePluginPackages", () => {
     {
       extensionId: "feishu",
       packageDir: bundledPluginRoot("feishu"),
-      packageName: "@openclaw/feishu",
+      packageName: "@zhushou/feishu",
       version: "2026.3.15",
       channel: "stable",
       publishTag: "latest",
@@ -172,7 +172,7 @@ describe("resolveSelectedPublishablePluginPackages", () => {
     {
       extensionId: "zalo",
       packageDir: bundledPluginRoot("zalo"),
-      packageName: "@openclaw/zalo",
+      packageName: "@zhushou/zalo",
       version: "2026.3.15-beta.1",
       channel: "beta",
       publishTag: "beta",
@@ -192,7 +192,7 @@ describe("resolveSelectedPublishablePluginPackages", () => {
     expect(
       resolveSelectedPublishablePluginPackages({
         plugins: publishablePlugins,
-        selection: ["@openclaw/zalo"],
+        selection: ["@zhushou/zalo"],
       }),
     ).toEqual([publishablePlugins[1]]);
   });
@@ -201,9 +201,9 @@ describe("resolveSelectedPublishablePluginPackages", () => {
     expect(() =>
       resolveSelectedPublishablePluginPackages({
         plugins: publishablePlugins,
-        selection: ["@openclaw/missing"],
+        selection: ["@zhushou/missing"],
       }),
-    ).toThrowError("Unknown or non-publishable plugin package selection: @openclaw/missing.");
+    ).toThrowError("Unknown or non-publishable plugin package selection: @zhushou/missing.");
   });
 });
 
@@ -225,7 +225,7 @@ describe("resolveChangedPublishablePluginPackages", () => {
     {
       extensionId: "feishu",
       packageDir: bundledPluginRoot("feishu"),
-      packageName: "@openclaw/feishu",
+      packageName: "@zhushou/feishu",
       version: "2026.3.15",
       channel: "stable",
       publishTag: "latest",
@@ -233,7 +233,7 @@ describe("resolveChangedPublishablePluginPackages", () => {
     {
       extensionId: "zalo",
       packageDir: bundledPluginRoot("zalo"),
-      packageName: "@openclaw/zalo",
+      packageName: "@zhushou/zalo",
       version: "2026.3.15-beta.1",
       channel: "beta",
       publishTag: "beta",

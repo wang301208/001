@@ -1,8 +1,8 @@
 {
-  "name": "@openclaw/slack",
+  "name": "@zhushou/slack",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw Slack channel plugin",
+  "description": "助手 Slack channel plugin",
   "type": "module",
   "dependencies": {
     "@slack/bolt": "^4.7.0",
@@ -10,9 +10,9 @@
     "https-proxy-agent": "^9.0.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],

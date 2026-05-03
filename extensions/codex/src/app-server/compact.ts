@@ -2,7 +2,7 @@ import {
   embeddedAgentLog,
   type CompactEmbeddedPiSessionParams,
   type EmbeddedPiCompactResult,
-} from "openclaw/plugin-sdk/agent-harness";
+} from "zhushou/plugin-sdk/agent-harness";
 import type { CodexAppServerClient, CodexServerNotificationHandler } from "./client.js";
 import { resolveCodexAppServerRuntimeOptions, type CodexAppServerStartOptions } from "./config.js";
 import { isJsonObject, type CodexServerNotification, type JsonObject } from "./protocol.js";

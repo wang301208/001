@@ -9,7 +9,7 @@ import {
 import { buildQaGatewayConfig } from "./qa-gateway-config.js";
 
 const QA_LAB_INTERNAL_PORT = 43123;
-const QA_LAB_UI_OVERLAY_DIR = "/opt/openclaw-qa-lab-ui";
+const QA_LAB_UI_OVERLAY_DIR = "/opt/zhushou-qa-lab-ui";
 
 function toPosixRelative(fromDir: string, toPath: string): string {
   return path.relative(fromDir, toPath).split(path.sep).join("/");
@@ -25,7 +25,7 @@ function renderImageBlock(params: {
     return `    image: ${params.imageName}\n`;
   }
   const context = toPosixRelative(params.outputDir, params.repoRoot) || ".";
-  return `    build:\n      context: ${context}\n      dockerfile: Dockerfile\n      args:\n        OPENCLAW_EXTENSIONS: "qa-channel qa-lab"\n`;
+  return `    build:\n      context: ${context}\n      dockerfile: Dockerfile\n      args:\n        ZHUSHOU_EXTENSIONS: "qa-channel qa-lab"\n`;
 }
 
 function renderCompose(params: {
@@ -88,7 +88,7 @@ ${params.bindUiDist ? `    volumes:\n      - ${qaLabUiMount}:${QA_LAB_UI_OVERLAY
       OPENCLAW_SKIP_GMAIL_WATCHER: "1"
       OPENCLAW_SKIP_BROWSER_CONTROL_SERVER: "1"
       OPENCLAW_SKIP_CANVAS_HOST: "1"
-      OPENCLAW_PROFILE: ""
+      ZHUSHOU_PROFILE: ""
     command:
       - node
       - dist/index.js
@@ -105,7 +105,7 @@ ${params.bindUiDist ? `    volumes:\n      - ${qaLabUiMount}:${QA_LAB_UI_OVERLAY
       - --control-ui-url
       - "http://127.0.0.1:${params.gatewayPort}/"
       - --control-ui-proxy-target
-      - "http://openclaw-qa-gateway:18789/"
+      - "http://zhushou-qa-gateway:18789/"
       - --control-ui-token
       - "${params.gatewayToken}"
 ${params.bindUiDist ? `      - --ui-dist-dir\n      - "${QA_LAB_UI_OVERLAY_DIR}"\n` : ""}      - --auto-kickoff-target
@@ -118,23 +118,23 @@ ${params.bindUiDist ? `      - --ui-dist-dir\n      - "${QA_LAB_UI_OVERLAY_DIR}"
         condition: service_healthy
 `
     : ""
-}  openclaw-qa-gateway:
+}  zhushou-qa-gateway:
 ${imageBlock}    pull_policy: never
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
       - "${params.gatewayPort}:18789"
     environment:
-      OPENCLAW_CONFIG_PATH: /tmp/openclaw/openclaw.json
-      OPENCLAW_STATE_DIR: /tmp/openclaw/state
+      ZHUSHOU_CONFIG_PATH: /tmp/zhushou/zhushou.json
+      ZHUSHOU_STATE_DIR: /tmp/zhushou/state
       OPENCLAW_NO_RESPAWN: "1"
       OPENCLAW_SKIP_GMAIL_WATCHER: "1"
       OPENCLAW_SKIP_BROWSER_CONTROL_SERVER: "1"
       OPENCLAW_SKIP_CANVAS_HOST: "1"
-      OPENCLAW_PROFILE: ""
+      ZHUSHOU_PROFILE: ""
     volumes:
-      - ./state:/opt/openclaw-scaffold:ro
-      - ${repoMount}:/opt/openclaw-repo:ro
+      - ./state:/opt/zhushou-scaffold:ro
+      - ${repoMount}:/opt/zhushou-repo:ro
     healthcheck:
       test:
         - CMD
@@ -157,7 +157,7 @@ ${
     command:
       - sh
       - -lc
-      - mkdir -p /tmp/openclaw/workspace /tmp/openclaw/state && cp /opt/openclaw-scaffold/openclaw.json /tmp/openclaw/openclaw.json && cp -R /opt/openclaw-scaffold/seed-workspace/. /tmp/openclaw/workspace/ && ln -snf /opt/openclaw-repo /tmp/openclaw/workspace/repo && exec node dist/index.js gateway run --port 18789 --bind lan --allow-unconfigured
+      - mkdir -p /tmp/zhushou/workspace /tmp/zhushou/state && cp /opt/zhushou-scaffold/zhushou.json /tmp/zhushou/zhushou.json && cp -R /opt/zhushou-scaffold/seed-workspace/. /tmp/zhushou/workspace/ && ln -snf /opt/zhushou-repo /tmp/zhushou/workspace/repo && exec node dist/index.js gateway run --port 18789 --bind lan --allow-unconfigured
 `;
 }
 
@@ -170,7 +170,7 @@ function renderEnvExample(params: {
   includeQaLabUi: boolean;
 }) {
   return `# QA Docker harness example env
-OPENCLAW_GATEWAY_TOKEN=${params.gatewayToken}
+ZHUSHOU_GATEWAY_TOKEN=${params.gatewayToken}
 QA_GATEWAY_PORT=${params.gatewayPort}
 QA_BUS_BASE_URL=${params.qaBusBaseUrl}
 QA_PROVIDER_BASE_URL=${params.providerBaseUrl}
@@ -192,12 +192,12 @@ Files:
 
 - \`docker-compose.qa.yml\`
 - \`.env.example\`
-- \`state/openclaw.json\`
+- \`state/zhushou.json\`
 
 Suggested flow:
 
 1. Build the prebaked image once:
-   - \`docker build -t openclaw:qa-local-prebaked --build-arg OPENCLAW_EXTENSIONS="qa-channel qa-lab" -f Dockerfile .\`
+   - \`docker build -t zhushou:qa-local-prebaked --build-arg ZHUSHOU_EXTENSIONS="qa-channel qa-lab" -f Dockerfile .\`
 2. Start the stack:
    - \`docker compose -f docker-compose.qa.yml up${params.usePrebuiltImage ? "" : " --build"} -d\`
 3. Open the QA dashboard:
@@ -244,7 +244,7 @@ export async function writeQaDockerHarnessFiles(params: {
   const gatewayToken = params.gatewayToken ?? `qa-token-${randomUUID()}`;
   const providerBaseUrl = params.providerBaseUrl ?? "http://qa-mock-openai:44080/v1";
   const qaBusBaseUrl = params.qaBusBaseUrl ?? "http://qa-lab:43123";
-  const imageName = params.imageName ?? "openclaw:qa-local-prebaked";
+  const imageName = params.imageName ?? "zhushou:qa-local-prebaked";
   const usePrebuiltImage = params.usePrebuiltImage ?? false;
   const bindUiDist = params.bindUiDist ?? false;
   const includeQaLabUi = params.includeQaLabUi ?? true;
@@ -260,7 +260,7 @@ export async function writeQaDockerHarnessFiles(params: {
     gatewayPort: 18789,
     gatewayToken,
     providerBaseUrl,
-    workspaceDir: "/tmp/openclaw/workspace",
+    workspaceDir: "/tmp/zhushou/workspace",
     transportPluginIds: QA_CHANNEL_REQUIRED_PLUGIN_IDS,
     transportConfig: createQaChannelGatewayConfig({
       baseUrl: qaBusBaseUrl,
@@ -271,7 +271,7 @@ export async function writeQaDockerHarnessFiles(params: {
     path.join(params.outputDir, "docker-compose.qa.yml"),
     path.join(params.outputDir, ".env.example"),
     path.join(params.outputDir, "README.md"),
-    path.join(params.outputDir, "state", "openclaw.json"),
+    path.join(params.outputDir, "state", "zhushou.json"),
   ];
 
   await Promise.all([
@@ -314,7 +314,7 @@ export async function writeQaDockerHarnessFiles(params: {
       "utf8",
     ),
     fs.writeFile(
-      path.join(params.outputDir, "state", "openclaw.json"),
+      path.join(params.outputDir, "state", "zhushou.json"),
       `${JSON.stringify(config, null, 2)}\n`,
       "utf8",
     ),
@@ -346,7 +346,7 @@ export async function buildQaDockerHarnessImage(
     ) => Promise<{ stdout: string; stderr: string }>;
   },
 ) {
-  const imageName = params.imageName ?? "openclaw:qa-local-prebaked";
+  const imageName = params.imageName ?? "zhushou:qa-local-prebaked";
   const runCommand =
     deps?.runCommand ??
     (async (command: string, args: string[], cwd: string) => {
@@ -369,7 +369,7 @@ export async function buildQaDockerHarnessImage(
       "-t",
       imageName,
       "--build-arg",
-      "OPENCLAW_EXTENSIONS=qa-channel qa-lab",
+      "ZHUSHOU_EXTENSIONS=qa-channel qa-lab",
       "-f",
       "Dockerfile",
       ".",

@@ -20,7 +20,7 @@ assert.equal(typeof clearPluginCommands, "function", "clearPluginCommands missin
 assert.equal(typeof getPluginCommandSpecs, "function", "getPluginCommandSpecs missing");
 assert.equal(typeof matchPluginCommand, "function", "matchPluginCommand missing");
 
-const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-build-smoke-"));
+const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-build-smoke-"));
 
 function cleanup() {
   clearPluginCommands();
@@ -45,9 +45,9 @@ fs.writeFileSync(
   path.join(distPluginDir, "package.json"),
   JSON.stringify(
     {
-      name: "@openclaw/build-smoke-plugin",
+      name: "@zhushou/build-smoke-plugin",
       type: "module",
-      openclaw: {
+      zhushou: {
         extensions: ["./index.js"],
       },
     },
@@ -57,7 +57,7 @@ fs.writeFileSync(
   "utf8",
 );
 fs.writeFileSync(
-  path.join(distPluginDir, "openclaw.plugin.json"),
+  path.join(distPluginDir, "zhushou.plugin.json"),
   JSON.stringify(
     {
       id: pluginId,
@@ -75,7 +75,7 @@ fs.writeFileSync(
 fs.writeFileSync(
   path.join(distPluginDir, "index.js"),
   [
-    "import sdk from 'openclaw/plugin-sdk';",
+    "import sdk from 'zhushou/plugin-sdk';",
     "const { emptyPluginConfigSchema } = sdk;",
     "",
     "export default {",

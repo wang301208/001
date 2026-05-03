@@ -1,1 +1,1 @@
-export { safeEqualSecret } from "openclaw/plugin-sdk/browser-security-runtime";
+export { safeEqualSecret } from "zhushou/plugin-sdk/browser-security-runtime";

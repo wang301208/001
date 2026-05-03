@@ -1,8 +1,8 @@
-import { definePluginEntry, type OpenClawPluginApi } from "./api.js";
+import { definePluginEntry, type ZhushouPluginApi } from "./api.js";
 import { resolveWebhooksPluginConfig } from "./src/config.js";
 import { createTaskFlowWebhookRequestHandler, type TaskFlowWebhookTarget } from "./src/http.js";
 
-function registerWebhookRoutes(api: OpenClawPluginApi): void {
+function registerWebhookRoutes(api: ZhushouPluginApi): void {
   const routes = resolveWebhooksPluginConfig({
     pluginConfig: api.pluginConfig,
   });
@@ -46,8 +46,8 @@ export default definePluginEntry({
   id: "webhooks",
   name: "Webhooks",
   description:
-    "Authenticated inbound webhooks that bind external automation to OpenClaw TaskFlows.",
-  register(api: OpenClawPluginApi) {
+    "Authenticated inbound webhooks that bind external automation to 助手 TaskFlows.",
+  register(api: ZhushouPluginApi) {
     registerWebhookRoutes(api);
   },
 });

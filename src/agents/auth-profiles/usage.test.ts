@@ -617,12 +617,12 @@ describe("markAuthProfileUsed", () => {
     await markAuthProfileUsed({
       store,
       profileId: "anthropic:default",
-      agentDir: "/tmp/openclaw-auth-profiles-used",
+      agentDir: "/tmp/zhushou-auth-profiles-used",
     });
 
     expect(storeMocks.saveAuthProfileStore).toHaveBeenCalledWith(
       store,
-      "/tmp/openclaw-auth-profiles-used",
+      "/tmp/zhushou-auth-profiles-used",
     );
     expect(store.usageStats?.["anthropic:default"]?.errorCount).toBe(0);
     expect(store.usageStats?.["anthropic:default"]?.cooldownUntil).toBeUndefined();
@@ -648,7 +648,7 @@ describe("markAuthProfileUsed", () => {
     await markAuthProfileUsed({
       store,
       profileId: "anthropic:default",
-      agentDir: "/tmp/openclaw-auth-profiles-used",
+      agentDir: "/tmp/zhushou-auth-profiles-used",
     });
 
     expect(storeMocks.saveAuthProfileStore).not.toHaveBeenCalled();
@@ -657,7 +657,7 @@ describe("markAuthProfileUsed", () => {
 });
 
 describe("markAuthProfileFailure — active windows do not extend on retry", () => {
-  // Regression for https://github.com/openclaw/openclaw/issues/23516
+  // Regression for https://github.com/zhushou/zhushou/issues/23516
   // When all providers are at saturation backoff (60 min) and retries fire every 30 min,
   // each retry was resetting cooldownUntil to now+60m, preventing recovery.
   type WindowStats = ProfileUsageStats;

@@ -1,7 +1,7 @@
 import type { Command } from "commander";
-import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-import { formatZonedTimestamp } from "openclaw/plugin-sdk/matrix-runtime-shared";
-import type { ChannelSetupInput } from "openclaw/plugin-sdk/setup";
+import { normalizeAccountId } from "zhushou/plugin-sdk/account-id";
+import { formatZonedTimestamp } from "zhushou/plugin-sdk/matrix-runtime-shared";
+import type { ChannelSetupInput } from "zhushou/plugin-sdk/setup";
 import { resolveMatrixAccount, resolveMatrixAccountConfig } from "./matrix/accounts.js";
 import { listMatrixOwnDevices, pruneMatrixStaleGatewayDevices } from "./matrix/actions/devices.js";
 import { updateMatrixOwnProfile } from "./matrix/actions/profile.js";
@@ -84,7 +84,7 @@ function resolveMatrixCliAccountId(accountId?: string): string {
 function formatMatrixCliCommand(command: string, accountId?: string): string {
   const normalizedAccountId = normalizeAccountId(accountId);
   const suffix = normalizedAccountId === "default" ? "" : ` --account ${normalizedAccountId}`;
-  return `openclaw matrix ${command}${suffix}`;
+  return `zhushou matrix ${command}${suffix}`;
 }
 
 function printMatrixOwnDevices(
@@ -676,7 +676,7 @@ export function registerMatrixCli(params: { program: Command }): void {
   const root = params.program
     .command("matrix")
     .description("Matrix channel utilities")
-    .addHelpText("after", () => "\nDocs: https://docs.openclaw.ai/channels/matrix\n");
+    .addHelpText("after", () => "\nDocs: https://docs.zhushou.ai/channels/matrix\n");
 
   const account = root.command("account").description("Manage matrix channel accounts");
 
@@ -764,7 +764,7 @@ export function registerMatrixCli(params: { program: Command }): void {
               console.error(`Matrix device health warning: ${result.deviceHealth.error}`);
             } else if (result.deviceHealth.staleOpenClawDeviceIds.length > 0) {
               console.log(
-                `Matrix device hygiene warning: stale OpenClaw devices detected (${result.deviceHealth.staleOpenClawDeviceIds.join(", ")}). Run 'openclaw matrix devices prune-stale --account ${result.accountId}'.`,
+                `Matrix device hygiene warning: stale 助手 devices detected (${result.deviceHealth.staleOpenClawDeviceIds.join(", ")}). Run 'zhushou matrix devices prune-stale --account ${result.accountId}'.`,
               );
             }
             if (result.profile.attempted) {
@@ -779,7 +779,7 @@ export function registerMatrixCli(params: { program: Command }): void {
                 }
               }
             }
-            const bindHint = `openclaw agents bind --agent <id> --bind matrix:${result.accountId}`;
+            const bindHint = `zhushou agents bind --agent <id> --bind matrix:${result.accountId}`;
             console.log(`Bind this account to an agent: ${bindHint}`);
           },
           errorPrefix: "Account setup failed",
@@ -1173,7 +1173,7 @@ export function registerMatrixCli(params: { program: Command }): void {
 
   devices
     .command("prune-stale")
-    .description("Delete stale OpenClaw-managed devices for this account")
+    .description("Delete stale 助手-managed devices for this account")
     .option("--account <id>", "Account ID (for multi-account setups)")
     .option("--verbose", "Show detailed diagnostics")
     .option("--json", "Output as JSON")
@@ -1186,7 +1186,7 @@ export function registerMatrixCli(params: { program: Command }): void {
         onText: (result, verbose) => {
           printAccountLabel(accountId);
           console.log(
-            `Deleted stale OpenClaw devices: ${result.deletedDeviceIds.length ? result.deletedDeviceIds.join(", ") : "none"}`,
+            `Deleted stale 助手 devices: ${result.deletedDeviceIds.length ? result.deletedDeviceIds.join(", ") : "none"}`,
           );
           console.log(`Current device: ${result.currentDeviceId ?? "unknown"}`);
           console.log(`Remaining devices: ${result.remainingDevices.length}`);

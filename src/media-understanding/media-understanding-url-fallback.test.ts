@@ -21,7 +21,7 @@ describe("media understanding attachment URL fallback", () => {
   });
 
   it("getPath falls back to URL fetch when local path is blocked", async () => {
-    await withTempDir({ prefix: "openclaw-media-cache-getpath-url-fallback-" }, async (base) => {
+    await withTempDir({ prefix: "zhushou-media-cache-getpath-url-fallback-" }, async (base) => {
       const allowedRoot = path.join(base, "allowed");
       const attachmentPath = path.join(allowedRoot, "voice-note.m4a");
       const fallbackUrl = "https://example.com/fallback.jpg";
@@ -68,7 +68,7 @@ describe("media understanding attachment URL fallback", () => {
   });
 
   it("falls back to URL fetch when local attachment canonicalization fails", async () => {
-    await withTempDir({ prefix: "openclaw-media-cache-url-fallback-" }, async (base) => {
+    await withTempDir({ prefix: "zhushou-media-cache-url-fallback-" }, async (base) => {
       const allowedRoot = path.join(base, "allowed");
       const attachmentPath = path.join(allowedRoot, "voice-note.m4a");
       const fallbackUrl = "https://example.com/fallback.jpg";

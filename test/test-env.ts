@@ -159,12 +159,12 @@ function resolveRestoreEntries(): RestoreEntry[] {
     { key: "XDG_DATA_HOME", value: process.env.XDG_DATA_HOME },
     { key: "XDG_STATE_HOME", value: process.env.XDG_STATE_HOME },
     { key: "XDG_CACHE_HOME", value: process.env.XDG_CACHE_HOME },
-    { key: "OPENCLAW_STATE_DIR", value: process.env.OPENCLAW_STATE_DIR },
-    { key: "OPENCLAW_CONFIG_PATH", value: process.env.OPENCLAW_CONFIG_PATH },
-    { key: "OPENCLAW_GATEWAY_PORT", value: process.env.OPENCLAW_GATEWAY_PORT },
+    { key: "ZHUSHOU_STATE_DIR", value: process.env.ZHUSHOU_STATE_DIR },
+    { key: "ZHUSHOU_CONFIG_PATH", value: process.env.ZHUSHOU_CONFIG_PATH },
+    { key: "ZHUSHOU_GATEWAY_PORT", value: process.env.ZHUSHOU_GATEWAY_PORT },
     { key: "OPENCLAW_BRIDGE_ENABLED", value: process.env.OPENCLAW_BRIDGE_ENABLED },
     { key: "OPENCLAW_BRIDGE_HOST", value: process.env.OPENCLAW_BRIDGE_HOST },
-    { key: "OPENCLAW_BRIDGE_PORT", value: process.env.OPENCLAW_BRIDGE_PORT },
+    { key: "ZHUSHOU_BRIDGE_PORT", value: process.env.ZHUSHOU_BRIDGE_PORT },
     { key: "OPENCLAW_CANVAS_HOST_PORT", value: process.env.OPENCLAW_CANVAS_HOST_PORT },
     { key: "OPENCLAW_TEST_HOME", value: process.env.OPENCLAW_TEST_HOME },
     { key: "OPENCLAW_AGENT_DIR", value: process.env.OPENCLAW_AGENT_DIR },
@@ -185,7 +185,7 @@ function createIsolatedTestHome(restore: RestoreEntry[]): {
   cleanup: () => void;
   tempHome: string;
 } {
-  const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-test-home-"));
+  const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-test-home-"));
 
   process.env.HOME = tempHome;
   process.env.USERPROFILE = tempHome;
@@ -195,16 +195,16 @@ function createIsolatedTestHome(restore: RestoreEntry[]): {
   delete process.env.OPENCLAW_ALLOW_SLOW_REPLY_TESTS;
 
   // Ensure test runs never touch the developer's real config/state, even if they have overrides set.
-  delete process.env.OPENCLAW_CONFIG_PATH;
+  delete process.env.ZHUSHOU_CONFIG_PATH;
   // Prefer deriving state dir from HOME so nested tests that change HOME also isolate correctly.
-  delete process.env.OPENCLAW_STATE_DIR;
+  delete process.env.ZHUSHOU_STATE_DIR;
   delete process.env.OPENCLAW_AGENT_DIR;
   delete process.env.PI_CODING_AGENT_DIR;
   // Prefer test-controlled ports over developer overrides (avoid port collisions across tests/workers).
-  delete process.env.OPENCLAW_GATEWAY_PORT;
+  delete process.env.ZHUSHOU_GATEWAY_PORT;
   delete process.env.OPENCLAW_BRIDGE_ENABLED;
   delete process.env.OPENCLAW_BRIDGE_HOST;
-  delete process.env.OPENCLAW_BRIDGE_PORT;
+  delete process.env.ZHUSHOU_BRIDGE_PORT;
   delete process.env.OPENCLAW_CANVAS_HOST_PORT;
   // Avoid leaking real GitHub/Copilot tokens into non-live test runs.
   delete process.env.TELEGRAM_BOT_TOKEN;
@@ -220,7 +220,7 @@ function createIsolatedTestHome(restore: RestoreEntry[]): {
 
   // Windows: prefer the default state dir so auth/profile tests match real paths.
   if (process.platform === "win32") {
-    process.env.OPENCLAW_STATE_DIR = path.join(tempHome, ".openclaw");
+    process.env.ZHUSHOU_STATE_DIR = path.join(tempHome, ".zhushou");
   }
 
   process.env.XDG_CONFIG_HOME = path.join(tempHome, ".config");
@@ -351,31 +351,31 @@ function stageLiveTestState(params: {
   realHome: string;
   tempHome: string;
 }): void {
-  const rawStateDir = params.env.OPENCLAW_STATE_DIR?.trim();
+  const rawStateDir = params.env.ZHUSHOU_STATE_DIR?.trim();
   let realStateDir = rawStateDir
     ? resolveHomeRelativePath(rawStateDir, params.realHome)
-    : path.join(params.realHome, ".openclaw");
+    : path.join(params.realHome, ".zhushou");
   const priorIsolatedHome = params.env.OPENCLAW_TEST_HOME?.trim();
   const snapshotHome = params.env.HOME?.trim();
   if (
     priorIsolatedHome &&
     snapshotHome &&
     snapshotHome !== priorIsolatedHome &&
-    realStateDir === path.join(priorIsolatedHome, ".openclaw")
+    realStateDir === path.join(priorIsolatedHome, ".zhushou")
   ) {
-    realStateDir = path.join(params.realHome, ".openclaw");
+    realStateDir = path.join(params.realHome, ".zhushou");
   }
-  const tempStateDir = path.join(params.tempHome, ".openclaw");
+  const tempStateDir = path.join(params.tempHome, ".zhushou");
   fs.mkdirSync(tempStateDir, { recursive: true });
   fs.mkdirSync(path.join(params.tempHome, ".gemini"), { recursive: true });
 
-  const realConfigPath = params.env.OPENCLAW_CONFIG_PATH?.trim()
-    ? resolveHomeRelativePath(params.env.OPENCLAW_CONFIG_PATH, params.realHome)
-    : path.join(realStateDir, "openclaw.json");
+  const realConfigPath = params.env.ZHUSHOU_CONFIG_PATH?.trim()
+    ? resolveHomeRelativePath(params.env.ZHUSHOU_CONFIG_PATH, params.realHome)
+    : path.join(realStateDir, "zhushou.json");
   if (fs.existsSync(realConfigPath)) {
     const rawConfig = fs.readFileSync(realConfigPath, "utf8");
     fs.writeFileSync(
-      path.join(tempStateDir, "openclaw.json"),
+      path.join(tempStateDir, "zhushou.json"),
       sanitizeLiveConfig(rawConfig),
       "utf8",
     );

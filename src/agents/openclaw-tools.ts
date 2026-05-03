@@ -1,15 +1,15 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { callGateway } from "../gateway/call.js";
 import { getActiveRuntimeWebToolsMetadata } from "../secrets/runtime.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentWorkspaceDir, resolveSessionAgentIds } from "./agent-scope.js";
-import { resolveOpenClawPluginToolsForOptions } from "./openclaw-plugin-tools.js";
-import { applyNodesToolWorkspaceGuard } from "./openclaw-tools.nodes-workspace-guard.js";
+import { resolveOpenClawPluginToolsForOptions } from "./zhushou-plugin-tools.js";
+import { applyNodesToolWorkspaceGuard } from "./zhushou-tools.nodes-workspace-guard.js";
 import {
   collectPresentOpenClawTools,
   isUpdatePlanToolEnabledForOpenClawTools,
-} from "./openclaw-tools.registration.js";
+} from "./zhushou-tools.registration.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import type { SpawnedToolContext } from "./spawned-context.js";
 import type { ToolFsPolicy } from "./tool-fs-policy.js";
@@ -41,7 +41,7 @@ import { resolveWorkspaceRoot } from "./workspace-dir.js";
 
 type OpenClawToolsDeps = {
   callGateway: typeof callGateway;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
 };
 
 const defaultOpenClawToolsDeps: OpenClawToolsDeps = {
@@ -67,7 +67,7 @@ export function createOpenClawTools(
     sandboxFsBridge?: SandboxFsBridge;
     fsPolicy?: ToolFsPolicy;
     sandboxed?: boolean;
-    config?: OpenClawConfig;
+    config?: ZhushouConfig;
     pluginToolAllowlist?: string[];
     /** Current channel ID for auto-threading (Slack). */
     currentChannelId?: string;

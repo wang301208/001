@@ -3,8 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
-import "./test-helpers/fast-openclaw-tools.js";
-import type { OpenClawConfig } from "../config/config.js";
+import "./test-helpers/fast-zhushou-tools.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { createExecTool } from "./bash-tools.exec.js";
 import { createProcessTool } from "./bash-tools.process.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
@@ -12,7 +12,7 @@ import { createOpenClawCodingTools } from "./pi-tools.js";
 async function withTempCharterRoot<T>(
   fn: (params: { root: string; charterDir: string }) => Promise<T>,
 ): Promise<T> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-bash-governance-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-bash-governance-"));
   const charterDir = path.join(root, "governance", "charter");
   await mkdir(path.join(charterDir, "policies"), { recursive: true });
   try {
@@ -71,7 +71,7 @@ describe("bash tool governance freeze", () => {
         gateway: {
           bind: "lan",
         },
-      } satisfies OpenClawConfig;
+      } satisfies ZhushouConfig;
 
       const tools = createOpenClawCodingTools({
         workspaceDir,
@@ -92,7 +92,7 @@ describe("bash tool governance freeze", () => {
         gateway: {
           bind: "lan",
         },
-      } satisfies OpenClawConfig;
+      } satisfies ZhushouConfig;
 
       const tool = createExecTool({
         host: "gateway",
@@ -124,7 +124,7 @@ describe("bash tool governance freeze", () => {
         gateway: {
           bind: "lan",
         },
-      } satisfies OpenClawConfig;
+      } satisfies ZhushouConfig;
 
       const tool = createProcessTool({
         config: cfg,

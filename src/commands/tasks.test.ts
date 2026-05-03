@@ -18,7 +18,7 @@ import {
   tasksShowCommand,
 } from "./tasks.js";
 
-const ORIGINAL_STATE_DIR = process.env.OPENCLAW_STATE_DIR;
+const ORIGINAL_STATE_DIR = process.env.ZHUSHOU_STATE_DIR;
 
 function createRuntime(): RuntimeEnv {
   return {
@@ -46,8 +46,8 @@ function createGovernanceRuntime(agentId = "founder", observedAt = 1_710_000_000
 }
 
 async function withTaskCommandStateDir(run: () => Promise<void>): Promise<void> {
-  await withTempDir({ prefix: "openclaw-tasks-command-" }, async (root) => {
-    process.env.OPENCLAW_STATE_DIR = root;
+  await withTempDir({ prefix: "zhushou-tasks-command-" }, async (root) => {
+    process.env.ZHUSHOU_STATE_DIR = root;
     resetTaskRegistryDeliveryRuntimeForTests();
     resetTaskRegistryForTests({ persist: false });
     resetTaskFlowRegistryForTests({ persist: false });
@@ -69,9 +69,9 @@ describe("tasks commands", () => {
   afterEach(() => {
     vi.useRealTimers();
     if (ORIGINAL_STATE_DIR === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.ZHUSHOU_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = ORIGINAL_STATE_DIR;
+      process.env.ZHUSHOU_STATE_DIR = ORIGINAL_STATE_DIR;
     }
     resetTaskRegistryDeliveryRuntimeForTests();
     resetTaskRegistryForTests({ persist: false });

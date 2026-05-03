@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendMessageSlackMock = vi.hoisted(() => vi.fn());
@@ -8,7 +8,7 @@ vi.mock("./send.js", () => ({
   sendMessageSlack: sendMessageSlackMock,
 }));
 
-vi.mock("openclaw/plugin-sdk/plugin-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/plugin-runtime", () => ({
   getGlobalHookRunner: getGlobalHookRunnerMock,
 }));
 
@@ -38,7 +38,7 @@ const sendSlackText = async (ctx: SlackSendTextCtx) => {
     throw new Error("slackOutbound.sendText is unavailable");
   }
   return await sendText({
-    cfg: {} as OpenClawConfig,
+    cfg: {} as ZhushouConfig,
     ...ctx,
   });
 };
@@ -166,7 +166,7 @@ describe("slack outbound hook wiring", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       to: "C123",
       text: "hello",
       replyToId: "1111.2222",

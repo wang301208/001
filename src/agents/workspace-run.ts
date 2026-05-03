@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { logWarn } from "../logger.js";
 import { redactIdentifier } from "../logging/redact-identifier.js";
 import {
@@ -25,7 +25,7 @@ export type ResolveRunWorkspaceResult = {
 function resolveRunAgentId(params: {
   sessionKey?: string;
   agentId?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
 }): {
   agentId: string;
   agentIdSource: AgentIdSource;
@@ -75,7 +75,7 @@ export function resolveRunWorkspaceDir(params: {
   workspaceDir: unknown;
   sessionKey?: string;
   agentId?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
 }): ResolveRunWorkspaceResult {
   const requested = params.workspaceDir;
   const { agentId, agentIdSource } = resolveRunAgentId({

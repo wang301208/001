@@ -1,7 +1,7 @@
-export { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+export { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 export type {
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   OpenClawPluginCommandDefinition,
   PluginCommandContext,
   OpenClawPluginService,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";

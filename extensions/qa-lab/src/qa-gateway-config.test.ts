@@ -14,15 +14,15 @@ function createQaChannelTransportParams(baseUrl = "http://127.0.0.1:43124") {
         "qa-channel": {
           enabled: true,
           baseUrl,
-          botUserId: "openclaw",
-          botDisplayName: "OpenClaw QA",
+          botUserId: "zhushou",
+          botDisplayName: "助手 QA",
           allowFrom: ["*"],
           pollTimeoutMs: 250,
         },
       },
       messages: {
         groupChat: {
-          mentionPatterns: ["\\b@?openclaw\\b"],
+          mentionPatterns: ["\\b@?zhushou\\b"],
         },
       },
     } satisfies QaTransportGatewayConfig,
@@ -68,7 +68,7 @@ describe("buildQaGatewayConfig", () => {
       baseUrl: "http://127.0.0.1:43124",
       pollTimeoutMs: 250,
     });
-    expect(cfg.messages?.groupChat?.mentionPatterns).toEqual(["\\b@?openclaw\\b"]);
+    expect(cfg.messages?.groupChat?.mentionPatterns).toEqual(["\\b@?zhushou\\b"]);
   });
 
   it("maps provider-qualified openai and anthropic refs through the mock provider lane", () => {

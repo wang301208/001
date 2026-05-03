@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { GovernanceGenesisPlanStageStatus } from "../../governance/capability-registry.js";
 import type { AgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import type {
@@ -280,7 +280,7 @@ export type BoundTaskFlowRuntime = {
     expectedRevision: number;
     cancelRequestedAt?: number;
   }) => ManagedTaskFlowMutationResult;
-  cancel: (params: { flowId: string; cfg: OpenClawConfig }) => Promise<BoundTaskFlowCancelResult>;
+  cancel: (params: { flowId: string; cfg: ZhushouConfig }) => Promise<BoundTaskFlowCancelResult>;
   runTask: (params: {
     flowId: string;
     runtime: TaskRuntime;

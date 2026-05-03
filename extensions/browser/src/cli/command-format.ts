@@ -1,1 +1,1 @@
-export { formatCliCommand } from "openclaw/plugin-sdk/browser-setup-tools";
+export { formatCliCommand } from "zhushou/plugin-sdk/browser-setup-tools";

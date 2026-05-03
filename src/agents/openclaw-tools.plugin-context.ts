@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentWorkspaceDir, resolveSessionAgentId } from "./agent-scope.js";
@@ -13,7 +13,7 @@ export type OpenClawPluginToolOptions = {
   agentThreadId?: string | number;
   agentDir?: string;
   workspaceDir?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   fsPolicy?: ToolFsPolicy;
   requesterSenderId?: string | null;
   senderIsOwner?: boolean;
@@ -26,8 +26,8 @@ export type OpenClawPluginToolOptions = {
 
 export function resolveOpenClawPluginToolInputs(params: {
   options?: OpenClawPluginToolOptions;
-  resolvedConfig?: OpenClawConfig;
-  runtimeConfig?: OpenClawConfig;
+  resolvedConfig?: ZhushouConfig;
+  runtimeConfig?: ZhushouConfig;
 }) {
   const { options, resolvedConfig, runtimeConfig } = params;
   const sessionAgentId = resolveSessionAgentId({

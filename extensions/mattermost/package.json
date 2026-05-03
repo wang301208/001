@@ -1,25 +1,25 @@
 {
-  "name": "@openclaw/mattermost",
+  "name": "@zhushou/mattermost",
   "version": "2026.4.16",
-  "description": "OpenClaw Mattermost channel plugin",
+  "description": "助手 Mattermost channel plugin",
   "type": "module",
   "dependencies": {
     "@sinclair/typebox": "0.34.49",
     "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -34,7 +34,7 @@
       "order": 65
     },
     "install": {
-      "npmSpec": "@openclaw/mattermost",
+      "npmSpec": "@zhushou/mattermost",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

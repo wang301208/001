@@ -5,10 +5,10 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanupTempDirs, makeTempDir } from "./helpers/temp-dir.js";
 
 async function makeLauncherFixture(fixtureRoots: string[]): Promise<string> {
-  const fixtureRoot = makeTempDir(fixtureRoots, "openclaw-launcher-");
+  const fixtureRoot = makeTempDir(fixtureRoots, "zhushou-launcher-");
   await fs.copyFile(
-    path.resolve(process.cwd(), "openclaw.mjs"),
-    path.join(fixtureRoot, "openclaw.mjs"),
+    path.resolve(process.cwd(), "zhushou.mjs"),
+    path.join(fixtureRoot, "zhushou.mjs"),
   );
   await fs.mkdir(path.join(fixtureRoot, "dist"), { recursive: true });
   return fixtureRoot;
@@ -19,7 +19,7 @@ async function addSourceTreeMarker(fixtureRoot: string): Promise<void> {
   await fs.writeFile(path.join(fixtureRoot, "src", "entry.ts"), "export {};\n", "utf8");
 }
 
-describe("openclaw launcher", () => {
+describe("zhushou launcher", () => {
   const fixtureRoots: string[] = [];
 
   afterEach(async () => {
@@ -30,24 +30,24 @@ describe("openclaw launcher", () => {
     const fixtureRoot = await makeLauncherFixture(fixtureRoots);
     await fs.writeFile(
       path.join(fixtureRoot, "dist", "entry.js"),
-      'import "missing-openclaw-launcher-dep";\nexport {};\n',
+      'import "missing-zhushou-launcher-dep";\nexport {};\n',
       "utf8",
     );
 
-    const result = spawnSync(process.execPath, [path.join(fixtureRoot, "openclaw.mjs"), "--help"], {
+    const result = spawnSync(process.execPath, [path.join(fixtureRoot, "zhushou.mjs"), "--help"], {
       cwd: fixtureRoot,
       encoding: "utf8",
     });
 
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("missing-openclaw-launcher-dep");
+    expect(result.stderr).toContain("missing-zhushou-launcher-dep");
     expect(result.stderr).not.toContain("missing dist/entry.(m)js");
   });
 
   it("keeps the friendly launcher error for a truly missing entry build output", async () => {
     const fixtureRoot = await makeLauncherFixture(fixtureRoots);
 
-    const result = spawnSync(process.execPath, [path.join(fixtureRoot, "openclaw.mjs"), "--help"], {
+    const result = spawnSync(process.execPath, [path.join(fixtureRoot, "zhushou.mjs"), "--help"], {
       cwd: fixtureRoot,
       encoding: "utf8",
     });
@@ -60,7 +60,7 @@ describe("openclaw launcher", () => {
     const fixtureRoot = await makeLauncherFixture(fixtureRoots);
     await addSourceTreeMarker(fixtureRoot);
 
-    const result = spawnSync(process.execPath, [path.join(fixtureRoot, "openclaw.mjs"), "--help"], {
+    const result = spawnSync(process.execPath, [path.join(fixtureRoot, "zhushou.mjs"), "--help"], {
       cwd: fixtureRoot,
       encoding: "utf8",
     });
@@ -69,6 +69,6 @@ describe("openclaw launcher", () => {
     expect(result.stderr).toContain("missing dist/entry.(m)js");
     expect(result.stderr).toContain("unbuilt source tree or GitHub source archive");
     expect(result.stderr).toContain("pnpm install && pnpm build");
-    expect(result.stderr).toContain("github:openclaw/openclaw#<ref>");
+    expect(result.stderr).toContain("github:zhushou/zhushou#<ref>");
   });
 });

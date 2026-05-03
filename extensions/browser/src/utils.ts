@@ -3,4 +3,4 @@ export {
   escapeRegExp,
   resolveUserPath,
   shortenHomePath,
-} from "openclaw/plugin-sdk/browser-config-support";
+} from "zhushou/plugin-sdk/browser-config-support";

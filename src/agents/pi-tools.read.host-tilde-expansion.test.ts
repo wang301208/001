@@ -76,7 +76,7 @@ describe("host tool tilde expansion (non-workspace mode)", () => {
   });
 
   it("edit readFile expands ~ to the OS home directory", async () => {
-    const dir = await createTempDir("openclaw-tilde-test-edit-");
+    const dir = await createTempDir("zhushou-tilde-test-edit-");
     const testFile = path.join(dir, "test.txt");
     await fs.writeFile(testFile, "hello", "utf8");
 
@@ -87,7 +87,7 @@ describe("host tool tilde expansion (non-workspace mode)", () => {
   });
 
   it("edit access expands ~ to the OS home directory", async () => {
-    const dir = await createTempDir("openclaw-tilde-test-edit-");
+    const dir = await createTempDir("zhushou-tilde-test-edit-");
     const testFile = path.join(dir, "test.txt");
     await fs.writeFile(testFile, "hello", "utf8");
 
@@ -97,7 +97,7 @@ describe("host tool tilde expansion (non-workspace mode)", () => {
   });
 
   it("write writeFile expands ~ to the OS home directory", async () => {
-    const dir = await createTempDir("openclaw-tilde-test-write-");
+    const dir = await createTempDir("zhushou-tilde-test-write-");
     const testFile = path.join(dir, "tilde-write-test.txt");
 
     createHostWorkspaceWriteTool(dir, { workspaceOnly: false });
@@ -107,7 +107,7 @@ describe("host tool tilde expansion (non-workspace mode)", () => {
   });
 
   it("write mkdir expands ~ to the OS home directory", async () => {
-    const dir = await createTempDir("openclaw-tilde-test-mkdir-");
+    const dir = await createTempDir("zhushou-tilde-test-mkdir-");
     const newDir = path.join(dir, "subdir");
 
     createHostWorkspaceWriteTool(dir, { workspaceOnly: false });
@@ -116,11 +116,11 @@ describe("host tool tilde expansion (non-workspace mode)", () => {
     expect((await fs.stat(newDir)).isDirectory()).toBe(true);
   });
 
-  it("ignores OPENCLAW_HOME for write operations", async () => {
-    const openclawHome = await createTempDir("openclaw-home-override-", os.tmpdir());
-    const dir = await createTempDir("openclaw-tilde-test-write-");
+  it("ignores ZHUSHOU_HOME for write operations", async () => {
+    const openclawHome = await createTempDir("zhushou-home-override-", os.tmpdir());
+    const dir = await createTempDir("zhushou-tilde-test-write-");
     const testFile = path.join(dir, "os-home-write.txt");
-    vi.stubEnv("OPENCLAW_HOME", openclawHome);
+    vi.stubEnv("ZHUSHOU_HOME", openclawHome);
 
     createHostWorkspaceWriteTool(openclawHome, { workspaceOnly: false });
     await mocks.writeOps!.writeFile(toTildePath(testFile), "written via os home");
@@ -129,11 +129,11 @@ describe("host tool tilde expansion (non-workspace mode)", () => {
     await expect(fs.access(path.join(openclawHome, path.basename(testFile)))).rejects.toBeDefined();
   });
 
-  it("ignores OPENCLAW_HOME for mkdir operations", async () => {
-    const openclawHome = await createTempDir("openclaw-home-override-", os.tmpdir());
-    const dir = await createTempDir("openclaw-tilde-test-mkdir-");
+  it("ignores ZHUSHOU_HOME for mkdir operations", async () => {
+    const openclawHome = await createTempDir("zhushou-home-override-", os.tmpdir());
+    const dir = await createTempDir("zhushou-tilde-test-mkdir-");
     const newDir = path.join(dir, "os-home-subdir");
-    vi.stubEnv("OPENCLAW_HOME", openclawHome);
+    vi.stubEnv("ZHUSHOU_HOME", openclawHome);
 
     createHostWorkspaceWriteTool(openclawHome, { workspaceOnly: false });
     await mocks.writeOps!.mkdir(toTildePath(newDir));
@@ -142,12 +142,12 @@ describe("host tool tilde expansion (non-workspace mode)", () => {
     await expect(fs.access(path.join(openclawHome, path.basename(newDir)))).rejects.toBeDefined();
   });
 
-  it("ignores OPENCLAW_HOME for readFile operations", async () => {
-    const openclawHome = await createTempDir("openclaw-home-override-", os.tmpdir());
-    const dir = await createTempDir("openclaw-tilde-test-edit-");
+  it("ignores ZHUSHOU_HOME for readFile operations", async () => {
+    const openclawHome = await createTempDir("zhushou-home-override-", os.tmpdir());
+    const dir = await createTempDir("zhushou-tilde-test-edit-");
     const testFile = path.join(dir, "os-home-read.txt");
     await fs.writeFile(testFile, "OS home content", "utf8");
-    vi.stubEnv("OPENCLAW_HOME", openclawHome);
+    vi.stubEnv("ZHUSHOU_HOME", openclawHome);
 
     createHostWorkspaceEditTool(openclawHome, { workspaceOnly: false });
     const content = await mocks.editOps!.readFile(toTildePath(testFile));
@@ -156,12 +156,12 @@ describe("host tool tilde expansion (non-workspace mode)", () => {
     await expect(fs.access(path.join(openclawHome, path.basename(testFile)))).rejects.toBeDefined();
   });
 
-  it("ignores OPENCLAW_HOME for access operations", async () => {
-    const openclawHome = await createTempDir("openclaw-home-override-", os.tmpdir());
-    const dir = await createTempDir("openclaw-tilde-test-edit-");
+  it("ignores ZHUSHOU_HOME for access operations", async () => {
+    const openclawHome = await createTempDir("zhushou-home-override-", os.tmpdir());
+    const dir = await createTempDir("zhushou-tilde-test-edit-");
     const testFile = path.join(dir, "os-home-access.txt");
     await fs.writeFile(testFile, "exists", "utf8");
-    vi.stubEnv("OPENCLAW_HOME", openclawHome);
+    vi.stubEnv("ZHUSHOU_HOME", openclawHome);
 
     createHostWorkspaceEditTool(openclawHome, { workspaceOnly: false });
 

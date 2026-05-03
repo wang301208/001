@@ -1,7 +1,7 @@
-import { describeOpenClawGenerationToolRegistration } from "./openclaw-tools.generation.test-support.js";
+import { describeOpenClawGenerationToolRegistration } from "./zhushou-tools.generation.test-support.js";
 
 describeOpenClawGenerationToolRegistration({
-  suiteName: "openclaw tools video generation registration",
+  suiteName: "zhushou tools video generation registration",
   toolName: "video_generate",
   toolLabel: "a video-generation tool",
 });

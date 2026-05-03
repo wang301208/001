@@ -57,7 +57,7 @@ describe("discord tool result dispatch", () => {
     const handler = await createHandler(cfg);
     const client = createGuildTextClient();
 
-    await handler(createGuildMessageEvent({ messageId: "m2", content: "openclaw: hello" }), client);
+    await handler(createGuildMessageEvent({ messageId: "m2", content: "zhushou: hello" }), client);
 
     await vi.waitFor(() => expect(dispatchMock).toHaveBeenCalledTimes(1));
   });
@@ -84,7 +84,7 @@ describe("discord tool result dispatch", () => {
             mentionedEveryone: false,
             mentionedUsers: [],
             mentionedRoles: [],
-            author: { id: "bot-id", bot: true, username: "OpenClaw" },
+            author: { id: "bot-id", bot: true, username: "助手" },
           },
         },
       }),

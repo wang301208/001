@@ -51,7 +51,7 @@ vi.mock("./private-qa-cli.js", async () => {
 describe("registerSubCliCommands", () => {
   const originalArgv = process.argv;
   const originalDisableLazySubcommands = process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS;
-  const originalEnablePrivateQaCli = process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI;
+  const originalEnablePrivateQaCli = process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
 
   const createRegisteredProgram = (argv: string[], name?: string) => {
     process.argv = argv;
@@ -69,7 +69,7 @@ describe("registerSubCliCommands", () => {
     } else {
       process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS = originalDisableLazySubcommands;
     }
-    process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI = "1";
+    process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = "1";
     registerAcpCli.mockClear();
     acpAction.mockClear();
     registerNodesCli.mockClear();
@@ -88,14 +88,14 @@ describe("registerSubCliCommands", () => {
       process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS = originalDisableLazySubcommands;
     }
     if (originalEnablePrivateQaCli === undefined) {
-      delete process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI;
+      delete process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
     } else {
-      process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI = originalEnablePrivateQaCli;
+      process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = originalEnablePrivateQaCli;
     }
   });
 
   it("registers the primary placeholder plus completion and dispatches", async () => {
-    const program = createRegisteredProgram(["node", "openclaw", "acp"]);
+    const program = createRegisteredProgram(["node", "zhushou", "acp"]);
 
     expect(program.commands.map((cmd) => cmd.name())).toEqual(["acp", "completion"]);
 
@@ -106,7 +106,7 @@ describe("registerSubCliCommands", () => {
   });
 
   it("registers placeholders for all subcommands when no primary", () => {
-    const program = createRegisteredProgram(["node", "openclaw"]);
+    const program = createRegisteredProgram(["node", "zhushou"]);
 
     const names = program.commands.map((cmd) => cmd.name());
     expect(names).toContain("acp");
@@ -117,15 +117,15 @@ describe("registerSubCliCommands", () => {
   });
 
   it("omits the qa placeholder when the private qa cli is disabled", () => {
-    delete process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI;
+    delete process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
 
-    const program = createRegisteredProgram(["node", "openclaw"]);
+    const program = createRegisteredProgram(["node", "zhushou"]);
 
     expect(program.commands.map((cmd) => cmd.name())).not.toContain("qa");
   });
 
   it("re-parses argv for lazy subcommands", async () => {
-    const program = createRegisteredProgram(["node", "openclaw", "nodes", "list"], "openclaw");
+    const program = createRegisteredProgram(["node", "zhushou", "nodes", "list"], "zhushou");
 
     expect(program.commands.map((cmd) => cmd.name())).toEqual(["nodes", "completion"]);
 
@@ -136,7 +136,7 @@ describe("registerSubCliCommands", () => {
   });
 
   it("registers the infer placeholder and dispatches through the capability registrar", async () => {
-    const program = createRegisteredProgram(["node", "openclaw", "infer"], "openclaw");
+    const program = createRegisteredProgram(["node", "zhushou", "infer"], "zhushou");
 
     expect(program.commands.map((cmd) => cmd.name())).toEqual(["infer", "completion"]);
 
@@ -147,7 +147,7 @@ describe("registerSubCliCommands", () => {
   });
 
   it("replaces placeholder when registering a subcommand by name", async () => {
-    const program = createRegisteredProgram(["node", "openclaw", "acp", "--help"], "openclaw");
+    const program = createRegisteredProgram(["node", "zhushou", "acp", "--help"], "zhushou");
 
     await registerSubCliByName(program, "acp");
 

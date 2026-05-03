@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
+import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-zhushou-dir.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import type { SkillSnapshot } from "../skills.js";
 import { cliBackendLog } from "./log.js";
 
 const CLAUDE_CLI_BACKEND_ID = "claude-cli";
-const OPENCLAW_CLAUDE_PLUGIN_NAME = "openclaw-skills";
+const OPENCLAW_CLAUDE_PLUGIN_NAME = "zhushou-skills";
 
 type MaterializedSkill = {
   name: string;
@@ -89,7 +89,7 @@ export async function prepareClaudeCliSkillsPlugin(params: {
   }
 
   const tempDir = await fs.mkdtemp(
-    path.join(resolvePreferredOpenClawTmpDir(), "openclaw-claude-skills-"),
+    path.join(resolvePreferredOpenClawTmpDir(), "zhushou-claude-skills-"),
   );
   const pluginDir = path.join(tempDir, OPENCLAW_CLAUDE_PLUGIN_NAME);
   const manifestDir = path.join(pluginDir, ".claude-plugin");
@@ -100,7 +100,7 @@ export async function prepareClaudeCliSkillsPlugin(params: {
   const manifest = {
     name: OPENCLAW_CLAUDE_PLUGIN_NAME,
     version: "0.0.0",
-    description: "Session-scoped OpenClaw skills selected for this agent run.",
+    description: "Session-scoped 助手 skills selected for this agent run.",
     skills: "./skills",
   };
   await fs.writeFile(

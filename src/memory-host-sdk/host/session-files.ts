@@ -42,7 +42,7 @@ function isDreamingNarrativeBootstrapRecord(record: unknown): boolean {
   };
   if (
     candidate.type !== "custom" ||
-    candidate.customType !== "openclaw:bootstrap-context:full" ||
+    candidate.customType !== "zhushou:bootstrap-context:full" ||
     !candidate.data ||
     typeof candidate.data !== "object" ||
     Array.isArray(candidate.data)
@@ -204,7 +204,7 @@ function collectRawSessionText(content: unknown): string | null {
 }
 
 /**
- * Strip OpenClaw-injected inbound metadata envelopes from a raw text block.
+ * Strip 助手-injected inbound metadata envelopes from a raw text block.
  *
  * User-role messages arriving from external channels (Telegram, Discord,
  * Slack, …) are stored with a multi-line prefix containing Conversation info,
@@ -214,7 +214,7 @@ function collectRawSessionText(content: unknown): string | null {
  * `normalizeSessionText` collapses newlines into spaces, stripping is
  * impossible.
  *
- * See: https://github.com/openclaw/openclaw/issues/63921
+ * See: https://github.com/zhushou/zhushou/issues/63921
  */
 function stripInboundMetadataForUserRole(text: string, role: "user" | "assistant"): string {
   if (role !== "user") {

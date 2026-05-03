@@ -46,9 +46,9 @@ export type ApnsRelayRequestSender = (params: {
 }) => Promise<ApnsRelayPushResponse>;
 
 const DEFAULT_APNS_RELAY_TIMEOUT_MS = 10_000;
-const GATEWAY_DEVICE_ID_HEADER = "x-openclaw-gateway-device-id";
-const GATEWAY_SIGNATURE_HEADER = "x-openclaw-gateway-signature";
-const GATEWAY_SIGNED_AT_HEADER = "x-openclaw-gateway-signed-at-ms";
+const GATEWAY_DEVICE_ID_HEADER = "x-zhushou-gateway-device-id";
+const GATEWAY_SIGNATURE_HEADER = "x-zhushou-gateway-signature";
+const GATEWAY_SIGNED_AT_HEADER = "x-zhushou-gateway-signed-at-ms";
 
 function normalizeNonEmptyString(value: string | undefined): string | null {
   const trimmed = normalizeOptionalString(value) ?? "";
@@ -99,7 +99,7 @@ function buildRelayGatewaySignaturePayload(params: {
   bodyJson: string;
 }): string {
   return [
-    "openclaw-relay-send-v1",
+    "zhushou-relay-send-v1",
     params.gatewayDeviceId.trim(),
     String(Math.trunc(params.signedAtMs)),
     params.bodyJson,

@@ -30,7 +30,7 @@ function createFakeSession(): ChromeMcpSession {
       const pageLines = [
         "## Pages",
         `1: ${currentUrl} [selected]`,
-        "2: https://github.com/openclaw/openclaw/pull/45318",
+        "2: https://github.com/zhushou/zhushou/pull/45318",
       ];
       if (createdPageOpen) {
         pageLines.push(`3: ${currentUrl}`);
@@ -54,7 +54,7 @@ function createFakeSession(): ChromeMcpSession {
             text: [
               "## Pages",
               "1: https://developer.chrome.com/blog/chrome-devtools-mcp-debug-your-browser-session",
-              "2: https://github.com/openclaw/openclaw/pull/45318",
+              "2: https://github.com/zhushou/zhushou/pull/45318",
               `3: ${currentUrl} [selected]`,
             ].join("\n"),
           },
@@ -113,7 +113,7 @@ describe("chrome MCP page parsing", () => {
       {
         targetId: "2",
         title: "",
-        url: "https://github.com/openclaw/openclaw/pull/45318",
+        url: "https://github.com/zhushou/zhushou/pull/45318",
         type: "page",
       },
     ]);

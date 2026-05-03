@@ -9,7 +9,7 @@
  */
 
 import { lookup } from "node:dns/promises";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { buildUserAgent } from "./user-agent.js";
 
 /**

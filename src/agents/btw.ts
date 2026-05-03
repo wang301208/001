@@ -16,7 +16,7 @@ import {
   resolveSessionFilePathOptions,
   type SessionEntry,
 } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { diagnosticLogger as diag } from "../logging/diagnostic.js";
 import { prepareProviderRuntimeAuth } from "../plugins/provider-runtime.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
@@ -249,7 +249,7 @@ function resolveSessionTranscriptPath(params: {
 }
 
 async function resolveRuntimeModel(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   provider: string;
   model: string;
   agentDir: string;
@@ -294,7 +294,7 @@ async function resolveRuntimeModel(params: {
 }
 
 type RunBtwSideQuestionParams = {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   agentDir: string;
   provider: string;
   model: string;

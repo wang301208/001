@@ -4,61 +4,61 @@ export {
   PAIRING_APPROVED_MESSAGE,
   projectCredentialSnapshotFields,
   resolveConfiguredFromCredentialStatuses,
-} from "openclaw/plugin-sdk/channel-status";
+} from "zhushou/plugin-sdk/channel-status";
 export { buildChannelConfigSchema, DiscordConfigSchema } from "../config-api.js";
 export type {
   ChannelMessageActionAdapter,
   ChannelMessageActionContext,
   ChannelMessageActionName,
-} from "openclaw/plugin-sdk/channel-contract";
+} from "zhushou/plugin-sdk/channel-contract";
 export type {
   ChannelPlugin,
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   PluginRuntime,
-} from "openclaw/plugin-sdk/channel-plugin-common";
+} from "zhushou/plugin-sdk/channel-plugin-common";
 export type {
   DiscordAccountConfig,
   DiscordActionConfig,
   DiscordConfig,
-  OpenClawConfig,
-} from "openclaw/plugin-sdk/config-runtime";
+  ZhushouConfig,
+} from "zhushou/plugin-sdk/config-runtime";
 export {
   jsonResult,
   readNumberParam,
   readStringArrayParam,
   readStringParam,
   resolvePollMaxSelections,
-} from "openclaw/plugin-sdk/channel-actions";
-export type { ActionGate } from "openclaw/plugin-sdk/channel-actions";
-export { readBooleanParam } from "openclaw/plugin-sdk/boolean-param";
+} from "zhushou/plugin-sdk/channel-actions";
+export type { ActionGate } from "zhushou/plugin-sdk/channel-actions";
+export { readBooleanParam } from "zhushou/plugin-sdk/boolean-param";
 export {
   assertMediaNotDataUrl,
   parseAvailableTags,
   readReactionParams,
   withNormalizedTimestamp,
-} from "openclaw/plugin-sdk/channel-actions";
+} from "zhushou/plugin-sdk/channel-actions";
 export {
   createHybridChannelConfigAdapter,
   createScopedChannelConfigAdapter,
   createScopedAccountConfigAccessors,
   createScopedChannelConfigBase,
   createTopLevelChannelConfigAdapter,
-} from "openclaw/plugin-sdk/channel-config-helpers";
+} from "zhushou/plugin-sdk/channel-config-helpers";
 export {
   createAccountActionGate,
   createAccountListHelpers,
-} from "openclaw/plugin-sdk/account-helpers";
-export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+} from "zhushou/plugin-sdk/account-helpers";
+export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
 export {
   emptyPluginConfigSchema,
   formatPairingApproveHint,
-} from "openclaw/plugin-sdk/channel-plugin-common";
-export { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk/outbound-media";
-export { resolveAccountEntry } from "openclaw/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/channel-plugin-common";
+export { loadOutboundMediaFromUrl } from "zhushou/plugin-sdk/outbound-media";
+export { resolveAccountEntry } from "zhushou/plugin-sdk/routing";
 export {
   hasConfiguredSecretInput,
   normalizeResolvedSecretInputString,
   normalizeSecretInputString,
-} from "openclaw/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/secret-input";
 export { getChatChannelMeta } from "./channel-api.js";
 export { resolveDiscordOutboundSessionRoute } from "./outbound-session-route.js";

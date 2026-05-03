@@ -22,7 +22,7 @@ import {
   collectRuntimeDependencySpecs,
 } from "./lib/bundled-plugin-root-runtime-mirrors.mjs";
 import { runInstalledWorkspaceBootstrapSmoke } from "./lib/workspace-bootstrap-smoke.mjs";
-import { parseReleaseVersion, resolveNpmCommandInvocation } from "./openclaw-npm-release-check.ts";
+import { parseReleaseVersion, resolveNpmCommandInvocation } from "./zhushou-npm-release-check.ts";
 
 type InstalledPackageJson = {
   version?: string;
@@ -67,7 +67,7 @@ export function buildPublishedInstallScenarios(version: string): PublishedInstal
     throw new Error(`Unsupported release version "${version}".`);
   }
 
-  const exactSpec = `openclaw@${version}`;
+  const exactSpec = `zhushou@${version}`;
   const scenarios: PublishedInstallScenario[] = [
     {
       name: "fresh-exact",
@@ -79,7 +79,7 @@ export function buildPublishedInstallScenarios(version: string): PublishedInstal
   if (parsed.channel === "stable" && parsed.correctionNumber !== undefined) {
     scenarios.push({
       name: "upgrade-from-base-stable",
-      installSpecs: [`openclaw@${parsed.baseVersion}`, exactSpec],
+      installSpecs: [`zhushou@${parsed.baseVersion}`, exactSpec],
       expectedVersion: version,
     });
   }
@@ -166,8 +166,8 @@ export function resolveInstalledBinaryPath(prefixDir: string, platform = process
   const prefix = prefixDir.replace(/[\\/]+$/u, "");
 
   return platform === "win32"
-    ? `${prefix}${separator}openclaw.cmd`
-    : `${prefix}${separator}bin${separator}openclaw`;
+    ? `${prefix}${separator}zhushou.cmd`
+    : `${prefix}${separator}bin${separator}zhushou`;
 }
 
 function collectExpectedBundledExtensionPackageIds(): ReadonlySet<string> {
@@ -327,7 +327,7 @@ function readInstalledBinaryVersion(prefixDir: string, cwd: string): string {
 }
 
 function verifyScenario(version: string, scenario: PublishedInstallScenario): void {
-  const workingDir = mkdtempSync(join(tmpdir(), `openclaw-postpublish-${scenario.name}.`));
+  const workingDir = mkdtempSync(join(tmpdir(), `zhushou-postpublish-${scenario.name}.`));
   const prefixDir = join(workingDir, "prefix");
 
   try {
@@ -336,7 +336,7 @@ function verifyScenario(version: string, scenario: PublishedInstallScenario): vo
     }
 
     const globalRoot = resolveGlobalRoot(prefixDir, workingDir);
-    const packageRoot = join(globalRoot, "openclaw");
+    const packageRoot = join(globalRoot, "zhushou");
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as InstalledPackageJson;
@@ -349,7 +349,7 @@ function verifyScenario(version: string, scenario: PublishedInstallScenario): vo
 
     if (normalizeInstalledBinaryVersion(installedBinaryVersion) !== scenario.expectedVersion) {
       errors.push(
-        `installed openclaw binary version mismatch: expected ${scenario.expectedVersion}, found ${installedBinaryVersion || "<missing>"}.`,
+        `installed zhushou binary version mismatch: expected ${scenario.expectedVersion}, found ${installedBinaryVersion || "<missing>"}.`,
       );
     }
 
@@ -361,7 +361,7 @@ function verifyScenario(version: string, scenario: PublishedInstallScenario): vo
       throw new Error(`${scenario.name} failed:\n- ${errors.join("\n- ")}`);
     }
 
-    console.log(`openclaw-npm-postpublish-verify: ${scenario.name} OK (${version})`);
+    console.log(`zhushou-npm-postpublish-verify: ${scenario.name} OK (${version})`);
   } finally {
     rmSync(workingDir, { force: true, recursive: true });
   }
@@ -371,7 +371,7 @@ function main(): void {
   const version = process.argv[2]?.trim();
   if (!version) {
     throw new Error(
-      "Usage: node --import tsx scripts/openclaw-npm-postpublish-verify.ts <version>",
+      "Usage: node --import tsx scripts/zhushou-npm-postpublish-verify.ts <version>",
     );
   }
 
@@ -381,7 +381,7 @@ function main(): void {
   }
 
   console.log(
-    `openclaw-npm-postpublish-verify: verified published npm install paths for ${version}.`,
+    `zhushou-npm-postpublish-verify: verified published npm install paths for ${version}.`,
   );
 }
 
@@ -390,7 +390,7 @@ if (entrypoint !== null && import.meta.url === entrypoint) {
   try {
     main();
   } catch (error) {
-    console.error(`openclaw-npm-postpublish-verify: ${formatErrorMessage(error)}`);
+    console.error(`zhushou-npm-postpublish-verify: ${formatErrorMessage(error)}`);
     process.exitCode = 1;
   }
 }

@@ -4,10 +4,10 @@ import path from "node:path";
 import { getModel } from "@mariozechner/pi-ai";
 import { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
 import OpenAI from "openai";
-import type { ResolvedTtsConfig } from "openclaw/plugin-sdk/agent-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { loadConfig } from "openclaw/plugin-sdk/config-runtime";
-import { encodePngRgba, fillPixel } from "openclaw/plugin-sdk/media-runtime";
+import type { ResolvedTtsConfig } from "zhushou/plugin-sdk/agent-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import { encodePngRgba, fillPixel } from "zhushou/plugin-sdk/media-runtime";
 import { describe, expect, it } from "vitest";
 import {
   registerProviderPlugin,
@@ -89,7 +89,7 @@ function createReferencePng(): Buffer {
   return encodePngRgba(buf, width, height);
 }
 
-function createLiveConfig(): OpenClawConfig {
+function createLiveConfig(): ZhushouConfig {
   const cfg = loadConfig();
   return {
     ...cfg,
@@ -104,7 +104,7 @@ function createLiveConfig(): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
 }
 
 function createLiveTtsConfig(): ResolvedTtsConfig {
@@ -195,7 +195,7 @@ describeLive("openai plugin live", () => {
     const ttsConfig = createLiveTtsConfig();
 
     const audioFile = await speechProvider.synthesize({
-      text: "OpenClaw integration test OK.",
+      text: "助手 integration test OK.",
       cfg,
       providerConfig: ttsConfig.providerConfigs.openai ?? {},
       target: "audio-file",
@@ -225,7 +225,7 @@ describeLive("openai plugin live", () => {
     const ttsConfig = createLiveTtsConfig();
 
     const synthesized = await speechProvider.synthesize({
-      text: "OpenClaw integration test OK.",
+      text: "助手 integration test OK.",
       cfg,
       providerConfig: ttsConfig.providerConfigs.openai ?? {},
       target: "audio-file",
@@ -242,7 +242,7 @@ describeLive("openai plugin live", () => {
 
     const text = (transcription?.text ?? "").toLowerCase();
     expect(text.length).toBeGreaterThan(0);
-    expect(text).toContain("openclaw");
+    expect(text).toContain("zhushou");
     expect(text).toMatch(/\bok\b/);
   }, 45_000);
 

@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   isAcpAgentAllowedByPolicy,
   isAcpDispatchEnabledByPolicy,
@@ -14,7 +14,7 @@ import {
 } from "./policy.js";
 
 async function createTempCharterRoot(): Promise<{ root: string; charterDir: string }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-acp-policy-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-acp-policy-"));
   const charterDir = path.join(root, "governance", "charter");
   await mkdir(path.join(charterDir, "policies"), { recursive: true });
   return { root, charterDir };
@@ -61,7 +61,7 @@ async function seedMinimalCharter(charterDir: string): Promise<void> {
 
 describe("acp policy", () => {
   it("treats ACP + ACP dispatch as enabled by default", () => {
-    const cfg = {} satisfies OpenClawConfig;
+    const cfg = {} satisfies ZhushouConfig;
     expect(isAcpEnabledByPolicy(cfg)).toBe(true);
     expect(isAcpDispatchEnabledByPolicy(cfg)).toBe(true);
     expect(resolveAcpDispatchPolicyState(cfg)).toBe("enabled");
@@ -72,7 +72,7 @@ describe("acp policy", () => {
       acp: {
         enabled: false,
       },
-    } satisfies OpenClawConfig;
+    } satisfies ZhushouConfig;
     expect(isAcpEnabledByPolicy(cfg)).toBe(false);
     expect(resolveAcpDispatchPolicyState(cfg)).toBe("acp_disabled");
     expect(resolveAcpDispatchPolicyMessage(cfg)).toContain("acp.enabled=false");
@@ -87,7 +87,7 @@ describe("acp policy", () => {
           enabled: false,
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies ZhushouConfig;
     expect(isAcpDispatchEnabledByPolicy(cfg)).toBe(false);
     expect(resolveAcpDispatchPolicyState(cfg)).toBe("dispatch_disabled");
     expect(resolveAcpDispatchPolicyMessage(cfg)).toContain("acp.dispatch.enabled=false");
@@ -101,7 +101,7 @@ describe("acp policy", () => {
         gateway: {
           bind: "lan",
         },
-      } satisfies OpenClawConfig;
+      } satisfies ZhushouConfig;
       expect(isAcpDispatchEnabledByPolicy(cfg, { charterDir })).toBe(false);
       expect(resolveAcpDispatchPolicyState(cfg, { charterDir })).toBe("governance_frozen");
       expect(resolveAcpDispatchPolicyMessage(cfg, { charterDir })).toContain(
@@ -120,7 +120,7 @@ describe("acp policy", () => {
       acp: {
         allowedAgents: ["Codex", "claude-code", "kimi"],
       },
-    } satisfies OpenClawConfig;
+    } satisfies ZhushouConfig;
     expect(isAcpAgentAllowedByPolicy(cfg, "codex")).toBe(true);
     expect(isAcpAgentAllowedByPolicy(cfg, "claude-code")).toBe(true);
     expect(isAcpAgentAllowedByPolicy(cfg, "KIMI")).toBe(true);

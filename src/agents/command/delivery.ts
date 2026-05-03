@@ -5,7 +5,7 @@ import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/ind
 import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
 import type { SessionEntry } from "../../config/sessions.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
@@ -68,7 +68,7 @@ function logNestedOutput(
 }
 
 export function normalizeAgentCommandReplyPayloads(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   opts: AgentCommandOpts;
   outboundSession: OutboundSessionContext | undefined;
   payloads: RunResult["payloads"];
@@ -139,7 +139,7 @@ export function normalizeAgentCommandReplyPayloads(params: {
 }
 
 export async function deliverAgentCommandResult(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   deps: CliDeps;
   runtime: RuntimeEnv;
   opts: AgentCommandOpts;

@@ -30,7 +30,7 @@ async function runQaCli(
     });
     const timeout = setTimeout(() => {
       child.kill("SIGKILL");
-      reject(new Error(`qa cli timed out: openclaw ${args.join(" ")}`));
+      reject(new Error(`qa cli timed out: zhushou ${args.join(" ")}`));
     }, opts?.timeoutMs ?? 60_000);
     child.stdout.on("data", (chunk) => stdout.push(Buffer.from(chunk)));
     child.stderr.on("data", (chunk) => stderr.push(Buffer.from(chunk)));

@@ -283,11 +283,11 @@ describe("resolvePluginTools optional tools", () => {
     {
       name: "forwards an explicit env to plugin loading",
       params: {
-        env: { OPENCLAW_HOME: "/srv/openclaw-home" } as NodeJS.ProcessEnv,
+        env: { ZHUSHOU_HOME: "/srv/zhushou-home" } as NodeJS.ProcessEnv,
         toolAllowlist: ["optional_tool"],
       },
       expectedLoaderCall: {
-        env: { OPENCLAW_HOME: "/srv/openclaw-home" },
+        env: { ZHUSHOU_HOME: "/srv/zhushou-home" },
       },
     },
     {

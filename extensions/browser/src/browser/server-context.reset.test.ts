@@ -25,13 +25,13 @@ beforeEach(() => {
 
 function localOpenClawProfile(): Parameters<typeof createProfileResetOps>[0]["profile"] {
   return {
-    name: "openclaw",
+    name: "zhushou",
     cdpUrl: "http://127.0.0.1:18800",
     cdpHost: "127.0.0.1",
     cdpIsLoopback: true,
     cdpPort: 18800,
     color: "#f60",
-    driver: "openclaw",
+    driver: "zhushou",
     attachOnly: false,
   };
 }
@@ -68,8 +68,8 @@ describe("createProfileResetOps", () => {
   });
 
   it("stops local browser, closes playwright connection, and trashes profile dir", async () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-reset-"));
-    const profileDir = path.join(tempRoot, "openclaw");
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-reset-"));
+    const profileDir = path.join(tempRoot, "zhushou");
     fs.mkdirSync(profileDir, { recursive: true });
 
     const stopRunningBrowser = vi.fn(async () => ({ stopped: true }));
@@ -101,8 +101,8 @@ describe("createProfileResetOps", () => {
   });
 
   it("forces playwright disconnect when loopback cdp is occupied by non-owned process", async () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-reset-no-own-"));
-    const profileDir = path.join(tempRoot, "openclaw");
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-reset-no-own-"));
+    const profileDir = path.join(tempRoot, "zhushou");
     fs.mkdirSync(profileDir, { recursive: true });
 
     const stopRunningBrowser = vi.fn(async () => ({ stopped: false }));

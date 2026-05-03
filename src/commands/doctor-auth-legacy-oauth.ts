@@ -1,6 +1,6 @@
 import { repairOAuthProfileIdMismatch } from "../agents/auth-profiles/repair.js";
 import { ensureAuthProfileStore } from "../agents/auth-profiles/store.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
 
 async function loadProviderRuntime() {
@@ -12,9 +12,9 @@ async function loadNoteRuntime() {
 }
 
 export async function maybeRepairLegacyOAuthProfileIds(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   prompter: DoctorPrompter,
-): Promise<OpenClawConfig> {
+): Promise<ZhushouConfig> {
   const store = ensureAuthProfileStore();
   let nextCfg = cfg;
   const { resolvePluginProviders } = await loadProviderRuntime();

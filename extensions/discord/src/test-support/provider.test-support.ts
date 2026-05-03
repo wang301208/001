@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import type { Mock } from "vitest";
 import { expect, vi } from "vitest";
 
@@ -23,7 +23,7 @@ type ProviderMonitorTestMocks = {
   createDiscordAutoPresenceControllerMock: Mock<() => unknown>;
   createDiscordExecApprovalButtonContextMock: Mock<
     (params?: {
-      cfg?: OpenClawConfig;
+      cfg?: ZhushouConfig;
       accountId?: string;
       config?: unknown;
       gatewayUrl?: string;
@@ -38,7 +38,7 @@ type ProviderMonitorTestMocks = {
   createdBindingManagers: Array<{ stop: ReturnType<typeof vi.fn> }>;
   getAcpSessionStatusMock: Mock<
     (params: {
-      cfg: OpenClawConfig;
+      cfg: ZhushouConfig;
       sessionKey: string;
       signal?: AbortSignal;
     }) => Promise<{ state: string }>
@@ -124,7 +124,7 @@ const providerMonitorTestMocks: ProviderMonitorTestMocks = vi.hoisted(() => {
     })),
     createdBindingManagers,
     getAcpSessionStatusMock: vi.fn(
-      async (_params: { cfg: OpenClawConfig; sessionKey: string; signal?: AbortSignal }) => ({
+      async (_params: { cfg: ZhushouConfig; sessionKey: string; signal?: AbortSignal }) => ({
         state: "idle",
       }),
     ),
@@ -282,7 +282,7 @@ export const baseRuntime = (): RuntimeEnv => ({
   exit: vi.fn(),
 });
 
-export const baseConfig = (): OpenClawConfig =>
+export const baseConfig = (): ZhushouConfig =>
   ({
     channels: {
       discord: {
@@ -293,7 +293,7 @@ export const baseConfig = (): OpenClawConfig =>
         },
       },
     },
-  }) as OpenClawConfig;
+  }) as ZhushouConfig;
 
 vi.mock("@buape/carbon", async () => {
   const actual = await vi.importActual<typeof import("@buape/carbon")>("@buape/carbon");
@@ -344,9 +344,9 @@ vi.mock("@buape/carbon/voice", () => ({
   VoicePlugin: function VoicePlugin() {},
 }));
 
-vi.mock("openclaw/plugin-sdk/acp-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/acp-runtime")>(
-    "openclaw/plugin-sdk/acp-runtime",
+vi.mock("zhushou/plugin-sdk/acp-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/acp-runtime")>(
+    "zhushou/plugin-sdk/acp-runtime",
   );
   return {
     ...actual,
@@ -358,9 +358,9 @@ vi.mock("openclaw/plugin-sdk/acp-runtime", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/command-auth", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/command-auth")>(
-    "openclaw/plugin-sdk/command-auth",
+vi.mock("zhushou/plugin-sdk/command-auth", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/command-auth")>(
+    "zhushou/plugin-sdk/command-auth",
   );
   return {
     ...actual,
@@ -368,9 +368,9 @@ vi.mock("openclaw/plugin-sdk/command-auth", async () => {
     listSkillCommandsForAgents: listSkillCommandsForAgentsMock,
   };
 });
-vi.mock("openclaw/plugin-sdk/reply-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/reply-runtime")>(
-    "openclaw/plugin-sdk/reply-runtime",
+vi.mock("zhushou/plugin-sdk/reply-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/reply-runtime")>(
+    "zhushou/plugin-sdk/reply-runtime",
   );
   return {
     ...actual,
@@ -378,9 +378,9 @@ vi.mock("openclaw/plugin-sdk/reply-runtime", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/config-runtime")>(
-    "openclaw/plugin-sdk/config-runtime",
+vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
+    "zhushou/plugin-sdk/config-runtime",
   );
   return {
     ...actual,
@@ -391,9 +391,9 @@ vi.mock("openclaw/plugin-sdk/config-runtime", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/runtime-env")>(
-    "openclaw/plugin-sdk/runtime-env",
+vi.mock("zhushou/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/runtime-env")>(
+    "zhushou/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -416,9 +416,9 @@ vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/infra-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/infra-runtime")>(
-    "openclaw/plugin-sdk/infra-runtime",
+vi.mock("zhushou/plugin-sdk/infra-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/infra-runtime")>(
+    "zhushou/plugin-sdk/infra-runtime",
   );
   return {
     ...actual,

@@ -4,8 +4,8 @@ import {
   resolveRemoteEmbeddingClient,
   type MemoryEmbeddingProvider,
   type MemoryEmbeddingProviderCreateOptions,
-} from "openclaw/plugin-sdk/memory-core-host-engine-embeddings";
-import type { SsrFPolicy } from "openclaw/plugin-sdk/ssrf-runtime";
+} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
+import type { SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
 
 export type MistralEmbeddingClient = {
   baseUrl: string;

@@ -4,7 +4,7 @@ import { validateJsonSchemaValue } from "../../src/plugins/schema-validator.js";
 import { memoryConfigSchema } from "./config.js";
 
 const manifest = JSON.parse(
-  fs.readFileSync(new URL("./openclaw.plugin.json", import.meta.url), "utf-8"),
+  fs.readFileSync(new URL("./zhushou.plugin.json", import.meta.url), "utf-8"),
 ) as { configSchema: Record<string, unknown> };
 
 describe("memory-lancedb config", () => {

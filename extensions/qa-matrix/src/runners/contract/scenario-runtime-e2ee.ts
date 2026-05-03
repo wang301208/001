@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { setTimeout as sleep } from "node:timers/promises";
-import type { MatrixVerificationSummary } from "@openclaw/matrix/test-api.js";
+import type { MatrixVerificationSummary } from "@zhushou/matrix/test-api.js";
 import { createMatrixQaClient } from "../../substrate/client.js";
 import {
   createMatrixQaE2eeScenarioClient,
@@ -655,7 +655,7 @@ export async function runMatrixQaE2eeRecoveryKeyLifecycleScenario(
         baseUrl: context.baseUrl,
       });
       const recoveryDevice = await loginClient.loginWithPassword({
-        deviceName: "OpenClaw Matrix QA Recovery Restore Device",
+        deviceName: "助手 Matrix QA Recovery Restore Device",
         password: driverPassword,
         userId: context.driverUserId,
       });
@@ -928,7 +928,7 @@ export async function runMatrixQaE2eeStaleDeviceHygieneScenario(
         baseUrl: context.baseUrl,
       });
       const secondary = await loginClient.loginWithPassword({
-        deviceName: "OpenClaw Matrix QA Stale Device",
+        deviceName: "助手 Matrix QA Stale Device",
         password: driverPassword,
         userId: context.driverUserId,
       });

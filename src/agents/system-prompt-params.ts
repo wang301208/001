@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { buildGovernanceCharterAgentPrompt } from "../governance/charter-agents.js";
 import { buildAgentToolGovernancePrompt } from "../governance/tool-governance-summary.js";
 import { findGitRoot } from "../infra/git-root.js";
@@ -39,7 +39,7 @@ export type SystemPromptRuntimeParams = {
 };
 
 export function buildSystemPromptParams(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentId?: string;
   runtime: Omit<RuntimeInfoInput, "agentId">;
   workspaceDir?: string;
@@ -77,7 +77,7 @@ export function buildSystemPromptParams(params: {
 }
 
 function resolveGovernancePrompt(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentId?: string;
 }): string | undefined {
   const agentId = params.agentId?.trim();
@@ -91,7 +91,7 @@ function resolveGovernancePrompt(params: {
   return sections.length > 0 ? sections.join("\n\n") : undefined;
 }
 
-function resolveCanvasRootDir(params: { config?: OpenClawConfig; stateDir: string }): string {
+function resolveCanvasRootDir(params: { config?: ZhushouConfig; stateDir: string }): string {
   const configured = params.config?.canvasHost?.root?.trim();
   if (configured) {
     return path.resolve(
@@ -104,7 +104,7 @@ function resolveCanvasRootDir(params: { config?: OpenClawConfig; stateDir: strin
 }
 
 function resolveRepoRoot(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   cwd?: string;
 }): string | undefined {

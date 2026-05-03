@@ -1,6 +1,6 @@
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
 import type { FallbackAttempt } from "../agents/model-fallback.types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type {
   GeneratedMusicAsset,
   MusicGenerationIgnoredOverride,
@@ -11,7 +11,7 @@ import type {
 } from "./types.js";
 
 export type GenerateMusicParams = {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   prompt: string;
   agentDir?: string;
   authStore?: AuthProfileStore;
@@ -35,7 +35,7 @@ export type GenerateMusicRuntimeResult = {
 };
 
 export type ListRuntimeMusicGenerationProvidersParams = {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
 };
 
 export type RuntimeMusicGenerationProvider = MusicGenerationProvider;

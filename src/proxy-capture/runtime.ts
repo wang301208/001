@@ -9,7 +9,7 @@ import {
 } from "./store.sqlite.js";
 import type { CaptureProtocol } from "./types.js";
 
-const DEBUG_PROXY_FETCH_PATCH_KEY = Symbol.for("openclaw.debugProxy.fetchPatch");
+const DEBUG_PROXY_FETCH_PATCH_KEY = Symbol.for("zhushou.debugProxy.fetchPatch");
 
 type GlobalFetchPatchedState = {
   originalFetch: typeof globalThis.fetch;
@@ -99,7 +99,7 @@ function installDebugProxyGlobalFetchPatch(settings: DebugProxySettings): void {
         store.recordEvent({
           sessionId: settings.sessionId,
           ts: Date.now(),
-          sourceScope: "openclaw",
+          sourceScope: "zhushou",
           sourceProcess: settings.sourceProcess,
           protocol: protocolFromUrl(url),
           direction: "local",
@@ -145,7 +145,7 @@ export function initializeDebugProxyCapture(mode: string, resolved?: DebugProxyS
     id: settings.sessionId,
     startedAt: Date.now(),
     mode,
-    sourceScope: "openclaw",
+    sourceScope: "zhushou",
     sourceProcess: settings.sourceProcess,
     proxyUrl: settings.proxyUrl,
     dbPath: settings.dbPath,
@@ -195,7 +195,7 @@ export function captureHttpExchange(params: {
   store.recordEvent({
     sessionId: settings.sessionId,
     ts: Date.now(),
-    sourceScope: "openclaw",
+    sourceScope: "zhushou",
     sourceProcess: settings.sourceProcess,
     protocol: params.transport ?? protocolFromUrl(params.url),
     direction: "outbound",
@@ -224,7 +224,7 @@ export function captureHttpExchange(params: {
     store.recordEvent({
       sessionId: settings.sessionId,
       ts: Date.now(),
-      sourceScope: "openclaw",
+      sourceScope: "zhushou",
       sourceProcess: settings.sourceProcess,
       protocol: params.transport ?? protocolFromUrl(params.url),
       direction: "inbound",
@@ -257,7 +257,7 @@ export function captureHttpExchange(params: {
       store.recordEvent({
         sessionId: settings.sessionId,
         ts: Date.now(),
-        sourceScope: "openclaw",
+        sourceScope: "zhushou",
         sourceProcess: settings.sourceProcess,
         protocol: params.transport ?? protocolFromUrl(params.url),
         direction: "inbound",
@@ -277,7 +277,7 @@ export function captureHttpExchange(params: {
       store.recordEvent({
         sessionId: settings.sessionId,
         ts: Date.now(),
-        sourceScope: "openclaw",
+        sourceScope: "zhushou",
         sourceProcess: settings.sourceProcess,
         protocol: params.transport ?? protocolFromUrl(params.url),
         direction: "local",
@@ -314,7 +314,7 @@ export function captureWsEvent(params: {
   store.recordEvent({
     sessionId: settings.sessionId,
     ts: Date.now(),
-    sourceScope: "openclaw",
+    sourceScope: "zhushou",
     sourceProcess: settings.sourceProcess,
     protocol: protocolFromUrl(params.url),
     direction: params.direction,

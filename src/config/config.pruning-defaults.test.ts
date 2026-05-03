@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "./config.js";
+import type { ZhushouConfig } from "./config.js";
 import { applyProviderConfigDefaultsForConfig } from "./provider-policy.js";
 
-function expectAnthropicPruningDefaults(cfg: OpenClawConfig, heartbeatEvery = "30m") {
+function expectAnthropicPruningDefaults(cfg: ZhushouConfig, heartbeatEvery = "30m") {
   expect(cfg.agents?.defaults?.contextPruning?.mode).toBe("cache-ttl");
   expect(cfg.agents?.defaults?.contextPruning?.ttl).toBe("1h");
   expect(cfg.agents?.defaults?.heartbeat?.every).toBe(heartbeatEvery);
 }
 
-function applyAnthropicDefaultsForTest(config: OpenClawConfig) {
+function applyAnthropicDefaultsForTest(config: ZhushouConfig) {
   return applyProviderConfigDefaultsForConfig({ provider: "anthropic", config, env: {} });
 }
 

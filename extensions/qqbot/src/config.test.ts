@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { qqbotConfigAdapter, qqbotSetupAdapterShared } from "./channel-config-shared.js";
 import { QQBotConfigSchema } from "./config-schema.js";
@@ -17,7 +17,7 @@ describe("qqbot config", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(resolveDefaultQQBotAccountId(cfg)).toBe("bot2");
   });
@@ -38,7 +38,7 @@ describe("qqbot config", () => {
         transcodeEnabled: false,
       },
       urlDirectUpload: false,
-      upgradeUrl: "https://docs.openclaw.ai/channels/qqbot",
+      upgradeUrl: "https://docs.zhushou.ai/channels/qqbot",
       upgradeMode: "doc",
       accounts: {
         bot2: {
@@ -83,11 +83,11 @@ describe("qqbot config", () => {
             transcodeEnabled: false,
           },
           urlDirectUpload: false,
-          upgradeUrl: "https://docs.openclaw.ai/channels/qqbot",
+          upgradeUrl: "https://docs.zhushou.ai/channels/qqbot",
           upgradeMode: "hot-reload",
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const resolved = resolveQQBotAccount(cfg, DEFAULT_ACCOUNT_ID);
 
@@ -98,7 +98,7 @@ describe("qqbot config", () => {
       transcodeEnabled: false,
     });
     expect(resolved.config.urlDirectUpload).toBe(false);
-    expect(resolved.config.upgradeUrl).toBe("https://docs.openclaw.ai/channels/qqbot");
+    expect(resolved.config.upgradeUrl).toBe("https://docs.zhushou.ai/channels/qqbot");
     expect(resolved.config.upgradeMode).toBe("hot-reload");
   });
 
@@ -116,7 +116,7 @@ describe("qqbot config", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const resolved = resolveQQBotAccount(cfg);
 
@@ -138,7 +138,7 @@ describe("qqbot config", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(() => resolveQQBotAccount(cfg, DEFAULT_ACCOUNT_ID)).toThrow(
       'channels.qqbot.clientSecret: unresolved SecretRef "env:default:QQBOT_CLIENT_SECRET"',
@@ -157,7 +157,7 @@ describe("qqbot config", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const resolved = resolveQQBotAccount(cfg, DEFAULT_ACCOUNT_ID, {
       allowUnresolvedSecretRef: true,
@@ -182,7 +182,7 @@ describe("qqbot config", () => {
     },
   ])("splits --token on the first colon for $accountId", ({ inputAccountId, expectedPath }) => {
     const next = qqbotSetupAdapterShared.applyAccountConfig({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as ZhushouConfig,
       accountId: inputAccountId,
       input: {
         token: "102905186:Oi2Mg1Mh2Ni3:Pl7TpBXuHe1OmAYwKi7W",
@@ -211,14 +211,14 @@ describe("qqbot config", () => {
 
     expect(
       runtimeSetup.validateInput?.({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ZhushouConfig,
         accountId: DEFAULT_ACCOUNT_ID,
         input,
       } as never),
     ).toBe("QQBot --token must be in appId:clientSecret format");
     expect(
       runtimeSetup.applyAccountConfig?.({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ZhushouConfig,
         accountId: DEFAULT_ACCOUNT_ID,
         input,
       } as never),
@@ -233,7 +233,7 @@ describe("qqbot config", () => {
 
     expect(
       runtimeSetup.applyAccountConfig?.({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ZhushouConfig,
         accountId: DEFAULT_ACCOUNT_ID,
         input,
       } as never),
@@ -263,7 +263,7 @@ describe("qqbot config", () => {
               },
             },
           },
-        } as OpenClawConfig,
+        } as ZhushouConfig,
         accountId: undefined,
       } as never),
     ).toBe("bot2");
@@ -277,14 +277,14 @@ describe("qqbot config", () => {
 
     expect(
       runtimeSetup.validateInput?.({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ZhushouConfig,
         accountId: "bot2",
         input,
       } as never),
     ).toBe("QQBot --use-env only supports the default account");
     expect(
       runtimeSetup.applyAccountConfig?.({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ZhushouConfig,
         accountId: "bot2",
         input,
       } as never),

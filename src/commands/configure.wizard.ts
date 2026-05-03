@@ -6,7 +6,7 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { readConfigFileSnapshot, replaceConfigFile, resolveGatewayPort } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { ConfigMutationConflictError } from "../config/mutate.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
@@ -79,7 +79,7 @@ function mergeWizardConfigOntoLatest(current: unknown, base: unknown, next: unkn
 }
 
 async function resolveGatewaySecretInputForWizard(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   value: unknown;
   path: string;
 }): Promise<string | undefined> {
@@ -96,7 +96,7 @@ async function resolveGatewaySecretInputForWizard(params: {
 }
 
 async function runGatewayHealthCheck(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   runtime: RuntimeEnv;
   port: number;
 }): Promise<void> {
@@ -117,8 +117,8 @@ async function runGatewayHealthCheck(params: {
     value: params.cfg.gateway?.auth?.password,
     path: "gateway.auth.password",
   });
-  const token = process.env.OPENCLAW_GATEWAY_TOKEN ?? configuredToken;
-  const password = process.env.OPENCLAW_GATEWAY_PASSWORD ?? configuredPassword;
+  const token = process.env.ZHUSHOU_GATEWAY_TOKEN ?? configuredToken;
+  const password = process.env.ZHUSHOU_GATEWAY_PASSWORD ?? configuredPassword;
 
   await waitForGatewayReachable({
     url: wsUrl,
@@ -134,8 +134,8 @@ async function runGatewayHealthCheck(params: {
     note(
       [
         "文档：",
-        "https://docs.openclaw.ai/gateway/health",
-        "https://docs.openclaw.ai/gateway/troubleshooting",
+        "https://docs.zhushou.ai/gateway/health",
+        "https://docs.zhushou.ai/gateway/troubleshooting",
       ].join("\n"),
       "健康检查帮助",
     );
@@ -186,11 +186,11 @@ async function promptChannelMode(runtime: RuntimeEnv): Promise<ChannelsWizardMod
 }
 
 async function promptWebToolsConfig(
-  nextConfig: OpenClawConfig,
+  nextConfig: ZhushouConfig,
   runtime: RuntimeEnv,
   prompter: ReturnType<typeof createClackPrompter>,
-): Promise<OpenClawConfig> {
-  type WebSearchConfig = NonNullable<NonNullable<OpenClawConfig["tools"]>["web"]>["search"];
+): Promise<ZhushouConfig> {
+  type WebSearchConfig = NonNullable<NonNullable<ZhushouConfig["tools"]>["web"]>["search"];
   const existingSearch = nextConfig.tools?.web?.search;
   const existingFetch = nextConfig.tools?.web?.fetch;
   const { resolveSearchProviderOptions, setupSearch } = await import("./onboard-search.js");
@@ -201,7 +201,7 @@ async function promptWebToolsConfig(
     [
       "网络搜索让你的助手能通过 web_search 工具在线查询信息。",
       "选择一个托管提供商后，支持 Codex 的模型也可使用 Codex 原生网络搜索。",
-      "文档：https://docs.openclaw.ai/tools/web",
+      "文档：https://docs.zhushou.ai/tools/web",
     ].join("\n"),
     "网络搜索",
   );
@@ -297,7 +297,7 @@ async function promptWebToolsConfig(
           [
             "当前插件策略下没有可用的网络搜索提供商。",
             "启用插件或移除拒绝规则后重新运行配置。",
-            "文档：https://docs.openclaw.ai/tools/web",
+            "文档：https://docs.zhushou.ai/tools/web",
           ].join("\n"),
           "网络搜索",
         );
@@ -357,7 +357,7 @@ export async function runConfigureWizard(
 
     const snapshot = await readConfigFileSnapshot();
     let currentBaseHash = snapshot.hash;
-    const baseConfig: OpenClawConfig = snapshot.valid
+    const baseConfig: ZhushouConfig = snapshot.valid
       ? (snapshot.sourceConfig ?? snapshot.config)
       : {};
 
@@ -369,14 +369,14 @@ export async function runConfigureWizard(
           [
             ...snapshot.issues.map((iss) => `- ${iss.path}: ${iss.message}`),
             "",
-            "文档：https://docs.openclaw.ai/gateway/configuration",
+            "文档：https://docs.zhushou.ai/gateway/configuration",
           ].join("\n"),
           "配置问题",
         );
       }
       if (!snapshot.valid) {
         outro(
-          `配置无效。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重新配置。`,
+          `配置无效。请运行 \`${formatCliCommand("zhushou doctor")}\` 修复后重新配置。`,
         );
         runtime.exit(1);
         return;
@@ -389,7 +389,7 @@ export async function runConfigureWizard(
       if (!validationResult.valid) {
         note(formatValidationResult(validationResult), "配置校验失败");
         outro(
-          `检测到不支持的旧版配置字段。请运行 \`${formatCliCommand("openclaw doctor")}\` 迁移后重试。`,
+          `检测到不支持的旧版配置字段。请运行 \`${formatCliCommand("zhushou doctor")}\` 迁移后重试。`,
         );
         runtime.exit(1);
         return;
@@ -432,8 +432,8 @@ export async function runConfigureWizard(
     });
     const localProbe = await probeGatewayReachable({
       url: localUrl,
-      token: process.env.OPENCLAW_GATEWAY_TOKEN ?? baseLocalProbeToken,
-      password: process.env.OPENCLAW_GATEWAY_PASSWORD ?? baseLocalProbePassword,
+      token: process.env.ZHUSHOU_GATEWAY_TOKEN ?? baseLocalProbeToken,
+      password: process.env.ZHUSHOU_GATEWAY_PASSWORD ?? baseLocalProbePassword,
     });
     const remoteUrl = normalizeOptionalString(baseConfig.gateway?.remote?.url) ?? "";
     const baseRemoteProbeToken = await resolveGatewaySecretInputForWizard({
@@ -486,7 +486,7 @@ export async function runConfigureWizard(
           "写入前配置校验",
         );
         outro(
-          `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重试。`,
+          `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("zhushou doctor")}\` 修复后重试。`,
         );
         runtime.exit(1);
         return;
@@ -536,7 +536,7 @@ export async function runConfigureWizard(
             "写入前配置校验",
           );
           outro(
-            `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("openclaw doctor")}\` 修复后重试。`,
+            `配置存在不支持的旧字段或冲突。请运行 \`${formatCliCommand("zhushou doctor")}\` 修复后重试。`,
           );
           runtime.exit(1);
           return false;
@@ -566,7 +566,7 @@ export async function runConfigureWizard(
               diskConfig,
               mergeBaseConfig,
               nextConfig,
-            ) as OpenClawConfig;
+            ) as ZhushouConfig;
             continue;
           }
           throw err;
@@ -814,21 +814,21 @@ export async function runConfigureWizard(
       customBindHost: nextConfig.gateway?.customBindHost,
     });
     const newPassword =
-      process.env.OPENCLAW_GATEWAY_PASSWORD ??
+      process.env.ZHUSHOU_GATEWAY_PASSWORD ??
       (await resolveGatewaySecretInputForWizard({
         cfg: nextConfig,
         value: nextConfig.gateway?.auth?.password,
         path: "gateway.auth.password",
       }));
     const oldPassword =
-      process.env.OPENCLAW_GATEWAY_PASSWORD ??
+      process.env.ZHUSHOU_GATEWAY_PASSWORD ??
       (await resolveGatewaySecretInputForWizard({
         cfg: baseConfig,
         value: baseConfig.gateway?.auth?.password,
         path: "gateway.auth.password",
       }));
     const token =
-      process.env.OPENCLAW_GATEWAY_TOKEN ??
+      process.env.ZHUSHOU_GATEWAY_TOKEN ??
       (await resolveGatewaySecretInputForWizard({
         cfg: nextConfig,
         value: nextConfig.gateway?.auth?.token,
@@ -853,10 +853,10 @@ export async function runConfigureWizard(
 
     note(
       [
-        `终端界面：${formatCliCommand("openclaw tui")}`,
+        `终端界面：${formatCliCommand("zhushou tui")}`,
         `网关 WS：${links.wsUrl}`,
         gatewayStatusLine,
-        "文档：https://docs.openclaw.ai/gateway",
+        "文档：https://docs.zhushou.ai/gateway",
       ].join("\n"),
       "终端",
     );

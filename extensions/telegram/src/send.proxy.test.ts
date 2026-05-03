@@ -21,9 +21,9 @@ const { resolveTelegramFetch } = vi.hoisted(() => ({
   resolveTelegramFetch: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/config-runtime")>(
-    "openclaw/plugin-sdk/config-runtime",
+vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
+    "zhushou/plugin-sdk/config-runtime",
   );
   return {
     ...actual,

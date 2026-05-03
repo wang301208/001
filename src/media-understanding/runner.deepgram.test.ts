@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { buildProviderRegistry, runCapability } from "./runner.js";
 import { withAudioFixture } from "./runner.test-utils.js";
 
@@ -25,7 +25,7 @@ vi.mock("../plugins/capability-provider-runtime.js", () => ({
 
 describe("runCapability deepgram provider options", () => {
   it("merges provider options, headers, and baseUrl overrides", async () => {
-    await withAudioFixture("openclaw-deepgram", async ({ ctx, media, cache }) => {
+    await withAudioFixture("zhushou-deepgram", async ({ ctx, media, cache }) => {
       let seenQuery: Record<string, string | number | boolean> | undefined;
       let seenBaseUrl: string | undefined;
       let seenHeaders: Record<string, string> | undefined;
@@ -116,7 +116,7 @@ describe("runCapability deepgram provider options", () => {
             },
           },
         },
-      } as unknown as OpenClawConfig;
+      } as unknown as ZhushouConfig;
 
       const result = await runCapability({
         capability: "audio",

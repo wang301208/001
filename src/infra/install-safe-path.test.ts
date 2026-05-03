@@ -13,7 +13,7 @@ import {
 
 describe("unscopedPackageName", () => {
   it.each([
-    { value: "@openclaw/matrix", expected: "matrix" },
+    { value: "@zhushou/matrix", expected: "matrix" },
     { value: " matrix ", expected: "matrix" },
     { value: "", expected: "" },
   ])("normalizes package names for %j", ({ value, expected }) => {
@@ -23,11 +23,11 @@ describe("unscopedPackageName", () => {
 
 describe("packageNameMatchesId", () => {
   it.each([
-    { packageName: "@openclaw/matrix", id: "matrix", expected: true },
-    { packageName: "@openclaw/matrix", id: "@openclaw/matrix", expected: true },
-    { packageName: "@openclaw/matrix", id: "signal", expected: false },
+    { packageName: "@zhushou/matrix", id: "matrix", expected: true },
+    { packageName: "@zhushou/matrix", id: "@zhushou/matrix", expected: true },
+    { packageName: "@zhushou/matrix", id: "signal", expected: false },
     { packageName: " ", id: "matrix", expected: false },
-    { packageName: "@openclaw/matrix", id: " ", expected: false },
+    { packageName: "@zhushou/matrix", id: " ", expected: false },
   ])("matches ids for %j", ({ packageName, id, expected }) => {
     expect(packageNameMatchesId(packageName, id)).toBe(expected);
   });
@@ -74,7 +74,7 @@ describe("resolveSafeInstallDir", () => {
     expect(
       resolveSafeInstallDir({
         baseDir: "/tmp/plugins",
-        id: "@openclaw/matrix",
+        id: "@zhushou/matrix",
         invalidNameMessage: "invalid plugin name",
       }),
     ).toEqual({
@@ -99,7 +99,7 @@ describe("resolveSafeInstallDir", () => {
 
 describe("assertCanonicalPathWithinBase", () => {
   it("accepts in-base directories", async () => {
-    await withTempDir({ prefix: "openclaw-install-safe-" }, async (baseDir) => {
+    await withTempDir({ prefix: "zhushou-install-safe-" }, async (baseDir) => {
       const candidate = path.join(baseDir, "tools");
       await fs.mkdir(candidate, { recursive: true });
       await expect(
@@ -113,7 +113,7 @@ describe("assertCanonicalPathWithinBase", () => {
   });
 
   it("accepts missing candidate paths when their parent stays in base", async () => {
-    await withTempDir({ prefix: "openclaw-install-safe-" }, async (baseDir) => {
+    await withTempDir({ prefix: "zhushou-install-safe-" }, async (baseDir) => {
       const candidate = path.join(baseDir, "tools", "plugin");
       await fs.mkdir(path.dirname(candidate), { recursive: true });
       await expect(
@@ -127,7 +127,7 @@ describe("assertCanonicalPathWithinBase", () => {
   });
 
   it("rejects non-directory base paths", async () => {
-    await withTempDir({ prefix: "openclaw-install-safe-" }, async (baseDir) => {
+    await withTempDir({ prefix: "zhushou-install-safe-" }, async (baseDir) => {
       const baseFile = path.join(baseDir, "not-a-dir");
       await fs.writeFile(baseFile, "nope", "utf-8");
       await expect(
@@ -141,7 +141,7 @@ describe("assertCanonicalPathWithinBase", () => {
   });
 
   it("rejects non-directory candidate paths inside the base", async () => {
-    await withTempDir({ prefix: "openclaw-install-safe-" }, async (baseDir) => {
+    await withTempDir({ prefix: "zhushou-install-safe-" }, async (baseDir) => {
       const candidate = path.join(baseDir, "file.txt");
       await fs.writeFile(candidate, "nope", "utf-8");
       await expect(
@@ -157,8 +157,8 @@ describe("assertCanonicalPathWithinBase", () => {
   it.runIf(process.platform !== "win32")(
     "rejects symlinked candidate directories that escape the base",
     async () => {
-      await withTempDir({ prefix: "openclaw-install-safe-" }, async (baseDir) => {
-        await withTempDir({ prefix: "openclaw-install-safe-outside-" }, async (outsideDir) => {
+      await withTempDir({ prefix: "zhushou-install-safe-" }, async (baseDir) => {
+        await withTempDir({ prefix: "zhushou-install-safe-outside-" }, async (outsideDir) => {
           const linkDir = path.join(baseDir, "alias");
           await fs.symlink(outsideDir, linkDir);
           await expect(
@@ -174,7 +174,7 @@ describe("assertCanonicalPathWithinBase", () => {
   );
 
   it.runIf(process.platform !== "win32")("rejects symlinked base directories", async () => {
-    await withTempDir({ prefix: "openclaw-install-safe-" }, async (parentDir) => {
+    await withTempDir({ prefix: "zhushou-install-safe-" }, async (parentDir) => {
       const realBaseDir = path.join(parentDir, "real-base");
       const symlinkBaseDir = path.join(parentDir, "base-link");
       await fs.mkdir(realBaseDir, { recursive: true });

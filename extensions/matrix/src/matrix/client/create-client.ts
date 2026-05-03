@@ -1,6 +1,6 @@
 import fs from "node:fs";
-import type { PinnedDispatcherPolicy } from "openclaw/plugin-sdk/ssrf-dispatcher";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
+import type { PinnedDispatcherPolicy } from "zhushou/plugin-sdk/ssrf-dispatcher";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
 import type { SsrFPolicy } from "../../runtime-api.js";
 import type { MatrixClient } from "../sdk.js";
 import { resolveValidatedMatrixHomeserverUrl } from "./config.js";
@@ -80,7 +80,7 @@ export async function createMatrixClient(params: {
   }
 
   const cryptoDatabasePrefix = storagePaths
-    ? `openclaw-matrix-${storagePaths.accountKey}-${storagePaths.tokenHash}`
+    ? `zhushou-matrix-${storagePaths.accountKey}-${storagePaths.tokenHash}`
     : undefined;
 
   return new MatrixClient(homeserver, params.accessToken, {

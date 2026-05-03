@@ -162,7 +162,7 @@ function buildContainerExecArgs(params: {
     envFlag,
     "OPENCLAW_CLI_CONTAINER_BYPASS=1",
     params.containerName,
-    "openclaw",
+    "zhushou",
     ...params.argv,
   ];
 }
@@ -171,11 +171,11 @@ function buildContainerExecEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const next = { ...env };
   // Container-targeted CLI invocations should use the container's own profile
   // and gateway auth/runtime state rather than inheriting host overrides.
-  delete next.OPENCLAW_PROFILE;
-  delete next.OPENCLAW_GATEWAY_PORT;
+  delete next.ZHUSHOU_PROFILE;
+  delete next.ZHUSHOU_GATEWAY_PORT;
   delete next.OPENCLAW_GATEWAY_URL;
-  delete next.OPENCLAW_GATEWAY_TOKEN;
-  delete next.OPENCLAW_GATEWAY_PASSWORD;
+  delete next.ZHUSHOU_GATEWAY_TOKEN;
+  delete next.ZHUSHOU_GATEWAY_PASSWORD;
   // The child CLI should render container-aware follow-up commands via
   // OPENCLAW_CONTAINER_HINT, but it should not treat itself as still
   // container-targeted for validation/routing.
@@ -184,7 +184,7 @@ function buildContainerExecEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
 }
 
 function isBlockedContainerCommand(argv: string[]): boolean {
-  if (resolveCliArgvInvocation(["node", "openclaw", ...argv]).primary === "update") {
+  if (resolveCliArgvInvocation(["node", "zhushou", ...argv]).primary === "update") {
     return true;
   }
   for (let i = 0; i < argv.length; i += 1) {
@@ -232,7 +232,7 @@ export function maybeRunCliInContainer(
   }
   if (isBlockedContainerCommand(parsed.argv.slice(2))) {
     throw new Error(
-      "openclaw update is not supported with --container; rebuild or restart the container image instead.",
+      "zhushou update is not supported with --container; rebuild or restart the container image instead.",
     );
   }
 

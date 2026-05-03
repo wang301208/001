@@ -1,5 +1,5 @@
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import type { ZhushouPluginApi } from "zhushou/plugin-sdk/core";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 interface RemindParams {
   action: "add" | "list" | "remove";
@@ -183,7 +183,7 @@ function formatDelay(ms: number): string {
   return `${hours}h${minutes}m`;
 }
 
-export function registerRemindTool(api: OpenClawPluginApi): void {
+export function registerRemindTool(api: ZhushouPluginApi): void {
   api.registerTool(
     {
       name: "qqbot_remind",

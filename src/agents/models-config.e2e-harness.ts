@@ -3,7 +3,7 @@ import path from "node:path";
 import { afterEach, beforeEach, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import { clearConfigCache, clearRuntimeConfigSnapshot } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveBundledPluginsDir } from "../plugins/bundled-dir.js";
 import { resetPluginLoaderTestStateForTest } from "../plugins/loader.test-fixtures.js";
 import { resetProviderRuntimeHookCacheForTest } from "../plugins/provider-runtime.js";
@@ -16,7 +16,7 @@ export function withModelsTempHome<T>(fn: (home: string) => Promise<T>): Promise
   // Models-config tests do not exercise session persistence; skip draining
   // unrelated session lock state during temp-home teardown.
   return withTempHomeBase(fn, {
-    prefix: "openclaw-models-",
+    prefix: "zhushou-models-",
     skipSessionCleanup: true,
   });
 }
@@ -303,7 +303,7 @@ async function inferAuthProfileProviderIds(agentDir?: string): Promise<string[]>
 
 async function inferImplicitProviderTestPluginIds(params: {
   agentDir?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   explicitProviders?: Record<string, unknown> | null;
   env: NodeJS.ProcessEnv;
   workspaceDir?: string;
@@ -393,7 +393,7 @@ export async function resolveImplicitProvidersForTest(
   });
 }
 
-export const CUSTOM_PROXY_MODELS_CONFIG: OpenClawConfig = {
+export const CUSTOM_PROXY_MODELS_CONFIG: ZhushouConfig = {
   models: {
     providers: {
       "custom-proxy": {

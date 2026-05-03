@@ -12,8 +12,8 @@ const JITI_ENTRY_PATH = require.resolve("jiti");
 const matrixWrapperGlobal = globalThis as typeof globalThis & {
   __openclawMatrixWrapperJitiOptions?: unknown;
 };
-const PLUGIN_SDK_ROOT = ["openclaw", "plugin-sdk"].join("/");
-const SCOPED_PLUGIN_SDK_ROOT = ["@openclaw", "plugin-sdk"].join("/");
+const PLUGIN_SDK_ROOT = ["zhushou", "plugin-sdk"].join("/");
+const SCOPED_PLUGIN_SDK_ROOT = ["@zhushou", "plugin-sdk"].join("/");
 const GROUP_ACCESS_SUBPATH = `${PLUGIN_SDK_ROOT}/group-access`;
 const SCOPED_GROUP_ACCESS_SUBPATH = `${SCOPED_PLUGIN_SDK_ROOT}/group-access`;
 const PACKAGED_RUNTIME_STUB = [
@@ -71,7 +71,7 @@ function writeOpenClawPackageFixture(fixtureRoot: string) {
     "package.json",
     JSON.stringify(
       {
-        name: "openclaw",
+        name: "zhushou",
         type: "module",
         exports: {
           "./plugin-sdk": "./dist/plugin-sdk/index.js",
@@ -81,7 +81,7 @@ function writeOpenClawPackageFixture(fixtureRoot: string) {
       2,
     ) + "\n",
   );
-  writeFixtureFile(fixtureRoot, "openclaw.mjs", "export {};\n");
+  writeFixtureFile(fixtureRoot, "zhushou.mjs", "export {};\n");
   writeFixtureFile(fixtureRoot, "dist/plugin-sdk/index.js", "export {};\n");
 }
 
@@ -91,7 +91,7 @@ function writeOpenClawAliasFixture(fixtureRoot: string, extraExports?: Record<st
     "package.json",
     JSON.stringify(
       {
-        name: "openclaw",
+        name: "zhushou",
         type: "module",
         exports: {
           "./plugin-sdk": "./dist/plugin-sdk/index.js",
@@ -105,7 +105,7 @@ function writeOpenClawAliasFixture(fixtureRoot: string, extraExports?: Record<st
   );
   writeFixtureFile(fixtureRoot, "src/plugin-sdk/root-alias.cjs", "module.exports = {};\n");
   writeFixtureFile(fixtureRoot, "src/plugin-sdk/group-access.ts", "export {};\n");
-  writeFixtureFile(fixtureRoot, "openclaw.mjs", "export {};\n");
+  writeFixtureFile(fixtureRoot, "zhushou.mjs", "export {};\n");
   writeFixtureFile(fixtureRoot, "dist/plugin-sdk/index.js", "export {};\n");
   writeFixtureFile(fixtureRoot, "dist/plugin-sdk/root-alias.cjs", "module.exports = {};\n");
   writeFixtureFile(fixtureRoot, "dist/plugin-sdk/group-access.js", "export {};\n");
@@ -120,7 +120,7 @@ function writeTrustedOpenClawBinFixture(
     "package.json",
     JSON.stringify(
       {
-        name: "openclaw",
+        name: "zhushou",
         type: "module",
         bin: packageBin,
         exports: {
@@ -265,7 +265,7 @@ it("resolves extension-api aliases through the same source extension family", as
 
   expect(matrixWrapperGlobal.__openclawMatrixWrapperJitiOptions).toMatchObject({
     alias: {
-      "openclaw/extension-api": path.join(fixtureRoot, "src", "extensionAPI.mts"),
+      "zhushou/extension-api": path.join(fixtureRoot, "src", "extensionAPI.mts"),
     },
   });
 }, 240_000);
@@ -317,7 +317,7 @@ it("keeps wrapper plugin-sdk aliases deterministic and ignores unsafe subpaths",
   ]);
 }, 240_000);
 
-it("ignores nearby untrusted openclaw package stubs when resolving the wrapper root", async () => {
+it("ignores nearby untrusted zhushou package stubs when resolving the wrapper root", async () => {
   const fixtureRoot = makeFixtureRoot(".tmp-matrix-runtime-trusted-root-");
   const wrapperSource = fs.readFileSync(
     path.join(REPO_ROOT, "extensions", "matrix", "src", "plugin-entry.runtime.js"),
@@ -331,7 +331,7 @@ it("ignores nearby untrusted openclaw package stubs when resolving the wrapper r
     "extensions/package.json",
     JSON.stringify(
       {
-        name: "openclaw",
+        name: "zhushou",
         type: "module",
         exports: {
           "./plugin-sdk": "./dist/plugin-sdk/index.js",
@@ -379,7 +379,7 @@ it("treats string bin hints case-insensitively when trusting wrapper package roo
   );
 
   delete matrixWrapperGlobal.__openclawMatrixWrapperJitiOptions;
-  writeTrustedOpenClawBinFixture(fixtureRoot, "OpenClaw.MJS");
+  writeTrustedOpenClawBinFixture(fixtureRoot, "助手.MJS");
   writeCapturingJitiFixture(fixtureRoot);
   writeFixtureFile(fixtureRoot, "extensions/matrix/src/plugin-entry.runtime.js", wrapperSource);
   writeFixtureFile(

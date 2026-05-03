@@ -81,7 +81,7 @@ describe("createExecApprovalIosPushDelivery", () => {
       nodeId: "ios-device-1",
       transport: "direct",
       token: "apns-token",
-      topic: "ai.openclaw.ios.test",
+      topic: "ai.zhushou.ios.test",
       environment: "sandbox",
       updatedAtMs: 1,
     });
@@ -94,7 +94,7 @@ describe("createExecApprovalIosPushDelivery", () => {
       ok: true,
       status: 200,
       environment: "sandbox",
-      topic: "ai.openclaw.ios.test",
+      topic: "ai.zhushou.ios.test",
       tokenSuffix: "token",
       transport: "direct",
     });
@@ -102,7 +102,7 @@ describe("createExecApprovalIosPushDelivery", () => {
       ok: true,
       status: 200,
       environment: "sandbox",
-      topic: "ai.openclaw.ios.test",
+      topic: "ai.zhushou.ios.test",
       tokenSuffix: "token",
       transport: "direct",
     });
@@ -174,7 +174,7 @@ describe("createExecApprovalIosPushDelivery", () => {
       status: 410,
       reason: "Unregistered",
       environment: "sandbox",
-      topic: "ai.openclaw.ios.test",
+      topic: "ai.zhushou.ios.test",
       tokenSuffix: "token",
       transport: "direct",
     });
@@ -233,7 +233,7 @@ describe("createExecApprovalIosPushDelivery", () => {
       ok: true,
       status: 200,
       environment: "sandbox",
-      topic: "ai.openclaw.ios.test",
+      topic: "ai.zhushou.ios.test",
       tokenSuffix: "token",
       transport: "direct",
     });
@@ -279,7 +279,7 @@ describe("createExecApprovalIosPushDelivery", () => {
       nodeId: "ios-device-1",
       transport: "direct",
       token: "apns-token",
-      topic: "ai.openclaw.ios.test",
+      topic: "ai.zhushou.ios.test",
       environment: "sandbox",
       updatedAtMs: 1,
     });

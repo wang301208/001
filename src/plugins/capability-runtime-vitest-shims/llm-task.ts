@@ -1,1 +1,1 @@
-export { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
+export { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-zhushou-dir.js";

@@ -14,11 +14,11 @@ function createService(overrides: Partial<GatewayService>): GatewayService {
 }
 
 describe("readServiceStatusSummary", () => {
-  it("marks OpenClaw-managed services as installed", async () => {
+  it("marks 助手-managed services as installed", async () => {
     const summary = await readServiceStatusSummary(
       createService({
         isLoaded: vi.fn(async () => true),
-        readCommand: vi.fn(async () => ({ programArguments: ["openclaw", "gateway", "run"] })),
+        readCommand: vi.fn(async () => ({ programArguments: ["zhushou", "gateway", "run"] })),
         readRuntime: vi.fn(async () => ({ status: "running" })),
       }),
       "Daemon",
@@ -55,18 +55,18 @@ describe("readServiceStatusSummary", () => {
 
   it("passes command environment to runtime and loaded checks", async () => {
     const isLoaded = vi.fn(async ({ env }: GatewayServiceEnvArgs) => {
-      return env?.OPENCLAW_GATEWAY_PORT === "18789";
+      return env?.ZHUSHOU_GATEWAY_PORT === "18789";
     });
     const readRuntime = vi.fn(async (env?: NodeJS.ProcessEnv) => ({
-      status: env?.OPENCLAW_GATEWAY_PORT === "18789" ? ("running" as const) : ("unknown" as const),
+      status: env?.ZHUSHOU_GATEWAY_PORT === "18789" ? ("running" as const) : ("unknown" as const),
     }));
 
     const summary = await readServiceStatusSummary(
       createService({
         isLoaded,
         readCommand: vi.fn(async () => ({
-          programArguments: ["openclaw", "gateway", "run", "--port", "18789"],
-          environment: { OPENCLAW_GATEWAY_PORT: "18789" },
+          programArguments: ["zhushou", "gateway", "run", "--port", "18789"],
+          environment: { ZHUSHOU_GATEWAY_PORT: "18789" },
         })),
         readRuntime,
       }),
@@ -76,13 +76,13 @@ describe("readServiceStatusSummary", () => {
     expect(isLoaded).toHaveBeenCalledWith(
       expect.objectContaining({
         env: expect.objectContaining({
-          OPENCLAW_GATEWAY_PORT: "18789",
+          ZHUSHOU_GATEWAY_PORT: "18789",
         }),
       }),
     );
     expect(readRuntime).toHaveBeenCalledWith(
       expect.objectContaining({
-        OPENCLAW_GATEWAY_PORT: "18789",
+        ZHUSHOU_GATEWAY_PORT: "18789",
       }),
     );
     expect(summary.installed).toBe(true);

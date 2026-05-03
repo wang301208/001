@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { createRequire } from "node:module";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import * as agentEvents from "../infra/agent-events.js";
 import type { AgentRunContext } from "../infra/agent-events.js";
 import { appendAuditFact } from "../infra/audit-stream.js";
@@ -74,10 +74,10 @@ type TaskRegistryDeliveryRuntime = Pick<
   "sendMessage"
 >;
 const TASK_REGISTRY_DELIVERY_RUNTIME_OVERRIDE_KEY = Symbol.for(
-  "openclaw.taskRegistry.deliveryRuntimeOverride",
+  "zhushou.taskRegistry.deliveryRuntimeOverride",
 );
 const TASK_REGISTRY_CONTROL_RUNTIME_OVERRIDE_KEY = Symbol.for(
-  "openclaw.taskRegistry.controlRuntimeOverride",
+  "zhushou.taskRegistry.controlRuntimeOverride",
 );
 const require = createRequire(import.meta.url);
 const TASK_REGISTRY_CONTROL_RUNTIME_CANDIDATES = [
@@ -1964,7 +1964,7 @@ export function linkTaskToFlowById(params: { taskId: string; flowId: string }): 
 }
 
 export async function cancelTaskById(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   taskId: string;
 }): Promise<{ found: boolean; cancelled: boolean; reason?: string; task?: TaskRecord }> {
   ensureTaskRegistryReady();

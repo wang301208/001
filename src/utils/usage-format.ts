@@ -4,7 +4,7 @@ import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
 import { modelKey, normalizeModelRef, normalizeProviderId } from "../agents/model-selection.js";
 import type { NormalizedUsage } from "../agents/usage.js";
 import type { ModelProviderConfig } from "../config/types.models.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { getCachedGatewayModelPricing } from "../gateway/model-pricing-cache.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
@@ -168,7 +168,7 @@ function loadModelsJsonCostIndex(options?: {
 function findConfiguredProviderCost(params: {
   provider?: string;
   model?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   allowPluginNormalization?: boolean;
 }): ModelCostConfig | undefined {
   const key = toResolvedModelKey(params);
@@ -183,7 +183,7 @@ function findConfiguredProviderCost(params: {
 export function resolveModelCostConfig(params: {
   provider?: string;
   model?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   allowPluginNormalization?: boolean;
 }): ModelCostConfig | undefined {
   const rawKey = toDirectModelKey(params);

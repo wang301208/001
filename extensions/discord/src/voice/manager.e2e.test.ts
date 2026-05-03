@@ -122,9 +122,9 @@ vi.mock("./sdk-runtime.js", () => ({
   }),
 }));
 
-vi.mock("openclaw/plugin-sdk/routing", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/routing")>(
-    "openclaw/plugin-sdk/routing",
+vi.mock("zhushou/plugin-sdk/routing", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/routing")>(
+    "zhushou/plugin-sdk/routing",
   );
   return {
     ...actual,
@@ -132,9 +132,9 @@ vi.mock("openclaw/plugin-sdk/routing", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/agent-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/agent-runtime")>(
-    "openclaw/plugin-sdk/agent-runtime",
+vi.mock("zhushou/plugin-sdk/agent-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/agent-runtime")>(
+    "zhushou/plugin-sdk/agent-runtime",
   );
   return {
     ...actual,

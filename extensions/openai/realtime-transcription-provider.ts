@@ -3,14 +3,14 @@ import {
   captureWsEvent,
   createDebugProxyWebSocketAgent,
   resolveDebugProxySettings,
-} from "openclaw/plugin-sdk/proxy-capture";
+} from "zhushou/plugin-sdk/proxy-capture";
 import type {
   RealtimeTranscriptionProviderConfig,
   RealtimeTranscriptionProviderPlugin,
   RealtimeTranscriptionSession,
   RealtimeTranscriptionSessionCreateRequest,
-} from "openclaw/plugin-sdk/realtime-transcription";
-import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/realtime-transcription";
+import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
 import WebSocket from "ws";
 import {
   asFiniteNumber,

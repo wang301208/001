@@ -1,13 +1,13 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
 import type { AuthProfileStore } from "../../agents/auth-profiles/types.js";
 import { modelKey } from "../../agents/model-ref-shared.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { isLocalBaseUrl } from "./list.local-url.js";
 import type { ModelRow } from "./list.types.js";
 
 export type ModelAuthAvailabilityResolver = (params: {
   provider: string;
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   authStore: AuthProfileStore;
 }) => boolean;
 
@@ -23,7 +23,7 @@ export function toModelRow(params: {
   tags: string[];
   aliases?: string[];
   availableKeys?: Set<string>;
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   authStore?: AuthProfileStore;
   allowProviderAvailabilityFallback?: boolean;
   hasAuthForProvider?: ModelAuthAvailabilityResolver;

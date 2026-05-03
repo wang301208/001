@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("openclaw/plugin-sdk/config-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/config-runtime", () => ({
   loadConfig: () => ({
     channels: { whatsapp: { accounts: { work: { enabled: true } }, defaultAccount: "work" } },
   }),

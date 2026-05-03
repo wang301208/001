@@ -2,12 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 import { buildSystemPromptParams } from "./system-prompt-params.js";
 
 async function makeTempDir(label: string): Promise<string> {
-  return fs.mkdtemp(path.join(os.tmpdir(), `openclaw-${label}-`));
+  return fs.mkdtemp(path.join(os.tmpdir(), `zhushou-${label}-`));
 }
 
 async function makeRepoRoot(root: string): Promise<void> {
@@ -15,7 +15,7 @@ async function makeRepoRoot(root: string): Promise<void> {
 }
 
 function buildParams(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   cwd?: string;
   agentId?: string;
@@ -68,7 +68,7 @@ describe("buildSystemPromptParams repo root", () => {
     await fs.mkdir(workspaceDir, { recursive: true });
     await makeRepoRoot(workspaceDir);
 
-    const config: OpenClawConfig = {
+    const config: ZhushouConfig = {
       agents: {
         defaults: {
           repoRoot,
@@ -88,7 +88,7 @@ describe("buildSystemPromptParams repo root", () => {
     await fs.mkdir(workspaceDir, { recursive: true });
     await makeRepoRoot(repoRoot);
 
-    const config: OpenClawConfig = {
+    const config: ZhushouConfig = {
       agents: {
         defaults: {
           repoRoot: path.join(temp, "missing"),
@@ -119,7 +119,7 @@ describe("buildSystemPromptParams repo root", () => {
 
   it("includes combined charter and runtime governance prompt when agentId is provided", async () => {
     const workspaceDir = await makeTempDir("governance");
-    const config: OpenClawConfig = {
+    const config: ZhushouConfig = {
       agents: {
         list: [{ id: "main", workspace: workspaceDir }],
       },

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { loadGovernanceCharter } from "./charter-runtime.js";
 
 async function createTempCharterRoot(): Promise<{ root: string; charterDir: string }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-charter-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-charter-"));
   const charterDir = path.join(root, "governance", "charter");
   await mkdir(path.join(charterDir, "policies"), { recursive: true });
   await mkdir(path.join(charterDir, "agents"), { recursive: true });

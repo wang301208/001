@@ -1,13 +1,13 @@
 import { listWorkspaceScopedAgentIds } from "../agents/agent-scope.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   getActiveMemorySearchManager,
   resolveActiveMemoryBackendConfig,
 } from "../plugins/memory-runtime.js";
 
 export async function startGatewayMemoryBackend(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   log: { info?: (msg: string) => void; warn: (msg: string) => void };
 }): Promise<void> {
   const agentIds = listWorkspaceScopedAgentIds(params.cfg);

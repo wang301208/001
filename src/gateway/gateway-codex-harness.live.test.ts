@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { isLiveTestEnabled } from "../agents/live-test-helpers.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { DeviceIdentity } from "../infra/device-identity.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import type { GatewayClient } from "./client.js";
@@ -57,29 +57,29 @@ function logCodexLiveStep(step: string, details?: Record<string, unknown>): void
 function snapshotEnv(): EnvSnapshot {
   return {
     agentRuntime: process.env.OPENCLAW_AGENT_RUNTIME,
-    configPath: process.env.OPENCLAW_CONFIG_PATH,
-    gatewayToken: process.env.OPENCLAW_GATEWAY_TOKEN,
+    configPath: process.env.ZHUSHOU_CONFIG_PATH,
+    gatewayToken: process.env.ZHUSHOU_GATEWAY_TOKEN,
     openaiApiKey: process.env.OPENAI_API_KEY,
     skipBrowserControl: process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER,
     skipCanvas: process.env.OPENCLAW_SKIP_CANVAS_HOST,
-    skipChannels: process.env.OPENCLAW_SKIP_CHANNELS,
+    skipChannels: process.env.ZHUSHOU_SKIP_CHANNELS,
     skipCron: process.env.OPENCLAW_SKIP_CRON,
     skipGmail: process.env.OPENCLAW_SKIP_GMAIL_WATCHER,
-    stateDir: process.env.OPENCLAW_STATE_DIR,
+    stateDir: process.env.ZHUSHOU_STATE_DIR,
   };
 }
 
 function restoreEnv(snapshot: EnvSnapshot): void {
   restoreEnvVar("OPENCLAW_AGENT_RUNTIME", snapshot.agentRuntime);
-  restoreEnvVar("OPENCLAW_CONFIG_PATH", snapshot.configPath);
-  restoreEnvVar("OPENCLAW_GATEWAY_TOKEN", snapshot.gatewayToken);
+  restoreEnvVar("ZHUSHOU_CONFIG_PATH", snapshot.configPath);
+  restoreEnvVar("ZHUSHOU_GATEWAY_TOKEN", snapshot.gatewayToken);
   restoreEnvVar("OPENAI_API_KEY", snapshot.openaiApiKey);
   restoreEnvVar("OPENCLAW_SKIP_BROWSER_CONTROL_SERVER", snapshot.skipBrowserControl);
   restoreEnvVar("OPENCLAW_SKIP_CANVAS_HOST", snapshot.skipCanvas);
-  restoreEnvVar("OPENCLAW_SKIP_CHANNELS", snapshot.skipChannels);
+  restoreEnvVar("ZHUSHOU_SKIP_CHANNELS", snapshot.skipChannels);
   restoreEnvVar("OPENCLAW_SKIP_CRON", snapshot.skipCron);
   restoreEnvVar("OPENCLAW_SKIP_GMAIL_WATCHER", snapshot.skipGmail);
-  restoreEnvVar("OPENCLAW_STATE_DIR", snapshot.stateDir);
+  restoreEnvVar("ZHUSHOU_STATE_DIR", snapshot.stateDir);
 }
 
 function restoreEnvVar(name: string, value: string | undefined): void {
@@ -222,7 +222,7 @@ async function writeLiveGatewayConfig(params: {
   token: string;
   workspace: string;
 }): Promise<void> {
-  const cfg: OpenClawConfig = {
+  const cfg: ZhushouConfig = {
     gateway: {
       mode: "local",
       port: params.port,
@@ -419,24 +419,24 @@ describeLive("gateway live (Codex harness)", () => {
       const { startGatewayServer } = await import("./server.js");
 
       const previousEnv = snapshotEnv();
-      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-live-codex-harness-"));
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-live-codex-harness-"));
       const stateDir = path.join(tempDir, "state");
       const workspace = await createLiveWorkspace(tempDir);
-      const configPath = path.join(tempDir, "openclaw.json");
+      const configPath = path.join(tempDir, "zhushou.json");
       const token = `test-${randomUUID()}`;
       const port = await getFreeGatewayPort();
 
       clearRuntimeConfigSnapshot();
       process.env.OPENCLAW_AGENT_RUNTIME = "codex";
       process.env.OPENCLAW_AGENT_HARNESS_FALLBACK = "none";
-      process.env.OPENCLAW_CONFIG_PATH = configPath;
-      process.env.OPENCLAW_GATEWAY_TOKEN = token;
+      process.env.ZHUSHOU_CONFIG_PATH = configPath;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
       process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
       process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
-      process.env.OPENCLAW_SKIP_CHANNELS = "1";
+      process.env.ZHUSHOU_SKIP_CHANNELS = "1";
       process.env.OPENCLAW_SKIP_CRON = "1";
       process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
-      process.env.OPENCLAW_STATE_DIR = stateDir;
+      process.env.ZHUSHOU_STATE_DIR = stateDir;
 
       await fs.mkdir(stateDir, { recursive: true });
       await writeLiveGatewayConfig({ configPath, modelKey, port, token, workspace });
@@ -487,8 +487,8 @@ describeLive("gateway live (Codex harness)", () => {
             "Model: codex/",
             "Session: `agent:dev:live-codex-harness`",
             "Session: agent:dev:live-codex-harness",
-            "OpenClaw `",
-            "OpenClaw status:",
+            "助手 `",
+            "助手 status:",
             "model `codex/",
             "session `agent:dev:live-codex-harness`",
             "Model/status card shown above",
@@ -510,7 +510,7 @@ describeLive("gateway live (Codex harness)", () => {
             "currently running on `codex/",
             "stdin is not a terminal",
             "Configured model from `~/.codex/config.toml`:",
-            "Current OpenClaw session status reports the active model as:",
+            "Current 助手 session status reports the active model as:",
           ],
         });
         logCodexLiveStep("codex-models-command", { modelsText });

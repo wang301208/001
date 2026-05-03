@@ -1,5 +1,5 @@
 import { normalizeProviderId } from "../agents/provider-id.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizePluginIdScope, serializePluginIdScope } from "./plugin-scope.js";
 import { isPluginProvidersLoadInFlight, resolvePluginProviders } from "./providers.runtime.js";
 import { resolvePluginCacheInputs } from "./roots.js";
@@ -28,12 +28,12 @@ let cachedHookProvidersWithoutConfig = new WeakMap<
   Map<string, ProviderPlugin[]>
 >();
 let cachedHookProvidersByConfig = new WeakMap<
-  OpenClawConfig,
+  ZhushouConfig,
   WeakMap<NodeJS.ProcessEnv, Map<string, ProviderPlugin[]>>
 >();
 
 function resolveHookProviderCacheBucket(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 }) {
   if (!params.config) {
@@ -59,7 +59,7 @@ function resolveHookProviderCacheBucket(params: {
 }
 
 function buildHookProviderCacheKey(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   onlyPluginIds?: string[];
   providerRefs?: string[];
@@ -79,7 +79,7 @@ export function clearProviderRuntimeHookCache(): void {
     Map<string, ProviderPlugin[]>
   >();
   cachedHookProvidersByConfig = new WeakMap<
-    OpenClawConfig,
+    ZhushouConfig,
     WeakMap<NodeJS.ProcessEnv, Map<string, ProviderPlugin[]>>
   >();
 }
@@ -93,7 +93,7 @@ export const __testing = {
 } as const;
 
 export function resolveProviderPluginsForHooks(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   onlyPluginIds?: string[];
@@ -144,7 +144,7 @@ export function resolveProviderPluginsForHooks(params: {
 
 export function resolveProviderRuntimePlugin(params: {
   provider: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ProviderPlugin | undefined {
@@ -158,7 +158,7 @@ export function resolveProviderRuntimePlugin(params: {
 
 export function resolveProviderHookPlugin(params: {
   provider: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ProviderPlugin | undefined {
@@ -174,7 +174,7 @@ export function resolveProviderHookPlugin(params: {
 
 export function prepareProviderExtraParams(params: {
   provider: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   context: ProviderPrepareExtraParamsContext;
@@ -184,7 +184,7 @@ export function prepareProviderExtraParams(params: {
 
 export function wrapProviderStreamFn(params: {
   provider: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   context: ProviderWrapStreamFnContext;

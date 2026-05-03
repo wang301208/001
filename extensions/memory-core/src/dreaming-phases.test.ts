@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/memory-core";
-import { resolveSessionTranscriptsDirForAgent } from "openclaw/plugin-sdk/memory-core";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/memory-core";
+import { resolveSessionTranscriptsDirForAgent } from "zhushou/plugin-sdk/memory-core";
 import {
   resolveMemoryCorePluginConfig,
   resolveMemoryLightDreamingConfig,
   resolveMemoryRemDreamingConfig,
-} from "openclaw/plugin-sdk/memory-core-host-status";
+} from "zhushou/plugin-sdk/memory-core-host-status";
 import { describe, expect, it, vi } from "vitest";
 import { __testing } from "./dreaming-phases.js";
 import {
@@ -19,7 +19,7 @@ import { createMemoryCoreTestHarness } from "./test-helpers.js";
 const { createTempWorkspace } = createMemoryCoreTestHarness();
 const DREAMING_TEST_BASE_TIME = new Date("2026-04-05T10:00:00.000Z");
 const DREAMING_TEST_DAY = "2026-04-05";
-const LIGHT_DREAMING_TEST_CONFIG: OpenClawConfig = {
+const LIGHT_DREAMING_TEST_CONFIG: ZhushouConfig = {
   plugins: {
     entries: {
       "memory-core": {
@@ -47,7 +47,7 @@ const LIGHT_DREAMING_TEST_CONFIG: OpenClawConfig = {
 };
 
 function createHarness(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   workspaceDir?: string,
   subagent?: Parameters<typeof __testing.runPhaseIfTriggered>[0]["subagent"],
 ) {
@@ -154,7 +154,7 @@ async function writeDailyNote(workspaceDir: string, lines: string[]): Promise<vo
 }
 
 async function createDreamingWorkspace(): Promise<string> {
-  const workspaceDir = await createTempWorkspace("openclaw-dreaming-phases-");
+  const workspaceDir = await createTempWorkspace("zhushou-dreaming-phases-");
   await fs.mkdir(path.join(workspaceDir, "memory"), { recursive: true });
   return workspaceDir;
 }
@@ -272,16 +272,16 @@ describe("memory-core dreaming phases", () => {
         "- Move backups to S3 Glacier.",
         "",
         "## Light Sleep",
-        "<!-- openclaw:dreaming:light:start -->",
+        "<!-- zhushou:dreaming:light:start -->",
         "- Candidate: Old staged summary.",
         "",
         "## Ops",
         "- Rotate access keys.",
         "",
         "## Light Sleep",
-        "<!-- openclaw:dreaming:light:start -->",
+        "<!-- zhushou:dreaming:light:start -->",
         "- Candidate: Fresh staged summary.",
-        "<!-- openclaw:dreaming:light:end -->",
+        "<!-- zhushou:dreaming:light:end -->",
       ]);
 
       const { beforeAgentReply } = createLightDreamingHarness(workspaceDir);
@@ -441,7 +441,7 @@ describe("memory-core dreaming phases", () => {
   it("checkpoints session transcript ingestion and skips unchanged transcripts", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-main.jsonl");
@@ -548,7 +548,7 @@ describe("memory-core dreaming phases", () => {
   it("redacts sensitive session content before writing session corpus", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-main.jsonl");
@@ -622,7 +622,7 @@ describe("memory-core dreaming phases", () => {
   it("skips dreaming-generated narrative transcripts during session ingestion", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-narrative.jsonl");
@@ -631,7 +631,7 @@ describe("memory-core dreaming phases", () => {
       [
         JSON.stringify({
           type: "custom",
-          customType: "openclaw:bootstrap-context:full",
+          customType: "zhushou:bootstrap-context:full",
           data: {
             runId: "dreaming-narrative-light-1775894400455",
             sessionId: "dream-session-1",
@@ -732,7 +732,7 @@ describe("memory-core dreaming phases", () => {
   it("skips dreaming transcripts when the session store identifies them before bootstrap lands", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-narrative.jsonl");
@@ -845,7 +845,7 @@ describe("memory-core dreaming phases", () => {
   it("does not reread unchanged dreaming-generated transcripts after checkpointing skip state", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-narrative.jsonl");
@@ -854,7 +854,7 @@ describe("memory-core dreaming phases", () => {
       [
         JSON.stringify({
           type: "custom",
-          customType: "openclaw:bootstrap-context:full",
+          customType: "zhushou:bootstrap-context:full",
           data: {
             runId: "dreaming-narrative-light-1775894400455",
             sessionId: "dream-session-1",
@@ -933,7 +933,7 @@ describe("memory-core dreaming phases", () => {
   it("dedupes reset/deleted session archives instead of double-ingesting", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-main.jsonl");
@@ -1057,7 +1057,7 @@ describe("memory-core dreaming phases", () => {
   it("buckets session snippets by per-message day rather than file mtime", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-main.jsonl");
@@ -1138,7 +1138,7 @@ describe("memory-core dreaming phases", () => {
   it("drains >80 unseen transcript messages across multiple unchanged sweeps", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-main.jsonl");
@@ -1218,7 +1218,7 @@ describe("memory-core dreaming phases", () => {
   it("re-ingests rewritten session transcripts after truncate/reset", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-main.jsonl");
@@ -1316,7 +1316,7 @@ describe("memory-core dreaming phases", () => {
   it("ingests sessions when dreaming is enabled even if memorySearch is disabled", async () => {
     const workspaceDir = await createDreamingWorkspace();
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.stubEnv("OPENCLAW_STATE_DIR", path.join(workspaceDir, ".state"));
+    vi.stubEnv("ZHUSHOU_STATE_DIR", path.join(workspaceDir, ".state"));
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main");
     await fs.mkdir(sessionsDir, { recursive: true });
     const transcriptPath = path.join(sessionsDir, "dreaming-main.jsonl");
@@ -1785,7 +1785,7 @@ describe("memory-core dreaming phases", () => {
       "utf-8",
     );
 
-    const configForTest: OpenClawConfig = {
+    const configForTest: ZhushouConfig = {
       plugins: {
         entries: {
           "memory-core": {

@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   createSandboxUniverseController,
   createSandboxUniverseReplayRunner,
@@ -11,7 +11,7 @@ import {
 } from "../../governance/sandbox-universe.js";
 import { extractManagedAutonomyRuntimeState } from "./runtime-taskflow.managed-state.js";
 
-function createCfg(): OpenClawConfig {
+function createCfg(): ZhushouConfig {
   return {
     gateway: {
       bind: "loopback",
@@ -27,7 +27,7 @@ function createCfg(): OpenClawConfig {
         enabled: false,
       },
     },
-  } as unknown as OpenClawConfig;
+  } as unknown as ZhushouConfig;
 }
 
 async function createTempSandboxRoot(): Promise<{
@@ -36,7 +36,7 @@ async function createTempSandboxRoot(): Promise<{
   workspaceDir: string;
   stateDir: string;
 }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-managed-sandbox-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-managed-sandbox-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
   const stateDir = path.join(root, "state");

@@ -1,6 +1,6 @@
 import type { Bot } from "grammy";
-import { createFinalizableDraftLifecycle } from "openclaw/plugin-sdk/channel-lifecycle";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { createFinalizableDraftLifecycle } from "zhushou/plugin-sdk/channel-lifecycle";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { buildTelegramThreadParams, type TelegramThreadSpec } from "./bot/helpers.js";
 import { isSafeToRetrySendError, isTelegramClientRejection } from "./network-errors.js";
 import { normalizeTelegramReplyToMessageId } from "./outbound-params.js";
@@ -39,7 +39,7 @@ function hasNumericMessageThreadId(
  * Keep draft-id allocation shared across bundled chunks so concurrent preview
  * lanes do not accidentally reuse draft ids when code-split entries coexist.
  */
-const TELEGRAM_DRAFT_STREAM_STATE_KEY = Symbol.for("openclaw.telegramDraftStreamState");
+const TELEGRAM_DRAFT_STREAM_STATE_KEY = Symbol.for("zhushou.telegramDraftStreamState");
 let draftStreamState: { nextDraftId: number } | undefined;
 
 function getDraftStreamState(): { nextDraftId: number } {

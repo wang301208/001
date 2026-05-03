@@ -34,7 +34,7 @@ describe("shared/frontmatter", () => {
     expect(
       resolveOpenClawManifestBlock({
         frontmatter: {
-          metadata: "{ openclaw: { foo: 1, bar: 'baz' } }",
+          metadata: "{ zhushou: { foo: 1, bar: 'baz' } }",
         },
       }),
     ).toEqual({ foo: 1, bar: "baz" });
@@ -42,7 +42,7 @@ describe("shared/frontmatter", () => {
     expect(
       resolveOpenClawManifestBlock({
         frontmatter: {
-          pluginMeta: "{ openclaw: { foo: 2 } }",
+          pluginMeta: "{ zhushou: { foo: 2 } }",
         },
         key: "pluginMeta",
       }),

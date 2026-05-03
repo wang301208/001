@@ -12,12 +12,12 @@ import type { DoctorPrompter } from "./doctor-prompter.js";
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  return makeTrackedTempDir("openclaw-doctor-plugin-manifests", tempDirs);
+  return makeTrackedTempDir("zhushou-doctor-plugin-manifests", tempDirs);
 }
 
 function writeManifest(dir: string, manifest: Record<string, unknown>) {
   fs.writeFileSync(
-    path.join(dir, "openclaw.plugin.json"),
+    path.join(dir, "zhushou.plugin.json"),
     `${JSON.stringify(manifest, null, 2)}\n`,
     "utf-8",
   );
@@ -28,9 +28,9 @@ function writePackageJson(dir: string) {
     path.join(dir, "package.json"),
     `${JSON.stringify(
       {
-        name: "@openclaw/test-plugin",
+        name: "@zhushou/test-plugin",
         version: "1.0.0",
-        openclaw: {
+        zhushou: {
           extensions: ["./index.ts"],
         },
       },
@@ -125,7 +125,7 @@ describe("doctor plugin manifest legacy contract repair", () => {
       prompter: createPrompter(),
     });
 
-    const next = JSON.parse(fs.readFileSync(path.join(root, "openclaw.plugin.json"), "utf-8")) as {
+    const next = JSON.parse(fs.readFileSync(path.join(root, "zhushou.plugin.json"), "utf-8")) as {
       speechProviders?: string[];
       mediaUnderstandingProviders?: string[];
       contracts?: Record<string, string[]>;

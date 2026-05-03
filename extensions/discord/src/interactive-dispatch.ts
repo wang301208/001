@@ -1,4 +1,4 @@
-import type { ChannelStructuredComponents } from "openclaw/plugin-sdk/channel-contract";
+import type { ChannelStructuredComponents } from "zhushou/plugin-sdk/channel-contract";
 import {
   createInteractiveConversationBindingHelpers,
   dispatchPluginInteractiveHandler,
@@ -6,7 +6,7 @@ import {
   type PluginConversationBindingRequestParams,
   type PluginConversationBindingRequestResult,
   type PluginInteractiveRegistration,
-} from "openclaw/plugin-sdk/plugin-runtime";
+} from "zhushou/plugin-sdk/plugin-runtime";
 
 export type DiscordInteractiveHandlerContext = {
   channel: "discord";

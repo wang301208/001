@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { parseRegistryNpmSpec } from "../infra/npm-registry-spec.js";
 import { CLAWHUB_INSTALL_ERROR_CODE } from "../plugins/clawhub.js";
 import { applyExclusiveSlotSelection } from "../plugins/slots.js";
@@ -41,9 +41,9 @@ export function resolveFileNpmSpecToLocalPath(
 }
 
 export function applySlotSelectionForPlugin(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   pluginId: string,
-): { config: OpenClawConfig; warnings: string[] } {
+): { config: ZhushouConfig; warnings: string[] } {
   const report = buildPluginDiagnosticsReport({ config });
   const plugin = report.plugins.find((entry) => entry.id === pluginId);
   if (!plugin) {
@@ -79,9 +79,9 @@ export function createHookPackInstallLogger(): {
 }
 
 export function enableInternalHookEntries(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   hookNames: string[],
-): OpenClawConfig {
+): ZhushouConfig {
   const entries = { ...config.hooks?.internal?.entries } as Record<string, HookInternalEntryLike>;
 
   for (const hookName of hookNames) {

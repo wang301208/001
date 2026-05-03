@@ -4,8 +4,8 @@ import {
   GroupPolicySchema,
   MarkdownConfigSchema,
   requireOpenAllowFrom,
-} from "openclaw/plugin-sdk/channel-config-primitives";
-import { z } from "openclaw/plugin-sdk/zod";
+} from "zhushou/plugin-sdk/channel-config-primitives";
+import { z } from "zhushou/plugin-sdk/zod";
 import { buildSecretInputSchema } from "./secret-input.js";
 
 const MattermostGroupSchema = z

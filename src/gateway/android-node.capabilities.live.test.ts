@@ -4,7 +4,7 @@ import { unwrapRemoteConfigSnapshot } from "../../test/helpers/gateway/android-n
 import { shouldFetchRemotePolicyConfig } from "../../test/helpers/gateway/android-node-capabilities-policy-source.js";
 import { isLiveTestEnabled } from "../agents/live-test-helpers.js";
 import { loadConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { parseNodeList, parsePairingList } from "../shared/node-list-parse.js";
 import type { NodeListNode } from "../shared/node-list-types.js";
@@ -283,8 +283,8 @@ function resolveGatewayConnection() {
 async function resolvePolicyConfigForRun(params: {
   client: GatewayClient;
   connectionDetails: ReturnType<typeof buildGatewayConnectionDetails>;
-  loadLocalConfig?: () => OpenClawConfig;
-}): Promise<OpenClawConfig> {
+  loadLocalConfig?: () => ZhushouConfig;
+}): Promise<ZhushouConfig> {
   if (shouldFetchRemotePolicyConfig(params.connectionDetails)) {
     const raw = await params.client.request("config.get", {});
     return unwrapRemoteConfigSnapshot(raw);
@@ -317,7 +317,7 @@ describe("resolvePolicyConfigForRun", () => {
   });
 
   it("still uses local config loading for local loopback runs", async () => {
-    const localConfig = { gateway: { bind: "127.0.0.1" } } as unknown as OpenClawConfig;
+    const localConfig = { gateway: { bind: "127.0.0.1" } } as unknown as ZhushouConfig;
     const loadLocalConfig = vi.fn(() => localConfig);
 
     const result = await resolvePolicyConfigForRun({
@@ -517,7 +517,7 @@ describeLive("android node capability integration (preconditioned)", () => {
         [
           `selected node is not ready (nodeId=${nodeId}, connected=${String(target.connected)}, paired=${String(target.paired)})`,
           pendingHint,
-          "precondition: open app, keep foreground, ensure pairing approved (`openclaw nodes pending` / `openclaw nodes approve <requestId>`)",
+          "precondition: open app, keep foreground, ensure pairing approved (`zhushou nodes pending` / `zhushou nodes approve <requestId>`)",
         ].join("\n"),
       );
     }

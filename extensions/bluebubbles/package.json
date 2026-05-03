@@ -1,21 +1,21 @@
 {
-  "name": "@openclaw/bluebubbles",
+  "name": "@zhushou/bluebubbles",
   "version": "2026.4.16",
-  "description": "OpenClaw BlueBubbles channel plugin",
+  "description": "助手 BlueBubbles channel plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -38,7 +38,7 @@
       "order": 75
     },
     "install": {
-      "npmSpec": "@openclaw/bluebubbles",
+      "npmSpec": "@zhushou/bluebubbles",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -46,7 +46,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "openclawVersion": "2026.4.16"
+      "zhushouVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

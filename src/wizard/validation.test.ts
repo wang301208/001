@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   detectConfigConflicts,
   formatValidationResult,
@@ -9,8 +9,8 @@ import {
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-function cfg(overrides: Record<string, unknown> = {}): OpenClawConfig {
-  return overrides as unknown as OpenClawConfig;
+function cfg(overrides: Record<string, unknown> = {}): ZhushouConfig {
+  return overrides as unknown as ZhushouConfig;
 }
 
 // ─── validateWizardConfig ─────────────────────────────────────────────────────

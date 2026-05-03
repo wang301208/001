@@ -38,17 +38,17 @@ type DotEnvFixture = {
 };
 
 async function withDotEnvFixture(run: (fixture: DotEnvFixture) => Promise<void>) {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-dotenv-test-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-dotenv-test-"));
   const cwdDir = path.join(base, "cwd");
   const stateDir = path.join(base, "state");
-  process.env.OPENCLAW_STATE_DIR = stateDir;
+  process.env.ZHUSHOU_STATE_DIR = stateDir;
   await fs.mkdir(cwdDir, { recursive: true });
   await fs.mkdir(stateDir, { recursive: true });
   await run({ base, cwdDir, stateDir });
 }
 
 describe("loadDotEnv", () => {
-  it("loads ~/.openclaw/.env as fallback without overriding CWD .env", async () => {
+  it("loads ~/.zhushou/.env as fallback without overriding CWD .env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ cwdDir, stateDir }) => {
         await writeEnvFile(path.join(stateDir, ".env"), "FOO=from-global\nBAR=1\n");
@@ -97,15 +97,15 @@ describe("loadDotEnv", () => {
     });
   });
 
-  it("loads the Ubuntu gateway.env compatibility fallback after ~/.openclaw/.env", async () => {
+  it("loads the Ubuntu gateway.env compatibility fallback after ~/.zhushou/.env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir }) => {
         process.env.HOME = base;
-        const defaultStateDir = path.join(base, ".openclaw");
-        process.env.OPENCLAW_STATE_DIR = defaultStateDir;
+        const defaultStateDir = path.join(base, ".zhushou");
+        process.env.ZHUSHOU_STATE_DIR = defaultStateDir;
         await writeEnvFile(path.join(defaultStateDir, ".env"), "FOO=from-global\n");
         await writeEnvFile(
-          path.join(base, ".config", "openclaw", "gateway.env"),
+          path.join(base, ".config", "zhushou", "gateway.env"),
           ["FOO=from-gateway", "BAR=from-gateway"].join("\n"),
         );
 
@@ -131,7 +131,7 @@ describe("loadDotEnv", () => {
         process.env.FOO = "from-shell";
         await writeEnvFile(path.join(stateDir, ".env"), "FOO=from-global\n");
         await writeEnvFile(
-          path.join(base, ".config", "openclaw", "gateway.env"),
+          path.join(base, ".config", "zhushou", "gateway.env"),
           "FOO=from-gateway\n",
         );
 
@@ -154,8 +154,8 @@ describe("loadDotEnv", () => {
           [
             "SAFE_KEY=from-cwd",
             "NODE_OPTIONS=--require ./evil.js",
-            "OPENCLAW_STATE_DIR=./evil-state",
-            "OPENCLAW_CONFIG_PATH=./evil-config.json",
+            "ZHUSHOU_STATE_DIR=./evil-state",
+            "ZHUSHOU_CONFIG_PATH=./evil-config.json",
             "ANTHROPIC_BASE_URL=https://evil.example.com/v1",
             "HTTP_PROXY=http://evil-proxy:8080",
             "UV_PYTHON=./attacker-python",
@@ -167,7 +167,7 @@ describe("loadDotEnv", () => {
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
         delete process.env.SAFE_KEY;
         delete process.env.NODE_OPTIONS;
-        delete process.env.OPENCLAW_CONFIG_PATH;
+        delete process.env.ZHUSHOU_CONFIG_PATH;
         delete process.env.ANTHROPIC_BASE_URL;
         delete process.env.HTTP_PROXY;
         delete process.env.UV_PYTHON;
@@ -178,8 +178,8 @@ describe("loadDotEnv", () => {
         expect(process.env.SAFE_KEY).toBe("from-cwd");
         expect(process.env.BAR).toBe("from-global");
         expect(process.env.NODE_OPTIONS).toBeUndefined();
-        expect(process.env.OPENCLAW_STATE_DIR).toBe(stateDir);
-        expect(process.env.OPENCLAW_CONFIG_PATH).toBeUndefined();
+        expect(process.env.ZHUSHOU_STATE_DIR).toBe(stateDir);
+        expect(process.env.ZHUSHOU_CONFIG_PATH).toBeUndefined();
         expect(process.env.ANTHROPIC_BASE_URL).toBeUndefined();
         expect(process.env.HTTP_PROXY).toBeUndefined();
         expect(process.env.UV_PYTHON).toBeUndefined();
@@ -200,12 +200,12 @@ describe("loadDotEnv", () => {
             "OPENAI_API_KEY=sk-openai-attacker-key",
             "OPENAI_API_KEYS=sk-openai-a,sk-openai-b",
             "OPENAI_API_KEY_SECONDARY=sk-openai-secondary",
-            "OPENCLAW_LIVE_ANTHROPIC_KEY=sk-ant-live",
-            "OPENCLAW_LIVE_ANTHROPIC_KEYS=sk-ant-live-a,sk-ant-live-b",
-            "OPENCLAW_LIVE_GEMINI_KEY=sk-gemini-live",
-            "OPENCLAW_LIVE_OPENAI_KEY=sk-openai-live",
-            "OPENCLAW_GATEWAY_TOKEN=attacker-token",
-            "OPENCLAW_GATEWAY_PASSWORD=attacker-password",
+            "ZHUSHOU_LIVE_ANTHROPIC_KEY=sk-ant-live",
+            "ZHUSHOU_LIVE_ANTHROPIC_KEYS=sk-ant-live-a,sk-ant-live-b",
+            "ZHUSHOU_LIVE_GEMINI_KEY=sk-gemini-live",
+            "ZHUSHOU_LIVE_OPENAI_KEY=sk-openai-live",
+            "ZHUSHOU_GATEWAY_TOKEN=attacker-token",
+            "ZHUSHOU_GATEWAY_PASSWORD=attacker-password",
             "OPENCLAW_GATEWAY_SECRET=attacker-secret",
           ].join("\n"),
         );
@@ -216,12 +216,12 @@ describe("loadDotEnv", () => {
         delete process.env.OPENAI_API_KEY;
         delete process.env.OPENAI_API_KEYS;
         delete process.env.OPENAI_API_KEY_SECONDARY;
-        delete process.env.OPENCLAW_LIVE_ANTHROPIC_KEY;
-        delete process.env.OPENCLAW_LIVE_ANTHROPIC_KEYS;
-        delete process.env.OPENCLAW_LIVE_GEMINI_KEY;
-        delete process.env.OPENCLAW_LIVE_OPENAI_KEY;
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-        delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+        delete process.env.ZHUSHOU_LIVE_ANTHROPIC_KEY;
+        delete process.env.ZHUSHOU_LIVE_ANTHROPIC_KEYS;
+        delete process.env.ZHUSHOU_LIVE_GEMINI_KEY;
+        delete process.env.ZHUSHOU_LIVE_OPENAI_KEY;
+        delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+        delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
         delete process.env.OPENCLAW_GATEWAY_SECRET;
 
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
@@ -232,32 +232,32 @@ describe("loadDotEnv", () => {
         expect(process.env.OPENAI_API_KEY).toBeUndefined();
         expect(process.env.OPENAI_API_KEYS).toBeUndefined();
         expect(process.env.OPENAI_API_KEY_SECONDARY).toBeUndefined();
-        expect(process.env.OPENCLAW_LIVE_ANTHROPIC_KEY).toBeUndefined();
-        expect(process.env.OPENCLAW_LIVE_ANTHROPIC_KEYS).toBeUndefined();
-        expect(process.env.OPENCLAW_LIVE_GEMINI_KEY).toBeUndefined();
-        expect(process.env.OPENCLAW_LIVE_OPENAI_KEY).toBeUndefined();
-        expect(process.env.OPENCLAW_GATEWAY_TOKEN).toBeUndefined();
-        expect(process.env.OPENCLAW_GATEWAY_PASSWORD).toBeUndefined();
+        expect(process.env.ZHUSHOU_LIVE_ANTHROPIC_KEY).toBeUndefined();
+        expect(process.env.ZHUSHOU_LIVE_ANTHROPIC_KEYS).toBeUndefined();
+        expect(process.env.ZHUSHOU_LIVE_GEMINI_KEY).toBeUndefined();
+        expect(process.env.ZHUSHOU_LIVE_OPENAI_KEY).toBeUndefined();
+        expect(process.env.ZHUSHOU_GATEWAY_TOKEN).toBeUndefined();
+        expect(process.env.ZHUSHOU_GATEWAY_PASSWORD).toBeUndefined();
         expect(process.env.OPENCLAW_GATEWAY_SECRET).toBeUndefined();
       });
     });
   });
 
-  it("blocks OPENCLAW_STATE_DIR from workspace .env even when unset in process env", async () => {
+  it("blocks ZHUSHOU_STATE_DIR from workspace .env even when unset in process env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
         await writeEnvFile(
           path.join(cwdDir, ".env"),
-          "OPENCLAW_STATE_DIR=./evil-state\nOPENCLAW_CONFIG_PATH=./evil-config.json\n",
+          "ZHUSHOU_STATE_DIR=./evil-state\nZHUSHOU_CONFIG_PATH=./evil-config.json\n",
         );
 
-        delete process.env.OPENCLAW_STATE_DIR;
-        delete process.env.OPENCLAW_CONFIG_PATH;
+        delete process.env.ZHUSHOU_STATE_DIR;
+        delete process.env.ZHUSHOU_CONFIG_PATH;
 
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
-        expect(process.env.OPENCLAW_STATE_DIR).toBeUndefined();
-        expect(process.env.OPENCLAW_CONFIG_PATH).toBeUndefined();
+        expect(process.env.ZHUSHOU_STATE_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_CONFIG_PATH).toBeUndefined();
       });
     });
   });
@@ -401,12 +401,12 @@ describe("loadDotEnv", () => {
             "OPENAI_API_KEY=sk-openai-trusted-key",
             "OPENAI_API_KEYS=sk-openai-a,sk-openai-b",
             "OPENAI_API_KEY_SECONDARY=sk-openai-secondary",
-            "OPENCLAW_LIVE_ANTHROPIC_KEY=sk-ant-live",
-            "OPENCLAW_LIVE_ANTHROPIC_KEYS=sk-ant-live-a,sk-ant-live-b",
-            "OPENCLAW_LIVE_GEMINI_KEY=sk-gemini-live",
-            "OPENCLAW_LIVE_OPENAI_KEY=sk-openai-live",
-            "OPENCLAW_GATEWAY_TOKEN=trusted-token",
-            "OPENCLAW_GATEWAY_PASSWORD=trusted-password",
+            "ZHUSHOU_LIVE_ANTHROPIC_KEY=sk-ant-live",
+            "ZHUSHOU_LIVE_ANTHROPIC_KEYS=sk-ant-live-a,sk-ant-live-b",
+            "ZHUSHOU_LIVE_GEMINI_KEY=sk-gemini-live",
+            "ZHUSHOU_LIVE_OPENAI_KEY=sk-openai-live",
+            "ZHUSHOU_GATEWAY_TOKEN=trusted-token",
+            "ZHUSHOU_GATEWAY_PASSWORD=trusted-password",
             "OPENCLAW_GATEWAY_SECRET=trusted-secret",
           ].join("\n"),
         );
@@ -417,12 +417,12 @@ describe("loadDotEnv", () => {
         delete process.env.OPENAI_API_KEY;
         delete process.env.OPENAI_API_KEYS;
         delete process.env.OPENAI_API_KEY_SECONDARY;
-        delete process.env.OPENCLAW_LIVE_ANTHROPIC_KEY;
-        delete process.env.OPENCLAW_LIVE_ANTHROPIC_KEYS;
-        delete process.env.OPENCLAW_LIVE_GEMINI_KEY;
-        delete process.env.OPENCLAW_LIVE_OPENAI_KEY;
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-        delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+        delete process.env.ZHUSHOU_LIVE_ANTHROPIC_KEY;
+        delete process.env.ZHUSHOU_LIVE_ANTHROPIC_KEYS;
+        delete process.env.ZHUSHOU_LIVE_GEMINI_KEY;
+        delete process.env.ZHUSHOU_LIVE_OPENAI_KEY;
+        delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+        delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
         delete process.env.OPENCLAW_GATEWAY_SECRET;
 
         loadDotEnv({ quiet: true });
@@ -433,12 +433,12 @@ describe("loadDotEnv", () => {
         expect(process.env.OPENAI_API_KEY).toBe("sk-openai-trusted-key");
         expect(process.env.OPENAI_API_KEYS).toBe("sk-openai-a,sk-openai-b");
         expect(process.env.OPENAI_API_KEY_SECONDARY).toBe("sk-openai-secondary");
-        expect(process.env.OPENCLAW_LIVE_ANTHROPIC_KEY).toBe("sk-ant-live");
-        expect(process.env.OPENCLAW_LIVE_ANTHROPIC_KEYS).toBe("sk-ant-live-a,sk-ant-live-b");
-        expect(process.env.OPENCLAW_LIVE_GEMINI_KEY).toBe("sk-gemini-live");
-        expect(process.env.OPENCLAW_LIVE_OPENAI_KEY).toBe("sk-openai-live");
-        expect(process.env.OPENCLAW_GATEWAY_TOKEN).toBe("trusted-token");
-        expect(process.env.OPENCLAW_GATEWAY_PASSWORD).toBe("trusted-password");
+        expect(process.env.ZHUSHOU_LIVE_ANTHROPIC_KEY).toBe("sk-ant-live");
+        expect(process.env.ZHUSHOU_LIVE_ANTHROPIC_KEYS).toBe("sk-ant-live-a,sk-ant-live-b");
+        expect(process.env.ZHUSHOU_LIVE_GEMINI_KEY).toBe("sk-gemini-live");
+        expect(process.env.ZHUSHOU_LIVE_OPENAI_KEY).toBe("sk-openai-live");
+        expect(process.env.ZHUSHOU_GATEWAY_TOKEN).toBe("trusted-token");
+        expect(process.env.ZHUSHOU_GATEWAY_PASSWORD).toBe("trusted-password");
         expect(process.env.OPENCLAW_GATEWAY_SECRET).toBe("trusted-secret");
       });
     });
@@ -448,7 +448,7 @@ describe("loadDotEnv", () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir, stateDir }) => {
         const evilStateDir = path.join(base, "evil-state");
-        await writeEnvFile(path.join(cwdDir, ".env"), "OPENCLAW_STATE_DIR=./evil-state\n");
+        await writeEnvFile(path.join(cwdDir, ".env"), "ZHUSHOU_STATE_DIR=./evil-state\n");
         await writeEnvFile(path.join(stateDir, ".env"), "SAFE_KEY=trusted-global\n");
         await writeEnvFile(path.join(evilStateDir, ".env"), "SAFE_KEY=evil-global\n");
 
@@ -457,7 +457,7 @@ describe("loadDotEnv", () => {
 
         loadDotEnv({ quiet: true });
 
-        expect(process.env.OPENCLAW_STATE_DIR).toBe(stateDir);
+        expect(process.env.ZHUSHOU_STATE_DIR).toBe(stateDir);
         expect(process.env.SAFE_KEY).toBe("trusted-global");
       });
     });
@@ -465,19 +465,19 @@ describe("loadDotEnv", () => {
 });
 
 describe("loadCliDotEnv", () => {
-  it("blocks OPENCLAW_STATE_DIR from workspace .env even when unset in process env", async () => {
+  it("blocks ZHUSHOU_STATE_DIR from workspace .env even when unset in process env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
-        await writeEnvFile(path.join(cwdDir, ".env"), "OPENCLAW_STATE_DIR=./evil-state\n");
+        await writeEnvFile(path.join(cwdDir, ".env"), "ZHUSHOU_STATE_DIR=./evil-state\n");
 
         // Delete the fixture-provided value so the blocking must come from
         // the workspace blocklist, not the "already set" skip.
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.ZHUSHOU_STATE_DIR;
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
 
         loadCliDotEnv({ quiet: true });
 
-        expect(process.env.OPENCLAW_STATE_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_STATE_DIR).toBeUndefined();
       });
     });
   });
@@ -486,11 +486,11 @@ describe("loadCliDotEnv", () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir }) => {
         process.env.HOME = base;
-        const defaultStateDir = path.join(base, ".openclaw");
-        process.env.OPENCLAW_STATE_DIR = defaultStateDir;
+        const defaultStateDir = path.join(base, ".zhushou");
+        process.env.ZHUSHOU_STATE_DIR = defaultStateDir;
         await writeEnvFile(path.join(defaultStateDir, ".env"), "FOO=from-global\n");
         await writeEnvFile(
-          path.join(base, ".config", "openclaw", "gateway.env"),
+          path.join(base, ".config", "zhushou", "gateway.env"),
           "BAR=from-gateway\n",
         );
 
@@ -506,14 +506,14 @@ describe("loadCliDotEnv", () => {
     });
   });
 
-  it("does not load gateway.env when OPENCLAW_STATE_DIR is explicitly set", async () => {
+  it("does not load gateway.env when ZHUSHOU_STATE_DIR is explicitly set", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir }) => {
         const customStateDir = path.join(base, "custom-state");
         process.env.HOME = base;
-        process.env.OPENCLAW_STATE_DIR = customStateDir;
+        process.env.ZHUSHOU_STATE_DIR = customStateDir;
         await writeEnvFile(
-          path.join(base, ".config", "openclaw", "gateway.env"),
+          path.join(base, ".config", "zhushou", "gateway.env"),
           "FOO=from-gateway\n",
         );
 
@@ -523,7 +523,7 @@ describe("loadCliDotEnv", () => {
         loadCliDotEnv({ quiet: true });
 
         expect(process.env.FOO).toBeUndefined();
-        expect(process.env.OPENCLAW_STATE_DIR).toBe(customStateDir);
+        expect(process.env.ZHUSHOU_STATE_DIR).toBe(customStateDir);
         expect(process.env.BAR).toBeUndefined();
       });
     });
@@ -531,11 +531,11 @@ describe("loadCliDotEnv", () => {
 
   it("keeps the legacy state-dir fallback for CLI dotenv loading", async () => {
     await withIsolatedEnvAndCwd(async () => {
-      const base = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-dotenv-legacy-"));
+      const base = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-dotenv-legacy-"));
       const cwdDir = path.join(base, "cwd");
       const legacyStateDir = path.join(base, ".clawdbot");
       process.env.HOME = base;
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.ZHUSHOU_STATE_DIR;
       delete process.env.OPENCLAW_TEST_FAST;
       await fs.mkdir(cwdDir, { recursive: true });
       await writeEnvFile(path.join(legacyStateDir, ".env"), "LEGACY_ONLY=from-legacy\n");
@@ -589,8 +589,8 @@ describe("loadCliDotEnv", () => {
           path.join(cwdDir, ".env"),
           [
             "SAFE_KEY=from-cwd",
-            "OPENCLAW_STATE_DIR=./evil-state",
-            "OPENCLAW_CONFIG_PATH=./evil-config.json",
+            "ZHUSHOU_STATE_DIR=./evil-state",
+            "ZHUSHOU_CONFIG_PATH=./evil-config.json",
             `OPENCLAW_BUNDLED_PLUGINS_DIR=${bundledPluginsDir}`,
             "NODE_OPTIONS=--require ./evil.js",
             "ANTHROPIC_BASE_URL=https://evil.example.com/v1",
@@ -602,7 +602,7 @@ describe("loadCliDotEnv", () => {
 
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
         delete process.env.SAFE_KEY;
-        delete process.env.OPENCLAW_CONFIG_PATH;
+        delete process.env.ZHUSHOU_CONFIG_PATH;
         delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
         delete process.env.NODE_OPTIONS;
         delete process.env.ANTHROPIC_BASE_URL;
@@ -614,8 +614,8 @@ describe("loadCliDotEnv", () => {
 
         expect(process.env.SAFE_KEY).toBe("from-cwd");
         expect(process.env.BAR).toBe("from-global");
-        expect(process.env.OPENCLAW_STATE_DIR).toBe(stateDir);
-        expect(process.env.OPENCLAW_CONFIG_PATH).toBeUndefined();
+        expect(process.env.ZHUSHOU_STATE_DIR).toBe(stateDir);
+        expect(process.env.ZHUSHOU_CONFIG_PATH).toBeUndefined();
         expect(process.env.OPENCLAW_BUNDLED_PLUGINS_DIR).toBeUndefined();
         expect(process.env.NODE_OPTIONS).toBeUndefined();
         expect(process.env.ANTHROPIC_BASE_URL).toBeUndefined();
@@ -632,7 +632,7 @@ describe("workspace .env blocklist completeness", () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
         const runtimeControlKeys = [
           "OPENCLAW_UPDATE_PACKAGE_SPEC",
-          "OPENCLAW_GATEWAY_PORT",
+          "ZHUSHOU_GATEWAY_PORT",
           "OPENCLAW_GATEWAY_URL",
           "OPENCLAW_CLAWHUB_URL",
           "CLAWHUB_URL",
@@ -641,11 +641,11 @@ describe("workspace .env blocklist completeness", () => {
           "CLAWHUB_AUTH_TOKEN",
           "CLAWHUB_CONFIG_PATH",
           "OPENCLAW_DISABLE_BUNDLED_PLUGINS",
-          "OPENCLAW_ALLOW_INSECURE_PRIVATE_WS",
+          "ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS",
           "OPENCLAW_BROWSER_EXECUTABLE_PATH",
           "BROWSER_EXECUTABLE_PATH",
           "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH",
-          "OPENCLAW_SKIP_CHANNELS",
+          "ZHUSHOU_SKIP_CHANNELS",
           "OPENCLAW_SKIP_PROVIDERS",
           "OPENCLAW_SKIP_CRON",
           "OPENCLAW_RAW_STREAM",
@@ -686,7 +686,7 @@ describe("workspace .env blocklist completeness", () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
         await writeEnvFile(
           path.join(cwdDir, ".env"),
-          "MY_APP_KEY=user-value\nAPP_GITHUB_REPO=openclaw/openclaw\nDATABASE_URL_CUSTOM=pg://localhost\n",
+          "MY_APP_KEY=user-value\nAPP_GITHUB_REPO=zhushou/zhushou\nDATABASE_URL_CUSTOM=pg://localhost\n",
         );
 
         delete process.env.MY_APP_KEY;
@@ -696,7 +696,7 @@ describe("workspace .env blocklist completeness", () => {
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
         expect(process.env.MY_APP_KEY).toBe("user-value");
-        expect(process.env.APP_GITHUB_REPO).toBe("openclaw/openclaw");
+        expect(process.env.APP_GITHUB_REPO).toBe("zhushou/zhushou");
         expect(process.env.DATABASE_URL_CUSTOM).toBe("pg://localhost");
       });
     });

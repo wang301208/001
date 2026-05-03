@@ -94,7 +94,7 @@ describe("sessions_spawn depth + child limits", () => {
     callGatewayMock.mockClear();
     storeTemplatePath = path.join(
       os.tmpdir(),
-      `openclaw-subagent-depth-${Date.now()}-${Math.random().toString(16).slice(2)}-{agentId}.json`,
+      `zhushou-subagent-depth-${Date.now()}-${Math.random().toString(16).slice(2)}-{agentId}.json`,
     );
     configOverride = {
       session: createPerSenderSessionConfig({ store: storeTemplatePath }),

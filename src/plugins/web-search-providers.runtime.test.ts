@@ -103,7 +103,7 @@ function createBraveAllowConfig() {
 
 function createWebSearchEnv(overrides?: Partial<NodeJS.ProcessEnv>) {
   return {
-    OPENCLAW_HOME: "/tmp/openclaw-home",
+    ZHUSHOU_HOME: "/tmp/zhushou-home",
     ...overrides,
   } as NodeJS.ProcessEnv;
 }
@@ -144,7 +144,7 @@ function createManifestRegistryFixture() {
         origin: "bundled",
         rootDir: "/tmp/brave",
         source: "/tmp/brave/index.js",
-        manifestPath: "/tmp/brave/openclaw.plugin.json",
+        manifestPath: "/tmp/brave/zhushou.plugin.json",
         channels: [],
         providers: [],
         skills: [],
@@ -156,7 +156,7 @@ function createManifestRegistryFixture() {
         origin: "bundled",
         rootDir: "/tmp/noise",
         source: "/tmp/noise/index.js",
-        manifestPath: "/tmp/noise/openclaw.plugin.json",
+        manifestPath: "/tmp/noise/zhushou.plugin.json",
         channels: [],
         providers: [],
         skills: [],
@@ -533,7 +533,7 @@ describe("resolvePluginWebSearchProviders", () => {
 
   it("retains the snapshot cache when config contents change in place", () => {
     const config = createBraveAllowConfig();
-    const env = createWebSearchEnv({ OPENCLAW_HOME: "/tmp/openclaw-home-a" });
+    const env = createWebSearchEnv({ ZHUSHOU_HOME: "/tmp/zhushou-home-a" });
 
     expectSnapshotLoaderCalls({
       config,
@@ -547,13 +547,13 @@ describe("resolvePluginWebSearchProviders", () => {
 
   it("invalidates the snapshot cache when env contents change in place", () => {
     const config = createBraveAllowConfig();
-    const env = createWebSearchEnv({ OPENCLAW_HOME: "/tmp/openclaw-home-a" });
+    const env = createWebSearchEnv({ ZHUSHOU_HOME: "/tmp/zhushou-home-a" });
 
     expectSnapshotLoaderCalls({
       config,
       env,
       mutate: () => {
-        env.OPENCLAW_HOME = "/tmp/openclaw-home-b";
+        env.ZHUSHOU_HOME = "/tmp/zhushou-home-b";
       },
       expectedLoaderCalls: 2,
     });

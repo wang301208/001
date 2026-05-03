@@ -74,7 +74,7 @@ async function createBlockedA2uiEscapeFixture(a2uiRoot: string) {
     }
   }
 
-  const outsideRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-a2ui-escape-"));
+  const outsideRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-a2ui-escape-"));
   const outsideFileName = "escape.txt";
   const outsideFilePath = path.join(outsideRoot, outsideFileName);
   const directoryAliasPath = path.join(a2uiRoot, token);
@@ -139,7 +139,7 @@ describe("canvas host", () => {
     ({ fetch: realFetch } = require("undici") as typeof import("undici"));
     const wsModule = await vi.importActual<typeof import("ws")>("ws");
     WebSocketServerClass = wsModule.WebSocketServer;
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-canvas-fixtures-"));
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-canvas-fixtures-"));
   });
 
   beforeEach(() => {
@@ -413,7 +413,7 @@ describe("canvas host", () => {
     try {
       await fs.stat(bundlePath);
     } catch {
-      await fs.writeFile(bundlePath, "window.openclawA2UI = {};", "utf8");
+      await fs.writeFile(bundlePath, "window.zhushouA2UI = {};", "utf8");
       createdBundle = true;
     }
 
@@ -434,7 +434,7 @@ describe("canvas host", () => {
       const res = await realFetch(`http://127.0.0.1:${server.port}/__openclaw__/a2ui/`);
       const html = await res.text();
       expect(res.status).toBe(200);
-      expect(html).toContain("openclaw-a2ui-host");
+      expect(html).toContain("zhushou-a2ui-host");
       expect(html).toContain("openclawCanvasA2UIAction");
 
       const bundleRes = await realFetch(

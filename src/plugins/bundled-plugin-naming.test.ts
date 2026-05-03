@@ -8,7 +8,7 @@ type PluginManifestShape = {
 
 type OpenClawPackageShape = {
   name?: unknown;
-  openclaw?: {
+  zhushou?: {
     install?: {
       npmSpec?: unknown;
     };
@@ -59,7 +59,7 @@ function readBundledPluginRecords(): BundledPluginRecord[] {
     .flatMap((dirName) => {
       const rootDir = path.join(EXTENSIONS_ROOT, dirName);
       const packagePath = path.join(rootDir, "package.json");
-      const manifestPath = path.join(rootDir, "openclaw.plugin.json");
+      const manifestPath = path.join(rootDir, "zhushou.plugin.json");
       if (!fs.existsSync(packagePath) || !fs.existsSync(manifestPath)) {
         return [];
       }
@@ -77,15 +77,15 @@ function readBundledPluginRecords(): BundledPluginRecord[] {
           dirName,
           packageName,
           manifestId,
-          installNpmSpec: normalizeText(pkg.openclaw?.install?.npmSpec),
-          channelId: normalizeText(pkg.openclaw?.channel?.id),
+          installNpmSpec: normalizeText(pkg.zhushou?.install?.npmSpec),
+          channelId: normalizeText(pkg.zhushou?.channel?.id),
         },
       ];
     });
 }
 
 function resolveAllowedPackageNamesForId(pluginId: string): string[] {
-  return ALLOWED_PACKAGE_SUFFIXES.map((suffix) => `@openclaw/${pluginId}${suffix}`);
+  return ALLOWED_PACKAGE_SUFFIXES.map((suffix) => `@zhushou/${pluginId}${suffix}`);
 }
 
 function resolveBundledPluginMismatches(
@@ -106,7 +106,7 @@ describe("bundled plugin naming guardrails", () => {
   it.each([
     {
       name: "keeps bundled workspace package names anchored to the plugin id",
-      message: `Bundled extension package names must stay anchored to the manifest id via @openclaw/<id> or an approved suffix (${ALLOWED_PACKAGE_SUFFIXES.join(", ")}). Update the plugin naming docs and this invariant before adding a new naming form.`,
+      message: `Bundled extension package names must stay anchored to the manifest id via @zhushou/<id> or an approved suffix (${ALLOWED_PACKAGE_SUFFIXES.join(", ")}). Update the plugin naming docs and this invariant before adding a new naming form.`,
       collectMismatches: (records: BundledPluginRecord[]) =>
         records
           .filter(
@@ -121,7 +121,7 @@ describe("bundled plugin naming guardrails", () => {
     {
       name: "keeps bundled workspace directories aligned with the plugin id unless explicitly allowlisted",
       message:
-        "Bundled extension directory names should match openclaw.plugin.json:id. If a legacy exception is unavoidable, add it to DIR_ID_EXCEPTIONS with a comment.",
+        "Bundled extension directory names should match zhushou.plugin.json:id. If a legacy exception is unavoidable, add it to DIR_ID_EXCEPTIONS with a comment.",
       collectMismatches: (records: BundledPluginRecord[]) =>
         records
           .filter(
@@ -130,9 +130,9 @@ describe("bundled plugin naming guardrails", () => {
           .map(({ dirName, manifestId }) => `${dirName} -> ${manifestId}`),
     },
     {
-      name: "keeps bundled openclaw.install.npmSpec aligned with the package name",
+      name: "keeps bundled zhushou.install.npmSpec aligned with the package name",
       message:
-        "Bundled openclaw.install.npmSpec values must match the package name so install/update paths stay deterministic.",
+        "Bundled zhushou.install.npmSpec values must match the package name so install/update paths stay deterministic.",
       collectMismatches: (records: BundledPluginRecord[]) =>
         records
           .filter(
@@ -147,7 +147,7 @@ describe("bundled plugin naming guardrails", () => {
     {
       name: "keeps bundled channel ids aligned with the canonical plugin id",
       message:
-        "Bundled openclaw.channel.id values must match openclaw.plugin.json:id for the owning plugin.",
+        "Bundled zhushou.channel.id values must match zhushou.plugin.json:id for the owning plugin.",
       collectMismatches: (records: BundledPluginRecord[]) =>
         records
           .filter(

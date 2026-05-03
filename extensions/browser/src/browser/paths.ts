@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { SafeOpenError, openFileWithinRoot } from "../infra/fs-safe.js";
 import { isNotFoundPathError, isPathInside } from "../infra/path-guards.js";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-zhushou-dir.js";
 
-const DEFAULT_FALLBACK_BROWSER_TMP_DIR = "/tmp/openclaw";
+const DEFAULT_FALLBACK_BROWSER_TMP_DIR = "/tmp/zhushou";
 
 function canUseNodeFs(): boolean {
   const getBuiltinModule = (

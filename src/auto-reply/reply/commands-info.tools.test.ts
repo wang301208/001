@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { EffectiveToolInventoryResult } from "../../agents/tools-effective-inventory.types.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import {
   createEmptyAgentGovernanceRuntimeContract,
   type AgentGovernanceRuntimeContract,
@@ -129,7 +129,7 @@ function buildConfig() {
   return {
     commands: { text: true },
     channels: { whatsapp: { allowFrom: ["*"] } },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
 }
 
 describe("handleToolsCommand", () => {
@@ -367,7 +367,7 @@ describe("handleToolsCommand", () => {
       {
         commands: { text: true },
         channels: { telegram: { defaultAccount: "work" } },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       undefined,
       { workspaceDir: "/tmp" },
     );

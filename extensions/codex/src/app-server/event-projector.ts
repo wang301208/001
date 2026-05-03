@@ -7,7 +7,7 @@ import {
   type EmbeddedRunAttemptParams,
   type EmbeddedRunAttemptResult,
   type MessagingToolSend,
-} from "openclaw/plugin-sdk/agent-harness";
+} from "zhushou/plugin-sdk/agent-harness";
 import {
   isJsonObject,
   type CodexServerNotification,
@@ -136,7 +136,7 @@ export class CodexAppServerEventProjector {
       },
     ];
     // Codex owns the canonical thread. These mirror records keep enough local
-    // context for OpenClaw history, search, and future harness switching.
+    // context for 助手 history, search, and future harness switching.
     if (reasoningText) {
       messagesSnapshot.push(this.createAssistantMirrorMessage("Codex reasoning", reasoningText));
     }

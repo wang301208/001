@@ -1,4 +1,4 @@
-import type { MockFn } from "openclaw/plugin-sdk/testing";
+import type { MockFn } from "zhushou/plugin-sdk/testing";
 import { vi } from "vitest";
 
 export const sendMock: MockFn = vi.fn();
@@ -9,11 +9,11 @@ export const readAllowFromStoreMock: MockFn = vi.fn();
 export const upsertPairingRequestMock: MockFn = vi.fn();
 export const loadConfigMock: MockFn = vi.fn();
 
-export const TOOL_RESULT_SESSION_STORE_PATH = `/tmp/openclaw-sessions-${process.pid}.json`;
+export const TOOL_RESULT_SESSION_STORE_PATH = `/tmp/zhushou-sessions-${process.pid}.json`;
 
 const sendModule = await import("./send.js");
-const replyRuntimeModule = await import("openclaw/plugin-sdk/reply-runtime");
-const conversationRuntimeModule = await import("openclaw/plugin-sdk/conversation-runtime");
+const replyRuntimeModule = await import("zhushou/plugin-sdk/reply-runtime");
+const conversationRuntimeModule = await import("zhushou/plugin-sdk/conversation-runtime");
 type ReadChannelAllowFromStore = typeof conversationRuntimeModule.readChannelAllowFromStore;
 type UpsertChannelPairingRequest = typeof conversationRuntimeModule.upsertChannelPairingRequest;
 
@@ -33,7 +33,7 @@ function createPairingStoreMocks() {
 }
 
 const pairingStoreMocks = createPairingStoreMocks();
-const configRuntimeModule = await import("openclaw/plugin-sdk/config-runtime");
+const configRuntimeModule = await import("zhushou/plugin-sdk/config-runtime");
 
 export function installDiscordToolResultHarnessSpies() {
   vi.spyOn(sendModule, "sendMessageDiscord").mockImplementation(

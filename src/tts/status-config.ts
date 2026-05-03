@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { OpenClawConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import type { TtsAutoMode, TtsConfig, TtsProvider } from "../config/types.tts.js";
 import {
   normalizeOptionalLowercaseString,
@@ -78,7 +78,7 @@ function resolveTtsAutoModeFromPrefs(prefs: TtsUserPrefs): TtsAutoMode | undefin
 }
 
 export function resolveStatusTtsSnapshot(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   sessionAuto?: string;
 }): TtsStatusSnapshot | null {
   const raw: TtsConfig = params.cfg.messages?.tts ?? {};

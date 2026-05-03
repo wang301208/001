@@ -8,13 +8,13 @@ export function makeBrowserProfile(
   overrides: Partial<ResolvedBrowserProfile> = {},
 ): ResolvedBrowserProfile {
   return {
-    name: "openclaw",
+    name: "zhushou",
     cdpUrl: "http://127.0.0.1:18800",
     cdpHost: "127.0.0.1",
     cdpIsLoopback: true,
     cdpPort: 18800,
     color: "#FF4500",
-    driver: "openclaw",
+    driver: "zhushou",
     attachOnly: false,
     ...overrides,
   };
@@ -63,7 +63,7 @@ export function mockLaunchedChrome(
   launchOpenClawChrome.mockResolvedValue({
     pid,
     exe: { kind: "chromium", path: "/usr/bin/chromium" },
-    userDataDir: "/tmp/openclaw-test",
+    userDataDir: "/tmp/zhushou-test",
     cdpPort: 18800,
     startedAt: Date.now(),
     proc,

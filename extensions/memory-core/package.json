@@ -1,22 +1,22 @@
 {
-  "name": "@openclaw/memory-core",
+  "name": "@zhushou/memory-core",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw core memory search plugin",
+  "description": "助手 core memory search plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

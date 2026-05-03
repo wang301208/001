@@ -1,7 +1,7 @@
 import { messagingApi } from "@line/bot-sdk";
-import { loadConfig, type OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { recordChannelActivity } from "openclaw/plugin-sdk/infra-runtime";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
+import { loadConfig, type ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { recordChannelActivity } from "zhushou/plugin-sdk/infra-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import { resolveLineAccount } from "./accounts.js";
 import { resolveLineChannelAccessToken } from "./channel-access-token.js";
 import type { LineSendResult } from "./types.js";
@@ -25,7 +25,7 @@ const userProfileCache = new Map<
 const PROFILE_CACHE_TTL_MS = 5 * 60 * 1000;
 
 interface LineSendOpts {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   channelAccessToken?: string;
   accountId?: string;
   verbose?: boolean;

@@ -27,7 +27,7 @@ vi.mock("./server.runtime.js", () => {
 let startMediaServer: typeof import("./server.js").startMediaServer;
 let realFetch: typeof import("undici").fetch;
 const mediaRootTracker = createSuiteTempRootTracker({
-  prefix: "openclaw-media-outside-workspace-",
+  prefix: "zhushou-media-outside-workspace-",
 });
 const LOOPBACK_FETCH_ENV = {
   HTTP_PROXY: undefined,

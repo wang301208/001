@@ -3,7 +3,7 @@
 
 import path from "node:path";
 import { loadConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { computeBackoff, type BackoffPolicy } from "../infra/backoff.js";
 import { consumeRootOptionToken, FLAG_TERMINATOR } from "../infra/cli-root-options.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
@@ -95,8 +95,8 @@ function loadModelsConfigRuntime() {
 function isLikelyOpenClawCliProcess(argv: string[] = process.argv): boolean {
   const entryBasename = normalizeLowercaseStringOrEmpty(path.basename(argv[1] ?? ""));
   return (
-    entryBasename === "openclaw" ||
-    entryBasename === "openclaw.mjs" ||
+    entryBasename === "zhushou" ||
+    entryBasename === "zhushou.mjs" ||
     entryBasename === "entry.js" ||
     entryBasename === "entry.mjs"
   );
@@ -146,7 +146,7 @@ const SKIP_EAGER_WARMUP_PRIMARY_COMMANDS = new Set([
 ]);
 
 function shouldEagerWarmContextWindowCache(argv: string[] = process.argv): boolean {
-  // Keep this gate tied to the real OpenClaw CLI entrypoints.
+  // Keep this gate tied to the real 助手 CLI entrypoints.
   //
   // This module can also land inside shared dist chunks that are imported from
   // plugin-sdk/library surfaces during smoke tests and plugin loading. If we do
@@ -160,7 +160,7 @@ function shouldEagerWarmContextWindowCache(argv: string[] = process.argv): boole
   return Boolean(primary) && !SKIP_EAGER_WARMUP_PRIMARY_COMMANDS.has(primary);
 }
 
-function primeConfiguredContextWindows(): OpenClawConfig | undefined {
+function primeConfiguredContextWindows(): ZhushouConfig | undefined {
   if (CONTEXT_WINDOW_RUNTIME_STATE.configuredConfig) {
     applyConfiguredContextWindows({
       cache: MODEL_CONTEXT_TOKEN_CACHE,
@@ -265,7 +265,7 @@ if (shouldEagerWarmContextWindowCache()) {
 }
 
 function resolveConfiguredModelParams(
-  cfg: OpenClawConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   provider: string,
   model: string,
 ): Record<string, unknown> | undefined {
@@ -317,7 +317,7 @@ function resolveProviderModelRef(params: {
 // keys overlap with raw slash-containing model IDs (e.g. OpenRouter's
 // "google/gemini-2.5-pro" stored as a raw catalog entry).
 function resolveConfiguredProviderContextTokens(
-  cfg: OpenClawConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   provider: string,
   model: string,
 ): number | undefined {
@@ -382,7 +382,7 @@ function isAnthropic1MModel(provider: string, model: string): boolean {
 }
 
 export function resolveContextTokensForModel(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   provider?: string;
   model?: string;
   contextTokensOverride?: number;

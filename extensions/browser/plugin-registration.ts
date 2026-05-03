@@ -1,9 +1,9 @@
 import type {
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   OpenClawPluginNodeHostCommand,
   OpenClawPluginToolContext,
   OpenClawPluginToolFactory,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";
 import {
   collectBrowserSecurityAuditFindings,
   createBrowserPluginService,
@@ -25,7 +25,7 @@ export const browserPluginNodeHostCommands: OpenClawPluginNodeHostCommand[] = [
 
 export const browserSecurityAuditCollectors = [collectBrowserSecurityAuditFindings];
 
-export function registerBrowserPlugin(api: OpenClawPluginApi) {
+export function registerBrowserPlugin(api: ZhushouPluginApi) {
   api.registerTool(((ctx: OpenClawPluginToolContext) =>
     createBrowserTool({
       sandboxBridgeUrl: ctx.browser?.sandboxBridgeUrl,

@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import type { ChannelPlugin } from "openclaw/plugin-sdk/core";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { ChannelPlugin } from "zhushou/plugin-sdk/core";
 import { initApiConfig } from "./api.js";
 import { qqbotConfigAdapter, qqbotMeta, qqbotSetupAdapterShared } from "./channel-config-shared.js";
 import { qqbotChannelConfigSchema } from "./config-schema.js";
@@ -156,7 +156,7 @@ export const qqbotPlugin: ChannelPlugin<ResolvedQQBotAccount> = {
       });
     },
     logoutAccount: async ({ accountId, cfg }) => {
-      const nextCfg = { ...cfg } as OpenClawConfig;
+      const nextCfg = { ...cfg } as ZhushouConfig;
       const nextQQBot = cfg.channels?.qqbot ? { ...cfg.channels.qqbot } : undefined;
       let cleared = false;
       let changed = false;
@@ -199,7 +199,7 @@ export const qqbotPlugin: ChannelPlugin<ResolvedQQBotAccount> = {
         nextCfg.channels = { ...nextCfg.channels, qqbot: nextQQBot };
         const runtime = getQQBotRuntime();
         const configApi = runtime.config as {
-          writeConfigFile: (cfg: OpenClawConfig) => Promise<void>;
+          writeConfigFile: (cfg: ZhushouConfig) => Promise<void>;
         };
         await configApi.writeConfigFile(nextCfg);
       }

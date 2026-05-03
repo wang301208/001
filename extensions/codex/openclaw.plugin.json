@@ -89,7 +89,7 @@
     },
     "discovery.enabled": {
       "label": "Enable Discovery",
-      "help": "When false, OpenClaw keeps the Codex harness available but uses the bundled fallback model list."
+      "help": "When false, 助手 keeps the Codex harness available but uses the bundled fallback model list."
     },
     "discovery.timeoutMs": {
       "label": "Discovery Timeout",

@@ -86,7 +86,7 @@ describe("auth profile store cache", () => {
   });
 
   it("reuses the synced auth store while auth-profiles.json is unchanged", async () => {
-    await withAgentDirEnv("openclaw-auth-store-cache-", (agentDir) => {
+    await withAgentDirEnv("zhushou-auth-store-cache-", (agentDir) => {
       writeAuthStore(agentDir, "sk-test");
 
       ensureAuthProfileStore(agentDir);
@@ -97,7 +97,7 @@ describe("auth profile store cache", () => {
   });
 
   it("refreshes the cached auth store after auth-profiles.json changes", async () => {
-    await withAgentDirEnv("openclaw-auth-store-refresh-", async (agentDir) => {
+    await withAgentDirEnv("zhushou-auth-store-refresh-", async (agentDir) => {
       const authPath = writeAuthStore(agentDir, "sk-test-1");
 
       ensureAuthProfileStore(agentDir);
@@ -116,7 +116,7 @@ describe("auth profile store cache", () => {
   });
 
   it("re-syncs external CLI credentials after the cache ttl when auth-profiles.json is absent", () => {
-    const agentDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-store-missing-"));
+    const agentDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-auth-store-missing-"));
     const previousAgentDir = process.env.OPENCLAW_AGENT_DIR;
     const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
     vi.useFakeTimers();

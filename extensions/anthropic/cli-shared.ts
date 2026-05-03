@@ -1,5 +1,5 @@
-import type { CliBackendConfig } from "openclaw/plugin-sdk/cli-backend";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+import type { CliBackendConfig } from "zhushou/plugin-sdk/cli-backend";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 
 export const CLAUDE_CLI_BACKEND_ID = "claude-cli";
 export const CLAUDE_CLI_DEFAULT_MODEL_REF = `${CLAUDE_CLI_BACKEND_ID}/claude-opus-4-7`;
@@ -45,7 +45,7 @@ export const CLAUDE_CLI_SESSION_ID_FIELDS = [
 
 // Claude Code honors provider-routing, auth, and config-root env before
 // consulting its local login state, so inherited shell overrides must not
-// steer OpenClaw-managed Claude CLI runs toward a different provider,
+// steer 助手-managed Claude CLI runs toward a different provider,
 // endpoint, token source, plugin/config tree, or telemetry bootstrap mode.
 export const CLAUDE_CLI_CLEAR_ENV = [
   "ANTHROPIC_API_KEY",

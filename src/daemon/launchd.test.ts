@@ -70,7 +70,7 @@ async function runStopLaunchAgentWithFakeTimers(args: Parameters<typeof stopLaun
 
 function expectLaunchctlEnableBootstrapOrder(env: Record<string, string | undefined>) {
   const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-  const label = "ai.openclaw.gateway";
+  const label = "ai.zhushou.gateway";
   const plistPath = resolveLaunchAgentPlistPath(env);
   const serviceId = `${domain}/${label}`;
   const enableIndex = state.launchctlCalls.findIndex(
@@ -320,9 +320,9 @@ describe("launchd runtime parsing", () => {
 
 describe("launchctl list detection", () => {
   it("detects the resolved label in launchctl list", async () => {
-    state.listOutput = "123 0 ai.openclaw.gateway\n";
+    state.listOutput = "123 0 ai.zhushou.gateway\n";
     const listed = await isLaunchAgentListed({
-      env: { HOME: "/Users/test", OPENCLAW_PROFILE: "default" },
+      env: { HOME: "/Users/test", ZHUSHOU_PROFILE: "default" },
     });
     expect(listed).toBe(true);
   });
@@ -330,7 +330,7 @@ describe("launchctl list detection", () => {
   it("returns false when the label is missing", async () => {
     state.listOutput = "123 0 com.other.service\n";
     const listed = await isLaunchAgentListed({
-      env: { HOME: "/Users/test", OPENCLAW_PROFILE: "default" },
+      env: { HOME: "/Users/test", ZHUSHOU_PROFILE: "default" },
     });
     expect(listed).toBe(false);
   });
@@ -340,7 +340,7 @@ describe("launchd bootstrap repair", () => {
   it("enables, bootstraps, and kickstarts the resolved label", async () => {
     const env: Record<string, string | undefined> = {
       HOME: "/Users/test",
-      OPENCLAW_PROFILE: "default",
+      ZHUSHOU_PROFILE: "default",
     };
     const repair = await repairLaunchAgentBootstrap({ env });
     expect(repair).toEqual({ ok: true, status: "repaired" });
@@ -359,7 +359,7 @@ describe("launchd bootstrap repair", () => {
     state.bootstrapCode = 130;
     const env: Record<string, string | undefined> = {
       HOME: "/Users/test",
-      OPENCLAW_PROFILE: "default",
+      ZHUSHOU_PROFILE: "default",
     };
 
     const repair = await repairLaunchAgentBootstrap({ env });
@@ -373,7 +373,7 @@ describe("launchd bootstrap repair", () => {
       "Could not bootstrap service: 5: Input/output error: already exists in domain for gui/501";
     const env: Record<string, string | undefined> = {
       HOME: "/Users/test",
-      OPENCLAW_PROFILE: "default",
+      ZHUSHOU_PROFILE: "default",
     };
 
     const repair = await repairLaunchAgentBootstrap({ env });
@@ -386,7 +386,7 @@ describe("launchd bootstrap repair", () => {
     state.bootstrapError = "Could not find specified service";
     const env: Record<string, string | undefined> = {
       HOME: "/Users/test",
-      OPENCLAW_PROFILE: "default",
+      ZHUSHOU_PROFILE: "default",
     };
 
     const repair = await repairLaunchAgentBootstrap({ env });
@@ -404,7 +404,7 @@ describe("launchd bootstrap repair", () => {
     state.kickstartFailuresRemaining = 1;
     const env: Record<string, string | undefined> = {
       HOME: "/Users/test",
-      OPENCLAW_PROFILE: "default",
+      ZHUSHOU_PROFILE: "default",
     };
 
     const repair = await repairLaunchAgentBootstrap({ env });
@@ -421,7 +421,7 @@ describe("launchd install", () => {
   function createDefaultLaunchdEnv(): Record<string, string | undefined> {
     return {
       HOME: "/Users/test",
-      OPENCLAW_PROFILE: "default",
+      ZHUSHOU_PROFILE: "default",
     };
   }
 
@@ -507,9 +507,9 @@ describe("launchd install", () => {
     await stopLaunchAgent({ env, stdout });
 
     const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-    const serviceId = `${domain}/ai.openclaw.gateway`;
+    const serviceId = `${domain}/ai.zhushou.gateway`;
     expect(state.launchctlCalls).toContainEqual(["disable", serviceId]);
-    expect(state.launchctlCalls).toContainEqual(["stop", "ai.openclaw.gateway"]);
+    expect(state.launchctlCalls).toContainEqual(["stop", "ai.zhushou.gateway"]);
     expect(state.launchctlCalls.some((call) => call[0] === "bootout")).toBe(false);
     expect(output).toContain("Stopped LaunchAgent");
   });
@@ -530,7 +530,7 @@ describe("launchd install", () => {
 
     expect(state.launchctlCalls).toContainEqual([
       "disable",
-      `${typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501"}/ai.openclaw.gateway`,
+      `${typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501"}/ai.zhushou.gateway`,
     ]);
     expect(state.launchctlCalls.some((call) => call[0] === "bootout")).toBe(false);
     expect(output).toContain("Stopped LaunchAgent");
@@ -653,7 +653,7 @@ describe("launchd install", () => {
   it("restarts LaunchAgent with kickstart and no bootout", async () => {
     const env = {
       ...createDefaultLaunchdEnv(),
-      OPENCLAW_GATEWAY_PORT: "18789",
+      ZHUSHOU_GATEWAY_PORT: "18789",
     };
     const result = await restartLaunchAgent({
       env,
@@ -661,7 +661,7 @@ describe("launchd install", () => {
     });
 
     const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-    const label = "ai.openclaw.gateway";
+    const label = "ai.zhushou.gateway";
     const serviceId = `${domain}/${label}`;
     expect(result).toEqual({ outcome: "completed" });
     expect(cleanStaleGatewayProcessesSync).toHaveBeenCalledWith(18789);
@@ -674,7 +674,7 @@ describe("launchd install", () => {
   it("uses the configured gateway port for stale cleanup", async () => {
     const env = {
       ...createDefaultLaunchdEnv(),
-      OPENCLAW_GATEWAY_PORT: "19001",
+      ZHUSHOU_GATEWAY_PORT: "19001",
     };
 
     await restartLaunchAgent({
@@ -708,7 +708,7 @@ describe("launchd install", () => {
     });
 
     const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-    const serviceId = `${domain}/ai.openclaw.gateway`;
+    const serviceId = `${domain}/ai.zhushou.gateway`;
     const kickstartCalls = state.launchctlCalls.filter(
       (c) => c[0] === "kickstart" && c[1] === "-k" && c[2] === serviceId,
     );
@@ -818,7 +818,7 @@ describe("launchd install", () => {
     }
     expect(message).toContain("logged-in macOS GUI session");
     expect(message).toContain("wrong user (including sudo)");
-    expect(message).toContain("https://docs.openclaw.ai/gateway");
+    expect(message).toContain("https://docs.zhushou.ai/gateway");
   });
 
   it("surfaces generic bootstrap failures without GUI-specific guidance", async () => {
@@ -838,20 +838,20 @@ describe("launchd install", () => {
 describe("resolveLaunchAgentPlistPath", () => {
   it.each([
     {
-      name: "uses default label when OPENCLAW_PROFILE is unset",
+      name: "uses default label when ZHUSHOU_PROFILE is unset",
       env: { HOME: "/Users/test" },
-      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.gateway.plist",
+      expected: "/Users/test/Library/LaunchAgents/ai.zhushou.gateway.plist",
     },
     {
-      name: "uses profile-specific label when OPENCLAW_PROFILE is set to a custom value",
-      env: { HOME: "/Users/test", OPENCLAW_PROFILE: "jbphoenix" },
-      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.jbphoenix.plist",
+      name: "uses profile-specific label when ZHUSHOU_PROFILE is set to a custom value",
+      env: { HOME: "/Users/test", ZHUSHOU_PROFILE: "jbphoenix" },
+      expected: "/Users/test/Library/LaunchAgents/ai.zhushou.jbphoenix.plist",
     },
     {
-      name: "prefers OPENCLAW_LAUNCHD_LABEL over OPENCLAW_PROFILE",
+      name: "prefers OPENCLAW_LAUNCHD_LABEL over ZHUSHOU_PROFILE",
       env: {
         HOME: "/Users/test",
-        OPENCLAW_PROFILE: "jbphoenix",
+        ZHUSHOU_PROFILE: "jbphoenix",
         OPENCLAW_LAUNCHD_LABEL: "com.custom.label",
       },
       expected: "/Users/test/Library/LaunchAgents/com.custom.label.plist",
@@ -868,10 +868,10 @@ describe("resolveLaunchAgentPlistPath", () => {
       name: "ignores empty OPENCLAW_LAUNCHD_LABEL and falls back to profile",
       env: {
         HOME: "/Users/test",
-        OPENCLAW_PROFILE: "myprofile",
+        ZHUSHOU_PROFILE: "myprofile",
         OPENCLAW_LAUNCHD_LABEL: "   ",
       },
-      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.myprofile.plist",
+      expected: "/Users/test/Library/LaunchAgents/ai.zhushou.myprofile.plist",
     },
   ])("$name", ({ env, expected }) => {
     expect(resolveLaunchAgentPlistPath(env)).toBe(expected);

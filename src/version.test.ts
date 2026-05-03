@@ -37,8 +37,8 @@ function expectVersionMetadataToBeMissing(moduleUrl: string) {
 
 describe("version resolution", () => {
   it("resolves package version from nested dist/plugin-sdk module URL", async () => {
-    await withTempDir({ prefix: "openclaw-version-" }, async (root) => {
-      await writeJsonFixture(root, "package.json", { name: "openclaw", version: "1.2.3" });
+    await withTempDir({ prefix: "zhushou-version-" }, async (root) => {
+      await writeJsonFixture(root, "package.json", { name: "zhushou", version: "1.2.3" });
       const moduleUrl = await ensureModuleFixture(root);
       expect(readVersionFromPackageJsonForModuleUrl(moduleUrl)).toBe("1.2.3");
       expect(resolveVersionFromModuleUrl(moduleUrl)).toBe("1.2.3");
@@ -46,8 +46,8 @@ describe("version resolution", () => {
   });
 
   it("ignores unrelated nearby package.json files", async () => {
-    await withTempDir({ prefix: "openclaw-version-" }, async (root) => {
-      await writeJsonFixture(root, "package.json", { name: "openclaw", version: "2.3.4" });
+    await withTempDir({ prefix: "zhushou-version-" }, async (root) => {
+      await writeJsonFixture(root, "package.json", { name: "zhushou", version: "2.3.4" });
       await writeJsonFixture(root, "dist/package.json", {
         name: "other-package",
         version: "9.9.9",
@@ -58,7 +58,7 @@ describe("version resolution", () => {
   });
 
   it("falls back to build-info when package metadata is unavailable", async () => {
-    await withTempDir({ prefix: "openclaw-version-" }, async (root) => {
+    await withTempDir({ prefix: "zhushou-version-" }, async (root) => {
       await writeJsonFixture(root, "build-info.json", { version: "4.5.6" });
       const moduleUrl = await ensureModuleFixture(root);
       expect(readVersionFromPackageJsonForModuleUrl(moduleUrl)).toBeNull();
@@ -68,14 +68,14 @@ describe("version resolution", () => {
   });
 
   it("returns null when no version metadata exists", async () => {
-    await withTempDir({ prefix: "openclaw-version-" }, async (root) => {
+    await withTempDir({ prefix: "zhushou-version-" }, async (root) => {
       const moduleUrl = await ensureModuleFixture(root);
       expectVersionMetadataToBeMissing(moduleUrl);
     });
   });
 
-  it("ignores non-openclaw package and blank build-info versions", async () => {
-    await withTempDir({ prefix: "openclaw-version-" }, async (root) => {
+  it("ignores non-zhushou package and blank build-info versions", async () => {
+    await withTempDir({ prefix: "zhushou-version-" }, async (root) => {
       await writeJsonFixture(root, "package.json", { name: "other-package", version: "9.9.9" });
       await writeJsonFixture(root, "build-info.json", { version: "  " });
       const moduleUrl = await ensureModuleFixture(root);
@@ -90,8 +90,8 @@ describe("version resolution", () => {
   });
 
   it("resolves binary version with explicit precedence", async () => {
-    await withTempDir({ prefix: "openclaw-version-" }, async (root) => {
-      await writeJsonFixture(root, "package.json", { name: "openclaw", version: "2.3.4" });
+    await withTempDir({ prefix: "zhushou-version-" }, async (root) => {
+      await writeJsonFixture(root, "package.json", { name: "zhushou", version: "2.3.4" });
       const moduleUrl = await ensureModuleFixture(root);
       expect(
         resolveBinaryVersion({

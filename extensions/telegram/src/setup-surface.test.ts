@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/setup";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/setup";
 import { describe, expect, it, vi } from "vitest";
 import { resolveTelegramAllowFromEntries } from "./setup-core.js";
 import {
@@ -53,10 +53,10 @@ describe("telegram DM access warning helpers", () => {
     const lines = buildTelegramDmAccessWarningLines(DEFAULT_ACCOUNT_ID);
 
     expect(lines.join("\n")).toContain(
-      'openclaw config set channels.telegram.dmPolicy "allowlist"',
+      'zhushou config set channels.telegram.dmPolicy "allowlist"',
     );
     expect(lines.join("\n")).toContain(
-      `openclaw config set channels.telegram.allowFrom '["YOUR_USER_ID"]'`,
+      `zhushou config set channels.telegram.allowFrom '["YOUR_USER_ID"]'`,
     );
   });
 
@@ -64,10 +64,10 @@ describe("telegram DM access warning helpers", () => {
     const lines = buildTelegramDmAccessWarningLines("alerts");
 
     expect(lines.join("\n")).toContain(
-      'openclaw config set channels.telegram.accounts.alerts.dmPolicy "allowlist"',
+      'zhushou config set channels.telegram.accounts.alerts.dmPolicy "allowlist"',
     );
     expect(lines.join("\n")).toContain(
-      `openclaw config set channels.telegram.accounts.alerts.allowFrom '["YOUR_USER_ID"]'`,
+      `zhushou config set channels.telegram.accounts.alerts.allowFrom '["YOUR_USER_ID"]'`,
     );
   });
 
@@ -118,7 +118,7 @@ describe("telegramSetupDmPolicy", () => {
   });
 
   it("uses configured defaultAccount for omitted DM policy account context", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           defaultAccount: "alerts",
@@ -146,7 +146,7 @@ describe("telegramSetupDmPolicy", () => {
   });
 
   it('writes open policy state to the named account and preserves inherited allowFrom with "*"', () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           allowFrom: ["123"],

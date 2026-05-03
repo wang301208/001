@@ -16,8 +16,8 @@ import {
 const runtimeScopeMock = vi.hoisted(() => vi.fn());
 
 vi.mock("./nostr-profile-http-runtime.js", async () => {
-  const webhookIngress = await import("openclaw/plugin-sdk/webhook-ingress");
-  const requestGuards = await import("openclaw/plugin-sdk/webhook-request-guards");
+  const webhookIngress = await import("zhushou/plugin-sdk/webhook-ingress");
+  const requestGuards = await import("zhushou/plugin-sdk/webhook-request-guards");
   return {
     createFixedWindowRateLimiter: webhookIngress.createFixedWindowRateLimiter,
     readJsonBodyWithLimit: requestGuards.readJsonBodyWithLimit,

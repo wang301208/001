@@ -1,8 +1,8 @@
 {
-  "name": "@openclaw/telegram",
+  "name": "@zhushou/telegram",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw Telegram channel plugin",
+  "description": "助手 Telegram channel plugin",
   "type": "module",
   "dependencies": {
     "@grammyjs/runner": "^2.0.3",
@@ -10,9 +10,9 @@
     "grammy": "^1.42.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -24,12 +24,12 @@
       "detailLabel": "Telegram Bot",
       "docsPath": "/channels/telegram",
       "docsLabel": "telegram",
-      "blurb": "simplest way to get started — register a bot with @BotFather and get going.",
+      "blurb": "simplest way to get started �?register a bot with @BotFather and get going.",
       "systemImage": "paperplane",
       "selectionDocsPrefix": "",
       "selectionDocsOmitLabel": true,
       "selectionExtras": [
-        "https://openclaw.ai"
+        "https://zhushou.ai"
       ],
       "markdownCapable": true,
       "configuredState": {

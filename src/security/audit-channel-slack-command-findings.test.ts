@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 import { collectSlackSecurityAuditFindings } from "../../test/helpers/channels/security-audit-contract.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { withChannelSecurityStateDir } from "./audit-channel-security.test-helpers.js";
 
 const { readChannelAllowFromStoreMock } = vi.hoisted(() => ({
   readChannelAllowFromStoreMock: vi.fn(async () => [] as string[]),
 }));
 
-vi.mock("openclaw/plugin-sdk/conversation-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/conversation-runtime", () => ({
   readChannelAllowFromStore: readChannelAllowFromStoreMock,
 }));
 
 function createSlackAccount(
-  config: NonNullable<OpenClawConfig["channels"]>["slack"],
+  config: NonNullable<ZhushouConfig["channels"]>["slack"],
 ): Parameters<typeof collectSlackSecurityAuditFindings>[0]["account"] {
   return {
     accountId: "default",
@@ -26,7 +26,7 @@ function createSlackAccount(
 
 describe("security audit slack command findings", () => {
   it("flags Slack slash commands without a channel users allowlist", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         slack: {
           enabled: true,
@@ -41,9 +41,9 @@ describe("security audit slack command findings", () => {
     await withChannelSecurityStateDir(async () => {
       readChannelAllowFromStoreMock.mockResolvedValue([]);
       const findings = await collectSlackSecurityAuditFindings({
-        cfg: cfg as OpenClawConfig & {
+        cfg: cfg as ZhushouConfig & {
           channels: {
-            slack: NonNullable<OpenClawConfig["channels"]>["slack"];
+            slack: NonNullable<ZhushouConfig["channels"]>["slack"];
           };
         },
         account: createSlackAccount(cfg.channels!.slack),
@@ -62,7 +62,7 @@ describe("security audit slack command findings", () => {
   });
 
   it("flags Slack slash commands when access-group enforcement is disabled", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       commands: { useAccessGroups: false },
       channels: {
         slack: {
@@ -78,9 +78,9 @@ describe("security audit slack command findings", () => {
     await withChannelSecurityStateDir(async () => {
       readChannelAllowFromStoreMock.mockResolvedValue([]);
       const findings = await collectSlackSecurityAuditFindings({
-        cfg: cfg as OpenClawConfig & {
+        cfg: cfg as ZhushouConfig & {
           channels: {
-            slack: NonNullable<OpenClawConfig["channels"]>["slack"];
+            slack: NonNullable<ZhushouConfig["channels"]>["slack"];
           };
         },
         account: createSlackAccount(cfg.channels!.slack),

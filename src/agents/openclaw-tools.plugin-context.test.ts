@@ -1,10 +1,10 @@
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { resolveOpenClawPluginToolInputs } from "./openclaw-tools.plugin-context.js";
+import { resolveOpenClawPluginToolInputs } from "./zhushou-tools.plugin-context.js";
 import { applyPluginToolDeliveryDefaults } from "./plugin-tool-delivery-defaults.js";
 import type { AnyAgentTool } from "./tools/common.js";
 
-describe("openclaw plugin tool context", () => {
+describe("zhushou plugin tool context", () => {
   it("forwards trusted requester sender identity", () => {
     const result = resolveOpenClawPluginToolInputs({
       options: {

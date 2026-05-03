@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import { withStateDirEnv } from "../../test-helpers/state-dir-env.js";
 import { resolveSessionAuthProfileOverride } from "./session-override.js";
@@ -52,7 +52,7 @@ const TEST_SECONDARY_PROFILE_ID = "openai-codex:secondary@example.test";
 
 describe("resolveSessionAuthProfileOverride", () => {
   it("returns early when no auth sources exist", async () => {
-    await withStateDirEnv("openclaw-auth-", async ({ stateDir }) => {
+    await withStateDirEnv("zhushou-auth-", async ({ stateDir }) => {
       const agentDir = path.join(stateDir, "agent");
       await fs.mkdir(agentDir, { recursive: true });
 
@@ -63,7 +63,7 @@ describe("resolveSessionAuthProfileOverride", () => {
       const sessionStore = { "agent:main:main": sessionEntry };
 
       const resolved = await resolveSessionAuthProfileOverride({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ZhushouConfig,
         provider: "openrouter",
         agentDir,
         sessionEntry,
@@ -81,7 +81,7 @@ describe("resolveSessionAuthProfileOverride", () => {
   });
 
   it("keeps user override when provider alias differs", async () => {
-    await withStateDirEnv("openclaw-auth-", async ({ stateDir }) => {
+    await withStateDirEnv("zhushou-auth-", async ({ stateDir }) => {
       const agentDir = path.join(stateDir, "agent");
       await fs.mkdir(agentDir, { recursive: true });
       await writeAuthStore(agentDir);
@@ -95,7 +95,7 @@ describe("resolveSessionAuthProfileOverride", () => {
       const sessionStore = { "agent:main:main": sessionEntry };
 
       const resolved = await resolveSessionAuthProfileOverride({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ZhushouConfig,
         provider: "z.ai",
         agentDir,
         sessionEntry,
@@ -111,7 +111,7 @@ describe("resolveSessionAuthProfileOverride", () => {
   });
 
   it("keeps explicit user override when stored order prefers another profile", async () => {
-    await withStateDirEnv("openclaw-auth-", async ({ stateDir }) => {
+    await withStateDirEnv("zhushou-auth-", async ({ stateDir }) => {
       const agentDir = path.join(stateDir, "agent");
       await fs.mkdir(agentDir, { recursive: true });
       await writeAuthStoreWithProfiles(agentDir, {
@@ -141,7 +141,7 @@ describe("resolveSessionAuthProfileOverride", () => {
       const sessionStore = { "agent:main:main": sessionEntry };
 
       const resolved = await resolveSessionAuthProfileOverride({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ZhushouConfig,
         provider: "openai-codex",
         agentDir,
         sessionEntry,

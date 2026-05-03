@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 type FakeFsEntry = { kind: "file"; content: string } | { kind: "dir" };
 
 const VITEST_FS_BASE = path.join(path.parse(process.cwd()).root, "__openclaw_vitest__");
-const FIXTURE_BASE = path.join(VITEST_FS_BASE, "openclaw-root");
+const FIXTURE_BASE = path.join(VITEST_FS_BASE, "zhushou-root");
 
 const state = vi.hoisted(() => ({
   entries: new Map<string, FakeFsEntry>(),
@@ -27,14 +27,14 @@ function setFile(p: string, content = "") {
   state.entries.set(abs(p), { kind: "file", content });
 }
 
-function setPackageRoot(root: string, name = "openclaw") {
+function setPackageRoot(root: string, name = "zhushou") {
   setFile(path.join(root, "package.json"), JSON.stringify({ name }));
 }
 
 function expectResolvedPackageRoot(
-  syncResolver: typeof import("./openclaw-root.js").resolveOpenClawPackageRootSync,
-  asyncResolver: typeof import("./openclaw-root.js").resolveOpenClawPackageRoot,
-  opts: Parameters<typeof import("./openclaw-root.js").resolveOpenClawPackageRootSync>[0],
+  syncResolver: typeof import("./zhushou-root.js").resolveOpenClawPackageRootSync,
+  asyncResolver: typeof import("./zhushou-root.js").resolveOpenClawPackageRoot,
+  opts: Parameters<typeof import("./zhushou-root.js").resolveOpenClawPackageRootSync>[0],
   expected: string | null,
 ) {
   expect(syncResolver(opts)).toBe(expected);
@@ -100,14 +100,14 @@ const mockFsPromisesModule = () => {
   return wrapped;
 };
 
-vi.mock("./openclaw-root.fs.runtime.js", () => ({
+vi.mock("./zhushou-root.fs.runtime.js", () => ({
   openClawRootFsSync: mockFsModule(),
   openClawRootFs: mockFsPromisesModule(),
 }));
 
 describe("resolveOpenClawPackageRoot", () => {
-  let resolveOpenClawPackageRoot: typeof import("./openclaw-root.js").resolveOpenClawPackageRoot;
-  let resolveOpenClawPackageRootSync: typeof import("./openclaw-root.js").resolveOpenClawPackageRootSync;
+  let resolveOpenClawPackageRoot: typeof import("./zhushou-root.js").resolveOpenClawPackageRoot;
+  let resolveOpenClawPackageRootSync: typeof import("./zhushou-root.js").resolveOpenClawPackageRootSync;
 
   beforeEach(() => {
     state.entries.clear();
@@ -118,7 +118,7 @@ describe("resolveOpenClawPackageRoot", () => {
   beforeEach(async () => {
     vi.resetModules();
     ({ resolveOpenClawPackageRoot, resolveOpenClawPackageRootSync } =
-      await import("./openclaw-root.js"));
+      await import("./zhushou-root.js"));
   });
 
   it.each([
@@ -126,8 +126,8 @@ describe("resolveOpenClawPackageRoot", () => {
       name: "resolves package root from .bin argv1",
       setup: () => {
         const project = fx("bin-scenario");
-        const argv1 = path.join(project, "node_modules", ".bin", "openclaw");
-        const pkgRoot = path.join(project, "node_modules", "openclaw");
+        const argv1 = path.join(project, "node_modules", ".bin", "zhushou");
+        const pkgRoot = path.join(project, "node_modules", "zhushou");
         setPackageRoot(pkgRoot);
         return { opts: { argv1 }, expected: pkgRoot };
       },
@@ -136,9 +136,9 @@ describe("resolveOpenClawPackageRoot", () => {
       name: "resolves package root via symlinked argv1",
       setup: () => {
         const project = fx("symlink-scenario");
-        const bin = path.join(project, "bin", "openclaw");
+        const bin = path.join(project, "bin", "zhushou");
         const realPkg = path.join(project, "real-pkg");
-        state.realpaths.set(abs(bin), abs(path.join(realPkg, "openclaw.mjs")));
+        state.realpaths.set(abs(bin), abs(path.join(realPkg, "zhushou.mjs")));
         setPackageRoot(realPkg);
         return { opts: { argv1: bin }, expected: realPkg };
       },
@@ -147,8 +147,8 @@ describe("resolveOpenClawPackageRoot", () => {
       name: "falls back when argv1 realpath throws",
       setup: () => {
         const project = fx("realpath-throw-scenario");
-        const argv1 = path.join(project, "node_modules", ".bin", "openclaw");
-        const pkgRoot = path.join(project, "node_modules", "openclaw");
+        const argv1 = path.join(project, "node_modules", ".bin", "zhushou");
+        const pkgRoot = path.join(project, "node_modules", "zhushou");
         state.realpathErrors.add(abs(argv1));
         setPackageRoot(pkgRoot);
         return { opts: { argv1 }, expected: pkgRoot };
@@ -166,11 +166,11 @@ describe("resolveOpenClawPackageRoot", () => {
       },
     },
     {
-      name: "falls through from a non-openclaw moduleUrl candidate to cwd",
+      name: "falls through from a non-zhushou moduleUrl candidate to cwd",
       setup: () => {
         const wrongPkgRoot = fx("moduleurl-fallthrough", "wrong");
         const cwdPkgRoot = fx("moduleurl-fallthrough", "cwd");
-        setPackageRoot(wrongPkgRoot, "not-openclaw");
+        setPackageRoot(wrongPkgRoot, "not-zhushou");
         setPackageRoot(cwdPkgRoot);
         return {
           opts: {
@@ -193,10 +193,10 @@ describe("resolveOpenClawPackageRoot", () => {
       },
     },
     {
-      name: "returns null for non-openclaw package roots",
+      name: "returns null for non-zhushou package roots",
       setup: () => {
-        const pkgRoot = fx("not-openclaw");
-        setPackageRoot(pkgRoot, "not-openclaw");
+        const pkgRoot = fx("not-zhushou");
+        setPackageRoot(pkgRoot, "not-zhushou");
         return { opts: { cwd: pkgRoot }, expected: null };
       },
     },
@@ -204,12 +204,12 @@ describe("resolveOpenClawPackageRoot", () => {
       name: "falls back from a symlinked argv1 to the node_modules package root",
       setup: () => {
         const project = fx("symlink-node-modules-fallback");
-        const argv1 = path.join(project, "node_modules", ".bin", "openclaw");
+        const argv1 = path.join(project, "node_modules", ".bin", "zhushou");
         state.realpaths.set(
           abs(argv1),
-          abs(path.join(project, "versions", "current", "openclaw.mjs")),
+          abs(path.join(project, "versions", "current", "zhushou.mjs")),
         );
-        const pkgRoot = path.join(project, "node_modules", "openclaw");
+        const pkgRoot = path.join(project, "node_modules", "zhushou");
         setPackageRoot(pkgRoot);
         return { opts: { argv1 }, expected: pkgRoot };
       },

@@ -4,8 +4,8 @@ import type {
   SandboxFsBridge,
   SandboxFsStat,
   SandboxResolvedPath,
-} from "openclaw/plugin-sdk/sandbox";
-import { createWritableRenameTargetResolver } from "openclaw/plugin-sdk/sandbox";
+} from "zhushou/plugin-sdk/sandbox";
+import { createWritableRenameTargetResolver } from "zhushou/plugin-sdk/sandbox";
 import type { OpenShellFsBridgeContext, OpenShellSandboxBackend } from "./backend.types.js";
 import { movePathWithCopyFallback } from "./mirror.js";
 
@@ -84,7 +84,7 @@ class OpenShellFsBridge implements SandboxFsBridge {
     }
     const tempPath = path.join(
       parentDir,
-      `.openclaw-openshell-write-${path.basename(hostPath)}-${process.pid}-${Date.now()}`,
+      `.zhushou-openshell-write-${path.basename(hostPath)}-${process.pid}-${Date.now()}`,
     );
     await fsPromises.writeFile(tempPath, buffer);
     await fsPromises.rename(tempPath, hostPath);

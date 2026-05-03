@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { applyAuthProfileConfig, upsertAuthProfile } from "openclaw/plugin-sdk/provider-auth";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { applyAuthProfileConfig, upsertAuthProfile } from "zhushou/plugin-sdk/provider-auth";
 
 /** Providers the mock harness stages placeholder credentials for by default. */
 export const QA_MOCK_AUTH_PROVIDERS = Object.freeze(["openai", "anthropic"] as const);
@@ -33,11 +33,11 @@ export function buildQaMockProfileId(provider: string): string {
  * serializer; anything beyond that is ignored by the mock.
  */
 export async function stageQaMockAuthProfiles(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   stateDir: string;
   agentIds?: readonly string[];
   providers?: readonly string[];
-}): Promise<OpenClawConfig> {
+}): Promise<ZhushouConfig> {
   const agentIds = [...new Set(params.agentIds ?? QA_MOCK_AUTH_AGENT_IDS)];
   const providers = [...new Set(params.providers ?? QA_MOCK_AUTH_PROVIDERS)];
   let next = params.cfg;

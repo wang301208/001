@@ -68,10 +68,10 @@ async function withExecDryRunConfigHarness(
   }) => Promise<void>,
 ) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-  const configPath = path.join(tempDir, "openclaw.json");
+  const configPath = path.join(tempDir, "zhushou.json");
   const batchPath = path.join(tempDir, "batch.json");
   const markerPath = path.join(tempDir, "marker.txt");
-  const envSnapshot = captureEnv(["OPENCLAW_CONFIG_PATH", "OPENCLAW_TEST_FAST"]);
+  const envSnapshot = captureEnv(["ZHUSHOU_CONFIG_PATH", "OPENCLAW_TEST_FAST"]);
   try {
     fs.writeFileSync(
       configPath,
@@ -91,7 +91,7 @@ async function withExecDryRunConfigHarness(
     );
 
     process.env.OPENCLAW_TEST_FAST = "1";
-    process.env.OPENCLAW_CONFIG_PATH = configPath;
+    process.env.ZHUSHOU_CONFIG_PATH = configPath;
     clearConfigCache();
     clearRuntimeConfigSnapshot();
 
@@ -111,11 +111,11 @@ async function withExecDryRunConfigHarness(
 
 describe("config cli integration", () => {
   it("supports batch-file dry-run and then writes real config changes", async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-cli-int-"));
-    const configPath = path.join(tempDir, "openclaw.json");
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-config-cli-int-"));
+    const configPath = path.join(tempDir, "zhushou.json");
     const batchPath = path.join(tempDir, "batch.json");
     const envSnapshot = captureEnv([
-      "OPENCLAW_CONFIG_PATH",
+      "ZHUSHOU_CONFIG_PATH",
       "OPENCLAW_TEST_FAST",
       "DISCORD_BOT_TOKEN",
     ]);
@@ -155,7 +155,7 @@ describe("config cli integration", () => {
       );
 
       process.env.OPENCLAW_TEST_FAST = "1";
-      process.env.OPENCLAW_CONFIG_PATH = configPath;
+      process.env.ZHUSHOU_CONFIG_PATH = configPath;
       process.env.DISCORD_BOT_TOKEN = "test-token";
       clearConfigCache();
       clearRuntimeConfigSnapshot();
@@ -200,10 +200,10 @@ describe("config cli integration", () => {
   });
 
   it("keeps file unchanged when real-file dry-run fails and reports JSON error payload", async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-cli-int-fail-"));
-    const configPath = path.join(tempDir, "openclaw.json");
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-config-cli-int-fail-"));
+    const configPath = path.join(tempDir, "zhushou.json");
     const envSnapshot = captureEnv([
-      "OPENCLAW_CONFIG_PATH",
+      "ZHUSHOU_CONFIG_PATH",
       "OPENCLAW_TEST_FAST",
       "MISSING_TEST_SECRET",
     ]);
@@ -226,7 +226,7 @@ describe("config cli integration", () => {
       );
 
       process.env.OPENCLAW_TEST_FAST = "1";
-      process.env.OPENCLAW_CONFIG_PATH = configPath;
+      process.env.ZHUSHOU_CONFIG_PATH = configPath;
       delete process.env.MISSING_TEST_SECRET;
       clearConfigCache();
       clearRuntimeConfigSnapshot();
@@ -271,7 +271,7 @@ describe("config cli integration", () => {
   });
 
   it("skips exec provider execution during dry-run by default", async () => {
-    await withExecDryRunConfigHarness("openclaw-config-cli-int-exec-skip-", async (params) => {
+    await withExecDryRunConfigHarness("zhushou-config-cli-int-exec-skip-", async (params) => {
       const before = fs.readFileSync(params.configPath, "utf8");
       await runConfigSet({
         cliOptions: {
@@ -293,7 +293,7 @@ describe("config cli integration", () => {
   });
 
   it("executes exec providers during dry-run when --allow-exec is set", async () => {
-    await withExecDryRunConfigHarness("openclaw-config-cli-int-exec-allow-", async (params) => {
+    await withExecDryRunConfigHarness("zhushou-config-cli-int-exec-allow-", async (params) => {
       const before = fs.readFileSync(params.configPath, "utf8");
       await runConfigSet({
         cliOptions: {

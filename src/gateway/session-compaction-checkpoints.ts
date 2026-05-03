@@ -11,7 +11,7 @@ import type {
   SessionEntry,
   SessionTaskContinuation,
 } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { migrateAndPruneGatewaySessionStoreKey, resolveGatewaySessionStoreTarget } from "./session-utils.js";
 
@@ -151,7 +151,7 @@ export async function cleanupCompactionCheckpointSnapshot(
 }
 
 export async function persistSessionCompactionCheckpoint(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   sessionId: string;
   reason: SessionCompactionCheckpointReason;

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { withActivatedPluginIds } from "../activation-context.js";
 import {
   resolveChannelPluginIds,
@@ -75,8 +75,8 @@ function shouldForwardChannelScope(params: {
 
 export function ensurePluginRegistryLoaded(options?: {
   scope?: PluginRegistryScope;
-  config?: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config?: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   onlyPluginIds?: string[];
 }): void {

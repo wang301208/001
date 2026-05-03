@@ -1,5 +1,5 @@
-import { createDraftStreamLoop } from "openclaw/plugin-sdk/channel-lifecycle";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import { createDraftStreamLoop } from "zhushou/plugin-sdk/channel-lifecycle";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { deleteSlackMessage, editSlackMessage } from "./actions.js";
 import { SLACK_TEXT_LIMIT } from "./limits.js";
 import { sendMessageSlack } from "./send.js";

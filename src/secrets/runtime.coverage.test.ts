@@ -2,14 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import type { AuthProfileStore } from "../agents/auth-profiles.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { PluginOrigin } from "../plugins/types.js";
 import { getPath, setPathCreateStrict } from "./path-utils.js";
 import { canonicalizeSecretTargetCoverageId } from "./target-registry-test-helpers.js";
 
 type SecretRegistryEntry = {
   id: string;
-  configFile: "openclaw.json" | "auth-profiles.json";
+  configFile: "zhushou.json" | "auth-profiles.json";
   pathPattern: string;
   refPathPattern?: string;
   secretShape: "secret_input" | "sibling_ref";
@@ -20,7 +20,7 @@ type SecretRegistryEntry = {
 type SecretRefCredentialMatrix = {
   entries: Array<{
     id: string;
-    configFile: "openclaw.json" | "auth-profiles.json";
+    configFile: "zhushou.json" | "auth-profiles.json";
     path: string;
     refPath?: string;
     secretShape: SecretRegistryEntry["secretShape"];
@@ -235,7 +235,7 @@ function batchUsesRuntimeWebToolsOnly(batch: readonly SecretRegistryEntry[]): bo
 }
 
 function applyConfigForOpenClawTarget(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   entry: SecretRegistryEntry,
   envId: string,
   wildcardToken: string,
@@ -409,7 +409,7 @@ function applyAuthStoreTarget(
 }
 
 async function prepareConfigCoverageSnapshot(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   loadablePluginOrigins?: ReadonlyMap<string, PluginOrigin>;
   includeRuntimeWebTools?: boolean;
@@ -462,7 +462,7 @@ async function prepareConfigCoverageSnapshot(params: {
 }
 
 async function prepareAuthCoverageSnapshot(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   agentDirs: string[];
   loadAuthStore: (agentDir?: string) => AuthProfileStore;
@@ -515,15 +515,15 @@ describe("secrets runtime target coverage", () => {
     ({ resolveSecretRefValues } = resolver);
   });
 
-  it("handles every openclaw.json registry target when configured as active", async () => {
+  it("handles every zhushou.json registry target when configured as active", async () => {
     const entries = COVERAGE_REGISTRY_ENTRIES.filter(
       (entry) =>
-        entry.configFile === "openclaw.json" &&
+        entry.configFile === "zhushou.json" &&
         !PLUGIN_OWNED_OPENCLAW_COVERAGE_EXCLUSIONS.has(entry.id),
     );
     for (const batch of buildCoverageBatches(entries)) {
-      logCoverageBatch("openclaw.json", batch);
-      const config = {} as OpenClawConfig;
+      logCoverageBatch("zhushou.json", batch);
+      const config = {} as ZhushouConfig;
       const env: Record<string, string> = {};
       for (const [index, entry] of batch.entries()) {
         const envId = `OPENCLAW_SECRET_TARGET_${entry.id}`;
@@ -567,9 +567,9 @@ describe("secrets runtime target coverage", () => {
         applyAuthStoreTarget(authStore, entry, envId, resolveCoverageWildcardToken(index));
       }
       const snapshot = await prepareAuthCoverageSnapshot({
-        config: {} as OpenClawConfig,
+        config: {} as ZhushouConfig,
         env,
-        agentDirs: ["/tmp/openclaw-agent-main"],
+        agentDirs: ["/tmp/zhushou-agent-main"],
         loadAuthStore: () => authStore,
       });
       const resolvedStore = snapshot.authStores[0]?.store;

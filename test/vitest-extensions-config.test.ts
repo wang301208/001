@@ -3,7 +3,7 @@ import { bundledPluginFile } from "./helpers/bundled-plugin-paths.js";
 import { createPatternFileHelper } from "./helpers/pattern-file.js";
 import { loadIncludePatternsFromEnv } from "./vitest/vitest.extensions.config.ts";
 
-const patternFiles = createPatternFileHelper("openclaw-vitest-extensions-config-");
+const patternFiles = createPatternFileHelper("zhushou-vitest-extensions-config-");
 
 afterEach(() => {
   patternFiles.cleanup();

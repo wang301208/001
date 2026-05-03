@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { describe, expect, it, vi } from "vitest";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-zhushou-dir.js";
 import { resolveSandboxedMediaSource } from "./sandbox-paths.js";
 
 async function withSandboxRoot<T>(run: (sandboxDir: string) => Promise<T>) {
@@ -75,17 +75,17 @@ describe("resolveSandboxedMediaSource", () => {
   // Group 1: /tmp paths (the bug fix)
   it.each([
     {
-      name: "absolute paths under preferred OpenClaw tmp root",
+      name: "absolute paths under preferred 助手 tmp root",
       media: path.join(openClawTmpDir, "image.png"),
       expected: path.join(openClawTmpDir, "image.png"),
     },
     {
-      name: "file:// URLs pointing to preferred OpenClaw tmp root",
+      name: "file:// URLs pointing to preferred 助手 tmp root",
       media: pathToFileURL(path.join(openClawTmpDir, "photo.png")).href,
       expected: path.join(openClawTmpDir, "photo.png"),
     },
     {
-      name: "nested paths under preferred OpenClaw tmp root",
+      name: "nested paths under preferred 助手 tmp root",
       media: path.join(openClawTmpDir, "subdir", "deep", "file.png"),
       expected: path.join(openClawTmpDir, "subdir", "deep", "file.png"),
     },
@@ -158,8 +158,8 @@ describe("resolveSandboxedMediaSource", () => {
       expected: /sandbox/i,
     },
     {
-      name: "absolute paths under host tmp outside openclaw tmp root",
-      media: path.join(os.tmpdir(), "outside-openclaw", "passwd"),
+      name: "absolute paths under host tmp outside zhushou tmp root",
+      media: path.join(os.tmpdir(), "outside-zhushou", "passwd"),
       expected: /sandbox/i,
     },
     {
@@ -203,7 +203,7 @@ describe("resolveSandboxedMediaSource", () => {
     });
   });
 
-  it("rejects symlinked OpenClaw tmp paths escaping tmp root", async () => {
+  it("rejects symlinked 助手 tmp paths escaping tmp root", async () => {
     if (process.platform === "win32") {
       return;
     }
@@ -245,7 +245,7 @@ describe("resolveSandboxedMediaSource", () => {
     });
   });
 
-  it("rejects hardlinked OpenClaw tmp paths to outside files", async () => {
+  it("rejects hardlinked 助手 tmp paths to outside files", async () => {
     if (process.platform === "win32") {
       return;
     }
@@ -262,7 +262,7 @@ describe("resolveSandboxedMediaSource", () => {
     );
   });
 
-  it("rejects symlinked OpenClaw tmp paths to hardlinked outside files", async () => {
+  it("rejects symlinked 助手 tmp paths to hardlinked outside files", async () => {
     if (process.platform === "win32") {
       return;
     }

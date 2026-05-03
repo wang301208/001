@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { makeAttemptResult } from "./run.overflow-compaction.fixture.js";
 import {
   loadRunOverflowCompactionHarness,
@@ -102,7 +102,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
             },
           ],
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
     });
 
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(3);
@@ -141,7 +141,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
           },
           list: [{ id: "main" }],
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
     });
 
     expect(result.payloads).toEqual([
@@ -176,7 +176,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
         agents: {
           list: [{ id: "main" }],
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
     });
 
     // Two retries (strict-agentic retry cap) plus the original attempt = 3 calls.
@@ -216,7 +216,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
           },
           list: [{ id: "main" }],
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
     });
 
     // Default contract: 1 retry then falls through. Should NOT surface the
@@ -895,7 +895,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     const result = await runEmbeddedPiAgent({
       ...overflowBaseRunParams,
       prompt:
-        "made a bunch of improvements to the student's source code (openclaw) this weekend, along with a few other maintainers. hopefully he will be more proactive now",
+        "made a bunch of improvements to the student's source code (zhushou) this weekend, along with a few other maintainers. hopefully he will be more proactive now",
       provider: "openai-codex",
       model: "gpt-5.4",
       runId: "run-strict-agentic-casual-discord-status",
@@ -903,7 +903,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
         agents: {
           list: [{ id: "main" }],
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
     });
 
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(1);

@@ -28,8 +28,8 @@ import type {
   QaBusWaitForInput,
 } from "./runtime-api.js";
 
-const DEFAULT_BOT_ID = "openclaw";
-const DEFAULT_BOT_NAME = "OpenClaw QA";
+const DEFAULT_BOT_ID = "zhushou";
+const DEFAULT_BOT_NAME = "助手 QA";
 
 type QaBusEventSeed =
   | {

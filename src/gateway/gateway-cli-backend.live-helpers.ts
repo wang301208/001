@@ -267,10 +267,10 @@ function isRetryableGatewayConnectError(error: Error): boolean {
 
 export function snapshotCliBackendLiveEnv(): CliBackendLiveEnvSnapshot {
   return {
-    configPath: process.env.OPENCLAW_CONFIG_PATH,
-    stateDir: process.env.OPENCLAW_STATE_DIR,
-    token: process.env.OPENCLAW_GATEWAY_TOKEN,
-    skipChannels: process.env.OPENCLAW_SKIP_CHANNELS,
+    configPath: process.env.ZHUSHOU_CONFIG_PATH,
+    stateDir: process.env.ZHUSHOU_STATE_DIR,
+    token: process.env.ZHUSHOU_GATEWAY_TOKEN,
+    skipChannels: process.env.ZHUSHOU_SKIP_CHANNELS,
     skipProviders: process.env.OPENCLAW_SKIP_PROVIDERS,
     skipGmail: process.env.OPENCLAW_SKIP_GMAIL_WATCHER,
     skipCron: process.env.OPENCLAW_SKIP_CRON,
@@ -284,7 +284,7 @@ export function snapshotCliBackendLiveEnv(): CliBackendLiveEnvSnapshot {
 }
 
 export function applyCliBackendLiveEnv(preservedEnv: ReadonlySet<string>): void {
-  process.env.OPENCLAW_SKIP_CHANNELS = "1";
+  process.env.ZHUSHOU_SKIP_CHANNELS = "1";
   process.env.OPENCLAW_SKIP_PROVIDERS = "1";
   process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
   process.env.OPENCLAW_SKIP_CRON = "1";
@@ -300,10 +300,10 @@ export function applyCliBackendLiveEnv(preservedEnv: ReadonlySet<string>): void 
 }
 
 export function restoreCliBackendLiveEnv(snapshot: CliBackendLiveEnvSnapshot): void {
-  restoreEnvVar("OPENCLAW_CONFIG_PATH", snapshot.configPath);
-  restoreEnvVar("OPENCLAW_STATE_DIR", snapshot.stateDir);
-  restoreEnvVar("OPENCLAW_GATEWAY_TOKEN", snapshot.token);
-  restoreEnvVar("OPENCLAW_SKIP_CHANNELS", snapshot.skipChannels);
+  restoreEnvVar("ZHUSHOU_CONFIG_PATH", snapshot.configPath);
+  restoreEnvVar("ZHUSHOU_STATE_DIR", snapshot.stateDir);
+  restoreEnvVar("ZHUSHOU_GATEWAY_TOKEN", snapshot.token);
+  restoreEnvVar("ZHUSHOU_SKIP_CHANNELS", snapshot.skipChannels);
   restoreEnvVar("OPENCLAW_SKIP_PROVIDERS", snapshot.skipProviders);
   restoreEnvVar("OPENCLAW_SKIP_GMAIL_WATCHER", snapshot.skipGmail);
   restoreEnvVar("OPENCLAW_SKIP_CRON", snapshot.skipCron);

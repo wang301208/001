@@ -50,11 +50,11 @@ describe("status-all format", () => {
   });
 
   it("formats terminal UI values consistently", () => {
-    expect(formatStatusTerminalValue("openclaw tui --profile local")).toBe(
-      "openclaw tui --profile local",
+    expect(formatStatusTerminalValue("zhushou tui --profile local")).toBe(
+      "zhushou tui --profile local",
     );
-    expect(formatStatusTerminalValue("")).toBe("openclaw tui");
-    expect(formatStatusTerminalValue(null)).toBe("openclaw tui");
+    expect(formatStatusTerminalValue("")).toBe("zhushou tui");
+    expect(formatStatusTerminalValue(null)).toBe("zhushou tui");
   });
 
   it("builds shared update surface values", () => {
@@ -93,7 +93,7 @@ describe("status-all format", () => {
   });
 
   it("resolves terminal UI command", () => {
-    expect(resolveStatusTerminalCommand()).toBe("openclaw tui");
+    expect(resolveStatusTerminalCommand()).toBe("zhushou tui");
   });
 
   it("formats tailscale values for terse and detailed views", () => {
@@ -254,14 +254,14 @@ describe("status-all format", () => {
     expect(
       buildStatusOverviewRows({
         prefixRows: [{ Item: "Version", Value: "1.0.0" }],
-        terminalUiValue: "openclaw tui",
+        terminalUiValue: "zhushou tui",
         tailscaleValue: "serve · https://tail.example",
         channelLabel: "stable",
         gitLabel: "main @ v1.0.0",
         updateValue: "up to date",
         gatewayValue: "local · reachable",
         gatewayAuthWarning: "warning",
-        middleRows: [{ Item: "Security", Value: "Run: openclaw security audit --deep" }],
+        middleRows: [{ Item: "Security", Value: "Run: zhushou security audit --deep" }],
         gatewaySelfValue: "gateway-host",
         gatewayServiceValue: "launchd loaded",
         nodeServiceValue: "node loaded",
@@ -270,14 +270,14 @@ describe("status-all format", () => {
       }),
     ).toEqual([
       { Item: "Version", Value: "1.0.0" },
-      { Item: "Terminal UI", Value: "openclaw tui" },
+      { Item: "Terminal UI", Value: "zhushou tui" },
       { Item: "Tailscale", Value: "serve · https://tail.example" },
       { Item: "Channel", Value: "stable" },
       { Item: "Git", Value: "main @ v1.0.0" },
       { Item: "Update", Value: "up to date" },
       { Item: "Gateway", Value: "local · reachable" },
       { Item: "Gateway auth warning", Value: "warning" },
-      { Item: "Security", Value: "Run: openclaw security audit --deep" },
+      { Item: "Security", Value: "Run: zhushou security audit --deep" },
       { Item: "Gateway self", Value: "gateway-host" },
       { Item: "Gateway service", Value: "launchd loaded" },
       { Item: "Node service", Value: "node loaded" },
@@ -342,7 +342,7 @@ describe("status-all format", () => {
       }),
     ).toEqual([
       { Item: "Version", Value: "1.0.0" },
-      { Item: "Terminal UI", Value: "openclaw tui" },
+      { Item: "Terminal UI", Value: "zhushou tui" },
       { Item: "Tailscale", Value: "serve · box.tail.ts.net · https://box.tail.ts.net" },
       { Item: "Channel", Value: "stable (config)" },
       { Item: "Git", Value: "main · tag v1.2.3" },

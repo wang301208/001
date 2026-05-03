@@ -20,7 +20,7 @@ import { createRuntimeTaskFlow } from "./runtime-taskflow.js";
 
 const cronLogger = createNoopLogger();
 const { makeStorePath } = createCronStoreHarness({
-  prefix: "openclaw-runtime-autonomy-",
+  prefix: "zhushou-runtime-autonomy-",
 });
 installCronTestHooks({ logger: cronLogger });
 
@@ -87,7 +87,7 @@ async function createCronService() {
 }
 
 async function createGovernanceGapCharterRoot() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-runtime-autonomy-governance-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-runtime-autonomy-governance-"));
   const charterDir = path.join(root, "governance", "charter");
   await fs.mkdir(path.join(charterDir, "agents"), { recursive: true });
   await fs.mkdir(path.join(charterDir, "policies"), { recursive: true });
@@ -129,7 +129,7 @@ async function createGovernanceGapCharterRoot() {
 }
 
 async function createGovernedCapabilityCharterRoot() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-runtime-autonomy-capability-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-runtime-autonomy-capability-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
   await fs.mkdir(path.join(charterDir, "agents"), { recursive: true });
@@ -178,7 +178,7 @@ async function createGovernedCapabilityCharterRoot() {
 }
 
 async function createAutonomyPipelineCharterRoot() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-runtime-autonomy-pipeline-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-runtime-autonomy-pipeline-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
   await fs.mkdir(path.join(charterDir, "agents"), { recursive: true });
@@ -328,18 +328,18 @@ describe("runtime autonomy", () => {
   let previousStateDir: string | undefined;
 
   beforeEach(async () => {
-    previousStateDir = process.env.OPENCLAW_STATE_DIR;
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-runtime-autonomy-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    previousStateDir = process.env.ZHUSHOU_STATE_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-runtime-autonomy-"));
+    process.env.ZHUSHOU_STATE_DIR = tempStateDir;
     installRuntimeTaskDeliveryMock();
     setRuntimeConfigSnapshot({});
   });
 
   afterEach(async () => {
     if (previousStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.ZHUSHOU_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = previousStateDir;
+      process.env.ZHUSHOU_STATE_DIR = previousStateDir;
     }
     tempStateDir = null;
   });

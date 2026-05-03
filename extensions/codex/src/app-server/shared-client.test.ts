@@ -21,7 +21,7 @@ describe("shared Codex app-server client", () => {
     const initialize = JSON.parse(harness.writes[0] ?? "{}") as { id?: number };
     harness.send({
       id: initialize.id,
-      result: { userAgent: "openclaw/0.117.9 (macOS; test)" },
+      result: { userAgent: "zhushou/0.117.9 (macOS; test)" },
     });
 
     await expect(listPromise).rejects.toThrow(
@@ -48,7 +48,7 @@ describe("shared Codex app-server client", () => {
     const initialize = JSON.parse(second.writes[0] ?? "{}") as { id?: number };
     second.send({
       id: initialize.id,
-      result: { userAgent: "openclaw/0.118.0 (macOS; test)" },
+      result: { userAgent: "zhushou/0.118.0 (macOS; test)" },
     });
     await vi.waitFor(() => expect(second.writes.length).toBeGreaterThanOrEqual(3));
     const modelList = JSON.parse(second.writes[2] ?? "{}") as { id?: number };

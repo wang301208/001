@@ -11,9 +11,9 @@ import {
 } from "@buape/carbon";
 import type { APISelectMenuOption } from "discord-api-types/v10";
 import { ButtonStyle } from "discord-api-types/v10";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import type { ModelsProviderData } from "openclaw/plugin-sdk/models-provider-runtime";
-import { normalizeProviderId } from "openclaw/plugin-sdk/provider-model-shared";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { ModelsProviderData } from "zhushou/plugin-sdk/models-provider-runtime";
+import { normalizeProviderId } from "zhushou/plugin-sdk/provider-model-shared";
 
 export const DISCORD_MODEL_PICKER_CUSTOM_ID_KEY = "mdlpk";
 export const DISCORD_CUSTOM_ID_MAX_CHARS = 100;
@@ -140,11 +140,11 @@ export type DiscordModelPickerModelViewParams = {
 };
 
 let modelsProviderRuntimePromise:
-  | Promise<typeof import("openclaw/plugin-sdk/models-provider-runtime")>
+  | Promise<typeof import("zhushou/plugin-sdk/models-provider-runtime")>
   | undefined;
 
 async function loadModelsProviderRuntime() {
-  modelsProviderRuntimePromise ??= import("openclaw/plugin-sdk/models-provider-runtime");
+  modelsProviderRuntimePromise ??= import("zhushou/plugin-sdk/models-provider-runtime");
   return await modelsProviderRuntimePromise;
 }
 
@@ -547,7 +547,7 @@ function buildModelRows(params: {
  * same provider/model resolver used by text and Telegram model commands.
  */
 export async function loadDiscordModelPickerData(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   agentId?: string,
 ): Promise<ModelsProviderData> {
   const { buildModelsProviderData } = await loadModelsProviderRuntime();

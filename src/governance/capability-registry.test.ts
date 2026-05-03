@@ -48,7 +48,7 @@ async function writeAgentBlueprint(charterDir: string, agentId: string, title?: 
 }
 
 async function createTempCapabilityRoot(options?: { includePublisher?: boolean }) {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-capability-registry-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-capability-registry-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
   await mkdir(path.join(charterDir, "agents"), { recursive: true });

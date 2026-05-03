@@ -34,7 +34,7 @@ export type PluginPackageJson = {
   name?: string;
   version?: string;
   private?: boolean;
-  openclaw?: {
+  zhushou?: {
     extensions?: string[];
     install?: {
       npmSpec?: string;
@@ -84,7 +84,7 @@ const CLAWHUB_SHARED_RELEASE_INPUT_PATHS = [
   "scripts/lib/npm-publish-plan.mjs",
   "scripts/lib/plugin-npm-release.ts",
   "scripts/lib/plugin-clawhub-release.ts",
-  "scripts/openclaw-npm-release-check.ts",
+  "scripts/zhushou-npm-release-check.ts",
   "scripts/plugin-clawhub-publish.sh",
   "scripts/plugin-clawhub-release-check.ts",
   "scripts/plugin-clawhub-release-plan.ts",
@@ -107,7 +107,7 @@ export function collectClawHubPublishablePluginPackages(
 
   for (const candidate of collectExtensionPackageJsonCandidates(rootDir)) {
     const { extensionId, packageDir, packageJson } = candidate;
-    if (packageJson.openclaw?.release?.publishToClawHub !== true) {
+    if (packageJson.zhushou?.release?.publishToClawHub !== true) {
       continue;
     }
     if (!SAFE_EXTENSION_ID_RE.test(extensionId)) {
@@ -284,7 +284,7 @@ export function collectClawHubVersionGateErrors(params: {
       ref: params.gitRange.baseRef,
       packageDir: plugin.packageDir,
     });
-    if (baseManifest?.openclaw?.release?.publishToClawHub !== true) {
+    if (baseManifest?.zhushou?.release?.publishToClawHub !== true) {
       continue;
     }
     const baseVersion =

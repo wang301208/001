@@ -1,19 +1,19 @@
-export type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
-export type { OpenClawConfig, GroupPolicy } from "openclaw/plugin-sdk/config-runtime";
-export type { MarkdownTableMode } from "openclaw/plugin-sdk/config-runtime";
-export type { BaseTokenResolution } from "openclaw/plugin-sdk/channel-contract";
+export type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+export type { ZhushouConfig, GroupPolicy } from "zhushou/plugin-sdk/config-runtime";
+export type { MarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+export type { BaseTokenResolution } from "zhushou/plugin-sdk/channel-contract";
 export type {
   BaseProbeResult,
   ChannelAccountSnapshot,
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
   ChannelStatusIssue,
-} from "openclaw/plugin-sdk/channel-contract";
-export type { SecretInput } from "openclaw/plugin-sdk/secret-input";
-export type { SenderGroupAccessDecision } from "openclaw/plugin-sdk/group-access";
-export type { ChannelPlugin, PluginRuntime, WizardPrompter } from "openclaw/plugin-sdk/core";
-export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
-export type { OutboundReplyPayload } from "openclaw/plugin-sdk/reply-payload";
+} from "zhushou/plugin-sdk/channel-contract";
+export type { SecretInput } from "zhushou/plugin-sdk/secret-input";
+export type { SenderGroupAccessDecision } from "zhushou/plugin-sdk/group-access";
+export type { ChannelPlugin, PluginRuntime, WizardPrompter } from "zhushou/plugin-sdk/core";
+export type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
+export type { OutboundReplyPayload } from "zhushou/plugin-sdk/reply-payload";
 export {
   DEFAULT_ACCOUNT_ID,
   buildChannelConfigSchema,
@@ -23,7 +23,7 @@ export {
   normalizeAccountId,
   readStringParam,
   resolveClientIp,
-} from "openclaw/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 export {
   applyAccountNameToChannelSection,
   applySetupAccountConfigPatch,
@@ -33,44 +33,44 @@ export {
   promptSingleChannelSecretInput,
   runSingleChannelSecretStep,
   setTopLevelChannelDmPolicyWithAllowFrom,
-} from "openclaw/plugin-sdk/setup";
+} from "zhushou/plugin-sdk/setup";
 export {
   buildSecretInputSchema,
   hasConfiguredSecretInput,
   normalizeResolvedSecretInputString,
   normalizeSecretInputString,
-} from "openclaw/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/secret-input";
 export {
   buildTokenChannelStatusSummary,
   PAIRING_APPROVED_MESSAGE,
-} from "openclaw/plugin-sdk/channel-status";
-export { buildBaseAccountStatusSnapshot } from "openclaw/plugin-sdk/status-helpers";
-export { chunkTextForOutbound } from "openclaw/plugin-sdk/text-chunking";
+} from "zhushou/plugin-sdk/channel-status";
+export { buildBaseAccountStatusSnapshot } from "zhushou/plugin-sdk/status-helpers";
+export { chunkTextForOutbound } from "zhushou/plugin-sdk/text-chunking";
 export {
   formatAllowFromLowercase,
   isNormalizedSenderAllowed,
-} from "openclaw/plugin-sdk/allow-from";
-export { addWildcardAllowFrom } from "openclaw/plugin-sdk/setup";
-export { evaluateSenderGroupAccess } from "openclaw/plugin-sdk/group-access";
-export { resolveOpenProviderRuntimeGroupPolicy } from "openclaw/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/allow-from";
+export { addWildcardAllowFrom } from "zhushou/plugin-sdk/setup";
+export { evaluateSenderGroupAccess } from "zhushou/plugin-sdk/group-access";
+export { resolveOpenProviderRuntimeGroupPolicy } from "zhushou/plugin-sdk/config-runtime";
 export {
   warnMissingProviderGroupPolicyFallbackOnce,
   resolveDefaultGroupPolicy,
-} from "openclaw/plugin-sdk/config-runtime";
-export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
-export { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
-export { logTypingFailure } from "openclaw/plugin-sdk/channel-feedback";
+} from "zhushou/plugin-sdk/config-runtime";
+export { createChannelPairingController } from "zhushou/plugin-sdk/channel-pairing";
+export { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+export { logTypingFailure } from "zhushou/plugin-sdk/channel-feedback";
 export {
   deliverTextOrMediaReply,
   isNumericTargetId,
   sendPayloadWithChunkedTextAndMedia,
-} from "openclaw/plugin-sdk/reply-payload";
+} from "zhushou/plugin-sdk/reply-payload";
 export {
   resolveDirectDmAuthorizationOutcome,
   resolveSenderCommandAuthorizationWithRuntime,
-} from "openclaw/plugin-sdk/command-auth";
-export { resolveInboundRouteEnvelopeBuilderWithRuntime } from "openclaw/plugin-sdk/inbound-envelope";
-export { waitForAbortSignal } from "openclaw/plugin-sdk/runtime";
+} from "zhushou/plugin-sdk/command-auth";
+export { resolveInboundRouteEnvelopeBuilderWithRuntime } from "zhushou/plugin-sdk/inbound-envelope";
+export { waitForAbortSignal } from "zhushou/plugin-sdk/runtime";
 export {
   applyBasicWebhookRequestGuards,
   createFixedWindowRateLimiter,
@@ -83,8 +83,8 @@ export {
   WEBHOOK_ANOMALY_COUNTER_DEFAULTS,
   WEBHOOK_RATE_LIMIT_DEFAULTS,
   withResolvedWebhookRequestPipeline,
-} from "openclaw/plugin-sdk/webhook-ingress";
+} from "zhushou/plugin-sdk/webhook-ingress";
 export type {
   RegisterWebhookPluginRouteOptions,
   RegisterWebhookTargetOptions,
-} from "openclaw/plugin-sdk/webhook-ingress";
+} from "zhushou/plugin-sdk/webhook-ingress";

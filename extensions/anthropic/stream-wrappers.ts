@@ -1,14 +1,14 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import { streamSimple } from "@mariozechner/pi-ai";
-import type { ProviderWrapStreamFnContext } from "openclaw/plugin-sdk/plugin-entry";
+import type { ProviderWrapStreamFnContext } from "zhushou/plugin-sdk/plugin-entry";
 import {
   applyAnthropicPayloadPolicyToParams,
   composeProviderStreamWrappers,
   resolveAnthropicPayloadPolicy,
   streamWithPayloadPatch,
-} from "openclaw/plugin-sdk/provider-stream-shared";
-import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty, readStringValue } from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-stream-shared";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty, readStringValue } from "zhushou/plugin-sdk/text-runtime";
 
 const log = createSubsystemLogger("anthropic-stream");
 

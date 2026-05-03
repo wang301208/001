@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { resolveAgentModelFallbackValues } from "../config/model-input.js";
 import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
-import type { OpenClawConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import {
   normalizeAgentId,
   parseAgentSessionKey,
@@ -49,7 +49,7 @@ export { resolveAgentIdFromSessionKey };
 
 export function resolveSessionAgentIds(params: {
   sessionKey?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentId?: string;
 }): {
   defaultAgentId: string;
@@ -68,13 +68,13 @@ export function resolveSessionAgentIds(params: {
 
 export function resolveSessionAgentId(params: {
   sessionKey?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
 }): string {
   return resolveSessionAgentIds(params).sessionAgentId;
 }
 
 export function resolveAgentExecutionContract(
-  cfg: OpenClawConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   agentId?: string | null,
 ): NonNullable<NonNullable<AgentDefaultsConfig["embeddedPi"]>["executionContract"]> | undefined {
   const defaultContract = cfg?.agents?.defaults?.embeddedPi?.executionContract;
@@ -86,14 +86,14 @@ export function resolveAgentExecutionContract(
 }
 
 export function resolveAgentSkillsFilter(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   agentId: string,
 ): string[] | undefined {
   return resolveEffectiveAgentSkillFilter(cfg, agentId);
 }
 
 export function resolveAgentExplicitModelPrimary(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   agentId: string,
 ): string | undefined {
   const raw = resolveAgentConfig(cfg, agentId)?.model;
@@ -101,7 +101,7 @@ export function resolveAgentExplicitModelPrimary(
 }
 
 export function resolveAgentEffectiveModelPrimary(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   agentId: string,
 ): string | undefined {
   return (
@@ -111,12 +111,12 @@ export function resolveAgentEffectiveModelPrimary(
 }
 
 // Backward-compatible alias. Prefer explicit/effective helpers at new call sites.
-export function resolveAgentModelPrimary(cfg: OpenClawConfig, agentId: string): string | undefined {
+export function resolveAgentModelPrimary(cfg: ZhushouConfig, agentId: string): string | undefined {
   return resolveAgentExplicitModelPrimary(cfg, agentId);
 }
 
 export function resolveAgentModelFallbacksOverride(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   agentId: string,
 ): string[] | undefined {
   const raw = resolveAgentConfig(cfg, agentId)?.model;
@@ -142,7 +142,7 @@ export function resolveFallbackAgentId(params: {
 }
 
 export function resolveRunModelFallbacksOverride(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: ZhushouConfig | undefined;
   agentId?: string | null;
   sessionKey?: string | null;
 }): string[] | undefined {
@@ -156,7 +156,7 @@ export function resolveRunModelFallbacksOverride(params: {
 }
 
 export function hasConfiguredModelFallbacks(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: ZhushouConfig | undefined;
   agentId?: string | null;
   sessionKey?: string | null;
 }): boolean {
@@ -166,7 +166,7 @@ export function hasConfiguredModelFallbacks(params: {
 }
 
 export function resolveEffectiveModelFallbacks(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   hasSessionModelOverride: boolean;
 }): string[] | undefined {
@@ -200,7 +200,7 @@ function isPathWithinRoot(candidatePath: string, rootPath: string): boolean {
 }
 
 export function resolveAgentIdsByWorkspacePath(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   workspacePath: string,
 ): string[] {
   const normalizedWorkspacePath = normalizePathForComparison(workspacePath);
@@ -228,7 +228,7 @@ export function resolveAgentIdsByWorkspacePath(
 }
 
 export function resolveAgentIdByWorkspacePath(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   workspacePath: string,
 ): string | undefined {
   return resolveAgentIdsByWorkspacePath(cfg, workspacePath)[0];

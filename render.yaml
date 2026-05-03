@@ -1,19 +1,19 @@
 services:
   - type: web
-    name: openclaw
+    name: zhushou
     runtime: docker
     plan: starter
     healthCheckPath: /health
     envVars:
-      - key: OPENCLAW_GATEWAY_PORT
+      - key: ZHUSHOU_GATEWAY_PORT
         value: "8080"
-      - key: OPENCLAW_STATE_DIR
-        value: /data/.openclaw
-      - key: OPENCLAW_WORKSPACE_DIR
+      - key: ZHUSHOU_STATE_DIR
+        value: /data/.zhushou
+      - key: ZHUSHOU_WORKSPACE_DIR
         value: /data/workspace
-      - key: OPENCLAW_GATEWAY_TOKEN
+      - key: ZHUSHOU_GATEWAY_TOKEN
         generateValue: true
     disk:
-      name: openclaw-data
+      name: zhushou-data
       mountPath: /data
       sizeGB: 1

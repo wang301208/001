@@ -47,8 +47,8 @@ const envSnapshot = {
   USERPROFILE: process.env.USERPROFILE,
   HOMEDRIVE: process.env.HOMEDRIVE,
   HOMEPATH: process.env.HOMEPATH,
-  OPENCLAW_HOME: process.env.OPENCLAW_HOME,
-  OPENCLAW_STATE_DIR: process.env.OPENCLAW_STATE_DIR,
+  ZHUSHOU_HOME: process.env.ZHUSHOU_HOME,
+  ZHUSHOU_STATE_DIR: process.env.ZHUSHOU_STATE_DIR,
 } as const;
 
 function restoreSnapshotEnv() {

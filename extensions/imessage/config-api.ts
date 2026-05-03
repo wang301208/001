@@ -1,4 +1,4 @@
 export {
   buildChannelConfigSchema,
   IMessageConfigSchema,
-} from "openclaw/plugin-sdk/channel-config-schema";
+} from "zhushou/plugin-sdk/channel-config-schema";

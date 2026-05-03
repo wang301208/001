@@ -1,4 +1,4 @@
-import type { AgentHarness } from "openclaw/plugin-sdk/agent-harness";
+import type { AgentHarness } from "zhushou/plugin-sdk/agent-harness";
 import { maybeCompactCodexAppServerSession } from "./src/app-server/compact.js";
 import { listCodexAppServerModels } from "./src/app-server/models.js";
 import type {

@@ -228,8 +228,8 @@ describe("openai tts", () => {
         id: "tts-session",
         startedAt: Date.now(),
         mode: "test",
-        sourceScope: "openclaw",
-        sourceProcess: "openclaw",
+        sourceScope: "zhushou",
+        sourceProcess: "zhushou",
         dbPath: process.env.OPENCLAW_DEBUG_PROXY_DB_PATH,
         blobDir: process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR,
       });

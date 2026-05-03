@@ -1,5 +1,5 @@
-import { buildUntrustedChannelMetadata } from "openclaw/plugin-sdk/security-runtime";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { buildUntrustedChannelMetadata } from "zhushou/plugin-sdk/security-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 
 export function resolveSlackRoomContextHints(params: {
   isRoomish: boolean;

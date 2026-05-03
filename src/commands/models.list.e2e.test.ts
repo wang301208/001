@@ -11,7 +11,7 @@ const readConfigFileSnapshotForWrite = vi.fn().mockResolvedValue({
 });
 const setRuntimeConfigSnapshot = vi.fn();
 const ensureOpenClawModelsJson = vi.fn().mockResolvedValue(undefined);
-const resolveOpenClawAgentDir = vi.fn().mockReturnValue("/tmp/openclaw-agent");
+const resolveOpenClawAgentDir = vi.fn().mockReturnValue("/tmp/zhushou-agent");
 const ensureAuthProfileStore = vi.fn().mockReturnValue({ version: 1, profiles: {} });
 const listProfilesForProvider = vi.fn().mockReturnValue([]);
 const resolveEnvApiKey = vi.fn().mockReturnValue(undefined);

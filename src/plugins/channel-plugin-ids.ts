@@ -1,6 +1,6 @@
 import { collectConfiguredAgentHarnessRuntimes } from "../agents/harness-runtimes.js";
 import { listPotentialConfiguredChannelIds } from "../channels/config-presence.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   resolveMemoryDreamingConfig,
   resolveMemoryDreamingPluginConfig,
@@ -64,7 +64,7 @@ function normalizeChannelIds(channelIds: Iterable<string>): string[] {
 function isChannelPluginEligibleForScopedOwnership(params: {
   plugin: PluginManifestRecord;
   normalizedConfig: ReturnType<typeof normalizePluginsConfig>;
-  rootConfig: OpenClawConfig;
+  rootConfig: ZhushouConfig;
 }): boolean {
   if (
     !passesManifestOwnerBasePolicy({
@@ -91,8 +91,8 @@ function isChannelPluginEligibleForScopedOwnership(params: {
 }
 
 function resolveScopedChannelOwnerPluginIds(params: {
-  config: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   channelIds: readonly string[];
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -144,8 +144,8 @@ function resolveScopedChannelOwnerPluginIds(params: {
 }
 
 export function resolveScopedChannelPluginIds(params: {
-  config: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   channelIds: readonly string[];
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -155,8 +155,8 @@ export function resolveScopedChannelPluginIds(params: {
 }
 
 export function resolveDiscoverableScopedChannelPluginIds(params: {
-  config: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   channelIds: readonly string[];
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -165,7 +165,7 @@ export function resolveDiscoverableScopedChannelPluginIds(params: {
   return resolveScopedChannelOwnerPluginIds(params);
 }
 
-function resolveGatewayStartupDreamingPluginIds(config: OpenClawConfig): Set<string> {
+function resolveGatewayStartupDreamingPluginIds(config: ZhushouConfig): Set<string> {
   const dreamingConfig = resolveMemoryDreamingConfig({
     pluginConfig: resolveMemoryDreamingPluginConfig(config),
     cfg: config,
@@ -176,7 +176,7 @@ function resolveGatewayStartupDreamingPluginIds(config: OpenClawConfig): Set<str
   return new Set(["memory-core", resolveMemoryDreamingPluginId(config)]);
 }
 
-function resolveExplicitMemorySlotStartupPluginId(config: OpenClawConfig): string | undefined {
+function resolveExplicitMemorySlotStartupPluginId(config: ZhushouConfig): string | undefined {
   const configuredSlot = config.plugins?.slots?.memory?.trim();
   if (!configuredSlot || configuredSlot.toLowerCase() === "none") {
     return undefined;
@@ -202,7 +202,7 @@ function shouldConsiderForGatewayStartup(params: {
 }
 
 export function resolveChannelPluginIds(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
 }): string[] {
@@ -216,8 +216,8 @@ export function resolveChannelPluginIds(params: {
 }
 
 export function resolveConfiguredChannelPluginIds(params: {
-  config: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
 }): string[] {
@@ -234,7 +234,7 @@ export function resolveConfiguredChannelPluginIds(params: {
 }
 
 export function resolveConfiguredDeferredChannelPluginIds(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
 }): string[] {
@@ -258,8 +258,8 @@ export function resolveConfiguredDeferredChannelPluginIds(params: {
 }
 
 export function resolveGatewayStartupPluginIds(params: {
-  config: OpenClawConfig;
-  activationSourceConfig?: OpenClawConfig;
+  config: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
 }): string[] {

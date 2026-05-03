@@ -79,7 +79,7 @@ describe("matrix qa cli registration", () => {
     matrixQaCliRegistration.register(qa);
     runQaMatrixCommand.mockRejectedValue(new Error("Matrix QA failed.\nreport: /tmp/report.md"));
 
-    await expect(qa.parseAsync(["node", "openclaw", "matrix"])).rejects.toThrow("process.exit(1)");
+    await expect(qa.parseAsync(["node", "zhushou", "matrix"])).rejects.toThrow("process.exit(1)");
 
     expect(runQaMatrixCommand).toHaveBeenCalledOnce();
     expect(stderrSpy).toHaveBeenCalledWith("Matrix QA failed.\nreport: /tmp/report.md\n");
@@ -92,7 +92,7 @@ describe("matrix qa cli registration", () => {
     matrixQaCliRegistration.register(qa);
     runQaMatrixCommand.mockRejectedValue(new Error("scenario failed"));
 
-    await expect(qa.parseAsync(["node", "openclaw", "matrix"])).rejects.toThrow("scenario failed");
+    await expect(qa.parseAsync(["node", "zhushou", "matrix"])).rejects.toThrow("scenario failed");
 
     expect(exitSpy).not.toHaveBeenCalled();
   });

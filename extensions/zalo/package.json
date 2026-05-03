@@ -1,24 +1,24 @@
 {
-  "name": "@openclaw/zalo",
+  "name": "@zhushou/zalo",
   "version": "2026.4.16",
-  "description": "OpenClaw Zalo channel plugin",
+  "description": "助手 Zalo channel plugin",
   "type": "module",
   "dependencies": {
     "undici": "8.0.2"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -37,7 +37,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/zalo",
+      "npmSpec": "@zhushou/zalo",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -45,7 +45,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "openclawVersion": "2026.4.16"
+      "zhushouVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

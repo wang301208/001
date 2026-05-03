@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getRuntimeConfigSnapshot, loadConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
@@ -209,7 +209,7 @@ type SandboxUniverseRenderedArtifact = {
   note?: string;
 };
 
-function resolveRuntimeConfig(cfg?: OpenClawConfig): OpenClawConfig {
+function resolveRuntimeConfig(cfg?: ZhushouConfig): ZhushouConfig {
   return cfg ?? getRuntimeConfigSnapshot() ?? loadConfig();
 }
 
@@ -1063,7 +1063,7 @@ function resolveControllerStageStates(params: {
 }
 
 export function planSandboxUniverseExperiment(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   workspaceDirs?: string[];
   observedAt?: number;
@@ -1221,7 +1221,7 @@ export function createSandboxUniverseReplayRunner(params: {
 }
 
 export function evaluateSandboxUniversePromotionGate(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   plan: SandboxUniverseExperimentPlan;
   controller?: SandboxUniverseControllerState;
@@ -1285,7 +1285,7 @@ export function evaluateSandboxUniversePromotionGate(params: {
 }
 
 export function runSandboxUniverseReplayRunner(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   plan: SandboxUniverseExperimentPlan;
   controller?: SandboxUniverseControllerState;

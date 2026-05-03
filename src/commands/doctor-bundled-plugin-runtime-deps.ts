@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { formatCliCommand } from "../cli/command-format.js";
-import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
+import { resolveOpenClawPackageRootSync } from "../infra/zhushou-root.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
@@ -196,7 +196,7 @@ export async function maybeRepairBundledPluginRuntimeDeps(params: {
       [
         "Bundled plugin runtime deps use conflicting versions.",
         ...conflictLines,
-        `Update bundled plugins and rerun ${formatCliCommand("openclaw doctor")}.`,
+        `Update bundled plugins and rerun ${formatCliCommand("zhushou doctor")}.`,
       ].join("\n"),
       "Bundled plugins",
     );
@@ -211,7 +211,7 @@ export async function maybeRepairBundledPluginRuntimeDeps(params: {
     [
       "Bundled plugin runtime deps are missing.",
       ...missing.map((dep) => `- ${dep.name}@${dep.version} (used by ${dep.pluginIds.join(", ")})`),
-      `Fix: run ${formatCliCommand("openclaw doctor --fix")} to install them.`,
+      `Fix: run ${formatCliCommand("zhushou doctor --fix")} to install them.`,
     ].join("\n"),
     "Bundled plugins",
   );

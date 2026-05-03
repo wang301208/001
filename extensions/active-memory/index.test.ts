@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
+import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-entry";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import plugin from "./index.js";
 
@@ -26,9 +26,9 @@ const hoisted = vi.hoisted(() => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/config-runtime")>(
-    "openclaw/plugin-sdk/config-runtime",
+vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
+    "zhushou/plugin-sdk/config-runtime",
   );
   return {
     ...actual,
@@ -55,7 +55,7 @@ describe("active-memory plugin", () => {
       agent: {
         runEmbeddedPiAgent,
         session: {
-          resolveStorePath: vi.fn(() => "/tmp/openclaw-session-store.json"),
+          resolveStorePath: vi.fn(() => "/tmp/zhushou-session-store.json"),
           loadSessionStore: vi.fn(() => hoisted.sessionStore),
           saveSessionStore: vi.fn(async () => {}),
         },
@@ -80,7 +80,7 @@ describe("active-memory plugin", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-active-memory-test-"));
+    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-active-memory-test-"));
     configFile = {
       plugins: {
         entries: {
@@ -119,7 +119,7 @@ describe("active-memory plugin", () => {
     runEmbeddedPiAgent.mockResolvedValue({
       payloads: [{ text: "- lemon pepper wings\n- blue cheese" }],
     });
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
   });
 
   afterEach(async () => {
@@ -425,7 +425,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       allowedChatTypes: ["direct", "group"],
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     const result = await hooks.before_prompt_build(
       { prompt: "what wings should we order?", messages: [] },
@@ -513,7 +513,7 @@ describe("active-memory plugin", () => {
         searchMode: "inherit",
       },
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -602,7 +602,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       queryMode: "message",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -630,7 +630,7 @@ describe("active-memory plugin", () => {
       queryMode: "message",
       promptStyle: "preference-only",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -675,7 +675,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       thinking: "medium",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -701,7 +701,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       promptAppend: "Prefer stable long-term preferences over one-off events.",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -730,7 +730,7 @@ describe("active-memory plugin", () => {
       promptOverride: "Custom memory prompt. Return NONE or one user fact.",
       promptAppend: "Extra custom instruction.",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -802,7 +802,7 @@ describe("active-memory plugin", () => {
     api.pluginConfig = {
       agents: ["main"],
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       { prompt: "what wings should i order? temp transcript", messages: [] },
@@ -828,7 +828,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       modelFallbackPolicy: "resolved-only",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     const result = await hooks.before_prompt_build(
       { prompt: "what wings should i order? no fallback", messages: [] },
@@ -851,7 +851,7 @@ describe("active-memory plugin", () => {
       modelFallback: "google/gemini-3-flash",
       modelFallbackPolicy: "default-remote",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       { prompt: "what wings should i order? custom fallback", messages: [] },
@@ -878,7 +878,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       modelFallbackPolicy: "default-remote",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     const result = await hooks.before_prompt_build(
       { prompt: "what wings should i order? built-in fallback", messages: [] },
@@ -1027,7 +1027,7 @@ describe("active-memory plugin", () => {
       timeoutMs: 250,
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
     let lastAbortSignal: AbortSignal | undefined;
     runEmbeddedPiAgent.mockImplementation(async (params: { abortSignal?: AbortSignal }) => {
       lastAbortSignal = params.abortSignal;
@@ -1073,7 +1073,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       { prompt: "what wings should i order? session id cache", messages: [] },
@@ -1107,7 +1107,7 @@ describe("active-memory plugin", () => {
       timeoutMs: 250,
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
     runEmbeddedPiAgent.mockImplementationOnce(async (params: { timeoutMs?: number }) => {
       await new Promise((resolve) => setTimeout(resolve, (params.timeoutMs ?? 0) + 25));
       return {
@@ -1145,7 +1145,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       { prompt: "what wings should i order? log sanitization", messages: [] },
@@ -1179,7 +1179,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
     const hugeSession = `agent:main:${"x".repeat(500)}`;
 
     await hooks.before_prompt_build(
@@ -1423,7 +1423,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       queryMode: "message",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -1451,7 +1451,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       queryMode: "full",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -1482,7 +1482,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       queryMode: "recent",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -1536,7 +1536,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       queryMode: "recent",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -1578,7 +1578,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       queryMode: "recent",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -1611,7 +1611,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       queryMode: "recent",
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       {
@@ -1673,7 +1673,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       maxSummaryChars: 40,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
     runEmbeddedPiAgent.mockResolvedValueOnce({
       payloads: [
         {
@@ -1707,7 +1707,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       maxSummaryChars: 90,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     await hooks.before_prompt_build(
       { prompt: "what wings should i order? prompt-count-check", messages: [] },
@@ -1727,7 +1727,7 @@ describe("active-memory plugin", () => {
   it("keeps subagent transcripts off disk by default by using a temp session file", async () => {
     const mkdtempSpy = vi
       .spyOn(fs, "mkdtemp")
-      .mockResolvedValue("/tmp/openclaw-active-memory-temp");
+      .mockResolvedValue("/tmp/zhushou-active-memory-temp");
     const rmSpy = vi.spyOn(fs, "rm").mockResolvedValue(undefined);
 
     await hooks.before_prompt_build(
@@ -1742,9 +1742,9 @@ describe("active-memory plugin", () => {
 
     expect(mkdtempSpy).toHaveBeenCalled();
     expect(runEmbeddedPiAgent.mock.calls.at(-1)?.[0]?.sessionFile).toBe(
-      "/tmp/openclaw-active-memory-temp/session.jsonl",
+      "/tmp/zhushou-active-memory-temp/session.jsonl",
     );
-    expect(rmSpy).toHaveBeenCalledWith("/tmp/openclaw-active-memory-temp", {
+    expect(rmSpy).toHaveBeenCalledWith("/tmp/zhushou-active-memory-temp", {
       recursive: true,
       force: true,
     });
@@ -1757,7 +1757,7 @@ describe("active-memory plugin", () => {
       transcriptDir: "active-memory-subagents",
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
     const mkdirSpy = vi.spyOn(fs, "mkdir").mockResolvedValue(undefined);
     const mkdtempSpy = vi.spyOn(fs, "mkdtemp");
     const rmSpy = vi.spyOn(fs, "rm").mockResolvedValue(undefined);
@@ -1801,7 +1801,7 @@ describe("active-memory plugin", () => {
       transcriptDir: "C:/temp/escape",
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
     const mkdirSpy = vi.spyOn(fs, "mkdir").mockResolvedValue(undefined);
 
     await hooks.before_prompt_build(
@@ -1838,7 +1838,7 @@ describe("active-memory plugin", () => {
       transcriptDir: "active-memory-subagents",
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
     const mkdirSpy = vi.spyOn(fs, "mkdir").mockResolvedValue(undefined);
 
     await hooks.before_prompt_build(
@@ -1905,7 +1905,7 @@ describe("active-memory plugin", () => {
       agents: ["main"],
       logging: true,
     };
-    plugin.register(api as unknown as OpenClawPluginApi);
+    plugin.register(api as unknown as ZhushouPluginApi);
 
     for (let index = 0; index <= 1000; index += 1) {
       await hooks.before_prompt_build(

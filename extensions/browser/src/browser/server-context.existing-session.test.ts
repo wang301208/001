@@ -3,10 +3,10 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { BrowserServerState } from "./server-context.js";
 
-vi.mock("openclaw/plugin-sdk/browser-security-runtime", async () => {
+vi.mock("zhushou/plugin-sdk/browser-security-runtime", async () => {
   const actual = await vi.importActual<
-    typeof import("openclaw/plugin-sdk/browser-security-runtime")
-  >("openclaw/plugin-sdk/browser-security-runtime");
+    typeof import("zhushou/plugin-sdk/browser-security-runtime")
+  >("zhushou/plugin-sdk/browser-security-runtime");
   const lookupFn = async (_hostname: string, options?: { all?: boolean }) => {
     const result = { address: "93.184.216.34", family: 4 };
     return options?.all === true ? [result] : result;
@@ -28,7 +28,7 @@ vi.mock("./chrome-mcp.js", () => ({
   openChromeMcpTab: vi.fn(async () => ({
     targetId: "8",
     title: "",
-    url: "https://openclaw.ai",
+    url: "https://zhushou.ai",
     type: "page",
   })),
   closeChromeMcpTab: vi.fn(async () => {}),
@@ -110,22 +110,22 @@ describe("browser server-context existing-session profile", () => {
       ])
       .mockResolvedValueOnce([
         { targetId: "7", title: "", url: "https://example.com", type: "page" },
-        { targetId: "8", title: "", url: "https://openclaw.ai", type: "page" },
+        { targetId: "8", title: "", url: "https://zhushou.ai", type: "page" },
       ])
       .mockResolvedValueOnce([
         { targetId: "7", title: "", url: "https://example.com", type: "page" },
-        { targetId: "8", title: "", url: "https://openclaw.ai", type: "page" },
+        { targetId: "8", title: "", url: "https://zhushou.ai", type: "page" },
       ])
       .mockResolvedValueOnce([
         { targetId: "7", title: "", url: "https://example.com", type: "page" },
-        { targetId: "8", title: "", url: "https://openclaw.ai", type: "page" },
+        { targetId: "8", title: "", url: "https://zhushou.ai", type: "page" },
       ]);
 
     await live.ensureBrowserAvailable();
     const tabs = await live.listTabs();
     expect(tabs.map((tab) => tab.targetId)).toEqual(["7"]);
 
-    const opened = await live.openTab("https://openclaw.ai");
+    const opened = await live.openTab("https://zhushou.ai");
     expect(opened.targetId).toBe("8");
 
     const selected = await live.ensureTabAvailable();
@@ -141,7 +141,7 @@ describe("browser server-context existing-session profile", () => {
     expect(chromeMcp.listChromeMcpTabs).toHaveBeenCalledWith("chrome-live", userDataDir);
     expect(chromeMcp.openChromeMcpTab).toHaveBeenCalledWith(
       "chrome-live",
-      "https://openclaw.ai",
+      "https://zhushou.ai",
       userDataDir,
     );
     expect(chromeMcp.focusChromeMcpTab).toHaveBeenCalledWith(

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { startHeartbeatRunner, type HeartbeatRunner } from "../infra/heartbeat-runner.js";
@@ -45,18 +45,18 @@ type GatewayAutonomyMaintenanceResult =
 type GatewayAutonomySupervisor = {
   start: () => void;
   stop: () => void;
-  updateConfig: (cfg: OpenClawConfig) => void;
+  updateConfig: (cfg: ZhushouConfig) => void;
 };
 
 function createNoopHeartbeatRunner(): HeartbeatRunner {
   return {
     stop: () => {},
-    updateConfig: (_cfg: OpenClawConfig) => {},
+    updateConfig: (_cfg: ZhushouConfig) => {},
   };
 }
 
 export function startGatewayChannelHealthMonitor(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   channelManager: GatewayChannelManager;
 }): ChannelHealthMonitor | null {
   const healthCheckMinutes = params.cfg.gateway?.channelHealthCheckMinutes;
@@ -97,7 +97,7 @@ export function startGatewayCronWithLogging(params: {
 
 async function runGatewayAutonomyMaintenance(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: OpenClawConfig;
+  cfgAtStart: ZhushouConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
   source: "startup" | "supervisor";
 }): Promise<GatewayAutonomyMaintenanceResult | undefined> {
@@ -255,7 +255,7 @@ function resolveAutonomySupervisorIntervalMs(): number | undefined {
 
 function createGatewayAutonomySupervisor(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: OpenClawConfig;
+  cfgAtStart: ZhushouConfig;
   getCron: () => Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
 }): GatewayAutonomySupervisor {
@@ -361,7 +361,7 @@ function composeGatewayHeartbeatRunner(
 
 export async function reconcileGatewayAutonomyLoops(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: OpenClawConfig;
+  cfgAtStart: ZhushouConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
 }): Promise<void> {
@@ -381,7 +381,7 @@ export async function reconcileGatewayAutonomyLoops(params: {
 }
 
 function recoverPendingOutboundDeliveries(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   log: GatewayRuntimeServiceLogger;
 }): void {
   void (async () => {
@@ -398,7 +398,7 @@ function recoverPendingOutboundDeliveries(params: {
 
 export function startGatewayRuntimeServices(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: OpenClawConfig;
+  cfgAtStart: ZhushouConfig;
   channelManager: GatewayChannelManager;
   log: GatewayRuntimeServiceLogger;
 }): {
@@ -428,7 +428,7 @@ export function startGatewayRuntimeServices(params: {
  */
 export function activateGatewayScheduledServices(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: OpenClawConfig;
+  cfgAtStart: ZhushouConfig;
   cron: { start: () => Promise<void> };
   getCron?: () => Partial<import("../cron/service-contract.js").CronServiceContract>;
   logCron: { error: (message: string) => void };

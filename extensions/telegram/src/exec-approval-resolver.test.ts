@@ -1,11 +1,11 @@
-import type { ExecApprovalReplyDecision } from "openclaw/plugin-sdk/infra-runtime";
+import type { ExecApprovalReplyDecision } from "zhushou/plugin-sdk/infra-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const approvalGatewayRuntimeHoisted = vi.hoisted(() => ({
   resolveApprovalOverGatewaySpy: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/approval-gateway-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/approval-gateway-runtime", () => ({
   resolveApprovalOverGateway: (...args: unknown[]) =>
     approvalGatewayRuntimeHoisted.resolveApprovalOverGatewaySpy(...args),
 }));

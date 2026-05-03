@@ -23,7 +23,7 @@ describe("canvas a2ui copy", () => {
   });
 
   async function withA2uiFixture(run: (dir: string) => Promise<void>) {
-    await withTempDir("openclaw-a2ui-", run);
+    await withTempDir("zhushou-a2ui-", run);
   }
 
   it("throws a helpful error when assets are missing", async () => {

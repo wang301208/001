@@ -39,7 +39,7 @@ describe("msteams polls", () => {
   });
 
   it("stores and records poll votes", async () => {
-    const home = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-msteams-polls-"));
+    const home = await fs.promises.mkdtemp(path.join(os.tmpdir(), "zhushou-msteams-polls-"));
     const store = createMSTeamsPollStoreFs({ homedir: () => home });
     await store.createPoll({
       id: "poll-2",
@@ -63,7 +63,7 @@ describe("msteams polls", () => {
 });
 
 const createFsStore = async () => {
-  const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-msteams-polls-"));
+  const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "zhushou-msteams-polls-"));
   return createMSTeamsPollStoreFs({ stateDir });
 };
 

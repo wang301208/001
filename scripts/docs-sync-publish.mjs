@@ -285,7 +285,7 @@ function writeSyncMetadata(targetRoot, args) {
     sha: args.sourceSha || "",
     syncedAt: new Date().toISOString(),
   };
-  writeJson(path.join(targetRoot, ".openclaw-sync", "source.json"), metadata);
+  writeJson(path.join(targetRoot, ".zhushou-sync", "source.json"), metadata);
 }
 
 function main() {

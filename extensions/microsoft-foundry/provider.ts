@@ -1,8 +1,8 @@
-import type { ProviderNormalizeResolvedModelContext } from "openclaw/plugin-sdk/core";
+import type { ProviderNormalizeResolvedModelContext } from "zhushou/plugin-sdk/core";
 import type {
   ModelProviderConfig,
   ProviderPlugin,
-} from "openclaw/plugin-sdk/provider-model-shared";
+} from "zhushou/plugin-sdk/provider-model-shared";
 import { apiKeyAuthMethod, entraIdAuthMethod } from "./auth.js";
 import { prepareFoundryRuntimeAuth } from "./runtime.js";
 import {

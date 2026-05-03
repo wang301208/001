@@ -12,13 +12,13 @@ import {
 } from "./provider-attribution.js";
 
 describe("provider attribution", () => {
-  it("resolves the canonical OpenClaw product and runtime version", () => {
+  it("resolves the canonical 助手 product and runtime version", () => {
     const identity = resolveProviderAttributionIdentity({
       OPENCLAW_VERSION: "2026.3.99",
     });
 
     expect(identity).toEqual({
-      product: "OpenClaw",
+      product: "助手",
       version: "2026.3.99",
     });
   });
@@ -34,12 +34,12 @@ describe("provider attribution", () => {
       verification: "vendor-documented",
       hook: "request-headers",
       docsUrl: "https://openrouter.ai/docs/app-attribution",
-      reviewNote: "Documented app attribution headers. Verified in OpenClaw runtime wrapper.",
-      product: "OpenClaw",
+      reviewNote: "Documented app attribution headers. Verified in 助手 runtime wrapper.",
+      product: "助手",
       version: "2026.3.22",
       headers: {
-        "HTTP-Referer": "https://openclaw.ai",
-        "X-OpenRouter-Title": "OpenClaw",
+        "HTTP-Referer": "https://zhushou.ai",
+        "X-OpenRouter-Title": "助手",
         "X-OpenRouter-Categories": "cli-agent",
       },
     });
@@ -51,8 +51,8 @@ describe("provider attribution", () => {
         OPENCLAW_VERSION: "2026.3.22",
       }),
     ).toEqual({
-      "HTTP-Referer": "https://openclaw.ai",
-      "X-OpenRouter-Title": "OpenClaw",
+      "HTTP-Referer": "https://zhushou.ai",
+      "X-OpenRouter-Title": "助手",
       "X-OpenRouter-Categories": "cli-agent",
     });
   });
@@ -65,18 +65,18 @@ describe("provider attribution", () => {
       hook: "request-headers",
       reviewNote:
         "OpenAI native traffic supports hidden originator/User-Agent attribution. Verified against the Codex wire contract.",
-      product: "OpenClaw",
+      product: "助手",
       version: "2026.3.22",
       headers: {
-        originator: "openclaw",
+        originator: "zhushou",
         version: "2026.3.22",
-        "User-Agent": "openclaw/2026.3.22",
+        "User-Agent": "zhushou/2026.3.22",
       },
     });
     expect(resolveProviderAttributionHeaders("openai", { OPENCLAW_VERSION: "2026.3.22" })).toEqual({
-      originator: "openclaw",
+      originator: "zhushou",
       version: "2026.3.22",
-      "User-Agent": "openclaw/2026.3.22",
+      "User-Agent": "zhushou/2026.3.22",
     });
   });
 
@@ -90,12 +90,12 @@ describe("provider attribution", () => {
       hook: "request-headers",
       reviewNote:
         "OpenAI Codex ChatGPT-backed traffic supports the same hidden originator/User-Agent attribution contract.",
-      product: "OpenClaw",
+      product: "助手",
       version: "2026.3.22",
       headers: {
-        originator: "openclaw",
+        originator: "zhushou",
         version: "2026.3.22",
-        "User-Agent": "openclaw/2026.3.22",
+        "User-Agent": "zhushou/2026.3.22",
       },
     });
   });

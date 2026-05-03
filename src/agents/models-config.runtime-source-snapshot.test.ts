@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { NON_ENV_SECRETREF_MARKER } from "./model-auth-markers.js";
 import {
   installModelsConfigTestHooks,
@@ -15,7 +15,7 @@ vi.mock("../plugins/provider-runtime.js", async () => {
   );
   return {
     ...actual,
-    applyProviderConfigDefaultsWithPlugin: (config: OpenClawConfig) => config,
+    applyProviderConfigDefaultsWithPlugin: (config: ZhushouConfig) => config,
     applyProviderNativeStreamingUsageCompatWithPlugin: () => undefined,
     normalizeProviderConfigWithPlugin: () => undefined,
     resetProviderRuntimeHookCacheForTest: () => undefined,
@@ -58,7 +58,7 @@ afterEach(() => {
   resetModelsJsonReadyCacheForTest();
 });
 
-function createOpenAiApiKeySourceConfig(): OpenClawConfig {
+function createOpenAiApiKeySourceConfig(): ZhushouConfig {
   return {
     models: {
       providers: {
@@ -73,7 +73,7 @@ function createOpenAiApiKeySourceConfig(): OpenClawConfig {
   };
 }
 
-function createOpenAiApiKeyRuntimeConfig(): OpenClawConfig {
+function createOpenAiApiKeyRuntimeConfig(): ZhushouConfig {
   return {
     models: {
       providers: {
@@ -88,7 +88,7 @@ function createOpenAiApiKeyRuntimeConfig(): OpenClawConfig {
   };
 }
 
-function createOpenAiHeaderSourceConfig(): OpenClawConfig {
+function createOpenAiHeaderSourceConfig(): ZhushouConfig {
   return {
     models: {
       providers: {
@@ -114,7 +114,7 @@ function createOpenAiHeaderSourceConfig(): OpenClawConfig {
   };
 }
 
-function createOpenAiHeaderRuntimeConfig(): OpenClawConfig {
+function createOpenAiHeaderRuntimeConfig(): ZhushouConfig {
   return {
     models: {
       providers: {
@@ -132,7 +132,7 @@ function createOpenAiHeaderRuntimeConfig(): OpenClawConfig {
   };
 }
 
-function withGatewayTokenMode(config: OpenClawConfig): OpenClawConfig {
+function withGatewayTokenMode(config: ZhushouConfig): ZhushouConfig {
   return {
     ...config,
     gateway: {
@@ -145,9 +145,9 @@ function withGatewayTokenMode(config: OpenClawConfig): OpenClawConfig {
 
 async function withGeneratedModelsFromRuntimeSource(
   params: {
-    sourceConfig: OpenClawConfig;
-    runtimeConfig: OpenClawConfig;
-    candidateConfig?: OpenClawConfig;
+    sourceConfig: ZhushouConfig;
+    runtimeConfig: ZhushouConfig;
+    candidateConfig?: ZhushouConfig;
   },
   runAssertions: () => Promise<void>,
 ) {
@@ -198,7 +198,7 @@ describe("models-config runtime source snapshot", () => {
     await withTempHome(async () => {
       await withTempEnv(MODELS_CONFIG_IMPLICIT_ENV_VARS, async () => {
         unsetEnv(MODELS_CONFIG_IMPLICIT_ENV_VARS);
-        const sourceConfig: OpenClawConfig = {
+        const sourceConfig: ZhushouConfig = {
           models: {
             providers: {
               moonshot: {
@@ -210,7 +210,7 @@ describe("models-config runtime source snapshot", () => {
             },
           },
         };
-        const runtimeConfig: OpenClawConfig = {
+        const runtimeConfig: ZhushouConfig = {
           models: {
             providers: {
               moonshot: {
@@ -245,7 +245,7 @@ describe("models-config runtime source snapshot", () => {
         unsetEnv(MODELS_CONFIG_IMPLICIT_ENV_VARS);
         const sourceConfig = createOpenAiApiKeySourceConfig();
         const runtimeConfig = createOpenAiApiKeyRuntimeConfig();
-        const clonedRuntimeConfig: OpenClawConfig = {
+        const clonedRuntimeConfig: ZhushouConfig = {
           ...runtimeConfig,
           agents: {
             defaults: {
@@ -272,7 +272,7 @@ describe("models-config runtime source snapshot", () => {
         unsetEnv(MODELS_CONFIG_IMPLICIT_ENV_VARS);
         const sourceConfig = createOpenAiApiKeySourceConfig();
         const runtimeConfig = createOpenAiApiKeyRuntimeConfig();
-        const firstCandidate: OpenClawConfig = {
+        const firstCandidate: ZhushouConfig = {
           ...runtimeConfig,
           models: {
             providers: {
@@ -280,13 +280,13 @@ describe("models-config runtime source snapshot", () => {
                 ...runtimeConfig.models!.providers!.openai,
                 baseUrl: "https://api.openai.com/v1",
                 headers: {
-                  "X-OpenClaw-Test": "one",
+                  "X-助手-Test": "one",
                 },
               },
             },
           },
         };
-        const secondCandidate: OpenClawConfig = {
+        const secondCandidate: ZhushouConfig = {
           ...runtimeConfig,
           models: {
             providers: {
@@ -294,7 +294,7 @@ describe("models-config runtime source snapshot", () => {
                 ...runtimeConfig.models!.providers!.openai,
                 baseUrl: "https://mirror.example/v1",
                 headers: {
-                  "X-OpenClaw-Test": "two",
+                  "X-助手-Test": "two",
                 },
               },
             },
@@ -312,7 +312,7 @@ describe("models-config runtime source snapshot", () => {
           }>();
           expect(parsed.providers.openai?.baseUrl).toBe("https://api.openai.com/v1");
           expect(parsed.providers.openai?.apiKey).toBe("OPENAI_API_KEY"); // pragma: allowlist secret
-          expect(parsed.providers.openai?.headers?.["X-OpenClaw-Test"]).toBe("one");
+          expect(parsed.providers.openai?.headers?.["X-助手-Test"]).toBe("one");
 
           // Header changes still rewrite models.json, but merge mode preserves the existing baseUrl.
           await ensureOpenClawModelsJson(secondCandidate);
@@ -324,7 +324,7 @@ describe("models-config runtime source snapshot", () => {
           }>();
           expect(parsed.providers.openai?.baseUrl).toBe("https://api.openai.com/v1");
           expect(parsed.providers.openai?.apiKey).toBe("OPENAI_API_KEY"); // pragma: allowlist secret
-          expect(parsed.providers.openai?.headers?.["X-OpenClaw-Test"]).toBe("two");
+          expect(parsed.providers.openai?.headers?.["X-助手-Test"]).toBe("two");
         } finally {
           clearRuntimeConfigSnapshot();
           clearConfigCache();
@@ -349,7 +349,7 @@ describe("models-config runtime source snapshot", () => {
         unsetEnv(MODELS_CONFIG_IMPLICIT_ENV_VARS);
         const sourceConfig = withGatewayTokenMode(createOpenAiApiKeySourceConfig());
         const runtimeConfig = withGatewayTokenMode(createOpenAiApiKeyRuntimeConfig());
-        const incompatibleCandidate: OpenClawConfig = {
+        const incompatibleCandidate: ZhushouConfig = {
           ...createOpenAiApiKeyRuntimeConfig(),
         };
 
@@ -371,7 +371,7 @@ describe("models-config runtime source snapshot", () => {
         unsetEnv(MODELS_CONFIG_IMPLICIT_ENV_VARS);
         const sourceConfig = withGatewayTokenMode(createOpenAiHeaderSourceConfig());
         const runtimeConfig = withGatewayTokenMode(createOpenAiHeaderRuntimeConfig());
-        const incompatibleCandidate: OpenClawConfig = {
+        const incompatibleCandidate: ZhushouConfig = {
           ...createOpenAiHeaderRuntimeConfig(),
         };
 

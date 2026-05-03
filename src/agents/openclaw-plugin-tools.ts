@@ -1,11 +1,11 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolvePluginTools } from "../plugins/tools.js";
 import { getActiveSecretsRuntimeSnapshot } from "../secrets/runtime.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import {
   resolveOpenClawPluginToolInputs,
   type OpenClawPluginToolOptions,
-} from "./openclaw-tools.plugin-context.js";
+} from "./zhushou-tools.plugin-context.js";
 import { applyPluginToolDeliveryDefaults } from "./plugin-tool-delivery-defaults.js";
 import type { AnyAgentTool } from "./tools/common.js";
 
@@ -26,7 +26,7 @@ type ResolveOpenClawPluginToolsOptions = OpenClawPluginToolOptions & {
 
 export function resolveOpenClawPluginToolsForOptions(params: {
   options?: ResolveOpenClawPluginToolsOptions;
-  resolvedConfig?: OpenClawConfig;
+  resolvedConfig?: ZhushouConfig;
   existingToolNames?: Set<string>;
 }): AnyAgentTool[] {
   if (params.options?.disablePluginTools) {

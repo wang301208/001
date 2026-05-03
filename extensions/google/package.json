@@ -1,16 +1,16 @@
 {
-  "name": "@openclaw/google-plugin",
+  "name": "@zhushou/google-plugin",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw Google plugin",
+  "description": "助手 Google plugin",
   "type": "module",
   "dependencies": {
     "@google/genai": "^1.49.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "bundle": {
       "stageRuntimeDependencies": true
     },

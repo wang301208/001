@@ -1,12 +1,12 @@
-import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import type { AnyAgentTool, OpenClawPluginApi, OpenClawPluginToolFactory } from "./runtime-api.js";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import type { AnyAgentTool, ZhushouPluginApi, OpenClawPluginToolFactory } from "./runtime-api.js";
 import { createLobsterTool } from "./src/lobster-tool.js";
 
 export default definePluginEntry({
   id: "lobster",
   name: "Lobster",
   description: "Optional local shell helper tools",
-  register(api: OpenClawPluginApi) {
+  register(api: ZhushouPluginApi) {
     api.registerTool(
       ((ctx) => {
         if (ctx.sandboxed) {

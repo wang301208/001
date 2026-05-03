@@ -1,15 +1,15 @@
 {
-  "name": "@openclaw/acpx",
+  "name": "@zhushou/acpx",
   "version": "2026.4.16",
-  "description": "OpenClaw ACP runtime backend",
+  "description": "助手 ACP runtime backend",
   "type": "module",
   "dependencies": {
     "acpx": "0.5.3"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

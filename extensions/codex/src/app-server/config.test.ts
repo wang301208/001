@@ -62,7 +62,7 @@ describe("Codex app-server config", () => {
 
   it("keeps runtime config keys aligned with manifest schema and UI hints", async () => {
     const manifest = JSON.parse(
-      await fs.readFile(new URL("../../openclaw.plugin.json", import.meta.url), "utf8"),
+      await fs.readFile(new URL("../../zhushou.plugin.json", import.meta.url), "utf8"),
     ) as {
       configSchema: {
         properties: {

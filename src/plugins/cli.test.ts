@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 
 const mocks = vi.hoisted(() => ({
   memoryRegister: vi.fn(),
@@ -85,7 +85,7 @@ function createAutoEnabledCliFixture() {
   const rawConfig = {
     plugins: {},
     channels: { demo: { enabled: true } },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
   const autoEnabledConfig = {
     ...rawConfig,
     plugins: {
@@ -93,13 +93,13 @@ function createAutoEnabledCliFixture() {
         demo: { enabled: true },
       },
     },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
   return { rawConfig, autoEnabledConfig };
 }
 
 function expectAutoEnabledCliLoad(params: {
-  rawConfig: OpenClawConfig;
-  autoEnabledConfig: OpenClawConfig;
+  rawConfig: ZhushouConfig;
+  autoEnabledConfig: ZhushouConfig;
   autoEnabledReasons?: Record<string, string[]>;
 }) {
   expect(mocks.applyPluginAutoEnable).toHaveBeenCalledWith({
@@ -152,7 +152,7 @@ describe("registerPluginCliCommands", () => {
       autoEnabledReasons: {},
     }));
     mocks.loadConfig.mockReset();
-    mocks.loadConfig.mockReturnValue({} as OpenClawConfig);
+    mocks.loadConfig.mockReturnValue({} as ZhushouConfig);
     mocks.readConfigFileSnapshot.mockReset();
     mocks.readConfigFileSnapshot.mockResolvedValue({
       valid: true,
@@ -163,16 +163,16 @@ describe("registerPluginCliCommands", () => {
   it("skips plugin CLI registrars when commands already exist", async () => {
     const program = createProgram("memory");
 
-    await registerPluginCliCommands(program, {} as OpenClawConfig);
+    await registerPluginCliCommands(program, {} as ZhushouConfig);
 
     expect(mocks.memoryRegister).not.toHaveBeenCalled();
     expect(mocks.otherRegister).toHaveBeenCalledTimes(1);
   });
 
   it("forwards an explicit env to plugin loading", async () => {
-    const env = { OPENCLAW_HOME: "/srv/openclaw-home" } as NodeJS.ProcessEnv;
+    const env = { ZHUSHOU_HOME: "/srv/zhushou-home" } as NodeJS.ProcessEnv;
 
-    await registerPluginCliCommands(createProgram(), {} as OpenClawConfig, env);
+    await registerPluginCliCommands(createProgram(), {} as ZhushouConfig, env);
 
     expect(mocks.loadOpenClawPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -307,7 +307,7 @@ describe("registerPluginCliCommands", () => {
     const program = createProgram();
     program.exitOverride();
 
-    await registerPluginCliCommands(program, {} as OpenClawConfig, undefined, undefined, {
+    await registerPluginCliCommands(program, {} as ZhushouConfig, undefined, undefined, {
       mode: "lazy",
     });
 
@@ -339,7 +339,7 @@ describe("registerPluginCliCommands", () => {
       program.command("memory-admin");
     });
 
-    await registerPluginCliCommands(createProgram(), {} as OpenClawConfig, undefined, undefined, {
+    await registerPluginCliCommands(createProgram(), {} as ZhushouConfig, undefined, undefined, {
       mode: "lazy",
     });
 
@@ -351,7 +351,7 @@ describe("registerPluginCliCommands", () => {
     program.exitOverride();
     mocks.resolveManifestActivationPluginIds.mockReturnValue(["memory-core"]);
 
-    await registerPluginCliCommands(program, {} as OpenClawConfig, undefined, undefined, {
+    await registerPluginCliCommands(program, {} as ZhushouConfig, undefined, undefined, {
       mode: "lazy",
       primary: "memory",
     });
@@ -373,7 +373,7 @@ describe("registerPluginCliCommands", () => {
     const program = createProgram();
     program.exitOverride();
 
-    await registerPluginCliCommands(program, {} as OpenClawConfig, undefined, undefined, {
+    await registerPluginCliCommands(program, {} as ZhushouConfig, undefined, undefined, {
       mode: "lazy",
       primary: "memory",
     });
@@ -396,7 +396,7 @@ describe("registerPluginCliCommands", () => {
   });
 
   it("loads validated plugin CLI config when the snapshot is valid", async () => {
-    const loadedConfig = { plugins: { enabled: true } } as OpenClawConfig;
+    const loadedConfig = { plugins: { enabled: true } } as ZhushouConfig;
     mocks.readConfigFileSnapshot.mockResolvedValueOnce({
       valid: true,
       config: loadedConfig,

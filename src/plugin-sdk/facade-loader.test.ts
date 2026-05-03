@@ -81,8 +81,8 @@ afterEach(() => {
 
 describe("plugin-sdk facade loader", () => {
   it("honors bundled plugin dir overrides outside the package root", () => {
-    const overrideA = createBundledPluginDir("openclaw-facade-loader-a-", "override-a");
-    const overrideB = createBundledPluginDir("openclaw-facade-loader-b-", "override-b");
+    const overrideA = createBundledPluginDir("zhushou-facade-loader-a-", "override-a");
+    const overrideB = createBundledPluginDir("zhushou-facade-loader-b-", "override-b");
 
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = overrideA;
     const fromA = loadBundledPluginPublicSurfaceModuleSync<{ marker: string }>({
@@ -100,7 +100,7 @@ describe("plugin-sdk facade loader", () => {
   });
 
   it("shares loaded facade ids with facade-runtime", () => {
-    const dir = createBundledPluginDir("openclaw-facade-loader-ids-", "identity-check");
+    const dir = createBundledPluginDir("zhushou-facade-loader-ids-", "identity-check");
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = dir;
 
     const first = loadBundledPluginPublicSurfaceModuleSync<{ marker: string }>({
@@ -119,7 +119,7 @@ describe("plugin-sdk facade loader", () => {
   });
 
   it("keeps Windows dist facade loads off Jiti native import", () => {
-    const dir = createTempDirSync("openclaw-facade-loader-windows-dist-");
+    const dir = createTempDirSync("zhushou-facade-loader-windows-dist-");
     const bundledPluginsDir = path.join(dir, "dist");
     fs.mkdirSync(path.join(bundledPluginsDir, "demo"), { recursive: true });
     fs.writeFileSync(
@@ -158,7 +158,7 @@ describe("plugin-sdk facade loader", () => {
   });
 
   it("breaks circular facade re-entry during module evaluation", () => {
-    const dir = createCircularPluginDir("openclaw-facade-loader-circular-");
+    const dir = createCircularPluginDir("zhushou-facade-loader-circular-");
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = dir;
     (globalThis as typeof globalThis & Record<string, unknown>)[FACADE_LOADER_GLOBAL] =
       loadBundledPluginPublicSurfaceModuleSync;
@@ -172,7 +172,7 @@ describe("plugin-sdk facade loader", () => {
   });
 
   it("clears the cache on load failure so retries re-execute", () => {
-    const dir = createThrowingPluginDir("openclaw-facade-loader-throw-");
+    const dir = createThrowingPluginDir("zhushou-facade-loader-throw-");
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = dir;
 
     expect(() =>

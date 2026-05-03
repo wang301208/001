@@ -1,12 +1,12 @@
 ---
-name: openclaw-autonomy-governance
-description: Governed workflow for maintaining OpenClaw autonomous governance, capability assets, Genesis handoffs, sandbox validation, and promotion evidence.
-openclaw:
-  skillKey: openclaw-autonomy-governance
+name: zhushou-autonomy-governance
+description: Governed workflow for maintaining 助手 autonomous governance, capability assets, Genesis handoffs, sandbox validation, and promotion evidence.
+zhushou:
+  skillKey: zhushou-autonomy-governance
   always: false
 ---
 
-# OpenClaw Autonomy Governance
+# 助手 Autonomy Governance
 
 Use this skill when a task changes or verifies the strong-autonomy architecture:
 

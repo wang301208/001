@@ -37,7 +37,7 @@ function shouldPreferBoundaryAwareStreamFn(params: {
   if (params.currentStreamFn === undefined || params.currentStreamFn === streamSimple) {
     return true;
   }
-  // Custom OpenAI-compatible providers often need OpenClaw's normalized payload
+  // Custom OpenAI-compatible providers often need 助手's normalized payload
   // shaping even when the embedded SDK session installed its own default stream.
   return hasConfiguredCompat(params.model) || Boolean(getModelProviderRequestTransport(params.model));
 }
@@ -163,7 +163,7 @@ export function resolveEmbeddedAgentStreamFn(params: {
       model: params.model,
     })
   ) {
-    // Boundary-aware OpenClaw transports replace the SDK default streamFn,
+    // Boundary-aware 助手 transports replace the SDK default streamFn,
     // so they must also receive the runtime credential the SDK normally adds.
     return wrapStreamFnWithRuntimeApiKey(boundaryAwareStreamFn, {
       model: params.model,

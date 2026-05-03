@@ -1,5 +1,5 @@
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
-import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+import type { ZhushouPluginApi } from "zhushou/plugin-sdk/core";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { getAccessToken } from "../api.js";
 import { listQQBotAccountIds, resolveQQBotAccount } from "../config.js";
 import { debugError, debugLog } from "../utils/debug-log.js";
@@ -87,7 +87,7 @@ function validatePath(path: string): string | null {
  * The tool acts as an authenticated HTTP proxy for the QQ Open Platform channel APIs.
  * Agents learn endpoint details from the skill docs and send requests through this proxy.
  */
-export function registerChannelTool(api: OpenClawPluginApi): void {
+export function registerChannelTool(api: ZhushouPluginApi): void {
   const cfg = api.config;
   if (!cfg) {
     debugLog("[qqbot-channel-api] No config available, skipping");

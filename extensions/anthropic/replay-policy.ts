@@ -1,4 +1,4 @@
-import { NATIVE_ANTHROPIC_REPLAY_HOOKS } from "openclaw/plugin-sdk/provider-model-shared";
+import { NATIVE_ANTHROPIC_REPLAY_HOOKS } from "zhushou/plugin-sdk/provider-model-shared";
 
 const { buildReplayPolicy } = NATIVE_ANTHROPIC_REPLAY_HOOKS;
 

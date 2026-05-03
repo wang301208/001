@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { listGovernanceProposals } from "./proposals.js";
 import { synthesizeGovernanceAutonomyProposals } from "./autonomy-proposals.js";
 
@@ -12,7 +12,7 @@ async function createTempCharterRoot(): Promise<{
   stateDir: string;
   workspaceDir: string;
 }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-governance-autonomy-proposals-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-governance-autonomy-proposals-"));
   const charterDir = path.join(root, "governance", "charter");
   const stateDir = path.join(root, "state");
   const workspaceDir = path.join(root, "workspace");
@@ -23,7 +23,7 @@ async function createTempCharterRoot(): Promise<{
   return { root, charterDir, stateDir, workspaceDir };
 }
 
-function createCfg(): OpenClawConfig {
+function createCfg(): ZhushouConfig {
   return {
     gateway: {
       bind: "127.0.0.1",
@@ -39,7 +39,7 @@ function createCfg(): OpenClawConfig {
         enabled: false,
       },
     },
-  } as unknown as OpenClawConfig;
+  } as unknown as ZhushouConfig;
 }
 
 async function writeWorkspaceSkill(params: {

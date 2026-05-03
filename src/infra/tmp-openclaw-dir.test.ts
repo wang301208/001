@@ -1,11 +1,11 @@
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { POSIX_OPENCLAW_TMP_DIR, resolvePreferredOpenClawTmpDir } from "./tmp-openclaw-dir.js";
+import { POSIX_OPENCLAW_TMP_DIR, resolvePreferredOpenClawTmpDir } from "./tmp-zhushou-dir.js";
 
 type TmpDirOptions = NonNullable<Parameters<typeof resolvePreferredOpenClawTmpDir>[0]>;
 
 function fallbackTmp(uid = 501) {
-  return path.join("/var/fallback", `openclaw-${uid}`);
+  return path.join("/var/fallback", `zhushou-${uid}`);
 }
 
 function nodeErrorWithCode(code: string) {
@@ -143,7 +143,7 @@ function resolveWithMocks(params: {
 }
 
 describe("resolvePreferredOpenClawTmpDir", () => {
-  it("prefers /tmp/openclaw when it already exists and is writable", () => {
+  it("prefers /tmp/zhushou when it already exists and is writable", () => {
     const lstatSync: NonNullable<TmpDirOptions["lstatSync"]> = vi.fn(() => ({
       isDirectory: () => true,
       isSymbolicLink: () => false,
@@ -158,7 +158,7 @@ describe("resolvePreferredOpenClawTmpDir", () => {
     expect(tmpdir).not.toHaveBeenCalled();
   });
 
-  it("prefers /tmp/openclaw when it does not exist but /tmp is writable", () => {
+  it("prefers /tmp/zhushou when it does not exist but /tmp is writable", () => {
     const lstatSyncMock = missingThenSecureLstat();
 
     const { resolved, accessSync, mkdirSync, tmpdir } = resolveWithMocks({
@@ -173,11 +173,11 @@ describe("resolvePreferredOpenClawTmpDir", () => {
 
   it.each([
     {
-      name: "falls back to os.tmpdir()/openclaw when /tmp/openclaw is not a directory",
+      name: "falls back to os.tmpdir()/zhushou when /tmp/zhushou is not a directory",
       lstatSync: vi.fn(() => makeDirStat({ isDirectory: false, mode: 0o100644 })),
     },
     {
-      name: "falls back to os.tmpdir()/openclaw when /tmp is not writable",
+      name: "falls back to os.tmpdir()/zhushou when /tmp is not writable",
       lstatSync: vi.fn(() => {
         throw nodeErrorWithCode("ENOENT");
       }),
@@ -188,7 +188,7 @@ describe("resolvePreferredOpenClawTmpDir", () => {
       }),
     },
     {
-      name: "falls back when /tmp/openclaw exists but is not writable",
+      name: "falls back when /tmp/zhushou exists but is not writable",
       lstatSync: vi.fn(() => secureDirStat()),
       accessSync: vi.fn((target: string) => {
         if (target === POSIX_OPENCLAW_TMP_DIR) {
@@ -197,15 +197,15 @@ describe("resolvePreferredOpenClawTmpDir", () => {
       }),
     },
     {
-      name: "falls back when /tmp/openclaw is a symlink",
+      name: "falls back when /tmp/zhushou is a symlink",
       lstatSync: symlinkTmpDirLstat(),
     },
     {
-      name: "falls back when /tmp/openclaw is not owned by the current user",
+      name: "falls back when /tmp/zhushou is not owned by the current user",
       lstatSync: vi.fn(() => makeDirStat({ uid: 0 })),
     },
     {
-      name: "falls back when /tmp/openclaw is group/other writable",
+      name: "falls back when /tmp/zhushou is group/other writable",
       lstatSync: vi.fn(() => makeDirStat({ mode: 0o40777 })),
     },
   ])("$name", ({ lstatSync, accessSync }) => {
@@ -216,7 +216,7 @@ describe("resolvePreferredOpenClawTmpDir", () => {
     expectFallsBackToOsTmpDir({ lstatSync });
   });
 
-  it("repairs existing /tmp/openclaw permissions when they are too broad", () => {
+  it("repairs existing /tmp/zhushou permissions when they are too broad", () => {
     let preferredMode = 0o40777;
     const chmodSync = vi.fn((target: string, mode: number) => {
       if (target === POSIX_OPENCLAW_TMP_DIR && mode === 0o700) {
@@ -237,7 +237,7 @@ describe("resolvePreferredOpenClawTmpDir", () => {
     expect(tmpdir).not.toHaveBeenCalled();
   });
 
-  it("repairs /tmp/openclaw after create when the initial mode stays too broad", () => {
+  it("repairs /tmp/zhushou after create when the initial mode stays too broad", () => {
     let preferredMode = 0o40775;
     let chmodCalls = 0;
     const lstatSync = vi
@@ -283,7 +283,7 @@ describe("resolvePreferredOpenClawTmpDir", () => {
         lstatSync,
         fallbackLstatSync,
       }),
-    ).toThrow(/Unsafe fallback OpenClaw temp dir/);
+    ).toThrow(/Unsafe fallback 助手 temp dir/);
   });
 
   it("creates fallback directory when missing, then validates ownership and mode", () => {
@@ -301,7 +301,7 @@ describe("resolvePreferredOpenClawTmpDir", () => {
 
   it("uses an unscoped fallback suffix when process uid is unavailable", () => {
     const tmpdirPath = "/var/fallback";
-    const fallbackPath = path.join(tmpdirPath, "openclaw");
+    const fallbackPath = path.join(tmpdirPath, "zhushou");
 
     const resolved = resolvePreferredOpenClawTmpDir({
       accessSync: vi.fn((target: string) => {
@@ -412,6 +412,6 @@ describe("resolvePreferredOpenClawTmpDir", () => {
         tmpdir: vi.fn(() => "/var/fallback"),
         warn: vi.fn(),
       }),
-    ).toThrow(/Unable to create fallback OpenClaw temp dir/);
+    ).toThrow(/Unable to create fallback 助手 temp dir/);
   });
 });

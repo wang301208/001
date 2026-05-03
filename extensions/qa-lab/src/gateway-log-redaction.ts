@@ -2,7 +2,7 @@ import { QA_PROVIDER_SECRET_ENV_VARS } from "./providers/env.js";
 
 const QA_GATEWAY_DEBUG_SECRET_ENV_VARS = Object.freeze([
   ...QA_PROVIDER_SECRET_ENV_VARS,
-  "OPENCLAW_GATEWAY_TOKEN",
+  "ZHUSHOU_GATEWAY_TOKEN",
 ]);
 
 export function redactQaGatewayDebugText(text: string) {

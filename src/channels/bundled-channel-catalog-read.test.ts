@@ -16,7 +16,7 @@ vi.mock("../plugins/bundled-dir.js", () => ({
 // The channel-catalog.json fallback still walks package roots via
 // resolveOpenClawPackageRootSync. Isolate from the real repo by mocking
 // moduleUrl/argv1 resolution to null and deriving only from the tmp cwd.
-vi.mock("../infra/openclaw-root.js", () => ({
+vi.mock("../infra/zhushou-root.js", () => ({
   resolveOpenClawPackageRootSync: (opts: { cwd?: string; argv1?: string; moduleUrl?: string }) =>
     opts.cwd ?? null,
   resolveOpenClawPackageRoot: async (opts: { cwd?: string; argv1?: string; moduleUrl?: string }) =>
@@ -36,7 +36,7 @@ afterEach(() => {
 
 function seedRoot(prefix: string): string {
   const root = makeTempRepoRoot(tempDirs, prefix);
-  writeJsonFile(path.join(root, "package.json"), { name: "openclaw" });
+  writeJsonFile(path.join(root, "package.json"), { name: "zhushou" });
   vi.spyOn(process, "cwd").mockReturnValue(root);
   return root;
 }
@@ -46,8 +46,8 @@ function seedChannelPkg(
   opts: { id: string; docsPath: string; label?: string; blurb?: string },
 ): void {
   writeJsonFile(pkgJsonPath, {
-    name: `@openclaw/${opts.id}`,
-    openclaw: {
+    name: `@zhushou/${opts.id}`,
+    zhushou: {
       channel: {
         id: opts.id,
         label: opts.label ?? opts.id,
@@ -96,8 +96,8 @@ describe("listBundledChannelCatalogEntries", () => {
     writeJsonFile(path.join(root, "dist", "channel-catalog.json"), {
       entries: [
         {
-          name: "@openclaw/fallback",
-          openclaw: {
+          name: "@zhushou/fallback",
+          zhushou: {
             channel: {
               id: "fallback-channel",
               label: "Fallback",
@@ -125,8 +125,8 @@ describe("listBundledChannelCatalogEntries", () => {
     writeJsonFile(path.join(root, "dist", "channel-catalog.json"), {
       entries: [
         {
-          name: "@openclaw/fallback",
-          openclaw: {
+          name: "@zhushou/fallback",
+          zhushou: {
             channel: {
               id: "fallback-channel",
               label: "Fallback",

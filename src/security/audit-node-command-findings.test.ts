@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   collectNodeDangerousAllowCommandFindings,
   collectNodeDenyCommandPatternFindings,
@@ -30,7 +30,7 @@ describe("security audit node command findings", () => {
               denyCommands: ["system.*", "system.runx"],
             },
           },
-        } satisfies OpenClawConfig,
+        } satisfies ZhushouConfig,
         detailIncludes: ["system.*", "system.runx", "did you mean", "system.run"],
       },
       {
@@ -41,7 +41,7 @@ describe("security audit node command findings", () => {
               denyCommands: ["system.run.prep"],
             },
           },
-        } satisfies OpenClawConfig,
+        } satisfies ZhushouConfig,
         detailIncludes: ["system.run.prep", "did you mean", "system.run.prepare"],
       },
       {
@@ -52,7 +52,7 @@ describe("security audit node command findings", () => {
               denyCommands: ["zzzzzzzzzzzzzz"],
             },
           },
-        } satisfies OpenClawConfig,
+        } satisfies ZhushouConfig,
         detailIncludes: ["zzzzzzzzzzzzzz"],
         detailExcludes: ["did you mean"],
       },
@@ -76,7 +76,7 @@ describe("security audit node command findings", () => {
   it("evaluates dangerous gateway.nodes.allowCommands findings", () => {
     const cases: Array<{
       name: string;
-      cfg: OpenClawConfig;
+      cfg: ZhushouConfig;
       expectedSeverity?: "warn" | "critical";
       expectedAbsent?: boolean;
     }> = [
@@ -87,7 +87,7 @@ describe("security audit node command findings", () => {
             bind: "loopback",
             nodes: { allowCommands: ["camera.snap", "screen.record"] },
           },
-        } satisfies OpenClawConfig,
+        } satisfies ZhushouConfig,
         expectedSeverity: "warn" as const,
       },
       {
@@ -97,7 +97,7 @@ describe("security audit node command findings", () => {
             bind: "lan",
             nodes: { allowCommands: ["camera.snap", "screen.record"] },
           },
-        } satisfies OpenClawConfig,
+        } satisfies ZhushouConfig,
         expectedSeverity: "critical" as const,
       },
       {
@@ -109,7 +109,7 @@ describe("security audit node command findings", () => {
               denyCommands: ["camera.snap", "screen.record"],
             },
           },
-        } satisfies OpenClawConfig,
+        } satisfies ZhushouConfig,
         expectedAbsent: true,
       },
     ];

@@ -1,1 +1,1 @@
-export { normalizeGroupActivation } from "openclaw/plugin-sdk/reply-runtime";
+export { normalizeGroupActivation } from "zhushou/plugin-sdk/reply-runtime";

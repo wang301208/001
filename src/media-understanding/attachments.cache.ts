@@ -238,7 +238,7 @@ export class MediaAttachmentCache {
     });
     const extension = path.extname(bufferResult.fileName || "") || "";
     const tmpPath = buildRandomTempFilePath({
-      prefix: "openclaw-media",
+      prefix: "zhushou-media",
       extension,
     });
     await fs.writeFile(tmpPath, bufferResult.buffer);

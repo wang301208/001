@@ -77,23 +77,23 @@ export function buildLiveCronProbeMessage(params: {
   const family = normalizeLiveAgentFamily(params.agent);
   if (params.attempt === 0) {
     return (
-      "Use the OpenClaw MCP tool named cron. " +
+      "Use the 助手 MCP tool named cron. " +
       `Call it with JSON arguments ${params.argsJson}. ` +
-      "Do the actual tool call; I will verify externally with the OpenClaw cron CLI. " +
+      "Do the actual tool call; I will verify externally with the 助手 cron CLI. " +
       `After the cron job is created, reply exactly: ${params.exactReply}`
     );
   }
   if (family === "claude") {
     return (
-      "Return only a tool call for the OpenClaw MCP tool `cron`. " +
+      "Return only a tool call for the 助手 MCP tool `cron`. " +
       `Use these exact JSON arguments: ${params.argsJson}. ` +
-      "No prose. I will verify externally with the OpenClaw cron CLI."
+      "No prose. I will verify externally with the 助手 cron CLI."
     );
   }
   return (
-    "Use the OpenClaw MCP tool named cron. " +
+    "Use the 助手 MCP tool named cron. " +
     `Use these exact JSON arguments: ${params.argsJson}. ` +
-    "No prose before the tool call. I will verify externally with the OpenClaw cron CLI."
+    "No prose before the tool call. I will verify externally with the 助手 cron CLI."
   );
 }
 
@@ -103,7 +103,7 @@ export async function runOpenClawCliJson<T>(args: string[], env: NodeJS.ProcessE
   delete childEnv.VITEST_MODE;
   delete childEnv.VITEST_POOL_ID;
   delete childEnv.VITEST_WORKER_ID;
-  const { stdout, stderr } = await execFileAsync(process.execPath, ["openclaw.mjs", ...args], {
+  const { stdout, stderr } = await execFileAsync(process.execPath, ["zhushou.mjs", ...args], {
     cwd: process.cwd(),
     env: childEnv,
     timeout: 30_000,
@@ -113,7 +113,7 @@ export async function runOpenClawCliJson<T>(args: string[], env: NodeJS.ProcessE
   if (!trimmed) {
     throw new Error(
       [
-        `openclaw ${args.join(" ")} produced no JSON stdout`,
+        `zhushou ${args.join(" ")} produced no JSON stdout`,
         stderr.trim() ? `stderr: ${stderr.trim()}` : undefined,
       ]
         .filter(Boolean)
@@ -125,7 +125,7 @@ export async function runOpenClawCliJson<T>(args: string[], env: NodeJS.ProcessE
   } catch (error) {
     throw new Error(
       [
-        `openclaw ${args.join(" ")} returned invalid JSON`,
+        `zhushou ${args.join(" ")} returned invalid JSON`,
         `stdout: ${trimmed}`,
         stderr.trim() ? `stderr: ${stderr.trim()}` : undefined,
         error instanceof Error ? `cause: ${error.message}` : undefined,

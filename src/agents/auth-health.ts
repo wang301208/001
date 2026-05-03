@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   type AuthCredentialReasonCode,
   evaluateStoredCredentialEligibility,
@@ -97,7 +97,7 @@ function buildProfileHealth(params: {
   profileId: string;
   credential: AuthProfileCredential;
   store: AuthProfileStore;
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   now: number;
   warnAfterMs: number;
 }): AuthProfileHealth {
@@ -185,7 +185,7 @@ function buildProfileHealth(params: {
 
 export function buildAuthHealthSummary(params: {
   store: AuthProfileStore;
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   warnAfterMs?: number;
   providers?: string[];
 }): AuthHealthSummary {

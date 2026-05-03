@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions.js";
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
 import {
@@ -35,8 +35,8 @@ describe("Ghost reminder bug (issue #13317)", () => {
     storePath: string;
     target?: "telegram" | "none";
     isolatedSession?: boolean;
-  }): Promise<{ cfg: OpenClawConfig; sessionKey: string }> => {
-    const cfg: OpenClawConfig = {
+  }): Promise<{ cfg: ZhushouConfig; sessionKey: string }> => {
+    const cfg: ZhushouConfig = {
       agents: {
         defaults: {
           workspace: params.tmpDir,
@@ -146,7 +146,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("does not use CRON_EVENT_PROMPT when only a HEARTBEAT_OK event is present", async () => {
     const { result, sendTelegram, calledCtx, replyCallCount } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-ghost-",
+      tmpPrefix: "zhushou-ghost-",
       replyText: "Heartbeat check-in",
       reason: "cron:test-job",
       enqueue: (sessionKey) => {
@@ -163,7 +163,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("uses CRON_EVENT_PROMPT when an actionable cron event exists", async () => {
     const { result, sendTelegram, calledCtx } = await runCronReminderCase(
-      "openclaw-cron-",
+      "zhushou-cron-",
       (sessionKey) => {
         enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
       },
@@ -175,7 +175,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("uses CRON_EVENT_PROMPT when cron events are mixed with heartbeat noise", async () => {
     const { result, sendTelegram, calledCtx } = await runCronReminderCase(
-      "openclaw-cron-mixed-",
+      "zhushou-cron-mixed-",
       (sessionKey) => {
         enqueueSystemEvent("HEARTBEAT_OK", { sessionKey });
         enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
@@ -188,7 +188,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("uses CRON_EVENT_PROMPT for tagged cron events on interval wake", async () => {
     const { result, sendTelegram, calledCtx, replyCallCount } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-cron-interval-",
+      tmpPrefix: "zhushou-cron-interval-",
       replyText: "Relay this cron update now",
       reason: "interval",
       enqueue: (sessionKey) => {
@@ -259,7 +259,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("uses an internal-only cron prompt when delivery target is none", async () => {
     const { result, sendTelegram, calledCtx } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-cron-internal-",
+      tmpPrefix: "zhushou-cron-internal-",
       replyText: "Handled internally",
       reason: "cron:reminder-job",
       target: "none",
@@ -276,7 +276,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("uses an internal-only exec prompt when delivery target is none", async () => {
     const { result, sendTelegram, calledCtx } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-exec-internal-",
+      tmpPrefix: "zhushou-exec-internal-",
       replyText: "Handled internally",
       reason: "exec-event",
       target: "none",
@@ -294,7 +294,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("classifies hook:wake exec completions as exec-event prompts", async () => {
     const { result, sendTelegram, calledCtx } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-hook-exec-",
+      tmpPrefix: "zhushou-hook-exec-",
       replyText: "Handled internally",
       reason: "hook:wake",
       target: "none",
@@ -312,7 +312,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("does not classify base-session hook:wake exec completions as exec-event prompts when isolated sessions are enabled", async () => {
     const { result, sendTelegram, calledCtx } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-hook-exec-isolated-",
+      tmpPrefix: "zhushou-hook-exec-isolated-",
       replyText: "Handled internally",
       reason: "hook:wake",
       target: "none",
@@ -331,7 +331,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("forces owner downgrade for untrusted hook:wake system events", async () => {
     const { result, sendTelegram, calledCtx } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-hook-untrusted-",
+      tmpPrefix: "zhushou-hook-untrusted-",
       replyText: "Handled internally",
       reason: "hook:wake",
       target: "none",
@@ -351,7 +351,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("forces owner downgrade for untrusted interval events", async () => {
     const { result, sendTelegram, calledCtx } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-interval-untrusted-",
+      tmpPrefix: "zhushou-interval-untrusted-",
       replyText: "Handled internally",
       reason: "interval",
       target: "none",
@@ -371,7 +371,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("does not force owner downgrade for untrusted hook:wake events with isolated sessions", async () => {
     const { result, sendTelegram, calledCtx } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-hook-untrusted-isolated-",
+      tmpPrefix: "zhushou-hook-untrusted-isolated-",
       replyText: "Handled internally",
       reason: "hook:wake",
       target: "none",
@@ -393,7 +393,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("does not force owner downgrade for isolated interval runs with only base-session untrusted events", async () => {
     const { result, sendTelegram, calledCtx } = await runHeartbeatCase({
-      tmpPrefix: "openclaw-interval-untrusted-isolated-",
+      tmpPrefix: "zhushou-interval-untrusted-isolated-",
       replyText: "Handled internally",
       reason: "interval",
       target: "none",
@@ -415,7 +415,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("routes wake-triggered heartbeat replies using queued system-event delivery context", async () => {
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -475,7 +475,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("does not reuse stale turn-source routing for isolated wake runs", async () => {
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -542,7 +542,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
   });
   it("keeps exec-event delivery pinned to the original Telegram topic when session route drifts", async () => {
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath }) => {
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -609,7 +609,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
 
   it("keeps Telegram topic routing for isolated scheduled heartbeats", async () => {
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,

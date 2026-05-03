@@ -3,7 +3,7 @@ import path from "node:path";
 import { resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import { resolveStorePath } from "../config/sessions/paths.js";
 import { readSessionStoreReadOnly } from "../config/sessions/store-read.js";
-import type { OpenClawConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { listGatewayAgentsBasic } from "../gateway/agent-list.js";
 import type { AgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 
@@ -37,7 +37,7 @@ async function fileExists(p: string): Promise<boolean> {
 }
 
 export async function getAgentLocalStatuses(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
 ): Promise<AgentLocalStatusesResult> {
   const agentList = listGatewayAgentsBasic(cfg);
   const now = Date.now();

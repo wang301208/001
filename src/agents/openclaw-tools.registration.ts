@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isStrictAgenticExecutionContractActive } from "./execution-contract.js";
 import type { AnyAgentTool } from "./tools/common.js";
 
@@ -9,7 +9,7 @@ export function collectPresentOpenClawTools(
 }
 
 export function isUpdatePlanToolEnabledForOpenClawTools(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentSessionKey?: string;
   agentId?: string | null;
   modelProvider?: string;

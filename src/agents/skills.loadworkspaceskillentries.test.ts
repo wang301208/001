@@ -20,7 +20,7 @@ let fakeHome = "";
 let envSnapshot: SkillsHomeEnvSnapshot;
 
 async function createTempWorkspaceDir() {
-  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-"));
+  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-"));
   tempDirs.push(workspaceDir);
   return workspaceDir;
 }
@@ -30,7 +30,7 @@ function withWorkspaceHome<T>(workspaceDir: string, cb: () => T): T {
 }
 
 beforeEach(async () => {
-  fakeHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-home-"));
+  fakeHome = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-home-"));
   tempDirs.push(fakeHome);
   envSnapshot = setMockSkillsHomeEnv(fakeHome);
 });
@@ -52,7 +52,7 @@ async function setupWorkspaceWithProsePlugin() {
   const workspaceDir = await createTempWorkspaceDir();
   const managedDir = path.join(workspaceDir, ".managed");
   const bundledDir = path.join(workspaceDir, ".bundled");
-  const pluginRoot = path.join(workspaceDir, ".openclaw", "extensions", "open-prose");
+  const pluginRoot = path.join(workspaceDir, ".zhushou", "extensions", "open-prose");
 
   await writePluginWithSkill({
     pluginRoot,
@@ -68,7 +68,7 @@ async function setupWorkspaceWithDiffsPlugin() {
   const workspaceDir = await createTempWorkspaceDir();
   const managedDir = path.join(workspaceDir, ".managed");
   const bundledDir = path.join(workspaceDir, ".bundled");
-  const pluginRoot = path.join(workspaceDir, ".openclaw", "extensions", "diffs");
+  const pluginRoot = path.join(workspaceDir, ".zhushou", "extensions", "diffs");
 
   await writePluginWithSkill({
     pluginRoot,
@@ -264,7 +264,7 @@ describe("loadWorkspaceSkillEntries", () => {
       dir: path.join(workspaceDir, "skills", "remote-only"),
       name: "remote-only",
       description: "Needs a remote bin",
-      metadata: '{"openclaw":{"requires":{"anyBins":["missingbin","sandboxbin"]}}}',
+      metadata: '{"zhushou":{"requires":{"anyBins":["missingbin","sandboxbin"]}}}',
     });
 
     const entries = loadWorkspaceSkillEntries(workspaceDir, {
@@ -325,7 +325,7 @@ describe("loadWorkspaceSkillEntries", () => {
       const warningLine = String(line);
       expect(warningLine).toContain("Skipping escaped skill path outside its configured root:");
       expect(warningLine).toContain("reason=symlink-escape");
-      expect(warningLine).toContain("source=openclaw-workspace");
+      expect(warningLine).toContain("source=zhushou-workspace");
       expect(warningLine).toContain(`root=${path.join(workspaceDir, "skills")}`);
       expect(warningLine).toContain(`requested=${requestedPath}`);
       expect(warningLine).toContain("resolved=");
@@ -365,7 +365,7 @@ describe("loadWorkspaceSkillEntries", () => {
       const [line] = warn.mock.calls[0] ?? [];
       const warningLine = String(line);
       expect(warningLine).toContain("Skipping escaped skill path outside its configured root:");
-      expect(warningLine).toContain("source=openclaw-bundled");
+      expect(warningLine).toContain("source=zhushou-bundled");
       expect(warningLine).toContain("reason=bundled-symlink-escape");
       expect(warningLine).toContain("hint=likely-stray-local-symlink-or-checkout-mutation");
       expect(warningLine).toContain(`requested=${requestedPath}`);

@@ -1,5 +1,5 @@
-import { createConfigIO, getRuntimeConfigSnapshot, type OpenClawConfig } from "../config/config.js";
+import { createConfigIO, getRuntimeConfigSnapshot, type ZhushouConfig } from "../config/config.js";
 
-export function loadBrowserConfigForRuntimeRefresh(): OpenClawConfig {
+export function loadBrowserConfigForRuntimeRefresh(): ZhushouConfig {
   return getRuntimeConfigSnapshot() ?? createConfigIO().loadConfig();
 }

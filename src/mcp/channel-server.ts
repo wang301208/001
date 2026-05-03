@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { loadConfig, type OpenClawConfig } from "../config/config.js";
+import { loadConfig, type ZhushouConfig } from "../config/config.js";
 import { VERSION } from "../version.js";
 import { OpenClawChannelBridge } from "./channel-bridge.js";
 import { ClaudePermissionRequestSchema, type ClaudeChannelMode } from "./channel-shared.js";
@@ -12,7 +12,7 @@ export type OpenClawMcpServeOptions = {
   gatewayUrl?: string;
   gatewayToken?: string;
   gatewayPassword?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   claudeChannelMode?: ClaudeChannelMode;
   verbose?: boolean;
 };
@@ -27,7 +27,7 @@ export async function createOpenClawChannelMcpServer(opts: OpenClawMcpServeOptio
   const claudeChannelMode = opts.claudeChannelMode ?? "auto";
   const capabilities = getChannelMcpCapabilities(claudeChannelMode);
   const server = new McpServer(
-    { name: "openclaw", version: VERSION },
+    { name: "zhushou", version: VERSION },
     capabilities ? { capabilities } : undefined,
   );
   const bridge = new OpenClawChannelBridge(cfg, {

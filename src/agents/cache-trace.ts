@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
 import { resolveStateDir } from "../config/paths.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveUserPath } from "../utils.js";
 import { parseBooleanValue } from "../utils/boolean.js";
 import { safeJsonStringify } from "../utils/safe-json.js";
@@ -54,7 +54,7 @@ export type CacheTrace = {
 };
 
 type CacheTraceInit = {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   runId?: string;
   sessionId?: string;

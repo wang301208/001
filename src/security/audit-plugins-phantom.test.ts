@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { collectPluginsTrustFindings } from "./audit-extra.async.js";
 
 /**
@@ -29,7 +29,7 @@ describe("security audit phantom allowlist detection", () => {
   };
 
   beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-phantom-"));
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-security-phantom-"));
   });
 
   afterAll(async () => {
@@ -46,7 +46,7 @@ describe("security audit phantom allowlist detection", () => {
       recursive: true,
     });
 
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       // Allowlist contains a bundled channel ID and an actually-installed plugin ID.
       // Neither should appear as a phantom entry.
       plugins: { allow: ["bundled-channel-plugin", "some-installed-plugin"] },
@@ -62,7 +62,7 @@ describe("security audit phantom allowlist detection", () => {
     // Create an extensions directory so the phantom check code path is reached.
     await fs.mkdir(path.join(stateDir, "extensions", "installed-plugin"), { recursive: true });
 
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       // "ghost-plugin-xyz" is not installed and not a bundled channel plugin.
       plugins: { allow: ["installed-plugin", "ghost-plugin-xyz"] },
     };

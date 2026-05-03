@@ -8,7 +8,7 @@ import { resetFacadeRuntimeStateForTest } from "./facade-runtime.js";
 
 const ORIGINAL_ENV = {
   OPENCLAW_DISABLE_BUNDLED_PLUGINS: process.env.OPENCLAW_DISABLE_BUNDLED_PLUGINS,
-  OPENCLAW_CONFIG_PATH: process.env.OPENCLAW_CONFIG_PATH,
+  ZHUSHOU_CONFIG_PATH: process.env.ZHUSHOU_CONFIG_PATH,
   OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE: process.env.OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE,
   OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE: process.env.OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE,
   OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS: process.env.OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS,
@@ -56,9 +56,9 @@ describe("plugin-sdk qa-runner-runtime linked plugin smoke", () => {
   });
 
   it("loads an activated qa runner from a linked plugin path without a bundled install fallback", async () => {
-    const stateDir = makeTempDir("openclaw-qa-runner-state-");
+    const stateDir = makeTempDir("zhushou-qa-runner-state-");
     const pluginDir = path.join(stateDir, "extensions", "qa-linked");
-    const configPath = path.join(stateDir, "openclaw.json");
+    const configPath = path.join(stateDir, "zhushou.json");
 
     fs.writeFileSync(
       configPath,
@@ -67,11 +67,11 @@ describe("plugin-sdk qa-runner-runtime linked plugin smoke", () => {
       }),
       "utf8",
     );
-    process.env.OPENCLAW_CONFIG_PATH = configPath;
+    process.env.ZHUSHOU_CONFIG_PATH = configPath;
 
     fs.mkdirSync(pluginDir, { recursive: true });
     fs.writeFileSync(
-      path.join(pluginDir, "openclaw.plugin.json"),
+      path.join(pluginDir, "zhushou.plugin.json"),
       JSON.stringify({
         id: "qa-linked",
         qaRunners: [
@@ -91,12 +91,12 @@ describe("plugin-sdk qa-runner-runtime linked plugin smoke", () => {
     fs.writeFileSync(
       path.join(pluginDir, "package.json"),
       JSON.stringify({
-        name: "@openclaw/qa-linked",
+        name: "@zhushou/qa-linked",
         type: "module",
-        openclaw: {
+        zhushou: {
           extensions: ["./index.js"],
           install: {
-            npmSpec: "@openclaw/qa-linked",
+            npmSpec: "@zhushou/qa-linked",
           },
         },
       }),

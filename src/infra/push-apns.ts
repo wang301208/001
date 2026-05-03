@@ -70,8 +70,8 @@ export type ApnsPushResult = {
 export type ApnsPushAlertResult = ApnsPushResult;
 export type ApnsPushWakeResult = ApnsPushResult;
 
-const EXEC_APPROVAL_GENERIC_ALERT_BODY = "Open OpenClaw to review this request.";
-const EXEC_APPROVAL_NOTIFICATION_CATEGORY = "openclaw.exec-approval";
+const EXEC_APPROVAL_GENERIC_ALERT_BODY = "Open 助手 to review this request.";
+const EXEC_APPROVAL_NOTIFICATION_CATEGORY = "zhushou.exec-approval";
 
 type ApnsPushType = "alert" | "background";
 
@@ -877,7 +877,7 @@ function createAlertPayload(params: { nodeId: string; title: string; body: strin
       },
       sound: "default",
     },
-    openclaw: toPushMetadata({
+    zhushou: toPushMetadata({
       kind: "push.test",
       nodeId: params.nodeId,
     }),
@@ -889,7 +889,7 @@ function createBackgroundPayload(params: { nodeId: string; wakeReason?: string }
     aps: {
       "content-available": 1,
     },
-    openclaw: toPushMetadata({
+    zhushou: toPushMetadata({
       kind: "node.wake",
       reason: params.wakeReason ?? "node.invoke",
       nodeId: params.nodeId,
@@ -912,7 +912,7 @@ function createExecApprovalAlertPayload(params: { nodeId: string; approvalId: st
       category: EXEC_APPROVAL_NOTIFICATION_CATEGORY,
       "content-available": 1,
     },
-    openclaw: {
+    zhushou: {
       kind: "exec.approval.requested",
       approvalId: params.approvalId,
       ts: Date.now(),
@@ -925,7 +925,7 @@ function createExecApprovalResolvedPayload(params: { nodeId: string; approvalId:
     aps: {
       "content-available": 1,
     },
-    openclaw: {
+    zhushou: {
       kind: "exec.approval.resolved",
       approvalId: params.approvalId,
       ts: Date.now(),

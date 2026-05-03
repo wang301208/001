@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import {
   resolveConfiguredSubagentRunTimeoutSeconds,
   resolveSubagentModelAndThinkingPlan,
 } from "./subagent-spawn-plan.js";
 
-function createConfig(overrides?: Record<string, unknown>): OpenClawConfig {
+function createConfig(overrides?: Record<string, unknown>): ZhushouConfig {
   return {
     session: { mainKey: "main", scope: "per-sender" },
     ...overrides,
-  } as OpenClawConfig;
+  } as ZhushouConfig;
 }
 
 describe("subagent spawn model + thinking plan", () => {

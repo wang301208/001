@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 
 const hoisted = vi.hoisted(() => ({
   resolveCommandSecretRefsViaGatewayMock: vi.fn(),
@@ -43,9 +43,9 @@ describe("resolveQueuedReplyExecutionConfig channel scope", () => {
   });
 
   it("resolves base runtime targets, then active channel/account targets from originating context", async () => {
-    const sourceConfig = { source: true } as unknown as OpenClawConfig;
-    const baseResolved = { baseResolved: true } as unknown as OpenClawConfig;
-    const scopedResolved = { scopedResolved: true } as unknown as OpenClawConfig;
+    const sourceConfig = { source: true } as unknown as ZhushouConfig;
+    const baseResolved = { baseResolved: true } as unknown as ZhushouConfig;
+    const scopedResolved = { scopedResolved: true } as unknown as ZhushouConfig;
     hoisted.resolveCommandSecretRefsViaGatewayMock
       .mockResolvedValueOnce({
         resolvedConfig: baseResolved,
@@ -70,7 +70,7 @@ describe("resolveQueuedReplyExecutionConfig channel scope", () => {
     expect(resolved).toBe(scopedResolved);
     expect(hoisted.resolveCommandSecretRefsViaGatewayMock).toHaveBeenCalledTimes(2);
     const baseCall = hoisted.resolveCommandSecretRefsViaGatewayMock.mock.calls[0]?.[0] as {
-      config: OpenClawConfig;
+      config: ZhushouConfig;
       commandName: string;
       targetIds: Set<string>;
     };
@@ -83,7 +83,7 @@ describe("resolveQueuedReplyExecutionConfig channel scope", () => {
       accountId: "work",
     });
     const scopedCall = hoisted.resolveCommandSecretRefsViaGatewayMock.mock.calls[1]?.[0] as {
-      config: OpenClawConfig;
+      config: ZhushouConfig;
       commandName: string;
       targetIds: Set<string>;
       allowedPaths?: Set<string>;
@@ -97,7 +97,7 @@ describe("resolveQueuedReplyExecutionConfig channel scope", () => {
   });
 
   it("falls back to messageProvider and agentAccountId when originating values are missing", async () => {
-    const sourceConfig = { source: true } as unknown as OpenClawConfig;
+    const sourceConfig = { source: true } as unknown as ZhushouConfig;
 
     await resolveQueuedReplyExecutionConfig(sourceConfig, {
       messageProvider: "discord",
@@ -112,7 +112,7 @@ describe("resolveQueuedReplyExecutionConfig channel scope", () => {
   });
 
   it("skips scoped channel resolution when no active channel can be resolved", async () => {
-    const sourceConfig = { source: true } as unknown as OpenClawConfig;
+    const sourceConfig = { source: true } as unknown as ZhushouConfig;
 
     const resolved = await resolveQueuedReplyExecutionConfig(sourceConfig);
 
@@ -122,8 +122,8 @@ describe("resolveQueuedReplyExecutionConfig channel scope", () => {
   });
 
   it("prefers the runtime snapshot as the base config for secret resolution", async () => {
-    const sourceConfig = { source: true } as unknown as OpenClawConfig;
-    const runtimeConfig = { runtime: true } as unknown as OpenClawConfig;
+    const sourceConfig = { source: true } as unknown as ZhushouConfig;
+    const runtimeConfig = { runtime: true } as unknown as ZhushouConfig;
     setRuntimeConfigSnapshot(runtimeConfig, sourceConfig);
     hoisted.getScopedChannelsCommandSecretTargetsMock.mockReturnValue({
       targetIds: new Set<string>(),
@@ -134,7 +134,7 @@ describe("resolveQueuedReplyExecutionConfig channel scope", () => {
     });
 
     const baseCall = hoisted.resolveCommandSecretRefsViaGatewayMock.mock.calls[0]?.[0] as {
-      config: OpenClawConfig;
+      config: ZhushouConfig;
       commandName: string;
     };
     expect(baseCall.config).toBe(runtimeConfig);

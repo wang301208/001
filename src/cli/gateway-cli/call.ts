@@ -1,11 +1,11 @@
 import type { Command } from "commander";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { callGateway } from "../../gateway/call.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../gateway/protocol/client-info.js";
 import { withProgress } from "../progress.js";
 
 export type GatewayRpcOpts = {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   url?: string;
   token?: string;
   password?: string;

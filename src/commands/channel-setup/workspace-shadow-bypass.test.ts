@@ -100,10 +100,10 @@ describe("resolveChannelSetupEntries workspace shadow exclusion (GHSA-2qrv-rc5x-
     };
     const bundledEntry = {
       id: "telegram",
-      pluginId: "@openclaw/telegram",
+      pluginId: "@zhushou/telegram",
       origin: "bundled",
       meta: workspaceEntry.meta,
-      install: { npmSpec: "@openclaw/telegram" },
+      install: { npmSpec: "@zhushou/telegram" },
     };
     listChannelPluginCatalogEntries.mockImplementation((opts?: unknown) =>
       (opts as { excludeWorkspace?: boolean } | undefined)?.excludeWorkspace
@@ -126,7 +126,7 @@ describe("resolveChannelSetupEntries workspace shadow exclusion (GHSA-2qrv-rc5x-
   it("still returns bundled-origin entries", () => {
     const bundledEntry = {
       id: "telegram",
-      pluginId: "@openclaw/telegram",
+      pluginId: "@zhushou/telegram",
       origin: "bundled",
       meta: {
         id: "telegram",
@@ -136,7 +136,7 @@ describe("resolveChannelSetupEntries workspace shadow exclusion (GHSA-2qrv-rc5x-
         blurb: "t",
         order: 1,
       },
-      install: { npmSpec: "@openclaw/telegram" },
+      install: { npmSpec: "@zhushou/telegram" },
     };
     listChannelPluginCatalogEntries.mockReturnValue([bundledEntry]);
 

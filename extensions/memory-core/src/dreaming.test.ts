@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { enqueueSystemEvent, resetSystemEventsForTest } from "openclaw/plugin-sdk/infra-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/memory-core";
+import { enqueueSystemEvent, resetSystemEventsForTest } from "zhushou/plugin-sdk/infra-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/memory-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   clearInternalHooks,
@@ -32,7 +32,7 @@ type CronAddInput = Parameters<CronParam["add"]>[0];
 type CronPatch = Parameters<CronParam["update"]>[1];
 type DreamingPluginApi = Parameters<typeof registerShortTermPromotionDreaming>[0];
 type DreamingPluginApiTestDouble = {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   pluginConfig: Record<string, unknown>;
   logger: ReturnType<typeof createLogger>;
   runtime: unknown;
@@ -167,7 +167,7 @@ describe("short-term dreaming config", () => {
           userTimezone: "America/Los_Angeles",
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const resolved = resolveShortTermPromotionDreamingConfig({
       pluginConfig: {},
       cfg,
@@ -749,7 +749,7 @@ describe("gateway startup reconciliation", () => {
                 },
               },
             },
-          } as OpenClawConfig,
+          } as ZhushouConfig,
           deps: { cron: harness.cron },
         }),
       );
@@ -826,7 +826,7 @@ describe("gateway startup reconciliation", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as ZhushouConfig;
 
       const beforeAgentReply = getBeforeAgentReplyHandler(onMock);
       await beforeAgentReply(
@@ -917,7 +917,7 @@ describe("gateway startup reconciliation", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as ZhushouConfig;
 
       const beforeAgentReply = getBeforeAgentReplyHandler(onMock);
       await beforeAgentReply(
@@ -1135,7 +1135,7 @@ describe("gateway startup reconciliation", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       pluginConfig: {},
       logger,
       runtime: {},
@@ -1202,7 +1202,7 @@ describe("gateway startup reconciliation", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       pluginConfig: {},
       logger,
       runtime: {},
@@ -1631,7 +1631,7 @@ describe("short-term dreaming trigger", () => {
             },
           ],
         },
-      } as OpenClawConfig,
+      } as ZhushouConfig,
       config: {
         enabled: true,
         cron: constants.DEFAULT_DREAMING_CRON_EXPR,

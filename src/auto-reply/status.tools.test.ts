@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { createEmptyAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
 import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { buildCommandsMessage, buildHelpMessage, buildToolsMessage } from "./status.js";
@@ -16,7 +16,7 @@ describe("tools product copy", () => {
   it("mentions /tools in command discovery copy", () => {
     const cfg = {
       commands: { config: false, debug: false },
-    } as unknown as OpenClawConfig;
+    } as unknown as ZhushouConfig;
 
     expect(buildCommandsMessage(cfg)).toContain("/tools - List available runtime tools.");
     expect(buildCommandsMessage(cfg)).toContain("More: /tools for available capabilities");

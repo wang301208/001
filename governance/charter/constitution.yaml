@@ -1,12 +1,12 @@
 version: 1
-charter_id: "openclaw-constitution"
-title: "OpenClaw Sovereign Constitution"
+charter_id: "zhushou-constitution"
+title: "助手 Sovereign Constitution"
 mode: "strong-autonomy"
 status: "draft"
 
 purpose:
   mission: >
-    Establish OpenClaw as a continuously running autonomous AI system that can
+    Establish 助手 as a continuously running autonomous AI system that can
     execute goals, evolve its organization, create new capabilities, and upgrade
     its internal strategies while remaining inside sovereign boundaries.
   constitutional_scope:
@@ -116,7 +116,7 @@ charter_artifacts:
   teams:
     - "governance/charter/evolution/genesis-team.yaml"
   design_docs:
-    - "docs/openclaw-current-architecture-adapted.zh-CN.md"
+    - "docs/zhushou-current-architecture-adapted.zh-CN.md"
     - "governance/sandbox-universe-minimal-design.zh-CN.md"
 
 asset_domains:

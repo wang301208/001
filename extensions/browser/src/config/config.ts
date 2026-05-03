@@ -5,5 +5,5 @@ export {
   writeConfigFile,
   type BrowserConfig,
   type BrowserProfileConfig,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/browser-config-runtime";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/browser-config-runtime";

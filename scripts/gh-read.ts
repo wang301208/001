@@ -165,7 +165,7 @@ async function githubJson<T>(
       Accept: "application/vnd.github+json",
       Authorization: `Bearer ${bearerToken}`,
       "Content-Type": "application/json",
-      "User-Agent": "openclaw-gh-read",
+      "User-Agent": "zhushou-gh-read",
       "X-GitHub-Api-Version": API_VERSION,
     },
     body: init?.body === undefined ? undefined : JSON.stringify(init.body),

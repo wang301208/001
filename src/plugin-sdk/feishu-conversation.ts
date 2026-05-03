@@ -1,5 +1,5 @@
 // Manual facade. Keep loader boundary explicit.
-type FacadeModule = typeof import("@openclaw/feishu/contract-api.js");
+type FacadeModule = typeof import("@zhushou/feishu/contract-api.js");
 import {
   createLazyFacadeArrayValue,
   createLazyFacadeObjectValue,

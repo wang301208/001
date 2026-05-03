@@ -356,7 +356,7 @@ function buildCoreToolGroupMap() {
     (tool) => tool.id,
   );
   return {
-    "group:openclaw": openclawTools,
+    "group:zhushou": openclawTools,
     ...Object.fromEntries(sectionToolMap.entries()),
   };
 }

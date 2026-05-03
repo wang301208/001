@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { Command } from "commander";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "../infra/exec-approvals.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { registerExecPolicyCli } from "./exec-policy-cli.js";
@@ -16,7 +16,7 @@ function hashApprovalsFile(file: ExecApprovalsFile): string {
 const mocks = vi.hoisted(() => {
   const runtimeErrors: string[] = [];
   const stringifyArgs = (args: unknown[]) => args.map((value) => String(value)).join(" ");
-  let configState: OpenClawConfig = {
+  let configState: ZhushouConfig = {
     tools: {
       exec: {
         host: "auto",
@@ -48,7 +48,7 @@ const mocks = vi.hoisted(() => {
   };
   return {
     getConfig: () => configState,
-    setConfig: (next: OpenClawConfig) => {
+    setConfig: (next: ZhushouConfig) => {
       configState = next;
     },
     getApprovals: () => approvalsState,
@@ -57,33 +57,33 @@ const mocks = vi.hoisted(() => {
     },
     defaultRuntime,
     runtimeErrors,
-    mutateConfigFile: vi.fn(async ({ mutate }: { mutate: (draft: OpenClawConfig) => void }) => {
+    mutateConfigFile: vi.fn(async ({ mutate }: { mutate: (draft: ZhushouConfig) => void }) => {
       const draft = structuredClone(configState);
       mutate(draft);
       configState = draft;
       return {
-        path: "/tmp/openclaw.json",
+        path: "/tmp/zhushou.json",
         previousHash: "hash-1",
-        snapshot: { path: "/tmp/openclaw.json" },
+        snapshot: { path: "/tmp/zhushou.json" },
         nextConfig: draft,
         result: undefined,
       };
     }),
     replaceConfigFile: vi.fn(
-      async ({ nextConfig }: { nextConfig: OpenClawConfig; baseHash?: string }) => {
+      async ({ nextConfig }: { nextConfig: ZhushouConfig; baseHash?: string }) => {
         configState = structuredClone(nextConfig);
         return {
-          path: "/tmp/openclaw.json",
+          path: "/tmp/zhushou.json",
           previousHash: "hash-1",
-          snapshot: { path: "/tmp/openclaw.json" },
+          snapshot: { path: "/tmp/zhushou.json" },
           nextConfig,
         };
       },
     ),
     readConfigFileSnapshot: vi.fn<
-      () => Promise<{ path: string; hash: string; config: OpenClawConfig }>
+      () => Promise<{ path: string; hash: string; config: ZhushouConfig }>
     >(async () => ({
-      path: "/tmp/openclaw.json",
+      path: "/tmp/zhushou.json",
       hash: "config-hash-1",
       config: configState,
     })),
@@ -169,14 +169,14 @@ describe("exec-policy CLI", () => {
     mocks.defaultRuntime.exit.mockClear();
     mocks.mutateConfigFile.mockReset();
     mocks.mutateConfigFile.mockImplementation(
-      async ({ mutate }: { mutate: (draft: OpenClawConfig) => void }) => {
+      async ({ mutate }: { mutate: (draft: ZhushouConfig) => void }) => {
         const draft = structuredClone(mocks.getConfig());
         mutate(draft);
         mocks.setConfig(draft);
         return {
-          path: "/tmp/openclaw.json",
+          path: "/tmp/zhushou.json",
           previousHash: "hash-1",
-          snapshot: { path: "/tmp/openclaw.json" },
+          snapshot: { path: "/tmp/zhushou.json" },
           nextConfig: draft,
           result: undefined,
         };
@@ -184,19 +184,19 @@ describe("exec-policy CLI", () => {
     );
     mocks.replaceConfigFile.mockReset();
     mocks.replaceConfigFile.mockImplementation(
-      async ({ nextConfig }: { nextConfig: OpenClawConfig; baseHash?: string }) => {
+      async ({ nextConfig }: { nextConfig: ZhushouConfig; baseHash?: string }) => {
         mocks.setConfig(structuredClone(nextConfig));
         return {
-          path: "/tmp/openclaw.json",
+          path: "/tmp/zhushou.json",
           previousHash: "hash-1",
-          snapshot: { path: "/tmp/openclaw.json" },
+          snapshot: { path: "/tmp/zhushou.json" },
           nextConfig,
         };
       },
     );
     mocks.readConfigFileSnapshot.mockReset();
     mocks.readConfigFileSnapshot.mockImplementation(async () => ({
-      path: "/tmp/openclaw.json",
+      path: "/tmp/zhushou.json",
       hash: "config-hash-1",
       config: mocks.getConfig(),
     }));
@@ -221,7 +221,7 @@ describe("exec-policy CLI", () => {
 
     expect(mocks.defaultRuntime.writeJson).toHaveBeenCalledWith(
       expect.objectContaining({
-        configPath: "/tmp/openclaw.json",
+        configPath: "/tmp/zhushou.json",
         approvalsPath: "/tmp/exec-approvals.json",
         effectivePolicy: expect.objectContaining({
           scopes: [
@@ -357,7 +357,7 @@ describe("exec-policy CLI", () => {
       },
     });
     mocks.readConfigFileSnapshot.mockImplementationOnce(async () => ({
-      path: "/tmp/openclaw.json\u001B[2J\nforged",
+      path: "/tmp/zhushou.json\u001B[2J\nforged",
       hash: "config-hash-1",
       config: mocks.getConfig(),
     }));
@@ -388,14 +388,14 @@ describe("exec-policy CLI", () => {
     const output = stripAnsi(
       mocks.defaultRuntime.log.mock.calls.map((call) => String(call[0] ?? "")).join("\n"),
     );
-    expect(output).toContain("/tmp/openclaw.json");
+    expect(output).toContain("/tmp/zhushou.json");
     expect(output).toContain("/tmp/exec-approvals.json");
     expect(output).toContain("scope\\u{200B}name");
     expect(output).toContain("host=auto");
     expect(output).toContain("tools.exec.");
     expect(output).toContain("host)");
     expect(output).toContain("\\nforged");
-    expect(output).not.toContain("/tmp/openclaw.json\nforged");
+    expect(output).not.toContain("/tmp/zhushou.json\nforged");
     expect(output).not.toContain("\u001B[2J");
     expect(output).not.toContain("\u0007");
   });

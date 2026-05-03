@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "./runtime-api.js";
+import type { ZhushouConfig } from "./runtime-api.js";
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -23,7 +23,7 @@ function hasConfiguredSecretInput(value: unknown): boolean {
   );
 }
 
-function isFeishuDocToolEnabled(cfg: OpenClawConfig): boolean {
+function isFeishuDocToolEnabled(cfg: ZhushouConfig): boolean {
   const channels = asRecord(cfg.channels);
   const feishu = asRecord(channels?.feishu);
   if (!feishu || feishu.enabled === false) {
@@ -63,7 +63,7 @@ function isFeishuDocToolEnabled(cfg: OpenClawConfig): boolean {
   return false;
 }
 
-export function collectFeishuSecurityAuditFindings(params: { cfg: OpenClawConfig }) {
+export function collectFeishuSecurityAuditFindings(params: { cfg: ZhushouConfig }) {
   if (!isFeishuDocToolEnabled(params.cfg)) {
     return [];
   }

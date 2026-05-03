@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { collectWorkspaceSkillSymlinkEscapeFindings } from "./audit-extra.async.js";
 
 const isWindows = process.platform === "win32";
@@ -12,7 +12,7 @@ describe("security audit workspace skill path escape findings", () => {
   let caseId = 0;
 
   beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-audit-workspace-"));
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-security-audit-workspace-"));
   });
 
   afterAll(async () => {
@@ -44,7 +44,7 @@ describe("security audit workspace skill path escape findings", () => {
               path.join(workspaceDir, "skills", "leak", "SKILL.md"),
             );
             const findings = await collectWorkspaceSkillSymlinkEscapeFindings({
-              cfg: { agents: { defaults: { workspace: workspaceDir } } } satisfies OpenClawConfig,
+              cfg: { agents: { defaults: { workspace: workspaceDir } } } satisfies ZhushouConfig,
             });
             const finding = findings.find(
               (entry) => entry.checkId === "skills.workspace.symlink_escape",
@@ -63,7 +63,7 @@ describe("security audit workspace skill path escape findings", () => {
           "utf-8",
         );
         const findings = await collectWorkspaceSkillSymlinkEscapeFindings({
-          cfg: { agents: { defaults: { workspace: workspaceDir } } } satisfies OpenClawConfig,
+          cfg: { agents: { defaults: { workspace: workspaceDir } } } satisfies ZhushouConfig,
         });
         expect(findings.some((entry) => entry.checkId === "skills.workspace.symlink_escape")).toBe(
           false,
@@ -98,7 +98,7 @@ describe("security audit workspace skill path escape findings", () => {
 
     try {
       const findings = await collectWorkspaceSkillSymlinkEscapeFindings({
-        cfg: { agents: { defaults: { workspace: workspaceDir } } } satisfies OpenClawConfig,
+        cfg: { agents: { defaults: { workspace: workspaceDir } } } satisfies ZhushouConfig,
       });
       const escapeFinding = findings.find((f) => f.checkId === "skills.workspace.symlink_escape");
       expect(escapeFinding).toBeDefined();
@@ -149,7 +149,7 @@ describe("security audit workspace skill path escape findings", () => {
 
     try {
       const findings = await collectWorkspaceSkillSymlinkEscapeFindings({
-        cfg: { agents: { defaults: { workspace: workspaceDir } } } satisfies OpenClawConfig,
+        cfg: { agents: { defaults: { workspace: workspaceDir } } } satisfies ZhushouConfig,
       });
       const truncFinding = findings.find((f) => f.checkId === "skills.workspace.scan_truncated");
       expect(truncFinding).toBeDefined();

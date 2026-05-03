@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
 import { summarizeGovernanceSovereigntyIncidentsSync } from "./sovereignty-incidents.js";
@@ -232,7 +232,7 @@ function hasReservedAuthority(snapshot: GovernanceCharterSnapshot, ...candidates
 }
 
 export function collectGovernanceBoundaryExposures(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   snapshot: GovernanceCharterSnapshot,
 ): GovernanceBoundaryExposure[] {
   if (!snapshot.discovered) {
@@ -355,7 +355,7 @@ function createGovernanceEnforcementState(params: {
 }
 
 export function collectGovernanceEnforcementSignals(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   snapshot: GovernanceCharterSnapshot,
 ): GovernanceEnforcementSignal[] {
   if (!snapshot.discovered) {
@@ -463,7 +463,7 @@ export function collectGovernanceEnforcementSignals(
 }
 
 export function resolveGovernanceEnforcementState(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   options: { charterDir?: string; stateDir?: string; env?: NodeJS.ProcessEnv } = {},
 ): GovernanceEnforcementState {
   const snapshot = loadGovernanceCharter({ charterDir: options.charterDir });
@@ -534,7 +534,7 @@ export function formatGovernanceEnforcementMessage(params: {
 }
 
 export function resolveGovernanceToolPolicy(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   options: { charterDir?: string; stateDir?: string; env?: NodeJS.ProcessEnv } = {},
 ): { deny: string[] } | undefined {
   const enforcement = resolveGovernanceEnforcementState(cfg, options);

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { WizardValidationIssue } from "./prompts.js";
 
 export type ValidationError = {
@@ -122,7 +122,7 @@ const LEGACY_WEB_SEARCH_PROVIDER_KEYS = new Set([
 /** Conflicts: pairs of settings that cannot coexist. */
 const CONFLICT_RULES: ReadonlyArray<{
   code: string;
-  check: (cfg: OpenClawConfig) => boolean;
+  check: (cfg: ZhushouConfig) => boolean;
   paths: string[];
   message: string;
 }> = [
@@ -172,7 +172,7 @@ const CONFLICT_RULES: ReadonlyArray<{
 /** Required fields that must be present for a functional config. */
 const REQUIRED_FIELD_CHECKS: ReadonlyArray<{
   code: string;
-  check: (cfg: OpenClawConfig) => boolean;
+  check: (cfg: ZhushouConfig) => boolean;
   path: string;
   message: string;
 }> = [
@@ -184,7 +184,7 @@ const REQUIRED_FIELD_CHECKS: ReadonlyArray<{
   },
 ];
 
-function hasLegacyField(config: OpenClawConfig, fieldPath: string): boolean {
+function hasLegacyField(config: ZhushouConfig, fieldPath: string): boolean {
   const parts = fieldPath.split(".");
   let cursor: unknown = config;
   for (const part of parts) {
@@ -208,7 +208,7 @@ function hasOwnRecordKey(value: unknown, key: string): boolean {
   );
 }
 
-function hasLegacySandboxPerSession(config: OpenClawConfig): boolean {
+function hasLegacySandboxPerSession(config: ZhushouConfig): boolean {
   if (hasOwnRecordKey(config.agents?.defaults?.sandbox, "perSession")) {
     return true;
   }
@@ -219,12 +219,12 @@ function hasLegacySandboxPerSession(config: OpenClawConfig): boolean {
   return agents.some((agent) => hasOwnRecordKey(agent?.sandbox, "perSession"));
 }
 
-function hasLegacyGatewayBindHostAlias(config: OpenClawConfig): boolean {
+function hasLegacyGatewayBindHostAlias(config: ZhushouConfig): boolean {
   const bind = config.gateway?.bind;
   return typeof bind === "string" && LEGACY_GATEWAY_BIND_HOST_ALIASES.has(bind.toLowerCase());
 }
 
-function hasLegacyProviderScopedWebSearch(config: OpenClawConfig): boolean {
+function hasLegacyProviderScopedWebSearch(config: ZhushouConfig): boolean {
   const search = config.tools?.web?.search;
   if (!search || typeof search !== "object") {
     return false;
@@ -255,7 +255,7 @@ function pushLegacyError(
 }
 
 function collectLegacyErrors(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   externalLegacyIssues: readonly WizardLegacyIssue[] = [],
 ): ValidationError[] {
   const errors: ValidationError[] = [];
@@ -324,7 +324,7 @@ function hasAnyExternalLegacyIssue(legacyIssues: readonly WizardLegacyIssue[] = 
  * Warnings are non-blocking issues worth surfacing to the user.
  */
 export function validateWizardConfig(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   opts: { legacyIssues?: readonly WizardLegacyIssue[] } = {},
 ): ValidationResult {
   const errors: ValidationError[] = collectLegacyErrors(config, opts.legacyIssues);
@@ -362,7 +362,7 @@ export function validateWizardConfig(
 /**
  * Convenience: detect only conflicts between the given config's settings.
  */
-export function detectConfigConflicts(config: OpenClawConfig): ConfigConflict[] {
+export function detectConfigConflicts(config: ZhushouConfig): ConfigConflict[] {
   return CONFLICT_RULES.filter((rule) => rule.check(config)).map((rule) => ({
     paths: rule.paths,
     code: rule.code,
@@ -374,7 +374,7 @@ export function detectConfigConflicts(config: OpenClawConfig): ConfigConflict[] 
  * Return true if the config contains any legacy (no longer supported) fields.
  */
 export function hasLegacyFields(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   legacyIssues: readonly WizardLegacyIssue[] = [],
 ): boolean {
   return collectLegacyErrors(config, legacyIssues).length > 0 || hasAnyExternalLegacyIssue(legacyIssues);

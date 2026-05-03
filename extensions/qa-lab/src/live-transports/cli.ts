@@ -1,4 +1,4 @@
-import { listQaRunnerCliContributions } from "openclaw/plugin-sdk/qa-runner-runtime";
+import { listQaRunnerCliContributions } from "zhushou/plugin-sdk/qa-runner-runtime";
 import type { LiveTransportQaCliRegistration } from "./shared/live-transport-cli.js";
 import { telegramQaCliRegistration } from "./telegram/cli.js";
 
@@ -14,7 +14,7 @@ function createBlockedQaRunnerCliRegistration(params: {
         .description(params.description ?? `Run the ${params.commandName} live QA lane`)
         .action(() => {
           throw new Error(
-            `QA runner "${params.commandName}" is installed but not active. Enable or allow plugin "${params.pluginId}" in your OpenClaw config, then try again.`,
+            `QA runner "${params.commandName}" is installed but not active. Enable or allow plugin "${params.pluginId}" in your 助手 config, then try again.`,
           );
         });
     },

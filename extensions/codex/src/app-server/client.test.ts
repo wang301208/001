@@ -126,7 +126,7 @@ describe("CodexAppServerClient", () => {
     };
     harness.send({
       id: outbound.id,
-      result: { userAgent: "openclaw/0.118.0 (macOS; test)" },
+      result: { userAgent: "zhushou/0.118.0 (macOS; test)" },
     });
 
     await expect(initializing).resolves.toBeUndefined();
@@ -134,8 +134,8 @@ describe("CodexAppServerClient", () => {
       method: "initialize",
       params: {
         clientInfo: {
-          name: "openclaw",
-          title: "OpenClaw",
+          name: "zhushou",
+          title: "助手",
           version: expect.any(String),
         },
       },
@@ -152,7 +152,7 @@ describe("CodexAppServerClient", () => {
     const outbound = JSON.parse(harness.writes[0] ?? "{}") as { id?: number };
     harness.send({
       id: outbound.id,
-      result: { userAgent: "openclaw/0.117.9 (macOS; test)" },
+      result: { userAgent: "zhushou/0.117.9 (macOS; test)" },
     });
 
     await expect(initializing).rejects.toThrow(
@@ -234,13 +234,13 @@ describe("CodexAppServerClient", () => {
 
   it("reads the Codex version from the app-server user agent", () => {
     expect(readCodexVersionFromUserAgent("Codex Desktop/0.118.0")).toBe("0.118.0");
-    expect(readCodexVersionFromUserAgent("openclaw/0.118.0 (macOS; test)")).toBe("0.118.0");
+    expect(readCodexVersionFromUserAgent("zhushou/0.118.0 (macOS; test)")).toBe("0.118.0");
     expect(readCodexVersionFromUserAgent("codex_cli_rs/0.118.1-dev (linux; test)")).toBe(
       "0.118.1-dev",
     );
     expect(readCodexVersionFromUserAgent("Codex Desktop/not-a-version")).toBeUndefined();
     expect(readCodexVersionFromUserAgent("Codex Desktop/0.118")).toBeUndefined();
-    expect(readCodexVersionFromUserAgent("openclaw/0.118.0abc")).toBeUndefined();
+    expect(readCodexVersionFromUserAgent("zhushou/0.118.0abc")).toBeUndefined();
     expect(readCodexVersionFromUserAgent("missing-version")).toBeUndefined();
   });
 

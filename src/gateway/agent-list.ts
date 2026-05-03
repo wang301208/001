@@ -3,7 +3,7 @@ import path from "node:path";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { resolveStateDir } from "../config/paths.js";
 import type { SessionScope } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { listGovernanceCharterAgentBlueprints } from "../governance/charter-agents.js";
 import { resolveAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
 import { resolveAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
@@ -39,7 +39,7 @@ function listExistingAgentIdsFromDisk(): string[] {
   }
 }
 
-function listConfiguredAgentIds(cfg: OpenClawConfig): string[] {
+function listConfiguredAgentIds(cfg: ZhushouConfig): string[] {
   const ids = new Set<string>();
   const defaultId = normalizeAgentId(resolveDefaultAgentId(cfg));
   ids.add(defaultId);
@@ -61,7 +61,7 @@ function listConfiguredAgentIds(cfg: OpenClawConfig): string[] {
     : sorted;
 }
 
-export function listGatewayAgentsBasic(cfg: OpenClawConfig): {
+export function listGatewayAgentsBasic(cfg: ZhushouConfig): {
   defaultId: string;
   mainKey: string;
   scope: SessionScope;

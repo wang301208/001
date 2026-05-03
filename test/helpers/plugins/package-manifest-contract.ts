@@ -8,7 +8,7 @@ import { bundledPluginFile } from "../bundled-plugin-paths.js";
 type PackageManifest = {
   dependencies?: Record<string, string>;
   optionalDependencies?: Record<string, string>;
-  openclaw?: {
+  zhushou?: {
     install?: {
       minHostVersion?: string;
     };
@@ -78,12 +78,12 @@ export function describePackageManifestContract(params: PackageManifestContractP
 
         const manifest = readJson<PackageManifest>(packagePath);
         const requirement = parseMinHostVersionRequirement(
-          manifest.openclaw?.install?.minHostVersion ?? null,
+          manifest.zhushou?.install?.minHostVersion ?? null,
         );
 
         expect(
           requirement,
-          `${packagePath} should declare openclaw.install.minHostVersion`,
+          `${packagePath} should declare zhushou.install.minHostVersion`,
         ).not.toBeNull();
         if (!requirement) {
           return;
@@ -97,7 +97,7 @@ export function describePackageManifestContract(params: PackageManifestContractP
 
         expect(
           isAtLeast(minimum, baseline),
-          `${packagePath} should require at least OpenClaw ${minHostVersionBaseline}`,
+          `${packagePath} should require at least 助手 ${minHostVersionBaseline}`,
         ).toBe(true);
       });
     }

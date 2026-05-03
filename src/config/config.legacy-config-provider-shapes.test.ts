@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { normalizeLegacyTalkConfig } from "../commands/doctor/shared/legacy-talk-config-normalizer.js";
-import type { OpenClawConfig } from "./types.js";
+import type { ZhushouConfig } from "./types.js";
 import { OpenClawSchema } from "./zod-schema.js";
 
 describe("legacy provider-shaped config snapshots", () => {
@@ -14,7 +14,7 @@ describe("legacy provider-shaped config snapshots", () => {
       },
     };
     const changes: string[] = [];
-    const migrated = normalizeLegacyTalkConfig(raw as unknown as OpenClawConfig, changes);
+    const migrated = normalizeLegacyTalkConfig(raw as unknown as ZhushouConfig, changes);
 
     expect(changes).toContain(
       "Normalized talk.provider/providers shape (trimmed provider ids and merged missing compatibility fields).",

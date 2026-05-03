@@ -1,31 +1,31 @@
 import type { Message, ReactionTypeEmoji } from "@grammyjs/types";
-import { resolveChannelConfigWrites } from "openclaw/plugin-sdk/channel-config-helpers";
-import { shouldDebounceTextInbound } from "openclaw/plugin-sdk/channel-inbound";
+import { resolveChannelConfigWrites } from "zhushou/plugin-sdk/channel-config-helpers";
+import { shouldDebounceTextInbound } from "zhushou/plugin-sdk/channel-inbound";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
-} from "openclaw/plugin-sdk/channel-inbound";
-import { resolveStoredModelOverride } from "openclaw/plugin-sdk/command-auth";
-import { buildCommandsMessagePaginated } from "openclaw/plugin-sdk/command-status";
-import { writeConfigFile } from "openclaw/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { resolveStoredModelOverride } from "zhushou/plugin-sdk/command-auth";
+import { buildCommandsMessagePaginated } from "zhushou/plugin-sdk/command-status";
+import { writeConfigFile } from "zhushou/plugin-sdk/config-runtime";
 import {
   loadSessionStore,
   resolveSessionStoreEntry,
   updateSessionStore,
-} from "openclaw/plugin-sdk/config-runtime";
-import type { DmPolicy } from "openclaw/plugin-sdk/config-runtime";
-import type { TelegramGroupConfig, TelegramTopicConfig } from "openclaw/plugin-sdk/config-runtime";
-import { applyModelOverrideToSessionEntry } from "openclaw/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
+import type { DmPolicy } from "zhushou/plugin-sdk/config-runtime";
+import type { TelegramGroupConfig, TelegramTopicConfig } from "zhushou/plugin-sdk/config-runtime";
+import { applyModelOverrideToSessionEntry } from "zhushou/plugin-sdk/config-runtime";
 import {
   buildPluginBindingResolvedText,
   parsePluginBindingApprovalCustomId,
   resolvePluginConversationBindingApproval,
-} from "openclaw/plugin-sdk/conversation-runtime";
-import { parseExecApprovalCommandText } from "openclaw/plugin-sdk/infra-runtime";
-import { formatModelsAvailableHeader } from "openclaw/plugin-sdk/models-provider-runtime";
-import { resolveAgentRoute } from "openclaw/plugin-sdk/routing";
-import { resolveThreadSessionKeys } from "openclaw/plugin-sdk/routing";
-import { danger, logVerbose, warn } from "openclaw/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/conversation-runtime";
+import { parseExecApprovalCommandText } from "zhushou/plugin-sdk/infra-runtime";
+import { formatModelsAvailableHeader } from "zhushou/plugin-sdk/models-provider-runtime";
+import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import { resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
+import { danger, logVerbose, warn } from "zhushou/plugin-sdk/runtime-env";
 import { resolveTelegramMediaRuntimeOptions } from "./accounts.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import {

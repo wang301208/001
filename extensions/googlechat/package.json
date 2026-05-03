@@ -1,25 +1,25 @@
 {
-  "name": "@openclaw/googlechat",
+  "name": "@zhushou/googlechat",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw Google Chat channel plugin",
+  "description": "助手 Google Chat channel plugin",
   "type": "module",
   "dependencies": {
     "google-auth-library": "^10.6.2"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
-    "openclaw": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -41,7 +41,7 @@
       "markdownCapable": true
     },
     "install": {
-      "npmSpec": "@openclaw/googlechat",
+      "npmSpec": "@zhushou/googlechat",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

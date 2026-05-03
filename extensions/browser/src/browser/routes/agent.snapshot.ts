@@ -42,7 +42,7 @@ import { EXISTING_SESSION_LIMITS } from "./existing-session-limits.js";
 import type { BrowserResponse, BrowserRouteRegistrar } from "./types.js";
 import { jsonError, toBoolean, toStringOrEmpty } from "./utils.js";
 
-const CHROME_MCP_OVERLAY_ATTR = "data-openclaw-mcp-overlay";
+const CHROME_MCP_OVERLAY_ATTR = "data-zhushou-mcp-overlay";
 
 async function clearChromeMcpOverlay(params: {
   profileName: string;

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   applyOpencodeZenModelDefault,
   OPENCODE_ZEN_DEFAULT_MODEL,
@@ -23,7 +23,7 @@ function makePrompter(): WizardPrompter {
 }
 
 function expectPrimaryModelChanged(
-  applied: { changed: boolean; next: OpenClawConfig },
+  applied: { changed: boolean; next: ZhushouConfig },
   primary: string,
 ) {
   expect(applied.changed).toBe(true);
@@ -31,8 +31,8 @@ function expectPrimaryModelChanged(
 }
 
 function expectConfigUnchanged(
-  applied: { changed: boolean; next: OpenClawConfig },
-  cfg: OpenClawConfig,
+  applied: { changed: boolean; next: ZhushouConfig },
+  cfg: ZhushouConfig,
 ) {
   expect(applied.changed).toBe(false);
   expect(applied.next).toEqual(cfg);
@@ -47,8 +47,8 @@ describe("applyDefaultModelChoice", () => {
       setDefaultModel: false,
       defaultModel,
       // Simulate a provider function that does not explicitly add the entry.
-      applyProviderConfig: (config: OpenClawConfig) => config,
-      applyDefaultConfig: (config: OpenClawConfig) => config,
+      applyProviderConfig: (config: ZhushouConfig) => config,
+      applyDefaultConfig: (config: ZhushouConfig) => config,
       noteAgentModel,
       prompter: makePrompter(),
     });
@@ -64,8 +64,8 @@ describe("applyDefaultModelChoice", () => {
       config: {},
       setDefaultModel: false,
       defaultModel,
-      applyProviderConfig: (config: OpenClawConfig) => config,
-      applyDefaultConfig: (config: OpenClawConfig) => config,
+      applyProviderConfig: (config: ZhushouConfig) => config,
+      applyDefaultConfig: (config: ZhushouConfig) => config,
       noteAgentModel: async () => {},
       prompter: makePrompter(),
     });
@@ -80,7 +80,7 @@ describe("applyDefaultModelChoice", () => {
       config: {},
       setDefaultModel: true,
       defaultModel,
-      applyProviderConfig: (config: OpenClawConfig) => config,
+      applyProviderConfig: (config: ZhushouConfig) => config,
       applyDefaultConfig: () => ({
         agents: {
           defaults: {
@@ -100,7 +100,7 @@ describe("applyDefaultModelChoice", () => {
 
 describe("applyOpencodeZenModelDefault", () => {
   it("sets defaults when model is unset", () => {
-    const cfg: OpenClawConfig = { agents: { defaults: {} } };
+    const cfg: ZhushouConfig = { agents: { defaults: {} } };
     const applied = applyOpencodeZenModelDefault(cfg);
     expectPrimaryModelChanged(applied, OPENCODE_ZEN_DEFAULT_MODEL);
   });
@@ -108,7 +108,7 @@ describe("applyOpencodeZenModelDefault", () => {
   it("overrides existing models", () => {
     const cfg = {
       agents: { defaults: { model: "anthropic/claude-opus-4-6" } },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const applied = applyOpencodeZenModelDefault(cfg);
     expectPrimaryModelChanged(applied, OPENCODE_ZEN_DEFAULT_MODEL);
   });
@@ -116,13 +116,13 @@ describe("applyOpencodeZenModelDefault", () => {
   it("no-ops when already legacy opencode-zen default", () => {
     const cfg = {
       agents: { defaults: { model: "opencode-zen/claude-opus-4-5" } },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const applied = applyOpencodeZenModelDefault(cfg);
     expectConfigUnchanged(applied, cfg);
   });
 
   it("preserves fallbacks when setting primary", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         defaults: {
           model: {
@@ -143,7 +143,7 @@ describe("applyOpencodeZenModelDefault", () => {
   it("no-ops when already on the current default", () => {
     const cfg = {
       agents: { defaults: { model: OPENCODE_ZEN_DEFAULT_MODEL } },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const applied = applyOpencodeZenModelDefault(cfg);
     expectConfigUnchanged(applied, cfg);
   });

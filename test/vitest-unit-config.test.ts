@@ -8,7 +8,7 @@ import {
   loadIncludePatternsFromEnv,
 } from "./vitest/vitest.unit.config.ts";
 
-const patternFiles = createPatternFileHelper("openclaw-vitest-unit-config-");
+const patternFiles = createPatternFileHelper("zhushou-vitest-unit-config-");
 
 afterEach(() => {
   patternFiles.cleanup();
@@ -91,11 +91,11 @@ describe("unit vitest config", () => {
     expect(unitConfig.test?.passWithNoTests).toBe(true);
   });
 
-  it("adds the OpenClaw runtime setup hooks on top of the base setup", () => {
+  it("adds the 助手 runtime setup hooks on top of the base setup", () => {
     const unitConfig = createUnitVitestConfig({});
     expect(normalizeConfigPaths(unitConfig.test?.setupFiles)).toEqual([
       "test/setup.ts",
-      "test/setup-openclaw-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
     ]);
   });
 

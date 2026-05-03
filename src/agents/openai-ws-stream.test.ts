@@ -2515,12 +2515,12 @@ describe("createOpenAIWebSocketStreamFn", () => {
 
     const firstPayload = firstManager.sentEvents[0] as { metadata?: Record<string, string> };
     const secondPayload = secondManager.sentEvents[0] as { metadata?: Record<string, string> };
-    expect(firstPayload.metadata?.openclaw_session_id).toBe("sess-turn-metadata-retry");
-    expect(firstPayload.metadata?.openclaw_transport).toBe("websocket");
-    expect(firstPayload.metadata?.openclaw_turn_id).toBeTruthy();
-    expect(secondPayload.metadata?.openclaw_turn_id).toBe(firstPayload.metadata?.openclaw_turn_id);
-    expect(firstPayload.metadata?.openclaw_turn_attempt).toBe("1");
-    expect(secondPayload.metadata?.openclaw_turn_attempt).toBe("2");
+    expect(firstPayload.metadata?.zhushou_session_id).toBe("sess-turn-metadata-retry");
+    expect(firstPayload.metadata?.zhushou_transport).toBe("websocket");
+    expect(firstPayload.metadata?.zhushou_turn_id).toBeTruthy();
+    expect(secondPayload.metadata?.zhushou_turn_id).toBe(firstPayload.metadata?.zhushou_turn_id);
+    expect(firstPayload.metadata?.zhushou_turn_attempt).toBe("1");
+    expect(secondPayload.metadata?.zhushou_turn_attempt).toBe("2");
   });
 
   it("keeps websocket degraded for the session until the cool-down expires", async () => {

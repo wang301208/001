@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   LIVE_TRANSPORT_BASELINE_STANDARD_SCENARIO_IDS,
@@ -16,9 +16,9 @@ const fetchWithSsrFGuardMock = vi.hoisted(() =>
   })),
 );
 
-vi.mock("openclaw/plugin-sdk/ssrf-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/ssrf-runtime")>(
-    "openclaw/plugin-sdk/ssrf-runtime",
+vi.mock("zhushou/plugin-sdk/ssrf-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/ssrf-runtime")>(
+    "zhushou/plugin-sdk/ssrf-runtime",
   );
   return {
     ...actual,
@@ -91,7 +91,7 @@ describe("telegram live qa runtime", () => {
   });
 
   it("injects a temporary Telegram account into the QA gateway config", () => {
-    const baseCfg: OpenClawConfig = {
+    const baseCfg: ZhushouConfig = {
       plugins: {
         allow: ["memory-core", "qa-channel"],
         entries: {
@@ -103,8 +103,8 @@ describe("telegram live qa runtime", () => {
         "qa-channel": {
           enabled: true,
           baseUrl: "http://127.0.0.1:43123",
-          botUserId: "openclaw",
-          botDisplayName: "OpenClaw QA",
+          botUserId: "zhushou",
+          botDisplayName: "助手 QA",
           allowFrom: ["*"],
         },
       },

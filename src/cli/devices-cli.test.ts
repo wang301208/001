@@ -109,7 +109,7 @@ describe("devices cli approve", () => {
     expect(logOutput).toContain("req-abc");
     expect(logOutput).toContain("Device Nine");
     expect(runtime.error).toHaveBeenCalledWith(
-      expect.stringContaining("openclaw devices approve req-abc"),
+      expect.stringContaining("zhushou devices approve req-abc"),
     );
     expect(runtime.exit).toHaveBeenCalledWith(1);
     expect(callGateway).not.toHaveBeenCalledWith(
@@ -151,7 +151,7 @@ describe("devices cli approve", () => {
       expect.objectContaining({ method: "device.pair.approve" }),
     );
     expect(runtime.error).toHaveBeenCalledWith(
-      expect.stringContaining(`openclaw devices approve ${expectedRequestId}`),
+      expect.stringContaining(`zhushou devices approve ${expectedRequestId}`),
     );
   });
 
@@ -172,7 +172,7 @@ describe("devices cli approve", () => {
     const logOutput = runtime.log.mock.calls.map((c) => readRuntimeCallText(c)).join("\n");
     expect(logOutput).toContain("device-9");
     expect(runtime.error).toHaveBeenCalledWith(
-      expect.stringContaining("openclaw devices approve req-blank"),
+      expect.stringContaining("zhushou devices approve req-blank"),
     );
     expect(callGateway).not.toHaveBeenCalledWith(
       expect.objectContaining({ method: "device.pair.approve" }),
@@ -187,7 +187,7 @@ describe("devices cli approve", () => {
     await runDevicesApprove([
       "--latest",
       "--url",
-      "ws://gateway.example:18789/openclaw?cluster=qa lab",
+      "ws://gateway.example:18789/zhushou?cluster=qa lab",
       "--timeout",
       "3000",
       "--token",
@@ -196,7 +196,7 @@ describe("devices cli approve", () => {
 
     const errorOutput = runtime.error.mock.calls.map((c) => readRuntimeCallText(c)).join("\n");
     expect(errorOutput).toContain(
-      "openclaw devices approve req-url --url 'ws://gateway.example:18789/openclaw?cluster=qa lab' --timeout 3000",
+      "zhushou devices approve req-url --url 'ws://gateway.example:18789/zhushou?cluster=qa lab' --timeout 3000",
     );
     expect(errorOutput).toContain("Reuse the same --token option when rerunning.");
     expect(errorOutput).not.toContain("secret-token");
@@ -216,7 +216,7 @@ describe("devices cli approve", () => {
     expect(runtime.error).not.toHaveBeenCalled();
     expect(runtime.writeJson).toHaveBeenCalledWith({
       selected: { requestId: "req-json", deviceId: "device-json", ts: 1000 },
-      approveCommand: "openclaw devices approve req-json --url ws://gateway.example:18789 --json",
+      approveCommand: "zhushou devices approve req-json --url ws://gateway.example:18789 --json",
       requiresAuthFlags: {
         token: false,
         password: false,

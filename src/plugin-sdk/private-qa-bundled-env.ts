@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
+import { resolveOpenClawPackageRootSync } from "../infra/zhushou-root.js";
 
 export function resolvePrivateQaBundledPluginsEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv | undefined {
-  if (env.OPENCLAW_ENABLE_PRIVATE_QA_CLI !== "1") {
+  if (env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI !== "1") {
     return undefined;
   }
   const packageRoot = resolveOpenClawPackageRootSync({

@@ -29,8 +29,8 @@ export function shouldIncludeOptionalBundledClusters(env = process.env) {
 
 export function hasReleasedBundledInstall(packageJson) {
   return (
-    typeof packageJson?.openclaw?.install?.npmSpec === "string" &&
-    packageJson.openclaw.install.npmSpec.trim().length > 0
+    typeof packageJson?.zhushou?.install?.npmSpec === "string" &&
+    packageJson.zhushou.install.npmSpec.trim().length > 0
   );
 }
 

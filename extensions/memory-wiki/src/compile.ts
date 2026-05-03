@@ -3,8 +3,8 @@ import path from "node:path";
 import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
-} from "openclaw/plugin-sdk/memory-host-markdown";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/memory-host-markdown";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import {
   assessClaimFreshness,
   assessPageFreshness,
@@ -42,8 +42,8 @@ const COMPILE_PAGE_GROUPS: Array<{ kind: WikiPageKind; dir: string; heading: str
   { kind: "synthesis", dir: "syntheses", heading: "Syntheses" },
   { kind: "report", dir: "reports", heading: "Reports" },
 ];
-const AGENT_DIGEST_PATH = ".openclaw-wiki/cache/agent-digest.json";
-const CLAIMS_DIGEST_PATH = ".openclaw-wiki/cache/claims.jsonl";
+const AGENT_DIGEST_PATH = ".zhushou-wiki/cache/agent-digest.json";
+const CLAIMS_DIGEST_PATH = ".zhushou-wiki/cache/claims.jsonl";
 
 type DashboardPageDefinition = {
   id: string;
@@ -572,8 +572,8 @@ async function writeDashboardPage(params: {
   const updatedBody = replaceManagedMarkdownBlock({
     original: originalBody,
     heading: "## Generated",
-    startMarker: `<!-- openclaw:wiki:${path.basename(params.definition.relativePath, ".md")}:start -->`,
-    endMarker: `<!-- openclaw:wiki:${path.basename(params.definition.relativePath, ".md")}:end -->`,
+    startMarker: `<!-- zhushou:wiki:${path.basename(params.definition.relativePath, ".md")}:start -->`,
+    endMarker: `<!-- zhushou:wiki:${path.basename(params.definition.relativePath, ".md")}:end -->`,
     body: params.definition.buildBody({
       config: params.config,
       pages: params.pages,
@@ -967,8 +967,8 @@ export async function compileMemoryWikiVault(
     await writeManagedMarkdownFile({
       filePath: rootIndexPath,
       title: "Wiki Index",
-      startMarker: "<!-- openclaw:wiki:index:start -->",
-      endMarker: "<!-- openclaw:wiki:index:end -->",
+      startMarker: "<!-- zhushou:wiki:index:start -->",
+      endMarker: "<!-- zhushou:wiki:index:end -->",
       body: buildRootIndexBody({ config, pages, counts }),
     })
   ) {
@@ -981,8 +981,8 @@ export async function compileMemoryWikiVault(
       await writeManagedMarkdownFile({
         filePath,
         title: group.heading,
-        startMarker: `<!-- openclaw:wiki:${group.dir}:index:start -->`,
-        endMarker: `<!-- openclaw:wiki:${group.dir}:index:end -->`,
+        startMarker: `<!-- zhushou:wiki:${group.dir}:index:start -->`,
+        endMarker: `<!-- zhushou:wiki:${group.dir}:index:end -->`,
         body: buildDirectoryIndexBody({ config, pages, group }),
       })
     ) {

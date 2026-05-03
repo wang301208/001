@@ -30,7 +30,7 @@ import { createAcpxRuntimeService } from "./service.js";
 const tempDirs: string[] = [];
 
 async function makeTempDir(): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-acpx-service-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-acpx-service-"));
   tempDirs.push(dir);
   return dir;
 }
@@ -47,7 +47,7 @@ afterEach(async () => {
 function createServiceContext(workspaceDir: string) {
   return {
     workspaceDir,
-    stateDir: path.join(workspaceDir, ".openclaw-plugin-state"),
+    stateDir: path.join(workspaceDir, ".zhushou-plugin-state"),
     config: {},
     logger: {
       info: vi.fn(),

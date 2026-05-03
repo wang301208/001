@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveGatewayClientBootstrap } from "../gateway/client-bootstrap.js";
 import { GatewayClient } from "../gateway/client.js";
 import { APPROVALS_SCOPE, READ_SCOPE, WRITE_SCOPE } from "../gateway/method-scopes.js";
@@ -60,7 +60,7 @@ export class OpenClawChannelBridge {
   private readySettled = false;
 
   constructor(
-    private readonly cfg: OpenClawConfig,
+    private readonly cfg: ZhushouConfig,
     private readonly params: {
       gatewayUrl?: string;
       gatewayToken?: string;
@@ -106,7 +106,7 @@ export class OpenClawChannelBridge {
       token: bootstrap.auth.token,
       password: bootstrap.auth.password,
       clientName: GATEWAY_CLIENT_NAMES.CLI,
-      clientDisplayName: "OpenClaw MCP",
+      clientDisplayName: "助手 MCP",
       clientVersion: VERSION,
       mode: GATEWAY_CLIENT_MODES.CLI,
       scopes: [READ_SCOPE, WRITE_SCOPE, APPROVALS_SCOPE],
@@ -290,7 +290,7 @@ export class OpenClawChannelBridge {
       inputPreview: params.inputPreview,
     });
     if (this.verbose) {
-      process.stderr.write(`openclaw mcp: pending Claude permission ${params.requestId}\n`);
+      process.stderr.write(`zhushou mcp: pending Claude permission ${params.requestId}\n`);
     }
   }
 
@@ -313,7 +313,7 @@ export class OpenClawChannelBridge {
     } catch (error) {
       if (this.verbose && !this.closed) {
         process.stderr.write(
-          `openclaw mcp: notification ${notification.method} failed: ${String(error)}\n`,
+          `zhushou mcp: notification ${notification.method} failed: ${String(error)}\n`,
         );
       }
     }

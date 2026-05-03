@@ -1,7 +1,7 @@
 import { ChannelType, Routes } from "discord-api-types/v10";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { createDiscordRestClient } from "../client.js";
 import { sendMessageDiscord, sendWebhookMessageDiscord } from "../send.js";
 import { createThreadDiscord } from "../send.messages.js";
@@ -124,7 +124,7 @@ export function isDiscordThreadGoneError(err: unknown): boolean {
 }
 
 export async function maybeSendBindingMessage(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   record: ThreadBindingRecord;
   text: string;
   preferWebhook?: boolean;
@@ -160,7 +160,7 @@ export async function maybeSendBindingMessage(params: {
 }
 
 export async function createWebhookForChannel(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   accountId: string;
   token?: string;
   channelId: string;
@@ -175,7 +175,7 @@ export async function createWebhookForChannel(params: {
     ).rest;
     const created = (await rest.post(Routes.channelWebhooks(params.channelId), {
       body: {
-        name: "OpenClaw Agents",
+        name: "助手 Agents",
       },
     })) as { id?: string; token?: string };
     const webhookId = normalizeOptionalString(created?.id) ?? "";
@@ -227,7 +227,7 @@ export function findReusableWebhook(params: { accountId: string; channelId: stri
 }
 
 export async function resolveChannelIdForBinding(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   accountId: string;
   token?: string;
   threadId: string;
@@ -274,7 +274,7 @@ export async function resolveChannelIdForBinding(params: {
 }
 
 export async function createThreadForBinding(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   accountId: string;
   token?: string;
   channelId: string;

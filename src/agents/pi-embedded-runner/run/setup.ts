@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import type { ProviderRuntimeModel } from "../../../plugins/provider-runtime-model.types.js";
 import type { PluginHookBeforeAgentStartResult } from "../../../plugins/types.js";
 import {
@@ -100,7 +100,7 @@ export async function resolveHookModelSelection(params: {
 }
 
 export function resolveEffectiveRuntimeModel(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: ZhushouConfig | undefined;
   provider: string;
   modelId: string;
   runtimeModel: ProviderRuntimeModel;

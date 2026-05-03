@@ -11,7 +11,7 @@ let tempDir: string;
 
 describe("maybeCompactCodexAppServerSession", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-codex-compact-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-codex-compact-"));
   });
 
   afterEach(async () => {

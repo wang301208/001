@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/duckduckgo-plugin",
+  "name": "@zhushou/duckduckgo-plugin",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw DuckDuckGo plugin",
+  "description": "助手 DuckDuckGo plugin",
   "type": "module",
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

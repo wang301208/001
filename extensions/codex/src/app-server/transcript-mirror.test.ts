@@ -8,7 +8,7 @@ let tempDir: string;
 
 describe("mirrorCodexAppServerTranscript", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-codex-transcript-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-codex-transcript-"));
   });
 
   afterEach(async () => {

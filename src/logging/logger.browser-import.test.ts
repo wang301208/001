@@ -19,9 +19,9 @@ async function importBrowserSafeLogger(params?: {
       throw new Error("resolvePreferredOpenClawTmpDir should not run during browser-safe import");
     });
 
-  vi.doMock("../infra/tmp-openclaw-dir.js", async () => {
-    const actual = await vi.importActual<typeof import("../infra/tmp-openclaw-dir.js")>(
-      "../infra/tmp-openclaw-dir.js",
+  vi.doMock("../infra/tmp-zhushou-dir.js", async () => {
+    const actual = await vi.importActual<typeof import("../infra/tmp-zhushou-dir.js")>(
+      "../infra/tmp-zhushou-dir.js",
     );
     return {
       ...actual,
@@ -43,7 +43,7 @@ async function importBrowserSafeLogger(params?: {
 
 describe("logging/logger browser-safe import", () => {
   afterEach(() => {
-    vi.doUnmock("../infra/tmp-openclaw-dir.js");
+    vi.doUnmock("../infra/tmp-zhushou-dir.js");
     Object.defineProperty(process, "getBuiltinModule", {
       configurable: true,
       value: originalGetBuiltinModule,
@@ -54,8 +54,8 @@ describe("logging/logger browser-safe import", () => {
     const { module, resolvePreferredOpenClawTmpDir } = await importBrowserSafeLogger();
 
     expect(resolvePreferredOpenClawTmpDir).not.toHaveBeenCalled();
-    expect(module.DEFAULT_LOG_DIR).toBe("/tmp/openclaw");
-    expect(module.DEFAULT_LOG_FILE).toBe("/tmp/openclaw/openclaw.log");
+    expect(module.DEFAULT_LOG_DIR).toBe("/tmp/zhushou");
+    expect(module.DEFAULT_LOG_FILE).toBe("/tmp/zhushou/zhushou.log");
   });
 
   it("disables file logging when imported in a browser-like environment", async () => {
@@ -63,7 +63,7 @@ describe("logging/logger browser-safe import", () => {
 
     expect(module.getResolvedLoggerSettings()).toMatchObject({
       level: "silent",
-      file: "/tmp/openclaw/openclaw.log",
+      file: "/tmp/zhushou/zhushou.log",
     });
     expect(module.isFileLogLevelEnabled("info")).toBe(false);
     expect(() => module.getLogger().info("browser-safe")).not.toThrow();

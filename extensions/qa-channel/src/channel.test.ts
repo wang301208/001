@@ -1,8 +1,8 @@
-import type { PluginRuntime } from "openclaw/plugin-sdk/core";
+import type { PluginRuntime } from "zhushou/plugin-sdk/core";
 import {
   resetPluginRuntimeStateForTest,
   setActivePluginRegistry,
-} from "openclaw/plugin-sdk/testing";
+} from "zhushou/plugin-sdk/testing";
 import { afterEach, describe, expect, it } from "vitest";
 import { extractToolPayload } from "../../../src/infra/outbound/tool-payload.js";
 import { createTestRegistry } from "../../../test/helpers/plugins/plugin-registry.js";
@@ -94,8 +94,8 @@ describe("qa-channel plugin", () => {
       channels: {
         "qa-channel": {
           baseUrl: bus.baseUrl,
-          botUserId: "openclaw",
-          botDisplayName: "OpenClaw QA",
+          botUserId: "zhushou",
+          botDisplayName: "助手 QA",
           allowFrom: ["*"],
         },
       },
@@ -151,8 +151,8 @@ describe("qa-channel plugin", () => {
       channels: {
         "qa-channel": {
           baseUrl: bus.baseUrl,
-          botUserId: "openclaw",
-          botDisplayName: "OpenClaw QA",
+          botUserId: "zhushou",
+          botDisplayName: "助手 QA",
           allowFrom: ["*"],
         },
       },
@@ -225,8 +225,8 @@ describe("qa-channel plugin", () => {
         channels: {
           "qa-channel": {
             baseUrl: bus.baseUrl,
-            botUserId: "openclaw",
-            botDisplayName: "OpenClaw QA",
+            botUserId: "zhushou",
+            botDisplayName: "助手 QA",
           },
         },
       };
@@ -332,8 +332,8 @@ describe("qa-channel plugin", () => {
         channels: {
           "qa-channel": {
             baseUrl: bus.baseUrl,
-            botUserId: "openclaw",
-            botDisplayName: "OpenClaw QA",
+            botUserId: "zhushou",
+            botDisplayName: "助手 QA",
           },
         },
       };

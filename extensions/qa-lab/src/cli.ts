@@ -521,7 +521,7 @@ export function registerQaLabCli(program: Command) {
     .option("--gateway-port <port>", "Gateway host port", (value: string) => Number(value))
     .option("--qa-lab-port <port>", "QA lab host port", (value: string) => Number(value))
     .option("--provider-base-url <url>", "Provider base URL for the QA gateway")
-    .option("--image <name>", "Prebaked image name", "openclaw:qa-local-prebaked")
+    .option("--image <name>", "Prebaked image name", "zhushou:qa-local-prebaked")
     .option("--use-prebuilt-image", "Use image: instead of build: in docker-compose", false)
     .option(
       "--bind-ui-dist",
@@ -546,7 +546,7 @@ export function registerQaLabCli(program: Command) {
   qa.command("docker-build-image")
     .description("Build the prebaked QA Docker image with qa-channel + qa-lab bundled")
     .option("--repo-root <path>", "Repository root to target when running from a neutral cwd")
-    .option("--image <name>", "Image tag", "openclaw:qa-local-prebaked")
+    .option("--image <name>", "Image tag", "zhushou:qa-local-prebaked")
     .action(async (opts: { repoRoot?: string; image?: string }) => {
       await runQaDockerBuildImage(opts);
     });
@@ -558,7 +558,7 @@ export function registerQaLabCli(program: Command) {
     .option("--gateway-port <port>", "Gateway host port", (value: string) => Number(value))
     .option("--qa-lab-port <port>", "QA lab host port", (value: string) => Number(value))
     .option("--provider-base-url <url>", "Provider base URL for the QA gateway")
-    .option("--image <name>", "Image tag", "openclaw:qa-local-prebaked")
+    .option("--image <name>", "Image tag", "zhushou:qa-local-prebaked")
     .option("--use-prebuilt-image", "Use image: instead of build: in docker-compose", false)
     .option(
       "--bind-ui-dist",

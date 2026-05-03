@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveSandboxContext } from "./sandbox/context.js";
 
 async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>): Promise<T> {
@@ -17,7 +17,7 @@ async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>): 
 async function withTempCharter<T>(
   fn: (params: { root: string; charterDir: string }) => Promise<T>,
 ): Promise<T> {
-  return await withTempDir("openclaw-sandbox-governance-", async (root) => {
+  return await withTempDir("zhushou-sandbox-governance-", async (root) => {
     const charterDir = path.join(root, "governance", "charter");
     await mkdir(path.join(charterDir, "policies"), { recursive: true });
     await writeFile(
@@ -62,7 +62,7 @@ describe("sandbox governance freeze context", () => {
       await mkdir(workspaceDir, { recursive: true });
       await writeFile(path.join(workspaceDir, "note.txt"), "sandbox copy", "utf8");
 
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         gateway: {
           bind: "lan",
         },

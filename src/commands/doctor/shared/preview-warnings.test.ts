@@ -173,7 +173,7 @@ describe("doctor preview warnings", () => {
           },
         },
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "zhushou doctor --fix",
     });
 
     expect(
@@ -200,7 +200,7 @@ describe("doctor preview warnings", () => {
           },
         },
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "zhushou doctor --fix",
     });
 
     expect(warnings).toEqual([
@@ -220,19 +220,19 @@ describe("doctor preview warnings", () => {
           },
         },
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "zhushou doctor --fix",
     });
 
     expect(warnings).toEqual([
       expect.stringContaining('plugins.allow: stale plugin reference "acpx"'),
     ]);
     expect(warnings[0]).toContain("plugins.entries.acpx");
-    expect(warnings[0]).toContain('Run "openclaw doctor --fix"');
+    expect(warnings[0]).toContain('Run "zhushou doctor --fix"');
     expect(warnings[0]).not.toContain("Auto-removal is paused");
   });
 
   it("includes bundled plugin load path migration warnings", async () => {
-    const packageRoot = path.resolve("app-node-modules", "openclaw");
+    const packageRoot = path.resolve("app-node-modules", "zhushou");
     const legacyPath = path.join(packageRoot, "extensions", "feishu");
     manifestState.plugins = [manifest("feishu")];
 
@@ -244,13 +244,13 @@ describe("doctor preview warnings", () => {
           },
         },
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "zhushou doctor --fix",
     });
 
     expect(warnings).toEqual([
       expect.stringContaining(`plugins.load.paths: legacy bundled plugin path "${legacyPath}"`),
     ]);
-    expect(warnings[0]).toContain('Run "openclaw doctor --fix"');
+    expect(warnings[0]).toContain('Run "zhushou doctor --fix"');
   });
 
   it("warns but skips auto-removal when plugin discovery has errors", async () => {
@@ -268,14 +268,14 @@ describe("doctor preview warnings", () => {
           },
         },
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "zhushou doctor --fix",
     });
 
     expect(warnings).toEqual([
       expect.stringContaining('plugins.allow: stale plugin reference "acpx"'),
     ]);
     expect(warnings[0]).toContain("Auto-removal is paused");
-    expect(warnings[0]).toContain('rerun "openclaw doctor --fix"');
+    expect(warnings[0]).toContain('rerun "zhushou doctor --fix"');
   });
 
   it("warns when a configured channel plugin is disabled explicitly", async () => {
@@ -297,7 +297,7 @@ describe("doctor preview warnings", () => {
           },
         },
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "zhushou doctor --fix",
     });
 
     expect(warnings).toEqual([
@@ -323,7 +323,7 @@ describe("doctor preview warnings", () => {
           enabled: false,
         },
       },
-      doctorFixCommand: "openclaw doctor --fix",
+      doctorFixCommand: "zhushou doctor --fix",
     });
 
     expect(warnings).toEqual([

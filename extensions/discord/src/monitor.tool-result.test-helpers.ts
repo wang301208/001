@@ -1,6 +1,6 @@
 import type { Client } from "@buape/carbon";
 import { ChannelType, MessageType } from "@buape/carbon";
-import type { loadConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { loadConfig } from "zhushou/plugin-sdk/config-runtime";
 import { vi } from "vitest";
 import {
   dispatchMock,
@@ -22,7 +22,7 @@ export const BASE_CFG: Config = {
   agents: {
     defaults: {
       model: { primary: "anthropic/claude-opus-4-5" },
-      workspace: "/tmp/openclaw",
+      workspace: "/tmp/zhushou",
     },
   },
   messages: {

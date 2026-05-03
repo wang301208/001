@@ -309,6 +309,6 @@ export type OpenClawPluginToolContext = import("./types.js").OpenClawPluginToolC
 export type OpenClawPluginHttpRouteParams = import("./types.js").OpenClawPluginHttpRouteParams;
 export type OpenClawPluginHookOptions = import("./types.js").OpenClawPluginHookOptions;
 export type PluginHookHandlerMap = import("./types.js").PluginHookHandlerMap;
-export type OpenClawPluginApi = import("./types.js").OpenClawPluginApi;
+export type ZhushouPluginApi = import("./types.js").ZhushouPluginApi;
 export type TypedPluginHook = TypedPluginHookRegistration;
 export type OpenClawPluginChannelReg = OpenClawPluginChannelRegistration;

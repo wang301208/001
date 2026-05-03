@@ -1,26 +1,26 @@
-import { formatCliCommand, parseDurationMs } from "openclaw/plugin-sdk/cli-runtime";
+import { formatCliCommand, parseDurationMs } from "zhushou/plugin-sdk/cli-runtime";
 import type {
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   ProviderAuthContext,
   ProviderAuthMethodNonInteractiveContext,
   ProviderResolveDynamicModelContext,
   ProviderRuntimeModel,
-} from "openclaw/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";
 import {
   applyAuthProfileConfig,
   type AuthProfileStore,
   buildTokenProfileId,
   createProviderApiKeyAuthMethod,
   listProfilesForProvider,
-  type OpenClawConfig as ProviderAuthConfig,
+  type ZhushouConfig as ProviderAuthConfig,
   type ProviderAuthResult,
   suggestOAuthProfileIdForLegacyDefault,
   upsertAuthProfile,
   validateAnthropicSetupToken,
-} from "openclaw/plugin-sdk/provider-auth";
-import { cloneFirstTemplateModel } from "openclaw/plugin-sdk/provider-model-shared";
-import { fetchClaudeUsage } from "openclaw/plugin-sdk/provider-usage";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-auth";
+import { cloneFirstTemplateModel } from "zhushou/plugin-sdk/provider-model-shared";
+import { fetchClaudeUsage } from "zhushou/plugin-sdk/provider-usage";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import * as claudeCliAuth from "./cli-auth-seam.js";
 import { buildAnthropicCliBackend } from "./cli-backend.js";
 import { buildAnthropicCliMigrationResult } from "./cli-migration.js";
@@ -62,10 +62,10 @@ const ANTHROPIC_MODERN_MODEL_PREFIXES = [
   "claude-haiku-4-5",
 ] as const;
 const ANTHROPIC_SETUP_TOKEN_NOTE_LINES = [
-  "Anthropic setup-token auth is supported in OpenClaw.",
-  "OpenClaw prefers Claude CLI reuse when it is available on the host.",
-  "Anthropic staff told us this OpenClaw path is allowed again.",
-  `If you want a direct API billing path instead, use ${formatCliCommand("openclaw models auth login --provider anthropic --method api-key --set-default")} or ${formatCliCommand("openclaw models auth login --provider anthropic --method cli --set-default")}.`,
+  "Anthropic setup-token auth is supported in 助手.",
+  "助手 prefers Claude CLI reuse when it is available on the host.",
+  "Anthropic staff told us this 助手 path is allowed again.",
+  `If you want a direct API billing path instead, use ${formatCliCommand("zhushou models auth login --provider anthropic --method api-key --set-default")} or ${formatCliCommand("zhushou models auth login --provider anthropic --method cli --set-default")}.`,
 ] as const;
 
 function normalizeAnthropicSetupTokenInput(value: string): string {
@@ -311,7 +311,7 @@ function buildAnthropicAuthDoctorHint(params: {
     }`,
     `- auth store oauth profiles: ${storeOauthProfiles || "(none)"}`,
     `- suggested profile: ${suggested}`,
-    `Fix: run "${formatCliCommand("openclaw doctor --yes")}"`,
+    `Fix: run "${formatCliCommand("zhushou doctor --yes")}"`,
   ].join("\n");
 }
 
@@ -395,7 +395,7 @@ async function runAnthropicCliMigrationNonInteractive(ctx: {
   };
 }
 
-export function registerAnthropicPlugin(api: OpenClawPluginApi): void {
+export function registerAnthropicPlugin(api: ZhushouPluginApi): void {
   const providerId = "anthropic";
   const defaultAnthropicModel = DEFAULT_ANTHROPIC_MODEL;
   api.registerCliBackend(buildAnthropicCliBackend());

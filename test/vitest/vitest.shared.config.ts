@@ -92,19 +92,19 @@ export const sharedVitestConfig = {
   resolve: {
     alias: [
       {
-        find: "openclaw/extension-api",
+        find: "zhushou/extension-api",
         replacement: path.join(repoRoot, "src", "extensionAPI.ts"),
       },
       ...pluginSdkSubpaths.map((subpath) => ({
-        find: `openclaw/plugin-sdk/${subpath}`,
+        find: `zhushou/plugin-sdk/${subpath}`,
         replacement: path.join(repoRoot, "src", "plugin-sdk", `${subpath}.ts`),
       })),
       ...pluginSdkSubpaths.map((subpath) => ({
-        find: `@openclaw/plugin-sdk/${subpath}`,
+        find: `@zhushou/plugin-sdk/${subpath}`,
         replacement: path.join(repoRoot, "packages", "plugin-sdk", "src", `${subpath}.ts`),
       })),
       {
-        find: "openclaw/plugin-sdk",
+        find: "zhushou/plugin-sdk",
         replacement: path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
       },
     ],
@@ -126,7 +126,7 @@ export const sharedVitestConfig = {
       "test/setup.ts",
       "test/setup.shared.ts",
       "test/setup.extensions.ts",
-      "test/setup-openclaw-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
       "test/vitest/vitest.channel-paths.mjs",
       "test/vitest/vitest.channels.config.ts",
       "test/vitest/vitest.acp.config.ts",

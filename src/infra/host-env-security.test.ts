@@ -12,7 +12,7 @@ import {
   sanitizeHostExecEnvWithDiagnostics,
   sanitizeSystemRunEnvOverrides,
 } from "./host-env-security.js";
-import { OPENCLAW_CLI_ENV_VALUE } from "./openclaw-exec-env.js";
+import { OPENCLAW_CLI_ENV_VALUE } from "./zhushou-exec-env.js";
 
 function findSystemCommandPath(command: string) {
   if (process.platform === "win32") {
@@ -97,7 +97,7 @@ async function initGitRepoWithCommits(gitPath: string, repoDir: string, commitCo
         "-C",
         repoDir,
         "-c",
-        "user.name=OpenClaw Test",
+        "user.name=助手 Test",
         "-c",
         "user.email=test@example.com",
         "commit",
@@ -1247,7 +1247,7 @@ describe("shell wrapper exploit regression", () => {
     if (process.platform === "win32" || !fs.existsSync(bashPath)) {
       return;
     }
-    const marker = path.join(os.tmpdir(), `openclaw-ps4-marker-${process.pid}-${Date.now()}`);
+    const marker = path.join(os.tmpdir(), `zhushou-ps4-marker-${process.pid}-${Date.now()}`);
     try {
       fs.unlinkSync(marker);
     } catch {
@@ -1286,16 +1286,16 @@ describe("git env exploit regression", () => {
     }
 
     const repoDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), `openclaw-git-sequence-editor-${process.pid}-${Date.now()}-`),
+      path.join(os.tmpdir(), `zhushou-git-sequence-editor-${process.pid}-${Date.now()}-`),
     );
     const safeRepoDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), `openclaw-git-sequence-editor-safe-${process.pid}-${Date.now()}-`),
+      path.join(os.tmpdir(), `zhushou-git-sequence-editor-safe-${process.pid}-${Date.now()}-`),
     );
     const editorPath = path.join(repoDir, "sequence-editor.sh");
     const safeEditorPath = path.join(safeRepoDir, "sequence-editor.sh");
     const marker = path.join(
       os.tmpdir(),
-      `openclaw-git-sequence-editor-marker-${process.pid}-${Date.now()}`,
+      `zhushou-git-sequence-editor-marker-${process.pid}-${Date.now()}`,
     );
 
     try {
@@ -1347,12 +1347,12 @@ describe("git env exploit regression", () => {
     }
 
     const helperDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), `openclaw-git-exec-path-${process.pid}-${Date.now()}-`),
+      path.join(os.tmpdir(), `zhushou-git-exec-path-${process.pid}-${Date.now()}-`),
     );
     const helperPath = path.join(helperDir, "git-remote-https");
     const marker = path.join(
       os.tmpdir(),
-      `openclaw-git-exec-path-marker-${process.pid}-${Date.now()}`,
+      `zhushou-git-exec-path-marker-${process.pid}-${Date.now()}`,
     );
     try {
       clearMarker(marker);
@@ -1391,23 +1391,23 @@ describe("git env exploit regression", () => {
     }
 
     const repoDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), `openclaw-git-template-source-${process.pid}-${Date.now()}-`),
+      path.join(os.tmpdir(), `zhushou-git-template-source-${process.pid}-${Date.now()}-`),
     );
     const cloneDir = path.join(
       os.tmpdir(),
-      `openclaw-git-template-clone-${process.pid}-${Date.now()}`,
+      `zhushou-git-template-clone-${process.pid}-${Date.now()}`,
     );
     const safeCloneDir = path.join(
       os.tmpdir(),
-      `openclaw-git-template-safe-clone-${process.pid}-${Date.now()}`,
+      `zhushou-git-template-safe-clone-${process.pid}-${Date.now()}`,
     );
     const templateDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), `openclaw-git-template-dir-${process.pid}-${Date.now()}-`),
+      path.join(os.tmpdir(), `zhushou-git-template-dir-${process.pid}-${Date.now()}-`),
     );
     const hooksDir = path.join(templateDir, "hooks");
     const marker = path.join(
       os.tmpdir(),
-      `openclaw-git-template-marker-${process.pid}-${Date.now()}`,
+      `zhushou-git-template-marker-${process.pid}-${Date.now()}`,
     );
 
     try {
@@ -1427,7 +1427,7 @@ describe("git env exploit regression", () => {
           "-C",
           repoDir,
           "-c",
-          "user.name=OpenClaw Test",
+          "user.name=助手 Test",
           "-c",
           "user.email=test@example.com",
           "commit",
@@ -1475,7 +1475,7 @@ describe("git env exploit regression", () => {
       return;
     }
 
-    const marker = path.join(os.tmpdir(), `openclaw-git-ssh-command-${process.pid}-${Date.now()}`);
+    const marker = path.join(os.tmpdir(), `zhushou-git-ssh-command-${process.pid}-${Date.now()}`);
     clearMarker(marker);
 
     const target = "ssh://127.0.0.1:1/does-not-matter";
@@ -1516,12 +1516,12 @@ describe("compiler override exploit regression", () => {
     }
 
     const tempDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), `openclaw-compiler-override-${process.pid}-${Date.now()}-`),
+      path.join(os.tmpdir(), `zhushou-compiler-override-${process.pid}-${Date.now()}-`),
     );
     const exploitPath = path.join(tempDir, "evil-cc");
     const marker = path.join(
       os.tmpdir(),
-      `openclaw-compiler-override-marker-${process.pid}-${Date.now()}`,
+      `zhushou-compiler-override-marker-${process.pid}-${Date.now()}`,
     );
 
     try {
@@ -1573,10 +1573,10 @@ describe("make env exploit regression", () => {
     }
 
     const tempDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), `openclaw-makeflags-override-${process.pid}-${Date.now()}-`),
+      path.join(os.tmpdir(), `zhushou-makeflags-override-${process.pid}-${Date.now()}-`),
     );
     const exploitPath = path.join(tempDir, "evil-makeflags.sh");
-    const marker = path.join(os.tmpdir(), `openclaw-makeflags-marker-${process.pid}-${Date.now()}`);
+    const marker = path.join(os.tmpdir(), `zhushou-makeflags-marker-${process.pid}-${Date.now()}`);
 
     try {
       clearMarker(marker);

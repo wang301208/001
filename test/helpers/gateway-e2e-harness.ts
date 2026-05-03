@@ -101,10 +101,10 @@ export async function spawnGatewayInstance(name: string): Promise<GatewayInstanc
   const port = await getFreePort();
   const hookToken = `token-${name}-${randomUUID()}`;
   const gatewayToken = `gateway-${name}-${randomUUID()}`;
-  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), `openclaw-e2e-${name}-`));
-  const configDir = path.join(homeDir, ".openclaw");
+  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), `zhushou-e2e-${name}-`));
+  const configDir = path.join(homeDir, ".zhushou");
   await fs.mkdir(configDir, { recursive: true });
-  const configPath = path.join(configDir, "openclaw.json");
+  const configPath = path.join(configDir, "zhushou.json");
   const stateDir = path.join(configDir, "state");
   const config = {
     gateway: {
@@ -137,11 +137,11 @@ export async function spawnGatewayInstance(name: string): Promise<GatewayInstanc
         env: {
           ...process.env,
           HOME: homeDir,
-          OPENCLAW_CONFIG_PATH: configPath,
-          OPENCLAW_STATE_DIR: stateDir,
-          OPENCLAW_GATEWAY_TOKEN: "",
-          OPENCLAW_GATEWAY_PASSWORD: "",
-          OPENCLAW_SKIP_CHANNELS: "1",
+          ZHUSHOU_CONFIG_PATH: configPath,
+          ZHUSHOU_STATE_DIR: stateDir,
+          ZHUSHOU_GATEWAY_TOKEN: "",
+          ZHUSHOU_GATEWAY_PASSWORD: "",
+          ZHUSHOU_SKIP_CHANNELS: "1",
           OPENCLAW_SKIP_PROVIDERS: "1",
           OPENCLAW_SKIP_GMAIL_WATCHER: "1",
           OPENCLAW_SKIP_CRON: "1",

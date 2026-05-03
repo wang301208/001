@@ -1,7 +1,7 @@
-export { clearAccountEntryFields } from "openclaw/plugin-sdk/core";
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/account-resolution";
-import type { ChannelPlugin } from "openclaw/plugin-sdk/core";
+export { clearAccountEntryFields } from "zhushou/plugin-sdk/core";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/account-resolution";
+import type { ChannelPlugin } from "zhushou/plugin-sdk/core";
 import {
   listLineAccountIds,
   normalizeAccountId,
@@ -20,4 +20,4 @@ export {
   resolveLineAccount,
 };
 
-export type { ChannelPlugin, LineConfig, OpenClawConfig, ResolvedLineAccount };
+export type { ChannelPlugin, LineConfig, ZhushouConfig, ResolvedLineAccount };

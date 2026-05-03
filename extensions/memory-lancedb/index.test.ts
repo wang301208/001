@@ -35,14 +35,14 @@ type MemoryPluginTestConfig = {
 };
 
 const TEST_RUNTIME_MANIFEST = {
-  name: "openclaw-memory-lancedb-runtime",
+  name: "zhushou-memory-lancedb-runtime",
   private: true as const,
   type: "module" as const,
   dependencies: {
     "@lancedb/lancedb": "^0.27.1",
   },
 };
-const TEST_STATE_DIR = path.resolve("/tmp/openclaw-state");
+const TEST_STATE_DIR = path.resolve("/tmp/zhushou-state");
 const TEST_RUNTIME_DIR = path.join(
   TEST_STATE_DIR,
   "plugin-runtimes",
@@ -129,7 +129,7 @@ function createRuntimeLoader(
 }
 
 describe("memory plugin e2e", () => {
-  const { getDbPath } = installTmpDirHarness({ prefix: "openclaw-memory-test-" });
+  const { getDbPath } = installTmpDirHarness({ prefix: "zhushou-memory-test-" });
 
   function parseConfig(overrides: Record<string, unknown> = {}) {
     return memoryPlugin.configSchema?.parse?.({
@@ -224,7 +224,7 @@ describe("memory plugin e2e", () => {
     }));
 
     vi.resetModules();
-    vi.doMock("openclaw/plugin-sdk/runtime-env", () => ({
+    vi.doMock("zhushou/plugin-sdk/runtime-env", () => ({
       ensureGlobalUndiciEnvProxyDispatcher,
     }));
     vi.doMock("openai", () => ({
@@ -288,7 +288,7 @@ describe("memory plugin e2e", () => {
         dimensions: 1024,
       });
     } finally {
-      vi.doUnmock("openclaw/plugin-sdk/runtime-env");
+      vi.doUnmock("zhushou/plugin-sdk/runtime-env");
       vi.doUnmock("openai");
       vi.doUnmock("./lancedb-runtime.js");
       vi.resetModules();

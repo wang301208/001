@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { App } from "@slack/bolt";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import type { SlackMessageEvent } from "../../types.js";
 
@@ -11,7 +11,7 @@ const [{ prepareSlackMessage }, helpers] = await Promise.all([
   import("./prepare.test-helpers.js"),
 ]);
 const { createInboundSlackTestContext, createSlackTestAccount } = helpers;
-let fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-slack-room-thread-context-"));
+let fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-slack-room-thread-context-"));
 let caseId = 0;
 
 function makeTmpStorePath() {
@@ -69,7 +69,7 @@ async function prepareThreadContextCase(params: ThreadContextCaseParams) {
           contextVisibility: "allowlist",
         },
       },
-    } as OpenClawConfig,
+    } as ZhushouConfig,
     appClient: { conversations: { replies } } as unknown as App["client"],
     defaultRequireMention: false,
     replyToMode: "all",

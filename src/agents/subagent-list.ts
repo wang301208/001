@@ -2,7 +2,7 @@ import { resolveSubagentLabel, sortSubagentRuns } from "../auto-reply/reply/suba
 import { resolveStorePath } from "../config/sessions/paths.js";
 import { loadSessionStore } from "../config/sessions/store-load.js";
 import type { SessionEntry } from "../config/sessions/types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { parseAgentSessionKey, type ParsedAgentSessionKey } from "../routing/session-key.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import {
@@ -52,7 +52,7 @@ export type SessionEntryResolution = {
 };
 
 function resolveStorePathForKey(
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
   key: string,
   parsed?: ParsedAgentSessionKey | null,
 ) {
@@ -62,7 +62,7 @@ function resolveStorePathForKey(
 }
 
 export function resolveSessionEntryForKey(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   key: string;
   cache: Map<string, Record<string, SessionEntry>>;
 }): SessionEntryResolution {
@@ -198,7 +198,7 @@ function buildListText(params: {
 }
 
 export function buildSubagentList(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   runs: SubagentRunRecord[];
   recentMinutes: number;
   taskMaxChars?: number;

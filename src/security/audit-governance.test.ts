@@ -2,11 +2,11 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { collectGovernanceCharterFindings } from "./audit.js";
 
 async function createTempCharterRoot(): Promise<{ root: string; charterDir: string }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-audit-governance-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-audit-governance-"));
   const charterDir = path.join(root, "governance", "charter");
   await mkdir(path.join(charterDir, "policies"), { recursive: true });
   return { root, charterDir };
@@ -56,7 +56,7 @@ describe("security audit governance findings", () => {
     const { root, charterDir } = await createTempCharterRoot();
     try {
       await seedMinimalCharter(charterDir);
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         gateway: {
           bind: "lan",
           controlUi: {
@@ -92,7 +92,7 @@ describe("security audit governance findings", () => {
     const { root, charterDir } = await createTempCharterRoot();
     try {
       await seedMinimalCharter(charterDir);
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         tools: {
           exec: {
             security: "full",

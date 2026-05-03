@@ -1,4 +1,4 @@
-import { loadConfig, type OpenClawConfig } from "../config/config.js";
+import { loadConfig, type ZhushouConfig } from "../config/config.js";
 import { GatewayClient } from "../gateway/client.js";
 import { resolveGatewayConnectionAuth } from "../gateway/connection-auth.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../gateway/protocol/client-info.js";
@@ -113,7 +113,7 @@ function ensureNodePathEnv(): string {
 }
 
 export async function resolveNodeHostGatewayCredentials(params: {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ token?: string; password?: string }> {
   const mode = params.config.gateway?.mode === "remote" ? "remote" : "local";
@@ -129,7 +129,7 @@ export async function resolveNodeHostGatewayCredentials(params: {
   });
 }
 
-function buildNodeHostLocalAuthConfig(config: OpenClawConfig): OpenClawConfig {
+function buildNodeHostLocalAuthConfig(config: ZhushouConfig): ZhushouConfig {
   if (!config.gateway?.remote?.token && !config.gateway?.remote?.password) {
     return config;
   }

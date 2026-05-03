@@ -1,9 +1,9 @@
 import crypto from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredOpenClawTmpDir } from "./tmp-openclaw-dir.js";
+import { resolvePreferredOpenClawTmpDir } from "./tmp-zhushou-dir.js";
 
-export { resolvePreferredOpenClawTmpDir } from "./tmp-openclaw-dir.js";
+export { resolvePreferredOpenClawTmpDir } from "./tmp-zhushou-dir.js";
 
 export type TempDownloadTarget = {
   dir: string;

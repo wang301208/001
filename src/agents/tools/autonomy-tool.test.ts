@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 async function createGovernedCapabilityCharterRoot() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-autonomy-tool-capability-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-autonomy-tool-capability-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
   await fs.mkdir(path.join(charterDir, "agents"), { recursive: true });
@@ -93,18 +93,18 @@ describe("autonomy tool", () => {
   let previousStateDir: string | undefined;
 
   beforeEach(async () => {
-    previousStateDir = process.env.OPENCLAW_STATE_DIR;
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-autonomy-tool-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    previousStateDir = process.env.ZHUSHOU_STATE_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-autonomy-tool-"));
+    process.env.ZHUSHOU_STATE_DIR = tempStateDir;
     installRuntimeTaskDeliveryMock();
     setRuntimeConfigSnapshot({});
   });
 
   afterEach(async () => {
     if (previousStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.ZHUSHOU_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = previousStateDir;
+      process.env.ZHUSHOU_STATE_DIR = previousStateDir;
     }
     tempStateDir = null;
   });

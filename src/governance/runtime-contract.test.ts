@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { reconcileGovernanceSovereigntyIncidentsSync } from "./sovereignty-incidents.js";
 import {
   createEmptyAgentGovernanceRuntimeContract,
@@ -13,7 +13,7 @@ import {
 
 describe("governance runtime contract", () => {
   it("builds a charter-backed runtime contract for declared agents", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         list: [{ id: "main", workspace: "/repo" }],
       },
@@ -44,7 +44,7 @@ describe("governance runtime contract", () => {
   });
 
   it("merges freeze deny tools into the effective governance tool policy", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ZhushouConfig = {
       gateway: {
         bind: "lan",
       },
@@ -145,7 +145,7 @@ describe("governance runtime contract", () => {
   });
 
   it("hydrates open sovereignty incidents from the incident ledger into the runtime contract", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-governance-runtime-contract-"));
+    const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-governance-runtime-contract-"));
     const charterDir = path.join(root, "governance", "charter");
     const stateDir = path.join(root, "state");
     try {
@@ -170,11 +170,11 @@ describe("governance runtime contract", () => {
           },
         ],
       });
-      const cfg: OpenClawConfig = {
+      const cfg: ZhushouConfig = {
         gateway: {
           bind: "loopback",
         },
-      } as OpenClawConfig;
+      } as ZhushouConfig;
 
       const contract = resolveAgentGovernanceRuntimeContract({
         cfg,

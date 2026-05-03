@@ -8,7 +8,7 @@ import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
-import type { OpenClawConfig } from "./config-runtime.js";
+import type { ZhushouConfig } from "./config-runtime.js";
 import { normalizeAccountId } from "./routing.js";
 
 type ApprovalRequest = ExecApprovalRequest | PluginApprovalRequest;
@@ -23,11 +23,11 @@ type ChannelApprovalConfig = {
 };
 
 type ApprovalProfileParams = {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 };
 
-function isApprovalTargetsMode(cfg: OpenClawConfig): boolean {
+function isApprovalTargetsMode(cfg: ZhushouConfig): boolean {
   const execApprovals = cfg.approvals?.exec;
   if (!execApprovals?.enabled) {
     return false;
@@ -48,7 +48,7 @@ export function isChannelExecApprovalClientEnabledFromConfig(params: {
 }
 
 export function isChannelExecApprovalTargetRecipient(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   senderId?: string | null;
   accountId?: string | null;
   channel: string;

@@ -1,10 +1,10 @@
-import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
+import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import { createPairingPrefixStripper } from "openclaw/plugin-sdk/channel-pairing";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,
@@ -48,7 +48,7 @@ export const nextcloudTalkSecurityAdapter = {
 
 export const nextcloudTalkPairingTextAdapter = {
   idLabel: "nextcloudUserId",
-  message: "OpenClaw: your access has been approved.",
+  message: "助手: your access has been approved.",
   normalizeAllowEntry: createPairingPrefixStripper(/^(nextcloud-talk|nc-talk|nc):/i, (entry) =>
     normalizeLowercaseStringOrEmpty(entry),
   ),

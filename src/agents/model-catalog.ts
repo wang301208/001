@@ -1,5 +1,5 @@
 import { loadConfig } from "../config/config.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { augmentModelCatalogWithProviderPlugins } from "../plugins/provider-runtime.runtime.js";
 import {
@@ -78,7 +78,7 @@ function instantiatePiModelRegistry(
 }
 
 export async function loadModelCatalog(params?: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   useCache?: boolean;
 }): Promise<ModelCatalogEntry[]> {
   if (params?.useCache === false) {

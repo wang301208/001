@@ -9,7 +9,7 @@ import type {
   ChannelMessageCapability,
   ChannelPlugin,
 } from "../../../src/channels/plugins/types.js";
-import type { OpenClawConfig } from "../../../src/config/config.js";
+import type { ZhushouConfig } from "../../../src/config/config.js";
 
 function sortStrings(values: readonly string[]) {
   return [...values].toSorted((left, right) => left.localeCompare(right));
@@ -17,7 +17,7 @@ function sortStrings(values: readonly string[]) {
 
 function resolveContractMessageDiscovery(params: {
   plugin: Pick<ChannelPlugin, "actions">;
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
 }) {
   const actions = params.plugin.actions;
   if (!actions) {
@@ -57,7 +57,7 @@ export function installChannelPluginContractSuite(params: {
 
 type ChannelActionsContractCase = {
   name: string;
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   expectedActions: readonly ChannelMessageActionName[];
   expectedCapabilities?: readonly ChannelMessageCapability[];
   beforeTest?: () => void;
@@ -108,14 +108,14 @@ export function installChannelActionsContractSuite(params: {
 
 type ChannelSetupContractCase<ResolvedAccount> = {
   name: string;
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   accountId?: string;
   input: ChannelSetupInput;
   expectedAccountId?: string;
   expectedValidation?: string | null;
   beforeTest?: () => void;
-  assertPatchedConfig?: (cfg: OpenClawConfig) => void;
-  assertResolvedAccount?: (account: ResolvedAccount, cfg: OpenClawConfig) => void;
+  assertPatchedConfig?: (cfg: ZhushouConfig) => void;
+  assertResolvedAccount?: (account: ResolvedAccount, cfg: ZhushouConfig) => void;
 };
 
 export function installChannelSetupContractSuite<ResolvedAccount>(params: {
@@ -166,7 +166,7 @@ export function installChannelSetupContractSuite<ResolvedAccount>(params: {
 
 type ChannelStatusContractCase<Probe> = {
   name: string;
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   accountId?: string;
   runtime?: ChannelAccountSnapshot;
   probe?: Probe;

@@ -6,23 +6,23 @@ import {
   mergeAllowlist,
   patchAllowlistUsersInConfigEntries,
   summarizeMapping,
-} from "openclaw/plugin-sdk/allow-from";
-import { CHANNEL_APPROVAL_NATIVE_RUNTIME_CONTEXT_CAPABILITY } from "openclaw/plugin-sdk/approval-handler-adapter-runtime";
-import { registerChannelRuntimeContext } from "openclaw/plugin-sdk/channel-runtime-context";
-import type { SessionScope } from "openclaw/plugin-sdk/config-runtime";
-import { createConnectedChannelStatusPatch } from "openclaw/plugin-sdk/gateway-runtime";
-import { DEFAULT_GROUP_HISTORY_LIMIT } from "openclaw/plugin-sdk/reply-history";
-import { normalizeMainKey } from "openclaw/plugin-sdk/routing";
-import { warn } from "openclaw/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/allow-from";
+import { CHANNEL_APPROVAL_NATIVE_RUNTIME_CONTEXT_CAPABILITY } from "zhushou/plugin-sdk/approval-handler-adapter-runtime";
+import { registerChannelRuntimeContext } from "zhushou/plugin-sdk/channel-runtime-context";
+import type { SessionScope } from "zhushou/plugin-sdk/config-runtime";
+import { createConnectedChannelStatusPatch } from "zhushou/plugin-sdk/gateway-runtime";
+import { DEFAULT_GROUP_HISTORY_LIMIT } from "zhushou/plugin-sdk/reply-history";
+import { normalizeMainKey } from "zhushou/plugin-sdk/routing";
+import { warn } from "zhushou/plugin-sdk/runtime-env";
 import {
   computeBackoff,
   createNonExitingRuntime,
   sleepWithAbort,
   type RuntimeEnv,
-} from "openclaw/plugin-sdk/runtime-env";
-import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
-import { normalizeStringEntries } from "openclaw/plugin-sdk/text-runtime";
-import { installRequestBodyLimitGuard } from "openclaw/plugin-sdk/webhook-request-guards";
+} from "zhushou/plugin-sdk/runtime-env";
+import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
+import { normalizeStringEntries } from "zhushou/plugin-sdk/text-runtime";
+import { installRequestBodyLimitGuard } from "zhushou/plugin-sdk/webhook-request-guards";
 import { resolveSlackAccount } from "../accounts.js";
 import { resolveSlackWebClientOptions } from "../client.js";
 import { isSlackExecApprovalClientEnabled } from "../exec-approvals.js";
@@ -350,7 +350,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
   // Pre-set shuttingDown on the SocketModeClient before app.stop() to prevent
   // a race where the library's internal ping timeout fires disconnect() before
   // shuttingDown is set, causing orphaned reconnects with leaked ping intervals.
-  // See: openclaw/openclaw#56508
+  // See: zhushou/zhushou#56508
   const gracefulStop = async () => {
     await gracefulStopSlackApp(app);
   };

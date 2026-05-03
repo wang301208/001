@@ -44,7 +44,7 @@ export type {
   AnyAgentTool,
   CliBackendPlugin,
   MediaUnderstandingProviderPlugin,
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   OpenClawPluginConfigSchema,
   PluginLogger,
   ProviderAuthContext,
@@ -76,9 +76,9 @@ export type {
   TaskRunDetail,
   TaskRunView,
 } from "../plugins/runtime/task-domain-types.js";
-export type { OpenClawConfig } from "../config/config.js";
-/** @deprecated Use OpenClawConfig instead */
-export type { OpenClawConfig as ClawdbotConfig } from "../config/config.js";
+export type { ZhushouConfig } from "../config/config.js";
+/** @deprecated Use ZhushouConfig instead */
+export type { ZhushouConfig as ClawdbotConfig } from "../config/config.js";
 export type {
   MemoryPluginCapability,
   MemoryPluginPublicArtifact,

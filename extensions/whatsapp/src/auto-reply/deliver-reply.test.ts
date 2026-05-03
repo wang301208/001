@@ -1,12 +1,12 @@
-import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { sleep } from "openclaw/plugin-sdk/text-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { sleep } from "zhushou/plugin-sdk/text-runtime";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { loadWebMedia } from "../media.js";
 import type { WebInboundMsg } from "./types.js";
 
-vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/runtime-env")>(
-    "openclaw/plugin-sdk/runtime-env",
+vi.mock("zhushou/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/runtime-env")>(
+    "zhushou/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -15,9 +15,9 @@ vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/text-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/text-runtime")>(
-    "openclaw/plugin-sdk/text-runtime",
+vi.mock("zhushou/plugin-sdk/text-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/text-runtime")>(
+    "zhushou/plugin-sdk/text-runtime",
   );
   return {
     ...actual,

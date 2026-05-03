@@ -7,10 +7,10 @@ export function resolveCdpReachabilityPolicy(
   ssrfPolicy?: SsrFPolicy,
 ): SsrFPolicy | undefined {
   const capabilities = getBrowserProfileCapabilities(profile);
-  // The browser SSRF policy protects page/network navigation, not OpenClaw's
+  // The browser SSRF policy protects page/network navigation, not 助手's
   // own local CDP control plane. Explicit local loopback CDP profiles should
   // not self-block health/control checks just because they target 127.0.0.1.
-  if (!capabilities.isRemote && profile.cdpIsLoopback && profile.driver === "openclaw") {
+  if (!capabilities.isRemote && profile.cdpIsLoopback && profile.driver === "zhushou") {
     return undefined;
   }
   return ssrfPolicy;

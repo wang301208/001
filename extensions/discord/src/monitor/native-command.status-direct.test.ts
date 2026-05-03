@@ -1,5 +1,5 @@
 import { ChannelType } from "discord-api-types/v10";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createMockCommandInteraction,
@@ -12,9 +12,9 @@ const runtimeModuleMocks = vi.hoisted(() => ({
   resolveDirectStatusReplyForSession: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/reply-dispatch-runtime", async () => {
-  const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/reply-dispatch-runtime")>(
-    "openclaw/plugin-sdk/reply-dispatch-runtime",
+vi.mock("zhushou/plugin-sdk/reply-dispatch-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/reply-dispatch-runtime")>(
+    "zhushou/plugin-sdk/reply-dispatch-runtime",
   );
   return {
     ...actual,
@@ -23,7 +23,7 @@ vi.mock("openclaw/plugin-sdk/reply-dispatch-runtime", async () => {
   };
 });
 
-vi.mock("openclaw/plugin-sdk/command-status-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/command-status-runtime", () => ({
   resolveDirectStatusReplyForSession: (...args: unknown[]) =>
     runtimeModuleMocks.resolveDirectStatusReplyForSession(...args),
 }));
@@ -51,7 +51,7 @@ function createInteraction(params?: {
   });
 }
 
-function createConfig(params?: { requireMention?: boolean }): OpenClawConfig {
+function createConfig(params?: { requireMention?: boolean }): ZhushouConfig {
   return {
     commands: {
       useAccessGroups: false,
@@ -72,10 +72,10 @@ function createConfig(params?: { requireMention?: boolean }): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
 }
 
-async function createStatusCommand(cfg: OpenClawConfig) {
+async function createStatusCommand(cfg: ZhushouConfig) {
   return createDiscordNativeCommand({
     command: {
       name: "status",
@@ -119,7 +119,7 @@ function setDefaultRouteState() {
 }
 
 function firstStatusCall(): {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   channel: string;
   isGroup: boolean;
@@ -130,7 +130,7 @@ function firstStatusCall(): {
     throw new Error("expected resolveDirectStatusReplyForSession to be called");
   }
   return call as {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     sessionKey: string;
     channel: string;
     isGroup: boolean;
@@ -158,7 +158,7 @@ describe("discord native /status", () => {
       text: "status reply",
     });
     discordNativeCommandTesting.setDispatchReplyWithDispatcher(
-      runtimeModuleMocks.dispatchReplyWithDispatcher as typeof import("openclaw/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithDispatcher,
+      runtimeModuleMocks.dispatchReplyWithDispatcher as typeof import("zhushou/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithDispatcher,
     );
     setDefaultRouteState();
   });

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { CliBackendPlugin } from "./cli-backend.types.js";
 
 export type SetupPluginLogger = {
@@ -15,21 +15,21 @@ export type SetupProviderPlugin = {
   resolveConfigApiKey?: (params: {
     provider: string;
     env?: NodeJS.ProcessEnv;
-    cfg?: OpenClawConfig;
+    cfg?: ZhushouConfig;
     workspaceDir?: string;
   }) => string | null | undefined;
 };
 
-export type SetupPluginConfigMigration = (config: OpenClawConfig) =>
+export type SetupPluginConfigMigration = (config: ZhushouConfig) =>
   | {
-      config: OpenClawConfig;
+      config: ZhushouConfig;
       changes: string[];
     }
   | null
   | undefined;
 
 export type SetupPluginAutoEnableContext = {
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 };
 
@@ -45,7 +45,7 @@ export type SetupOnlyPluginApi = {
   source: string;
   rootDir?: string;
   registrationMode: "setup-only";
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   pluginConfig?: Record<string, unknown>;
   runtime: Record<string, never>;
   logger: SetupPluginLogger;

@@ -38,7 +38,7 @@ export type {
 } from "../channels/plugins/types.public.js";
 export type { ChannelPlugin } from "../channels/plugins/types.plugin.js";
 export { createChannelReplyPipeline } from "./channel-reply-pipeline.js";
-export type { OpenClawConfig } from "../config/config.js";
+export type { ZhushouConfig } from "../config/config.js";
 export { isDangerousNameMatchingEnabled } from "../config/dangerous-name-matching.js";
 export {
   resolveDefaultGroupPolicy,
@@ -48,12 +48,12 @@ export {
 export type { GroupToolPolicyConfig, MarkdownTableMode } from "../config/types.js";
 export { ToolPolicySchema } from "../config/zod-schema.agent-runtime.js";
 export { MarkdownConfigSchema } from "../config/zod-schema.core.js";
-export { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+export { resolvePreferredOpenClawTmpDir } from "../infra/tmp-zhushou-dir.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 export type { PluginRuntime } from "../plugins/runtime/types.js";
 export type {
   AnyAgentTool,
-  OpenClawPluginApi,
+  ZhushouPluginApi,
   OpenClawPluginToolContext,
 } from "../plugins/types.js";
 export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
@@ -82,7 +82,7 @@ export { formatResolvedUnresolvedNote } from "./resolution-notes.js";
 export { buildBaseAccountStatusSnapshot } from "./status-helpers.js";
 export { chunkTextForOutbound } from "./text-chunking.js";
 
-type FacadeModule = typeof import("@openclaw/zalouser/contract-api.js");
+type FacadeModule = typeof import("@zhushou/zalouser/contract-api.js");
 import { loadBundledPluginPublicSurfaceModuleSync } from "./facade-loader.js";
 
 function loadFacadeModule(): FacadeModule {
@@ -101,7 +101,7 @@ export const collectZalouserSecurityAuditFindings: FacadeModule["collectZalouser
 const zalouserSetup = createOptionalChannelSetupSurface({
   channel: "zalouser",
   label: "Zalo Personal",
-  npmSpec: "@openclaw/zalouser",
+  npmSpec: "@zhushou/zalouser",
   docsPath: "/channels/zalouser",
 });
 

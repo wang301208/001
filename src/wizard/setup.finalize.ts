@@ -20,7 +20,7 @@ import {
   resolveGatewayLinks,
 } from "../commands/onboard-helpers.js";
 import type { OnboardOptions } from "../commands/onboard-types.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { describeGatewayServiceRestart, resolveGatewayService } from "../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
 import { formatErrorMessage } from "../infra/errors.js";
@@ -38,8 +38,8 @@ import type { GatewayWizardSettings, WizardFlow } from "./setup.types.js";
 type FinalizeOnboardingOptions = {
   flow: WizardFlow;
   opts: OnboardOptions;
-  baseConfig: OpenClawConfig;
-  nextConfig: OpenClawConfig;
+  baseConfig: ZhushouConfig;
+  nextConfig: ZhushouConfig;
   workspaceDir: string;
   settings: GatewayWizardSettings;
   prompter: WizardPrompter;
@@ -243,8 +243,8 @@ export async function finalizeSetupWizard(
         await prompter.note(
           [
             "文档：",
-            "https://docs.openclaw.ai/gateway/health",
-            "https://docs.openclaw.ai/gateway/troubleshooting",
+            "https://docs.zhushou.ai/gateway/health",
+            "https://docs.zhushou.ai/gateway/troubleshooting",
           ].join("\n"),
           "健康检查帮助",
         );
@@ -260,8 +260,8 @@ export async function finalizeSetupWizard(
       await prompter.note(
         [
           "文档：",
-          "https://docs.openclaw.ai/gateway/health",
-          "https://docs.openclaw.ai/gateway/troubleshooting",
+          "https://docs.zhushou.ai/gateway/health",
+          "https://docs.zhushou.ai/gateway/troubleshooting",
         ].join("\n"),
         "健康检查帮助",
       );
@@ -271,8 +271,8 @@ export async function finalizeSetupWizard(
           "尚未检测到网关。",
           "本次设置未安装网关服务，因此不期望后台网关已运行。",
           `立即启动：${formatCliCommand("openclaw gateway run")}`,
-          `或重新运行：${formatCliCommand("openclaw onboard --install-daemon")}`,
-          `下次跳过探测：${formatCliCommand("openclaw onboard --skip-health")}`,
+          `或重新运行：${formatCliCommand("zhushou onboard --install-daemon")}`,
+          `下次跳过探测：${formatCliCommand("zhushou onboard --skip-health")}`,
         ].join("\n"),
         "网关",
       );
@@ -336,10 +336,10 @@ export async function finalizeSetupWizard(
 
   await prompter.note(
     [
-      `终端界面：${formatCliCommand("openclaw tui")}`,
+      `终端界面：${formatCliCommand("zhushou tui")}`,
       `网关 WS：${links.wsUrl}`,
       gatewayStatusLine,
-      "文档：https://docs.openclaw.ai/gateway",
+      "文档：https://docs.zhushou.ai/gateway",
     ]
       .filter(Boolean)
       .join("\n"),
@@ -365,10 +365,10 @@ export async function finalizeSetupWizard(
     await prompter.note(
       [
         "网关 Token：网关和终端客户端的共享认证凭据。",
-        "存储位置：$OPENCLAW_CONFIG_PATH（默认：~/.openclaw/openclaw.json）中的 gateway.auth.token，或 OPENCLAW_GATEWAY_TOKEN 环境变量。",
-        `查看 Token：${formatCliCommand("openclaw config get gateway.auth.token")}`,
-        `生成 Token：${formatCliCommand("openclaw doctor --generate-gateway-token")}`,
-        `随时打开终端界面：${formatCliCommand("openclaw tui")}`,
+        "存储位置：$ZHUSHOU_CONFIG_PATH（默认：~/.zhushou/zhushou.json）中的 gateway.auth.token，或 ZHUSHOU_GATEWAY_TOKEN 环境变量。",
+        `查看 Token：${formatCliCommand("zhushou config get gateway.auth.token")}`,
+        `生成 Token：${formatCliCommand("zhushou doctor --generate-gateway-token")}`,
+        `随时打开终端界面：${formatCliCommand("zhushou tui")}`,
       ].join("\n"),
       "Token",
     );
@@ -394,7 +394,7 @@ export async function finalizeSetupWizard(
       launchedTui = true;
     } else {
       await prompter.note(
-        `准备好后运行：${formatCliCommand("openclaw tui")}`,
+        `准备好后运行：${formatCliCommand("zhushou tui")}`,
         "稍后",
       );
     }
@@ -405,13 +405,13 @@ export async function finalizeSetupWizard(
   await prompter.note(
     [
       "请备份你的助手工作区。",
-      "文档：https://docs.openclaw.ai/concepts/agent-workspace",
+      "文档：https://docs.zhushou.ai/concepts/agent-workspace",
     ].join("\n"),
     "工作区备份",
   );
 
   await prompter.note(
-    `在计算机上运行 AI 代理存在风险 — 请加固你的配置：https://docs.openclaw.ai/security`,
+    `在计算机上运行 AI 代理存在风险 — 请加固你的配置：https://docs.zhushou.ai/security`,
     "安全",
   );
 
@@ -442,9 +442,9 @@ export async function finalizeSetupWizard(
         [
           `已选择网络搜索提供商 ${label}，但在当前插件策略下不可用。`,
           "web_search 将无法使用，直到该提供商被重新启用或选择其他提供商。",
-          `  ${formatCliCommand("openclaw configure --section web")}`,
+          `  ${formatCliCommand("zhushou configure --section web")}`,
           "",
-          "文档：https://docs.openclaw.ai/tools/web",
+          "文档：https://docs.zhushou.ai/tools/web",
         ].join("\n"),
         "网络搜索",
       );
@@ -455,7 +455,7 @@ export async function finalizeSetupWizard(
           "",
           `提供商：${label}`,
           ...(keySource ? [keySource] : []),
-          "文档：https://docs.openclaw.ai/tools/web",
+          "文档：https://docs.zhushou.ai/tools/web",
         ].join("\n"),
         "网络搜索",
       );
@@ -464,10 +464,10 @@ export async function finalizeSetupWizard(
         [
           `已选择提供商 ${label}，但未找到 API Key。`,
           "web_search 将无法使用，直到添加 API Key。",
-          `  ${formatCliCommand("openclaw configure --section web")}`,
+          `  ${formatCliCommand("zhushou configure --section web")}`,
           "",
-          `获取 API Key：${entry?.signupUrl ?? "https://docs.openclaw.ai/tools/web"}`,
-          "文档：https://docs.openclaw.ai/tools/web",
+          `获取 API Key：${entry?.signupUrl ?? "https://docs.zhushou.ai/tools/web"}`,
+          "文档：https://docs.zhushou.ai/tools/web",
         ].join("\n"),
         "网络搜索",
       );
@@ -475,9 +475,9 @@ export async function finalizeSetupWizard(
       await prompter.note(
         [
           `网络搜索（${label}）已配置但被禁用。`,
-          `重新启用：${formatCliCommand("openclaw configure --section web")}`,
+          `重新启用：${formatCliCommand("zhushou configure --section web")}`,
           "",
-          "文档：https://docs.openclaw.ai/tools/web",
+          "文档：https://docs.zhushou.ai/tools/web",
         ].join("\n"),
         "网络搜索",
       );
@@ -486,9 +486,9 @@ export async function finalizeSetupWizard(
     await prompter.note(
       [
         "已跳过网络搜索。可稍后启用：",
-        `  ${formatCliCommand("openclaw configure --section web")}`,
+        `  ${formatCliCommand("zhushou configure --section web")}`,
         "",
-        "文档：https://docs.openclaw.ai/tools/web",
+        "文档：https://docs.zhushou.ai/tools/web",
       ].join("\n"),
       "网络搜索",
     );
@@ -499,19 +499,19 @@ export async function finalizeSetupWizard(
       [
         codexNativeSummary,
         "仅用于支持 Codex 的模型。",
-        "文档：https://docs.openclaw.ai/tools/web",
+        "文档：https://docs.zhushou.ai/tools/web",
       ].join("\n"),
       "Codex 原生搜索",
     );
   }
 
   await prompter.note(
-    `接下来做什么：https://openclaw.ai/showcase（"用户正在构建什么"）。`,
+    `接下来做什么：https://zhushou.ai/showcase（"用户正在构建什么"）。`,
     "接下来",
   );
 
   await prompter.outro(
-    `初始化完成。运行 ${formatCliCommand("openclaw tui")} 启动${PRODUCT_NAME}。`,
+    `初始化完成。运行 ${formatCliCommand("zhushou tui")} 启动${PRODUCT_NAME}。`,
   );
 
   return { launchedTui };

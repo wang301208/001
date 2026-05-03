@@ -351,7 +351,7 @@ describe("plugin status reports", () => {
   });
 
   it("forwards an explicit env to plugin loading", () => {
-    const env = { HOME: "/tmp/openclaw-home" } as NodeJS.ProcessEnv;
+    const env = { HOME: "/tmp/zhushou-home" } as NodeJS.ProcessEnv;
 
     buildPluginSnapshotReport({
       config: {},

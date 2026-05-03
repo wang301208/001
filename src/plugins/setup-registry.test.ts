@@ -18,7 +18,7 @@ let resolvePluginSetupCliBackend: typeof import("./setup-registry.js").resolvePl
 let runPluginSetupConfigMigrations: typeof import("./setup-registry.js").runPluginSetupConfigMigrations;
 
 function makeTempDir(): string {
-  return makeTrackedTempDir("openclaw-setup-registry", tempDirs);
+  return makeTrackedTempDir("zhushou-setup-registry", tempDirs);
 }
 
 async function expectNoUnhandledRejection(run: () => void | Promise<void>): Promise<void> {

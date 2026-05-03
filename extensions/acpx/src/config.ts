@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
-import type { z } from "openclaw/plugin-sdk/zod";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { z } from "zhushou/plugin-sdk/zod";
 import { AcpxPluginConfigSchema, DEFAULT_ACPX_TIMEOUT_SECONDS } from "./config-schema.js";
 import type {
   AcpxPluginConfig,
@@ -24,11 +24,11 @@ export {
   createAcpxPluginConfigSchema,
 } from "./config-schema.js";
 
-export const ACPX_PLUGIN_TOOLS_MCP_SERVER_NAME = "openclaw-plugin-tools";
+export const ACPX_PLUGIN_TOOLS_MCP_SERVER_NAME = "zhushou-plugin-tools";
 
 function isAcpxPluginRoot(dir: string): boolean {
   return (
-    fs.existsSync(path.join(dir, "openclaw.plugin.json")) &&
+    fs.existsSync(path.join(dir, "zhushou.plugin.json")) &&
     fs.existsSync(path.join(dir, "package.json"))
   );
 }
@@ -95,7 +95,7 @@ export function resolveAcpxPluginRoot(moduleUrl: string = import.meta.url): stri
     resolveWorkspaceAcpxPluginRoot(resolvedRoot) ??
     resolveRepoAcpxPluginRoot(resolvedRoot) ??
     // Shared dist/dist-runtime chunks can load this module outside the plugin tree.
-    // Scan common OpenClaw layouts before falling back to the nearest path guess.
+    // Scan common 助手 layouts before falling back to the nearest path guess.
     resolveAcpxPluginRootFromOpenClawLayout(moduleUrl) ??
     resolvedRoot
   );

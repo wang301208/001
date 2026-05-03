@@ -7,10 +7,10 @@ import {
 } from "../../config/sessions/reset-policy.js";
 import { loadSessionStore } from "../../config/sessions/store-load.js";
 import type { SessionEntry } from "../../config/sessions/types.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 
 export function resolveCronSession(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   nowMs: number;
   agentId: string;

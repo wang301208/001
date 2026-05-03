@@ -74,7 +74,7 @@ function parsePidsFromLsofOutput(stdout: string): number[] {
       if (
         currentPid != null &&
         currentCmd &&
-        normalizeLowercaseStringOrEmpty(currentCmd).includes("openclaw")
+        normalizeLowercaseStringOrEmpty(currentCmd).includes("zhushou")
       ) {
         pids.push(currentPid);
       }
@@ -88,7 +88,7 @@ function parsePidsFromLsofOutput(stdout: string): number[] {
   if (
     currentPid != null &&
     currentCmd &&
-    normalizeLowercaseStringOrEmpty(currentCmd).includes("openclaw")
+    normalizeLowercaseStringOrEmpty(currentCmd).includes("zhushou")
   ) {
     pids.push(currentPid);
   }
@@ -98,7 +98,7 @@ function parsePidsFromLsofOutput(stdout: string): number[] {
 }
 
 /**
- * Windows: find listening PIDs on the port, then verify each is an openclaw
+ * Windows: find listening PIDs on the port, then verify each is an zhushou
  * gateway process via command-line inspection. Excludes the current process.
  */
 function filterVerifiedWindowsGatewayPids(rawPids: number[]): number[] {

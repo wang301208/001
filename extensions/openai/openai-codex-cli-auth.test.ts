@@ -5,7 +5,7 @@ const runtimeMocks = vi.hoisted(() => ({
   debug: vi.fn(),
 }));
 
-vi.mock("openclaw/plugin-sdk/runtime-env", () => ({
+vi.mock("zhushou/plugin-sdk/runtime-env", () => ({
   createSubsystemLogger: () => ({
     debug: runtimeMocks.debug,
   }),

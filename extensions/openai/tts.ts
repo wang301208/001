@@ -1,13 +1,13 @@
 import {
   captureHttpExchange,
   isDebugProxyGlobalFetchPatchInstalled,
-} from "openclaw/plugin-sdk/proxy-capture";
+} from "zhushou/plugin-sdk/proxy-capture";
 import {
   asObject,
   readResponseTextLimited,
   trimToUndefined,
   truncateErrorDetail,
-} from "openclaw/plugin-sdk/speech";
+} from "zhushou/plugin-sdk/speech";
 
 export const DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1";
 

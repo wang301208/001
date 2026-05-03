@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "openclaw/plugin-sdk/agent-runtime";
+import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "zhushou/plugin-sdk/agent-runtime";
 import { vi } from "vitest";
 import {
   removeAckReactionAfterReply,
@@ -383,7 +383,7 @@ export function createPluginRuntimeMock(overrides: DeepPartial<PluginRuntime> = 
       })),
     },
     state: {
-      resolveStateDir: vi.fn(() => "/tmp/openclaw"),
+      resolveStateDir: vi.fn(() => "/tmp/zhushou"),
     },
     autonomy: {
       bindSession: vi.fn(() => ({})) as unknown as PluginRuntime["autonomy"]["bindSession"],

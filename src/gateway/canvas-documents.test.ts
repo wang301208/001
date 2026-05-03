@@ -22,9 +22,9 @@ afterEach(async () => {
 
 describe("canvas documents", () => {
   it("builds entry urls for materialized path documents under managed storage", async () => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-"));
+    const stateDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-"));
     tempDirs.push(stateDir);
-    const workspaceDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-workspace-"));
+    const workspaceDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-workspace-"));
     tempDirs.push(workspaceDir);
     await mkdir(path.join(workspaceDir, "player"), { recursive: true });
     await writeFile(path.join(workspaceDir, "player/index.html"), "<div>ok</div>", "utf8");
@@ -58,7 +58,7 @@ describe("canvas documents", () => {
   });
 
   it("materializes inline html bundles as index documents", async () => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-"));
+    const stateDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-"));
     tempDirs.push(stateDir);
 
     const document = await createCanvasDocument(
@@ -88,7 +88,7 @@ describe("canvas documents", () => {
   });
 
   it("reuses a supplied stable document id by replacing the prior materialized view", async () => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-"));
+    const stateDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-"));
     tempDirs.push(stateDir);
 
     const first = await createCanvasDocument(
@@ -122,9 +122,9 @@ describe("canvas documents", () => {
   });
 
   it("exposes stable managed asset urls for copied canvas assets", async () => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-"));
+    const stateDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-"));
     tempDirs.push(stateDir);
-    const workspaceDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-workspace-"));
+    const workspaceDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-workspace-"));
     tempDirs.push(workspaceDir);
     await mkdir(path.join(workspaceDir, "collection.media"), { recursive: true });
     await writeFile(path.join(workspaceDir, "collection.media/audio.mp3"), "audio", "utf8");
@@ -178,9 +178,9 @@ describe("canvas documents", () => {
   });
 
   it("wraps local pdf documents in an index viewer page", async () => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-"));
+    const stateDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-"));
     tempDirs.push(stateDir);
-    const workspaceDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-workspace-"));
+    const workspaceDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-workspace-"));
     tempDirs.push(workspaceDir);
     await writeFile(path.join(workspaceDir, "demo.pdf"), "%PDF-1.4", "utf8");
 
@@ -205,7 +205,7 @@ describe("canvas documents", () => {
   });
 
   it("wraps remote pdf urls in an index viewer page", async () => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-"));
+    const stateDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-"));
     tempDirs.push(stateDir);
 
     const document = await createCanvasDocument(
@@ -229,7 +229,7 @@ describe("canvas documents", () => {
   });
 
   it("rejects traversal-style document ids in hosted canvas paths", async () => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), "openclaw-canvas-documents-"));
+    const stateDir = await mkdtemp(path.join(tmpdir(), "zhushou-canvas-documents-"));
     tempDirs.push(stateDir);
 
     expect(

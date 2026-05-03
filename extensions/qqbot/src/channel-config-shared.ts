@@ -1,11 +1,11 @@
 import {
   deleteAccountFromConfigSection,
   setAccountEnabledInConfigSection,
-} from "openclaw/plugin-sdk/channel-plugin-common";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
-import { hasConfiguredSecretInput } from "openclaw/plugin-sdk/secret-input";
-import { applyAccountNameToChannelSection } from "openclaw/plugin-sdk/setup";
-import type { ChannelSetupInput } from "openclaw/plugin-sdk/setup";
+} from "zhushou/plugin-sdk/channel-plugin-common";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input";
+import { applyAccountNameToChannelSection } from "zhushou/plugin-sdk/setup";
+import type { ChannelSetupInput } from "zhushou/plugin-sdk/setup";
 import {
   DEFAULT_ACCOUNT_ID,
   applyQQBotAccountConfig,
@@ -75,10 +75,10 @@ export function validateQQBotSetupInput(params: {
 }
 
 export function applyQQBotSetupAccountConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   input: ChannelSetupInput;
-}): OpenClawConfig {
+}): ZhushouConfig {
   if (params.input.useEnv && params.accountId !== DEFAULT_ACCOUNT_ID) {
     return params.cfg;
   }
@@ -137,16 +137,16 @@ export function formatQQBotAllowFrom(params: {
 }
 
 export const qqbotConfigAdapter = {
-  listAccountIds: (cfg: OpenClawConfig) => listQQBotAccountIds(cfg),
-  resolveAccount: (cfg: OpenClawConfig, accountId?: string | null) =>
+  listAccountIds: (cfg: ZhushouConfig) => listQQBotAccountIds(cfg),
+  resolveAccount: (cfg: ZhushouConfig, accountId?: string | null) =>
     resolveQQBotAccount(cfg, accountId, { allowUnresolvedSecretRef: true }),
-  defaultAccountId: (cfg: OpenClawConfig) => resolveDefaultQQBotAccountId(cfg),
+  defaultAccountId: (cfg: ZhushouConfig) => resolveDefaultQQBotAccountId(cfg),
   setAccountEnabled: ({
     cfg,
     accountId,
     enabled,
   }: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     accountId: string;
     enabled: boolean;
   }) =>
@@ -157,7 +157,7 @@ export const qqbotConfigAdapter = {
       enabled,
       allowTopLevel: true,
     }),
-  deleteAccount: ({ cfg, accountId }: { cfg: OpenClawConfig; accountId: string }) =>
+  deleteAccount: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) =>
     deleteAccountFromConfigSection({
       cfg,
       sectionKey: "qqbot",
@@ -166,21 +166,21 @@ export const qqbotConfigAdapter = {
     }),
   isConfigured: isQQBotConfigured,
   describeAccount: describeQQBotAccount,
-  resolveAllowFrom: ({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string | null }) =>
+  resolveAllowFrom: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId?: string | null }) =>
     resolveQQBotAccount(cfg, accountId, { allowUnresolvedSecretRef: true }).config?.allowFrom,
   formatAllowFrom: ({ allowFrom }: { allowFrom: Array<string | number> | undefined | null }) =>
     formatQQBotAllowFrom({ allowFrom }),
 };
 
 export const qqbotSetupAdapterShared = {
-  resolveAccountId: ({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string | null }) =>
+  resolveAccountId: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId?: string | null }) =>
     normalizeLowercaseStringOrEmpty(accountId) || resolveDefaultQQBotAccountId(cfg),
   applyAccountName: ({
     cfg,
     accountId,
     name,
   }: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     accountId: string;
     name?: string;
   }) =>
@@ -197,7 +197,7 @@ export const qqbotSetupAdapterShared = {
     accountId,
     input,
   }: {
-    cfg: OpenClawConfig;
+    cfg: ZhushouConfig;
     accountId: string;
     input: ChannelSetupInput;
   }) => applyQQBotSetupAccountConfig({ cfg, accountId, input }),

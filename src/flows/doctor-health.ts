@@ -6,7 +6,7 @@ import { createDoctorPrompter, type DoctorOptions } from "../commands/doctor-pro
 import { maybeOfferUpdateBeforeDoctor } from "../commands/doctor-update.js";
 import { printWizardHeader } from "../commands/onboard-helpers.js";
 import { CONFIG_PATH } from "../config/config.js";
-import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
+import { resolveOpenClawPackageRoot } from "../infra/zhushou-root.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
@@ -21,7 +21,7 @@ export async function doctorCommand(
 ) {
   const prompter = createDoctorPrompter({ runtime, options });
   printWizardHeader(runtime);
-  intro("OpenClaw doctor");
+  intro("助手 doctor");
 
   const root = await resolveOpenClawPackageRoot({
     moduleUrl: import.meta.url,

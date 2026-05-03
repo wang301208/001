@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { embeddedAgentLog } from "openclaw/plugin-sdk/agent-harness";
+import { embeddedAgentLog } from "zhushou/plugin-sdk/agent-harness";
 
 export type CodexAppServerThreadBinding = {
   schemaVersion: 1;

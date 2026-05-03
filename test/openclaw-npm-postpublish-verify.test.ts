@@ -11,7 +11,7 @@ import {
   collectInstalledPackageErrors,
   normalizeInstalledBinaryVersion,
   resolveInstalledBinaryPath,
-} from "../scripts/openclaw-npm-postpublish-verify.ts";
+} from "../scripts/zhushou-npm-postpublish-verify.ts";
 import { BUNDLED_RUNTIME_SIDECAR_PATHS } from "../src/plugins/runtime-sidecar-paths.ts";
 
 const PUBLISHED_BUNDLED_RUNTIME_SIDECAR_PATHS = BUNDLED_RUNTIME_SIDECAR_PATHS.filter(
@@ -30,7 +30,7 @@ describe("buildPublishedInstallScenarios", () => {
     expect(buildPublishedInstallScenarios("2026.3.23")).toEqual([
       {
         name: "fresh-exact",
-        installSpecs: ["openclaw@2026.3.23"],
+        installSpecs: ["zhushou@2026.3.23"],
         expectedVersion: "2026.3.23",
       },
     ]);
@@ -40,12 +40,12 @@ describe("buildPublishedInstallScenarios", () => {
     expect(buildPublishedInstallScenarios("2026.3.23-2")).toEqual([
       {
         name: "fresh-exact",
-        installSpecs: ["openclaw@2026.3.23-2"],
+        installSpecs: ["zhushou@2026.3.23-2"],
         expectedVersion: "2026.3.23-2",
       },
       {
         name: "upgrade-from-base-stable",
-        installSpecs: ["openclaw@2026.3.23", "openclaw@2026.3.23-2"],
+        installSpecs: ["zhushou@2026.3.23", "zhushou@2026.3.23-2"],
         expectedVersion: "2026.3.23-2",
       },
     ]);
@@ -54,14 +54,14 @@ describe("buildPublishedInstallScenarios", () => {
 
 describe("buildPublishedInstallCommandArgs", () => {
   it("runs lifecycle scripts for published install verification", () => {
-    const args = buildPublishedInstallCommandArgs("/tmp/openclaw-prefix", "openclaw@2026.4.10");
+    const args = buildPublishedInstallCommandArgs("/tmp/zhushou-prefix", "zhushou@2026.4.10");
 
     expect(args).toEqual([
       "install",
       "-g",
       "--prefix",
-      "/tmp/openclaw-prefix",
-      "openclaw@2026.4.10",
+      "/tmp/zhushou-prefix",
+      "zhushou@2026.4.10",
       "--no-fund",
       "--no-audit",
     ]);
@@ -74,7 +74,7 @@ describe("collectInstalledPackageErrors", () => {
     const errors = collectInstalledPackageErrors({
       expectedVersion: "2026.3.23-2",
       installedVersion: "2026.3.23",
-      packageRoot: "/tmp/empty-openclaw",
+      packageRoot: "/tmp/empty-zhushou",
     });
 
     expect(errors[0]).toBe(
@@ -96,7 +96,7 @@ describe("collectInstalledPackageErrors", () => {
 
 describe("collectInstalledContextEngineRuntimeErrors", () => {
   function makeInstalledPackageRoot(): string {
-    return mkdtempSync(join(tmpdir(), "openclaw-postpublish-context-engine-"));
+    return mkdtempSync(join(tmpdir(), "zhushou-postpublish-context-engine-"));
   }
 
   it("rejects packaged bundles with unresolved legacy context engine runtime loaders", () => {
@@ -138,8 +138,8 @@ describe("collectInstalledContextEngineRuntimeErrors", () => {
 
 describe("normalizeInstalledBinaryVersion", () => {
   it("accepts decorated CLI version output", () => {
-    expect(normalizeInstalledBinaryVersion("OpenClaw 2026.4.8 (9ece252)")).toBe("2026.4.8");
-    expect(normalizeInstalledBinaryVersion("OpenClaw 2026.4.8-beta.1 (9ece252)")).toBe(
+    expect(normalizeInstalledBinaryVersion("助手 2026.4.8 (9ece252)")).toBe("2026.4.8");
+    expect(normalizeInstalledBinaryVersion("助手 2026.4.8-beta.1 (9ece252)")).toBe(
       "2026.4.8-beta.1",
     );
   });
@@ -147,21 +147,21 @@ describe("normalizeInstalledBinaryVersion", () => {
 
 describe("resolveInstalledBinaryPath", () => {
   it("uses the Unix global bin path on non-Windows platforms", () => {
-    expect(resolveInstalledBinaryPath("/tmp/openclaw-prefix", "darwin")).toBe(
-      "/tmp/openclaw-prefix/bin/openclaw",
+    expect(resolveInstalledBinaryPath("/tmp/zhushou-prefix", "darwin")).toBe(
+      "/tmp/zhushou-prefix/bin/zhushou",
     );
   });
 
   it("uses the Windows npm shim path on win32", () => {
-    expect(resolveInstalledBinaryPath("C:/openclaw-prefix", "win32")).toBe(
-      "C:/openclaw-prefix/openclaw.cmd",
+    expect(resolveInstalledBinaryPath("C:/zhushou-prefix", "win32")).toBe(
+      "C:/zhushou-prefix/zhushou.cmd",
     );
   });
 });
 
 describe("collectInstalledMirroredRootDependencyManifestErrors", () => {
   function makeInstalledPackageRoot(): string {
-    return mkdtempSync(join(tmpdir(), "openclaw-postpublish-installed-"));
+    return mkdtempSync(join(tmpdir(), "zhushou-postpublish-installed-"));
   }
 
   function writePackageFile(root: string, relativePath: string, value: unknown): void {
@@ -267,7 +267,7 @@ describe("collectInstalledMirroredRootDependencyManifestErrors", () => {
       mkdirSync(join(packageRoot, "dist/extensions/slack"), { recursive: true });
       writeFileSync(
         join(packageRoot, "dist/extensions/slack/package.json"),
-        '{\n  "openclaw": { invalid json\n',
+        '{\n  "zhushou": { invalid json\n',
         "utf8",
       );
 
@@ -305,7 +305,7 @@ describe("collectInstalledMirroredRootDependencyManifestErrors", () => {
         version: "2026.4.10",
         dependencies: {},
       });
-      writePackageFile(packageRoot, "dist/extensions/device-pair/openclaw.plugin.json", {
+      writePackageFile(packageRoot, "dist/extensions/device-pair/zhushou.plugin.json", {
         id: "device-pair",
       });
 

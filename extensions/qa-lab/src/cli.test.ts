@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import type { QaRunnerCliContribution } from "openclaw/plugin-sdk/qa-runner-runtime";
+import type { QaRunnerCliContribution } from "zhushou/plugin-sdk/qa-runner-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const TEST_QA_RUNNER = {
@@ -60,7 +60,7 @@ const { listQaRunnerCliContributions } = vi.hoisted(() => ({
   ]),
 }));
 
-vi.mock("openclaw/plugin-sdk/qa-runner-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/qa-runner-runtime", () => ({
   listQaRunnerCliContributions,
 }));
 
@@ -126,7 +126,7 @@ describe("qa cli registration", () => {
       expect.arrayContaining(["mock-openai", "aimock"]),
     );
 
-    await program.parseAsync(["node", "openclaw", "qa", "aimock", "--port", "44080"]);
+    await program.parseAsync(["node", "zhushou", "qa", "aimock", "--port", "44080"]);
 
     expect(runQaProviderServerCommand).toHaveBeenCalledWith("aimock", {
       host: "127.0.0.1",
@@ -140,7 +140,7 @@ describe("qa cli registration", () => {
     registerQaLabCli(blockedProgram);
 
     await expect(
-      blockedProgram.parseAsync(["node", "openclaw", "qa", TEST_QA_RUNNER.commandName]),
+      blockedProgram.parseAsync(["node", "zhushou", "qa", TEST_QA_RUNNER.commandName]),
     ).rejects.toThrow(`Enable or allow plugin "${TEST_QA_RUNNER.pluginId}"`);
   });
 
@@ -155,7 +155,7 @@ describe("qa cli registration", () => {
   });
 
   it("routes telegram CLI defaults into the lane runtime", async () => {
-    await program.parseAsync(["node", "openclaw", "qa", "telegram"]);
+    await program.parseAsync(["node", "zhushou", "qa", "telegram"]);
 
     expect(runQaTelegramCommand).toHaveBeenCalledWith({
       repoRoot: undefined,
@@ -174,7 +174,7 @@ describe("qa cli registration", () => {
   it("routes credential add flags into the qa runtime command", async () => {
     await program.parseAsync([
       "node",
-      "openclaw",
+      "zhushou",
       "qa",
       "credentials",
       "add",
@@ -183,7 +183,7 @@ describe("qa cli registration", () => {
       "--payload-file",
       "qa/payload.json",
       "--repo-root",
-      "/tmp/openclaw-repo",
+      "/tmp/zhushou-repo",
       "--note",
       "shared lane",
       "--site-url",
@@ -198,7 +198,7 @@ describe("qa cli registration", () => {
     expect(runQaCredentialsAddCommand).toHaveBeenCalledWith({
       kind: "telegram",
       payloadFile: "qa/payload.json",
-      repoRoot: "/tmp/openclaw-repo",
+      repoRoot: "/tmp/zhushou-repo",
       note: "shared lane",
       siteUrl: "https://first-schnauzer-821.convex.site",
       endpointPrefix: "/qa-credentials/v1",
@@ -210,7 +210,7 @@ describe("qa cli registration", () => {
   it("routes credential remove flags into the qa runtime command", async () => {
     await program.parseAsync([
       "node",
-      "openclaw",
+      "zhushou",
       "qa",
       "credentials",
       "remove",
@@ -235,7 +235,7 @@ describe("qa cli registration", () => {
   it("routes credential list defaults into the qa runtime command", async () => {
     await program.parseAsync([
       "node",
-      "openclaw",
+      "zhushou",
       "qa",
       "credentials",
       "list",

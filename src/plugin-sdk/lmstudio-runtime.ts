@@ -1,5 +1,5 @@
 // Manual facade. Keep loader boundary explicit.
-type FacadeModule = typeof import("@openclaw/lmstudio/runtime-api.js");
+type FacadeModule = typeof import("@zhushou/lmstudio/runtime-api.js");
 import { loadBundledPluginPublicSurfaceModuleSync } from "./facade-runtime.js";
 
 function loadFacadeModule(): FacadeModule {

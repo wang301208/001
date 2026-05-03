@@ -1,13 +1,13 @@
 import fsPromises from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export type ConfigSnapshot = {
   /** Unix timestamp (ms) when the snapshot was taken. */
   timestamp: number;
   /** Config state at snapshot time. */
-  config: OpenClawConfig;
+  config: ZhushouConfig;
   /** Short human-readable label for the snapshot (e.g. "before-setup-wizard"). */
   label: string;
 };
@@ -17,7 +17,7 @@ export type RollbackResult =
   | { ok: false; reason: string };
 
 function defaultSnapshotDir(): string {
-  return path.join(os.homedir(), ".openclaw", ".snapshots");
+  return path.join(os.homedir(), ".zhushou", ".snapshots");
 }
 
 function snapshotFilename(snapshot: ConfigSnapshot): string {
@@ -77,7 +77,7 @@ export async function listConfigSnapshots(
 /**
  * Create a snapshot of the current config (call before any wizard writes).
  */
-export function createSnapshot(config: OpenClawConfig, label: string): ConfigSnapshot {
+export function createSnapshot(config: ZhushouConfig, label: string): ConfigSnapshot {
   return {
     timestamp: Date.now(),
     config: structuredClone(config),
@@ -91,7 +91,7 @@ export function createSnapshot(config: OpenClawConfig, label: string): ConfigSna
  */
 export async function rollbackToSnapshot(
   snapshot: ConfigSnapshot,
-  writeConfig: (config: OpenClawConfig) => Promise<void>,
+  writeConfig: (config: ZhushouConfig) => Promise<void>,
 ): Promise<RollbackResult> {
   try {
     await writeConfig(structuredClone(snapshot.config));

@@ -6,7 +6,7 @@ describe("buildDaemonHintItems", () => {
     expect(
       buildDaemonHintItems([
         "openclaw gateway install",
-        "Restart the container or the service that manages it for openclaw-demo-container.",
+        "Restart the container or the service that manages it for zhushou-demo-container.",
         "systemd user services are unavailable; install/enable systemd or run the gateway under your supervisor.",
         "On a headless server (SSH/no desktop session): run `sudo loginctl enable-linger $(whoami)` to persist your systemd user session across logins.",
         "If you're in a container, run the gateway in the foreground instead of `openclaw gateway`.",
@@ -16,7 +16,7 @@ describe("buildDaemonHintItems", () => {
       { kind: "install", text: "openclaw gateway install" },
       {
         kind: "container-restart",
-        text: "Restart the container or the service that manages it for openclaw-demo-container.",
+        text: "Restart the container or the service that manages it for zhushou-demo-container.",
       },
       {
         kind: "systemd-unavailable",

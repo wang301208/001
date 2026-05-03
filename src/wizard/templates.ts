@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { PRODUCT_NAME } from "./assistant-constants.js";
 
 export type WizardTemplate = {
@@ -6,7 +6,7 @@ export type WizardTemplate = {
   name: string;
   description: string;
   /** Partial config that this template applies on top of a base config. */
-  config: Partial<OpenClawConfig>;
+  config: Partial<ZhushouConfig>;
 };
 
 /**
@@ -99,8 +99,8 @@ export function findTemplate(id: string): WizardTemplate | undefined {
  * Template values take precedence over existing base values for matching paths,
  * but do not delete unrelated keys.
  */
-export function applyTemplate(base: OpenClawConfig, template: WizardTemplate): OpenClawConfig {
-  return deepMerge(base, template.config) as OpenClawConfig;
+export function applyTemplate(base: ZhushouConfig, template: WizardTemplate): ZhushouConfig {
+  return deepMerge(base, template.config) as ZhushouConfig;
 }
 
 function deepMerge(target: unknown, source: unknown): unknown {

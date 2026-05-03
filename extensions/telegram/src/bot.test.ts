@@ -1,9 +1,9 @@
 import { rm } from "node:fs/promises";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   clearPluginInteractiveHandlers,
   registerPluginInteractiveHandler,
-} from "openclaw/plugin-sdk/plugin-runtime";
+} from "zhushou/plugin-sdk/plugin-runtime";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPinnedHostnameResolution } from "../../../src/test-helpers/ssrf.js";
 import type { TelegramInteractiveHandlerContext } from "./interactive-dispatch.js";
@@ -162,7 +162,7 @@ describe("createTelegramBot", () => {
     replySpy.mockClear();
     editMessageTextSpy.mockClear();
 
-    const storePath = `/tmp/openclaw-telegram-callback-authz-${process.pid}-${Date.now()}.json`;
+    const storePath = `/tmp/zhushou-telegram-callback-authz-${process.pid}-${Date.now()}.json`;
 
     await rm(storePath, { force: true });
     try {
@@ -850,8 +850,8 @@ describe("createTelegramBot", () => {
     editMessageTextSpy.mockClear();
 
     const modelId = "us.anthropic.claude-3-5-sonnet-20240620-v1:0";
-    const storePath = `/tmp/openclaw-telegram-model-compact-${process.pid}-${Date.now()}.json`;
-    const config: OpenClawConfig = {
+    const storePath = `/tmp/zhushou-telegram-model-compact-${process.pid}-${Date.now()}.json`;
+    const config: ZhushouConfig = {
       agents: {
         defaults: {
           model: `bedrock/${modelId}`,
@@ -915,8 +915,8 @@ describe("createTelegramBot", () => {
     replySpy.mockClear();
     editMessageTextSpy.mockClear();
 
-    const storePath = `/tmp/openclaw-telegram-model-default-${process.pid}-${Date.now()}.json`;
-    const config: OpenClawConfig = {
+    const storePath = `/tmp/zhushou-telegram-model-default-${process.pid}-${Date.now()}.json`;
+    const config: ZhushouConfig = {
       agents: {
         defaults: {
           model: "claude-opus-4-6",
@@ -983,7 +983,7 @@ describe("createTelegramBot", () => {
     replySpy.mockClear();
     editMessageTextSpy.mockClear();
 
-    const storePath = `/tmp/openclaw-telegram-model-html-${process.pid}-${Date.now()}.json`;
+    const storePath = `/tmp/zhushou-telegram-model-html-${process.pid}-${Date.now()}.json`;
 
     await rm(storePath, { force: true });
     try {
@@ -1060,7 +1060,7 @@ describe("createTelegramBot", () => {
     replySpy.mockClear();
     editMessageTextSpy.mockClear();
 
-    const storePath = `/tmp/openclaw-telegram-model-fresh-cfg-${process.pid}-${Date.now()}.json`;
+    const storePath = `/tmp/zhushou-telegram-model-fresh-cfg-${process.pid}-${Date.now()}.json`;
 
     await rm(storePath, { force: true });
     try {
@@ -1793,7 +1793,7 @@ describe("createTelegramBot", () => {
         reply_to_message: {
           message_id: 42,
           text: "original reply",
-          from: { id: 999, first_name: "OpenClaw" },
+          from: { id: 999, first_name: "助手" },
         },
       },
       me: { id: 999, username: "openclaw_bot" },

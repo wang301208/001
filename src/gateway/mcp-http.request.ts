@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { resolveMainSessionKey } from "../config/sessions.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import {
   normalizeOptionalLowercaseString,
@@ -20,7 +20,7 @@ export type McpRequestContext = {
   senderIsOwner: boolean | undefined;
 };
 
-function resolveScopedSessionKey(cfg: OpenClawConfig, rawSessionKey: string | undefined): string {
+function resolveScopedSessionKey(cfg: ZhushouConfig, rawSessionKey: string | undefined): string {
   const trimmed = normalizeOptionalString(rawSessionKey);
   return !trimmed || trimmed === "main" ? resolveMainSessionKey(cfg) : trimmed;
 }
@@ -123,16 +123,16 @@ export async function readMcpHttpBody(req: IncomingMessage): Promise<string> {
 
 export function resolveMcpRequestContext(
   req: IncomingMessage,
-  cfg: OpenClawConfig,
+  cfg: ZhushouConfig,
 ): McpRequestContext {
   const senderIsOwnerRaw = normalizeOptionalLowercaseString(
-    getHeader(req, "x-openclaw-sender-is-owner"),
+    getHeader(req, "x-zhushou-sender-is-owner"),
   );
   return {
     sessionKey: resolveScopedSessionKey(cfg, getHeader(req, "x-session-key")),
     messageProvider:
-      normalizeMessageChannel(getHeader(req, "x-openclaw-message-channel")) ?? undefined,
-    accountId: normalizeOptionalString(getHeader(req, "x-openclaw-account-id")),
+      normalizeMessageChannel(getHeader(req, "x-zhushou-message-channel")) ?? undefined,
+    accountId: normalizeOptionalString(getHeader(req, "x-zhushou-account-id")),
     senderIsOwner:
       senderIsOwnerRaw === "true" ? true : senderIsOwnerRaw === "false" ? false : undefined,
   };

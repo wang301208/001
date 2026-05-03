@@ -1,17 +1,17 @@
-import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
-import { normalizeE164 } from "openclaw/plugin-sdk/account-resolution";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { normalizeE164 } from "zhushou/plugin-sdk/account-resolution";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
-} from "openclaw/plugin-sdk/channel-config-helpers";
-import { createAllowlistProviderRouteAllowlistWarningCollector } from "openclaw/plugin-sdk/channel-policy";
-import type { ChannelPlugin } from "openclaw/plugin-sdk/core";
-import { createChannelPluginBase, getChatChannelMeta } from "openclaw/plugin-sdk/core";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { createAllowlistProviderRouteAllowlistWarningCollector } from "zhushou/plugin-sdk/channel-policy";
+import type { ChannelPlugin } from "zhushou/plugin-sdk/core";
+import { createChannelPluginBase, getChatChannelMeta } from "zhushou/plugin-sdk/core";
 import {
   createDelegatedSetupWizardProxy,
   type ChannelSetupWizard,
-} from "openclaw/plugin-sdk/setup-runtime";
+} from "zhushou/plugin-sdk/setup-runtime";
 import {
   hasAnyWhatsAppAuth,
   listWhatsAppAccountIds,

@@ -1,16 +1,16 @@
 {
-  "name": "@openclaw/openshell-sandbox",
+  "name": "@zhushou/openshell-sandbox",
   "version": "2026.4.16",
   "private": true,
-  "description": "OpenClaw OpenShell sandbox backend",
+  "description": "助手 OpenShell sandbox backend",
   "type": "module",
   "dependencies": {
     "openshell": "0.1.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

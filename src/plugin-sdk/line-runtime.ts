@@ -1,5 +1,5 @@
 // Manual facade. Keep loader boundary explicit.
-type FacadeModule = typeof import("@openclaw/line/runtime-api.js");
+type FacadeModule = typeof import("@zhushou/line/runtime-api.js");
 import { loadActivatedBundledPluginPublicSurfaceModuleSync } from "./facade-runtime.js";
 
 function loadFacadeModule(): FacadeModule {
@@ -134,24 +134,24 @@ export const uploadRichMenuImage: FacadeModule["uploadRichMenuImage"] = ((...arg
   loadFacadeModule()["uploadRichMenuImage"](...args)) as FacadeModule["uploadRichMenuImage"];
 export const uriAction: FacadeModule["uriAction"] = ((...args) =>
   loadFacadeModule()["uriAction"](...args)) as FacadeModule["uriAction"];
-export type Action = import("@openclaw/line/runtime-api.js").Action;
-export type CardAction = import("@openclaw/line/runtime-api.js").CardAction;
-export type CreateRichMenuParams = import("@openclaw/line/runtime-api.js").CreateRichMenuParams;
-export type FlexBox = import("@openclaw/line/runtime-api.js").FlexBox;
-export type FlexBubble = import("@openclaw/line/runtime-api.js").FlexBubble;
-export type FlexButton = import("@openclaw/line/runtime-api.js").FlexButton;
-export type FlexCarousel = import("@openclaw/line/runtime-api.js").FlexCarousel;
-export type FlexComponent = import("@openclaw/line/runtime-api.js").FlexComponent;
-export type FlexContainer = import("@openclaw/line/runtime-api.js").FlexContainer;
-export type FlexImage = import("@openclaw/line/runtime-api.js").FlexImage;
-export type FlexText = import("@openclaw/line/runtime-api.js").FlexText;
-export type LineChannelData = import("@openclaw/line/runtime-api.js").LineChannelData;
-export type LineConfig = import("@openclaw/line/runtime-api.js").LineConfig;
-export type LineProbeResult = import("@openclaw/line/runtime-api.js").LineProbeResult;
-export type ListItem = import("@openclaw/line/runtime-api.js").ListItem;
-export type ResolvedLineAccount = import("@openclaw/line/runtime-api.js").ResolvedLineAccount;
-export type RichMenuArea = import("@openclaw/line/runtime-api.js").RichMenuArea;
-export type RichMenuAreaRequest = import("@openclaw/line/runtime-api.js").RichMenuAreaRequest;
-export type RichMenuRequest = import("@openclaw/line/runtime-api.js").RichMenuRequest;
-export type RichMenuResponse = import("@openclaw/line/runtime-api.js").RichMenuResponse;
-export type RichMenuSize = import("@openclaw/line/runtime-api.js").RichMenuSize;
+export type Action = import("@zhushou/line/runtime-api.js").Action;
+export type CardAction = import("@zhushou/line/runtime-api.js").CardAction;
+export type CreateRichMenuParams = import("@zhushou/line/runtime-api.js").CreateRichMenuParams;
+export type FlexBox = import("@zhushou/line/runtime-api.js").FlexBox;
+export type FlexBubble = import("@zhushou/line/runtime-api.js").FlexBubble;
+export type FlexButton = import("@zhushou/line/runtime-api.js").FlexButton;
+export type FlexCarousel = import("@zhushou/line/runtime-api.js").FlexCarousel;
+export type FlexComponent = import("@zhushou/line/runtime-api.js").FlexComponent;
+export type FlexContainer = import("@zhushou/line/runtime-api.js").FlexContainer;
+export type FlexImage = import("@zhushou/line/runtime-api.js").FlexImage;
+export type FlexText = import("@zhushou/line/runtime-api.js").FlexText;
+export type LineChannelData = import("@zhushou/line/runtime-api.js").LineChannelData;
+export type LineConfig = import("@zhushou/line/runtime-api.js").LineConfig;
+export type LineProbeResult = import("@zhushou/line/runtime-api.js").LineProbeResult;
+export type ListItem = import("@zhushou/line/runtime-api.js").ListItem;
+export type ResolvedLineAccount = import("@zhushou/line/runtime-api.js").ResolvedLineAccount;
+export type RichMenuArea = import("@zhushou/line/runtime-api.js").RichMenuArea;
+export type RichMenuAreaRequest = import("@zhushou/line/runtime-api.js").RichMenuAreaRequest;
+export type RichMenuRequest = import("@zhushou/line/runtime-api.js").RichMenuRequest;
+export type RichMenuResponse = import("@zhushou/line/runtime-api.js").RichMenuResponse;
+export type RichMenuSize = import("@zhushou/line/runtime-api.js").RichMenuSize;

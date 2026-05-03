@@ -41,7 +41,7 @@ function createOpenClawRoot(params: {
   }
   fs.writeFileSync(
     path.join(repoRoot, "package.json"),
-    `${JSON.stringify({ name: "openclaw" }, null, 2)}\n`,
+    `${JSON.stringify({ name: "zhushou" }, null, 2)}\n`,
     "utf8",
   );
   return repoRoot;
@@ -52,11 +52,11 @@ function seedBundledPluginTree(rootDir: string, relativeDir: string, pluginId = 
   fs.mkdirSync(pluginDir, { recursive: true });
   fs.writeFileSync(
     path.join(pluginDir, "package.json"),
-    `${JSON.stringify({ name: `@openclaw/${pluginId}` }, null, 2)}\n`,
+    `${JSON.stringify({ name: `@zhushou/${pluginId}` }, null, 2)}\n`,
     "utf8",
   );
   fs.writeFileSync(
-    path.join(pluginDir, "openclaw.plugin.json"),
+    path.join(pluginDir, "zhushou.plugin.json"),
     `${JSON.stringify({ id: pluginId }, null, 2)}\n`,
     "utf8",
   );
@@ -169,7 +169,7 @@ describe("resolveBundledPluginsDir", () => {
     [
       "prefers the staged runtime bundled plugin tree from the package root",
       {
-        prefix: "openclaw-bundled-dir-runtime-",
+        prefix: "zhushou-bundled-dir-runtime-",
         hasDistRuntimeExtensions: true,
         hasDistExtensions: true,
       },
@@ -180,7 +180,7 @@ describe("resolveBundledPluginsDir", () => {
     [
       "falls back to built dist/extensions in installed package roots",
       {
-        prefix: "openclaw-bundled-dir-dist-",
+        prefix: "zhushou-bundled-dir-dist-",
         hasDistExtensions: true,
       },
       {
@@ -190,7 +190,7 @@ describe("resolveBundledPluginsDir", () => {
     [
       "prefers built dist/extensions in a git checkout outside vitest",
       {
-        prefix: "openclaw-bundled-dir-git-built-",
+        prefix: "zhushou-bundled-dir-git-built-",
         hasExtensions: true,
         hasSrc: true,
         hasDistRuntimeExtensions: true,
@@ -204,7 +204,7 @@ describe("resolveBundledPluginsDir", () => {
     [
       "prefers source extensions under vitest to avoid stale staged plugins",
       {
-        prefix: "openclaw-bundled-dir-vitest-",
+        prefix: "zhushou-bundled-dir-vitest-",
         hasExtensions: true,
         hasDistRuntimeExtensions: true,
         hasDistExtensions: true,
@@ -217,7 +217,7 @@ describe("resolveBundledPluginsDir", () => {
     [
       "prefers source extensions during tsx-driven source execution",
       {
-        prefix: "openclaw-bundled-dir-tsx-",
+        prefix: "zhushou-bundled-dir-tsx-",
         hasExtensions: true,
         hasSrc: true,
         hasDistRuntimeExtensions: true,
@@ -232,7 +232,7 @@ describe("resolveBundledPluginsDir", () => {
     [
       "falls back to source extensions in a git checkout when built trees are missing",
       {
-        prefix: "openclaw-bundled-dir-git-",
+        prefix: "zhushou-bundled-dir-git-",
         hasExtensions: true,
         hasSrc: true,
         hasGitCheckout: true,
@@ -259,7 +259,7 @@ describe("resolveBundledPluginsDir", () => {
 
   it("falls back to source extensions when dist trees exist but do not contain real plugin manifests", () => {
     const repoRoot = createOpenClawRoot({
-      prefix: "openclaw-bundled-dir-incomplete-built-",
+      prefix: "zhushou-bundled-dir-incomplete-built-",
       hasExtensions: true,
       hasSrc: true,
       hasDistRuntimeExtensions: true,
@@ -279,7 +279,7 @@ describe("resolveBundledPluginsDir", () => {
 
   it("returns a stable empty bundled plugin directory when bundled plugins are disabled", () => {
     const repoRoot = createOpenClawRoot({
-      prefix: "openclaw-bundled-dir-disabled-",
+      prefix: "zhushou-bundled-dir-disabled-",
       hasExtensions: true,
       hasSrc: true,
       hasGitCheckout: true,
@@ -301,12 +301,12 @@ describe("resolveBundledPluginsDir", () => {
       name: "prefers the running CLI package root over an unrelated cwd checkout",
       createScenario: () => {
         const installedRoot = createOpenClawRoot({
-          prefix: "openclaw-bundled-dir-installed-",
+          prefix: "zhushou-bundled-dir-installed-",
           hasDistExtensions: true,
         });
         seedBundledPluginTree(installedRoot, path.join("dist", "extensions"));
         const cwdRepoRoot = createOpenClawRoot({
-          prefix: "openclaw-bundled-dir-cwd-",
+          prefix: "zhushou-bundled-dir-cwd-",
           hasExtensions: true,
           hasSrc: true,
           hasGitCheckout: true,
@@ -314,7 +314,7 @@ describe("resolveBundledPluginsDir", () => {
         return {
           installedRoot,
           cwd: cwdRepoRoot,
-          argv1: path.join(installedRoot, "openclaw.mjs"),
+          argv1: path.join(installedRoot, "zhushou.mjs"),
         };
       },
     },
@@ -322,13 +322,13 @@ describe("resolveBundledPluginsDir", () => {
       name: "falls back to the running installed package when the override path is stale",
       createScenario: () => {
         const installedRoot = createOpenClawRoot({
-          prefix: "openclaw-bundled-dir-override-",
+          prefix: "zhushou-bundled-dir-override-",
           hasDistExtensions: true,
         });
         seedBundledPluginTree(installedRoot, path.join("dist", "extensions"));
         return {
           installedRoot,
-          argv1: path.join(installedRoot, "openclaw.mjs"),
+          argv1: path.join(installedRoot, "zhushou.mjs"),
           bundledDirOverride: path.join(installedRoot, "missing-extensions"),
         };
       },

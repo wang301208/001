@@ -32,7 +32,7 @@ function resolveTaskName(env: GatewayServiceEnv): string {
   if (override) {
     return override;
   }
-  return resolveGatewayWindowsTaskName(env.OPENCLAW_PROFILE);
+  return resolveGatewayWindowsTaskName(env.ZHUSHOU_PROFILE);
 }
 
 function shouldFallbackToStartupEntry(params: { code: number; detail: string }): boolean {
@@ -319,7 +319,7 @@ function launchFallbackTaskScript(scriptPath: string): void {
 }
 
 function resolveConfiguredGatewayPort(env: GatewayServiceEnv): number | null {
-  const raw = env.OPENCLAW_GATEWAY_PORT?.trim();
+  const raw = env.ZHUSHOU_GATEWAY_PORT?.trim();
   if (!raw) {
     return null;
   }
@@ -363,7 +363,7 @@ async function resolveScheduledTaskPort(env: GatewayServiceEnv): Promise<number 
   const command = await readScheduledTaskCommand(env).catch(() => null);
   return (
     parsePortFromProgramArguments(command?.programArguments) ??
-    parsePositivePort(command?.environment?.OPENCLAW_GATEWAY_PORT) ??
+    parsePositivePort(command?.environment?.ZHUSHOU_GATEWAY_PORT) ??
     resolveConfiguredGatewayPort(env)
   );
 }

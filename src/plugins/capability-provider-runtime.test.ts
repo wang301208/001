@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { createEmptyPluginRegistry } from "./registry.js";
 
 type MockManifestRegistry = {
@@ -19,14 +19,14 @@ const mocks = vi.hoisted(() => ({
     createEmptyMockManifestRegistry(),
   ),
   withBundledPluginAllowlistCompat: vi.fn(
-    ({ config, pluginIds }: { config?: OpenClawConfig; pluginIds: string[] }) =>
+    ({ config, pluginIds }: { config?: ZhushouConfig; pluginIds: string[] }) =>
       ({
         ...config,
         plugins: {
           ...config?.plugins,
           allow: Array.from(new Set([...(config?.plugins?.allow ?? []), ...pluginIds])),
         },
-      }) as OpenClawConfig,
+      }) as ZhushouConfig,
   ),
   withBundledPluginEnablementCompat: vi.fn(({ config }) => config),
   withBundledPluginVitestCompat: vi.fn(({ config }) => config),
@@ -58,8 +58,8 @@ function expectNoResolvedCapabilityProviders(providers: Array<{ id: string }>) {
 }
 
 function expectBundledCompatLoadPath(params: {
-  cfg: OpenClawConfig;
-  allowlistCompat: OpenClawConfig;
+  cfg: ZhushouConfig;
+  allowlistCompat: ZhushouConfig;
   enablementCompat: {
     plugins: {
       allow?: string[];
@@ -86,12 +86,12 @@ function expectBundledCompatLoadPath(params: {
 }
 
 function createCompatChainConfig() {
-  const cfg = { plugins: { allow: ["custom-plugin"] } } as OpenClawConfig;
+  const cfg = { plugins: { allow: ["custom-plugin"] } } as ZhushouConfig;
   const allowlistCompat = {
     plugins: {
       allow: ["custom-plugin", "openai"],
     },
-  } as OpenClawConfig;
+  } as ZhushouConfig;
   const enablementCompat = {
     plugins: {
       allow: ["custom-plugin", "openai"],
@@ -130,8 +130,8 @@ function expectCompatChainApplied(params: {
     | "videoGenerationProviders"
     | "musicGenerationProviders";
   contractKey: string;
-  cfg: OpenClawConfig;
-  allowlistCompat: OpenClawConfig;
+  cfg: ZhushouConfig;
+  allowlistCompat: ZhushouConfig;
   enablementCompat: {
     plugins: {
       allow?: string[];
@@ -161,14 +161,14 @@ describe("resolvePluginCapabilityProviders", () => {
     mocks.loadPluginManifestRegistry.mockReturnValue(createEmptyMockManifestRegistry());
     mocks.withBundledPluginAllowlistCompat.mockClear();
     mocks.withBundledPluginAllowlistCompat.mockImplementation(
-      ({ config, pluginIds }: { config?: OpenClawConfig; pluginIds: string[] }) =>
+      ({ config, pluginIds }: { config?: ZhushouConfig; pluginIds: string[] }) =>
         ({
           ...config,
           plugins: {
             ...config?.plugins,
             allow: Array.from(new Set([...(config?.plugins?.allow ?? []), ...pluginIds])),
           },
-        }) as OpenClawConfig,
+        }) as ZhushouConfig,
     );
     mocks.withBundledPluginEnablementCompat.mockReset();
     mocks.withBundledPluginEnablementCompat.mockImplementation(({ config }) => config);
@@ -228,7 +228,7 @@ describe("resolvePluginCapabilityProviders", () => {
 
     const providers = resolvePluginCapabilityProviders({
       key: "speechProviders",
-      cfg: { messages: { tts: { provider: "edge" } } } as OpenClawConfig,
+      cfg: { messages: { tts: { provider: "edge" } } } as ZhushouConfig,
     });
 
     expectResolvedCapabilityProviderIds(providers, ["microsoft"]);
@@ -264,7 +264,7 @@ describe("resolvePluginCapabilityProviders", () => {
 
     const providers = resolvePluginCapabilityProviders({
       key: "mediaUnderstandingProviders",
-      cfg: {} as OpenClawConfig,
+      cfg: {} as ZhushouConfig,
     });
 
     expectNoResolvedCapabilityProviders(providers);
@@ -280,7 +280,7 @@ describe("resolvePluginCapabilityProviders", () => {
         allow: ["google"],
         entries: { google: { enabled: true } },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const loaded = createEmptyPluginRegistry();
     loaded.mediaUnderstandingProviders.push({
       pluginId: "google",
@@ -314,12 +314,12 @@ describe("resolvePluginCapabilityProviders", () => {
   });
 
   it("loads only the bundled owner plugin for a targeted provider lookup", () => {
-    const cfg = { plugins: { allow: ["custom-plugin"] } } as OpenClawConfig;
+    const cfg = { plugins: { allow: ["custom-plugin"] } } as ZhushouConfig;
     const allowlistCompat = {
       plugins: {
         allow: ["custom-plugin", "google"],
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const enablementCompat = {
       plugins: {
         allow: ["custom-plugin", "google"],

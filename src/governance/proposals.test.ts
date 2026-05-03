@@ -21,7 +21,7 @@ async function createTempGovernanceRoot(): Promise<{
   charterDir: string;
   stateDir: string;
 }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "openclaw-governance-proposals-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-governance-proposals-"));
   const charterDir = path.join(root, "governance", "charter");
   const stateDir = path.join(root, "state");
   await mkdir(path.join(charterDir, "agents"), { recursive: true });

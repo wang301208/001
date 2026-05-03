@@ -1,7 +1,7 @@
 {
-  "name": "@openclaw/codex",
+  "name": "@zhushou/codex",
   "version": "2026.4.16",
-  "description": "OpenClaw Codex harness and model provider plugin",
+  "description": "助手 Codex harness and model provider plugin",
   "type": "module",
   "dependencies": {
     "@mariozechner/pi-coding-agent": "0.66.1",
@@ -9,9 +9,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

@@ -13,7 +13,7 @@ type AcpRuntimeRegistryGlobalState = {
   backendsById: Map<string, AcpRuntimeBackend>;
 };
 
-const ACP_RUNTIME_REGISTRY_STATE_KEY = Symbol.for("openclaw.acpRuntimeRegistryState");
+const ACP_RUNTIME_REGISTRY_STATE_KEY = Symbol.for("zhushou.acpRuntimeRegistryState");
 
 function resolveAcpRuntimeRegistryGlobalState(): AcpRuntimeRegistryGlobalState {
   return resolveGlobalSingleton<AcpRuntimeRegistryGlobalState>(

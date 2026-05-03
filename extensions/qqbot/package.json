@@ -1,8 +1,8 @@
 {
-  "name": "@openclaw/qqbot",
+  "name": "@zhushou/qqbot",
   "version": "2026.4.16",
   "private": false,
-  "description": "OpenClaw QQ Bot channel plugin",
+  "description": "助手 QQ Bot channel plugin",
   "type": "module",
   "dependencies": {
     "mpg123-decoder": "^1.0.3",
@@ -10,19 +10,19 @@
     "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@openclaw/plugin-sdk": "workspace:*",
+    "@zhushou/plugin-sdk": "workspace:*",
     "@types/ws": "^8.18.1",
-    "openclaw": "workspace:*"
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "openclaw": {
+    "zhushou": {
       "optional": true
     }
   },
-  "openclaw": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -38,7 +38,7 @@
       "systemImage": "bubble.left.and.bubble.right"
     },
     "install": {
-      "npmSpec": "@openclaw/qqbot",
+      "npmSpec": "@zhushou/qqbot",
       "localPath": "extensions/qqbot",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
@@ -47,7 +47,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "openclawVersion": "2026.4.16"
+      "zhushouVersion": "2026.4.16"
     },
     "bundle": {
       "stageRuntimeDependencies": true

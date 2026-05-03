@@ -1,10 +1,10 @@
-import type { GetReplyOptions, MsgContext } from "openclaw/plugin-sdk/reply-runtime";
-import { withEnvAsync } from "openclaw/plugin-sdk/testing";
+import type { GetReplyOptions, MsgContext } from "zhushou/plugin-sdk/reply-runtime";
+import { withEnvAsync } from "zhushou/plugin-sdk/testing";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeRegExp, formatEnvelopeTimestamp } from "../../../test/helpers/envelope-timestamp.js";
 const harness = await import("./bot.create-telegram-bot.test-harness.js");
-const conversationRuntime = await import("openclaw/plugin-sdk/conversation-runtime");
-const configRuntime = await import("openclaw/plugin-sdk/config-runtime");
+const conversationRuntime = await import("zhushou/plugin-sdk/conversation-runtime");
+const configRuntime = await import("zhushou/plugin-sdk/config-runtime");
 const EYES_EMOJI = "\u{1F440}";
 const {
   answerCallbackQuerySpy,
@@ -745,7 +745,7 @@ describe("createTelegramBot", () => {
       const pairingText = String(sendMessageSpy.mock.calls[0]?.[1]);
       expect(pairingText, testCase.name).toContain(`Your Telegram user id: ${senderId}`);
       expect(pairingText, testCase.name).toContain("Pairing code:");
-      expect(pairingText, testCase.name).toContain("openclaw pairing approve telegram");
+      expect(pairingText, testCase.name).toContain("zhushou pairing approve telegram");
       expect(sendMessageSpy.mock.calls[0]?.[2], testCase.name).toEqual(
         expect.objectContaining({ parse_mode: "HTML" }),
       );
@@ -769,16 +769,16 @@ describe("createTelegramBot", () => {
         chat: { id: 1234, type: "private", first_name: "Harold" },
         message_id: 1884,
         date: 1736380800,
-        from: { id: 7, is_bot: true, first_name: "OpenClaw", username: "openclaw_bot" },
+        from: { id: 7, is_bot: true, first_name: "助手", username: "openclaw_bot" },
         pinned_message: {
           message_id: 1883,
           date: 1736380799,
           chat: { id: 1234, type: "private", first_name: "Harold" },
-          from: { id: 7, is_bot: true, first_name: "OpenClaw", username: "openclaw_bot" },
-          text: "Binding: Review pull request 54118 (openclaw)",
+          from: { id: 7, is_bot: true, first_name: "助手", username: "openclaw_bot" },
+          text: "Binding: Review pull request 54118 (zhushou)",
         },
       },
-      me: { id: 7, is_bot: true, first_name: "OpenClaw", username: "openclaw_bot" },
+      me: { id: 7, is_bot: true, first_name: "助手", username: "openclaw_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -851,13 +851,13 @@ describe("createTelegramBot", () => {
 
     await handler({
       message: {
-        chat: { id: -1001234, type: "supergroup", title: "OpenClaw Ops" },
+        chat: { id: -1001234, type: "supergroup", title: "助手 Ops" },
         message_id: 1884,
         date: 1736380800,
-        from: { id: 7, is_bot: true, first_name: "OpenClaw", username: "openclaw_bot" },
+        from: { id: 7, is_bot: true, first_name: "助手", username: "openclaw_bot" },
         text: "approval card update",
       },
-      me: { id: 7, is_bot: true, first_name: "OpenClaw", username: "openclaw_bot" },
+      me: { id: 7, is_bot: true, first_name: "助手", username: "openclaw_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -2787,7 +2787,7 @@ describe("createTelegramBot", () => {
     }
   });
   it("honors routed group activation from session store", async () => {
-    const storePath = "/tmp/openclaw-telegram-group-activation.json";
+    const storePath = "/tmp/zhushou-telegram-group-activation.json";
     const routedGroupEntry = {
       sessionId: "agent:ops:telegram:group:123",
       updatedAt: 0,

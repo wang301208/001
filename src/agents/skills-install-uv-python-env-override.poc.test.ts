@@ -17,7 +17,7 @@ describe("workspace .env UV_PYTHON handling for uv skill installs", () => {
   it.runIf(process.platform !== "win32")(
     "does not propagate UV_PYTHON from workspace dotenv into uv tool install execution",
     async () => {
-      const base = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-poc-uv-python-"));
+      const base = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-poc-uv-python-"));
       const cwdDir = path.join(base, "cwd");
       const binDir = path.join(base, "bin");
       const markerPath = path.join(base, "uv-python-marker.txt");
@@ -33,7 +33,7 @@ describe("workspace .env UV_PYTHON handling for uv skill installs", () => {
             "---",
             "name: uv-skill",
             "description: uv install PoC",
-            'metadata: {"openclaw":{"install":[{"id":"deps","kind":"uv","package":"httpie==3.2.2"}]}}',
+            'metadata: {"zhushou":{"install":[{"id":"deps","kind":"uv","package":"httpie==3.2.2"}]}}',
             "---",
             "",
             "# uv-skill",

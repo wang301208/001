@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { PluginAutoEnableResult } from "../config/plugin-auto-enable.js";
 import type { PluginManifestRecord } from "./manifest-registry.js";
 import { createEmptyPluginRegistry } from "./registry-empty.js";
@@ -52,7 +52,7 @@ function createManifestProviderPlugin(params: {
     origin: params.origin ?? "bundled",
     rootDir: `/tmp/${params.id}`,
     source: params.origin ?? "bundled",
-    manifestPath: `/tmp/${params.id}/openclaw.plugin.json`,
+    manifestPath: `/tmp/${params.id}/zhushou.plugin.json`,
   };
 }
 
@@ -200,10 +200,10 @@ function createBundledProviderCompatOptions(params?: { onlyPluginIds?: readonly 
 }
 
 function createAutoEnabledProviderConfig() {
-  const rawConfig: OpenClawConfig = {
+  const rawConfig: ZhushouConfig = {
     plugins: {},
   };
-  const autoEnabledConfig: OpenClawConfig = {
+  const autoEnabledConfig: ZhushouConfig = {
     ...rawConfig,
     plugins: {
       entries: {
@@ -324,7 +324,7 @@ describe("resolvePluginProviders", () => {
     applyPluginAutoEnableMock.mockReset();
     applyPluginAutoEnableMock.mockImplementation(
       (params): PluginAutoEnableResult => ({
-        config: params.config ?? ({} as OpenClawConfig),
+        config: params.config ?? ({} as ZhushouConfig),
         changes: [],
         autoEnabledReasons: {},
       }),
@@ -359,7 +359,7 @@ describe("resolvePluginProviders", () => {
   });
 
   it("forwards an explicit env to plugin loading", () => {
-    const env = { OPENCLAW_HOME: "/srv/openclaw-home" } as NodeJS.ProcessEnv;
+    const env = { ZHUSHOU_HOME: "/srv/zhushou-home" } as NodeJS.ProcessEnv;
 
     const providers = resolvePluginProviders({
       workspaceDir: "/workspace/explicit",

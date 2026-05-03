@@ -1,5 +1,5 @@
-import { buildMentionRegexes, normalizeMentionText } from "openclaw/plugin-sdk/channel-inbound";
-import type { loadConfig } from "openclaw/plugin-sdk/config-runtime";
+import { buildMentionRegexes, normalizeMentionText } from "zhushou/plugin-sdk/channel-inbound";
+import type { loadConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   getComparableIdentityValues,
   getMentionIdentities,

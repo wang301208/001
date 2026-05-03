@@ -27,7 +27,7 @@ describeLive("xai x_search live", () => {
 
     expect(tool).toBeTruthy();
     const result = await tool!.execute("x-search:live", {
-      query: "OpenClaw from:steipete",
+      query: "助手 from:steipete",
       to_date: "2026-03-28",
     });
 

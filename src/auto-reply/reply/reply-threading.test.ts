@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 import {
@@ -8,7 +8,7 @@ import {
   resolveReplyToModeWithThreading,
 } from "./reply-threading.js";
 
-const emptyCfg = {} as OpenClawConfig;
+const emptyCfg = {} as ZhushouConfig;
 
 describe("resolveReplyToMode", () => {
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe("resolveReplyToMode", () => {
         discord: { replyToMode: "first" },
         slack: { replyToMode: "all" },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const chatTypeCfg = {
       channels: {
         slack: {
@@ -34,14 +34,14 @@ describe("resolveReplyToMode", () => {
           replyToModeByChatType: { direct: "all", group: "first" },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const topLevelFallbackCfg = {
       channels: {
         slack: {
           replyToMode: "first",
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
     const legacyDmCfg = {
       channels: {
         slack: {
@@ -49,10 +49,10 @@ describe("resolveReplyToMode", () => {
           dm: { replyToMode: "all" },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     const cases: Array<{
-      cfg: OpenClawConfig;
+      cfg: ZhushouConfig;
       channel?: "telegram" | "discord" | "slack";
       chatType?: "direct" | "group" | "channel";
       expected: "off" | "all" | "first";
@@ -89,7 +89,7 @@ describe("resolveReplyToMode", () => {
               replyToMode: "off",
             },
           },
-        } as OpenClawConfig,
+        } as ZhushouConfig,
         {
           resolveReplyToMode: () => "first",
         },
@@ -121,7 +121,7 @@ describe("resolveConfiguredReplyToMode", () => {
           dm: { replyToMode: "all" },
         },
       },
-    } as OpenClawConfig;
+    } as ZhushouConfig;
 
     expect(resolveConfiguredReplyToMode(cfg, "slack", "direct")).toBe("all");
     expect(resolveConfiguredReplyToMode(cfg, "slack", "group")).toBe("first");

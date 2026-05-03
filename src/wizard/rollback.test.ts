@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   createSnapshot,
   listConfigSnapshots,
@@ -13,11 +13,11 @@ import {
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-function sampleConfig(overrides: Partial<OpenClawConfig> = {}): OpenClawConfig {
+function sampleConfig(overrides: Partial<ZhushouConfig> = {}): ZhushouConfig {
   return {
     gateway: { bind: "loopback", auth: { mode: "token" } },
     ...overrides,
-  } as OpenClawConfig;
+  } as ZhushouConfig;
 }
 
 let tmpDir = "";
@@ -149,7 +149,7 @@ describe("rollbackToSnapshot", () => {
     const snap = createSnapshot(cfg, "immutable-test");
     const originalBind = snap.config.gateway?.bind;
 
-    const writer = vi.fn(async (written: OpenClawConfig) => {
+    const writer = vi.fn(async (written: ZhushouConfig) => {
       (written as unknown as Record<string, unknown>).gateway = { bind: "mutated" };
     });
 

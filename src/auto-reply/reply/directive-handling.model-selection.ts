@@ -4,7 +4,7 @@ import {
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
 import { resolveProviderIdForAuth } from "../../agents/provider-auth-aliases.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { resolveProfileOverride } from "./directive-handling.auth-profile.js";
 import { resolveDirectiveHandlingAuthProfileStore } from "./directive-handling.auth-store.js";
 import type { InlineDirectives } from "./directive-handling.parse.js";
@@ -43,7 +43,7 @@ function resolveStoredNumericProfileModelDirective(params: { raw: string; agentD
 
 export function resolveModelSelectionFromDirective(params: {
   directives: InlineDirectives;
-  cfg: OpenClawConfig;
+  cfg: ZhushouConfig;
   agentDir: string;
   defaultProvider: string;
   defaultModel: string;

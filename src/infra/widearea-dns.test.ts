@@ -12,7 +12,7 @@ import {
 } from "./widearea-dns.js";
 
 const baseZoneOpts: WideAreaGatewayZoneOpts = {
-  domain: "openclaw.internal.",
+  domain: "zhushou.internal.",
   gatewayPort: 18789,
   displayName: "Mac Studio (助手)",
   tailnetIPv4: "100.123.224.76",
@@ -44,9 +44,9 @@ afterEach(() => {
 
 describe("wide-area DNS discovery domain helpers", () => {
   it.each([
-    { value: "openclaw.internal", expected: "openclaw.internal." },
-    { value: "openclaw.internal.", expected: "openclaw.internal." },
-    { value: "  openclaw.internal  ", expected: "openclaw.internal." },
+    { value: "zhushou.internal", expected: "zhushou.internal." },
+    { value: "zhushou.internal.", expected: "zhushou.internal." },
+    { value: "  zhushou.internal  ", expected: "zhushou.internal." },
     { value: "", expected: null },
     { value: "   ", expected: null },
     { value: null, expected: null },
@@ -84,8 +84,8 @@ describe("wide-area DNS discovery domain helpers", () => {
   });
 
   it("builds the default zone path from the normalized domain", () => {
-    expect(getWideAreaZonePath("openclaw.internal.")).toBe(
-      path.join(utils.CONFIG_DIR, "dns", "openclaw.internal.db"),
+    expect(getWideAreaZonePath("zhushou.internal.")).toBe(
+      path.join(utils.CONFIG_DIR, "dns", "zhushou.internal.db"),
     );
   });
 });
@@ -95,11 +95,11 @@ describe("wide-area DNS-SD zone rendering", () => {
     const txt = renderZoneText({
       tailnetIPv6: "fd7a:115c:a1e0::8801:e04c",
       sshPort: 22,
-      cliPath: "/opt/homebrew/bin/openclaw",
+      cliPath: "/opt/homebrew/bin/zhushou",
     });
 
     expectZoneRecords(txt, [
-      `$ORIGIN openclaw.internal.`,
+      `$ORIGIN zhushou.internal.`,
       `studio-london IN A 100.123.224.76`,
       `studio-london IN AAAA fd7a:115c:a1e0::8801:e04c`,
       `_openclaw-gw._tcp IN PTR studio-london._openclaw-gw._tcp`,
@@ -107,7 +107,7 @@ describe("wide-area DNS-SD zone rendering", () => {
       `displayName=Mac Studio (助手)`,
       `gatewayPort=18789`,
       `sshPort=22`,
-      `cliPath=/opt/homebrew/bin/openclaw`,
+      `cliPath=/opt/homebrew/bin/zhushou`,
     ]);
   });
 
@@ -120,24 +120,24 @@ describe("wide-area DNS-SD zone rendering", () => {
     {
       name: "includes gateway TLS TXT fields and trims display metadata",
       overrides: {
-        domain: "openclaw.internal",
+        domain: "zhushou.internal",
         displayName: "  Mac Studio (助手)  ",
         hostLabel: " Studio London ",
         instanceLabel: " Studio London ",
         gatewayTlsEnabled: true,
         gatewayTlsFingerprintSha256: "abc123",
         tailnetDns: " tailnet.ts.net ",
-        cliPath: " /opt/homebrew/bin/openclaw ",
+        cliPath: " /opt/homebrew/bin/zhushou ",
       },
       records: [
-        `$ORIGIN openclaw.internal.`,
+        `$ORIGIN zhushou.internal.`,
         `studio-london IN A 100.123.224.76`,
         `studio-london._openclaw-gw._tcp IN TXT`,
         `displayName=Mac Studio (助手)`,
         `gatewayTls=1`,
         `gatewayTlsSha256=abc123`,
         `tailnetDns=tailnet.ts.net`,
-        `cliPath=/opt/homebrew/bin/openclaw`,
+        `cliPath=/opt/homebrew/bin/zhushou`,
       ],
     },
   ])("$name", ({ overrides, records }) => {
@@ -161,7 +161,7 @@ describe("wide-area DNS zone writes", () => {
     const result = await writeWideAreaGatewayZone(makeZoneOpts());
 
     expect(result).toEqual({
-      zonePath: getWideAreaZonePath("openclaw.internal."),
+      zonePath: getWideAreaZonePath("zhushou.internal."),
       changed: false,
     });
     expect(writeSpy).not.toHaveBeenCalled();
@@ -181,11 +181,11 @@ describe("wide-area DNS zone writes", () => {
     );
 
     expect(result).toEqual({
-      zonePath: getWideAreaZonePath("openclaw.internal."),
+      zonePath: getWideAreaZonePath("zhushou.internal."),
       changed: true,
     });
     expect(writeSpy).toHaveBeenCalledWith(
-      getWideAreaZonePath("openclaw.internal."),
+      getWideAreaZonePath("zhushou.internal."),
       expect.stringContaining("@ IN SOA ns1 hostmaster 2026031305 7200 3600 1209600 60"),
       "utf-8",
     );

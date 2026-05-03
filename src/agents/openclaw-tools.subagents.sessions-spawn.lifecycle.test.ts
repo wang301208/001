@@ -10,7 +10,7 @@ import {
   setSessionsSpawnHookRunnerOverride,
   setupSessionsSpawnGatewayMock,
   setSessionsSpawnConfigOverride,
-} from "./openclaw-tools.subagents.sessions-spawn.test-harness.js";
+} from "./zhushou-tools.subagents.sessions-spawn.test-harness.js";
 import {
   getLatestSubagentRunByChildSessionKey,
   resetSubagentRegistryForTests,
@@ -138,7 +138,7 @@ async function waitForRunCleanup(childSessionKey: string) {
   });
 }
 
-describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
+describe("zhushou-tools: subagents (sessions_spawn lifecycle)", () => {
   beforeEach(() => {
     resetSessionsSpawnAnnounceFlowOverride();
     resetSessionsSpawnHookRunnerOverride();

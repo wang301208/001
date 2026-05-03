@@ -1,7 +1,7 @@
 import path from "node:path";
 import { getRuntimeConfigSnapshot, loadConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { collectGovernanceCharterFindings, type SecurityAuditFinding } from "../security/audit.js";
 import {
@@ -230,7 +230,7 @@ const GOVERNANCE_RECONCILE_SAFE_RULE_IDS = new Set<string>([
   "synchronize_capability_asset_registry",
 ]);
 
-function resolveRuntimeConfig(cfg?: OpenClawConfig): OpenClawConfig {
+function resolveRuntimeConfig(cfg?: ZhushouConfig): ZhushouConfig {
   return cfg ?? getRuntimeConfigSnapshot() ?? loadConfig();
 }
 
@@ -346,7 +346,7 @@ function mapOrganization(options: {
 }
 
 export function getGovernanceOverview(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   observedAt?: number;
   stateDir?: string;
@@ -408,7 +408,7 @@ export function getGovernanceOverview(params: {
 
 export function getGovernanceAgent(params: {
   agentId: string;
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   observedAt?: number;
   stateDir?: string;
@@ -464,7 +464,7 @@ export function getGovernanceAgent(params: {
 
 export function getGovernanceTeam(params: {
   teamId: string;
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   observedAt?: number;
   stateDir?: string;
@@ -531,7 +531,7 @@ export function getGovernanceTeam(params: {
 }
 
 export function getGovernanceCapabilityInventory(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   workspaceDirs?: string[];
   observedAt?: number;
@@ -541,7 +541,7 @@ export function getGovernanceCapabilityInventory(params: {
 }
 
 export function getGovernanceCapabilityAssetRegistry(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   workspaceDirs?: string[];
   observedAt?: number;
@@ -565,7 +565,7 @@ export function getGovernanceCapabilityAssetRegistry(params: {
 }
 
 export function getGovernanceGenesisPlan(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   workspaceDirs?: string[];
   observedAt?: number;
@@ -577,7 +577,7 @@ export function getGovernanceGenesisPlan(params: {
 }
 
 export async function synthesizeGovernanceProposals(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   stateDir?: string;
   env?: NodeJS.ProcessEnv;
@@ -605,7 +605,7 @@ function formatUnknownError(error: unknown): string {
 }
 
 export async function reconcileGovernanceProposals(params: {
-  cfg?: OpenClawConfig;
+  cfg?: ZhushouConfig;
   charterDir?: string;
   stateDir?: string;
   env?: NodeJS.ProcessEnv;

@@ -7,8 +7,8 @@ import { cleanupTempDirs, makeTempDir } from "../test/helpers/temp-dir.js";
 const tempRoots: string[] = [];
 
 function withFakeCli(versionOutput: string): { root: string; cliPath: string } {
-  const root = makeTempDir(tempRoots, "openclaw-install-sh-");
-  const cliPath = path.join(root, "openclaw");
+  const root = makeTempDir(tempRoots, "zhushou-install-sh-");
+  const cliPath = path.join(root, "zhushou");
   const escapedOutput = versionOutput.replace(/'/g, "'\\''");
   fs.writeFileSync(
     cliPath,
@@ -45,7 +45,7 @@ OPENCLAW_BIN="$FAKE_OPENCLAW_BIN"
 resolve_openclaw_version
 OPENCLAW_STDIN_INSTALLER
 )`,
-      "openclaw-version-test",
+      "zhushou-version-test",
       params.stdinCliPath,
       params.stdinCwd,
       ...params.cliPaths,
@@ -71,10 +71,10 @@ describe("install.sh version resolution", () => {
     "parses CLI versions and keeps stdin helpers isolated from cwd",
     () => {
       const decorated = withFakeCli("助手 2026.3.10 (abcdef0)");
-      const raw = withFakeCli("OpenClaw dev's build");
+      const raw = withFakeCli("助手 dev's build");
       const stdinFixture = withFakeCli("助手 2026.3.10 (abcdef0)");
 
-      const hostileCwd = makeTempDir(tempRoots, "openclaw-install-stdin-");
+      const hostileCwd = makeTempDir(tempRoots, "zhushou-install-stdin-");
       const hostileHelper = path.join(
         hostileCwd,
         "docker",
@@ -98,7 +98,7 @@ extract_openclaw_semver() {
           stdinCliPath: stdinFixture.cliPath,
           stdinCwd: hostileCwd,
         }),
-      ).toEqual(["2026.3.10", "OpenClaw dev's build", "2026.3.10"]);
+      ).toEqual(["2026.3.10", "助手 dev's build", "2026.3.10"]);
     },
   );
 });

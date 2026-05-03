@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
 
 export function collectConfiguredAgentHarnessRuntimes(
-  config: OpenClawConfig,
+  config: ZhushouConfig,
   env: NodeJS.ProcessEnv,
 ): string[] {
   const runtimes = new Set<string>();

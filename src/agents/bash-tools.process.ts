@@ -1,5 +1,5 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { getRuntimeConfigSnapshot } from "../config/runtime-snapshot.js";
 import {
   formatGovernanceEnforcementMessage,
@@ -33,7 +33,7 @@ export type ProcessToolDefaults = {
   cleanupMs?: number;
   hasCronTool?: boolean;
   scopeKey?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   charterDir?: string;
 };
 

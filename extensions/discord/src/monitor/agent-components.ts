@@ -18,17 +18,17 @@ import {
 } from "@buape/carbon";
 import type { APIStringSelectComponent } from "discord-api-types/v10";
 import { ButtonStyle, ChannelType } from "discord-api-types/v10";
-import { resolveHumanDelayConfig } from "openclaw/plugin-sdk/agent-runtime";
+import { resolveHumanDelayConfig } from "zhushou/plugin-sdk/agent-runtime";
 import {
   formatInboundEnvelope,
   resolveEnvelopeFormatOptions,
-} from "openclaw/plugin-sdk/channel-inbound";
-import { isDangerousNameMatchingEnabled } from "openclaw/plugin-sdk/dangerous-name-runtime";
-import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
-import { getAgentScopedMediaLocalRoots } from "openclaw/plugin-sdk/media-runtime";
-import { createNonExitingRuntime, logVerbose } from "openclaw/plugin-sdk/runtime-env";
-import { resolveOpenProviderRuntimeGroupPolicy } from "openclaw/plugin-sdk/runtime-group-policy";
-import { logDebug, logError } from "openclaw/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { isDangerousNameMatchingEnabled } from "zhushou/plugin-sdk/dangerous-name-runtime";
+import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/markdown-table-runtime";
+import { getAgentScopedMediaLocalRoots } from "zhushou/plugin-sdk/media-runtime";
+import { createNonExitingRuntime, logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { resolveOpenProviderRuntimeGroupPolicy } from "zhushou/plugin-sdk/runtime-group-policy";
+import { logDebug, logError } from "zhushou/plugin-sdk/text-runtime";
 import { resolveDiscordMaxLinesPerMessage } from "../accounts.js";
 import { createDiscordRestClient } from "../client.js";
 import {
@@ -88,9 +88,9 @@ import { deliverDiscordReply } from "./reply-delivery.js";
 
 let conversationRuntimePromise: Promise<typeof import("./agent-components.runtime.js")> | undefined;
 let componentsRuntimePromise: Promise<typeof import("../components.js")> | undefined;
-let replyRuntimePromise: Promise<typeof import("openclaw/plugin-sdk/reply-runtime")> | undefined;
+let replyRuntimePromise: Promise<typeof import("zhushou/plugin-sdk/reply-runtime")> | undefined;
 let replyPipelineRuntimePromise:
-  | Promise<typeof import("openclaw/plugin-sdk/channel-reply-pipeline")>
+  | Promise<typeof import("zhushou/plugin-sdk/channel-reply-pipeline")>
   | undefined;
 let typingRuntimePromise: Promise<typeof import("./typing.js")> | undefined;
 
@@ -105,11 +105,11 @@ async function loadComponentsRuntime() {
 }
 
 async function _loadReplyRuntime() {
-  replyRuntimePromise ??= import("openclaw/plugin-sdk/reply-runtime");
+  replyRuntimePromise ??= import("zhushou/plugin-sdk/reply-runtime");
   return await replyRuntimePromise;
 }
 async function loadReplyPipelineRuntime() {
-  replyPipelineRuntimePromise ??= import("openclaw/plugin-sdk/channel-reply-pipeline");
+  replyPipelineRuntimePromise ??= import("zhushou/plugin-sdk/channel-reply-pipeline");
   return await replyPipelineRuntimePromise;
 }
 
@@ -1251,7 +1251,7 @@ class DiscordComponentChannelSelect extends ChannelSelectMenu {
 }
 
 class DiscordComponentModal extends Modal {
-  title = "OpenClaw form";
+  title = "助手 form";
   customId = "__openclaw_discord_component_modal_wildcard__";
   components = [];
   customIdParser = parseDiscordModalCustomIdForCarbon;

@@ -1,5 +1,5 @@
 import type { AgentEmbeddedHarnessConfig } from "../../config/types.agents-shared.js";
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { listAgentEntries, resolveSessionAgentIds } from "../agent-scope.js";
@@ -45,7 +45,7 @@ function compareHarnessSupport(
 export function selectAgentHarness(params: {
   provider: string;
   modelId?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentId?: string;
   sessionKey?: string;
 }): AgentHarness {
@@ -155,7 +155,7 @@ export async function maybeCompactAgentHarnessSession(
 export function resolveAgentHarnessPolicy(params: {
   provider?: string;
   modelId?: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   agentId?: string;
   sessionKey?: string;
   env?: NodeJS.ProcessEnv;
@@ -180,7 +180,7 @@ export function resolveAgentHarnessPolicy(params: {
 }
 
 function resolveAgentEmbeddedHarnessConfig(
-  config: OpenClawConfig | undefined,
+  config: ZhushouConfig | undefined,
   params: { agentId?: string; sessionKey?: string },
 ): AgentEmbeddedHarnessConfig | undefined {
   if (!config) {

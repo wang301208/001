@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import type { AgentContextInjection } from "../config/types.agent-defaults.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import type { SessionTaskContinuation } from "../config/sessions.js";
 import {
@@ -31,7 +31,7 @@ export type BootstrapContextRunKind = "default" | "heartbeat" | "cron";
 
 const CONTINUATION_SCAN_MAX_TAIL_BYTES = 256 * 1024;
 const CONTINUATION_SCAN_MAX_RECORDS = 500;
-export const FULL_BOOTSTRAP_COMPLETED_CUSTOM_TYPE = "openclaw:bootstrap-context:full";
+export const FULL_BOOTSTRAP_COMPLETED_CUSTOM_TYPE = "zhushou:bootstrap-context:full";
 const BOOTSTRAP_WARNING_DEDUPE_LIMIT = 1024;
 const seenBootstrapWarnings = new Set<string>();
 const bootstrapWarningOrder: string[] = [];
@@ -56,7 +56,7 @@ export function _resetBootstrapWarningCacheForTest(): void {
   bootstrapWarningOrder.length = 0;
 }
 
-export function resolveContextInjectionMode(config?: OpenClawConfig): AgentContextInjection {
+export function resolveContextInjectionMode(config?: ZhushouConfig): AgentContextInjection {
   return config?.agents?.defaults?.contextInjection ?? "always";
 }
 
@@ -202,7 +202,7 @@ function applyContextModeFilter(params: {
 }
 
 function shouldExcludeHeartbeatBootstrapFile(params: {
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;
@@ -238,7 +238,7 @@ function filterHeartbeatBootstrapFile(
 
 export async function resolveBootstrapFilesForRun(params: {
   workspaceDir: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;
@@ -276,7 +276,7 @@ export async function resolveBootstrapFilesForRun(params: {
 
 export async function resolveBootstrapContextForRun(params: {
   workspaceDir: string;
-  config?: OpenClawConfig;
+  config?: ZhushouConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;

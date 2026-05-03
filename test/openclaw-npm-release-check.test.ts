@@ -19,7 +19,7 @@ import {
   resolveNpmCommandInvocation,
   shouldSkipPackedTarballValidation,
   utcCalendarDayDistance,
-} from "../scripts/openclaw-npm-release-check.ts";
+} from "../scripts/zhushou-npm-release-check.ts";
 import { PACKAGE_DIST_INVENTORY_RELATIVE_PATH } from "../src/infra/package-dist-inventory.ts";
 
 const LEGACY_UPDATE_COMPAT_PACKED_PATHS = [
@@ -265,8 +265,8 @@ describe("resolveNpmCommandInvocation", () => {
 
 describe("parseNpmPackJsonOutput", () => {
   it("parses a plain npm pack JSON array", () => {
-    expect(parseNpmPackJsonOutput('[{"filename":"openclaw.tgz","files":[]}]')).toEqual([
-      { filename: "openclaw.tgz", files: [] },
+    expect(parseNpmPackJsonOutput('[{"filename":"zhushou.tgz","files":[]}]')).toEqual([
+      { filename: "zhushou.tgz", files: [] },
     ]);
   });
 
@@ -274,23 +274,23 @@ describe("parseNpmPackJsonOutput", () => {
     const stdout = [
       'npm warn Unknown project config "node-linker".',
       "",
-      "> openclaw@2026.3.23 prepack",
+      "> zhushou@2026.3.23 prepack",
       "> pnpm build",
       "",
       "[copy-hook-metadata] Copied 4 hook metadata files.",
-      '[{"filename":"openclaw.tgz","files":[{"path":"dist/index.mjs"}]}]',
+      '[{"filename":"zhushou.tgz","files":[{"path":"dist/index.mjs"}]}]',
     ].join("\n");
 
     expect(parseNpmPackJsonOutput(stdout)).toEqual([
       {
-        filename: "openclaw.tgz",
+        filename: "zhushou.tgz",
         files: [{ path: "dist/index.mjs" }],
       },
     ]);
   });
 
   it("returns null when no JSON payload is present", () => {
-    expect(parseNpmPackJsonOutput("> openclaw@2026.3.23 prepack")).toBeNull();
+    expect(parseNpmPackJsonOutput("> zhushou@2026.3.23 prepack")).toBeNull();
   });
 });
 
@@ -357,7 +357,7 @@ describe("collectForbiddenPackedPathErrors", () => {
   });
 
   it("rejects root dist chunks that still reference the private qa lab", () => {
-    const rootDir = mkdtempSync(join(tmpdir(), "openclaw-pack-private-qa-"));
+    const rootDir = mkdtempSync(join(tmpdir(), "zhushou-pack-private-qa-"));
 
     try {
       mkdirSync(join(rootDir, "dist"), { recursive: true });
@@ -491,11 +491,11 @@ describe("collectReleasePackageMetadataErrors", () => {
   it("validates the expected npm package metadata", () => {
     expect(
       collectReleasePackageMetadataErrors({
-        name: "openclaw",
+        name: "zhushou",
         description: "Multi-channel AI gateway with extensible messaging integrations",
         license: "MIT",
-        repository: { url: "git+https://github.com/openclaw/openclaw.git" },
-        bin: { openclaw: "openclaw.mjs" },
+        repository: { url: "git+https://github.com/zhushou/zhushou.git" },
+        bin: { zhushou: "zhushou.mjs" },
         peerDependencies: { "node-llama-cpp": "3.18.1" },
         peerDependenciesMeta: { "node-llama-cpp": { optional: true } },
       }),
@@ -505,11 +505,11 @@ describe("collectReleasePackageMetadataErrors", () => {
   it("requires node-llama-cpp to stay an optional peer", () => {
     expect(
       collectReleasePackageMetadataErrors({
-        name: "openclaw",
+        name: "zhushou",
         description: "Multi-channel AI gateway with extensible messaging integrations",
         license: "MIT",
-        repository: { url: "git+https://github.com/openclaw/openclaw.git" },
-        bin: { openclaw: "openclaw.mjs" },
+        repository: { url: "git+https://github.com/zhushou/zhushou.git" },
+        bin: { zhushou: "zhushou.mjs" },
         peerDependencies: { "node-llama-cpp": "3.18.1" },
       }),
     ).toContain('package.json peerDependenciesMeta["node-llama-cpp"].optional must be true.');

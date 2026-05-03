@@ -190,7 +190,7 @@ describe("matrix live qa scenarios", () => {
   it("merges default and scenario-requested Matrix topology once per run", () => {
     expect(
       scenarioTesting.buildMatrixQaTopologyForScenarios({
-        defaultRoomName: "OpenClaw Matrix QA run",
+        defaultRoomName: "助手 Matrix QA run",
         scenarios: [
           MATRIX_QA_SCENARIOS[0],
           {
@@ -227,7 +227,7 @@ describe("matrix live qa scenarios", () => {
           key: "main",
           kind: "group",
           members: ["driver", "observer", "sut"],
-          name: "OpenClaw Matrix QA run",
+          name: "助手 Matrix QA run",
           requireMention: true,
         },
         {
@@ -250,7 +250,7 @@ describe("matrix live qa scenarios", () => {
   it("rejects conflicting Matrix topology room definitions", () => {
     expect(() =>
       scenarioTesting.buildMatrixQaTopologyForScenarios({
-        defaultRoomName: "OpenClaw Matrix QA run",
+        defaultRoomName: "助手 Matrix QA run",
         scenarios: [
           {
             id: "matrix-thread-follow-up",
@@ -295,7 +295,7 @@ describe("matrix live qa scenarios", () => {
 
   it("provisions isolated encrypted rooms for each E2EE scenario", () => {
     const topology = scenarioTesting.buildMatrixQaTopologyForScenarios({
-      defaultRoomName: "OpenClaw Matrix QA run",
+      defaultRoomName: "助手 Matrix QA run",
       scenarios: [
         MATRIX_QA_SCENARIOS.find((scenario) => scenario.id === "matrix-e2ee-basic-reply")!,
         MATRIX_QA_SCENARIOS.find((scenario) => scenario.id === "matrix-e2ee-thread-follow-up")!,
@@ -308,7 +308,7 @@ describe("matrix live qa scenarios", () => {
         key: "main",
         kind: "group",
         members: ["driver", "observer", "sut"],
-        name: "OpenClaw Matrix QA run",
+        name: "助手 Matrix QA run",
         requireMention: true,
       },
       {

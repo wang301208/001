@@ -1,9 +1,9 @@
-import type { BaseProbeResult } from "openclaw/plugin-sdk/channel-contract";
-import { loadConfig } from "openclaw/plugin-sdk/config-runtime";
-import { runCommandWithTimeout } from "openclaw/plugin-sdk/process-runtime";
-import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
-import { detectBinary } from "openclaw/plugin-sdk/setup";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import type { BaseProbeResult } from "zhushou/plugin-sdk/channel-contract";
+import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import { runCommandWithTimeout } from "zhushou/plugin-sdk/process-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { detectBinary } from "zhushou/plugin-sdk/setup";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { createIMessageRpcClient } from "./client.js";
 import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 
