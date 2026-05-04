@@ -9,8 +9,13 @@ import type {
 } from "../plugins/runtime/runtime-taskflow.types.js";
 import type { TaskFlowDetail } from "../plugins/runtime/task-domain-types.js";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../routing/session-key.js";
+import { Command } from "commander";
 import type { RuntimeEnv } from "../runtime.js";
-import { normalizeOptionalString } from "../shared/string-coerce.js";
+import { initializeGenesisTeamLoop, getGenesisTeamLoop } from "../governance/genesis-team-loop.js";
+import { initializePostPromotionObserver, getPostPromotionObserver } from "../governance/post-promotion-observer.js";
+import { loadConfig } from "../config/config.js";
+
+export function registerAutonomyCommands(program: Command, runtime: RuntimeEnv): void {
 import { theme } from "../terminal/theme.js";
 import { isRecord } from "../utils.js";
 

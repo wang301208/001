@@ -127,6 +127,8 @@ export function getSlashCommands(options: SlashCommandOptions = {}): SlashComman
     { name: "new", description: "Reset the session" },
     { name: "reset", description: "Reset the session" },
     { name: "settings", description: "Open settings" },
+    { name: "governance", description: "Toggle governance panel" },
+    { name: "gov", description: "Alias for /governance" },
     { name: "exit", description: "Exit the TUI" },
     { name: "quit", description: "Exit the TUI" },
   ];
@@ -171,6 +173,7 @@ export function helpText(options: SlashCommandOptions = {}): string {
     "/activation <mention|always>",
     "/new or /reset",
     "/abort",
+    "/governance or /gov - Toggle governance panel",
     "/settings",
     "/exit",
   ].join("\n");

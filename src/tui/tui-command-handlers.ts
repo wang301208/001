@@ -513,6 +513,16 @@ export function createCommandHandlers(context: CommandHandlerContext) {
       case "settings":
         openSettings();
         break;
+      case "governance":
+      case "gov": {
+        // 切换治理层面板显示
+        const { toggleGovernancePanel } = require("./components/chat-log.js");
+        // 注意：这里需要访问 tui.ts 中的 governanceStatus 变量
+        // 由于架构限制，我们暂时只在 footer 中显示摘要
+        chatLog.addSystem("治理层状态已在底部状态栏显示");
+        chatLog.addSystem("使用 /help 查看所有可用命令");
+        break;
+      }
       case "exit":
       case "quit":
         requestExit();

@@ -120,7 +120,7 @@ const buildMissingEntryErrorMessage = async () => {
   );
   lines.push(
     "For pinned GitHub installs, use `npm install -g github:zhushou/zhushou#<ref>` instead of a raw `/archive/<ref>.tar.gz` URL.",
-  ];
+  );
   lines.push("For releases, use `npm install -g zhushou@latest`.");
   return lines.join("\n");
 };

@@ -5,6 +5,7 @@ import { AssistantMessageComponent } from "./assistant-message.js";
 import { BtwInlineMessage } from "./btw-inline-message.js";
 import { ToolExecutionComponent } from "./tool-execution.js";
 import { UserMessageComponent } from "./user-message.js";
+import type { GovernanceStatus } from "../../communication/message-bus.js";
 
 const PENDING_HISTORY_CLOCK_SKEW_TOLERANCE_MS = 60_000;
 
@@ -22,6 +23,7 @@ export class ChatLog extends Container {
   >();
   private btwMessage: BtwInlineMessage | null = null;
   private toolsExpanded = false;
+  private governancePanel: Text | null = null;
 
   constructor(maxComponents = 180) {
     super();
@@ -297,6 +299,46 @@ export class ChatLog extends Container {
     this.toolsExpanded = expanded;
     for (const tool of this.toolById.values()) {
       tool.setExpanded(expanded);
+    }
+  }
+  
+  /**
+   * 显示或隐藏治理层面板
+   */
+  toggleGovernancePanel(governanceStatus: GovernanceStatus | null, visible: boolean) {
+    if (!visible) {
+      // 隐藏面板
+      if (this.governancePanel) {
+        this.removeChild(this.governancePanel);
+        this.governancePanel = null;
+      }
+      return;
+    }
+    
+    // 显示面板
+    if (!this.governancePanel) {
+      const lines = require("../tui-governance-panel.js").renderGovernancePanel(governanceStatus);
+      const panelText = lines.join("\n");
+      this.governancePanel = new Text(panelText, 1, 0);
+      this.addChild(this.governancePanel);
+      this.pruneOverflow();
+    } else {
+      // 更新现有面板
+      const lines = require("../tui-governance-panel.js").renderGovernancePanel(governanceStatus);
+      const panelText = lines.join("\n");
+      this.governancePanel.setText(panelText);
+    }
+  }
+  
+  /**
+   * 更新治理层面板内容
+   */
+  updateGovernancePanel(governanceStatus: GovernanceStatus | null) {
+    if (this.governancePanel && governanceStatus) {
+      const { renderGovernancePanel } = require("../tui-governance-panel.js");
+      const lines = renderGovernancePanel(governanceStatus);
+      const panelText = lines.join("\n");
+      this.governancePanel.setText(panelText);
     }
   }
 }

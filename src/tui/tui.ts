@@ -41,6 +41,8 @@ import type {
   TuiStateAccess,
 } from "./tui-types.js";
 import { buildWaitingStatusMessage, defaultWaitingPhrases } from "./tui-waiting.js";
+import { renderGovernancePanel, getGovernanceSummary } from "./tui-governance-panel.js";
+import type { GovernanceStatus } from "../communication/message-bus.js";
 
 export { resolveFinalAssistantText } from "./tui-formatters.js";
 export type { TuiOptions } from "./tui-types.js";
@@ -199,8 +201,8 @@ export function resolveCtrlCAction(params: {
     };
   }
   return {
-    action: "warn",
-    nextLastCtrlCAt: params.now,
+      action: "warn",
+      nextLastCtrlCAt: params.now,
   };
 }
 
@@ -244,6 +246,10 @@ export async function runTui(opts: TuiOptions) {
   let statusTimer: NodeJS.Timeout | null = null;
   let statusStartedAt: number | null = null;
   let lastActivityStatus = activityStatus;
+  
+  // 治理层状态
+  let governanceStatus: GovernanceStatus | null = null;
+  let showGovernancePanel = false;
 
   const state: TuiStateAccess = {
     get agentDefaultId() {
@@ -673,6 +679,10 @@ export async function runTui(opts: TuiOptions) {
     const reasoning = sessionInfo.reasoningLevel ?? "off";
     const reasoningLabel =
       reasoning === "on" ? "reasoning" : reasoning === "stream" ? "reasoning:stream" : null;
+    
+    // 添加治理层摘要
+    const governanceSummary = getGovernanceSummary(governanceStatus);
+    
     const footerParts = [
       `agent ${agentLabel}`,
       `session ${sessionLabel}`,
@@ -682,6 +692,7 @@ export async function runTui(opts: TuiOptions) {
       verbose !== "off" ? `verbose ${verbose}` : null,
       reasoningLabel,
       tokens,
+      governanceSummary,
     ].filter(Boolean);
     footer.setText(theme.dim(footerParts.join(" | ")));
   };
