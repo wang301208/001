@@ -158,6 +158,16 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
     description: "Generate shell completion script",
     hasSubcommands: false,
   },
+  {
+    name: "advanced-autonomy",
+    description: "高级自治系统管理（战略规划、资源调度、学习进化、协作协调）",
+    hasSubcommands: true,
+  },
+  {
+    name: "level5",
+    description: "Level 5 完全自治系统管理（战略调整、自我修复、跨系统协调、创造性问题解决）",
+    hasSubcommands: true,
+  },
 ] as const satisfies ReadonlyArray<SubCliDescriptor>);
 
 export const SUB_CLI_DESCRIPTORS = subCliCommandCatalog.descriptors;

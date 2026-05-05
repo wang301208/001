@@ -3,13 +3,33 @@ import ReactDOM from 'react-dom/client';
 import { MantineProvider, createTheme } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
-import './index.css';
+import '@mantine/core/styles.css';
 
-// 创建主题
+// 创建现代化主题
 const theme = createTheme({
-  primaryColor: 'primary',
+  primaryColor: 'blue',
+  primaryShade: 6,
   colors: {
-    primary: ['#FFF0EB', '#FFD9D0', '#FFB3A1', '#FF8A6B', '#FF5A36', '#E6492D', '#C73B1F', '#A82D12', '#8A1F06', '#6B1100'],
+    blue: ['#E7F5FF', '#D0EBFF', '#A5D8FF', '#74C0FC', '#4DABF7', '#339AF0', '#228BE6', '#1C7ED6', '#1971C2', '#1864AB'],
+  },
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  headings: {
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    fontWeight: '600',
+  },
+  components: {
+    Card: {
+      defaultProps: {
+        radius: 'md',
+        shadow: 'sm',
+        withBorder: true,
+      },
+    },
+    Button: {
+      defaultProps: {
+        radius: 'md',
+      },
+    },
   },
 });
 

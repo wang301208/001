@@ -14,10 +14,14 @@ import type { RuntimeEnv } from "../runtime.js";
 import { initializeGenesisTeamLoop, getGenesisTeamLoop } from "../governance/genesis-team-loop.js";
 import { initializePostPromotionObserver, getPostPromotionObserver } from "../governance/post-promotion-observer.js";
 import { loadConfig } from "../config/config.js";
-
-export function registerAutonomyCommands(program: Command, runtime: RuntimeEnv): void {
 import { theme } from "../terminal/theme.js";
 import { isRecord } from "../utils.js";
+
+// Helper function to normalize optional strings
+function normalizeOptionalString(value: string | undefined | null): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : undefined;
+}
 
 const info = theme.info;
 const AUTONOMY_HISTORY_MODES = new Set(["heal", "reconcile"]);
@@ -1140,7 +1144,7 @@ export async function autonomyActivateCommand(
     `checks: ready=${readiness.summary.readyChecks}/${readiness.summary.totalChecks} attention=${readiness.summary.attentionChecks} blocked=${readiness.summary.blockedChecks}`,
   );
   runtime.log(
-    `bootstrap: ready=${readiness.bootstrapped.readiness.ready ? "yes" : "no"} healthy=${readiness.bootstrapped.readiness.profileReadyCount}/${readiness.bootstrapped.supervised.summary.totalProfiles} activeFlows=${readiness.bootstrapped.readiness.activeFlows}`,
+    `bootstrap: ready=${readiness.bootstrapped.readiness.ready ? "yes" : "no"} healthy=${readiness.bootstrapped.readiness.profileReadyCount}/${readiness.bootstrapped.supervised.summary.totalProfiles} activeFlows=${readiness.bootstrapped.supervised.summary.activeFlows}`,
   );
   runtime.log(
     `supervisor: changed=${readiness.bootstrapped.supervised.summary.changedProfiles ?? "n/a"} healthy=${readiness.bootstrapped.supervised.summary.healthyProfiles ?? "n/a"} activeFlows=${readiness.bootstrapped.supervised.summary.activeFlows ?? "n/a"}`,

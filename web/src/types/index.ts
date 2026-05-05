@@ -68,3 +68,32 @@ export interface User {
   name: string;
   role: 'admin' | 'user';
 }
+
+// 通知相关类型
+export type NotificationType = 'info' | 'success' | 'warning' | 'error';
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  timestamp: number;
+  read: boolean;
+  action?: {
+    label: string;
+    callback: () => void;
+  };
+}
+
+// 图表数据类型
+export interface TimeSeriesData {
+  timestamp: number;
+  value: number;
+  label?: string;
+}
+
+export interface ChartDataPoint {
+  name: string;
+  value: number;
+  timestamp?: number;
+}

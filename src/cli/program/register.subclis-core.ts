@@ -218,7 +218,34 @@ const entrySpecs: readonly CommandGroupDescriptorSpec<SubCliRegistrar>[] = [
       loadModule: () => import("../update-cli.js"),
       exportName: "registerUpdateCli",
     },
+    {
+      commandNames: ["advanced-autonomy"],
+      loadModule: () => import("../../commands/advanced-autonomy-commands.js"),
+      exportName: "registerAdvancedAutonomyCommands",
+    },
+    {
+      commandNames: ["level5"],
+      loadModule: () => import("../../commands/level5-autonomy-commands.js"),
+      exportName: "registerLevel5AutonomyCommands",
+    },
+    {
+      commandNames: ["causality"],
+      loadModule: () => import("../../commands/causality.js"),
+      exportName: "registerCausalityCommands",
+    },
+    {
+      commandNames: ["proposal-timeout"],
+      loadModule: () => import("../../commands/proposal-timeout.js"),
+      exportName: "registerProposalTimeoutCommands",
+    },
   ]),
+  {
+    commandNames: ["sys"],
+    register: async (program) => {
+      const mod = await import("../../commands/system-control.js");
+      mod.registerSystemControlCommands(program, {} as any); // RuntimeEnv mock or pass real one if available in context
+    },
+  },
 ];
 
 function resolveSubCliCommandGroups(): CommandGroupEntry[] {

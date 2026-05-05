@@ -1,5 +1,15 @@
-import { Title, Text, Grid, Alert, LoadingOverlay } from '@mantine/core';
-import { IconWifi, IconWifiOff, IconInfoCircle } from '@tabler/icons-react';
+import { 
+  Title, 
+  Text, 
+  Alert, 
+  Button, 
+  Group, 
+  Grid, 
+  LoadingOverlay,
+  Stack,
+  Badge,
+} from '@mantine/core';
+import { IconWifi, IconWifiOff, IconRefresh } from '@tabler/icons-react';
 import { useAppStore } from '../stores/useAppStore';
 import { useGovernanceWebSocket, useGovernanceCache } from '../hooks/useGovernanceWebSocket';
 import { AgentTopologyGraph } from '../components/governance/AgentTopologyGraph';
@@ -24,69 +34,79 @@ export function GovernancePage() {
     return (
       <div style={{ position: 'relative', minHeight: '400px' }}>
         <LoadingOverlay visible />
-        <Title order={1} mb="md">治理层监控</Title>
-        <Text c="dimmed">正在加载治理层状态...</Text>
+        <Stack gap="md">
+          <Title order={1}>治理层监控</Title>
+          <Text c="dimmed">正在加载治理层状态...</Text>
+        </Stack>
       </div>
     );
   }
   
   return (
     <div>
-      <Title order={1} mb="md">治理层监控</Title>
-      <Text c="dimmed" mb="xl">代理组织、演化项目、沙盒实验状态</Text>
+      {/* 页面标题区域 */}
+      <Group justify="space-between" align="flex-start" mb="xl">
+        <div>
+          <Title order={1} style={{ letterSpacing: '-0.5px' }}>治理层监控</Title>
+          <Text c="dimmed" mt="xs" size="sm">代理组织、演化项目、沙盒实验状态</Text>
+        </div>
+        <Group>
+          {connected && lastUpdate && (
+            <Badge variant="light" color="green" leftSection={<IconWifi size={14} />}>
+              实时更新: {new Date(lastUpdate).toLocaleTimeString()}
+            </Badge>
+          )}
+          <Button 
+            variant="light" 
+            onClick={reconnect}
+            leftSection={<IconRefresh size={16} />}
+          >
+            刷新
+          </Button>
+        </Group>
+      </Group>
       
       {/* 连接状态提示 */}
       {!connected && (
-        <Alert
-          icon={<IconWifiOff size={16} />}
-          title="WebSocket 连接断开"
-          color="yellow"
+        <Alert 
+          icon={<IconWifiOff size={16} />} 
+          title="WebSocket 连接断开" 
+          color="yellow" 
+          variant="light"
           mb="md"
-          action={
-            <button onClick={reconnect} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        >
+          <Group justify="space-between">
+            <Text>无法连接到服务器，显示的是缓存数据。{error?.message}</Text>
+            <Button variant="subtle" onClick={reconnect}>
               <IconWifi size={16} />
-            </button>
-          }
-        >
-          无法连接到服务器，显示的是缓存数据。{error?.message}
+            </Button>
+          </Group>
         </Alert>
       )}
       
-      {connected && lastUpdate && (
-        <Alert
-          icon={<IconWifi size={16} />}
-          title="实时连接正常"
-          color="green"
-          mb="md"
-        >
-          最后更新: {new Date(lastUpdate).toLocaleTimeString()}
-        </Alert>
-      )}
-      
-      <Grid>
+      <Stack gap="md">
         {/* 冻结状态指示器 */}
-        <Grid.Col span={12}>
-          <FreezeStatusIndicator
-            freezeActive={governanceStatus.freezeActive}
-            freezeStatus={governanceStatus.freezeStatus}
-          />
-        </Grid.Col>
+        <FreezeStatusIndicator
+          freezeActive={governanceStatus.freezeActive}
+          freezeStatus={governanceStatus.freezeStatus}
+        />
         
         {/* 代理组织图 */}
-        <Grid.Col span={12}>
-          <AgentTopologyGraph agents={governanceStatus.activeAgents} />
-        </Grid.Col>
+        <AgentTopologyGraph agents={governanceStatus.activeAgents} />
         
-        {/* 演化项目列表 */}
-        <Grid.Col span={12}>
-          <EvolutionProjectList projects={governanceStatus.evolutionProjects} />
-        </Grid.Col>
-        
-        {/* 沙盒宇宙监控 */}
-        <Grid.Col span={12}>
-          <SandboxUniverseMonitor experiments={governanceStatus.sandboxExperiments} />
-        </Grid.Col>
-      </Grid>
+        {/* 两列布局 */}
+        <Grid gutter="md">
+          <Grid.Col span={{ base: 12, lg: 6 }}>
+            {/* 演化项目列表 */}
+            <EvolutionProjectList projects={governanceStatus.evolutionProjects} />
+          </Grid.Col>
+          
+          <Grid.Col span={{ base: 12, lg: 6 }}>
+            {/* 沙盒宇宙监控 */}
+            <SandboxUniverseMonitor experiments={governanceStatus.sandboxExperiments} />
+          </Grid.Col>
+        </Grid>
+      </Stack>
     </div>
   );
 }

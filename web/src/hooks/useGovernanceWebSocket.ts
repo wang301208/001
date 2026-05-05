@@ -54,7 +54,7 @@ export function useGovernanceWebSocket(
     maxReconnectAttempts = 10,
   } = options;
   
-  const { setGovernanceStatus, governanceStatus } = useAppStore();
+  const { updateGovernanceStatus } = useAppStore();
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -104,7 +104,7 @@ export function useGovernanceWebSocket(
           
           if (data.type === 'governance_update') {
             console.log('[useGovernanceWebSocket] 收到治理状态更新');
-            setGovernanceStatus(data.payload as GovernanceStatus);
+            updateGovernanceStatus(data.payload as GovernanceStatus);
             lastUpdate.current = Date.now();
           } else if (data.type === 'error') {
             console.error('[useGovernanceWebSocket] 收到错误:', data.message);
@@ -140,7 +140,7 @@ export function useGovernanceWebSocket(
       console.error('[useGovernanceWebSocket] 连接失败:', err);
       error.current = err instanceof Error ? err : new Error(String(err));
     }
-  }, [wsUrl, autoReconnect, reconnectInterval, maxReconnectAttempts, setGovernanceStatus]);
+  }, [wsUrl, autoReconnect, reconnectInterval, maxReconnectAttempts, updateGovernanceStatus]);
   
   /**
    * 手动重新连接
@@ -193,7 +193,7 @@ export function useGovernanceWebSocket(
  * 提供离线缓存支持，当 WebSocket 断开时使用缓存数据
  */
 export function useGovernanceCache() {
-  const { governanceStatus, setGovernanceStatus } = useAppStore();
+  const { governanceStatus, updateGovernanceStatus: setStatus } = useAppStore();
   const cacheKey = 'governance_status_cache';
   
   /**
@@ -205,14 +205,14 @@ export function useGovernanceCache() {
       if (cached) {
         const data = JSON.parse(cached);
         console.log('[useGovernanceCache] 从缓存加载治理状态');
-        setGovernanceStatus(data);
+        setStatus(data);
         return data;
       }
     } catch (err) {
       console.error('[useGovernanceCache] 加载缓存失败:', err);
     }
     return null;
-  }, [setGovernanceStatus]);
+  }, [setStatus]);
   
   /**
    * 保存到缓存

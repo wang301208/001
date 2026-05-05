@@ -6,7 +6,9 @@ import {
   type ServerResponse,
 } from "node:http";
 import { createServer as createHttpsServer } from "node:https";
-import type { TlsOptions } from "node:tls";
+import { readFileSync, existsSync, statSync } from "node:fs";
+import { join, extname } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { WebSocketServer } from "ws";
 import { A2UI_PATH, CANVAS_WS_PATH, handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import type { CanvasHostHandler } from "../canvas-host/server.js";
@@ -75,6 +77,92 @@ type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 const HOOK_AUTH_FAILURE_LIMIT = 20;
 const HOOK_AUTH_FAILURE_WINDOW_MS = 60_000;
+
+// 前端静态文件服务配置
+const PROJECT_ROOT = process.cwd();
+const WEB_ROOT = join(PROJECT_ROOT, "web", "dist");
+
+const MIME_TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+};
+
+function getMimeType(filePath: string): string {
+  const ext = extname(filePath).toLowerCase();
+  return MIME_TYPES[ext] || 'application/octet-stream';
+}
+
+async function handleStaticFileRequest(req: IncomingMessage, res: ServerResponse): Promise<boolean> {
+  const url = new URL(req.url ?? '/', 'http://localhost');
+  const pathname = url.pathname;
+  
+  // 只处理根路径和前端路由（非 API、非 WebSocket）
+  if (pathname.startsWith('/api/') || 
+      pathname.startsWith('/ws') ||
+      pathname.startsWith('/hooks/') ||
+      pathname.startsWith('/v1/') ||
+      pathname.startsWith('/tools/') ||
+      pathname.startsWith('/sessions/') ||
+      pathname.startsWith('/canvas/') ||
+      pathname.startsWith('/a2ui/') ||
+      pathname === '/healthz' ||
+      pathname === '/readyz') {
+    return false;
+  }
+  
+  // 构建文件路径
+  let filePath = join(WEB_ROOT, pathname === '/' ? 'index.html' : pathname);
+  
+  // 安全检查：防止目录遍历攻击
+  if (!filePath.startsWith(WEB_ROOT)) {
+    res.statusCode = 403;
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.end('Forbidden');
+    return true;
+  }
+  
+  try {
+    // 检查文件是否存在
+    if (!existsSync(filePath)) {
+      // 如果是前端路由（没有文件扩展名），返回 index.html 支持 SPA 路由
+      if (!extname(pathname)) {
+        filePath = join(WEB_ROOT, 'index.html');
+        if (!existsSync(filePath)) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    
+    // 读取并返回文件
+    const stats = statSync(filePath);
+    if (stats.isFile()) {
+      const content = readFileSync(filePath);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', getMimeType(filePath));
+      res.setHeader('Content-Length', content.length);
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.end(content);
+      return true;
+    }
+  } catch (err) {
+    // Intentionally ignoring errors to fallback to next handler or 404
+  }
+  
+  return false;
+}
 
 let embeddingsHttpModulePromise: Promise<typeof import("./embeddings-http.js")> | undefined;
 let modelsHttpModulePromise: Promise<typeof import("./models-http.js")> | undefined;
@@ -1053,6 +1141,12 @@ export function createGatewayHttpServer(opts: {
             allowRealIpFallback,
             getReadiness,
           ),
+      });
+
+      // 前端静态文件服务（SPA 支持）
+      requestStages.push({
+        name: "static-files",
+        run: () => handleStaticFileRequest(req, res),
       });
 
       if (await runGatewayHttpRequestStages(requestStages)) {
