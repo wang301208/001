@@ -13,6 +13,7 @@ import {
   TextInput,
   PasswordInput,
   NumberInput,
+  Alert,
 } from '@mantine/core';
 import { 
   IconBell, 
@@ -20,12 +21,20 @@ import {
   IconDatabase,
   IconRobot,
   IconCheck,
+  IconKey,
+  IconServer,
+  IconAlertCircle,
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppStore } from '../stores/useAppStore';
+import { setAuthToken } from '../utils/auth';
 
 export function SettingsPage() {
-  const { addNotification } = useAppStore();
+  const { addNotification, setToken, token } = useAppStore();
+  
+  // 网关认证令牌配置
+  const [gatewayToken, setGatewayToken] = useState('');
+  const [isTokenSaved, setIsTokenSaved] = useState(false);
   
   // 远程模型配置状态
   const [modelConfig, setModelConfig] = useState({
@@ -39,6 +48,59 @@ export function SettingsPage() {
   
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // 加载已保存的配置
+  useEffect(() => {
+    // 加载网关令牌
+    const savedToken = localStorage.getItem('gatewayToken');
+    if (savedToken) {
+      setGatewayToken(savedToken);
+      setToken(savedToken); // 自动设置到 Store
+      console.log('[SettingsPage] 已加载网关令牌');
+    }
+    
+    // 加载远程模型配置
+    const saved = localStorage.getItem('remoteModelConfig');
+    if (saved) {
+      try {
+        setModelConfig(JSON.parse(saved));
+      } catch (e) {
+        console.error('[SettingsPage] 加载模型配置失败:', e);
+      }
+    }
+  }, [setToken]);
+
+  // 保存网关令牌
+  const handleSaveToken = () => {
+    if (!gatewayToken.trim()) {
+      addNotification('warning', '令牌不能为空', '请输入网关认证令牌');
+      return;
+    }
+    
+    localStorage.setItem('gatewayToken', gatewayToken);
+    setToken(gatewayToken);
+    
+    // 同步更新 API 服务和认证模块
+    setAuthToken(gatewayToken);
+    
+    setIsTokenSaved(true);
+    addNotification('success', '保存成功', '网关认证令牌已保存并立即生效');
+    
+    setTimeout(() => setIsTokenSaved(false), 3000);
+  };
+
+  // 清除令牌
+  const handleClearToken = () => {
+    localStorage.removeItem('gatewayToken');
+    setGatewayToken('');
+    setToken(null);
+    
+    // 清除认证
+    setAuthToken(null);
+    
+    setIsTokenSaved(false);
+    addNotification('info', '已清除', '网关认证令牌已清除');
+  };
 
   // 测试连接
   const handleTestConnection = async () => {
@@ -92,18 +154,6 @@ export function SettingsPage() {
     }
   };
 
-  // 加载已保存的配置
-  useState(() => {
-    const saved = localStorage.getItem('remoteModelConfig');
-    if (saved) {
-      try {
-        setModelConfig(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to load saved config:', e);
-      }
-    }
-  });
-
   return (
     <div>
       {/* 页面标题区域 */}
@@ -113,6 +163,75 @@ export function SettingsPage() {
       </Box>
       
       <Stack gap="md">
+        {/* 网关认证配置 */}
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Group justify="space-between" mb="md">
+            <Group>
+              <ThemeIcon variant="light" color="violet" size="lg">
+                <IconKey size={24} />
+              </ThemeIcon>
+              <div>
+                <Title order={3}>网关认证</Title>
+                <Text size="sm" c="dimmed">配置网关访问令牌（用于 WebSocket 和 API 认证）</Text>
+              </div>
+            </Group>
+            {isTokenSaved && (
+              <ThemeIcon color="green" variant="light">
+                <IconCheck size={18} />
+              </ThemeIcon>
+            )}
+          </Group>
+          
+          <Divider mb="md" />
+          
+          <Stack gap="md">
+            <Alert 
+              icon={<IconAlertCircle size={16} />} 
+              title="重要提示" 
+              color="blue"
+            >
+              <Text size="sm">
+                网关令牌用于认证 WebSocket 连接和 API 请求。如果未配置，系统将显示"离线模式"且无法与后端通信。
+              </Text>
+              <Text size="xs" c="dimmed" mt="xs">
+                默认开发令牌：<Text component="code" fw={700}>dev-token-123</Text>
+              </Text>
+            </Alert>
+            
+            <PasswordInput
+              label="网关令牌"
+              placeholder="输入 ZHUSHOU_GATEWAY_TOKEN"
+              value={gatewayToken}
+              onChange={(e) => setGatewayToken(e.target.value)}
+              leftSection={<IconServer size={16} />}
+              description="启动网关时设置的 ZHUSHOU_GATEWAY_TOKEN 环境变量值"
+            />
+            
+            <Group gap="sm">
+              <Button 
+                onClick={handleSaveToken}
+                leftSection={<IconCheck size={16} />}
+                color="green"
+              >
+                保存令牌
+              </Button>
+              <Button 
+                onClick={handleClearToken}
+                variant="outline"
+                color="gray"
+              >
+                清除令牌
+              </Button>
+            </Group>
+            
+            {gatewayToken && (
+              <Text size="xs" c="dimmed">
+                当前状态：{token ? '✓ 已配置' : '✗ 未生效（请刷新页面）'}
+              </Text>
+            )}
+          </Stack>
+        </Card>
+        
         {/* 通知设置 */}
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Group justify="space-between" mb="md">

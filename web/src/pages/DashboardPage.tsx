@@ -5,12 +5,11 @@ import {
   Text, 
   Badge, 
   Group, 
-  RingProgress, 
   Stack, 
   SimpleGrid,
   ThemeIcon,
   Divider,
-  Button,
+  Skeleton,
 } from '@mantine/core';
 import { useAppStore } from '../stores/useAppStore';
 import { NotificationCenter } from '../components/notifications/NotificationCenter';
@@ -21,7 +20,6 @@ import { AreaChartComponent } from '../components/charts/AreaChartComponent';
 import { RadarChartComponent } from '../components/charts/RadarChartComponent';
 import { ScatterChartComponent } from '../components/charts/ScatterChartComponent';
 import { useRealTimeChartData } from '../hooks/useRealTimeChartData';
-import { useTaskManager } from '../hooks/useTaskManager';
 import { useGovernanceWebSocket } from '../hooks/useGovernanceWebSocket';
 import { 
   IconCheck, 
@@ -32,58 +30,41 @@ import {
   IconFlask,
   IconShieldCheck,
   IconTrendingUp,
-  IconPlayerPlay,
-  IconHourglass,
-  IconHourglassHigh,
+  IconServer,
+  IconClock,
 } from '@tabler/icons-react';
-import { useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 
 export function DashboardPage() {
   const { 
     governanceStatus, 
     channels, 
-    wsConnected,
+    runningTasks,
     loadGovernanceStatus,
     loadChannels,
     checkHealth,
   } = useAppStore();
-  const { startTask, updateProgress, finishTask, failTask } = useTaskManager();
   
-  // 使用 WebSocket 连接治理状态
-  useGovernanceWebSocket({
+  // WebSocket 连接状态
+  const { connected: wsConnectedReal } = useGovernanceWebSocket({
     autoReconnect: true,
     reconnectInterval: 5000,
   });
 
+  // 加载状态
+  const [loading, setLoading] = useState(true);
+
   // 组件挂载时加载真实数据
   useEffect(() => {
     console.log('[DashboardPage] 开始加载真实数据...');
+    setLoading(true);
     
-    // 加载治理状态
-    loadGovernanceStatus().then((success: boolean) => {
-      if (success) {
-        console.log('[DashboardPage] 治理状态加载成功');
-      } else {
-        console.warn('[DashboardPage] 治理状态加载失败，使用模拟数据');
-      }
-    });
-    
-    // 加载渠道列表
-    loadChannels().then((success: boolean) => {
-      if (success) {
-        console.log('[DashboardPage] 渠道列表加载成功');
-      } else {
-        console.warn('[DashboardPage] 渠道列表加载失败');
-      }
-    });
-    
-    // 健康检查
-    checkHealth().then((healthy: boolean) => {
-      if (healthy) {
-        console.log('[DashboardPage] 系统健康检查通过');
-      } else {
-        console.warn('[DashboardPage] 系统健康检查失败');
-      }
+    Promise.all([
+      loadGovernanceStatus(),
+      loadChannels(),
+      checkHealth(),
+    ]).finally(() => {
+      setTimeout(() => setLoading(false), 500); // 最小加载时间，避免闪烁
     });
   }, [loadGovernanceStatus, loadChannels, checkHealth]);
 
@@ -97,136 +78,40 @@ export function DashboardPage() {
     scatterData
   } = useRealTimeChartData();
 
-  // 演示任务：短期任务（快速完成）
-  const handleDemoTask = useCallback(async () => {
-    const taskId = startTask(
-      '数据处理任务', 
-      '正在处理系统数据...',
-      'high', // 高优先级
-      'data', // 数据分组
-      'short', // 短期任务
-      undefined, // 无预计时间
-      undefined, // 无依赖
-      3 // 最多重试3次
-    );
-    
-    try {
-      // 模拟异步操作
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        updateProgress(taskId, i);
-      }
-      
-      finishTask(taskId);
-    } catch (error) {
-      failTask(taskId, error instanceof Error ? error.message : '未知错误');
-    }
-  }, [startTask, updateProgress, finishTask, failTask]);
-  
-  // 演示中期任务（需要几分钟）
-  const handleMediumTask = useCallback(async () => {
-    const taskId = startTask(
-      '文件上传任务',
-      '正在上传大型文件到服务器...',
-      'medium',
-      'file',
-      'medium', // 中期任务
-      5, // 预计5分钟
-      undefined,
-      2
-    );
-    
-    // 模拟较慢的进度
-    for (let i = 0; i <= 100; i += 5) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      updateProgress(taskId, i);
-    }
-    
-    finishTask(taskId);
-  }, [startTask, updateProgress, finishTask]);
-  
-  // 演示长期任务（需要几小时）
-  const handleLongTask = useCallback(() => {
-    const taskId = startTask(
-      'AI 模型训练',
-      '正在训练深度学习模型（预计需要数小时）...',
-      'low',
-      'ai',
-      'long', // 长期任务
-      180, // 预计3小时
-      undefined,
-      1 // 只重试1次
-    );
-    
-    // 模拟非常缓慢的进度
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 1;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        finishTask(taskId);
-      } else {
-        updateProgress(taskId, progress);
-      }
-    }, 3000); // 每3秒增加1%
-  }, [startTask, updateProgress, finishTask]);
-
-  // 演示失败任务（用于测试重试功能）
-  const handleFailedTask = useCallback(() => {
-    const taskId = startTask(
-      '网络请求任务',
-      '模拟网络请求失败...',
-      'medium',
-      'network',
-      undefined,
-      3
-    );
-    
-    // 立即标记为失败
-    setTimeout(() => {
-      failTask(taskId, '网络连接超时');
-    }, 1000);
-  }, [startTask, failTask]);
-  
-  // 演示带依赖的任务
-  const handleDependentTask = useCallback(async () => {
-    // 先创建基础任务
-    const baseTaskId = startTask(
-      '数据导出',
-      '正在导出数据...',
-      'medium',
-      'data'
-    );
-    
-    // 等待基础任务完成
-    setTimeout(() => {
-      finishTask(baseTaskId);
-      
-      // 创建依赖任务
-      const dependentTaskId = startTask(
-        '数据压缩',
-        '正在压缩导出的数据...',
-        'low',
-        'file',
-        'short', // 短期任务
-        undefined, // 无预计时间
-        [baseTaskId] // 依赖基础任务
-      );
-
-      setTimeout(() => {
-        finishTask(dependentTaskId);
-      }, 2000);
-    }, 3000);
-  }, [startTask, finishTask]);
-
-  // 计算渠道状态（使用 useMemo 优化性能）
-  const channelStats = useMemo(() => {
+  // 计算真实业务统计数据
+  const stats = useMemo(() => {
+    // 渠道统计
     const activeChannels = channels.filter(c => c.connected).length;
     const totalChannels = channels.length;
-    const percentage = totalChannels > 0 ? Math.round((activeChannels / totalChannels) * 100) : 0;
-    return { activeChannels, totalChannels, percentage };
-  }, [channels]);
+    
+    // 任务统计
+    const runningTasksCount = runningTasks.filter(t => t.status === 'running').length;
+    const completedTasksCount = runningTasks.filter(t => t.status === 'completed').length;
+    const failedTasksCount = runningTasks.filter(t => t.status === 'failed').length;
+    const totalTasksCount = runningTasks.length;
+    
+    // 治理状态统计
+    const activeAgents = governanceStatus?.activeAgents?.length || 0;
+    const evolutionProjects = governanceStatus?.evolutionProjects?.length || 0;
+    const sandboxExperiments = governanceStatus?.sandboxExperiments?.length || 0;
+    const freezeActive = governanceStatus?.freezeActive || false;
+    
+    return {
+      channels: { active: activeChannels, total: totalChannels },
+      tasks: { 
+        running: runningTasksCount, 
+        completed: completedTasksCount, 
+        failed: failedTasksCount,
+        total: totalTasksCount 
+      },
+      governance: {
+        agents: activeAgents,
+        projects: evolutionProjects,
+        experiments: sandboxExperiments,
+        freezeActive,
+      },
+    };
+  }, [channels, runningTasks, governanceStatus]);
 
   // 加载状态（暂时移除，等待后续实现）
 
@@ -239,53 +124,13 @@ export function DashboardPage() {
           <Text c="dimmed" mt="xs" size="sm">实时监控系统运行状态和关键指标</Text>
         </div>
         <Group>
-          <Button 
-            variant="light" 
-            color="blue"
-            leftSection={<IconPlayerPlay size={16} />}
-            onClick={handleDemoTask}
-          >
-            短期任务
-          </Button>
-          <Button 
-            variant="light" 
-            color="cyan"
-            leftSection={<IconHourglass size={16} />}
-            onClick={handleMediumTask}
-          >
-            中期任务
-          </Button>
-          <Button 
-            variant="light" 
-            color="orange"
-            leftSection={<IconHourglassHigh size={16} />}
-            onClick={handleLongTask}
-          >
-            长期任务
-          </Button>
-          <Button 
-            variant="light" 
-            color="red"
-            leftSection={<IconX size={16} />}
-            onClick={handleFailedTask}
-          >
-            失败任务
-          </Button>
-          <Button 
-            variant="light" 
-            color="green"
-            leftSection={<IconCheck size={16} />}
-            onClick={handleDependentTask}
-          >
-            依赖任务
-          </Button>
           <Badge 
             size="lg" 
             variant="light" 
-            leftSection={wsConnected ? <IconCheck size={14} /> : <IconX size={14} />}
-            color={wsConnected ? 'green' : 'red'}
+            leftSection={wsConnectedReal ? <IconCheck size={14} /> : <IconX size={14} />}
+            color={wsConnectedReal ? 'green' : 'red'}
           >
-            {wsConnected ? '实时连接' : '离线模式'}
+            {wsConnectedReal ? '实时连接' : '离线模式'}
           </Badge>
           <NotificationCenter />
         </Group>
@@ -293,66 +138,64 @@ export function DashboardPage() {
       
       {/* 关键指标卡片 */}
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md" mb="xl">
-        {/* WebSocket 连接状态 */}
-        <MetricCard
-          title="WebSocket 状态"
-          value={wsConnected ? '已连接' : '未连接'}
-          subtitle={wsConnected ? '实时数据同步中' : '无法获取实时数据'}
-          icon={wsConnected ? <IconCheck size={24} /> : <IconX size={24} />}
-          iconColor={wsConnected ? 'green' : 'red'}
-          gradientFrom={wsConnected ? '#d3f9d8' : '#ffe3e3'}
-          gradientTo={wsConnected ? '#b2f2bb' : '#ffc9c9'}
-          borderColor={wsConnected ? '#69db7c' : '#ffa8a8'}
-        />
-        
-        {/* 渠道状态 */}
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
-          <Group justify="space-between" align="flex-start">
-            <div>
-              <Text size="xs" tt="uppercase" fw={700} c="dimmed">渠道活跃度</Text>
-              <Group gap="xs" mt="xs">
-                <Text fw={700} size="xl">{channelStats.activeChannels}</Text>
-                <Text size="sm" c="dimmed">/ {channelStats.totalChannels}</Text>
-              </Group>
-              <Text size="xs" c="dimmed" mt="xs">活跃渠道数量</Text>
-            </div>
-            <RingProgress
-              size={60}
-              thickness={6}
-              roundCaps
-              sections={[{ value: channelStats.percentage, color: 'blue' }]}
-              label={
-                <Text ta="center" fw={700} size="xs">
-                  {channelStats.percentage}%
-                </Text>
-              }
+        {loading ? (
+          <>
+            <Skeleton height={120} radius="md" />
+            <Skeleton height={120} radius="md" />
+            <Skeleton height={120} radius="md" />
+            <Skeleton height={120} radius="md" />
+          </>
+        ) : (
+          <>
+            {/* WebSocket 连接状态 */}
+            <MetricCard
+              title="WebSocket 状态"
+              value={wsConnectedReal ? '已连接' : '未连接'}
+              subtitle={wsConnectedReal ? '实时数据同步中' : '无法获取实时数据'}
+              icon={wsConnectedReal ? <IconCheck size={24} /> : <IconX size={24} />}
+              iconColor={wsConnectedReal ? 'green' : 'red'}
+              gradientFrom={wsConnectedReal ? '#d3f9d8' : '#ffe3e3'}
+              gradientTo={wsConnectedReal ? '#b2f2bb' : '#ffc9c9'}
+              borderColor={wsConnectedReal ? '#69db7c' : '#ffa8a8'}
             />
-          </Group>
-        </Card>
-        
-        {/* 治理层状态 */}
-        <MetricCard
-          title="系统状态"
-          value={governanceStatus?.freezeActive ? '已冻结' : '正常运行'}
-          subtitle={governanceStatus?.freezeActive ? (governanceStatus.freezeStatus?.reason || '系统被冻结') : '所有子系统正常'}
-          icon={governanceStatus?.freezeActive ? <IconAlertTriangle size={24} /> : <IconShieldCheck size={24} />}
-          iconColor={governanceStatus?.freezeActive ? 'red' : 'blue'}
-          gradientFrom={governanceStatus?.freezeActive ? '#ffe3e3' : '#d0ebff'}
-          gradientTo={governanceStatus?.freezeActive ? '#ffc9c9' : '#a5d8ff'}
-          borderColor={governanceStatus?.freezeActive ? '#ffa8a8' : '#74c0fc'}
-        />
-        
-        {/* 代理数量 */}
-        <MetricCard
-          title="活跃代理"
-          value={(governanceStatus?.activeAgents.length || 0).toString()}
-          subtitle="当前运行中的代理"
-          icon={<IconUsers size={24} />}
-          iconColor="violet"
-          gradientFrom="#f3d9fa"
-          gradientTo="#e5dbff"
-          borderColor="#da77f2"
-        />
+            
+            {/* 渠道活跃度 */}
+            <MetricCard
+              title="渠道活跃度"
+              value={`${stats.channels.active}/${stats.channels.total}`}
+              subtitle={`${stats.channels.total > 0 ? Math.round((stats.channels.active / stats.channels.total) * 100) : 0}% 活跃`}
+              icon={<IconServer size={24} />}
+              iconColor="blue"
+              gradientFrom="#d0ebff"
+              gradientTo="#a5d8ff"
+              borderColor="#74c0fc"
+            />
+            
+            {/* 任务执行状态 */}
+            <MetricCard
+              title="任务执行"
+              value={stats.tasks.running.toString()}
+              subtitle={`完成 ${stats.tasks.completed} · 失败 ${stats.tasks.failed}`}
+              icon={<IconClock size={24} />}
+              iconColor="violet"
+              gradientFrom="#f3d9fa"
+              gradientTo="#e5dbff"
+              borderColor="#da77f2"
+            />
+            
+            {/* 系统健康状态 */}
+            <MetricCard
+              title="系统状态"
+              value={stats.governance.freezeActive ? '已冻结' : '正常'}
+              subtitle={`${stats.governance.agents} 代理 · ${stats.governance.projects} 项目`}
+              icon={stats.governance.freezeActive ? <IconAlertTriangle size={24} /> : <IconShieldCheck size={24} />}
+              iconColor={stats.governance.freezeActive ? 'red' : 'green'}
+              gradientFrom={stats.governance.freezeActive ? '#ffe3e3' : '#d3f9d8'}
+              gradientTo={stats.governance.freezeActive ? '#ffc9c9' : '#b2f2bb'}
+              borderColor={stats.governance.freezeActive ? '#ffa8a8' : '#69db7c'}
+            />
+          </>
+        )}
       </SimpleGrid>
       
       {/* 数据可视化图表区域 - 第一行 */}
@@ -412,6 +255,136 @@ export function DashboardPage() {
             xAxisLabel="CPU 使用率"
             yAxisLabel="内存使用率"
           />
+        </Grid.Col>
+      </Grid>
+
+      {/* 详细统计信息 */}
+      <Grid gutter="md">
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Group justify="space-between" mb="md">
+              <Title order={3}>治理层概览</Title>
+              <ThemeIcon variant="light" color="blue">
+                <IconTrendingUp size={20} />
+              </ThemeIcon>
+            </Group>
+            
+            {loading ? (
+              <Stack gap="md">
+                <Skeleton height={40} radius="md" />
+                <Divider />
+                <Skeleton height={40} radius="md" />
+                <Divider />
+                <Skeleton height={40} radius="md" />
+              </Stack>
+            ) : (
+              <Stack gap="md">
+                <StatItem
+                  icon={<IconUsers size={16} />}
+                  iconColor="violet"
+                  label="活跃代理"
+                  value={stats.governance.agents}
+                />
+                
+                <Divider />
+                
+                <StatItem
+                  icon={<IconFlask size={16} />}
+                  iconColor="teal"
+                  label="演化项目"
+                  value={stats.governance.projects}
+                />
+                
+                <Divider />
+                
+                <StatItem
+                  icon={<IconActivity size={16} />}
+                  iconColor="orange"
+                  label="沙盒实验"
+                  value={stats.governance.experiments}
+                />
+                
+                <Divider />
+                
+                <Group justify="space-between">
+                  <Group gap="sm">
+                    <ThemeIcon 
+                      variant="light" 
+                      color={stats.governance.freezeActive ? 'red' : 'green'} 
+                      size="sm"
+                    >
+                      <IconShieldCheck size={16} />
+                    </ThemeIcon>
+                    <Text size="sm">主权边界</Text>
+                  </Group>
+                  <Badge 
+                    color={stats.governance.freezeActive ? 'red' : 'green'}
+                    variant="light"
+                    size="lg"
+                  >
+                    {stats.governance.freezeActive ? '已冻结' : '正常'}
+                  </Badge>
+                </Group>
+              </Stack>
+            )}
+          </Card>
+        </Grid.Col>
+        
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Group justify="space-between" mb="md">
+              <Title order={3}>任务执行统计</Title>
+              <ThemeIcon variant="light" color="violet">
+                <IconClock size={20} />
+              </ThemeIcon>
+            </Group>
+            
+            {loading ? (
+              <Stack gap="md">
+                <Skeleton height={40} radius="md" />
+                <Divider />
+                <Skeleton height={40} radius="md" />
+                <Divider />
+                <Skeleton height={40} radius="md" />
+              </Stack>
+            ) : (
+              <Stack gap="md">
+                <StatItem
+                  icon={<IconActivity size={16} />}
+                  iconColor="blue"
+                  label="运行中任务"
+                  value={stats.tasks.running}
+                />
+                
+                <Divider />
+                
+                <StatItem
+                  icon={<IconCheck size={16} />}
+                  iconColor="green"
+                  label="已完成任务"
+                  value={stats.tasks.completed}
+                />
+                
+                <Divider />
+                
+                <StatItem
+                  icon={<IconX size={16} />}
+                  iconColor="red"
+                  label="失败任务"
+                  value={stats.tasks.failed}
+                />
+                
+                <Divider />
+                
+                <Group justify="space-between">
+                  <Text size="sm" fw={500}>总任务数</Text>
+                  <Badge size="lg" variant="filled" color="gray">
+                    {stats.tasks.total}
+                  </Badge>
+                </Group>
+              </Stack>
+            )}
+          </Card>
         </Grid.Col>
       </Grid>
 
@@ -482,9 +455,6 @@ export function DashboardPage() {
               <QuickActionTip icon="📊" text="治理层监控：查看代理组织和演化项目状态" />
               <QuickActionTip icon="🔌" text="渠道管理：配置和管理消息渠道" />
               <QuickActionTip icon="⚙️" text="系统设置：调整系统配置和偏好" />
-              <Button onClick={handleDemoTask} leftSection={<IconPlayerPlay size={16} />}>
-                运行演示任务
-              </Button>
             </Stack>
           </Card>
         </Grid.Col>

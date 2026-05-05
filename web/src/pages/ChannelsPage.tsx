@@ -10,6 +10,9 @@ import {
   ActionIcon,
   Tooltip,
   Divider,
+  Alert,
+  LoadingOverlay,
+  Button,
 } from '@mantine/core';
 import { useAppStore } from '../stores/useAppStore';
 import { 
@@ -20,23 +23,59 @@ import {
   IconInfoCircle,
   IconPlug,
   IconPlugOff,
+  IconAlertCircle,
 } from '@tabler/icons-react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export function ChannelsPage() {
   const { channels, loadChannels, connectChannel, disconnectChannel } = useAppStore();
   
+  // 加载和操作状态
+  const [loading, setLoading] = useState(false);
+  const [operatingChannel, setOperatingChannel] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  
   // 组件挂载时加载渠道列表
   useEffect(() => {
-    loadChannels();
-  }, [loadChannels]);
+    loadChannelsWithFeedback();
+  }, []);
+  
+  // 带反馈的加载函数
+  const loadChannelsWithFeedback = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const success = await loadChannels();
+      if (!success) {
+        setError('加载渠道列表失败，请检查后端服务是否正常运行');
+      }
+    } catch (err) {
+      setError('加载渠道时发生错误');
+    } finally {
+      setLoading(false);
+    }
+  };
   
   // 连接/断开渠道
   const handleToggleChannel = useCallback(async (channelId: string, connected: boolean) => {
-    if (connected) {
-      await disconnectChannel(channelId);
-    } else {
-      await connectChannel(channelId);
+    setOperatingChannel(channelId);
+    setError(null);
+    
+    try {
+      let success = false;
+      if (connected) {
+        success = await disconnectChannel(channelId);
+      } else {
+        success = await connectChannel(channelId);
+      }
+      
+      if (!success) {
+        setError(`${connected ? '断开' : '连接'}渠道失败`);
+      }
+    } catch (err) {
+      setError(`操作渠道时发生错误`);
+    } finally {
+      setOperatingChannel(null);
     }
   }, [connectChannel, disconnectChannel]);
   
@@ -48,19 +87,39 @@ export function ChannelsPage() {
   const activeChannels = channels.filter(c => c.connected).length;
   const totalChannels = channels.length;
   
-  if (channels.length === 0) {
+  // 空状态显示
+  if (!loading && channels.length === 0) {
     return (
       <div>
-        <Title order={1} mb="md">渠道管理</Title>
-        <Text c="dimmed" mb="xl">消息渠道状态和配置</Text>
+        <Group justify="space-between" align="flex-start" mb="xl">
+          <div>
+            <Title order={1} style={{ letterSpacing: '-0.5px' }}>渠道管理</Title>
+            <Text c="dimmed" mt="xs" size="sm">消息渠道状态和配置</Text>
+          </div>
+          <ActionIcon 
+            variant="light" 
+            size="lg"
+            onClick={loadChannelsWithFeedback}
+            loading={loading}
+          >
+            <IconRefresh size={18} />
+          </ActionIcon>
+        </Group>
         
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Stack align="center" gap="md" py="xl">
             <ThemeIcon size="xl" variant="light" color="gray">
               <IconInfoCircle size={32} />
             </ThemeIcon>
-            <Text c="dimmed">暂无渠道数据</Text>
-            <Text size="sm" c="dimmed">请先配置消息渠道</Text>
+            <Text fw={600}>暂无渠道数据</Text>
+            <Text size="sm" c="dimmed">请先在后端配置消息渠道</Text>
+            <Button 
+              variant="light" 
+              onClick={loadChannelsWithFeedback}
+              leftSection={<IconRefresh size={16} />}
+            >
+              重新加载
+            </Button>
           </Stack>
         </Card>
       </div>
@@ -68,7 +127,23 @@ export function ChannelsPage() {
   }
   
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {/* 加载遮罩 */}
+      <LoadingOverlay visible={loading && !operatingChannel} />
+      
+      {/* 错误提示 */}
+      {error && (
+        <Alert 
+          icon={<IconAlertCircle size={16} />} 
+          title="操作失败" 
+          color="red" 
+          mb="md"
+          onClose={() => setError(null)}
+        >
+          {error}
+        </Alert>
+      )}
+      
       {/* 页面标题区域 */}
       <Group justify="space-between" align="flex-start" mb="xl">
         <div>
@@ -82,7 +157,12 @@ export function ChannelsPage() {
           <Badge variant="light" color="gray" leftSection={<IconCircleX size={14} />}>
             离线: {totalChannels - activeChannels}
           </Badge>
-          <ActionIcon variant="light" size="lg">
+          <ActionIcon 
+            variant="light" 
+            size="lg"
+            onClick={loadChannelsWithFeedback}
+            loading={loading}
+          >
             <IconRefresh size={18} />
           </ActionIcon>
         </Group>
@@ -149,7 +229,8 @@ export function ChannelsPage() {
                         variant="subtle" 
                         color={channel.connected ? 'red' : 'green'}
                         onClick={() => handleToggleChannel(channel.id, channel.connected)}
-                        loading={false} // 可以添加loading状态
+                        loading={operatingChannel === channel.id}
+                        disabled={operatingChannel !== null && operatingChannel !== channel.id}
                       >
                         {channel.connected ? <IconPlugOff size={18} /> : <IconPlug size={18} />}
                       </ActionIcon>

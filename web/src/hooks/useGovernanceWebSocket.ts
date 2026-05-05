@@ -80,10 +80,16 @@ export function useGovernanceWebSocket(
     }
     
     try {
-      const url = wsUrl || `ws://${window.location.host}/ws/governance`;
-      console.log(`[useGovernanceWebSocket] 连接到: ${url}`);
+      // 使用标准的 /ws 端点（后端已有实现）
+      const url = wsUrl || `ws://${window.location.host}/ws`;
       
-      const ws = new WebSocket(url);
+      // 获取认证令牌
+      const token = localStorage.getItem('gatewayToken') || 'dev-token-123';
+      const authUrl = `${url}?token=${encodeURIComponent(token)}`;
+      
+      console.log(`[useGovernanceWebSocket] 连接到: ${authUrl}`);
+      
+      const ws = new WebSocket(authUrl);
       wsRef.current = ws;
       
       ws.onopen = () => {

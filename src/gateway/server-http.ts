@@ -1253,6 +1253,23 @@ export function attachGatewayUpgradeHandler(opts: {
         socket.destroy();
         return;
       }
+      // 在 wss.handleUpgrade 之前添加认证检查
+      const authResult = await authorizeGatewayHttpRequestOrReply({
+        req,
+        auth: resolvedAuth,
+        trustedProxies,
+        allowRealIpFallback,
+        rateLimiter,
+        clientIp: preauthBudgetKey,
+        browserOriginPolicy: undefined,
+      });
+      
+      if (!authResult.ok) {
+        writeUpgradeAuthFailure(socket, authResult);
+        socket.destroy();
+        return;
+      }
+      
       let budgetTransferred = false;
       const releaseUpgradeBudget = () => {
         if (budgetTransferred) {

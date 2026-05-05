@@ -17,6 +17,10 @@ import { ChatPage } from './pages/ChatPage';
 import { NotificationCenter } from './components/notifications/NotificationCenter';
 import { TaskIndicator } from './components/tasks/TaskIndicator';
 import { useWebSocket } from './hooks/useWebSocket';
+import { initializeAuth } from './utils/auth';
+
+// 初始化认证
+initializeAuth();
 
 interface NavItemProps {
   icon: React.ReactNode;
