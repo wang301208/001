@@ -22,6 +22,7 @@ import {
   formatValidationErrors,
   validateChannelsLogoutParams,
   validateChannelsStatusParams,
+  validateChannelsConnectParams,
 } from "../protocol/index.js";
 import { formatForLog } from "../ws-log.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
@@ -293,6 +294,57 @@ export const channelsHandlers: GatewayRequestHandlers = {
       respond(true, payload, undefined);
     } catch (err) {
       respond(false, undefined, errorShape(ErrorCodes.UNAVAILABLE, formatForLog(err)));
+    }
+  },
+  "channels.connect": async ({ params, respond, context }) => {
+    if (!validateChannelsConnectParams(params)) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          `invalid channels.connect params: ${formatValidationErrors(validateChannelsConnectParams.errors)}`,
+        ),
+      );
+      return;
+    }
+    
+    const rawChannel = (params as { channel?: unknown }).channel;
+    const channelId = typeof rawChannel === "string" ? normalizeChannelId(rawChannel) : null;
+    
+    if (!channelId) {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, "invalid channels.connect channel"),
+      );
+      return;
+    }
+    
+    const plugin = getChannelPlugin(channelId);
+    if (!plugin) {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, `Unknown channel: ${channelId}`),
+      );
+      return;
+    }
+    
+    try {
+      await context.startChannel(channelId);
+      
+      respond(true, { 
+        success: true, 
+        channelId,
+        message: `Channel ${channelId} connected successfully` 
+      }, undefined);
+    } catch (err) {
+      respond(
+        false, 
+        undefined, 
+        errorShape(ErrorCodes.UNAVAILABLE, `Failed to connect channel: ${formatForLog(err)}`)
+      );
     }
   },
 };

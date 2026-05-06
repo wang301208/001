@@ -11,8 +11,8 @@ import {
   Badge,
   ActionIcon,
   Tooltip,
-  LoadingOverlay,
   Alert,
+  Select,
 } from '@mantine/core';
 import { 
   IconSend, 
@@ -22,16 +22,26 @@ import {
   IconCopy,
   IconAlertCircle,
   IconRefresh,
+  IconPlayerStop,
+  IconPlus,
 } from '@tabler/icons-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAppStore } from '../stores/useAppStore';
 import { apiService } from '../services/api';
+import { wsManager } from '../services/ws-manager';
+import { LoadingState } from '../components/ui/LoadingState';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: number;
+}
+
+interface SessionItem {
+  id: string;
+  title?: string;
+  createdAt: number;
 }
 
 export function ChatPage() {
@@ -41,46 +51,73 @@ export function ChatPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<SessionItem[]>([]);
+  const [isOffline, setIsOffline] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { addNotification } = useAppStore();
 
-  // 初始化会话
-  useEffect(() => {
-    initializeSession();
-  }, []);
-
-  // 自动滚动到底部
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight });
     }
   }, [messages]);
 
-  // 聚焦输入框
   useEffect(() => {
     if (inputRef.current && !isProcessing) {
       inputRef.current.focus();
     }
   }, [messages, isProcessing]);
 
-  // 初始化或加载会话
-  const initializeSession = async () => {
+  useEffect(() => {
+    const unsub = wsManager.onEvent('session.*', (event) => {
+      if (event.type === 'session.message' && event.payload) {
+        const msg = event.payload;
+        setMessages(prev => {
+          if (prev.some(m => m.id === msg.id)) return prev;
+          return [...prev, {
+            id: msg.id || Date.now().toString(),
+            role: msg.role || 'assistant',
+            content: msg.content || '',
+            timestamp: msg.timestamp || Date.now(),
+          }];
+        });
+        setIsProcessing(false);
+      }
+    });
+    return unsub;
+  }, []);
+
+  const loadSessionList = useCallback(async () => {
+    try {
+      const response = await apiService.getSessions(20);
+      if (response.success && response.data) {
+        setSessions(response.data.map((s: any) => ({
+          id: s.id,
+          title: s.title || `会话 ${s.id.slice(0, 8)}`,
+          createdAt: s.createdAt,
+        })));
+      }
+    } catch (err) {
+      console.error('[ChatPage] 加载会话列表失败:', err);
+    }
+  }, []);
+
+  const initializeSession = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      // 尝试获取现有会话列表
+      await loadSessionList();
+      
       const sessionsResponse = await apiService.getSessions(1);
       
       let currentSessionId: string;
       
       if (sessionsResponse.success && sessionsResponse.data && sessionsResponse.data.length > 0) {
-        // 使用最近的会话
         currentSessionId = sessionsResponse.data[0].id;
         
-        // 加载该会话的历史消息
         const messagesResponse = await apiService.getSessionMessages(currentSessionId, 50);
         
         if (messagesResponse.success && messagesResponse.data) {
@@ -94,13 +131,10 @@ export function ChatPage() {
           setMessages(formattedMessages);
         }
       } else {
-        // 创建新会话
-        const createResponse = await apiService.createSession('默认会话');
+        const createResponse = await apiService.createSession('新会话');
         
         if (createResponse.success && createResponse.data) {
           currentSessionId = createResponse.data.sessionId;
-          
-          // 添加欢迎消息
           setMessages([{
             id: 'welcome',
             role: 'assistant',
@@ -113,11 +147,11 @@ export function ChatPage() {
       }
       
       setSessionId(currentSessionId);
+      setIsOffline(false);
     } catch (err) {
       console.error('[ChatPage] 初始化会话失败:', err);
       setError('无法连接到后端服务，请检查网关是否正常运行');
-      
-      // 降级：使用本地会话
+      setIsOffline(true);
       setSessionId('local-' + Date.now());
       setMessages([{
         id: 'welcome',
@@ -128,7 +162,11 @@ export function ChatPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadSessionList]);
+
+  useEffect(() => {
+    initializeSession();
+  }, [initializeSession]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isProcessing || !sessionId) return;
@@ -146,44 +184,110 @@ export function ChatPage() {
     setError(null);
 
     try {
-      // 发送到后端 API
       const response = await apiService.sendMessage(sessionId, userMessage.content);
       
       if (!response.success) {
         throw new Error(response.error || '发送消息失败');
       }
-      
-      // 等待助手响应（实际应该通过 WebSocket 或轮询获取）
-      // 这里先模拟一个延迟，然后重新加载消息
-      setTimeout(async () => {
-        try {
-          const messagesResponse = await apiService.getSessionMessages(sessionId, 50);
-          
-          if (messagesResponse.success && messagesResponse.data) {
-            const formattedMessages: Message[] = messagesResponse.data.map((msg: any) => ({
-              id: msg.id || Date.now().toString(),
-              role: msg.role || 'assistant',
-              content: msg.content || '',
-              timestamp: msg.timestamp || Date.now(),
-            }));
-            
-            setMessages(formattedMessages);
+
+      if (response.data && response.data.content) {
+        setMessages(prev => [...prev, {
+          id: response.data.id || Date.now().toString(),
+          role: 'assistant',
+          content: response.data.content,
+          timestamp: Date.now(),
+        }]);
+        setIsProcessing(false);
+      } else {
+        setTimeout(async () => {
+          try {
+            const messagesResponse = await apiService.getSessionMessages(sessionId!, 50);
+            if (messagesResponse.success && messagesResponse.data) {
+              const formattedMessages: Message[] = messagesResponse.data.map((msg: any) => ({
+                id: msg.id || Date.now().toString(),
+                role: msg.role || 'assistant',
+                content: msg.content || '',
+                timestamp: msg.timestamp || Date.now(),
+              }));
+              setMessages(formattedMessages);
+            }
+          } catch (err) {
+            console.error('[ChatPage] 加载消息失败:', err);
+          } finally {
+            setIsProcessing(false);
           }
-        } catch (err) {
-          console.error('[ChatPage] 加载消息失败:', err);
-        } finally {
-          setIsProcessing(false);
-        }
-      }, 1000);
-      
-      addNotification('success', '消息已发送', '助手正在处理您的请求');
+        }, 1500);
+      }
     } catch (err) {
       console.error('[ChatPage] 发送消息失败:', err);
       setError('发送消息失败，请稍后重试');
       setIsProcessing(false);
-      
-      // 移除失败的用户消息
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
+    }
+  };
+
+  const handleAbort = async () => {
+    if (!sessionId) return;
+    try {
+      await apiService.abortChat(sessionId);
+      setIsProcessing(false);
+      addNotification('info', '已中止', '助手响应已中止');
+    } catch (err) {
+      console.error('[ChatPage] 中止失败:', err);
+    }
+  };
+
+  const handleNewSession = async () => {
+    try {
+      const response = await apiService.createSession('新会话');
+      if (response.success && response.data) {
+        setSessionId(response.data.sessionId);
+        setMessages([{
+          id: 'welcome',
+          role: 'assistant',
+          content: '新会话已创建。请输入您的问题或命令。',
+          timestamp: Date.now(),
+        }]);
+        await loadSessionList();
+        addNotification('success', '新会话', '已创建新会话');
+      }
+    } catch (err) {
+      addNotification('error', '创建失败', '创建新会话失败');
+    }
+  };
+
+  const handleDeleteSession = async () => {
+    if (!sessionId || isOffline) return;
+    try {
+      await apiService.deleteSession(sessionId);
+      addNotification('info', '会话已删除', '当前会话已被删除');
+      await initializeSession();
+    } catch (err) {
+      addNotification('error', '删除失败', '删除会话失败');
+    }
+  };
+
+  const handleSwitchSession = async (newSessionId: string) => {
+    if (newSessionId === sessionId) return;
+    setLoading(true);
+    try {
+      setSessionId(newSessionId);
+      const messagesResponse = await apiService.getSessionMessages(newSessionId, 50);
+      if (messagesResponse.success && messagesResponse.data) {
+        const formattedMessages: Message[] = messagesResponse.data.map((msg: any) => ({
+          id: msg.id || Date.now().toString(),
+          role: msg.role || 'assistant',
+          content: msg.content || '',
+          timestamp: msg.timestamp || Date.now(),
+        }));
+        setMessages(formattedMessages);
+      } else {
+        setMessages([]);
+      }
+    } catch (err) {
+      setMessages([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -194,127 +298,92 @@ export function ChatPage() {
     }
   };
 
-  const clearChat = () => {
-    setMessages([]);
-    addNotification('info', '聊天已清空', '所有消息已被清除');
-  };
-
   const copyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
     addNotification('success', '已复制', '消息内容已复制到剪贴板');
   };
 
   const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return new Date(timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
   };
+
+  if (loading && messages.length === 0) {
+    return <LoadingState message="初始化会话..." />;
+  }
 
   return (
     <Box style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* 加载遮罩 */}
-      <LoadingOverlay visible={loading} />
-      
-      {/* 错误提示 */}
       {error && (
-        <Alert 
-          icon={<IconAlertCircle size={16} />} 
-          title="连接错误" 
-          color="red" 
-          mb="md"
-          onClose={() => setError(null)}
-        >
+        <Alert icon={<IconAlertCircle size={16} />} title="连接错误" color="red" mb="md" onClose={() => setError(null)}>
           {error}
-          <Button 
-            variant="light" 
-            size="xs" 
-            mt="xs"
-            onClick={initializeSession}
-            leftSection={<IconRefresh size={14} />}
-          >
+          <Button variant="light" size="xs" mt="xs" onClick={initializeSession} leftSection={<IconRefresh size={14} />}>
             重新连接
           </Button>
         </Alert>
       )}
       
-      {/* 聊天头部 */}
       <Paper p="md" withBorder style={{ borderBottom: 'none', borderRadius: 'var(--mantine-radius-md) var(--mantine-radius-md) 0 0' }}>
         <Group justify="space-between">
           <Group>
-            <Avatar color="blue" radius="xl">
-              <IconRobot size={24} />
-            </Avatar>
+            <Avatar color="blue" radius="xl"><IconRobot size={24} /></Avatar>
             <div>
               <Text fw={600} size="lg">系统助手</Text>
               <Text size="xs" c="dimmed">
-                {sessionId?.startsWith('local') ? '离线模式' : '在线'} • 随时为您服务
+                {isOffline ? '离线模式' : '在线'} • 随时为您服务
               </Text>
             </div>
           </Group>
           <Group gap="xs">
+            {sessions.length > 0 && (
+              <Select
+                size="xs"
+                w={150}
+                placeholder="切换会话"
+                value={sessionId || ''}
+                data={sessions.map(s => ({ value: s.id, label: s.title || s.id.slice(0, 8) }))}
+                onChange={(val) => val && handleSwitchSession(val)}
+              />
+            )}
+            <Tooltip label="新建会话">
+              <ActionIcon variant="subtle" color="green" onClick={handleNewSession}>
+                <IconPlus size={18} />
+              </ActionIcon>
+            </Tooltip>
             <Tooltip label="刷新会话">
-              <ActionIcon 
-                variant="subtle" 
-                color="blue" 
-                onClick={initializeSession}
-                loading={loading}
-              >
+              <ActionIcon variant="subtle" color="blue" onClick={initializeSession} loading={loading}>
                 <IconRefresh size={18} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label="清空对话">
-              <ActionIcon variant="subtle" color="red" onClick={clearChat}>
-                <IconTrash size={18} />
-              </ActionIcon>
-            </Tooltip>
+            {!isOffline && (
+              <Tooltip label="删除会话">
+                <ActionIcon variant="subtle" color="red" onClick={handleDeleteSession}>
+                  <IconTrash size={18} />
+                </ActionIcon>
+              </Tooltip>
+            )}
           </Group>
         </Group>
       </Paper>
 
-      {/* 消息列表 */}
-      <ScrollArea 
-        ref={scrollRef}
-        flex={1} 
-        p="md"
-        style={{ backgroundColor: '#f8f9fa' }}
-      >
+      <ScrollArea ref={scrollRef} flex={1} p="md" style={{ backgroundColor: '#f8f9fa' }}>
         <Stack gap="md">
           {messages.length === 0 && !loading ? (
             <Box ta="center" py="xl">
-              <Avatar color="gray" radius="xl" size="lg" mx="auto">
-                <IconRobot size={32} />
-              </Avatar>
+              <Avatar color="gray" radius="xl" size="lg" mx="auto"><IconRobot size={32} /></Avatar>
               <Text c="dimmed" mt="md">暂无消息，开始对话吧！</Text>
             </Box>
           ) : (
             messages.map((message) => (
-              <Group 
-                key={message.id} 
-                gap="md" 
-                align="flex-start"
-                style={{ 
-                  justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
-                }}
-              >
-                {message.role === 'assistant' && (
-                  <Avatar color="blue" radius="xl">
-                    <IconRobot size={20} />
-                  </Avatar>
-                )}
-                
-                <Paper
-                  p="md"
-                  shadow="sm"
-                  style={{
-                    maxWidth: '70%',
-                    backgroundColor: message.role === 'user' ? '#228be6' : 'white',
-                    color: message.role === 'user' ? 'white' : 'inherit',
-                    borderRadius: message.role === 'user' 
-                      ? 'var(--mantine-radius-md) var(--mantine-radius-md) 0 var(--mantine-radius-md)'
-                      : 'var(--mantine-radius-md) var(--mantine-radius-md) var(--mantine-radius-md) 0',
-                  }}
-                >
+              <Group key={message.id} gap="md" align="flex-start" style={{ justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                {message.role === 'assistant' && <Avatar color="blue" radius="xl"><IconRobot size={20} /></Avatar>}
+                <Paper p="md" shadow="sm" style={{
+                  maxWidth: '70%',
+                  backgroundColor: message.role === 'user' ? '#228be6' : 'white',
+                  color: message.role === 'user' ? 'white' : 'inherit',
+                  borderRadius: message.role === 'user' 
+                    ? 'var(--mantine-radius-md) var(--mantine-radius-md) 0 var(--mantine-radius-md)'
+                    : 'var(--mantine-radius-md) var(--mantine-radius-md) var(--mantine-radius-md) 0',
+                }}>
                   <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>{message.content}</Text>
                   <Group justify="space-between" mt="xs" gap="xs">
                     <Text size="xs" c={message.role === 'user' ? 'rgba(255,255,255,0.7)' : 'dimmed'}>
@@ -322,42 +391,34 @@ export function ChatPage() {
                     </Text>
                     {message.role === 'assistant' && (
                       <Tooltip label="复制消息">
-                        <ActionIcon 
-                          size="xs" 
-                          variant="subtle" 
-                          color="gray"
-                          onClick={() => copyMessage(message.content)}
-                        >
+                        <ActionIcon size="xs" variant="subtle" color="gray" onClick={() => copyMessage(message.content)}>
                           <IconCopy size={14} />
                         </ActionIcon>
                       </Tooltip>
                     )}
                   </Group>
                 </Paper>
-
-                {message.role === 'user' && (
-                  <Avatar color="blue" radius="xl">
-                    <IconUser size={20} />
-                  </Avatar>
-                )}
+                {message.role === 'user' && <Avatar color="blue" radius="xl"><IconUser size={20} /></Avatar>}
               </Group>
             ))
           )}
           
           {isProcessing && (
             <Group gap="md" align="flex-start">
-              <Avatar color="blue" radius="xl">
-                <IconRobot size={20} />
-              </Avatar>
+              <Avatar color="blue" radius="xl"><IconRobot size={20} /></Avatar>
               <Paper p="md" shadow="sm" style={{ backgroundColor: 'white' }}>
-                <Badge variant="light" color="blue">思考中...</Badge>
+                <Group gap="xs">
+                  <Badge variant="light" color="blue">思考中...</Badge>
+                  <ActionIcon size="xs" variant="subtle" color="red" onClick={handleAbort} title="中止">
+                    <IconPlayerStop size={14} />
+                  </ActionIcon>
+                </Group>
               </Paper>
             </Group>
           )}
         </Stack>
       </ScrollArea>
 
-      {/* 输入区域 */}
       <Paper p="md" withBorder style={{ borderTop: 'none', borderRadius: '0 0 var(--mantine-radius-md) var(--mantine-radius-md)' }}>
         <Group gap="sm">
           <TextInput
@@ -370,17 +431,22 @@ export function ChatPage() {
             style={{ flex: 1 }}
             size="md"
           />
-          <Button
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || isProcessing}
-            loading={isProcessing}
-            size="md"
-          >
-            <IconSend size={18} />
-          </Button>
+          {isProcessing ? (
+            <Button onClick={handleAbort} color="red" size="md">
+              <IconPlayerStop size={18} />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isProcessing}
+              size="md"
+            >
+              <IconSend size={18} />
+            </Button>
+          )}
         </Group>
         <Text size="xs" c="dimmed" mt="xs">
-          💡 提示：您可以询问系统状态、执行命令或获取帮助
+          提示：您可以询问系统状态、执行命令或获取帮助
         </Text>
       </Paper>
     </Box>

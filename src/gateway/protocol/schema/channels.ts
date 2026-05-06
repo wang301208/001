@@ -185,6 +185,13 @@ export const ChannelsLogoutParamsSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const ChannelsConnectParamsSchema = Type.Object(
+  {
+    channel: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
 export const WebLoginStartParamsSchema = Type.Object(
   {
     force: Type.Optional(Type.Boolean()),

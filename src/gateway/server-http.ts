@@ -1254,6 +1254,14 @@ export function attachGatewayUpgradeHandler(opts: {
         return;
       }
       // 在 wss.handleUpgrade 之前添加认证检查
+      // 支持从 URL 查询参数中提取 token（用于 WebSocket 连接）
+      const url = new URL(req.url ?? "/", "http://localhost");
+      const queryToken = url.searchParams.get("token");
+      if (queryToken && !req.headers.authorization) {
+        // 如果 URL 中有 token 但没有 Authorization 头，则添加
+        req.headers.authorization = `Bearer ${queryToken}`;
+      }
+      
       const authResult = await authorizeGatewayHttpRequestOrReply({
         req,
         auth: resolvedAuth,
@@ -1263,7 +1271,7 @@ export function attachGatewayUpgradeHandler(opts: {
         clientIp: preauthBudgetKey,
         browserOriginPolicy: undefined,
       });
-      
+
       if (!authResult.ok) {
         writeUpgradeAuthFailure(socket, authResult);
         socket.destroy();

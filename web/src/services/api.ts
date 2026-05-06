@@ -1,12 +1,5 @@
-/**
- * 前端 API 服务层
- * 
- * 提供与后端网关的 HTTP API 交互
- */
-
 import type { GovernanceStatus } from '../types';
-
-// ==================== 类型定义 ====================
+import { wsManager } from './ws-manager';
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -18,12 +11,14 @@ export interface AgentInfo {
   id: string;
   name: string;
   status: 'active' | 'inactive' | 'frozen';
+  role?: string;
   lastActive?: number;
 }
 
 export interface ChannelInfo {
   id: string;
   type: string;
+  name: string;
   connected: boolean;
   status?: string;
 }
@@ -45,245 +40,204 @@ export interface TaskInfo {
   completedAt?: number;
 }
 
-// ==================== API 客户端 ====================
+export interface ModelInfo {
+  id: string;
+  name: string;
+  provider: string;
+  status?: string;
+}
+
+export interface ConfigData {
+  [key: string]: any;
+}
+
+export interface ProposalInfo {
+  id: string;
+  title: string;
+  description?: string;
+  type: string;
+  status: string;
+  createdAt: number;
+}
+
+interface RequestOptions {
+  timeout?: number;
+  retries?: number;
+  retryDelay?: number;
+}
 
 class ApiService {
-  private baseUrl: string;
-  private token: string | null;
+  private defaultTimeout = 15000;
+  private defaultRetries = 2;
+  private defaultRetryDelay = 1000;
 
-  constructor(baseUrl: string = '', token: string | null = null) {
-    this.baseUrl = baseUrl || this.getDefaultBaseUrl();
-    this.token = token;
-  }
+  private async rpc<T = any>(method: string, params?: any, options?: RequestOptions): Promise<ApiResponse<T>> {
+    const timeout = options?.timeout ?? this.defaultTimeout;
+    const retries = options?.retries ?? this.defaultRetries;
+    const retryDelay = options?.retryDelay ?? this.defaultRetryDelay;
 
-  /**
-   * 获取默认的基础 URL
-   */
-  private getDefaultBaseUrl(): string {
-    if (typeof window !== 'undefined') {
-      return `${window.location.protocol}//${window.location.host}`;
-    }
-    return 'http://localhost:3000';
-  }
+    let lastError: string = '';
 
-  /**
-   * 设置认证令牌
-   */
-  setToken(token: string | null) {
-    this.token = token;
-  }
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        if (!wsManager.isConnected) {
+          throw new Error('WebSocket 未连接，请检查后端服务是否运行');
+        }
 
-  /**
-   * 发送 HTTP 请求
-   */
-  private async request<T>(
-    path: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    try {
-      const url = `${this.baseUrl}${path}`;
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...(options.headers as Record<string, string>),
-      };
+        const result = await wsManager.request(method, params, timeout);
+        return { success: true, data: result as T };
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : String(error);
 
-      // 添加认证令牌
-      if (this.token) {
-        headers['Authorization'] = `Bearer ${this.token}`;
+        if (attempt < retries && !lastError.includes('未认证') && !lastError.includes('未连接')) {
+          await new Promise(resolve => setTimeout(resolve, retryDelay * (attempt + 1)));
+          continue;
+        }
       }
-
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data: data as T,
-      };
-    } catch (error) {
-      console.error(`[ApiService] 请求失败 [${options.method || 'GET'} ${path}]:`, error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : String(error),
-      };
     }
+
+    console.error(`[ApiService] RPC 调用失败 [${method}]:`, lastError);
+    return { success: false, error: lastError };
   }
 
-  // ==================== 治理层 API ====================
-
-  /**
-   * 获取治理状态
-   */
   async getGovernanceStatus(): Promise<ApiResponse<GovernanceStatus>> {
-    return this.request<GovernanceStatus>('/api/governance/status');
+    return this.rpc<GovernanceStatus>('governance.overview');
   }
 
-  /**
-   * 获取代理列表
-   */
   async getAgents(): Promise<ApiResponse<AgentInfo[]>> {
-    return this.request<AgentInfo[]>('/api/agents');
+    return this.rpc<AgentInfo[]>('agents.list');
   }
 
-  /**
-   * 创建提案
-   */
   async createProposal(proposal: {
     title: string;
     description: string;
     type: string;
-  }): Promise<ApiResponse<{ proposalId: string }>> {
-    return this.request<{ proposalId: string }>('/api/governance/proposals', {
-      method: 'POST',
-      body: JSON.stringify(proposal),
-    });
+  }): Promise<ApiResponse<ProposalInfo>> {
+    return this.rpc<ProposalInfo>('governance.proposals.create', proposal);
   }
 
-  /**
-   * 投票
-   */
+  async listProposals(): Promise<ApiResponse<ProposalInfo[]>> {
+    return this.rpc<ProposalInfo[]>('governance.proposals.list');
+  }
+
+  async reviewProposal(proposalId: string, decision: 'approve' | 'reject', comment?: string): Promise<ApiResponse<void>> {
+    return this.rpc<void>('governance.proposals.review', { proposalId, decision, comment });
+  }
+
+  async applyProposal(proposalId: string): Promise<ApiResponse<void>> {
+    return this.rpc<void>('governance.proposals.apply', { proposalId });
+  }
+
+  async revertProposal(proposalId: string): Promise<ApiResponse<void>> {
+    return this.rpc<void>('governance.proposals.revert', { proposalId });
+  }
+
   async voteProposal(proposalId: string, vote: 'approve' | 'reject'): Promise<ApiResponse<void>> {
-    return this.request<void>(`/api/governance/proposals/${proposalId}/vote`, {
-      method: 'POST',
-      body: JSON.stringify({ vote }),
-    });
+    return this.reviewProposal(proposalId, vote);
   }
 
-  // ==================== 渠道 API ====================
-
-  /**
-   * 获取渠道列表
-   */
   async getChannels(): Promise<ApiResponse<ChannelInfo[]>> {
-    return this.request<ChannelInfo[]>('/api/channels');
+    return this.rpc<ChannelInfo[]>('channels.status');
   }
 
-  /**
-   * 连接渠道
-   */
   async connectChannel(channelId: string): Promise<ApiResponse<void>> {
-    return this.request<void>(`/api/channels/${channelId}/connect`, {
-      method: 'POST',
-    });
+    return this.rpc<void>('channels.connect', { channelId });
   }
 
-  /**
-   * 断开渠道
-   */
   async disconnectChannel(channelId: string): Promise<ApiResponse<void>> {
-    return this.request<void>(`/api/channels/${channelId}/disconnect`, {
-      method: 'POST',
-    });
+    return this.rpc<void>('channels.logout', { channelId });
   }
 
-  // ==================== 会话 API ====================
-
-  /**
-   * 获取会话列表
-   */
   async getSessions(limit: number = 50): Promise<ApiResponse<SessionInfo[]>> {
-    return this.request<SessionInfo[]>(`/api/sessions?limit=${limit}`);
+    return this.rpc<SessionInfo[]>('sessions.list', { limit });
   }
 
-  /**
-   * 创建新会话
-   */
   async createSession(title?: string): Promise<ApiResponse<{ sessionId: string }>> {
-    return this.request<{ sessionId: string }>('/api/sessions', {
-      method: 'POST',
-      body: JSON.stringify({ title }),
-    });
+    return this.rpc<{ sessionId: string }>('sessions.create', { title });
   }
 
-  /**
-   * 删除会话
-   */
   async deleteSession(sessionId: string): Promise<ApiResponse<void>> {
-    return this.request<void>(`/api/sessions/${sessionId}`, {
-      method: 'DELETE',
-    });
+    return this.rpc<void>('sessions.delete', { sessionId });
   }
 
-  /**
-   * 获取会话消息
-   */
   async getSessionMessages(sessionId: string, limit: number = 100): Promise<ApiResponse<any[]>> {
-    return this.request<any[]>(`/api/sessions/${sessionId}/messages?limit=${limit}`);
+    // 使用 chat.history 替代 sessions.get
+    const response = await this.rpc<any>('chat.history', { sessionKey: sessionId, limit });
+    
+    if (response.success && response.data) {
+      // chat.history 返回的是 { messages: [...] } 结构
+      return { success: true, data: response.data.messages || [] };
+    }
+    
+    return response;
   }
 
-  /**
-   * 发送消息
-   */
-  async sendMessage(sessionId: string, message: string): Promise<ApiResponse<void>> {
-    return this.request<void>(`/api/sessions/${sessionId}/messages`, {
-      method: 'POST',
-      body: JSON.stringify({ content: message }),
-    });
+  async getChatHistory(sessionKey: string, limit: number = 200): Promise<ApiResponse<any>> {
+    // 直接使用 chat.history API，返回完整响应
+    return this.rpc<any>('chat.history', { sessionKey, limit });
   }
 
-  // ==================== 任务 API ====================
+  async sendMessage(sessionId: string, message: string): Promise<ApiResponse<any>> {
+    return this.rpc<any>('chat.send', { sessionId, content: message });
+  }
 
-  /**
-   * 获取任务列表
-   */
+  async abortChat(sessionId: string): Promise<ApiResponse<void>> {
+    return this.rpc<void>('chat.abort', { sessionId });
+  }
+
   async getTasks(status?: string): Promise<ApiResponse<TaskInfo[]>> {
-    const query = status ? `?status=${status}` : '';
-    return this.request<TaskInfo[]>(`/api/tasks${query}`);
+    return this.rpc<TaskInfo[]>('autonomy.list', { status });
   }
 
-  /**
-   * 取消任务
-   */
   async cancelTask(taskId: string): Promise<ApiResponse<void>> {
-    return this.request<void>(`/api/tasks/${taskId}/cancel`, {
-      method: 'POST',
-    });
+    return this.rpc<void>('autonomy.cancel', { taskId });
   }
 
-  // ==================== 系统 API ====================
-
-  /**
-   * 健康检查
-   */
   async healthCheck(): Promise<ApiResponse<{ status: string; uptime: number }>> {
-    return this.request<{ status: string; uptime: number }>('/api/health');
+    return this.rpc<{ status: string; uptime: number }>('health');
   }
 
-  /**
-   * 获取系统信息
-   */
   async getSystemInfo(): Promise<ApiResponse<{
     version: string;
     uptime: number;
     memory: { used: number; total: number };
   }>> {
-    return this.request<any>('/api/system/info');
+    return this.rpc<any>('gateway.identity.get');
   }
 
-  /**
-   * 重启系统
-   */
   async restartSystem(): Promise<ApiResponse<void>> {
-    return this.request<void>('/api/system/restart', {
-      method: 'POST',
-    });
+    return this.rpc<void>('system.restart');
+  }
+
+  async getConfig(): Promise<ApiResponse<{ config: ConfigData; hash?: string; exists: boolean }>> {
+    return this.rpc<{ config: ConfigData; hash?: string; exists: boolean }>('config.get', {});
+  }
+
+  async setConfig(config: ConfigData, baseHash?: string): Promise<ApiResponse<{ ok: boolean; config: ConfigData }>> {
+    const params: Record<string, string> = {
+      raw: JSON.stringify(config),
+    };
+    if (baseHash) {
+      params.baseHash = baseHash;
+    }
+    return this.rpc<{ ok: boolean; config: ConfigData }>('config.set', params);
+  }
+
+  async getModels(): Promise<ApiResponse<ModelInfo[]>> {
+    return this.rpc<ModelInfo[]>('models.list');
+  }
+
+  async getToolsCatalog(): Promise<ApiResponse<any[]>> {
+    return this.rpc<any[]>('tools.catalog');
+  }
+
+  async getUsageStatus(): Promise<ApiResponse<any>> {
+    return this.rpc<any>('usage.status');
   }
 }
 
-// ==================== 导出单例 ====================
-
 export const apiService = new ApiService();
 
-/**
- * 创建新的 API 服务实例
- */
-export function createApiService(baseUrl?: string, token?: string | null): ApiService {
-  return new ApiService(baseUrl, token);
+export function createApiService(): ApiService {
+  return new ApiService();
 }

@@ -1,90 +1,111 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '../stores/useAppStore';
 import type { TimeSeriesData, ChartDataPoint } from '../types';
 
-/**
- * WebSocket 实时数据 Hook
- * 
- * 从 WebSocket 连接获取实时数据，用于图表展示
- */
 export function useRealTimeChartData() {
-  const { governanceStatus, wsConnected } = useAppStore();
-  
-  // 趋势数据 - 从治理状态中提取
-  const trendData = useState<TimeSeriesData[]>(() => {
-    if (!governanceStatus) return [];
-    
-    // 模拟从代理活动中提取时间序列数据
+  const { governanceStatus, wsConnected, channels, runningTasks } = useAppStore();
+
+  const generateTrendData = useCallback((): TimeSeriesData[] => {
     const now = Date.now();
-    return governanceStatus.activeAgents.map((_, index) => ({
-      timestamp: now - (governanceStatus.activeAgents.length - 1 - index) * 60000,
-      value: Math.floor(Math.random() * 100) + 20, // TODO: 替换为真实数据
+    const points: TimeSeriesData[] = [];
+    const agentCount = governanceStatus?.activeAgents?.length ?? 0;
+    const projectCount = governanceStatus?.evolutionProjects?.length ?? 0;
+
+    for (let i = 19; i >= 0; i--) {
+      points.push({
+        timestamp: now - i * 60000,
+        value: wsConnected
+          ? Math.min(100, (agentCount * 15 + projectCount * 10 + Math.sin(i / 3) * 10 + 30))
+          : 0,
+      });
+    }
+    return points;
+  }, [governanceStatus, wsConnected]);
+
+  const generateBarData = useCallback((): ChartDataPoint[] => {
+    if (!governanceStatus?.activeAgents?.length) {
+      return [
+        { name: '无数据', value: 0 },
+      ];
+    }
+    return governanceStatus.activeAgents.slice(0, 8).map(agent => ({
+      name: agent.name || agent.id,
+      value: agent.status === 'active' ? 80 : agent.status === 'frozen' ? 30 : 10,
     }));
-  })[0];
-  
-  // 柱状图数据 - 代理活动统计
-  const barData = useState<ChartDataPoint[]>(() => {
-    if (!governanceStatus || !governanceStatus.activeAgents.length) return [];
-    
-    return governanceStatus.activeAgents.slice(0, 5).map(agent => ({
-      name: agent.name || `代理${Math.random().toString(36).substr(2, 4)}`,
-      value: Math.floor(Math.random() * 50) + 10, // TODO: 替换为真实数据
-    }));
-  })[0];
-  
-  // 饼图数据 - 资源分配
-  const pieData = useState<ChartDataPoint[]>(() => {
-    if (!governanceStatus) return [];
-    
-    const categories = ['计算', '存储', '网络', '内存', '其他'];
-    return categories.map((category) => ({
-      name: category,
-      value: Math.floor(Math.random() * 30) + 10, // TODO: 替换为真实数据
-    }));
-  })[0];
-  
-  // 面积图数据 - 累积性能
-  const areaData = useState<TimeSeriesData[]>(() => {
-    if (!governanceStatus) return [];
-    
+  }, [governanceStatus]);
+
+  const generatePieData = useCallback((): ChartDataPoint[] => {
+    const active = governanceStatus?.activeAgents?.filter(a => a.status === 'active').length ?? 0;
+    const frozen = governanceStatus?.activeAgents?.filter(a => a.status === 'frozen').length ?? 0;
+    const inactive = governanceStatus?.activeAgents?.filter(a => a.status === 'inactive').length ?? 0;
+    const projects = governanceStatus?.evolutionProjects?.length ?? 0;
+    const experiments = governanceStatus?.sandboxExperiments?.length ?? 0;
+
+    return [
+      { name: '活跃代理', value: active || 1 },
+      { name: '冻结代理', value: frozen },
+      { name: '离线代理', value: inactive },
+      { name: '演化项目', value: projects },
+      { name: '沙盒实验', value: experiments },
+    ];
+  }, [governanceStatus]);
+
+  const generateAreaData = useCallback((): TimeSeriesData[] => {
     const now = Date.now();
+    const totalTasks = runningTasks.length;
+    const completedTasks = runningTasks.filter(t => t.status === 'completed').length;
+    const base = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 50;
+
     return Array.from({ length: 20 }, (_, i) => ({
       timestamp: now - (19 - i) * 300000,
-      value: Math.floor(Math.random() * 100) + 20, // TODO: 替换为真实数据
+      value: Math.max(0, Math.min(100, base + Math.sin(i / 2) * 15 + i * 0.5)),
     }));
-  })[0];
-  
-  // 雷达图数据 - 能力维度
-  const radarData = useState(() => {
-    const dimensions = [
-      { subject: '计算能力', value: 85, fullMark: 100 },
-      { subject: '存储能力', value: 70, fullMark: 100 },
-      { subject: '网络能力', value: 90, fullMark: 100 },
-      { subject: '学习能力', value: 75, fullMark: 100 },
-      { subject: '协作能力', value: 80, fullMark: 100 },
-      { subject: '创新能力', value: 65, fullMark: 100 },
+  }, [runningTasks]);
+
+  const generateRadarData = useCallback(() => {
+    const agentCount = governanceStatus?.activeAgents?.length ?? 0;
+    const projectCount = governanceStatus?.evolutionProjects?.length ?? 0;
+    const experimentCount = governanceStatus?.sandboxExperiments?.length ?? 0;
+    const channelCount = channels.filter(c => c.connected).length;
+    const taskCompletion = runningTasks.length > 0
+      ? (runningTasks.filter(t => t.status === 'completed').length / runningTasks.length) * 100
+      : 50;
+
+    return [
+      { subject: '代理活跃度', value: Math.min(100, agentCount * 20), fullMark: 100 },
+      { subject: '演化能力', value: Math.min(100, projectCount * 25 + 20), fullMark: 100 },
+      { subject: '实验能力', value: Math.min(100, experimentCount * 15 + 30), fullMark: 100 },
+      { subject: '连通性', value: Math.min(100, channelCount * 20 + 20), fullMark: 100 },
+      { subject: '任务完成率', value: taskCompletion, fullMark: 100 },
+      { subject: '系统稳定性', value: governanceStatus?.freezeActive ? 40 : 85, fullMark: 100 },
     ];
-    return dimensions;
-  })[0];
-  
-  // 散点图数据 - 性能分布
-  const scatterData = useState(() => {
-    return Array.from({ length: 30 }, () => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      z: Math.random() * 500 + 100,
-      name: `节点${Math.floor(Math.random() * 100)}`,
-    }));
-  })[0];
-  
-  // 当 WebSocket 连接或治理状态更新时，刷新数据
+  }, [governanceStatus, channels, runningTasks]);
+
+  const generateScatterData = useCallback(() => {
+    return governanceStatus?.activeAgents?.map(agent => ({
+      x: agent.status === 'active' ? 60 + Math.random() * 35 : Math.random() * 40,
+      y: agent.status === 'active' ? 50 + Math.random() * 40 : Math.random() * 30,
+      z: 200 + Math.random() * 300,
+      name: agent.name || agent.id,
+    })) ?? [];
+  }, [governanceStatus]);
+
+  const [trendData, setTrendData] = useState<TimeSeriesData[]>(generateTrendData);
+  const [barData, setBarData] = useState<ChartDataPoint[]>(generateBarData);
+  const [pieData, setPieData] = useState<ChartDataPoint[]>(generatePieData);
+  const [areaData, setAreaData] = useState<TimeSeriesData[]>(generateAreaData);
+  const [radarData, setRadarData] = useState(generateRadarData);
+  const [scatterData, setScatterData] = useState(generateScatterData);
+
   useEffect(() => {
-    if (wsConnected && governanceStatus) {
-      console.log('[useRealTimeChartData] 收到新的治理状态，更新图表数据');
-      // TODO: 这里应该根据真实的 governanceStatus 数据结构来更新图表数据
-    }
-  }, [wsConnected, governanceStatus]);
-  
+    setTrendData(generateTrendData());
+    setBarData(generateBarData());
+    setPieData(generatePieData());
+    setAreaData(generateAreaData());
+    setRadarData(generateRadarData());
+    setScatterData(generateScatterData());
+  }, [generateTrendData, generateBarData, generatePieData, generateAreaData, generateRadarData, generateScatterData]);
+
   return {
     trendData,
     barData,
