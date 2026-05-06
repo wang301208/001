@@ -15,16 +15,17 @@ import { getChildLogger, isFileLogLevelEnabled } from "./logger.js";
 import { loggingState } from "./state.js";
 
 type LogObj = { date?: Date } & Record<string, unknown>;
+type LogMeta = Record<string, unknown>;
 
 export type SubsystemLogger = {
   subsystem: string;
   isEnabled: (level: LogLevel, target?: "any" | "console" | "file") => boolean;
-  trace: (message: string, meta?: Record<string, unknown>) => void;
-  debug: (message: string, meta?: Record<string, unknown>) => void;
-  info: (message: string, meta?: Record<string, unknown>) => void;
-  warn: (message: string, meta?: Record<string, unknown>) => void;
-  error: (message: string, meta?: Record<string, unknown>) => void;
-  fatal: (message: string, meta?: Record<string, unknown>) => void;
+  trace: (message: string, meta?: unknown) => void;
+  debug: (message: string, meta?: unknown) => void;
+  info: (message: string, meta?: unknown) => void;
+  warn: (message: string, meta?: unknown) => void;
+  error: (message: string, meta?: unknown) => void;
+  fatal: (message: string, meta?: unknown) => void;
   raw: (message: string) => void;
   child: (name: string) => SubsystemLogger;
 };
@@ -74,6 +75,31 @@ function formatRuntimeArg(arg: unknown): string {
   } catch {
     return String(arg);
   }
+}
+
+function normalizeLogMeta(meta: unknown): LogMeta | undefined {
+  if (meta === undefined || meta === null) {
+    return undefined;
+  }
+  if (meta instanceof Error) {
+    const errorMeta: LogMeta = {
+      name: meta.name,
+      message: meta.message,
+      stack: meta.stack,
+    };
+    const maybeNodeError = meta as NodeJS.ErrnoException;
+    if (maybeNodeError.code) {
+      errorMeta.code = maybeNodeError.code;
+    }
+    if (maybeNodeError.path) {
+      errorMeta.path = maybeNodeError.path;
+    }
+    return { error: errorMeta };
+  }
+  if (typeof meta === "object" && !Array.isArray(meta)) {
+    return meta as LogMeta;
+  }
+  return { value: meta };
 }
 
 function isRichConsoleEnv(): boolean {
@@ -202,7 +228,7 @@ function formatConsoleLine(opts: {
   subsystem: string;
   message: string;
   style: "pretty" | "compact" | "json";
-  meta?: Record<string, unknown>;
+  meta?: LogMeta;
 }): string {
   const displaySubsystem =
     opts.style === "json" ? opts.subsystem : formatSubsystemForConsole(opts.subsystem);
@@ -261,7 +287,7 @@ function shouldSuppressProbeConsoleLine(params: {
   level: LogLevel;
   subsystem: string;
   message: string;
-  meta?: Record<string, unknown>;
+  meta?: LogMeta;
 }): boolean {
   if (isVerbose()) {
     return false;
@@ -293,7 +319,7 @@ function logToFile(
   fileLogger: TsLogger<LogObj>,
   level: LogLevel,
   message: string,
-  meta?: Record<string, unknown>,
+  meta?: LogMeta,
 ) {
   if (level === "silent") {
     return;
@@ -315,7 +341,7 @@ function logToFile(
 export function createSubsystemLogger(subsystem: string): SubsystemLogger {
   let fileLogger: TsLogger<LogObj> | null = null;
 
-  const emitLog = (level: LogLevel, message: string, meta?: Record<string, unknown>) => {
+  const emitLog = (level: LogLevel, message: string, meta?: unknown) => {
     const consoleSettings = getConsoleSettings();
     const consoleEnabled =
       shouldLogToConsole(level, { level: consoleSettings.level }) &&
@@ -324,10 +350,11 @@ export function createSubsystemLogger(subsystem: string): SubsystemLogger {
     if (!consoleEnabled && !fileEnabled) {
       return;
     }
+    const normalizedMeta = normalizeLogMeta(meta);
     let consoleMessageOverride: string | undefined;
-    let fileMeta = meta;
-    if (meta && Object.keys(meta).length > 0) {
-      const { consoleMessage, ...rest } = meta as Record<string, unknown> & {
+    let fileMeta = normalizedMeta;
+    if (normalizedMeta && Object.keys(normalizedMeta).length > 0) {
+      const { consoleMessage, ...rest } = normalizedMeta as LogMeta & {
         consoleMessage?: unknown;
       };
       if (typeof consoleMessage === "string") {

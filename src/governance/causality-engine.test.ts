@@ -2,7 +2,7 @@
  * 因果关系引擎测试
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { CausalGraph, getCausalGraph, resetCausalGraph } from "./causality-engine.js";
 
 describe("CausalGraph", () => {

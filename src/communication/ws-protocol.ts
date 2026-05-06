@@ -96,6 +96,7 @@ export interface AuthResponse extends WSBaseMessage {
   success: boolean;
   error?: string;
   expiresIn?: number; // 令牌过期时间（秒）
+  subscriptionIds?: string[]; // 订阅确认复用 auth_response 时返回
 }
 
 // ==================== 错误消息 ====================

@@ -213,11 +213,11 @@ export async function processTimedOutProposals(
     ...(env ? { env } : {}),
   });
 
-  console.log(`📋 找到 ${proposals.records.length} 个待审核提案`);
+  console.log(`📋 找到 ${proposals.proposals.length} 个待审核提案`);
 
   const now = Date.now();
   const result: TimeoutReviewResult = {
-    totalChecked: proposals.records.length,
+    totalChecked: proposals.proposals.length,
     timedOutCount: 0,
     autoApprovedCount: 0,
     skippedCount: 0,
@@ -226,7 +226,7 @@ export async function processTimedOutProposals(
   };
 
   // 逐个检查提案
-  for (const proposal of proposals.records) {
+  for (const proposal of proposals.proposals) {
     try {
       const entry = await checkAndAutoApproveProposal(
         proposal,

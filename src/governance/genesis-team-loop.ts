@@ -1,10 +1,9 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { SandboxUniverseController } from "./sandbox-universe.js";
+import type { SandboxUniverseControllerState } from "./sandbox-universe.js";
 import { getGovernanceCapabilityInventory } from "./capability-registry.js";
-import { loadGovernanceProposals, createProposal } from "./proposals.js";
-import type { GovernanceProposal } from "./proposals.js";
+import { createGovernanceProposal } from "./proposals.js";
 
 /**
  * Genesis Team 自动化循环控制器
@@ -59,7 +58,7 @@ export class GenesisTeamLoop {
   private timer: NodeJS.Timeout | null = null;
   private isRunning: boolean = false;
   private activeProjects: Map<string, EvolutionProject> = new Map();
-  private sandboxController?: SandboxUniverseController;
+  private sandboxController?: SandboxUniverseControllerState;
   
   constructor(config: GenesisTeamLoopConfig = {}) {
     this.config = {
@@ -179,14 +178,15 @@ export class GenesisTeamLoop {
       if (inventory.gaps && inventory.gaps.length > 0) {
         for (const gap of inventory.gaps) {
           gaps.push({
-            id: `gap-${createHash("sha256").update(gap.description).digest("hex").slice(0, 16)}`,
+            id: `gap-${createHash("sha256").update(gap.detail).digest("hex").slice(0, 16)}`,
             type: "capability_gap",
-            severity: gap.severity || "medium",
-            description: gap.description,
+            severity:
+              gap.severity === "critical" ? "critical" : gap.severity === "warning" ? "medium" : "low",
+            description: gap.detail,
             detectedAt: Date.now(),
-            confidence: gap.confidence || 0.7,
-            relatedCapabilities: gap.relatedCapabilities,
-            suggestedAction: gap.suggestedAction,
+            confidence: 0.7,
+            relatedCapabilities: gap.relatedEntryIds,
+            suggestedAction: gap.suggestedActions[0],
           });
         }
       }
@@ -265,10 +265,8 @@ export class GenesisTeamLoop {
    * 创建 evolution proposal
    */
   private async createEvolutionProposal(gap: GapSignal): Promise<string> {
-    const proposal: Partial<GovernanceProposal> = {
-      id: `evo-${Date.now()}-${gap.id.slice(0, 8)}`,
-      title: `解决能力缺口: ${gap.description.slice(0, 100)}`,
-      description: `
+    const title = `解决能力缺口: ${gap.description.slice(0, 100)}`;
+    const rationale = `
 ## 能力缺口描述
 
 ${gap.description}
@@ -284,18 +282,28 @@ ${gap.confidence}
 ## 建议行动
 
 ${gap.suggestedAction || "需要进一步分析"}
-      `.trim(),
-      mutationClass: "capability_mutation",
-      status: "pending",
-      createdAt: Date.now(),
-      createdBy: "sentinel",
-      evidence: {
-        gapSignal: gap,
-      },
-    };
-    
-    const result = await createProposal(proposal as any);
-    return result.id;
+    `.trim();
+
+    const content = `${rationale}
+
+## 信号
+
+${JSON.stringify(gap, null, 2)}
+`;
+
+    const result = await createGovernanceProposal({
+      title,
+      rationale,
+      createdByAgentId: "sentinel",
+      operations: [
+        {
+          kind: "write",
+          path: `genesis-team/${gap.id}.md`,
+          content,
+        },
+      ],
+    });
+    return result.proposal.id;
   }
   
   /**
@@ -486,7 +494,7 @@ ${gap.suggestedAction || "需要进一步分析"}
   /**
    * 设置沙盒宇宙控制器（可选）
    */
-  setSandboxController(controller: SandboxUniverseController): void {
+  setSandboxController(controller: SandboxUniverseControllerState): void {
     this.sandboxController = controller;
   }
 }

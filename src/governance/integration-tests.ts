@@ -5,8 +5,6 @@
  */
 
 import { createSubsystemLogger } from '../logging/subsystem.js';
-import type { EvolutionProject } from './proposals.js';
-import type { SandboxUniverse } from './sandbox-universe.js';
 
 const log = createSubsystemLogger('integration-test');
 

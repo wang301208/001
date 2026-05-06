@@ -9,7 +9,6 @@
  */
 
 import { createSubsystemLogger } from '../logging/subsystem.js';
-import type { EvolutionProject } from './proposals.js';
 import { metricsCollector, notificationManager, alertEngine } from './monitoring-alerting.js';
 import { cacheManager, lazyLoader, performanceMonitor } from './performance-optimizer.js';
 import { errorClassifier, retryHandler, circuitBreaker } from './error-handler.js';

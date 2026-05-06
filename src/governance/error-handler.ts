@@ -677,3 +677,7 @@ export const errorClassifier = new ErrorClassifier();
 export const retryHandler = new RetryHandler();
 
 export const errorTracker = new ErrorTracker();
+
+export const fallbackHandler = new FallbackHandler<unknown>();
+
+export const circuitBreaker = new CircuitBreaker();

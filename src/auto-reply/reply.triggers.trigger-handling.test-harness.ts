@@ -216,7 +216,7 @@ function restoreTempHomeEnv(snapshot: TempHomeEnvSnapshot): void {
   restoreKey("USERPROFILE", snapshot.userProfile);
   restoreKey("HOMEDRIVE", snapshot.homeDrive);
   restoreKey("HOMEPATH", snapshot.homePath);
-  restoreKey("ZHUSHOU_HOME", snapshot.zhushouHome);
+  restoreKey("ZHUSHOU_HOME", snapshot.openclawHome);
   restoreKey("ZHUSHOU_STATE_DIR", snapshot.stateDir);
 }
 

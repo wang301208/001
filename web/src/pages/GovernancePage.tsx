@@ -24,6 +24,10 @@ import { ErrorState } from '../components/ui/ErrorState';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useState } from 'react';
 import { apiService } from '../services/api';
+import {
+  buildGovernanceProposalCreateInput,
+  createEmptyGovernanceProposalForm,
+} from '../utils/governance-proposal-form';
 
 export function GovernancePage() {
   const { governanceStatus, addNotification } = useAppStore();
@@ -32,7 +36,7 @@ export function GovernancePage() {
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [newProposal, setNewProposal] = useState({ title: '', description: '', type: 'evolution' });
+  const [newProposal, setNewProposal] = useState(createEmptyGovernanceProposalForm);
 
   if (!governanceStatus) {
     const cached = loadFromCache();
@@ -65,13 +69,19 @@ export function GovernancePage() {
       return;
     }
 
+    const proposalInput = buildGovernanceProposalCreateInput(newProposal);
+    if (!proposalInput.ok) {
+      addNotification('warning', '提案内容不完整', proposalInput.error);
+      return;
+    }
+
     setCreating(true);
     try {
-      const response = await apiService.createProposal(newProposal);
+      const response = await apiService.createProposal(proposalInput.value);
       if (response.success) {
         addNotification('success', '提案已创建', '新提案已提交审核');
         setShowCreateModal(false);
-        setNewProposal({ title: '', description: '', type: 'evolution' });
+        setNewProposal(createEmptyGovernanceProposalForm());
         reconnect();
       } else {
         addNotification('error', '创建失败', response.error || '创建提案失败');
@@ -193,6 +203,38 @@ export function GovernancePage() {
             value={newProposal.type}
             onChange={(val) => setNewProposal({ ...newProposal, type: val || 'evolution' })}
           />
+          <Select
+            label="操作类型"
+            data={[
+              { value: 'write', label: '写入/更新文件' },
+              { value: 'delete', label: '删除文件' },
+            ]}
+            value={newProposal.operationKind}
+            onChange={(val) =>
+              setNewProposal({
+                ...newProposal,
+                operationKind: val === 'delete' ? 'delete' : 'write',
+              })
+            }
+            required
+          />
+          <TextInput
+            label="目标路径"
+            placeholder="governance/charter/constitution.yaml"
+            value={newProposal.operationPath}
+            onChange={(e) => setNewProposal({ ...newProposal, operationPath: e.target.value })}
+            required
+          />
+          {newProposal.operationKind === 'write' && (
+            <Textarea
+              label="写入内容"
+              placeholder="输入要写入目标文件的完整内容"
+              value={newProposal.operationContent}
+              onChange={(e) => setNewProposal({ ...newProposal, operationContent: e.target.value })}
+              minRows={6}
+              required
+            />
+          )}
           <Group justify="flex-end">
             <Button variant="outline" onClick={() => setShowCreateModal(false)}>取消</Button>
             <Button onClick={handleCreateProposal} loading={creating}>提交提案</Button>

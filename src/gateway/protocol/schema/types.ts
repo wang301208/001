@@ -239,6 +239,7 @@ export type TalkSpeakResult = SchemaType<"TalkSpeakResult">;
 export type ChannelsStatusParams = SchemaType<"ChannelsStatusParams">;
 export type ChannelsStatusResult = SchemaType<"ChannelsStatusResult">;
 export type ChannelsLogoutParams = SchemaType<"ChannelsLogoutParams">;
+export type ChannelsConnectParams = SchemaType<"ChannelsConnectParams">;
 export type WebLoginStartParams = SchemaType<"WebLoginStartParams">;
 export type WebLoginWaitParams = SchemaType<"WebLoginWaitParams">;
 export type AgentSummary = SchemaType<"AgentSummary">;

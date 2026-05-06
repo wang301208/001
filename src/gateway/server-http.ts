@@ -5,7 +5,7 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
-import { createServer as createHttpsServer } from "node:https";
+import { createServer as createHttpsServer, type ServerOptions as HttpsServerOptions } from "node:https";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -931,7 +931,7 @@ export function createGatewayHttpServer(opts: {
   /** Optional rate limiter for auth brute-force protection. */
   rateLimiter?: AuthRateLimiter;
   getReadiness?: ReadinessChecker;
-  tlsOptions?: TlsOptions;
+  tlsOptions?: HttpsServerOptions;
 }): HttpServer {
   const {
     canvasHost,
@@ -1262,13 +1262,15 @@ export function attachGatewayUpgradeHandler(opts: {
         req.headers.authorization = `Bearer ${queryToken}`;
       }
       
-      const authResult = await authorizeGatewayHttpRequestOrReply({
+      const bearerToken = getBearerToken(req);
+      const authResult = await authorizeHttpGatewayConnect({
         req,
         auth: resolvedAuth,
+        connectAuth: bearerToken ? { token: bearerToken, password: bearerToken } : null,
         trustedProxies,
         allowRealIpFallback,
         rateLimiter,
-        clientIp: preauthBudgetKey,
+        ...(preauthBudgetKey ? { clientIp: preauthBudgetKey } : {}),
         browserOriginPolicy: undefined,
       });
 

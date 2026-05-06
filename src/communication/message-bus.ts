@@ -226,11 +226,11 @@ export class MessageBus {
   /**
    * 发布事件
    */
-  async publish(event: Omit<BusEvent, 'id' | 'timestamp'>): Promise<void> {
+  async publish(event: Omit<BusEvent, 'id' | 'timestamp'> & { timestamp?: number }): Promise<void> {
     const busEvent: BusEvent = {
       ...event,
       id: generateEventId(),
-      timestamp: Date.now(),
+      timestamp: event.timestamp ?? Date.now(),
     };
     
     // 添加到历史记录

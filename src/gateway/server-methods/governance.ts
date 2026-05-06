@@ -27,17 +27,17 @@ import {
   validateGovernanceCapabilityInventoryParams,
   validateGovernanceGenesisPlanParams,
   validateGovernanceOverviewParams,
-  validateGovernanceTeamParams,
-  validateGovernanceProposalsApplyParams,
   validateGovernanceProposalsApplyManyParams,
+  validateGovernanceProposalsApplyParams,
   validateGovernanceProposalsCreateParams,
   validateGovernanceProposalsListParams,
   validateGovernanceProposalsReconcileParams,
-  validateGovernanceProposalsRevertParams,
   validateGovernanceProposalsRevertManyParams,
-  validateGovernanceProposalsReviewParams,
+  validateGovernanceProposalsRevertParams,
   validateGovernanceProposalsReviewManyParams,
+  validateGovernanceProposalsReviewParams,
   validateGovernanceProposalsSynthesizeParams,
+  validateGovernanceTeamParams,
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 import { assertValidParams } from "./validation.js";
@@ -48,129 +48,6 @@ function respondGovernanceFailure(respond: RespondFn, error: unknown) {
     ? ErrorCodes.INVALID_REQUEST
     : ErrorCodes.UNAVAILABLE;
   respond(false, undefined, errorShape(code, message));
-}
-
-/**
- * 将后端 GovernanceOverviewResult 适配为前端友好的 GovernanceStatus 格式
- */
-function adaptGovernanceOverviewForFrontend(overview: any): any {
-  // 提取代理节点
-  const activeAgents = extractActiveAgentsFromOrganization(overview.organization);
-  
-  // 提取演化项目（从提案中）
-  const evolutionProjects = extractEvolutionProjectsFromProposals(overview.proposals);
-  
-  // 加载沙盒实验（简化版本，实际需要从 sandbox-universe 读取）
-  const sandboxExperiments: any[] = [];
-  
-  // 构建冻结状态
-  const freezeStatus = overview.enforcement?.active
-    ? {
-        active: true,
-        reason: overview.enforcement.reasonCode || 'enforcement_active',
-        activatedAt: overview.observedAt,
-        affectedSubsystems: overview.enforcement.freezeTargets || [],
-      }
-    : undefined;
-  
-  return {
-    sovereigntyBoundary: !overview.sovereignty?.open || overview.sovereignty.open === 0,
-    activeAgents,
-    evolutionProjects,
-    sandboxExperiments,
-    freezeActive: overview.enforcement?.active || false,
-    freezeStatus,
-  };
-}
-
-/**
- * 从组织信息中提取活跃的代理节点
- */
-function extractActiveAgentsFromOrganization(organization: any): any[] {
-  if (!organization || !organization.agents) {
-    return [];
-  }
-  
-  return organization.agents.map((agent: any) => ({
-    id: agent.id,
-    name: agent.title || agent.name || agent.id,
-    role: agent.layer || agent.role || 'unknown',
-    status: agent.governance?.freezeActive ? 'frozen' : 'active',
-  }));
-}
-
-/**
- * 从提案账本中提取演化项目
- */
-function extractEvolutionProjectsFromProposals(proposals: any): any[] {
-  if (!proposals || !proposals.items) {
-    return [];
-  }
-  
-  return proposals.items
-    .filter((p: any) => p.type === 'evolution' || p.category === 'evolution' || isEvolutionProposal(p))
-    .map((p: any) => ({
-      id: p.id,
-      title: p.title || 'Untitled Proposal',
-      mutationClass: p.mutationClass || mapProposalTypeToMutationClass(p.type || p.category),
-      status: mapProposalStatusToProjectStatus(p.status),
-      progress: calculateProjectProgress(p.status),
-      createdAt: p.createdAt || Date.now(),
-      updatedAt: p.updatedAt,
-    }));
-}
-
-/**
- * 判断是否为演化类提案
- */
-function isEvolutionProposal(proposal: any): boolean {
-  const evolutionKeywords = ['evolution', 'mutation', 'upgrade', 'migrate', 'refactor'];
-  const title = (proposal.title || '').toLowerCase();
-  const description = (proposal.description || '').toLowerCase();
-  
-  return evolutionKeywords.some(keyword => 
-    title.includes(keyword) || description.includes(keyword)
-  );
-}
-
-/**
- * 将提案类型映射为变异类别
- */
-function mapProposalTypeToMutationClass(type: string): string {
-  const typeMap: Record<string, string> = {
-    'evolution': 'evolution',
-    'mutation': 'mutation',
-    'upgrade': 'upgrade',
-    'migration': 'migration',
-    'refactor': 'refactor',
-  };
-  return typeMap[type] || 'general';
-}
-
-/**
- * 将提案状态映射为项目状态
- */
-function mapProposalStatusToProjectStatus(proposalStatus: string): string {
-  const statusMap: Record<string, string> = {
-    'pending': 'proposed',
-    'approved': 'running',
-    'applied': 'completed',
-    'rejected': 'failed',
-  };
-  return statusMap[proposalStatus] || 'proposed';
-}
-
-/**
- * 根据提案状态计算项目进度
- */
-function calculateProjectProgress(proposalStatus: string): number {
-  switch (proposalStatus) {
-    case 'pending': return 0;
-    case 'approved': return 50;
-    case 'applied': return 100;
-    case 'rejected': return 0;
-    default: return 0;
-  }
 }
 
 export const governanceHandlers: GatewayRequestHandlers = {
@@ -185,12 +62,9 @@ export const governanceHandlers: GatewayRequestHandlers = {
     ) {
       return;
     }
-    
-    const overview = getGovernanceOverview();
-    // 使用适配器转换为前端友好的格式
-    const adapted = adaptGovernanceOverviewForFrontend(overview);
-    respond(true, adapted, undefined);
+    respond(true, getGovernanceOverview(), undefined);
   },
+
   "governance.agent": ({ params, respond }) => {
     if (!assertValidParams(params, validateGovernanceAgentParams, "governance.agent", respond)) {
       return;
@@ -203,6 +77,7 @@ export const governanceHandlers: GatewayRequestHandlers = {
       undefined,
     );
   },
+
   "governance.team": ({ params, respond }) => {
     if (!assertValidParams(params, validateGovernanceTeamParams, "governance.team", respond)) {
       return;
@@ -215,6 +90,7 @@ export const governanceHandlers: GatewayRequestHandlers = {
       undefined,
     );
   },
+
   "governance.capability.inventory": ({ params, respond }) => {
     if (
       !assertValidParams(
@@ -235,6 +111,7 @@ export const governanceHandlers: GatewayRequestHandlers = {
       undefined,
     );
   },
+
   "governance.capability.assetRegistry": ({ params, respond }) => {
     if (
       !assertValidParams(
@@ -247,3 +124,286 @@ export const governanceHandlers: GatewayRequestHandlers = {
       return;
     }
     respond(
+      true,
+      getGovernanceCapabilityAssetRegistry({
+        ...(Array.isArray(params.agentIds) ? { agentIds: params.agentIds } : {}),
+        ...(Array.isArray(params.workspaceDirs) ? { workspaceDirs: params.workspaceDirs } : {}),
+      }),
+      undefined,
+    );
+  },
+
+  "governance.genesis.plan": ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceGenesisPlanParams,
+        "governance.genesis.plan",
+        respond,
+      )
+    ) {
+      return;
+    }
+    respond(
+      true,
+      getGovernanceGenesisPlan({
+        ...(Array.isArray(params.agentIds) ? { agentIds: params.agentIds } : {}),
+        ...(typeof params.teamId === "string" ? { teamId: params.teamId } : {}),
+        ...(Array.isArray(params.workspaceDirs) ? { workspaceDirs: params.workspaceDirs } : {}),
+      }),
+      undefined,
+    );
+  },
+
+  "governance.proposals.list": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsListParams,
+        "governance.proposals.list",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const listed = await listGovernanceProposals({
+        ...(typeof params.status === "string" ? { status: params.status } : {}),
+        ...(typeof params.limit === "number" ? { limit: params.limit } : {}),
+      });
+      respond(true, listed, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.synthesize": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsSynthesizeParams,
+        "governance.proposals.synthesize",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const synthesized = await synthesizeGovernanceProposals({
+        ...(Array.isArray(params.agentIds) ? { agentIds: params.agentIds } : {}),
+        ...(Array.isArray(params.workspaceDirs) ? { workspaceDirs: params.workspaceDirs } : {}),
+      });
+      respond(true, synthesized, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.reconcile": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsReconcileParams,
+        "governance.proposals.reconcile",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const reconciled = await reconcileGovernanceProposals({
+        ...(Array.isArray(params.agentIds) ? { agentIds: params.agentIds } : {}),
+        ...(Array.isArray(params.workspaceDirs) ? { workspaceDirs: params.workspaceDirs } : {}),
+        ...(params.mode ? { mode: params.mode } : {}),
+        ...(typeof params.createdByAgentId === "string"
+          ? { createdByAgentId: params.createdByAgentId }
+          : {}),
+        ...(typeof params.createdBySessionKey === "string"
+          ? { createdBySessionKey: params.createdBySessionKey }
+          : {}),
+        ...(typeof params.decidedBy === "string" ? { decidedBy: params.decidedBy } : {}),
+        ...(typeof params.decisionNote === "string" ? { decisionNote: params.decisionNote } : {}),
+        ...(typeof params.appliedBy === "string" ? { appliedBy: params.appliedBy } : {}),
+      });
+      respond(true, reconciled, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.create": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsCreateParams,
+        "governance.proposals.create",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const created = await createGovernanceProposal({
+        title: params.title,
+        rationale: params.rationale,
+        createdByAgentId: params.createdByAgentId,
+        createdBySessionKey: params.createdBySessionKey,
+        operations: params.operations,
+      });
+      respond(true, created, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.review": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsReviewParams,
+        "governance.proposals.review",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const reviewed = await reviewGovernanceProposal({
+        proposalId: params.proposalId,
+        decision: params.decision,
+        decidedBy: params.decidedBy,
+        decisionNote: params.decisionNote,
+      });
+      respond(true, reviewed, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.reviewMany": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsReviewManyParams,
+        "governance.proposals.reviewMany",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const reviewed = await reviewGovernanceProposals({
+        ...(Array.isArray(params.proposalIds) ? { proposalIds: params.proposalIds } : {}),
+        ...(typeof params.status === "string" ? { status: params.status } : {}),
+        ...(typeof params.limit === "number" ? { limit: params.limit } : {}),
+        decision: params.decision,
+        decidedBy: params.decidedBy,
+        ...(typeof params.decisionNote === "string" ? { decisionNote: params.decisionNote } : {}),
+        ...(typeof params.continueOnError === "boolean"
+          ? { continueOnError: params.continueOnError }
+          : {}),
+      });
+      respond(true, reviewed, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.apply": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsApplyParams,
+        "governance.proposals.apply",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const applied = await applyGovernanceProposal({
+        proposalId: params.proposalId,
+        appliedBy: params.appliedBy,
+      });
+      respond(true, applied, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.applyMany": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsApplyManyParams,
+        "governance.proposals.applyMany",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const applied = await applyGovernanceProposals({
+        ...(Array.isArray(params.proposalIds) ? { proposalIds: params.proposalIds } : {}),
+        ...(typeof params.status === "string" ? { status: params.status } : {}),
+        ...(typeof params.limit === "number" ? { limit: params.limit } : {}),
+        appliedBy: params.appliedBy,
+        ...(typeof params.continueOnError === "boolean"
+          ? { continueOnError: params.continueOnError }
+          : {}),
+      });
+      respond(true, applied, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.revert": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsRevertParams,
+        "governance.proposals.revert",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const reverted = await revertGovernanceProposalApply({
+        proposalId: params.proposalId,
+        revertedBy: params.revertedBy,
+      });
+      respond(true, reverted, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+
+  "governance.proposals.revertMany": async ({ params, respond }) => {
+    if (
+      !assertValidParams(
+        params,
+        validateGovernanceProposalsRevertManyParams,
+        "governance.proposals.revertMany",
+        respond,
+      )
+    ) {
+      return;
+    }
+    try {
+      const reverted = await revertGovernanceProposalApplies({
+        ...(Array.isArray(params.proposalIds) ? { proposalIds: params.proposalIds } : {}),
+        ...(typeof params.status === "string" ? { status: params.status } : {}),
+        ...(typeof params.limit === "number" ? { limit: params.limit } : {}),
+        revertedBy: params.revertedBy,
+        ...(typeof params.continueOnError === "boolean"
+          ? { continueOnError: params.continueOnError }
+          : {}),
+      });
+      respond(true, reverted, undefined);
+    } catch (error) {
+      respondGovernanceFailure(respond, error);
+    }
+  },
+};

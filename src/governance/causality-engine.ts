@@ -300,7 +300,7 @@ export class CausalGraph extends EventEmitter {
     return {
       targetEventId: eventId,
       rootCauses: rootCauses.slice(0, 10), // 最多返回10个根因
-      causalChains,
+      causalChain: causalChains,
       confidence: this._calculateConfidence(rootCauses),
       recommendations,
     };

@@ -132,7 +132,8 @@ export class WSClient {
         };
         
         this.ws.onerror = (error: Event) => {
-          this.handleError(error, reject);
+          this.handleError(error);
+          reject(new Error('WebSocket connection error'));
         };
         
         this.ws.onclose = (event: CloseEvent) => {

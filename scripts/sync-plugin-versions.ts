@@ -15,6 +15,7 @@ type PackageJson = {
     };
     build?: {
       openclawVersion?: string;
+      zhushouVersion?: string;
     };
   };
 };

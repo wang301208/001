@@ -2,7 +2,7 @@
  * 消息总线测试
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   MessageBus,
   resetMessageBus,

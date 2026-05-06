@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { useAppStore } from '../stores/useAppStore';
 import { wsManager } from '../services/ws-manager';
+import { adaptGovernanceStatus } from '../services/api';
 import type { GovernanceStatus } from '../types';
 
 interface UseGovernanceWebSocketReturn {
@@ -18,7 +19,7 @@ export function useGovernanceWebSocket(): UseGovernanceWebSocketReturn {
 
   const handleGovernanceEvent = useCallback((event: { type: string; payload: any }) => {
     if (event.type.startsWith('governance.') && event.payload) {
-      updateGovernanceStatus(event.payload as GovernanceStatus);
+      updateGovernanceStatus(adaptGovernanceStatus(event.payload) as GovernanceStatus);
       setLastUpdate(Date.now());
       error.current = null;
     }

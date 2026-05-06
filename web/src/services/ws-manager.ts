@@ -6,6 +6,11 @@ interface PendingRequest {
   timer: ReturnType<typeof setTimeout>;
 }
 
+interface SubscriptionRequest {
+  method: string;
+  params?: Record<string, unknown>;
+}
+
 class WebSocketManager {
   private ws: WebSocket | null = null;
   private token: string | null = null;
@@ -45,13 +50,13 @@ class WebSocketManager {
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/ws`;
-      console.log('[WSManager] 连接到:', wsUrl);
+      console.log('[WSManager] connecting to', wsUrl);
 
       const ws = new WebSocket(wsUrl);
       this.ws = ws;
 
       ws.onopen = () => {
-        console.log('[WSManager] 连接已建立，等待认证挑战...');
+        console.log('[WSManager] connection opened; waiting for auth challenge');
         this.reconnectAttempts = 0;
         this.onConnectionChange?.(true);
         this.startHeartbeat();
@@ -62,29 +67,29 @@ class WebSocketManager {
           const data = JSON.parse(event.data);
           this.handleMessage(data);
         } catch (err) {
-          console.error('[WSManager] 解析消息失败:', err);
+          console.error('[WSManager] failed to parse message:', err);
         }
       };
 
       ws.onerror = () => {
-        console.error('[WSManager] 连接错误');
+        console.error('[WSManager] connection error');
       };
 
       ws.onclose = (event) => {
-        console.log(`[WSManager] 连接关闭: code=${event.code}`);
+        console.log(`[WSManager] connection closed: code=${event.code}`);
         this.connecting = false;
         this.authenticated = false;
         this.onConnectionChange?.(false);
         this.onAuthChange?.(false);
         this.stopHeartbeat();
-        this.rejectAllPending('连接已断开');
+        this.rejectAllPending('connection closed');
 
         if (event.code !== 1008 && event.code !== 1000) {
           this.scheduleReconnect();
         }
       };
     } catch (err) {
-      console.error('[WSManager] 连接失败:', err);
+      console.error('[WSManager] failed to connect:', err);
       this.connecting = false;
     }
   }
@@ -92,7 +97,7 @@ class WebSocketManager {
   disconnect(): void {
     this.clearReconnectTimer();
     this.stopHeartbeat();
-    this.rejectAllPending('主动断开连接');
+    this.rejectAllPending('client disconnected');
 
     if (this.ws) {
       this.ws.close(1000, 'Client disconnecting');
@@ -107,11 +112,11 @@ class WebSocketManager {
 
   async request(method: string, params?: any, timeout?: number): Promise<any> {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      throw new Error('WebSocket 未连接');
+      throw new Error('WebSocket is not connected');
     }
 
     if (!this.authenticated && method !== 'connect') {
-      throw new Error('WebSocket 未认证');
+      throw new Error('WebSocket is not authenticated');
     }
 
     const reqId = `req_${++this.requestId}_${Date.now()}`;
@@ -120,7 +125,7 @@ class WebSocketManager {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pendingRequests.delete(reqId);
-        reject(new Error(`请求超时: ${method} (${requestTimeout}ms)`));
+        reject(new Error(`request timed out: ${method} (${requestTimeout}ms)`));
       }, requestTimeout);
 
       this.pendingRequests.set(reqId, { resolve, reject, timer });
@@ -137,19 +142,23 @@ class WebSocketManager {
   subscribe(pattern: string): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.authenticated) return;
 
-    this.ws.send(JSON.stringify({
-      type: 'subscribe',
-      patterns: [pattern],
-    }));
+    const request = this.resolveSubscriptionRequest(pattern, true);
+    if (!request) return;
+
+    void this.request(request.method, request.params).catch((err) => {
+      console.error('[WSManager] failed to subscribe:', err);
+    });
   }
 
   unsubscribe(pattern: string): void {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.authenticated) return;
 
-    this.ws.send(JSON.stringify({
-      type: 'unsubscribe',
-      patterns: [pattern],
-    }));
+    const request = this.resolveSubscriptionRequest(pattern, false);
+    if (!request) return;
+
+    void this.request(request.method, request.params).catch((err) => {
+      console.error('[WSManager] failed to unsubscribe:', err);
+    });
   }
 
   onEvent(pattern: string, handler: WSEventHandler): () => void {
@@ -166,8 +175,13 @@ class WebSocketManager {
   private handleMessage(data: any): void {
     switch (data.type) {
       case 'event': {
-        const eventType = data.event?.type;
-        const payload = data.event?.payload;
+        const eventType = typeof data.event === 'string' ? data.event : data.event?.type;
+        const payload = data.payload ?? data.event?.payload;
+
+        if (!eventType) {
+          console.warn('[WSManager] ignored event frame without event type:', data);
+          break;
+        }
 
         if (eventType === 'connect.challenge') {
           this.handleAuthChallenge();
@@ -184,19 +198,19 @@ class WebSocketManager {
           this.pendingRequests.delete(data.id);
 
           if (data.ok || data.success) {
-            pending.resolve(data.result ?? data.data ?? data);
+            pending.resolve(data.payload ?? data.result ?? data.data);
           } else {
-            pending.reject(new Error(data.error || `请求失败: ${data.id}`));
+            const message = typeof data.error === 'string'
+              ? data.error
+              : data.error?.message || `request failed: ${data.id}`;
+            pending.reject(new Error(message));
           }
         }
         break;
       }
 
-      case 'heartbeat':
-        break;
-
       case 'error':
-        console.error('[WSManager] 服务端错误:', data.error);
+        console.error('[WSManager] server error:', data.error);
         break;
     }
   }
@@ -214,7 +228,7 @@ class WebSocketManager {
       maxProtocol: 999,
       client: {
         id: 'web-console',
-        displayName: '系统 Web Console',
+        displayName: 'System Web Console',
         version: '2026.4.16',
         platform: 'web',
         mode: 'operator-ui',
@@ -222,16 +236,15 @@ class WebSocketManager {
       auth: { token: currentToken },
     }, 10000)
       .then(() => {
-        console.log('[WSManager] 认证成功');
+        console.log('[WSManager] authenticated');
         this.authenticated = true;
         this.connecting = false;
         this.onAuthChange?.(true);
 
-        this.subscribe('governance.*');
         this.subscribe('session.*');
       })
       .catch((err) => {
-        console.error('[WSManager] 认证失败:', err);
+        console.error('[WSManager] authentication failed:', err);
         this.authenticated = false;
         this.connecting = false;
         this.onAuthChange?.(false);
@@ -246,7 +259,7 @@ class WebSocketManager {
           try {
             handler({ type: eventType, payload });
           } catch (err) {
-            console.error('[WSManager] 事件处理器错误:', err);
+            console.error('[WSManager] event handler failed:', err);
           }
         });
       }
@@ -261,13 +274,27 @@ class WebSocketManager {
     return pattern === eventType;
   }
 
+  private resolveSubscriptionRequest(pattern: string, subscribe: boolean): SubscriptionRequest | null {
+    if (pattern === 'session.*' || pattern === 'sessions.*') {
+      return { method: subscribe ? 'sessions.subscribe' : 'sessions.unsubscribe' };
+    }
+
+    const messagePrefix = 'session.message:';
+    if (pattern.startsWith(messagePrefix)) {
+      const key = pattern.slice(messagePrefix.length).trim();
+      if (key) {
+        return {
+          method: subscribe ? 'sessions.messages.subscribe' : 'sessions.messages.unsubscribe',
+          params: { key },
+        };
+      }
+    }
+
+    return null;
+  }
+
   private startHeartbeat(): void {
     this.stopHeartbeat();
-    this.heartbeatTimer = setInterval(() => {
-      if (this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ type: 'heartbeat', timestamp: Date.now() }));
-      }
-    }, 30000);
   }
 
   private stopHeartbeat(): void {
@@ -279,14 +306,14 @@ class WebSocketManager {
 
   private scheduleReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('[WSManager] 达到最大重连次数');
+      console.error('[WSManager] maximum reconnect attempts reached');
       return;
     }
 
     this.reconnectAttempts++;
     const delay = Math.min(this.reconnectInterval * Math.pow(1.5, this.reconnectAttempts - 1), 30000);
 
-    console.log(`[WSManager] ${delay / 1000}s 后重连 (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    console.log(`[WSManager] reconnecting in ${delay / 1000}s (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
 
     this.reconnectTimer = setTimeout(() => {
       this.connect();

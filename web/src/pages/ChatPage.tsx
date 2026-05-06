@@ -27,7 +27,7 @@ import {
 } from '@tabler/icons-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAppStore } from '../stores/useAppStore';
-import { apiService } from '../services/api';
+import { apiService, normalizeChatMessage } from '../services/api';
 import { wsManager } from '../services/ws-manager';
 import { LoadingState } from '../components/ui/LoadingState';
 
@@ -73,21 +73,19 @@ export function ChatPage() {
   useEffect(() => {
     const unsub = wsManager.onEvent('session.*', (event) => {
       if (event.type === 'session.message' && event.payload) {
-        const msg = event.payload;
+        if (sessionId && event.payload.sessionKey && event.payload.sessionKey !== sessionId) {
+          return;
+        }
+        const msg = normalizeChatMessage(event.payload);
         setMessages(prev => {
           if (prev.some(m => m.id === msg.id)) return prev;
-          return [...prev, {
-            id: msg.id || Date.now().toString(),
-            role: msg.role || 'assistant',
-            content: msg.content || '',
-            timestamp: msg.timestamp || Date.now(),
-          }];
+          return [...prev, msg];
         });
         setIsProcessing(false);
       }
     });
     return unsub;
-  }, []);
+  }, [sessionId]);
 
   const loadSessionList = useCallback(async () => {
     try {

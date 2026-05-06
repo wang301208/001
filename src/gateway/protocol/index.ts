@@ -1124,6 +1124,7 @@ export type {
   ChannelsStatusParams,
   ChannelsStatusResult,
   ChannelsLogoutParams,
+  ChannelsConnectParams,
   WebLoginStartParams,
   WebLoginWaitParams,
   AgentSummary,

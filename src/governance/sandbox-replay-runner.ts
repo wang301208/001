@@ -113,7 +113,6 @@ export class SandboxReplayRunner {
         comparisons,
         overallPass: comparisons.every(c => c.match),
         summary: this.generateSummary(comparisons),
-        artifacts: {},
       });
       
       // 5. 保存报告

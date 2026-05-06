@@ -23,14 +23,16 @@ export function renderGovernancePanel(governanceStatus: GovernanceStatus | null)
   
   // 冻结状态（最高优先级）
   if (governanceStatus.freezeActive) {
+    const freezeStatus = governanceStatus.freezeStatus;
+    const affectedSubsystems = freezeStatus?.affectedSubsystems ?? [];
     lines.push("  ⚠️  【系统已冻结】");
-    lines.push(`     原因: ${governanceStatus.freezeStatus?.reason || "未知"}`);
-    if (governanceStatus.freezeStatus?.activatedAt) {
-      const freezeTime = new Date(governanceStatus.freezeStatus.activatedAt).toLocaleString("zh-CN");
+    lines.push(`     原因: ${freezeStatus?.reason || "未知"}`);
+    if (freezeStatus?.activatedAt) {
+      const freezeTime = new Date(freezeStatus.activatedAt).toLocaleString("zh-CN");
       lines.push(`     时间: ${freezeTime}`);
     }
-    if (governanceStatus.freezeStatus?.affectedSubsystems.length > 0) {
-      lines.push(`     影响: ${governanceStatus.freezeStatus.affectedSubsystems.join(", ")}`);
+    if (affectedSubsystems.length > 0) {
+      lines.push(`     影响: ${affectedSubsystems.join(", ")}`);
     }
     lines.push("");
   } else {

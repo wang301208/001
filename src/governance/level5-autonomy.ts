@@ -512,7 +512,7 @@ export class EnhancedSelfHealingEngine {
    * 启动自我修复
    */
   private async initiateSelfHealing(healthStatus: SystemHealthStatus): Promise<void> {
-    log.warn(`System health degraded (${healthStatus.overallel}), initiating self-healing...`);
+    log.warn(`System health degraded (${healthStatus.overall}), initiating self-healing...`);
     
     // 识别问题组件
     const unhealthyComponents = healthStatus.components.filter(c => c.status !== 'healthy');

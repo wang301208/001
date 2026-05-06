@@ -37,6 +37,10 @@ interface WSConnection {
   remoteAddress?: string;
 }
 
+type ResolvedWSServerOptions = Omit<Required<WSServerOptions>, 'httpServer'> & {
+  httpServer?: http.Server;
+};
+
 /**
  * WebSocket 服务器选项
  */
@@ -86,7 +90,7 @@ export interface WSServerStats {
 export class WSServer {
   private wss: WebSocketServer;
   private connections: Map<string, WSConnection>;
-  private options: Required<WSServerOptions>;
+  private options: ResolvedWSServerOptions;
   private heartbeatTimer?: NodeJS.Timeout;
   private stats: WSServerStats;
   private messageBus: ReturnType<typeof getMessageBus>;

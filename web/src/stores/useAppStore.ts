@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { apiService } from '../services/api';
+import { wsManager } from '../services/ws-manager';
 import type { GovernanceStatus, Notification, NotificationType, User, ChannelStatus } from '../types';
 
 export type TaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
@@ -98,7 +99,15 @@ export const useAppStore = create<AppState>()(
     healthStatus: null,
 
     setUser: (user) => set({ user }),
-    setToken: (token) => set({ token }),
+    setToken: (token) => {
+      wsManager.setToken(token);
+      const shouldReconnect = wsManager.isConnected || wsManager.isConnecting;
+      if (shouldReconnect) {
+        wsManager.disconnect();
+        setTimeout(() => wsManager.connect(), 100);
+      }
+      set({ token });
+    },
     setWSConnected: (connected) => set({ wsConnected: connected }),
     setWSReconnecting: (reconnecting) => set({ wsReconnecting: reconnecting }),
     setWSAuthenticated: (authenticated) => set({ wsAuthenticated: authenticated }),

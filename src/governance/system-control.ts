@@ -137,7 +137,9 @@ export class SystemController {
         usagePercent: (usedMem / totalMem) * 100
       },
       disk: diskInfo,
-      networkInterfaces: os.networkInterfaces()
+      networkInterfaces: Object.fromEntries(
+        Object.entries(os.networkInterfaces()).map(([name, entries]) => [name, entries ?? []]),
+      )
     };
   }
 

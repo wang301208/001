@@ -176,6 +176,7 @@ import {
 } from "./agents-models-skills.js";
 import {
   ChannelsLogoutParamsSchema,
+  ChannelsConnectParamsSchema,
   TalkConfigParamsSchema,
   TalkConfigResultSchema,
   TalkSpeakParamsSchema,
@@ -408,6 +409,7 @@ type ProtocolSchemaMap = {
   ChannelsStatusParams: typeof ChannelsStatusParamsSchema;
   ChannelsStatusResult: typeof ChannelsStatusResultSchema;
   ChannelsLogoutParams: typeof ChannelsLogoutParamsSchema;
+  ChannelsConnectParams: typeof ChannelsConnectParamsSchema;
   WebLoginStartParams: typeof WebLoginStartParamsSchema;
   WebLoginWaitParams: typeof WebLoginWaitParamsSchema;
   AgentSummary: typeof AgentSummarySchema;
@@ -703,6 +705,7 @@ const protocolSchemas: ProtocolSchemaMap = {
   ChannelsStatusParams: ChannelsStatusParamsSchema,
   ChannelsStatusResult: ChannelsStatusResultSchema,
   ChannelsLogoutParams: ChannelsLogoutParamsSchema,
+  ChannelsConnectParams: ChannelsConnectParamsSchema,
   WebLoginStartParams: WebLoginStartParamsSchema,
   WebLoginWaitParams: WebLoginWaitParamsSchema,
   AgentSummary: AgentSummarySchema,

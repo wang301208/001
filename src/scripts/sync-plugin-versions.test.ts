@@ -61,6 +61,7 @@ describe("syncPluginVersions", () => {
         };
         build?: {
           openclawVersion?: string;
+          zhushouVersion?: string;
         };
       };
     };

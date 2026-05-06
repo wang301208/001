@@ -1,3 +1,5 @@
+name: zhushou
+
 services:
   zhushou-gateway:
     image: ${ZHUSHOU_IMAGE:-zhushou:local}
@@ -11,8 +13,8 @@ services:
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
       TZ: ${ZHUSHOU_TZ:-UTC}
     volumes:
-      - ${ZHUSHOU_CONFIG_DIR}:/home/node/.zhushou
-      - ${ZHUSHOU_WORKSPACE_DIR}:/home/node/.zhushou/workspace
+      - ${ZHUSHOU_CONFIG_DIR:-./.zhushou}:/home/node/.zhushou
+      - ${ZHUSHOU_WORKSPACE_DIR:-./workspace}:/home/node/.zhushou/workspace
       ## Uncomment the lines below to enable sandbox isolation
       ## (agents.defaults.sandbox). Requires Docker CLI in the image
       ## (build with --build-arg ZHUSHOU_INSTALL_DOCKER_CLI=1) or use
@@ -49,6 +51,27 @@ services:
       retries: 5
       start_period: 20s
 
+  zhushou-web:
+    image: ${ZHUSHOU_WEB_IMAGE:-zhushou-web:local}
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    environment:
+      ZHUSHOU_GATEWAY_UPSTREAM: http://zhushou-gateway:18789
+    ports:
+      - "${ZHUSHOU_WEB_PORT:-3000}:8080"
+    init: true
+    restart: unless-stopped
+    depends_on:
+      zhushou-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   zhushou-cli:
     image: ${ZHUSHOU_IMAGE:-zhushou:local}
     network_mode: "service:zhushou-gateway"
@@ -68,8 +91,8 @@ services:
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
       TZ: ${ZHUSHOU_TZ:-UTC}
     volumes:
-      - ${ZHUSHOU_CONFIG_DIR}:/home/node/.zhushou
-      - ${ZHUSHOU_WORKSPACE_DIR}:/home/node/.zhushou/workspace
+      - ${ZHUSHOU_CONFIG_DIR:-./.zhushou}:/home/node/.zhushou
+      - ${ZHUSHOU_WORKSPACE_DIR:-./workspace}:/home/node/.zhushou/workspace
     stdin_open: true
     tty: true
     init: true

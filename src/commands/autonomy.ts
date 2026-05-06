@@ -18,8 +18,8 @@ import { theme } from "../terminal/theme.js";
 import { isRecord } from "../utils.js";
 
 // Helper function to normalize optional strings
-function normalizeOptionalString(value: string | undefined | null): string | undefined {
-  const trimmed = value?.trim();
+function normalizeOptionalString(value: unknown): string | undefined {
+  const trimmed = typeof value === "string" ? value.trim() : undefined;
   return trimmed && trimmed.length > 0 ? trimmed : undefined;
 }
 
