@@ -3,10 +3,10 @@ import {
   listChatCommands,
   maybeResolveTextAlias,
   normalizeCommandBody,
-} from "zhushou/plugin-sdk/command-auth";
-import { parseExecApprovalCommandText } from "zhushou/plugin-sdk/infra-runtime";
-import { isAbortRequestText } from "zhushou/plugin-sdk/reply-runtime";
-import { isBtwRequestText } from "zhushou/plugin-sdk/reply-runtime";
+} from "assistant/plugin-sdk/command-auth";
+import { parseExecApprovalCommandText } from "assistant/plugin-sdk/infra-runtime";
+import { isAbortRequestText } from "assistant/plugin-sdk/reply-runtime";
+import { isBtwRequestText } from "assistant/plugin-sdk/reply-runtime";
 import { resolveTelegramForumThreadId } from "./bot/helpers.js";
 
 export type TelegramSequentialKeyContext = {

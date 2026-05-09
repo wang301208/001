@@ -2,7 +2,7 @@ import {
   hashText,
   normalizeExtraMemoryPaths,
   type MemorySource,
-} from "zhushou/plugin-sdk/memory-core-host-engine-storage";
+} from "assistant/plugin-sdk/memory-core-host-engine-storage";
 
 export type MemoryIndexMeta = {
   model: string;

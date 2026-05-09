@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../runtime-api.js";
+import type { AssistantConfig } from "../runtime-api.js";
 import { getChannelInfoMSTeams, listChannelsMSTeams } from "./graph-teams.js";
 
 const mockState = vi.hoisted(() => ({
@@ -43,7 +43,7 @@ describe("listChannelsMSTeams", () => {
     });
 
     const result = await listChannelsMSTeams({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       teamId: "team-abc",
     });
 
@@ -71,7 +71,7 @@ describe("listChannelsMSTeams", () => {
     mockState.fetchGraphJson.mockResolvedValue({ value: [] });
 
     const result = await listChannelsMSTeams({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       teamId: "team-empty",
     });
 
@@ -82,7 +82,7 @@ describe("listChannelsMSTeams", () => {
     mockState.fetchGraphJson.mockResolvedValue({});
 
     const result = await listChannelsMSTeams({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       teamId: "team-no-value",
     });
 
@@ -112,7 +112,7 @@ describe("listChannelsMSTeams", () => {
       });
 
     const result = await listChannelsMSTeams({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       teamId: "team-paged",
     });
 
@@ -144,7 +144,7 @@ describe("listChannelsMSTeams", () => {
     }
 
     const result = await listChannelsMSTeams({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       teamId: "team-huge",
     });
 
@@ -172,7 +172,7 @@ describe("getChannelInfoMSTeams", () => {
     });
 
     const result = await getChannelInfoMSTeams({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       teamId: "team-abc",
       channelId: "ch-1",
     });
@@ -198,7 +198,7 @@ describe("getChannelInfoMSTeams", () => {
     });
 
     const result = await getChannelInfoMSTeams({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       teamId: "team-abc",
       channelId: "ch-2",
     });

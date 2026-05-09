@@ -1,20 +1,20 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { withStateDirEnv } from "../test-helpers/state-dir-env.js";
 import { listGatewayAgentsBasic } from "./agent-list.js";
 
 describe("listGatewayAgentsBasic", () => {
   test("keeps explicit agents.list scope over disk-only agents while allowing charter agents", async () => {
-    await withStateDirEnv("zhushou-agent-basic-", async ({ stateDir }) => {
+    await withStateDirEnv("assistant-agent-basic-", async ({ stateDir }) => {
       fs.mkdirSync(path.join(stateDir, "agents", "main"), { recursive: true });
       fs.mkdirSync(path.join(stateDir, "agents", "codex"), { recursive: true });
 
       const cfg = {
         session: { mainKey: "main" },
         agents: { list: [{ id: "main", default: true }] },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       const { agents } = listGatewayAgentsBasic(cfg);
       const founder = agents.find((agent) => agent.id === "founder");
@@ -38,13 +38,13 @@ describe("listGatewayAgentsBasic", () => {
   });
 
   test("does not append charter agents before agents.list is enabled", async () => {
-    await withStateDirEnv("zhushou-agent-basic-", async ({ stateDir }) => {
+    await withStateDirEnv("assistant-agent-basic-", async ({ stateDir }) => {
       fs.mkdirSync(path.join(stateDir, "agents", "main"), { recursive: true });
       fs.mkdirSync(path.join(stateDir, "agents", "codex"), { recursive: true });
 
       const cfg = {
         session: { mainKey: "main" },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       const { agents } = listGatewayAgentsBasic(cfg);
       expect(agents.map((agent) => agent.id)).toContain("main");

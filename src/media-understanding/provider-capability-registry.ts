@@ -1,10 +1,10 @@
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { resolvePluginCapabilityProviders } from "../plugins/capability-provider-runtime.js";
 import { normalizeMediaProviderId } from "./provider-id.js";
 import type { MediaUnderstandingCapabilityRegistry, MediaUnderstandingProvider } from "./types.js";
 
 type ConfigProvider = NonNullable<
-  NonNullable<NonNullable<ZhushouConfig["models"]>["providers"]>[string]
+  NonNullable<NonNullable<AssistantConfig["models"]>["providers"]>[string]
 >;
 
 type ConfigProviderModel = NonNullable<ConfigProvider["models"]>[number];
@@ -21,7 +21,7 @@ function mergeProviderCapabilities(
 }
 
 export function buildMediaUnderstandingCapabilityRegistry(
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): MediaUnderstandingCapabilityRegistry {
   const registry: MediaUnderstandingCapabilityRegistry = new Map();
 

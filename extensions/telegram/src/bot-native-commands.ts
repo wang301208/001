@@ -1,10 +1,10 @@
 import type { Bot, Context } from "grammy";
-import { resolveChannelStreamingBlockEnabled } from "zhushou/plugin-sdk/channel-streaming";
+import { resolveChannelStreamingBlockEnabled } from "assistant/plugin-sdk/channel-streaming";
 import {
   resolveCommandAuthorization,
   resolveCommandAuthorizedFromAuthorizers,
   resolveNativeCommandSessionTargets,
-} from "zhushou/plugin-sdk/command-auth-native";
+} from "assistant/plugin-sdk/command-auth-native";
 import {
   buildCommandTextFromArgs,
   findCommandByNativeName,
@@ -13,23 +13,23 @@ import {
   parseCommandArgs,
   resolveCommandArgMenu,
   type CommandArgs,
-} from "zhushou/plugin-sdk/command-auth-native";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ChannelGroupPolicy } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/command-auth-native";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ChannelGroupPolicy } from "assistant/plugin-sdk/config-runtime";
 import type {
   ReplyToMode,
   TelegramAccountConfig,
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
-} from "zhushou/plugin-sdk/config-runtime";
-import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/markdown-table-runtime";
-import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
-import { getRuntimeConfigSnapshot } from "zhushou/plugin-sdk/runtime-config-snapshot";
-import { danger, logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { getChildLogger } from "zhushou/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/config-runtime";
+import { resolveMarkdownTableMode } from "assistant/plugin-sdk/markdown-table-runtime";
+import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
+import { getRuntimeConfigSnapshot } from "assistant/plugin-sdk/runtime-config-snapshot";
+import { danger, logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { getChildLogger } from "assistant/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { resolveTelegramAccount } from "./accounts.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { isSenderAllowed, normalizeDmAllowFromWithStore } from "./bot-access.js";
@@ -83,9 +83,9 @@ const TELEGRAM_NATIVE_COMMAND_CALLBACK_PREFIX = "tgcmd:";
 
 type TelegramNativeCommandContext = Context & { match?: string };
 type TelegramChunkMode = ReturnType<
-  typeof import("zhushou/plugin-sdk/reply-dispatch-runtime").resolveChunkMode
+  typeof import("assistant/plugin-sdk/reply-dispatch-runtime").resolveChunkMode
 >;
-type TelegramNativeReplyPayload = import("zhushou/plugin-sdk/reply-dispatch-runtime").ReplyPayload;
+type TelegramNativeReplyPayload = import("assistant/plugin-sdk/reply-dispatch-runtime").ReplyPayload;
 type TelegramNativeReplyChannelData = {
   buttons?: TelegramInlineButtons;
   pin?: boolean;
@@ -172,7 +172,7 @@ async function cleanupTelegramProgressPlaceholder(params: {
 }
 
 export type RegisterTelegramHandlerParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   bot: Bot;
   mediaMaxBytes: number;
@@ -224,7 +224,7 @@ export function resolveTelegramNativeCommandDisableBlockStreaming(
 
 export type RegisterTelegramNativeCommandsParams = {
   bot: Bot;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: RuntimeEnv;
   accountId: string;
   telegramCfg: TelegramAccountConfig;
@@ -249,7 +249,7 @@ export type RegisterTelegramNativeCommandsParams = {
 async function resolveTelegramCommandAuth(params: {
   msg: NonNullable<TelegramNativeCommandContext["message"]>;
   bot: Bot;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   telegramCfg: TelegramAccountConfig;
   readChannelAllowFromStore: TelegramBotDeps["readChannelAllowFromStore"];
@@ -534,8 +534,8 @@ export const registerTelegramNativeCommands = ({
   for (const issue of pluginCatalog.issues) {
     runtime.error?.(danger(issue));
   }
-  const loadFreshRuntimeConfig = (): ZhushouConfig => telegramDeps.loadConfig();
-  const resolveFreshTelegramConfig = (runtimeCfg: ZhushouConfig): TelegramAccountConfig => {
+  const loadFreshRuntimeConfig = (): AssistantConfig => telegramDeps.loadConfig();
+  const resolveFreshTelegramConfig = (runtimeCfg: AssistantConfig): TelegramAccountConfig => {
     try {
       return resolveTelegramAccount({
         cfg: runtimeCfg,
@@ -611,7 +611,7 @@ export const registerTelegramNativeCommands = ({
 
   const resolveCommandRuntimeContext = async (params: {
     msg: NonNullable<TelegramNativeCommandContext["message"]>;
-    runtimeCfg: ZhushouConfig;
+    runtimeCfg: AssistantConfig;
     isGroup: boolean;
     isForum: boolean;
     resolvedThreadId?: number;

@@ -2,7 +2,7 @@ import {
   buildChannelOutboundSessionRoute,
   stripChannelTargetPrefix,
   type ChannelOutboundSessionRouteParams,
-} from "zhushou/plugin-sdk/channel-core";
+} from "assistant/plugin-sdk/channel-core";
 import { parseBlueBubblesTarget } from "./targets.js";
 
 export function resolveBlueBubblesOutboundSessionRoute(params: ChannelOutboundSessionRouteParams) {

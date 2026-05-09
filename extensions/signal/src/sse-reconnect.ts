@@ -5,7 +5,7 @@ import {
   sleepWithAbort,
   type BackoffPolicy,
   type RuntimeEnv,
-} from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/runtime-env";
 import { type SignalSseEvent, streamSignalEvents } from "./client.js";
 
 const DEFAULT_RECONNECT_POLICY: BackoffPolicy = {

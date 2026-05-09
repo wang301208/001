@@ -1,4 +1,6 @@
 import { spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 import type { Component, SelectItem } from "@mariozechner/pi-tui";
 import { createSearchableSelectList } from "./components/selectors.js";
 
@@ -23,6 +25,42 @@ type LocalShellDeps = {
   env?: NodeJS.ProcessEnv;
   maxOutputChars?: number;
 };
+
+type ShellRedirection = {
+  command: string;
+  stdoutFile?: string;
+  append: boolean;
+};
+
+function stripMatchingQuotes(value: string): string {
+  const trimmed = value.trim();
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+
+function parseShellRedirection(command: string, cwd: string): ShellRedirection {
+  const match = command.match(/^(.*?)(>>|>)\s*(?:"([^"]+)"|'([^']+)'|(\S+))\s*$/);
+  if (!match) {
+    return { command, append: false };
+  }
+  const before = match[1]?.trimEnd() ?? "";
+  const operator = match[2] ?? ">";
+  const rawTarget = match[3] ?? match[4] ?? match[5] ?? "";
+  const target = stripMatchingQuotes(rawTarget);
+  if (!before || !target) {
+    return { command, append: false };
+  }
+  return {
+    command: before,
+    stdoutFile: path.resolve(cwd, target),
+    append: operator === ">>",
+  };
+}
 
 export function createLocalShellRunner(deps: LocalShellDeps) {
   let localExecAsked = false;
@@ -97,6 +135,8 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
       return;
     }
 
+    const cwd = getCwd();
+    const redirection = parseShellRedirection(cmd, cwd);
     deps.chatLog.addSystem(`[local] $ ${cmd}`);
     deps.tui.requestRender();
 
@@ -106,39 +146,67 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
     };
 
     await new Promise<void>((resolve) => {
-      const child = spawnCommand(cmd, {
+      const child = spawnCommand(redirection.command, {
         // Intentionally a shell: this is an operator-only local TUI feature (prefixed with `!`)
         // and is gated behind an explicit in-session approval prompt.
         shell: true,
-        cwd: getCwd(),
-        env: { ...env, OPENCLAW_SHELL: "tui-local" },
+        cwd,
+        env: { ...env, ASSISTANT_SHELL: "tui-local" },
       });
 
       let stdout = "";
       let stderr = "";
+      const stdoutStream =
+        redirection.stdoutFile !== undefined
+          ? fs.createWriteStream(redirection.stdoutFile, {
+              flags: redirection.append ? "a" : "w",
+              encoding: "utf8",
+            })
+          : null;
+      const streamLines = (prefix: string, chunk: string) => {
+        for (const line of chunk.split(/\r?\n/)) {
+          if (!line) {
+            continue;
+          }
+          deps.chatLog.addSystem(`${prefix} ${line}`);
+        }
+        deps.tui.requestRender();
+      };
       child.stdout.on("data", (buf) => {
-        stdout = appendWithCap(stdout, buf.toString("utf8"));
+        const chunk = buf.toString("utf8");
+        stdout = appendWithCap(stdout, chunk);
+        if (stdoutStream) {
+          stdoutStream.write(chunk);
+          return;
+        }
+        streamLines("[local]", chunk);
       });
       child.stderr.on("data", (buf) => {
-        stderr = appendWithCap(stderr, buf.toString("utf8"));
+        const chunk = buf.toString("utf8");
+        stderr = appendWithCap(stderr, chunk);
+        streamLines("[local:err]", chunk);
       });
 
       child.on("close", (code, signal) => {
-        const combined = (stdout + (stderr ? (stdout ? "\n" : "") + stderr : ""))
-          .slice(0, maxChars)
-          .trimEnd();
-
-        if (combined) {
-          for (const line of combined.split("\n")) {
-            deps.chatLog.addSystem(`[local] ${line}`);
+        const finish = () => {
+          if (redirection.stdoutFile) {
+            deps.chatLog.addSystem(`[local] redirected stdout to ${redirection.stdoutFile}`);
           }
+          deps.chatLog.addSystem(
+            `[local] exit ${code ?? "?"}${signal ? ` (signal ${signal})` : ""}`,
+          );
+          deps.tui.requestRender();
+          resolve();
+        };
+        if (stdoutStream) {
+          stdoutStream.end(finish);
+          return;
         }
-        deps.chatLog.addSystem(`[local] exit ${code ?? "?"}${signal ? ` (signal ${signal})` : ""}`);
-        deps.tui.requestRender();
-        resolve();
+        finish();
       });
 
       child.on("error", (err) => {
+        stdoutStream?.end();
         deps.chatLog.addSystem(`[local] error: ${String(err)}`);
         deps.tui.requestRender();
         resolve();

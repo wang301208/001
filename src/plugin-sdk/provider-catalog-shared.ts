@@ -5,7 +5,7 @@
 
 import { findNormalizedProviderKey } from "../agents/provider-id.js";
 import type { ModelDefinitionConfig } from "../config/types.models.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveProviderRequestCapabilities } from "./provider-http.js";
 import type { ModelProviderConfig } from "./provider-model-shared.js";
 
@@ -40,7 +40,7 @@ function normalizeConfiguredCatalogModelInput(
 }
 
 function resolveConfiguredProviderModels(
-  config: ZhushouConfig | undefined,
+  config: AssistantConfig | undefined,
   providerId: string,
 ): ModelDefinitionConfig[] {
   const providers = config?.models?.providers;
@@ -59,7 +59,7 @@ function resolveConfiguredProviderModels(
 }
 
 export function readConfiguredProviderCatalogEntries(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   providerId: string;
   publishedProviderId?: string;
 }): ConfiguredProviderCatalogEntry[] {

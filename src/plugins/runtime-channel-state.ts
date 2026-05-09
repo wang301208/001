@@ -1,6 +1,6 @@
 import type { ActivePluginChannelRegistry } from "./channel-registry-state.types.js";
 
-export const PLUGIN_REGISTRY_STATE = Symbol.for("zhushou.pluginRegistryState");
+export const PLUGIN_REGISTRY_STATE = Symbol.for("assistant.pluginRegistryState");
 
 type GlobalChannelRegistryState = typeof globalThis & {
   [PLUGIN_REGISTRY_STATE]?: {

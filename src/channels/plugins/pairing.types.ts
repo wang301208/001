@@ -1,11 +1,11 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { RuntimeEnv } from "../../runtime.js";
 
 export type ChannelPairingAdapter = {
   idLabel: string;
   normalizeAllowEntry?: (entry: string) => string;
   notifyApproval?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     id: string;
     accountId?: string;
     runtime?: RuntimeEnv;

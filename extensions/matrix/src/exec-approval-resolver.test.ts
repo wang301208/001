@@ -4,7 +4,7 @@ const approvalRuntimeHoisted = vi.hoisted(() => ({
   resolveApprovalOverGatewaySpy: vi.fn(),
 }));
 
-vi.mock("zhushou/plugin-sdk/approval-gateway-runtime", () => ({
+vi.mock("assistant/plugin-sdk/approval-gateway-runtime", () => ({
   resolveApprovalOverGateway: (...args: unknown[]) =>
     approvalRuntimeHoisted.resolveApprovalOverGatewaySpy(...args),
 }));

@@ -17,7 +17,7 @@ vi.mock("./dm-command-decision.js", () => ({
 import {
   __testing as sessionBindingTesting,
   registerSessionBindingAdapter,
-} from "zhushou/plugin-sdk/conversation-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
 import {
   createDiscordMessage,
   createDiscordPreflightArgs,
@@ -45,7 +45,7 @@ beforeAll(async () => {
 });
 
 function createThreadBinding(
-  overrides?: Partial<import("zhushou/plugin-sdk/conversation-runtime").SessionBindingRecord>,
+  overrides?: Partial<import("assistant/plugin-sdk/conversation-runtime").SessionBindingRecord>,
 ) {
   return {
     bindingId: "default:thread-1",
@@ -66,11 +66,11 @@ function createThreadBinding(
       webhookToken: "tok-1",
     },
     ...overrides,
-  } satisfies import("zhushou/plugin-sdk/conversation-runtime").SessionBindingRecord;
+  } satisfies import("assistant/plugin-sdk/conversation-runtime").SessionBindingRecord;
 }
 
 function createPreflightArgs(params: {
-  cfg: import("zhushou/plugin-sdk/config-runtime").ZhushouConfig;
+  cfg: import("assistant/plugin-sdk/config-runtime").AssistantConfig;
   discordConfig: DiscordConfig;
   data: DiscordMessageEvent;
   client: DiscordClient;
@@ -120,7 +120,7 @@ async function runThreadBoundPreflight(params: {
   threadId: string;
   parentId: string;
   message: import("@buape/carbon").Message;
-  threadBinding: import("zhushou/plugin-sdk/conversation-runtime").SessionBindingRecord;
+  threadBinding: import("assistant/plugin-sdk/conversation-runtime").SessionBindingRecord;
   discordConfig: DiscordConfig;
   registerBindingAdapter?: boolean;
 }) {
@@ -162,7 +162,7 @@ async function runGuildPreflight(params: {
   guildId: string;
   message: import("@buape/carbon").Message;
   discordConfig: DiscordConfig;
-  cfg?: import("zhushou/plugin-sdk/config-runtime").ZhushouConfig;
+  cfg?: import("assistant/plugin-sdk/config-runtime").AssistantConfig;
   guildEntries?: Parameters<typeof preflightDiscordMessage>[0]["guildEntries"];
   includeGuildObject?: boolean;
 }) {
@@ -326,8 +326,8 @@ describe("preflightDiscordMessage", () => {
               },
               metadata: {
                 pluginBindingOwner: "plugin",
-                pluginId: "zhushou-codex-app-server",
-                pluginRoot: "/Users/huntharo/github/zhushou-app-server",
+                pluginId: "assistant-codex-app-server",
+                pluginRoot: "/Users/huntharo/github/assistant-app-server",
               },
             })
           : null,
@@ -360,7 +360,7 @@ describe("preflightDiscordMessage", () => {
       },
       metadata: {
         pluginBindingOwner: "plugin",
-        pluginId: "zhushou-codex-app-server",
+        pluginId: "assistant-codex-app-server",
       },
     });
   });
@@ -536,7 +536,7 @@ describe("preflightDiscordMessage", () => {
       createPreflightArgs({
         cfg: {
           ...DEFAULT_PREFLIGHT_CFG,
-        } as import("zhushou/plugin-sdk/config-runtime").ZhushouConfig,
+        } as import("assistant/plugin-sdk/config-runtime").AssistantConfig,
         discordConfig: {
           allowBots: true,
         } as DiscordConfig,
@@ -580,8 +580,8 @@ describe("preflightDiscordMessage", () => {
     const message = createDiscordMessage({
       id: "m-bot-mentions-on",
       channelId,
-      content: "hi <@zhushou-bot>",
-      mentionedUsers: [{ id: "zhushou-bot" }],
+      content: "hi <@assistant-bot>",
+      mentionedUsers: [{ id: "assistant-bot" }],
       author: {
         id: "relay-bot-1",
         bot: true,
@@ -619,8 +619,8 @@ describe("preflightDiscordMessage", () => {
     const message = createDiscordMessage({
       id: "m-bot-command-with-mention",
       channelId,
-      content: "<@zhushou-bot> /new incident room",
-      mentionedUsers: [{ id: "zhushou-bot" }],
+      content: "<@assistant-bot> /new incident room",
+      mentionedUsers: [{ id: "assistant-bot" }],
       author: {
         id: "relay-bot-1",
         bot: true,
@@ -653,7 +653,7 @@ describe("preflightDiscordMessage", () => {
       guildId,
       message,
       discordConfig: {
-        botId: "zhushou-bot",
+        botId: "assistant-bot",
       } as DiscordConfig,
       guildEntries: {
         [guildId]: {
@@ -881,7 +881,7 @@ describe("preflightDiscordMessage", () => {
   });
 
   it("uses attachment content_type for guild audio preflight mention detection", async () => {
-    transcribeFirstAudioMock.mockResolvedValue("hey zhushou");
+    transcribeFirstAudioMock.mockResolvedValue("hey assistant");
 
     const channelId = "channel-audio-1";
     const client = createGuildTextClient(channelId);
@@ -911,10 +911,10 @@ describe("preflightDiscordMessage", () => {
           ...DEFAULT_PREFLIGHT_CFG,
           messages: {
             groupChat: {
-              mentionPatterns: ["zhushou"],
+              mentionPatterns: ["assistant"],
             },
           },
-        } as import("zhushou/plugin-sdk/config-runtime").ZhushouConfig,
+        } as import("assistant/plugin-sdk/config-runtime").AssistantConfig,
         discordConfig: {} as DiscordConfig,
         data: createGuildEvent({
           channelId,
@@ -979,10 +979,10 @@ describe("preflightDiscordMessage", () => {
           ...DEFAULT_PREFLIGHT_CFG,
           messages: {
             groupChat: {
-              mentionPatterns: ["zhushou"],
+              mentionPatterns: ["assistant"],
             },
           },
-        } as import("zhushou/plugin-sdk/config-runtime").ZhushouConfig,
+        } as import("assistant/plugin-sdk/config-runtime").AssistantConfig,
         discordConfig: {} as DiscordConfig,
         data: createGuildEvent({
           channelId,
@@ -1010,7 +1010,7 @@ describe("preflightDiscordMessage", () => {
   });
 
   it("drops guild message without mention when channel has configuredBinding and requireMention: true", async () => {
-    const conversationRuntime = await import("zhushou/plugin-sdk/conversation-runtime");
+    const conversationRuntime = await import("assistant/plugin-sdk/conversation-runtime");
     const channelId = "ch-binding-1";
     const bindingRoute = {
       bindingResolution: {
@@ -1053,7 +1053,7 @@ describe("preflightDiscordMessage", () => {
   });
 
   it("allows guild message with mention when channel has configuredBinding and requireMention: true", async () => {
-    const conversationRuntime = await import("zhushou/plugin-sdk/conversation-runtime");
+    const conversationRuntime = await import("assistant/plugin-sdk/conversation-runtime");
     const channelId = "ch-binding-2";
     const bindingRoute = {
       bindingResolution: {
@@ -1080,9 +1080,9 @@ describe("preflightDiscordMessage", () => {
         message: createDiscordMessage({
           id: "m-binding-2",
           channelId,
-          content: "hello <@zhushou-bot>",
+          content: "hello <@assistant-bot>",
           author: { id: "user-1", bot: false, username: "alice" },
-          mentionedUsers: [{ id: "zhushou-bot" }],
+          mentionedUsers: [{ id: "assistant-bot" }],
         }),
         discordConfig: {} as DiscordConfig,
         guildEntries: {

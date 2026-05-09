@@ -3,22 +3,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import { resolveAgentRuntimeConfig } from "../agents/agent-runtime-config.js";
 import { resolveSession } from "../agents/command/session.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { RuntimeEnv } from "../runtime.js";
 
 type ConfigSnapshotForWrite = {
-  snapshot: { valid: boolean; resolved: ZhushouConfig };
+  snapshot: { valid: boolean; resolved: AssistantConfig };
   writeOptions: Record<string, never>;
 };
 
 type ResolveCommandConfigParams = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   commandName: string;
   targetIds: Set<string>;
   runtime: RuntimeEnv;
 };
 
-const loadConfigMock = vi.hoisted(() => vi.fn<() => ZhushouConfig>());
+const loadConfigMock = vi.hoisted(() => vi.fn<() => AssistantConfig>());
 const readConfigFileSnapshotForWriteMock = vi.hoisted(() =>
   vi.fn<() => Promise<ConfigSnapshotForWrite>>(),
 );
@@ -36,7 +36,7 @@ vi.mock("../cli/command-secret-targets.js", () => ({
 }));
 
 const setRuntimeConfigSnapshotMock = vi.hoisted(() =>
-  vi.fn<(cfg: ZhushouConfig, sourceConfig: ZhushouConfig) => void>(),
+  vi.fn<(cfg: AssistantConfig, sourceConfig: AssistantConfig) => void>(),
 );
 vi.mock("../config/runtime-snapshot.js", () => ({
   setRuntimeConfigSnapshot: setRuntimeConfigSnapshotMock,
@@ -45,8 +45,8 @@ vi.mock("../config/runtime-snapshot.js", () => ({
 const resolveCommandConfigWithSecretsMock = vi.hoisted(() =>
   vi.fn<
     (params: ResolveCommandConfigParams) => Promise<{
-      resolvedConfig: ZhushouConfig;
-      effectiveConfig: ZhushouConfig;
+      resolvedConfig: AssistantConfig;
+      effectiveConfig: AssistantConfig;
       diagnostics: never[];
     }>
   >(),
@@ -64,20 +64,20 @@ const runtime: RuntimeEnv = {
 };
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "zhushou-agent-" });
+  return withTempHomeBase(fn, { prefix: "assistant-agent-" });
 }
 
-function mockConfig(home: string, storePath: string): ZhushouConfig {
+function mockConfig(home: string, storePath: string): AssistantConfig {
   const cfg = {
     agents: {
       defaults: {
         model: { primary: "anthropic/claude-opus-4-6" },
         models: { "anthropic/claude-opus-4-6": {} },
-        workspace: path.join(home, "zhushou"),
+        workspace: path.join(home, "assistant"),
       },
     },
     session: { store: storePath, mainKey: "main" },
-  } as ZhushouConfig;
+  } as AssistantConfig;
   loadConfigMock.mockReturnValue(cfg);
   return cfg;
 }
@@ -85,7 +85,7 @@ function mockConfig(home: string, storePath: string): ZhushouConfig {
 beforeEach(() => {
   vi.clearAllMocks();
   readConfigFileSnapshotForWriteMock.mockResolvedValue({
-    snapshot: { valid: false, resolved: {} as ZhushouConfig },
+    snapshot: { valid: false, resolved: {} as AssistantConfig },
     writeOptions: {},
   });
 });
@@ -99,7 +99,7 @@ describe("agentCommand runtime config", () => {
           defaults: {
             model: { primary: "anthropic/claude-opus-4-6" },
             models: { "anthropic/claude-opus-4-6": {} },
-            workspace: path.join(home, "zhushou"),
+            workspace: path.join(home, "assistant"),
           },
         },
         session: { store, mainKey: "main" },
@@ -112,7 +112,7 @@ describe("agentCommand runtime config", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
       const sourceConfig = {
         ...loadedConfig,
         models: {
@@ -124,7 +124,7 @@ describe("agentCommand runtime config", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
       const resolvedConfig = {
         ...loadedConfig,
         models: {
@@ -136,7 +136,7 @@ describe("agentCommand runtime config", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       loadConfigMock.mockReturnValue(loadedConfig);
       readConfigFileSnapshotForWriteMock.mockResolvedValue({
@@ -175,7 +175,7 @@ describe("agentCommand runtime config", () => {
         telegram: {
           botToken: { source: "env", provider: "default", id: "TELEGRAM_BOT_TOKEN" },
         },
-      } as unknown as ZhushouConfig["channels"];
+      } as unknown as AssistantConfig["channels"];
       resolveCommandConfigWithSecretsMock.mockResolvedValueOnce({
         resolvedConfig: loadedConfig,
         effectiveConfig: loadedConfig,

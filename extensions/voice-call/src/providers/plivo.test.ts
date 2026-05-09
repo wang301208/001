@@ -72,7 +72,7 @@ describe("PlivoProvider", () => {
         authToken: "test-token",
       },
       {
-        publicUrl: "https://voice.zhushou.ai/voice/webhook?provider=plivo",
+        publicUrl: "https://voice.assistant.ai/voice/webhook?provider=plivo",
       },
     );
 
@@ -88,6 +88,6 @@ describe("PlivoProvider", () => {
     const callbackMap = (provider as unknown as { callUuidToWebhookUrl: Map<string, string> })
       .callUuidToWebhookUrl;
 
-    expect(callbackMap.get("call-uuid")).toBe("https://voice.zhushou.ai/voice/webhook");
+    expect(callbackMap.get("call-uuid")).toBe("https://voice.assistant.ai/voice/webhook");
   });
 });

@@ -8,21 +8,21 @@ import {
 } from "./models-config.e2e-harness.js";
 import { readGeneratedModelsJson } from "./models-config.test-utils.js";
 
-const planOpenClawModelsJsonMock = vi.fn();
+const planAssistantModelsJsonMock = vi.fn();
 
 installModelsConfigTestHooks();
 
-let ensureOpenClawModelsJson: typeof import("./models-config.js").ensureOpenClawModelsJson;
+let ensureAssistantModelsJson: typeof import("./models-config.js").ensureAssistantModelsJson;
 
 beforeAll(async () => {
   vi.doMock("./models-config.plan.js", () => ({
-    planOpenClawModelsJson: (...args: unknown[]) => planOpenClawModelsJsonMock(...args),
+    planAssistantModelsJson: (...args: unknown[]) => planAssistantModelsJsonMock(...args),
   }));
-  ({ ensureOpenClawModelsJson } = await import("./models-config.js"));
+  ({ ensureAssistantModelsJson } = await import("./models-config.js"));
 });
 
 beforeEach(() => {
-  planOpenClawModelsJsonMock
+  planAssistantModelsJsonMock
     .mockReset()
     .mockImplementation(async (params: { cfg?: typeof CUSTOM_PROXY_MODELS_CONFIG }) => ({
       action: "write",
@@ -75,7 +75,7 @@ describe("models-config write serialization", () => {
       });
 
       try {
-        await Promise.all([ensureOpenClawModelsJson(first), ensureOpenClawModelsJson(second)]);
+        await Promise.all([ensureAssistantModelsJson(first), ensureAssistantModelsJson(second)]);
       } finally {
         writeSpy.mockRestore();
       }

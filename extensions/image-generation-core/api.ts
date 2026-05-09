@@ -1,1 +1,1 @@
-export * from "zhushou/plugin-sdk/image-generation-core";
+export * from "assistant/plugin-sdk/image-generation-core";

@@ -1,19 +1,19 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   getSessionBindingService,
   isPluginOwnedSessionBindingRecord,
   resolveConfiguredBindingRoute,
-} from "zhushou/plugin-sdk/conversation-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
 import {
   deriveLastRoutePolicy,
   resolveAgentIdFromSessionKey,
   resolveAgentRoute,
-} from "zhushou/plugin-sdk/routing";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/routing";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
 import { resolveBlueBubblesInboundConversationId } from "./conversation-id.js";
 
 export function resolveBlueBubblesConversationRoute(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   isGroup: boolean;
   peerId: string;

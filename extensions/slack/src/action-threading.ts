@@ -1,5 +1,5 @@
-import { isSingleUseReplyToMode } from "zhushou/plugin-sdk/reply-reference";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { isSingleUseReplyToMode } from "assistant/plugin-sdk/reply-reference";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { parseSlackTarget } from "./targets.js";
 
 export function resolveSlackAutoThreadId(params: {

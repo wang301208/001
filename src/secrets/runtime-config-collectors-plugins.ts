@@ -1,5 +1,5 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   collectPluginConfigContractMatches,
   resolvePluginConfigContractsById,
@@ -25,7 +25,7 @@ import { isRecord } from "./shared.js";
  * non-loadable plugins from blocking startup or preflight validation.
  */
 export function collectPluginConfigAssignments(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   defaults: SecretDefaults | undefined;
   context: ResolverContext;
   loadablePluginOrigins?: ReadonlyMap<string, PluginOrigin>;

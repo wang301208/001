@@ -1,7 +1,7 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 export type CancelAcpSessionAdmin = (params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
   reason: string;
 }) => Promise<void>;
@@ -16,7 +16,7 @@ export type KillSubagentRunAdminResult = {
 };
 
 export type KillSubagentRunAdmin = (params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
 }) => Promise<KillSubagentRunAdminResult>;
 

@@ -1,5 +1,5 @@
 import type { ChannelPlugin } from "../../channels/plugins/types.plugin.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import {
   buildChannelOutboundSessionRoute,
   stripChannelTargetPrefix,
@@ -44,7 +44,7 @@ function createSessionRouteTestPlugin(params: {
 }
 
 function buildThreadedChannelRoute(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   channel: string;
   accountId?: string | null;

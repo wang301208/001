@@ -4,12 +4,12 @@ import {
   formatMemoryDreamingDay,
   type MemoryDreamingPhaseName,
   type MemoryDreamingStorageConfig,
-} from "zhushou/plugin-sdk/memory-core-host-status";
-import { appendMemoryHostEvent } from "zhushou/plugin-sdk/memory-host-events";
+} from "assistant/plugin-sdk/memory-core-host-status";
+import { appendMemoryHostEvent } from "assistant/plugin-sdk/memory-host-events";
 import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
-} from "zhushou/plugin-sdk/memory-host-markdown";
+} from "assistant/plugin-sdk/memory-host-markdown";
 
 const DAILY_PHASE_HEADINGS: Record<Exclude<MemoryDreamingPhaseName, "deep">, string> = {
   light: "## Light Sleep",
@@ -27,8 +27,8 @@ function resolvePhaseMarkers(phase: Exclude<MemoryDreamingPhaseName, "deep">): {
 } {
   const label = DAILY_PHASE_LABELS[phase];
   return {
-    start: `<!-- zhushou:dreaming:${label}:start -->`,
-    end: `<!-- zhushou:dreaming:${label}:end -->`,
+    start: `<!-- assistant:dreaming:${label}:start -->`,
+    end: `<!-- assistant:dreaming:${label}:end -->`,
   };
 }
 

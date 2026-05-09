@@ -13,7 +13,7 @@ import type {
 import {
   readConfigFileSnapshot,
   replaceConfigFile,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "../../config/config.js";
 import { danger } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
@@ -133,7 +133,7 @@ function renderDisplayLine(line: ChannelCapabilitiesDisplayLine) {
 
 async function resolveChannelReports(params: {
   plugin: ChannelPlugin;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   timeoutMs: number;
   accountOverride?: string;
   target?: string;

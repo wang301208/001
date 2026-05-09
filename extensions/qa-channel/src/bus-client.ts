@@ -1,6 +1,6 @@
 import http from "node:http";
 import https from "node:https";
-import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
 import type {
   QaBusConversation,
   QaBusEvent,

@@ -4,15 +4,15 @@ import { collectFilesSync, relativeToCwd } from "./check-file-utils.js";
 
 const FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; hint: string }> = [
   {
-    pattern: /["']zhushou\/plugin-sdk["']/,
-    hint: "Use zhushou/plugin-sdk/<subpath> instead of the monolithic root entry.",
+    pattern: /["']assistant\/plugin-sdk["']/,
+    hint: "Use assistant/plugin-sdk/<subpath> instead of the monolithic root entry.",
   },
   {
-    pattern: /["']zhushou\/plugin-sdk\/test-utils["']/,
-    hint: "Use zhushou/plugin-sdk/testing for the public extension test surface.",
+    pattern: /["']assistant\/plugin-sdk\/test-utils["']/,
+    hint: "Use assistant/plugin-sdk/testing for the public extension test surface.",
   },
   {
-    pattern: /["']zhushou\/plugin-sdk\/compat["']/,
+    pattern: /["']assistant\/plugin-sdk\/compat["']/,
     hint: "Use a focused public plugin-sdk subpath instead of compat.",
   },
   {
@@ -21,7 +21,7 @@ const FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; hint: string }> = [
   },
   {
     pattern: /["'](?:\.\.\/)+(?:src\/test-utils\/)[^"']+["']/,
-    hint: "Use test/helpers/plugins/* for repo-only helpers, or zhushou/plugin-sdk/testing for public surfaces.",
+    hint: "Use test/helpers/plugins/* for repo-only helpers, or assistant/plugin-sdk/testing for public surfaces.",
   },
   {
     pattern: /["'](?:\.\.\/)+(?:src\/plugins\/types\.js)["']/,

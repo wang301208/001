@@ -1,13 +1,13 @@
-import { createScopedDmSecurityResolver } from "zhushou/plugin-sdk/channel-config-helpers";
-import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
+import { createScopedDmSecurityResolver } from "assistant/plugin-sdk/channel-config-helpers";
+import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
 import {
   createEmptyChannelResult,
   createRawChannelSendResultAdapter,
-} from "zhushou/plugin-sdk/channel-send-result";
-import { createStaticReplyToModeResolver } from "zhushou/plugin-sdk/conversation-runtime";
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/channel-send-result";
+import { createStaticReplyToModeResolver } from "assistant/plugin-sdk/conversation-runtime";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import {
   checkZcaAuthenticated,
   listZalouserAccountIds,
@@ -19,7 +19,7 @@ import type {
   ChannelGroupContext,
   ChannelMessageActionAdapter,
   GroupToolPolicyConfig,
-  ZhushouConfig,
+  AssistantConfig,
 } from "./channel-api.js";
 import {
   DEFAULT_ACCOUNT_ID,
@@ -51,11 +51,11 @@ export function resolveZalouserQrProfile(accountId?: string | null): string {
   return normalized;
 }
 
-function resolveZalouserOutboundChunkMode(cfg: ZhushouConfig, accountId?: string) {
+function resolveZalouserOutboundChunkMode(cfg: AssistantConfig, accountId?: string) {
   return getZalouserRuntime().channel.text.resolveChunkMode(cfg, "zalouser", accountId);
 }
 
-function resolveZalouserOutboundTextChunkLimit(cfg: ZhushouConfig, accountId?: string) {
+function resolveZalouserOutboundTextChunkLimit(cfg: AssistantConfig, accountId?: string) {
   return getZalouserRuntime().channel.text.resolveTextChunkLimit(cfg, "zalouser", accountId, {
     fallbackLimit: ZALOUSER_TEXT_CHUNK_LIMIT,
   });
@@ -218,7 +218,7 @@ export const zalouserResolverAdapter = {
     kind,
     runtime,
   }: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     inputs: string[];
     kind: "user" | "group";
@@ -282,7 +282,7 @@ export const zalouserAuthAdapter = {
     accountId,
     runtime,
   }: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     runtime: RuntimeEnv;
   }) => {
@@ -338,7 +338,7 @@ export const zalouserPairingTextAdapter = {
   idLabel: "zalouserUserId",
   message: "Your pairing request has been approved.",
   normalizeAllowEntry: createPairingPrefixStripper(/^(zalouser|zlu):/i),
-  notify: async ({ cfg, id, message }: { cfg: ZhushouConfig; id: string; message: string }) => {
+  notify: async ({ cfg, id, message }: { cfg: AssistantConfig; id: string; message: string }) => {
     const { sendMessageZalouser } = await loadZalouserChannelRuntime();
     const account = resolveZalouserAccountSync({ cfg: cfg });
     const authenticated = await checkZcaAuthenticated(account.profile);

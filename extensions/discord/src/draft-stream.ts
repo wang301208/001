@@ -1,7 +1,7 @@
 import type { RequestClient } from "@buape/carbon";
 import { Routes } from "discord-api-types/v10";
-import { createFinalizableDraftLifecycle } from "zhushou/plugin-sdk/channel-lifecycle";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { createFinalizableDraftLifecycle } from "assistant/plugin-sdk/channel-lifecycle";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 
 /** Discord messages cap at 2000 characters. */
 const DISCORD_STREAM_MAX_CHARS = 2000;

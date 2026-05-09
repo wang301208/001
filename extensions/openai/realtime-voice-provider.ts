@@ -3,15 +3,15 @@ import {
   captureWsEvent,
   createDebugProxyWebSocketAgent,
   resolveDebugProxySettings,
-} from "zhushou/plugin-sdk/proxy-capture";
+} from "assistant/plugin-sdk/proxy-capture";
 import type {
   RealtimeVoiceBridge,
   RealtimeVoiceBridgeCreateRequest,
   RealtimeVoiceProviderConfig,
   RealtimeVoiceProviderPlugin,
   RealtimeVoiceTool,
-} from "zhushou/plugin-sdk/realtime-voice";
-import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/realtime-voice";
+import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
 import WebSocket from "ws";
 import {
   asFiniteNumber,

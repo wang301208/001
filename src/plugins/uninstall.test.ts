@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { resolvePluginInstallDir } from "./install.js";
 import {
   cleanupTrackedTempDirsAsync,
@@ -15,7 +15,7 @@ import {
   uninstallPlugin,
 } from "./uninstall.js";
 
-type PluginConfig = NonNullable<ZhushouConfig["plugins"]>;
+type PluginConfig = NonNullable<AssistantConfig["plugins"]>;
 type PluginInstallRecord = NonNullable<PluginConfig["installs"]>[string];
 
 async function createInstalledNpmPluginFixture(params: {
@@ -25,7 +25,7 @@ async function createInstalledNpmPluginFixture(params: {
   pluginId: string;
   extensionsDir: string;
   pluginDir: string;
-  config: ZhushouConfig;
+  config: AssistantConfig;
 }> {
   const pluginId = params.pluginId ?? "my-plugin";
   const extensionsDir = path.join(params.baseDir, "extensions");
@@ -132,8 +132,8 @@ function createPluginConfig(params: {
   enabled?: boolean;
   slots?: PluginConfig["slots"];
   loadPaths?: string[];
-  channels?: ZhushouConfig["channels"];
-}): ZhushouConfig {
+  channels?: AssistantConfig["channels"];
+}): AssistantConfig {
   const plugins: PluginConfig = {};
   if (params.entries) {
     plugins.entries = params.entries;
@@ -163,14 +163,14 @@ function createPluginConfig(params: {
 }
 
 function expectRemainingChannels(
-  channels: ZhushouConfig["channels"],
+  channels: AssistantConfig["channels"],
   expected: Record<string, unknown> | undefined,
 ) {
   expect(channels as Record<string, unknown> | undefined).toEqual(expected);
 }
 
 function expectChannelCleanupResult(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   pluginId: string;
   expectedChannels: Record<string, unknown> | undefined;
   expectedChanged: boolean;
@@ -189,14 +189,14 @@ function expectChannelCleanupResult(params: {
   expect(actions.channelConfig).toBe(params.expectedChanged);
 }
 
-function createSinglePluginWithEmptySlotsConfig(): ZhushouConfig {
+function createSinglePluginWithEmptySlotsConfig(): AssistantConfig {
   return createPluginConfig({
     entries: createSinglePluginEntries(),
     slots: {},
   });
 }
 
-function createSingleNpmInstallConfig(installPath: string): ZhushouConfig {
+function createSingleNpmInstallConfig(installPath: string): AssistantConfig {
   return createPluginConfig({
     entries: createSinglePluginEntries(),
     installs: {
@@ -535,7 +535,7 @@ describe("removePluginFromConfig", () => {
           defaults: { groupPolicy: "opt-in" },
           modelByChannel: { timbot: "gpt-3.5" } as Record<string, string>,
           timbot: { sdkAppId: "123" },
-        } as unknown as ZhushouConfig["channels"],
+        } as unknown as AssistantConfig["channels"],
       }),
       pluginId: "timbot",
       expectedChannels: {
@@ -555,7 +555,7 @@ describe("removePluginFromConfig", () => {
         },
         channels: {
           defaults: { groupPolicy: "opt-in" },
-        } as unknown as ZhushouConfig["channels"],
+        } as unknown as AssistantConfig["channels"],
       }),
       pluginId: "bad-plugin",
       options: {
@@ -775,14 +775,14 @@ describe("resolveUninstallDirectoryTarget", () => {
   });
 
   it("falls back to default path when configured installPath is untrusted", () => {
-    const extensionsDir = path.join(os.tmpdir(), "zhushou-uninstall-safe");
+    const extensionsDir = path.join(os.tmpdir(), "assistant-uninstall-safe");
     const target = resolveUninstallDirectoryTarget({
       pluginId: "my-plugin",
       hasInstall: true,
       installRecord: {
         source: "npm",
         spec: "my-plugin@1.0.0",
-        installPath: "/tmp/not-zhushou-plugin-install/my-plugin",
+        installPath: "/tmp/not-assistant-plugin-install/my-plugin",
       },
       extensionsDir,
     });

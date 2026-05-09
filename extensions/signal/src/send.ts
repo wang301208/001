@@ -1,15 +1,15 @@
-import { loadConfig, type ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
-import { kindFromMime } from "zhushou/plugin-sdk/media-runtime";
-import { resolveOutboundAttachmentFromUrl } from "zhushou/plugin-sdk/media-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { loadConfig, type AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
+import { kindFromMime } from "assistant/plugin-sdk/media-runtime";
+import { resolveOutboundAttachmentFromUrl } from "assistant/plugin-sdk/media-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 import { signalRpcRequest } from "./client.js";
 import { markdownToSignalText, type SignalTextStyleRange } from "./format.js";
 import { resolveSignalRpcContext } from "./rpc-context.js";
 
 export type SignalSendOpts = {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   baseUrl?: string;
   account?: string;
   accountId?: string;
@@ -41,11 +41,11 @@ type SignalTarget =
   | { type: "username"; username: string };
 
 let signalConfigRuntimePromise:
-  | Promise<typeof import("zhushou/plugin-sdk/config-runtime")>
+  | Promise<typeof import("assistant/plugin-sdk/config-runtime")>
   | undefined;
 
 async function loadSignalConfigRuntime() {
-  signalConfigRuntimePromise ??= import("zhushou/plugin-sdk/config-runtime");
+  signalConfigRuntimePromise ??= import("assistant/plugin-sdk/config-runtime");
   return await signalConfigRuntimePromise;
 }
 

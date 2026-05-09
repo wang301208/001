@@ -1,5 +1,5 @@
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import {
   createAgendaCard,
   createAppleTvRemoteCard,

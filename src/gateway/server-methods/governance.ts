@@ -39,7 +39,7 @@ import {
   validateGovernanceProposalsSynthesizeParams,
   validateGovernanceTeamParams,
 } from "../protocol/index.js";
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from "./types.js";
 import { assertValidParams } from "./validation.js";
 
 function respondGovernanceFailure(respond: RespondFn, error: unknown) {
@@ -48,6 +48,35 @@ function respondGovernanceFailure(respond: RespondFn, error: unknown) {
     ? ErrorCodes.INVALID_REQUEST
     : ErrorCodes.UNAVAILABLE;
   respond(false, undefined, errorShape(code, message));
+}
+
+function broadcastGovernanceChanged(
+  context: GatewayRequestContext,
+  reason: string,
+  result: unknown,
+) {
+  const broadcast = (context as Partial<GatewayRequestContext>).broadcast;
+  if (typeof broadcast !== "function") {
+    return;
+  }
+
+  try {
+    broadcast(
+      "governance.changed",
+      {
+        ...getGovernanceOverview(),
+        changed: {
+          reason,
+          result,
+        },
+      },
+      { dropIfSlow: true },
+    );
+  } catch (error) {
+    context.logGateway?.warn?.(
+      `governance.changed broadcast skipped: ${formatErrorMessage(error)}`,
+    );
+  }
 }
 
 export const governanceHandlers: GatewayRequestHandlers = {
@@ -177,7 +206,7 @@ export const governanceHandlers: GatewayRequestHandlers = {
     }
   },
 
-  "governance.proposals.synthesize": async ({ params, respond }) => {
+  "governance.proposals.synthesize": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -194,12 +223,13 @@ export const governanceHandlers: GatewayRequestHandlers = {
         ...(Array.isArray(params.workspaceDirs) ? { workspaceDirs: params.workspaceDirs } : {}),
       });
       respond(true, synthesized, undefined);
+      broadcastGovernanceChanged(context, "proposal.synthesized", synthesized);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }
   },
 
-  "governance.proposals.reconcile": async ({ params, respond }) => {
+  "governance.proposals.reconcile": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -226,12 +256,13 @@ export const governanceHandlers: GatewayRequestHandlers = {
         ...(typeof params.appliedBy === "string" ? { appliedBy: params.appliedBy } : {}),
       });
       respond(true, reconciled, undefined);
+      broadcastGovernanceChanged(context, "proposal.reconciled", reconciled);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }
   },
 
-  "governance.proposals.create": async ({ params, respond }) => {
+  "governance.proposals.create": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -251,12 +282,13 @@ export const governanceHandlers: GatewayRequestHandlers = {
         operations: params.operations,
       });
       respond(true, created, undefined);
+      broadcastGovernanceChanged(context, "proposal.created", created);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }
   },
 
-  "governance.proposals.review": async ({ params, respond }) => {
+  "governance.proposals.review": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -275,12 +307,13 @@ export const governanceHandlers: GatewayRequestHandlers = {
         decisionNote: params.decisionNote,
       });
       respond(true, reviewed, undefined);
+      broadcastGovernanceChanged(context, "proposal.reviewed", reviewed);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }
   },
 
-  "governance.proposals.reviewMany": async ({ params, respond }) => {
+  "governance.proposals.reviewMany": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -304,12 +337,13 @@ export const governanceHandlers: GatewayRequestHandlers = {
           : {}),
       });
       respond(true, reviewed, undefined);
+      broadcastGovernanceChanged(context, "proposal.reviewedMany", reviewed);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }
   },
 
-  "governance.proposals.apply": async ({ params, respond }) => {
+  "governance.proposals.apply": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -326,12 +360,13 @@ export const governanceHandlers: GatewayRequestHandlers = {
         appliedBy: params.appliedBy,
       });
       respond(true, applied, undefined);
+      broadcastGovernanceChanged(context, "proposal.applied", applied);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }
   },
 
-  "governance.proposals.applyMany": async ({ params, respond }) => {
+  "governance.proposals.applyMany": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -353,12 +388,13 @@ export const governanceHandlers: GatewayRequestHandlers = {
           : {}),
       });
       respond(true, applied, undefined);
+      broadcastGovernanceChanged(context, "proposal.appliedMany", applied);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }
   },
 
-  "governance.proposals.revert": async ({ params, respond }) => {
+  "governance.proposals.revert": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -375,12 +411,13 @@ export const governanceHandlers: GatewayRequestHandlers = {
         revertedBy: params.revertedBy,
       });
       respond(true, reverted, undefined);
+      broadcastGovernanceChanged(context, "proposal.reverted", reverted);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }
   },
 
-  "governance.proposals.revertMany": async ({ params, respond }) => {
+  "governance.proposals.revertMany": async ({ params, respond, context }) => {
     if (
       !assertValidParams(
         params,
@@ -402,6 +439,7 @@ export const governanceHandlers: GatewayRequestHandlers = {
           : {}),
       });
       respond(true, reverted, undefined);
+      broadcastGovernanceChanged(context, "proposal.revertedMany", reverted);
     } catch (error) {
       respondGovernanceFailure(respond, error);
     }

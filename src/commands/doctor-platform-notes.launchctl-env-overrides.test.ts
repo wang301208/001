@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { noteMacLaunchctlGatewayEnvOverrides } from "./doctor-platform-notes.js";
 
 describe("noteMacLaunchctlGatewayEnvOverrides", () => {
   it("prints clear unsetenv instructions for token override", async () => {
     const noteFn = vi.fn();
     const getenv = vi.fn(async (name: string) =>
-      name === "ZHUSHOU_GATEWAY_TOKEN" ? "launchctl-token" : undefined,
+      name === "ASSISTANT_GATEWAY_TOKEN" ? "launchctl-token" : undefined,
     );
     const cfg = {
       gateway: {
@@ -14,7 +14,7 @@ describe("noteMacLaunchctlGatewayEnvOverrides", () => {
           token: "config-token",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     await noteMacLaunchctlGatewayEnvOverrides(cfg, { platform: "darwin", getenv, noteFn });
 
@@ -24,15 +24,15 @@ describe("noteMacLaunchctlGatewayEnvOverrides", () => {
     const [message, title] = noteFn.mock.calls[0] ?? [];
     expect(title).toBe("Gateway (macOS)");
     expect(message).toContain("launchctl environment overrides detected");
-    expect(message).toContain("ZHUSHOU_GATEWAY_TOKEN");
-    expect(message).toContain("launchctl unsetenv ZHUSHOU_GATEWAY_TOKEN");
-    expect(message).not.toContain("ZHUSHOU_GATEWAY_PASSWORD");
+    expect(message).toContain("ASSISTANT_GATEWAY_TOKEN");
+    expect(message).toContain("launchctl unsetenv ASSISTANT_GATEWAY_TOKEN");
+    expect(message).not.toContain("ASSISTANT_GATEWAY_PASSWORD");
   });
 
   it("does nothing when config has no gateway credentials", async () => {
     const noteFn = vi.fn();
     const getenv = vi.fn(async () => "launchctl-token");
-    const cfg = {} as ZhushouConfig;
+    const cfg = {} as AssistantConfig;
 
     await noteMacLaunchctlGatewayEnvOverrides(cfg, { platform: "darwin", getenv, noteFn });
 
@@ -43,12 +43,12 @@ describe("noteMacLaunchctlGatewayEnvOverrides", () => {
   it("treats SecretRef-backed credentials as configured", async () => {
     const noteFn = vi.fn();
     const getenv = vi.fn(async (name: string) =>
-      name === "ZHUSHOU_GATEWAY_PASSWORD" ? "launchctl-password" : undefined,
+      name === "ASSISTANT_GATEWAY_PASSWORD" ? "launchctl-password" : undefined,
     );
     const cfg = {
       gateway: {
         auth: {
-          password: { source: "env", provider: "default", id: "ZHUSHOU_GATEWAY_PASSWORD" },
+          password: { source: "env", provider: "default", id: "ASSISTANT_GATEWAY_PASSWORD" },
         },
       },
       secrets: {
@@ -56,13 +56,13 @@ describe("noteMacLaunchctlGatewayEnvOverrides", () => {
           default: { source: "env" },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     await noteMacLaunchctlGatewayEnvOverrides(cfg, { platform: "darwin", getenv, noteFn });
 
     expect(noteFn).toHaveBeenCalledTimes(1);
     const [message] = noteFn.mock.calls[0] ?? [];
-    expect(message).toContain("ZHUSHOU_GATEWAY_PASSWORD");
+    expect(message).toContain("ASSISTANT_GATEWAY_PASSWORD");
   });
 
   it("does nothing on non-darwin platforms", async () => {
@@ -74,7 +74,7 @@ describe("noteMacLaunchctlGatewayEnvOverrides", () => {
           token: "config-token",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     await noteMacLaunchctlGatewayEnvOverrides(cfg, { platform: "linux", getenv, noteFn });
 

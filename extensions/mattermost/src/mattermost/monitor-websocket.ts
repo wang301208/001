@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { safeParseJsonWithSchema, safeParseWithSchema } from "zhushou/plugin-sdk/extension-shared";
+import { safeParseJsonWithSchema, safeParseWithSchema } from "assistant/plugin-sdk/extension-shared";
 import {
   captureWsEvent,
   createDebugProxyWebSocketAgent,
   resolveDebugProxySettings,
-} from "zhushou/plugin-sdk/proxy-capture";
-import { z } from "zhushou/plugin-sdk/zod";
+} from "assistant/plugin-sdk/proxy-capture";
+import { z } from "assistant/plugin-sdk/zod";
 import WebSocket from "ws";
 import { MattermostPostSchema, type MattermostPost } from "./client.js";
 import { rawDataToString } from "./monitor-helpers.js";

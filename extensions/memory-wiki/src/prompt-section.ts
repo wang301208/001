@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { MemoryPromptSectionBuilder } from "zhushou/plugin-sdk/memory-host-core";
+import type { MemoryPromptSectionBuilder } from "assistant/plugin-sdk/memory-host-core";
 import { resolveMemoryWikiConfig, type ResolvedMemoryWikiConfig } from "./config.js";
 
-const AGENT_DIGEST_PATH = ".zhushou-wiki/cache/agent-digest.json";
+const AGENT_DIGEST_PATH = ".assistant-wiki/cache/agent-digest.json";
 const DIGEST_MAX_PAGES = 4;
 const DIGEST_MAX_CLAIMS_PER_PAGE = 2;
 

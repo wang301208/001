@@ -10,8 +10,8 @@ public struct SwabbleConfig: Codable, Sendable {
 
     public struct Wake: Codable, Sendable {
         public var enabled: Bool = true
-        public var word: String = "clawd"
-        public var aliases: [String] = ["claude"]
+        public var word: String = "assistant"
+        public var aliases: [String] = []
     }
 
     public struct Hook: Codable, Sendable {

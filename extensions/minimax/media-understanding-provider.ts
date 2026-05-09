@@ -2,7 +2,7 @@ import {
   describeImageWithModel,
   describeImagesWithModel,
   type MediaUnderstandingProvider,
-} from "zhushou/plugin-sdk/media-understanding";
+} from "assistant/plugin-sdk/media-understanding";
 
 export const minimaxMediaUnderstandingProvider: MediaUnderstandingProvider = {
   id: "minimax",

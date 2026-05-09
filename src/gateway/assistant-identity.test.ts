@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
 
 describe("resolveAssistantIdentity avatar normalization", () => {
   it("drops sentence-like avatar placeholders", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       ui: {
         assistant: {
           avatar: "workspace-relative path, http(s) URL, or data URI",
@@ -18,7 +18,7 @@ describe("resolveAssistantIdentity avatar normalization", () => {
   });
 
   it("keeps short text avatars", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       ui: {
         assistant: {
           avatar: "PS",
@@ -30,14 +30,14 @@ describe("resolveAssistantIdentity avatar normalization", () => {
   });
 
   it("keeps path avatars", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       ui: {
         assistant: {
-          avatar: "avatars/zhushou.png",
+          avatar: "avatars/assistant.png",
         },
       },
     };
 
-    expect(resolveAssistantIdentity({ cfg, workspaceDir: "" }).avatar).toBe("avatars/zhushou.png");
+    expect(resolveAssistantIdentity({ cfg, workspaceDir: "" }).avatar).toBe("avatars/assistant.png");
   });
 });

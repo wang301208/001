@@ -1,10 +1,10 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { createOperatorApprovalsGatewayClient } from "../gateway/operator-approvals-client.js";
 import { isApprovalNotFoundError } from "./approval-errors.js";
 import type { ExecApprovalDecision } from "./exec-approvals.js";
 
 export type ResolveApprovalOverGatewayParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   approvalId: string;
   decision: ExecApprovalDecision;
   senderId?: string | null;

@@ -11,9 +11,9 @@ import {
 let monitorWebInbox: typeof import("./inbound.js").monitorWebInbox;
 const inboundLoggerInfoMock = vi.hoisted(() => vi.fn());
 
-vi.mock("zhushou/plugin-sdk/text-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/text-runtime")>(
-    "zhushou/plugin-sdk/text-runtime",
+vi.mock("assistant/plugin-sdk/text-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/text-runtime")>(
+    "assistant/plugin-sdk/text-runtime",
   );
   return {
     ...actual,

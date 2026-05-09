@@ -2,9 +2,9 @@ import type { Client } from "@buape/carbon";
 import {
   createChannelInboundDebouncer,
   shouldDebounceTextInbound,
-} from "zhushou/plugin-sdk/channel-inbound";
-import { resolveOpenProviderRuntimeGroupPolicy } from "zhushou/plugin-sdk/config-runtime";
-import { danger } from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/channel-inbound";
+import { resolveOpenProviderRuntimeGroupPolicy } from "assistant/plugin-sdk/config-runtime";
+import { danger } from "assistant/plugin-sdk/runtime-env";
 import {
   buildDiscordInboundReplayKey,
   claimDiscordInboundReplay,

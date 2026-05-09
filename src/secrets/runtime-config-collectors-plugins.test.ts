@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { PluginOrigin } from "../plugins/types.js";
 import { collectPluginConfigAssignments } from "./runtime-config-collectors-plugins.js";
 import {
@@ -16,11 +16,11 @@ vi.mock("../plugins/manifest-registry.js", () => ({
   loadPluginManifestRegistry: loadPluginManifestRegistryMock,
 }));
 
-function asConfig(value: unknown): ZhushouConfig {
-  return value as ZhushouConfig;
+function asConfig(value: unknown): AssistantConfig {
+  return value as AssistantConfig;
 }
 
-function makeContext(sourceConfig: ZhushouConfig): ResolverContext {
+function makeContext(sourceConfig: AssistantConfig): ResolverContext {
   return createResolverContext({
     sourceConfig,
     env: {},

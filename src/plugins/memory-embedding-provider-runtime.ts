@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   resolvePluginCapabilityProvider,
   resolvePluginCapabilityProviders,
@@ -15,7 +15,7 @@ export function listRegisteredMemoryEmbeddingProviderAdapters(): MemoryEmbedding
   return listRegisteredMemoryEmbeddingProviders().map((entry) => entry.adapter);
 }
 export function listMemoryEmbeddingProviders(
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): MemoryEmbeddingProviderAdapter[] {
   const registered = listRegisteredMemoryEmbeddingProviderAdapters();
   const merged = new Map(registered.map((adapter) => [adapter.id, adapter]));
@@ -32,7 +32,7 @@ export function listMemoryEmbeddingProviders(
 
 export function getMemoryEmbeddingProvider(
   id: string,
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): MemoryEmbeddingProviderAdapter | undefined {
   const registered = getRegisteredMemoryEmbeddingProvider(id);
   if (registered) {

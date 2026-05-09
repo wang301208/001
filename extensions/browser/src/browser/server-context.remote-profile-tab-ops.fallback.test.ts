@@ -10,9 +10,9 @@ installRemoteProfileTestLifecycle(deps);
 
 describe("browser remote profile fallback and attachOnly behavior", () => {
   it("uses profile-level attachOnly when global attachOnly is false", async () => {
-    const state = deps.makeState("zhushou");
+    const state = deps.makeState("assistant");
     state.resolved.attachOnly = false;
-    state.resolved.profiles.zhushou = {
+    state.resolved.profiles.assistant = {
       cdpPort: 18800,
       attachOnly: true,
       color: "#FF4500",
@@ -21,10 +21,10 @@ describe("browser remote profile fallback and attachOnly behavior", () => {
     const reachableMock = vi
       .mocked(deps.chromeModule.isChromeReachable)
       .mockResolvedValueOnce(false);
-    const launchMock = vi.mocked(deps.chromeModule.launchOpenClawChrome);
+    const launchMock = vi.mocked(deps.chromeModule.launchAssistantChrome);
     const ctx = deps.createBrowserRouteContext({ getState: () => state });
 
-    await expect(ctx.forProfile("zhushou").ensureBrowserAvailable()).rejects.toThrow(
+    await expect(ctx.forProfile("assistant").ensureBrowserAvailable()).rejects.toThrow(
       /attachOnly is enabled/i,
     );
     expect(reachableMock).toHaveBeenCalled();
@@ -32,9 +32,9 @@ describe("browser remote profile fallback and attachOnly behavior", () => {
   });
 
   it("keeps attachOnly websocket failures off the loopback ownership error path", async () => {
-    const state = deps.makeState("zhushou");
+    const state = deps.makeState("assistant");
     state.resolved.attachOnly = false;
-    state.resolved.profiles.zhushou = {
+    state.resolved.profiles.assistant = {
       cdpPort: 18800,
       attachOnly: true,
       color: "#FF4500",
@@ -46,10 +46,10 @@ describe("browser remote profile fallback and attachOnly behavior", () => {
     const wsReachableMock = vi
       .mocked(deps.chromeModule.isChromeCdpReady)
       .mockResolvedValueOnce(false);
-    const launchMock = vi.mocked(deps.chromeModule.launchOpenClawChrome);
+    const launchMock = vi.mocked(deps.chromeModule.launchAssistantChrome);
     const ctx = deps.createBrowserRouteContext({ getState: () => state });
 
-    await expect(ctx.forProfile("zhushou").ensureBrowserAvailable()).rejects.toThrow(
+    await expect(ctx.forProfile("assistant").ensureBrowserAvailable()).rejects.toThrow(
       /attachOnly is enabled and CDP websocket/i,
     );
     expect(httpReachableMock).toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe("browser remote profile fallback and attachOnly behavior", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("does not enforce managed tab cap for remote zhushou profiles", async () => {
+  it("does not enforce managed tab cap for remote assistant profiles", async () => {
     const listPagesViaPlaywright = vi
       .fn()
       .mockResolvedValueOnce([

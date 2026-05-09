@@ -4,10 +4,10 @@ import {
   type ChannelPluginCatalogEntry,
 } from "../../channels/plugins/catalog.js";
 import { applyPluginAutoEnable } from "../../config/plugin-auto-enable.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { normalizePluginsConfig, resolveEnableState } from "../../plugins/config-state.js";
 
-function resolveEffectiveTrustConfig(cfg: ZhushouConfig, env?: NodeJS.ProcessEnv): ZhushouConfig {
+function resolveEffectiveTrustConfig(cfg: AssistantConfig, env?: NodeJS.ProcessEnv): AssistantConfig {
   return applyPluginAutoEnable({
     config: cfg,
     env: env ?? process.env,
@@ -16,7 +16,7 @@ function resolveEffectiveTrustConfig(cfg: ZhushouConfig, env?: NodeJS.ProcessEnv
 
 function isTrustedWorkspaceChannelCatalogEntry(
   entry: ChannelPluginCatalogEntry | undefined,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env?: NodeJS.ProcessEnv,
 ): boolean {
   if (entry?.origin !== "workspace") {
@@ -36,7 +36,7 @@ function isTrustedWorkspaceChannelCatalogEntry(
 export function getTrustedChannelPluginCatalogEntry(
   channelId: string,
   params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     workspaceDir?: string;
     env?: NodeJS.ProcessEnv;
   },
@@ -54,7 +54,7 @@ export function getTrustedChannelPluginCatalogEntry(
 }
 
 export function listTrustedChannelPluginCatalogEntries(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ChannelPluginCatalogEntry[] {
@@ -77,7 +77,7 @@ export function listTrustedChannelPluginCatalogEntries(params: {
 }
 
 export function listSetupDiscoveryChannelPluginCatalogEntries(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ChannelPluginCatalogEntry[] {

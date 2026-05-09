@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   hasMeaningfulChannelConfig,
   hasPotentialConfiguredChannels,
@@ -21,19 +21,19 @@ vi.mock("../channels/plugins/persisted-auth-state.js", () => ({
   }: {
     channelId: string;
     env?: NodeJS.ProcessEnv;
-  }) => channelId === "matrix" && env?.ZHUSHOU_STATE_DIR?.includes("persisted-matrix"),
+  }) => channelId === "matrix" && env?.ASSISTANT_STATE_DIR?.includes("persisted-matrix"),
 }));
 
 const tempDirs: string[] = [];
 
 function makeTempStateDir() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-channel-config-presence-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-channel-config-presence-"));
   tempDirs.push(dir);
   return dir;
 }
 
 function expectPotentialConfiguredChannelCase(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
   expectedIds: string[];
   expectedConfigured: boolean;
@@ -94,12 +94,12 @@ describe("config presence", () => {
 
   it("detects persisted Matrix credentials without config or env", () => {
     const stateDir = makeTempStateDir().replace(
-      "zhushou-channel-config-presence-",
+      "assistant-channel-config-presence-",
       "persisted-matrix-",
     );
     fs.mkdirSync(stateDir, { recursive: true });
     tempDirs.push(stateDir);
-    const env = { ZHUSHOU_STATE_DIR: stateDir } as NodeJS.ProcessEnv;
+    const env = { ASSISTANT_STATE_DIR: stateDir } as NodeJS.ProcessEnv;
 
     expectPotentialConfiguredChannelCase({
       cfg: {},

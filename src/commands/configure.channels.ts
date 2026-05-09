@@ -1,7 +1,7 @@
 import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { CONFIG_PATH } from "../config/config.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { shortenHomePath } from "../utils.js";
@@ -10,9 +10,9 @@ import { confirm, select } from "./configure.shared.js";
 import { guardCancel } from "./onboard-helpers.js";
 
 export async function removeChannelConfigWizard(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   runtime: RuntimeEnv,
-): Promise<ZhushouConfig> {
+): Promise<AssistantConfig> {
   let next = { ...cfg };
 
   const listConfiguredChannels = () =>
@@ -26,8 +26,8 @@ export async function removeChannelConfigWizard(
     if (configured.length === 0) {
       note(
         [
-          "No channel config found in zhushou.json.",
-          `Tip: \`${formatCliCommand("zhushou channels status")}\` shows what is configured and enabled.`,
+          "No channel config found in assistant.json.",
+          `Tip: \`${formatCliCommand("assistant channels status")}\` shows what is configured and enabled.`,
         ].join("\n"),
         "Remove channel",
       );
@@ -68,7 +68,7 @@ export async function removeChannelConfigWizard(
     const nextChannels: Record<string, unknown> = { ...next.channels };
     delete nextChannels[channel];
     if (Object.keys(nextChannels).length) {
-      next.channels = nextChannels as ZhushouConfig["channels"];
+      next.channels = nextChannels as AssistantConfig["channels"];
     } else {
       delete next.channels;
     }

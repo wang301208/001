@@ -50,7 +50,7 @@ function collectPackageJsonPaths(rootDir) {
 }
 
 function usesStagedRuntimeDependencies(packageJson) {
-  return packageJson?.zhushou?.bundle?.stageRuntimeDependencies === true;
+  return packageJson?.assistant?.bundle?.stageRuntimeDependencies === true;
 }
 
 function dependencySentinelPath(packageRoot, dependencyName) {

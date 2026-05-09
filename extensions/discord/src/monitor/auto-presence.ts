@@ -6,12 +6,12 @@ import {
   resolveProfilesUnavailableReason,
   type AuthProfileFailureReason,
   type AuthProfileStore,
-} from "zhushou/plugin-sdk/agent-runtime";
+} from "assistant/plugin-sdk/agent-runtime";
 import type {
   DiscordAccountConfig,
   DiscordAutoPresenceConfig,
-} from "zhushou/plugin-sdk/config-runtime";
-import { warn } from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/config-runtime";
+import { warn } from "assistant/plugin-sdk/runtime-env";
 import { resolveDiscordPresenceUpdate } from "./presence.js";
 
 const DEFAULT_CUSTOM_ACTIVITY_TYPE = 4;

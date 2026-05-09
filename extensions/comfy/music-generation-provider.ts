@@ -2,7 +2,7 @@ import type {
   GeneratedMusicAsset,
   MusicGenerationProvider,
   MusicGenerationSourceImage,
-} from "zhushou/plugin-sdk/music-generation";
+} from "assistant/plugin-sdk/music-generation";
 import {
   DEFAULT_COMFY_MODEL,
   isComfyCapabilityConfigured,

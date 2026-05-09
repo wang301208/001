@@ -272,7 +272,7 @@ async function prepareAgentCommandExecution(
         buildUnknownAgentIdMessage({
           cfg,
           rawAgentId: agentIdOverrideRaw ?? agentIdOverride,
-          inspectHint: `Use "${formatCliCommand("zhushou agents list")}" to inspect available agents.`,
+          inspectHint: `Use "${formatCliCommand("assistant agents list")}" to inspect available agents.`,
         }),
       );
     }

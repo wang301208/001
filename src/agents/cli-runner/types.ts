@@ -4,7 +4,7 @@ import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { CliSessionBinding } from "../../config/sessions.js";
 import type { SessionSystemPromptReport } from "../../config/sessions/types.js";
 import type { CliBackendConfig } from "../../config/types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { PromptImageOrderEntry } from "../../media/prompt-image-order.js";
 import type { ResolvedCliBackend } from "../cli-backends.js";
 import type { SkillSnapshot } from "../skills.js";
@@ -15,7 +15,7 @@ export type RunCliAgentParams = {
   agentId?: string;
   sessionFile: string;
   workspaceDir: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   prompt: string;
   provider: string;
   model?: string;

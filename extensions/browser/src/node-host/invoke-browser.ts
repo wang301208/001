@@ -1,7 +1,7 @@
 import fsPromises from "node:fs/promises";
-import { loadConfig } from "zhushou/plugin-sdk/browser-config-runtime";
-import { withTimeout } from "zhushou/plugin-sdk/browser-node-runtime";
-import { detectMime } from "zhushou/plugin-sdk/browser-setup-tools";
+import { loadConfig } from "assistant/plugin-sdk/browser-config-runtime";
+import { withTimeout } from "assistant/plugin-sdk/browser-node-runtime";
+import { detectMime } from "assistant/plugin-sdk/browser-setup-tools";
 import { redactCdpUrl } from "../browser/cdp.helpers.js";
 import { resolveBrowserConfig } from "../browser/config.js";
 import {

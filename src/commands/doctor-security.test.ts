@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 
 const note = vi.hoisted(() => vi.fn());
 const pluginRegistry = vi.hoisted(() => ({ list: [] as unknown[] }));
@@ -29,23 +29,23 @@ describe("noteSecurityWarnings gateway exposure", () => {
   beforeEach(() => {
     note.mockClear();
     pluginRegistry.list = [];
-    prevToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
-    prevPassword = process.env.ZHUSHOU_GATEWAY_PASSWORD;
+    prevToken = process.env.ASSISTANT_GATEWAY_TOKEN;
+    prevPassword = process.env.ASSISTANT_GATEWAY_PASSWORD;
     prevHome = process.env.HOME;
-    delete process.env.ZHUSHOU_GATEWAY_TOKEN;
-    delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
+    delete process.env.ASSISTANT_GATEWAY_TOKEN;
+    delete process.env.ASSISTANT_GATEWAY_PASSWORD;
   });
 
   afterEach(() => {
     if (prevToken === undefined) {
-      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+      delete process.env.ASSISTANT_GATEWAY_TOKEN;
     } else {
-      process.env.ZHUSHOU_GATEWAY_TOKEN = prevToken;
+      process.env.ASSISTANT_GATEWAY_TOKEN = prevToken;
     }
     if (prevPassword === undefined) {
-      delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
+      delete process.env.ASSISTANT_GATEWAY_PASSWORD;
     } else {
-      process.env.ZHUSHOU_GATEWAY_PASSWORD = prevPassword;
+      process.env.ASSISTANT_GATEWAY_PASSWORD = prevPassword;
     }
     if (prevHome === undefined) {
       delete process.env.HOME;
@@ -60,11 +60,11 @@ describe("noteSecurityWarnings gateway exposure", () => {
     file: Record<string, unknown>,
     run: () => Promise<void>,
   ): Promise<void> {
-    const home = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-doctor-security-"));
+    const home = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-doctor-security-"));
     process.env.HOME = home;
-    await fs.mkdir(path.join(home, ".zhushou"), { recursive: true });
+    await fs.mkdir(path.join(home, ".assistant"), { recursive: true });
     await fs.writeFile(
-      path.join(home, ".zhushou", "exec-approvals.json"),
+      path.join(home, ".assistant", "exec-approvals.json"),
       JSON.stringify(file, null, 2),
     );
     await run();
@@ -103,7 +103,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
               },
             ],
           },
-        } as ZhushouConfig);
+        } as AssistantConfig);
       },
     );
 
@@ -114,7 +114,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
   }
 
   it("warns when exposed without auth", async () => {
-    const cfg = { gateway: { bind: "lan" } } as ZhushouConfig;
+    const cfg = { gateway: { bind: "lan" } } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain("CRITICAL");
@@ -124,8 +124,8 @@ describe("noteSecurityWarnings gateway exposure", () => {
   });
 
   it("uses env token to avoid critical warning", async () => {
-    process.env.ZHUSHOU_GATEWAY_TOKEN = "token-123";
-    const cfg = { gateway: { bind: "lan" } } as ZhushouConfig;
+    process.env.ASSISTANT_GATEWAY_TOKEN = "token-123";
+    const cfg = { gateway: { bind: "lan" } } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain("WARNING");
@@ -138,10 +138,10 @@ describe("noteSecurityWarnings gateway exposure", () => {
         bind: "lan",
         auth: {
           mode: "token",
-          token: { source: "env", provider: "default", id: "ZHUSHOU_GATEWAY_TOKEN" },
+          token: { source: "env", provider: "default", id: "ASSISTANT_GATEWAY_TOKEN" },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain("WARNING");
@@ -151,14 +151,14 @@ describe("noteSecurityWarnings gateway exposure", () => {
   it("treats whitespace token as missing", async () => {
     const cfg = {
       gateway: { bind: "lan", auth: { mode: "token", token: "   " } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain("CRITICAL");
   });
 
   it("skips warning for loopback bind", async () => {
-    const cfg = { gateway: { bind: "loopback" } } as ZhushouConfig;
+    const cfg = { gateway: { bind: "loopback" } } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain("No channel security warnings detected");
@@ -166,7 +166,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
   });
 
   it("treats unset bind as loopback for host-side doctor checks", async () => {
-    const cfg = { gateway: {} } as ZhushouConfig;
+    const cfg = { gateway: {} } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain("No channel security warnings detected");
@@ -195,7 +195,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
         },
       },
     ];
-    const cfg = { session: { dmScope: "main" } } as ZhushouConfig;
+    const cfg = { session: { dmScope: "main" } } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain('config set session.dmScope "per-channel-peer"');
@@ -208,12 +208,12 @@ describe("noteSecurityWarnings gateway exposure", () => {
           enabled: false,
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain("disables approval forwarding only");
     expect(message).toContain("exec-approvals.json");
-    expect(message).toContain("zhushou approvals get --gateway");
+    expect(message).toContain("assistant approvals get --gateway");
   });
 
   it("warns when tools.exec is broader than host exec defaults", async () => {
@@ -233,7 +233,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
               ask: "off",
             },
           },
-        } as ZhushouConfig);
+        } as AssistantConfig);
       },
     );
 
@@ -262,7 +262,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
               ask: "on-miss",
             },
           },
-        } as ZhushouConfig);
+        } as AssistantConfig);
       },
     );
 
@@ -284,7 +284,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
               ask: "always",
             },
           },
-        } as ZhushouConfig);
+        } as AssistantConfig);
       },
     );
 
@@ -319,7 +319,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
           agents: {
             list: [{ id: "runner" }],
           },
-        } as ZhushouConfig);
+        } as AssistantConfig);
       },
     );
 
@@ -354,7 +354,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
           agents: {
             list: [{ id: "runner" }],
           },
-        } as ZhushouConfig);
+        } as AssistantConfig);
       },
     );
 
@@ -389,7 +389,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
               ask: "always",
             },
           },
-        } as ZhushouConfig);
+        } as AssistantConfig);
       },
     );
 
@@ -406,7 +406,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain("Heartbeat defaults");
@@ -426,7 +426,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
           },
         ],
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).toContain('Heartbeat agent "ops"');
@@ -453,11 +453,11 @@ describe("noteSecurityWarnings gateway exposure", () => {
       },
     ];
 
-    await noteSecurityWarnings({} as ZhushouConfig);
+    await noteSecurityWarnings({} as AssistantConfig);
     const message = lastMessage();
     expect(message).toContain("[secrets]");
     expect(message).toContain("failed to resolve account");
-    expect(message).toContain("Run: zhushou security audit --deep");
+    expect(message).toContain("Run: assistant security audit --deep");
   });
 
   it("skips heartbeat directPolicy warning when delivery is internal-only or explicit", async () => {
@@ -478,7 +478,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
           },
         ],
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     await noteSecurityWarnings(cfg);
     const message = lastMessage();
     expect(message).not.toContain("Heartbeat defaults");

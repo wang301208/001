@@ -1,10 +1,10 @@
 import path from "node:path";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
-type AgentDefaultConfig = NonNullable<NonNullable<ZhushouConfig["agents"]>["defaults"]>;
+type AgentDefaultConfig = NonNullable<NonNullable<AssistantConfig["agents"]>["defaults"]>;
 type LoadConfigMock = {
-  mockReturnValue(value: ZhushouConfig): unknown;
+  mockReturnValue(value: AssistantConfig): unknown;
 };
 
 export async function withAgentCommandTempHome<T>(
@@ -19,18 +19,18 @@ export function mockAgentCommandConfig(
   home: string,
   storePath: string,
   agentOverrides?: Partial<AgentDefaultConfig>,
-): ZhushouConfig {
+): AssistantConfig {
   const cfg = {
     agents: {
       defaults: {
         model: { primary: "anthropic/claude-opus-4-6" },
         models: { "anthropic/claude-opus-4-6": {} },
-        workspace: path.join(home, "zhushou"),
+        workspace: path.join(home, "assistant"),
         ...agentOverrides,
       },
     },
     session: { store: storePath, mainKey: "main" },
-  } as ZhushouConfig;
+  } as AssistantConfig;
   configSpy.mockReturnValue(cfg);
   return cfg;
 }

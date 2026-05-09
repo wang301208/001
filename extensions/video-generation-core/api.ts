@@ -1,1 +1,1 @@
-export * from "zhushou/plugin-sdk/video-generation-core";
+export * from "assistant/plugin-sdk/video-generation-core";

@@ -4,7 +4,7 @@ import {
   listWhatsAppDirectoryGroupsFromConfig,
   listWhatsAppDirectoryPeersFromConfig,
 } from "./directory-config.js";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 
 describe("whatsapp directory", () => {
   const runtimeEnv = createDirectoryTestRuntime() as never;
@@ -25,7 +25,7 @@ describe("whatsapp directory", () => {
           },
         },
       },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
 
     await expect(
       listWhatsAppDirectoryPeersFromConfig({

@@ -1,6 +1,6 @@
 import path from "node:path";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import WebSocket from "ws";
 import {
   clearTokenCache,
@@ -108,7 +108,7 @@ function readOptionalMessageSceneExt(
 export interface GatewayContext {
   account: ResolvedQQBotAccount;
   abortSignal: AbortSignal;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   onReady?: (data: unknown) => void;
   onError?: (error: Error) => void;
   log?: {

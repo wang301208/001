@@ -1,10 +1,10 @@
 import {
   createAccountListHelpers,
   resolveMergedAccountConfig,
-} from "zhushou/plugin-sdk/account-helpers";
-import { normalizeAccountId } from "zhushou/plugin-sdk/account-id";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/account-helpers";
+import { normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { resolveZaloToken } from "./token.js";
 import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
 
@@ -14,7 +14,7 @@ const { listAccountIds: listZaloAccountIds, resolveDefaultAccountId: resolveDefa
   createAccountListHelpers("zalo");
 export { listZaloAccountIds, resolveDefaultZaloAccountId };
 
-function mergeZaloAccountConfig(cfg: ZhushouConfig, accountId: string): ZaloAccountConfig {
+function mergeZaloAccountConfig(cfg: AssistantConfig, accountId: string): ZaloAccountConfig {
   return resolveMergedAccountConfig<ZaloAccountConfig>({
     channelConfig: cfg.channels?.zalo as ZaloAccountConfig | undefined,
     accounts: (cfg.channels?.zalo as ZaloConfig | undefined)?.accounts as
@@ -26,7 +26,7 @@ function mergeZaloAccountConfig(cfg: ZhushouConfig, accountId: string): ZaloAcco
 }
 
 export function resolveZaloAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   allowUnresolvedSecretRef?: boolean;
 }): ResolvedZaloAccount {
@@ -53,7 +53,7 @@ export function resolveZaloAccount(params: {
   };
 }
 
-export function listEnabledZaloAccounts(cfg: ZhushouConfig): ResolvedZaloAccount[] {
+export function listEnabledZaloAccounts(cfg: AssistantConfig): ResolvedZaloAccount[] {
   return listZaloAccountIds(cfg)
     .map((accountId) => resolveZaloAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

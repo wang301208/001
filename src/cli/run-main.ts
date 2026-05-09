@@ -4,12 +4,13 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { CommanderError } from "commander";
 import { resolveStateDir } from "../config/paths.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
+import { consumeRootOptionToken, FLAG_TERMINATOR } from "../infra/cli-root-options.js";
 import { normalizeEnv } from "../infra/env.js";
 import { formatUncaughtError } from "../infra/errors.js";
 import { isMainModule } from "../infra/is-main.js";
 import { ensureGlobalUndiciEnvProxyDispatcher } from "../infra/net/undici-global-dispatcher.js";
-import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+import { ensureAssistantCliOnPath } from "../infra/path-env.js";
 import { assertSupportedRuntime } from "../infra/runtime-guard.js";
 import { enableConsoleCapture } from "../logging.js";
 import type { PluginManifestCommandAliasRegistry } from "../plugins/manifest-command-aliases.js";
@@ -71,9 +72,48 @@ export function shouldUseRootHelpFastPath(argv: string[]): boolean {
   return resolveCliArgvInvocation(argv).isRootHelpInvocation;
 }
 
+export function shouldRunTuiByDefault(argv: string[]): boolean {
+  const invocation = resolveCliArgvInvocation(argv);
+  if (invocation.hasHelpOrVersion) {
+    return false;
+  }
+
+  const args = argv.slice(2);
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (!arg) {
+      continue;
+    }
+    if (arg === FLAG_TERMINATOR) {
+      break;
+    }
+
+    const consumed = consumeRootOptionToken(args, index);
+    if (consumed > 0) {
+      index += consumed - 1;
+      continue;
+    }
+
+    // Preserve legacy/explicit command-like flags such as --update and
+    // unknown option errors instead of swallowing them into the TUI.
+    if (arg.startsWith("-")) {
+      return false;
+    }
+
+    return false;
+  }
+
+  return true;
+}
+
+export function shouldRunStdioGateway(argv: string[]): boolean {
+  void argv;
+  return false;
+}
+
 export function resolveMissingPluginCommandMessage(
   pluginId: string,
-  config?: ZhushouConfig,
+  config?: AssistantConfig,
   options?: { registry?: PluginManifestCommandAliasRegistry },
 ): string | null {
   const normalizedPluginId = normalizeLowercaseStringOrEmpty(pluginId);
@@ -103,14 +143,14 @@ export function resolveMissingPluginCommandMessage(
     }
     if (config?.plugins?.entries?.[parentPluginId]?.enabled === false) {
       return (
-        `The \`zhushou ${normalizedPluginId}\` command is unavailable because ` +
+        `The \`assistant ${normalizedPluginId}\` command is unavailable because ` +
         `\`plugins.entries.${parentPluginId}.enabled=false\`. Re-enable that entry if you want ` +
         "the bundled plugin command surface."
       );
     }
     if (commandAlias.kind === "runtime-slash") {
       const cliHint = commandAlias.cliCommand
-        ? `Use \`zhushou ${commandAlias.cliCommand}\` for related CLI operations, or `
+        ? `Use \`assistant ${commandAlias.cliCommand}\` for related CLI operations, or `
         : "Use ";
       return (
         `"${normalizedPluginId}" is a runtime slash command (/${normalizedPluginId}), not a CLI command. ` +
@@ -125,14 +165,14 @@ export function resolveMissingPluginCommandMessage(
       return null;
     }
     return (
-      `The \`zhushou ${normalizedPluginId}\` command is unavailable because ` +
+      `The \`assistant ${normalizedPluginId}\` command is unavailable because ` +
       `\`plugins.allow\` excludes "${normalizedPluginId}". Add "${normalizedPluginId}" to ` +
       `\`plugins.allow\` if you want that bundled plugin CLI surface.`
     );
   }
   if (config?.plugins?.entries?.[normalizedPluginId]?.enabled === false) {
     return (
-      `The \`zhushou ${normalizedPluginId}\` command is unavailable because ` +
+      `The \`assistant ${normalizedPluginId}\` command is unavailable because ` +
       `\`plugins.entries.${normalizedPluginId}.enabled=false\`. Re-enable that entry if you want ` +
       "the bundled plugin CLI surface."
     );
@@ -161,7 +201,7 @@ export async function runCli(argv: string[] = process.argv) {
     applyCliProfileEnv({ profile: parsedProfile.profile });
   }
   const containerTargetName =
-    parsedContainer.container ?? normalizeOptionalString(process.env.OPENCLAW_CONTAINER) ?? null;
+    parsedContainer.container ?? normalizeOptionalString(process.env.ASSISTANT_CONTAINER) ?? null;
   if (containerTargetName && parsedProfile.profile) {
     throw new Error("--container cannot be combined with --profile/--dev");
   }
@@ -187,7 +227,7 @@ export async function runCli(argv: string[] = process.argv) {
   ensureGlobalUndiciEnvProxyDispatcher();
   maybeWarnAboutDebugProxyCoverage();
   if (shouldEnsureCliPath(normalizedArgv)) {
-    ensureOpenClawCliOnPath();
+    ensureAssistantCliOnPath();
   }
 
   // Enforce the minimum supported runtime before doing any work.
@@ -200,6 +240,12 @@ export async function runCli(argv: string[] = process.argv) {
         const { outputRootHelp } = await import("./program/root-help.js");
         await outputRootHelp();
       }
+      return;
+    }
+
+    if (shouldRunTuiByDefault(normalizedArgv)) {
+      const { runTui } = await import("../tui/tui.js");
+      await runTui({});
       return;
     }
 
@@ -223,7 +269,7 @@ export async function runCli(argv: string[] = process.argv) {
     installUnhandledRejectionHandler();
 
     process.on("uncaughtException", (error) => {
-      console.error("[zhushou] Uncaught exception:", formatUncaughtError(error));
+      console.error("[assistant] Uncaught exception:", formatUncaughtError(error));
       restoreTerminalState("uncaught exception", { resumeStdinIfPaused: false });
       process.exit(1);
     });

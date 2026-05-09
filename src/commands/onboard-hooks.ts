@@ -1,21 +1,21 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { buildWorkspaceHookStatus } from "../hooks/hooks-status.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 
 export async function setupInternalHooks(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
-): Promise<ZhushouConfig> {
+): Promise<AssistantConfig> {
   await prompter.note(
     [
       "Hooks let you automate actions when agent commands are issued.",
       "Example: Save session context to memory when you issue /new or /reset.",
       "",
-      "Learn more: https://docs.zhushou.ai/automation/hooks",
+      "Learn more: https://docs.assistant.ai/automation/hooks",
     ].join("\n"),
     "Hooks",
   );
@@ -58,7 +58,7 @@ export async function setupInternalHooks(
     entries[name] = { enabled: true };
   }
 
-  const next: ZhushouConfig = {
+  const next: AssistantConfig = {
     ...cfg,
     hooks: {
       ...cfg.hooks,
@@ -74,9 +74,9 @@ export async function setupInternalHooks(
       `Enabled ${selected.length} hook${selected.length > 1 ? "s" : ""}: ${selected.join(", ")}`,
       "",
       "You can manage hooks later with:",
-      `  ${formatCliCommand("zhushou hooks list")}`,
-      `  ${formatCliCommand("zhushou hooks enable <name>")}`,
-      `  ${formatCliCommand("zhushou hooks disable <name>")}`,
+      `  ${formatCliCommand("assistant hooks list")}`,
+      `  ${formatCliCommand("assistant hooks enable <name>")}`,
+      `  ${formatCliCommand("assistant hooks disable <name>")}`,
     ].join("\n"),
     "Hooks Configured",
   );

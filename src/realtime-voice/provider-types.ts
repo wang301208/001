@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 export type RealtimeVoiceProviderId = string;
 
@@ -38,12 +38,12 @@ export type RealtimeVoiceBridgeCallbacks = {
 export type RealtimeVoiceProviderConfig = Record<string, unknown>;
 
 export type RealtimeVoiceProviderResolveConfigContext = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   rawConfig: RealtimeVoiceProviderConfig;
 };
 
 export type RealtimeVoiceProviderConfiguredContext = {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   providerConfig: RealtimeVoiceProviderConfig;
 };
 

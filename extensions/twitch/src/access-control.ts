@@ -1,4 +1,4 @@
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import type { TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 
 /**

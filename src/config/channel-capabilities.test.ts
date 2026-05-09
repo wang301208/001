@@ -3,7 +3,7 @@ import type { ChannelPlugin } from "../channels/plugins/types.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { resolveChannelCapabilities } from "./channel-capabilities.js";
-import type { ZhushouConfig } from "./config.js";
+import type { AssistantConfig } from "./config.js";
 
 describe("resolveChannelCapabilities", () => {
   beforeEach(() => {
@@ -32,7 +32,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<ZhushouConfig>;
+    } satisfies Partial<AssistantConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -53,7 +53,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<ZhushouConfig>;
+    } satisfies Partial<AssistantConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -73,7 +73,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<ZhushouConfig>;
+    } satisfies Partial<AssistantConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -96,7 +96,7 @@ describe("resolveChannelCapabilities", () => {
     );
     const cfg = {
       channels: { msteams: { capabilities: [" polls ", ""] } },
-    } satisfies Partial<ZhushouConfig>;
+    } satisfies Partial<AssistantConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -115,7 +115,7 @@ describe("resolveChannelCapabilities", () => {
           capabilities: { inlineButtons: "dm" },
         },
       },
-    } as unknown as Partial<ZhushouConfig>;
+    } as unknown as Partial<AssistantConfig>;
 
     // Should return undefined (not crash), allowing channel-specific handlers to process it.
     expect(
@@ -133,7 +133,7 @@ describe("resolveChannelCapabilities", () => {
           capabilities: { interactiveReplies: true },
         },
       },
-    } as unknown as Partial<ZhushouConfig>;
+    } as unknown as Partial<AssistantConfig>;
 
     expect(
       resolveChannelCapabilities({

@@ -332,7 +332,7 @@ export async function createBackupArchive(
   }
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-backup-"));
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-backup-"));
   const manifestPath = path.join(tempDir, "manifest.json");
   const tempArchivePath = buildTempArchivePath(outputPath);
   try {

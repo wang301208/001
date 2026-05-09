@@ -18,7 +18,7 @@ import type {
   TaskNotifyPolicy,
   TaskRuntime,
 } from "../../tasks/task-registry.types.js";
-import type { OpenClawPluginToolContext } from "../tool-types.js";
+import type { AssistantPluginToolContext } from "../tool-types.js";
 import type { TaskFlowDetail, TaskRunDetail } from "./task-domain-types.js";
 
 export type AutonomySeedTaskTemplate = {
@@ -552,6 +552,6 @@ export type PluginRuntimeAutonomy = {
     workspaceDir?: string;
   }) => BoundAutonomyRuntime;
   fromToolContext: (
-    ctx: Pick<OpenClawPluginToolContext, "sessionKey" | "deliveryContext" | "workspaceDir">,
+    ctx: Pick<AssistantPluginToolContext, "sessionKey" | "deliveryContext" | "workspaceDir">,
   ) => BoundAutonomyRuntime;
 };

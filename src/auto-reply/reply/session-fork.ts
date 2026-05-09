@@ -1,5 +1,5 @@
 import type { SessionEntry } from "../../config/sessions/types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 
 /**
  * Default max parent token count beyond which thread/session parent forking is skipped.
@@ -8,7 +8,7 @@ import type { ZhushouConfig } from "../../config/types.zhushou.js";
  */
 const DEFAULT_PARENT_FORK_MAX_TOKENS = 100_000;
 
-export function resolveParentForkMaxTokens(cfg: ZhushouConfig): number {
+export function resolveParentForkMaxTokens(cfg: AssistantConfig): number {
   const configured = cfg.session?.parentForkMaxTokens;
   if (typeof configured === "number" && Number.isFinite(configured) && configured >= 0) {
     return Math.floor(configured);

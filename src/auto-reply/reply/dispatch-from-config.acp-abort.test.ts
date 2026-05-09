@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import type {
   AcpRuntime,
   AcpRuntimeEnsureInput,
@@ -54,7 +54,7 @@ function setNoAbort() {
 
 function createMockAcpSessionManager() {
   return {
-    resolveSession: (params: { cfg: ZhushouConfig; sessionKey: string }) => {
+    resolveSession: (params: { cfg: AssistantConfig; sessionKey: string }) => {
       const entry = acpMocks.readAcpSessionEntry({
         cfg: params.cfg,
         sessionKey: params.sessionKey,
@@ -82,7 +82,7 @@ function createMockAcpSessionManager() {
     }),
     runTurn: vi.fn(
       async (params: {
-        cfg: ZhushouConfig;
+        cfg: AssistantConfig;
         sessionKey: string;
         text?: string;
         attachments?: unknown[];
@@ -244,7 +244,7 @@ describe("dispatchReplyFromConfig ACP abort", () => {
           enabled: true,
           dispatch: { enabled: true },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       dispatcher,
       replyOptions: { abortSignal: abortController.signal },
     });

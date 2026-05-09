@@ -6,7 +6,7 @@ import type {
   ChannelThreadingToolContext,
 } from "../../../src/channels/plugins/types.core.js";
 import type { ChannelPlugin } from "../../../src/channels/plugins/types.js";
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 import { createNonExitingRuntime } from "../../../src/runtime.js";
 
 const contractRuntime = createNonExitingRuntime();
@@ -88,7 +88,7 @@ export function installChannelThreadingContractSuite(params: {
       expect(
         ["off", "first", "all"].includes(
           threading.resolveReplyToMode({
-            cfg: {} as ZhushouConfig,
+            cfg: {} as AssistantConfig,
             accountId: "default",
             chatType: "group",
           }),
@@ -98,7 +98,7 @@ export function installChannelThreadingContractSuite(params: {
 
     const repliedRef = { value: false };
     const toolContext = threading?.buildToolContext?.({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       accountId: "default",
       context: {
         Channel: "group:test",
@@ -122,7 +122,7 @@ export function installChannelThreadingContractSuite(params: {
     }
 
     const autoThreadId = threading?.resolveAutoThreadId?.({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       accountId: "default",
       to: "group:test",
       toolContext,
@@ -134,7 +134,7 @@ export function installChannelThreadingContractSuite(params: {
     }
 
     const replyTransport = threading?.resolveReplyTransport?.({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       accountId: "default",
       threadId: "thread-0",
       replyToId: "msg-0",
@@ -144,7 +144,7 @@ export function installChannelThreadingContractSuite(params: {
     }
 
     const focusedBinding = threading?.resolveFocusedBinding?.({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       accountId: "default",
       context: {
         Channel: "group:test",
@@ -167,7 +167,7 @@ export function installChannelThreadingContractSuite(params: {
 export function installChannelDirectoryContractSuite(params: {
   plugin: Pick<ChannelPlugin, "id" | "directory">;
   coverage?: "lookups" | "presence";
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   accountId?: string;
 }) {
   it("exposes the base directory contract", async () => {
@@ -178,7 +178,7 @@ export function installChannelDirectoryContractSuite(params: {
       return;
     }
     const self = await directory?.self?.({
-      cfg: params.cfg ?? ({} as ZhushouConfig),
+      cfg: params.cfg ?? ({} as AssistantConfig),
       accountId: params.accountId ?? "default",
       runtime: contractRuntime,
     });
@@ -188,7 +188,7 @@ export function installChannelDirectoryContractSuite(params: {
 
     const peers =
       (await directory?.listPeers?.({
-        cfg: params.cfg ?? ({} as ZhushouConfig),
+        cfg: params.cfg ?? ({} as AssistantConfig),
         accountId: params.accountId ?? "default",
         query: "",
         limit: 5,
@@ -201,7 +201,7 @@ export function installChannelDirectoryContractSuite(params: {
 
     const groups =
       (await directory?.listGroups?.({
-        cfg: params.cfg ?? ({} as ZhushouConfig),
+        cfg: params.cfg ?? ({} as AssistantConfig),
         accountId: params.accountId ?? "default",
         query: "",
         limit: 5,
@@ -214,7 +214,7 @@ export function installChannelDirectoryContractSuite(params: {
 
     if (directory?.listGroupMembers && groups[0]?.id) {
       const members = await directory.listGroupMembers({
-        cfg: params.cfg ?? ({} as ZhushouConfig),
+        cfg: params.cfg ?? ({} as AssistantConfig),
         accountId: params.accountId ?? "default",
         groupId: groups[0].id,
         limit: 5,

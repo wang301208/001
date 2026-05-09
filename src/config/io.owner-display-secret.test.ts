@@ -3,7 +3,7 @@ import {
   type OwnerDisplaySecretPersistState,
   persistGeneratedOwnerDisplaySecret,
 } from "./io.owner-display-secret.js";
-import type { ZhushouConfig } from "./types.zhushou.js";
+import type { AssistantConfig } from "./types.assistant.js";
 
 function createState(): OwnerDisplaySecretPersistState {
   return {
@@ -25,13 +25,13 @@ describe("persistGeneratedOwnerDisplaySecret", () => {
 
   it("persists generated owner display secrets once and clears state on success", async () => {
     const state = createState();
-    const configPath = "/tmp/zhushou.json";
+    const configPath = "/tmp/assistant.json";
     const config = {
       commands: {
         ownerDisplay: "hash",
         ownerDisplaySecret: "generated-owner-secret",
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const persistConfig = vi.fn(async () => undefined);
 
     const result = persistGeneratedOwnerDisplaySecret({
@@ -60,13 +60,13 @@ describe("persistGeneratedOwnerDisplaySecret", () => {
 
   it("warns once and keeps the generated secret pending when persistence fails", async () => {
     const state = createState();
-    const configPath = "/tmp/zhushou.json";
+    const configPath = "/tmp/assistant.json";
     const config = {
       commands: {
         ownerDisplay: "hash",
         ownerDisplaySecret: "generated-owner-secret",
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const warn = vi.fn();
     const persistConfig = vi.fn(async () => {
       throw new Error("disk full");
@@ -107,7 +107,7 @@ describe("persistGeneratedOwnerDisplaySecret", () => {
 
   it("clears pending state when no generated secret is present", () => {
     const state = createState();
-    const configPath = "/tmp/zhushou.json";
+    const configPath = "/tmp/assistant.json";
     state.pendingByPath.set(configPath, "stale-secret");
     state.persistWarned.add(configPath);
     const config = {
@@ -115,7 +115,7 @@ describe("persistGeneratedOwnerDisplaySecret", () => {
         ownerDisplay: "hash",
         ownerDisplaySecret: "existing-secret",
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const result = persistGeneratedOwnerDisplaySecret({
       config,

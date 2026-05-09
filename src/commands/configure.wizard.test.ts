@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 
 const mocks = vi.hoisted(() => {
   const writeConfigFile = vi.fn();
@@ -24,13 +24,13 @@ const mocks = vi.hoisted(() => {
     waitForGatewayReachable: vi.fn(),
     resolveGatewayLinks: vi.fn(),
     summarizeExistingConfig: vi.fn(),
-    createSnapshot: vi.fn((config: ZhushouConfig, label: string) => ({
+    createSnapshot: vi.fn((config: AssistantConfig, label: string) => ({
       timestamp: 1,
       config: structuredClone(config),
       label,
     })),
     saveConfigSnapshot: vi.fn(async () => "/tmp/config-snapshot.json"),
-    isCodexNativeWebSearchRelevant: vi.fn(({ config }: { config: ZhushouConfig }) =>
+    isCodexNativeWebSearchRelevant: vi.fn(({ config }: { config: AssistantConfig }) =>
       Boolean(config.auth?.profiles?.["openai-codex:default"]),
     ),
   };
@@ -45,7 +45,7 @@ vi.mock("@clack/prompts", () => ({
 }));
 
 vi.mock("../config/config.js", () => ({
-  CONFIG_PATH: "~/.zhushou/zhushou.json",
+  CONFIG_PATH: "~/.assistant/assistant.json",
   readConfigFileSnapshot: mocks.readConfigFileSnapshot,
   writeConfigFile: mocks.writeConfigFile,
   replaceConfigFile: mocks.replaceConfigFile,
@@ -66,8 +66,8 @@ vi.mock("../terminal/note.js", () => ({
 }));
 
 vi.mock("./onboard-helpers.js", () => ({
-  DEFAULT_WORKSPACE: "~/.zhushou/workspace",
-  applyWizardMetadata: (cfg: ZhushouConfig) => cfg,
+  DEFAULT_WORKSPACE: "~/.assistant/workspace",
+  applyWizardMetadata: (cfg: AssistantConfig) => cfg,
   ensureWorkspaceAndSessions: vi.fn(),
   guardCancel: <T>(value: T) => value,
   printWizardHeader: mocks.printWizardHeader,
@@ -156,7 +156,7 @@ function createSearchProviderOption(overrides: Record<string, unknown>) {
 }
 
 function createEnabledWebSearchConfig(provider: string, pluginEntry: Record<string, unknown>) {
-  return (cfg: ZhushouConfig) => ({
+  return (cfg: AssistantConfig) => ({
     ...cfg,
     tools: {
       ...cfg.tools,
@@ -178,7 +178,7 @@ function createEnabledWebSearchConfig(provider: string, pluginEntry: Record<stri
   });
 }
 
-function setupBaseWizardState(config: ZhushouConfig = {}) {
+function setupBaseWizardState(config: AssistantConfig = {}) {
   mocks.readConfigFileSnapshot.mockResolvedValue({
     ...EMPTY_CONFIG_SNAPSHOT,
     config,
@@ -234,7 +234,7 @@ describe("runConfigureWizard", () => {
       },
     ]);
     mocks.setupSearch.mockReset();
-    mocks.setupSearch.mockImplementation(async (cfg: ZhushouConfig) => cfg);
+    mocks.setupSearch.mockImplementation(async (cfg: AssistantConfig) => cfg);
   });
 
   it("persists gateway.mode=local when only the run mode is selected", async () => {
@@ -292,7 +292,7 @@ describe("runConfigureWizard", () => {
   it("saves a rollback snapshot before writing over an existing config", async () => {
     mocks.createSnapshot.mockClear();
     mocks.saveConfigSnapshot.mockClear();
-    const existingConfig: ZhushouConfig = {
+    const existingConfig: AssistantConfig = {
       gateway: { mode: "local", bind: "loopback", auth: { mode: "token" } },
     };
     mocks.readConfigFileSnapshot.mockResolvedValue({
@@ -338,7 +338,7 @@ describe("runConfigureWizard", () => {
 
   it("persists provider-owned web search config changes returned by setupSearch", async () => {
     setupBaseWizardState();
-    mocks.setupSearch.mockImplementation(async (cfg: ZhushouConfig) =>
+    mocks.setupSearch.mockImplementation(async (cfg: AssistantConfig) =>
       createEnabledWebSearchConfig("firecrawl", {
         enabled: true,
         config: { webSearch: { apiKey: "fc-entered-key" } },
@@ -423,11 +423,11 @@ describe("runConfigureWizard", () => {
         envVars: [],
         placeholder: "(no key needed)",
         signupUrl: "https://duckduckgo.com/",
-        docsUrl: "https://docs.zhushou.ai/tools/web",
+        docsUrl: "https://docs.assistant.ai/tools/web",
         credentialPath: "",
       }),
     ]);
-    mocks.setupSearch.mockImplementation(async (cfg: ZhushouConfig) =>
+    mocks.setupSearch.mockImplementation(async (cfg: AssistantConfig) =>
       createEnabledWebSearchConfig("duckduckgo", {
         enabled: true,
       })(cfg),
@@ -527,7 +527,7 @@ describe("runConfigureWizard", () => {
   });
 
   it("retries without dropping nested plugin config written during wizard flow (issue #64188)", async () => {
-    const baseConfig: ZhushouConfig = {
+    const baseConfig: AssistantConfig = {
       plugins: {
         entries: {
           "github-copilot": {
@@ -628,7 +628,7 @@ describe("runConfigureWizard", () => {
     expect(retryCall.nextConfig).toMatchObject({
       agents: {
         defaults: {
-          workspace: expect.stringMatching(/[\\/]\.zhushou[\\/]workspace$/),
+          workspace: expect.stringMatching(/[\\/]\.assistant[\\/]workspace$/),
         },
       },
       plugins: {

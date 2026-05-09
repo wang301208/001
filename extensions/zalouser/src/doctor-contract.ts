@@ -1,10 +1,10 @@
 import type {
   ChannelDoctorConfigMutation,
   ChannelDoctorLegacyConfigRule,
-} from "zhushou/plugin-sdk/channel-contract";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/channel-contract";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 
-type ZalouserChannelsConfig = NonNullable<ZhushouConfig["channels"]>;
+type ZalouserChannelsConfig = NonNullable<AssistantConfig["channels"]>;
 
 function asObjectRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -61,7 +61,7 @@ function normalizeZalouserGroupAllowAliases(params: {
   return { groups: nextGroups, changed };
 }
 
-function normalizeZalouserCompatibilityConfig(cfg: ZhushouConfig): ChannelDoctorConfigMutation {
+function normalizeZalouserCompatibilityConfig(cfg: AssistantConfig): ChannelDoctorConfigMutation {
   const channels = asObjectRecord(cfg.channels);
   const zalouser = asObjectRecord(channels?.zalouser);
   if (!zalouser) {
@@ -138,19 +138,19 @@ export const legacyConfigRules: ChannelDoctorLegacyConfigRule[] = [
   {
     path: ["channels", "zalouser", "groups"],
     message:
-      'channels.zalouser.groups.<id>.allow is legacy; use channels.zalouser.groups.<id>.enabled instead. Run "zhushou doctor --fix".',
+      'channels.zalouser.groups.<id>.allow is legacy; use channels.zalouser.groups.<id>.enabled instead. Run "assistant doctor --fix".',
     match: hasLegacyZalouserGroupAllowAliases,
   },
   {
     path: ["channels", "zalouser", "accounts"],
     message:
-      'channels.zalouser.accounts.<id>.groups.<id>.allow is legacy; use channels.zalouser.accounts.<id>.groups.<id>.enabled instead. Run "zhushou doctor --fix".',
+      'channels.zalouser.accounts.<id>.groups.<id>.allow is legacy; use channels.zalouser.accounts.<id>.groups.<id>.enabled instead. Run "assistant doctor --fix".',
     match: hasLegacyZalouserAccountGroupAllowAliases,
   },
 ];
 
 export function normalizeCompatibilityConfig(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
 }): ChannelDoctorConfigMutation {
   return normalizeZalouserCompatibilityConfig(params.cfg);
 }

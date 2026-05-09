@@ -2,9 +2,9 @@ import {
   createAccountListHelpers,
   normalizeAccountId,
   resolveMergedAccountConfig,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/account-resolution";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/account-resolution";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import type { SignalAccountConfig } from "./account-types.js";
 
 export type ResolvedSignalAccount = {
@@ -20,7 +20,7 @@ const { listAccountIds, resolveDefaultAccountId } = createAccountListHelpers("si
 export const listSignalAccountIds = listAccountIds;
 export const resolveDefaultSignalAccountId = resolveDefaultAccountId;
 
-function mergeSignalAccountConfig(cfg: ZhushouConfig, accountId: string): SignalAccountConfig {
+function mergeSignalAccountConfig(cfg: AssistantConfig, accountId: string): SignalAccountConfig {
   return resolveMergedAccountConfig<SignalAccountConfig>({
     channelConfig: cfg.channels?.signal as SignalAccountConfig | undefined,
     accounts: cfg.channels?.signal?.accounts as
@@ -31,7 +31,7 @@ function mergeSignalAccountConfig(cfg: ZhushouConfig, accountId: string): Signal
 }
 
 export function resolveSignalAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): ResolvedSignalAccount {
   const accountId = normalizeAccountId(
@@ -62,7 +62,7 @@ export function resolveSignalAccount(params: {
   };
 }
 
-export function listEnabledSignalAccounts(cfg: ZhushouConfig): ResolvedSignalAccount[] {
+export function listEnabledSignalAccounts(cfg: AssistantConfig): ResolvedSignalAccount[] {
   return listSignalAccountIds(cfg)
     .map((accountId) => resolveSignalAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

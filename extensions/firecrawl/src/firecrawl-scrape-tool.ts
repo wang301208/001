@@ -1,10 +1,10 @@
 import { Type } from "@sinclair/typebox";
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-runtime";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/plugin-runtime";
 import {
   jsonResult,
   readNumberParam,
   readStringParam,
-} from "zhushou/plugin-sdk/provider-web-search";
+} from "assistant/plugin-sdk/provider-web-search";
 import { runFirecrawlScrape } from "./firecrawl-client.js";
 
 function optionalStringEnum<const T extends readonly string[]>(
@@ -61,7 +61,7 @@ const FirecrawlScrapeToolSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export function createFirecrawlScrapeTool(api: ZhushouPluginApi) {
+export function createFirecrawlScrapeTool(api: AssistantPluginApi) {
   return {
     name: "firecrawl_scrape",
     label: "Firecrawl Scrape",

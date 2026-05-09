@@ -1,8 +1,8 @@
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/channel-plugin-common";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/channel-plugin-common";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalStringifiedId,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { resolveDiscordAccount } from "./accounts.js";
 import {
   autoBindSpawnedDiscordSubagent,
@@ -76,7 +76,7 @@ function normalizeThreadBindingTargetKind(raw?: string): ThreadBindingTargetKind
   return undefined;
 }
 
-function resolveThreadBindingFlags(api: ZhushouPluginApi, accountId?: string) {
+function resolveThreadBindingFlags(api: AssistantPluginApi, accountId?: string) {
   const account = resolveDiscordAccount({
     cfg: api.config,
     accountId,
@@ -98,7 +98,7 @@ function resolveThreadBindingFlags(api: ZhushouPluginApi, accountId?: string) {
 }
 
 export async function handleDiscordSubagentSpawning(
-  api: ZhushouPluginApi,
+  api: AssistantPluginApi,
   event: DiscordSubagentSpawningEvent,
 ): Promise<DiscordSubagentSpawningResult> {
   if (!event.threadRequested) {
@@ -213,7 +213,7 @@ export function handleDiscordSubagentDeliveryTarget(
   };
 }
 
-export function registerDiscordSubagentHooks(api: ZhushouPluginApi) {
+export function registerDiscordSubagentHooks(api: AssistantPluginApi) {
   api.on("subagent_spawning", (event) => handleDiscordSubagentSpawning(api, event));
   api.on("subagent_ended", (event) => handleDiscordSubagentEnded(event));
   api.on("subagent_delivery_target", (event) => handleDiscordSubagentDeliveryTarget(event));

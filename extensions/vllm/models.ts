@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { discoverOpenAICompatibleLocalModels } from "zhushou/plugin-sdk/provider-setup";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { discoverOpenAICompatibleLocalModels } from "assistant/plugin-sdk/provider-setup";
 import { VLLM_DEFAULT_BASE_URL, VLLM_PROVIDER_LABEL } from "./defaults.js";
 
-type ModelsConfig = NonNullable<ZhushouConfig["models"]>;
+type ModelsConfig = NonNullable<AssistantConfig["models"]>;
 type ProviderConfig = NonNullable<ModelsConfig["providers"]>[string];
 
 export async function buildVllmProvider(params?: {

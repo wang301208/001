@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type {
   RuntimeWebFetchMetadata,
@@ -23,13 +23,13 @@ export type WebFetchProviderToolDefinition = {
 };
 
 export type WebSearchProviderContext = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   searchConfig?: Record<string, unknown>;
   runtimeMetadata?: RuntimeWebSearchMetadata;
 };
 
 export type WebFetchProviderContext = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   fetchConfig?: Record<string, unknown>;
   runtimeMetadata?: RuntimeWebFetchMetadata;
 };
@@ -37,7 +37,7 @@ export type WebFetchProviderContext = {
 export type WebSearchCredentialResolutionSource = "config" | "secretRef" | "env" | "missing";
 
 export type WebSearchRuntimeMetadataContext = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   searchConfig?: Record<string, unknown>;
   runtimeMetadata?: RuntimeWebSearchMetadata;
   resolvedCredential?: {
@@ -48,7 +48,7 @@ export type WebSearchRuntimeMetadataContext = {
 };
 
 export type WebSearchProviderSetupContext = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   runtime: RuntimeEnv;
   prompter: WizardPrompter;
   quickstartDefaults?: boolean;
@@ -58,7 +58,7 @@ export type WebSearchProviderSetupContext = {
 export type WebFetchCredentialResolutionSource = "config" | "secretRef" | "env" | "missing";
 
 export type WebFetchRuntimeMetadataContext = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   fetchConfig?: Record<string, unknown>;
   runtimeMetadata?: RuntimeWebFetchMetadata;
   resolvedCredential?: {
@@ -84,10 +84,10 @@ export type WebSearchProviderPlugin = {
   inactiveSecretPaths?: string[];
   getCredentialValue: (searchConfig?: Record<string, unknown>) => unknown;
   setCredentialValue: (searchConfigTarget: Record<string, unknown>, value: unknown) => void;
-  getConfiguredCredentialValue?: (config?: ZhushouConfig) => unknown;
-  setConfiguredCredentialValue?: (configTarget: ZhushouConfig, value: unknown) => void;
-  applySelectionConfig?: (config: ZhushouConfig) => ZhushouConfig;
-  runSetup?: (ctx: WebSearchProviderSetupContext) => ZhushouConfig | Promise<ZhushouConfig>;
+  getConfiguredCredentialValue?: (config?: AssistantConfig) => unknown;
+  setConfiguredCredentialValue?: (configTarget: AssistantConfig, value: unknown) => void;
+  applySelectionConfig?: (config: AssistantConfig) => AssistantConfig;
+  runSetup?: (ctx: WebSearchProviderSetupContext) => AssistantConfig | Promise<AssistantConfig>;
   resolveRuntimeMetadata?: (
     ctx: WebSearchRuntimeMetadataContext,
   ) => Partial<RuntimeWebSearchMetadata> | Promise<Partial<RuntimeWebSearchMetadata>>;
@@ -113,9 +113,9 @@ export type WebFetchProviderPlugin = {
   inactiveSecretPaths?: string[];
   getCredentialValue: (fetchConfig?: Record<string, unknown>) => unknown;
   setCredentialValue: (fetchConfigTarget: Record<string, unknown>, value: unknown) => void;
-  getConfiguredCredentialValue?: (config?: ZhushouConfig) => unknown;
-  setConfiguredCredentialValue?: (configTarget: ZhushouConfig, value: unknown) => void;
-  applySelectionConfig?: (config: ZhushouConfig) => ZhushouConfig;
+  getConfiguredCredentialValue?: (config?: AssistantConfig) => unknown;
+  setConfiguredCredentialValue?: (configTarget: AssistantConfig, value: unknown) => void;
+  applySelectionConfig?: (config: AssistantConfig) => AssistantConfig;
   resolveRuntimeMetadata?: (
     ctx: WebFetchRuntimeMetadataContext,
   ) => Partial<RuntimeWebFetchMetadata> | Promise<Partial<RuntimeWebFetchMetadata>>;

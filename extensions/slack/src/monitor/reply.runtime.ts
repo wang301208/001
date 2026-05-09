@@ -8,4 +8,4 @@ export {
   isSilentReplyText,
   resolveTextChunkLimit,
   SILENT_REPLY_TOKEN,
-} from "zhushou/plugin-sdk/reply-runtime";
+} from "assistant/plugin-sdk/reply-runtime";

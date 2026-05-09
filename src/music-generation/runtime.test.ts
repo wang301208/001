@@ -3,7 +3,7 @@ import {
   getMediaGenerationRuntimeMocks,
   resetMusicGenerationRuntimeMocks,
 } from "../../test/helpers/media-generation/runtime-module-mocks.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { generateMusic, listRuntimeMusicGenerationProviders } from "./runtime.js";
 import type { MusicGenerationProvider } from "./types.js";
 
@@ -53,7 +53,7 @@ describe("music-generation runtime", () => {
             musicGenerationModel: { primary: "music-plugin/track-v1" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       prompt: "play a synth line",
       agentDir: "/tmp/agent",
       authStore,
@@ -120,7 +120,7 @@ describe("music-generation runtime", () => {
     ]);
 
     const result = await generateMusic({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       prompt: "play a synth line",
     });
 
@@ -153,10 +153,10 @@ describe("music-generation runtime", () => {
     ];
     mocks.listMusicGenerationProviders.mockReturnValue(providers);
 
-    expect(listRuntimeMusicGenerationProviders({ config: {} as ZhushouConfig })).toEqual(
+    expect(listRuntimeMusicGenerationProviders({ config: {} as AssistantConfig })).toEqual(
       providers,
     );
-    expect(mocks.listMusicGenerationProviders).toHaveBeenCalledWith({} as ZhushouConfig);
+    expect(mocks.listMusicGenerationProviders).toHaveBeenCalledWith({} as AssistantConfig);
   });
 
   it("ignores unsupported optional overrides per provider and model", async () => {
@@ -202,7 +202,7 @@ describe("music-generation runtime", () => {
             musicGenerationModel: { primary: "google/lyria-3-clip-preview" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       prompt: "energetic arcade anthem",
       lyrics: "Hero crab in the neon tide",
       instrumental: true,
@@ -271,7 +271,7 @@ describe("music-generation runtime", () => {
             musicGenerationModel: { primary: "google/lyria-3-pro-preview" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       prompt: "turn this cover image into a trailer cue",
       lyrics: "rise up",
       instrumental: true,
@@ -325,7 +325,7 @@ describe("music-generation runtime", () => {
             musicGenerationModel: { primary: "minimax/music-2.5+" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       prompt: "energetic arcade anthem",
       durationSeconds: 45,
     });

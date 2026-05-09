@@ -183,7 +183,7 @@ describe("resolveAllowAlwaysPatterns", () => {
   }
 
   it("returns direct executable paths for non-shell segments", () => {
-    const exe = path.join("/tmp", "zhushou-tool");
+    const exe = path.join("/tmp", "assistant-tool");
     const patterns = resolveAllowAlwaysPatterns({
       segments: [
         {
@@ -193,7 +193,7 @@ describe("resolveAllowAlwaysPatterns", () => {
             execution: makeMockExecutableResolution({
               rawExecutable: exe,
               resolvedPath: exe,
-              executableName: "zhushou-tool",
+              executableName: "assistant-tool",
             }),
           }),
         },

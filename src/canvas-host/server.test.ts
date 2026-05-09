@@ -74,7 +74,7 @@ async function createBlockedA2uiEscapeFixture(a2uiRoot: string) {
     }
   }
 
-  const outsideRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-a2ui-escape-"));
+  const outsideRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-a2ui-escape-"));
   const outsideFileName = "escape.txt";
   const outsideFilePath = path.join(outsideRoot, outsideFileName);
   const directoryAliasPath = path.join(a2uiRoot, token);
@@ -139,7 +139,7 @@ describe("canvas host", () => {
     ({ fetch: realFetch } = require("undici") as typeof import("undici"));
     const wsModule = await vi.importActual<typeof import("ws")>("ws");
     WebSocketServerClass = wsModule.WebSocketServer;
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-canvas-fixtures-"));
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-canvas-fixtures-"));
   });
 
   beforeEach(() => {
@@ -155,8 +155,8 @@ describe("canvas host", () => {
     const out = injectCanvasLiveReload("<html><body>Hello</body></html>");
     expect(out).toContain(CANVAS_WS_PATH);
     expect(out).toContain("location.reload");
-    expect(out).toContain("openclawCanvasA2UIAction");
-    expect(out).toContain("openclawSendUserAction");
+    expect(out).toContain("assistantCanvasA2UIAction");
+    expect(out).toContain("assistantSendUserAction");
   });
 
   it("creates a default index.html when missing", async () => {
@@ -175,7 +175,7 @@ describe("canvas host", () => {
       const { res, html } = await fetchCanvasHtml(server.port);
       expect(res.status).toBe(200);
       expect(html).toContain("Interactive test page");
-      expect(html).toContain("openclawSendUserAction");
+      expect(html).toContain("assistantSendUserAction");
       expect(html).toContain(CANVAS_WS_PATH);
       expect(html).toContain('document.createElement("span")');
       expect(html).not.toContain("statusEl.innerHTML");
@@ -413,7 +413,7 @@ describe("canvas host", () => {
     try {
       await fs.stat(bundlePath);
     } catch {
-      await fs.writeFile(bundlePath, "window.zhushouA2UI = {};", "utf8");
+      await fs.writeFile(bundlePath, "window.assistantA2UI = {};", "utf8");
       createdBundle = true;
     }
 
@@ -431,18 +431,18 @@ describe("canvas host", () => {
         throw error;
       }
 
-      const res = await realFetch(`http://127.0.0.1:${server.port}/__openclaw__/a2ui/`);
+      const res = await realFetch(`http://127.0.0.1:${server.port}/__assistant__/a2ui/`);
       const html = await res.text();
       expect(res.status).toBe(200);
-      expect(html).toContain("zhushou-a2ui-host");
-      expect(html).toContain("openclawCanvasA2UIAction");
+      expect(html).toContain("assistant-a2ui-host");
+      expect(html).toContain("assistantCanvasA2UIAction");
 
       const bundleRes = await realFetch(
-        `http://127.0.0.1:${server.port}/__openclaw__/a2ui/a2ui.bundle.js`,
+        `http://127.0.0.1:${server.port}/__assistant__/a2ui/a2ui.bundle.js`,
       );
       const js = await bundleRes.text();
       expect(bundleRes.status).toBe(200);
-      expect(js).toContain("openclawA2UI");
+      expect(js).toContain("assistantA2UI");
       const traversalRes = await realFetch(
         `http://127.0.0.1:${server.port}${A2UI_PATH}/%2e%2e%2fpackage.json`,
       );

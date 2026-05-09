@@ -2,11 +2,11 @@ import {
   createStandardChannelSetupStatus,
   formatDocsLink,
   type ChannelSetupWizard,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import {
   applySetupAccountConfigPatch,
   DEFAULT_ACCOUNT_ID,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "./runtime-api.js";
 import { isMattermostConfigured, resolveMattermostAccountWithSecrets } from "./setup-core.js";
 import { normalizeMattermostBaseUrl } from "./setup.client.runtime.js";
@@ -110,7 +110,7 @@ export const mattermostSetupWizard: ChannelSetupWizard = {
       normalizeValue: ({ value }) => normalizeMattermostBaseUrl(value) ?? value.trim(),
     },
   ],
-  disable: (cfg: ZhushouConfig) => ({
+  disable: (cfg: AssistantConfig) => ({
     ...cfg,
     channels: {
       ...cfg.channels,

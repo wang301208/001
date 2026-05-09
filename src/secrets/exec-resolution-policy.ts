@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { SecretRef } from "../config/types.secrets.js";
 import { formatExecSecretRefIdValidationMessage, isValidExecSecretRefId } from "./ref-contract.js";
 
@@ -20,7 +20,7 @@ export function selectRefsForExecPolicy(params: { refs: SecretRef[]; allowExec: 
 
 export function getSkippedExecRefStaticError(params: {
   ref: SecretRef;
-  config: ZhushouConfig;
+  config: AssistantConfig;
 }): string | null {
   const id = params.ref.id.trim();
   const refLabel = `${params.ref.source}:${params.ref.provider}:${id}`;

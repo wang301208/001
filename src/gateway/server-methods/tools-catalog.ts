@@ -11,7 +11,7 @@ import {
 } from "../../agents/tool-catalog.js";
 import { summarizeToolDescriptionText } from "../../agents/tool-description-summary.js";
 import { loadConfig } from "../../config/config.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { resolveAgentGovernanceRuntimeContract } from "../../governance/runtime-contract.js";
 import { resolveAgentToolGovernanceSummary } from "../../governance/tool-governance-summary.js";
@@ -83,7 +83,7 @@ function buildCoreGroups(): ToolCatalogGroup[] {
 }
 
 function buildPluginGroups(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   existingToolNames: Set<string>;
 }): ToolCatalogGroup[] {
@@ -138,7 +138,7 @@ function buildPluginGroups(params: {
 }
 
 export function buildToolsCatalogResult(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId?: string;
   includePlugins?: boolean;
 }): ToolsCatalogResult {

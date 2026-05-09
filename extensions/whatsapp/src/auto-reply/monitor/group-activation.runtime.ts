@@ -1,1 +1,1 @@
-export { normalizeGroupActivation } from "zhushou/plugin-sdk/reply-runtime";
+export { normalizeGroupActivation } from "assistant/plugin-sdk/reply-runtime";

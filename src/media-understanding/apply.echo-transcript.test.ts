@@ -2,8 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MsgContext } from "../auto-reply/templating.js";
-import type { ZhushouConfig } from "../config/types.js";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-zhushou-dir.js";
+import type { AssistantConfig } from "../config/types.js";
+import { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
 import { createSafeAudioFixtureBuffer } from "./runner.test-utils.js";
 import type { MediaUnderstandingProvider } from "./types.js";
 
@@ -52,7 +52,7 @@ const { MediaFetchErrorMock } = vi.hoisted(() => {
 
 let applyMediaUnderstanding: typeof import("./apply.js").applyMediaUnderstanding;
 
-const TEMP_MEDIA_PREFIX = "zhushou-echo-transcript-test-";
+const TEMP_MEDIA_PREFIX = "assistant-echo-transcript-test-";
 let suiteTempMediaRootDir = "";
 
 async function createTempAudioFile(): Promise<string> {
@@ -79,10 +79,10 @@ function createAudioConfigWithEcho(opts?: {
   echoFormat?: string;
   transcribedText?: string;
 }): {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   providers: Record<string, { id: string; transcribeAudio: () => Promise<{ text: string }> }>;
 } {
-  const cfg: ZhushouConfig = {
+  const cfg: AssistantConfig = {
     tools: {
       media: {
         audio: {
@@ -205,7 +205,7 @@ describe("applyMediaUnderstanding – echo transcript", () => {
       };
     });
 
-    const baseDir = resolvePreferredOpenClawTmpDir();
+    const baseDir = resolvePreferredAssistantTmpDir();
     await fs.mkdir(baseDir, { recursive: true });
     suiteTempMediaRootDir = await fs.mkdtemp(path.join(baseDir, TEMP_MEDIA_PREFIX));
     const mod = await import("./apply.js");

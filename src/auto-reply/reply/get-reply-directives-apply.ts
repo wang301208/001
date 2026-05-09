@@ -1,5 +1,5 @@
 import type { SessionEntry, SessionScope } from "../../config/sessions/types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import type { MsgContext } from "../templating.js";
 import type { ElevatedLevel } from "../thinking.js";
@@ -12,8 +12,8 @@ import { clearInlineDirectives } from "./get-reply-directives-utils.js";
 import type { createModelSelectionState } from "./model-selection.js";
 import type { TypingController } from "./typing.js";
 
-type AgentDefaults = NonNullable<ZhushouConfig["agents"]>["defaults"];
-type AgentEntry = NonNullable<NonNullable<ZhushouConfig["agents"]>["list"]>[number];
+type AgentDefaults = NonNullable<AssistantConfig["agents"]>["defaults"];
+type AgentEntry = NonNullable<NonNullable<AssistantConfig["agents"]>["list"]>[number];
 
 let commandsStatusPromise: Promise<typeof import("./commands-status.runtime.js")> | null = null;
 let directiveLevelsPromise: Promise<typeof import("./directive-handling.levels.js")> | null = null;
@@ -68,7 +68,7 @@ export type ApplyDirectiveResult =
 
 export async function applyInlineDirectiveOverrides(params: {
   ctx: MsgContext;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   agentDir: string;
   agentCfg: AgentDefaults;

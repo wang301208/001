@@ -7,10 +7,10 @@ import {
   setPwToolsCoreCurrentPage,
 } from "./pw-tools-core.test-harness.js";
 
-vi.mock("zhushou/plugin-sdk/browser-security-runtime", async () => {
+vi.mock("assistant/plugin-sdk/browser-security-runtime", async () => {
   const actual = await vi.importActual<
-    typeof import("zhushou/plugin-sdk/browser-security-runtime")
-  >("zhushou/plugin-sdk/browser-security-runtime");
+    typeof import("assistant/plugin-sdk/browser-security-runtime")
+  >("assistant/plugin-sdk/browser-security-runtime");
   const lookupFn = async (_hostname: string, options?: { all?: boolean }) => {
     const result = { address: "93.184.216.34", family: 4 };
     return options?.all === true ? [result] : result;

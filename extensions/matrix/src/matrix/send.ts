@@ -1,4 +1,4 @@
-import type { MarkdownTableMode } from "zhushou/plugin-sdk/markdown-table-runtime";
+import type { MarkdownTableMode } from "assistant/plugin-sdk/markdown-table-runtime";
 import type { PollInput } from "../runtime-api.js";
 import { getMatrixRuntime } from "../runtime.js";
 import type { CoreConfig } from "../types.js";

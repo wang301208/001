@@ -15,7 +15,7 @@ function validationOk(raw: unknown) {
 const mockReadSourceConfigSnapshot = vi.hoisted(() => async () => {
   const fs = await import("node:fs/promises");
   const path = await import("node:path");
-  const configPath = path.join(process.env.ZHUSHOU_STATE_DIR ?? "", "zhushou.json");
+  const configPath = path.join(process.env.ASSISTANT_STATE_DIR ?? "", "assistant.json");
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     const parsed = JSON.parse(raw);
@@ -37,7 +37,7 @@ const mockReadSourceConfigSnapshot = vi.hoisted(() => async () => {
 const mockReplaceConfigFile = vi.hoisted(() => async ({ nextConfig }: { nextConfig: unknown }) => {
   const fs = await import("node:fs/promises");
   const path = await import("node:path");
-  const configPath = path.join(process.env.ZHUSHOU_STATE_DIR ?? "", "zhushou.json");
+  const configPath = path.join(process.env.ASSISTANT_STATE_DIR ?? "", "assistant.json");
   await fs.writeFile(configPath, JSON.stringify(nextConfig, null, 2), "utf-8");
 });
 
@@ -60,18 +60,18 @@ async function withMcpConfigHome<T>(
 ) {
   return await withTempHome(
     async (home) => {
-      const configPath = path.join(home, ".zhushou", "zhushou.json");
+      const configPath = path.join(home, ".assistant", "assistant.json");
       await fs.mkdir(path.dirname(configPath), { recursive: true });
       await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf-8");
       return await fn({ configPath });
     },
     {
-      prefix: "zhushou-mcp-config-",
+      prefix: "assistant-mcp-config-",
       skipSessionCleanup: true,
       env: {
-        ZHUSHOU_CONFIG_PATH: undefined,
-        OPENCLAW_BUNDLED_PLUGINS_DIR: undefined,
-        OPENCLAW_DISABLE_BUNDLED_PLUGINS: undefined,
+        ASSISTANT_CONFIG_PATH: undefined,
+        ASSISTANT_BUNDLED_PLUGINS_DIR: undefined,
+        ASSISTANT_DISABLE_BUNDLED_PLUGINS: undefined,
       },
     },
   );

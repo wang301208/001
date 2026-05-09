@@ -1,4 +1,4 @@
-import type { resolveProviderHttpRequestConfig } from "zhushou/plugin-sdk/provider-http";
+import type { resolveProviderHttpRequestConfig } from "assistant/plugin-sdk/provider-http";
 import { afterEach, vi } from "vitest";
 
 type ResolveProviderHttpRequestConfigParams = Parameters<
@@ -18,11 +18,11 @@ const providerHttpMocks = vi.hoisted(() => ({
   })),
 }));
 
-vi.mock("zhushou/plugin-sdk/provider-auth-runtime", () => ({
+vi.mock("assistant/plugin-sdk/provider-auth-runtime", () => ({
   resolveApiKeyForProvider: providerHttpMocks.resolveApiKeyForProviderMock,
 }));
 
-vi.mock("zhushou/plugin-sdk/provider-http", () => ({
+vi.mock("assistant/plugin-sdk/provider-http", () => ({
   assertOkOrThrowHttpError: providerHttpMocks.assertOkOrThrowHttpErrorMock,
   createProviderOperationDeadline: ({
     label,

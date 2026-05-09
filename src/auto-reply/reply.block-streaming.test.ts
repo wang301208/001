@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { withFastReplyConfig } from "./reply/get-reply-fast-path.js";
 import { loadGetReplyModuleForTest } from "./reply/get-reply.test-loader.js";
 import { createMockTypingController } from "./reply/reply.test-helpers.js";
@@ -103,7 +103,7 @@ function createTelegramMessage(messageSid: string): MsgContext {
   };
 }
 
-function createReplyConfig(streamMode?: "block"): ZhushouConfig {
+function createReplyConfig(streamMode?: "block"): AssistantConfig {
   return withFastReplyConfig({
     agents: {
       defaults: {
@@ -118,7 +118,7 @@ function createReplyConfig(streamMode?: "block"): ZhushouConfig {
       },
     },
     session: { store: "/tmp/sessions.json" },
-  } as ZhushouConfig);
+  } as AssistantConfig);
 }
 
 function createContinueDirectivesResult() {
@@ -174,7 +174,7 @@ function createContinueDirectivesResult() {
 describe("block streaming", () => {
   beforeEach(async () => {
     await loadFreshGetReplyModuleForTest();
-    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
+    vi.stubEnv("ASSISTANT_TEST_FAST", "1");
     mocks.resolveReplyDirectives.mockReset();
     mocks.handleInlineActions.mockReset();
     mocks.initSessionState.mockReset();

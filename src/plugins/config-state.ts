@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -57,7 +57,7 @@ type PluginActivationDecision = {
 
 export type PluginActivationConfigSource = {
   plugins: NormalizedPluginsConfig;
-  rootConfig?: ZhushouConfig;
+  rootConfig?: AssistantConfig;
 };
 
 export type NormalizedPluginsConfig = SharedNormalizedPluginsConfig;
@@ -139,13 +139,13 @@ function toPluginActivationState(decision: PluginActivationDecision): PluginActi
 }
 
 export const normalizePluginsConfig = (
-  config?: ZhushouConfig["plugins"],
+  config?: AssistantConfig["plugins"],
 ): NormalizedPluginsConfig => {
   return normalizePluginsConfigWithResolver(config, normalizePluginId);
 };
 
 export function createPluginActivationSource(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   plugins?: NormalizedPluginsConfig;
 }): PluginActivationConfigSource {
   return {
@@ -154,19 +154,19 @@ export function createPluginActivationSource(params: {
   };
 }
 
-const hasExplicitMemorySlot = (plugins?: ZhushouConfig["plugins"]) =>
+const hasExplicitMemorySlot = (plugins?: AssistantConfig["plugins"]) =>
   Boolean(plugins?.slots && Object.prototype.hasOwnProperty.call(plugins.slots, "memory"));
 
-const hasExplicitMemoryEntry = (plugins?: ZhushouConfig["plugins"]) =>
+const hasExplicitMemoryEntry = (plugins?: AssistantConfig["plugins"]) =>
   Boolean(plugins?.entries && Object.prototype.hasOwnProperty.call(plugins.entries, "memory-core"));
 
-export const hasExplicitPluginConfig = (plugins?: ZhushouConfig["plugins"]) =>
+export const hasExplicitPluginConfig = (plugins?: AssistantConfig["plugins"]) =>
   hasExplicitPluginConfigShared(plugins);
 
 export function applyTestPluginDefaults(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
-): ZhushouConfig {
+): AssistantConfig {
   if (!env.VITEST) {
     return cfg;
   }
@@ -202,7 +202,7 @@ export function applyTestPluginDefaults(
 }
 
 export function isTestDefaultMemorySlotDisabled(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   if (!env.VITEST) {
@@ -219,7 +219,7 @@ function resolveExplicitPluginSelection(params: {
   id: string;
   origin: PluginOrigin;
   config: NormalizedPluginsConfig;
-  rootConfig?: ZhushouConfig;
+  rootConfig?: AssistantConfig;
 }): { explicitlyEnabled: boolean; cause?: PluginExplicitSelectionCause } {
   if (params.config.entries[params.id]?.enabled === true) {
     return { explicitlyEnabled: true, cause: "enabled-in-config" };
@@ -246,7 +246,7 @@ export function resolvePluginActivationState(params: {
   id: string;
   origin: PluginOrigin;
   config: NormalizedPluginsConfig;
-  rootConfig?: ZhushouConfig;
+  rootConfig?: AssistantConfig;
   enabledByDefault?: boolean;
   activationSource?: PluginActivationConfigSource;
   autoEnabledReason?: string;
@@ -421,7 +421,7 @@ export function resolveEnableState(
 }
 
 export function isBundledChannelEnabledByChannelConfig(
-  cfg: ZhushouConfig | undefined,
+  cfg: AssistantConfig | undefined,
   pluginId: string,
 ): boolean {
   return isBundledChannelEnabledByChannelConfigShared(cfg, pluginId);
@@ -431,7 +431,7 @@ export function resolveEffectiveEnableState(params: {
   id: string;
   origin: PluginOrigin;
   config: NormalizedPluginsConfig;
-  rootConfig?: ZhushouConfig;
+  rootConfig?: AssistantConfig;
   enabledByDefault?: boolean;
   activationSource?: PluginActivationConfigSource;
 }): { enabled: boolean; reason?: string } {
@@ -442,7 +442,7 @@ export function resolveEffectivePluginActivationState(params: {
   id: string;
   origin: PluginOrigin;
   config: NormalizedPluginsConfig;
-  rootConfig?: ZhushouConfig;
+  rootConfig?: AssistantConfig;
   enabledByDefault?: boolean;
   activationSource?: PluginActivationConfigSource;
   autoEnabledReason?: string;

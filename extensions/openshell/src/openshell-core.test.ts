@@ -101,15 +101,15 @@ describe("openshell backend manager", () => {
     const manager = createOpenShellSandboxBackendManager({
       pluginConfig: resolveOpenShellPluginConfig({
         command: "openshell",
-        from: "zhushou",
+        from: "assistant",
       }),
     });
 
     const result = await manager.describeRuntime({
       entry: {
-        containerName: "zhushou-session-1234",
+        containerName: "assistant-session-1234",
         backendId: "openshell",
-        runtimeLabel: "zhushou-session-1234",
+        runtimeLabel: "assistant-session-1234",
         sessionKey: "agent:main",
         createdAtMs: 1,
         lastUsedAtMs: 1,
@@ -138,12 +138,12 @@ describe("openshell backend manager", () => {
     });
     expect(cliMocks.runOpenShellCli).toHaveBeenCalledWith({
       context: expect.objectContaining({
-        sandboxName: "zhushou-session-1234",
+        sandboxName: "assistant-session-1234",
         config: expect.objectContaining({
           from: "custom-source",
         }),
       }),
-      args: ["sandbox", "get", "zhushou-session-1234"],
+      args: ["sandbox", "get", "assistant-session-1234"],
     });
   });
 
@@ -163,13 +163,13 @@ describe("openshell backend manager", () => {
 
     await manager.removeRuntime({
       entry: {
-        containerName: "zhushou-session-5678",
+        containerName: "assistant-session-5678",
         backendId: "openshell",
-        runtimeLabel: "zhushou-session-5678",
+        runtimeLabel: "assistant-session-5678",
         sessionKey: "agent:main",
         createdAtMs: 1,
         lastUsedAtMs: 1,
-        image: "zhushou",
+        image: "assistant",
         configLabelKind: "Source",
       },
       config: {},
@@ -177,13 +177,13 @@ describe("openshell backend manager", () => {
 
     expect(cliMocks.runOpenShellCli).toHaveBeenCalledWith({
       context: expect.objectContaining({
-        sandboxName: "zhushou-session-5678",
+        sandboxName: "assistant-session-5678",
         config: expect.objectContaining({
           command: "/usr/local/bin/openshell",
           gateway: "lab",
         }),
       }),
-      args: ["sandbox", "delete", "zhushou-session-5678"],
+      args: ["sandbox", "delete", "assistant-session-5678"],
     });
   });
 });
@@ -222,7 +222,7 @@ function createMirrorBackendMock(): OpenShellSandboxBackend {
 
 describe("openshell fs bridges", () => {
   it("writes locally and syncs the file to the remote workspace", async () => {
-    const workspaceDir = await makeTempDir("zhushou-openshell-fs-");
+    const workspaceDir = await makeTempDir("assistant-openshell-fs-");
     const backend = createMirrorBackendMock();
     const sandbox = createSandboxTestContext({
       overrides: {
@@ -249,8 +249,8 @@ describe("openshell fs bridges", () => {
   });
 
   it("maps agent mount paths when the sandbox workspace is read-only", async () => {
-    const workspaceDir = await makeTempDir("zhushou-openshell-fs-");
-    const agentWorkspaceDir = await makeTempDir("zhushou-openshell-agent-");
+    const workspaceDir = await makeTempDir("assistant-openshell-fs-");
+    const agentWorkspaceDir = await makeTempDir("assistant-openshell-agent-");
     await fs.writeFile(path.join(agentWorkspaceDir, "note.txt"), "agent", "utf8");
     const backend = createMirrorBackendMock();
     const sandbox = createSandboxTestContext({

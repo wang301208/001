@@ -1,13 +1,13 @@
 {
-  "name": "@zhushou/deepseek-provider",
+  "name": "@assistant/deepseek-provider",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 DeepSeek provider plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

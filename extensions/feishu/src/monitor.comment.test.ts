@@ -1,11 +1,11 @@
-import { hasControlCommand } from "zhushou/plugin-sdk/command-auth";
+﻿import { hasControlCommand } from "assistant/plugin-sdk/command-auth";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
-} from "zhushou/plugin-sdk/reply-runtime";
+} from "assistant/plugin-sdk/reply-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createNonExitingRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
-import type { ClawdbotConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
+import type { AssistantConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
 import * as dedup from "./dedup.js";
 import { monitorSingleAccount } from "./monitor.account.js";
 import {
@@ -45,14 +45,14 @@ vi.mock("./thread-bindings.js", () => ({
   createFeishuThreadBindingManager: createFeishuThreadBindingManagerMock,
 }));
 
-function buildMonitorConfig(): ClawdbotConfig {
+function buildMonitorConfig(): AssistantConfig {
   return {
     channels: {
       feishu: {
         enabled: true,
       },
     },
-  } as ClawdbotConfig;
+  } as AssistantConfig;
 }
 
 function buildMonitorAccount(): ResolvedFeishuAccount {
@@ -349,16 +349,16 @@ describe("resolveDriveCommentEventTurn", () => {
                         user_id: "ou_509d4d7ace4a9addec2312676ffcba9b",
                         content: {
                           elements: [
-                            { type: "text_run", text_run: { text: "请 " } },
+                            { type: "text_run", text_run: { text: "璇?" } },
                             { type: "person", person: { user_id: "ou_bot" } },
-                            { type: "text_run", text_run: { text: " 总结下 " } },
+                            { type: "text_run", text_run: { text: " 鎬荤粨涓?" } },
                             {
                               type: "docs_link",
                               docs_link: {
                                 url: `https://www.larksuite.com/docx/${TEST_DOC_TOKEN}`,
                               },
                             },
-                            { type: "text_run", text_run: { text: " 和 " } },
+                            { type: "text_run", text_run: { text: " 鍜?" } },
                             {
                               type: "docs_link",
                               docs_link: {
@@ -393,7 +393,7 @@ describe("resolveDriveCommentEventTurn", () => {
     });
 
     expect(turn?.targetReplyText).toBe(
-      `请 总结下 https://www.larksuite.com/docx/${TEST_DOC_TOKEN} 和 https://www.larksuite.com/wiki/${TEST_WIKI_TOKEN}`,
+      `璇?鎬荤粨涓?https://www.larksuite.com/docx/${TEST_DOC_TOKEN} 鍜?https://www.larksuite.com/wiki/${TEST_WIKI_TOKEN}`,
     );
     expect(turn?.prompt).toContain("Bot routing mention detected in the current user comment.");
     expect(turn?.prompt).toContain("Referenced documents from current user comment:");
@@ -468,7 +468,7 @@ describe("resolveDriveCommentEventTurn", () => {
                             {
                               type: "text_run",
                               text_run: {
-                                text: "请帮我总结这个文档",
+                                text: "璇峰府鎴戞€荤粨杩欎釜鏂囨。",
                               },
                             },
                           ],
@@ -503,7 +503,7 @@ describe("resolveDriveCommentEventTurn", () => {
                             {
                               type: "text_run",
                               text_run: {
-                                text: "请帮我总结这个文档",
+                                text: "璇峰府鎴戞€荤粨杩欎釜鏂囨。",
                               },
                             },
                           ],
@@ -528,7 +528,7 @@ describe("resolveDriveCommentEventTurn", () => {
                             {
                               type: "text_run",
                               text_run: {
-                                text: "这是刚才的总结结果",
+                                text: "杩欐槸鍒氭墠鐨勬€荤粨缁撴灉",
                               },
                             },
                           ],
@@ -553,7 +553,7 @@ describe("resolveDriveCommentEventTurn", () => {
                             {
                               type: "text_run",
                               text_run: {
-                                text: "另一个 whole comment",
+                                text: "鍙︿竴涓?whole comment",
                               },
                             },
                           ],
@@ -590,7 +590,7 @@ describe("resolveDriveCommentEventTurn", () => {
     expect(turn?.prompt).toContain("comment_id=7623358762119646411");
     expect(turn?.prompt).toContain("comment_id=comment_bot_followup");
     expect(turn?.prompt).toContain(
-      'Nearest bot-authored whole-comment after the current comment: comment_id=comment_bot_followup text="这是刚才的总结结果"',
+      'Nearest bot-authored whole-comment after the current comment: comment_id=comment_bot_followup text="杩欐槸鍒氭墠鐨勬€荤粨缁撴灉"',
     );
     expect(turn?.prompt).toContain("Document-level session history is auxiliary background only.");
   });

@@ -1,4 +1,4 @@
-import * as providerAuth from "zhushou/plugin-sdk/provider-auth-runtime";
+import * as providerAuth from "assistant/plugin-sdk/provider-auth-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { fetchWithSsrFGuardMock } = vi.hoisted(() => ({

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import { handleStopCommand } from "./commands-session-abort.js";
 import type { HandleCommandsParams } from "./commands-types.js";
 
@@ -56,7 +56,7 @@ function buildStopParams(): HandleCommandsParams {
     cfg: {
       commands: { text: true },
       channels: { telegram: { allowFrom: ["*"] } },
-    } as ZhushouConfig,
+    } as AssistantConfig,
     ctx: {
       Provider: "telegram",
       Surface: "telegram",

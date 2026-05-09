@@ -12,9 +12,9 @@ import type {
   MSTeamsFederatedCredentials,
 } from "./token.js";
 
-vi.mock("zhushou/plugin-sdk/ssrf-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/ssrf-runtime")>(
-    "zhushou/plugin-sdk/ssrf-runtime",
+vi.mock("assistant/plugin-sdk/ssrf-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/ssrf-runtime")>(
+    "assistant/plugin-sdk/ssrf-runtime",
   );
   return {
     ...actual,
@@ -144,7 +144,7 @@ function createSdkStub(): MSTeamsTeamsSdk {
 
 describe("createMSTeamsApp", () => {
   it("does not crash with express 5 path-to-regexp (#55161)", async () => {
-    // Regression test for: https://github.com/zhushou/zhushou/issues/55161
+    // Regression test for: https://github.com/assistant/assistant/issues/55161
     // createMSTeamsApp passes a no-op httpServerAdapter to prevent the SDK from
     // creating its default HttpPlugin (which registers `/api*` — invalid in Express 5).
     const { App } = await import("@microsoft/teams.apps");

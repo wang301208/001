@@ -265,6 +265,33 @@ describe("gateway probe endpoints", () => {
     });
   });
 
+  it("serves unauthenticated Prometheus metrics for internal scrapers", async () => {
+    const getReadiness: ReadinessChecker = () => ({
+      ready: true,
+      failing: [],
+      uptimeMs: 45_000,
+    });
+
+    await withGatewayServer({
+      prefix: "probe-metrics",
+      resolvedAuth: AUTH_TOKEN,
+      overrides: { getReadiness },
+      run: async (server) => {
+        const req = createRequest({ path: "/metrics" });
+        const { res, getBody } = createResponse();
+        await dispatchRequest(server, req, res);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.setHeader).toHaveBeenCalledWith(
+          "Content-Type",
+          "text/plain; version=0.0.4; charset=utf-8",
+        );
+        expect(getBody()).toContain("assistant_gateway_up 1");
+        expect(getBody()).toContain("assistant_gateway_ready 1");
+      },
+    });
+  });
+
   it("reflects readiness status on HEAD /readyz without a response body", async () => {
     const getReadiness: ReadinessChecker = () => ({
       ready: false,

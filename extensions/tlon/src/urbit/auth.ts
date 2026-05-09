@@ -1,4 +1,4 @@
-import type { LookupFn, SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
+import type { LookupFn, SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
 import { UrbitAuthError } from "./errors.js";
 import { urbitFetch } from "./fetch.js";
 

@@ -4,7 +4,7 @@ import path from "node:path";
 import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
-} from "zhushou/plugin-sdk/memory-host-markdown";
+} from "assistant/plugin-sdk/memory-host-markdown";
 import { compileMemoryWikiVault } from "./compile.js";
 import type { ResolvedMemoryWikiConfig } from "./config.js";
 import { appendMemoryWikiLog } from "./log.js";
@@ -18,8 +18,8 @@ import { initializeMemoryWikiVault } from "./vault.js";
 
 const CHATGPT_PREFERENCE_SIGNAL_RE =
   /\b(prefer|prefers|preference|want|wants|need|needs|avoid|avoids|hate|hates|love|loves|default to|should default to|always use|don't want|does not want|likes|dislikes)\b/i;
-const HUMAN_START_MARKER = "<!-- zhushou:human:start -->";
-const HUMAN_END_MARKER = "<!-- zhushou:human:end -->";
+const HUMAN_START_MARKER = "<!-- assistant:human:start -->";
+const HUMAN_END_MARKER = "<!-- assistant:human:end -->";
 
 const CHATGPT_RISK_RULES: Array<{ label: string; pattern: RegExp }> = [
   {
@@ -650,7 +650,7 @@ function buildRunId(exportPath: string, nowIso: string): string {
 }
 
 function resolveImportRunsDir(vaultRoot: string): string {
-  return path.join(vaultRoot, ".zhushou-wiki", "import-runs");
+  return path.join(vaultRoot, ".assistant-wiki", "import-runs");
 }
 
 function resolveImportRunPath(vaultRoot: string, runId: string): string {

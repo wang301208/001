@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { isRecord } from "../utils.js";
 
 export type CodexNativeSearchMode = "cached" | "live";
@@ -60,7 +60,7 @@ function normalizeUserLocation(value: unknown): CodexNativeSearchUserLocation | 
 }
 
 export function resolveCodexNativeWebSearchConfig(
-  config: ZhushouConfig | undefined,
+  config: AssistantConfig | undefined,
 ): ResolvedCodexNativeWebSearchConfig {
   const nativeConfig = config?.tools?.web?.search?.openaiCodex;
   return {
@@ -73,7 +73,7 @@ export function resolveCodexNativeWebSearchConfig(
 }
 
 export function describeCodexNativeWebSearch(
-  config: ZhushouConfig | undefined,
+  config: AssistantConfig | undefined,
 ): string | undefined {
   if (config?.tools?.web?.search?.enabled === false) {
     return undefined;

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 
 const mocks = vi.hoisted(() => ({
@@ -61,7 +61,7 @@ function makeRuntime(): RuntimeEnv {
 async function runGatewayPrompt(params: {
   selectQueue: string[];
   textQueue: Array<string | undefined>;
-  baseConfig?: ZhushouConfig;
+  baseConfig?: AssistantConfig;
   randomToken?: string;
   confirmResult?: boolean;
   authConfigFactory?: (input: Record<string, unknown>) => Record<string, unknown>;
@@ -240,26 +240,26 @@ describe("promptGatewayConfig", () => {
   });
 
   it("stores gateway token as SecretRef when token source is ref", async () => {
-    const previous = process.env.ZHUSHOU_GATEWAY_TOKEN;
-    process.env.ZHUSHOU_GATEWAY_TOKEN = "env-gateway-token";
+    const previous = process.env.ASSISTANT_GATEWAY_TOKEN;
+    process.env.ASSISTANT_GATEWAY_TOKEN = "env-gateway-token";
     try {
       const { call, result } = await runGatewayPrompt({
         selectQueue: ["loopback", "token", "off", "ref"],
-        textQueue: ["18789", "ZHUSHOU_GATEWAY_TOKEN"],
+        textQueue: ["18789", "ASSISTANT_GATEWAY_TOKEN"],
         authConfigFactory: ({ mode, token }) => ({ mode, token }),
       });
 
       expect(call?.token).toEqual({
         source: "env",
         provider: "default",
-        id: "ZHUSHOU_GATEWAY_TOKEN",
+        id: "ASSISTANT_GATEWAY_TOKEN",
       });
       expect(result.token).toBeUndefined();
     } finally {
       if (previous === undefined) {
-        delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+        delete process.env.ASSISTANT_GATEWAY_TOKEN;
       } else {
-        process.env.ZHUSHOU_GATEWAY_TOKEN = previous;
+        process.env.ASSISTANT_GATEWAY_TOKEN = previous;
       }
     }
   });

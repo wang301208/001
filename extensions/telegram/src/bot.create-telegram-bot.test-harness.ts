@@ -1,25 +1,25 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   createReplyDispatcher,
   resetInboundDedupe,
   type GetReplyOptions,
   type MsgContext,
-} from "zhushou/plugin-sdk/reply-runtime";
-import type { MockFn } from "zhushou/plugin-sdk/testing";
+} from "assistant/plugin-sdk/reply-runtime";
+import type { MockFn } from "assistant/plugin-sdk/testing";
 import { beforeEach, vi } from "vitest";
 import type { TelegramBotDeps } from "./bot-deps.js";
 
 type AnyMock = ReturnType<typeof vi.fn>;
 type AnyAsyncMock = ReturnType<typeof vi.fn>;
-type LoadConfigFn = typeof import("zhushou/plugin-sdk/config-runtime").loadConfig;
-type LoadSessionStoreFn = typeof import("zhushou/plugin-sdk/config-runtime").loadSessionStore;
-type ResolveStorePathFn = typeof import("zhushou/plugin-sdk/config-runtime").resolveStorePath;
+type LoadConfigFn = typeof import("assistant/plugin-sdk/config-runtime").loadConfig;
+type LoadSessionStoreFn = typeof import("assistant/plugin-sdk/config-runtime").loadSessionStore;
+type ResolveStorePathFn = typeof import("assistant/plugin-sdk/config-runtime").resolveStorePath;
 type SessionStore = ReturnType<LoadSessionStoreFn>;
 type TelegramBotRuntimeForTest = NonNullable<
   Parameters<typeof import("./bot.js").setTelegramBotRuntimeForTest>[0]
 >;
 type DispatchReplyWithBufferedBlockDispatcherFn =
-  typeof import("zhushou/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithBufferedBlockDispatcher;
+  typeof import("assistant/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithBufferedBlockDispatcher;
 type DispatchReplyWithBufferedBlockDispatcherResult = Awaited<
   ReturnType<DispatchReplyWithBufferedBlockDispatcherFn>
 >;
@@ -38,7 +38,7 @@ const _EMPTY_REPLY_COUNTS: DispatchReplyWithBufferedBlockDispatcherResult["count
 };
 
 const { sessionStorePath } = vi.hoisted(() => ({
-  sessionStorePath: `/tmp/zhushou-telegram-${process.pid}-${process.env.VITEST_POOL_ID ?? "0"}.json`,
+  sessionStorePath: `/tmp/assistant-telegram-${process.pid}-${process.env.VITEST_POOL_ID ?? "0"}.json`,
 }));
 
 const { loadWebMedia } = vi.hoisted((): { loadWebMedia: AnyMock } => ({
@@ -49,7 +49,7 @@ export function getLoadWebMediaMock(): AnyMock {
   return loadWebMedia;
 }
 
-vi.mock("zhushou/plugin-sdk/web-media", () => ({
+vi.mock("assistant/plugin-sdk/web-media", () => ({
   loadWebMedia,
 }));
 
@@ -118,7 +118,7 @@ const replySpyHoisted = vi.hoisted(() => ({
     (
       ctx: MsgContext,
       opts?: GetReplyOptions,
-      configOverride?: ZhushouConfig,
+      configOverride?: AssistantConfig,
     ) => Promise<ReplyPayloadLike | ReplyPayloadLike[] | undefined>
   >,
 }));
@@ -205,7 +205,7 @@ function normalizeLowercaseStringOrEmptyForTest(value: string | undefined): stri
   return value?.trim().toLowerCase() ?? "";
 }
 
-function resolveDefaultModelForAgentForTest(params: { cfg: ZhushouConfig }): {
+function resolveDefaultModelForAgentForTest(params: { cfg: AssistantConfig }): {
   provider: string;
   model: string;
 } {
@@ -220,7 +220,7 @@ function resolveDefaultModelForAgentForTest(params: { cfg: ZhushouConfig }): {
   };
 }
 
-function createModelsProviderDataFromConfig(cfg: ZhushouConfig): {
+function createModelsProviderDataFromConfig(cfg: AssistantConfig): {
   byProvider: Map<string, Set<string>>;
   providers: string[];
   resolvedDefault: { provider: string; model: string };
@@ -289,7 +289,7 @@ const grammySpies = vi.hoisted(() => ({
   setMessageReactionSpy: vi.fn(async () => undefined) as AnyAsyncMock,
   setMyCommandsSpy: vi.fn(async () => undefined) as AnyAsyncMock,
   getMeSpy: vi.fn(async () => ({
-    username: "openclaw_bot",
+    username: "assistant_bot",
     has_topics_enabled: true,
   })) as AnyAsyncMock,
   getChatSpy: vi.fn(async () => undefined) as AnyAsyncMock,
@@ -410,7 +410,7 @@ export const getOnHandler = (event: string) => {
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
 
-const DEFAULT_TELEGRAM_TEST_CONFIG: ZhushouConfig = {
+const DEFAULT_TELEGRAM_TEST_CONFIG: AssistantConfig = {
   agents: {
     defaults: {
       envelopeTimezone: "utc",
@@ -445,7 +445,7 @@ export function makeTelegramMessageCtx(params: {
         ? {}
         : { message_thread_id: params.messageThreadId }),
     },
-    me: { username: "openclaw_bot" },
+    me: { username: "assistant_bot" },
     getFile: async () => ({ download: async () => new Uint8Array() }),
   };
 }
@@ -529,7 +529,7 @@ beforeEach(() => {
   getChatSpy.mockResolvedValue(undefined);
   getMeSpy.mockReset();
   getMeSpy.mockResolvedValue({
-    username: "openclaw_bot",
+    username: "assistant_bot",
     has_topics_enabled: true,
   });
   editMessageTextSpy.mockReset();
@@ -544,7 +544,7 @@ beforeEach(() => {
   listSkillCommandsForAgents.mockReset();
   listSkillCommandsForAgents.mockReturnValue([]);
   buildModelsProviderData.mockReset();
-  buildModelsProviderData.mockImplementation(async (cfg: ZhushouConfig) => {
+  buildModelsProviderData.mockImplementation(async (cfg: AssistantConfig) => {
     return createModelsProviderDataFromConfig(cfg);
   });
   middlewareUseSpy.mockReset();

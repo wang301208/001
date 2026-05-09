@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
@@ -126,7 +126,7 @@ export function createEmptyAgentGovernanceRuntimeContract(
 }
 
 export function resolveAgentGovernanceRuntimeContract(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   charterDir?: string;
   stateDir?: string;
@@ -195,7 +195,7 @@ export function resolveAgentGovernanceRuntimeContract(params: {
 }
 
 export function resolveAgentGovernanceToolPolicy(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId?: string;
   charterDir?: string;
   stateDir?: string;

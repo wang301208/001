@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../../config/config.js";
+import type { AssistantConfig } from "../../../config/config.js";
 import type { PluginManifestRecord } from "../../../plugins/manifest-registry.js";
 import * as manifestRegistry from "../../../plugins/manifest-registry.js";
 import {
@@ -19,7 +19,7 @@ function manifest(id: string): PluginManifestRecord {
     origin: "bundled",
     rootDir: `/plugins/${id}`,
     source: `/plugins/${id}`,
-    manifestPath: `/plugins/${id}/zhushou.plugin.json`,
+    manifestPath: `/plugins/${id}/assistant.plugin.json`,
   };
 }
 
@@ -44,7 +44,7 @@ describe("doctor stale plugin config helpers", () => {
           acpx: { enabled: true },
         },
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     expect(hits).toEqual([
       {
@@ -69,7 +69,7 @@ describe("doctor stale plugin config helpers", () => {
           acpx: { enabled: true },
         },
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     expect(result.changes).toEqual([
       "- plugins.allow: removed 1 stale plugin id (acpx)",
@@ -90,12 +90,12 @@ describe("doctor stale plugin config helpers", () => {
           surface: "allow",
         },
       ],
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
     });
 
     expect(warnings).toEqual([
       expect.stringContaining('plugins.allow: stale plugin reference "acpx"'),
-      expect.stringContaining('Run "zhushou doctor --fix"'),
+      expect.stringContaining('Run "assistant doctor --fix"'),
     ]);
   });
 
@@ -114,7 +114,7 @@ describe("doctor stale plugin config helpers", () => {
           acpx: { enabled: true },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const hits = scanStalePluginConfig(cfg);
     expect(hits).toEqual([
@@ -136,7 +136,7 @@ describe("doctor stale plugin config helpers", () => {
 
     const warnings = collectStalePluginConfigWarnings({
       hits,
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
       autoRepairBlocked: true,
     });
     expect(warnings[2]).toContain("Auto-removal is paused");
@@ -151,7 +151,7 @@ describe("doctor stale plugin config helpers", () => {
           acpx: { enabled: true },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(scanStalePluginConfig(cfg)).toEqual([
       {

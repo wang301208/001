@@ -57,7 +57,7 @@ describe("emitResetCommandHooks", () => {
       previousSessionEntry: {
         sessionId: "prev-session",
       } as HandleCommandsParams["previousSessionEntry"],
-      workspaceDir: "/tmp/zhushou-workspace",
+      workspaceDir: "/tmp/assistant-workspace",
     });
 
     expect(hookRunnerMocks.runBeforeReset).toHaveBeenCalledTimes(1);
@@ -86,7 +86,7 @@ describe("emitResetCommandHooks", () => {
       agentId: "navi",
       sessionKey: "agent:navi:main",
       sessionId: "prev-session",
-      workspaceDir: "/tmp/zhushou-workspace",
+      workspaceDir: "/tmp/assistant-workspace",
     });
   });
 
@@ -96,7 +96,7 @@ describe("emitResetCommandHooks", () => {
       agentId: "main",
       sessionKey: undefined,
       sessionId: "prev-session",
-      workspaceDir: "/tmp/zhushou-workspace",
+      workspaceDir: "/tmp/assistant-workspace",
     });
   });
 
@@ -106,7 +106,7 @@ describe("emitResetCommandHooks", () => {
       agentId: "main",
       sessionKey: "agent:main:main",
       sessionId: "prev-session",
-      workspaceDir: "/tmp/zhushou-workspace",
+      workspaceDir: "/tmp/assistant-workspace",
     });
   });
 
@@ -139,7 +139,7 @@ describe("emitResetCommandHooks", () => {
         sessionId: "prev-session",
         sessionFile: "/tmp/prev-session.jsonl",
       } as HandleCommandsParams["previousSessionEntry"],
-      workspaceDir: "/tmp/zhushou-workspace",
+      workspaceDir: "/tmp/assistant-workspace",
     });
 
     await vi.waitFor(() => expect(hookRunnerMocks.runBeforeReset).toHaveBeenCalledTimes(1));

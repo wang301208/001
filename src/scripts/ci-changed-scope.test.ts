@@ -61,7 +61,7 @@ describe("detectChangedScope", () => {
       runSkillsPython: false,
       runChangedSmoke: false,
     });
-    expect(detectChangedScope(["apps/shared/OpenClawKit/Sources/Foo.swift"])).toEqual({
+    expect(detectChangedScope(["apps/shared/AssistantKit/Sources/Foo.swift"])).toEqual({
       runNode: true,
       runWindows: false,
       runSkillsPython: false,
@@ -70,7 +70,7 @@ describe("detectChangedScope", () => {
   });
 
   it("routes removed generated protocol model paths through node fallback", () => {
-    expect(detectChangedScope(["apps/macos/Sources/OpenClawProtocol/GatewayModels.swift"])).toEqual(
+    expect(detectChangedScope(["apps/macos/Sources/AssistantProtocol/GatewayModels.swift"])).toEqual(
       {
         runNode: true,
         runWindows: false,
@@ -156,7 +156,7 @@ describe("detectChangedScope", () => {
   it("treats base and head as literal git args", () => {
     const markerPath = path.join(
       os.tmpdir(),
-      `zhushou-ci-changed-scope-${Date.now()}-${Math.random().toString(16).slice(2)}.tmp`,
+      `assistant-ci-changed-scope-${Date.now()}-${Math.random().toString(16).slice(2)}.tmp`,
     );
     markerPaths.push(markerPath);
 

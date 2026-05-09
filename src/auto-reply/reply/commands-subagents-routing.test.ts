@@ -45,7 +45,7 @@ function buildParams(
     directives: {} as HandleCommandsParams["directives"],
     elevated: { enabled: true, allowed: true, failures: [] },
     sessionKey,
-    workspaceDir: "/tmp/zhushou-commands-subagents",
+    workspaceDir: "/tmp/assistant-commands-subagents",
     defaultGroupActivation: () => "mention",
     resolvedVerboseLevel: "off",
     resolvedReasoningLevel: "off",

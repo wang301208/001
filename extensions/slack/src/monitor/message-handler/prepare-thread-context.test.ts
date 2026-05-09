@@ -1,6 +1,6 @@
 import type { App } from "@slack/bolt";
-import { resolveEnvelopeFormatOptions } from "zhushou/plugin-sdk/channel-inbound";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveEnvelopeFormatOptions } from "assistant/plugin-sdk/channel-inbound";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SlackMessageEvent } from "../../types.js";
 import { resolveSlackThreadContextData } from "./prepare-thread-context.js";
@@ -11,7 +11,7 @@ import {
 } from "./prepare.test-helpers.js";
 
 describe("resolveSlackThreadContextData", () => {
-  const storeFixture = createSlackSessionStoreFixture("zhushou-slack-thread-context-");
+  const storeFixture = createSlackSessionStoreFixture("assistant-slack-thread-context-");
 
   beforeAll(() => {
     storeFixture.setup();
@@ -25,7 +25,7 @@ describe("resolveSlackThreadContextData", () => {
     return createInboundSlackTestContext({
       cfg: {
         channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       appClient: { conversations: { replies: params.replies } } as App["client"],
       defaultRequireMention: false,
       replyToMode: "all",
@@ -73,7 +73,7 @@ describe("resolveSlackThreadContextData", () => {
       allowFromLower: params.allowFromLower,
       allowNameMatching: params.allowNameMatching,
       contextVisibilityMode: "allowlist",
-      envelopeOptions: resolveEnvelopeFormatOptions({} as ZhushouConfig),
+      envelopeOptions: resolveEnvelopeFormatOptions({} as AssistantConfig),
       effectiveDirectMedia: null,
     });
 

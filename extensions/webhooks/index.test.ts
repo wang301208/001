@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import { createTestPluginApi } from "../../test/helpers/plugins/plugin-api.js";
-import type { ZhushouPluginApi } from "./api.js";
+import type { AssistantPluginApi } from "./api.js";
 import plugin from "./index.js";
 
 function createApi(params?: {
-  pluginConfig?: ZhushouPluginApi["pluginConfig"];
-  registerHttpRoute?: ZhushouPluginApi["registerHttpRoute"];
-  logger?: ZhushouPluginApi["logger"];
-}): ZhushouPluginApi {
+  pluginConfig?: AssistantPluginApi["pluginConfig"];
+  registerHttpRoute?: AssistantPluginApi["registerHttpRoute"];
+  logger?: AssistantPluginApi["logger"];
+}): AssistantPluginApi {
   return createTestPluginApi({
     id: "webhooks",
     name: "Webhooks",
@@ -17,7 +17,7 @@ function createApi(params?: {
       taskFlow: {
         bindSession: vi.fn(({ sessionKey }: { sessionKey: string }) => ({ sessionKey })),
       },
-    } as unknown as ZhushouPluginApi["runtime"],
+    } as unknown as AssistantPluginApi["runtime"],
     registerHttpRoute: params?.registerHttpRoute ?? vi.fn(),
     logger:
       params?.logger ??
@@ -26,7 +26,7 @@ function createApi(params?: {
         warn: vi.fn(),
         error: vi.fn(),
         debug: vi.fn(),
-      } as ZhushouPluginApi["logger"]),
+      } as AssistantPluginApi["logger"]),
   });
 }
 
@@ -43,7 +43,7 @@ describe("webhooks plugin registration", () => {
               secret: {
                 source: "env",
                 provider: "default",
-                id: "OPENCLAW_WEBHOOK_SECRET",
+                id: "ASSISTANT_WEBHOOK_SECRET",
               },
             },
           },

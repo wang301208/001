@@ -1,14 +1,14 @@
 import { createCapturedPluginRegistration } from "../plugins/captured-registration.js";
-import type { ZhushouPluginApi, ProviderPlugin } from "../plugins/types.js";
+import type { AssistantPluginApi, ProviderPlugin } from "../plugins/types.js";
 
 export { createCapturedPluginRegistration };
 
 type RegistrablePlugin = {
-  register(api: ZhushouPluginApi): void;
+  register(api: AssistantPluginApi): void;
 };
 
 export async function registerSingleProviderPlugin(params: {
-  register(api: ZhushouPluginApi): void;
+  register(api: AssistantPluginApi): void;
 }): Promise<ProviderPlugin> {
   const captured = createCapturedPluginRegistration();
   params.register(captured.api);

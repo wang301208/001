@@ -6,7 +6,7 @@
  */
 
 import { resolveConversationBindingContext } from "../channels/conversation-binding-context.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { logVerbose } from "../globals.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import {
@@ -31,7 +31,7 @@ import {
 } from "./conversation-binding.js";
 import { getActivePluginChannelRegistry } from "./runtime.js";
 import type {
-  OpenClawPluginCommandDefinition,
+  AssistantPluginCommandDefinition,
   PluginCommandContext,
   PluginCommandResult,
 } from "./types.js";
@@ -128,7 +128,7 @@ function sanitizeArgs(args: string | undefined): string | undefined {
 }
 
 function resolveBindingConversationFromCommand(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   channel: string;
   senderId?: string;
   from?: string;
@@ -150,7 +150,7 @@ function resolveBindingConversationFromCommand(params: {
     return null;
   }
   return resolveConversationBindingContext({
-    cfg: params.config ?? ({} as ZhushouConfig),
+    cfg: params.config ?? ({} as AssistantConfig),
     channel: params.channel,
     accountId: params.accountId,
     threadId: params.messageThreadId,
@@ -180,7 +180,7 @@ export async function executePluginCommand(params: {
   sessionId?: PluginCommandContext["sessionId"];
   sessionFile?: PluginCommandContext["sessionFile"];
   commandBody: string;
-  config: ZhushouConfig;
+  config: AssistantConfig;
   from?: PluginCommandContext["from"];
   to?: PluginCommandContext["to"];
   accountId?: PluginCommandContext["accountId"];
@@ -301,7 +301,7 @@ export function listPluginCommands(): Array<{
   }));
 }
 
-function listPluginInvocationNames(command: OpenClawPluginCommandDefinition): string[] {
+function listPluginInvocationNames(command: AssistantPluginCommandDefinition): string[] {
   return listPluginInvocationKeys(command);
 }
 

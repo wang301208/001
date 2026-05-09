@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 function makeTempDir(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-command-source-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-command-source-"));
   tempDirs.push(dir);
   return dir;
 }

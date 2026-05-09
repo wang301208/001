@@ -1,6 +1,6 @@
-import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { formatErrorMessage } from "zhushou/plugin-sdk/ssrf-runtime";
+import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "assistant/plugin-sdk/ssrf-runtime";
 
 export type TelegramApiLogger = (message: string) => void;
 

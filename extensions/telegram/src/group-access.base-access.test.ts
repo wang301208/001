@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { TelegramAccountConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { TelegramAccountConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { normalizeAllowFrom, type NormalizedAllowFrom } from "./bot-access.js";
 import {
@@ -76,7 +76,7 @@ describe("evaluateTelegramGroupBaseAccess", () => {
  */
 const baseCfg = {
   channels: { telegram: {} },
-} as unknown as ZhushouConfig;
+} as unknown as AssistantConfig;
 
 const baseTelegramCfg: TelegramAccountConfig = {
   groupPolicy: "allowlist",

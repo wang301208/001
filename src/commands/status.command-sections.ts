@@ -254,10 +254,10 @@ export function buildStatusSecurityAuditLines(params: {
     }
   }
   lines.push(
-    params.theme.muted(`Full report: ${params.formatCliCommand("zhushou security audit")}`),
+    params.theme.muted(`Full report: ${params.formatCliCommand("assistant security audit")}`),
   );
   lines.push(
-    params.theme.muted(`Deep probe: ${params.formatCliCommand("zhushou security audit --deep")}`),
+    params.theme.muted(`Deep probe: ${params.formatCliCommand("assistant security audit --deep")}`),
   );
   return lines;
 }
@@ -585,17 +585,17 @@ export function buildStatusFooterLines(params: {
   gatewayReachable: boolean;
 }) {
   return [
-    "FAQ: https://docs.zhushou.ai/faq",
-    "Troubleshooting: https://docs.zhushou.ai/troubleshooting",
+    "FAQ: https://docs.assistant.ai/faq",
+    "Troubleshooting: https://docs.assistant.ai/troubleshooting",
     ...(params.updateHint ? ["", params.warn(params.updateHint)] : []),
     "Next steps:",
-    `  Need to share?      ${params.formatCliCommand("zhushou status --all")}`,
-    `  Need to debug live? ${params.formatCliCommand("zhushou logs --follow")}`,
+    `  Need to share?      ${params.formatCliCommand("assistant status --all")}`,
+    `  Need to debug live? ${params.formatCliCommand("assistant logs --follow")}`,
     params.nodeOnlyGateway
-      ? `  Need node service?  ${params.formatCliCommand("zhushou node status")}`
+      ? `  Need node service?  ${params.formatCliCommand("assistant node status")}`
       : params.gatewayReachable
-        ? `  Need to test channels? ${params.formatCliCommand("zhushou status --deep")}`
-        : `  Fix reachability first: ${params.formatCliCommand("openclaw gateway probe")}`,
+        ? `  Need to test channels? ${params.formatCliCommand("assistant status --deep")}`
+        : `  Fix reachability first: ${params.formatCliCommand("assistant gateway probe")}`,
   ];
 }
 
@@ -637,12 +637,12 @@ export function buildStatusPairingRecoveryLines(params: {
     ...(params.pairingRecovery.requestId
       ? [
           params.muted(
-            `Recovery: ${params.formatCliCommand(`zhushou devices approve ${params.pairingRecovery.requestId}`)}`,
+            `Recovery: ${params.formatCliCommand(`assistant devices approve ${params.pairingRecovery.requestId}`)}`,
           ),
         ]
       : []),
-    params.muted(`Fallback: ${params.formatCliCommand("zhushou devices approve --latest")}`),
-    params.muted(`Inspect: ${params.formatCliCommand("zhushou devices list")}`),
+    params.muted(`Fallback: ${params.formatCliCommand("assistant devices approve --latest")}`),
+    params.muted(`Inspect: ${params.formatCliCommand("assistant devices list")}`),
   ];
 }
 

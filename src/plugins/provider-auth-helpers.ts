@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
-import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+import { resolveAssistantAgentDir } from "../agents/agent-paths.js";
 import { buildAuthProfileId } from "../agents/auth-profiles/identity.js";
 import { upsertAuthProfile } from "../agents/auth-profiles/profiles.js";
 import { resolveProviderIdForAuth } from "../agents/provider-auth-aliases.js";
 import { resolveStateDir } from "../config/paths.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   coerceSecretRef,
   DEFAULT_SECRET_PROVIDER_ALIAS,
@@ -19,11 +19,11 @@ import type { SecretInputMode } from "./provider-auth-types.js";
 
 const ENV_REF_PATTERN = /^\$\{([A-Z][A-Z0-9_]*)\}$/;
 
-const resolveAuthAgentDir = (agentDir?: string) => agentDir ?? resolveOpenClawAgentDir();
+const resolveAuthAgentDir = (agentDir?: string) => agentDir ?? resolveAssistantAgentDir();
 
 export type ApiKeyStorageOptions = {
   secretInputMode?: SecretInputMode;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 };
 
 export type WriteOAuthCredentialsOptions = {
@@ -44,7 +44,7 @@ function parseEnvSecretRef(value: string): SecretRef | null {
   return buildEnvSecretRef(match[1]);
 }
 
-function resolveProviderDefaultEnvSecretRef(provider: string, config?: ZhushouConfig): SecretRef {
+function resolveProviderDefaultEnvSecretRef(provider: string, config?: AssistantConfig): SecretRef {
   const envVars = getProviderEnvVars(provider, {
     ...(config ? { config } : {}),
     includeUntrustedWorkspacePlugins: false,
@@ -133,7 +133,7 @@ export function upsertApiKeyProfile(params: {
 }
 
 export function applyAuthProfileConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     profileId: string;
     provider: string;
@@ -142,7 +142,7 @@ export function applyAuthProfileConfig(
     displayName?: string;
     preferProfileFirst?: boolean;
   },
-): ZhushouConfig {
+): AssistantConfig {
   const normalizedProvider = resolveProviderIdForAuth(params.provider, { config: cfg });
   const profiles = {
     ...cfg.auth?.profiles,

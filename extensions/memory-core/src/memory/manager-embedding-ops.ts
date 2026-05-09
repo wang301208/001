@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import {
   enforceEmbeddingMaxInputTokens,
   hasNonTextEmbeddingParts,
   type EmbeddingInput,
-} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
-import { createSubsystemLogger } from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
-import { type SessionFileEntry } from "zhushou/plugin-sdk/memory-core-host-engine-qmd";
+} from "assistant/plugin-sdk/memory-core-host-engine-embeddings";
+import { createSubsystemLogger } from "assistant/plugin-sdk/memory-core-host-engine-foundation";
+import { type SessionFileEntry } from "assistant/plugin-sdk/memory-core-host-engine-qmd";
 import {
   buildMultimodalChunkForIndexing,
   chunkMarkdown,
@@ -15,7 +15,7 @@ import {
   type MemoryChunk,
   type MemoryFileEntry,
   type MemorySource,
-} from "zhushou/plugin-sdk/memory-core-host-engine-storage";
+} from "assistant/plugin-sdk/memory-core-host-engine-storage";
 import {
   MEMORY_BATCH_FAILURE_LIMIT,
   recordMemoryBatchFailure,

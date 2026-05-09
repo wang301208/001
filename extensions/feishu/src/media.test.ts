@@ -1,8 +1,8 @@
-import fs from "node:fs/promises";
+﻿import fs from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredOpenClawTmpDir } from "zhushou/plugin-sdk/temp-path";
+import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ClawdbotConfig } from "../runtime-api.js";
+import type { AssistantConfig } from "../runtime-api.js";
 
 const createFeishuClientMock = vi.hoisted(() => vi.fn());
 const resolveFeishuAccountMock = vi.hoisted(() => vi.fn());
@@ -18,7 +18,7 @@ const messageResourceGetMock = vi.hoisted(() => vi.fn());
 const messageReplyMock = vi.hoisted(() => vi.fn());
 
 const FEISHU_MEDIA_HTTP_TIMEOUT_MS = 120_000;
-const emptyConfig: ClawdbotConfig = {};
+const emptyConfig: AssistantConfig = {};
 
 vi.mock("./client.js", () => ({
   createFeishuClient: createFeishuClientMock,
@@ -56,7 +56,7 @@ function expectPathIsolatedToTmpRoot(pathValue: string, key: string): void {
   expect(pathValue).not.toContain(key);
   expect(pathValue).not.toContain("..");
 
-  const tmpRoot = path.resolve(resolvePreferredOpenClawTmpDir());
+  const tmpRoot = path.resolve(resolvePreferredAssistantTmpDir());
   const resolved = path.resolve(pathValue);
   const rel = path.relative(tmpRoot, resolved);
   expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
@@ -340,7 +340,7 @@ describe("sendMediaFeishu msg_type routing", () => {
       contentType: "application/pdf",
     });
 
-    const roots = ["/allowed/workspace", "/tmp/zhushou"];
+    const roots = ["/allowed/workspace", "/tmp/assistant"];
     await sendMediaFeishu({
       cfg: emptyConfig,
       to: "user:ou_target",
@@ -456,11 +456,11 @@ describe("sendMediaFeishu msg_type routing", () => {
       cfg: emptyConfig,
       to: "user:ou_target",
       mediaBuffer: Buffer.from("doc"),
-      fileName: "测试文档.pdf",
+      fileName: "娴嬭瘯鏂囨。.pdf",
     });
 
     const createCall = fileCreateMock.mock.calls[0][0];
-    expect(createCall.data.file_name).toBe("测试文档.pdf");
+    expect(createCall.data.file_name).toBe("娴嬭瘯鏂囨。.pdf");
   });
 
   it("preserves ASCII filenames unchanged for file uploads", async () => {
@@ -480,11 +480,11 @@ describe("sendMediaFeishu msg_type routing", () => {
       cfg: emptyConfig,
       to: "user:ou_target",
       mediaBuffer: Buffer.from("doc"),
-      fileName: "报告—详情（2026）.md",
+      fileName: "鎶ュ憡鈥旇鎯咃紙2026锛?md",
     });
 
     const createCall = fileCreateMock.mock.calls[0][0];
-    expect(createCall.data.file_name).toBe("报告—详情（2026）.md");
+    expect(createCall.data.file_name).toBe("鎶ュ憡鈥旇鎯咃紙2026锛?md");
   });
 });
 
@@ -495,30 +495,30 @@ describe("sanitizeFileNameForUpload", () => {
   });
 
   it("preserves Chinese characters", () => {
-    expect(sanitizeFileNameForUpload("测试文件.md")).toBe("测试文件.md");
-    expect(sanitizeFileNameForUpload("武汉15座山登山信息汇总.csv")).toBe(
-      "武汉15座山登山信息汇总.csv",
+    expect(sanitizeFileNameForUpload("娴嬭瘯鏂囦欢.md")).toBe("娴嬭瘯鏂囦欢.md");
+    expect(sanitizeFileNameForUpload("姝︽眽15搴у北鐧诲北淇℃伅姹囨€?csv")).toBe(
+      "姝︽眽15搴у北鐧诲北淇℃伅姹囨€?csv",
     );
   });
 
   it("preserves em-dash and full-width brackets", () => {
-    expect(sanitizeFileNameForUpload("文件—说明（v2）.pdf")).toBe("文件—说明（v2）.pdf");
+    expect(sanitizeFileNameForUpload("鏂囦欢鈥旇鏄庯紙v2锛?pdf")).toBe("鏂囦欢鈥旇鏄庯紙v2锛?pdf");
   });
 
   it("preserves single quotes and parentheses", () => {
-    expect(sanitizeFileNameForUpload("文件'(test).txt")).toBe("文件'(test).txt");
+    expect(sanitizeFileNameForUpload("鏂囦欢'(test).txt")).toBe("鏂囦欢'(test).txt");
   });
 
   it("preserves filenames without extension", () => {
-    expect(sanitizeFileNameForUpload("测试文件")).toBe("测试文件");
+    expect(sanitizeFileNameForUpload("娴嬭瘯鏂囦欢")).toBe("娴嬭瘯鏂囦欢");
   });
 
   it("preserves mixed ASCII and non-ASCII", () => {
-    expect(sanitizeFileNameForUpload("Report_报告_2026.xlsx")).toBe("Report_报告_2026.xlsx");
+    expect(sanitizeFileNameForUpload("Report_鎶ュ憡_2026.xlsx")).toBe("Report_鎶ュ憡_2026.xlsx");
   });
 
   it("preserves emoji filenames", () => {
-    expect(sanitizeFileNameForUpload("report_😀.txt")).toBe("report_😀.txt");
+    expect(sanitizeFileNameForUpload("report_馃榾.txt")).toBe("report_馃榾.txt");
   });
 
   it("strips control characters", () => {

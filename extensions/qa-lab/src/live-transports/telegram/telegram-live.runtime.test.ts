@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   LIVE_TRANSPORT_BASELINE_STANDARD_SCENARIO_IDS,
@@ -16,9 +16,9 @@ const fetchWithSsrFGuardMock = vi.hoisted(() =>
   })),
 );
 
-vi.mock("zhushou/plugin-sdk/ssrf-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/ssrf-runtime")>(
-    "zhushou/plugin-sdk/ssrf-runtime",
+vi.mock("assistant/plugin-sdk/ssrf-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/ssrf-runtime")>(
+    "assistant/plugin-sdk/ssrf-runtime",
   );
   return {
     ...actual,
@@ -36,9 +36,9 @@ describe("telegram live qa runtime", () => {
   it("resolves required Telegram QA env vars", () => {
     expect(
       __testing.resolveTelegramQaRuntimeEnv({
-        OPENCLAW_QA_TELEGRAM_GROUP_ID: "-100123",
-        OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
-        OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN: "sut",
+        ASSISTANT_QA_TELEGRAM_GROUP_ID: "-100123",
+        ASSISTANT_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
+        ASSISTANT_QA_TELEGRAM_SUT_BOT_TOKEN: "sut",
       }),
     ).toEqual({
       groupId: "-100123",
@@ -50,20 +50,20 @@ describe("telegram live qa runtime", () => {
   it("fails when a required Telegram QA env var is missing", () => {
     expect(() =>
       __testing.resolveTelegramQaRuntimeEnv({
-        OPENCLAW_QA_TELEGRAM_GROUP_ID: "-100123",
-        OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
+        ASSISTANT_QA_TELEGRAM_GROUP_ID: "-100123",
+        ASSISTANT_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
       }),
-    ).toThrow("OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN");
+    ).toThrow("ASSISTANT_QA_TELEGRAM_SUT_BOT_TOKEN");
   });
 
   it("fails when the Telegram group id is not numeric", () => {
     expect(() =>
       __testing.resolveTelegramQaRuntimeEnv({
-        OPENCLAW_QA_TELEGRAM_GROUP_ID: "qa-group",
-        OPENCLAW_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
-        OPENCLAW_QA_TELEGRAM_SUT_BOT_TOKEN: "sut",
+        ASSISTANT_QA_TELEGRAM_GROUP_ID: "qa-group",
+        ASSISTANT_QA_TELEGRAM_DRIVER_BOT_TOKEN: "driver",
+        ASSISTANT_QA_TELEGRAM_SUT_BOT_TOKEN: "sut",
       }),
-    ).toThrow("OPENCLAW_QA_TELEGRAM_GROUP_ID must be a numeric Telegram chat id.");
+    ).toThrow("ASSISTANT_QA_TELEGRAM_GROUP_ID must be a numeric Telegram chat id.");
   });
 
   it("parses Telegram pooled credential payloads", () => {
@@ -91,7 +91,7 @@ describe("telegram live qa runtime", () => {
   });
 
   it("injects a temporary Telegram account into the QA gateway config", () => {
-    const baseCfg: ZhushouConfig = {
+    const baseCfg: AssistantConfig = {
       plugins: {
         allow: ["memory-core", "qa-channel"],
         entries: {
@@ -103,7 +103,7 @@ describe("telegram live qa runtime", () => {
         "qa-channel": {
           enabled: true,
           baseUrl: "http://127.0.0.1:43123",
-          botUserId: "zhushou",
+          botUserId: "assistant",
           botDisplayName: "助手 QA",
           allowFrom: ["*"],
         },

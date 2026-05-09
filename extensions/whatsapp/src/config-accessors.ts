@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { resolveWhatsAppAccount } from "./accounts.js";
 import { normalizeWhatsAppAllowFromEntries } from "./normalize-target.js";
 
 export function resolveWhatsAppConfigAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): string[] {
   return [...(resolveWhatsAppAccount(params).allowFrom ?? [])];
@@ -14,7 +14,7 @@ export function formatWhatsAppConfigAllowFromEntries(allowFrom: Array<string | n
 }
 
 export function resolveWhatsAppConfigDefaultTo(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): string | undefined {
   const defaultTo = resolveWhatsAppAccount(params).defaultTo?.trim();

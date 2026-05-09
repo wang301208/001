@@ -8,4 +8,4 @@ export {
   promptLegacyChannelAllowFromForAccount,
   resolveEntriesWithOptionalToken,
   setSetupChannelEnabled,
-} from "zhushou/plugin-sdk/setup-runtime";
+} from "assistant/plugin-sdk/setup-runtime";

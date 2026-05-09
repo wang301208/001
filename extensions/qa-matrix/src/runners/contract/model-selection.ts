@@ -1,4 +1,4 @@
-import { loadQaRuntimeModule } from "zhushou/plugin-sdk/qa-runner-runtime";
+import { loadQaRuntimeModule } from "assistant/plugin-sdk/qa-runner-runtime";
 import { normalizeQaProviderMode, type QaProviderModeInput } from "../../run-config.js";
 
 export type ResolvedMatrixQaModels = {

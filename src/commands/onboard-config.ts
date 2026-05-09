@@ -1,14 +1,14 @@
 import type { DmScope } from "../config/types.base.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { ToolProfileId } from "../config/types.tools.js";
 
 export const ONBOARDING_DEFAULT_DM_SCOPE: DmScope = "per-channel-peer";
 export const ONBOARDING_DEFAULT_TOOLS_PROFILE: ToolProfileId = "coding";
 
 export function applyLocalSetupWorkspaceConfig(
-  baseConfig: ZhushouConfig,
+  baseConfig: AssistantConfig,
   workspaceDir: string,
-): ZhushouConfig {
+): AssistantConfig {
   return {
     ...baseConfig,
     agents: {

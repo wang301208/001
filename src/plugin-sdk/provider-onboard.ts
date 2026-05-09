@@ -10,10 +10,10 @@ import type {
   ModelDefinitionConfig,
   ModelProviderConfig,
 } from "../config/types.models.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolvePrimaryStringValue } from "../shared/string-coerce.js";
 
-export type { ZhushouConfig, ModelApi, ModelDefinitionConfig, ModelProviderConfig };
+export type { AssistantConfig, ModelApi, ModelDefinitionConfig, ModelProviderConfig };
 export {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
@@ -34,8 +34,8 @@ const LEGACY_OPENCODE_ZEN_DEFAULT_MODELS = new Set([
 export const OPENCODE_ZEN_DEFAULT_MODEL = "opencode/claude-opus-4-6";
 
 export type ProviderOnboardPresetAppliers<TArgs extends unknown[]> = {
-  applyProviderConfig: (cfg: ZhushouConfig, ...args: TArgs) => ZhushouConfig;
-  applyConfig: (cfg: ZhushouConfig, ...args: TArgs) => ZhushouConfig;
+  applyProviderConfig: (cfg: AssistantConfig, ...args: TArgs) => AssistantConfig;
+  applyConfig: (cfg: AssistantConfig, ...args: TArgs) => AssistantConfig;
 };
 
 function extractAgentDefaultModelFallbacks(model: unknown): string[] | undefined {
@@ -66,7 +66,7 @@ type ProviderModelMergeState = {
 };
 
 function resolveProviderModelMergeState(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   providerId: string,
 ): ProviderModelMergeState {
   const providers = { ...cfg.models?.providers } as Record<string, ModelProviderConfig>;
@@ -106,7 +106,7 @@ function buildProviderConfig(params: {
 }
 
 function applyProviderConfigWithMergedModels(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     agentModels: Record<string, AgentModelEntryConfig>;
     providerId: string;
@@ -116,7 +116,7 @@ function applyProviderConfigWithMergedModels(
     mergedModels: ModelDefinitionConfig[];
     fallbackModels: ModelDefinitionConfig[];
   },
-): ZhushouConfig {
+): AssistantConfig {
   params.providerState.providers[params.providerId] = buildProviderConfig({
     existingProvider: params.providerState.existingProvider,
     api: params.api,
@@ -137,10 +137,10 @@ function createProviderPresetAppliers<
   },
 >(params: {
   resolveParams: (
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
     ...args: TArgs
   ) => Omit<TParams, "primaryModelRef"> | null | undefined;
-  applyPreset: (cfg: ZhushouConfig, preset: TParams) => ZhushouConfig;
+  applyPreset: (cfg: AssistantConfig, preset: TParams) => AssistantConfig;
   primaryModelRef: string;
 }): ProviderOnboardPresetAppliers<TArgs> {
   return {
@@ -177,12 +177,12 @@ export function withAgentModelAliases(
 }
 
 export function applyOnboardAuthAgentModelsAndProviders(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     agentModels: Record<string, AgentModelEntryConfig>;
     providers: Record<string, ModelProviderConfig>;
   },
-): ZhushouConfig {
+): AssistantConfig {
   return {
     ...cfg,
     agents: {
@@ -200,9 +200,9 @@ export function applyOnboardAuthAgentModelsAndProviders(
 }
 
 export function applyAgentDefaultModelPrimary(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   primary: string,
-): ZhushouConfig {
+): AssistantConfig {
   const existingFallbacks = extractAgentDefaultModelFallbacks(cfg.agents?.defaults?.model);
   return {
     ...cfg,
@@ -219,8 +219,8 @@ export function applyAgentDefaultModelPrimary(
   };
 }
 
-export function applyOpencodeZenModelDefault(cfg: ZhushouConfig): {
-  next: ZhushouConfig;
+export function applyOpencodeZenModelDefault(cfg: AssistantConfig): {
+  next: AssistantConfig;
   changed: boolean;
 } {
   const current = resolvePrimaryStringValue(cfg.agents?.defaults?.model);
@@ -238,7 +238,7 @@ export function applyOpencodeZenModelDefault(cfg: ZhushouConfig): {
 }
 
 export function applyProviderConfigWithDefaultModels(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     agentModels: Record<string, AgentModelEntryConfig>;
     providerId: string;
@@ -247,7 +247,7 @@ export function applyProviderConfigWithDefaultModels(
     defaultModels: ModelDefinitionConfig[];
     defaultModelId?: string;
   },
-): ZhushouConfig {
+): AssistantConfig {
   const providerState = resolveProviderModelMergeState(cfg, params.providerId);
   const defaultModels = params.defaultModels;
   const defaultModelId = params.defaultModelId ?? defaultModels[0]?.id;
@@ -272,7 +272,7 @@ export function applyProviderConfigWithDefaultModels(
 }
 
 export function applyProviderConfigWithDefaultModel(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     agentModels: Record<string, AgentModelEntryConfig>;
     providerId: string;
@@ -281,7 +281,7 @@ export function applyProviderConfigWithDefaultModel(
     defaultModel: ModelDefinitionConfig;
     defaultModelId?: string;
   },
-): ZhushouConfig {
+): AssistantConfig {
   return applyProviderConfigWithDefaultModels(cfg, {
     agentModels: params.agentModels,
     providerId: params.providerId,
@@ -293,7 +293,7 @@ export function applyProviderConfigWithDefaultModel(
 }
 
 export function applyProviderConfigWithDefaultModelPreset(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     providerId: string;
     api: ModelApi;
@@ -303,7 +303,7 @@ export function applyProviderConfigWithDefaultModelPreset(
     aliases?: readonly AgentModelAliasEntry[];
     primaryModelRef?: string;
   },
-): ZhushouConfig {
+): AssistantConfig {
   const next = applyProviderConfigWithDefaultModel(cfg, {
     agentModels: withAgentModelAliases(cfg.agents?.defaults?.models, params.aliases ?? []),
     providerId: params.providerId,
@@ -319,7 +319,7 @@ export function applyProviderConfigWithDefaultModelPreset(
 
 export function createDefaultModelPresetAppliers<TArgs extends unknown[]>(params: {
   resolveParams: (
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
     ...args: TArgs
   ) =>
     | Omit<Parameters<typeof applyProviderConfigWithDefaultModelPreset>[1], "primaryModelRef">
@@ -335,7 +335,7 @@ export function createDefaultModelPresetAppliers<TArgs extends unknown[]>(params
 }
 
 export function applyProviderConfigWithDefaultModelsPreset(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     providerId: string;
     api: ModelApi;
@@ -345,7 +345,7 @@ export function applyProviderConfigWithDefaultModelsPreset(
     aliases?: readonly AgentModelAliasEntry[];
     primaryModelRef?: string;
   },
-): ZhushouConfig {
+): AssistantConfig {
   const next = applyProviderConfigWithDefaultModels(cfg, {
     agentModels: withAgentModelAliases(cfg.agents?.defaults?.models, params.aliases ?? []),
     providerId: params.providerId,
@@ -361,7 +361,7 @@ export function applyProviderConfigWithDefaultModelsPreset(
 
 export function createDefaultModelsPresetAppliers<TArgs extends unknown[]>(params: {
   resolveParams: (
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
     ...args: TArgs
   ) =>
     | Omit<Parameters<typeof applyProviderConfigWithDefaultModelsPreset>[1], "primaryModelRef">
@@ -377,7 +377,7 @@ export function createDefaultModelsPresetAppliers<TArgs extends unknown[]>(param
 }
 
 export function applyProviderConfigWithModelCatalog(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     agentModels: Record<string, AgentModelEntryConfig>;
     providerId: string;
@@ -385,7 +385,7 @@ export function applyProviderConfigWithModelCatalog(
     baseUrl: string;
     catalogModels: ModelDefinitionConfig[];
   },
-): ZhushouConfig {
+): AssistantConfig {
   const providerState = resolveProviderModelMergeState(cfg, params.providerId);
   const catalogModels = params.catalogModels;
   const mergedModels =
@@ -409,7 +409,7 @@ export function applyProviderConfigWithModelCatalog(
 }
 
 export function applyProviderConfigWithModelCatalogPreset(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: {
     providerId: string;
     api: ModelApi;
@@ -418,7 +418,7 @@ export function applyProviderConfigWithModelCatalogPreset(
     aliases?: readonly AgentModelAliasEntry[];
     primaryModelRef?: string;
   },
-): ZhushouConfig {
+): AssistantConfig {
   const next = applyProviderConfigWithModelCatalog(cfg, {
     agentModels: withAgentModelAliases(cfg.agents?.defaults?.models, params.aliases ?? []),
     providerId: params.providerId,
@@ -433,7 +433,7 @@ export function applyProviderConfigWithModelCatalogPreset(
 
 export function createModelCatalogPresetAppliers<TArgs extends unknown[]>(params: {
   resolveParams: (
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
     ...args: TArgs
   ) =>
     | Omit<Parameters<typeof applyProviderConfigWithModelCatalogPreset>[1], "primaryModelRef">
@@ -449,10 +449,10 @@ export function createModelCatalogPresetAppliers<TArgs extends unknown[]>(params
 }
 
 export function ensureModelAllowlistEntry(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   modelRef: string;
   defaultProvider?: string;
-}): ZhushouConfig {
+}): AssistantConfig {
   const rawModelRef = params.modelRef.trim();
   if (!rawModelRef) {
     return params.cfg;

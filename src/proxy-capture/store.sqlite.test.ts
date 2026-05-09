@@ -21,7 +21,7 @@ afterEach(() => {
 });
 
 function makeStore() {
-  const root = mkdtempSync(path.join(os.tmpdir(), "zhushou-proxy-capture-"));
+  const root = mkdtempSync(path.join(os.tmpdir(), "assistant-proxy-capture-"));
   cleanupDirs.push(root);
   const store = new DebugProxyCaptureStore(path.join(root, "capture.sqlite"), path.join(root, "blobs"));
   cleanupStores.push(store);
@@ -35,8 +35,8 @@ describe("DebugProxyCaptureStore", () => {
       id: "session-1",
       startedAt: Date.now(),
       mode: "proxy-run",
-      sourceScope: "zhushou",
-      sourceProcess: "zhushou",
+      sourceScope: "assistant",
+      sourceProcess: "assistant",
       dbPath: store.dbPath,
       blobDir: store.blobDir,
     });
@@ -47,8 +47,8 @@ describe("DebugProxyCaptureStore", () => {
     store.recordEvent({
       sessionId: "session-1",
       ts: 1,
-      sourceScope: "zhushou",
-      sourceProcess: "zhushou",
+      sourceScope: "assistant",
+      sourceProcess: "assistant",
       protocol: "https",
       direction: "outbound",
       kind: "request",
@@ -61,8 +61,8 @@ describe("DebugProxyCaptureStore", () => {
     store.recordEvent({
       sessionId: "session-1",
       ts: 2,
-      sourceScope: "zhushou",
-      sourceProcess: "zhushou",
+      sourceScope: "assistant",
+      sourceProcess: "assistant",
       protocol: "https",
       direction: "outbound",
       kind: "request",
@@ -97,16 +97,16 @@ describe("DebugProxyCaptureStore", () => {
         id: sessionId,
         startedAt: Date.now(),
         mode: "proxy-run",
-        sourceScope: "zhushou",
-        sourceProcess: "zhushou",
+        sourceScope: "assistant",
+        sourceProcess: "assistant",
         dbPath: store.dbPath,
         blobDir: store.blobDir,
       });
       store.recordEvent({
         sessionId,
         ts: Date.now(),
-        sourceScope: "zhushou",
-        sourceProcess: "zhushou",
+        sourceScope: "assistant",
+        sourceProcess: "assistant",
         protocol: "https",
         direction: "outbound",
         kind: "request",

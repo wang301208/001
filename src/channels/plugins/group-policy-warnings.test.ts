@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import {
   collectAllowlistProviderGroupPolicyWarnings,
   collectAllowlistProviderRestrictSendersWarnings,
@@ -49,13 +49,13 @@ describe("group policy warning builders", () => {
   });
 
   it("projects cfg-only warning collector inputs", () => {
-    const collect = projectConfigWarningCollector<{ cfg: ZhushouConfig; accountId: string }>(
+    const collect = projectConfigWarningCollector<{ cfg: AssistantConfig; accountId: string }>(
       ({ cfg }) => [cfg.channels ? "configured" : "none"],
     );
 
     expect(
       collect({
-        cfg: { channels: { slack: {} } } as ZhushouConfig,
+        cfg: { channels: { slack: {} } } as AssistantConfig,
         accountId: "acct-1",
       }),
     ).toEqual(["configured"]);
@@ -63,14 +63,14 @@ describe("group policy warning builders", () => {
 
   it("projects cfg+accountId warning collector inputs", () => {
     const collect = projectConfigAccountIdWarningCollector<{
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       accountId?: string | null;
       account: { accountId: string };
     }>(({ accountId }) => [accountId ?? "default"]);
 
     expect(
       collect({
-        cfg: {} as ZhushouConfig,
+        cfg: {} as AssistantConfig,
         accountId: "acct-1",
         account: { accountId: "ignored" },
       }),
@@ -90,16 +90,16 @@ describe("group policy warning builders", () => {
     const collect = projectAccountConfigWarningCollector<
       { accountId: string },
       Record<string, unknown>,
-      { account: { accountId: string }; cfg: ZhushouConfig }
+      { account: { accountId: string }; cfg: AssistantConfig }
     >(
-      (cfg: ZhushouConfig) => cfg.channels ?? {},
+      (cfg: AssistantConfig) => cfg.channels ?? {},
       ({ account, cfg }) => [account.accountId, Object.keys(cfg).join(",") || "none"],
     );
 
     expect(
       collect({
         account: { accountId: "acct-1" },
-        cfg: { channels: { slack: {} } } as ZhushouConfig,
+        cfg: { channels: { slack: {} } } as AssistantConfig,
       }),
     ).toEqual(["acct-1", "slack"]);
   });

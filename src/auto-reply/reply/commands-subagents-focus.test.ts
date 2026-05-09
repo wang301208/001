@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions/types.js";
 import type { SessionBindingRecord } from "../../infra/outbound/session-binding-service.js";
 import { handleSubagentsFocusAction } from "./commands-subagents/action-focus.js";
@@ -84,7 +84,7 @@ vi.mock("../../channels/thread-bindings-policy.js", () => ({
     threadId?: string;
   }) => (params.channel === ROOM_CHANNEL && !params.threadId ? "child" : "current"),
   resolveThreadBindingSpawnPolicy: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     channel: string;
     accountId: string;
   }) => {
@@ -119,7 +119,7 @@ vi.mock("./commands-subagents/shared.js", async () => {
 
 const baseCfg = {
   session: { mainKey: "main", scope: "per-sender" },
-} satisfies ZhushouConfig;
+} satisfies AssistantConfig;
 
 function createSessionBindingRecord(
   overrides?: Partial<SessionBindingRecord>,
@@ -154,7 +154,7 @@ function createSessionBindingCapabilities() {
 }
 
 function buildCommandParams(params?: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   chatType?: string;
   senderId?: string;
   sessionEntry?: SessionEntry;
@@ -198,7 +198,7 @@ function buildCommandParams(params?: {
     elevated: { enabled: false, allowed: false, failures: [] },
     sessionEntry: params?.sessionEntry,
     sessionKey: "agent:main:main",
-    workspaceDir: "/tmp/zhushou-subagents-focus",
+    workspaceDir: "/tmp/assistant-subagents-focus",
     defaultGroupActivation: () => "mention",
     resolvedVerboseLevel: "off",
     resolvedReasoningLevel: "off",
@@ -211,7 +211,7 @@ function buildCommandParams(params?: {
 }
 
 function buildFocusContext(params?: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   chatType?: string;
   senderId?: string;
   token?: string;
@@ -352,8 +352,8 @@ describe("focus actions", () => {
                 spawnSubagentSessions: true,
               },
             },
-          } as ZhushouConfig["channels"],
-        } as ZhushouConfig,
+          } as AssistantConfig["channels"],
+        } as AssistantConfig,
       }),
     );
 
@@ -410,8 +410,8 @@ describe("focus actions", () => {
                 enabled: true,
               },
             },
-          } as ZhushouConfig["channels"],
-        } as ZhushouConfig,
+          } as AssistantConfig["channels"],
+        } as AssistantConfig,
       }),
     );
 

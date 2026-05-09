@@ -67,8 +67,8 @@ function buildAccount(): ResolvedIrcAccount {
     host: "irc.example.com",
     port: 6697,
     tls: true,
-    nick: "zhushou",
-    username: "zhushou",
+    nick: "assistant",
+    username: "assistant",
     realname: "助手",
     password: "",
     passwordSource: "none",
@@ -208,7 +208,7 @@ describe("irc setup", () => {
     expect(
       updateIrcAccountConfig(cfg, "work", {
         host: "irc.libera.chat",
-        nick: "zhushou-work",
+        nick: "assistant-work",
       }),
     ).toMatchObject({
       channels: {
@@ -216,7 +216,7 @@ describe("irc setup", () => {
           accounts: {
             work: {
               host: "irc.libera.chat",
-              nick: "zhushou-work",
+              nick: "assistant-work",
             },
           },
         },
@@ -232,7 +232,7 @@ describe("irc setup", () => {
         cfg,
         "default",
         "allowlist",
-        ["zhushou", "#ops", "zhushou", "*"],
+        ["assistant", "#ops", "assistant", "*"],
         (raw) => {
           const trimmed = raw.trim();
           if (!trimmed) {
@@ -250,7 +250,7 @@ describe("irc setup", () => {
           enabled: true,
           groupPolicy: "allowlist",
           groups: {
-            "#zhushou": {},
+            "#assistant": {},
             "#ops": {},
             "*": {},
           },
@@ -276,7 +276,7 @@ describe("irc setup", () => {
 
     expect(
       validateInput!({
-        input: { host: "", nick: "zhushou" },
+        input: { host: "", nick: "assistant" },
       } as never),
     ).toBe("IRC requires host.");
 
@@ -288,7 +288,7 @@ describe("irc setup", () => {
 
     expect(
       validateInput!({
-        input: { host: "irc.libera.chat", nick: "zhushou" },
+        input: { host: "irc.libera.chat", nick: "assistant" },
       } as never),
     ).toBeNull();
 
@@ -301,11 +301,11 @@ describe("irc setup", () => {
           host: " irc.libera.chat ",
           port: "7000",
           tls: true,
-          nick: " zhushou ",
+          nick: " assistant ",
           username: " claw ",
           realname: " 助手 Bot ",
           password: " secret ",
-          channels: ["#zhushou"],
+          channels: ["#assistant"],
         },
       } as never),
     ).toEqual({
@@ -316,11 +316,11 @@ describe("irc setup", () => {
           host: "irc.libera.chat",
           port: 7000,
           tls: true,
-          nick: "zhushou",
+          nick: "assistant",
           username: "claw",
           realname: "助手 Bot",
           password: "secret",
-          channels: ["#zhushou"],
+          channels: ["#assistant"],
         },
       },
     });
@@ -336,19 +336,19 @@ describe("irc setup", () => {
           return "6697";
         }
         if (message === "IRC nick") {
-          return "zhushou-bot";
+          return "assistant-bot";
         }
         if (message === "IRC username") {
-          return "zhushou";
+          return "assistant";
         }
         if (message === "IRC real name") {
           return "助手 Bot";
         }
         if (message.startsWith("Auto-join IRC channels")) {
-          return "#zhushou, #ops";
+          return "#assistant, #ops";
         }
         if (message.startsWith("IRC channels allowlist")) {
-          return "#zhushou, #ops";
+          return "#assistant, #ops";
         }
         throw new Error(`Unexpected prompt: ${message}`);
       }) as WizardPrompter["text"],
@@ -373,11 +373,11 @@ describe("irc setup", () => {
     expect(result.accountId).toBe("default");
     expect(result.cfg.channels?.irc?.enabled).toBe(true);
     expect(result.cfg.channels?.irc?.host).toBe("irc.libera.chat");
-    expect(result.cfg.channels?.irc?.nick).toBe("zhushou-bot");
+    expect(result.cfg.channels?.irc?.nick).toBe("assistant-bot");
     expect(result.cfg.channels?.irc?.tls).toBe(true);
-    expect(result.cfg.channels?.irc?.channels).toEqual(["#zhushou", "#ops"]);
+    expect(result.cfg.channels?.irc?.channels).toEqual(["#assistant", "#ops"]);
     expect(result.cfg.channels?.irc?.groupPolicy).toBe("allowlist");
-    expect(Object.keys(result.cfg.channels?.irc?.groups ?? {})).toEqual(["#zhushou", "#ops"]);
+    expect(Object.keys(result.cfg.channels?.irc?.groups ?? {})).toEqual(["#assistant", "#ops"]);
   });
 
   it("writes DM allowFrom to top-level config for non-default account prompts", async () => {
@@ -402,7 +402,7 @@ describe("irc setup", () => {
           accounts: {
             work: {
               host: "irc.libera.chat",
-              nick: "zhushou-work",
+              nick: "assistant-work",
             },
           },
         },

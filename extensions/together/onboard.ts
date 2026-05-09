@@ -1,7 +1,7 @@
 import {
   createModelCatalogPresetAppliers,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import {
   buildTogetherModelDefinition,
   TOGETHER_BASE_URL,
@@ -12,7 +12,7 @@ export const TOGETHER_DEFAULT_MODEL_REF = "together/moonshotai/Kimi-K2.5";
 
 const togetherPresetAppliers = createModelCatalogPresetAppliers({
   primaryModelRef: TOGETHER_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig) => ({
+  resolveParams: (_cfg: AssistantConfig) => ({
     providerId: "together",
     api: "openai-completions",
     baseUrl: TOGETHER_BASE_URL,
@@ -21,10 +21,10 @@ const togetherPresetAppliers = createModelCatalogPresetAppliers({
   }),
 });
 
-export function applyTogetherProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyTogetherProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return togetherPresetAppliers.applyProviderConfig(cfg);
 }
 
-export function applyTogetherConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyTogetherConfig(cfg: AssistantConfig): AssistantConfig {
   return togetherPresetAppliers.applyConfig(cfg);
 }

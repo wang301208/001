@@ -1,22 +1,22 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 import type { ProviderRuntimeModel } from "../plugins/provider-runtime-model.types.js";
 import type {
   AnyAgentTool,
   AgentHarness,
   MediaUnderstandingProviderPlugin,
-  ZhushouPluginApi,
-  OpenClawPluginCommandDefinition,
-  OpenClawPluginConfigSchema,
-  OpenClawPluginDefinition,
-  OpenClawPluginNodeHostCommand,
-  OpenClawPluginReloadRegistration,
-  OpenClawPluginSecurityAuditCollector,
-  OpenClawPluginSecurityAuditContext,
-  OpenClawPluginService,
-  OpenClawPluginServiceContext,
-  OpenClawPluginToolContext,
-  OpenClawPluginToolFactory,
+  AssistantPluginApi,
+  AssistantPluginCommandDefinition,
+  AssistantPluginConfigSchema,
+  AssistantPluginDefinition,
+  AssistantPluginNodeHostCommand,
+  AssistantPluginReloadRegistration,
+  AssistantPluginSecurityAuditCollector,
+  AssistantPluginSecurityAuditContext,
+  AssistantPluginService,
+  AssistantPluginServiceContext,
+  AssistantPluginToolContext,
+  AssistantPluginToolFactory,
   PluginLogger,
   ProviderAugmentModelCatalogContext,
   ProviderAuthContext,
@@ -76,15 +76,15 @@ export type {
   AnyAgentTool,
   AgentHarness,
   MediaUnderstandingProviderPlugin,
-  ZhushouPluginApi,
-  OpenClawPluginNodeHostCommand,
-  OpenClawPluginReloadRegistration,
-  OpenClawPluginSecurityAuditCollector,
-  OpenClawPluginSecurityAuditContext,
-  OpenClawPluginToolContext,
-  OpenClawPluginToolFactory,
+  AssistantPluginApi,
+  AssistantPluginNodeHostCommand,
+  AssistantPluginReloadRegistration,
+  AssistantPluginSecurityAuditCollector,
+  AssistantPluginSecurityAuditContext,
+  AssistantPluginToolContext,
+  AssistantPluginToolFactory,
   PluginCommandContext,
-  OpenClawPluginConfigSchema,
+  AssistantPluginConfigSchema,
   ProviderDiscoveryContext,
   ProviderCatalogContext,
   ProviderCatalogResult,
@@ -130,19 +130,19 @@ export type {
   ProviderValidateReplayTurnsContext,
   ProviderWebSocketSessionPolicy,
   ProviderWrapStreamFnContext,
-  OpenClawPluginService,
-  OpenClawPluginServiceContext,
+  AssistantPluginService,
+  AssistantPluginServiceContext,
   ProviderAuthContext,
   ProviderAuthDoctorHintContext,
   ProviderAuthMethodNonInteractiveContext,
   ProviderAuthMethod,
   ProviderAuthResult,
-  OpenClawPluginCommandDefinition,
-  OpenClawPluginDefinition,
+  AssistantPluginCommandDefinition,
+  AssistantPluginDefinition,
   PluginLogger,
 };
 export type { ProviderRuntimeModel } from "../plugins/provider-runtime-model.types.js";
-export type { ZhushouConfig };
+export type { AssistantConfig };
 
 export { buildPluginConfigSchema, emptyPluginConfigSchema } from "../plugins/config-schema.js";
 
@@ -151,12 +151,12 @@ type DefinePluginEntryOptions = {
   id: string;
   name: string;
   description: string;
-  kind?: OpenClawPluginDefinition["kind"];
-  configSchema?: OpenClawPluginConfigSchema | (() => OpenClawPluginConfigSchema);
-  reload?: OpenClawPluginDefinition["reload"];
-  nodeHostCommands?: OpenClawPluginDefinition["nodeHostCommands"];
-  securityAuditCollectors?: OpenClawPluginDefinition["securityAuditCollectors"];
-  register: (api: ZhushouPluginApi) => void;
+  kind?: AssistantPluginDefinition["kind"];
+  configSchema?: AssistantPluginConfigSchema | (() => AssistantPluginConfigSchema);
+  reload?: AssistantPluginDefinition["reload"];
+  nodeHostCommands?: AssistantPluginDefinition["nodeHostCommands"];
+  securityAuditCollectors?: AssistantPluginDefinition["securityAuditCollectors"];
+  register: (api: AssistantPluginApi) => void;
 };
 
 /** Normalized object shape that 助手 loads from a plugin entry module. */
@@ -164,10 +164,10 @@ type DefinedPluginEntry = {
   id: string;
   name: string;
   description: string;
-  configSchema: OpenClawPluginConfigSchema;
-  register: NonNullable<OpenClawPluginDefinition["register"]>;
+  configSchema: AssistantPluginConfigSchema;
+  register: NonNullable<AssistantPluginDefinition["register"]>;
 } & Pick<
-  OpenClawPluginDefinition,
+  AssistantPluginDefinition,
   "kind" | "reload" | "nodeHostCommands" | "securityAuditCollectors"
 >;
 
@@ -176,7 +176,7 @@ type DefinedPluginEntry = {
  *
  * Use this for provider, tool, command, service, memory, and context-engine
  * plugins. Channel plugins should use `defineChannelPluginEntry(...)` from
- * `zhushou/plugin-sdk/core` so they inherit the channel capability wiring.
+ * `assistant/plugin-sdk/core` so they inherit the channel capability wiring.
  */
 export function definePluginEntry({
   id,

@@ -1,15 +1,15 @@
-import type { ZhushouConfig, ZhushouPluginApi } from "zhushou/plugin-sdk/memory-core";
-import { resolveMemoryDreamingConfig } from "zhushou/plugin-sdk/memory-core-host-status";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { AssistantConfig, AssistantPluginApi } from "assistant/plugin-sdk/memory-core";
+import { resolveMemoryDreamingConfig } from "assistant/plugin-sdk/memory-core-host-status";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { asRecord } from "./dreaming-shared.js";
 import { resolveShortTermPromotionDreamingConfig } from "./dreaming.js";
 
-function resolveMemoryCorePluginConfig(cfg: ZhushouConfig): Record<string, unknown> {
+function resolveMemoryCorePluginConfig(cfg: AssistantConfig): Record<string, unknown> {
   const entry = asRecord(cfg.plugins?.entries?.["memory-core"]);
   return asRecord(entry?.config) ?? {};
 }
 
-function updateDreamingEnabledInConfig(cfg: ZhushouConfig, enabled: boolean): ZhushouConfig {
+function updateDreamingEnabledInConfig(cfg: AssistantConfig, enabled: boolean): AssistantConfig {
   const entries = { ...cfg.plugins?.entries };
   const existingEntry = asRecord(entries["memory-core"]) ?? {};
   const existingConfig = asRecord(existingEntry.config) ?? {};
@@ -46,7 +46,7 @@ function formatPhaseGuide(): string {
   ].join("\n");
 }
 
-function formatStatus(cfg: ZhushouConfig): string {
+function formatStatus(cfg: AssistantConfig): string {
   const pluginConfig = resolveMemoryCorePluginConfig(cfg);
   const dreaming = resolveMemoryDreamingConfig({
     pluginConfig,
@@ -79,7 +79,7 @@ function requiresAdminToMutateDreaming(gatewayClientScopes?: readonly string[]):
   return Array.isArray(gatewayClientScopes) && !gatewayClientScopes.includes("operator.admin");
 }
 
-export function registerDreamingCommand(api: ZhushouPluginApi): void {
+export function registerDreamingCommand(api: AssistantPluginApi): void {
   api.registerCommand({
     name: "dreaming",
     description: "Enable or disable memory dreaming.",

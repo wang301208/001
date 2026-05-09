@@ -1,11 +1,11 @@
 import http from "node:http";
 import { URL } from "node:url";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   createWebhookInFlightLimiter,
   WEBHOOK_BODY_READ_DEFAULTS,
-} from "zhushou/plugin-sdk/webhook-ingress";
+} from "assistant/plugin-sdk/webhook-ingress";
 import {
   isRequestBodyLimitError,
   readRequestBodyWithLimit,
@@ -129,7 +129,7 @@ export class VoiceCallWebhookServer {
   private manager: CallManager;
   private provider: VoiceCallProvider;
   private coreConfig: CoreConfig | null;
-  private fullConfig: ZhushouConfig | null;
+  private fullConfig: AssistantConfig | null;
   private agentRuntime: CoreAgentDeps | null;
   private stopStaleCallReaper: (() => void) | null = null;
   private readonly webhookInFlightLimiter = createWebhookInFlightLimiter();
@@ -146,7 +146,7 @@ export class VoiceCallWebhookServer {
     manager: CallManager,
     provider: VoiceCallProvider,
     coreConfig?: CoreConfig,
-    fullConfig?: ZhushouConfig,
+    fullConfig?: AssistantConfig,
     agentRuntime?: CoreAgentDeps,
   ) {
     this.config = normalizeVoiceCallConfig(config);
@@ -231,14 +231,14 @@ export class VoiceCallWebhookServer {
   private async initializeMediaStreaming(): Promise<void> {
     const streaming = this.config.streaming;
     const pluginConfig =
-      this.fullConfig ?? (this.coreConfig as unknown as ZhushouConfig | undefined);
+      this.fullConfig ?? (this.coreConfig as unknown as AssistantConfig | undefined);
     const { getRealtimeTranscriptionProvider, listRealtimeTranscriptionProviders } =
       await import("./realtime-transcription.runtime.js");
     const resolution = resolveConfiguredCapabilityProvider({
       configuredProviderId: streaming.provider,
       providerConfigs: streaming.providers,
       cfg: pluginConfig,
-      cfgForResolve: pluginConfig ?? ({} as ZhushouConfig),
+      cfgForResolve: pluginConfig ?? ({} as AssistantConfig),
       getConfiguredProvider: (providerId) =>
         getRealtimeTranscriptionProvider(providerId, pluginConfig),
       listProviders: () => listRealtimeTranscriptionProviders(pluginConfig),

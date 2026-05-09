@@ -56,6 +56,26 @@ describe("createEditorSubmitHandler", () => {
     expect(handleCommand).not.toHaveBeenCalled();
     expect(handleBangLine).not.toHaveBeenCalled();
   });
+
+  it("queues normal messages while a run is active", () => {
+    const { enqueueMessage, sendMessage, onSubmit } = createSubmitHarness({
+      hasActiveRun: () => true,
+    });
+
+    onSubmit("follow this next");
+
+    expect(enqueueMessage).toHaveBeenCalledWith("follow this next", "followUp");
+    expect(sendMessage).not.toHaveBeenCalled();
+  });
+
+  it("routes natural-language control intents before sending to the agent", () => {
+    const { handleCommand, sendMessage, onSubmit } = createSubmitHarness();
+
+    onSubmit("打开设置");
+
+    expect(handleCommand).toHaveBeenCalledWith("/settings");
+    expect(sendMessage).not.toHaveBeenCalled();
+  });
 });
 
 describe("createSubmitBurstCoalescer", () => {

@@ -1,20 +1,20 @@
 import { type Block, type KnownBlock, type WebClient } from "@slack/web-api";
-import { loadConfig, type ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
-import { withTrustedEnvProxyGuardedFetchMode } from "zhushou/plugin-sdk/fetch-runtime";
+import { loadConfig, type AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
+import { withTrustedEnvProxyGuardedFetchMode } from "assistant/plugin-sdk/fetch-runtime";
 import {
   chunkMarkdownTextWithMode,
   isSilentReplyText,
   resolveChunkMode,
   resolveTextChunkLimit,
-} from "zhushou/plugin-sdk/reply-chunking";
-import { resolveTextChunksWithFallback } from "zhushou/plugin-sdk/reply-payload";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/reply-chunking";
+import { resolveTextChunksWithFallback } from "assistant/plugin-sdk/reply-payload";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import type { SlackTokenSource } from "./accounts.js";
 import { resolveSlackAccount } from "./accounts.js";
 import { buildSlackBlocksFallbackText } from "./blocks-fallback.js";
@@ -49,7 +49,7 @@ export type SlackSendIdentity = {
 };
 
 type SlackSendOpts = {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   token?: string;
   accountId?: string;
   mediaUrl?: string;

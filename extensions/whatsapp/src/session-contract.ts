@@ -1,4 +1,4 @@
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 
 function extractLegacyWhatsAppGroupId(key: string): string | null {
   const trimmed = key.trim();

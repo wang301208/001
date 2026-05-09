@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveSecretInputRef } from "../config/types.secrets.js";
 import { createLazyRuntimeNamedExport } from "../shared/lazy-runtime.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
@@ -51,8 +51,8 @@ export type RuntimeWebProviderSelectionParams<
   configuredProvider?: string;
   metadata: TMetadata;
   diagnostics: RuntimeWebDiagnostic[];
-  sourceConfig: ZhushouConfig;
-  resolvedConfig: ZhushouConfig;
+  sourceConfig: AssistantConfig;
+  resolvedConfig: AssistantConfig;
   context: ResolverContext;
   defaults: SecretDefaults | undefined;
   deferKeylessFallback: boolean;
@@ -61,7 +61,7 @@ export type RuntimeWebProviderSelectionParams<
   autoDetectSelectedCode: RuntimeWebWarningCode;
   readConfiguredCredential: (params: {
     provider: TProvider;
-    config: ZhushouConfig;
+    config: AssistantConfig;
     toolConfig: TToolConfig;
   }) => unknown;
   resolveSecretInput: (params: {
@@ -70,7 +70,7 @@ export type RuntimeWebProviderSelectionParams<
     envVars: string[];
   }) => Promise<SecretResolutionResult<TSource>>;
   setResolvedCredential: (params: {
-    resolvedConfig: ZhushouConfig;
+    resolvedConfig: AssistantConfig;
     provider: TProvider;
     value: string;
   }) => void;
@@ -144,14 +144,14 @@ export type ResolveRuntimeWebProviderSurfaceParams<
   diagnostics: RuntimeWebDiagnostic[];
   metadataDiagnostics: RuntimeWebDiagnostic[];
   invalidAutoDetectCode: RuntimeWebWarningCode;
-  sourceConfig: ZhushouConfig;
+  sourceConfig: AssistantConfig;
   context: ResolverContext;
   configuredBundledPluginIdHint?: string;
   resolveProviders: (params: { configuredBundledPluginId?: string }) => Promise<TProvider[]>;
   sortProviders: (providers: TProvider[]) => TProvider[];
   readConfiguredCredential: (params: {
     provider: TProvider;
-    config: ZhushouConfig;
+    config: AssistantConfig;
     toolConfig: TToolConfig;
   }) => unknown;
   ignoreKeylessProvidersForConfiguredSurface?: boolean;

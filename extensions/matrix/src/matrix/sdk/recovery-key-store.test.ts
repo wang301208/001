@@ -129,7 +129,7 @@ describe("MatrixRecoveryKeyStore", () => {
     callbacks.cacheSecretStorageKey?.(
       "KEY123",
       {
-        name: "zhushou",
+        name: "assistant",
       },
       new Uint8Array([9, 8, 7]),
     );

@@ -12,7 +12,7 @@ type SharedCodexAppServerClientState = {
   key?: string;
 };
 
-const SHARED_CODEX_APP_SERVER_CLIENT_STATE = Symbol.for("zhushou.codexAppServerClientState");
+const SHARED_CODEX_APP_SERVER_CLIENT_STATE = Symbol.for("assistant.codexAppServerClientState");
 
 function getSharedCodexAppServerClientState(): SharedCodexAppServerClientState {
   const globalState = globalThis as typeof globalThis & {

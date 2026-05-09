@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   computeBackoff,
   sleepWithAbort,
   type BackoffPolicy,
-} from "zhushou/plugin-sdk/runtime-env";
-import { clamp } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/runtime-env";
+import { clamp } from "assistant/plugin-sdk/text-runtime";
 
 export type ReconnectPolicy = BackoffPolicy & {
   maxAttempts: number;
@@ -20,7 +20,7 @@ export const DEFAULT_RECONNECT_POLICY: ReconnectPolicy = {
   maxAttempts: 12,
 };
 
-export function resolveHeartbeatSeconds(cfg: ZhushouConfig, overrideSeconds?: number): number {
+export function resolveHeartbeatSeconds(cfg: AssistantConfig, overrideSeconds?: number): number {
   const candidate = overrideSeconds ?? cfg.web?.heartbeatSeconds;
   if (typeof candidate === "number" && candidate > 0) {
     return candidate;
@@ -29,7 +29,7 @@ export function resolveHeartbeatSeconds(cfg: ZhushouConfig, overrideSeconds?: nu
 }
 
 export function resolveReconnectPolicy(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   overrides?: Partial<ReconnectPolicy>,
 ): ReconnectPolicy {
   const reconnectOverrides = cfg.web?.reconnect ?? {};

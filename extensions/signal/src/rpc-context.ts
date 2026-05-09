@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 
 export function resolveSignalRpcContext(

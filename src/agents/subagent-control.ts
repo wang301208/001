@@ -8,7 +8,7 @@ import {
 } from "../auto-reply/reply/subagents-utils.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { loadSessionStore, resolveStorePath, updateSessionStore } from "../config/sessions.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { callGateway } from "../gateway/call.js";
 import { logVerbose } from "../globals.js";
 import { formatErrorMessage } from "../infra/errors.js";
@@ -82,7 +82,7 @@ export {
 };
 
 export function resolveSubagentController(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentSessionKey?: string;
 }): ResolvedSubagentController {
   const { mainKey, alias } = resolveMainSessionAlias(params.cfg);
@@ -139,7 +139,7 @@ function ensureControllerOwnsRun(params: {
 }
 
 async function killSubagentRun(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   entry: SubagentRunRecord;
   cache: Map<string, Record<string, SessionEntry>>;
 }): Promise<{ killed: boolean; sessionId?: string }> {
@@ -187,7 +187,7 @@ async function killSubagentRun(params: {
 }
 
 async function cascadeKillChildren(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   parentChildSessionKey: string;
   cache: Map<string, Record<string, SessionEntry>>;
   seenChildSessionKeys?: Set<string>;
@@ -251,7 +251,7 @@ async function cascadeKillChildren(params: {
 }
 
 export async function killAllControlledSubagentRuns(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   controller: ResolvedSubagentController;
   runs: SubagentRunRecord[];
 }) {
@@ -299,7 +299,7 @@ export async function killAllControlledSubagentRuns(params: {
 }
 
 export async function killControlledSubagentRun(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   controller: ResolvedSubagentController;
   entry: SubagentRunRecord;
 }) {
@@ -374,7 +374,7 @@ export async function killControlledSubagentRun(params: {
   };
 }
 
-export async function killSubagentRunAdmin(params: { cfg: ZhushouConfig; sessionKey: string }) {
+export async function killSubagentRunAdmin(params: { cfg: AssistantConfig; sessionKey: string }) {
   const targetSessionKey = params.sessionKey.trim();
   if (!targetSessionKey) {
     return { found: false as const, killed: false };
@@ -409,7 +409,7 @@ export async function killSubagentRunAdmin(params: { cfg: ZhushouConfig; session
 }
 
 export async function steerControlledSubagentRun(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   controller: ResolvedSubagentController;
   entry: SubagentRunRecord;
   message: string;
@@ -596,7 +596,7 @@ export async function steerControlledSubagentRun(params: {
 }
 
 export async function sendControlledSubagentMessage(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   controller: ResolvedSubagentController;
   entry: SubagentRunRecord;
   message: string;

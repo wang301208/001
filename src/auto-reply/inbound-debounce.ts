@@ -1,5 +1,5 @@
 import type { InboundDebounceByProvider } from "../config/types.messages.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 const resolveMs = (value: unknown): number | undefined => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -19,7 +19,7 @@ const resolveChannelOverride = (params: {
 };
 
 export function resolveInboundDebounceMs(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   overrideMs?: number;
 }): number {

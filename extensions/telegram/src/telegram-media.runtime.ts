@@ -3,4 +3,4 @@ export {
   getAgentScopedMediaLocalRoots,
   MediaFetchError,
   saveMediaBuffer,
-} from "zhushou/plugin-sdk/media-runtime";
+} from "assistant/plugin-sdk/media-runtime";

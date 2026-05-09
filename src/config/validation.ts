@@ -36,9 +36,9 @@ import { GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA } from "./bundled-channel-con
 import { collectChannelSchemaMetadata } from "./channel-config-metadata.js";
 import { findLegacyConfigIssues } from "./legacy.js";
 import { materializeRuntimeConfig } from "./materialize.js";
-import type { ZhushouConfig, ConfigValidationIssue } from "./types.js";
+import type { AssistantConfig, ConfigValidationIssue } from "./types.js";
 import { coerceSecretRef } from "./types.secrets.js";
-import { OpenClawSchema } from "./zod-schema.js";
+import { AssistantSchema } from "./zod-schema.js";
 
 const LEGACY_REMOVED_PLUGIN_IDS = new Set(["google-antigravity-auth", "google-gemini-cli-auth"]);
 
@@ -52,7 +52,7 @@ type AllowedValuesCollection = {
 type JsonSchemaLike = Record<string, unknown>;
 
 const CUSTOM_EXPECTED_ONE_OF_RE = /expected one of ((?:"[^"]+"(?:\|"?[^"]+"?)*)+)/i;
-const SECRETREF_POLICY_DOC_URL = "https://docs.zhushou.ai/reference/secretref-credential-surface";
+const SECRETREF_POLICY_DOC_URL = "https://docs.assistant.ai/reference/secretref-credential-surface";
 const bundledChannelSchemaById = new Map<string, unknown>(
   GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA.map(
     (entry) => [entry.channelId, entry.schema] as const,
@@ -489,7 +489,7 @@ function isWorkspaceAvatarPath(value: string, workspaceDir: string): boolean {
   return isPathWithinRoot(workspaceRoot, resolved);
 }
 
-function validateIdentityAvatar(config: ZhushouConfig): ConfigValidationIssue[] {
+function validateIdentityAvatar(config: AssistantConfig): ConfigValidationIssue[] {
   const agents = config.agents?.list;
   if (!Array.isArray(agents) || agents.length === 0) {
     return [];
@@ -539,7 +539,7 @@ function validateIdentityAvatar(config: ZhushouConfig): ConfigValidationIssue[] 
   return issues;
 }
 
-function validateGatewayTailscaleBind(config: ZhushouConfig): ConfigValidationIssue[] {
+function validateGatewayTailscaleBind(config: AssistantConfig): ConfigValidationIssue[] {
   const tailscaleMode = config.gateway?.tailscale?.mode ?? "off";
   if (tailscaleMode !== "serve" && tailscaleMode !== "funnel") {
     return [];
@@ -575,7 +575,7 @@ export function validateConfigObjectRaw(
   opts?: {
     touchedPaths?: ReadonlyArray<ReadonlyArray<string>>;
   },
-): { ok: true; config: ZhushouConfig } | { ok: false; issues: ConfigValidationIssue[] } {
+): { ok: true; config: AssistantConfig } | { ok: false; issues: ConfigValidationIssue[] } {
   const policyIssues = collectUnsupportedSecretRefPolicyIssues(raw);
   const doctorPluginIds = opts?.touchedPaths
     ? collectRelevantDoctorPluginIdsForTouchedPaths({
@@ -596,7 +596,7 @@ export function validateConfigObjectRaw(
       })),
     };
   }
-  const validated = OpenClawSchema.safeParse(raw);
+  const validated = AssistantSchema.safeParse(raw);
   if (!validated.success) {
     const schemaIssues = validated.error.issues.map((issue) => mapZodIssueToConfigIssue(issue));
     return {
@@ -607,7 +607,7 @@ export function validateConfigObjectRaw(
   if (policyIssues.length > 0) {
     return { ok: false, issues: policyIssues };
   }
-  const validatedConfig = validated.data as ZhushouConfig;
+  const validatedConfig = validated.data as AssistantConfig;
   const duplicates = findDuplicateAgentDirs(validatedConfig);
   if (duplicates.length > 0) {
     return {
@@ -636,7 +636,7 @@ export function validateConfigObjectRaw(
 
 export function validateConfigObject(
   raw: unknown,
-): { ok: true; config: ZhushouConfig } | { ok: false; issues: ConfigValidationIssue[] } {
+): { ok: true; config: AssistantConfig } | { ok: false; issues: ConfigValidationIssue[] } {
   const result = validateConfigObjectRaw(raw);
   if (!result.ok) {
     return result;
@@ -650,7 +650,7 @@ export function validateConfigObject(
 type ValidateConfigWithPluginsResult =
   | {
       ok: true;
-      config: ZhushouConfig;
+      config: AssistantConfig;
       warnings: ConfigValidationIssue[];
     }
   | {
@@ -710,7 +710,7 @@ function validateConfigObjectWithPluginsBase(
   };
 
   let registryInfo: RegistryInfo | null = null;
-  let compatConfig: ZhushouConfig | null | undefined;
+  let compatConfig: AssistantConfig | null | undefined;
   let compatPluginIds: ReadonlySet<string> | null = null;
   let compatPluginIdsResolved = false;
 
@@ -747,7 +747,7 @@ function validateConfigObjectWithPluginsBase(
     return compatPluginIds;
   };
 
-  const ensureCompatConfig = (): ZhushouConfig => {
+  const ensureCompatConfig = (): AssistantConfig => {
     if (compatConfig !== undefined) {
       return compatConfig ?? config;
     }

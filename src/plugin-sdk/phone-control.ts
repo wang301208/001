@@ -3,8 +3,8 @@
 
 export { definePluginEntry } from "./plugin-entry.js";
 export type {
-  ZhushouPluginApi,
-  OpenClawPluginCommandDefinition,
-  OpenClawPluginService,
+  AssistantPluginApi,
+  AssistantPluginCommandDefinition,
+  AssistantPluginService,
   PluginCommandContext,
 } from "../plugins/types.js";

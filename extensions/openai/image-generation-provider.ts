@@ -1,12 +1,12 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ImageGenerationProvider } from "zhushou/plugin-sdk/image-generation";
-import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ImageGenerationProvider } from "assistant/plugin-sdk/image-generation";
+import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "assistant/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   postJsonRequest,
   resolveProviderHttpRequestConfig,
-} from "zhushou/plugin-sdk/provider-http";
+} from "assistant/plugin-sdk/provider-http";
 import { OPENAI_DEFAULT_IMAGE_MODEL as DEFAULT_OPENAI_IMAGE_MODEL } from "./default-models.js";
 import { resolveConfiguredOpenAIBaseUrl, toOpenAIDataUrl } from "./shared.js";
 
@@ -19,7 +19,7 @@ const MOCK_OPENAI_PROVIDER_ID = "mock-openai";
 
 function shouldAllowPrivateImageEndpoint(req: {
   provider: string;
-  cfg: ZhushouConfig | undefined;
+  cfg: AssistantConfig | undefined;
 }) {
   if (req.provider === MOCK_OPENAI_PROVIDER_ID) {
     return true;
@@ -28,7 +28,7 @@ function shouldAllowPrivateImageEndpoint(req: {
   if (!baseUrl.startsWith("http://127.0.0.1:") && !baseUrl.startsWith("http://localhost:")) {
     return false;
   }
-  return process.env.OPENCLAW_QA_ALLOW_LOCAL_IMAGE_PROVIDER === "1";
+  return process.env.ASSISTANT_QA_ALLOW_LOCAL_IMAGE_PROVIDER === "1";
 }
 
 type OpenAIImageApiResponse = {

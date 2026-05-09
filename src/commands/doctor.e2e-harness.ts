@@ -52,7 +52,7 @@ function createCommandWithTimeoutResult() {
 
 function createLegacyConfigSnapshot() {
   return {
-    path: "/tmp/zhushou.json",
+    path: "/tmp/assistant.json",
     exists: false,
     raw: null,
     parsed: {},
@@ -68,7 +68,7 @@ export const confirm = vi.fn().mockResolvedValue(true) as unknown as MockFn;
 export const select = vi.fn().mockResolvedValue("node") as unknown as MockFn;
 export const note = vi.fn() as unknown as MockFn;
 export const writeConfigFile = vi.fn().mockResolvedValue(undefined) as unknown as MockFn;
-export const resolveOpenClawPackageRoot = vi.fn().mockResolvedValue(null) as unknown as MockFn;
+export const resolveAssistantPackageRoot = vi.fn().mockResolvedValue(null) as unknown as MockFn;
 export const runGatewayUpdate = vi
   .fn()
   .mockResolvedValue(createGatewayUpdateResult()) as unknown as MockFn;
@@ -138,12 +138,6 @@ export const callGateway = vi
   .fn()
   .mockRejectedValue(new Error("gateway closed")) as unknown as MockFn;
 
-export const autoMigrateLegacyStateDir = vi.fn().mockResolvedValue({
-  migrated: false,
-  skipped: false,
-  changes: [],
-  warnings: [],
-}) as unknown as MockFn;
 export const runChannelPluginStartupMaintenance = vi
   .fn()
   .mockResolvedValue(undefined) as unknown as MockFn;
@@ -227,7 +221,7 @@ export const runLegacyStateMigrations = vi.fn().mockResolvedValue({
 }) as unknown as MockFn;
 
 const DEFAULT_CONFIG_SNAPSHOT = {
-  path: "/tmp/zhushou.json",
+  path: "/tmp/assistant.json",
   exists: true,
   raw: "{}",
   parsed: {},
@@ -251,7 +245,7 @@ vi.mock("../agents/skills-status.js", () => ({
 
 vi.mock("../plugins/loader.js", () => ({
   isPluginRegistryLoadInFlight: () => false,
-  loadOpenClawPlugins: () => createEmptyPluginRegistry(),
+  loadAssistantPlugins: () => createEmptyPluginRegistry(),
   resolveRuntimePluginRegistry: () => null,
 }));
 
@@ -259,7 +253,7 @@ vi.mock("../config/config.js", async () => {
   const actual = await vi.importActual<typeof import("../config/config.js")>("../config/config.js");
   return {
     ...actual,
-    CONFIG_PATH: "/tmp/zhushou.json",
+    CONFIG_PATH: "/tmp/assistant.json",
     createConfigIO,
     readConfigFileSnapshot,
     writeConfigFile,
@@ -320,22 +314,22 @@ vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout,
 }));
 
-vi.mock("zhushou/plugin-sdk/provider-auth", () => ({
+vi.mock("assistant/plugin-sdk/provider-auth", () => ({
   isNonSecretApiKeyMarker: () => false,
 }));
 
-vi.mock("zhushou/plugin-sdk/provider-model-shared", () => ({
+vi.mock("assistant/plugin-sdk/provider-model-shared", () => ({
   DEFAULT_CONTEXT_TOKENS: 32768,
   normalizeProviderId: (value: string) => normalizeLowercaseStringOrEmpty(value),
 }));
 
-vi.mock("zhushou/plugin-sdk/provider-stream-shared", () => ({
+vi.mock("assistant/plugin-sdk/provider-stream-shared", () => ({
   createMoonshotThinkingWrapper: () => undefined,
   resolveMoonshotThinkingType: () => undefined,
   streamWithPayloadPatch: () => undefined,
 }));
 
-vi.mock("zhushou/plugin-sdk/runtime-env", () => ({
+vi.mock("assistant/plugin-sdk/runtime-env", () => ({
   createSubsystemLogger: () => ({
     debug: () => {},
     info: () => {},
@@ -344,9 +338,9 @@ vi.mock("zhushou/plugin-sdk/runtime-env", () => ({
   }),
 }));
 
-vi.mock("../infra/zhushou-root.js", () => ({
-  resolveOpenClawPackageRoot,
-  resolveOpenClawPackageRootSync: vi.fn(() => "/tmp/zhushou"),
+vi.mock("../infra/assistant-root.js", () => ({
+  resolveAssistantPackageRoot,
+  resolveAssistantPackageRootSync: vi.fn(() => "/tmp/assistant"),
 }));
 
 vi.mock("../infra/update-runner.js", () => ({
@@ -450,7 +444,6 @@ vi.mock("./onboard-helpers.js", () => ({
 }));
 
 vi.mock("./doctor-state-migrations.js", () => ({
-  autoMigrateLegacyStateDir,
   detectLegacyStateMigrations,
   runLegacyStateMigrations,
 }));
@@ -527,7 +520,7 @@ beforeEach(() => {
 
   readConfigFileSnapshot.mockReset();
   writeConfigFile.mockReset().mockResolvedValue(undefined);
-  resolveOpenClawPackageRoot.mockReset().mockResolvedValue(null);
+  resolveAssistantPackageRoot.mockReset().mockResolvedValue(null);
   runGatewayUpdate.mockReset().mockResolvedValue(createGatewayUpdateResult());
   listPluginDoctorLegacyConfigRules.mockReset().mockReturnValue([]);
   runDoctorHealthContributions.mockReset().mockImplementation(defaultRunDoctorHealthContributions);
@@ -570,11 +563,11 @@ beforeEach(() => {
 
   originalIsTTY = process.stdin.isTTY;
   setStdinTty(true);
-  originalStateDir = process.env.ZHUSHOU_STATE_DIR;
-  originalUpdateInProgress = process.env.OPENCLAW_UPDATE_IN_PROGRESS;
-  process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
-  tempStateDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-doctor-state-"));
-  process.env.ZHUSHOU_STATE_DIR = tempStateDir;
+  originalStateDir = process.env.ASSISTANT_STATE_DIR;
+  originalUpdateInProgress = process.env.ASSISTANT_UPDATE_IN_PROGRESS;
+  process.env.ASSISTANT_UPDATE_IN_PROGRESS = "1";
+  tempStateDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-doctor-state-"));
+  process.env.ASSISTANT_STATE_DIR = tempStateDir;
   fs.mkdirSync(path.join(tempStateDir, "agents", "main", "sessions"), {
     recursive: true,
   });
@@ -584,14 +577,14 @@ beforeEach(() => {
 afterEach(() => {
   setStdinTty(originalIsTTY);
   if (originalStateDir === undefined) {
-    delete process.env.ZHUSHOU_STATE_DIR;
+    delete process.env.ASSISTANT_STATE_DIR;
   } else {
-    process.env.ZHUSHOU_STATE_DIR = originalStateDir;
+    process.env.ASSISTANT_STATE_DIR = originalStateDir;
   }
   if (originalUpdateInProgress === undefined) {
-    delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+    delete process.env.ASSISTANT_UPDATE_IN_PROGRESS;
   } else {
-    process.env.OPENCLAW_UPDATE_IN_PROGRESS = originalUpdateInProgress;
+    process.env.ASSISTANT_UPDATE_IN_PROGRESS = originalUpdateInProgress;
   }
   if (tempStateDir) {
     fs.rmSync(tempStateDir, { recursive: true, force: true });

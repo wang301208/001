@@ -1,7 +1,7 @@
-import type { ModelDefinitionConfig } from "zhushou/plugin-sdk/provider-model-shared";
-import { createSubsystemLogger, retryAsync } from "zhushou/plugin-sdk/runtime-env";
-import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { ModelDefinitionConfig } from "assistant/plugin-sdk/provider-model-shared";
+import { createSubsystemLogger, retryAsync } from "assistant/plugin-sdk/runtime-env";
+import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 
 const log = createSubsystemLogger("venice-models");
 

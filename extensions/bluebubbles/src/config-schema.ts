@@ -6,8 +6,8 @@ import {
   GroupPolicySchema,
   MarkdownConfigSchema,
   ToolPolicySchema,
-} from "zhushou/plugin-sdk/channel-config-schema";
-import { z } from "zhushou/plugin-sdk/zod";
+} from "assistant/plugin-sdk/channel-config-schema";
+import { z } from "assistant/plugin-sdk/zod";
 import { bluebubblesChannelConfigUiHints } from "./config-ui-hints.js";
 import { buildSecretInputSchema, hasConfiguredSecretInput } from "./secret-input.js";
 

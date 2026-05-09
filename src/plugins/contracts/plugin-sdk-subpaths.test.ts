@@ -14,13 +14,13 @@ import type {
   ChannelStatusIssue as ContractChannelStatusIssue,
   ChannelThreadingContext as ContractChannelThreadingContext,
   ChannelThreadingToolContext as ContractChannelThreadingToolContext,
-} from "zhushou/plugin-sdk/channel-contract";
+} from "assistant/plugin-sdk/channel-contract";
 import type {
   ChannelMessageActionContext as CoreChannelMessageActionContext,
-  ZhushouPluginApi as CoreZhushouPluginApi,
+  AssistantPluginApi as CoreAssistantPluginApi,
   PluginRuntime as CorePluginRuntime,
-} from "zhushou/plugin-sdk/core";
-import * as providerEntrySdk from "zhushou/plugin-sdk/provider-entry";
+} from "assistant/plugin-sdk/core";
+import * as providerEntrySdk from "assistant/plugin-sdk/provider-entry";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import type { ChannelMessageActionContext } from "../../channels/plugins/types.js";
 import type {
@@ -38,12 +38,12 @@ import type {
 } from "../../channels/plugins/types.js";
 import type {
   ChannelMessageActionContext as SharedChannelMessageActionContext,
-  ZhushouPluginApi as SharedZhushouPluginApi,
+  AssistantPluginApi as SharedAssistantPluginApi,
   PluginRuntime as SharedPluginRuntime,
 } from "../../plugin-sdk/channel-plugin-common.js";
 import { pluginSdkSubpaths } from "../../plugin-sdk/entrypoints.js";
 import type { PluginRuntime } from "../runtime/types.js";
-import type { ZhushouPluginApi } from "../types.js";
+import type { AssistantPluginApi } from "../types.js";
 
 const SRC_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const REPO_ROOT = resolve(SRC_ROOT, "..");
@@ -129,9 +129,9 @@ const BROWSER_HELPER_EXPORT_PARITY_CONTRACTS: readonly BrowserHelperExportParity
       "DEFAULT_AI_SNAPSHOT_MAX_CHARS",
       "DEFAULT_BROWSER_DEFAULT_PROFILE_NAME",
       "DEFAULT_BROWSER_EVALUATE_ENABLED",
-      "DEFAULT_OPENCLAW_BROWSER_COLOR",
-      "DEFAULT_OPENCLAW_BROWSER_ENABLED",
-      "DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME",
+      "DEFAULT_ASSISTANT_BROWSER_COLOR",
+      "DEFAULT_ASSISTANT_BROWSER_ENABLED",
+      "DEFAULT_ASSISTANT_BROWSER_PROFILE_NAME",
       "DEFAULT_UPLOAD_DIR",
       "ResolvedBrowserConfig",
       "ResolvedBrowserProfile",
@@ -641,7 +641,7 @@ describe("plugin-sdk subpath exports", () => {
         resolve(REPO_ROOT, "extensions"),
         resolve(REPO_ROOT, "test"),
       ],
-      pattern: /zhushou\/plugin-sdk\/channel-runtime(?=["'])/u,
+      pattern: /assistant\/plugin-sdk\/channel-runtime(?=["'])/u,
       exclude: [
         "src/plugins/sdk-alias.test.ts",
         "src/plugins/contracts/plugin-sdk-root-alias.test.ts",
@@ -1078,36 +1078,36 @@ describe("plugin-sdk subpath exports", () => {
     expectTypeOf<ContractChannelStatusIssue>().toMatchTypeOf<ChannelStatusIssue>();
     expectTypeOf<ContractChannelThreadingContext>().toMatchTypeOf<ChannelThreadingContext>();
     expectTypeOf<ContractChannelThreadingToolContext>().toMatchTypeOf<ChannelThreadingToolContext>();
-    expectTypeOf<CoreZhushouPluginApi>().toMatchTypeOf<ZhushouPluginApi>();
+    expectTypeOf<CoreAssistantPluginApi>().toMatchTypeOf<AssistantPluginApi>();
     expectTypeOf<CorePluginRuntime>().toMatchTypeOf<PluginRuntime>();
     expectTypeOf<CoreChannelMessageActionContext>().toMatchTypeOf<ChannelMessageActionContext>();
-    expectTypeOf<CoreZhushouPluginApi>().toMatchTypeOf<SharedZhushouPluginApi>();
+    expectTypeOf<CoreAssistantPluginApi>().toMatchTypeOf<SharedAssistantPluginApi>();
     expectTypeOf<CorePluginRuntime>().toMatchTypeOf<SharedPluginRuntime>();
     expectTypeOf<CoreChannelMessageActionContext>().toMatchTypeOf<SharedChannelMessageActionContext>();
   });
 
   it("keeps runtime entry subpaths importable", async () => {
-    const coreSdk = await importResolvedPluginSdkSubpath("zhushou/plugin-sdk/core");
+    const coreSdk = await importResolvedPluginSdkSubpath("assistant/plugin-sdk/core");
     const channelActionsSdk = await importResolvedPluginSdkSubpath(
-      "zhushou/plugin-sdk/channel-actions",
+      "assistant/plugin-sdk/channel-actions",
     );
     const globalSingletonSdk = await importResolvedPluginSdkSubpath(
-      "zhushou/plugin-sdk/global-singleton",
+      "assistant/plugin-sdk/global-singleton",
     );
-    const textRuntimeSdk = await importResolvedPluginSdkSubpath("zhushou/plugin-sdk/text-runtime");
-    const pluginEntrySdk = await importResolvedPluginSdkSubpath("zhushou/plugin-sdk/plugin-entry");
+    const textRuntimeSdk = await importResolvedPluginSdkSubpath("assistant/plugin-sdk/text-runtime");
+    const pluginEntrySdk = await importResolvedPluginSdkSubpath("assistant/plugin-sdk/plugin-entry");
     const channelLifecycleSdk = await importResolvedPluginSdkSubpath(
-      "zhushou/plugin-sdk/channel-lifecycle",
+      "assistant/plugin-sdk/channel-lifecycle",
     );
     const channelPairingSdk = await importResolvedPluginSdkSubpath(
-      "zhushou/plugin-sdk/channel-pairing",
+      "assistant/plugin-sdk/channel-pairing",
     );
     const channelReplyPipelineSdk = await importResolvedPluginSdkSubpath(
-      "zhushou/plugin-sdk/channel-reply-pipeline",
+      "assistant/plugin-sdk/channel-reply-pipeline",
     );
     const representativeModules = [];
     for (const id of representativeRuntimeSmokeSubpaths) {
-      representativeModules.push(await importResolvedPluginSdkSubpath(`zhushou/plugin-sdk/${id}`));
+      representativeModules.push(await importResolvedPluginSdkSubpath(`assistant/plugin-sdk/${id}`));
     }
 
     expect(coreSdk.definePluginEntry).toBe(pluginEntrySdk.definePluginEntry);

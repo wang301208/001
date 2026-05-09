@@ -1,5 +1,5 @@
-import type { TelegramGroupConfig } from "zhushou/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import type { TelegramGroupConfig } from "assistant/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 export type {
   AuditTelegramGroupMembershipParams,
   TelegramGroupMembershipAudit,

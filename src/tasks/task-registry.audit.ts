@@ -16,6 +16,7 @@ export type TaskAuditOptions = {
 
 const DEFAULT_STALE_QUEUED_MS = 10 * 60_000;
 const DEFAULT_STALE_RUNNING_MS = 30 * 60_000;
+const TIMESTAMP_SKEW_TOLERANCE_MS = 5;
 export { createEmptyTaskAuditSummary };
 export type { TaskAuditCode, TaskAuditFinding, TaskAuditSeverity, TaskAuditSummary };
 
@@ -49,11 +50,18 @@ function requiresGovernanceRuntime(task: TaskRecord): boolean {
   if (task.scopeKind !== "session" || task.runtime === "cron") {
     return false;
   }
+  if (task.status !== "queued" && task.status !== "running") {
+    return false;
+  }
   return Boolean(task.runId?.trim() || task.agentId?.trim() || task.childSessionKey?.trim());
 }
 
+function isEarlierBeyondTolerance(left: number, right: number): boolean {
+  return left + TIMESTAMP_SKEW_TOLERANCE_MS < right;
+}
+
 function findTimestampInconsistency(task: TaskRecord): TaskAuditFinding | null {
-  if (task.startedAt && task.startedAt < task.createdAt) {
+  if (task.startedAt && isEarlierBeyondTolerance(task.startedAt, task.createdAt)) {
     return createFinding({
       severity: "warn",
       code: "inconsistent_timestamps",
@@ -61,7 +69,7 @@ function findTimestampInconsistency(task: TaskRecord): TaskAuditFinding | null {
       detail: "startedAt is earlier than createdAt",
     });
   }
-  if (task.endedAt && task.startedAt && task.endedAt < task.startedAt) {
+  if (task.endedAt && task.startedAt && isEarlierBeyondTolerance(task.endedAt, task.startedAt)) {
     return createFinding({
       severity: "warn",
       code: "inconsistent_timestamps",
@@ -132,7 +140,7 @@ export function listTaskAuditFindings(options: TaskAuditOptions = {}): TaskAudit
     if (task.status === "lost") {
       findings.push(
         createFinding({
-          severity: "error",
+          severity: "warn",
           code: "lost",
           task,
           ageMs,

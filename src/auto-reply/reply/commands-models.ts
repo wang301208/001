@@ -10,7 +10,7 @@ import {
 } from "../../agents/model-selection.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import type { SessionEntry } from "../../config/sessions.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -38,7 +38,7 @@ export type ModelsProviderData = {
  * Exported for reuse by callback handlers.
  */
 export async function buildModelsProviderData(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId?: string,
 ): Promise<ModelsProviderData> {
   const resolvedDefault = resolveDefaultModelForAgent({
@@ -197,7 +197,7 @@ function parseModelsArgs(raw: string): {
 
 function resolveProviderLabel(params: {
   provider: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentDir?: string;
   sessionEntry?: ModelsCommandSessionEntry;
 }): string {
@@ -216,7 +216,7 @@ function resolveProviderLabel(params: {
 export function formatModelsAvailableHeader(params: {
   provider: string;
   total: number;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentDir?: string;
   sessionEntry?: ModelsCommandSessionEntry;
 }): string {
@@ -230,7 +230,7 @@ export function formatModelsAvailableHeader(params: {
 }
 
 export async function resolveModelsCommandReply(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   commandBodyNormalized: string;
   surface?: string;
   currentModel?: string;

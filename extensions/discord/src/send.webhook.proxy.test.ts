@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 import { sendWebhookMessageDiscord } from "./send.outbound.js";
 
 const makeProxyFetchMock = vi.hoisted(() => vi.fn());
 
-vi.mock("zhushou/plugin-sdk/infra-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/infra-runtime")>(
-    "zhushou/plugin-sdk/infra-runtime",
+vi.mock("assistant/plugin-sdk/infra-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/infra-runtime")>(
+    "assistant/plugin-sdk/infra-runtime",
   );
   return {
     ...actual,
@@ -35,7 +35,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           proxy: "bad-proxy",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     await sendWebhookMessageDiscord("hello", {
       cfg,
@@ -63,7 +63,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           proxy: "http://127.0.0.1:8080",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     await sendWebhookMessageDiscord("hello", {
       cfg,
@@ -89,7 +89,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           proxy: "http://proxy.test:8080",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     await sendWebhookMessageDiscord("hello", {
       cfg,
@@ -116,7 +116,7 @@ describe("sendWebhookMessageDiscord proxy support", () => {
           token: "Bot test-token",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     await sendWebhookMessageDiscord("hello", {
       cfg,

@@ -10,12 +10,12 @@ function createPrompter(confirmValue = false) {
 
 function createDeps() {
   const deps: NonNullable<Parameters<typeof setupWizardShellCompletion>[0]["deps"]> = {
-    resolveCliName: () => "zhushou",
+    resolveCliName: () => "assistant",
     checkShellCompletionStatus: vi.fn(async (_binName: string) => ({
       shell: "zsh" as const,
       profileInstalled: false,
       cacheExists: false,
-      cachePath: "/tmp/zhushou.zsh",
+      cachePath: "/tmp/assistant.zsh",
       usesSlowPattern: false,
     })),
     ensureCompletionCacheExists: vi.fn(async (_binName: string) => true),
@@ -32,8 +32,8 @@ describe("setupWizardShellCompletion", () => {
     await setupWizardShellCompletion({ flow: "quickstart", prompter, deps });
 
     expect(prompter.confirm).not.toHaveBeenCalled();
-    expect(deps.ensureCompletionCacheExists).toHaveBeenCalledWith("zhushou");
-    expect(deps.installCompletion).toHaveBeenCalledWith("zsh", true, "zhushou");
+    expect(deps.ensureCompletionCacheExists).toHaveBeenCalledWith("assistant");
+    expect(deps.installCompletion).toHaveBeenCalledWith("zsh", true, "assistant");
     expect(prompter.note).toHaveBeenCalled();
   });
 

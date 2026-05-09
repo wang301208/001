@@ -1,5 +1,5 @@
 // Manual facade. Keep loader boundary explicit.
-type FacadeModule = typeof import("@zhushou/qa-channel/api.js");
+type FacadeModule = typeof import("@assistant/qa-channel/api.js");
 import {
   createLazyFacadeObjectValue,
   loadBundledPluginPublicSurfaceModuleSync,
@@ -63,25 +63,25 @@ export const sendQaBusMessage: FacadeModule["sendQaBusMessage"] = ((...args) =>
 export const setQaChannelRuntime: FacadeModule["setQaChannelRuntime"] = ((...args) =>
   loadFacadeModule().setQaChannelRuntime(...args)) as FacadeModule["setQaChannelRuntime"];
 
-export type QaBusAttachment = import("@zhushou/qa-channel/api.js").QaBusAttachment;
-export type QaBusConversation = import("@zhushou/qa-channel/api.js").QaBusConversation;
-export type QaBusConversationKind = import("@zhushou/qa-channel/api.js").QaBusConversationKind;
-export type QaBusCreateThreadInput = import("@zhushou/qa-channel/api.js").QaBusCreateThreadInput;
-export type QaBusDeleteMessageInput = import("@zhushou/qa-channel/api.js").QaBusDeleteMessageInput;
-export type QaBusEditMessageInput = import("@zhushou/qa-channel/api.js").QaBusEditMessageInput;
-export type QaBusEvent = import("@zhushou/qa-channel/api.js").QaBusEvent;
+export type QaBusAttachment = import("@assistant/qa-channel/api.js").QaBusAttachment;
+export type QaBusConversation = import("@assistant/qa-channel/api.js").QaBusConversation;
+export type QaBusConversationKind = import("@assistant/qa-channel/api.js").QaBusConversationKind;
+export type QaBusCreateThreadInput = import("@assistant/qa-channel/api.js").QaBusCreateThreadInput;
+export type QaBusDeleteMessageInput = import("@assistant/qa-channel/api.js").QaBusDeleteMessageInput;
+export type QaBusEditMessageInput = import("@assistant/qa-channel/api.js").QaBusEditMessageInput;
+export type QaBusEvent = import("@assistant/qa-channel/api.js").QaBusEvent;
 export type QaBusInboundMessageInput =
-  import("@zhushou/qa-channel/api.js").QaBusInboundMessageInput;
-export type QaBusMessage = import("@zhushou/qa-channel/api.js").QaBusMessage;
+  import("@assistant/qa-channel/api.js").QaBusInboundMessageInput;
+export type QaBusMessage = import("@assistant/qa-channel/api.js").QaBusMessage;
 export type QaBusOutboundMessageInput =
-  import("@zhushou/qa-channel/api.js").QaBusOutboundMessageInput;
-export type QaBusPollInput = import("@zhushou/qa-channel/api.js").QaBusPollInput;
-export type QaBusPollResult = import("@zhushou/qa-channel/api.js").QaBusPollResult;
+  import("@assistant/qa-channel/api.js").QaBusOutboundMessageInput;
+export type QaBusPollInput = import("@assistant/qa-channel/api.js").QaBusPollInput;
+export type QaBusPollResult = import("@assistant/qa-channel/api.js").QaBusPollResult;
 export type QaBusReactToMessageInput =
-  import("@zhushou/qa-channel/api.js").QaBusReactToMessageInput;
-export type QaBusReadMessageInput = import("@zhushou/qa-channel/api.js").QaBusReadMessageInput;
+  import("@assistant/qa-channel/api.js").QaBusReactToMessageInput;
+export type QaBusReadMessageInput = import("@assistant/qa-channel/api.js").QaBusReadMessageInput;
 export type QaBusSearchMessagesInput =
-  import("@zhushou/qa-channel/api.js").QaBusSearchMessagesInput;
-export type QaBusStateSnapshot = import("@zhushou/qa-channel/api.js").QaBusStateSnapshot;
-export type QaBusThread = import("@zhushou/qa-channel/api.js").QaBusThread;
-export type QaBusWaitForInput = import("@zhushou/qa-channel/api.js").QaBusWaitForInput;
+  import("@assistant/qa-channel/api.js").QaBusSearchMessagesInput;
+export type QaBusStateSnapshot = import("@assistant/qa-channel/api.js").QaBusStateSnapshot;
+export type QaBusThread = import("@assistant/qa-channel/api.js").QaBusThread;
+export type QaBusWaitForInput = import("@assistant/qa-channel/api.js").QaBusWaitForInput;

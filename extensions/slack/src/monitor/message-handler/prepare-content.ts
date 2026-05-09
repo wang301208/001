@@ -1,5 +1,5 @@
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import type { SlackFile, SlackMessageEvent } from "../../types.js";
 import {
   MAX_SLACK_MEDIA_FILES,

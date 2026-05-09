@@ -1,13 +1,13 @@
-import { resolveControlCommandGate } from "zhushou/plugin-sdk/command-gating";
+import { resolveControlCommandGate } from "assistant/plugin-sdk/command-gating";
 import {
   evaluateSupplementalContextVisibility,
   resolveChannelContextVisibilityMode,
-} from "zhushou/plugin-sdk/context-visibility-runtime";
+} from "assistant/plugin-sdk/context-visibility-runtime";
 import {
   loadSessionStore,
   resolveSessionStoreEntry,
-} from "zhushou/plugin-sdk/session-store-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
+} from "assistant/plugin-sdk/session-store-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
 import type {
   CoreConfig,
   MatrixRoomConfig,
@@ -31,7 +31,7 @@ import {
   parsePollStartContent,
 } from "../poll-types.js";
 import type { LocationMessageEventContent, MatrixClient } from "../sdk.js";
-import { MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY } from "../send/types.js";
+import { MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY } from "../send/types.js";
 import { resolveMatrixStoredSessionMeta } from "../session-store-metadata.js";
 import { resolveMatrixMonitorAccessState } from "./access-state.js";
 import { resolveMatrixAckReactionConfig } from "./ack-config.js";
@@ -73,10 +73,10 @@ const ALLOW_FROM_STORE_CACHE_TTL_MS = 30_000;
 const PAIRING_REPLY_COOLDOWN_MS = 5 * 60_000;
 let matrixSendModulePromise: Promise<typeof import("../send.js")> | undefined;
 let acpBindingRuntimePromise:
-  | Promise<typeof import("zhushou/plugin-sdk/acp-binding-runtime")>
+  | Promise<typeof import("assistant/plugin-sdk/acp-binding-runtime")>
   | undefined;
 let sessionBindingRuntimePromise:
-  | Promise<typeof import("zhushou/plugin-sdk/session-binding-runtime")>
+  | Promise<typeof import("assistant/plugin-sdk/session-binding-runtime")>
   | undefined;
 
 function loadMatrixSendModule(): Promise<typeof import("../send.js")> {
@@ -85,16 +85,16 @@ function loadMatrixSendModule(): Promise<typeof import("../send.js")> {
 }
 
 function loadAcpBindingRuntime(): Promise<
-  typeof import("zhushou/plugin-sdk/acp-binding-runtime")
+  typeof import("assistant/plugin-sdk/acp-binding-runtime")
 > {
-  acpBindingRuntimePromise ??= import("zhushou/plugin-sdk/acp-binding-runtime");
+  acpBindingRuntimePromise ??= import("assistant/plugin-sdk/acp-binding-runtime");
   return acpBindingRuntimePromise;
 }
 
 function loadSessionBindingRuntime(): Promise<
-  typeof import("zhushou/plugin-sdk/session-binding-runtime")
+  typeof import("assistant/plugin-sdk/session-binding-runtime")
 > {
-  sessionBindingRuntimePromise ??= import("zhushou/plugin-sdk/session-binding-runtime");
+  sessionBindingRuntimePromise ??= import("assistant/plugin-sdk/session-binding-runtime");
   return sessionBindingRuntimePromise;
 }
 const MAX_TRACKED_PAIRING_REPLY_SENDERS = 512;
@@ -126,7 +126,7 @@ async function redactMatrixDraftEvent(
 }
 
 function buildMatrixFinalizedPreviewContent(): Record<string, unknown> {
-  return { [MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY]: true };
+  return { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true };
 }
 
 export type MatrixMonitorHandlerParams = {

@@ -1,10 +1,10 @@
-import { ToolAuthorizationError } from "zhushou/plugin-sdk/channel-actions";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { ToolAuthorizationError } from "assistant/plugin-sdk/channel-actions";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { resolveWhatsAppAccount } from "./accounts.js";
 import { resolveWhatsAppOutboundTarget } from "./resolve-outbound-target.js";
 
 export function resolveAuthorizedWhatsAppOutboundTarget(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   chatJid: string;
   accountId?: string;
   actionLabel: string;

@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 
 export const DEFAULT_DDG_SAFE_SEARCH = "moderate";
 
@@ -13,7 +13,7 @@ type DdgPluginConfig = {
 };
 
 export function resolveDdgWebSearchConfig(
-  config?: ZhushouConfig,
+  config?: AssistantConfig,
 ): DdgPluginConfig["webSearch"] | undefined {
   const pluginConfig = config?.plugins?.entries?.duckduckgo?.config as DdgPluginConfig | undefined;
   const webSearch = pluginConfig?.webSearch;
@@ -23,7 +23,7 @@ export function resolveDdgWebSearchConfig(
   return undefined;
 }
 
-export function resolveDdgRegion(config?: ZhushouConfig): string | undefined {
+export function resolveDdgRegion(config?: AssistantConfig): string | undefined {
   const region = resolveDdgWebSearchConfig(config)?.region;
   if (typeof region !== "string") {
     return undefined;
@@ -32,7 +32,7 @@ export function resolveDdgRegion(config?: ZhushouConfig): string | undefined {
   return trimmed || undefined;
 }
 
-export function resolveDdgSafeSearch(config?: ZhushouConfig): DdgSafeSearch {
+export function resolveDdgSafeSearch(config?: AssistantConfig): DdgSafeSearch {
   const safeSearch = resolveDdgWebSearchConfig(config)?.safeSearch;
   const normalized = normalizeLowercaseStringOrEmpty(safeSearch);
   if (normalized === "strict" || normalized === "off") {

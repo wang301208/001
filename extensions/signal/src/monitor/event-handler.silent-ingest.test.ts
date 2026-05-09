@@ -18,9 +18,9 @@ const internalHookMocks = vi.hoisted(() => ({
   triggerInternalHook: vi.fn(async () => undefined),
 }));
 
-vi.mock("zhushou/plugin-sdk/hook-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/hook-runtime")>(
-    "zhushou/plugin-sdk/hook-runtime",
+vi.mock("assistant/plugin-sdk/hook-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/hook-runtime")>(
+    "assistant/plugin-sdk/hook-runtime",
   );
   return {
     ...actual,

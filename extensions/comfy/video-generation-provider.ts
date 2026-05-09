@@ -2,7 +2,7 @@ import type {
   GeneratedVideoAsset,
   VideoGenerationProvider,
   VideoGenerationSourceAsset,
-} from "zhushou/plugin-sdk/video-generation";
+} from "assistant/plugin-sdk/video-generation";
 import {
   DEFAULT_COMFY_MODEL,
   _setComfyFetchGuardForTesting,

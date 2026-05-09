@@ -22,25 +22,26 @@ const ROOT_COMMANDS_HINT =
   "Hint: commands suffixed with * have subcommands. Run <command> --help for details.";
 
 const EXAMPLES = [
-  ["zhushou models --help", "Show detailed help for the models command."],
+  ["assistant --tui", "Open the assistant terminal UI."],
+  ["assistant models --help", "Show detailed help for the models command."],
   [
-    "zhushou channels login --verbose",
+    "assistant channels login --verbose",
     "Link personal WhatsApp Web and show QR + connection logs.",
   ],
   [
-    'zhushou message send --target +15555550123 --message "Hi" --json',
+    'assistant message send --target +15555550123 --message "Hi" --json',
     "Send via your web session and print JSON result.",
   ],
-  ["openclaw gateway --port 18789", "Run the WebSocket Gateway locally."],
-  ["zhushou --dev gateway", "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001."],
-  ["openclaw gateway --force", "Kill anything bound to the default gateway port, then start it."],
-  ["openclaw gateway ...", "Gateway control via WebSocket."],
+  ["assistant gateway --port 18789", "Run the WebSocket Gateway locally."],
+  ["assistant --dev gateway", "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001."],
+  ["assistant gateway --force", "Kill anything bound to the default gateway port, then start it."],
+  ["assistant gateway ...", "Gateway control via WebSocket."],
   [
-    'zhushou agent --to +15555550123 --message "Run summary" --deliver',
+    'assistant agent --to +15555550123 --message "Run summary" --deliver',
     "Talk directly to the agent using the Gateway; optionally send the WhatsApp reply.",
   ],
   [
-    'zhushou message send --channel telegram --target @mychat --message "Hi"',
+    'assistant message send --channel telegram --target @mychat --message "Hi"',
     "Send via your Telegram bot.",
   ],
 ] as const;
@@ -52,15 +53,15 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     .version(ctx.programVersion)
     .option(
       "--container <name>",
-      "Run the CLI inside a running Podman/Docker container named <name> (default: env OPENCLAW_CONTAINER)",
+      "Run the CLI inside a running Podman/Docker container named <name> (default: env ASSISTANT_CONTAINER)",
     )
     .option(
       "--dev",
-      "Dev profile: isolate state under ~/.zhushou-dev, default gateway port 19001, and shift derived ports (browser/canvas)",
+      "Dev profile: isolate state under ~/.assistant-dev, default gateway port 19001, and shift derived ports (browser/canvas)",
     )
     .option(
       "--profile <name>",
-      "Use a named profile (isolates ZHUSHOU_STATE_DIR/ZHUSHOU_CONFIG_PATH under ~/.zhushou-<name>)",
+      "Use a named profile (isolates ASSISTANT_STATE_DIR/ASSISTANT_CONFIG_PATH under ~/.assistant-<name>)",
     )
     .option(
       "--log-level <level>",
@@ -68,6 +69,7 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
       parseCliLogLevelOption,
     );
 
+  program.option("--tui", "Open the terminal UI from the root command", false);
   program.option("--no-color", "Disable ANSI colors", false);
   program.helpOption("-h, --help", "Display help for command");
   program.helpCommand("help [command]", "Display help for command");
@@ -139,7 +141,7 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     if (command !== program) {
       return "";
     }
-    const docs = formatDocsLink("/cli", "docs.zhushou.ai/cli");
+    const docs = formatDocsLink("/cli", "docs.assistant.ai/cli");
     return `\n${theme.heading("Examples:")}\n${fmtExamples}\n\n${theme.muted("Docs:")} ${docs}\n`;
   });
 }

@@ -82,7 +82,7 @@ describe("loginOpenAICodexOAuth", () => {
     expect(result).toEqual(creds);
     expect(mocks.loginOpenAICodex).toHaveBeenCalledOnce();
     expect(mocks.loginOpenAICodex).toHaveBeenCalledWith(
-      expect.objectContaining({ originator: "zhushou" }),
+      expect.objectContaining({ originator: "assistant" }),
     );
     expect(spin.stop).toHaveBeenCalledWith("OpenAI OAuth complete");
     expect(runtime.error).not.toHaveBeenCalled();
@@ -179,7 +179,7 @@ describe("loginOpenAICodexOAuth", () => {
     expect(spin.stop).toHaveBeenCalledWith("OpenAI OAuth failed");
     expect(runtime.error).toHaveBeenCalledWith(expect.stringContaining("oauth failed"));
     expect(prompter.note).toHaveBeenCalledWith(
-      "Trouble with OAuth? See https://docs.zhushou.ai/start/faq",
+      "Trouble with OAuth? See https://docs.assistant.ai/start/faq",
       "OAuth help",
     );
   });

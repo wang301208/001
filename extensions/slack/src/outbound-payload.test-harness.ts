@@ -1,5 +1,5 @@
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import { primeChannelOutboundSendMock } from "zhushou/plugin-sdk/testing";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import { primeChannelOutboundSendMock } from "assistant/plugin-sdk/testing";
 import { vi, type Mock } from "vitest";
 import { slackOutbound } from "./outbound-adapter.js";
 

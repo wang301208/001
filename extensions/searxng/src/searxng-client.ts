@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   DEFAULT_CACHE_TTL_MINUTES,
   DEFAULT_SEARCH_COUNT,
@@ -12,11 +12,11 @@ import {
   withTrustedWebSearchEndpoint,
   wrapWebContent,
   writeCache,
-} from "zhushou/plugin-sdk/provider-web-search";
+} from "assistant/plugin-sdk/provider-web-search";
 import {
   assertHttpUrlTargetsPrivateNetwork,
   type LookupFn,
-} from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/ssrf-runtime";
 import {
   resolveSearxngBaseUrl,
   resolveSearxngCategories,
@@ -131,7 +131,7 @@ function parseSearxngResponseText(text: string, count: number): SearxngResult[] 
 }
 
 export async function runSearxngSearch(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   query: string;
   count?: number;
   categories?: string;

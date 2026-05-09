@@ -8,7 +8,7 @@ import {
   updateSessionStore,
   type SessionEntry,
 } from "../config/sessions.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { defaultRuntime } from "../runtime.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { type SubagentRunOutcome } from "./subagent-announce-output.js";
@@ -285,7 +285,7 @@ export function reconcileOrphanedRestoredRuns(params: {
   return changed;
 }
 
-export function resolveArchiveAfterMs(cfg?: ZhushouConfig) {
+export function resolveArchiveAfterMs(cfg?: AssistantConfig) {
   const config = cfg ?? loadConfig();
   const minutes = config.agents?.defaults?.subagents?.archiveAfterMinutes ?? 60;
   if (!Number.isFinite(minutes) || minutes < 0) {

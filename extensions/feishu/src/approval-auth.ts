@@ -1,8 +1,8 @@
 import {
   createResolvedApproverActionAuthAdapter,
   resolveApprovalApprovers,
-} from "zhushou/plugin-sdk/approval-auth-runtime";
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/approval-auth-runtime";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
 import { resolveFeishuAccount } from "./accounts.js";
 import { normalizeFeishuTarget } from "./targets.js";
 

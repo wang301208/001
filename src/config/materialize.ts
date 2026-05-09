@@ -10,7 +10,7 @@ import {
 } from "./defaults.js";
 import { normalizeExecSafeBinProfilesInConfig } from "./normalize-exec-safe-bin.js";
 import { normalizeConfigPaths } from "./normalize-paths.js";
-import type { ZhushouConfig, ResolvedSourceConfig, RuntimeConfig } from "./types.js";
+import type { AssistantConfig, ResolvedSourceConfig, RuntimeConfig } from "./types.js";
 
 export type ConfigMaterializationMode = "load" | "missing" | "snapshot";
 
@@ -42,16 +42,16 @@ const MATERIALIZATION_PROFILES: Record<ConfigMaterializationMode, Materializatio
   },
 };
 
-export function asResolvedSourceConfig(config: ZhushouConfig): ResolvedSourceConfig {
+export function asResolvedSourceConfig(config: AssistantConfig): ResolvedSourceConfig {
   return config as ResolvedSourceConfig;
 }
 
-export function asRuntimeConfig(config: ZhushouConfig): RuntimeConfig {
+export function asRuntimeConfig(config: AssistantConfig): RuntimeConfig {
   return config as RuntimeConfig;
 }
 
 export function materializeRuntimeConfig(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   mode: ConfigMaterializationMode,
 ): RuntimeConfig {
   const profile = MATERIALIZATION_PROFILES[mode];

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { getBundledChannelAccountInspector } from "./plugins/bundled.js";
 import { getLoadedChannelPlugin } from "./plugins/registry.js";
 import type { ChannelId } from "./plugins/types.public.js";
@@ -7,7 +7,7 @@ export type ReadOnlyInspectedAccount = Record<string, unknown>;
 
 export async function inspectReadOnlyChannelAccount(params: {
   channelId: ChannelId;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): Promise<ReadOnlyInspectedAccount | null> {
   const inspectAccount =

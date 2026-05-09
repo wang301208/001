@@ -30,15 +30,15 @@ import { createAcpxRuntimeService } from "./service.js";
 const tempDirs: string[] = [];
 
 async function makeTempDir(): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-acpx-service-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-acpx-service-"));
   tempDirs.push(dir);
   return dir;
 }
 
 afterEach(async () => {
   runtimeRegistry.clear();
-  delete process.env.OPENCLAW_SKIP_ACPX_RUNTIME;
-  delete process.env.OPENCLAW_SKIP_ACPX_RUNTIME_PROBE;
+  delete process.env.ASSISTANT_SKIP_ACPX_RUNTIME;
+  delete process.env.ASSISTANT_SKIP_ACPX_RUNTIME_PROBE;
   for (const dir of tempDirs.splice(0)) {
     await fs.rm(dir, { recursive: true, force: true });
   }
@@ -47,7 +47,7 @@ afterEach(async () => {
 function createServiceContext(workspaceDir: string) {
   return {
     workspaceDir,
-    stateDir: path.join(workspaceDir, ".zhushou-plugin-state"),
+    stateDir: path.join(workspaceDir, ".assistant-plugin-state"),
     config: {},
     logger: {
       info: vi.fn(),
@@ -174,7 +174,7 @@ describe("createAcpxRuntimeService", () => {
   });
 
   it("can skip the embedded runtime probe via env", async () => {
-    process.env.OPENCLAW_SKIP_ACPX_RUNTIME_PROBE = "1";
+    process.env.ASSISTANT_SKIP_ACPX_RUNTIME_PROBE = "1";
     const workspaceDir = await makeTempDir();
     const ctx = createServiceContext(workspaceDir);
     const probeAvailability = vi.fn(async () => {});
@@ -200,7 +200,7 @@ describe("createAcpxRuntimeService", () => {
   });
 
   it("can skip the embedded runtime backend via env", async () => {
-    process.env.OPENCLAW_SKIP_ACPX_RUNTIME = "1";
+    process.env.ASSISTANT_SKIP_ACPX_RUNTIME = "1";
     const workspaceDir = await makeTempDir();
     const ctx = createServiceContext(workspaceDir);
     const runtimeFactory = vi.fn(() => {
@@ -215,7 +215,7 @@ describe("createAcpxRuntimeService", () => {
     expect(runtimeFactory).not.toHaveBeenCalled();
     expect(getAcpRuntimeBackend("acpx")).toBeUndefined();
     expect(ctx.logger.info).toHaveBeenCalledWith(
-      "skipping embedded acpx runtime backend (OPENCLAW_SKIP_ACPX_RUNTIME=1)",
+      "skipping embedded acpx runtime backend (ASSISTANT_SKIP_ACPX_RUNTIME=1)",
     );
   });
 });

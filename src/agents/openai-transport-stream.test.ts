@@ -111,9 +111,9 @@ describe("openai transport stream", () => {
 
     const prepared = prepareTransportAwareSimpleModel(model);
 
-    expect(resolveTransportAwareSimpleApi(model.api)).toBe("zhushou-openai-responses-transport");
+    expect(resolveTransportAwareSimpleApi(model.api)).toBe("assistant-openai-responses-transport");
     expect(prepared).toMatchObject({
-      api: "zhushou-openai-responses-transport",
+      api: "assistant-openai-responses-transport",
       provider: "openai",
       id: "gpt-5.4",
     });
@@ -144,9 +144,9 @@ describe("openai transport stream", () => {
 
     const prepared = prepareTransportAwareSimpleModel(model);
 
-    expect(resolveTransportAwareSimpleApi(model.api)).toBe("zhushou-openai-responses-transport");
+    expect(resolveTransportAwareSimpleApi(model.api)).toBe("assistant-openai-responses-transport");
     expect(prepared).toMatchObject({
-      api: "zhushou-openai-responses-transport",
+      api: "assistant-openai-responses-transport",
       provider: "openai-codex",
       id: "codex-mini-latest",
     });
@@ -177,9 +177,9 @@ describe("openai transport stream", () => {
 
     const prepared = prepareTransportAwareSimpleModel(model);
 
-    expect(resolveTransportAwareSimpleApi(model.api)).toBe("zhushou-anthropic-messages-transport");
+    expect(resolveTransportAwareSimpleApi(model.api)).toBe("assistant-anthropic-messages-transport");
     expect(prepared).toMatchObject({
-      api: "zhushou-anthropic-messages-transport",
+      api: "assistant-anthropic-messages-transport",
       provider: "anthropic",
       id: "claude-sonnet-4-6",
     });
@@ -211,10 +211,10 @@ describe("openai transport stream", () => {
     const prepared = prepareTransportAwareSimpleModel(model);
 
     expect(resolveTransportAwareSimpleApi(model.api)).toBe(
-      "zhushou-google-generative-ai-transport",
+      "assistant-google-generative-ai-transport",
     );
     expect(prepared).toMatchObject({
-      api: "zhushou-google-generative-ai-transport",
+      api: "assistant-google-generative-ai-transport",
       provider: "google",
       id: "gemini-3.1-pro-preview",
     });
@@ -243,9 +243,9 @@ describe("openai transport stream", () => {
       },
     );
 
-    expect(resolveTransportAwareSimpleApi(model.api)).toBe("zhushou-openai-responses-transport");
+    expect(resolveTransportAwareSimpleApi(model.api)).toBe("assistant-openai-responses-transport");
     expect(prepareTransportAwareSimpleModel(model)).toMatchObject({
-      api: "zhushou-openai-responses-transport",
+      api: "assistant-openai-responses-transport",
       provider: "github-copilot",
       id: "gpt-5.4",
     });
@@ -274,9 +274,9 @@ describe("openai transport stream", () => {
       },
     );
 
-    expect(resolveTransportAwareSimpleApi(model.api)).toBe("zhushou-anthropic-messages-transport");
+    expect(resolveTransportAwareSimpleApi(model.api)).toBe("assistant-anthropic-messages-transport");
     expect(prepareTransportAwareSimpleModel(model)).toMatchObject({
-      api: "zhushou-anthropic-messages-transport",
+      api: "assistant-anthropic-messages-transport",
       provider: "github-copilot",
       id: "claude-sonnet-4.6",
     });
@@ -384,7 +384,7 @@ describe("openai transport stream", () => {
       {
         id: "anthropic/claude-sonnet-4",
         name: "Claude Sonnet 4",
-        api: "zhushou-openai-completions-transport",
+        api: "assistant-openai-completions-transport",
         provider: "openrouter",
         baseUrl: "https://proxy.example.com/v1",
         reasoning: true,
@@ -392,7 +392,7 @@ describe("openai transport stream", () => {
         cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
         contextWindow: 200000,
         maxTokens: 8192,
-      } as Model<"zhushou-openai-completions-transport">,
+      } as Model<"assistant-openai-completions-transport">,
       {
         systemPrompt: "system",
         messages: [],
@@ -452,7 +452,7 @@ describe("openai transport stream", () => {
       {
         id: "anthropic/claude-sonnet-4",
         name: "Claude Sonnet 4",
-        api: "zhushou-openai-completions-transport",
+        api: "assistant-openai-completions-transport",
         provider: "custom-openrouter",
         baseUrl: "https://openrouter.ai/api/v1",
         reasoning: true,
@@ -460,7 +460,7 @@ describe("openai transport stream", () => {
         cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
         contextWindow: 200000,
         maxTokens: 8192,
-      } as Model<"zhushou-openai-completions-transport">,
+      } as Model<"assistant-openai-completions-transport">,
       {
         systemPrompt: "system",
         messages: [],
@@ -896,18 +896,18 @@ describe("openai transport stream", () => {
       } as never,
       { sessionId: "session-123" } as never,
       {
-        openclaw_session_id: "session-123",
-        openclaw_turn_id: "turn-123",
-        openclaw_turn_attempt: "1",
-        openclaw_transport: "stream",
+        assistant_session_id: "session-123",
+        assistant_turn_id: "turn-123",
+        assistant_turn_attempt: "1",
+        assistant_transport: "stream",
       },
     ) as { metadata?: Record<string, string> };
 
     expect(params.metadata).toMatchObject({
-      openclaw_session_id: "session-123",
-      openclaw_turn_id: "turn-123",
-      openclaw_turn_attempt: "1",
-      openclaw_transport: "stream",
+      assistant_session_id: "session-123",
+      assistant_turn_id: "turn-123",
+      assistant_turn_attempt: "1",
+      assistant_transport: "stream",
     });
   });
 

@@ -3,7 +3,7 @@ import {
   resolveAgentModelPrimaryValue,
 } from "../../config/model-input.js";
 import type { AgentModelConfig } from "../../config/types.agents-shared.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import {
   ensureAuthProfileStore,
   hasAnyAuthProfileStoreSource,
@@ -21,7 +21,7 @@ export function hasToolModelConfig(model: ToolModelConfig | undefined): boolean 
   );
 }
 
-export function resolveDefaultModelRef(cfg?: ZhushouConfig): { provider: string; model: string } {
+export function resolveDefaultModelRef(cfg?: AssistantConfig): { provider: string; model: string } {
   if (cfg) {
     const resolved = resolveConfiguredModelRef({
       cfg,

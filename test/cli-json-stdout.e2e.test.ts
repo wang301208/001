@@ -5,25 +5,25 @@ import { describe, expect, it } from "vitest";
 import { withTempHome } from "./helpers/temp-home.ts";
 
 describe("cli json stdout contract", () => {
-  it("keeps `update status --json` stdout parseable even with legacy doctor preflight inputs", async () => {
+  it("keeps `update status --json` stdout parseable with ignored pre-rebrand project files", async () => {
     await withTempHome(
       async (tempHome) => {
-        const legacyDir = path.join(tempHome, ".clawdbot");
-        await fs.mkdir(legacyDir, { recursive: true });
-        await fs.writeFile(path.join(legacyDir, "clawdbot.json"), "{}", "utf8");
+        const ignoredDir = path.join(tempHome, ".old-assistant");
+        await fs.mkdir(ignoredDir, { recursive: true });
+        await fs.writeFile(path.join(ignoredDir, "old-assistant.json"), "{}", "utf8");
 
         const env = {
           ...process.env,
           HOME: tempHome,
           USERPROFILE: tempHome,
-          OPENCLAW_TEST_FAST: "1",
+          ASSISTANT_TEST_FAST: "1",
         };
-        delete env.ZHUSHOU_HOME;
-        delete env.ZHUSHOU_STATE_DIR;
-        delete env.ZHUSHOU_CONFIG_PATH;
+        delete env.ASSISTANT_HOME;
+        delete env.ASSISTANT_STATE_DIR;
+        delete env.ASSISTANT_CONFIG_PATH;
         delete env.VITEST;
 
-        const entry = path.resolve(process.cwd(), "zhushou.mjs");
+        const entry = path.resolve(process.cwd(), "assistant.mjs");
         const result = spawnSync(
           process.execPath,
           [entry, "update", "status", "--json", "--timeout", "1"],
@@ -38,7 +38,7 @@ describe("cli json stdout contract", () => {
         expect(stdout).not.toContain("Doctor changes");
         expect(stdout).not.toContain("Config invalid");
       },
-      { prefix: "zhushou-json-e2e-" },
+      { prefix: "assistant-json-e2e-" },
     );
   });
 });

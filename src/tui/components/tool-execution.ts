@@ -117,18 +117,18 @@ export class ToolExecutionComponent extends Container {
       name: this.toolName,
       args: this.args,
     });
-    const title = `${display.emoji} ${display.label}${this.isPartial ? " (running)" : ""}`;
+    const title = `| ${display.label}${this.isPartial ? " (running)" : ""}`;
     this.header.setText(theme.toolTitle(theme.bold(title)));
 
     const argLine = formatArgs(this.toolName, this.args);
     this.argsLine.setText(argLine ? theme.dim(argLine) : theme.dim(" "));
 
     const raw = extractText(this.result);
-    const text = raw || (this.isPartial ? "…" : "");
+    const text = raw || (this.isPartial ? "..." : "");
     if (!this.expanded && text) {
       const lines = text.split("\n");
       const preview =
-        lines.length > PREVIEW_LINES ? `${lines.slice(0, PREVIEW_LINES).join("\n")}\n…` : text;
+        lines.length > PREVIEW_LINES ? `${lines.slice(0, PREVIEW_LINES).join("\n")}\n...` : text;
       this.output.setText(preview);
     } else {
       this.output.setText(text);

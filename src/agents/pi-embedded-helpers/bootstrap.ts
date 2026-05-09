@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import { truncateUtf16Safe } from "../../utils.js";
 import type { WorkspaceBootstrapFile } from "../workspace.js";
@@ -97,7 +97,7 @@ type TrimBootstrapResult = {
   originalLength: number;
 };
 
-export function resolveBootstrapMaxChars(cfg?: ZhushouConfig): number {
+export function resolveBootstrapMaxChars(cfg?: AssistantConfig): number {
   const raw = cfg?.agents?.defaults?.bootstrapMaxChars;
   if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) {
     return Math.floor(raw);
@@ -105,7 +105,7 @@ export function resolveBootstrapMaxChars(cfg?: ZhushouConfig): number {
   return DEFAULT_BOOTSTRAP_MAX_CHARS;
 }
 
-export function resolveBootstrapTotalMaxChars(cfg?: ZhushouConfig): number {
+export function resolveBootstrapTotalMaxChars(cfg?: AssistantConfig): number {
   const raw = cfg?.agents?.defaults?.bootstrapTotalMaxChars;
   if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) {
     return Math.floor(raw);
@@ -114,7 +114,7 @@ export function resolveBootstrapTotalMaxChars(cfg?: ZhushouConfig): number {
 }
 
 export function resolveBootstrapPromptTruncationWarningMode(
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): "off" | "once" | "always" {
   const raw = cfg?.agents?.defaults?.bootstrapPromptTruncationWarning;
   if (raw === "off" || raw === "once" || raw === "always") {

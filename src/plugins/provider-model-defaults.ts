@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 export {
   applyOpencodeZenModelDefault,
   OPENCODE_ZEN_DEFAULT_MODEL,
@@ -17,14 +17,14 @@ export const GOOGLE_GEMINI_DEFAULT_MODEL = "google/gemini-3.1-pro-preview";
 export const OLLAMA_DEFAULT_BASE_URL = "http://127.0.0.1:11434";
 export const OPENCODE_GO_DEFAULT_MODEL_REF = "opencode-go/kimi-k2.5";
 
-export function applyGoogleGeminiModelDefault(cfg: ZhushouConfig): {
-  next: ZhushouConfig;
+export function applyGoogleGeminiModelDefault(cfg: AssistantConfig): {
+  next: AssistantConfig;
   changed: boolean;
 } {
   return applyAgentDefaultPrimaryModel({ cfg, model: GOOGLE_GEMINI_DEFAULT_MODEL });
 }
 
-export function applyOpenAIProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyOpenAIProviderConfig(cfg: AssistantConfig): AssistantConfig {
   const next = ensureModelAllowlistEntry({
     cfg,
     modelRef: OPENAI_DEFAULT_MODEL,
@@ -47,7 +47,7 @@ export function applyOpenAIProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
   };
 }
 
-export function applyOpenAIConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyOpenAIConfig(cfg: AssistantConfig): AssistantConfig {
   const next = applyOpenAIProviderConfig(cfg);
   return {
     ...next,
@@ -67,8 +67,8 @@ export function applyOpenAIConfig(cfg: ZhushouConfig): ZhushouConfig {
   };
 }
 
-export function applyOpencodeGoModelDefault(cfg: ZhushouConfig): {
-  next: ZhushouConfig;
+export function applyOpencodeGoModelDefault(cfg: AssistantConfig): {
+  next: AssistantConfig;
   changed: boolean;
 } {
   return applyAgentDefaultPrimaryModel({ cfg, model: OPENCODE_GO_DEFAULT_MODEL_REF });

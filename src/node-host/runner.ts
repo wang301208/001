@@ -1,4 +1,5 @@
-import { loadConfig, type ZhushouConfig } from "../config/config.js";
+import { loadConfig, type AssistantConfig } from "../config/config.js";
+import { DEFAULT_GATEWAY_PORT } from "../config/paths.js";
 import { GatewayClient } from "../gateway/client.js";
 import { resolveGatewayConnectionAuth } from "../gateway/connection-auth.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../gateway/protocol/client-info.js";
@@ -7,7 +8,7 @@ import type { SkillBinTrustEntry } from "../infra/exec-approvals.js";
 import { resolveExecutableFromPathEnv } from "../infra/executable-path.js";
 import { getMachineDisplayName } from "../infra/machine-name.js";
 import { NODE_EXEC_APPROVALS_COMMANDS, NODE_SYSTEM_RUN_COMMANDS } from "../infra/node-commands.js";
-import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+import { ensureAssistantCliOnPath } from "../infra/path-env.js";
 import { VERSION } from "../version.js";
 import { ensureNodeHostConfig, saveNodeHostConfig, type NodeHostGatewayConfig } from "./config.js";
 import {
@@ -103,7 +104,7 @@ class SkillBinsCache implements SkillBinsProvider {
 }
 
 function ensureNodePathEnv(): string {
-  ensureOpenClawCliOnPath({ pathEnv: process.env.PATH ?? "" });
+  ensureAssistantCliOnPath({ pathEnv: process.env.PATH ?? "" });
   const current = process.env.PATH ?? "";
   if (current.trim()) {
     return current;
@@ -113,7 +114,7 @@ function ensureNodePathEnv(): string {
 }
 
 export async function resolveNodeHostGatewayCredentials(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ token?: string; password?: string }> {
   const mode = params.config.gateway?.mode === "remote" ? "remote" : "local";
@@ -129,7 +130,7 @@ export async function resolveNodeHostGatewayCredentials(params: {
   });
 }
 
-function buildNodeHostLocalAuthConfig(config: ZhushouConfig): ZhushouConfig {
+function buildNodeHostLocalAuthConfig(config: AssistantConfig): AssistantConfig {
   if (!config.gateway?.remote?.token && !config.gateway?.remote?.password) {
     return config;
   }
@@ -171,7 +172,7 @@ export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
   });
 
   const host = gateway.host ?? "127.0.0.1";
-  const port = gateway.port ?? 18789;
+  const port = gateway.port ?? DEFAULT_GATEWAY_PORT;
   const scheme = gateway.tls ? "wss" : "ws";
   const url = `${scheme}://${host}:${port}`;
   const pathEnv = ensureNodePathEnv();

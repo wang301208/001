@@ -1,5 +1,5 @@
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
 import {
   GOOGLE_GEMINI_DEFAULT_MODEL,
   applyGoogleGeminiModelDefault,
@@ -10,7 +10,7 @@ import {
 import { GOOGLE_GEMINI_PROVIDER_HOOKS } from "./provider-hooks.js";
 import { isModernGoogleModel, resolveGoogleGeminiForwardCompatModel } from "./provider-models.js";
 
-export function registerGoogleProvider(api: ZhushouPluginApi) {
+export function registerGoogleProvider(api: AssistantPluginApi) {
   api.registerProvider({
     id: "google",
     label: "Google AI Studio",

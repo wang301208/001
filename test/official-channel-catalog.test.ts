@@ -25,12 +25,12 @@ afterEach(() => {
 
 describe("buildOfficialChannelCatalog", () => {
   it("includes publishable official channel plugins and skips non-publishable entries", () => {
-    const repoRoot = makeRepoRoot("zhushou-official-channel-catalog-");
+    const repoRoot = makeRepoRoot("assistant-official-channel-catalog-");
     writeJson(path.join(repoRoot, "extensions", "whatsapp", "package.json"), {
-      name: "@zhushou/whatsapp",
+      name: "@assistant/whatsapp",
       version: "2026.3.23",
       description: "助手 WhatsApp channel plugin",
-      zhushou: {
+      assistant: {
         channel: {
           id: "whatsapp",
           label: "WhatsApp",
@@ -40,7 +40,7 @@ describe("buildOfficialChannelCatalog", () => {
           blurb: "works with your own number; recommend a separate phone + eSIM.",
         },
         install: {
-          npmSpec: "@zhushou/whatsapp",
+          npmSpec: "@assistant/whatsapp",
           localPath: bundledPluginRoot("whatsapp"),
           defaultChoice: "npm",
         },
@@ -50,8 +50,8 @@ describe("buildOfficialChannelCatalog", () => {
       },
     });
     writeJson(path.join(repoRoot, "extensions", "local-only", "package.json"), {
-      name: "@zhushou/local-only",
-      zhushou: {
+      name: "@assistant/local-only",
+      assistant: {
         channel: {
           id: "local-only",
           label: "Local Only",
@@ -71,10 +71,10 @@ describe("buildOfficialChannelCatalog", () => {
     expect(buildOfficialChannelCatalog({ repoRoot })).toEqual({
       entries: [
         {
-          name: "@zhushou/whatsapp",
+          name: "@assistant/whatsapp",
           version: "2026.3.23",
           description: "助手 WhatsApp channel plugin",
-          zhushou: {
+          assistant: {
             channel: {
               id: "whatsapp",
               label: "WhatsApp",
@@ -84,7 +84,7 @@ describe("buildOfficialChannelCatalog", () => {
               blurb: "works with your own number; recommend a separate phone + eSIM.",
             },
             install: {
-              npmSpec: "@zhushou/whatsapp",
+              npmSpec: "@assistant/whatsapp",
               defaultChoice: "npm",
             },
           },
@@ -94,10 +94,10 @@ describe("buildOfficialChannelCatalog", () => {
   });
 
   it("writes the official catalog under dist", () => {
-    const repoRoot = makeRepoRoot("zhushou-official-channel-catalog-write-");
+    const repoRoot = makeRepoRoot("assistant-official-channel-catalog-write-");
     writeJson(path.join(repoRoot, "extensions", "whatsapp", "package.json"), {
-      name: "@zhushou/whatsapp",
-      zhushou: {
+      name: "@assistant/whatsapp",
+      assistant: {
         channel: {
           id: "whatsapp",
           label: "WhatsApp",
@@ -106,7 +106,7 @@ describe("buildOfficialChannelCatalog", () => {
           blurb: "wa",
         },
         install: {
-          npmSpec: "@zhushou/whatsapp",
+          npmSpec: "@assistant/whatsapp",
         },
         release: {
           publishToNpm: true,
@@ -121,8 +121,8 @@ describe("buildOfficialChannelCatalog", () => {
     expect(JSON.parse(fs.readFileSync(outputPath, "utf8"))).toEqual({
       entries: [
         {
-          name: "@zhushou/whatsapp",
-          zhushou: {
+          name: "@assistant/whatsapp",
+          assistant: {
             channel: {
               id: "whatsapp",
               label: "WhatsApp",
@@ -131,7 +131,7 @@ describe("buildOfficialChannelCatalog", () => {
               blurb: "wa",
             },
             install: {
-              npmSpec: "@zhushou/whatsapp",
+              npmSpec: "@assistant/whatsapp",
             },
           },
         },

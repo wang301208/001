@@ -1,12 +1,12 @@
-import { resolveAckReaction } from "zhushou/plugin-sdk/channel-feedback";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveAckReaction } from "assistant/plugin-sdk/channel-feedback";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import type { CoreConfig } from "../../types.js";
 import { resolveMatrixAccountConfig } from "../account-config.js";
 
 type MatrixAckReactionScope = "group-mentions" | "group-all" | "direct" | "all" | "none" | "off";
 
 export function resolveMatrixAckReactionConfig(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   accountId?: string | null;
 }): { ackReaction: string; ackReactionScope: MatrixAckReactionScope } {

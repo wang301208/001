@@ -1,6 +1,6 @@
 import { formatCliCommand } from "../cli/command-format.js";
 import { readConfigFileSnapshot } from "../config/io.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { runNonInteractiveLocalSetup } from "./onboard-non-interactive/local.js";
@@ -14,13 +14,13 @@ export async function runNonInteractiveSetup(
   const snapshot = await readConfigFileSnapshot();
   if (snapshot.exists && !snapshot.valid) {
     runtime.error(
-      `Config invalid. Run \`${formatCliCommand("zhushou doctor")}\` to repair it, then re-run setup.`,
+      `Config invalid. Run \`${formatCliCommand("assistant doctor")}\` to repair it, then re-run setup.`,
     );
     runtime.exit(1);
     return;
   }
 
-  const baseConfig: ZhushouConfig = snapshot.valid
+  const baseConfig: AssistantConfig = snapshot.valid
     ? snapshot.exists
       ? (snapshot.sourceConfig ?? snapshot.config)
       : {}

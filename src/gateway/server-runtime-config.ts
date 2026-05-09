@@ -3,7 +3,7 @@ import type {
   GatewayBindMode,
   GatewayTailscaleConfig,
 } from "../config/config.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   assertGatewayAuthConfigured,
   type ResolvedGatewayAuth,
@@ -36,7 +36,7 @@ export type GatewayRuntimeConfig = {
 };
 
 export async function resolveGatewayRuntimeConfig(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   port: number;
   bind?: GatewayBindMode;
   host?: string;
@@ -112,13 +112,13 @@ export async function resolveGatewayRuntimeConfig(params: {
     (authMode === "token" && hasToken) || (authMode === "password" && hasPassword);
   const hooksConfig = resolveHooksConfig(params.cfg);
   const canvasHostEnabled =
-    process.env.OPENCLAW_SKIP_CANVAS_HOST !== "1" && params.cfg.canvasHost?.enabled !== false;
+    process.env.ASSISTANT_SKIP_CANVAS_HOST !== "1" && params.cfg.canvasHost?.enabled !== false;
 
   const trustedProxies = params.cfg.gateway?.trustedProxies ?? [];
   assertGatewayAuthConfigured(resolvedAuth, params.cfg.gateway?.auth);
   if (tailscaleMode === "funnel" && authMode !== "password") {
     throw new Error(
-      "tailscale funnel requires gateway auth mode=password (set gateway.auth.password or ZHUSHOU_GATEWAY_PASSWORD)",
+      "tailscale funnel requires gateway auth mode=password (set gateway.auth.password or ASSISTANT_GATEWAY_PASSWORD)",
     );
   }
   if (tailscaleMode !== "off" && !isLoopbackHost(bindHost)) {
@@ -126,7 +126,7 @@ export async function resolveGatewayRuntimeConfig(params: {
   }
   if (!isLoopbackHost(bindHost) && !hasSharedSecret && authMode !== "trusted-proxy") {
     throw new Error(
-      `refusing to bind gateway to ${bindHost}:${params.port} without auth (set gateway.auth.token/password, or set ZHUSHOU_GATEWAY_TOKEN/ZHUSHOU_GATEWAY_PASSWORD)`,
+      `refusing to bind gateway to ${bindHost}:${params.port} without auth (set gateway.auth.token/password, or set ASSISTANT_GATEWAY_TOKEN/ASSISTANT_GATEWAY_PASSWORD)`,
     );
   }
   if (authMode === "trusted-proxy") {

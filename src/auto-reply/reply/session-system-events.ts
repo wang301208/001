@@ -1,5 +1,5 @@
 import { resolveUserTimezone } from "../../agents/date-time.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { buildChannelSummary } from "../../infra/channel-summary.js";
 import {
   formatUtcTimestamp,
@@ -14,7 +14,7 @@ import {
 
 /** Drain queued system events, format as `System:` lines, return the block (or undefined). */
 export async function drainFormattedSystemEvents(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
   isMainSession: boolean;
   isNewSession: boolean;
@@ -42,7 +42,7 @@ export async function drainFormattedSystemEvents(params: {
     return trimmed;
   };
 
-  const resolveSystemEventTimezone = (cfg: ZhushouConfig) => {
+  const resolveSystemEventTimezone = (cfg: AssistantConfig) => {
     const raw = normalizeOptionalString(cfg.agents?.defaults?.envelopeTimezone);
     if (!raw) {
       return { mode: "local" as const };
@@ -64,7 +64,7 @@ export async function drainFormattedSystemEvents(params: {
     return explicit ? { mode: "iana" as const, timeZone: explicit } : { mode: "local" as const };
   };
 
-  const formatSystemEventTimestamp = (ts: number, cfg: ZhushouConfig) => {
+  const formatSystemEventTimestamp = (ts: number, cfg: AssistantConfig) => {
     const date = new Date(ts);
     if (Number.isNaN(date.getTime())) {
       return "unknown-time";

@@ -1,5 +1,5 @@
-import * as providerAuth from "zhushou/plugin-sdk/provider-auth-runtime";
-import { installPinnedHostnameTestHooks } from "zhushou/plugin-sdk/testing";
+import * as providerAuth from "assistant/plugin-sdk/provider-auth-runtime";
+import { installPinnedHostnameTestHooks } from "assistant/plugin-sdk/testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildVydraImageGenerationProvider } from "./image-generation-provider.js";
 

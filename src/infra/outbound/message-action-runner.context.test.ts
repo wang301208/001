@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createChannelTestPluginBase,
@@ -230,7 +230,7 @@ describe("runMessageAction context isolation", () => {
             token: "tg-test",
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       action: "send" as const,
       actionParams: {
         message: "hi",
@@ -302,7 +302,7 @@ describe("runMessageAction context isolation", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       actionParams: {
         channel: "slack",
         target: "channel:C99999999",
@@ -323,7 +323,7 @@ describe("runMessageAction context isolation", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       actionParams: {
         channel: "slack",
         target: "channel:C99999999",

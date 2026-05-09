@@ -1,5 +1,5 @@
 import { getRuntimeConfig } from "../config/config.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { emitDiagnosticEvent } from "../infra/diagnostic-events.js";
 import {
   diagnosticLogger as diag,
@@ -37,7 +37,7 @@ function loadCommandPollBackoffRuntime() {
   return commandPollBackoffRuntimePromise;
 }
 
-export function resolveStuckSessionWarnMs(config?: ZhushouConfig): number {
+export function resolveStuckSessionWarnMs(config?: AssistantConfig): number {
   const raw = config?.diagnostics?.stuckSessionWarnMs;
   if (typeof raw !== "number" || !Number.isFinite(raw)) {
     return DEFAULT_STUCK_SESSION_WARN_MS;
@@ -314,8 +314,8 @@ export function logActiveRuns() {
 let heartbeatInterval: NodeJS.Timeout | null = null;
 
 export function startDiagnosticHeartbeat(
-  config?: ZhushouConfig,
-  opts?: { getConfig?: () => ZhushouConfig },
+  config?: AssistantConfig,
+  opts?: { getConfig?: () => AssistantConfig },
 ) {
   if (heartbeatInterval) {
     return;

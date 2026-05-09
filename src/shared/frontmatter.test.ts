@@ -1,14 +1,16 @@
 import { describe, expect, it, test } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
 import {
-  applyOpenClawManifestInstallCommonFields,
+  applyAssistantManifestInstallCommonFields,
   getFrontmatterString,
   normalizeStringList,
   parseFrontmatterBool,
-  parseOpenClawManifestInstallBase,
-  resolveOpenClawManifestBlock,
-  resolveOpenClawManifestInstall,
-  resolveOpenClawManifestOs,
-  resolveOpenClawManifestRequires,
+  parseAssistantManifestInstallBase,
+  resolveAssistantManifestBlock,
+  resolveAssistantManifestInstall,
+  resolveAssistantManifestOs,
+  resolveAssistantManifestRequires,
 } from "./frontmatter.js";
 
 describe("shared/frontmatter", () => {
@@ -30,62 +32,82 @@ describe("shared/frontmatter", () => {
     expect(parseFrontmatterBool("maybe", false)).toBe(false);
   });
 
-  test("resolveOpenClawManifestBlock reads current manifest keys and custom metadata fields", () => {
+  test("resolveAssistantManifestBlock reads current manifest keys and custom metadata fields", () => {
     expect(
-      resolveOpenClawManifestBlock({
+      resolveAssistantManifestBlock({
         frontmatter: {
-          metadata: "{ zhushou: { foo: 1, bar: 'baz' } }",
+          metadata: "{ assistant: { foo: 1, bar: 'baz' } }",
         },
       }),
     ).toEqual({ foo: 1, bar: "baz" });
 
     expect(
-      resolveOpenClawManifestBlock({
+      resolveAssistantManifestBlock({
         frontmatter: {
-          pluginMeta: "{ zhushou: { foo: 2 } }",
+          pluginMeta: "{ assistant: { foo: 2 } }",
         },
         key: "pluginMeta",
       }),
     ).toEqual({ foo: 2 });
   });
 
-  test("resolveOpenClawManifestBlock returns undefined for invalid input", () => {
-    expect(resolveOpenClawManifestBlock({ frontmatter: {} })).toBeUndefined();
+  test("resolveAssistantManifestBlock returns undefined for invalid input", () => {
+    expect(resolveAssistantManifestBlock({ frontmatter: {} })).toBeUndefined();
     expect(
-      resolveOpenClawManifestBlock({ frontmatter: { metadata: "not-json5" } }),
+      resolveAssistantManifestBlock({ frontmatter: { metadata: "not-json5" } }),
     ).toBeUndefined();
-    expect(resolveOpenClawManifestBlock({ frontmatter: { metadata: "123" } })).toBeUndefined();
-    expect(resolveOpenClawManifestBlock({ frontmatter: { metadata: "[]" } })).toBeUndefined();
+    expect(resolveAssistantManifestBlock({ frontmatter: { metadata: "123" } })).toBeUndefined();
+    expect(resolveAssistantManifestBlock({ frontmatter: { metadata: "[]" } })).toBeUndefined();
     expect(
-      resolveOpenClawManifestBlock({ frontmatter: { metadata: "{ nope: { a: 1 } }" } }),
+      resolveAssistantManifestBlock({ frontmatter: { metadata: "{ nope: { a: 1 } }" } }),
+    ).toBeUndefined();
+  });
+
+  test("does not keep unknown manifest compatibility keys", () => {
+    expect(fs.existsSync(path.join(process.cwd(), "src", "compat", "project-names.ts"))).toBe(
+      false,
+    );
+    expect(
+      resolveAssistantManifestBlock({
+        frontmatter: {
+          metadata: "{ unknownManifest: { foo: 1 } }",
+        },
+      }),
+    ).toBeUndefined();
+    expect(
+      resolveAssistantManifestBlock({
+        frontmatter: {
+          metadata: "{ legacyManifest: { foo: 1 } }",
+        },
+      }),
     ).toBeUndefined();
   });
 
   it("normalizes manifest requirement and os lists", () => {
     expect(
-      resolveOpenClawManifestRequires({
+      resolveAssistantManifestRequires({
         requires: {
           bins: "bun, node",
           anyBins: [" ffmpeg ", ""],
-          env: ["OPENCLAW_TOKEN", " OPENCLAW_URL "],
+          env: ["ASSISTANT_TOKEN", " ASSISTANT_URL "],
           config: null,
         },
       }),
     ).toEqual({
       bins: ["bun", "node"],
       anyBins: ["ffmpeg"],
-      env: ["OPENCLAW_TOKEN", "OPENCLAW_URL"],
+      env: ["ASSISTANT_TOKEN", "ASSISTANT_URL"],
       config: [],
     });
-    expect(resolveOpenClawManifestRequires({})).toBeUndefined();
-    expect(resolveOpenClawManifestOs({ os: [" darwin ", "linux", ""] })).toEqual([
+    expect(resolveAssistantManifestRequires({})).toBeUndefined();
+    expect(resolveAssistantManifestOs({ os: [" darwin ", "linux", ""] })).toEqual([
       "darwin",
       "linux",
     ]);
   });
 
   it("parses and applies install common fields", () => {
-    const parsed = parseOpenClawManifestInstallBase(
+    const parsed = parseAssistantManifestInstallBase(
       {
         type: " Brew ",
         id: "brew.git",
@@ -107,9 +129,9 @@ describe("shared/frontmatter", () => {
       label: "Git",
       bins: ["git", "git"],
     });
-    expect(parseOpenClawManifestInstallBase({ kind: "bad" }, ["brew"])).toBeUndefined();
+    expect(parseAssistantManifestInstallBase({ kind: "bad" }, ["brew"])).toBeUndefined();
     expect(
-      applyOpenClawManifestInstallCommonFields<{
+      applyAssistantManifestInstallCommonFields<{
         extra: boolean;
         id?: string;
         label?: string;
@@ -124,7 +146,7 @@ describe("shared/frontmatter", () => {
   });
 
   it("prefers explicit kind, ignores invalid common fields, and leaves missing ones untouched", () => {
-    const parsed = parseOpenClawManifestInstallBase(
+    const parsed = parseAssistantManifestInstallBase(
       {
         kind: " npm ",
         type: "brew",
@@ -146,7 +168,7 @@ describe("shared/frontmatter", () => {
       kind: "npm",
     });
     expect(
-      applyOpenClawManifestInstallCommonFields(
+      applyAssistantManifestInstallCommonFields(
         { id: "keep", label: "Keep", bins: ["bun"] },
         parsed!,
       ),
@@ -159,7 +181,7 @@ describe("shared/frontmatter", () => {
 
   it("maps install entries through the parser and filters rejected specs", () => {
     expect(
-      resolveOpenClawManifestInstall(
+      resolveAssistantManifestInstall(
         {
           install: [{ id: "keep" }, { id: "drop" }, "bad"],
         },

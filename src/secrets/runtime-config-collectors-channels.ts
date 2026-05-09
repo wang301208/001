@@ -1,10 +1,10 @@
 import { getBootstrapChannelSecrets } from "../channels/plugins/bootstrap-registry.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { loadBundledChannelSecretContractApi } from "./channel-contract-api.js";
 import { type ResolverContext, type SecretDefaults } from "./runtime-shared.js";
 
 export function collectChannelConfigAssignments(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   defaults: SecretDefaults | undefined;
   context: ResolverContext;
 }): void {

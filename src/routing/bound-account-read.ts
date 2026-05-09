@@ -1,7 +1,7 @@
 import { normalizeChatChannelId } from "../channels/ids.js";
 import { listRouteBindings } from "../config/bindings.js";
 import type { AgentRouteBinding } from "../config/types.agents.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { normalizeAccountId, normalizeAgentId } from "./session-key.js";
 
@@ -42,7 +42,7 @@ function resolveNormalizedBindingMatch(binding: AgentRouteBinding): {
 }
 
 export function resolveFirstBoundAccountId(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channelId: string;
   agentId: string;
 }): string | undefined {

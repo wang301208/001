@@ -1,22 +1,22 @@
 {
-  "name": "@zhushou/memory-core",
+  "name": "@assistant/memory-core",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 core memory search plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
-    "zhushou": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*",
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

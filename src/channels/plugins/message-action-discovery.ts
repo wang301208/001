@@ -1,5 +1,5 @@
 import type { TSchema } from "@sinclair/typebox";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { defaultRuntime } from "../../runtime.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
@@ -18,7 +18,7 @@ import type {
 } from "./types.public.js";
 
 export type ChannelMessageActionDiscoveryInput = {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   channel?: string | null;
   currentChannelProvider?: string | null;
   currentChannelId?: string | null;
@@ -45,7 +45,7 @@ export function createMessageActionDiscoveryContext(
     params.channel ?? params.currentChannelProvider,
   );
   return {
-    cfg: params.cfg ?? ({} as ZhushouConfig),
+    cfg: params.cfg ?? ({} as AssistantConfig),
     currentChannelId: params.currentChannelId,
     currentChannelProvider,
     currentThreadTs: params.currentThreadTs,
@@ -208,7 +208,7 @@ export function resolveMessageActionDiscoveryForPlugin(params: {
   };
 }
 
-export function listChannelMessageActions(cfg: ZhushouConfig): ChannelMessageActionName[] {
+export function listChannelMessageActions(cfg: AssistantConfig): ChannelMessageActionName[] {
   const actions = new Set<ChannelMessageActionName>(["send", "broadcast"]);
   for (const plugin of listChannelPlugins()) {
     for (const action of resolveMessageActionDiscoveryForPlugin({
@@ -223,7 +223,7 @@ export function listChannelMessageActions(cfg: ZhushouConfig): ChannelMessageAct
   return Array.from(actions);
 }
 
-export function listChannelMessageCapabilities(cfg: ZhushouConfig): ChannelMessageCapability[] {
+export function listChannelMessageCapabilities(cfg: AssistantConfig): ChannelMessageCapability[] {
   const capabilities = new Set<ChannelMessageCapability>();
   for (const plugin of listChannelPlugins()) {
     for (const capability of resolveMessageActionDiscoveryForPlugin({
@@ -239,7 +239,7 @@ export function listChannelMessageCapabilities(cfg: ZhushouConfig): ChannelMessa
 }
 
 export function listChannelMessageCapabilitiesForChannel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel?: string;
   currentChannelId?: string | null;
   currentThreadTs?: string | null;
@@ -280,7 +280,7 @@ function mergeToolSchemaProperties(
 }
 
 export function resolveChannelMessageToolSchemaProperties(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel?: string;
   currentChannelId?: string | null;
   currentThreadTs?: string | null;
@@ -339,7 +339,7 @@ export function resolveChannelMessageToolSchemaProperties(params: {
 }
 
 export function resolveChannelMessageToolMediaSourceParamKeys(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   action?: ChannelMessageActionName;
   channel?: string;
   currentChannelId?: string | null;
@@ -367,7 +367,7 @@ export function resolveChannelMessageToolMediaSourceParamKeys(params: {
 }
 
 export function channelSupportsMessageCapability(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   capability: ChannelMessageCapability,
 ): boolean {
   return listChannelMessageCapabilities(cfg).includes(capability);
@@ -375,7 +375,7 @@ export function channelSupportsMessageCapability(
 
 export function channelSupportsMessageCapabilityForChannel(
   params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     channel?: string;
     currentChannelId?: string | null;
     currentThreadTs?: string | null;

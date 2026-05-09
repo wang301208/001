@@ -3,20 +3,20 @@ import {
   logAckFailure,
   logTypingFailure,
   removeAckReactionAfterReply,
-} from "zhushou/plugin-sdk/channel-feedback";
-import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
-import { resolveChannelStreamingBlockEnabled } from "zhushou/plugin-sdk/channel-streaming";
+} from "assistant/plugin-sdk/channel-feedback";
+import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
+import { resolveChannelStreamingBlockEnabled } from "assistant/plugin-sdk/channel-streaming";
 import type {
-  ZhushouConfig,
+  AssistantConfig,
   ReplyToMode,
   TelegramAccountConfig,
-} from "zhushou/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { clearHistoryEntriesIfEnabled } from "zhushou/plugin-sdk/reply-history";
-import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { danger, logVerbose } from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { clearHistoryEntriesIfEnabled } from "assistant/plugin-sdk/reply-history";
+import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { danger, logVerbose } from "assistant/plugin-sdk/runtime-env";
 import { defaultTelegramBotDeps, type TelegramBotDeps } from "./bot-deps.js";
 import type { TelegramMessageContext } from "./bot-message-context.js";
 import {
@@ -69,7 +69,7 @@ const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
 /** Minimum chars before sending first streaming message (improves push notification UX) */
 const DRAFT_MIN_INITIAL_CHARS = 30;
 
-async function resolveStickerVisionSupport(cfg: ZhushouConfig, agentId: string) {
+async function resolveStickerVisionSupport(cfg: AssistantConfig, agentId: string) {
   try {
     const catalog = await loadModelCatalog({ config: cfg });
     const defaultModel = resolveDefaultModelForAgent({ cfg, agentId });
@@ -117,7 +117,7 @@ export function pruneStickerMediaFromContext(
 type DispatchTelegramMessageParams = {
   context: TelegramMessageContext;
   bot: Bot;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: RuntimeEnv;
   replyToMode: ReplyToMode;
   streamMode: TelegramStreamMode;
@@ -130,7 +130,7 @@ type DispatchTelegramMessageParams = {
 type TelegramReasoningLevel = "off" | "on" | "stream";
 
 function resolveTelegramReasoningLevel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey?: string;
   agentId: string;
   telegramDeps: TelegramBotDeps;

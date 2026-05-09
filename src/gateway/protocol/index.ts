@@ -212,6 +212,18 @@ import {
   AgentsListParamsSchema,
   type AgentsListResult,
   AgentsListResultSchema,
+  type AgentsParallelBatchResult,
+  AgentsParallelBatchResultSchema,
+  type AgentsParallelCancelParams,
+  AgentsParallelCancelParamsSchema,
+  type AgentsParallelListParams,
+  AgentsParallelListParamsSchema,
+  type AgentsParallelListResult,
+  AgentsParallelListResultSchema,
+  type AgentsParallelStartParams,
+  AgentsParallelStartParamsSchema,
+  type AgentsParallelStatusParams,
+  AgentsParallelStatusParamsSchema,
   type AgentWaitParams,
   AgentWaitParamsSchema,
   type ChannelsLogoutParams,
@@ -325,6 +337,16 @@ import {
   LogsTailResultSchema,
   type ModelsListParams,
   ModelsListParamsSchema,
+  type ModelsRemoteListParams,
+  ModelsRemoteListParamsSchema,
+  type ExperienceCaptureParams,
+  ExperienceCaptureParamsSchema,
+  type ExperienceSearchParams,
+  ExperienceSearchParamsSchema,
+  type ExperienceSessionRecallParams,
+  ExperienceSessionRecallParamsSchema,
+  type ExperienceSummaryParams,
+  ExperienceSummaryParamsSchema,
   type NodeDescribeParams,
   NodeDescribeParamsSchema,
   type NodeEventParams,
@@ -414,6 +436,20 @@ import {
   type SkillsBinsParams,
   SkillsBinsParamsSchema,
   type SkillsBinsResult,
+  type SkillCandidatesCreateParams,
+  SkillCandidatesCreateParamsSchema,
+  type SkillCandidatesExportAgentSkillParams,
+  SkillCandidatesExportAgentSkillParamsSchema,
+  type SkillCandidatesListParams,
+  SkillCandidatesListParamsSchema,
+  type SkillUsageRecordParams,
+  SkillUsageRecordParamsSchema,
+  type StrategyMemoryCaptureParams,
+  StrategyMemoryCaptureParamsSchema,
+  type StrategyMemoryAdvanceParams,
+  StrategyMemoryAdvanceParamsSchema,
+  type StrategyMemoryDueParams,
+  StrategyMemoryDueParamsSchema,
   type SkillsDetailParams,
   SkillsDetailParamsSchema,
   type SkillsDetailResult,
@@ -435,6 +471,20 @@ import {
   type ToolsEffectiveParams,
   ToolsEffectiveParamsSchema,
   type ToolsEffectiveResult,
+  type GatewayMethodDescribeParams,
+  GatewayMethodDescribeParamsSchema,
+  type GatewayMethodDescribeResult,
+  type GatewayMethodsParams,
+  GatewayMethodsParamsSchema,
+  type GatewayMethodsResult,
+  type SelfModelGetParams,
+  SelfModelGetParamsSchema,
+  type SelfModelUpdateParams,
+  SelfModelUpdateParamsSchema,
+  type UserModelDialecticParams,
+  UserModelDialecticParamsSchema,
+  type UserModelUpdateParams,
+  UserModelUpdateParamsSchema,
   type Snapshot,
   SnapshotSchema,
   type StateVersion,
@@ -571,6 +621,18 @@ export const validateAgentsFilesGetParams = ajv.compile<AgentsFilesGetParams>(
 export const validateAgentsFilesSetParams = ajv.compile<AgentsFilesSetParams>(
   AgentsFilesSetParamsSchema,
 );
+export const validateAgentsParallelStartParams = ajv.compile<AgentsParallelStartParams>(
+  AgentsParallelStartParamsSchema,
+);
+export const validateAgentsParallelStatusParams = ajv.compile<AgentsParallelStatusParams>(
+  AgentsParallelStatusParamsSchema,
+);
+export const validateAgentsParallelCancelParams = ajv.compile<AgentsParallelCancelParams>(
+  AgentsParallelCancelParamsSchema,
+);
+export const validateAgentsParallelListParams = ajv.compile<AgentsParallelListParams>(
+  AgentsParallelListParamsSchema,
+);
 export const validateNodePairRequestParams = ajv.compile<NodePairRequestParams>(
   NodePairRequestParamsSchema,
 );
@@ -680,11 +742,48 @@ export const validateChannelsConnectParams = ajv.compile<ChannelsConnectParams>(
   ChannelsConnectParamsSchema,
 );
 export const validateModelsListParams = ajv.compile<ModelsListParams>(ModelsListParamsSchema);
+export const validateModelsRemoteListParams =
+  ajv.compile<ModelsRemoteListParams>(ModelsRemoteListParamsSchema);
+export const validateExperienceCaptureParams =
+  ajv.compile<ExperienceCaptureParams>(ExperienceCaptureParamsSchema);
+export const validateExperienceSearchParams =
+  ajv.compile<ExperienceSearchParams>(ExperienceSearchParamsSchema);
+export const validateExperienceSessionRecallParams =
+  ajv.compile<ExperienceSessionRecallParams>(ExperienceSessionRecallParamsSchema);
+export const validateExperienceSummaryParams =
+  ajv.compile<ExperienceSummaryParams>(ExperienceSummaryParamsSchema);
 export const validateSkillsStatusParams = ajv.compile<SkillsStatusParams>(SkillsStatusParamsSchema);
+export const validateSkillCandidatesCreateParams =
+  ajv.compile<SkillCandidatesCreateParams>(SkillCandidatesCreateParamsSchema);
+export const validateSkillCandidatesExportAgentSkillParams =
+  ajv.compile<SkillCandidatesExportAgentSkillParams>(
+    SkillCandidatesExportAgentSkillParamsSchema,
+  );
+export const validateSkillCandidatesListParams =
+  ajv.compile<SkillCandidatesListParams>(SkillCandidatesListParamsSchema);
+export const validateSkillUsageRecordParams =
+  ajv.compile<SkillUsageRecordParams>(SkillUsageRecordParamsSchema);
+export const validateStrategyMemoryCaptureParams =
+  ajv.compile<StrategyMemoryCaptureParams>(StrategyMemoryCaptureParamsSchema);
+export const validateStrategyMemoryAdvanceParams =
+  ajv.compile<StrategyMemoryAdvanceParams>(StrategyMemoryAdvanceParamsSchema);
+export const validateStrategyMemoryDueParams =
+  ajv.compile<StrategyMemoryDueParams>(StrategyMemoryDueParamsSchema);
+export const validateSelfModelGetParams = ajv.compile<SelfModelGetParams>(SelfModelGetParamsSchema);
+export const validateSelfModelUpdateParams =
+  ajv.compile<SelfModelUpdateParams>(SelfModelUpdateParamsSchema);
+export const validateUserModelUpdateParams =
+  ajv.compile<UserModelUpdateParams>(UserModelUpdateParamsSchema);
+export const validateUserModelDialecticParams =
+  ajv.compile<UserModelDialecticParams>(UserModelDialecticParamsSchema);
 export const validateToolsCatalogParams = ajv.compile<ToolsCatalogParams>(ToolsCatalogParamsSchema);
 export const validateToolsEffectiveParams = ajv.compile<ToolsEffectiveParams>(
   ToolsEffectiveParamsSchema,
 );
+export const validateGatewayMethodsParams =
+  ajv.compile<GatewayMethodsParams>(GatewayMethodsParamsSchema);
+export const validateGatewayMethodDescribeParams =
+  ajv.compile<GatewayMethodDescribeParams>(GatewayMethodDescribeParamsSchema);
 export const validateSkillsBinsParams = ajv.compile<SkillsBinsParams>(SkillsBinsParamsSchema);
 export const validateSkillsInstallParams =
   ajv.compile<SkillsInstallParams>(SkillsInstallParamsSchema);
@@ -960,12 +1059,36 @@ export {
   AgentsFilesSetResultSchema,
   AgentsListParamsSchema,
   AgentsListResultSchema,
+  AgentsParallelBatchResultSchema,
+  AgentsParallelCancelParamsSchema,
+  AgentsParallelListParamsSchema,
+  AgentsParallelListResultSchema,
+  AgentsParallelStartParamsSchema,
+  AgentsParallelStatusParamsSchema,
   CommandsListParamsSchema,
   CommandsListResultSchema,
   ModelsListParamsSchema,
+  ModelsRemoteListParamsSchema,
+  ExperienceCaptureParamsSchema,
+  ExperienceSearchParamsSchema,
+  ExperienceSessionRecallParamsSchema,
+  ExperienceSummaryParamsSchema,
   SkillsStatusParamsSchema,
+  SkillCandidatesCreateParamsSchema,
+  SkillCandidatesExportAgentSkillParamsSchema,
+  SkillCandidatesListParamsSchema,
+  SkillUsageRecordParamsSchema,
+  StrategyMemoryCaptureParamsSchema,
+  StrategyMemoryAdvanceParamsSchema,
+  StrategyMemoryDueParamsSchema,
+  SelfModelGetParamsSchema,
+  SelfModelUpdateParamsSchema,
+  UserModelDialecticParamsSchema,
+  UserModelUpdateParamsSchema,
   ToolsCatalogParamsSchema,
   ToolsEffectiveParamsSchema,
+  GatewayMethodDescribeParamsSchema,
+  GatewayMethodsParamsSchema,
   SkillsInstallParamsSchema,
   SkillsSearchParamsSchema,
   SkillsSearchResultSchema,
@@ -1143,15 +1266,40 @@ export type {
   AgentsFilesSetResult,
   AgentsListParams,
   AgentsListResult,
+  AgentsParallelBatchResult,
+  AgentsParallelCancelParams,
+  AgentsParallelListParams,
+  AgentsParallelListResult,
+  AgentsParallelStartParams,
+  AgentsParallelStatusParams,
   CommandsListParams,
   CommandsListResult,
   CommandEntry,
+  ExperienceCaptureParams,
+  ExperienceSearchParams,
+  ExperienceSessionRecallParams,
+  ExperienceSummaryParams,
+  SkillCandidatesCreateParams,
+  SkillCandidatesExportAgentSkillParams,
+  SkillCandidatesListParams,
+  SkillUsageRecordParams,
+  StrategyMemoryCaptureParams,
+  StrategyMemoryAdvanceParams,
+  StrategyMemoryDueParams,
+  SelfModelGetParams,
+  SelfModelUpdateParams,
+  UserModelDialecticParams,
+  UserModelUpdateParams,
   SkillsStatusParams,
   ToolsCatalogParams,
   ToolGovernanceSummary,
   ToolsCatalogResult,
   ToolsEffectiveParams,
   ToolsEffectiveResult,
+  GatewayMethodDescribeParams,
+  GatewayMethodDescribeResult,
+  GatewayMethodsParams,
+  GatewayMethodsResult,
   SkillsBinsParams,
   SkillsBinsResult,
   SkillsSearchParams,

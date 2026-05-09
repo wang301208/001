@@ -1,18 +1,18 @@
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import {
   jsonResult,
   readNumberParam,
   readStringParam,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/memory-core-host-runtime-core";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/memory-core-host-runtime-core";
 import type {
   MemorySearchResult,
   MemorySearchRuntimeDebug,
-} from "zhushou/plugin-sdk/memory-core-host-runtime-files";
+} from "assistant/plugin-sdk/memory-core-host-runtime-files";
 import {
   resolveMemoryCorePluginConfig,
   resolveMemoryDeepDreamingConfig,
-} from "zhushou/plugin-sdk/memory-core-host-status";
+} from "assistant/plugin-sdk/memory-core-host-status";
 import { recordShortTermRecalls } from "./short-term-promotion.js";
 import {
   clampResultsByInjectedChars,
@@ -86,7 +86,7 @@ function isActiveMemorySessionKey(sessionKey?: string): boolean {
 }
 
 function resolveActiveMemoryQmdSearchModeOverride(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   sessionKey?: string,
 ): "search" | "vsearch" | "query" | undefined {
   if (!isActiveMemorySessionKey(sessionKey)) {
@@ -178,7 +178,7 @@ async function executeMemoryReadResult<T>(params: {
 }
 
 export function createMemorySearchTool(options: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   agentSessionKey?: string;
 }) {
   return createMemoryTool({
@@ -319,7 +319,7 @@ export function createMemorySearchTool(options: {
 }
 
 export function createMemoryGetTool(options: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   agentSessionKey?: string;
 }) {
   return createMemoryTool({

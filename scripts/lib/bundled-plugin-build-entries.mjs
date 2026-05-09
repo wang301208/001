@@ -24,22 +24,22 @@ function readBundledPluginPackageJson(packageJsonPath) {
 
 function isManifestlessBundledRuntimeSupportPackage(params) {
   const packageName = typeof params.packageJson?.name === "string" ? params.packageJson.name : "";
-  if (packageName !== `@zhushou/${params.dirName}`) {
+  if (packageName !== `@assistant/${params.dirName}`) {
     return false;
   }
   return params.topLevelPublicSurfaceEntries.length > 0;
 }
 
 function collectPluginSourceEntries(packageJson) {
-  let packageEntries = Array.isArray(packageJson?.zhushou?.extensions)
-    ? packageJson.zhushou.extensions.filter(
+  let packageEntries = Array.isArray(packageJson?.assistant?.extensions)
+    ? packageJson.assistant.extensions.filter(
         (entry) => typeof entry === "string" && entry.trim().length > 0,
       )
     : [];
   const setupEntry =
-    typeof packageJson?.zhushou?.setupEntry === "string" &&
-    packageJson.zhushou.setupEntry.trim().length > 0
-      ? packageJson.zhushou.setupEntry
+    typeof packageJson?.assistant?.setupEntry === "string" &&
+    packageJson.assistant.setupEntry.trim().length > 0
+      ? packageJson.assistant.setupEntry
       : undefined;
   if (setupEntry) {
     packageEntries = Array.from(new Set([...packageEntries, setupEntry]));
@@ -48,7 +48,7 @@ function collectPluginSourceEntries(packageJson) {
 }
 
 function shouldStageBundledPluginRuntimeDependencies(packageJson) {
-  return packageJson?.zhushou?.bundle?.stageRuntimeDependencies === true;
+  return packageJson?.assistant?.bundle?.stageRuntimeDependencies === true;
 }
 
 function collectTopLevelPublicSurfaceEntries(pluginDir) {
@@ -97,7 +97,7 @@ export function collectBundledPluginBuildEntries(params = {}) {
     }
 
     const pluginDir = path.join(extensionsRoot, dirent.name);
-    const manifestPath = path.join(pluginDir, "zhushou.plugin.json");
+    const manifestPath = path.join(pluginDir, "assistant.plugin.json");
     const hasManifest = fs.existsSync(manifestPath);
     const packageJsonPath = path.join(pluginDir, "package.json");
     const packageJson = readBundledPluginPackageJson(packageJsonPath);
@@ -153,7 +153,7 @@ export function listBundledPluginPackArtifacts(params = {}) {
 
   for (const { id, hasManifest, hasPackageJson, sourceEntries } of entries) {
     if (hasManifest) {
-      artifacts.add(bundledDistPluginFile(id, "zhushou.plugin.json"));
+      artifacts.add(bundledDistPluginFile(id, "assistant.plugin.json"));
     }
     if (hasPackageJson) {
       artifacts.add(bundledDistPluginFile(id, "package.json"));

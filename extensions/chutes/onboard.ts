@@ -1,8 +1,8 @@
 import {
   applyAgentDefaultModelPrimary,
   applyProviderConfigWithModelCatalogPreset,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import {
   CHUTES_BASE_URL,
   CHUTES_DEFAULT_MODEL_REF,
@@ -16,7 +16,7 @@ export { CHUTES_DEFAULT_MODEL_REF };
  * Apply Chutes provider configuration without changing the default model.
  * Registers all catalog models and sets provider aliases (chutes-fast, etc.).
  */
-export function applyChutesProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyChutesProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return applyProviderConfigWithModelCatalogPreset(cfg, {
     providerId: "chutes",
     api: "openai-completions",
@@ -37,7 +37,7 @@ export function applyChutesProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
 /**
  * Apply Chutes provider configuration AND set Chutes as the default model.
  */
-export function applyChutesConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyChutesConfig(cfg: AssistantConfig): AssistantConfig {
   const next = applyChutesProviderConfig(cfg);
   return {
     ...next,
@@ -58,6 +58,6 @@ export function applyChutesConfig(cfg: ZhushouConfig): ZhushouConfig {
   };
 }
 
-export function applyChutesApiKeyConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyChutesApiKeyConfig(cfg: AssistantConfig): AssistantConfig {
   return applyAgentDefaultModelPrimary(applyChutesProviderConfig(cfg), CHUTES_DEFAULT_MODEL_REF);
 }

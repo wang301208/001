@@ -3,9 +3,9 @@ import {
   isSenderIdAllowed,
   mergeDmAllowFromSources,
   type AllowlistMatch,
-} from "zhushou/plugin-sdk/allow-from";
-import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/allow-from";
+import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 
 export type NormalizedAllowFrom = {
   entries: string[];

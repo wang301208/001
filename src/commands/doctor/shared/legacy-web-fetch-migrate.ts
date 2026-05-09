@@ -1,5 +1,5 @@
 import { mergeMissing } from "../../../config/legacy.shared.js";
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import {
   cloneRecord,
   ensureRecord,
@@ -147,7 +147,7 @@ function normalizeLegacyWebFetchConfigRecord<T extends JsonRecord>(
 }
 
 export function resolvePluginWebFetchConfig(
-  config: ZhushouConfig | undefined,
+  config: AssistantConfig | undefined,
   pluginId: string,
 ): Record<string, unknown> | undefined {
   const pluginConfig = config?.plugins?.entries?.[pluginId]?.config;

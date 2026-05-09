@@ -1,6 +1,6 @@
 import { getAcpSessionManager } from "../acp/control-plane/manager.js";
 import { ACP_SESSION_IDENTITY_RENDERER_VERSION } from "../acp/runtime/session-identifiers.js";
-import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+import { resolveAssistantAgentDir } from "../agents/agent-paths.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { selectAgentHarness } from "../agents/harness/selection.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
@@ -10,7 +10,7 @@ import {
   resolveConfiguredModelRef,
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
-import { ensureOpenClawModelsJson } from "../agents/models-config.js";
+import { ensureAssistantModelsJson } from "../agents/models-config.js";
 import { resolveModel } from "../agents/pi-embedded-runner/model.js";
 import { resolveEmbeddedAgentRuntime } from "../agents/pi-embedded-runner/runtime.js";
 import { resolveAgentSessionDirs } from "../agents/session-dirs.js";
@@ -20,7 +20,7 @@ import type { CliDeps } from "../cli/deps.types.js";
 import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import { resolveStateDir } from "../config/paths.js";
 import type { GatewayTailscaleMode } from "../config/types.gateway.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { startGmailWatcherWithLogs } from "../hooks/gmail-watcher-lifecycle.js";
 import {
   createInternalHookEvent,
@@ -31,7 +31,7 @@ import { loadInternalHooks } from "../hooks/loader.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
-import type { loadOpenClawPlugins } from "../plugins/loader.js";
+import type { loadAssistantPlugins } from "../plugins/loader.js";
 import { type PluginServicesHandle, startPluginServices } from "../plugins/services.js";
 import {
   GATEWAY_EVENT_UPDATE_AVAILABLE,
@@ -48,8 +48,15 @@ import { startGatewayTailscaleExposure } from "./server-tailscale.js";
 
 const SESSION_LOCK_STALE_MS = 30 * 60 * 1000;
 
+function shouldSkipGatewaySidecars(): boolean {
+  return (
+    isTruthyEnvValue(process.env.ASSISTANT_SKIP_SIDECARS) ||
+    isTruthyEnvValue(process.env.ASSISTANT_SKIP_POST_ATTACH_SIDECARS)
+  );
+}
+
 async function prewarmConfiguredPrimaryModel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   log: { warn: (msg: string) => void };
 }): Promise<void> {
   const explicitPrimary = resolveAgentModelPrimaryValue(params.cfg.agents?.defaults?.model)?.trim();
@@ -71,9 +78,9 @@ async function prewarmConfiguredPrimaryModel(params: {
   if (selectAgentHarness({ provider, modelId: model, config: params.cfg }).id !== "pi") {
     return;
   }
-  const agentDir = resolveOpenClawAgentDir();
+  const agentDir = resolveAssistantAgentDir();
   try {
-    await ensureOpenClawModelsJson(params.cfg, agentDir);
+    await ensureAssistantModelsJson(params.cfg, agentDir);
     const resolved = resolveModel(provider, model, agentDir, params.cfg, {
       skipProviderRuntimeHooks: true,
     });
@@ -89,12 +96,12 @@ async function prewarmConfiguredPrimaryModel(params: {
 }
 
 export async function startGatewaySidecars(params: {
-  cfg: ZhushouConfig;
-  pluginRegistry: ReturnType<typeof loadOpenClawPlugins>;
+  cfg: AssistantConfig;
+  pluginRegistry: ReturnType<typeof loadAssistantPlugins>;
   defaultWorkspaceDir: string;
   deps: CliDeps;
   startChannels: () => Promise<void>;
-  log: { warn: (msg: string) => void };
+  log: { info?: (msg: string) => void; warn: (msg: string) => void };
   logHooks: {
     info: (msg: string) => void;
     warn: (msg: string) => void;
@@ -102,27 +109,44 @@ export async function startGatewaySidecars(params: {
   };
   logChannels: { info: (msg: string) => void; error: (msg: string) => void };
 }) {
-  try {
-    const stateDir = resolveStateDir(process.env);
-    const sessionDirs = await resolveAgentSessionDirs(stateDir);
-    for (const sessionsDir of sessionDirs) {
-      await cleanStaleLockFiles({
-        sessionsDir,
-        staleMs: SESSION_LOCK_STALE_MS,
-        removeStale: true,
-        log: { warn: (message) => params.log.warn(message) },
-      });
-    }
-  } catch (err) {
-    params.log.warn(`session lock cleanup failed on startup: ${String(err)}`);
+  const skipAllSidecars = shouldSkipGatewaySidecars();
+  if (skipAllSidecars) {
+    params.log.info?.(
+      "skipping gateway sidecars (ASSISTANT_SKIP_SIDECARS=1 or ASSISTANT_SKIP_POST_ATTACH_SIDECARS=1)",
+    );
+    return { pluginServices: null };
   }
 
-  await startGmailWatcherWithLogs({
-    cfg: params.cfg,
-    log: params.logHooks,
-  });
+  if (!isTruthyEnvValue(process.env.ASSISTANT_SKIP_SESSION_LOCK_CLEANUP)) {
+    try {
+      const stateDir = resolveStateDir(process.env);
+      const sessionDirs = await resolveAgentSessionDirs(stateDir);
+      for (const sessionsDir of sessionDirs) {
+        await cleanStaleLockFiles({
+          sessionsDir,
+          staleMs: SESSION_LOCK_STALE_MS,
+          removeStale: true,
+          log: { warn: (message) => params.log.warn(message) },
+        });
+      }
+    } catch (err) {
+      params.log.warn(`session lock cleanup failed on startup: ${String(err)}`);
+    }
+  } else {
+    params.log.info?.("skipping session lock cleanup (ASSISTANT_SKIP_SESSION_LOCK_CLEANUP=1)");
+  }
 
-  if (params.cfg.hooks?.gmail?.model) {
+  const skipGmailWatcher = isTruthyEnvValue(process.env.ASSISTANT_SKIP_GMAIL_WATCHER);
+  if (!skipGmailWatcher) {
+    await startGmailWatcherWithLogs({
+      cfg: params.cfg,
+      log: params.logHooks,
+    });
+  } else {
+    params.logHooks.info("skipping gmail watcher (ASSISTANT_SKIP_GMAIL_WATCHER=1)");
+  }
+
+  if (!skipGmailWatcher && params.cfg.hooks?.gmail?.model) {
     const hooksModelRef = resolveHooksGmailModel({
       cfg: params.cfg,
       defaultProvider: DEFAULT_PROVIDER,
@@ -154,21 +178,27 @@ export async function startGatewaySidecars(params: {
     }
   }
 
-  try {
-    setInternalHooksEnabled(params.cfg.hooks?.internal?.enabled !== false);
-    const loadedCount = await loadInternalHooks(params.cfg, params.defaultWorkspaceDir);
-    if (loadedCount > 0) {
-      params.logHooks.info(
-        `loaded ${loadedCount} internal hook handler${loadedCount > 1 ? "s" : ""}`,
-      );
+  const skipInternalHooks = isTruthyEnvValue(process.env.ASSISTANT_SKIP_INTERNAL_HOOKS);
+  if (!skipInternalHooks) {
+    try {
+      setInternalHooksEnabled(params.cfg.hooks?.internal?.enabled !== false);
+      const loadedCount = await loadInternalHooks(params.cfg, params.defaultWorkspaceDir);
+      if (loadedCount > 0) {
+        params.logHooks.info(
+          `loaded ${loadedCount} internal hook handler${loadedCount > 1 ? "s" : ""}`,
+        );
+      }
+    } catch (err) {
+      params.logHooks.error(`failed to load hooks: ${String(err)}`);
     }
-  } catch (err) {
-    params.logHooks.error(`failed to load hooks: ${String(err)}`);
+  } else {
+    setInternalHooksEnabled(false);
+    params.logHooks.info("skipping internal hook loading (ASSISTANT_SKIP_INTERNAL_HOOKS=1)");
   }
 
   const skipChannels =
-    isTruthyEnvValue(process.env.ZHUSHOU_SKIP_CHANNELS) ||
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_PROVIDERS);
+    isTruthyEnvValue(process.env.ASSISTANT_SKIP_CHANNELS) ||
+    isTruthyEnvValue(process.env.ASSISTANT_SKIP_PROVIDERS);
   if (!skipChannels) {
     try {
       await prewarmConfiguredPrimaryModel({
@@ -181,11 +211,11 @@ export async function startGatewaySidecars(params: {
     }
   } else {
     params.logChannels.info(
-      "skipping channel start (ZHUSHOU_SKIP_CHANNELS=1 or OPENCLAW_SKIP_PROVIDERS=1)",
+      "skipping channel start (ASSISTANT_SKIP_CHANNELS=1 or ASSISTANT_SKIP_PROVIDERS=1)",
     );
   }
 
-  if (params.cfg.hooks?.internal?.enabled !== false) {
+  if (!skipInternalHooks && params.cfg.hooks?.internal?.enabled !== false) {
     setTimeout(() => {
       const hookEvent = createInternalHookEvent("gateway", "startup", "gateway:startup", {
         cfg: params.cfg,
@@ -197,14 +227,18 @@ export async function startGatewaySidecars(params: {
   }
 
   let pluginServices: PluginServicesHandle | null = null;
-  try {
-    pluginServices = await startPluginServices({
-      registry: params.pluginRegistry,
-      config: params.cfg,
-      workspaceDir: params.defaultWorkspaceDir,
-    });
-  } catch (err) {
-    params.log.warn(`plugin services failed to start: ${String(err)}`);
+  if (!isTruthyEnvValue(process.env.ASSISTANT_SKIP_PLUGIN_SERVICES)) {
+    try {
+      pluginServices = await startPluginServices({
+        registry: params.pluginRegistry,
+        config: params.cfg,
+        workspaceDir: params.defaultWorkspaceDir,
+      });
+    } catch (err) {
+      params.log.warn(`plugin services failed to start: ${String(err)}`);
+    }
+  } else {
+    params.log.info?.("skipping plugin services (ASSISTANT_SKIP_PLUGIN_SERVICES=1)");
   }
 
   if (params.cfg.acp?.enabled) {
@@ -223,9 +257,13 @@ export async function startGatewaySidecars(params: {
       });
   }
 
-  void startGatewayMemoryBackend({ cfg: params.cfg, log: params.log }).catch((err) => {
-    params.log.warn(`qmd memory startup initialization failed: ${String(err)}`);
-  });
+  if (!isTruthyEnvValue(process.env.ASSISTANT_SKIP_MEMORY_BACKEND)) {
+    void startGatewayMemoryBackend({ cfg: params.cfg, log: params.log }).catch((err) => {
+      params.log.warn(`qmd memory startup initialization failed: ${String(err)}`);
+    });
+  } else {
+    params.log.info?.("skipping memory backend startup (ASSISTANT_SKIP_MEMORY_BACKEND=1)");
+  }
 
   if (shouldWakeFromRestartSentinel()) {
     setTimeout(() => {
@@ -233,7 +271,11 @@ export async function startGatewaySidecars(params: {
     }, 750);
   }
 
-  scheduleSubagentOrphanRecovery();
+  if (!isTruthyEnvValue(process.env.ASSISTANT_SKIP_SUBAGENT_RECOVERY)) {
+    scheduleSubagentOrphanRecovery();
+  } else {
+    params.log.info?.("skipping subagent recovery (ASSISTANT_SKIP_SUBAGENT_RECOVERY=1)");
+  }
 
   return { pluginServices };
 }
@@ -257,7 +299,7 @@ const defaultGatewayPostAttachRuntimeDeps: GatewayPostAttachRuntimeDeps = {
 export async function startGatewayPostAttachRuntime(
   params: {
     minimalTestGateway: boolean;
-    cfgAtStart: ZhushouConfig;
+    cfgAtStart: AssistantConfig;
     bindHost: string;
     bindHosts: string[];
     port: number;
@@ -278,8 +320,8 @@ export async function startGatewayPostAttachRuntime(
       error: (msg: string) => void;
       debug?: (msg: string) => void;
     };
-    gatewayPluginConfigAtStart: ZhushouConfig;
-    pluginRegistry: ReturnType<typeof loadOpenClawPlugins>;
+    gatewayPluginConfigAtStart: AssistantConfig;
+    pluginRegistry: ReturnType<typeof loadAssistantPlugins>;
     defaultWorkspaceDir: string;
     deps: CliDeps;
     startChannels: () => Promise<void>;
@@ -330,7 +372,8 @@ export async function startGatewayPostAttachRuntime(
       });
 
   let pluginServices: PluginServicesHandle | null = null;
-  if (!params.minimalTestGateway) {
+  const skipSidecars = shouldSkipGatewaySidecars();
+  if (!params.minimalTestGateway && !skipSidecars) {
     params.log.info("starting channels and sidecars...");
     ({ pluginServices } = await runtimeDeps.startGatewaySidecars({
       cfg: params.gatewayPluginConfigAtStart,
@@ -342,6 +385,13 @@ export async function startGatewayPostAttachRuntime(
       logHooks: params.logHooks,
       logChannels: params.logChannels,
     }));
+    for (const method of STARTUP_UNAVAILABLE_GATEWAY_METHODS) {
+      params.unavailableGatewayMethods.delete(method);
+    }
+  } else if (!params.minimalTestGateway) {
+    params.log.info(
+      "skipping channels and sidecars (ASSISTANT_SKIP_SIDECARS=1 or ASSISTANT_SKIP_POST_ATTACH_SIDECARS=1)",
+    );
     for (const method of STARTUP_UNAVAILABLE_GATEWAY_METHODS) {
       params.unavailableGatewayMethods.delete(method);
     }

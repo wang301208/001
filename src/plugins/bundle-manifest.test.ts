@@ -17,7 +17,7 @@ import {
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  return makeTrackedTempDir("zhushou-bundle-manifest", tempDirs);
+  return makeTrackedTempDir("assistant-bundle-manifest", tempDirs);
 }
 
 const mkdirSafe = mkdirSafeDir;

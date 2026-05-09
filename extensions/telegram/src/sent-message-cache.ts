@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
-import { loadConfig, resolveStorePath } from "zhushou/plugin-sdk/config-runtime";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { loadConfig, resolveStorePath } from "assistant/plugin-sdk/config-runtime";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
 
 const TTL_MS = 24 * 60 * 60 * 1000;
-const TELEGRAM_SENT_MESSAGES_STATE_KEY = Symbol.for("zhushou.telegramSentMessagesState");
+const TELEGRAM_SENT_MESSAGES_STATE_KEY = Symbol.for("assistant.telegramSentMessagesState");
 
 type SentMessageStore = Map<string, Map<string, number>>;
 

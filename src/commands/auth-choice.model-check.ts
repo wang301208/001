@@ -2,12 +2,12 @@ import { ensureAuthProfileStore, listProfilesForProvider } from "../agents/auth-
 import { hasUsableCustomProviderApiKey, resolveEnvApiKey } from "../agents/model-auth.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { buildProviderAuthRecoveryHint } from "./provider-auth-guidance.js";
 
 export async function warnIfModelConfigLooksOff(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   prompter: WizardPrompter,
   options?: { agentId?: string; agentDir?: string },
 ) {

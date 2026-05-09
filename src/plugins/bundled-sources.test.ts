@@ -12,11 +12,11 @@ function appBundledPluginRoot(pluginId: string): string {
   return bundledPluginRootAt(APP_ROOT, pluginId);
 }
 
-const discoverOpenClawPluginsMock = vi.fn();
+const discoverAssistantPluginsMock = vi.fn();
 const loadPluginManifestMock = vi.fn();
 
 vi.mock("./discovery.js", () => ({
-  discoverOpenClawPlugins: (...args: unknown[]) => discoverOpenClawPluginsMock(...args),
+  discoverAssistantPlugins: (...args: unknown[]) => discoverAssistantPluginsMock(...args),
 }));
 
 vi.mock("./manifest.js", () => ({
@@ -42,7 +42,7 @@ function createBundledCandidate(params: {
 }
 
 function setBundledDiscoveryCandidates(candidates: unknown[]) {
-  discoverOpenClawPluginsMock.mockReturnValue({
+  discoverAssistantPluginsMock.mockReturnValue({
     candidates,
     diagnostics: [],
   });
@@ -55,7 +55,7 @@ function setBundledManifestIdsByRoot(manifestIds: Record<string, string>) {
       : {
           ok: false,
           error: "invalid manifest",
-          manifestPath: `${rootDir}/zhushou.plugin.json`,
+          manifestPath: `${rootDir}/assistant.plugin.json`,
         },
   );
 }
@@ -64,11 +64,11 @@ function setBundledLookupFixture() {
   setBundledDiscoveryCandidates([
     createBundledCandidate({
       rootDir: appBundledPluginRoot("feishu"),
-      packageName: "@zhushou/feishu",
+      packageName: "@assistant/feishu",
     }),
     createBundledCandidate({
       rootDir: appBundledPluginRoot("diffs"),
-      packageName: "@zhushou/diffs",
+      packageName: "@assistant/diffs",
     }),
   ]);
   setBundledManifestIdsByRoot({
@@ -85,7 +85,7 @@ function createResolvedBundledSource(params: {
   return {
     pluginId: params.pluginId,
     localPath: params.localPath,
-    npmSpec: params.npmSpec ?? `@zhushou/${params.pluginId}`,
+    npmSpec: params.npmSpec ?? `@assistant/${params.pluginId}`,
   };
 }
 
@@ -122,7 +122,7 @@ function expectBundledSourceLookupCase(params: {
 
 describe("bundled plugin sources", () => {
   beforeEach(() => {
-    discoverOpenClawPluginsMock.mockReset();
+    discoverAssistantPluginsMock.mockReset();
     loadPluginManifestMock.mockReset();
   });
 
@@ -131,19 +131,19 @@ describe("bundled plugin sources", () => {
       createBundledCandidate({
         origin: "global",
         rootDir: "/global/feishu",
-        packageName: "@zhushou/feishu",
+        packageName: "@assistant/feishu",
       }),
       createBundledCandidate({
         rootDir: appBundledPluginRoot("feishu"),
-        packageName: "@zhushou/feishu",
+        packageName: "@assistant/feishu",
       }),
       createBundledCandidate({
         rootDir: appBundledPluginRoot("feishu-dup"),
-        packageName: "@zhushou/feishu",
+        packageName: "@assistant/feishu",
       }),
       createBundledCandidate({
         rootDir: appBundledPluginRoot("msteams"),
-        packageName: "@zhushou/msteams",
+        packageName: "@assistant/msteams",
       }),
     ]);
     setBundledManifestIdsByRoot({
@@ -165,12 +165,12 @@ describe("bundled plugin sources", () => {
   it.each([
     [
       "finds bundled source by npm spec",
-      { kind: "npmSpec", value: "@zhushou/feishu" } as const,
+      { kind: "npmSpec", value: "@assistant/feishu" } as const,
       { pluginId: "feishu", localPath: appBundledPluginRoot("feishu") },
     ],
     [
       "returns undefined for missing npm spec",
-      { kind: "npmSpec", value: "@zhushou/not-found" } as const,
+      { kind: "npmSpec", value: "@assistant/not-found" } as const,
       undefined,
     ],
     [
@@ -190,7 +190,7 @@ describe("bundled plugin sources", () => {
   it("forwards an explicit env to bundled discovery helpers", () => {
     setBundledDiscoveryCandidates([]);
 
-    const env = { HOME: "/tmp/zhushou-home" } as NodeJS.ProcessEnv;
+    const env = { HOME: "/tmp/assistant-home" } as NodeJS.ProcessEnv;
 
     resolveBundledPluginSources({
       workspaceDir: "/workspace",
@@ -202,11 +202,11 @@ describe("bundled plugin sources", () => {
       env,
     });
 
-    expect(discoverOpenClawPluginsMock).toHaveBeenNthCalledWith(1, {
+    expect(discoverAssistantPluginsMock).toHaveBeenNthCalledWith(1, {
       workspaceDir: "/workspace",
       env,
     });
-    expect(discoverOpenClawPluginsMock).toHaveBeenNthCalledWith(2, {
+    expect(discoverAssistantPluginsMock).toHaveBeenNthCalledWith(2, {
       workspaceDir: "/workspace",
       env,
     });
@@ -237,7 +237,7 @@ describe("bundled plugin sources", () => {
     expect(
       findBundledPluginSourceInMap({
         bundled,
-        lookup: { kind: "npmSpec", value: "@zhushou/feishu" },
+        lookup: { kind: "npmSpec", value: "@assistant/feishu" },
       })?.pluginId,
     ).toBe("feishu");
   });

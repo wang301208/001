@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
+import type { AssistantConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 import {
   type MSTeamsActivityHandler,
@@ -74,7 +74,7 @@ function createDeps(): MSTeamsMessageHandlerDeps {
   } as unknown as PluginRuntime);
 
   return {
-    cfg: {} as ZhushouConfig,
+    cfg: {} as AssistantConfig,
     runtime: { error: vi.fn() } as unknown as RuntimeEnv,
     appId: "test-app",
     adapter: {} as MSTeamsMessageHandlerDeps["adapter"],

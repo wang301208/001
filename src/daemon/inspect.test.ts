@@ -12,25 +12,24 @@ vi.mock("./schtasks-exec.js", () => ({
   execSchtasks: (...args: unknown[]) => execSchtasksMock(...args),
 }));
 
-// Real content from the zhushou-gateway.service unit file (the canonical gateway unit).
+// Real content from the assistant-gateway.service unit file (the canonical gateway unit).
 const GATEWAY_SERVICE_CONTENTS = `\
 [Unit]
-Description=OpenClaw Gateway (v2026.3.8)
+Description=Assistant Gateway (v2026.3.8)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/bin/node /home/zhushou/.npm-global/lib/node_modules/zhushou/dist/entry.js gateway --port 18789
-Restart=always
-Environment=OPENCLAW_SERVICE_MARKER=zhushou
-Environment=OPENCLAW_SERVICE_KIND=gateway
-Environment=OPENCLAW_SERVICE_VERSION=2026.3.8
+ExecStart=/usr/bin/node /home/assistant/.npm-global/lib/node_modules/assistant/dist/entry.js gateway --port 18789
+Environment=ASSISTANT_SERVICE_MARKER=assistant
+Environment=ASSISTANT_SERVICE_KIND=gateway
+Environment=ASSISTANT_SERVICE_VERSION=2026.3.8
 
 [Install]
 WantedBy=default.target
 `;
 
-// Real content from the zhushou-test.service unit file (a non-gateway zhushou service).
+// Real content from the assistant-test.service unit file (a non-gateway assistant service).
 const TEST_SERVICE_CONTENTS = `\
 [Unit]
 Description=助手 test service
@@ -39,36 +38,35 @@ After=default.target
 [Service]
 Type=simple
 ExecStart=/bin/sh -c 'while true; do sleep 60; done'
-Restart=on-failure
 
 [Install]
 WantedBy=default.target
 `;
 
-const CLAWDBOT_GATEWAY_CONTENTS = `\
+const UNRELATED_GATEWAY_CONTENTS = `\
 [Unit]
-Description=Clawdbot Gateway
+Description=Unrelated Gateway
 [Service]
-ExecStart=/usr/bin/node /opt/clawdbot/dist/entry.js gateway --port 18789
-Environment=HOME=/home/clawdbot
+ExecStart=/usr/bin/node /opt/other-tool/dist/entry.js gateway --port 18789
+Environment=HOME=/home/other-tool
 `;
 
 describe("detectMarkerLineWithGateway", () => {
-  it("returns null for zhushou-test.service (zhushou only in description, no gateway on same line)", () => {
+  it("returns null for assistant-test.service (assistant only in description, no gateway on same line)", () => {
     expect(detectMarkerLineWithGateway(TEST_SERVICE_CONTENTS)).toBeNull();
   });
 
-  it("returns zhushou for the canonical gateway unit (ExecStart has both zhushou and gateway)", () => {
-    expect(detectMarkerLineWithGateway(GATEWAY_SERVICE_CONTENTS)).toBe("zhushou");
+  it("returns assistant for the canonical gateway unit (ExecStart has both assistant and gateway)", () => {
+    expect(detectMarkerLineWithGateway(GATEWAY_SERVICE_CONTENTS)).toBe("assistant");
   });
 
-  it("returns clawdbot for a clawdbot gateway unit", () => {
-    expect(detectMarkerLineWithGateway(CLAWDBOT_GATEWAY_CONTENTS)).toBe("clawdbot");
+  it("ignores unrelated gateway units", () => {
+    expect(detectMarkerLineWithGateway(UNRELATED_GATEWAY_CONTENTS)).toBeNull();
   });
 
   it("handles line continuations — marker and gateway split across physical lines", () => {
-    const contents = `[Service]\nExecStart=/usr/bin/node /opt/zhushou/dist/entry.js \\\n  gateway --port 18789\n`;
-    expect(detectMarkerLineWithGateway(contents)).toBe("zhushou");
+    const contents = `[Service]\nExecStart=/usr/bin/node /opt/assistant/dist/entry.js \\\n  gateway --port 18789\n`;
+    expect(detectMarkerLineWithGateway(contents)).toBe("assistant");
   });
 });
 
@@ -78,12 +76,12 @@ describe("findExtraGatewayServices (linux / scanSystemdDir) — real filesystem"
   // Only runs on Linux/macOS where the linux branch of findExtraGatewayServices is active.
   const isLinux = process.platform === "linux";
 
-  it.skipIf(!isLinux)("does not report zhushou-test.service as a gateway service", async () => {
-    const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-test-"));
+  it.skipIf(!isLinux)("does not report assistant-test.service as a gateway service", async () => {
+    const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-test-"));
     const systemdDir = path.join(tmpHome, ".config", "systemd", "user");
     try {
       await fs.mkdir(systemdDir, { recursive: true });
-      await fs.writeFile(path.join(systemdDir, "zhushou-test.service"), TEST_SERVICE_CONTENTS);
+      await fs.writeFile(path.join(systemdDir, "assistant-test.service"), TEST_SERVICE_CONTENTS);
       const result = await findExtraGatewayServices({ HOME: tmpHome });
       expect(result).toEqual([]);
     } finally {
@@ -92,14 +90,14 @@ describe("findExtraGatewayServices (linux / scanSystemdDir) — real filesystem"
   });
 
   it.skipIf(!isLinux)(
-    "does not report the canonical zhushou-gateway.service as an extra service",
+    "does not report the canonical assistant-gateway.service as an extra service",
     async () => {
-      const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-test-"));
+      const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-test-"));
       const systemdDir = path.join(tmpHome, ".config", "systemd", "user");
       try {
         await fs.mkdir(systemdDir, { recursive: true });
         await fs.writeFile(
-          path.join(systemdDir, "zhushou-gateway.service"),
+          path.join(systemdDir, "assistant-gateway.service"),
           GATEWAY_SERVICE_CONTENTS,
         );
         const result = await findExtraGatewayServices({ HOME: tmpHome });
@@ -111,25 +109,16 @@ describe("findExtraGatewayServices (linux / scanSystemdDir) — real filesystem"
   );
 
   it.skipIf(!isLinux)(
-    "reports a legacy clawdbot-gateway service as an extra gateway service",
+    "ignores unrelated gateway services",
     async () => {
-      const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-test-"));
+      const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-test-"));
       const systemdDir = path.join(tmpHome, ".config", "systemd", "user");
-      const unitPath = path.join(systemdDir, "clawdbot-gateway.service");
+      const unitPath = path.join(systemdDir, "other-gateway.service");
       try {
         await fs.mkdir(systemdDir, { recursive: true });
-        await fs.writeFile(unitPath, CLAWDBOT_GATEWAY_CONTENTS);
+        await fs.writeFile(unitPath, UNRELATED_GATEWAY_CONTENTS);
         const result = await findExtraGatewayServices({ HOME: tmpHome });
-        expect(result).toEqual([
-          {
-            platform: "linux",
-            label: "clawdbot-gateway.service",
-            detail: `unit: ${unitPath}`,
-            scope: "user",
-            marker: "clawdbot",
-            legacy: true,
-          },
-        ]);
+        expect(result).toEqual([]);
       } finally {
         await fs.rm(tmpHome, { recursive: true, force: true });
       }
@@ -172,15 +161,15 @@ describe("findExtraGatewayServices (win32)", () => {
     expect(result).toEqual([]);
   });
 
-  it("collects only non-zhushou marker tasks from schtasks output", async () => {
+  it("ignores pre-rebrand marker tasks from schtasks output", async () => {
     execSchtasksMock.mockResolvedValueOnce({
       code: 0,
       stdout: [
-        "TaskName: OpenClaw Gateway",
-        "Task To Run: C:\\Program Files\\助手\\zhushou.exe gateway run",
+        "TaskName: Assistant Gateway",
+        "Task To Run: C:\\Program Files\\助手\\assistant.exe gateway run",
         "",
-        "TaskName: Clawdbot Legacy",
-        "Task To Run: C:\\clawdbot\\clawdbot.exe run",
+        "TaskName: Other Gateway",
+        "Task To Run: C:\\other-tool\\other-tool.exe run",
         "",
         "TaskName: Other Task",
         "Task To Run: C:\\tools\\helper.exe",
@@ -190,15 +179,6 @@ describe("findExtraGatewayServices (win32)", () => {
     });
 
     const result = await findExtraGatewayServices({}, { deep: true });
-    expect(result).toEqual([
-      {
-        platform: "win32",
-        label: "Clawdbot Legacy",
-        detail: "task: Clawdbot Legacy, run: C:\\clawdbot\\clawdbot.exe run",
-        scope: "system",
-        marker: "clawdbot",
-        legacy: true,
-      },
-    ]);
+    expect(result).toEqual([]);
   });
 });

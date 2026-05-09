@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ClawdbotConfig } from "../runtime-api.js";
+﻿import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { AssistantConfig } from "../runtime-api.js";
 import {
   cleanupAmbientCommentTypingReaction,
   createCommentTypingReactionLifecycle,
@@ -39,7 +39,7 @@ describe("createCommentTypingReactionLifecycle", () => {
 
   it("adds and removes a comment typing reaction using reply_id", async () => {
     const lifecycle = createCommentTypingReactionLifecycle({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       fileToken: "doc_token_1",
       fileType: "docx",
       replyId: "reply_1",
@@ -79,7 +79,7 @@ describe("createCommentTypingReactionLifecycle", () => {
 
   it("skips requests when reply_id is missing", async () => {
     const lifecycle = createCommentTypingReactionLifecycle({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       fileToken: "doc_token_1",
       fileType: "docx",
       replyId: undefined,
@@ -96,7 +96,7 @@ describe("createCommentTypingReactionLifecycle", () => {
 
   it("shares cleanup state so ambient cleanup and finally cleanup do not delete twice", async () => {
     const lifecycle = createCommentTypingReactionLifecycle({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       fileToken: "doc_token_1",
       fileType: "docx",
       replyId: "reply_1",
@@ -145,7 +145,7 @@ describe("createCommentTypingReactionLifecycle", () => {
       });
 
     const lifecycle = createCommentTypingReactionLifecycle({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       fileToken: "doc_token_1",
       fileType: "docx",
       replyId: "reply_1",

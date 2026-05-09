@@ -1,13 +1,13 @@
 {
-  "name": "@zhushou/browser-plugin",
+  "name": "@assistant/browser-plugin",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 browser tool plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

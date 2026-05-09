@@ -1,1 +1,1 @@
-export { dispatchInboundDirectDmWithRuntime } from "zhushou/plugin-sdk/direct-dm";
+export { dispatchInboundDirectDmWithRuntime } from "assistant/plugin-sdk/direct-dm";

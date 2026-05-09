@@ -3,7 +3,7 @@ import {
   resolveMainSessionKey,
 } from "../../config/sessions/main-session.js";
 import type { SessionAcpMeta } from "../../config/sessions/types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import {
   normalizeAgentId,
   normalizeMainKey,
@@ -52,7 +52,7 @@ export function normalizeSessionKey(sessionKey: string): string {
 }
 
 export function canonicalizeAcpSessionKey(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
 }): string {
   const normalized = normalizeSessionKey(params.sessionKey);
@@ -105,7 +105,7 @@ export function createUnsupportedControlError(params: {
   );
 }
 
-export function resolveRuntimeIdleTtlMs(cfg: ZhushouConfig): number {
+export function resolveRuntimeIdleTtlMs(cfg: AssistantConfig): number {
   const ttlMinutes = cfg.acp?.runtime?.ttlMinutes;
   if (typeof ttlMinutes !== "number" || !Number.isFinite(ttlMinutes) || ttlMinutes <= 0) {
     return 0;

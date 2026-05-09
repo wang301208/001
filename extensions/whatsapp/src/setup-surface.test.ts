@@ -1,5 +1,5 @@
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { DEFAULT_ACCOUNT_ID, type ZhushouConfig } from "zhushou/plugin-sdk/setup";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { DEFAULT_ACCOUNT_ID, type AssistantConfig } from "assistant/plugin-sdk/setup";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createPluginSetupWizardStatus,
@@ -26,13 +26,13 @@ import {
 } from "./setup-test-helpers.js";
 
 const hoisted = vi.hoisted(() => ({
-  detectWhatsAppLinked: vi.fn<(cfg: ZhushouConfig, accountId: string) => Promise<boolean>>(
+  detectWhatsAppLinked: vi.fn<(cfg: AssistantConfig, accountId: string) => Promise<boolean>>(
     async () => false,
   ),
   loginWeb: vi.fn(async () => {}),
   pathExists: vi.fn(async () => false),
   resolveWhatsAppAuthDir: vi.fn(() => ({
-    authDir: "/tmp/zhushou-whatsapp-test",
+    authDir: "/tmp/assistant-whatsapp-test",
   })),
 }));
 
@@ -48,9 +48,9 @@ vi.mock("./setup-finalize.js", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/setup", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/setup")>(
-    "zhushou/plugin-sdk/setup",
+vi.mock("assistant/plugin-sdk/setup", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/setup")>(
+    "assistant/plugin-sdk/setup",
   );
   return {
     ...actual,
@@ -106,13 +106,13 @@ function createSeparatePhoneHarness(params: { selectValues: string[]; textValues
 }
 
 function expectFinalizeResult(result: Awaited<ReturnType<typeof runFinalizeWithHarness>>): {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
 } {
   expect(result).toBeDefined();
   if (!result || typeof result !== "object" || !("cfg" in result) || !result.cfg) {
     throw new Error("Expected WhatsApp finalize result with cfg");
   }
-  return result as { cfg: ZhushouConfig };
+  return result as { cfg: AssistantConfig };
 }
 
 async function runSeparatePhoneFlow(params: { selectValues: string[]; textValues?: string[] }) {
@@ -137,7 +137,7 @@ describe("whatsapp setup wizard", () => {
     hoisted.pathExists.mockReset();
     hoisted.pathExists.mockResolvedValue(false);
     hoisted.resolveWhatsAppAuthDir.mockReset();
-    hoisted.resolveWhatsAppAuthDir.mockReturnValue({ authDir: "/tmp/zhushou-whatsapp-test" });
+    hoisted.resolveWhatsAppAuthDir.mockReturnValue({ authDir: "/tmp/assistant-whatsapp-test" });
   });
 
   it("applies owner allowlist when forceAllowFrom is enabled", async () => {
@@ -172,7 +172,7 @@ describe("whatsapp setup wizard", () => {
       await runFinalizeWithHarness({
         harness,
         accountId: "work",
-        cfg: createWhatsAppWorkAccountConfig() as ZhushouConfig,
+        cfg: createWhatsAppWorkAccountConfig() as AssistantConfig,
       }),
     );
 
@@ -192,7 +192,7 @@ describe("whatsapp setup wizard", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       accountOverrides: {
         whatsapp: "work",
       },
@@ -204,7 +204,7 @@ describe("whatsapp setup wizard", () => {
 
   it("uses configured defaultAccount for omitted-account setup status", async () => {
     hoisted.detectWhatsAppLinked.mockImplementation(
-      async (_cfg: ZhushouConfig, accountId: string) => accountId === "work",
+      async (_cfg: AssistantConfig, accountId: string) => accountId === "work",
     );
 
     const status = await whatsappGetStatus({
@@ -222,7 +222,7 @@ describe("whatsapp setup wizard", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       accountOverrides: {},
     });
 
@@ -245,7 +245,7 @@ describe("whatsapp setup wizard", () => {
       await runFinalizeWithHarness({
         harness,
         accountId: "",
-        cfg: createWhatsAppWorkAccountConfig({ defaultAccount: "work" }) as ZhushouConfig,
+        cfg: createWhatsAppWorkAccountConfig({ defaultAccount: "work" }) as AssistantConfig,
       }),
     );
 
@@ -281,7 +281,7 @@ describe("whatsapp setup wizard", () => {
     const result = expectFinalizeResult(
       await runFinalizeWithHarness({
         harness,
-        cfg: createWhatsAppRootAllowFromConfig() as ZhushouConfig,
+        cfg: createWhatsAppRootAllowFromConfig() as AssistantConfig,
       }),
     );
 

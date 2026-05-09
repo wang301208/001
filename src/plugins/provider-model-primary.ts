@@ -1,5 +1,5 @@
 import type { AgentModelListConfig } from "../config/types.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 export function resolvePrimaryModel(model?: AgentModelListConfig | string): string | undefined {
   if (typeof model === "string") {
@@ -12,10 +12,10 @@ export function resolvePrimaryModel(model?: AgentModelListConfig | string): stri
 }
 
 export function applyAgentDefaultPrimaryModel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   model: string;
   legacyModels?: Set<string>;
-}): { next: ZhushouConfig; changed: boolean } {
+}): { next: AssistantConfig; changed: boolean } {
   const current = resolvePrimaryModel(params.cfg.agents?.defaults?.model)?.trim();
   const normalizedCurrent = current && params.legacyModels?.has(current) ? params.model : current;
   if (normalizedCurrent === params.model) {
@@ -44,7 +44,7 @@ export function applyAgentDefaultPrimaryModel(params: {
   };
 }
 
-export function applyPrimaryModel(cfg: ZhushouConfig, model: string): ZhushouConfig {
+export function applyPrimaryModel(cfg: AssistantConfig, model: string): AssistantConfig {
   const defaults = cfg.agents?.defaults;
   const existingModel = defaults?.model;
   const existingModels = defaults?.models;

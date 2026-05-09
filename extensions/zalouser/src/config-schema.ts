@@ -5,8 +5,8 @@ import {
   GroupPolicySchema,
   MarkdownConfigSchema,
   ToolPolicySchema,
-} from "zhushou/plugin-sdk/channel-config-schema";
-import { z } from "zhushou/plugin-sdk/zod";
+} from "assistant/plugin-sdk/channel-config-schema";
+import { z } from "assistant/plugin-sdk/zod";
 
 const groupConfigSchema = z.object({
   enabled: z.boolean().optional(),

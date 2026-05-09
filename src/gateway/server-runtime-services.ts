@@ -1,5 +1,6 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
+import { loadGovernanceCharter } from "../governance/charter-runtime.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { startHeartbeatRunner, type HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import type { ChannelHealthMonitor } from "./channel-health-monitor.js";
@@ -45,18 +46,18 @@ type GatewayAutonomyMaintenanceResult =
 type GatewayAutonomySupervisor = {
   start: () => void;
   stop: () => void;
-  updateConfig: (cfg: ZhushouConfig) => void;
+  updateConfig: (cfg: AssistantConfig) => void;
 };
 
 function createNoopHeartbeatRunner(): HeartbeatRunner {
   return {
     stop: () => {},
-    updateConfig: (_cfg: ZhushouConfig) => {},
+    updateConfig: (_cfg: AssistantConfig) => {},
   };
 }
 
 export function startGatewayChannelHealthMonitor(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channelManager: GatewayChannelManager;
 }): ChannelHealthMonitor | null {
   const healthCheckMinutes = params.cfg.gateway?.channelHealthCheckMinutes;
@@ -97,17 +98,17 @@ export function startGatewayCronWithLogging(params: {
 
 async function runGatewayAutonomyMaintenance(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: ZhushouConfig;
+  cfgAtStart: AssistantConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
   source: "startup" | "supervisor";
 }): Promise<GatewayAutonomyMaintenanceResult | undefined> {
   if (params.minimalTestGateway) {
     return undefined;
   }
-  if (process.env.OPENCLAW_SKIP_AUTONOMY_RECONCILE === "1") {
+  if (process.env.ASSISTANT_SKIP_AUTONOMY_RECONCILE === "1") {
     return undefined;
   }
-  if (process.env.OPENCLAW_SKIP_CRON === "1" || params.cfgAtStart.cron?.enabled === false) {
+  if (process.env.ASSISTANT_SKIP_CRON === "1" || params.cfgAtStart.cron?.enabled === false) {
     return undefined;
   }
   if (
@@ -123,8 +124,10 @@ async function runGatewayAutonomyMaintenance(params: {
     import("../plugins/runtime/runtime-autonomy.js"),
     import("../plugins/runtime/runtime-taskflow.js"),
   ]);
+  const charterDir = loadGovernanceCharter().charterDir;
   const autonomy = createRuntimeAutonomy({
     legacyTaskFlow: createRuntimeTaskFlow(),
+    charterDir,
     cronService: params.cron as import("../cron/service-contract.js").CronServiceContract,
   }).bindSession({
     sessionKey: resolveMainSessionKey(params.cfgAtStart),
@@ -210,10 +213,10 @@ function resolveBooleanEnvFlag(name: string): boolean | undefined {
 }
 
 function resolveGatewayAutonomyMaintenanceMode(): "reconcile" | "heal" | "supervise" {
-  if (process.env.OPENCLAW_SKIP_AUTONOMY_FLOW_HEAL === "1") {
+  if (process.env.ASSISTANT_SKIP_AUTONOMY_FLOW_HEAL === "1") {
     return "reconcile";
   }
-  const explicit = process.env.OPENCLAW_AUTONOMY_SUPERVISOR_MODE?.trim().toLowerCase();
+  const explicit = process.env.ASSISTANT_AUTONOMY_SUPERVISOR_MODE?.trim().toLowerCase();
   if (explicit === "reconcile" || explicit === "heal" || explicit === "supervise") {
     return explicit;
   }
@@ -221,7 +224,7 @@ function resolveGatewayAutonomyMaintenanceMode(): "reconcile" | "heal" | "superv
 }
 
 function resolveAutonomySupervisorGovernanceMode(): "none" | "apply_safe" | "force_apply_all" {
-  const explicit = process.env.OPENCLAW_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE?.trim();
+  const explicit = process.env.ASSISTANT_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE?.trim();
   if (explicit === "none" || explicit === "apply_safe" || explicit === "force_apply_all") {
     return explicit;
   }
@@ -229,18 +232,18 @@ function resolveAutonomySupervisorGovernanceMode(): "none" | "apply_safe" | "for
 }
 
 function resolveAutonomySupervisorIncludeCapabilityInventory(): boolean {
-  return resolveBooleanEnvFlag("OPENCLAW_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY") ?? true;
+  return resolveBooleanEnvFlag("ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY") ?? true;
 }
 
 function resolveAutonomySupervisorIncludeGenesisPlan(): boolean {
-  return resolveBooleanEnvFlag("OPENCLAW_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN") ?? true;
+  return resolveBooleanEnvFlag("ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN") ?? true;
 }
 
 function resolveAutonomySupervisorIntervalMs(): number | undefined {
-  if (process.env.OPENCLAW_SKIP_AUTONOMY_SUPERVISOR === "1") {
+  if (process.env.ASSISTANT_SKIP_AUTONOMY_SUPERVISOR === "1") {
     return undefined;
   }
-  const explicit = process.env.OPENCLAW_AUTONOMY_SUPERVISOR_INTERVAL_MS?.trim();
+  const explicit = process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INTERVAL_MS?.trim();
   if (explicit) {
     const parsed = Number.parseInt(explicit, 10);
     if (Number.isFinite(parsed) && parsed > 0) {
@@ -255,7 +258,7 @@ function resolveAutonomySupervisorIntervalMs(): number | undefined {
 
 function createGatewayAutonomySupervisor(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: ZhushouConfig;
+  cfgAtStart: AssistantConfig;
   getCron: () => Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
 }): GatewayAutonomySupervisor {
@@ -361,7 +364,7 @@ function composeGatewayHeartbeatRunner(
 
 export async function reconcileGatewayAutonomyLoops(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: ZhushouConfig;
+  cfgAtStart: AssistantConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
 }): Promise<void> {
@@ -381,7 +384,7 @@ export async function reconcileGatewayAutonomyLoops(params: {
 }
 
 function recoverPendingOutboundDeliveries(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   log: GatewayRuntimeServiceLogger;
 }): void {
   void (async () => {
@@ -398,7 +401,7 @@ function recoverPendingOutboundDeliveries(params: {
 
 export function startGatewayRuntimeServices(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: ZhushouConfig;
+  cfgAtStart: AssistantConfig;
   channelManager: GatewayChannelManager;
   log: GatewayRuntimeServiceLogger;
 }): {
@@ -428,7 +431,7 @@ export function startGatewayRuntimeServices(params: {
  */
 export function activateGatewayScheduledServices(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: ZhushouConfig;
+  cfgAtStart: AssistantConfig;
   cron: { start: () => Promise<void> };
   getCron?: () => Partial<import("../cron/service-contract.js").CronServiceContract>;
   logCron: { error: (message: string) => void };
@@ -436,7 +439,7 @@ export function activateGatewayScheduledServices(params: {
 }): { heartbeatRunner: HeartbeatRunner } {
   if (
     params.minimalTestGateway &&
-    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES !== "1"
+    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES !== "1"
   ) {
     return { heartbeatRunner: createNoopHeartbeatRunner() };
   }

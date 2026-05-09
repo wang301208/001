@@ -9,7 +9,8 @@ import {
   TUI,
 } from "@mariozechner/pi-tui";
 import { resolveAgentIdByWorkspacePath, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { loadConfig, type ZhushouConfig } from "../config/config.js";
+import { loadConfig, type AssistantConfig } from "../config/config.js";
+import { randomUUID } from "node:crypto";
 import {
   buildAgentMainSessionKey,
   normalizeAgentId,
@@ -21,10 +22,18 @@ import { getSlashCommands } from "./commands.js";
 import { ChatLog } from "./components/chat-log.js";
 import { CustomEditor } from "./components/custom-editor.js";
 import { GatewayChatClient } from "./gateway-chat.js";
+import { resolveRobotControlInput } from "./robot-control.js";
+import {
+  colorizeStatusRule,
+  formatAssistantStatusRule,
+  AssistantBanner,
+  AssistantQueuedMessages,
+  AssistantSessionPanel,
+  shellPromptSymbol,
+} from "./assistant-style.js";
 import { editorTheme, theme } from "./theme/theme.js";
 import { createCommandHandlers } from "./tui-command-handlers.js";
 import { createEventHandlers } from "./tui-event-handlers.js";
-import { formatTokens } from "./tui-formatters.js";
 import { createLocalShellRunner } from "./tui-local-shell.js";
 import { createOverlayHandlers } from "./tui-overlays.js";
 import { createSessionActions } from "./tui-session-actions.js";
@@ -40,9 +49,9 @@ import type {
   TuiOptions,
   TuiStateAccess,
 } from "./tui-types.js";
+import { captureVoiceInput } from "./voice-input.js";
 import { buildWaitingStatusMessage, defaultWaitingPhrases } from "./tui-waiting.js";
-import { renderGovernancePanel, getGovernanceSummary } from "./tui-governance-panel.js";
-import type { GovernanceStatus } from "../communication/message-bus.js";
+import type { GovernanceStatus } from "./tui-governance-panel.js";
 
 export { resolveFinalAssistantText } from "./tui-formatters.js";
 export type { TuiOptions } from "./tui-types.js";
@@ -78,7 +87,7 @@ export function resolveTuiSessionKey(params: {
 }
 
 export function resolveInitialTuiAgentId(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   fallbackAgentId: string;
   initialSessionInput?: string;
   cwd?: string;
@@ -108,9 +117,9 @@ export function resolveGatewayDisconnectState(reason?: string): {
   if (/pairing required/i.test(reasonLabel)) {
     return {
       connectionStatus: `gateway disconnected: ${reasonLabel}`,
-      activityStatus: "pairing required: run zhushou devices list",
+      activityStatus: "pairing required: run assistant devices list",
       pairingHint:
-        "Pairing required. Run `zhushou devices list`, approve your request ID, then reconnect.",
+        "Pairing required. Run `assistant devices list`, approve your request ID, then reconnect.",
     };
   }
   return {
@@ -247,9 +256,9 @@ export async function runTui(opts: TuiOptions) {
   let statusStartedAt: number | null = null;
   let lastActivityStatus = activityStatus;
   
-  // 治理层状态
   let governanceStatus: GovernanceStatus | null = null;
   let showGovernancePanel = false;
+  let queuedMessages: import("./tui-types.js").QueuedMessage[] = [];
 
   const state: TuiStateAccess = {
     get agentDefaultId() {
@@ -348,6 +357,12 @@ export async function runTui(opts: TuiOptions) {
     set showThinking(value) {
       showThinking = value;
     },
+    get queuedMessages() {
+      return queuedMessages;
+    },
+    set queuedMessages(value) {
+      queuedMessages = value;
+    },
     get connectionStatus() {
       return connectionStatus;
     },
@@ -435,14 +450,20 @@ export async function runTui(opts: TuiOptions) {
     }
     return { data: next };
   });
+  const banner = new AssistantBanner();
+  const sessionPanel = new AssistantSessionPanel();
   const header = new Text("", 1, 0);
   const statusContainer = new Container();
+  const queuedPanel = new AssistantQueuedMessages();
   const footer = new Text("", 1, 0);
   const chatLog = new ChatLog();
   const editor = new CustomEditor(tui, editorTheme);
   const root = new Container();
+  root.addChild(banner);
+  root.addChild(sessionPanel);
   root.addChild(header);
   root.addChild(chatLog);
+  root.addChild(queuedPanel);
   root.addChild(statusContainer);
   root.addChild(footer);
   root.addChild(editor);
@@ -490,11 +511,23 @@ export async function runTui(opts: TuiOptions) {
   const updateHeader = () => {
     const sessionLabel = formatSessionKey(currentSessionKey);
     const agentLabel = formatAgentLabel(currentAgentId);
-    header.setText(
-      theme.header(
-        `zhushou tui - ${client.connection.url} - agent ${agentLabel} - session ${sessionLabel}`,
-      ),
-    );
+    const width = tui.terminal?.columns ?? 120;
+    banner.setVisible(!historyLoaded, width);
+    sessionPanel.update({
+      agentLabel,
+      sessionLabel,
+      sessionInfo,
+      agents,
+      commandCount: getSlashCommands({
+        cfg: config,
+        provider: sessionInfo.modelProvider,
+        model: sessionInfo.model,
+      }).length,
+      width,
+    });
+    const gatewayLabel =
+      client.connection.kind === "stdio" ? client.connection.display : client.connection.url;
+    header.setText(theme.dim(`gateway ${gatewayLabel}`));
   };
 
   const busyStates = new Set(["sending", "waiting", "streaming", "running"]);
@@ -561,7 +594,7 @@ export async function runTui(opts: TuiOptions) {
       return;
     }
 
-    statusLoader.setMessage(`${activityStatus} • ${elapsed} | ${connectionStatus}`);
+    statusLoader.setMessage(`${activityStatus} - ${elapsed} | ${connectionStatus}`);
   };
 
   const startStatusTimer = () => {
@@ -659,6 +692,7 @@ export async function runTui(opts: TuiOptions) {
   const setActivityStatus = (text: string) => {
     activityStatus = text;
     renderStatus();
+    updateFooter();
   };
 
   const updateFooter = () => {
@@ -667,34 +701,26 @@ export async function runTui(opts: TuiOptions) {
       ? `${sessionKeyLabel} (${sessionInfo.displayName})`
       : sessionKeyLabel;
     const agentLabel = formatAgentLabel(currentAgentId);
-    const modelLabel = sessionInfo.model
-      ? sessionInfo.modelProvider
-        ? `${sessionInfo.modelProvider}/${sessionInfo.model}`
-        : sessionInfo.model
-      : "unknown";
-    const tokens = formatTokens(sessionInfo.totalTokens ?? null, sessionInfo.contextTokens ?? null);
-    const think = sessionInfo.thinkingLevel ?? "off";
-    const fast = sessionInfo.fastMode === true;
-    const verbose = sessionInfo.verboseLevel ?? "off";
-    const reasoning = sessionInfo.reasoningLevel ?? "off";
-    const reasoningLabel =
-      reasoning === "on" ? "reasoning" : reasoning === "stream" ? "reasoning:stream" : null;
-    
-    // 添加治理层摘要
-    const governanceSummary = getGovernanceSummary(governanceStatus);
-    
-    const footerParts = [
-      `agent ${agentLabel}`,
-      `session ${sessionLabel}`,
-      modelLabel,
-      think !== "off" ? `think ${think}` : null,
-      fast ? "fast" : null,
-      verbose !== "off" ? `verbose ${verbose}` : null,
-      reasoningLabel,
-      tokens,
-      governanceSummary,
-    ].filter(Boolean);
-    footer.setText(theme.dim(footerParts.join(" | ")));
+    const width = tui.terminal?.columns ?? 120;
+    const busy = ["sending", "waiting", "streaming", "running"].includes(activityStatus);
+    queuedPanel.update(queuedMessages, width);
+    editor.setPromptHint(shellPromptSymbol(editor.getText()));
+    footer.setText(
+      colorizeStatusRule(
+        formatAssistantStatusRule({
+          activityStatus,
+          connectionStatus,
+          cwd: process.cwd(),
+          sessionInfo,
+          agentLabel,
+          sessionLabel,
+          governanceStatus,
+          width,
+        }),
+        busy,
+      ),
+    );
+    updateHeader();
   };
 
   const { openOverlay, closeOverlay } = createOverlayHandlers(tui, editor);
@@ -705,6 +731,93 @@ export async function runTui(opts: TuiOptions) {
     clear: () => {
       chatLog.dismissBtw();
     },
+  };
+
+  const refreshQueuedPanel = () => {
+    queuedPanel.update(queuedMessages, tui.terminal?.columns ?? 120);
+    tui.requestRender();
+  };
+
+  const enqueueMessage = (text: string, mode: "steer" | "followUp" = "followUp") => {
+    const value = text.trim();
+    if (!value) {
+      return;
+    }
+    if (editor.getText().trim() === value) {
+      editor.addToHistory(value);
+    }
+    queuedMessages = [
+      ...queuedMessages,
+      {
+        runId: randomUUID(),
+        text: value,
+        mode,
+      },
+    ];
+    setActivityStatus(`queued ${queuedMessages.length} message${queuedMessages.length === 1 ? "" : "s"}`);
+    refreshQueuedPanel();
+  };
+
+  const flushNextQueuedMessage = async () => {
+    if (state.activeChatRunId || queuedMessages.length === 0) {
+      refreshQueuedPanel();
+      return;
+    }
+    const [next, ...rest] = queuedMessages;
+    queuedMessages = rest;
+    refreshQueuedPanel();
+    if (next) {
+      await sendMessage(next.text);
+    }
+  };
+
+  const toggleGovernancePanel = () => {
+    showGovernancePanel = !showGovernancePanel;
+    chatLog.toggleGovernancePanel(governanceStatus, showGovernancePanel);
+    setActivityStatus(showGovernancePanel ? "governance panel shown" : "governance panel hidden");
+    tui.requestRender();
+  };
+
+  const setToolsExpanded = (expanded: boolean) => {
+    toolsExpanded = expanded;
+    chatLog.setToolsExpanded(toolsExpanded);
+    setActivityStatus(toolsExpanded ? "tools expanded" : "tools collapsed");
+    tui.requestRender();
+  };
+
+  const refreshGovernanceStatus = async () => {
+    try {
+      const status = await client.getGatewayStatus();
+      const record = status && typeof status === "object" ? (status as Record<string, unknown>) : {};
+      const rawGovernance = record.governance;
+      if (rawGovernance && typeof rawGovernance === "object") {
+        const next = rawGovernance as Partial<GovernanceStatus>;
+        governanceStatus = {
+          sovereigntyBoundary: next.sovereigntyBoundary !== false,
+          activeAgents: Array.isArray(next.activeAgents) ? next.activeAgents : [],
+          evolutionProjects: Array.isArray(next.evolutionProjects) ? next.evolutionProjects : [],
+          sandboxExperiments: Array.isArray(next.sandboxExperiments) ? next.sandboxExperiments : [],
+          freezeActive: next.freezeActive === true,
+          freezeStatus: next.freezeStatus,
+        };
+      } else {
+        governanceStatus = {
+          sovereigntyBoundary: true,
+          activeAgents: agents.map((agent) => ({
+            id: agent.id,
+            name: agent.name,
+            status: agent.id === currentAgentId ? "active" : "inactive",
+          })),
+          evolutionProjects: [],
+          sandboxExperiments: [],
+          freezeActive: false,
+        };
+      }
+      chatLog.updateGovernancePanel(governanceStatus);
+      updateFooter();
+    } catch {
+      governanceStatus = null;
+    }
   };
 
   const initialSessionAgentId = (() => {
@@ -758,6 +871,13 @@ export async function runTui(opts: TuiOptions) {
     clearLocalBtwRunIds,
   });
 
+  const wrappedHandleChatEvent = (payload: unknown) => {
+    handleChatEvent(payload);
+    if (!state.activeChatRunId) {
+      void flushNextQueuedMessage();
+    }
+  };
+
   const requestExit = () => {
     if (exitRequested) {
       return;
@@ -768,6 +888,8 @@ export async function runTui(opts: TuiOptions) {
       process.exit(0);
     });
   };
+
+  let submitRobotInput: (text: string) => void = () => {};
 
   const { handleCommand, sendMessage, openModelSelector, openAgentSelector, openSessionSelector } =
     createCommandHandlers({
@@ -786,11 +908,15 @@ export async function runTui(opts: TuiOptions) {
       refreshAgents,
       abortActive,
       setActivityStatus,
+      setToolsExpanded,
+      captureVoiceInput,
+      submitRobotInput: (text) => submitRobotInput(text),
       formatSessionKey,
       noteLocalRunId,
       noteLocalBtwRunId,
       forgetLocalRunId,
       forgetLocalBtwRunId,
+      toggleGovernancePanel,
       requestExit,
     });
 
@@ -806,7 +932,11 @@ export async function runTui(opts: TuiOptions) {
     handleCommand,
     sendMessage,
     handleBangLine: runLocalShellLine,
+    resolveControlInput: resolveRobotControlInput,
+    enqueueMessage,
+    hasActiveRun: () => Boolean(state.activeChatRunId),
   });
+  submitRobotInput = submitHandler;
   editor.onSubmit = createSubmitBurstCoalescer({
     submit: submitHandler,
     enabled: shouldEnableWindowsGitBashPasteFallback(),
@@ -848,10 +978,7 @@ export async function runTui(opts: TuiOptions) {
     requestExit();
   };
   editor.onCtrlO = () => {
-    toolsExpanded = !toolsExpanded;
-    chatLog.setToolsExpanded(toolsExpanded);
-    setActivityStatus(toolsExpanded ? "tools expanded" : "tools collapsed");
-    tui.requestRender();
+    setToolsExpanded(!toolsExpanded);
   };
   editor.onCtrlL = () => {
     void openModelSelector();
@@ -865,6 +992,23 @@ export async function runTui(opts: TuiOptions) {
   editor.onCtrlT = () => {
     showThinking = !showThinking;
     void loadHistory();
+  };
+  editor.onCtrlY = () => {
+    void handleCommand("/voice");
+  };
+  editor.onShiftTab = () => {
+    toggleGovernancePanel();
+  };
+  editor.onAltEnter = () => {
+    enqueueMessage(editor.getText(), "followUp");
+    editor.setText("");
+  };
+  editor.onAltUp = () => {
+    void flushNextQueuedMessage();
+  };
+  editor.onChange = () => {
+    editor.setPromptHint(shellPromptSymbol(editor.getText()));
+    tui.requestRender();
   };
 
   tui.addInputListener((data) => {
@@ -884,7 +1028,7 @@ export async function runTui(opts: TuiOptions) {
 
   client.onEvent = (evt) => {
     if (evt.event === "chat") {
-      handleChatEvent(evt.payload);
+      wrappedHandleChatEvent(evt.payload);
     }
     if (evt.event === "chat.side_result") {
       handleBtwEvent(evt.payload);
@@ -902,6 +1046,7 @@ export async function runTui(opts: TuiOptions) {
     setConnectionStatus("connected");
     void (async () => {
       await refreshAgents();
+      await refreshGovernanceStatus();
       updateHeader();
       await loadHistory();
       setConnectionStatus(reconnected ? "gateway reconnected" : "gateway connected", 4000);

@@ -5,9 +5,9 @@ import {
   setRuntimeConfigSnapshotRefreshHandler,
   setRuntimeConfigSnapshot,
 } from "./io.js";
-import type { ZhushouConfig } from "./types.js";
+import type { AssistantConfig } from "./types.js";
 
-function createSourceConfig(): ZhushouConfig {
+function createSourceConfig(): AssistantConfig {
   return {
     models: {
       providers: {
@@ -21,7 +21,7 @@ function createSourceConfig(): ZhushouConfig {
   };
 }
 
-function createRuntimeConfig(): ZhushouConfig {
+function createRuntimeConfig(): AssistantConfig {
   return {
     models: {
       providers: {
@@ -50,7 +50,7 @@ describe("runtime config snapshot writes", () => {
   });
 
   it("skips source projection for non-runtime-derived configs", () => {
-    const sourceConfig: ZhushouConfig = {
+    const sourceConfig: AssistantConfig = {
       ...createSourceConfig(),
       gateway: {
         auth: {
@@ -58,7 +58,7 @@ describe("runtime config snapshot writes", () => {
         },
       },
     };
-    const runtimeConfig: ZhushouConfig = {
+    const runtimeConfig: AssistantConfig = {
       ...createRuntimeConfig(),
       gateway: {
         auth: {
@@ -66,7 +66,7 @@ describe("runtime config snapshot writes", () => {
         },
       },
     };
-    const independentConfig: ZhushouConfig = {
+    const independentConfig: AssistantConfig = {
       models: {
         providers: {
           openai: {

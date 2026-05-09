@@ -3,11 +3,11 @@ import {
   loadModelCatalog,
   modelSupportsVision,
   resolveDefaultModelForAgent,
-} from "zhushou/plugin-sdk/agent-runtime";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/agent-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 
 export async function resolveStickerVisionSupportRuntime(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId?: string;
 }): Promise<boolean> {
   const catalog = await loadModelCatalog({ config: params.cfg });

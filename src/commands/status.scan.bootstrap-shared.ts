@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import type { UpdateCheckResult } from "../infra/update-check.js";
 import { runExec } from "../process/exec.js";
 import { createEmptyTaskAuditSummary } from "../tasks/task-registry.audit.shared.js";
@@ -61,7 +61,7 @@ type StatusScanExecRunner = (
 
 export async function createStatusScanCoreBootstrap<TAgentStatus>(params: {
   coldStart: boolean;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   hasConfiguredChannels: boolean;
   opts: { timeoutMs?: number; all?: boolean };
   getTailnetHostname: (runner: StatusScanExecRunner) => Promise<string | null>;
@@ -70,7 +70,7 @@ export async function createStatusScanCoreBootstrap<TAgentStatus>(params: {
     fetchGit: boolean;
     includeRegistry: boolean;
   }) => Promise<UpdateCheckResult>;
-  getAgentLocalStatuses: (cfg: ZhushouConfig) => Promise<TAgentStatus>;
+  getAgentLocalStatuses: (cfg: AssistantConfig) => Promise<TAgentStatus>;
 }) {
   const tailscaleMode = params.cfg.gateway?.tailscale?.mode ?? "off";
   const skipColdStartNetworkChecks = shouldSkipStatusScanNetworkChecks({
@@ -123,8 +123,8 @@ export async function createStatusScanCoreBootstrap<TAgentStatus>(params: {
 
 export async function createStatusScanBootstrap<TAgentStatus, TSummary>(params: {
   coldStart: boolean;
-  cfg: ZhushouConfig;
-  sourceConfig: ZhushouConfig;
+  cfg: AssistantConfig;
+  sourceConfig: AssistantConfig;
   hasConfiguredChannels: boolean;
   opts: { timeoutMs?: number; all?: boolean };
   getTailnetHostname: (runner: StatusScanExecRunner) => Promise<string | null>;
@@ -133,10 +133,10 @@ export async function createStatusScanBootstrap<TAgentStatus, TSummary>(params: 
     fetchGit: boolean;
     includeRegistry: boolean;
   }) => Promise<UpdateCheckResult>;
-  getAgentLocalStatuses: (cfg: ZhushouConfig) => Promise<TAgentStatus>;
+  getAgentLocalStatuses: (cfg: AssistantConfig) => Promise<TAgentStatus>;
   getStatusSummary: (params: {
-    config: ZhushouConfig;
-    sourceConfig: ZhushouConfig;
+    config: AssistantConfig;
+    sourceConfig: AssistantConfig;
   }) => Promise<TSummary>;
 }) {
   const core = await createStatusScanCoreBootstrap<TAgentStatus>({

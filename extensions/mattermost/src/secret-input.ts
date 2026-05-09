@@ -1,7 +1,7 @@
-export type { SecretInput } from "zhushou/plugin-sdk/secret-input";
+export type { SecretInput } from "assistant/plugin-sdk/secret-input";
 export {
   buildSecretInputSchema,
   hasConfiguredSecretInput,
   normalizeResolvedSecretInputString,
   normalizeSecretInputString,
-} from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/secret-input";

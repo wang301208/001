@@ -1,4 +1,4 @@
-import { resolveOpenProviderRuntimeGroupPolicy } from "zhushou/plugin-sdk/config-runtime";
+import { resolveOpenProviderRuntimeGroupPolicy } from "assistant/plugin-sdk/config-runtime";
 
 export function resolveWhatsAppRuntimeGroupPolicy(params: {
   providerConfigPresent: boolean;

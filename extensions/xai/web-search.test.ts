@@ -1,6 +1,6 @@
-import { NON_ENV_SECRETREF_MARKER } from "zhushou/plugin-sdk/provider-auth-runtime";
-import { createNonExitingRuntime } from "zhushou/plugin-sdk/runtime-env";
-import { withEnv } from "zhushou/plugin-sdk/testing";
+import { NON_ENV_SECRETREF_MARKER } from "assistant/plugin-sdk/provider-auth-runtime";
+import { createNonExitingRuntime } from "assistant/plugin-sdk/runtime-env";
+import { withEnv } from "assistant/plugin-sdk/testing";
 import { describe, expect, it, vi } from "vitest";
 import { createWizardPrompter } from "../../test/helpers/wizard-prompter.js";
 import { resolveXaiCatalogEntry } from "./model-definitions.js";

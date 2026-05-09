@@ -1,7 +1,7 @@
 import type {
   GeneratedImageAsset,
   ImageGenerationProvider,
-} from "zhushou/plugin-sdk/image-generation";
+} from "assistant/plugin-sdk/image-generation";
 import {
   DEFAULT_COMFY_MODEL,
   _setComfyFetchGuardForTesting,

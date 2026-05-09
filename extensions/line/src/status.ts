@@ -1,10 +1,10 @@
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
 import {
   buildTokenChannelStatusSummary,
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
   createDependentCredentialStatusIssueCollector,
-} from "zhushou/plugin-sdk/status-helpers";
+} from "assistant/plugin-sdk/status-helpers";
 import { hasLineCredentials } from "./account-helpers.js";
 import { DEFAULT_ACCOUNT_ID, type ChannelPlugin, type ResolvedLineAccount } from "./channel-api.js";
 

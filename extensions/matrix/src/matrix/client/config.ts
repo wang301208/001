@@ -1,10 +1,10 @@
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { retryAsync } from "zhushou/plugin-sdk/retry-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { retryAsync } from "assistant/plugin-sdk/retry-runtime";
 import {
   coerceSecretRef,
   normalizeResolvedSecretInputString,
-} from "zhushou/plugin-sdk/secret-input-runtime";
-import type { PinnedDispatcherPolicy } from "zhushou/plugin-sdk/ssrf-dispatcher";
+} from "assistant/plugin-sdk/secret-input-runtime";
+import type { PinnedDispatcherPolicy } from "assistant/plugin-sdk/ssrf-dispatcher";
 import {
   requiresExplicitMatrixDefaultAccount,
   resolveMatrixDefaultOrOnlyAccountId,
@@ -872,7 +872,7 @@ export async function resolveMatrixAuth(params?: {
       identifier: { type: "m.id.user", user: resolved.userId },
       password,
       device_id: resolved.deviceId,
-      initial_device_display_name: resolved.deviceName ?? "OpenClaw Gateway",
+      initial_device_display_name: resolved.deviceName ?? "Assistant Gateway",
     })) as {
       access_token?: string;
       user_id?: string;

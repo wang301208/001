@@ -1,7 +1,7 @@
-import { createAccountListHelpers } from "zhushou/plugin-sdk/account-helpers";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
-import { resolveMergedAccountConfig } from "zhushou/plugin-sdk/account-resolution";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { createAccountListHelpers } from "assistant/plugin-sdk/account-helpers";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import { resolveMergedAccountConfig } from "assistant/plugin-sdk/account-resolution";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import type { CoreConfig, QaChannelAccountConfig, ResolvedQaChannelAccount } from "./types.js";
 
 const DEFAULT_POLL_TIMEOUT_MS = 1_000;
@@ -32,7 +32,7 @@ export function resolveQaChannelAccount(params: {
   const baseEnabled = params.cfg.channels?.["qa-channel"]?.enabled !== false;
   const enabled = baseEnabled && merged.enabled !== false;
   const baseUrl = merged.baseUrl?.trim() ?? "";
-  const botUserId = merged.botUserId?.trim() || "zhushou";
+  const botUserId = merged.botUserId?.trim() || "assistant";
   const botDisplayName = merged.botDisplayName?.trim() || "助手 QA";
   return {
     accountId,

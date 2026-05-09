@@ -33,8 +33,6 @@ export async function runQaDockerUp(
     providerBaseUrl?: string;
     image?: string;
     usePrebuiltImage?: boolean;
-    bindUiDist?: boolean;
-    skipUiBuild?: boolean;
   },
   deps?: {
     runCommand?: RunCommand;
@@ -55,10 +53,6 @@ export async function runQaDockerUp(
   const fetchImpl = deps?.fetchImpl ?? fetchHealthUrl;
   const sleepImpl = deps?.sleepImpl ?? sleep;
 
-  if (!params.skipUiBuild) {
-    await runCommand("pnpm", ["qa:lab:build"], repoRoot);
-  }
-
   await writeQaDockerHarnessFiles({
     outputDir,
     repoRoot,
@@ -67,7 +61,7 @@ export async function runQaDockerUp(
     providerBaseUrl: params.providerBaseUrl,
     imageName: params.image,
     usePrebuiltImage: params.usePrebuiltImage,
-    includeQaLabUi: true,
+    includeQaLabApi: true,
   });
 
   const composeFile = path.join(outputDir, "docker-compose.qa.yml");
@@ -105,7 +99,7 @@ export async function runQaDockerUp(
     composeFile,
   });
   await waitForDockerServiceHealth(
-    "zhushou-qa-gateway",
+    "assistant-qa-gateway",
     composeFile,
     repoRoot,
     runCommand,
@@ -118,7 +112,7 @@ export async function runQaDockerUp(
       .catch(() => false))
   ) {
     const containerGatewayUrl = await resolveComposeServiceUrl(
-      "zhushou-qa-gateway",
+      "assistant-qa-gateway",
       18789,
       composeFile,
       repoRoot,

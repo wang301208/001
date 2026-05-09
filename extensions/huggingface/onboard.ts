@@ -1,7 +1,7 @@
 import {
   createModelCatalogPresetAppliers,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import {
   buildHuggingfaceModelDefinition,
   HUGGINGFACE_BASE_URL,
@@ -12,7 +12,7 @@ export const HUGGINGFACE_DEFAULT_MODEL_REF = "huggingface/deepseek-ai/DeepSeek-R
 
 const huggingfacePresetAppliers = createModelCatalogPresetAppliers({
   primaryModelRef: HUGGINGFACE_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig) => ({
+  resolveParams: (_cfg: AssistantConfig) => ({
     providerId: "huggingface",
     api: "openai-completions",
     baseUrl: HUGGINGFACE_BASE_URL,
@@ -21,10 +21,10 @@ const huggingfacePresetAppliers = createModelCatalogPresetAppliers({
   }),
 });
 
-export function applyHuggingfaceProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyHuggingfaceProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return huggingfacePresetAppliers.applyProviderConfig(cfg);
 }
 
-export function applyHuggingfaceConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyHuggingfaceConfig(cfg: AssistantConfig): AssistantConfig {
   return huggingfacePresetAppliers.applyConfig(cfg);
 }

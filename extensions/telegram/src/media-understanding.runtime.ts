@@ -1,11 +1,11 @@
 import {
   describeImageWithModel as describeImageWithModelImpl,
   transcribeFirstAudio as transcribeFirstAudioImpl,
-} from "zhushou/plugin-sdk/media-runtime";
+} from "assistant/plugin-sdk/media-runtime";
 
 type DescribeImageWithModel =
-  typeof import("zhushou/plugin-sdk/media-runtime").describeImageWithModel;
-type TranscribeFirstAudio = typeof import("zhushou/plugin-sdk/media-runtime").transcribeFirstAudio;
+  typeof import("assistant/plugin-sdk/media-runtime").describeImageWithModel;
+type TranscribeFirstAudio = typeof import("assistant/plugin-sdk/media-runtime").transcribeFirstAudio;
 
 export async function describeImageWithModel(
   ...args: Parameters<DescribeImageWithModel>

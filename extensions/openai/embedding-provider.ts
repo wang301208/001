@@ -3,8 +3,8 @@ import {
   resolveRemoteEmbeddingClient,
   type MemoryEmbeddingProvider,
   type MemoryEmbeddingProviderCreateOptions,
-} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
-import type { SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/memory-core-host-engine-embeddings";
+import type { SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
 import { OPENAI_DEFAULT_EMBEDDING_MODEL } from "./default-models.js";
 
 export type OpenAiEmbeddingClient = {

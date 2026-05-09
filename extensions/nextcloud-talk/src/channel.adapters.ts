@@ -1,10 +1,10 @@
-import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
+import { formatAllowFromLowercase } from "assistant/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
-} from "zhushou/plugin-sdk/channel-config-helpers";
-import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
+} from "assistant/plugin-sdk/channel-config-helpers";
+import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,

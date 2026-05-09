@@ -1,13 +1,13 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ChannelGroupPolicy } from "zhushou/plugin-sdk/config-runtime";
-import { resolveOpenProviderRuntimeGroupPolicy } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ChannelGroupPolicy } from "assistant/plugin-sdk/config-runtime";
+import { resolveOpenProviderRuntimeGroupPolicy } from "assistant/plugin-sdk/config-runtime";
 import type {
   TelegramAccountConfig,
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
-} from "zhushou/plugin-sdk/config-runtime";
-import { evaluateMatchedGroupAccessForPolicy } from "zhushou/plugin-sdk/group-access";
+} from "assistant/plugin-sdk/config-runtime";
+import { evaluateMatchedGroupAccessForPolicy } from "assistant/plugin-sdk/group-access";
 import { isSenderAllowed, type NormalizedAllowFrom } from "./bot-access.js";
 import { firstDefined } from "./bot-access.js";
 
@@ -120,7 +120,7 @@ export const resolveTelegramRuntimeGroupPolicy = (params: {
 export const evaluateTelegramGroupPolicyAccess = (params: {
   isGroup: boolean;
   chatId: string | number;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   telegramCfg: TelegramAccountConfig;
   topicConfig?: TelegramTopicConfig;
   groupConfig?: TelegramGroupConfig;

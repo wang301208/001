@@ -1,7 +1,7 @@
-import type { ZhushouConfig } from "../../config/types.js";
+import type { AssistantConfig } from "../../config/types.js";
 
 export type DirectoryConfigParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   query?: string | null;
   limit?: number | null;

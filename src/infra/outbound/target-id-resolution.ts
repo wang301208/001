@@ -1,5 +1,5 @@
 import type { ChannelDirectoryEntryKind, ChannelId } from "../../channels/plugins/types.public.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { maybeResolvePluginMessagingTarget } from "./target-normalization.js";
 
 export type ResolvedIdLikeTarget = {
@@ -10,7 +10,7 @@ export type ResolvedIdLikeTarget = {
 };
 
 export async function maybeResolveIdLikeTarget(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: ChannelId;
   input: string;
   accountId?: string | null;

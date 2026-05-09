@@ -49,7 +49,7 @@ function describeExecFailure(error) {
 }
 
 export function runInstalledWorkspaceBootstrapSmoke(params) {
-  const tempRoot = mkdtempSync(join(tmpdir(), "zhushou-workspace-bootstrap-smoke-"));
+  const tempRoot = mkdtempSync(join(tmpdir(), "assistant-workspace-bootstrap-smoke-"));
   const homeDir = join(tempRoot, "home");
   const cwd = join(tempRoot, "cwd");
   mkdirSync(homeDir, { recursive: true });
@@ -61,7 +61,7 @@ export function runInstalledWorkspaceBootstrapSmoke(params) {
       execFileSync(
         process.execPath,
         [
-          join(params.packageRoot, "zhushou.mjs"),
+          join(params.packageRoot, "assistant.mjs"),
           "agent",
           "--message",
           "workspace bootstrap smoke",
@@ -80,8 +80,8 @@ export function runInstalledWorkspaceBootstrapSmoke(params) {
           env: {
             ...process.env,
             HOME: homeDir,
-            ZHUSHOU_HOME: homeDir,
-            OPENCLAW_SUPPRESS_NOTES: "1",
+            ASSISTANT_HOME: homeDir,
+            ASSISTANT_SUPPRESS_NOTES: "1",
           },
         },
       );
@@ -95,7 +95,7 @@ export function runInstalledWorkspaceBootstrapSmoke(params) {
       );
     }
 
-    const workspaceDir = join(homeDir, ".zhushou", "workspace");
+    const workspaceDir = join(homeDir, ".assistant", "workspace");
     const missingFiles = collectMissingBootstrapWorkspaceFiles(workspaceDir);
     if (missingFiles.length > 0) {
       throw new Error(

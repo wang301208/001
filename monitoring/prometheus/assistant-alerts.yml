@@ -1,0 +1,20 @@
+groups:
+  - name: assistant.rules
+    rules:
+      - alert: AssistantGatewayDown
+        expr: up{job="assistant-gateway"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Assistant gateway is down
+          description: Prometheus cannot scrape the assistant gateway for more than two minutes.
+
+      - alert: AssistantHealthProbeDown
+        expr: up{job="assistant-health"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Assistant health endpoint is unavailable
+          description: The /healthz endpoint is not responding through the service endpoint.

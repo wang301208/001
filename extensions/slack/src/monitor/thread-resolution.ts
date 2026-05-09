@@ -1,6 +1,6 @@
 import type { WebClient as SlackWebClient } from "@slack/web-api";
-import { pruneMapToMaxSize } from "zhushou/plugin-sdk/collection-runtime";
-import { logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { pruneMapToMaxSize } from "assistant/plugin-sdk/collection-runtime";
+import { logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
 import type { SlackMessageEvent } from "../types.js";
 
 type ThreadTsCacheEntry = {

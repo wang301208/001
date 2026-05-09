@@ -3,7 +3,7 @@ import { Type } from "@sinclair/typebox";
 import { describe, expect, it } from "vitest";
 import { loadConfig } from "../config/config.js";
 import { parseLiveCsvFilter } from "../media-generation/live-test-helpers.js";
-import { resolveOpenClawAgentDir } from "./agent-paths.js";
+import { resolveAssistantAgentDir } from "./agent-paths.js";
 import {
   collectAnthropicApiKeys,
   isAnthropicBillingError,
@@ -19,7 +19,7 @@ import { createLiveTargetMatcher } from "./live-target-matcher.js";
 import { isLiveProfileKeyModeEnabled, isLiveTestEnabled } from "./live-test-helpers.js";
 import { getApiKeyForModel, requireApiKey } from "./model-auth.js";
 import { shouldSuppressBuiltInModel } from "./model-suppression.js";
-import { ensureOpenClawModelsJson } from "./models-config.js";
+import { ensureAssistantModelsJson } from "./models-config.js";
 import {
   isCloudflareOrHtmlErrorPage,
   isRateLimitErrorMessage,
@@ -27,13 +27,13 @@ import {
 import { discoverAuthStorage, discoverModels } from "./pi-model-discovery.js";
 
 const LIVE = isLiveTestEnabled();
-const DIRECT_ENABLED = Boolean(process.env.OPENCLAW_LIVE_MODELS?.trim());
+const DIRECT_ENABLED = Boolean(process.env.ASSISTANT_LIVE_MODELS?.trim());
 const REQUIRE_PROFILE_KEYS = isLiveProfileKeyModeEnabled();
 const LIVE_CREDENTIAL_PRECEDENCE = REQUIRE_PROFILE_KEYS ? "profile-first" : "env-first";
-const LIVE_HEARTBEAT_MS = Math.max(1_000, toInt(process.env.OPENCLAW_LIVE_HEARTBEAT_MS, 30_000));
+const LIVE_HEARTBEAT_MS = Math.max(1_000, toInt(process.env.ASSISTANT_LIVE_HEARTBEAT_MS, 30_000));
 const LIVE_SETUP_TIMEOUT_MS = Math.max(
   1_000,
-  toInt(process.env.OPENCLAW_LIVE_SETUP_TIMEOUT_MS, 45_000),
+  toInt(process.env.ASSISTANT_LIVE_SETUP_TIMEOUT_MS, 45_000),
 );
 
 const describeLive = LIVE ? describe : describe.skip;
@@ -424,12 +424,12 @@ describeLive("live models (profile keys)", () => {
       );
       logProgress("[live-models] preparing models.json");
       await withLiveStageTimeout(
-        ensureOpenClawModelsJson(cfg),
+        ensureAssistantModelsJson(cfg),
         "[live-models] prepare models.json",
       );
       if (!DIRECT_ENABLED) {
         logProgress(
-          "[live-models] skipping (set OPENCLAW_LIVE_MODELS=modern|all|<list>; all=modern)",
+          "[live-models] skipping (set ASSISTANT_LIVE_MODELS=modern|all|<list>; all=modern)",
         );
         return;
       }
@@ -439,7 +439,7 @@ describeLive("live models (profile keys)", () => {
         logProgress(`[live-models] anthropic keys loaded: ${anthropicKeys.length}`);
       }
 
-      const agentDir = resolveOpenClawAgentDir();
+      const agentDir = resolveAssistantAgentDir();
       const authStorage = discoverAuthStorage(agentDir);
       logProgress("[live-models] loading model registry");
       const models = await withLiveStageTimeout(
@@ -447,15 +447,15 @@ describeLive("live models (profile keys)", () => {
         "[live-models] load model registry",
       );
 
-      const rawModels = process.env.OPENCLAW_LIVE_MODELS?.trim();
+      const rawModels = process.env.ASSISTANT_LIVE_MODELS?.trim();
       const useModern = rawModels === "modern" || rawModels === "all";
       const useExplicit = Boolean(rawModels) && !useModern;
       const filter = useExplicit ? parseModelFilter(rawModels) : null;
       const allowNotFoundSkip = useModern;
-      const providers = parseProviderFilter(process.env.OPENCLAW_LIVE_PROVIDERS);
-      const perModelTimeoutMs = toInt(process.env.OPENCLAW_LIVE_MODEL_TIMEOUT_MS, 30_000);
+      const providers = parseProviderFilter(process.env.ASSISTANT_LIVE_PROVIDERS);
+      const perModelTimeoutMs = toInt(process.env.ASSISTANT_LIVE_MODEL_TIMEOUT_MS, 30_000);
       const maxModels = resolveHighSignalLiveModelLimit({
-        rawMaxModels: process.env.OPENCLAW_LIVE_MAX_MODELS,
+        rawMaxModels: process.env.ASSISTANT_LIVE_MAX_MODELS,
         useExplicitModels: useExplicit,
       });
       const targetMatcher = createLiveTargetMatcher({
@@ -521,7 +521,7 @@ describeLive("live models (profile keys)", () => {
       logProgress(`[live-models] selection=${useExplicit ? "explicit" : "high-signal"}`);
       if (selectedCandidates.length < candidates.length) {
         logProgress(
-          `[live-models] capped to ${selectedCandidates.length}/${candidates.length} via OPENCLAW_LIVE_MAX_MODELS=${maxModels}`,
+          `[live-models] capped to ${selectedCandidates.length}/${candidates.length} via ASSISTANT_LIVE_MAX_MODELS=${maxModels}`,
         );
       }
       logProgress(`[live-models] running ${selectedCandidates.length} models`);

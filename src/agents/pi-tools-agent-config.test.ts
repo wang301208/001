@@ -4,12 +4,12 @@ import path from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import "./test-helpers/fast-bash-tools.js";
 import "./test-helpers/fast-coding-tools.js";
-import "./test-helpers/fast-zhushou-tools.js";
-import type { ZhushouConfig } from "../config/config.js";
+import "./test-helpers/fast-assistant-tools.js";
+import type { AssistantConfig } from "../config/config.js";
 import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createSessionConversationTestRegistry } from "../test-utils/session-conversation-registry.js";
-import { createOpenClawCodingTools } from "./pi-tools.js";
+import { createAssistantCodingTools } from "./pi-tools.js";
 import { resolveEffectiveToolPolicy } from "./pi-tools.policy.js";
 import type { SandboxDockerConfig } from "./sandbox.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
@@ -56,7 +56,7 @@ describe("Agent-specific tool filtering", () => {
       patch: string;
     }) => Promise<void>,
   ) {
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-pi-tools-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-pi-tools-"));
     const escapedPath = path.join(
       path.dirname(workspaceDir),
       `escaped-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}.txt`,
@@ -64,7 +64,7 @@ describe("Agent-specific tool filtering", () => {
     const relativeEscape = path.relative(workspaceDir, escapedPath);
 
     try {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         tools: {
           allow: ["read", "write", "exec"],
           exec: {
@@ -73,7 +73,7 @@ describe("Agent-specific tool filtering", () => {
         },
       };
 
-      const tools = createOpenClawCodingTools({
+      const tools = createAssistantCodingTools({
         config: cfg,
         sessionKey: "agent:main:main",
         workspaceDir,
@@ -103,8 +103,8 @@ describe("Agent-specific tool filtering", () => {
     }
   }
 
-  function createMainSessionTools(cfg: ZhushouConfig) {
-    return createOpenClawCodingTools({
+  function createMainSessionTools(cfg: AssistantConfig) {
+    return createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
@@ -113,16 +113,16 @@ describe("Agent-specific tool filtering", () => {
   }
 
   function createMainAgentConfig(params: {
-    tools: NonNullable<ZhushouConfig["tools"]>;
-    agentTools?: NonNullable<NonNullable<ZhushouConfig["agents"]>["list"]>[number]["tools"];
-  }): ZhushouConfig {
+    tools: NonNullable<AssistantConfig["tools"]>;
+    agentTools?: NonNullable<NonNullable<AssistantConfig["agents"]>["list"]>[number]["tools"];
+  }): AssistantConfig {
     return {
       tools: params.tools,
       agents: {
         list: [
           {
             id: "main",
-            workspace: "~/zhushou",
+            workspace: "~/assistant",
             ...(params.agentTools ? { tools: params.agentTools } : {}),
           },
         ],
@@ -168,13 +168,13 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should allow apply_patch for OpenAI models when write is allow-listed", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       tools: {
         allow: ["read", "write", "exec"],
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
@@ -190,7 +190,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should allow disabling apply_patch explicitly", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       tools: {
         allow: ["read", "write", "exec"],
         exec: {
@@ -199,7 +199,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
@@ -234,7 +234,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply agent-specific tool policy", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       tools: {
         allow: ["read", "write", "exec"],
         deny: [],
@@ -243,7 +243,7 @@ describe("Agent-specific tool filtering", () => {
         list: [
           {
             id: "restricted",
-            workspace: "~/zhushou-restricted",
+            workspace: "~/assistant-restricted",
             tools: {
               allow: ["read"], // Agent override: only read
               deny: ["exec", "write", "edit"],
@@ -253,7 +253,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:restricted:main",
       workspaceDir: "/tmp/test-restricted",
@@ -267,7 +267,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply provider-specific tool policy", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       tools: {
         allow: ["read", "write", "exec"],
         byProvider: {
@@ -278,7 +278,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-provider",
@@ -291,7 +291,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply provider-specific tool profile overrides", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       tools: {
         profile: "coding",
         byProvider: {
@@ -302,7 +302,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-provider-profile",
@@ -316,17 +316,17 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should resolve different tool policies for different agents", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: {
         list: [
           {
             id: "main",
-            workspace: "~/zhushou",
+            workspace: "~/assistant",
             // No tools restriction - all tools available
           },
           {
             id: "family",
-            workspace: "~/zhushou-family",
+            workspace: "~/assistant-family",
             tools: {
               allow: ["read"],
               deny: ["exec", "write", "edit", "process"],
@@ -357,7 +357,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should enforce charter-derived web deny for charter-only agents", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: {
         list: [
           {
@@ -368,7 +368,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:publisher:main",
       workspaceDir: "/tmp/test-publisher",
@@ -382,7 +382,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should resolve group tool policy overrides (group-specific beats wildcard)", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -407,7 +407,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply per-sender tool policies for group tools", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -442,7 +442,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should not let default sender policy override group tools", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -470,7 +470,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should resolve telegram group tool policy for topic session keys", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         telegram: {
           groups: {
@@ -488,7 +488,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should resolve feishu group tool policy for sender-scoped session keys", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         feishu: {
           groups: {
@@ -500,7 +500,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:main:feishu:group:oc_group_chat:topic:om_topic_root:sender:ou_topic_user",
       messageProvider: "feishu",
@@ -513,7 +513,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should prefer scoped group candidates before wildcard tool policy", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         feishu: {
           groups: {
@@ -528,7 +528,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:main:feishu:group:oc_group_chat:topic:om_topic_root:sender:ou_topic_user",
       messageProvider: "feishu",
@@ -541,7 +541,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should resolve inherited group tool policy for subagent parent groups", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -559,7 +559,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply global tool policy before agent-specific policy", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       tools: {
         deny: ["browser"], // Global deny
       },
@@ -567,7 +567,7 @@ describe("Agent-specific tool filtering", () => {
         list: [
           {
             id: "work",
-            workspace: "~/zhushou-work",
+            workspace: "~/assistant-work",
             tools: {
               deny: ["exec", "process"], // Agent deny (override)
             },
@@ -576,7 +576,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:work:slack:dm:user123",
       workspaceDir: "/tmp/test-work",
@@ -603,7 +603,7 @@ describe("Agent-specific tool filtering", () => {
       },
     });
 
-    const tools = createOpenClawCodingTools({
+    const tools = createAssistantCodingTools({
       config: cfg,
       sessionKey: "agent:restricted:main",
       workspaceDir: "/tmp/test-restricted",

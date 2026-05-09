@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { DiscordAccountConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { DiscordAccountConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { authorizeDiscordVoiceIngress } from "./access.js";
 
-const baseCfg = { commands: { useAccessGroups: true } } as ZhushouConfig;
+const baseCfg = { commands: { useAccessGroups: true } } as AssistantConfig;
 
 describe("authorizeDiscordVoiceIngress", () => {
   it("blocks speakers outside the configured channel user allowlist", async () => {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { enablePluginInConfig } from "./enable.js";
 
 function expectEnableResult(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   pluginId: string,
   params: {
     enabled: boolean;
@@ -41,7 +41,7 @@ describe("enablePluginInConfig", () => {
   it.each([
     {
       name: "enables a plugin entry",
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       pluginId: "google",
       expectedEnabled: true,
       assert: (result: ReturnType<typeof enablePluginInConfig>) => {
@@ -54,7 +54,7 @@ describe("enablePluginInConfig", () => {
         plugins: {
           allow: ["memory-core"],
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       pluginId: "google",
       expectedEnabled: true,
       assert: (result: ReturnType<typeof enablePluginInConfig>) => {
@@ -67,7 +67,7 @@ describe("enablePluginInConfig", () => {
         plugins: {
           deny: ["google"],
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       pluginId: "google",
       expectedEnabled: false,
       assert: (result: ReturnType<typeof enablePluginInConfig>) => {
@@ -76,7 +76,7 @@ describe("enablePluginInConfig", () => {
     },
     {
       name: "writes built-in channels to channels.<id>.enabled and plugins.entries",
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       pluginId: "telegram",
       expectedEnabled: true,
       assert: expectBuiltInChannelEnabled,
@@ -87,7 +87,7 @@ describe("enablePluginInConfig", () => {
         plugins: {
           allow: ["memory-core"],
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       pluginId: "telegram",
       expectedEnabled: true,
       assert: (result: ReturnType<typeof enablePluginInConfig>) => {
@@ -109,7 +109,7 @@ describe("enablePluginInConfig", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       pluginId: "telegram",
       expectedEnabled: true,
       assert: expectBuiltInChannelEnabledWithAllowlist,

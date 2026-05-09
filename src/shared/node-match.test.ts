@@ -47,26 +47,27 @@ describe("shared/node-match", () => {
     ).toBe("mac-studio");
   });
 
-  it("prefers a unique current 助手 client over a legacy clawdbot client", () => {
+  it("prefers a unique current assistant client over another client", () => {
     expect(
       resolveNodeIdFromCandidates(
         [
           {
-            nodeId: "legacy-mac",
+            nodeId: "old-mac",
             displayName: "Peter’s Mac Studio",
-            clientId: "clawdbot-macos",
+            clientId: "other-macos",
             connected: false,
           },
           {
             nodeId: "current-mac",
             displayName: "Peter’s Mac Studio",
-            clientId: "zhushou-macos",
+            clientId: "assistant-macos",
             connected: false,
           },
         ],
         "Peter's Mac Studio",
       ),
     ).toBe("current-mac");
+
   });
 
   it("falls back to raw ambiguous matches when none of them are connected", () => {
@@ -110,28 +111,28 @@ describe("shared/node-match", () => {
       resolveNodeIdFromCandidates(
         [
           {
-            nodeId: "legacy-mac",
-            displayName: "Peter’s Mac Studio",
-            clientId: "clawdbot-macos",
-            connected: true,
-          },
-          {
             nodeId: "other-mac",
             displayName: "Peter’s Mac Studio",
-            clientId: "zhushou-macos",
+            clientId: "other-macos",
             connected: true,
           },
           {
-            nodeId: "third-mac",
+            nodeId: "assistant-mac-a",
             displayName: "Peter’s Mac Studio",
-            clientId: "zhushou-macos",
+            clientId: "assistant-macos",
+            connected: true,
+          },
+          {
+            nodeId: "assistant-mac-b",
+            displayName: "Peter’s Mac Studio",
+            clientId: "assistant-macos",
             connected: true,
           },
         ],
         "Peter's Mac Studio",
       ),
     ).toThrow(
-      /ambiguous node: Peter's Mac Studio.*node=other-mac.*client=zhushou-macos.*node=third-mac.*client=zhushou-macos/,
+      /ambiguous node: Peter's Mac Studio.*node=assistant-mac-a.*client=assistant-macos.*node=assistant-mac-b.*client=assistant-macos/,
     );
   });
 

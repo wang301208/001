@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.js";
+import type { AssistantConfig } from "../../config/types.js";
 import { formatDurationPrecise } from "../../infra/format-time/format-duration.ts";
 import {
   normalizeUpdateChannel,
@@ -46,7 +46,7 @@ type StatusGatewaySelf =
 type StatusManagedService = {
   label: string;
   installed: boolean | null;
-  managedByOpenClaw?: boolean;
+  managedByAssistant?: boolean;
   loadedText: string;
   runtimeShort?: string | null;
   runtime?: {
@@ -90,7 +90,7 @@ export function buildStatusUpdateSurface(params: {
   };
 }
 
-export const STATUS_TERMINAL_UI_COMMAND = "zhushou tui";
+export const STATUS_TERMINAL_UI_COMMAND = "assistant tui";
 
 export function formatStatusTerminalValue(value: string | null | undefined): string {
   const trimmed = normalizeOptionalString(value);
@@ -139,7 +139,7 @@ export function formatStatusTailscaleValue(params: {
 export function formatStatusServiceValue(params: {
   label: string;
   installed: boolean;
-  managedByOpenClaw?: boolean;
+  managedByAssistant?: boolean;
   loadedText: string;
   runtimeShort?: string | null;
   runtimeStatus?: string | null;
@@ -148,7 +148,7 @@ export function formatStatusServiceValue(params: {
   if (!params.installed) {
     return `${params.label} not installed`;
   }
-  const installedPrefix = params.managedByOpenClaw ? "installed · " : "";
+  const installedPrefix = params.managedByAssistant ? "installed · " : "";
   const runtimeSuffix = params.runtimeShort
     ? ` · ${params.runtimeShort}`
     : [
@@ -211,7 +211,7 @@ export function buildStatusOverviewRows(params: {
 }
 
 export function buildStatusOverviewSurfaceRows(params: {
-  cfg: Pick<ZhushouConfig, "update" | "gateway">;
+  cfg: Pick<AssistantConfig, "update" | "gateway">;
   update: StatusUpdateLike;
   tailscaleMode: string;
   tailscaleDns?: string | null;
@@ -417,7 +417,7 @@ export function buildStatusGatewaySurfaceValues(params: {
     gatewayServiceValue: formatStatusServiceValue({
       label: params.gatewayService.label,
       installed: params.gatewayService.installed !== false,
-      managedByOpenClaw: params.gatewayService.managedByOpenClaw,
+      managedByAssistant: params.gatewayService.managedByAssistant,
       loadedText: params.gatewayService.loadedText,
       runtimeShort: params.gatewayService.runtimeShort,
       runtimeStatus: params.gatewayService.runtime?.status,
@@ -426,7 +426,7 @@ export function buildStatusGatewaySurfaceValues(params: {
     nodeServiceValue: formatStatusServiceValue({
       label: params.nodeService.label,
       installed: params.nodeService.installed !== false,
-      managedByOpenClaw: params.nodeService.managedByOpenClaw,
+      managedByAssistant: params.nodeService.managedByAssistant,
       loadedText: params.nodeService.loadedText,
       runtimeShort: params.nodeService.runtimeShort,
       runtimeStatus: params.nodeService.runtime?.status,

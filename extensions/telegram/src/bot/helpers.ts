@@ -1,13 +1,13 @@
 import type { Chat, Message } from "@grammyjs/types";
-import { formatLocationText } from "zhushou/plugin-sdk/channel-inbound";
+import { formatLocationText } from "assistant/plugin-sdk/channel-inbound";
 import type {
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
-} from "zhushou/plugin-sdk/config-runtime";
-import { readChannelAllowFromStore } from "zhushou/plugin-sdk/conversation-runtime";
-import { normalizeAccountId } from "zhushou/plugin-sdk/routing";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/config-runtime";
+import { readChannelAllowFromStore } from "assistant/plugin-sdk/conversation-runtime";
+import { normalizeAccountId } from "assistant/plugin-sdk/routing";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { firstDefined, normalizeAllowFrom, type NormalizedAllowFrom } from "../bot-access.js";
 import { normalizeTelegramReplyToMessageId } from "../outbound-params.js";
 import { resolveTelegramPreviewStreamMode } from "../preview-streaming.js";

@@ -3,7 +3,7 @@ import type {
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
-} from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/config-runtime";
 
 export type TelegramErrorPolicy = "always" | "once" | "silent";
 

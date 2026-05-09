@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-zhushou-dir.js";
+import { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
 import { runExec } from "../process/exec.js";
 
 type Sharp = typeof import("sharp");
@@ -26,8 +26,8 @@ function isBun(): boolean {
 
 function prefersSips(): boolean {
   return (
-    process.env.ZHUSHOU_IMAGE_BACKEND === "sips" ||
-    (process.env.ZHUSHOU_IMAGE_BACKEND !== "sharp" && isBun() && process.platform === "darwin")
+    process.env.ASSISTANT_IMAGE_BACKEND === "sips" ||
+    (process.env.ASSISTANT_IMAGE_BACKEND !== "sharp" && isBun() && process.platform === "darwin")
   );
 }
 
@@ -309,7 +309,7 @@ function readJpegExifOrientation(buffer: Buffer): number | null {
 }
 
 async function withTempDir<T>(fn: (dir: string) => Promise<T>): Promise<T> {
-  const dir = await fs.mkdtemp(path.join(resolvePreferredOpenClawTmpDir(), "zhushou-img-"));
+  const dir = await fs.mkdtemp(path.join(resolvePreferredAssistantTmpDir(), "assistant-img-"));
   try {
     return await fn(dir);
   } finally {

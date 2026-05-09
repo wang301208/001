@@ -1,11 +1,11 @@
-# OpenClaw Installer for Windows (PowerShell)
-# Usage: iwr -useb https://openclaw.ai/install.ps1 | iex
-# Or: & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -NoOnboard
+# Assistant Installer for Windows (PowerShell)
+# Usage: iwr -useb https://assistant.ai/install.ps1 | iex
+# Or: & ([scriptblock]::Create((iwr -useb https://assistant.ai/install.ps1))) -NoOnboard
 
 param(
     [string]$InstallMethod = "npm",
     [string]$Tag = "latest",
-    [string]$GitDir = "$env:USERPROFILE\openclaw",
+    [string]$GitDir = "$env:USERPROFILE\assistant",
     [switch]$NoOnboard,
     [switch]$NoGitUpdate,
     [switch]$DryRun
@@ -34,8 +34,8 @@ function Write-Host {
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "${ACCENT}  🦞 OpenClaw Installer$NC" -Level info
-    Write-Host "${MUTED}  All your chats, one OpenClaw.$NC" -Level info
+    Write-Host "${ACCENT}  🦞 Assistant Installer$NC" -Level info
+    Write-Host "${MUTED}  All your chats, one Assistant.$NC" -Level info
     Write-Host ""
 }
 
@@ -269,12 +269,12 @@ function Invoke-NativeCommandCapture {
     }
 }
 
-function Install-OpenClawNpm {
+function Install-AssistantNpm {
     param([string]$Target = "latest")
 
     $installSpec = Resolve-PackageInstallSpec -Target $Target
     
-    Write-Host "Installing OpenClaw ($installSpec)..." -Level info
+    Write-Host "Installing Assistant ($installSpec)..." -Level info
     
     try {
         # Run npm out-of-process so warning chatter on stderr does not get
@@ -296,7 +296,7 @@ function Install-OpenClawNpm {
             Write-Host "npm install failed with exit code $($installResult.ExitCode)" -Level error
             return $false
         }
-        Write-Host "OpenClaw installed" -Level success
+        Write-Host "Assistant installed" -Level success
         return $true
     } catch {
         Write-Host "npm install failed: $_" -Level error
@@ -304,14 +304,14 @@ function Install-OpenClawNpm {
     }
 }
 
-function Install-OpenClawGit {
+function Install-AssistantGit {
     param([string]$RepoDir, [switch]$Update)
     
-    Write-Host "Installing OpenClaw from git..." -Level info
+    Write-Host "Installing Assistant from git..." -Level info
     
     if (!(Test-Path $RepoDir)) {
         Write-Host "  Cloning repository..." -Level info
-        git clone https://github.com/openclaw/openclaw.git $RepoDir 2>&1
+        git clone https://github.com/assistant/assistant.git $RepoDir 2>&1
     } elseif ($Update) {
         Write-Host "  Updating repository..." -Level info
         git -C $RepoDir pull --rebase 2>&1
@@ -339,10 +339,10 @@ function Install-OpenClawGit {
     
     @"
 @echo off
-node "%~dp0..\openclaw\dist\entry.js" %*
-"@ | Out-File -FilePath "$wrapperDir\openclaw.cmd" -Encoding ASCII -Force
+node "%~dp0..\assistant\dist\entry.js" %*
+"@ | Out-File -FilePath "$wrapperDir\assistant.cmd" -Encoding ASCII -Force
     
-    Write-Host "OpenClaw installed" -Level success
+    Write-Host "Assistant installed" -Level success
     return $true
 }
 
@@ -363,15 +363,15 @@ function Resolve-PackageInstallSpec {
 
     $trimmed = $Target.Trim()
     if ([string]::IsNullOrWhiteSpace($trimmed)) {
-        return "openclaw@latest"
+        return "assistant@latest"
     }
     if ($trimmed.ToLowerInvariant() -eq "main") {
-        return "github:openclaw/openclaw#main"
+        return "github:assistant/assistant#main"
     }
     if (Test-ExplicitPackageInstallSpec -Target $trimmed) {
         return $trimmed
     }
-    return "openclaw@$trimmed"
+    return "assistant@$trimmed"
 }
 
 function Add-ToPath {
@@ -407,9 +407,9 @@ function Main {
         }
         
         if ($DryRun) {
-            Write-Host "[DRY RUN] Would install OpenClaw from git to $GitDir" -Level info
+            Write-Host "[DRY RUN] Would install Assistant from git to $GitDir" -Level info
         } else {
-            Install-OpenClawGit -RepoDir $GitDir -Update:(-not $NoGitUpdate)
+            Install-AssistantGit -RepoDir $GitDir -Update:(-not $NoGitUpdate)
         }
     } else {
         # npm method
@@ -418,9 +418,9 @@ function Main {
         }
         
         if ($DryRun) {
-            Write-Host "[DRY RUN] Would install OpenClaw via npm ($((Resolve-PackageInstallSpec -Target $Tag)))" -Level info
+            Write-Host "[DRY RUN] Would install Assistant via npm ($((Resolve-PackageInstallSpec -Target $Tag)))" -Level info
         } else {
-            if (!(Install-OpenClawNpm -Target $Tag)) {
+            if (!(Install-AssistantNpm -Target $Tag)) {
                 exit 1
             }
         }
@@ -441,11 +441,11 @@ function Main {
     
     if (!$NoOnboard -and !$DryRun) {
         Write-Host ""
-        Write-Host "Run 'openclaw onboard' to complete setup" -Level info
+        Write-Host "Run 'assistant onboard' to complete setup" -Level info
     }
     
     Write-Host ""
-    Write-Host "🦞 OpenClaw installed successfully!" -Level success
+    Write-Host "🦞 Assistant installed successfully!" -Level success
 }
 
 Main

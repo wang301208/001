@@ -7,9 +7,9 @@ import {
   resetPluginRuntimeStateForTest,
   setActivePluginRegistry,
 } from "../plugins/runtime.js";
-import type { ConfigFileSnapshot, ZhushouConfig } from "./types.js";
+import type { ConfigFileSnapshot, AssistantConfig } from "./types.js";
 
-const mockLoadConfig = vi.hoisted(() => vi.fn<() => ZhushouConfig>());
+const mockLoadConfig = vi.hoisted(() => vi.fn<() => AssistantConfig>());
 const mockReadConfigFileSnapshot = vi.hoisted(() => vi.fn<() => Promise<ConfigFileSnapshot>>());
 const mockLoadPluginManifestRegistry = vi.hoisted(() => vi.fn());
 
@@ -27,9 +27,9 @@ vi.mock("../plugins/manifest-registry.js", () => ({
   loadPluginManifestRegistry: (...args: unknown[]) => mockLoadPluginManifestRegistry(...args),
 }));
 
-function makeSnapshot(params: { valid: boolean; config?: ZhushouConfig }): ConfigFileSnapshot {
+function makeSnapshot(params: { valid: boolean; config?: AssistantConfig }): ConfigFileSnapshot {
   return {
-    path: "/tmp/zhushou.json",
+    path: "/tmp/assistant.json",
     exists: true,
     raw: "{}",
     parsed: params.config ?? {},

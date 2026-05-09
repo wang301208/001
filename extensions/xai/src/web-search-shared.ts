@@ -1,4 +1,4 @@
-import { postTrustedWebToolsJson, wrapWebContent } from "zhushou/plugin-sdk/provider-web-search";
+import { postTrustedWebToolsJson, wrapWebContent } from "assistant/plugin-sdk/provider-web-search";
 import { normalizeXaiModelId } from "../model-id.js";
 import {
   buildXaiResponsesToolBody,

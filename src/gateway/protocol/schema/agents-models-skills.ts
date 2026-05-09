@@ -849,6 +849,111 @@ export const AgentsListResultSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const AgentsParallelTaskParamsSchema = Type.Object(
+  {
+    id: Type.Optional(NonEmptyString),
+    agentId: Type.Optional(NonEmptyString),
+    goal: NonEmptyString,
+    model: Type.Optional(NonEmptyString),
+    label: Type.Optional(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsParallelStartParamsSchema = Type.Object(
+  {
+    title: Type.Optional(NonEmptyString),
+    parentSessionKey: Type.Optional(NonEmptyString),
+    concurrency: Type.Optional(Type.Integer({ minimum: 1, maximum: 32 })),
+    tasks: Type.Array(AgentsParallelTaskParamsSchema, { minItems: 1, maxItems: 64 }),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsParallelStatusParamsSchema = Type.Object(
+  {
+    batchId: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsParallelCancelParamsSchema = Type.Object(
+  {
+    batchId: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsParallelTaskStatusSchema = Type.Union([
+  Type.Literal("queued"),
+  Type.Literal("starting"),
+  Type.Literal("running"),
+  Type.Literal("failed"),
+  Type.Literal("cancelled"),
+]);
+
+export const AgentsParallelBatchStatusSchema = Type.Union([
+  Type.Literal("running"),
+  Type.Literal("failed"),
+  Type.Literal("cancelled"),
+]);
+
+export const AgentsParallelTaskResultSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    agentId: Type.Optional(NonEmptyString),
+    goal: NonEmptyString,
+    status: AgentsParallelTaskStatusSchema,
+    sessionKey: Type.Optional(NonEmptyString),
+    runId: Type.Optional(NonEmptyString),
+    error: Type.Optional(Type.String()),
+    startedAt: Type.Optional(Type.Integer({ minimum: 0 })),
+    updatedAt: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsParallelCountsSchema = Type.Object(
+  {
+    total: Type.Integer({ minimum: 0 }),
+    queued: Type.Integer({ minimum: 0 }),
+    starting: Type.Integer({ minimum: 0 }),
+    running: Type.Integer({ minimum: 0 }),
+    failed: Type.Integer({ minimum: 0 }),
+    cancelled: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsParallelBatchResultSchema = Type.Object(
+  {
+    batchId: NonEmptyString,
+    title: Type.Optional(NonEmptyString),
+    status: AgentsParallelBatchStatusSchema,
+    concurrency: Type.Integer({ minimum: 1 }),
+    parentSessionKey: Type.Optional(NonEmptyString),
+    createdAt: Type.Integer({ minimum: 0 }),
+    updatedAt: Type.Integer({ minimum: 0 }),
+    counts: AgentsParallelCountsSchema,
+    tasks: Type.Array(AgentsParallelTaskResultSchema),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsParallelListParamsSchema = Type.Object(
+  {
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsParallelListResultSchema = Type.Object(
+  {
+    batches: Type.Array(AgentsParallelBatchResultSchema),
+  },
+  { additionalProperties: false },
+);
+
 export const AgentsCreateParamsSchema = Type.Object(
   {
     name: NonEmptyString,
@@ -2542,6 +2647,26 @@ export const ModelsListResultSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const ModelsRemoteListApiSchema = Type.Union([
+  Type.Literal("openai-completions"),
+  Type.Literal("openai-responses"),
+  Type.Literal("anthropic-messages"),
+  Type.Literal("google-generative-ai"),
+  Type.Literal("ollama"),
+]);
+
+export const ModelsRemoteListParamsSchema = Type.Object(
+  {
+    provider: Type.Optional(NonEmptyString),
+    endpoint: NonEmptyString,
+    apiKey: Type.Optional(Type.String()),
+    api: ModelsRemoteListApiSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const ModelsRemoteListResultSchema = ModelsListResultSchema;
+
 export const SkillsStatusParamsSchema = Type.Object(
   {
     agentId: Type.Optional(NonEmptyString),
@@ -2708,6 +2833,49 @@ export const ToolsEffectiveParamsSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const GatewayMethodsParamsSchema = Type.Object(
+  {
+    query: Type.Optional(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
+export const GatewayMethodEntrySchema = Type.Object(
+  {
+    name: NonEmptyString,
+    category: NonEmptyString,
+    scope: Type.Optional(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
+export const GatewayMethodDescribeParamsSchema = Type.Object(
+  {
+    method: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const GatewayMethodDescribeResultSchema = Type.Object(
+  {
+    method: GatewayMethodEntrySchema,
+    paramsSchema: Type.Optional(Type.Unknown()),
+    resultSchema: Type.Optional(Type.Unknown()),
+    exampleParams: Type.Optional(Type.Unknown()),
+    callTemplate: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const GatewayMethodsResultSchema = Type.Object(
+  {
+    count: Type.Integer({ minimum: 0 }),
+    query: Type.Optional(NonEmptyString),
+    methods: Type.Array(GatewayMethodEntrySchema),
+  },
+  { additionalProperties: false },
+);
+
 export const ToolCatalogProfileSchema = Type.Object(
   {
     id: Type.Union([
@@ -2793,6 +2961,416 @@ export const ToolsEffectiveResultSchema = Type.Object(
     governance: ToolGovernanceSummarySchema,
     governanceContract: Type.Optional(AgentGovernanceRuntimeContractSchema),
     groups: Type.Array(ToolsEffectiveGroupSchema),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceEventSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    kind: NonEmptyString,
+    summary: NonEmptyString,
+    source: Type.Optional(NonEmptyString),
+    sessionKey: Type.Optional(NonEmptyString),
+    tags: Type.Array(NonEmptyString),
+    evidence: Type.Array(NonEmptyString),
+    outcome: Type.Optional(NonEmptyString),
+    createdAt: Type.Integer({ minimum: 0 }),
+    updatedAt: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillCandidateStatusSchema = Type.Union([
+  Type.Literal("proposed"),
+  Type.Literal("accepted"),
+  Type.Literal("rejected"),
+  Type.Literal("implemented"),
+]);
+
+export const SkillCandidateSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    title: NonEmptyString,
+    trigger: NonEmptyString,
+    steps: Type.Array(NonEmptyString),
+    status: SkillCandidateStatusSchema,
+    evidenceEventIds: Type.Array(NonEmptyString),
+    tags: Type.Array(NonEmptyString),
+    createdAt: Type.Integer({ minimum: 0 }),
+    updatedAt: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfModelSchema = Type.Object(
+  {
+    strengths: Type.Array(NonEmptyString),
+    weaknesses: Type.Array(NonEmptyString),
+    preferences: Type.Array(NonEmptyString),
+    learnedPatterns: Type.Array(NonEmptyString),
+    nextGrowthAreas: Type.Array(NonEmptyString),
+    evidenceEventIds: Type.Array(NonEmptyString),
+    updatedAt: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceCaptureParamsSchema = Type.Object(
+  {
+    kind: Type.Optional(NonEmptyString),
+    summary: NonEmptyString,
+    source: Type.Optional(NonEmptyString),
+    sessionKey: Type.Optional(NonEmptyString),
+    tags: Type.Optional(Type.Array(NonEmptyString)),
+    evidence: Type.Optional(Type.Array(NonEmptyString)),
+    outcome: Type.Optional(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceCaptureResultSchema = Type.Object(
+  {
+    event: ExperienceEventSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceSearchParamsSchema = Type.Object(
+  {
+    query: NonEmptyString,
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceSearchResultEntrySchema = Type.Object(
+  {
+    type: Type.Union([
+      Type.Literal("event"),
+      Type.Literal("conversation"),
+      Type.Literal("skill_candidate"),
+      Type.Literal("self_model"),
+    ]),
+    id: NonEmptyString,
+    summary: NonEmptyString,
+    score: Type.Number(),
+    source: Type.Optional(NonEmptyString),
+    createdAt: Type.Optional(Type.Integer({ minimum: 0 })),
+    updatedAt: Type.Optional(Type.Integer({ minimum: 0 })),
+    tags: Type.Optional(Type.Array(NonEmptyString)),
+    metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceSearchResultSchema = Type.Object(
+  {
+    query: NonEmptyString,
+    results: Type.Array(ExperienceSearchResultEntrySchema),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceSummaryParamsSchema = Type.Object(
+  {
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceSummaryResultSchema = Type.Object(
+  {
+    counts: Type.Object(
+      {
+        events: Type.Integer({ minimum: 0 }),
+        skillCandidates: Type.Integer({ minimum: 0 }),
+        selfModelFacts: Type.Integer({ minimum: 0 }),
+      },
+      { additionalProperties: false },
+    ),
+    recentEvents: Type.Array(ExperienceEventSchema),
+    recentSkillCandidates: Type.Array(SkillCandidateSchema),
+    selfModel: SelfModelSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const SessionMemoryHitSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    path: NonEmptyString,
+    role: Type.Optional(NonEmptyString),
+    snippet: NonEmptyString,
+    score: Type.Number(),
+    createdAt: Type.Optional(Type.Integer({ minimum: 0 })),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceSessionRecallParamsSchema = Type.Object(
+  {
+    query: NonEmptyString,
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const ExperienceSessionRecallResultSchema = Type.Object(
+  {
+    query: NonEmptyString,
+    backend: Type.Union([Type.Literal("sqlite-fts5"), Type.Literal("text-scan")]),
+    summary: NonEmptyString,
+    hits: Type.Array(SessionMemoryHitSchema),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillCandidatesListParamsSchema = Type.Object(
+  {
+    status: Type.Optional(SkillCandidateStatusSchema),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillCandidatesListResultSchema = Type.Object(
+  {
+    candidates: Type.Array(SkillCandidateSchema),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillCandidatesCreateParamsSchema = Type.Object(
+  {
+    title: NonEmptyString,
+    trigger: NonEmptyString,
+    steps: Type.Array(NonEmptyString, { minItems: 1 }),
+    evidenceEventIds: Type.Optional(Type.Array(NonEmptyString)),
+    tags: Type.Optional(Type.Array(NonEmptyString)),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillCandidatesCreateResultSchema = Type.Object(
+  {
+    candidate: SkillCandidateSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const SkillUsageRecordSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    candidateId: NonEmptyString,
+    successful: Type.Boolean(),
+    outcome: NonEmptyString,
+    observations: Type.Array(NonEmptyString),
+    createdAt: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillUsageRecordParamsSchema = Type.Object(
+  {
+    candidateId: NonEmptyString,
+    successful: Type.Optional(Type.Boolean()),
+    outcome: NonEmptyString,
+    observations: Type.Optional(Type.Array(NonEmptyString)),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillUsageRecordResultSchema = Type.Object(
+  {
+    usage: SkillUsageRecordSchema,
+    candidate: SkillCandidateSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const SkillCandidatesExportAgentSkillParamsSchema = Type.Object(
+  {
+    candidateId: NonEmptyString,
+    targetDir: Type.Optional(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillCandidatesExportAgentSkillResultSchema = Type.Object(
+  {
+    name: NonEmptyString,
+    directory: NonEmptyString,
+    skillPath: NonEmptyString,
+    content: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const StrategicMemoryCadenceSchema = Type.Union([
+  Type.Literal("hourly"),
+  Type.Literal("daily"),
+  Type.Literal("weekly"),
+  Type.Literal("monthly"),
+]);
+
+export const StrategicMemorySchema = Type.Object(
+  {
+    id: NonEmptyString,
+    title: NonEmptyString,
+    objective: NonEmptyString,
+    cadence: StrategicMemoryCadenceSchema,
+    nextPushAt: Type.Integer({ minimum: 0 }),
+    lastPushedAt: Type.Optional(Type.Integer({ minimum: 0 })),
+    evidenceEventIds: Type.Array(NonEmptyString),
+    tags: Type.Array(NonEmptyString),
+    createdAt: Type.Integer({ minimum: 0 }),
+    updatedAt: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+export const StrategicPushSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    title: NonEmptyString,
+    prompt: NonEmptyString,
+    cadence: StrategicMemoryCadenceSchema,
+    nextPushAt: Type.Integer({ minimum: 0 }),
+    evidenceEventIds: Type.Array(NonEmptyString),
+    tags: Type.Array(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
+export const StrategyMemoryCaptureParamsSchema = Type.Object(
+  {
+    title: NonEmptyString,
+    objective: NonEmptyString,
+    cadence: Type.Optional(StrategicMemoryCadenceSchema),
+    nextPushAt: Type.Optional(Type.Integer({ minimum: 0 })),
+    evidenceEventIds: Type.Optional(Type.Array(NonEmptyString)),
+    tags: Type.Optional(Type.Array(NonEmptyString)),
+  },
+  { additionalProperties: false },
+);
+
+export const StrategyMemoryCaptureResultSchema = Type.Object(
+  {
+    memory: StrategicMemorySchema,
+  },
+  { additionalProperties: false },
+);
+
+export const StrategyMemoryDueParamsSchema = Type.Object(
+  {
+    now: Type.Optional(Type.Integer({ minimum: 0 })),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const StrategyMemoryDueResultSchema = Type.Object(
+  {
+    pushes: Type.Array(StrategicPushSchema),
+  },
+  { additionalProperties: false },
+);
+
+export const StrategyMemoryAdvanceParamsSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    pushedAt: Type.Optional(Type.Integer({ minimum: 0 })),
+  },
+  { additionalProperties: false },
+);
+
+export const StrategyMemoryAdvanceResultSchema = Type.Object(
+  {
+    memory: StrategicMemorySchema,
+  },
+  { additionalProperties: false },
+);
+
+export const SelfModelGetParamsSchema = Type.Object({}, { additionalProperties: false });
+
+export const SelfModelGetResultSchema = Type.Object(
+  {
+    selfModel: SelfModelSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const SelfModelUpdateParamsSchema = Type.Object(
+  {
+    strengths: Type.Optional(Type.Array(NonEmptyString)),
+    weaknesses: Type.Optional(Type.Array(NonEmptyString)),
+    preferences: Type.Optional(Type.Array(NonEmptyString)),
+    learnedPatterns: Type.Optional(Type.Array(NonEmptyString)),
+    nextGrowthAreas: Type.Optional(Type.Array(NonEmptyString)),
+    evidenceEventIds: Type.Optional(Type.Array(NonEmptyString)),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfModelUpdateResultSchema = SelfModelGetResultSchema;
+
+export const UserModelSchema = Type.Object(
+  {
+    preferences: Type.Array(NonEmptyString),
+    goals: Type.Array(NonEmptyString),
+    communicationStyle: Type.Array(NonEmptyString),
+    constraints: Type.Array(NonEmptyString),
+    contradictions: Type.Array(NonEmptyString),
+    evidenceEventIds: Type.Array(NonEmptyString),
+    updatedAt: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false },
+);
+
+export const UserModelUpdateParamsSchema = Type.Object(
+  {
+    preferences: Type.Optional(Type.Array(NonEmptyString)),
+    goals: Type.Optional(Type.Array(NonEmptyString)),
+    communicationStyle: Type.Optional(Type.Array(NonEmptyString)),
+    constraints: Type.Optional(Type.Array(NonEmptyString)),
+    contradictions: Type.Optional(Type.Array(NonEmptyString)),
+    evidenceEventIds: Type.Optional(Type.Array(NonEmptyString)),
+  },
+  { additionalProperties: false },
+);
+
+export const UserModelUpdateResultSchema = Type.Object(
+  {
+    userModel: UserModelSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const UserModelDialecticParamsSchema = Type.Object(
+  {
+    query: NonEmptyString,
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const UserModelHypothesisSchema = Type.Object(
+  {
+    claim: NonEmptyString,
+    confidence: Type.Number({ minimum: 0, maximum: 1 }),
+    supportingEvidence: Type.Array(NonEmptyString),
+    contradictingEvidence: Type.Array(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
+export const UserModelDialecticResultSchema = Type.Object(
+  {
+    query: NonEmptyString,
+    answer: NonEmptyString,
+    hypotheses: Type.Array(UserModelHypothesisSchema),
+    model: UserModelSchema,
   },
   { additionalProperties: false },
 );

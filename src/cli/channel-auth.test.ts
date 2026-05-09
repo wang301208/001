@@ -273,7 +273,7 @@ describe("channel-auth", () => {
   it("installs a catalog-backed channel plugin on demand for login", async () => {
     const catalogEntry = {
       id: "whatsapp",
-      pluginId: "@zhushou/whatsapp",
+      pluginId: "@assistant/whatsapp",
       meta: {
         id: "whatsapp",
         label: "WhatsApp",
@@ -282,7 +282,7 @@ describe("channel-auth", () => {
         blurb: "wa",
       },
       install: {
-        npmSpec: "@zhushou/whatsapp",
+        npmSpec: "@assistant/whatsapp",
       },
     };
     mocks.getChannelPlugin.mockReturnValueOnce(undefined);
@@ -326,7 +326,7 @@ describe("channel-auth", () => {
     mocks.listChannelPluginCatalogEntries.mockReturnValueOnce([
       {
         id: "whatsapp",
-        pluginId: "@zhushou/whatsapp",
+        pluginId: "@assistant/whatsapp",
         meta: {
           id: "whatsapp",
           label: "WhatsApp",
@@ -335,7 +335,7 @@ describe("channel-auth", () => {
           blurb: "wa",
         },
         install: {
-          npmSpec: "@zhushou/whatsapp",
+          npmSpec: "@assistant/whatsapp",
         },
       },
     ]);

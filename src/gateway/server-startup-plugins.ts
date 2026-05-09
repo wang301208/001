@@ -2,7 +2,8 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent
 import { initSubagentRegistry } from "../agents/subagent-registry.js";
 import { runChannelPluginStartupMaintenance } from "../channels/plugins/lifecycle-startup.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
+import { isTruthyEnvValue } from "../infra/env.js";
 import {
   resolveConfiguredDeferredChannelPluginIds,
   resolveGatewayStartupPluginIds,
@@ -22,11 +23,15 @@ type GatewayPluginBootstrapLog = {
 };
 
 export async function prepareGatewayPluginBootstrap(params: {
-  cfgAtStart: ZhushouConfig;
-  startupRuntimeConfig: ZhushouConfig;
+  cfgAtStart: AssistantConfig;
+  startupRuntimeConfig: AssistantConfig;
   minimalTestGateway: boolean;
   log: GatewayPluginBootstrapLog;
 }) {
+  const skipPluginStartup =
+    params.minimalTestGateway ||
+    isTruthyEnvValue(process.env.ASSISTANT_SKIP_CHANNELS) ||
+    isTruthyEnvValue(process.env.ASSISTANT_SKIP_PROVIDERS);
   const startupMaintenanceConfig =
     params.cfgAtStart.channels === undefined && params.startupRuntimeConfig.channels !== undefined
       ? {
@@ -35,7 +40,7 @@ export async function prepareGatewayPluginBootstrap(params: {
         }
       : params.cfgAtStart;
 
-  if (!params.minimalTestGateway) {
+  if (!skipPluginStartup) {
     await runChannelPluginStartupMaintenance({
       cfg: startupMaintenanceConfig,
       env: process.env,
@@ -50,7 +55,7 @@ export async function prepareGatewayPluginBootstrap(params: {
 
   initSubagentRegistry();
 
-  const gatewayPluginConfigAtStart = params.minimalTestGateway
+  const gatewayPluginConfigAtStart = skipPluginStartup
     ? params.cfgAtStart
     : applyPluginAutoEnable({
         config: params.cfgAtStart,
@@ -58,14 +63,14 @@ export async function prepareGatewayPluginBootstrap(params: {
       }).config;
   const defaultAgentId = resolveDefaultAgentId(gatewayPluginConfigAtStart);
   const defaultWorkspaceDir = resolveAgentWorkspaceDir(gatewayPluginConfigAtStart, defaultAgentId);
-  const deferredConfiguredChannelPluginIds = params.minimalTestGateway
+  const deferredConfiguredChannelPluginIds = skipPluginStartup
     ? []
     : resolveConfiguredDeferredChannelPluginIds({
         config: gatewayPluginConfigAtStart,
         workspaceDir: defaultWorkspaceDir,
         env: process.env,
       });
-  const startupPluginIds = params.minimalTestGateway
+  const startupPluginIds = skipPluginStartup
     ? []
     : resolveGatewayStartupPluginIds({
         config: gatewayPluginConfigAtStart,
@@ -79,7 +84,7 @@ export async function prepareGatewayPluginBootstrap(params: {
   let pluginRegistry = emptyPluginRegistry;
   let baseGatewayMethods = baseMethods;
 
-  if (!params.minimalTestGateway) {
+  if (!skipPluginStartup) {
     ({ pluginRegistry, gatewayMethods: baseGatewayMethods } = loadGatewayStartupPlugins({
       cfg: gatewayPluginConfigAtStart,
       activationSourceConfig: params.cfgAtStart,

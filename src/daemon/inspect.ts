@@ -16,20 +16,19 @@ export type ExtraGatewayService = {
   label: string;
   detail: string;
   scope: "user" | "system";
-  marker?: "zhushou" | "clawdbot";
-  legacy?: boolean;
+  marker?: "assistant";
 };
 
 export type FindExtraGatewayServicesOptions = {
   deep?: boolean;
 };
 
-const EXTRA_MARKERS = ["zhushou", "clawdbot"] as const;
+const EXTRA_MARKERS = ["assistant"] as const;
 
 export function renderGatewayServiceCleanupHints(
   env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
 ): string[] {
-  const profile = env.ZHUSHOU_PROFILE;
+  const profile = env.ASSISTANT_PROFILE;
   switch (process.platform) {
     case "darwin": {
       const label = resolveGatewayLaunchAgentLabel(profile);
@@ -81,8 +80,8 @@ export function detectMarkerLineWithGateway(contents: string): Marker | null {
 
 function hasGatewayServiceMarker(content: string): boolean {
   const lower = normalizeLowercaseStringOrEmpty(content);
-  const markerKeys = ["openclaw_service_marker"];
-  const kindKeys = ["openclaw_service_kind"];
+  const markerKeys = ["assistant_service_marker"];
+  const kindKeys = ["assistant_service_kind"];
   const markerValues = [normalizeLowercaseStringOrEmpty(GATEWAY_SERVICE_MARKER)];
   const hasMarkerKey = markerKeys.some((key) => lower.includes(key));
   const hasKindKey = kindKeys.some((key) => lower.includes(key));
@@ -95,7 +94,7 @@ function hasGatewayServiceMarker(content: string): boolean {
   );
 }
 
-function isOpenClawGatewayLaunchdService(label: string, contents: string): boolean {
+function isAssistantGatewayLaunchdService(label: string, contents: string): boolean {
   if (hasGatewayServiceMarker(contents)) {
     return true;
   }
@@ -103,26 +102,26 @@ function isOpenClawGatewayLaunchdService(label: string, contents: string): boole
   if (!lowerContents.includes("gateway")) {
     return false;
   }
-  return label.startsWith("ai.zhushou.");
+  return label.startsWith("ai.assistant.");
 }
 
-function isOpenClawGatewaySystemdService(name: string, contents: string): boolean {
+function isAssistantGatewaySystemdService(name: string, contents: string): boolean {
   if (hasGatewayServiceMarker(contents)) {
     return true;
   }
-  if (!name.startsWith("zhushou-gateway")) {
+  if (!name.startsWith("assistant-gateway")) {
     return false;
   }
   return normalizeLowercaseStringOrEmpty(contents).includes("gateway");
 }
 
-function isOpenClawGatewayTaskName(name: string): boolean {
+function isAssistantGatewayTaskName(name: string): boolean {
   const normalized = normalizeLowercaseStringOrEmpty(name);
   if (!normalized) {
     return false;
   }
   const defaultName = normalizeLowercaseStringOrEmpty(resolveGatewayWindowsTaskName());
-  return normalized === defaultName || normalized.startsWith("openclaw gateway");
+  return normalized === defaultName || normalized.startsWith("assistant gateway");
 }
 
 function tryExtractPlistLabel(contents: string): string | null {
@@ -139,11 +138,6 @@ function isIgnoredLaunchdLabel(label: string): boolean {
 
 function isIgnoredSystemdName(name: string): boolean {
   return name === resolveGatewaySystemdServiceName();
-}
-
-function isLegacyLabel(label: string): boolean {
-  const lower = normalizeLowercaseStringOrEmpty(label);
-  return lower.includes("clawdbot");
 }
 
 async function readDirEntries(dir: string): Promise<string[]> {
@@ -209,24 +203,12 @@ async function scanLaunchdDir(params: {
     const marker = detectMarker(contents);
     const label = tryExtractPlistLabel(contents) ?? labelFromName;
     if (!marker) {
-      const legacyLabel = isLegacyLabel(labelFromName) || isLegacyLabel(label);
-      if (!legacyLabel) {
-        continue;
-      }
-      results.push({
-        platform: "darwin",
-        label,
-        detail: `plist: ${fullPath}`,
-        scope: params.scope,
-        marker: "clawdbot",
-        legacy: true,
-      });
       continue;
     }
     if (isIgnoredLaunchdLabel(label)) {
       continue;
     }
-    if (marker === "zhushou" && isOpenClawGatewayLaunchdService(label, contents)) {
+    if (marker === "assistant" && isAssistantGatewayLaunchdService(label, contents)) {
       continue;
     }
     results.push({
@@ -235,7 +217,6 @@ async function scanLaunchdDir(params: {
       detail: `plist: ${fullPath}`,
       scope: params.scope,
       marker,
-      legacy: marker !== "zhushou" || isLegacyLabel(label),
     });
   }
 
@@ -258,7 +239,7 @@ async function scanSystemdDir(params: {
     if (!marker) {
       continue;
     }
-    if (marker === "zhushou" && isOpenClawGatewaySystemdService(name, contents)) {
+    if (marker === "assistant" && isAssistantGatewaySystemdService(name, contents)) {
       continue;
     }
     results.push({
@@ -267,7 +248,6 @@ async function scanSystemdDir(params: {
       detail: `unit: ${fullPath}`,
       scope: params.scope,
       marker,
-      legacy: marker !== "zhushou",
     });
   }
 
@@ -411,7 +391,7 @@ export async function findExtraGatewayServices(
       if (!name) {
         continue;
       }
-      if (isOpenClawGatewayTaskName(name)) {
+      if (isAssistantGatewayTaskName(name)) {
         continue;
       }
       const lowerName = normalizeLowercaseStringOrEmpty(name);
@@ -432,7 +412,6 @@ export async function findExtraGatewayServices(
         detail: task.taskToRun ? `task: ${name}, run: ${task.taskToRun}` : name,
         scope: "system",
         marker,
-        legacy: marker !== "zhushou",
       });
     }
     return results;

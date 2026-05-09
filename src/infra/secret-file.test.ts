@@ -10,7 +10,7 @@ import {
 } from "./secret-file.js";
 
 const tempDirs = createTrackedTempDirs();
-const createTempDir = () => tempDirs.make("zhushou-secret-file-test-");
+const createTempDir = () => tempDirs.make("assistant-secret-file-test-");
 
 afterEach(async () => {
   await tempDirs.cleanup();

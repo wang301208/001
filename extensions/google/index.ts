@@ -1,8 +1,8 @@
-import type { ImageGenerationProvider } from "zhushou/plugin-sdk/image-generation";
-import type { MediaUnderstandingProvider } from "zhushou/plugin-sdk/media-understanding";
-import type { MusicGenerationProvider } from "zhushou/plugin-sdk/music-generation";
-import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
-import type { VideoGenerationProvider } from "zhushou/plugin-sdk/video-generation";
+import type { ImageGenerationProvider } from "assistant/plugin-sdk/image-generation";
+import type { MediaUnderstandingProvider } from "assistant/plugin-sdk/media-understanding";
+import type { MusicGenerationProvider } from "assistant/plugin-sdk/music-generation";
+import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import type { VideoGenerationProvider } from "assistant/plugin-sdk/video-generation";
 import { buildGoogleGeminiCliBackend } from "./cli-backend.js";
 import { registerGoogleGeminiCliProvider } from "./gemini-cli-provider.js";
 import {

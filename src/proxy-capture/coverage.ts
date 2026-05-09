@@ -191,9 +191,9 @@ export function maybeWarnAboutDebugProxyCoverage(
     return;
   }
   warn(
-    `[zhushou proxy] debug proxy coverage: ${summary.captured}/${summary.total} captured, ${summary.proxyOnly} proxy-only, ${summary.uncovered} uncovered.`,
+    `[assistant proxy] debug proxy coverage: ${summary.captured}/${summary.total} captured, ${summary.proxyOnly} proxy-only, ${summary.uncovered} uncovered.`,
   );
   warn(
-    `[zhushou proxy] remaining gaps: ${partial.map((entry) => entry.id).join(", ")}. Run \`zhushou proxy coverage\` for details.`,
+    `[assistant proxy] remaining gaps: ${partial.map((entry) => entry.id).join(", ")}. Run \`assistant proxy coverage\` for details.`,
   );
 }

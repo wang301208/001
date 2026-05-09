@@ -10,13 +10,13 @@ import { normalizeWindowsArgv } from "./cli/windows-argv.js";
 import { buildCliRespawnPlan } from "./entry.respawn.js";
 import { isTruthyEnvValue, normalizeEnv } from "./infra/env.js";
 import { isMainModule } from "./infra/is-main.js";
-import { ensureOpenClawExecMarkerOnProcess } from "./infra/zhushou-exec-env.js";
+import { ensureAssistantExecMarkerOnProcess } from "./infra/assistant-exec-env.js";
 import { installProcessWarningFilter } from "./infra/warning-filter.js";
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
 
 const ENTRY_WRAPPER_PAIRS = [
-  { wrapperBasename: "zhushou.mjs", entryBasename: "entry.js" },
-  { wrapperBasename: "zhushou.js", entryBasename: "entry.js" },
+  { wrapperBasename: "assistant.mjs", entryBasename: "entry.js" },
+  { wrapperBasename: "assistant.js", entryBasename: "entry.js" },
 ] as const;
 
 function shouldForceReadOnlyAuthStore(argv: string[]): boolean {
@@ -45,8 +45,8 @@ if (
   const { installGaxiosFetchCompat } = await import("./infra/gaxios-fetch-compat.js");
 
   await installGaxiosFetchCompat();
-  process.title = "zhushou";
-  ensureOpenClawExecMarkerOnProcess();
+  process.title = "assistant";
+  ensureAssistantExecMarkerOnProcess();
   installProcessWarningFilter();
   normalizeEnv();
   if (!isTruthyEnvValue(process.env.NODE_DISABLE_COMPILE_CACHE)) {
@@ -58,7 +58,7 @@ if (
   }
 
   if (shouldForceReadOnlyAuthStore(process.argv)) {
-    process.env.OPENCLAW_AUTH_STORE_READONLY = "1";
+    process.env.ASSISTANT_AUTH_STORE_READONLY = "1";
   }
 
   if (process.argv.includes("--no-color")) {
@@ -89,7 +89,7 @@ if (
 
     child.once("error", (error) => {
       console.error(
-        "[zhushou] Failed to respawn CLI:",
+        "[assistant] Failed to respawn CLI:",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exit(1);
@@ -120,7 +120,7 @@ if (
       })
       .catch((error) => {
         console.error(
-          "[zhushou] Failed to resolve version:",
+          "[assistant] Failed to resolve version:",
           error instanceof Error ? (error.stack ?? error.message) : error,
         );
         process.exitCode = 1;
@@ -133,20 +133,20 @@ if (
   if (!ensureCliRespawnReady()) {
     const parsedContainer = parseCliContainerArgs(process.argv);
     if (!parsedContainer.ok) {
-      console.error(`[zhushou] ${parsedContainer.error}`);
+      console.error(`[assistant] ${parsedContainer.error}`);
       process.exit(2);
     }
 
     const parsed = parseCliProfileArgs(parsedContainer.argv);
     if (!parsed.ok) {
       // Keep it simple; Commander will handle rich help/errors after we strip flags.
-      console.error(`[zhushou] ${parsed.error}`);
+      console.error(`[assistant] ${parsed.error}`);
       process.exit(2);
     }
 
     const containerTargetName = resolveCliContainerTarget(process.argv);
     if (containerTargetName && parsed.profile) {
-      console.error("[zhushou] --container cannot be combined with --profile/--dev");
+      console.error("[assistant] --container cannot be combined with --profile/--dev");
       process.exit(2);
     }
 
@@ -180,7 +180,7 @@ export function tryHandleRootHelpFastPath(
     deps.onError ??
     ((error: unknown) => {
       console.error(
-        "[zhushou] Failed to display help:",
+        "[assistant] Failed to display help:",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exitCode = 1;
@@ -211,7 +211,7 @@ function runMainOrRootHelp(argv: string[]): void {
     .then(({ runCli }) => runCli(argv))
     .catch((error) => {
       console.error(
-        "[zhushou] Failed to start CLI:",
+        "[assistant] Failed to start CLI:",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exitCode = 1;

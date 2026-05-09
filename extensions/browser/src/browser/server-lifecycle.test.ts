@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { stopOpenClawChromeMock } = vi.hoisted(() => ({
-  stopOpenClawChromeMock: vi.fn(async () => {}),
+const { stopAssistantChromeMock } = vi.hoisted(() => ({
+  stopAssistantChromeMock: vi.fn(async () => {}),
 }));
 
 const { createBrowserRouteContextMock, listKnownProfileNamesMock } = vi.hoisted(() => ({
@@ -10,7 +10,7 @@ const { createBrowserRouteContextMock, listKnownProfileNamesMock } = vi.hoisted(
 }));
 
 vi.mock("./chrome.js", () => ({
-  stopOpenClawChrome: stopOpenClawChromeMock,
+  stopAssistantChrome: stopAssistantChromeMock,
 }));
 
 vi.mock("./server-context.js", () => ({
@@ -24,7 +24,7 @@ const { ensureExtensionRelayForProfiles, stopKnownBrowserProfiles } =
 beforeEach(() => {
   createBrowserRouteContextMock.mockClear();
   listKnownProfileNamesMock.mockClear();
-  stopOpenClawChromeMock.mockClear();
+  stopAssistantChromeMock.mockClear();
 });
 
 describe("ensureExtensionRelayForProfiles", () => {
@@ -40,9 +40,9 @@ describe("ensureExtensionRelayForProfiles", () => {
 
 describe("stopKnownBrowserProfiles", () => {
   it("stops all known profiles and ignores per-profile failures", async () => {
-    listKnownProfileNamesMock.mockReturnValue(["zhushou", "user"]);
+    listKnownProfileNamesMock.mockReturnValue(["assistant", "user"]);
     const stopMap: Record<string, ReturnType<typeof vi.fn>> = {
-      zhushou: vi.fn(async () => {}),
+      assistant: vi.fn(async () => {}),
       user: vi.fn(async () => {
         throw new Error("profile stop failed");
       }),
@@ -60,7 +60,7 @@ describe("stopKnownBrowserProfiles", () => {
       onWarn,
     });
 
-    expect(stopMap.zhushou).toHaveBeenCalledTimes(1);
+    expect(stopMap.assistant).toHaveBeenCalledTimes(1);
     expect(stopMap.user).toHaveBeenCalledTimes(1);
     expect(onWarn).not.toHaveBeenCalled();
   });
@@ -75,7 +75,7 @@ describe("stopKnownBrowserProfiles", () => {
     const localRuntime = {
       profile: {
         name: "deleted-local",
-        driver: "zhushou",
+        driver: "assistant",
       },
       running: {
         pid: 42,
@@ -94,7 +94,7 @@ describe("stopKnownBrowserProfiles", () => {
       onWarn: vi.fn(),
     });
 
-    expect(stopOpenClawChromeMock).toHaveBeenCalledWith(launchedBrowser);
+    expect(stopAssistantChromeMock).toHaveBeenCalledWith(launchedBrowser);
     expect(localRuntime.running).toBeNull();
   });
 
@@ -112,6 +112,6 @@ describe("stopKnownBrowserProfiles", () => {
       onWarn,
     });
 
-    expect(onWarn).toHaveBeenCalledWith("zhushou browser stop failed: Error: oops");
+    expect(onWarn).toHaveBeenCalledWith("assistant browser stop failed: Error: oops");
   });
 });

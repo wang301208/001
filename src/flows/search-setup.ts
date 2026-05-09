@@ -1,5 +1,5 @@
 import type { SecretInputMode } from "../commands/onboard-types.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   DEFAULT_SECRET_PROVIDER_ALIAS,
   type SecretInput,
@@ -18,9 +18,9 @@ import type { FlowContribution, FlowOption } from "./types.js";
 import { sortFlowContributionsByLabel } from "./types.js";
 
 export type SearchProvider = NonNullable<
-  NonNullable<NonNullable<NonNullable<ZhushouConfig["tools"]>["web"]>["search"]>["provider"]
+  NonNullable<NonNullable<NonNullable<AssistantConfig["tools"]>["web"]>["search"]>["provider"]
 >;
-type SearchConfig = NonNullable<NonNullable<NonNullable<ZhushouConfig["tools"]>["web"]>["search"]>;
+type SearchConfig = NonNullable<NonNullable<NonNullable<AssistantConfig["tools"]>["web"]>["search"]>;
 type MutableSearchConfig = SearchConfig & Record<string, unknown>;
 
 export type SearchProviderSetupOption = FlowOption & {
@@ -45,7 +45,7 @@ function resolveSearchProviderCredentialLabel(
 }
 
 export function listSearchProviderOptions(
-  config?: ZhushouConfig,
+  config?: AssistantConfig,
 ): readonly PluginWebSearchProviderEntry[] {
   return resolveSearchProviderOptions(config);
 }
@@ -57,7 +57,7 @@ function showsSearchProviderInSetup(
 }
 
 export function resolveSearchProviderOptions(
-  config?: ZhushouConfig,
+  config?: AssistantConfig,
 ): readonly PluginWebSearchProviderEntry[] {
   return resolveSearchProviderSetupContributions(config).map(
     (contribution) => contribution.provider,
@@ -84,7 +84,7 @@ function buildSearchProviderSetupContribution(params: {
 }
 
 export function resolveSearchProviderSetupContributions(
-  config?: ZhushouConfig,
+  config?: AssistantConfig,
 ): SearchProviderSetupContribution[] {
   const providers = sortWebSearchProviders(
     resolvePluginWebSearchProviders({
@@ -101,7 +101,7 @@ export function resolveSearchProviderSetupContributions(
 }
 
 function resolveSearchProviderEntry(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   provider: SearchProvider,
 ): PluginWebSearchProviderEntry | undefined {
   return resolveSearchProviderOptions(config).find((entry) => entry.id === provider);
@@ -118,7 +118,7 @@ function providerNeedsCredential(
 }
 
 function providerIsReady(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   entry: Pick<PluginWebSearchProviderEntry, "id" | "envVars" | "requiresCredential">,
 ): boolean {
   if (!providerNeedsCredential(entry)) {
@@ -127,7 +127,7 @@ function providerIsReady(
   return hasExistingKey(config, entry.id) || hasKeyInEnv(entry);
 }
 
-function rawKeyValue(config: ZhushouConfig, provider: SearchProvider): unknown {
+function rawKeyValue(config: AssistantConfig, provider: SearchProvider): unknown {
   const search = config.tools?.web?.search;
   const entry = resolveSearchProviderEntry(config, provider);
   const configuredValue = entry?.getConfiguredCredentialValue?.(config);
@@ -140,17 +140,17 @@ function rawKeyValue(config: ZhushouConfig, provider: SearchProvider): unknown {
 }
 
 export function resolveExistingKey(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   provider: SearchProvider,
 ): string | undefined {
   return normalizeSecretInputString(rawKeyValue(config, provider));
 }
 
-export function hasExistingKey(config: ZhushouConfig, provider: SearchProvider): boolean {
+export function hasExistingKey(config: AssistantConfig, provider: SearchProvider): boolean {
   return hasConfiguredSecretInput(rawKeyValue(config, provider));
 }
 
-function buildSearchEnvRef(config: ZhushouConfig, provider: SearchProvider): SecretRef {
+function buildSearchEnvRef(config: AssistantConfig, provider: SearchProvider): SecretRef {
   const entry =
     resolveSearchProviderEntry(config, provider) ??
     listSearchProviderOptions(config).find((candidate) => candidate.id === provider) ??
@@ -167,7 +167,7 @@ function buildSearchEnvRef(config: ZhushouConfig, provider: SearchProvider): Sec
 }
 
 function resolveSearchSecretInput(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   provider: SearchProvider,
   key: string,
   secretInputMode?: SecretInputMode,
@@ -180,10 +180,10 @@ function resolveSearchSecretInput(
 }
 
 export function applySearchKey(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   provider: SearchProvider,
   key: SecretInput,
-): ZhushouConfig {
+): AssistantConfig {
   const providerEntry = resolveSearchProviderEntry(config, provider);
   if (!providerEntry) {
     return config;
@@ -192,7 +192,7 @@ export function applySearchKey(
   if (!providerEntry.setConfiguredCredentialValue) {
     providerEntry.setCredentialValue(search, key);
   }
-  const nextBase: ZhushouConfig = {
+  const nextBase: AssistantConfig = {
     ...config,
     tools: {
       ...config.tools,
@@ -205,9 +205,9 @@ export function applySearchKey(
 }
 
 function applySearchProviderSelectionConfig(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   providerEntry: Pick<PluginWebSearchProviderEntry, "pluginId" | "applySelectionConfig">,
-): ZhushouConfig {
+): AssistantConfig {
   if (providerEntry.applySelectionConfig) {
     return providerEntry.applySelectionConfig(config);
   }
@@ -218,9 +218,9 @@ function applySearchProviderSelectionConfig(
 }
 
 export function applySearchProviderSelection(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   provider: SearchProvider,
-): ZhushouConfig {
+): AssistantConfig {
   const providerEntry = resolveSearchProviderEntry(config, provider);
   if (!providerEntry) {
     return config;
@@ -230,7 +230,7 @@ export function applySearchProviderSelection(
     provider,
     enabled: true,
   };
-  const nextBase: ZhushouConfig = {
+  const nextBase: AssistantConfig = {
     ...config,
     tools: {
       ...config.tools,
@@ -243,12 +243,12 @@ export function applySearchProviderSelection(
   return applySearchProviderSelectionConfig(nextBase, providerEntry);
 }
 
-function preserveDisabledState(original: ZhushouConfig, result: ZhushouConfig): ZhushouConfig {
+function preserveDisabledState(original: AssistantConfig, result: AssistantConfig): AssistantConfig {
   if (original.tools?.web?.search?.enabled !== false) {
     return result;
   }
 
-  const next: ZhushouConfig = {
+  const next: AssistantConfig = {
     ...result,
     tools: {
       ...result.tools,
@@ -297,7 +297,7 @@ function preserveDisabledState(original: ZhushouConfig, result: ZhushouConfig): 
 
   return {
     ...next,
-    plugins: nextPlugins as ZhushouConfig["plugins"],
+    plugins: nextPlugins as AssistantConfig["plugins"],
   };
 }
 
@@ -307,13 +307,13 @@ export type SetupSearchOptions = {
 };
 
 async function finalizeSearchProviderSetup(params: {
-  originalConfig: ZhushouConfig;
-  nextConfig: ZhushouConfig;
+  originalConfig: AssistantConfig;
+  nextConfig: AssistantConfig;
   entry: PluginWebSearchProviderEntry;
   runtime: RuntimeEnv;
   prompter: WizardPrompter;
   opts?: SetupSearchOptions;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   let next = preserveDisabledState(params.originalConfig, params.nextConfig);
   if (!params.entry.runSetup) {
     return next;
@@ -329,18 +329,18 @@ async function finalizeSearchProviderSetup(params: {
 }
 
 export async function runSearchSetupFlow(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
   opts?: SetupSearchOptions,
-): Promise<ZhushouConfig> {
+): Promise<AssistantConfig> {
   const providerOptions = resolveSearchProviderOptions(config);
   if (providerOptions.length === 0) {
     await prompter.note(
       [
         "No web search providers are currently available under this plugin policy.",
         "Enable plugins or remove deny rules, then run setup again.",
-        "Docs: https://docs.zhushou.ai/tools/web",
+        "Docs: https://docs.assistant.ai/tools/web",
       ].join("\n"),
       "Web search",
     );
@@ -351,7 +351,7 @@ export async function runSearchSetupFlow(
     [
       "Web search lets your agent look things up online.",
       "Choose a provider. Some providers need an API key, and some work key-free.",
-      "Docs: https://docs.zhushou.ai/tools/web",
+      "Docs: https://docs.assistant.ai/tools/web",
     ].join("\n"),
     "Web search",
   );
@@ -386,7 +386,7 @@ export async function runSearchSetupFlow(
       {
         value: "__skip__" as const,
         label: "Skip for now",
-        hint: "Configure later with zhushou configure --section web",
+        hint: "Configure later with assistant configure --section web",
       },
     ],
     initialValue: defaultProvider,
@@ -426,7 +426,7 @@ export async function runSearchSetupFlow(
       [
         `${entry.label} works without an API key.`,
         "助手 will enable the plugin and use it as your web_search provider.",
-        `Docs: ${entry.docsUrl ?? "https://docs.zhushou.ai/tools/web"}`,
+        `Docs: ${entry.docsUrl ?? "https://docs.assistant.ai/tools/web"}`,
       ].join("\n"),
       "Web search",
     );
@@ -458,7 +458,7 @@ export async function runSearchSetupFlow(
         "Secret references enabled — 助手 will store a reference instead of the API key.",
         `Env var: ${ref.id}${envAvailable ? " (detected)" : ""}.`,
         ...(envAvailable ? [] : [`Set ${ref.id} in the Gateway environment.`]),
-        "Docs: https://docs.zhushou.ai/tools/web",
+        "Docs: https://docs.assistant.ai/tools/web",
       ].join("\n"),
       "Web search",
     );
@@ -520,7 +520,7 @@ export async function runSearchSetupFlow(
     [
       `No ${credentialLabel} stored — web_search won't work until a key is available.`,
       `Get your key at: ${entry.signupUrl}`,
-      "Docs: https://docs.zhushou.ai/tools/web",
+      "Docs: https://docs.assistant.ai/tools/web",
     ].join("\n"),
     "Web search",
   );

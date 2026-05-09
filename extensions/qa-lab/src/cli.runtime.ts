@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import {
   buildQaAgenticParityComparison,
   renderQaAgenticParityMarkdownReport,
@@ -657,16 +657,12 @@ export async function runQaCredentialsListCommand(opts: {
   }
 }
 
-export async function runQaLabUiCommand(opts: {
+export async function runQaLabApiCommand(opts: {
   repoRoot?: string;
   host?: string;
   port?: number;
   advertiseHost?: string;
   advertisePort?: number;
-  controlUiUrl?: string;
-  controlUiToken?: string;
-  controlUiProxyTarget?: string;
-  uiDistDir?: string;
   autoKickoffTarget?: string;
   embeddedGateway?: string;
   sendKickoffOnStart?: boolean;
@@ -678,15 +674,11 @@ export async function runQaLabUiCommand(opts: {
     port: Number.isFinite(opts.port) ? opts.port : undefined,
     advertiseHost: opts.advertiseHost,
     advertisePort: Number.isFinite(opts.advertisePort) ? opts.advertisePort : undefined,
-    controlUiUrl: opts.controlUiUrl,
-    controlUiToken: opts.controlUiToken,
-    controlUiProxyTarget: opts.controlUiProxyTarget,
-    uiDistDir: opts.uiDistDir,
     autoKickoffTarget: opts.autoKickoffTarget,
     embeddedGateway: opts.embeddedGateway,
     sendKickoffOnStart: opts.sendKickoffOnStart,
   });
-  await runInterruptibleServer("QA Lab UI", server);
+  await runInterruptibleServer("QA Lab API", server);
 }
 
 export async function runQaDockerScaffoldCommand(opts: {
@@ -732,8 +724,6 @@ export async function runQaDockerUpCommand(opts: {
   providerBaseUrl?: string;
   image?: string;
   usePrebuiltImage?: boolean;
-  bindUiDist?: boolean;
-  skipUiBuild?: boolean;
 }) {
   const repoRoot = path.resolve(opts.repoRoot ?? process.cwd());
   const result = await runQaDockerUp({
@@ -744,12 +734,10 @@ export async function runQaDockerUpCommand(opts: {
     providerBaseUrl: opts.providerBaseUrl,
     image: opts.image,
     usePrebuiltImage: opts.usePrebuiltImage,
-    bindUiDist: opts.bindUiDist,
-    skipUiBuild: opts.skipUiBuild,
   });
   process.stdout.write(`QA docker dir: ${result.outputDir}\n`);
-  process.stdout.write(`QA Lab UI: ${result.qaLabUrl}\n`);
-  process.stdout.write(`Gateway UI: ${result.gatewayUrl}\n`);
+  process.stdout.write(`QA Lab API: ${result.qaLabUrl}\n`);
+  process.stdout.write(`Gateway: ${result.gatewayUrl}\n`);
   process.stdout.write(`Stop: ${result.stopCommand}\n`);
 }
 

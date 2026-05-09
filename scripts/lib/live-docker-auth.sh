@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OPENCLAW_DOCKER_LIVE_AUTH_ALL=(.gemini .minimax)
-OPENCLAW_DOCKER_LIVE_AUTH_FILES_ALL=(
+ASSISTANT_DOCKER_LIVE_AUTH_ALL=(.gemini .minimax)
+ASSISTANT_DOCKER_LIVE_AUTH_FILES_ALL=(
   .codex/auth.json
   .codex/config.toml
   .claude.json
@@ -11,24 +11,24 @@ OPENCLAW_DOCKER_LIVE_AUTH_FILES_ALL=(
   .gemini/settings.json
 )
 
-openclaw_live_trim() {
+assistant_live_trim() {
   local value="${1:-}"
   value="${value#"${value%%[![:space:]]*}"}"
   value="${value%"${value##*[![:space:]]}"}"
   printf '%s' "$value"
 }
 
-openclaw_live_normalize_auth_dir() {
+assistant_live_normalize_auth_dir() {
   local value
-  value="$(openclaw_live_trim "${1:-}")"
+  value="$(assistant_live_trim "${1:-}")"
   [[ -n "$value" ]] || return 1
   value="${value#.}"
   printf '.%s' "$value"
 }
 
-openclaw_live_should_include_auth_dir_for_provider() {
+assistant_live_should_include_auth_dir_for_provider() {
   local provider
-  provider="$(openclaw_live_trim "${1:-}")"
+  provider="$(assistant_live_trim "${1:-}")"
   case "$provider" in
     gemini | gemini-cli | google-gemini-cli)
       printf '%s\n' ".gemini"
@@ -39,9 +39,9 @@ openclaw_live_should_include_auth_dir_for_provider() {
   esac
 }
 
-openclaw_live_should_include_auth_file_for_provider() {
+assistant_live_should_include_auth_file_for_provider() {
   local provider
-  provider="$(openclaw_live_trim "${1:-}")"
+  provider="$(assistant_live_trim "${1:-}")"
   case "$provider" in
     codex-cli | openai-codex)
       printf '%s\n' ".codex/auth.json"
@@ -56,25 +56,25 @@ openclaw_live_should_include_auth_file_for_provider() {
   esac
 }
 
-openclaw_live_collect_auth_dirs_from_csv() {
+assistant_live_collect_auth_dirs_from_csv() {
   local raw="${1:-}"
   local token normalized
-  [[ -n "$(openclaw_live_trim "$raw")" ]] || return 0
+  [[ -n "$(assistant_live_trim "$raw")" ]] || return 0
   IFS=',' read -r -a tokens <<<"$raw"
   for token in "${tokens[@]}"; do
     while IFS= read -r normalized; do
       printf '%s\n' "$normalized"
-    done < <(openclaw_live_should_include_auth_dir_for_provider "$token")
+    done < <(assistant_live_should_include_auth_dir_for_provider "$token")
   done | awk 'NF && !seen[$0]++'
 }
 
-openclaw_live_collect_auth_dirs_from_override() {
+assistant_live_collect_auth_dirs_from_override() {
   local raw token normalized
-  raw="$(openclaw_live_trim "${OPENCLAW_DOCKER_AUTH_DIRS:-}")"
+  raw="$(assistant_live_trim "${ASSISTANT_DOCKER_AUTH_DIRS:-}")"
   [[ -n "$raw" ]] || return 1
   case "$raw" in
     all)
-      printf '%s\n' "${OPENCLAW_DOCKER_LIVE_AUTH_ALL[@]}"
+      printf '%s\n' "${ASSISTANT_DOCKER_LIVE_AUTH_ALL[@]}"
       return 0
       ;;
     none)
@@ -83,38 +83,38 @@ openclaw_live_collect_auth_dirs_from_override() {
   esac
   IFS=',' read -r -a tokens <<<"$raw"
   for token in "${tokens[@]}"; do
-    normalized="$(openclaw_live_normalize_auth_dir "$token")" || continue
+    normalized="$(assistant_live_normalize_auth_dir "$token")" || continue
     printf '%s\n' "$normalized"
   done | awk '!seen[$0]++'
   return 0
 }
 
-openclaw_live_collect_auth_dirs() {
-  if openclaw_live_collect_auth_dirs_from_override; then
+assistant_live_collect_auth_dirs() {
+  if assistant_live_collect_auth_dirs_from_override; then
     return 0
   fi
-  printf '%s\n' "${OPENCLAW_DOCKER_LIVE_AUTH_ALL[@]}"
+  printf '%s\n' "${ASSISTANT_DOCKER_LIVE_AUTH_ALL[@]}"
 }
 
-openclaw_live_collect_auth_files_from_csv() {
+assistant_live_collect_auth_files_from_csv() {
   local raw="${1:-}"
   local token normalized
-  [[ -n "$(openclaw_live_trim "$raw")" ]] || return 0
+  [[ -n "$(assistant_live_trim "$raw")" ]] || return 0
   IFS=',' read -r -a tokens <<<"$raw"
   for token in "${tokens[@]}"; do
     while IFS= read -r normalized; do
       printf '%s\n' "$normalized"
-    done < <(openclaw_live_should_include_auth_file_for_provider "$token")
+    done < <(assistant_live_should_include_auth_file_for_provider "$token")
   done | awk 'NF && !seen[$0]++'
 }
 
-openclaw_live_collect_auth_files_from_override() {
+assistant_live_collect_auth_files_from_override() {
   local raw
-  raw="$(openclaw_live_trim "${OPENCLAW_DOCKER_AUTH_DIRS:-}")"
+  raw="$(assistant_live_trim "${ASSISTANT_DOCKER_AUTH_DIRS:-}")"
   [[ -n "$raw" ]] || return 1
   case "$raw" in
     all)
-      printf '%s\n' "${OPENCLAW_DOCKER_LIVE_AUTH_FILES_ALL[@]}"
+      printf '%s\n' "${ASSISTANT_DOCKER_LIVE_AUTH_FILES_ALL[@]}"
       return 0
       ;;
     none)
@@ -124,14 +124,14 @@ openclaw_live_collect_auth_files_from_override() {
   return 0
 }
 
-openclaw_live_collect_auth_files() {
-  if openclaw_live_collect_auth_files_from_override; then
+assistant_live_collect_auth_files() {
+  if assistant_live_collect_auth_files_from_override; then
     return 0
   fi
-  printf '%s\n' "${OPENCLAW_DOCKER_LIVE_AUTH_FILES_ALL[@]}"
+  printf '%s\n' "${ASSISTANT_DOCKER_LIVE_AUTH_FILES_ALL[@]}"
 }
 
-openclaw_live_join_csv() {
+assistant_live_join_csv() {
   local first=1 value
   for value in "$@"; do
     [[ -n "$value" ]] || continue

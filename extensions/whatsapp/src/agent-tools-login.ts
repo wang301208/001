@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import type { ChannelAgentTool } from "zhushou/plugin-sdk/channel-contract";
+import type { ChannelAgentTool } from "assistant/plugin-sdk/channel-contract";
 import { startWebLoginWithQr, waitForWebLogin } from "../login-qr-api.js";
 
 export function createWhatsAppLoginTool(): ChannelAgentTool {

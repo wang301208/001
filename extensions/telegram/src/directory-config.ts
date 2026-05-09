@@ -1,5 +1,5 @@
-import { mapAllowFromEntries } from "zhushou/plugin-sdk/channel-config-helpers";
-import { createInspectedDirectoryEntriesLister } from "zhushou/plugin-sdk/directory-runtime";
+import { mapAllowFromEntries } from "assistant/plugin-sdk/channel-config-helpers";
+import { createInspectedDirectoryEntriesLister } from "assistant/plugin-sdk/directory-runtime";
 import { inspectTelegramAccount, type InspectedTelegramAccount } from "./account-inspect.js";
 
 export const listTelegramDirectoryPeersFromConfig =

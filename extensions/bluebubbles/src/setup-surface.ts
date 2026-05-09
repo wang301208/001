@@ -6,9 +6,9 @@ import {
   formatDocsLink,
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/setup";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/setup";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { resolveBlueBubblesAccount, resolveDefaultBlueBubblesAccountId } from "./accounts.js";
 import { applyBlueBubblesConnectionConfig } from "./config-apply.js";
 import { hasConfiguredSecretInput, normalizeSecretInputString } from "./secret-input.js";
@@ -93,14 +93,14 @@ function validateBlueBubblesServerUrlInput(value: unknown): string | undefined {
 }
 
 function applyBlueBubblesSetupPatch(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   patch: {
     serverUrl?: string;
     password?: unknown;
     webhookPath?: string;
   },
-): ZhushouConfig {
+): AssistantConfig {
   return applyBlueBubblesConnectionConfig({
     cfg,
     accountId,

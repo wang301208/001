@@ -63,7 +63,7 @@ function createSglangConfig() {
 
 function createHomeEnv(suffix = "", overrides?: Partial<NodeJS.ProcessEnv>) {
   return {
-    ZHUSHOU_HOME: `/tmp/zhushou-home${suffix}`,
+    ASSISTANT_HOME: `/tmp/assistant-home${suffix}`,
     ...overrides,
   } as NodeJS.ProcessEnv;
 }

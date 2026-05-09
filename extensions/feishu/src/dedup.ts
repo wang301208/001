@@ -14,14 +14,14 @@ const processingClaims = createDedupeCache({
 });
 
 function resolveStateDirFromEnv(env: NodeJS.ProcessEnv = process.env): string {
-  const stateOverride = env.ZHUSHOU_STATE_DIR?.trim();
+  const stateOverride = env.ASSISTANT_STATE_DIR?.trim();
   if (stateOverride) {
     return stateOverride;
   }
   if (env.VITEST || env.NODE_ENV === "test") {
-    return path.join(os.tmpdir(), ["zhushou-vitest", String(process.pid)].join("-"));
+    return path.join(os.tmpdir(), ["assistant-vitest", String(process.pid)].join("-"));
   }
-  return path.join(os.homedir(), ".zhushou");
+  return path.join(os.homedir(), ".assistant");
 }
 
 function resolveNamespaceFilePath(namespace: string): string {

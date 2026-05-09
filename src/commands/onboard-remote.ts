@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { SecretInput } from "../config/types.secrets.js";
 import { isSecureWebSocketUrl } from "../gateway/net.js";
 import { discoverGatewayBeacons, type GatewayBonjourBeacon } from "../infra/bonjour-discovery.js";
@@ -34,22 +34,22 @@ function validateGatewayWebSocketUrl(value: string): string | undefined {
   }
   if (
     !isSecureWebSocketUrl(trimmed, {
-      allowPrivateWs: process.env.ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS === "1",
+      allowPrivateWs: process.env.ASSISTANT_ALLOW_INSECURE_PRIVATE_WS === "1",
     })
   ) {
     return (
       "Use wss:// for remote hosts, or ws://127.0.0.1/localhost via SSH tunnel. " +
-      "Break-glass: ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS=1 for trusted private networks."
+      "Break-glass: ASSISTANT_ALLOW_INSECURE_PRIVATE_WS=1 for trusted private networks."
     );
   }
   return undefined;
 }
 
 export async function promptRemoteGatewayConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   prompter: WizardPrompter,
   options?: { secretInputMode?: SecretInputMode },
-): Promise<ZhushouConfig> {
+): Promise<AssistantConfig> {
   let selectedBeacon: GatewayBonjourBeacon | null = null;
   let suggestedUrl = cfg.gateway?.remote?.url ?? DEFAULT_GATEWAY_URL;
   let discoveryTlsFingerprint: string | undefined;
@@ -67,7 +67,7 @@ export async function promptRemoteGatewayConfig(
     await prompter.note(
       [
         "Bonjour discovery requires dns-sd (macOS) or avahi-browse (Linux).",
-        "Docs: https://docs.zhushou.ai/gateway/discovery",
+        "Docs: https://docs.assistant.ai/gateway/discovery",
       ].join("\n"),
       "Discovery",
     );
@@ -142,7 +142,7 @@ export async function promptRemoteGatewayConfig(
           [
             "Start a tunnel before using the CLI:",
             `ssh -N -L 18789:127.0.0.1:18789 <user>@${host}${target.sshPort ? ` -p ${target.sshPort}` : ""}`,
-            "Docs: https://docs.zhushou.ai/gateway/remote",
+            "Docs: https://docs.assistant.ai/gateway/remote",
           ].join("\n"),
           "SSH tunnel",
         );
@@ -185,10 +185,10 @@ export async function promptRemoteGatewayConfig(
         provider: "gateway-remote-token",
         config: cfg,
         prompter,
-        preferredEnvVar: "ZHUSHOU_GATEWAY_TOKEN",
+        preferredEnvVar: "ASSISTANT_GATEWAY_TOKEN",
         copy: {
           sourceMessage: "Where is this gateway token stored?",
-          envVarPlaceholder: "ZHUSHOU_GATEWAY_TOKEN",
+          envVarPlaceholder: "ASSISTANT_GATEWAY_TOKEN",
         },
       });
       token = resolved.ref;
@@ -217,10 +217,10 @@ export async function promptRemoteGatewayConfig(
         provider: "gateway-remote-password",
         config: cfg,
         prompter,
-        preferredEnvVar: "ZHUSHOU_GATEWAY_PASSWORD",
+        preferredEnvVar: "ASSISTANT_GATEWAY_PASSWORD",
         copy: {
           sourceMessage: "Where is this gateway password stored?",
-          envVarPlaceholder: "ZHUSHOU_GATEWAY_PASSWORD",
+          envVarPlaceholder: "ASSISTANT_GATEWAY_PASSWORD",
         },
       });
       password = resolved.ref;

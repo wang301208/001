@@ -8,12 +8,12 @@ import {
   type ChannelSetupAdapter,
   type ChannelSetupInput,
   type ChannelSetupWizard,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/setup";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/setup";
 import {
   normalizeOptionalString,
   normalizeStringifiedOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { buildTlonAccountFields } from "./account-fields.js";
 import { normalizeShip } from "./targets.js";
 import { listTlonAccountIds, resolveTlonAccount, type TlonResolvedAccount } from "./types.js";
@@ -40,11 +40,11 @@ function isConfigured(account: TlonResolvedAccount): boolean {
 
 type TlonSetupWizardBaseParams = {
   resolveConfigured: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
   }) => boolean | Promise<boolean>;
   resolveStatusLines?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
     configured: boolean;
   }) => string[] | Promise<string[]>;
@@ -134,7 +134,7 @@ export function createTlonSetupWizardBase(params: TlonSetupWizardBaseParams): Ch
 }
 
 export async function resolveTlonSetupConfigured(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId?: string,
 ): Promise<boolean> {
   if (accountId) {
@@ -149,7 +149,7 @@ export async function resolveTlonSetupConfigured(
 }
 
 export async function resolveTlonSetupStatusLines(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId?: string,
 ): Promise<string[]> {
   const configured = await resolveTlonSetupConfigured(cfg, accountId);
@@ -158,10 +158,10 @@ export async function resolveTlonSetupStatusLines(
 }
 
 export function applyTlonSetupConfig(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   input: TlonSetupInput;
-}): ZhushouConfig {
+}): AssistantConfig {
   const { cfg, accountId, input } = params;
   const useDefault = accountId === DEFAULT_ACCOUNT_ID;
   const namedConfig = prepareScopedSetupConfig({

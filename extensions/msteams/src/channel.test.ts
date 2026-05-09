@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { msTeamsApprovalAuth } from "./approval-auth.js";
 import { msteamsPlugin } from "./channel.js";
 
-function createConfiguredMSTeamsCfg(): ZhushouConfig {
+function createConfiguredMSTeamsCfg(): AssistantConfig {
   return {
     channels: {
       msteams: {

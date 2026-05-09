@@ -2,7 +2,7 @@ import { buildModelAliasIndex, resolveModelRefFromString } from "../../agents/mo
 import { logConfigUpdated } from "../../config/logging.js";
 import { resolveAgentModelFallbackValues, toAgentModelListLike } from "../../config/model-input.js";
 import type { AgentModelEntryConfig } from "../../config/types.agent-defaults.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { type RuntimeEnv, writeRuntimeJson } from "../../runtime.js";
 import { loadModelsConfig } from "./load-config.js";
 import {
@@ -18,14 +18,14 @@ import {
 
 type DefaultsFallbackKey = "model" | "imageModel";
 
-function getFallbacks(cfg: ZhushouConfig, key: DefaultsFallbackKey): string[] {
+function getFallbacks(cfg: AssistantConfig, key: DefaultsFallbackKey): string[] {
   return resolveAgentModelFallbackValues(cfg.agents?.defaults?.[key]);
 }
 
 function patchDefaultsFallbacks(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params: { key: DefaultsFallbackKey; fallbacks: string[]; models?: Record<string, unknown> },
-): ZhushouConfig {
+): AssistantConfig {
   const existing = toAgentModelListLike(cfg.agents?.defaults?.[params.key]);
   return {
     ...cfg,

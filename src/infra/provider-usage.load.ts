@@ -1,4 +1,4 @@
-import { loadConfig, type ZhushouConfig } from "../config/config.js";
+import { loadConfig, type AssistantConfig } from "../config/config.js";
 import { resolveProviderUsageSnapshotWithPlugin } from "../plugins/provider-runtime.js";
 import { resolveFetch } from "./fetch.js";
 import { type ProviderAuth, resolveProviderAuths } from "./provider-usage.auth.js";
@@ -37,14 +37,14 @@ type UsageSummaryOptions = {
   auth?: ProviderAuth[];
   agentDir?: string;
   workspaceDir?: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   fetch?: typeof fetch;
 };
 
 async function fetchProviderUsageSnapshot(params: {
   auth: ProviderAuth;
-  config: ZhushouConfig;
+  config: AssistantConfig;
   env: NodeJS.ProcessEnv;
   agentDir?: string;
   workspaceDir?: string;

@@ -19,7 +19,7 @@ function createStore(profiles: AuthProfileStore["profiles"] = {}): AuthProfileSt
 async function withTempHome<T>(
   run: (params: { homeDir: string; workspaceDir: string }) => Promise<T> | T,
 ): Promise<T> {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-doctor-claude-cli-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-doctor-claude-cli-"));
   const homeDir = path.join(root, "home");
   const workspaceDir = path.join(root, "workspace");
   fs.mkdirSync(homeDir, { recursive: true });
@@ -35,11 +35,11 @@ describe("resolveClaudeCliProjectDirForWorkspace", () => {
   it("matches Claude's sanitized workspace project dir shape", () => {
     expect(
       resolveClaudeCliProjectDirForWorkspace({
-        workspaceDir: "/Users/vincentkoc/GIT/_Perso/zhushou/.zhushou/workspace",
+        workspaceDir: "/Users/vincentkoc/GIT/_Perso/assistant/.assistant/workspace",
         homeDir: "/Users/vincentkoc",
       }),
     ).toBe(
-      "/Users/vincentkoc/.claude/projects/-Users-vincentkoc-GIT--Perso-zhushou--zhushou-workspace",
+      "/Users/vincentkoc/.claude/projects/-Users-vincentkoc-GIT--Perso-assistant--assistant-workspace",
     );
   });
 });
@@ -140,7 +140,7 @@ describe("noteClaudeCliHealth", () => {
       expect(body).toContain("Headless Claude auth: OK (oauth).");
       expect(body).toContain(`助手 auth profile: missing (${CLAUDE_CLI_PROFILE_ID})`);
       expect(body).toContain(
-        "zhushou models auth login --provider anthropic --method cli --set-default",
+        "assistant models auth login --provider anthropic --method cli --set-default",
       );
       expect(body).toContain(
         "not created yet; it appears after the first Claude CLI turn in this workspace",

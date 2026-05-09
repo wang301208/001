@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/mattermost",
+  "name": "@assistant/mattermost",
   "version": "2026.4.16",
   "description": "助手 Mattermost channel plugin",
   "type": "module",
@@ -8,18 +8,18 @@
     "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
-    "zhushou": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*",
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
@@ -34,7 +34,7 @@
       "order": 65
     },
     "install": {
-      "npmSpec": "@zhushou/mattermost",
+      "npmSpec": "@assistant/mattermost",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

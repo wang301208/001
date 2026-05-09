@@ -16,7 +16,6 @@ import { installPackageDir } from "../infra/install-package-dir.js";
 import { resolveSafeInstallDir } from "../infra/install-safe-path.js";
 
 const DOT_DIR = ".clawhub";
-const LEGACY_DOT_DIR = ".clawdhub";
 const SKILL_ORIGIN_RELATIVE_PATH = path.join(DOT_DIR, "origin.json");
 
 export type ClawHubSkillOrigin = {
@@ -144,10 +143,7 @@ async function ensureSkillRoot(rootDir: string): Promise<void> {
 export async function readClawHubSkillsLockfile(
   workspaceDir: string,
 ): Promise<ClawHubSkillsLockfile> {
-  const candidates = [
-    path.join(workspaceDir, DOT_DIR, "lock.json"),
-    path.join(workspaceDir, LEGACY_DOT_DIR, "lock.json"),
-  ];
+  const candidates = [path.join(workspaceDir, DOT_DIR, "lock.json")];
   for (const candidate of candidates) {
     try {
       const raw = JSON.parse(
@@ -176,10 +172,7 @@ export async function writeClawHubSkillsLockfile(
 }
 
 export async function readClawHubSkillOrigin(skillDir: string): Promise<ClawHubSkillOrigin | null> {
-  const candidates = [
-    path.join(skillDir, DOT_DIR, "origin.json"),
-    path.join(skillDir, LEGACY_DOT_DIR, "origin.json"),
-  ];
+  const candidates = [path.join(skillDir, DOT_DIR, "origin.json")];
   for (const candidate of candidates) {
     try {
       const raw = JSON.parse(await fs.readFile(candidate, "utf8")) as Partial<ClawHubSkillOrigin>;
@@ -293,7 +286,7 @@ async function performClawHubSkillInstall(
     try {
       const install = await withExtractedArchiveRoot({
         archivePath: archive.archivePath,
-        tempDirPrefix: "zhushou-skill-clawhub-",
+        tempDirPrefix: "assistant-skill-clawhub-",
         timeoutMs: 120_000,
         rootMarkers: ["SKILL.md"],
         onExtracted: async (rootDir) =>

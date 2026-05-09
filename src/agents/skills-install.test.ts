@@ -34,7 +34,7 @@ async function writeInstallableSkill(workspaceDir: string, name: string): Promis
     `---
 name: ${name}
 description: test skill
-metadata: {"zhushou":{"install":[{"id":"deps","kind":"node","package":"example-package"}]}}
+metadata: {"assistant":{"install":[{"id":"deps","kind":"node","package":"example-package"}]}}
 ---
 
 # ${name}
@@ -45,11 +45,11 @@ metadata: {"zhushou":{"install":[{"id":"deps","kind":"node","package":"example-p
   return skillDir;
 }
 
-const workspaceSuite = createFixtureSuite("zhushou-skills-install-");
+const workspaceSuite = createFixtureSuite("assistant-skills-install-");
 let tempHome: TempHomeEnv;
 
 beforeAll(async () => {
-  tempHome = await createTempHomeEnv("zhushou-skills-install-home-");
+  tempHome = await createTempHomeEnv("assistant-skills-install-home-");
   await workspaceSuite.setup();
 });
 
@@ -206,7 +206,7 @@ describe("installSkill code safety scanning", () => {
       expect(handler.mock.calls[0]?.[0]).toMatchObject({
         targetName: "policy-skill",
         targetType: "skill",
-        origin: "zhushou-workspace",
+        origin: "assistant-workspace",
         sourcePath: expect.stringContaining("policy-skill"),
         sourcePathKind: "directory",
         request: {
@@ -226,7 +226,7 @@ describe("installSkill code safety scanning", () => {
         },
       });
       expect(handler.mock.calls[0]?.[1]).toEqual({
-        origin: "zhushou-workspace",
+        origin: "assistant-workspace",
         targetType: "skill",
         requestKind: "skill-install",
       });

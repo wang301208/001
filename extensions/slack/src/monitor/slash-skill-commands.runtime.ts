@@ -1,7 +1,7 @@
-import { listSkillCommandsForAgents as listSkillCommandsForAgentsImpl } from "zhushou/plugin-sdk/command-auth";
+import { listSkillCommandsForAgents as listSkillCommandsForAgentsImpl } from "assistant/plugin-sdk/command-auth";
 
 type ListSkillCommandsForAgents =
-  typeof import("zhushou/plugin-sdk/command-auth").listSkillCommandsForAgents;
+  typeof import("assistant/plugin-sdk/command-auth").listSkillCommandsForAgents;
 
 export function listSkillCommandsForAgents(
   ...args: Parameters<ListSkillCommandsForAgents>

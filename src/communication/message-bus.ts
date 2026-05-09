@@ -357,11 +357,11 @@ export class MessageBus {
    * 添加到历史记录
    */
   private addToHistory(event: BusEvent): void {
-    this.history.push(event);
+    this.history.unshift(event);
     
     // 限制历史记录大小
     if (this.history.length > this.options.maxHistorySize) {
-      this.history = this.history.slice(-this.options.maxHistorySize);
+      this.history = this.history.slice(0, this.options.maxHistorySize);
     }
   }
   

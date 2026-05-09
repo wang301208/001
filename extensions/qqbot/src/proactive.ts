@@ -5,8 +5,8 @@
  * Known-user storage is delegated to `./known-users.ts`.
  */
 
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import {
   getAccessToken,
   sendC2CImageMessage,
@@ -96,7 +96,7 @@ export function clearKnownUsers(accountId?: string): number {
 /** Resolve account config and send a proactive message. */
 export async function sendProactive(
   options: ProactiveSendOptions,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
 ): Promise<ProactiveSendResult> {
   const {
     to,
@@ -179,7 +179,7 @@ export async function sendBulkProactiveMessage(
   recipients: string[],
   text: string,
   type: "c2c" | "group",
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId = resolveDefaultQQBotAccountId(cfg),
 ): Promise<Array<{ to: string; result: ProactiveSendResult }>> {
   const results: Array<{ to: string; result: ProactiveSendResult }> = [];
@@ -205,7 +205,7 @@ export async function sendBulkProactiveMessage(
  */
 export async function broadcastMessage(
   text: string,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   options?: {
     type?: "c2c" | "group";
     accountId?: string;

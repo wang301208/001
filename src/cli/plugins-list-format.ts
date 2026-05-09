@@ -19,7 +19,7 @@ export function formatPluginLine(plugin: PluginRecord, verbose = false): string 
           : plugin.description,
       )
     : theme.muted("(no description)");
-  const format = plugin.format ?? "zhushou";
+  const format = plugin.format ?? "assistant";
 
   if (!verbose) {
     return `${name}${idSuffix} ${status} ${theme.muted(`[${format}]`)} - ${desc}`;

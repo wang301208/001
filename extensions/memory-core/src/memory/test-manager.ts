@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
+import type { AssistantConfig } from "assistant/plugin-sdk/memory-core-host-engine-foundation";
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
 export async function createMemoryManagerOrThrow(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId = "main",
 ): Promise<MemoryIndexManager> {
   const result = await getMemorySearchManager({ cfg, agentId });

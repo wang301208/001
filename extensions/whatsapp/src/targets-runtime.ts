@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeE164 } from "zhushou/plugin-sdk/account-resolution";
-import { logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { escapeRegExp } from "zhushou/plugin-sdk/text-runtime";
-import { CONFIG_DIR, resolveUserPath } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeE164 } from "assistant/plugin-sdk/account-resolution";
+import { logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
+import { escapeRegExp } from "assistant/plugin-sdk/text-runtime";
+import { CONFIG_DIR, resolveUserPath } from "assistant/plugin-sdk/text-runtime";
 
 const WHATSAPP_FENCE_PLACEHOLDER = "\x00FENCE";
 const WHATSAPP_INLINE_CODE_PLACEHOLDER = "\x00CODE";

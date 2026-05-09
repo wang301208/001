@@ -1,10 +1,10 @@
 import type {
   ProviderResolveDynamicModelContext,
   ProviderRuntimeModel,
-} from "zhushou/plugin-sdk/plugin-entry";
-import { normalizeModelCompat } from "zhushou/plugin-sdk/provider-model-shared";
-import { applyXaiModelCompat } from "zhushou/plugin-sdk/provider-tools";
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/plugin-entry";
+import { normalizeModelCompat } from "assistant/plugin-sdk/provider-model-shared";
+import { applyXaiModelCompat } from "assistant/plugin-sdk/provider-tools";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
 import { resolveXaiCatalogEntry, XAI_BASE_URL } from "./model-definitions.js";
 
 const XAI_MODERN_MODEL_PREFIXES = ["grok-3", "grok-4", "grok-code-fast"] as const;

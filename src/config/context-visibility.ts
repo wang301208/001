@@ -1,6 +1,6 @@
 import { resolveAccountEntry } from "../routing/account-lookup.js";
 import { normalizeAccountId } from "../routing/session-key.js";
-import type { ZhushouConfig } from "./config.js";
+import type { AssistantConfig } from "./config.js";
 import type { ContextVisibilityMode } from "./types.base.js";
 
 type ChannelContextVisibilityConfig = {
@@ -23,7 +23,7 @@ export function resolveDefaultContextVisibility(
 }
 
 export function resolveChannelContextVisibilityMode(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId?: string | null;
   configuredContextVisibility?: ContextVisibilityMode;

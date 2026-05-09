@@ -39,9 +39,9 @@ const prepareDeps = {
   getActiveMcpLoopbackRuntime,
   ensureMcpLoopbackServer,
   createMcpLoopbackServerConfig,
-  resolveOpenClawDocsPath: async (
-    params: Parameters<typeof import("../docs-path.js").resolveOpenClawDocsPath>[0],
-  ) => (await import("../docs-path.js")).resolveOpenClawDocsPath(params),
+  resolveAssistantDocsPath: async (
+    params: Parameters<typeof import("../docs-path.js").resolveAssistantDocsPath>[0],
+  ) => (await import("../docs-path.js")).resolveAssistantDocsPath(params),
 };
 
 export function setCliRunnerPrepareTestDeps(overrides: Partial<typeof prepareDeps>): void {
@@ -139,12 +139,12 @@ export async function prepareCliRunContext(
       : undefined,
     env: mcpLoopbackRuntime
       ? {
-          OPENCLAW_MCP_TOKEN: mcpLoopbackRuntime.token,
-          OPENCLAW_MCP_AGENT_ID: sessionAgentId ?? "",
-          OPENCLAW_MCP_ACCOUNT_ID: params.agentAccountId ?? "",
-          OPENCLAW_MCP_SESSION_KEY: params.sessionKey ?? "",
-          OPENCLAW_MCP_MESSAGE_CHANNEL: params.messageProvider ?? "",
-          OPENCLAW_MCP_SENDER_IS_OWNER: params.senderIsOwner === true ? "true" : "false",
+          ASSISTANT_MCP_TOKEN: mcpLoopbackRuntime.token,
+          ASSISTANT_MCP_AGENT_ID: sessionAgentId ?? "",
+          ASSISTANT_MCP_ACCOUNT_ID: params.agentAccountId ?? "",
+          ASSISTANT_MCP_SESSION_KEY: params.sessionKey ?? "",
+          ASSISTANT_MCP_MESSAGE_CHANNEL: params.messageProvider ?? "",
+          ASSISTANT_MCP_SENDER_IS_OWNER: params.senderIsOwner === true ? "true" : "false",
         }
       : undefined,
     warn: (message) => cliBackendLog.warn(message),
@@ -170,7 +170,7 @@ export async function prepareCliRunContext(
     agentId: sessionAgentId,
     defaultAgentId,
   });
-  const docsPath = await prepareDeps.resolveOpenClawDocsPath({
+  const docsPath = await prepareDeps.resolveAssistantDocsPath({
     workspaceDir,
     argv1: process.argv[1],
     cwd: process.cwd(),

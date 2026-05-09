@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { CronJob } from "../types.js";
 import {
   DEFAULT_MODEL,
@@ -17,8 +17,8 @@ type CronSessionModelOverrides = {
 };
 
 export type ResolveCronModelSelectionParams = {
-  cfg: ZhushouConfig;
-  cfgWithAgentDefaults: ZhushouConfig;
+  cfg: AssistantConfig;
+  cfgWithAgentDefaults: AssistantConfig;
   agentConfigOverride?: {
     model?: unknown;
     subagents?: {

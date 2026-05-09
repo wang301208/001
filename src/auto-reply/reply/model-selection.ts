@@ -16,7 +16,7 @@ import {
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
 import type { SessionEntry } from "../../config/sessions/types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import type { ThinkLevel } from "./directives.js";
@@ -44,7 +44,7 @@ type ModelSelectionState = {
 };
 
 export function createFastTestModelSelectionState(params: {
-  agentCfg: NonNullable<NonNullable<ZhushouConfig["agents"]>["defaults"]> | undefined;
+  agentCfg: NonNullable<NonNullable<AssistantConfig["agents"]>["defaults"]> | undefined;
   provider: string;
   model: string;
 }): ModelSelectionState {
@@ -61,7 +61,7 @@ export function createFastTestModelSelectionState(params: {
 }
 
 function shouldLogModelSelectionTiming(): boolean {
-  return process.env.OPENCLAW_DEBUG_INGRESS_TIMING === "1";
+  return process.env.ASSISTANT_DEBUG_INGRESS_TIMING === "1";
 }
 
 let modelCatalogRuntimePromise:
@@ -253,9 +253,9 @@ function scoreFuzzyMatch(params: {
 }
 
 export async function createModelSelectionState(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId?: string;
-  agentCfg: NonNullable<NonNullable<ZhushouConfig["agents"]>["defaults"]> | undefined;
+  agentCfg: NonNullable<NonNullable<AssistantConfig["agents"]>["defaults"]> | undefined;
   sessionEntry?: SessionEntry;
   sessionStore?: Record<string, SessionEntry>;
   sessionKey?: string;
@@ -638,8 +638,8 @@ export function resolveModelDirectiveSelection(params: {
 }
 
 export function resolveContextTokens(params: {
-  cfg: ZhushouConfig;
-  agentCfg: NonNullable<NonNullable<ZhushouConfig["agents"]>["defaults"]> | undefined;
+  cfg: AssistantConfig;
+  agentCfg: NonNullable<NonNullable<AssistantConfig["agents"]>["defaults"]> | undefined;
   provider: string;
   model: string;
 }): number {

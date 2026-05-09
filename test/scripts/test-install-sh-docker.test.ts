@@ -18,7 +18,7 @@ describe("test-install-sh-docker", () => {
     const script = readFileSync(SCRIPT_PATH, "utf8");
 
     expect(script).toContain(
-      'UPDATE_EXPECT_VERSION="${OPENCLAW_INSTALL_SMOKE_UPDATE_EXPECT_VERSION:-}"',
+      'UPDATE_EXPECT_VERSION="${ASSISTANT_INSTALL_SMOKE_UPDATE_EXPECT_VERSION:-}"',
     );
     expect(script).toContain('if [[ -z "$UPDATE_EXPECT_VERSION" ]]; then');
     expect(script).toContain('UPDATE_EXPECT_VERSION="$packed_update_version"');
@@ -30,7 +30,7 @@ describe("test-install-sh-docker", () => {
   it("can reuse dist from the already-built root Docker smoke image", () => {
     const script = readFileSync(SCRIPT_PATH, "utf8");
 
-    expect(script).toContain('UPDATE_DIST_IMAGE="${OPENCLAW_INSTALL_SMOKE_UPDATE_DIST_IMAGE:-}"');
+    expect(script).toContain('UPDATE_DIST_IMAGE="${ASSISTANT_INSTALL_SMOKE_UPDATE_DIST_IMAGE:-}"');
     expect(script).toContain("restore_local_dist_from_image");
     expect(script).toContain('docker cp "${container_id}:/app/dist" "$ROOT_DIR/dist"');
     expect(script).toContain('echo "==> Reuse local dist/ from Docker image: $image"');
@@ -67,10 +67,10 @@ describe("install-sh smoke runner", () => {
     const script = readFileSync(SMOKE_RUNNER_PATH, "utf8");
 
     expect(script).toContain(
-      'HEARTBEAT_INTERVAL="${OPENCLAW_INSTALL_SMOKE_HEARTBEAT_INTERVAL:-60}"',
+      'HEARTBEAT_INTERVAL="${ASSISTANT_INSTALL_SMOKE_HEARTBEAT_INTERVAL:-60}"',
     );
     expect(script).toContain(
-      'INSTALL_COMMAND_TIMEOUT="${OPENCLAW_INSTALL_SMOKE_COMMAND_TIMEOUT:-300}"',
+      'INSTALL_COMMAND_TIMEOUT="${ASSISTANT_INSTALL_SMOKE_COMMAND_TIMEOUT:-300}"',
     );
     expect(script).toContain("run_with_heartbeat");
     expect(script).toContain("npm_install_global");
@@ -78,16 +78,16 @@ describe("install-sh smoke runner", () => {
     expect(script).toContain("==> Still running");
     expect(script).toContain("print_install_audit");
     expect(script).toContain('install -g "$@"');
-    expect(script).toContain("zhushou update --tag");
+    expect(script).toContain("assistant update --tag");
   });
 
   it("covers plain npm global installs and npm-driven updates", () => {
     const script = readFileSync(SCRIPT_PATH, "utf8");
     const runner = readFileSync(SMOKE_RUNNER_PATH, "utf8");
 
-    expect(script).toContain('SKIP_NPM_GLOBAL="${OPENCLAW_INSTALL_SMOKE_SKIP_NPM_GLOBAL:-0}"');
+    expect(script).toContain('SKIP_NPM_GLOBAL="${ASSISTANT_INSTALL_SMOKE_SKIP_NPM_GLOBAL:-0}"');
     expect(script).toContain("==> Run direct npm global smoke");
-    expect(script).toContain("OPENCLAW_INSTALL_SMOKE_MODE=npm-global");
+    expect(script).toContain("ASSISTANT_INSTALL_SMOKE_MODE=npm-global");
     expect(runner).toContain("run_npm_global_smoke");
     expect(runner).toContain("==> Direct npm global install candidate");
     expect(runner).toContain("==> Direct npm global update candidate");

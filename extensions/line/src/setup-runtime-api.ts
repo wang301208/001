@@ -3,7 +3,7 @@ export {
   formatDocsLink,
   setSetupChannelEnabled,
   splitSetupEntries,
-} from "zhushou/plugin-sdk/setup";
-export type { ChannelSetupDmPolicy, ChannelSetupWizard } from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
+export type { ChannelSetupDmPolicy, ChannelSetupWizard } from "assistant/plugin-sdk/setup";
 export { listLineAccountIds, normalizeAccountId, resolveLineAccount } from "./accounts.js";
 export type { LineConfig } from "./types.js";

@@ -101,10 +101,10 @@ export async function spawnGatewayInstance(name: string): Promise<GatewayInstanc
   const port = await getFreePort();
   const hookToken = `token-${name}-${randomUUID()}`;
   const gatewayToken = `gateway-${name}-${randomUUID()}`;
-  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), `zhushou-e2e-${name}-`));
-  const configDir = path.join(homeDir, ".zhushou");
+  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), `assistant-e2e-${name}-`));
+  const configDir = path.join(homeDir, ".assistant");
   await fs.mkdir(configDir, { recursive: true });
-  const configPath = path.join(configDir, "zhushou.json");
+  const configPath = path.join(configDir, "assistant.json");
   const stateDir = path.join(configDir, "state");
   const config = {
     gateway: {
@@ -137,17 +137,17 @@ export async function spawnGatewayInstance(name: string): Promise<GatewayInstanc
         env: {
           ...process.env,
           HOME: homeDir,
-          ZHUSHOU_CONFIG_PATH: configPath,
-          ZHUSHOU_STATE_DIR: stateDir,
-          ZHUSHOU_GATEWAY_TOKEN: "",
-          ZHUSHOU_GATEWAY_PASSWORD: "",
-          ZHUSHOU_SKIP_CHANNELS: "1",
-          OPENCLAW_SKIP_PROVIDERS: "1",
-          OPENCLAW_SKIP_GMAIL_WATCHER: "1",
-          OPENCLAW_SKIP_CRON: "1",
-          OPENCLAW_SKIP_BROWSER_CONTROL_SERVER: "1",
-          OPENCLAW_SKIP_CANVAS_HOST: "1",
-          OPENCLAW_TEST_MINIMAL_GATEWAY: "1",
+          ASSISTANT_CONFIG_PATH: configPath,
+          ASSISTANT_STATE_DIR: stateDir,
+          ASSISTANT_GATEWAY_TOKEN: "",
+          ASSISTANT_GATEWAY_PASSWORD: "",
+          ASSISTANT_SKIP_CHANNELS: "1",
+          ASSISTANT_SKIP_PROVIDERS: "1",
+          ASSISTANT_SKIP_GMAIL_WATCHER: "1",
+          ASSISTANT_SKIP_CRON: "1",
+          ASSISTANT_SKIP_BROWSER_CONTROL_SERVER: "1",
+          ASSISTANT_SKIP_CANVAS_HOST: "1",
+          ASSISTANT_TEST_MINIMAL_GATEWAY: "1",
           VITEST: "1",
         },
         stdio: ["ignore", "pipe", "pipe"],

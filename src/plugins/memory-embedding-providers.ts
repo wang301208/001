@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { SecretInput } from "../config/types.secrets.js";
 import type { EmbeddingInput } from "../memory-host-sdk/host/embedding-inputs.js";
 
@@ -33,7 +33,7 @@ export type MemoryEmbeddingProvider = {
 };
 
 export type MemoryEmbeddingProviderCreateOptions = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   agentDir?: string;
   provider?: string;
   fallback?: string;
@@ -83,7 +83,7 @@ export type RegisteredMemoryEmbeddingProvider = {
   ownerPluginId?: string;
 };
 
-const MEMORY_EMBEDDING_PROVIDERS_KEY = Symbol.for("zhushou.memoryEmbeddingProviders");
+const MEMORY_EMBEDDING_PROVIDERS_KEY = Symbol.for("assistant.memoryEmbeddingProviders");
 
 function getMemoryEmbeddingProviders(): Map<string, RegisteredMemoryEmbeddingProvider> {
   const globalStore = globalThis as Record<PropertyKey, unknown>;

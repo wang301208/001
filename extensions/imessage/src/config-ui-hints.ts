@@ -1,4 +1,4 @@
-import type { ChannelConfigUiHint } from "zhushou/plugin-sdk/core";
+import type { ChannelConfigUiHint } from "assistant/plugin-sdk/core";
 
 export const iMessageChannelConfigUiHints = {
   "": {

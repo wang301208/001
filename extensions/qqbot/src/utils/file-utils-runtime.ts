@@ -1,1 +1,1 @@
-export { fetchRemoteMedia } from "zhushou/plugin-sdk/media-runtime";
+export { fetchRemoteMedia } from "assistant/plugin-sdk/media-runtime";

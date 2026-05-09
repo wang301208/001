@@ -2,7 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   createConfigIO: vi.fn().mockReturnValue({
-    configPath: "/tmp/zhushou-dev/zhushou.json",
+    configPath: "/tmp/assistant-dev/assistant.json",
   }),
 }));
 
@@ -23,12 +23,12 @@ beforeEach(() => {
 
 describe("config logging", () => {
   it("formats the live config path when no explicit path is provided", () => {
-    expect(formatConfigPath()).toBe("/tmp/zhushou-dev/zhushou.json");
+    expect(formatConfigPath()).toBe("/tmp/assistant-dev/assistant.json");
   });
 
   it("logs the live config path when no explicit path is provided", () => {
     const runtime = { log: vi.fn() };
     logConfigUpdated(runtime as never);
-    expect(runtime.log).toHaveBeenCalledWith("Updated /tmp/zhushou-dev/zhushou.json");
+    expect(runtime.log).toHaveBeenCalledWith("Updated /tmp/assistant-dev/assistant.json");
   });
 });

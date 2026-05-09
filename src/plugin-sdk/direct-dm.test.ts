@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   createDirectDmPreCryptoGuardPolicy,
   createPreCryptoDirectDmAuthorizer,
@@ -9,7 +9,7 @@ import {
 
 const baseCfg = {
   commands: { useAccessGroups: true },
-} as unknown as ZhushouConfig;
+} as unknown as AssistantConfig;
 
 function createDirectDmRuntime() {
   const recordInboundSession = vi.fn(async () => {});

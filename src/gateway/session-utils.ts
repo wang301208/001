@@ -37,7 +37,7 @@ import {
   type SessionStoreTarget,
   type SessionScope,
 } from "../config/sessions.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
 import { isCronRunSessionKey } from "../sessions/session-key-utils.js";
@@ -77,7 +77,7 @@ import type {
 export {
   archiveFileOnDisk,
   archiveSessionTranscripts,
-  attachOpenClawTranscriptMeta,
+  attachAssistantTranscriptMeta,
   capArrayByJsonBytes,
   readFirstUserMessageFromTranscript,
   readLastMessagePreviewFromTranscript,
@@ -109,7 +109,7 @@ function tryResolveExistingPath(value: string): string | null {
 }
 
 function resolveIdentityAvatarUrl(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId: string,
   avatar: string | undefined,
 ): string | undefined {
@@ -234,7 +234,7 @@ function resolveLatestCompactionCheckpoint(
 }
 
 function resolveEstimatedSessionCostUsd(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   provider?: string;
   model?: string;
   entry?: Pick<
@@ -325,7 +325,7 @@ function resolveChildSessionKeys(
 }
 
 function resolveTranscriptUsageFallback(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   key: string;
   entry?: SessionEntry;
   storePath: string;
@@ -510,7 +510,7 @@ export function pruneLegacyStoreKeys(params: {
 }
 
 export function migrateAndPruneGatewaySessionStoreKey(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   key: string;
   store: Record<string, SessionEntry>;
 }) {
@@ -593,7 +593,7 @@ function normalizeFallbackList(values: readonly string[]): string[] {
 }
 
 function resolveGatewayAgentModel(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId: string,
 ): GatewayAgentRow["model"] | undefined {
   const primary = resolveAgentEffectiveModelPrimary(cfg, agentId)?.trim();
@@ -609,7 +609,7 @@ function resolveGatewayAgentModel(
   };
 }
 
-export function listAgentsForGateway(cfg: ZhushouConfig): {
+export function listAgentsForGateway(cfg: AssistantConfig): {
   defaultId: string;
   mainKey: string;
   scope: SessionScope;
@@ -657,7 +657,7 @@ export function listAgentsForGateway(cfg: ZhushouConfig): {
 }
 
 function buildGatewaySessionStoreScanTargets(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   key: string;
   canonicalKey: string;
   agentId: string;
@@ -680,7 +680,7 @@ function buildGatewaySessionStoreScanTargets(params: {
 }
 
 function resolveGatewaySessionStoreCandidates(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId: string,
 ): SessionStoreTarget[] {
   const storeConfig = cfg.session?.store;
@@ -702,7 +702,7 @@ function resolveGatewaySessionStoreCandidates(
 }
 
 function resolveGatewaySessionStoreLookup(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   key: string;
   canonicalKey: string;
   agentId: string;
@@ -752,7 +752,7 @@ function resolveGatewaySessionStoreLookup(params: {
 }
 
 export function resolveGatewaySessionStoreTarget(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   key: string;
   scanLegacyKeys?: boolean;
   store?: Record<string, SessionEntry>;
@@ -811,7 +811,7 @@ export function resolveGatewaySessionStoreTarget(params: {
 
 // Merge with existing entry based on latest timestamp to ensure data consistency and avoid overwriting with less complete data.
 function mergeSessionEntryIntoCombined(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   combined: Record<string, SessionEntry>;
   entry: SessionEntry;
   agentId: string;
@@ -839,7 +839,7 @@ function mergeSessionEntryIntoCombined(params: {
   }
 }
 
-export function loadCombinedSessionStoreForGateway(cfg: ZhushouConfig): {
+export function loadCombinedSessionStoreForGateway(cfg: AssistantConfig): {
   storePath: string;
   store: Record<string, SessionEntry>;
 } {
@@ -885,7 +885,7 @@ export function loadCombinedSessionStoreForGateway(cfg: ZhushouConfig): {
   return { storePath, store: combined };
 }
 
-export function getSessionDefaults(cfg: ZhushouConfig): GatewaySessionsDefaults {
+export function getSessionDefaults(cfg: AssistantConfig): GatewaySessionsDefaults {
   const resolved = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,
@@ -903,7 +903,7 @@ export function getSessionDefaults(cfg: ZhushouConfig): GatewaySessionsDefaults 
 }
 
 export function resolveSessionModelRef(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   entry?:
     | SessionEntry
     | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
@@ -1007,7 +1007,7 @@ export async function resolveGatewayModelSupportsImages(params: {
 }
 
 export function resolveSessionModelIdentityRef(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   entry?:
     | SessionEntry
     | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
@@ -1056,7 +1056,7 @@ export function resolveSessionModelIdentityRef(
 }
 
 export function buildGatewaySessionRow(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   storePath: string;
   store: Record<string, SessionEntry>;
   key: string;
@@ -1273,7 +1273,7 @@ export function loadGatewaySessionRow(
 }
 
 export function listSessionsFromStore(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   storePath: string;
   store: Record<string, SessionEntry>;
   opts: import("./protocol/index.js").SessionsListParams;

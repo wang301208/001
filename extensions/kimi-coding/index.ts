@@ -1,8 +1,8 @@
-import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
-import { normalizeProviderId } from "zhushou/plugin-sdk/provider-model-shared";
-import type { SecretInput } from "zhushou/plugin-sdk/secret-input";
-import { isRecord, normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
+import { normalizeProviderId } from "assistant/plugin-sdk/provider-model-shared";
+import type { SecretInput } from "assistant/plugin-sdk/secret-input";
+import { isRecord, normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { applyKimiCodeConfig, KIMI_CODING_MODEL_REF } from "./onboard.js";
 import { buildKimiCodingProvider } from "./provider-catalog.js";
 import { KIMI_REPLAY_POLICY } from "./replay-policy.js";

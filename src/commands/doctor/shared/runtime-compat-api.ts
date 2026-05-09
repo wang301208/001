@@ -1,5 +1,5 @@
 import { isDeepStrictEqual } from "node:util";
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import { applyLegacyDoctorMigrations } from "./legacy-config-compat.js";
 import { normalizeRuntimeCompatibilityConfigValues } from "./legacy-config-runtime-migrate.js";
 
@@ -13,9 +13,9 @@ export function applyRuntimeLegacyConfigMigrations(raw: unknown): {
 
   const original = raw as Record<string, unknown>;
   const migrated = applyLegacyDoctorMigrations(original);
-  const base = (migrated.next ?? original) as ZhushouConfig;
+  const base = (migrated.next ?? original) as AssistantConfig;
   const normalized = normalizeRuntimeCompatibilityConfigValues(base);
-  const next = normalized.config as ZhushouConfig & Record<string, unknown>;
+  const next = normalized.config as AssistantConfig & Record<string, unknown>;
   const changes = [...migrated.changes, ...normalized.changes];
 
   if (changes.length === 0 || isDeepStrictEqual(next, original)) {

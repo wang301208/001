@@ -1,8 +1,8 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 
 const probeBlueBubblesMock = vi.hoisted(() => vi.fn());
-const cfg: ZhushouConfig = {};
+const cfg: AssistantConfig = {};
 
 vi.mock("./channel.runtime.js", () => ({
   blueBubblesChannelRuntime: {

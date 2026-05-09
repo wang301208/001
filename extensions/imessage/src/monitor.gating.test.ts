@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import {
   buildIMessageInboundContext,
@@ -7,7 +7,7 @@ import {
 import { parseIMessageNotification } from "./monitor/parse-notification.js";
 import type { IMessagePayload } from "./monitor/types.js";
 
-function baseCfg(): ZhushouConfig {
+function baseCfg(): AssistantConfig {
   return {
     channels: {
       imessage: {
@@ -19,13 +19,13 @@ function baseCfg(): ZhushouConfig {
     },
     session: { mainKey: "main" },
     messages: {
-      groupChat: { mentionPatterns: ["@zhushou"] },
+      groupChat: { mentionPatterns: ["@assistant"] },
     },
-  } as unknown as ZhushouConfig;
+  } as unknown as AssistantConfig;
 }
 
 function resolve(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   message: IMessagePayload;
   storeAllowFrom?: string[];
 }) {
@@ -49,7 +49,7 @@ function resolve(params: {
 }
 
 function resolveDispatchDecision(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   message: IMessagePayload;
   groupHistories?: Parameters<typeof resolveIMessageInboundDecision>[0]["groupHistories"];
   allowFrom?: string[];
@@ -80,7 +80,7 @@ function resolveDispatchDecision(params: {
   return { decision, groupHistories };
 }
 
-function buildDispatchContextPayload(params: { cfg: ZhushouConfig; message: IMessagePayload }) {
+function buildDispatchContextPayload(params: { cfg: AssistantConfig; message: IMessagePayload }) {
   const { cfg, message } = params;
   const { decision, groupHistories } = resolveDispatchDecision({ cfg, message });
 
@@ -145,7 +145,7 @@ describe("imessage monitor gating + envelope builders", () => {
       chat_id: 42,
       sender: "+15550002222",
       is_from_me: false,
-      text: "@zhushou ping",
+      text: "@assistant ping",
       is_group: true,
       chat_name: "Lobster Squad",
       participants: ["+1555", "+1556"],
@@ -193,7 +193,7 @@ describe("imessage monitor gating + envelope builders", () => {
       chat_id: 55,
       sender: "+15550001111",
       is_from_me: false,
-      text: "@zhushou replying now",
+      text: "@assistant replying now",
       is_group: true,
       reply_to_id: 9001,
       reply_to_text: "blocked quote",
@@ -232,7 +232,7 @@ describe("imessage monitor gating + envelope builders", () => {
       chat_id: 55,
       sender: "+15550001111",
       is_from_me: false,
-      text: "@zhushou replying now",
+      text: "@assistant replying now",
       is_group: true,
       reply_to_id: 9001,
       reply_to_text: "quoted context",
@@ -326,12 +326,12 @@ describe("imessage monitor gating + envelope builders", () => {
         chat_id: 123,
         sender: "+15550001111",
         is_from_me: false,
-        text: "@zhushou hello",
+        text: "@assistant hello",
         is_group: true,
       },
       opts: {},
-      messageText: "@zhushou hello",
-      bodyText: "@zhushou hello",
+      messageText: "@assistant hello",
+      bodyText: "@assistant hello",
       allowFrom: ["*"],
       groupAllowFrom: [],
       groupPolicy: "open",
@@ -358,12 +358,12 @@ describe("imessage monitor gating + envelope builders", () => {
         chat_id: 202,
         sender: "+15550003333",
         is_from_me: false,
-        text: "@zhushou hi",
+        text: "@assistant hi",
         is_group: true,
       },
       opts: {},
-      messageText: "@zhushou hi",
-      bodyText: "@zhushou hi",
+      messageText: "@assistant hi",
+      bodyText: "@assistant hi",
       allowFrom: ["*"],
       groupAllowFrom: ["chat_id:101"],
       groupPolicy: "allowlist",
@@ -382,12 +382,12 @@ describe("imessage monitor gating + envelope builders", () => {
         chat_id: 101,
         sender: "+15550003333",
         is_from_me: false,
-        text: "@zhushou ok",
+        text: "@assistant ok",
         is_group: true,
       },
       opts: {},
-      messageText: "@zhushou ok",
-      bodyText: "@zhushou ok",
+      messageText: "@assistant ok",
+      bodyText: "@assistant ok",
       allowFrom: ["*"],
       groupAllowFrom: ["chat_id:101"],
       groupPolicy: "allowlist",
@@ -414,12 +414,12 @@ describe("imessage monitor gating + envelope builders", () => {
         chat_id: 303,
         sender: "+15550003333",
         is_from_me: false,
-        text: "@zhushou hi",
+        text: "@assistant hi",
         is_group: true,
       },
       opts: {},
-      messageText: "@zhushou hi",
-      bodyText: "@zhushou hi",
+      messageText: "@assistant hi",
+      bodyText: "@assistant hi",
       allowFrom: ["*"],
       groupAllowFrom: [],
       groupPolicy: "disabled",

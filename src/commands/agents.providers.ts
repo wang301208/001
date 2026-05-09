@@ -7,7 +7,7 @@ import {
 } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.public.js";
 import type { AgentBinding } from "../config/types.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 
 type ProviderAccountStatus = {
@@ -53,7 +53,7 @@ function formatProviderState(entry: ProviderAccountStatus): string {
 
 async function resolveReadOnlyAccount(params: {
   plugin: ReturnType<typeof listChannelPlugins>[number];
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
 }): Promise<unknown> {
   if (params.plugin.config.inspectAccount) {
@@ -63,7 +63,7 @@ async function resolveReadOnlyAccount(params: {
 }
 
 export async function buildProviderStatusIndex(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
 ): Promise<Map<string, ProviderAccountStatus>> {
   const map = new Map<string, ProviderAccountStatus>();
 
@@ -128,7 +128,7 @@ export async function buildProviderStatusIndex(
   return map;
 }
 
-function resolveDefaultAccountId(cfg: ZhushouConfig, provider: ChannelId): string {
+function resolveDefaultAccountId(cfg: AssistantConfig, provider: ChannelId): string {
   const plugin = getChannelPlugin(provider);
   if (!plugin) {
     return DEFAULT_ACCOUNT_ID;
@@ -136,7 +136,7 @@ function resolveDefaultAccountId(cfg: ZhushouConfig, provider: ChannelId): strin
   return resolveChannelDefaultAccountId({ plugin, cfg });
 }
 
-function shouldShowProviderEntry(entry: ProviderAccountStatus, cfg: ZhushouConfig): boolean {
+function shouldShowProviderEntry(entry: ProviderAccountStatus, cfg: AssistantConfig): boolean {
   const plugin = getChannelPlugin(entry.provider);
   if (!plugin) {
     return Boolean(entry.configured);
@@ -157,7 +157,7 @@ function formatProviderEntry(entry: ProviderAccountStatus): string {
   return `${label}: ${formatProviderState(entry)}`;
 }
 
-export function summarizeBindings(cfg: ZhushouConfig, bindings: AgentBinding[]): string[] {
+export function summarizeBindings(cfg: AssistantConfig, bindings: AgentBinding[]): string[] {
   if (bindings.length === 0) {
     return [];
   }
@@ -182,7 +182,7 @@ export function summarizeBindings(cfg: ZhushouConfig, bindings: AgentBinding[]):
 
 export function listProvidersForAgent(params: {
   summaryIsDefault: boolean;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   bindings: AgentBinding[];
   providerStatus: Map<string, ProviderAccountStatus>;
 }): string[] {

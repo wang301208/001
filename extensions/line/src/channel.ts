@@ -1,8 +1,8 @@
-import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
-import { createRestrictSendersChannelSecurity } from "zhushou/plugin-sdk/channel-policy";
-import { createEmptyChannelDirectoryAdapter } from "zhushou/plugin-sdk/directory-runtime";
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
+import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
+import { createRestrictSendersChannelSecurity } from "assistant/plugin-sdk/channel-policy";
+import { createEmptyChannelDirectoryAdapter } from "assistant/plugin-sdk/directory-runtime";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
 import { resolveLineAccount } from "./accounts.js";
 import { lineBindingsAdapter } from "./bindings.js";
 import { type ChannelPlugin, type ResolvedLineAccount } from "./channel-api.js";
@@ -29,7 +29,7 @@ const lineSecurityAdapter = createRestrictSendersChannelSecurity<ResolvedLineAcc
   groupAllowFromPath: "channels.line.groupAllowFrom",
   mentionGated: false,
   policyPathSuffix: "dmPolicy",
-  approveHint: "zhushou pairing approve line <code>",
+  approveHint: "assistant pairing approve line <code>",
   normalizeDmEntry: (raw) => raw.replace(/^line:(?:user:)?/i, ""),
 });
 

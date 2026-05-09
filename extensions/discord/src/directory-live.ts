@@ -1,8 +1,8 @@
 import type {
   ChannelDirectoryEntry,
   DirectoryConfigParams,
-} from "zhushou/plugin-sdk/directory-runtime";
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/directory-runtime";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
 import { resolveDiscordAccount } from "./accounts.js";
 import { fetchDiscord } from "./api.js";
 import { rememberDiscordDirectoryUser } from "./directory-cache.js";

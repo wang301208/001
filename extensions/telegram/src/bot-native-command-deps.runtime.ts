@@ -1,8 +1,8 @@
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
-import { readChannelAllowFromStore } from "zhushou/plugin-sdk/conversation-runtime";
-import { getPluginCommandSpecs } from "zhushou/plugin-sdk/plugin-runtime";
-import { dispatchReplyWithBufferedBlockDispatcher } from "zhushou/plugin-sdk/reply-dispatch-runtime";
-import { listSkillCommandsForAgents } from "zhushou/plugin-sdk/skill-commands-runtime";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
+import { readChannelAllowFromStore } from "assistant/plugin-sdk/conversation-runtime";
+import { getPluginCommandSpecs } from "assistant/plugin-sdk/plugin-runtime";
+import { dispatchReplyWithBufferedBlockDispatcher } from "assistant/plugin-sdk/reply-dispatch-runtime";
+import { listSkillCommandsForAgents } from "assistant/plugin-sdk/skill-commands-runtime";
 import type { TelegramBotDeps } from "./bot-deps.js";
 import { syncTelegramMenuCommands } from "./bot-native-command-menu.js";
 

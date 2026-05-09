@@ -40,8 +40,8 @@ vi.mock("./protocol.js", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
-  const original = (await vi.importActual("zhushou/plugin-sdk/config-runtime")) as Record<
+vi.mock("assistant/plugin-sdk/config-runtime", async () => {
+  const original = (await vi.importActual("assistant/plugin-sdk/config-runtime")) as Record<
     string,
     unknown
   >;
@@ -51,8 +51,8 @@ vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/text-runtime", async () => {
-  const original = (await vi.importActual("zhushou/plugin-sdk/text-runtime")) as Record<
+vi.mock("assistant/plugin-sdk/text-runtime", async () => {
+  const original = (await vi.importActual("assistant/plugin-sdk/text-runtime")) as Record<
     string,
     unknown
   >;
@@ -75,7 +75,7 @@ describe("sendMessageIrc cfg threading", () => {
       channels: {
         irc: {
           host: "irc.example.com",
-          nick: "zhushou",
+          nick: "assistant",
           accounts: {
             work: {
               host: "irc.example.com",
@@ -113,7 +113,7 @@ describe("sendMessageIrc cfg threading", () => {
       channels: {
         irc: {
           host: "irc.example.com",
-          nick: "zhushou",
+          nick: "assistant",
         },
       },
     } as unknown as CoreConfig;
@@ -139,7 +139,7 @@ describe("sendMessageIrc cfg threading", () => {
       channels: {
         irc: {
           host: "irc.example.com",
-          nick: "zhushou",
+          nick: "assistant",
         },
       },
     } as unknown as CoreConfig;

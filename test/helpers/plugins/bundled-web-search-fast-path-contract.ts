@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 import { loadBundledCapabilityRuntimeRegistry } from "../../../src/plugins/bundled-capability-runtime.js";
 import { resolveManifestContractOwnerPluginId } from "../../../src/plugins/manifest-registry.js";
 import { resolveBundledExplicitWebSearchProvidersFromPublicArtifacts } from "../../../src/plugins/web-provider-public-artifacts.explicit.js";
@@ -146,8 +146,8 @@ export function describeBundledWebSearchFastPathContract(pluginId: string) {
           contractProvider.getCredentialValue(contractSearchConfig),
         );
 
-        const fastConfig = {} as ZhushouConfig;
-        const contractConfig = {} as ZhushouConfig;
+        const fastConfig = {} as AssistantConfig;
+        const contractConfig = {} as AssistantConfig;
         fastPathProvider.setConfiguredCredentialValue?.(fastConfig, "test-key");
         contractProvider.setConfiguredCredentialValue?.(contractConfig, "test-key");
         expect(fastConfig).toEqual(contractConfig);
@@ -156,8 +156,8 @@ export function describeBundledWebSearchFastPathContract(pluginId: string) {
         );
 
         if (fastPathProvider.applySelectionConfig || contractProvider.applySelectionConfig) {
-          expect(fastPathProvider.applySelectionConfig?.({} as ZhushouConfig)).toEqual(
-            contractProvider.applySelectionConfig?.({} as ZhushouConfig),
+          expect(fastPathProvider.applySelectionConfig?.({} as AssistantConfig)).toEqual(
+            contractProvider.applySelectionConfig?.({} as AssistantConfig),
           );
         }
 

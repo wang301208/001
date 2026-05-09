@@ -16,7 +16,7 @@ import {
 } from "../agents/pi-tools.before-tool-call.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import { loadConfig } from "../config/config.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { routeLogsToStderr } from "../logging/console.js";
 import { resolvePluginTools } from "../plugins/tools.js";
@@ -31,7 +31,7 @@ function resolveJsonSchemaForTool(tool: AnyAgentTool): Record<string, unknown> {
   return { type: "object", properties: {} };
 }
 
-function resolveTools(config: ZhushouConfig): AnyAgentTool[] {
+function resolveTools(config: AssistantConfig): AnyAgentTool[] {
   return resolvePluginTools({
     context: { config },
     suppressNameConflicts: true,
@@ -40,7 +40,7 @@ function resolveTools(config: ZhushouConfig): AnyAgentTool[] {
 
 export function createPluginToolsMcpServer(
   params: {
-    config?: ZhushouConfig;
+    config?: AssistantConfig;
     tools?: AnyAgentTool[];
   } = {},
 ): Server {
@@ -60,7 +60,7 @@ export function createPluginToolsMcpServer(
   }
 
   const server = new Server(
-    { name: "zhushou-plugin-tools", version: VERSION },
+    { name: "assistant-plugin-tools", version: VERSION },
     { capabilities: { tools: {} } },
   );
 

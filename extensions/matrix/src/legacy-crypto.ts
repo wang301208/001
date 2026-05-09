@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { writeJsonFileAtomically as writeJsonFileAtomicallyImpl } from "zhushou/plugin-sdk/json-store";
-import { resolveStateDir } from "zhushou/plugin-sdk/state-paths";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { writeJsonFileAtomically as writeJsonFileAtomicallyImpl } from "assistant/plugin-sdk/json-store";
+import { resolveStateDir } from "assistant/plugin-sdk/state-paths";
 import { resolveConfiguredMatrixAccountIds } from "./account-selection.js";
 import { isMatrixLegacyCryptoInspectorAvailable } from "./legacy-crypto-inspector-availability.js";
 import { formatMatrixErrorMessage } from "./matrix/errors.js";
@@ -161,12 +161,12 @@ function detectLegacyBotSdkCryptoStore(cryptoRootDir: string): {
   }
 }
 
-function resolveMatrixAccountIds(cfg: ZhushouConfig): string[] {
+function resolveMatrixAccountIds(cfg: AssistantConfig): string[] {
   return resolveConfiguredMatrixAccountIds(cfg);
 }
 
 function resolveLegacyMatrixFlatStorePlan(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
 }): MatrixLegacyCryptoPlan | { warning: string } | null {
   const legacy = resolveMatrixLegacyFlatStoragePaths(resolveStateDir(params.env, os.homedir));
@@ -225,7 +225,7 @@ function loadLegacyBotSdkMetadata(cryptoRootDir: string): MatrixLegacyBotSdkMeta
 }
 
 function resolveMatrixLegacyCryptoPlans(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
 }): Omit<MatrixLegacyCryptoDetection, "inspectorAvailable"> {
   const warnings: string[] = [];
@@ -318,7 +318,7 @@ async function persistLegacyMigrationState(params: {
 }
 
 export function detectLegacyMatrixCrypto(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env?: NodeJS.ProcessEnv;
 }): MatrixLegacyCryptoDetection {
   const detection = resolveMatrixLegacyCryptoPlans({
@@ -342,7 +342,7 @@ export function detectLegacyMatrixCrypto(params: {
 }
 
 export async function autoPrepareLegacyMatrixCrypto(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   log?: { info?: (message: string) => void; warn?: (message: string) => void };
   deps?: Partial<MatrixLegacyCryptoPrepareDeps>;
@@ -485,7 +485,7 @@ export async function autoPrepareLegacyMatrixCrypto(params: {
     if (!summary.decryptionKeyBase64 && (summary.roomKeyCounts?.backedUp ?? 0) > 0) {
       warnings.push(
         `Legacy Matrix encrypted state for account "${plan.accountId}" has backed-up room keys, but no local backup decryption key was found. ` +
-          `Ask the operator to run "zhushou matrix verify backup restore --recovery-key <key>" after upgrade if they have the recovery key.`,
+          `Ask the operator to run "assistant matrix verify backup restore --recovery-key <key>" after upgrade if they have the recovery key.`,
       );
     }
     if (!summary.decryptionKeyBase64 && (summary.roomKeyCounts?.total ?? 0) > 0) {

@@ -4,8 +4,8 @@ import path from "node:path";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createMockServerResponse } from "../../../test/helpers/plugins/mock-http-response.js";
 import { createTestPluginApi } from "../../../test/helpers/plugins/plugin-api.js";
-import type { ZhushouConfig } from "../api.js";
-import type { ZhushouPluginApi, OpenClawPluginToolContext } from "../api.js";
+import type { AssistantConfig } from "../api.js";
+import type { AssistantPluginApi, AssistantPluginToolContext } from "../api.js";
 import { registerDiffsPlugin } from "./plugin.js";
 import { createTempDiffRoot } from "./test-helpers.js";
 
@@ -34,7 +34,7 @@ describe("PlaywrightDiffScreenshotter", () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
-    ({ rootDir, cleanup: cleanupRootDir } = await createTempDiffRoot("zhushou-diffs-browser-"));
+    ({ rootDir, cleanup: cleanupRootDir } = await createTempDiffRoot("assistant-diffs-browser-"));
     outputPath = path.join(rootDir, "preview.png");
     launchMock.mockReset();
     await resetSharedBrowserStateForTests();
@@ -200,10 +200,10 @@ describe("diffs plugin registration", () => {
       req: IncomingMessage,
       res: ServerResponse,
     ) => boolean | Promise<boolean>;
-    type RegisteredHttpRouteParams = Parameters<ZhushouPluginApi["registerHttpRoute"]>[0];
+    type RegisteredHttpRouteParams = Parameters<AssistantPluginApi["registerHttpRoute"]>[0];
 
     let registeredToolFactory:
-      | ((ctx: OpenClawPluginToolContext) => RegisteredTool | RegisteredTool[] | null | undefined)
+      | ((ctx: AssistantPluginToolContext) => RegisteredTool | RegisteredTool[] | null | undefined)
       | undefined;
     let registeredHttpRouteHandler: HttpRouteHandler | undefined;
     const on = vi.fn();
@@ -234,7 +234,7 @@ describe("diffs plugin registration", () => {
         },
       },
       runtime: {} as never,
-      registerTool(tool: Parameters<ZhushouPluginApi["registerTool"]>[0]) {
+      registerTool(tool: Parameters<AssistantPluginApi["registerTool"]>[0]) {
         registeredToolFactory = typeof tool === "function" ? tool : () => tool;
       },
       registerHttpRoute(params: RegisteredHttpRouteParams) {
@@ -243,7 +243,7 @@ describe("diffs plugin registration", () => {
       on,
     });
 
-    registerDiffsPlugin(api as unknown as ZhushouPluginApi);
+    registerDiffsPlugin(api as unknown as AssistantPluginApi);
 
     expect(on).toHaveBeenCalledTimes(1);
     expect(on.mock.calls[0]?.[0]).toBe("before_prompt_build");
@@ -310,12 +310,12 @@ describe("diffs plugin registration", () => {
   });
 });
 
-function createConfig(): ZhushouConfig {
+function createConfig(): AssistantConfig {
   return {
     browser: {
       executablePath: process.execPath,
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function localReq(input: {

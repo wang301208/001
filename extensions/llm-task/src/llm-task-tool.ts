@@ -2,14 +2,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { Type } from "@sinclair/typebox";
 import Ajv from "ajv";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   formatXHighModelHint,
   normalizeThinkLevel,
-  resolvePreferredOpenClawTmpDir,
+  resolvePreferredAssistantTmpDir,
   supportsXHighThinking,
 } from "../api.js";
-import type { ZhushouPluginApi } from "../api.js";
+import type { AssistantPluginApi } from "../api.js";
 
 const AjvCtor = Ajv as unknown as typeof import("ajv").default;
 
@@ -63,12 +63,12 @@ type LlmTaskParams = {
 const INVALID_THINKING_LEVELS_HINT =
   "off, minimal, low, medium, high, adaptive, and xhigh where supported";
 
-export function createLlmTaskTool(api: ZhushouPluginApi) {
+export function createLlmTaskTool(api: AssistantPluginApi) {
   return {
     name: "llm-task",
     label: "LLM Task",
     description:
-      "Run a generic JSON-only LLM task and return schema-validated JSON. Designed for orchestration from Lobster workflows via zhushou.invoke.",
+      "Run a generic JSON-only LLM task and return schema-validated JSON. Designed for orchestration from Lobster workflows via assistant.invoke.",
     parameters: Type.Object({
       prompt: Type.String({ description: "Task instruction for the LLM." }),
       input: Type.Optional(Type.Unknown({ description: "Optional input payload for the task." })),
@@ -187,7 +187,7 @@ export function createLlmTaskTool(api: ZhushouPluginApi) {
       let tmpDir: string | null = null;
       try {
         tmpDir = await fs.mkdtemp(
-          path.join(resolvePreferredOpenClawTmpDir(), "zhushou-llm-task-"),
+          path.join(resolvePreferredAssistantTmpDir(), "assistant-llm-task-"),
         );
         const sessionId = `llm-task-${Date.now()}`;
         const sessionFile = path.join(tmpDir, "session.json");

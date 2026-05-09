@@ -1,3 +1,3 @@
-import { isRecord } from "zhushou/plugin-sdk/string-coerce-runtime";
+import { isRecord } from "assistant/plugin-sdk/string-coerce-runtime";
 
 export { isRecord };

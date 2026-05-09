@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { noteChromeMcpBrowserReadiness } from "./doctor-browser.js";
 
 const loadBundledPluginPublicSurfaceModuleSync = vi.hoisted(() => vi.fn());
@@ -19,7 +19,7 @@ describe("doctor browser facade", () => {
       noteChromeMcpBrowserReadiness: delegate,
     });
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       browser: {
         defaultProfile: "user",
       },

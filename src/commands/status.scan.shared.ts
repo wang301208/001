@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { buildGatewayConnectionDetailsWithResolvers } from "../gateway/connection-details.js";
 import { normalizeControlUiBasePath } from "../gateway/control-ui-shared.js";
 import { resolveGatewayProbeTarget } from "../gateway/probe-target.js";
@@ -54,7 +54,7 @@ export type GatewayProbeSnapshot = {
   };
 };
 
-export function hasExplicitMemorySearchConfig(cfg: ZhushouConfig, agentId: string): boolean {
+export function hasExplicitMemorySearchConfig(cfg: AssistantConfig, agentId: string): boolean {
   if (
     cfg.agents?.defaults &&
     Object.prototype.hasOwnProperty.call(cfg.agents.defaults, "memorySearch")
@@ -67,7 +67,7 @@ export function hasExplicitMemorySearchConfig(cfg: ZhushouConfig, agentId: strin
   );
 }
 
-export function resolveMemoryPluginStatus(cfg: ZhushouConfig): MemoryPluginStatus {
+export function resolveMemoryPluginStatus(cfg: AssistantConfig): MemoryPluginStatus {
   const pluginsEnabled = cfg.plugins?.enabled !== false;
   if (!pluginsEnabled) {
     return { enabled: false, slot: null, reason: "plugins disabled" };
@@ -80,7 +80,7 @@ export function resolveMemoryPluginStatus(cfg: ZhushouConfig): MemoryPluginStatu
 }
 
 export async function resolveGatewayProbeSnapshot(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   opts: {
     timeoutMs?: number;
     all?: boolean;
@@ -163,12 +163,12 @@ export function buildTailscaleHttpsUrl(params: {
 }
 
 export async function resolveSharedMemoryStatusSnapshot(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentStatus: { defaultId?: string | null };
   memoryPlugin: MemoryPluginStatus;
-  resolveMemoryConfig: (cfg: ZhushouConfig, agentId: string) => { store: { path: string } } | null;
+  resolveMemoryConfig: (cfg: AssistantConfig, agentId: string) => { store: { path: string } } | null;
   getMemorySearchManager: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     agentId: string;
     purpose: "status";
   }) => Promise<{

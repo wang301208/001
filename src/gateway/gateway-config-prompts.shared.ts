@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { getTailnetHostname } from "../infra/tailscale.js";
 import { isIpv6Address, parseCanonicalIpAddress } from "../shared/net/ip.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
@@ -27,8 +27,8 @@ export const TAILSCALE_MISSING_BIN_NOTE_LINES = [
 
 export const TAILSCALE_DOCS_LINES = [
   "Docs:",
-  "https://docs.zhushou.ai/gateway/tailscale",
-  "https://docs.zhushou.ai/web",
+  "https://docs.assistant.ai/gateway/tailscale",
+  "https://docs.assistant.ai/web",
 ] as const;
 
 function normalizeTailnetHostForUrl(rawHost: string): string | null {
@@ -65,10 +65,10 @@ export function appendAllowedOrigin(existing: string[] | undefined, origin: stri
 }
 
 export async function maybeAddTailnetOriginToControlUiAllowedOrigins(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   tailscaleMode: string;
   tailscaleBin?: string | null;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   if (params.tailscaleMode !== "serve" && params.tailscaleMode !== "funnel") {
     return params.config;
   }

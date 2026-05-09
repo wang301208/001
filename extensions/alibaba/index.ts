@@ -1,4 +1,4 @@
-import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
 import { buildAlibabaVideoGenerationProvider } from "./video-generation-provider.js";
 
 export default definePluginEntry({

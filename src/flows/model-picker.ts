@@ -11,7 +11,7 @@ import {
 } from "../agents/model-selection.js";
 import { formatTokenK } from "../commands/models/shared.js";
 import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { applyPrimaryModel } from "../plugins/provider-model-primary.js";
 import { resolveOwningPluginIdsForProvider } from "../plugins/providers.js";
 import type { ProviderPlugin } from "../plugins/types.js";
@@ -30,7 +30,7 @@ const PROVIDER_FILTER_THRESHOLD = 30;
 const HIDDEN_ROUTER_MODELS = new Set(["openrouter/auto"]);
 
 export type PromptDefaultModelParams = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   prompter: WizardPrompter;
   allowKeep?: boolean;
   includeManual?: boolean;
@@ -44,7 +44,7 @@ export type PromptDefaultModelParams = {
   message?: string;
 };
 
-export type PromptDefaultModelResult = { model?: string; config?: ZhushouConfig };
+export type PromptDefaultModelResult = { model?: string; config?: AssistantConfig };
 export type PromptModelAllowlistResult = { models?: string[] };
 
 async function loadModelPickerRuntime() {
@@ -58,7 +58,7 @@ const loadResolvedModelPickerRuntime = createLazyRuntimeSurface(
 
 function hasAuthForProvider(
   provider: string,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   store: ReturnType<typeof ensureAuthProfileStore>,
 ) {
   if (listProfilesForProvider(store, provider).length > 0) {
@@ -74,7 +74,7 @@ function hasAuthForProvider(
 }
 
 function createProviderAuthChecker(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentDir?: string;
 }): (provider: string) => boolean {
   const authStore = ensureAuthProfileStore(params.agentDir, {
@@ -92,11 +92,11 @@ function createProviderAuthChecker(params: {
   };
 }
 
-function resolveConfiguredModelRaw(cfg: ZhushouConfig): string {
+function resolveConfiguredModelRaw(cfg: AssistantConfig): string {
   return resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model) ?? "";
 }
 
-function resolveConfiguredModelKeys(cfg: ZhushouConfig): string[] {
+function resolveConfiguredModelKeys(cfg: AssistantConfig): string[] {
   const models = cfg.agents?.defaults?.models ?? {};
   return Object.keys(models)
     .map((key) => key.trim())
@@ -176,7 +176,7 @@ function addModelSelectOption(params: {
 
 function createPreferredProviderMatcher(params: {
   preferredProvider: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): (entryProvider: string) => boolean {
@@ -259,7 +259,7 @@ async function maybeFilterModelsByProvider(params: {
   }>;
   preferredProvider?: string;
   prompter: WizardPrompter;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): Promise<typeof params.models> {
@@ -299,7 +299,7 @@ async function maybeFilterModelsByProvider(params: {
 }
 
 async function resolveProviderPluginSetupOptions(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): Promise<WizardSelectOption[]> {
@@ -328,7 +328,7 @@ async function resolveProviderPluginSetupOptions(params: {
 
 async function maybeHandleProviderPluginSelection(params: {
   selection: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   agentDir?: string;
   workspaceDir?: string;
@@ -571,7 +571,7 @@ export async function promptDefaultModel(
 }
 
 export async function promptModelAllowlist(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   prompter: WizardPrompter;
   message?: string;
   agentDir?: string;
@@ -686,7 +686,7 @@ export async function promptModelAllowlist(params: {
   return { models: [] };
 }
 
-export function applyModelAllowlist(cfg: ZhushouConfig, models: string[]): ZhushouConfig {
+export function applyModelAllowlist(cfg: AssistantConfig, models: string[]): AssistantConfig {
   const defaults = cfg.agents?.defaults;
   const normalized = normalizeModelKeys(models);
   if (normalized.length === 0) {
@@ -722,9 +722,9 @@ export function applyModelAllowlist(cfg: ZhushouConfig, models: string[]): Zhush
 }
 
 export function applyModelFallbacksFromSelection(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   selection: string[],
-): ZhushouConfig {
+): AssistantConfig {
   const normalized = normalizeModelKeys(selection);
   if (normalized.length <= 1) {
     return cfg;

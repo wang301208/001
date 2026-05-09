@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { resolveUserPath } from "../utils.js";
 import { createCacheTrace } from "./cache-trace.js";
 
@@ -15,7 +15,7 @@ function createMemoryWriter(lines: string[]) {
 describe("createCacheTrace", () => {
   it("returns null when diagnostics cache tracing is disabled", () => {
     const trace = createCacheTrace({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       env: {},
     });
 
@@ -29,7 +29,7 @@ describe("createCacheTrace", () => {
         diagnostics: {
           cacheTrace: {
             enabled: true,
-            filePath: "~/.zhushou/logs/cache-trace.jsonl",
+            filePath: "~/.assistant/logs/cache-trace.jsonl",
           },
         },
       },
@@ -38,7 +38,7 @@ describe("createCacheTrace", () => {
     });
 
     expect(trace).not.toBeNull();
-    expect(trace?.filePath).toBe(resolveUserPath("~/.zhushou/logs/cache-trace.jsonl"));
+    expect(trace?.filePath).toBe(resolveUserPath("~/.assistant/logs/cache-trace.jsonl"));
 
     trace?.recordStage("session:loaded", {
       messages: [],
@@ -122,7 +122,7 @@ describe("createCacheTrace", () => {
         },
       },
       env: {
-        OPENCLAW_CACHE_TRACE: "0",
+        ASSISTANT_CACHE_TRACE: "0",
       },
       writer: createMemoryWriter(lines),
     });

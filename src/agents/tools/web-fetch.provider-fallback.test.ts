@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
 import { createWebFetchTool } from "./web-tools.js";
 
@@ -56,7 +56,7 @@ describe("web_fetch provider fallback normalization", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       sandboxed: false,
     });
 
@@ -109,7 +109,7 @@ describe("web_fetch provider fallback normalization", () => {
     });
 
     const tool = createWebFetchTool({
-      config: {} as ZhushouConfig,
+      config: {} as AssistantConfig,
       sandboxed: false,
     });
 

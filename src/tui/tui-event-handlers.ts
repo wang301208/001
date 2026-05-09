@@ -106,7 +106,7 @@ export function createEventHandlers(context: EventHandlerContext) {
       chatLog.addSystem(
         `streaming watchdog: no stream updates for ${Math.round(
           streamingWatchdogMs / 1000,
-        )}s; resetting status. The backend may have dropped this run silently — send a new message to resync.`,
+        )}s; resetting status. The backend may have dropped this run silently; send a new message to resync.`,
       );
       tui.requestRender();
     }, streamingWatchdogMs);

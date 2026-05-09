@@ -4,7 +4,7 @@ import {
   collectZalouserSecurityAuditFindings,
 } from "../../test/helpers/channels/security-audit-contract.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { withChannelSecurityStateDir } from "./audit-channel-security.test-helpers.js";
 import { collectChannelSecurityFindings } from "./audit-channel.js";
 
@@ -50,7 +50,7 @@ function stubZalouserPlugin(): ChannelPlugin {
 }
 
 function createSynologyChatAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
 }): ResolvedSynologyChatAccount {
   const channel = params.cfg.channels?.["synology-chat"] ?? {};
@@ -81,7 +81,7 @@ describe("security audit synology and zalo channel routing", () => {
             dangerouslyAllowNameMatching: true,
           },
         },
-      } satisfies ZhushouConfig,
+      } satisfies AssistantConfig,
       expectedMatch: {
         checkId: "channels.synology-chat.reply.dangerous_name_matching_enabled",
         severity: "info",
@@ -108,7 +108,7 @@ describe("security audit synology and zalo channel routing", () => {
             },
           },
         },
-      } satisfies ZhushouConfig,
+      } satisfies AssistantConfig,
       expectedMatch: {
         checkId: "channels.synology-chat.reply.dangerous_name_matching_enabled",
         severity: "info",
@@ -149,7 +149,7 @@ describe("security audit synology and zalo channel routing", () => {
             },
           },
         },
-      } satisfies ZhushouConfig,
+      } satisfies AssistantConfig,
       expectedSeverity: "warn",
       detailIncludes: ["channels.zalouser.groups:Ops Room"],
       detailExcludes: ["group:g-123"],
@@ -166,7 +166,7 @@ describe("security audit synology and zalo channel routing", () => {
             },
           },
         },
-      } satisfies ZhushouConfig,
+      } satisfies AssistantConfig,
       expectedSeverity: "info",
       detailIncludes: ["out-of-scope"],
       expectFindingMatch: {

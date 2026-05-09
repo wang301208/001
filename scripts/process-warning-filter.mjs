@@ -1,4 +1,4 @@
-const warningFilterKey = Symbol.for("zhushou.warning-filter");
+const warningFilterKey = Symbol.for("assistant.warning-filter");
 
 export function installProcessWarningFilter() {
   if (globalThis[warningFilterKey]?.installed) {

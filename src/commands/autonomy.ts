@@ -13,6 +13,7 @@ import { Command } from "commander";
 import type { RuntimeEnv } from "../runtime.js";
 import { initializeGenesisTeamLoop, getGenesisTeamLoop } from "../governance/genesis-team-loop.js";
 import { initializePostPromotionObserver, getPostPromotionObserver } from "../governance/post-promotion-observer.js";
+import { loadGovernanceCharter } from "../governance/charter-runtime.js";
 import { loadConfig } from "../config/config.js";
 import { theme } from "../terminal/theme.js";
 import { isRecord } from "../utils.js";
@@ -205,10 +206,12 @@ function resolveAutonomySessionKey(params: { agentId?: string; sessionKey?: stri
 
 function bindAutonomyRuntime(params: { agentId?: string; sessionKey?: string }) {
   const sessionKey = resolveAutonomySessionKey(params);
+  const charterDir = loadGovernanceCharter().charterDir;
   return {
     sessionKey,
     runtime: createRuntimeAutonomy({
       legacyTaskFlow: createRuntimeTaskFlow(),
+      charterDir,
     }).bindSession({
       sessionKey,
     }),

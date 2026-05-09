@@ -251,7 +251,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 type: "string",
                 title: "Cache Trace File Path",
                 description:
-                  "JSONL output path for cache trace logs (default: $ZHUSHOU_STATE_DIR/logs/cache-trace.jsonl).",
+                  "JSONL output path for cache trace logs (default: $ASSISTANT_STATE_DIR/logs/cache-trace.jsonl).",
               },
               includeMessages: {
                 type: "boolean",
@@ -677,11 +677,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                   anyOf: [
                     {
                       type: "string",
-                      const: "zhushou",
-                    },
-                    {
-                      type: "string",
-                      const: "clawd",
+                      const: "assistant",
                     },
                     {
                       type: "string",
@@ -690,7 +686,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                   ],
                   title: "Browser Profile Driver",
                   description:
-                    'Per-profile browser driver mode. Use "zhushou" (or legacy "clawd") for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
+                    'Per-profile browser driver mode. Use "assistant" for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
                 },
                 attachOnly: {
                   type: "boolean",
@@ -4027,7 +4023,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                         type: "string",
                         title: "Memory Search Index Path",
                         description:
-                          "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.zhushou/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
+                          "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.assistant/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
                       },
                       fts: {
                         type: "object",
@@ -5491,7 +5487,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                         type: "string",
                         title: "Sandbox Browser Network",
                         description:
-                          "Docker network for sandbox browser containers (default: zhushou-sandbox-browser). Avoid bridge if you need stricter isolation.",
+                          "Docker network for sandbox browser containers (default: assistant-sandbox-browser). Avoid bridge if you need stricter isolation.",
                       },
                       cdpPort: {
                         type: "integer",
@@ -7270,7 +7266,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                               type: "string",
                               title: "Agent ACP Harness Agent",
                               description:
-                                "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, zhushou).",
+                                "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, assistant).",
                             },
                             backend: {
                               type: "string",
@@ -20524,7 +20520,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 type: "string",
                 title: "Wide-area Discovery Domain",
                 description:
-                  "Optional unicast DNS-SD domain for wide-area discovery, such as zhushou.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
+                  "Optional unicast DNS-SD domain for wide-area discovery, such as assistant.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
               },
             },
             additionalProperties: false,
@@ -20799,7 +20795,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 type: "boolean",
                 title: "Allow External Operator Embed URLs",
                 description:
-                  "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__openclaw__/canvas and /__openclaw__/a2ui documents do not need it.",
+                  "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__assistant__/canvas and /__assistant__/a2ui documents do not need it.",
               },
               allowedOrigins: {
                 type: "array",
@@ -21772,7 +21768,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 },
                 title: "Gateway Node Allowlist (Extra Commands)",
                 description:
-                  "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `zhushou security audit`.",
+                  "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `assistant security audit`.",
               },
               denyCommands: {
                 type: "array",
@@ -22699,7 +22695,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
             },
             title: "Plugin Install Records",
             description:
-              "CLI-managed install metadata (used by `zhushou plugins update` to locate install sources).",
+              "CLI-managed install metadata (used by `assistant plugins update` to locate install sources).",
           },
         },
         additionalProperties: false,
@@ -22710,7 +22706,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     required: ["commands"],
     additionalProperties: false,
-    title: "ZhushouConfig",
+    title: "AssistantConfig",
   },
   uiHints: {
     wizard: {
@@ -23109,7 +23105,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "diagnostics.cacheTrace.filePath": {
       label: "Cache Trace File Path",
-      help: "JSONL output path for cache trace logs (default: $ZHUSHOU_STATE_DIR/logs/cache-trace.jsonl).",
+      help: "JSONL output path for cache trace logs (default: $ASSISTANT_STATE_DIR/logs/cache-trace.jsonl).",
       tags: ["observability", "storage"],
     },
     "diagnostics.cacheTrace.includeMessages": {
@@ -23154,7 +23150,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "agents.list[].runtime.acp.agent": {
       label: "Agent ACP Harness Agent",
-      help: "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, zhushou).",
+      help: "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, assistant).",
       tags: ["advanced"],
     },
     "agents.list[].runtime.acp.backend": {
@@ -23465,7 +23461,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     "gateway.remote.url": {
       label: "Remote Gateway URL",
       help: "Remote Gateway WebSocket URL (ws:// or wss://).",
-      placeholder: "ws://host:18789",
+      placeholder: "ws://host:3000",
       tags: ["network"],
     },
     "gateway.remote.sshTarget": {
@@ -23576,7 +23572,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "browser.profiles.*.driver": {
       label: "Browser Profile Driver",
-      help: 'Per-profile browser driver mode. Use "zhushou" (or legacy "clawd") for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
+      help: 'Per-profile browser driver mode. Use "assistant" for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
       tags: ["storage"],
     },
     "browser.profiles.*.attachOnly": {
@@ -24344,7 +24340,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     "gateway.controlUi.basePath": {
       label: "Operator Client Base Path",
       help: "Legacy URL prefix retained for status and Tailscale compatibility. No browser assets are served.",
-      placeholder: "/zhushou",
+      placeholder: "/assistant",
       tags: ["network", "storage"],
     },
     "gateway.controlUi.embedSandbox": {
@@ -24354,7 +24350,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "gateway.controlUi.allowExternalEmbedUrls": {
       label: "Allow External Operator Embed URLs",
-      help: "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__openclaw__/canvas and /__openclaw__/a2ui documents do not need it.",
+      help: "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__assistant__/canvas and /__assistant__/a2ui documents do not need it.",
       tags: ["security", "access", "network", "advanced"],
     },
     "gateway.controlUi.allowedOrigins": {
@@ -24486,7 +24482,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "gateway.nodes.allowCommands": {
       label: "Gateway Node Allowlist (Extra Commands)",
-      help: "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `zhushou security audit`.",
+      help: "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `assistant security audit`.",
       tags: ["access", "network"],
     },
     "gateway.nodes.denyCommands": {
@@ -24882,7 +24878,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "agents.defaults.memorySearch.store.path": {
       label: "Memory Search Index Path",
-      help: "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.zhushou/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
+      help: "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.assistant/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
       tags: ["storage"],
     },
     "agents.defaults.memorySearch.store.vector.enabled": {
@@ -25796,7 +25792,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "agents.defaults.sandbox.browser.network": {
       label: "Sandbox Browser Network",
-      help: "Docker network for sandbox browser containers (default: zhushou-sandbox-browser). Avoid bridge if you need stricter isolation.",
+      help: "Docker network for sandbox browser containers (default: assistant-sandbox-browser). Avoid bridge if you need stricter isolation.",
       tags: ["storage"],
     },
     "agents.defaults.sandbox.browser.cdpSourceRange": {
@@ -26601,7 +26597,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "discovery.wideArea.domain": {
       label: "Wide-area Discovery Domain",
-      help: "Optional unicast DNS-SD domain for wide-area discovery, such as zhushou.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
+      help: "Optional unicast DNS-SD domain for wide-area discovery, such as assistant.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
       tags: ["network"],
     },
     "discovery.mdns": {
@@ -26849,7 +26845,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     "agents.list[].identity.avatar": {
       label: "Agent Avatar",
       help: "Avatar image path (relative to the agent workspace only) or a remote URL/data URL.",
-      placeholder: "avatars/zhushou.png",
+      placeholder: "avatars/assistant.png",
       tags: ["advanced"],
     },
     "agents.list[].heartbeat.suppressToolErrorWarnings": {
@@ -26974,7 +26970,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "plugins.installs": {
       label: "Plugin Install Records",
-      help: "CLI-managed install metadata (used by `zhushou plugins update` to locate install sources).",
+      help: "CLI-managed install metadata (used by `assistant plugins update` to locate install sources).",
       tags: ["advanced"],
     },
     "plugins.installs.*.source": {

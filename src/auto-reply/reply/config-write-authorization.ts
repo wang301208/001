@@ -4,10 +4,10 @@ import {
   formatConfigWriteDeniedMessage,
 } from "../../channels/plugins/config-writes.js";
 import type { ChannelId } from "../../channels/plugins/types.public.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 
 export function resolveConfigWriteDeniedText(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel?: string | null;
   channelId: ChannelId | null;
   accountId?: string;

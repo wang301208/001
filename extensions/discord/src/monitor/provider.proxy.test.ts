@@ -115,11 +115,11 @@ vi.mock("ws", () => ({
   },
 }));
 
-vi.mock("zhushou/plugin-sdk/proxy-capture", () => ({
+vi.mock("assistant/plugin-sdk/proxy-capture", () => ({
   captureHttpExchange: captureHttpExchangeSpy,
   captureWsEvent: captureWsEventSpy,
   resolveEffectiveDebugProxyUrl: (configuredProxyUrl?: string) =>
-    configuredProxyUrl?.trim() || process.env.OPENCLAW_DEBUG_PROXY_URL,
+    configuredProxyUrl?.trim() || process.env.ASSISTANT_DEBUG_PROXY_URL,
   resolveDebugProxySettings: resolveDebugProxySettingsMock,
 }));
 

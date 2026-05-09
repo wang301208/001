@@ -1,17 +1,17 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   coerceSecretRef,
   resolveDefaultSecretProviderAlias,
   resolveNonEnvSecretRefApiKeyMarker,
-} from "zhushou/plugin-sdk/provider-auth";
+} from "assistant/plugin-sdk/provider-auth";
 import {
   readProviderEnvValue,
   resolveProviderWebSearchPluginConfig,
-} from "zhushou/plugin-sdk/provider-web-search";
+} from "assistant/plugin-sdk/provider-web-search";
 import {
   normalizeSecretInputString,
   resolveSecretInputString,
-} from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/secret-input";
 
 export type XaiFallbackAuth = {
   apiKey: string;
@@ -25,7 +25,7 @@ type ConfiguredRuntimeApiKeyResolution =
   | { status: "blocked" };
 
 function canResolveEnvSecretRefInReadOnlyPath(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   provider: string;
   id: string;
 }): boolean {
@@ -49,7 +49,7 @@ function readConfiguredOrManagedApiKey(value: unknown): string | undefined {
   return ref ? resolveNonEnvSecretRefApiKeyMarker(ref.source) : undefined;
 }
 
-function readLegacyGrokFallbackAuth(cfg?: ZhushouConfig): XaiFallbackAuth | undefined {
+function readLegacyGrokFallbackAuth(cfg?: AssistantConfig): XaiFallbackAuth | undefined {
   const search = cfg?.tools?.web?.search;
   if (!search || typeof search !== "object") {
     return undefined;
@@ -64,7 +64,7 @@ function readLegacyGrokFallbackAuth(cfg?: ZhushouConfig): XaiFallbackAuth | unde
 function readConfiguredRuntimeApiKey(
   value: unknown,
   path: string,
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): ConfiguredRuntimeApiKeyResolution {
   const resolved = resolveSecretInputString({
     value,
@@ -98,7 +98,7 @@ function readConfiguredRuntimeApiKey(
   return envValue ? { status: "available", value: envValue } : { status: "missing" };
 }
 
-function readLegacyGrokApiKeyResult(cfg?: ZhushouConfig): ConfiguredRuntimeApiKeyResolution {
+function readLegacyGrokApiKeyResult(cfg?: AssistantConfig): ConfiguredRuntimeApiKeyResolution {
   const search = cfg?.tools?.web?.search;
   if (!search || typeof search !== "object") {
     return { status: "missing" };
@@ -111,13 +111,13 @@ function readLegacyGrokApiKeyResult(cfg?: ZhushouConfig): ConfiguredRuntimeApiKe
   );
 }
 
-export function readLegacyGrokApiKey(cfg?: ZhushouConfig): string | undefined {
+export function readLegacyGrokApiKey(cfg?: AssistantConfig): string | undefined {
   const resolved = readLegacyGrokApiKeyResult(cfg);
   return resolved.status === "available" ? resolved.value : undefined;
 }
 
 function readPluginXaiWebSearchApiKeyResult(
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): ConfiguredRuntimeApiKeyResolution {
   return readConfiguredRuntimeApiKey(
     resolveProviderWebSearchPluginConfig(cfg as Record<string, unknown> | undefined, "xai")?.apiKey,
@@ -126,12 +126,12 @@ function readPluginXaiWebSearchApiKeyResult(
   );
 }
 
-export function readPluginXaiWebSearchApiKey(cfg?: ZhushouConfig): string | undefined {
+export function readPluginXaiWebSearchApiKey(cfg?: AssistantConfig): string | undefined {
   const resolved = readPluginXaiWebSearchApiKeyResult(cfg);
   return resolved.status === "available" ? resolved.value : undefined;
 }
 
-export function resolveFallbackXaiAuth(cfg?: ZhushouConfig): XaiFallbackAuth | undefined {
+export function resolveFallbackXaiAuth(cfg?: AssistantConfig): XaiFallbackAuth | undefined {
   const pluginApiKey = readConfiguredOrManagedApiKey(
     resolveProviderWebSearchPluginConfig(cfg as Record<string, unknown> | undefined, "xai")?.apiKey,
   );
@@ -144,7 +144,7 @@ export function resolveFallbackXaiAuth(cfg?: ZhushouConfig): XaiFallbackAuth | u
   return readLegacyGrokFallbackAuth(cfg);
 }
 
-export function resolveFallbackXaiApiKey(cfg?: ZhushouConfig): string | undefined {
+export function resolveFallbackXaiApiKey(cfg?: AssistantConfig): string | undefined {
   const plugin = readPluginXaiWebSearchApiKeyResult(cfg);
   if (plugin.status === "available") {
     return plugin.value;
@@ -157,8 +157,8 @@ export function resolveFallbackXaiApiKey(cfg?: ZhushouConfig): string | undefine
 }
 
 export function resolveXaiToolApiKey(params: {
-  runtimeConfig?: ZhushouConfig;
-  sourceConfig?: ZhushouConfig;
+  runtimeConfig?: AssistantConfig;
+  sourceConfig?: AssistantConfig;
 }): string | undefined {
   const runtimePlugin = readPluginXaiWebSearchApiKeyResult(params.runtimeConfig);
   if (runtimePlugin.status === "available") {
@@ -193,8 +193,8 @@ export function resolveXaiToolApiKey(params: {
 
 export function isXaiToolEnabled(params: {
   enabled?: boolean;
-  runtimeConfig?: ZhushouConfig;
-  sourceConfig?: ZhushouConfig;
+  runtimeConfig?: AssistantConfig;
+  sourceConfig?: AssistantConfig;
 }): boolean {
   if (params.enabled === false) {
     return false;

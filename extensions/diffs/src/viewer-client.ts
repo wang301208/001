@@ -41,8 +41,8 @@ function parsePayload(element: HTMLScriptElement): DiffViewerPayload {
 function getCards(): Array<{ host: HTMLElement; payload: DiffViewerPayload }> {
   const cards: Array<{ host: HTMLElement; payload: DiffViewerPayload }> = [];
   for (const card of document.querySelectorAll<HTMLElement>(".oc-diff-card")) {
-    const host = card.querySelector<HTMLElement>("[data-zhushou-diff-host]");
-    const payloadNode = card.querySelector<HTMLScriptElement>("[data-zhushou-diff-payload]");
+    const host = card.querySelector<HTMLElement>("[data-assistant-diff-host]");
+    const payloadNode = card.querySelector<HTMLScriptElement>("[data-assistant-diff-payload]");
     if (!host || !payloadNode) {
       continue;
     }
@@ -335,9 +335,9 @@ async function hydrateViewer(): Promise<void> {
 async function main(): Promise<void> {
   try {
     await hydrateViewer();
-    document.documentElement.dataset.zhushouDiffsReady = "true";
+    document.documentElement.dataset.assistantDiffsReady = "true";
   } catch (error) {
-    document.documentElement.dataset.zhushouDiffsError = "true";
+    document.documentElement.dataset.assistantDiffsError = "true";
     console.error("Failed to hydrate diff viewer", error);
   }
 }

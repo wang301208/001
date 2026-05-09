@@ -1,12 +1,12 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
-import { loadOpenClawPlugins } from "../loader.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
+import { loadAssistantPlugins } from "../loader.js";
 import { hasExplicitPluginIdScope } from "../plugin-scope.js";
 import type { PluginRegistry } from "../registry.js";
 import { buildPluginRuntimeLoadOptions, resolvePluginRuntimeLoadContext } from "./load-context.js";
 
 export function loadPluginMetadataRegistrySnapshot(options?: {
-  config?: ZhushouConfig;
-  activationSourceConfig?: ZhushouConfig;
+  config?: AssistantConfig;
+  activationSourceConfig?: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
   onlyPluginIds?: string[];
@@ -14,7 +14,7 @@ export function loadPluginMetadataRegistrySnapshot(options?: {
 }): PluginRegistry {
   const context = resolvePluginRuntimeLoadContext(options);
 
-  return loadOpenClawPlugins(
+  return loadAssistantPlugins(
     buildPluginRuntimeLoadOptions(context, {
       throwOnLoadError: true,
       cache: false,

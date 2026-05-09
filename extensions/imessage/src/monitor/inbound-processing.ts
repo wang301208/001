@@ -7,29 +7,29 @@ import {
   matchesMentionPatterns,
   resolveEnvelopeFormatOptions,
   resolveInboundMentionDecision,
-} from "zhushou/plugin-sdk/channel-inbound";
-import { hasControlCommand } from "zhushou/plugin-sdk/command-auth";
-import { resolveDualTextControlCommandGate } from "zhushou/plugin-sdk/command-auth";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/channel-inbound";
+import { hasControlCommand } from "assistant/plugin-sdk/command-auth";
+import { resolveDualTextControlCommandGate } from "assistant/plugin-sdk/command-auth";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   resolveChannelContextVisibilityMode,
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
-} from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/config-runtime";
 import {
   buildPendingHistoryContextFromMap,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "zhushou/plugin-sdk/reply-history";
-import { finalizeInboundContext } from "zhushou/plugin-sdk/reply-runtime";
-import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+} from "assistant/plugin-sdk/reply-history";
+import { finalizeInboundContext } from "assistant/plugin-sdk/reply-runtime";
+import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
 import {
   DM_GROUP_ACCESS_REASON,
   resolveDmGroupAccessWithLists,
   evaluateSupplementalContextVisibility,
-} from "zhushou/plugin-sdk/security-runtime";
-import { sanitizeTerminalText } from "zhushou/plugin-sdk/text-runtime";
-import { truncateUtf16Safe } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/security-runtime";
+import { sanitizeTerminalText } from "assistant/plugin-sdk/text-runtime";
+import { truncateUtf16Safe } from "assistant/plugin-sdk/text-runtime";
 import { resolveIMessageConversationRoute } from "../conversation-route.js";
 import {
   formatIMessageChatTarget,
@@ -138,7 +138,7 @@ export type IMessageInboundDecision =
   | IMessageInboundDispatchDecision;
 
 export function resolveIMessageInboundDecision(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   message: IMessagePayload;
   opts?: Pick<MonitorIMessageOpts, "requireMention">;
@@ -524,7 +524,7 @@ export function resolveIMessageInboundDecision(params: {
 }
 
 export function buildIMessageInboundContext(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   decision: IMessageInboundDispatchDecision;
   message: IMessagePayload;
   envelopeOptions?: EnvelopeFormatOptions;

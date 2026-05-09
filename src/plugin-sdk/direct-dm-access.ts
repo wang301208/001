@@ -1,5 +1,5 @@
 import type { ChannelId } from "../channels/plugins/types.public.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
@@ -7,7 +7,7 @@ import {
 } from "../security/dm-policy-shared.js";
 
 export type DirectDmCommandAuthorizationRuntime = {
-  shouldComputeCommandAuthorized: (rawBody: string, cfg: ZhushouConfig) => boolean;
+  shouldComputeCommandAuthorized: (rawBody: string, cfg: AssistantConfig) => boolean;
   resolveCommandAuthorizedFromAuthorizers: (params: {
     useAccessGroups: boolean;
     authorizers: Array<{ configured: boolean; allowed: boolean }>;
@@ -29,7 +29,7 @@ export type ResolvedInboundDirectDmAccess = {
 
 /** Resolve direct-DM policy, effective allowlists, and optional command auth in one place. */
 export async function resolveInboundDirectDmAccessWithRuntime(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: ChannelId;
   accountId: string;
   dmPolicy?: string | null;

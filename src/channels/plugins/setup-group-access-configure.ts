@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { WizardPrompter } from "../../wizard/prompts.js";
 import { promptChannelAccessConfig, type ChannelAccessPolicy } from "./setup-group-access.js";
 
 export async function configureChannelAccessWithAllowlist<TResolved>(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   label: string;
   currentPolicy: ChannelAccessPolicy;
@@ -11,10 +11,10 @@ export async function configureChannelAccessWithAllowlist<TResolved>(params: {
   placeholder: string;
   updatePrompt: boolean;
   skipAllowlistEntries?: boolean;
-  setPolicy: (cfg: ZhushouConfig, policy: ChannelAccessPolicy) => ZhushouConfig;
-  resolveAllowlist?: (params: { cfg: ZhushouConfig; entries: string[] }) => Promise<TResolved>;
-  applyAllowlist?: (params: { cfg: ZhushouConfig; resolved: TResolved }) => ZhushouConfig;
-}): Promise<ZhushouConfig> {
+  setPolicy: (cfg: AssistantConfig, policy: ChannelAccessPolicy) => AssistantConfig;
+  resolveAllowlist?: (params: { cfg: AssistantConfig; entries: string[] }) => Promise<TResolved>;
+  applyAllowlist?: (params: { cfg: AssistantConfig; resolved: TResolved }) => AssistantConfig;
+}): Promise<AssistantConfig> {
   let next = params.cfg;
   const accessConfig = await promptChannelAccessConfig({
     prompter: params.prompter,

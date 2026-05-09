@@ -66,9 +66,9 @@ const modelIds = models
   .map((entry) => entry?.id ?? entry?.model ?? entry?.name)
   .filter((value) => typeof value === "string");
 const targetModel =
-  modelIds.find((id) => id === "zhushou/default") ?? modelIds.find((id) => id === "zhushou");
+  modelIds.find((id) => id === "assistant/default") ?? modelIds.find((id) => id === "assistant");
 if (!targetModel) {
-  throw new Error(`zhushou model missing from Open WebUI model list: ${JSON.stringify(modelIds)}`);
+  throw new Error(`assistant model missing from Open WebUI model list: ${JSON.stringify(modelIds)}`);
 }
 
 const chatRes = await fetch(`${baseUrl}/api/chat/completions`, {

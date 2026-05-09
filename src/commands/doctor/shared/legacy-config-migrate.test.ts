@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../../config/types.js";
+import type { AssistantConfig } from "../../../config/types.js";
 import { LEGACY_CONFIG_MIGRATIONS } from "./legacy-config-migrations.js";
 
 function migrateLegacyConfigForTest(raw: unknown): {
-  config: ZhushouConfig | null;
+  config: AssistantConfig | null;
   changes: string[];
 } {
   if (!raw || typeof raw !== "object") {
@@ -16,7 +16,7 @@ function migrateLegacyConfigForTest(raw: unknown): {
   }
   return changes.length === 0
     ? { config: null, changes }
-    : { config: next as ZhushouConfig, changes };
+    : { config: next as AssistantConfig, changes };
 }
 
 describe("legacy migrate audio transcription", () => {

@@ -14,6 +14,7 @@ import {
 import { normalizeFingerprint } from "../infra/tls/fingerprint.js";
 import { rawDataToString } from "../infra/ws.js";
 import { logDebug, logError } from "../logger.js";
+import { DEFAULT_GATEWAY_PORT } from "../config/paths.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -92,7 +93,7 @@ class GatewayClientRequestError extends Error {
 }
 
 export type GatewayClientOptions = {
-  url?: string; // ws://127.0.0.1:18789
+  url?: string; // ws://127.0.0.1:3000
   connectChallengeTimeoutMs?: number;
   /** @deprecated Use connectChallengeTimeoutMs. */
   connectDelayMs?: number;
@@ -214,13 +215,13 @@ export class GatewayClient {
     this.clearConnectChallengeTimeout();
     this.connectNonce = null;
     this.connectSent = false;
-    const url = this.opts.url ?? "ws://127.0.0.1:18789";
+    const url = this.opts.url ?? `ws://127.0.0.1:${DEFAULT_GATEWAY_PORT}`;
     if (this.opts.tlsFingerprint && !url.startsWith("wss://")) {
       this.opts.onConnectError?.(new Error("gateway tls fingerprint requires wss:// gateway url"));
       return;
     }
 
-    const allowPrivateWs = process.env.ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS === "1";
+    const allowPrivateWs = process.env.ASSISTANT_ALLOW_INSECURE_PRIVATE_WS === "1";
     // Security check: block ALL plaintext ws:// to non-loopback addresses (CWE-319, CVSS 9.8)
     // This protects both credentials AND chat/conversation data from MITM attacks.
     // Device tokens may be loaded later in sendConnect(), so we block regardless of hasCredentials.
@@ -236,11 +237,11 @@ export class GatewayClient {
         `SECURITY ERROR: Cannot connect to "${displayHost}" over plaintext ws://. ` +
           "Both credentials and chat data would be exposed to network interception. " +
           "Use wss:// for remote URLs. Safe defaults: keep gateway.bind=loopback and connect via SSH tunnel " +
-          "(ssh -N -L 18789:127.0.0.1:18789 user@gateway-host), or use Tailscale Serve/Funnel. " +
+          `(ssh -N -L ${DEFAULT_GATEWAY_PORT}:127.0.0.1:${DEFAULT_GATEWAY_PORT} user@gateway-host), or use Tailscale Serve/Funnel. ` +
           (allowPrivateWs
             ? ""
-            : "Break-glass (trusted private networks only): set ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS=1. ") +
-          "Run `zhushou doctor --fix` for guidance.",
+            : "Break-glass (trusted private networks only): set ASSISTANT_ALLOW_INSECURE_PRIVATE_WS=1. ") +
+          "Run `assistant doctor --fix` for guidance.",
       );
       this.opts.onConnectError?.(error);
       return;
@@ -661,7 +662,7 @@ export class GatewayClient {
   }
 
   private isTrustedDeviceRetryEndpoint(): boolean {
-    const rawUrl = this.opts.url ?? "ws://127.0.0.1:18789";
+    const rawUrl = this.opts.url ?? `ws://127.0.0.1:${DEFAULT_GATEWAY_PORT}`;
     try {
       const parsed = new URL(rawUrl);
       const protocol =

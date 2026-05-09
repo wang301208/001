@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { collectEnabledInsecureOrDangerousFlags } from "./dangerous-config-flags.js";
 
 const { loadPluginManifestRegistryMock } = vi.hoisted(() => ({
@@ -10,8 +10,8 @@ vi.mock("../plugins/manifest-registry.js", () => ({
   loadPluginManifestRegistry: loadPluginManifestRegistryMock,
 }));
 
-function asConfig(value: unknown): ZhushouConfig {
-  return value as ZhushouConfig;
+function asConfig(value: unknown): AssistantConfig {
+  return value as AssistantConfig;
 }
 
 describe("collectEnabledInsecureOrDangerousFlags", () => {

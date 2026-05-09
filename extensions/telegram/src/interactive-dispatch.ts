@@ -5,7 +5,7 @@ import {
   type PluginConversationBindingRequestParams,
   type PluginConversationBindingRequestResult,
   type PluginInteractiveRegistration,
-} from "zhushou/plugin-sdk/plugin-runtime";
+} from "assistant/plugin-sdk/plugin-runtime";
 
 export type TelegramInteractiveButtons = Array<
   Array<{ text: string; callback_data: string; style?: "danger" | "success" | "primary" }>

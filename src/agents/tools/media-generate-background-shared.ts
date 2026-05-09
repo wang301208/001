@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { parseAgentSessionKey } from "../../sessions/session-key-utils.js";
@@ -54,7 +54,7 @@ type FailMediaGenerationTaskRunParams = {
 };
 
 type WakeMediaGenerationTaskCompletionParams = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   handle: MediaGenerationTaskHandle | null;
   status: "ok" | "error";
   statusLabel: string;
@@ -198,7 +198,7 @@ function buildMediaGenerationReplyInstruction(params: {
   ].join(" ");
 }
 
-function isAsyncMediaDirectSendEnabled(config: ZhushouConfig | undefined): boolean {
+function isAsyncMediaDirectSendEnabled(config: AssistantConfig | undefined): boolean {
   return config?.tools?.media?.asyncCompletion?.directSend === true;
 }
 
@@ -241,7 +241,7 @@ async function maybeDeliverMediaGenerationResultDirectly(params: {
 }
 
 export async function wakeMediaGenerationTaskCompletion(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   handle: MediaGenerationTaskHandle | null;
   status: "ok" | "error";
   statusLabel: string;

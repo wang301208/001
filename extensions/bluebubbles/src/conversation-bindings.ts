@@ -1,10 +1,10 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   createAccountScopedConversationBindingManager,
   resetAccountScopedConversationBindingsForTests,
   type AccountScopedConversationBindingManager,
   type BindingTargetKind,
-} from "zhushou/plugin-sdk/thread-bindings-runtime";
+} from "assistant/plugin-sdk/thread-bindings-runtime";
 
 type BlueBubblesBindingTargetKind = "subagent" | "acp";
 
@@ -12,7 +12,7 @@ type BlueBubblesConversationBindingManager =
   AccountScopedConversationBindingManager<BlueBubblesBindingTargetKind>;
 
 const BLUEBUBBLES_CONVERSATION_BINDINGS_STATE_KEY = Symbol.for(
-  "zhushou.bluebubblesConversationBindingsState",
+  "assistant.bluebubblesConversationBindingsState",
 );
 
 function toSessionBindingTargetKind(raw: BlueBubblesBindingTargetKind): BindingTargetKind {
@@ -25,7 +25,7 @@ function toBlueBubblesTargetKind(raw: BindingTargetKind): BlueBubblesBindingTarg
 
 export function createBlueBubblesConversationBindingManager(params: {
   accountId?: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
 }): BlueBubblesConversationBindingManager {
   return createAccountScopedConversationBindingManager({
     channel: "bluebubbles",

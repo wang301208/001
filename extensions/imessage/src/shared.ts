@@ -1,11 +1,11 @@
-import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   formatTrimmedAllowFromEntries,
-} from "zhushou/plugin-sdk/channel-config-helpers";
-import { createRestrictSendersChannelSecurity } from "zhushou/plugin-sdk/channel-policy";
-import { createChannelPluginBase } from "zhushou/plugin-sdk/core";
+} from "assistant/plugin-sdk/channel-config-helpers";
+import { createRestrictSendersChannelSecurity } from "assistant/plugin-sdk/channel-policy";
+import { createChannelPluginBase } from "assistant/plugin-sdk/core";
 import {
   listIMessageAccountIds,
   resolveDefaultIMessageAccountId,

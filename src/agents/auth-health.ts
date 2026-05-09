@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   type AuthCredentialReasonCode,
   evaluateStoredCredentialEligibility,
@@ -97,7 +97,7 @@ function buildProfileHealth(params: {
   profileId: string;
   credential: AuthProfileCredential;
   store: AuthProfileStore;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   now: number;
   warnAfterMs: number;
 }): AuthProfileHealth {
@@ -185,7 +185,7 @@ function buildProfileHealth(params: {
 
 export function buildAuthHealthSummary(params: {
   store: AuthProfileStore;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   warnAfterMs?: number;
   providers?: string[];
 }): AuthHealthSummary {

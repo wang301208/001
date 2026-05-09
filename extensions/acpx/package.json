@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/acpx",
+  "name": "@assistant/acpx",
   "version": "2026.4.16",
   "description": "助手 ACP runtime backend",
   "type": "module",
@@ -7,9 +7,9 @@
     "acpx": "0.5.3"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

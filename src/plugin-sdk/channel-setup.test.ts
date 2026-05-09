@@ -7,7 +7,7 @@ describe("createOptionalChannelSetupSurface", () => {
     const setup = createOptionalChannelSetupSurface({
       channel: "example",
       label: "Example",
-      npmSpec: "@zhushou/example",
+      npmSpec: "@assistant/example",
       docsPath: "/channels/example",
     });
 
@@ -18,7 +18,7 @@ describe("createOptionalChannelSetupSurface", () => {
         accountId: "default",
         input: {},
       }),
-    ).toContain("@zhushou/example");
+    ).toContain("@assistant/example");
     expect(setup.setupWizard.channel).toBe("example");
     expect(setup.setupWizard.status.unconfiguredHint).toContain("/channels/example");
     await expect(
@@ -30,6 +30,6 @@ describe("createOptionalChannelSetupSurface", () => {
           exit: async () => {},
         },
       }),
-    ).rejects.toThrow("@zhushou/example");
+    ).rejects.toThrow("@assistant/example");
   });
 });

@@ -23,7 +23,7 @@ vi.mock("@google/genai", () => ({
   GoogleGenAI: GoogleGenAIMock,
 }));
 
-import * as providerAuthRuntime from "zhushou/plugin-sdk/provider-auth-runtime";
+import * as providerAuthRuntime from "assistant/plugin-sdk/provider-auth-runtime";
 import { expectExplicitVideoGenerationCapabilities } from "../../test/helpers/media-generation/provider-capability-assertions.js";
 import { buildGoogleVideoGenerationProvider } from "./video-generation-provider.js";
 

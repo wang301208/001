@@ -3,7 +3,7 @@ import path from "node:path";
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectDurableServiceEnvVars } from "../config/state-dir-dotenv.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { resolveGatewayLaunchAgentLabel } from "../daemon/constants.js";
 import { resolveGatewayProgramArguments } from "../daemon/program-args.js";
 import { buildServiceEnvironment } from "../daemon/service-env.js";
@@ -28,7 +28,7 @@ export type GatewayInstallPlan = {
   environment: Record<string, string | undefined>;
 };
 
-const MANAGED_SERVICE_ENV_KEYS_VAR = "OPENCLAW_SERVICE_MANAGED_ENV_KEYS";
+const MANAGED_SERVICE_ENV_KEYS_VAR = "ASSISTANT_SERVICE_MANAGED_ENV_KEYS";
 const WINDOWS_ABSOLUTE_PATH_RE = /^[A-Za-z]:[\\/]/;
 
 let daemonInstallAuthProfileSourceRuntimePromise:
@@ -240,7 +240,7 @@ function collectPreservedExistingServiceEnvVars(
       upper === "HOME" ||
       upper === "PATH" ||
       upper === "TMPDIR" ||
-      upper.startsWith("OPENCLAW_")
+      upper.startsWith("ASSISTANT_")
     ) {
       continue;
     }
@@ -261,7 +261,7 @@ function collectPreservedExistingServiceEnvVars(
 
 async function buildGatewayInstallEnvironment(params: {
   env: Record<string, string | undefined>;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   authStore?: AuthProfileStore;
   warn?: DaemonInstallWarnFn;
   serviceEnvironment: Record<string, string | undefined>;
@@ -310,7 +310,7 @@ export async function buildGatewayInstallPlan(params: {
   nodePath?: string;
   warn?: DaemonInstallWarnFn;
   /** Full config to extract env vars from (env vars + inline env keys). */
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   authStore?: AuthProfileStore;
 }): Promise<GatewayInstallPlan> {
   const { devMode, nodePath } = await resolveDaemonInstallRuntimeInputs({
@@ -337,7 +337,7 @@ export async function buildGatewayInstallPlan(params: {
     port: params.port,
     launchdLabel:
       process.platform === "darwin"
-        ? resolveGatewayLaunchAgentLabel(params.env.ZHUSHOU_PROFILE)
+        ? resolveGatewayLaunchAgentLabel(params.env.ASSISTANT_PROFILE)
         : undefined,
     extraPathDirs: resolveDaemonNodeBinDir(nodePath),
   });
@@ -360,5 +360,5 @@ export async function buildGatewayInstallPlan(params: {
 export function gatewayInstallErrorHint(platform = process.platform): string {
   return platform === "win32"
     ? "Tip: native Windows now falls back to a per-user Startup-folder login item when Scheduled Task creation is denied; if install still fails, rerun from an elevated PowerShell or skip service install."
-    : `Tip: rerun \`${formatCliCommand("openclaw gateway install")}\` after fixing the error.`;
+    : `Tip: rerun \`${formatCliCommand("assistant gateway install")}\` after fixing the error.`;
 }

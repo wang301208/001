@@ -1,8 +1,8 @@
 import {
   definePluginEntry,
-  type ZhushouPluginApi,
+  type AssistantPluginApi,
   type ProviderAuthMethodNonInteractiveContext,
-} from "zhushou/plugin-sdk/plugin-entry";
+} from "assistant/plugin-sdk/plugin-entry";
 import {
   buildVllmProvider,
   VLLM_DEFAULT_API_KEY_ENV_VAR,
@@ -14,14 +14,14 @@ import {
 const PROVIDER_ID = "vllm";
 
 async function loadProviderSetup() {
-  return await import("zhushou/plugin-sdk/provider-setup");
+  return await import("assistant/plugin-sdk/provider-setup");
 }
 
 export default definePluginEntry({
   id: "vllm",
   name: "vLLM Provider",
   description: "Bundled vLLM provider plugin",
-  register(api: ZhushouPluginApi) {
+  register(api: AssistantPluginApi) {
     api.registerProvider({
       id: PROVIDER_ID,
       label: "vLLM",
@@ -87,8 +87,8 @@ export default definePluginEntry({
       },
       buildUnknownModelHint: () =>
         "vLLM requires authentication to be registered as a provider. " +
-        'Set VLLM_API_KEY (any value works) or run "zhushou configure". ' +
-        "See: https://docs.zhushou.ai/providers/vllm",
+        'Set VLLM_API_KEY (any value works) or run "assistant configure". ' +
+        "See: https://docs.assistant.ai/providers/vllm",
     });
   },
 });

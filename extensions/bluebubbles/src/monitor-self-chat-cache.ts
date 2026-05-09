@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { extractHandleFromChatGuid, normalizeBlueBubblesHandle } from "./targets.js";
 
 type SelfChatCacheKeyParts = {

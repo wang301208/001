@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bundledDistPluginFile } from "../../test/helpers/bundled-plugin-paths.js";
-import { clearPluginDiscoveryCache, discoverOpenClawPlugins } from "./discovery.js";
+import { clearPluginDiscoveryCache, discoverAssistantPlugins } from "./discovery.js";
 import {
   cleanupTrackedTempDirs,
   makeTrackedTempDir,
@@ -12,7 +12,7 @@ import {
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  return makeTrackedTempDir("zhushou-plugins", tempDirs);
+  return makeTrackedTempDir("assistant-plugins", tempDirs);
 }
 
 const mkdirSafe = mkdirSafeDir;
@@ -36,9 +36,9 @@ function hasDiagnosticSourceSuffix(
 
 function buildDiscoveryEnv(stateDir: string): NodeJS.ProcessEnv {
   return {
-    ZHUSHOU_STATE_DIR: stateDir,
-    ZHUSHOU_HOME: undefined,
-    OPENCLAW_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+    ASSISTANT_STATE_DIR: stateDir,
+    ASSISTANT_HOME: undefined,
+    ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
   };
 }
 
@@ -48,20 +48,20 @@ function buildCachedDiscoveryEnv(
 ): NodeJS.ProcessEnv {
   return {
     ...buildDiscoveryEnv(stateDir),
-    OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS: "5000",
+    ASSISTANT_PLUGIN_DISCOVERY_CACHE_MS: "5000",
     ...overrides,
   };
 }
 
 async function discoverWithStateDir(
   stateDir: string,
-  params: Parameters<typeof discoverOpenClawPlugins>[0],
+  params: Parameters<typeof discoverAssistantPlugins>[0],
 ) {
-  return discoverOpenClawPlugins({ ...params, env: buildDiscoveryEnv(stateDir) });
+  return discoverAssistantPlugins({ ...params, env: buildDiscoveryEnv(stateDir) });
 }
 
-function discoverWithCachedEnv(params: Parameters<typeof discoverOpenClawPlugins>[0]) {
-  return discoverOpenClawPlugins(params);
+function discoverWithCachedEnv(params: Parameters<typeof discoverAssistantPlugins>[0]) {
+  return discoverAssistantPlugins(params);
 }
 
 function writePluginPackageManifest(params: {
@@ -73,7 +73,7 @@ function writePluginPackageManifest(params: {
     path.join(params.packageDir, "package.json"),
     JSON.stringify({
       name: params.packageName,
-      zhushou: { extensions: params.extensions },
+      assistant: { extensions: params.extensions },
     }),
     "utf-8",
   );
@@ -81,7 +81,7 @@ function writePluginPackageManifest(params: {
 
 function writePluginManifest(params: { pluginDir: string; id: string }) {
   fs.writeFileSync(
-    path.join(params.pluginDir, "zhushou.plugin.json"),
+    path.join(params.pluginDir, "assistant.plugin.json"),
     JSON.stringify({
       id: params.id,
       configSchema: { type: "object" },
@@ -174,7 +174,7 @@ function expectEscapesPackageDiagnostic(diagnostics: Array<{ message: string }>)
 }
 
 function expectCandidatePresence(
-  result: Awaited<ReturnType<typeof discoverOpenClawPlugins>>,
+  result: Awaited<ReturnType<typeof discoverAssistantPlugins>>,
   params: { present?: readonly string[]; absent?: readonly string[] },
 ) {
   const ids = result.candidates.map((candidate) => candidate.idHint);
@@ -263,7 +263,7 @@ afterEach(() => {
   cleanupTrackedTempDirs(tempDirs);
 });
 
-describe("discoverOpenClawPlugins", () => {
+describe("discoverAssistantPlugins", () => {
   it("discovers global and workspace extensions", async () => {
     const stateDir = makeTempDir();
     const workspaceDir = path.join(stateDir, "workspace");
@@ -272,7 +272,7 @@ describe("discoverOpenClawPlugins", () => {
     mkdirSafe(globalExt);
     fs.writeFileSync(path.join(globalExt, "alpha.ts"), "export default function () {}", "utf-8");
 
-    const workspaceExt = path.join(workspaceDir, ".zhushou", "extensions");
+    const workspaceExt = path.join(workspaceDir, ".assistant", "extensions");
     mkdirSafe(workspaceExt);
     fs.writeFileSync(path.join(workspaceExt, "beta.ts"), "export default function () {}", "utf-8");
 
@@ -283,22 +283,22 @@ describe("discoverOpenClawPlugins", () => {
   it("does not recurse arbitrary workspace directories for plugin auto-discovery", () => {
     const stateDir = makeTempDir();
     const workspaceDir = path.join(stateDir, "workspace");
-    const workspaceExt = path.join(workspaceDir, ".zhushou", "extensions");
+    const workspaceExt = path.join(workspaceDir, ".assistant", "extensions");
 
     const expectedWorkspacePluginDir = path.join(workspaceExt, "workspace-plugin");
     createPackagePluginWithEntry({
       packageDir: expectedWorkspacePluginDir,
-      packageName: "@zhushou/workspace-plugin",
+      packageName: "@assistant/workspace-plugin",
       pluginId: "workspace-plugin",
     });
 
     const unrelatedWorkspaceDir = path.join(workspaceDir, "lobster-integrations", "bin");
     createPackagePluginWithEntry({
       packageDir: unrelatedWorkspaceDir,
-      packageName: "@zhushou/stray-workspace-plugin",
+      packageName: "@assistant/stray-workspace-plugin",
     });
 
-    const result = discoverOpenClawPlugins({
+    const result = discoverAssistantPlugins({
       workspaceDir,
       env: buildDiscoveryEnv(stateDir),
     });
@@ -314,11 +314,11 @@ describe("discoverOpenClawPlugins", () => {
     const stateDir = makeTempDir();
     const homeDir = makeTempDir();
     const workspaceRoot = path.join(homeDir, "workspace");
-    const workspaceExt = path.join(workspaceRoot, ".zhushou", "extensions");
+    const workspaceExt = path.join(workspaceRoot, ".assistant", "extensions");
     mkdirSafe(workspaceExt);
     fs.writeFileSync(path.join(workspaceExt, "tilde-workspace.ts"), "export default {}", "utf-8");
 
-    const result = discoverOpenClawPlugins({
+    const result = discoverAssistantPlugins({
       workspaceDir: "~/workspace",
       env: {
         ...buildDiscoveryEnv(stateDir),
@@ -372,10 +372,10 @@ describe("discoverOpenClawPlugins", () => {
     );
     writeStandalonePlugin(path.join(bundledDir, "real-plugin.ts"), "export default {}");
 
-    const { candidates, diagnostics } = discoverOpenClawPlugins({
+    const { candidates, diagnostics } = discoverAssistantPlugins({
       env: {
         ...buildDiscoveryEnv(stateDir),
-        OPENCLAW_BUNDLED_PLUGINS_DIR: bundledDir,
+        ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
       },
     });
 
@@ -402,11 +402,11 @@ describe("discoverOpenClawPlugins", () => {
 
   it("does not discover nested node_modules copies under installed plugins", async () => {
     const stateDir = makeTempDir();
-    const pluginDir = path.join(stateDir, "extensions", "opik-zhushou");
+    const pluginDir = path.join(stateDir, "extensions", "opik-assistant");
     const nestedDiffsDir = path.join(
       pluginDir,
       "node_modules",
-      "zhushou",
+      "assistant",
       "dist",
       "extensions",
       "diffs",
@@ -416,10 +416,10 @@ describe("discoverOpenClawPlugins", () => {
 
     writePluginPackageManifest({
       packageDir: pluginDir,
-      packageName: "@opik/opik-zhushou",
+      packageName: "@opik/opik-assistant",
       extensions: ["./src/index.ts"],
     });
-    writePluginManifest({ pluginDir, id: "opik-zhushou" });
+    writePluginManifest({ pluginDir, id: "opik-assistant" });
     fs.writeFileSync(
       path.join(pluginDir, "src", "index.ts"),
       "export default function () {}",
@@ -427,8 +427,8 @@ describe("discoverOpenClawPlugins", () => {
     );
 
     writePluginPackageManifest({
-      packageDir: path.join(pluginDir, "node_modules", "zhushou"),
-      packageName: "zhushou",
+      packageDir: path.join(pluginDir, "node_modules", "assistant"),
+      packageName: "assistant",
       extensions: [`./${bundledDistPluginFile("diffs", "index.js")}`],
     });
     writePluginManifest({ pluginDir: nestedDiffsDir, id: "diffs" });
@@ -439,15 +439,15 @@ describe("discoverOpenClawPlugins", () => {
     );
 
     const { candidates } = await discoverWithStateDir(stateDir, {});
-    expectCandidateOrder(candidates, ["opik-zhushou"]);
+    expectCandidateOrder(candidates, ["opik-assistant"]);
   });
 
   it("skips dependency and build directories while scanning workspace roots", () => {
     const stateDir = makeTempDir();
     const workspaceDir = path.join(stateDir, "workspace");
-    const workspaceRoot = path.join(workspaceDir, ".zhushou", "extensions");
+    const workspaceRoot = path.join(workspaceDir, ".assistant", "extensions");
     const workspacePluginDir = path.join(workspaceRoot, "workspace-plugin");
-    const nestedNodeModulesDir = path.join(workspaceRoot, "node_modules", "zhushou");
+    const nestedNodeModulesDir = path.join(workspaceRoot, "node_modules", "assistant");
     const nestedDistDir = path.join(workspaceRoot, "dist", "extensions", "diffs");
     mkdirSafe(path.join(workspacePluginDir, "src"));
     mkdirSafe(path.join(nestedNodeModulesDir, "src"));
@@ -455,13 +455,13 @@ describe("discoverOpenClawPlugins", () => {
 
     createPackagePluginWithEntry({
       packageDir: workspacePluginDir,
-      packageName: "@zhushou/workspace-plugin",
+      packageName: "@assistant/workspace-plugin",
       pluginId: "workspace-plugin",
     });
 
     createPackagePluginWithEntry({
       packageDir: nestedNodeModulesDir,
-      packageName: "zhushou",
+      packageName: "assistant",
       pluginId: "node-modules-copy",
     });
 
@@ -472,7 +472,7 @@ describe("discoverOpenClawPlugins", () => {
       "utf-8",
     );
 
-    const { candidates } = discoverOpenClawPlugins({
+    const { candidates } = discoverAssistantPlugins({
       workspaceDir,
       env: buildDiscoveryEnv(stateDir),
     });
@@ -487,7 +487,7 @@ describe("discoverOpenClawPlugins", () => {
         const packageDir = path.join(stateDir, "extensions", "voice-call-pack");
         createPackagePluginWithEntry({
           packageDir,
-          packageName: "@zhushou/voice-call",
+          packageName: "@assistant/voice-call",
           entryPath: "src/index.ts",
         });
         return {};
@@ -500,7 +500,7 @@ describe("discoverOpenClawPlugins", () => {
         const packageDir = path.join(stateDir, "extensions", "ollama-provider-pack");
         createPackagePluginWithEntry({
           packageDir,
-          packageName: "@zhushou/ollama-provider",
+          packageName: "@assistant/ollama-provider",
           pluginId: "ollama",
           entryPath: "src/index.ts",
         });
@@ -513,8 +513,8 @@ describe("discoverOpenClawPlugins", () => {
       name: "normalizes bundled speech package ids to canonical plugin ids",
       setup: (stateDir: string) => {
         for (const [dirName, packageName, pluginId] of [
-          ["elevenlabs-speech-pack", "@zhushou/elevenlabs-speech", "elevenlabs"],
-          ["microsoft-speech-pack", "@zhushou/microsoft-speech", "microsoft"],
+          ["elevenlabs-speech-pack", "@assistant/elevenlabs-speech", "elevenlabs"],
+          ["microsoft-speech-pack", "@assistant/microsoft-speech", "microsoft"],
         ] as const) {
           const packageDir = path.join(stateDir, "extensions", dirName);
           createPackagePluginWithEntry({
@@ -535,7 +535,7 @@ describe("discoverOpenClawPlugins", () => {
         const packageDir = path.join(stateDir, "packs", "demo-plugin-dir");
         createPackagePluginWithEntry({
           packageDir,
-          packageName: "@zhushou/demo-plugin-dir",
+          packageName: "@assistant/demo-plugin-dir",
           entryPath: "index.js",
         });
         return { extraPaths: [packageDir] };
@@ -635,7 +635,7 @@ describe("discoverOpenClawPlugins", () => {
     const result = await discoverWithStateDir(stateDir, setup(stateDir));
     const legacy = findCandidateById(result.candidates, "legacy-with-bad-bundle");
 
-    expect(legacy?.format).toBe("zhushou");
+    expect(legacy?.format).toBe("assistant");
     expect(hasDiagnosticSourceSuffix(result.diagnostics, bundleMarker)).toBe(true);
   });
 
@@ -649,7 +649,7 @@ describe("discoverOpenClawPlugins", () => {
         mkdirSafe(globalExt);
         writePluginPackageManifest({
           packageDir: globalExt,
-          packageName: "@zhushou/escape-pack",
+          packageName: "@assistant/escape-pack",
           extensions: ["../../outside.js"],
         });
         fs.writeFileSync(outside, "export default function () {}", "utf-8");
@@ -663,7 +663,7 @@ describe("discoverOpenClawPlugins", () => {
         mkdirSafe(globalExt);
         writePluginPackageManifest({
           packageDir: globalExt,
-          packageName: "@zhushou/missing-entry-pack",
+          packageName: "@assistant/missing-entry-pack",
           extensions: ["./missing.ts"],
         });
         return true;
@@ -687,7 +687,7 @@ describe("discoverOpenClawPlugins", () => {
         }
         writePluginPackageManifest({
           packageDir: globalExt,
-          packageName: "@zhushou/pack",
+          packageName: "@assistant/pack",
           extensions: ["./linked/escape.ts"],
         });
         return true;
@@ -718,7 +718,7 @@ describe("discoverOpenClawPlugins", () => {
         }
         writePluginPackageManifest({
           packageDir: globalExt,
-          packageName: "@zhushou/pack",
+          packageName: "@assistant/pack",
           extensions: ["./escape.ts"],
         });
         return true;
@@ -749,8 +749,8 @@ describe("discoverOpenClawPlugins", () => {
     fs.writeFileSync(
       outsideManifest,
       JSON.stringify({
-        name: "@zhushou/pack",
-        zhushou: { extensions: ["./entry.ts"] },
+        name: "@assistant/pack",
+        assistant: { extensions: ["./entry.ts"] },
       }),
       "utf-8",
     );
@@ -794,12 +794,12 @@ describe("discoverOpenClawPlugins", () => {
       fs.writeFileSync(path.join(packDir, "index.ts"), "export default function () {}", "utf-8");
       fs.chmodSync(packDir, 0o777);
 
-      const result = discoverOpenClawPlugins({
+      const result = discoverAssistantPlugins({
         env: {
           ...process.env,
-          OPENCLAW_DISABLE_BUNDLED_PLUGINS: undefined,
-          ZHUSHOU_STATE_DIR: stateDir,
-          OPENCLAW_BUNDLED_PLUGINS_DIR: bundledDir,
+          ASSISTANT_DISABLE_BUNDLED_PLUGINS: undefined,
+          ASSISTANT_STATE_DIR: stateDir,
+          ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
         },
       });
 
@@ -866,27 +866,27 @@ describe("discoverOpenClawPlugins", () => {
 
     createPackagePluginWithEntry({
       packageDir: path.join(bundledDir, "bundled-plugin"),
-      packageName: "@zhushou/bundled-plugin",
+      packageName: "@assistant/bundled-plugin",
       pluginId: "bundled-plugin",
     });
     createPackagePluginWithEntry({
       packageDir: path.join(globalExt, "global-plugin"),
-      packageName: "@zhushou/global-plugin",
+      packageName: "@assistant/global-plugin",
       pluginId: "global-plugin",
     });
     createPackagePluginWithEntry({
-      packageDir: path.join(workspaceA, ".zhushou", "extensions", "workspace-a-plugin"),
-      packageName: "@zhushou/workspace-a-plugin",
+      packageDir: path.join(workspaceA, ".assistant", "extensions", "workspace-a-plugin"),
+      packageName: "@assistant/workspace-a-plugin",
       pluginId: "workspace-a-plugin",
     });
     createPackagePluginWithEntry({
-      packageDir: path.join(workspaceB, ".zhushou", "extensions", "workspace-b-plugin"),
-      packageName: "@zhushou/workspace-b-plugin",
+      packageDir: path.join(workspaceB, ".assistant", "extensions", "workspace-b-plugin"),
+      packageName: "@assistant/workspace-b-plugin",
       pluginId: "workspace-b-plugin",
     });
 
     const env = buildCachedDiscoveryEnv(stateDir, {
-      OPENCLAW_BUNDLED_PLUGINS_DIR: bundledDir,
+      ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
     });
     const readdirSync = vi.spyOn(fs, "readdirSync");
     const countSharedRootReads = () =>

@@ -1,8 +1,8 @@
-import type { ProviderNormalizeResolvedModelContext } from "zhushou/plugin-sdk/core";
+import type { ProviderNormalizeResolvedModelContext } from "assistant/plugin-sdk/core";
 import type {
   ModelProviderConfig,
   ProviderPlugin,
-} from "zhushou/plugin-sdk/provider-model-shared";
+} from "assistant/plugin-sdk/provider-model-shared";
 import { apiKeyAuthMethod, entraIdAuthMethod } from "./auth.js";
 import { prepareFoundryRuntimeAuth } from "./runtime.js";
 import {

@@ -1,10 +1,10 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { PluginWebSearchProviderEntry } from "../plugins/types.js";
 
 const mocks = vi.hoisted(() => ({
   resolvePluginWebSearchProviders: vi.fn<
-    (params?: { config?: ZhushouConfig }) => PluginWebSearchProviderEntry[]
+    (params?: { config?: AssistantConfig }) => PluginWebSearchProviderEntry[]
   >(() => []),
 }));
 
@@ -104,7 +104,7 @@ describe("onboard-search provider resolution", () => {
       params?.config ? [customEntry] : [],
     );
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       tools: {
         web: {
           search: {
@@ -144,7 +144,7 @@ describe("onboard-search provider resolution", () => {
       params?.config ? [customEntry] : [],
     );
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       plugins: {
         installs: {
           "custom-plugin": {
@@ -191,7 +191,7 @@ describe("onboard-search provider resolution", () => {
   it("does not treat hard-disabled bundled providers as selectable credentials", async () => {
     mocks.resolvePluginWebSearchProviders.mockReturnValue([]);
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       tools: {
         web: {
           search: {
@@ -240,7 +240,7 @@ describe("onboard-search provider resolution", () => {
       progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
     };
 
-    const result = await mod.setupSearch({} as ZhushouConfig, {} as never, prompter as never);
+    const result = await mod.setupSearch({} as AssistantConfig, {} as never, prompter as never);
 
     expect(result.tools?.web?.search?.provider).toBe("duckduckgo");
     expect(result.plugins?.entries?.duckduckgo?.enabled).toBe(true);

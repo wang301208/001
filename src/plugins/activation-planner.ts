@@ -1,5 +1,5 @@
 import { normalizeProviderId } from "../agents/provider-id.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { loadPluginManifestRegistry, type PluginManifestRecord } from "./manifest-registry.js";
 import type { PluginManifestActivationCapability } from "./manifest.js";
@@ -16,7 +16,7 @@ export type PluginActivationPlannerTrigger =
 
 export function resolveManifestActivationPluginIds(params: {
   trigger: PluginActivationPlannerTrigger;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   cache?: boolean;

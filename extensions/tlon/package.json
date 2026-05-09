@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/tlon",
+  "name": "@assistant/tlon",
   "version": "2026.4.16",
   "description": "助手 Tlon/Urbit channel plugin",
   "type": "module",
@@ -10,18 +10,18 @@
     "@urbit/aura": "^3.0.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
-    "zhushou": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*",
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
@@ -37,7 +37,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@zhushou/tlon",
+      "npmSpec": "@assistant/tlon",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

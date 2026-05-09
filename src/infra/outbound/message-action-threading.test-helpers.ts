@@ -1,8 +1,8 @@
 import { vi } from "vitest";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 
 type AutoThreadResolver = (params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   to: string;
   toolContext?: Record<string, unknown>;
@@ -10,7 +10,7 @@ type AutoThreadResolver = (params: {
 }) => string | undefined;
 
 type OutboundThreadContext = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   to: string;
   accountId?: string | null;
   toolContext?: Record<string, unknown>;
@@ -52,7 +52,7 @@ export function createOutboundThreadingMock() {
         resolveAutoThreadId,
       }: {
         actionParams: Record<string, unknown>;
-        cfg: ZhushouConfig;
+        cfg: AssistantConfig;
         to: string;
         accountId?: string | null;
         toolContext?: Record<string, unknown>;

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../api.js";
+import type { AssistantConfig } from "../api.js";
 
 type LegacyConfigRule = {
   path: Array<string | number>;
@@ -20,13 +20,13 @@ export const legacyConfigRules: LegacyConfigRule[] = [
   {
     path: ["plugins", "entries", "memory-wiki", "config", "bridge"],
     message:
-      'plugins.entries.memory-wiki.config.bridge.readMemoryCore is legacy; use plugins.entries.memory-wiki.config.bridge.readMemoryArtifacts. Run "zhushou doctor --fix".',
+      'plugins.entries.memory-wiki.config.bridge.readMemoryCore is legacy; use plugins.entries.memory-wiki.config.bridge.readMemoryArtifacts. Run "assistant doctor --fix".',
     match: hasLegacyBridgeArtifactToggle,
   },
 ];
 
-export function migrateMemoryWikiLegacyConfig(config: ZhushouConfig): {
-  config: ZhushouConfig;
+export function migrateMemoryWikiLegacyConfig(config: AssistantConfig): {
+  config: AssistantConfig;
   changes: string[];
 } | null {
   const rawEntry = asRecord(config.plugins?.entries?.["memory-wiki"]);
@@ -67,8 +67,8 @@ export function migrateMemoryWikiLegacyConfig(config: ZhushouConfig): {
   };
 }
 
-export function normalizeCompatibilityConfig({ cfg }: { cfg: ZhushouConfig }): {
-  config: ZhushouConfig;
+export function normalizeCompatibilityConfig({ cfg }: { cfg: AssistantConfig }): {
+  config: AssistantConfig;
   changes: string[];
 } {
   return migrateMemoryWikiLegacyConfig(cfg) ?? { config: cfg, changes: [] };

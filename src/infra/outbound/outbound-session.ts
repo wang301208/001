@@ -6,7 +6,7 @@ import {
   recordSessionMetaFromInbound,
   resolveStorePath,
 } from "../../config/sessions/inbound.runtime.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { buildAgentSessionKey, type RoutePeer } from "../../routing/resolve-route.js";
 import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
@@ -23,7 +23,7 @@ export type OutboundSessionRoute = {
 };
 
 export type ResolveOutboundSessionRouteParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: ChannelId;
   agentId: string;
   accountId?: string | null;
@@ -77,7 +77,7 @@ function inferPeerKind(params: {
 }
 
 function buildBaseSessionKey(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   channel: ChannelId;
   accountId?: string | null;
@@ -149,7 +149,7 @@ export async function resolveOutboundSessionRoute(
 }
 
 export async function ensureOutboundSessionEntry(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: ChannelId;
   accountId?: string | null;
   route: OutboundSessionRoute;

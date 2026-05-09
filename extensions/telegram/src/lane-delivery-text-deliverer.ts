@@ -1,5 +1,5 @@
-import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
 import type { TelegramInlineButtons } from "./button-types.js";
 import type { TelegramDraftStream } from "./draft-stream.js";
 import {

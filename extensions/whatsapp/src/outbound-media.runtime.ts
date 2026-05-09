@@ -1,4 +1,4 @@
-import { loadWebMedia } from "zhushou/plugin-sdk/web-media";
+import { loadWebMedia } from "assistant/plugin-sdk/web-media";
 
 export async function loadOutboundMediaFromUrl(
   mediaUrl: string,

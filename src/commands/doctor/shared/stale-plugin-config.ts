@@ -1,5 +1,5 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../../agents/agent-scope.js";
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import { normalizePluginId } from "../../../plugins/config-state.js";
 import { loadPluginManifestRegistry } from "../../../plugins/manifest-registry.js";
 import { sanitizeForLog } from "../../../terminal/ansi.js";
@@ -19,7 +19,7 @@ type StalePluginRegistryState = {
 };
 
 function collectPluginRegistryState(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env?: NodeJS.ProcessEnv,
 ): StalePluginRegistryState {
   const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
@@ -35,14 +35,14 @@ function collectPluginRegistryState(
 }
 
 export function isStalePluginAutoRepairBlocked(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env?: NodeJS.ProcessEnv,
 ): boolean {
   return collectPluginRegistryState(cfg, env).hasDiscoveryErrors;
 }
 
 export function scanStalePluginConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env?: NodeJS.ProcessEnv,
 ): StalePluginConfigHit[] {
   const plugins = asObjectRecord(cfg.plugins);
@@ -118,10 +118,10 @@ export function collectStalePluginConfigWarnings(params: {
 }
 
 export function maybeRepairStalePluginConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env?: NodeJS.ProcessEnv,
 ): {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changes: string[];
 } {
   const plugins = asObjectRecord(cfg.plugins);

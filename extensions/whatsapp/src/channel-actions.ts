@@ -3,11 +3,11 @@ import {
   resolveWhatsAppAccount,
   createActionGate,
   type ChannelMessageActionName,
-  type ZhushouConfig,
+  type AssistantConfig,
   resolveWhatsAppReactionLevel,
 } from "./channel-actions.runtime.js";
 
-function areWhatsAppAgentReactionsEnabled(params: { cfg: ZhushouConfig; accountId?: string }) {
+function areWhatsAppAgentReactionsEnabled(params: { cfg: AssistantConfig; accountId?: string }) {
   if (!params.cfg.channels?.whatsapp) {
     return false;
   }
@@ -21,7 +21,7 @@ function areWhatsAppAgentReactionsEnabled(params: { cfg: ZhushouConfig; accountI
   }).agentReactionsEnabled;
 }
 
-function hasAnyWhatsAppAccountWithAgentReactionsEnabled(cfg: ZhushouConfig) {
+function hasAnyWhatsAppAccountWithAgentReactionsEnabled(cfg: AssistantConfig) {
   if (!cfg.channels?.whatsapp) {
     return false;
   }
@@ -38,7 +38,7 @@ function hasAnyWhatsAppAccountWithAgentReactionsEnabled(cfg: ZhushouConfig) {
 }
 
 export function resolveWhatsAppAgentReactionGuidance(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string;
 }) {
   if (!params.cfg.channels?.whatsapp) {
@@ -59,7 +59,7 @@ export function resolveWhatsAppAgentReactionGuidance(params: {
 }
 
 export function describeWhatsAppMessageActions(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): { actions: ChannelMessageActionName[] } | null {
   if (!params.cfg.channels?.whatsapp) {

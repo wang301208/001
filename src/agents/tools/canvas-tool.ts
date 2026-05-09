@@ -4,7 +4,7 @@ import path from "node:path";
 import { Type } from "@sinclair/typebox";
 import { writeBase64ToFile } from "../../cli/nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../../cli/nodes-canvas.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 import { isInboundPathAllowed } from "../../media/inbound-path-policy.js";
 import { getDefaultMediaLocalRoots } from "../../media/local-roots.js";
@@ -78,7 +78,7 @@ const CanvasToolSchema = Type.Object({
   jsonlPath: Type.Optional(Type.String()),
 });
 
-export function createCanvasTool(options?: { config?: ZhushouConfig }): AnyAgentTool {
+export function createCanvasTool(options?: { config?: AssistantConfig }): AnyAgentTool {
   const imageSanitization = resolveImageSanitizationLimits(options?.config);
   return {
     label: "Canvas",

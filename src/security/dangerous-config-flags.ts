@@ -1,5 +1,5 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   collectPluginConfigContractMatches,
   resolvePluginConfigContractsById,
@@ -10,7 +10,7 @@ function formatDangerousConfigFlagValue(value: string | number | boolean | null)
   return value === null ? "null" : String(value);
 }
 
-export function collectEnabledInsecureOrDangerousFlags(cfg: ZhushouConfig): string[] {
+export function collectEnabledInsecureOrDangerousFlags(cfg: AssistantConfig): string[] {
   const enabledFlags: string[] = [];
   if (cfg.gateway?.controlUi?.allowInsecureAuth === true) {
     enabledFlags.push("gateway.controlUi.allowInsecureAuth=true");

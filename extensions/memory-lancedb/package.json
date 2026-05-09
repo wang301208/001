@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/memory-lancedb",
+  "name": "@assistant/memory-lancedb",
   "version": "2026.4.16",
   "description": "助手 LanceDB-backed long-term memory plugin with auto-recall/capture",
   "type": "module",
@@ -9,14 +9,14 @@
     "openai": "^6.34.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
     "install": {
-      "npmSpec": "@zhushou/memory-lancedb",
+      "npmSpec": "@assistant/memory-lancedb",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -24,7 +24,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "zhushouVersion": "2026.4.16"
+      "assistantVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

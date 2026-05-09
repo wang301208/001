@@ -8,7 +8,7 @@ let tempDir: string;
 
 describe("mirrorCodexAppServerTranscript", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-codex-transcript-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-codex-transcript-"));
   });
 
   afterEach(async () => {

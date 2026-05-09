@@ -1,8 +1,8 @@
 import type { Guild } from "@buape/carbon";
-import { resolveCommandAuthorizedFromAuthorizers } from "zhushou/plugin-sdk/command-auth-native";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { DiscordAccountConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveOpenProviderRuntimeGroupPolicy } from "zhushou/plugin-sdk/runtime-group-policy";
+import { resolveCommandAuthorizedFromAuthorizers } from "assistant/plugin-sdk/command-auth-native";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { DiscordAccountConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveOpenProviderRuntimeGroupPolicy } from "assistant/plugin-sdk/runtime-group-policy";
 import {
   isDiscordGroupAllowedByPolicy,
   resolveDiscordChannelConfigWithFallback,
@@ -12,7 +12,7 @@ import {
 } from "../monitor/allow-list.js";
 
 export async function authorizeDiscordVoiceIngress(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   discordConfig: DiscordAccountConfig;
   groupPolicy?: "open" | "disabled" | "allowlist";
   useAccessGroups?: boolean;

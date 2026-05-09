@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-logs.sh"
-IMAGE_NAME="openclaw-doctor-install-switch-e2e"
+IMAGE_NAME="assistant-doctor-install-switch-e2e"
 
 echo "Building Docker image..."
 run_logged doctor-switch-build docker build -t "$IMAGE_NAME" -f "$ROOT_DIR/scripts/e2e/Dockerfile" "$ROOT_DIR"
@@ -18,10 +18,10 @@ docker run --rm -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0 "$IMAGE_NAME" bash -lc '
   export npm_config_audit=false
 
   # Stub systemd/loginctl so doctor + daemon flows work in Docker.
-  export PATH="/tmp/openclaw-bin:$PATH"
-  mkdir -p /tmp/openclaw-bin
+  export PATH="/tmp/assistant-bin:$PATH"
+  mkdir -p /tmp/assistant-bin
 
-  cat > /tmp/openclaw-bin/systemctl <<"SYSTEMCTL"
+  cat > /tmp/assistant-bin/systemctl <<"SYSTEMCTL"
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -57,9 +57,9 @@ case "$cmd" in
     ;;
 esac
 SYSTEMCTL
-  chmod +x /tmp/openclaw-bin/systemctl
+  chmod +x /tmp/assistant-bin/systemctl
 
-  cat > /tmp/openclaw-bin/loginctl <<"LOGINCTL"
+  cat > /tmp/assistant-bin/loginctl <<"LOGINCTL"
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -72,7 +72,7 @@ if [[ "$*" == *"enable-linger"* ]]; then
 fi
 exit 0
 LOGINCTL
-  chmod +x /tmp/openclaw-bin/loginctl
+  chmod +x /tmp/assistant-bin/loginctl
 
   # Install the npm-global variant from the local /app source.
   # `npm pack` can emit script output; keep only the tarball name.
@@ -81,14 +81,14 @@ LOGINCTL
     echo "npm pack failed (expected /app/$pkg_tgz)"
     exit 1
   fi
-  npm_log="/tmp/openclaw-doctor-switch-npm-install.log"
+  npm_log="/tmp/assistant-doctor-switch-npm-install.log"
   if ! npm install -g --prefix /tmp/npm-prefix "/app/$pkg_tgz" >"$npm_log" 2>&1; then
     cat "$npm_log"
     exit 1
   fi
 
-	  npm_bin="/tmp/npm-prefix/bin/openclaw"
-	  npm_root="/tmp/npm-prefix/lib/node_modules/openclaw"
+	  npm_bin="/tmp/npm-prefix/bin/assistant"
+	  npm_root="/tmp/npm-prefix/lib/node_modules/assistant"
 	  if [ -f "$npm_root/dist/index.mjs" ]; then
 	    npm_entry="$npm_root/dist/index.mjs"
 	  else
@@ -100,7 +100,7 @@ LOGINCTL
 	  else
 	    git_entry="/app/dist/index.js"
 	  fi
-	  git_cli="/app/openclaw.mjs"
+	  git_cli="/app/assistant.mjs"
 
   assert_entrypoint() {
     local unit_path="$1"
@@ -129,11 +129,11 @@ LOGINCTL
     local install_expected="$3"
     local doctor_cmd="$4"
     local doctor_expected="$5"
-    local install_log="/tmp/openclaw-doctor-switch-${name}-install.log"
-    local doctor_log="/tmp/openclaw-doctor-switch-${name}-doctor.log"
+    local install_log="/tmp/assistant-doctor-switch-${name}-install.log"
+    local doctor_log="/tmp/assistant-doctor-switch-${name}-doctor.log"
 
     echo "== Flow: $name =="
-    home_dir=$(mktemp -d "/tmp/openclaw-switch-${name}.XXXXXX")
+    home_dir=$(mktemp -d "/tmp/assistant-switch-${name}.XXXXXX")
     export HOME="$home_dir"
     export USER="testuser"
 
@@ -142,7 +142,7 @@ LOGINCTL
       exit 1
     fi
 
-    unit_path="$HOME/.config/systemd/user/openclaw-gateway.service"
+    unit_path="$HOME/.config/systemd/user/assistant-gateway.service"
     if [ ! -f "$unit_path" ]; then
       echo "Missing unit file: $unit_path"
       exit 1

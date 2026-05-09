@@ -1,4 +1,5 @@
 import { resolveStateDir } from "../../config/paths.js";
+import { loadGovernanceCharter } from "../../governance/charter-runtime.js";
 import {
   generateImage as generateRuntimeImage,
   listRuntimeImageGenerationProviders,
@@ -142,7 +143,7 @@ function createUnavailableSubagentRuntime(): PluginRuntime["subagent"] {
 // ordinary plugin runtimes.
 
 const GATEWAY_SUBAGENT_SYMBOL: unique symbol = Symbol.for(
-  "zhushou.plugin.gatewaySubagentRuntime",
+  "assistant.plugin.gatewaySubagentRuntime",
 ) as unknown as typeof GATEWAY_SUBAGENT_SYMBOL;
 
 type GatewaySubagentState = {
@@ -207,8 +208,10 @@ export function createPluginRuntime(_options: CreatePluginRuntimeOptions = {}): 
   const tasks = createRuntimeTasks({
     legacyTaskFlow: taskFlow,
   });
+  const charterDir = loadGovernanceCharter().charterDir;
   const autonomy = createRuntimeAutonomy({
     legacyTaskFlow: taskFlow,
+    charterDir,
   });
   const runtime = {
     // Sourced from the shared 助手 version resolver (#52899) so plugins

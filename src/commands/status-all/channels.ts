@@ -17,7 +17,7 @@ import type {
   ChannelPlugin,
 } from "../../channels/plugins/types.public.js";
 import { inspectReadOnlyChannelAccount } from "../../channels/read-only-account-inspect.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { asRecord } from "../../shared/record-coerce.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import {
@@ -41,8 +41,8 @@ type ChannelAccountRow = ChannelAccountTokenSummaryRow & {
 
 type ResolvedChannelAccountRowParams = {
   plugin: ChannelPlugin;
-  cfg: ZhushouConfig;
-  sourceConfig: ZhushouConfig;
+  cfg: AssistantConfig;
+  sourceConfig: AssistantConfig;
   accountId: string;
 };
 
@@ -60,7 +60,7 @@ function existsSyncMaybe(p: string | undefined): boolean | null {
 
 async function inspectChannelAccount(
   plugin: ChannelPlugin,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
 ) {
   return (
@@ -127,7 +127,7 @@ const formatAccountLabel = (params: { accountId: string; name?: string }) => {
 
 const buildAccountNotes = (params: {
   plugin: ChannelPlugin;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   entry: ChannelAccountRow;
 }) => {
   const { plugin, cfg, entry } = params;
@@ -227,8 +227,8 @@ function collectMissingPaths(accounts: ChannelAccountRow[]): string[] {
 // `status --all` channels table.
 // Keep this generic: channel-specific rules belong in the channel plugin.
 export async function buildChannelsTable(
-  cfg: ZhushouConfig,
-  opts?: { showSecrets?: boolean; sourceConfig?: ZhushouConfig },
+  cfg: AssistantConfig,
+  opts?: { showSecrets?: boolean; sourceConfig?: AssistantConfig },
 ): Promise<{
   rows: ChannelRow[];
   details: Array<{

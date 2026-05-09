@@ -1,4 +1,4 @@
-export type { ZhushouConfig } from "../config/config.js";
+export type { AssistantConfig } from "../config/config.js";
 export type { LineChannelData, LineConfig } from "./line-surface.js";
 export {
   createTopLevelChannelDmPolicy,

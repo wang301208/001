@@ -20,47 +20,47 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "help flag",
-      argv: ["node", "zhushou", "--help"],
+      argv: ["node", "assistant", "--help"],
       expected: true,
     },
     {
       name: "version flag",
-      argv: ["node", "zhushou", "-V"],
+      argv: ["node", "assistant", "-V"],
       expected: true,
     },
     {
       name: "normal command",
-      argv: ["node", "zhushou", "status"],
+      argv: ["node", "assistant", "status"],
       expected: false,
     },
     {
       name: "root -v alias",
-      argv: ["node", "zhushou", "-v"],
+      argv: ["node", "assistant", "-v"],
       expected: true,
     },
     {
       name: "root -v alias with profile",
-      argv: ["node", "zhushou", "--profile", "work", "-v"],
+      argv: ["node", "assistant", "--profile", "work", "-v"],
       expected: true,
     },
     {
       name: "root -v alias with log-level",
-      argv: ["node", "zhushou", "--log-level", "debug", "-v"],
+      argv: ["node", "assistant", "--log-level", "debug", "-v"],
       expected: true,
     },
     {
       name: "subcommand -v should not be treated as version",
-      argv: ["node", "zhushou", "acp", "-v"],
+      argv: ["node", "assistant", "acp", "-v"],
       expected: false,
     },
     {
       name: "root -v alias with equals profile",
-      argv: ["node", "zhushou", "--profile=work", "-v"],
+      argv: ["node", "assistant", "--profile=work", "-v"],
       expected: true,
     },
     {
       name: "subcommand path after global root flags should not be treated as version",
-      argv: ["node", "zhushou", "--dev", "skills", "list", "-v"],
+      argv: ["node", "assistant", "--dev", "skills", "list", "-v"],
       expected: false,
     },
   ])("detects help/version flags: $name", ({ argv, expected }) => {
@@ -70,27 +70,27 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "root --version",
-      argv: ["node", "zhushou", "--version"],
+      argv: ["node", "assistant", "--version"],
       expected: true,
     },
     {
       name: "root -V",
-      argv: ["node", "zhushou", "-V"],
+      argv: ["node", "assistant", "-V"],
       expected: true,
     },
     {
       name: "root -v alias with profile",
-      argv: ["node", "zhushou", "--profile", "work", "-v"],
+      argv: ["node", "assistant", "--profile", "work", "-v"],
       expected: true,
     },
     {
       name: "subcommand version flag",
-      argv: ["node", "zhushou", "status", "--version"],
+      argv: ["node", "assistant", "status", "--version"],
       expected: false,
     },
     {
       name: "unknown root flag with version",
-      argv: ["node", "zhushou", "--unknown", "--version"],
+      argv: ["node", "assistant", "--unknown", "--version"],
       expected: false,
     },
   ])("detects root-only version invocations: $name", ({ argv, expected }) => {
@@ -100,42 +100,42 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "root --help",
-      argv: ["node", "zhushou", "--help"],
+      argv: ["node", "assistant", "--help"],
       expected: true,
     },
     {
       name: "root -h",
-      argv: ["node", "zhushou", "-h"],
+      argv: ["node", "assistant", "-h"],
       expected: true,
     },
     {
       name: "root --help with profile",
-      argv: ["node", "zhushou", "--profile", "work", "--help"],
+      argv: ["node", "assistant", "--profile", "work", "--help"],
       expected: true,
     },
     {
       name: "subcommand --help",
-      argv: ["node", "zhushou", "status", "--help"],
+      argv: ["node", "assistant", "status", "--help"],
       expected: false,
     },
     {
       name: "help before subcommand token",
-      argv: ["node", "zhushou", "--help", "status"],
+      argv: ["node", "assistant", "--help", "status"],
       expected: false,
     },
     {
       name: "help after -- terminator",
-      argv: ["node", "zhushou", "nodes", "invoke", "--", "device.status", "--help"],
+      argv: ["node", "assistant", "nodes", "invoke", "--", "device.status", "--help"],
       expected: false,
     },
     {
       name: "unknown root flag before help",
-      argv: ["node", "zhushou", "--unknown", "--help"],
+      argv: ["node", "assistant", "--unknown", "--help"],
       expected: false,
     },
     {
       name: "unknown root flag after help",
-      argv: ["node", "zhushou", "--help", "--unknown"],
+      argv: ["node", "assistant", "--help", "--unknown"],
       expected: false,
     },
   ])("detects root-only help invocations: $name", ({ argv, expected }) => {
@@ -145,17 +145,17 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "single command with trailing flag",
-      argv: ["node", "zhushou", "status", "--json"],
+      argv: ["node", "assistant", "status", "--json"],
       expected: ["status"],
     },
     {
       name: "two-part command",
-      argv: ["node", "zhushou", "agents", "list"],
+      argv: ["node", "assistant", "agents", "list"],
       expected: ["agents", "list"],
     },
     {
       name: "terminator cuts parsing",
-      argv: ["node", "zhushou", "status", "--", "ignored"],
+      argv: ["node", "assistant", "status", "--", "ignored"],
       expected: ["status"],
     },
   ])("extracts command path: $name", ({ argv, expected }) => {
@@ -167,7 +167,7 @@ describe("argv helpers", () => {
       getCommandPathWithRootOptions(
         [
           "node",
-          "zhushou",
+          "assistant",
           "--profile",
           "work",
           "--container",
@@ -184,7 +184,7 @@ describe("argv helpers", () => {
   it("extracts routed config get positionals with interleaved root options", () => {
     expect(
       getCommandPositionalsWithRootOptions(
-        ["node", "zhushou", "config", "get", "--log-level", "debug", "update.channel", "--json"],
+        ["node", "assistant", "config", "get", "--log-level", "debug", "update.channel", "--json"],
         {
           commandPath: ["config", "get"],
           booleanFlags: ["--json"],
@@ -196,7 +196,7 @@ describe("argv helpers", () => {
   it("extracts routed config unset positionals with interleaved root options", () => {
     expect(
       getCommandPositionalsWithRootOptions(
-        ["node", "zhushou", "config", "unset", "--profile", "work", "update.channel"],
+        ["node", "assistant", "config", "unset", "--profile", "work", "update.channel"],
         {
           commandPath: ["config", "unset"],
         },
@@ -207,7 +207,7 @@ describe("argv helpers", () => {
   it("returns null when routed command sees unknown options", () => {
     expect(
       getCommandPositionalsWithRootOptions(
-        ["node", "zhushou", "config", "get", "--mystery", "value", "update.channel"],
+        ["node", "assistant", "config", "get", "--mystery", "value", "update.channel"],
         {
           commandPath: ["config", "get"],
           booleanFlags: ["--json"],
@@ -219,17 +219,17 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "returns first command token",
-      argv: ["node", "zhushou", "agents", "list"],
+      argv: ["node", "assistant", "agents", "list"],
       expected: "agents",
     },
     {
       name: "returns null when no command exists",
-      argv: ["node", "zhushou"],
+      argv: ["node", "assistant"],
       expected: null,
     },
     {
       name: "skips known root option values",
-      argv: ["node", "zhushou", "--log-level", "debug", "status"],
+      argv: ["node", "assistant", "--log-level", "debug", "status"],
       expected: "status",
     },
   ])("returns primary command: $name", ({ argv, expected }) => {
@@ -239,13 +239,13 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "detects flag before terminator",
-      argv: ["node", "zhushou", "status", "--json"],
+      argv: ["node", "assistant", "status", "--json"],
       flag: "--json",
       expected: true,
     },
     {
       name: "ignores flag after terminator",
-      argv: ["node", "zhushou", "--", "--json"],
+      argv: ["node", "assistant", "--", "--json"],
       flag: "--json",
       expected: false,
     },
@@ -256,27 +256,27 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "value in next token",
-      argv: ["node", "zhushou", "status", "--timeout", "5000"],
+      argv: ["node", "assistant", "status", "--timeout", "5000"],
       expected: "5000",
     },
     {
       name: "value in equals form",
-      argv: ["node", "zhushou", "status", "--timeout=2500"],
+      argv: ["node", "assistant", "status", "--timeout=2500"],
       expected: "2500",
     },
     {
       name: "missing value",
-      argv: ["node", "zhushou", "status", "--timeout"],
+      argv: ["node", "assistant", "status", "--timeout"],
       expected: null,
     },
     {
       name: "next token is another flag",
-      argv: ["node", "zhushou", "status", "--timeout", "--json"],
+      argv: ["node", "assistant", "status", "--timeout", "--json"],
       expected: null,
     },
     {
       name: "flag appears after terminator",
-      argv: ["node", "zhushou", "--", "--timeout=99"],
+      argv: ["node", "assistant", "--", "--timeout=99"],
       expected: undefined,
     },
   ])("extracts flag values: $name", ({ argv, expected }) => {
@@ -284,9 +284,9 @@ describe("argv helpers", () => {
   });
 
   it("parses verbose flags", () => {
-    expect(getVerboseFlag(["node", "zhushou", "status", "--verbose"])).toBe(true);
-    expect(getVerboseFlag(["node", "zhushou", "status", "--debug"])).toBe(false);
-    expect(getVerboseFlag(["node", "zhushou", "status", "--debug"], { includeDebug: true })).toBe(
+    expect(getVerboseFlag(["node", "assistant", "status", "--verbose"])).toBe(true);
+    expect(getVerboseFlag(["node", "assistant", "status", "--debug"])).toBe(false);
+    expect(getVerboseFlag(["node", "assistant", "status", "--debug"], { includeDebug: true })).toBe(
       true,
     );
   });
@@ -294,22 +294,22 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "missing flag",
-      argv: ["node", "zhushou", "status"],
+      argv: ["node", "assistant", "status"],
       expected: undefined,
     },
     {
       name: "missing value",
-      argv: ["node", "zhushou", "status", "--timeout"],
+      argv: ["node", "assistant", "status", "--timeout"],
       expected: null,
     },
     {
       name: "valid positive integer",
-      argv: ["node", "zhushou", "status", "--timeout", "5000"],
+      argv: ["node", "assistant", "status", "--timeout", "5000"],
       expected: 5000,
     },
     {
       name: "invalid integer",
-      argv: ["node", "zhushou", "status", "--timeout", "nope"],
+      argv: ["node", "assistant", "status", "--timeout", "nope"],
       expected: undefined,
     },
   ])("parses positive integer flag values: $name", ({ argv, expected }) => {
@@ -319,63 +319,63 @@ describe("argv helpers", () => {
   it.each([
     {
       name: "keeps plain node argv",
-      rawArgs: ["node", "zhushou", "status"],
-      expected: ["node", "zhushou", "status"],
+      rawArgs: ["node", "assistant", "status"],
+      expected: ["node", "assistant", "status"],
     },
     {
       name: "keeps version-suffixed node binary",
-      rawArgs: ["node-22", "zhushou", "status"],
-      expected: ["node-22", "zhushou", "status"],
+      rawArgs: ["node-22", "assistant", "status"],
+      expected: ["node-22", "assistant", "status"],
     },
     {
       name: "keeps windows versioned node exe",
-      rawArgs: ["node-22.2.0.exe", "zhushou", "status"],
-      expected: ["node-22.2.0.exe", "zhushou", "status"],
+      rawArgs: ["node-22.2.0.exe", "assistant", "status"],
+      expected: ["node-22.2.0.exe", "assistant", "status"],
     },
     {
       name: "keeps dotted node binary",
-      rawArgs: ["node-22.2", "zhushou", "status"],
-      expected: ["node-22.2", "zhushou", "status"],
+      rawArgs: ["node-22.2", "assistant", "status"],
+      expected: ["node-22.2", "assistant", "status"],
     },
     {
       name: "keeps dotted node exe",
-      rawArgs: ["node-22.2.exe", "zhushou", "status"],
-      expected: ["node-22.2.exe", "zhushou", "status"],
+      rawArgs: ["node-22.2.exe", "assistant", "status"],
+      expected: ["node-22.2.exe", "assistant", "status"],
     },
     {
       name: "keeps absolute versioned node path",
-      rawArgs: ["/usr/bin/node-22.2.0", "zhushou", "status"],
-      expected: ["/usr/bin/node-22.2.0", "zhushou", "status"],
+      rawArgs: ["/usr/bin/node-22.2.0", "assistant", "status"],
+      expected: ["/usr/bin/node-22.2.0", "assistant", "status"],
     },
     {
       name: "keeps node24 shorthand",
-      rawArgs: ["node24", "zhushou", "status"],
-      expected: ["node24", "zhushou", "status"],
+      rawArgs: ["node24", "assistant", "status"],
+      expected: ["node24", "assistant", "status"],
     },
     {
       name: "keeps absolute node24 shorthand",
-      rawArgs: ["/usr/bin/node24", "zhushou", "status"],
-      expected: ["/usr/bin/node24", "zhushou", "status"],
+      rawArgs: ["/usr/bin/node24", "assistant", "status"],
+      expected: ["/usr/bin/node24", "assistant", "status"],
     },
     {
       name: "keeps windows node24 exe",
-      rawArgs: ["node24.exe", "zhushou", "status"],
-      expected: ["node24.exe", "zhushou", "status"],
+      rawArgs: ["node24.exe", "assistant", "status"],
+      expected: ["node24.exe", "assistant", "status"],
     },
     {
       name: "keeps nodejs binary",
-      rawArgs: ["nodejs", "zhushou", "status"],
-      expected: ["nodejs", "zhushou", "status"],
+      rawArgs: ["nodejs", "assistant", "status"],
+      expected: ["nodejs", "assistant", "status"],
     },
     {
       name: "prefixes fallback when first arg is not a node launcher",
-      rawArgs: ["node-dev", "zhushou", "status"],
-      expected: ["node", "zhushou", "node-dev", "zhushou", "status"],
+      rawArgs: ["node-dev", "assistant", "status"],
+      expected: ["node", "assistant", "node-dev", "assistant", "status"],
     },
     {
       name: "prefixes fallback when raw args start at program name",
-      rawArgs: ["zhushou", "status"],
-      expected: ["node", "zhushou", "status"],
+      rawArgs: ["assistant", "status"],
+      expected: ["node", "assistant", "status"],
     },
     {
       name: "keeps bun execution argv",
@@ -384,7 +384,7 @@ describe("argv helpers", () => {
     },
   ] as const)("builds parse argv from raw args: $name", ({ rawArgs, expected }) => {
     const parsed = buildParseArgv({
-      programName: "zhushou",
+      programName: "assistant",
       rawArgs: [...rawArgs],
     });
     expect(parsed).toEqual([...expected]);
@@ -392,24 +392,24 @@ describe("argv helpers", () => {
 
   it("builds parse argv from fallback args", () => {
     const fallbackArgv = buildParseArgv({
-      programName: "zhushou",
+      programName: "assistant",
       fallbackArgv: ["status"],
     });
-    expect(fallbackArgv).toEqual(["node", "zhushou", "status"]);
+    expect(fallbackArgv).toEqual(["node", "assistant", "status"]);
   });
 
   it.each([
-    { argv: ["node", "zhushou", "status"], expected: false },
-    { argv: ["node", "zhushou", "health"], expected: false },
-    { argv: ["node", "zhushou", "sessions"], expected: false },
-    { argv: ["node", "zhushou", "config", "get", "update"], expected: false },
-    { argv: ["node", "zhushou", "config", "unset", "update"], expected: false },
-    { argv: ["node", "zhushou", "models", "list"], expected: false },
-    { argv: ["node", "zhushou", "models", "status"], expected: false },
-    { argv: ["node", "zhushou", "update", "status", "--json"], expected: false },
-    { argv: ["node", "zhushou", "agent", "--message", "hi"], expected: false },
-    { argv: ["node", "zhushou", "agents", "list"], expected: true },
-    { argv: ["node", "zhushou", "message", "send"], expected: true },
+    { argv: ["node", "assistant", "status"], expected: false },
+    { argv: ["node", "assistant", "health"], expected: false },
+    { argv: ["node", "assistant", "sessions"], expected: false },
+    { argv: ["node", "assistant", "config", "get", "update"], expected: false },
+    { argv: ["node", "assistant", "config", "unset", "update"], expected: false },
+    { argv: ["node", "assistant", "models", "list"], expected: false },
+    { argv: ["node", "assistant", "models", "status"], expected: false },
+    { argv: ["node", "assistant", "update", "status", "--json"], expected: false },
+    { argv: ["node", "assistant", "agent", "--message", "hi"], expected: false },
+    { argv: ["node", "assistant", "agents", "list"], expected: true },
+    { argv: ["node", "assistant", "message", "send"], expected: true },
   ] as const)("decides when to migrate state: $argv", ({ argv, expected }) => {
     expect(shouldMigrateState([...argv])).toBe(expected);
   });

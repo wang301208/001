@@ -114,6 +114,23 @@ describe("ws connect policy", () => {
       }).kind,
     ).toBe("reject-control-ui-insecure-auth");
 
+    // Control UI operator client with gateway auth disabled should not require
+    // device identity, because no shared credential remains to gate pairing.
+    expect(
+      evaluateMissingDeviceIdentity({
+        hasDeviceIdentity: false,
+        role: "operator",
+        isControlUi: true,
+        controlUiAuthPolicy: controlUiNoInsecure,
+        trustedProxyAuthOk: false,
+        sharedAuthOk: false,
+        authOk: true,
+        hasSharedAuth: false,
+        isLocalClient: true,
+        authMode: "none",
+      }).kind,
+    ).toBe("allow");
+
     expect(
       evaluateMissingDeviceIdentity({
         hasDeviceIdentity: false,
@@ -249,6 +266,39 @@ describe("ws connect policy", () => {
     expect(shouldSkipControlUiPairing(controlUi, "operator", false, "shared-key")).toBe(false);
     // Operator client + operator + no authMode: no change
     expect(shouldSkipControlUiPairing(controlUi, "operator", false)).toBe(false);
+  });
+
+  test("auth.mode=none preserves operator control-ui scopes without device identity", () => {
+    const controlUi = resolveControlUiAuthPolicy({
+      isControlUi: true,
+      controlUiConfig: undefined,
+      deviceRaw: null,
+    });
+    expect(
+      shouldClearUnboundScopesForMissingDeviceIdentity({
+        decision: { kind: "allow" },
+        controlUiAuthPolicy: controlUi,
+        preserveInsecureLocalControlUiScopes: false,
+        authMethod: undefined,
+        authMode: "none",
+        isControlUi: true,
+        role: "operator",
+        trustedProxyAuthOk: false,
+      }),
+    ).toBe(false);
+
+    expect(
+      shouldClearUnboundScopesForMissingDeviceIdentity({
+        decision: { kind: "reject-device-required" },
+        controlUiAuthPolicy: controlUi,
+        preserveInsecureLocalControlUiScopes: false,
+        authMethod: undefined,
+        authMode: "none",
+        isControlUi: true,
+        role: "node",
+        trustedProxyAuthOk: false,
+      }),
+    ).toBe(true);
   });
 
   test("trusted-proxy control-ui bypass only applies to operator + trusted-proxy auth", () => {

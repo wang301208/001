@@ -1,7 +1,7 @@
 import {
   buildChannelOutboundSessionRoute,
   type ChannelOutboundSessionRouteParams,
-} from "zhushou/plugin-sdk/core";
+} from "assistant/plugin-sdk/core";
 import { isWhatsAppGroupJid, normalizeWhatsAppTarget } from "./normalize.js";
 
 export function resolveWhatsAppOutboundSessionRoute(params: ChannelOutboundSessionRouteParams) {

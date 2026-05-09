@@ -1,7 +1,7 @@
-import "./lifecycle.test-support.js";
+﻿import "./lifecycle.test-support.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createNonExitingRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
-import type { ClawdbotConfig, RuntimeEnv } from "../runtime-api.js";
+import type { AssistantConfig, RuntimeEnv } from "../runtime-api.js";
 import { FeishuConfigSchema } from "./config-schema.js";
 import { getFeishuLifecycleTestMocks } from "./lifecycle.test-support.js";
 import {
@@ -28,9 +28,9 @@ const {
 
 let handlersByAccount = new Map<string, Record<string, (data: unknown) => Promise<void>>>();
 let runtimesByAccount = new Map<string, RuntimeEnv>();
-const originalStateDir = process.env.ZHUSHOU_STATE_DIR;
+const originalStateDir = process.env.ASSISTANT_STATE_DIR;
 
-function createLifecycleConfig(): ClawdbotConfig {
+function createLifecycleConfig(): AssistantConfig {
   return {
     broadcast: {
       oc_broadcast_group: ["susan", "main"],
@@ -84,7 +84,7 @@ function createLifecycleConfig(): ClawdbotConfig {
         },
       },
     },
-  } as ClawdbotConfig;
+  } as AssistantConfig;
 }
 
 function createLifecycleAccount(accountId: "account-A" | "account-B"): ResolvedFeishuAccount {
@@ -135,7 +135,7 @@ describe("Feishu broadcast reply-once lifecycle", () => {
     vi.clearAllMocks();
     handlersByAccount = new Map();
     runtimesByAccount = new Map();
-    setFeishuLifecycleStateDir("zhushou-feishu-broadcast");
+    setFeishuLifecycleStateDir("assistant-feishu-broadcast");
 
     createFeishuReplyDispatcherMock.mockReturnValue(createFeishuLifecycleReplyDispatcher());
 

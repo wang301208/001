@@ -8,7 +8,7 @@ import { createTranscriptFixtureSync } from "./chat.test-helpers.js";
 describe("gateway chat.inject transcript writes", () => {
   it("appends a Pi session entry that includes parentId", async () => {
     const { dir, transcriptPath } = createTranscriptFixtureSync({
-      prefix: "zhushou-chat-inject-",
+      prefix: "assistant-chat-inject-",
       sessionId: "sess-1",
     });
 

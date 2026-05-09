@@ -11,7 +11,7 @@ import {
   isRequestBodyLimitError,
   readRequestBodyWithLimit,
   requestBodyErrorToText,
-} from "zhushou/plugin-sdk/webhook-ingress";
+} from "assistant/plugin-sdk/webhook-ingress";
 import * as synologyClient from "./client.js";
 import { validateToken, authorizeUserForDm, sanitizeInput, RateLimiter } from "./security.js";
 import type { SynologyWebhookPayload, ResolvedSynologyChatAccount } from "./types.js";
@@ -241,7 +241,7 @@ function extractTokenFromHeaders(req: IncomingMessage): string | undefined {
   const explicit =
     headerValue(req.headers["x-synology-token"]) ??
     headerValue(req.headers["x-webhook-token"]) ??
-    headerValue(req.headers["x-zhushou-token"]);
+    headerValue(req.headers["x-assistant-token"]);
   if (explicit) {
     return explicit;
   }

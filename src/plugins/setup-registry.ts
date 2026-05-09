@@ -2,10 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizeProviderId } from "../agents/provider-id.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { buildPluginApi } from "./api-builder.js";
 import { collectPluginConfigContractMatches } from "./config-contracts.js";
-import { discoverOpenClawPlugins } from "./discovery.js";
+import { discoverAssistantPlugins } from "./discovery.js";
 import { getCachedPluginJitiLoader, type PluginJitiLoaderCache } from "./jiti-loader-cache.js";
 import { loadPluginManifestRegistry, type PluginManifestRecord } from "./manifest-registry.js";
 import { resolvePluginCacheInputs } from "./roots.js";
@@ -13,7 +13,7 @@ import type { PluginRuntime } from "./runtime/types.js";
 import { listSetupCliBackendIds, listSetupProviderIds } from "./setup-descriptors.js";
 import type {
   CliBackendPlugin,
-  OpenClawPluginModule,
+  AssistantPluginModule,
   PluginConfigMigration,
   PluginLogger,
   PluginSetupAutoEnableProbe,
@@ -211,7 +211,7 @@ function resolveSetupApiPath(rootDir: string): string | null {
   return null;
 }
 
-function collectConfiguredPluginEntryIds(config: ZhushouConfig): string[] {
+function collectConfiguredPluginEntryIds(config: AssistantConfig): string[] {
   const entries = config.plugins?.entries;
   if (!entries || typeof entries !== "object") {
     return [];
@@ -223,7 +223,7 @@ function collectConfiguredPluginEntryIds(config: ZhushouConfig): string[] {
 }
 
 function resolveRelevantSetupMigrationPluginIds(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): string[] {
@@ -253,7 +253,7 @@ function resolveRelevantSetupMigrationPluginIds(params: {
   return [...ids].toSorted();
 }
 
-function resolveRegister(mod: OpenClawPluginModule): {
+function resolveRegister(mod: AssistantPluginModule): {
   definition?: { id?: string };
   register?: (api: ReturnType<typeof buildPluginApi>) => void | Promise<void>;
 } {
@@ -285,7 +285,7 @@ function toolPolicyReferencesBrowser(value: unknown): boolean {
   );
 }
 
-function hasBrowserSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean {
+function hasBrowserSetupAutoEnableRelevantConfig(config: AssistantConfig): boolean {
   if (config.browser?.enabled === false || config.plugins?.entries?.browser?.enabled === false) {
     return false;
   }
@@ -306,7 +306,7 @@ function hasBrowserSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean
     : false;
 }
 
-function hasAcpxSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean {
+function hasAcpxSetupAutoEnableRelevantConfig(config: AssistantConfig): boolean {
   const backend = normalizeProviderId(config.acp?.backend ?? "");
   return (
     config.acp?.enabled === true ||
@@ -315,7 +315,7 @@ function hasAcpxSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean {
   ) && (!backend || backend === "acpx");
 }
 
-function hasXaiSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean {
+function hasXaiSetupAutoEnableRelevantConfig(config: AssistantConfig): boolean {
   const pluginConfig = config.plugins?.entries?.xai?.config;
   const web = config.tools?.web as Record<string, unknown> | undefined;
   return (
@@ -325,7 +325,7 @@ function hasXaiSetupAutoEnableRelevantConfig(config: ZhushouConfig): boolean {
   );
 }
 
-function collectLikelySetupAutoEnablePluginIds(config: ZhushouConfig): string[] {
+function collectLikelySetupAutoEnablePluginIds(config: AssistantConfig): string[] {
   const ids = new Set(
     Object.keys(config.plugins?.entries ?? {})
       .map((pluginId) => pluginId.trim())
@@ -364,7 +364,7 @@ function matchesProvider(provider: ProviderPlugin, providerId: string): boolean 
 
 function loadSetupManifestRegistry(params?: { workspaceDir?: string; env?: NodeJS.ProcessEnv }) {
   const env = params?.env ?? process.env;
-  const discovery = discoverOpenClawPlugins({
+  const discovery = discoverAssistantPlugins({
     workspaceDir: params?.workspaceDir,
     env,
     cache: true,
@@ -445,14 +445,14 @@ export function resolvePluginSetupRegistry(params?: {
       continue;
     }
 
-    let mod: OpenClawPluginModule;
+    let mod: AssistantPluginModule;
     try {
-      mod = getJiti(setupSource)(setupSource) as OpenClawPluginModule;
+      mod = getJiti(setupSource)(setupSource) as AssistantPluginModule;
     } catch {
       continue;
     }
 
-    const resolved = resolveRegister((mod as { default?: OpenClawPluginModule }).default ?? mod);
+    const resolved = resolveRegister((mod as { default?: AssistantPluginModule }).default ?? mod);
     if (!resolved.register) {
       continue;
     }
@@ -468,7 +468,7 @@ export function resolvePluginSetupRegistry(params?: {
       source: setupSource,
       rootDir: record.rootDir,
       registrationMode: "setup-only",
-      config: {} as ZhushouConfig,
+      config: {} as AssistantConfig,
       runtime: EMPTY_RUNTIME,
       logger: NOOP_LOGGER,
       resolvePath: (input) => input,
@@ -564,15 +564,15 @@ export function resolvePluginSetupProvider(params: {
     return undefined;
   }
 
-  let mod: OpenClawPluginModule;
+  let mod: AssistantPluginModule;
   try {
-    mod = getJiti(setupSource)(setupSource) as OpenClawPluginModule;
+    mod = getJiti(setupSource)(setupSource) as AssistantPluginModule;
   } catch {
     setCachedSetupValue(setupProviderCache, cacheKey, null);
     return undefined;
   }
 
-  const resolved = resolveRegister((mod as { default?: OpenClawPluginModule }).default ?? mod);
+  const resolved = resolveRegister((mod as { default?: AssistantPluginModule }).default ?? mod);
   if (!resolved.register) {
     setCachedSetupValue(setupProviderCache, cacheKey, null);
     return undefined;
@@ -592,7 +592,7 @@ export function resolvePluginSetupProvider(params: {
     source: setupSource,
     rootDir: record.rootDir,
     registrationMode: "setup-only",
-    config: {} as ZhushouConfig,
+    config: {} as AssistantConfig,
     runtime: EMPTY_RUNTIME,
     logger: NOOP_LOGGER,
     resolvePath: (input) => input,
@@ -664,14 +664,14 @@ export function resolvePluginSetupCliBackend(params: {
     return undefined;
   }
 
-  let mod: OpenClawPluginModule;
+  let mod: AssistantPluginModule;
   try {
-    mod = getJiti(setupSource)(setupSource) as OpenClawPluginModule;
+    mod = getJiti(setupSource)(setupSource) as AssistantPluginModule;
   } catch {
     setCachedSetupValue(setupCliBackendCache, cacheKey, null);
     return undefined;
   }
-  const resolved = resolveRegister((mod as { default?: OpenClawPluginModule }).default ?? mod);
+  const resolved = resolveRegister((mod as { default?: AssistantPluginModule }).default ?? mod);
   if (!resolved.register) {
     setCachedSetupValue(setupCliBackendCache, cacheKey, null);
     return undefined;
@@ -691,7 +691,7 @@ export function resolvePluginSetupCliBackend(params: {
     source: setupSource,
     rootDir: record.rootDir,
     registrationMode: "setup-only",
-    config: {} as ZhushouConfig,
+    config: {} as AssistantConfig,
     runtime: EMPTY_RUNTIME,
     logger: NOOP_LOGGER,
     resolvePath: (input) => input,
@@ -729,11 +729,11 @@ export function resolvePluginSetupCliBackend(params: {
 }
 
 export function runPluginSetupConfigMigrations(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changes: string[];
 } {
   let next = params.config;
@@ -760,7 +760,7 @@ export function runPluginSetupConfigMigrations(params: {
 }
 
 export function resolvePluginSetupAutoEnableReasons(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): SetupAutoEnableReason[] {

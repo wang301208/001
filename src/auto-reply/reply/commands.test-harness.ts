@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { MsgContext } from "../templating.js";
 import { buildCommandContext } from "./commands-context.js";
 import type { HandleCommandsParams } from "./commands-types.js";
@@ -6,7 +6,7 @@ import { parseInlineDirectives } from "./directive-handling.parse.js";
 
 export function buildCommandTestParams(
   commandBody: string,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   ctxOverrides?: Partial<MsgContext>,
   options?: {
     workspaceDir?: string;

@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import { loadConfig } from "../../config/config.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import {
   ensureBrowserControlAuth,
@@ -28,7 +28,7 @@ async function ensureSandboxWorkspaceLayout(params: {
   cfg: ReturnType<typeof resolveSandboxConfigForAgent>;
   agentId: string;
   rawSessionKey: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   workspaceDir?: string;
 }): Promise<{
   agentWorkspaceDir: string;
@@ -106,7 +106,7 @@ export async function resolveSandboxDockerUser(params: {
 }
 
 function resolveSandboxSession(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sessionKey?: string;
   charterDir?: string;
 }) {
@@ -129,7 +129,7 @@ function resolveSandboxSession(params: {
 }
 
 export async function resolveSandboxContext(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sessionKey?: string;
   workspaceDir?: string;
   charterDir?: string;
@@ -267,7 +267,7 @@ export async function resolveSandboxContext(params: {
 }
 
 export async function ensureSandboxWorkspaceForSession(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sessionKey?: string;
   workspaceDir?: string;
   charterDir?: string;

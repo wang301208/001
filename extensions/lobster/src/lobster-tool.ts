@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import type { ZhushouPluginApi } from "../runtime-api.js";
+import type { AssistantPluginApi } from "../runtime-api.js";
 import {
   createEmbeddedLobsterRunner,
   resolveLobsterCwd,
@@ -13,7 +13,7 @@ import {
 } from "./lobster-taskflow.js";
 
 type BoundTaskFlow = ReturnType<
-  NonNullable<ZhushouPluginApi["runtime"]>["taskFlow"]["bindSession"]
+  NonNullable<AssistantPluginApi["runtime"]>["taskFlow"]["bindSession"]
 >;
 
 type JsonLike =
@@ -208,7 +208,7 @@ function resolveManagedFlowToolResult(result: ManagedLobsterFlowResult) {
   return formatManagedFlowResult(result);
 }
 
-export function createLobsterTool(api: ZhushouPluginApi, options?: LobsterToolOptions) {
+export function createLobsterTool(api: AssistantPluginApi, options?: LobsterToolOptions) {
   const runner = options?.runner ?? createEmbeddedLobsterRunner();
   return {
     name: "lobster",

@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
-import type { ZhushouPluginApi } from "../runtime-api.js";
+import type { AssistantPluginApi } from "../runtime-api.js";
 import { createToolFactoryHarness } from "./tool-factory-test-harness.js";
 
 const createFeishuClientMock = vi.fn((creds: { appId?: string } | undefined) => ({
@@ -30,7 +30,7 @@ describe("feishu_doc account selection", () => {
     vi.clearAllMocks();
   });
 
-  function createDocEnabledConfig(): ZhushouPluginApi["config"] {
+  function createDocEnabledConfig(): AssistantPluginApi["config"] {
     return {
       channels: {
         feishu: {
@@ -41,7 +41,7 @@ describe("feishu_doc account selection", () => {
           },
         },
       },
-    } as ZhushouPluginApi["config"];
+    } as AssistantPluginApi["config"];
   }
 
   test("uses agentAccountId context when params omit accountId", async () => {

@@ -241,7 +241,7 @@ describe("runCliAgent spawn path", () => {
   });
 
   it("passes 助手 skills to Claude as a session plugin", async () => {
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-cli-skills-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-cli-skills-"));
     const skillDir = path.join(workspaceDir, "skills", "weather");
     await fs.mkdir(skillDir, { recursive: true });
     await fs.writeFile(
@@ -267,7 +267,7 @@ describe("runCliAgent spawn path", () => {
         await fs.readFile(path.join(pluginDir, ".claude-plugin", "plugin.json"), "utf-8"),
       ) as { name?: string; skills?: string };
       expect(manifest).toMatchObject({
-        name: "zhushou-skills",
+        name: "assistant-skills",
         skills: "./skills",
       });
       await expect(
@@ -370,7 +370,7 @@ describe("runCliAgent spawn path", () => {
 
   it("ignores legacy claudeSessionId on the compat wrapper", () => {
     const params = buildRunClaudeCliAgentParams({
-      sessionId: "zhushou-session",
+      sessionId: "assistant-session",
       sessionFile: "/tmp/session.jsonl",
       workspaceDir: "/tmp",
       prompt: "hi",
@@ -388,7 +388,7 @@ describe("runCliAgent spawn path", () => {
 
   it("forwards senderIsOwner through the compat wrapper", () => {
     const params = buildRunClaudeCliAgentParams({
-      sessionId: "zhushou-session",
+      sessionId: "assistant-session",
       sessionKey: "agent:main:matrix:room:123",
       sessionFile: "/tmp/session.jsonl",
       workspaceDir: "/tmp",
@@ -743,7 +743,7 @@ describe("runCliAgent spawn path", () => {
 
   it("can preserve selected clearEnv keys for live CLI backend probes", async () => {
     try {
-      process.env.OPENCLAW_LIVE_CLI_BACKEND_PRESERVE_ENV = '["SAFE_CLEAR"]';
+      process.env.ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV = '["SAFE_CLEAR"]';
       process.env.SAFE_CLEAR = "from-base";
       mockSuccessfulCliRun();
       await executePreparedCliRun(
@@ -764,7 +764,7 @@ describe("runCliAgent spawn path", () => {
       expect(input.env?.SAFE_CLEAR).toBe("from-base");
       expect(input.env?.SAFE_DROP).toBeUndefined();
     } finally {
-      delete process.env.OPENCLAW_LIVE_CLI_BACKEND_PRESERVE_ENV;
+      delete process.env.ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV;
       delete process.env.SAFE_CLEAR;
     }
   });
@@ -926,7 +926,7 @@ describe("runCliAgent spawn path", () => {
 
   it("loads workspace bootstrap files into the Claude CLI system prompt", async () => {
     const workspaceDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "zhushou-cli-bootstrap-context-"),
+      path.join(os.tmpdir(), "assistant-cli-bootstrap-context-"),
     );
 
     await fs.writeFile(

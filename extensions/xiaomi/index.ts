@@ -1,5 +1,5 @@
-import { defineSingleProviderPluginEntry } from "zhushou/plugin-sdk/provider-entry";
-import { PROVIDER_LABELS } from "zhushou/plugin-sdk/provider-usage";
+import { defineSingleProviderPluginEntry } from "assistant/plugin-sdk/provider-entry";
+import { PROVIDER_LABELS } from "assistant/plugin-sdk/provider-usage";
 import { applyXiaomiConfig, XIAOMI_DEFAULT_MODEL_REF } from "./onboard.js";
 import { buildXiaomiProvider } from "./provider-catalog.js";
 

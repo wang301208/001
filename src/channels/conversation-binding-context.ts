@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveConversationIdFromTargets } from "../infra/outbound/conversation-id.js";
 import { getActivePluginChannelRegistry } from "../plugins/runtime.js";
 import {
@@ -19,7 +19,7 @@ export type ConversationBindingContext = {
 };
 
 export type ResolveConversationBindingContextInput = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel?: string | null;
   accountId?: string | null;
   chatType?: string | null;
@@ -61,7 +61,7 @@ function shouldDefaultParentConversationToSelf(plugin?: ChannelPlugin): boolean 
 function resolveBindingAccountId(params: {
   rawAccountId?: string | null;
   plugin?: ChannelPlugin;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
 }): string {
   return (
     normalizeOptionalString(params.rawAccountId) ||

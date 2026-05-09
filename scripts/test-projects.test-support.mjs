@@ -86,8 +86,8 @@ const TOOLING_VITEST_CONFIG = "test/vitest/vitest.tooling.config.ts";
 const TUI_VITEST_CONFIG = "test/vitest/vitest.tui.config.ts";
 const UTILS_VITEST_CONFIG = "test/vitest/vitest.utils.config.ts";
 const WIZARD_VITEST_CONFIG = "test/vitest/vitest.wizard.config.ts";
-const INCLUDE_FILE_ENV_KEY = "OPENCLAW_VITEST_INCLUDE_FILE";
-const FS_MODULE_CACHE_PATH_ENV_KEY = "OPENCLAW_VITEST_FS_MODULE_CACHE_PATH";
+const INCLUDE_FILE_ENV_KEY = "ASSISTANT_VITEST_INCLUDE_FILE";
+const FS_MODULE_CACHE_PATH_ENV_KEY = "ASSISTANT_VITEST_FS_MODULE_CACHE_PATH";
 const CHANGED_ARGS_PATTERN = /^--changed(?:=(.+))?$/u;
 const VITEST_CONFIG_BY_KIND = {
   acp: ACP_VITEST_CONFIG,
@@ -143,7 +143,7 @@ const VITEST_CONFIG_BY_KIND = {
 const BROAD_CHANGED_RERUN_PATTERNS = [
   /^package\.json$/u,
   /^pnpm-lock\.yaml$/u,
-  /^test\/setup(?:\.shared|\.extensions|-zhushou-runtime)?\.ts$/u,
+  /^test\/setup(?:\.shared|\.extensions|-assistant-runtime)?\.ts$/u,
   /^vitest(?:\..+)?\.(?:config\.ts|paths\.mjs)$/u,
   /^test\/vitest\/vitest(?:\..+)?\.(?:config\.ts|paths\.mjs)$/u,
   /^scripts\/run-vitest\.mjs$/u,
@@ -633,14 +633,14 @@ export function buildFullSuiteVitestRunPlans(args, cwd = process.cwd()) {
       },
     ];
   }
-  const parallelShardCount = Number.parseInt(process.env.OPENCLAW_TEST_PROJECTS_PARALLEL ?? "", 10);
+  const parallelShardCount = Number.parseInt(process.env.ASSISTANT_TEST_PROJECTS_PARALLEL ?? "", 10);
   const expandToProjectConfigs =
-    process.env.OPENCLAW_TEST_PROJECTS_LEAF_SHARDS === "1" ||
+    process.env.ASSISTANT_TEST_PROJECTS_LEAF_SHARDS === "1" ||
     (Number.isFinite(parallelShardCount) && parallelShardCount > 1) ||
     shouldUseLocalFullSuiteParallelByDefault(process.env);
   return fullSuiteVitestShards.flatMap((shard) => {
     if (
-      process.env.OPENCLAW_TEST_SKIP_FULL_EXTENSIONS_SHARD === "1" &&
+      process.env.ASSISTANT_TEST_SKIP_FULL_EXTENSIONS_SHARD === "1" &&
       shard.config === FULL_EXTENSIONS_VITEST_CONFIG
     ) {
       return [];
@@ -661,7 +661,7 @@ export function shouldUseLocalFullSuiteParallelByDefault(env = process.env) {
     return false;
   }
   return (
-    env.OPENCLAW_TEST_PROJECTS_SERIAL !== "1" && env.CI !== "true" && env.GITHUB_ACTIONS !== "true"
+    env.ASSISTANT_TEST_PROJECTS_SERIAL !== "1" && env.CI !== "true" && env.GITHUB_ACTIONS !== "true"
   );
 }
 
@@ -672,17 +672,17 @@ function parsePositiveInt(value) {
 
 function hasConservativeVitestWorkerBudget(env) {
   const workerBudget = parsePositiveInt(
-    env.OPENCLAW_VITEST_MAX_WORKERS ?? env.OPENCLAW_TEST_WORKERS,
+    env.ASSISTANT_VITEST_MAX_WORKERS ?? env.ASSISTANT_TEST_WORKERS,
   );
   return workerBudget !== null && workerBudget <= 1;
 }
 
 export function resolveParallelFullSuiteConcurrency(specCount, env = process.env, hostInfo) {
-  const override = parsePositiveInt(env.OPENCLAW_TEST_PROJECTS_PARALLEL);
+  const override = parsePositiveInt(env.ASSISTANT_TEST_PROJECTS_PARALLEL);
   if (override !== null) {
     return Math.min(override, specCount);
   }
-  if (env.OPENCLAW_TEST_PROJECTS_SERIAL === "1") {
+  if (env.ASSISTANT_TEST_PROJECTS_SERIAL === "1") {
     return 1;
   }
   if (isCiLikeEnv(env)) {
@@ -692,7 +692,7 @@ export function resolveParallelFullSuiteConcurrency(specCount, env = process.env
     return 1;
   }
   if (
-    env.OPENCLAW_TEST_PROJECTS_LEAF_SHARDS !== "1" &&
+    env.ASSISTANT_TEST_PROJECTS_LEAF_SHARDS !== "1" &&
     !shouldUseLocalFullSuiteParallelByDefault(env)
   ) {
     return 1;
@@ -742,7 +742,7 @@ export function createVitestRunSpecs(args, params = {}) {
     const includeFilePath = plan.includePatterns
       ? path.join(
           params.tempDir ?? os.tmpdir(),
-          `zhushou-vitest-include-${process.pid}-${Date.now()}-${index}.json`,
+          `assistant-vitest-include-${process.pid}-${Date.now()}-${index}.json`,
         )
       : null;
     return {
@@ -762,7 +762,7 @@ export function createVitestRunSpecs(args, params = {}) {
 }
 
 export function shouldAcquireLocalHeavyCheckLock(runSpecs, env = process.env) {
-  if (env.OPENCLAW_TEST_PROJECTS_FORCE_LOCK === "1") {
+  if (env.ASSISTANT_TEST_PROJECTS_FORCE_LOCK === "1") {
     return true;
   }
 

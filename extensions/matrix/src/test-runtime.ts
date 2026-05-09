@@ -1,7 +1,7 @@
 import {
   implicitMentionKindWhen,
   resolveInboundMentionDecision,
-} from "zhushou/plugin-sdk/channel-mention-gating";
+} from "assistant/plugin-sdk/channel-mention-gating";
 import { vi } from "vitest";
 import type { PluginRuntime } from "./runtime-api.js";
 import { setMatrixRuntime } from "./runtime.js";

@@ -5,11 +5,11 @@
  * resolves agent routes, and handles replies.
  */
 
-import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
-import type { MarkdownTableMode, ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
+import type { MarkdownTableMode, AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { checkTwitchAccessControl } from "./access-control.js";
 import { getOrCreateClientManager } from "./client-manager-registry.js";
 import { getTwitchRuntime } from "./runtime.js";
@@ -24,7 +24,7 @@ export type TwitchRuntimeEnv = {
 export type TwitchMonitorOptions = {
   account: TwitchAccountConfig;
   accountId: string;
-  config: unknown; // ZhushouConfig
+  config: unknown; // AssistantConfig
   runtime: TwitchRuntimeEnv;
   abortSignal: AbortSignal;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -49,7 +49,7 @@ async function processTwitchMessage(params: {
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
 }): Promise<void> {
   const { message, account, accountId, config, runtime, core, statusSink } = params;
-  const cfg = config as ZhushouConfig;
+  const cfg = config as AssistantConfig;
 
   const route = core.channel.routing.resolveAgentRoute({
     cfg,

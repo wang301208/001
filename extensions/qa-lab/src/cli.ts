@@ -131,22 +131,18 @@ async function runQaCredentialsList(opts: {
   await runtime.runQaCredentialsListCommand(opts);
 }
 
-async function runQaUi(opts: {
+async function runQaApi(opts: {
   repoRoot?: string;
   host?: string;
   port?: number;
   advertiseHost?: string;
   advertisePort?: number;
-  controlUiUrl?: string;
-  controlUiToken?: string;
-  controlUiProxyTarget?: string;
-  uiDistDir?: string;
   autoKickoffTarget?: string;
   embeddedGateway?: string;
   sendKickoffOnStart?: boolean;
 }) {
   const runtime = await loadQaLabCliRuntime();
-  await runtime.runQaLabUiCommand(opts);
+  await runtime.runQaLabApiCommand(opts);
 }
 
 async function runQaDockerScaffold(opts: {
@@ -157,7 +153,6 @@ async function runQaDockerScaffold(opts: {
   providerBaseUrl?: string;
   image?: string;
   usePrebuiltImage?: boolean;
-  bindUiDist?: boolean;
 }) {
   const runtime = await loadQaLabCliRuntime();
   await runtime.runQaDockerScaffoldCommand(opts);
@@ -176,8 +171,6 @@ async function runQaDockerUp(opts: {
   providerBaseUrl?: string;
   image?: string;
   usePrebuiltImage?: boolean;
-  bindUiDist?: boolean;
-  skipUiBuild?: boolean;
 }) {
   const runtime = await loadQaLabCliRuntime();
   await runtime.runQaDockerUpCommand(opts);
@@ -407,8 +400,8 @@ export function registerQaLabCli(program: Command) {
     .requiredOption("--payload-file <path>", "JSON object file containing the credential payload")
     .option("--repo-root <path>", "Repository root for resolving relative payload-file paths")
     .option("--note <text>", "Optional note stored with this credential row")
-    .option("--site-url <url>", "Override OPENCLAW_QA_CONVEX_SITE_URL")
-    .option("--endpoint-prefix <path>", "Override OPENCLAW_QA_CONVEX_ENDPOINT_PREFIX")
+    .option("--site-url <url>", "Override ASSISTANT_QA_CONVEX_SITE_URL")
+    .option("--endpoint-prefix <path>", "Override ASSISTANT_QA_CONVEX_ENDPOINT_PREFIX")
     .option("--actor-id <id>", "Optional admin actor id to include in broker audit events")
     .option("--json", "Emit machine-readable JSON output", false)
     .action(
@@ -430,8 +423,8 @@ export function registerQaLabCli(program: Command) {
     .command("remove")
     .description("Remove one credential from active use by disabling it")
     .requiredOption("--credential-id <id>", "Credential row id from the Convex pool")
-    .option("--site-url <url>", "Override OPENCLAW_QA_CONVEX_SITE_URL")
-    .option("--endpoint-prefix <path>", "Override OPENCLAW_QA_CONVEX_ENDPOINT_PREFIX")
+    .option("--site-url <url>", "Override ASSISTANT_QA_CONVEX_SITE_URL")
+    .option("--endpoint-prefix <path>", "Override ASSISTANT_QA_CONVEX_ENDPOINT_PREFIX")
     .option("--actor-id <id>", "Optional admin actor id to include in broker audit events")
     .option("--json", "Emit machine-readable JSON output", false)
     .action(
@@ -453,8 +446,8 @@ export function registerQaLabCli(program: Command) {
     .option("--status <status>", 'Filter by row status: "active", "disabled", or "all"', "all")
     .option("--limit <count>", "Max rows to return", (value: string) => Number(value))
     .option("--show-secrets", "Include credential payload JSON in output", false)
-    .option("--site-url <url>", "Override OPENCLAW_QA_CONVEX_SITE_URL")
-    .option("--endpoint-prefix <path>", "Override OPENCLAW_QA_CONVEX_ENDPOINT_PREFIX")
+    .option("--site-url <url>", "Override ASSISTANT_QA_CONVEX_SITE_URL")
+    .option("--endpoint-prefix <path>", "Override ASSISTANT_QA_CONVEX_ENDPOINT_PREFIX")
     .option("--actor-id <id>", "Optional admin actor id to include in broker audit events")
     .option("--json", "Emit machine-readable JSON output", false)
     .action(
@@ -472,8 +465,8 @@ export function registerQaLabCli(program: Command) {
       },
     );
 
-  qa.command("ui")
-    .description("Start the private QA debugger UI and local QA bus")
+  qa.command("api")
+    .description("Start the QA Lab API server and local QA bus")
     .option("--repo-root <path>", "Repository root to target when running from a neutral cwd")
     .option("--host <host>", "Bind host", "127.0.0.1")
     .option("--port <port>", "Bind port", (value: string) => Number(value))
@@ -481,18 +474,11 @@ export function registerQaLabCli(program: Command) {
     .option("--advertise-port <port>", "Optional public port to advertise", (value: string) =>
       Number(value),
     )
-    .option("--control-ui-url <url>", "Optional Control UI URL to embed beside the QA panel")
-    .option("--control-ui-token <token>", "Optional Control UI token for embedded links")
-    .option(
-      "--control-ui-proxy-target <url>",
-      "Optional upstream Control UI target for /control-ui proxying",
-    )
-    .option("--ui-dist-dir <path>", "Optional QA Lab UI asset directory override")
     .option("--auto-kickoff-target <kind>", "Kickoff default target (direct or channel)")
     .option("--embedded-gateway <mode>", "Embedded gateway mode hint", "enabled")
     .option(
       "--send-kickoff-on-start",
-      "Inject the repo-backed kickoff task when the UI starts",
+      "Inject the repo-backed kickoff task when the API starts",
       false,
     )
     .action(
@@ -502,32 +488,23 @@ export function registerQaLabCli(program: Command) {
         port?: number;
         advertiseHost?: string;
         advertisePort?: number;
-        controlUiUrl?: string;
-        controlUiToken?: string;
-        controlUiProxyTarget?: string;
-        uiDistDir?: string;
         autoKickoffTarget?: string;
         embeddedGateway?: string;
         sendKickoffOnStart?: boolean;
       }) => {
-        await runQaUi(opts);
+        await runQaApi(opts);
       },
     );
 
   qa.command("docker-scaffold")
-    .description("Write a prebaked Docker scaffold for the QA dashboard + gateway lane")
+    .description("Write a prebaked Docker scaffold for the QA API + gateway lane")
     .option("--repo-root <path>", "Repository root to target when running from a neutral cwd")
     .requiredOption("--output-dir <path>", "Output directory for docker-compose + state files")
     .option("--gateway-port <port>", "Gateway host port", (value: string) => Number(value))
     .option("--qa-lab-port <port>", "QA lab host port", (value: string) => Number(value))
     .option("--provider-base-url <url>", "Provider base URL for the QA gateway")
-    .option("--image <name>", "Prebaked image name", "zhushou:qa-local-prebaked")
+    .option("--image <name>", "Prebaked image name", "assistant:qa-local-prebaked")
     .option("--use-prebuilt-image", "Use image: instead of build: in docker-compose", false)
-    .option(
-      "--bind-ui-dist",
-      "Bind-mount extensions/qa-lab/web/dist into the qa-lab container for faster UI refresh",
-      false,
-    )
     .action(
       async (opts: {
         repoRoot?: string;
@@ -537,7 +514,6 @@ export function registerQaLabCli(program: Command) {
         providerBaseUrl?: string;
         image?: string;
         usePrebuiltImage?: boolean;
-        bindUiDist?: boolean;
       }) => {
         await runQaDockerScaffold(opts);
       },
@@ -546,26 +522,20 @@ export function registerQaLabCli(program: Command) {
   qa.command("docker-build-image")
     .description("Build the prebaked QA Docker image with qa-channel + qa-lab bundled")
     .option("--repo-root <path>", "Repository root to target when running from a neutral cwd")
-    .option("--image <name>", "Image tag", "zhushou:qa-local-prebaked")
+    .option("--image <name>", "Image tag", "assistant:qa-local-prebaked")
     .action(async (opts: { repoRoot?: string; image?: string }) => {
       await runQaDockerBuildImage(opts);
     });
 
   qa.command("up")
-    .description("Build the QA site, start the Docker-backed QA stack, and print the QA Lab URL")
+    .description("Start the Docker-backed QA stack and print the QA Lab API URL")
     .option("--repo-root <path>", "Repository root to target when running from a neutral cwd")
     .option("--output-dir <path>", "Output directory for docker-compose + state files")
     .option("--gateway-port <port>", "Gateway host port", (value: string) => Number(value))
     .option("--qa-lab-port <port>", "QA lab host port", (value: string) => Number(value))
     .option("--provider-base-url <url>", "Provider base URL for the QA gateway")
-    .option("--image <name>", "Image tag", "zhushou:qa-local-prebaked")
+    .option("--image <name>", "Image tag", "assistant:qa-local-prebaked")
     .option("--use-prebuilt-image", "Use image: instead of build: in docker-compose", false)
-    .option(
-      "--bind-ui-dist",
-      "Bind-mount extensions/qa-lab/web/dist into the qa-lab container for faster UI refresh",
-      false,
-    )
-    .option("--skip-ui-build", "Skip pnpm qa:lab:build before starting Docker", false)
     .action(
       async (opts: {
         repoRoot?: string;
@@ -575,8 +545,6 @@ export function registerQaLabCli(program: Command) {
         providerBaseUrl?: string;
         image?: string;
         usePrebuiltImage?: boolean;
-        bindUiDist?: boolean;
-        skipUiBuild?: boolean;
       }) => {
         await runQaDockerUp(opts);
       },

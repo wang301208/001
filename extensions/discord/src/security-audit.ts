@@ -1,12 +1,12 @@
-import { coerceNativeSetting, normalizeAllowFromList } from "zhushou/plugin-sdk/channel-policy";
-import { readChannelAllowFromStore } from "zhushou/plugin-sdk/conversation-runtime";
-import { isDangerousNameMatchingEnabled } from "zhushou/plugin-sdk/dangerous-name-runtime";
+import { coerceNativeSetting, normalizeAllowFromList } from "assistant/plugin-sdk/channel-policy";
+import { readChannelAllowFromStore } from "assistant/plugin-sdk/conversation-runtime";
+import { isDangerousNameMatchingEnabled } from "assistant/plugin-sdk/dangerous-name-runtime";
 import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
-} from "zhushou/plugin-sdk/native-command-config-runtime";
+} from "assistant/plugin-sdk/native-command-config-runtime";
 import type { ResolvedDiscordAccount } from "./accounts.js";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 import { isDiscordMutableAllowEntry } from "./security-doctor.js";
 
 function normalizeOptionalString(value: string | null | undefined): string | undefined {
@@ -35,7 +35,7 @@ function addDiscordNameBasedEntries(params: {
 }
 
 export async function collectDiscordSecurityAuditFindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   account: ResolvedDiscordAccount;
   orderedAccountIds: string[];
@@ -74,7 +74,7 @@ export async function collectDiscordSecurityAuditFindings(params: {
   addDiscordNameBasedEntries({
     target: discordNameBasedAllowEntries,
     values: storeAllowFrom,
-    source: "~/.zhushou/credentials/discord-allowFrom.json",
+    source: "~/.assistant/credentials/discord-allowFrom.json",
   });
 
   const guildEntries = (discordCfg.guilds as Record<string, unknown> | undefined) ?? {};

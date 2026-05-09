@@ -89,9 +89,9 @@ describe("secrets runtime snapshot auth integration", () => {
   });
 
   it("recomputes config-derived agent dirs when refreshing active secrets runtime snapshots", async () => {
-    await withTempHome("zhushou-secrets-runtime-agent-dirs-", async (home) => {
-      const mainAgentDir = path.join(home, ".zhushou", "agents", "main", "agent");
-      const opsAgentDir = path.join(home, ".zhushou", "agents", "ops", "agent");
+    await withTempHome("assistant-secrets-runtime-agent-dirs-", async (home) => {
+      const mainAgentDir = path.join(home, ".assistant", "agents", "main", "agent");
+      const opsAgentDir = path.join(home, ".assistant", "agents", "ops", "agent");
       await fs.mkdir(mainAgentDir, { recursive: true });
       await fs.mkdir(opsAgentDir, { recursive: true });
       await fs.writeFile(

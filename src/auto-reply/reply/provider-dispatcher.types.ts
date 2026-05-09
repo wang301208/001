@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { GetReplyOptions } from "../get-reply-options.types.js";
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import type { DispatchFromConfigResult } from "./dispatch-from-config.types.js";
@@ -13,7 +13,7 @@ type DispatchReplyOptions = Omit<GetReplyOptions, "onToolResult" | "onBlockReply
 
 export type DispatchReplyWithBufferedBlockDispatcher = (params: {
   ctx: DispatchReplyContext;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   dispatcherOptions: ReplyDispatcherWithTypingOptions;
   replyOptions?: DispatchReplyOptions;
   replyResolver?: GetReplyFromConfig;
@@ -21,7 +21,7 @@ export type DispatchReplyWithBufferedBlockDispatcher = (params: {
 
 export type DispatchReplyWithDispatcher = (params: {
   ctx: DispatchReplyContext;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   dispatcherOptions: ReplyDispatcherOptions;
   replyOptions?: DispatchReplyOptions;
   replyResolver?: GetReplyFromConfig;

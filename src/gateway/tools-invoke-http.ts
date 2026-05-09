@@ -6,7 +6,7 @@ import { applyOwnerOnlyToolPolicy } from "../agents/tool-policy.js";
 import { ToolInputError, type AnyAgentTool } from "../agents/tools/common.js";
 import { loadConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { logWarn } from "../logger.js";
 import { isTestDefaultMemorySlotDisabled } from "../plugins/config-state.js";
 import {
@@ -49,7 +49,7 @@ function resolveSessionKeyFromBody(body: ToolsInvokeBody): string | undefined {
   return undefined;
 }
 
-function resolveMemoryToolDisableReasons(cfg: ZhushouConfig): string[] {
+function resolveMemoryToolDisableReasons(cfg: AssistantConfig): string[] {
   if (!process.env.VITEST) {
     return [];
   }
@@ -227,11 +227,11 @@ export async function handleToolsInvokeHttpRequest(
 
   // Resolve message channel/account hints (optional headers) for policy inheritance.
   const messageChannel = normalizeMessageChannel(
-    getHeader(req, "x-zhushou-message-channel") ?? "",
+    getHeader(req, "x-assistant-message-channel") ?? "",
   );
-  const accountId = normalizeOptionalString(getHeader(req, "x-zhushou-account-id"));
-  const agentTo = normalizeOptionalString(getHeader(req, "x-zhushou-message-to"));
-  const agentThreadId = normalizeOptionalString(getHeader(req, "x-zhushou-thread-id"));
+  const accountId = normalizeOptionalString(getHeader(req, "x-assistant-account-id"));
+  const agentTo = normalizeOptionalString(getHeader(req, "x-assistant-message-to"));
+  const agentThreadId = normalizeOptionalString(getHeader(req, "x-assistant-thread-id"));
   // Owner semantics intentionally follow the same shared-secret HTTP contract
   // on this direct tool surface; SECURITY.md documents this as designed-as-is.
   // Computed before resolveGatewayScopedTools so the message tool is created

@@ -5,12 +5,12 @@ const sdkExports = vi.hoisted(() => ({
   listRuntimeImageGenerationProviders: vi.fn(),
 }));
 
-vi.mock("zhushou/plugin-sdk/image-generation-runtime", () => sdkExports);
+vi.mock("assistant/plugin-sdk/image-generation-runtime", () => sdkExports);
 
 import {
   generateImage as sdkGenerateImage,
   listRuntimeImageGenerationProviders as sdkListRuntimeImageGenerationProviders,
-} from "zhushou/plugin-sdk/image-generation-runtime";
+} from "assistant/plugin-sdk/image-generation-runtime";
 import { generateImage, listRuntimeImageGenerationProviders } from "./runtime.js";
 
 describe("image-generation-core runtime", () => {

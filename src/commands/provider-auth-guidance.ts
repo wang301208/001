@@ -1,6 +1,6 @@
 import { normalizeProviderId } from "../agents/model-selection.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolvePluginProviders } from "../plugins/providers.runtime.js";
 
 function matchesProviderId(
@@ -19,7 +19,7 @@ function matchesProviderId(
 
 export function resolveProviderAuthLoginCommand(params: {
   provider: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): string | undefined {
@@ -32,12 +32,12 @@ export function resolveProviderAuthLoginCommand(params: {
   if (!provider || provider.auth.length === 0) {
     return undefined;
   }
-  return formatCliCommand(`zhushou models auth login --provider ${provider.id}`);
+  return formatCliCommand(`assistant models auth login --provider ${provider.id}`);
 }
 
 export function buildProviderAuthRecoveryHint(params: {
   provider: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   includeConfigure?: boolean;
@@ -49,13 +49,13 @@ export function buildProviderAuthRecoveryHint(params: {
     parts.push(`Run \`${loginCommand}\``);
   }
   if (params.includeConfigure !== false) {
-    parts.push(`\`${formatCliCommand("zhushou configure")}\``);
+    parts.push(`\`${formatCliCommand("assistant configure")}\``);
   }
   if (params.includeEnvVar) {
     parts.push("set an API key env var");
   }
   if (parts.length === 0) {
-    return `Run \`${formatCliCommand("zhushou configure")}\`.`;
+    return `Run \`${formatCliCommand("assistant configure")}\`.`;
   }
   if (parts.length === 1) {
     return `${parts[0]}.`;

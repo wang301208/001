@@ -3,9 +3,9 @@ import {
   buildChannelKeyCandidates,
   resolveChannelEntryMatchWithFallback,
   type ChannelMatchSource,
-} from "zhushou/plugin-sdk/channel-targets";
-import type { SlackReactionNotificationMode } from "zhushou/plugin-sdk/config-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/channel-targets";
+import type { SlackReactionNotificationMode } from "assistant/plugin-sdk/config-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import type { SlackMessageEvent } from "../types.js";
 import { allowListMatches, normalizeAllowListLower, normalizeSlackSlug } from "./allow-list.js";
 

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveOpenClawPackageRootSync } from "../infra/zhushou-root.js";
+import { resolveAssistantPackageRootSync } from "../infra/assistant-root.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
 type PluginSdkAliasCandidateKind = "dist" | "src";
@@ -51,7 +51,7 @@ function listPluginSdkSubpathsFromPackageJson(pkg: PluginSdkPackageJson): string
     .toSorted();
 }
 
-function hasTrustedOpenClawRootIndicator(params: {
+function hasTrustedAssistantRootIndicator(params: {
   packageRoot: string;
   packageJson: PluginSdkPackageJson;
 }): boolean {
@@ -64,14 +64,14 @@ function hasTrustedOpenClawRootIndicator(params: {
     return false;
   }
   const hasCliEntryExport = Object.prototype.hasOwnProperty.call(packageExports, "./cli-entry");
-  const hasOpenClawBin =
+  const hasAssistantBin =
     (typeof params.packageJson.bin === "string" &&
-      normalizeLowercaseStringOrEmpty(params.packageJson.bin).includes("zhushou")) ||
+      normalizeLowercaseStringOrEmpty(params.packageJson.bin).includes("assistant")) ||
     (typeof params.packageJson.bin === "object" &&
       params.packageJson.bin !== null &&
-      typeof params.packageJson.bin.zhushou === "string");
-  const hasOpenClawEntrypoint = fs.existsSync(path.join(params.packageRoot, "zhushou.mjs"));
-  return hasCliEntryExport || hasOpenClawBin || hasOpenClawEntrypoint;
+      typeof params.packageJson.bin.assistant === "string");
+  const hasAssistantEntrypoint = fs.existsSync(path.join(params.packageRoot, "assistant.mjs"));
+  return hasCliEntryExport || hasAssistantBin || hasAssistantEntrypoint;
 }
 
 function readPluginSdkSubpathsFromPackageRoot(packageRoot: string): string[] | null {
@@ -79,21 +79,21 @@ function readPluginSdkSubpathsFromPackageRoot(packageRoot: string): string[] | n
   if (!pkg) {
     return null;
   }
-  if (!hasTrustedOpenClawRootIndicator({ packageRoot, packageJson: pkg })) {
+  if (!hasTrustedAssistantRootIndicator({ packageRoot, packageJson: pkg })) {
     return null;
   }
   const subpaths = listPluginSdkSubpathsFromPackageJson(pkg);
   return subpaths.length > 0 ? subpaths : null;
 }
 
-function resolveTrustedOpenClawRootFromArgvHint(params: {
+function resolveTrustedAssistantRootFromArgvHint(params: {
   argv1?: string;
   cwd: string;
 }): string | null {
   if (!params.argv1) {
     return null;
   }
-  const packageRoot = resolveOpenClawPackageRootSync({
+  const packageRoot = resolveAssistantPackageRootSync({
     cwd: params.cwd,
     argv1: params.argv1,
   });
@@ -104,7 +104,7 @@ function resolveTrustedOpenClawRootFromArgvHint(params: {
   if (!packageJson) {
     return null;
   }
-  return hasTrustedOpenClawRootIndicator({ packageRoot, packageJson }) ? packageRoot : null;
+  return hasTrustedAssistantRootIndicator({ packageRoot, packageJson }) ? packageRoot : null;
 }
 
 function findNearestPluginSdkPackageRoot(startDir: string, maxDepth = 12): string | null {
@@ -127,13 +127,13 @@ export function resolveLoaderPackageRoot(
   params: LoaderModuleResolveParams & { modulePath: string },
 ): string | null {
   const cwd = params.cwd ?? path.dirname(params.modulePath);
-  const fromModulePath = resolveOpenClawPackageRootSync({ cwd });
+  const fromModulePath = resolveAssistantPackageRootSync({ cwd });
   if (fromModulePath) {
     return fromModulePath;
   }
   const argv1 = params.argv1 ?? process.argv[1];
   const moduleUrl = params.moduleUrl ?? (params.modulePath ? undefined : import.meta.url);
-  return resolveOpenClawPackageRootSync({
+  return resolveAssistantPackageRootSync({
     cwd,
     ...(argv1 ? { argv1 } : {}),
     ...(moduleUrl ? { moduleUrl } : {}),
@@ -144,11 +144,11 @@ function resolveLoaderPluginSdkPackageRoot(
   params: LoaderModuleResolveParams & { modulePath: string },
 ): string | null {
   const cwd = params.cwd ?? path.dirname(params.modulePath);
-  const fromCwd = resolveOpenClawPackageRootSync({ cwd });
+  const fromCwd = resolveAssistantPackageRootSync({ cwd });
   const fromExplicitHints =
-    resolveTrustedOpenClawRootFromArgvHint({ cwd, argv1: params.argv1 }) ??
+    resolveTrustedAssistantRootFromArgvHint({ cwd, argv1: params.argv1 }) ??
     (params.moduleUrl
-      ? resolveOpenClawPackageRootSync({
+      ? resolveAssistantPackageRootSync({
           cwd,
           moduleUrl: params.moduleUrl,
         })
@@ -251,7 +251,7 @@ export function resolvePluginSdkAliasFile(params: {
 
 const cachedPluginSdkExportedSubpaths = new Map<string, string[]>();
 const cachedPluginSdkScopedAliasMaps = new Map<string, Record<string, string>>();
-const PLUGIN_SDK_PACKAGE_NAMES = ["zhushou/plugin-sdk", "@zhushou/plugin-sdk"] as const;
+const PLUGIN_SDK_PACKAGE_NAMES = ["assistant/plugin-sdk", "@assistant/plugin-sdk"] as const;
 const PLUGIN_SDK_SOURCE_CANDIDATE_EXTENSIONS = [
   ".ts",
   ".mts",
@@ -278,7 +278,7 @@ function readPrivateLocalOnlyPluginSdkSubpaths(packageRoot: string): string[] {
 }
 
 function shouldIncludePrivateLocalOnlyPluginSdkSubpaths() {
-  return process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI === "1";
+  return process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI === "1";
 }
 
 function hasPluginSdkSubpathArtifact(packageRoot: string, subpath: string) {
@@ -387,7 +387,7 @@ export function resolvePluginSdkScopedAliasMap(
         }
         break;
       }
-      if (Object.prototype.hasOwnProperty.call(aliasMap, `zhushou/plugin-sdk/${subpath}`)) {
+      if (Object.prototype.hasOwnProperty.call(aliasMap, `assistant/plugin-sdk/${subpath}`)) {
         break;
       }
     }
@@ -447,7 +447,7 @@ export function buildPluginLoaderAliasMap(
   const extensionApiAlias = resolveExtensionApiAlias({ modulePath, pluginSdkResolution });
   return {
     ...(extensionApiAlias
-      ? { "zhushou/extension-api": normalizeJitiAliasTargetPath(extensionApiAlias) }
+      ? { "assistant/extension-api": normalizeJitiAliasTargetPath(extensionApiAlias) }
       : {}),
     ...(pluginSdkAlias
       ? Object.fromEntries(
@@ -602,15 +602,15 @@ export function resolvePluginLoaderJitiConfig(params: {
 
 export function isBundledPluginExtensionPath(params: {
   modulePath: string;
-  openClawPackageRoot: string;
+  assistantPackageRoot: string;
   bundledPluginsDir?: string;
 }): boolean {
   const normalizedModulePath = normalizePortablePath(params.modulePath);
   const roots = [
     params.bundledPluginsDir ? params.bundledPluginsDir : null,
-    path.join(params.openClawPackageRoot, "extensions"),
-    path.join(params.openClawPackageRoot, "dist", "extensions"),
-    path.join(params.openClawPackageRoot, "dist-runtime", "extensions"),
+    path.join(params.assistantPackageRoot, "extensions"),
+    path.join(params.assistantPackageRoot, "dist", "extensions"),
+    path.join(params.assistantPackageRoot, "dist-runtime", "extensions"),
   ]
     .filter((root): root is string => typeof root === "string")
     .map(normalizePortablePath);

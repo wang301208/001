@@ -1,4 +1,4 @@
-import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-shared";
+import type { ModelProviderConfig } from "assistant/plugin-sdk/provider-model-shared";
 import { buildXaiCatalogModels, XAI_BASE_URL } from "./model-definitions.js";
 
 export function buildXaiProvider(

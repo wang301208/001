@@ -1,7 +1,7 @@
-import type { ReplyToMode } from "zhushou/plugin-sdk/config-runtime";
-import type { TelegramAccountConfig } from "zhushou/plugin-sdk/config-runtime";
-import { danger, logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import type { ReplyToMode } from "assistant/plugin-sdk/config-runtime";
+import type { TelegramAccountConfig } from "assistant/plugin-sdk/config-runtime";
+import { danger, logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
 import type { TelegramBotDeps } from "./bot-deps.js";
 import {
   buildTelegramMessageContext,
@@ -66,7 +66,7 @@ export const createTelegramMessageProcessor = (deps: TelegramMessageProcessorDep
         ? options.receivedAtMs
         : undefined;
     const ingressDebugEnabled =
-      shouldLogVerbose() || process.env.OPENCLAW_DEBUG_TELEGRAM_INGRESS === "1";
+      shouldLogVerbose() || process.env.ASSISTANT_DEBUG_TELEGRAM_INGRESS === "1";
     const ingressContextStartMs = ingressReceivedAtMs ? Date.now() : undefined;
     const context = await buildTelegramMessageContext({
       primaryCtx,

@@ -16,7 +16,7 @@ export function registerCronCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/cron", "docs.zhushou.ai/cli/cron")}\n${theme.muted("Upgrade tip:")} run \`zhushou doctor --fix\` to normalize legacy cron job storage.\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/cron", "docs.assistant.ai/cli/cron")}\n${theme.muted("Upgrade tip:")} run \`assistant doctor --fix\` to normalize legacy cron job storage.\n`,
     );
 
   registerCronStatusCommand(cron);

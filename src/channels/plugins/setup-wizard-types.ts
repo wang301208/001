@@ -1,5 +1,5 @@
 import type { DmPolicy } from "../../config/types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { WizardPrompter } from "../../wizard/prompts.js";
 import type { ChannelAccessPolicy } from "./setup-group-access.js";
@@ -28,21 +28,21 @@ export type ChannelSetupWizardStatus = {
   configuredScore?: number;
   unconfiguredScore?: number;
   resolveConfigured: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
   }) => boolean | Promise<boolean>;
   resolveStatusLines?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
     configured: boolean;
   }) => string[] | Promise<string[]>;
   resolveSelectionHint?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
     configured: boolean;
   }) => string | undefined | Promise<string | undefined>;
   resolveQuickstartScore?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
     configured: boolean;
   }) => number | undefined | Promise<number | undefined>;
@@ -61,7 +61,7 @@ export type ChannelSetupWizardNote = {
   title: string;
   lines: string[];
   shouldShow?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
   }) => boolean | Promise<boolean>;
@@ -70,11 +70,11 @@ export type ChannelSetupWizardNote = {
 export type ChannelSetupWizardEnvShortcut = {
   prompt: string;
   preferredEnvVar?: string;
-  isAvailable: (params: { cfg: ZhushouConfig; accountId: string }) => boolean;
+  isAvailable: (params: { cfg: AssistantConfig; accountId: string }) => boolean;
   apply: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
-  }) => ZhushouConfig | Promise<ZhushouConfig>;
+  }) => AssistantConfig | Promise<AssistantConfig>;
 };
 
 export type ChannelSetupWizardCredential = {
@@ -87,29 +87,29 @@ export type ChannelSetupWizardCredential = {
   envPrompt: string;
   keepPrompt: string;
   inputPrompt: string;
-  allowEnv?: (params: { cfg: ZhushouConfig; accountId: string }) => boolean;
+  allowEnv?: (params: { cfg: AssistantConfig; accountId: string }) => boolean;
   inspect: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
   }) => ChannelSetupWizardCredentialState;
   shouldPrompt?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
     currentValue?: string;
     state: ChannelSetupWizardCredentialState;
   }) => boolean | Promise<boolean>;
   applyUseEnv?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
-  }) => ZhushouConfig | Promise<ZhushouConfig>;
+  }) => AssistantConfig | Promise<AssistantConfig>;
   applySet?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
     value: unknown;
     resolvedValue: string;
-  }) => ZhushouConfig | Promise<ZhushouConfig>;
+  }) => AssistantConfig | Promise<AssistantConfig>;
 };
 
 export type ChannelSetupWizardTextInput = {
@@ -123,17 +123,17 @@ export type ChannelSetupWizardTextInput = {
   confirmCurrentValue?: boolean;
   keepPrompt?: string | ((value: string) => string);
   currentValue?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
   }) => string | undefined | Promise<string | undefined>;
   initialValue?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
   }) => string | undefined | Promise<string | undefined>;
   shouldPrompt?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
     currentValue?: string;
@@ -141,21 +141,21 @@ export type ChannelSetupWizardTextInput = {
   applyCurrentValue?: boolean;
   validate?: (params: {
     value: string;
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
   }) => string | undefined;
   normalizeValue?: (params: {
     value: string;
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
   }) => string;
   applySet?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     value: string;
-  }) => ZhushouConfig | Promise<ZhushouConfig>;
+  }) => AssistantConfig | Promise<AssistantConfig>;
 };
 
 export type ChannelSetupWizardAllowFromEntry = {
@@ -174,16 +174,16 @@ export type ChannelSetupWizardAllowFrom = {
   parseInputs?: (raw: string) => string[];
   parseId: (raw: string) => string | null;
   resolveEntries: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
     entries: string[];
   }) => Promise<ChannelSetupWizardAllowFromEntry[]>;
   apply: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     allowFrom: string[];
-  }) => ZhushouConfig | Promise<ZhushouConfig>;
+  }) => AssistantConfig | Promise<AssistantConfig>;
 };
 
 export type ChannelSetupWizardGroupAccess = {
@@ -192,30 +192,30 @@ export type ChannelSetupWizardGroupAccess = {
   helpTitle?: string;
   helpLines?: string[];
   skipAllowlistEntries?: boolean;
-  currentPolicy: (params: { cfg: ZhushouConfig; accountId: string }) => ChannelAccessPolicy;
-  currentEntries: (params: { cfg: ZhushouConfig; accountId: string }) => string[];
-  updatePrompt: (params: { cfg: ZhushouConfig; accountId: string }) => boolean;
+  currentPolicy: (params: { cfg: AssistantConfig; accountId: string }) => ChannelAccessPolicy;
+  currentEntries: (params: { cfg: AssistantConfig; accountId: string }) => string[];
+  updatePrompt: (params: { cfg: AssistantConfig; accountId: string }) => boolean;
   setPolicy: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     policy: ChannelAccessPolicy;
-  }) => ZhushouConfig;
+  }) => AssistantConfig;
   resolveAllowlist?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     credentialValues: ChannelSetupWizardCredentialValues;
     entries: string[];
     prompter: Pick<WizardPrompter, "note">;
   }) => Promise<unknown>;
   applyAllowlist?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     resolved: unknown;
-  }) => ZhushouConfig;
+  }) => AssistantConfig;
 };
 
 export type ChannelSetupWizardPrepare = (params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   credentialValues: ChannelSetupWizardCredentialValues;
   runtime: ChannelSetupConfigureContext["runtime"];
@@ -223,17 +223,17 @@ export type ChannelSetupWizardPrepare = (params: {
   options?: ChannelSetupConfigureContext["options"];
 }) =>
   | {
-      cfg?: ZhushouConfig;
+      cfg?: AssistantConfig;
       credentialValues?: ChannelSetupWizardCredentialValues;
     }
   | void
   | Promise<{
-      cfg?: ZhushouConfig;
+      cfg?: AssistantConfig;
       credentialValues?: ChannelSetupWizardCredentialValues;
     } | void>;
 
 export type ChannelSetupWizardFinalize = (params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   credentialValues: ChannelSetupWizardCredentialValues;
   runtime: ChannelSetupConfigureContext["runtime"];
@@ -242,12 +242,12 @@ export type ChannelSetupWizardFinalize = (params: {
   forceAllowFrom: boolean;
 }) =>
   | {
-      cfg?: ZhushouConfig;
+      cfg?: AssistantConfig;
       credentialValues?: ChannelSetupWizardCredentialValues;
     }
   | void
   | Promise<{
-      cfg?: ZhushouConfig;
+      cfg?: AssistantConfig;
       credentialValues?: ChannelSetupWizardCredentialValues;
     } | void>;
 
@@ -257,7 +257,7 @@ export type ChannelSetupWizard = {
   introNote?: ChannelSetupWizardNote;
   envShortcut?: ChannelSetupWizardEnvShortcut;
   resolveAccountIdForConfigure?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     prompter: WizardPrompter;
     options?: ChannelSetupConfigureContext["options"];
     accountOverride?: string;
@@ -266,7 +266,7 @@ export type ChannelSetupWizard = {
     defaultAccountId: string;
   }) => string | Promise<string>;
   resolveShouldPromptAccountIds?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     options?: ChannelSetupConfigureContext["options"];
     shouldPromptAccountIds: boolean;
   }) => boolean;
@@ -279,7 +279,7 @@ export type ChannelSetupWizard = {
   dmPolicy?: ChannelSetupDmPolicy;
   allowFrom?: ChannelSetupWizardAllowFrom;
   groupAccess?: ChannelSetupWizardGroupAccess;
-  disable?: (cfg: ZhushouConfig) => ZhushouConfig;
+  disable?: (cfg: AssistantConfig) => AssistantConfig;
   onAccountRecorded?: ChannelSetupWizardAdapter["onAccountRecorded"];
 };
 
@@ -302,11 +302,11 @@ export type SetupChannelsOptions = {
 };
 
 export type PromptAccountIdParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   label: string;
   currentId?: string;
-  listAccountIds: (cfg: ZhushouConfig) => string[];
+  listAccountIds: (cfg: AssistantConfig) => string[];
   defaultAccountId: string;
 };
 
@@ -321,13 +321,13 @@ export type ChannelSetupStatus = {
 };
 
 export type ChannelSetupStatusContext = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   options?: SetupChannelsOptions;
   accountOverrides: Partial<Record<ChannelId, string>>;
 };
 
 export type ChannelSetupConfigureContext = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: RuntimeEnv;
   prompter: WizardPrompter;
   options?: SetupChannelsOptions;
@@ -337,8 +337,8 @@ export type ChannelSetupConfigureContext = {
 };
 
 export type ChannelOnboardingPostWriteContext = {
-  previousCfg: ZhushouConfig;
-  cfg: ZhushouConfig;
+  previousCfg: AssistantConfig;
+  cfg: AssistantConfig;
   accountId: string;
   runtime: RuntimeEnv;
 };
@@ -346,11 +346,11 @@ export type ChannelOnboardingPostWriteContext = {
 export type ChannelOnboardingPostWriteHook = {
   channel: ChannelId;
   accountId: string;
-  run: (ctx: { cfg: ZhushouConfig; runtime: RuntimeEnv }) => Promise<void> | void;
+  run: (ctx: { cfg: AssistantConfig; runtime: RuntimeEnv }) => Promise<void> | void;
 };
 
 export type ChannelSetupResult = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string;
 };
 
@@ -367,16 +367,16 @@ export type ChannelSetupDmPolicy = {
   policyKey: string;
   allowFromKey: string;
   resolveConfigKeys?: (
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
     accountId?: string,
   ) => { policyKey: string; allowFromKey: string };
-  getCurrent: (cfg: ZhushouConfig, accountId?: string) => DmPolicy;
-  setPolicy: (cfg: ZhushouConfig, policy: DmPolicy, accountId?: string) => ZhushouConfig;
+  getCurrent: (cfg: AssistantConfig, accountId?: string) => DmPolicy;
+  setPolicy: (cfg: AssistantConfig, policy: DmPolicy, accountId?: string) => AssistantConfig;
   promptAllowFrom?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     prompter: WizardPrompter;
     accountId?: string;
-  }) => Promise<ZhushouConfig>;
+  }) => Promise<AssistantConfig>;
 };
 
 export type ChannelSetupWizardAdapter = {
@@ -392,5 +392,5 @@ export type ChannelSetupWizardAdapter = {
   afterConfigWritten?: (ctx: ChannelOnboardingPostWriteContext) => Promise<void> | void;
   dmPolicy?: ChannelSetupDmPolicy;
   onAccountRecorded?: (accountId: string, options?: SetupChannelsOptions) => void;
-  disable?: (cfg: ZhushouConfig) => ZhushouConfig;
+  disable?: (cfg: AssistantConfig) => AssistantConfig;
 };

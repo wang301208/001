@@ -4,6 +4,7 @@ import {
   explainAgentGovernanceToolDenial,
   resolveAgentGovernanceRuntimeContract,
 } from "../governance/runtime-contract.js";
+import { DEFAULT_PLUGIN_APPROVAL_TIMEOUT_MS } from "../infra/plugin-approvals.js";
 import type { SessionState } from "../logging/diagnostic-session-state.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
@@ -287,7 +288,7 @@ export async function runBeforeToolCallHook(args: {
           "plugin.approval.request",
           // Buffer beyond the approval timeout so the gateway can clean up
           // and respond before the client-side RPC timeout fires.
-          { timeoutMs: (approval.timeoutMs ?? 120_000) + 10_000 },
+          { timeoutMs: (approval.timeoutMs ?? DEFAULT_PLUGIN_APPROVAL_TIMEOUT_MS) + 10_000 },
           {
             pluginId: approval.pluginId,
             title: approval.title,
@@ -297,7 +298,7 @@ export async function runBeforeToolCallHook(args: {
             toolCallId: args.toolCallId,
             agentId: args.ctx?.agentId,
             sessionKey: args.ctx?.sessionKey,
-            timeoutMs: approval.timeoutMs ?? 120_000,
+            timeoutMs: approval.timeoutMs ?? DEFAULT_PLUGIN_APPROVAL_TIMEOUT_MS,
             twoPhase: true,
           },
           { expectFinal: false },
@@ -334,7 +335,7 @@ export async function runBeforeToolCallHook(args: {
             "plugin.approval.waitDecision",
             // Buffer beyond the approval timeout so the gateway can clean up
             // and respond before the client-side RPC timeout fires.
-            { timeoutMs: (approval.timeoutMs ?? 120_000) + 10_000 },
+            { timeoutMs: (approval.timeoutMs ?? DEFAULT_PLUGIN_APPROVAL_TIMEOUT_MS) + 10_000 },
             { id },
           );
           let waitResult: { id?: string; decision?: string | null } | undefined;
@@ -379,7 +380,7 @@ export async function runBeforeToolCallHook(args: {
         if (decision === PluginApprovalResolutions.DENY) {
           return { blocked: true, reason: "Denied by user" };
         }
-        const timeoutBehavior = approval.timeoutBehavior ?? "deny";
+        const timeoutBehavior = approval.timeoutBehavior ?? "allow";
         if (timeoutBehavior === "allow") {
           return {
             blocked: false,
@@ -388,14 +389,26 @@ export async function runBeforeToolCallHook(args: {
         }
         return { blocked: true, reason: "Approval timed out" };
       } catch (err) {
-        safeOnResolution(PluginApprovalResolutions.CANCELLED);
         if (isAbortSignalCancellation(err, args.signal)) {
+          safeOnResolution(PluginApprovalResolutions.CANCELLED);
           log.warn(`plugin approval wait cancelled by run abort: ${String(err)}`);
           return {
             blocked: true,
             reason: "Approval cancelled (run aborted)",
           };
         }
+        const message = String(err).toLowerCase();
+        if (
+          message.includes("approval expired or not found") ||
+          message.includes("unknown or expired approval id")
+        ) {
+          safeOnResolution(PluginApprovalResolutions.TIMEOUT);
+          return {
+            blocked: false,
+            params: mergeParamsWithApprovalOverrides(params, hookResult.params),
+          };
+        }
+        safeOnResolution(PluginApprovalResolutions.CANCELLED);
         log.warn(`plugin approval gateway request failed, falling back to block: ${String(err)}`);
         return {
           blocked: true,

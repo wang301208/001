@@ -1,10 +1,10 @@
-import type { ResolvedAgentRoute } from "zhushou/plugin-sdk/routing";
+﻿import type { ResolvedAgentRoute } from "assistant/plugin-sdk/routing";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { createFeishuCommentReplyDispatcher } from "./comment-dispatcher.js";
 import {
   createChannelPairingController,
-  type ClawdbotConfig,
+  type AssistantConfig,
   type RuntimeEnv,
 } from "./comment-handler-runtime-api.js";
 import { buildFeishuCommentTarget } from "./comment-target.js";
@@ -19,7 +19,7 @@ import { getFeishuRuntime } from "./runtime.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
 
 type HandleFeishuCommentEventParams = {
-  cfg: ClawdbotConfig;
+  cfg: AssistantConfig;
   accountId: string;
   runtime?: RuntimeEnv;
   event: FeishuDriveCommentNoticeEvent;
@@ -188,7 +188,7 @@ export async function handleFeishuCommentEvent(
     AccountId: route.accountId,
     ChatType: "direct",
     ConversationLabel: turn.documentTitle
-      ? `Feishu comment · ${turn.documentTitle}`
+      ? `Feishu comment 路 ${turn.documentTitle}`
       : "Feishu comment",
     SenderName: turn.senderId,
     SenderId: turn.senderId,

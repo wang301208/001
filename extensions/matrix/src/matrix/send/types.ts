@@ -38,7 +38,7 @@ export const EventType = {
   RoomMessage: "m.room.message",
 } as const;
 
-export const MATRIX_OPENCLAW_FINALIZED_PREVIEW_KEY = "com.zhushou.finalized_preview" as const;
+export const MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY = "com.assistant.finalized_preview" as const;
 
 export type MatrixDirectAccountData = Record<string, string[]>;
 

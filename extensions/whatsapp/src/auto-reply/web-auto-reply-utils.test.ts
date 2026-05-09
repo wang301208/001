@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { saveSessionStore } from "zhushou/plugin-sdk/config-runtime";
+import { saveSessionStore } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it, vi } from "vitest";
 import { withTempDir } from "../../../../test/helpers/plugins/temp-dir.js";
 import {
@@ -30,7 +30,7 @@ const makeMsg = (overrides: Partial<WebInboundMsg>): WebInboundMsg =>
   }) as WebInboundMsg;
 
 describe("isBotMentionedFromTargets", () => {
-  const mentionCfg = { mentionRegexes: [/\bopenclaw\b/i] };
+  const mentionCfg = { mentionRegexes: [/\bassistant\b/i] };
 
   function expectMentioned(
     msg: WebInboundMsg,
@@ -63,7 +63,7 @@ describe("isBotMentionedFromTargets", () => {
 
   it("falls back to regex when no mentions are present", () => {
     const msg = makeMsg({
-      body: "zhushou can you help?",
+      body: "assistant can you help?",
       selfE164: "+15551234567",
       selfJid: "15551234567@s.whatsapp.net",
     });
@@ -71,7 +71,7 @@ describe("isBotMentionedFromTargets", () => {
   });
 
   it("ignores JID mentions in self-chat mode", () => {
-    const cfg = { mentionRegexes: [/\bopenclaw\b/i], allowFrom: ["+999"] };
+    const cfg = { mentionRegexes: [/\bassistant\b/i], allowFrom: ["+999"] };
     const msg = makeMsg({
       body: "@owner ping",
       mentionedJids: ["999@s.whatsapp.net"],
@@ -81,7 +81,7 @@ describe("isBotMentionedFromTargets", () => {
     expectMentioned(msg, cfg, false);
 
     const msgTextMention = makeMsg({
-      body: "zhushou ping",
+      body: "assistant ping",
       selfE164: "+999",
       selfJid: "999@s.whatsapp.net",
     });
@@ -100,7 +100,7 @@ describe("isBotMentionedFromTargets", () => {
 
 describe("resolveMentionTargets with @lid mapping", () => {
   it("uses @lid reverse mapping for mentions and self identity", async () => {
-    await withTempDir("zhushou-lid-mapping-", async (authDir) => {
+    await withTempDir("assistant-lid-mapping-", async (authDir) => {
       await fs.writeFile(
         path.join(authDir, "lid-mapping-777_reverse.json"),
         JSON.stringify("+1777"),
@@ -141,7 +141,7 @@ describe("getSessionSnapshot", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
     try {
-      await withTempDir("zhushou-snapshot-", async (root) => {
+      await withTempDir("assistant-snapshot-", async (root) => {
         const storePath = path.join(root, "sessions.json");
         const sessionKey = "agent:main:whatsapp:dm:s1";
 
@@ -183,13 +183,13 @@ describe("web auto-reply util", () => {
     it("returns normalized debug fields and mention outcome", () => {
       const msg = makeMsg({
         from: "777@lid",
-        body: "zhushou ping",
+        body: "assistant ping",
         selfE164: "+15551234567",
         selfJid: "15551234567@s.whatsapp.net",
       });
-      const result = debugMention(msg, { mentionRegexes: [/\bopenclaw\b/i] });
+      const result = debugMention(msg, { mentionRegexes: [/\bassistant\b/i] });
       expect(result.wasMentioned).toBe(true);
-      expect(result.details.bodyClean).toBe("zhushou ping");
+      expect(result.details.bodyClean).toBe("assistant ping");
       expect(result.details.normalizedMentionedJids).toBeNull();
     });
 

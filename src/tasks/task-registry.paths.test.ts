@@ -11,12 +11,12 @@ describe("task registry paths", () => {
         VITEST: "true",
         VITEST_POOL_ID: "7",
       } as NodeJS.ProcessEnv),
-    ).toBe(path.join(os.tmpdir(), "zhushou-test-state", `${process.pid}-7`));
+    ).toBe(path.join(os.tmpdir(), "assistant-test-state", `${process.pid}-7`));
   });
 
   it("prefers explicit state dir overrides over Vitest sharding", () => {
     const env = {
-      ZHUSHOU_STATE_DIR: "/tmp/zhushou-custom-state",
+      ASSISTANT_STATE_DIR: "/tmp/assistant-custom-state",
       VITEST: "true",
       VITEST_POOL_ID: "7",
     } as NodeJS.ProcessEnv;

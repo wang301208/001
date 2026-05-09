@@ -28,13 +28,13 @@ describe("config secret refs schema", () => {
           default: { source: "env" },
           filemain: {
             source: "file",
-            path: "~/.zhushou/secrets.json",
+            path: "~/.assistant/secrets.json",
             mode: "json",
             timeoutMs: 10_000,
           },
           vault: {
             source: "exec",
-            command: "/usr/local/bin/zhushou-secret-resolver",
+            command: "/usr/local/bin/assistant-secret-resolver",
             args: ["resolve"],
             allowSymlinkCommand: true,
           },
@@ -230,7 +230,7 @@ describe("config secret refs schema", () => {
         providers: {
           rawfile: {
             source: "file",
-            path: "~/.zhushou/token.txt",
+            path: "~/.assistant/token.txt",
             mode: "singleValue",
           },
         },

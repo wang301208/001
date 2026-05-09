@@ -173,7 +173,7 @@ describe("DiscordMessageListener", () => {
       warn: vi.fn(),
       error: vi.fn(),
     } as unknown as ReturnType<
-      typeof import("zhushou/plugin-sdk/logging-core").createSubsystemLogger
+      typeof import("assistant/plugin-sdk/logging-core").createSubsystemLogger
     >;
     const handler = vi.fn(async () => {
       throw new Error("boom");
@@ -195,7 +195,7 @@ describe("DiscordMessageListener", () => {
       warn: vi.fn(),
       error: vi.fn(),
     } as unknown as ReturnType<
-      typeof import("zhushou/plugin-sdk/logging-core").createSubsystemLogger
+      typeof import("assistant/plugin-sdk/logging-core").createSubsystemLogger
     >;
     const listener = new DiscordMessageListener(handler, logger);
 
@@ -216,7 +216,7 @@ describe("DiscordMessageListener", () => {
 
 describe("discord allowlist helpers", () => {
   it("normalizes slugs", () => {
-    expect(normalizeDiscordSlug("Friends of 助手")).toBe("friends-of-zhushou");
+    expect(normalizeDiscordSlug("Friends of 助手")).toBe("friends-of-assistant");
     expect(normalizeDiscordSlug("#General")).toBe("general");
     expect(normalizeDiscordSlug("Dev__Chat")).toBe("dev-chat");
   });
@@ -232,10 +232,10 @@ describe("discord allowlist helpers", () => {
     }
     expect(allowListMatches(allow, { id: "123" })).toBe(true);
     expect(allowListMatches(allow, { name: "steipete" })).toBe(false);
-    expect(allowListMatches(allow, { name: "friends-of-zhushou" })).toBe(false);
+    expect(allowListMatches(allow, { name: "friends-of-assistant" })).toBe(false);
     expect(allowListMatches(allow, { name: "steipete" }, { allowNameMatching: true })).toBe(true);
     expect(
-      allowListMatches(allow, { name: "friends-of-zhushou" }, { allowNameMatching: true }),
+      allowListMatches(allow, { name: "friends-of-assistant" }, { allowNameMatching: true }),
     ).toBe(true);
     expect(allowListMatches(allow, { name: "other" })).toBe(false);
   });
@@ -254,38 +254,38 @@ describe("discord allowlist helpers", () => {
 describe("discord guild/channel resolution", () => {
   it("resolves guild entry by id", () => {
     const guildEntries = makeEntries({
-      "123": { slug: "friends-of-zhushou" },
+      "123": { slug: "friends-of-assistant" },
     });
     const resolved = resolveDiscordGuildEntry({
       guild: fakeGuild("123", "Friends of 助手"),
       guildEntries,
     });
     expect(resolved?.id).toBe("123");
-    expect(resolved?.slug).toBe("friends-of-zhushou");
+    expect(resolved?.slug).toBe("friends-of-assistant");
   });
 
   it("resolves guild entry by raw guild id when guild object is missing", () => {
     const guildEntries = makeEntries({
-      "123": { slug: "friends-of-zhushou" },
+      "123": { slug: "friends-of-assistant" },
     });
     const resolved = resolveDiscordGuildEntry({
       guildId: "123",
       guildEntries,
     });
     expect(resolved?.id).toBe("123");
-    expect(resolved?.slug).toBe("friends-of-zhushou");
+    expect(resolved?.slug).toBe("friends-of-assistant");
   });
 
   it("resolves guild entry by slug key", () => {
     const guildEntries = makeEntries({
-      "friends-of-zhushou": { slug: "friends-of-zhushou" },
+      "friends-of-assistant": { slug: "friends-of-assistant" },
     });
     const resolved = resolveDiscordGuildEntry({
       guild: fakeGuild("123", "Friends of 助手"),
       guildEntries,
     });
     expect(resolved?.id).toBe("123");
-    expect(resolved?.slug).toBe("friends-of-zhushou");
+    expect(resolved?.slug).toBe("friends-of-assistant");
   });
 
   it("falls back to wildcard guild entry", () => {
@@ -640,15 +640,15 @@ describe("discord group DM gating", () => {
   it("matches group DM allowlist", () => {
     expect(
       resolveGroupDmAllow({
-        channels: ["zhushou-dm"],
+        channels: ["assistant-dm"],
         channelId: "1",
         channelName: "助手 DM",
-        channelSlug: "zhushou-dm",
+        channelSlug: "assistant-dm",
       }),
     ).toBe(true);
     expect(
       resolveGroupDmAllow({
-        channels: ["zhushou-dm"],
+        channels: ["assistant-dm"],
         channelId: "1",
         channelName: "Other",
         channelSlug: "other",
@@ -907,10 +907,10 @@ const { enqueueSystemEventSpy, resolveAgentRouteMock } = vi.hoisted(() => ({
   })),
 }));
 
-const channelRuntimeModule = await import("zhushou/plugin-sdk/infra-runtime");
+const channelRuntimeModule = await import("assistant/plugin-sdk/infra-runtime");
 vi.spyOn(channelRuntimeModule, "enqueueSystemEvent").mockImplementation(enqueueSystemEventSpy);
 
-const routingModule = await import("zhushou/plugin-sdk/routing");
+const routingModule = await import("assistant/plugin-sdk/routing");
 vi.spyOn(routingModule, "resolveAgentRoute").mockImplementation(resolveAgentRouteMock);
 
 const { DiscordMessageListener, DiscordReactionListener } = await import("./monitor/listeners.js");
@@ -992,9 +992,9 @@ function makeReactionListenerParams(overrides?: {
   guildEntries?: Record<string, DiscordGuildEntryResolved>;
 }) {
   return {
-    cfg: {} as ReturnType<typeof import("zhushou/plugin-sdk/config-runtime").loadConfig>,
+    cfg: {} as ReturnType<typeof import("assistant/plugin-sdk/config-runtime").loadConfig>,
     accountId: "acc-1",
-    runtime: {} as import("zhushou/plugin-sdk/runtime-env").RuntimeEnv,
+    runtime: {} as import("assistant/plugin-sdk/runtime-env").RuntimeEnv,
     botUserId: overrides?.botUserId ?? "bot-1",
     dmEnabled: overrides?.dmEnabled ?? true,
     groupDmEnabled: overrides?.groupDmEnabled ?? true,
@@ -1010,7 +1010,7 @@ function makeReactionListenerParams(overrides?: {
       error: vi.fn(),
       debug: vi.fn(),
     } as unknown as ReturnType<
-      typeof import("zhushou/plugin-sdk/logging-core").createSubsystemLogger
+      typeof import("assistant/plugin-sdk/logging-core").createSubsystemLogger
     >,
   };
 }

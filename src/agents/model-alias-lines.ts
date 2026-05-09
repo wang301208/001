@@ -1,7 +1,7 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
-export function buildModelAliasLines(cfg?: ZhushouConfig) {
+export function buildModelAliasLines(cfg?: AssistantConfig) {
   const models = cfg?.agents?.defaults?.models ?? {};
   const entries: Array<{ alias: string; model: string }> = [];
   for (const [keyRaw, entryRaw] of Object.entries(models)) {

@@ -37,9 +37,9 @@ describe("generic current-conversation bindings", () => {
   let testStateDir = "";
 
   beforeEach(async () => {
-    previousStateDir = process.env.ZHUSHOU_STATE_DIR;
-    testStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-current-bindings-"));
-    process.env.ZHUSHOU_STATE_DIR = testStateDir;
+    previousStateDir = process.env.ASSISTANT_STATE_DIR;
+    testStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-current-bindings-"));
+    process.env.ASSISTANT_STATE_DIR = testStateDir;
     setMinimalCurrentConversationRegistry();
     __testing.resetCurrentConversationBindingsForTests({
       deletePersistedFile: true,
@@ -51,9 +51,9 @@ describe("generic current-conversation bindings", () => {
       deletePersistedFile: true,
     });
     if (previousStateDir == null) {
-      delete process.env.ZHUSHOU_STATE_DIR;
+      delete process.env.ASSISTANT_STATE_DIR;
     } else {
-      process.env.ZHUSHOU_STATE_DIR = previousStateDir;
+      process.env.ASSISTANT_STATE_DIR = previousStateDir;
     }
     await fs.rm(testStateDir, { recursive: true, force: true });
   });

@@ -7,7 +7,7 @@ import {
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.plugin.js";
 import type { ChannelId } from "../../channels/plugins/types.public.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { normalizePluginsConfig, resolveEnableState } from "../../plugins/config-state.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { normalizeOptionalLowercaseString } from "../../shared/string-coerce.js";
@@ -24,14 +24,14 @@ type ChannelPluginSnapshot = {
 };
 
 type ResolveInstallableChannelPluginResult = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channelId?: ChannelId;
   plugin?: ChannelPlugin;
   catalogEntry?: ChannelPluginCatalogEntry;
   configChanged: boolean;
 };
 
-function resolveWorkspaceDir(cfg: ZhushouConfig) {
+function resolveWorkspaceDir(cfg: AssistantConfig) {
   return resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
 }
 
@@ -49,7 +49,7 @@ function resolveResolvedChannelId(params: {
   return normalizeChannelId(params.catalogEntry.id) ?? (params.catalogEntry.id as ChannelId);
 }
 
-export function resolveCatalogChannelEntry(raw: string, cfg: ZhushouConfig | null) {
+export function resolveCatalogChannelEntry(raw: string, cfg: AssistantConfig | null) {
   const trimmed = normalizeOptionalLowercaseString(raw);
   if (!trimmed) {
     return undefined;
@@ -77,7 +77,7 @@ function findScopedChannelPlugin(
 
 function isTrustedWorkspaceChannelCatalogEntry(
   entry: ChannelPluginCatalogEntry | undefined,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
 ): boolean {
   if (entry?.origin !== "workspace") {
     return true;
@@ -110,7 +110,7 @@ function isTrustedWorkspaceChannelCatalogEntry(
 function resolveTrustedCatalogEntry(params: {
   rawChannel?: string | null;
   channelId?: ChannelId;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   workspaceDir?: string;
   catalogEntry?: ChannelPluginCatalogEntry;
 }): ChannelPluginCatalogEntry | undefined {
@@ -144,7 +144,7 @@ function resolveTrustedCatalogEntry(params: {
 }
 
 function loadScopedChannelPlugin(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: RuntimeEnv;
   channelId: ChannelId;
   pluginId?: string;
@@ -161,7 +161,7 @@ function loadScopedChannelPlugin(params: {
 }
 
 export async function resolveInstallableChannelPlugin(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: RuntimeEnv;
   rawChannel?: string | null;
   channelId?: ChannelId;

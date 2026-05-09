@@ -1,6 +1,6 @@
-import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { formatCliCommand } from "../cli/command-format.js";
 import { loadConfig } from "../config/config.js";
 import { isLoopbackHost } from "../gateway/net.js";
@@ -41,7 +41,7 @@ function withLoopbackBrowserAuthImpl(
   deps: LoopbackBrowserAuthDeps,
 ): RequestInit & { timeoutMs?: number } {
   const headers = new Headers(init?.headers ?? {});
-  if (headers.has("authorization") || headers.has("x-zhushou-password")) {
+  if (headers.has("authorization") || headers.has("x-assistant-password")) {
     return { ...init, headers };
   }
   if (!isLoopbackHttpUrl(url)) {
@@ -56,7 +56,7 @@ function withLoopbackBrowserAuthImpl(
       return { ...init, headers };
     }
     if (auth.password) {
-      headers.set("x-zhushou-password", auth.password);
+      headers.set("x-assistant-password", auth.password);
       return { ...init, headers };
     }
   } catch {
@@ -77,7 +77,7 @@ function withLoopbackBrowserAuthImpl(
     if (bridgeAuth?.token) {
       headers.set("Authorization", `Bearer ${bridgeAuth.token}`);
     } else if (bridgeAuth?.password) {
-      headers.set("x-zhushou-password", bridgeAuth.password);
+      headers.set("x-assistant-password", bridgeAuth.password);
     }
   } catch {
     // ignore
@@ -108,7 +108,7 @@ function isRateLimitStatus(status: number): boolean {
 function resolveBrowserFetchOperatorHint(url: string): string {
   const isLocal = !isAbsoluteHttp(url);
   return isLocal
-    ? `Restart the 助手 gateway (助手.app menubar, or \`${formatCliCommand("openclaw gateway")}\`).`
+    ? `Restart the 助手 gateway (助手.app menubar, or \`${formatCliCommand("assistant gateway")}\`).`
     : "If this is a sandboxed session, ensure the sandbox browser is running.";
 }
 

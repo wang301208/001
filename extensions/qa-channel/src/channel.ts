@@ -1,8 +1,8 @@
 import {
   buildChannelOutboundSessionRoute,
   createChatChannelPlugin,
-} from "zhushou/plugin-sdk/channel-core";
-import { getChatChannelMeta } from "zhushou/plugin-sdk/channel-plugin-common";
+} from "assistant/plugin-sdk/channel-core";
+import { getChatChannelMeta } from "assistant/plugin-sdk/channel-plugin-common";
 import {
   DEFAULT_ACCOUNT_ID,
   listQaChannelAccountIds,

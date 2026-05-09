@@ -1,9 +1,9 @@
-export { getAcpSessionManager, isAcpRuntimeError } from "zhushou/plugin-sdk/acp-runtime";
+export { getAcpSessionManager, isAcpRuntimeError } from "assistant/plugin-sdk/acp-runtime";
 export {
   resolveThreadBindingIdleTimeoutMs,
   resolveThreadBindingMaxAgeMs,
   resolveThreadBindingsEnabled,
-} from "zhushou/plugin-sdk/conversation-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
 export { createDiscordMessageHandler } from "./message-handler.js";
 export {
   createNoopThreadBindingManager,

@@ -1,28 +1,28 @@
-import { resolveMarkdownTableMode as resolveMarkdownTableModeImpl } from "zhushou/plugin-sdk/config-runtime";
+import { resolveMarkdownTableMode as resolveMarkdownTableModeImpl } from "assistant/plugin-sdk/config-runtime";
 import {
   recordInboundSessionMetaSafe as recordInboundSessionMetaSafeImpl,
   resolveConversationLabel as resolveConversationLabelImpl,
-} from "zhushou/plugin-sdk/conversation-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
 import {
   dispatchReplyWithDispatcher as dispatchReplyWithDispatcherImpl,
   finalizeInboundContext as finalizeInboundContextImpl,
   resolveChunkMode as resolveChunkModeImpl,
-} from "zhushou/plugin-sdk/reply-runtime";
-import { resolveAgentRoute as resolveAgentRouteImpl } from "zhushou/plugin-sdk/routing";
+} from "assistant/plugin-sdk/reply-runtime";
+import { resolveAgentRoute as resolveAgentRouteImpl } from "assistant/plugin-sdk/routing";
 import { deliverSlackSlashReplies as deliverSlackSlashRepliesImpl } from "./replies.js";
 
-type ResolveChunkMode = typeof import("zhushou/plugin-sdk/reply-runtime").resolveChunkMode;
+type ResolveChunkMode = typeof import("assistant/plugin-sdk/reply-runtime").resolveChunkMode;
 type FinalizeInboundContext =
-  typeof import("zhushou/plugin-sdk/reply-runtime").finalizeInboundContext;
+  typeof import("assistant/plugin-sdk/reply-runtime").finalizeInboundContext;
 type DispatchReplyWithDispatcher =
-  typeof import("zhushou/plugin-sdk/reply-runtime").dispatchReplyWithDispatcher;
+  typeof import("assistant/plugin-sdk/reply-runtime").dispatchReplyWithDispatcher;
 type ResolveConversationLabel =
-  typeof import("zhushou/plugin-sdk/conversation-runtime").resolveConversationLabel;
+  typeof import("assistant/plugin-sdk/conversation-runtime").resolveConversationLabel;
 type RecordInboundSessionMetaSafe =
-  typeof import("zhushou/plugin-sdk/conversation-runtime").recordInboundSessionMetaSafe;
+  typeof import("assistant/plugin-sdk/conversation-runtime").recordInboundSessionMetaSafe;
 type ResolveMarkdownTableMode =
-  typeof import("zhushou/plugin-sdk/config-runtime").resolveMarkdownTableMode;
-type ResolveAgentRoute = typeof import("zhushou/plugin-sdk/routing").resolveAgentRoute;
+  typeof import("assistant/plugin-sdk/config-runtime").resolveMarkdownTableMode;
+type ResolveAgentRoute = typeof import("assistant/plugin-sdk/routing").resolveAgentRoute;
 type DeliverSlackSlashReplies = typeof import("./replies.js").deliverSlackSlashReplies;
 
 export function resolveChunkMode(

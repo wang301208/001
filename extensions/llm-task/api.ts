@@ -1,1 +1,1 @@
-export * from "zhushou/plugin-sdk/llm-task";
+export * from "assistant/plugin-sdk/llm-task";

@@ -1,5 +1,6 @@
 import { loadConfig, resolveGatewayPort } from "../../config/config.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import { DEFAULT_GATEWAY_PORT } from "../../config/paths.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { callGateway } from "../../gateway/call.js";
 import { resolveGatewayCredentialsFromConfig, trimToUndefined } from "../../gateway/credentials.js";
 import {
@@ -14,7 +15,7 @@ import {
 } from "../../shared/string-coerce.js";
 import { readStringParam } from "./common.js";
 
-export const DEFAULT_GATEWAY_URL = "ws://127.0.0.1:18789";
+export const DEFAULT_GATEWAY_URL = `ws://127.0.0.1:${DEFAULT_GATEWAY_PORT}`;
 
 export type GatewayCallOptions = {
   gatewayUrl?: string;
@@ -63,7 +64,7 @@ function canonicalizeToolGatewayWsUrl(raw: string): { origin: string; key: strin
 }
 
 function validateGatewayUrlOverrideForAgentTools(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   urlOverride: string;
 }): { url: string; target: GatewayOverrideTarget } {
   const { cfg } = params;
@@ -105,7 +106,7 @@ function validateGatewayUrlOverrideForAgentTools(params: {
 }
 
 function resolveGatewayOverrideToken(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   target: GatewayOverrideTarget;
   explicitToken?: string;
 }): string | undefined {

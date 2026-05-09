@@ -1,5 +1,5 @@
-import { listCombinedAccountIds } from "zhushou/plugin-sdk/account-resolution";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { listCombinedAccountIds } from "assistant/plugin-sdk/account-resolution";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { resolveTwitchToken, type TwitchTokenResolution } from "./token.js";
 import type { TwitchAccountConfig } from "./types.js";
 import { isAccountConfigured } from "./utils/twitch.js";
@@ -35,7 +35,7 @@ export function getAccountConfig(
     return null;
   }
 
-  const cfg = coreConfig as ZhushouConfig;
+  const cfg = coreConfig as AssistantConfig;
   const twitch = cfg.channels?.twitch;
   // Access accounts via unknown to handle union type (single-account vs multi-account)
   const twitchRaw = twitch as Record<string, unknown> | undefined;
@@ -99,7 +99,7 @@ export function getAccountConfig(
  *
  * Includes both explicit accounts and implicit "default" from base-level config
  */
-export function listAccountIds(cfg: ZhushouConfig): string[] {
+export function listAccountIds(cfg: AssistantConfig): string[] {
   const twitch = cfg.channels?.twitch;
   // Access accounts via unknown to handle union type (single-account vs multi-account)
   const twitchRaw = twitch as Record<string, unknown> | undefined;
@@ -118,7 +118,7 @@ export function listAccountIds(cfg: ZhushouConfig): string[] {
   });
 }
 
-export function resolveDefaultTwitchAccountId(cfg: ZhushouConfig): string {
+export function resolveDefaultTwitchAccountId(cfg: AssistantConfig): string {
   const preferred =
     typeof cfg.channels?.twitch?.defaultAccount === "string"
       ? cfg.channels.twitch.defaultAccount.trim()
@@ -134,7 +134,7 @@ export function resolveDefaultTwitchAccountId(cfg: ZhushouConfig): string {
 }
 
 export function resolveTwitchAccountContext(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId?: string | null,
 ): ResolvedTwitchAccountContext {
   const resolvedAccountId = accountId?.trim() || resolveDefaultTwitchAccountId(cfg);
@@ -150,7 +150,7 @@ export function resolveTwitchAccountContext(
 }
 
 export function resolveTwitchSnapshotAccountId(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   account: TwitchAccountConfig,
 ): string {
   const twitch = (cfg as Record<string, unknown>).channels as Record<string, unknown> | undefined;

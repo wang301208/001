@@ -268,9 +268,9 @@ function summarizeKnownExec(words: string[]): string {
     return `run ${bin} ${script}`;
   }
 
-  if (bin === "zhushou") {
+  if (bin === "assistant") {
     const sub = firstPositional(words, 1);
-    return sub ? `run zhushou ${sub}` : "run zhushou";
+    return sub ? `run assistant ${sub}` : "run assistant";
   }
 
   const arg = firstPositional(words, 1);
@@ -349,7 +349,7 @@ const KNOWN_SUMMARY_PREFIXES = [
   "run build",
   "start app",
   "run lint",
-  "run zhushou",
+  "run assistant",
   "run node script",
   "run node ",
   "run python",

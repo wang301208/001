@@ -56,7 +56,7 @@ const mocks = vi.hoisted(() => {
     sourceConfig,
     resolvedConfig,
     loadModelsConfigWithSource: vi.fn(),
-    ensureOpenClawModelsJson: vi.fn(),
+    ensureAssistantModelsJson: vi.fn(),
     ensureAuthProfileStore: vi.fn(),
     loadModelRegistry: vi.fn(),
     loadModelCatalog: vi.fn(),
@@ -73,7 +73,7 @@ function resetMocks() {
     resolvedConfig: mocks.resolvedConfig,
     diagnostics: [],
   });
-  mocks.ensureOpenClawModelsJson.mockResolvedValue({ wrote: false });
+  mocks.ensureAssistantModelsJson.mockResolvedValue({ wrote: false });
   mocks.ensureAuthProfileStore.mockReturnValue({ version: 1, profiles: {}, order: {} });
   mocks.loadModelRegistry.mockResolvedValue({
     models: [],
@@ -136,7 +136,7 @@ function installModelsListCommandForwardCompatMocks() {
   }));
 
   vi.doMock("./list.runtime.js", () => ({
-    ensureOpenClawModelsJson: mocks.ensureOpenClawModelsJson,
+    ensureAssistantModelsJson: mocks.ensureAssistantModelsJson,
     ensureAuthProfileStore: mocks.ensureAuthProfileStore,
     listProfilesForProvider: mocks.listProfilesForProvider,
     loadModelCatalog: mocks.loadModelCatalog,

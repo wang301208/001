@@ -6,14 +6,14 @@ let buildPinHarness: typeof import("./system-event-test-harness.js").createSlack
 type PinOverrides = import("./system-event-test-harness.js").SlackSystemEventTestOverrides;
 
 async function createChannelRuntimeMock() {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/infra-runtime")>(
-    "zhushou/plugin-sdk/infra-runtime",
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/infra-runtime")>(
+    "assistant/plugin-sdk/infra-runtime",
   );
   return { ...actual, enqueueSystemEvent: pinEnqueueMock };
 }
 
-vi.mock("zhushou/plugin-sdk/infra-runtime", createChannelRuntimeMock);
-vi.mock("zhushou/plugin-sdk/infra-runtime.js", createChannelRuntimeMock);
+vi.mock("assistant/plugin-sdk/infra-runtime", createChannelRuntimeMock);
+vi.mock("assistant/plugin-sdk/infra-runtime.js", createChannelRuntimeMock);
 
 type PinHandler = (args: { event: Record<string, unknown>; body: unknown }) => Promise<void>;
 

@@ -7,7 +7,7 @@ import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
 } from "../config/model-input.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
 import { hasConfiguredWebSearchCredential } from "../plugins/web-search-credential-presence.js";
 import { inferParamBFromIdOrName } from "../shared/model-param-b.js";
@@ -25,7 +25,7 @@ const SMALL_MODEL_PARAM_B_MAX = 300;
 
 type ModelRef = { id: string; source: string };
 
-function summarizeGroupPolicy(cfg: ZhushouConfig): {
+function summarizeGroupPolicy(cfg: AssistantConfig): {
   open: number;
   allowlist: number;
   other: number;
@@ -65,7 +65,7 @@ function addModel(models: ModelRef[], raw: unknown, source: string) {
   models.push({ id, source });
 }
 
-function collectModels(cfg: ZhushouConfig): ModelRef[] {
+function collectModels(cfg: AssistantConfig): ModelRef[] {
   const out: ModelRef[] = [];
   addModel(
     out,
@@ -113,7 +113,7 @@ function extractAgentIdFromSource(source: string): string | null {
 }
 
 function resolveToolPolicies(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentTools?: AgentToolsConfig;
   sandboxMode?: "off" | "non-main" | "all";
   agentId?: string | null;
@@ -142,7 +142,7 @@ function resolveToolPolicies(params: {
   return policies;
 }
 
-function hasWebSearchKey(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): boolean {
+function hasWebSearchKey(cfg: AssistantConfig, env: NodeJS.ProcessEnv): boolean {
   return hasConfiguredWebSearchCredential({
     config: cfg,
     env,
@@ -151,7 +151,7 @@ function hasWebSearchKey(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): boolean {
   });
 }
 
-function isWebSearchEnabled(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): boolean {
+function isWebSearchEnabled(cfg: AssistantConfig, env: NodeJS.ProcessEnv): boolean {
   const enabled = cfg.tools?.web?.search?.enabled;
   if (enabled === false) {
     return false;
@@ -162,7 +162,7 @@ function isWebSearchEnabled(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): boolean
   return hasWebSearchKey(cfg, env);
 }
 
-function isWebFetchEnabled(cfg: ZhushouConfig): boolean {
+function isWebFetchEnabled(cfg: AssistantConfig): boolean {
   const enabled = cfg.tools?.web?.fetch?.enabled;
   if (enabled === false) {
     return false;
@@ -170,11 +170,11 @@ function isWebFetchEnabled(cfg: ZhushouConfig): boolean {
   return true;
 }
 
-function isBrowserEnabled(cfg: ZhushouConfig): boolean {
+function isBrowserEnabled(cfg: AssistantConfig): boolean {
   return cfg.browser?.enabled !== false;
 }
 
-export function collectAttackSurfaceSummaryFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
+export function collectAttackSurfaceSummaryFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
   const group = summarizeGroupPolicy(cfg);
   const elevated = cfg.tools?.elevated?.enabled !== false;
   const webhooksEnabled = cfg.hooks?.enabled === true;
@@ -205,7 +205,7 @@ export function collectAttackSurfaceSummaryFindings(cfg: ZhushouConfig): Securit
 }
 
 export function collectSmallModelRiskFindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
 }): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];

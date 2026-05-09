@@ -3,15 +3,15 @@ import {
   listConfiguredAccountIds,
   resolveListedDefaultAccountId,
   resolveNormalizedAccountEntry,
-} from "zhushou/plugin-sdk/account-core";
+} from "assistant/plugin-sdk/account-core";
 import {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
   normalizeOptionalAccountId,
-} from "zhushou/plugin-sdk/account-id";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
+} from "assistant/plugin-sdk/account-id";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { hasConfiguredSecretInput } from "assistant/plugin-sdk/secret-input-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
 import {
   resolveMatrixAccountStringValues,
   type MatrixResolvedStringField,
@@ -136,12 +136,12 @@ function hasConfiguredDefaultMatrixAccountSource(params: {
   });
 }
 
-export function resolveMatrixChannelConfig(cfg: ZhushouConfig): Record<string, unknown> | null {
+export function resolveMatrixChannelConfig(cfg: AssistantConfig): Record<string, unknown> | null {
   return isRecord(cfg.channels?.matrix) ? cfg.channels.matrix : null;
 }
 
 export function findMatrixAccountEntry(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
 ): Record<string, unknown> | null {
   const channel = resolveMatrixChannelConfig(cfg);
@@ -158,7 +158,7 @@ export function findMatrixAccountEntry(
 }
 
 export function resolveConfiguredMatrixAccountIds(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {
   const channel = resolveMatrixChannelConfig(cfg);
@@ -182,7 +182,7 @@ export function resolveConfiguredMatrixAccountIds(
 }
 
 export function resolveMatrixDefaultOrOnlyAccountId(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): string {
   const channel = resolveMatrixChannelConfig(cfg);
@@ -202,7 +202,7 @@ export function resolveMatrixDefaultOrOnlyAccountId(
 }
 
 export function requiresExplicitMatrixDefaultAccount(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   const channel = resolveMatrixChannelConfig(cfg);

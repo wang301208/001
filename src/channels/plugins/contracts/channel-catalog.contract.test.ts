@@ -6,7 +6,7 @@ import {
 
 describeChannelCatalogEntryContract({
   channelId: "msteams",
-  npmSpec: "@zhushou/msteams",
+  npmSpec: "@assistant/msteams",
   alias: "teams",
 });
 
@@ -21,17 +21,17 @@ const whatsappMeta = {
 
 describeBundledMetadataOnlyChannelCatalogContract({
   pluginId: "whatsapp",
-  packageName: "@zhushou/whatsapp",
-  npmSpec: "@zhushou/whatsapp",
+  packageName: "@assistant/whatsapp",
+  npmSpec: "@assistant/whatsapp",
   meta: whatsappMeta,
   defaultChoice: "npm",
 });
 
 describeOfficialFallbackChannelCatalogContract({
   channelId: "whatsapp",
-  npmSpec: "@zhushou/whatsapp",
+  npmSpec: "@assistant/whatsapp",
   meta: whatsappMeta,
-  packageName: "@zhushou/whatsapp",
+  packageName: "@assistant/whatsapp",
   pluginId: "whatsapp",
   externalNpmSpec: "@vendor/whatsapp-fork",
   externalLabel: "WhatsApp Fork",

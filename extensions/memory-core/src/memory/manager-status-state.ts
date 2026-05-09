@@ -1,5 +1,5 @@
 import type { SQLInputValue } from "node:sqlite";
-import type { MemorySource } from "zhushou/plugin-sdk/memory-core-host-engine-storage";
+import type { MemorySource } from "assistant/plugin-sdk/memory-core-host-engine-storage";
 
 type StatusProvider = {
   id: string;

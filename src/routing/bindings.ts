@@ -2,7 +2,7 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { normalizeChatChannelId } from "../channels/ids.js";
 import { listRouteBindings } from "../config/bindings.js";
 import type { AgentRouteBinding } from "../config/types.agents.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { normalizeAccountId, normalizeAgentId } from "./session-key.js";
 
@@ -15,7 +15,7 @@ function normalizeBindingChannelId(raw?: string | null): string | null {
   return fallback || null;
 }
 
-export function listBindings(cfg: ZhushouConfig): AgentRouteBinding[] {
+export function listBindings(cfg: AssistantConfig): AgentRouteBinding[] {
   return listRouteBindings(cfg);
 }
 
@@ -46,7 +46,7 @@ function resolveNormalizedBindingMatch(binding: AgentRouteBinding): {
   };
 }
 
-export function listBoundAccountIds(cfg: ZhushouConfig, channelId: string): string[] {
+export function listBoundAccountIds(cfg: AssistantConfig, channelId: string): string[] {
   const normalizedChannel = normalizeBindingChannelId(channelId);
   if (!normalizedChannel) {
     return [];
@@ -63,7 +63,7 @@ export function listBoundAccountIds(cfg: ZhushouConfig, channelId: string): stri
 }
 
 export function resolveDefaultAgentBoundAccountId(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   channelId: string,
 ): string | null {
   const normalizedChannel = normalizeBindingChannelId(channelId);
@@ -85,7 +85,7 @@ export function resolveDefaultAgentBoundAccountId(
   return null;
 }
 
-export function buildChannelAccountBindings(cfg: ZhushouConfig) {
+export function buildChannelAccountBindings(cfg: AssistantConfig) {
   const map = new Map<string, Map<string, string[]>>();
   for (const binding of listBindings(cfg)) {
     const resolved = resolveNormalizedBindingMatch(binding);

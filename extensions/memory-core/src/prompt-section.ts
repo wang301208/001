@@ -1,4 +1,4 @@
-import type { MemoryPromptSectionBuilder } from "zhushou/plugin-sdk/memory-core-host-runtime-core";
+import type { MemoryPromptSectionBuilder } from "assistant/plugin-sdk/memory-core-host-runtime-core";
 
 export const buildPromptSection: MemoryPromptSectionBuilder = ({
   availableTools,

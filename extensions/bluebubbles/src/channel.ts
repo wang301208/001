@@ -1,18 +1,18 @@
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
-import { createScopedDmSecurityResolver } from "zhushou/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { createAccountStatusSink } from "zhushou/plugin-sdk/channel-lifecycle";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+import { createScopedDmSecurityResolver } from "assistant/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { createAccountStatusSink } from "assistant/plugin-sdk/channel-lifecycle";
 import {
   createOpenGroupPolicyRestrictSendersWarningCollector,
   projectAccountWarningCollector,
-} from "zhushou/plugin-sdk/channel-policy";
-import { buildProbeChannelStatusSummary } from "zhushou/plugin-sdk/channel-status";
-import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
+} from "assistant/plugin-sdk/channel-policy";
+import { buildProbeChannelStatusSummary } from "assistant/plugin-sdk/channel-status";
+import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "zhushou/plugin-sdk/status-helpers";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/status-helpers";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   type ResolvedBlueBubblesAccount,
   resolveBlueBubblesEffectiveAllowPrivateNetwork,

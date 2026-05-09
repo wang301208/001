@@ -148,13 +148,37 @@ import {
   AgentsFilesSetResultSchema,
   AgentsListParamsSchema,
   AgentsListResultSchema,
+  AgentsParallelBatchResultSchema,
+  AgentsParallelCancelParamsSchema,
+  AgentsParallelListParamsSchema,
+  AgentsParallelListResultSchema,
+  AgentsParallelStartParamsSchema,
+  AgentsParallelStatusParamsSchema,
   AgentsUpdateParamsSchema,
   AgentsUpdateResultSchema,
   ModelChoiceSchema,
   ModelsListParamsSchema,
   ModelsListResultSchema,
+  ModelsRemoteListParamsSchema,
+  ModelsRemoteListResultSchema,
+  ExperienceCaptureParamsSchema,
+  ExperienceCaptureResultSchema,
+  ExperienceSearchParamsSchema,
+  ExperienceSearchResultSchema,
+  ExperienceSessionRecallParamsSchema,
+  ExperienceSessionRecallResultSchema,
+  ExperienceSummaryParamsSchema,
+  ExperienceSummaryResultSchema,
   SkillsBinsParamsSchema,
   SkillsBinsResultSchema,
+  SkillCandidatesCreateParamsSchema,
+  SkillCandidatesCreateResultSchema,
+  SkillCandidatesExportAgentSkillParamsSchema,
+  SkillCandidatesExportAgentSkillResultSchema,
+  SkillCandidatesListParamsSchema,
+  SkillCandidatesListResultSchema,
+  SkillUsageRecordParamsSchema,
+  SkillUsageRecordResultSchema,
   SkillsDetailParamsSchema,
   SkillsDetailResultSchema,
   SkillsInstallParamsSchema,
@@ -172,6 +196,26 @@ import {
   ToolsEffectiveGroupSchema,
   ToolsEffectiveParamsSchema,
   ToolsEffectiveResultSchema,
+  GatewayMethodEntrySchema,
+  GatewayMethodDescribeParamsSchema,
+  GatewayMethodDescribeResultSchema,
+  GatewayMethodsParamsSchema,
+  GatewayMethodsResultSchema,
+  StrategyMemoryCaptureParamsSchema,
+  StrategyMemoryCaptureResultSchema,
+  StrategyMemoryAdvanceParamsSchema,
+  StrategyMemoryAdvanceResultSchema,
+  StrategyMemoryDueParamsSchema,
+  StrategyMemoryDueResultSchema,
+  SelfModelGetParamsSchema,
+  SelfModelGetResultSchema,
+  SelfModelSchema,
+  SelfModelUpdateParamsSchema,
+  SelfModelUpdateResultSchema,
+  UserModelDialecticParamsSchema,
+  UserModelDialecticResultSchema,
+  UserModelUpdateParamsSchema,
+  UserModelUpdateResultSchema,
   SandboxUniversePromotionGateDecisionSchema,
 } from "./agents-models-skills.js";
 import {
@@ -481,13 +525,52 @@ type ProtocolSchemaMap = {
   AgentsFilesSetResult: typeof AgentsFilesSetResultSchema;
   AgentsListParams: typeof AgentsListParamsSchema;
   AgentsListResult: typeof AgentsListResultSchema;
+  AgentsParallelStartParams: typeof AgentsParallelStartParamsSchema;
+  AgentsParallelStatusParams: typeof AgentsParallelStatusParamsSchema;
+  AgentsParallelCancelParams: typeof AgentsParallelCancelParamsSchema;
+  AgentsParallelListParams: typeof AgentsParallelListParamsSchema;
+  AgentsParallelBatchResult: typeof AgentsParallelBatchResultSchema;
+  AgentsParallelListResult: typeof AgentsParallelListResultSchema;
   ModelChoice: typeof ModelChoiceSchema;
   ModelsListParams: typeof ModelsListParamsSchema;
   ModelsListResult: typeof ModelsListResultSchema;
+  ModelsRemoteListParams: typeof ModelsRemoteListParamsSchema;
+  ModelsRemoteListResult: typeof ModelsRemoteListResultSchema;
+  ExperienceCaptureParams: typeof ExperienceCaptureParamsSchema;
+  ExperienceCaptureResult: typeof ExperienceCaptureResultSchema;
+  ExperienceSearchParams: typeof ExperienceSearchParamsSchema;
+  ExperienceSearchResult: typeof ExperienceSearchResultSchema;
+  ExperienceSessionRecallParams: typeof ExperienceSessionRecallParamsSchema;
+  ExperienceSessionRecallResult: typeof ExperienceSessionRecallResultSchema;
+  ExperienceSummaryParams: typeof ExperienceSummaryParamsSchema;
+  ExperienceSummaryResult: typeof ExperienceSummaryResultSchema;
   CommandEntry: typeof CommandEntrySchema;
   CommandsListParams: typeof CommandsListParamsSchema;
   CommandsListResult: typeof CommandsListResultSchema;
   SkillsStatusParams: typeof SkillsStatusParamsSchema;
+  SkillCandidatesCreateParams: typeof SkillCandidatesCreateParamsSchema;
+  SkillCandidatesCreateResult: typeof SkillCandidatesCreateResultSchema;
+  SkillCandidatesExportAgentSkillParams: typeof SkillCandidatesExportAgentSkillParamsSchema;
+  SkillCandidatesExportAgentSkillResult: typeof SkillCandidatesExportAgentSkillResultSchema;
+  SkillCandidatesListParams: typeof SkillCandidatesListParamsSchema;
+  SkillCandidatesListResult: typeof SkillCandidatesListResultSchema;
+  SkillUsageRecordParams: typeof SkillUsageRecordParamsSchema;
+  SkillUsageRecordResult: typeof SkillUsageRecordResultSchema;
+  StrategyMemoryCaptureParams: typeof StrategyMemoryCaptureParamsSchema;
+  StrategyMemoryCaptureResult: typeof StrategyMemoryCaptureResultSchema;
+  StrategyMemoryAdvanceParams: typeof StrategyMemoryAdvanceParamsSchema;
+  StrategyMemoryAdvanceResult: typeof StrategyMemoryAdvanceResultSchema;
+  StrategyMemoryDueParams: typeof StrategyMemoryDueParamsSchema;
+  StrategyMemoryDueResult: typeof StrategyMemoryDueResultSchema;
+  SelfModel: typeof SelfModelSchema;
+  SelfModelGetParams: typeof SelfModelGetParamsSchema;
+  SelfModelGetResult: typeof SelfModelGetResultSchema;
+  SelfModelUpdateParams: typeof SelfModelUpdateParamsSchema;
+  SelfModelUpdateResult: typeof SelfModelUpdateResultSchema;
+  UserModelUpdateParams: typeof UserModelUpdateParamsSchema;
+  UserModelUpdateResult: typeof UserModelUpdateResultSchema;
+  UserModelDialecticParams: typeof UserModelDialecticParamsSchema;
+  UserModelDialecticResult: typeof UserModelDialecticResultSchema;
   ToolsCatalogParams: typeof ToolsCatalogParamsSchema;
   ToolCatalogProfile: typeof ToolCatalogProfileSchema;
   ToolCatalogEntry: typeof ToolCatalogEntrySchema;
@@ -498,6 +581,11 @@ type ProtocolSchemaMap = {
   ToolsEffectiveEntry: typeof ToolsEffectiveEntrySchema;
   ToolsEffectiveGroup: typeof ToolsEffectiveGroupSchema;
   ToolsEffectiveResult: typeof ToolsEffectiveResultSchema;
+  GatewayMethodEntry: typeof GatewayMethodEntrySchema;
+  GatewayMethodDescribeParams: typeof GatewayMethodDescribeParamsSchema;
+  GatewayMethodDescribeResult: typeof GatewayMethodDescribeResultSchema;
+  GatewayMethodsParams: typeof GatewayMethodsParamsSchema;
+  GatewayMethodsResult: typeof GatewayMethodsResultSchema;
   SkillsBinsParams: typeof SkillsBinsParamsSchema;
   SkillsBinsResult: typeof SkillsBinsResultSchema;
   SkillsSearchParams: typeof SkillsSearchParamsSchema;
@@ -778,13 +866,52 @@ const protocolSchemas: ProtocolSchemaMap = {
   AgentsFilesSetResult: AgentsFilesSetResultSchema,
   AgentsListParams: AgentsListParamsSchema,
   AgentsListResult: AgentsListResultSchema,
+  AgentsParallelStartParams: AgentsParallelStartParamsSchema,
+  AgentsParallelStatusParams: AgentsParallelStatusParamsSchema,
+  AgentsParallelCancelParams: AgentsParallelCancelParamsSchema,
+  AgentsParallelListParams: AgentsParallelListParamsSchema,
+  AgentsParallelBatchResult: AgentsParallelBatchResultSchema,
+  AgentsParallelListResult: AgentsParallelListResultSchema,
   ModelChoice: ModelChoiceSchema,
   ModelsListParams: ModelsListParamsSchema,
   ModelsListResult: ModelsListResultSchema,
+  ModelsRemoteListParams: ModelsRemoteListParamsSchema,
+  ModelsRemoteListResult: ModelsRemoteListResultSchema,
+  ExperienceCaptureParams: ExperienceCaptureParamsSchema,
+  ExperienceCaptureResult: ExperienceCaptureResultSchema,
+  ExperienceSearchParams: ExperienceSearchParamsSchema,
+  ExperienceSearchResult: ExperienceSearchResultSchema,
+  ExperienceSessionRecallParams: ExperienceSessionRecallParamsSchema,
+  ExperienceSessionRecallResult: ExperienceSessionRecallResultSchema,
+  ExperienceSummaryParams: ExperienceSummaryParamsSchema,
+  ExperienceSummaryResult: ExperienceSummaryResultSchema,
   CommandEntry: CommandEntrySchema,
   CommandsListParams: CommandsListParamsSchema,
   CommandsListResult: CommandsListResultSchema,
   SkillsStatusParams: SkillsStatusParamsSchema,
+  SkillCandidatesCreateParams: SkillCandidatesCreateParamsSchema,
+  SkillCandidatesCreateResult: SkillCandidatesCreateResultSchema,
+  SkillCandidatesExportAgentSkillParams: SkillCandidatesExportAgentSkillParamsSchema,
+  SkillCandidatesExportAgentSkillResult: SkillCandidatesExportAgentSkillResultSchema,
+  SkillCandidatesListParams: SkillCandidatesListParamsSchema,
+  SkillCandidatesListResult: SkillCandidatesListResultSchema,
+  SkillUsageRecordParams: SkillUsageRecordParamsSchema,
+  SkillUsageRecordResult: SkillUsageRecordResultSchema,
+  StrategyMemoryCaptureParams: StrategyMemoryCaptureParamsSchema,
+  StrategyMemoryCaptureResult: StrategyMemoryCaptureResultSchema,
+  StrategyMemoryAdvanceParams: StrategyMemoryAdvanceParamsSchema,
+  StrategyMemoryAdvanceResult: StrategyMemoryAdvanceResultSchema,
+  StrategyMemoryDueParams: StrategyMemoryDueParamsSchema,
+  StrategyMemoryDueResult: StrategyMemoryDueResultSchema,
+  SelfModel: SelfModelSchema,
+  SelfModelGetParams: SelfModelGetParamsSchema,
+  SelfModelGetResult: SelfModelGetResultSchema,
+  SelfModelUpdateParams: SelfModelUpdateParamsSchema,
+  SelfModelUpdateResult: SelfModelUpdateResultSchema,
+  UserModelUpdateParams: UserModelUpdateParamsSchema,
+  UserModelUpdateResult: UserModelUpdateResultSchema,
+  UserModelDialecticParams: UserModelDialecticParamsSchema,
+  UserModelDialecticResult: UserModelDialecticResultSchema,
   ToolsCatalogParams: ToolsCatalogParamsSchema,
   ToolCatalogProfile: ToolCatalogProfileSchema,
   ToolCatalogEntry: ToolCatalogEntrySchema,
@@ -795,6 +922,11 @@ const protocolSchemas: ProtocolSchemaMap = {
   ToolsEffectiveEntry: ToolsEffectiveEntrySchema,
   ToolsEffectiveGroup: ToolsEffectiveGroupSchema,
   ToolsEffectiveResult: ToolsEffectiveResultSchema,
+  GatewayMethodEntry: GatewayMethodEntrySchema,
+  GatewayMethodDescribeParams: GatewayMethodDescribeParamsSchema,
+  GatewayMethodDescribeResult: GatewayMethodDescribeResultSchema,
+  GatewayMethodsParams: GatewayMethodsParamsSchema,
+  GatewayMethodsResult: GatewayMethodsResultSchema,
   SkillsBinsParams: SkillsBinsParamsSchema,
   SkillsBinsResult: SkillsBinsResultSchema,
   SkillsSearchParams: SkillsSearchParamsSchema,

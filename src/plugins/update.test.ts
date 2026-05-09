@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { bundledPluginRootAt } from "../../test/helpers/bundled-plugin-paths.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 
 const APP_ROOT = "/app";
 
@@ -47,8 +47,8 @@ function createSuccessfulNpmUpdateResult(params?: {
 }) {
   return {
     ok: true,
-    pluginId: params?.pluginId ?? "opik-zhushou",
-    targetDir: params?.targetDir ?? "/tmp/opik-zhushou",
+    pluginId: params?.pluginId ?? "opik-assistant",
+    targetDir: params?.targetDir ?? "/tmp/opik-assistant",
     version: params?.version ?? "0.2.6",
     extensions: ["index.ts"],
     ...(params?.npmResolution ? { npmResolution: params.npmResolution } : {}),
@@ -85,7 +85,7 @@ function createMarketplaceInstallConfig(params: {
   marketplaceSource: string;
   marketplacePlugin: string;
   marketplaceName?: string;
-}): ZhushouConfig {
+}): AssistantConfig {
   return {
     plugins: {
       installs: {
@@ -108,7 +108,7 @@ function createClawHubInstallConfig(params: {
   clawhubPackage: string;
   clawhubFamily: "bundle-plugin" | "code-plugin";
   clawhubChannel: "community" | "official" | "private";
-}): ZhushouConfig {
+}): AssistantConfig {
   return {
     plugins: {
       installs: {
@@ -131,7 +131,7 @@ function createBundledPathInstallConfig(params: {
   installPath: string;
   sourcePath?: string;
   spec?: string;
-}): ZhushouConfig {
+}): AssistantConfig {
   return {
     plugins: {
       load: { paths: params.loadPaths },
@@ -155,10 +155,10 @@ function createCodexAppServerInstallConfig(params: {
   return {
     plugins: {
       installs: {
-        "zhushou-codex-app-server": {
+        "assistant-codex-app-server": {
           source: "npm" as const,
           spec: params.spec,
-          installPath: "/tmp/zhushou-codex-app-server",
+          installPath: "/tmp/assistant-codex-app-server",
           ...(params.resolvedName ? { resolvedName: params.resolvedName } : {}),
           ...(params.resolvedSpec ? { resolvedSpec: params.resolvedSpec } : {}),
         },
@@ -186,7 +186,7 @@ function createBundledSource(params?: { pluginId?: string; localPath?: string; n
   return {
     pluginId,
     localPath: params?.localPath ?? appBundledPluginRoot(pluginId),
-    npmSpec: params?.npmSpec ?? `@zhushou/${pluginId}`,
+    npmSpec: params?.npmSpec ?? `@assistant/${pluginId}`,
   };
 }
 
@@ -216,10 +216,10 @@ function expectCodexAppServerInstallState(params: {
   version: string;
   resolvedSpec?: string;
 }) {
-  expect(params.result.config.plugins?.installs?.["zhushou-codex-app-server"]).toMatchObject({
+  expect(params.result.config.plugins?.installs?.["assistant-codex-app-server"]).toMatchObject({
     source: "npm",
     spec: params.spec,
-    installPath: "/tmp/zhushou-codex-app-server",
+    installPath: "/tmp/assistant-codex-app-server",
     version: params.version,
     ...(params.resolvedSpec ? { resolvedSpec: params.resolvedSpec } : {}),
   });
@@ -237,52 +237,52 @@ describe("updateNpmInstalledPlugins", () => {
     {
       name: "skips integrity drift checks for unpinned npm specs during dry-run updates",
       config: createNpmInstallConfig({
-        pluginId: "opik-zhushou",
-        spec: "@opik/opik-zhushou",
+        pluginId: "opik-assistant",
+        spec: "@opik/opik-assistant",
         integrity: "sha512-old",
-        installPath: "/tmp/opik-zhushou",
+        installPath: "/tmp/opik-assistant",
       }),
-      pluginIds: ["opik-zhushou"],
+      pluginIds: ["opik-assistant"],
       dryRun: true,
       expectedCall: {
-        spec: "@opik/opik-zhushou",
+        spec: "@opik/opik-assistant",
         expectedIntegrity: undefined,
       },
     },
     {
       name: "keeps integrity drift checks for exact-version npm specs during dry-run updates",
       config: createNpmInstallConfig({
-        pluginId: "opik-zhushou",
-        spec: "@opik/opik-zhushou@0.2.5",
+        pluginId: "opik-assistant",
+        spec: "@opik/opik-assistant@0.2.5",
         integrity: "sha512-old",
-        installPath: "/tmp/opik-zhushou",
+        installPath: "/tmp/opik-assistant",
       }),
-      pluginIds: ["opik-zhushou"],
+      pluginIds: ["opik-assistant"],
       dryRun: true,
       expectedCall: {
-        spec: "@opik/opik-zhushou@0.2.5",
+        spec: "@opik/opik-assistant@0.2.5",
         expectedIntegrity: "sha512-old",
       },
     },
     {
       name: "skips recorded integrity checks when an explicit npm version override changes the spec",
       config: createNpmInstallConfig({
-        pluginId: "zhushou-codex-app-server",
-        spec: "zhushou-codex-app-server@0.2.0-beta.3",
+        pluginId: "assistant-codex-app-server",
+        spec: "assistant-codex-app-server@0.2.0-beta.3",
         integrity: "sha512-old",
-        installPath: "/tmp/zhushou-codex-app-server",
+        installPath: "/tmp/assistant-codex-app-server",
       }),
-      pluginIds: ["zhushou-codex-app-server"],
+      pluginIds: ["assistant-codex-app-server"],
       specOverrides: {
-        "zhushou-codex-app-server": "zhushou-codex-app-server@0.2.0-beta.4",
+        "assistant-codex-app-server": "assistant-codex-app-server@0.2.0-beta.4",
       },
       installerResult: createSuccessfulNpmUpdateResult({
-        pluginId: "zhushou-codex-app-server",
-        targetDir: "/tmp/zhushou-codex-app-server",
+        pluginId: "assistant-codex-app-server",
+        targetDir: "/tmp/assistant-codex-app-server",
         version: "0.2.0-beta.4",
       }),
       expectedCall: {
-        spec: "zhushou-codex-app-server@0.2.0-beta.4",
+        spec: "assistant-codex-app-server@0.2.0-beta.4",
         expectedIntegrity: undefined,
       },
     },
@@ -310,15 +310,15 @@ describe("updateNpmInstalledPlugins", () => {
       installerResult: {
         ok: false,
         code: "npm_package_not_found",
-        error: "Package not found on npm: @zhushou/missing.",
+        error: "Package not found on npm: @assistant/missing.",
       },
       config: createNpmInstallConfig({
         pluginId: "missing",
-        spec: "@zhushou/missing",
+        spec: "@assistant/missing",
         installPath: "/tmp/missing",
       }),
       pluginId: "missing",
-      expectedMessage: "Failed to check missing: npm package not found for @zhushou/missing.",
+      expectedMessage: "Failed to check missing: npm package not found for @assistant/missing.",
     },
     {
       name: "falls back to raw installer error for unknown error codes",
@@ -358,42 +358,42 @@ describe("updateNpmInstalledPlugins", () => {
       name: "reuses a recorded npm dist-tag spec for id-based updates",
       installerResult: {
         ok: true,
-        pluginId: "zhushou-codex-app-server",
-        targetDir: "/tmp/zhushou-codex-app-server",
+        pluginId: "assistant-codex-app-server",
+        targetDir: "/tmp/assistant-codex-app-server",
         version: "0.2.0-beta.4",
         extensions: ["index.ts"],
       },
       config: createCodexAppServerInstallConfig({
-        spec: "zhushou-codex-app-server@beta",
-        resolvedName: "zhushou-codex-app-server",
-        resolvedSpec: "zhushou-codex-app-server@0.2.0-beta.3",
+        spec: "assistant-codex-app-server@beta",
+        resolvedName: "assistant-codex-app-server",
+        resolvedSpec: "assistant-codex-app-server@0.2.0-beta.3",
       }),
-      expectedSpec: "zhushou-codex-app-server@beta",
+      expectedSpec: "assistant-codex-app-server@beta",
       expectedVersion: "0.2.0-beta.4",
     },
     {
       name: "uses and persists an explicit npm spec override during updates",
       installerResult: {
         ok: true,
-        pluginId: "zhushou-codex-app-server",
-        targetDir: "/tmp/zhushou-codex-app-server",
+        pluginId: "assistant-codex-app-server",
+        targetDir: "/tmp/assistant-codex-app-server",
         version: "0.2.0-beta.4",
         extensions: ["index.ts"],
         npmResolution: {
-          name: "zhushou-codex-app-server",
+          name: "assistant-codex-app-server",
           version: "0.2.0-beta.4",
-          resolvedSpec: "zhushou-codex-app-server@0.2.0-beta.4",
+          resolvedSpec: "assistant-codex-app-server@0.2.0-beta.4",
         },
       },
       config: createCodexAppServerInstallConfig({
-        spec: "zhushou-codex-app-server",
+        spec: "assistant-codex-app-server",
       }),
       specOverrides: {
-        "zhushou-codex-app-server": "zhushou-codex-app-server@beta",
+        "assistant-codex-app-server": "assistant-codex-app-server@beta",
       },
-      expectedSpec: "zhushou-codex-app-server@beta",
+      expectedSpec: "assistant-codex-app-server@beta",
       expectedVersion: "0.2.0-beta.4",
-      expectedResolvedSpec: "zhushou-codex-app-server@0.2.0-beta.4",
+      expectedResolvedSpec: "assistant-codex-app-server@0.2.0-beta.4",
     },
   ] as const)(
     "$name",
@@ -409,13 +409,13 @@ describe("updateNpmInstalledPlugins", () => {
 
       const result = await updateNpmInstalledPlugins({
         config,
-        pluginIds: ["zhushou-codex-app-server"],
+        pluginIds: ["assistant-codex-app-server"],
         ...(specOverrides ? { specOverrides } : {}),
       });
 
       expectNpmUpdateCall({
         spec: expectedSpec,
-        expectedPluginId: "zhushou-codex-app-server",
+        expectedPluginId: "assistant-codex-app-server",
       });
       expectCodexAppServerInstallState({
         result,
@@ -478,8 +478,8 @@ describe("updateNpmInstalledPlugins", () => {
   it("migrates legacy unscoped install keys when a scoped npm package updates", async () => {
     installPluginFromNpmSpecMock.mockResolvedValue({
       ok: true,
-      pluginId: "@zhushou/voice-call",
-      targetDir: "/tmp/zhushou-voice-call",
+      pluginId: "@assistant/voice-call",
+      targetDir: "/tmp/assistant-voice-call",
       version: "0.0.2",
       extensions: ["index.ts"],
     });
@@ -499,7 +499,7 @@ describe("updateNpmInstalledPlugins", () => {
           installs: {
             "voice-call": {
               source: "npm",
-              spec: "@zhushou/voice-call",
+              spec: "@assistant/voice-call",
               installPath: "/tmp/voice-call",
             },
           },
@@ -510,22 +510,22 @@ describe("updateNpmInstalledPlugins", () => {
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "@zhushou/voice-call",
+        spec: "@assistant/voice-call",
         expectedPluginId: "voice-call",
       }),
     );
-    expect(result.config.plugins?.allow).toEqual(["@zhushou/voice-call"]);
-    expect(result.config.plugins?.deny).toEqual(["@zhushou/voice-call"]);
-    expect(result.config.plugins?.slots?.memory).toBe("@zhushou/voice-call");
-    expect(result.config.plugins?.entries?.["@zhushou/voice-call"]).toEqual({
+    expect(result.config.plugins?.allow).toEqual(["@assistant/voice-call"]);
+    expect(result.config.plugins?.deny).toEqual(["@assistant/voice-call"]);
+    expect(result.config.plugins?.slots?.memory).toBe("@assistant/voice-call");
+    expect(result.config.plugins?.entries?.["@assistant/voice-call"]).toEqual({
       enabled: false,
       hooks: { allowPromptInjection: false },
     });
     expect(result.config.plugins?.entries?.["voice-call"]).toBeUndefined();
-    expect(result.config.plugins?.installs?.["@zhushou/voice-call"]).toMatchObject({
+    expect(result.config.plugins?.installs?.["@assistant/voice-call"]).toMatchObject({
       source: "npm",
-      spec: "@zhushou/voice-call",
-      installPath: "/tmp/zhushou-voice-call",
+      spec: "@assistant/voice-call",
+      installPath: "/tmp/assistant-voice-call",
       version: "0.0.2",
     });
     expect(result.config.plugins?.installs?.["voice-call"]).toBeUndefined();
@@ -609,25 +609,25 @@ describe("updateNpmInstalledPlugins", () => {
   it("forwards dangerous force unsafe install to plugin update installers", async () => {
     installPluginFromNpmSpecMock.mockResolvedValue(
       createSuccessfulNpmUpdateResult({
-        pluginId: "zhushou-codex-app-server",
-        targetDir: "/tmp/zhushou-codex-app-server",
+        pluginId: "assistant-codex-app-server",
+        targetDir: "/tmp/assistant-codex-app-server",
         version: "0.2.0-beta.4",
       }),
     );
 
     await updateNpmInstalledPlugins({
       config: createCodexAppServerInstallConfig({
-        spec: "zhushou-codex-app-server@beta",
+        spec: "assistant-codex-app-server@beta",
       }),
-      pluginIds: ["zhushou-codex-app-server"],
+      pluginIds: ["assistant-codex-app-server"],
       dangerouslyForceUnsafeInstall: true,
     });
 
     expect(installPluginFromNpmSpecMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        spec: "zhushou-codex-app-server@beta",
+        spec: "assistant-codex-app-server@beta",
         dangerouslyForceUnsafeInstall: true,
-        expectedPluginId: "zhushou-codex-app-server",
+        expectedPluginId: "assistant-codex-app-server",
       }),
     );
   });
@@ -645,7 +645,7 @@ describe("syncPluginsForUpdateChannel", () => {
       config: createBundledPathInstallConfig({
         loadPaths: [appBundledPluginRoot("feishu")],
         installPath: appBundledPluginRoot("feishu"),
-        spec: "@zhushou/feishu",
+        spec: "@assistant/feishu",
       }),
       expectedChanged: false,
       expectedLoadPaths: [appBundledPluginRoot("feishu")],
@@ -656,7 +656,7 @@ describe("syncPluginsForUpdateChannel", () => {
       config: createBundledPathInstallConfig({
         loadPaths: [],
         installPath: "/tmp/old-feishu",
-        spec: "@zhushou/feishu",
+        spec: "@assistant/feishu",
       }),
       expectedChanged: true,
       expectedLoadPaths: [appBundledPluginRoot("feishu")],
@@ -680,14 +680,14 @@ describe("syncPluginsForUpdateChannel", () => {
         install: result.config.plugins?.installs?.feishu,
         sourcePath: appBundledPluginRoot("feishu"),
         installPath: expectedInstallPath,
-        spec: "@zhushou/feishu",
+        spec: "@assistant/feishu",
       });
     },
   );
 
   it("forwards an explicit env to bundled plugin source resolution", async () => {
     resolveBundledPluginSourcesMock.mockReturnValue(new Map());
-    const env = { ZHUSHOU_HOME: "/srv/zhushou-home" } as NodeJS.ProcessEnv;
+    const env = { ASSISTANT_HOME: "/srv/assistant-home" } as NodeJS.ProcessEnv;
 
     await syncPluginsForUpdateChannel({
       channel: "beta",
@@ -703,7 +703,7 @@ describe("syncPluginsForUpdateChannel", () => {
   });
 
   it("uses the provided env when matching bundled load and install paths", async () => {
-    const bundledHome = "/tmp/zhushou-home";
+    const bundledHome = "/tmp/assistant-home";
     mockBundledSources(
       createBundledSource({
         localPath: `${bundledHome}/plugins/feishu`,
@@ -717,7 +717,7 @@ describe("syncPluginsForUpdateChannel", () => {
         channel: "beta",
         env: {
           ...process.env,
-          ZHUSHOU_HOME: bundledHome,
+          ASSISTANT_HOME: bundledHome,
           HOME: "/tmp/ignored-home",
         },
         config: {
@@ -728,7 +728,7 @@ describe("syncPluginsForUpdateChannel", () => {
                 source: "path",
                 sourcePath: "~/plugins/feishu",
                 installPath: "~/plugins/feishu",
-                spec: "@zhushou/feishu",
+                spec: "@assistant/feishu",
               },
             },
           },

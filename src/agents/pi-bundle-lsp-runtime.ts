@@ -1,6 +1,6 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { logDebug, logWarn } from "../logger.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { loadEmbeddedPiLspConfig } from "./embedded-pi-lsp.js";
@@ -293,7 +293,7 @@ function formatLspResult(
 
 export async function createBundleLspToolRuntime(params: {
   workspaceDir: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   reservedToolNames?: Iterable<string>;
 }): Promise<BundleLspToolRuntime> {
   const loaded = loadEmbeddedPiLspConfig({

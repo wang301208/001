@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { applyCompactionDefaults } from "./defaults.js";
-import type { ZhushouConfig } from "./types.js";
+import type { AssistantConfig } from "./types.js";
 
 function materializeCompactionConfig(
-  compaction: NonNullable<NonNullable<ZhushouConfig["agents"]>["defaults"]>["compaction"],
+  compaction: NonNullable<NonNullable<AssistantConfig["agents"]>["defaults"]>["compaction"],
 ) {
   const cfg = applyCompactionDefaults({
     agents: {

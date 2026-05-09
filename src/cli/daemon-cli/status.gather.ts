@@ -5,7 +5,7 @@ import {
   resolveStateDir,
 } from "../../config/config.js";
 import type {
-  ZhushouConfig,
+  AssistantConfig,
   ConfigFileSnapshot,
   GatewayBindMode,
   GatewayControlUiConfig,
@@ -58,8 +58,8 @@ type PortStatusSummary = {
 
 type DaemonConfigContext = {
   mergedDaemonEnv: Record<string, string | undefined>;
-  cliCfg: ZhushouConfig;
-  daemonCfg: ZhushouConfig;
+  cliCfg: AssistantConfig;
+  daemonCfg: AssistantConfig;
   cliConfigSummary: ConfigSummary;
   daemonConfigSummary: ConfigSummary;
   configMismatch: boolean;
@@ -111,7 +111,7 @@ function loadRestartHealthModule() {
   return restartHealthModulePromise;
 }
 
-function resolveSnapshotRuntimeConfig(snapshot: ConfigFileSnapshot | null): ZhushouConfig | null {
+function resolveSnapshotRuntimeConfig(snapshot: ConfigFileSnapshot | null): AssistantConfig | null {
   if (!snapshot?.valid || !snapshot.runtimeConfig) {
     return null;
   }
@@ -249,8 +249,8 @@ async function loadDaemonConfigContext(
 }
 
 async function resolveGatewayStatusSummary(params: {
-  daemonCfg: ZhushouConfig;
-  cliCfg: ZhushouConfig;
+  daemonCfg: AssistantConfig;
+  cliCfg: AssistantConfig;
   mergedDaemonEnv: Record<string, string | undefined>;
   commandProgramArguments?: string[];
   rpcUrlOverride?: string;

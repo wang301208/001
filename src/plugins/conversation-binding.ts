@@ -29,13 +29,13 @@ import { getActivePluginRegistry } from "./runtime.js";
 
 const log = createSubsystemLogger("plugins/binding");
 
-const APPROVALS_PATH = "~/.zhushou/plugin-binding-approvals.json";
+const APPROVALS_PATH = "~/.assistant/plugin-binding-approvals.json";
 const PLUGIN_BINDING_CUSTOM_ID_PREFIX = "pluginbind";
 const PLUGIN_BINDING_OWNER = "plugin";
 const PLUGIN_BINDING_SESSION_PREFIX = "plugin-binding";
 const LEGACY_CODEX_PLUGIN_SESSION_PREFIXES = [
-  "zhushou-app-server:thread:",
-  "zhushou-codex-app-server:thread:",
+  "assistant-app-server:thread:",
+  "assistant-codex-app-server:thread:",
 ] as const;
 
 // Runtime plugin conversation bindings are approval-driven and distinct from
@@ -111,7 +111,7 @@ type PluginBindingResolveResult =
       status: "expired";
     };
 
-const PLUGIN_BINDING_PENDING_REQUESTS_KEY = Symbol.for("zhushou.pluginBindingPendingRequests");
+const PLUGIN_BINDING_PENDING_REQUESTS_KEY = Symbol.for("assistant.pluginBindingPendingRequests");
 
 const pendingRequests = resolveGlobalMap<string, PendingPluginBindingRequest>(
   PLUGIN_BINDING_PENDING_REQUESTS_KEY,
@@ -139,7 +139,7 @@ type PluginConversationBindingState = {
   isLegacyForeignBinding: boolean;
 };
 
-const pluginBindingGlobalStateKey = Symbol.for("zhushou.plugins.binding.global-state");
+const pluginBindingGlobalStateKey = Symbol.for("assistant.plugins.binding.global-state");
 const pluginBindingGlobalState = resolveGlobalSingleton<PluginBindingGlobalState>(
   pluginBindingGlobalStateKey,
   () => ({

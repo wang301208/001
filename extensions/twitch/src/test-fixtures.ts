@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, vi } from "vitest";
-import type { ZhushouConfig } from "../runtime-api.js";
+import type { AssistantConfig } from "../runtime-api.js";
 
 export const BASE_TWITCH_TEST_ACCOUNT = {
   username: "testbot",
@@ -7,7 +7,7 @@ export const BASE_TWITCH_TEST_ACCOUNT = {
   channel: "#testchannel",
 };
 
-export function makeTwitchTestConfig(account: Record<string, unknown>): ZhushouConfig {
+export function makeTwitchTestConfig(account: Record<string, unknown>): AssistantConfig {
   return {
     channels: {
       twitch: {
@@ -16,7 +16,7 @@ export function makeTwitchTestConfig(account: Record<string, unknown>): ZhushouC
         },
       },
     },
-  } as unknown as ZhushouConfig;
+  } as unknown as AssistantConfig;
 }
 
 export function installTwitchTestHooks() {

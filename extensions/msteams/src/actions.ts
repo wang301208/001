@@ -1,11 +1,11 @@
 import { Type } from "@sinclair/typebox";
-import { createMessageToolCardSchema } from "zhushou/plugin-sdk/channel-actions";
+import { createMessageToolCardSchema } from "assistant/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageToolDiscovery,
-} from "zhushou/plugin-sdk/channel-contract";
-import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/channel-contract";
+import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import type { ChannelMessageActionName, ChannelPlugin } from "./channel-api.js";
 import { resolveMSTeamsCredentials } from "./token.js";
 

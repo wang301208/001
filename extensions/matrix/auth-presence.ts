@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveStateDir } from "zhushou/plugin-sdk/state-paths";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveStateDir } from "assistant/plugin-sdk/state-paths";
 import {
   resolveMatrixCredentialsDir,
   resolveMatrixCredentialsFilename,
@@ -10,13 +10,13 @@ import {
 
 type MatrixAuthPresenceParams =
   | {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       env?: NodeJS.ProcessEnv;
     }
-  | ZhushouConfig;
+  | AssistantConfig;
 
 function listMatrixCredentialPaths(
-  _cfg: ZhushouConfig,
+  _cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): readonly string[] {
   const credentialsDir = resolveMatrixCredentialsDir(resolveStateDir(env, os.homedir));

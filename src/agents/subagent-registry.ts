@@ -1,6 +1,6 @@
 import { cleanupBrowserSessionsForLifecycleEnd } from "../browser-lifecycle-cleanup.js";
 import { loadConfig } from "../config/config.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { ContextEngine, SubagentEndReason } from "../context-engine/types.js";
 import { callGateway } from "../gateway/call.js";
 import { onAgentEvent } from "../infra/agent-events.js";
@@ -76,7 +76,7 @@ type SubagentRegistryDeps = {
   runSubagentAnnounceFlow: typeof subagentAnnounceModule.runSubagentAnnounceFlow;
   ensureContextEnginesInitialized?: () => void;
   ensureRuntimePluginsLoaded?: typeof ensureRuntimePluginsLoadedFn;
-  resolveContextEngine?: (cfg: ZhushouConfig) => Promise<ContextEngine>;
+  resolveContextEngine?: (cfg: AssistantConfig) => Promise<ContextEngine>;
 };
 
 const defaultSubagentRegistryDeps: SubagentRegistryDeps = {
@@ -102,7 +102,7 @@ type ContextEngineInitModule = Pick<
 >;
 type ContextEngineRegistryModule = Pick<
   {
-    resolveContextEngine: (cfg: ZhushouConfig) => Promise<ContextEngine>;
+    resolveContextEngine: (cfg: AssistantConfig) => Promise<ContextEngine>;
   },
   "resolveContextEngine"
 >;
@@ -165,7 +165,7 @@ function loadRuntimePluginsModule(): Promise<RuntimePluginsModule> {
 }
 
 async function ensureSubagentRegistryPluginRuntimeLoaded(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   workspaceDir?: string;
   allowGatewaySubagentBinding?: boolean;
 }) {
@@ -177,7 +177,7 @@ async function ensureSubagentRegistryPluginRuntimeLoaded(params: {
   (await loadRuntimePluginsModule()).ensureRuntimePluginsLoaded(params);
 }
 
-async function resolveSubagentRegistryContextEngine(cfg: ZhushouConfig) {
+async function resolveSubagentRegistryContextEngine(cfg: AssistantConfig) {
   const initModule = await loadContextEngineInitModule();
   const registryModule = await loadContextEngineRegistryModule();
   const ensureContextEnginesInitialized =
@@ -510,7 +510,7 @@ function restoreSubagentRunsOnce() {
   }
 }
 
-function resolveSubagentWaitTimeoutMs(cfg: ZhushouConfig, runTimeoutSeconds?: number) {
+function resolveSubagentWaitTimeoutMs(cfg: AssistantConfig, runTimeoutSeconds?: number) {
   return subagentRegistryDeps.resolveAgentTimeoutMs({
     cfg,
     overrideSeconds: runTimeoutSeconds ?? 0,
@@ -686,7 +686,7 @@ const subagentRunManager = createSubagentRunManager({
   callGateway: (request) => subagentRegistryDeps.callGateway(request),
   loadConfig: () => subagentRegistryDeps.loadConfig(),
   ensureRuntimePluginsLoaded: (args: {
-    config: ZhushouConfig;
+    config: AssistantConfig;
     workspaceDir?: string;
     allowGatewaySubagentBinding?: boolean;
   }) => ensureSubagentRegistryPluginRuntimeLoaded(args),

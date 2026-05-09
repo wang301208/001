@@ -3,8 +3,8 @@ import path from "node:path";
 import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
-} from "zhushou/plugin-sdk/memory-host-markdown";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/memory-host-markdown";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import {
   assessClaimFreshness,
   assessPageFreshness,
@@ -42,8 +42,8 @@ const COMPILE_PAGE_GROUPS: Array<{ kind: WikiPageKind; dir: string; heading: str
   { kind: "synthesis", dir: "syntheses", heading: "Syntheses" },
   { kind: "report", dir: "reports", heading: "Reports" },
 ];
-const AGENT_DIGEST_PATH = ".zhushou-wiki/cache/agent-digest.json";
-const CLAIMS_DIGEST_PATH = ".zhushou-wiki/cache/claims.jsonl";
+const AGENT_DIGEST_PATH = ".assistant-wiki/cache/agent-digest.json";
+const CLAIMS_DIGEST_PATH = ".assistant-wiki/cache/claims.jsonl";
 
 type DashboardPageDefinition = {
   id: string;
@@ -572,8 +572,8 @@ async function writeDashboardPage(params: {
   const updatedBody = replaceManagedMarkdownBlock({
     original: originalBody,
     heading: "## Generated",
-    startMarker: `<!-- zhushou:wiki:${path.basename(params.definition.relativePath, ".md")}:start -->`,
-    endMarker: `<!-- zhushou:wiki:${path.basename(params.definition.relativePath, ".md")}:end -->`,
+    startMarker: `<!-- assistant:wiki:${path.basename(params.definition.relativePath, ".md")}:start -->`,
+    endMarker: `<!-- assistant:wiki:${path.basename(params.definition.relativePath, ".md")}:end -->`,
     body: params.definition.buildBody({
       config: params.config,
       pages: params.pages,
@@ -967,8 +967,8 @@ export async function compileMemoryWikiVault(
     await writeManagedMarkdownFile({
       filePath: rootIndexPath,
       title: "Wiki Index",
-      startMarker: "<!-- zhushou:wiki:index:start -->",
-      endMarker: "<!-- zhushou:wiki:index:end -->",
+      startMarker: "<!-- assistant:wiki:index:start -->",
+      endMarker: "<!-- assistant:wiki:index:end -->",
       body: buildRootIndexBody({ config, pages, counts }),
     })
   ) {
@@ -981,8 +981,8 @@ export async function compileMemoryWikiVault(
       await writeManagedMarkdownFile({
         filePath,
         title: group.heading,
-        startMarker: `<!-- zhushou:wiki:${group.dir}:index:start -->`,
-        endMarker: `<!-- zhushou:wiki:${group.dir}:index:end -->`,
+        startMarker: `<!-- assistant:wiki:${group.dir}:index:start -->`,
+        endMarker: `<!-- assistant:wiki:${group.dir}:index:end -->`,
         body: buildDirectoryIndexBody({ config, pages, group }),
       })
     ) {

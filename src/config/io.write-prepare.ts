@@ -1,8 +1,9 @@
 import { isDeepStrictEqual } from "node:util";
 import { isRecord } from "../utils.js";
+import { pruneInactiveGatewayAuthCredentials } from "./gateway-auth-cleanup.js";
 import { applyMergePatch } from "./merge-patch.js";
 import { isBlockedObjectKey } from "./prototype-keys.js";
-import type { ZhushouConfig } from "./types.js";
+import type { AssistantConfig } from "./types.js";
 
 const OPEN_DM_POLICY_ALLOW_FROM_RE =
   /^(?<policyPath>[a-z0-9_.-]+)\s*=\s*"open"\s+requires\s+(?<allowPath>[a-z0-9_.-]+)(?:\s+\(or\s+[a-z0-9_.-]+\))?\s+to include "\*"$/i;
@@ -68,7 +69,11 @@ export function resolvePersistCandidateForWrite(params: {
 }): unknown {
   const patch = createMergePatch(params.runtimeConfig, params.nextConfig);
   const projectedSource = projectSourceOntoRuntimeShape(params.sourceConfig, params.runtimeConfig);
-  return applyMergePatch(projectedSource, patch);
+  const persisted = applyMergePatch(projectedSource, patch);
+  if (isRecord(persisted)) {
+    pruneInactiveGatewayAuthCredentials(persisted);
+  }
+  return persisted;
 }
 
 export function formatConfigValidationFailure(pathLabel: string, issueMessage: string): string {
@@ -85,10 +90,10 @@ export function formatConfigValidationFailure(pathLabel: string, issueMessage: s
     `Configuration mismatch: ${policyPath} is "open", but ${allowPath} does not include "*".`,
     "",
     "Fix with:",
-    `  zhushou config set ${allowPath} '["*"]'`,
+    `  assistant config set ${allowPath} '["*"]'`,
     "",
     "Or switch policy:",
-    `  zhushou config set ${policyPath} "pairing"`,
+    `  assistant config set ${policyPath} "pairing"`,
   ].join("\n");
 }
 
@@ -106,11 +111,11 @@ function hasOwnObjectKey(value: Record<string, unknown>, key: string): boolean {
 
 const WRITE_PRUNED_OBJECT = Symbol("write-pruned-object");
 
-function coerceConfig(value: unknown): ZhushouConfig {
+function coerceConfig(value: unknown): AssistantConfig {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }
-  return value as ZhushouConfig;
+  return value as AssistantConfig;
 }
 
 function unsetPathForWriteAt(
@@ -183,9 +188,9 @@ function unsetPathForWriteAt(
 }
 
 export function unsetPathForWrite(
-  root: ZhushouConfig,
+  root: AssistantConfig,
   pathSegments: string[],
-): { changed: boolean; next: ZhushouConfig } {
+): { changed: boolean; next: AssistantConfig } {
   if (pathSegments.length === 0) {
     return { changed: false, next: root };
   }

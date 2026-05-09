@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OPENCLAW_CLI_ENV_VALUE } from "../infra/zhushou-exec-env.js";
+import { ASSISTANT_CLI_ENV_VALUE } from "../infra/assistant-exec-env.js";
 import { buildSandboxCreateArgs } from "./sandbox/docker.js";
 import type { SandboxDockerConfig } from "./sandbox/types.js";
 
@@ -9,8 +9,8 @@ describe("buildSandboxCreateArgs", () => {
     binds?: string[],
   ): SandboxDockerConfig {
     return {
-      image: "zhushou-sandbox:bookworm-slim",
-      containerPrefix: "zhushou-sbx-",
+      image: "assistant-sandbox:bookworm-slim",
+      containerPrefix: "assistant-sbx-",
       workdir: "/workspace",
       readOnlyRoot: false,
       tmpfs: [],
@@ -40,8 +40,8 @@ describe("buildSandboxCreateArgs", () => {
 
   it("includes hardening and resource flags", () => {
     const cfg: SandboxDockerConfig = {
-      image: "zhushou-sandbox:bookworm-slim",
-      containerPrefix: "zhushou-sbx-",
+      image: "assistant-sandbox:bookworm-slim",
+      containerPrefix: "assistant-sbx-",
       workdir: "/workspace",
       readOnlyRoot: true,
       tmpfs: ["/tmp"],
@@ -59,32 +59,32 @@ describe("buildSandboxCreateArgs", () => {
         core: "0",
       },
       seccompProfile: "/tmp/seccomp.json",
-      apparmorProfile: "zhushou-sandbox",
+      apparmorProfile: "assistant-sandbox",
       dns: ["1.1.1.1"],
       extraHosts: ["internal.service:10.0.0.5"],
     };
 
     const args = buildSandboxCreateArgs({
-      name: "zhushou-sbx-test",
+      name: "assistant-sbx-test",
       cfg,
       scopeKey: "main",
       createdAtMs: 1700000000000,
-      labels: { "zhushou.sandboxBrowser": "1" },
+      labels: { "assistant.sandboxBrowser": "1" },
     });
 
     expect(args).toEqual(
       expect.arrayContaining([
         "create",
         "--name",
-        "zhushou-sbx-test",
+        "assistant-sbx-test",
         "--label",
-        "zhushou.sandbox=1",
+        "assistant.sandbox=1",
         "--label",
-        "zhushou.sessionKey=main",
+        "assistant.sessionKey=main",
         "--label",
-        "zhushou.createdAtMs=1700000000000",
+        "assistant.createdAtMs=1700000000000",
         "--label",
-        "zhushou.sandboxBrowser=1",
+        "assistant.sandboxBrowser=1",
         "--read-only",
         "--tmpfs",
         "/tmp",
@@ -99,7 +99,7 @@ describe("buildSandboxCreateArgs", () => {
         "--security-opt",
         "seccomp=/tmp/seccomp.json",
         "--security-opt",
-        "apparmor=zhushou-sandbox",
+        "apparmor=assistant-sandbox",
         "--dns",
         "1.1.1.1",
         "--add-host",
@@ -119,7 +119,7 @@ describe("buildSandboxCreateArgs", () => {
         "--env",
         "LANG=C.UTF-8",
         "--env",
-        `OPENCLAW_CLI=${OPENCLAW_CLI_ENV_VALUE}`,
+        `ASSISTANT_CLI=${ASSISTANT_CLI_ENV_VALUE}`,
       ]),
     );
 
@@ -145,7 +145,7 @@ describe("buildSandboxCreateArgs", () => {
     });
 
     const args = buildSandboxCreateArgs({
-      name: "zhushou-sbx-marker",
+      name: "assistant-sbx-marker",
       cfg,
       scopeKey: "main",
       createdAtMs: 1700000000000,
@@ -159,15 +159,15 @@ describe("buildSandboxCreateArgs", () => {
         "--env",
         "NODE_ENV=test",
         "--env",
-        `OPENCLAW_CLI=${OPENCLAW_CLI_ENV_VALUE}`,
+        `ASSISTANT_CLI=${ASSISTANT_CLI_ENV_VALUE}`,
       ]),
     );
   });
 
   it("emits -v flags for safe custom binds", () => {
     const cfg: SandboxDockerConfig = {
-      image: "zhushou-sandbox:bookworm-slim",
-      containerPrefix: "zhushou-sbx-",
+      image: "assistant-sandbox:bookworm-slim",
+      containerPrefix: "assistant-sbx-",
       workdir: "/workspace",
       readOnlyRoot: false,
       tmpfs: [],
@@ -177,7 +177,7 @@ describe("buildSandboxCreateArgs", () => {
     };
 
     const args = buildSandboxCreateArgs({
-      name: "zhushou-sbx-binds",
+      name: "assistant-sbx-binds",
       cfg,
       scopeKey: "main",
       createdAtMs: 1700000000000,
@@ -200,37 +200,37 @@ describe("buildSandboxCreateArgs", () => {
   it.each([
     {
       name: "dangerous Docker socket bind mounts",
-      containerName: "zhushou-sbx-dangerous",
+      containerName: "assistant-sbx-dangerous",
       cfg: createSandboxConfig({}, ["/var/run/docker.sock:/var/run/docker.sock"]),
       expected: /blocked path/,
     },
     {
       name: "dangerous parent bind mounts",
-      containerName: "zhushou-sbx-dangerous-parent",
+      containerName: "assistant-sbx-dangerous-parent",
       cfg: createSandboxConfig({}, ["/run:/run"]),
       expected: /blocked path/,
     },
     {
       name: "network host mode",
-      containerName: "zhushou-sbx-host",
+      containerName: "assistant-sbx-host",
       cfg: createSandboxConfig({ network: "host" }),
       expected: /network mode "host" is blocked/,
     },
     {
       name: "network container namespace join",
-      containerName: "zhushou-sbx-container-network",
+      containerName: "assistant-sbx-container-network",
       cfg: createSandboxConfig({ network: "container:peer" }),
       expected: /network mode "container:peer" is blocked by default/,
     },
     {
       name: "seccomp unconfined",
-      containerName: "zhushou-sbx-seccomp",
+      containerName: "assistant-sbx-seccomp",
       cfg: createSandboxConfig({ seccompProfile: "unconfined" }),
       expected: /seccomp profile "unconfined" is blocked/,
     },
     {
       name: "apparmor unconfined",
-      containerName: "zhushou-sbx-apparmor",
+      containerName: "assistant-sbx-apparmor",
       cfg: createSandboxConfig({ apparmorProfile: "unconfined" }),
       expected: /apparmor profile "unconfined" is blocked/,
     },
@@ -240,8 +240,8 @@ describe("buildSandboxCreateArgs", () => {
 
   it("omits -v flags when binds is empty or undefined", () => {
     const cfg: SandboxDockerConfig = {
-      image: "zhushou-sandbox:bookworm-slim",
-      containerPrefix: "zhushou-sbx-",
+      image: "assistant-sandbox:bookworm-slim",
+      containerPrefix: "assistant-sbx-",
       workdir: "/workspace",
       readOnlyRoot: false,
       tmpfs: [],
@@ -251,7 +251,7 @@ describe("buildSandboxCreateArgs", () => {
     };
 
     const args = buildSandboxCreateArgs({
-      name: "zhushou-sbx-no-binds",
+      name: "assistant-sbx-no-binds",
       cfg,
       scopeKey: "main",
       createdAtMs: 1700000000000,
@@ -274,7 +274,7 @@ describe("buildSandboxCreateArgs", () => {
     const cfg = createSandboxConfig({}, ["/opt/external:/data:rw"]);
     expect(() =>
       buildSandboxCreateArgs({
-        name: "zhushou-sbx-outside-roots",
+        name: "assistant-sbx-outside-roots",
         cfg,
         scopeKey: "main",
         createdAtMs: 1700000000000,
@@ -286,7 +286,7 @@ describe("buildSandboxCreateArgs", () => {
   it("allows bind sources outside runtime allowlist with explicit override", () => {
     const cfg = createSandboxConfig({}, ["/opt/external:/data:rw"]);
     const args = buildSandboxCreateArgs({
-      name: "zhushou-sbx-outside-roots-override",
+      name: "assistant-sbx-outside-roots-override",
       cfg,
       scopeKey: "main",
       createdAtMs: 1700000000000,
@@ -298,13 +298,13 @@ describe("buildSandboxCreateArgs", () => {
 
   it("blocks reserved /workspace target bind mounts by default", () => {
     const cfg = createSandboxConfig({}, ["/tmp/override:/workspace:rw"]);
-    expectBuildToThrow("zhushou-sbx-reserved-target", cfg, /reserved container path/);
+    expectBuildToThrow("assistant-sbx-reserved-target", cfg, /reserved container path/);
   });
 
   it("allows reserved /workspace target bind mounts with explicit dangerous override", () => {
     const cfg = createSandboxConfig({}, ["/tmp/override:/workspace:rw"]);
     const args = buildSandboxCreateArgs({
-      name: "zhushou-sbx-reserved-target-override",
+      name: "assistant-sbx-reserved-target-override",
       cfg,
       scopeKey: "main",
       createdAtMs: 1700000000000,
@@ -319,7 +319,7 @@ describe("buildSandboxCreateArgs", () => {
       dangerouslyAllowContainerNamespaceJoin: true,
     });
     const args = buildSandboxCreateArgs({
-      name: "zhushou-sbx-container-network-override",
+      name: "assistant-sbx-container-network-override",
       cfg,
       scopeKey: "main",
       createdAtMs: 1700000000000,

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { setTimeout as sleep } from "node:timers/promises";
-import type { MatrixVerificationSummary } from "@zhushou/matrix/test-api.js";
+import type { MatrixVerificationSummary } from "@assistant/matrix/test-api.js";
 import { createMatrixQaClient } from "../../substrate/client.js";
 import {
   createMatrixQaE2eeScenarioClient,
@@ -1141,7 +1141,7 @@ export async function runMatrixQaE2eeArtifactRedactionScenario(
     },
     details: [
       "decrypted E2EE payload reached in-memory assertions only",
-      "observed-event artifacts redact body/formatted_body unless OPENCLAW_QA_MATRIX_CAPTURE_CONTENT=1",
+      "observed-event artifacts redact body/formatted_body unless ASSISTANT_QA_MATRIX_CAPTURE_CONTENT=1",
       `encrypted room id: ${result.roomId}`,
       ...buildMatrixReplyDetails("E2EE reply", result.reply),
     ].join("\n"),

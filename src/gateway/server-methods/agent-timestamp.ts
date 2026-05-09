@@ -1,5 +1,5 @@
 import { resolveUserTimezone } from "../../agents/date-time.js";
-import type { ZhushouConfig } from "../../config/types.js";
+import type { AssistantConfig } from "../../config/types.js";
 import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.ts";
 
 /**
@@ -36,7 +36,7 @@ export interface TimestampInjectionOptions {
  * these handlers, so there is no double-stamping risk. The detection
  * pattern is a safety net for edge cases.
  *
- * @see https://github.com/zhushou/zhushou/issues/3658
+ * @see https://github.com/assistant/assistant/issues/3658
  */
 export function injectTimestamp(message: string, opts?: TimestampInjectionOptions): string {
   if (!message.trim()) {
@@ -71,9 +71,9 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
 }
 
 /**
- * Build TimestampInjectionOptions from an ZhushouConfig.
+ * Build TimestampInjectionOptions from an AssistantConfig.
  */
-export function timestampOptsFromConfig(cfg: ZhushouConfig): TimestampInjectionOptions {
+export function timestampOptsFromConfig(cfg: AssistantConfig): TimestampInjectionOptions {
   return {
     timezone: resolveUserTimezone(cfg.agents?.defaults?.userTimezone),
   };

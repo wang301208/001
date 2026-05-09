@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import {
   createReplyRuntimeMocks,
   createTempHomeHarness,
@@ -12,13 +12,13 @@ import { loadReplyModuleForTest } from "./get-reply.test-loader.js";
 
 let getReplyFromConfig: typeof import("../reply.js").getReplyFromConfig;
 const agentMocks = createReplyRuntimeMocks();
-const { withTempHome } = createTempHomeHarness({ prefix: "zhushou-getreply-fast-" });
+const { withTempHome } = createTempHomeHarness({ prefix: "assistant-getreply-fast-" });
 
 installReplyRuntimeMocks(agentMocks);
 
 describe("getReplyFromConfig fast-path runtime", () => {
   beforeEach(async () => {
-    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
+    vi.stubEnv("ASSISTANT_TEST_FAST", "1");
     resetReplyRuntimeMocks(agentMocks);
     ({ getReplyFromConfig } = await loadReplyModuleForTest({ cacheKey: import.meta.url }));
   });
@@ -52,7 +52,7 @@ describe("getReplyFromConfig fast-path runtime", () => {
           ChatType: "direct",
         },
         {},
-        makeReplyConfig(home) as ZhushouConfig,
+        makeReplyConfig(home) as AssistantConfig,
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;

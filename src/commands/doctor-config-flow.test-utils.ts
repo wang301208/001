@@ -1,4 +1,4 @@
-const DOCTOR_CONFIG_TEST_INPUT = Symbol.for("zhushou.doctorConfigFlow.testInput");
+const DOCTOR_CONFIG_TEST_INPUT = Symbol.for("assistant.doctorConfigFlow.testInput");
 
 type DoctorConfigTestInput = {
   config: Record<string, unknown>;
@@ -142,7 +142,7 @@ export async function runDoctorConfigWithInput<T>(params: {
   setDoctorConfigInputForTest({
     config: structuredClone(params.config),
     exists: true,
-    path: "/virtual/.zhushou/zhushou.json",
+    path: "/virtual/.assistant/assistant.json",
     preflightMode: params.preflightMode ?? inferredPreflightMode,
   });
   try {

@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type {
   PluginWebFetchProviderEntry,
   PluginWebSearchProviderEntry,
@@ -96,8 +96,8 @@ vi.mock("./runtime-web-tools-manifest.runtime.js", async () => {
   };
 });
 
-function asConfig(value: unknown): ZhushouConfig {
-  return value as ZhushouConfig;
+function asConfig(value: unknown): AssistantConfig {
+  return value as AssistantConfig;
 }
 
 function providerPluginId(provider: ProviderUnderTest): string {
@@ -126,7 +126,7 @@ function ensureRecord(target: Record<string, unknown>, key: string): Record<stri
 }
 
 function setConfiguredProviderKey(
-  configTarget: ZhushouConfig,
+  configTarget: AssistantConfig,
   pluginId: string,
   value: unknown,
 ): void {
@@ -138,7 +138,7 @@ function setConfiguredProviderKey(
   webSearch.apiKey = value;
 }
 
-function setConfiguredFetchProviderKey(configTarget: ZhushouConfig, value: unknown): void {
+function setConfiguredFetchProviderKey(configTarget: AssistantConfig, value: unknown): void {
   const plugins = ensureRecord(configTarget as Record<string, unknown>, "plugins");
   const entries = ensureRecord(plugins, "entries");
   const pluginEntry = ensureRecord(entries, "firecrawl");
@@ -231,7 +231,7 @@ function buildTestWebFetchProviders(): PluginWebFetchProviderEntry[] {
   ];
 }
 
-async function runRuntimeWebTools(params: { config: ZhushouConfig; env?: NodeJS.ProcessEnv }) {
+async function runRuntimeWebTools(params: { config: AssistantConfig; env?: NodeJS.ProcessEnv }) {
   const sourceConfig = structuredClone(params.config);
   const resolvedConfig = structuredClone(params.config);
   const context = createResolverContext({
@@ -249,7 +249,7 @@ async function runRuntimeWebTools(params: { config: ZhushouConfig; env?: NodeJS.
 function createProviderSecretRefConfig(
   provider: ProviderUnderTest,
   envRefId: string,
-): ZhushouConfig {
+): AssistantConfig {
   return asConfig({
     tools: {
       web: {
@@ -274,7 +274,7 @@ function createProviderSecretRefConfig(
   });
 }
 
-function readProviderKey(config: ZhushouConfig, provider: ProviderUnderTest): unknown {
+function readProviderKey(config: AssistantConfig, provider: ProviderUnderTest): unknown {
   const pluginConfig = config.plugins?.entries?.[providerPluginId(provider)]?.config as
     | { webSearch?: { apiKey?: unknown } }
     | undefined;

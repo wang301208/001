@@ -6,5 +6,5 @@ export {
   optimizeImageToJpeg,
   optimizeImageToPng,
   type WebMediaResult,
-} from "zhushou/plugin-sdk/web-media";
-export type { LocalMediaAccessErrorCode } from "zhushou/plugin-sdk/web-media";
+} from "assistant/plugin-sdk/web-media";
+export type { LocalMediaAccessErrorCode } from "assistant/plugin-sdk/web-media";

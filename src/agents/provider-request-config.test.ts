@@ -434,9 +434,9 @@ describe("provider request config", () => {
     });
 
     expect(resolved).toMatchObject({
-      originator: "zhushou",
+      originator: "assistant",
       version: expect.any(String),
-      "User-Agent": expect.stringMatching(/^zhushou\//),
+      "User-Agent": expect.stringMatching(/^assistant\//),
       "X-Custom": "1",
     });
   });
@@ -455,7 +455,7 @@ describe("provider request config", () => {
     });
 
     expect(resolved).toEqual({
-      "HTTP-Referer": "https://zhushou.ai",
+      "HTTP-Referer": "https://assistant.ai",
       "X-OpenRouter-Title": "助手",
       "X-OpenRouter-Categories": "cli-agent",
       "X-Custom": "1",
@@ -478,7 +478,7 @@ describe("provider request config", () => {
     expect(
       Object.keys(resolved ?? {}).filter((key) => key.toLowerCase() === "user-agent"),
     ).toHaveLength(1);
-    expect(resolved?.["User-Agent"]).toMatch(/^zhushou\//);
+    expect(resolved?.["User-Agent"]).toMatch(/^assistant\//);
   });
 
   it("drops forbidden header keys while merging", () => {
@@ -527,9 +527,9 @@ describe("provider request config", () => {
     expect(resolved.capabilities.allowsResponsesStore).toBe(true);
     expect(resolved.headers).toMatchObject({
       authorization: "Bearer test-key",
-      originator: "zhushou",
+      originator: "assistant",
       version: expect.any(String),
-      "User-Agent": expect.stringMatching(/^zhushou\//),
+      "User-Agent": expect.stringMatching(/^assistant\//),
       "X-Custom": "1",
     });
   });

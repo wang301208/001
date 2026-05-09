@@ -1,11 +1,11 @@
-import { note } from "zhushou/plugin-sdk/browser-setup-tools";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { note } from "assistant/plugin-sdk/browser-setup-tools";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   parseBrowserMajorVersion,
   readBrowserVersion,
   resolveGoogleChromeExecutableForPlatform,
 } from "./browser/chrome.executables.js";
-import type { ZhushouConfig } from "./config/config.js";
+import type { AssistantConfig } from "./config/config.js";
 import { asRecord } from "./record-shared.js";
 
 const CHROME_MCP_MIN_MAJOR = 144;
@@ -20,7 +20,7 @@ type ExistingSessionProfile = {
   userDataDir?: string;
 };
 
-function collectChromeMcpProfiles(cfg: ZhushouConfig): ExistingSessionProfile[] {
+function collectChromeMcpProfiles(cfg: AssistantConfig): ExistingSessionProfile[] {
   const browser = asRecord(cfg.browser);
   if (!browser) {
     return [];
@@ -52,7 +52,7 @@ function collectChromeMcpProfiles(cfg: ZhushouConfig): ExistingSessionProfile[] 
 }
 
 export async function noteChromeMcpBrowserReadiness(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   deps?: {
     platform?: NodeJS.Platform;
     noteFn?: typeof note;

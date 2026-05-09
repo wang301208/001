@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { resetLogger, setLoggerOverride } from "../logging/logger.js";
 import { createWarnLogCapture } from "../logging/test-helpers/warn-log-capture.js";
 import { __testing as setupRegistryRuntimeTesting } from "../plugins/setup-registry.runtime.js";
@@ -32,7 +32,7 @@ const EXPLICIT_ALLOWLIST_CONFIG = {
       },
     },
   },
-} as ZhushouConfig;
+} as AssistantConfig;
 
 const BUNDLED_ALLOWLIST_CATALOG = [
   { provider: "anthropic", id: "claude-sonnet-4-6", name: "Claude Sonnet 4.5" },
@@ -57,7 +57,7 @@ const ANTHROPIC_OPUS_47_CATALOG = [
   },
 ];
 
-function resolveAnthropicOpusThinking(cfg: ZhushouConfig) {
+function resolveAnthropicOpusThinking(cfg: AssistantConfig) {
   return resolveThinkingDefault({
     cfg,
     provider: "anthropic",
@@ -66,7 +66,7 @@ function resolveAnthropicOpusThinking(cfg: ZhushouConfig) {
   });
 }
 
-function resolveAnthropicOpus47Thinking(cfg: ZhushouConfig) {
+function resolveAnthropicOpus47Thinking(cfg: AssistantConfig) {
   return resolveThinkingDefault({
     cfg,
     provider: "anthropic",
@@ -105,7 +105,7 @@ function createAgentFallbackConfig(params: {
           }
         : {}),
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createProviderWithModelsConfig(provider: string, models: Array<Record<string, unknown>>) {
@@ -118,12 +118,12 @@ function createProviderWithModelsConfig(provider: string, models: Array<Record<s
         },
       },
     },
-  } as Partial<ZhushouConfig>;
+  } as Partial<AssistantConfig>;
 }
 
-function resolveConfiguredRefForTest(cfg: Partial<ZhushouConfig>) {
+function resolveConfiguredRefForTest(cfg: Partial<AssistantConfig>) {
   return resolveConfiguredModelRef({
-    cfg: cfg as ZhushouConfig,
+    cfg: cfg as AssistantConfig,
     defaultProvider: "openai",
     defaultModel: "gpt-5.4",
   });
@@ -172,11 +172,11 @@ describe("model-selection", () => {
     });
 
     it("returns true for setup-registered cli backends", () => {
-      expect(isCliProvider("claude-cli", {} as ZhushouConfig)).toBe(true);
+      expect(isCliProvider("claude-cli", {} as AssistantConfig)).toBe(true);
     });
 
     it("returns false for provider ids", () => {
-      expect(isCliProvider("example-cli", {} as ZhushouConfig)).toBe(false);
+      expect(isCliProvider("example-cli", {} as AssistantConfig)).toBe(false);
     });
   });
 
@@ -440,7 +440,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -460,7 +460,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -479,7 +479,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -498,7 +498,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -517,7 +517,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -539,7 +539,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -552,7 +552,7 @@ describe("model-selection", () => {
 
   describe("buildModelAliasIndex", () => {
     it("should build alias index from config", () => {
-      const cfg: Partial<ZhushouConfig> = {
+      const cfg: Partial<AssistantConfig> = {
         agents: {
           defaults: {
             models: {
@@ -564,7 +564,7 @@ describe("model-selection", () => {
       };
 
       const index = buildModelAliasIndex({
-        cfg: cfg as ZhushouConfig,
+        cfg: cfg as AssistantConfig,
         defaultProvider: "anthropic",
       });
 
@@ -598,7 +598,7 @@ describe("model-selection", () => {
     });
 
     it("overlays configured provider metadata and alias onto matching catalog entries", () => {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         agents: {
           defaults: {
             model: { primary: "openai/gpt-test-z" },
@@ -621,7 +621,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       const result = buildAllowedModelSet({
         cfg,
@@ -642,7 +642,7 @@ describe("model-selection", () => {
     });
 
     it("applies configured provider metadata and alias to synthetic allowlist entries", () => {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         agents: {
           defaults: {
             model: { primary: "nvidia/moonshotai/kimi-k2.5" },
@@ -666,7 +666,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       const result = buildAllowedModelSet({
         cfg,
@@ -757,7 +757,7 @@ describe("model-selection", () => {
     });
 
     it("strips trailing auth profile suffix before allowlist matching", () => {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         agents: {
           defaults: {
             models: {
@@ -765,7 +765,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       const result = resolveAllowedModelRef({
         cfg,
@@ -791,7 +791,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       // When session default is openai-codex, switching to a bare "kimi-k2.5"
       // should resolve to opencode-go/kimi-k2.5, not openai-codex/kimi-k2.5
@@ -920,7 +920,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       const result = resolveConfiguredModelRef({
         cfg,
@@ -935,7 +935,7 @@ describe("model-selection", () => {
       setLoggerOverride({ level: "silent", consoleLevel: "warn" });
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       try {
-        const cfg: Partial<ZhushouConfig> = {
+        const cfg: Partial<AssistantConfig> = {
           agents: {
             defaults: {
               model: { primary: "claude-3-5-sonnet" },
@@ -944,7 +944,7 @@ describe("model-selection", () => {
         };
 
         const result = resolveConfiguredModelRef({
-          cfg: cfg as ZhushouConfig,
+          cfg: cfg as AssistantConfig,
           defaultProvider: "google",
           defaultModel: "gemini-pro",
         });
@@ -961,9 +961,9 @@ describe("model-selection", () => {
     });
 
     it("sanitizes control characters in providerless-model warnings", () => {
-      const warnLogs = createWarnLogCapture("zhushou-model-selection-test");
+      const warnLogs = createWarnLogCapture("assistant-model-selection-test");
       try {
-        const cfg: Partial<ZhushouConfig> = {
+        const cfg: Partial<AssistantConfig> = {
           agents: {
             defaults: {
               model: { primary: "\u001B[31mclaude-3-5-sonnet\nspoof" },
@@ -972,7 +972,7 @@ describe("model-selection", () => {
         };
 
         const result = resolveConfiguredModelRef({
-          cfg: cfg as ZhushouConfig,
+          cfg: cfg as AssistantConfig,
           defaultProvider: "google",
           defaultModel: "gemini-pro",
         });
@@ -1003,7 +1003,7 @@ describe("model-selection", () => {
               },
             },
           },
-        } as ZhushouConfig;
+        } as AssistantConfig;
 
         const result = resolveConfiguredModelRef({
           cfg,
@@ -1021,9 +1021,9 @@ describe("model-selection", () => {
     });
 
     it("should use default provider/model if config is empty", () => {
-      const cfg: Partial<ZhushouConfig> = {};
+      const cfg: Partial<AssistantConfig> = {};
       const result = resolveConfiguredModelRef({
-        cfg: cfg as ZhushouConfig,
+        cfg: cfg as AssistantConfig,
         defaultProvider: "openai",
         defaultModel: "gpt-4",
       });
@@ -1069,7 +1069,7 @@ describe("model-selection", () => {
             model: { primary: "google-vertex/gemini-3.1-flash-lite" },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       const result = resolveConfiguredModelRef({
         cfg,
@@ -1094,7 +1094,7 @@ describe("model-selection", () => {
       setLoggerOverride({ level: "silent", consoleLevel: "warn" });
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       try {
-        const cfg: Partial<ZhushouConfig> = {
+        const cfg: Partial<AssistantConfig> = {
           agents: {
             defaults: {
               model: { primary: "openai/" },
@@ -1103,7 +1103,7 @@ describe("model-selection", () => {
         };
 
         const result = resolveConfiguredModelRef({
-          cfg: cfg as ZhushouConfig,
+          cfg: cfg as AssistantConfig,
           defaultProvider: "openai",
           defaultModel: "gpt-5.4",
         });
@@ -1133,7 +1133,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       expect(resolveAnthropicOpusThinking(cfg)).toBe("high");
     });
@@ -1149,7 +1149,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       expect(
         resolveThinkingDefault({
@@ -1171,7 +1171,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       expect(resolveAnthropicOpusThinking(cfg)).toBe("adaptive");
     });
@@ -1183,13 +1183,13 @@ describe("model-selection", () => {
             model: { primary: "anthropic/claude-opus-4-7" },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
 
       expect(resolveAnthropicOpus47Thinking(cfg)).toBe("off");
     });
 
     it("falls back to low when no provider thinking hook is active", () => {
-      const cfg = {} as ZhushouConfig;
+      const cfg = {} as AssistantConfig;
 
       expect(resolveAnthropicOpusThinking(cfg)).toBe("low");
 
@@ -1255,7 +1255,7 @@ describe("resolveSubagentConfiguredModelSelection", () => {
           },
         ],
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(resolveSubagentConfiguredModelSelection({ cfg, agentId: "research" })).toBe(
       "anthropic/claude-opus-4-6",
@@ -1277,7 +1277,7 @@ describe("resolveSubagentConfiguredModelSelection", () => {
           },
         ],
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(resolveSubagentConfiguredModelSelection({ cfg, agentId: "research" })).toBe(
       "google/gemini-2.5-pro",

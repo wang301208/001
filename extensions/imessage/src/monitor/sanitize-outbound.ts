@@ -1,4 +1,4 @@
-import { stripAssistantInternalScaffolding } from "zhushou/plugin-sdk/text-runtime";
+import { stripAssistantInternalScaffolding } from "assistant/plugin-sdk/text-runtime";
 
 /**
  * Patterns that indicate assistant-internal metadata leaked into text.

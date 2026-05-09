@@ -389,7 +389,7 @@ describe("runGatewayLoop", () => {
     vi.clearAllMocks();
     try {
       setPlatform("darwin");
-      process.env.LAUNCH_JOB_LABEL = "ai.zhushou.gateway";
+      process.env.LAUNCH_JOB_LABEL = "ai.assistant.gateway";
       restartGatewayProcessWithFreshPid.mockReturnValueOnce({
         mode: "supervised",
       });

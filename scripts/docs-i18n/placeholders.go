@@ -19,7 +19,7 @@ func NewPlaceholderState(text string) *PlaceholderState {
 
 func (s *PlaceholderState) Next() string {
 	for {
-		candidate := fmt.Sprintf("__OC_I18N_%d__", s.counter)
+		candidate := fmt.Sprintf("__ASSISTANT_I18N_%d__", s.counter)
 		s.counter++
 		if _, ok := s.used[candidate]; ok {
 			continue

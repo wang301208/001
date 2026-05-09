@@ -1,9 +1,9 @@
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
 import {
   createChannelReplyPipeline,
   logTypingFailure,
   resolveChannelMediaMaxBytes,
-  type ZhushouConfig,
+  type AssistantConfig,
   type MSTeamsReplyStyle,
   type RuntimeEnv,
 } from "../runtime-api.js";
@@ -30,7 +30,7 @@ import type { MSTeamsTurnContext } from "./sdk-types.js";
 export { pickInformativeStatusText } from "./reply-stream-controller.js";
 
 export function createMSTeamsReplyDispatcher(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   sessionKey: string;
   accountId?: string;

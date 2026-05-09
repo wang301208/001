@@ -1,5 +1,5 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import { sanitizeForLog } from "../../../terminal/ansi.js";
 import type { AuthProfileFailureReason } from "../../auth-profiles.js";
 import { FailoverError, resolveFailoverStatus } from "../../failover-error.js";
@@ -49,7 +49,7 @@ export async function handleAssistantFailover(params: {
   provider: string;
   activeErrorContext: { provider: string; model: string };
   lastAssistant: AssistantMessage | undefined;
-  config: ZhushouConfig | undefined;
+  config: AssistantConfig | undefined;
   sessionKey?: string;
   authFailure: boolean;
   rateLimitFailure: boolean;

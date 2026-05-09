@@ -11,16 +11,16 @@ export {
   withManager,
   withProgress,
   withProgressTotals,
-} from "zhushou/plugin-sdk/memory-core-host-runtime-cli";
+} from "assistant/plugin-sdk/memory-core-host-runtime-cli";
 export {
   loadConfig,
   resolveDefaultAgentId,
   resolveSessionTranscriptsDirForAgent,
   resolveStateDir,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/memory-core-host-runtime-core";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/memory-core-host-runtime-core";
 export {
   listMemoryFiles,
   normalizeExtraMemoryPaths,
-} from "zhushou/plugin-sdk/memory-core-host-runtime-files";
+} from "assistant/plugin-sdk/memory-core-host-runtime-files";
 export { getMemorySearchManager } from "./memory/index.js";

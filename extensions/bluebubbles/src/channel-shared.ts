@@ -1,9 +1,9 @@
-import { describeWebhookAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
-import { formatNormalizedAllowFromEntries } from "zhushou/plugin-sdk/allow-from";
+import { describeWebhookAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
+import { formatNormalizedAllowFromEntries } from "assistant/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "zhushou/plugin-sdk/channel-config-helpers";
+} from "assistant/plugin-sdk/channel-config-helpers";
 import {
   listBlueBubblesAccountIds,
   type ResolvedBlueBubblesAccount,

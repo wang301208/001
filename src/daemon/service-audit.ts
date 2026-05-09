@@ -220,8 +220,8 @@ function auditGatewayToken(
   }
   issues.push({
     code: SERVICE_AUDIT_CODES.gatewayTokenEmbedded,
-    message: "Gateway service embeds ZHUSHOU_GATEWAY_TOKEN and should be reinstalled.",
-    detail: "Run `openclaw gateway install --force` to remove embedded service token.",
+    message: "Gateway service embeds ASSISTANT_GATEWAY_TOKEN and should be reinstalled.",
+    detail: "Run `assistant gateway install --force` to remove embedded service token.",
     level: "recommended",
   });
   const expectedToken = normalizeOptionalString(expectedGatewayToken);
@@ -231,7 +231,7 @@ function auditGatewayToken(
   issues.push({
     code: SERVICE_AUDIT_CODES.gatewayTokenMismatch,
     message:
-      "Gateway service ZHUSHOU_GATEWAY_TOKEN does not match gateway.auth.token in zhushou.json",
+      "Gateway service ASSISTANT_GATEWAY_TOKEN does not match gateway.auth.token in assistant.json",
     detail: "service token is stale",
     level: "recommended",
   });
@@ -241,10 +241,10 @@ export function readEmbeddedGatewayToken(command: GatewayServiceCommand): string
   if (!command) {
     return undefined;
   }
-  if (command.environmentValueSources?.ZHUSHOU_GATEWAY_TOKEN === "file") {
+  if (command.environmentValueSources?.ASSISTANT_GATEWAY_TOKEN === "file") {
     return undefined;
   }
-  return normalizeOptionalString(command.environment?.ZHUSHOU_GATEWAY_TOKEN);
+  return normalizeOptionalString(command.environment?.ASSISTANT_GATEWAY_TOKEN);
 }
 
 function getPathModule(platform: NodeJS.Platform) {
@@ -395,7 +395,7 @@ export function checkTokenDrift(params: {
       code: SERVICE_AUDIT_CODES.gatewayTokenDrift,
       message:
         "Config token differs from service token. The daemon will use the old token after restart.",
-      detail: "Run `openclaw gateway install --force` to sync the token.",
+      detail: "Run `assistant gateway install --force` to sync the token.",
       level: "recommended",
     };
   }

@@ -3,13 +3,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/live-docker-auth.sh"
-IMAGE_NAME="${OPENCLAW_IMAGE:-openclaw:local}"
-LIVE_IMAGE_NAME="${OPENCLAW_LIVE_IMAGE:-${IMAGE_NAME}-live}"
-CONFIG_DIR="${OPENCLAW_CONFIG_DIR:-$HOME/.openclaw}"
-WORKSPACE_DIR="${OPENCLAW_WORKSPACE_DIR:-$HOME/.openclaw/workspace}"
-PROFILE_FILE="${OPENCLAW_PROFILE_FILE:-$HOME/.profile}"
+IMAGE_NAME="${ASSISTANT_IMAGE:-assistant:local}"
+LIVE_IMAGE_NAME="${ASSISTANT_LIVE_IMAGE:-${IMAGE_NAME}-live}"
+CONFIG_DIR="${ASSISTANT_CONFIG_DIR:-$HOME/.assistant}"
+WORKSPACE_DIR="${ASSISTANT_WORKSPACE_DIR:-$HOME/.assistant/workspace}"
+PROFILE_FILE="${ASSISTANT_PROFILE_FILE:-$HOME/.profile}"
 TEMP_DIRS=()
-DOCKER_USER="${OPENCLAW_DOCKER_USER:-node}"
+DOCKER_USER="${ASSISTANT_DOCKER_USER:-node}"
 
 cleanup_temp_dirs() {
   if ((${#TEMP_DIRS[@]} > 0)); then
@@ -18,21 +18,21 @@ cleanup_temp_dirs() {
 }
 trap cleanup_temp_dirs EXIT
 
-if [[ -n "${OPENCLAW_DOCKER_CLI_TOOLS_DIR:-}" ]]; then
-  CLI_TOOLS_DIR="${OPENCLAW_DOCKER_CLI_TOOLS_DIR}"
+if [[ -n "${ASSISTANT_DOCKER_CLI_TOOLS_DIR:-}" ]]; then
+  CLI_TOOLS_DIR="${ASSISTANT_DOCKER_CLI_TOOLS_DIR}"
 elif [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
-  CLI_TOOLS_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/openclaw-docker-cli-tools.XXXXXX")"
+  CLI_TOOLS_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/assistant-docker-cli-tools.XXXXXX")"
   TEMP_DIRS+=("$CLI_TOOLS_DIR")
 else
-  CLI_TOOLS_DIR="$HOME/.cache/openclaw/docker-cli-tools"
+  CLI_TOOLS_DIR="$HOME/.cache/assistant/docker-cli-tools"
 fi
-if [[ -n "${OPENCLAW_DOCKER_CACHE_HOME_DIR:-}" ]]; then
-  CACHE_HOME_DIR="${OPENCLAW_DOCKER_CACHE_HOME_DIR}"
+if [[ -n "${ASSISTANT_DOCKER_CACHE_HOME_DIR:-}" ]]; then
+  CACHE_HOME_DIR="${ASSISTANT_DOCKER_CACHE_HOME_DIR}"
 elif [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
-  CACHE_HOME_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/openclaw-docker-cache.XXXXXX")"
+  CACHE_HOME_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/assistant-docker-cache.XXXXXX")"
   TEMP_DIRS+=("$CACHE_HOME_DIR")
 else
-  CACHE_HOME_DIR="$HOME/.cache/openclaw/docker-cache"
+  CACHE_HOME_DIR="$HOME/.cache/assistant/docker-cache"
 fi
 
 mkdir -p "$CLI_TOOLS_DIR"
@@ -50,11 +50,11 @@ AUTH_FILES=()
 while IFS= read -r auth_file; do
   [[ -n "$auth_file" ]] || continue
   AUTH_FILES+=("$auth_file")
-done < <(openclaw_live_collect_auth_files_from_csv "openai-codex")
+done < <(assistant_live_collect_auth_files_from_csv "openai-codex")
 
 AUTH_FILES_CSV=""
 if ((${#AUTH_FILES[@]} > 0)); then
-  AUTH_FILES_CSV="$(openclaw_live_join_csv "${AUTH_FILES[@]}")"
+  AUTH_FILES_CSV="$(assistant_live_join_csv "${AUTH_FILES[@]}")"
 fi
 
 EXTERNAL_AUTH_MOUNTS=()
@@ -79,7 +79,7 @@ export npm_config_cache="$NPM_CONFIG_CACHE"
 mkdir -p "$NPM_CONFIG_PREFIX" "$XDG_CACHE_HOME" "$COREPACK_HOME" "$NPM_CONFIG_CACHE"
 chmod 700 "$XDG_CACHE_HOME" "$COREPACK_HOME" "$NPM_CONFIG_CACHE" || true
 export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-IFS=',' read -r -a auth_files <<<"${OPENCLAW_DOCKER_AUTH_FILES_RESOLVED:-}"
+IFS=',' read -r -a auth_files <<<"${ASSISTANT_DOCKER_AUTH_FILES_RESOLVED:-}"
 if ((${#auth_files[@]} > 0)); then
   for auth_file in "${auth_files[@]}"; do
     [ -n "$auth_file" ] || continue
@@ -99,14 +99,14 @@ cleanup() {
 }
 trap cleanup EXIT
 source /src/scripts/lib/live-docker-stage.sh
-openclaw_live_stage_source_tree "$tmp_dir"
+assistant_live_stage_source_tree "$tmp_dir"
 mkdir -p "$tmp_dir/node_modules"
 cp -aRs /app/node_modules/. "$tmp_dir/node_modules"
 rm -rf "$tmp_dir/node_modules/.vite-temp"
 mkdir -p "$tmp_dir/node_modules/.vite-temp"
-openclaw_live_link_runtime_tree "$tmp_dir"
-openclaw_live_stage_state_dir "$tmp_dir/.openclaw-state"
-openclaw_live_prepare_staged_config
+assistant_live_link_runtime_tree "$tmp_dir"
+assistant_live_stage_state_dir "$tmp_dir/.assistant-state"
+assistant_live_prepare_staged_config
 cd "$tmp_dir"
 pnpm test:live src/gateway/gateway-codex-harness.live.test.ts
 EOF
@@ -114,9 +114,9 @@ EOF
 "$ROOT_DIR/scripts/test-live-build-docker.sh"
 
 echo "==> Run Codex harness live test in Docker"
-echo "==> Model: ${OPENCLAW_LIVE_CODEX_HARNESS_MODEL:-codex/gpt-5.4}"
-echo "==> Image probe: ${OPENCLAW_LIVE_CODEX_HARNESS_IMAGE_PROBE:-1}"
-echo "==> MCP probe: ${OPENCLAW_LIVE_CODEX_HARNESS_MCP_PROBE:-1}"
+echo "==> Model: ${ASSISTANT_LIVE_CODEX_HARNESS_MODEL:-codex/gpt-5.4}"
+echo "==> Image probe: ${ASSISTANT_LIVE_CODEX_HARNESS_IMAGE_PROBE:-1}"
+echo "==> MCP probe: ${ASSISTANT_LIVE_CODEX_HARNESS_MCP_PROBE:-1}"
 echo "==> Harness fallback: none"
 echo "==> Auth files: ${AUTH_FILES_CSV:-none}"
 docker run --rm -t \
@@ -126,20 +126,20 @@ docker run --rm -t \
   -e HOME=/home/node \
   -e NODE_OPTIONS=--disable-warning=ExperimentalWarning \
   -e OPENAI_API_KEY \
-  -e OPENCLAW_AGENT_HARNESS_FALLBACK=none \
-  -e OPENCLAW_CODEX_APP_SERVER_BIN="${OPENCLAW_CODEX_APP_SERVER_BIN:-codex}" \
-  -e OPENCLAW_DOCKER_AUTH_FILES_RESOLVED="$AUTH_FILES_CSV" \
-  -e OPENCLAW_LIVE_CODEX_HARNESS=1 \
-  -e OPENCLAW_LIVE_CODEX_HARNESS_DEBUG="${OPENCLAW_LIVE_CODEX_HARNESS_DEBUG:-}" \
-  -e OPENCLAW_LIVE_CODEX_HARNESS_IMAGE_PROBE="${OPENCLAW_LIVE_CODEX_HARNESS_IMAGE_PROBE:-1}" \
-  -e OPENCLAW_LIVE_CODEX_HARNESS_MCP_PROBE="${OPENCLAW_LIVE_CODEX_HARNESS_MCP_PROBE:-1}" \
-  -e OPENCLAW_LIVE_CODEX_HARNESS_MODEL="${OPENCLAW_LIVE_CODEX_HARNESS_MODEL:-codex/gpt-5.4}" \
-  -e OPENCLAW_LIVE_TEST=1 \
-  -e OPENCLAW_VITEST_FS_MODULE_CACHE=0 \
+  -e ASSISTANT_AGENT_HARNESS_FALLBACK=none \
+  -e ASSISTANT_CODEX_APP_SERVER_BIN="${ASSISTANT_CODEX_APP_SERVER_BIN:-codex}" \
+  -e ASSISTANT_DOCKER_AUTH_FILES_RESOLVED="$AUTH_FILES_CSV" \
+  -e ASSISTANT_LIVE_CODEX_HARNESS=1 \
+  -e ASSISTANT_LIVE_CODEX_HARNESS_DEBUG="${ASSISTANT_LIVE_CODEX_HARNESS_DEBUG:-}" \
+  -e ASSISTANT_LIVE_CODEX_HARNESS_IMAGE_PROBE="${ASSISTANT_LIVE_CODEX_HARNESS_IMAGE_PROBE:-1}" \
+  -e ASSISTANT_LIVE_CODEX_HARNESS_MCP_PROBE="${ASSISTANT_LIVE_CODEX_HARNESS_MCP_PROBE:-1}" \
+  -e ASSISTANT_LIVE_CODEX_HARNESS_MODEL="${ASSISTANT_LIVE_CODEX_HARNESS_MODEL:-codex/gpt-5.4}" \
+  -e ASSISTANT_LIVE_TEST=1 \
+  -e ASSISTANT_VITEST_FS_MODULE_CACHE=0 \
   -v "$CACHE_HOME_DIR":/home/node/.cache \
   -v "$ROOT_DIR":/src:ro \
-  -v "$CONFIG_DIR":/home/node/.openclaw \
-  -v "$WORKSPACE_DIR":/home/node/.openclaw/workspace \
+  -v "$CONFIG_DIR":/home/node/.assistant \
+  -v "$WORKSPACE_DIR":/home/node/.assistant/workspace \
   -v "$CLI_TOOLS_DIR":/home/node/.npm-global \
   "${EXTERNAL_AUTH_MOUNTS[@]}" \
   "${PROFILE_MOUNT[@]}" \

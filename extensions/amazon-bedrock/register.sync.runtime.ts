@@ -1,14 +1,14 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-entry";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/plugin-entry";
 import {
   ANTHROPIC_BY_MODEL_REPLAY_HOOKS,
   normalizeProviderId,
-} from "zhushou/plugin-sdk/provider-model-shared";
+} from "assistant/plugin-sdk/provider-model-shared";
 import {
   createBedrockNoCacheWrapper,
   isAnthropicBedrockModel,
   streamWithPayloadPatch,
-} from "zhushou/plugin-sdk/provider-stream-shared";
+} from "assistant/plugin-sdk/provider-stream-shared";
 import {
   mergeImplicitBedrockProvider,
   resolveBedrockConfigApiKey,
@@ -62,7 +62,7 @@ function createGuardrailWrapStreamFn(
   };
 }
 
-export function registerAmazonBedrockPlugin(api: ZhushouPluginApi): void {
+export function registerAmazonBedrockPlugin(api: AssistantPluginApi): void {
   // Keep registration-local constants inside the function so partial module
   // initialization during test bootstrap cannot trip TDZ reads.
   const providerId = "amazon-bedrock";

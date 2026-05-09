@@ -2,7 +2,7 @@ import type {
   ContextVisibilityMode,
   DmPolicy,
   GroupPolicy,
-  ZhushouConfig,
+  AssistantConfig,
   SecretInput,
 } from "./runtime-api.js";
 export type { ContextVisibilityMode, DmPolicy, GroupPolicy };
@@ -225,6 +225,6 @@ export type CoreConfig = {
     ackReaction?: string;
     ackReactionScope?: "group-mentions" | "group-all" | "direct" | "all" | "none" | "off";
   };
-  secrets?: ZhushouConfig["secrets"];
+  secrets?: AssistantConfig["secrets"];
   [key: string]: unknown;
 };

@@ -3,11 +3,11 @@ import path from "node:path";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import {
   definePluginEntry,
-  type ZhushouPluginApi,
-  type OpenClawPluginService,
+  type AssistantPluginApi,
+  type AssistantPluginService,
 } from "./runtime-api.js";
 
 type ArmGroup = "camera" | "screen" | "writes" | "all";
@@ -161,18 +161,18 @@ async function writeArmState(statePath: string, state: ArmStateFile | null): Pro
   await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 }
 
-function normalizeDenyList(cfg: ZhushouPluginApi["config"]): string[] {
+function normalizeDenyList(cfg: AssistantPluginApi["config"]): string[] {
   return uniqSorted([...(cfg.gateway?.nodes?.denyCommands ?? [])]);
 }
 
-function normalizeAllowList(cfg: ZhushouPluginApi["config"]): string[] {
+function normalizeAllowList(cfg: AssistantPluginApi["config"]): string[] {
   return uniqSorted([...(cfg.gateway?.nodes?.allowCommands ?? [])]);
 }
 
 function patchConfigNodeLists(
-  cfg: ZhushouPluginApi["config"],
+  cfg: AssistantPluginApi["config"],
   next: { allowCommands: string[]; denyCommands: string[] },
-): ZhushouPluginApi["config"] {
+): AssistantPluginApi["config"] {
   return {
     ...cfg,
     gateway: {
@@ -187,7 +187,7 @@ function patchConfigNodeLists(
 }
 
 async function disarmNow(params: {
-  api: ZhushouPluginApi;
+  api: AssistantPluginApi;
   stateDir: string;
   statePath: string;
   reason: string;
@@ -303,10 +303,10 @@ export default definePluginEntry({
   id: "phone-control",
   name: "Phone Control",
   description: "Temporary allowlist control for phone automation commands",
-  register(api: ZhushouPluginApi) {
+  register(api: AssistantPluginApi) {
     let expiryInterval: ReturnType<typeof setInterval> | null = null;
 
-    const timerService: OpenClawPluginService = {
+    const timerService: AssistantPluginService = {
       id: "phone-control-expiry",
       start: async (ctx) => {
         const statePath = resolveStatePath(ctx.stateDir);

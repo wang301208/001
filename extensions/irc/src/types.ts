@@ -6,7 +6,7 @@ import type {
   GroupToolPolicyBySenderConfig,
   GroupToolPolicyConfig,
   MarkdownConfig,
-  ZhushouConfig,
+  AssistantConfig,
   BaseProbeResult,
 } from "./runtime-api.js";
 
@@ -71,8 +71,8 @@ export type IrcConfig = IrcAccountConfig & {
   defaultAccount?: string;
 };
 
-export type CoreConfig = ZhushouConfig & {
-  channels?: ZhushouConfig["channels"] & {
+export type CoreConfig = AssistantConfig & {
+  channels?: AssistantConfig["channels"] & {
     irc?: IrcConfig;
   };
 };

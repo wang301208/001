@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveProviderSyntheticAuthWithPlugin } from "../plugins/provider-runtime.js";
 import type { AuthProfileStore } from "./auth-profiles/types.js";
 import {
@@ -47,7 +47,7 @@ function resolveAuthProfileStoreInput(input: AuthProfileStoreInput) {
 export function createProviderApiKeyResolver(
   env: NodeJS.ProcessEnv,
   authStoreInput: AuthProfileStoreInput,
-  config?: ZhushouConfig,
+  config?: AssistantConfig,
 ): ProviderApiKeyResolver {
   return (provider: string): { apiKey: string | undefined; discoveryApiKey?: string } => {
     const authProvider = resolveProviderIdForAuth(provider, { config, env });
@@ -85,7 +85,7 @@ export function createProviderApiKeyResolver(
 export function createProviderAuthResolver(
   env: NodeJS.ProcessEnv,
   authStoreInput: AuthProfileStoreInput,
-  config?: ZhushouConfig,
+  config?: AssistantConfig,
 ): ProviderAuthResolver {
   return (provider: string, options?: { oauthMarker?: string }) => {
     const authProvider = resolveProviderIdForAuth(provider, { config, env });
@@ -163,7 +163,7 @@ export function createProviderAuthResolver(
   };
 }
 
-function resolveConfigBackedProviderAuth(params: { provider: string; config?: ZhushouConfig }):
+function resolveConfigBackedProviderAuth(params: { provider: string; config?: AssistantConfig }):
   | {
       apiKey: string;
       discoveryApiKey?: string;

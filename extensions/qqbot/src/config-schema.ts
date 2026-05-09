@@ -1,8 +1,8 @@
 import {
   AllowFromListSchema,
   buildChannelConfigSchema,
-} from "zhushou/plugin-sdk/channel-config-schema";
-import { buildSecretInputSchema } from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/channel-config-schema";
+import { buildSecretInputSchema } from "assistant/plugin-sdk/secret-input";
 import { z } from "zod";
 
 const AudioFormatPolicySchema = z

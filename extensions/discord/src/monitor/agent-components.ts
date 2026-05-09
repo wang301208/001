@@ -18,17 +18,17 @@ import {
 } from "@buape/carbon";
 import type { APIStringSelectComponent } from "discord-api-types/v10";
 import { ButtonStyle, ChannelType } from "discord-api-types/v10";
-import { resolveHumanDelayConfig } from "zhushou/plugin-sdk/agent-runtime";
+import { resolveHumanDelayConfig } from "assistant/plugin-sdk/agent-runtime";
 import {
   formatInboundEnvelope,
   resolveEnvelopeFormatOptions,
-} from "zhushou/plugin-sdk/channel-inbound";
-import { isDangerousNameMatchingEnabled } from "zhushou/plugin-sdk/dangerous-name-runtime";
-import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/markdown-table-runtime";
-import { getAgentScopedMediaLocalRoots } from "zhushou/plugin-sdk/media-runtime";
-import { createNonExitingRuntime, logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { resolveOpenProviderRuntimeGroupPolicy } from "zhushou/plugin-sdk/runtime-group-policy";
-import { logDebug, logError } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/channel-inbound";
+import { isDangerousNameMatchingEnabled } from "assistant/plugin-sdk/dangerous-name-runtime";
+import { resolveMarkdownTableMode } from "assistant/plugin-sdk/markdown-table-runtime";
+import { getAgentScopedMediaLocalRoots } from "assistant/plugin-sdk/media-runtime";
+import { createNonExitingRuntime, logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { resolveOpenProviderRuntimeGroupPolicy } from "assistant/plugin-sdk/runtime-group-policy";
+import { logDebug, logError } from "assistant/plugin-sdk/text-runtime";
 import { resolveDiscordMaxLinesPerMessage } from "../accounts.js";
 import { createDiscordRestClient } from "../client.js";
 import {
@@ -88,9 +88,9 @@ import { deliverDiscordReply } from "./reply-delivery.js";
 
 let conversationRuntimePromise: Promise<typeof import("./agent-components.runtime.js")> | undefined;
 let componentsRuntimePromise: Promise<typeof import("../components.js")> | undefined;
-let replyRuntimePromise: Promise<typeof import("zhushou/plugin-sdk/reply-runtime")> | undefined;
+let replyRuntimePromise: Promise<typeof import("assistant/plugin-sdk/reply-runtime")> | undefined;
 let replyPipelineRuntimePromise:
-  | Promise<typeof import("zhushou/plugin-sdk/channel-reply-pipeline")>
+  | Promise<typeof import("assistant/plugin-sdk/channel-reply-pipeline")>
   | undefined;
 let typingRuntimePromise: Promise<typeof import("./typing.js")> | undefined;
 
@@ -105,11 +105,11 @@ async function loadComponentsRuntime() {
 }
 
 async function _loadReplyRuntime() {
-  replyRuntimePromise ??= import("zhushou/plugin-sdk/reply-runtime");
+  replyRuntimePromise ??= import("assistant/plugin-sdk/reply-runtime");
   return await replyRuntimePromise;
 }
 async function loadReplyPipelineRuntime() {
-  replyPipelineRuntimePromise ??= import("zhushou/plugin-sdk/channel-reply-pipeline");
+  replyPipelineRuntimePromise ??= import("assistant/plugin-sdk/channel-reply-pipeline");
   return await replyPipelineRuntimePromise;
 }
 
@@ -1097,7 +1097,7 @@ export class AgentSelectMenu extends StringSelectMenu {
 
 class DiscordComponentButton extends Button {
   label = "component";
-  customId = "__openclaw_discord_component_button_wildcard__";
+  customId = "__assistant_discord_component_button_wildcard__";
   style = ButtonStyle.Primary;
   customIdParser = parseDiscordComponentCustomIdForCarbon;
   private ctx: AgentComponentContext;
@@ -1140,7 +1140,7 @@ class DiscordComponentButton extends Button {
 }
 
 class DiscordComponentStringSelect extends StringSelectMenu {
-  customId = "__openclaw_discord_component_string_select_wildcard__";
+  customId = "__assistant_discord_component_string_select_wildcard__";
   options: APIStringSelectComponent["options"] = [];
   customIdParser = parseDiscordComponentCustomIdForCarbon;
   private ctx: AgentComponentContext;
@@ -1163,7 +1163,7 @@ class DiscordComponentStringSelect extends StringSelectMenu {
 }
 
 class DiscordComponentUserSelect extends UserSelectMenu {
-  customId = "__openclaw_discord_component_user_select_wildcard__";
+  customId = "__assistant_discord_component_user_select_wildcard__";
   customIdParser = parseDiscordComponentCustomIdForCarbon;
   private ctx: AgentComponentContext;
 
@@ -1185,7 +1185,7 @@ class DiscordComponentUserSelect extends UserSelectMenu {
 }
 
 class DiscordComponentRoleSelect extends RoleSelectMenu {
-  customId = "__openclaw_discord_component_role_select_wildcard__";
+  customId = "__assistant_discord_component_role_select_wildcard__";
   customIdParser = parseDiscordComponentCustomIdForCarbon;
   private ctx: AgentComponentContext;
 
@@ -1207,7 +1207,7 @@ class DiscordComponentRoleSelect extends RoleSelectMenu {
 }
 
 class DiscordComponentMentionableSelect extends MentionableSelectMenu {
-  customId = "__openclaw_discord_component_mentionable_select_wildcard__";
+  customId = "__assistant_discord_component_mentionable_select_wildcard__";
   customIdParser = parseDiscordComponentCustomIdForCarbon;
   private ctx: AgentComponentContext;
 
@@ -1229,7 +1229,7 @@ class DiscordComponentMentionableSelect extends MentionableSelectMenu {
 }
 
 class DiscordComponentChannelSelect extends ChannelSelectMenu {
-  customId = "__openclaw_discord_component_channel_select_wildcard__";
+  customId = "__assistant_discord_component_channel_select_wildcard__";
   customIdParser = parseDiscordComponentCustomIdForCarbon;
   private ctx: AgentComponentContext;
 
@@ -1252,7 +1252,7 @@ class DiscordComponentChannelSelect extends ChannelSelectMenu {
 
 class DiscordComponentModal extends Modal {
   title = "助手 form";
-  customId = "__openclaw_discord_component_modal_wildcard__";
+  customId = "__assistant_discord_component_modal_wildcard__";
   components = [];
   customIdParser = parseDiscordModalCustomIdForCarbon;
   private ctx: AgentComponentContext;

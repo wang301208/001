@@ -3,10 +3,10 @@
  *
  * Migrated from feishu-plugin-cli's `feishu-auth.ts` and `install-prompts.ts`.
  * Replaces axios with native fetch, removes inquirer/ora/chalk in favor of
- * the zhushou WizardPrompter surface.
+ * the assistant WizardPrompter surface.
  */
 
-import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
 import type { FeishuDomain } from "./types.js";
 
 // ---------------------------------------------------------------------------

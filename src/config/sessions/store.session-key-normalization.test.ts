@@ -27,7 +27,7 @@ function createInboundContext(): MsgContext {
 
 describe("session store key normalization", () => {
   const suiteRootTracker = createSuiteTempRootTracker({
-    prefix: "zhushou-session-key-normalize-",
+    prefix: "assistant-session-key-normalize-",
   });
   let tempDir = "";
   let storePath = "";

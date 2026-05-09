@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { promises as fs } from "node:fs";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { createAgentGovernanceRuntimeSnapshot } from "../governance/runtime-snapshot.js";
 import type { SubagentLifecycleHookRunner } from "../plugins/hooks.js";
 import { isValidAgentId, normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
@@ -179,7 +179,7 @@ function loadSubagentConfig() {
 }
 
 async function persistInitialChildSessionRuntimeModel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   childSessionKey: string;
   resolvedModel?: string;
 }): Promise<string | undefined> {

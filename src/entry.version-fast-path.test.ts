@@ -87,9 +87,9 @@ describe("entry root version fast path", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     originalArgv = [...process.argv];
-    originalGatewayToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
-    delete process.env.ZHUSHOU_GATEWAY_TOKEN;
-    process.argv = ["node", "zhushou", "--version"];
+    originalGatewayToken = process.env.ASSISTANT_GATEWAY_TOKEN;
+    delete process.env.ASSISTANT_GATEWAY_TOKEN;
+    process.argv = ["node", "assistant", "--version"];
     exitSpy = vi
       .spyOn(process, "exit")
       .mockImplementation(((_code?: number) => undefined) as typeof process.exit);
@@ -98,9 +98,9 @@ describe("entry root version fast path", () => {
   afterEach(() => {
     process.argv = originalArgv;
     if (originalGatewayToken === undefined) {
-      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+      delete process.env.ASSISTANT_GATEWAY_TOKEN;
     } else {
-      process.env.ZHUSHOU_GATEWAY_TOKEN = originalGatewayToken;
+      process.env.ASSISTANT_GATEWAY_TOKEN = originalGatewayToken;
     }
     exitSpy.mockRestore();
   });
@@ -143,7 +143,7 @@ describe("entry root version fast path", () => {
     await importEntry("container-target");
     await vi.waitFor(
       () => {
-        expect(runCliMock).toHaveBeenCalledWith(["node", "zhushou", "--version"]);
+        expect(runCliMock).toHaveBeenCalledWith(["node", "assistant", "--version"]);
       },
       { interval: 1 },
     );
@@ -155,13 +155,13 @@ describe("entry root version fast path", () => {
 
   it("allows root version container mode when gateway override env vars are set", async () => {
     resolveCliContainerTargetMock.mockReturnValue("demo");
-    process.env.ZHUSHOU_GATEWAY_TOKEN = "demo-token";
+    process.env.ASSISTANT_GATEWAY_TOKEN = "demo-token";
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await importEntry("gateway-override");
     await vi.waitFor(
       () => {
-        expect(runCliMock).toHaveBeenCalledWith(["node", "zhushou", "--version"]);
+        expect(runCliMock).toHaveBeenCalledWith(["node", "assistant", "--version"]);
       },
       { interval: 1 },
     );

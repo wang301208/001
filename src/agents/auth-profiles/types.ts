@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { SecretRef } from "../../config/types.secrets.js";
 
 export type OAuthProvider = string;
@@ -108,7 +108,7 @@ export type AuthProfileStateStore = {
 export type AuthProfileStore = AuthProfileSecretsStore & AuthProfileState;
 
 export type AuthProfileIdRepairResult = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changes: string[];
   migrated: boolean;
   fromProfileId?: string;

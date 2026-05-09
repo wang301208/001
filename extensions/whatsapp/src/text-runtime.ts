@@ -1,4 +1,4 @@
-export * from "zhushou/plugin-sdk/text-runtime";
+export * from "assistant/plugin-sdk/text-runtime";
 export {
   assertWebChannel,
   isSelfChatMode,

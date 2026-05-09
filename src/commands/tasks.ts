@@ -124,6 +124,9 @@ function taskRequiresGovernanceRuntime(task: TaskRecord): boolean {
   if (task.scopeKind !== "session" || task.runtime === "cron") {
     return false;
   }
+  if (task.status !== "queued" && task.status !== "running") {
+    return false;
+  }
   return Boolean(task.runId?.trim() || task.agentId?.trim() || task.childSessionKey?.trim());
 }
 
@@ -617,7 +620,7 @@ export async function tasksMaintenanceCommand(
     );
   }
   if (!opts.apply) {
-    runtime.log("Dry run only. Re-run with `zhushou tasks maintenance --apply` to write changes.");
+    runtime.log("Dry run only. Re-run with `assistant tasks maintenance --apply` to write changes.");
   }
   */
   runtime.log(
@@ -638,6 +641,6 @@ export async function tasksMaintenanceCommand(
     );
   }
   if (!opts.apply) {
-    runtime.log("Dry run only. Re-run with `zhushou tasks maintenance --apply` to write changes.");
+    runtime.log("Dry run only. Re-run with `assistant tasks maintenance --apply` to write changes.");
   }
 }

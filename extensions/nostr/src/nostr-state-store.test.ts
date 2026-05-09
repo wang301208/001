@@ -13,19 +13,19 @@ import {
 import { setNostrRuntime } from "./runtime.js";
 
 async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
-  const previous = process.env.ZHUSHOU_STATE_DIR;
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-nostr-"));
-  process.env.ZHUSHOU_STATE_DIR = dir;
+  const previous = process.env.ASSISTANT_STATE_DIR;
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-nostr-"));
+  process.env.ASSISTANT_STATE_DIR = dir;
   setNostrRuntime({
     state: {
       resolveStateDir: (env, homedir) => {
         const stateEnv = env ?? process.env;
-        const override = stateEnv.ZHUSHOU_STATE_DIR?.trim();
+        const override = stateEnv.ASSISTANT_STATE_DIR?.trim();
         if (override) {
           return override;
         }
         const resolveHome = homedir ?? os.homedir;
-        return path.join(resolveHome(), ".zhushou");
+        return path.join(resolveHome(), ".assistant");
       },
     },
   } as PluginRuntime);
@@ -33,9 +33,9 @@ async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
     return await fn(dir);
   } finally {
     if (previous === undefined) {
-      delete process.env.ZHUSHOU_STATE_DIR;
+      delete process.env.ASSISTANT_STATE_DIR;
     } else {
-      process.env.ZHUSHOU_STATE_DIR = previous;
+      process.env.ASSISTANT_STATE_DIR = previous;
     }
     await fs.rm(dir, { recursive: true, force: true });
   }

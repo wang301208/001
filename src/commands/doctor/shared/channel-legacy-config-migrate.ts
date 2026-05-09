@@ -1,16 +1,16 @@
 import { getBootstrapChannelPlugin } from "../../../channels/plugins/bootstrap-registry.js";
 import { loadBundledChannelDoctorContractApi } from "../../../channels/plugins/doctor-contract-api.js";
-import type { ZhushouConfig } from "../../../config/types.js";
+import type { AssistantConfig } from "../../../config/types.js";
 import { applyPluginDoctorCompatibilityMigrations } from "../../../plugins/doctor-contract-registry.js";
 import { isRecord } from "./legacy-config-record-shared.js";
 
 type ChannelDoctorCompatibilityMutation = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changes: string[];
 };
 
 type ChannelDoctorCompatibilityNormalizer = (params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
 }) => ChannelDoctorCompatibilityMutation;
 
 function collectRelevantDoctorChannelIds(raw: unknown): string[] {
@@ -38,7 +38,7 @@ export function applyChannelDoctorCompatibilityMigrations(cfg: Record<string, un
   next: Record<string, unknown>;
   changes: string[];
 } {
-  let nextCfg = cfg as ZhushouConfig;
+  let nextCfg = cfg as AssistantConfig;
   const changes: string[] = [];
   const unresolvedChannelIds: string[] = [];
 
@@ -65,7 +65,7 @@ export function applyChannelDoctorCompatibilityMigrations(cfg: Record<string, un
   }
 
   return {
-    next: nextCfg as ZhushouConfig & Record<string, unknown>,
+    next: nextCfg as AssistantConfig & Record<string, unknown>,
     changes,
   };
 }

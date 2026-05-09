@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { inspectDiscordAccount } from "./account-inspect.js";
 
-function asConfig(value: unknown): ZhushouConfig {
-  return value as ZhushouConfig;
+function asConfig(value: unknown): AssistantConfig {
+  return value as AssistantConfig;
 }
 
 describe("inspectDiscordAccount", () => {

@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
-import type { AnyAgentTool, OpenClawPluginToolContext } from "zhushou/plugin-sdk/core";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import type { AnyAgentTool, AssistantPluginToolContext } from "assistant/plugin-sdk/core";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import { sendImageZalouser, sendLinkZalouser, sendMessageZalouser } from "./send.js";
 import { parseZalouserOutboundTarget } from "./session-route.js";
 import {
@@ -51,7 +51,7 @@ type ToolParams = {
   url?: string;
 };
 
-type ZalouserToolContext = Pick<OpenClawPluginToolContext, "deliveryContext">;
+type ZalouserToolContext = Pick<AssistantPluginToolContext, "deliveryContext">;
 
 function json(payload: unknown): AgentToolResult {
   return {

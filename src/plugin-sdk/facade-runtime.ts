@@ -27,13 +27,13 @@ export {
   listImportedBundledPluginFacadeIds,
 } from "./facade-loader.js";
 
-const OPENCLAW_PACKAGE_ROOT =
+const ASSISTANT_PACKAGE_ROOT =
   resolveLoaderPackageRoot({
     modulePath: fileURLToPath(import.meta.url),
     moduleUrl: import.meta.url,
   }) ?? fileURLToPath(new URL("../..", import.meta.url));
 const CURRENT_MODULE_PATH = fileURLToPath(import.meta.url);
-const OPENCLAW_SOURCE_EXTENSIONS_ROOT = path.resolve(OPENCLAW_PACKAGE_ROOT, "extensions");
+const ASSISTANT_SOURCE_EXTENSIONS_ROOT = path.resolve(ASSISTANT_PACKAGE_ROOT, "extensions");
 const cachedFacadeModuleLocationsByKey = new Map<
   string,
   {
@@ -104,10 +104,10 @@ function resolveFacadeModuleLocationUncached(params: {
     const modulePath =
       resolveBundledPluginSourcePublicSurfacePath({
         ...params,
-        sourceRoot: bundledPluginsDir ?? path.resolve(OPENCLAW_PACKAGE_ROOT, "extensions"),
+        sourceRoot: bundledPluginsDir ?? path.resolve(ASSISTANT_PACKAGE_ROOT, "extensions"),
       }) ??
       resolveBundledPluginPublicSurfacePath({
-        rootDir: OPENCLAW_PACKAGE_ROOT,
+        rootDir: ASSISTANT_PACKAGE_ROOT,
         env: params.env,
         ...(bundledPluginsDir ? { bundledPluginsDir } : {}),
         dirName: params.dirName,
@@ -119,13 +119,13 @@ function resolveFacadeModuleLocationUncached(params: {
         boundaryRoot:
           bundledPluginsDir && modulePath.startsWith(path.resolve(bundledPluginsDir) + path.sep)
             ? path.resolve(bundledPluginsDir)
-            : OPENCLAW_PACKAGE_ROOT,
+            : ASSISTANT_PACKAGE_ROOT,
       };
     }
     return resolveRegistryPluginModuleLocation(params);
   }
   const modulePath = resolveBundledPluginPublicSurfacePath({
-    rootDir: OPENCLAW_PACKAGE_ROOT,
+    rootDir: ASSISTANT_PACKAGE_ROOT,
     env: params.env,
     ...(bundledPluginsDir ? { bundledPluginsDir } : {}),
     dirName: params.dirName,
@@ -137,7 +137,7 @@ function resolveFacadeModuleLocationUncached(params: {
       boundaryRoot:
         bundledPluginsDir && modulePath.startsWith(path.resolve(bundledPluginsDir) + path.sep)
           ? path.resolve(bundledPluginsDir)
-          : OPENCLAW_PACKAGE_ROOT,
+          : ASSISTANT_PACKAGE_ROOT,
     };
   }
   return resolveRegistryPluginModuleLocation(params);
@@ -234,7 +234,7 @@ function buildFacadeActivationCheckParams(
   return {
     ...params,
     location,
-    sourceExtensionsRoot: OPENCLAW_SOURCE_EXTENSIONS_ROOT,
+    sourceExtensionsRoot: ASSISTANT_SOURCE_EXTENSIONS_ROOT,
     resolutionKey: createFacadeResolutionKey(params),
   };
 }

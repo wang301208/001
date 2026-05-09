@@ -45,7 +45,7 @@ vi.mock("../plugins/cli.js", () => ({
 
 describe("completion-cli write-state", () => {
   const originalHome = process.env.HOME;
-  const originalStateDir = process.env.ZHUSHOU_STATE_DIR;
+  const originalStateDir = process.env.ASSISTANT_STATE_DIR;
   let restoreStderrWriteSpy: (() => void) | null = null;
 
   beforeEach(() => {
@@ -73,29 +73,29 @@ describe("completion-cli write-state", () => {
       process.env.HOME = originalHome;
     }
     if (originalStateDir === undefined) {
-      delete process.env.ZHUSHOU_STATE_DIR;
+      delete process.env.ASSISTANT_STATE_DIR;
     } else {
-      process.env.ZHUSHOU_STATE_DIR = originalStateDir;
+      process.env.ASSISTANT_STATE_DIR = originalStateDir;
     }
   });
 
   it("keeps completion cache generation alive when a subcli fails to register", async () => {
     const { registerCompletionCli } = await import("./completion-cli.js");
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-completion-state-"));
-    const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-completion-home-"));
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-completion-state-"));
+    const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-completion-home-"));
 
-    process.env.ZHUSHOU_STATE_DIR = stateDir;
+    process.env.ASSISTANT_STATE_DIR = stateDir;
     process.env.HOME = homeDir;
 
     const program = new Command();
-    program.name("zhushou");
+    program.name("assistant");
     registerCompletionCli(program);
 
     await program.parseAsync(["completion", "--write-state"], { from: "user" });
 
     const cacheDir = path.join(stateDir, "completions");
     expect(await fs.readdir(cacheDir)).toEqual(
-      expect.arrayContaining(["zhushou.bash", "zhushou.fish", "zhushou.ps1", "zhushou.zsh"]),
+      expect.arrayContaining(["assistant.bash", "assistant.fish", "assistant.ps1", "assistant.zsh"]),
     );
     expect(registerSubCliByNameMock).toHaveBeenCalledWith(program, "qa");
     expect(registerPluginCliCommandsFromValidatedConfigMock).toHaveBeenCalledTimes(1);

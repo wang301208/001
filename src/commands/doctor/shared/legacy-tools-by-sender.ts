@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import { parseToolsBySenderTypedKey } from "../../../config/types.tools.js";
 import { sanitizeForLog } from "../../../terminal/ansi.js";
 import { formatConfigPath, resolveConfigPathTarget } from "../../doctor-config-analysis.js";
@@ -53,7 +53,7 @@ function collectLegacyToolsBySenderKeyHits(
   }
 }
 
-export function scanLegacyToolsBySenderKeys(cfg: ZhushouConfig): LegacyToolsBySenderKeyHit[] {
+export function scanLegacyToolsBySenderKeys(cfg: AssistantConfig): LegacyToolsBySenderKeyHit[] {
   const hits: LegacyToolsBySenderKeyHit[] = [];
   collectLegacyToolsBySenderKeyHits(cfg, [], hits);
   return hits;
@@ -77,8 +77,8 @@ export function collectLegacyToolsBySenderWarnings(params: {
   ];
 }
 
-export function maybeRepairLegacyToolsBySenderKeys(cfg: ZhushouConfig): {
-  config: ZhushouConfig;
+export function maybeRepairLegacyToolsBySenderKeys(cfg: AssistantConfig): {
+  config: AssistantConfig;
   changes: string[];
 } {
   const hits = scanLegacyToolsBySenderKeys(cfg);

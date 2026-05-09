@@ -7,7 +7,7 @@ import {
   type EmbeddedRunAttemptParams,
   type EmbeddedRunAttemptResult,
   type MessagingToolSend,
-} from "zhushou/plugin-sdk/agent-harness";
+} from "assistant/plugin-sdk/agent-harness";
 import {
   isJsonObject,
   type CodexServerNotification,

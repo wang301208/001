@@ -10,4 +10,4 @@ export {
   resolveStorePath,
   updateLastRoute,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/config-runtime";

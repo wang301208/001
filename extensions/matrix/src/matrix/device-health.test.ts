@@ -1,24 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { isOpenClawManagedMatrixDevice, summarizeMatrixDeviceHealth } from "./device-health.js";
+import { isAssistantManagedMatrixDevice, summarizeMatrixDeviceHealth } from "./device-health.js";
 
 describe("matrix device health", () => {
   it("detects 助手-managed device names", () => {
-    expect(isOpenClawManagedMatrixDevice("OpenClaw Gateway")).toBe(true);
-    expect(isOpenClawManagedMatrixDevice("助手 Debug")).toBe(true);
-    expect(isOpenClawManagedMatrixDevice("Element iPhone")).toBe(false);
-    expect(isOpenClawManagedMatrixDevice(null)).toBe(false);
+    expect(isAssistantManagedMatrixDevice("Assistant Gateway")).toBe(true);
+    expect(isAssistantManagedMatrixDevice("助手 Debug")).toBe(true);
+    expect(isAssistantManagedMatrixDevice("Element iPhone")).toBe(false);
+    expect(isAssistantManagedMatrixDevice(null)).toBe(false);
   });
 
   it("summarizes stale 助手-managed devices separately from the current device", () => {
     const summary = summarizeMatrixDeviceHealth([
       {
         deviceId: "du314Zpw3A",
-        displayName: "OpenClaw Gateway",
+        displayName: "Assistant Gateway",
         current: true,
       },
       {
         deviceId: "BritdXC6iL",
-        displayName: "OpenClaw Gateway",
+        displayName: "Assistant Gateway",
         current: false,
       },
       {
@@ -34,10 +34,10 @@ describe("matrix device health", () => {
     ]);
 
     expect(summary.currentDeviceId).toBe("du314Zpw3A");
-    expect(summary.currentOpenClawDevices).toEqual([
+    expect(summary.currentAssistantDevices).toEqual([
       expect.objectContaining({ deviceId: "du314Zpw3A" }),
     ]);
-    expect(summary.staleOpenClawDevices).toEqual([
+    expect(summary.staleAssistantDevices).toEqual([
       expect.objectContaining({ deviceId: "BritdXC6iL" }),
       expect.objectContaining({ deviceId: "G6NJU9cTgs" }),
     ]);

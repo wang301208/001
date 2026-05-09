@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { HookStatusEntry, HookStatusReport } from "../hooks/hooks-status.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
@@ -59,7 +59,7 @@ describe("onboard-hooks", () => {
       ? undefined
       : "missing requirements") as HookStatusEntry["blockedReason"],
     ...params,
-    source: "zhushou-bundled" as const,
+    source: "assistant-bundled" as const,
     pluginId: undefined,
     homepage: undefined,
     always: false,
@@ -87,7 +87,7 @@ describe("onboard-hooks", () => {
 
   const createMockHookReport = (eligible = true): HookStatusReport => ({
     workspaceDir: "/mock/workspace",
-    managedHooksDir: "/mock/.zhushou/hooks",
+    managedHooksDir: "/mock/.assistant/hooks",
     hooks: [
       createMockHook(
         {
@@ -120,7 +120,7 @@ describe("onboard-hooks", () => {
 
   async function runSetupInternalHooks(params: {
     selected: string[];
-    cfg?: ZhushouConfig;
+    cfg?: AssistantConfig;
     eligible?: boolean;
   }) {
     const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
@@ -188,7 +188,7 @@ describe("onboard-hooks", () => {
     });
 
     it("should preserve existing hooks config when enabled", async () => {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         hooks: {
           enabled: true,
           path: "/webhook",
@@ -210,7 +210,7 @@ describe("onboard-hooks", () => {
     });
 
     it("should preserve existing config when user skips", async () => {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         agents: { defaults: { workspace: "/workspace" } },
       };
       const { result } = await runSetupInternalHooks({
@@ -236,7 +236,7 @@ describe("onboard-hooks", () => {
 
       // Second note should confirm configuration
       expect(noteCalls[1][0]).toContain("Enabled 1 hook: session-memory");
-      expect(noteCalls[1][0]).toMatch(/(?:zhushou|zhushou)( --profile isolated)? hooks list/);
+      expect(noteCalls[1][0]).toMatch(/(?:assistant|assistant)( --profile isolated)? hooks list/);
     });
   });
 });

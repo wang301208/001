@@ -1,5 +1,5 @@
-import { buildChannelConfigSchema } from "zhushou/plugin-sdk/channel-config-schema";
-import { z } from "zhushou/plugin-sdk/zod";
+import { buildChannelConfigSchema } from "assistant/plugin-sdk/channel-config-schema";
+import { z } from "assistant/plugin-sdk/zod";
 
 const QaChannelActionConfigSchema = z
   .object({

@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { SsrFBlockedError, type LookupFn } from "../../infra/net/ssrf.js";
 import { logDebug } from "../../logger.js";
 import type { RuntimeWebFetchMetadata } from "../../secrets/runtime-web-tools.types.js";
@@ -68,13 +68,13 @@ const WebFetchSchema = Type.Object({
   ),
 });
 
-type WebFetchConfig = NonNullable<ZhushouConfig["tools"]>["web"] extends infer Web
+type WebFetchConfig = NonNullable<AssistantConfig["tools"]>["web"] extends infer Web
   ? Web extends { fetch?: infer Fetch }
     ? Fetch
     : undefined
   : undefined;
 
-function resolveFetchConfig(cfg?: ZhushouConfig): WebFetchConfig {
+function resolveFetchConfig(cfg?: AssistantConfig): WebFetchConfig {
   return resolveWebProviderConfig<"fetch", NonNullable<WebFetchConfig>>(cfg, "fetch");
 }
 
@@ -568,7 +568,7 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
 }
 
 export function createWebFetchTool(options?: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sandboxed?: boolean;
   runtimeWebFetch?: RuntimeWebFetchMetadata;
   lookupFn?: LookupFn;

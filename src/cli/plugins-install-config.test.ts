@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { bundledPluginRootAt, repoInstallSpec } from "../../test/helpers/bundled-plugin-paths.js";
-import type { ZhushouConfig } from "../config/config.js";
-import type { ConfigFileSnapshot } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/config.js";
+import type { ConfigFileSnapshot } from "../config/types.assistant.js";
 import {
   resolvePluginInstallRequestContext,
   type PluginInstallRequestContext,
@@ -9,7 +9,7 @@ import {
 import { loadConfigForInstall } from "./plugins-install-command.js";
 
 const hoisted = vi.hoisted(() => ({
-  loadConfigMock: vi.fn<() => ZhushouConfig>(),
+  loadConfigMock: vi.fn<() => AssistantConfig>(),
   readConfigFileSnapshotMock: vi.fn<() => Promise<ConfigFileSnapshot>>(),
   collectChannelDoctorStaleConfigMutationsMock: vi.fn(),
 }));
@@ -25,7 +25,7 @@ vi.mock("../config/config.js", () => ({
 }));
 
 vi.mock("../commands/doctor/shared/channel-doctor.js", () => ({
-  collectChannelDoctorStaleConfigMutations: (cfg: ZhushouConfig) =>
+  collectChannelDoctorStaleConfigMutations: (cfg: AssistantConfig) =>
     collectChannelDoctorStaleConfigMutationsMock(cfg),
 }));
 
@@ -38,10 +38,10 @@ function makeSnapshot(overrides: Partial<ConfigFileSnapshot> = {}): ConfigFileSn
     raw: '{ "plugins": {} }',
     parsed: { plugins: {} },
     sourceConfig: { plugins: {} } as ConfigFileSnapshot["sourceConfig"],
-    resolved: { plugins: {} } as ZhushouConfig,
+    resolved: { plugins: {} } as AssistantConfig,
     valid: false,
     runtimeConfig: { plugins: {} } as ConfigFileSnapshot["runtimeConfig"],
-    config: { plugins: {} } as ZhushouConfig,
+    config: { plugins: {} } as AssistantConfig,
     hash: "abc",
     issues: [{ path: "plugins.installs.matrix", message: "stale path" }],
     warnings: [],
@@ -52,8 +52,8 @@ function makeSnapshot(overrides: Partial<ConfigFileSnapshot> = {}): ConfigFileSn
 
 describe("loadConfigForInstall", () => {
   const matrixNpmRequest = {
-    rawSpec: "@zhushou/matrix",
-    normalizedSpec: "@zhushou/matrix",
+    rawSpec: "@assistant/matrix",
+    normalizedSpec: "@assistant/matrix",
     bundledPluginId: "matrix",
     allowInvalidConfigRecovery: true,
   } satisfies PluginInstallRequestContext;
@@ -63,7 +63,7 @@ describe("loadConfigForInstall", () => {
     readConfigFileSnapshotMock.mockReset();
     collectChannelDoctorStaleConfigMutationsMock.mockReset();
 
-    collectChannelDoctorStaleConfigMutationsMock.mockImplementation(async (cfg: ZhushouConfig) => [
+    collectChannelDoctorStaleConfigMutationsMock.mockImplementation(async (cfg: AssistantConfig) => [
       {
         config: cfg,
         changes: [],
@@ -72,7 +72,7 @@ describe("loadConfigForInstall", () => {
   });
 
   it("returns the config directly when loadConfig succeeds", async () => {
-    const cfg = { plugins: { entries: { matrix: { enabled: true } } } } as ZhushouConfig;
+    const cfg = { plugins: { entries: { matrix: { enabled: true } } } } as AssistantConfig;
     loadConfigMock.mockReturnValue(cfg);
 
     const result = await loadConfigForInstall(matrixNpmRequest);
@@ -81,7 +81,7 @@ describe("loadConfigForInstall", () => {
   });
 
   it("does not run stale Matrix cleanup on the happy path", async () => {
-    const cfg = { plugins: {} } as ZhushouConfig;
+    const cfg = { plugins: {} } as AssistantConfig;
     loadConfigMock.mockReturnValue(cfg);
 
     const result = await loadConfigForInstall(matrixNpmRequest);
@@ -98,7 +98,7 @@ describe("loadConfigForInstall", () => {
 
     const snapshotCfg = {
       plugins: { installs: { matrix: { source: "path", installPath: "/gone" } } },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
     readConfigFileSnapshotMock.mockResolvedValue(
       makeSnapshot({
         parsed: { plugins: { installs: { matrix: {} } } },
@@ -123,7 +123,7 @@ describe("loadConfigForInstall", () => {
       throw invalidConfigErr;
     });
 
-    const snapshotCfg = { plugins: {} } as ZhushouConfig;
+    const snapshotCfg = { plugins: {} } as AssistantConfig;
     readConfigFileSnapshotMock.mockResolvedValue(
       makeSnapshot({
         config: snapshotCfg,
@@ -175,7 +175,7 @@ describe("loadConfigForInstall", () => {
         rawSpec: "alpha",
         normalizedSpec: "alpha",
       }),
-    ).rejects.toThrow("Config invalid; run `zhushou doctor --fix` before installing plugins.");
+    ).rejects.toThrow("Config invalid; run `assistant doctor --fix` before installing plugins.");
     expect(readConfigFileSnapshotMock).not.toHaveBeenCalled();
   });
 
@@ -189,12 +189,12 @@ describe("loadConfigForInstall", () => {
     readConfigFileSnapshotMock.mockResolvedValue(
       makeSnapshot({
         parsed: {},
-        config: {} as ZhushouConfig,
+        config: {} as AssistantConfig,
       }),
     );
 
     await expect(loadConfigForInstall(matrixNpmRequest)).rejects.toThrow(
-      "Config file could not be parsed; run `zhushou doctor` to repair it.",
+      "Config file could not be parsed; run `assistant doctor` to repair it.",
     );
   });
 
@@ -208,7 +208,7 @@ describe("loadConfigForInstall", () => {
     readConfigFileSnapshotMock.mockResolvedValue(makeSnapshot({ exists: false, parsed: {} }));
 
     await expect(loadConfigForInstall(matrixNpmRequest)).rejects.toThrow(
-      "Config file could not be parsed; run `zhushou doctor` to repair it.",
+      "Config file could not be parsed; run `assistant doctor` to repair it.",
     );
   });
 

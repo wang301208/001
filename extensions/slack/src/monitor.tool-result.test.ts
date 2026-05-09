@@ -19,7 +19,7 @@ const [
   { CURRENT_MESSAGE_MARKER },
   { monitorSlackProvider },
 ] = await Promise.all([
-  import("zhushou/plugin-sdk/reply-runtime"),
+  import("assistant/plugin-sdk/reply-runtime"),
   import("../../../src/auto-reply/reply/history.js"),
   import("../../../src/auto-reply/reply/mentions.js"),
   import("./monitor/provider.js"),
@@ -453,7 +453,7 @@ describe("monitorSlackProvider tool results", () => {
   });
 
   async function expectMentionPatternMessageAccepted(text: string): Promise<void> {
-    setRequireMentionChannelConfig(["\\bopenclaw\\b"]);
+    setRequireMentionChannelConfig(["\\bassistant\\b"]);
     replyMock.mockResolvedValue({ text: "hi" });
 
     await runSlackMessageOnce(monitorSlackProvider, {
@@ -468,11 +468,11 @@ describe("monitorSlackProvider tool results", () => {
   }
 
   it("accepts channel messages when mentionPatterns match", async () => {
-    await expectMentionPatternMessageAccepted("zhushou: hello");
+    await expectMentionPatternMessageAccepted("assistant: hello");
   });
 
   it("accepts channel messages when mentionPatterns match even if another user is mentioned", async () => {
-    await expectMentionPatternMessageAccepted("zhushou: hello <@U2>");
+    await expectMentionPatternMessageAccepted("assistant: hello <@U2>");
   });
 
   it("treats replies to bot threads as implicit mentions", async () => {

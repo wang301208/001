@@ -1,7 +1,7 @@
 import {
   isMissingEmbeddingApiKeyError,
   type MemoryEmbeddingProviderAdapter,
-} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
+} from "assistant/plugin-sdk/memory-core-host-engine-embeddings";
 import {
   createMistralEmbeddingProvider,
   DEFAULT_MISTRAL_EMBEDDING_MODEL,

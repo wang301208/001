@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createEmptyPluginRegistry } from "../../../src/plugins/registry-empty.js";
 import { setActivePluginRegistry } from "../../../src/plugins/runtime.js";
 import { createMockServerResponse } from "../../../test/helpers/plugins/mock-http-response.js";
-import type { ZhushouConfig, PluginRuntime } from "../runtime-api.js";
+import type { AssistantConfig, PluginRuntime } from "../runtime-api.js";
 import type { ResolvedGoogleChatAccount } from "./accounts.js";
 import { verifyGoogleChatRequest } from "./auth.js";
 import {
@@ -89,7 +89,7 @@ function registerTwoTargets() {
   const sinkA = vi.fn();
   const sinkB = vi.fn();
   const core = {} as PluginRuntime;
-  const config = {} as ZhushouConfig;
+  const config = {} as AssistantConfig;
 
   const unregisterA = registerGoogleChatWebhookTarget({
     account: baseAccount("A"),

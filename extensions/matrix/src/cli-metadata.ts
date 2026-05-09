@@ -1,6 +1,6 @@
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/channel-plugin-common";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/channel-plugin-common";
 
-export function registerMatrixCliMetadata(api: ZhushouPluginApi) {
+export function registerMatrixCliMetadata(api: AssistantPluginApi) {
   api.registerCli(
     async ({ program }) => {
       const { registerMatrixCli } = await import("./cli.js");

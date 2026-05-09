@@ -8,7 +8,7 @@ import type {
   ExecApprovalForwardingConfig,
   ExecApprovalForwardTarget,
 } from "../config/types.approvals.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   buildApprovalPendingReplyPayload,
@@ -44,7 +44,7 @@ export type { ExecApprovalRequest, ExecApprovalResolved };
 type DeliverOutboundPayloads = typeof import("./outbound/deliver.js").deliverOutboundPayloads;
 type MaybePromise<T> = T | Promise<T>;
 type ResolveSessionTargetFn = (params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: ExecApprovalRequest;
 }) => MaybePromise<ExecApprovalForwardTarget | null>;
 
@@ -67,7 +67,7 @@ type PendingApproval<TRouteRequest extends ApprovalRouteRequest> = {
 };
 
 type ApprovalRenderContext<TRouteRequest extends ApprovalRouteRequest> = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   target: ForwardTarget;
   routeRequest: TRouteRequest;
 };
@@ -93,7 +93,7 @@ type ApprovalStrategy<
   TRouteRequest extends ApprovalRouteRequest = ApprovalRouteRequest,
 > = {
   kind: ApprovalKind;
-  config: (cfg: ZhushouConfig) => ExecApprovalForwardingConfig | undefined;
+  config: (cfg: AssistantConfig) => ExecApprovalForwardingConfig | undefined;
   getRequestId: (request: TRequest) => string;
   getResolvedId: (resolved: TResolved) => string;
   getExpiresAtMs: (request: TRequest) => number;
@@ -126,7 +126,7 @@ export type ExecApprovalForwarder = {
 };
 
 export type ExecApprovalForwarderDeps = {
-  getConfig?: () => ZhushouConfig;
+  getConfig?: () => AssistantConfig;
   deliver?: DeliverOutboundPayloads;
   nowMs?: () => number;
   resolveSessionTarget?: ResolveSessionTargetFn;
@@ -194,7 +194,7 @@ function buildSyntheticApprovalRequest(routeRequest: ApprovalRouteRequest): Exec
 function shouldSkipForwardingFallback(params: {
   approvalKind: "exec" | "plugin";
   target: ExecApprovalForwardTarget;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   routeRequest: ApprovalRouteRequest;
 }): boolean {
   const channel = normalizeMessageChannel(params.target.channel) ?? params.target.channel;
@@ -308,7 +308,7 @@ function extractApprovalRouteRequest(
 }
 
 function defaultResolveSessionTarget(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: ExecApprovalRequest;
 }): Promise<ExecApprovalForwardTarget | null> {
   return loadExecApprovalForwarderRuntime().then(({ resolveExecApprovalSessionTarget }) => {
@@ -337,7 +337,7 @@ function defaultResolveSessionTarget(params: {
 }
 
 async function deliverToTargets(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   targets: ForwardTarget[];
   buildPayload: (target: ForwardTarget) => ReplyPayload;
   deliver: DeliverOutboundPayloads;
@@ -388,7 +388,7 @@ function buildApprovalRenderPayload<TParams>(params: {
 }
 
 function buildExecPendingPayload(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: ExecApprovalRequest;
   target: ForwardTarget;
   nowMs: number;
@@ -410,7 +410,7 @@ function buildExecPendingPayload(params: {
 }
 
 function buildExecResolvedPayload(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   resolved: ExecApprovalResolved;
   target: ForwardTarget;
 }): ReplyPayload {
@@ -428,7 +428,7 @@ function buildExecResolvedPayload(params: {
 }
 
 function buildPluginPendingPayload(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: PluginApprovalRequest;
   target: ForwardTarget;
   nowMs: number;
@@ -447,7 +447,7 @@ function buildPluginPendingPayload(params: {
 }
 
 function buildPluginResolvedPayload(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   resolved: PluginApprovalResolved;
   target: ForwardTarget;
 }): ReplyPayload {
@@ -463,7 +463,7 @@ function buildPluginResolvedPayload(params: {
 }
 
 async function resolveForwardTargets(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   config?: ExecApprovalForwardingConfig;
   routeRequest: ApprovalRouteRequest;
   resolveSessionTarget: ResolveSessionTargetFn;
@@ -507,7 +507,7 @@ function createApprovalHandlers<
   TRouteRequest extends ApprovalRouteRequest = ApprovalRouteRequest,
 >(params: {
   strategy: ApprovalStrategy<TRequest, TResolved, TRouteRequest>;
-  getConfig: () => ZhushouConfig;
+  getConfig: () => AssistantConfig;
   deliver: DeliverOutboundPayloads;
   nowMs: () => number;
   resolveSessionTarget: ResolveSessionTargetFn;
@@ -680,7 +680,7 @@ function createApprovalStrategy<
   TResolved extends { id: string; request?: ApprovalRouteRequestFields | null },
 >(params: {
   kind: ApprovalKind;
-  config: (cfg: ZhushouConfig) => ExecApprovalForwardingConfig | undefined;
+  config: (cfg: AssistantConfig) => ExecApprovalForwardingConfig | undefined;
   buildExpiredText: (request: TRequest) => string;
   buildPendingPayload: (
     params: ApprovalPendingRenderContext<TRequest, ApprovalRouteRequest>,

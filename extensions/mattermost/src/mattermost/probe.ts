@@ -1,8 +1,8 @@
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import {
   fetchWithSsrFGuard,
   ssrfPolicyFromPrivateNetworkOptIn,
-} from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/ssrf-runtime";
 import { normalizeMattermostBaseUrl, readMattermostError, type MattermostUser } from "./client.js";
 import type { BaseProbeResult } from "./runtime-api.js";
 

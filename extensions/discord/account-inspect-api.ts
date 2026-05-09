@@ -1,6 +1,6 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { inspectDiscordAccount } from "./src/account-inspect.js";
 
-export function inspectDiscordReadOnlyAccount(cfg: ZhushouConfig, accountId?: string | null) {
+export function inspectDiscordReadOnlyAccount(cfg: AssistantConfig, accountId?: string | null) {
   return inspectDiscordAccount({ cfg, accountId });
 }

@@ -1,22 +1,22 @@
-import { beforeEach, describe, expect, it } from "vitest";
+﻿import { beforeEach, describe, expect, it } from "vitest";
 import {
   getRequiredHookHandler,
   registerHookHandlersForTest,
 } from "../../../test/helpers/plugins/subagent-hooks.js";
-import type { ClawdbotConfig, ZhushouPluginApi } from "../runtime-api.js";
+import type { AssistantConfig, AssistantPluginApi } from "../runtime-api.js";
 import { registerFeishuSubagentHooks } from "./subagent-hooks.js";
 import {
   createFeishuThreadBindingManager,
   __testing as threadBindingTesting,
 } from "./thread-bindings.js";
 
-const baseConfig: ClawdbotConfig = {
+const baseConfig: AssistantConfig = {
   session: { mainKey: "main", scope: "per-sender" },
   channels: { feishu: {} },
 };
 
 function registerHandlersForTest(config: Record<string, unknown> = baseConfig) {
-  return registerHookHandlersForTest<ZhushouPluginApi>({
+  return registerHookHandlersForTest<AssistantPluginApi>({
     config,
     register: registerFeishuSubagentHooks,
   });

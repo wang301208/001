@@ -12,14 +12,14 @@ import {
 } from "../agents/provider-request-config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import { applyTemplate } from "../auto-reply/templating.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import type {
   MediaUnderstandingConfig,
   MediaUnderstandingModelConfig,
 } from "../config/types.tools.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { resolveProxyFetchFromEnv } from "../infra/net/proxy-fetch.js";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-zhushou-dir.js";
+import { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
 import { runFfmpeg } from "../media/ffmpeg-exec.js";
 import { runExec } from "../process/exec.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
@@ -354,7 +354,7 @@ export function buildModelDecision(params: {
 function resolveEntryRunOptions(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   config?: MediaUnderstandingConfig;
 }): { maxBytes: number; maxChars?: number; timeoutMs: number; prompt: string } {
   const { capability, entry, cfg } = params;
@@ -390,7 +390,7 @@ function resolveAudioRequestOverrides(config: MediaUnderstandingConfig | undefin
 
 async function resolveProviderExecutionAuth(params: {
   providerId: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   entry: MediaUnderstandingModelConfig;
   agentDir?: string;
 }) {
@@ -412,7 +412,7 @@ async function resolveProviderExecutionAuth(params: {
 
 async function resolveProviderExecutionContext(params: {
   providerId: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   entry: MediaUnderstandingModelConfig;
   config?: MediaUnderstandingConfig;
   agentDir?: string;
@@ -504,7 +504,7 @@ function assertMinAudioSize(params: { size: number; attachmentIndex: number }): 
 export async function runProviderEntry(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   ctx: MsgContext;
   attachmentIndex: number;
   cache: MediaAttachmentCache;
@@ -691,7 +691,7 @@ export async function runProviderEntry(params: {
 export async function runCliEntry(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   ctx: MsgContext;
   attachmentIndex: number;
   cache: MediaAttachmentCache;
@@ -720,7 +720,7 @@ export async function runCliEntry(params: {
     assertMinAudioSize({ size: stat.size, attachmentIndex: params.attachmentIndex });
   }
   const outputDir = await fs.mkdtemp(
-    path.join(resolvePreferredOpenClawTmpDir(), "zhushou-media-cli-"),
+    path.join(resolvePreferredAssistantTmpDir(), "assistant-media-cli-"),
   );
   const mediaPath = await resolveCliMediaPath({
     capability,

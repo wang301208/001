@@ -1,6 +1,6 @@
 import type { messagingApi } from "@line/bot-sdk";
-import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
 import type { FlexContainer } from "./flex-templates.js";
 import type { ProcessedLineMessage } from "./markdown-to-line.js";
 import type { SendLineReplyChunksParams } from "./reply-chunks.js";

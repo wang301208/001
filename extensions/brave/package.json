@@ -1,13 +1,13 @@
 {
-  "name": "@zhushou/brave-plugin",
+  "name": "@assistant/brave-plugin",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Brave plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

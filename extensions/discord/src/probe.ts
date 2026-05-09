@@ -1,7 +1,7 @@
-import type { BaseProbeResult } from "zhushou/plugin-sdk/channel-contract";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { resolveFetch } from "zhushou/plugin-sdk/fetch-runtime";
-import { fetchWithTimeout } from "zhushou/plugin-sdk/text-runtime";
+import type { BaseProbeResult } from "assistant/plugin-sdk/channel-contract";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { resolveFetch } from "assistant/plugin-sdk/fetch-runtime";
+import { fetchWithTimeout } from "assistant/plugin-sdk/text-runtime";
 import { normalizeDiscordToken } from "./token.js";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";

@@ -1,5 +1,5 @@
-import type { ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
+import type { ChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
 import type { ResolvedMatrixAccount } from "./matrix/accounts.js";
 
 const loadMatrixChannelRuntime = createLazyRuntimeNamedExport(

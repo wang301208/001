@@ -175,8 +175,8 @@ describe("gateway-cli coverage", () => {
       {
         instanceName: "Studio (助手)",
         displayName: "Studio",
-        domain: "zhushou.internal.",
-        host: "studio.zhushou.internal",
+        domain: "assistant.internal.",
+        host: "studio.assistant.internal",
         port: 18789,
         lanHost: "studio.local",
         tailnetDns: "studio.tailnet.ts.net",
@@ -257,14 +257,14 @@ describe("gateway-cli coverage", () => {
         LAUNCH_JOB_LABEL: undefined,
         LAUNCH_JOB_NAME: undefined,
         XPC_SERVICE_NAME: undefined,
-        OPENCLAW_LAUNCHD_LABEL: undefined,
-        OPENCLAW_SYSTEMD_UNIT: undefined,
+        ASSISTANT_LAUNCHD_LABEL: undefined,
+        ASSISTANT_SYSTEMD_UNIT: undefined,
         INVOCATION_ID: undefined,
         SYSTEMD_EXEC_PID: undefined,
         JOURNAL_STREAM: undefined,
-        OPENCLAW_WINDOWS_TASK_NAME: undefined,
-        OPENCLAW_SERVICE_MARKER: undefined,
-        OPENCLAW_SERVICE_KIND: undefined,
+        ASSISTANT_WINDOWS_TASK_NAME: undefined,
+        ASSISTANT_SERVICE_MARKER: undefined,
+        ASSISTANT_SERVICE_KIND: undefined,
       },
       async () => {
         serviceIsLoaded.mockResolvedValue(true);
@@ -300,7 +300,7 @@ describe("gateway-cli coverage", () => {
     runtimeErrors.length = 0;
     serviceIsLoaded.mockResolvedValue(true);
     startGatewayServer.mockRejectedValueOnce(
-      new GatewayLockError("failed to acquire gateway lock at /tmp/zhushou/gateway.lock"),
+      new GatewayLockError("failed to acquire gateway lock at /tmp/assistant/gateway.lock"),
     );
 
     await expectGatewayExit(["gateway", "--token", "test-token", "--allow-unconfigured"]);
@@ -309,7 +309,7 @@ describe("gateway-cli coverage", () => {
   });
 
   it("uses env/config port when --port is omitted", async () => {
-    await withEnvOverride({ ZHUSHOU_GATEWAY_PORT: "19001" }, async () => {
+    await withEnvOverride({ ASSISTANT_GATEWAY_PORT: "19001" }, async () => {
       runtimeLogs.length = 0;
       runtimeErrors.length = 0;
       startGatewayServer.mockClear();

@@ -1,5 +1,5 @@
 import { runChannelPluginStartupMaintenance } from "../channels/plugins/lifecycle-startup.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 type DoctorStartupMaintenanceRuntime = {
   error: (message: string) => void;
@@ -7,7 +7,7 @@ type DoctorStartupMaintenanceRuntime = {
 };
 
 export async function maybeRunDoctorStartupChannelMaintenance(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   runtime: DoctorStartupMaintenanceRuntime;
   shouldRepair: boolean;

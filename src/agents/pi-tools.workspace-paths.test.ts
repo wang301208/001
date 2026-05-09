@@ -3,9 +3,9 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
-import "./test-helpers/fast-zhushou-tools.js";
-import type { ZhushouConfig } from "../config/config.js";
-import { createOpenClawCodingTools } from "./pi-tools.js";
+import "./test-helpers/fast-assistant-tools.js";
+import type { AssistantConfig } from "../config/config.js";
+import { createAssistantCodingTools } from "./pi-tools.js";
 import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
 import { expectReadWriteEditTools, getTextContent } from "./test-helpers/pi-tools-fs-helpers.js";
 import { createPiToolsSandboxContext } from "./test-helpers/pi-tools-sandbox-context.js";
@@ -25,7 +25,7 @@ async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>) {
 }
 
 function createExecTool(workspaceDir: string) {
-  const tools = createOpenClawCodingTools({
+  const tools = createAssistantCodingTools({
     workspaceDir,
     exec: { host: "gateway", ask: "off", security: "full" },
   });
@@ -55,11 +55,11 @@ async function expectExecCwdResolvesTo(
 
 describe("workspace path resolution", () => {
   it("resolves relative read/write/edit paths against workspaceDir even after cwd changes", async () => {
-    await withTempDir("zhushou-ws-", async (workspaceDir) => {
-      await withTempDir("zhushou-cwd-", async (otherDir) => {
+    await withTempDir("assistant-ws-", async (workspaceDir) => {
+      await withTempDir("assistant-cwd-", async (otherDir) => {
         const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
         try {
-          const tools = createOpenClawCodingTools({ workspaceDir });
+          const tools = createAssistantCodingTools({ workspaceDir });
           const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
 
           const readFile = "read.txt";
@@ -80,10 +80,10 @@ describe("workspace path resolution", () => {
           await fs.writeFile(path.join(workspaceDir, editFile), "hello world", "utf8");
           await editTool.execute("ws-edit", {
             path: editFile,
-            edits: [{ oldText: "world", newText: "zhushou" }],
+            edits: [{ oldText: "world", newText: "assistant" }],
           });
           expect(await fs.readFile(path.join(workspaceDir, editFile), "utf8")).toBe(
-            "hello zhushou",
+            "hello assistant",
           );
         } finally {
           cwdSpy.mockRestore();
@@ -93,14 +93,14 @@ describe("workspace path resolution", () => {
   });
 
   it("allows deletion edits with empty newText", async () => {
-    await withTempDir("zhushou-ws-", async (workspaceDir) => {
-      await withTempDir("zhushou-cwd-", async (otherDir) => {
+    await withTempDir("assistant-ws-", async (workspaceDir) => {
+      await withTempDir("assistant-cwd-", async (otherDir) => {
         const testFile = "delete.txt";
         await fs.writeFile(path.join(workspaceDir, testFile), "hello world", "utf8");
 
         const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
         try {
-          const tools = createOpenClawCodingTools({ workspaceDir });
+          const tools = createAssistantCodingTools({ workspaceDir });
           const { editTool } = expectReadWriteEditTools(tools);
 
           await editTool.execute("ws-edit-delete", {
@@ -117,14 +117,14 @@ describe("workspace path resolution", () => {
   });
 
   it("supports multi-edit edits[] payloads", async () => {
-    await withTempDir("zhushou-ws-", async (workspaceDir) => {
-      await withTempDir("zhushou-cwd-", async (otherDir) => {
+    await withTempDir("assistant-ws-", async (workspaceDir) => {
+      await withTempDir("assistant-cwd-", async (otherDir) => {
         const testFile = "batch.txt";
         await fs.writeFile(path.join(workspaceDir, testFile), "alpha beta gamma delta", "utf8");
 
         const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
         try {
-          const tools = createOpenClawCodingTools({ workspaceDir });
+          const tools = createAssistantCodingTools({ workspaceDir });
           const { editTool } = expectReadWriteEditTools(tools);
 
           await editTool.execute("ws-edit-batch", {
@@ -146,15 +146,15 @@ describe("workspace path resolution", () => {
   });
 
   it("defaults exec cwd to workspaceDir when workdir is omitted", async () => {
-    await withTempDir("zhushou-ws-", async (workspaceDir) => {
+    await withTempDir("assistant-ws-", async (workspaceDir) => {
       const execTool = createExecTool(workspaceDir);
       await expectExecCwdResolvesTo(execTool, "ws-exec", { command: "echo ok" }, workspaceDir);
     });
   });
 
   it("lets exec workdir override the workspace default", async () => {
-    await withTempDir("zhushou-ws-", async (workspaceDir) => {
-      await withTempDir("zhushou-override-", async (overrideDir) => {
+    await withTempDir("assistant-ws-", async (workspaceDir) => {
+      await withTempDir("assistant-override-", async (overrideDir) => {
         const execTool = createExecTool(workspaceDir);
         await expectExecCwdResolvesTo(
           execTool,
@@ -167,12 +167,12 @@ describe("workspace path resolution", () => {
   });
 
   it("rejects @-prefixed absolute paths outside workspace when workspaceOnly is enabled", async () => {
-    await withTempDir("zhushou-ws-", async (workspaceDir) => {
-      const cfg: ZhushouConfig = { tools: { fs: { workspaceOnly: true } } };
-      const tools = createOpenClawCodingTools({ workspaceDir, config: cfg });
+    await withTempDir("assistant-ws-", async (workspaceDir) => {
+      const cfg: AssistantConfig = { tools: { fs: { workspaceOnly: true } } };
+      const tools = createAssistantCodingTools({ workspaceDir, config: cfg });
       const { readTool } = expectReadWriteEditTools(tools);
 
-      const outsideAbsolute = path.resolve(path.parse(workspaceDir).root, "outside-zhushou.txt");
+      const outsideAbsolute = path.resolve(path.parse(workspaceDir).root, "outside-assistant.txt");
       await expect(
         readTool.execute("ws-read-at-prefix", { path: `@${outsideAbsolute}` }),
       ).rejects.toThrow(/Path escapes sandbox root/i);
@@ -183,9 +183,9 @@ describe("workspace path resolution", () => {
     if (process.platform === "win32") {
       return;
     }
-    await withTempDir("zhushou-ws-", async (workspaceDir) => {
-      const cfg: ZhushouConfig = { tools: { fs: { workspaceOnly: true } } };
-      const tools = createOpenClawCodingTools({ workspaceDir, config: cfg });
+    await withTempDir("assistant-ws-", async (workspaceDir) => {
+      const cfg: AssistantConfig = { tools: { fs: { workspaceOnly: true } } };
+      const tools = createAssistantCodingTools({ workspaceDir, config: cfg });
       const { readTool, writeTool } = expectReadWriteEditTools(tools);
       const outsidePath = path.join(
         path.dirname(workspaceDir),
@@ -222,8 +222,8 @@ describe("workspace path resolution", () => {
 
 describe("sandboxed workspace paths", () => {
   it("uses sandbox workspace for relative read/write/edit", async () => {
-    await withTempDir("zhushou-sandbox-", async (sandboxDir) => {
-      await withTempDir("zhushou-workspace-", async (workspaceDir) => {
+    await withTempDir("assistant-sandbox-", async (sandboxDir) => {
+      await withTempDir("assistant-workspace-", async (workspaceDir) => {
         const sandbox = createPiToolsSandboxContext({
           workspaceDir: sandboxDir,
           agentWorkspaceDir: workspaceDir,
@@ -236,7 +236,7 @@ describe("sandboxed workspace paths", () => {
         await fs.writeFile(path.join(sandboxDir, testFile), "sandbox read", "utf8");
         await fs.writeFile(path.join(workspaceDir, testFile), "workspace read", "utf8");
 
-        const tools = createOpenClawCodingTools({ workspaceDir, sandbox });
+        const tools = createAssistantCodingTools({ workspaceDir, sandbox });
         const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
 
         const result = await readTool?.execute("sbx-read", { path: testFile });

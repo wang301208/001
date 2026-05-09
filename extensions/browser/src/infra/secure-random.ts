@@ -1,1 +1,1 @@
-export { generateSecureToken } from "zhushou/plugin-sdk/browser-security-runtime";
+export { generateSecureToken } from "assistant/plugin-sdk/browser-security-runtime";

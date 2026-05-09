@@ -1,42 +1,42 @@
-import { describeWebhookAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
-import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
+import { describeWebhookAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+import { formatAllowFromLowercase } from "assistant/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
   mapAllowFromEntries,
-} from "zhushou/plugin-sdk/channel-config-helpers";
-import type { ChannelAccountSnapshot } from "zhushou/plugin-sdk/channel-contract";
+} from "assistant/plugin-sdk/channel-config-helpers";
+import type { ChannelAccountSnapshot } from "assistant/plugin-sdk/channel-contract";
 import {
   buildChannelConfigSchema,
   createChatChannelPlugin,
   type ChannelPlugin,
-} from "zhushou/plugin-sdk/channel-core";
+} from "assistant/plugin-sdk/channel-core";
 import {
   buildOpenGroupPolicyRestrictSendersWarning,
   buildOpenGroupPolicyWarning,
   createOpenProviderGroupPolicyWarningCollector,
-} from "zhushou/plugin-sdk/channel-policy";
+} from "assistant/plugin-sdk/channel-policy";
 import {
   createEmptyChannelResult,
   createRawChannelSendResultAdapter,
-} from "zhushou/plugin-sdk/channel-send-result";
-import { buildTokenChannelStatusSummary } from "zhushou/plugin-sdk/channel-status";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { createStaticReplyToModeResolver } from "zhushou/plugin-sdk/conversation-runtime";
-import { createChannelDirectoryAdapter } from "zhushou/plugin-sdk/directory-runtime";
-import { listResolvedDirectoryUserEntriesFromAllowFrom } from "zhushou/plugin-sdk/directory-runtime";
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
+} from "assistant/plugin-sdk/channel-send-result";
+import { buildTokenChannelStatusSummary } from "assistant/plugin-sdk/channel-status";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { createStaticReplyToModeResolver } from "assistant/plugin-sdk/conversation-runtime";
+import { createChannelDirectoryAdapter } from "assistant/plugin-sdk/directory-runtime";
+import { listResolvedDirectoryUserEntriesFromAllowFrom } from "assistant/plugin-sdk/directory-runtime";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
 import {
   isNumericTargetId,
   sendPayloadWithChunkedTextAndMedia,
-} from "zhushou/plugin-sdk/reply-payload";
+} from "assistant/plugin-sdk/reply-payload";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "zhushou/plugin-sdk/status-helpers";
-import { chunkTextForOutbound } from "zhushou/plugin-sdk/text-chunking";
+} from "assistant/plugin-sdk/status-helpers";
+import { chunkTextForOutbound } from "assistant/plugin-sdk/text-chunking";
 import {
   listZaloAccountIds,
   resolveDefaultZaloAccountId,
@@ -121,7 +121,7 @@ const resolveZaloDmPolicy = createScopedDmSecurityResolver<ResolvedZaloAccount>(
 });
 
 const collectZaloSecurityWarnings = createOpenProviderGroupPolicyWarningCollector<{
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   account: ResolvedZaloAccount;
 }>({
   providerConfigPresent: (cfg) => cfg.channels?.zalo !== undefined,

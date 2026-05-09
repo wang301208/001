@@ -1,6 +1,6 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { DiscordExecApprovalConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-dispatch-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { DiscordExecApprovalConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-dispatch-runtime";
 import { resolveDiscordAccount } from "./accounts.js";
 import {
   getExecApprovalReplyMetadata,
@@ -25,7 +25,7 @@ function normalizeDiscordApproverId(value: string): string | undefined {
   }
 }
 
-function resolveDiscordOwnerApprovers(cfg: ZhushouConfig): string[] {
+function resolveDiscordOwnerApprovers(cfg: AssistantConfig): string[] {
   const ownerAllowFrom = cfg.commands?.ownerAllowFrom;
   if (!Array.isArray(ownerAllowFrom) || ownerAllowFrom.length === 0) {
     return [];
@@ -37,7 +37,7 @@ function resolveDiscordOwnerApprovers(cfg: ZhushouConfig): string[] {
 }
 
 export function getDiscordExecApprovalApprovers(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   configOverride?: DiscordExecApprovalConfig | null;
 }): string[] {
@@ -51,7 +51,7 @@ export function getDiscordExecApprovalApprovers(params: {
 }
 
 export function isDiscordExecApprovalClientEnabled(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   configOverride?: DiscordExecApprovalConfig | null;
 }): boolean {
@@ -67,7 +67,7 @@ export function isDiscordExecApprovalClientEnabled(params: {
 }
 
 export function isDiscordExecApprovalApprover(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   senderId?: string | null;
   configOverride?: DiscordExecApprovalConfig | null;
@@ -84,7 +84,7 @@ export function isDiscordExecApprovalApprover(params: {
 }
 
 export function shouldSuppressLocalDiscordExecApprovalPrompt(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   payload: ReplyPayload;
 }): boolean {

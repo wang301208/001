@@ -640,7 +640,7 @@ function validateClawHubPluginPackage(params: {
   }
   if (pkg.family === "skill") {
     return buildClawHubInstallFailure(
-      `"${pkg.name}" is a skill. Use "zhushou skills install ${pkg.name}" instead.`,
+      `"${pkg.name}" is a skill. Use "assistant skills install ${pkg.name}" instead.`,
       CLAWHUB_INSTALL_ERROR_CODE.SKILL_PACKAGE,
     );
   }
@@ -859,7 +859,7 @@ export async function installPluginFromClawHub(
         source: "clawhub",
         clawhubUrl:
           normalizeOptionalString(params.baseUrl) ||
-          normalizeOptionalString(process.env.OPENCLAW_CLAWHUB_URL) ||
+          normalizeOptionalString(process.env.ASSISTANT_CLAWHUB_URL) ||
           "https://clawhub.ai",
         clawhubPackage: parsed.name,
         clawhubFamily,

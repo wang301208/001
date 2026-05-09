@@ -6,15 +6,12 @@ import {
   type ServerResponse,
 } from "node:http";
 import { createServer as createHttpsServer, type ServerOptions as HttpsServerOptions } from "node:https";
-import { readFileSync, existsSync, statSync } from "node:fs";
-import { join, extname } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { WebSocketServer } from "ws";
 import { A2UI_PATH, CANVAS_WS_PATH, handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 import { resolveBundledChannelGatewayAuthBypassPaths } from "../channels/plugins/gateway-auth-bypass.js";
 import { loadConfig } from "../config/config.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveHookExternalContentSource as resolveHookExternalContentSourceFromSession } from "../security/external-content.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
@@ -77,92 +74,6 @@ type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 const HOOK_AUTH_FAILURE_LIMIT = 20;
 const HOOK_AUTH_FAILURE_WINDOW_MS = 60_000;
-
-// 前端静态文件服务配置
-const PROJECT_ROOT = process.cwd();
-const WEB_ROOT = join(PROJECT_ROOT, "web", "dist");
-
-const MIME_TYPES: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf',
-};
-
-function getMimeType(filePath: string): string {
-  const ext = extname(filePath).toLowerCase();
-  return MIME_TYPES[ext] || 'application/octet-stream';
-}
-
-async function handleStaticFileRequest(req: IncomingMessage, res: ServerResponse): Promise<boolean> {
-  const url = new URL(req.url ?? '/', 'http://localhost');
-  const pathname = url.pathname;
-  
-  // 只处理根路径和前端路由（非 API、非 WebSocket）
-  if (pathname.startsWith('/api/') || 
-      pathname.startsWith('/ws') ||
-      pathname.startsWith('/hooks/') ||
-      pathname.startsWith('/v1/') ||
-      pathname.startsWith('/tools/') ||
-      pathname.startsWith('/sessions/') ||
-      pathname.startsWith('/canvas/') ||
-      pathname.startsWith('/a2ui/') ||
-      pathname === '/healthz' ||
-      pathname === '/readyz') {
-    return false;
-  }
-  
-  // 构建文件路径
-  let filePath = join(WEB_ROOT, pathname === '/' ? 'index.html' : pathname);
-  
-  // 安全检查：防止目录遍历攻击
-  if (!filePath.startsWith(WEB_ROOT)) {
-    res.statusCode = 403;
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.end('Forbidden');
-    return true;
-  }
-  
-  try {
-    // 检查文件是否存在
-    if (!existsSync(filePath)) {
-      // 如果是前端路由（没有文件扩展名），返回 index.html 支持 SPA 路由
-      if (!extname(pathname)) {
-        filePath = join(WEB_ROOT, 'index.html');
-        if (!existsSync(filePath)) {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    }
-    
-    // 读取并返回文件
-    const stats = statSync(filePath);
-    if (stats.isFile()) {
-      const content = readFileSync(filePath);
-      res.statusCode = 200;
-      res.setHeader('Content-Type', getMimeType(filePath));
-      res.setHeader('Content-Length', content.length);
-      res.setHeader('Cache-Control', 'public, max-age=3600');
-      res.end(content);
-      return true;
-    }
-  } catch (err) {
-    // Intentionally ignoring errors to fallback to next handler or 404
-  }
-  
-  return false;
-}
 
 let embeddingsHttpModulePromise: Promise<typeof import("./embeddings-http.js")> | undefined;
 let modelsHttpModulePromise: Promise<typeof import("./models-http.js")> | undefined;
@@ -256,13 +167,14 @@ const GATEWAY_PROBE_STATUS_BY_PATH = new Map<string, "live" | "ready">([
   ["/ready", "ready"],
   ["/readyz", "ready"],
 ]);
+const PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8";
 const pluginGatewayAuthBypassPathsCache = new WeakMap<
-  ZhushouConfig,
+  AssistantConfig,
   Promise<ReadonlySet<string>>
 >();
 
 async function resolvePluginGatewayAuthBypassPaths(
-  configSnapshot: ZhushouConfig,
+  configSnapshot: AssistantConfig,
 ): Promise<Set<string>> {
   const paths = new Set<string>();
   const configuredChannels = configSnapshot.channels;
@@ -281,7 +193,7 @@ async function resolvePluginGatewayAuthBypassPaths(
 }
 
 function getCachedPluginGatewayAuthBypassPaths(
-  configSnapshot: ZhushouConfig,
+  configSnapshot: AssistantConfig,
 ): Promise<ReadonlySet<string>> {
   const cached = pluginGatewayAuthBypassPathsCache.get(configSnapshot);
   if (cached) {
@@ -411,6 +323,103 @@ async function handleGatewayProbeRequest(
   }
   res.statusCode = statusCode;
   res.end(method === "HEAD" ? undefined : body);
+  return true;
+}
+
+function escapePrometheusLabelValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/"/g, '\\"');
+}
+
+function writePrometheusGauge(params: {
+  lines: string[];
+  name: string;
+  help: string;
+  labels?: Record<string, string>;
+  value: number;
+}) {
+  params.lines.push(`# HELP ${params.name} ${params.help}`);
+  params.lines.push(`# TYPE ${params.name} gauge`);
+  const labels = params.labels
+    ? `{${Object.entries(params.labels)
+        .map(([key, value]) => `${key}="${escapePrometheusLabelValue(value)}"`)
+        .join(",")}}`
+    : "";
+  params.lines.push(`${params.name}${labels} ${params.value}`);
+}
+
+function handleGatewayMetricsRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+  requestPath: string,
+  getReadiness?: ReadinessChecker,
+): boolean {
+  if (requestPath !== "/metrics") {
+    return false;
+  }
+
+  const method = (req.method ?? "GET").toUpperCase();
+  if (method !== "GET" && method !== "HEAD") {
+    res.statusCode = 405;
+    res.setHeader("Allow", "GET, HEAD");
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end("Method Not Allowed");
+    return true;
+  }
+
+  const lines: string[] = [];
+  let ready = 1;
+  let failing: string[] = [];
+  let uptimeMs = process.uptime() * 1000;
+  try {
+    const readiness = getReadiness?.();
+    if (readiness) {
+      ready = readiness.ready ? 1 : 0;
+      failing = readiness.failing;
+      uptimeMs = readiness.uptimeMs;
+    }
+  } catch {
+    ready = 0;
+    failing = ["internal"];
+  }
+
+  writePrometheusGauge({
+    lines,
+    name: "assistant_gateway_up",
+    help: "Whether the assistant gateway HTTP server is responding.",
+    value: 1,
+  });
+  writePrometheusGauge({
+    lines,
+    name: "assistant_gateway_ready",
+    help: "Whether the assistant gateway reports readiness.",
+    value: ready,
+  });
+  writePrometheusGauge({
+    lines,
+    name: "assistant_gateway_uptime_seconds",
+    help: "Assistant gateway uptime in seconds.",
+    value: Math.max(0, uptimeMs / 1000),
+  });
+  writePrometheusGauge({
+    lines,
+    name: "assistant_gateway_failing_dependencies",
+    help: "Number of dependencies failing readiness checks.",
+    value: failing.length,
+  });
+  for (const dependency of failing) {
+    writePrometheusGauge({
+      lines,
+      name: "assistant_gateway_dependency_ready",
+      help: "Readiness of a named assistant gateway dependency.",
+      labels: { dependency },
+      value: 0,
+    });
+  }
+
+  res.statusCode = 200;
+  res.setHeader("Content-Type", PROMETHEUS_CONTENT_TYPE);
+  res.setHeader("Cache-Control", "no-store");
+  res.end(method === "HEAD" ? undefined : `${lines.join("\n")}\n`);
   return true;
 }
 
@@ -969,6 +978,24 @@ export function createGatewayHttpServer(opts: {
     }
 
     try {
+      const requestPath = new URL(req.url ?? "/", "http://localhost").pathname;
+      if (
+        await handleGatewayProbeRequest(
+          req,
+          res,
+          requestPath,
+          resolvedAuth,
+          [],
+          false,
+          getReadiness,
+        )
+      ) {
+        return;
+      }
+      if (handleGatewayMetricsRequest(req, res, requestPath, getReadiness)) {
+        return;
+      }
+      const runtimeResolvedAuth = getResolvedAuth();
       const configSnapshot = loadConfig();
       const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
       const allowRealIpFallback = configSnapshot.gateway?.allowRealIpFallback === true;
@@ -980,11 +1007,9 @@ export function createGatewayHttpServer(opts: {
       if (scopedCanvas.rewrittenUrl) {
         req.url = scopedCanvas.rewrittenUrl;
       }
-      const requestPath = new URL(req.url ?? "/", "http://localhost").pathname;
       const pluginPathContext = handlePluginRequest
         ? resolvePluginRoutePathContext(requestPath)
         : null;
-      const resolvedAuth = getResolvedAuth();
       const requestStages: GatewayHttpRequestStage[] = [
         {
           name: "hooks",
@@ -996,7 +1021,7 @@ export function createGatewayHttpServer(opts: {
           name: "models",
           run: async () =>
             (await getModelsHttpModule()).handleOpenAiModelsHttpRequest(req, res, {
-              auth: resolvedAuth,
+              auth: runtimeResolvedAuth,
               trustedProxies,
               allowRealIpFallback,
               rateLimiter,
@@ -1008,7 +1033,7 @@ export function createGatewayHttpServer(opts: {
           name: "embeddings",
           run: async () =>
             (await getEmbeddingsHttpModule()).handleOpenAiEmbeddingsHttpRequest(req, res, {
-              auth: resolvedAuth,
+              auth: runtimeResolvedAuth,
               trustedProxies,
               allowRealIpFallback,
               rateLimiter,
@@ -1020,7 +1045,7 @@ export function createGatewayHttpServer(opts: {
           name: "tools-invoke",
           run: async () =>
             (await getToolsInvokeHttpModule()).handleToolsInvokeHttpRequest(req, res, {
-              auth: resolvedAuth,
+              auth: runtimeResolvedAuth,
               trustedProxies,
               allowRealIpFallback,
               rateLimiter,
@@ -1032,7 +1057,7 @@ export function createGatewayHttpServer(opts: {
           name: "sessions-kill",
           run: async () =>
             (await getSessionKillHttpModule()).handleSessionKillHttpRequest(req, res, {
-              auth: resolvedAuth,
+              auth: runtimeResolvedAuth,
               trustedProxies,
               allowRealIpFallback,
               rateLimiter,
@@ -1044,7 +1069,7 @@ export function createGatewayHttpServer(opts: {
           name: "sessions-history",
           run: async () =>
             (await getSessionHistoryHttpModule()).handleSessionHistoryHttpRequest(req, res, {
-              auth: resolvedAuth,
+              auth: runtimeResolvedAuth,
               trustedProxies,
               allowRealIpFallback,
               rateLimiter,
@@ -1056,7 +1081,7 @@ export function createGatewayHttpServer(opts: {
           name: "openresponses",
           run: async () =>
             (await getOpenResponsesHttpModule()).handleOpenResponsesHttpRequest(req, res, {
-              auth: resolvedAuth,
+              auth: runtimeResolvedAuth,
               config: openResponsesConfig,
               trustedProxies,
               allowRealIpFallback,
@@ -1069,7 +1094,7 @@ export function createGatewayHttpServer(opts: {
           name: "openai",
           run: async () =>
             (await getOpenAiHttpModule()).handleOpenAiHttpRequest(req, res, {
-              auth: resolvedAuth,
+              auth: runtimeResolvedAuth,
               config: openAiChatCompletionsConfig,
               trustedProxies,
               allowRealIpFallback,
@@ -1086,7 +1111,7 @@ export function createGatewayHttpServer(opts: {
             }
             const ok = await authorizeCanvasRequest({
               req,
-              auth: resolvedAuth,
+              auth: runtimeResolvedAuth,
               trustedProxies,
               allowRealIpFallback,
               clients,
@@ -1122,33 +1147,12 @@ export function createGatewayHttpServer(opts: {
           pluginPathContext,
           handlePluginRequest,
           shouldEnforcePluginGatewayAuth,
-          resolvedAuth,
+          resolvedAuth: runtimeResolvedAuth,
           trustedProxies,
           allowRealIpFallback,
           rateLimiter,
         }),
       );
-
-      requestStages.push({
-        name: "gateway-probes",
-        run: () =>
-          handleGatewayProbeRequest(
-            req,
-            res,
-            requestPath,
-            resolvedAuth,
-            trustedProxies,
-            allowRealIpFallback,
-            getReadiness,
-          ),
-      });
-
-      // 前端静态文件服务（SPA 支持）
-      requestStages.push({
-        name: "static-files",
-        run: () => handleStaticFileRequest(req, res),
-      });
-
       if (await runGatewayHttpRequestStages(requestStages)) {
         return;
       }
@@ -1253,33 +1257,6 @@ export function attachGatewayUpgradeHandler(opts: {
         socket.destroy();
         return;
       }
-      // 在 wss.handleUpgrade 之前添加认证检查
-      // 支持从 URL 查询参数中提取 token（用于 WebSocket 连接）
-      const url = new URL(req.url ?? "/", "http://localhost");
-      const queryToken = url.searchParams.get("token");
-      if (queryToken && !req.headers.authorization) {
-        // 如果 URL 中有 token 但没有 Authorization 头，则添加
-        req.headers.authorization = `Bearer ${queryToken}`;
-      }
-      
-      const bearerToken = getBearerToken(req);
-      const authResult = await authorizeHttpGatewayConnect({
-        req,
-        auth: resolvedAuth,
-        connectAuth: bearerToken ? { token: bearerToken, password: bearerToken } : null,
-        trustedProxies,
-        allowRealIpFallback,
-        rateLimiter,
-        ...(preauthBudgetKey ? { clientIp: preauthBudgetKey } : {}),
-        browserOriginPolicy: undefined,
-      });
-
-      if (!authResult.ok) {
-        writeUpgradeAuthFailure(socket, authResult);
-        socket.destroy();
-        return;
-      }
-      
       let budgetTransferred = false;
       const releaseUpgradeBudget = () => {
         if (budgetTransferred) {
@@ -1293,17 +1270,17 @@ export function attachGatewayUpgradeHandler(opts: {
         wss.handleUpgrade(req, socket, head, (ws) => {
           (
             ws as unknown as import("ws").WebSocket & {
-              __openclawPreauthBudgetClaimed?: boolean;
-              __openclawPreauthBudgetKey?: string;
+              __assistantPreauthBudgetClaimed?: boolean;
+              __assistantPreauthBudgetKey?: string;
             }
-          ).__openclawPreauthBudgetKey = preauthBudgetKey;
+          ).__assistantPreauthBudgetKey = preauthBudgetKey;
           wss.emit("connection", ws, req);
           const budgetClaimed = Boolean(
             (
               ws as unknown as import("ws").WebSocket & {
-                __openclawPreauthBudgetClaimed?: boolean;
+                __assistantPreauthBudgetClaimed?: boolean;
               }
-            ).__openclawPreauthBudgetClaimed,
+            ).__assistantPreauthBudgetClaimed,
           );
           if (budgetClaimed) {
             budgetTransferred = true;

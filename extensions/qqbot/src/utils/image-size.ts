@@ -5,8 +5,8 @@
  */
 
 import { Buffer } from "buffer";
-import { fetchRemoteMedia } from "zhushou/plugin-sdk/media-runtime";
-import type { SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
+import { fetchRemoteMedia } from "assistant/plugin-sdk/media-runtime";
+import type { SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
 import { debugLog } from "./debug-log.js";
 
 export interface ImageSize {

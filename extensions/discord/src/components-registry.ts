@@ -1,9 +1,9 @@
-import { resolveGlobalMap } from "zhushou/plugin-sdk/global-singleton";
+import { resolveGlobalMap } from "assistant/plugin-sdk/global-singleton";
 import type { DiscordComponentEntry, DiscordModalEntry } from "./components.js";
 
 const DEFAULT_COMPONENT_TTL_MS = 30 * 60 * 1000;
-const DISCORD_COMPONENT_ENTRIES_KEY = Symbol.for("zhushou.discord.componentEntries");
-const DISCORD_MODAL_ENTRIES_KEY = Symbol.for("zhushou.discord.modalEntries");
+const DISCORD_COMPONENT_ENTRIES_KEY = Symbol.for("assistant.discord.componentEntries");
+const DISCORD_MODAL_ENTRIES_KEY = Symbol.for("assistant.discord.modalEntries");
 
 let componentEntries: Map<string, DiscordComponentEntry> | undefined;
 let modalEntries: Map<string, DiscordModalEntry> | undefined;

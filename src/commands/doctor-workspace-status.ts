@@ -1,7 +1,7 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   buildPluginCompatibilityWarnings,
   buildPluginDiagnosticsReport,
@@ -43,8 +43,8 @@ function noteFlowRecoveryHints() {
     [
       ...suspicious.slice(0, 5),
       suspicious.length > 5 ? `...and ${suspicious.length - 5} more.` : null,
-      `Inspect: ${formatCliCommand("zhushou tasks flow show <flow-id>")}`,
-      `Cancel: ${formatCliCommand("zhushou tasks flow cancel <flow-id>")}`,
+      `Inspect: ${formatCliCommand("assistant tasks flow show <flow-id>")}`,
+      `Cancel: ${formatCliCommand("assistant tasks flow cancel <flow-id>")}`,
     ]
       .filter((line): line is string => Boolean(line))
       .join("\n"),
@@ -52,7 +52,7 @@ function noteFlowRecoveryHints() {
   );
 }
 
-export function noteWorkspaceStatus(cfg: ZhushouConfig) {
+export function noteWorkspaceStatus(cfg: AssistantConfig) {
   const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
   const legacyWorkspace = detectLegacyWorkspaceDirs({ workspaceDir });
   if (legacyWorkspace.legacyDirs.length > 0) {

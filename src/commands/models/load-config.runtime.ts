@@ -4,5 +4,5 @@ export {
   getRuntimeConfig,
   readSourceConfigSnapshotForWrite,
   setRuntimeConfigSnapshot,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "../../config/config.js";

@@ -1,14 +1,14 @@
 import type { WebClient as SlackWebClient } from "@slack/web-api";
-import { normalizeHostname } from "zhushou/plugin-sdk/host-runtime";
-import { fetchWithRuntimeDispatcher } from "zhushou/plugin-sdk/infra-runtime";
-import type { FetchLike } from "zhushou/plugin-sdk/media-runtime";
-import { fetchRemoteMedia } from "zhushou/plugin-sdk/media-runtime";
-import { saveMediaBuffer } from "zhushou/plugin-sdk/media-runtime";
-import { resolveRequestUrl } from "zhushou/plugin-sdk/request-url";
+import { normalizeHostname } from "assistant/plugin-sdk/host-runtime";
+import { fetchWithRuntimeDispatcher } from "assistant/plugin-sdk/infra-runtime";
+import type { FetchLike } from "assistant/plugin-sdk/media-runtime";
+import { fetchRemoteMedia } from "assistant/plugin-sdk/media-runtime";
+import { saveMediaBuffer } from "assistant/plugin-sdk/media-runtime";
+import { resolveRequestUrl } from "assistant/plugin-sdk/request-url";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import type { SlackAttachment, SlackFile } from "../types.js";
 
 function isSlackHostname(hostname: string): boolean {

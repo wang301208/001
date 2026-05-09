@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import {
   canRunBufferBackedImageToVideoLiveLane,
   canRunBufferBackedVideoToVideoLiveLane,
@@ -38,7 +38,7 @@ describe("video-generation live-test helpers", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(resolveConfiguredLiveVideoModels(cfg)).toEqual(
       new Map([

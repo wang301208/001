@@ -7,7 +7,7 @@ import { validateConfigObject } from "./validation.js";
 
 describe("multi-agent agentDir validation", () => {
   it("rejects shared agents.list agentDir", async () => {
-    const shared = path.join(tmpdir(), "zhushou-shared-agentdir");
+    const shared = path.join(tmpdir(), "assistant-shared-agentdir");
     const res = validateConfigObject({
       agents: {
         list: [
@@ -28,8 +28,8 @@ describe("multi-agent agentDir validation", () => {
       {
         agents: {
           list: [
-            { id: "a", agentDir: "~/.zhushou/agents/shared/agent" },
-            { id: "b", agentDir: "~/.zhushou/agents/shared/agent" },
+            { id: "a", agentDir: "~/.assistant/agents/shared/agent" },
+            { id: "b", agentDir: "~/.assistant/agents/shared/agent" },
           ],
         },
         bindings: [{ agentId: "a", match: { channel: "telegram" } }],

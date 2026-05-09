@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import {
   createEmptyProviderRegistryAllowlistFallbackRegistry,
   getProviderRegistryAllowlistMocks,
@@ -18,7 +18,7 @@ describe("media-understanding provider registry allowlist fallback", () => {
   });
 
   it("adds bundled capability plugin ids to plugins.allow before fallback registry load", () => {
-    const cfg = { plugins: { allow: ["custom-plugin"] } } as ZhushouConfig;
+    const cfg = { plugins: { allow: ["custom-plugin"] } } as AssistantConfig;
     const compatConfig = {
       plugins: {
         allow: ["custom-plugin", "openai"],

@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import { runDoctorRepairSequence } from "./repair-sequencing.js";
 
 vi.mock("./shared/channel-doctor.js", () => ({
-  collectChannelDoctorRepairMutations: ({ cfg }: { cfg: ZhushouConfig }) => {
+  collectChannelDoctorRepairMutations: ({ cfg }: { cfg: AssistantConfig }) => {
     const allowFrom = cfg.channels?.discord?.allowFrom as unknown[] | undefined;
     if (allowFrom?.[0] === 123) {
       return [
@@ -39,42 +39,42 @@ vi.mock("./shared/channel-doctor.js", () => ({
 }));
 
 vi.mock("./shared/empty-allowlist-scan.js", () => ({
-  scanEmptyAllowlistPolicyWarnings: (cfg: ZhushouConfig) =>
+  scanEmptyAllowlistPolicyWarnings: (cfg: AssistantConfig) =>
     cfg.channels?.signal
       ? ["channels.signal.accounts.ops\u001B[31m-team\u001B[0m\r\nnext.dmPolicy warning"]
       : [],
 }));
 
 vi.mock("./shared/allowlist-policy-repair.js", () => ({
-  maybeRepairAllowlistPolicyAllowFrom: async (cfg: ZhushouConfig) => ({
+  maybeRepairAllowlistPolicyAllowFrom: async (cfg: AssistantConfig) => ({
     config: cfg,
     changes: [],
   }),
 }));
 
 vi.mock("./shared/bundled-plugin-load-paths.js", () => ({
-  maybeRepairBundledPluginLoadPaths: (cfg: ZhushouConfig) => ({
+  maybeRepairBundledPluginLoadPaths: (cfg: AssistantConfig) => ({
     config: cfg,
     changes: [],
   }),
 }));
 
 vi.mock("./shared/open-policy-allowfrom.js", () => ({
-  maybeRepairOpenPolicyAllowFrom: (cfg: ZhushouConfig) => ({
+  maybeRepairOpenPolicyAllowFrom: (cfg: AssistantConfig) => ({
     config: cfg,
     changes: [],
   }),
 }));
 
 vi.mock("./shared/stale-plugin-config.js", () => ({
-  maybeRepairStalePluginConfig: (cfg: ZhushouConfig) => ({
+  maybeRepairStalePluginConfig: (cfg: AssistantConfig) => ({
     config: cfg,
     changes: [],
   }),
 }));
 
 vi.mock("./shared/legacy-tools-by-sender.js", () => ({
-  maybeRepairLegacyToolsBySenderKeys: (cfg: ZhushouConfig) => {
+  maybeRepairLegacyToolsBySenderKeys: (cfg: AssistantConfig) => {
     const channels = cfg.channels as Record<string, unknown> | undefined;
     const tools = channels?.tools as
       | { exec?: { toolsBySender?: Record<string, unknown> } }
@@ -111,7 +111,7 @@ vi.mock("./shared/legacy-tools-by-sender.js", () => ({
 }));
 
 vi.mock("./shared/exec-safe-bins.js", () => ({
-  maybeRepairExecSafeBinProfiles: (cfg: ZhushouConfig) => ({
+  maybeRepairExecSafeBinProfiles: (cfg: AssistantConfig) => ({
     config: cfg,
     changes: [],
   }),
@@ -141,7 +141,7 @@ describe("doctor repair sequencing", () => {
               },
             },
           },
-        } as unknown as ZhushouConfig,
+        } as unknown as AssistantConfig,
         candidate: {
           channels: {
             discord: {
@@ -162,11 +162,11 @@ describe("doctor repair sequencing", () => {
               },
             },
           },
-        } as unknown as ZhushouConfig,
+        } as unknown as AssistantConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
     });
 
     expect(result.state.pendingChanges).toBe(true);
@@ -200,18 +200,18 @@ describe("doctor repair sequencing", () => {
               allowFrom: [106232522769186816],
             },
           },
-        } as unknown as ZhushouConfig,
+        } as unknown as AssistantConfig,
         candidate: {
           channels: {
             discord: {
               allowFrom: [106232522769186816],
             },
           },
-        } as unknown as ZhushouConfig,
+        } as unknown as AssistantConfig,
         pendingChanges: false,
         fixHints: [],
       },
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
     });
 
     expect(result.changeNotes).toEqual([]);

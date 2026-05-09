@@ -1,5 +1,5 @@
-import { formatAllowlistMatchMeta } from "zhushou/plugin-sdk/allow-from";
-import { createChannelPairingChallengeIssuer } from "zhushou/plugin-sdk/channel-pairing";
+import { formatAllowlistMatchMeta } from "assistant/plugin-sdk/allow-from";
+import { createChannelPairingChallengeIssuer } from "assistant/plugin-sdk/channel-pairing";
 import { resolveSlackAllowListMatch } from "./allow-list.js";
 import type { SlackMonitorContext } from "./context.js";
 import { upsertChannelPairingRequest } from "./conversation.runtime.js";

@@ -35,8 +35,8 @@ describe("image input pixel guard", () => {
   });
 
   it("fails closed when sips cannot determine image dimensions", async () => {
-    const previousBackend = process.env.ZHUSHOU_IMAGE_BACKEND;
-    process.env.ZHUSHOU_IMAGE_BACKEND = "sips";
+    const previousBackend = process.env.ASSISTANT_IMAGE_BACKEND;
+    process.env.ASSISTANT_IMAGE_BACKEND = "sips";
     try {
       await expect(
         resizeToJpeg({
@@ -47,9 +47,9 @@ describe("image input pixel guard", () => {
       ).rejects.toThrow(/unable to determine image dimensions/i);
     } finally {
       if (previousBackend === undefined) {
-        delete process.env.ZHUSHOU_IMAGE_BACKEND;
+        delete process.env.ASSISTANT_IMAGE_BACKEND;
       } else {
-        process.env.ZHUSHOU_IMAGE_BACKEND = previousBackend;
+        process.env.ASSISTANT_IMAGE_BACKEND = previousBackend;
       }
     }
   });

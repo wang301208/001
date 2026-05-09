@@ -2,4 +2,4 @@ export {
   resolveAgentDir,
   resolveDefaultAgentId,
   resolveDefaultModelForAgent,
-} from "zhushou/plugin-sdk/agent-runtime";
+} from "assistant/plugin-sdk/agent-runtime";

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../api.js";
+import type { AssistantConfig } from "../api.js";
 import { syncMemoryWikiBridgeSources, type BridgeMemoryWikiResult } from "./bridge.js";
 import {
   refreshMemoryWikiIndexesAfterImport,
@@ -15,7 +15,7 @@ export type MemoryWikiImportedSourceSyncResult = BridgeMemoryWikiResult & {
 
 export async function syncMemoryWikiImportedSources(params: {
   config: ResolvedMemoryWikiConfig;
-  appConfig?: ZhushouConfig;
+  appConfig?: AssistantConfig;
 }): Promise<MemoryWikiImportedSourceSyncResult> {
   let syncResult: BridgeMemoryWikiResult;
   if (params.config.vaultMode === "bridge") {

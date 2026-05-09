@@ -5,11 +5,11 @@ import { withTempHome } from "../../test/helpers/temp-home.js";
 import { setupCommand } from "./setup.js";
 
 function createSetupDeps(home: string) {
-  const configPath = path.join(home, ".zhushou", "zhushou.json");
+  const configPath = path.join(home, ".assistant", "assistant.json");
   return {
     createConfigIO: () => ({ configPath }),
     ensureAgentWorkspace: vi.fn(async (params?: { dir?: string }) => ({
-      dir: params?.dir ?? path.join(home, ".zhushou", "workspace"),
+      dir: params?.dir ?? path.join(home, ".assistant", "workspace"),
     })),
     formatConfigPath: (value: string) => value,
     logConfigUpdated: vi.fn(
@@ -19,7 +19,7 @@ function createSetupDeps(home: string) {
       },
     ),
     mkdir: vi.fn(async () => {}),
-    resolveSessionTranscriptsDir: vi.fn(() => path.join(home, ".zhushou", "sessions")),
+    resolveSessionTranscriptsDir: vi.fn(() => path.join(home, ".assistant", "sessions")),
     writeConfigFile: vi.fn(async (config: unknown) => {
       await fs.mkdir(path.dirname(configPath), { recursive: true });
       await fs.writeFile(configPath, JSON.stringify(config, null, 2));
@@ -36,11 +36,11 @@ describe("setupCommand", () => {
         exit: vi.fn(),
       };
       const deps = createSetupDeps(home);
-      const workspace = path.join(home, ".zhushou", "workspace");
+      const workspace = path.join(home, ".assistant", "workspace");
 
       await setupCommand({ workspace }, runtime, deps);
 
-      const configPath = path.join(home, ".zhushou", "zhushou.json");
+      const configPath = path.join(home, ".assistant", "assistant.json");
       const raw = await fs.readFile(configPath, "utf-8");
 
       expect(raw).toContain('"mode": "local"');
@@ -55,8 +55,8 @@ describe("setupCommand", () => {
         error: vi.fn(),
         exit: vi.fn(),
       };
-      const configDir = path.join(home, ".zhushou");
-      const configPath = path.join(configDir, "zhushou.json");
+      const configDir = path.join(home, ".assistant");
+      const configPath = path.join(configDir, "assistant.json");
       const workspace = path.join(home, "custom-workspace");
       const deps = createSetupDeps(home);
 
@@ -91,10 +91,10 @@ describe("setupCommand", () => {
         error: vi.fn(),
         exit: vi.fn(),
       };
-      const configDir = path.join(home, ".zhushou");
-      const configPath = path.join(configDir, "zhushou.json");
+      const configDir = path.join(home, ".assistant");
+      const configPath = path.join(configDir, "assistant.json");
       const deps = createSetupDeps(home);
-      const workspace = path.join(home, ".zhushou", "workspace");
+      const workspace = path.join(home, ".assistant", "workspace");
 
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(configPath, '"not-an-object"', "utf-8");

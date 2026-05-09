@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   detectConfigConflicts,
   formatValidationResult,
@@ -9,8 +9,8 @@ import {
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-function cfg(overrides: Record<string, unknown> = {}): ZhushouConfig {
-  return overrides as unknown as ZhushouConfig;
+function cfg(overrides: Record<string, unknown> = {}): AssistantConfig {
+  return overrides as unknown as AssistantConfig;
 }
 
 // ─── validateWizardConfig ─────────────────────────────────────────────────────

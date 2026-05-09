@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { loadOpenClawPluginCliRegistry, loadOpenClawPlugins } from "./loader.js";
+import { loadAssistantPluginCliRegistry, loadAssistantPlugins } from "./loader.js";
 import {
   cleanupPluginLoaderFixturesForTest,
   EMPTY_PLUGIN_SCHEMA,
@@ -47,8 +47,8 @@ describe("plugin loader CLI metadata", () => {
     });
 
     const warnings: string[] = [];
-    const registry = await loadOpenClawPluginCliRegistry({
-      env: { ...process.env, ZHUSHOU_STATE_DIR: stateDir },
+    const registry = await loadAssistantPluginCliRegistry({
+      env: { ...process.env, ASSISTANT_STATE_DIR: stateDir },
       logger: {
         info: () => {},
         warn: (msg: string) => warnings.push(msg),
@@ -90,7 +90,7 @@ describe("plugin loader CLI metadata", () => {
 };`,
     });
     fs.writeFileSync(
-      path.join(plugin.dir, "zhushou.plugin.json"),
+      path.join(plugin.dir, "assistant.plugin.json"),
       JSON.stringify(
         {
           id: "config-cli",
@@ -109,7 +109,7 @@ describe("plugin loader CLI metadata", () => {
       "utf-8",
     );
 
-    const registry = await loadOpenClawPluginCliRegistry({
+    const registry = await loadAssistantPluginCliRegistry({
       config: {
         plugins: {
           load: { paths: [plugin.file] },
@@ -140,8 +140,8 @@ describe("plugin loader CLI metadata", () => {
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@zhushou/cli-metadata-channel",
-          zhushou: { extensions: ["./index.cjs"], setupEntry: "./setup-entry.cjs" },
+          name: "@assistant/cli-metadata-channel",
+          assistant: { extensions: ["./index.cjs"], setupEntry: "./setup-entry.cjs" },
         },
         null,
         2,
@@ -149,7 +149,7 @@ describe("plugin loader CLI metadata", () => {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "zhushou.plugin.json"),
+      path.join(pluginDir, "assistant.plugin.json"),
       JSON.stringify(
         {
           id: "cli-metadata-channel",
@@ -218,7 +218,7 @@ module.exports = {
       "utf-8",
     );
 
-    const registry = await loadOpenClawPluginCliRegistry({
+    const registry = await loadAssistantPluginCliRegistry({
       config: {
         plugins: {
           load: { paths: [pluginDir] },
@@ -241,14 +241,14 @@ module.exports = {
     const fullMarker = path.join(pluginDir, "full-loaded.txt");
 
     fs.mkdirSync(pluginDir, { recursive: true });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledRoot;
+    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledRoot;
 
     fs.writeFileSync(
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@zhushou/bundled-skip-channel",
-          zhushou: { extensions: ["./index.cjs"] },
+          name: "@assistant/bundled-skip-channel",
+          assistant: { extensions: ["./index.cjs"] },
         },
         null,
         2,
@@ -256,7 +256,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "zhushou.plugin.json"),
+      path.join(pluginDir, "assistant.plugin.json"),
       JSON.stringify(
         {
           id: "bundled-skip-channel",
@@ -280,7 +280,7 @@ module.exports = {
       "utf-8",
     );
 
-    const registry = await loadOpenClawPluginCliRegistry({
+    const registry = await loadAssistantPluginCliRegistry({
       config: {
         plugins: {
           allow: ["bundled-skip-channel"],
@@ -309,14 +309,14 @@ module.exports = {
     const cliMarker = path.join(pluginDir, "cli-loaded.txt");
 
     fs.mkdirSync(pluginDir, { recursive: true });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledRoot;
+    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledRoot;
 
     fs.writeFileSync(
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@zhushou/bundled-cli-channel",
-          zhushou: { extensions: ["./index.cjs"] },
+          name: "@assistant/bundled-cli-channel",
+          assistant: { extensions: ["./index.cjs"] },
         },
         null,
         2,
@@ -324,7 +324,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "zhushou.plugin.json"),
+      path.join(pluginDir, "assistant.plugin.json"),
       JSON.stringify(
         {
           id: "bundled-cli-channel",
@@ -367,7 +367,7 @@ module.exports = {
       "utf-8",
     );
 
-    const registry = await loadOpenClawPluginCliRegistry({
+    const registry = await loadAssistantPluginCliRegistry({
       config: {
         plugins: {
           allow: ["bundled-cli-channel"],
@@ -393,14 +393,14 @@ module.exports = {
     const fullMarker = path.join(pluginDir, "full-loaded.txt");
 
     fs.mkdirSync(pluginDir, { recursive: true });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledRoot;
+    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledRoot;
 
     fs.writeFileSync(
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@zhushou/bundled-skip-provider",
-          zhushou: { extensions: ["./index.cjs"] },
+          name: "@assistant/bundled-skip-provider",
+          assistant: { extensions: ["./index.cjs"] },
         },
         null,
         2,
@@ -408,7 +408,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "zhushou.plugin.json"),
+      path.join(pluginDir, "assistant.plugin.json"),
       JSON.stringify(
         {
           id: "bundled-skip-provider",
@@ -431,7 +431,7 @@ module.exports = {
       "utf-8",
     );
 
-    const registry = await loadOpenClawPluginCliRegistry({
+    const registry = await loadAssistantPluginCliRegistry({
       config: {
         plugins: {
           allow: ["bundled-skip-provider"],
@@ -463,8 +463,8 @@ module.exports = {
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@zhushou/full-cli-metadata-channel",
-          zhushou: { extensions: ["./index.cjs"] },
+          name: "@assistant/full-cli-metadata-channel",
+          assistant: { extensions: ["./index.cjs"] },
         },
         null,
         2,
@@ -472,7 +472,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "zhushou.plugin.json"),
+      path.join(pluginDir, "assistant.plugin.json"),
       JSON.stringify(
         {
           id: "full-cli-metadata-channel",
@@ -532,7 +532,7 @@ module.exports = {
       "utf-8",
     );
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadAssistantPlugins({
       cache: false,
       config: {
         plugins: {
@@ -571,7 +571,7 @@ module.exports = {
 };`,
     });
 
-    const registry = await loadOpenClawPluginCliRegistry({
+    const registry = await loadAssistantPluginCliRegistry({
       config: {
         plugins: {
           load: { paths: [plugin.file] },
@@ -609,7 +609,7 @@ module.exports = {
 };`,
     });
     fs.writeFileSync(
-      path.join(plugin.dir, "zhushou.plugin.json"),
+      path.join(plugin.dir, "assistant.plugin.json"),
       JSON.stringify(
         {
           id: "memory-external",
@@ -622,7 +622,7 @@ module.exports = {
       "utf-8",
     );
 
-    const registry = await loadOpenClawPluginCliRegistry({
+    const registry = await loadAssistantPluginCliRegistry({
       config: {
         plugins: {
           load: { paths: [plugin.file] },
@@ -662,7 +662,7 @@ module.exports = {
 };`,
     });
 
-    const registry = await loadOpenClawPluginCliRegistry({
+    const registry = await loadAssistantPluginCliRegistry({
       config: {
         plugins: {
           load: { paths: [plugin.file] },

@@ -1,13 +1,13 @@
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
-import type { ChannelDoctorConfigMutation } from "zhushou/plugin-sdk/channel-contract";
-import { readChannelAllowFromStore } from "zhushou/plugin-sdk/channel-pairing";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+import type { ChannelDoctorConfigMutation } from "assistant/plugin-sdk/channel-contract";
+import { readChannelAllowFromStore } from "assistant/plugin-sdk/channel-pairing";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 
 function applyGroupAllowFromFromStore(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   storeAllowFrom: string[];
   changes: string[];
-}): ZhushouConfig {
+}): AssistantConfig {
   const next = structuredClone(params.cfg ?? {});
   const section = next.channels?.whatsapp as Record<string, unknown> | undefined;
   if (!section || typeof section !== "object" || params.storeAllowFrom.length === 0) {
@@ -48,7 +48,7 @@ function applyGroupAllowFromFromStore(params: {
 }
 
 export async function applyWhatsAppSecurityConfigFixes(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
 }): Promise<ChannelDoctorConfigMutation> {
   const fromStore = await readChannelAllowFromStore(

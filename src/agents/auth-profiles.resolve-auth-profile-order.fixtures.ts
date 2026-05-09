@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { AuthProfileStore } from "./auth-profiles.js";
 
 export const ANTHROPIC_STORE: AuthProfileStore = {
@@ -17,7 +17,7 @@ export const ANTHROPIC_STORE: AuthProfileStore = {
   },
 };
 
-export const ANTHROPIC_CFG: ZhushouConfig = {
+export const ANTHROPIC_CFG: AssistantConfig = {
   auth: {
     profiles: {
       "anthropic:default": { provider: "anthropic", mode: "api_key" },

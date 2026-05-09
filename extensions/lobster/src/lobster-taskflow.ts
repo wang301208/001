@@ -1,4 +1,4 @@
-import type { ZhushouPluginApi } from "../runtime-api.js";
+import type { AssistantPluginApi } from "../runtime-api.js";
 import type { LobsterEnvelope, LobsterRunner, LobsterRunnerParams } from "./lobster-runner.js";
 
 type JsonLike =
@@ -12,7 +12,7 @@ type JsonLike =
     };
 
 type BoundTaskFlow = ReturnType<
-  NonNullable<ZhushouPluginApi["runtime"]>["taskFlow"]["bindSession"]
+  NonNullable<AssistantPluginApi["runtime"]>["taskFlow"]["bindSession"]
 >;
 
 type FlowRecord = ReturnType<BoundTaskFlow["createManaged"]>;

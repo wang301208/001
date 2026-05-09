@@ -37,8 +37,8 @@ type ExecFileError = Error & {
 };
 
 const TEST_SERVICE_HOME = "/home/test";
-const TEST_MANAGED_HOME = "/tmp/zhushou-test-home";
-const GATEWAY_SERVICE = "zhushou-gateway.service";
+const TEST_MANAGED_HOME = "/tmp/assistant-test-home";
+const GATEWAY_SERVICE = "assistant-gateway.service";
 
 const createExecFileError = (
   message: string,
@@ -107,10 +107,10 @@ function mockReadGatewayServiceFile(
 }
 
 async function expectExecStartWithoutEnvironment(envFileLine: string) {
-  mockReadGatewayServiceFile(["[Service]", "ExecStart=/usr/bin/openclaw gateway run", envFileLine]);
+  mockReadGatewayServiceFile(["[Service]", "ExecStart=/usr/bin/assistant gateway run", envFileLine]);
 
   const command = await readSystemdServiceExecStart({ HOME: TEST_SERVICE_HOME });
-  expect(command?.programArguments).toEqual(["/usr/bin/zhushou", "gateway", "run"]);
+  expect(command?.programArguments).toEqual(["/usr/bin/assistant", "gateway", "run"]);
   expect(command?.environment).toBeUndefined();
 }
 
@@ -228,7 +228,7 @@ describe("isSystemdServiceEnabled", () => {
     err.code = "ENOENT";
     vi.spyOn(fs, "access").mockRejectedValueOnce(err);
 
-    const result = await isSystemdServiceEnabled({ env: { HOME: "/tmp/zhushou-test-home" } });
+    const result = await isSystemdServiceEnabled({ env: { HOME: "/tmp/assistant-test-home" } });
 
     expect(result).toBe(false);
     expect(execFileMock).not.toHaveBeenCalled();
@@ -332,7 +332,7 @@ describe("isSystemdServiceEnabled", () => {
     vi.spyOn(fs, "access").mockResolvedValue(undefined);
     execFileMock
       .mockImplementationOnce((_cmd, args, _opts, cb) => {
-        expect(args).toEqual(["--user", "is-enabled", "zhushou-gateway.service"]);
+        expect(args).toEqual(["--user", "is-enabled", "assistant-gateway.service"]);
         const err = new Error("Failed to connect to bus") as Error & { code?: number };
         err.code = 1;
         cb(err, "", "Failed to connect to bus");
@@ -340,13 +340,13 @@ describe("isSystemdServiceEnabled", () => {
       .mockImplementationOnce((_cmd, args, _opts, cb) => {
         expect(args[0]).toBe("--machine");
         expect(String(args[1])).toMatch(/^[^@]+@$/);
-        expect(args.slice(2)).toEqual(["--user", "is-enabled", "zhushou-gateway.service"]);
+        expect(args.slice(2)).toEqual(["--user", "is-enabled", "assistant-gateway.service"]);
         const err = new Error("permission denied") as Error & { code?: number };
         err.code = 1;
         cb(err, "", "permission denied");
       });
     await expect(
-      isSystemdServiceEnabled({ env: { HOME: "/tmp/zhushou-test-home" } }),
+      isSystemdServiceEnabled({ env: { HOME: "/tmp/assistant-test-home" } }),
     ).rejects.toThrow("systemctl is-enabled unavailable: permission denied");
   });
 
@@ -356,12 +356,12 @@ describe("isSystemdServiceEnabled", () => {
       // On Ubuntu 24.04, `systemctl --user is-enabled <unit>` exits with
       // code 4 and prints "not-found" to stdout when the unit doesn't exist.
       const err = new Error(
-        "Command failed: systemctl --user is-enabled zhushou-gateway.service",
+        "Command failed: systemctl --user is-enabled assistant-gateway.service",
       ) as Error & { code?: number };
       err.code = 4;
       cb(err, "not-found\n", "");
     });
-    const result = await isSystemdServiceEnabled({ env: { HOME: "/tmp/zhushou-test-home" } });
+    const result = await isSystemdServiceEnabled({ env: { HOME: "/tmp/assistant-test-home" } });
     expect(result).toBe(false);
   });
 });
@@ -370,7 +370,7 @@ describe("isNonFatalSystemdInstallProbeError", () => {
   it("matches wrapper-only WSL install probe failures", () => {
     expect(
       isNonFatalSystemdInstallProbeError(
-        new Error("Command failed: systemctl --user is-enabled zhushou-gateway.service"),
+        new Error("Command failed: systemctl --user is-enabled assistant-gateway.service"),
       ),
     ).toBe(true);
   });
@@ -428,37 +428,37 @@ describe("systemd runtime parsing", () => {
 describe("resolveSystemdUserUnitPath", () => {
   it.each([
     {
-      name: "uses default service name when ZHUSHOU_PROFILE is unset",
+      name: "uses default service name when ASSISTANT_PROFILE is unset",
       env: { HOME: "/home/test" },
-      expected: "/home/test/.config/systemd/user/zhushou-gateway.service",
+      expected: "/home/test/.config/systemd/user/assistant-gateway.service",
     },
     {
-      name: "uses profile-specific service name when ZHUSHOU_PROFILE is set to a custom value",
-      env: { HOME: "/home/test", ZHUSHOU_PROFILE: "jbphoenix" },
-      expected: "/home/test/.config/systemd/user/zhushou-gateway-jbphoenix.service",
+      name: "uses profile-specific service name when ASSISTANT_PROFILE is set to a custom value",
+      env: { HOME: "/home/test", ASSISTANT_PROFILE: "jbphoenix" },
+      expected: "/home/test/.config/systemd/user/assistant-gateway-jbphoenix.service",
     },
     {
-      name: "prefers OPENCLAW_SYSTEMD_UNIT over ZHUSHOU_PROFILE",
+      name: "prefers ASSISTANT_SYSTEMD_UNIT over ASSISTANT_PROFILE",
       env: {
         HOME: "/home/test",
-        ZHUSHOU_PROFILE: "jbphoenix",
-        OPENCLAW_SYSTEMD_UNIT: "custom-unit",
+        ASSISTANT_PROFILE: "jbphoenix",
+        ASSISTANT_SYSTEMD_UNIT: "custom-unit",
       },
       expected: "/home/test/.config/systemd/user/custom-unit.service",
     },
     {
-      name: "handles OPENCLAW_SYSTEMD_UNIT with .service suffix",
+      name: "handles ASSISTANT_SYSTEMD_UNIT with .service suffix",
       env: {
         HOME: "/home/test",
-        OPENCLAW_SYSTEMD_UNIT: "custom-unit.service",
+        ASSISTANT_SYSTEMD_UNIT: "custom-unit.service",
       },
       expected: "/home/test/.config/systemd/user/custom-unit.service",
     },
     {
-      name: "trims whitespace from OPENCLAW_SYSTEMD_UNIT",
+      name: "trims whitespace from ASSISTANT_SYSTEMD_UNIT",
       env: {
         HOME: "/home/test",
-        OPENCLAW_SYSTEMD_UNIT: "  custom-unit  ",
+        ASSISTANT_SYSTEMD_UNIT: "  custom-unit  ",
       },
       expected: "/home/test/.config/systemd/user/custom-unit.service",
     },
@@ -469,8 +469,8 @@ describe("resolveSystemdUserUnitPath", () => {
 
 describe("splitArgsPreservingQuotes", () => {
   it("splits on whitespace outside quotes", () => {
-    expect(splitArgsPreservingQuotes('/usr/bin/openclaw gateway start --name "My Bot"')).toEqual([
-      "/usr/bin/zhushou",
+    expect(splitArgsPreservingQuotes('/usr/bin/assistant gateway start --name "My Bot"')).toEqual([
+      "/usr/bin/assistant",
       "gateway",
       "start",
       "--name",
@@ -480,32 +480,32 @@ describe("splitArgsPreservingQuotes", () => {
 
   it("supports systemd-style backslash escaping", () => {
     expect(
-      splitArgsPreservingQuotes('zhushou --name "My \\"Bot\\"" --foo bar', {
+      splitArgsPreservingQuotes('assistant --name "My \\"Bot\\"" --foo bar', {
         escapeMode: "backslash",
       }),
-    ).toEqual(["zhushou", "--name", 'My "Bot"', "--foo", "bar"]);
+    ).toEqual(["assistant", "--name", 'My "Bot"', "--foo", "bar"]);
   });
 
   it("supports schtasks-style escaped quotes while preserving other backslashes", () => {
     expect(
-      splitArgsPreservingQuotes('zhushou --path "C:\\\\Program Files\\\\助手"', {
+      splitArgsPreservingQuotes('assistant --path "C:\\\\Program Files\\\\助手"', {
         escapeMode: "backslash-quote-only",
       }),
-    ).toEqual(["zhushou", "--path", "C:\\\\Program Files\\\\助手"]);
+    ).toEqual(["assistant", "--path", "C:\\\\Program Files\\\\助手"]);
 
     expect(
-      splitArgsPreservingQuotes('zhushou --label "My \\"Quoted\\" Name"', {
+      splitArgsPreservingQuotes('assistant --label "My \\"Quoted\\" Name"', {
         escapeMode: "backslash-quote-only",
       }),
-    ).toEqual(["zhushou", "--label", 'My "Quoted" Name']);
+    ).toEqual(["assistant", "--label", 'My "Quoted" Name']);
   });
 });
 
 describe("parseSystemdExecStart", () => {
   it("preserves quoted arguments", () => {
-    const execStart = '/usr/bin/openclaw gateway start --name "My Bot"';
+    const execStart = '/usr/bin/assistant gateway start --name "My Bot"';
     expect(parseSystemdExecStart(execStart)).toEqual([
-      "/usr/bin/zhushou",
+      "/usr/bin/assistant",
       "gateway",
       "start",
       "--name",
@@ -519,14 +519,14 @@ describe("readSystemdServiceExecStart", () => {
     vi.restoreAllMocks();
   });
 
-  it("loads ZHUSHOU_GATEWAY_TOKEN from EnvironmentFile", async () => {
+  it("loads ASSISTANT_GATEWAY_TOKEN from EnvironmentFile", async () => {
     const readFileSpy = mockReadGatewayServiceFile(
-      ["[Service]", "ExecStart=/usr/bin/openclaw gateway run", "EnvironmentFile=%h/.zhushou/.env"],
-      { [`${TEST_SERVICE_HOME}/.zhushou/.env`]: "ZHUSHOU_GATEWAY_TOKEN=env-file-token\n" },
+      ["[Service]", "ExecStart=/usr/bin/assistant gateway run", "EnvironmentFile=%h/.assistant/.env"],
+      { [`${TEST_SERVICE_HOME}/.assistant/.env`]: "ASSISTANT_GATEWAY_TOKEN=env-file-token\n" },
     );
 
     const command = await readSystemdServiceExecStart({ HOME: TEST_SERVICE_HOME });
-    expect(command?.environment?.ZHUSHOU_GATEWAY_TOKEN).toBe("env-file-token");
+    expect(command?.environment?.ASSISTANT_GATEWAY_TOKEN).toBe("env-file-token");
     expect(readFileSpy).toHaveBeenCalledTimes(2);
   });
 
@@ -534,97 +534,97 @@ describe("readSystemdServiceExecStart", () => {
     mockReadGatewayServiceFile(
       [
         "[Service]",
-        "ExecStart=/usr/bin/openclaw gateway run",
-        "EnvironmentFile=%h/.zhushou/.env",
-        'Environment="ZHUSHOU_GATEWAY_TOKEN=inline-token"',
+        "ExecStart=/usr/bin/assistant gateway run",
+        "EnvironmentFile=%h/.assistant/.env",
+        'Environment="ASSISTANT_GATEWAY_TOKEN=inline-token"',
       ],
-      { [`${TEST_SERVICE_HOME}/.zhushou/.env`]: "ZHUSHOU_GATEWAY_TOKEN=env-file-token\n" },
+      { [`${TEST_SERVICE_HOME}/.assistant/.env`]: "ASSISTANT_GATEWAY_TOKEN=env-file-token\n" },
     );
 
     const command = await readSystemdServiceExecStart({ HOME: TEST_SERVICE_HOME });
-    expect(command?.environment?.ZHUSHOU_GATEWAY_TOKEN).toBe("env-file-token");
-    expect(command?.environmentValueSources?.ZHUSHOU_GATEWAY_TOKEN).toBe("file");
+    expect(command?.environment?.ASSISTANT_GATEWAY_TOKEN).toBe("env-file-token");
+    expect(command?.environmentValueSources?.ASSISTANT_GATEWAY_TOKEN).toBe("file");
   });
 
   it("ignores missing optional EnvironmentFile entries", async () => {
-    await expectExecStartWithoutEnvironment("EnvironmentFile=-%h/.zhushou/missing.env");
+    await expectExecStartWithoutEnvironment("EnvironmentFile=-%h/.assistant/missing.env");
   });
 
   it("keeps parsing when non-optional EnvironmentFile entries are missing", async () => {
-    await expectExecStartWithoutEnvironment("EnvironmentFile=%h/.zhushou/missing.env");
+    await expectExecStartWithoutEnvironment("EnvironmentFile=%h/.assistant/missing.env");
   });
 
   it("supports multiple EnvironmentFile entries and quoted paths", async () => {
     vi.spyOn(fs, "readFile").mockImplementation(async (pathname) => {
       const pathValue = pathLikeToString(pathname);
-      if (pathValue.endsWith("/zhushou-gateway.service")) {
+      if (pathValue.endsWith("/assistant-gateway.service")) {
         return [
           "[Service]",
-          "ExecStart=/usr/bin/openclaw gateway run",
-          'EnvironmentFile=%h/.zhushou/first.env "%h/.zhushou/second env.env"',
+          "ExecStart=/usr/bin/assistant gateway run",
+          'EnvironmentFile=%h/.assistant/first.env "%h/.assistant/second env.env"',
         ].join("\n");
       }
-      if (pathValue === "/home/test/.zhushou/first.env") {
-        return "ZHUSHOU_GATEWAY_TOKEN=first-token\n"; // pragma: allowlist secret
+      if (pathValue === "/home/test/.assistant/first.env") {
+        return "ASSISTANT_GATEWAY_TOKEN=first-token\n"; // pragma: allowlist secret
       }
-      if (pathValue === "/home/test/.zhushou/second env.env") {
-        return 'ZHUSHOU_GATEWAY_PASSWORD="second password"\n'; // pragma: allowlist secret
+      if (pathValue === "/home/test/.assistant/second env.env") {
+        return 'ASSISTANT_GATEWAY_PASSWORD="second password"\n'; // pragma: allowlist secret
       }
       throw new Error(`unexpected readFile path: ${pathValue}`);
     });
 
     const command = await readSystemdServiceExecStart({ HOME: "/home/test" });
     expect(command?.environment).toEqual({
-      ZHUSHOU_GATEWAY_TOKEN: "first-token",
-      ZHUSHOU_GATEWAY_PASSWORD: "second password", // pragma: allowlist secret
+      ASSISTANT_GATEWAY_TOKEN: "first-token",
+      ASSISTANT_GATEWAY_PASSWORD: "second password", // pragma: allowlist secret
     });
   });
 
   it("resolves relative EnvironmentFile paths from the unit directory", async () => {
     vi.spyOn(fs, "readFile").mockImplementation(async (pathname) => {
       const pathValue = pathLikeToString(pathname);
-      if (pathValue.endsWith("/zhushou-gateway.service")) {
+      if (pathValue.endsWith("/assistant-gateway.service")) {
         return [
           "[Service]",
-          "ExecStart=/usr/bin/openclaw gateway run",
+          "ExecStart=/usr/bin/assistant gateway run",
           "EnvironmentFile=./gateway.env ./override.env",
         ].join("\n");
       }
       if (pathValue.endsWith("/.config/systemd/user/gateway.env")) {
         return [
-          "ZHUSHOU_GATEWAY_TOKEN=relative-token", // pragma: allowlist secret
-          "ZHUSHOU_GATEWAY_PASSWORD=relative-password", // pragma: allowlist secret
+          "ASSISTANT_GATEWAY_TOKEN=relative-token", // pragma: allowlist secret
+          "ASSISTANT_GATEWAY_PASSWORD=relative-password", // pragma: allowlist secret
         ].join("\n");
       }
       if (pathValue.endsWith("/.config/systemd/user/override.env")) {
-        return "ZHUSHOU_GATEWAY_TOKEN=override-token\n"; // pragma: allowlist secret
+        return "ASSISTANT_GATEWAY_TOKEN=override-token\n"; // pragma: allowlist secret
       }
       throw new Error(`unexpected readFile path: ${pathValue}`);
     });
 
     const command = await readSystemdServiceExecStart({ HOME: "/home/test" });
     expect(command?.environment).toEqual({
-      ZHUSHOU_GATEWAY_TOKEN: "override-token",
-      ZHUSHOU_GATEWAY_PASSWORD: "relative-password", // pragma: allowlist secret
+      ASSISTANT_GATEWAY_TOKEN: "override-token",
+      ASSISTANT_GATEWAY_PASSWORD: "relative-password", // pragma: allowlist secret
     });
   });
 
   it("parses EnvironmentFile content with comments and quoted values", async () => {
     vi.spyOn(fs, "readFile").mockImplementation(async (pathname) => {
       const pathValue = pathLikeToString(pathname);
-      if (pathValue.endsWith("/zhushou-gateway.service")) {
+      if (pathValue.endsWith("/assistant-gateway.service")) {
         return [
           "[Service]",
-          "ExecStart=/usr/bin/openclaw gateway run",
-          "EnvironmentFile=%h/.zhushou/gateway.env",
+          "ExecStart=/usr/bin/assistant gateway run",
+          "EnvironmentFile=%h/.assistant/gateway.env",
         ].join("\n");
       }
-      if (pathValue === "/home/test/.zhushou/gateway.env") {
+      if (pathValue === "/home/test/.assistant/gateway.env") {
         return [
           "# comment",
           "; another comment",
-          'ZHUSHOU_GATEWAY_TOKEN="quoted token"', // pragma: allowlist secret
-          "ZHUSHOU_GATEWAY_PASSWORD=quoted-password", // pragma: allowlist secret
+          'ASSISTANT_GATEWAY_TOKEN="quoted token"', // pragma: allowlist secret
+          "ASSISTANT_GATEWAY_PASSWORD=quoted-password", // pragma: allowlist secret
         ].join("\n");
       }
       throw new Error(`unexpected readFile path: ${pathValue}`);
@@ -632,12 +632,12 @@ describe("readSystemdServiceExecStart", () => {
 
     const command = await readSystemdServiceExecStart({ HOME: "/home/test" });
     expect(command?.environment).toEqual({
-      ZHUSHOU_GATEWAY_TOKEN: "quoted token",
-      ZHUSHOU_GATEWAY_PASSWORD: "quoted-password", // pragma: allowlist secret
+      ASSISTANT_GATEWAY_TOKEN: "quoted token",
+      ASSISTANT_GATEWAY_PASSWORD: "quoted-password", // pragma: allowlist secret
     });
     expect(command?.environmentValueSources).toEqual({
-      ZHUSHOU_GATEWAY_TOKEN: "file",
-      ZHUSHOU_GATEWAY_PASSWORD: "file", // pragma: allowlist secret
+      ASSISTANT_GATEWAY_TOKEN: "file",
+      ASSISTANT_GATEWAY_PASSWORD: "file", // pragma: allowlist secret
     });
   });
 });
@@ -649,13 +649,13 @@ describe("stageSystemdService", () => {
   });
 
   it("writes dotenv-backed values to a separate env file and keeps inline env minimal", async () => {
-    const tempHomeRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-systemd-stage-"));
+    const tempHomeRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-systemd-stage-"));
     const home = path.join(tempHomeRoot, "home");
-    const stateDir = path.join(home, ".zhushou");
+    const stateDir = path.join(home, ".assistant");
     const env = {
       HOME: home,
-      ZHUSHOU_STATE_DIR: stateDir,
-      OPENCLAW_SYSTEMD_UNIT: "zhushou-gateway-stage-test",
+      ASSISTANT_STATE_DIR: stateDir,
+      ASSISTANT_SYSTEMD_UNIT: "assistant-gateway-stage-test",
     };
     const unitPath = resolveSystemdUserUnitPath(env);
     const envFilePath = path.join(stateDir, "gateway.systemd.env");
@@ -663,7 +663,7 @@ describe("stageSystemdService", () => {
     await fs.mkdir(stateDir, { recursive: true });
     await fs.writeFile(
       path.join(stateDir, ".env"),
-      ["ZHUSHOU_GATEWAY_TOKEN=dotenv-token", "LLM_API_KEY=dotenv-key"].join("\n"),
+      ["ASSISTANT_GATEWAY_TOKEN=dotenv-token", "LLM_API_KEY=dotenv-key"].join("\n"),
       "utf8",
     );
 
@@ -676,12 +676,12 @@ describe("stageSystemdService", () => {
       await stageSystemdService({
         env,
         stdout: { write: vi.fn() } as unknown as NodeJS.WritableStream,
-        programArguments: ["/usr/bin/zhushou", "gateway", "run"],
+        programArguments: ["/usr/bin/assistant", "gateway", "run"],
         workingDirectory: "/tmp",
         environment: {
-          ZHUSHOU_GATEWAY_TOKEN: "dotenv-token",
+          ASSISTANT_GATEWAY_TOKEN: "dotenv-token",
           LLM_API_KEY: "dotenv-key",
-          ZHUSHOU_GATEWAY_PORT: "18789",
+          ASSISTANT_GATEWAY_PORT: "18789",
         },
       });
 
@@ -692,10 +692,10 @@ describe("stageSystemdService", () => {
       ]);
 
       expect(unit).toContain(`EnvironmentFile=-"${envFilePath}"`);
-      expect(unit).toContain("Environment=ZHUSHOU_GATEWAY_PORT=18789");
-      expect(unit).not.toContain("Environment=ZHUSHOU_GATEWAY_TOKEN=dotenv-token");
+      expect(unit).toContain("Environment=ASSISTANT_GATEWAY_PORT=18789");
+      expect(unit).not.toContain("Environment=ASSISTANT_GATEWAY_TOKEN=dotenv-token");
       expect(unit).not.toContain("Environment=LLM_API_KEY=dotenv-key");
-      expect(envFile).toBe("ZHUSHOU_GATEWAY_TOKEN=dotenv-token\nLLM_API_KEY=dotenv-key\n");
+      expect(envFile).toBe("ASSISTANT_GATEWAY_TOKEN=dotenv-token\nLLM_API_KEY=dotenv-key\n");
       expect(envFileStat.mode & 0o777).toBe(process.platform === "win32" ? 0o666 : 0o600);
     } finally {
       await fs.rm(tempHomeRoot, { recursive: true, force: true });
@@ -703,13 +703,13 @@ describe("stageSystemdService", () => {
   });
 
   it("keeps inline overrides out of the generated env file", async () => {
-    const tempHomeRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-systemd-stage-"));
+    const tempHomeRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-systemd-stage-"));
     const home = path.join(tempHomeRoot, "home");
-    const stateDir = path.join(home, ".zhushou");
+    const stateDir = path.join(home, ".assistant");
     const env = {
       HOME: home,
-      ZHUSHOU_STATE_DIR: stateDir,
-      OPENCLAW_SYSTEMD_UNIT: "zhushou-gateway-stage-test",
+      ASSISTANT_STATE_DIR: stateDir,
+      ASSISTANT_SYSTEMD_UNIT: "assistant-gateway-stage-test",
     };
     const unitPath = resolveSystemdUserUnitPath(env);
     const envFilePath = path.join(stateDir, "gateway.systemd.env");
@@ -717,7 +717,7 @@ describe("stageSystemdService", () => {
     await fs.mkdir(stateDir, { recursive: true });
     await fs.writeFile(
       path.join(stateDir, ".env"),
-      ["ZHUSHOU_GATEWAY_TOKEN=stale-token", "LLM_API_KEY=dotenv-key"].join("\n"),
+      ["ASSISTANT_GATEWAY_TOKEN=stale-token", "LLM_API_KEY=dotenv-key"].join("\n"),
       "utf8",
     );
 
@@ -730,10 +730,10 @@ describe("stageSystemdService", () => {
       await stageSystemdService({
         env,
         stdout: { write: vi.fn() } as unknown as NodeJS.WritableStream,
-        programArguments: ["/usr/bin/zhushou", "gateway", "run"],
+        programArguments: ["/usr/bin/assistant", "gateway", "run"],
         workingDirectory: "/tmp",
         environment: {
-          ZHUSHOU_GATEWAY_TOKEN: "fresh-token",
+          ASSISTANT_GATEWAY_TOKEN: "fresh-token",
           LLM_API_KEY: "dotenv-key",
         },
       });
@@ -744,7 +744,7 @@ describe("stageSystemdService", () => {
       ]);
 
       expect(unit).toContain(`EnvironmentFile=-"${envFilePath}"`);
-      expect(unit).toContain("Environment=ZHUSHOU_GATEWAY_TOKEN=fresh-token");
+      expect(unit).toContain("Environment=ASSISTANT_GATEWAY_TOKEN=fresh-token");
       expect(envFile).toBe("LLM_API_KEY=dotenv-key\n");
     } finally {
       await fs.rm(tempHomeRoot, { recursive: true, force: true });
@@ -801,10 +801,10 @@ describe("systemd service control", () => {
     execFileMock
       .mockImplementationOnce((_cmd, _args, _opts, cb) => cb(null, "", ""))
       .mockImplementationOnce((_cmd, args, _opts, cb) => {
-        assertUserSystemctlArgs(args, "restart", "zhushou-gateway-work.service");
+        assertUserSystemctlArgs(args, "restart", "assistant-gateway-work.service");
         cb(null, "", "");
       });
-    await assertRestartSuccess({ ZHUSHOU_PROFILE: "work" });
+    await assertRestartSuccess({ ASSISTANT_PROFILE: "work" });
   });
 
   it("surfaces stop failures with systemctl detail", async () => {

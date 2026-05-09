@@ -1,13 +1,13 @@
 {
-  "name": "@zhushou/voyage-provider",
+  "name": "@assistant/voyage-provider",
   "version": "2026.4.15-beta.1",
   "private": true,
   "description": "助手 Voyage embedding provider plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

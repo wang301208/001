@@ -5,6 +5,6 @@ runExtensionOxlint({
   roots: extensionChannelTestRoots,
   toolName: "oxlint-extension-channels",
   lockName: "oxlint-extension-channels",
-  tempDirPrefix: "zhushou-extension-channel-oxlint-",
+  tempDirPrefix: "assistant-extension-channel-oxlint-",
   emptyMessage: "No extension channel files found.",
 });

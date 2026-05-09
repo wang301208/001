@@ -1,6 +1,6 @@
 import { getLoadedChannelPluginForRead } from "../../channels/plugins/registry-loaded-read.js";
 import type { ChannelDirectoryEntryKind, ChannelId } from "../../channels/plugins/types.public.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { getActivePluginChannelRegistryVersion } from "../../plugins/runtime.js";
 import {
   normalizeOptionalLowercaseString,
@@ -106,7 +106,7 @@ export function looksLikeTargetId(params: {
 }
 
 export async function maybeResolvePluginMessagingTarget(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: ChannelId;
   input: string;
   accountId?: string | null;

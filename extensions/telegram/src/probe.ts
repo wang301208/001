@@ -1,7 +1,7 @@
-import type { BaseProbeResult } from "zhushou/plugin-sdk/channel-contract";
-import type { TelegramNetworkConfig } from "zhushou/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { fetchWithTimeout } from "zhushou/plugin-sdk/text-runtime";
+import type { BaseProbeResult } from "assistant/plugin-sdk/channel-contract";
+import type { TelegramNetworkConfig } from "assistant/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { fetchWithTimeout } from "assistant/plugin-sdk/text-runtime";
 import { resolveTelegramApiBase, resolveTelegramFetch } from "./fetch.js";
 import { makeProxyFetch } from "./proxy.js";
 

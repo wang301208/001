@@ -1,9 +1,9 @@
-export const OPENCLAW_OWNER_ONLY_CORE_TOOL_NAMES = ["cron", "gateway", "nodes"] as const;
+export const ASSISTANT_OWNER_ONLY_CORE_TOOL_NAMES = ["cron", "gateway", "nodes"] as const;
 
-const OPENCLAW_OWNER_ONLY_CORE_TOOL_NAME_SET: ReadonlySet<string> = new Set(
-  OPENCLAW_OWNER_ONLY_CORE_TOOL_NAMES,
+const ASSISTANT_OWNER_ONLY_CORE_TOOL_NAME_SET: ReadonlySet<string> = new Set(
+  ASSISTANT_OWNER_ONLY_CORE_TOOL_NAMES,
 );
 
-export function isOpenClawOwnerOnlyCoreToolName(toolName: string): boolean {
-  return OPENCLAW_OWNER_ONLY_CORE_TOOL_NAME_SET.has(toolName);
+export function isAssistantOwnerOnlyCoreToolName(toolName: string): boolean {
+  return ASSISTANT_OWNER_ONLY_CORE_TOOL_NAME_SET.has(toolName);
 }

@@ -1,9 +1,9 @@
 import {
   resolveAllowlistMatchByCandidates,
   type AllowlistMatch,
-} from "zhushou/plugin-sdk/allow-from";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/string-coerce-runtime";
-import { normalizeStringEntries } from "zhushou/plugin-sdk/string-normalization-runtime";
+} from "assistant/plugin-sdk/allow-from";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/string-coerce-runtime";
+import { normalizeStringEntries } from "assistant/plugin-sdk/string-normalization-runtime";
 
 function normalizeAllowList(list?: Array<string | number>) {
   return normalizeStringEntries(list);

@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 
 const REPLY_CACHE_MAX = 2000;
 const REPLY_CACHE_TTL_MS = 6 * 60 * 60 * 1000;

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveSecretInputRef } from "../config/types.secrets.js";
 import { isRecord } from "../utils.js";
 import {
@@ -8,7 +8,7 @@ import {
 } from "./model-auth-markers.js";
 import type { ProviderConfig, SecretDefaults } from "./models-config.providers.secrets.js";
 
-type ModelsConfig = NonNullable<ZhushouConfig["models"]>;
+type ModelsConfig = NonNullable<AssistantConfig["models"]>;
 
 function normalizeSourceProviderLookup(
   providers: ModelsConfig["providers"] | undefined,

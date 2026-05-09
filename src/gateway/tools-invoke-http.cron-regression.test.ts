@@ -51,7 +51,7 @@ vi.mock("../plugins/tools.js", () => ({
   getPluginToolMeta: noPluginToolMeta,
 }));
 
-vi.mock("../agents/zhushou-tools.js", () => {
+vi.mock("../agents/assistant-tools.js", () => {
   const tools = [
     {
       name: "cron",
@@ -65,7 +65,7 @@ vi.mock("../agents/zhushou-tools.js", () => {
     },
   ];
   return {
-    createOpenClawTools: () => tools,
+    createAssistantTools: () => tools,
   };
 });
 
@@ -118,7 +118,7 @@ async function invoke(tool: string, scopes = "operator.write") {
     headers: {
       "content-type": "application/json",
       authorization: `Bearer ${TEST_GATEWAY_TOKEN}`,
-      "x-zhushou-scopes": scopes,
+      "x-assistant-scopes": scopes,
     },
     body: JSON.stringify({ tool, action: "status", args: {}, sessionKey: "main" }),
   });

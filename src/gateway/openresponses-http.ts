@@ -1,7 +1,7 @@
 /**
  * OpenResponses HTTP Handler
  *
- * Implements the OpenResponses `/v1/responses` endpoint for OpenClaw Gateway.
+ * Implements the OpenResponses `/v1/responses` endpoint for Assistant Gateway.
  *
  * @see https://www.open-responses.com/
  */
@@ -123,7 +123,7 @@ function createResponseSessionScope(params: {
   return normalizeResponseSessionScope({
     authSubject: resolveResponseSessionAuthSubject({ req: params.req, auth: params.auth }),
     agentId: params.agentId,
-    requestedSessionKey: getHeader(params.req, "x-zhushou-session-key"),
+    requestedSessionKey: getHeader(params.req, "x-assistant-session-key"),
   });
 }
 

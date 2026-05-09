@@ -14,7 +14,7 @@ function makeResult(
     steps: [
       {
         name: stepName,
-        command: "npm i -g zhushou@latest",
+        command: "npm i -g assistant@latest",
         cwd: "/tmp",
         durationMs: 1,
         exitCode: 1,

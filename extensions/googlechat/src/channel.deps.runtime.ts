@@ -12,7 +12,7 @@ export {
   runPassiveAccountLifecycle,
   type ChannelMessageActionAdapter,
   type ChannelStatusIssue,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "../runtime-api.js";
 export {
   listGoogleChatAccountIds,

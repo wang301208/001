@@ -1,7 +1,7 @@
 import {
   createModelCatalogPresetAppliers,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import {
   buildVeniceModelDefinition,
   VENICE_BASE_URL,
@@ -13,7 +13,7 @@ export { VENICE_DEFAULT_MODEL_REF };
 
 const venicePresetAppliers = createModelCatalogPresetAppliers({
   primaryModelRef: VENICE_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig) => ({
+  resolveParams: (_cfg: AssistantConfig) => ({
     providerId: "venice",
     api: "openai-completions",
     baseUrl: VENICE_BASE_URL,
@@ -22,10 +22,10 @@ const venicePresetAppliers = createModelCatalogPresetAppliers({
   }),
 });
 
-export function applyVeniceProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyVeniceProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return venicePresetAppliers.applyProviderConfig(cfg);
 }
 
-export function applyVeniceConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyVeniceConfig(cfg: AssistantConfig): AssistantConfig {
   return venicePresetAppliers.applyConfig(cfg);
 }

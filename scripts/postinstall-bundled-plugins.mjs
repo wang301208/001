@@ -32,7 +32,7 @@ export const BUNDLED_PLUGIN_INSTALL_TARGETS = [];
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_EXTENSIONS_DIR = join(__dirname, "..", "dist", "extensions");
 const DEFAULT_PACKAGE_ROOT = join(__dirname, "..");
-const DISABLE_POSTINSTALL_ENV = "OPENCLAW_DISABLE_BUNDLED_PLUGIN_POSTINSTALL";
+const DISABLE_POSTINSTALL_ENV = "ASSISTANT_DISABLE_BUNDLED_PLUGIN_POSTINSTALL";
 const DIST_INVENTORY_PATH = "dist/postinstall-inventory.json";
 const LEGACY_UPDATE_COMPAT_SIDECARS = [
   {
@@ -480,7 +480,7 @@ export function applyBaileysEncryptedStreamFinishHotfix(params = {}) {
     ((unsafeTargetPath) =>
       join(
         dirname(unsafeTargetPath),
-        `.${basename(unsafeTargetPath)}.zhushou-hotfix-${randomUUID()}`,
+        `.${basename(unsafeTargetPath)}.assistant-hotfix-${randomUUID()}`,
       ));
   const writeFile =
     params.writeFileSync ?? ((filePath, value) => writeFileSync(filePath, value, "utf8"));

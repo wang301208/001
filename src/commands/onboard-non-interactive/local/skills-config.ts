@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import type { RuntimeEnv } from "../../../runtime.js";
 import type { OnboardOptions } from "../../onboard-types.js";
 
 export function applyNonInteractiveSkillsConfig(params: {
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   opts: OnboardOptions;
   runtime: RuntimeEnv;
 }) {

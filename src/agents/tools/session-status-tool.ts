@@ -12,7 +12,7 @@ import {
   type SessionEntry,
   updateSessionStore,
 } from "../../config/sessions.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { resolveSessionModelIdentityRef } from "../../gateway/session-utils.js";
 import {
   buildAgentMainSessionKey,
@@ -57,7 +57,7 @@ const SessionStatusToolSchema = Type.Object({
 
 type CommandsStatusRuntimeModule = {
   buildStatusText: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     sessionEntry?: SessionEntry;
     sessionKey: string;
     parentSessionKey?: string;
@@ -184,7 +184,7 @@ function formatSessionTaskLine(params: {
 }
 
 async function resolveModelOverride(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   raw: string;
   sessionEntry?: SessionEntry;
   agentId: string;
@@ -249,7 +249,7 @@ async function resolveModelOverride(params: {
 
 export function createSessionStatusTool(opts?: {
   agentSessionKey?: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sandboxed?: boolean;
 }): AnyAgentTool {
   return {

@@ -2,19 +2,19 @@ import {
   createChannelApprovalCapability,
   createApproverRestrictedNativeApprovalCapability,
   splitChannelApprovalCapability,
-} from "zhushou/plugin-sdk/approval-delivery-runtime";
-import { createLazyChannelApprovalNativeRuntimeAdapter } from "zhushou/plugin-sdk/approval-handler-adapter-runtime";
-import type { ChannelApprovalNativeRuntimeAdapter } from "zhushou/plugin-sdk/approval-handler-runtime";
+} from "assistant/plugin-sdk/approval-delivery-runtime";
+import { createLazyChannelApprovalNativeRuntimeAdapter } from "assistant/plugin-sdk/approval-handler-adapter-runtime";
+import type { ChannelApprovalNativeRuntimeAdapter } from "assistant/plugin-sdk/approval-handler-runtime";
 import {
   createChannelNativeOriginTargetResolver,
   resolveApprovalRequestSessionConversation,
-} from "zhushou/plugin-sdk/approval-native-runtime";
-import type { ChannelApprovalCapability } from "zhushou/plugin-sdk/channel-contract";
-import type { ExecApprovalRequest, PluginApprovalRequest } from "zhushou/plugin-sdk/infra-runtime";
+} from "assistant/plugin-sdk/approval-native-runtime";
+import type { ChannelApprovalCapability } from "assistant/plugin-sdk/channel-contract";
+import type { ExecApprovalRequest, PluginApprovalRequest } from "assistant/plugin-sdk/infra-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalStringifiedId,
-} from "zhushou/plugin-sdk/string-coerce-runtime";
+} from "assistant/plugin-sdk/string-coerce-runtime";
 import { getMatrixApprovalAuthApprovers, matrixApprovalAuth } from "./approval-auth.js";
 import { normalizeMatrixApproverId } from "./approval-ids.js";
 import {

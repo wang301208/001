@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import {
   normalizeOptionalString,
   normalizeStringifiedOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import type { MattermostInteractiveButtonInput } from "./interactions.js";
 import {
   loadSessionStore,
@@ -10,7 +10,7 @@ import {
   resolveStorePath,
   resolveStoredModelOverride,
   type ModelsProviderData,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "./runtime-api.js";
 
 const MATTERMOST_MODEL_PICKER_CONTEXT_KEY = "oc_model_picker";
@@ -236,7 +236,7 @@ export function buildMattermostAllowedModelRefs(data: ModelsProviderData): Set<s
 }
 
 export function resolveMattermostModelPickerCurrentModel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   route: { agentId: string; sessionKey: string };
   data: ModelsProviderData;
   skipCache?: boolean;

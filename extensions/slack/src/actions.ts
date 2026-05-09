@@ -1,6 +1,6 @@
 import type { Block, KnownBlock, WebClient } from "@slack/web-api";
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
 import { resolveSlackAccount } from "./accounts.js";
 import { buildSlackBlocksFallbackText } from "./blocks-fallback.js";
 import { validateSlackBlocksArray } from "./blocks-input.js";

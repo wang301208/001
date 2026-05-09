@@ -1,23 +1,23 @@
 {
-  "name": "@zhushou/qa-matrix",
+  "name": "@assistant/qa-matrix",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Matrix QA runner plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/matrix": "workspace:*",
-    "@zhushou/plugin-sdk": "workspace:*",
-    "zhushou": "workspace:*"
+    "@assistant/matrix": "workspace:*",
+    "@assistant/plugin-sdk": "workspace:*",
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],

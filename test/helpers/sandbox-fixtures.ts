@@ -9,8 +9,8 @@ export function createSandboxBrowserConfig(
 ): SandboxBrowserConfig {
   return {
     enabled: false,
-    image: "zhushou-browser",
-    containerPrefix: "zhushou-browser-",
+    image: "assistant-browser",
+    containerPrefix: "assistant-browser-",
     network: "bridge",
     cdpPort: 9222,
     vncPort: 5900,

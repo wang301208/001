@@ -15,7 +15,7 @@ describe("createAnthropicPayloadLogger", () => {
   it("sanitizes credential fields and image base64 payload data before writing logs", async () => {
     const lines: string[] = [];
     const logger = createAnthropicPayloadLogger({
-      env: { OPENCLAW_ANTHROPIC_PAYLOAD_LOG: "1" },
+      env: { ASSISTANT_ANTHROPIC_PAYLOAD_LOG: "1" },
       writer: createMemoryWriter(lines),
     });
     expect(logger).not.toBeNull();

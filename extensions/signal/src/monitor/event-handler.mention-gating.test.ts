@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { MsgContext } from "zhushou/plugin-sdk/reply-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { MsgContext } from "assistant/plugin-sdk/reply-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { buildDispatchInboundCaptureMock } from "../../../../src/channels/plugins/contracts/inbound-testkit.js";
 
@@ -14,9 +14,9 @@ function getCapturedCtx() {
   return capturedCtx as SignalMsgContext;
 }
 
-vi.mock("zhushou/plugin-sdk/reply-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/reply-runtime")>(
-    "zhushou/plugin-sdk/reply-runtime",
+vi.mock("assistant/plugin-sdk/reply-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/reply-runtime")>(
+    "assistant/plugin-sdk/reply-runtime",
   );
   return buildDispatchInboundCaptureMock(actual, (ctx) => {
     capturedCtx = ctx as SignalMsgContext;
@@ -92,7 +92,7 @@ function createSignalConfig(params: { requireMention: boolean; mentionPattern?: 
         groups: { "*": { requireMention: params.requireMention } },
       },
     },
-  } as unknown as ZhushouConfig;
+  } as unknown as AssistantConfig;
 }
 
 async function expectSkippedGroupHistory(opts: GroupEventOpts, expectedBody: string) {

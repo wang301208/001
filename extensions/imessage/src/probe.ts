@@ -1,9 +1,9 @@
-import type { BaseProbeResult } from "zhushou/plugin-sdk/channel-contract";
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
-import { runCommandWithTimeout } from "zhushou/plugin-sdk/process-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { detectBinary } from "zhushou/plugin-sdk/setup";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { BaseProbeResult } from "assistant/plugin-sdk/channel-contract";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
+import { runCommandWithTimeout } from "assistant/plugin-sdk/process-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { detectBinary } from "assistant/plugin-sdk/setup";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { createIMessageRpcClient } from "./client.js";
 import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 

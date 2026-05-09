@@ -8,7 +8,7 @@ describe("browser doctor readiness", () => {
       {
         browser: {
           profiles: {
-            zhushou: { color: "#FF4500" },
+            assistant: { color: "#FF4500" },
           },
         },
       },

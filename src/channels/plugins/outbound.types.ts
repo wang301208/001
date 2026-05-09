@@ -1,5 +1,5 @@
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { OutboundDeliveryResult } from "../../infra/outbound/deliver-types.js";
 import type { OutboundIdentity } from "../../infra/outbound/identity-types.js";
 import type { OutboundSendDeps } from "../../infra/outbound/send-deps.js";
@@ -11,7 +11,7 @@ import type {
 } from "./types.core.js";
 
 export type ChannelOutboundContext = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   to: string;
   text: string;
   mediaUrl?: string;
@@ -62,18 +62,18 @@ export type ChannelOutboundAdapter = {
   normalizePayload?: (params: { payload: ReplyPayload }) => ReplyPayload | null;
   shouldSkipPlainTextSanitization?: (params: { payload: ReplyPayload }) => boolean;
   resolveEffectiveTextChunkLimit?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     fallbackLimit?: number;
   }) => number | undefined;
   shouldSuppressLocalPayloadPrompt?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     payload: ReplyPayload;
     hint?: ChannelOutboundPayloadHint;
   }) => boolean;
   beforeDeliverPayload?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     target: ChannelOutboundTargetRef;
     payload: ReplyPayload;
     hint?: ChannelOutboundPayloadHint;
@@ -95,7 +95,7 @@ export type ChannelOutboundAdapter = {
     targetThreadId?: string;
   }) => boolean;
   resolveTarget?: (params: {
-    cfg?: ZhushouConfig;
+    cfg?: AssistantConfig;
     to?: string;
     allowFrom?: string[];
     accountId?: string | null;

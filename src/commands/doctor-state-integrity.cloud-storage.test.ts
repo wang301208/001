@@ -13,7 +13,7 @@ describe("detectMacCloudSyncedStateDir", () => {
       "Mobile Documents",
       "com~apple~CloudDocs",
       "助手",
-      ".zhushou",
+      ".assistant",
     );
 
     const result = detectMacCloudSyncedStateDir(stateDir, {
@@ -28,7 +28,7 @@ describe("detectMacCloudSyncedStateDir", () => {
   });
 
   it("detects state dir under Library/CloudStorage", () => {
-    const stateDir = path.join(home, "Library", "CloudStorage", "Dropbox", "助手", ".zhushou");
+    const stateDir = path.join(home, "Library", "CloudStorage", "Dropbox", "助手", ".assistant");
 
     const result = detectMacCloudSyncedStateDir(stateDir, {
       platform: "darwin",
@@ -42,14 +42,14 @@ describe("detectMacCloudSyncedStateDir", () => {
   });
 
   it("detects cloud-synced target when state dir resolves via symlink", () => {
-    const symlinkPath = "/tmp/zhushou-state";
+    const symlinkPath = "/tmp/assistant-state";
     const resolvedCloudPath = path.join(
       home,
       "Library",
       "CloudStorage",
       "OneDrive-Personal",
       "助手",
-      ".zhushou",
+      ".assistant",
     );
 
     const result = detectMacCloudSyncedStateDir(symlinkPath, {
@@ -71,9 +71,9 @@ describe("detectMacCloudSyncedStateDir", () => {
       "CloudStorage",
       "OneDrive-Personal",
       "助手",
-      ".zhushou",
+      ".assistant",
     );
-    const resolvedLocalPath = path.join(home, ".zhushou");
+    const resolvedLocalPath = path.join(home, ".assistant");
 
     const result = detectMacCloudSyncedStateDir(symlinkPath, {
       platform: "darwin",
@@ -84,10 +84,10 @@ describe("detectMacCloudSyncedStateDir", () => {
     expect(result).toBeNull();
   });
 
-  it("anchors cloud detection to OS homedir when ZHUSHOU_HOME is overridden", () => {
-    const stateDir = path.join(home, "Library", "CloudStorage", "iCloud Drive", ".zhushou");
-    const originalOpenClawHome = process.env.ZHUSHOU_HOME;
-    process.env.ZHUSHOU_HOME = "/tmp/zhushou-home-override";
+  it("anchors cloud detection to OS homedir when ASSISTANT_HOME is overridden", () => {
+    const stateDir = path.join(home, "Library", "CloudStorage", "iCloud Drive", ".assistant");
+    const originalAssistantHome = process.env.ASSISTANT_HOME;
+    process.env.ASSISTANT_HOME = "/tmp/assistant-home-override";
     const homedirSpy = vi.spyOn(os, "homedir").mockReturnValue(home);
     try {
       const result = detectMacCloudSyncedStateDir(stateDir, {
@@ -100,10 +100,10 @@ describe("detectMacCloudSyncedStateDir", () => {
       });
     } finally {
       homedirSpy.mockRestore();
-      if (originalOpenClawHome === undefined) {
-        delete process.env.ZHUSHOU_HOME;
+      if (originalAssistantHome === undefined) {
+        delete process.env.ASSISTANT_HOME;
       } else {
-        process.env.ZHUSHOU_HOME = originalOpenClawHome;
+        process.env.ASSISTANT_HOME = originalAssistantHome;
       }
     }
   });
@@ -115,7 +115,7 @@ describe("detectMacCloudSyncedStateDir", () => {
       "Mobile Documents",
       "com~apple~CloudDocs",
       "助手",
-      ".zhushou",
+      ".assistant",
     );
 
     const result = detectMacCloudSyncedStateDir(stateDir, {

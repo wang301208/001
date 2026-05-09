@@ -1,5 +1,5 @@
 import type { DmPolicy, GroupPolicy } from "../../config/types.base.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { SecretInput } from "../../config/types.secrets.js";
 import { resolveSecretInputModeForEnvSelection } from "../../plugins/provider-auth-mode.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
@@ -168,7 +168,7 @@ export function createStandardChannelSetupStatus(params: {
   includeStatusLine?: boolean;
   resolveConfigured: ChannelSetupWizardStatus["resolveConfigured"];
   resolveExtraStatusLines?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
     configured: boolean;
   }) => string[] | Promise<string[]>;
@@ -211,12 +211,12 @@ export function resolveSetupAccountId(params: {
 }
 
 export async function resolveAccountIdForConfigure(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   label: string;
   accountOverride?: string;
   shouldPromptAccountIds: boolean;
-  listAccountIds: (cfg: ZhushouConfig) => string[];
+  listAccountIds: (cfg: AssistantConfig) => string[];
   defaultAccountId: string;
 }): Promise<string> {
   const override = params.accountOverride?.trim();
@@ -235,11 +235,11 @@ export async function resolveAccountIdForConfigure(params: {
 }
 
 export function setAccountAllowFromForChannel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId: string;
   allowFrom: string[];
-}): ZhushouConfig {
+}): AssistantConfig {
   const { cfg, channel, accountId, allowFrom } = params;
   return patchConfigForScopedAccount({
     cfg,
@@ -251,12 +251,12 @@ export function setAccountAllowFromForChannel(params: {
 }
 
 export function patchTopLevelChannelConfigSection(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   enabled?: boolean;
   clearFields?: string[];
   patch: Record<string, unknown>;
-}): ZhushouConfig {
+}): AssistantConfig {
   const channelConfig = {
     ...(params.cfg.channels?.[params.channel] as Record<string, unknown> | undefined),
   };
@@ -277,13 +277,13 @@ export function patchTopLevelChannelConfigSection(params: {
 }
 
 export function patchNestedChannelConfigSection(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   section: string;
   enabled?: boolean;
   clearFields?: string[];
   patch: Record<string, unknown>;
-}): ZhushouConfig {
+}): AssistantConfig {
   const channelConfig = {
     ...(params.cfg.channels?.[params.channel] as Record<string, unknown> | undefined),
   };
@@ -310,11 +310,11 @@ export function patchNestedChannelConfigSection(params: {
 }
 
 export function setTopLevelChannelAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   allowFrom: string[];
   enabled?: boolean;
-}): ZhushouConfig {
+}): AssistantConfig {
   return patchTopLevelChannelConfigSection({
     cfg: params.cfg,
     channel: params.channel,
@@ -324,12 +324,12 @@ export function setTopLevelChannelAllowFrom(params: {
 }
 
 export function setNestedChannelAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   section: string;
   allowFrom: string[];
   enabled?: boolean;
-}): ZhushouConfig {
+}): AssistantConfig {
   return patchNestedChannelConfigSection({
     cfg: params.cfg,
     channel: params.channel,
@@ -340,11 +340,11 @@ export function setNestedChannelAllowFrom(params: {
 }
 
 export function setTopLevelChannelDmPolicyWithAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   dmPolicy: DmPolicy;
-  getAllowFrom?: (cfg: ZhushouConfig) => Array<string | number> | undefined;
-}): ZhushouConfig {
+  getAllowFrom?: (cfg: AssistantConfig) => Array<string | number> | undefined;
+}): AssistantConfig {
   const channelConfig =
     (params.cfg.channels?.[params.channel] as Record<string, unknown> | undefined) ?? {};
   const existingAllowFrom =
@@ -364,13 +364,13 @@ export function setTopLevelChannelDmPolicyWithAllowFrom(params: {
 }
 
 export function setNestedChannelDmPolicyWithAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   section: string;
   dmPolicy: DmPolicy;
-  getAllowFrom?: (cfg: ZhushouConfig) => Array<string | number> | undefined;
+  getAllowFrom?: (cfg: AssistantConfig) => Array<string | number> | undefined;
   enabled?: boolean;
-}): ZhushouConfig {
+}): AssistantConfig {
   const channelConfig =
     (params.cfg.channels?.[params.channel] as Record<string, unknown> | undefined) ?? {};
   const sectionConfig =
@@ -394,11 +394,11 @@ export function setNestedChannelDmPolicyWithAllowFrom(params: {
 }
 
 export function setTopLevelChannelGroupPolicy(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   groupPolicy: GroupPolicy;
   enabled?: boolean;
-}): ZhushouConfig {
+}): AssistantConfig {
   return patchTopLevelChannelConfigSection({
     cfg: params.cfg,
     channel: params.channel,
@@ -412,9 +412,9 @@ export function createTopLevelChannelDmPolicy(params: {
   channel: string;
   policyKey: string;
   allowFromKey: string;
-  getCurrent: (cfg: ZhushouConfig) => DmPolicy;
+  getCurrent: (cfg: AssistantConfig) => DmPolicy;
   promptAllowFrom?: ChannelSetupDmPolicy["promptAllowFrom"];
-  getAllowFrom?: (cfg: ZhushouConfig) => Array<string | number> | undefined;
+  getAllowFrom?: (cfg: AssistantConfig) => Array<string | number> | undefined;
 }): ChannelSetupDmPolicy {
   const setPolicy = createTopLevelChannelDmPolicySetter({
     channel: params.channel,
@@ -437,9 +437,9 @@ export function createNestedChannelDmPolicy(params: {
   section: string;
   policyKey: string;
   allowFromKey: string;
-  getCurrent: (cfg: ZhushouConfig) => DmPolicy;
+  getCurrent: (cfg: AssistantConfig) => DmPolicy;
   promptAllowFrom?: ChannelSetupDmPolicy["promptAllowFrom"];
-  getAllowFrom?: (cfg: ZhushouConfig) => Array<string | number> | undefined;
+  getAllowFrom?: (cfg: AssistantConfig) => Array<string | number> | undefined;
   enabled?: boolean;
 }): ChannelSetupDmPolicy {
   const setPolicy = createNestedChannelDmPolicySetter({
@@ -461,8 +461,8 @@ export function createNestedChannelDmPolicy(params: {
 
 export function createTopLevelChannelDmPolicySetter(params: {
   channel: string;
-  getAllowFrom?: (cfg: ZhushouConfig) => Array<string | number> | undefined;
-}): (cfg: ZhushouConfig, dmPolicy: DmPolicy) => ZhushouConfig {
+  getAllowFrom?: (cfg: AssistantConfig) => Array<string | number> | undefined;
+}): (cfg: AssistantConfig, dmPolicy: DmPolicy) => AssistantConfig {
   return (cfg, dmPolicy) =>
     setTopLevelChannelDmPolicyWithAllowFrom({
       cfg,
@@ -475,9 +475,9 @@ export function createTopLevelChannelDmPolicySetter(params: {
 export function createNestedChannelDmPolicySetter(params: {
   channel: string;
   section: string;
-  getAllowFrom?: (cfg: ZhushouConfig) => Array<string | number> | undefined;
+  getAllowFrom?: (cfg: AssistantConfig) => Array<string | number> | undefined;
   enabled?: boolean;
-}): (cfg: ZhushouConfig, dmPolicy: DmPolicy) => ZhushouConfig {
+}): (cfg: AssistantConfig, dmPolicy: DmPolicy) => AssistantConfig {
   return (cfg, dmPolicy) =>
     setNestedChannelDmPolicyWithAllowFrom({
       cfg,
@@ -492,7 +492,7 @@ export function createNestedChannelDmPolicySetter(params: {
 export function createTopLevelChannelAllowFromSetter(params: {
   channel: string;
   enabled?: boolean;
-}): (cfg: ZhushouConfig, allowFrom: string[]) => ZhushouConfig {
+}): (cfg: AssistantConfig, allowFrom: string[]) => AssistantConfig {
   return (cfg, allowFrom) =>
     setTopLevelChannelAllowFrom({
       cfg,
@@ -506,7 +506,7 @@ export function createNestedChannelAllowFromSetter(params: {
   channel: string;
   section: string;
   enabled?: boolean;
-}): (cfg: ZhushouConfig, allowFrom: string[]) => ZhushouConfig {
+}): (cfg: AssistantConfig, allowFrom: string[]) => AssistantConfig {
   return (cfg, allowFrom) =>
     setNestedChannelAllowFrom({
       cfg,
@@ -520,7 +520,7 @@ export function createNestedChannelAllowFromSetter(params: {
 export function createTopLevelChannelGroupPolicySetter(params: {
   channel: string;
   enabled?: boolean;
-}): (cfg: ZhushouConfig, groupPolicy: "open" | "allowlist" | "disabled") => ZhushouConfig {
+}): (cfg: AssistantConfig, groupPolicy: "open" | "allowlist" | "disabled") => AssistantConfig {
   return (cfg, groupPolicy) =>
     setTopLevelChannelGroupPolicy({
       cfg,
@@ -531,10 +531,10 @@ export function createTopLevelChannelGroupPolicySetter(params: {
 }
 
 export function setChannelDmPolicyWithAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   dmPolicy: DmPolicy;
-}): ZhushouConfig {
+}): AssistantConfig {
   const { cfg, channel, dmPolicy } = params;
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.[channel]?.allowFrom) : undefined;
@@ -552,10 +552,10 @@ export function setChannelDmPolicyWithAllowFrom(params: {
 }
 
 export function setCompatChannelDmPolicyWithAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   dmPolicy: DmPolicy;
-}): ZhushouConfig {
+}): AssistantConfig {
   const channelConfig = (params.cfg.channels?.[params.channel] as
     | {
         allowFrom?: Array<string | number>;
@@ -579,10 +579,10 @@ export function setCompatChannelDmPolicyWithAllowFrom(params: {
 }
 
 export function setCompatChannelAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   allowFrom: string[];
-}): ZhushouConfig {
+}): AssistantConfig {
   return patchCompatDmChannelConfig({
     cfg: params.cfg,
     channel: params.channel,
@@ -591,11 +591,11 @@ export function setCompatChannelAllowFrom(params: {
 }
 
 export function setAccountGroupPolicyForChannel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId: string;
   groupPolicy: GroupPolicy;
-}): ZhushouConfig {
+}): AssistantConfig {
   return patchChannelConfigForAccount({
     cfg: params.cfg,
     channel: params.channel,
@@ -605,11 +605,11 @@ export function setAccountGroupPolicyForChannel(params: {
 }
 
 export function setAccountDmAllowFromForChannel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId: string;
   allowFrom: string[];
-}): ZhushouConfig {
+}): AssistantConfig {
   return patchChannelConfigForAccount({
     cfg: params.cfg,
     channel: params.channel,
@@ -792,10 +792,10 @@ export function createAccountScopedGroupAccessSection<TResolved>(params: {
   >;
   fallbackResolved: (entries: string[]) => TResolved;
   applyAllowlist: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     resolved: TResolved;
-  }) => ZhushouConfig;
+  }) => AssistantConfig;
 }): NonNullable<ChannelSetupWizard["groupAccess"]> {
   return {
     label: params.label,
@@ -845,10 +845,10 @@ type AccountScopedChannel = string;
 type CompatDmChannel = string;
 
 export function patchCompatDmChannelConfig(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   patch: Record<string, unknown>;
-}): ZhushouConfig {
+}): AssistantConfig {
   const { cfg, channel, patch } = params;
   const channelConfig = (cfg.channels?.[channel] as Record<string, unknown> | undefined) ?? {};
   const dmConfig = (channelConfig.dm as Record<string, unknown> | undefined) ?? {};
@@ -869,10 +869,10 @@ export function patchCompatDmChannelConfig(params: {
 }
 
 export function setSetupChannelEnabled(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   channel: string,
   enabled: boolean,
-): ZhushouConfig {
+): AssistantConfig {
   const channelConfig = (cfg.channels?.[channel] as Record<string, unknown> | undefined) ?? {};
   return {
     ...cfg,
@@ -887,12 +887,12 @@ export function setSetupChannelEnabled(
 }
 
 function patchConfigForScopedAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: AccountScopedChannel;
   accountId: string;
   patch: Record<string, unknown>;
   ensureEnabled: boolean;
-}): ZhushouConfig {
+}): AssistantConfig {
   const { cfg, channel, accountId, patch, ensureEnabled } = params;
   const channelConfig = cfg.channels?.[channel] as
     | { accounts?: Record<string, unknown> }
@@ -918,11 +918,11 @@ function patchConfigForScopedAccount(params: {
 }
 
 export function patchChannelConfigForAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: AccountScopedChannel;
   accountId: string;
   patch: Record<string, unknown>;
-}): ZhushouConfig {
+}): AssistantConfig {
   return patchConfigForScopedAccount({
     ...params,
     ensureEnabled: true,
@@ -930,7 +930,7 @@ export function patchChannelConfigForAccount(params: {
 }
 
 export function applySingleTokenPromptResult(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId: string;
   tokenPatchKey: string;
@@ -938,7 +938,7 @@ export function applySingleTokenPromptResult(params: {
     useEnv: boolean;
     token: SecretInput | null;
   };
-}): ZhushouConfig {
+}): AssistantConfig {
   let next = params.cfg;
   if (params.tokenResult.useEnv) {
     next = patchChannelConfigForAccount({
@@ -1023,7 +1023,7 @@ export type SingleChannelSecretInputPromptResult =
   | { action: "set"; value: SecretInput; resolvedValue: string };
 
 export async function runSingleChannelSecretStep(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: Pick<WizardPrompter, "confirm" | "text" | "select" | "note">;
   providerHint: string;
   credentialLabel: string;
@@ -1037,14 +1037,14 @@ export async function runSingleChannelSecretStep(params: {
   inputPrompt: string;
   preferredEnvVar?: string;
   onMissingConfigured?: () => Promise<void>;
-  applyUseEnv?: (cfg: ZhushouConfig) => ZhushouConfig | Promise<ZhushouConfig>;
+  applyUseEnv?: (cfg: AssistantConfig) => AssistantConfig | Promise<AssistantConfig>;
   applySet?: (
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
     value: SecretInput,
     resolvedValue: string,
-  ) => ZhushouConfig | Promise<ZhushouConfig>;
+  ) => AssistantConfig | Promise<AssistantConfig>;
 }): Promise<{
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   action: SingleChannelSecretInputPromptResult["action"];
   resolvedValue?: string;
 }> {
@@ -1099,7 +1099,7 @@ export async function runSingleChannelSecretStep(params: {
 }
 
 export async function promptSingleChannelSecretInput(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: Pick<WizardPrompter, "confirm" | "text" | "select" | "note">;
   providerHint: string;
   credentialLabel: string;
@@ -1161,9 +1161,9 @@ export async function promptSingleChannelSecretInput(params: {
     preferredEnvVar: params.preferredEnvVar,
     copy: {
       sourceMessage: `Where is this ${params.credentialLabel} stored?`,
-      envVarPlaceholder: params.preferredEnvVar ?? "OPENCLAW_SECRET",
+      envVarPlaceholder: params.preferredEnvVar ?? "ASSISTANT_SECRET",
       envVarFormatError:
-        'Use an env var name like "OPENCLAW_SECRET" (uppercase letters, numbers, underscores).',
+        'Use an env var name like "ASSISTANT_SECRET" (uppercase letters, numbers, underscores).',
       noProvidersMessage:
         "No file/exec secret providers are configured yet. Add one under secrets.providers, or select Environment variable.",
     },
@@ -1177,7 +1177,7 @@ export async function promptSingleChannelSecretInput(params: {
 
 type ParsedAllowFromResult = { entries: string[]; error?: string };
 
-export async function promptParsedAllowFromForAccount<TConfig extends ZhushouConfig>(params: {
+export async function promptParsedAllowFromForAccount<TConfig extends AssistantConfig>(params: {
   cfg: TConfig;
   accountId?: string;
   defaultAccountId: string;
@@ -1231,7 +1231,7 @@ export async function promptParsedAllowFromForAccount<TConfig extends ZhushouCon
   });
 }
 
-export function createPromptParsedAllowFromForAccount<TConfig extends ZhushouConfig>(params: {
+export function createPromptParsedAllowFromForAccount<TConfig extends AssistantConfig>(params: {
   defaultAccountId: string | ((cfg: TConfig) => string);
   noteTitle?: string;
   noteLines?: string[];
@@ -1267,7 +1267,7 @@ export function createPromptParsedAllowFromForAccount<TConfig extends ZhushouCon
 }
 
 export async function promptParsedAllowFromForScopedChannel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId?: string;
   defaultAccountId: string;
@@ -1278,10 +1278,10 @@ export async function promptParsedAllowFromForScopedChannel(params: {
   placeholder: string;
   parseEntries: (raw: string) => ParsedAllowFromResult;
   getExistingAllowFrom: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
   }) => Array<string | number>;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   return await promptParsedAllowFromForAccount({
     cfg: params.cfg,
     accountId: params.accountId,
@@ -1305,14 +1305,14 @@ export async function promptParsedAllowFromForScopedChannel(params: {
 
 export function createTopLevelChannelParsedAllowFromPrompt(params: {
   channel: string;
-  defaultAccountId: string | ((cfg: ZhushouConfig) => string);
+  defaultAccountId: string | ((cfg: AssistantConfig) => string);
   enabled?: boolean;
   noteTitle?: string;
   noteLines?: string[];
   message: string;
   placeholder: string;
   parseEntries: (raw: string) => ParsedAllowFromResult;
-  getExistingAllowFrom?: (cfg: ZhushouConfig) => Array<string | number>;
+  getExistingAllowFrom?: (cfg: AssistantConfig) => Array<string | number>;
   mergeEntries?: (params: { existing: Array<string | number>; parsed: string[] }) => string[];
 }): NonNullable<ChannelSetupDmPolicy["promptAllowFrom"]> {
   const setAllowFrom = createTopLevelChannelAllowFromSetter({
@@ -1325,13 +1325,13 @@ export function createTopLevelChannelParsedAllowFromPrompt(params: {
     message: params.message,
     placeholder: params.placeholder,
     parseEntries: params.parseEntries,
-    getExistingAllowFrom: ({ cfg }: { cfg: ZhushouConfig }) =>
+    getExistingAllowFrom: ({ cfg }: { cfg: AssistantConfig }) =>
       params.getExistingAllowFrom?.(cfg) ??
       (cfg.channels?.[params.channel] as { allowFrom?: Array<string | number> } | undefined)
         ?.allowFrom ??
       [],
     ...(params.mergeEntries ? { mergeEntries: params.mergeEntries } : {}),
-    applyAllowFrom: ({ cfg, allowFrom }: { cfg: ZhushouConfig; allowFrom: string[] }) =>
+    applyAllowFrom: ({ cfg, allowFrom }: { cfg: AssistantConfig; allowFrom: string[] }) =>
       setAllowFrom(cfg, allowFrom),
   };
 
@@ -1352,14 +1352,14 @@ export function createTopLevelChannelParsedAllowFromPrompt(params: {
 export function createNestedChannelParsedAllowFromPrompt(params: {
   channel: string;
   section: string;
-  defaultAccountId: string | ((cfg: ZhushouConfig) => string);
+  defaultAccountId: string | ((cfg: AssistantConfig) => string);
   enabled?: boolean;
   noteTitle?: string;
   noteLines?: string[];
   message: string;
   placeholder: string;
   parseEntries: (raw: string) => ParsedAllowFromResult;
-  getExistingAllowFrom?: (cfg: ZhushouConfig) => Array<string | number>;
+  getExistingAllowFrom?: (cfg: AssistantConfig) => Array<string | number>;
   mergeEntries?: (params: { existing: Array<string | number>; parsed: string[] }) => string[];
 }): NonNullable<ChannelSetupDmPolicy["promptAllowFrom"]> {
   const setAllowFrom = createNestedChannelAllowFromSetter({
@@ -1374,7 +1374,7 @@ export function createNestedChannelParsedAllowFromPrompt(params: {
     message: params.message,
     placeholder: params.placeholder,
     parseEntries: params.parseEntries,
-    getExistingAllowFrom: ({ cfg }: { cfg: ZhushouConfig }) =>
+    getExistingAllowFrom: ({ cfg }: { cfg: AssistantConfig }) =>
       params.getExistingAllowFrom?.(cfg) ??
       (
         (cfg.channels?.[params.channel] as Record<string, unknown> | undefined)?.[
@@ -1383,7 +1383,7 @@ export function createNestedChannelParsedAllowFromPrompt(params: {
       )?.allowFrom ??
       [],
     ...(params.mergeEntries ? { mergeEntries: params.mergeEntries } : {}),
-    applyAllowFrom: ({ cfg, allowFrom }: { cfg: ZhushouConfig; allowFrom: string[] }) =>
+    applyAllowFrom: ({ cfg, allowFrom }: { cfg: AssistantConfig; allowFrom: string[] }) =>
       setAllowFrom(cfg, allowFrom),
   };
 
@@ -1549,7 +1549,7 @@ export async function promptResolvedAllowFrom(params: {
 }
 
 export async function promptLegacyChannelAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: CompatDmChannel;
   prompter: WizardPrompter;
   existing: Array<string | number>;
@@ -1561,7 +1561,7 @@ export async function promptLegacyChannelAllowFrom(params: {
   parseId: (value: string) => string | null;
   invalidWithoutTokenNote: string;
   resolveEntries: (params: { token: string; entries: string[] }) => Promise<AllowFromResolution[]>;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   await params.prompter.note(params.noteLines.join("\n"), params.noteTitle);
   const unique = await promptResolvedAllowFrom({
     prompter: params.prompter,
@@ -1583,13 +1583,13 @@ export async function promptLegacyChannelAllowFrom(params: {
 }
 
 export async function promptLegacyChannelAllowFromForAccount<TAccount>(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: CompatDmChannel;
   prompter: WizardPrompter;
   accountId?: string;
   defaultAccountId: string;
-  resolveAccount: (cfg: ZhushouConfig, accountId: string) => TAccount;
-  resolveExisting: (account: TAccount, cfg: ZhushouConfig) => Array<string | number>;
+  resolveAccount: (cfg: AssistantConfig, accountId: string) => TAccount;
+  resolveExisting: (account: TAccount, cfg: AssistantConfig) => Array<string | number>;
   resolveToken: (account: TAccount) => string | null | undefined;
   noteTitle: string;
   noteLines: string[];
@@ -1598,7 +1598,7 @@ export async function promptLegacyChannelAllowFromForAccount<TAccount>(params: {
   parseId: (value: string) => string | null;
   invalidWithoutTokenNote: string;
   resolveEntries: (params: { token: string; entries: string[] }) => Promise<AllowFromResolution[]>;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const accountId = resolveSetupAccountId({
     accountId: params.accountId,
     defaultAccountId: params.defaultAccountId,

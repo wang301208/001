@@ -1,16 +1,16 @@
-import { resolveConfiguredSecretInputString } from "zhushou/plugin-sdk/config-runtime";
+import { resolveConfiguredSecretInputString } from "assistant/plugin-sdk/config-runtime";
 import {
   DEFAULT_COPILOT_API_BASE_URL,
   resolveCopilotApiToken,
-} from "zhushou/plugin-sdk/github-copilot-token";
+} from "assistant/plugin-sdk/github-copilot-token";
 import {
   buildRemoteBaseUrlPolicy,
   sanitizeAndNormalizeEmbedding,
   withRemoteHttpResponse,
   type MemoryEmbeddingProvider,
   type MemoryEmbeddingProviderAdapter,
-} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
-import { fetchWithSsrFGuard, type SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/memory-core-host-engine-embeddings";
+import { fetchWithSsrFGuard, type SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
 import { resolveFirstGithubToken } from "./auth.js";
 
 const COPILOT_EMBEDDING_PROVIDER_ID = "github-copilot";

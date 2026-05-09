@@ -1,11 +1,11 @@
-import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
+import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
 import type {
   SpeechDirectiveTokenParseContext,
   SpeechProviderConfig,
   SpeechProviderOverrides,
   SpeechProviderPlugin,
-} from "zhushou/plugin-sdk/speech-core";
-import { asFiniteNumber, asObject, trimToUndefined } from "zhushou/plugin-sdk/speech-core";
+} from "assistant/plugin-sdk/speech-core";
+import { asFiniteNumber, asObject, trimToUndefined } from "assistant/plugin-sdk/speech-core";
 import {
   DEFAULT_MINIMAX_TTS_BASE_URL,
   MINIMAX_TTS_MODELS,

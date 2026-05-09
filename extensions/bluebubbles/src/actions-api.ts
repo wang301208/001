@@ -2,4 +2,4 @@ export { BLUEBUBBLES_ACTION_NAMES, BLUEBUBBLES_ACTIONS } from "./actions-contrac
 export type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
-} from "zhushou/plugin-sdk/channel-contract";
+} from "assistant/plugin-sdk/channel-contract";

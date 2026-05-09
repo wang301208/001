@@ -12,7 +12,7 @@ describe("plugin install plan helpers", () => {
     const findBundledSource = vi.fn().mockReturnValue({
       pluginId: "voice-call",
       localPath: installedPluginRoot("/tmp", "voice-call"),
-      npmSpec: "@zhushou/voice-call",
+      npmSpec: "@assistant/voice-call",
     });
 
     const result = resolveBundledInstallPlanBeforeNpm({
@@ -28,7 +28,7 @@ describe("plugin install plan helpers", () => {
   it("skips bundled pre-plan for scoped npm specs", () => {
     const findBundledSource = vi.fn();
     const result = resolveBundledInstallPlanBeforeNpm({
-      rawSpec: "@zhushou/voice-call",
+      rawSpec: "@assistant/voice-call",
       findBundledSource,
     });
 
@@ -44,7 +44,7 @@ describe("plugin install plan helpers", () => {
           return {
             pluginId: "voice-call",
             localPath: installedPluginRoot("/tmp", "voice-call"),
-            npmSpec: "@zhushou/voice-call",
+            npmSpec: "@assistant/voice-call",
           };
         }
         return undefined;
@@ -52,7 +52,7 @@ describe("plugin install plan helpers", () => {
 
     const result = resolveBundledInstallPlanForCatalogEntry({
       pluginId: "voice-call",
-      npmSpec: "@zhushou/voice-call",
+      npmSpec: "@assistant/voice-call",
       findBundledSource,
     });
 
@@ -68,7 +68,7 @@ describe("plugin install plan helpers", () => {
           return {
             pluginId: "not-voice-call",
             localPath: installedPluginRoot("/tmp", "not-voice-call"),
-            npmSpec: "@zhushou/voice-call",
+            npmSpec: "@assistant/voice-call",
           };
         }
         return undefined;
@@ -76,7 +76,7 @@ describe("plugin install plan helpers", () => {
 
     const result = resolveBundledInstallPlanForCatalogEntry({
       pluginId: "voice-call",
-      npmSpec: "@zhushou/voice-call",
+      npmSpec: "@assistant/voice-call",
       findBundledSource,
     });
 
@@ -91,7 +91,7 @@ describe("plugin install plan helpers", () => {
           return {
             pluginId: "whatsapp",
             localPath: installedPluginRoot("/tmp", "whatsapp"),
-            npmSpec: "@zhushou/whatsapp",
+            npmSpec: "@assistant/whatsapp",
           };
         }
         return undefined;
@@ -110,17 +110,17 @@ describe("plugin install plan helpers", () => {
     const findBundledSource = vi.fn().mockReturnValue({
       pluginId: "voice-call",
       localPath: installedPluginRoot("/tmp", "voice-call"),
-      npmSpec: "@zhushou/voice-call",
+      npmSpec: "@assistant/voice-call",
     });
     const result = resolveBundledInstallPlanForNpmFailure({
-      rawSpec: "@zhushou/voice-call",
+      rawSpec: "@assistant/voice-call",
       code: PLUGIN_INSTALL_ERROR_CODE.NPM_PACKAGE_NOT_FOUND,
       findBundledSource,
     });
 
     expect(findBundledSource).toHaveBeenCalledWith({
       kind: "npmSpec",
-      value: "@zhushou/voice-call",
+      value: "@assistant/voice-call",
     });
     expect(result?.warning).toContain("npm package unavailable");
   });
@@ -128,7 +128,7 @@ describe("plugin install plan helpers", () => {
   it("skips fallback for non-not-found npm failures", () => {
     const findBundledSource = vi.fn();
     const result = resolveBundledInstallPlanForNpmFailure({
-      rawSpec: "@zhushou/voice-call",
+      rawSpec: "@assistant/voice-call",
       code: "INSTALL_FAILED",
       findBundledSource,
     });

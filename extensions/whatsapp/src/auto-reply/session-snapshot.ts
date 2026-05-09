@@ -1,4 +1,4 @@
-import { normalizeMainKey } from "zhushou/plugin-sdk/routing";
+import { normalizeMainKey } from "assistant/plugin-sdk/routing";
 import {
   evaluateSessionFreshness,
   loadSessionStore,

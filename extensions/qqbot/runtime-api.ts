@@ -1,9 +1,9 @@
-export type { ChannelPlugin, ZhushouPluginApi, PluginRuntime } from "zhushou/plugin-sdk/core";
-export type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+export type { ChannelPlugin, AssistantPluginApi, PluginRuntime } from "assistant/plugin-sdk/core";
+export type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 export type {
-  OpenClawPluginService,
-  OpenClawPluginServiceContext,
+  AssistantPluginService,
+  AssistantPluginServiceContext,
   PluginLogger,
-} from "zhushou/plugin-sdk/core";
+} from "assistant/plugin-sdk/core";
 export type { ResolvedQQBotAccount, QQBotAccountConfig } from "./src/types.js";
 export { getQQBotRuntime, setQQBotRuntime } from "./src/runtime.js";

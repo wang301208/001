@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { type ClaimableDedupe, createClaimableDedupe } from "zhushou/plugin-sdk/persistent-dedupe";
-import { resolveStateDir } from "zhushou/plugin-sdk/state-paths";
-import { resolvePreferredOpenClawTmpDir } from "zhushou/plugin-sdk/temp-path";
+import { type ClaimableDedupe, createClaimableDedupe } from "assistant/plugin-sdk/persistent-dedupe";
+import { resolveStateDir } from "assistant/plugin-sdk/state-paths";
+import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
 import type { NormalizedWebhookMessage } from "./monitor-normalize.js";
 
 // BlueBubbles has no sequence/ack in its webhook protocol, and its
@@ -23,12 +23,12 @@ const MAX_GUID_CHARS = 512;
 
 function resolveStateDirFromEnv(env: NodeJS.ProcessEnv = process.env): string {
   if (env.VITEST || env.NODE_ENV === "test") {
-    // Isolate tests from real ~/.zhushou state without sharing across tests.
+    // Isolate tests from real ~/.assistant state without sharing across tests.
     // Stable-per-pid so the scoped dedupe test can observe persistence.
-    const name = "zhushou-vitest-" + process.pid;
-    return path.join(resolvePreferredOpenClawTmpDir(), name);
+    const name = "assistant-vitest-" + process.pid;
+    return path.join(resolvePreferredAssistantTmpDir(), name);
   }
-  // Canonical 助手 state dir: honors ZHUSHOU_STATE_DIR (with `~` expansion
+  // Canonical 助手 state dir: honors ASSISTANT_STATE_DIR (with `~` expansion
   // via resolveUserPath), plus legacy/new fallback. Using the shared helper
   // keeps this plugin's persistence aligned with the rest of 助手 state.
   return resolveStateDir(env);

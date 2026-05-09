@@ -598,6 +598,7 @@ export function attachGatewayWsMessageHandler(params: {
             authOk,
             hasSharedAuth,
             isLocalClient,
+            authMode: resolvedAuth.mode,
           });
           // Shared token/password auth can bypass pairing for trusted operators.
           // Device-less clients only keep self-declared scopes on the explicit
@@ -609,6 +610,9 @@ export function attachGatewayWsMessageHandler(params: {
               controlUiAuthPolicy,
               preserveInsecureLocalControlUiScopes,
               authMethod,
+              authMode: resolvedAuth.mode,
+              isControlUi,
+              role,
               trustedProxyAuthOk,
             })
           ) {

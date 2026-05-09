@@ -1,13 +1,13 @@
 import {
   captureHttpExchange,
   isDebugProxyGlobalFetchPatchInstalled,
-} from "zhushou/plugin-sdk/proxy-capture";
+} from "assistant/plugin-sdk/proxy-capture";
 import {
   asObject,
   readResponseTextLimited,
   trimToUndefined,
   truncateErrorDetail,
-} from "zhushou/plugin-sdk/speech";
+} from "assistant/plugin-sdk/speech";
 
 export const DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1";
 

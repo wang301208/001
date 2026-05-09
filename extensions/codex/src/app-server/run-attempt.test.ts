@@ -6,7 +6,7 @@ import {
   abortAgentHarnessRun,
   queueAgentHarnessMessage,
   type EmbeddedRunAttemptParams,
-} from "zhushou/plugin-sdk/agent-harness";
+} from "assistant/plugin-sdk/agent-harness";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CodexServerNotification } from "./protocol.js";
 import { runCodexAppServerAttempt, __testing } from "./run-attempt.js";
@@ -113,7 +113,7 @@ function createResumeHarness() {
 
 describe("runCodexAppServerAttempt", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-codex-run-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-codex-run-"));
   });
 
   afterEach(async () => {

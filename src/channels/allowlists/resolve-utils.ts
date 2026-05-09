@@ -1,4 +1,4 @@
-import { mapAllowFromEntries } from "zhushou/plugin-sdk/channel-config-helpers";
+import { mapAllowFromEntries } from "assistant/plugin-sdk/channel-config-helpers";
 import type { RuntimeEnv } from "../../runtime.js";
 import {
   normalizeLowercaseStringOrEmpty,

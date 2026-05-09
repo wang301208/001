@@ -4,18 +4,18 @@ import { buildSystemdUnit } from "./systemd-unit.js";
 describe("buildSystemdUnit", () => {
   it("quotes arguments with whitespace", () => {
     const unit = buildSystemdUnit({
-      description: "OpenClaw Gateway",
-      programArguments: ["/usr/bin/zhushou", "gateway", "--name", "My Bot"],
+      description: "Assistant Gateway",
+      programArguments: ["/usr/bin/assistant", "gateway", "--name", "My Bot"],
       environment: {},
     });
     const execStart = unit.split("\n").find((line) => line.startsWith("ExecStart="));
-    expect(execStart).toBe('ExecStart=/usr/bin/openclaw gateway --name "My Bot"');
+    expect(execStart).toBe('ExecStart=/usr/bin/assistant gateway --name "My Bot"');
   });
 
   it("renders control-group kill mode for child-process cleanup", () => {
     const unit = buildSystemdUnit({
-      description: "OpenClaw Gateway",
-      programArguments: ["/usr/bin/zhushou", "gateway", "run"],
+      description: "Assistant Gateway",
+      programArguments: ["/usr/bin/assistant", "gateway", "run"],
       environment: {},
     });
     expect(unit).toContain("KillMode=control-group");
@@ -24,14 +24,16 @@ describe("buildSystemdUnit", () => {
     expect(unit).toContain("SuccessExitStatus=0 143");
     expect(unit).toContain("StartLimitBurst=5");
     expect(unit).toContain("StartLimitIntervalSec=60");
-    expect(unit).toContain("RestartPreventExitStatus=78");
+    expect(unit).not.toContain("Restart=");
+    expect(unit).not.toContain("RestartSec=");
+    expect(unit).not.toContain("RestartPreventExitStatus=");
   });
 
   it("rejects environment values with line breaks", () => {
     expect(() =>
       buildSystemdUnit({
-        description: "OpenClaw Gateway",
-        programArguments: ["/usr/bin/zhushou", "gateway", "start"],
+        description: "Assistant Gateway",
+        programArguments: ["/usr/bin/assistant", "gateway", "start"],
         environment: {
           INJECT: "ok\nExecStartPre=/bin/touch /tmp/oc15789_rce",
         },
@@ -41,17 +43,17 @@ describe("buildSystemdUnit", () => {
 
   it("renders EnvironmentFile entries before inline Environment values", () => {
     const unit = buildSystemdUnit({
-      description: "OpenClaw Gateway",
-      programArguments: ["/usr/bin/zhushou", "gateway", "run"],
-      environmentFiles: ["/home/test/.zhushou/.env"],
+      description: "Assistant Gateway",
+      programArguments: ["/usr/bin/assistant", "gateway", "run"],
+      environmentFiles: ["/home/test/.assistant/.env"],
       environment: {
-        ZHUSHOU_GATEWAY_PORT: "18789",
+        ASSISTANT_GATEWAY_PORT: "18789",
       },
     });
-    expect(unit).toContain("EnvironmentFile=-/home/test/.zhushou/.env");
-    expect(unit).toContain("Environment=ZHUSHOU_GATEWAY_PORT=18789");
-    expect(unit.indexOf("EnvironmentFile=-/home/test/.zhushou/.env")).toBeLessThan(
-      unit.indexOf("Environment=ZHUSHOU_GATEWAY_PORT=18789"),
+    expect(unit).toContain("EnvironmentFile=-/home/test/.assistant/.env");
+    expect(unit).toContain("Environment=ASSISTANT_GATEWAY_PORT=18789");
+    expect(unit.indexOf("EnvironmentFile=-/home/test/.assistant/.env")).toBeLessThan(
+      unit.indexOf("Environment=ASSISTANT_GATEWAY_PORT=18789"),
     );
   });
 });

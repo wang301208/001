@@ -1,5 +1,5 @@
 import "./test-helpers.js";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { installWebAutoReplyUnitTestHooks, makeSessionStore } from "./auto-reply.test-harness.js";
 
@@ -19,7 +19,7 @@ vi.mock("./auto-reply/monitor/last-route.js", async () => {
   };
 });
 
-function makeCfg(storePath: string): ZhushouConfig {
+function makeCfg(storePath: string): AssistantConfig {
   return {
     channels: { whatsapp: { allowFrom: ["*"] } },
     session: { store: storePath },
@@ -35,7 +35,7 @@ function makeReplyLogger() {
   } as unknown as Parameters<typeof createWebOnMessageHandler>[0]["replyLogger"];
 }
 
-function createHandlerForTest(opts: { cfg: ZhushouConfig; replyResolver: unknown }) {
+function createHandlerForTest(opts: { cfg: AssistantConfig; replyResolver: unknown }) {
   const backgroundTasks = new Set<Promise<unknown>>();
   const handler = createWebOnMessageHandler({
     cfg: opts.cfg,

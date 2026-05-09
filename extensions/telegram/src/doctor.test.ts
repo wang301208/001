@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   collectTelegramInvalidAllowFromWarnings,
@@ -14,7 +14,7 @@ const listTelegramAccountIdsMock = vi.hoisted(() => vi.fn());
 const inspectTelegramAccountMock = vi.hoisted(() => vi.fn());
 const lookupTelegramChatIdMock = vi.hoisted(() => vi.fn());
 
-vi.mock("zhushou/plugin-sdk/runtime-secret-resolution", () => {
+vi.mock("assistant/plugin-sdk/runtime-secret-resolution", () => {
   return {
     getChannelsCommandSecretTargetIds: () => ["channels"],
     resolveCommandSecretRefsViaGateway: resolveCommandSecretRefsViaGatewayMock,
@@ -165,7 +165,7 @@ describe("telegram doctor", () => {
           },
         },
       },
-    } as unknown as ZhushouConfig);
+    } as unknown as AssistantConfig);
 
     expect(hits).toEqual([
       { path: "channels.telegram.allowFrom", entry: "@top" },
@@ -212,7 +212,7 @@ describe("telegram doctor", () => {
           allowFrom: ["@testuser"],
         },
       },
-    } as unknown as ZhushouConfig);
+    } as unknown as AssistantConfig);
 
     expect(result.config.channels?.telegram?.allowFrom).toEqual(["111"]);
     expect(result.changes[0]).toContain("@testuser");
@@ -225,7 +225,7 @@ describe("telegram doctor", () => {
           allowFrom: [-1001234567890],
         },
       },
-    } as unknown as ZhushouConfig);
+    } as unknown as AssistantConfig);
 
     expect(result.config.channels?.telegram?.allowFrom).toEqual([-1001234567890]);
     expect(result.changes).toEqual([
@@ -270,7 +270,7 @@ describe("telegram doctor", () => {
           },
         },
       },
-    } as unknown as ZhushouConfig);
+    } as unknown as AssistantConfig);
 
     expect(result.config.channels?.telegram?.accounts?.inactive?.allowFrom).toEqual(["@testuser"]);
     expect(result.changes).toEqual([
@@ -282,10 +282,10 @@ describe("telegram doctor", () => {
   it("formats invalid allowFrom warnings", () => {
     const warnings = collectTelegramInvalidAllowFromWarnings({
       hits: [{ path: "channels.telegram.allowFrom", entry: "@top" }],
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
     });
 
     expect(warnings[0]).toContain("invalid sender entries");
-    expect(warnings[1]).toContain("zhushou doctor --fix");
+    expect(warnings[1]).toContain("assistant doctor --fix");
   });
 });

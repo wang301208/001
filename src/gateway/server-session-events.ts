@@ -7,7 +7,7 @@ import type {
 } from "./server-chat.js";
 import { resolveSessionKeyForTranscriptFile } from "./session-transcript-key.js";
 import {
-  attachOpenClawTranscriptMeta,
+  attachAssistantTranscriptMeta,
   loadGatewaySessionRow,
   loadSessionEntry,
   readSessionMessages,
@@ -109,7 +109,7 @@ export function createTranscriptUpdateBroadcastHandler(params: {
       sessionRow: loadGatewaySessionRow(sessionKey),
       includeSession: true,
     });
-    const message = attachOpenClawTranscriptMeta(update.message, {
+    const message = attachAssistantTranscriptMeta(update.message, {
       ...(typeof update.messageId === "string" ? { id: update.messageId } : {}),
       ...(typeof messageSeq === "number" ? { seq: messageSeq } : {}),
     });

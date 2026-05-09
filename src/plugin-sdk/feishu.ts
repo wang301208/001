@@ -1,4 +1,4 @@
-// Private helper surface for the bundled feishu plugin.
+﻿// Private helper surface for the bundled feishu plugin.
 // Keep this list additive and scoped to the bundled Feishu surface.
 
 export type { HistoryEntry } from "../auto-reply/reply/history.js";
@@ -40,7 +40,7 @@ export type {
 export type { ChannelPlugin } from "../channels/plugins/types.plugin.js";
 export { createReplyPrefixContext } from "../channels/reply-prefix.js";
 export { createChannelReplyPipeline } from "./channel-reply-pipeline.js";
-export type { ZhushouConfig as ClawdbotConfig, ZhushouConfig } from "../config/config.js";
+export type { AssistantConfig } from "../config/config.js";
 export { resolveChannelContextVisibilityMode } from "../config/context-visibility.js";
 export {
   resolveAllowlistProviderRuntimeGroupPolicy,
@@ -69,7 +69,7 @@ export { resolveAgentOutboundIdentity } from "../infra/outbound/identity.js";
 export type { OutboundIdentity } from "../infra/outbound/identity.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 export type { PluginRuntime } from "../plugins/runtime/types.js";
-export type { AnyAgentTool, ZhushouPluginApi } from "../plugins/types.js";
+export type { AnyAgentTool, AssistantPluginApi } from "../plugins/types.js";
 export { DEFAULT_ACCOUNT_ID, normalizeAgentId } from "../routing/session-key.js";
 export type { RuntimeEnv } from "../runtime.js";
 export { formatDocsLink } from "../terminal/links.js";

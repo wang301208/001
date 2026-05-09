@@ -5,3 +5,6 @@ resources:
   - configmap.yaml
   - deployment.yaml
   - service.yaml
+  - ../../../monitoring/k8s/prometheus.yaml
+  - ../../../monitoring/k8s/otel-collector.yaml
+  - ../../../monitoring/k8s/grafana.yaml

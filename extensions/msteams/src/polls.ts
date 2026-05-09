@@ -95,13 +95,13 @@ export function extractMSTeamsPollVote(
     return null;
   }
   const pollId =
-    readNestedString(value, ["openclawPollId"]) ??
+    readNestedString(value, ["assistantPollId"]) ??
     readNestedString(value, ["pollId"]) ??
-    readNestedString(value, ["zhushou", "pollId"]) ??
-    readNestedString(value, ["zhushou", "poll", "id"]) ??
-    readNestedString(value, ["data", "openclawPollId"]) ??
+    readNestedString(value, ["assistant", "pollId"]) ??
+    readNestedString(value, ["assistant", "poll", "id"]) ??
+    readNestedString(value, ["data", "assistantPollId"]) ??
     readNestedString(value, ["data", "pollId"]) ??
-    readNestedString(value, ["data", "zhushou", "pollId"]);
+    readNestedString(value, ["data", "assistant", "pollId"]);
   if (!pollId) {
     return null;
   }
@@ -178,14 +178,14 @@ export function buildMSTeamsPollCard(params: {
         type: "Action.Submit",
         title: "Vote",
         data: {
-          openclawPollId: pollId,
+          assistantPollId: pollId,
           pollId,
         },
         msteams: {
           type: "messageBack",
-          text: "zhushou poll vote",
+          text: "assistant poll vote",
           displayText: "Vote recorded",
-          value: { openclawPollId: pollId, pollId },
+          value: { assistantPollId: pollId, pollId },
         },
       },
     ],

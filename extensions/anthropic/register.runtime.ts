@@ -1,26 +1,26 @@
-import { formatCliCommand, parseDurationMs } from "zhushou/plugin-sdk/cli-runtime";
+import { formatCliCommand, parseDurationMs } from "assistant/plugin-sdk/cli-runtime";
 import type {
-  ZhushouPluginApi,
+  AssistantPluginApi,
   ProviderAuthContext,
   ProviderAuthMethodNonInteractiveContext,
   ProviderResolveDynamicModelContext,
   ProviderRuntimeModel,
-} from "zhushou/plugin-sdk/plugin-entry";
+} from "assistant/plugin-sdk/plugin-entry";
 import {
   applyAuthProfileConfig,
   type AuthProfileStore,
   buildTokenProfileId,
   createProviderApiKeyAuthMethod,
   listProfilesForProvider,
-  type ZhushouConfig as ProviderAuthConfig,
+  type AssistantConfig as ProviderAuthConfig,
   type ProviderAuthResult,
   suggestOAuthProfileIdForLegacyDefault,
   upsertAuthProfile,
   validateAnthropicSetupToken,
-} from "zhushou/plugin-sdk/provider-auth";
-import { cloneFirstTemplateModel } from "zhushou/plugin-sdk/provider-model-shared";
-import { fetchClaudeUsage } from "zhushou/plugin-sdk/provider-usage";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/provider-auth";
+import { cloneFirstTemplateModel } from "assistant/plugin-sdk/provider-model-shared";
+import { fetchClaudeUsage } from "assistant/plugin-sdk/provider-usage";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import * as claudeCliAuth from "./cli-auth-seam.js";
 import { buildAnthropicCliBackend } from "./cli-backend.js";
 import { buildAnthropicCliMigrationResult } from "./cli-migration.js";
@@ -65,7 +65,7 @@ const ANTHROPIC_SETUP_TOKEN_NOTE_LINES = [
   "Anthropic setup-token auth is supported in 助手.",
   "助手 prefers Claude CLI reuse when it is available on the host.",
   "Anthropic staff told us this 助手 path is allowed again.",
-  `If you want a direct API billing path instead, use ${formatCliCommand("zhushou models auth login --provider anthropic --method api-key --set-default")} or ${formatCliCommand("zhushou models auth login --provider anthropic --method cli --set-default")}.`,
+  `If you want a direct API billing path instead, use ${formatCliCommand("assistant models auth login --provider anthropic --method api-key --set-default")} or ${formatCliCommand("assistant models auth login --provider anthropic --method cli --set-default")}.`,
 ] as const;
 
 function normalizeAnthropicSetupTokenInput(value: string): string {
@@ -311,7 +311,7 @@ function buildAnthropicAuthDoctorHint(params: {
     }`,
     `- auth store oauth profiles: ${storeOauthProfiles || "(none)"}`,
     `- suggested profile: ${suggested}`,
-    `Fix: run "${formatCliCommand("zhushou doctor --yes")}"`,
+    `Fix: run "${formatCliCommand("assistant doctor --yes")}"`,
   ].join("\n");
 }
 
@@ -395,7 +395,7 @@ async function runAnthropicCliMigrationNonInteractive(ctx: {
   };
 }
 
-export function registerAnthropicPlugin(api: ZhushouPluginApi): void {
+export function registerAnthropicPlugin(api: AssistantPluginApi): void {
   const providerId = "anthropic";
   const defaultAnthropicModel = DEFAULT_ANTHROPIC_MODEL;
   api.registerCliBackend(buildAnthropicCliBackend());

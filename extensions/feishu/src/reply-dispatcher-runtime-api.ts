@@ -1,6 +1,6 @@
-export {
+﻿export {
   createReplyPrefixContext,
-  type ClawdbotConfig,
+  type AssistantConfig,
   type OutboundIdentity,
   type ReplyPayload,
   type RuntimeEnv,

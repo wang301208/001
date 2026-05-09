@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelDirectoryEntry } from "../../channels/plugins/types.js";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 type TargetResolverModule = typeof import("./target-resolver.js");
 
 let resetDirectoryCache: TargetResolverModule["resetDirectoryCache"];
@@ -62,7 +62,7 @@ async function expectOkResolution(
 }
 
 describe("resolveMessagingTarget (directory fallback)", () => {
-  const cfg = {} as ZhushouConfig;
+  const cfg = {} as AssistantConfig;
 
   beforeEach(() => {
     resetDirectoryCache();

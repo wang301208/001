@@ -1,7 +1,7 @@
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
 import type { LegacyConfigRule } from "../../config/legacy.shared.js";
 import type { AgentBinding } from "../../config/types.agents.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { GroupToolPolicyConfig } from "../../config/types.tools.js";
 import type { ChannelApprovalNativeRuntimeAdapter } from "../../infra/approval-handler-runtime-types.js";
 import type { ChannelApprovalKind } from "../../infra/approval-types.js";
@@ -75,34 +75,34 @@ type BivariantCallback<T extends (...args: never[]) => unknown> = {
 
 export type ChannelSetupAdapter = {
   resolveAccountId?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
     input?: ChannelSetupInput;
   }) => string;
   resolveBindingAccountId?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     agentId: string;
     accountId?: string;
   }) => string | undefined;
   applyAccountName?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     name?: string;
-  }) => ZhushouConfig;
+  }) => AssistantConfig;
   applyAccountConfig: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     input: ChannelSetupInput;
-  }) => ZhushouConfig;
+  }) => AssistantConfig;
   afterAccountConfigWritten?: (params: {
-    previousCfg: ZhushouConfig;
-    cfg: ZhushouConfig;
+    previousCfg: AssistantConfig;
+    cfg: AssistantConfig;
     accountId: string;
     input: ChannelSetupInput;
     runtime: RuntimeEnv;
   }) => Promise<void> | void;
   validateInput?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     input: ChannelSetupInput;
   }) => string | null;
@@ -114,38 +114,38 @@ export type ChannelSetupAdapter = {
 };
 
 export type ChannelConfigAdapter<ResolvedAccount> = {
-  listAccountIds: (cfg: ZhushouConfig) => string[];
-  resolveAccount: (cfg: ZhushouConfig, accountId?: string | null) => ResolvedAccount;
-  inspectAccount?: (cfg: ZhushouConfig, accountId?: string | null) => unknown;
-  defaultAccountId?: (cfg: ZhushouConfig) => string;
+  listAccountIds: (cfg: AssistantConfig) => string[];
+  resolveAccount: (cfg: AssistantConfig, accountId?: string | null) => ResolvedAccount;
+  inspectAccount?: (cfg: AssistantConfig, accountId?: string | null) => unknown;
+  defaultAccountId?: (cfg: AssistantConfig) => string;
   setAccountEnabled?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     enabled: boolean;
-  }) => ZhushouConfig;
-  deleteAccount?: (params: { cfg: ZhushouConfig; accountId: string }) => ZhushouConfig;
-  isEnabled?: BivariantCallback<(account: ResolvedAccount, cfg: ZhushouConfig) => boolean>;
-  disabledReason?: BivariantCallback<(account: ResolvedAccount, cfg: ZhushouConfig) => string>;
+  }) => AssistantConfig;
+  deleteAccount?: (params: { cfg: AssistantConfig; accountId: string }) => AssistantConfig;
+  isEnabled?: BivariantCallback<(account: ResolvedAccount, cfg: AssistantConfig) => boolean>;
+  disabledReason?: BivariantCallback<(account: ResolvedAccount, cfg: AssistantConfig) => string>;
   isConfigured?: BivariantCallback<
-    (account: ResolvedAccount, cfg: ZhushouConfig) => boolean | Promise<boolean>
+    (account: ResolvedAccount, cfg: AssistantConfig) => boolean | Promise<boolean>
   >;
-  unconfiguredReason?: BivariantCallback<(account: ResolvedAccount, cfg: ZhushouConfig) => string>;
+  unconfiguredReason?: BivariantCallback<(account: ResolvedAccount, cfg: AssistantConfig) => string>;
   describeAccount?: BivariantCallback<
-    (account: ResolvedAccount, cfg: ZhushouConfig) => ChannelAccountSnapshot
+    (account: ResolvedAccount, cfg: AssistantConfig) => ChannelAccountSnapshot
   >;
   resolveAllowFrom?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
   }) => Array<string | number> | undefined;
   formatAllowFrom?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     allowFrom: Array<string | number>;
   }) => string[];
-  hasConfiguredState?: (params: { cfg: ZhushouConfig; env?: NodeJS.ProcessEnv }) => boolean;
-  hasPersistedAuthState?: (params: { cfg: ZhushouConfig; env?: NodeJS.ProcessEnv }) => boolean;
+  hasConfiguredState?: (params: { cfg: AssistantConfig; env?: NodeJS.ProcessEnv }) => boolean;
+  hasPersistedAuthState?: (params: { cfg: AssistantConfig; env?: NodeJS.ProcessEnv }) => boolean;
   resolveDefaultTo?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
   }) => string | undefined;
 };
@@ -158,7 +158,7 @@ export type ChannelSecretsAdapter = {
     value: unknown;
   }>;
   collectRuntimeConfigAssignments?: (params: {
-    config: ZhushouConfig;
+    config: AssistantConfig;
     defaults: SecretDefaults | undefined;
     context: ResolverContext;
   }) => void;
@@ -176,13 +176,13 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
   buildChannelSummary?: BivariantCallback<
     (params: {
       account: ResolvedAccount;
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       defaultAccountId: string;
       snapshot: ChannelAccountSnapshot;
     }) => Record<string, unknown> | Promise<Record<string, unknown>>
   >;
   probeAccount?: BivariantCallback<
-    (params: { account: ResolvedAccount; timeoutMs: number; cfg: ZhushouConfig }) => Promise<Probe>
+    (params: { account: ResolvedAccount; timeoutMs: number; cfg: AssistantConfig }) => Promise<Probe>
   >;
   formatCapabilitiesProbe?: BivariantCallback<
     (params: { probe: Probe }) => ChannelCapabilitiesDisplayLine[]
@@ -191,7 +191,7 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
     (params: {
       account: ResolvedAccount;
       timeoutMs: number;
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       probe?: Probe;
     }) => Promise<Audit>
   >;
@@ -199,7 +199,7 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
     (params: {
       account: ResolvedAccount;
       timeoutMs: number;
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       probe?: Probe;
       audit?: Audit;
       target?: string;
@@ -208,7 +208,7 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
   buildAccountSnapshot?: BivariantCallback<
     (params: {
       account: ResolvedAccount;
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       runtime?: ChannelAccountSnapshot;
       probe?: Probe;
       audit?: Audit;
@@ -217,7 +217,7 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
   logSelfId?: BivariantCallback<
     (params: {
       account: ResolvedAccount;
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       runtime: RuntimeEnv;
       includeChannelPrefix?: boolean;
     }) => void
@@ -225,7 +225,7 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
   resolveAccountState?: BivariantCallback<
     (params: {
       account: ResolvedAccount;
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       configured: boolean;
       enabled: boolean;
     }) => ChannelAccountState
@@ -234,7 +234,7 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
 };
 
 export type ChannelGatewayContext<ResolvedAccount = unknown> = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   account: ResolvedAccount;
   runtime: RuntimeEnv;
@@ -303,7 +303,7 @@ export type ChannelGatewayContext<ResolvedAccount = unknown> = {
    *   partial stubs are not supported
    *
    * @since Plugin SDK 2026.2.19
-   * @see {@link https://docs.zhushou.ai/plugins/building-plugins | Plugin SDK documentation}
+   * @see {@link https://docs.assistant.ai/plugins/building-plugins | Plugin SDK documentation}
    */
   channelRuntime?: ChannelRuntimeSurface;
 };
@@ -325,7 +325,7 @@ export type ChannelLoginWithQrWaitResult = {
 };
 
 export type ChannelLogoutContext<ResolvedAccount = unknown> = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   account: ResolvedAccount;
   runtime: RuntimeEnv;
@@ -336,7 +336,7 @@ export type ChannelGatewayAdapter<ResolvedAccount = unknown> = {
   startAccount?: (ctx: ChannelGatewayContext<ResolvedAccount>) => Promise<unknown>;
   stopAccount?: (ctx: ChannelGatewayContext<ResolvedAccount>) => Promise<void>;
   /** Keep gateway auth bypass resolution mirrored through a lightweight top-level `gateway-auth-api.ts` artifact. */
-  resolveGatewayAuthBypassPaths?: (params: { cfg: ZhushouConfig }) => string[];
+  resolveGatewayAuthBypassPaths?: (params: { cfg: AssistantConfig }) => string[];
   loginWithQrStart?: (params: {
     accountId?: string;
     force?: boolean;
@@ -352,7 +352,7 @@ export type ChannelGatewayAdapter<ResolvedAccount = unknown> = {
 
 export type ChannelAuthAdapter = {
   login?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     runtime: RuntimeEnv;
     verbose?: boolean;
@@ -362,12 +362,12 @@ export type ChannelAuthAdapter = {
 
 export type ChannelHeartbeatAdapter = {
   checkReady?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     deps?: ChannelHeartbeatDeps;
   }) => Promise<{ ok: boolean; reason: string }>;
   resolveRecipients?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     opts?: { to?: string; all?: boolean; accountId?: string };
   }) => {
     recipients: string[];
@@ -376,13 +376,13 @@ export type ChannelHeartbeatAdapter = {
 };
 
 type ChannelDirectorySelfParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   runtime: RuntimeEnv;
 };
 
 type ChannelDirectoryListParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   query?: string | null;
   limit?: number | null;
@@ -390,7 +390,7 @@ type ChannelDirectoryListParams = {
 };
 
 type ChannelDirectoryListGroupMembersParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   groupId: string;
   limit?: number | null;
@@ -420,7 +420,7 @@ export type ChannelResolveResult = {
 
 export type ChannelResolverAdapter = {
   resolveTargets: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     inputs: string[];
     kind: ChannelResolveKind;
@@ -430,7 +430,7 @@ export type ChannelResolverAdapter = {
 
 export type ChannelElevatedAdapter = {
   allowFromFallback?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
   }) => Array<string | number> | undefined;
 };
@@ -466,7 +466,7 @@ export type ChannelCommandAdapter = {
 };
 
 export type ChannelDoctorConfigMutation = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changes: string[];
   warnings?: string[];
 };
@@ -493,25 +493,25 @@ export type ChannelDoctorAdapter = {
   groupAllowFromFallbackToAllowFrom?: boolean;
   warnOnEmptyGroupSenderAllowlist?: boolean;
   legacyConfigRules?: LegacyConfigRule[];
-  normalizeCompatibilityConfig?: (params: { cfg: ZhushouConfig }) => ChannelDoctorConfigMutation;
+  normalizeCompatibilityConfig?: (params: { cfg: AssistantConfig }) => ChannelDoctorConfigMutation;
   collectPreviewWarnings?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     doctorFixCommand: string;
   }) => string[] | Promise<string[]>;
   collectMutableAllowlistWarnings?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
   }) => string[] | Promise<string[]>;
   repairConfig?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     doctorFixCommand: string;
   }) => ChannelDoctorConfigMutation | Promise<ChannelDoctorConfigMutation>;
   runConfigSequence?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     env: NodeJS.ProcessEnv;
     shouldRepair: boolean;
   }) => ChannelDoctorSequenceResult | Promise<ChannelDoctorSequenceResult>;
   cleanStaleConfig?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
   }) => ChannelDoctorConfigMutation | Promise<ChannelDoctorConfigMutation>;
   collectEmptyAllowlistExtraWarnings?: (
     params: ChannelDoctorEmptyAllowlistAccountContext,
@@ -523,18 +523,18 @@ export type ChannelDoctorAdapter = {
 
 export type ChannelLifecycleAdapter = {
   onAccountConfigChanged?: (params: {
-    prevCfg: ZhushouConfig;
-    nextCfg: ZhushouConfig;
+    prevCfg: AssistantConfig;
+    nextCfg: AssistantConfig;
     accountId: string;
     runtime: RuntimeEnv;
   }) => Promise<void> | void;
   onAccountRemoved?: (params: {
-    prevCfg: ZhushouConfig;
+    prevCfg: AssistantConfig;
     accountId: string;
     runtime: RuntimeEnv;
   }) => Promise<void> | void;
   runStartupMaintenance?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     env?: NodeJS.ProcessEnv;
     log: {
       info?: (message: string) => void;
@@ -544,7 +544,7 @@ export type ChannelLifecycleAdapter = {
     logPrefix?: string;
   }) => Promise<void> | void;
   detectLegacyStateMigrations?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     env: NodeJS.ProcessEnv;
     stateDir: string;
     oauthDir: string;
@@ -552,9 +552,9 @@ export type ChannelLifecycleAdapter = {
 };
 
 export type ChannelApprovalDeliveryAdapter = {
-  hasConfiguredDmRoute?: (params: { cfg: ZhushouConfig }) => boolean;
+  hasConfiguredDmRoute?: (params: { cfg: AssistantConfig }) => boolean;
   shouldSuppressForwardingFallback?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     approvalKind: ChannelApprovalKind;
     target: ChannelApprovalForwardTarget;
     request: ExecApprovalRequest;
@@ -577,26 +577,26 @@ export type {
 export type ChannelApprovalRenderAdapter = {
   exec?: {
     buildPendingPayload?: (params: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       request: ExecApprovalRequest;
       target: ChannelApprovalForwardTarget;
       nowMs: number;
     }) => ReplyPayload | null;
     buildResolvedPayload?: (params: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       resolved: ExecApprovalResolved;
       target: ChannelApprovalForwardTarget;
     }) => ReplyPayload | null;
   };
   plugin?: {
     buildPendingPayload?: (params: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       request: PluginApprovalRequest;
       target: ChannelApprovalForwardTarget;
       nowMs: number;
     }) => ReplyPayload | null;
     buildResolvedPayload?: (params: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       resolved: PluginApprovalResolved;
       target: ChannelApprovalForwardTarget;
     }) => ReplyPayload | null;
@@ -617,7 +617,7 @@ export type ChannelApprovalAdapter = {
 
 export type ChannelApprovalCapability = ChannelApprovalAdapter & {
   authorizeActorAction?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     senderId?: string | null;
     action: "approve";
@@ -627,19 +627,19 @@ export type ChannelApprovalCapability = ChannelApprovalAdapter & {
     reason?: string;
   };
   getActionAvailabilityState?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     action: "approve";
     approvalKind?: ChannelApprovalKind;
   }) => ChannelActionAvailabilityState;
   /** Exec-native client availability for the initiating surface; distinct from same-chat auth. */
   getExecInitiatingSurfaceState?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     action: "approve";
   }) => ChannelActionAvailabilityState;
   resolveApproveCommandBehavior?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     senderId?: string | null;
     approvalKind: ChannelApprovalKind;
@@ -648,7 +648,7 @@ export type ChannelApprovalCapability = ChannelApprovalAdapter & {
 
 export type ChannelAllowlistAdapter = {
   applyConfigEdit?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     parsedConfig: Record<string, unknown>;
     accountId?: string | null;
     scope: "dm" | "group";
@@ -676,7 +676,7 @@ export type ChannelAllowlistAdapter = {
           }
       >
     | null;
-  readConfig?: (params: { cfg: ZhushouConfig; accountId?: string | null }) =>
+  readConfig?: (params: { cfg: AssistantConfig; accountId?: string | null }) =>
     | {
         dmAllowFrom?: Array<string | number>;
         groupAllowFrom?: Array<string | number>;
@@ -692,7 +692,7 @@ export type ChannelAllowlistAdapter = {
         groupOverrides?: Array<{ label: string; entries: Array<string | number> }>;
       }>;
   resolveNames?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string | null;
     scope: "dm" | "group";
     entries: string[];
@@ -806,7 +806,7 @@ export type ChannelConversationBindingSupport = {
     idleTimeoutMs?: number;
     maxAgeMs?: number;
   }>;
-  createManager?: (params: { cfg: ZhushouConfig; accountId?: string | null }) =>
+  createManager?: (params: { cfg: AssistantConfig; accountId?: string | null }) =>
     | {
         stop: () => void | Promise<void>;
       }
@@ -817,7 +817,7 @@ export type ChannelConversationBindingSupport = {
 
 export type ChannelSecurityAdapter<ResolvedAccount = unknown> = {
   applyConfigFixes?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     env: NodeJS.ProcessEnv;
   }) => ChannelDoctorConfigMutation | Promise<ChannelDoctorConfigMutation>;
   resolveDmPolicy?: BivariantCallback<
@@ -829,7 +829,7 @@ export type ChannelSecurityAdapter<ResolvedAccount = unknown> = {
   collectAuditFindings?: BivariantCallback<
     (
       ctx: ChannelSecurityContext<ResolvedAccount> & {
-        sourceConfig: ZhushouConfig;
+        sourceConfig: AssistantConfig;
         orderedAccountIds: string[];
         hasExplicitAccountPath: boolean;
       },

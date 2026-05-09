@@ -1,10 +1,10 @@
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
-} from "zhushou/plugin-sdk/reply-payload";
+} from "assistant/plugin-sdk/reply-payload";
 import {
   getAgentScopedMediaLocalRoots,
-  type ZhushouConfig,
+  type AssistantConfig,
   type PluginRuntime,
   type ReplyPayload,
 } from "./runtime-api.js";
@@ -15,7 +15,7 @@ type SendMattermostMessage = (
   to: string,
   text: string,
   opts: {
-    cfg?: ZhushouConfig;
+    cfg?: AssistantConfig;
     accountId?: string;
     mediaUrl?: string;
     mediaLocalRoots?: readonly string[];
@@ -25,7 +25,7 @@ type SendMattermostMessage = (
 
 export async function deliverMattermostReplyPayload(params: {
   core: PluginRuntime;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   payload: ReplyPayload;
   to: string;
   accountId: string;

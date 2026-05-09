@@ -1,6 +1,6 @@
 import { messagingApi } from "@line/bot-sdk";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { withTimeout } from "zhushou/plugin-sdk/text-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { withTimeout } from "assistant/plugin-sdk/text-runtime";
 import type { LineProbeResult } from "./types.js";
 
 export async function probeLineBot(

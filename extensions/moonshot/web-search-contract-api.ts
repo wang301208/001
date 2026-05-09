@@ -1,7 +1,7 @@
 import {
   createWebSearchProviderContractFields,
   type WebSearchProviderPlugin,
-} from "zhushou/plugin-sdk/provider-web-search-config-contract";
+} from "assistant/plugin-sdk/provider-web-search-config-contract";
 
 export function createKimiWebSearchProvider(): WebSearchProviderPlugin {
   const credentialPath = "plugins.entries.moonshot.config.webSearch.apiKey";
@@ -15,7 +15,7 @@ export function createKimiWebSearchProvider(): WebSearchProviderPlugin {
     envVars: ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
     placeholder: "sk-...",
     signupUrl: "https://platform.moonshot.cn/",
-    docsUrl: "https://docs.zhushou.ai/tools/web",
+    docsUrl: "https://docs.assistant.ai/tools/web",
     autoDetectOrder: 40,
     credentialPath,
     ...createWebSearchProviderContractFields({

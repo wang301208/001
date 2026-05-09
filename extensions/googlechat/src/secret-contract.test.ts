@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../../src/config/types.js";
+import type { AssistantConfig } from "../../../src/config/types.js";
 import { resolveSecretRefValues } from "../../../src/secrets/resolve.js";
 import {
   applyResolvedAssignments,
@@ -25,8 +25,8 @@ describe("googlechat secret contract", () => {
           },
         },
       },
-    } satisfies ZhushouConfig;
-    const resolvedConfig: ZhushouConfig = structuredClone(sourceConfig);
+    } satisfies AssistantConfig;
+    const resolvedConfig: AssistantConfig = structuredClone(sourceConfig);
     const context = createResolverContext({
       sourceConfig,
       env: {

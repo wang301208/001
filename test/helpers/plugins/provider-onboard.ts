@@ -1,10 +1,10 @@
 import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
-} from "zhushou/plugin-sdk/provider-onboard";
-import type { ModelApi } from "zhushou/plugin-sdk/provider-onboard";
+} from "assistant/plugin-sdk/provider-onboard";
+import type { ModelApi } from "assistant/plugin-sdk/provider-onboard";
 import { expect } from "vitest";
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 import {
   createConfigWithFallbacks,
   createLegacyProviderConfig,
@@ -12,7 +12,7 @@ import {
 } from "./onboard-config.js";
 
 export function expectProviderOnboardAllowlistAlias(params: {
-  applyProviderConfig: (config: ZhushouConfig) => ZhushouConfig;
+  applyProviderConfig: (config: AssistantConfig) => AssistantConfig;
   modelRef: string;
   alias: string;
 }) {
@@ -32,7 +32,7 @@ export function expectProviderOnboardAllowlistAlias(params: {
 }
 
 export function expectProviderOnboardPrimaryAndFallbacks(params: {
-  applyConfig: (config: ZhushouConfig) => ZhushouConfig;
+  applyConfig: (config: AssistantConfig) => AssistantConfig;
   modelRef: string;
 }) {
   expectProviderOnboardPrimaryModel(params);
@@ -44,7 +44,7 @@ export function expectProviderOnboardPrimaryAndFallbacks(params: {
 }
 
 export function expectProviderOnboardPrimaryModel(params: {
-  applyConfig: (config: ZhushouConfig) => ZhushouConfig;
+  applyConfig: (config: AssistantConfig) => AssistantConfig;
   modelRef: string;
 }) {
   const cfg = params.applyConfig({});
@@ -52,7 +52,7 @@ export function expectProviderOnboardPrimaryModel(params: {
 }
 
 export function expectProviderOnboardPreservesPrimary(params: {
-  applyProviderConfig: (config: ZhushouConfig) => ZhushouConfig;
+  applyProviderConfig: (config: AssistantConfig) => AssistantConfig;
   primaryModelRef: string;
 }) {
   const cfg = params.applyProviderConfig({
@@ -62,7 +62,7 @@ export function expectProviderOnboardPreservesPrimary(params: {
 }
 
 export function expectProviderOnboardMergedLegacyConfig(params: {
-  applyProviderConfig: (config: ZhushouConfig) => ZhushouConfig;
+  applyProviderConfig: (config: AssistantConfig) => AssistantConfig;
   providerId: string;
   providerApi: ModelApi;
   baseUrl: string;

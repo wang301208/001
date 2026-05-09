@@ -527,7 +527,7 @@ export async function handleOpenAiHttpRequest(
   const payload = coerceRequest(handled.body);
   const stream = Boolean(payload.stream);
   const streamIncludeUsage = stream && resolveIncludeUsageForStreaming(payload);
-  const model = typeof payload.model === "string" ? payload.model : "zhushou";
+  const model = typeof payload.model === "string" ? payload.model : "assistant";
   const user = typeof payload.user === "string" ? payload.user : undefined;
 
   const { agentId, sessionKey, messageChannel } = resolveGatewayRequestContext({

@@ -11,6 +11,7 @@ import {
   getTaskById,
   listTaskRecords,
   markTaskLostById,
+  markTaskTerminalById,
   maybeDeliverTaskTerminalUpdate,
   resolveTaskForLookupToken,
   setTaskCleanupAfterById,
@@ -51,6 +52,7 @@ type TaskRegistryMaintenanceRuntime = {
   getTaskById: typeof getTaskById;
   listTaskRecords: typeof listTaskRecords;
   markTaskLostById: typeof markTaskLostById;
+  markTaskTerminalById: typeof markTaskTerminalById;
   maybeDeliverTaskTerminalUpdate: typeof maybeDeliverTaskTerminalUpdate;
   resolveTaskForLookupToken: typeof resolveTaskForLookupToken;
   setTaskCleanupAfterById: typeof setTaskCleanupAfterById;
@@ -69,6 +71,7 @@ const defaultTaskRegistryMaintenanceRuntime: TaskRegistryMaintenanceRuntime = {
   getTaskById,
   listTaskRecords,
   markTaskLostById,
+  markTaskTerminalById,
   maybeDeliverTaskTerminalUpdate,
   resolveTaskForLookupToken,
   setTaskCleanupAfterById,
@@ -172,6 +175,20 @@ function shouldMarkLost(task: TaskRecord, now: number): boolean {
   return !hasBackingSession(task);
 }
 
+function isUndispatchedQueuedCliTask(task: TaskRecord): boolean {
+  if (task.runtime !== "cli" || task.status !== "queued") {
+    return false;
+  }
+  if (task.childSessionKey?.trim()) {
+    return false;
+  }
+  return !hasActiveCliRun(task);
+}
+
+function shouldCancelUndispatchedQueuedTask(task: TaskRecord, now: number): boolean {
+  return isUndispatchedQueuedCliTask(task) && hasLostGraceExpired(task, now);
+}
+
 function shouldPruneTerminalTask(task: TaskRecord, now: number): boolean {
   if (!isTerminalTask(task)) {
     return false;
@@ -244,6 +261,27 @@ function markTaskLost(task: TaskRecord, now: number): TaskRecord {
   return updated;
 }
 
+function cancelUndispatchedQueuedTask(task: TaskRecord, now: number): TaskRecord {
+  const endedAt = Math.max(now, task.lastEventAt ?? task.createdAt, task.createdAt);
+  const updated =
+    taskRegistryMaintenanceRuntime.markTaskTerminalById({
+      taskId: task.taskId,
+      status: "cancelled",
+      endedAt,
+      lastEventAt: now,
+      error: task.error ?? "queued task expired before dispatch",
+    }) ?? task;
+  const withCleanup =
+    typeof updated.cleanupAfter === "number"
+      ? updated
+      : (taskRegistryMaintenanceRuntime.setTaskCleanupAfterById({
+          taskId: updated.taskId,
+          cleanupAfter: resolveCleanupAfter(updated),
+        }) ?? updated);
+  void taskRegistryMaintenanceRuntime.maybeDeliverTaskTerminalUpdate(withCleanup.taskId);
+  return withCleanup;
+}
+
 function projectTaskLost(task: TaskRecord, now: number): TaskRecord {
   const projected: TaskRecord = {
     ...task,
@@ -300,6 +338,10 @@ export function previewTaskRegistryMaintenance(): TaskRegistryMaintenanceSummary
   let cleanupStamped = 0;
   let pruned = 0;
   for (const task of taskRegistryMaintenanceRuntime.listTaskRecords()) {
+    if (shouldCancelUndispatchedQueuedTask(task, now)) {
+      reconciled += 1;
+      continue;
+    }
     if (shouldMarkLost(task, now)) {
       reconciled += 1;
       continue;
@@ -350,6 +392,17 @@ export async function runTaskRegistryMaintenance(): Promise<TaskRegistryMaintena
   for (const task of tasks) {
     let current = taskRegistryMaintenanceRuntime.getTaskById(task.taskId);
     if (!current) {
+      continue;
+    }
+    if (shouldCancelUndispatchedQueuedTask(current, now)) {
+      const next = cancelUndispatchedQueuedTask(current, now);
+      if (next.status === "cancelled") {
+        reconciled += 1;
+      }
+      processed += 1;
+      if (processed % SWEEP_YIELD_BATCH_SIZE === 0) {
+        await yieldToEventLoop();
+      }
       continue;
     }
     if (shouldMarkLost(current, now)) {

@@ -1,14 +1,14 @@
-import { resolveNormalizedAccountEntry } from "zhushou/plugin-sdk/account-core";
-import type { BaseTokenResolution } from "zhushou/plugin-sdk/channel-contract";
-import { tryReadSecretFileSync } from "zhushou/plugin-sdk/channel-core";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { TelegramAccountConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveDefaultSecretProviderAlias } from "zhushou/plugin-sdk/provider-auth";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/routing";
+import { resolveNormalizedAccountEntry } from "assistant/plugin-sdk/account-core";
+import type { BaseTokenResolution } from "assistant/plugin-sdk/channel-contract";
+import { tryReadSecretFileSync } from "assistant/plugin-sdk/channel-core";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { TelegramAccountConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveDefaultSecretProviderAlias } from "assistant/plugin-sdk/provider-auth";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/routing";
 import {
   normalizeSecretInputString,
   resolveSecretInputString,
-} from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/secret-input";
 
 export type TelegramTokenSource = "env" | "tokenFile" | "config" | "none";
 
@@ -22,7 +22,7 @@ type RuntimeTokenValueResolution =
   | { status: "missing" };
 
 function resolveEnvSecretRefValue(params: {
-  cfg?: Pick<ZhushouConfig, "secrets">;
+  cfg?: Pick<AssistantConfig, "secrets">;
   provider: string;
   id: string;
   env?: NodeJS.ProcessEnv;
@@ -50,7 +50,7 @@ function resolveEnvSecretRefValue(params: {
 }
 
 function resolveRuntimeTokenValue(params: {
-  cfg?: Pick<ZhushouConfig, "secrets">;
+  cfg?: Pick<AssistantConfig, "secrets">;
   value: unknown;
   path: string;
 }): RuntimeTokenValueResolution {
@@ -100,7 +100,7 @@ type ResolveTelegramTokenOpts = {
 };
 
 export function resolveTelegramToken(
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
   opts: ResolveTelegramTokenOpts = {},
 ): TelegramTokenResolution {
   const accountId = normalizeAccountId(opts.accountId);
@@ -128,7 +128,7 @@ export function resolveTelegramToken(
   //
   // Single-bot: no accounts section (or empty) → allow fallthrough so that
   // binding-created accountIds inherit the channel-level token.
-  // See: https://github.com/zhushou/zhushou/issues/53876
+  // See: https://github.com/assistant/assistant/issues/53876
   if (accountId !== DEFAULT_ACCOUNT_ID && !accountCfg) {
     const accounts = telegramCfg?.accounts;
     const hasConfiguredAccounts =

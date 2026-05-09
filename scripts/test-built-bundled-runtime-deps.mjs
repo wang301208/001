@@ -10,7 +10,7 @@ import {
 } from "./lib/bundled-plugin-root-runtime-mirrors.mjs";
 
 function parseArgs(argv) {
-  let packageRoot = process.env.OPENCLAW_BUNDLED_RUNTIME_DEPS_ROOT;
+  let packageRoot = process.env.ASSISTANT_BUNDLED_RUNTIME_DEPS_ROOT;
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--package-root") {

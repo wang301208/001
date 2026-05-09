@@ -439,9 +439,12 @@ describe("getStatusSummary", () => {
     await getStatusSummary();
 
     expect(statusSummaryMocks.createRuntimeTaskFlow).toHaveBeenCalledTimes(1);
-    expect(statusSummaryMocks.createRuntimeAutonomy).toHaveBeenCalledWith({
-      legacyTaskFlow: { kind: "taskflow-runtime" },
-    });
+    expect(statusSummaryMocks.createRuntimeAutonomy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        legacyTaskFlow: { kind: "taskflow-runtime" },
+        charterDir: expect.stringContaining("governance"),
+      }),
+    );
     expect(statusSummaryMocks.bindAutonomySession).toHaveBeenCalledWith({
       sessionKey: "agent:main:main",
     });

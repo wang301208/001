@@ -1,5 +1,5 @@
 import { normalizeProviderId } from "../agents/model-selection.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -63,7 +63,7 @@ export function mergeConfigPatch<T>(base: T, patch: unknown): T {
   return next as T;
 }
 
-export function applyProviderAuthConfigPatch(cfg: ZhushouConfig, patch: unknown): ZhushouConfig {
+export function applyProviderAuthConfigPatch(cfg: AssistantConfig, patch: unknown): AssistantConfig {
   const merged = mergeConfigPatch(cfg, patch);
   if (!isPlainRecord(patch)) {
     return merged;
@@ -83,14 +83,14 @@ export function applyProviderAuthConfigPatch(cfg: ZhushouConfig, patch: unknown)
         ...merged.agents?.defaults,
         // Provider auth migrations can intentionally replace the exact allowlist.
         models: patchModels as NonNullable<
-          NonNullable<ZhushouConfig["agents"]>["defaults"]
+          NonNullable<AssistantConfig["agents"]>["defaults"]
         >["models"],
       },
     },
   };
 }
 
-export function applyDefaultModel(cfg: ZhushouConfig, model: string): ZhushouConfig {
+export function applyDefaultModel(cfg: AssistantConfig, model: string): AssistantConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[model] = models[model] ?? {};
 

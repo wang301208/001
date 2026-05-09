@@ -37,15 +37,15 @@ describe("channel registry helpers", () => {
     );
     expect(line).not.toContain("Docs:");
     expect(line).toContain("/channels/telegram");
-    expect(line).toContain("https://zhushou.ai");
+    expect(line).toContain("https://assistant.ai");
   });
 
   it("prefers the pinned channel registry when resolving registered plugin channels", () => {
     const startupRegistry = createEmptyPluginRegistry();
     startupRegistry.channels = [
       {
-        pluginId: "zhushou-weixin",
-        plugin: { id: "zhushou-weixin", meta: { aliases: ["weixin"] } },
+        pluginId: "assistant-weixin",
+        plugin: { id: "assistant-weixin", meta: { aliases: ["weixin"] } },
         source: "test",
       },
     ] as never;
@@ -62,8 +62,8 @@ describe("channel registry helpers", () => {
     ] as never;
     setActivePluginRegistry(replacementRegistry);
 
-    expect(listRegisteredChannelPluginIds()).toEqual(["zhushou-weixin"]);
-    expect(normalizeAnyChannelId("weixin")).toBe("zhushou-weixin");
+    expect(listRegisteredChannelPluginIds()).toEqual(["assistant-weixin"]);
+    expect(normalizeAnyChannelId("weixin")).toBe("assistant-weixin");
   });
 
   it("falls back to the active registry when the pinned channel registry has no channels", () => {

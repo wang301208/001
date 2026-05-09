@@ -1,15 +1,15 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveRequiredConfiguredSecretRefInputString } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveRequiredConfiguredSecretRefInputString } from "assistant/plugin-sdk/config-runtime";
 import {
   coerceSecretRef,
   ensureAuthProfileStore,
   listProfilesForProvider,
-} from "zhushou/plugin-sdk/provider-auth";
+} from "assistant/plugin-sdk/provider-auth";
 import { PROVIDER_ID } from "./models.js";
 
 export async function resolveFirstGithubToken(params: {
   agentDir?: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   env: NodeJS.ProcessEnv;
 }): Promise<{
   githubToken: string;

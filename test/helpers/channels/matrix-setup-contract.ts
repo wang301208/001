@@ -1,6 +1,6 @@
 import { loadBundledPluginContractApiSync } from "../../../src/test-utils/bundled-plugin-public-surface.js";
 
-type MatrixContractSurface = typeof import("@zhushou/matrix/contract-api.js");
+type MatrixContractSurface = typeof import("@assistant/matrix/contract-api.js");
 
 let matrixContractSurface: MatrixContractSurface | undefined;
 

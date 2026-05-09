@@ -1,8 +1,8 @@
 import {
   startLazyPluginServiceModule,
   type LazyPluginServiceHandle,
-  type OpenClawPluginService,
-} from "zhushou/plugin-sdk/browser-node-runtime";
+  type AssistantPluginService,
+} from "assistant/plugin-sdk/browser-node-runtime";
 
 type BrowserControlHandle = LazyPluginServiceHandle | null;
 const UNSAFE_BROWSER_CONTROL_OVERRIDE_SPECIFIER = /^(?:data|http|https|node):/i;
@@ -15,7 +15,7 @@ function validateBrowserControlOverrideSpecifier(specifier: string): string {
   return trimmed;
 }
 
-export function createBrowserPluginService(): OpenClawPluginService {
+export function createBrowserPluginService(): AssistantPluginService {
   let handle: BrowserControlHandle = null;
 
   return {
@@ -25,8 +25,8 @@ export function createBrowserPluginService(): OpenClawPluginService {
         return;
       }
       handle = await startLazyPluginServiceModule({
-        skipEnvVar: "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
-        overrideEnvVar: "OPENCLAW_BROWSER_CONTROL_MODULE",
+        skipEnvVar: "ASSISTANT_SKIP_BROWSER_CONTROL_SERVER",
+        overrideEnvVar: "ASSISTANT_BROWSER_CONTROL_MODULE",
         validateOverrideSpecifier: validateBrowserControlOverrideSpecifier,
         // Keep the default module import static so compiled builds still bundle it.
         loadDefaultModule: async () => await import("./server.js"),

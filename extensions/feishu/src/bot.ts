@@ -1,25 +1,25 @@
-import { createChannelPairingController } from "zhushou/plugin-sdk/channel-pairing";
+﻿import { createChannelPairingController } from "assistant/plugin-sdk/channel-pairing";
 import {
   ensureConfiguredBindingRouteReady,
   resolveConfiguredBindingRoute,
-} from "zhushou/plugin-sdk/conversation-runtime";
-import { getSessionBindingService } from "zhushou/plugin-sdk/conversation-runtime";
-import { resolveAgentOutboundIdentity } from "zhushou/plugin-sdk/outbound-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
+import { getSessionBindingService } from "assistant/plugin-sdk/conversation-runtime";
+import { resolveAgentOutboundIdentity } from "assistant/plugin-sdk/outbound-runtime";
 import {
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
   DEFAULT_GROUP_HISTORY_LIMIT,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "zhushou/plugin-sdk/reply-history";
-import { deriveLastRoutePolicy } from "zhushou/plugin-sdk/routing";
-import { resolveAgentIdFromSessionKey } from "zhushou/plugin-sdk/routing";
+} from "assistant/plugin-sdk/reply-history";
+import { deriveLastRoutePolicy } from "assistant/plugin-sdk/routing";
+import { resolveAgentIdFromSessionKey } from "assistant/plugin-sdk/routing";
 import {
   resolveDefaultGroupPolicy,
   resolveOpenProviderRuntimeGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "zhushou/plugin-sdk/runtime-group-policy";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/runtime-group-policy";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import {
   checkBotMentioned,
@@ -38,7 +38,7 @@ import {
   normalizeAgentId,
   resolveChannelContextVisibilityMode,
 } from "./bot-runtime-api.js";
-import type { ClawdbotConfig, RuntimeEnv } from "./bot-runtime-api.js";
+import type { AssistantConfig, RuntimeEnv } from "./bot-runtime-api.js";
 import { type FeishuPermissionError, resolveFeishuSenderName } from "./bot-sender-name.js";
 import { createFeishuClient } from "./client.js";
 import { finalizeFeishuMessageProcessing, tryRecordMessagePersistent } from "./dedup.js";
@@ -69,7 +69,7 @@ const PERMISSION_ERROR_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
 // --- Broadcast support ---
 // Resolve broadcast agent list for a given peer (group) ID.
 // Returns null if no broadcast config exists or the peer is not in the broadcast list.
-export function resolveBroadcastAgents(cfg: ClawdbotConfig, peerId: string): string[] | null {
+export function resolveBroadcastAgents(cfg: AssistantConfig, peerId: string): string[] | null {
   const broadcast = (cfg as Record<string, unknown>).broadcast;
   if (!broadcast || typeof broadcast !== "object") {
     return null;
@@ -108,7 +108,7 @@ export function parseFeishuMessageEvent(
   const mentionedBot = checkBotMentioned(event, botOpenId);
   const hasAnyMention = (event.message.mentions?.length ?? 0) > 0;
   // Strip the bot's own mention so slash commands like @Bot /help retain
-  // the leading /. This applies in both p2p *and* group contexts — the
+  // the leading /. This applies in both p2p *and* group contexts 鈥?the
   // mentionedBot flag already captures whether the bot was addressed, so
   // keeping the mention tag in content only breaks command detection (#35994).
   // Non-bot mentions (e.g. mention-forward targets) are still normalized to <at> tags.
@@ -261,7 +261,7 @@ function filterFetchedGroupContextMessages<
 }
 
 export async function handleFeishuMessage(params: {
-  cfg: ClawdbotConfig;
+  cfg: AssistantConfig;
   event: FeishuMessageEvent;
   botOpenId?: string;
   botName?: string;
@@ -477,7 +477,7 @@ export async function handleFeishuMessage(params: {
       log(`feishu[${account.accountId}]: message in group ${ctx.chatId} did not mention bot`);
       // Record to pending history for non-broadcast groups only. For broadcast groups,
       // the mentioned handler's broadcast dispatch writes the turn directly into all
-      // agent sessions — buffering here would cause duplicate replay when this account
+      // agent sessions 鈥?buffering here would cause duplicate replay when this account
       // later becomes active via buildPendingHistoryContextFromMap.
       if (!broadcastAgents && chatHistories && groupHistoryKey) {
         recordPendingHistoryEntryIfEnabled({
@@ -692,7 +692,7 @@ export async function handleFeishuMessage(params: {
         await sendMessageFeishu({
           cfg: effectiveCfg,
           to: `chat:${ctx.chatId}`,
-          text: `⚠️ Failed to initialize the configured ACP session for this Feishu conversation: ${ensured.error}`,
+          text: `鈿狅笍 Failed to initialize the configured ACP session for this Feishu conversation: ${ensured.error}`,
           replyToMessageId: replyTargetMessageId,
           replyInThread: isGroup ? (groupSession?.replyInThread ?? false) : false,
           accountId: account.accountId,
@@ -1012,7 +1012,7 @@ export async function handleFeishuMessage(params: {
         ThreadStarterBody: threadContext.threadStarterBody,
         ThreadHistoryBody: threadContext.threadHistoryBody,
         ThreadLabel: threadContext.threadLabel,
-        // Only use rootId (om_* message anchor) — threadId (omt_*) is a container
+        // Only use rootId (om_* message anchor) 鈥?threadId (omt_*) is a container
         // ID and would produce invalid reply targets downstream.
         MessageThreadId: ctx.rootId && isTopicSessionForThread ? ctx.rootId : undefined,
         Timestamp: messageCreateTimeMs,
@@ -1128,7 +1128,7 @@ export async function handleFeishuMessage(params: {
         } else {
           // Observer agent: no-op dispatcher (session entry + inference, no Feishu reply).
           // Strip CommandAuthorized so slash commands (e.g. /reset) don't silently
-          // mutate observer sessions — only the active agent should execute commands.
+          // mutate observer sessions 鈥?only the active agent should execute commands.
           delete (agentCtx as Record<string, unknown>).CommandAuthorized;
           const noopDispatcher = {
             sendToolResult: () => false,

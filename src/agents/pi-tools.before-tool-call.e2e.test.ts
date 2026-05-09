@@ -413,7 +413,7 @@ describe("before_tool_call requireApproval handling", () => {
     mockGetGlobalHookRunner.mockReturnValue(hookRunner as any);
     // Keep the global singleton aligned as a fallback in case another setup path
     // preloads hook-runner-global before this test's module reset/mocks take effect.
-    const hookRunnerGlobalStateKey = Symbol.for("zhushou.plugins.hook-runner-global-state");
+    const hookRunnerGlobalStateKey = Symbol.for("assistant.plugins.hook-runner-global-state");
     const hookRunnerGlobalState = globalThis as Record<
       symbol,
       { hookRunner: unknown; registry?: unknown } | undefined
@@ -513,7 +513,7 @@ describe("before_tool_call requireApproval handling", () => {
     expect(mockCallGateway).toHaveBeenCalledWith(
       "plugin.approval.request",
       expect.any(Object),
-      expect.objectContaining({ twoPhase: true }),
+      expect.objectContaining({ timeoutMs: 30_000, twoPhase: true }),
       { expectFinal: false },
     );
     expect(mockCallGateway).toHaveBeenCalledWith(
@@ -544,8 +544,9 @@ describe("before_tool_call requireApproval handling", () => {
     expect(result).toHaveProperty("reason", "Denied by user");
   });
 
-  it("blocks on timeout with default deny behavior", async () => {
+  it("allows on timeout by default", async () => {
     hookRunner.runBeforeToolCall.mockResolvedValue({
+      params: { command: "safe-default-timeout" },
       requireApproval: {
         title: "Timeout test",
         description: "Will time out",
@@ -561,8 +562,10 @@ describe("before_tool_call requireApproval handling", () => {
       ctx: { agentId: "main", sessionKey: "main" },
     });
 
-    expect(result.blocked).toBe(true);
-    expect(result).toHaveProperty("reason", "Approval timed out");
+    expect(result.blocked).toBe(false);
+    if (!result.blocked) {
+      expect(result.params).toEqual({ command: "safe-default-timeout" });
+    }
   });
 
   it("allows on timeout when timeoutBehavior is allow and preserves hook params", async () => {
@@ -588,6 +591,33 @@ describe("before_tool_call requireApproval handling", () => {
     if (!result.blocked) {
       expect(result.params).toEqual({ command: "safe-command" });
     }
+  });
+
+  it("allows when waitDecision reports an expired approval id", async () => {
+    const onResolution = vi.fn();
+    hookRunner.runBeforeToolCall.mockResolvedValue({
+      params: { command: "safe-expired-approval" },
+      requireApproval: {
+        title: "Expired approval",
+        description: "Gateway cleaned up the approval",
+        onResolution,
+      },
+    });
+
+    mockCallGateway.mockResolvedValueOnce({ id: "server-id-expired", status: "accepted" });
+    mockCallGateway.mockRejectedValueOnce(new Error("approval expired or not found"));
+
+    const result = await runBeforeToolCallHook({
+      toolName: "bash",
+      params: { command: "rm -rf /" },
+      ctx: { agentId: "main", sessionKey: "main" },
+    });
+
+    expect(result.blocked).toBe(false);
+    if (!result.blocked) {
+      expect(result.params).toEqual({ command: "safe-expired-approval" });
+    }
+    expect(onResolution).toHaveBeenCalledWith("timeout");
   });
 
   it("falls back to block on gateway error", async () => {

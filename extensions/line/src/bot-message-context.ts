@@ -4,25 +4,25 @@ import {
   formatLocationText,
   resolveInboundSessionEnvelopeContext,
   toLocationContext,
-} from "zhushou/plugin-sdk/channel-inbound";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/channel-inbound";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   ensureConfiguredBindingRouteReady,
   getSessionBindingService,
   recordInboundSession,
   resolvePinnedMainDmOwnerFromAllowlist,
   resolveConfiguredBindingRoute,
-} from "zhushou/plugin-sdk/conversation-runtime";
-import { recordChannelActivity } from "zhushou/plugin-sdk/infra-runtime";
-import { finalizeInboundContext } from "zhushou/plugin-sdk/reply-dispatch-runtime";
-import type { HistoryEntry } from "zhushou/plugin-sdk/reply-history";
+} from "assistant/plugin-sdk/conversation-runtime";
+import { recordChannelActivity } from "assistant/plugin-sdk/infra-runtime";
+import { finalizeInboundContext } from "assistant/plugin-sdk/reply-dispatch-runtime";
+import type { HistoryEntry } from "assistant/plugin-sdk/reply-history";
 import {
   deriveLastRoutePolicy,
   resolveAgentIdFromSessionKey,
   resolveAgentRoute,
-} from "zhushou/plugin-sdk/routing";
-import { logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/routing";
+import { logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { normalizeAllowFrom } from "./bot-access.js";
 import { resolveLineGroupConfigEntry } from "./group-keys.js";
 import type { ResolvedLineAccount } from "./types.js";
@@ -40,7 +40,7 @@ interface MediaRef {
 interface BuildLineMessageContextParams {
   event: MessageEvent;
   allMedia: MediaRef[];
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   account: ResolvedLineAccount;
   commandAuthorized: boolean;
   groupHistories?: Map<string, HistoryEntry[]>;
@@ -91,7 +91,7 @@ function buildPeerId(source: EventSource): string {
 
 async function resolveLineInboundRoute(params: {
   source: EventSource;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   account: ResolvedLineAccount;
 }): Promise<{
   userId?: string;
@@ -284,7 +284,7 @@ function resolveLineAddresses(params: {
 }
 
 async function finalizeLineInboundContext(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   account: ResolvedLineAccount;
   event: MessageEvent | PostbackEvent;
   route: LineRouteInfo;
@@ -516,7 +516,7 @@ export async function buildLineMessageContext(params: BuildLineMessageContextPar
 
 export async function buildLinePostbackContext(params: {
   event: PostbackEvent;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   account: ResolvedLineAccount;
   commandAuthorized: boolean;
 }) {

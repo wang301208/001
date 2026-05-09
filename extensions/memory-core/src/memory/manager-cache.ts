@@ -1,4 +1,4 @@
-import { resolveGlobalSingleton } from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
+import { resolveGlobalSingleton } from "assistant/plugin-sdk/memory-core-host-engine-foundation";
 
 type Closable = {
   close?: () => Promise<void> | void;

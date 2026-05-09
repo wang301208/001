@@ -1,6 +1,6 @@
 import { resolveChannelGroupRequireMention } from "../../config/group-policy.js";
 import type { GroupKeyResolution, SessionEntry } from "../../config/sessions.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -38,7 +38,7 @@ async function resolveRuntimeChannelId(raw?: string | null): Promise<string | nu
 }
 
 export async function resolveGroupRequireMention(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   ctx: TemplateContext;
   groupResolution?: GroupKeyResolution;
 }): Promise<boolean> {
@@ -122,7 +122,7 @@ export function buildGroupChatContext(params: { sessionCtx: TemplateContext }): 
 }
 
 export function buildGroupIntro(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionCtx: TemplateContext;
   sessionEntry?: SessionEntry;
   defaultActivation: "always" | "mention";

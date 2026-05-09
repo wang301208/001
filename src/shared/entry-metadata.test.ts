@@ -5,12 +5,12 @@ describe("shared/entry-metadata", () => {
   it("prefers metadata emoji and homepage when present", () => {
     expect(
       resolveEmojiAndHomepage({
-        metadata: { emoji: "🦀", homepage: " https://zhushou.ai " },
+        metadata: { emoji: "🦀", homepage: " https://assistant.ai " },
         frontmatter: { emoji: "🙂", homepage: "https://example.com" },
       }),
     ).toEqual({
       emoji: "🦀",
-      homepage: "https://zhushou.ai",
+      homepage: "https://assistant.ai",
     });
   });
 
@@ -26,11 +26,11 @@ describe("shared/entry-metadata", () => {
   it("falls back through frontmatter homepage aliases and drops blanks", () => {
     expect(
       resolveEmojiAndHomepage({
-        frontmatter: { emoji: "🙂", website: " https://docs.zhushou.ai " },
+        frontmatter: { emoji: "🙂", website: " https://docs.assistant.ai " },
       }),
     ).toEqual({
       emoji: "🙂",
-      homepage: "https://docs.zhushou.ai",
+      homepage: "https://docs.assistant.ai",
     });
     expect(
       resolveEmojiAndHomepage({
@@ -40,10 +40,10 @@ describe("shared/entry-metadata", () => {
     ).toEqual({});
     expect(
       resolveEmojiAndHomepage({
-        frontmatter: { url: " https://zhushou.ai/install " },
+        frontmatter: { url: " https://assistant.ai/install " },
       }),
     ).toEqual({
-      homepage: "https://zhushou.ai/install",
+      homepage: "https://assistant.ai/install",
     });
   });
 
@@ -52,8 +52,8 @@ describe("shared/entry-metadata", () => {
       resolveEmojiAndHomepage({
         frontmatter: {
           homepage: " ",
-          website: "https://docs.zhushou.ai",
-          url: "https://zhushou.ai/install",
+          website: "https://docs.assistant.ai",
+          url: "https://assistant.ai/install",
         },
       }),
     ).toEqual({});

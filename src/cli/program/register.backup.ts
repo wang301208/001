@@ -14,7 +14,7 @@ export function registerBackupCommand(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/backup", "docs.zhushou.ai/cli/backup")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/backup", "docs.assistant.ai/cli/backup")}\n`,
     );
 
   backup
@@ -30,24 +30,24 @@ export function registerBackupCommand(program: Command) {
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["zhushou backup create", "Create a timestamped backup in the current directory."],
+          ["assistant backup create", "Create a timestamped backup in the current directory."],
           [
-            "zhushou backup create --output ~/Backups",
+            "assistant backup create --output ~/Backups",
             "Write the archive into an existing backup directory.",
           ],
           [
-            "zhushou backup create --dry-run --json",
+            "assistant backup create --dry-run --json",
             "Preview the archive plan without writing any files.",
           ],
           [
-            "zhushou backup create --verify",
+            "assistant backup create --verify",
             "Create the archive and immediately validate its manifest and payload layout.",
           ],
           [
-            "zhushou backup create --no-include-workspace",
+            "assistant backup create --no-include-workspace",
             "Back up state/config without agent workspace files.",
           ],
-          ["zhushou backup create --only-config", "Back up only the active JSON config file."],
+          ["assistant backup create --only-config", "Back up only the active JSON config file."],
         ])}`,
     )
     .action(async (opts) => {
@@ -72,11 +72,11 @@ export function registerBackupCommand(program: Command) {
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
           [
-            "zhushou backup verify ./2026-03-09T00-00-00.000Z-zhushou-backup.tar.gz",
+            "assistant backup verify ./2026-03-09T00-00-00.000Z-assistant-backup.tar.gz",
             "Check that the archive structure and manifest are intact.",
           ],
           [
-            "zhushou backup verify ~/Backups/latest.tar.gz --json",
+            "assistant backup verify ~/Backups/latest.tar.gz --json",
             "Emit machine-readable verification output.",
           ],
         ])}`,

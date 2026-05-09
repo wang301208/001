@@ -4,17 +4,17 @@ import {
   getRuntimeConfig,
   readSourceConfigSnapshotForWrite,
   setRuntimeConfigSnapshot,
-  type ZhushouConfig,
+  type AssistantConfig,
   getModelsCommandSecretTargetIds,
 } from "./load-config.runtime.js";
 
 export type LoadedModelsConfig = {
-  sourceConfig: ZhushouConfig;
-  resolvedConfig: ZhushouConfig;
+  sourceConfig: AssistantConfig;
+  resolvedConfig: AssistantConfig;
   diagnostics: string[];
 };
 
-async function loadSourceConfigSnapshot(fallback: ZhushouConfig): Promise<ZhushouConfig> {
+async function loadSourceConfigSnapshot(fallback: AssistantConfig): Promise<AssistantConfig> {
   try {
     const { snapshot } = await readSourceConfigSnapshotForWrite();
     if (snapshot.valid) {
@@ -49,6 +49,6 @@ export async function loadModelsConfigWithSource(params: {
 export async function loadModelsConfig(params: {
   commandName: string;
   runtime?: RuntimeEnv;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   return (await loadModelsConfigWithSource(params)).resolvedConfig;
 }

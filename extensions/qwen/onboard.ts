@@ -1,7 +1,7 @@
 import {
   createModelCatalogPresetAppliers,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import {
   QWEN_CN_BASE_URL,
   QWEN_DEFAULT_MODEL_REF,
@@ -21,7 +21,7 @@ export {
 
 const qwenPresetAppliers = createModelCatalogPresetAppliers<[string]>({
   primaryModelRef: QWEN_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig, baseUrl: string) => {
+  resolveParams: (_cfg: AssistantConfig, baseUrl: string) => {
     const provider = buildQwenProvider({ baseUrl });
     return {
       providerId: "qwen",
@@ -39,35 +39,35 @@ const qwenPresetAppliers = createModelCatalogPresetAppliers<[string]>({
   },
 });
 
-export function applyQwenProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyQwenProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return qwenPresetAppliers.applyProviderConfig(cfg, QWEN_GLOBAL_BASE_URL);
 }
 
-export function applyQwenProviderConfigCn(cfg: ZhushouConfig): ZhushouConfig {
+export function applyQwenProviderConfigCn(cfg: AssistantConfig): AssistantConfig {
   return qwenPresetAppliers.applyProviderConfig(cfg, QWEN_CN_BASE_URL);
 }
 
-export function applyQwenConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyQwenConfig(cfg: AssistantConfig): AssistantConfig {
   return qwenPresetAppliers.applyConfig(cfg, QWEN_GLOBAL_BASE_URL);
 }
 
-export function applyQwenConfigCn(cfg: ZhushouConfig): ZhushouConfig {
+export function applyQwenConfigCn(cfg: AssistantConfig): AssistantConfig {
   return qwenPresetAppliers.applyConfig(cfg, QWEN_CN_BASE_URL);
 }
 
-export function applyQwenStandardProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyQwenStandardProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return qwenPresetAppliers.applyProviderConfig(cfg, QWEN_STANDARD_GLOBAL_BASE_URL);
 }
 
-export function applyQwenStandardProviderConfigCn(cfg: ZhushouConfig): ZhushouConfig {
+export function applyQwenStandardProviderConfigCn(cfg: AssistantConfig): AssistantConfig {
   return qwenPresetAppliers.applyProviderConfig(cfg, QWEN_STANDARD_CN_BASE_URL);
 }
 
-export function applyQwenStandardConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyQwenStandardConfig(cfg: AssistantConfig): AssistantConfig {
   return qwenPresetAppliers.applyConfig(cfg, QWEN_STANDARD_GLOBAL_BASE_URL);
 }
 
-export function applyQwenStandardConfigCn(cfg: ZhushouConfig): ZhushouConfig {
+export function applyQwenStandardConfigCn(cfg: AssistantConfig): AssistantConfig {
   return qwenPresetAppliers.applyConfig(cfg, QWEN_STANDARD_CN_BASE_URL);
 }
 

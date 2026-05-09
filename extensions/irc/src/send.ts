@@ -1,5 +1,5 @@
-import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
-import { convertMarkdownTables } from "zhushou/plugin-sdk/text-runtime";
+import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
+import { convertMarkdownTables } from "assistant/plugin-sdk/text-runtime";
 import { resolveIrcAccount } from "./accounts.js";
 import type { IrcClient } from "./client.js";
 import { connectIrcClient } from "./client.js";

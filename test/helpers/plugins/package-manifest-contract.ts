@@ -8,7 +8,7 @@ import { bundledPluginFile } from "../bundled-plugin-paths.js";
 type PackageManifest = {
   dependencies?: Record<string, string>;
   optionalDependencies?: Record<string, string>;
-  zhushou?: {
+  assistant?: {
     install?: {
       minHostVersion?: string;
     };
@@ -78,12 +78,12 @@ export function describePackageManifestContract(params: PackageManifestContractP
 
         const manifest = readJson<PackageManifest>(packagePath);
         const requirement = parseMinHostVersionRequirement(
-          manifest.zhushou?.install?.minHostVersion ?? null,
+          manifest.assistant?.install?.minHostVersion ?? null,
         );
 
         expect(
           requirement,
-          `${packagePath} should declare zhushou.install.minHostVersion`,
+          `${packagePath} should declare assistant.install.minHostVersion`,
         ).not.toBeNull();
         if (!requirement) {
           return;

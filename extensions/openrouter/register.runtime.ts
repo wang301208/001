@@ -1,8 +1,8 @@
-import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
+import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
 import {
   buildProviderReplayFamilyHooks,
   DEFAULT_CONTEXT_TOKENS,
-} from "zhushou/plugin-sdk/provider-model-shared";
+} from "assistant/plugin-sdk/provider-model-shared";
 import {
   buildProviderStreamFamilyHooks,
   createOpenRouterSystemCacheWrapper,
@@ -10,7 +10,7 @@ import {
   getOpenRouterModelCapabilities,
   isProxyReasoningUnsupported,
   loadOpenRouterModelCapabilities,
-} from "zhushou/plugin-sdk/provider-stream-family";
+} from "assistant/plugin-sdk/provider-stream-family";
 import { openrouterMediaUnderstandingProvider } from "./media-understanding-provider.js";
 import { applyOpenrouterConfig, OPENROUTER_DEFAULT_MODEL_REF } from "./onboard.js";
 import { buildOpenrouterProvider } from "./provider-catalog.js";

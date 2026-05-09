@@ -1,6 +1,6 @@
 import type * as Lark from "@larksuiteoapi/node-sdk";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import type { ZhushouPluginApi } from "../runtime-api.js";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import type { AssistantPluginApi } from "../runtime-api.js";
 import { listEnabledFeishuAccounts } from "./accounts.js";
 import { FeishuChatSchema, type FeishuChatParams } from "./chat-schema.js";
 import { createFeishuClient } from "./client.js";
@@ -121,7 +121,7 @@ export async function getFeishuMemberInfo(
   };
 }
 
-export function registerFeishuChatTools(api: ZhushouPluginApi) {
+export function registerFeishuChatTools(api: AssistantPluginApi) {
   if (!api.config) {
     api.logger.debug?.("feishu_chat: No config available, skipping chat tools");
     return;

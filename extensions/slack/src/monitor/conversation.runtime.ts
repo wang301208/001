@@ -6,4 +6,4 @@ export {
   resolveConversationLabel,
   resolvePluginConversationBindingApproval,
   upsertChannelPairingRequest,
-} from "zhushou/plugin-sdk/conversation-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";

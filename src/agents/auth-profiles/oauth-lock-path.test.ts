@@ -6,12 +6,12 @@ import { captureEnv } from "../../test-utils/env.js";
 import { resolveOAuthRefreshLockPath } from "./paths.js";
 
 describe("resolveOAuthRefreshLockPath", () => {
-  const envSnapshot = captureEnv(["ZHUSHOU_STATE_DIR"]);
+  const envSnapshot = captureEnv(["ASSISTANT_STATE_DIR"]);
   let stateDir = "";
 
   beforeEach(async () => {
-    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-auth-lock-path-"));
-    process.env.ZHUSHOU_STATE_DIR = stateDir;
+    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-auth-lock-path-"));
+    process.env.ASSISTANT_STATE_DIR = stateDir;
   });
 
   afterEach(async () => {
@@ -114,12 +114,12 @@ describe("resolveOAuthRefreshLockPath", () => {
 });
 
 describe("resolveOAuthRefreshLockPath fuzz", () => {
-  const envSnapshot = captureEnv(["ZHUSHOU_STATE_DIR"]);
+  const envSnapshot = captureEnv(["ASSISTANT_STATE_DIR"]);
   let stateDir = "";
 
   beforeEach(async () => {
-    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-auth-lock-path-fuzz-"));
-    process.env.ZHUSHOU_STATE_DIR = stateDir;
+    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-auth-lock-path-fuzz-"));
+    process.env.ASSISTANT_STATE_DIR = stateDir;
   });
 
   afterEach(async () => {

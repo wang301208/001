@@ -1,21 +1,21 @@
 import { expect } from "vitest";
 import { requireBundledChannelPlugin } from "../../../src/channels/plugins/bundled.js";
 import type { ChannelPlugin } from "../../../src/channels/plugins/types.js";
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 
 type SetupContractEntry = {
   id: string;
   plugin: Pick<ChannelPlugin, "id" | "config" | "setup">;
   cases: Array<{
     name: string;
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
     input: Record<string, unknown>;
     expectedAccountId?: string;
     expectedValidation?: string | null;
     beforeTest?: () => void;
-    assertPatchedConfig?: (cfg: ZhushouConfig) => void;
-    assertResolvedAccount?: (account: unknown, cfg: ZhushouConfig) => void;
+    assertPatchedConfig?: (cfg: AssistantConfig) => void;
+    assertResolvedAccount?: (account: unknown, cfg: AssistantConfig) => void;
   }>;
 };
 
@@ -24,7 +24,7 @@ type StatusContractEntry = {
   plugin: Pick<ChannelPlugin, "id" | "config" | "status">;
   cases: Array<{
     name: string;
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
     runtime?: Record<string, unknown>;
     probe?: unknown;
@@ -45,7 +45,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
       cases: [
         {
           name: "default account stores tokens and enables the channel",
-          cfg: {} as ZhushouConfig,
+          cfg: {} as AssistantConfig,
           input: {
             botToken: "xoxb-test",
             appToken: "xapp-test",
@@ -59,7 +59,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
         },
         {
           name: "non-default env setup is rejected",
-          cfg: {} as ZhushouConfig,
+          cfg: {} as AssistantConfig,
           accountId: "ops",
           input: {
             useEnv: true,
@@ -75,7 +75,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
       cases: [
         {
           name: "default account stores token and normalized base URL",
-          cfg: {} as ZhushouConfig,
+          cfg: {} as AssistantConfig,
           input: {
             botToken: "test-token",
             httpUrl: "https://chat.example.com/",
@@ -89,7 +89,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
         },
         {
           name: "missing credentials are rejected",
-          cfg: {} as ZhushouConfig,
+          cfg: {} as AssistantConfig,
           input: {
             httpUrl: "",
           },
@@ -104,7 +104,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
       cases: [
         {
           name: "default account stores token and secret",
-          cfg: {} as ZhushouConfig,
+          cfg: {} as AssistantConfig,
           input: {
             channelAccessToken: "line-token",
             channelSecret: "line-secret",
@@ -118,7 +118,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
         },
         {
           name: "non-default env setup is rejected",
-          cfg: {} as ZhushouConfig,
+          cfg: {} as AssistantConfig,
           accountId: "ops",
           input: {
             useEnv: true,
@@ -147,7 +147,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
                 appToken: "xapp-test",
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           runtime: {
             accountId: "default",
             connected: true,
@@ -176,7 +176,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
                 baseUrl: "https://chat.example.com",
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           runtime: {
             accountId: "default",
             connected: true,
@@ -207,7 +207,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
                 channelSecret: "line-secret",
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           runtime: {
             accountId: "default",
             running: true,

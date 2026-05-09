@@ -11,7 +11,7 @@ import type {
   ChannelDoctorConfigMutation,
   ChannelDoctorLegacyConfigRule,
 } from "./channel-contract.js";
-import type { ZhushouConfig } from "./config-runtime.js";
+import type { AssistantConfig } from "./config-runtime.js";
 
 export { isPrivateIpAddress };
 export type { SsrFPolicy };
@@ -120,19 +120,19 @@ function hasLegacyAllowPrivateNetworkInAccounts(value: unknown): boolean {
 
 export function createLegacyPrivateNetworkDoctorContract(params: { channelKey: string }): {
   legacyConfigRules: ChannelDoctorLegacyConfigRule[];
-  normalizeCompatibilityConfig: (params: { cfg: ZhushouConfig }) => ChannelDoctorConfigMutation;
+  normalizeCompatibilityConfig: (params: { cfg: AssistantConfig }) => ChannelDoctorConfigMutation;
 } {
   const pathPrefix = `channels.${params.channelKey}`;
   return {
     legacyConfigRules: [
       {
         path: ["channels", params.channelKey],
-        message: `${pathPrefix}.allowPrivateNetwork is legacy; use ${pathPrefix}.network.dangerouslyAllowPrivateNetwork instead. Run "zhushou doctor --fix".`,
+        message: `${pathPrefix}.allowPrivateNetwork is legacy; use ${pathPrefix}.network.dangerouslyAllowPrivateNetwork instead. Run "assistant doctor --fix".`,
         match: (value) => hasLegacyFlatAllowPrivateNetworkAlias(asNullableRecord(value) ?? {}),
       },
       {
         path: ["channels", params.channelKey, "accounts"],
-        message: `${pathPrefix}.accounts.<id>.allowPrivateNetwork is legacy; use ${pathPrefix}.accounts.<id>.network.dangerouslyAllowPrivateNetwork instead. Run "zhushou doctor --fix".`,
+        message: `${pathPrefix}.accounts.<id>.allowPrivateNetwork is legacy; use ${pathPrefix}.accounts.<id>.network.dangerouslyAllowPrivateNetwork instead. Run "assistant doctor --fix".`,
         match: hasLegacyAllowPrivateNetworkInAccounts,
       },
     ],
@@ -191,7 +191,7 @@ export function createLegacyPrivateNetworkDoctorContract(params: { channelKey: s
           channels: {
             ...cfg.channels,
             [params.channelKey]: updatedChannel,
-          } as ZhushouConfig["channels"],
+          } as AssistantConfig["channels"],
         },
         changes,
       };

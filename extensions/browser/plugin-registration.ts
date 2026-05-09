@@ -1,9 +1,9 @@
 import type {
-  ZhushouPluginApi,
-  OpenClawPluginNodeHostCommand,
-  OpenClawPluginToolContext,
-  OpenClawPluginToolFactory,
-} from "zhushou/plugin-sdk/plugin-entry";
+  AssistantPluginApi,
+  AssistantPluginNodeHostCommand,
+  AssistantPluginToolContext,
+  AssistantPluginToolFactory,
+} from "assistant/plugin-sdk/plugin-entry";
 import {
   collectBrowserSecurityAuditFindings,
   createBrowserPluginService,
@@ -15,7 +15,7 @@ import {
 
 export const browserPluginReload = { restartPrefixes: ["browser"] };
 
-export const browserPluginNodeHostCommands: OpenClawPluginNodeHostCommand[] = [
+export const browserPluginNodeHostCommands: AssistantPluginNodeHostCommand[] = [
   {
     command: "browser.proxy",
     cap: "browser",
@@ -25,13 +25,13 @@ export const browserPluginNodeHostCommands: OpenClawPluginNodeHostCommand[] = [
 
 export const browserSecurityAuditCollectors = [collectBrowserSecurityAuditFindings];
 
-export function registerBrowserPlugin(api: ZhushouPluginApi) {
-  api.registerTool(((ctx: OpenClawPluginToolContext) =>
+export function registerBrowserPlugin(api: AssistantPluginApi) {
+  api.registerTool(((ctx: AssistantPluginToolContext) =>
     createBrowserTool({
       sandboxBridgeUrl: ctx.browser?.sandboxBridgeUrl,
       allowHostControl: ctx.browser?.allowHostControl,
       agentSessionKey: ctx.sessionKey,
-    })) as OpenClawPluginToolFactory);
+    })) as AssistantPluginToolFactory);
   api.registerCli(({ program }) => registerBrowserCli(program), { commands: ["browser"] });
   api.registerGatewayMethod("browser.request", handleBrowserGatewayRequest, {
     scope: "operator.write",

@@ -1,5 +1,5 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { estimateBase64DecodedBytes } from "../../media/base64.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import { findNormalizedProviderValue } from "../model-selection.js";
@@ -60,12 +60,12 @@ export function coerceImageAssistantText(params: {
   throw new Error(`Image model returned no text (${params.provider}/${params.model}).`);
 }
 
-export function coerceImageModelConfig(cfg?: ZhushouConfig): ImageModelConfig {
+export function coerceImageModelConfig(cfg?: AssistantConfig): ImageModelConfig {
   return coerceToolModelConfig(cfg?.agents?.defaults?.imageModel);
 }
 
 export function resolveProviderVisionModelFromConfig(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   provider: string;
 }): string | null {
   const providerCfg = findNormalizedProviderValue(

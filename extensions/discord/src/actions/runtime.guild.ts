@@ -9,7 +9,7 @@ import {
   readStringArrayParam,
   readStringParam,
   type DiscordActionConfig,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "../runtime-api.js";
 import {
   addRoleDiscord,
@@ -96,7 +96,7 @@ export async function handleDiscordGuildAction(
   action: string,
   params: Record<string, unknown>,
   isActionEnabled: ActionGate<DiscordActionConfig>,
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
   options?: { mediaLocalRoots?: readonly string[] },
 ): Promise<AgentToolResult<unknown>> {
   const accountId = readStringParam(params, "accountId");

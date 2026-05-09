@@ -1,9 +1,5 @@
 import path from "node:path";
 import { Readable, Writable } from "node:stream";
-import {
-  resumeToolRequest as embeddedResumeToolRequest,
-  runToolRequest as embeddedRunToolRequest,
-} from "@clawdbot/lobster/core";
 
 export type LobsterEnvelope =
   | {
@@ -250,9 +246,10 @@ async function withTimeout<T>(
 }
 
 async function loadEmbeddedToolRuntimeFromPackage(): Promise<EmbeddedToolRuntime> {
+  const runtime = await import("@assistant/lobster-runtime/core");
   return {
-    runToolRequest: embeddedRunToolRequest,
-    resumeToolRequest: embeddedResumeToolRequest,
+    runToolRequest: runtime.runToolRequest,
+    resumeToolRequest: runtime.resumeToolRequest,
   };
 }
 

@@ -1,5 +1,5 @@
-import { readConfiguredProviderCatalogEntries } from "zhushou/plugin-sdk/provider-catalog-shared";
-import { defineSingleProviderPluginEntry } from "zhushou/plugin-sdk/provider-entry";
+import { readConfiguredProviderCatalogEntries } from "assistant/plugin-sdk/provider-catalog-shared";
+import { defineSingleProviderPluginEntry } from "assistant/plugin-sdk/provider-entry";
 import { applyDeepSeekConfig, DEEPSEEK_DEFAULT_MODEL_REF } from "./onboard.js";
 import { buildDeepSeekProvider } from "./provider-catalog.js";
 

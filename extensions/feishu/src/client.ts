@@ -1,7 +1,7 @@
 import type { Agent } from "node:https";
 import { createRequire } from "node:module";
 import * as Lark from "@larksuiteoapi/node-sdk";
-import { resolveAmbientNodeProxyAgent } from "zhushou/plugin-sdk/extension-shared";
+import { resolveAmbientNodeProxyAgent } from "assistant/plugin-sdk/extension-shared";
 import type { FeishuConfig, FeishuDomain, ResolvedFeishuAccount } from "./types.js";
 
 const require = createRequire(import.meta.url);
@@ -29,7 +29,7 @@ const pluginVersion = readPluginVersion();
 
 export { pluginVersion };
 
-const FEISHU_USER_AGENT = `zhushou-feishu-builtin/${pluginVersion}/${process.platform}`;
+const FEISHU_USER_AGENT = `assistant-feishu-builtin/${pluginVersion}/${process.platform}`;
 export { FEISHU_USER_AGENT };
 
 /** User-Agent header value for all Feishu API requests. */
@@ -92,7 +92,7 @@ let feishuClientSdk: FeishuClientSdk = defaultFeishuClientSdk;
 /** Default HTTP timeout for Feishu API requests (30 seconds). */
 export const FEISHU_HTTP_TIMEOUT_MS = 30_000;
 export const FEISHU_HTTP_TIMEOUT_MAX_MS = 300_000;
-export const FEISHU_HTTP_TIMEOUT_ENV_VAR = "OPENCLAW_FEISHU_HTTP_TIMEOUT_MS";
+export const FEISHU_HTTP_TIMEOUT_ENV_VAR = "ASSISTANT_FEISHU_HTTP_TIMEOUT_MS";
 
 type FeishuHttpInstanceLike = Pick<
   typeof feishuClientSdk.defaultHttpInstance,

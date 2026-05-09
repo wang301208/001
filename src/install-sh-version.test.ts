@@ -7,8 +7,8 @@ import { cleanupTempDirs, makeTempDir } from "../test/helpers/temp-dir.js";
 const tempRoots: string[] = [];
 
 function withFakeCli(versionOutput: string): { root: string; cliPath: string } {
-  const root = makeTempDir(tempRoots, "zhushou-install-sh-");
-  const cliPath = path.join(root, "zhushou");
+  const root = makeTempDir(tempRoots, "assistant-install-sh-");
+  const cliPath = path.join(root, "assistant");
   const escapedOutput = versionOutput.replace(/'/g, "'\\''");
   fs.writeFileSync(
     cliPath,
@@ -33,19 +33,19 @@ function resolveInstallerVersionCases(params: {
     [
       "-lc",
       `source "${installerPath}" >/dev/null 2>&1
-for openclaw_bin in "\${@:3}"; do
-  OPENCLAW_BIN="$openclaw_bin"
-  resolve_openclaw_version
+for assistant_bin in "\${@:3}"; do
+  ASSISTANT_BIN="$assistant_bin"
+  resolve_assistant_version
 done
 (
   cd "$2"
-  FAKE_OPENCLAW_BIN="\${@:1:1}" bash -s <<'OPENCLAW_STDIN_INSTALLER'
+  FAKE_ASSISTANT_BIN="\${@:1:1}" bash -s <<'ASSISTANT_STDIN_INSTALLER'
 ${installerSource}
-OPENCLAW_BIN="$FAKE_OPENCLAW_BIN"
-resolve_openclaw_version
-OPENCLAW_STDIN_INSTALLER
+ASSISTANT_BIN="$FAKE_ASSISTANT_BIN"
+resolve_assistant_version
+ASSISTANT_STDIN_INSTALLER
 )`,
-      "zhushou-version-test",
+      "assistant-version-test",
       params.stdinCliPath,
       params.stdinCwd,
       ...params.cliPaths,
@@ -55,7 +55,7 @@ OPENCLAW_STDIN_INSTALLER
       encoding: "utf-8",
       env: {
         ...process.env,
-        OPENCLAW_INSTALL_SH_NO_RUN: "1",
+        ASSISTANT_INSTALL_SH_NO_RUN: "1",
       },
     },
   );
@@ -74,7 +74,7 @@ describe("install.sh version resolution", () => {
       const raw = withFakeCli("助手 dev's build");
       const stdinFixture = withFakeCli("助手 2026.3.10 (abcdef0)");
 
-      const hostileCwd = makeTempDir(tempRoots, "zhushou-install-stdin-");
+      const hostileCwd = makeTempDir(tempRoots, "assistant-install-stdin-");
       const hostileHelper = path.join(
         hostileCwd,
         "docker",
@@ -85,7 +85,7 @@ describe("install.sh version resolution", () => {
       fs.writeFileSync(
         hostileHelper,
         `#!/usr/bin/env bash
-extract_openclaw_semver() {
+extract_assistant_semver() {
   printf '%s' 'poisoned'
 }
 `,

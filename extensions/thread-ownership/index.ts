@@ -1,10 +1,10 @@
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   definePluginEntry,
   fetchWithSsrFGuard,
   ssrfPolicyFromDangerouslyAllowPrivateNetwork,
-  type ZhushouConfig,
-  type ZhushouPluginApi,
+  type AssistantConfig,
+  type AssistantPluginApi,
 } from "./api.js";
 
 type ThreadOwnershipConfig = {
@@ -12,7 +12,7 @@ type ThreadOwnershipConfig = {
   abTestChannels?: string[];
 };
 
-type AgentEntry = NonNullable<NonNullable<ZhushouConfig["agents"]>["list"]>[number];
+type AgentEntry = NonNullable<NonNullable<AssistantConfig["agents"]>["list"]>[number];
 type ThreadOwnershipMessageSendingResult = { cancel: true } | undefined;
 
 // In-memory set of {channel}:{thread} keys where this agent was @-mentioned.
@@ -29,7 +29,7 @@ function cleanExpiredMentions(): void {
   }
 }
 
-function resolveOwnershipAgent(config: ZhushouConfig): { id: string; name: string } {
+function resolveOwnershipAgent(config: AssistantConfig): { id: string; name: string } {
   const list = Array.isArray(config.agents?.list)
     ? config.agents.list.filter(
         (entry): entry is AgentEntry => entry !== null && typeof entry === "object",
@@ -49,7 +49,7 @@ export default definePluginEntry({
   id: "thread-ownership",
   name: "Thread Ownership",
   description: "Slack thread claim coordination for multi-agent setups",
-  register(api: ZhushouPluginApi) {
+  register(api: AssistantPluginApi) {
     const pluginCfg = (api.pluginConfig ?? {}) as ThreadOwnershipConfig;
     const forwarderUrl = (
       pluginCfg.forwarderUrl ??

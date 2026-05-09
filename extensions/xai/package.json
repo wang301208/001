@@ -1,13 +1,13 @@
 {
-  "name": "@zhushou/xai-plugin",
+  "name": "@assistant/xai-plugin",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 xAI plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

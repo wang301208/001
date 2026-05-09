@@ -24,7 +24,7 @@ function buildCatalogEntry(packageJson) {
     return null;
   }
   const packageName = trimString(packageJson.name);
-  const manifest = isRecord(packageJson.zhushou) ? packageJson.zhushou : null;
+  const manifest = isRecord(packageJson.assistant) ? packageJson.assistant : null;
   const release = manifest && isRecord(manifest.release) ? manifest.release : null;
   const channel = manifest && isRecord(manifest.channel) ? manifest.channel : null;
   if (!packageName || !channel || release?.publishToNpm !== true) {
@@ -40,7 +40,7 @@ function buildCatalogEntry(packageJson) {
     name: packageName,
     ...(version ? { version } : {}),
     ...(description ? { description } : {}),
-    zhushou: {
+    assistant: {
       channel,
       install,
     },
@@ -75,8 +75,8 @@ export function buildOfficialChannelCatalog(params = {}) {
   }
 
   entries.sort((left, right) => {
-    const leftId = trimString(left.zhushou?.channel?.id) || left.name;
-    const rightId = trimString(right.zhushou?.channel?.id) || right.name;
+    const leftId = trimString(left.assistant?.channel?.id) || left.name;
+    const rightId = trimString(right.assistant?.channel?.id) || right.name;
     return leftId.localeCompare(rightId);
   });
 

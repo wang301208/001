@@ -5,7 +5,7 @@ import {
   runSetupWizardConfigure,
   type WizardPrompter,
 } from "../../../test/helpers/plugins/setup-wizard.js";
-import type { ZhushouConfig } from "../runtime-api.js";
+import type { AssistantConfig } from "../runtime-api.js";
 import { nostrSetupWizard } from "./setup-surface.js";
 import {
   TEST_HEX_PRIVATE_KEY,
@@ -23,7 +23,7 @@ function normalizeNostrTestEntry(entry: string): string {
 }
 
 function resolveNostrTestDmPolicy(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   account: ReturnType<typeof resolveNostrAccount>;
 }) {
   return {
@@ -48,7 +48,7 @@ const nostrTestPlugin = {
   },
   config: {
     listAccountIds: listNostrAccountIds,
-    resolveAccount: (cfg: ZhushouConfig, accountId?: string | null) =>
+    resolveAccount: (cfg: AssistantConfig, accountId?: string | null) =>
       resolveNostrAccount({ cfg, accountId }),
   },
   messaging: {
@@ -86,7 +86,7 @@ const nostrTestPlugin = {
       cfg,
       accountId,
     }: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       accountId?: string;
       input: unknown;
     }) => accountId?.trim() || resolveDefaultNostrAccountId(cfg),
@@ -273,7 +273,7 @@ describe("nostr setup wizard", () => {
 
     const result = await runSetupWizardConfigure({
       configure: nostrConfigure,
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       prompter,
       options: {},
     });
@@ -299,7 +299,7 @@ describe("nostr setup wizard", () => {
 
     const result = await runSetupWizardConfigure({
       configure: nostrConfigure,
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       prompter,
       options: {},
       accountOverrides: {
@@ -315,7 +315,7 @@ describe("nostr setup wizard", () => {
   it("uses configured defaultAccount when setup accountId is omitted", () => {
     expect(
       nostrTestPlugin.setup?.resolveAccountId?.({
-        cfg: createConfiguredNostrCfg({ defaultAccount: "work" }) as ZhushouConfig,
+        cfg: createConfiguredNostrCfg({ defaultAccount: "work" }) as AssistantConfig,
         accountId: undefined,
         input: {},
       } as never),

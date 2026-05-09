@@ -1,12 +1,12 @@
 import type { ButtonInteraction, ComponentData } from "@buape/carbon";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const resolveApprovalOverGatewayMock = vi.hoisted(() => vi.fn());
 
-vi.mock("zhushou/plugin-sdk/approval-gateway-runtime", async (importOriginal) => {
+vi.mock("assistant/plugin-sdk/approval-gateway-runtime", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("zhushou/plugin-sdk/approval-gateway-runtime")>();
+    await importOriginal<typeof import("assistant/plugin-sdk/approval-gateway-runtime")>();
   return {
     ...actual,
     resolveApprovalOverGateway: resolveApprovalOverGatewayMock,
@@ -22,8 +22,8 @@ import {
 } from "./exec-approvals.js";
 
 function buildConfig(
-  execApprovals?: NonNullable<NonNullable<ZhushouConfig["channels"]>["discord"]>["execApprovals"],
-): ZhushouConfig {
+  execApprovals?: NonNullable<NonNullable<AssistantConfig["channels"]>["discord"]>["execApprovals"],
+): AssistantConfig {
   return {
     channels: {
       discord: {
@@ -31,7 +31,7 @@ function buildConfig(
         execApprovals,
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createInteraction(overrides?: Partial<ButtonInteraction>): ButtonInteraction {

@@ -23,7 +23,7 @@ import {
   type SessionEntry,
   type SessionScope,
 } from "../config/sessions.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { readLatestSessionUsageFromTranscript } from "../gateway/session-utils.fs.js";
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import { resolveCommitHash } from "../infra/git-commit.js";
@@ -58,7 +58,7 @@ import { resolveActiveFallbackState } from "../status/fallback-notice-state.js";
 import { formatProviderModelRef, resolveSelectedAndActiveModel } from "./model-runtime.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
 
-type AgentDefaults = NonNullable<NonNullable<ZhushouConfig["agents"]>["defaults"]>;
+type AgentDefaults = NonNullable<NonNullable<AssistantConfig["agents"]>["defaults"]>;
 type AgentConfig = Partial<AgentDefaults> & {
   model?: AgentDefaults["model"] | string;
 };
@@ -75,7 +75,7 @@ type QueueStatus = {
 };
 
 type StatusArgs = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   agent: AgentConfig;
   agentId?: string;
   runtimeContextTokens?: number;
@@ -132,7 +132,7 @@ function normalizeAuthMode(value?: string): NormalizedAuthMode | undefined {
 }
 
 function resolveConfiguredTextVerbosity(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   agentId?: string;
   provider?: string | null;
   model?: string | null;
@@ -257,7 +257,7 @@ const readUsageFromSessionLog = (
       model?: string;
     }
   | undefined => {
-  // Transcripts are stored at the session file path (fallback: ~/.zhushou/sessions/<SessionId>.jsonl)
+  // Transcripts are stored at the session file path (fallback: ~/.assistant/sessions/<SessionId>.jsonl)
   if (!sessionId) {
     return undefined;
   }
@@ -403,7 +403,7 @@ const formatMediaUnderstandingLine = (decisions?: ReadonlyArray<MediaUnderstandi
 };
 
 const formatVoiceModeLine = (
-  config?: ZhushouConfig,
+  config?: AssistantConfig,
   sessionEntry?: SessionEntry,
 ): string | null => {
   if (!config) {
@@ -426,7 +426,7 @@ export function buildStatusMessage(args: StatusArgs): string {
     agents: {
       defaults: args.agent ?? {},
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
   const contextConfig = args.config
     ? ({
         ...args.config,
@@ -437,12 +437,12 @@ export function buildStatusMessage(args: StatusArgs): string {
             ...args.agent,
           },
         },
-      } as ZhushouConfig)
+      } as AssistantConfig)
     : ({
         agents: {
           defaults: args.agent ?? {},
         },
-      } as ZhushouConfig);
+      } as AssistantConfig);
   const resolved = resolveConfiguredModelRef({
     cfg: selectionConfig,
     defaultProvider: DEFAULT_PROVIDER,

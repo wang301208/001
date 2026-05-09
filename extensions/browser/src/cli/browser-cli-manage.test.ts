@@ -148,7 +148,7 @@ describe("browser manage output", () => {
         ? {
             enabled: true,
             profile: "remote",
-            driver: "zhushou",
+            driver: "assistant",
             transport: "cdp",
             running: true,
             cdpReady: true,

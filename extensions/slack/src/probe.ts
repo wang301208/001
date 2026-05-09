@@ -1,6 +1,6 @@
-import type { BaseProbeResult } from "zhushou/plugin-sdk/channel-contract";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { withTimeout } from "zhushou/plugin-sdk/text-runtime";
+import type { BaseProbeResult } from "assistant/plugin-sdk/channel-contract";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { withTimeout } from "assistant/plugin-sdk/text-runtime";
 import { createSlackWebClient } from "./client.js";
 
 export type SlackProbe = BaseProbeResult & {

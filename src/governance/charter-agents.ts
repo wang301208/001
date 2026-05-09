@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import type { AgentContextLimitsConfig } from "../config/types.agent-defaults.js";
 import type { IdentityConfig } from "../config/types.base.js";
@@ -12,6 +11,7 @@ import {
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
+import { resolveGovernanceCharterDir } from "./charter-paths.js";
 
 type GovernanceYamlRecord = Record<string, unknown>;
 
@@ -100,14 +100,6 @@ export type GovernanceCharterAgentRuntimeProfile = {
 };
 
 const organizationCache = new Map<string, GovernanceCharterOrganization>();
-
-function moduleRepoRoot(): string {
-  return path.resolve(fileURLToPath(new URL(".", import.meta.url)), "..", "..");
-}
-
-function defaultCharterDir(): string {
-  return path.join(moduleRepoRoot(), "governance", "charter");
-}
 
 function parseYamlRecord(raw: string): GovernanceYamlRecord | null {
   const parsed = YAML.parse(raw, { schema: "core" }) as unknown;
@@ -354,7 +346,7 @@ function readTeamBlueprint(filePath: string, charterDir: string): GovernanceChar
 export function loadGovernanceCharterOrganization(
   options: { charterDir?: string } = {},
 ): GovernanceCharterOrganization {
-  const charterDir = path.resolve(options.charterDir ?? defaultCharterDir());
+  const charterDir = resolveGovernanceCharterDir(options);
   const cached = organizationCache.get(charterDir);
   if (cached) {
     return cached;

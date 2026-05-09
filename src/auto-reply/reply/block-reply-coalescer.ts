@@ -1,4 +1,4 @@
-import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
 import type { ReplyPayload } from "../types.js";
 import type { BlockStreamingCoalescing } from "./block-streaming.js";
 

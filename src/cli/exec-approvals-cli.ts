@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import type { Command } from "commander";
 import JSON5 from "json5";
-import { readBestEffortConfig, type ZhushouConfig } from "../config/config.js";
+import { readBestEffortConfig, type AssistantConfig } from "../config/config.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import {
   collectExecPolicyScopeSnapshots,
@@ -32,10 +32,10 @@ type ExecApprovalsSnapshot = {
 };
 
 type ConfigSnapshotLike = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 };
 type ConfigLoadResult = {
-  config: ZhushouConfig | null;
+  config: AssistantConfig | null;
   timedOut: boolean;
 };
 type ApprovalsTargetSource = "gateway" | "node" | "local";
@@ -482,7 +482,7 @@ export function registerExecApprovalsCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.zhushou.ai/cli/approvals")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.assistant.ai/cli/approvals")}\n`,
     );
 
   const getCmd = approvals
@@ -559,18 +559,18 @@ export function registerExecApprovalsCli(program: Command) {
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatExample(
-          'zhushou approvals allowlist add "~/Projects/**/bin/rg"',
+          'assistant approvals allowlist add "~/Projects/**/bin/rg"',
           "Allowlist a local binary pattern for the main agent.",
         )}\n${formatExample(
-          'zhushou approvals allowlist add --agent main --node <id|name|ip> "/usr/bin/uptime"',
+          'assistant approvals allowlist add --agent main --node <id|name|ip> "/usr/bin/uptime"',
           "Allowlist on a specific node/agent.",
         )}\n${formatExample(
-          'zhushou approvals allowlist add --agent "*" "/usr/bin/uname"',
+          'assistant approvals allowlist add --agent "*" "/usr/bin/uname"',
           "Allowlist for all agents (wildcard).",
         )}\n${formatExample(
-          'zhushou approvals allowlist remove "~/Projects/**/bin/rg"',
+          'assistant approvals allowlist remove "~/Projects/**/bin/rg"',
           "Remove an allowlist pattern.",
-        )}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.zhushou.ai/cli/approvals")}\n`,
+        )}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.assistant.ai/cli/approvals")}\n`,
     );
 
   registerAllowlistMutationCommand({

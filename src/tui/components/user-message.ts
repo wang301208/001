@@ -3,8 +3,7 @@ import { MarkdownMessageComponent } from "./markdown-message.js";
 
 export class UserMessageComponent extends MarkdownMessageComponent {
   constructor(text: string) {
-    super(text, 1, {
-      bgColor: (line) => theme.userBg(line),
+    super(`${theme.prompt(">")} ${text}`, 1, {
       color: (line) => theme.userText(line),
     });
   }

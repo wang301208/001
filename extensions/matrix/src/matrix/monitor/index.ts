@@ -1,8 +1,8 @@
 import { format } from "node:util";
-import { CHANNEL_APPROVAL_NATIVE_RUNTIME_CONTEXT_CAPABILITY } from "zhushou/plugin-sdk/approval-handler-adapter-runtime";
-import type { ChannelRuntimeSurface } from "zhushou/plugin-sdk/channel-contract";
-import { waitUntilAbort } from "zhushou/plugin-sdk/channel-lifecycle";
-import { registerChannelRuntimeContext } from "zhushou/plugin-sdk/channel-runtime-context";
+import { CHANNEL_APPROVAL_NATIVE_RUNTIME_CONTEXT_CAPABILITY } from "assistant/plugin-sdk/approval-handler-adapter-runtime";
+import type { ChannelRuntimeSurface } from "assistant/plugin-sdk/channel-contract";
+import { waitUntilAbort } from "assistant/plugin-sdk/channel-lifecycle";
+import { registerChannelRuntimeContext } from "assistant/plugin-sdk/channel-runtime-context";
 import {
   GROUP_POLICY_BLOCKED_LABEL,
   resolveThreadBindingIdleTimeoutMsForChannel,
@@ -57,7 +57,7 @@ export type MonitorMatrixOpts = {
   initialSyncLimit?: number;
   replyToMode?: ReplyToMode;
   accountId?: string | null;
-  setStatus?: (next: import("zhushou/plugin-sdk/channel-contract").ChannelAccountSnapshot) => void;
+  setStatus?: (next: import("assistant/plugin-sdk/channel-contract").ChannelAccountSnapshot) => void;
 };
 
 const DEFAULT_MEDIA_MAX_MB = 20;

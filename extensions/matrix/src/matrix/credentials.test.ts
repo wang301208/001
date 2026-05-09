@@ -38,7 +38,7 @@ describe("matrix credentials storage", () => {
       },
     },
   ): string {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-matrix-creds-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-matrix-creds-"));
     tempDirs.push(dir);
     installMatrixTestRuntime({ cfg, stateDir: dir });
     return dir;

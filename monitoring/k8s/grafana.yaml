@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: assistant-grafana-dashboards
+  labels:
+    app: assistant-grafana
+data:
+  assistant-overview.json: |
+    {
+      "editable": true,
+      "panels": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+          "id": 1,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "auto"
+          },
+          "targets": [
+            { "expr": "up{job=\"assistant-gateway\"}", "legendFormat": "gateway", "refId": "A" }
+          ],
+          "title": "Gateway Availability",
+          "type": "stat"
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 39,
+      "tags": ["assistant", "operations"],
+      "time": { "from": "now-6h", "to": "now" },
+      "title": "Assistant Overview",
+      "uid": "assistant-overview",
+      "version": 1
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: assistant-grafana-provisioning
+  labels:
+    app: assistant-grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        uid: prometheus
+        access: proxy
+        url: http://assistant-prometheus:9090
+        isDefault: true
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: assistant
+        orgId: 1
+        folder: Assistant
+        type: file
+        disableDeletion: false
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: assistant-grafana
+  labels:
+    app: assistant-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: assistant-grafana
+  template:
+    metadata:
+      labels:
+        app: assistant-grafana
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: grafana
+          image: grafana/grafana:11.3.1
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: assistant-secrets
+                  key: GRAFANA_ADMIN_PASSWORD
+                  optional: true
+          ports:
+            - name: http
+              containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          volumeMounts:
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+            - name: provisioning
+              mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
+              subPath: datasources.yaml
+            - name: provisioning
+              mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
+              subPath: dashboards.yaml
+      volumes:
+        - name: dashboards
+          configMap:
+            name: assistant-grafana-dashboards
+        - name: provisioning
+          configMap:
+            name: assistant-grafana-provisioning
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: assistant-grafana
+  labels:
+    app: assistant-grafana
+spec:
+  type: ClusterIP
+  selector:
+    app: assistant-grafana
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

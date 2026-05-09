@@ -25,7 +25,7 @@ afterEach(async () => {
 
 function seedRunningProfileState(
   state: ReturnType<typeof makeState>,
-  profileName = "zhushou",
+  profileName = "assistant",
 ): void {
   (state.profiles as Map<string, unknown>).set(profileName, {
     profile: { name: profileName },
@@ -83,11 +83,11 @@ async function openManagedTabWithRunningProfile(params: {
   url?: string;
 }) {
   global.fetch = withFetchPreconnect(params.fetchMock);
-  const state = makeState("zhushou");
+  const state = makeState("assistant");
   seedRunningProfileState(state);
   const ctx = createBrowserRouteContext({ getState: () => state });
-  const zhushou = ctx.forProfile("zhushou");
-  return await zhushou.openTab(params.url ?? "http://127.0.0.1:3009");
+  const assistant = ctx.forProfile("assistant");
+  return await assistant.openTab(params.url ?? "http://127.0.0.1:3009");
 }
 
 describe("browser server-context tab selection state", () => {
@@ -116,13 +116,13 @@ describe("browser server-context tab selection state", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("zhushou");
+    const state = makeState("assistant");
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const zhushou = ctx.forProfile("zhushou");
+    const assistant = ctx.forProfile("assistant");
 
-    const opened = await zhushou.openTab("http://127.0.0.1:8080");
+    const opened = await assistant.openTab("http://127.0.0.1:8080");
     expect(opened.targetId).toBe("CREATED");
-    expect(state.profiles.get("zhushou")?.lastTargetId).toBe("CREATED");
+    expect(state.profiles.get("assistant")?.lastTargetId).toBe("CREATED");
     expect(createTargetViaCdp).toHaveBeenCalledWith({
       cdpUrl: "http://127.0.0.1:18800",
       url: "http://127.0.0.1:8080",
@@ -160,12 +160,12 @@ describe("browser server-context tab selection state", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("zhushou");
+    const state = makeState("assistant");
     state.resolved.ssrfPolicy = {};
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const zhushou = ctx.forProfile("zhushou");
+    const assistant = ctx.forProfile("assistant");
 
-    const selected = await zhushou.ensureTabAvailable();
+    const selected = await assistant.ensureTabAvailable();
     expect(selected.targetId).toBe("CREATED");
     expect(createTargetViaCdp).toHaveBeenCalledWith({
       cdpUrl: "http://127.0.0.1:18800",
@@ -226,12 +226,12 @@ describe("browser server-context tab selection state", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("zhushou");
+    const state = makeState("assistant");
     seedRunningProfileState(state);
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const zhushou = ctx.forProfile("zhushou");
+    const assistant = ctx.forProfile("assistant");
 
-    const opened = await zhushou.openTab("http://127.0.0.1:3009");
+    const opened = await assistant.openTab("http://127.0.0.1:3009");
     expect(opened.targetId).toBe("NEW");
   });
 
@@ -246,12 +246,12 @@ describe("browser server-context tab selection state", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("zhushou");
+    const state = makeState("assistant");
     state.resolved.attachOnly = true;
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const zhushou = ctx.forProfile("zhushou");
+    const assistant = ctx.forProfile("assistant");
 
-    const opened = await zhushou.openTab("http://127.0.0.1:3009");
+    const opened = await assistant.openTab("http://127.0.0.1:3009");
     expect(opened.targetId).toBe("NEW");
     expect(fetchMock).not.toHaveBeenCalledWith(
       expect.stringContaining("/json/close/"),
@@ -288,11 +288,11 @@ describe("browser server-context tab selection state", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("zhushou");
+    const state = makeState("assistant");
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const zhushou = ctx.forProfile("zhushou");
+    const assistant = ctx.forProfile("assistant");
 
-    await expect(zhushou.openTab("file:///etc/passwd")).rejects.toBeInstanceOf(
+    await expect(assistant.openTab("file:///etc/passwd")).rejects.toBeInstanceOf(
       InvalidBrowserNavigationUrlError,
     );
     expect(fetchMock).not.toHaveBeenCalled();
@@ -309,12 +309,12 @@ describe("browser server-context tab selection state", () => {
       type: "page",
     });
 
-    const state = makeState("zhushou");
+    const state = makeState("assistant");
     state.resolved.ssrfPolicy = {};
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const zhushou = ctx.forProfile("zhushou");
+    const assistant = ctx.forProfile("assistant");
 
-    const opened = await zhushou.openTab("https://example.com");
+    const opened = await assistant.openTab("https://example.com");
     expect(opened.targetId).toBe("NEW");
     expect(fetchJson).toHaveBeenNthCalledWith(
       1,

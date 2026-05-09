@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { buildSlackThreadingToolContext } from "./threading-tool-context.js";
 
-const emptyCfg = {} as ZhushouConfig;
+const emptyCfg = {} as AssistantConfig;
 
 function resolveReplyToModeWithConfig(params: {
   slackConfig: Record<string, unknown>;
@@ -12,7 +12,7 @@ function resolveReplyToModeWithConfig(params: {
     channels: {
       slack: params.slackConfig,
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
   const result = buildSlackThreadingToolContext({
     cfg,
     accountId: null,
@@ -27,7 +27,7 @@ describe("buildSlackThreadingToolContext", () => {
       channels: {
         slack: { replyToMode: "first" },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -67,7 +67,7 @@ describe("buildSlackThreadingToolContext", () => {
           replyToMode: "first",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -127,7 +127,7 @@ describe("buildSlackThreadingToolContext", () => {
           replyToModeByChatType: { channel: "first" },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,

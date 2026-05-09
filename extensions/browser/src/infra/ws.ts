@@ -1,1 +1,1 @@
-export { rawDataToString } from "zhushou/plugin-sdk/browser-node-runtime";
+export { rawDataToString } from "assistant/plugin-sdk/browser-node-runtime";

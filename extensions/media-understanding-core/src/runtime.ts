@@ -6,4 +6,4 @@ export {
   transcribeAudioFile,
   type RunMediaUnderstandingFileParams,
   type RunMediaUnderstandingFileResult,
-} from "zhushou/plugin-sdk/media-understanding-runtime";
+} from "assistant/plugin-sdk/media-understanding-runtime";

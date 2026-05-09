@@ -1,6 +1,6 @@
-import { defineSingleProviderPluginEntry } from "zhushou/plugin-sdk/provider-entry";
-import { applyXaiModelCompat } from "zhushou/plugin-sdk/provider-tools";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { defineSingleProviderPluginEntry } from "assistant/plugin-sdk/provider-entry";
+import { applyXaiModelCompat } from "assistant/plugin-sdk/provider-tools";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { applyVeniceConfig, VENICE_DEFAULT_MODEL_REF } from "./onboard.js";
 import { buildVeniceProvider } from "./provider-catalog.js";
 

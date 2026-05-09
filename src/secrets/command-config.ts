@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { coerceSecretRef, resolveSecretInputRef } from "../config/types.secrets.js";
 import { getPath } from "./path-utils.js";
 import { isExpectedResolvedSecretValue } from "./secret-value.js";
@@ -28,8 +28,8 @@ export type AnalyzeAssignmentsFromSnapshotResult = {
 };
 
 export function analyzeCommandSecretAssignmentsFromSnapshot(params: {
-  sourceConfig: ZhushouConfig;
-  resolvedConfig: ZhushouConfig;
+  sourceConfig: AssistantConfig;
+  resolvedConfig: AssistantConfig;
   targetIds: ReadonlySet<string>;
   inactiveRefPaths?: ReadonlySet<string>;
   allowedPaths?: ReadonlySet<string>;
@@ -92,8 +92,8 @@ export function analyzeCommandSecretAssignmentsFromSnapshot(params: {
 }
 
 export function collectCommandSecretAssignmentsFromSnapshot(params: {
-  sourceConfig: ZhushouConfig;
-  resolvedConfig: ZhushouConfig;
+  sourceConfig: AssistantConfig;
+  resolvedConfig: AssistantConfig;
   commandName: string;
   targetIds: ReadonlySet<string>;
   inactiveRefPaths?: ReadonlySet<string>;

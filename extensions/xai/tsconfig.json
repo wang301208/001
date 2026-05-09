@@ -3,64 +3,64 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "zhushou/extension-api": ["../../src/extensionAPI.ts"],
-      "zhushou/plugin-sdk": ["../../dist/plugin-sdk/src/plugin-sdk/index.d.ts"],
-      "zhushou/plugin-sdk/*": ["../../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
-      "zhushou/plugin-sdk/account-id": ["../../dist/plugin-sdk/src/plugin-sdk/account-id.d.ts"],
-      "zhushou/plugin-sdk/channel-entry-contract": [
+      "assistant/extension-api": ["../../src/extensionAPI.ts"],
+      "assistant/plugin-sdk": ["../../dist/plugin-sdk/src/plugin-sdk/index.d.ts"],
+      "assistant/plugin-sdk/*": ["../../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
+      "assistant/plugin-sdk/account-id": ["../../dist/plugin-sdk/src/plugin-sdk/account-id.d.ts"],
+      "assistant/plugin-sdk/channel-entry-contract": [
         "../../dist/plugin-sdk/src/plugin-sdk/channel-entry-contract.d.ts"
       ],
-      "zhushou/plugin-sdk/browser-maintenance": [
+      "assistant/plugin-sdk/browser-maintenance": [
         "../../dist/plugin-sdk/src/plugin-sdk/browser-maintenance.d.ts"
       ],
-      "zhushou/plugin-sdk/browser-config-runtime": [
+      "assistant/plugin-sdk/browser-config-runtime": [
         "../../dist/plugin-sdk/src/plugin-sdk/browser-config-runtime.d.ts"
       ],
-      "zhushou/plugin-sdk/browser-node-runtime": [
+      "assistant/plugin-sdk/browser-node-runtime": [
         "../../dist/plugin-sdk/src/plugin-sdk/browser-node-runtime.d.ts"
       ],
-      "zhushou/plugin-sdk/browser-setup-tools": [
+      "assistant/plugin-sdk/browser-setup-tools": [
         "../../dist/plugin-sdk/src/plugin-sdk/browser-setup-tools.d.ts"
       ],
-      "zhushou/plugin-sdk/browser-security-runtime": [
+      "assistant/plugin-sdk/browser-security-runtime": [
         "../../dist/plugin-sdk/src/plugin-sdk/browser-security-runtime.d.ts"
       ],
-      "zhushou/plugin-sdk/channel-secret-runtime": [
+      "assistant/plugin-sdk/channel-secret-runtime": [
         "../../dist/plugin-sdk/src/plugin-sdk/channel-secret-runtime.d.ts"
       ],
-      "zhushou/plugin-sdk/channel-streaming": [
+      "assistant/plugin-sdk/channel-streaming": [
         "../../dist/plugin-sdk/src/plugin-sdk/channel-streaming.d.ts"
       ],
-      "zhushou/plugin-sdk/cli-runtime": ["../../dist/plugin-sdk/src/plugin-sdk/cli-runtime.d.ts"],
-      "zhushou/plugin-sdk/error-runtime": [
+      "assistant/plugin-sdk/cli-runtime": ["../../dist/plugin-sdk/src/plugin-sdk/cli-runtime.d.ts"],
+      "assistant/plugin-sdk/error-runtime": [
         "../../dist/plugin-sdk/src/plugin-sdk/error-runtime.d.ts"
       ],
-      "zhushou/plugin-sdk/provider-catalog-shared": [
+      "assistant/plugin-sdk/provider-catalog-shared": [
         "../../dist/plugin-sdk/src/plugin-sdk/provider-catalog-shared.d.ts"
       ],
-      "zhushou/plugin-sdk/provider-env-vars": [
+      "assistant/plugin-sdk/provider-env-vars": [
         "../../dist/plugin-sdk/src/plugin-sdk/provider-env-vars.d.ts"
       ],
-      "zhushou/plugin-sdk/provider-entry": [
+      "assistant/plugin-sdk/provider-entry": [
         "../../dist/plugin-sdk/src/plugin-sdk/provider-entry.d.ts"
       ],
-      "zhushou/plugin-sdk/provider-web-search-contract": [
+      "assistant/plugin-sdk/provider-web-search-contract": [
         "../../dist/plugin-sdk/src/plugin-sdk/provider-web-search-contract.d.ts"
       ],
-      "zhushou/plugin-sdk/secret-ref-runtime": [
+      "assistant/plugin-sdk/secret-ref-runtime": [
         "../../dist/plugin-sdk/src/plugin-sdk/secret-ref-runtime.d.ts"
       ],
-      "zhushou/plugin-sdk/ssrf-runtime": [
+      "assistant/plugin-sdk/ssrf-runtime": [
         "../../dist/plugin-sdk/src/plugin-sdk/ssrf-runtime.d.ts"
       ],
-      "@zhushou/qa-channel/api.js": ["../../dist/plugin-sdk/extensions/qa-channel/api.d.ts"],
-      "@zhushou/*.js": ["../../packages/plugin-sdk/dist/extensions/*.d.ts", "../*"],
-      "@zhushou/*": ["../*"],
-      "@zhushou/plugin-sdk/*": ["../../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
-      "@zhushou/anthropic-vertex/api.js": ["./.boundary-stubs/anthropic-vertex-api.d.ts"],
-      "@zhushou/ollama/api.js": ["./.boundary-stubs/ollama-api.d.ts"],
-      "@zhushou/ollama/runtime-api.js": ["./.boundary-stubs/ollama-runtime-api.d.ts"],
-      "@zhushou/speech-core/runtime-api.js": ["./.boundary-stubs/speech-core-runtime-api.d.ts"]
+      "@assistant/qa-channel/api.js": ["../../dist/plugin-sdk/extensions/qa-channel/api.d.ts"],
+      "@assistant/*.js": ["../../packages/plugin-sdk/dist/extensions/*.d.ts", "../*"],
+      "@assistant/*": ["../*"],
+      "@assistant/plugin-sdk/*": ["../../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
+      "@assistant/anthropic-vertex/api.js": ["./.boundary-stubs/anthropic-vertex-api.d.ts"],
+      "@assistant/ollama/api.js": ["./.boundary-stubs/ollama-api.d.ts"],
+      "@assistant/ollama/runtime-api.js": ["./.boundary-stubs/ollama-runtime-api.d.ts"],
+      "@assistant/speech-core/runtime-api.js": ["./.boundary-stubs/speech-core-runtime-api.d.ts"]
     }
   },
   "include": ["./*.ts", "./src/**/*.ts"],

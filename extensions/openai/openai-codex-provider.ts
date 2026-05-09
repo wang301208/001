@@ -1,24 +1,24 @@
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import type {
   ProviderAuthContext,
   ProviderResolveDynamicModelContext,
   ProviderRuntimeModel,
-} from "zhushou/plugin-sdk/plugin-entry";
+} from "assistant/plugin-sdk/plugin-entry";
 import {
   ensureAuthProfileStore,
   listProfilesForProvider,
   type OAuthCredential,
-} from "zhushou/plugin-sdk/provider-auth";
-import { buildOauthProviderAuthResult } from "zhushou/plugin-sdk/provider-auth";
-import { loginOpenAICodexOAuth } from "zhushou/plugin-sdk/provider-auth-login";
+} from "assistant/plugin-sdk/provider-auth";
+import { buildOauthProviderAuthResult } from "assistant/plugin-sdk/provider-auth";
+import { loginOpenAICodexOAuth } from "assistant/plugin-sdk/provider-auth-login";
 import {
   DEFAULT_CONTEXT_TOKENS,
   normalizeModelCompat,
   normalizeProviderId,
   type ProviderPlugin,
-} from "zhushou/plugin-sdk/provider-model-shared";
-import { fetchCodexUsage } from "zhushou/plugin-sdk/provider-usage";
-import { normalizeLowercaseStringOrEmpty, readStringValue } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/provider-model-shared";
+import { fetchCodexUsage } from "assistant/plugin-sdk/provider-usage";
+import { normalizeLowercaseStringOrEmpty, readStringValue } from "assistant/plugin-sdk/text-runtime";
 import { isOpenAIApiBaseUrl, isOpenAICodexBaseUrl } from "./base-url.js";
 import { OPENAI_CODEX_DEFAULT_MODEL } from "./default-models.js";
 import { resolveCodexAuthIdentity } from "./openai-codex-auth-identity.js";
@@ -286,7 +286,7 @@ function buildOpenAICodexAuthDoctorHint(ctx: { profileId?: string }) {
   if (ctx.profileId !== CODEX_CLI_PROFILE_ID) {
     return undefined;
   }
-  return "Deprecated profile. Run `zhushou models auth login --provider openai-codex` or `zhushou configure`.";
+  return "Deprecated profile. Run `assistant models auth login --provider openai-codex` or `assistant configure`.";
 }
 
 export function buildOpenAICodexProviderPlugin(): ProviderPlugin {

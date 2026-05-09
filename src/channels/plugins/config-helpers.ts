@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
 
 type ChannelSection = {
@@ -14,12 +14,12 @@ function isConfiguredSecretValue(value: unknown): boolean {
 }
 
 export function setAccountEnabledInConfigSection(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sectionKey: string;
   accountId: string;
   enabled: boolean;
   allowTopLevel?: boolean;
-}): ZhushouConfig {
+}): AssistantConfig {
   const accountKey = params.accountId || DEFAULT_ACCOUNT_ID;
   const channels = params.cfg.channels as Record<string, unknown> | undefined;
   const base = channels?.[params.sectionKey] as ChannelSection | undefined;
@@ -34,7 +34,7 @@ export function setAccountEnabledInConfigSection(params: {
           enabled: params.enabled,
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
   }
 
   const baseAccounts = base?.accounts ?? {};
@@ -54,15 +54,15 @@ export function setAccountEnabledInConfigSection(params: {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 export function deleteAccountFromConfigSection(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sectionKey: string;
   accountId: string;
   clearBaseFields?: string[];
-}): ZhushouConfig {
+}): AssistantConfig {
   const accountKey = params.accountId || DEFAULT_ACCOUNT_ID;
   const channels = params.cfg.channels as Record<string, unknown> | undefined;
   const base = channels?.[params.sectionKey] as ChannelSection | undefined;
@@ -85,7 +85,7 @@ export function deleteAccountFromConfigSection(params: {
           accounts: Object.keys(accounts).length ? accounts : undefined,
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
   }
 
   if (baseAccounts && Object.keys(baseAccounts).length > 0) {
@@ -105,14 +105,14 @@ export function deleteAccountFromConfigSection(params: {
           accounts: Object.keys(baseAccounts).length ? baseAccounts : undefined,
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
   }
 
   const nextChannels = { ...params.cfg.channels } as Record<string, unknown>;
   delete nextChannels[params.sectionKey];
-  const nextCfg = { ...params.cfg } as ZhushouConfig;
+  const nextCfg = { ...params.cfg } as AssistantConfig;
   if (Object.keys(nextChannels).length > 0) {
-    nextCfg.channels = nextChannels as ZhushouConfig["channels"];
+    nextCfg.channels = nextChannels as AssistantConfig["channels"];
   } else {
     delete nextCfg.channels;
   }

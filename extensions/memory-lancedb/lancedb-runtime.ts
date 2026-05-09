@@ -83,7 +83,7 @@ export function resolveLanceDbDependencySpec(
 const MEMORY_LANCEDB_RUNTIME_MANIFEST: RuntimeManifest = (() => {
   const lanceDbSpec = resolveLanceDbDependencySpec(fileURLToPath(import.meta.url));
   return {
-    name: "zhushou-memory-lancedb-runtime",
+    name: "assistant-memory-lancedb-runtime",
     private: true,
     type: "module",
     dependencies: {
@@ -256,7 +256,7 @@ export function createLanceDbRuntimeLoader(overrides: Partial<LanceDbRuntimeLoad
                 // Reinstall below when the cached runtime is incomplete or stale.
               }
             }
-            if (deps.env.OPENCLAW_NIX_MODE === "1") {
+            if (deps.env.ASSISTANT_NIX_MODE === "1") {
               throw new Error(
                 buildLoadFailureMessage(
                   "failed to load LanceDB and Nix mode disables auto-install",

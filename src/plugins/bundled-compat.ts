@@ -1,11 +1,11 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { PluginEntryConfig } from "../config/types.plugins.js";
 import { hasExplicitPluginConfig } from "./config-policy.js";
 
 export function withBundledPluginAllowlistCompat(params: {
-  config: ZhushouConfig | undefined;
+  config: AssistantConfig | undefined;
   pluginIds: readonly string[];
-}): ZhushouConfig | undefined {
+}): AssistantConfig | undefined {
   const allow = params.config?.plugins?.allow;
   if (!Array.isArray(allow) || allow.length === 0) {
     return params.config;
@@ -34,9 +34,9 @@ export function withBundledPluginAllowlistCompat(params: {
 }
 
 export function withBundledPluginEnablementCompat(params: {
-  config: ZhushouConfig | undefined;
+  config: AssistantConfig | undefined;
   pluginIds: readonly string[];
-}): ZhushouConfig | undefined {
+}): AssistantConfig | undefined {
   const existingEntries = params.config?.plugins?.entries ?? {};
   const forcePluginsEnabled = params.config?.plugins?.enabled === false;
   let changed = false;
@@ -70,10 +70,10 @@ export function withBundledPluginEnablementCompat(params: {
 }
 
 export function withBundledPluginVitestCompat(params: {
-  config: ZhushouConfig | undefined;
+  config: AssistantConfig | undefined;
   pluginIds: readonly string[];
   env?: NodeJS.ProcessEnv;
-}): ZhushouConfig | undefined {
+}): AssistantConfig | undefined {
   const env = params.env ?? process.env;
   const isVitest = Boolean(env.VITEST);
   if (

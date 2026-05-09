@@ -6,25 +6,25 @@ import {
   validateExternalCodePluginPackageJson,
 } from "./index.js";
 
-describe("@zhushou/plugin-package-contract", () => {
+describe("@assistant/plugin-package-contract", () => {
   it("normalizes the 助手 compatibility block for external plugins", () => {
     expect(
       normalizeExternalPluginCompatibility({
         version: "1.2.3",
-        zhushou: {
+        assistant: {
           compat: {
             pluginApi: ">=2026.3.24-beta.2",
             minGatewayVersion: "2026.3.24-beta.2",
           },
           build: {
-            openclawVersion: "2026.3.24-beta.2",
+            assistantVersion: "2026.3.24-beta.2",
             pluginSdkVersion: "0.9.0",
           },
         },
       }),
     ).toEqual({
       pluginApiRange: ">=2026.3.24-beta.2",
-      builtWithOpenClawVersion: "2026.3.24-beta.2",
+      builtWithAssistantVersion: "2026.3.24-beta.2",
       pluginSdkVersion: "0.9.0",
       minGatewayVersion: "2026.3.24-beta.2",
     });
@@ -34,7 +34,7 @@ describe("@zhushou/plugin-package-contract", () => {
     expect(
       normalizeExternalPluginCompatibility({
         version: "1.2.3",
-        zhushou: {
+        assistant: {
           compat: {
             pluginApi: ">=1.0.0",
           },
@@ -45,40 +45,40 @@ describe("@zhushou/plugin-package-contract", () => {
       }),
     ).toEqual({
       pluginApiRange: ">=1.0.0",
-      builtWithOpenClawVersion: "1.2.3",
+      builtWithAssistantVersion: "1.2.3",
       minGatewayVersion: "2026.3.24-beta.2",
     });
   });
 
   it("lists the required external code-plugin fields", () => {
     expect(EXTERNAL_CODE_PLUGIN_REQUIRED_FIELD_PATHS).toEqual([
-      "zhushou.compat.pluginApi",
-      "zhushou.build.zhushouVersion",
+      "assistant.compat.pluginApi",
+      "assistant.build.assistantVersion",
     ]);
   });
 
   it("reports missing required fields with stable field paths", () => {
     const packageJson = {
-      zhushou: {
+      assistant: {
         compat: {},
         build: {},
       },
     };
 
     expect(listMissingExternalCodePluginFieldPaths(packageJson)).toEqual([
-      "zhushou.compat.pluginApi",
-      "zhushou.build.zhushouVersion",
+      "assistant.compat.pluginApi",
+      "assistant.build.assistantVersion",
     ]);
     expect(validateExternalCodePluginPackageJson(packageJson).issues).toEqual([
       {
-        fieldPath: "zhushou.compat.pluginApi",
+        fieldPath: "assistant.compat.pluginApi",
         message:
-          "zhushou.compat.pluginApi is required for external code plugins published to ClawHub.",
+          "assistant.compat.pluginApi is required for external code plugins published to ClawHub.",
       },
       {
-        fieldPath: "zhushou.build.zhushouVersion",
+        fieldPath: "assistant.build.assistantVersion",
         message:
-          "zhushou.build.zhushouVersion is required for external code plugins published to ClawHub.",
+          "assistant.build.assistantVersion is required for external code plugins published to ClawHub.",
       },
     ]);
   });

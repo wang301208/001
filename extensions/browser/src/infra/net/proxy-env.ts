@@ -1,1 +1,1 @@
-export { hasProxyEnvConfigured } from "zhushou/plugin-sdk/browser-security-runtime";
+export { hasProxyEnvConfigured } from "assistant/plugin-sdk/browser-security-runtime";

@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: zhushou
+  name: assistant
   labels:
-    app: zhushou
+    app: assistant
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: zhushou
+      app: assistant
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: zhushou
+        app: assistant
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -29,9 +29,9 @@ spec:
             - sh
             - -c
             - |
-              cp /config/zhushou.json /home/node/.zhushou/zhushou.json
-              mkdir -p /home/node/.zhushou/workspace
-              cp /config/AGENTS.md /home/node/.zhushou/workspace/AGENTS.md
+              cp /config/assistant.json /home/node/.assistant/assistant.json
+              mkdir -p /home/node/.assistant/workspace
+              cp /config/AGENTS.md /home/node/.assistant/workspace/AGENTS.md
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -43,13 +43,13 @@ spec:
               memory: 64Mi
               cpu: 100m
           volumeMounts:
-            - name: zhushou-home
-              mountPath: /home/node/.zhushou
+            - name: assistant-home
+              mountPath: /home/node/.assistant
             - name: config
               mountPath: /config
       containers:
         - name: gateway
-          image: ghcr.io/zhushou/zhushou:slim
+          image: ghcr.io/assistant/assistant:slim
           imagePullPolicy: IfNotPresent
           command:
             - node
@@ -58,42 +58,42 @@ spec:
             - run
           ports:
             - name: gateway
-              containerPort: 18789
+              containerPort: 3000
               protocol: TCP
           env:
             - name: HOME
               value: /home/node
-            - name: ZHUSHOU_CONFIG_DIR
-              value: /home/node/.zhushou
+            - name: ASSISTANT_CONFIG_DIR
+              value: /home/node/.assistant
             - name: NODE_ENV
               value: production
-            - name: ZHUSHOU_GATEWAY_TOKEN
+            - name: ASSISTANT_GATEWAY_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: zhushou-secrets
-                  key: ZHUSHOU_GATEWAY_TOKEN
+                  name: assistant-secrets
+                  key: ASSISTANT_GATEWAY_TOKEN
             - name: ANTHROPIC_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: zhushou-secrets
+                  name: assistant-secrets
                   key: ANTHROPIC_API_KEY
                   optional: true
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: zhushou-secrets
+                  name: assistant-secrets
                   key: OPENAI_API_KEY
                   optional: true
             - name: GEMINI_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: zhushou-secrets
+                  name: assistant-secrets
                   key: GEMINI_API_KEY
                   optional: true
             - name: OPENROUTER_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: zhushou-secrets
+                  name: assistant-secrets
                   key: OPENROUTER_API_KEY
                   optional: true
           resources:
@@ -108,7 +108,7 @@ spec:
               command:
                 - node
                 - -e
-                - "require('http').get('http://127.0.0.1:18789/healthz', r => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))"
+                - "require('http').get('http://127.0.0.1:3000/healthz', r => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))"
             initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 10
@@ -117,13 +117,13 @@ spec:
               command:
                 - node
                 - -e
-                - "require('http').get('http://127.0.0.1:18789/readyz', r => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))"
+                - "require('http').get('http://127.0.0.1:3000/readyz', r => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))"
             initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 5
           volumeMounts:
-            - name: zhushou-home
-              mountPath: /home/node/.zhushou
+            - name: assistant-home
+              mountPath: /home/node/.assistant
             - name: tmp-volume
               mountPath: /tmp
           securityContext:
@@ -136,11 +136,11 @@ spec:
               drop:
                 - ALL
       volumes:
-        - name: zhushou-home
+        - name: assistant-home
           persistentVolumeClaim:
-            claimName: zhushou-home-pvc
+            claimName: assistant-home-pvc
         - name: config
           configMap:
-            name: zhushou-config
+            name: assistant-config
         - name: tmp-volume
           emptyDir: {}

@@ -3,7 +3,7 @@ import {
   type ConfigFileSnapshot,
   type GatewayAuthConfig,
   type GatewayTailscaleConfig,
-  type ZhushouConfig,
+  type AssistantConfig,
   applyConfigOverrides,
   isNixMode,
   readConfigFileSnapshot,
@@ -35,7 +35,7 @@ type GatewayStartupLog = {
 type GatewaySecretsStateEventCode = "SECRETS_RELOADER_DEGRADED" | "SECRETS_RELOADER_RECOVERED";
 
 export type ActivateRuntimeSecrets = (
-  config: ZhushouConfig,
+  config: AssistantConfig,
   params: { reason: "startup" | "reload" | "restart-check"; activate: boolean },
 ) => Promise<Awaited<ReturnType<typeof prepareSecretsRuntimeSnapshot>>>;
 
@@ -62,7 +62,7 @@ export async function loadGatewayStartupConfigSnapshot(params: {
   }
 
   const allowAutoEnableInMinimalGateway =
-    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE === "1";
+    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE === "1";
   const autoEnable = params.minimalTestGateway
     ? allowAutoEnableInMinimalGateway
       ? applyPluginAutoEnable({ config: configSnapshot.config, env: process.env })
@@ -91,7 +91,7 @@ export function createRuntimeSecretsActivator(params: {
   emitStateEvent: (
     code: GatewaySecretsStateEventCode,
     message: string,
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
   ) => void;
   prepareRuntimeSecretsSnapshot?: PrepareRuntimeSecretsSnapshot;
   activateRuntimeSecretsSnapshot?: ActivateRuntimeSecretsSnapshot;
@@ -117,6 +117,7 @@ export function createRuntimeSecretsActivator(params: {
       try {
         const prepared = await prepareRuntimeSecretsSnapshot({
           config: pruneSkippedStartupSecretSurfaces(config),
+          includeAuthStoreRefs: activationParams.reason === "startup" ? false : undefined,
         });
         if (activationParams.activate) {
           activateRuntimeSecretsSnapshot(prepared);
@@ -170,7 +171,7 @@ export function assertValidGatewayStartupConfigSnapshot(
       ? formatConfigIssueLines(snapshot.issues, "", { normalizeRoot: true }).join("\n")
       : "Unknown validation issue.";
   const doctorHint = options.includeDoctorHint
-    ? `\nRun "${formatCliCommand("zhushou doctor --fix")}" to repair, then retry.`
+    ? `\nRun "${formatCliCommand("assistant doctor --fix")}" to repair, then retry.`
     : "";
   throw new Error(`Invalid config at ${snapshot.path}.\n${issues}${doctorHint}`);
 }
@@ -181,6 +182,13 @@ export async function prepareGatewayStartupConfig(params: {
   tailscaleOverride?: GatewayTailscaleConfig;
   activateRuntimeSecrets: ActivateRuntimeSecrets;
 }): Promise<Awaited<ReturnType<typeof ensureGatewayStartupAuth>>> {
+  const traceStartup = isTruthyEnvValue(process.env.ASSISTANT_TRACE_GATEWAY_STARTUP);
+  const trace = (message: string) => {
+    if (traceStartup) {
+      params.configSnapshot;
+      console.error(`[gateway] [startup-trace] ${message}`);
+    }
+  };
   assertValidGatewayStartupConfigSnapshot(params.configSnapshot);
 
   const runtimeConfig = applyConfigOverrides(params.configSnapshot.config);
@@ -188,12 +196,14 @@ export async function prepareGatewayStartupConfig(params: {
     auth: params.authOverride,
     tailscale: params.tailscaleOverride,
   });
+  trace("prepareGatewayStartupConfig before startup preflight secrets");
   const preflightConfig = (
     await params.activateRuntimeSecrets(startupPreflightConfig, {
       reason: "startup",
       activate: false,
     })
   ).config;
+  trace("prepareGatewayStartupConfig after startup preflight secrets");
   const preflightAuthOverride =
     typeof preflightConfig.gateway?.auth?.token === "string" ||
     typeof preflightConfig.gateway?.auth?.password === "string"
@@ -208,6 +218,7 @@ export async function prepareGatewayStartupConfig(params: {
         }
       : params.authOverride;
 
+  trace("prepareGatewayStartupConfig before ensureGatewayStartupAuth");
   const authBootstrap = await ensureGatewayStartupAuth({
     cfg: runtimeConfig,
     env: process.env,
@@ -216,26 +227,29 @@ export async function prepareGatewayStartupConfig(params: {
     persist: true,
     baseHash: params.configSnapshot.hash,
   });
+  trace("prepareGatewayStartupConfig after ensureGatewayStartupAuth");
   const runtimeStartupConfig = applyGatewayAuthOverridesForStartupPreflight(authBootstrap.cfg, {
     auth: params.authOverride,
     tailscale: params.tailscaleOverride,
   });
+  trace("prepareGatewayStartupConfig before startup activate secrets");
   const activatedConfig = (
     await params.activateRuntimeSecrets(runtimeStartupConfig, {
       reason: "startup",
       activate: true,
     })
   ).config;
+  trace("prepareGatewayStartupConfig after startup activate secrets");
   return {
     ...authBootstrap,
     cfg: activatedConfig,
   };
 }
 
-function pruneSkippedStartupSecretSurfaces(config: ZhushouConfig): ZhushouConfig {
+function pruneSkippedStartupSecretSurfaces(config: AssistantConfig): AssistantConfig {
   const skipChannels =
-    isTruthyEnvValue(process.env.ZHUSHOU_SKIP_CHANNELS) ||
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_PROVIDERS);
+    isTruthyEnvValue(process.env.ASSISTANT_SKIP_CHANNELS) ||
+    isTruthyEnvValue(process.env.ASSISTANT_SKIP_PROVIDERS);
   if (!skipChannels || !config.channels) {
     return config;
   }
@@ -247,7 +261,7 @@ function pruneSkippedStartupSecretSurfaces(config: ZhushouConfig): ZhushouConfig
 
 function logGatewayAuthSurfaceDiagnostics(
   prepared: {
-    sourceConfig: ZhushouConfig;
+    sourceConfig: AssistantConfig;
     warnings: Array<{ code: string; path: string; message: string }>;
   },
   logSecrets: GatewayStartupLog,
@@ -278,9 +292,9 @@ function logGatewayAuthSurfaceDiagnostics(
 }
 
 function applyGatewayAuthOverridesForStartupPreflight(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   overrides: GatewayStartupConfigOverrides,
-): ZhushouConfig {
+): AssistantConfig {
   if (!overrides.auth && !overrides.tailscale) {
     return config;
   }

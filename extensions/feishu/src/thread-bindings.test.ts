@@ -1,11 +1,11 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { getSessionBindingService } from "zhushou/plugin-sdk/conversation-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { getSessionBindingService } from "assistant/plugin-sdk/conversation-runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 import { __testing, createFeishuThreadBindingManager } from "./thread-bindings.js";
 
 const baseCfg = {
   session: { mainKey: "main", scope: "per-sender" },
-} satisfies ZhushouConfig;
+} satisfies AssistantConfig;
 
 describe("Feishu thread bindings", () => {
   beforeEach(() => {

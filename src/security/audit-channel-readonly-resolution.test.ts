@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { collectChannelSecurityFindings } from "./audit-channel.js";
 
 function stubChannelPlugin(params: {
   id: "zalouser";
   label: string;
-  resolveAccount: (cfg: ZhushouConfig, accountId: string | null | undefined) => unknown;
+  resolveAccount: (cfg: AssistantConfig, accountId: string | null | undefined) => unknown;
 }): ChannelPlugin {
   return {
     id: params.id,
@@ -40,7 +40,7 @@ describe("security audit channel read-only resolution", () => {
       },
     });
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         zalouser: {
           enabled: true,

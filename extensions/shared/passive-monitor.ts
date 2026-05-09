@@ -1,1 +1,1 @@
-export { runStoppablePassiveMonitor } from "zhushou/plugin-sdk/extension-shared";
+export { runStoppablePassiveMonitor } from "assistant/plugin-sdk/extension-shared";

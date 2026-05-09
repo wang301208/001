@@ -98,9 +98,9 @@ function hasFinding(
 }
 
 async function createAuditFixture(): Promise<AuditFixture> {
-  const rootDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-secrets-audit-"));
-  const stateDir = path.join(rootDir, ".zhushou");
-  const configPath = path.join(stateDir, "zhushou.json");
+  const rootDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-secrets-audit-"));
+  const stateDir = path.join(rootDir, ".assistant");
+  const configPath = path.join(stateDir, "assistant.json");
   const authStorePath = path.join(stateDir, "agents", "main", "agent", "auth-profiles.json");
   const authJsonPath = path.join(stateDir, "agents", "main", "agent", "auth.json");
   const modelsPath = path.join(stateDir, "agents", "main", "agent", "models.json");
@@ -118,8 +118,8 @@ async function createAuditFixture(): Promise<AuditFixture> {
     modelsPath,
     envPath,
     env: {
-      ZHUSHOU_STATE_DIR: stateDir,
-      ZHUSHOU_CONFIG_PATH: configPath,
+      ASSISTANT_STATE_DIR: stateDir,
+      ASSISTANT_CONFIG_PATH: configPath,
       OPENAI_API_KEY: "env-openai-key", // pragma: allowlist secret
       PATH: resolveRuntimePathEnv(),
     },
@@ -539,7 +539,7 @@ describe("secrets audit", () => {
     const report = await runSecretsAudit({
       env: {
         ...fixture.env,
-        OPENCLAW_AGENT_DIR: externalAgentDir,
+        ASSISTANT_AGENT_DIR: externalAgentDir,
       },
     });
     expect(
@@ -554,7 +554,7 @@ describe("secrets audit", () => {
     expect(report.filesScanned).toContain(externalModelsPath);
   });
 
-  it("does not flag non-sensitive routing headers in zhushou config", async () => {
+  it("does not flag non-sensitive routing headers in assistant config", async () => {
     await writeJsonFile(fixture.configPath, {
       models: {
         providers: {

@@ -1,7 +1,7 @@
 import {
   evaluateSupplementalContextVisibility,
   filterSupplementalContextItems,
-} from "zhushou/plugin-sdk/security-runtime";
+} from "assistant/plugin-sdk/security-runtime";
 import {
   getComparableIdentityValues,
   getReplyContext,

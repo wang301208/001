@@ -1,10 +1,10 @@
-import { createSubsystemLogger } from "zhushou/plugin-sdk/core";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { createSubsystemLogger } from "assistant/plugin-sdk/core";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import type {
   ModelDefinitionConfig,
   ModelProviderConfig,
-} from "zhushou/plugin-sdk/provider-model-shared";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/provider-model-shared";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 
 const log = createSubsystemLogger("bedrock-mantle-discovery");
 

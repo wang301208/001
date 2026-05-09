@@ -6,7 +6,7 @@ import {
   resolveActiveTalkProviderConfig,
 } from "../../config/talk.js";
 import type { TalkConfigResponse, TalkProviderConfig } from "../../config/types.gateway.js";
-import type { ZhushouConfig, TtsConfig, TtsProviderConfigMap } from "../../config/types.js";
+import type { AssistantConfig, TtsConfig, TtsProviderConfigMap } from "../../config/types.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -83,9 +83,9 @@ function resolveTalkVoiceId(
 }
 
 function buildTalkTtsConfig(
-  config: ZhushouConfig,
+  config: AssistantConfig,
 ):
-  | { cfg: ZhushouConfig; provider: string; providerConfig: TalkProviderConfig }
+  | { cfg: AssistantConfig; provider: string; providerConfig: TalkProviderConfig }
   | { error: string; reason: TalkSpeakReason } {
   const resolved = resolveActiveTalkProviderConfig(config.talk);
   const provider = canonicalizeSpeechProviderId(resolved?.provider, config);
@@ -169,7 +169,7 @@ function resolveTalkSpeed(params: TalkSpeakParams): number | undefined {
 function buildTalkSpeakOverrides(
   provider: string,
   providerConfig: TalkProviderConfig,
-  config: ZhushouConfig,
+  config: AssistantConfig,
   params: TalkSpeakParams,
 ): TtsDirectiveOverrides {
   const speechProvider = getSpeechProvider(provider, config);
@@ -233,8 +233,8 @@ function inferMimeType(
 
 function resolveTalkResponseFromConfig(params: {
   includeSecrets: boolean;
-  sourceConfig: ZhushouConfig;
-  runtimeConfig: ZhushouConfig;
+  sourceConfig: AssistantConfig;
+  runtimeConfig: AssistantConfig;
 }): TalkConfigResponse | undefined {
   const normalizedTalk = normalizeTalkSection(params.sourceConfig.talk);
   if (!normalizedTalk) {

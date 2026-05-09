@@ -5,7 +5,7 @@ import { AssistantMessageComponent } from "./assistant-message.js";
 import { BtwInlineMessage } from "./btw-inline-message.js";
 import { ToolExecutionComponent } from "./tool-execution.js";
 import { UserMessageComponent } from "./user-message.js";
-import type { GovernanceStatus } from "../../communication/message-bus.js";
+import { renderGovernancePanel, type GovernanceStatus } from "../tui-governance-panel.js";
 
 const PENDING_HISTORY_CLOCK_SKEW_TOLERANCE_MS = 60_000;
 
@@ -302,12 +302,8 @@ export class ChatLog extends Container {
     }
   }
   
-  /**
-   * 显示或隐藏治理层面板
-   */
   toggleGovernancePanel(governanceStatus: GovernanceStatus | null, visible: boolean) {
     if (!visible) {
-      // 隐藏面板
       if (this.governancePanel) {
         this.removeChild(this.governancePanel);
         this.governancePanel = null;
@@ -315,30 +311,20 @@ export class ChatLog extends Container {
       return;
     }
     
-    // 显示面板
     if (!this.governancePanel) {
-      const lines = require("../tui-governance-panel.js").renderGovernancePanel(governanceStatus);
-      const panelText = lines.join("\n");
+      const panelText = theme.system(renderGovernancePanel(governanceStatus).join("\n"));
       this.governancePanel = new Text(panelText, 1, 0);
       this.addChild(this.governancePanel);
       this.pruneOverflow();
     } else {
-      // 更新现有面板
-      const lines = require("../tui-governance-panel.js").renderGovernancePanel(governanceStatus);
-      const panelText = lines.join("\n");
+      const panelText = theme.system(renderGovernancePanel(governanceStatus).join("\n"));
       this.governancePanel.setText(panelText);
     }
   }
   
-  /**
-   * 更新治理层面板内容
-   */
   updateGovernancePanel(governanceStatus: GovernanceStatus | null) {
-    if (this.governancePanel && governanceStatus) {
-      const { renderGovernancePanel } = require("../tui-governance-panel.js");
-      const lines = renderGovernancePanel(governanceStatus);
-      const panelText = lines.join("\n");
-      this.governancePanel.setText(panelText);
+    if (this.governancePanel) {
+      this.governancePanel.setText(theme.system(renderGovernancePanel(governanceStatus).join("\n")));
     }
   }
 }

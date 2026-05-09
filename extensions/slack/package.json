@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/slack",
+  "name": "@assistant/slack",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Slack channel plugin",
@@ -10,9 +10,9 @@
     "https-proxy-agent": "^9.0.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],

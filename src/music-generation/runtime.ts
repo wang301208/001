@@ -1,6 +1,6 @@
 import { describeFailoverError, isFailoverError } from "../agents/failover-error.js";
 import type { FallbackAttempt } from "../agents/model-fallback.types.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
@@ -19,7 +19,7 @@ const log = createSubsystemLogger("music-generation");
 
 export type { GenerateMusicParams, GenerateMusicRuntimeResult } from "./runtime-types.js";
 
-export function listRuntimeMusicGenerationProviders(params?: { config?: ZhushouConfig }) {
+export function listRuntimeMusicGenerationProviders(params?: { config?: AssistantConfig }) {
   return listMusicGenerationProviders(params?.config);
 }
 

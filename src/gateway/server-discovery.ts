@@ -25,7 +25,7 @@ export function formatBonjourInstanceName(displayName: string) {
 
 export function resolveBonjourCliPath(opts: ResolveBonjourCliPathOptions = {}): string | undefined {
   const env = opts.env ?? process.env;
-  const envPath = env.OPENCLAW_CLI_PATH?.trim();
+  const envPath = env.ASSISTANT_CLI_PATH?.trim();
   if (envPath) {
     return envPath;
   }
@@ -41,7 +41,7 @@ export function resolveBonjourCliPath(opts: ResolveBonjourCliPathOptions = {}): 
 
   const execPath = opts.execPath ?? process.execPath;
   const execDir = path.dirname(execPath);
-  const siblingCli = path.join(execDir, "zhushou");
+  const siblingCli = path.join(execDir, "assistant");
   if (isFile(siblingCli)) {
     return siblingCli;
   }
@@ -57,7 +57,7 @@ export function resolveBonjourCliPath(opts: ResolveBonjourCliPathOptions = {}): 
   if (isFile(distCli)) {
     return distCli;
   }
-  const binCli = path.join(cwd, "bin", "zhushou");
+  const binCli = path.join(cwd, "bin", "assistant");
   if (isFile(binCli)) {
     return binCli;
   }
@@ -71,7 +71,7 @@ export async function resolveTailnetDnsHint(opts?: {
   enabled?: boolean;
 }): Promise<string | undefined> {
   const env = opts?.env ?? process.env;
-  const envRaw = env.OPENCLAW_TAILNET_DNS?.trim();
+  const envRaw = env.ASSISTANT_TAILNET_DNS?.trim();
   const envValue = envRaw && envRaw.length > 0 ? envRaw.replace(/\.$/, "") : "";
   if (envValue) {
     return envValue;

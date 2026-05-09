@@ -4,13 +4,13 @@ import {
   type ResolverContext,
   type SecretDefaults,
   type SecretTargetRegistryEntry,
-} from "zhushou/plugin-sdk/channel-secret-basic-runtime";
+} from "assistant/plugin-sdk/channel-secret-basic-runtime";
 
 export const secretTargetRegistryEntries = [
   {
     id: "channels.msteams.appPassword",
     targetType: "channels.msteams.appPassword",
-    configFile: "zhushou.json",
+    configFile: "assistant.json",
     pathPattern: "channels.msteams.appPassword",
     secretShape: "secret_input",
     expectedResolvedValue: "string",

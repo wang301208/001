@@ -1,5 +1,5 @@
 import { listPotentialConfiguredChannelIds } from "../../../channels/config-presence.js";
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import {
   normalizePluginsConfig,
   resolveEffectivePluginActivationState,
@@ -13,7 +13,7 @@ export type ChannelPluginBlockerHit = {
   reason: "disabled in config" | "plugins disabled";
 };
 
-function hasExplicitChannelPluginBlockerConfig(cfg: ZhushouConfig): boolean {
+function hasExplicitChannelPluginBlockerConfig(cfg: AssistantConfig): boolean {
   if (cfg.plugins?.enabled === false) {
     return true;
   }
@@ -33,7 +33,7 @@ function hasExplicitChannelPluginBlockerConfig(cfg: ZhushouConfig): boolean {
 }
 
 export function scanConfiguredChannelPluginBlockers(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): ChannelPluginBlockerHit[] {
   if (!hasExplicitChannelPluginBlockerConfig(cfg)) {

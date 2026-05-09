@@ -12,7 +12,7 @@ import {
 describe("schtasks runtime parsing", () => {
   it.each(["Ready", "Running"])("parses %s status", (status) => {
     const output = [
-      "TaskName: \\OpenClaw Gateway",
+      "TaskName: \\Assistant Gateway",
       `Status: ${status}`,
       "Last Run Time: 1/8/2026 1:23:45 AM",
       "Last Run Result: 0x0",
@@ -26,7 +26,7 @@ describe("schtasks runtime parsing", () => {
 
   it("parses 'Last Result' key variant (without 'Run') (#47726)", () => {
     const output = [
-      "TaskName: \\OpenClaw Gateway",
+      "TaskName: \\Assistant Gateway",
       "Status: Running",
       "Last Run Time: 2026/3/16 8:34:15",
       "Last Result: 267009",
@@ -126,28 +126,28 @@ describe("scheduled task runtime derivation", () => {
 describe("resolveTaskScriptPath", () => {
   it.each([
     {
-      name: "uses default path when ZHUSHOU_PROFILE is unset",
+      name: "uses default path when ASSISTANT_PROFILE is unset",
       env: { USERPROFILE: "C:\\Users\\test" },
-      expected: path.join("C:\\Users\\test", ".zhushou", "gateway.cmd"),
+      expected: path.join("C:\\Users\\test", ".assistant", "gateway.cmd"),
     },
     {
-      name: "uses profile-specific path when ZHUSHOU_PROFILE is set to a custom value",
-      env: { USERPROFILE: "C:\\Users\\test", ZHUSHOU_PROFILE: "jbphoenix" },
-      expected: path.join("C:\\Users\\test", ".zhushou-jbphoenix", "gateway.cmd"),
+      name: "uses profile-specific path when ASSISTANT_PROFILE is set to a custom value",
+      env: { USERPROFILE: "C:\\Users\\test", ASSISTANT_PROFILE: "jbphoenix" },
+      expected: path.join("C:\\Users\\test", ".assistant-jbphoenix", "gateway.cmd"),
     },
     {
-      name: "prefers ZHUSHOU_STATE_DIR over profile-derived defaults",
+      name: "prefers ASSISTANT_STATE_DIR over profile-derived defaults",
       env: {
         USERPROFILE: "C:\\Users\\test",
-        ZHUSHOU_PROFILE: "rescue",
-        ZHUSHOU_STATE_DIR: "C:\\State\\zhushou",
+        ASSISTANT_PROFILE: "rescue",
+        ASSISTANT_STATE_DIR: "C:\\State\\assistant",
       },
-      expected: path.join("C:\\State\\zhushou", "gateway.cmd"),
+      expected: path.join("C:\\State\\assistant", "gateway.cmd"),
     },
     {
       name: "falls back to HOME when USERPROFILE is not set",
-      env: { HOME: "/home/test", ZHUSHOU_PROFILE: "default" },
-      expected: path.join("/home/test", ".zhushou", "gateway.cmd"),
+      env: { HOME: "/home/test", ASSISTANT_PROFILE: "default" },
+      expected: path.join("/home/test", ".assistant", "gateway.cmd"),
     },
   ])("$name", ({ env, expected }) => {
     expect(resolveTaskScriptPath(env)).toBe(expected);
@@ -164,12 +164,12 @@ describe("readScheduledTaskCommand", () => {
     },
     run: (env: Record<string, string | undefined>) => Promise<void>,
   ) {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-schtasks-test-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-schtasks-test-"));
     try {
       const extraEnv = typeof options.env === "function" ? options.env(tmpDir) : options.env;
       const env = {
         USERPROFILE: tmpDir,
-        ZHUSHOU_PROFILE: "default",
+        ASSISTANT_PROFILE: "default",
         ...extraEnv,
       };
       if (options.scriptLines) {
@@ -221,10 +221,10 @@ describe("readScheduledTaskCommand", () => {
       {
         scriptLines: [
           "@echo off",
-          "rem OpenClaw Gateway",
-          "cd /d C:\\Projects\\zhushou",
+          "rem Assistant Gateway",
+          "cd /d C:\\Projects\\assistant",
           "set NODE_ENV=production",
-          "set OPENCLAW_PORT=18789",
+          "set ASSISTANT_PORT=18789",
           "node gateway.js --verbose",
         ],
       },
@@ -232,10 +232,10 @@ describe("readScheduledTaskCommand", () => {
         const result = await readScheduledTaskCommand(env);
         expect(result).toEqual({
           programArguments: ["node", "gateway.js", "--verbose"],
-          workingDirectory: "C:\\Projects\\zhushou",
+          workingDirectory: "C:\\Projects\\assistant",
           environment: {
             NODE_ENV: "production",
-            OPENCLAW_PORT: "18789",
+            ASSISTANT_PORT: "18789",
           },
           sourcePath: resolveTaskScriptPath(env),
         });
@@ -248,7 +248,7 @@ describe("readScheduledTaskCommand", () => {
       {
         scriptLines: [
           "@echo off",
-          '"C:\\Program Files\\nodejs\\node.exe" C:\\Users\\test\\AppData\\Roaming\\npm\\node_modules\\zhushou\\dist\\index.js gateway --port 18789',
+          '"C:\\Program Files\\nodejs\\node.exe" C:\\Users\\test\\AppData\\Roaming\\npm\\node_modules\\assistant\\dist\\index.js gateway --port 18789',
         ],
       },
       async (env) => {
@@ -256,7 +256,7 @@ describe("readScheduledTaskCommand", () => {
         expect(result).toEqual({
           programArguments: [
             "C:\\Program Files\\nodejs\\node.exe",
-            "C:\\Users\\test\\AppData\\Roaming\\npm\\node_modules\\zhushou\\dist\\index.js",
+            "C:\\Users\\test\\AppData\\Roaming\\npm\\node_modules\\assistant\\dist\\index.js",
             "gateway",
             "--port",
             "18789",
@@ -291,10 +291,10 @@ describe("readScheduledTaskCommand", () => {
     );
   });
 
-  it("reads script from ZHUSHOU_STATE_DIR override", async () => {
+  it("reads script from ASSISTANT_STATE_DIR override", async () => {
     await withScheduledTaskScript(
       {
-        env: (tmpDir) => ({ ZHUSHOU_STATE_DIR: path.join(tmpDir, "custom-state") }),
+        env: (tmpDir) => ({ ASSISTANT_STATE_DIR: path.join(tmpDir, "custom-state") }),
         scriptLines: ["@echo off", "node gateway.js --from-state-dir"],
       },
       async (env) => {

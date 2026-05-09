@@ -1,4 +1,4 @@
-import { resolveChannelPreviewStreamMode } from "zhushou/plugin-sdk/channel-streaming";
+import { resolveChannelPreviewStreamMode } from "assistant/plugin-sdk/channel-streaming";
 
 export type TelegramPreviewStreamMode = "off" | "partial" | "block";
 

@@ -2,7 +2,7 @@ import { Type } from "@sinclair/typebox";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 
 export type BraveConfig = {
   mode?: string;

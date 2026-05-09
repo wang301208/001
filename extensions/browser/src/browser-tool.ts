@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { normalizeOptionalString, readStringValue } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString, readStringValue } from "assistant/plugin-sdk/text-runtime";
 import {
   executeActAction,
   executeConsoleAction,
@@ -346,7 +346,7 @@ function resolveBrowserBaseUrl(params: {
   }
   if (!resolved.enabled) {
     throw new Error(
-      "Browser control is disabled. Set browser.enabled=true in ~/.zhushou/zhushou.json.",
+      "Browser control is disabled. Set browser.enabled=true in ~/.assistant/assistant.json.",
     );
   }
   return undefined;
@@ -379,7 +379,7 @@ export function createBrowserTool(opts?: {
     name: "browser",
     description: [
       "Control the browser via 助手's browser control server (status/start/stop/profiles/tabs/open/snapshot/screenshot/actions).",
-      "Browser choice: omit profile by default for the isolated 助手-managed browser (`zhushou`).",
+      "Browser choice: omit profile by default for the isolated 助手-managed browser (`assistant`).",
       'For the logged-in user browser on the local host, use profile="user". A supported Chromium-based browser (v144+) must be running. Use only when existing logins/cookies matter and the user is present.',
       'When a node-hosted browser proxy is available, the tool may auto-route to it. Pin a node with node=<id|name> or target="node".',
       "When using refs from snapshot (e.g. e12), keep the same tab: prefer passing targetId from the snapshot response into subsequent actions (act/click/type/etc).",

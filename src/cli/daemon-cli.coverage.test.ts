@@ -35,8 +35,8 @@ const buildGatewayInstallPlan = vi.fn(
     programArguments: ["/bin/node", "cli", "gateway", "--port", String(params.port)],
     workingDirectory: process.cwd(),
     environment: {
-      ZHUSHOU_GATEWAY_PORT: String(params.port),
-      ...(params.token ? { ZHUSHOU_GATEWAY_TOKEN: params.token } : {}),
+      ASSISTANT_GATEWAY_PORT: String(params.port),
+      ...(params.token ? { ASSISTANT_GATEWAY_TOKEN: params.token } : {}),
     },
   }),
 );
@@ -158,15 +158,15 @@ describe("daemon-cli coverage", () => {
   beforeEach(() => {
     daemonProgram = createDaemonProgram();
     envSnapshot = captureEnv([
-      "ZHUSHOU_STATE_DIR",
-      "ZHUSHOU_CONFIG_PATH",
-      "ZHUSHOU_GATEWAY_PORT",
-      "ZHUSHOU_PROFILE",
+      "ASSISTANT_STATE_DIR",
+      "ASSISTANT_CONFIG_PATH",
+      "ASSISTANT_GATEWAY_PORT",
+      "ASSISTANT_PROFILE",
     ]);
-    process.env.ZHUSHOU_STATE_DIR = "/tmp/zhushou-cli-state";
-    process.env.ZHUSHOU_CONFIG_PATH = "/tmp/zhushou-cli-state/zhushou.json";
-    delete process.env.ZHUSHOU_GATEWAY_PORT;
-    delete process.env.ZHUSHOU_PROFILE;
+    process.env.ASSISTANT_STATE_DIR = "/tmp/assistant-cli-state";
+    process.env.ASSISTANT_CONFIG_PATH = "/tmp/assistant-cli-state/assistant.json";
+    delete process.env.ASSISTANT_GATEWAY_PORT;
+    delete process.env.ASSISTANT_PROFILE;
     serviceReadCommand.mockResolvedValue(null);
     resolveGatewayProbeAuthSafeWithSecretInputs.mockClear();
     findExtraGatewayServices.mockClear();
@@ -199,12 +199,12 @@ describe("daemon-cli coverage", () => {
     serviceReadCommand.mockResolvedValueOnce({
       programArguments: ["/bin/node", "cli", "gateway", "--port", "19001"],
       environment: {
-        ZHUSHOU_PROFILE: "dev",
-        ZHUSHOU_STATE_DIR: "/tmp/zhushou-daemon-state",
-        ZHUSHOU_CONFIG_PATH: "/tmp/zhushou-daemon-state/zhushou.json",
-        ZHUSHOU_GATEWAY_PORT: "19001",
+        ASSISTANT_PROFILE: "dev",
+        ASSISTANT_STATE_DIR: "/tmp/assistant-daemon-state",
+        ASSISTANT_CONFIG_PATH: "/tmp/assistant-daemon-state/assistant.json",
+        ASSISTANT_GATEWAY_PORT: "19001",
       },
-      sourcePath: "/tmp/ai.zhushou.gateway.plist",
+      sourcePath: "/tmp/ai.assistant.gateway.plist",
     });
 
     await runDaemonCommand(["daemon", "status", "--json"]);
@@ -276,7 +276,7 @@ describe("daemon-cli coverage", () => {
         GOPATH: "/Users/test/.local/gopath",
         GOBIN: "/Users/test/.local/gopath/bin",
       },
-      sourcePath: "/tmp/ai.zhushou.gateway.plist",
+      sourcePath: "/tmp/ai.assistant.gateway.plist",
     });
 
     await runDaemonCommand(["daemon", "install", "--force", "--json"]);

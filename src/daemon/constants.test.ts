@@ -4,7 +4,6 @@ import {
   GATEWAY_LAUNCH_AGENT_LABEL,
   GATEWAY_SYSTEMD_SERVICE_NAME,
   GATEWAY_WINDOWS_TASK_NAME,
-  LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES,
   normalizeGatewayProfile,
   resolveGatewayLaunchAgentLabel,
   resolveGatewayProfileSuffix,
@@ -32,12 +31,12 @@ describe("resolveGatewayLaunchAgentLabel", () => {
   it("returns default label when no profile is set", () => {
     const result = resolveGatewayLaunchAgentLabel();
     expect(result).toBe(GATEWAY_LAUNCH_AGENT_LABEL);
-    expect(result).toBe("ai.zhushou.gateway");
+    expect(result).toBe("ai.assistant.gateway");
   });
 
   it("returns profile-specific label when profile is set", () => {
     const result = resolveGatewayLaunchAgentLabel("dev");
-    expect(result).toBe("ai.zhushou.dev");
+    expect(result).toBe("ai.assistant.dev");
   });
 });
 
@@ -45,12 +44,12 @@ describe("resolveGatewaySystemdServiceName", () => {
   it("returns default service name when no profile is set", () => {
     const result = resolveGatewaySystemdServiceName();
     expect(result).toBe(GATEWAY_SYSTEMD_SERVICE_NAME);
-    expect(result).toBe("zhushou-gateway");
+    expect(result).toBe("assistant-gateway");
   });
 
   it("returns profile-specific service name when profile is set", () => {
     const result = resolveGatewaySystemdServiceName("dev");
-    expect(result).toBe("zhushou-gateway-dev");
+    expect(result).toBe("assistant-gateway-dev");
   });
 });
 
@@ -58,12 +57,12 @@ describe("resolveGatewayWindowsTaskName", () => {
   it("returns default task name when no profile is set", () => {
     const result = resolveGatewayWindowsTaskName();
     expect(result).toBe(GATEWAY_WINDOWS_TASK_NAME);
-    expect(result).toBe("OpenClaw Gateway");
+    expect(result).toBe("Assistant Gateway");
   });
 
   it("returns profile-specific task name when profile is set", () => {
     const result = resolveGatewayWindowsTaskName("dev");
-    expect(result).toBe("OpenClaw Gateway (dev)");
+    expect(result).toBe("Assistant Gateway (dev)");
   });
 });
 
@@ -88,24 +87,24 @@ describe("resolveGatewayProfileSuffix", () => {
 
 describe("formatGatewayServiceDescription", () => {
   it("returns default description when no profile/version", () => {
-    expect(formatGatewayServiceDescription()).toBe("OpenClaw Gateway");
+    expect(formatGatewayServiceDescription()).toBe("Assistant Gateway");
   });
 
   it("includes profile when set", () => {
     expect(formatGatewayServiceDescription({ profile: "work" })).toBe(
-      "OpenClaw Gateway (profile: work)",
+      "Assistant Gateway (profile: work)",
     );
   });
 
   it("includes version when set", () => {
     expect(formatGatewayServiceDescription({ version: "2026.1.10" })).toBe(
-      "OpenClaw Gateway (v2026.1.10)",
+      "Assistant Gateway (v2026.1.10)",
     );
   });
 
   it("includes profile and version when set", () => {
     expect(formatGatewayServiceDescription({ profile: "dev", version: "1.2.3" })).toBe(
-      "OpenClaw Gateway (profile: dev, v1.2.3)",
+      "Assistant Gateway (profile: dev, v1.2.3)",
     );
   });
 });
@@ -114,7 +113,7 @@ describe("resolveGatewayServiceDescription", () => {
   it("prefers explicit description override", () => {
     expect(
       resolveGatewayServiceDescription({
-        env: { ZHUSHOU_PROFILE: "work", OPENCLAW_SERVICE_VERSION: "1.0.0" },
+        env: { ASSISTANT_PROFILE: "work", ASSISTANT_SERVICE_VERSION: "1.0.0" },
         description: "Custom",
       }),
     ).toBe("Custom");
@@ -123,15 +122,9 @@ describe("resolveGatewayServiceDescription", () => {
   it("resolves version from explicit environment map", () => {
     expect(
       resolveGatewayServiceDescription({
-        env: { ZHUSHOU_PROFILE: "work", OPENCLAW_SERVICE_VERSION: "local" },
-        environment: { OPENCLAW_SERVICE_VERSION: "remote" },
+        env: { ASSISTANT_PROFILE: "work", ASSISTANT_SERVICE_VERSION: "local" },
+        environment: { ASSISTANT_SERVICE_VERSION: "remote" },
       }),
-    ).toBe("OpenClaw Gateway (profile: work, vremote)");
-  });
-});
-
-describe("LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES", () => {
-  it("includes known pre-rebrand gateway unit names", () => {
-    expect(LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES).toContain("clawdbot-gateway");
+    ).toBe("Assistant Gateway (profile: work, vremote)");
   });
 });

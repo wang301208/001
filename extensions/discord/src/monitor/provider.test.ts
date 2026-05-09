@@ -1,7 +1,7 @@
 import { EventEmitter } from "node:events";
 import { RateLimitError } from "@buape/carbon";
-import { AcpRuntimeError } from "zhushou/plugin-sdk/acp-runtime";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { AcpRuntimeError } from "assistant/plugin-sdk/acp-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRuntimeChannel } from "../../../../src/plugins/runtime/runtime-channel.js";
 import {
@@ -39,7 +39,7 @@ const {
 
 let monitorDiscordProvider: typeof import("./provider.js").monitorDiscordProvider;
 let providerTesting: typeof import("./provider.js").__testing;
-let runtimeEnvModule: typeof import("zhushou/plugin-sdk/runtime-env");
+let runtimeEnvModule: typeof import("assistant/plugin-sdk/runtime-env");
 
 function createCompatRateLimitError(
   response: Response,
@@ -59,7 +59,7 @@ function createCompatRateLimitError(
   return new RateLimitErrorCtor(response, body, compatRequest);
 }
 
-function createConfigWithDiscordAccount(overrides: Record<string, unknown> = {}): ZhushouConfig {
+function createConfigWithDiscordAccount(overrides: Record<string, unknown> = {}): AssistantConfig {
   return {
     channels: {
       discord: {
@@ -71,7 +71,7 @@ function createConfigWithDiscordAccount(overrides: Record<string, unknown> = {})
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 vi.mock("../voice/manager.runtime.js", () => {
@@ -83,7 +83,7 @@ vi.mock("../voice/manager.runtime.js", () => {
 });
 describe("monitorDiscordProvider", () => {
   type ReconcileHealthProbeParams = {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId: string;
     sessionKey: string;
     binding: unknown;
@@ -91,7 +91,7 @@ describe("monitorDiscordProvider", () => {
   };
 
   type ReconcileStartupParams = {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     healthProbe?: (
       params: ReconcileHealthProbeParams,
     ) => Promise<{ status: string; reason?: string }>;
@@ -131,9 +131,9 @@ describe("monitorDiscordProvider", () => {
   };
 
   beforeAll(async () => {
-    vi.doMock("zhushou/plugin-sdk/plugin-runtime", async () => {
-      const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/plugin-runtime")>(
-        "zhushou/plugin-sdk/plugin-runtime",
+    vi.doMock("assistant/plugin-sdk/plugin-runtime", async () => {
+      const actual = await vi.importActual<typeof import("assistant/plugin-sdk/plugin-runtime")>(
+        "assistant/plugin-sdk/plugin-runtime",
       );
       return {
         ...actual,
@@ -150,7 +150,7 @@ describe("monitorDiscordProvider", () => {
     vi.doMock("../token.js", () => ({
       normalizeDiscordToken: (value?: string) => value,
     }));
-    runtimeEnvModule = await import("zhushou/plugin-sdk/runtime-env");
+    runtimeEnvModule = await import("assistant/plugin-sdk/runtime-env");
     vi.spyOn(runtimeEnvModule, "logVerbose").mockImplementation(() => undefined);
     ({ monitorDiscordProvider, __testing: providerTesting } = await import("./provider.js"));
   });

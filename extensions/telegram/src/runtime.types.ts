@@ -1,5 +1,5 @@
-import type { ChannelMessageActionAdapter } from "zhushou/plugin-sdk/channel-contract";
-import type { PluginRuntime } from "zhushou/plugin-sdk/channel-core";
+import type { ChannelMessageActionAdapter } from "assistant/plugin-sdk/channel-contract";
+import type { PluginRuntime } from "assistant/plugin-sdk/channel-core";
 import type { TelegramMonitorFn } from "./monitor.types.js";
 
 export type TelegramProbeFn = typeof import("./probe.js").probeTelegram;

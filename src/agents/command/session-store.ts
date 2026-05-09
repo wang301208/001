@@ -4,7 +4,7 @@ import {
   type SessionEntry,
   updateSessionStore,
 } from "../../config/sessions.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { setCliSessionBinding, setCliSessionId } from "../cli-session.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../defaults.js";
 import { isCliProvider } from "../model-selection.js";
@@ -30,7 +30,7 @@ function resolveNonNegativeNumber(value: number | undefined): number | undefined
 }
 
 export async function updateSessionStoreAfterAgentRun(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   contextTokensOverride?: number;
   sessionId: string;
   sessionKey: string;

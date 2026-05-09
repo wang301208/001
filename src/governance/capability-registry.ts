@@ -2,7 +2,7 @@ import path from "node:path";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { listAgentWorkspaceDirs } from "../agents/workspace-dirs.js";
 import { getRuntimeConfigSnapshot, loadConfig } from "../config/config.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   createPluginActivationSource,
   normalizePluginsConfig,
@@ -211,7 +211,7 @@ const GENESIS_REQUIRED_ROLES = [
   "librarian",
 ] as const;
 
-function resolveRuntimeConfig(cfg?: ZhushouConfig): ZhushouConfig {
+function resolveRuntimeConfig(cfg?: AssistantConfig): AssistantConfig {
   return cfg ?? getRuntimeConfigSnapshot() ?? loadConfig();
 }
 
@@ -260,7 +260,7 @@ function sortGapSeverity(
   return order.indexOf(left) - order.indexOf(right);
 }
 
-function listObservedWorkspaceDirs(cfg: ZhushouConfig, explicit?: string[]): string[] {
+function listObservedWorkspaceDirs(cfg: AssistantConfig, explicit?: string[]): string[] {
   const candidates = explicit?.length ? explicit : listAgentWorkspaceDirs(cfg);
   return Array.from(new Set(candidates.filter(Boolean))).toSorted((left, right) =>
     left.localeCompare(right),
@@ -272,7 +272,7 @@ function resolveRepoRootFromCharterDir(charterDir: string): string {
 }
 
 function listCapabilitySkillWorkspaceDirs(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir: string;
   explicit?: string[];
 }): string[] {
@@ -889,7 +889,7 @@ function buildDerivedGovernedAssetEntries(params: {
   ];
 }
 
-function collectPluginInventory(params: { cfg: ZhushouConfig; workspaceDirs: string[] }): {
+function collectPluginInventory(params: { cfg: AssistantConfig; workspaceDirs: string[] }): {
   plugins: PluginInventoryRecord[];
   diagnostics: PluginDiagnosticRecord[];
 } {
@@ -1281,7 +1281,7 @@ function buildInventorySummary(params: {
 
 export function getGovernanceCapabilityInventory(
   params: {
-    cfg?: ZhushouConfig;
+    cfg?: AssistantConfig;
     charterDir?: string;
     workspaceDirs?: string[];
     observedAt?: number;
@@ -1625,7 +1625,7 @@ function buildGenesisProjectBlueprint(params: {
 
 export function planGovernanceGenesisWork(
   params: {
-    cfg?: ZhushouConfig;
+    cfg?: AssistantConfig;
     charterDir?: string;
     workspaceDirs?: string[];
     observedAt?: number;

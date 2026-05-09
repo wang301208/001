@@ -101,9 +101,9 @@ function createLsofResult(overrides: Partial<MockLsofResult> = {}): MockLsofResu
   };
 }
 
-function createOpenClawBusyResult(pid: number, overrides: Partial<MockLsofResult> = {}) {
+function createAssistantBusyResult(pid: number, overrides: Partial<MockLsofResult> = {}) {
   return createLsofResult({
-    stdout: lsofOutput([{ pid, cmd: "zhushou-gateway" }]),
+    stdout: lsofOutput([{ pid, cmd: "assistant-gateway" }]),
     ...overrides,
   });
 }
@@ -122,7 +122,7 @@ function installInitialBusyPoll(
   mockSpawnSync.mockImplementation(() => {
     call += 1;
     if (call === 1) {
-      return createOpenClawBusyResult(stalePid);
+      return createAssistantBusyResult(stalePid);
     }
     return resolvePoll(call);
   });
@@ -187,14 +187,14 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       );
     });
 
-    it("parses zhushou-gateway pids and excludes the current process", () => {
+    it("parses assistant-gateway pids and excludes the current process", () => {
       const stalePid = process.pid + 1;
       mockSpawnSync.mockReturnValue({
         error: null,
         status: 0,
         stdout: lsofOutput([
-          { pid: stalePid, cmd: "zhushou-gateway" },
-          { pid: process.pid, cmd: "zhushou-gateway" },
+          { pid: stalePid, cmd: "assistant-gateway" },
+          { pid: process.pid, cmd: "assistant-gateway" },
         ]),
         stderr: "",
       });
@@ -203,7 +203,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       expect(pids).not.toContain(process.pid);
     });
 
-    it("excludes pids whose command does not include 'zhushou'", () => {
+    it("excludes pids whose command does not include 'assistant'", () => {
       const otherPid = process.pid + 2;
       mockSpawnSync.mockReturnValue({
         error: null,
@@ -229,7 +229,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       // (once for the IPv4 socket, once for IPv6). Without dedup, terminateStaleProcessesSync
       // sends SIGTERM twice and returns killed=[pid, pid], corrupting the count.
       const stalePid = process.pid + 600;
-      const stdout = `p${stalePid}\ncopenclaw-gateway\np${stalePid}\ncopenclaw-gateway\n`;
+      const stdout = `p${stalePid}\ncassistant-gateway\np${stalePid}\ncassistant-gateway\n`;
       mockSpawnSync.mockReturnValue({ error: null, status: 0, stdout, stderr: "" });
       const result = findGatewayPidsOnPortSync(18789);
       expect(result).toEqual([stalePid]); // deduped — not [pid, pid]
@@ -258,7 +258,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       try {
         mockReadWindowsListeningPids.mockReturnValue([stalePid]);
         // Simulate a verified gateway process (must pass real isGatewayArgv)
-        mockReadWindowsProcessArgs.mockReturnValue(["zhushou", "gateway"]);
+        mockReadWindowsProcessArgs.mockReturnValue(["assistant", "gateway"]);
         expect(findGatewayPidsOnPortSync(18789)).toEqual([stalePid]);
         expect(mockReadWindowsListeningPids).toHaveBeenCalledWith(18789, undefined);
         expect(mockReadWindowsProcessArgs).toHaveBeenCalledWith(stalePid, undefined);
@@ -279,15 +279,15 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       expect(findGatewayPidsOnPortSync(18789)).toEqual([]);
     });
 
-    it("parses multiple zhushou pids from a single lsof output block", () => {
+    it("parses multiple assistant pids from a single lsof output block", () => {
       const pid1 = process.pid + 10;
       const pid2 = process.pid + 11;
       mockSpawnSync.mockReturnValue({
         error: null,
         status: 0,
         stdout: lsofOutput([
-          { pid: pid1, cmd: "zhushou-gateway" },
-          { pid: pid2, cmd: "zhushou-gateway" },
+          { pid: pid1, cmd: "assistant-gateway" },
+          { pid: pid2, cmd: "assistant-gateway" },
         ]),
         stderr: "",
       });
@@ -296,9 +296,9 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       expect(result).toContain(pid2);
     });
 
-    it("returns [] when status 0 but only non-zhushou pids present", () => {
+    it("returns [] when status 0 but only non-assistant pids present", () => {
       // Port may be bound by an unrelated process. findGatewayPidsOnPortSync
-      // only tracks zhushou processes — non-zhushou listeners are ignored.
+      // only tracks assistant processes — non-assistant listeners are ignored.
       const otherPid = process.pid + 50;
       mockSpawnSync.mockReturnValue({
         error: null,
@@ -360,7 +360,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       const getCallCount = installInitialBusyPoll(stalePid, (call) => {
         if (call === 2) {
           // First waitForPortFreeSync poll — status 0, port busy (should parse inline, not spawn again)
-          return createOpenClawBusyResult(stalePid);
+          return createAssistantBusyResult(stalePid);
         }
         // Port free on third call
         return createLsofResult();
@@ -375,15 +375,15 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       expect(getCallCount()).toBe(3);
     });
 
-    it("lsof status 1 with non-empty zhushou stdout is treated as busy, not free (Linux container edge case)", () => {
+    it("lsof status 1 with non-empty assistant stdout is treated as busy, not free (Linux container edge case)", () => {
       // On Linux containers with restricted /proc (AppArmor, seccomp, user namespaces),
       // lsof can exit 1 AND still emit output for processes it could read.
-      // status 1 + non-empty zhushou stdout must not be treated as port-free.
+      // status 1 + non-empty assistant stdout must not be treated as port-free.
       const stalePid = process.pid + 601;
       const getCallCount = installInitialBusyPoll(stalePid, (call) => {
         if (call === 2) {
-          // status 1 + zhushou pid in stdout — container-restricted lsof reports partial results
-          return createOpenClawBusyResult(stalePid, {
+          // status 1 + assistant pid in stdout — container-restricted lsof reports partial results
+          return createAssistantBusyResult(stalePid, {
             status: 1,
             stderr: "lsof: WARNING: can't stat() fuse",
           });
@@ -414,7 +414,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
         return {
           error: null,
           status: 0,
-          stdout: lsofOutput([{ pid: stalePid, cmd: "zhushou-gateway" }]),
+          stdout: lsofOutput([{ pid: stalePid, cmd: "assistant-gateway" }]),
           stderr: "",
         };
       });
@@ -465,7 +465,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
           return {
             error: null,
             status: 0,
-            stdout: lsofOutput([{ pid: stalePid, cmd: "zhushou-gateway" }]),
+            stdout: lsofOutput([{ pid: stalePid, cmd: "assistant-gateway" }]),
             stderr: "",
           };
         }
@@ -495,7 +495,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
           return {
             error: null,
             status: 0,
-            stdout: lsofOutput([{ pid: stalePid, cmd: "zhushou-gateway" }]),
+            stdout: lsofOutput([{ pid: stalePid, cmd: "assistant-gateway" }]),
             stderr: "",
           };
         }
@@ -504,7 +504,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
           return {
             error: null,
             status: 0,
-            stdout: lsofOutput([{ pid: stalePid, cmd: "zhushou-gateway" }]),
+            stdout: lsofOutput([{ pid: stalePid, cmd: "assistant-gateway" }]),
             stderr: "",
           };
         }
@@ -579,7 +579,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       installInitialBusyPoll(stalePid, () => {
         // Advance clock by PORT_FREE_TIMEOUT_MS + 1ms on first poll to trip the deadline.
         fakeNow += 2001;
-        return createOpenClawBusyResult(stalePid);
+        return createAssistantBusyResult(stalePid);
       });
 
       vi.spyOn(process, "kill").mockReturnValue(true);
@@ -667,10 +667,10 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       Object.defineProperty(process, "platform", { value: "win32", configurable: true });
       try {
         mockReadWindowsListeningPids.mockReturnValue([stalePid]);
-        mockReadWindowsProcessArgs.mockReturnValue(["zhushou", "gateway"]);
+        mockReadWindowsProcessArgs.mockReturnValue(["assistant", "gateway"]);
         mockReadWindowsProcessArgsResult.mockReturnValue({
           ok: true,
-          args: ["zhushou", "gateway"],
+          args: ["assistant", "gateway"],
         });
         mockSpawnSync.mockReturnValue({
           error: null,
@@ -779,10 +779,10 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
         let fakeNow = 0;
         __testing.setDateNowOverride(() => fakeNow);
         mockReadWindowsListeningPids.mockReturnValue([stalePid]);
-        mockReadWindowsProcessArgs.mockReturnValue(["zhushou", "gateway"]);
+        mockReadWindowsProcessArgs.mockReturnValue(["assistant", "gateway"]);
         mockReadWindowsProcessArgsResult.mockReturnValue({
           ok: true,
-          args: ["zhushou", "gateway"],
+          args: ["assistant", "gateway"],
         });
         mockReadWindowsListeningPidsResult.mockImplementation((_port, timeoutMs) => {
           if (timeoutMs === 400) {
@@ -825,10 +825,10 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
         let fakeNow = 0;
         __testing.setDateNowOverride(() => fakeNow);
         mockReadWindowsListeningPidsResult.mockReturnValue({ ok: true, pids: [stalePid] });
-        mockReadWindowsProcessArgs.mockReturnValue(["zhushou", "gateway"]);
+        mockReadWindowsProcessArgs.mockReturnValue(["assistant", "gateway"]);
         mockReadWindowsProcessArgsResult.mockReturnValue({
           ok: true,
-          args: ["zhushou", "gateway"],
+          args: ["assistant", "gateway"],
         });
         mockSpawnSync
           .mockReturnValueOnce({
@@ -880,13 +880,13 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
   // parsePidsFromLsofOutput — branch-coverage for mid-loop && short-circuits
   // -------------------------------------------------------------------------
   describe("parsePidsFromLsofOutput — branch coverage (lines 67-69)", () => {
-    it("skips a mid-loop entry when the command does not include 'zhushou'", () => {
-      // Exercises the false branch of currentCmd.toLowerCase().includes("zhushou")
-      // inside the mid-loop flush: a non-zhushou cmd between two entries must not
-      // be pushed, but the following zhushou entry still must be.
+    it("skips a mid-loop entry when the command does not include 'assistant'", () => {
+      // Exercises the false branch of currentCmd.toLowerCase().includes("assistant")
+      // inside the mid-loop flush: a non-assistant cmd between two entries must not
+      // be pushed, but the following assistant entry still must be.
       const stalePid = process.pid + 700;
-      // Mixed output: non-zhushou entry first, then zhushou entry
-      const stdout = `p${process.pid + 699}\ncnginx\np${stalePid}\ncopenclaw-gateway\n`;
+      // Mixed output: non-assistant entry first, then assistant entry
+      const stdout = `p${process.pid + 699}\ncnginx\np${stalePid}\ncassistant-gateway\n`;
       mockSpawnSync.mockReturnValue({ error: null, status: 0, stdout, stderr: "" });
       const result = findGatewayPidsOnPortSync(18789);
       expect(result).toContain(stalePid);
@@ -898,7 +898,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       // (no 'c' line between them) — the first PID must be skipped, the second handled.
       const stalePid = process.pid + 701;
       // Two consecutive p-lines: first has no c-line before the next p-line
-      const stdout = `p${process.pid + 702}\np${stalePid}\ncopenclaw-gateway\n`;
+      const stdout = `p${process.pid + 702}\np${stalePid}\ncassistant-gateway\n`;
       mockSpawnSync.mockReturnValue({ error: null, status: 0, stdout, stderr: "" });
       const result = findGatewayPidsOnPortSync(18789);
       expect(result).toContain(stalePid);
@@ -909,8 +909,8 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       // false branch: a malformed 'p' line (e.g. 'p0' or 'pNaN') must not corrupt
       // currentPid and must not end up in the returned pids array.
       const stalePid = process.pid + 703;
-      // p0 is invalid (not > 0); the following valid zhushou entry must still be found.
-      const stdout = `p0\ncopenclaw-gateway\np${stalePid}\ncopenclaw-gateway\n`;
+      // p0 is invalid (not > 0); the following valid assistant entry must still be found.
+      const stdout = `p0\ncassistant-gateway\np${stalePid}\ncassistant-gateway\n`;
       mockSpawnSync.mockReturnValue({ error: null, status: 0, stdout, stderr: "" });
       const result = findGatewayPidsOnPortSync(18789);
       expect(result).toContain(stalePid);
@@ -923,7 +923,7 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
       // must not throw or corrupt the pid list. Unknown lines are just skipped.
       const stalePid = process.pid + 704;
       // Intersperse an 'f' line (file descriptor marker) — not a 'p' or 'c' line
-      const stdout = `p${stalePid}\nf8\ncopenclaw-gateway\n`;
+      const stdout = `p${stalePid}\nf8\ncassistant-gateway\n`;
       mockSpawnSync.mockReturnValue({ error: null, status: 0, stdout, stderr: "" });
       const result = findGatewayPidsOnPortSync(18789);
       // The 'f' line must not corrupt parsing; stalePid must still be found
@@ -933,23 +933,23 @@ describe.skipIf(isWindows)("restart-stale-pids", () => {
   });
 
   // -------------------------------------------------------------------------
-  // pollPortOnce branch — status 1 + non-empty stdout with zero zhushou pids
+  // pollPortOnce branch — status 1 + non-empty stdout with zero assistant pids
   // -------------------------------------------------------------------------
-  describe("pollPortOnce — status 1 + non-empty non-zhushou stdout (line 145)", () => {
-    it("treats status 1 + non-zhushou stdout as port-free (not an zhushou process)", () => {
-      // status 1 + non-empty stdout where no zhushou pids are present:
+  describe("pollPortOnce — status 1 + non-empty non-assistant stdout (line 145)", () => {
+    it("treats status 1 + non-assistant stdout as port-free (not an assistant process)", () => {
+      // status 1 + non-empty stdout where no assistant pids are present:
       // the port may be held by an unrelated process. From our perspective
-      // (we only kill zhushou pids) it is effectively free.
+      // (we only kill assistant pids) it is effectively free.
       const stalePid = process.pid + 800;
       const getCallCount = installInitialBusyPoll(stalePid, () => {
-        // status 1 + non-zhushou output — should be treated as free:true for our purposes
+        // status 1 + non-assistant output — should be treated as free:true for our purposes
         return createLsofResult({
           status: 1,
           stdout: lsofOutput([{ pid: process.pid + 801, cmd: "caddy" }]),
         });
       });
       vi.spyOn(process, "kill").mockReturnValue(true);
-      // Should complete cleanly — no zhushou pids in status-1 output → free
+      // Should complete cleanly — no assistant pids in status-1 output → free
       expect(() => cleanStaleGatewayProcessesSync()).not.toThrow();
       // Completed in exactly 2 calls (initial find + 1 free poll)
       expect(getCallCount()).toBe(2);

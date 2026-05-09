@@ -5,9 +5,9 @@ import {
   GroupPolicySchema,
   MarkdownConfigSchema,
   ToolPolicySchema,
-} from "zhushou/plugin-sdk/channel-config-schema";
-import { buildSecretInputSchema } from "zhushou/plugin-sdk/secret-input";
-import { z } from "zhushou/plugin-sdk/zod";
+} from "assistant/plugin-sdk/channel-config-schema";
+import { buildSecretInputSchema } from "assistant/plugin-sdk/secret-input";
+import { z } from "assistant/plugin-sdk/zod";
 
 const matrixActionSchema = z
   .object({

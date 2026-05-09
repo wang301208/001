@@ -5,7 +5,7 @@ function bundledPluginFile(pluginId: string, relativePath: string, suffix = ""):
 }
 
 const rootEntries = [
-  "zhushou.mjs!",
+  "assistant.mjs!",
   "src/index.ts!",
   "src/entry.ts!",
   "src/cli/daemon-cli.ts!",
@@ -93,17 +93,13 @@ const config = {
   workspaces: {
     ".": {
       entry: rootEntries,
-      ignoreDependencies: ["@zhushou/*"],
+      ignoreDependencies: ["@assistant/*"],
       project: [
         "src/**/*.ts!",
         "scripts/**/*.{js,mjs,cjs,ts,mts,cts}!",
         "*.config.{js,mjs,cjs,ts,mts,cts}!",
         "*.mjs!",
       ],
-    },
-    ui: {
-      entry: ["index.html!", "src/main.ts!", "vite.config.ts!", "vitest*.ts!"],
-      project: ["src/**/*.{ts,tsx}!"],
     },
     "packages/*": {
       entry: ["index.js!", "scripts/postinstall.js!"],
@@ -114,7 +110,7 @@ const config = {
       // `index.ts` contracts, so Knip needs these convention-based entry files.
       entry: bundledPluginEntries,
       project: ["index.ts!", "src/**/*.ts!"],
-      ignoreDependencies: ["zhushou"],
+      ignoreDependencies: ["assistant"],
     },
   },
 } as const;

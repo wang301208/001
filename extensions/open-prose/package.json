@@ -1,13 +1,13 @@
 {
-  "name": "@zhushou/open-prose",
+  "name": "@assistant/open-prose",
   "version": "2026.4.16",
   "private": true,
   "description": "OpenProse VM skill pack plugin (slash command + telemetry).",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

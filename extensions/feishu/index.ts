@@ -1,8 +1,8 @@
 import {
   defineBundledChannelEntry,
   loadBundledEntryExportSync,
-} from "zhushou/plugin-sdk/channel-entry-contract";
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/channel-entry-contract";
+} from "assistant/plugin-sdk/channel-entry-contract";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/channel-entry-contract";
 
 type FeishuSubagentHooksModule = typeof import("./api.js");
 
@@ -13,48 +13,48 @@ function loadFeishuSubagentHooksModule() {
   return feishuSubagentHooksPromise;
 }
 
-function registerFeishuDocTools(api: ZhushouPluginApi) {
-  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
+function registerFeishuDocTools(api: AssistantPluginApi) {
+  const register = loadBundledEntryExportSync<(api: AssistantPluginApi) => void>(import.meta.url, {
     specifier: "./api.js",
     exportName: "registerFeishuDocTools",
   });
   register(api);
 }
 
-function registerFeishuChatTools(api: ZhushouPluginApi) {
-  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
+function registerFeishuChatTools(api: AssistantPluginApi) {
+  const register = loadBundledEntryExportSync<(api: AssistantPluginApi) => void>(import.meta.url, {
     specifier: "./api.js",
     exportName: "registerFeishuChatTools",
   });
   register(api);
 }
 
-function registerFeishuWikiTools(api: ZhushouPluginApi) {
-  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
+function registerFeishuWikiTools(api: AssistantPluginApi) {
+  const register = loadBundledEntryExportSync<(api: AssistantPluginApi) => void>(import.meta.url, {
     specifier: "./api.js",
     exportName: "registerFeishuWikiTools",
   });
   register(api);
 }
 
-function registerFeishuDriveTools(api: ZhushouPluginApi) {
-  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
+function registerFeishuDriveTools(api: AssistantPluginApi) {
+  const register = loadBundledEntryExportSync<(api: AssistantPluginApi) => void>(import.meta.url, {
     specifier: "./api.js",
     exportName: "registerFeishuDriveTools",
   });
   register(api);
 }
 
-function registerFeishuPermTools(api: ZhushouPluginApi) {
-  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
+function registerFeishuPermTools(api: AssistantPluginApi) {
+  const register = loadBundledEntryExportSync<(api: AssistantPluginApi) => void>(import.meta.url, {
     specifier: "./api.js",
     exportName: "registerFeishuPermTools",
   });
   register(api);
 }
 
-function registerFeishuBitableTools(api: ZhushouPluginApi) {
-  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
+function registerFeishuBitableTools(api: AssistantPluginApi) {
+  const register = loadBundledEntryExportSync<(api: AssistantPluginApi) => void>(import.meta.url, {
     specifier: "./api.js",
     exportName: "registerFeishuBitableTools",
   });

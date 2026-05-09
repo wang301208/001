@@ -12,12 +12,12 @@ import type { DoctorPrompter } from "./doctor-prompter.js";
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  return makeTrackedTempDir("zhushou-doctor-plugin-manifests", tempDirs);
+  return makeTrackedTempDir("assistant-doctor-plugin-manifests", tempDirs);
 }
 
 function writeManifest(dir: string, manifest: Record<string, unknown>) {
   fs.writeFileSync(
-    path.join(dir, "zhushou.plugin.json"),
+    path.join(dir, "assistant.plugin.json"),
     `${JSON.stringify(manifest, null, 2)}\n`,
     "utf-8",
   );
@@ -28,9 +28,9 @@ function writePackageJson(dir: string) {
     path.join(dir, "package.json"),
     `${JSON.stringify(
       {
-        name: "@zhushou/test-plugin",
+        name: "@assistant/test-plugin",
         version: "1.0.0",
-        zhushou: {
+        assistant: {
           extensions: ["./index.ts"],
         },
       },
@@ -90,7 +90,7 @@ describe("doctor plugin manifest legacy contract repair", () => {
     const migrations = collectLegacyPluginManifestContractMigrations({
       env: {
         ...process.env,
-        OPENCLAW_BUNDLED_PLUGINS_DIR: pluginsRoot,
+        ASSISTANT_BUNDLED_PLUGINS_DIR: pluginsRoot,
       },
     });
 
@@ -119,13 +119,13 @@ describe("doctor plugin manifest legacy contract repair", () => {
     await maybeRepairLegacyPluginManifestContracts({
       env: {
         ...process.env,
-        OPENCLAW_BUNDLED_PLUGINS_DIR: pluginsRoot,
+        ASSISTANT_BUNDLED_PLUGINS_DIR: pluginsRoot,
       },
       runtime: createRuntime(),
       prompter: createPrompter(),
     });
 
-    const next = JSON.parse(fs.readFileSync(path.join(root, "zhushou.plugin.json"), "utf-8")) as {
+    const next = JSON.parse(fs.readFileSync(path.join(root, "assistant.plugin.json"), "utf-8")) as {
       speechProviders?: string[];
       mediaUnderstandingProviders?: string[];
       contracts?: Record<string, string[]>;
@@ -155,7 +155,7 @@ describe("doctor plugin manifest legacy contract repair", () => {
     const migrations = collectLegacyPluginManifestContractMigrations({
       env: {
         ...process.env,
-        OPENCLAW_BUNDLED_PLUGINS_DIR: pluginsRoot,
+        ASSISTANT_BUNDLED_PLUGINS_DIR: pluginsRoot,
       },
     });
 

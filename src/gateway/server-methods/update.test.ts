@@ -32,13 +32,13 @@ vi.mock("../../config/sessions.js", () => ({
   },
 }));
 
-vi.mock("../../infra/zhushou-root.js", async () => {
-  const actual = await vi.importActual<typeof import("../../infra/zhushou-root.js")>(
-    "../../infra/zhushou-root.js",
+vi.mock("../../infra/assistant-root.js", async () => {
+  const actual = await vi.importActual<typeof import("../../infra/assistant-root.js")>(
+    "../../infra/assistant-root.js",
   );
   return {
     ...actual,
-    resolveOpenClawPackageRoot: async () => "/tmp/zhushou",
+    resolveAssistantPackageRoot: async () => "/tmp/assistant",
   };
 });
 

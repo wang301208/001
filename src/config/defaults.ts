@@ -7,7 +7,7 @@ import {
 } from "./provider-policy.js";
 import { normalizeTalkConfig } from "./talk.js";
 import type { ModelDefinitionConfig } from "./types.models.js";
-import type { ZhushouConfig } from "./types.zhushou.js";
+import type { AssistantConfig } from "./types.assistant.js";
 
 type WarnState = { warned: boolean };
 
@@ -88,7 +88,7 @@ export type SessionDefaultsOptions = {
   warnState?: WarnState;
 };
 
-export function applyMessageDefaults(cfg: ZhushouConfig): ZhushouConfig {
+export function applyMessageDefaults(cfg: AssistantConfig): AssistantConfig {
   const messages = cfg.messages;
   const hasAckScope = messages?.ackReactionScope !== undefined;
   if (hasAckScope) {
@@ -104,9 +104,9 @@ export function applyMessageDefaults(cfg: ZhushouConfig): ZhushouConfig {
 }
 
 export function applySessionDefaults(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   options: SessionDefaultsOptions = {},
-): ZhushouConfig {
+): AssistantConfig {
   const session = cfg.session;
   if (!session || session.mainKey === undefined) {
     return cfg;
@@ -116,7 +116,7 @@ export function applySessionDefaults(
   const warn = options.warn ?? console.warn;
   const warnState = options.warnState ?? defaultWarnState;
 
-  const next: ZhushouConfig = {
+  const next: AssistantConfig = {
     ...cfg,
     session: { ...session, mainKey: "main" },
   };
@@ -129,11 +129,11 @@ export function applySessionDefaults(
   return next;
 }
 
-export function applyTalkConfigNormalization(config: ZhushouConfig): ZhushouConfig {
+export function applyTalkConfigNormalization(config: AssistantConfig): AssistantConfig {
   return normalizeTalkConfig(config);
 }
 
-export function applyModelDefaults(cfg: ZhushouConfig): ZhushouConfig {
+export function applyModelDefaults(cfg: AssistantConfig): AssistantConfig {
   let mutated = false;
   let nextCfg = cfg;
 
@@ -281,7 +281,7 @@ export function applyModelDefaults(cfg: ZhushouConfig): ZhushouConfig {
   };
 }
 
-export function applyAgentDefaults(cfg: ZhushouConfig): ZhushouConfig {
+export function applyAgentDefaults(cfg: AssistantConfig): AssistantConfig {
   const agents = cfg.agents;
   const defaults = agents?.defaults;
   const hasMax =
@@ -322,7 +322,7 @@ export function applyAgentDefaults(cfg: ZhushouConfig): ZhushouConfig {
   };
 }
 
-export function applyLoggingDefaults(cfg: ZhushouConfig): ZhushouConfig {
+export function applyLoggingDefaults(cfg: AssistantConfig): AssistantConfig {
   const logging = cfg.logging;
   if (!logging) {
     return cfg;
@@ -339,7 +339,7 @@ export function applyLoggingDefaults(cfg: ZhushouConfig): ZhushouConfig {
   };
 }
 
-export function applyContextPruningDefaults(cfg: ZhushouConfig): ZhushouConfig {
+export function applyContextPruningDefaults(cfg: AssistantConfig): AssistantConfig {
   if (!cfg.agents?.defaults) {
     return cfg;
   }
@@ -352,7 +352,7 @@ export function applyContextPruningDefaults(cfg: ZhushouConfig): ZhushouConfig {
   );
 }
 
-export function applyCompactionDefaults(cfg: ZhushouConfig): ZhushouConfig {
+export function applyCompactionDefaults(cfg: AssistantConfig): AssistantConfig {
   const defaults = cfg.agents?.defaults;
   if (!defaults) {
     return cfg;

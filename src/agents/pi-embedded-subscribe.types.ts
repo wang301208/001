@@ -1,7 +1,7 @@
 import type { AgentSession } from "@mariozechner/pi-coding-agent";
 import type { ReplyPayload } from "../auto-reply/reply-payload.js";
 import type { ReasoningLevel, VerboseLevel } from "../auto-reply/thinking.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { HookRunner } from "../plugins/hooks.js";
 import type { AgentInternalEvent } from "./internal-events.js";
 import type { BlockReplyPayload } from "./pi-embedded-payloads.js";
@@ -33,7 +33,7 @@ export type SubscribeEmbeddedPiSessionParams = {
   onAgentEvent?: (evt: { stream: string; data: Record<string, unknown> }) => void | Promise<void>;
   enforceFinalTag?: boolean;
   silentExpected?: boolean;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sessionKey?: string;
   /** Ephemeral session UUID — regenerated on /new and /reset. */
   sessionId?: string;

@@ -3,7 +3,7 @@ import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import {
   clearRuntimeConfigSnapshot,
   setRuntimeConfigSnapshot,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "../config/config.js";
 import * as configSessions from "../config/sessions.js";
 import type { SessionEntry } from "../config/sessions/types.js";
@@ -126,7 +126,7 @@ const chatHistoryMock = vi.fn(async (_sessionKey?: string) => ({
   messages: [] as Array<unknown>,
 }));
 let sessionStore: SessionStoreFixture = {};
-let configOverride: ZhushouConfig = {
+let configOverride: AssistantConfig = {
   session: {
     mainKey: "main",
     scope: "per-sender",
@@ -148,7 +148,7 @@ async function getSingleAgentCallParams() {
   return call?.params ?? {};
 }
 
-function setConfigOverride(next: ZhushouConfig): void {
+function setConfigOverride(next: AssistantConfig): void {
   configOverride = next;
   setRuntimeConfigSnapshot(configOverride);
 }
@@ -196,9 +196,9 @@ describe("subagent announce formatting", () => {
     // Set FAST_TEST_MODE before importing the module to ensure the module-level
     // constant picks it up. This fixes flaky Windows CI failures where the test
     // timeout budget is too tight without fast mode enabled.
-    // See: https://github.com/zhushou/zhushou/issues/31298
-    previousFastTestEnv = process.env.OPENCLAW_TEST_FAST;
-    process.env.OPENCLAW_TEST_FAST = "1";
+    // See: https://github.com/assistant/assistant/issues/31298
+    previousFastTestEnv = process.env.ASSISTANT_TEST_FAST;
+    process.env.ASSISTANT_TEST_FAST = "1";
     ({ runSubagentAnnounceFlow } = await import("./subagent-announce.js"));
   });
 
@@ -206,14 +206,14 @@ describe("subagent announce formatting", () => {
     subagentAnnounceDeliveryTesting.setDepsForTest();
     clearRuntimeConfigSnapshot();
     if (previousFastTestEnv === undefined) {
-      delete process.env.OPENCLAW_TEST_FAST;
+      delete process.env.ASSISTANT_TEST_FAST;
       return;
     }
-    process.env.OPENCLAW_TEST_FAST = previousFastTestEnv;
+    process.env.ASSISTANT_TEST_FAST = previousFastTestEnv;
   });
 
   beforeEach(() => {
-    // OPENCLAW_TEST_FAST is set in beforeAll before module import
+    // ASSISTANT_TEST_FAST is set in beforeAll before module import
     // to ensure the module-level constant picks it up.
     agentSpy
       .mockClear()

@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import type { WebhookContext } from "../../types.js";
 
 export type TwimlResponseKind = "empty" | "pause" | "queue" | "stored" | "stream";

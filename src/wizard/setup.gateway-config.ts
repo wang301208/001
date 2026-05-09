@@ -4,7 +4,7 @@ import {
   validateGatewayPasswordInput,
 } from "../commands/onboard-helpers.js";
 import type { GatewayAuthChoice, SecretInputMode } from "../commands/onboard-types.js";
-import type { GatewayBindMode, GatewayTailscaleMode, ZhushouConfig } from "../config/config.js";
+import type { GatewayBindMode, GatewayTailscaleMode, AssistantConfig } from "../config/config.js";
 import { ensureControlUiAllowedOriginsForNonLoopbackBind } from "../config/gateway-control-ui-origins.js";
 import {
   normalizeSecretInputString,
@@ -33,8 +33,8 @@ import type {
 
 type ConfigureGatewayOptions = {
   flow: WizardFlow;
-  baseConfig: ZhushouConfig;
-  nextConfig: ZhushouConfig;
+  baseConfig: AssistantConfig;
+  nextConfig: AssistantConfig;
   localPort: number;
   quickstartGateway: QuickstartGatewayDefaults;
   secretInputMode?: SecretInputMode;
@@ -43,7 +43,7 @@ type ConfigureGatewayOptions = {
 };
 
 type ConfigureGatewayResult = {
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   settings: GatewayWizardSettings;
 };
 
@@ -194,10 +194,10 @@ export async function configureGatewayForSetup(
           provider: "gateway-auth-token",
           config: nextConfig,
           prompter,
-          preferredEnvVar: "ZHUSHOU_GATEWAY_TOKEN",
+          preferredEnvVar: "ASSISTANT_GATEWAY_TOKEN",
           copy: {
             sourceMessage: "网关 Token 存储在哪里？",
-            envVarPlaceholder: "ZHUSHOU_GATEWAY_TOKEN",
+            envVarPlaceholder: "ASSISTANT_GATEWAY_TOKEN",
           },
         });
         gatewayTokenInput = resolved.ref;
@@ -205,7 +205,7 @@ export async function configureGatewayForSetup(
       }
     } else if (flow === "quickstart") {
       gatewayToken =
-        (quickstartTokenString ?? normalizeGatewayTokenInput(process.env.ZHUSHOU_GATEWAY_TOKEN)) ||
+        (quickstartTokenString ?? normalizeGatewayTokenInput(process.env.ASSISTANT_GATEWAY_TOKEN)) ||
         randomToken();
       gatewayTokenInput = gatewayToken;
     } else {
@@ -214,7 +214,7 @@ export async function configureGatewayForSetup(
         placeholder: "多机或非 loopback 访问时必须设置",
         initialValue:
           quickstartTokenString ??
-          normalizeGatewayTokenInput(process.env.ZHUSHOU_GATEWAY_TOKEN) ??
+          normalizeGatewayTokenInput(process.env.ASSISTANT_GATEWAY_TOKEN) ??
           "",
       });
       gatewayToken = normalizeGatewayTokenInput(tokenInput) || randomToken();
@@ -240,10 +240,10 @@ export async function configureGatewayForSetup(
           provider: "gateway-auth-password",
           config: nextConfig,
           prompter,
-          preferredEnvVar: "ZHUSHOU_GATEWAY_PASSWORD",
+          preferredEnvVar: "ASSISTANT_GATEWAY_PASSWORD",
           copy: {
             sourceMessage: "网关密码存储在哪里？",
-            envVarPlaceholder: "ZHUSHOU_GATEWAY_PASSWORD",
+            envVarPlaceholder: "ASSISTANT_GATEWAY_PASSWORD",
           },
         });
         password = resolved.ref;

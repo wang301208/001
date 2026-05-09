@@ -1,8 +1,8 @@
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/string-coerce-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/string-coerce-runtime";
 import { getMatrixRuntime } from "../../runtime.js";
 import type { MatrixClient } from "../sdk.js";
 import { chunkMatrixText, sendMessageMatrix } from "../send.js";
-import type { MarkdownTableMode, ZhushouConfig, ReplyPayload, RuntimeEnv } from "./runtime-api.js";
+import type { MarkdownTableMode, AssistantConfig, ReplyPayload, RuntimeEnv } from "./runtime-api.js";
 
 const THINKING_TAG_RE = /<\s*\/?\s*(?:think(?:ing)?|thought|antthinking)\b[^<>]*>/gi;
 const THINKING_BLOCK_RE =
@@ -30,7 +30,7 @@ function shouldSuppressReasoningReplyText(text?: string): boolean {
 }
 
 export async function deliverMatrixReplies(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   replies: ReplyPayload[];
   roomId: string;
   client: MatrixClient;

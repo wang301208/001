@@ -1,4 +1,4 @@
-import { createPluginRuntimeStore } from "zhushou/plugin-sdk/runtime-store";
+import { createPluginRuntimeStore } from "assistant/plugin-sdk/runtime-store";
 import type { PluginRuntime } from "./runtime-support.js";
 
 const { setRuntime: setZaloRuntime, getRuntime: getZaloRuntime } =

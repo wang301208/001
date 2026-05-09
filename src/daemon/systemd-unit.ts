@@ -56,7 +56,7 @@ export function buildSystemdUnit({
   environmentFiles,
 }: GatewayServiceRenderArgs): string {
   const execStart = programArguments.map(systemdEscapeArg).join(" ");
-  const descriptionValue = description?.trim() || "OpenClaw Gateway";
+  const descriptionValue = description?.trim() || "Assistant Gateway";
   assertNoSystemdLineBreaks(descriptionValue, "Systemd Description");
   const descriptionLine = `Description=${descriptionValue}`;
   const workingDirLine = workingDirectory
@@ -74,9 +74,6 @@ export function buildSystemdUnit({
     "",
     "[Service]",
     `ExecStart=${execStart}`,
-    "Restart=always",
-    "RestartSec=5",
-    "RestartPreventExitStatus=78",
     "TimeoutStopSec=30",
     "TimeoutStartSec=30",
     "SuccessExitStatus=0 143",

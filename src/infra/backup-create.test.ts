@@ -4,8 +4,8 @@ import { formatBackupCreateSummary, type BackupCreateResult } from "./backup-cre
 function makeResult(overrides: Partial<BackupCreateResult> = {}): BackupCreateResult {
   return {
     createdAt: "2026-01-01T00:00:00.000Z",
-    archiveRoot: "zhushou-backup-2026-01-01",
-    archivePath: "/tmp/zhushou-backup.tar.gz",
+    archiveRoot: "assistant-backup-2026-01-01",
+    archivePath: "/tmp/assistant-backup.tar.gz",
     dryRun: false,
     includeWorkspace: true,
     onlyConfig: false,
@@ -17,7 +17,7 @@ function makeResult(overrides: Partial<BackupCreateResult> = {}): BackupCreateRe
 }
 
 describe("formatBackupCreateSummary", () => {
-  const backupArchiveLine = "Backup archive: /tmp/zhushou-backup.tar.gz";
+  const backupArchiveLine = "Backup archive: /tmp/assistant-backup.tar.gz";
 
   it.each([
     {
@@ -29,26 +29,26 @@ describe("formatBackupCreateSummary", () => {
             kind: "state",
             sourcePath: "/state",
             archivePath: "archive/state",
-            displayPath: "~/.zhushou",
+            displayPath: "~/.assistant",
           },
         ],
         skipped: [
           {
             kind: "workspace",
             sourcePath: "/workspace",
-            displayPath: "~/Projects/zhushou",
+            displayPath: "~/Projects/assistant",
             reason: "covered",
-            coveredBy: "~/.zhushou",
+            coveredBy: "~/.assistant",
           },
         ],
       }),
       expected: [
         backupArchiveLine,
         "Included 1 path:",
-        "- state: ~/.zhushou",
+        "- state: ~/.assistant",
         "Skipped 1 path:",
-        "- workspace: ~/Projects/zhushou (covered by ~/.zhushou)",
-        "Created /tmp/zhushou-backup.tar.gz",
+        "- workspace: ~/Projects/assistant (covered by ~/.assistant)",
+        "Created /tmp/assistant-backup.tar.gz",
         "Archive verification: passed",
       ],
     },
@@ -61,21 +61,21 @@ describe("formatBackupCreateSummary", () => {
             kind: "config",
             sourcePath: "/config",
             archivePath: "archive/config",
-            displayPath: "~/.zhushou/config.json",
+            displayPath: "~/.assistant/config.json",
           },
           {
             kind: "credentials",
             sourcePath: "/oauth",
             archivePath: "archive/oauth",
-            displayPath: "~/.zhushou/oauth",
+            displayPath: "~/.assistant/oauth",
           },
         ],
       }),
       expected: [
         backupArchiveLine,
         "Included 2 paths:",
-        "- config: ~/.zhushou/config.json",
-        "- credentials: ~/.zhushou/oauth",
+        "- config: ~/.assistant/config.json",
+        "- credentials: ~/.assistant/oauth",
         "Dry run only; archive was not written.",
       ],
     },

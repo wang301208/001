@@ -1,20 +1,20 @@
-import { resolveApprovalApprovers } from "zhushou/plugin-sdk/approval-auth-runtime";
+import { resolveApprovalApprovers } from "assistant/plugin-sdk/approval-auth-runtime";
 import {
   createChannelExecApprovalProfile,
   isChannelExecApprovalClientEnabledFromConfig,
   isChannelExecApprovalTargetRecipient,
   matchesApprovalRequestFilters,
-} from "zhushou/plugin-sdk/approval-client-runtime";
-import { resolveApprovalRequestChannelAccountId } from "zhushou/plugin-sdk/approval-native-runtime";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { TelegramExecApprovalConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ExecApprovalRequest, PluginApprovalRequest } from "zhushou/plugin-sdk/infra-runtime";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import { normalizeAccountId } from "zhushou/plugin-sdk/routing";
+} from "assistant/plugin-sdk/approval-client-runtime";
+import { resolveApprovalRequestChannelAccountId } from "assistant/plugin-sdk/approval-native-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { TelegramExecApprovalConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ExecApprovalRequest, PluginApprovalRequest } from "assistant/plugin-sdk/infra-runtime";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import { normalizeAccountId } from "assistant/plugin-sdk/routing";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { listTelegramAccountIds, resolveTelegramAccount } from "./accounts.js";
 import { resolveTelegramInlineButtonsConfigScope } from "./inline-buttons.js";
 import { normalizeTelegramChatId, resolveTelegramTargetChatType } from "./targets.js";
@@ -33,7 +33,7 @@ function normalizeTelegramDirectApproverId(value: string | number): string | und
 }
 
 export function resolveTelegramExecApprovalConfig(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): TelegramExecApprovalConfig | undefined {
   const account = resolveTelegramAccount(params);
@@ -48,7 +48,7 @@ export function resolveTelegramExecApprovalConfig(params: {
 }
 
 export function getTelegramExecApprovalApprovers(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): string[] {
   const account = resolveTelegramAccount(params).config;
@@ -61,7 +61,7 @@ export function getTelegramExecApprovalApprovers(params: {
 }
 
 export function isTelegramExecApprovalTargetRecipient(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   senderId?: string | null;
   accountId?: string | null;
 }): boolean {
@@ -79,7 +79,7 @@ export function isTelegramExecApprovalTargetRecipient(params: {
 }
 
 function countTelegramExecApprovalEligibleAccounts(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: ExecApprovalRequest | PluginApprovalRequest;
 }): number {
   return listTelegramAccountIds(params.cfg).filter((accountId) => {
@@ -107,7 +107,7 @@ function countTelegramExecApprovalEligibleAccounts(params: {
 }
 
 function matchesTelegramRequestAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   request: ExecApprovalRequest | PluginApprovalRequest;
 }): boolean {
@@ -153,7 +153,7 @@ export const shouldHandleTelegramExecApprovalRequest =
   telegramExecApprovalProfile.shouldHandleRequest;
 
 export function shouldInjectTelegramExecApprovalButtons(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   to: string;
 }): boolean {
@@ -172,7 +172,7 @@ export function shouldInjectTelegramExecApprovalButtons(params: {
 }
 
 function resolveExecApprovalButtonsExplicitlyDisabled(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): boolean {
   const capabilities = resolveTelegramAccount(params).config.capabilities;
@@ -180,7 +180,7 @@ function resolveExecApprovalButtonsExplicitlyDisabled(params: {
 }
 
 export function shouldEnableTelegramExecApprovalButtons(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   to: string;
 }): boolean {
@@ -191,7 +191,7 @@ export function shouldEnableTelegramExecApprovalButtons(params: {
 }
 
 export function shouldSuppressLocalTelegramExecApprovalPrompt(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   payload: ReplyPayload;
 }): boolean {
@@ -199,7 +199,7 @@ export function shouldSuppressLocalTelegramExecApprovalPrompt(params: {
 }
 
 export function isTelegramExecApprovalHandlerConfigured(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): boolean {
   return isChannelExecApprovalClientEnabledFromConfig({

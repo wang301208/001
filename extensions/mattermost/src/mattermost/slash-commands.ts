@@ -12,7 +12,7 @@
  * - On shutdown, cleans up registered commands via DELETE /api/v4/commands/{id}
  */
 
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import type { MattermostClient } from "./client.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────

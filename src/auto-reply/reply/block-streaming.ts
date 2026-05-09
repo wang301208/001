@@ -1,6 +1,6 @@
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import type { BlockStreamingCoalesceConfig } from "../../config/types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { resolveChannelStreamingBlockCoalesce } from "../../plugin-sdk/channel-streaming.js";
 import { resolveAccountEntry } from "../../routing/account-lookup.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
@@ -12,7 +12,7 @@ const DEFAULT_BLOCK_STREAM_MAX = 1200;
 const DEFAULT_BLOCK_STREAM_COALESCE_IDLE_MS = 1000;
 
 function resolveProviderChunkContext(
-  cfg: ZhushouConfig | undefined,
+  cfg: AssistantConfig | undefined,
   provider?: string,
   accountId?: string | null,
 ) {
@@ -39,7 +39,7 @@ type ProviderBlockStreamingConfig = {
 };
 
 function resolveProviderBlockStreamingCoalesce(params: {
-  cfg: ZhushouConfig | undefined;
+  cfg: AssistantConfig | undefined;
   providerKey?: TextChunkProvider;
   accountId?: string | null;
 }): BlockStreamingCoalesceConfig | undefined {
@@ -97,7 +97,7 @@ export function clampPositiveInteger(
 }
 
 export function resolveEffectiveBlockStreamingConfig(params: {
-  cfg: ZhushouConfig | undefined;
+  cfg: AssistantConfig | undefined;
   provider?: string;
   accountId?: string | null;
   chunking?: BlockStreamingChunking;
@@ -155,7 +155,7 @@ export function resolveEffectiveBlockStreamingConfig(params: {
 }
 
 export function resolveBlockStreamingChunking(
-  cfg: ZhushouConfig | undefined,
+  cfg: AssistantConfig | undefined,
   provider?: string,
   accountId?: string | null,
 ): BlockStreamingChunking {
@@ -185,7 +185,7 @@ export function resolveBlockStreamingChunking(
 }
 
 export function resolveBlockStreamingCoalescing(
-  cfg: ZhushouConfig | undefined,
+  cfg: AssistantConfig | undefined,
   provider?: string,
   accountId?: string | null,
   chunking?: {

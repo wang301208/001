@@ -5,12 +5,12 @@ import type { PluginRuntime } from "../runtime-api.js";
 export const msteamsRuntimeStub = {
   state: {
     resolveStateDir: (env: NodeJS.ProcessEnv = process.env, homedir?: () => string) => {
-      const override = env.ZHUSHOU_STATE_DIR?.trim() || env.ZHUSHOU_STATE_DIR?.trim();
+      const override = env.ASSISTANT_STATE_DIR?.trim() || env.ASSISTANT_STATE_DIR?.trim();
       if (override) {
         return override;
       }
       const resolvedHome = homedir ? homedir() : os.homedir();
-      return path.join(resolvedHome, ".zhushou");
+      return path.join(resolvedHome, ".assistant");
     },
   },
 } as unknown as PluginRuntime;

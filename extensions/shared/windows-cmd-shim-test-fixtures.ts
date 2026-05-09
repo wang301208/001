@@ -1,1 +1,1 @@
-export { createWindowsCmdShimFixture } from "zhushou/plugin-sdk/testing";
+export { createWindowsCmdShimFixture } from "assistant/plugin-sdk/testing";

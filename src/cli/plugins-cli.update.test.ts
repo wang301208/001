@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   loadConfig,
   registerPluginsCli,
@@ -17,7 +17,7 @@ function createTrackedPluginConfig(params: {
   pluginId: string;
   spec: string;
   resolvedName?: string;
-}): ZhushouConfig {
+}): AssistantConfig {
   return {
     plugins: {
       installs: {
@@ -29,7 +29,7 @@ function createTrackedPluginConfig(params: {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 describe("plugins cli update", () => {
@@ -64,7 +64,7 @@ describe("plugins cli update", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const nextConfig = {
       hooks: {
         internal: {
@@ -77,7 +77,7 @@ describe("plugins cli update", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     loadConfig.mockReturnValue(cfg);
     updateNpmInstalledPlugins.mockResolvedValue({
@@ -116,7 +116,7 @@ describe("plugins cli update", () => {
       plugins: {
         installs: {},
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     await expect(runPluginsCommand(["plugins", "update"])).rejects.toThrow("__exit__:1");
 
@@ -129,7 +129,7 @@ describe("plugins cli update", () => {
       plugins: {
         installs: {},
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     await runPluginsCommand(["plugins", "update", "--all"]);
 
@@ -140,8 +140,8 @@ describe("plugins cli update", () => {
 
   it("passes dangerous force unsafe install to plugin updates", async () => {
     const config = createTrackedPluginConfig({
-      pluginId: "zhushou-codex-app-server",
-      spec: "zhushou-codex-app-server@beta",
+      pluginId: "assistant-codex-app-server",
+      spec: "assistant-codex-app-server@beta",
     });
     loadConfig.mockReturnValue(config);
     updateNpmInstalledPlugins.mockResolvedValue({
@@ -153,14 +153,14 @@ describe("plugins cli update", () => {
     await runPluginsCommand([
       "plugins",
       "update",
-      "zhushou-codex-app-server",
+      "assistant-codex-app-server",
       "--dangerously-force-unsafe-install",
     ]);
 
     expect(updateNpmInstalledPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config,
-        pluginIds: ["zhushou-codex-app-server"],
+        pluginIds: ["assistant-codex-app-server"],
         dangerouslyForceUnsafeInstall: true,
       }),
     );
@@ -172,21 +172,21 @@ describe("plugins cli update", () => {
         installs: {
           alpha: {
             source: "npm",
-            spec: "@zhushou/alpha@1.0.0",
+            spec: "@assistant/alpha@1.0.0",
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const nextConfig = {
       plugins: {
         installs: {
           alpha: {
             source: "npm",
-            spec: "@zhushou/alpha@1.1.0",
+            spec: "@assistant/alpha@1.1.0",
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     loadConfig.mockReturnValue(cfg);
     updateNpmInstalledPlugins.mockResolvedValue({
       outcomes: [{ status: "ok", message: "Updated alpha -> 1.1.0" }],

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as normalize from "./normalize-target.js";
 
 vi.mock("./normalize-target.js");
-vi.mock("zhushou/plugin-sdk/channel-feedback", () => ({
+vi.mock("assistant/plugin-sdk/channel-feedback", () => ({
   missingTargetError: (platform: string, format: string) => new Error(`${platform}: ${format}`),
 }));
 

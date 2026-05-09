@@ -1,5 +1,5 @@
 import { normalizeConfiguredMcpServers } from "../config/mcp-config.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { BundleMcpDiagnostic, BundleMcpServerConfig } from "../plugins/bundle-mcp.js";
 import { loadEnabledBundleMcpConfig } from "../plugins/bundle-mcp.js";
 
@@ -10,7 +10,7 @@ export type EmbeddedPiMcpConfig = {
 
 export function loadEmbeddedPiMcpConfig(params: {
   workspaceDir: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
 }): EmbeddedPiMcpConfig {
   const bundleMcp = loadEnabledBundleMcpConfig({
     workspaceDir: params.workspaceDir,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../../config/config.js";
+import type { AssistantConfig } from "../../../config/config.js";
 import { findLegacyConfigIssues } from "../../../config/legacy.js";
 import { migrateLegacyConfig } from "./legacy-config-migrate.js";
 import {
@@ -9,7 +9,7 @@ import {
 
 describe("legacy web search config", () => {
   it("migrates legacy provider config through bundled web search ownership metadata", () => {
-    const res = migrateLegacyWebSearchConfig<ZhushouConfig>({
+    const res = migrateLegacyWebSearchConfig<AssistantConfig>({
       tools: {
         web: {
           search: {
@@ -102,13 +102,13 @@ describe("legacy web search config", () => {
           },
         },
       },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
     expect(findLegacyConfigIssues(rawConfig)).toEqual([
       {
         path: "tools.web.search",
         message:
-          'tools.web.search provider-owned config moved to plugins.entries.<plugin>.config.webSearch. Run "zhushou doctor --fix".',
+          'tools.web.search provider-owned config moved to plugins.entries.<plugin>.config.webSearch. Run "assistant doctor --fix".',
       },
     ]);
 

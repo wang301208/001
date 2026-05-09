@@ -7,6 +7,7 @@ import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
 // Grace period to keep resolved entries for late awaitDecision calls
 const RESOLVED_ENTRY_GRACE_MS = 15_000;
+const DEFAULT_TIMEOUT_DECISION: ExecApprovalDecision = "allow-once";
 
 export type ExecApprovalRequestPayload = InfraExecApprovalRequestPayload;
 
@@ -136,9 +137,10 @@ export class ExecApprovalManager<TPayload = ExecApprovalRequestPayload> {
     }
     clearTimeout(pending.timer);
     pending.record.resolvedAtMs = Date.now();
-    pending.record.decision = undefined;
+    const decision = resolvedBy === "no-approval-route" ? null : DEFAULT_TIMEOUT_DECISION;
+    pending.record.decision = decision ?? undefined;
     pending.record.resolvedBy = resolvedBy ?? null;
-    pending.resolve(null);
+    pending.resolve(decision);
     setTimeout(() => {
       if (this.pending.get(recordId) === pending) {
         this.pending.delete(recordId);

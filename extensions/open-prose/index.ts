@@ -1,10 +1,10 @@
-import { definePluginEntry, type ZhushouPluginApi } from "./runtime-api.js";
+import { definePluginEntry, type AssistantPluginApi } from "./runtime-api.js";
 
 export default definePluginEntry({
   id: "open-prose",
   name: "OpenProse",
   description: "Plugin-shipped prose skills bundle",
-  register(_api: ZhushouPluginApi) {
+  register(_api: AssistantPluginApi) {
     // OpenProse is delivered via plugin-shipped skills.
   },
 });

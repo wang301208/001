@@ -1,7 +1,7 @@
 import type { Command } from "commander";
 import { hasFlag } from "../argv.js";
 
-const jsonModeSymbol = Symbol("zhushou.cli.jsonMode");
+const jsonModeSymbol = Symbol("assistant.cli.jsonMode");
 
 type JsonMode = "output" | "parse-only";
 type JsonModeCommand = Command & {

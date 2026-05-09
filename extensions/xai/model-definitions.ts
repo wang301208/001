@@ -1,5 +1,5 @@
-import type { ModelDefinitionConfig } from "zhushou/plugin-sdk/provider-model-shared";
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+import type { ModelDefinitionConfig } from "assistant/plugin-sdk/provider-model-shared";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
 
 export const XAI_BASE_URL = "https://api.x.ai/v1";
 export const XAI_DEFAULT_MODEL_ID = "grok-4";

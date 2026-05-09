@@ -2,7 +2,7 @@ import {
   createDelegatedSetupWizardProxy,
   createPatchedAccountSetupAdapter,
   type ChannelSetupWizard,
-} from "zhushou/plugin-sdk/setup-runtime";
+} from "assistant/plugin-sdk/setup-runtime";
 
 const channel = "zalouser" as const;
 

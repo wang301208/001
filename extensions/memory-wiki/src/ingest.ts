@@ -80,8 +80,8 @@ export async function ingestMemoryWikiSource(params: {
       renderMarkdownFence(content, "text"),
       "",
       "## Notes",
-      "<!-- zhushou:human:start -->",
-      "<!-- zhushou:human:end -->",
+      "<!-- assistant:human:start -->",
+      "<!-- assistant:human:end -->",
       "",
     ].join("\n"),
   });

@@ -28,7 +28,7 @@ async function setTalkConfig(talk: Record<string, unknown>) {
   const { setRuntimeConfigSnapshot } = await import("../config/config.js");
   const config = {
     commands: {
-      ownerDisplaySecret: "zhushou-test-owner-display-secret",
+      ownerDisplaySecret: "assistant-test-owner-display-secret",
     },
     talk,
   };

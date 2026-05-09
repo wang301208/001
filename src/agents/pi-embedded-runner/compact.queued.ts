@@ -13,7 +13,7 @@ import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import type { ProviderRuntimeModel } from "../../plugins/provider-runtime-model.types.js";
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { resolveUserPath } from "../../utils.js";
-import { resolveOpenClawAgentDir } from "../agent-paths.js";
+import { resolveAssistantAgentDir } from "../agent-paths.js";
 import { buildTaskContinuationFromSession } from "../task-status-override.js";
 import { resolveSessionAgentIds } from "../agent-scope.js";
 import { resolveContextWindowInfo } from "../context-window-guard.js";
@@ -61,7 +61,7 @@ export async function compactEmbeddedPiSession(
       let checkpointSnapshot: CapturedCompactionCheckpointSnapshot | null = null;
       let checkpointSnapshotRetained = false;
       try {
-        const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
+        const agentDir = params.agentDir ?? resolveAssistantAgentDir();
         const resolvedCompactionTarget = resolveEmbeddedCompactionTarget({
           config: params.config,
           provider: params.provider,

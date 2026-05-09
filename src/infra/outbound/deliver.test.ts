@@ -6,7 +6,7 @@ import {
   signalOutbound,
   whatsappOutbound,
 } from "../../../test/helpers/infra/deliver-test-outbounds.js";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import * as mediaCapabilityModule from "../../media/read-capability.js";
 import { createHookRunner } from "../../plugins/hooks.js";
 import { addTestHook } from "../../plugins/hooks.test-helpers.js";
@@ -92,18 +92,18 @@ type DeliverModule = typeof import("./deliver.js");
 let deliverOutboundPayloads: DeliverModule["deliverOutboundPayloads"];
 let normalizeOutboundPayloads: DeliverModule["normalizeOutboundPayloads"];
 
-const whatsappChunkConfig: ZhushouConfig = {
+const whatsappChunkConfig: AssistantConfig = {
   channels: { whatsapp: { textChunkLimit: 4000 } },
 };
 
-function expectContainsOpenClawTmpRoot(mediaLocalRoots: readonly string[] | undefined) {
+function expectContainsAssistantTmpRoot(mediaLocalRoots: readonly string[] | undefined) {
   expect(mediaLocalRoots).toBeDefined();
   expect(
     mediaLocalRoots?.some((root) =>
       path
         .normalize(root)
         .toLowerCase()
-        .endsWith(path.join("tmp", "zhushou").toLowerCase()),
+        .endsWith(path.join("tmp", "assistant").toLowerCase()),
     ),
   ).toBe(true);
 }
@@ -116,7 +116,7 @@ async function deliverWhatsAppPayload(params: {
     NonNullable<Parameters<DeliverModule["deliverOutboundPayloads"]>[0]["deps"]>["whatsapp"]
   >;
   payload: DeliverOutboundPayload;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
 }) {
   return deliverOutboundPayloads({
     cfg: params.cfg ?? whatsappChunkConfig,
@@ -134,7 +134,7 @@ async function runChunkedWhatsAppDelivery(params?: {
     .fn()
     .mockResolvedValueOnce({ messageId: "w1", toJid: "jid" })
     .mockResolvedValueOnce({ messageId: "w2", toJid: "jid" });
-  const cfg: ZhushouConfig = {
+  const cfg: AssistantConfig = {
     channels: { whatsapp: { textChunkLimit: 2 } },
   };
   const results = await deliverOutboundPayloads({
@@ -166,7 +166,7 @@ async function runBestEffortPartialFailureDelivery() {
     .mockRejectedValueOnce(new Error("fail"))
     .mockResolvedValueOnce({ messageId: "w2", toJid: "jid" });
   const onError = vi.fn();
-  const cfg: ZhushouConfig = {};
+  const cfg: AssistantConfig = {};
   const results = await deliverOutboundPayloads({
     cfg,
     channel: "whatsapp",
@@ -352,7 +352,7 @@ describe("deliverOutboundPayloads", () => {
     );
 
     const results = await deliverOutboundPayloads({
-      cfg: { channels: { matrix: { textChunkLimit: 2 } } } as ZhushouConfig,
+      cfg: { channels: { matrix: { textChunkLimit: 2 } } } as AssistantConfig,
       channel: "matrix",
       to: "!room",
       accountId: "default",
@@ -410,7 +410,7 @@ describe("deliverOutboundPayloads", () => {
     );
 
     const textResults = await deliverOutboundPayloads({
-      cfg: { channels: { line: {} } } as ZhushouConfig,
+      cfg: { channels: { line: {} } } as AssistantConfig,
       channel: "line",
       to: "U123",
       accountId: "default",
@@ -432,7 +432,7 @@ describe("deliverOutboundPayloads", () => {
     ]);
 
     await deliverOutboundPayloads({
-      cfg: { channels: { line: {} } } as ZhushouConfig,
+      cfg: { channels: { line: {} } } as AssistantConfig,
       channel: "line",
       to: "U123",
       payloads: [{ text: "photo", mediaUrl: "file:///tmp/f.png" }],
@@ -450,10 +450,10 @@ describe("deliverOutboundPayloads", () => {
     const sendFormattedMediaCall = sendFormattedMedia.mock.calls[0]?.[0] as
       | { mediaLocalRoots?: string[] }
       | undefined;
-    expectContainsOpenClawTmpRoot(sendFormattedMediaCall?.mediaLocalRoots);
+    expectContainsAssistantTmpRoot(sendFormattedMediaCall?.mediaLocalRoots);
     expect(
       sendFormattedMediaCall?.mediaLocalRoots?.some((root) =>
-        root.endsWith(path.join(".zhushou", "workspace-work")),
+        root.endsWith(path.join(".assistant", "workspace-work")),
       ),
     ).toBe(true);
     expect(sendMedia).not.toHaveBeenCalled();
@@ -475,7 +475,7 @@ describe("deliverOutboundPayloads", () => {
       "hi",
       expect.objectContaining({}),
     );
-    expectContainsOpenClawTmpRoot(sendSignal.mock.calls[0]?.[2]?.mediaLocalRoots);
+    expectContainsAssistantTmpRoot(sendSignal.mock.calls[0]?.[2]?.mediaLocalRoots);
   });
 
   it("sends telegram media to an explicit target once instead of fanning out over allowFrom", async () => {
@@ -550,7 +550,7 @@ describe("deliverOutboundPayloads", () => {
     );
 
     await deliverOutboundPayloads({
-      cfg: { channels: { matrix: {} } } as ZhushouConfig,
+      cfg: { channels: { matrix: {} } } as AssistantConfig,
       channel: "matrix",
       to: "room:!room:example",
       payloads: [{ text: "voice caption", mediaUrl: "file:///tmp/clip.mp3", audioAsVoice: true }],
@@ -582,7 +582,7 @@ describe("deliverOutboundPayloads", () => {
       "hi",
       expect.objectContaining({}),
     );
-    expectContainsOpenClawTmpRoot(sendWhatsApp.mock.calls[0]?.[2]?.mediaLocalRoots);
+    expectContainsAssistantTmpRoot(sendWhatsApp.mock.calls[0]?.[2]?.mediaLocalRoots);
   });
 
   it("includes 助手 tmp root in imessage mediaLocalRoots", async () => {
@@ -601,7 +601,7 @@ describe("deliverOutboundPayloads", () => {
       "hi",
       expect.objectContaining({}),
     );
-    expectContainsOpenClawTmpRoot(sendIMessage.mock.calls[0]?.[2]?.mediaLocalRoots);
+    expectContainsAssistantTmpRoot(sendIMessage.mock.calls[0]?.[2]?.mediaLocalRoots);
   });
 
   it("chunks WhatsApp text and returns all results", async () => {
@@ -613,7 +613,7 @@ describe("deliverOutboundPayloads", () => {
 
   it("respects newline chunk mode for WhatsApp", async () => {
     const sendWhatsApp = vi.fn().mockResolvedValue({ messageId: "w1", toJid: "jid" });
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { whatsapp: { textChunkLimit: 4000, chunkMode: "newline" } },
     };
 
@@ -697,7 +697,7 @@ describe("deliverOutboundPayloads", () => {
       ]),
     );
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { matrix: { textChunkLimit: 4000, chunkMode: "newline" } },
     };
     const text = "```js\nconst a = 1;\nconst b = 2;\n```\nAfter";
@@ -724,7 +724,7 @@ describe("deliverOutboundPayloads", () => {
         },
       ]),
     );
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: { defaults: { mediaMaxMb: 3 } },
     };
 
@@ -878,7 +878,7 @@ describe("deliverOutboundPayloads", () => {
     const sendWhatsApp = vi.fn().mockResolvedValue({ messageId: "w1", toJid: "jid" });
     const abortController = new AbortController();
     abortController.abort();
-    const cfg: ZhushouConfig = {};
+    const cfg: AssistantConfig = {};
 
     await expect(
       deliverOutboundPayloads({
@@ -899,7 +899,7 @@ describe("deliverOutboundPayloads", () => {
   it("passes normalized payload to onError", async () => {
     const sendWhatsApp = vi.fn().mockRejectedValue(new Error("boom"));
     const onError = vi.fn();
-    const cfg: ZhushouConfig = {};
+    const cfg: AssistantConfig = {};
 
     await deliverOutboundPayloads({
       cfg,
@@ -938,7 +938,7 @@ describe("deliverOutboundPayloads", () => {
     mocks.appendAssistantMessageToSessionTranscript.mockClear();
 
     await deliverOutboundPayloads({
-      cfg: { channels: { line: {} } } as ZhushouConfig,
+      cfg: { channels: { line: {} } } as AssistantConfig,
       channel: "line",
       to: "U123",
       payloads: [{ text: "caption", mediaUrl: "https://example.com/files/report.pdf?sig=1" }],

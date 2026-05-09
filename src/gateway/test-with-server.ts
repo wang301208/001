@@ -33,7 +33,7 @@ export function installConnectedControlUiServerSuite(
   });
 
   beforeEach(() => {
-    process.env.ZHUSHOU_GATEWAY_TOKEN = token;
+    process.env.ASSISTANT_GATEWAY_TOKEN = token;
     testState.gatewayAuth = { mode: "token", token };
   });
 

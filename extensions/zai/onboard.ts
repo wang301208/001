@@ -1,8 +1,8 @@
 import {
   applyProviderConfigWithModelCatalogPreset,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   buildZaiModelDefinition,
   resolveZaiBaseUrl,
@@ -27,17 +27,17 @@ const ZAI_DEFAULT_MODELS = [
   buildZaiModelDefinition({ id: "glm-4.5v" }),
 ];
 
-function resolveZaiPresetBaseUrl(cfg: ZhushouConfig, endpoint?: string): string {
+function resolveZaiPresetBaseUrl(cfg: AssistantConfig, endpoint?: string): string {
   const existingProvider = cfg.models?.providers?.zai;
   const existingBaseUrl = normalizeOptionalString(existingProvider?.baseUrl) ?? "";
   return endpoint ? resolveZaiBaseUrl(endpoint) : existingBaseUrl || resolveZaiBaseUrl();
 }
 
 function applyZaiPreset(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params?: { endpoint?: string; modelId?: string },
   primaryModelRef?: string,
-): ZhushouConfig {
+): AssistantConfig {
   const modelId = normalizeOptionalString(params?.modelId) ?? ZAI_DEFAULT_MODEL_ID;
   const modelRef = `zai/${modelId}`;
   return applyProviderConfigWithModelCatalogPreset(cfg, {
@@ -51,16 +51,16 @@ function applyZaiPreset(
 }
 
 export function applyZaiProviderConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params?: { endpoint?: string; modelId?: string },
-): ZhushouConfig {
+): AssistantConfig {
   return applyZaiPreset(cfg, params);
 }
 
 export function applyZaiConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   params?: { endpoint?: string; modelId?: string },
-): ZhushouConfig {
+): AssistantConfig {
   const modelId = normalizeOptionalString(params?.modelId) ?? ZAI_DEFAULT_MODEL_ID;
   const modelRef = modelId === ZAI_DEFAULT_MODEL_ID ? ZAI_DEFAULT_MODEL_REF : `zai/${modelId}`;
   return applyZaiPreset(cfg, params, modelRef);

@@ -253,7 +253,7 @@ function quoteCliArg(value: string): string {
 }
 
 function buildExplicitApproveCommand(opts: DevicesRpcOpts, requestId: string): string {
-  const args = ["zhushou", "devices", "approve", requestId];
+  const args = ["assistant", "devices", "approve", requestId];
   const url = normalizeOptionalString(opts.url);
   if (url) {
     args.push("--url", url);

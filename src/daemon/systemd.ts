@@ -7,11 +7,7 @@ import { formatErrorMessage } from "../infra/errors.js";
 import { parseStrictInteger, parseStrictPositiveInteger } from "../infra/parse-finite-number.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { splitArgsPreservingQuotes } from "./arg-split.js";
-import {
-  LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES,
-  resolveGatewayServiceDescription,
-  resolveGatewaySystemdServiceName,
-} from "./constants.js";
+import { resolveGatewayServiceDescription, resolveGatewaySystemdServiceName } from "./constants.js";
 import { execFileUtf8 } from "./exec-file.js";
 import { formatLine, toPosixPath, writeFormattedLines } from "./output.js";
 import { resolveHomeDir } from "./paths.js";
@@ -50,11 +46,11 @@ function resolveSystemdUnitPathForName(env: GatewayServiceEnv, name: string): st
 }
 
 function resolveSystemdServiceName(env: GatewayServiceEnv): string {
-  const override = env.OPENCLAW_SYSTEMD_UNIT?.trim();
+  const override = env.ASSISTANT_SYSTEMD_UNIT?.trim();
   if (override) {
     return override.endsWith(".service") ? override.slice(0, -".service".length) : override;
   }
-  return resolveGatewaySystemdServiceName(env.ZHUSHOU_PROFILE);
+  return resolveGatewaySystemdServiceName(env.ASSISTANT_PROFILE);
 }
 
 function resolveSystemdUnitPath(env: GatewayServiceEnv): string {
@@ -539,7 +535,7 @@ export async function stageSystemdService({
 }
 
 async function activateSystemdService(params: { env: GatewayServiceEnv }) {
-  const serviceName = resolveGatewaySystemdServiceName(params.env.ZHUSHOU_PROFILE);
+  const serviceName = resolveGatewaySystemdServiceName(params.env.ASSISTANT_PROFILE);
   const unitName = `${serviceName}.service`;
   const reload = await execSystemctlUser(params.env, ["daemon-reload"]);
   if (reload.code !== 0) {
@@ -588,7 +584,7 @@ export async function uninstallSystemdService({
   stdout,
 }: GatewayServiceManageArgs): Promise<void> {
   await assertSystemdAvailable(env);
-  const serviceName = resolveGatewaySystemdServiceName(env.ZHUSHOU_PROFILE);
+  const serviceName = resolveGatewaySystemdServiceName(env.ASSISTANT_PROFILE);
   const unitName = `${serviceName}.service`;
   await execSystemctlUser(env, ["disable", "--now", unitName]);
 
@@ -707,70 +703,4 @@ export async function readSystemdServiceRuntime(
     lastExitStatus: parsed.execMainStatus,
     lastExitReason: parsed.execMainCode,
   };
-}
-export type LegacySystemdUnit = {
-  name: string;
-  unitPath: string;
-  enabled: boolean;
-  exists: boolean;
-};
-
-async function isSystemctlAvailable(env: GatewayServiceEnv): Promise<boolean> {
-  const res = await execSystemctlUser(env, ["status"]);
-  if (res.code === 0) {
-    return true;
-  }
-  return !isSystemctlMissing(readSystemctlDetail(res));
-}
-
-export async function findLegacySystemdUnits(env: GatewayServiceEnv): Promise<LegacySystemdUnit[]> {
-  const results: LegacySystemdUnit[] = [];
-  const systemctlAvailable = await isSystemctlAvailable(env);
-  for (const name of LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES) {
-    const unitPath = resolveSystemdUnitPathForName(env, name);
-    let exists = false;
-    try {
-      await fs.access(unitPath);
-      exists = true;
-    } catch {
-      // ignore
-    }
-    let enabled = false;
-    if (systemctlAvailable) {
-      const res = await execSystemctlUser(env, ["is-enabled", `${name}.service`]);
-      enabled = res.code === 0;
-    }
-    if (exists || enabled) {
-      results.push({ name, unitPath, enabled, exists });
-    }
-  }
-  return results;
-}
-
-export async function uninstallLegacySystemdUnits({
-  env,
-  stdout,
-}: GatewayServiceManageArgs): Promise<LegacySystemdUnit[]> {
-  const units = await findLegacySystemdUnits(env);
-  if (units.length === 0) {
-    return units;
-  }
-
-  const systemctlAvailable = await isSystemctlAvailable(env);
-  for (const unit of units) {
-    if (systemctlAvailable) {
-      await execSystemctlUser(env, ["disable", "--now", `${unit.name}.service`]);
-    } else {
-      stdout.write(`systemctl unavailable; removed legacy unit file only: ${unit.name}.service\n`);
-    }
-
-    try {
-      await fs.unlink(unit.unitPath);
-      stdout.write(`${formatLine("Removed legacy systemd service", unit.unitPath)}\n`);
-    } catch {
-      stdout.write(`Legacy systemd unit not found at ${unit.unitPath}\n`);
-    }
-  }
-
-  return units;
 }

@@ -29,7 +29,7 @@ vi.mock("./config.js", () => ({
   resolveBrowserConfig: vi.fn(() => ({
     enabled: true,
     controlPort: 18791,
-    profiles: { zhushou: { cdpPort: 18800 } },
+    profiles: { assistant: { cdpPort: 18800 } },
   })),
 }));
 

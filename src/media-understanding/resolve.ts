@@ -1,5 +1,5 @@
 import type { MsgContext } from "../auto-reply/templating.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import type {
   MediaUnderstandingConfig,
   MediaUnderstandingModelConfig,
@@ -37,7 +37,7 @@ export function resolvePrompt(
 export function resolveMaxChars(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   config?: MediaUnderstandingConfig;
 }): number | undefined {
   const { capability, entry, cfg } = params;
@@ -52,7 +52,7 @@ export function resolveMaxChars(params: {
 export function resolveMaxBytes(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   config?: MediaUnderstandingConfig;
 }): number {
   const configured =
@@ -66,7 +66,7 @@ export function resolveMaxBytes(params: {
 }
 
 export function resolveCapabilityConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   capability: MediaUnderstandingCapability,
 ): MediaUnderstandingConfig | undefined {
   return cfg.tools?.media?.[capability];
@@ -85,7 +85,7 @@ export function resolveScopeDecision(params: {
 }
 
 export function resolveModelEntries(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   capability: MediaUnderstandingCapability;
   config?: MediaUnderstandingConfig;
   providerRegistry: Map<string, { capabilities?: MediaUnderstandingCapability[] }>;
@@ -123,7 +123,7 @@ export function resolveModelEntries(params: {
     .map(({ entry }) => entry);
 }
 
-export function resolveConcurrency(cfg: ZhushouConfig): number {
+export function resolveConcurrency(cfg: AssistantConfig): number {
   const configured = cfg.tools?.media?.concurrency;
   if (typeof configured === "number" && Number.isFinite(configured) && configured > 0) {
     return Math.floor(configured);
@@ -132,7 +132,7 @@ export function resolveConcurrency(cfg: ZhushouConfig): number {
 }
 
 export function resolveEntriesWithActiveFallback(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   capability: MediaUnderstandingCapability;
   config?: MediaUnderstandingConfig;
   providerRegistry: Map<string, { capabilities?: MediaUnderstandingCapability[] }>;

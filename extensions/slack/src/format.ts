@@ -1,10 +1,10 @@
-import type { MarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import type { MarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
 import {
   markdownToIR,
   type MarkdownLinkSpan,
   renderMarkdownIRChunksWithinLimit,
-} from "zhushou/plugin-sdk/text-runtime";
-import { renderMarkdownWithMarkers } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
+import { renderMarkdownWithMarkers } from "assistant/plugin-sdk/text-runtime";
 
 // Escape special characters for Slack mrkdwn format.
 // Preserve Slack's angle-bracket tokens so mentions and links stay intact.

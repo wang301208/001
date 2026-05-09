@@ -19,23 +19,23 @@ export {
   ssrfPolicyFromAllowPrivateNetwork,
   type LookupFn,
   type SsrFPolicy,
-} from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/ssrf-runtime";
 export {
   setMatrixThreadBindingIdleTimeoutBySessionKey,
   setMatrixThreadBindingMaxAgeBySessionKey,
 } from "./src/matrix/thread-bindings-shared.js";
 export { setMatrixRuntime } from "./src/runtime.js";
-export { writeJsonFileAtomically } from "zhushou/plugin-sdk/json-store";
+export { writeJsonFileAtomically } from "assistant/plugin-sdk/json-store";
 export type {
   ChannelDirectoryEntry,
   ChannelMessageActionContext,
-  ZhushouConfig,
+  AssistantConfig,
   PluginRuntime,
   RuntimeLogger,
   RuntimeEnv,
   WizardPrompter,
-} from "zhushou/plugin-sdk/matrix-runtime-shared";
-export { formatZonedTimestamp } from "zhushou/plugin-sdk/matrix-runtime-shared";
+} from "assistant/plugin-sdk/matrix-runtime-shared";
+export { formatZonedTimestamp } from "assistant/plugin-sdk/matrix-runtime-shared";
 
 export function chunkTextForOutbound(text: string, limit: number): string[] {
   const chunks: string[] = [];

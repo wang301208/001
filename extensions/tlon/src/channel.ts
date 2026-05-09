@@ -1,13 +1,13 @@
-import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
-import { createHybridChannelConfigAdapter } from "zhushou/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin, type ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
-import { createRuntimeOutboundDelegates } from "zhushou/plugin-sdk/outbound-runtime";
+import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+import { createHybridChannelConfigAdapter } from "assistant/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin, type ChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
+import { createRuntimeOutboundDelegates } from "assistant/plugin-sdk/outbound-runtime";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "zhushou/plugin-sdk/status-helpers";
+} from "assistant/plugin-sdk/status-helpers";
 import { tlonChannelConfigSchema } from "./config-schema.js";
 import { tlonDoctor } from "./doctor.js";
 import { resolveTlonOutboundSessionRoute } from "./session-route.js";

@@ -1,5 +1,5 @@
 import { listConfiguredBindings } from "../../config/bindings.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import {
   getActivePluginChannelRegistryVersion,
   requireActivePluginChannelRegistry,
@@ -32,7 +32,7 @@ type CachedCompiledConfiguredBindingRegistry = {
 };
 
 const compiledRegistryCache = new WeakMap<
-  ZhushouConfig,
+  AssistantConfig,
   CachedCompiledConfiguredBindingRegistry
 >();
 
@@ -86,7 +86,7 @@ function compileConfiguredBindingTarget(params: {
 }
 
 function compileConfiguredBindingRule(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: ConfiguredBindingChannel;
   binding: CompiledConfiguredBinding["binding"];
   target: ChannelConfiguredBindingConversationRef;
@@ -134,7 +134,7 @@ function pushCompiledRule(
 }
 
 function compileConfiguredBindingRegistry(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
 }): CompiledConfiguredBindingRegistry {
   const rulesByChannel = new Map<ConfiguredBindingChannel, CompiledConfiguredBinding[]>();
 
@@ -178,7 +178,7 @@ function compileConfiguredBindingRegistry(params: {
 }
 
 export function resolveCompiledBindingRegistry(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
 ): CompiledConfiguredBindingRegistry {
   const activeRegistry = requireActivePluginChannelRegistry();
   const registryVersion = getActivePluginChannelRegistryVersion();
@@ -199,7 +199,7 @@ export function resolveCompiledBindingRegistry(
 }
 
 export function primeCompiledBindingRegistry(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
 ): CompiledConfiguredBindingRegistry {
   const activeRegistry = requireActivePluginChannelRegistry();
   const registry = compileConfiguredBindingRegistry({ cfg });

@@ -4,13 +4,13 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 const runFfprobeMock = vi.hoisted(() => vi.fn<(...args: unknown[]) => Promise<string>>());
 const runFfmpegMock = vi.hoisted(() => vi.fn<(...args: unknown[]) => Promise<void>>());
 
-vi.mock("zhushou/plugin-sdk/temp-path", async () => {
+vi.mock("assistant/plugin-sdk/temp-path", async () => {
   return {
-    resolvePreferredOpenClawTmpDir: () => "/tmp",
+    resolvePreferredAssistantTmpDir: () => "/tmp",
   };
 });
 
-vi.mock("zhushou/plugin-sdk/media-runtime", async () => {
+vi.mock("assistant/plugin-sdk/media-runtime", async () => {
   return {
     runFfprobe: runFfprobeMock,
     runFfmpeg: runFfmpegMock,

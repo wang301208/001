@@ -1,6 +1,6 @@
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
 import { vi } from "vitest";
-import type { ZhushouConfig, TelegramAccountConfig } from "../runtime-api.js";
+import type { AssistantConfig, TelegramAccountConfig } from "../runtime-api.js";
 import type { RegisterTelegramNativeCommandsParams } from "./bot-native-commands.js";
 
 export type NativeCommandTestParams = RegisterTelegramNativeCommandsParams;
@@ -27,7 +27,7 @@ export function createNativeCommandTestParams(
         },
         command: vi.fn(),
       } as unknown as NativeCommandTestParams["bot"]),
-    cfg: params.cfg ?? ({} as ZhushouConfig),
+    cfg: params.cfg ?? ({} as AssistantConfig),
     runtime:
       params.runtime ??
       ({

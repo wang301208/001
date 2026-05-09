@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { PRODUCT_NAME } from "./assistant-constants.js";
 
 export type WizardTemplate = {
@@ -6,7 +6,7 @@ export type WizardTemplate = {
   name: string;
   description: string;
   /** Partial config that this template applies on top of a base config. */
-  config: Partial<ZhushouConfig>;
+  config: Partial<AssistantConfig>;
 };
 
 /**
@@ -99,8 +99,8 @@ export function findTemplate(id: string): WizardTemplate | undefined {
  * Template values take precedence over existing base values for matching paths,
  * but do not delete unrelated keys.
  */
-export function applyTemplate(base: ZhushouConfig, template: WizardTemplate): ZhushouConfig {
-  return deepMerge(base, template.config) as ZhushouConfig;
+export function applyTemplate(base: AssistantConfig, template: WizardTemplate): AssistantConfig {
+  return deepMerge(base, template.config) as AssistantConfig;
 }
 
 function deepMerge(target: unknown, source: unknown): unknown {

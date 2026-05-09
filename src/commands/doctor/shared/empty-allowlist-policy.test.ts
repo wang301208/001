@@ -23,7 +23,7 @@ describe("doctor empty allowlist policy warnings", () => {
     const warnings = collectEmptyAllowlistPolicyWarningsForAccount({
       account: { dmPolicy: "allowlist" },
       channelName: "signal",
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
       prefix: "channels.signal",
     });
 
@@ -36,7 +36,7 @@ describe("doctor empty allowlist policy warnings", () => {
     const warnings = collectEmptyAllowlistPolicyWarningsForAccount({
       account: { groupPolicy: "allowlist" },
       channelName: "imessage",
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
       prefix: "channels.imessage",
     });
 
@@ -49,7 +49,7 @@ describe("doctor empty allowlist policy warnings", () => {
     const warnings = collectEmptyAllowlistPolicyWarningsForAccount({
       account: { groupPolicy: "allowlist" },
       channelName: "zalouser",
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
       prefix: "channels.zalouser",
     });
 
@@ -60,7 +60,7 @@ describe("doctor empty allowlist policy warnings", () => {
     const warnings = collectEmptyAllowlistPolicyWarningsForAccount({
       account: { groupPolicy: "allowlist" },
       channelName: "discord",
-      doctorFixCommand: "zhushou doctor --fix",
+      doctorFixCommand: "assistant doctor --fix",
       prefix: "channels.discord",
     });
 

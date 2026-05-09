@@ -1,11 +1,11 @@
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
 import { resolveLineAccount } from "./accounts.js";
 import {
   clearAccountEntryFields,
   DEFAULT_ACCOUNT_ID,
   type ChannelPlugin,
   type LineConfig,
-  type ZhushouConfig,
+  type AssistantConfig,
   type ResolvedLineAccount,
 } from "./channel-api.js";
 import { getLineRuntime } from "./runtime.js";
@@ -60,7 +60,7 @@ export const lineGatewayAdapter: NonNullable<ChannelPlugin<ResolvedLineAccount>[
   },
   logoutAccount: async ({ accountId, cfg }) => {
     const envToken = process.env.LINE_CHANNEL_ACCESS_TOKEN?.trim() ?? "";
-    const nextCfg = { ...cfg } as ZhushouConfig;
+    const nextCfg = { ...cfg } as AssistantConfig;
     const lineConfig = (cfg.channels?.line ?? {}) as LineConfig;
     const nextLine = { ...lineConfig };
     let cleared = false;

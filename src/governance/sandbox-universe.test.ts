@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   createSandboxUniverseController,
   createSandboxUniverseReplayRunner,
@@ -18,7 +18,7 @@ async function createTempSandboxCharterRoot(): Promise<{
   workspaceDir: string;
   stateDir: string;
 }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-sandbox-universe-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "assistant-sandbox-universe-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
   const stateDir = path.join(root, "state");
@@ -30,7 +30,7 @@ async function createTempSandboxCharterRoot(): Promise<{
   return { root, charterDir, workspaceDir, stateDir };
 }
 
-function createCfg(): ZhushouConfig {
+function createCfg(): AssistantConfig {
   return {
     gateway: {
       bind: "loopback",
@@ -46,7 +46,7 @@ function createCfg(): ZhushouConfig {
         enabled: false,
       },
     },
-  } as unknown as ZhushouConfig;
+  } as unknown as AssistantConfig;
 }
 
 async function writeAgentBlueprint(params: {

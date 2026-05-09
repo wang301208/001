@@ -47,7 +47,7 @@ function pickHigherContrastText(r: number, g: number, b: number): boolean {
 }
 
 function isLightBackground(): boolean {
-  const explicit = normalizeOptionalLowercaseString(process.env.OPENCLAW_THEME);
+  const explicit = normalizeOptionalLowercaseString(process.env.ASSISTANT_THEME);
   if (explicit === "light") {
     return true;
   }
@@ -80,42 +80,46 @@ function isLightBackground(): boolean {
 export const lightMode = isLightBackground();
 
 export const darkPalette = {
-  text: "#E8E3D5",
-  dim: "#7B7F87",
-  accent: "#F6C453",
-  accentSoft: "#F2A65A",
-  border: "#3C414B",
+  text: "#FFF8DC",
+  dim: "#CC9B1F",
+  accent: "#FFD700",
+  accentSoft: "#FFBF00",
+  border: "#CD7F32",
   userBg: "#2B2F36",
-  userText: "#F3EEE0",
-  systemText: "#9BA3B2",
+  userText: "#FFF8DC",
+  systemText: "#CC9B1F",
   toolPendingBg: "#1F2A2F",
   toolSuccessBg: "#1E2D23",
   toolErrorBg: "#2F1F1F",
-  toolTitle: "#F6C453",
-  toolOutput: "#E1DACB",
+  toolTitle: "#FFD700",
+  toolOutput: "#FFF8DC",
   quote: "#8CC8FF",
   quoteBorder: "#3B4D6B",
-  code: "#F0C987",
+  code: "#FFD166",
   codeBlock: "#1E232A",
-  codeBorder: "#343A45",
-  link: "#7DD3A5",
-  error: "#F97066",
-  success: "#7DD3A5",
+  codeBorder: "#CD7F32",
+  link: "#8FBC8F",
+  error: "#EF5350",
+  success: "#8FBC8F",
+  prompt: "#FFF8DC",
+  status: "#C0C0C0",
+  statusBusy: "#FFD700",
+  panelBorder: "#CD7F32",
 } as const;
 
 export const lightPalette = {
-  text: "#1E1E1E",
-  dim: "#5B6472",
-  accent: "#B45309",
-  accentSoft: "#C2410C",
-  border: "#5B6472",
+  text: "#3D2F13",
+  dim: "#7A5A0F",
+  accent: "#8B6914",
+  accentSoft: "#A0651C",
+  border: "#7A4F1F",
   userBg: "#F3F0E8",
-  userText: "#1E1E1E",
+  userText: "#3D2F13",
   systemText: "#4B5563",
   toolPendingBg: "#EFF6FF",
   toolSuccessBg: "#ECFDF5",
   toolErrorBg: "#FEF2F2",
-  toolTitle: "#B45309",
+  toolTitle: "#8B6914",
   toolOutput: "#374151",
   quote: "#1D4ED8",
   quoteBorder: "#2563EB",
@@ -125,6 +129,10 @@ export const lightPalette = {
   link: "#047857",
   error: "#DC2626",
   success: "#047857",
+  prompt: "#2B2014",
+  status: "#333333",
+  statusBusy: "#8B6914",
+  panelBorder: "#7A4F1F",
 } as const;
 
 export const palette = lightMode ? lightPalette : darkPalette;
@@ -163,6 +171,11 @@ export const theme = {
   accentSoft: fg(palette.accentSoft),
   success: fg(palette.success),
   error: fg(palette.error),
+  prompt: fg(palette.prompt),
+  status: fg(palette.status),
+  statusBusy: fg(palette.statusBusy),
+  banner: (text: string) => chalk.bold(fg(palette.accent)(text)),
+  panelBorder: fg(palette.panelBorder),
   header: (text: string) => chalk.bold(fg(palette.accent)(text)),
   system: fg(palette.systemText),
   userBg: bg(palette.userBg),
@@ -215,7 +228,7 @@ export const settingsListTheme: SettingsListTheme = {
     selected ? chalk.bold(fg(palette.accent)(text)) : fg(palette.text)(text),
   value: (text, selected) => (selected ? fg(palette.accentSoft)(text) : fg(palette.dim)(text)),
   description: (text) => fg(palette.systemText)(text),
-  cursor: fg(palette.accent)("→ "),
+  cursor: fg(palette.accent)("> "),
   hint: (text) => fg(palette.dim)(text),
 };
 

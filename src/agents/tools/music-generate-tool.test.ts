@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import * as mediaStore from "../../media/store.js";
 import * as musicGenerationRuntime from "../../music-generation/runtime.js";
 import * as musicGenerateBackground from "./music-generate-background.js";
@@ -100,8 +100,8 @@ vi.mock("./music-generate-background.js", () => musicGenerateBackgroundMocks);
 vi.mock("../../tasks/runtime-internal.js", () => taskRuntimeInternalMocks);
 vi.mock("../../tasks/task-executor.js", () => taskExecutorMocks);
 
-function asConfig(value: unknown): ZhushouConfig {
-  return value as ZhushouConfig;
+function asConfig(value: unknown): AssistantConfig {
+  return value as AssistantConfig;
 }
 
 describe("createMusicGenerateTool", () => {

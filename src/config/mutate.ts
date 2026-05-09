@@ -4,7 +4,7 @@ import {
   writeConfigFile,
   type ConfigWriteOptions,
 } from "./io.js";
-import type { ConfigFileSnapshot, ZhushouConfig } from "./types.js";
+import type { ConfigFileSnapshot, AssistantConfig } from "./types.js";
 
 export type ConfigMutationBase = "runtime" | "source";
 
@@ -22,7 +22,7 @@ export type ConfigReplaceResult = {
   path: string;
   previousHash: string | null;
   snapshot: ConfigFileSnapshot;
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
 };
 
 function assertBaseHashMatches(snapshot: ConfigFileSnapshot, expectedHash?: string): string | null {
@@ -36,7 +36,7 @@ function assertBaseHashMatches(snapshot: ConfigFileSnapshot, expectedHash?: stri
 }
 
 export async function replaceConfigFile(params: {
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   baseHash?: string;
   snapshot?: ConfigFileSnapshot;
   writeOptions?: ConfigWriteOptions;
@@ -65,14 +65,14 @@ export async function mutateConfigFile<T = void>(params: {
   baseHash?: string;
   writeOptions?: ConfigWriteOptions;
   mutate: (
-    draft: ZhushouConfig,
+    draft: AssistantConfig,
     context: { snapshot: ConfigFileSnapshot; previousHash: string | null },
   ) => Promise<T | void> | T | void;
 }): Promise<ConfigReplaceResult & { result: T | undefined }> {
   const { snapshot, writeOptions } = await readConfigFileSnapshotForWrite();
   const previousHash = assertBaseHashMatches(snapshot, params.baseHash);
   const baseConfig = params.base === "runtime" ? snapshot.runtimeConfig : snapshot.sourceConfig;
-  const draft = structuredClone(baseConfig) as ZhushouConfig;
+  const draft = structuredClone(baseConfig) as AssistantConfig;
   const result = (await params.mutate(draft, { snapshot, previousHash })) as T | undefined;
   await writeConfigFile(draft, {
     ...writeOptions,

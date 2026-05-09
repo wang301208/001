@@ -1,5 +1,5 @@
-import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
+import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "assistant/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   createProviderOperationDeadline,
@@ -8,13 +8,13 @@ import {
   resolveProviderOperationTimeoutMs,
   resolveProviderHttpRequestConfig,
   waitProviderOperationPollInterval,
-} from "zhushou/plugin-sdk/provider-http";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/provider-http";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import type {
   GeneratedVideoAsset,
   VideoGenerationProvider,
   VideoGenerationRequest,
-} from "zhushou/plugin-sdk/video-generation";
+} from "assistant/plugin-sdk/video-generation";
 import { resolveConfiguredOpenAIBaseUrl, toOpenAIDataUrl } from "./shared.js";
 
 const DEFAULT_OPENAI_VIDEO_BASE_URL = "https://api.openai.com/v1";

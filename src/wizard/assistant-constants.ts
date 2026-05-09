@@ -2,20 +2,20 @@
 export const PRODUCT_NAME = "助手";
 
 /** CLI binary name — used in command examples shown to users. */
-export const CLI_COMMAND = "zhushou";
+export const CLI_COMMAND = "assistant";
 
 /** Base URL for documentation links. */
-export const DOCS_BASE_URL = "https://docs.zhushou.ai";
+export const DOCS_BASE_URL = "https://docs.assistant.ai";
 
 /** Default config file path displayed in wizard messages. */
-export const CONFIG_FILE_DEFAULT_PATH = "~/.zhushou/zhushou.json";
+export const CONFIG_FILE_DEFAULT_PATH = "~/.assistant/assistant.json";
 
 /** Environment variable names referenced in wizard output. */
 export const ENV_VARS = {
-  GATEWAY_TOKEN: "ZHUSHOU_GATEWAY_TOKEN",
-  GATEWAY_PASSWORD: "ZHUSHOU_GATEWAY_PASSWORD",
-  GATEWAY_PORT: "ZHUSHOU_GATEWAY_PORT",
-  CONFIG_PATH: "ZHUSHOU_CONFIG_PATH",
+  GATEWAY_TOKEN: "ASSISTANT_GATEWAY_TOKEN",
+  GATEWAY_PASSWORD: "ASSISTANT_GATEWAY_PASSWORD",
+  GATEWAY_PORT: "ASSISTANT_GATEWAY_PORT",
+  CONFIG_PATH: "ASSISTANT_CONFIG_PATH",
 } as const;
 
 export type EnvVarKey = keyof typeof ENV_VARS;

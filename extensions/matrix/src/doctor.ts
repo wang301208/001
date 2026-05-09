@@ -1,10 +1,10 @@
-import { type ChannelDoctorAdapter } from "zhushou/plugin-sdk/channel-contract";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { type ChannelDoctorAdapter } from "assistant/plugin-sdk/channel-contract";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   detectPluginInstallPathIssue,
   formatPluginInstallPathIssue,
   removePluginFromConfig,
-} from "zhushou/plugin-sdk/runtime-doctor";
+} from "assistant/plugin-sdk/runtime-doctor";
 import {
   legacyConfigRules as MATRIX_LEGACY_CONFIG_RULES,
   normalizeCompatibilityConfig as normalizeMatrixCompatibilityConfig,
@@ -19,12 +19,12 @@ import {
 } from "./matrix-migration.runtime.js";
 import { isRecord } from "./record-shared.js";
 
-function hasConfiguredMatrixChannel(cfg: ZhushouConfig): boolean {
+function hasConfiguredMatrixChannel(cfg: AssistantConfig): boolean {
   const channels = cfg.channels as Record<string, unknown> | undefined;
   return isRecord(channels?.matrix);
 }
 
-function hasConfiguredMatrixPluginSurface(cfg: ZhushouConfig): boolean {
+function hasConfiguredMatrixPluginSurface(cfg: AssistantConfig): boolean {
   return Boolean(
     cfg.plugins?.installs?.matrix ||
     cfg.plugins?.entries?.matrix ||
@@ -39,7 +39,7 @@ function hasConfiguredMatrixEnv(env: NodeJS.ProcessEnv): boolean {
   );
 }
 
-function configMayNeedMatrixDoctorSequence(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): boolean {
+function configMayNeedMatrixDoctorSequence(cfg: AssistantConfig, env: NodeJS.ProcessEnv): boolean {
   return (
     hasConfiguredMatrixChannel(cfg) ||
     hasConfiguredMatrixPluginSurface(cfg) ||
@@ -55,7 +55,7 @@ export function formatMatrixLegacyStatePreview(
     `- Legacy sync store: ${detection.legacyStoragePath} -> ${detection.targetStoragePath}`,
     `- Legacy crypto store: ${detection.legacyCryptoPath} -> ${detection.targetCryptoPath}`,
     ...(detection.selectionNote ? [`- ${detection.selectionNote}`] : []),
-    '- Run "zhushou doctor --fix" to migrate this Matrix state now.',
+    '- Run "assistant doctor --fix" to migrate this Matrix state now.',
   ].join("\n");
 }
 
@@ -73,14 +73,14 @@ export function formatMatrixLegacyCryptoPreview(
         `- Legacy crypto store: ${plan.legacyCryptoPath}`,
         `- New recovery key file: ${plan.recoveryKeyPath}`,
         `- Migration state file: ${plan.statePath}`,
-        '- Run "zhushou doctor --fix" to extract any saved backup key now. Backed-up room keys will restore automatically on next gateway start.',
+        '- Run "assistant doctor --fix" to extract any saved backup key now. Backed-up room keys will restore automatically on next gateway start.',
       ].join("\n"),
     );
   }
   return notes;
 }
 
-export async function collectMatrixInstallPathWarnings(cfg: ZhushouConfig): Promise<string[]> {
+export async function collectMatrixInstallPathWarnings(cfg: AssistantConfig): Promise<string[]> {
   const issue = await detectPluginInstallPathIssue({
     pluginId: "matrix",
     install: cfg.plugins?.installs?.matrix,
@@ -91,11 +91,11 @@ export async function collectMatrixInstallPathWarnings(cfg: ZhushouConfig): Prom
   return formatPluginInstallPathIssue({
     issue,
     pluginLabel: "Matrix",
-    defaultInstallCommand: "zhushou plugins install @zhushou/matrix",
+    defaultInstallCommand: "assistant plugins install @assistant/matrix",
   }).map((entry) => `- ${entry}`);
 }
 
-export async function cleanStaleMatrixPluginConfig(cfg: ZhushouConfig) {
+export async function cleanStaleMatrixPluginConfig(cfg: AssistantConfig) {
   const issue = await detectPluginInstallPathIssue({
     pluginId: "matrix",
     install: cfg.plugins?.installs?.matrix,
@@ -129,7 +129,7 @@ export async function cleanStaleMatrixPluginConfig(cfg: ZhushouConfig) {
 }
 
 export async function applyMatrixDoctorRepair(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
 }): Promise<{ changes: string[]; warnings: string[] }> {
   const changes: string[] = [];
@@ -155,7 +155,7 @@ export async function applyMatrixDoctorRepair(params: {
         `- Failed creating a Matrix migration snapshot before repair: ${String(error)}`,
       );
       warnings.push(
-        '- Skipping Matrix migration changes for now. Resolve the snapshot failure, then rerun "zhushou doctor --fix".',
+        '- Skipping Matrix migration changes for now. Resolve the snapshot failure, then rerun "assistant doctor --fix".',
       );
     }
   } else if (migrationStatus.pending) {
@@ -205,7 +205,7 @@ export async function applyMatrixDoctorRepair(params: {
 }
 
 export async function runMatrixDoctorSequence(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
   shouldRepair: boolean;
 }): Promise<{ changeNotes: string[]; warningNotes: string[] }> {

@@ -40,7 +40,7 @@ describe("status-overview-rows", () => {
           gatewayConnection: { url: "wss://gateway.example.com", urlSource: "config" },
         },
         osLabel: "macOS",
-        configPath: "/tmp/zhushou.json",
+        configPath: "/tmp/assistant.json",
         secretDiagnosticsCount: 2,
         summary: createStatusCommandOverviewRowsParams().summary,
         agentStatus: {
@@ -54,8 +54,8 @@ describe("status-overview-rows", () => {
       expect.arrayContaining([
         { Item: "Version", Value: expect.any(String) },
         { Item: "OS", Value: "macOS" },
-        { Item: "Config", Value: "/tmp/zhushou.json" },
-        { Item: "Security", Value: "Run: zhushou security audit --deep" },
+        { Item: "Config", Value: "/tmp/assistant.json" },
+        { Item: "Security", Value: "Run: assistant security audit --deep" },
         { Item: "Governance", Value: expect.stringContaining("freeze open") },
         { Item: "Autonomy", Value: expect.stringContaining("3 profiles") },
         { Item: "Secrets", Value: "2 diagnostics" },

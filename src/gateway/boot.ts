@@ -12,7 +12,7 @@ import {
 import { resolveStorePath } from "../config/sessions/paths.js";
 import { loadSessionStore, updateSessionStore } from "../config/sessions/store.js";
 import type { SessionEntry } from "../config/sessions/types.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { type RuntimeEnv, defaultRuntime } from "../runtime.js";
@@ -75,7 +75,7 @@ async function loadBootFile(
 }
 
 function snapshotMainSessionMapping(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
 }): SessionMappingSnapshot {
   const agentId = resolveAgentIdFromSessionKey(params.sessionKey);
@@ -137,7 +137,7 @@ async function restoreMainSessionMapping(
 }
 
 export async function runBootOnce(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   deps: CliDeps;
   workspaceDir: string;
   agentId?: string;

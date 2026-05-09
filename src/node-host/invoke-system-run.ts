@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { resolveAgentConfig } from "../agents/agent-scope.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { GatewayClient } from "../gateway/client.js";
 import {
   addDurableCommandApproval,
@@ -171,10 +171,10 @@ export type HandleSystemRunInvokeOptions = {
   sendInvokeResult: (result: SystemRunInvokeResult) => Promise<void>;
   sendExecFinishedEvent: (params: ExecFinishedEventParams) => Promise<void>;
   preferMacAppExecHost: boolean;
-  loadConfig?: () => ZhushouConfig;
+  loadConfig?: () => AssistantConfig;
 };
 
-async function loadSystemRunConfig(opts: HandleSystemRunInvokeOptions): Promise<ZhushouConfig> {
+async function loadSystemRunConfig(opts: HandleSystemRunInvokeOptions): Promise<AssistantConfig> {
   if (opts.loadConfig) {
     return opts.loadConfig();
   }

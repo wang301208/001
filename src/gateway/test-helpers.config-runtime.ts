@@ -6,14 +6,14 @@ import { vi } from "vitest";
 import type { ReadConfigFileSnapshotForWriteResult } from "../config/io.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import type { AgentBinding } from "../config/types.agents.js";
-import type { ConfigFileSnapshot, ZhushouConfig } from "../config/types.js";
+import type { ConfigFileSnapshot, AssistantConfig } from "../config/types.js";
 import { buildTestConfigSnapshot } from "./test-helpers.config-snapshots.js";
 import { testConfigRoot, testIsNixMode, testState } from "./test-helpers.runtime-state.js";
 
 type GatewayConfigModule = typeof import("../config/config.js");
 
 export function createGatewayConfigModuleMock(actual: GatewayConfigModule): GatewayConfigModule {
-  const resolveConfigPath = () => path.join(testConfigRoot.value, "zhushou.json");
+  const resolveConfigPath = () => path.join(testConfigRoot.value, "assistant.json");
 
   const composeTestConfig = (baseConfig: Record<string, unknown>) => {
     const fileAgents =
@@ -30,7 +30,7 @@ export function createGatewayConfigModuleMock(actual: GatewayConfigModule): Gate
         : {};
     const defaults = {
       model: { primary: "anthropic/claude-opus-4-6" },
-      workspace: path.join(os.tmpdir(), "zhushou-gateway-test"),
+      workspace: path.join(os.tmpdir(), "assistant-gateway-test"),
       ...fileDefaults,
       ...testState.agentConfig,
     };
@@ -145,7 +145,7 @@ export function createGatewayConfigModuleMock(actual: GatewayConfigModule): Gate
       canvasHost,
       hooks,
       cron,
-    } as ZhushouConfig;
+    } as AssistantConfig;
   };
 
   const readConfigFileSnapshot = async (): Promise<ConfigFileSnapshot> => {
@@ -261,7 +261,7 @@ export function createGatewayConfigModuleMock(actual: GatewayConfigModule): Gate
     get isNixMode() {
       return testIsNixMode.value;
     },
-    applyConfigOverrides: (cfg: ZhushouConfig) =>
+    applyConfigOverrides: (cfg: AssistantConfig) =>
       composeTestConfig(cfg as Record<string, unknown>),
     loadConfig: loadRuntimeAwareTestConfig,
     getRuntimeConfig: loadRuntimeAwareTestConfig,

@@ -1,7 +1,7 @@
 import { formatTerminalLink } from "./terminal-link.js";
 
 function resolveDocsRoot(): string {
-  return "https://docs.zhushou.ai";
+  return "https://docs.assistant.ai";
 }
 
 export function formatDocsLink(

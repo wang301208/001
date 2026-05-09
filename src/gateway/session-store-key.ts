@@ -3,7 +3,7 @@ import {
   canonicalizeMainSessionAlias,
   resolveMainSessionKey,
 } from "../config/sessions/main-session.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   normalizeAgentId,
   normalizeMainKey,
@@ -25,12 +25,12 @@ export function canonicalizeSessionKeyForAgent(agentId: string, key: string): st
   return `agent:${normalizeAgentId(agentId)}:${lowered}`;
 }
 
-function resolveDefaultStoreAgentId(cfg: ZhushouConfig): string {
+function resolveDefaultStoreAgentId(cfg: AssistantConfig): string {
   return normalizeAgentId(resolveDefaultAgentId(cfg));
 }
 
 export function resolveSessionStoreKey(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
 }): string {
   const raw = normalizeOptionalString(params.sessionKey) ?? "";
@@ -66,7 +66,7 @@ export function resolveSessionStoreKey(params: {
   return canonicalizeSessionKeyForAgent(agentId, lowered);
 }
 
-export function resolveSessionStoreAgentId(cfg: ZhushouConfig, canonicalKey: string): string {
+export function resolveSessionStoreAgentId(cfg: AssistantConfig, canonicalKey: string): string {
   if (canonicalKey === "global" || canonicalKey === "unknown") {
     return resolveDefaultStoreAgentId(cfg);
   }
@@ -78,7 +78,7 @@ export function resolveSessionStoreAgentId(cfg: ZhushouConfig, canonicalKey: str
 }
 
 export function canonicalizeSpawnedByForAgent(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId: string,
   spawnedBy?: string,
 ): string | undefined {

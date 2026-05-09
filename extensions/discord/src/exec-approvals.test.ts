@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import {
   getDiscordExecApprovalApprovers,
@@ -7,9 +7,9 @@ import {
 } from "./exec-approvals.js";
 
 function buildConfig(
-  execApprovals?: NonNullable<NonNullable<ZhushouConfig["channels"]>["discord"]>["execApprovals"],
-  channelOverrides?: Partial<NonNullable<NonNullable<ZhushouConfig["channels"]>["discord"]>>,
-): ZhushouConfig {
+  execApprovals?: NonNullable<NonNullable<AssistantConfig["channels"]>["discord"]>["execApprovals"],
+  channelOverrides?: Partial<NonNullable<NonNullable<AssistantConfig["channels"]>["discord"]>>,
+): AssistantConfig {
   return {
     channels: {
       discord: {
@@ -18,7 +18,7 @@ function buildConfig(
         execApprovals,
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 describe("discord exec approvals", () => {
@@ -39,7 +39,7 @@ describe("discord exec approvals", () => {
         cfg: {
           ...buildConfig(),
           commands: { ownerAllowFrom: ["discord:789"] },
-        } as ZhushouConfig,
+        } as AssistantConfig,
       }),
     ).toBe(true);
     expect(
@@ -75,7 +75,7 @@ describe("discord exec approvals", () => {
     const cfg = {
       ...buildConfig(),
       commands: { ownerAllowFrom: ["discord:123", "user:456", "789"] },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(getDiscordExecApprovalApprovers({ cfg })).toEqual(["123", "456", "789"]);
     expect(isDiscordExecApprovalApprover({ cfg, senderId: "456" })).toBe(true);

@@ -1,5 +1,5 @@
-import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
+import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "assistant/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   createProviderOperationDeadline,
@@ -8,13 +8,13 @@ import {
   resolveProviderOperationTimeoutMs,
   resolveProviderHttpRequestConfig,
   waitProviderOperationPollInterval,
-} from "zhushou/plugin-sdk/provider-http";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/provider-http";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import type {
   GeneratedVideoAsset,
   VideoGenerationProvider,
   VideoGenerationRequest,
-} from "zhushou/plugin-sdk/video-generation";
+} from "assistant/plugin-sdk/video-generation";
 import { BYTEPLUS_BASE_URL } from "./models.js";
 
 const DEFAULT_BYTEPLUS_VIDEO_MODEL = "seedance-1-0-lite-t2v-250428";

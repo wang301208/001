@@ -3,14 +3,14 @@ import {
   resolveBlueBubblesEffectiveAllowPrivateNetwork,
   resolveBlueBubblesPrivateNetworkConfigValue,
 } from "./accounts.js";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 import { normalizeResolvedSecretInputString } from "./secret-input.js";
 
 export type BlueBubblesAccountResolveOpts = {
   serverUrl?: string;
   password?: string;
   accountId?: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
 };
 
 export function resolveBlueBubblesServerAccount(params: BlueBubblesAccountResolveOpts): {

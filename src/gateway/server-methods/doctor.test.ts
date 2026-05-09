@@ -2,15 +2,15 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 
-const loadConfig = vi.hoisted(() => vi.fn(() => ({}) as ZhushouConfig));
+const loadConfig = vi.hoisted(() => vi.fn(() => ({}) as AssistantConfig));
 const resolveDefaultAgentId = vi.hoisted(() => vi.fn(() => "main"));
 const resolveAgentWorkspaceDir = vi.hoisted(() =>
-  vi.fn((_cfg: ZhushouConfig, _agentId: string) => "/tmp/zhushou"),
+  vi.fn((_cfg: AssistantConfig, _agentId: string) => "/tmp/assistant"),
 );
 const resolveMemorySearchConfig = vi.hoisted(() =>
-  vi.fn<(_cfg: ZhushouConfig, _agentId: string) => { enabled: boolean } | null>(() => ({
+  vi.fn<(_cfg: AssistantConfig, _agentId: string) => { enabled: boolean } | null>(() => ({
     enabled: true,
   })),
 );
@@ -157,7 +157,7 @@ describe("doctor.memory.status", () => {
   beforeEach(() => {
     loadConfig.mockClear();
     resolveDefaultAgentId.mockClear();
-    resolveAgentWorkspaceDir.mockReset().mockReturnValue("/tmp/zhushou");
+    resolveAgentWorkspaceDir.mockReset().mockReturnValue("/tmp/assistant");
     resolveMemorySearchConfig.mockReset().mockReturnValue({ enabled: true });
     getMemorySearchManager.mockReset();
     previewGroundedRemMarkdown.mockReset();
@@ -419,8 +419,8 @@ describe("doctor.memory.status", () => {
           },
         },
       },
-    } as ZhushouConfig);
-    resolveAgentWorkspaceDir.mockImplementation((cfg: ZhushouConfig, agentId: string) => {
+    } as AssistantConfig);
+    resolveAgentWorkspaceDir.mockImplementation((cfg: AssistantConfig, agentId: string) => {
       if (agentId === "alpha") {
         return alphaWorkspaceDir;
       }
@@ -443,7 +443,7 @@ describe("doctor.memory.status", () => {
         enabled: true,
         payload: {
           kind: "systemEvent",
-          text: "__openclaw_memory_core_short_term_promotion_dream__",
+          text: "__assistant_memory_core_short_term_promotion_dream__",
         },
         state: { nextRunAtMs: now + 60_000 },
       },
@@ -554,7 +554,7 @@ describe("doctor.memory.status", () => {
           },
         },
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     const close = vi.fn().mockResolvedValue(undefined);
     getMemorySearchManager.mockResolvedValue({
@@ -592,10 +592,10 @@ describe("doctor.memory.status", () => {
     loadConfig.mockReturnValue({
       plugins: {
         slots: {
-          memory: "memos-local-zhushou-plugin",
+          memory: "memos-local-assistant-plugin",
         },
         entries: {
-          "memos-local-zhushou-plugin": {
+          "memos-local-assistant-plugin": {
             config: {
               dreaming: {
                 enabled: true,
@@ -612,7 +612,7 @@ describe("doctor.memory.status", () => {
           },
         },
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     const close = vi.fn().mockResolvedValue(undefined);
     getMemorySearchManager.mockResolvedValue({
@@ -690,8 +690,8 @@ describe("doctor.memory.status", () => {
           },
         },
       },
-    } as ZhushouConfig);
-    resolveAgentWorkspaceDir.mockImplementation((_cfg: ZhushouConfig, agentId: string) =>
+    } as AssistantConfig);
+    resolveAgentWorkspaceDir.mockImplementation((_cfg: AssistantConfig, agentId: string) =>
       agentId === "alpha" ? alphaWorkspaceDir : mainWorkspaceDir,
     );
 
@@ -748,17 +748,17 @@ describe("doctor.memory.status", () => {
 
 describe("doctor.memory dream actions", () => {
   it("clears grounded-only staged short-term entries without touching the diary", async () => {
-    resolveAgentWorkspaceDir.mockReturnValue("/tmp/zhushou");
+    resolveAgentWorkspaceDir.mockReturnValue("/tmp/assistant");
     removeGroundedShortTermCandidates.mockResolvedValue({
       removed: 3,
-      storePath: "/tmp/zhushou/memory/.dreams/short-term-recall.json",
+      storePath: "/tmp/assistant/memory/.dreams/short-term-recall.json",
     });
     const respond = vi.fn();
 
     await invokeDoctorMemoryResetGroundedShortTerm(respond);
 
     expect(removeGroundedShortTermCandidates).toHaveBeenCalledWith({
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
     });
     expect(respond).toHaveBeenCalledWith(
       true,
@@ -772,10 +772,10 @@ describe("doctor.memory dream actions", () => {
   });
 
   it("repairs contaminated dreaming artifacts for control-ui callers", async () => {
-    resolveAgentWorkspaceDir.mockReturnValue("/tmp/zhushou");
+    resolveAgentWorkspaceDir.mockReturnValue("/tmp/assistant");
     repairDreamingArtifacts.mockResolvedValue({
       changed: true,
-      archiveDir: "/tmp/zhushou/.zhushou-repair/dreaming/2026-04-11T22-00-00-000Z",
+      archiveDir: "/tmp/assistant/.assistant-repair/dreaming/2026-04-11T22-00-00-000Z",
       archivedDreamsDiary: false,
       archivedSessionCorpus: true,
       archivedSessionIngestion: true,
@@ -787,7 +787,7 @@ describe("doctor.memory dream actions", () => {
     await invokeDoctorMemoryRepairDreamingArtifacts(respond);
 
     expect(repairDreamingArtifacts).toHaveBeenCalledWith({
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
     });
     expect(respond).toHaveBeenCalledWith(
       true,
@@ -795,7 +795,7 @@ describe("doctor.memory dream actions", () => {
         agentId: "main",
         action: "repairDreamingArtifacts",
         changed: true,
-        archiveDir: "/tmp/zhushou/.zhushou-repair/dreaming/2026-04-11T22-00-00-000Z",
+        archiveDir: "/tmp/assistant/.assistant-repair/dreaming/2026-04-11T22-00-00-000Z",
         archivedDreamsDiary: false,
         archivedSessionCorpus: true,
         archivedSessionIngestion: true,
@@ -806,9 +806,9 @@ describe("doctor.memory dream actions", () => {
   });
 
   it("dedupes exact dream diary duplicates for control-ui callers", async () => {
-    resolveAgentWorkspaceDir.mockReturnValue("/tmp/zhushou");
+    resolveAgentWorkspaceDir.mockReturnValue("/tmp/assistant");
     dedupeDreamDiaryEntries.mockResolvedValue({
-      dreamsPath: "/tmp/zhushou/DREAMS.md",
+      dreamsPath: "/tmp/assistant/DREAMS.md",
       removed: 2,
       kept: 7,
     });
@@ -817,7 +817,7 @@ describe("doctor.memory dream actions", () => {
     await invokeDoctorMemoryDedupeDreamDiary(respond);
 
     expect(dedupeDreamDiaryEntries).toHaveBeenCalledWith({
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
     });
     expect(respond).toHaveBeenCalledWith(
       true,
@@ -839,7 +839,7 @@ describe("doctor.memory.dreamDiary", () => {
   beforeEach(() => {
     loadConfig.mockClear();
     resolveDefaultAgentId.mockClear();
-    resolveAgentWorkspaceDir.mockReset().mockReturnValue("/tmp/zhushou");
+    resolveAgentWorkspaceDir.mockReset().mockReturnValue("/tmp/assistant");
     previewGroundedRemMarkdown.mockReset();
     writeBackfillDiaryEntries.mockReset();
     removeBackfillDiaryEntries.mockReset();

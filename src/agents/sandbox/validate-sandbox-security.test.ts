@@ -53,9 +53,9 @@ describe("getBlockedBindReason", () => {
     }
   });
 
-  it("still blocks OS-home credential paths when ZHUSHOU_HOME points elsewhere", () => {
+  it("still blocks OS-home credential paths when ASSISTANT_HOME points elsewhere", () => {
     vi.stubEnv("HOME", "/home/tester");
-    vi.stubEnv("ZHUSHOU_HOME", "/srv/zhushou-home");
+    vi.stubEnv("ASSISTANT_HOME", "/srv/assistant-home");
 
     expect(getBlockedBindReason("/home/tester/.gnupg/secring.gpg:/mnt/gnupg:ro")).toEqual(
       expect.objectContaining({
@@ -70,7 +70,7 @@ describe("getBlockedBindReason", () => {
       return;
     }
 
-    const dir = mkdtempSync(join(tmpdir(), "zhushou-home-"));
+    const dir = mkdtempSync(join(tmpdir(), "assistant-home-"));
     const realHome = join(dir, "real-home");
     const aliasHome = join(dir, "alias-home");
     mkdirSync(join(realHome, ".ssh"), { recursive: true });
@@ -178,7 +178,7 @@ describe("validateBindMounts", () => {
       return;
     }
 
-    const dir = mkdtempSync(join(tmpdir(), "zhushou-home-"));
+    const dir = mkdtempSync(join(tmpdir(), "assistant-home-"));
     const realHome = join(dir, "real-home");
     const aliasHome = join(dir, "alias-home");
     mkdirSync(join(realHome, ".docker"), { recursive: true });
@@ -199,7 +199,7 @@ describe("validateBindMounts", () => {
       return;
     }
 
-    const dir = mkdtempSync(join(tmpdir(), "zhushou-sbx-"));
+    const dir = mkdtempSync(join(tmpdir(), "assistant-sbx-"));
     const link = join(dir, "etc-link");
     symlinkSync("/etc", link);
     const run = () => validateBindMounts([`${link}/passwd:/mnt/passwd:ro`]);
@@ -211,7 +211,7 @@ describe("validateBindMounts", () => {
       // Windows source paths (e.g. C:\\...) are intentionally rejected as non-POSIX.
       return;
     }
-    const dir = mkdtempSync(join(tmpdir(), "zhushou-sbx-"));
+    const dir = mkdtempSync(join(tmpdir(), "assistant-sbx-"));
     const workspace = join(dir, "workspace");
     const outside = join(dir, "outside");
     mkdirSync(workspace, { recursive: true });
@@ -231,12 +231,12 @@ describe("validateBindMounts", () => {
       // Windows source paths (e.g. C:\\...) are intentionally rejected as non-POSIX.
       return;
     }
-    const dir = mkdtempSync(join(tmpdir(), "zhushou-sbx-"));
+    const dir = mkdtempSync(join(tmpdir(), "assistant-sbx-"));
     const workspace = join(dir, "workspace");
     mkdirSync(workspace, { recursive: true });
     const link = join(workspace, "run-link");
     symlinkSync("/var/run", link);
-    const missingLeaf = join(link, "zhushou-not-created");
+    const missingLeaf = join(link, "assistant-not-created");
     expect(() =>
       validateBindMounts([`${missingLeaf}:/mnt/run:ro`], {
         allowedSourceRoots: [workspace],
@@ -350,7 +350,7 @@ describe("validateSeccompProfile", () => {
 
 describe("validateApparmorProfile", () => {
   it("allows named profile/undefined", () => {
-    expect(() => validateApparmorProfile("zhushou-sandbox")).not.toThrow();
+    expect(() => validateApparmorProfile("assistant-sandbox")).not.toThrow();
     expect(() => validateApparmorProfile(undefined)).not.toThrow();
   });
 });
@@ -380,7 +380,7 @@ describe("validateSandboxSecurity", () => {
         binds: ["/home/user/src:/src:rw"],
         network: "none",
         seccompProfile: "/tmp/seccomp.json",
-        apparmorProfile: "zhushou-sandbox",
+        apparmorProfile: "assistant-sandbox",
       }),
     ).not.toThrow();
   });

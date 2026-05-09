@@ -3,7 +3,7 @@ import { ALLOWED_LOG_LEVELS, type LogLevel, tryParseLogLevel } from "./levels.js
 import { loggingState } from "./state.js";
 
 export function resolveEnvLogLevelOverride(): LogLevel | undefined {
-  const trimmed = normalizeOptionalString(process.env.OPENCLAW_LOG_LEVEL) ?? "";
+  const trimmed = normalizeOptionalString(process.env.ASSISTANT_LOG_LEVEL) ?? "";
   if (!trimmed) {
     loggingState.invalidEnvLogLevelValue = null;
     return undefined;
@@ -16,7 +16,7 @@ export function resolveEnvLogLevelOverride(): LogLevel | undefined {
   if (loggingState.invalidEnvLogLevelValue !== trimmed) {
     loggingState.invalidEnvLogLevelValue = trimmed;
     process.stderr.write(
-      `[zhushou] Ignoring invalid OPENCLAW_LOG_LEVEL="${trimmed}" (allowed: ${ALLOWED_LOG_LEVELS.join("|")}).\n`,
+      `[assistant] Ignoring invalid ASSISTANT_LOG_LEVEL="${trimmed}" (allowed: ${ALLOWED_LOG_LEVELS.join("|")}).\n`,
     );
   }
   return undefined;

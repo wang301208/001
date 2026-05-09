@@ -9,10 +9,10 @@ import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { ParentBasedSampler, TraceIdRatioBasedSampler } from "@opentelemetry/sdk-trace-base";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
-import type { DiagnosticEventPayload, OpenClawPluginService } from "../api.js";
+import type { DiagnosticEventPayload, AssistantPluginService } from "../api.js";
 import { onDiagnosticEvent, redactSensitiveText, registerLogTransport } from "../api.js";
 
-const DEFAULT_SERVICE_NAME = "zhushou";
+const DEFAULT_SERVICE_NAME = "assistant";
 
 function normalizeEndpoint(endpoint?: string): string | undefined {
   const trimmed = endpoint?.trim();
@@ -62,7 +62,7 @@ function redactOtelAttributes(attributes: Record<string, string | number | boole
   return redactedAttributes;
 }
 
-export function createDiagnosticsOtelService(): OpenClawPluginService {
+export function createDiagnosticsOtelService(): AssistantPluginService {
   let sdk: NodeSDK | null = null;
   let logProvider: LoggerProvider | null = null;
   let stopLogTransport: (() => void) | null = null;
@@ -157,78 +157,78 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         FATAL: 21 as SeverityNumber,
       };
 
-      const meter = metrics.getMeter("zhushou");
-      const tracer = trace.getTracer("zhushou");
+      const meter = metrics.getMeter("assistant");
+      const tracer = trace.getTracer("assistant");
 
-      const tokensCounter = meter.createCounter("zhushou.tokens", {
+      const tokensCounter = meter.createCounter("assistant.tokens", {
         unit: "1",
         description: "Token usage by type",
       });
-      const costCounter = meter.createCounter("zhushou.cost.usd", {
+      const costCounter = meter.createCounter("assistant.cost.usd", {
         unit: "1",
         description: "Estimated model cost (USD)",
       });
-      const durationHistogram = meter.createHistogram("zhushou.run.duration_ms", {
+      const durationHistogram = meter.createHistogram("assistant.run.duration_ms", {
         unit: "ms",
         description: "Agent run duration",
       });
-      const contextHistogram = meter.createHistogram("zhushou.context.tokens", {
+      const contextHistogram = meter.createHistogram("assistant.context.tokens", {
         unit: "1",
         description: "Context window size and usage",
       });
-      const webhookReceivedCounter = meter.createCounter("zhushou.webhook.received", {
+      const webhookReceivedCounter = meter.createCounter("assistant.webhook.received", {
         unit: "1",
         description: "Webhook requests received",
       });
-      const webhookErrorCounter = meter.createCounter("zhushou.webhook.error", {
+      const webhookErrorCounter = meter.createCounter("assistant.webhook.error", {
         unit: "1",
         description: "Webhook processing errors",
       });
-      const webhookDurationHistogram = meter.createHistogram("zhushou.webhook.duration_ms", {
+      const webhookDurationHistogram = meter.createHistogram("assistant.webhook.duration_ms", {
         unit: "ms",
         description: "Webhook processing duration",
       });
-      const messageQueuedCounter = meter.createCounter("zhushou.message.queued", {
+      const messageQueuedCounter = meter.createCounter("assistant.message.queued", {
         unit: "1",
         description: "Messages queued for processing",
       });
-      const messageProcessedCounter = meter.createCounter("zhushou.message.processed", {
+      const messageProcessedCounter = meter.createCounter("assistant.message.processed", {
         unit: "1",
         description: "Messages processed by outcome",
       });
-      const messageDurationHistogram = meter.createHistogram("zhushou.message.duration_ms", {
+      const messageDurationHistogram = meter.createHistogram("assistant.message.duration_ms", {
         unit: "ms",
         description: "Message processing duration",
       });
-      const queueDepthHistogram = meter.createHistogram("zhushou.queue.depth", {
+      const queueDepthHistogram = meter.createHistogram("assistant.queue.depth", {
         unit: "1",
         description: "Queue depth on enqueue/dequeue",
       });
-      const queueWaitHistogram = meter.createHistogram("zhushou.queue.wait_ms", {
+      const queueWaitHistogram = meter.createHistogram("assistant.queue.wait_ms", {
         unit: "ms",
         description: "Queue wait time before execution",
       });
-      const laneEnqueueCounter = meter.createCounter("zhushou.queue.lane.enqueue", {
+      const laneEnqueueCounter = meter.createCounter("assistant.queue.lane.enqueue", {
         unit: "1",
         description: "Command queue lane enqueue events",
       });
-      const laneDequeueCounter = meter.createCounter("zhushou.queue.lane.dequeue", {
+      const laneDequeueCounter = meter.createCounter("assistant.queue.lane.dequeue", {
         unit: "1",
         description: "Command queue lane dequeue events",
       });
-      const sessionStateCounter = meter.createCounter("zhushou.session.state", {
+      const sessionStateCounter = meter.createCounter("assistant.session.state", {
         unit: "1",
         description: "Session state transitions",
       });
-      const sessionStuckCounter = meter.createCounter("zhushou.session.stuck", {
+      const sessionStuckCounter = meter.createCounter("assistant.session.stuck", {
         unit: "1",
         description: "Sessions stuck in processing",
       });
-      const sessionStuckAgeHistogram = meter.createHistogram("zhushou.session.stuck_age_ms", {
+      const sessionStuckAgeHistogram = meter.createHistogram("assistant.session.stuck_age_ms", {
         unit: "ms",
         description: "Age of stuck sessions",
       });
-      const runAttemptCounter = meter.createCounter("zhushou.run.attempt", {
+      const runAttemptCounter = meter.createCounter("assistant.run.attempt", {
         unit: "1",
         description: "Run attempts",
       });
@@ -248,7 +248,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
           resource,
           processors: [logProcessor],
         });
-        const otelLogger = logProvider.getLogger("zhushou");
+        const otelLogger = logProvider.getLogger("assistant");
 
         stopLogTransport = registerLogTransport((logObj) => {
           try {
@@ -307,13 +307,13 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
             }
 
             const attributes: Record<string, string | number | boolean> = {
-              "zhushou.log.level": logLevelName,
+              "assistant.log.level": logLevelName,
             };
             if (meta?.name) {
-              attributes["zhushou.logger"] = meta.name;
+              attributes["assistant.logger"] = meta.name;
             }
             if (meta?.parentNames?.length) {
-              attributes["zhushou.logger.parents"] = meta.parentNames.join(".");
+              attributes["assistant.logger.parents"] = meta.parentNames.join(".");
             }
             if (bindings) {
               for (const [key, value] of Object.entries(bindings)) {
@@ -322,14 +322,14 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
                   typeof value === "number" ||
                   typeof value === "boolean"
                 ) {
-                  attributes[`zhushou.${key}`] = value;
+                  attributes[`assistant.${key}`] = value;
                 } else if (value != null) {
-                  attributes[`zhushou.${key}`] = safeStringify(value);
+                  attributes[`assistant.${key}`] = safeStringify(value);
                 }
               }
             }
             if (numericArgs.length > 0) {
-              attributes["zhushou.log.args"] = safeStringify(numericArgs);
+              attributes["assistant.log.args"] = safeStringify(numericArgs);
             }
             if (meta?.path?.filePath) {
               attributes["code.filepath"] = meta.path.filePath;
@@ -341,7 +341,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
               attributes["code.function"] = meta.path.method;
             }
             if (meta?.path?.filePathWithLine) {
-              attributes["zhushou.code.location"] = meta.path.filePathWithLine;
+              attributes["assistant.code.location"] = meta.path.filePathWithLine;
             }
 
             // OTLP can leave the host boundary, so redact string fields before export.
@@ -374,29 +374,29 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
 
       const recordModelUsage = (evt: Extract<DiagnosticEventPayload, { type: "model.usage" }>) => {
         const attrs = {
-          "zhushou.channel": evt.channel ?? "unknown",
-          "zhushou.provider": evt.provider ?? "unknown",
-          "zhushou.model": evt.model ?? "unknown",
+          "assistant.channel": evt.channel ?? "unknown",
+          "assistant.provider": evt.provider ?? "unknown",
+          "assistant.model": evt.model ?? "unknown",
         };
 
         const usage = evt.usage;
         if (usage.input) {
-          tokensCounter.add(usage.input, { ...attrs, "zhushou.token": "input" });
+          tokensCounter.add(usage.input, { ...attrs, "assistant.token": "input" });
         }
         if (usage.output) {
-          tokensCounter.add(usage.output, { ...attrs, "zhushou.token": "output" });
+          tokensCounter.add(usage.output, { ...attrs, "assistant.token": "output" });
         }
         if (usage.cacheRead) {
-          tokensCounter.add(usage.cacheRead, { ...attrs, "zhushou.token": "cache_read" });
+          tokensCounter.add(usage.cacheRead, { ...attrs, "assistant.token": "cache_read" });
         }
         if (usage.cacheWrite) {
-          tokensCounter.add(usage.cacheWrite, { ...attrs, "zhushou.token": "cache_write" });
+          tokensCounter.add(usage.cacheWrite, { ...attrs, "assistant.token": "cache_write" });
         }
         if (usage.promptTokens) {
-          tokensCounter.add(usage.promptTokens, { ...attrs, "zhushou.token": "prompt" });
+          tokensCounter.add(usage.promptTokens, { ...attrs, "assistant.token": "prompt" });
         }
         if (usage.total) {
-          tokensCounter.add(usage.total, { ...attrs, "zhushou.token": "total" });
+          tokensCounter.add(usage.total, { ...attrs, "assistant.token": "total" });
         }
 
         if (evt.costUsd) {
@@ -408,13 +408,13 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         if (evt.context?.limit) {
           contextHistogram.record(evt.context.limit, {
             ...attrs,
-            "zhushou.context": "limit",
+            "assistant.context": "limit",
           });
         }
         if (evt.context?.used) {
           contextHistogram.record(evt.context.used, {
             ...attrs,
-            "zhushou.context": "used",
+            "assistant.context": "used",
           });
         }
 
@@ -423,16 +423,16 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         const spanAttrs: Record<string, string | number> = {
           ...attrs,
-          "zhushou.sessionKey": evt.sessionKey ?? "",
-          "zhushou.sessionId": evt.sessionId ?? "",
-          "zhushou.tokens.input": usage.input ?? 0,
-          "zhushou.tokens.output": usage.output ?? 0,
-          "zhushou.tokens.cache_read": usage.cacheRead ?? 0,
-          "zhushou.tokens.cache_write": usage.cacheWrite ?? 0,
-          "zhushou.tokens.total": usage.total ?? 0,
+          "assistant.sessionKey": evt.sessionKey ?? "",
+          "assistant.sessionId": evt.sessionId ?? "",
+          "assistant.tokens.input": usage.input ?? 0,
+          "assistant.tokens.output": usage.output ?? 0,
+          "assistant.tokens.cache_read": usage.cacheRead ?? 0,
+          "assistant.tokens.cache_write": usage.cacheWrite ?? 0,
+          "assistant.tokens.total": usage.total ?? 0,
         };
 
-        const span = spanWithDuration("zhushou.model.usage", spanAttrs, evt.durationMs);
+        const span = spanWithDuration("assistant.model.usage", spanAttrs, evt.durationMs);
         span.end();
       };
 
@@ -440,8 +440,8 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "webhook.received" }>,
       ) => {
         const attrs = {
-          "zhushou.channel": evt.channel ?? "unknown",
-          "zhushou.webhook": evt.updateType ?? "unknown",
+          "assistant.channel": evt.channel ?? "unknown",
+          "assistant.webhook": evt.updateType ?? "unknown",
         };
         webhookReceivedCounter.add(1, attrs);
       };
@@ -450,8 +450,8 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "webhook.processed" }>,
       ) => {
         const attrs = {
-          "zhushou.channel": evt.channel ?? "unknown",
-          "zhushou.webhook": evt.updateType ?? "unknown",
+          "assistant.channel": evt.channel ?? "unknown",
+          "assistant.webhook": evt.updateType ?? "unknown",
         };
         if (typeof evt.durationMs === "number") {
           webhookDurationHistogram.record(evt.durationMs, attrs);
@@ -461,9 +461,9 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
         if (evt.chatId !== undefined) {
-          spanAttrs["zhushou.chatId"] = String(evt.chatId);
+          spanAttrs["assistant.chatId"] = String(evt.chatId);
         }
-        const span = spanWithDuration("zhushou.webhook.processed", spanAttrs, evt.durationMs);
+        const span = spanWithDuration("assistant.webhook.processed", spanAttrs, evt.durationMs);
         span.end();
       };
 
@@ -471,8 +471,8 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "webhook.error" }>,
       ) => {
         const attrs = {
-          "zhushou.channel": evt.channel ?? "unknown",
-          "zhushou.webhook": evt.updateType ?? "unknown",
+          "assistant.channel": evt.channel ?? "unknown",
+          "assistant.webhook": evt.updateType ?? "unknown",
         };
         webhookErrorCounter.add(1, attrs);
         if (!tracesEnabled) {
@@ -481,12 +481,12 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         const redactedError = redactSensitiveText(evt.error);
         const spanAttrs: Record<string, string | number> = {
           ...attrs,
-          "zhushou.error": redactedError,
+          "assistant.error": redactedError,
         };
         if (evt.chatId !== undefined) {
-          spanAttrs["zhushou.chatId"] = String(evt.chatId);
+          spanAttrs["assistant.chatId"] = String(evt.chatId);
         }
-        const span = tracer.startSpan("zhushou.webhook.error", {
+        const span = tracer.startSpan("assistant.webhook.error", {
           attributes: spanAttrs,
         });
         span.setStatus({ code: SpanStatusCode.ERROR, message: redactedError });
@@ -497,8 +497,8 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "message.queued" }>,
       ) => {
         const attrs = {
-          "zhushou.channel": evt.channel ?? "unknown",
-          "zhushou.source": evt.source ?? "unknown",
+          "assistant.channel": evt.channel ?? "unknown",
+          "assistant.source": evt.source ?? "unknown",
         };
         messageQueuedCounter.add(1, attrs);
         if (typeof evt.queueDepth === "number") {
@@ -511,10 +511,10 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         evt: { sessionKey?: string; sessionId?: string },
       ) => {
         if (evt.sessionKey) {
-          spanAttrs["zhushou.sessionKey"] = evt.sessionKey;
+          spanAttrs["assistant.sessionKey"] = evt.sessionKey;
         }
         if (evt.sessionId) {
-          spanAttrs["zhushou.sessionId"] = evt.sessionId;
+          spanAttrs["assistant.sessionId"] = evt.sessionId;
         }
       };
 
@@ -522,8 +522,8 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "message.processed" }>,
       ) => {
         const attrs = {
-          "zhushou.channel": evt.channel ?? "unknown",
-          "zhushou.outcome": evt.outcome ?? "unknown",
+          "assistant.channel": evt.channel ?? "unknown",
+          "assistant.outcome": evt.outcome ?? "unknown",
         };
         messageProcessedCounter.add(1, attrs);
         if (typeof evt.durationMs === "number") {
@@ -535,15 +535,15 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         const spanAttrs: Record<string, string | number> = { ...attrs };
         addSessionIdentityAttrs(spanAttrs, evt);
         if (evt.chatId !== undefined) {
-          spanAttrs["zhushou.chatId"] = String(evt.chatId);
+          spanAttrs["assistant.chatId"] = String(evt.chatId);
         }
         if (evt.messageId !== undefined) {
-          spanAttrs["zhushou.messageId"] = String(evt.messageId);
+          spanAttrs["assistant.messageId"] = String(evt.messageId);
         }
         if (evt.reason) {
-          spanAttrs["zhushou.reason"] = redactSensitiveText(evt.reason);
+          spanAttrs["assistant.reason"] = redactSensitiveText(evt.reason);
         }
-        const span = spanWithDuration("zhushou.message.processed", spanAttrs, evt.durationMs);
+        const span = spanWithDuration("assistant.message.processed", spanAttrs, evt.durationMs);
         if (evt.outcome === "error" && evt.error) {
           span.setStatus({ code: SpanStatusCode.ERROR, message: redactSensitiveText(evt.error) });
         }
@@ -553,7 +553,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
       const recordLaneEnqueue = (
         evt: Extract<DiagnosticEventPayload, { type: "queue.lane.enqueue" }>,
       ) => {
-        const attrs = { "zhushou.lane": evt.lane };
+        const attrs = { "assistant.lane": evt.lane };
         laneEnqueueCounter.add(1, attrs);
         queueDepthHistogram.record(evt.queueSize, attrs);
       };
@@ -561,7 +561,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
       const recordLaneDequeue = (
         evt: Extract<DiagnosticEventPayload, { type: "queue.lane.dequeue" }>,
       ) => {
-        const attrs = { "zhushou.lane": evt.lane };
+        const attrs = { "assistant.lane": evt.lane };
         laneDequeueCounter.add(1, attrs);
         queueDepthHistogram.record(evt.queueSize, attrs);
         if (typeof evt.waitMs === "number") {
@@ -572,9 +572,9 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
       const recordSessionState = (
         evt: Extract<DiagnosticEventPayload, { type: "session.state" }>,
       ) => {
-        const attrs: Record<string, string> = { "zhushou.state": evt.state };
+        const attrs: Record<string, string> = { "assistant.state": evt.state };
         if (evt.reason) {
-          attrs["zhushou.reason"] = redactSensitiveText(evt.reason);
+          attrs["assistant.reason"] = redactSensitiveText(evt.reason);
         }
         sessionStateCounter.add(1, attrs);
       };
@@ -582,7 +582,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
       const recordSessionStuck = (
         evt: Extract<DiagnosticEventPayload, { type: "session.stuck" }>,
       ) => {
-        const attrs: Record<string, string> = { "zhushou.state": evt.state };
+        const attrs: Record<string, string> = { "assistant.state": evt.state };
         sessionStuckCounter.add(1, attrs);
         if (typeof evt.ageMs === "number") {
           sessionStuckAgeHistogram.record(evt.ageMs, attrs);
@@ -592,21 +592,21 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
         addSessionIdentityAttrs(spanAttrs, evt);
-        spanAttrs["zhushou.queueDepth"] = evt.queueDepth ?? 0;
-        spanAttrs["zhushou.ageMs"] = evt.ageMs;
-        const span = tracer.startSpan("zhushou.session.stuck", { attributes: spanAttrs });
+        spanAttrs["assistant.queueDepth"] = evt.queueDepth ?? 0;
+        spanAttrs["assistant.ageMs"] = evt.ageMs;
+        const span = tracer.startSpan("assistant.session.stuck", { attributes: spanAttrs });
         span.setStatus({ code: SpanStatusCode.ERROR, message: "session stuck" });
         span.end();
       };
 
       const recordRunAttempt = (evt: Extract<DiagnosticEventPayload, { type: "run.attempt" }>) => {
-        runAttemptCounter.add(1, { "zhushou.attempt": evt.attempt });
+        runAttemptCounter.add(1, { "assistant.attempt": evt.attempt });
       };
 
       const recordHeartbeat = (
         evt: Extract<DiagnosticEventPayload, { type: "diagnostic.heartbeat" }>,
       ) => {
-        queueDepthHistogram.record(evt.queued, { "zhushou.channel": "heartbeat" });
+        queueDepthHistogram.record(evt.queued, { "assistant.channel": "heartbeat" });
       };
 
       unsubscribe = onDiagnosticEvent((evt: DiagnosticEventPayload) => {
@@ -674,5 +674,5 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         sdk = null;
       }
     },
-  } satisfies OpenClawPluginService;
+  } satisfies AssistantPluginService;
 }

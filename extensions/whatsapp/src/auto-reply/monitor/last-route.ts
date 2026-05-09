@@ -1,4 +1,4 @@
-import type { MsgContext } from "zhushou/plugin-sdk/reply-runtime";
+import type { MsgContext } from "assistant/plugin-sdk/reply-runtime";
 import { formatError } from "../../session.js";
 import { resolveStorePath, updateLastRoute } from "../config.runtime.js";
 

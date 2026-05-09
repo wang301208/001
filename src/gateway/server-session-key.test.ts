@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { resetAgentRunContextForTest } from "../infra/agent-events.js";
 
 const hoisted = vi.hoisted(() => ({
-  loadConfigMock: vi.fn<() => ZhushouConfig>(),
+  loadConfigMock: vi.fn<() => AssistantConfig>(),
   loadCombinedSessionStoreForGatewayMock: vi.fn(),
 }));
 
@@ -15,7 +15,7 @@ vi.mock("./session-utils.js", async () => {
   const actual = await vi.importActual<typeof import("./session-utils.js")>("./session-utils.js");
   return {
     ...actual,
-    loadCombinedSessionStoreForGateway: (cfg: ZhushouConfig) =>
+    loadCombinedSessionStoreForGateway: (cfg: AssistantConfig) =>
       hoisted.loadCombinedSessionStoreForGatewayMock(cfg),
   };
 });
@@ -37,7 +37,7 @@ describe("resolveSessionKeyForRun", () => {
   });
 
   it("resolves run ids from the combined gateway store and caches the result", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       session: {
         store: "/custom/root/agents/{agentId}/sessions/sessions.json",
       },

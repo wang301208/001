@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { ConversationRef } from "../../infra/outbound/session-binding-service.js";
 import type { ResolvedAgentRoute } from "../../routing/resolve-route.js";
 import { deriveLastRoutePolicy } from "../../routing/resolve-route.js";
@@ -41,7 +41,7 @@ function resolveConfiguredBindingConversationRef(
 
 export function resolveConfiguredBindingRoute(
   params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     route: ResolvedAgentRoute;
   } & ConfiguredBindingRouteConversationInput,
 ): ConfiguredBindingRouteResult {
@@ -84,7 +84,7 @@ export function resolveConfiguredBindingRoute(
 }
 
 export async function ensureConfiguredBindingRouteReady(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   bindingResolution: ConfiguredBindingResolution | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   return await ensureConfiguredBindingTargetReady(params);

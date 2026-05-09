@@ -7,7 +7,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { openBoundaryFile } from "../infra/boundary-file-read.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
@@ -23,7 +23,7 @@ import { loadWorkspaceHookEntries } from "./workspace.js";
 
 const log = createSubsystemLogger("hooks:loader");
 const LOADED_INTERNAL_HOOK_REGISTRATIONS_KEY = Symbol.for(
-  "zhushou.loadedInternalHookRegistrations",
+  "assistant.loadedInternalHookRegistrations",
 );
 const loadedHookRegistrations = resolveGlobalSingleton<
   Array<{ event: string; handler: InternalHookHandler }>
@@ -34,13 +34,13 @@ function safeLogValue(value: string): string {
 }
 
 function maybeWarnTrustedHookSource(source: string): void {
-  if (source === "zhushou-workspace") {
+  if (source === "assistant-workspace") {
     log.warn(
       "Loading workspace hook code into the gateway process. Workspace hooks are trusted local code.",
     );
     return;
   }
-  if (source === "zhushou-managed") {
+  if (source === "assistant-managed") {
     log.warn(
       "Loading managed hook code into the gateway process. Managed hooks are trusted local code.",
     );
@@ -77,7 +77,7 @@ function resetLoadedInternalHooks(): void {
  * ```
  */
 export async function loadInternalHooks(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   workspaceDir: string,
   opts?: {
     managedHooksDir?: string;
@@ -227,7 +227,7 @@ export async function loadInternalHooks(
       );
 
       // Legacy handlers are always workspace-relative, so use mtime-based cache busting
-      const importUrl = buildImportUrl(safeModulePath, "zhushou-workspace");
+      const importUrl = buildImportUrl(safeModulePath, "assistant-workspace");
       const mod = (await import(importUrl)) as Record<string, unknown>;
 
       // Get the handler function

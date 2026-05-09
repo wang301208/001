@@ -1,18 +1,18 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type {
   PluginWebSearchProviderEntry,
   WebSearchProviderToolDefinition,
 } from "../plugins/web-provider-types.js";
 import type { RuntimeWebSearchMetadata } from "../secrets/runtime-web-tools.types.js";
 
-type WebSearchConfig = NonNullable<ZhushouConfig["tools"]>["web"] extends infer Web
+type WebSearchConfig = NonNullable<AssistantConfig["tools"]>["web"] extends infer Web
   ? Web extends { search?: infer Search }
     ? Search
     : undefined
   : undefined;
 
 export type ResolveWebSearchDefinitionParams = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sandboxed?: boolean;
   runtimeWebSearch?: RuntimeWebSearchMetadata;
   providerId?: string;
@@ -29,7 +29,7 @@ export type RunWebSearchResult = {
 };
 
 export type ListWebSearchProvidersParams = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 };
 
 export type RuntimeWebSearchProviderEntry = PluginWebSearchProviderEntry;

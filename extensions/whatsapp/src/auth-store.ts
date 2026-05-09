@@ -1,11 +1,11 @@
 import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { formatCliCommand } from "zhushou/plugin-sdk/cli-runtime";
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/routing";
-import { info, success } from "zhushou/plugin-sdk/runtime-env";
-import { getChildLogger } from "zhushou/plugin-sdk/runtime-env";
-import { defaultRuntime, type RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { formatCliCommand } from "assistant/plugin-sdk/cli-runtime";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/routing";
+import { info, success } from "assistant/plugin-sdk/runtime-env";
+import { getChildLogger } from "assistant/plugin-sdk/runtime-env";
+import { defaultRuntime, type RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
 import { resolveOAuthDir } from "./auth-store.runtime.js";
 import { hasWebCredsSync, resolveWebCredsBackupPath, resolveWebCredsPath } from "./creds-files.js";
 import { resolveComparableIdentity, type WhatsAppSelfIdentity } from "./identity.js";
@@ -226,7 +226,7 @@ export async function pickWebChannel(
   const hasWeb = await webAuthExists(authDir);
   if (!hasWeb) {
     throw new Error(
-      `No WhatsApp Web session found. Run \`${formatCliCommand("zhushou channels login --channel whatsapp --verbose")}\` to link.`,
+      `No WhatsApp Web session found. Run \`${formatCliCommand("assistant channels login --channel whatsapp --verbose")}\` to link.`,
     );
   }
   return choice;

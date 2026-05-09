@@ -8,7 +8,7 @@ import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
-import type { ZhushouConfig } from "./config-runtime.js";
+import type { AssistantConfig } from "./config-runtime.js";
 import { normalizeAccountId } from "./routing.js";
 
 type ApprovalRequest = ExecApprovalRequest | PluginApprovalRequest;
@@ -23,11 +23,11 @@ type ChannelApprovalConfig = {
 };
 
 type ApprovalProfileParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 };
 
-function isApprovalTargetsMode(cfg: ZhushouConfig): boolean {
+function isApprovalTargetsMode(cfg: AssistantConfig): boolean {
   const execApprovals = cfg.approvals?.exec;
   if (!execApprovals?.enabled) {
     return false;
@@ -48,7 +48,7 @@ export function isChannelExecApprovalClientEnabledFromConfig(params: {
 }
 
 export function isChannelExecApprovalTargetRecipient(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   senderId?: string | null;
   accountId?: string | null;
   channel: string;

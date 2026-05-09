@@ -14,7 +14,7 @@ function createQaChannelTransportParams(baseUrl = "http://127.0.0.1:43124") {
         "qa-channel": {
           enabled: true,
           baseUrl,
-          botUserId: "zhushou",
+          botUserId: "assistant",
           botDisplayName: "助手 QA",
           allowFrom: ["*"],
           pollTimeoutMs: 250,
@@ -22,7 +22,7 @@ function createQaChannelTransportParams(baseUrl = "http://127.0.0.1:43124") {
       },
       messages: {
         groupChat: {
-          mentionPatterns: ["\\b@?zhushou\\b"],
+          mentionPatterns: ["\\b@?assistant\\b"],
         },
       },
     } satisfies QaTransportGatewayConfig,
@@ -68,7 +68,7 @@ describe("buildQaGatewayConfig", () => {
       baseUrl: "http://127.0.0.1:43124",
       pollTimeoutMs: 250,
     });
-    expect(cfg.messages?.groupChat?.mentionPatterns).toEqual(["\\b@?zhushou\\b"]);
+    expect(cfg.messages?.groupChat?.mentionPatterns).toEqual(["\\b@?assistant\\b"]);
   });
 
   it("maps provider-qualified openai and anthropic refs through the mock provider lane", () => {

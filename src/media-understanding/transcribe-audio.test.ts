@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 
 const { transcribeAudioFileFromRuntime } = vi.hoisted(() => {
   const transcribeAudioFileFromRuntime = vi.fn();
@@ -22,12 +22,12 @@ describe("transcribeAudioFile", () => {
 
     const result = await transcribeAudioFile({
       filePath: "/tmp/note.mp3",
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
     });
 
     expect(transcribeAudioFileFromRuntime).toHaveBeenCalledWith({
       filePath: "/tmp/note.mp3",
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
     });
     expect(result).toEqual({ text: "hello" });
   });
@@ -37,7 +37,7 @@ describe("transcribeAudioFile", () => {
 
     const result = await transcribeAudioFile({
       filePath: "/tmp/missing.wav",
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
     });
 
     expect(result).toEqual({ text: undefined });
@@ -46,7 +46,7 @@ describe("transcribeAudioFile", () => {
   it("propagates helper errors", async () => {
     const cfg = {
       tools: { media: { audio: { timeoutSeconds: 10 } } },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
     transcribeAudioFileFromRuntime.mockRejectedValue(new Error("boom"));
 
     await expect(

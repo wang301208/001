@@ -11,7 +11,7 @@ import type {
   SessionEntry,
   SessionTaskContinuation,
 } from "../config/sessions.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { migrateAndPruneGatewaySessionStoreKey, resolveGatewaySessionStoreTarget } from "./session-utils.js";
 
@@ -151,7 +151,7 @@ export async function cleanupCompactionCheckpointSnapshot(
 }
 
 export async function persistSessionCompactionCheckpoint(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
   sessionId: string;
   reason: SessionCompactionCheckpointReason;

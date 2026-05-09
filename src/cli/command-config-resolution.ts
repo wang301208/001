@@ -1,12 +1,12 @@
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import {
   type CommandSecretResolutionMode,
   resolveCommandSecretRefsViaGateway,
 } from "./command-secret-gateway.js";
 
-export async function resolveCommandConfigWithSecrets<TConfig extends ZhushouConfig>(params: {
+export async function resolveCommandConfigWithSecrets<TConfig extends AssistantConfig>(params: {
   config: TConfig;
   commandName: string;
   targetIds: Set<string>;

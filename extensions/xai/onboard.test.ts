@@ -1,7 +1,7 @@
 import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
-} from "zhushou/plugin-sdk/provider-onboard";
+} from "assistant/plugin-sdk/provider-onboard";
 import { describe, expect, it } from "vitest";
 import {
   createConfigWithFallbacks,

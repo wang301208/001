@@ -61,7 +61,7 @@ describe("memory-wiki cli metadata entry", () => {
     await register({
       program,
       config: appConfig,
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
       logger: api.logger,
     });
 

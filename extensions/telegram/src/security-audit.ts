@@ -1,6 +1,6 @@
-import { readChannelAllowFromStore } from "zhushou/plugin-sdk/conversation-runtime";
-import { resolveNativeSkillsEnabled } from "zhushou/plugin-sdk/native-command-config-runtime";
-import type { ZhushouConfig } from "../runtime-api.js";
+import { readChannelAllowFromStore } from "assistant/plugin-sdk/conversation-runtime";
+import { resolveNativeSkillsEnabled } from "assistant/plugin-sdk/native-command-config-runtime";
+import type { AssistantConfig } from "../runtime-api.js";
 import type { ResolvedTelegramAccount } from "./accounts.js";
 import { isNumericTelegramSenderUserId, normalizeTelegramAllowFromEntry } from "./allow-from.js";
 
@@ -25,7 +25,7 @@ function collectInvalidTelegramAllowFromEntries(params: { entries: unknown; targ
 }
 
 export async function collectTelegramSecurityAuditFindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   account: ResolvedTelegramAccount;
 }) {

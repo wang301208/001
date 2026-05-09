@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { loadBundledPluginPublicSurfaceModuleSync } from "./facade-loader.js";
 
 export type BrowserControlAuth = {
@@ -7,7 +7,7 @@ export type BrowserControlAuth = {
 };
 
 type EnsureBrowserControlAuthParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env?: NodeJS.ProcessEnv;
 };
 
@@ -17,7 +17,7 @@ type EnsureBrowserControlAuthResult = {
 };
 
 type BrowserControlAuthSurface = {
-  resolveBrowserControlAuth: (cfg?: ZhushouConfig, env?: NodeJS.ProcessEnv) => BrowserControlAuth;
+  resolveBrowserControlAuth: (cfg?: AssistantConfig, env?: NodeJS.ProcessEnv) => BrowserControlAuth;
   shouldAutoGenerateBrowserAuth: (env: NodeJS.ProcessEnv) => boolean;
   ensureBrowserControlAuth: (
     params: EnsureBrowserControlAuthParams,
@@ -32,7 +32,7 @@ function loadBrowserControlAuthSurface(): BrowserControlAuthSurface {
 }
 
 export function resolveBrowserControlAuth(
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): BrowserControlAuth {
   return loadBrowserControlAuthSurface().resolveBrowserControlAuth(cfg, env);

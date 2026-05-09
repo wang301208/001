@@ -96,8 +96,8 @@ function createExpiredOauthStore(params: {
 
 describe("resolveApiKeyForProfile cross-agent refresh coordination (#26322)", () => {
   const envSnapshot = captureEnv([
-    "ZHUSHOU_STATE_DIR",
-    "OPENCLAW_AGENT_DIR",
+    "ASSISTANT_STATE_DIR",
+    "ASSISTANT_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
   let tempRoot = "";
@@ -110,10 +110,10 @@ describe("resolveApiKeyForProfile cross-agent refresh coordination (#26322)", ()
     formatProviderAuthProfileApiKeyWithPluginMock.mockReset();
     formatProviderAuthProfileApiKeyWithPluginMock.mockReturnValue(undefined);
     clearRuntimeAuthProfileStoreSnapshots();
-    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-oauth-concurrent-"));
-    process.env.ZHUSHOU_STATE_DIR = tempRoot;
+    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-oauth-concurrent-"));
+    process.env.ASSISTANT_STATE_DIR = tempRoot;
     mainAgentDir = path.join(tempRoot, "agents", "main", "agent");
-    process.env.OPENCLAW_AGENT_DIR = mainAgentDir;
+    process.env.ASSISTANT_AGENT_DIR = mainAgentDir;
     process.env.PI_CODING_AGENT_DIR = mainAgentDir;
     await fs.mkdir(mainAgentDir, { recursive: true });
     await loadOAuthModuleForTest();

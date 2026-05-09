@@ -1,4 +1,4 @@
-import { resolveHumanDelayConfig } from "zhushou/plugin-sdk/agent-runtime";
+import { resolveHumanDelayConfig } from "assistant/plugin-sdk/agent-runtime";
 import {
   createStatusReactionController,
   DEFAULT_TIMING,
@@ -6,19 +6,19 @@ import {
   logTypingFailure,
   removeAckReactionAfterReply,
   type StatusReactionAdapter,
-} from "zhushou/plugin-sdk/channel-feedback";
-import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+} from "assistant/plugin-sdk/channel-feedback";
+import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
 import {
   resolveChannelStreamingBlockEnabled,
   resolveChannelStreamingNativeTransport,
-} from "zhushou/plugin-sdk/channel-streaming";
-import { resolveAgentOutboundIdentity } from "zhushou/plugin-sdk/outbound-runtime";
-import { clearHistoryEntriesIfEnabled } from "zhushou/plugin-sdk/reply-history";
-import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
-import type { ReplyDispatchKind, ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import { danger, logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { resolvePinnedMainDmOwnerFromAllowlist } from "zhushou/plugin-sdk/security-runtime";
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/channel-streaming";
+import { resolveAgentOutboundIdentity } from "assistant/plugin-sdk/outbound-runtime";
+import { clearHistoryEntriesIfEnabled } from "assistant/plugin-sdk/reply-history";
+import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import type { ReplyDispatchKind, ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import { danger, logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
+import { resolvePinnedMainDmOwnerFromAllowlist } from "assistant/plugin-sdk/security-runtime";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
 import { reactSlackMessage, removeSlackReaction } from "../../actions.js";
 import { createSlackDraftStream } from "../../draft-stream.js";
 import { normalizeSlackOutboundText } from "../../format.js";

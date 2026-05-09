@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createChannelTestPluginBase, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { createExecApprovalForwarder } from "./exec-approval-forwarder.js";
@@ -21,7 +21,7 @@ const PLUGIN_TARGETS_CFG = {
       targets: [{ channel: "slack", to: "U123" }],
     },
   },
-} as ZhushouConfig;
+} as AssistantConfig;
 
 const PLUGIN_DISABLED_CFG = {
   approvals: {
@@ -29,9 +29,9 @@ const PLUGIN_DISABLED_CFG = {
       enabled: false,
     },
   },
-} as ZhushouConfig;
+} as AssistantConfig;
 
-function createForwarder(params: { cfg: ZhushouConfig; deliver?: ReturnType<typeof vi.fn> }) {
+function createForwarder(params: { cfg: AssistantConfig; deliver?: ReturnType<typeof vi.fn> }) {
   const deliver = params.deliver ?? vi.fn().mockResolvedValue([]);
   const forwarder = createExecApprovalForwarder({
     getConfig: () => params.cfg,
@@ -140,7 +140,7 @@ describe("plugin approval forwarding", () => {
           exec: { enabled: true, mode: "targets", targets: [{ channel: "slack", to: "U123" }] },
           plugin: { enabled: false },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
       const { forwarder } = createForwarder({ cfg });
       const result = await forwarder.handlePluginApprovalRequested!(makePluginRequest());
       expect(result).toBe(false);
@@ -156,7 +156,7 @@ describe("plugin approval forwarding", () => {
             targets: [{ channel: "slack", to: "U123" }],
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
       const deliver = vi.fn().mockResolvedValue([]);
       const { forwarder } = createForwarder({ cfg, deliver });
       const result = await forwarder.handlePluginApprovalRequested!(makePluginRequest());
@@ -166,7 +166,7 @@ describe("plugin approval forwarding", () => {
     });
 
     it("returns false when no approvals config at all", async () => {
-      const cfg = {} as ZhushouConfig;
+      const cfg = {} as AssistantConfig;
       const { forwarder } = createForwarder({ cfg });
       const result = await forwarder.handlePluginApprovalRequested!(makePluginRequest());
       expect(result).toBe(false);

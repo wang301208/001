@@ -215,14 +215,14 @@ describe("fetchBrowserJson loopback auth (bridge auth registry)", () => {
 describe("browser server-context listKnownProfileNames", () => {
   it("includes configured and runtime-only profile names", () => {
     const resolved = resolveBrowserConfig({
-      defaultProfile: "zhushou",
+      defaultProfile: "assistant",
       profiles: {
-        zhushou: { cdpPort: 18800, color: "#FF4500" },
+        assistant: { cdpPort: 18800, color: "#FF4500" },
       },
     });
-    const zhushou = resolveProfile(resolved, "zhushou");
-    if (!zhushou) {
-      throw new Error("expected zhushou profile");
+    const assistant = resolveProfile(resolved, "assistant");
+    if (!assistant) {
+      throw new Error("expected assistant profile");
     }
 
     const state: BrowserServerState = {
@@ -233,13 +233,13 @@ describe("browser server-context listKnownProfileNames", () => {
         [
           "stale-removed",
           {
-            profile: { ...zhushou, name: "stale-removed" },
+            profile: { ...assistant, name: "stale-removed" },
             running: null,
           },
         ],
       ]),
     };
 
-    expect(listKnownProfileNames(state).toSorted()).toEqual(["zhushou", "stale-removed", "user"]);
+    expect(listKnownProfileNames(state).toSorted()).toEqual(["assistant", "stale-removed", "user"]);
   });
 });

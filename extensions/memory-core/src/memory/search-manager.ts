@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import {
   createSubsystemLogger,
   resolveAgentWorkspaceDir,
   resolveGlobalSingleton,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
-import { checkQmdBinaryAvailability } from "zhushou/plugin-sdk/memory-core-host-engine-qmd";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/memory-core-host-engine-foundation";
+import { checkQmdBinaryAvailability } from "assistant/plugin-sdk/memory-core-host-engine-qmd";
 import {
   resolveMemoryBackendConfig,
   type MemoryEmbeddingProbeResult,
@@ -14,9 +14,9 @@ import {
   type MemorySearchRuntimeDebug,
   type MemorySyncProgressUpdate,
   type ResolvedQmdConfig,
-} from "zhushou/plugin-sdk/memory-core-host-engine-storage";
+} from "assistant/plugin-sdk/memory-core-host-engine-storage";
 
-const MEMORY_SEARCH_MANAGER_CACHE_KEY = Symbol.for("zhushou.memorySearchManagerCache");
+const MEMORY_SEARCH_MANAGER_CACHE_KEY = Symbol.for("assistant.memorySearchManagerCache");
 type MemorySearchManagerCacheStore = {
   qmdManagerCache: Map<string, MemorySearchManager>;
 };
@@ -46,7 +46,7 @@ export type MemorySearchManagerResult = {
 };
 
 export async function getMemorySearchManager(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   purpose?: "default" | "status";
 }): Promise<MemorySearchManagerResult> {
@@ -127,7 +127,7 @@ export async function getMemorySearchManager(params: {
 }
 
 async function getBuiltinMemorySearchManager(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   purpose?: "default" | "status";
 }): Promise<MemorySearchManagerResult> {

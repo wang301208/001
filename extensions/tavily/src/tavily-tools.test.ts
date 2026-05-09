@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/plugin-runtime";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_TAVILY_BASE_URL,
@@ -22,10 +22,10 @@ vi.mock("./tavily-client.js", () => ({
   runTavilyExtract,
 }));
 
-function fakeApi(): ZhushouPluginApi {
+function fakeApi(): AssistantPluginApi {
   return {
     config: {},
-  } as ZhushouPluginApi;
+  } as AssistantPluginApi;
 }
 
 describe("tavily tools", () => {
@@ -104,7 +104,7 @@ describe("tavily tools", () => {
       max_results: 5,
       include_answer: true,
       time_range: "week",
-      include_domains: ["docs.zhushou.ai", "", "zhushou.ai"],
+      include_domains: ["docs.assistant.ai", "", "assistant.ai"],
       exclude_domains: ["bad.example", ""],
     });
 
@@ -116,7 +116,7 @@ describe("tavily tools", () => {
       maxResults: 5,
       includeAnswer: true,
       timeRange: "week",
-      includeDomains: ["docs.zhushou.ai", "zhushou.ai"],
+      includeDomains: ["docs.assistant.ai", "assistant.ai"],
       excludeDomains: ["bad.example"],
     });
     expect(result).toMatchObject({
@@ -130,7 +130,7 @@ describe("tavily tools", () => {
           maxResults: 5,
           includeAnswer: true,
           timeRange: "week",
-          includeDomains: ["docs.zhushou.ai", "zhushou.ai"],
+          includeDomains: ["docs.assistant.ai", "assistant.ai"],
           excludeDomains: ["bad.example"],
         },
       },
@@ -213,7 +213,7 @@ describe("tavily tools", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(resolveTavilySearchConfig(cfg)).toEqual({
       apiKey: "plugin-key",
@@ -229,7 +229,7 @@ describe("tavily tools", () => {
 
     expect(resolveTavilyApiKey()).toBe("env-key");
     expect(resolveTavilyBaseUrl()).toBe("https://env.tavily.test");
-    expect(resolveTavilyBaseUrl({} as ZhushouConfig)).not.toBe(DEFAULT_TAVILY_BASE_URL);
+    expect(resolveTavilyBaseUrl({} as AssistantConfig)).not.toBe(DEFAULT_TAVILY_BASE_URL);
     expect(resolveTavilySearchTimeoutSeconds()).toBe(DEFAULT_TAVILY_SEARCH_TIMEOUT_SECONDS);
     expect(resolveTavilyExtractTimeoutSeconds()).toBe(DEFAULT_TAVILY_EXTRACT_TIMEOUT_SECONDS);
   });

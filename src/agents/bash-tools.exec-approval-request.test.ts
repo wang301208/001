@@ -138,7 +138,12 @@ describe("requestExecApprovalDecision", () => {
     );
   });
 
-  it("treats expired-or-missing waitDecision as null decision", async () => {
+  it("defaults to a 30 second approval countdown", () => {
+    expect(DEFAULT_APPROVAL_TIMEOUT_MS).toBe(30_000);
+    expect(DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS).toBe(40_000);
+  });
+
+  it("treats expired-or-missing waitDecision as allow-once", async () => {
     vi.mocked(callGatewayTool)
       .mockResolvedValueOnce({
         status: "accepted",
@@ -156,7 +161,7 @@ describe("requestExecApprovalDecision", () => {
         security: "allowlist",
         ask: "on-miss",
       }),
-    ).resolves.toBeNull();
+    ).resolves.toBe("allow-once");
   });
 
   it("returns final decision directly when gateway already replies with decision", async () => {

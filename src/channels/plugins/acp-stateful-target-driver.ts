@@ -5,7 +5,7 @@ import {
 import { resolveConfiguredAcpBindingSpecBySessionKey } from "../../acp/persistent-bindings.resolve.js";
 import { resolveConfiguredAcpBindingSpecFromRecord } from "../../acp/persistent-bindings.types.js";
 import { readAcpSessionEntry } from "../../acp/runtime/session-meta.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { isAcpSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import { performGatewaySessionReset } from "./acp-stateful-target-reset.runtime.js";
 import type {
@@ -20,7 +20,7 @@ import type {
 } from "./stateful-target-drivers.js";
 
 function toAcpStatefulBindingTargetDescriptor(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
 }): StatefulBindingTargetDescriptor | null {
   const sessionKey = params.sessionKey.trim();
@@ -68,7 +68,7 @@ function toAcpStatefulBindingTargetDescriptor(params: {
 }
 
 async function ensureAcpTargetReady(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   bindingResolution: ConfiguredBindingResolution;
 }): Promise<StatefulBindingTargetReadyResult> {
   const configuredBinding = resolveConfiguredAcpBindingSpecFromRecord(
@@ -90,7 +90,7 @@ async function ensureAcpTargetReady(params: {
 }
 
 async function ensureAcpTargetSession(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   bindingResolution: ConfiguredBindingResolution;
 }): Promise<StatefulBindingTargetSessionResult> {
   const spec = resolveConfiguredAcpBindingSpecFromRecord(params.bindingResolution.record);
@@ -108,7 +108,7 @@ async function ensureAcpTargetSession(params: {
 }
 
 async function resetAcpTargetInPlace(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
   bindingTarget: StatefulBindingTargetDescriptor;
   reason: "new" | "reset";

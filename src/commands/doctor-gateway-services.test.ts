@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import { createDoctorPrompter } from "./doctor-prompter.js";
 import {
@@ -35,7 +35,6 @@ const mocks = vi.hoisted(() => ({
   resolveIsNixMode: vi.fn(() => false),
   findExtraGatewayServices: vi.fn().mockResolvedValue([]),
   renderGatewayServiceCleanupHints: vi.fn().mockReturnValue([]),
-  uninstallLegacySystemdUnits: vi.fn().mockResolvedValue([]),
   note: vi.fn(),
 }));
 
@@ -79,10 +78,6 @@ vi.mock("../daemon/service.js", () => ({
   }),
 }));
 
-vi.mock("../daemon/systemd.js", () => ({
-  uninstallLegacySystemdUnits: mocks.uninstallLegacySystemdUnits,
-}));
-
 vi.mock("../terminal/note.js", () => ({
   note: mocks.note,
 }));
@@ -101,7 +96,7 @@ import {
 } from "./doctor-gateway-services.js";
 
 const originalStdinIsTTY = process.stdin.isTTY;
-const originalUpdateInProgress = process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+const originalUpdateInProgress = process.env.ASSISTANT_UPDATE_IN_PROGRESS;
 
 function makeDoctorIo() {
   return { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
@@ -126,12 +121,12 @@ function makeDoctorPrompts() {
   };
 }
 
-async function runRepair(cfg: ZhushouConfig) {
+async function runRepair(cfg: AssistantConfig) {
   await maybeRepairGatewayServiceConfig(cfg, "local", makeDoctorIo(), makeDoctorPrompts());
 }
 
 async function runNonInteractiveRepair(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   updateInProgress?: boolean;
 }) {
   Object.defineProperty(process.stdin, "isTTY", {
@@ -139,9 +134,9 @@ async function runNonInteractiveRepair(params: {
     configurable: true,
   });
   if (params.updateInProgress) {
-    process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
+    process.env.ASSISTANT_UPDATE_IN_PROGRESS = "1";
   } else {
-    delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+    delete process.env.ASSISTANT_UPDATE_IN_PROGRESS;
   }
   await maybeRepairGatewayServiceConfig(
     params.cfg ?? { gateway: {} },
@@ -159,7 +154,7 @@ async function runNonInteractiveRepair(params: {
 
 const gatewayProgramArguments = [
   "/usr/bin/node",
-  "/usr/local/bin/zhushou",
+  "/usr/local/bin/assistant",
   "gateway",
   "--port",
   "18789",
@@ -201,7 +196,7 @@ function setupGatewayTokenRepairScenario() {
   mocks.readCommand.mockResolvedValue({
     programArguments: gatewayProgramArguments,
     environment: {
-      ZHUSHOU_GATEWAY_TOKEN: "stale-token",
+      ASSISTANT_GATEWAY_TOKEN: "stale-token",
     },
   });
   mocks.auditGatewayServiceConfig.mockResolvedValue({
@@ -209,7 +204,7 @@ function setupGatewayTokenRepairScenario() {
     issues: [
       {
         code: "gateway-token-mismatch",
-        message: "Gateway service ZHUSHOU_GATEWAY_TOKEN does not match gateway.auth.token",
+        message: "Gateway service ASSISTANT_GATEWAY_TOKEN does not match gateway.auth.token",
         level: "recommended",
       },
     ],
@@ -226,10 +221,10 @@ describe("maybeRepairGatewayServiceConfig", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     fsMocks.realpath.mockImplementation(async (value: string) => value);
-    mocks.resolveGatewayAuthTokenForService.mockImplementation(async (cfg: ZhushouConfig, env) => {
+    mocks.resolveGatewayAuthTokenForService.mockImplementation(async (cfg: AssistantConfig, env) => {
       const configToken =
         typeof cfg.gateway?.auth?.token === "string" ? cfg.gateway.auth.token.trim() : undefined;
-      const envToken = env.ZHUSHOU_GATEWAY_TOKEN?.trim() || undefined;
+      const envToken = env.ASSISTANT_GATEWAY_TOKEN?.trim() || undefined;
       return { token: configToken || envToken };
     });
   });
@@ -240,16 +235,16 @@ describe("maybeRepairGatewayServiceConfig", () => {
       configurable: true,
     });
     if (originalUpdateInProgress === undefined) {
-      delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+      delete process.env.ASSISTANT_UPDATE_IN_PROGRESS;
     } else {
-      process.env.OPENCLAW_UPDATE_IN_PROGRESS = originalUpdateInProgress;
+      process.env.ASSISTANT_UPDATE_IN_PROGRESS = originalUpdateInProgress;
     }
   });
 
   it("treats gateway.auth.token as source of truth for service token repairs", async () => {
     setupGatewayTokenRepairScenario();
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       gateway: {
         auth: {
           mode: "token",
@@ -281,11 +276,11 @@ describe("maybeRepairGatewayServiceConfig", () => {
     expect(mocks.install).toHaveBeenCalledTimes(1);
   });
 
-  it("uses ZHUSHOU_GATEWAY_TOKEN when config token is missing", async () => {
-    await withEnvAsync({ ZHUSHOU_GATEWAY_TOKEN: "env-token" }, async () => {
+  it("uses ASSISTANT_GATEWAY_TOKEN when config token is missing", async () => {
+    await withEnvAsync({ ASSISTANT_GATEWAY_TOKEN: "env-token" }, async () => {
       setupGatewayTokenRepairScenario();
 
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         gateway: {},
       };
 
@@ -323,14 +318,14 @@ describe("maybeRepairGatewayServiceConfig", () => {
 
   it("does not flag entrypoint mismatch when symlink and realpath match", async () => {
     setupGatewayEntrypointRepairScenario({
-      currentEntrypoint: "/Users/test/Library/pnpm/global/5/node_modules/zhushou/dist/index.js",
+      currentEntrypoint: "/Users/test/Library/pnpm/global/5/node_modules/assistant/dist/index.js",
       installEntrypoint:
-        "/Users/test/Library/pnpm/global/5/node_modules/.pnpm/zhushou@2026.3.12/node_modules/zhushou/dist/index.js",
+        "/Users/test/Library/pnpm/global/5/node_modules/.pnpm/assistant@2026.3.12/node_modules/assistant/dist/index.js",
       realpath: async (value: string) => {
-        if (value.includes("/global/5/node_modules/zhushou/")) {
+        if (value.includes("/global/5/node_modules/assistant/")) {
           return value.replace(
-            "/global/5/node_modules/zhushou/",
-            "/global/5/node_modules/.pnpm/zhushou@2026.3.12/node_modules/zhushou/",
+            "/global/5/node_modules/assistant/",
+            "/global/5/node_modules/.pnpm/assistant@2026.3.12/node_modules/assistant/",
           );
         }
         return value;
@@ -349,8 +344,8 @@ describe("maybeRepairGatewayServiceConfig", () => {
 
   it("does not flag entrypoint mismatch when realpath fails but normalized absolute paths match", async () => {
     setupGatewayEntrypointRepairScenario({
-      currentEntrypoint: "/opt/zhushou/../zhushou/dist/index.js",
-      installEntrypoint: "/opt/zhushou/dist/index.js",
+      currentEntrypoint: "/opt/assistant/../assistant/dist/index.js",
+      installEntrypoint: "/opt/assistant/dist/index.js",
       realpathError: new Error("no realpath"),
     });
 
@@ -367,8 +362,8 @@ describe("maybeRepairGatewayServiceConfig", () => {
   it("still flags entrypoint mismatch when canonicalized paths differ", async () => {
     setupGatewayEntrypointRepairScenario({
       currentEntrypoint:
-        "/Users/test/.nvm/versions/node/v22.0.0/lib/node_modules/zhushou/dist/index.js",
-      installEntrypoint: "/Users/test/Library/pnpm/global/5/node_modules/zhushou/dist/index.js",
+        "/Users/test/.nvm/versions/node/v22.0.0/lib/node_modules/assistant/dist/index.js",
+      installEntrypoint: "/Users/test/Library/pnpm/global/5/node_modules/assistant/dist/index.js",
     });
 
     await runRepair({ gateway: {} });
@@ -383,8 +378,8 @@ describe("maybeRepairGatewayServiceConfig", () => {
 
   it("repairs entrypoint mismatch in non-interactive fix mode", async () => {
     setupGatewayEntrypointRepairScenario({
-      currentEntrypoint: "/Users/test/Library/npm/node_modules/zhushou/dist/entry.js",
-      installEntrypoint: "/Users/test/Library/npm/node_modules/zhushou/dist/index.js",
+      currentEntrypoint: "/Users/test/Library/npm/node_modules/assistant/dist/entry.js",
+      installEntrypoint: "/Users/test/Library/npm/node_modules/assistant/dist/index.js",
       installWorkingDirectory: "/tmp",
     });
 
@@ -403,8 +398,8 @@ describe("maybeRepairGatewayServiceConfig", () => {
 
   it("stages service config repairs during non-interactive update repairs", async () => {
     setupGatewayEntrypointRepairScenario({
-      currentEntrypoint: "/Users/test/Library/npm/node_modules/zhushou/dist/entry.js",
-      installEntrypoint: "/Users/test/Library/npm/node_modules/zhushou/dist/index.js",
+      currentEntrypoint: "/Users/test/Library/npm/node_modules/assistant/dist/entry.js",
+      installEntrypoint: "/Users/test/Library/npm/node_modules/assistant/dist/index.js",
       installWorkingDirectory: "/tmp",
     });
 
@@ -425,7 +420,7 @@ describe("maybeRepairGatewayServiceConfig", () => {
     mocks.readCommand.mockResolvedValue({
       programArguments: gatewayProgramArguments,
       environment: {
-        ZHUSHOU_GATEWAY_TOKEN: "stale-token",
+        ASSISTANT_GATEWAY_TOKEN: "stale-token",
       },
     });
     mocks.auditGatewayServiceConfig.mockResolvedValue({
@@ -439,14 +434,14 @@ describe("maybeRepairGatewayServiceConfig", () => {
     });
     mocks.install.mockResolvedValue(undefined);
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       gateway: {
         auth: {
           mode: "token",
           token: {
             source: "env",
             provider: "default",
-            id: "ZHUSHOU_GATEWAY_TOKEN",
+            id: "ASSISTANT_GATEWAY_TOKEN",
           },
         },
       },
@@ -471,12 +466,12 @@ describe("maybeRepairGatewayServiceConfig", () => {
   it("falls back to embedded service token when config and env tokens are missing", async () => {
     await withEnvAsync(
       {
-        ZHUSHOU_GATEWAY_TOKEN: undefined,
+        ASSISTANT_GATEWAY_TOKEN: undefined,
       },
       async () => {
         setupGatewayTokenRepairScenario();
 
-        const cfg: ZhushouConfig = {
+        const cfg: AssistantConfig = {
           gateway: {},
         };
 
@@ -518,16 +513,16 @@ describe("maybeRepairGatewayServiceConfig", () => {
       value: false,
       configurable: true,
     });
-    process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
+    process.env.ASSISTANT_UPDATE_IN_PROGRESS = "1";
 
     await withEnvAsync(
       {
-        ZHUSHOU_GATEWAY_TOKEN: undefined,
+        ASSISTANT_GATEWAY_TOKEN: undefined,
       },
       async () => {
         setupGatewayTokenRepairScenario();
 
-        const cfg: ZhushouConfig = {
+        const cfg: AssistantConfig = {
           gateway: {},
         };
 
@@ -554,16 +549,16 @@ describe("maybeRepairGatewayServiceConfig", () => {
   it("does not persist EnvironmentFile-backed service tokens into config", async () => {
     await withEnvAsync(
       {
-        ZHUSHOU_GATEWAY_TOKEN: undefined,
+        ASSISTANT_GATEWAY_TOKEN: undefined,
       },
       async () => {
         mocks.readCommand.mockResolvedValue({
           programArguments: gatewayProgramArguments,
           environment: {
-            ZHUSHOU_GATEWAY_TOKEN: "env-file-token",
+            ASSISTANT_GATEWAY_TOKEN: "env-file-token",
           },
           environmentValueSources: {
-            ZHUSHOU_GATEWAY_TOKEN: "file",
+            ASSISTANT_GATEWAY_TOKEN: "file",
           },
         });
         mocks.auditGatewayServiceConfig.mockResolvedValue({
@@ -577,7 +572,7 @@ describe("maybeRepairGatewayServiceConfig", () => {
         });
         mocks.install.mockResolvedValue(undefined);
 
-        const cfg: ZhushouConfig = {
+        const cfg: AssistantConfig = {
           gateway: {},
         };
 
@@ -600,28 +595,21 @@ describe("maybeScanExtraGatewayServices", () => {
     vi.clearAllMocks();
     mocks.findExtraGatewayServices.mockResolvedValue([]);
     mocks.renderGatewayServiceCleanupHints.mockReturnValue([]);
-    mocks.uninstallLegacySystemdUnits.mockResolvedValue([]);
   });
 
-  it("removes legacy Linux user systemd services", async () => {
+  it("reports extra assistant gateway services and prints cleanup hints", async () => {
     mocks.findExtraGatewayServices.mockResolvedValue([
       {
         platform: "linux",
-        label: "clawdbot-gateway.service",
-        detail: "unit: /home/test/.config/systemd/user/clawdbot-gateway.service",
+        label: "assistant-gateway-extra.service",
+        detail: "unit: /home/test/.config/systemd/user/assistant-gateway-extra.service",
         scope: "user",
-        legacy: true,
+        marker: "assistant",
       },
     ]);
-    mocks.uninstallLegacySystemdUnits.mockResolvedValue([
-      {
-        name: "clawdbot-gateway",
-        unitPath: "/home/test/.config/systemd/user/clawdbot-gateway.service",
-        enabled: true,
-        exists: true,
-      },
+    mocks.renderGatewayServiceCleanupHints.mockReturnValue([
+      "systemctl --user disable --now assistant-gateway.service",
     ]);
-
     const runtime = { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
     const prompter = {
       confirm: vi.fn(),
@@ -642,17 +630,14 @@ describe("maybeScanExtraGatewayServices", () => {
 
     await maybeScanExtraGatewayServices({ deep: false }, runtime, prompter);
 
-    expect(mocks.uninstallLegacySystemdUnits).toHaveBeenCalledTimes(1);
-    expect(mocks.uninstallLegacySystemdUnits).toHaveBeenCalledWith({
-      env: process.env,
-      stdout: process.stdout,
-    });
     expect(mocks.note).toHaveBeenCalledWith(
-      expect.stringContaining("clawdbot-gateway.service"),
-      "Legacy gateway removed",
+      expect.stringContaining("assistant-gateway-extra.service"),
+      "Other gateway-like services detected",
     );
-    expect(runtime.log).toHaveBeenCalledWith(
-      "Legacy gateway services removed. Installing 助手 gateway next.",
+    expect(mocks.note).toHaveBeenCalledWith(
+      expect.stringContaining("systemctl --user disable --now assistant-gateway.service"),
+      "Cleanup hints",
     );
+    expect(runtime.log).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,5 @@
-import { createNonExitingRuntime, type RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeStringEntries } from "zhushou/plugin-sdk/text-runtime";
+import { createNonExitingRuntime, type RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { normalizeStringEntries } from "assistant/plugin-sdk/text-runtime";
 import type { MonitorIMessageOpts } from "./types.js";
 
 export function resolveRuntime(opts: MonitorIMessageOpts): RuntimeEnv {

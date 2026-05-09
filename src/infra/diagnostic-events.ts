@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 export type DiagnosticSessionState = "idle" | "processing" | "waiting";
 
@@ -181,19 +181,19 @@ type DiagnosticEventsGlobalState = {
 
 function getDiagnosticEventsState(): DiagnosticEventsGlobalState {
   const globalStore = globalThis as typeof globalThis & {
-    __openclawDiagnosticEventsState?: DiagnosticEventsGlobalState;
+    __assistantDiagnosticEventsState?: DiagnosticEventsGlobalState;
   };
-  if (!globalStore.__openclawDiagnosticEventsState) {
-    globalStore.__openclawDiagnosticEventsState = {
+  if (!globalStore.__assistantDiagnosticEventsState) {
+    globalStore.__assistantDiagnosticEventsState = {
       seq: 0,
       listeners: new Set<(evt: DiagnosticEventPayload) => void>(),
       dispatchDepth: 0,
     };
   }
-  return globalStore.__openclawDiagnosticEventsState;
+  return globalStore.__assistantDiagnosticEventsState;
 }
 
-export function isDiagnosticsEnabled(config?: ZhushouConfig): boolean {
+export function isDiagnosticsEnabled(config?: AssistantConfig): boolean {
   return config?.diagnostics?.enabled === true;
 }
 

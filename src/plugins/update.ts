@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   expectedIntegrityForUpdate,
   readInstalledPackageVersion,
@@ -32,7 +32,7 @@ export type PluginUpdateOutcome = {
 };
 
 export type PluginUpdateSummary = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changed: boolean;
   outcomes: PluginUpdateOutcome[];
 };
@@ -55,7 +55,7 @@ export type PluginChannelSyncSummary = {
 };
 
 export type PluginChannelSyncResult = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changed: boolean;
   summary: PluginChannelSyncSummary;
 };
@@ -171,7 +171,7 @@ function replacePluginIdInList(
   return next;
 }
 
-function migratePluginConfigId(cfg: ZhushouConfig, fromId: string, toId: string): ZhushouConfig {
+function migratePluginConfigId(cfg: AssistantConfig, fromId: string, toId: string): AssistantConfig {
   if (fromId === toId) {
     return cfg;
   }
@@ -253,7 +253,7 @@ function createPluginUpdateIntegrityDriftHandler(params: {
 }
 
 export async function updateNpmInstalledPlugins(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   logger?: PluginUpdateLogger;
   pluginIds?: string[];
   skipIds?: Set<string>;
@@ -601,7 +601,7 @@ export async function updateNpmInstalledPlugins(params: {
 }
 
 export async function syncPluginsForUpdateChannel(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   channel: UpdateChannel;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;

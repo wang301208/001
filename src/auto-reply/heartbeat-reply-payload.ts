@@ -1,4 +1,4 @@
-import { hasOutboundReplyContent } from "zhushou/plugin-sdk/reply-payload";
+import { hasOutboundReplyContent } from "assistant/plugin-sdk/reply-payload";
 import type { ReplyPayload } from "./types.js";
 
 export function resolveHeartbeatReplyPayload(

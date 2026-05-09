@@ -4,8 +4,8 @@ import {
   DmPolicySchema,
   GroupPolicySchema,
   MarkdownConfigSchema,
-} from "zhushou/plugin-sdk/channel-config-schema";
-import { z } from "zhushou/plugin-sdk/zod";
+} from "assistant/plugin-sdk/channel-config-schema";
+import { z } from "assistant/plugin-sdk/zod";
 import { buildSecretInputSchema } from "./secret-input.js";
 
 const zaloAccountSchema = z.object({

@@ -1,4 +1,4 @@
-import { installPinnedHostnameTestHooks } from "zhushou/plugin-sdk/testing";
+import { installPinnedHostnameTestHooks } from "assistant/plugin-sdk/testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildVydraSpeechProvider } from "./speech-provider.js";
 

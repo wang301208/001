@@ -1,13 +1,13 @@
 import type { webhook } from "@line/bot-sdk";
 import type { NextFunction, Request, Response } from "express";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
-import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "zhushou/plugin-sdk/reply-history";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
+import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "assistant/plugin-sdk/reply-history";
 import {
   createNonExitingRuntime,
   logVerbose,
   type RuntimeEnv,
-} from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/runtime-env";
 import { resolveLineAccount } from "./accounts.js";
 import { createLineWebhookReplayCache, handleLineWebhookEvents } from "./bot-handlers.js";
 import type { LineInboundContext } from "./bot-message-context.js";
@@ -19,7 +19,7 @@ export interface LineBotOptions {
   channelSecret: string;
   accountId?: string;
   runtime?: RuntimeEnv;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   mediaMaxMb?: number;
   onMessage?: (ctx: LineInboundContext) => Promise<void>;
 }

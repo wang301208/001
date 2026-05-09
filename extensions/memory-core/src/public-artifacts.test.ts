@@ -4,9 +4,9 @@ import path from "node:path";
 import {
   appendMemoryHostEvent,
   resolveMemoryHostEventLogPath,
-} from "zhushou/plugin-sdk/memory-core-host-events";
+} from "assistant/plugin-sdk/memory-core-host-events";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../api.js";
+import type { AssistantConfig } from "../api.js";
 import { listMemoryCorePublicArtifacts } from "./public-artifacts.js";
 
 describe("listMemoryCorePublicArtifacts", () => {
@@ -45,7 +45,7 @@ describe("listMemoryCorePublicArtifacts", () => {
       results: [],
     });
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: {
         list: [{ id: "main", default: true, workspace: workspaceDir }],
       },
@@ -92,7 +92,7 @@ describe("listMemoryCorePublicArtifacts", () => {
     await fs.mkdir(workspaceDir, { recursive: true });
     await fs.writeFile(path.join(workspaceDir, "memory.md"), "# Legacy Durable Memory\n", "utf8");
 
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: {
         list: [{ id: "main", default: true, workspace: workspaceDir }],
       },

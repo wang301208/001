@@ -1,12 +1,12 @@
 import {
   applyAgentDefaultModelPrimary,
   withAgentModelAliases,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 
 export const OPENCODE_ZEN_DEFAULT_MODEL_REF = "opencode/claude-opus-4-6";
 
-export function applyOpencodeZenProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyOpencodeZenProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return {
     ...cfg,
     agents: {
@@ -21,7 +21,7 @@ export function applyOpencodeZenProviderConfig(cfg: ZhushouConfig): ZhushouConfi
   };
 }
 
-export function applyOpencodeZenConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyOpencodeZenConfig(cfg: AssistantConfig): AssistantConfig {
   return applyAgentDefaultModelPrimary(
     applyOpencodeZenProviderConfig(cfg),
     OPENCODE_ZEN_DEFAULT_MODEL_REF,

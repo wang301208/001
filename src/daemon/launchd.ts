@@ -45,11 +45,11 @@ function assertValidLaunchAgentLabel(label: string): string {
 }
 
 function resolveLaunchAgentLabel(args?: { env?: Record<string, string | undefined> }): string {
-  const envLabel = args?.env?.OPENCLAW_LAUNCHD_LABEL?.trim();
+  const envLabel = args?.env?.ASSISTANT_LAUNCHD_LABEL?.trim();
   if (envLabel) {
     return assertValidLaunchAgentLabel(envLabel);
   }
-  return assertValidLaunchAgentLabel(resolveGatewayLaunchAgentLabel(args?.env?.ZHUSHOU_PROFILE));
+  return assertValidLaunchAgentLabel(resolveGatewayLaunchAgentLabel(args?.env?.ASSISTANT_PROFILE));
 }
 
 function resolveLaunchAgentPlistPathForLabel(
@@ -72,7 +72,7 @@ export function resolveGatewayLogPaths(env: GatewayServiceEnv): {
 } {
   const stateDir = resolveGatewayStateDir(env);
   const logDir = path.join(stateDir, "logs");
-  const prefix = env.OPENCLAW_LOG_PREFIX?.trim() || "gateway";
+  const prefix = env.ASSISTANT_LOG_PREFIX?.trim() || "gateway";
   return {
     logDir,
     stdoutPath: path.join(logDir, `${prefix}.log`),
@@ -158,7 +158,7 @@ async function resolveLaunchAgentGatewayPort(env: GatewayServiceEnv): Promise<nu
   if (fromArgs !== null) {
     return fromArgs;
   }
-  const fromEnv = parseStrictPositiveInteger(env.ZHUSHOU_GATEWAY_PORT ?? "");
+  const fromEnv = parseStrictPositiveInteger(env.ASSISTANT_GATEWAY_PORT ?? "");
   return fromEnv ?? null;
 }
 
@@ -180,7 +180,7 @@ function throwBootstrapGuiSessionError(params: {
       `LaunchAgent ${params.actionHint} requires a logged-in macOS GUI session for this user (${params.domain}).`,
       "This usually means you are running from SSH/headless context or as the wrong user (including sudo).",
       `Fix: sign in to the macOS desktop as the target user and rerun \`${params.actionHint}\`.`,
-      "Headless deployments should use a dedicated logged-in user session or a custom LaunchDaemon (not shipped): https://docs.zhushou.ai/gateway",
+      "Headless deployments should use a dedicated logged-in user session or a custom LaunchDaemon (not shipped): https://docs.assistant.ai/gateway",
     ].join("\n"),
   );
 }
@@ -369,7 +369,7 @@ export type LegacyLaunchAgent = {
 export async function findLegacyLaunchAgents(env: GatewayServiceEnv): Promise<LegacyLaunchAgent[]> {
   const domain = resolveGuiDomain();
   const results: LegacyLaunchAgent[] = [];
-  for (const label of resolveLegacyGatewayLaunchAgentLabels(env.ZHUSHOU_PROFILE)) {
+  for (const label of resolveLegacyGatewayLaunchAgentLabels(env.ASSISTANT_PROFILE)) {
     const plistPath = resolveLaunchAgentPlistPathForLabel(env, label);
     const res = await execLaunchctl(["print", `${domain}/${label}`]);
     const loaded = res.code === 0;
@@ -600,7 +600,7 @@ async function writeLaunchAgentPlist({
 
   const domain = resolveGuiDomain();
   const label = resolveLaunchAgentLabel({ env });
-  for (const legacyLabel of resolveLegacyGatewayLaunchAgentLabels(env.ZHUSHOU_PROFILE)) {
+  for (const legacyLabel of resolveLegacyGatewayLaunchAgentLabels(env.ASSISTANT_PROFILE)) {
     const legacyPlistPath = resolveLaunchAgentPlistPathForLabel(env, legacyLabel);
     await execLaunchctl(["bootout", domain, legacyPlistPath]);
     await execLaunchctl(["unload", legacyPlistPath]);
@@ -660,7 +660,7 @@ async function activateLaunchAgent(params: { env: GatewayServiceEnv; plistPath: 
     domain,
     serviceTarget: `${domain}/${label}`,
     plistPath: params.plistPath,
-    actionHint: "openclaw gateway install --force",
+    actionHint: "assistant gateway install --force",
   });
 }
 
@@ -697,7 +697,7 @@ async function ensureLaunchAgentLoadedAfterFailure(params: {
       domain: params.domain,
       serviceTarget: params.serviceTarget,
       plistPath: params.plistPath,
-      actionHint: "openclaw gateway start",
+      actionHint: "assistant gateway start",
     });
   } catch {
     // Best-effort only. Preserve the original kickstart failure below.
@@ -735,7 +735,7 @@ export async function restartLaunchAgent({
     cleanStaleGatewayProcessesSync(cleanupPort);
   }
 
-  // `openclaw gateway restart` is an explicit operator request to bring the
+  // `assistant gateway restart` is an explicit operator request to bring the
   // LaunchAgent back, so clear any persisted disabled state before restart.
   await execLaunchctl(["enable", serviceTarget]);
 
@@ -755,7 +755,7 @@ export async function restartLaunchAgent({
     domain,
     serviceTarget,
     plistPath,
-    actionHint: "openclaw gateway restart",
+    actionHint: "assistant gateway restart",
   });
 
   const retry = await execLaunchctl(["kickstart", "-k", serviceTarget]);

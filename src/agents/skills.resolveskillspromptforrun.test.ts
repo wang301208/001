@@ -7,7 +7,7 @@ describe("resolveSkillsPromptForRun", () => {
   it("prefers snapshot prompt when available", () => {
     const prompt = resolveSkillsPromptForRun({
       skillsSnapshot: { prompt: "SNAPSHOT", skills: [] },
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
     });
     expect(prompt).toBe("SNAPSHOT");
   });
@@ -18,13 +18,13 @@ describe("resolveSkillsPromptForRun", () => {
         description: "Demo",
         filePath: "/app/skills/demo-skill/SKILL.md",
         baseDir: "/app/skills/demo-skill",
-        source: "zhushou-bundled",
+        source: "assistant-bundled",
       }),
       frontmatter: {},
     };
     const prompt = resolveSkillsPromptForRun({
       entries: [entry],
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
     });
     expect(prompt).toContain("<available_skills>");
     expect(prompt).toContain("/app/skills/demo-skill/SKILL.md");
@@ -37,7 +37,7 @@ describe("resolveSkillsPromptForRun", () => {
         description: "Hidden",
         filePath: "/app/skills/hidden-skill/SKILL.md",
         baseDir: "/app/skills/hidden-skill",
-        source: "zhushou-workspace",
+        source: "assistant-workspace",
         disableModelInvocation: true,
       }),
       frontmatter: {},
@@ -45,7 +45,7 @@ describe("resolveSkillsPromptForRun", () => {
 
     const prompt = resolveSkillsPromptForRun({
       entries: [hidden],
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
     });
 
     expect(prompt).not.toContain("/app/skills/hidden-skill/SKILL.md");
@@ -58,7 +58,7 @@ describe("resolveSkillsPromptForRun", () => {
         description: "GitHub",
         filePath: "/app/skills/github/SKILL.md",
         baseDir: "/app/skills/github",
-        source: "zhushou-workspace",
+        source: "assistant-workspace",
       }),
       frontmatter: {},
     };
@@ -68,7 +68,7 @@ describe("resolveSkillsPromptForRun", () => {
         description: "Hidden",
         filePath: "/app/skills/hidden-skill/SKILL.md",
         baseDir: "/app/skills/hidden-skill",
-        source: "zhushou-workspace",
+        source: "assistant-workspace",
       }),
       frontmatter: {},
     };
@@ -83,7 +83,7 @@ describe("resolveSkillsPromptForRun", () => {
           list: [{ id: "writer" }],
         },
       },
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
       agentId: "writer",
     });
 
@@ -98,7 +98,7 @@ describe("resolveSkillsPromptForRun", () => {
         description: "Weather",
         filePath: "/app/skills/weather/SKILL.md",
         baseDir: "/app/skills/weather",
-        source: "zhushou-workspace",
+        source: "assistant-workspace",
       }),
       frontmatter: {},
     };
@@ -108,7 +108,7 @@ describe("resolveSkillsPromptForRun", () => {
         description: "Docs",
         filePath: "/app/skills/docs-search/SKILL.md",
         baseDir: "/app/skills/docs-search",
-        source: "zhushou-workspace",
+        source: "assistant-workspace",
       }),
       frontmatter: {},
     };
@@ -123,7 +123,7 @@ describe("resolveSkillsPromptForRun", () => {
           list: [{ id: "writer", skills: ["docs-search"] }],
         },
       },
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
       agentId: "writer",
     });
 

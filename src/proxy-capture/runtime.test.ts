@@ -5,23 +5,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("debug proxy runtime", () => {
   const envKeys = [
-    "OPENCLAW_DEBUG_PROXY_ENABLED",
-    "OPENCLAW_DEBUG_PROXY_DB_PATH",
-    "OPENCLAW_DEBUG_PROXY_BLOB_DIR",
-    "OPENCLAW_DEBUG_PROXY_SESSION_ID",
-    "OPENCLAW_DEBUG_PROXY_SOURCE_PROCESS",
+    "ASSISTANT_DEBUG_PROXY_ENABLED",
+    "ASSISTANT_DEBUG_PROXY_DB_PATH",
+    "ASSISTANT_DEBUG_PROXY_BLOB_DIR",
+    "ASSISTANT_DEBUG_PROXY_SESSION_ID",
+    "ASSISTANT_DEBUG_PROXY_SOURCE_PROCESS",
   ] as const;
   const savedEnv = Object.fromEntries(envKeys.map((key) => [key, process.env[key]]));
   const originalFetch = globalThis.fetch;
   let tempDir = "";
 
   beforeEach(() => {
-    tempDir = mkdtempSync(path.join(os.tmpdir(), "zhushou-proxy-runtime-"));
-    process.env.OPENCLAW_DEBUG_PROXY_ENABLED = "1";
-    process.env.OPENCLAW_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
-    process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
-    process.env.OPENCLAW_DEBUG_PROXY_SESSION_ID = "runtime-test-session";
-    process.env.OPENCLAW_DEBUG_PROXY_SOURCE_PROCESS = "runtime-test";
+    tempDir = mkdtempSync(path.join(os.tmpdir(), "assistant-proxy-runtime-"));
+    process.env.ASSISTANT_DEBUG_PROXY_ENABLED = "1";
+    process.env.ASSISTANT_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
+    process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
+    process.env.ASSISTANT_DEBUG_PROXY_SESSION_ID = "runtime-test-session";
+    process.env.ASSISTANT_DEBUG_PROXY_SOURCE_PROCESS = "runtime-test";
   });
 
   afterEach(() => {
@@ -55,8 +55,8 @@ describe("debug proxy runtime", () => {
     runtime.finalizeDebugProxyCapture();
 
     const store = storeModule.getDebugProxyCaptureStore(
-      process.env.OPENCLAW_DEBUG_PROXY_DB_PATH!,
-      process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR!,
+      process.env.ASSISTANT_DEBUG_PROXY_DB_PATH!,
+      process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR!,
     );
     const events = store.getSessionEvents("runtime-test-session", 20);
     expect(events.some((event) => event.host === "api.minimax.io")).toBe(true);

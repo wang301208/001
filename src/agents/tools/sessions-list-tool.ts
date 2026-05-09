@@ -6,7 +6,7 @@ import {
   resolveSessionFilePathOptions,
   resolveStorePath,
 } from "../../config/sessions.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { callGateway } from "../../gateway/call.js";
 import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import { normalizeOptionalLowercaseString, readStringValue } from "../../shared/string-coerce.js";
@@ -52,7 +52,7 @@ function readSessionRunStatus(value: unknown): SessionRunStatus | undefined {
 export function createSessionsListTool(opts?: {
   agentSessionKey?: string;
   sandboxed?: boolean;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   callGateway?: GatewayCaller;
 }): AnyAgentTool {
   return {

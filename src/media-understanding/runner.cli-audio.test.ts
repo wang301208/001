@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { withAudioFixture } from "./runner.test-utils.js";
 
 const runExecMock = vi.hoisted(() => vi.fn());
@@ -24,7 +24,7 @@ describe("media-understanding CLI audio entry", () => {
   });
 
   it("applies per-request prompt and language overrides to CLI transcription templating", async () => {
-    await withAudioFixture("zhushou-cli-audio", async ({ ctx, cache }) => {
+    await withAudioFixture("assistant-cli-audio", async ({ ctx, cache }) => {
       await runCliEntry({
         capability: "audio",
         entry: {
@@ -45,7 +45,7 @@ describe("media-understanding CLI audio entry", () => {
               },
             },
           },
-        } as ZhushouConfig,
+        } as AssistantConfig,
         ctx,
         attachmentIndex: 0,
         cache,

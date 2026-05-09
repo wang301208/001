@@ -9,7 +9,7 @@ import {
   resolveAgentMainSessionKey,
 } from "../config/sessions.js";
 import { resolveStorePath } from "../config/sessions/paths.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   resolveCronDeliveryPlan,
   resolveFailureDestination,
@@ -145,15 +145,15 @@ async function postCronWebhook(params: {
 }
 
 export function buildGatewayCronService(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   deps: CliDeps;
   broadcast: (event: string, payload: unknown, opts?: { dropIfSlow?: boolean }) => void;
 }): GatewayCronState {
   const cronLogger = getChildLogger({ module: "cron" });
   const storePath = resolveCronStorePath(params.cfg.cron?.store);
-  const cronEnabled = process.env.OPENCLAW_SKIP_CRON !== "1" && params.cfg.cron?.enabled !== false;
+  const cronEnabled = process.env.ASSISTANT_SKIP_CRON !== "1" && params.cfg.cron?.enabled !== false;
 
-  const findAgentEntry = (cfg: ZhushouConfig, agentId: string) =>
+  const findAgentEntry = (cfg: AssistantConfig, agentId: string) =>
     Array.isArray(cfg.agents?.list)
       ? cfg.agents.list.find(
           (entry) =>
@@ -161,10 +161,10 @@ export function buildGatewayCronService(params: {
         )
       : undefined;
 
-  const hasConfiguredAgent = (cfg: ZhushouConfig, agentId: string) =>
+  const hasConfiguredAgent = (cfg: AssistantConfig, agentId: string) =>
     Boolean(findAgentEntry(cfg, agentId));
 
-  const mergeRuntimeAgentConfig = (runtimeConfig: ZhushouConfig, requestedAgentId: string) => {
+  const mergeRuntimeAgentConfig = (runtimeConfig: AssistantConfig, requestedAgentId: string) => {
     if (hasConfiguredAgent(runtimeConfig, requestedAgentId)) {
       return runtimeConfig;
     }
@@ -202,7 +202,7 @@ export function buildGatewayCronService(params: {
   };
 
   const resolveCronSessionKey = (params: {
-    runtimeConfig: ZhushouConfig;
+    runtimeConfig: AssistantConfig;
     agentId: string;
     requestedSessionKey?: string | null;
   }) => {

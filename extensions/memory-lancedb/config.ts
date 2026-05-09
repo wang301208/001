@@ -27,7 +27,7 @@ const LEGACY_STATE_DIRS: string[] = [];
 
 function resolveDefaultDbPath(): string {
   const home = homedir();
-  const preferred = join(home, ".zhushou", "memory", "lancedb");
+  const preferred = join(home, ".assistant", "memory", "lancedb");
   try {
     if (fs.existsSync(preferred)) {
       return preferred;
@@ -197,7 +197,7 @@ export const memoryConfigSchema = {
     },
     dbPath: {
       label: "Database Path",
-      placeholder: "~/.zhushou/memory/lancedb",
+      placeholder: "~/.assistant/memory/lancedb",
       advanced: true,
       help: "Local filesystem path or cloud storage URI (s3://, gs://) for LanceDB database",
     },

@@ -18,12 +18,12 @@ async function main() {
   console.log('✅ 测试 1: 发布和订阅');
   const receivedEvents: BusEvent[] = [];
   
-  bus.subscribe('test.event', (event) => {
+  bus.subscribe('system.health.check', (event) => {
     receivedEvents.push(event);
   });
   
   await bus.publish({
-    type: 'test.event',
+    type: 'system.health.check',
     source: {
       type: 'system',
       id: 'test',
@@ -31,7 +31,8 @@ async function main() {
     payload: { message: 'Hello' },
   });
   
-  if (receivedEvents.length === 1 && receivedEvents[0].payload.message === 'Hello') {
+  const firstPayload = receivedEvents[0]?.payload as { message?: string } | undefined;
+  if (receivedEvents.length === 1 && firstPayload?.message === 'Hello') {
     console.log('   ✓ 发布和订阅成功\n');
   } else {
     console.error('   ✗ 发布和订阅失败\n');
@@ -74,13 +75,13 @@ async function main() {
   // 测试 3: 历史记录
   console.log('✅ 测试 3: 历史记录');
   await bus.publish({
-    type: 'test.history',
+    type: 'system.config.reload',
     source: { type: 'system', id: 'test' },
     payload: { value: 1 },
   });
   
   await bus.publish({
-    type: 'test.history',
+    type: 'system.config.reload',
     source: { type: 'system', id: 'test' },
     payload: { value: 2 },
   });
@@ -98,12 +99,12 @@ async function main() {
   console.log('✅ 测试 4: 取消订阅');
   let unsubscribeCount = 0;
   
-  const subscription = bus.subscribe('test.unsubscribe', () => {
+  const subscription = bus.subscribe('system.warning', () => {
     unsubscribeCount++;
   });
   
   await bus.publish({
-    type: 'test.unsubscribe',
+    type: 'system.warning',
     source: { type: 'system', id: 'test' },
     payload: {},
   });
@@ -111,7 +112,7 @@ async function main() {
   subscription.unsubscribe();
   
   await bus.publish({
-    type: 'test.unsubscribe',
+    type: 'system.warning',
     source: { type: 'system', id: 'test' },
     payload: {},
   });

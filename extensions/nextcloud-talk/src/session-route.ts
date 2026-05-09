@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { buildOutboundBaseSessionKey } from "zhushou/plugin-sdk/routing";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { buildOutboundBaseSessionKey } from "assistant/plugin-sdk/routing";
 import { stripNextcloudTalkTargetPrefix } from "./normalize.js";
 
 type NextcloudTalkOutboundSessionRouteParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   accountId?: string | null;
   target: string;

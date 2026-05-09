@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 import { createPluginRegistry, type PluginRecord } from "../../../src/plugins/registry.js";
 import type { PluginRuntime } from "../../../src/plugins/runtime/types.js";
 import { createPluginRecord } from "../../../src/plugins/status.test-helpers.js";
-import type { ZhushouPluginApi } from "../../../src/plugins/types.js";
+import type { AssistantPluginApi } from "../../../src/plugins/types.js";
 
 export {
   registerProviderPlugins as registerProviders,
@@ -53,7 +53,7 @@ export function assertNoImportTimeSideEffects(params: {
   );
 }
 
-export function createPluginRegistryFixture(config = {} as ZhushouConfig) {
+export function createPluginRegistryFixture(config = {} as AssistantConfig) {
   return {
     config,
     registry: createPluginRegistry({
@@ -70,9 +70,9 @@ export function createPluginRegistryFixture(config = {} as ZhushouConfig) {
 
 export function registerTestPlugin(params: {
   registry: ReturnType<typeof createPluginRegistry>;
-  config: ZhushouConfig;
+  config: AssistantConfig;
   record: PluginRecord;
-  register(api: ZhushouPluginApi): void;
+  register(api: AssistantPluginApi): void;
 }) {
   params.registry.registry.plugins.push(params.record);
   params.register(
@@ -84,13 +84,13 @@ export function registerTestPlugin(params: {
 
 export function registerVirtualTestPlugin(params: {
   registry: ReturnType<typeof createPluginRegistry>;
-  config: ZhushouConfig;
+  config: AssistantConfig;
   id: string;
   name: string;
   source?: string;
   kind?: PluginRecord["kind"];
   contracts?: PluginRecord["contracts"];
-  register(this: void, api: ZhushouPluginApi): void;
+  register(this: void, api: AssistantPluginApi): void;
 }) {
   registerTestPlugin({
     registry: params.registry,

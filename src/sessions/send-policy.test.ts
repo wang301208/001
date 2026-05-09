@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { resolveSendPolicy } from "./send-policy.js";
 
 describe("resolveSendPolicy", () => {
   const cfgWithRules = (
-    rules: NonNullable<NonNullable<ZhushouConfig["session"]>["sendPolicy"]>["rules"],
+    rules: NonNullable<NonNullable<AssistantConfig["session"]>["sendPolicy"]>["rules"],
   ) =>
     ({
       session: {
@@ -14,17 +14,17 @@ describe("resolveSendPolicy", () => {
           rules,
         },
       },
-    }) as ZhushouConfig;
+    }) as AssistantConfig;
 
   it("defaults to allow", () => {
-    const cfg = {} as ZhushouConfig;
+    const cfg = {} as AssistantConfig;
     expect(resolveSendPolicy({ cfg })).toBe("allow");
   });
 
   it("entry override wins", () => {
     const cfg = {
       session: { sendPolicy: { default: "allow" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const entry: SessionEntry = {
       sessionId: "s",
       updatedAt: 0,

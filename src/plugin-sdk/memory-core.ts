@@ -29,8 +29,8 @@ export type {
   MemoryPluginPublicArtifactsProvider,
   MemoryPluginRuntime,
   MemoryPromptSectionBuilder,
-  ZhushouConfig,
-  ZhushouPluginApi,
+  AssistantConfig,
+  AssistantPluginApi,
 } from "./memory-core-host-runtime-core.js";
 export {
   colorize,

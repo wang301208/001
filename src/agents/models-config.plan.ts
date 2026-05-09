@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { isRecord } from "../utils.js";
 import {
   mergeProviders,
@@ -13,10 +13,10 @@ import {
   type ProviderConfig,
 } from "./models-config.providers.js";
 
-type ModelsConfig = NonNullable<ZhushouConfig["models"]>;
+type ModelsConfig = NonNullable<AssistantConfig["models"]>;
 export type ResolveImplicitProvidersForModelsJson = (params: {
   agentDir: string;
-  config: ZhushouConfig;
+  config: AssistantConfig;
   env: NodeJS.ProcessEnv;
   explicitProviders: Record<string, ProviderConfig>;
 }) => Promise<Record<string, ProviderConfig>>;
@@ -35,7 +35,7 @@ export type ModelsJsonPlan =
 
 export async function resolveProvidersForModelsJsonWithDeps(
   params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     agentDir: string;
     env: NodeJS.ProcessEnv;
   },
@@ -82,10 +82,10 @@ function resolveProvidersForMode(params: {
   });
 }
 
-export async function planOpenClawModelsJsonWithDeps(
+export async function planAssistantModelsJsonWithDeps(
   params: {
-    cfg: ZhushouConfig;
-    sourceConfigForSecrets?: ZhushouConfig;
+    cfg: AssistantConfig;
+    sourceConfigForSecrets?: AssistantConfig;
     agentDir: string;
     env: NodeJS.ProcessEnv;
     existingRaw: string;
@@ -140,8 +140,8 @@ export async function planOpenClawModelsJsonWithDeps(
   };
 }
 
-export async function planOpenClawModelsJson(
-  params: Parameters<typeof planOpenClawModelsJsonWithDeps>[0],
+export async function planAssistantModelsJson(
+  params: Parameters<typeof planAssistantModelsJsonWithDeps>[0],
 ): Promise<ModelsJsonPlan> {
-  return planOpenClawModelsJsonWithDeps(params);
+  return planAssistantModelsJsonWithDeps(params);
 }

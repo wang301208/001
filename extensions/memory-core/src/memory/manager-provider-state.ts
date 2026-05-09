@@ -1,7 +1,7 @@
 import type {
-  ZhushouConfig,
+  AssistantConfig,
   ResolvedMemorySearchConfig,
-} from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
+} from "assistant/plugin-sdk/memory-core-host-engine-foundation";
 import {
   resolveEmbeddingProviderFallbackModel,
   type EmbeddingProvider,
@@ -68,7 +68,7 @@ export function applyMemoryFallbackProviderState(params: {
 }
 
 export function resolveMemoryFallbackProviderRequest(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   settings: ResolvedMemorySearchConfig;
   currentProviderId: string | null;
 }): {

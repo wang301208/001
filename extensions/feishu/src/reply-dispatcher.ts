@@ -1,10 +1,10 @@
-import { logTypingFailure } from "zhushou/plugin-sdk/channel-feedback";
-import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+﻿import { logTypingFailure } from "assistant/plugin-sdk/channel-feedback";
+import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
 import {
   resolveSendableOutboundReplyParts,
   resolveTextChunksWithFallback,
   sendMediaWithLeadingCaption,
-} from "zhushou/plugin-sdk/reply-payload";
+} from "assistant/plugin-sdk/reply-payload";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { sendMediaFeishu } from "./media.js";
@@ -12,7 +12,7 @@ import type { MentionTarget } from "./mention-target.types.js";
 import { buildMentionedCardContent } from "./mention.js";
 import {
   createReplyPrefixContext,
-  type ClawdbotConfig,
+  type AssistantConfig,
   type OutboundIdentity,
   type ReplyPayload,
   type RuntimeEnv,
@@ -73,7 +73,7 @@ function resolveCardNote(
 }
 
 export type CreateFeishuReplyDispatcherParams = {
-  cfg: ClawdbotConfig;
+  cfg: AssistantConfig;
   agentId: string;
   runtime: RuntimeEnv;
   chatId: string;
@@ -129,7 +129,7 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
         if (!replyToMessageId) {
           return;
         }
-        // Skip typing indicator for old messages — likely replays after context
+        // Skip typing indicator for old messages 鈥?likely replays after context
         // compaction that would flood users with stale notifications (#30418).
         const messageCreateTimeMs = normalizeEpochMs(params.messageCreateTimeMs);
         if (
@@ -207,7 +207,7 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
     const withoutLabel = thinking.replace(/^Reasoning:\n/, "");
     const plain = withoutLabel.replace(/^_(.*)_$/gm, "$1");
     const lines = plain.split("\n").map((line) => `> ${line}`);
-    return `> 💭 **Thinking**\n${lines.join("\n")}`;
+    return `> 馃挱 **Thinking**\n${lines.join("\n")}`;
   };
 
   const buildCombinedStreamText = (thinking: string, answer: string): string => {

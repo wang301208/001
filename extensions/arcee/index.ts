@@ -1,11 +1,11 @@
-import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
+import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
 import {
   readConfiguredProviderCatalogEntries,
   type ProviderCatalogContext,
-} from "zhushou/plugin-sdk/provider-catalog-shared";
-import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "zhushou/plugin-sdk/provider-model-shared";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/provider-onboard";
+} from "assistant/plugin-sdk/provider-catalog-shared";
+import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "assistant/plugin-sdk/provider-model-shared";
+import type { AssistantConfig } from "assistant/plugin-sdk/provider-onboard";
 import {
   applyArceeConfig,
   applyArceeOpenRouterConfig,
@@ -70,7 +70,7 @@ function buildArceeAuthMethods() {
   ];
 }
 
-function readConfiguredArceeCatalogEntries(config: ZhushouConfig | undefined) {
+function readConfiguredArceeCatalogEntries(config: AssistantConfig | undefined) {
   return readConfiguredProviderCatalogEntries({
     config,
     providerId: PROVIDER_ID,

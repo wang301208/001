@@ -1,5 +1,5 @@
 import JSON5 from "json5";
-import { LEGACY_MANIFEST_KEYS, MANIFEST_KEY } from "../compat/legacy-names.js";
+import { MANIFEST_KEY } from "../project-name.js";
 import { parseBooleanValue } from "../utils/boolean.js";
 import { normalizeOptionalLowercaseString, readStringValue } from "./string-coerce.js";
 import { normalizeCsvOrLooseStringList } from "./string-normalization.js";
@@ -20,7 +20,7 @@ export function parseFrontmatterBool(value: string | undefined, fallback: boolea
   return parsed === undefined ? fallback : parsed;
 }
 
-export function resolveOpenClawManifestBlock(params: {
+export function resolveAssistantManifestBlock(params: {
   frontmatter: Record<string, unknown>;
   key?: string;
 }): Record<string, unknown> | undefined {
@@ -35,12 +35,9 @@ export function resolveOpenClawManifestBlock(params: {
       return undefined;
     }
 
-    const manifestKeys = [MANIFEST_KEY, ...LEGACY_MANIFEST_KEYS];
-    for (const key of manifestKeys) {
-      const candidate = (parsed as Record<string, unknown>)[key];
-      if (candidate && typeof candidate === "object") {
-        return candidate as Record<string, unknown>;
-      }
+    const candidate = (parsed as Record<string, unknown>)[MANIFEST_KEY];
+    if (candidate && typeof candidate === "object") {
+      return candidate as Record<string, unknown>;
     }
     return undefined;
   } catch {
@@ -48,16 +45,16 @@ export function resolveOpenClawManifestBlock(params: {
   }
 }
 
-export type OpenClawManifestRequires = {
+export type AssistantManifestRequires = {
   bins: string[];
   anyBins: string[];
   env: string[];
   config: string[];
 };
 
-export function resolveOpenClawManifestRequires(
+export function resolveAssistantManifestRequires(
   metadataObj: Record<string, unknown>,
-): OpenClawManifestRequires | undefined {
+): AssistantManifestRequires | undefined {
   const requiresRaw =
     typeof metadataObj.requires === "object" && metadataObj.requires !== null
       ? (metadataObj.requires as Record<string, unknown>)
@@ -73,7 +70,7 @@ export function resolveOpenClawManifestRequires(
   };
 }
 
-export function resolveOpenClawManifestInstall<T>(
+export function resolveAssistantManifestInstall<T>(
   metadataObj: Record<string, unknown>,
   parseInstallSpec: (input: unknown) => T | undefined,
 ): T[] {
@@ -83,11 +80,11 @@ export function resolveOpenClawManifestInstall<T>(
     .filter((entry): entry is T => Boolean(entry));
 }
 
-export function resolveOpenClawManifestOs(metadataObj: Record<string, unknown>): string[] {
+export function resolveAssistantManifestOs(metadataObj: Record<string, unknown>): string[] {
   return normalizeStringList(metadataObj.os);
 }
 
-export type ParsedOpenClawManifestInstallBase = {
+export type ParsedAssistantManifestInstallBase = {
   raw: Record<string, unknown>;
   kind: string;
   id?: string;
@@ -95,10 +92,10 @@ export type ParsedOpenClawManifestInstallBase = {
   bins?: string[];
 };
 
-export function parseOpenClawManifestInstallBase(
+export function parseAssistantManifestInstallBase(
   input: unknown,
   allowedKinds: readonly string[],
-): ParsedOpenClawManifestInstallBase | undefined {
+): ParsedAssistantManifestInstallBase | undefined {
   if (!input || typeof input !== "object") {
     return undefined;
   }
@@ -110,7 +107,7 @@ export function parseOpenClawManifestInstallBase(
     return undefined;
   }
 
-  const spec: ParsedOpenClawManifestInstallBase = {
+  const spec: ParsedAssistantManifestInstallBase = {
     raw,
     kind,
   };
@@ -127,9 +124,9 @@ export function parseOpenClawManifestInstallBase(
   return spec;
 }
 
-export function applyOpenClawManifestInstallCommonFields<
+export function applyAssistantManifestInstallCommonFields<
   T extends { id?: string; label?: string; bins?: string[] },
->(spec: T, parsed: Pick<ParsedOpenClawManifestInstallBase, "id" | "label" | "bins">): T {
+>(spec: T, parsed: Pick<ParsedAssistantManifestInstallBase, "id" | "label" | "bins">): T {
   if (parsed.id) {
     spec.id = parsed.id;
   }

@@ -1,4 +1,4 @@
-// Shared root plugin-sdk surface.
+﻿// Shared root plugin-sdk surface.
 // Keep this entry intentionally tiny. Channel/provider helpers belong on
 // dedicated subpaths or, for legacy consumers, the compat surface.
 
@@ -44,8 +44,8 @@ export type {
   AnyAgentTool,
   CliBackendPlugin,
   MediaUnderstandingProviderPlugin,
-  ZhushouPluginApi,
-  OpenClawPluginConfigSchema,
+  AssistantPluginApi,
+  AssistantPluginConfigSchema,
   PluginLogger,
   ProviderAuthContext,
   ProviderAuthResult,
@@ -76,9 +76,7 @@ export type {
   TaskRunDetail,
   TaskRunView,
 } from "../plugins/runtime/task-domain-types.js";
-export type { ZhushouConfig } from "../config/config.js";
-/** @deprecated Use ZhushouConfig instead */
-export type { ZhushouConfig as ClawdbotConfig } from "../config/config.js";
+export type { AssistantConfig } from "../config/config.js";
 export type {
   MemoryPluginCapability,
   MemoryPluginPublicArtifact,

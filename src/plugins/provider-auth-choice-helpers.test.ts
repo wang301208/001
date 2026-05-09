@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { applyProviderAuthConfigPatch } from "./provider-auth-choice-helpers.js";
 
 describe("applyProviderAuthConfigPatch", () => {
@@ -47,7 +47,7 @@ describe("applyProviderAuthConfigPatch", () => {
           },
         },
       },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
     const patch = {
       agents: {
         defaults: {

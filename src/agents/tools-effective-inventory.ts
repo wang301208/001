@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { resolveAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
 import { resolveAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
@@ -9,7 +9,7 @@ import {
 import { resolveAgentDir, resolveAgentWorkspaceDir, resolveSessionAgentId } from "./agent-scope.js";
 import { getChannelAgentToolMeta } from "./channel-tools.js";
 import { resolveModel } from "./pi-embedded-runner/model.js";
-import { createOpenClawCodingTools } from "./pi-tools.js";
+import { createAssistantCodingTools } from "./pi-tools.js";
 import { resolveEffectiveToolPolicy } from "./pi-tools.policy.js";
 import { summarizeToolDescriptionText } from "./tool-description-summary.js";
 import { resolveToolDisplay } from "./tool-display.js";
@@ -86,7 +86,7 @@ function disambiguateLabels(entries: EffectiveToolInventoryEntry[]): EffectiveTo
 }
 
 function resolveEffectiveModelCompat(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentDir: string;
   modelProvider?: string;
   modelId?: string;
@@ -118,7 +118,7 @@ export function resolveEffectiveToolInventory(
     modelId: params.modelId,
   });
 
-  const effectiveTools = createOpenClawCodingTools({
+  const effectiveTools = createAssistantCodingTools({
     agentId,
     sessionKey: params.sessionKey,
     workspaceDir,

@@ -4,7 +4,7 @@ import path from "node:path";
 import {
   hasOutboundReplyContent,
   resolveSendableOutboundReplyParts,
-} from "zhushou/plugin-sdk/reply-payload";
+} from "assistant/plugin-sdk/reply-payload";
 import {
   resolveAgentConfig,
   resolveAgentWorkspaceDir,
@@ -41,7 +41,7 @@ import {
   updateSessionStore,
 } from "../config/sessions/store.js";
 import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveCronSession } from "../cron/isolated-agent/session.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { getQueueSize } from "../process/command-queue.js";
@@ -146,7 +146,7 @@ type HeartbeatAgentState = {
 
 export type HeartbeatRunner = {
   stop: () => void;
-  updateConfig: (cfg: ZhushouConfig) => void;
+  updateConfig: (cfg: AssistantConfig) => void;
 };
 
 function resolveHeartbeatSchedulerSeed(explicitSeed?: string) {
@@ -165,13 +165,13 @@ function resolveHeartbeatSchedulerSeed(explicitSeed?: string) {
   }
 }
 
-function hasExplicitHeartbeatAgents(cfg: ZhushouConfig) {
+function hasExplicitHeartbeatAgents(cfg: AssistantConfig) {
   const list = cfg.agents?.list ?? [];
   return list.some((entry) => Boolean(entry?.heartbeat));
 }
 
 function resolveHeartbeatConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId?: string,
 ): HeartbeatConfig | undefined {
   const defaults = cfg.agents?.defaults?.heartbeat;
@@ -185,7 +185,7 @@ function resolveHeartbeatConfig(
   return { ...defaults, ...overrides };
 }
 
-function resolveHeartbeatAgents(cfg: ZhushouConfig): HeartbeatAgent[] {
+function resolveHeartbeatAgents(cfg: AssistantConfig): HeartbeatAgent[] {
   const list = cfg.agents?.list ?? [];
   if (hasExplicitHeartbeatAgents(cfg)) {
     return list
@@ -200,11 +200,11 @@ function resolveHeartbeatAgents(cfg: ZhushouConfig): HeartbeatAgent[] {
   return [{ agentId: fallbackId, heartbeat: resolveHeartbeatConfig(cfg, fallbackId) }];
 }
 
-export function resolveHeartbeatPrompt(cfg: ZhushouConfig, heartbeat?: HeartbeatConfig) {
+export function resolveHeartbeatPrompt(cfg: AssistantConfig, heartbeat?: HeartbeatConfig) {
   return resolveHeartbeatPromptText(heartbeat?.prompt ?? cfg.agents?.defaults?.heartbeat?.prompt);
 }
 
-function resolveHeartbeatAckMaxChars(cfg: ZhushouConfig, heartbeat?: HeartbeatConfig) {
+function resolveHeartbeatAckMaxChars(cfg: AssistantConfig, heartbeat?: HeartbeatConfig) {
   return Math.max(
     0,
     heartbeat?.ackMaxChars ??
@@ -214,7 +214,7 @@ function resolveHeartbeatAckMaxChars(cfg: ZhushouConfig, heartbeat?: HeartbeatCo
 }
 
 function resolveHeartbeatSession(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId?: string,
   heartbeat?: HeartbeatConfig,
   forcedSessionKey?: string,
@@ -519,7 +519,7 @@ function resolveHeartbeatReasonFlags(reason?: string): HeartbeatReasonFlags {
 }
 
 async function resolveHeartbeatPreflight(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   heartbeat?: HeartbeatConfig;
   forcedSessionKey?: string;
@@ -629,7 +629,7 @@ function appendHeartbeatWorkspacePathHint(prompt: string, workspaceDir: string):
 }
 
 function resolveHeartbeatRunPrompt(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   heartbeat?: HeartbeatConfig;
   preflight: HeartbeatPreflight;
   canRelayToUser: boolean;
@@ -697,7 +697,7 @@ After completing all due tasks, reply HEARTBEAT_OK.`;
 }
 
 export async function runHeartbeatOnce(opts: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   agentId?: string;
   sessionKey?: string;
   heartbeat?: HeartbeatConfig;
@@ -1255,7 +1255,7 @@ export async function runHeartbeatOnce(opts: {
 }
 
 export function startHeartbeatRunner(opts: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   runOnce?: typeof runHeartbeatOnce;
@@ -1334,7 +1334,7 @@ export function startHeartbeatRunner(opts: {
     state.timer.unref?.();
   };
 
-  const updateConfig = (cfg: ZhushouConfig) => {
+  const updateConfig = (cfg: AssistantConfig) => {
     if (state.stopped) {
       return;
     }

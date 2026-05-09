@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
-import { disposeRegisteredAgentHarnesses } from "zhushou/plugin-sdk/agent-harness";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { disposeRegisteredAgentHarnesses } from "assistant/plugin-sdk/agent-harness";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import { startQaGatewayChild, type QaCliBackendAuthMode } from "./gateway-child.js";
 import type {
   QaLabLatestReport,
@@ -122,11 +122,11 @@ async function runScenario(name: string, steps: QaSuiteStep[]): Promise<QaSuiteS
   const stepResults: QaReportCheck[] = [];
   for (const step of steps) {
     try {
-      if (process.env.OPENCLAW_QA_DEBUG === "1") {
+      if (process.env.ASSISTANT_QA_DEBUG === "1") {
         console.error(`[qa-suite] start scenario="${name}" step="${step.name}"`);
       }
       const details = await step.run();
-      if (process.env.OPENCLAW_QA_DEBUG === "1") {
+      if (process.env.ASSISTANT_QA_DEBUG === "1") {
         console.error(`[qa-suite] pass scenario="${name}" step="${step.name}"`);
       }
       stepResults.push({
@@ -136,7 +136,7 @@ async function runScenario(name: string, steps: QaSuiteStep[]): Promise<QaSuiteS
       });
     } catch (error) {
       const details = formatErrorMessage(error);
-      if (process.env.OPENCLAW_QA_DEBUG === "1") {
+      if (process.env.ASSISTANT_QA_DEBUG === "1") {
         console.error(`[qa-suite] fail scenario="${name}" step="${step.name}" details=${details}`);
       }
       stepResults.push({
@@ -558,12 +558,8 @@ export async function runQaSuite(params?: QaSuiteRunParams): Promise<QaSuiteResu
     enabledPluginIds,
     forwardHostHome: gatewayRuntimeOptions?.forwardHostHome,
     mutateConfig: gatewayConfigPatch
-      ? (cfg) => applyQaMergePatch(cfg, gatewayConfigPatch) as ZhushouConfig
+      ? (cfg) => applyQaMergePatch(cfg, gatewayConfigPatch) as AssistantConfig
       : undefined,
-  });
-  lab.setControlUi({
-    controlUiProxyTarget: gateway.baseUrl,
-    controlUiToken: gateway.token,
   });
   const env: QaSuiteEnvironment = {
     lab,
@@ -688,7 +684,7 @@ export async function runQaSuite(params?: QaSuiteRunParams): Promise<QaSuiteResu
     throw error;
   } finally {
     await closeQaWebSessions(env.webSessionIds);
-    const keepTemp = process.env.OPENCLAW_QA_KEEP_TEMP === "1" || false;
+    const keepTemp = process.env.ASSISTANT_QA_KEEP_TEMP === "1" || false;
     await gateway.stop({
       keepTemp,
       preserveToDir: keepTemp ? undefined : preserveGatewayRuntimeDir,
@@ -697,12 +693,6 @@ export async function runQaSuite(params?: QaSuiteRunParams): Promise<QaSuiteResu
     await mock?.stop();
     if (ownsLab) {
       await lab.stop();
-    } else {
-      lab.setControlUi({
-        controlUiUrl: null,
-        controlUiToken: null,
-        controlUiProxyTarget: null,
-      });
     }
   }
 }

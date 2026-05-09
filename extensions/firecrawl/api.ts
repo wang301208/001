@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { readStringValue } from "zhushou/plugin-sdk/text-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { readStringValue } from "assistant/plugin-sdk/text-runtime";
 import { runFirecrawlScrape } from "./src/firecrawl-client.js";
 
 export type FetchFirecrawlContentParams = {
@@ -26,7 +26,7 @@ export type FetchFirecrawlContentResult = {
 export async function fetchFirecrawlContent(
   params: FetchFirecrawlContentParams,
 ): Promise<FetchFirecrawlContentResult> {
-  const cfg: ZhushouConfig = {
+  const cfg: AssistantConfig = {
     plugins: {
       entries: {
         firecrawl: {

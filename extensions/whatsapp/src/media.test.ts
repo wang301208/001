@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { optimizeImageToPng } from "zhushou/plugin-sdk/media-runtime";
-import { resolveStateDir } from "zhushou/plugin-sdk/state-paths";
-import { resolvePreferredOpenClawTmpDir } from "zhushou/plugin-sdk/temp-path";
-import { captureEnv } from "zhushou/plugin-sdk/testing";
-import { mockPinnedHostnameResolution } from "zhushou/plugin-sdk/testing";
+import { optimizeImageToPng } from "assistant/plugin-sdk/media-runtime";
+import { resolveStateDir } from "assistant/plugin-sdk/state-paths";
+import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+import { captureEnv } from "assistant/plugin-sdk/testing";
+import { mockPinnedHostnameResolution } from "assistant/plugin-sdk/testing";
 import sharp from "sharp";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { sendVoiceMessageDiscord } from "../../discord/src/send.js";
@@ -56,7 +56,7 @@ function cloneStatWithDev<T extends { dev: number | bigint }>(stat: T, dev: numb
 
 beforeAll(async () => {
   fixtureRoot = await fs.mkdtemp(
-    path.join(resolvePreferredOpenClawTmpDir(), "zhushou-media-test-"),
+    path.join(resolvePreferredAssistantTmpDir(), "assistant-media-test-"),
   );
   largeJpegBuffer = await sharp({
     create: {
@@ -114,14 +114,14 @@ afterEach(() => {
 
 describe("web media loading", () => {
   beforeAll(() => {
-    // Ensure state dir is stable and not influenced by other tests that stub ZHUSHOU_STATE_DIR.
+    // Ensure state dir is stable and not influenced by other tests that stub ASSISTANT_STATE_DIR.
     // Also keep it outside the 助手 temp root so default localRoots doesn't accidentally make all state readable.
-    stateDirSnapshot = captureEnv(["ZHUSHOU_STATE_DIR"]);
-    process.env.ZHUSHOU_STATE_DIR = path.join(
+    stateDirSnapshot = captureEnv(["ASSISTANT_STATE_DIR"]);
+    process.env.ASSISTANT_STATE_DIR = path.join(
       path.parse(os.tmpdir()).root,
       "var",
       "lib",
-      "zhushou-media-state-test",
+      "assistant-media-state-test",
     );
   });
 
@@ -356,7 +356,7 @@ describe("local media root guard", () => {
 
   it("allows local paths under an explicit root", async () => {
     const result = await loadWebMedia(tinyPngFile, 1024 * 1024, {
-      localRoots: [resolvePreferredOpenClawTmpDir()],
+      localRoots: [resolvePreferredAssistantTmpDir()],
     });
     expect(result.kind).toBe("image");
   });
@@ -367,7 +367,7 @@ describe("local media root guard", () => {
     try {
       await expect(
         loadWebMedia("file://attacker/share/evil.png", 1024 * 1024, {
-          localRoots: [resolvePreferredOpenClawTmpDir()],
+          localRoots: [resolvePreferredAssistantTmpDir()],
         }),
       ).rejects.toMatchObject({ code: "invalid-file-url" });
       expect(realpathSpy).not.toHaveBeenCalled();
@@ -389,7 +389,7 @@ describe("local media root guard", () => {
 
     try {
       const result = await loadWebMedia(tinyPngFile, 1024 * 1024, {
-        localRoots: [resolvePreferredOpenClawTmpDir()],
+        localRoots: [resolvePreferredAssistantTmpDir()],
       });
       expect(result.kind).toBe("image");
       expect(result.buffer.length).toBeGreaterThan(0);
@@ -407,7 +407,7 @@ describe("local media root guard", () => {
     try {
       await expect(
         loadWebMedia("\\\\attacker\\share\\evil.png", 1024 * 1024, {
-          localRoots: [resolvePreferredOpenClawTmpDir()],
+          localRoots: [resolvePreferredAssistantTmpDir()],
         }),
       ).rejects.toMatchObject({ code: "network-path-not-allowed" });
       expect(realpathSpy).not.toHaveBeenCalled();

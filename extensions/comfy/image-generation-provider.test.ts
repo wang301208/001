@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import * as providerAuth from "zhushou/plugin-sdk/provider-auth-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import * as providerAuth from "assistant/plugin-sdk/provider-auth-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   _setComfyFetchGuardForTesting,
@@ -16,14 +16,14 @@ function parseJsonBody(call: number): Record<string, unknown> {
   return JSON.parse(String(request.init.body)) as Record<string, unknown>;
 }
 
-function buildComfyConfig(config: Record<string, unknown>): ZhushouConfig {
+function buildComfyConfig(config: Record<string, unknown>): AssistantConfig {
   return {
     models: {
       providers: {
         comfy: config,
       },
     },
-  } as unknown as ZhushouConfig;
+  } as unknown as AssistantConfig;
 }
 
 describe("comfy image-generation provider", () => {

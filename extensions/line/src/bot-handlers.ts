@@ -3,31 +3,31 @@ import {
   buildMentionRegexes,
   matchesMentionPatterns,
   resolveInboundMentionDecision,
-} from "zhushou/plugin-sdk/channel-inbound";
-import { createChannelPairingChallengeIssuer } from "zhushou/plugin-sdk/channel-pairing";
-import { hasControlCommand, resolveControlCommandGate } from "zhushou/plugin-sdk/command-auth";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/channel-inbound";
+import { createChannelPairingChallengeIssuer } from "assistant/plugin-sdk/channel-pairing";
+import { hasControlCommand, resolveControlCommandGate } from "assistant/plugin-sdk/command-auth";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/config-runtime";
 import {
   readChannelAllowFromStore,
   resolvePairingIdLabel,
   upsertChannelPairingRequest,
-} from "zhushou/plugin-sdk/conversation-runtime";
-import { evaluateMatchedGroupAccessForPolicy } from "zhushou/plugin-sdk/group-access";
-import { createClaimableDedupe, type ClaimableDedupe } from "zhushou/plugin-sdk/persistent-dedupe";
+} from "assistant/plugin-sdk/conversation-runtime";
+import { evaluateMatchedGroupAccessForPolicy } from "assistant/plugin-sdk/group-access";
+import { createClaimableDedupe, type ClaimableDedupe } from "assistant/plugin-sdk/persistent-dedupe";
 import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   clearHistoryEntriesIfEnabled,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "zhushou/plugin-sdk/reply-history";
-import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
-import { danger, logVerbose } from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/reply-history";
+import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime";
+import { danger, logVerbose } from "assistant/plugin-sdk/runtime-env";
 import {
   firstDefined,
   isSenderAllowed,
@@ -73,7 +73,7 @@ function isDownloadableLineMessageType(
 }
 
 export interface LineHandlerContext {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   account: ResolvedLineAccount;
   runtime: RuntimeEnv;
   mediaMaxBytes: number;
@@ -399,7 +399,7 @@ function resolveEventRawText(event: MessageEvent | PostbackEvent): string {
 }
 
 function resolveLineCommandAuthorized(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   event: MessageEvent | PostbackEvent;
   senderId?: string;
   allow: NormalizedAllowFrom;

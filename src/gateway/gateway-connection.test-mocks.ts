@@ -7,11 +7,11 @@ type TestMock<TArgs extends unknown[] = unknown[], TResult = unknown> = Mock<
 export const loadConfigMock: TestMock = vi.fn();
 export const resolveGatewayPortMock: TestMock = vi.fn();
 export const resolveStateDirMock: TestMock<[NodeJS.ProcessEnv], string> = vi.fn(
-  (env: NodeJS.ProcessEnv) => env.ZHUSHOU_STATE_DIR ?? "/tmp/zhushou",
+  (env: NodeJS.ProcessEnv) => env.ASSISTANT_STATE_DIR ?? "/tmp/assistant",
 );
 export const resolveConfigPathMock: TestMock<[NodeJS.ProcessEnv, string], string> = vi.fn(
   (env: NodeJS.ProcessEnv, stateDir: string) =>
-    env.ZHUSHOU_CONFIG_PATH ?? `${stateDir}/zhushou.json`,
+    env.ASSISTANT_CONFIG_PATH ?? `${stateDir}/assistant.json`,
 );
 export const pickPrimaryTailnetIPv4Mock: TestMock = vi.fn();
 export const pickPrimaryLanIPv4Mock: TestMock = vi.fn();

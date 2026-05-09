@@ -1,9 +1,9 @@
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
-} from "zhushou/plugin-sdk/reply-payload";
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
-import type { ZhushouConfig } from "../runtime-api.js";
+} from "assistant/plugin-sdk/reply-payload";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+import type { AssistantConfig } from "../runtime-api.js";
 import {
   createChannelReplyPipeline,
   resolveInboundRouteEnvelopeBuilderWithRuntime,
@@ -90,7 +90,7 @@ async function processGoogleChatEvent(event: GoogleChatEvent, target: WebhookTar
 function resolveBotDisplayName(params: {
   accountName?: string;
   agentId: string;
-  config: ZhushouConfig;
+  config: AssistantConfig;
 }): string {
   const { accountName, agentId, config } = params;
   if (accountName?.trim()) {
@@ -106,7 +106,7 @@ function resolveBotDisplayName(params: {
 async function processMessageWithPipeline(params: {
   event: GoogleChatEvent;
   account: ResolvedGoogleChatAccount;
-  config: ZhushouConfig;
+  config: AssistantConfig;
   runtime: GoogleChatRuntimeEnv;
   core: GoogleChatCoreRuntime;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -341,7 +341,7 @@ async function deliverGoogleChatReply(params: {
   spaceId: string;
   runtime: GoogleChatRuntimeEnv;
   core: GoogleChatCoreRuntime;
-  config: ZhushouConfig;
+  config: AssistantConfig;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
   typingMessageName?: string;
 }): Promise<void> {

@@ -1,5 +1,5 @@
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import type { ClawdbotConfig } from "../runtime-api.js";
+﻿import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import type { AssistantConfig } from "../runtime-api.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { raceWithTimeoutAndAbort } from "./async.js";
 import { createFeishuClient } from "./client.js";
@@ -50,7 +50,7 @@ export type FeishuDriveCommentNoticeEvent = {
 };
 
 type ResolveDriveCommentEventParams = {
-  cfg: ClawdbotConfig;
+  cfg: AssistantConfig;
   accountId: string;
   event: FeishuDriveCommentNoticeEvent;
   botOpenId?: string;
@@ -185,7 +185,7 @@ function truncatePromptText(
   if (!normalized) {
     return "";
   }
-  return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 1)}…` : normalized;
+  return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 3)}...` : normalized;
 }
 
 function formatPromptTextValue(text: string | undefined): string {
@@ -1181,7 +1181,7 @@ function buildDriveCommentSurfacePrompt(params: {
     "Do not describe your plan.",
     "Do not describe your steps.",
     "Do not describe tool use.",
-    'Do not start with phrases like "I will", "I’ll first", "I need to", "The user wants", or "I have updated".',
+    'Do not start with phrases like "I will", "I\'ll first", "I need to", "The user wants", or "I have updated".',
     "Output only the final user-facing reply.",
     "If you already sent the user-visible reply with feishu_drive.reply_comment or feishu_drive.add_comment, output exactly NO_REPLY.",
     "If no user-visible reply is needed, output exactly NO_REPLY.",

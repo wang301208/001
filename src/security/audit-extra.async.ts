@@ -18,9 +18,9 @@ import { listAgentWorkspaceDirs } from "../agents/workspace-dirs.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { inspectReadOnlyChannelAccount } from "../channels/read-only-account-inspect.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import { MANIFEST_KEY } from "../project-name.js";
 import { resolveNativeSkillsEnabled } from "../config/commands.js";
-import type { ZhushouConfig, ConfigFileSnapshot } from "../config/config.js";
+import type { AssistantConfig, ConfigFileSnapshot } from "../config/config.js";
 import { collectIncludePathsRecursive } from "../config/includes-scan.js";
 import { resolveOAuthDir } from "../config/paths.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
@@ -171,11 +171,11 @@ function formatCodeSafetyDetails(findings: SkillScanFinding[], rootDir: string):
 }
 
 function readChannelCommandSetting(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   channelId: string,
   key: "native" | "nativeSkills",
 ): unknown {
-  const channelCfg = cfg.channels?.[channelId as keyof NonNullable<ZhushouConfig["channels"]>];
+  const channelCfg = cfg.channels?.[channelId as keyof NonNullable<AssistantConfig["channels"]>];
   if (!channelCfg || typeof channelCfg !== "object" || Array.isArray(channelCfg)) {
     return undefined;
   }
@@ -187,7 +187,7 @@ function readChannelCommandSetting(
 }
 
 async function isChannelPluginConfigured(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   plugin: ReturnType<typeof listChannelPlugins>[number],
 ): Promise<boolean> {
   const accountIds = plugin.config.listAccountIds(cfg);
@@ -270,7 +270,7 @@ async function listInstalledPluginDirs(params: {
 }
 
 function resolveToolPolicies(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentTools?: AgentToolsConfig;
   sandboxMode?: "off" | "non-main" | "all";
   agentId?: string | null;
@@ -297,7 +297,7 @@ function normalizePluginIdSet(entries: string[]): Set<string> {
 }
 
 function resolveEnabledExtensionPluginIds(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   pluginDirs: string[];
 }): string[] {
   const normalized = normalizePluginsConfig(params.cfg.plugins);
@@ -506,7 +506,7 @@ async function listSandboxBrowserContainers(
 ): Promise<string[] | null> {
   try {
     const result = await execDockerRawFn(
-      ["ps", "-a", "--filter", "label=zhushou.sandboxBrowser=1", "--format", "{{.Names}}"],
+      ["ps", "-a", "--filter", "label=assistant.sandboxBrowser=1", "--format", "{{.Names}}"],
       { allowFailure: true },
     );
     if (result.code !== 0) {
@@ -531,7 +531,7 @@ async function readSandboxBrowserHashLabels(params: {
       [
         "inspect",
         "-f",
-        '{{ index .Config.Labels "zhushou.configHash" }}\t{{ index .Config.Labels "zhushou.browserConfigEpoch" }}',
+        '{{ index .Config.Labels "assistant.configHash" }}\t{{ index .Config.Labels "assistant.browserConfigEpoch" }}',
         params.containerName,
       ],
       { allowFailure: true },
@@ -643,7 +643,7 @@ export async function collectSandboxBrowserHashLabelFindings(params?: {
       detail:
         `Containers: ${missingHash.join(", ")}. ` +
         "These browser containers predate hash-based drift checks and may miss security remediations until recreated.",
-      remediation: `${formatCliCommand("zhushou sandbox recreate --browser --all")} (add --force to skip prompt).`,
+      remediation: `${formatCliCommand("assistant sandbox recreate --browser --all")} (add --force to skip prompt).`,
     });
   }
 
@@ -654,8 +654,8 @@ export async function collectSandboxBrowserHashLabelFindings(params?: {
       title: "Sandbox browser container hash epoch is stale",
       detail:
         `Containers: ${staleEpoch.join(", ")}. ` +
-        `Expected zhushou.browserConfigEpoch=${SANDBOX_BROWSER_SECURITY_HASH_EPOCH}.`,
-      remediation: `${formatCliCommand("zhushou sandbox recreate --browser --all")} (add --force to skip prompt).`,
+        `Expected assistant.browserConfigEpoch=${SANDBOX_BROWSER_SECURITY_HASH_EPOCH}.`,
+      remediation: `${formatCliCommand("assistant sandbox recreate --browser --all")} (add --force to skip prompt).`,
     });
   }
 
@@ -668,7 +668,7 @@ export async function collectSandboxBrowserHashLabelFindings(params?: {
         `Containers: ${nonLoopbackPublished.join(", ")}. ` +
         "Sandbox browser observer/control ports should stay loopback-only to avoid unintended remote access.",
       remediation:
-        `${formatCliCommand("zhushou sandbox recreate --browser --all")} (add --force to skip prompt), ` +
+        `${formatCliCommand("assistant sandbox recreate --browser --all")} (add --force to skip prompt), ` +
         "then verify published ports are bound to 127.0.0.1.",
     });
   }
@@ -677,7 +677,7 @@ export async function collectSandboxBrowserHashLabelFindings(params?: {
 }
 
 export async function collectPluginsTrustFindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   stateDir: string;
 }): Promise<SecurityAuditFinding[]> {
   const findings: SecurityAuditFinding[] = [];
@@ -796,7 +796,7 @@ export async function collectPluginsTrustFindings(params: {
           sandboxMode,
           agentId: context.agentId,
         });
-        const broadPolicy = isToolAllowedByPolicies("__openclaw_plugin_probe__", policies);
+        const broadPolicy = isToolAllowedByPolicies("__assistant_plugin_probe__", policies);
         const explicitPluginAllow =
           !restrictiveProfile &&
           (hasExplicitPluginAllow({
@@ -893,7 +893,7 @@ export async function collectPluginsTrustFindings(params: {
         title: "Plugin install records drift from installed package versions",
         detail: `Detected plugin install metadata drift:\n${pluginVersionDrift.map((entry) => `- ${entry}`).join("\n")}`,
         remediation:
-          "Run `zhushou plugins update --all` (or reinstall affected plugins) to refresh install metadata.",
+          "Run `assistant plugins update --all` (or reinstall affected plugins) to refresh install metadata.",
       });
     }
   }
@@ -955,7 +955,7 @@ export async function collectPluginsTrustFindings(params: {
         title: "Hook install records drift from installed package versions",
         detail: `Detected hook install metadata drift:\n${hookVersionDrift.map((entry) => `- ${entry}`).join("\n")}`,
         remediation:
-          "Run `zhushou hooks update --all` (or reinstall affected hooks) to refresh install metadata.",
+          "Run `assistant hooks update --all` (or reinstall affected hooks) to refresh install metadata.",
       });
     }
   }
@@ -964,7 +964,7 @@ export async function collectPluginsTrustFindings(params: {
 }
 
 export async function collectWorkspaceSkillSymlinkEscapeFindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
 }): Promise<SecurityAuditFinding[]> {
   const findings: SecurityAuditFinding[] = [];
   const workspaceDirs = listAgentWorkspaceDirs(params.cfg);
@@ -1140,7 +1140,7 @@ export async function collectIncludeFilePermFindings(params: {
 }
 
 export async function collectStateDeepFilesystemFindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
   stateDir: string;
   platform?: NodeJS.Platform;
@@ -1322,7 +1322,7 @@ export async function collectPluginsCodeSafetyFindings(params: {
         title: "Plugin extensions directory scan failed",
         detail: `Static code scan could not list extensions directory: ${String(err)}`,
         remediation:
-          "Check file permissions and plugin layout, then rerun `zhushou security audit --deep`.",
+          "Check file permissions and plugin layout, then rerun `assistant security audit --deep`.",
       });
     },
   });
@@ -1342,7 +1342,7 @@ export async function collectPluginsCodeSafetyFindings(params: {
         title: `Plugin "${pluginName}" has a malformed package.json`,
         detail:
           `Could not parse plugin manifest: ${String(manifestErr)}.\n` +
-          "The extension entrypoint list is unavailable. Deep scan will cover the plugin directory but may miss entries declared via `zhushou.extensions`.",
+          "The extension entrypoint list is unavailable. Deep scan will cover the plugin directory but may miss entries declared via `assistant.extensions`.",
         remediation:
           "Inspect the plugin package.json for syntax errors. If the plugin is untrusted, remove it from your 助手 extensions state directory.",
       });
@@ -1376,7 +1376,7 @@ export async function collectPluginsCodeSafetyFindings(params: {
         title: `Plugin "${pluginName}" has extension entry path traversal`,
         detail: `Found extension entries that escape the plugin directory:\n${escapedEntries.map((entry) => `  - ${entry}`).join("\n")}`,
         remediation:
-          "Update the plugin manifest so all zhushou.extensions entries stay inside the plugin directory.",
+          "Update the plugin manifest so all assistant.extensions entries stay inside the plugin directory.",
       });
     }
 
@@ -1391,7 +1391,7 @@ export async function collectPluginsCodeSafetyFindings(params: {
         title: `Plugin "${pluginName}" code scan failed`,
         detail: `Static code scan could not complete: ${String(err)}`,
         remediation:
-          "Check file permissions and plugin layout, then rerun `zhushou security audit --deep`.",
+          "Check file permissions and plugin layout, then rerun `assistant security audit --deep`.",
       });
       return null;
     });
@@ -1429,7 +1429,7 @@ export async function collectPluginsCodeSafetyFindings(params: {
 }
 
 export async function collectInstalledSkillsCodeSafetyFindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   stateDir: string;
   summaryCache?: CodeSafetySummaryCache;
 }): Promise<SecurityAuditFinding[]> {
@@ -1442,7 +1442,7 @@ export async function collectInstalledSkillsCodeSafetyFindings(params: {
   for (const workspaceDir of workspaceDirs) {
     const entries = loadWorkspaceSkillEntries(workspaceDir, { config: params.cfg });
     for (const entry of entries) {
-      if (resolveSkillSource(entry.skill) === "zhushou-bundled") {
+      if (resolveSkillSource(entry.skill) === "assistant-bundled") {
         continue;
       }
 
@@ -1467,7 +1467,7 @@ export async function collectInstalledSkillsCodeSafetyFindings(params: {
           title: `Skill "${skillName}" code scan failed`,
           detail: `Static code scan could not complete for ${skillDir}: ${String(err)}`,
           remediation:
-            "Check file permissions and skill layout, then rerun `zhushou security audit --deep`.",
+            "Check file permissions and skill layout, then rerun `assistant security audit --deep`.",
         });
         return null;
       });

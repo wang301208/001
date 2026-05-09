@@ -23,9 +23,9 @@ const resolveCommandSecretRefsViaGateway = vi.hoisted(() =>
 
 vi.mock("./cli.host.runtime.js", async () => {
   const [runtimeCli, runtimeCore, runtimeFiles] = await Promise.all([
-    import("zhushou/plugin-sdk/memory-core-host-runtime-cli"),
-    import("zhushou/plugin-sdk/memory-core-host-runtime-core"),
-    import("zhushou/plugin-sdk/memory-core-host-runtime-files"),
+    import("assistant/plugin-sdk/memory-core-host-runtime-cli"),
+    import("assistant/plugin-sdk/memory-core-host-runtime-core"),
+    import("assistant/plugin-sdk/memory-core-host-runtime-files"),
   ]);
   return {
     colorize: runtimeCli.colorize,
@@ -51,9 +51,9 @@ vi.mock("./cli.host.runtime.js", async () => {
 });
 
 let registerMemoryCli: typeof import("./cli.js").registerMemoryCli;
-let defaultRuntime: typeof import("zhushou/plugin-sdk/memory-core-host-runtime-cli").defaultRuntime;
-let isVerbose: typeof import("zhushou/plugin-sdk/memory-core-host-runtime-cli").isVerbose;
-let setVerbose: typeof import("zhushou/plugin-sdk/memory-core-host-runtime-cli").setVerbose;
+let defaultRuntime: typeof import("assistant/plugin-sdk/memory-core-host-runtime-cli").defaultRuntime;
+let isVerbose: typeof import("assistant/plugin-sdk/memory-core-host-runtime-cli").isVerbose;
+let setVerbose: typeof import("assistant/plugin-sdk/memory-core-host-runtime-cli").setVerbose;
 let fixtureRoot = "";
 let workspaceFixtureRoot = "";
 let qmdFixtureRoot = "";
@@ -63,7 +63,7 @@ let qmdCaseId = 0;
 beforeAll(async () => {
   ({ registerMemoryCli } = await import("./cli.js"));
   ({ defaultRuntime, isVerbose, setVerbose } =
-    await import("zhushou/plugin-sdk/memory-core-host-runtime-cli"));
+    await import("assistant/plugin-sdk/memory-core-host-runtime-cli"));
   fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "memory-cli-fixtures-"));
   workspaceFixtureRoot = path.join(fixtureRoot, "workspace");
   qmdFixtureRoot = path.join(fixtureRoot, "qmd");
@@ -108,7 +108,7 @@ describe("memory cli", () => {
       files: 0,
       chunks: 0,
       dirty: false,
-      workspaceDir: "/tmp/zhushou",
+      workspaceDir: "/tmp/assistant",
       dbPath: "/tmp/memory.sqlite",
       provider: "openai",
       model: "text-embedding-3-small",
@@ -291,19 +291,19 @@ describe("memory cli", () => {
   it("documents memory help examples", () => {
     const helpText = getMemoryHelpText();
 
-    expect(helpText).toContain("zhushou memory status --fix");
+    expect(helpText).toContain("assistant memory status --fix");
     expect(helpText).toContain("Repair stale recall locks and normalize promotion metadata.");
-    expect(helpText).toContain("zhushou memory status --deep");
+    expect(helpText).toContain("assistant memory status --deep");
     expect(helpText).toContain("Probe embedding provider readiness.");
-    expect(helpText).toContain('zhushou memory search "meeting notes"');
+    expect(helpText).toContain('assistant memory search "meeting notes"');
     expect(helpText).toContain("Quick search using positional query.");
-    expect(helpText).toContain('zhushou memory search --query "deployment" --max-results 20');
+    expect(helpText).toContain('assistant memory search --query "deployment" --max-results 20');
     expect(helpText).toContain("Limit results for focused troubleshooting.");
-    expect(helpText).toContain("zhushou memory promote --apply");
+    expect(helpText).toContain("assistant memory promote --apply");
     expect(helpText).toContain("Append top-ranked short-term candidates into MEMORY.md.");
-    expect(helpText).toContain('zhushou memory promote-explain "router vlan"');
+    expect(helpText).toContain('assistant memory promote-explain "router vlan"');
     expect(helpText).toContain("Explain why a specific candidate would or would not promote.");
-    expect(helpText).toContain("zhushou memory rem-harness --json");
+    expect(helpText).toContain("assistant memory rem-harness --json");
     expect(helpText).toContain(
       "Preview REM reflections, candidate truths, and deep promotion output.",
     );
@@ -458,7 +458,7 @@ describe("memory cli", () => {
       const log = spyRuntimeLogs(defaultRuntime);
       await runMemoryCli(["status"]);
       expect(log).toHaveBeenCalledWith(
-        expect.stringContaining("Fix: zhushou memory status --fix --agent main"),
+        expect.stringContaining("Fix: assistant memory status --fix --agent main"),
       );
 
       log.mockClear();
@@ -469,7 +469,7 @@ describe("memory cli", () => {
       });
       await runMemoryCli(["status", "--fix"]);
       expect(log).not.toHaveBeenCalledWith(
-        expect.stringContaining("Fix: zhushou memory status --fix --agent main"),
+        expect.stringContaining("Fix: assistant memory status --fix --agent main"),
       );
     });
   });
@@ -1111,7 +1111,7 @@ describe("memory cli", () => {
       await runMemoryCli(["rem-backfill", "--path", historyPath]);
 
       const dreams = await fs.readFile(path.join(workspaceDir, "DREAMS.md"), "utf-8");
-      expect(dreams).toContain("zhushou:dreaming:backfill-entry");
+      expect(dreams).toContain("assistant:dreaming:backfill-entry");
       expect(dreams).toContain(`source=${historyPath}`);
       expect(dreams).toContain("January 1, 2025");
       expect(dreams).toContain("What Happened");
@@ -1412,7 +1412,7 @@ describe("memory cli", () => {
         [
           "# Dream Diary",
           "",
-          "<!-- zhushou:dreaming:diary:start -->",
+          "<!-- assistant:dreaming:diary:start -->",
           "---",
           "",
           "*April 5, 2026, 3:00 AM*",
@@ -1423,12 +1423,12 @@ describe("memory cli", () => {
           "",
           "*January 1, 2025*",
           "",
-          "<!-- zhushou:dreaming:backfill-entry day=2025-01-01 source=memory/2025-01-01.md -->",
+          "<!-- assistant:dreaming:backfill-entry day=2025-01-01 source=memory/2025-01-01.md -->",
           "",
           "What Happened",
           "1. Remove this entry.",
           "",
-          "<!-- zhushou:dreaming:diary:end -->",
+          "<!-- assistant:dreaming:diary:end -->",
           "",
         ].join("\n"),
         "utf-8",
@@ -1503,7 +1503,7 @@ describe("memory cli", () => {
       const memoryPath = path.join(workspaceDir, "MEMORY.md");
       const memoryText = await fs.readFile(memoryPath, "utf-8");
       expect(memoryText).toContain("Promoted From Short-Term Memory");
-      expect(memoryText).toContain("zhushou-memory-promotion:");
+      expect(memoryText).toContain("assistant-memory-promotion:");
       expect(memoryText).toContain("memory/2026-04-01.md:10-10");
       expect(log).toHaveBeenCalledWith(expect.stringContaining("Processed 1 candidate(s) for"));
       expect(log).toHaveBeenCalledWith(expect.stringContaining("appended=1 reconciledExisting=0"));

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { isWithinActiveHours } from "./heartbeat-active-hours.js";
 
-function cfgWithUserTimezone(userTimezone = "UTC"): ZhushouConfig {
+function cfgWithUserTimezone(userTimezone = "UTC"): AssistantConfig {
   return {
     agents: {
       defaults: {

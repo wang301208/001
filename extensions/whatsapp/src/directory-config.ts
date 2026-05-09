@@ -1,9 +1,9 @@
-import { adaptScopedAccountAccessor } from "zhushou/plugin-sdk/channel-config-helpers";
+import { adaptScopedAccountAccessor } from "assistant/plugin-sdk/channel-config-helpers";
 import {
   listResolvedDirectoryGroupEntriesFromMapKeys,
   listResolvedDirectoryUserEntriesFromAllowFrom,
   type DirectoryConfigParams,
-} from "zhushou/plugin-sdk/directory-runtime";
+} from "assistant/plugin-sdk/directory-runtime";
 import { resolveWhatsAppAccount, type ResolvedWhatsAppAccount } from "./accounts.js";
 import { isWhatsAppGroupJid, normalizeWhatsAppTarget } from "./normalize.js";
 

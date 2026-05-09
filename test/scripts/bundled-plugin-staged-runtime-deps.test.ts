@@ -14,14 +14,14 @@ function writeJson(root: string, relativePath: string, value: unknown) {
 
 describe("collectBuiltBundledPluginStagedRuntimeDependencyErrors", () => {
   it("flags built staged plugins whose dist node_modules are missing runtime deps", () => {
-    const repoRoot = createTempDir("zhushou-runtime-contracts-");
+    const repoRoot = createTempDir("assistant-runtime-contracts-");
 
     writeJson(repoRoot, "dist/extensions/diffs/package.json", {
-      name: "@zhushou/diffs",
+      name: "@assistant/diffs",
       dependencies: {
         "@pierre/diffs": "^0.1.0",
       },
-      zhushou: {
+      assistant: {
         bundle: {
           stageRuntimeDependencies: true,
         },
@@ -38,14 +38,14 @@ describe("collectBuiltBundledPluginStagedRuntimeDependencyErrors", () => {
   });
 
   it("accepts built staged plugins when their staged runtime deps are present", () => {
-    const repoRoot = createTempDir("zhushou-runtime-contracts-");
+    const repoRoot = createTempDir("assistant-runtime-contracts-");
 
     writeJson(repoRoot, "dist/extensions/diffs/package.json", {
-      name: "@zhushou/diffs",
+      name: "@assistant/diffs",
       dependencies: {
         "@pierre/diffs": "^0.1.0",
       },
-      zhushou: {
+      assistant: {
         bundle: {
           stageRuntimeDependencies: true,
         },
@@ -68,7 +68,7 @@ describe("collectBuiltBundledPluginStagedRuntimeDependencyErrors", () => {
       fs.readFileSync(path.join(process.cwd(), "extensions/whatsapp/package.json"), "utf8"),
     ) as {
       dependencies?: Record<string, string>;
-      zhushou?: {
+      assistant?: {
         bundle?: {
           stageRuntimeDependencies?: boolean;
         };
@@ -76,6 +76,6 @@ describe("collectBuiltBundledPluginStagedRuntimeDependencyErrors", () => {
     };
 
     expect(packageJson.dependencies?.["@whiskeysockets/baileys"]).toBe("7.0.0-rc.9");
-    expect(packageJson.zhushou?.bundle?.stageRuntimeDependencies).toBe(true);
+    expect(packageJson.assistant?.bundle?.stageRuntimeDependencies).toBe(true);
   });
 });

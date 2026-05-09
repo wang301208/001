@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   createSnapshot,
   listConfigSnapshots,
@@ -13,11 +13,11 @@ import {
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-function sampleConfig(overrides: Partial<ZhushouConfig> = {}): ZhushouConfig {
+function sampleConfig(overrides: Partial<AssistantConfig> = {}): AssistantConfig {
   return {
     gateway: { bind: "loopback", auth: { mode: "token" } },
     ...overrides,
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 let tmpDir = "";
@@ -149,7 +149,7 @@ describe("rollbackToSnapshot", () => {
     const snap = createSnapshot(cfg, "immutable-test");
     const originalBind = snap.config.gateway?.bind;
 
-    const writer = vi.fn(async (written: ZhushouConfig) => {
+    const writer = vi.fn(async (written: AssistantConfig) => {
       (written as unknown as Record<string, unknown>).gateway = { bind: "mutated" };
     });
 

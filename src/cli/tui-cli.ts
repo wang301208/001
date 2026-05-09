@@ -8,10 +8,10 @@ import { parseTimeoutMs } from "./parse-timeout.js";
 export function registerTuiCli(program: Command) {
   program
     .command("tui")
-    .description("Open a terminal UI connected to the Gateway")
-    .option("--url <url>", "Gateway WebSocket URL (defaults to gateway.remote.url when configured)")
-    .option("--token <token>", "Gateway token (if required)")
-    .option("--password <password>", "Gateway password (if required)")
+    .description("Open the assistant terminal UI with an embedded local Python gateway")
+    .option("--url <url>", "Remote Gateway WebSocket URL (opts out of embedded stdio mode)")
+    .option("--token <token>", "Remote Gateway token (only with --url)")
+    .option("--password <password>", "Remote Gateway password (only with --url)")
     .option("--session <key>", 'Session key (default: "main", or "global" when scope is global)')
     .option("--deliver", "Deliver assistant replies", false)
     .option("--thinking <level>", "Thinking level override")
@@ -20,7 +20,7 @@ export function registerTuiCli(program: Command) {
     .option("--history-limit <n>", "History entries to load", "200")
     .addHelpText(
       "after",
-      () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/tui", "docs.zhushou.ai/cli/tui")}\n`,
+      () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/tui", "docs.assistant.ai/cli/tui")}\n`,
     )
     .action(async (opts) => {
       try {

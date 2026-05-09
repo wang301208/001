@@ -27,11 +27,11 @@ const providerEnvVarsById = vi.hoisted(
 );
 
 vi.mock("../agents/agent-paths.js", () => ({
-  resolveOpenClawAgentDir: () => process.env.OPENCLAW_AGENT_DIR ?? "/tmp/zhushou-agent",
+  resolveAssistantAgentDir: () => process.env.ASSISTANT_AGENT_DIR ?? "/tmp/assistant-agent",
 }));
 
 vi.mock("../config/paths.js", () => ({
-  resolveStateDir: () => process.env.ZHUSHOU_STATE_DIR ?? "/tmp/zhushou-state",
+  resolveStateDir: () => process.env.ASSISTANT_STATE_DIR ?? "/tmp/assistant-state",
 }));
 
 vi.mock("../agents/auth-profiles/profiles.js", async () => {
@@ -39,7 +39,7 @@ vi.mock("../agents/auth-profiles/profiles.js", async () => {
   const path = await import("node:path");
   return {
     upsertAuthProfile: (params: { profileId: string; credential: unknown; agentDir?: string }) => {
-      const agentDir = params.agentDir ?? process.env.OPENCLAW_AGENT_DIR ?? "/tmp/zhushou-agent";
+      const agentDir = params.agentDir ?? process.env.ASSISTANT_AGENT_DIR ?? "/tmp/assistant-agent";
       const file = path.join(agentDir, "auth-profiles.json");
       fs.mkdirSync(agentDir, { recursive: true });
       const existing = (() => {
@@ -86,10 +86,10 @@ vi.mock("../secrets/provider-env-vars.js", () => ({
 
 describe("writeOAuthCredentials", () => {
   const lifecycle = createAuthTestLifecycle([
-    "ZHUSHOU_STATE_DIR",
-    "OPENCLAW_AGENT_DIR",
+    "ASSISTANT_STATE_DIR",
+    "ASSISTANT_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
-    "OPENCLAW_OAUTH_DIR",
+    "ASSISTANT_OAUTH_DIR",
   ]);
 
   let tempStateDir: string;
@@ -99,8 +99,8 @@ describe("writeOAuthCredentials", () => {
     await lifecycle.cleanup();
   });
 
-  it("writes auth-profiles.json under OPENCLAW_AGENT_DIR when set", async () => {
-    const env = await setupAuthTestEnv("zhushou-oauth-");
+  it("writes auth-profiles.json under ASSISTANT_AGENT_DIR when set", async () => {
+    const env = await setupAuthTestEnv("assistant-oauth-");
     lifecycle.setStateDir(env.stateDir);
 
     const creds = {
@@ -126,8 +126,8 @@ describe("writeOAuthCredentials", () => {
   });
 
   it("writes OAuth credentials to all sibling agent dirs when syncSiblingAgents=true", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-oauth-sync-"));
-    process.env.ZHUSHOU_STATE_DIR = tempStateDir;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-oauth-sync-"));
+    process.env.ASSISTANT_STATE_DIR = tempStateDir;
 
     const mainAgentDir = path.join(tempStateDir, "agents", "main", "agent");
     const kidAgentDir = path.join(tempStateDir, "agents", "kid", "agent");
@@ -136,7 +136,7 @@ describe("writeOAuthCredentials", () => {
     await fs.mkdir(kidAgentDir, { recursive: true });
     await fs.mkdir(workerAgentDir, { recursive: true });
 
-    process.env.OPENCLAW_AGENT_DIR = kidAgentDir;
+    process.env.ASSISTANT_AGENT_DIR = kidAgentDir;
     process.env.PI_CODING_AGENT_DIR = kidAgentDir;
 
     const creds = {
@@ -163,15 +163,15 @@ describe("writeOAuthCredentials", () => {
   });
 
   it("writes OAuth credentials only to target dir by default", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-oauth-nosync-"));
-    process.env.ZHUSHOU_STATE_DIR = tempStateDir;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-oauth-nosync-"));
+    process.env.ASSISTANT_STATE_DIR = tempStateDir;
 
     const mainAgentDir = path.join(tempStateDir, "agents", "main", "agent");
     const kidAgentDir = path.join(tempStateDir, "agents", "kid", "agent");
     await fs.mkdir(mainAgentDir, { recursive: true });
     await fs.mkdir(kidAgentDir, { recursive: true });
 
-    process.env.OPENCLAW_AGENT_DIR = kidAgentDir;
+    process.env.ASSISTANT_AGENT_DIR = kidAgentDir;
     process.env.PI_CODING_AGENT_DIR = kidAgentDir;
 
     const creds = {
@@ -194,11 +194,11 @@ describe("writeOAuthCredentials", () => {
     await expect(fs.readFile(authProfilePathFor(mainAgentDir), "utf8")).rejects.toThrow();
   });
 
-  it("syncs siblings from explicit agentDir outside ZHUSHOU_STATE_DIR", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-oauth-external-"));
-    process.env.ZHUSHOU_STATE_DIR = tempStateDir;
+  it("syncs siblings from explicit agentDir outside ASSISTANT_STATE_DIR", async () => {
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-oauth-external-"));
+    process.env.ASSISTANT_STATE_DIR = tempStateDir;
 
-    // Create standard-layout agents tree *outside* ZHUSHOU_STATE_DIR
+    // Create standard-layout agents tree *outside* ASSISTANT_STATE_DIR
     const externalRoot = path.join(tempStateDir, "external", "agents");
     const extMain = path.join(externalRoot, "main", "agent");
     const extKid = path.join(externalRoot, "kid", "agent");
@@ -238,8 +238,8 @@ describe("writeOAuthCredentials", () => {
 
 describe("upsertApiKeyProfile secret refs", () => {
   const lifecycle = createAuthTestLifecycle([
-    "ZHUSHOU_STATE_DIR",
-    "OPENCLAW_AGENT_DIR",
+    "ASSISTANT_STATE_DIR",
+    "ASSISTANT_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
     "MOONSHOT_API_KEY",
     "OPENAI_API_KEY",
@@ -266,7 +266,7 @@ describe("upsertApiKeyProfile secret refs", () => {
   }
 
   it("handles plaintext, ref mode, and inline env-ref provider keys", async () => {
-    const env = await setupAuthTestEnv("zhushou-onboard-auth-credentials-");
+    const env = await setupAuthTestEnv("assistant-onboard-auth-credentials-");
     lifecycle.setStateDir(env.stateDir);
     process.env.MOONSHOT_API_KEY = "sk-moonshot-env"; // pragma: allowlist secret
     process.env.OPENAI_API_KEY = "sk-openai-env"; // pragma: allowlist secret
@@ -331,7 +331,7 @@ describe("upsertApiKeyProfile secret refs", () => {
   });
 
   it("stores provider-specific env refs and metadata in ref mode", async () => {
-    const env = await setupAuthTestEnv("zhushou-onboard-auth-credentials-provider-ref-");
+    const env = await setupAuthTestEnv("assistant-onboard-auth-credentials-provider-ref-");
     lifecycle.setStateDir(env.stateDir);
     process.env.CLOUDFLARE_AI_GATEWAY_API_KEY = "cf-secret"; // pragma: allowlist secret
     process.env.VOLCANO_ENGINE_API_KEY = "volcengine-secret"; // pragma: allowlist secret
@@ -384,8 +384,8 @@ describe("upsertApiKeyProfile secret refs", () => {
 
 describe("upsertApiKeyProfile", () => {
   const lifecycle = createAuthTestLifecycle([
-    "ZHUSHOU_STATE_DIR",
-    "OPENCLAW_AGENT_DIR",
+    "ASSISTANT_STATE_DIR",
+    "ASSISTANT_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
 
@@ -393,8 +393,8 @@ describe("upsertApiKeyProfile", () => {
     await lifecycle.cleanup();
   });
 
-  it("writes to OPENCLAW_AGENT_DIR when set", async () => {
-    const env = await setupAuthTestEnv("zhushou-minimax-", { agentSubdir: "custom-agent" });
+  it("writes to ASSISTANT_AGENT_DIR when set", async () => {
+    const env = await setupAuthTestEnv("assistant-minimax-", { agentSubdir: "custom-agent" });
     lifecycle.setStateDir(env.stateDir);
 
     upsertApiKeyProfile({ provider: "minimax", input: "sk-minimax-test" });

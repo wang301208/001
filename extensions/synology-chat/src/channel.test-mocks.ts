@@ -41,24 +41,24 @@ async function readRequestBodyWithLimitForTest(req: IncomingMessage): Promise<st
   });
 }
 
-vi.mock("zhushou/plugin-sdk/setup", async () => {
-  const actual = await vi.importActual<object>("zhushou/plugin-sdk/setup");
+vi.mock("assistant/plugin-sdk/setup", async () => {
+  const actual = await vi.importActual<object>("assistant/plugin-sdk/setup");
   return {
     ...actual,
     DEFAULT_ACCOUNT_ID: "default",
   };
 });
 
-vi.mock("zhushou/plugin-sdk/channel-config-schema", async () => {
-  const actual = await vi.importActual<object>("zhushou/plugin-sdk/channel-config-schema");
+vi.mock("assistant/plugin-sdk/channel-config-schema", async () => {
+  const actual = await vi.importActual<object>("assistant/plugin-sdk/channel-config-schema");
   return {
     ...actual,
     buildChannelConfigSchema: vi.fn((schema: unknown) => ({ schema })),
   };
 });
 
-vi.mock("zhushou/plugin-sdk/webhook-ingress", async () => {
-  const actual = await vi.importActual<object>("zhushou/plugin-sdk/webhook-ingress");
+vi.mock("assistant/plugin-sdk/webhook-ingress", async () => {
+  const actual = await vi.importActual<object>("assistant/plugin-sdk/webhook-ingress");
   return {
     ...actual,
     registerPluginHttpRoute: registerPluginHttpRouteMock,

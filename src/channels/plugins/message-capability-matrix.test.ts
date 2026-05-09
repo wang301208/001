@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import type { ChannelMessageActionAdapter, ChannelPlugin } from "./types.js";
 
 const telegramDescribeMessageToolMock = vi.fn();
@@ -121,7 +121,7 @@ describe("channel action capability matrix", () => {
     discordDescribeMessageToolMock.mockReset();
   });
 
-  function getCapabilities(plugin: Pick<ChannelPlugin, "actions">, cfg: ZhushouConfig) {
+  function getCapabilities(plugin: Pick<ChannelPlugin, "actions">, cfg: AssistantConfig) {
     const describeMessageTool: ChannelMessageActionAdapter["describeMessageTool"] | undefined =
       plugin.actions?.describeMessageTool;
     return [...(describeMessageTool?.({ cfg })?.capabilities ?? [])];
@@ -135,7 +135,7 @@ describe("channel action capability matrix", () => {
           appToken: "xapp-test",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const interactiveCfg = {
       channels: {
         slack: {
@@ -144,7 +144,7 @@ describe("channel action capability matrix", () => {
           capabilities: { interactiveReplies: true },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(getCapabilities(slackPlugin, baseCfg)).toEqual(["blocks"]);
     expect(getCapabilities(slackPlugin, interactiveCfg)).toEqual(["blocks", "interactive"]);
@@ -155,7 +155,7 @@ describe("channel action capability matrix", () => {
       capabilities: ["interactive", "buttons"],
     });
 
-    const result = getCapabilities(telegramPlugin, {} as ZhushouConfig);
+    const result = getCapabilities(telegramPlugin, {} as AssistantConfig);
 
     expect(result).toEqual(["interactive", "buttons"]);
     expect(telegramDescribeMessageToolMock).toHaveBeenCalledWith({ cfg: {} });
@@ -163,7 +163,7 @@ describe("channel action capability matrix", () => {
       capabilities: ["interactive", "components"],
     });
 
-    const discordResult = getCapabilities(discordPlugin, {} as ZhushouConfig);
+    const discordResult = getCapabilities(discordPlugin, {} as AssistantConfig);
 
     expect(discordResult).toEqual(["interactive", "components"]);
     expect(discordDescribeMessageToolMock).toHaveBeenCalledWith({ cfg: {} });
@@ -178,14 +178,14 @@ describe("channel action capability matrix", () => {
           baseUrl: "https://chat.example.com",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const unconfiguredCfg = {
       channels: {
         mattermost: {
           enabled: true,
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const configuredFeishuCfg = {
       channels: {
         feishu: {
@@ -194,7 +194,7 @@ describe("channel action capability matrix", () => {
           appSecret: "secret",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const disabledFeishuCfg = {
       channels: {
         feishu: {
@@ -203,7 +203,7 @@ describe("channel action capability matrix", () => {
           appSecret: "secret",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const configuredMsteamsCfg = {
       channels: {
         msteams: {
@@ -213,7 +213,7 @@ describe("channel action capability matrix", () => {
           appPassword: "secret",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const disabledMsteamsCfg = {
       channels: {
         msteams: {
@@ -223,7 +223,7 @@ describe("channel action capability matrix", () => {
           appPassword: "secret",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(getCapabilities(mattermostPlugin, configuredCfg)).toEqual(["buttons"]);
     expect(getCapabilities(mattermostPlugin, unconfiguredCfg)).toEqual([]);
@@ -241,7 +241,7 @@ describe("channel action capability matrix", () => {
           botToken: "zl-token",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(getCapabilities(zaloPlugin, cfg)).toEqual([]);
   });

@@ -5,6 +5,7 @@ import type {
 } from "../../plugins/runtime/runtime-autonomy.types.js";
 import { createRuntimeAutonomy } from "../../plugins/runtime/runtime-autonomy.js";
 import { createRuntimeTaskFlow } from "../../plugins/runtime/runtime-taskflow.js";
+import { loadGovernanceCharter } from "../../governance/charter-runtime.js";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../routing/session-key.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import type { TaskRuntime } from "../../tasks/task-registry.types.js";
@@ -70,8 +71,10 @@ function bindAutonomyRuntime(params: {
   cronService?: import("../../cron/service-contract.js").CronServiceContract;
 }) {
   const sessionKey = resolveAutonomySessionKey(params);
+  const charterDir = loadGovernanceCharter().charterDir;
   const runtime = createRuntimeAutonomy({
     legacyTaskFlow: createRuntimeTaskFlow(),
+    charterDir,
     cronService: params.cronService,
   }).bindSession({
     sessionKey,

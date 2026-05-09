@@ -1,11 +1,11 @@
-import { resolveActiveTalkProviderConfig } from "zhushou/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import type { SpeechVoiceOption } from "zhushou/plugin-sdk/speech";
+import { resolveActiveTalkProviderConfig } from "assistant/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import type { SpeechVoiceOption } from "assistant/plugin-sdk/speech";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "zhushou/plugin-sdk/text-runtime";
-import { definePluginEntry, type ZhushouPluginApi } from "./api.js";
+} from "assistant/plugin-sdk/text-runtime";
+import { definePluginEntry, type AssistantPluginApi } from "./api.js";
 
 function mask(s: string, keep: number = 6): string {
   const trimmed = s.trim();
@@ -120,7 +120,7 @@ export default definePluginEntry({
   id: "talk-voice",
   name: "Talk Voice",
   description: "Command helpers for managing Talk voice configuration",
-  register(api: ZhushouPluginApi) {
+  register(api: AssistantPluginApi) {
     api.registerCommand({
       name: "voice",
       nativeNames: {

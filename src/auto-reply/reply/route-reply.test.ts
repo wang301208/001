@@ -4,7 +4,7 @@ import type {
   ChannelPlugin,
   ChannelThreadingAdapter,
 } from "../../channels/plugins/types.js";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createChannelTestPluginBase,
@@ -224,8 +224,8 @@ describe("routeReply", () => {
 
   it("applies responsePrefix when routing", async () => {
     const cfg = {
-      messages: { responsePrefix: "[zhushou]" },
-    } as unknown as ZhushouConfig;
+      messages: { responsePrefix: "[assistant]" },
+    } as unknown as AssistantConfig;
     await routeReply({
       payload: { text: "hi" },
       channel: "slack",
@@ -233,7 +233,7 @@ describe("routeReply", () => {
       cfg,
     });
     expectLastDelivery({
-      payloads: [expect.objectContaining({ text: "[zhushou] hi" })],
+      payloads: [expect.objectContaining({ text: "[assistant] hi" })],
     });
   });
 
@@ -244,7 +244,7 @@ describe("routeReply", () => {
           capabilities: { interactiveReplies: true },
         },
       },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
     await routeReply({
       payload: { text: "[[slack_select: Choose one | Alpha:alpha]]" },
       channel: "slack",
@@ -282,7 +282,7 @@ describe("routeReply", () => {
         ],
       },
       messages: {},
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
     await routeReply({
       payload: { text: "hi" },
       channel: "slack",
@@ -429,7 +429,7 @@ describe("routeReply", () => {
             baseUrl: "https://chat.example.com",
           },
         },
-      } as unknown as ZhushouConfig,
+      } as unknown as AssistantConfig,
     });
     expectLastDelivery({
       channel: "mattermost",
@@ -479,7 +479,7 @@ describe("routeReply", () => {
           enabled: true,
         },
       },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
     await routeReply({
       payload: { text: "hi" },
       channel: "msteams",

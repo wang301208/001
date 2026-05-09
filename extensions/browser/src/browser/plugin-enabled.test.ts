@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { isDefaultBrowserPluginEnabled } from "../plugin-enabled.js";
 
 describe("isDefaultBrowserPluginEnabled", () => {
   it("defaults to enabled", () => {
-    expect(isDefaultBrowserPluginEnabled({} as ZhushouConfig)).toBe(true);
+    expect(isDefaultBrowserPluginEnabled({} as AssistantConfig)).toBe(true);
   });
 
   it("respects explicit plugin disablement", () => {
@@ -17,7 +17,7 @@ describe("isDefaultBrowserPluginEnabled", () => {
             },
           },
         },
-      } as ZhushouConfig),
+      } as AssistantConfig),
     ).toBe(false);
   });
 });

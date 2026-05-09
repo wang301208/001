@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { createExecApprovalForwarder } from "../infra/exec-approval-forwarder.js";
 import { type PluginApprovalRequestPayload } from "../infra/plugin-approvals.js";
 import {
@@ -29,7 +29,7 @@ export function createGatewayAuxHandlers(params: {
   log: GatewayAuxHandlerLogger;
   activateRuntimeSecrets: ActivateRuntimeSecrets;
   sharedGatewaySessionGenerationState: SharedGatewaySessionGenerationState;
-  resolveSharedGatewaySessionGenerationForConfig: (config: ZhushouConfig) => string | undefined;
+  resolveSharedGatewaySessionGenerationForConfig: (config: AssistantConfig) => string | undefined;
   clients: Iterable<SharedGatewayAuthClient>;
 }) {
   const execApprovalManager = new ExecApprovalManager();

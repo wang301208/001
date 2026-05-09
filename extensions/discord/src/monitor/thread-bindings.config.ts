@@ -1,10 +1,10 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   resolveThreadBindingIdleTimeoutMs,
   resolveThreadBindingMaxAgeMs,
   resolveThreadBindingsEnabled,
-} from "zhushou/plugin-sdk/conversation-runtime";
-import { normalizeAccountId } from "zhushou/plugin-sdk/routing";
+} from "assistant/plugin-sdk/conversation-runtime";
+import { normalizeAccountId } from "assistant/plugin-sdk/routing";
 
 export {
   resolveThreadBindingIdleTimeoutMs,
@@ -13,7 +13,7 @@ export {
 };
 
 export function resolveDiscordThreadBindingIdleTimeoutMs(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string;
 }): number {
   const accountId = normalizeAccountId(params.accountId);
@@ -26,7 +26,7 @@ export function resolveDiscordThreadBindingIdleTimeoutMs(params: {
 }
 
 export function resolveDiscordThreadBindingMaxAgeMs(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string;
 }): number {
   const accountId = normalizeAccountId(params.accountId);

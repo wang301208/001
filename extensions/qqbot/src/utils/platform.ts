@@ -9,8 +9,8 @@ import { execFile } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { resolvePreferredOpenClawTmpDir } from "zhushou/plugin-sdk/temp-path";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
 import { debugLog, debugWarn } from "./debug-log.js";
 
 // Basic platform information.
@@ -54,14 +54,14 @@ export function getHomeDir(): string {
   }
 
   // Final fallback.
-  return resolvePreferredOpenClawTmpDir();
+  return resolvePreferredAssistantTmpDir();
 }
 
 /**
- * Return a path under `~/.zhushou/qqbot`, creating it on demand.
+ * Return a path under `~/.assistant/qqbot`, creating it on demand.
  */
 export function getQQBotDataDir(...subPaths: string[]): string {
-  const dir = path.join(getHomeDir(), ".zhushou", "qqbot", ...subPaths);
+  const dir = path.join(getHomeDir(), ".assistant", "qqbot", ...subPaths);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -69,13 +69,13 @@ export function getQQBotDataDir(...subPaths: string[]): string {
 }
 
 /**
- * Return a path under `~/.zhushou/media/qqbot`, creating it on demand.
+ * Return a path under `~/.assistant/media/qqbot`, creating it on demand.
  *
  * Unlike `getQQBotDataDir`, this lives under 助手's core media allowlist so
  * downloaded images and audio can be accessed by framework media tooling.
  */
 export function getQQBotMediaDir(...subPaths: string[]): string {
-  const dir = path.join(getHomeDir(), ".zhushou", "media", "qqbot", ...subPaths);
+  const dir = path.join(getHomeDir(), ".assistant", "media", "qqbot", ...subPaths);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -86,7 +86,7 @@ export function getQQBotMediaDir(...subPaths: string[]): string {
 
 /** Return the preferred 助手 temp directory. */
 export function getTempDir(): string {
-  return resolvePreferredOpenClawTmpDir();
+  return resolvePreferredAssistantTmpDir();
 }
 
 // Tilde expansion.
@@ -144,7 +144,7 @@ export function resolveQQBotLocalMediaPath(p: string): string {
   const homeDir = getHomeDir();
   const mediaRoot = getQQBotMediaDir();
   const dataRoot = getQQBotDataDir();
-  const workspaceRoot = path.join(homeDir, ".zhushou", "workspace", "qqbot");
+  const workspaceRoot = path.join(homeDir, ".assistant", "workspace", "qqbot");
   const candidateRoots = [
     { from: workspaceRoot, to: mediaRoot },
     { from: dataRoot, to: mediaRoot },

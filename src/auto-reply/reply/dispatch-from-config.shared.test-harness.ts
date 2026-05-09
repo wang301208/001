@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { SessionBindingRecord } from "../../infra/outbound/session-binding-service.js";
 import type {
   PluginHookBeforeDispatchResult,
@@ -55,14 +55,14 @@ const internalHookMocks = vi.hoisted(() => ({
 }));
 const acpMocks = vi.hoisted(() => ({
   listAcpSessionEntries: vi.fn(async () => []),
-  readAcpSessionEntry: vi.fn<(params: { sessionKey: string; cfg?: ZhushouConfig }) => unknown>(
+  readAcpSessionEntry: vi.fn<(params: { sessionKey: string; cfg?: AssistantConfig }) => unknown>(
     () => null,
   ),
   getAcpRuntimeBackend: vi.fn<() => unknown>(() => null),
   upsertAcpSessionMeta: vi.fn<
     (params: {
       sessionKey: string;
-      cfg?: ZhushouConfig;
+      cfg?: AssistantConfig;
       mutate: (
         current: Record<string, unknown> | undefined,
         entry: { acp?: Record<string, unknown> } | undefined,
@@ -105,7 +105,7 @@ const ttsMocks = vi.hoisted(() => ({
     return params.payload;
   }),
   normalizeTtsAutoMode: vi.fn((value: unknown) => (typeof value === "string" ? value : undefined)),
-  resolveTtsConfig: vi.fn((_cfg: ZhushouConfig) => ({ mode: "final" })),
+  resolveTtsConfig: vi.fn((_cfg: AssistantConfig) => ({ mode: "final" })),
 }));
 const replyMediaPathMocks = vi.hoisted(() => ({
   createReplyMediaPathNormalizer: vi.fn(
@@ -264,7 +264,7 @@ vi.mock("./dispatch-acp-manager.runtime.js", () => ({
 vi.mock("../../tts/tts.js", () => ({
   maybeApplyTtsToPayload: (params: unknown) => ttsMocks.maybeApplyTtsToPayload(params),
   normalizeTtsAutoMode: (value: unknown) => ttsMocks.normalizeTtsAutoMode(value),
-  resolveTtsConfig: (cfg: ZhushouConfig) => ttsMocks.resolveTtsConfig(cfg),
+  resolveTtsConfig: (cfg: AssistantConfig) => ttsMocks.resolveTtsConfig(cfg),
 }));
 vi.mock("../../tts/tts.runtime.js", () => ({
   maybeApplyTtsToPayload: (params: unknown) => ttsMocks.maybeApplyTtsToPayload(params),
@@ -285,17 +285,17 @@ vi.mock("./dispatch-acp-tts.runtime.js", () => ({
   maybeApplyTtsToPayload: (params: unknown) => ttsMocks.maybeApplyTtsToPayload(params),
 }));
 vi.mock("./dispatch-acp-session.runtime.js", () => ({
-  readAcpSessionEntry: (params: { sessionKey: string; cfg?: ZhushouConfig }) =>
+  readAcpSessionEntry: (params: { sessionKey: string; cfg?: AssistantConfig }) =>
     acpMocks.readAcpSessionEntry(params),
 }));
 vi.mock("../../tts/tts-config.js", () => ({
   normalizeTtsAutoMode: (value: unknown) => ttsMocks.normalizeTtsAutoMode(value),
-  resolveConfiguredTtsMode: (cfg: ZhushouConfig) => ttsMocks.resolveTtsConfig(cfg).mode,
+  resolveConfiguredTtsMode: (cfg: AssistantConfig) => ttsMocks.resolveTtsConfig(cfg).mode,
   shouldAttemptTtsPayload: () => true,
 }));
 
 export const noAbortResult = { handled: false, aborted: false } as const;
-export const emptyConfig = {} as ZhushouConfig;
+export const emptyConfig = {} as AssistantConfig;
 
 export function createDispatcher(): ReplyDispatcher {
   const acceptReply = () => true;

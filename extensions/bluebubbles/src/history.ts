@@ -1,5 +1,5 @@
 import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 import { blueBubblesFetchWithTimeout, buildBlueBubblesApiUrl } from "./types.js";
 
 export type BlueBubblesHistoryEntry = {
@@ -37,7 +37,7 @@ export type BlueBubblesChatOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
 };
 
 function resolveAccount(params: BlueBubblesChatOpts) {

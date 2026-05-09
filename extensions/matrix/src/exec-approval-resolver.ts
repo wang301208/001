@@ -1,12 +1,12 @@
-import { resolveApprovalOverGateway } from "zhushou/plugin-sdk/approval-gateway-runtime";
-import type { ExecApprovalReplyDecision } from "zhushou/plugin-sdk/approval-runtime";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { isApprovalNotFoundError } from "zhushou/plugin-sdk/error-runtime";
+import { resolveApprovalOverGateway } from "assistant/plugin-sdk/approval-gateway-runtime";
+import type { ExecApprovalReplyDecision } from "assistant/plugin-sdk/approval-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { isApprovalNotFoundError } from "assistant/plugin-sdk/error-runtime";
 
 export { isApprovalNotFoundError };
 
 export async function resolveMatrixApproval(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   approvalId: string;
   decision: ExecApprovalReplyDecision;
   senderId?: string | null;

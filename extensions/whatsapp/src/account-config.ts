@@ -2,23 +2,23 @@ import {
   DEFAULT_ACCOUNT_ID,
   resolveAccountEntry,
   resolveMergedAccountConfig,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/account-core";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/account-core";
 import {
   resolveChannelStreamingBlockEnabled,
   resolveChannelStreamingChunkMode,
-} from "zhushou/plugin-sdk/channel-streaming";
+} from "assistant/plugin-sdk/channel-streaming";
 import type { WhatsAppAccountConfig } from "./account-types.js";
 
 function _resolveWhatsAppAccountConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
 ): WhatsAppAccountConfig | undefined {
   return resolveAccountEntry(cfg.channels?.whatsapp?.accounts, accountId);
 }
 
 export function resolveMergedWhatsAppAccountConfig(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): WhatsAppAccountConfig & { accountId: string } {
   const rootCfg = params.cfg.channels?.whatsapp;

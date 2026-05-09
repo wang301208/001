@@ -21,7 +21,7 @@ import type {
 } from "../auto-reply/thinking.js";
 import { toAgentModelListLike } from "../config/model-input.js";
 import type { SessionEntry, SessionScope } from "../config/sessions.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   formatUsageWindowSummary,
   loadProviderUsageSummary,
@@ -43,7 +43,7 @@ import {
 } from "../tasks/task-status.js";
 
 export type BuildStatusTextParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionEntry?: SessionEntry;
   sessionKey: string;
   parentSessionKey?: string;

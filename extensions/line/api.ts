@@ -1,11 +1,11 @@
 export type {
   ChannelAccountSnapshot,
   ChannelPlugin,
-  ZhushouConfig,
-  ZhushouPluginApi,
+  AssistantConfig,
+  AssistantPluginApi,
   PluginRuntime,
-} from "zhushou/plugin-sdk/core";
-export type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+} from "assistant/plugin-sdk/core";
+export type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
 export type { ResolvedLineAccount } from "./runtime-api.js";
 export { linePlugin } from "./src/channel.js";
 export { lineSetupPlugin } from "./src/channel.setup.js";

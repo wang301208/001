@@ -164,14 +164,14 @@ export type ExecApprovalsResolved = {
 };
 
 // Keep CLI + gateway defaults in sync.
-export const DEFAULT_EXEC_APPROVAL_TIMEOUT_MS = 1_800_000;
+export const DEFAULT_EXEC_APPROVAL_TIMEOUT_MS = 30_000;
 
 const DEFAULT_SECURITY: ExecSecurity = "full";
 const DEFAULT_ASK: ExecAsk = "off";
 export const DEFAULT_EXEC_APPROVAL_ASK_FALLBACK: ExecSecurity = "full";
 const DEFAULT_AUTO_ALLOW_SKILLS = false;
-const DEFAULT_SOCKET = "~/.zhushou/exec-approvals.sock";
-const DEFAULT_FILE = "~/.zhushou/exec-approvals.json";
+const DEFAULT_SOCKET = "~/.assistant/exec-approvals.sock";
+const DEFAULT_FILE = "~/.assistant/exec-approvals.json";
 
 function hashExecApprovalsRaw(raw: string | null): string {
   return crypto

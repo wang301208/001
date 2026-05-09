@@ -1,4 +1,4 @@
-import { z } from "zhushou/plugin-sdk/zod";
+import { z } from "assistant/plugin-sdk/zod";
 import type { CallMode } from "./config.js";
 
 // -----------------------------------------------------------------------------

@@ -1,9 +1,9 @@
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import type {
-  ZhushouConfig,
+  AssistantConfig,
   SecretInput,
   SecretInputMode,
-} from "zhushou/plugin-sdk/provider-auth";
+} from "assistant/plugin-sdk/provider-auth";
 import {
   ensureApiKeyFromOptionEnvOrPrompt,
   isNonSecretApiKeyMarker,
@@ -11,15 +11,15 @@ import {
   normalizeOptionalSecretInput,
   upsertAuthProfileWithLock,
   validateApiKeyInput,
-} from "zhushou/plugin-sdk/provider-auth";
-import { applyAgentDefaultModelPrimary } from "zhushou/plugin-sdk/provider-onboard";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
-import { WizardCancelledError, type WizardPrompter } from "zhushou/plugin-sdk/setup";
-import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/provider-auth";
+import { applyAgentDefaultModelPrimary } from "assistant/plugin-sdk/provider-onboard";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime";
+import { WizardCancelledError, type WizardPrompter } from "assistant/plugin-sdk/setup";
+import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import {
   OLLAMA_CLOUD_BASE_URL,
   OLLAMA_DEFAULT_BASE_URL,
@@ -44,7 +44,7 @@ type OllamaSetupOptions = {
 };
 
 type OllamaSetupResult = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   credential: SecretInput;
   credentialMode?: SecretInputMode;
 };
@@ -299,7 +299,7 @@ async function pullOllamaModelNonInteractive(
 }
 
 async function promptForOllamaCloudCredential(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   opts?: Record<string, unknown>;
   prompter: WizardPrompter;
@@ -373,12 +373,12 @@ function mergeUniqueModelNames(...groups: string[][]): string[] {
 }
 
 function applyOllamaProviderConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   baseUrl: string,
   modelNames: string[],
   discoveredModelsByName?: Map<string, OllamaModelWithContext>,
   apiKey: SecretInput = "OLLAMA_API_KEY",
-): ZhushouConfig {
+): AssistantConfig {
   return {
     ...cfg,
     models: {
@@ -438,7 +438,7 @@ async function resolveHostBackedSuggestedModelNames(params: {
 }
 
 async function promptAndConfigureHostBackedOllama(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   mode: HostBackedOllamaInteractiveMode;
   prompter: WizardPrompter;
 }): Promise<OllamaSetupResult> {
@@ -496,7 +496,7 @@ export async function buildOllamaProvider(
 }
 
 export async function promptAndConfigureOllama(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   opts?: Record<string, unknown>;
   prompter: WizardPrompter;
@@ -544,11 +544,11 @@ export async function promptAndConfigureOllama(params: {
 }
 
 export async function configureOllamaNonInteractive(params: {
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   opts: OllamaSetupOptions;
   runtime: RuntimeEnv;
   agentDir?: string;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const baseUrl = resolveOllamaApiBase(
     (params.opts.customBaseUrl?.trim() || OLLAMA_DEFAULT_BASE_URL).replace(/\/+$/, ""),
   );
@@ -632,7 +632,7 @@ export async function configureOllamaNonInteractive(params: {
 }
 
 export async function ensureOllamaModelPulled(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   model: string;
   prompter: WizardPrompter;
 }): Promise<void> {

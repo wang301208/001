@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import { normalizeOptionalString } from "../../../shared/string-coerce.js";
 import { sanitizeForLog } from "../../../terminal/ansi.js";
 import { resolveAllowFromMode, type AllowFromMode } from "./allow-from-mode.js";
@@ -21,8 +21,8 @@ export function collectOpenPolicyAllowFromWarnings(params: {
   ];
 }
 
-export function maybeRepairOpenPolicyAllowFrom(cfg: ZhushouConfig): {
-  config: ZhushouConfig;
+export function maybeRepairOpenPolicyAllowFrom(cfg: AssistantConfig): {
+  config: AssistantConfig;
   changes: string[];
 } {
   const channels = cfg.channels;

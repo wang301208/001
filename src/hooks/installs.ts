@@ -1,9 +1,9 @@
 import type { HookInstallRecord } from "../config/types.hooks.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 export type HookInstallUpdate = HookInstallRecord & { hookId: string };
 
-export function recordHookInstall(cfg: ZhushouConfig, update: HookInstallUpdate): ZhushouConfig {
+export function recordHookInstall(cfg: AssistantConfig, update: HookInstallUpdate): AssistantConfig {
   const { hookId, ...record } = update;
   const installs = {
     ...cfg.hooks?.internal?.installs,

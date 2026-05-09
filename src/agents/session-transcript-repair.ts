@@ -8,7 +8,7 @@ import { extractToolCallsFromAssistant, extractToolResultId } from "./tool-call-
 
 const TOOL_CALL_NAME_MAX_CHARS = 64;
 const TOOL_CALL_NAME_RE = /^[A-Za-z0-9_:.-]+$/;
-const REDACTED_SESSIONS_SPAWN_ATTACHMENT_CONTENT = "__OPENCLAW_REDACTED__";
+const REDACTED_SESSIONS_SPAWN_ATTACHMENT_CONTENT = "__ASSISTANT_REDACTED__";
 const SESSIONS_SPAWN_ATTACHMENT_METADATA_KEYS = ["name", "encoding", "mimeType"] as const;
 
 type RawToolCallBlock = {
@@ -235,7 +235,7 @@ function makeMissingToolResult(params: {
     content: [
       {
         type: "text",
-        text: "[zhushou] missing tool result in session history; inserted synthetic error result for transcript repair.",
+        text: "[assistant] missing tool result in session history; inserted synthetic error result for transcript repair.",
       },
     ],
     isError: true,

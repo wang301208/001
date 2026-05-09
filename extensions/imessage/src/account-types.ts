@@ -1,6 +1,6 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 
 export type IMessageAccountConfig = Omit<
-  NonNullable<NonNullable<ZhushouConfig["channels"]>["imessage"]>,
+  NonNullable<NonNullable<AssistantConfig["channels"]>["imessage"]>,
   "accounts" | "defaultAccount"
 >;

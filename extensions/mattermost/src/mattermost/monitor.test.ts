@@ -1,6 +1,6 @@
-import { createClaimableDedupe } from "zhushou/plugin-sdk/persistent-dedupe";
+import { createClaimableDedupe } from "assistant/plugin-sdk/persistent-dedupe";
 import { describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../runtime-api.js";
+import type { AssistantConfig } from "../../runtime-api.js";
 import { resolveMattermostAccount } from "./accounts.js";
 import {
   buildMattermostModelPickerSelectMessageSid,
@@ -41,7 +41,7 @@ function resolveRequireMentionForTest(params: MattermostRequireMentionResolverIn
   return true;
 }
 
-function evaluateMentionGateForMessage(params: { cfg: ZhushouConfig; threadRootId?: string }) {
+function evaluateMentionGateForMessage(params: { cfg: AssistantConfig; threadRootId?: string }) {
   const account = resolveMattermostAccount({ cfg: params.cfg, accountId: "default" });
   const resolver = vi.fn(resolveRequireMentionForTest);
   const input: MattermostMentionGateInput = {
@@ -65,7 +65,7 @@ function evaluateMentionGateForMessage(params: { cfg: ZhushouConfig; threadRootI
 
 describe("mattermost mention gating", () => {
   it("accepts unmentioned root channel posts in onmessage mode", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         mattermost: {
           chatmode: "onmessage",
@@ -86,7 +86,7 @@ describe("mattermost mention gating", () => {
   });
 
   it("accepts unmentioned thread replies in onmessage mode", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         mattermost: {
           chatmode: "onmessage",
@@ -106,7 +106,7 @@ describe("mattermost mention gating", () => {
   });
 
   it("rejects unmentioned channel posts in oncall mode", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         mattermost: {
           chatmode: "oncall",

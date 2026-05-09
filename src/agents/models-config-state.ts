@@ -1,4 +1,4 @@
-const MODELS_JSON_STATE_KEY = Symbol.for("zhushou.modelsJsonState");
+const MODELS_JSON_STATE_KEY = Symbol.for("assistant.modelsJsonState");
 
 type ModelsJsonState = {
   writeLocks: Map<string, Promise<void>>;

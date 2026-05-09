@@ -17,7 +17,7 @@ describe("status.scan.config-shared", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.resolveConfigPath.mockReturnValue(
-      `/tmp/zhushou-status-scan-config-shared-missing-${process.pid}.json`,
+      `/tmp/assistant-status-scan-config-shared-missing-${process.pid}.json`,
     );
   });
 

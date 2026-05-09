@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { sendMessage } from "./client.js";
 import { buildSynologyChatInboundContext, type SynologyInboundMessage } from "./inbound-context.js";
 import { getSynologyRuntime } from "./runtime.js";
@@ -12,7 +12,7 @@ type SynologyChannelLog = {
 };
 
 function resolveSynologyChatInboundRoute(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   account: ResolvedSynologyChatAccount;
   userId: string;
 }) {

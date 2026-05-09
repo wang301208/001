@@ -1,22 +1,22 @@
 import { Type } from "@sinclair/typebox";
-import { createMessageToolButtonsSchema } from "zhushou/plugin-sdk/channel-actions";
+import { createMessageToolButtonsSchema } from "assistant/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
   ChannelMessageToolDiscovery,
-} from "zhushou/plugin-sdk/channel-contract";
-import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { createLoggedPairingApprovalNotifier } from "zhushou/plugin-sdk/channel-pairing";
-import { createRestrictSendersChannelSecurity } from "zhushou/plugin-sdk/channel-policy";
-import { createChannelDirectoryAdapter } from "zhushou/plugin-sdk/directory-runtime";
-import { buildPassiveProbedChannelStatusSummary } from "zhushou/plugin-sdk/extension-shared";
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
-import { isPrivateNetworkOptInEnabled } from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/channel-contract";
+import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { createLoggedPairingApprovalNotifier } from "assistant/plugin-sdk/channel-pairing";
+import { createRestrictSendersChannelSecurity } from "assistant/plugin-sdk/channel-policy";
+import { createChannelDirectoryAdapter } from "assistant/plugin-sdk/directory-runtime";
+import { buildPassiveProbedChannelStatusSummary } from "assistant/plugin-sdk/extension-shared";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
+import { isPrivateNetworkOptInEnabled } from "assistant/plugin-sdk/ssrf-runtime";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "zhushou/plugin-sdk/status-helpers";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/status-helpers";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { mattermostApprovalAuth } from "./approval-auth.js";
 import {
   chunkTextForOutbound,

@@ -1,10 +1,10 @@
 import {
   createAccountStatusSink,
   runPassiveAccountLifecycle,
-} from "zhushou/plugin-sdk/channel-lifecycle";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
-import type { ChannelAccountSnapshot } from "zhushou/plugin-sdk/status-helpers";
+} from "assistant/plugin-sdk/channel-lifecycle";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
+import type { ChannelAccountSnapshot } from "assistant/plugin-sdk/status-helpers";
 import type { ResolvedGoogleChatAccount } from "./accounts.js";
 import type { GoogleChatRuntimeEnv } from "./monitor-types.js";
 
@@ -15,7 +15,7 @@ const loadGoogleChatChannelRuntime = createLazyRuntimeNamedExport(
 
 export async function startGoogleChatGatewayAccount(ctx: {
   account: ResolvedGoogleChatAccount;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: GoogleChatRuntimeEnv;
   abortSignal: AbortSignal;
   setStatus: (next: ChannelAccountSnapshot) => void;

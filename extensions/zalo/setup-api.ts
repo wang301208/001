@@ -1,4 +1,4 @@
-import { loadBundledEntryExportSync } from "zhushou/plugin-sdk/channel-entry-contract";
+import { loadBundledEntryExportSync } from "assistant/plugin-sdk/channel-entry-contract";
 
 type SetupSurfaceModule = typeof import("./src/setup-surface.js");
 

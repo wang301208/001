@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { readAcpSessionEntry } from "zhushou/plugin-sdk/acp-runtime";
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import { readAcpSessionEntry } from "assistant/plugin-sdk/acp-runtime";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   formatThreadBindingDurationLabel,
   registerSessionBindingAdapter,
@@ -12,13 +12,13 @@ import {
   type BindingTargetKind,
   type SessionBindingAdapter,
   type SessionBindingRecord,
-} from "zhushou/plugin-sdk/conversation-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { writeJsonFileAtomically } from "zhushou/plugin-sdk/json-store";
-import { normalizeAccountId, isAcpSessionKey } from "zhushou/plugin-sdk/routing";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { resolveStateDir } from "zhushou/plugin-sdk/state-paths";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { writeJsonFileAtomically } from "assistant/plugin-sdk/json-store";
+import { normalizeAccountId, isAcpSessionKey } from "assistant/plugin-sdk/routing";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { resolveStateDir } from "assistant/plugin-sdk/state-paths";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { resolveTelegramToken } from "./token.js";
 
 const DEFAULT_THREAD_BINDING_IDLE_TIMEOUT_MS = 24 * 60 * 60 * 1000;
@@ -87,7 +87,7 @@ type TelegramThreadBindingsState = {
  * Keep Telegram thread binding state shared across bundled chunks so routing,
  * binding lookups, and binding mutations all observe the same live registry.
  */
-const TELEGRAM_THREAD_BINDINGS_STATE_KEY = Symbol.for("zhushou.telegramThreadBindingsState");
+const TELEGRAM_THREAD_BINDINGS_STATE_KEY = Symbol.for("assistant.telegramThreadBindingsState");
 let threadBindingsState: TelegramThreadBindingsState | undefined;
 
 function getThreadBindingsState(): TelegramThreadBindingsState {

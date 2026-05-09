@@ -1,37 +1,37 @@
 import fs from "node:fs/promises";
-import { resolveHumanDelayConfig } from "zhushou/plugin-sdk/agent-runtime";
+import { resolveHumanDelayConfig } from "assistant/plugin-sdk/agent-runtime";
 import {
   createChannelInboundDebouncer,
   shouldDebounceTextInbound,
-} from "zhushou/plugin-sdk/channel-inbound";
-import { createChannelPairingChallengeIssuer } from "zhushou/plugin-sdk/channel-pairing";
-import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/channel-inbound";
+import { createChannelPairingChallengeIssuer } from "assistant/plugin-sdk/channel-pairing";
+import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   resolveOpenProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "zhushou/plugin-sdk/config-runtime";
-import { readSessionUpdatedAt, resolveStorePath } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/config-runtime";
+import { readSessionUpdatedAt, resolveStorePath } from "assistant/plugin-sdk/config-runtime";
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
-} from "zhushou/plugin-sdk/conversation-runtime";
-import { recordInboundSession } from "zhushou/plugin-sdk/conversation-runtime";
-import { normalizeScpRemoteHost } from "zhushou/plugin-sdk/host-runtime";
-import { waitForTransportReady } from "zhushou/plugin-sdk/infra-runtime";
-import { isInboundPathAllowed, kindFromMime } from "zhushou/plugin-sdk/media-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
+import { recordInboundSession } from "assistant/plugin-sdk/conversation-runtime";
+import { normalizeScpRemoteHost } from "assistant/plugin-sdk/host-runtime";
+import { waitForTransportReady } from "assistant/plugin-sdk/infra-runtime";
+import { isInboundPathAllowed, kindFromMime } from "assistant/plugin-sdk/media-runtime";
 import {
   clearHistoryEntriesIfEnabled,
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
-} from "zhushou/plugin-sdk/reply-history";
-import { resolveTextChunkLimit } from "zhushou/plugin-sdk/reply-runtime";
-import { dispatchInboundMessage } from "zhushou/plugin-sdk/reply-runtime";
-import { createReplyDispatcher } from "zhushou/plugin-sdk/reply-runtime";
-import { danger, logVerbose, shouldLogVerbose, warn } from "zhushou/plugin-sdk/runtime-env";
-import { resolvePinnedMainDmOwnerFromAllowlist } from "zhushou/plugin-sdk/security-runtime";
-import { truncateUtf16Safe } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/reply-history";
+import { resolveTextChunkLimit } from "assistant/plugin-sdk/reply-runtime";
+import { dispatchInboundMessage } from "assistant/plugin-sdk/reply-runtime";
+import { createReplyDispatcher } from "assistant/plugin-sdk/reply-runtime";
+import { danger, logVerbose, shouldLogVerbose, warn } from "assistant/plugin-sdk/runtime-env";
+import { resolvePinnedMainDmOwnerFromAllowlist } from "assistant/plugin-sdk/security-runtime";
+import { truncateUtf16Safe } from "assistant/plugin-sdk/text-runtime";
 import { resolveIMessageAccount } from "../accounts.js";
 import { createIMessageRpcClient, type IMessageRpcClient } from "../client.js";
 import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "../constants.js";
@@ -61,7 +61,7 @@ const WATCH_SUBSCRIBE_RETRY_DELAY_MS = 1_000;
 
 /**
  * Try to detect remote host from an SSH wrapper script like:
- *   exec ssh -T zhushou@192.168.64.3 /opt/homebrew/bin/imsg "$@"
+ *   exec ssh -T assistant@192.168.64.3 /opt/homebrew/bin/imsg "$@"
  *   exec ssh -T mac-mini imsg "$@"
  * Returns the user@host or host portion if found, undefined otherwise.
  */
@@ -73,7 +73,7 @@ async function detectRemoteHostFromCliPath(cliPath: string): Promise<string | un
       : cliPath;
     const content = await fs.readFile(expanded, "utf8");
 
-    // Match user@host pattern first (e.g., zhushou@192.168.64.3)
+    // Match user@host pattern first (e.g., assistant@192.168.64.3)
     const userHostMatch = content.match(/\bssh\b[^\n]*?\s+([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+)/);
     if (userHostMatch) {
       return userHostMatch[1];

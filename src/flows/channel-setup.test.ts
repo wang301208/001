@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const resolveAgentWorkspaceDir = vi.hoisted(() =>
-  vi.fn((_cfg?: unknown, _agentId?: unknown) => "/tmp/zhushou-workspace"),
+  vi.fn((_cfg?: unknown, _agentId?: unknown) => "/tmp/assistant-workspace"),
 );
 const resolveDefaultAgentId = vi.hoisted(() => vi.fn((_cfg?: unknown) => "default"));
 const listTrustedChannelPluginCatalogEntries = vi.hoisted(() =>
@@ -86,12 +86,12 @@ import { setupChannels } from "./channel-setup.js";
 describe("setupChannels workspace shadow exclusion", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resolveAgentWorkspaceDir.mockReturnValue("/tmp/zhushou-workspace");
+    resolveAgentWorkspaceDir.mockReturnValue("/tmp/assistant-workspace");
     resolveDefaultAgentId.mockReturnValue("default");
     listTrustedChannelPluginCatalogEntries.mockReturnValue([
       {
         id: "telegram",
-        pluginId: "@zhushou/telegram-plugin",
+        pluginId: "@assistant/telegram-plugin",
         origin: "bundled",
       },
     ]);
@@ -124,14 +124,14 @@ describe("setupChannels workspace shadow exclusion", () => {
     expect(listTrustedChannelPluginCatalogEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         cfg: {},
-        workspaceDir: "/tmp/zhushou-workspace",
+        workspaceDir: "/tmp/assistant-workspace",
       }),
     );
     expect(loadChannelSetupPluginRegistrySnapshotForChannel).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: "telegram",
-        pluginId: "@zhushou/telegram-plugin",
-        workspaceDir: "/tmp/zhushou-workspace",
+        pluginId: "@assistant/telegram-plugin",
+        workspaceDir: "/tmp/assistant-workspace",
       }),
     );
   });
@@ -159,7 +159,7 @@ describe("setupChannels workspace shadow exclusion", () => {
       expect.objectContaining({
         channel: "telegram",
         pluginId: "trusted-telegram-shadow",
-        workspaceDir: "/tmp/zhushou-workspace",
+        workspaceDir: "/tmp/assistant-workspace",
       }),
     );
   });

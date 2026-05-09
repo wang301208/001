@@ -63,27 +63,27 @@ type GuardedSource = {
 const SAME_CHANNEL_SDK_GUARDS: GuardedSource[] = [
   {
     path: bundledPluginFile("discord", "src/shared.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/discord["']/, /plugin-sdk-internal\/discord/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/discord["']/, /plugin-sdk-internal\/discord/],
   },
   {
     path: bundledPluginFile("slack", "src/shared.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/slack["']/, /plugin-sdk-internal\/slack/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/slack["']/, /plugin-sdk-internal\/slack/],
   },
   {
     path: bundledPluginFile("telegram", "src/shared.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/telegram["']/, /plugin-sdk-internal\/telegram/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/telegram["']/, /plugin-sdk-internal\/telegram/],
   },
   {
     path: bundledPluginFile("telegram", "src/account-inspect.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/account-resolution["']/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/account-resolution["']/],
   },
   {
     path: bundledPluginFile("telegram", "src/accounts.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/account-resolution["']/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/account-resolution["']/],
   },
   {
     path: bundledPluginFile("telegram", "src/token.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/account-resolution["']/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/account-resolution["']/],
   },
   {
     path: bundledPluginFile("telegram", "src/channel.ts"),
@@ -123,19 +123,19 @@ const SAME_CHANNEL_SDK_GUARDS: GuardedSource[] = [
   },
   {
     path: bundledPluginFile("imessage", "src/shared.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/imessage["']/, /plugin-sdk-internal\/imessage/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/imessage["']/, /plugin-sdk-internal\/imessage/],
   },
   {
     path: bundledPluginFile("whatsapp", "src/shared.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/whatsapp["']/, /plugin-sdk-internal\/whatsapp/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/whatsapp["']/, /plugin-sdk-internal\/whatsapp/],
   },
   {
     path: bundledPluginFile("signal", "src/shared.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/signal["']/, /plugin-sdk-internal\/signal/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/signal["']/, /plugin-sdk-internal\/signal/],
   },
   {
     path: bundledPluginFile("signal", "src/runtime-api.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/signal["']/, /plugin-sdk-internal\/signal/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/signal["']/, /plugin-sdk-internal\/signal/],
   },
 ];
 
@@ -185,7 +185,7 @@ const SETUP_BARREL_GUARDS: GuardedSource[] = [
 const CHANNEL_CONFIG_SCHEMA_GUARDS: GuardedSource[] = [
   {
     path: bundledPluginFile("tlon", "src/config-schema.ts"),
-    forbiddenPatterns: [/["']zhushou\/plugin-sdk\/core["']/],
+    forbiddenPatterns: [/["']assistant\/plugin-sdk\/core["']/],
   },
 ];
 
@@ -475,10 +475,10 @@ function expectNoCrossPluginSdkFacadeImports(file: string, imports: string[]): v
     return;
   }
   for (const specifier of imports) {
-    if (!specifier.startsWith("zhushou/plugin-sdk/")) {
+    if (!specifier.startsWith("assistant/plugin-sdk/")) {
       continue;
     }
-    const targetSubpath = specifier.slice("zhushou/plugin-sdk/".length);
+    const targetSubpath = specifier.slice("assistant/plugin-sdk/".length);
     const targetExtensionId =
       BUNDLED_EXTENSION_IDS.find(
         (extensionId) =>
@@ -549,11 +549,11 @@ describe("channel import guardrails", () => {
   it("keeps bundled extension source files off root and compat plugin-sdk imports", () => {
     for (const file of collectExtensionSourceFiles()) {
       const text = readSource(file);
-      expect(text, `${file} should not import zhushou/plugin-sdk root`).not.toMatch(
-        /["']zhushou\/plugin-sdk["']/,
+      expect(text, `${file} should not import assistant/plugin-sdk root`).not.toMatch(
+        /["']assistant\/plugin-sdk["']/,
       );
-      expect(text, `${file} should not import zhushou/plugin-sdk/compat`).not.toMatch(
-        /["']zhushou\/plugin-sdk\/compat["']/,
+      expect(text, `${file} should not import assistant/plugin-sdk/compat`).not.toMatch(
+        /["']assistant\/plugin-sdk\/compat["']/,
       );
     }
   });
@@ -629,7 +629,7 @@ describe("channel import guardrails", () => {
         expect(
           text,
           `${normalized} should import ${extensionId} helpers via the local api barrel`,
-        ).not.toMatch(new RegExp(`["']zhushou/plugin-sdk/${extensionId}(?:["'/])`, "u"));
+        ).not.toMatch(new RegExp(`["']assistant/plugin-sdk/${extensionId}(?:["'/])`, "u"));
       }
     }
   });

@@ -1,5 +1,5 @@
 import type { ReplyPayload } from "../auto-reply/reply-payload.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { TtsAutoMode, TtsProvider } from "../config/types.tts.js";
 import type {
   SpeechProviderConfig,
@@ -55,7 +55,7 @@ export type ResolveTtsAutoModeParams = {
 };
 
 export type ResolveExplicitTtsOverridesParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prefsPath?: string;
   provider?: string;
   modelId?: string;
@@ -64,7 +64,7 @@ export type ResolveExplicitTtsOverridesParams = {
 
 export type TtsRequestParams = {
   text: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prefsPath?: string;
   channel?: string;
   overrides?: TtsDirectiveOverrides;
@@ -73,13 +73,13 @@ export type TtsRequestParams = {
 
 export type TtsTelephonyRequestParams = {
   text: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prefsPath?: string;
 };
 
 export type ListSpeechVoicesParams = {
   provider: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   config?: ResolvedTtsConfig;
   apiKey?: string;
   baseUrl?: string;
@@ -87,7 +87,7 @@ export type ListSpeechVoicesParams = {
 
 export type MaybeApplyTtsToPayloadParams = {
   payload: ReplyPayload;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel?: string;
   kind?: "tool" | "block" | "final";
   inboundAudio?: boolean;
@@ -102,7 +102,7 @@ export type TtsTestFacade = {
   getResolvedSpeechProviderConfig: (
     config: ResolvedTtsConfig,
     providerId: string,
-    cfg?: ZhushouConfig,
+    cfg?: AssistantConfig,
   ) => SpeechProviderConfig;
   formatTtsProviderError: (provider: TtsProvider, err: unknown) => string;
   sanitizeTtsErrorForLog: (err: unknown) => string;
@@ -156,12 +156,12 @@ export type ListSpeechVoices = (params: ListSpeechVoicesParams) => Promise<Speec
 
 export type TtsRuntimeFacade = {
   _test: TtsTestFacade;
-  buildTtsSystemPromptHint: (cfg: ZhushouConfig) => string | undefined;
+  buildTtsSystemPromptHint: (cfg: AssistantConfig) => string | undefined;
   getLastTtsAttempt: () => TtsStatusEntry | undefined;
   getResolvedSpeechProviderConfig: (
     config: ResolvedTtsConfig,
     providerId: string,
-    cfg?: ZhushouConfig,
+    cfg?: AssistantConfig,
   ) => SpeechProviderConfig;
   getTtsMaxLength: (prefsPath: string) => number;
   getTtsProvider: (config: ResolvedTtsConfig, prefsPath: string) => TtsProvider;
@@ -170,15 +170,15 @@ export type TtsRuntimeFacade = {
   isTtsProviderConfigured: (
     config: ResolvedTtsConfig,
     provider: TtsProvider,
-    cfg?: ZhushouConfig,
+    cfg?: AssistantConfig,
   ) => boolean;
   listSpeechVoices: ListSpeechVoices;
   maybeApplyTtsToPayload: (params: MaybeApplyTtsToPayloadParams) => Promise<ReplyPayload>;
   resolveExplicitTtsOverrides: (params: ResolveExplicitTtsOverridesParams) => TtsDirectiveOverrides;
   resolveTtsAutoMode: (params: ResolveTtsAutoModeParams) => TtsAutoMode;
-  resolveTtsConfig: (cfg: ZhushouConfig) => ResolvedTtsConfig;
+  resolveTtsConfig: (cfg: AssistantConfig) => ResolvedTtsConfig;
   resolveTtsPrefsPath: (config: ResolvedTtsConfig) => string;
-  resolveTtsProviderOrder: (primary: TtsProvider, cfg?: ZhushouConfig) => TtsProvider[];
+  resolveTtsProviderOrder: (primary: TtsProvider, cfg?: AssistantConfig) => TtsProvider[];
   setLastTtsAttempt: (entry: TtsStatusEntry | undefined) => void;
   setSummarizationEnabled: (prefsPath: string, enabled: boolean) => void;
   setTtsAutoMode: (prefsPath: string, mode: TtsAutoMode) => void;

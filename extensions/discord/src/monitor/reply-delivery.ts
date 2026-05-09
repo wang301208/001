@@ -1,23 +1,23 @@
 import type { RequestClient } from "@buape/carbon";
-import { resolveAgentAvatar } from "zhushou/plugin-sdk/agent-runtime";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { MarkdownTableMode, ReplyToMode } from "zhushou/plugin-sdk/config-runtime";
-import type { ChunkMode } from "zhushou/plugin-sdk/reply-chunking";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-dispatch-runtime";
+import { resolveAgentAvatar } from "assistant/plugin-sdk/agent-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { MarkdownTableMode, ReplyToMode } from "assistant/plugin-sdk/config-runtime";
+import type { ChunkMode } from "assistant/plugin-sdk/reply-chunking";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-dispatch-runtime";
 import {
   resolveSendableOutboundReplyParts,
   resolveTextChunksWithFallback,
   sendMediaWithLeadingCaption,
-} from "zhushou/plugin-sdk/reply-payload";
-import { isSingleUseReplyToMode } from "zhushou/plugin-sdk/reply-reference";
+} from "assistant/plugin-sdk/reply-payload";
+import { isSingleUseReplyToMode } from "assistant/plugin-sdk/reply-reference";
 import {
   resolveRetryConfig,
   retryAsync,
   type RetryConfig,
   type RetryRunner,
-} from "zhushou/plugin-sdk/retry-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { convertMarkdownTables, normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/retry-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { convertMarkdownTables, normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { resolveDiscordAccount } from "../accounts.js";
 import { chunkDiscordTextWithMode } from "../chunk.js";
 import { isLikelyDiscordVideoMedia } from "../media-detection.js";
@@ -89,7 +89,7 @@ async function sendWithRetry(
 
 async function sendDiscordMediaOnly(params: {
   target: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   token: string;
   rest?: RequestClient;
   mediaUrl: string;
@@ -115,7 +115,7 @@ async function sendDiscordMediaOnly(params: {
 
 async function sendDiscordMediaBatch(params: {
   target: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   token: string;
   rest?: RequestClient;
   mediaUrls: string[];
@@ -144,7 +144,7 @@ async function sendDiscordMediaBatch(params: {
 }
 
 async function sendDiscordPayloadText(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   target: string;
   text: string;
   token: string;
@@ -251,7 +251,7 @@ function createPayloadReplyToResolver(params: {
 }
 
 function resolveBindingPersona(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   binding: DiscordThreadBindingLookupRecord | undefined,
 ): {
   username?: string;
@@ -276,7 +276,7 @@ function resolveBindingPersona(
 }
 
 async function sendDiscordChunkWithFallback(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   target: string;
   text: string;
   token: string;
@@ -353,7 +353,7 @@ async function sendDiscordChunkWithFallback(params: {
 }
 
 export async function deliverDiscordReply(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   replies: ReplyPayload[];
   target: string;
   token: string;

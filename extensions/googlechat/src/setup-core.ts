@@ -1,7 +1,7 @@
 import {
   createPatchedAccountSetupAdapter,
   createSetupInputPresenceValidator,
-} from "zhushou/plugin-sdk/setup-runtime";
+} from "assistant/plugin-sdk/setup-runtime";
 
 const channel = "googlechat" as const;
 

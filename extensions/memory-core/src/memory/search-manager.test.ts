@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
-import type { checkQmdBinaryAvailability as checkQmdBinaryAvailabilityFn } from "zhushou/plugin-sdk/memory-core-host-engine-qmd";
+import type { AssistantConfig } from "assistant/plugin-sdk/memory-core-host-engine-foundation";
+import type { checkQmdBinaryAvailability as checkQmdBinaryAvailabilityFn } from "assistant/plugin-sdk/memory-core-host-engine-qmd";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 type CheckQmdBinaryAvailability = typeof checkQmdBinaryAvailabilityFn;
@@ -111,7 +111,7 @@ vi.mock("./qmd-manager.js", () => ({
   },
 }));
 
-vi.mock("zhushou/plugin-sdk/memory-core-host-engine-qmd", () => ({
+vi.mock("assistant/plugin-sdk/memory-core-host-engine-qmd", () => ({
   checkQmdBinaryAvailability,
 }));
 
@@ -131,14 +131,14 @@ type SearchManager = NonNullable<SearchManagerResult["manager"]>;
 const TEST_WORKSPACE = path.resolve("/tmp/workspace");
 const TEST_INDEX_PATH = path.resolve("/tmp/index.sqlite");
 
-function createQmdCfg(agentId: string): ZhushouConfig {
+function createQmdCfg(agentId: string): AssistantConfig {
   return {
     memory: { backend: "qmd", qmd: {} },
     agents: { list: [{ id: agentId, default: true, workspace: TEST_WORKSPACE }] },
   };
 }
 
-function createBuiltinCfg(agentId: string): ZhushouConfig {
+function createBuiltinCfg(agentId: string): AssistantConfig {
   return {
     agents: {
       defaults: {
@@ -158,7 +158,7 @@ function createBuiltinCfg(agentId: string): ZhushouConfig {
       },
       list: [{ id: agentId, default: true, workspace: TEST_WORKSPACE }],
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function requireManager(result: SearchManagerResult): SearchManager {
@@ -262,13 +262,13 @@ describe("getMemorySearchManager caching", () => {
   });
 
   it("creates a missing agent workspace before probing qmd availability", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-qmd-workspace-"));
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-qmd-workspace-"));
     const workspace = path.join(tempRoot, "missing", "workspace");
     const agentId = "missing-workspace";
     const cfg = {
       memory: { backend: "qmd", qmd: {} },
       agents: { list: [{ id: agentId, default: true, workspace }] },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     try {
       await getMemorySearchManager({ cfg, agentId });

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll } from "vitest";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { defaultRuntime } from "../../runtime.js";
 import type { FollowupRun } from "./queue.js";
 
@@ -35,7 +35,7 @@ export function createQueueTestRun(params: {
       sessionId: "sess",
       sessionFile: "/tmp/session.json",
       workspaceDir: "/tmp",
-      config: {} as ZhushouConfig,
+      config: {} as AssistantConfig,
       provider: "openai",
       model: "gpt-test",
       timeoutMs: 10_000,

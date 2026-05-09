@@ -10,7 +10,7 @@ import {
   resolveEnvApiKey,
   resolveUsableCustomProviderApiKey,
 } from "../../agents/model-auth.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -44,7 +44,7 @@ function formatProfileSecretLabel(params: {
 
 export function resolveProviderAuthOverview(params: {
   provider: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   store: AuthProfileStore;
   modelsPath: string;
 }): ProviderAuthOverview {

@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { AuthProfileFailureReason } from "./auth-profiles.js";
 import { runWithModelFallback } from "./model-fallback.js";
 import type { EmbeddedRunAttemptResult } from "./pi-embedded-runner/run/types.js";
@@ -49,7 +49,7 @@ vi.mock("./models-config.js", async () => {
   const mod = await vi.importActual<typeof import("./models-config.js")>("./models-config.js");
   return {
     ...mod,
-    ensureOpenClawModelsJson: vi.fn(async () => ({ wrote: false })),
+    ensureAssistantModelsJson: vi.fn(async () => ({ wrote: false })),
   };
 });
 
@@ -103,7 +103,7 @@ const OVERLOADED_ERROR_PAYLOAD =
 const RATE_LIMIT_ERROR_MESSAGE = "rate limit exceeded";
 const NO_ENDPOINTS_FOUND_ERROR_MESSAGE = "404 No endpoints found for deepseek/deepseek-r1:free.";
 
-function makeConfig(): ZhushouConfig {
+function makeConfig(): AssistantConfig {
   const apiKeyField = ["api", "Key"].join("");
   return {
     agents: {
@@ -150,13 +150,13 @@ function makeConfig(): ZhushouConfig {
         },
       },
     },
-  } satisfies ZhushouConfig;
+  } satisfies AssistantConfig;
 }
 
 async function withAgentWorkspace<T>(
   fn: (ctx: { agentDir: string; workspaceDir: string }) => Promise<T>,
 ): Promise<T> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-model-fallback-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-model-fallback-"));
   const agentDir = path.join(root, "agent");
   const workspaceDir = path.join(root, "workspace");
   await fs.mkdir(agentDir, { recursive: true });
@@ -243,7 +243,7 @@ async function runEmbeddedFallback(params: {
   sessionKey: string;
   runId: string;
   abortSignal?: AbortSignal;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 }) {
   const cfg = params.config ?? makeConfig();
   return await runWithModelFallback({

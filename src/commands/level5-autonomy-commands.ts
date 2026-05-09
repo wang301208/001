@@ -269,10 +269,10 @@ export function registerLevel5AutonomyCommands(program: Command, runtime: Runtim
       console.log("  ✅ 与外部系统协调工作");
       console.log("  ✅ 创造性解决全新问题");
       console.log("\n📊 使用以下命令监控系统：");
-      console.log("  zhushou level5 strategy history");
-      console.log("  zhushou level5 healing status");
-      console.log("  zhushou level5 cross-system list-systems");
-      console.log("  zhushou level5 creative solutions");
+      console.log("  assistant level5 strategy history");
+      console.log("  assistant level5 healing status");
+      console.log("  assistant level5 cross-system list-systems");
+      console.log("  assistant level5 creative solutions");
       console.log("\n按 Ctrl+C 停止\n");
       
       process.on("SIGINT", () => {
@@ -329,9 +329,9 @@ export function registerLevel5AutonomyCommands(program: Command, runtime: Runtim
       console.log("\n" + "=".repeat(60));
       console.log("\n🎯 项目自主程度: 100% (Level 5 完全自治)");
       console.log("\n💡 提示: 使用子命令查看详细信息");
-      console.log("  zhushou level5 strategy --help");
-      console.log("  zhushou level5 healing --help");
-      console.log("  zhushou level5 cross-system --help");
-      console.log("  zhushou level5 creative --help\n");
+      console.log("  assistant level5 strategy --help");
+      console.log("  assistant level5 healing --help");
+      console.log("  assistant level5 cross-system --help");
+      console.log("  assistant level5 creative --help\n");
     });
 }

@@ -1,1 +1,1 @@
-export { createAuthRateLimiter } from "zhushou/plugin-sdk/nextcloud-talk";
+export { createAuthRateLimiter } from "assistant/plugin-sdk/nextcloud-talk";

@@ -3,7 +3,7 @@ import { captureFullEnv } from "../test-utils/env.js";
 import { SUPERVISOR_HINT_ENV_VARS } from "./supervisor-markers.js";
 
 const spawnMock = vi.hoisted(() => vi.fn());
-const triggerOpenClawRestartMock = vi.hoisted(() => vi.fn());
+const triggerAssistantRestartMock = vi.hoisted(() => vi.fn());
 
 vi.mock("node:child_process", async () => {
   const { mockNodeBuiltinModule } = await import("../../test/helpers/node-builtin-mocks.js");
@@ -14,8 +14,9 @@ vi.mock("node:child_process", async () => {
     },
   );
 });
+
 vi.mock("./restart.js", () => ({
-  triggerOpenClawRestart: (...args: unknown[]) => triggerOpenClawRestartMock(...args),
+  triggerAssistantRestart: (...args: unknown[]) => triggerAssistantRestartMock(...args),
 }));
 
 import { restartGatewayProcessWithFreshPid } from "./process-respawn.js";
@@ -35,199 +36,88 @@ function setPlatform(platform: string) {
   });
 }
 
-afterEach(() => {
-  envSnapshot.restore();
-  process.argv = [...originalArgv];
-  process.execArgv = [...originalExecArgv];
-  spawnMock.mockClear();
-  triggerOpenClawRestartMock.mockClear();
-  if (originalPlatformDescriptor) {
-    Object.defineProperty(process, "platform", originalPlatformDescriptor);
-  }
-});
-
 function clearSupervisorHints() {
   for (const key of SUPERVISOR_HINT_ENV_VARS) {
     delete process.env[key];
   }
 }
 
-function expectLaunchdSupervisedWithoutKickstart(params?: { launchJobLabel?: string }) {
-  setPlatform("darwin");
-  if (params?.launchJobLabel) {
-    process.env.LAUNCH_JOB_LABEL = params.launchJobLabel;
-  }
-  process.env.OPENCLAW_LAUNCHD_LABEL = "ai.zhushou.gateway";
-  const result = restartGatewayProcessWithFreshPid();
-  expect(result).toEqual({ mode: "supervised" });
-  expect(triggerOpenClawRestartMock).not.toHaveBeenCalled();
+function expectAutomaticRestartDisabled() {
+  expect(restartGatewayProcessWithFreshPid()).toEqual({
+    mode: "disabled",
+    detail: "automatic gateway restart disabled",
+  });
+  expect(triggerAssistantRestartMock).not.toHaveBeenCalled();
   expect(spawnMock).not.toHaveBeenCalled();
 }
 
+afterEach(() => {
+  envSnapshot.restore();
+  process.argv = [...originalArgv];
+  process.execArgv = [...originalExecArgv];
+  spawnMock.mockClear();
+  triggerAssistantRestartMock.mockClear();
+  if (originalPlatformDescriptor) {
+    Object.defineProperty(process, "platform", originalPlatformDescriptor);
+  }
+});
+
 describe("restartGatewayProcessWithFreshPid", () => {
-  it("returns disabled when OPENCLAW_NO_RESPAWN is set", () => {
-    process.env.OPENCLAW_NO_RESPAWN = "1";
-    const result = restartGatewayProcessWithFreshPid();
-    expect(result.mode).toBe("disabled");
-    expect(spawnMock).not.toHaveBeenCalled();
+  it("always disables automatic gateway restart", () => {
+    expectAutomaticRestartDisabled();
   });
 
-  it("keeps OPENCLAW_NO_RESPAWN ahead of inherited supervisor hints", () => {
-    clearSupervisorHints();
-    setPlatform("darwin");
-    process.env.OPENCLAW_NO_RESPAWN = "1";
-    process.env.LAUNCH_JOB_LABEL = "ai.zhushou.gateway";
-
-    const result = restartGatewayProcessWithFreshPid();
-
-    expect(result).toEqual({ mode: "disabled" });
-    expect(triggerOpenClawRestartMock).not.toHaveBeenCalled();
-    expect(spawnMock).not.toHaveBeenCalled();
-  });
-
-  it("returns supervised when launchd hints are present on macOS (no kickstart)", () => {
-    clearSupervisorHints();
-    expectLaunchdSupervisedWithoutKickstart({ launchJobLabel: "ai.zhushou.gateway" });
-  });
-
-  it("returns supervised on macOS when launchd label is set (no kickstart)", () => {
-    expectLaunchdSupervisedWithoutKickstart({ launchJobLabel: "ai.zhushou.gateway" });
-  });
-
-  it("launchd supervisor never returns failed regardless of triggerOpenClawRestart outcome", () => {
-    clearSupervisorHints();
-    setPlatform("darwin");
-    process.env.OPENCLAW_LAUNCHD_LABEL = "ai.zhushou.gateway";
-    // Even if triggerOpenClawRestart *would* fail, launchd path must not call it.
-    triggerOpenClawRestartMock.mockReturnValue({
-      ok: false,
-      method: "launchctl",
-      detail: "Bootstrap failed: 5: Input/output error",
-    });
-    const result = restartGatewayProcessWithFreshPid();
-    expect(result.mode).toBe("supervised");
-    expect(result.mode).not.toBe("failed");
-    expect(triggerOpenClawRestartMock).not.toHaveBeenCalled();
-  });
-
-  it("does not schedule kickstart on non-darwin platforms", () => {
-    setPlatform("linux");
-    process.env.INVOCATION_ID = "abc123";
-    process.env.OPENCLAW_LAUNCHD_LABEL = "ai.zhushou.gateway";
-
-    const result = restartGatewayProcessWithFreshPid();
-
-    expect(result.mode).toBe("supervised");
-    expect(triggerOpenClawRestartMock).not.toHaveBeenCalled();
-    expect(spawnMock).not.toHaveBeenCalled();
-  });
-
-  it("returns supervised when XPC_SERVICE_NAME is set by launchd", () => {
-    clearSupervisorHints();
-    setPlatform("darwin");
-    process.env.XPC_SERVICE_NAME = "ai.zhushou.gateway";
-    const result = restartGatewayProcessWithFreshPid();
-    expect(result.mode).toBe("supervised");
-    expect(triggerOpenClawRestartMock).not.toHaveBeenCalled();
-    expect(spawnMock).not.toHaveBeenCalled();
-  });
-
-  it("spawns detached child with current exec argv", () => {
-    delete process.env.OPENCLAW_NO_RESPAWN;
+  it("does not respawn even when no-respawn is unset on Linux", () => {
+    delete process.env.ASSISTANT_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("linux");
     process.execArgv = ["--import", "tsx"];
     process.argv = ["/usr/local/bin/node", "/repo/dist/index.js", "gateway", "run"];
     spawnMock.mockReturnValue({ pid: 4242, unref: vi.fn() });
 
-    const result = restartGatewayProcessWithFreshPid();
-
-    expect(result).toEqual({ mode: "spawned", pid: 4242 });
-    expect(spawnMock).toHaveBeenCalledWith(
-      process.execPath,
-      ["--import", "tsx", "/repo/dist/index.js", "gateway", "run"],
-      expect.objectContaining({
-        detached: true,
-        stdio: "inherit",
-      }),
-    );
+    expectAutomaticRestartDisabled();
   });
 
-  it("returns supervised when OPENCLAW_LAUNCHD_LABEL is set (stock launchd plist)", () => {
+  it("does not delegate restart to launchd", () => {
     clearSupervisorHints();
-    expectLaunchdSupervisedWithoutKickstart();
+    setPlatform("darwin");
+    process.env.LAUNCH_JOB_LABEL = "ai.assistant.gateway";
+    process.env.ASSISTANT_LAUNCHD_LABEL = "ai.assistant.gateway";
+    triggerAssistantRestartMock.mockReturnValue({
+      ok: false,
+      method: "launchctl",
+      detail: "Bootstrap failed: 5: Input/output error",
+    });
+
+    expectAutomaticRestartDisabled();
   });
 
-  it("returns supervised when OPENCLAW_SYSTEMD_UNIT is set", () => {
-    clearSupervisorHints();
-    setPlatform("linux");
-    process.env.OPENCLAW_SYSTEMD_UNIT = "zhushou-gateway.service";
-    const result = restartGatewayProcessWithFreshPid();
-    expect(result.mode).toBe("supervised");
-    expect(spawnMock).not.toHaveBeenCalled();
-  });
-
-  it("returns supervised when 助手 gateway task markers are set on Windows", () => {
-    clearSupervisorHints();
-    setPlatform("win32");
-    process.env.OPENCLAW_SERVICE_MARKER = "zhushou";
-    process.env.OPENCLAW_SERVICE_KIND = "gateway";
-    triggerOpenClawRestartMock.mockReturnValue({ ok: true, method: "schtasks" });
-    const result = restartGatewayProcessWithFreshPid();
-    expect(result.mode).toBe("supervised");
-    expect(triggerOpenClawRestartMock).toHaveBeenCalledOnce();
-    expect(spawnMock).not.toHaveBeenCalled();
-  });
-
-  it("keeps generic service markers out of non-Windows supervisor detection", () => {
+  it("does not delegate restart to systemd", () => {
     clearSupervisorHints();
     setPlatform("linux");
-    process.env.OPENCLAW_SERVICE_MARKER = "zhushou";
-    process.env.OPENCLAW_SERVICE_KIND = "gateway";
-    spawnMock.mockReturnValue({ pid: 4242, unref: vi.fn() });
+    process.env.INVOCATION_ID = "abc123";
+    process.env.ASSISTANT_SYSTEMD_UNIT = "assistant-gateway.service";
 
-    const result = restartGatewayProcessWithFreshPid();
-
-    expect(result).toEqual({ mode: "spawned", pid: 4242 });
-    expect(triggerOpenClawRestartMock).not.toHaveBeenCalled();
+    expectAutomaticRestartDisabled();
   });
 
-  it("returns disabled on Windows without Scheduled Task markers", () => {
+  it("does not delegate restart to Windows Scheduled Tasks", () => {
     clearSupervisorHints();
     setPlatform("win32");
+    process.env.ASSISTANT_SERVICE_MARKER = "assistant";
+    process.env.ASSISTANT_SERVICE_KIND = "gateway";
+    triggerAssistantRestartMock.mockReturnValue({ ok: true, method: "schtasks" });
 
-    const result = restartGatewayProcessWithFreshPid();
-
-    expect(result.mode).toBe("disabled");
-    expect(result.detail).toContain("Scheduled Task");
-    expect(spawnMock).not.toHaveBeenCalled();
+    expectAutomaticRestartDisabled();
   });
 
-  it("ignores node task script hints for gateway restart detection on Windows", () => {
-    clearSupervisorHints();
-    setPlatform("win32");
-    process.env.OPENCLAW_TASK_SCRIPT = "C:\\zhushou\\node.cmd";
-    process.env.OPENCLAW_TASK_SCRIPT_NAME = "node.cmd";
-    process.env.OPENCLAW_SERVICE_MARKER = "zhushou";
-    process.env.OPENCLAW_SERVICE_KIND = "node";
-
-    const result = restartGatewayProcessWithFreshPid();
-
-    expect(result.mode).toBe("disabled");
-    expect(triggerOpenClawRestartMock).not.toHaveBeenCalled();
-    expect(spawnMock).not.toHaveBeenCalled();
-  });
-
-  it("returns failed when spawn throws", () => {
-    delete process.env.OPENCLAW_NO_RESPAWN;
+  it("does not report spawn failures because spawn is never attempted", () => {
     clearSupervisorHints();
     setPlatform("linux");
-
     spawnMock.mockImplementation(() => {
       throw new Error("spawn failed");
     });
-    const result = restartGatewayProcessWithFreshPid();
-    expect(result.mode).toBe("failed");
-    expect(result.detail).toContain("spawn failed");
+
+    expectAutomaticRestartDisabled();
   });
 });

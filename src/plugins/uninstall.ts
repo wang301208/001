@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { PluginInstallRecord } from "../config/types.plugins.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resolvePluginInstallDir } from "./install.js";
@@ -19,7 +19,7 @@ export type UninstallActions = {
 export type UninstallPluginResult =
   | {
       ok: true;
-      config: ZhushouConfig;
+      config: AssistantConfig;
       pluginId: string;
       actions: UninstallActions;
       warnings: string[];
@@ -90,10 +90,10 @@ export function resolveUninstallChannelConfigKeys(
  * and owned channel config.
  */
 export function removePluginFromConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   pluginId: string,
   opts?: { channelIds?: string[] },
-): { config: ZhushouConfig; actions: Omit<UninstallActions, "directory"> } {
+): { config: AssistantConfig; actions: Omit<UninstallActions, "directory"> } {
   const actions: Omit<UninstallActions, "directory"> = {
     entry: false,
     install: false,
@@ -202,17 +202,17 @@ export function removePluginFromConfig(
     }
   }
 
-  const config: ZhushouConfig = {
+  const config: AssistantConfig = {
     ...cfg,
     plugins: Object.keys(cleanedPlugins).length > 0 ? cleanedPlugins : undefined,
-    channels: channels as ZhushouConfig["channels"],
+    channels: channels as AssistantConfig["channels"],
   };
 
   return { config, actions };
 }
 
 export type UninstallPluginParams = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   pluginId: string;
   channelIds?: string[];
   deleteFiles?: boolean;

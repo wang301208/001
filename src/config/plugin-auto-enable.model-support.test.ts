@@ -21,7 +21,7 @@ function makeRegistry(
       origin: "config" as const,
       rootDir: `/fake/${plugin.id}`,
       source: `/fake/${plugin.id}/index.js`,
-      manifestPath: `/fake/${plugin.id}/zhushou.plugin.json`,
+      manifestPath: `/fake/${plugin.id}/assistant.plugin.json`,
     })),
     diagnostics: [],
   };

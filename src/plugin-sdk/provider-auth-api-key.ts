@@ -1,6 +1,6 @@
 // Public API-key onboarding helpers for provider plugins.
 
-export type { ZhushouConfig } from "../config/config.js";
+export type { AssistantConfig } from "../config/config.js";
 export type { SecretInput } from "../config/types.secrets.js";
 
 export { upsertAuthProfile } from "../agents/auth-profiles/profiles.js";

@@ -1,11 +1,11 @@
-import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { createAccountStatusSink } from "zhushou/plugin-sdk/channel-lifecycle";
-import { buildPassiveProbedChannelStatusSummary } from "zhushou/plugin-sdk/extension-shared";
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
+import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { createAccountStatusSink } from "assistant/plugin-sdk/channel-lifecycle";
+import { buildPassiveProbedChannelStatusSummary } from "assistant/plugin-sdk/extension-shared";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
 import {
   createAsyncComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "zhushou/plugin-sdk/status-helpers";
+} from "assistant/plugin-sdk/status-helpers";
 import {
   checkZcaAuthenticated,
   resolveZalouserAccountSync,

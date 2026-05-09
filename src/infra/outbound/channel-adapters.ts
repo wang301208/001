@@ -3,14 +3,14 @@ import type {
   ChannelId,
   ChannelStructuredComponents,
 } from "../../channels/plugins/types.public.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 
 export type CrossContextComponentsBuilder = (message: string) => ChannelStructuredComponents;
 
 export type CrossContextComponentsFactory = (params: {
   originLabel: string;
   message: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }) => ChannelStructuredComponents;
 

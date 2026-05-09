@@ -1,4 +1,4 @@
-import { defineBundledChannelEntry } from "zhushou/plugin-sdk/channel-entry-contract";
+import { defineBundledChannelEntry } from "assistant/plugin-sdk/channel-entry-contract";
 
 type DiscordSubagentHooksModule = typeof import("./subagent-hooks-api.js");
 

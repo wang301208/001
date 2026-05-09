@@ -1,0 +1,12 @@
+file:///G:/%E9%A1%B9%E7%9B%AE/-/assistant.mjs:178
+    throw new Error(await buildMissingEntryErrorMessage());
+          ^
+
+Error: assistant: missing dist/entry.(m)js (build output).
+This install looks like an unbuilt source tree or GitHub source archive.
+Build locally with `pnpm install && pnpm build`, or install a built package instead.
+For pinned GitHub installs, use `npm install -g github:assistant/assistant#<ref>` instead of a raw `/archive/<ref>.tar.gz` URL.
+For releases, use `npm install -g assistant@latest`.
+    at file:///G:/%E9%A1%B9%E7%9B%AE/-/assistant.mjs:178:11
+
+Node.js v24.14.1

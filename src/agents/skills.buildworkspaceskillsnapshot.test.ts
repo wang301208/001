@@ -12,7 +12,7 @@ import {
   type SkillsHomeEnvSnapshot,
 } from "./skills/home-env.test-support.js";
 
-const fixtureSuite = createFixtureSuite("zhushou-skills-snapshot-suite-");
+const fixtureSuite = createFixtureSuite("assistant-skills-snapshot-suite-");
 let truncationWorkspaceTemplateDir = "";
 let nestedRepoTemplateDir = "";
 let tempHome: TempHomeEnv | null = null;
@@ -20,7 +20,7 @@ let skillsHomeEnv: SkillsHomeEnvSnapshot | null = null;
 
 beforeAll(async () => {
   await fixtureSuite.setup();
-  tempHome = await createTempHomeEnv("zhushou-skills-snapshot-home-");
+  tempHome = await createTempHomeEnv("assistant-skills-snapshot-home-");
   skillsHomeEnv = setMockSkillsHomeEnv(tempHome.home);
   truncationWorkspaceTemplateDir = await fixtureSuite.createCaseDir(
     "template-truncation-workspace",

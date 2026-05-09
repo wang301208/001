@@ -1,5 +1,5 @@
-import { hasOutboundReplyContent } from "zhushou/plugin-sdk/reply-payload";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import { hasOutboundReplyContent } from "assistant/plugin-sdk/reply-payload";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { TtsAutoMode } from "../../config/types.tts.js";
 import { logVerbose } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
@@ -90,7 +90,7 @@ async function shouldTreatDeliveredTextAsVisible(params: {
 
 async function maybeApplyAcpTts(params: {
   payload: ReplyPayload;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel?: string;
   kind: ReplyDispatchKind;
   inboundAudio: boolean;
@@ -155,7 +155,7 @@ export type AcpDispatchDeliveryCoordinator = {
 };
 
 export function createAcpDispatchDeliveryCoordinator(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   ctx: FinalizedMsgContext;
   dispatcher: ReplyDispatcher;
   inboundAudio: boolean;

@@ -1,15 +1,15 @@
-import { resolveChannelStreamingPreviewChunk } from "zhushou/plugin-sdk/channel-streaming";
-import { type ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveTextChunkLimit } from "zhushou/plugin-sdk/reply-chunking";
-import { resolveAccountEntry } from "zhushou/plugin-sdk/routing";
-import { normalizeAccountId } from "zhushou/plugin-sdk/routing";
+import { resolveChannelStreamingPreviewChunk } from "assistant/plugin-sdk/channel-streaming";
+import { type AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveTextChunkLimit } from "assistant/plugin-sdk/reply-chunking";
+import { resolveAccountEntry } from "assistant/plugin-sdk/routing";
+import { normalizeAccountId } from "assistant/plugin-sdk/routing";
 import { DISCORD_TEXT_CHUNK_LIMIT } from "./outbound-adapter.js";
 
 const DEFAULT_DISCORD_DRAFT_STREAM_MIN = 200;
 const DEFAULT_DISCORD_DRAFT_STREAM_MAX = 800;
 
 export function resolveDiscordDraftStreamingChunking(
-  cfg: ZhushouConfig | undefined,
+  cfg: AssistantConfig | undefined,
   accountId?: string | null,
 ): {
   minChars: number;

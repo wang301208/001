@@ -15,7 +15,7 @@ const internalHookMocks = vi.hoisted(() => ({
   triggerInternalHook: vi.fn(async () => undefined),
 }));
 
-vi.mock("zhushou/plugin-sdk/hook-runtime", () => {
+vi.mock("assistant/plugin-sdk/hook-runtime", () => {
   return {
     createInternalHookEvent: internalHookMocks.createInternalHookEvent,
     fireAndForgetHook: (task: Promise<unknown>) => void task,
@@ -48,7 +48,7 @@ describe("telegram mention-skip silent ingest", () => {
         agents: {
           defaults: {
             model: "anthropic/sonnet-4.6",
-            workspace: "/tmp/zhushou",
+            workspace: "/tmp/assistant",
           },
         },
         channels: {
@@ -100,7 +100,7 @@ describe("telegram mention-skip silent ingest", () => {
         agents: {
           defaults: {
             model: "anthropic/sonnet-4.6",
-            workspace: "/tmp/zhushou",
+            workspace: "/tmp/assistant",
           },
         },
         channels: {

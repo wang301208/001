@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import type { OnboardOptions } from "../../onboard-types.js";
 import { applyNonInteractiveGatewayConfig } from "./gateway-config.js";
 
@@ -30,24 +30,24 @@ const baseOpts = {} as OnboardOptions;
 const SAMPLE_SECRET_REF = {
   source: "env" as const,
   provider: "default",
-  id: "ZHUSHOU_GATEWAY_TOKEN_REF",
+  id: "ASSISTANT_GATEWAY_TOKEN_REF",
 };
 
 describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
-  const originalEnvToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
+  const originalEnvToken = process.env.ASSISTANT_GATEWAY_TOKEN;
   const originalRefValue = process.env[SAMPLE_SECRET_REF.id];
 
   beforeEach(() => {
     vi.clearAllMocks();
-    delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+    delete process.env.ASSISTANT_GATEWAY_TOKEN;
     delete process.env[SAMPLE_SECRET_REF.id];
   });
 
   afterEach(() => {
     if (originalEnvToken === undefined) {
-      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+      delete process.env.ASSISTANT_GATEWAY_TOKEN;
     } else {
-      process.env.ZHUSHOU_GATEWAY_TOKEN = originalEnvToken;
+      process.env.ASSISTANT_GATEWAY_TOKEN = originalEnvToken;
     }
     if (originalRefValue === undefined) {
       delete process.env[SAMPLE_SECRET_REF.id];
@@ -61,7 +61,7 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
   it("preserves existing plaintext gateway.auth.token when no flag or env override is provided", () => {
     const nextConfig = {
       gateway: { auth: { mode: "token", token: "existing-user-token" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const result = applyNonInteractiveGatewayConfig({
       nextConfig,
@@ -74,13 +74,13 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
     expect(randomToken).not.toHaveBeenCalled();
   });
 
-  it("prefers existing plaintext token over ambient ZHUSHOU_GATEWAY_TOKEN on re-onboard", () => {
-    // A stale shell/launchd ZHUSHOU_GATEWAY_TOKEN must not rotate a
+  it("prefers existing plaintext token over ambient ASSISTANT_GATEWAY_TOKEN on re-onboard", () => {
+    // A stale shell/launchd ASSISTANT_GATEWAY_TOKEN must not rotate a
     // persisted token — that would break already-paired clients.
-    process.env.ZHUSHOU_GATEWAY_TOKEN = "stale-env-token";
+    process.env.ASSISTANT_GATEWAY_TOKEN = "stale-env-token";
     const nextConfig = {
       gateway: { auth: { mode: "token", token: "existing-user-token" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const result = applyNonInteractiveGatewayConfig({
       nextConfig,
@@ -96,7 +96,7 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
   it("prefers --gateway-token flag over existing plaintext token", () => {
     const nextConfig = {
       gateway: { auth: { mode: "token", token: "existing-user-token" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const result = applyNonInteractiveGatewayConfig({
       nextConfig,
@@ -109,11 +109,11 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
     expect(randomToken).not.toHaveBeenCalled();
   });
 
-  it("uses ZHUSHOU_GATEWAY_TOKEN to fill an empty config on first-run", () => {
-    process.env.ZHUSHOU_GATEWAY_TOKEN = "env-token";
+  it("uses ASSISTANT_GATEWAY_TOKEN to fill an empty config on first-run", () => {
+    process.env.ASSISTANT_GATEWAY_TOKEN = "env-token";
 
     const result = applyNonInteractiveGatewayConfig({
-      nextConfig: {} as ZhushouConfig,
+      nextConfig: {} as AssistantConfig,
       opts: baseOpts,
       runtime: createRuntime() as never,
       defaultPort: 18789,
@@ -125,7 +125,7 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
 
   it("generates a random token only when flag, env, and existing config are all empty", () => {
     const result = applyNonInteractiveGatewayConfig({
-      nextConfig: {} as ZhushouConfig,
+      nextConfig: {} as AssistantConfig,
       opts: baseOpts,
       runtime: createRuntime() as never,
       defaultPort: 18789,
@@ -140,7 +140,7 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
   it("preserves an existing SecretRef when no flag or env override is provided", () => {
     const nextConfig = {
       gateway: { auth: { mode: "token", token: SAMPLE_SECRET_REF } },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
 
     const result = applyNonInteractiveGatewayConfig({
       nextConfig,
@@ -153,12 +153,12 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
     expect(randomToken).not.toHaveBeenCalled();
   });
 
-  it("preserves an existing SecretRef even when ambient ZHUSHOU_GATEWAY_TOKEN is set", () => {
+  it("preserves an existing SecretRef even when ambient ASSISTANT_GATEWAY_TOKEN is set", () => {
     // A stale ambient env must not declassify a configured SecretRef.
-    process.env.ZHUSHOU_GATEWAY_TOKEN = "stale-env-token";
+    process.env.ASSISTANT_GATEWAY_TOKEN = "stale-env-token";
     const nextConfig = {
       gateway: { auth: { mode: "token", token: SAMPLE_SECRET_REF } },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
 
     const result = applyNonInteractiveGatewayConfig({
       nextConfig,
@@ -175,7 +175,7 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
     process.env[SAMPLE_SECRET_REF.id] = "resolved-secret-value";
     const nextConfig = {
       gateway: { auth: { mode: "token", token: SAMPLE_SECRET_REF } },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
 
     const result = applyNonInteractiveGatewayConfig({
       nextConfig,
@@ -191,7 +191,7 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
   it("overrides an existing SecretRef when --gateway-token flag is provided", () => {
     const nextConfig = {
       gateway: { auth: { mode: "token", token: SAMPLE_SECRET_REF } },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
 
     const result = applyNonInteractiveGatewayConfig({
       nextConfig,
@@ -205,12 +205,12 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
   });
 
   it("overrides an existing SecretRef when --gateway-token-ref-env is provided", () => {
-    const newRefId = "ZHUSHOU_GATEWAY_TOKEN_NEW_REF";
+    const newRefId = "ASSISTANT_GATEWAY_TOKEN_NEW_REF";
     process.env[newRefId] = "resolved-new-ref-value";
     try {
       const nextConfig = {
         gateway: { auth: { mode: "token", token: SAMPLE_SECRET_REF } },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       const result = applyNonInteractiveGatewayConfig({
         nextConfig,
@@ -232,7 +232,7 @@ describe("applyNonInteractiveGatewayConfig token resolution chain", () => {
     const runtime = createRuntime();
 
     const result = applyNonInteractiveGatewayConfig({
-      nextConfig: {} as ZhushouConfig,
+      nextConfig: {} as AssistantConfig,
       opts: { gatewayTokenRefEnv: "MISSING_GATEWAY_TOKEN_ENV" } as OnboardOptions,
       runtime: runtime as never,
       defaultPort: 18789,

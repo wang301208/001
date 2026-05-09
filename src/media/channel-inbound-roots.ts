@@ -1,6 +1,6 @@
 import type { MsgContext } from "../auto-reply/templating.js";
 import { getBootstrapChannelPlugin } from "../channels/plugins/bootstrap-registry.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 
 function findChannelMessagingAdapter(channelId?: string | null) {
@@ -12,7 +12,7 @@ function findChannelMessagingAdapter(channelId?: string | null) {
 }
 
 export function resolveChannelInboundAttachmentRoots(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   ctx: MsgContext;
 }): readonly string[] | undefined {
   const messaging = findChannelMessagingAdapter(params.ctx.Surface ?? params.ctx.Provider);
@@ -23,7 +23,7 @@ export function resolveChannelInboundAttachmentRoots(params: {
 }
 
 export function resolveChannelRemoteInboundAttachmentRoots(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   ctx: MsgContext;
 }): readonly string[] | undefined {
   const messaging = findChannelMessagingAdapter(params.ctx.Surface ?? params.ctx.Provider);

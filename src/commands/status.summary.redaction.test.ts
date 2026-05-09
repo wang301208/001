@@ -164,14 +164,14 @@ describe("redactSensitiveStatusSummary", () => {
         },
       },
       sessions: {
-        paths: ["/tmp/zhushou/sessions.json"],
+        paths: ["/tmp/assistant/sessions.json"],
         count: 1,
         defaults: { model: "gpt-5", contextTokens: 200_000 },
         recent: [createRecentSessionRow()],
         byAgent: [
           {
             agentId: "main",
-            path: "/tmp/zhushou/main-sessions.json",
+            path: "/tmp/assistant/main-sessions.json",
             count: 1,
             recent: [createRecentSessionRow()],
           },

@@ -1,6 +1,6 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 
-export type BuildMentionRegexes = (cfg: ZhushouConfig | undefined, agentId?: string) => RegExp[];
+export type BuildMentionRegexes = (cfg: AssistantConfig | undefined, agentId?: string) => RegExp[];
 
 export type MatchesMentionPatterns = (text: string, mentionRegexes: RegExp[]) => boolean;
 

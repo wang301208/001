@@ -3,12 +3,12 @@ import {
   buildApiKeyCredential,
   type ProviderAuthResult,
   type SecretInput,
-} from "zhushou/plugin-sdk/provider-auth";
-import type { ModelApi, ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-shared";
+} from "assistant/plugin-sdk/provider-auth";
+import type { ModelApi, ModelProviderConfig } from "assistant/plugin-sdk/provider-model-shared";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 
 export const PROVIDER_ID = "microsoft-foundry";
 export const DEFAULT_API = "openai-completions";

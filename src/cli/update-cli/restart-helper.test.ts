@@ -74,21 +74,21 @@ describe("restart-helper", () => {
     it("creates a systemd restart script on Linux", async () => {
       Object.defineProperty(process, "platform", { value: "linux" });
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "default",
+        ASSISTANT_PROFILE: "default",
       });
       expect(scriptPath.endsWith(".sh")).toBe(true);
       expect(content).toContain("#!/bin/sh");
-      expect(content).toContain("systemctl --user restart 'zhushou-gateway.service'");
+      expect(content).toContain("systemctl --user restart 'assistant-gateway.service'");
       // Script should self-cleanup
       expect(content).toContain('rm -f "$0"');
       await cleanupScript(scriptPath);
     });
 
-    it("uses OPENCLAW_SYSTEMD_UNIT override for systemd scripts", async () => {
+    it("uses ASSISTANT_SYSTEMD_UNIT override for systemd scripts", async () => {
       Object.defineProperty(process, "platform", { value: "linux" });
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "default",
-        OPENCLAW_SYSTEMD_UNIT: "custom-gateway",
+        ASSISTANT_PROFILE: "default",
+        ASSISTANT_SYSTEMD_UNIT: "custom-gateway",
       });
       expect(content).toContain("systemctl --user restart 'custom-gateway.service'");
       await cleanupScript(scriptPath);
@@ -99,27 +99,27 @@ describe("restart-helper", () => {
       process.getuid = () => 501;
 
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "default",
+        ASSISTANT_PROFILE: "default",
       });
       expect(scriptPath.endsWith(".sh")).toBe(true);
       expect(content).toContain("#!/bin/sh");
-      expect(content).toContain("launchctl kickstart -k 'gui/501/ai.zhushou.gateway'");
+      expect(content).toContain("launchctl kickstart -k 'gui/501/ai.assistant.gateway'");
       // Should clear disabled state and fall back to bootstrap when kickstart fails.
-      expect(content).toContain("launchctl enable 'gui/501/ai.zhushou.gateway'");
+      expect(content).toContain("launchctl enable 'gui/501/ai.assistant.gateway'");
       expect(content).toContain("launchctl bootstrap 'gui/501'");
       expect(content).toContain('rm -f "$0"');
       await cleanupScript(scriptPath);
     });
 
-    it("uses OPENCLAW_LAUNCHD_LABEL override on macOS", async () => {
+    it("uses ASSISTANT_LAUNCHD_LABEL override on macOS", async () => {
       Object.defineProperty(process, "platform", { value: "darwin" });
       process.getuid = () => 501;
 
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "default",
-        OPENCLAW_LAUNCHD_LABEL: "com.custom.zhushou",
+        ASSISTANT_PROFILE: "default",
+        ASSISTANT_LAUNCHD_LABEL: "com.custom.assistant",
       });
-      expect(content).toContain("launchctl kickstart -k 'gui/501/com.custom.zhushou'");
+      expect(content).toContain("launchctl kickstart -k 'gui/501/com.custom.assistant'");
       await cleanupScript(scriptPath);
     });
 
@@ -127,27 +127,27 @@ describe("restart-helper", () => {
       Object.defineProperty(process, "platform", { value: "win32" });
 
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "default",
+        ASSISTANT_PROFILE: "default",
       });
       expect(scriptPath.endsWith(".bat")).toBe(true);
       expect(content).toContain("@echo off");
-      expect(content).toContain('schtasks /End /TN "OpenClaw Gateway"');
-      expect(content).toContain('schtasks /Run /TN "OpenClaw Gateway"');
+      expect(content).toContain('schtasks /End /TN "Assistant Gateway"');
+      expect(content).toContain('schtasks /Run /TN "Assistant Gateway"');
       expectWindowsRestartWaitOrdering(content);
       // Batch self-cleanup
       expect(content).toContain('del "%~f0"');
       await cleanupScript(scriptPath);
     });
 
-    it("uses OPENCLAW_WINDOWS_TASK_NAME override on Windows", async () => {
+    it("uses ASSISTANT_WINDOWS_TASK_NAME override on Windows", async () => {
       Object.defineProperty(process, "platform", { value: "win32" });
 
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "default",
-        OPENCLAW_WINDOWS_TASK_NAME: "OpenClaw Gateway (custom)",
+        ASSISTANT_PROFILE: "default",
+        ASSISTANT_WINDOWS_TASK_NAME: "Assistant Gateway (custom)",
       });
-      expect(content).toContain('schtasks /End /TN "OpenClaw Gateway (custom)"');
-      expect(content).toContain('schtasks /Run /TN "OpenClaw Gateway (custom)"');
+      expect(content).toContain('schtasks /End /TN "Assistant Gateway (custom)"');
+      expect(content).toContain('schtasks /Run /TN "Assistant Gateway (custom)"');
       expectWindowsRestartWaitOrdering(content);
       await cleanupScript(scriptPath);
     });
@@ -158,7 +158,7 @@ describe("restart-helper", () => {
 
       const { scriptPath, content } = await prepareAndReadScript(
         {
-          ZHUSHOU_PROFILE: "default",
+          ASSISTANT_PROFILE: "default",
         },
         customPort,
       );
@@ -173,9 +173,9 @@ describe("restart-helper", () => {
     it("uses custom profile in service names", async () => {
       Object.defineProperty(process, "platform", { value: "linux" });
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "production",
+        ASSISTANT_PROFILE: "production",
       });
-      expect(content).toContain("zhushou-gateway-production.service");
+      expect(content).toContain("assistant-gateway-production.service");
       await cleanupScript(scriptPath);
     });
 
@@ -184,9 +184,9 @@ describe("restart-helper", () => {
       process.getuid = () => 502;
 
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "staging",
+        ASSISTANT_PROFILE: "staging",
       });
-      expect(content).toContain("gui/502/ai.zhushou.staging");
+      expect(content).toContain("gui/502/ai.assistant.staging");
       await cleanupScript(scriptPath);
     });
 
@@ -194,9 +194,9 @@ describe("restart-helper", () => {
       Object.defineProperty(process, "platform", { value: "win32" });
 
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "production",
+        ASSISTANT_PROFILE: "production",
       });
-      expect(content).toContain('schtasks /End /TN "OpenClaw Gateway (production)"');
+      expect(content).toContain('schtasks /End /TN "Assistant Gateway (production)"');
       expectWindowsRestartWaitOrdering(content);
       await cleanupScript(scriptPath);
     });
@@ -214,7 +214,7 @@ describe("restart-helper", () => {
         .mockRejectedValueOnce(new Error("simulated write failure"));
 
       const scriptPath = await prepareRestartScript({
-        ZHUSHOU_PROFILE: "default",
+        ASSISTANT_PROFILE: "default",
       });
 
       expect(scriptPath).toBeNull();
@@ -224,7 +224,7 @@ describe("restart-helper", () => {
     it("escapes single quotes in profile names for shell scripts", async () => {
       Object.defineProperty(process, "platform", { value: "linux" });
       const { scriptPath, content } = await prepareAndReadScript({
-        ZHUSHOU_PROFILE: "it's-a-test",
+        ASSISTANT_PROFILE: "it's-a-test",
       });
       // Single quotes should be escaped with '\'' pattern
       expect(content).not.toContain("it's");
@@ -238,7 +238,7 @@ describe("restart-helper", () => {
 
       const { scriptPath, content } = await prepareAndReadScript({
         HOME: "/Users/testuser",
-        ZHUSHOU_PROFILE: "default",
+        ASSISTANT_PROFILE: "default",
       });
       // The plist path must contain the resolved home dir, not literal $HOME
       expect(content).toMatch(/[\\/]Users[\\/]testuser[\\/]Library[\\/]LaunchAgents[\\/]/);
@@ -252,7 +252,7 @@ describe("restart-helper", () => {
 
       const { scriptPath, content } = await prepareAndReadScript({
         HOME: "/Users/envhome",
-        ZHUSHOU_PROFILE: "default",
+        ASSISTANT_PROFILE: "default",
       });
       expect(content).toMatch(/[\\/]Users[\\/]envhome[\\/]Library[\\/]LaunchAgents[\\/]/);
       await cleanupScript(scriptPath);
@@ -264,17 +264,17 @@ describe("restart-helper", () => {
 
       const { scriptPath, content } = await prepareAndReadScript({
         HOME: "/Users/testuser",
-        OPENCLAW_LAUNCHD_LABEL: "ai.zhushou.it's-a-test",
+        ASSISTANT_LAUNCHD_LABEL: "ai.assistant.it's-a-test",
       });
       // The plist path must also shell-escape the label to prevent injection
-      expect(content).toContain("ai.zhushou.it'\\''s-a-test.plist");
+      expect(content).toContain("ai.assistant.it'\\''s-a-test.plist");
       await cleanupScript(scriptPath);
     });
 
     it("rejects unsafe batch profile names on Windows", async () => {
       Object.defineProperty(process, "platform", { value: "win32" });
       const scriptPath = await prepareRestartScript({
-        ZHUSHOU_PROFILE: "test&whoami",
+        ASSISTANT_PROFILE: "test&whoami",
       });
 
       expect(scriptPath).toBeNull();

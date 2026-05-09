@@ -114,14 +114,14 @@ function defaultIndexHTML() {
     !!(
       window.webkit &&
       window.webkit.messageHandlers &&
-      window.webkit.messageHandlers.zhushouCanvasA2UIAction
+      window.webkit.messageHandlers.assistantCanvasA2UIAction
     );
   const hasAndroid = () =>
     !!(
-      (window.zhushouCanvasA2UIAction &&
-        typeof window.zhushouCanvasA2UIAction.postMessage === "function")
+      (window.assistantCanvasA2UIAction &&
+        typeof window.assistantCanvasA2UIAction.postMessage === "function")
     );
-  const hasHelper = () => typeof window.zhushouSendUserAction === "function";
+  const hasHelper = () => typeof window.assistantSendUserAction === "function";
   const helperReady = hasHelper();
   statusEl.textContent = "";
   statusEl.appendChild(document.createTextNode("Bridge: "));
@@ -139,7 +139,7 @@ function defaultIndexHTML() {
     const d = ev && ev.detail || {};
     log("Action status: id=" + (d.id || "?") + " ok=" + String(!!d.ok) + (d.error ? (" error=" + d.error) : ""));
   };
-  window.addEventListener("zhushou:a2ui-action-status", onStatus);
+  window.addEventListener("assistant:a2ui-action-status", onStatus);
 
   function send(name, sourceComponentId) {
     if (!hasHelper()) {
@@ -147,8 +147,8 @@ function defaultIndexHTML() {
       return;
     }
     const sendUserAction =
-      typeof window.zhushouSendUserAction === "function"
-        ? window.zhushouSendUserAction
+      typeof window.assistantSendUserAction === "function"
+        ? window.assistantSendUserAction
         : undefined;
     const ok = sendUserAction({
       name,
@@ -169,10 +169,10 @@ function defaultIndexHTML() {
 }
 
 function isDisabledByEnv() {
-  if (isTruthyEnvValue(process.env.OPENCLAW_SKIP_CANVAS_HOST)) {
+  if (isTruthyEnvValue(process.env.ASSISTANT_SKIP_CANVAS_HOST)) {
     return true;
   }
-  if (isTruthyEnvValue(process.env.OPENCLAW_SKIP_CANVAS_HOST)) {
+  if (isTruthyEnvValue(process.env.ASSISTANT_SKIP_CANVAS_HOST)) {
     return true;
   }
   if (process.env.NODE_ENV === "test") {

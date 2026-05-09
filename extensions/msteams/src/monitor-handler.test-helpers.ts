@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { ZhushouConfig, RuntimeEnv } from "../runtime-api.js";
+import type { AssistantConfig, RuntimeEnv } from "../runtime-api.js";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 import type { MSTeamsAdapter } from "./messenger.js";
 import type { MSTeamsActivityHandler, MSTeamsMessageHandlerDeps } from "./monitor-handler.js";
@@ -24,7 +24,7 @@ export function createActivityHandler(
 }
 
 export function createMSTeamsMessageHandlerDeps(params?: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   runtime?: RuntimeEnv;
 }): MSTeamsMessageHandlerDeps {
   const adapter: MSTeamsAdapter = {

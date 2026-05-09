@@ -4,7 +4,7 @@ import { resolveUserPath } from "../../utils.js";
 import {
   applyExtraParamsToAgentMock,
   contextEngineCompactMock,
-  createOpenClawCodingToolsMock,
+  createAssistantCodingToolsMock,
   ensureRuntimePluginsLoaded,
   estimateTokensMock,
   getMemorySearchManagerMock,
@@ -283,7 +283,7 @@ describe("compactEmbeddedPiSessionDirect hooks", () => {
       senderE164: "+15551234567",
     });
 
-    expect(createOpenClawCodingToolsMock).toHaveBeenCalledWith(
+    expect(createAssistantCodingToolsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         senderId: "sender-1",
         senderName: "Alice",

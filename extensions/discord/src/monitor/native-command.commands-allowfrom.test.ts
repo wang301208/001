@@ -1,9 +1,9 @@
 import { ChannelType } from "discord-api-types/v10";
-import type { NativeCommandSpec } from "zhushou/plugin-sdk/command-auth";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { DiscordAccountConfig } from "zhushou/plugin-sdk/config-runtime";
-import * as pluginCommandsModule from "zhushou/plugin-sdk/plugin-runtime";
-import * as dispatcherModule from "zhushou/plugin-sdk/reply-dispatch-runtime";
+import type { NativeCommandSpec } from "assistant/plugin-sdk/command-auth";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { DiscordAccountConfig } from "assistant/plugin-sdk/config-runtime";
+import * as pluginCommandsModule from "assistant/plugin-sdk/plugin-runtime";
+import * as dispatcherModule from "assistant/plugin-sdk/reply-dispatch-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { __testing as nativeCommandTesting, createDiscordNativeCommand } from "./native-command.js";
 import {
@@ -25,7 +25,7 @@ function createInteraction(params?: { userId?: string }): MockCommandInteraction
   });
 }
 
-function createConfig(): ZhushouConfig {
+function createConfig(): AssistantConfig {
   return {
     commands: {
       allowFrom: {
@@ -47,10 +47,10 @@ function createConfig(): ZhushouConfig {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
-function createCommand(cfg: ZhushouConfig, discordConfig?: DiscordAccountConfig) {
+function createCommand(cfg: AssistantConfig, discordConfig?: DiscordAccountConfig) {
   const commandSpec: NativeCommandSpec = {
     name: "ping",
     description: "Ping",
@@ -81,7 +81,7 @@ function createDispatchSpy() {
 
 async function runGuildSlashCommand(params?: {
   userId?: string;
-  mutateConfig?: (cfg: ZhushouConfig) => void;
+  mutateConfig?: (cfg: AssistantConfig) => void;
   runtimeDiscordConfig?: DiscordAccountConfig;
 }) {
   const cfg = createConfig();

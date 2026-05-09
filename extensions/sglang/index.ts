@@ -1,8 +1,8 @@
 import {
   definePluginEntry,
-  type ZhushouPluginApi,
+  type AssistantPluginApi,
   type ProviderAuthMethodNonInteractiveContext,
-} from "zhushou/plugin-sdk/plugin-entry";
+} from "assistant/plugin-sdk/plugin-entry";
 import {
   SGLANG_DEFAULT_API_KEY_ENV_VAR,
   SGLANG_DEFAULT_BASE_URL,
@@ -14,14 +14,14 @@ import {
 const PROVIDER_ID = "sglang";
 
 async function loadProviderSetup() {
-  return await import("zhushou/plugin-sdk/provider-setup");
+  return await import("assistant/plugin-sdk/provider-setup");
 }
 
 export default definePluginEntry({
   id: "sglang",
   name: "SGLang Provider",
   description: "Bundled SGLang provider plugin",
-  register(api: ZhushouPluginApi) {
+  register(api: AssistantPluginApi) {
     api.registerProvider({
       id: PROVIDER_ID,
       label: "SGLang",

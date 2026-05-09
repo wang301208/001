@@ -3,7 +3,7 @@ import { getUnsupportedSecretRefSurfacePatterns } from "./unsupported-surface-po
 
 type CredentialMatrixEntry = {
   id: string;
-  configFile: "zhushou.json" | "auth-profiles.json";
+  configFile: "assistant.json" | "auth-profiles.json";
   path: string;
   refPath?: string;
   when?: { type: "api_key" | "token" };

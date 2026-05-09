@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 export { shouldRequireGatewayTokenForInstall } from "../gateway/auth-install-policy.js";
 import { resolveGatewayAuthToken } from "../gateway/auth-token-resolution.js";
 
 export async function resolveGatewayAuthTokenForService(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv,
 ): Promise<{ token?: string; unavailableReason?: string }> {
   const resolved = await resolveGatewayAuthToken({

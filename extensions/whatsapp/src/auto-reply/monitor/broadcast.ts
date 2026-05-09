@@ -1,11 +1,11 @@
-import type { loadConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
-import { buildAgentSessionKey, deriveLastRoutePolicy } from "zhushou/plugin-sdk/routing";
+import type { loadConfig } from "assistant/plugin-sdk/config-runtime";
+import type { resolveAgentRoute } from "assistant/plugin-sdk/routing";
+import { buildAgentSessionKey, deriveLastRoutePolicy } from "assistant/plugin-sdk/routing";
 import {
   buildAgentMainSessionKey,
   DEFAULT_MAIN_KEY,
   normalizeAgentId,
-} from "zhushou/plugin-sdk/routing";
+} from "assistant/plugin-sdk/routing";
 import { formatError } from "../../session.js";
 import { whatsappInboundLog } from "../loggers.js";
 import type { WebInboundMsg } from "../types.js";

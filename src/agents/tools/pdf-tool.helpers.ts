@@ -3,7 +3,7 @@ import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
 } from "../../config/model-input.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { bundledProviderSupportsNativePdfDocument } from "../../media-understanding/bundled-defaults.js";
 import { extractAssistantText } from "../pi-embedded-utils.js";
 
@@ -100,7 +100,7 @@ export function coercePdfAssistantText(params: {
   throw new Error(`PDF model returned no text (${label}).`);
 }
 
-export function coercePdfModelConfig(cfg?: ZhushouConfig): PdfModelConfig {
+export function coercePdfModelConfig(cfg?: AssistantConfig): PdfModelConfig {
   const primary = resolveAgentModelPrimaryValue(cfg?.agents?.defaults?.pdfModel);
   const fallbacks = resolveAgentModelFallbackValues(cfg?.agents?.defaults?.pdfModel);
   const modelConfig: PdfModelConfig = {};

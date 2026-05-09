@@ -1,4 +1,4 @@
-import type { ZhushouPluginApi } from "../runtime-api.js";
+import type { AssistantPluginApi } from "../runtime-api.js";
 
 type ToolContextLike = {
   agentAccountId?: string;
@@ -37,10 +37,10 @@ function asToolLike(tool: unknown, fallbackName?: string): ToolLike {
   };
 }
 
-export function createToolFactoryHarness(cfg: ZhushouPluginApi["config"]) {
+export function createToolFactoryHarness(cfg: AssistantPluginApi["config"]) {
   const registered: RegisteredTool[] = [];
 
-  const api: Pick<ZhushouPluginApi, "config" | "logger" | "registerTool"> = {
+  const api: Pick<AssistantPluginApi, "config" | "logger" | "registerTool"> = {
     config: cfg,
     logger: {
       info: () => {},
@@ -73,7 +73,7 @@ export function createToolFactoryHarness(cfg: ZhushouPluginApi["config"]) {
   };
 
   return {
-    api: api as ZhushouPluginApi,
+    api: api as AssistantPluginApi,
     resolveTool,
   };
 }

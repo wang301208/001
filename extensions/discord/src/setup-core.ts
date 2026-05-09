@@ -1,9 +1,9 @@
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
-import type { DiscordGuildEntry, ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ChannelSetupDmPolicy, ChannelSetupWizard } from "zhushou/plugin-sdk/setup-runtime";
-import { createStandardChannelSetupStatus } from "zhushou/plugin-sdk/setup-runtime";
-import { formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+import type { DiscordGuildEntry, AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ChannelSetupDmPolicy, ChannelSetupWizard } from "assistant/plugin-sdk/setup-runtime";
+import { createStandardChannelSetupStatus } from "assistant/plugin-sdk/setup-runtime";
+import { formatDocsLink } from "assistant/plugin-sdk/setup-tools";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   inspectDiscordSetupAccount,
   resolveDiscordSetupAccountConfig,
@@ -29,13 +29,13 @@ export const DISCORD_TOKEN_HELP_LINES = [
 ];
 
 export function setDiscordGuildChannelAllowlist(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   entries: Array<{
     guildKey: string;
     channelKey?: string;
   }>,
-): ZhushouConfig {
+): AssistantConfig {
   const baseGuilds =
     accountId === DEFAULT_ACCOUNT_ID
       ? (cfg.channels?.discord?.guilds ?? {})
@@ -109,7 +109,7 @@ export function createDiscordSetupWizardBase(handlers: {
         keepPrompt: "Discord token already configured. Keep it?",
         inputPrompt: "Enter Discord bot token",
         allowEnv: ({ accountId }: { accountId: string }) => accountId === DEFAULT_ACCOUNT_ID,
-        inspect: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) => {
+        inspect: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) => {
           const account = inspectDiscordSetupAccount({ cfg, accountId });
           return {
             accountConfigured: account.configured,
@@ -127,9 +127,9 @@ export function createDiscordSetupWizardBase(handlers: {
       channel,
       label: "Discord channels",
       placeholder: "My Server/#general, guildId/channelId, #support",
-      currentPolicy: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) =>
+      currentPolicy: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) =>
         resolveDiscordSetupAccountConfig({ cfg, accountId }).config.groupPolicy ?? "allowlist",
-      currentEntries: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) =>
+      currentEntries: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) =>
         Object.entries(
           resolveDiscordSetupAccountConfig({ cfg, accountId }).config.guilds ?? {},
         ).flatMap(([guildKey, value]) => {
@@ -141,7 +141,7 @@ export function createDiscordSetupWizardBase(handlers: {
           }
           return channelKeys.map((channelKey) => `${guildKey}/${channelKey}`);
         }),
-      updatePrompt: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) =>
+      updatePrompt: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) =>
         Boolean(resolveDiscordSetupAccountConfig({ cfg, accountId }).config.guilds),
       resolveAllowlist: handlers.resolveGroupAllowlist,
       fallbackResolved: (entries) => entries.map((input) => ({ input, resolved: false })),
@@ -150,7 +150,7 @@ export function createDiscordSetupWizardBase(handlers: {
         accountId,
         resolved,
       }: {
-        cfg: ZhushouConfig;
+        cfg: AssistantConfig;
         accountId: string;
         resolved: unknown;
       }) => setDiscordGuildChannelAllowlist(cfg, accountId, resolved as never),
@@ -176,7 +176,7 @@ export function createDiscordSetupWizardBase(handlers: {
       resolveEntries: handlers.resolveAllowFromEntries,
     }),
     dmPolicy: discordDmPolicy,
-    disable: (cfg: ZhushouConfig) => setSetupChannelEnabled(cfg, channel, false),
+    disable: (cfg: AssistantConfig) => setSetupChannelEnabled(cfg, channel, false),
   } satisfies ChannelSetupWizard;
 }
 export function createDiscordSetupWizardProxy(loadWizard: () => Promise<ChannelSetupWizard>) {

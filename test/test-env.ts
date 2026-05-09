@@ -102,7 +102,7 @@ function loadProfileEnv(homeDir = os.homedir()): void {
       { encoding: "utf8" },
     );
     const applied = countAppliedEntries(output.split("\0").filter(Boolean));
-    if (applied > 0 && !isTruthyEnvValue(process.env.OPENCLAW_LIVE_TEST_QUIET)) {
+    if (applied > 0 && !isTruthyEnvValue(process.env.ASSISTANT_LIVE_TEST_QUIET)) {
       console.log(`[live] loaded ${applied} env vars from ~/.profile`);
     }
   } catch {
@@ -129,7 +129,7 @@ function loadProfileEnv(homeDir = os.homedir()): void {
         })
         .filter(Boolean);
       const applied = countAppliedEntries(fallbackEntries);
-      if (applied > 0 && !isTruthyEnvValue(process.env.OPENCLAW_LIVE_TEST_QUIET)) {
+      if (applied > 0 && !isTruthyEnvValue(process.env.ASSISTANT_LIVE_TEST_QUIET)) {
         console.log(`[live] loaded ${applied} env vars from ~/.profile`);
       }
     } catch {
@@ -140,18 +140,18 @@ function loadProfileEnv(homeDir = os.homedir()): void {
 
 function resolveRestoreEntries(): RestoreEntry[] {
   return [
-    { key: "OPENCLAW_TEST_FAST", value: process.env.OPENCLAW_TEST_FAST },
+    { key: "ASSISTANT_TEST_FAST", value: process.env.ASSISTANT_TEST_FAST },
     {
-      key: "OPENCLAW_STRICT_FAST_REPLY_CONFIG",
-      value: process.env.OPENCLAW_STRICT_FAST_REPLY_CONFIG,
+      key: "ASSISTANT_STRICT_FAST_REPLY_CONFIG",
+      value: process.env.ASSISTANT_STRICT_FAST_REPLY_CONFIG,
     },
     {
-      key: "OPENCLAW_ALLOW_SLOW_REPLY_TESTS",
-      value: process.env.OPENCLAW_ALLOW_SLOW_REPLY_TESTS,
+      key: "ASSISTANT_ALLOW_SLOW_REPLY_TESTS",
+      value: process.env.ASSISTANT_ALLOW_SLOW_REPLY_TESTS,
     },
     {
-      key: "OPENCLAW_LIVE_TEST_NORMALIZE_CONFIG",
-      value: process.env.OPENCLAW_LIVE_TEST_NORMALIZE_CONFIG,
+      key: "ASSISTANT_LIVE_TEST_NORMALIZE_CONFIG",
+      value: process.env.ASSISTANT_LIVE_TEST_NORMALIZE_CONFIG,
     },
     { key: "HOME", value: process.env.HOME },
     { key: "USERPROFILE", value: process.env.USERPROFILE },
@@ -159,15 +159,15 @@ function resolveRestoreEntries(): RestoreEntry[] {
     { key: "XDG_DATA_HOME", value: process.env.XDG_DATA_HOME },
     { key: "XDG_STATE_HOME", value: process.env.XDG_STATE_HOME },
     { key: "XDG_CACHE_HOME", value: process.env.XDG_CACHE_HOME },
-    { key: "ZHUSHOU_STATE_DIR", value: process.env.ZHUSHOU_STATE_DIR },
-    { key: "ZHUSHOU_CONFIG_PATH", value: process.env.ZHUSHOU_CONFIG_PATH },
-    { key: "ZHUSHOU_GATEWAY_PORT", value: process.env.ZHUSHOU_GATEWAY_PORT },
-    { key: "OPENCLAW_BRIDGE_ENABLED", value: process.env.OPENCLAW_BRIDGE_ENABLED },
-    { key: "OPENCLAW_BRIDGE_HOST", value: process.env.OPENCLAW_BRIDGE_HOST },
-    { key: "ZHUSHOU_BRIDGE_PORT", value: process.env.ZHUSHOU_BRIDGE_PORT },
-    { key: "OPENCLAW_CANVAS_HOST_PORT", value: process.env.OPENCLAW_CANVAS_HOST_PORT },
-    { key: "OPENCLAW_TEST_HOME", value: process.env.OPENCLAW_TEST_HOME },
-    { key: "OPENCLAW_AGENT_DIR", value: process.env.OPENCLAW_AGENT_DIR },
+    { key: "ASSISTANT_STATE_DIR", value: process.env.ASSISTANT_STATE_DIR },
+    { key: "ASSISTANT_CONFIG_PATH", value: process.env.ASSISTANT_CONFIG_PATH },
+    { key: "ASSISTANT_GATEWAY_PORT", value: process.env.ASSISTANT_GATEWAY_PORT },
+    { key: "ASSISTANT_BRIDGE_ENABLED", value: process.env.ASSISTANT_BRIDGE_ENABLED },
+    { key: "ASSISTANT_BRIDGE_HOST", value: process.env.ASSISTANT_BRIDGE_HOST },
+    { key: "ASSISTANT_BRIDGE_PORT", value: process.env.ASSISTANT_BRIDGE_PORT },
+    { key: "ASSISTANT_CANVAS_HOST_PORT", value: process.env.ASSISTANT_CANVAS_HOST_PORT },
+    { key: "ASSISTANT_TEST_HOME", value: process.env.ASSISTANT_TEST_HOME },
+    { key: "ASSISTANT_AGENT_DIR", value: process.env.ASSISTANT_AGENT_DIR },
     { key: "PI_CODING_AGENT_DIR", value: process.env.PI_CODING_AGENT_DIR },
     { key: "TELEGRAM_BOT_TOKEN", value: process.env.TELEGRAM_BOT_TOKEN },
     { key: "DISCORD_BOT_TOKEN", value: process.env.DISCORD_BOT_TOKEN },
@@ -185,27 +185,27 @@ function createIsolatedTestHome(restore: RestoreEntry[]): {
   cleanup: () => void;
   tempHome: string;
 } {
-  const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-test-home-"));
+  const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-test-home-"));
 
   process.env.HOME = tempHome;
   process.env.USERPROFILE = tempHome;
-  process.env.OPENCLAW_TEST_HOME = tempHome;
-  process.env.OPENCLAW_TEST_FAST = "1";
-  process.env.OPENCLAW_STRICT_FAST_REPLY_CONFIG = "1";
-  delete process.env.OPENCLAW_ALLOW_SLOW_REPLY_TESTS;
+  process.env.ASSISTANT_TEST_HOME = tempHome;
+  process.env.ASSISTANT_TEST_FAST = "1";
+  process.env.ASSISTANT_STRICT_FAST_REPLY_CONFIG = "1";
+  delete process.env.ASSISTANT_ALLOW_SLOW_REPLY_TESTS;
 
   // Ensure test runs never touch the developer's real config/state, even if they have overrides set.
-  delete process.env.ZHUSHOU_CONFIG_PATH;
+  delete process.env.ASSISTANT_CONFIG_PATH;
   // Prefer deriving state dir from HOME so nested tests that change HOME also isolate correctly.
-  delete process.env.ZHUSHOU_STATE_DIR;
-  delete process.env.OPENCLAW_AGENT_DIR;
+  delete process.env.ASSISTANT_STATE_DIR;
+  delete process.env.ASSISTANT_AGENT_DIR;
   delete process.env.PI_CODING_AGENT_DIR;
   // Prefer test-controlled ports over developer overrides (avoid port collisions across tests/workers).
-  delete process.env.ZHUSHOU_GATEWAY_PORT;
-  delete process.env.OPENCLAW_BRIDGE_ENABLED;
-  delete process.env.OPENCLAW_BRIDGE_HOST;
-  delete process.env.ZHUSHOU_BRIDGE_PORT;
-  delete process.env.OPENCLAW_CANVAS_HOST_PORT;
+  delete process.env.ASSISTANT_GATEWAY_PORT;
+  delete process.env.ASSISTANT_BRIDGE_ENABLED;
+  delete process.env.ASSISTANT_BRIDGE_HOST;
+  delete process.env.ASSISTANT_BRIDGE_PORT;
+  delete process.env.ASSISTANT_CANVAS_HOST_PORT;
   // Avoid leaking real GitHub/Copilot tokens into non-live test runs.
   delete process.env.TELEGRAM_BOT_TOKEN;
   delete process.env.DISCORD_BOT_TOKEN;
@@ -220,7 +220,7 @@ function createIsolatedTestHome(restore: RestoreEntry[]): {
 
   // Windows: prefer the default state dir so auth/profile tests match real paths.
   if (process.platform === "win32") {
-    process.env.ZHUSHOU_STATE_DIR = path.join(tempHome, ".zhushou");
+    process.env.ASSISTANT_STATE_DIR = path.join(tempHome, ".assistant");
   }
 
   process.env.XDG_CONFIG_HOME = path.join(tempHome, ".config");
@@ -313,7 +313,7 @@ function sanitizeLiveConfig(raw: string): string {
       });
     }
 
-    if (!isTruthyEnvValue(process.env.OPENCLAW_LIVE_TEST_NORMALIZE_CONFIG)) {
+    if (!isTruthyEnvValue(process.env.ASSISTANT_LIVE_TEST_NORMALIZE_CONFIG)) {
       return `${JSON.stringify(parsed, null, 2)}\n`;
     }
 
@@ -351,31 +351,31 @@ function stageLiveTestState(params: {
   realHome: string;
   tempHome: string;
 }): void {
-  const rawStateDir = params.env.ZHUSHOU_STATE_DIR?.trim();
+  const rawStateDir = params.env.ASSISTANT_STATE_DIR?.trim();
   let realStateDir = rawStateDir
     ? resolveHomeRelativePath(rawStateDir, params.realHome)
-    : path.join(params.realHome, ".zhushou");
-  const priorIsolatedHome = params.env.OPENCLAW_TEST_HOME?.trim();
+    : path.join(params.realHome, ".assistant");
+  const priorIsolatedHome = params.env.ASSISTANT_TEST_HOME?.trim();
   const snapshotHome = params.env.HOME?.trim();
   if (
     priorIsolatedHome &&
     snapshotHome &&
     snapshotHome !== priorIsolatedHome &&
-    realStateDir === path.join(priorIsolatedHome, ".zhushou")
+    realStateDir === path.join(priorIsolatedHome, ".assistant")
   ) {
-    realStateDir = path.join(params.realHome, ".zhushou");
+    realStateDir = path.join(params.realHome, ".assistant");
   }
-  const tempStateDir = path.join(params.tempHome, ".zhushou");
+  const tempStateDir = path.join(params.tempHome, ".assistant");
   fs.mkdirSync(tempStateDir, { recursive: true });
   fs.mkdirSync(path.join(params.tempHome, ".gemini"), { recursive: true });
 
-  const realConfigPath = params.env.ZHUSHOU_CONFIG_PATH?.trim()
-    ? resolveHomeRelativePath(params.env.ZHUSHOU_CONFIG_PATH, params.realHome)
-    : path.join(realStateDir, "zhushou.json");
+  const realConfigPath = params.env.ASSISTANT_CONFIG_PATH?.trim()
+    ? resolveHomeRelativePath(params.env.ASSISTANT_CONFIG_PATH, params.realHome)
+    : path.join(realStateDir, "assistant.json");
   if (fs.existsSync(realConfigPath)) {
     const rawConfig = fs.readFileSync(realConfigPath, "utf8");
     fs.writeFileSync(
-      path.join(tempStateDir, "zhushou.json"),
+      path.join(tempStateDir, "assistant.json"),
       sanitizeLiveConfig(rawConfig),
       "utf8",
     );
@@ -403,9 +403,9 @@ export function installTestEnv(options?: { loadProfileEnv?: boolean }): {
 } {
   const live =
     process.env.LIVE === "1" ||
-    process.env.OPENCLAW_LIVE_TEST === "1" ||
-    process.env.OPENCLAW_LIVE_GATEWAY === "1";
-  const allowRealHome = isTruthyEnvValue(process.env.OPENCLAW_LIVE_USE_REAL_HOME);
+    process.env.ASSISTANT_LIVE_TEST === "1" ||
+    process.env.ASSISTANT_LIVE_GATEWAY === "1";
+  const allowRealHome = isTruthyEnvValue(process.env.ASSISTANT_LIVE_USE_REAL_HOME);
   const realHome = process.env.HOME ?? os.homedir();
   const liveEnvSnapshot = { ...process.env };
 

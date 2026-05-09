@@ -1,19 +1,19 @@
-import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/agent-runtime";
-import type { ModelCatalogEntry } from "zhushou/plugin-sdk/agent-runtime";
+import { resolveApiKeyForProvider } from "assistant/plugin-sdk/agent-runtime";
+import type { ModelCatalogEntry } from "assistant/plugin-sdk/agent-runtime";
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
-} from "zhushou/plugin-sdk/agent-runtime";
-import { resolveDefaultModelForAgent } from "zhushou/plugin-sdk/agent-runtime";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveAutoImageModel } from "zhushou/plugin-sdk/media-runtime";
+} from "assistant/plugin-sdk/agent-runtime";
+import { resolveDefaultModelForAgent } from "assistant/plugin-sdk/agent-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveAutoImageModel } from "assistant/plugin-sdk/media-runtime";
 import {
   resolveAutoMediaKeyProviders,
   resolveDefaultMediaModel,
-} from "zhushou/plugin-sdk/media-runtime";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/media-runtime";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { getTelegramRuntime } from "./runtime.js";
 export {
   cacheSticker,
@@ -29,7 +29,7 @@ const STICKER_DESCRIPTION_PROMPT =
 
 export interface DescribeStickerParams {
   imagePath: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentDir?: string;
   agentId?: string;
 }

@@ -1,9 +1,9 @@
-export type { ZhushouConfig } from "zhushou/plugin-sdk/memory-core";
+export type { AssistantConfig } from "assistant/plugin-sdk/memory-core";
 export type {
   MemoryEmbeddingProbeResult,
   MemoryProviderStatus,
   MemorySyncProgressUpdate,
-} from "zhushou/plugin-sdk/memory-core-host-engine-storage";
+} from "assistant/plugin-sdk/memory-core-host-engine-storage";
 export {
   dedupeDreamDiaryEntries,
   removeBackfillDiaryEntries,

@@ -1,4 +1,4 @@
-import { readResponseWithLimit as readSharedResponseWithLimit } from "zhushou/plugin-sdk/response-limit-runtime";
+import { readResponseWithLimit as readSharedResponseWithLimit } from "assistant/plugin-sdk/response-limit-runtime";
 
 export async function readResponseWithLimit(
   res: Response,

@@ -4,13 +4,13 @@ import {
   type ResolverContext,
   type SecretDefaults,
   type SecretTargetRegistryEntry,
-} from "zhushou/plugin-sdk/channel-secret-basic-runtime";
+} from "assistant/plugin-sdk/channel-secret-basic-runtime";
 
 export const secretTargetRegistryEntries = [
   {
     id: "channels.bluebubbles.accounts.*.password",
     targetType: "channels.bluebubbles.accounts.*.password",
-    configFile: "zhushou.json",
+    configFile: "assistant.json",
     pathPattern: "channels.bluebubbles.accounts.*.password",
     secretShape: "secret_input",
     expectedResolvedValue: "string",
@@ -21,7 +21,7 @@ export const secretTargetRegistryEntries = [
   {
     id: "channels.bluebubbles.password",
     targetType: "channels.bluebubbles.password",
-    configFile: "zhushou.json",
+    configFile: "assistant.json",
     pathPattern: "channels.bluebubbles.password",
     secretShape: "secret_input",
     expectedResolvedValue: "string",

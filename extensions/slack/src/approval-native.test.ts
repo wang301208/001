@@ -1,14 +1,14 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { clearSessionStoreCacheForTest } from "../../../src/config/sessions/store.js";
 import { slackApprovalCapability, slackNativeApprovalAdapter } from "./approval-native.js";
 
 function buildConfig(
-  overrides?: Partial<NonNullable<NonNullable<ZhushouConfig["channels"]>["slack"]>>,
-): ZhushouConfig {
+  overrides?: Partial<NonNullable<NonNullable<AssistantConfig["channels"]>["slack"]>>,
+): AssistantConfig {
   return {
     channels: {
       slack: {
@@ -22,10 +22,10 @@ function buildConfig(
         ...overrides,
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
-const STORE_PATH = path.join(os.tmpdir(), "zhushou-slack-approval-native-test.json");
+const STORE_PATH = path.join(os.tmpdir(), "assistant-slack-approval-native-test.json");
 
 function writeStore(store: Record<string, unknown>) {
   fs.writeFileSync(STORE_PATH, `${JSON.stringify(store, null, 2)}\n`, "utf8");

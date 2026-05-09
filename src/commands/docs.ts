@@ -5,7 +5,7 @@ import type { RuntimeEnv } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { isRich, theme } from "../terminal/theme.js";
 
-const SEARCH_TOOL = "https://docs.zhushou.ai/mcp.SearchOpenClaw";
+const SEARCH_TOOL = "https://docs.assistant.ai/mcp.SearchAssistant";
 const SEARCH_TIMEOUT_MS = 30_000;
 const DEFAULT_SNIPPET_MAX = 220;
 
@@ -161,13 +161,13 @@ async function renderMarkdown(markdown: string, runtime: RuntimeEnv) {
 export async function docsSearchCommand(queryParts: string[], runtime: RuntimeEnv) {
   const query = queryParts.join(" ").trim();
   if (!query) {
-    const docs = formatDocsLink("/", "docs.zhushou.ai");
+    const docs = formatDocsLink("/", "docs.assistant.ai");
     if (isRich()) {
       runtime.log(`${theme.muted("Docs:")} ${docs}`);
-      runtime.log(`${theme.muted("Search:")} ${formatCliCommand('zhushou docs "your query"')}`);
+      runtime.log(`${theme.muted("Search:")} ${formatCliCommand('assistant docs "your query"')}`);
     } else {
-      runtime.log("Docs: https://docs.zhushou.ai/");
-      runtime.log(`Search: ${formatCliCommand('zhushou docs "your query"')}`);
+      runtime.log("Docs: https://docs.assistant.ai/");
+      runtime.log(`Search: ${formatCliCommand('assistant docs "your query"')}`);
     }
     return;
   }

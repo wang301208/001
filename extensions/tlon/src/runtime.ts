@@ -1,5 +1,5 @@
-import type { PluginRuntime } from "zhushou/plugin-sdk/plugin-runtime";
-import { createPluginRuntimeStore } from "zhushou/plugin-sdk/runtime-store";
+import type { PluginRuntime } from "assistant/plugin-sdk/plugin-runtime";
+import { createPluginRuntimeStore } from "assistant/plugin-sdk/runtime-store";
 
 const { setRuntime: setTlonRuntime, getRuntime: getTlonRuntime } =
   createPluginRuntimeStore<PluginRuntime>({

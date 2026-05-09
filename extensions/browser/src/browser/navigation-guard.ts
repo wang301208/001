@@ -2,8 +2,8 @@ import { isIP } from "node:net";
 import {
   matchesHostnameAllowlist,
   normalizeHostname,
-} from "zhushou/plugin-sdk/browser-security-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/browser-security-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { hasProxyEnvConfigured } from "../infra/net/proxy-env.js";
 import {
   isPrivateNetworkAllowedByPolicy,

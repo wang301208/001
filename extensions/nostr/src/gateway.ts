@@ -1,6 +1,6 @@
-import { createChannelPairingController } from "zhushou/plugin-sdk/channel-pairing";
-import { attachChannelToResult } from "zhushou/plugin-sdk/channel-send-result";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { createChannelPairingController } from "assistant/plugin-sdk/channel-pairing";
+import { attachChannelToResult } from "assistant/plugin-sdk/channel-send-result";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   createPreCryptoDirectDmAuthorizer,
   DEFAULT_ACCOUNT_ID,
@@ -54,7 +54,7 @@ function isNostrSenderAllowed(senderPubkey: string, allowFrom: string[]): boolea
 }
 
 async function resolveNostrDirectAccess(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   dmPolicy: "pairing" | "allowlist" | "open" | "disabled";
   allowFrom: Array<string | number> | undefined;
@@ -261,7 +261,7 @@ export const nostrPairingTextAdapter = {
     message,
     accountId,
   }: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     id: string;
     message: string;
     accountId?: string;

@@ -20,7 +20,7 @@ import {
   type SessionEntry,
   updateSessionStoreEntry,
 } from "../../config/sessions.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { readSessionMessages } from "../../gateway/session-utils.fs.js";
 import { logVerbose } from "../../globals.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
@@ -203,7 +203,7 @@ type SessionLogSnapshot = {
 };
 
 async function appendPostCompactionRefreshPrompt(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   followupRun: FollowupRun;
 }): Promise<void> {
   const refreshPrompt = await readPostCompactionContext(params.followupRun.run.workspaceDir, {
@@ -344,7 +344,7 @@ export async function readPromptTokensFromSessionLog(
 }
 
 export async function runPreflightCompactionIfNeeded(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   followupRun: FollowupRun;
   promptForEstimate?: string;
   defaultModel: string;
@@ -503,7 +503,7 @@ export async function runPreflightCompactionIfNeeded(params: {
 }
 
 export async function runMemoryFlushIfNeeded(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   followupRun: FollowupRun;
   promptForEstimate?: string;
   sessionCtx: TemplateContext;

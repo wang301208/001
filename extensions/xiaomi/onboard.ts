@@ -1,14 +1,14 @@
 import {
   createDefaultModelsPresetAppliers,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import { buildXiaomiProvider, XIAOMI_DEFAULT_MODEL_ID } from "./provider-catalog.js";
 
 export const XIAOMI_DEFAULT_MODEL_REF = `xiaomi/${XIAOMI_DEFAULT_MODEL_ID}`;
 
 const xiaomiPresetAppliers = createDefaultModelsPresetAppliers({
   primaryModelRef: XIAOMI_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig) => {
+  resolveParams: (_cfg: AssistantConfig) => {
     const defaultProvider = buildXiaomiProvider();
     return {
       providerId: "xiaomi",
@@ -21,10 +21,10 @@ const xiaomiPresetAppliers = createDefaultModelsPresetAppliers({
   },
 });
 
-export function applyXiaomiProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyXiaomiProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return xiaomiPresetAppliers.applyProviderConfig(cfg);
 }
 
-export function applyXiaomiConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyXiaomiConfig(cfg: AssistantConfig): AssistantConfig {
   return xiaomiPresetAppliers.applyConfig(cfg);
 }

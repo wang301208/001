@@ -1,17 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
-import { resolveUserPath } from "zhushou/plugin-sdk/account-resolution";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveOAuthDir } from "zhushou/plugin-sdk/state-paths";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import { resolveUserPath } from "assistant/plugin-sdk/account-resolution";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveOAuthDir } from "assistant/plugin-sdk/state-paths";
 import { hasWebCredsSync } from "./src/creds-files.js";
 
 type WhatsAppAuthPresenceParams =
   | {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       env?: NodeJS.ProcessEnv;
     }
-  | ZhushouConfig;
+  | AssistantConfig;
 
 function addAccountAuthDirs(
   authDirs: Set<string>,
@@ -28,7 +28,7 @@ function addAccountAuthDirs(
 }
 
 function listWhatsAppAuthDirs(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): readonly string[] {
   const oauthDir = resolveOAuthDir(env);

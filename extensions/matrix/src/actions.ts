@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/string-coerce-runtime";
-import { extractToolSend } from "zhushou/plugin-sdk/tool-send";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/string-coerce-runtime";
+import { extractToolSend } from "assistant/plugin-sdk/tool-send";
 import { requiresExplicitMatrixDefaultAccount } from "./account-selection.js";
 import { resolveDefaultMatrixAccountId, resolveMatrixAccount } from "./matrix/accounts.js";
 import {

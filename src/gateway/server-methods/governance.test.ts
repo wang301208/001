@@ -46,12 +46,13 @@ vi.mock("../../governance/proposals.js", () => ({
 async function invoke(
   method: keyof typeof governanceHandlers,
   params: Record<string, unknown>,
+  context: Record<string, unknown> = {},
 ) {
   const respond = vi.fn();
   await governanceHandlers[method]({
     params,
     respond: respond as never,
-    context: {} as never,
+    context: context as never,
     client: null,
     req: { type: "req", id: "req-1", method },
     isWebchatConnect: () => false,
@@ -775,6 +776,40 @@ describe("governance handlers", () => {
         }),
       }),
       undefined,
+    );
+  });
+
+  it("broadcasts governance.changed after creating a proposal", async () => {
+    const broadcast = vi.fn();
+
+    await invoke(
+      "governance.proposals.create",
+      {
+        title: "Create founder charter",
+        createdByAgentId: "founder",
+        operations: [
+          {
+            kind: "write",
+            path: "agents/founder.yaml",
+            content: "version: 1\n",
+          },
+        ],
+      },
+      { broadcast },
+    );
+
+    expect(broadcast).toHaveBeenCalledWith(
+      "governance.changed",
+      expect.objectContaining({
+        observedAt: 1,
+        changed: expect.objectContaining({
+          reason: "proposal.created",
+          result: expect.objectContaining({
+            proposal: expect.objectContaining({ id: "gpr-1" }),
+          }),
+        }),
+      }),
+      { dropIfSlow: true },
     );
   });
 

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/core";
+import type { AssistantConfig } from "assistant/plugin-sdk/core";
 import { describe, expect, it } from "vitest";
 import { FeishuConfigSchema } from "./config-schema.js";
 import {
@@ -9,12 +9,12 @@ import {
 } from "./policy.js";
 import type { FeishuConfig } from "./types.js";
 
-function createCfg(feishu: Record<string, unknown>): ZhushouConfig {
+function createCfg(feishu: Record<string, unknown>): AssistantConfig {
   return {
     channels: {
       feishu,
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createFeishuConfig(overrides: Partial<FeishuConfig>): FeishuConfig {

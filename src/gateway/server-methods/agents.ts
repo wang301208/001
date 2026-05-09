@@ -29,7 +29,7 @@ import {
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { resolveSessionTranscriptsDirForAgent } from "../../config/sessions/paths.js";
 import type { IdentityConfig } from "../../config/types.base.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { sameFileIdentity } from "../../infra/file-identity.js";
 import {
@@ -103,7 +103,7 @@ function resolveAgentWorkspaceFileOrRespondError(
   params: Record<string, unknown>,
   respond: RespondFn,
 ): {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   workspaceDir: string;
   name: string;
@@ -248,7 +248,7 @@ async function listAgentFiles(workspaceDir: string, options?: { hideBootstrap?: 
   return files;
 }
 
-function resolveAgentIdOrError(agentIdRaw: string, cfg: ZhushouConfig) {
+function resolveAgentIdOrError(agentIdRaw: string, cfg: AssistantConfig) {
   const agentId = normalizeAgentId(agentIdRaw);
   const allowed = new Set(listAgentIds(cfg));
   if (!allowed.has(agentId)) {
@@ -280,7 +280,7 @@ function respondInvalidMethodParams(
   );
 }
 
-function isConfiguredAgent(cfg: ZhushouConfig, agentId: string): boolean {
+function isConfiguredAgent(cfg: AssistantConfig, agentId: string): boolean {
   return findAgentEntryIndex(listAgentEntries(cfg), agentId) >= 0;
 }
 

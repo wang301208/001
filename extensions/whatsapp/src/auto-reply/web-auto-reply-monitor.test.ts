@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildMentionConfig } from "./mentions.js";
 import { applyGroupGating, type GroupHistoryEntry } from "./monitor/group-gating.js";
@@ -11,7 +11,7 @@ let sessionDir: string | undefined;
 let sessionStorePath: string;
 
 beforeEach(async () => {
-  sessionDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-group-gating-"));
+  sessionDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-group-gating-"));
   sessionStorePath = path.join(sessionDir, "sessions.json");
   await fs.writeFile(sessionStorePath, "{}");
 });
@@ -33,10 +33,10 @@ const makeConfig = (overrides: Record<string, unknown>) =>
     },
     session: { store: sessionStorePath },
     ...overrides,
-  }) as unknown as ReturnType<typeof import("zhushou/plugin-sdk/config-runtime").loadConfig>;
+  }) as unknown as ReturnType<typeof import("assistant/plugin-sdk/config-runtime").loadConfig>;
 
 function runGroupGating(params: {
-  cfg: ReturnType<typeof import("zhushou/plugin-sdk/config-runtime").loadConfig>;
+  cfg: ReturnType<typeof import("assistant/plugin-sdk/config-runtime").loadConfig>;
   msg: Record<string, unknown>;
   conversationId?: string;
   agentId?: string;
@@ -97,7 +97,7 @@ function makeOwnerGroupConfig() {
 
 function makeInboundCfg(messagePrefix = "") {
   return {
-    agents: { defaults: { workspace: "/tmp/zhushou" } },
+    agents: { defaults: { workspace: "/tmp/assistant" } },
     channels: { whatsapp: { messagePrefix } },
   } as never;
 }
@@ -345,7 +345,7 @@ describe("applyGroupGating", () => {
           groups: { "*": { requireMention: false } },
         },
       },
-      messages: { groupChat: { mentionPatterns: ["@zhushou"] } },
+      messages: { groupChat: { mentionPatterns: ["@assistant"] } },
     });
 
     const { result } = runGroupGating({

@@ -1,12 +1,12 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { findCatalogTemplate } from "zhushou/plugin-sdk/provider-catalog-shared";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { findCatalogTemplate } from "assistant/plugin-sdk/provider-catalog-shared";
 import {
   cloneFirstTemplateModel,
   matchesExactOrPrefix,
   type ProviderPlugin,
-} from "zhushou/plugin-sdk/provider-model-shared";
-import { OPENAI_RESPONSES_STREAM_HOOKS } from "zhushou/plugin-sdk/provider-stream-family";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/provider-model-shared";
+import { OPENAI_RESPONSES_STREAM_HOOKS } from "assistant/plugin-sdk/provider-stream-family";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { buildOpenAIReplayPolicy } from "./replay-policy.js";
 import {
   resolveOpenAITransportTurnState,
@@ -37,7 +37,7 @@ export function toOpenAIDataUrl(buffer: Buffer, mimeType: string): string {
   return `data:${mimeType};base64,${buffer.toString("base64")}`;
 }
 
-export function resolveConfiguredOpenAIBaseUrl(cfg: ZhushouConfig | undefined): string {
+export function resolveConfiguredOpenAIBaseUrl(cfg: AssistantConfig | undefined): string {
   return normalizeOptionalString(cfg?.models?.providers?.openai?.baseUrl) ?? OPENAI_API_BASE_URL;
 }
 

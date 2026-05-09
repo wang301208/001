@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 type MatrixPackageManifest = {
   dependencies?: Record<string, string>;
-  zhushou?: {
+  assistant?: {
     bundle?: {
       stageRuntimeDependencies?: boolean;
     };
@@ -17,6 +17,6 @@ describe("matrix package manifest", () => {
     ) as MatrixPackageManifest;
 
     expect(packageJson.dependencies?.["fake-indexeddb"]).toBeDefined();
-    expect(packageJson.zhushou?.bundle?.stageRuntimeDependencies).toBe(true);
+    expect(packageJson.assistant?.bundle?.stageRuntimeDependencies).toBe(true);
   });
 });

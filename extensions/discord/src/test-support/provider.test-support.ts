@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
 import type { Mock } from "vitest";
 import { expect, vi } from "vitest";
 
@@ -23,7 +23,7 @@ type ProviderMonitorTestMocks = {
   createDiscordAutoPresenceControllerMock: Mock<() => unknown>;
   createDiscordExecApprovalButtonContextMock: Mock<
     (params?: {
-      cfg?: ZhushouConfig;
+      cfg?: AssistantConfig;
       accountId?: string;
       config?: unknown;
       gatewayUrl?: string;
@@ -38,7 +38,7 @@ type ProviderMonitorTestMocks = {
   createdBindingManagers: Array<{ stop: ReturnType<typeof vi.fn> }>;
   getAcpSessionStatusMock: Mock<
     (params: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       sessionKey: string;
       signal?: AbortSignal;
     }) => Promise<{ state: string }>
@@ -124,7 +124,7 @@ const providerMonitorTestMocks: ProviderMonitorTestMocks = vi.hoisted(() => {
     })),
     createdBindingManagers,
     getAcpSessionStatusMock: vi.fn(
-      async (_params: { cfg: ZhushouConfig; sessionKey: string; signal?: AbortSignal }) => ({
+      async (_params: { cfg: AssistantConfig; sessionKey: string; signal?: AbortSignal }) => ({
         state: "idle",
       }),
     ),
@@ -282,7 +282,7 @@ export const baseRuntime = (): RuntimeEnv => ({
   exit: vi.fn(),
 });
 
-export const baseConfig = (): ZhushouConfig =>
+export const baseConfig = (): AssistantConfig =>
   ({
     channels: {
       discord: {
@@ -293,7 +293,7 @@ export const baseConfig = (): ZhushouConfig =>
         },
       },
     },
-  }) as ZhushouConfig;
+  }) as AssistantConfig;
 
 vi.mock("@buape/carbon", async () => {
   const actual = await vi.importActual<typeof import("@buape/carbon")>("@buape/carbon");
@@ -344,9 +344,9 @@ vi.mock("@buape/carbon/voice", () => ({
   VoicePlugin: function VoicePlugin() {},
 }));
 
-vi.mock("zhushou/plugin-sdk/acp-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/acp-runtime")>(
-    "zhushou/plugin-sdk/acp-runtime",
+vi.mock("assistant/plugin-sdk/acp-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/acp-runtime")>(
+    "assistant/plugin-sdk/acp-runtime",
   );
   return {
     ...actual,
@@ -358,9 +358,9 @@ vi.mock("zhushou/plugin-sdk/acp-runtime", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/command-auth", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/command-auth")>(
-    "zhushou/plugin-sdk/command-auth",
+vi.mock("assistant/plugin-sdk/command-auth", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/command-auth")>(
+    "assistant/plugin-sdk/command-auth",
   );
   return {
     ...actual,
@@ -368,9 +368,9 @@ vi.mock("zhushou/plugin-sdk/command-auth", async () => {
     listSkillCommandsForAgents: listSkillCommandsForAgentsMock,
   };
 });
-vi.mock("zhushou/plugin-sdk/reply-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/reply-runtime")>(
-    "zhushou/plugin-sdk/reply-runtime",
+vi.mock("assistant/plugin-sdk/reply-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/reply-runtime")>(
+    "assistant/plugin-sdk/reply-runtime",
   );
   return {
     ...actual,
@@ -378,9 +378,9 @@ vi.mock("zhushou/plugin-sdk/reply-runtime", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
-    "zhushou/plugin-sdk/config-runtime",
+vi.mock("assistant/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/config-runtime")>(
+    "assistant/plugin-sdk/config-runtime",
   );
   return {
     ...actual,
@@ -391,9 +391,9 @@ vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/runtime-env")>(
-    "zhushou/plugin-sdk/runtime-env",
+vi.mock("assistant/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/runtime-env")>(
+    "assistant/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -416,9 +416,9 @@ vi.mock("zhushou/plugin-sdk/runtime-env", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/infra-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/infra-runtime")>(
-    "zhushou/plugin-sdk/infra-runtime",
+vi.mock("assistant/plugin-sdk/infra-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/infra-runtime")>(
+    "assistant/plugin-sdk/infra-runtime",
   );
   return {
     ...actual,

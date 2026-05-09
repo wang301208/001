@@ -113,7 +113,7 @@ const GATEWAY_TAILSCALE_MODES: readonly GatewayTailscaleMode[] = ["off", "serve"
 
 function warnInlinePasswordFlag() {
   defaultRuntime.error(
-    "Warning: --password can be exposed via process listings. Prefer --password-file or ZHUSHOU_GATEWAY_PASSWORD.",
+    "Warning: --password can be exposed via process listings. Prefer --password-file or ASSISTANT_GATEWAY_PASSWORD.",
   );
 }
 
@@ -168,7 +168,7 @@ function getGatewayStartGuardErrors(params: {
   }
   if (!params.configExists) {
     return [
-      `Missing config. Run \`${formatCliCommand("zhushou setup")}\` or set gateway.mode=local (or pass --allow-unconfigured).`,
+      `Missing config. Run \`${formatCliCommand("assistant setup")}\` or set gateway.mode=local (or pass --allow-unconfigured).`,
     ];
   }
   if (params.mode === undefined) {
@@ -176,7 +176,7 @@ function getGatewayStartGuardErrors(params: {
       [
         "Gateway start blocked: existing config is missing gateway.mode.",
         "Treat this as suspicious or clobbered config.",
-        `Re-run \`${formatCliCommand("zhushou onboard --mode local")}\` or \`${formatCliCommand("zhushou setup")}\`, set gateway.mode=local manually, or pass --allow-unconfigured.`,
+        `Re-run \`${formatCliCommand("assistant onboard --mode local")}\` or \`${formatCliCommand("assistant setup")}\`, set gateway.mode=local manually, or pass --allow-unconfigured.`,
       ].join(" "),
       `Config write audit: ${params.configAuditPath}`,
     ];
@@ -226,7 +226,7 @@ function isHealthyGatewayLockError(err: unknown): boolean {
 }
 
 async function runGatewayCommand(opts: GatewayRunOpts) {
-  const isDevProfile = normalizeOptionalLowercaseString(process.env.ZHUSHOU_PROFILE) === "dev";
+  const isDevProfile = normalizeOptionalLowercaseString(process.env.ASSISTANT_PROFILE) === "dev";
   const devMode = Boolean(opts.dev) || isDevProfile;
   if (opts.reset && !devMode) {
     defaultRuntime.error("Use --reset with --dev.");
@@ -237,7 +237,7 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
   setVerbose(Boolean(opts.verbose));
   if (opts.cliBackendLogs || opts.claudeCliLogs) {
     setConsoleSubsystemFilter(["agent/cli-backend"]);
-    process.env.OPENCLAW_CLI_BACKEND_LOG_OUTPUT = "1";
+    process.env.ASSISTANT_CLI_BACKEND_LOG_OUTPUT = "1";
   }
   const wsLogRaw = (opts.compact ? "compact" : opts.wsLog) as string | undefined;
   const wsLogStyle: GatewayWsLogStyle =
@@ -254,11 +254,11 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
   setGatewayWsLogStyle(wsLogStyle);
 
   if (opts.rawStream) {
-    process.env.OPENCLAW_RAW_STREAM = "1";
+    process.env.ASSISTANT_RAW_STREAM = "1";
   }
   const rawStreamPath = toOptionString(opts.rawStreamPath);
   if (rawStreamPath) {
-    process.env.OPENCLAW_RAW_STREAM_PATH = rawStreamPath;
+    process.env.ASSISTANT_RAW_STREAM_PATH = rawStreamPath;
   }
 
   // The heaviest part of gateway startup is loading the server module tree
@@ -300,7 +300,7 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
     return;
   }
   const bindExplicitRaw = bindExplicitRawStr as GatewayBindMode | undefined;
-  if (process.env.OPENCLAW_SERVICE_MARKER?.trim()) {
+  if (process.env.ASSISTANT_SERVICE_MARKER?.trim()) {
     const stale = cleanStaleGatewayProcessesSync(port);
     if (stale.length > 0) {
       gatewayLog.info(
@@ -356,7 +356,7 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
   if (opts.token) {
     const token = toOptionString(opts.token);
     if (token) {
-      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
+      process.env.ASSISTANT_GATEWAY_TOKEN = token;
     }
   }
   const authModeRaw = toOptionString(opts.auth);
@@ -465,7 +465,7 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
     defaultRuntime.error(
       [
         "Gateway auth is set to password, but no password is configured.",
-        "Set gateway.auth.password (or ZHUSHOU_GATEWAY_PASSWORD), or pass --password.",
+        "Set gateway.auth.password (or ASSISTANT_GATEWAY_PASSWORD), or pass --password.",
         ...authHints,
       ]
         .filter(Boolean)
@@ -491,10 +491,10 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
         ...(isContainerEnvironment()
           ? [
               "Container environment detected \u2014 the gateway defaults to bind=auto (0.0.0.0) for port-forwarding compatibility.",
-              "Set ZHUSHOU_GATEWAY_TOKEN or ZHUSHOU_GATEWAY_PASSWORD, or pass --token/--password to start with auth.",
+              "Set ASSISTANT_GATEWAY_TOKEN or ASSISTANT_GATEWAY_PASSWORD, or pass --token/--password to start with auth.",
             ]
           : [
-              "Set gateway.auth.token/password (or ZHUSHOU_GATEWAY_TOKEN/ZHUSHOU_GATEWAY_PASSWORD) or pass --token/--password.",
+              "Set gateway.auth.token/password (or ASSISTANT_GATEWAY_TOKEN/ASSISTANT_GATEWAY_PASSWORD) or pass --token/--password.",
             ]),
         ...authHints,
       ]
@@ -550,7 +550,7 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
     if (isGatewayLockError(err)) {
       const errMessage = formatErrorMessage(err);
       defaultRuntime.error(
-        `Gateway failed to start: ${errMessage}\nIf the gateway is supervised, stop it with: ${formatCliCommand("openclaw gateway stop")}`,
+        `Gateway failed to start: ${errMessage}\nIf the gateway is supervised, stop it with: ${formatCliCommand("assistant gateway stop")}`,
       );
       try {
         const diagnostics = await inspectPortUsage(port);
@@ -580,7 +580,7 @@ export function addGatewayRunCommand(cmd: Command): Command {
     )
     .option(
       "--token <token>",
-      "Shared token required in connect.params.auth.token (default: ZHUSHOU_GATEWAY_TOKEN env if set)",
+      "Shared token required in connect.params.auth.token (default: ASSISTANT_GATEWAY_TOKEN env if set)",
     )
     .option("--auth <mode>", `Gateway auth mode (${formatModeChoices(GATEWAY_AUTH_MODES)})`)
     .option("--password <password>", "Password for auth mode=password")

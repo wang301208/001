@@ -1,6 +1,6 @@
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/core";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/core";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import {
   createActionCard,
   createImageCard,
@@ -157,7 +157,7 @@ function parseCardArgs(argsStr: string): {
   return result;
 }
 
-export function registerLineCardCommand(api: ZhushouPluginApi): void {
+export function registerLineCardCommand(api: AssistantPluginApi): void {
   api.registerCommand({
     name: "card",
     description: "Send a rich card message (LINE).",

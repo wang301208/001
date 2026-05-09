@@ -1,5 +1,5 @@
 import { normalizeThinkLevel } from "../auto-reply/thinking.shared.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
@@ -11,7 +11,7 @@ function readString(value: Record<string, unknown>, key: string): string | undef
 }
 
 export function resolveSubagentThinkingOverride(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   targetAgentConfig?: unknown;
   thinkingOverrideRaw?: string;
 }) {

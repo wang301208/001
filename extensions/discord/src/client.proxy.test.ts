@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 import { createDiscordRestClient } from "./client.js";
 
 const makeProxyFetchMock = vi.hoisted(() => vi.fn());
 
-vi.mock("zhushou/plugin-sdk/infra-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/infra-runtime")>(
-    "zhushou/plugin-sdk/infra-runtime",
+vi.mock("assistant/plugin-sdk/infra-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/infra-runtime")>(
+    "assistant/plugin-sdk/infra-runtime",
   );
   makeProxyFetchMock.mockImplementation((proxyUrl: string) => {
     if (proxyUrl === "bad-proxy") {
@@ -33,7 +33,7 @@ describe("createDiscordRestClient proxy support", () => {
           proxy: "http://127.0.0.1:8080",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const { rest } = createDiscordRestClient({}, cfg);
     const requestClient = rest as unknown as {
@@ -52,7 +52,7 @@ describe("createDiscordRestClient proxy support", () => {
           token: "Bot test-token",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const { rest } = createDiscordRestClient({}, cfg);
     const requestClient = rest as unknown as {
@@ -70,7 +70,7 @@ describe("createDiscordRestClient proxy support", () => {
           proxy: "bad-proxy",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const { rest } = createDiscordRestClient({}, cfg);
     const requestClient = rest as unknown as {
@@ -89,7 +89,7 @@ describe("createDiscordRestClient proxy support", () => {
           proxy: "http://proxy.test:8080",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const { rest } = createDiscordRestClient({}, cfg);
     const requestClient = rest as unknown as {
@@ -108,7 +108,7 @@ describe("createDiscordRestClient proxy support", () => {
           proxy: "http://[::1]:8080",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const { rest } = createDiscordRestClient({}, cfg);
     const requestClient = rest as unknown as {

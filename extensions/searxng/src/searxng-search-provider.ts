@@ -8,7 +8,7 @@ import {
   setScopedCredentialValue,
   setProviderWebSearchPluginConfigValue,
   type WebSearchProviderPlugin,
-} from "zhushou/plugin-sdk/provider-web-search";
+} from "assistant/plugin-sdk/provider-web-search";
 import { runSearxngSearch } from "./searxng-client.js";
 
 const SearxngSearchSchema = Type.Object(

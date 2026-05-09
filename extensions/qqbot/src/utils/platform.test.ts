@@ -11,20 +11,20 @@ import {
 describe("qqbot local media path remapping", () => {
   const createdPaths: string[] = [];
 
-  function createOpenClawTestRoot() {
+  function createAssistantTestRoot() {
     const actualHome = getHomeDir();
-    const openclawDir = path.join(actualHome, ".zhushou");
-    fs.mkdirSync(openclawDir, { recursive: true });
-    const testRoot = fs.mkdtempSync(path.join(openclawDir, "qqbot-platform-test-"));
+    const assistantDir = path.join(actualHome, ".assistant");
+    fs.mkdirSync(assistantDir, { recursive: true });
+    const testRoot = fs.mkdtempSync(path.join(assistantDir, "qqbot-platform-test-"));
     createdPaths.push(testRoot);
     return { actualHome, testRootName: path.basename(testRoot) };
   }
 
   function createQqbotMediaFile(fileName: string) {
-    const { actualHome, testRootName } = createOpenClawTestRoot();
+    const { actualHome, testRootName } = createAssistantTestRoot();
     const mediaFile = path.join(
       actualHome,
-      ".zhushou",
+      ".assistant",
       "media",
       "qqbot",
       "downloads",
@@ -49,7 +49,7 @@ describe("qqbot local media path remapping", () => {
 
     const missingWorkspacePath = path.join(
       actualHome,
-      ".zhushou",
+      ".assistant",
       "workspace",
       "qqbot",
       "downloads",
@@ -79,7 +79,7 @@ describe("qqbot local media path remapping", () => {
   it("blocks structured payload paths that escape QQ Bot media via '..'", () => {
     const escapedPath = path.join(
       getHomeDir(),
-      ".zhushou",
+      ".assistant",
       "media",
       "qqbot",
       "..",
@@ -97,11 +97,11 @@ describe("qqbot local media path remapping", () => {
   });
 
   it("blocks structured payload files inside the QQ Bot data directory", () => {
-    const { actualHome, testRootName } = createOpenClawTestRoot();
+    const { actualHome, testRootName } = createAssistantTestRoot();
 
     const dataFile = path.join(
       actualHome,
-      ".zhushou",
+      ".assistant",
       "qqbot",
       "sessions",
       testRootName,
@@ -119,7 +119,7 @@ describe("qqbot local media path remapping", () => {
 
     const missingWorkspacePath = path.join(
       actualHome,
-      ".zhushou",
+      ".assistant",
       "workspace",
       "qqbot",
       "downloads",

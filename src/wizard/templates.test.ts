@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   applyTemplate,
   findTemplate,
@@ -7,8 +7,8 @@ import {
   WIZARD_TEMPLATES,
 } from "./templates.js";
 
-function emptyConfig(): ZhushouConfig {
-  return {} as ZhushouConfig;
+function emptyConfig(): AssistantConfig {
+  return {} as AssistantConfig;
 }
 
 // ─── WIZARD_TEMPLATES ─────────────────────────────────────────────────────────
@@ -91,9 +91,9 @@ describe("applyTemplate", () => {
   });
 
   it("preserves base config fields not touched by template", () => {
-    const base: ZhushouConfig = {
+    const base: AssistantConfig = {
       agents: { defaults: { workspace: "/my/workspace" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const template = findTemplate("minimal")!;
     const result = applyTemplate(base, template);
     expect(result.agents?.defaults?.workspace).toBe("/my/workspace");
@@ -101,9 +101,9 @@ describe("applyTemplate", () => {
   });
 
   it("template values override base values for the same path", () => {
-    const base: ZhushouConfig = {
+    const base: AssistantConfig = {
       gateway: { bind: "lan", auth: { mode: "password" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const template = findTemplate("minimal")!;
     const result = applyTemplate(base, template);
     expect(result.gateway?.bind).toBe("loopback");
@@ -111,9 +111,9 @@ describe("applyTemplate", () => {
   });
 
   it("deep-merges nested objects rather than replacing them", () => {
-    const base: ZhushouConfig = {
+    const base: AssistantConfig = {
       gateway: { port: 9000, bind: "lan" },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const template = findTemplate("minimal")!;
     const result = applyTemplate(base, template);
     // port from base should be preserved because template doesn't set port
@@ -123,9 +123,9 @@ describe("applyTemplate", () => {
   });
 
   it("does not mutate the original base config", () => {
-    const base: ZhushouConfig = {
+    const base: AssistantConfig = {
       gateway: { bind: "lan" },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const template = findTemplate("minimal")!;
     applyTemplate(base, template);
     expect((base as unknown as Record<string, unknown>).gateway).toEqual({ bind: "lan" });

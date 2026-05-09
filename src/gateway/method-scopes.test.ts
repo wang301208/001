@@ -52,6 +52,13 @@ describe("method scope resolution", () => {
     ["autonomy.loop.upsert", ["operator.admin"]],
     ["autonomy.loop.reconcile", ["operator.admin"]],
     ["autonomy.loop.remove", ["operator.admin"]],
+    ["experience.search", ["operator.read"]],
+    ["experience.summary", ["operator.read"]],
+    ["skill.candidates.list", ["operator.read"]],
+    ["self.model.get", ["operator.read"]],
+    ["experience.capture", ["operator.admin"]],
+    ["skill.candidates.create", ["operator.admin"]],
+    ["self.model.update", ["operator.admin"]],
     ["config.patch", ["operator.admin"]],
     ["wizard.start", ["operator.admin"]],
     ["update.run", ["operator.admin"]],
@@ -198,6 +205,25 @@ describe("plugin approval method registration", () => {
     expect(methods).toContain("autonomy.governance.reconcile");
     expect(methods).toContain("autonomy.supervise");
     expect(methods).toContain("autonomy.activate");
+  });
+
+  it("lists business task methods exposed to the web task center", () => {
+    const methods = listGatewayMethods();
+    expect(methods).toContain("business.tasks.list");
+    expect(methods).toContain("business.tasks.create");
+    expect(methods).toContain("business.tasks.update");
+    expect(methods).toContain("business.tasks.delete");
+  });
+
+  it("lists persistent experience and self-model methods", () => {
+    const methods = listGatewayMethods();
+    expect(methods).toContain("experience.capture");
+    expect(methods).toContain("experience.search");
+    expect(methods).toContain("experience.summary");
+    expect(methods).toContain("skill.candidates.list");
+    expect(methods).toContain("skill.candidates.create");
+    expect(methods).toContain("self.model.get");
+    expect(methods).toContain("self.model.update");
   });
 
   it("classifies plugin approval methods", () => {

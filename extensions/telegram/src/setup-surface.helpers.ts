@@ -3,11 +3,11 @@ import {
   applySetupAccountConfigPatch,
   type ChannelSetupDmPolicy,
   DEFAULT_ACCOUNT_ID,
-  type ZhushouConfig,
+  type AssistantConfig,
   patchChannelConfigForAccount,
-} from "zhushou/plugin-sdk/setup";
-import { formatCliCommand, formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/setup";
+import { formatCliCommand, formatDocsLink } from "assistant/plugin-sdk/setup-tools";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   mergeTelegramAccountConfig,
   resolveDefaultTelegramAccountId,
@@ -18,9 +18,9 @@ import { promptTelegramAllowFromForAccount } from "./setup-core.js";
 const channel = "telegram" as const;
 
 export function ensureTelegramDefaultGroupMentionGate(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
-): ZhushouConfig {
+): AssistantConfig {
   const resolved = resolveTelegramAccount({ cfg, accountId });
   const wildcardGroup = resolved.config.groups?.["*"];
   if (wildcardGroup?.requireMention !== undefined) {
@@ -42,7 +42,7 @@ export function ensureTelegramDefaultGroupMentionGate(
   });
 }
 
-export function shouldShowTelegramDmAccessWarning(cfg: ZhushouConfig, accountId: string): boolean {
+export function shouldShowTelegramDmAccessWarning(cfg: AssistantConfig, accountId: string): boolean {
   const merged = mergeTelegramAccountConfig(cfg, accountId);
   const policy = merged.dmPolicy ?? "pairing";
   const hasAllowFrom =
@@ -60,8 +60,8 @@ export function buildTelegramDmAccessWarningLines(accountId: string): string[] {
     "Your bot is using DM policy: pairing.",
     "Any Telegram user who discovers the bot can send pairing requests.",
     "For private use, configure an allowlist with your Telegram user id:",
-    "  " + formatCliCommand(`zhushou config set ${configBase}.dmPolicy "allowlist"`),
-    "  " + formatCliCommand(`zhushou config set ${configBase}.allowFrom '["YOUR_USER_ID"]'`),
+    "  " + formatCliCommand(`assistant config set ${configBase}.dmPolicy "allowlist"`),
+    "  " + formatCliCommand(`assistant config set ${configBase}.allowFrom '["YOUR_USER_ID"]'`),
     `Docs: ${formatDocsLink("/channels/pairing", "channels/pairing")}`,
   ];
 }

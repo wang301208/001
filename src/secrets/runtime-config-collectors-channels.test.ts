@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { ResolverContext } from "./runtime-shared.js";
 
 const getBootstrapChannelSecrets = vi.fn();
@@ -37,7 +37,7 @@ describe("runtime channel config collectors", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       defaults: undefined,
       context: {} as ResolverContext,
     });
@@ -61,7 +61,7 @@ describe("runtime channel config collectors", () => {
         channels: {
           legacy: {},
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       defaults: undefined,
       context: {} as ResolverContext,
     });

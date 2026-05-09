@@ -2,7 +2,7 @@ import { bumpSkillsSnapshotVersion } from "../agents/skills/refresh-state.js";
 import type { SkillEligibilityContext, SkillEntry } from "../agents/skills/types.js";
 import { loadWorkspaceSkillEntries } from "../agents/skills/workspace.js";
 import { listAgentWorkspaceDirs } from "../agents/workspace-dirs.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { NodeRegistry } from "../gateway/node-registry.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
@@ -251,7 +251,7 @@ export async function refreshRemoteNodeBins(params: {
   platform?: string;
   deviceFamily?: string;
   commands?: string[];
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   timeoutMs?: number;
 }) {
   if (!remoteRegistry) {
@@ -346,7 +346,7 @@ export function getRemoteSkillEligibility(options?: {
   };
 }
 
-export async function refreshRemoteBinsForConnectedNodes(cfg: ZhushouConfig) {
+export async function refreshRemoteBinsForConnectedNodes(cfg: AssistantConfig) {
   if (!remoteRegistry) {
     return;
   }

@@ -1,10 +1,10 @@
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import { resolveUserPath } from "../../../utils.js";
 import type { OnboardOptions } from "../../onboard-types.js";
 
 export function resolveNonInteractiveWorkspaceDir(params: {
   opts: OnboardOptions;
-  baseConfig: ZhushouConfig;
+  baseConfig: AssistantConfig;
   defaultWorkspaceDir: string;
 }) {
   const raw = (

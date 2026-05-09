@@ -8,16 +8,16 @@ import {
 
 describe("gh-read helpers", () => {
   it("finds repo from gh args", () => {
-    expect(parseRepoArg(["pr", "view", "42", "-R", "zhushou/zhushou"])).toBe("zhushou/zhushou");
-    expect(parseRepoArg(["run", "list", "--repo=zhushou/docs"])).toBe("zhushou/docs");
+    expect(parseRepoArg(["pr", "view", "42", "-R", "assistant/assistant"])).toBe("assistant/assistant");
+    expect(parseRepoArg(["run", "list", "--repo=assistant/docs"])).toBe("assistant/docs");
     expect(parseRepoArg(["pr", "view", "42"])).toBeNull();
   });
 
   it("normalizes repo strings from common git formats", () => {
-    expect(normalizeRepo("zhushou/zhushou")).toBe("zhushou/zhushou");
-    expect(normalizeRepo("github.com/zhushou/zhushou")).toBe("zhushou/zhushou");
-    expect(normalizeRepo("https://github.com/zhushou/zhushou.git")).toBe("zhushou/zhushou");
-    expect(normalizeRepo("git@github.com:zhushou/zhushou.git")).toBe("zhushou/zhushou");
+    expect(normalizeRepo("assistant/assistant")).toBe("assistant/assistant");
+    expect(normalizeRepo("github.com/assistant/assistant")).toBe("assistant/assistant");
+    expect(normalizeRepo("https://github.com/assistant/assistant.git")).toBe("assistant/assistant");
+    expect(normalizeRepo("git@github.com:assistant/assistant.git")).toBe("assistant/assistant");
     expect(normalizeRepo("invalid")).toBeNull();
   });
 

@@ -1,5 +1,5 @@
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 
 export type OutboundSessionContext = {
@@ -20,7 +20,7 @@ export type OutboundSessionContext = {
 };
 
 export function buildOutboundSessionContext(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey?: string | null;
   agentId?: string | null;
   requesterAccountId?: string | null;

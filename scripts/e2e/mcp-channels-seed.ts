@@ -4,7 +4,7 @@ import path from "node:path";
 import {
   applyProviderConfigWithDefaultModelPreset,
   type ModelDefinitionConfig,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "../../src/plugin-sdk/provider-onboard.ts";
 
 const DOCKER_OPENAI_MODEL_REF = "openai/gpt-5.4";
@@ -25,9 +25,9 @@ const DOCKER_OPENAI_MODEL: ModelDefinitionConfig = {
 };
 
 async function main() {
-  const stateDir = process.env.ZHUSHOU_STATE_DIR?.trim() || path.join(os.homedir(), ".zhushou");
+  const stateDir = process.env.ASSISTANT_STATE_DIR?.trim() || path.join(os.homedir(), ".assistant");
   const configPath =
-    process.env.ZHUSHOU_CONFIG_PATH?.trim() || path.join(stateDir, "zhushou.json");
+    process.env.ASSISTANT_CONFIG_PATH?.trim() || path.join(stateDir, "assistant.json");
   const sessionsDir = path.join(stateDir, "agents", "main", "sessions");
   const sessionFile = path.join(sessionsDir, "sess-main.jsonl");
   const storePath = path.join(sessionsDir, "sessions.json");
@@ -44,7 +44,7 @@ async function main() {
           enabled: false,
         },
       },
-    } satisfies ZhushouConfig,
+    } satisfies AssistantConfig,
     {
       providerId: "openai",
       api: "openai-responses",

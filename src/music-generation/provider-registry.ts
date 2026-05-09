@@ -1,5 +1,5 @@
 import { normalizeProviderId } from "../agents/model-selection.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { isBlockedObjectKey } from "../infra/prototype-keys.js";
 import { resolvePluginCapabilityProviders } from "../plugins/capability-provider-runtime.js";
 import type { MusicGenerationProviderPlugin } from "../plugins/types.js";
@@ -20,7 +20,7 @@ function isSafeMusicGenerationProviderId(id: string | undefined): id is string {
 }
 
 function resolvePluginMusicGenerationProviders(
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): MusicGenerationProviderPlugin[] {
   return resolvePluginCapabilityProviders({
     key: "musicGenerationProviders",
@@ -28,7 +28,7 @@ function resolvePluginMusicGenerationProviders(
   });
 }
 
-function buildProviderMaps(cfg?: ZhushouConfig): {
+function buildProviderMaps(cfg?: AssistantConfig): {
   canonical: Map<string, MusicGenerationProviderPlugin>;
   aliases: Map<string, MusicGenerationProviderPlugin>;
 } {
@@ -60,14 +60,14 @@ function buildProviderMaps(cfg?: ZhushouConfig): {
 }
 
 export function listMusicGenerationProviders(
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): MusicGenerationProviderPlugin[] {
   return [...buildProviderMaps(cfg).canonical.values()];
 }
 
 export function getMusicGenerationProvider(
   providerId: string | undefined,
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): MusicGenerationProviderPlugin | undefined {
   const normalized = normalizeMusicGenerationProviderId(providerId);
   if (!normalized) {

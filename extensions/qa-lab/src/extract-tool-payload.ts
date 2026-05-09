@@ -1,1 +1,1 @@
-export { extractToolPayload as extractQaToolPayload } from "zhushou/plugin-sdk/tool-payload";
+export { extractToolPayload as extractQaToolPayload } from "assistant/plugin-sdk/tool-payload";

@@ -122,7 +122,7 @@ function resolveAdapterCapabilities(
   };
 }
 
-const SESSION_BINDING_ADAPTERS_KEY = Symbol.for("zhushou.sessionBinding.adapters");
+const SESSION_BINDING_ADAPTERS_KEY = Symbol.for("assistant.sessionBinding.adapters");
 
 type SessionBindingAdapterRegistration = {
   adapter: SessionBindingAdapter;

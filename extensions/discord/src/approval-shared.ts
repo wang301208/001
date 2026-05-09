@@ -1,6 +1,6 @@
-import { doesApprovalRequestMatchChannelAccount } from "zhushou/plugin-sdk/approval-native-runtime";
-import type { DiscordExecApprovalConfig, ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ExecApprovalRequest, PluginApprovalRequest } from "zhushou/plugin-sdk/infra-runtime";
+import { doesApprovalRequestMatchChannelAccount } from "assistant/plugin-sdk/approval-native-runtime";
+import type { DiscordExecApprovalConfig, AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ExecApprovalRequest, PluginApprovalRequest } from "assistant/plugin-sdk/infra-runtime";
 import { resolveDiscordAccount } from "./accounts.js";
 import {
   isChannelExecApprovalClientEnabledFromConfig,
@@ -11,7 +11,7 @@ import { getDiscordExecApprovalApprovers } from "./exec-approvals.js";
 type ApprovalRequest = ExecApprovalRequest | PluginApprovalRequest;
 
 export function shouldHandleDiscordApprovalRequest(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   request: ApprovalRequest;
   configOverride?: DiscordExecApprovalConfig | null;

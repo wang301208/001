@@ -4,6 +4,6 @@ runExtensionOxlint({
   roots: ["extensions"],
   toolName: "oxlint-bundled-extensions",
   lockName: "oxlint-bundled-extensions",
-  tempDirPrefix: "zhushou-bundled-extension-oxlint-",
+  tempDirPrefix: "assistant-bundled-extension-oxlint-",
   emptyMessage: "No bundled extension files found.",
 });

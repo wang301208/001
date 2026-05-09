@@ -1,5 +1,5 @@
-import { createDangerousNameMatchingMutableAllowlistWarningCollector } from "zhushou/plugin-sdk/channel-policy";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { createDangerousNameMatchingMutableAllowlistWarningCollector } from "assistant/plugin-sdk/channel-policy";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 
 function asObjectRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)

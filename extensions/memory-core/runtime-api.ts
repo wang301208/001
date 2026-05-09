@@ -12,9 +12,9 @@ export {
   resolveMemoryFtsState,
   resolveMemoryVectorState,
   type Tone,
-} from "zhushou/plugin-sdk/memory-core-host-status";
-export { checkQmdBinaryAvailability } from "zhushou/plugin-sdk/memory-core-host-engine-qmd";
-export { hasConfiguredMemorySecretInput } from "zhushou/plugin-sdk/memory-core-host-secret";
+} from "assistant/plugin-sdk/memory-core-host-status";
+export { checkQmdBinaryAvailability } from "assistant/plugin-sdk/memory-core-host-engine-qmd";
+export { hasConfiguredMemorySecretInput } from "assistant/plugin-sdk/memory-core-host-secret";
 export { auditDreamingArtifacts, repairDreamingArtifacts } from "./src/dreaming-repair.js";
 export {
   auditShortTermPromotionArtifacts,

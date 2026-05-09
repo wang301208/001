@@ -13,7 +13,7 @@ function resolveTeamsSdkVersion(): string {
   }
 }
 
-function resolveOpenClawVersion(): string {
+function resolveAssistantVersion(): string {
   try {
     return getMSTeamsRuntime().version;
   } catch {
@@ -25,7 +25,7 @@ function resolveOpenClawVersion(): string {
  * Build a combined User-Agent string that preserves the Teams SDK identity
  * and appends the 助手 version.
  *
- * Format: "teams.ts[apps]/<sdk-version> 助手/<zhushou-version>"
+ * Format: "teams.ts[apps]/<sdk-version> 助手/<assistant-version>"
  * Example: "teams.ts[apps]/2.0.5 助手/2026.3.22"
  *
  * This lets the Teams backend track SDK usage while also identifying the
@@ -40,7 +40,7 @@ export function buildUserAgent(): string {
   if (cachedUserAgent) {
     return cachedUserAgent;
   }
-  cachedUserAgent = `teams.ts[apps]/${resolveTeamsSdkVersion()} 助手/${resolveOpenClawVersion()}`;
+  cachedUserAgent = `teams.ts[apps]/${resolveTeamsSdkVersion()} 助手/${resolveAssistantVersion()}`;
   return cachedUserAgent;
 }
 

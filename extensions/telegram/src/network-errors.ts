@@ -3,10 +3,10 @@ import {
   extractErrorCode,
   formatErrorMessage,
   readErrorName,
-} from "zhushou/plugin-sdk/error-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/error-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 
-const TELEGRAM_NETWORK_ORIGIN = Symbol("zhushou.telegram.network-origin");
+const TELEGRAM_NETWORK_ORIGIN = Symbol("assistant.telegram.network-origin");
 
 const RECOVERABLE_ERROR_CODES = new Set([
   "ECONNRESET",

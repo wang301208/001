@@ -1,6 +1,6 @@
 import { loadBundledPluginContractApiSync } from "../../../src/test-utils/bundled-plugin-public-surface.js";
 
-type AnthropicContractSurface = typeof import("@zhushou/anthropic/contract-api.js");
+type AnthropicContractSurface = typeof import("@assistant/anthropic/contract-api.js");
 
 let anthropicContractSurface: AnthropicContractSurface | undefined;
 

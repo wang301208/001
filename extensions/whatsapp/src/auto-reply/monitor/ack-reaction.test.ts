@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { WebInboundMessage } from "../../inbound/types.js";
 import { maybeSendAckReaction } from "./ack-reaction.js";
@@ -30,8 +30,8 @@ function createMessage(overrides: Partial<WebInboundMessage> = {}): WebInboundMe
 
 function createConfig(
   reactionLevel: "off" | "ack" | "minimal" | "extensive",
-  extras?: Partial<NonNullable<ZhushouConfig["channels"]>["whatsapp"]>,
-): ZhushouConfig {
+  extras?: Partial<NonNullable<AssistantConfig["channels"]>["whatsapp"]>,
+): AssistantConfig {
   return {
     channels: {
       whatsapp: {
@@ -44,7 +44,7 @@ function createConfig(
         ...extras,
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 describe("maybeSendAckReaction", () => {

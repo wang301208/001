@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import type { MockInstance } from "vitest";
 
 export function createWhatsAppPollFixture() {
-  const cfg = { marker: "resolved-cfg" } as ZhushouConfig;
+  const cfg = { marker: "resolved-cfg" } as AssistantConfig;
   const poll = {
     question: "Lunch?",
     options: ["Pizza", "Sushi"],
@@ -19,7 +19,7 @@ export function createWhatsAppPollFixture() {
 export function expectWhatsAppPollSent(
   sendPollWhatsApp: MockInstance,
   params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     poll: { question: string; options: string[]; maxSelections: number };
     to?: string;
     accountId?: string;

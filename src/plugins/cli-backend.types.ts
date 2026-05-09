@@ -1,5 +1,5 @@
 import type { CliBackendConfig } from "../config/types.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 export type PluginTextReplacement = {
   from: string | RegExp;
@@ -69,7 +69,7 @@ export type CliBackendPlugin = {
    * the generic CLI runner or prompt builder.
    */
   transformSystemPrompt?: (ctx: {
-    config?: ZhushouConfig;
+    config?: AssistantConfig;
     workspaceDir?: string;
     provider: string;
     modelId: string;

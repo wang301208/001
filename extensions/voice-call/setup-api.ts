@@ -1,10 +1,10 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/plugin-entry";
-import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
-import { isRecord } from "zhushou/plugin-sdk/text-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { isRecord } from "assistant/plugin-sdk/text-runtime";
 import { migrateVoiceCallLegacyConfigInput } from "./config-api.js";
 
-function migrateVoiceCallPluginConfig(config: ZhushouConfig): {
-  config: ZhushouConfig;
+function migrateVoiceCallPluginConfig(config: AssistantConfig): {
+  config: AssistantConfig;
   changes: string[];
 } | null {
   const rawVoiceCallConfig = config.plugins?.entries?.["voice-call"]?.config;

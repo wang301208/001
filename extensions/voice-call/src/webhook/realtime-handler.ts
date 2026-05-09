@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto";
 import http from "node:http";
 import type { Duplex } from "node:stream";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import type {
   RealtimeVoiceBridge,
   RealtimeVoiceProviderConfig,
   RealtimeVoiceProviderPlugin,
-} from "zhushou/plugin-sdk/realtime-voice";
+} from "assistant/plugin-sdk/realtime-voice";
 import WebSocket, { WebSocketServer } from "ws";
 import type { VoiceCallRealtimeConfig } from "../config.js";
 import type { CallManager } from "../manager.js";

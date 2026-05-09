@@ -80,14 +80,14 @@ export {
   selectDefaultNodeFromList,
   stringEnum,
   theme,
-} from "zhushou/plugin-sdk/browser-setup-tools";
+} from "assistant/plugin-sdk/browser-setup-tools";
 export {
   loadConfig,
   normalizePluginsConfig,
   parseBooleanValue,
   resolveEffectiveEnableState,
   shortenHomePath,
-} from "zhushou/plugin-sdk/browser-config-runtime";
+} from "assistant/plugin-sdk/browser-config-runtime";
 export {
   addGatewayClientOptions,
   callGatewayFromCli,
@@ -100,16 +100,16 @@ export {
   runCommandWithRuntime,
   safeParseJson,
   withTimeout,
-} from "zhushou/plugin-sdk/browser-node-runtime";
+} from "assistant/plugin-sdk/browser-node-runtime";
 export {
   createSubsystemLogger,
   wrapExternalContent,
-} from "zhushou/plugin-sdk/browser-security-runtime";
-export type { AnyAgentTool, NodeListNode } from "zhushou/plugin-sdk/browser-setup-tools";
-export type { ZhushouConfig } from "zhushou/plugin-sdk/browser-config-runtime";
+} from "assistant/plugin-sdk/browser-security-runtime";
+export type { AnyAgentTool, NodeListNode } from "assistant/plugin-sdk/browser-setup-tools";
+export type { AssistantConfig } from "assistant/plugin-sdk/browser-config-runtime";
 export type {
   GatewayRequestHandlers,
   GatewayRpcOpts,
   NodeSession,
-  OpenClawPluginService,
-} from "zhushou/plugin-sdk/browser-node-runtime";
+  AssistantPluginService,
+} from "assistant/plugin-sdk/browser-node-runtime";

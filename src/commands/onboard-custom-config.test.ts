@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CONTEXT_WINDOW_HARD_MIN_TOKENS } from "../agents/context-window-guard.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   applyCustomApiConfig,
   buildAnthropicVerificationProbeRequest,
@@ -10,7 +10,7 @@ import {
 
 function buildCustomProviderConfig(contextWindow?: number) {
   if (contextWindow === undefined) {
-    return {} as ZhushouConfig;
+    return {} as AssistantConfig;
   }
   return {
     models: {
@@ -32,7 +32,7 @@ function buildCustomProviderConfig(contextWindow?: number) {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function applyCustomModelConfigWithContextWindow(contextWindow?: number) {
@@ -333,7 +333,7 @@ describe("applyCustomApiConfig", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       baseUrl: "https://llm.example.com/v1",
       modelId: "foo-large",
       compatibility: "openai",
@@ -363,7 +363,7 @@ describe("applyCustomApiConfig", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       baseUrl: "https://my-resource.openai.azure.com",
       modelId: "o3-mini",
       compatibility: "openai",

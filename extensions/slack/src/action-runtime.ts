@@ -1,5 +1,5 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import { isSingleUseReplyToMode } from "zhushou/plugin-sdk/reply-reference";
+import { isSingleUseReplyToMode } from "assistant/plugin-sdk/reply-reference";
 import { parseSlackBlocksInput } from "./blocks-input.js";
 import {
   createActionGate,
@@ -8,7 +8,7 @@ import {
   readNumberParam,
   readReactionParams,
   readStringParam,
-  type ZhushouConfig,
+  type AssistantConfig,
   withNormalizedTimestamp,
 } from "./runtime-api.js";
 import { recordSlackThreadParticipation } from "./sent-thread-cache.js";
@@ -139,7 +139,7 @@ function readSlackBlocksParam(params: Record<string, unknown>) {
 
 export async function handleSlackAction(
   params: Record<string, unknown>,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   context?: SlackActionContext,
 ): Promise<AgentToolResult<unknown>> {
   const resolveChannelId = () =>

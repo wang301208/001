@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const loadConfigMock = vi.hoisted(() => vi.fn());
 
-vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
-    "zhushou/plugin-sdk/config-runtime",
+vi.mock("assistant/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/config-runtime")>(
+    "assistant/plugin-sdk/config-runtime",
   );
   return {
     ...actual,
@@ -13,14 +13,14 @@ vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
   };
 });
 
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   getSessionBindingService,
   registerSessionBindingAdapter,
   type SessionBindingBindInput,
   type SessionBindingRecord,
-} from "zhushou/plugin-sdk/conversation-runtime";
-import { __testing as sessionBindingTesting } from "zhushou/plugin-sdk/conversation-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
+import { __testing as sessionBindingTesting } from "assistant/plugin-sdk/conversation-runtime";
 import { preflightDiscordMessage } from "./message-handler.preflight.js";
 import {
   createDiscordMessage,
@@ -49,7 +49,7 @@ const baseCfg = {
       },
     },
   },
-} satisfies ZhushouConfig;
+} satisfies AssistantConfig;
 
 function createDmClient(channelId: string): DiscordClient {
   return {

@@ -7,7 +7,7 @@ import {
   resolveWriteEnvSnapshotForPath,
   unsetPathForWrite,
 } from "./io.write-prepare.js";
-import type { ZhushouConfig } from "./types.js";
+import type { AssistantConfig } from "./types.js";
 
 describe("config io write prepare", () => {
   it("persists caller changes onto resolved config without leaking runtime defaults", () => {
@@ -38,14 +38,42 @@ describe("config io write prepare", () => {
     expect(persisted).not.toHaveProperty("sessions.persistence");
   });
 
+  it("does not revive inactive gateway auth token when mode is none", () => {
+    const persisted = resolvePersistCandidateForWrite({
+      runtimeConfig: {
+        gateway: {
+          port: 18789,
+          auth: { mode: "none" },
+        },
+      },
+      sourceConfig: {
+        gateway: {
+          port: 18789,
+          auth: { mode: "none", token: "stale-token" },
+        },
+      },
+      nextConfig: {
+        gateway: {
+          port: 18789,
+          auth: { mode: "none" },
+        },
+      },
+    }) as Record<string, unknown>;
+
+    expect(persisted.gateway).toEqual({
+      port: 18789,
+      auth: { mode: "none" },
+    });
+  });
+
   it('formats actionable guidance for dmPolicy="open" without wildcard allowFrom', () => {
     const message = formatConfigValidationFailure(
       "channels.telegram.allowFrom",
       'channels.telegram.dmPolicy = "open" requires channels.telegram.allowFrom to include "*"',
     );
 
-    expect(message).toContain("zhushou config set channels.telegram.allowFrom '[\"*\"]'");
-    expect(message).toContain('zhushou config set channels.telegram.dmPolicy "pairing"');
+    expect(message).toContain("assistant config set channels.telegram.allowFrom '[\"*\"]'");
+    expect(message).toContain('assistant config set channels.telegram.dmPolicy "pairing"');
   });
 
   it("unsets explicit paths when runtime defaults would otherwise reappear", () => {
@@ -62,10 +90,10 @@ describe("config io write prepare", () => {
   });
 
   it("does not mutate caller config when unsetting existing config objects", () => {
-    const input: ZhushouConfig = {
+    const input: AssistantConfig = {
       gateway: { mode: "local" },
       commands: { ownerDisplay: "hash" },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
     const next = unsetPathForWrite(input, ["commands", "ownerDisplay"]);
 
@@ -77,10 +105,10 @@ describe("config io write prepare", () => {
   });
 
   it("keeps caller arrays immutable when unsetting array entries", () => {
-    const input: ZhushouConfig = {
+    const input: AssistantConfig = {
       gateway: { mode: "local" },
       tools: { alsoAllow: ["exec", "fetch", "read"] },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
     const next = unsetPathForWrite(input, ["tools", "alsoAllow", "1"]);
 
@@ -92,10 +120,10 @@ describe("config io write prepare", () => {
   });
 
   it("treats missing unset paths as no-op without mutating caller config", () => {
-    const input: ZhushouConfig = {
+    const input: AssistantConfig = {
       gateway: { mode: "local" },
       commands: { ownerDisplay: "hash" },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
     const next = unsetPathForWrite(input, ["commands", "missingKey"]);
 
@@ -108,10 +136,10 @@ describe("config io write prepare", () => {
   });
 
   it("ignores blocked prototype-key unset path segments", () => {
-    const input: ZhushouConfig = {
+    const input: AssistantConfig = {
       gateway: { mode: "local" },
       commands: { ownerDisplay: "hash" },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
     const blocked = [
       ["commands", "__proto__"],
@@ -253,8 +281,8 @@ describe("config io write prepare", () => {
     const snapshot = { OPENAI_API_KEY: "sk-secret" };
     expect(
       resolveWriteEnvSnapshotForPath({
-        actualConfigPath: "/tmp/zhushou.json",
-        expectedConfigPath: "/tmp/zhushou.json",
+        actualConfigPath: "/tmp/assistant.json",
+        expectedConfigPath: "/tmp/assistant.json",
         envSnapshotForRestore: snapshot,
       }),
     ).toBe(snapshot);
@@ -263,7 +291,7 @@ describe("config io write prepare", () => {
   it("drops the read-time env snapshot when writing a different config path", () => {
     expect(
       resolveWriteEnvSnapshotForPath({
-        actualConfigPath: "/tmp/zhushou.json",
+        actualConfigPath: "/tmp/assistant.json",
         expectedConfigPath: "/tmp/other.json",
         envSnapshotForRestore: { OPENAI_API_KEY: "sk-secret" },
       }),
@@ -279,9 +307,9 @@ describe("config io write prepare", () => {
           password: "test-password",
         },
       },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
-    const runtimeConfig: ZhushouConfig = {
+    const runtimeConfig: AssistantConfig = {
       gateway: { port: 18789 },
       channels: {
         bluebubbles: {
@@ -290,9 +318,9 @@ describe("config io write prepare", () => {
           enrichGroupParticipantsFromContacts: true,
         },
       },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
-    const nextConfig: ZhushouConfig = structuredClone(runtimeConfig);
+    const nextConfig: AssistantConfig = structuredClone(runtimeConfig);
     nextConfig.gateway = {
       ...nextConfig.gateway,
       auth: { mode: "token" },
@@ -316,7 +344,7 @@ describe("config io write prepare", () => {
   });
 
   it("does not reintroduce legacy nested dm.policy defaults in the persisted candidate", () => {
-    const sourceConfig: ZhushouConfig = {
+    const sourceConfig: AssistantConfig = {
       channels: {
         discord: {
           dmPolicy: "pairing",
@@ -328,7 +356,7 @@ describe("config io write prepare", () => {
         },
       },
       gateway: { port: 18789 },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
     const nextConfig = structuredClone(sourceConfig);
     delete (nextConfig.channels?.discord?.dm as { enabled?: boolean; policy?: string } | undefined)
@@ -382,9 +410,9 @@ describe("config io write prepare", () => {
           },
         },
       },
-    } satisfies ZhushouConfig;
+    } satisfies AssistantConfig;
 
-    const nextConfig: ZhushouConfig = {
+    const nextConfig: AssistantConfig = {
       ...structuredClone(sourceConfig),
       gateway: {
         auth: { mode: "token" },

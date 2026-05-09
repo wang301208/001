@@ -1,5 +1,5 @@
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ClawdbotConfig } from "../runtime-api.js";
+﻿import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { AssistantConfig } from "../runtime-api.js";
 import { buildMarkdownCard } from "./send.js";
 
 const {
@@ -24,12 +24,12 @@ const {
   mockRuntimeResolveMarkdownTableMode: vi.fn(() => "preserve"),
 }));
 
-vi.mock("zhushou/plugin-sdk/config-runtime", () => ({
+vi.mock("assistant/plugin-sdk/config-runtime", () => ({
   resolveMarkdownTableMode: mockResolveMarkdownTableMode,
 }));
 
-vi.mock("zhushou/plugin-sdk/text-runtime", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("zhushou/plugin-sdk/text-runtime")>();
+vi.mock("assistant/plugin-sdk/text-runtime", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("assistant/plugin-sdk/text-runtime")>();
   return {
     ...actual,
     convertMarkdownTables: mockConvertMarkdownTables,
@@ -118,7 +118,7 @@ describe("getMessageFeishu", () => {
     });
 
     const result = await sendMessageFeishu({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       to: "oc_send",
       text: "hello",
     });
@@ -154,7 +154,7 @@ describe("getMessageFeishu", () => {
     });
 
     const result = await getMessageFeishu({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       messageId: "om_1",
     });
 
@@ -191,7 +191,7 @@ describe("getMessageFeishu", () => {
     });
 
     const result = await getMessageFeishu({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       messageId: "om_post",
     });
 
@@ -223,7 +223,7 @@ describe("getMessageFeishu", () => {
     });
 
     const result = await getMessageFeishu({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       messageId: "om_file",
     });
 
@@ -251,7 +251,7 @@ describe("getMessageFeishu", () => {
     });
 
     const result = await getMessageFeishu({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       messageId: "om_single",
     });
 
@@ -310,7 +310,7 @@ describe("getMessageFeishu", () => {
     });
 
     const result = await listFeishuThreadMessages({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       threadId: "omt_1",
       rootMessageId: "om_root",
     });
@@ -356,7 +356,7 @@ describe("editMessageFeishu", () => {
     mockClientPatch.mockResolvedValueOnce({ code: 0 });
 
     const result = await editMessageFeishu({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       messageId: "om_edit",
       text: "updated body",
     });
@@ -385,7 +385,7 @@ describe("editMessageFeishu", () => {
     mockClientPatch.mockResolvedValueOnce({ code: 0 });
 
     const result = await editMessageFeishu({
-      cfg: {} as ClawdbotConfig,
+      cfg: {} as AssistantConfig,
       messageId: "om_card",
       card: { schema: "2.0" },
     });

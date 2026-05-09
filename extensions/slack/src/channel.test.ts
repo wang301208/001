@@ -4,7 +4,7 @@ import { createRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
 import { slackPlugin } from "./channel.js";
 import { slackOutbound } from "./outbound-adapter.js";
 import * as probeModule from "./probe.js";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 import { clearSlackRuntime, setSlackRuntime } from "./runtime.js";
 
 const { handleSlackActionMock } = vi.hoisted(() => ({
@@ -39,7 +39,7 @@ beforeEach(async () => {
   } as never);
 });
 
-async function getSlackConfiguredState(cfg: ZhushouConfig) {
+async function getSlackConfiguredState(cfg: AssistantConfig) {
   const account = slackPlugin.config.resolveAccount(cfg, "default");
   return {
     configured: slackPlugin.config.isConfigured?.(account, cfg),
@@ -119,7 +119,7 @@ describe("slackPlugin actions", () => {
   });
 
   it("honors the selected Slack account during message tool discovery", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         slack: {
           botToken: "xoxb-root",
@@ -201,7 +201,7 @@ describe("slackPlugin actions", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     setSlackRuntime({
       config: {
         loadConfig: () => cfg,
@@ -233,7 +233,7 @@ describe("slackPlugin actions", () => {
             appToken: "xapp-test",
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
     });
     const schema = discovery?.schema;
     if (!schema || Array.isArray(schema)) {
@@ -293,7 +293,7 @@ describe("slackPlugin status", () => {
     const probeSpy = vi.spyOn(probeModule, "probeSlack").mockResolvedValueOnce({
       ok: true,
       status: 200,
-      bot: { id: "B1", name: "zhushou-bot" },
+      bot: { id: "B1", name: "assistant-bot" },
       team: { id: "T1", name: "助手" },
     });
     clearSlackRuntime();
@@ -304,7 +304,7 @@ describe("slackPlugin status", () => {
           appToken: "xapp-test",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const account = slackPlugin.config.resolveAccount(cfg, "default");
 
     const result = await slackPlugin.status!.probeAccount!({
@@ -317,7 +317,7 @@ describe("slackPlugin status", () => {
     expect(result).toEqual({
       ok: true,
       status: 200,
-      bot: { id: "B1", name: "zhushou-bot" },
+      bot: { id: "B1", name: "assistant-bot" },
       team: { id: "T1", name: "助手" },
     });
   });
@@ -337,7 +337,7 @@ describe("slackPlugin security", () => {
             dm: { policy: "allowlist", allowFrom: ["  slack:U123  "] },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       account: slackPlugin.config.resolveAccount(
         {
           channels: {
@@ -347,7 +347,7 @@ describe("slackPlugin security", () => {
               dm: { policy: "allowlist", allowFrom: ["  slack:U123  "] },
             },
           },
-        } as ZhushouConfig,
+        } as AssistantConfig,
         "default",
       ),
     });
@@ -752,7 +752,7 @@ describe("slackPlugin outbound new targets", () => {
 
 describe("slackPlugin config", () => {
   it("treats HTTP mode accounts with bot token + signing secret as configured", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         slack: {
           mode: "http",
@@ -769,7 +769,7 @@ describe("slackPlugin config", () => {
   });
 
   it("keeps socket mode requiring app token", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         slack: {
           mode: "socket",
@@ -797,7 +797,7 @@ describe("slackPlugin config", () => {
         appTokenSource: "none",
         config: {},
       } as never,
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       runtime: undefined,
     });
 
@@ -824,7 +824,7 @@ describe("slackPlugin config", () => {
           signingSecret: { source: "env", provider: "default", id: "SLACK_SIGNING_SECRET" },
         },
       } as never,
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       runtime: undefined,
     });
 

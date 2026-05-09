@@ -14,4 +14,4 @@ export {
   resolveThreadFlag,
   resolveChannelResetConfig,
   updateLastRoute,
-} from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/config-runtime";

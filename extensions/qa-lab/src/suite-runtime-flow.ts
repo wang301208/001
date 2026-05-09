@@ -5,9 +5,9 @@ import { setTimeout as sleep } from "node:timers/promises";
 import {
   formatMemoryDreamingDay,
   resolveSessionTranscriptsDirForAgent,
-} from "zhushou/plugin-sdk/memory-core";
-import { buildAgentSessionKey } from "zhushou/plugin-sdk/routing";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/memory-core";
+import { buildAgentSessionKey } from "assistant/plugin-sdk/routing";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import {
   callQaBrowserRequest,
   qaBrowserAct,

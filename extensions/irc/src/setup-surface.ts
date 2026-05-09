@@ -1,20 +1,20 @@
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/routing";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/routing";
 import type {
   ChannelSetupDmPolicy,
   ChannelSetupWizard,
   WizardPrompter,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import {
   createAllowFromSection,
   createPromptParsedAllowFromForAccount,
   createStandardChannelSetupStatus,
   formatDocsLink,
   setSetupChannelEnabled,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import {
   normalizeOptionalString,
   normalizeStringifiedOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { resolveDefaultIrcAccountId, resolveIrcAccount } from "./accounts.js";
 import {
   isChannelTarget,
@@ -303,7 +303,7 @@ export const ircSetupWizard: ChannelSetupWizard = {
       initialValue: ({ cfg, accountId, credentialValues }) =>
         resolveIrcAccount({ cfg: cfg as CoreConfig, accountId }).config.username ||
         credentialValues.token ||
-        "zhushou",
+        "assistant",
       validate: ({ value }) => (normalizeStringifiedOptionalString(value) ? undefined : "Required"),
       normalizeValue: ({ value }) => normalizeStringifiedOptionalString(value) ?? "",
       applySet: async ({ cfg, accountId, value }) =>
@@ -331,7 +331,7 @@ export const ircSetupWizard: ChannelSetupWizard = {
     {
       inputKey: "groupChannels",
       message: "Auto-join IRC channels (optional, comma-separated)",
-      placeholder: "#zhushou, #ops",
+      placeholder: "#assistant, #ops",
       required: false,
       applyEmptyValue: true,
       currentValue: ({ cfg, accountId }) =>
@@ -357,7 +357,7 @@ export const ircSetupWizard: ChannelSetupWizard = {
   ],
   groupAccess: {
     label: "IRC channels",
-    placeholder: "#zhushou, #ops, *",
+    placeholder: "#assistant, #ops, *",
     currentPolicy: ({ cfg, accountId }) =>
       resolveIrcAccount({ cfg: cfg as CoreConfig, accountId }).config.groupPolicy ?? "allowlist",
     currentEntries: ({ cfg, accountId }) =>
@@ -430,7 +430,7 @@ export const ircSetupWizard: ChannelSetupWizard = {
     title: "IRC next steps",
     lines: [
       "Next: restart gateway and verify status.",
-      "Command: zhushou channels status --probe",
+      "Command: assistant channels status --probe",
       `Docs: ${formatDocsLink("/channels/irc", "channels/irc")}`,
     ],
   },

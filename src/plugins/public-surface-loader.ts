@@ -13,7 +13,7 @@ import {
   resolveLoaderPackageRoot,
 } from "./sdk-alias.js";
 
-const OPENCLAW_PACKAGE_ROOT =
+const ASSISTANT_PACKAGE_ROOT =
   resolveLoaderPackageRoot({
     modulePath: fileURLToPath(import.meta.url),
     moduleUrl: import.meta.url,
@@ -63,7 +63,7 @@ function resolvePublicSurfaceLocationUncached(params: {
 }): { modulePath: string; boundaryRoot: string } | null {
   const bundledPluginsDir = resolveBundledPluginsDir();
   const modulePath = resolveBundledPluginPublicSurfacePath({
-    rootDir: OPENCLAW_PACKAGE_ROOT,
+    rootDir: ASSISTANT_PACKAGE_ROOT,
     ...(bundledPluginsDir ? { bundledPluginsDir } : {}),
     dirName: params.dirName,
     artifactBasename: params.artifactBasename,
@@ -76,7 +76,7 @@ function resolvePublicSurfaceLocationUncached(params: {
     boundaryRoot:
       bundledPluginsDir && modulePath.startsWith(path.resolve(bundledPluginsDir) + path.sep)
         ? path.resolve(bundledPluginsDir)
-        : OPENCLAW_PACKAGE_ROOT,
+        : ASSISTANT_PACKAGE_ROOT,
   };
 }
 
@@ -122,7 +122,7 @@ function getSharedBundledPublicSurfaceJiti(modulePath: string, tryNative: boolea
   if (
     !isBundledPluginExtensionPath({
       modulePath,
-      openClawPackageRoot: OPENCLAW_PACKAGE_ROOT,
+      assistantPackageRoot: ASSISTANT_PACKAGE_ROOT,
       ...(bundledPluginsDir ? { bundledPluginsDir } : {}),
     })
   ) {
@@ -160,7 +160,7 @@ export function loadBundledPluginPublicArtifactModuleSync<T extends object>(para
     absolutePath: location.modulePath,
     rootPath: location.boundaryRoot,
     boundaryLabel:
-      location.boundaryRoot === OPENCLAW_PACKAGE_ROOT
+      location.boundaryRoot === ASSISTANT_PACKAGE_ROOT
         ? "助手 package root"
         : "bundled plugin directory",
     rejectHardlinks: false,

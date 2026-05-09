@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/plugin-sdk",
+  "name": "@assistant/plugin-sdk",
   "version": "0.0.0-private",
   "private": true,
   "type": "module",

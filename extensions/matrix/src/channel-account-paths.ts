@@ -1,6 +1,6 @@
-import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
-import { PAIRING_APPROVED_MESSAGE } from "zhushou/plugin-sdk/channel-status";
-import type { PinnedDispatcherPolicy, SsrFPolicy } from "zhushou/plugin-sdk/infra-runtime";
+import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
+import { PAIRING_APPROVED_MESSAGE } from "assistant/plugin-sdk/channel-status";
+import type { PinnedDispatcherPolicy, SsrFPolicy } from "assistant/plugin-sdk/infra-runtime";
 import { formatMatrixErrorMessage } from "./matrix/errors.js";
 import type { MatrixProbe } from "./matrix/probe.js";
 import type { CoreConfig } from "./types.js";

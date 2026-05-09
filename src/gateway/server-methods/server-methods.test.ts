@@ -124,7 +124,7 @@ describe("augmentChatHistoryWithCanvasBlocks", () => {
       view: {
         backend: "canvas",
         id: "cv_user_text",
-        url: "/__openclaw__/canvas/documents/cv_user_text/index.html",
+        url: "/__assistant__/canvas/documents/cv_user_text/index.html",
         title: "User pasted preview",
         preferred_height: 240,
       },
@@ -727,6 +727,48 @@ describe("exec approval handlers", () => {
     await requestPromise;
   });
 
+  it("uses a 30 second default countdown for exec approval requests", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-05-08T00:00:00.000Z"));
+    try {
+      const { handlers, broadcasts, respond, context } = createExecApprovalFixture();
+
+      const requestPromise = requestExecApproval({
+        handlers,
+        respond,
+        context,
+        params: {
+          twoPhase: true,
+          host: "gateway",
+          command: "echo ok",
+          commandArgv: ["echo", "ok"],
+          systemRunPlan: undefined,
+          nodeId: undefined,
+        },
+      });
+
+      await vi.waitFor(() => {
+        expect(respond).toHaveBeenCalledWith(
+          true,
+          expect.objectContaining({ status: "accepted", id: expect.any(String) }),
+          undefined,
+        );
+      });
+
+      const requested = broadcasts.find((entry) => entry.event === "exec.approval.requested");
+      expect((requested?.payload as { expiresAtMs?: number })?.expiresAtMs).toBe(
+        Date.now() + 30_000,
+      );
+
+      const id = (requested?.payload as { id?: string })?.id ?? "";
+      const resolveRespond = vi.fn();
+      await resolveExecApproval({ handlers, id, respond: resolveRespond, context });
+      await requestPromise;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("lists pending exec approvals", async () => {
     const { handlers, respond, context } = createExecApprovalFixture();
     const requestPromise = requestExecApproval({
@@ -1295,7 +1337,7 @@ describe("exec approval handlers", () => {
     );
     expect(respondTwo).toHaveBeenCalledWith(
       true,
-      expect.objectContaining({ id: "approval-two", decision: null }),
+      expect.objectContaining({ id: "approval-two", decision: "allow-once" }),
       undefined,
     );
   });
@@ -1593,16 +1635,16 @@ describe("logs.tail", () => {
   });
 
   it("falls back to latest rolling log file when today is missing", async () => {
-    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "zhushou-logs-"));
-    const older = path.join(tempDir, "zhushou-2026-01-20.log");
-    const newer = path.join(tempDir, "zhushou-2026-01-21.log");
+    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "assistant-logs-"));
+    const older = path.join(tempDir, "assistant-2026-01-20.log");
+    const newer = path.join(tempDir, "assistant-2026-01-21.log");
 
     await fsPromises.writeFile(older, '{"msg":"old"}\n');
     await fsPromises.writeFile(newer, '{"msg":"new"}\n');
     await fsPromises.utimes(older, new Date(0), new Date(0));
     await fsPromises.utimes(newer, new Date(), new Date());
 
-    setLoggerOverride({ file: path.join(tempDir, "zhushou-2026-01-22.log") });
+    setLoggerOverride({ file: path.join(tempDir, "assistant-2026-01-22.log") });
 
     const respond = vi.fn();
     await logsHandlers["logs.tail"]({
@@ -1627,8 +1669,8 @@ describe("logs.tail", () => {
   });
 
   it("redacts sensitive CLI tokens from returned lines", async () => {
-    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "zhushou-logs-"));
-    const file = path.join(tempDir, "zhushou-2026-01-22.log");
+    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "assistant-logs-"));
+    const file = path.join(tempDir, "assistant-2026-01-22.log");
 
     await fsPromises.writeFile(
       file,

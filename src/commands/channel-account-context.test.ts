@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { resolveDefaultChannelAccountContext } from "./channel-account-context.js";
 
 vi.mock("../channels/read-only-account-inspect.js", () => ({
@@ -18,7 +18,7 @@ describe("resolveDefaultChannelAccountContext", () => {
       },
     } as unknown as ChannelPlugin;
 
-    const result = await resolveDefaultChannelAccountContext(plugin, {} as ZhushouConfig);
+    const result = await resolveDefaultChannelAccountContext(plugin, {} as AssistantConfig);
 
     expect(result.accountIds).toEqual(["acc-1"]);
     expect(result.defaultAccountId).toBe("acc-1");
@@ -43,7 +43,7 @@ describe("resolveDefaultChannelAccountContext", () => {
       },
     } as unknown as ChannelPlugin;
 
-    const result = await resolveDefaultChannelAccountContext(plugin, {} as ZhushouConfig);
+    const result = await resolveDefaultChannelAccountContext(plugin, {} as AssistantConfig);
 
     expect(isEnabled).toHaveBeenCalledWith(account, {});
     expect(isConfigured).toHaveBeenCalledWith(account, {});
@@ -64,11 +64,11 @@ describe("resolveDefaultChannelAccountContext", () => {
       },
     } as unknown as ChannelPlugin;
 
-    await expect(resolveDefaultChannelAccountContext(plugin, {} as ZhushouConfig)).rejects.toThrow(
+    await expect(resolveDefaultChannelAccountContext(plugin, {} as AssistantConfig)).rejects.toThrow(
       /missing secret/i,
     );
 
-    const result = await resolveDefaultChannelAccountContext(plugin, {} as ZhushouConfig, {
+    const result = await resolveDefaultChannelAccountContext(plugin, {} as AssistantConfig, {
       mode: "read_only",
       commandName: "status",
     });
@@ -93,7 +93,7 @@ describe("resolveDefaultChannelAccountContext", () => {
       },
     } as unknown as ChannelPlugin;
 
-    const result = await resolveDefaultChannelAccountContext(plugin, {} as ZhushouConfig, {
+    const result = await resolveDefaultChannelAccountContext(plugin, {} as AssistantConfig, {
       mode: "read_only",
     });
 

@@ -1,5 +1,5 @@
 import type { MsgContext } from "../auto-reply/templating.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import type { ActiveMediaModel } from "./active-model.types.js";
 import {
   buildProviderRegistry,
@@ -11,7 +11,7 @@ import type { MediaAttachment, MediaUnderstandingProvider } from "./types.js";
 
 export async function runAudioTranscription(params: {
   ctx: MsgContext;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   attachments?: MediaAttachment[];
   agentDir?: string;
   providers?: Record<string, MediaUnderstandingProvider>;

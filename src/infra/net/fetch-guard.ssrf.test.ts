@@ -373,7 +373,7 @@ describe("fetchWithSsrFGuard hardening", () => {
         globalFetchCalls += 1;
         throw new Error("ambient global fetch should not be used when a dispatcher is attached");
       },
-      { __openclawAcceptsDispatcher: true as const },
+      { __assistantAcceptsDispatcher: true as const },
     );
 
     class MockAgent {

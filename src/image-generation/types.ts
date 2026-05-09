@@ -1,5 +1,5 @@
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { MediaNormalizationEntry } from "../media-generation/normalization.types.js";
 
 export type GeneratedImageAsset = {
@@ -27,7 +27,7 @@ export type ImageGenerationSourceImage = {
 };
 
 export type ImageGenerationProviderConfiguredContext = {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   agentDir?: string;
 };
 
@@ -35,7 +35,7 @@ export type ImageGenerationRequest = {
   provider: string;
   model: string;
   prompt: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentDir?: string;
   authStore?: AuthProfileStore;
   timeoutMs?: number;

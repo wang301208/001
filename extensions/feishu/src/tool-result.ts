@@ -1,4 +1,4 @@
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 
 export function jsonToolResult(data: unknown) {
   return {

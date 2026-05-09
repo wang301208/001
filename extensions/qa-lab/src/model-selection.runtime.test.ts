@@ -8,11 +8,11 @@ const { resolveEnvApiKey, loadAuthProfileStoreForRuntime, listProfilesForProvide
   }),
 );
 
-vi.mock("zhushou/plugin-sdk/provider-auth", () => ({
+vi.mock("assistant/plugin-sdk/provider-auth", () => ({
   resolveEnvApiKey,
 }));
 
-vi.mock("zhushou/plugin-sdk/agent-runtime", () => ({
+vi.mock("assistant/plugin-sdk/agent-runtime", () => ({
   loadAuthProfileStoreForRuntime,
   listProfilesForProvider,
 }));

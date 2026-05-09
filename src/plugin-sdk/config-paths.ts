@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 /** Resolve the config path prefix for a channel account, falling back to the root channel section. */
 export function resolveChannelAccountConfigBasePath(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channelKey: string;
   accountId: string;
 }): string {

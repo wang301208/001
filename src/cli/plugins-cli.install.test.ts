@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { installedPluginRoot } from "../../test/helpers/bundled-plugin-paths.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   applyExclusiveSlotSelection,
   buildPluginDiagnosticsReport,
@@ -27,13 +27,13 @@ import {
   writeConfigFile,
 } from "./plugins-cli-test-helpers.js";
 
-const CLI_STATE_ROOT = "/tmp/zhushou-state";
+const CLI_STATE_ROOT = "/tmp/assistant-state";
 
 function cliInstallPath(pluginId: string): string {
   return installedPluginRoot(CLI_STATE_ROOT, pluginId);
 }
 
-function createEnabledPluginConfig(pluginId: string): ZhushouConfig {
+function createEnabledPluginConfig(pluginId: string): AssistantConfig {
   return {
     plugins: {
       entries: {
@@ -42,21 +42,21 @@ function createEnabledPluginConfig(pluginId: string): ZhushouConfig {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
-function createEmptyPluginConfig(): ZhushouConfig {
+function createEmptyPluginConfig(): AssistantConfig {
   return {
     plugins: {
       entries: {},
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createClawHubInstalledConfig(params: {
   pluginId: string;
   install: Record<string, unknown>;
-}): ZhushouConfig {
+}): AssistantConfig {
   const enabledCfg = createEnabledPluginConfig(params.pluginId);
   return {
     ...enabledCfg,
@@ -66,7 +66,7 @@ function createClawHubInstalledConfig(params: {
         [params.pluginId]: params.install,
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createClawHubInstallResult(params: {
@@ -135,7 +135,7 @@ function primeNpmPluginFallback(pluginId = "demo") {
   return { cfg, enabledCfg };
 }
 
-function createPathHookPackInstalledConfig(tmpRoot: string): ZhushouConfig {
+function createPathHookPackInstalledConfig(tmpRoot: string): AssistantConfig {
   return {
     hooks: {
       internal: {
@@ -148,10 +148,10 @@ function createPathHookPackInstalledConfig(tmpRoot: string): ZhushouConfig {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
-function createNpmHookPackInstalledConfig(): ZhushouConfig {
+function createNpmHookPackInstalledConfig(): AssistantConfig {
   return {
     hooks: {
       internal: {
@@ -163,7 +163,7 @@ function createNpmHookPackInstalledConfig(): ZhushouConfig {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createHookPackInstallResult(targetDir: string): {
@@ -183,14 +183,14 @@ function createHookPackInstallResult(targetDir: string): {
 }
 
 function primeHookPackNpmFallback() {
-  const cfg = {} as ZhushouConfig;
+  const cfg = {} as AssistantConfig;
   const installedCfg = createNpmHookPackInstalledConfig();
 
   loadConfig.mockReturnValue(cfg);
   mockClawHubPackageNotFound("@acme/demo-hooks");
   installPluginFromNpmSpec.mockResolvedValue({
     ok: false,
-    error: "package.json missing zhushou.plugin.json",
+    error: "package.json missing assistant.plugin.json",
   });
   installHooksFromNpmSpec.mockResolvedValue({
     ...createHookPackInstallResult("/tmp/hooks/demo-hooks"),
@@ -208,10 +208,10 @@ function primeHookPackNpmFallback() {
 function primeHookPackPathFallback(params: {
   tmpRoot: string;
   pluginInstallError: string;
-}): ZhushouConfig {
+}): AssistantConfig {
   const installedCfg = createPathHookPackInstalledConfig(params.tmpRoot);
 
-  loadConfig.mockReturnValue({} as ZhushouConfig);
+  loadConfig.mockReturnValue({} as AssistantConfig);
   installPluginFromPath.mockResolvedValueOnce({
     ok: false,
     error: params.pluginInstallError,
@@ -282,7 +282,7 @@ describe("plugins cli install", () => {
       throw invalidConfigErr;
     });
     readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/zhushou-config.json5",
+      path: "/tmp/assistant-config.json5",
       exists: true,
       raw: '{ "models": { "default": 123 } }',
       parsed: { models: { default: 123 } },
@@ -298,7 +298,7 @@ describe("plugins cli install", () => {
     await expect(runPluginsCommand(["plugins", "install", "alpha"])).rejects.toThrow("__exit__:1");
 
     expect(runtimeErrors.at(-1)).toContain(
-      "Config invalid; run `zhushou doctor --fix` before installing plugins.",
+      "Config invalid; run `assistant doctor --fix` before installing plugins.",
     );
     expect(installPluginFromMarketplace).not.toHaveBeenCalled();
     expect(installPluginFromNpmSpec).not.toHaveBeenCalled();
@@ -310,7 +310,7 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const enabledCfg = {
       plugins: {
         entries: {
@@ -319,7 +319,7 @@ describe("plugins cli install", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const installedCfg = {
       ...enabledCfg,
       plugins: {
@@ -331,7 +331,7 @@ describe("plugins cli install", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromMarketplace.mockResolvedValue({
@@ -382,7 +382,7 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
     const installedCfg = createClawHubInstalledConfig({
       pluginId: "demo",
@@ -441,7 +441,7 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
 
     loadConfig.mockReturnValue(cfg);
@@ -476,7 +476,7 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
     const installedCfg = createClawHubInstalledConfig({
       pluginId: "demo",
@@ -571,9 +571,9 @@ describe("plugins cli install", () => {
       plugins: {
         entries: {},
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
-    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-plugin-link-"));
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-plugin-link-"));
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromPath.mockResolvedValueOnce({
@@ -612,7 +612,7 @@ describe("plugins cli install", () => {
   });
 
   it("passes dangerous force unsafe install to linked hook-pack probe fallback", async () => {
-    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-hook-link-"));
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-hook-link-"));
     primeHookPackPathFallback({
       tmpRoot,
       pluginInstallError: "plugin install probe failed",
@@ -640,7 +640,7 @@ describe("plugins cli install", () => {
   });
 
   it("passes dangerous force unsafe install to local hook-pack fallback installs", async () => {
-    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-hook-install-"));
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-hook-install-"));
     primeHookPackPathFallback({
       tmpRoot,
       pluginInstallError: "plugin install failed",
@@ -679,7 +679,7 @@ describe("plugins cli install", () => {
   });
 
   it("passes the install logger to the --link dry-run probe", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-link-plugin-"));
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-link-plugin-"));
     const cfg = {
       plugins: {
         entries: {},
@@ -687,7 +687,7 @@ describe("plugins cli install", () => {
           paths: [],
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const enabledCfg = createEnabledPluginConfig("demo");
 
     loadConfig.mockReturnValue(cfg);
@@ -751,8 +751,8 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for local path when dangerous force unsafe install is set", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-local-plugin-"));
-    const cfg = {} as ZhushouConfig;
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-local-plugin-"));
+    const cfg = {} as AssistantConfig;
     const pluginInstallError = "plugin blocked by security scan";
 
     loadConfig.mockReturnValue(cfg);
@@ -780,8 +780,8 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for local path when security scan fails under dangerous force unsafe install", async () => {
-    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-local-plugin-"));
-    const cfg = {} as ZhushouConfig;
+    const localPluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-local-plugin-"));
+    const cfg = {} as AssistantConfig;
     const pluginInstallError = "plugin security scan failed";
 
     loadConfig.mockReturnValue(cfg);
@@ -809,7 +809,7 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for npm installs when dangerous force unsafe install is set", async () => {
-    const cfg = {} as ZhushouConfig;
+    const cfg = {} as AssistantConfig;
     const pluginInstallError = "plugin blocked by security scan";
 
     loadConfig.mockReturnValue(cfg);
@@ -833,7 +833,7 @@ describe("plugins cli install", () => {
   });
 
   it("does not fall back to hook pack for npm installs when security scan fails under dangerous force unsafe install", async () => {
-    const cfg = {} as ZhushouConfig;
+    const cfg = {} as AssistantConfig;
     const pluginInstallError = "plugin security scan failed";
 
     loadConfig.mockReturnValue(cfg);
@@ -857,8 +857,8 @@ describe("plugins cli install", () => {
   });
 
   it("still falls back to local hook pack when dangerous force unsafe install is set for non-security errors", async () => {
-    const localHookDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-local-hook-pack-"));
-    const cfg = {} as ZhushouConfig;
+    const localHookDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-local-hook-pack-"));
+    const cfg = {} as AssistantConfig;
     const installedCfg = {
       hooks: {
         internal: {
@@ -870,13 +870,13 @@ describe("plugins cli install", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromPath.mockResolvedValue({
       ok: false,
-      error: "package.json missing zhushou.plugin.json",
-      code: "missing_openclaw_extensions",
+      error: "package.json missing assistant.plugin.json",
+      code: "missing_assistant_extensions",
     });
     installHooksFromPath.mockResolvedValue({
       ok: true,
@@ -907,7 +907,7 @@ describe("plugins cli install", () => {
   });
 
   it("still falls back to npm hook pack when dangerous force unsafe install is set for non-security errors", async () => {
-    const cfg = {} as ZhushouConfig;
+    const cfg = {} as AssistantConfig;
     const installedCfg = {
       hooks: {
         internal: {
@@ -919,7 +919,7 @@ describe("plugins cli install", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     loadConfig.mockReturnValue(cfg);
     installPluginFromClawHub.mockResolvedValue({
@@ -929,8 +929,8 @@ describe("plugins cli install", () => {
     });
     installPluginFromNpmSpec.mockResolvedValue({
       ok: false,
-      error: "package.json missing zhushou.plugin.json",
-      code: "missing_openclaw_extensions",
+      error: "package.json missing assistant.plugin.json",
+      code: "missing_assistant_extensions",
     });
     installHooksFromNpmSpec.mockResolvedValue({
       ok: true,
@@ -964,14 +964,14 @@ describe("plugins cli install", () => {
   it("does not fall back to npm when ClawHub rejects a real package", async () => {
     installPluginFromClawHub.mockResolvedValue({
       ok: false,
-      error: 'Use "zhushou skills install demo" instead.',
+      error: 'Use "assistant skills install demo" instead.',
       code: "skill_package",
     });
 
     await expect(runPluginsCommand(["plugins", "install", "demo"])).rejects.toThrow("__exit__:1");
 
     expect(installPluginFromNpmSpec).not.toHaveBeenCalled();
-    expect(runtimeErrors.at(-1)).toContain('Use "zhushou skills install demo" instead.');
+    expect(runtimeErrors.at(-1)).toContain('Use "assistant skills install demo" instead.');
   });
 
   it("falls back to installing hook packs from npm specs", async () => {

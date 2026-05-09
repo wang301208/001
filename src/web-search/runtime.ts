@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { logVerbose } from "../globals.js";
 import type {
   PluginWebSearchProviderEntry,
@@ -37,7 +37,7 @@ export type {
   RuntimeWebSearchToolDefinition,
 } from "./runtime-types.js";
 
-function resolveSearchConfig(cfg?: ZhushouConfig): WebSearchConfig {
+function resolveSearchConfig(cfg?: AssistantConfig): WebSearchConfig {
   return resolveWebProviderConfig<"search", NonNullable<WebSearchConfig>>(cfg, "search");
 }
 
@@ -64,7 +64,7 @@ function hasEntryCredential(
     | "getCredentialValue"
     | "requiresCredential"
   >,
-  config: ZhushouConfig | undefined,
+  config: AssistantConfig | undefined,
   search: WebSearchConfig | undefined,
 ): boolean {
   return hasWebProviderEntryCredential({
@@ -90,13 +90,13 @@ export function isWebSearchProviderConfigured(params: {
     | "getCredentialValue"
     | "requiresCredential"
   >;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 }): boolean {
   return hasEntryCredential(params.provider, params.config, resolveSearchConfig(params.config));
 }
 
 export function listWebSearchProviders(params?: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 }): PluginWebSearchProviderEntry[] {
   return resolveRuntimeWebSearchProviders({
     config: params?.config,
@@ -105,7 +105,7 @@ export function listWebSearchProviders(params?: {
 }
 
 export function listConfiguredWebSearchProviders(params?: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 }): PluginWebSearchProviderEntry[] {
   return resolvePluginWebSearchProviders({
     config: params?.config,
@@ -115,7 +115,7 @@ export function listConfiguredWebSearchProviders(params?: {
 
 export function resolveWebSearchProviderId(params: {
   search?: WebSearchConfig;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   providers?: PluginWebSearchProviderEntry[];
 }): string {
   const providers = sortWebSearchProvidersForAutoDetect(

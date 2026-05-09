@@ -9,7 +9,7 @@ import {
 } from "../agents/model-selection.js";
 import { resolveModelAsync } from "../agents/pi-embedded-runner/model.js";
 import { prepareModelForSimpleCompletion } from "../agents/simple-completion-transport.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -88,7 +88,7 @@ type SummaryModelSelection = {
 };
 
 function resolveSummaryModelRef(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   config: ResolvedTtsConfig,
 ): SummaryModelSelection {
   const defaultRef = resolveDefaultModelForAgent({ cfg });
@@ -117,7 +117,7 @@ export async function summarizeText(
   params: {
     text: string;
     targetLength: number;
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     config: ResolvedTtsConfig;
     timeoutMs: number;
   },

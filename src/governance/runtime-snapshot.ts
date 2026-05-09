@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
@@ -13,7 +13,7 @@ export type AgentGovernanceRuntimeSnapshot = {
 };
 
 export function createAgentGovernanceRuntimeSnapshot(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   agentId?: string;
   observedAt?: number;
   charterDir?: string;

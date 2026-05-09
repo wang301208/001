@@ -1,1 +1,1 @@
-export * from "zhushou/plugin-sdk/speech-core";
+export * from "assistant/plugin-sdk/speech-core";

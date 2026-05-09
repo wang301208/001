@@ -1,7 +1,7 @@
 import {
   createModelCatalogPresetAppliers,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import {
   buildSyntheticModelDefinition,
   SYNTHETIC_BASE_URL,
@@ -13,7 +13,7 @@ export { SYNTHETIC_DEFAULT_MODEL_REF };
 
 const syntheticPresetAppliers = createModelCatalogPresetAppliers({
   primaryModelRef: SYNTHETIC_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig) => ({
+  resolveParams: (_cfg: AssistantConfig) => ({
     providerId: "synthetic",
     api: "anthropic-messages",
     baseUrl: SYNTHETIC_BASE_URL,
@@ -22,10 +22,10 @@ const syntheticPresetAppliers = createModelCatalogPresetAppliers({
   }),
 });
 
-export function applySyntheticProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applySyntheticProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return syntheticPresetAppliers.applyProviderConfig(cfg);
 }
 
-export function applySyntheticConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applySyntheticConfig(cfg: AssistantConfig): AssistantConfig {
   return syntheticPresetAppliers.applyConfig(cfg);
 }

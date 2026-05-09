@@ -1,15 +1,15 @@
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-runtime";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/plugin-runtime";
 
-type TestPluginApiInput = Partial<ZhushouPluginApi>;
+type TestPluginApiInput = Partial<AssistantPluginApi>;
 
-export function createTestPluginApi(api: TestPluginApiInput = {}): ZhushouPluginApi {
+export function createTestPluginApi(api: TestPluginApiInput = {}): AssistantPluginApi {
   return {
     id: "test-plugin",
     name: "test-plugin",
     source: "test",
     registrationMode: "full",
     config: {},
-    runtime: {} as ZhushouPluginApi["runtime"],
+    runtime: {} as AssistantPluginApi["runtime"],
     logger: { info() {}, warn() {}, error() {}, debug() {} },
     registerTool() {},
     registerHook() {},

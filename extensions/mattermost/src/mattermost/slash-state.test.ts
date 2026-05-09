@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig, RuntimeEnv } from "../runtime-api.js";
+import type { AssistantConfig, RuntimeEnv } from "../runtime-api.js";
 import type { ResolvedMattermostAccount } from "./accounts.js";
 import {
   activateSlashCommands,
@@ -25,7 +25,7 @@ const slashApi = {
     exit: () => {},
   },
 } satisfies {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: RuntimeEnv;
 };
 

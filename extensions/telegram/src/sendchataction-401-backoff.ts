@@ -3,8 +3,8 @@ import {
   computeBackoff,
   sleepWithAbort,
   type BackoffPolicy,
-} from "zhushou/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 
 export type TelegramSendChatActionLogger = (message: string) => void;
 
@@ -122,7 +122,7 @@ export function createTelegramSendChatActionHandler({
           logger(
             `CRITICAL: sendChatAction suspended after ${consecutive401Failures} consecutive 401 errors. ` +
               `Bot token is likely invalid. Telegram may DELETE the bot if requests continue. ` +
-              `Replace the token and restart: zhushou channels restart telegram`,
+              `Replace the token and restart: assistant channels restart telegram`,
           );
         } else {
           logger(

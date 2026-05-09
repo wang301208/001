@@ -1,4 +1,7 @@
 import { EventEmitter } from "node:events";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { createLocalShellRunner } from "./tui-local-shell.js";
 
@@ -68,7 +71,7 @@ describe("createLocalShellRunner", () => {
     expect(harness.spawnCommand).not.toHaveBeenCalled();
   });
 
-  it("sets OPENCLAW_SHELL when running local shell commands", async () => {
+  it("sets ASSISTANT_SHELL when running local shell commands", async () => {
     const spawnCommand = vi.fn((_command: string, _options: unknown) => {
       const stdout = new EventEmitter();
       const stderr = new EventEmitter();
@@ -97,8 +100,71 @@ describe("createLocalShellRunner", () => {
     expect(harness.createSelectorSpy).toHaveBeenCalledTimes(1);
     expect(spawnCommand).toHaveBeenCalledTimes(1);
     const spawnOptions = spawnCommand.mock.calls[0]?.[1] as { env?: Record<string, string> };
-    expect(spawnOptions.env?.OPENCLAW_SHELL).toBe("tui-local");
+    expect(spawnOptions.env?.ASSISTANT_SHELL).toBe("tui-local");
     expect(spawnOptions.env?.PATH).toBe("/tmp/bin");
     expect(harness.messages).toContain("local shell: enabled for this session");
+  });
+
+  it("streams stdout and stderr chunks before the process closes", async () => {
+    const stdout = new EventEmitter();
+    const stderr = new EventEmitter();
+    const child = new EventEmitter() as EventEmitter & {
+      stdout: EventEmitter;
+      stderr: EventEmitter;
+    };
+    child.stdout = stdout;
+    child.stderr = stderr;
+    const spawnCommand = vi.fn(() => child);
+    const harness = createShellHarness({
+      spawnCommand: spawnCommand as unknown as typeof import("node:child_process").spawn,
+    });
+
+    const run = harness.runLocalShellLine("!node script.js");
+    harness.getLastSelector()?.onSelect?.({ value: "yes", label: "Yes" });
+    await new Promise<void>((resolve) => setImmediate(resolve));
+
+    stdout.emit("data", Buffer.from("first\nsecond\n"));
+    stderr.emit("data", Buffer.from("warn\n"));
+
+    expect(harness.messages).toContain("[local] first");
+    expect(harness.messages).toContain("[local] second");
+    expect(harness.messages).toContain("[local:err] warn");
+
+    child.emit("close", 0, null);
+    await run;
+
+    expect(harness.messages).toContain("[local] exit 0");
+  });
+
+  it("supports output redirection with > and avoids echoing redirected output", async () => {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-tui-shell-"));
+    const outFile = path.join(tmpDir, "out.txt");
+    const stdout = new EventEmitter();
+    const stderr = new EventEmitter();
+    const child = new EventEmitter() as EventEmitter & {
+      stdout: EventEmitter;
+      stderr: EventEmitter;
+    };
+    child.stdout = stdout;
+    child.stderr = stderr;
+    const spawnCommand = vi.fn(() => child);
+    const harness = createShellHarness({
+      spawnCommand: spawnCommand as unknown as typeof import("node:child_process").spawn,
+    });
+
+    try {
+      const run = harness.runLocalShellLine(`!echo hello > "${outFile}"`);
+      harness.getLastSelector()?.onSelect?.({ value: "yes", label: "Yes" });
+      await new Promise<void>((resolve) => setImmediate(resolve));
+      stdout.emit("data", Buffer.from("hello\n"));
+      child.emit("close", 0, null);
+      await run;
+
+      await expect(fs.readFile(outFile, "utf8")).resolves.toBe("hello\n");
+      expect(harness.messages).toContain(`[local] redirected stdout to ${outFile}`);
+      expect(harness.messages).not.toContain("[local] hello");
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true });
+    }
   });
 });

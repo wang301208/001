@@ -1,10 +1,10 @@
-import type { ChannelSetupAdapter, ChannelSetupInput } from "zhushou/plugin-sdk/channel-setup";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/routing";
+import type { ChannelSetupAdapter, ChannelSetupInput } from "assistant/plugin-sdk/channel-setup";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/routing";
 import {
   applyAccountNameToChannelSection,
   patchScopedAccountConfig,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import {
   createSetupInputPresenceValidator,
   mergeAllowFromEntries,
@@ -12,8 +12,8 @@ import {
   resolveSetupAccountId,
   type ChannelSetupDmPolicy,
   type WizardPrompter,
-} from "zhushou/plugin-sdk/setup-runtime";
-import { formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
+} from "assistant/plugin-sdk/setup-runtime";
+import { formatDocsLink } from "assistant/plugin-sdk/setup-tools";
 import { resolveDefaultNextcloudTalkAccountId, resolveNextcloudTalkAccount } from "./accounts.js";
 import type { CoreConfig } from "./types.js";
 
@@ -150,10 +150,10 @@ async function promptNextcloudTalkAllowFrom(params: {
 }
 
 async function promptNextcloudTalkAllowFromForAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const accountId = resolveSetupAccountId({
     accountId: params.accountId,
     defaultAccountId: resolveDefaultNextcloudTalkAccountId(params.cfg as CoreConfig),

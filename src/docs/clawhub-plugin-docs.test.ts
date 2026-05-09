@@ -36,7 +36,7 @@ describe("ClawHub plugin docs", () => {
     ) as unknown;
     const pluginManifest = JSON.parse(
       await fs.readFile(
-        path.join(DOCS_ROOT, "snippets", "plugin-publish", "minimal-zhushou.plugin.json"),
+        path.join(DOCS_ROOT, "snippets", "plugin-publish", "minimal-assistant.plugin.json"),
         "utf8",
       ),
     ) as { id?: unknown; configSchema?: unknown };
@@ -68,7 +68,7 @@ describe("ClawHub plugin docs", () => {
       expect(extractNamedJsonBlock(buildingPlugins, "package.json")).toEqual(snippet);
     }
     if (sdkSetup) {
-      expect(extractNamedJsonBlock(sdkSetup, "zhushou-clawhub-package.json")).toEqual(snippet);
+      expect(extractNamedJsonBlock(sdkSetup, "assistant-clawhub-package.json")).toEqual(snippet);
     }
   });
 });

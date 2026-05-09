@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { RuntimeEnv } from "../runtime.js";
 import {
   requireValidConfigFileSnapshot as requireValidConfigFileSnapshotBase,
@@ -13,6 +13,6 @@ export async function requireValidConfigFileSnapshot(runtime: RuntimeEnv) {
   return await requireValidConfigFileSnapshotBase(runtime);
 }
 
-export async function requireValidConfig(runtime: RuntimeEnv): Promise<ZhushouConfig | null> {
+export async function requireValidConfig(runtime: RuntimeEnv): Promise<AssistantConfig | null> {
   return await requireValidConfigSnapshot(runtime);
 }

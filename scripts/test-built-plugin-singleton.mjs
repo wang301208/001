@@ -12,15 +12,15 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const smokeEntryPath = path.join(repoRoot, "dist", "plugins", "build-smoke-entry.js");
 assert.ok(fs.existsSync(smokeEntryPath), `missing build output: ${smokeEntryPath}`);
 
-const { clearPluginCommands, getPluginCommandSpecs, loadOpenClawPlugins, matchPluginCommand } =
+const { clearPluginCommands, getPluginCommandSpecs, loadAssistantPlugins, matchPluginCommand } =
   await import(pathToFileURL(smokeEntryPath).href);
 
-assert.equal(typeof loadOpenClawPlugins, "function", "built loader export missing");
+assert.equal(typeof loadAssistantPlugins, "function", "built loader export missing");
 assert.equal(typeof clearPluginCommands, "function", "clearPluginCommands missing");
 assert.equal(typeof getPluginCommandSpecs, "function", "getPluginCommandSpecs missing");
 assert.equal(typeof matchPluginCommand, "function", "matchPluginCommand missing");
 
-const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-build-smoke-"));
+const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-build-smoke-"));
 
 function cleanup() {
   clearPluginCommands();
@@ -45,9 +45,9 @@ fs.writeFileSync(
   path.join(distPluginDir, "package.json"),
   JSON.stringify(
     {
-      name: "@zhushou/build-smoke-plugin",
+      name: "@assistant/build-smoke-plugin",
       type: "module",
-      zhushou: {
+      assistant: {
         extensions: ["./index.js"],
       },
     },
@@ -57,7 +57,7 @@ fs.writeFileSync(
   "utf8",
 );
 fs.writeFileSync(
-  path.join(distPluginDir, "zhushou.plugin.json"),
+  path.join(distPluginDir, "assistant.plugin.json"),
   JSON.stringify(
     {
       id: pluginId,
@@ -75,7 +75,7 @@ fs.writeFileSync(
 fs.writeFileSync(
   path.join(distPluginDir, "index.js"),
   [
-    "import sdk from 'zhushou/plugin-sdk';",
+    "import sdk from 'assistant/plugin-sdk';",
     "const { emptyPluginConfigSchema } = sdk;",
     "",
     "export default {",
@@ -110,13 +110,13 @@ assert.equal(
 
 clearPluginCommands();
 
-const registry = loadOpenClawPlugins({
+const registry = loadAssistantPlugins({
   cache: false,
   workspaceDir: tempRoot,
   env: {
     ...process.env,
-    OPENCLAW_BUNDLED_PLUGINS_DIR: path.join(tempRoot, "dist-runtime", "extensions"),
-    OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
+    ASSISTANT_BUNDLED_PLUGINS_DIR: path.join(tempRoot, "dist-runtime", "extensions"),
+    ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
   },
   config: {
     plugins: {

@@ -4,8 +4,8 @@ import {
   mergeAllowFromEntries,
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/setup";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/setup";
 import { resolveDefaultZaloAccountId, resolveZaloAccount } from "./accounts.js";
 
 type ZaloAccountSetupConfig = {
@@ -28,10 +28,10 @@ export async function noteZaloTokenHelp(
 }
 
 export async function promptZaloAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: Parameters<NonNullable<ChannelSetupDmPolicy["promptAllowFrom"]>>[0]["prompter"];
   accountId?: string;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const { cfg, prompter } = params;
   const accountId = params.accountId ?? resolveDefaultZaloAccountId(cfg);
   const resolved = resolveZaloAccount({ cfg, accountId });
@@ -66,7 +66,7 @@ export async function promptZaloAllowFrom(params: {
           allowFrom: unique,
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
   }
 
   const currentAccount = cfg.channels?.zalo?.accounts?.[accountId] as
@@ -90,5 +90,5 @@ export async function promptZaloAllowFrom(params: {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }

@@ -44,7 +44,7 @@ describe("mattermost monitor resources", () => {
 
     const resources = createMattermostMonitorResources({
       accountId: "default",
-      callbackUrl: "https://zhushou.test/callback",
+      callbackUrl: "https://assistant.test/callback",
       client: {
         apiBaseUrl: "https://chat.example.com/api/v4",
         baseUrl: "https://chat.example.com",
@@ -85,7 +85,7 @@ describe("mattermost monitor resources", () => {
 
     const resources = createMattermostMonitorResources({
       accountId: "default",
-      callbackUrl: "https://zhushou.test/callback",
+      callbackUrl: "https://assistant.test/callback",
       client: {} as never,
       logger: {},
       mediaMaxBytes: 1024,
@@ -135,7 +135,7 @@ describe("mattermost monitor resources", () => {
 
     const resources = createMattermostMonitorResources({
       accountId: "default",
-      callbackUrl: "https://zhushou.test/callback",
+      callbackUrl: "https://assistant.test/callback",
       client,
       logger: {},
       mediaMaxBytes: 1024,

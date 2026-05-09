@@ -7,9 +7,9 @@ describe("buildPairingReply", () => {
   let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
-    envSnapshot = captureEnv(["OPENCLAW_CONTAINER_HINT", "ZHUSHOU_PROFILE"]);
-    delete process.env.OPENCLAW_CONTAINER_HINT;
-    process.env.ZHUSHOU_PROFILE = "isolated";
+    envSnapshot = captureEnv(["ASSISTANT_CONTAINER_HINT", "ASSISTANT_PROFILE"]);
+    delete process.env.ASSISTANT_CONTAINER_HINT;
+    process.env.ASSISTANT_PROFILE = "isolated";
   });
 
   afterEach(() => {
@@ -51,7 +51,7 @@ describe("buildPairingReply", () => {
 
   function expectPairingApproveCommand(text: string, testCase: (typeof pairingReplyCases)[number]) {
     const commandRe = new RegExp(
-      `(?:zhushou|zhushou) --profile isolated pairing approve ${testCase.channel} ${testCase.code}`,
+      `(?:assistant|assistant) --profile isolated pairing approve ${testCase.channel} ${testCase.code}`,
     );
     expect(text).toMatch(commandRe);
   }

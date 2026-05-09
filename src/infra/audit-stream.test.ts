@@ -11,7 +11,7 @@ describe("audit-stream", () => {
   });
 
   test("appends and lists audit facts", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-audit-stream-"));
+    const root = await mkdtemp(path.join(os.tmpdir(), "assistant-audit-stream-"));
     const filePath = path.join(root, "facts.jsonl");
     try {
       const fact = await appendAuditFact({
@@ -46,7 +46,7 @@ describe("audit-stream", () => {
   });
 
   test("summarizes recent audit activity", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-audit-stream-summary-"));
+    const root = await mkdtemp(path.join(os.tmpdir(), "assistant-audit-stream-summary-"));
     const filePath = path.join(root, "facts.jsonl");
     try {
       await appendAuditFact({

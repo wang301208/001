@@ -1,6 +1,6 @@
 import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { isSubagentSessionKey, parseAgentSessionKey } from "../routing/session-key.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
@@ -56,7 +56,7 @@ function findEntryBySessionId(
 
 function resolveSessionCapabilityEntry(params: {
   sessionKey: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   store?: Record<string, SessionCapabilityEntry>;
 }): SessionCapabilityEntry | undefined {
   if (params.store) {
@@ -110,7 +110,7 @@ export function resolveSubagentCapabilities(params: { depth: number; maxSpawnDep
 export function resolveStoredSubagentCapabilities(
   sessionKey: string | undefined | null,
   opts?: {
-    cfg?: ZhushouConfig;
+    cfg?: AssistantConfig;
     store?: Record<string, SessionCapabilityEntry>;
   },
 ) {

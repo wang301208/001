@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { getChannelPlugin } from "./plugins/index.js";
@@ -159,7 +159,7 @@ export function resolveThreadBindingsEnabled(params: {
 }
 
 function resolveChannelThreadBindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId: string;
 }): {
@@ -184,7 +184,7 @@ function resolveSpawnFlagKey(
 }
 
 export function resolveThreadBindingSpawnPolicy(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId?: string;
   kind: ThreadBindingSpawnKind;
@@ -214,7 +214,7 @@ export function resolveThreadBindingSpawnPolicy(params: {
 }
 
 export function resolveThreadBindingIdleTimeoutMsForChannel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId?: string;
 }): number {
@@ -226,7 +226,7 @@ export function resolveThreadBindingIdleTimeoutMsForChannel(params: {
 }
 
 export function resolveThreadBindingMaxAgeMsForChannel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId?: string;
 }): number {
@@ -238,7 +238,7 @@ export function resolveThreadBindingMaxAgeMsForChannel(params: {
 }
 
 function resolveThreadBindingChannelScope(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId?: string;
 }) {

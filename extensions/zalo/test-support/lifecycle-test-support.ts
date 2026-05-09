@@ -1,6 +1,6 @@
 import { request as httpRequest } from "node:http";
 import { expect, vi } from "vitest";
-import type { ZhushouConfig, PluginRuntime } from "../runtime-api.js";
+import type { AssistantConfig, PluginRuntime } from "../runtime-api.js";
 import type { ResolvedZaloAccount } from "../src/types.js";
 
 export function createLifecycleConfig(params: {
@@ -9,7 +9,7 @@ export function createLifecycleConfig(params: {
   allowFrom?: string[];
   webhookUrl?: string;
   webhookSecret?: string;
-}): ZhushouConfig {
+}): AssistantConfig {
   const webhookUrl = params.webhookUrl ?? "https://example.com/hooks/zalo";
   const webhookSecret = params.webhookSecret ?? "supersecret";
   return {
@@ -27,7 +27,7 @@ export function createLifecycleConfig(params: {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 export function createLifecycleAccount(params: {

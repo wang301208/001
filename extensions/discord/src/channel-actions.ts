@@ -2,15 +2,15 @@ import { Type } from "@sinclair/typebox";
 import {
   createUnionActionGate,
   listTokenSourcedAccounts,
-} from "zhushou/plugin-sdk/channel-actions";
+} from "assistant/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
   ChannelMessageToolDiscovery,
-} from "zhushou/plugin-sdk/channel-contract";
-import type { DiscordActionConfig } from "zhushou/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
-import { extractToolSend } from "zhushou/plugin-sdk/tool-send";
+} from "assistant/plugin-sdk/channel-contract";
+import type { DiscordActionConfig } from "assistant/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { extractToolSend } from "assistant/plugin-sdk/tool-send";
 import {
   createDiscordActionGate,
   listEnabledDiscordAccounts,

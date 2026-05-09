@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
+import path from "node:path";
 import {
   resolveAgentConfig,
   resolveAgentWorkspaceDir,
@@ -15,7 +16,7 @@ import {
   resolveSessionStoreEntry,
   resolveStorePath,
 } from "../../config/sessions.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { CronServiceContract } from "../../cron/service-contract.js";
 import { CronService } from "../../cron/service.js";
 import { resolveCronStorePath } from "../../cron/store.js";
@@ -203,14 +204,19 @@ function assertSessionKey(sessionKey: string | undefined, errorMessage: string):
   return normalized;
 }
 
-function resolveRuntimeConfig(): ZhushouConfig {
+function resolveRuntimeConfig(): AssistantConfig {
   return getRuntimeConfigSnapshot() ?? loadConfig();
 }
 
-function normalizeWorkspaceDirList(values: string[] | undefined): string[] {
-  return Array.from(new Set((values ?? []).map((entry) => entry.trim()).filter(Boolean))).toSorted(
-    (left, right) => left.localeCompare(right),
-  );
+function normalizeWorkspaceDirList(values: Array<string | undefined> | undefined): string[] {
+  return Array.from(
+    new Set(
+      (values ?? [])
+        .filter((entry): entry is string => typeof entry === "string")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    ),
+  ).toSorted((left, right) => left.localeCompare(right));
 }
 
 function resolveExistingWorkspaceDir(workspaceDir: string | undefined): string | undefined {
@@ -225,8 +231,37 @@ function resolveExistingWorkspaceDir(workspaceDir: string | undefined): string |
   }
 }
 
+function hasWorkspaceCapabilityAssets(workspaceDir: string): boolean {
+  const candidateDirs = [
+    path.join(workspaceDir, "skills"),
+    path.join(workspaceDir, ".agents", "skills"),
+  ];
+  return candidateDirs.some((candidateDir) => {
+    try {
+      return (
+        fs.statSync(candidateDir).isDirectory() &&
+        fs.readdirSync(candidateDir, { withFileTypes: true }).some((entry) => entry.isDirectory())
+      );
+    } catch {
+      return false;
+    }
+  });
+}
+
+function resolveCharterRepoCapabilityWorkspaceDir(charterDir: string | undefined): string | undefined {
+  const normalizedCharterDir = normalizeOptionalString(charterDir);
+  if (!normalizedCharterDir) {
+    return undefined;
+  }
+  const repoRoot = resolveExistingWorkspaceDir(path.resolve(normalizedCharterDir, "..", ".."));
+  if (!repoRoot || !hasWorkspaceCapabilityAssets(repoRoot)) {
+    return undefined;
+  }
+  return repoRoot;
+}
+
 function resolveSessionWorkspaceDir(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
 }): string | undefined {
   const normalizedSessionKey = normalizeOptionalString(params.sessionKey);
@@ -257,7 +292,7 @@ function resolveSessionWorkspaceDir(params: {
 }
 
 function resolveBoundAutonomyWorkspaceDir(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
   workspaceDir?: string;
 }): string | undefined {
@@ -272,8 +307,9 @@ function resolveBoundAutonomyWorkspaceDir(params: {
 }
 
 function resolveAutonomyWorkspaceDirs(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
+  charterDir?: string;
   agentIds?: string[];
   workspaceDirs?: string[];
   boundWorkspaceDir?: string;
@@ -282,9 +318,10 @@ function resolveAutonomyWorkspaceDirs(params: {
   if (explicitWorkspaceDirs.length > 0) {
     return explicitWorkspaceDirs;
   }
+  const charterRepoWorkspaceDir = resolveCharterRepoCapabilityWorkspaceDir(params.charterDir);
   const boundWorkspaceDir = resolveExistingWorkspaceDir(params.boundWorkspaceDir);
   if (boundWorkspaceDir) {
-    return [boundWorkspaceDir];
+    return normalizeWorkspaceDirList([charterRepoWorkspaceDir, boundWorkspaceDir]);
   }
 
   const defaultWorkspaceConfigured = Boolean(params.cfg.agents?.defaults?.workspace?.trim());
@@ -301,19 +338,22 @@ function resolveAutonomyWorkspaceDirs(params: {
     }),
   ]);
   const inferredWorkspaceDirs = normalizeWorkspaceDirList(
-    candidateAgentIds.flatMap((agentId) => {
-      const configuredWorkspace = resolveAgentConfig(params.cfg, agentId)?.workspace?.trim();
-      const resolvedWorkspaceDir = resolveExistingWorkspaceDir(
-        resolveAgentWorkspaceDir(params.cfg, agentId),
-      );
-      if (resolvedWorkspaceDir) {
-        return [resolvedWorkspaceDir];
-      }
-      if (!configuredWorkspace && defaultWorkspaceDir) {
-        return [defaultWorkspaceDir];
-      }
-      return [];
-    }),
+    [
+      charterRepoWorkspaceDir,
+      ...candidateAgentIds.flatMap((agentId) => {
+        const configuredWorkspace = resolveAgentConfig(params.cfg, agentId)?.workspace?.trim();
+        const resolvedWorkspaceDir = resolveExistingWorkspaceDir(
+          resolveAgentWorkspaceDir(params.cfg, agentId),
+        );
+        if (resolvedWorkspaceDir) {
+          return [resolvedWorkspaceDir];
+        }
+        if (!configuredWorkspace && defaultWorkspaceDir) {
+          return [defaultWorkspaceDir];
+        }
+        return [];
+      }),
+    ],
   );
   return inferredWorkspaceDirs.length > 0 ? inferredWorkspaceDirs : undefined;
 }
@@ -973,7 +1013,7 @@ function buildGenesisManagedFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   const assignedStageId = resolveGenesisAssignedStageId(params.profile.id);
@@ -1092,7 +1132,7 @@ function buildAlgorithmResearchManagedFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   if (params.profile.id !== "algorithmist") {
@@ -1271,7 +1311,7 @@ function buildExecutorManagedFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   if (params.profile.id !== "executor") {
@@ -1502,7 +1542,7 @@ function buildSovereigntyAuditorManagedFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   if (params.profile.id !== "sovereignty_auditor") {
@@ -1620,7 +1660,7 @@ function resolveManagedAutonomyFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   if (params.automationMode !== "autonomous") {
@@ -1635,7 +1675,7 @@ function resolveManagedAutonomyFlowPlan(params: {
 }
 
 function resolveAutonomyProfile(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   charterDir?: string;
 }): AutonomyAgentProfile | undefined {
@@ -1675,7 +1715,7 @@ function resolveAutonomyProfile(params: {
 }
 
 function assertManagedAutonomyProfile(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   charterDir?: string;
 }): AutonomyAgentProfile {
@@ -1709,7 +1749,7 @@ function sortManagedAutonomyAgentIds(agentIds: string[]): string[] {
 }
 
 function listAutonomyProfiles(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir?: string;
 }): AutonomyAgentProfile[] {
   return sortManagedAutonomyAgentIds(
@@ -2249,7 +2289,7 @@ function inferManagedFlowSandboxReplaySubmission(params: {
 }
 
 async function maybeAutoSubmitManagedFlowSandboxReplay(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   profile: AutonomyAgentProfile;
   profileSessionKey: string;
   taskFlow: ReturnType<PluginRuntimeTaskFlow["bindSession"]>;
@@ -2323,7 +2363,7 @@ async function maybeAutoSubmitManagedFlowSandboxReplay(params: {
   });
 }
 
-function createStandaloneCronService(cfg: ZhushouConfig): CronServiceContract {
+function createStandaloneCronService(cfg: AssistantConfig): CronServiceContract {
   return new CronService({
     storePath: resolveCronStorePath(cfg.cron?.store),
     // This runtime path is used by CLI/plugin status calls when the gateway has
@@ -2343,7 +2383,7 @@ function createStandaloneCronService(cfg: ZhushouConfig): CronServiceContract {
 }
 
 function resolveAutonomyCronService(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   cronService?: CronServiceContract;
 }): CronServiceContract {
   return params.cronService ?? createStandaloneCronService(params.cfg);
@@ -2360,7 +2400,7 @@ function sortAutonomyLoopJobs(jobs: CronJob[]): CronJob[] {
 }
 
 async function listAutonomyLoopJobRecords(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   cronService?: CronServiceContract;
 }): Promise<CronJob[]> {
@@ -2390,7 +2430,7 @@ function createLoopJobSnapshot(params: {
 }
 
 async function listAutonomyLoopJobSnapshots(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   profiles: AutonomyAgentProfile[];
   cronService?: CronServiceContract;
 }): Promise<AutonomyLoopJobSnapshot[]> {
@@ -2436,7 +2476,7 @@ function resolveLoopEveryMs(input: number | undefined, fallbackEveryMs: number):
 }
 
 function resolveManagedLoopProfiles(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentIds?: string[];
   charterDir?: string;
 }): AutonomyAgentProfile[] {
@@ -2465,7 +2505,7 @@ function resolveManagedLoopProfiles(params: {
 }
 
 function resolveGovernanceProposalProfiles(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentIds?: string[];
   charterDir?: string;
 }): AutonomyAgentProfile[] {
@@ -3373,7 +3413,7 @@ function buildAutonomyArchitectureReadinessSummary(
 }
 
 async function resolveFleetProfileRuntimeState(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   profile: AutonomyAgentProfile;
   requesterOrigin?: import("../../tasks/task-registry.types.js").TaskDeliveryState["requesterOrigin"];
   legacyTaskFlow: PluginRuntimeTaskFlow;
@@ -3460,7 +3500,7 @@ function resolveManagedFlowHealDecision(params: {
 }
 
 async function cancelManagedAutonomyFlowById(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   profile: AutonomyAgentProfile;
   taskFlow: BoundTaskFlowRuntime;
   targetFlowId: string;
@@ -3498,7 +3538,7 @@ async function cancelManagedAutonomyFlowById(params: {
 }
 
 async function submitManagedAutonomySandboxReplay(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   profile: AutonomyAgentProfile;
   taskFlow: BoundTaskFlowRuntime;
   targetFlowId: string;
@@ -3734,7 +3774,7 @@ async function submitManagedAutonomySandboxReplay(params: {
 }
 
 function createManagedAutonomyFlow(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   ownerKey: string;
   taskFlow: BoundTaskFlowRuntime;
   profile: AutonomyAgentProfile;
@@ -3755,6 +3795,7 @@ function createManagedAutonomyFlow(params: {
   const workspaceDirs = resolveAutonomyWorkspaceDirs({
     cfg: params.cfg,
     sessionKey: params.ownerKey,
+    charterDir: params.charterDir,
     agentIds: [params.profile.id],
     workspaceDirs: params.input.workspaceDirs,
     boundWorkspaceDir: params.workspaceDir,
@@ -3892,6 +3933,7 @@ function createBoundAutonomyRuntime(params: {
     const workspaceDirs = resolveAutonomyWorkspaceDirs({
       cfg,
       sessionKey: ownerKey,
+      charterDir: params.charterDir,
       agentIds: [profile.id],
       workspaceDirs: input.workspaceDirs,
       boundWorkspaceDir,
@@ -4011,6 +4053,7 @@ function createBoundAutonomyRuntime(params: {
       const workspaceDirs = resolveAutonomyWorkspaceDirs({
         cfg,
         sessionKey: ownerKey,
+        charterDir: params.charterDir,
         agentIds: [profile.id],
         workspaceDirs: input.workspaceDirs,
         boundWorkspaceDir,
@@ -4052,6 +4095,7 @@ function createBoundAutonomyRuntime(params: {
     const workspaceDirs = resolveAutonomyWorkspaceDirs({
       cfg,
       sessionKey: ownerKey,
+      charterDir: params.charterDir,
       agentIds: input.agentIds,
       workspaceDirs: input.workspaceDirs,
       boundWorkspaceDir,
@@ -4079,6 +4123,7 @@ function createBoundAutonomyRuntime(params: {
           resolveAutonomyWorkspaceDirs({
             cfg,
             sessionKey: state.profileSessionKey,
+            charterDir: params.charterDir,
             agentIds: [state.profile.id],
             workspaceDirs,
             boundWorkspaceDir,
@@ -4114,6 +4159,7 @@ function createBoundAutonomyRuntime(params: {
     const workspaceDirs = resolveAutonomyWorkspaceDirs({
       cfg,
       sessionKey: ownerKey,
+      charterDir: params.charterDir,
       agentIds: input.agentIds,
       workspaceDirs: input.workspaceDirs,
       boundWorkspaceDir,
@@ -4138,6 +4184,7 @@ function createBoundAutonomyRuntime(params: {
     const workspaceDirs = resolveAutonomyWorkspaceDirs({
       cfg,
       sessionKey: ownerKey,
+      charterDir: params.charterDir,
       agentIds: input.agentIds,
       workspaceDirs: input.workspaceDirs,
       boundWorkspaceDir,
@@ -4163,6 +4210,7 @@ function createBoundAutonomyRuntime(params: {
     const workspaceDirs = resolveAutonomyWorkspaceDirs({
       cfg,
       sessionKey: ownerKey,
+      charterDir: params.charterDir,
       agentIds: input.agentIds,
       workspaceDirs: input.workspaceDirs,
       boundWorkspaceDir,
@@ -4210,6 +4258,7 @@ function createBoundAutonomyRuntime(params: {
     const workspaceDirs = resolveAutonomyWorkspaceDirs({
       cfg,
       sessionKey: ownerKey,
+      charterDir: params.charterDir,
       agentIds: input.agentIds,
       workspaceDirs: input.workspaceDirs,
       boundWorkspaceDir,
@@ -4288,6 +4337,7 @@ function createBoundAutonomyRuntime(params: {
       const workspaceDirs = resolveAutonomyWorkspaceDirs({
         cfg,
         sessionKey: before.profileSessionKey,
+        charterDir: params.charterDir,
         agentIds: [profile.id],
         workspaceDirs: input.workspaceDirs,
         boundWorkspaceDir,
@@ -4415,6 +4465,7 @@ function createBoundAutonomyRuntime(params: {
     const governanceProposalWorkspaceDirs = resolveAutonomyWorkspaceDirs({
       cfg,
       sessionKey: ownerKey,
+      charterDir: params.charterDir,
       agentIds: governanceProposalAgentIds,
       workspaceDirs: input.workspaceDirs,
       boundWorkspaceDir,

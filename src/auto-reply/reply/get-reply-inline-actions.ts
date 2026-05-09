@@ -4,7 +4,7 @@ import type { SkillCommandSpec } from "../../agents/skills.js";
 import { applyOwnerOnlyToolPolicy } from "../../agents/tool-policy.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import type { SessionEntry } from "../../config/sessions.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { logVerbose } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { generateSecureToken } from "../../infra/secure-random.js";
@@ -113,7 +113,7 @@ function extractTextFromToolResult(result: unknown): string | null {
 export async function handleInlineActions(params: {
   ctx: MsgContext;
   sessionCtx: TemplateContext;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   agentDir?: string;
   sessionEntry?: SessionEntry;
@@ -237,8 +237,8 @@ export async function handleInlineActions(params: {
         resolveGatewayMessageChannel(ctx.Provider) ??
         undefined;
 
-      const { createOpenClawTools } = await import("../../agents/zhushou-tools.runtime.js");
-      const tools = createOpenClawTools({
+      const { createAssistantTools } = await import("../../agents/assistant-tools.runtime.js");
+      const tools = createAssistantTools({
         agentSessionKey: sessionKey,
         agentChannel: channel,
         agentAccountId: (ctx as { AccountId?: string }).AccountId,

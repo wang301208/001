@@ -35,7 +35,7 @@ type CoreToolDefinition = {
   description: string;
   sectionId: string;
   profiles: ToolProfileId[];
-  includeInOpenClawGroup?: boolean;
+  includeInAssistantGroup?: boolean;
 };
 
 const CORE_TOOL_SECTION_ORDER: Array<{ id: string; label: string }> = [
@@ -43,10 +43,16 @@ const CORE_TOOL_SECTION_ORDER: Array<{ id: string; label: string }> = [
   { id: "runtime", label: "Runtime" },
   { id: "web", label: "Web" },
   { id: "memory", label: "Memory" },
+  { id: "models", label: "Models" },
+  { id: "config", label: "Config" },
   { id: "sessions", label: "Sessions" },
   { id: "ui", label: "UI" },
   { id: "messaging", label: "Messaging" },
   { id: "automation", label: "Automation" },
+  { id: "skills", label: "Skills" },
+  { id: "experience", label: "Experience" },
+  { id: "mcp", label: "MCP" },
+  { id: "tasks", label: "Tasks" },
   { id: "nodes", label: "Nodes" },
   { id: "agents", label: "Agents" },
   { id: "media", label: "Media" },
@@ -101,7 +107,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Run sandboxed remote analysis",
     sectionId: "runtime",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "web_search",
@@ -109,7 +115,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Search the web",
     sectionId: "web",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "web_fetch",
@@ -117,7 +123,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Fetch web content",
     sectionId: "web",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "x_search",
@@ -125,7 +131,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Search X posts",
     sectionId: "web",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "memory_search",
@@ -133,7 +139,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Semantic search",
     sectionId: "memory",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "memory_get",
@@ -141,7 +147,47 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Read memory files",
     sectionId: "memory",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "models_list",
+    label: "models_list",
+    description: "List configured local and remote models",
+    sectionId: "models",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "models_remote_list",
+    label: "models_remote_list",
+    description: "Probe a remote model endpoint for available models",
+    sectionId: "models",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "config_get",
+    label: "config_get",
+    description: "Read runtime configuration",
+    sectionId: "config",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "config_patch",
+    label: "config_patch",
+    description: "Merge a partial runtime configuration object",
+    sectionId: "config",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "logs_tail",
+    label: "logs_tail",
+    description: "Read recent backend log lines",
+    sectionId: "config",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
   },
   {
     id: "sessions_list",
@@ -149,7 +195,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: SESSIONS_LIST_TOOL_DISPLAY_SUMMARY,
     sectionId: "sessions",
     profiles: ["coding", "messaging"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "sessions_history",
@@ -157,7 +203,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: SESSIONS_HISTORY_TOOL_DISPLAY_SUMMARY,
     sectionId: "sessions",
     profiles: ["coding", "messaging"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "sessions_send",
@@ -165,7 +211,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: SESSIONS_SEND_TOOL_DISPLAY_SUMMARY,
     sectionId: "sessions",
     profiles: ["coding", "messaging"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "sessions_spawn",
@@ -173,7 +219,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: SESSIONS_SPAWN_TOOL_DISPLAY_SUMMARY,
     sectionId: "sessions",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "sessions_yield",
@@ -181,7 +227,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "End turn to receive sub-agent results",
     sectionId: "sessions",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "subagents",
@@ -189,7 +235,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Manage sub-agents",
     sectionId: "sessions",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "session_status",
@@ -197,7 +243,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: SESSION_STATUS_TOOL_DISPLAY_SUMMARY,
     sectionId: "sessions",
     profiles: ["minimal", "coding", "messaging"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "browser",
@@ -205,7 +251,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Control web browser",
     sectionId: "ui",
     profiles: [],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "canvas",
@@ -213,7 +259,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Control canvases",
     sectionId: "ui",
     profiles: [],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "message",
@@ -221,7 +267,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Send messages",
     sectionId: "messaging",
     profiles: ["messaging"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "cron",
@@ -229,7 +275,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: CRON_TOOL_DISPLAY_SUMMARY,
     sectionId: "automation",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "gateway",
@@ -237,7 +283,79 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Gateway control",
     sectionId: "automation",
     profiles: [],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "skills_search",
+    label: "skills_search",
+    description: "Search installed and generated skills",
+    sectionId: "skills",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "skills_status",
+    label: "skills_status",
+    description: "Inspect the skill library and generated skill center",
+    sectionId: "skills",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "experience_capture",
+    label: "experience_capture",
+    description: "Capture durable experience from completed work",
+    sectionId: "experience",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "experience_search",
+    label: "experience_search",
+    description: "Search persistent experience and prior transcripts",
+    sectionId: "experience",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "strategy_memory",
+    label: "strategy_memory",
+    description: "Manage scheduled strategic memories and pushes",
+    sectionId: "experience",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "self_model",
+    label: "self_model",
+    description: "Read and update persistent self and user models",
+    sectionId: "experience",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "mcp_tools_list",
+    label: "mcp_tools_list",
+    description: "Discover tools exposed by configured MCP servers",
+    sectionId: "mcp",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "mcp_tools_call",
+    label: "mcp_tools_call",
+    description: "Call a tool exposed by a configured MCP server",
+    sectionId: "mcp",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "business_tasks",
+    label: "business_tasks",
+    description: "Create, list, update, and delete task-center work items",
+    sectionId: "tasks",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
   },
   {
     id: "nodes",
@@ -245,7 +363,15 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Nodes + devices",
     sectionId: "nodes",
     profiles: [],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
+  },
+  {
+    id: "agents_files",
+    label: "agents_files",
+    description: "Manage agent context files that shape each conversation",
+    sectionId: "agents",
+    profiles: ["coding"],
+    includeInAssistantGroup: true,
   },
   {
     id: "governance",
@@ -253,7 +379,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: GOVERNANCE_TOOL_DISPLAY_SUMMARY,
     sectionId: "agents",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "autonomy",
@@ -261,7 +387,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: AUTONOMY_TOOL_DISPLAY_SUMMARY,
     sectionId: "agents",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "agents_list",
@@ -269,7 +395,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "List agents",
     sectionId: "agents",
     profiles: [],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "update_plan",
@@ -277,7 +403,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: UPDATE_PLAN_TOOL_DISPLAY_SUMMARY,
     sectionId: "agents",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "image",
@@ -285,7 +411,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Image understanding",
     sectionId: "media",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "image_generate",
@@ -293,7 +419,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Image generation",
     sectionId: "media",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "music_generate",
@@ -301,7 +427,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Music generation",
     sectionId: "media",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "video_generate",
@@ -309,7 +435,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Video generation",
     sectionId: "media",
     profiles: ["coding"],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
   {
     id: "tts",
@@ -317,7 +443,7 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     description: "Text-to-speech conversion",
     sectionId: "media",
     profiles: [],
-    includeInOpenClawGroup: true,
+    includeInAssistantGroup: true,
   },
 ];
 
@@ -352,11 +478,11 @@ function buildCoreToolGroupMap() {
     list.push(tool.id);
     sectionToolMap.set(groupId, list);
   }
-  const openclawTools = CORE_TOOL_DEFINITIONS.filter((tool) => tool.includeInOpenClawGroup).map(
+  const assistantTools = CORE_TOOL_DEFINITIONS.filter((tool) => tool.includeInAssistantGroup).map(
     (tool) => tool.id,
   );
   return {
-    "group:zhushou": openclawTools,
+    "group:assistant": assistantTools,
     ...Object.fromEntries(sectionToolMap.entries()),
   };
 }

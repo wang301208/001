@@ -29,13 +29,13 @@ import { sandboxListCommand, sandboxRecreateCommand } from "./sandbox.js";
 const NOW = Date.now();
 
 function createContainer(overrides: Partial<SandboxContainerInfo> = {}): SandboxContainerInfo {
-  const containerName = overrides.containerName ?? "zhushou-sandbox-test";
+  const containerName = overrides.containerName ?? "assistant-sandbox-test";
   return {
     containerName,
     backendId: "docker",
     runtimeLabel: containerName,
     sessionKey: "test-session",
-    image: "zhushou/sandbox:latest",
+    image: "assistant/sandbox:latest",
     configLabelKind: "Image",
     imageMatch: true,
     running: true,
@@ -47,9 +47,9 @@ function createContainer(overrides: Partial<SandboxContainerInfo> = {}): Sandbox
 
 function createBrowser(overrides: Partial<SandboxBrowserInfo> = {}): SandboxBrowserInfo {
   return {
-    containerName: "zhushou-browser-test",
+    containerName: "assistant-browser-test",
     sessionKey: "test-session",
-    image: "zhushou/browser:latest",
+    image: "assistant/browser:latest",
     imageMatch: true,
     running: true,
     createdAtMs: NOW - 3600000,

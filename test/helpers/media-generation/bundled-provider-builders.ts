@@ -1,9 +1,9 @@
-import type { ZhushouPluginApi } from "../../../src/plugins/types.js";
+import type { AssistantPluginApi } from "../../../src/plugins/types.js";
 import { loadBundledPluginPublicSurfaceSync } from "../../../src/test-utils/bundled-plugin-public-surface.js";
 
 type BundledPluginEntryModule = {
   default: {
-    register(api: ZhushouPluginApi): void;
+    register(api: AssistantPluginApi): void;
   };
 };
 

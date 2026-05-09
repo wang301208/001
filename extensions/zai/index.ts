@@ -5,7 +5,7 @@ import {
   type ProviderAuthMethodNonInteractiveContext,
   type ProviderResolveDynamicModelContext,
   type ProviderRuntimeModel,
-} from "zhushou/plugin-sdk/plugin-entry";
+} from "assistant/plugin-sdk/plugin-entry";
 import {
   applyAuthProfileConfig,
   buildApiKeyCredential,
@@ -15,15 +15,15 @@ import {
   type SecretInput,
   upsertAuthProfile,
   validateApiKeyInput,
-} from "zhushou/plugin-sdk/provider-auth-api-key";
+} from "assistant/plugin-sdk/provider-auth-api-key";
 import {
   normalizeModelCompat,
   OPENAI_COMPATIBLE_REPLAY_HOOKS,
-} from "zhushou/plugin-sdk/provider-model-shared";
-import { TOOL_STREAM_DEFAULT_ON_HOOKS } from "zhushou/plugin-sdk/provider-stream-family";
-import { defaultToolStreamExtraParams } from "zhushou/plugin-sdk/provider-stream-shared";
-import { fetchZaiUsage, resolveLegacyPiAgentAccessToken } from "zhushou/plugin-sdk/provider-usage";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/provider-model-shared";
+import { TOOL_STREAM_DEFAULT_ON_HOOKS } from "assistant/plugin-sdk/provider-stream-family";
+import { defaultToolStreamExtraParams } from "assistant/plugin-sdk/provider-stream-shared";
+import { fetchZaiUsage, resolveLegacyPiAgentAccessToken } from "assistant/plugin-sdk/provider-usage";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { detectZaiEndpoint, type ZaiEndpointId } from "./detect.js";
 import { zaiMediaUnderstandingProvider } from "./media-understanding-provider.js";
 import { buildZaiModelDefinition } from "./model-definitions.js";

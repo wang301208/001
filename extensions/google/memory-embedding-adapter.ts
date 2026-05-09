@@ -4,7 +4,7 @@ import {
   mapBatchEmbeddingsByIndex,
   sanitizeEmbeddingCacheHeaders,
   type MemoryEmbeddingProviderAdapter,
-} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
+} from "assistant/plugin-sdk/memory-core-host-engine-embeddings";
 import { runGeminiEmbeddingBatches } from "./embedding-batch.js";
 import {
   buildGeminiEmbeddingRequest,

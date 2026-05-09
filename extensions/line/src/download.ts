@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import { messagingApi } from "@line/bot-sdk";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { buildRandomTempFilePath } from "zhushou/plugin-sdk/temp-path";
-import { lowercasePreservingWhitespace } from "zhushou/plugin-sdk/text-runtime";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { buildRandomTempFilePath } from "assistant/plugin-sdk/temp-path";
+import { lowercasePreservingWhitespace } from "assistant/plugin-sdk/text-runtime";
 
 interface DownloadResult {
   path: string;

@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { resolveAgentWorkspaceDir } from "./agent-scope.js";
 
@@ -67,7 +67,7 @@ export type MaterializeSubagentAttachmentsResult =
   | { status: "forbidden"; error: string }
   | { status: "error"; error: string };
 
-function resolveAttachmentLimits(config: ZhushouConfig): AttachmentLimits {
+function resolveAttachmentLimits(config: AssistantConfig): AttachmentLimits {
   const attachmentsCfg = (
     config as unknown as {
       tools?: { sessions_spawn?: { attachments?: Record<string, unknown> } };
@@ -94,7 +94,7 @@ function resolveAttachmentLimits(config: ZhushouConfig): AttachmentLimits {
 }
 
 export async function materializeSubagentAttachments(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   targetAgentId: string;
   attachments?: SubagentInlineAttachment[];
   mountPathHint?: string;
@@ -121,8 +121,8 @@ export async function materializeSubagentAttachments(params: {
 
   const attachmentId = crypto.randomUUID();
   const childWorkspaceDir = resolveAgentWorkspaceDir(params.config, params.targetAgentId);
-  const absRootDir = path.join(childWorkspaceDir, ".zhushou", "attachments");
-  const relDir = path.posix.join(".zhushou", "attachments", attachmentId);
+  const absRootDir = path.join(childWorkspaceDir, ".assistant", "attachments");
+  const relDir = path.posix.join(".assistant", "attachments", attachmentId);
   const absDir = path.join(absRootDir, attachmentId);
 
   const fail = (error: string): never => {

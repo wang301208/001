@@ -7,7 +7,7 @@ import {
   normalizeAccountId,
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import { resolveDefaultZaloAccountId, resolveZaloAccount } from "./accounts.js";
 import { promptZaloAllowFrom } from "./setup-allow-from.js";
 

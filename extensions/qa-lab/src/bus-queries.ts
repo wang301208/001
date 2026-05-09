@@ -1,4 +1,4 @@
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
 import type {
   QaBusAttachment,
   QaBusConversation,

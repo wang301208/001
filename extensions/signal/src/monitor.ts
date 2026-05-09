@@ -1,34 +1,34 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { SignalReactionNotificationMode } from "zhushou/plugin-sdk/config-runtime";
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { SignalReactionNotificationMode } from "assistant/plugin-sdk/config-runtime";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "zhushou/plugin-sdk/config-runtime";
-import { waitForTransportReady } from "zhushou/plugin-sdk/infra-runtime";
-import { estimateBase64DecodedBytes, saveMediaBuffer } from "zhushou/plugin-sdk/media-runtime";
-import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "zhushou/plugin-sdk/reply-history";
+} from "assistant/plugin-sdk/config-runtime";
+import { waitForTransportReady } from "assistant/plugin-sdk/infra-runtime";
+import { estimateBase64DecodedBytes, saveMediaBuffer } from "assistant/plugin-sdk/media-runtime";
+import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "assistant/plugin-sdk/reply-history";
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
-} from "zhushou/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+} from "assistant/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
 import {
   chunkTextWithMode,
   resolveChunkMode,
   resolveTextChunkLimit,
-} from "zhushou/plugin-sdk/reply-runtime";
+} from "assistant/plugin-sdk/reply-runtime";
 import {
   createNonExitingRuntime,
   type BackoffPolicy,
   type RuntimeEnv,
-} from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/runtime-env";
 import {
   normalizeE164,
   normalizeOptionalString,
   normalizeStringEntries,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 import { signalCheck, signalRpcRequest } from "./client.js";
 import { formatSignalDaemonExit, spawnSignalDaemon, type SignalDaemonHandle } from "./daemon.js";
@@ -47,7 +47,7 @@ export type MonitorSignalOpts = {
   abortSignal?: AbortSignal;
   account?: string;
   accountId?: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   baseUrl?: string;
   autoStart?: boolean;
   startupTimeoutMs?: number;

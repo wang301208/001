@@ -9,7 +9,7 @@ vi.mock("./client.js", () => ({
   createSlackWebClient: createSlackWebClientMock,
 }));
 
-vi.mock("zhushou/plugin-sdk/text-runtime", () => ({
+vi.mock("assistant/plugin-sdk/text-runtime", () => ({
   withTimeout: withTimeoutMock,
 }));
 
@@ -32,7 +32,7 @@ describe("probeSlack", () => {
     authTestMock.mockResolvedValue({
       ok: true,
       user_id: "U123",
-      user: "zhushou-bot",
+      user: "assistant-bot",
       team_id: "T123",
       team: "助手",
     });
@@ -41,7 +41,7 @@ describe("probeSlack", () => {
       ok: true,
       status: 200,
       elapsedMs: 45,
-      bot: { id: "U123", name: "zhushou-bot" },
+      bot: { id: "U123", name: "assistant-bot" },
       team: { id: "T123", name: "助手" },
     });
     expect(createSlackWebClientMock).toHaveBeenCalledWith("xoxb-test");

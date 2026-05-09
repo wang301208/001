@@ -5,8 +5,8 @@ import os from "node:os";
 import path from "node:path";
 import readline from "node:readline";
 import chokidar, { type FSWatcher } from "chokidar";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { withFileLock } from "zhushou/plugin-sdk/file-lock";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { withFileLock } from "assistant/plugin-sdk/file-lock";
 import {
   createSubsystemLogger,
   resolveMemorySearchSyncConfig,
@@ -14,9 +14,9 @@ import {
   resolveGlobalSingleton,
   resolveStateDir,
   writeFileWithinRoot,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
-import { resolveAgentContextLimits } from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/memory-core-host-engine-foundation";
+import { resolveAgentContextLimits } from "assistant/plugin-sdk/memory-core-host-engine-foundation";
 import {
   buildSessionEntry,
   deriveQmdScopeChannel,
@@ -28,7 +28,7 @@ import {
   runCliCommand,
   type QmdQueryResult,
   type SessionFileEntry,
-} from "zhushou/plugin-sdk/memory-core-host-engine-qmd";
+} from "assistant/plugin-sdk/memory-core-host-engine-qmd";
 import {
   buildMemoryReadResult,
   buildMemoryReadResultFromSlice,
@@ -47,11 +47,11 @@ import {
   type ResolvedMemoryBackendConfig,
   type ResolvedQmdConfig,
   type ResolvedQmdMcporterConfig,
-} from "zhushou/plugin-sdk/memory-core-host-engine-storage";
+} from "assistant/plugin-sdk/memory-core-host-engine-storage";
 import {
   localeLowercasePreservingWhitespace,
   normalizeLowercaseStringOrEmpty,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { asRecord } from "../dreaming-shared.js";
 import { resolveQmdCollectionPatternFlags, type QmdCollectionPatternFlag } from "./qmd-compat.js";
 
@@ -74,8 +74,8 @@ const QMD_EMBED_LOCK_RETRY_TEMPLATE = {
   maxTimeout: 10_000,
   randomize: true,
 } as const;
-const MCPORTER_STATE_KEY = Symbol.for("zhushou.mcporterState");
-const QMD_EMBED_QUEUE_KEY = Symbol.for("zhushou.qmdEmbedQueueTail");
+const MCPORTER_STATE_KEY = Symbol.for("assistant.mcporterState");
+const QMD_EMBED_QUEUE_KEY = Symbol.for("assistant.qmdEmbedQueueTail");
 const IGNORED_MEMORY_WATCH_DIR_NAMES = new Set([
   ".git",
   "node_modules",
@@ -251,7 +251,7 @@ type QmdMcporterAcrossCollectionsParams =
 
 export class QmdMemoryManager implements MemorySearchManager {
   static async create(params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     agentId: string;
     resolved: ResolvedMemoryBackendConfig;
     mode?: QmdManagerMode;
@@ -265,7 +265,7 @@ export class QmdMemoryManager implements MemorySearchManager {
     return manager;
   }
 
-  private readonly cfg: ZhushouConfig;
+  private readonly cfg: AssistantConfig;
   private readonly agentId: string;
   private readonly qmd: ResolvedQmdConfig;
   private readonly workspaceDir: string;
@@ -316,7 +316,7 @@ export class QmdMemoryManager implements MemorySearchManager {
   private collectionPatternFlag: QmdCollectionPatternFlag | null = "--glob";
 
   private constructor(params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     agentId: string;
     resolved: ResolvedQmdConfig;
   }) {

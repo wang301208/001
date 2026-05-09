@@ -1,13 +1,13 @@
 {
-  "name": "@zhushou/github-copilot-provider",
+  "name": "@assistant/github-copilot-provider",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 GitHub Copilot provider plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

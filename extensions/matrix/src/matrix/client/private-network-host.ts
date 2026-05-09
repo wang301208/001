@@ -1,5 +1,5 @@
 import net from "node:net";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/string-coerce-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/string-coerce-runtime";
 
 function normalizeHost(host: string): string {
   const normalized = normalizeLowercaseStringOrEmpty(host).replace(/\.+$/, "");

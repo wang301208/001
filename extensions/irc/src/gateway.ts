@@ -1,5 +1,5 @@
-import { runStoppablePassiveMonitor } from "zhushou/plugin-sdk/extension-shared";
-import type { ChannelAccountSnapshot } from "zhushou/plugin-sdk/status-helpers";
+import { runStoppablePassiveMonitor } from "assistant/plugin-sdk/extension-shared";
+import type { ChannelAccountSnapshot } from "assistant/plugin-sdk/status-helpers";
 import type { ResolvedIrcAccount } from "./accounts.js";
 import { createAccountStatusSink } from "./channel-api.js";
 import type { RuntimeEnv } from "./runtime-api.js";

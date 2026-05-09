@@ -1,8 +1,8 @@
 import { normalizeSafeBinProfileFixtures } from "../infra/exec-safe-bin-policy.js";
 import { normalizeTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
-import type { ZhushouConfig } from "./types.js";
+import type { AssistantConfig } from "./types.js";
 
-export function normalizeExecSafeBinProfilesInConfig(cfg: ZhushouConfig): void {
+export function normalizeExecSafeBinProfilesInConfig(cfg: AssistantConfig): void {
   const normalizeExec = (exec: unknown) => {
     if (!exec || typeof exec !== "object" || Array.isArray(exec)) {
       return;

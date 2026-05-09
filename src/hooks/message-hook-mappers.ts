@@ -1,6 +1,6 @@
 import type { FinalizedMsgContext } from "../auto-reply/templating.js";
 import { getChannelPlugin, normalizeChannelId } from "../channels/plugins/index.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type {
   PluginHookInboundClaimContext,
   PluginHookInboundClaimEvent,
@@ -339,8 +339,8 @@ export function toInternalMessageReceivedContext(
 
 export function toInternalMessageTranscribedContext(
   canonical: CanonicalInboundMessageHookContext,
-  cfg: ZhushouConfig,
-): MessageTranscribedHookContext & { cfg: ZhushouConfig } {
+  cfg: AssistantConfig,
+): MessageTranscribedHookContext & { cfg: AssistantConfig } {
   const shared = toInternalInboundMessageHookContextBase(canonical);
   return {
     ...shared,
@@ -351,8 +351,8 @@ export function toInternalMessageTranscribedContext(
 
 export function toInternalMessagePreprocessedContext(
   canonical: CanonicalInboundMessageHookContext,
-  cfg: ZhushouConfig,
-): MessagePreprocessedHookContext & { cfg: ZhushouConfig } {
+  cfg: AssistantConfig,
+): MessagePreprocessedHookContext & { cfg: AssistantConfig } {
   const shared = toInternalInboundMessageHookContextBase(canonical);
   return {
     ...shared,

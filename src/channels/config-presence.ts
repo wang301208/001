@@ -5,7 +5,7 @@ import {
   listBundledChannelIdsWithPersistedAuthState,
 } from "../channels/plugins/persisted-auth-state.js";
 import { resolveStateDir } from "../config/paths.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { hasNonEmptyString } from "../infra/outbound/channel-target.js";
 import { isRecord } from "../utils.js";
 import { listBundledChannelPluginIds } from "./plugins/bundled-ids.js";
@@ -18,7 +18,7 @@ type ChannelPresenceOptions = {
     listChannelIds: () => readonly string[];
     hasState: (params: {
       channelId: string;
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       env: NodeJS.ProcessEnv;
     }) => boolean;
   };
@@ -60,7 +60,7 @@ function listPersistedAuthStateChannelIds(options: ChannelPresenceOptions): read
 
 function hasPersistedAuthState(params: {
   channelId: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
   options: ChannelPresenceOptions;
 }): boolean {
@@ -72,7 +72,7 @@ function hasPersistedAuthState(params: {
 }
 
 export function listPotentialConfiguredChannelIds(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv = process.env,
   options: ChannelPresenceOptions = {},
 ): string[] {
@@ -114,7 +114,7 @@ export function listPotentialConfiguredChannelIds(
 }
 
 function hasEnvConfiguredChannel(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv,
   options: ChannelPresenceOptions = {},
 ): boolean {
@@ -137,7 +137,7 @@ function hasEnvConfiguredChannel(
 }
 
 export function hasPotentialConfiguredChannels(
-  cfg: ZhushouConfig | null | undefined,
+  cfg: AssistantConfig | null | undefined,
   env: NodeJS.ProcessEnv = process.env,
   options: ChannelPresenceOptions = {},
 ): boolean {

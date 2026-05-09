@@ -8,7 +8,7 @@ import { AUTH_STORE_VERSION } from "../agents/auth-profiles/constants.js";
 import { resolveAuthStorePath } from "../agents/auth-profiles/paths.js";
 import { coercePersistedAuthProfileStore } from "../agents/auth-profiles/persisted.js";
 import { normalizeProviderId } from "../agents/model-selection.js";
-import { resolveStateDir, type ZhushouConfig } from "../config/config.js";
+import { resolveStateDir, type AssistantConfig } from "../config/config.js";
 import type { ConfigWriteOptions } from "../config/io.js";
 import type { SecretProviderConfig } from "../config/types.secrets.js";
 import { normalizeAgentId } from "../routing/session-key.js";
@@ -48,7 +48,7 @@ type ApplyWrite = {
 };
 
 type ProjectedState = {
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   configPath: string;
   configWriteOptions: ConfigWriteOptions;
   authStoreByPath: Map<string, Record<string, unknown>>;
@@ -153,7 +153,7 @@ function scrubEnvRaw(
 }
 
 function applyProviderPlanMutations(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   upserts: Record<string, SecretProviderConfig> | undefined;
   deletes: string[] | undefined;
 }): boolean {
@@ -285,7 +285,7 @@ async function projectPlanState(params: {
 
 function applyConfigTargetMutations(params: {
   planTargets: SecretsPlanTarget[];
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   stateDir: string;
   authStoreByPath: Map<string, Record<string, unknown>>;
   changedFiles: Set<string>;
@@ -366,7 +366,7 @@ function applyConfigTargetMutations(params: {
 }
 
 function scrubAuthStoresForProviderTargets(params: {
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   stateDir: string;
   providerTargets: Set<string>;
   scrubbedValues: Set<string>;
@@ -438,7 +438,7 @@ function ensureMutableAuthStore(
 
 function resolveAuthStoreForTarget(params: {
   target: SecretsPlanTarget;
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   stateDir: string;
   authStoreByPath: Map<string, Record<string, unknown>>;
 }): { path: string; store: MutableAuthProfileStore } {
@@ -459,7 +459,7 @@ function resolveAuthStoreForTarget(params: {
 }
 
 function resolveAuthStorePathForAgent(params: {
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   stateDir: string;
   agentId: string;
 }): string {
@@ -534,7 +534,7 @@ function ensureAuthProfileContainer(params: {
 function applyAuthProfileTargetMutation(params: {
   target: SecretsPlanTarget;
   resolved: ResolvedPlanTargetEntry["resolved"];
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   stateDir: string;
   authStoreByPath: Map<string, Record<string, unknown>>;
   scrubbedValues: Set<string>;
@@ -641,7 +641,7 @@ function scrubEnvFiles(params: {
 
 async function validateProjectedSecretsState(params: {
   env: NodeJS.ProcessEnv;
-  nextConfig: ZhushouConfig;
+  nextConfig: AssistantConfig;
   resolvedTargets: ResolvedPlanTargetEntry[];
   authStoreByPath: Map<string, Record<string, unknown>>;
   write: boolean;
@@ -857,7 +857,7 @@ export const __testing = {
   async projectConfigForTest(params: {
     plan: SecretsApplyPlan;
     env?: NodeJS.ProcessEnv;
-  }): Promise<ZhushouConfig> {
+  }): Promise<AssistantConfig> {
     const projected = await projectPlanState({
       plan: params.plan,
       env: params.env ?? process.env,

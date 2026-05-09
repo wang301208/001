@@ -1,6 +1,6 @@
 import type { EventEmitter } from "node:events";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
 
 type GatewayEmitter = Pick<EventEmitter, "on" | "removeListener">;
 

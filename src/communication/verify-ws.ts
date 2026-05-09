@@ -62,7 +62,7 @@ async function main() {
     
     const receivedEvents: any[] = [];
     
-    client.subscribe('test.event', (event) => {
+    client.subscribe('system.health.check', (event) => {
       receivedEvents.push(event);
     });
     
@@ -77,7 +77,7 @@ async function main() {
     // 直接通过 WebSocket 服务器广播事件
     await wsServer.broadcast({
       id: 'evt_test',
-      type: 'test.event',
+      type: 'system.health.check',
       timestamp: Date.now(),
       source: { type: 'system', id: 'test' },
       payload: { message: 'Hello WebSocket!' },

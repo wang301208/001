@@ -46,10 +46,11 @@ describe("task-registry audit", () => {
     });
 
     expect(findings.map((finding) => [finding.code, finding.task.taskId])).toEqual([
-      ["lost", "lost-task"],
       ["stale_running", "stale-running"],
+      ["lost", "lost-task"],
       ["missing_cleanup", "missing-cleanup"],
     ]);
+    expect(findings.find((finding) => finding.code === "lost")?.severity).toBe("warn");
   });
 
   it("summarizes findings by severity and code", () => {
@@ -121,5 +122,24 @@ describe("task-registry audit", () => {
     });
 
     expect(findings.map((finding) => finding.code)).toEqual(["lost"]);
+  });
+
+  it("does not flag millisecond timestamp skew from task creation races", () => {
+    const now = Date.parse("2026-03-30T01:00:00.000Z");
+    const findings = listTaskAuditFindings({
+      now,
+      tasks: [
+        createTask({
+          taskId: "tiny-skew",
+          status: "failed",
+          createdAt: now,
+          startedAt: now - 2,
+          endedAt: now + 1000,
+          cleanupAfter: now + 60_000,
+        }),
+      ],
+    });
+
+    expect(findings.map((finding) => finding.code)).not.toContain("inconsistent_timestamps");
   });
 });

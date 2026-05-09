@@ -46,7 +46,7 @@ export function isGatewayArgv(args: string[], opts?: { allowGatewayBinary?: bool
   const entryCandidates = [
     "dist/index.js",
     "dist/entry.js",
-    "zhushou.mjs",
+    "assistant.mjs",
     "scripts/run-node.mjs",
     "src/entry.ts",
     "src/index.ts",
@@ -57,8 +57,8 @@ export function isGatewayArgv(args: string[], opts?: { allowGatewayBinary?: bool
 
   const exe = (normalized[0] ?? "").replace(/\.(bat|cmd|exe)$/i, "");
   return (
-    exe.endsWith("/zhushou") ||
-    exe === "zhushou" ||
-    (opts?.allowGatewayBinary === true && exe.endsWith("/zhushou-gateway"))
+    exe.endsWith("/assistant") ||
+    exe === "assistant" ||
+    (opts?.allowGatewayBinary === true && exe.endsWith("/assistant-gateway"))
   );
 }

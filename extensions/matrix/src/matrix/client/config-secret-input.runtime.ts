@@ -1,1 +1,1 @@
-export { resolveConfiguredSecretInputString } from "zhushou/plugin-sdk/config-runtime";
+export { resolveConfiguredSecretInputString } from "assistant/plugin-sdk/config-runtime";

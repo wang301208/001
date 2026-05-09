@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/google-plugin",
+  "name": "@assistant/google-plugin",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Google plugin",
@@ -8,9 +8,9 @@
     "@google/genai": "^1.49.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "bundle": {
       "stageRuntimeDependencies": true
     },

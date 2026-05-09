@@ -43,7 +43,7 @@ describe("skills-cli", () => {
       const report = createMockReport([]);
       const output = formatSkillsList(report, {});
       expect(output).toContain("No skills found");
-      expect(output).toContain("zhushou skills search");
+      expect(output).toContain("assistant skills search");
     });
 
     it("formats skills list with eligible skill", () => {
@@ -115,7 +115,7 @@ describe("skills-cli", () => {
       const report = createMockReport([]);
       const output = formatSkillInfo(report, "unknown-skill", {});
       expect(output).toContain("not found");
-      expect(output).toContain("zhushou skills install");
+      expect(output).toContain("assistant skills install");
     });
 
     it("shows detailed info for a skill", () => {
@@ -174,8 +174,8 @@ describe("skills-cli", () => {
       ]);
 
       const output = formatSkillInfo(report, "env-aware-skill", {});
-      expect(output).toContain("ZHUSHOU_CONFIG_PATH");
-      expect(output).toContain("default: ~/.zhushou/zhushou.json");
+      expect(output).toContain("ASSISTANT_CONFIG_PATH");
+      expect(output).toContain("default: ~/.assistant/assistant.json");
       expect(output).toContain("skills.entries.env-aware-skill.apiKey");
     });
 
@@ -210,7 +210,7 @@ describe("skills-cli", () => {
       expect(output).toContain("ready-2");
       expect(output).toContain("not-ready");
       expect(output).toContain("go"); // missing binary
-      expect(output).toContain("zhushou skills update");
+      expect(output).toContain("assistant skills update");
     });
 
     it("normalizes text-presentation emoji selectors in check output", () => {

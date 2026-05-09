@@ -1,5 +1,5 @@
 import { resolveConfigPath, resolveGatewayPort } from "../config/paths.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { isSecureWebSocketUrl } from "./net.js";
 
@@ -12,14 +12,14 @@ export type GatewayConnectionDetails = {
 };
 
 type GatewayConnectionDetailResolvers = {
-  loadConfig?: () => ZhushouConfig;
+  loadConfig?: () => AssistantConfig;
   resolveConfigPath?: (env: NodeJS.ProcessEnv) => string;
-  resolveGatewayPort?: (cfg?: ZhushouConfig, env?: NodeJS.ProcessEnv) => number;
+  resolveGatewayPort?: (cfg?: AssistantConfig, env?: NodeJS.ProcessEnv) => number;
 };
 
 export function buildGatewayConnectionDetailsWithResolvers(
   options: {
-    config?: ZhushouConfig;
+    config?: AssistantConfig;
     url?: string;
     configPath?: string;
     urlSource?: "cli" | "env";
@@ -42,7 +42,7 @@ export function buildGatewayConnectionDetailsWithResolvers(
   const cliUrlOverride = normalizeOptionalString(options.url);
   const envUrlOverride = cliUrlOverride
     ? undefined
-    : normalizeOptionalString(process.env.OPENCLAW_GATEWAY_URL);
+    : normalizeOptionalString(process.env.ASSISTANT_GATEWAY_URL);
   const urlOverride = cliUrlOverride ?? envUrlOverride;
   const remoteUrl = normalizeOptionalString(remote?.url);
   const remoteMisconfigured = isRemoteMode && !urlOverride && !remoteUrl;
@@ -51,7 +51,7 @@ export function buildGatewayConnectionDetailsWithResolvers(
   const url = urlOverride || remoteUrl || localUrl;
   const urlSource = urlOverride
     ? urlSourceHint === "env"
-      ? "env OPENCLAW_GATEWAY_URL"
+      ? "env ASSISTANT_GATEWAY_URL"
       : "cli --url"
     : remoteUrl
       ? "config gateway.remote.url"
@@ -63,7 +63,7 @@ export function buildGatewayConnectionDetailsWithResolvers(
     ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local."
     : undefined;
 
-  const allowPrivateWs = process.env.ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS === "1";
+  const allowPrivateWs = process.env.ASSISTANT_ALLOW_INSECURE_PRIVATE_WS === "1";
   if (!isSecureWebSocketUrl(url, { allowPrivateWs })) {
     throw new Error(
       [
@@ -77,9 +77,9 @@ export function buildGatewayConnectionDetailsWithResolvers(
         "- or use Tailscale Serve/Funnel for HTTPS remote access",
         allowPrivateWs
           ? undefined
-          : "Break-glass (trusted private networks only): set ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS=1",
-        "Doctor: zhushou doctor --fix",
-        "Docs: https://docs.zhushou.ai/gateway/remote",
+          : "Break-glass (trusted private networks only): set ASSISTANT_ALLOW_INSECURE_PRIVATE_WS=1",
+        "Doctor: assistant doctor --fix",
+        "Docs: https://docs.assistant.ai/gateway/remote",
       ].join("\n"),
     );
   }

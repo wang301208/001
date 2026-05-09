@@ -1,11 +1,11 @@
 import { Type } from "@sinclair/typebox";
-import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-runtime";
+import type { AssistantPluginApi } from "assistant/plugin-sdk/plugin-runtime";
 import {
   jsonResult,
   readNumberParam,
   readStringArrayParam,
   readStringParam,
-} from "zhushou/plugin-sdk/provider-web-search";
+} from "assistant/plugin-sdk/provider-web-search";
 import { runFirecrawlSearch } from "./firecrawl-client.js";
 
 const FirecrawlSearchToolSchema = Type.Object(
@@ -43,7 +43,7 @@ const FirecrawlSearchToolSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export function createFirecrawlSearchTool(api: ZhushouPluginApi) {
+export function createFirecrawlSearchTool(api: AssistantPluginApi) {
   return {
     name: "firecrawl_search",
     label: "Firecrawl Search",

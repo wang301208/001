@@ -1,9 +1,9 @@
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
-} from "zhushou/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
 import type { createIMessageRpcClient } from "../client.js";
 import { sendMessageIMessage } from "../send.js";
 import {

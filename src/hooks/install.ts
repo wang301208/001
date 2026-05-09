@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import { MANIFEST_KEY } from "../project-name.js";
 import { resolveSafeInstallDir, unscopedPackageName } from "../infra/install-safe-path.js";
 import { type NpmIntegrityDrift, type NpmSpecResolution } from "../infra/install-source-utils.js";
 import type { InstallSafetyOverrides } from "../plugins/install-security-scan.js";
@@ -101,14 +101,14 @@ export function resolveHookInstallDir(hookId: string, hooksDir?: string): string
   return targetDirResult.path;
 }
 
-async function ensureOpenClawHooks(manifest: HookPackageManifest) {
+async function ensureAssistantHooks(manifest: HookPackageManifest) {
   const hooks = manifest[MANIFEST_KEY]?.hooks;
   if (!Array.isArray(hooks)) {
-    throw new Error("package.json missing zhushou.hooks");
+    throw new Error("package.json missing assistant.hooks");
   }
   const list = hooks.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean);
   if (list.length === 0) {
-    throw new Error("package.json zhushou.hooks is empty");
+    throw new Error("package.json assistant.hooks is empty");
   }
   return list;
 }
@@ -228,7 +228,7 @@ async function installHookPackageFromDir(
 
   let hookEntries: string[];
   try {
-    hookEntries = await ensureOpenClawHooks(manifest);
+    hookEntries = await ensureAssistantHooks(manifest);
   } catch (err) {
     return { ok: false, error: String(err) };
   }
@@ -263,7 +263,7 @@ async function installHookPackageFromDir(
     if (!runtime.isPathInside(params.packageDir, hookDir)) {
       return {
         ok: false,
-        error: `zhushou.hooks entry escapes package directory: ${entry}`,
+        error: `assistant.hooks entry escapes package directory: ${entry}`,
       };
     }
     await validateHookDir(hookDir);
@@ -274,7 +274,7 @@ async function installHookPackageFromDir(
     ) {
       return {
         ok: false,
-        error: `zhushou.hooks entry resolves outside package directory: ${entry}`,
+        error: `assistant.hooks entry resolves outside package directory: ${entry}`,
       };
     }
     const hookName = await resolveHookNameFromDir(hookDir);
@@ -385,7 +385,7 @@ export async function installHooksFromArchive(
 
   return await runtime.withExtractedArchiveRoot({
     archivePath,
-    tempDirPrefix: "zhushou-hook-",
+    tempDirPrefix: "assistant-hook-",
     timeoutMs,
     logger,
     onExtracted: async (rootDir) =>
@@ -425,7 +425,7 @@ export async function installHooksFromNpmSpec(params: {
 
   logger.info?.(`Downloading ${spec.trim()}…`);
   return await runtime.installFromValidatedNpmSpecArchive({
-    tempDirPrefix: "zhushou-hook-pack-",
+    tempDirPrefix: "assistant-hook-pack-",
     spec,
     timeoutMs,
     expectedIntegrity: params.expectedIntegrity,

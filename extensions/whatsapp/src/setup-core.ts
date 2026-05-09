@@ -3,7 +3,7 @@ import {
   type ChannelSetupAdapter,
   migrateBaseNameToDefaultAccount,
   normalizeAccountId,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 
 const channel = "whatsapp" as const;
 

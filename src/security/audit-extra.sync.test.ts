@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   collectAttackSurfaceSummaryFindings,
   collectSmallModelRiskFindings,
@@ -12,26 +12,26 @@ describe("collectAttackSurfaceSummaryFindings", () => {
       name: "distinguishes external webhooks from internal hooks when only internal hooks are enabled",
       cfg: {
         hooks: { internal: { enabled: true } },
-      } satisfies ZhushouConfig,
+      } satisfies AssistantConfig,
       expectedDetail: ["hooks.webhooks: disabled", "hooks.internal: enabled"],
     },
     {
       name: "reports both hook systems as enabled when both are configured",
       cfg: {
         hooks: { enabled: true, internal: { enabled: true } },
-      } satisfies ZhushouConfig,
+      } satisfies AssistantConfig,
       expectedDetail: ["hooks.webhooks: enabled", "hooks.internal: enabled"],
     },
     {
       name: "reports internal hooks as enabled by default and webhooks as disabled when neither is configured",
-      cfg: {} satisfies ZhushouConfig,
+      cfg: {} satisfies AssistantConfig,
       expectedDetail: ["hooks.webhooks: disabled", "hooks.internal: enabled"],
     },
     {
       name: "reports internal hooks as disabled when explicitly set to false",
       cfg: {
         hooks: { internal: { enabled: false } },
-      } satisfies ZhushouConfig,
+      } satisfies AssistantConfig,
       expectedDetail: ["hooks.internal: disabled"],
     },
   ])("$name", ({ cfg, expectedDetail }) => {
@@ -61,11 +61,11 @@ describe("collectSmallModelRiskFindings", () => {
     agents: { defaults: { model: { primary: "ollama/mistral-8b" } } },
     browser: { enabled: false },
     tools: { web: { fetch: { enabled: false } } },
-  } satisfies ZhushouConfig;
+  } satisfies AssistantConfig;
   const browserDefaultCfg = {
     agents: { defaults: { model: { primary: "ollama/mistral-8b" } } },
     tools: { web: { fetch: { enabled: false } } },
-  } satisfies ZhushouConfig;
+  } satisfies AssistantConfig;
 
   it.each([
     {

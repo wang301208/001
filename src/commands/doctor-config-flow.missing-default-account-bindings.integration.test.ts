@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   collectMissingDefaultAccountBindingWarnings,
   collectMissingExplicitDefaultAccountWarnings,
@@ -17,7 +17,7 @@ describe("doctor missing default account binding warning", () => {
         },
       },
       bindings: [{ agentId: "ops", match: { channel: "telegram" } }],
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     expect(warnings).toEqual([
       expect.stringContaining("channels.telegram: accounts.default is missing"),
@@ -34,7 +34,7 @@ describe("doctor missing default account binding warning", () => {
           },
         },
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     expect(warnings).toEqual([
       expect.stringContaining(
@@ -54,7 +54,7 @@ describe("doctor missing default account binding warning", () => {
           },
         },
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     expect(warnings).toEqual([
       expect.stringContaining(

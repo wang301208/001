@@ -1,6 +1,6 @@
 import type { Mock } from "vitest";
 import { vi } from "vitest";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { createTestRuntime } from "./test-runtime-config-helpers.js";
 
 type ReplaceConfigFileResult = Awaited<
@@ -12,10 +12,10 @@ export const writeConfigFileMock: Mock<(...args: unknown[]) => Promise<unknown>>
   .fn()
   .mockResolvedValue(undefined);
 export const replaceConfigFileMock: Mock<(...args: unknown[]) => Promise<unknown>> = vi.fn(
-  async (params: { nextConfig: ZhushouConfig }): Promise<ReplaceConfigFileResult> => {
+  async (params: { nextConfig: AssistantConfig }): Promise<ReplaceConfigFileResult> => {
     await writeConfigFileMock(params.nextConfig);
     return {
-      path: "/tmp/zhushou.json",
+      path: "/tmp/assistant.json",
       previousHash: null,
       snapshot: {} as never,
       nextConfig: params.nextConfig,
@@ -33,7 +33,7 @@ vi.mock("./agents.command-shared.js", () => ({
   createQuietRuntime: <T>(runtime: T) => runtime,
   requireValidConfig: async () => {
     const snapshot = (await readConfigFileSnapshotMock()) as
-      | { config?: ZhushouConfig; sourceConfig?: ZhushouConfig }
+      | { config?: AssistantConfig; sourceConfig?: AssistantConfig }
       | undefined;
     return snapshot?.sourceConfig ?? snapshot?.config ?? null;
   },

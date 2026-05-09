@@ -52,7 +52,7 @@ describe("matrix harness runtime", () => {
       const result = await startMatrixQaHarness(
         {
           outputDir,
-          repoRoot: "/repo/zhushou",
+          repoRoot: "/repo/assistant",
           homeserverPort: 28008,
         },
         {
@@ -73,9 +73,9 @@ describe("matrix harness runtime", () => {
       );
 
       expect(calls).toEqual([
-        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml down --remove-orphans @/repo/zhushou`,
-        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml up -d @/repo/zhushou`,
-        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml ps --format json matrix-qa-homeserver @/repo/zhushou`,
+        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml down --remove-orphans @/repo/assistant`,
+        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml up -d @/repo/assistant`,
+        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml ps --format json matrix-qa-homeserver @/repo/assistant`,
       ]);
       expect(fetchCalls).toEqual([
         "http://127.0.0.1:28008/_matrix/client/versions",
@@ -87,7 +87,7 @@ describe("matrix harness runtime", () => {
       );
       await result.restartService();
       expect(calls).toContain(
-        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml restart matrix-qa-homeserver @/repo/zhushou`,
+        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml restart matrix-qa-homeserver @/repo/assistant`,
       );
     } finally {
       await rm(outputDir, { recursive: true, force: true });
@@ -101,7 +101,7 @@ describe("matrix harness runtime", () => {
       const result = await startMatrixQaHarness(
         {
           outputDir,
-          repoRoot: "/repo/zhushou",
+          repoRoot: "/repo/assistant",
           homeserverPort: 28008,
         },
         {
@@ -131,7 +131,7 @@ describe("matrix harness runtime", () => {
       const result = await startMatrixQaHarness(
         {
           outputDir,
-          repoRoot: "/repo/zhushou",
+          repoRoot: "/repo/assistant",
           homeserverPort: 28008,
         },
         {
@@ -159,10 +159,10 @@ describe("matrix harness runtime", () => {
 
       expect(result.baseUrl).toBe("http://172.18.0.10:8008/");
       expect(calls).toContain(
-        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml ps -q matrix-qa-homeserver @/repo/zhushou`,
+        `docker compose -f ${outputDir}/docker-compose.matrix-qa.yml ps -q matrix-qa-homeserver @/repo/assistant`,
       );
       expect(calls).toContain(
-        "docker inspect --format {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} container-123 @/repo/zhushou",
+        "docker inspect --format {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} container-123 @/repo/assistant",
       );
     } finally {
       await rm(outputDir, { recursive: true, force: true });
@@ -177,7 +177,7 @@ describe("matrix harness runtime", () => {
       const result = await startMatrixQaHarness(
         {
           outputDir,
-          repoRoot: "/repo/zhushou",
+          repoRoot: "/repo/assistant",
           homeserverPort: 28008,
         },
         {
@@ -226,7 +226,7 @@ describe("matrix harness runtime", () => {
       const result = await startMatrixQaHarness(
         {
           outputDir,
-          repoRoot: "/repo/zhushou",
+          repoRoot: "/repo/assistant",
           homeserverPort: 28008,
         },
         {

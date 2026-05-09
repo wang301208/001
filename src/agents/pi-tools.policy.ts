@@ -2,7 +2,7 @@ import { getLoadedChannelPlugin } from "../channels/plugins/index.js";
 import { resolveSessionConversation } from "../channels/plugins/session-conversation.js";
 import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
 import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
 import { resolveAgentGovernanceToolPolicy } from "../governance/runtime-contract.js";
 import { normalizeAgentId } from "../routing/session-key.js";
@@ -79,7 +79,7 @@ function resolveSubagentDenyListForRole(role: SubagentSessionRole): string[] {
   return [...SUBAGENT_TOOL_DENY_ALWAYS];
 }
 
-export function resolveSubagentToolPolicy(cfg?: ZhushouConfig, depth?: number): SandboxToolPolicy {
+export function resolveSubagentToolPolicy(cfg?: AssistantConfig, depth?: number): SandboxToolPolicy {
   const configured = cfg?.tools?.subagents?.tools;
   const maxSpawnDepth =
     cfg?.agents?.defaults?.subagents?.maxSpawnDepth ?? DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH;
@@ -99,7 +99,7 @@ export function resolveSubagentToolPolicy(cfg?: ZhushouConfig, depth?: number): 
 }
 
 export function resolveSubagentToolPolicyForSession(
-  cfg: ZhushouConfig | undefined,
+  cfg: AssistantConfig | undefined,
   sessionKey: string,
 ): SandboxToolPolicy {
   const configured = cfg?.tools?.subagents?.tools;
@@ -267,7 +267,7 @@ function resolveProviderToolPolicy(params: {
   return undefined;
 }
 
-function resolveExplicitProfileAlsoAllow(tools?: ZhushouConfig["tools"]): string[] | undefined {
+function resolveExplicitProfileAlsoAllow(tools?: AssistantConfig["tools"]): string[] | undefined {
   return Array.isArray(tools?.alsoAllow) ? tools.alsoAllow : undefined;
 }
 
@@ -276,7 +276,7 @@ function hasExplicitToolSection(section: unknown): boolean {
 }
 
 function resolveImplicitProfileAlsoAllow(params: {
-  globalTools?: ZhushouConfig["tools"];
+  globalTools?: AssistantConfig["tools"];
   agentTools?: AgentToolsConfig;
 }): string[] | undefined {
   const implicit = new Set<string>();
@@ -299,7 +299,7 @@ function resolveImplicitProfileAlsoAllow(params: {
 }
 
 export function resolveEffectiveToolPolicy(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sessionKey?: string;
   agentId?: string;
   modelProvider?: string;
@@ -365,7 +365,7 @@ export function resolveEffectiveToolPolicy(params: {
 }
 
 export function resolveGroupToolPolicy(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   sessionKey?: string;
   spawnedBy?: string | null;
   messageProvider?: string;

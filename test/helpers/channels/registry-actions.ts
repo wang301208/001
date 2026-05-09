@@ -1,6 +1,6 @@
 import { requireBundledChannelPlugin } from "../../../src/channels/plugins/bundled.js";
 import type { ChannelPlugin } from "../../../src/channels/plugins/types.js";
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 
 type ActionsContractEntry = {
   id: string;
@@ -8,7 +8,7 @@ type ActionsContractEntry = {
   unsupportedAction?: string;
   cases: Array<{
     name: string;
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     expectedActions: string[];
     expectedCapabilities?: string[];
     beforeTest?: () => void;
@@ -33,7 +33,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 appToken: "xapp-test",
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           expectedActions: [
             "send",
             "react",
@@ -63,7 +63,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 },
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           expectedActions: [
             "send",
             "react",
@@ -89,7 +89,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 enabled: true,
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           expectedActions: [],
           expectedCapabilities: [],
         },
@@ -110,7 +110,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 baseUrl: "https://chat.example.com",
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           expectedActions: ["send", "react"],
           expectedCapabilities: ["buttons"],
         },
@@ -125,7 +125,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 actions: { reactions: false },
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           expectedActions: ["send"],
           expectedCapabilities: ["buttons"],
         },
@@ -137,7 +137,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 enabled: true,
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           expectedActions: [],
           expectedCapabilities: [],
         },
@@ -155,7 +155,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 botToken: "123:telegram-test-token",
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           expectedActions: [
             "send",
             "poll",
@@ -202,7 +202,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 },
               },
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           expectedActions: ["send", "poll", "react", "reactions", "emoji-list"],
           expectedCapabilities: ["interactive", "components"],
         },

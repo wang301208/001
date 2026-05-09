@@ -1,6 +1,6 @@
 import os from "node:os";
 import path from "node:path";
-import { buildPluginConfigSchema, z, type OpenClawPluginConfigSchema } from "../api.js";
+import { buildPluginConfigSchema, z, type AssistantPluginConfigSchema } from "../api.js";
 
 export const WIKI_VAULT_MODES = ["isolated", "bridge", "unsafe-local"] as const;
 export const WIKI_RENDER_MODES = ["native", "obsidian"] as const;
@@ -186,7 +186,7 @@ const memoryWikiConfigSchemaBase = buildPluginConfigSchema(MemoryWikiConfigSourc
   },
 });
 
-export const memoryWikiConfigSchema: OpenClawPluginConfigSchema = memoryWikiConfigSchemaBase;
+export const memoryWikiConfigSchema: AssistantPluginConfigSchema = memoryWikiConfigSchemaBase;
 
 function expandHomePath(inputPath: string, homedir: string): string {
   if (inputPath === "~") {
@@ -199,7 +199,7 @@ function expandHomePath(inputPath: string, homedir: string): string {
 }
 
 export function resolveDefaultMemoryWikiVaultPath(homedir = os.homedir()): string {
-  return path.join(homedir, ".zhushou", "wiki", "main");
+  return path.join(homedir, ".assistant", "wiki", "main");
 }
 
 export function resolveMemoryWikiConfig(

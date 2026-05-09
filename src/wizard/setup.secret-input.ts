@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeSecretInputString, resolveSecretInputRef } from "../config/types.secrets.js";
 import { resolveSecretRefString } from "../secrets/resolve.js";
 
-type SecretDefaults = NonNullable<ZhushouConfig["secrets"]>["defaults"];
+type SecretDefaults = NonNullable<AssistantConfig["secrets"]>["defaults"];
 
 function formatSecretResolutionError(error: unknown): string {
   if (error instanceof Error && error.message.trim().length > 0) {
@@ -12,7 +12,7 @@ function formatSecretResolutionError(error: unknown): string {
 }
 
 export async function resolveSetupSecretInputString(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   value: unknown;
   path: string;
   defaults?: SecretDefaults;

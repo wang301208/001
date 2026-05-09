@@ -5,5 +5,5 @@ export {
   writeConfigFile,
   type BrowserConfig,
   type BrowserProfileConfig,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/browser-config-runtime";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/browser-config-runtime";

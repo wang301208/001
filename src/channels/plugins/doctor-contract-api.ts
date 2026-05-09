@@ -1,16 +1,16 @@
 import type { LegacyConfigRule } from "../../config/legacy.shared.js";
-import type { ZhushouConfig } from "../../config/types.js";
+import type { AssistantConfig } from "../../config/types.js";
 import { loadBundledPluginPublicArtifactModuleSync } from "../../plugins/public-surface-loader.js";
 
 type BundledChannelDoctorCompatibilityMutation = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changes: string[];
 };
 
 type BundledChannelDoctorContractApi = {
   legacyConfigRules?: readonly LegacyConfigRule[];
   normalizeCompatibilityConfig?: (params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
   }) => BundledChannelDoctorCompatibilityMutation;
 };
 

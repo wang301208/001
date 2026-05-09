@@ -14,18 +14,18 @@ function createAgentRuntime(payloads: Array<Record<string, unknown>>) {
       provider: "together",
       model: "Qwen/Qwen2.5-7B-Instruct-Turbo",
     },
-    resolveAgentDir: () => "/tmp/zhushou/agents/main",
-    resolveAgentWorkspaceDir: () => "/tmp/zhushou/workspace/main",
+    resolveAgentDir: () => "/tmp/assistant/agents/main",
+    resolveAgentWorkspaceDir: () => "/tmp/assistant/workspace/main",
     resolveAgentIdentity: () => ({ name: "tester" }),
     resolveThinkingDefault: () => "off",
     resolveAgentTimeoutMs: () => 30_000,
     ensureAgentWorkspace: async () => {},
     runEmbeddedPiAgent,
     session: {
-      resolveStorePath: () => "/tmp/zhushou/sessions.json",
+      resolveStorePath: () => "/tmp/assistant/sessions.json",
       loadSessionStore: () => ({}),
       saveSessionStore: async () => {},
-      resolveSessionFilePath: () => "/tmp/zhushou/sessions/session.jsonl",
+      resolveSessionFilePath: () => "/tmp/assistant/sessions/session.jsonl",
     },
   } as unknown as CoreAgentDeps;
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
 import type { DoctorRepairMode } from "./doctor-repair-mode.js";
@@ -47,7 +47,7 @@ describe("maybeRepairSandboxImages", () => {
     vi.clearAllMocks();
   });
 
-  function createSandboxConfig(mode: "off" | "all" | "non-main"): ZhushouConfig {
+  function createSandboxConfig(mode: "off" | "all" | "non-main"): AssistantConfig {
     return {
       agents: {
         defaults: {

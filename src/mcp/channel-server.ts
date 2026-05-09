@@ -1,25 +1,25 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { loadConfig, type ZhushouConfig } from "../config/config.js";
+import { loadConfig, type AssistantConfig } from "../config/config.js";
 import { VERSION } from "../version.js";
-import { OpenClawChannelBridge } from "./channel-bridge.js";
+import { AssistantChannelBridge } from "./channel-bridge.js";
 import { ClaudePermissionRequestSchema, type ClaudeChannelMode } from "./channel-shared.js";
 import { getChannelMcpCapabilities, registerChannelMcpTools } from "./channel-tools.js";
 
-export { OpenClawChannelBridge } from "./channel-bridge.js";
+export { AssistantChannelBridge } from "./channel-bridge.js";
 
-export type OpenClawMcpServeOptions = {
+export type AssistantMcpServeOptions = {
   gatewayUrl?: string;
   gatewayToken?: string;
   gatewayPassword?: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   claudeChannelMode?: ClaudeChannelMode;
   verbose?: boolean;
 };
 
-export async function createOpenClawChannelMcpServer(opts: OpenClawMcpServeOptions = {}): Promise<{
+export async function createAssistantChannelMcpServer(opts: AssistantMcpServeOptions = {}): Promise<{
   server: McpServer;
-  bridge: OpenClawChannelBridge;
+  bridge: AssistantChannelBridge;
   start: () => Promise<void>;
   close: () => Promise<void>;
 }> {
@@ -27,10 +27,10 @@ export async function createOpenClawChannelMcpServer(opts: OpenClawMcpServeOptio
   const claudeChannelMode = opts.claudeChannelMode ?? "auto";
   const capabilities = getChannelMcpCapabilities(claudeChannelMode);
   const server = new McpServer(
-    { name: "zhushou", version: VERSION },
+    { name: "assistant", version: VERSION },
     capabilities ? { capabilities } : undefined,
   );
-  const bridge = new OpenClawChannelBridge(cfg, {
+  const bridge = new AssistantChannelBridge(cfg, {
     gatewayUrl: opts.gatewayUrl,
     gatewayToken: opts.gatewayToken,
     gatewayPassword: opts.gatewayPassword,
@@ -62,8 +62,8 @@ export async function createOpenClawChannelMcpServer(opts: OpenClawMcpServeOptio
   };
 }
 
-export async function serveOpenClawChannelMcp(opts: OpenClawMcpServeOptions = {}): Promise<void> {
-  const { server, start, close } = await createOpenClawChannelMcpServer(opts);
+export async function serveAssistantChannelMcp(opts: AssistantMcpServeOptions = {}): Promise<void> {
+  const { server, start, close } = await createAssistantChannelMcpServer(opts);
   const transport = new StdioServerTransport();
 
   let shuttingDown = false;

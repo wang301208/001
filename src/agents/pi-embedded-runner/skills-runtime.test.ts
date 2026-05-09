@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   clearRuntimeConfigSnapshot,
   setRuntimeConfigSnapshot,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "../../config/config.js";
 import * as skillsModule from "../skills.js";
 import type { SkillSnapshot } from "../skills.js";
@@ -19,7 +19,7 @@ describe("resolveEmbeddedRunSkillEntries", () => {
   });
 
   it("loads skill entries with config when no resolved snapshot skills exist", () => {
-    const config: ZhushouConfig = {
+    const config: AssistantConfig = {
       plugins: {
         entries: {
           diffs: { enabled: true },
@@ -59,7 +59,7 @@ describe("resolveEmbeddedRunSkillEntries", () => {
   });
 
   it("prefers the active runtime snapshot when caller config still contains SecretRefs", () => {
-    const sourceConfig: ZhushouConfig = {
+    const sourceConfig: AssistantConfig = {
       skills: {
         entries: {
           diffs: {
@@ -72,7 +72,7 @@ describe("resolveEmbeddedRunSkillEntries", () => {
         },
       },
     };
-    const runtimeConfig: ZhushouConfig = {
+    const runtimeConfig: AssistantConfig = {
       skills: {
         entries: {
           diffs: {
@@ -98,7 +98,7 @@ describe("resolveEmbeddedRunSkillEntries", () => {
   });
 
   it("prefers caller config when the active runtime snapshot still contains raw skill SecretRefs", () => {
-    const sourceConfig: ZhushouConfig = {
+    const sourceConfig: AssistantConfig = {
       skills: {
         entries: {
           diffs: {
@@ -111,8 +111,8 @@ describe("resolveEmbeddedRunSkillEntries", () => {
         },
       },
     };
-    const runtimeConfig: ZhushouConfig = structuredClone(sourceConfig);
-    const callerConfig: ZhushouConfig = {
+    const runtimeConfig: AssistantConfig = structuredClone(sourceConfig);
+    const callerConfig: AssistantConfig = {
       skills: {
         entries: {
           diffs: {

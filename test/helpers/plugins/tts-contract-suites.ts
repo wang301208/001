@@ -1,6 +1,6 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../../src/config/config.js";
+import type { AssistantConfig } from "../../../src/config/config.js";
 import { __testing as pluginLoaderTesting } from "../../../src/plugins/loader.js";
 import { createEmptyPluginRegistry } from "../../../src/plugins/registry-empty.js";
 import { setActivePluginRegistry } from "../../../src/plugins/runtime.js";
@@ -87,12 +87,12 @@ vi.mock("../../../src/agents/custom-api-registry.js", () => ({
   ensureCustomApiRegistered: vi.fn(),
 }));
 
-function asLegacyTtsConfig(value: unknown): ZhushouConfig {
-  return value as ZhushouConfig;
+function asLegacyTtsConfig(value: unknown): AssistantConfig {
+  return value as AssistantConfig;
 }
 
-function asLegacyZhushouConfig(value: Record<string, unknown>): ZhushouConfig {
-  return value as unknown as ZhushouConfig;
+function asLegacyAssistantConfig(value: Record<string, unknown>): AssistantConfig {
+  return value as unknown as AssistantConfig;
 }
 
 const mockAssistantMessage = (content: AssistantMessage["content"]): AssistantMessage => ({
@@ -129,7 +129,7 @@ function createSummarizeTextDeps() {
   };
 }
 
-function createOpenAiTelephonyCfg(model: "tts-1" | "gpt-4o-mini-tts"): ZhushouConfig {
+function createOpenAiTelephonyCfg(model: "tts-1" | "gpt-4o-mini-tts"): AssistantConfig {
   return asLegacyTtsConfig({
     messages: {
       tts: {
@@ -470,7 +470,7 @@ export function describeTtsConfigContract() {
     beforeEach(setupTtsContractTest);
 
     describe("resolveEdgeOutputFormat", () => {
-      const baseCfg: ZhushouConfig = {
+      const baseCfg: AssistantConfig = {
         agents: { defaults: { model: { primary: "openai/gpt-4o-mini" } } },
         messages: { tts: {} },
       };
@@ -490,7 +490,7 @@ export function describeTtsConfigContract() {
                 edge: { outputFormat: "audio-24khz-96kbitrate-mono-mp3" },
               },
             },
-          } as unknown as ZhushouConfig,
+          } as unknown as AssistantConfig,
           expected: "audio-24khz-96kbitrate-mono-mp3",
         },
       ] as const)("$name", ({ cfg, expected, name }) => {
@@ -653,7 +653,7 @@ export function describeTtsConfigContract() {
             GOOGLE_API_KEY: undefined,
           },
           () => {
-            const cfg = asLegacyZhushouConfig({
+            const cfg = asLegacyAssistantConfig({
               agents: { defaults: { model: { primary: "openai/gpt-4o-mini" } } },
               models: {
                 providers: {
@@ -684,7 +684,7 @@ export function describeTtsConfigContract() {
     describe("resolveTtsConfig provider normalization", () => {
       it("normalizes legacy edge provider ids to microsoft", () => {
         const config = resolveTtsConfig(
-          asLegacyZhushouConfig({
+          asLegacyAssistantConfig({
             agents: { defaults: { model: { primary: "openai/gpt-4o-mini" } } },
             messages: {
               tts: {
@@ -705,7 +705,7 @@ export function describeTtsConfigContract() {
     });
 
     describe("resolveTtsConfig – openai.baseUrl", () => {
-      const baseCfg: ZhushouConfig = {
+      const baseCfg: AssistantConfig = {
         agents: { defaults: { model: { primary: "openai/gpt-4o-mini" } } },
         messages: { tts: {} },
       };
@@ -730,7 +730,7 @@ export function describeTtsConfigContract() {
             messages: {
               tts: { ...baseCfg.messages!.tts, openai: { baseUrl: "http://my-server:9000/v1" } },
             },
-          } as unknown as ZhushouConfig,
+          } as unknown as AssistantConfig,
           env: { OPENAI_TTS_BASE_URL: "http://localhost:8880/v1" },
           expected: "http://my-server:9000/v1",
         },
@@ -744,7 +744,7 @@ export function describeTtsConfigContract() {
                 openai: { baseUrl: "http://my-server:9000/v1///" },
               },
             },
-          } as unknown as ZhushouConfig,
+          } as unknown as AssistantConfig,
           env: { OPENAI_TTS_BASE_URL: undefined },
           expected: "http://my-server:9000/v1",
         },
@@ -786,7 +786,7 @@ export function describeTtsSummarizationContract() {
   describe("tts summarization contract", () => {
     beforeEach(setupTtsSummarizationTest);
 
-    const baseCfg: ZhushouConfig = {
+    const baseCfg: AssistantConfig = {
       agents: { defaults: { model: { primary: "openai/gpt-4o-mini" } } },
       messages: { tts: {} },
     };
@@ -794,7 +794,7 @@ export function describeTtsSummarizationContract() {
     async function runSummarizeText(params?: {
       text?: string;
       targetLength?: number;
-      cfg?: ZhushouConfig;
+      cfg?: AssistantConfig;
     }) {
       const cfg = params?.cfg ?? baseCfg;
       const config = resolveTtsConfig(cfg);
@@ -840,7 +840,7 @@ export function describeTtsSummarizationContract() {
     });
 
     it("uses summaryModel override when configured", async () => {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } },
         messages: { tts: { summaryModel: "openai/gpt-4.1-mini" } },
       };
@@ -1139,7 +1139,7 @@ export function describeTtsAutoApplyContract() {
   describe("tts auto-apply contract", () => {
     beforeEach(setupTtsContractTest);
 
-    const baseCfg: ZhushouConfig = asLegacyZhushouConfig({
+    const baseCfg: AssistantConfig = asLegacyAssistantConfig({
       agents: { defaults: { model: { primary: "openai/gpt-4o-mini" } } },
       messages: {
         tts: {
@@ -1155,16 +1155,16 @@ export function describeTtsAutoApplyContract() {
     const withMockedAutoTtsFetch = async (
       run: (fetchMock: ReturnType<typeof vi.fn>) => Promise<void>,
     ) => {
-      const prevPrefs = process.env.OPENCLAW_TTS_PREFS;
-      process.env.OPENCLAW_TTS_PREFS = `/tmp/tts-test-${Date.now()}.json`;
+      const prevPrefs = process.env.ASSISTANT_TTS_PREFS;
+      process.env.ASSISTANT_TTS_PREFS = `/tmp/tts-test-${Date.now()}.json`;
       try {
         await withMockedSpeechFetch(run, 1);
       } finally {
-        process.env.OPENCLAW_TTS_PREFS = prevPrefs;
+        process.env.ASSISTANT_TTS_PREFS = prevPrefs;
       }
     };
 
-    const taggedCfg: ZhushouConfig = {
+    const taggedCfg: AssistantConfig = {
       ...baseCfg,
       messages: {
         ...baseCfg.messages!,
@@ -1173,7 +1173,7 @@ export function describeTtsAutoApplyContract() {
     };
 
     async function expectAutoTtsOutcome(params: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       payload: { text: string };
       inboundAudio?: boolean;
       expectedFetchCalls: number;

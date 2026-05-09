@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   createChannelOnboardingPostWriteHook,
   createChannelOnboardingPostWriteHookCollector,
@@ -10,12 +10,12 @@ import { createExitThrowingRuntime } from "./test-wizard-helpers.js";
 describe("setupChannels post-write hooks", () => {
   it("collects onboarding post-write hooks and runs them against the final config", async () => {
     const afterConfigWritten = vi.fn(async () => {});
-    const previousCfg = {} as ZhushouConfig;
+    const previousCfg = {} as AssistantConfig;
     const cfg = {
       channels: {
         telegram: { botToken: "new-token" },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const adapter = {
       afterConfigWritten,
     };
@@ -62,7 +62,7 @@ describe("setupChannels post-write hooks", () => {
           },
         },
       ],
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       runtime,
     });
 

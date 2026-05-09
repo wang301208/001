@@ -1,9 +1,9 @@
-import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
+﻿import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import {
   createReplyPrefixContext,
-  type ClawdbotConfig,
+  type AssistantConfig,
   type ReplyPayload,
   type RuntimeEnv,
 } from "./comment-dispatcher-runtime-api.js";
@@ -13,7 +13,7 @@ import { deliverCommentThreadText } from "./drive.js";
 import { getFeishuRuntime } from "./runtime.js";
 
 export type CreateFeishuCommentReplyDispatcherParams = {
-  cfg: ClawdbotConfig;
+  cfg: AssistantConfig;
   agentId: string;
   runtime: RuntimeEnv;
   accountId?: string;

@@ -1,11 +1,11 @@
 import {
   applyAgentDefaultModelPrimary,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.6";
 
-export function applyVercelAiGatewayProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyVercelAiGatewayProviderConfig(cfg: AssistantConfig): AssistantConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF] = {
     ...models[VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF],
@@ -24,7 +24,7 @@ export function applyVercelAiGatewayProviderConfig(cfg: ZhushouConfig): ZhushouC
   };
 }
 
-export function applyVercelAiGatewayConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyVercelAiGatewayConfig(cfg: AssistantConfig): AssistantConfig {
   return applyAgentDefaultModelPrimary(
     applyVercelAiGatewayProviderConfig(cfg),
     VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF,

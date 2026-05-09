@@ -6,8 +6,8 @@ const { mockFetchGuard, mockRelease } = vi.hoisted(() => ({
   mockRelease: vi.fn(async () => {}),
 }));
 
-vi.mock("zhushou/plugin-sdk/ssrf-runtime", async () => {
-  const original = (await vi.importActual("zhushou/plugin-sdk/ssrf-runtime")) as Record<
+vi.mock("assistant/plugin-sdk/ssrf-runtime", async () => {
+  const original = (await vi.importActual("assistant/plugin-sdk/ssrf-runtime")) as Record<
     string,
     unknown
   >;

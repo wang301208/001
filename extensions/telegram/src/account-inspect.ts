@@ -1,15 +1,15 @@
-import { resolveAccountWithDefaultFallback } from "zhushou/plugin-sdk/account-core";
-import { tryReadSecretFileSync } from "zhushou/plugin-sdk/channel-core";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { coerceSecretRef } from "zhushou/plugin-sdk/config-runtime";
-import type { TelegramAccountConfig } from "zhushou/plugin-sdk/config-runtime";
-import { resolveDefaultSecretProviderAlias } from "zhushou/plugin-sdk/provider-auth";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/routing";
+import { resolveAccountWithDefaultFallback } from "assistant/plugin-sdk/account-core";
+import { tryReadSecretFileSync } from "assistant/plugin-sdk/channel-core";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { coerceSecretRef } from "assistant/plugin-sdk/config-runtime";
+import type { TelegramAccountConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveDefaultSecretProviderAlias } from "assistant/plugin-sdk/provider-auth";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/routing";
 import {
   hasConfiguredSecretInput,
   normalizeSecretInputString,
-} from "zhushou/plugin-sdk/secret-input";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/secret-input";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   mergeTelegramAccountConfig,
   resolveDefaultTelegramAccountId,
@@ -49,7 +49,7 @@ function inspectTokenFile(pathValue: unknown): {
 }
 
 function canResolveEnvSecretRefInReadOnlyPath(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   provider: string;
   id: string;
 }): boolean {
@@ -64,7 +64,7 @@ function canResolveEnvSecretRefInReadOnlyPath(params: {
   return !allowlist || allowlist.includes(params.id);
 }
 
-function inspectTokenValue(params: { cfg: ZhushouConfig; value: unknown }): {
+function inspectTokenValue(params: { cfg: AssistantConfig; value: unknown }): {
   token: string;
   tokenSource: "config" | "env" | "none";
   tokenStatus: TelegramCredentialStatus;
@@ -118,7 +118,7 @@ function inspectTokenValue(params: { cfg: ZhushouConfig; value: unknown }): {
 }
 
 function inspectTelegramAccountPrimary(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   envToken?: string | null;
 }): InspectedTelegramAccount {
@@ -218,7 +218,7 @@ function inspectTelegramAccountPrimary(params: {
 }
 
 export function inspectTelegramAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   envToken?: string | null;
 }): InspectedTelegramAccount {

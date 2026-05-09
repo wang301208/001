@@ -1,6 +1,6 @@
-import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
-import { ensureModelAllowlistEntry } from "zhushou/plugin-sdk/provider-onboard";
+import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
+import { ensureModelAllowlistEntry } from "assistant/plugin-sdk/provider-onboard";
 import { DOUBAO_CODING_MODEL_CATALOG, DOUBAO_MODEL_CATALOG } from "./models.js";
 import { buildDoubaoCodingProvider, buildDoubaoProvider } from "./provider-catalog.js";
 

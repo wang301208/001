@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../runtime-api.js";
+import type { AssistantConfig } from "../runtime-api.js";
 import { resolveConversationPath, resolveGraphConversationId } from "./graph-messages.js";
 import {
   deleteGraphRequest,
@@ -14,7 +14,7 @@ import {
 // ---------------------------------------------------------------------------
 
 export type AddParticipantMSTeamsParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   to: string;
   userId: string;
   role?: string;
@@ -67,7 +67,7 @@ export async function addParticipantMSTeams(
 // ---------------------------------------------------------------------------
 
 export type RemoveParticipantMSTeamsParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   to: string;
   userId: string;
 };
@@ -137,7 +137,7 @@ export async function removeParticipantMSTeams(
 // ---------------------------------------------------------------------------
 
 export type RenameGroupMSTeamsParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   to: string;
   name: string;
 };

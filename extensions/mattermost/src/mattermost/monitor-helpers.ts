@@ -1,13 +1,13 @@
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import {
   createDedupeCache,
   formatInboundFromLabel as formatInboundFromLabelShared,
   rawDataToString,
   resolveThreadSessionKeys as resolveThreadSessionKeysShared,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "./runtime-api.js";
 
 export { createDedupeCache, rawDataToString };
@@ -45,22 +45,22 @@ function normalizeAgentId(value: string | undefined | null): string {
   );
 }
 
-type AgentEntry = NonNullable<NonNullable<ZhushouConfig["agents"]>["list"]>[number];
+type AgentEntry = NonNullable<NonNullable<AssistantConfig["agents"]>["list"]>[number];
 
 function isAgentEntry(entry: unknown): entry is AgentEntry {
   return Boolean(entry && typeof entry === "object");
 }
 
-function listAgents(cfg: ZhushouConfig): AgentEntry[] {
+function listAgents(cfg: AssistantConfig): AgentEntry[] {
   return Array.isArray(cfg.agents?.list) ? cfg.agents.list.filter(isAgentEntry) : [];
 }
 
-function resolveAgentEntry(cfg: ZhushouConfig, agentId: string): AgentEntry | undefined {
+function resolveAgentEntry(cfg: AssistantConfig, agentId: string): AgentEntry | undefined {
   const id = normalizeAgentId(agentId);
   return listAgents(cfg).find((entry) => normalizeAgentId(entry.id) === id);
 }
 
-export function resolveIdentityName(cfg: ZhushouConfig, agentId: string): string | undefined {
+export function resolveIdentityName(cfg: AssistantConfig, agentId: string): string | undefined {
   const entry = resolveAgentEntry(cfg, agentId);
   return normalizeOptionalString(entry?.identity?.name);
 }

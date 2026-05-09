@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { resolveConfigPath } from "../config/paths.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 
 export function shouldSkipStatusScanMissingConfigFastPath(
   env: NodeJS.ProcessEnv = process.env,
@@ -20,16 +20,16 @@ export function resolveStatusScanColdStart(params?: {
 
 export async function loadStatusScanCommandConfig(params: {
   commandName: string;
-  readBestEffortConfig: () => Promise<ZhushouConfig>;
+  readBestEffortConfig: () => Promise<AssistantConfig>;
   resolveConfig: (
-    sourceConfig: ZhushouConfig,
-  ) => Promise<{ resolvedConfig: ZhushouConfig; diagnostics: string[] }>;
+    sourceConfig: AssistantConfig,
+  ) => Promise<{ resolvedConfig: AssistantConfig; diagnostics: string[] }>;
   env?: NodeJS.ProcessEnv;
   allowMissingConfigFastPath?: boolean;
 }): Promise<{
   coldStart: boolean;
-  sourceConfig: ZhushouConfig;
-  resolvedConfig: ZhushouConfig;
+  sourceConfig: AssistantConfig;
+  resolvedConfig: AssistantConfig;
   secretDiagnostics: string[];
 }> {
   const env = params.env ?? process.env;

@@ -1,4 +1,4 @@
-import type { ZhushouConfig, HookConfig } from "../config/config.js";
+import type { AssistantConfig, HookConfig } from "../config/config.js";
 import { resolveHookKey } from "./frontmatter.js";
 import type { HookEntry, HookSource } from "./types.js";
 
@@ -24,33 +24,33 @@ export type HookResolutionCollision = {
 };
 
 const HOOK_SOURCE_POLICIES: Record<HookSource, HookSourcePolicy> = {
-  "zhushou-bundled": {
+  "assistant-bundled": {
     precedence: 10,
     trustedLocalCode: true,
     defaultEnableMode: "default-on",
-    canOverride: ["zhushou-bundled"],
-    canBeOverriddenBy: ["zhushou-managed", "zhushou-plugin"],
+    canOverride: ["assistant-bundled"],
+    canBeOverriddenBy: ["assistant-managed", "assistant-plugin"],
   },
-  "zhushou-plugin": {
+  "assistant-plugin": {
     precedence: 20,
     trustedLocalCode: true,
     defaultEnableMode: "default-on",
-    canOverride: ["zhushou-bundled", "zhushou-plugin"],
-    canBeOverriddenBy: ["zhushou-managed"],
+    canOverride: ["assistant-bundled", "assistant-plugin"],
+    canBeOverriddenBy: ["assistant-managed"],
   },
-  "zhushou-managed": {
+  "assistant-managed": {
     precedence: 30,
     trustedLocalCode: true,
     defaultEnableMode: "default-on",
-    canOverride: ["zhushou-bundled", "zhushou-managed", "zhushou-plugin"],
-    canBeOverriddenBy: ["zhushou-managed"],
+    canOverride: ["assistant-bundled", "assistant-managed", "assistant-plugin"],
+    canBeOverriddenBy: ["assistant-managed"],
   },
-  "zhushou-workspace": {
+  "assistant-workspace": {
     precedence: 40,
     trustedLocalCode: true,
     defaultEnableMode: "explicit-opt-in",
-    canOverride: ["zhushou-workspace"],
-    canBeOverriddenBy: ["zhushou-workspace"],
+    canOverride: ["assistant-workspace"],
+    canBeOverriddenBy: ["assistant-workspace"],
   },
 };
 
@@ -59,7 +59,7 @@ export function getHookSourcePolicy(source: HookSource): HookSourcePolicy {
 }
 
 export function resolveHookConfig(
-  config: ZhushouConfig | undefined,
+  config: AssistantConfig | undefined,
   hookKey: string,
 ): HookConfig | undefined {
   const hooks = config?.hooks?.internal?.entries;
@@ -75,14 +75,14 @@ export function resolveHookConfig(
 
 export function resolveHookEnableState(params: {
   entry: HookEntry;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   hookConfig?: HookConfig;
 }): HookEnableState {
   const { entry, config } = params;
   const hookKey = resolveHookKey(entry.hook.name, entry);
   const hookConfig = params.hookConfig ?? resolveHookConfig(config, hookKey);
 
-  if (entry.hook.source === "zhushou-plugin") {
+  if (entry.hook.source === "assistant-plugin") {
     return { enabled: true };
   }
   if (hookConfig?.enabled === false) {

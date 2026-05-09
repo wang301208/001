@@ -14,10 +14,10 @@ if (!isLinux && !isMac) {
 }
 
 const repoRoot = process.cwd();
-const tmpHome = mkdtempSync(path.join(os.tmpdir(), "zhushou-startup-memory-"));
+const tmpHome = mkdtempSync(path.join(os.tmpdir(), "assistant-startup-memory-"));
 const tmpDir = process.env.TMPDIR || process.env.TEMP || process.env.TMP || os.tmpdir();
 const rssHookPath = path.join(tmpHome, "measure-rss.mjs");
-const MAX_RSS_MARKER = "__OPENCLAW_MAX_RSS_KB__=";
+const MAX_RSS_MARKER = "__ASSISTANT_MAX_RSS_KB__=";
 
 writeFileSync(
   rssHookPath,
@@ -41,23 +41,23 @@ const cases = [
   {
     id: "help",
     label: "--help",
-    args: ["zhushou.mjs", "--help"],
-    limitMb: Number(process.env.OPENCLAW_STARTUP_MEMORY_HELP_MB ?? DEFAULT_LIMITS_MB.help),
+    args: ["assistant.mjs", "--help"],
+    limitMb: Number(process.env.ASSISTANT_STARTUP_MEMORY_HELP_MB ?? DEFAULT_LIMITS_MB.help),
   },
   {
     id: "statusJson",
     label: "status --json",
-    args: ["zhushou.mjs", "status", "--json"],
+    args: ["assistant.mjs", "status", "--json"],
     limitMb: Number(
-      process.env.OPENCLAW_STARTUP_MEMORY_STATUS_JSON_MB ?? DEFAULT_LIMITS_MB.statusJson,
+      process.env.ASSISTANT_STARTUP_MEMORY_STATUS_JSON_MB ?? DEFAULT_LIMITS_MB.statusJson,
     ),
   },
   {
     id: "gatewayStatus",
     label: "gateway status",
-    args: ["zhushou.mjs", "gateway", "status"],
+    args: ["assistant.mjs", "gateway", "status"],
     limitMb: Number(
-      process.env.OPENCLAW_STARTUP_MEMORY_GATEWAY_STATUS_MB ?? DEFAULT_LIMITS_MB.gatewayStatus,
+      process.env.ASSISTANT_STARTUP_MEMORY_GATEWAY_STATUS_MB ?? DEFAULT_LIMITS_MB.gatewayStatus,
     ),
   },
 ];
@@ -127,7 +127,7 @@ function buildBenchEnv() {
   }
   // Keep the benchmark on a single process so RSS reflects the actual command
   // path rather than the warning-suppression respawn wrapper.
-  env.OPENCLAW_NO_RESPAWN = "1";
+  env.ASSISTANT_NO_RESPAWN = "1";
 
   return env;
 }

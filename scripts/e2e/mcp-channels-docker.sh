@@ -3,11 +3,11 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-logs.sh"
-IMAGE_NAME="${OPENCLAW_IMAGE:-openclaw-mcp-channels-e2e}"
+IMAGE_NAME="${ASSISTANT_IMAGE:-assistant-mcp-channels-e2e}"
 PORT="18789"
 TOKEN="mcp-e2e-$(date +%s)-$$"
-CONTAINER_NAME="openclaw-mcp-e2e-$$"
-CLIENT_LOG="$(mktemp -t openclaw-mcp-client-log.XXXXXX)"
+CONTAINER_NAME="assistant-mcp-e2e-$$"
+CLIENT_LOG="$(mktemp -t assistant-mcp-client-log.XXXXXX)"
 
 cleanup() {
   docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
@@ -22,16 +22,16 @@ echo "Running in-container gateway + MCP smoke..."
 set +e
 docker run --rm \
   --name "$CONTAINER_NAME" \
-  -e "OPENCLAW_GATEWAY_TOKEN=$TOKEN" \
-  -e "OPENCLAW_SKIP_CHANNELS=1" \
-  -e "OPENCLAW_SKIP_GMAIL_WATCHER=1" \
-  -e "OPENCLAW_SKIP_CRON=1" \
-  -e "OPENCLAW_SKIP_CANVAS_HOST=1" \
-  -e "OPENCLAW_STATE_DIR=/tmp/openclaw-state" \
-  -e "OPENCLAW_CONFIG_PATH=/tmp/openclaw-state/openclaw.json" \
+  -e "ASSISTANT_GATEWAY_TOKEN=$TOKEN" \
+  -e "ASSISTANT_SKIP_CHANNELS=1" \
+  -e "ASSISTANT_SKIP_GMAIL_WATCHER=1" \
+  -e "ASSISTANT_SKIP_CRON=1" \
+  -e "ASSISTANT_SKIP_CANVAS_HOST=1" \
+  -e "ASSISTANT_STATE_DIR=/tmp/assistant-state" \
+  -e "ASSISTANT_CONFIG_PATH=/tmp/assistant-state/assistant.json" \
   -e "GW_URL=ws://127.0.0.1:$PORT" \
   -e "GW_TOKEN=$TOKEN" \
-  -e "OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1" \
+  -e "ASSISTANT_ALLOW_INSECURE_PRIVATE_WS=1" \
   "$IMAGE_NAME" \
   bash -lc "set -euo pipefail
     entry=dist/index.mjs

@@ -287,12 +287,12 @@ function buildWebchatCanvasSection(params: {
     "- Do not use `[embed ...]` for non-web channels.",
     "- `[embed ...]` is separate from `MEDIA:`. Use `MEDIA:` for attachments; use `[embed ...]` for web-only rich rendering.",
     '- Use self-closing form for hosted embed documents: `[embed ref="cv_123" title="Status" height="320" /]`.',
-    '- You may also use an explicit hosted URL: `[embed url="/__openclaw__/canvas/documents/cv_123/index.html" title="Status" height="320" /]`.',
-    '- Never use local filesystem paths or `file://...` URLs in `[embed ...]`. Hosted embeds must point at `/__openclaw__/canvas/...` URLs or use `ref="..."`.',
+    '- You may also use an explicit hosted URL: `[embed url="/__assistant__/canvas/documents/cv_123/index.html" title="Status" height="320" /]`.',
+    '- Never use local filesystem paths or `file://...` URLs in `[embed ...]`. Hosted embeds must point at `/__assistant__/canvas/...` URLs or use `ref="..."`.',
     params.canvasRootDir
       ? `- The active hosted embed root for this session is: \`${sanitizeForPromptLiteral(params.canvasRootDir)}\`. If you manually stage a hosted embed file, write it there, not in the workspace.`
       : "- The active hosted embed root is profile-scoped, not workspace-scoped. If you manually stage a hosted embed file, write it under the active profile embed root, not in the workspace.",
-    "- Quote all attribute values. Prefer `ref` for hosted documents unless you already have the full `/__openclaw__/canvas/documents/<id>/index.html` URL.",
+    "- Quote all attribute values. Prefer `ref` for hosted documents unless you already have the full `/__assistant__/canvas/documents/<id>/index.html` URL.",
     "",
   ];
 }
@@ -389,12 +389,12 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
   return [
     "## Documentation",
     `助手 docs: ${docsPath}`,
-    "Mirror: https://docs.zhushou.ai",
-    "Source: https://github.com/zhushou/zhushou",
+    "Mirror: https://docs.assistant.ai",
+    "Source: https://github.com/assistant/assistant",
     "Community: https://discord.com/invite/clawd",
     "Find new skills: https://clawhub.ai",
     "For 助手 behavior, commands, config, or architecture: consult local docs first.",
-    "When diagnosing issues, run `zhushou status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
+    "When diagnosing issues, run `assistant status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
     "",
   ];
 }
@@ -764,11 +764,11 @@ export function buildAgentSystemPrompt(params: {
     "## 助手 CLI Quick Reference",
     "助手 is controlled via subcommands. Do not invent commands.",
     "To manage the Gateway daemon service (start/stop/restart):",
-    "- openclaw gateway status",
-    "- openclaw gateway start",
-    "- openclaw gateway stop",
-    "- openclaw gateway restart",
-    "If unsure, ask the user to run `zhushou help` (or `openclaw gateway --help`) and paste the output.",
+    "- assistant gateway status",
+    "- assistant gateway start",
+    "- assistant gateway stop",
+    "- assistant gateway restart",
+    "If unsure, ask the user to run `assistant help` (or `assistant gateway --help`) and paste the output.",
     "",
     ...skillsSection,
     ...memorySection,

@@ -12,14 +12,14 @@ import {
 describe("resolveEffectiveHomeDir", () => {
   it.each([
     {
-      name: "prefers ZHUSHOU_HOME over HOME and USERPROFILE",
+      name: "prefers ASSISTANT_HOME over HOME and USERPROFILE",
       env: {
-        ZHUSHOU_HOME: " /srv/zhushou-home ",
+        ASSISTANT_HOME: " /srv/assistant-home ",
         HOME: "/home/other",
         USERPROFILE: "C:/Users/other",
       } as NodeJS.ProcessEnv,
       homedir: () => "/fallback",
-      expected: "/srv/zhushou-home",
+      expected: "/srv/assistant-home",
     },
     {
       name: "falls back to HOME",
@@ -37,7 +37,7 @@ describe("resolveEffectiveHomeDir", () => {
     {
       name: "falls back to homedir when env values are blank",
       env: {
-        ZHUSHOU_HOME: " ",
+        ASSISTANT_HOME: " ",
         HOME: " ",
         USERPROFILE: "\t",
       } as NodeJS.ProcessEnv,
@@ -47,7 +47,7 @@ describe("resolveEffectiveHomeDir", () => {
     {
       name: "treats literal undefined env values as unset",
       env: {
-        ZHUSHOU_HOME: "undefined",
+        ASSISTANT_HOME: "undefined",
         HOME: "undefined",
         USERPROFILE: "null",
       } as NodeJS.ProcessEnv,
@@ -62,7 +62,7 @@ describe("resolveEffectiveHomeDir", () => {
     {
       name: "expands ~/ using HOME",
       env: {
-        ZHUSHOU_HOME: "~/svc",
+        ASSISTANT_HOME: "~/svc",
         HOME: "/home/alice",
       } as NodeJS.ProcessEnv,
       expected: "/home/alice/svc",
@@ -70,7 +70,7 @@ describe("resolveEffectiveHomeDir", () => {
     {
       name: "expands ~\\\\ using USERPROFILE",
       env: {
-        ZHUSHOU_HOME: "~\\svc",
+        ASSISTANT_HOME: "~\\svc",
         HOME: " ",
         USERPROFILE: "C:/Users/alice",
       } as NodeJS.ProcessEnv,
@@ -92,14 +92,14 @@ describe("resolveRequiredHomeDir", () => {
       expected: process.cwd(),
     },
     {
-      name: "returns a fully resolved path for ZHUSHOU_HOME",
-      env: { ZHUSHOU_HOME: "/custom/home" } as NodeJS.ProcessEnv,
+      name: "returns a fully resolved path for ASSISTANT_HOME",
+      env: { ASSISTANT_HOME: "/custom/home" } as NodeJS.ProcessEnv,
       homedir: () => "/fallback",
       expected: path.resolve("/custom/home"),
     },
     {
-      name: "returns cwd when ZHUSHOU_HOME is tilde-only and no fallback home exists",
-      env: { ZHUSHOU_HOME: "~" } as NodeJS.ProcessEnv,
+      name: "returns cwd when ASSISTANT_HOME is tilde-only and no fallback home exists",
+      env: { ASSISTANT_HOME: "~" } as NodeJS.ProcessEnv,
       homedir: () => {
         throw new Error("no home");
       },
@@ -111,11 +111,11 @@ describe("resolveRequiredHomeDir", () => {
 });
 
 describe("resolveOsHomeDir", () => {
-  it("ignores ZHUSHOU_HOME and uses HOME", () => {
+  it("ignores ASSISTANT_HOME and uses HOME", () => {
     expect(
       resolveOsHomeDir(
         {
-          ZHUSHOU_HOME: "/srv/zhushou-home",
+          ASSISTANT_HOME: "/srv/assistant-home",
           HOME: "/home/alice",
           USERPROFILE: "C:/Users/alice",
         } as NodeJS.ProcessEnv,
@@ -131,15 +131,15 @@ describe("expandHomePrefix", () => {
       name: "expands ~/ using effective home",
       input: "~/x",
       opts: {
-        env: { ZHUSHOU_HOME: "/srv/zhushou-home" } as NodeJS.ProcessEnv,
+        env: { ASSISTANT_HOME: "/srv/assistant-home" } as NodeJS.ProcessEnv,
       },
-      expected: `${path.resolve("/srv/zhushou-home")}/x`,
+      expected: `${path.resolve("/srv/assistant-home")}/x`,
     },
     {
       name: "expands exact ~ using explicit home",
       input: "~",
-      opts: { home: " /srv/zhushou-home " },
-      expected: "/srv/zhushou-home",
+      opts: { home: " /srv/assistant-home " },
+      expected: "/srv/assistant-home",
     },
     {
       name: "expands ~\\\\ using resolved env home",
@@ -180,9 +180,9 @@ describe("resolveHomeRelativePath", () => {
       name: "expands tilde paths using the resolved home directory",
       input: "~/docs",
       opts: {
-        env: { ZHUSHOU_HOME: "/srv/zhushou-home" } as NodeJS.ProcessEnv,
+        env: { ASSISTANT_HOME: "/srv/assistant-home" } as NodeJS.ProcessEnv,
       },
-      expected: path.resolve("/srv/zhushou-home/docs"),
+      expected: path.resolve("/srv/assistant-home/docs"),
     },
     {
       name: "falls back to cwd when tilde paths have no home source",
@@ -201,11 +201,11 @@ describe("resolveHomeRelativePath", () => {
 });
 
 describe("resolveOsHomeRelativePath", () => {
-  it("expands tilde paths using the OS home instead of ZHUSHOU_HOME", () => {
+  it("expands tilde paths using the OS home instead of ASSISTANT_HOME", () => {
     expect(
       resolveOsHomeRelativePath("~/docs", {
         env: {
-          ZHUSHOU_HOME: "/srv/zhushou-home",
+          ASSISTANT_HOME: "/srv/assistant-home",
           HOME: "/home/alice",
         } as NodeJS.ProcessEnv,
       }),

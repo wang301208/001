@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { resolveWhatsAppReactionLevel } from "./reaction-level.js";
 
@@ -21,7 +21,7 @@ describe("resolveWhatsAppReactionLevel", () => {
   };
 
   it("defaults to minimal level when reactionLevel is not set", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { whatsapp: {} },
     };
 
@@ -35,7 +35,7 @@ describe("resolveWhatsAppReactionLevel", () => {
   });
 
   it("returns off level with no reactions enabled", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { whatsapp: { reactionLevel: "off" } },
     };
 
@@ -48,7 +48,7 @@ describe("resolveWhatsAppReactionLevel", () => {
   });
 
   it("returns ack level with only ackEnabled", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { whatsapp: { reactionLevel: "ack" } },
     };
 
@@ -61,7 +61,7 @@ describe("resolveWhatsAppReactionLevel", () => {
   });
 
   it("returns minimal level with agent reactions enabled and minimal guidance", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { whatsapp: { reactionLevel: "minimal" } },
     };
 
@@ -75,7 +75,7 @@ describe("resolveWhatsAppReactionLevel", () => {
   });
 
   it("returns extensive level with agent reactions enabled and extensive guidance", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { whatsapp: { reactionLevel: "extensive" } },
     };
 
@@ -89,7 +89,7 @@ describe("resolveWhatsAppReactionLevel", () => {
   });
 
   it("resolves reaction level from a specific account", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         whatsapp: {
           reactionLevel: "minimal",

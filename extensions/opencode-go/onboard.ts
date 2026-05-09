@@ -1,8 +1,8 @@
 import {
   applyAgentDefaultModelPrimary,
   withAgentModelAliases,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 
 export const OPENCODE_GO_DEFAULT_MODEL_REF = "opencode-go/kimi-k2.5";
 
@@ -12,7 +12,7 @@ const OPENCODE_GO_ALIAS_DEFAULTS: Record<string, string> = {
   "opencode-go/minimax-m2.5": "MiniMax",
 };
 
-export function applyOpencodeGoProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyOpencodeGoProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return {
     ...cfg,
     agents: {
@@ -31,7 +31,7 @@ export function applyOpencodeGoProviderConfig(cfg: ZhushouConfig): ZhushouConfig
   };
 }
 
-export function applyOpencodeGoConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyOpencodeGoConfig(cfg: AssistantConfig): AssistantConfig {
   return applyAgentDefaultModelPrimary(
     applyOpencodeGoProviderConfig(cfg),
     OPENCODE_GO_DEFAULT_MODEL_REF,

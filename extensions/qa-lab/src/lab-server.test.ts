@@ -1,5 +1,4 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { createServer } from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -125,15 +124,9 @@ describe("qa-lab server", () => {
     });
     const outputPath = path.join(tempDir, "self-check.md");
     await mkdir(path.join(repoRoot, "dist"), { recursive: true });
-    await mkdir(path.join(repoRoot, "extensions/qa-lab/web/dist"), { recursive: true });
     await writeFile(
       path.join(repoRoot, "dist/index.js"),
       'process.stdout.write(JSON.stringify({ models: [] }));\n',
-      "utf8",
-    );
-    await writeFile(
-      path.join(repoRoot, "extensions/qa-lab/web/dist/index.html"),
-      "<!doctype html><html><body>qa-lab</body></html>",
       "utf8",
     );
 
@@ -217,83 +210,10 @@ describe("qa-lab server", () => {
     expect(manualSnapshot.messages.some((message) => message.text === kickoffTask)).toBe(true);
   });
 
-  it("proxies control-ui paths through /control-ui", async () => {
-    const upstream = createServer((req, res) => {
-      if ((req.url ?? "/") === "/healthz") {
-        res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify({ ok: true, status: "live" }));
-        return;
-      }
-      res.writeHead(200, {
-        "content-type": "text/html; charset=utf-8",
-        "x-frame-options": "DENY",
-        "content-security-policy": "default-src 'self'; frame-ancestors 'none';",
-      });
-      res.end("<!doctype html><title>control-ui</title><h1>Control UI</h1>");
-    });
-    await new Promise<void>((resolve, reject) => {
-      upstream.once("error", reject);
-      upstream.listen(0, "127.0.0.1", () => resolve());
-    });
-    cleanups.push(
-      async () =>
-        await new Promise<void>((resolve, reject) =>
-          upstream.close((error) => (error ? reject(error) : resolve())),
-        ),
-    );
-
-    const address = upstream.address();
-    if (!address || typeof address === "string") {
-      throw new Error("expected upstream address");
-    }
-
+  it("serves the removed browser UI placeholder at the root", async () => {
     const lab = await startQaLabServer({
       host: "127.0.0.1",
       port: 0,
-      advertiseHost: "127.0.0.1",
-      advertisePort: 43124,
-      controlUiProxyTarget: `http://127.0.0.1:${address.port}/`,
-      controlUiToken: "proxy-token",
-    });
-    cleanups.push(async () => {
-      await lab.stop();
-    });
-
-    const bootstrap = (await (await fetchWithRetry(`${lab.listenUrl}/api/bootstrap`)).json()) as {
-      controlUiUrl: string | null;
-      controlUiEmbeddedUrl: string | null;
-    };
-    expect(bootstrap.controlUiUrl).toBe("http://127.0.0.1:43124/control-ui/");
-    expect(bootstrap.controlUiEmbeddedUrl).toBe(
-      "http://127.0.0.1:43124/control-ui/#token=proxy-token",
-    );
-
-    const healthResponse = await fetchWithRetry(`${lab.listenUrl}/control-ui/healthz`);
-    expect(healthResponse.status).toBe(200);
-    expect(await healthResponse.json()).toEqual({ ok: true, status: "live" });
-
-    const rootResponse = await fetchWithRetry(`${lab.listenUrl}/control-ui/`);
-    expect(rootResponse.status).toBe(200);
-    expect(rootResponse.headers.get("x-frame-options")).toBeNull();
-    expect(rootResponse.headers.get("content-security-policy")).toContain("frame-ancestors 'self'");
-    expect(await rootResponse.text()).toContain("Control UI");
-  });
-
-  it("serves the built QA UI bundle when available", async () => {
-    const uiDistDir = await mkdtemp(path.join(os.tmpdir(), "qa-lab-ui-dist-"));
-    cleanups.push(async () => {
-      await rm(uiDistDir, { recursive: true, force: true });
-    });
-    await writeFile(
-      path.join(uiDistDir, "index.html"),
-      "<!doctype html><html><head><title>QA Lab</title></head><body><div id='app'></div></body></html>",
-      "utf8",
-    );
-
-    const lab = await startQaLabServer({
-      host: "127.0.0.1",
-      port: 0,
-      uiDistDir,
     });
     cleanups.push(async () => {
       await lab.stop();
@@ -302,17 +222,16 @@ describe("qa-lab server", () => {
     const rootResponse = await fetchWithRetry(`${lab.baseUrl}/`);
     expect(rootResponse.status).toBe(200);
     const html = await rootResponse.text();
-    expect(html).not.toContain("QA Lab UI not built");
-    expect(html).toContain("<title>");
+    expect(html).toContain("QA Lab browser UI removed");
+    expect(html).toContain("assistant --tui");
   });
 
-  it("uses the explicit repo root for ui assets and runner model discovery", async () => {
+  it("uses the explicit repo root for runner model discovery", async () => {
     const repoRoot = await mkdtemp(path.join(os.tmpdir(), "qa-lab-repo-root-"));
     cleanups.push(async () => {
       await rm(repoRoot, { recursive: true, force: true });
     });
     await mkdir(path.join(repoRoot, "dist"), { recursive: true });
-    await mkdir(path.join(repoRoot, "extensions/qa-lab/web/dist"), { recursive: true });
     await writeFile(
       path.join(repoRoot, "dist/index.js"),
       [
@@ -328,11 +247,6 @@ describe("qa-lab server", () => {
       ].join("\n"),
       "utf8",
     );
-    await writeFile(
-      path.join(repoRoot, "extensions/qa-lab/web/dist/index.html"),
-      "<!doctype html><html><head><title>Temp QA Lab UI</title></head><body>repo-root-ui</body></html>",
-      "utf8",
-    );
 
     const lab = await startQaLabServer({
       host: "127.0.0.1",
@@ -345,7 +259,7 @@ describe("qa-lab server", () => {
 
     const rootResponse = await fetchWithRetry(`${lab.baseUrl}/`);
     expect(rootResponse.status).toBe(200);
-    expect(await rootResponse.text()).toContain("repo-root-ui");
+    expect(await rootResponse.text()).toContain("QA Lab browser UI removed");
 
     const runnerCatalog = await waitForRunnerCatalog(lab.baseUrl);
     expect(runnerCatalog.status).toBe("ready");
@@ -367,7 +281,6 @@ describe("qa-lab server", () => {
     const markerPath = path.join(repoRoot, "runner-catalog-hit.txt");
 
     await mkdir(path.join(repoRoot, "dist"), { recursive: true });
-    await mkdir(path.join(repoRoot, "extensions/qa-lab/web/dist"), { recursive: true });
     await writeFile(
       path.join(repoRoot, "dist/index.js"),
       [
@@ -383,11 +296,6 @@ describe("qa-lab server", () => {
         "  }],",
         "}));",
       ].join("\n"),
-      "utf8",
-    );
-    await writeFile(
-      path.join(repoRoot, "extensions/qa-lab/web/dist/index.html"),
-      "<!doctype html><html><body>lazy catalog</body></html>",
       "utf8",
     );
 
@@ -420,23 +328,17 @@ describe("qa-lab server", () => {
     const stoppedPath = path.join(repoRoot, "runner-catalog-stopped.txt");
 
     await mkdir(path.join(repoRoot, "dist"), { recursive: true });
-    await mkdir(path.join(repoRoot, "extensions/qa-lab/web/dist"), { recursive: true });
     await writeFile(
       path.join(repoRoot, "dist/index.js"),
       [
         'const fs = require("node:fs");',
-        `fs.writeFileSync(${JSON.stringify(markerPath)}, process.env.OPENCLAW_CODEX_DISCOVERY_LIVE || "", "utf8");`,
+        `fs.writeFileSync(${JSON.stringify(markerPath)}, process.env.ASSISTANT_CODEX_DISCOVERY_LIVE || "", "utf8");`,
         "process.on('SIGTERM', () => {",
         `  fs.writeFileSync(${JSON.stringify(stoppedPath)}, "terminated", "utf8");`,
         "  process.exit(0);",
         "});",
         "setInterval(() => {}, 1000);",
       ].join("\n"),
-      "utf8",
-    );
-    await writeFile(
-      path.join(repoRoot, "extensions/qa-lab/web/dist/index.html"),
-      "<!doctype html><html><body>abort catalog</body></html>",
       "utf8",
     );
 
@@ -493,7 +395,7 @@ describe("qa-lab server", () => {
     expect(snapshot.messages.filter((message) => message.direction === "outbound")).toHaveLength(0);
   });
 
-  it("exposes structured outcomes and can attach control-ui after startup", async () => {
+  it("exposes structured outcomes without browser frontend metadata", async () => {
     const lab = await startQaLabServer({
       host: "127.0.0.1",
       port: 0,
@@ -530,15 +432,13 @@ describe("qa-lab server", () => {
         },
       ],
     });
-    lab.setControlUi({
-      controlUiUrl: "http://127.0.0.1:18789/",
-      controlUiToken: "late-token",
-    });
 
     const bootstrap = (await (await fetchWithRetry(`${lab.baseUrl}/api/bootstrap`)).json()) as {
-      controlUiEmbeddedUrl: string | null;
+      controlUiEmbeddedUrl?: string | null;
+      controlUiUrl?: string | null;
     };
-    expect(bootstrap.controlUiEmbeddedUrl).toBe("http://127.0.0.1:18789/#token=late-token");
+    expect(bootstrap.controlUiEmbeddedUrl).toBeUndefined();
+    expect(bootstrap.controlUiUrl).toBeUndefined();
 
     const outcomes = (await (await fetchWithRetry(`${lab.baseUrl}/api/outcomes`)).json()) as {
       run: {
@@ -567,28 +467,28 @@ describe("qa-lab server", () => {
     cleanups.push(async () => {
       await rm(tempDir, { recursive: true, force: true });
     });
-    process.env.OPENCLAW_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
-    process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
+    process.env.ASSISTANT_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
+    process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
     const { closeDebugProxyCaptureStore, getDebugProxyCaptureStore } =
       await import("../../../src/proxy-capture/store.sqlite.js");
     const store = getDebugProxyCaptureStore(
-      process.env.OPENCLAW_DEBUG_PROXY_DB_PATH,
-      process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR,
+      process.env.ASSISTANT_DEBUG_PROXY_DB_PATH,
+      process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR,
     );
     store.upsertSession({
       id: "qa-capture-session",
       startedAt: Date.now(),
       mode: "proxy-run",
-      sourceScope: "zhushou",
-      sourceProcess: "zhushou",
-      dbPath: process.env.OPENCLAW_DEBUG_PROXY_DB_PATH,
-      blobDir: process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR,
+      sourceScope: "assistant",
+      sourceProcess: "assistant",
+      dbPath: process.env.ASSISTANT_DEBUG_PROXY_DB_PATH,
+      blobDir: process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR,
     });
     store.recordEvent({
       sessionId: "qa-capture-session",
       ts: Date.now(),
-      sourceScope: "zhushou",
-      sourceProcess: "zhushou",
+      sourceScope: "assistant",
+      sourceProcess: "assistant",
       protocol: "https",
       direction: "outbound",
       kind: "request",
@@ -608,8 +508,8 @@ describe("qa-lab server", () => {
     store.recordEvent({
       sessionId: "qa-capture-session",
       ts: Date.now() + 1,
-      sourceScope: "zhushou",
-      sourceProcess: "zhushou",
+      sourceScope: "assistant",
+      sourceProcess: "assistant",
       protocol: "https",
       direction: "outbound",
       kind: "request",
@@ -629,8 +529,8 @@ describe("qa-lab server", () => {
     store.recordEvent({
       sessionId: "qa-capture-session",
       ts: Date.now() + 2,
-      sourceScope: "zhushou",
-      sourceProcess: "zhushou",
+      sourceScope: "assistant",
+      sourceProcess: "assistant",
       protocol: "https",
       direction: "outbound",
       kind: "request",
@@ -653,8 +553,8 @@ describe("qa-lab server", () => {
       closeDebugProxyCaptureStore();
     });
     cleanups.push(async () => {
-      delete process.env.OPENCLAW_DEBUG_PROXY_DB_PATH;
-      delete process.env.OPENCLAW_DEBUG_PROXY_BLOB_DIR;
+      delete process.env.ASSISTANT_DEBUG_PROXY_DB_PATH;
+      delete process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR;
       await lab.stop();
     });
 

@@ -5,13 +5,13 @@ const listProfilesForProviderMock = vi.hoisted(() => vi.fn());
 const coerceSecretRefMock = vi.hoisted(() => vi.fn());
 const resolveRequiredConfiguredSecretRefInputStringMock = vi.hoisted(() => vi.fn());
 
-vi.mock("zhushou/plugin-sdk/provider-auth", () => ({
+vi.mock("assistant/plugin-sdk/provider-auth", () => ({
   coerceSecretRef: coerceSecretRefMock,
   ensureAuthProfileStore: ensureAuthProfileStoreMock,
   listProfilesForProvider: listProfilesForProviderMock,
 }));
 
-vi.mock("zhushou/plugin-sdk/config-runtime", () => ({
+vi.mock("assistant/plugin-sdk/config-runtime", () => ({
   resolveRequiredConfiguredSecretRefInputString: resolveRequiredConfiguredSecretRefInputStringMock,
 }));
 

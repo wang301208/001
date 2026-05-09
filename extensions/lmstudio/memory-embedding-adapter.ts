@@ -1,7 +1,7 @@
 import {
   sanitizeEmbeddingCacheHeaders,
   type MemoryEmbeddingProviderAdapter,
-} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
+} from "assistant/plugin-sdk/memory-core-host-engine-embeddings";
 import {
   createLmstudioEmbeddingProvider,
   DEFAULT_LMSTUDIO_EMBEDDING_MODEL,

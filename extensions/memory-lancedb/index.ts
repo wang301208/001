@@ -10,9 +10,9 @@ import { randomUUID } from "node:crypto";
 import type * as LanceDB from "@lancedb/lancedb";
 import { Type } from "@sinclair/typebox";
 import OpenAI from "openai";
-import { ensureGlobalUndiciEnvProxyDispatcher } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
-import { definePluginEntry, type ZhushouPluginApi } from "./api.js";
+import { ensureGlobalUndiciEnvProxyDispatcher } from "assistant/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { definePluginEntry, type AssistantPluginApi } from "./api.js";
 import {
   DEFAULT_CAPTURE_MAX_CHARS,
   MEMORY_CATEGORIES,
@@ -293,7 +293,7 @@ export default definePluginEntry({
   kind: "memory" as const,
   configSchema: memoryConfigSchema,
 
-  register(api: ZhushouPluginApi) {
+  register(api: AssistantPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
     const dbPath = cfg.dbPath!;
     const resolvedDbPath = dbPath.includes("://") ? dbPath : api.resolvePath(dbPath);

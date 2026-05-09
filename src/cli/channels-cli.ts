@@ -69,16 +69,16 @@ export function registerChannelsCli(program: Command) {
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["zhushou channels list", "List configured channels and auth profiles."],
-          ["zhushou channels status --probe", "Run channel status checks and probes."],
+          ["assistant channels list", "List configured channels and auth profiles."],
+          ["assistant channels status --probe", "Run channel status checks and probes."],
           [
-            "zhushou channels add --channel telegram --token <token>",
+            "assistant channels add --channel telegram --token <token>",
             "Add or update a channel account non-interactively.",
           ],
-          ["zhushou channels login --channel whatsapp", "Link a WhatsApp Web account."],
+          ["assistant channels login --channel whatsapp", "Link a WhatsApp Web account."],
         ])}\n\n${theme.muted("Docs:")} ${formatDocsLink(
           "/cli/channels",
-          "docs.zhushou.ai/cli/channels",
+          "docs.assistant.ai/cli/channels",
         )}\n`,
     );
 

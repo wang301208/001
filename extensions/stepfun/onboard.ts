@@ -1,9 +1,9 @@
 import {
   createModelCatalogPresetAppliers,
   type ModelProviderConfig,
-  type ZhushouConfig,
+  type AssistantConfig,
   type ProviderOnboardPresetAppliers,
-} from "zhushou/plugin-sdk/provider-onboard";
+} from "assistant/plugin-sdk/provider-onboard";
 import {
   buildStepFunPlanProvider,
   buildStepFunProvider,
@@ -34,7 +34,7 @@ function createStepFunPresetAppliers(params: {
 }): ProviderOnboardPresetAppliers<[string]> {
   return createModelCatalogPresetAppliers<[string]>({
     primaryModelRef: params.primaryModelRef,
-    resolveParams: (_cfg: ZhushouConfig, baseUrl: string) => {
+    resolveParams: (_cfg: AssistantConfig, baseUrl: string) => {
       const provider = params.buildProvider(baseUrl);
       const models = provider.models ?? [];
       return {
@@ -65,18 +65,18 @@ const stepFunPlanPresetAppliers = createStepFunPresetAppliers({
   buildProvider: buildStepFunPlanProvider,
 });
 
-export function applyStepFunStandardConfigCn(cfg: ZhushouConfig): ZhushouConfig {
+export function applyStepFunStandardConfigCn(cfg: AssistantConfig): AssistantConfig {
   return stepFunPresetAppliers.applyConfig(cfg, STEPFUN_STANDARD_CN_BASE_URL);
 }
 
-export function applyStepFunStandardConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyStepFunStandardConfig(cfg: AssistantConfig): AssistantConfig {
   return stepFunPresetAppliers.applyConfig(cfg, STEPFUN_STANDARD_INTL_BASE_URL);
 }
 
-export function applyStepFunPlanConfigCn(cfg: ZhushouConfig): ZhushouConfig {
+export function applyStepFunPlanConfigCn(cfg: AssistantConfig): AssistantConfig {
   return stepFunPlanPresetAppliers.applyConfig(cfg, STEPFUN_PLAN_CN_BASE_URL);
 }
 
-export function applyStepFunPlanConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyStepFunPlanConfig(cfg: AssistantConfig): AssistantConfig {
   return stepFunPlanPresetAppliers.applyConfig(cfg, STEPFUN_PLAN_INTL_BASE_URL);
 }

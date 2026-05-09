@@ -1,4 +1,4 @@
-import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input";
+import { hasConfiguredSecretInput } from "assistant/plugin-sdk/secret-input";
 import {
   createAccountScopedAllowFromSection,
   createAccountScopedGroupAccessSection,
@@ -13,13 +13,13 @@ import {
   type ChannelSetupAdapter,
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/setup-runtime";
-import { formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/setup-runtime";
+import { formatDocsLink } from "assistant/plugin-sdk/setup-tools";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { inspectSlackAccount } from "./account-inspect.js";
 import { resolveSlackAccount } from "./accounts.js";
 import {
@@ -29,7 +29,7 @@ import {
   setSlackChannelAllowlist,
 } from "./shared.js";
 
-function enableSlackAccount(cfg: ZhushouConfig, accountId: string): ZhushouConfig {
+function enableSlackAccount(cfg: AssistantConfig, accountId: string): AssistantConfig {
   return patchChannelConfigForAccount({
     cfg,
     channel,
@@ -38,7 +38,7 @@ function enableSlackAccount(cfg: ZhushouConfig, accountId: string): ZhushouConfi
   });
 }
 
-function hasSlackInteractiveRepliesConfig(cfg: ZhushouConfig, accountId: string): boolean {
+function hasSlackInteractiveRepliesConfig(cfg: AssistantConfig, accountId: string): boolean {
   const capabilities = resolveSlackAccount({ cfg, accountId }).config.capabilities;
   if (Array.isArray(capabilities)) {
     return capabilities.some(
@@ -52,10 +52,10 @@ function hasSlackInteractiveRepliesConfig(cfg: ZhushouConfig, accountId: string)
 }
 
 function setSlackInteractiveReplies(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   interactiveReplies: boolean,
-): ZhushouConfig {
+): AssistantConfig {
   const capabilities = resolveSlackAccount({ cfg, accountId }).config.capabilities;
   const nextCapabilities = Array.isArray(capabilities)
     ? interactiveReplies
@@ -95,7 +95,7 @@ function createSlackTokenCredential(params: {
     keepPrompt: params.keepPrompt,
     inputPrompt: params.inputPrompt,
     allowEnv: ({ accountId }: { accountId: string }) => accountId === DEFAULT_ACCOUNT_ID,
-    inspect: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) => {
+    inspect: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) => {
       const resolved = resolveSlackAccount({ cfg, accountId });
       const configuredValue =
         params.inputKey === "botToken" ? resolved.config.botToken : resolved.config.appToken;
@@ -110,14 +110,14 @@ function createSlackTokenCredential(params: {
             : undefined,
       };
     },
-    applyUseEnv: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) =>
+    applyUseEnv: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) =>
       enableSlackAccount(cfg, accountId),
     applySet: ({
       cfg,
       accountId,
       value,
     }: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       accountId: string;
       value: unknown;
     }) =>
@@ -235,13 +235,13 @@ export function createSlackSetupWizardBase(handlers: {
       channel,
       label: "Slack channels",
       placeholder: "#general, #private, C123",
-      currentPolicy: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) =>
+      currentPolicy: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) =>
         resolveSlackAccount({ cfg, accountId }).config.groupPolicy ?? "allowlist",
-      currentEntries: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) =>
+      currentEntries: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) =>
         Object.entries(resolveSlackAccount({ cfg, accountId }).config.channels ?? {})
           .filter(([, value]) => value?.enabled !== false)
           .map(([key]) => key),
-      updatePrompt: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId: string }) =>
+      updatePrompt: ({ cfg, accountId }: { cfg: AssistantConfig; accountId: string }) =>
         Boolean(resolveSlackAccount({ cfg, accountId }).config.channels),
       resolveAllowlist: handlers.resolveGroupAllowlist,
       fallbackResolved: (entries) => entries,
@@ -250,7 +250,7 @@ export function createSlackSetupWizardBase(handlers: {
         accountId,
         resolved,
       }: {
-        cfg: ZhushouConfig;
+        cfg: AssistantConfig;
         accountId: string;
         resolved: unknown;
       }) => setSlackChannelAllowlist(cfg, accountId, resolved as string[]),
@@ -272,7 +272,7 @@ export function createSlackSetupWizardBase(handlers: {
         cfg: setSlackInteractiveReplies(cfg, accountId, enableInteractiveReplies),
       };
     },
-    disable: (cfg: ZhushouConfig) => setSetupChannelEnabled(cfg, channel, false),
+    disable: (cfg: AssistantConfig) => setSetupChannelEnabled(cfg, channel, false),
   } satisfies ChannelSetupWizard;
 }
 export function createSlackSetupWizardProxy(

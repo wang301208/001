@@ -6,10 +6,10 @@ import {
   pathExists,
   splitSetupEntries,
   type DmPolicy,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/setup";
-import type { ChannelSetupWizard } from "zhushou/plugin-sdk/setup";
-import { formatCliCommand, formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/setup";
+import type { ChannelSetupWizard } from "assistant/plugin-sdk/setup";
+import { formatCliCommand, formatDocsLink } from "assistant/plugin-sdk/setup-tools";
 import {
   resolveDefaultWhatsAppAccountId,
   resolveWhatsAppAccount,
@@ -20,7 +20,7 @@ import { whatsappSetupAdapter } from "./setup-core.js";
 
 type SetupPrompter = Parameters<NonNullable<ChannelSetupWizard["finalize"]>>[0]["prompter"];
 type SetupRuntime = Parameters<NonNullable<ChannelSetupWizard["finalize"]>>[0]["runtime"];
-type WhatsAppConfig = NonNullable<NonNullable<ZhushouConfig["channels"]>["whatsapp"]>;
+type WhatsAppConfig = NonNullable<NonNullable<AssistantConfig["channels"]>["whatsapp"]>;
 type WhatsAppAccountConfig = NonNullable<NonNullable<WhatsAppConfig["accounts"]>[string]>;
 
 function trimPromptText(value: string | null | undefined): string {
@@ -28,11 +28,11 @@ function trimPromptText(value: string | null | undefined): string {
 }
 
 function mergeWhatsAppConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   patch: Partial<WhatsAppAccountConfig>,
   options?: { unsetOnUndefined?: string[] },
-): ZhushouConfig {
+): AssistantConfig {
   const channelConfig: WhatsAppConfig = { ...cfg.channels?.whatsapp };
   const mutableChannelConfig = channelConfig as Record<string, unknown>;
   if (accountId === DEFAULT_ACCOUNT_ID) {
@@ -81,31 +81,31 @@ function mergeWhatsAppConfig(
 }
 
 function setWhatsAppDmPolicy(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   dmPolicy: DmPolicy,
-): ZhushouConfig {
+): AssistantConfig {
   return mergeWhatsAppConfig(cfg, accountId, { dmPolicy });
 }
 
 function setWhatsAppAllowFrom(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   allowFrom?: string[],
-): ZhushouConfig {
+): AssistantConfig {
   return mergeWhatsAppConfig(cfg, accountId, { allowFrom }, { unsetOnUndefined: ["allowFrom"] });
 }
 
 function setWhatsAppSelfChatMode(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   selfChatMode: boolean,
-): ZhushouConfig {
+): AssistantConfig {
   return mergeWhatsAppConfig(cfg, accountId, { selfChatMode });
 }
 
 export async function detectWhatsAppLinked(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
 ): Promise<boolean> {
   const { authDir } = resolveWhatsAppAuthDir({ cfg, accountId });
@@ -152,13 +152,13 @@ async function promptWhatsAppOwnerAllowFrom(params: {
 }
 
 async function applyWhatsAppOwnerAllowlist(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   existingAllowFrom: string[];
   messageLines: string[];
   prompter: SetupPrompter;
   title: string;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const { normalized, allowFrom } = await promptWhatsAppOwnerAllowFrom({
     prompter: params.prompter,
     existingAllowFrom: params.existingAllowFrom,
@@ -194,11 +194,11 @@ function parseWhatsAppAllowFromEntries(raw: string): { entries: string[]; invali
 }
 
 async function promptWhatsAppDmAccess(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   forceAllowFrom: boolean;
   prompter: SetupPrompter;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const accountId = params.accountId.trim() || DEFAULT_ACCOUNT_ID;
   const account = resolveWhatsAppAccount({ cfg: params.cfg, accountId });
   const existingPolicy = account.dmPolicy ?? "pairing";
@@ -341,7 +341,7 @@ async function promptWhatsAppDmAccess(params: {
 }
 
 export async function finalizeWhatsAppSetup(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   forceAllowFrom: boolean;
   prompter: SetupPrompter;
@@ -390,7 +390,7 @@ export async function finalizeWhatsAppSetup(params: {
     }
   } else if (!linked) {
     await params.prompter.note(
-      `Run \`${formatCliCommand("zhushou channels login")}\` later to link WhatsApp.`,
+      `Run \`${formatCliCommand("assistant channels login")}\` later to link WhatsApp.`,
       "WhatsApp",
     );
   }

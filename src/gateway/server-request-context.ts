@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { GatewayServerLiveState } from "./server-live-state.js";
 import type { GatewayRequestContext, GatewayClient } from "./server-methods/types.js";
 import { disconnectAllSharedGatewayAuthClients } from "./server-shared-auth-generation.js";
@@ -29,7 +29,7 @@ export type GatewayRequestContextParams = {
   nodeUnsubscribeAll: GatewayRequestContext["nodeUnsubscribeAll"];
   hasConnectedMobileNode: GatewayRequestContext["hasConnectedMobileNode"];
   clients: Set<GatewayRequestContextClient>;
-  enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: ZhushouConfig) => void;
+  enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: AssistantConfig) => void;
   nodeRegistry: GatewayRequestContext["nodeRegistry"];
   agentRunSeq: GatewayRequestContext["agentRunSeq"];
   chatAbortControllers: GatewayRequestContext["chatAbortControllers"];

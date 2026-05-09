@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/line",
+  "name": "@assistant/line",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 LINE channel plugin",
@@ -8,18 +8,18 @@
     "@line/bot-sdk": "^11.0.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
-    "zhushou": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*",
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
@@ -37,7 +37,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@zhushou/line",
+      "npmSpec": "@assistant/line",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

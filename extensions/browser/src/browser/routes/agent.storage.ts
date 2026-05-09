@@ -1,4 +1,4 @@
-import { normalizeOptionalString, readStringValue } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalString, readStringValue } from "assistant/plugin-sdk/text-runtime";
 import type { BrowserRouteContext } from "../server-context.js";
 import {
   readBody,

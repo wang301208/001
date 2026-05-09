@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { registerSandboxBackend } from "./sandbox/backend.js";
 import { ensureSandboxWorkspaceForSession, resolveSandboxContext } from "./sandbox/context.js";
 
 describe("resolveSandboxContext", () => {
   it("does not sandbox the agent main session in non-main mode", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: {
         defaults: {
           sandbox: { mode: "non-main", scope: "session" },
@@ -17,14 +17,14 @@ describe("resolveSandboxContext", () => {
     const result = await resolveSandboxContext({
       config: cfg,
       sessionKey: "agent:main:main",
-      workspaceDir: "/tmp/zhushou-test",
+      workspaceDir: "/tmp/assistant-test",
     });
 
     expect(result).toBeNull();
   }, 15_000);
 
   it("does not create a sandbox workspace for the agent main session in non-main mode", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: {
         defaults: {
           sandbox: { mode: "non-main", scope: "session" },
@@ -36,14 +36,14 @@ describe("resolveSandboxContext", () => {
     const result = await ensureSandboxWorkspaceForSession({
       config: cfg,
       sessionKey: "agent:main:main",
-      workspaceDir: "/tmp/zhushou-test",
+      workspaceDir: "/tmp/assistant-test",
     });
 
     expect(result).toBeNull();
   }, 15_000);
 
   it("treats main session aliases as main in non-main mode", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       session: { mainKey: "work" },
       agents: {
         defaults: {
@@ -57,7 +57,7 @@ describe("resolveSandboxContext", () => {
       await resolveSandboxContext({
         config: cfg,
         sessionKey: "main",
-        workspaceDir: "/tmp/zhushou-test",
+        workspaceDir: "/tmp/assistant-test",
       }),
     ).toBeNull();
 
@@ -65,7 +65,7 @@ describe("resolveSandboxContext", () => {
       await resolveSandboxContext({
         config: cfg,
         sessionKey: "agent:main:main",
-        workspaceDir: "/tmp/zhushou-test",
+        workspaceDir: "/tmp/assistant-test",
       }),
     ).toBeNull();
 
@@ -73,7 +73,7 @@ describe("resolveSandboxContext", () => {
       await ensureSandboxWorkspaceForSession({
         config: cfg,
         sessionKey: "work",
-        workspaceDir: "/tmp/zhushou-test",
+        workspaceDir: "/tmp/assistant-test",
       }),
     ).toBeNull();
 
@@ -81,7 +81,7 @@ describe("resolveSandboxContext", () => {
       await ensureSandboxWorkspaceForSession({
         config: cfg,
         sessionKey: "agent:main:main",
-        workspaceDir: "/tmp/zhushou-test",
+        workspaceDir: "/tmp/assistant-test",
       }),
     ).toBeNull();
   }, 15_000);
@@ -104,7 +104,7 @@ describe("resolveSandboxContext", () => {
       }),
     }));
     try {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         agents: {
           defaults: {
             sandbox: { mode: "all", backend: "test-backend", scope: "session" },
@@ -116,7 +116,7 @@ describe("resolveSandboxContext", () => {
       const result = await resolveSandboxContext({
         config: cfg,
         sessionKey: "agent:worker:task",
-        workspaceDir: "/tmp/zhushou-test",
+        workspaceDir: "/tmp/assistant-test",
       });
 
       expect(result?.backendId).toBe("test-backend");

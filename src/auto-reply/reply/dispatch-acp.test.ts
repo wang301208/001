@@ -4,7 +4,7 @@ import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AcpRuntimeError } from "../../acp/runtime/errors.js";
 import type { AcpSessionStoreEntry } from "../../acp/runtime/session-meta.js";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import type { SessionBindingRecord } from "../../infra/outbound/session-binding-service.js";
 import type { MediaUnderstandingSkipError } from "../../media-understanding/errors.js";
 import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
@@ -24,8 +24,8 @@ const managerMocks = vi.hoisted(() => ({
 }));
 
 const policyMocks = vi.hoisted(() => ({
-  resolveAcpDispatchPolicyError: vi.fn<(cfg: ZhushouConfig) => AcpRuntimeError | null>(() => null),
-  resolveAcpAgentPolicyError: vi.fn<(cfg: ZhushouConfig, agent: string) => AcpRuntimeError | null>(
+  resolveAcpDispatchPolicyError: vi.fn<(cfg: AssistantConfig) => AcpRuntimeError | null>(() => null),
+  resolveAcpAgentPolicyError: vi.fn<(cfg: AssistantConfig, agent: string) => AcpRuntimeError | null>(
     () => null,
   ),
 }));
@@ -62,7 +62,7 @@ const ttsMocks = vi.hoisted(() => ({
     const params = paramsUnknown as { payload: unknown };
     return params.payload;
   }),
-  resolveTtsConfig: vi.fn((_cfg: ZhushouConfig) => ({ mode: "final" })),
+  resolveTtsConfig: vi.fn((_cfg: AssistantConfig) => ({ mode: "final" })),
 }));
 
 const mediaUnderstandingMocks = vi.hoisted(() => ({
@@ -71,7 +71,7 @@ const mediaUnderstandingMocks = vi.hoisted(() => ({
 
 const sessionMetaMocks = vi.hoisted(() => ({
   readAcpSessionEntry: vi.fn<
-    (params: { sessionKey: string; cfg?: ZhushouConfig }) => AcpSessionStoreEntry | null
+    (params: { sessionKey: string; cfg?: AssistantConfig }) => AcpSessionStoreEntry | null
   >(() => null),
 }));
 
@@ -90,9 +90,9 @@ vi.mock("./dispatch-acp-manager.runtime.js", () => ({
 }));
 
 vi.mock("../../acp/policy.js", () => ({
-  resolveAcpDispatchPolicyError: (cfg: ZhushouConfig) =>
+  resolveAcpDispatchPolicyError: (cfg: AssistantConfig) =>
     policyMocks.resolveAcpDispatchPolicyError(cfg),
-  resolveAcpAgentPolicyError: (cfg: ZhushouConfig, agent: string) =>
+  resolveAcpAgentPolicyError: (cfg: AssistantConfig, agent: string) =>
     policyMocks.resolveAcpAgentPolicyError(cfg, agent),
 }));
 
@@ -155,7 +155,7 @@ vi.mock("./dispatch-acp-media.runtime.js", () => ({
 }));
 
 vi.mock("./dispatch-acp-session.runtime.js", () => ({
-  readAcpSessionEntry: (params: { sessionKey: string; cfg?: ZhushouConfig }) =>
+  readAcpSessionEntry: (params: { sessionKey: string; cfg?: AssistantConfig }) =>
     sessionMetaMocks.readAcpSessionEntry(params),
 }));
 
@@ -188,7 +188,7 @@ function setReadyAcpResolution() {
   });
 }
 
-function createAcpConfigWithVisibleToolTags(): ZhushouConfig {
+function createAcpConfigWithVisibleToolTags(): AssistantConfig {
   return createAcpTestConfig({
     acp: {
       enabled: true,
@@ -204,7 +204,7 @@ function createAcpConfigWithVisibleToolTags(): ZhushouConfig {
 
 async function runDispatch(params: {
   bodyForAgent: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   dispatcher?: ReplyDispatcher;
   shouldRouteToOriginating?: boolean;
   originatingChannel?: string;
@@ -867,11 +867,11 @@ describe("tryDispatchAcpReply", () => {
         : [],
     );
     sessionMetaMocks.readAcpSessionEntry.mockImplementation(
-      (params: { sessionKey: string; cfg?: ZhushouConfig }) =>
+      (params: { sessionKey: string; cfg?: AssistantConfig }) =>
         params.sessionKey === canonicalSessionKey
           ? {
               cfg: params.cfg ?? createAcpTestConfig(),
-              storePath: "/tmp/zhushou-session-store.json",
+              storePath: "/tmp/assistant-session-store.json",
               sessionKey: canonicalSessionKey,
               storeSessionKey: canonicalSessionKey,
               acp: createAcpSessionMeta({
@@ -940,11 +940,11 @@ describe("tryDispatchAcpReply", () => {
         : [],
     );
     sessionMetaMocks.readAcpSessionEntry.mockImplementation(
-      (params: { sessionKey: string; cfg?: ZhushouConfig }) =>
+      (params: { sessionKey: string; cfg?: AssistantConfig }) =>
         params.sessionKey === canonicalSessionKey
           ? {
               cfg: params.cfg ?? createAcpTestConfig(),
-              storePath: "/tmp/zhushou-session-store.json",
+              storePath: "/tmp/assistant-session-store.json",
               sessionKey: canonicalSessionKey,
               storeSessionKey: canonicalSessionKey,
               acp: createAcpSessionMeta({

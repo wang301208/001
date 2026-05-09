@@ -1,11 +1,11 @@
-import { createActionGate } from "zhushou/plugin-sdk/channel-actions";
-import type { ChannelMessageActionName } from "zhushou/plugin-sdk/channel-contract";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { extractToolSend, type ChannelToolSend } from "zhushou/plugin-sdk/tool-send";
+import { createActionGate } from "assistant/plugin-sdk/channel-actions";
+import type { ChannelMessageActionName } from "assistant/plugin-sdk/channel-contract";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { extractToolSend, type ChannelToolSend } from "assistant/plugin-sdk/tool-send";
 import { listEnabledSlackAccounts, resolveSlackAccount } from "./accounts.js";
 
 export function listSlackMessageActions(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId?: string | null,
 ): ChannelMessageActionName[] {
   const accounts = (

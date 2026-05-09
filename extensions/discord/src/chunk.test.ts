@@ -1,4 +1,4 @@
-import { countLines, hasBalancedFences } from "zhushou/plugin-sdk/testing";
+import { countLines, hasBalancedFences } from "assistant/plugin-sdk/testing";
 import { describe, expect, it } from "vitest";
 import { chunkDiscordText, chunkDiscordTextWithMode } from "./chunk.js";
 

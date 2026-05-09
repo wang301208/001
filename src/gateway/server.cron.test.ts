@@ -61,7 +61,7 @@ let cronSuiteCaseId = 0;
 
 async function getCronSuiteTempRoot(): Promise<string> {
   if (!cronSuiteTempRootPromise) {
-    cronSuiteTempRootPromise = fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-cron-suite-"));
+    cronSuiteTempRootPromise = fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-cron-suite-"));
   }
   return await cronSuiteTempRootPromise;
 }
@@ -129,15 +129,15 @@ async function cleanupCronTestRun(params: {
   }
   testState.cronEnabled = undefined;
   if (params.prevSkipCron === undefined) {
-    delete process.env.OPENCLAW_SKIP_CRON;
+    delete process.env.ASSISTANT_SKIP_CRON;
   } else {
-    process.env.OPENCLAW_SKIP_CRON = params.prevSkipCron;
+    process.env.ASSISTANT_SKIP_CRON = params.prevSkipCron;
   }
   if (params.prevAllowScheduledServicesInMinimalGateway === undefined) {
-    delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
+    delete process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
     return;
   }
-  process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES =
+  process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES =
     params.prevAllowScheduledServicesInMinimalGateway;
 }
 
@@ -151,11 +151,11 @@ async function setupCronTestRun(params: {
   prevAllowScheduledServicesInMinimalGateway: string | undefined;
   dir: string;
 }> {
-  const prevSkipCron = process.env.OPENCLAW_SKIP_CRON;
+  const prevSkipCron = process.env.ASSISTANT_SKIP_CRON;
   const prevAllowScheduledServicesInMinimalGateway =
-    process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
-  process.env.OPENCLAW_SKIP_CRON = "0";
-  process.env.OPENCLAW_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES = "1";
+    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
+  process.env.ASSISTANT_SKIP_CRON = "0";
+  process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES = "1";
   const { dir, storePath } = await createCronCasePaths(params.tempPrefix);
   testState.cronStorePath = storePath;
   testState.sessionConfig = params.sessionConfig;
@@ -212,7 +212,7 @@ async function addWebhookCronJob(params: {
 }
 
 async function writeCronConfig(config: unknown) {
-  const configPath = process.env.ZHUSHOU_CONFIG_PATH;
+  const configPath = process.env.ASSISTANT_CONFIG_PATH;
   expect(typeof configPath).toBe("string");
   await fs.mkdir(path.dirname(configPath as string), { recursive: true });
   await fs.writeFile(configPath as string, JSON.stringify(config, null, 2), "utf-8");
@@ -270,7 +270,7 @@ describe("gateway server cron", () => {
 
   test("handles cron CRUD, normalization, and patch semantics", { timeout: 45_000 }, async () => {
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-",
+      tempPrefix: "assistant-gw-cron-",
       sessionConfig: { mainKey: "primary" },
       cronEnabled: false,
     });
@@ -499,7 +499,7 @@ describe("gateway server cron", () => {
 
   test("rejects unsafe custom session ids on add and update", async () => {
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-bad-session-target-",
+      tempPrefix: "assistant-gw-cron-bad-session-target-",
       cronEnabled: false,
     });
 
@@ -550,7 +550,7 @@ describe("gateway server cron", () => {
 
   test("writes cron run history and auto-runs due jobs", async () => {
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-log-",
+      tempPrefix: "assistant-gw-cron-log-",
     });
 
     const { server, ws } = await startServerWithClient();
@@ -653,7 +653,7 @@ describe("gateway server cron", () => {
   test("fails closed for persisted unsafe custom session ids", async () => {
     const now = Date.now();
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-persisted-bad-session-target-",
+      tempPrefix: "assistant-gw-cron-persisted-bad-session-target-",
       cronEnabled: false,
       jobs: [
         {
@@ -695,7 +695,7 @@ describe("gateway server cron", () => {
 
   test("returns from cron.run immediately while isolated work continues in background", async () => {
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-run-detached-",
+      tempPrefix: "assistant-gw-cron-run-detached-",
     });
 
     const { server, ws } = await startServerWithClient();
@@ -767,7 +767,7 @@ describe("gateway server cron", () => {
     );
 
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-run-busy-",
+      tempPrefix: "assistant-gw-cron-run-busy-",
       jobs: [
         {
           id: "busy-job",
@@ -825,7 +825,7 @@ describe("gateway server cron", () => {
   test("returns not-due without starting background work", async () => {
     const now = Date.now();
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-run-not-due-",
+      tempPrefix: "assistant-gw-cron-run-not-due-",
       jobs: [
         {
           id: "future-job",
@@ -879,7 +879,7 @@ describe("gateway server cron", () => {
       state: {},
     };
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-webhook-",
+      tempPrefix: "assistant-gw-cron-webhook-",
       cronEnabled: false,
       jobs: [legacyNotifyJob],
     });
@@ -1048,7 +1048,7 @@ describe("gateway server cron", () => {
 
   test("falls back to the primary delivery channel on job failure and preserves sessionKey", async () => {
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-failure-primary-fallback-",
+      tempPrefix: "assistant-gw-cron-failure-primary-fallback-",
       cronEnabled: false,
     });
 
@@ -1108,7 +1108,7 @@ describe("gateway server cron", () => {
 
   test("ignores non-string cron.webhookToken values without crashing webhook delivery", async () => {
     const { prevSkipCron, prevAllowScheduledServicesInMinimalGateway } = await setupCronTestRun({
-      tempPrefix: "zhushou-gw-cron-webhook-secretinput-",
+      tempPrefix: "assistant-gw-cron-webhook-secretinput-",
       cronEnabled: false,
     });
 

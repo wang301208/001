@@ -1,7 +1,7 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
-import type { BaseTokenResolution } from "zhushou/plugin-sdk/channel-contract";
-import { tryReadSecretFileSync } from "zhushou/plugin-sdk/core";
-import { resolveAccountEntry } from "zhushou/plugin-sdk/routing";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import type { BaseTokenResolution } from "assistant/plugin-sdk/channel-contract";
+import { tryReadSecretFileSync } from "assistant/plugin-sdk/core";
+import { resolveAccountEntry } from "assistant/plugin-sdk/routing";
 import { normalizeResolvedSecretInputString, normalizeSecretInputString } from "./secret-input.js";
 import type { ZaloConfig } from "./types.js";
 

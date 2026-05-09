@@ -1,5 +1,5 @@
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime";
 import { createLoggerBackedRuntime } from "../../runtime-api.js";
 import { getTlonRuntime } from "../runtime.js";
 import { createSettingsManager, type TlonSettingsStore } from "../settings.js";
@@ -452,7 +452,7 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
             `This can leak conversation context between users.\n\n` +
             `Fix: Add to your 助手 config:\n` +
             `session:\n  dmScope: "per-channel-peer"\n\n` +
-            `Docs: https://docs.zhushou.ai/concepts/session#secure-dm-mode`;
+            `Docs: https://docs.assistant.ai/concepts/session#secure-dm-mode`;
 
           // Send async, don't block message processing
           sendDm({

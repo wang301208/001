@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/voice-call",
+  "name": "@assistant/voice-call",
   "version": "2026.4.16",
   "description": "助手 voice-call plugin",
   "type": "module",
@@ -9,18 +9,18 @@
     "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
-    "zhushou": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*",
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
@@ -31,7 +31,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "zhushouVersion": "2026.4.16"
+      "assistantVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

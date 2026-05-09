@@ -83,7 +83,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
       }
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[zhushou] FATAL unhandled rejection:",
+        "[assistant] FATAL unhandled rejection:",
         expect.stringContaining("Out of memory"),
       );
     });
@@ -105,7 +105,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
       }
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[zhushou] CONFIGURATION ERROR - requires fix:",
+        "[assistant] CONFIGURATION ERROR - requires fix:",
         expect.stringContaining("Invalid config"),
       );
     });
@@ -148,7 +148,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
       }
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "[zhushou] Non-fatal unhandled rejection (continuing):",
+        "[assistant] Non-fatal unhandled rejection (continuing):",
         expect.stringContaining("fetch failed"),
       );
     });
@@ -171,7 +171,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
       }
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "[zhushou] Non-fatal unhandled rejection (continuing):",
+        "[assistant] Non-fatal unhandled rejection (continuing):",
         expect.stringContaining("unable to open database file"),
       );
     });
@@ -181,7 +181,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
 
       expectExitCodeFromUnhandled(genericErr, [1], "unhandled rejection");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[zhushou] Unhandled promise rejection:",
+        "[assistant] Unhandled promise rejection:",
         expect.stringContaining("Something went wrong"),
       );
     });
@@ -203,7 +203,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
 
       expectExitCodeFromUnhandled(abortErr, []);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "[zhushou] Suppressed AbortError:",
+        "[assistant] Suppressed AbortError:",
         expect.stringContaining("This operation was aborted"),
       );
     });

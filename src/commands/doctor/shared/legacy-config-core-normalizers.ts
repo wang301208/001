@@ -1,7 +1,7 @@
 import { normalizeProviderId } from "../../../agents/provider-id.js";
 import { resolveSingleAccountKeysToMove } from "../../../channels/plugins/setup-promotion-helpers.js";
 import { resolveNormalizedProviderModelMaxTokens } from "../../../config/defaults.js";
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import { DEFAULT_GOOGLE_API_BASE_URL } from "../../../infra/google-api-base-url.js";
 import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
 import {
@@ -12,9 +12,9 @@ import { isRecord } from "./legacy-config-record-shared.js";
 export { normalizeLegacyTalkConfig } from "./legacy-talk-config-normalizer.js";
 
 export function normalizeLegacyBrowserConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   changes: string[],
-): ZhushouConfig {
+): AssistantConfig {
   const rawBrowser = cfg.browser;
   if (!isRecord(rawBrowser)) {
     return cfg;
@@ -92,14 +92,14 @@ export function normalizeLegacyBrowserConfig(
 
   return {
     ...cfg,
-    browser: browser as ZhushouConfig["browser"],
+    browser: browser as AssistantConfig["browser"],
   };
 }
 
 export function seedMissingDefaultAccountsFromSingleAccountBase(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   changes: string[],
-): ZhushouConfig {
+): AssistantConfig {
   const channels = cfg.channels as Record<string, unknown> | undefined;
   if (!channels) {
     return cfg;
@@ -162,19 +162,19 @@ export function seedMissingDefaultAccountsFromSingleAccountBase(
 
   return {
     ...cfg,
-    channels: nextChannels as ZhushouConfig["channels"],
+    channels: nextChannels as AssistantConfig["channels"],
   };
 }
 
 type ModelProviderEntry = Partial<
-  NonNullable<NonNullable<ZhushouConfig["models"]>["providers"]>[string]
+  NonNullable<NonNullable<AssistantConfig["models"]>["providers"]>[string]
 >;
-type ModelsConfigPatch = Partial<NonNullable<ZhushouConfig["models"]>>;
+type ModelsConfigPatch = Partial<NonNullable<AssistantConfig["models"]>>;
 
 export function normalizeLegacyNanoBananaSkill(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   changes: string[],
-): ZhushouConfig {
+): AssistantConfig {
   const NANO_BANANA_SKILL_KEY = "nano-banana-pro";
   const NANO_BANANA_MODEL = "google/gemini-3-pro-image-preview";
   const rawSkills = cfg.skills;
@@ -273,10 +273,10 @@ export function normalizeLegacyNanoBananaSkill(
       rawGoogle.models = [];
     }
     rawProviders.google = rawGoogle;
-    rawModels.providers = rawProviders as NonNullable<ZhushouConfig["models"]>["providers"];
+    rawModels.providers = rawProviders as NonNullable<AssistantConfig["models"]>["providers"];
     next = {
       ...next,
-      models: rawModels as ZhushouConfig["models"],
+      models: rawModels as AssistantConfig["models"],
     };
     changes.push(
       `Moved skills.entries.${NANO_BANANA_SKILL_KEY}.${legacyEnvApiKey ? "env.GEMINI_API_KEY" : "apiKey"} → models.providers.google.apiKey.`,
@@ -308,9 +308,9 @@ export function normalizeLegacyNanoBananaSkill(
 }
 
 export function normalizeLegacyCrossContextMessageConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   changes: string[],
-): ZhushouConfig {
+): AssistantConfig {
   const rawTools = cfg.tools;
   if (!isRecord(rawTools)) {
     return cfg;
@@ -402,9 +402,9 @@ function migrateLegacyDeepgramCompat(params: {
 }
 
 export function normalizeLegacyMediaProviderOptions(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   changes: string[],
-): ZhushouConfig {
+): AssistantConfig {
   const rawTools = cfg.tools;
   if (!isRecord(rawTools)) {
     return cfg;
@@ -474,15 +474,15 @@ export function normalizeLegacyMediaProviderOptions(
     ...cfg,
     tools: {
       ...cfg.tools,
-      media: nextMedia as NonNullable<ZhushouConfig["tools"]>["media"],
+      media: nextMedia as NonNullable<AssistantConfig["tools"]>["media"],
     },
   };
 }
 
 export function normalizeLegacyMistralModelMaxTokens(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   changes: string[],
-): ZhushouConfig {
+): AssistantConfig {
   const rawProviders = cfg.models?.providers;
   if (!isRecord(rawProviders)) {
     return cfg;
@@ -556,7 +556,7 @@ export function normalizeLegacyMistralModelMaxTokens(
     ...cfg,
     models: {
       ...cfg.models,
-      providers: nextProviders as NonNullable<ZhushouConfig["models"]>["providers"],
+      providers: nextProviders as NonNullable<AssistantConfig["models"]>["providers"],
     },
   };
 }

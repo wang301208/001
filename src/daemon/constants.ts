@@ -1,19 +1,18 @@
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
-// Default service labels (canonical + legacy compatibility)
-export const GATEWAY_LAUNCH_AGENT_LABEL = "ai.zhushou.gateway";
-export const GATEWAY_SYSTEMD_SERVICE_NAME = "zhushou-gateway";
-export const GATEWAY_WINDOWS_TASK_NAME = "OpenClaw Gateway";
-export const GATEWAY_SERVICE_MARKER = "zhushou";
+// Default service labels.
+export const GATEWAY_LAUNCH_AGENT_LABEL = "ai.assistant.gateway";
+export const GATEWAY_SYSTEMD_SERVICE_NAME = "assistant-gateway";
+export const GATEWAY_WINDOWS_TASK_NAME = "Assistant Gateway";
+export const GATEWAY_SERVICE_MARKER = "assistant";
 export const GATEWAY_SERVICE_KIND = "gateway";
-export const NODE_LAUNCH_AGENT_LABEL = "ai.zhushou.node";
-export const NODE_SYSTEMD_SERVICE_NAME = "zhushou-node";
+export const NODE_LAUNCH_AGENT_LABEL = "ai.assistant.node";
+export const NODE_SYSTEMD_SERVICE_NAME = "assistant-node";
 export const NODE_WINDOWS_TASK_NAME = "助手 Node";
-export const NODE_SERVICE_MARKER = "zhushou";
+export const NODE_SERVICE_MARKER = "assistant";
 export const NODE_SERVICE_KIND = "node";
 export const NODE_WINDOWS_TASK_SCRIPT_NAME = "node.cmd";
 export const LEGACY_GATEWAY_LAUNCH_AGENT_LABELS: string[] = [];
-export const LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES: string[] = ["clawdbot-gateway"];
 export const LEGACY_GATEWAY_WINDOWS_TASK_NAMES: string[] = [];
 
 export function normalizeGatewayProfile(profile?: string): string | null {
@@ -34,7 +33,7 @@ export function resolveGatewayLaunchAgentLabel(profile?: string): string {
   if (!normalized) {
     return GATEWAY_LAUNCH_AGENT_LABEL;
   }
-  return `ai.zhushou.${normalized}`;
+  return `ai.assistant.${normalized}`;
 }
 
 export function resolveLegacyGatewayLaunchAgentLabels(profile?: string): string[] {
@@ -47,7 +46,7 @@ export function resolveGatewaySystemdServiceName(profile?: string): string {
   if (!suffix) {
     return GATEWAY_SYSTEMD_SERVICE_NAME;
   }
-  return `zhushou-gateway${suffix}`;
+  return `assistant-gateway${suffix}`;
 }
 
 export function resolveGatewayWindowsTaskName(profile?: string): string {
@@ -55,7 +54,7 @@ export function resolveGatewayWindowsTaskName(profile?: string): string {
   if (!normalized) {
     return GATEWAY_WINDOWS_TASK_NAME;
   }
-  return `OpenClaw Gateway (${normalized})`;
+  return `Assistant Gateway (${normalized})`;
 }
 
 export function formatGatewayServiceDescription(params?: {
@@ -72,9 +71,9 @@ export function formatGatewayServiceDescription(params?: {
     parts.push(`v${version}`);
   }
   if (parts.length === 0) {
-    return "OpenClaw Gateway";
+    return "Assistant Gateway";
   }
-  return `OpenClaw Gateway (${parts.join(", ")})`;
+  return `Assistant Gateway (${parts.join(", ")})`;
 }
 
 export function resolveGatewayServiceDescription(params: {
@@ -85,8 +84,8 @@ export function resolveGatewayServiceDescription(params: {
   return (
     params.description ??
     formatGatewayServiceDescription({
-      profile: params.env.ZHUSHOU_PROFILE,
-      version: params.environment?.OPENCLAW_SERVICE_VERSION ?? params.env.OPENCLAW_SERVICE_VERSION,
+      profile: params.env.ASSISTANT_PROFILE,
+      version: params.environment?.ASSISTANT_SERVICE_VERSION ?? params.env.ASSISTANT_SERVICE_VERSION,
     })
   );
 }

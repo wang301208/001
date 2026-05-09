@@ -1,6 +1,6 @@
-import { buildDmGroupAccountAllowlistAdapter } from "zhushou/plugin-sdk/allowlist-config-edit";
-import type { ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { getChatChannelMeta } from "zhushou/plugin-sdk/channel-plugin-common";
+import { buildDmGroupAccountAllowlistAdapter } from "assistant/plugin-sdk/allowlist-config-edit";
+import type { ChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { getChatChannelMeta } from "assistant/plugin-sdk/channel-plugin-common";
 import type { ResolvedTelegramAccount } from "./src/accounts.js";
 import { resolveTelegramAccount } from "./src/accounts.js";
 import { telegramApprovalCapability } from "./src/approval-native.js";

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
-import type { ChannelLegacyStateMigrationPlan } from "zhushou/plugin-sdk/channel-contract";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+import type { ChannelLegacyStateMigrationPlan } from "assistant/plugin-sdk/channel-contract";
 
 function fileExists(pathValue: string): boolean {
   try {

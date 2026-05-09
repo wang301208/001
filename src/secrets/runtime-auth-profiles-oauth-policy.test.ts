@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   loadAuthStoreWithProfiles,
   setupSecretsRuntimeSnapshotTestHooks,
@@ -7,7 +7,7 @@ import {
 
 const { prepareSecretsRuntimeSnapshot } = setupSecretsRuntimeSnapshotTestHooks();
 
-function withAuthProfileMode(mode: "api_key" | "oauth" | "token"): ZhushouConfig {
+function withAuthProfileMode(mode: "api_key" | "oauth" | "token"): AssistantConfig {
   return {
     auth: {
       profiles: {
@@ -22,7 +22,7 @@ function withAuthProfileMode(mode: "api_key" | "oauth" | "token"): ZhushouConfig
         default: { source: "env" },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 describe("secrets runtime oauth auth-profile SecretRef policy", () => {
@@ -41,7 +41,7 @@ describe("secrets runtime oauth auth-profile SecretRef policy", () => {
         env: { ANTHROPIC_TOKEN: "token-value" } as NodeJS.ProcessEnv,
         loadAuthStore: () => store,
         loadablePluginOrigins: new Map(),
-        agentDirs: ["/tmp/zhushou-secrets-runtime-main"],
+        agentDirs: ["/tmp/assistant-secrets-runtime-main"],
       }),
     ).rejects.toThrow(/OAuth \+ SecretRef is not supported/i);
   });
@@ -60,7 +60,7 @@ describe("secrets runtime oauth auth-profile SecretRef policy", () => {
       env: { ANTHROPIC_TOKEN: "token-value" } as NodeJS.ProcessEnv,
       loadAuthStore: () => store,
       loadablePluginOrigins: new Map(),
-      agentDirs: ["/tmp/zhushou-secrets-runtime-main"],
+      agentDirs: ["/tmp/assistant-secrets-runtime-main"],
     });
 
     const resolved = snapshot.authStores[0]?.store.profiles["anthropic:default"];

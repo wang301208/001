@@ -1,1 +1,1 @@
-export * from "zhushou/plugin-sdk/thread-ownership";
+export * from "assistant/plugin-sdk/thread-ownership";

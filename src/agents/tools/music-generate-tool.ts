@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 import { loadConfig } from "../../config/config.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { resolveConfiguredMediaMaxBytes } from "../../media/configured-max-bytes.js";
@@ -112,7 +112,7 @@ const MusicGenerateToolSchema = Type.Object({
 });
 
 export function resolveMusicGenerationModelConfigForTool(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   agentDir?: string;
 }): ToolModelConfig | null {
   return resolveCapabilityModelConfigForTool({
@@ -124,7 +124,7 @@ export function resolveMusicGenerationModelConfigForTool(params: {
 }
 
 function resolveSelectedMusicGenerationProvider(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   musicGenerationModelConfig: ToolModelConfig;
   modelOverride?: string;
 }): MusicGenerationProvider | undefined {
@@ -325,7 +325,7 @@ type ExecutedMusicGeneration = {
 };
 
 async function executeMusicGenerationJob(params: {
-  effectiveCfg: ZhushouConfig;
+  effectiveCfg: AssistantConfig;
   prompt: string;
   agentDir?: string;
   model?: string;
@@ -454,7 +454,7 @@ async function executeMusicGenerationJob(params: {
 }
 
 export function createMusicGenerateTool(options?: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   agentDir?: string;
   agentSessionKey?: string;
   requesterOrigin?: DeliveryContext;
@@ -463,7 +463,7 @@ export function createMusicGenerateTool(options?: {
   fsPolicy?: ToolFsPolicy;
   scheduleBackgroundWork?: MusicGenerateBackgroundScheduler;
 }): AnyAgentTool | null {
-  const cfg: ZhushouConfig = options?.config ?? loadConfig();
+  const cfg: AssistantConfig = options?.config ?? loadConfig();
   const musicGenerationModelConfig = resolveMusicGenerationModelConfigForTool({
     cfg,
     agentDir: options?.agentDir,

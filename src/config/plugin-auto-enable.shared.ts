@@ -23,7 +23,7 @@ import type {
 } from "./plugin-auto-enable.types.js";
 import { ensurePluginAllowlisted } from "./plugins-allowlist.js";
 import { isBlockedObjectKey } from "./prototype-keys.js";
-import type { ZhushouConfig } from "./types.zhushou.js";
+import type { AssistantConfig } from "./types.assistant.js";
 export type {
   PluginAutoEnableCandidate,
   PluginAutoEnableResult,
@@ -48,7 +48,7 @@ function resolveAutoEnableProviderPluginIds(
   return Object.fromEntries(entries);
 }
 
-function collectModelRefs(cfg: ZhushouConfig): string[] {
+function collectModelRefs(cfg: AssistantConfig): string[] {
   const refs: string[] = [];
   const pushModelRef = (value: unknown) => {
     if (typeof value === "string" && value.trim()) {
@@ -100,7 +100,7 @@ function extractProviderFromModelRef(value: string): string | null {
   return normalizeProviderId(trimmed.slice(0, slash));
 }
 
-function hasConfiguredEmbeddedHarnessRuntime(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): boolean {
+function hasConfiguredEmbeddedHarnessRuntime(cfg: AssistantConfig, env: NodeJS.ProcessEnv): boolean {
   return collectConfiguredAgentHarnessRuntimes(cfg, env).length > 0;
 }
 
@@ -122,7 +122,7 @@ function resolveAgentHarnessOwnerPluginIds(
     .toSorted((left, right) => left.localeCompare(right));
 }
 
-function isProviderConfigured(cfg: ZhushouConfig, providerId: string): boolean {
+function isProviderConfigured(cfg: AssistantConfig, providerId: string): boolean {
   const normalized = normalizeProviderId(providerId);
   const profiles = cfg.auth?.profiles;
   if (profiles && typeof profiles === "object") {
@@ -156,12 +156,12 @@ function isProviderConfigured(cfg: ZhushouConfig, providerId: string): boolean {
   return false;
 }
 
-function hasPluginOwnedWebSearchConfig(cfg: ZhushouConfig, pluginId: string): boolean {
+function hasPluginOwnedWebSearchConfig(cfg: AssistantConfig, pluginId: string): boolean {
   const pluginConfig = cfg.plugins?.entries?.[pluginId]?.config;
   return isRecord(pluginConfig) && isRecord(pluginConfig.webSearch);
 }
 
-function hasPluginOwnedWebFetchConfig(cfg: ZhushouConfig, pluginId: string): boolean {
+function hasPluginOwnedWebFetchConfig(cfg: AssistantConfig, pluginId: string): boolean {
   const pluginConfig = cfg.plugins?.entries?.[pluginId]?.config;
   return isRecord(pluginConfig) && isRecord(pluginConfig.webFetch);
 }
@@ -177,7 +177,7 @@ function resolvePluginOwnedToolConfigKeys(plugin: PluginManifestRecord): string[
   return Object.keys(properties).filter((key) => key !== "webSearch" && key !== "webFetch");
 }
 
-function hasPluginOwnedToolConfig(cfg: ZhushouConfig, plugin: PluginManifestRecord): boolean {
+function hasPluginOwnedToolConfig(cfg: AssistantConfig, plugin: PluginManifestRecord): boolean {
   const pluginConfig = cfg.plugins?.entries?.[plugin.id]?.config;
   if (!isRecord(pluginConfig)) {
     return false;
@@ -242,13 +242,13 @@ function resolvePluginIdForChannel(
   return channelToPluginId.get(channelId) ?? channelId;
 }
 
-function collectCandidateChannelIds(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): string[] {
+function collectCandidateChannelIds(cfg: AssistantConfig, env: NodeJS.ProcessEnv): string[] {
   return listPotentialConfiguredChannelIds(cfg, env).map(
     (channelId) => normalizeChatChannelId(channelId) ?? channelId,
   );
 }
 
-function hasConfiguredWebSearchPluginEntry(cfg: ZhushouConfig): boolean {
+function hasConfiguredWebSearchPluginEntry(cfg: AssistantConfig): boolean {
   const entries = cfg.plugins?.entries;
   return (
     !!entries &&
@@ -259,7 +259,7 @@ function hasConfiguredWebSearchPluginEntry(cfg: ZhushouConfig): boolean {
   );
 }
 
-function hasConfiguredWebFetchPluginEntry(cfg: ZhushouConfig): boolean {
+function hasConfiguredWebFetchPluginEntry(cfg: AssistantConfig): boolean {
   const entries = cfg.plugins?.entries;
   return (
     !!entries &&
@@ -270,7 +270,7 @@ function hasConfiguredWebFetchPluginEntry(cfg: ZhushouConfig): boolean {
   );
 }
 
-function hasConfiguredPluginConfigEntry(cfg: ZhushouConfig): boolean {
+function hasConfiguredPluginConfigEntry(cfg: AssistantConfig): boolean {
   const entries = cfg.plugins?.entries;
   return (
     !!entries &&
@@ -294,7 +294,7 @@ function toolPolicyReferencesBrowser(value: unknown): boolean {
   );
 }
 
-function hasBrowserToolReference(cfg: ZhushouConfig): boolean {
+function hasBrowserToolReference(cfg: AssistantConfig): boolean {
   if (toolPolicyReferencesBrowser(cfg.tools)) {
     return true;
   }
@@ -304,7 +304,7 @@ function hasBrowserToolReference(cfg: ZhushouConfig): boolean {
     : false;
 }
 
-function hasSetupAutoEnableRelevantConfig(cfg: ZhushouConfig): boolean {
+function hasSetupAutoEnableRelevantConfig(cfg: AssistantConfig): boolean {
   const entries = cfg.plugins?.entries;
   if (isRecord(cfg.browser) || isRecord(cfg.acp) || hasBrowserToolReference(cfg)) {
     return true;
@@ -318,12 +318,12 @@ function hasSetupAutoEnableRelevantConfig(cfg: ZhushouConfig): boolean {
   return hasConfiguredPluginConfigEntry(cfg);
 }
 
-function hasPluginEntries(cfg: ZhushouConfig): boolean {
+function hasPluginEntries(cfg: AssistantConfig): boolean {
   const entries = cfg.plugins?.entries;
   return !!entries && typeof entries === "object" && Object.keys(entries).length > 0;
 }
 
-function configMayNeedPluginManifestRegistry(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): boolean {
+function configMayNeedPluginManifestRegistry(cfg: AssistantConfig, env: NodeJS.ProcessEnv): boolean {
   const pluginEntries = cfg.plugins?.entries;
   if (Array.isArray(cfg.plugins?.allow) && cfg.plugins.allow.length > 0 && hasPluginEntries(cfg)) {
     return true;
@@ -362,7 +362,7 @@ function configMayNeedPluginManifestRegistry(cfg: ZhushouConfig, env: NodeJS.Pro
 }
 
 export function configMayNeedPluginAutoEnable(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   env: NodeJS.ProcessEnv,
 ): boolean {
   if (Array.isArray(cfg.plugins?.allow) && cfg.plugins.allow.length > 0 && hasPluginEntries(cfg)) {
@@ -427,7 +427,7 @@ export function resolvePluginAutoEnableCandidateReason(
 }
 
 export function resolveConfiguredPluginAutoEnableCandidates(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   env: NodeJS.ProcessEnv;
   registry: PluginManifestRegistry;
 }): PluginAutoEnableCandidate[] {
@@ -528,7 +528,7 @@ export function resolveConfiguredPluginAutoEnableCandidates(params: {
   return changes;
 }
 
-function isPluginExplicitlyDisabled(cfg: ZhushouConfig, pluginId: string): boolean {
+function isPluginExplicitlyDisabled(cfg: AssistantConfig, pluginId: string): boolean {
   const builtInChannelId = normalizeChatChannelId(pluginId);
   if (builtInChannelId) {
     const channels = cfg.channels as Record<string, unknown> | undefined;
@@ -545,12 +545,12 @@ function isPluginExplicitlyDisabled(cfg: ZhushouConfig, pluginId: string): boole
   return cfg.plugins?.entries?.[pluginId]?.enabled === false;
 }
 
-function isPluginDenied(cfg: ZhushouConfig, pluginId: string): boolean {
+function isPluginDenied(cfg: AssistantConfig, pluginId: string): boolean {
   const deny = cfg.plugins?.deny;
   return Array.isArray(deny) && deny.includes(pluginId);
 }
 
-function isBuiltInChannelAlreadyEnabled(cfg: ZhushouConfig, channelId: string): boolean {
+function isBuiltInChannelAlreadyEnabled(cfg: AssistantConfig, channelId: string): boolean {
   const channels = cfg.channels as Record<string, unknown> | undefined;
   const channelConfig = channels?.[channelId];
   return (
@@ -561,7 +561,7 @@ function isBuiltInChannelAlreadyEnabled(cfg: ZhushouConfig, channelId: string): 
   );
 }
 
-function registerPluginEntry(cfg: ZhushouConfig, pluginId: string): ZhushouConfig {
+function registerPluginEntry(cfg: AssistantConfig, pluginId: string): AssistantConfig {
   const builtInChannelId = normalizeChatChannelId(pluginId);
   if (builtInChannelId) {
     const channels = cfg.channels as Record<string, unknown> | undefined;
@@ -619,10 +619,10 @@ function isKnownPluginId(pluginId: string, manifestRegistry: PluginManifestRegis
 }
 
 function materializeConfiguredPluginEntryAllowlist(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changes: string[];
   manifestRegistry: PluginManifestRegistry;
-}): ZhushouConfig {
+}): AssistantConfig {
   let next = params.config;
   const allow = next.plugins?.allow;
   const entries = next.plugins?.entries;
@@ -676,7 +676,7 @@ function formatAutoEnableChange(
 }
 
 export function resolvePluginAutoEnableManifestRegistry(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   env: NodeJS.ProcessEnv;
   manifestRegistry?: PluginManifestRegistry;
 }): PluginManifestRegistry {
@@ -689,7 +689,7 @@ export function resolvePluginAutoEnableManifestRegistry(params: {
 }
 
 export function materializePluginAutoEnableCandidatesInternal(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   candidates: readonly PluginAutoEnableCandidate[];
   env: NodeJS.ProcessEnv;
   manifestRegistry: PluginManifestRegistry;

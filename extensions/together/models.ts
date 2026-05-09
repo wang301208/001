@@ -1,4 +1,4 @@
-import type { ModelDefinitionConfig } from "zhushou/plugin-sdk/provider-model-shared";
+import type { ModelDefinitionConfig } from "assistant/plugin-sdk/provider-model-shared";
 
 export const TOGETHER_BASE_URL = "https://api.together.xyz/v1";
 

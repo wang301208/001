@@ -9,16 +9,16 @@ vi.mock("./auth.js", () => ({
   resolveFirstGithubToken: resolveFirstGithubTokenMock,
 }));
 
-vi.mock("zhushou/plugin-sdk/config-runtime", () => ({
+vi.mock("assistant/plugin-sdk/config-runtime", () => ({
   resolveConfiguredSecretInputString: resolveConfiguredSecretInputStringMock,
 }));
 
-vi.mock("zhushou/plugin-sdk/github-copilot-token", () => ({
+vi.mock("assistant/plugin-sdk/github-copilot-token", () => ({
   DEFAULT_COPILOT_API_BASE_URL: "https://api.githubcopilot.test",
   resolveCopilotApiToken: resolveCopilotApiTokenMock,
 }));
 
-vi.mock("zhushou/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("assistant/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: fetchWithSsrFGuardMock,
 }));
 

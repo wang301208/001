@@ -1,1 +1,1 @@
-export { saveMediaBuffer } from "zhushou/plugin-sdk/media-runtime";
+export { saveMediaBuffer } from "assistant/plugin-sdk/media-runtime";

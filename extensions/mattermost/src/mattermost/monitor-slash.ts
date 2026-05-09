@@ -7,7 +7,7 @@ import {
 import {
   listSkillCommandsForAgents,
   parseStrictPositiveInteger,
-  type ZhushouConfig,
+  type AssistantConfig,
   type RuntimeEnv,
 } from "./runtime-api.js";
 import {
@@ -27,7 +27,7 @@ function isLoopbackHost(hostname: string): boolean {
 }
 
 function buildSlashCommands(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: RuntimeEnv;
   nativeSkills: boolean;
 }): MattermostCommandSpec[] {
@@ -136,7 +136,7 @@ async function registerSlashCommandsAcrossTeams(params: {
 
 export async function registerMattermostMonitorSlashCommands(params: {
   client: MattermostClient;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   runtime: RuntimeEnv;
   account: ResolvedMattermostAccount;
   baseUrl: string;
@@ -152,7 +152,7 @@ export async function registerMattermostMonitorSlashCommands(params: {
 
   try {
     const teams = await fetchMattermostUserTeams(params.client, params.botUserId);
-    const envPort = parseStrictPositiveInteger(process.env.ZHUSHOU_GATEWAY_PORT?.trim());
+    const envPort = parseStrictPositiveInteger(process.env.ASSISTANT_GATEWAY_PORT?.trim());
     const slashGatewayPort = envPort ?? params.cfg.gateway?.port ?? 18789;
     const slashCallbackUrl = resolveCallbackUrl({
       config: slashConfig,

@@ -6,7 +6,7 @@ import {
   type RequestData,
   type RequestClientOptions,
 } from "@buape/carbon";
-import { isRecord } from "zhushou/plugin-sdk/text-runtime";
+import { isRecord } from "assistant/plugin-sdk/text-runtime";
 
 export type ProxyRequestClientOptions = RequestClientOptions & {
   fetch?: typeof fetch;

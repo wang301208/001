@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createOllamaWebSearchProvider as createContractOllamaWebSearchProvider } from "../web-search-contract-api.js";
 import {
@@ -11,7 +11,7 @@ const { fetchWithSsrFGuardMock } = vi.hoisted(() => ({
   fetchWithSsrFGuardMock: vi.fn(),
 }));
 
-vi.mock("zhushou/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("assistant/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: fetchWithSsrFGuardMock,
 }));
 
@@ -20,11 +20,11 @@ type OllamaProviderConfigOverride = Partial<{
   apiKey: string;
   baseUrl: string;
   models: NonNullable<
-    NonNullable<NonNullable<ZhushouConfig["models"]>["providers"]>[string]
+    NonNullable<NonNullable<AssistantConfig["models"]>["providers"]>[string]
   >["models"];
 }>;
 
-function createOllamaConfig(provider: OllamaProviderConfigOverride = {}): ZhushouConfig {
+function createOllamaConfig(provider: OllamaProviderConfigOverride = {}): AssistantConfig {
   return {
     models: {
       providers: {
@@ -39,7 +39,7 @@ function createOllamaConfig(provider: OllamaProviderConfigOverride = {}): Zhusho
   };
 }
 
-function createOllamaConfigWithWebSearchBaseUrl(baseUrl: string): ZhushouConfig {
+function createOllamaConfigWithWebSearchBaseUrl(baseUrl: string): AssistantConfig {
   return {
     ...createOllamaConfig(),
     plugins: {
@@ -133,7 +133,7 @@ describe("ollama web search provider", () => {
           results: [
             {
               title: "助手",
-              url: "https://zhushou.ai/docs",
+              url: "https://assistant.ai/docs",
               content: "Gateway docs and setup details",
             },
           ],
@@ -153,7 +153,7 @@ describe("ollama web search provider", () => {
     if (!tool) {
       throw new Error("Expected tool definition");
     }
-    const result = await tool.execute({ query: "zhushou docs", count: 3 });
+    const result = await tool.execute({ query: "assistant docs", count: 3 });
 
     expect(fetchWithSsrFGuardMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -172,14 +172,14 @@ describe("ollama web search provider", () => {
         ),
       ),
     ).toEqual({
-      query: "zhushou docs",
+      query: "assistant docs",
       max_results: 3,
     });
     expect(result).toMatchObject({
-      query: "zhushou docs",
+      query: "assistant docs",
       provider: "ollama",
       count: 1,
-      results: [{ url: "https://zhushou.ai/docs" }],
+      results: [{ url: "https://assistant.ai/docs" }],
     });
     expect(release).toHaveBeenCalledTimes(1);
   });
@@ -190,7 +190,7 @@ describe("ollama web search provider", () => {
       release: vi.fn(async () => {}),
     });
 
-    await expect(runOllamaWebSearch({ query: "latest zhushou release" })).rejects.toThrow(
+    await expect(runOllamaWebSearch({ query: "latest assistant release" })).rejects.toThrow(
       "ollama signin",
     );
   });

@@ -1,1 +1,1 @@
-export { ensureGatewayStartupAuth } from "zhushou/plugin-sdk/browser-node-runtime";
+export { ensureGatewayStartupAuth } from "assistant/plugin-sdk/browser-node-runtime";

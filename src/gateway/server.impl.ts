@@ -5,7 +5,8 @@ import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js
 import { createDefaultDeps } from "../cli/deps.js";
 import { isRestartEnabled } from "../config/commands.flags.js";
 import {
-  type ZhushouConfig,
+  type AssistantConfig,
+  DEFAULT_GATEWAY_PORT,
   applyConfigOverrides,
   getRuntimeConfig,
   isNixMode,
@@ -20,7 +21,7 @@ import { clearAgentRunContext } from "../infra/agent-events.js";
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { logAcceptedEnvOption } from "../infra/env.js";
-import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+import { ensureAssistantCliOnPath } from "../infra/path-env.js";
 import { setGatewaySigusr1RestartPolicy, setPreRestartDeferralCheck } from "../infra/restart.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
@@ -92,7 +93,7 @@ import { resolveSharedGatewaySessionGeneration } from "./server/ws-shared-genera
 
 export { __resetModelCatalogCacheForTest } from "./server-model-catalog.js";
 
-ensureOpenClawCliOnPath();
+ensureAssistantCliOnPath();
 
 const MAX_MEDIA_TTL_HOURS = 24 * 7;
 
@@ -202,32 +203,40 @@ export type GatewayServerOptions = {
 };
 
 export async function startGatewayServer(
-  port = 18789,
+  port = DEFAULT_GATEWAY_PORT,
   opts: GatewayServerOptions = {},
 ): Promise<GatewayServer> {
+  const traceStartup = isTruthyEnvValue(process.env.ASSISTANT_TRACE_GATEWAY_STARTUP);
+  const trace = (message: string) => {
+    if (traceStartup) {
+      log.info(`[startup-trace] ${message}`);
+    }
+  };
   const minimalTestGateway =
-    isTruthyEnvValue(process.env.VITEST) && process.env.OPENCLAW_TEST_MINIMAL_GATEWAY === "1";
+    isTruthyEnvValue(process.env.VITEST) && process.env.ASSISTANT_TEST_MINIMAL_GATEWAY === "1";
 
   // Ensure all default port derivations (browser/canvas) see the actual runtime port.
-  process.env.ZHUSHOU_GATEWAY_PORT = String(port);
+  process.env.ASSISTANT_GATEWAY_PORT = String(port);
   logAcceptedEnvOption({
-    key: "OPENCLAW_RAW_STREAM",
+    key: "ASSISTANT_RAW_STREAM",
     description: "raw stream logging enabled",
   });
   logAcceptedEnvOption({
-    key: "OPENCLAW_RAW_STREAM_PATH",
+    key: "ASSISTANT_RAW_STREAM_PATH",
     description: "raw stream log path override",
   });
 
+  trace("before loadGatewayStartupConfigSnapshot");
   const configSnapshot = await loadGatewayStartupConfigSnapshot({
     minimalTestGateway,
     log,
   });
+  trace("after loadGatewayStartupConfigSnapshot");
 
   const emitSecretsStateEvent = (
     code: "SECRETS_RELOADER_DEGRADED" | "SECRETS_RELOADER_RECOVERED",
     message: string,
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
   ) => {
     enqueueSystemEvent(`[${code}] ${message}`, {
       sessionKey: resolveMainSessionKey(cfg),
@@ -239,15 +248,17 @@ export async function startGatewayServer(
     emitStateEvent: emitSecretsStateEvent,
   });
 
-  let cfgAtStart: ZhushouConfig;
+  let cfgAtStart: AssistantConfig;
   let startupInternalWriteHash: string | null = null;
   const startupRuntimeConfig = applyConfigOverrides(configSnapshot.config);
+  trace("before prepareGatewayStartupConfig");
   const authBootstrap = await prepareGatewayStartupConfig({
     configSnapshot,
     authOverride: opts.auth,
     tailscaleOverride: opts.tailscale,
     activateRuntimeSecrets,
   });
+  trace("after prepareGatewayStartupConfig");
   cfgAtStart = authBootstrap.cfg;
   if (authBootstrap.generatedToken) {
     if (authBootstrap.persistedGeneratedToken) {
@@ -256,7 +267,7 @@ export async function startGatewayServer(
       );
     } else {
       log.warn(
-        "Gateway auth token was missing. Generated a runtime token for this startup without changing config; restart will generate a different token. Persist one with `zhushou config set gateway.auth.mode token` and `zhushou config set gateway.auth.token <token>`.",
+        "Gateway auth token was missing. Generated a runtime token for this startup without changing config; restart will generate a different token. Persist one with `assistant config set gateway.auth.mode token` and `assistant config set gateway.auth.token <token>`.",
       );
     }
   }
@@ -280,15 +291,19 @@ export async function startGatewayServer(
   // changes, missing the plugin auto-enable write performed earlier inside
   // loadGatewayStartupConfigSnapshot().  See #67436.
   {
+    trace("before readConfigFileSnapshot");
     const startupSnapshot = await readConfigFileSnapshot();
     startupInternalWriteHash = startupSnapshot.hash ?? null;
+    trace("after readConfigFileSnapshot");
   }
+  trace("before prepareGatewayPluginBootstrap");
   const pluginBootstrap = await prepareGatewayPluginBootstrap({
     cfgAtStart,
     startupRuntimeConfig,
     minimalTestGateway,
     log,
   });
+  trace("after prepareGatewayPluginBootstrap");
   const {
     gatewayPluginConfigAtStart,
     defaultWorkspaceDir,
@@ -310,6 +325,7 @@ export async function startGatewayServer(
         ...listChannelPlugins().flatMap((plugin) => plugin.gatewayMethods ?? []),
       ]),
     );
+  trace("before resolveGatewayRuntimeConfig");
   const runtimeConfig = await resolveGatewayRuntimeConfig({
     cfg: cfgAtStart,
     port,
@@ -321,6 +337,7 @@ export async function startGatewayServer(
     auth: opts.auth,
     tailscale: opts.tailscale,
   });
+  trace("after resolveGatewayRuntimeConfig");
   const {
     bindHost,
     controlUiEnabled,
@@ -342,7 +359,7 @@ export async function startGatewayServer(
       env: process.env,
       tailscaleMode,
     });
-  const resolveSharedGatewaySessionGenerationForConfig = (config: ZhushouConfig) =>
+  const resolveSharedGatewaySessionGenerationForConfig = (config: AssistantConfig) =>
     resolveSharedGatewaySessionGeneration(
       resolveGatewayAuth({
         authConfig: config.gateway?.auth,
@@ -362,10 +379,12 @@ export async function startGatewayServer(
         tailscaleMode,
       }),
     );
+  trace("before resolveCurrentSharedGatewaySessionGeneration");
   const sharedGatewaySessionGenerationState: SharedGatewaySessionGenerationState = {
     current: resolveCurrentSharedGatewaySessionGeneration(),
     required: null,
   };
+  trace("after resolveCurrentSharedGatewaySessionGeneration");
   const initialHooksConfig = runtimeConfig.hooksConfig;
   const initialHookClientIpConfig = resolveHookClientIpConfig(cfgAtStart);
   const canvasHostEnabled = runtimeConfig.canvasHostEnabled;
@@ -381,11 +400,14 @@ export async function startGatewayServer(
   const deps = createDefaultDeps();
   let runtimeState: GatewayServerLiveState | null = null;
   let canvasHostServer: CanvasHostServer | null = null;
+  trace("before loadGatewayTlsRuntime");
   const gatewayTls = await loadGatewayTlsRuntime(cfgAtStart.gateway?.tls, log.child("tls"));
+  trace("after loadGatewayTlsRuntime");
   if (cfgAtStart.gateway?.tls?.enabled && !gatewayTls.enabled) {
     throw new Error(gatewayTls.error ?? "gateway tls: failed to enable");
   }
   const serverStartedAt = Date.now();
+  trace("before createChannelManager");
   const channelManager = createChannelManager({
     loadConfig: () =>
       applyPluginAutoEnable({
@@ -400,6 +422,7 @@ export async function startGatewayServer(
     channelManager,
     startedAt: serverStartedAt,
   });
+  trace("after createChannelManager");
   log.info("starting HTTP server...");
   const {
     canvasHost,
@@ -637,7 +660,7 @@ export async function startGatewayServer(
       nodeUnsubscribeAll,
       hasConnectedMobileNode: hasMobileNodeConnected,
       clients,
-      enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: ZhushouConfig) => {
+      enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: AssistantConfig) => {
         enforceSharedGatewaySessionGenerationForConfigWrite({
           state: sharedGatewaySessionGenerationState,
           nextConfig,

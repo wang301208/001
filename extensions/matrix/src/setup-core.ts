@@ -3,7 +3,7 @@ import {
   normalizeAccountId,
   prepareScopedSetupConfig,
   type ChannelSetupAdapter,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import { applyMatrixSetupAccountConfig, validateMatrixSetupInput } from "./setup-config.js";
 import type { CoreConfig } from "./types.js";
 

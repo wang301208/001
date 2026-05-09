@@ -15,7 +15,7 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: "⚠️ Something went wrong while processing your request. Please try again, or use /new to start a fresh session.",
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
 
@@ -36,7 +36,7 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: '⚠️ No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.4 (OAuth) or set OPENAI_API_KEY to use openai/gpt-5.4.',
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
 
@@ -54,7 +54,7 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "channel:qa-room",
       text: "⚠️ ✉️ Message failed",
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
 
@@ -72,7 +72,7 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: "checking thread context; then post a tight progress reply here.\nQA_LEAK_OK",
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
 
@@ -100,7 +100,7 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: '⚠️ No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.4 (OAuth) or set OPENAI_API_KEY to use openai/gpt-5.4.',
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
 
@@ -118,7 +118,7 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: "working on it",
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
     state.addInboundMessage({
@@ -147,7 +147,7 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: '⚠️ No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.4 (OAuth) or set OPENAI_API_KEY to use openai/gpt-5.4.',
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
 
@@ -165,13 +165,13 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: "working on it",
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: "done",
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
 
@@ -202,7 +202,7 @@ describe("qa suite transport helpers", () => {
     state.addOutboundMessage({
       to: "dm:qa-operator",
       text: "done",
-      senderId: "zhushou",
+      senderId: "assistant",
       senderName: "助手 QA",
     });
 

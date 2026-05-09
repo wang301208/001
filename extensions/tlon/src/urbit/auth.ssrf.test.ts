@@ -1,5 +1,5 @@
-import { SsrFBlockedError } from "zhushou/plugin-sdk/browser-security-runtime";
-import type { LookupFn } from "zhushou/plugin-sdk/ssrf-runtime";
+import { SsrFBlockedError } from "assistant/plugin-sdk/browser-security-runtime";
+import type { LookupFn } from "assistant/plugin-sdk/ssrf-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { authenticate } from "./auth.js";
 

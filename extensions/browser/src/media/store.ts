@@ -1,1 +1,1 @@
-export { ensureMediaDir, saveMediaBuffer } from "zhushou/plugin-sdk/browser-setup-tools";
+export { ensureMediaDir, saveMediaBuffer } from "assistant/plugin-sdk/browser-setup-tools";

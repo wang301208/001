@@ -1,10 +1,10 @@
-import type { ChannelSetupAdapter } from "zhushou/plugin-sdk/channel-setup";
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/routing";
+import type { ChannelSetupAdapter } from "assistant/plugin-sdk/channel-setup";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/routing";
 import {
   hasConfiguredSecretInput,
   normalizeSecretInputString,
-} from "zhushou/plugin-sdk/secret-input";
-import type { ChannelSetupDmPolicy, ChannelSetupWizard, DmPolicy } from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/secret-input";
+import type { ChannelSetupDmPolicy, ChannelSetupWizard, DmPolicy } from "assistant/plugin-sdk/setup";
 import {
   createStandardChannelSetupStatus,
   createTopLevelChannelDmPolicy,
@@ -14,7 +14,7 @@ import {
   parseSetupEntriesWithParser,
   patchTopLevelChannelConfigSection,
   splitSetupEntries,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import { DEFAULT_RELAYS } from "./default-relays.js";
 import { getPublicKeyFromPrivate, normalizePubkey } from "./nostr-key-utils.js";
 import { resolveDefaultNostrAccountId, resolveNostrAccount } from "./types.js";

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { SecurityAuditFinding } from "../security/audit.js";
 import {
   collectGovernanceCharterFindings,
@@ -107,7 +107,7 @@ function buildIncidentCandidates(params: {
 }
 
 export function evaluateGovernanceSovereigntyIncidents(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir?: string;
   observedAt?: number;
   findings?: SecurityAuditFinding[];
@@ -135,7 +135,7 @@ export function evaluateGovernanceSovereigntyIncidents(params: {
 }
 
 export function reconcileGovernanceSovereigntyAuditSync(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   charterDir?: string;
   observedAt?: number;
   findings?: SecurityAuditFinding[];

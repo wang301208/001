@@ -1,9 +1,9 @@
-import { normalizeAccountId } from "zhushou/plugin-sdk/account-resolution";
+import { normalizeAccountId } from "assistant/plugin-sdk/account-resolution";
 import {
   createResolvedDirectoryEntriesLister,
   type DirectoryConfigParams,
-} from "zhushou/plugin-sdk/directory-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/directory-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { mergeSlackAccountConfig, resolveDefaultSlackAccountId } from "./accounts.js";
 import { parseSlackTarget } from "./targets.js";
 

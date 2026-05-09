@@ -1,23 +1,23 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   resolveConfiguredBindingRoute,
   type ConfiguredBindingRouteResult,
-} from "zhushou/plugin-sdk/conversation-runtime";
-import { getSessionBindingService } from "zhushou/plugin-sdk/conversation-runtime";
-import { isPluginOwnedSessionBindingRecord } from "zhushou/plugin-sdk/conversation-runtime";
+} from "assistant/plugin-sdk/conversation-runtime";
+import { getSessionBindingService } from "assistant/plugin-sdk/conversation-runtime";
+import { isPluginOwnedSessionBindingRecord } from "assistant/plugin-sdk/conversation-runtime";
 import {
   buildAgentSessionKey,
   deriveLastRoutePolicy,
   resolveAgentRoute,
-} from "zhushou/plugin-sdk/routing";
+} from "assistant/plugin-sdk/routing";
 import {
   buildAgentMainSessionKey,
   DEFAULT_ACCOUNT_ID,
   resolveAgentIdFromSessionKey,
   sanitizeAgentId,
-} from "zhushou/plugin-sdk/routing";
-import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/routing";
+import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import {
   buildTelegramGroupPeerId,
   buildTelegramParentPeer,
@@ -25,7 +25,7 @@ import {
 } from "./bot/helpers.js";
 
 export function resolveTelegramConversationRoute(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   chatId: number | string;
   isGroup: boolean;
@@ -154,7 +154,7 @@ export function resolveTelegramConversationRoute(params: {
 }
 
 export function resolveTelegramConversationBaseSessionKey(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   route: Pick<
     ReturnType<typeof resolveTelegramConversationRoute>["route"],
     "agentId" | "accountId" | "matchedBy" | "sessionKey"

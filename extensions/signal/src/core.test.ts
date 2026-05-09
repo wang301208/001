@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it, vi } from "vitest";
 import { createPluginSetupWizardStatus } from "../../../test/helpers/plugins/setup-wizard.js";
 import { signalPlugin } from "./channel.js";
@@ -199,7 +199,7 @@ describe("probeSignal", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       accountOverrides: {},
     });
 
@@ -324,7 +324,7 @@ describe("signal setup parsing", () => {
   });
 
   it("uses configured defaultAccount for omitted DM policy account context", () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         signal: {
           defaultAccount: "work",
@@ -354,7 +354,7 @@ describe("signal setup parsing", () => {
   });
 
   it('writes open policy state to the named account and stores inherited allowFrom with "*"', () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         signal: {
           allowFrom: ["+15555550123"],

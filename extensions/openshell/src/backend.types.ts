@@ -1,4 +1,4 @@
-import type { RemoteShellSandboxHandle, SandboxBackendHandle } from "zhushou/plugin-sdk/sandbox";
+import type { RemoteShellSandboxHandle, SandboxBackendHandle } from "assistant/plugin-sdk/sandbox";
 
 export type OpenShellFsBridgeContext = Parameters<
   NonNullable<SandboxBackendHandle["createFsBridge"]>

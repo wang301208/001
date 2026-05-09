@@ -10,8 +10,8 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { resolveRuntimeServiceVersion } from "zhushou/plugin-sdk/cli-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { resolveRuntimeServiceVersion } from "assistant/plugin-sdk/cli-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import type { QQBotAccountConfig } from "./types.js";
 import { debugLog } from "./utils/debug-log.js";
 import { getHomeDir, getQQBotDataDir, isWindows } from "./utils/platform.js";
@@ -39,8 +39,8 @@ function readPluginVersion(): string {
 // Read the package version from package.json.
 const PLUGIN_VERSION = readPluginVersion();
 
-const QQBOT_PLUGIN_GITHUB_URL = "https://github.com/zhushou/zhushou/tree/main/extensions/qqbot";
-const QQBOT_UPGRADE_GUIDE_URL = "https://q.qq.com/qqbot/zhushou/upgrade.html";
+const QQBOT_PLUGIN_GITHUB_URL = "https://github.com/assistant/assistant/tree/main/extensions/qqbot";
+const QQBOT_UPGRADE_GUIDE_URL = "https://q.qq.com/qqbot/assistant/upgrade.html";
 
 // ============ Types ============
 
@@ -267,7 +267,7 @@ registerCommand({
 function getConfiguredLogFiles(): string[] {
   const homeDir = getHomeDir();
   const files: string[] = [];
-  for (const cli of ["zhushou", "clawdbot", "moltbot"]) {
+  for (const cli of ["assistant"]) {
     try {
       const cfgPath = path.join(homeDir, `.${cli}`, `${cli}.json`);
       if (!fs.existsSync(cfgPath)) {
@@ -315,12 +315,12 @@ function collectCandidateLogDirs(): string[] {
     if (!value) {
       continue;
     }
-    if (/STATE_DIR$/i.test(key) && /(zhushou|CLAWDBOT|MOLTBOT)/i.test(key)) {
+    if (/STATE_DIR$/i.test(key) && /assistant/i.test(key)) {
       pushStateDir(value);
     }
   }
 
-  for (const name of [".zhushou", ".clawdbot", ".moltbot", "zhushou", "clawdbot", "moltbot"]) {
+  for (const name of [".assistant", "assistant"]) {
     pushDir(path.join(homeDir, name));
     pushDir(path.join(homeDir, name, "logs"));
   }
@@ -340,7 +340,7 @@ function collectCandidateLogDirs(): string[] {
         if (!entry.isDirectory()) {
           continue;
         }
-        if (!/(zhushou|clawdbot|moltbot)/i.test(entry.name)) {
+        if (!/assistant/i.test(entry.name)) {
           continue;
         }
         const base = path.join(root, entry.name);
@@ -354,7 +354,7 @@ function collectCandidateLogDirs(): string[] {
 
   // Common Linux log directories under /var/log.
   if (!isWindows()) {
-    for (const name of ["zhushou", "clawdbot", "moltbot"]) {
+    for (const name of ["assistant"]) {
       pushDir(path.join("/var/log", name));
     }
   }
@@ -377,7 +377,7 @@ function collectCandidateLogDirs(): string[] {
     tmpRoots.add("/tmp");
   }
   for (const tmpRoot of tmpRoots) {
-    for (const name of ["zhushou", "clawdbot", "moltbot"]) {
+    for (const name of ["assistant"]) {
       pushDir(path.join(tmpRoot, name));
     }
   }
@@ -420,9 +420,7 @@ function collectRecentLogFiles(logDirs: string[]): LogCandidate[] {
   for (const dir of logDirs) {
     pushFile(path.join(dir, "gateway.log"), dir);
     pushFile(path.join(dir, "gateway.err.log"), dir);
-    pushFile(path.join(dir, "zhushou.log"), dir);
-    pushFile(path.join(dir, "clawdbot.log"), dir);
-    pushFile(path.join(dir, "moltbot.log"), dir);
+    pushFile(path.join(dir, "assistant.log"), dir);
 
     try {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -433,7 +431,7 @@ function collectRecentLogFiles(logDirs: string[]): LogCandidate[] {
         if (!/\.(log|txt)$/i.test(entry.name)) {
           continue;
         }
-        if (!/(gateway|zhushou|clawdbot|moltbot)/i.test(entry.name)) {
+        if (!/(gateway|assistant)/i.test(entry.name)) {
           continue;
         }
         pushFile(path.join(dir, entry.name), dir);

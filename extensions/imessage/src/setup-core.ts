@@ -2,7 +2,7 @@ import type {
   ChannelSetupAdapter,
   ChannelSetupWizard,
   ChannelSetupWizardTextInput,
-} from "zhushou/plugin-sdk/setup-runtime";
+} from "assistant/plugin-sdk/setup-runtime";
 import {
   createCliPathTextInput,
   createDelegatedSetupWizardProxy,
@@ -14,11 +14,11 @@ import {
   promptParsedAllowFromForAccount,
   setAccountAllowFromForChannel,
   setSetupChannelEnabled,
-  type ZhushouConfig,
+  type AssistantConfig,
   type WizardPrompter,
-} from "zhushou/plugin-sdk/setup-runtime";
-import { formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/setup-runtime";
+import { formatDocsLink } from "assistant/plugin-sdk/setup-tools";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { resolveDefaultIMessageAccountId, resolveIMessageAccount } from "./accounts.js";
 import { normalizeIMessageHandle } from "./targets.js";
 
@@ -68,10 +68,10 @@ function buildIMessageSetupPatch(input: {
 }
 
 export async function promptIMessageAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   return promptParsedAllowFromForAccount({
     cfg: params.cfg,
     accountId: params.accountId,
@@ -108,7 +108,7 @@ export const imessageDmPolicy = {
   channel,
   policyKey: "channels.imessage.dmPolicy",
   allowFromKey: "channels.imessage.allowFrom",
-  resolveConfigKeys: (_cfg: ZhushouConfig, accountId?: string) => {
+  resolveConfigKeys: (_cfg: AssistantConfig, accountId?: string) => {
     const targetAccountId = accountId ?? resolveDefaultIMessageAccountId(_cfg);
     return targetAccountId !== "default"
       ? {
@@ -120,12 +120,12 @@ export const imessageDmPolicy = {
           allowFromKey: "channels.imessage.allowFrom",
         };
   },
-  getCurrent: (cfg: ZhushouConfig, accountId?: string) => {
+  getCurrent: (cfg: AssistantConfig, accountId?: string) => {
     const targetAccountId = accountId ?? resolveDefaultIMessageAccountId(cfg);
     return resolveIMessageAccount({ cfg, accountId: targetAccountId }).config.dmPolicy ?? "pairing";
   },
   setPolicy: (
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
     policy: "pairing" | "allowlist" | "open" | "disabled",
     accountId?: string,
   ) => {
@@ -149,7 +149,7 @@ export const imessageDmPolicy = {
   promptAllowFrom: promptIMessageAllowFrom,
 };
 
-function resolveIMessageCliPath(params: { cfg: ZhushouConfig; accountId: string }) {
+function resolveIMessageCliPath(params: { cfg: AssistantConfig; accountId: string }) {
   return resolveIMessageAccount(params).config.cliPath ?? "imsg";
 }
 
@@ -189,7 +189,7 @@ export const imessageSetupStatusBase = {
   unconfiguredHint: "imsg missing",
   configuredScore: 1,
   unconfiguredScore: 0,
-  resolveConfigured: ({ cfg, accountId }: { cfg: ZhushouConfig; accountId?: string }) =>
+  resolveConfigured: ({ cfg, accountId }: { cfg: AssistantConfig; accountId?: string }) =>
     resolveIMessageAccount({ cfg, accountId }).configured,
 };
 
@@ -216,6 +216,6 @@ export function createIMessageSetupWizardProxy(loadWizard: () => Promise<Channel
     ],
     completionNote: imessageCompletionNote,
     dmPolicy: imessageDmPolicy,
-    disable: (cfg: ZhushouConfig) => setSetupChannelEnabled(cfg, channel, false),
+    disable: (cfg: AssistantConfig) => setSetupChannelEnabled(cfg, channel, false),
   });
 }

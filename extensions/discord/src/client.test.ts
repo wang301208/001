@@ -1,5 +1,5 @@
 import type { RequestClient } from "@buape/carbon";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { createDiscordRestClient } from "./client.js";
 
@@ -17,7 +17,7 @@ describe("createDiscordRestClient", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const result = createDiscordRestClient(
       {
@@ -50,7 +50,7 @@ describe("createDiscordRestClient", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const result = createDiscordRestClient(
       {
@@ -77,7 +77,7 @@ describe("createDiscordRestClient", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(() =>
       createDiscordRestClient(

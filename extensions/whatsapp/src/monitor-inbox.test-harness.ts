@@ -2,7 +2,7 @@ import { EventEmitter } from "node:events";
 import fsSync from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resetLogger, setLoggerOverride } from "zhushou/plugin-sdk/runtime-env";
+import { resetLogger, setLoggerOverride } from "assistant/plugin-sdk/runtime-env";
 import { afterEach, beforeEach, expect, vi } from "vitest";
 import {
   loadConfigMock,
@@ -276,7 +276,7 @@ export function installWebMonitorInboxUnitTestHooks(opts?: { authDir?: boolean }
     }
     resetWebInboundDedupe();
     if (createAuthDir) {
-      authDir = fsSync.mkdtempSync(path.join(os.tmpdir(), "zhushou-auth-"));
+      authDir = fsSync.mkdtempSync(path.join(os.tmpdir(), "assistant-auth-"));
     } else {
       authDir = undefined;
     }

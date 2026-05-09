@@ -14,15 +14,15 @@ import {
   type ChannelSetupAdapter,
   type ChannelSetupWizard,
   type ChannelSetupWizardTextInput,
-  type ZhushouConfig,
+  type AssistantConfig,
   type WizardPrompter,
-} from "zhushou/plugin-sdk/setup-runtime";
-import { formatCliCommand, formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
+} from "assistant/plugin-sdk/setup-runtime";
+import { formatCliCommand, formatDocsLink } from "assistant/plugin-sdk/setup-tools";
 import {
   normalizeE164,
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { resolveDefaultSignalAccountId, resolveSignalAccount } from "./accounts.js";
 
 const channel = "signal" as const;
@@ -89,10 +89,10 @@ function buildSignalSetupPatch(input: {
 }
 
 export async function promptSignalAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   return promptParsedAllowFromForAccount({
     cfg: params.cfg,
     accountId: params.accountId,
@@ -127,7 +127,7 @@ export const signalDmPolicy = {
   channel,
   policyKey: "channels.signal.dmPolicy",
   allowFromKey: "channels.signal.allowFrom",
-  resolveConfigKeys: (cfg: ZhushouConfig, accountId?: string) =>
+  resolveConfigKeys: (cfg: AssistantConfig, accountId?: string) =>
     (accountId ?? resolveDefaultSignalAccountId(cfg)) !== DEFAULT_ACCOUNT_ID
       ? {
           policyKey: `channels.signal.accounts.${accountId ?? resolveDefaultSignalAccountId(cfg)}.dmPolicy`,
@@ -137,11 +137,11 @@ export const signalDmPolicy = {
           policyKey: "channels.signal.dmPolicy",
           allowFromKey: "channels.signal.allowFrom",
         },
-  getCurrent: (cfg: ZhushouConfig, accountId?: string) =>
+  getCurrent: (cfg: AssistantConfig, accountId?: string) =>
     resolveSignalAccount({ cfg, accountId: accountId ?? resolveDefaultSignalAccountId(cfg) }).config
       .dmPolicy ?? "pairing",
   setPolicy: (
-    cfg: ZhushouConfig,
+    cfg: AssistantConfig,
     policy: "pairing" | "allowlist" | "open" | "disabled",
     accountId?: string,
   ) =>
@@ -167,7 +167,7 @@ export const signalDmPolicy = {
 };
 
 function resolveSignalCliPath(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   credentialValues: Record<string, unknown>;
 }) {
@@ -213,7 +213,7 @@ export const signalCompletionNote = {
   lines: [
     'Link device with: signal-cli link -n "助手"',
     "Scan QR in Signal -> Linked Devices",
-    `Then run: ${formatCliCommand("openclaw gateway call channels.status --params '{\"probe\":true}'")}`,
+    `Then run: ${formatCliCommand("assistant gateway call channels.status --params '{\"probe\":true}'")}`,
     `Docs: ${formatDocsLink("/signal", "signal")}`,
   ],
 };
@@ -262,6 +262,6 @@ export function createSignalSetupWizardProxy(loadWizard: () => Promise<ChannelSe
     ],
     completionNote: signalCompletionNote,
     dmPolicy: signalDmPolicy,
-    disable: (cfg: ZhushouConfig) => setSetupChannelEnabled(cfg, channel, false),
+    disable: (cfg: AssistantConfig) => setSetupChannelEnabled(cfg, channel, false),
   });
 }

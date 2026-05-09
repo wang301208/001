@@ -1,5 +1,5 @@
-import { formatErrorMessage, type PinnedDispatcherPolicy } from "zhushou/plugin-sdk/infra-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
+import { formatErrorMessage, type PinnedDispatcherPolicy } from "assistant/plugin-sdk/infra-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
 import type { SsrFPolicy } from "../runtime-api.js";
 import type { BaseProbeResult } from "../runtime-api.js";
 import { isBunRuntime } from "./client/runtime.js";

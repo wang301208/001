@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/llm-task",
+  "name": "@assistant/llm-task",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 JSON-only LLM task plugin",
@@ -9,9 +9,9 @@
     "ajv": "^8.18.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

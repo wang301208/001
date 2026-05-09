@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { loadPluginManifestRegistry } from "./manifest-registry.js";
 import type { PluginManifestRecord } from "./manifest-registry.js";
 import { resolvePluginWebSearchProviders } from "./web-search-providers.runtime.js";
@@ -23,7 +23,7 @@ function hasConfiguredSearchCredentialCandidate(searchConfig: unknown): boolean 
   );
 }
 
-function hasConfiguredPluginWebSearchCandidate(config: ZhushouConfig): boolean {
+function hasConfiguredPluginWebSearchCandidate(config: AssistantConfig): boolean {
   const entries = isRecord(config.plugins?.entries) ? config.plugins.entries : undefined;
   if (!entries) {
     return false;
@@ -35,7 +35,7 @@ function hasConfiguredPluginWebSearchCandidate(config: ZhushouConfig): boolean {
 }
 
 function hasManifestWebSearchEnvCredentialCandidate(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   origin?: PluginManifestRecord["origin"];
 }): boolean {
@@ -64,7 +64,7 @@ function hasManifestWebSearchEnvCredentialCandidate(params: {
 }
 
 export function hasConfiguredWebSearchCredential(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   searchConfig?: Record<string, unknown>;
   origin?: PluginManifestRecord["origin"];

@@ -1,11 +1,11 @@
-import type { ImageGenerationProvider } from "zhushou/plugin-sdk/image-generation";
-import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
+import type { ImageGenerationProvider } from "assistant/plugin-sdk/image-generation";
+import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "assistant/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   postJsonRequest,
   resolveProviderHttpRequestConfig,
-} from "zhushou/plugin-sdk/provider-http";
+} from "assistant/plugin-sdk/provider-http";
 
 const DEFAULT_MINIMAX_IMAGE_BASE_URL = "https://api.minimax.io";
 const DEFAULT_MODEL = "image-01";

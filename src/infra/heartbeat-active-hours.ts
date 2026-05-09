@@ -1,12 +1,12 @@
 import { resolveUserTimezone } from "../agents/date-time.js";
 import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 type HeartbeatConfig = AgentDefaultsConfig["heartbeat"];
 
 const ACTIVE_HOURS_TIME_PATTERN = /^(?:([01]\d|2[0-3]):([0-5]\d)|24:00)$/;
 
-function resolveActiveHoursTimezone(cfg: ZhushouConfig, raw?: string): string {
+function resolveActiveHoursTimezone(cfg: AssistantConfig, raw?: string): string {
   const trimmed = raw?.trim();
   if (!trimmed || trimmed === "user") {
     return resolveUserTimezone(cfg.agents?.defaults?.userTimezone);
@@ -68,7 +68,7 @@ function resolveMinutesInTimeZone(nowMs: number, timeZone: string): number | nul
 }
 
 export function isWithinActiveHours(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   heartbeat?: HeartbeatConfig,
   nowMs?: number,
 ): boolean {

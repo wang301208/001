@@ -1,4 +1,4 @@
-import { chunkText } from "zhushou/plugin-sdk/reply-chunking";
+import { chunkText } from "assistant/plugin-sdk/reply-chunking";
 import { createWhatsAppOutboundBase } from "./outbound-base.js";
 import { resolveWhatsAppOutboundTarget } from "./resolve-outbound-target.js";
 import { getWhatsAppRuntime } from "./runtime.js";

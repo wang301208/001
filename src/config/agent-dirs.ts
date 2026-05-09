@@ -5,7 +5,7 @@ import { DEFAULT_AGENT_ID, normalizeAgentId } from "../routing/session-key.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { resolveUserPath } from "../utils.js";
 import { resolveStateDir } from "./paths.js";
-import type { ZhushouConfig } from "./types.js";
+import type { AssistantConfig } from "./types.js";
 
 export type DuplicateAgentDir = {
   agentDir: string;
@@ -30,7 +30,7 @@ function canonicalizeAgentDir(agentDir: string): string {
   return resolved;
 }
 
-function collectReferencedAgentIds(cfg: ZhushouConfig): string[] {
+function collectReferencedAgentIds(cfg: AssistantConfig): string[] {
   const ids = new Set<string>();
 
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents?.list : [];
@@ -58,7 +58,7 @@ function collectReferencedAgentIds(cfg: ZhushouConfig): string[] {
 }
 
 function resolveEffectiveAgentDir(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   agentId: string,
   deps?: { env?: NodeJS.ProcessEnv; homedir?: () => string },
 ): string {
@@ -79,7 +79,7 @@ function resolveEffectiveAgentDir(
 }
 
 export function findDuplicateAgentDirs(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   deps?: { env?: NodeJS.ProcessEnv; homedir?: () => string },
 ): DuplicateAgentDir[] {
   const byDir = new Map<string, { agentDir: string; agentIds: string[] }>();

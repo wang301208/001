@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   TALK_TEST_PROVIDER_API_KEY_PATH,
   TALK_TEST_PROVIDER_ID,
@@ -27,7 +27,7 @@ describe("secrets configure plan helpers", () => {
           botToken: "token", // pragma: allowlist secret
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const candidates = buildConfigureCandidates(config);
     const paths = candidates.map((entry) => entry.path);
@@ -43,7 +43,7 @@ describe("secrets configure plan helpers", () => {
           legacy: { source: "env" },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const next = {
       secrets: {
         providers: {
@@ -51,7 +51,7 @@ describe("secrets configure plan helpers", () => {
           modern: { source: "env" },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const changes = collectConfigureProviderChanges({ original, next });
     expect(Object.keys(changes.upserts).toSorted()).toEqual(["default", "modern"]);
@@ -60,7 +60,7 @@ describe("secrets configure plan helpers", () => {
 
   it("discovers auth-profiles candidates for the selected agent scope", () => {
     const candidates = buildConfigureCandidatesForScope({
-      config: {} as ZhushouConfig,
+      config: {} as AssistantConfig,
       authProfiles: {
         agentId: "main",
         store: {
@@ -102,7 +102,7 @@ describe("secrets configure plan helpers", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       authProfiles: {
         agentId: "main",
         store: {
@@ -156,12 +156,12 @@ describe("secrets configure plan helpers", () => {
           },
           apiKey: "demo-talk-key", // pragma: allowlist secret
         },
-      } as ZhushouConfig,
-      authoredZhushouConfig: {
+      } as AssistantConfig,
+      authoredAssistantConfig: {
         talk: {
           apiKey: "demo-talk-key", // pragma: allowlist secret
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
     });
 
     const normalized = candidates.find((entry) => entry.path === TALK_TEST_PROVIDER_API_KEY_PATH);
@@ -177,7 +177,7 @@ describe("secrets configure plan helpers", () => {
           path: TALK_TEST_PROVIDER_API_KEY_PATH,
           pathSegments: ["talk", "providers", TALK_TEST_PROVIDER_ID, "apiKey"],
           label: TALK_TEST_PROVIDER_API_KEY_PATH,
-          configFile: "zhushou.json" as const,
+          configFile: "assistant.json" as const,
           expectedResolvedValue: "string" as const,
           providerId: TALK_TEST_PROVIDER_ID,
           ref: {

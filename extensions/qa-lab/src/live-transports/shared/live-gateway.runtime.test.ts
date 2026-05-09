@@ -23,7 +23,7 @@ function createStubTransport(baseUrl = "http://127.0.0.1:43123") {
         "qa-channel": {
           enabled: true,
           baseUrl,
-          botUserId: "zhushou",
+          botUserId: "assistant",
           botDisplayName: "助手 QA",
           allowFrom: ["*"],
           pollTimeoutMs: 250,
@@ -31,7 +31,7 @@ function createStubTransport(baseUrl = "http://127.0.0.1:43123") {
       },
       messages: {
         groupChat: {
-          mentionPatterns: ["\\b@?zhushou\\b"],
+          mentionPatterns: ["\\b@?assistant\\b"],
         },
       },
     }),
@@ -71,7 +71,7 @@ describe("startQaLiveLaneGateway", () => {
 
   it("threads the mock provider base url into the gateway child", async () => {
     const harness = await startQaLiveLaneGateway({
-      repoRoot: "/tmp/zhushou-repo",
+      repoRoot: "/tmp/assistant-repo",
       transport: createStubTransport(),
       transportBaseUrl: "http://127.0.0.1:43123",
       providerMode: "mock-openai",
@@ -96,7 +96,7 @@ describe("startQaLiveLaneGateway", () => {
 
   it("skips mock bootstrap for live frontier runs", async () => {
     const harness = await startQaLiveLaneGateway({
-      repoRoot: "/tmp/zhushou-repo",
+      repoRoot: "/tmp/assistant-repo",
       transport: createStubTransport(),
       transportBaseUrl: "http://127.0.0.1:43123",
       providerMode: "live-frontier",
@@ -121,7 +121,7 @@ describe("startQaLiveLaneGateway", () => {
   it("still stops the mock server when gateway shutdown fails", async () => {
     gatewayStop.mockRejectedValueOnce(new Error("gateway down"));
     const harness = await startQaLiveLaneGateway({
-      repoRoot: "/tmp/zhushou-repo",
+      repoRoot: "/tmp/assistant-repo",
       transport: createStubTransport(),
       transportBaseUrl: "http://127.0.0.1:43123",
       providerMode: "mock-openai",
@@ -141,7 +141,7 @@ describe("startQaLiveLaneGateway", () => {
     gatewayStop.mockRejectedValueOnce(new Error("gateway down"));
     mockStop.mockRejectedValueOnce(new Error("mock down"));
     const harness = await startQaLiveLaneGateway({
-      repoRoot: "/tmp/zhushou-repo",
+      repoRoot: "/tmp/assistant-repo",
       transport: createStubTransport(),
       transportBaseUrl: "http://127.0.0.1:43123",
       providerMode: "mock-openai",

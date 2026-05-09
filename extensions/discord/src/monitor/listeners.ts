@@ -8,19 +8,19 @@ import {
   ThreadUpdateListener,
   type User,
 } from "@buape/carbon";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { enqueueSystemEvent } from "zhushou/plugin-sdk/infra-runtime";
-import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { enqueueSystemEvent } from "assistant/plugin-sdk/infra-runtime";
+import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
 import {
   createSubsystemLogger,
   danger,
   formatDurationSeconds,
   logVerbose,
-} from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/runtime-env";
 import {
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
-} from "zhushou/plugin-sdk/security-runtime";
+} from "assistant/plugin-sdk/security-runtime";
 import {
   isDiscordGroupAllowedByPolicy,
   normalizeDiscordAllowList,
@@ -39,9 +39,9 @@ import { isThreadArchived } from "./thread-bindings.discord-api.js";
 import { closeDiscordThreadSessions } from "./thread-session-close.js";
 import { normalizeDiscordListenerTimeoutMs, runDiscordTaskWithTimeout } from "./timeouts.js";
 
-type LoadedConfig = ReturnType<typeof import("zhushou/plugin-sdk/config-runtime").loadConfig>;
-type RuntimeEnv = import("zhushou/plugin-sdk/runtime-env").RuntimeEnv;
-type Logger = ReturnType<typeof import("zhushou/plugin-sdk/runtime-env").createSubsystemLogger>;
+type LoadedConfig = ReturnType<typeof import("assistant/plugin-sdk/config-runtime").loadConfig>;
+type RuntimeEnv = import("assistant/plugin-sdk/runtime-env").RuntimeEnv;
+type Logger = ReturnType<typeof import("assistant/plugin-sdk/runtime-env").createSubsystemLogger>;
 
 export type DiscordMessageEvent = Parameters<MessageCreateListener["handle"]>[0];
 
@@ -732,7 +732,7 @@ type ThreadUpdateEvent = Parameters<ThreadUpdateListener["handle"]>[0];
 
 export class DiscordThreadUpdateListener extends ThreadUpdateListener {
   constructor(
-    private cfg: ZhushouConfig,
+    private cfg: AssistantConfig,
     private accountId: string,
     private logger?: Logger,
   ) {

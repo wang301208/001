@@ -2,14 +2,14 @@ import {
   assertOkOrThrowHttpError,
   postJsonRequest,
   resolveProviderHttpRequestConfig,
-} from "zhushou/plugin-sdk/provider-http";
-import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/provider-http";
+import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
 import type {
   SpeechProviderConfig,
   SpeechProviderOverrides,
   SpeechProviderPlugin,
-} from "zhushou/plugin-sdk/speech-core";
-import { asObject } from "zhushou/plugin-sdk/speech-core";
+} from "assistant/plugin-sdk/speech-core";
+import { asObject } from "assistant/plugin-sdk/speech-core";
 import {
   DEFAULT_VYDRA_BASE_URL,
   DEFAULT_VYDRA_SPEECH_MODEL,

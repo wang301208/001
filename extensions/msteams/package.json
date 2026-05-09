@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/msteams",
+  "name": "@assistant/msteams",
   "version": "2026.4.16",
   "description": "助手 Microsoft Teams channel plugin",
   "type": "module",
@@ -13,19 +13,19 @@
     "jwks-rsa": "^4.0.1"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
+    "@assistant/plugin-sdk": "workspace:*",
     "@types/jsonwebtoken": "^9.0.10",
-    "zhushou": "workspace:*"
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
@@ -43,7 +43,7 @@
       "order": 60
     },
     "install": {
-      "npmSpec": "@zhushou/msteams",
+      "npmSpec": "@assistant/msteams",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -51,7 +51,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "zhushouVersion": "2026.4.16"
+      "assistantVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

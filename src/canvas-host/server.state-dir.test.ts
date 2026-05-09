@@ -11,8 +11,8 @@ describe("canvas host state dir defaults", () => {
     ({ createCanvasHostHandler } = await import("./server.js"));
   });
 
-  it("uses ZHUSHOU_STATE_DIR for the default canvas root", async () => {
-    await withStateDirEnv("zhushou-canvas-state-", async ({ stateDir }) => {
+  it("uses ASSISTANT_STATE_DIR for the default canvas root", async () => {
+    await withStateDirEnv("assistant-canvas-state-", async ({ stateDir }) => {
       const handler = await createCanvasHostHandler({
         runtime: defaultRuntime,
         allowInTests: true,

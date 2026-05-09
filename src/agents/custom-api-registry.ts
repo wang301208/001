@@ -6,7 +6,7 @@ import {
   type StreamOptions,
 } from "@mariozechner/pi-ai";
 
-const CUSTOM_API_SOURCE_PREFIX = "zhushou-custom-api:";
+const CUSTOM_API_SOURCE_PREFIX = "assistant-custom-api:";
 
 export function getCustomApiRegistrySourceId(api: Api): string {
   return `${CUSTOM_API_SOURCE_PREFIX}${api}`;

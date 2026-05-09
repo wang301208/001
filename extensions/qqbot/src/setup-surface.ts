@@ -1,12 +1,12 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   createStandardChannelSetupStatus,
   hasConfiguredSecretInput,
   setSetupChannelEnabled,
-} from "zhushou/plugin-sdk/setup";
-import type { ChannelSetupWizard } from "zhushou/plugin-sdk/setup";
-import { formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/setup";
+import type { ChannelSetupWizard } from "assistant/plugin-sdk/setup";
+import { formatDocsLink } from "assistant/plugin-sdk/setup-tools";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   DEFAULT_ACCOUNT_ID,
   listQQBotAccountIds,
@@ -24,10 +24,10 @@ type QQBotEnvCredentialField = "appId" | "clientSecret";
  * AppID + env AppSecret.
  */
 function clearQQBotCredentialField(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   field: QQBotEnvCredentialField,
-): ZhushouConfig {
+): AssistantConfig {
   const next = { ...cfg };
   const qqbot = { ...(next.channels?.qqbot as Record<string, unknown> | undefined) };
 

@@ -1,12 +1,12 @@
 {
-  "name": "@zhushou/synology-chat",
+  "name": "@assistant/synology-chat",
   "version": "2026.4.16",
   "description": "Synology Chat channel plugin for 助手",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
@@ -21,7 +21,7 @@
       "order": 90
     },
     "install": {
-      "npmSpec": "@zhushou/synology-chat",
+      "npmSpec": "@assistant/synology-chat",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

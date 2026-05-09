@@ -119,12 +119,12 @@ export function dockerExecResult(stdout: string) {
 export function createSandbox(overrides?: Partial<SandboxContext>): SandboxContext {
   return createSandboxTestContext({
     overrides: {
-      containerName: "zhushou-sbx-test",
+      containerName: "assistant-sbx-test",
       ...overrides,
     },
     dockerOverrides: {
-      image: "zhushou-sandbox:bookworm-slim",
-      containerPrefix: "zhushou-sbx-",
+      image: "assistant-sandbox:bookworm-slim",
+      containerPrefix: "assistant-sbx-",
     },
   });
 }
@@ -185,7 +185,7 @@ export function installDockerReadMock(params?: { canonicalPath?: string }) {
       return dockerExecResult("content");
     }
     if (script.includes("mktemp")) {
-      return dockerExecResult("/workspace/.zhushou-write-b.txt.ABC123\n");
+      return dockerExecResult("/workspace/.assistant-write-b.txt.ABC123\n");
     }
     return dockerExecResult("");
   });
@@ -204,7 +204,7 @@ export async function createHostEscapeFixture(stateDir: string) {
 export async function expectMkdirpAllowsExistingDirectory(params?: {
   forceBoundaryIoFallback?: boolean;
 }) {
-  await withTempDir("zhushou-fs-bridge-mkdirp-", async (stateDir) => {
+  await withTempDir("assistant-fs-bridge-mkdirp-", async (stateDir) => {
     const workspaceDir = path.join(stateDir, "workspace");
     const nestedDir = path.join(workspaceDir, "memory", "kemik");
     await fs.mkdir(nestedDir, { recursive: true });

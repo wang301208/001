@@ -2,7 +2,7 @@ import {
   fetchWithSsrFGuard,
   type LookupFn,
   type SsrFPolicy,
-} from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/ssrf-runtime";
 import { validateUrbitBaseUrl } from "./base-url.js";
 import { UrbitUrlError } from "./errors.js";
 

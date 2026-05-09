@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import type { Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { ZhushouConfig, ZhushouPluginApi } from "zhushou/plugin-sdk/memory-core";
+import type { AssistantConfig, AssistantPluginApi } from "assistant/plugin-sdk/memory-core";
 import {
   buildSessionEntry,
   listSessionFilesForAgent,
@@ -10,8 +10,8 @@ import {
   normalizeSessionTranscriptPathForComparison,
   parseUsageCountedSessionIdFromFileName,
   sessionPathForFile,
-} from "zhushou/plugin-sdk/memory-core-host-engine-qmd";
-import type { MemorySearchResult } from "zhushou/plugin-sdk/memory-core-host-runtime-files";
+} from "assistant/plugin-sdk/memory-core-host-engine-qmd";
+import type { MemorySearchResult } from "assistant/plugin-sdk/memory-core-host-runtime-files";
 import {
   formatMemoryDreamingDay,
   resolveMemoryDreamingWorkspaces,
@@ -19,7 +19,7 @@ import {
   resolveMemoryRemDreamingConfig,
   type MemoryLightDreamingConfig,
   type MemoryRemDreamingConfig,
-} from "zhushou/plugin-sdk/memory-core-host-status";
+} from "assistant/plugin-sdk/memory-core-host-status";
 import { writeDailyDreamingPhaseBlock } from "./dreaming-markdown.js";
 import { generateAndAppendDreamNarrative, type NarrativePhaseData } from "./dreaming-narrative.js";
 import { asRecord, formatErrorMessage, normalizeTrimmedString } from "./dreaming-shared.js";
@@ -30,7 +30,7 @@ import {
   type ShortTermRecallEntry,
 } from "./short-term-promotion.js";
 
-type Logger = Pick<ZhushouPluginApi["logger"], "info" | "warn" | "error">;
+type Logger = Pick<AssistantPluginApi["logger"], "info" | "warn" | "error">;
 type DreamingPhaseStorageConfig = {
   timezone?: string;
   storage: { mode: "inline" | "separate" | "both"; separateReports: boolean };
@@ -39,7 +39,7 @@ type RunPhaseIfTriggeredParams = {
   cleanedBody: string;
   trigger?: string;
   workspaceDir?: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   logger: Logger;
   subagent?: Parameters<typeof generateAndAppendDreamNarrative>[0]["subagent"];
   eventText: string;
@@ -53,8 +53,8 @@ type RunPhaseIfTriggeredParams = {
       config: MemoryRemDreamingConfig & DreamingPhaseStorageConfig;
     }
 );
-const LIGHT_SLEEP_EVENT_TEXT = "__openclaw_memory_core_light_sleep__";
-const REM_SLEEP_EVENT_TEXT = "__openclaw_memory_core_rem_sleep__";
+const LIGHT_SLEEP_EVENT_TEXT = "__assistant_memory_core_light_sleep__";
+const REM_SLEEP_EVENT_TEXT = "__assistant_memory_core_rem_sleep__";
 const DAILY_MEMORY_FILENAME_RE = /^(\d{4}-\d{2}-\d{2})\.md$/;
 const DAILY_INGESTION_STATE_RELATIVE_PATH = path.join("memory", ".dreams", "daily-ingestion.json");
 const DAILY_INGESTION_SCORE = 0.62;
@@ -80,18 +80,18 @@ const GENERIC_DAY_HEADING_RE =
 const MANAGED_DAILY_DREAMING_BLOCKS = [
   {
     heading: "## Light Sleep",
-    startMarker: "<!-- zhushou:dreaming:light:start -->",
-    endMarker: "<!-- zhushou:dreaming:light:end -->",
+    startMarker: "<!-- assistant:dreaming:light:start -->",
+    endMarker: "<!-- assistant:dreaming:light:end -->",
   },
   {
     heading: "## REM Sleep",
-    startMarker: "<!-- zhushou:dreaming:rem:start -->",
-    endMarker: "<!-- zhushou:dreaming:rem:end -->",
+    startMarker: "<!-- assistant:dreaming:rem:start -->",
+    endMarker: "<!-- assistant:dreaming:rem:end -->",
   },
 ] as const;
 
 function resolveWorkspaces(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   fallbackWorkspaceDir?: string;
 }): string[] {
   const workspaceCandidates = params.cfg
@@ -604,7 +604,7 @@ function buildSessionRenderedLine(params: {
 }
 
 function resolveSessionAgentsForWorkspace(
-  cfg: ZhushouConfig | undefined,
+  cfg: AssistantConfig | undefined,
   workspaceDir: string,
 ): string[] {
   if (!cfg) {
@@ -668,7 +668,7 @@ async function appendSessionCorpusLines(params: {
 
 async function collectSessionIngestionBatches(params: {
   workspaceDir: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   lookbackDays: number;
   nowMs: number;
   timezone?: string;
@@ -956,7 +956,7 @@ async function collectSessionIngestionBatches(params: {
 
 async function ingestSessionTranscriptSignals(params: {
   workspaceDir: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   lookbackDays: number;
   nowMs: number;
   timezone?: string;
@@ -1473,7 +1473,7 @@ export function previewRemDreaming(params: {
 
 async function runLightDreaming(params: {
   workspaceDir: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   config: MemoryLightDreamingConfig & {
     timezone?: string;
     storage: { mode: "inline" | "separate" | "both"; separateReports: boolean };
@@ -1553,7 +1553,7 @@ async function runLightDreaming(params: {
 
 async function runRemDreaming(params: {
   workspaceDir: string;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   config: MemoryRemDreamingConfig & {
     timezone?: string;
     storage: { mode: "inline" | "separate" | "both"; separateReports: boolean };
@@ -1636,7 +1636,7 @@ async function runRemDreaming(params: {
 export async function runDreamingSweepPhases(params: {
   workspaceDir: string;
   pluginConfig?: Record<string, unknown>;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   logger: Logger;
   subagent?: Parameters<typeof generateAndAppendDreamNarrative>[0]["subagent"];
   nowMs?: number;
@@ -1727,7 +1727,7 @@ async function runPhaseIfTriggered(
 /**
  * @deprecated Unified dreaming registration lives in registerShortTermPromotionDreaming().
  */
-export function registerMemoryDreamingPhases(_api: ZhushouPluginApi): void {
+export function registerMemoryDreamingPhases(_api: AssistantPluginApi): void {
   // LEGACY(memory-v1): kept as a no-op compatibility shim while the unified
   // dreaming controller owns startup reconciliation and heartbeat triggers.
 }

@@ -69,7 +69,7 @@ function setCachedSessionTitleFields(cacheKey: string, stat: fs.Stats, value: Se
   }
 }
 
-export function attachOpenClawTranscriptMeta(
+export function attachAssistantTranscriptMeta(
   message: unknown,
   meta: Record<string, unknown>,
 ): unknown {
@@ -78,12 +78,12 @@ export function attachOpenClawTranscriptMeta(
   }
   const record = message as Record<string, unknown>;
   const existing =
-    record.__openclaw && typeof record.__openclaw === "object" && !Array.isArray(record.__openclaw)
-      ? (record.__openclaw as Record<string, unknown>)
+    record.__assistant && typeof record.__assistant === "object" && !Array.isArray(record.__assistant)
+      ? (record.__assistant as Record<string, unknown>)
       : {};
   return {
     ...record,
-    __openclaw: {
+    __assistant: {
       ...existing,
       ...meta,
     },
@@ -114,7 +114,7 @@ export function readSessionMessages(
       if (parsed?.message) {
         messageSeq += 1;
         messages.push(
-          attachOpenClawTranscriptMeta(parsed.message, {
+          attachAssistantTranscriptMeta(parsed.message, {
             ...(typeof parsed.id === "string" ? { id: parsed.id } : {}),
             seq: messageSeq,
           }),
@@ -132,7 +132,7 @@ export function readSessionMessages(
           role: "system",
           content: [{ type: "text", text: "Compaction" }],
           timestamp,
-          __openclaw: {
+          __assistant: {
             kind: "compaction",
             id: typeof parsed.id === "string" ? parsed.id : undefined,
             seq: messageSeq,
@@ -493,7 +493,7 @@ function extractLatestUsageFromTranscriptChunk(
           : typeof parsed.model === "string"
             ? parsed.model.trim()
             : undefined;
-      const isDeliveryMirror = modelProvider === "zhushou" && model === "delivery-mirror";
+      const isDeliveryMirror = modelProvider === "assistant" && model === "delivery-mirror";
       const hasMeaningfulUsage =
         hasNonzeroUsage(usage) ||
         typeof totalTokens === "number" ||

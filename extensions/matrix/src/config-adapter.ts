@@ -1,8 +1,8 @@
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "zhushou/plugin-sdk/channel-config-helpers";
+} from "assistant/plugin-sdk/channel-config-helpers";
 import {
   listMatrixAccountIds,
   resolveDefaultMatrixAccountId,

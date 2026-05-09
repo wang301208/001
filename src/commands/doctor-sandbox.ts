@@ -6,7 +6,7 @@ import {
   DEFAULT_SANDBOX_IMAGE,
   resolveSandboxScope,
 } from "../agents/sandbox.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { runCommandWithTimeout, runExec } from "../process/exec.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
@@ -89,22 +89,22 @@ async function dockerImageExists(image: string): Promise<boolean> {
   }
 }
 
-function resolveSandboxDockerImage(cfg: ZhushouConfig): string {
+function resolveSandboxDockerImage(cfg: AssistantConfig): string {
   const image = cfg.agents?.defaults?.sandbox?.docker?.image?.trim();
   return image ? image : DEFAULT_SANDBOX_IMAGE;
 }
 
-function resolveSandboxBackend(cfg: ZhushouConfig): string {
+function resolveSandboxBackend(cfg: AssistantConfig): string {
   const backend = cfg.agents?.defaults?.sandbox?.backend?.trim();
   return backend || "docker";
 }
 
-function resolveSandboxBrowserImage(cfg: ZhushouConfig): string {
+function resolveSandboxBrowserImage(cfg: AssistantConfig): string {
   const image = cfg.agents?.defaults?.sandbox?.browser?.image?.trim();
   return image ? image : DEFAULT_SANDBOX_BROWSER_IMAGE;
 }
 
-function updateSandboxDockerImage(cfg: ZhushouConfig, image: string): ZhushouConfig {
+function updateSandboxDockerImage(cfg: AssistantConfig, image: string): AssistantConfig {
   return {
     ...cfg,
     agents: {
@@ -123,7 +123,7 @@ function updateSandboxDockerImage(cfg: ZhushouConfig, image: string): ZhushouCon
   };
 }
 
-function updateSandboxBrowserImage(cfg: ZhushouConfig, image: string): ZhushouConfig {
+function updateSandboxBrowserImage(cfg: AssistantConfig, image: string): AssistantConfig {
   return {
     ...cfg,
     agents: {
@@ -181,10 +181,10 @@ async function handleMissingSandboxImage(
 }
 
 export async function maybeRepairSandboxImages(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   runtime: RuntimeEnv,
   prompter: DoctorPrompter,
-): Promise<ZhushouConfig> {
+): Promise<AssistantConfig> {
   const sandbox = cfg.agents?.defaults?.sandbox;
   const mode = sandbox?.mode ?? "off";
   if (!sandbox || mode === "off") {
@@ -210,7 +210,7 @@ export async function maybeRepairSandboxImages(
       "",
       "Options:",
       "- Install Docker and restart the gateway",
-      "- Disable sandbox mode: zhushou config set agents.defaults.sandbox.mode off",
+      "- Disable sandbox mode: assistant config set agents.defaults.sandbox.mode off",
     ];
     note(lines.join("\n"), "Sandbox");
     return cfg;
@@ -262,7 +262,7 @@ export async function maybeRepairSandboxImages(
   return next;
 }
 
-export function noteSandboxScopeWarnings(cfg: ZhushouConfig) {
+export function noteSandboxScopeWarnings(cfg: AssistantConfig) {
   const globalSandbox = cfg.agents?.defaults?.sandbox;
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
   const warnings: string[] = [];

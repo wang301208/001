@@ -1,5 +1,5 @@
 import type { SubagentRunRecord } from "../../agents/subagent-registry.types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { handleSubagentsSendAction } from "./commands-subagents/action-send.js";
 
 export function buildSubagentRun(): SubagentRunRecord {
@@ -16,7 +16,7 @@ export function buildSubagentRun(): SubagentRunRecord {
 }
 
 export function buildSubagentsSendContext(params?: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   handledPrefix?: string;
   requesterKey?: string;
   runs?: SubagentRunRecord[];
@@ -29,7 +29,7 @@ export function buildSubagentsSendContext(params?: {
         ({
           commands: { text: true },
           channels: { whatsapp: { allowFrom: ["*"] } },
-        } as ZhushouConfig),
+        } as AssistantConfig),
       ctx: {},
       command: {
         channel: "whatsapp",

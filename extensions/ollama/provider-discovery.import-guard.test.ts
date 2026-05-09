@@ -21,8 +21,8 @@ describe("ollama provider discovery import surface", () => {
       "./src/embedding-provider",
       "./src/memory-embedding-adapter",
       "./src/web-search-provider",
-      "zhushou/plugin-sdk/text-runtime",
-      "zhushou/plugin-sdk/plugin-entry",
+      "assistant/plugin-sdk/text-runtime",
+      "assistant/plugin-sdk/plugin-entry",
     ]) {
       expect(source, `provider discovery must not import ${forbidden}`).not.toContain(forbidden);
     }

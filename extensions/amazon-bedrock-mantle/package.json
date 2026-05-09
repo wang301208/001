@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/amazon-bedrock-mantle-provider",
+  "name": "@assistant/amazon-bedrock-mantle-provider",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Amazon Bedrock Mantle (OpenAI-compatible) provider plugin",
@@ -8,9 +8,9 @@
     "@aws/bedrock-token-generator": "^1.1.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "bundle": {
       "stageRuntimeDependencies": true
     },

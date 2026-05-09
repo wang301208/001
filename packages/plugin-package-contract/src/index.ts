@@ -5,7 +5,7 @@ export type JsonObject = Record<string, unknown>;
 
 export type ExternalPluginCompatibility = {
   pluginApiRange?: string;
-  builtWithOpenClawVersion?: string;
+  builtWithAssistantVersion?: string;
   pluginSdkVersion?: string;
   minGatewayVersion?: string;
 };
@@ -21,23 +21,23 @@ export type ExternalCodePluginValidationResult = {
 };
 
 export const EXTERNAL_CODE_PLUGIN_REQUIRED_FIELD_PATHS = [
-  "zhushou.compat.pluginApi",
-  "zhushou.build.zhushouVersion",
+  "assistant.compat.pluginApi",
+  "assistant.build.assistantVersion",
 ] as const;
 
-function readOpenClawBlock(packageJson: unknown) {
+function readAssistantBlock(packageJson: unknown) {
   const root = isRecord(packageJson) ? packageJson : undefined;
-  const zhushou = isRecord(root?.zhushou) ? root.zhushou : undefined;
-  const compat = isRecord(zhushou?.compat) ? zhushou.compat : undefined;
-  const build = isRecord(zhushou?.build) ? zhushou.build : undefined;
-  const install = isRecord(zhushou?.install) ? zhushou.install : undefined;
-  return { root, zhushou, compat, build, install };
+  const assistant = isRecord(root?.assistant) ? root.assistant : undefined;
+  const compat = isRecord(assistant?.compat) ? assistant.compat : undefined;
+  const build = isRecord(assistant?.build) ? assistant.build : undefined;
+  const install = isRecord(assistant?.install) ? assistant.install : undefined;
+  return { root, assistant, compat, build, install };
 }
 
 export function normalizeExternalPluginCompatibility(
   packageJson: unknown,
 ): ExternalPluginCompatibility | undefined {
-  const { root, compat, build, install } = readOpenClawBlock(packageJson);
+  const { root, compat, build, install } = readAssistantBlock(packageJson);
   const version = normalizeOptionalString(root?.version);
   const minHostVersion = normalizeOptionalString(install?.minHostVersion);
   const compatibility: ExternalPluginCompatibility = {};
@@ -52,9 +52,9 @@ export function normalizeExternalPluginCompatibility(
     compatibility.minGatewayVersion = minGatewayVersion;
   }
 
-  const builtWithOpenClawVersion = normalizeOptionalString(build?.zhushouVersion) ?? version;
-  if (builtWithOpenClawVersion) {
-    compatibility.builtWithOpenClawVersion = builtWithOpenClawVersion;
+  const builtWithAssistantVersion = normalizeOptionalString(build?.assistantVersion) ?? version;
+  if (builtWithAssistantVersion) {
+    compatibility.builtWithAssistantVersion = builtWithAssistantVersion;
   }
 
   const pluginSdkVersion = normalizeOptionalString(build?.pluginSdkVersion);
@@ -66,13 +66,13 @@ export function normalizeExternalPluginCompatibility(
 }
 
 export function listMissingExternalCodePluginFieldPaths(packageJson: unknown): string[] {
-  const { compat, build } = readOpenClawBlock(packageJson);
+  const { compat, build } = readAssistantBlock(packageJson);
   const missing: string[] = [];
   if (!normalizeOptionalString(compat?.pluginApi)) {
-    missing.push("zhushou.compat.pluginApi");
+    missing.push("assistant.compat.pluginApi");
   }
-  if (!normalizeOptionalString(build?.zhushouVersion)) {
-    missing.push("zhushou.build.zhushouVersion");
+  if (!normalizeOptionalString(build?.assistantVersion)) {
+    missing.push("assistant.build.assistantVersion");
   }
   return missing;
 }

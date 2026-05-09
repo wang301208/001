@@ -1,13 +1,13 @@
-import { createSubsystemLogger } from "zhushou/plugin-sdk/logging-core";
+import { createSubsystemLogger } from "assistant/plugin-sdk/logging-core";
 import {
   buildRemoteBaseUrlPolicy,
   createRemoteEmbeddingProvider,
   normalizeEmbeddingModelWithPrefixes,
   type MemoryEmbeddingProvider,
   type MemoryEmbeddingProviderCreateOptions,
-} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
-import { resolveMemorySecretInputString } from "zhushou/plugin-sdk/memory-core-host-secret";
-import { formatErrorMessage, type SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
+} from "assistant/plugin-sdk/memory-core-host-engine-embeddings";
+import { resolveMemorySecretInputString } from "assistant/plugin-sdk/memory-core-host-secret";
+import { formatErrorMessage, type SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
 import { LMSTUDIO_DEFAULT_EMBEDDING_MODEL, LMSTUDIO_PROVIDER_ID } from "./defaults.js";
 import { ensureLmstudioModelLoaded } from "./models.fetch.js";
 import { resolveLmstudioInferenceBase } from "./models.js";

@@ -3,7 +3,7 @@ import path from "node:path";
 import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
-} from "zhushou/plugin-sdk/memory-host-markdown";
+} from "assistant/plugin-sdk/memory-host-markdown";
 import { compileMemoryWikiVault, type CompileMemoryWikiResult } from "./compile.js";
 import type { ResolvedMemoryWikiConfig } from "./config.js";
 import {
@@ -21,10 +21,10 @@ import {
 } from "./query.js";
 import { initializeMemoryWikiVault } from "./vault.js";
 
-const GENERATED_START = "<!-- zhushou:wiki:generated:start -->";
-const GENERATED_END = "<!-- zhushou:wiki:generated:end -->";
-const HUMAN_START = "<!-- zhushou:human:start -->";
-const HUMAN_END = "<!-- zhushou:human:end -->";
+const GENERATED_START = "<!-- assistant:wiki:generated:start -->";
+const GENERATED_END = "<!-- assistant:wiki:generated:end -->";
+const HUMAN_START = "<!-- assistant:human:start -->";
+const HUMAN_END = "<!-- assistant:human:end -->";
 
 export type CreateSynthesisMemoryWikiMutation = {
   op: "create_synthesis";

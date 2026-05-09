@@ -25,16 +25,16 @@ function invokeExecFileCallback(args: unknown[], error: Error | null) {
 
 describe("resolveConfigOpenCommand", () => {
   it("uses open on macOS", () => {
-    expect(resolveConfigOpenCommand("/tmp/zhushou.json", "darwin")).toEqual({
+    expect(resolveConfigOpenCommand("/tmp/assistant.json", "darwin")).toEqual({
       command: "open",
-      args: ["/tmp/zhushou.json"],
+      args: ["/tmp/assistant.json"],
     });
   });
 
   it("uses xdg-open on Linux", () => {
-    expect(resolveConfigOpenCommand("/tmp/zhushou.json", "linux")).toEqual({
+    expect(resolveConfigOpenCommand("/tmp/assistant.json", "linux")).toEqual({
       command: "xdg-open",
-      args: ["/tmp/zhushou.json"],
+      args: ["/tmp/assistant.json"],
     });
   });
 
@@ -53,12 +53,12 @@ describe("resolveConfigOpenCommand", () => {
 
 describe("config.openFile", () => {
   afterEach(() => {
-    delete process.env.ZHUSHOU_CONFIG_PATH;
+    delete process.env.ASSISTANT_CONFIG_PATH;
     vi.clearAllMocks();
   });
 
   it("opens the configured file without shell interpolation", async () => {
-    process.env.ZHUSHOU_CONFIG_PATH = "/tmp/config $(touch pwned).json";
+    process.env.ASSISTANT_CONFIG_PATH = "/tmp/config $(touch pwned).json";
     const expectedPath = createConfigIO().configPath;
     const expectedCommand = resolveConfigOpenCommand(expectedPath);
     execFileMock.mockImplementation((...args: unknown[]) => {
@@ -82,7 +82,7 @@ describe("config.openFile", () => {
   });
 
   it("returns a generic error and logs details when the opener fails", async () => {
-    process.env.ZHUSHOU_CONFIG_PATH = "/tmp/config.json";
+    process.env.ASSISTANT_CONFIG_PATH = "/tmp/config.json";
     const expectedPath = createConfigIO().configPath;
     execFileMock.mockImplementation((...args: unknown[]) => {
       invokeExecFileCallback(

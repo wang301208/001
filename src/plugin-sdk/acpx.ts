@@ -16,10 +16,10 @@ export type {
   AcpSessionUpdateTag,
 } from "../acp/runtime/types.js";
 export type {
-  ZhushouPluginApi,
-  OpenClawPluginConfigSchema,
-  OpenClawPluginService,
-  OpenClawPluginServiceContext,
+  AssistantPluginApi,
+  AssistantPluginConfigSchema,
+  AssistantPluginService,
+  AssistantPluginServiceContext,
   PluginLogger,
 } from "../plugins/types.js";
 export type {

@@ -15,7 +15,7 @@ describe("qa channel transport", () => {
         "qa-channel": {
           enabled: true,
           baseUrl: "http://127.0.0.1:43123",
-          botUserId: "zhushou",
+          botUserId: "assistant",
           botDisplayName: "助手 QA",
           allowFrom: ["*"],
           pollTimeoutMs: 250,
@@ -23,7 +23,7 @@ describe("qa channel transport", () => {
       },
       messages: {
         groupChat: {
-          mentionPatterns: ["\\b@?zhushou\\b"],
+          mentionPatterns: ["\\b@?assistant\\b"],
         },
       },
     });

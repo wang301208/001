@@ -1,4 +1,4 @@
-import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-shared";
+import type { ModelProviderConfig } from "assistant/plugin-sdk/provider-model-shared";
 
 export const OPENAI_CODEX_BASE_URL = "https://chatgpt.com/backend-api";
 

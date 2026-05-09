@@ -1,9 +1,9 @@
 import { RequestClient } from "@buape/carbon";
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { RetryConfig, RetryRunner } from "zhushou/plugin-sdk/retry-runtime";
-import { normalizeAccountId } from "zhushou/plugin-sdk/routing";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
+import type { RetryConfig, RetryRunner } from "assistant/plugin-sdk/retry-runtime";
+import { normalizeAccountId } from "assistant/plugin-sdk/routing";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   mergeDiscordAccountConfig,
   resolveDiscordAccount,

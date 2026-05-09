@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import {
   createAccountListHelpers,
@@ -14,16 +14,16 @@ import {
 const { listConfiguredAccountIds, listAccountIds, resolveDefaultAccountId } =
   createAccountListHelpers("testchannel");
 
-function cfg(accounts?: Record<string, unknown> | null, defaultAccount?: string): ZhushouConfig {
+function cfg(accounts?: Record<string, unknown> | null, defaultAccount?: string): AssistantConfig {
   if (accounts === null) {
     return {
       channels: {
         testchannel: defaultAccount ? { defaultAccount } : {},
       },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
   }
   if (accounts === undefined && !defaultAccount) {
-    return {} as unknown as ZhushouConfig;
+    return {} as unknown as AssistantConfig;
   }
   return {
     channels: {
@@ -32,18 +32,18 @@ function cfg(accounts?: Record<string, unknown> | null, defaultAccount?: string)
         ...(defaultAccount ? { defaultAccount } : {}),
       },
     },
-  } as unknown as ZhushouConfig;
+  } as unknown as AssistantConfig;
 }
 
 function expectResolvedAccountIdsCase(params: {
-  resolve: (cfg: ZhushouConfig) => string[];
-  input: ZhushouConfig;
+  resolve: (cfg: AssistantConfig) => string[];
+  input: AssistantConfig;
   expected: string[];
 }) {
   expect(params.resolve(params.input)).toEqual(params.expected);
 }
 
-function expectResolvedDefaultAccountCase(input: ZhushouConfig, expected: string) {
+function expectResolvedDefaultAccountCase(input: AssistantConfig, expected: string) {
   expect(resolveDefaultAccountId(input)).toBe(expected);
 }
 
@@ -52,7 +52,7 @@ describe("createAccountListHelpers", () => {
     it.each([
       {
         name: "returns empty for missing config",
-        input: {} as ZhushouConfig,
+        input: {} as AssistantConfig,
       },
       {
         name: "returns empty when no accounts key",
@@ -102,7 +102,7 @@ describe("createAccountListHelpers", () => {
     it.each([
       {
         name: 'returns ["default"] for empty config',
-        input: {} as ZhushouConfig,
+        input: {} as AssistantConfig,
         expected: ["default"],
       },
       {
@@ -153,7 +153,7 @@ describe("createAccountListHelpers", () => {
       },
       {
         name: 'returns "default" for empty config',
-        input: {} as ZhushouConfig,
+        input: {} as AssistantConfig,
         expected: "default",
       },
     ])("$name", ({ input, expected }) => {

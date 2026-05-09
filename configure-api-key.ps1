@@ -24,7 +24,7 @@ if ([string]::IsNullOrWhiteSpace($ApiKey)) {
 }
 
 # 配置文件路径
-$authDir = "C:\Users\30676\.zhushou\agents\main\agent"
+$authDir = "C:\Users\30676\.assistant\agents\main\agent"
 $authFile = Join-Path $authDir "auth-profiles.json"
 
 # 创建目录（如果不存在）
@@ -77,7 +77,7 @@ try {
     Write-Host "1. 重启网关服务使配置生效:" -ForegroundColor White
     Write-Host "   taskkill /F /IM node.exe" -ForegroundColor Gray
     Write-Host "   cd g:\项目\-" -ForegroundColor Gray
-    Write-Host "   node zhushou.mjs gateway --bind lan --port 3000" -ForegroundColor Gray
+    Write-Host "   node assistant.mjs gateway --bind lan --port 3000" -ForegroundColor Gray
     Write-Host ""
     Write-Host "2. 验证配置是否成功:" -ForegroundColor White
     Write-Host "   查看日志中是否还有 'No API key found' 错误" -ForegroundColor Gray

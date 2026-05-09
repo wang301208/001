@@ -2,12 +2,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 import { resolveMatrixOutboundSessionRoute } from "./session-route.js";
 
 const tempDirs = new Set<string>();
 const currentDmSessionKey = "agent:main:matrix:channel:!dm:example.org";
-type MatrixChannelConfig = NonNullable<NonNullable<ZhushouConfig["channels"]>["matrix"]>;
+type MatrixChannelConfig = NonNullable<NonNullable<AssistantConfig["channels"]>["matrix"]>;
 
 const perRoomDmMatrixConfig = {
   dm: {
@@ -37,7 +37,7 @@ function createTempStore(entries: Record<string, unknown>): string {
 function createMatrixRouteConfig(
   entries: Record<string, unknown>,
   matrix: MatrixChannelConfig = perRoomDmMatrixConfig,
-): ZhushouConfig {
+): AssistantConfig {
   return {
     session: {
       store: createTempStore(entries),
@@ -45,7 +45,7 @@ function createMatrixRouteConfig(
     channels: {
       matrix,
     },
-  } satisfies ZhushouConfig;
+  } satisfies AssistantConfig;
 }
 
 function createStoredDirectDmSession(
@@ -110,7 +110,7 @@ function createStoredChannelSession(): Record<string, unknown> {
   };
 }
 
-function resolveUserRoute(params: { cfg: ZhushouConfig; accountId?: string; target?: string }) {
+function resolveUserRoute(params: { cfg: AssistantConfig; accountId?: string; target?: string }) {
   const target = params.target ?? "@alice:example.org";
   return resolveMatrixOutboundSessionRoute({
     cfg: params.cfg,

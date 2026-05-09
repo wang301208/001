@@ -2,11 +2,11 @@ import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
   type GroupToolPolicyConfig,
-} from "zhushou/plugin-sdk/channel-policy";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/core";
+} from "assistant/plugin-sdk/channel-policy";
+import type { AssistantConfig } from "assistant/plugin-sdk/core";
 
 type IMessageGroupContext = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   groupId?: string | null;
   senderId?: string | null;

@@ -73,11 +73,11 @@ function createPreparedSlackMessage() {
   } as never;
 }
 
-vi.mock("zhushou/plugin-sdk/agent-runtime", () => ({
+vi.mock("assistant/plugin-sdk/agent-runtime", () => ({
   resolveHumanDelayConfig: () => undefined,
 }));
 
-vi.mock("zhushou/plugin-sdk/channel-feedback", () => ({
+vi.mock("assistant/plugin-sdk/channel-feedback", () => ({
   DEFAULT_TIMING: {
     doneHoldMs: 0,
     errorHoldMs: 0,
@@ -96,7 +96,7 @@ vi.mock("zhushou/plugin-sdk/channel-feedback", () => ({
   removeAckReactionAfterReply: () => {},
 }));
 
-vi.mock("zhushou/plugin-sdk/channel-reply-pipeline", () => ({
+vi.mock("assistant/plugin-sdk/channel-reply-pipeline", () => ({
   createChannelReplyPipeline: () => ({
     typingCallbacks: {
       onIdle: vi.fn(),
@@ -105,20 +105,20 @@ vi.mock("zhushou/plugin-sdk/channel-reply-pipeline", () => ({
   }),
 }));
 
-vi.mock("zhushou/plugin-sdk/channel-streaming", () => ({
+vi.mock("assistant/plugin-sdk/channel-streaming", () => ({
   resolveChannelStreamingBlockEnabled: () => false,
   resolveChannelStreamingNativeTransport: () => false,
 }));
 
-vi.mock("zhushou/plugin-sdk/outbound-runtime", () => ({
+vi.mock("assistant/plugin-sdk/outbound-runtime", () => ({
   resolveAgentOutboundIdentity: () => undefined,
 }));
 
-vi.mock("zhushou/plugin-sdk/reply-history", () => ({
+vi.mock("assistant/plugin-sdk/reply-history", () => ({
   clearHistoryEntriesIfEnabled: () => {},
 }));
 
-vi.mock("zhushou/plugin-sdk/reply-payload", () => ({
+vi.mock("assistant/plugin-sdk/reply-payload", () => ({
   resolveSendableOutboundReplyParts: (
     payload: { text?: string; mediaUrl?: string; mediaUrls?: string[] },
     opts?: { text?: string },
@@ -136,17 +136,17 @@ vi.mock("zhushou/plugin-sdk/reply-payload", () => ({
   },
 }));
 
-vi.mock("zhushou/plugin-sdk/runtime-env", () => ({
+vi.mock("assistant/plugin-sdk/runtime-env", () => ({
   danger: (message: string) => message,
   logVerbose: () => {},
   shouldLogVerbose: () => false,
 }));
 
-vi.mock("zhushou/plugin-sdk/security-runtime", () => ({
+vi.mock("assistant/plugin-sdk/security-runtime", () => ({
   resolvePinnedMainDmOwnerFromAllowlist: () => undefined,
 }));
 
-vi.mock("zhushou/plugin-sdk/text-runtime", () => ({
+vi.mock("assistant/plugin-sdk/text-runtime", () => ({
   normalizeOptionalLowercaseString: (value?: string) => value?.toLowerCase(),
 }));
 
@@ -206,7 +206,7 @@ vi.mock("../allow-list.js", () => ({
 }));
 
 vi.mock("../config.runtime.js", () => ({
-  resolveStorePath: () => "/tmp/zhushou-store.json",
+  resolveStorePath: () => "/tmp/assistant-store.json",
   updateLastRoute: async () => {},
 }));
 

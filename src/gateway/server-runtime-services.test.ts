@@ -123,15 +123,15 @@ const { activateGatewayScheduledServices, startGatewayRuntimeServices } =
 describe("server-runtime-services", () => {
   beforeEach(() => {
     vi.useRealTimers();
-    delete process.env.OPENCLAW_SKIP_CRON;
-    delete process.env.OPENCLAW_SKIP_AUTONOMY_RECONCILE;
-    delete process.env.OPENCLAW_SKIP_AUTONOMY_FLOW_HEAL;
-    delete process.env.OPENCLAW_SKIP_AUTONOMY_SUPERVISOR;
-    delete process.env.OPENCLAW_AUTONOMY_SUPERVISOR_INTERVAL_MS;
-    delete process.env.OPENCLAW_AUTONOMY_SUPERVISOR_MODE;
-    delete process.env.OPENCLAW_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE;
-    delete process.env.OPENCLAW_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY;
-    delete process.env.OPENCLAW_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN;
+    delete process.env.ASSISTANT_SKIP_CRON;
+    delete process.env.ASSISTANT_SKIP_AUTONOMY_RECONCILE;
+    delete process.env.ASSISTANT_SKIP_AUTONOMY_FLOW_HEAL;
+    delete process.env.ASSISTANT_SKIP_AUTONOMY_SUPERVISOR;
+    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INTERVAL_MS;
+    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_MODE;
+    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE;
+    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY;
+    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN;
     hoisted.heartbeatRunner.stop.mockClear();
     hoisted.heartbeatRunner.updateConfig.mockClear();
     hoisted.startHeartbeatRunner.mockClear();
@@ -238,7 +238,7 @@ describe("server-runtime-services", () => {
       remove: vi.fn(),
     };
     const log = createLog();
-    process.env.OPENCLAW_SKIP_AUTONOMY_FLOW_HEAL = "1";
+    process.env.ASSISTANT_SKIP_AUTONOMY_FLOW_HEAL = "1";
 
     try {
       activateGatewayScheduledServices({
@@ -256,13 +256,13 @@ describe("server-runtime-services", () => {
       expect(hoisted.healFleet).not.toHaveBeenCalled();
       expect(hoisted.superviseFleet).not.toHaveBeenCalled();
     } finally {
-      delete process.env.OPENCLAW_SKIP_AUTONOMY_FLOW_HEAL;
+      delete process.env.ASSISTANT_SKIP_AUTONOMY_FLOW_HEAL;
     }
   });
 
   it("keeps supervising autonomy continuity on an interval until stopped", async () => {
     vi.useFakeTimers();
-    process.env.OPENCLAW_AUTONOMY_SUPERVISOR_INTERVAL_MS = "1000";
+    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INTERVAL_MS = "1000";
     const cron = {
       start: vi.fn(async () => undefined),
       list: vi.fn(async () => []),
@@ -312,7 +312,7 @@ describe("server-runtime-services", () => {
   });
 
   it("supports explicit heal mode override for gateway autonomy maintenance", async () => {
-    process.env.OPENCLAW_AUTONOMY_SUPERVISOR_MODE = "heal";
+    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_MODE = "heal";
     const cron = {
       start: vi.fn(async () => undefined),
       list: vi.fn(async () => []),
@@ -338,9 +338,9 @@ describe("server-runtime-services", () => {
   });
 
   it("supports supervise env overrides for governance and inventory planning", async () => {
-    process.env.OPENCLAW_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE = "force_apply_all";
-    process.env.OPENCLAW_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY = "0";
-    process.env.OPENCLAW_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN = "false";
+    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE = "force_apply_all";
+    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY = "0";
+    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN = "false";
     const cron = {
       start: vi.fn(async () => undefined),
       list: vi.fn(async () => []),

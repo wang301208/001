@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import {
   defaultRuntime,
   resetLifecycleRuntimeLogs,
@@ -9,7 +9,7 @@ import {
   stubEmptyGatewayEnv,
 } from "./test-helpers/lifecycle-core-harness.js";
 
-const loadConfig = vi.fn<() => ZhushouConfig>(() => ({
+const loadConfig = vi.fn<() => AssistantConfig>(() => ({
   gateway: {
     auth: {
       token: "config-token",
@@ -63,28 +63,28 @@ describe("runServiceRestart token drift", () => {
     resetLifecycleServiceMocks();
     service.readCommand.mockResolvedValue({
       programArguments: [],
-      environment: { ZHUSHOU_GATEWAY_TOKEN: "service-token" },
+      environment: { ASSISTANT_GATEWAY_TOKEN: "service-token" },
     });
     stubEmptyGatewayEnv();
   });
 
   it("prints the container restart hint when restart is requested for a not-loaded service", async () => {
     service.isLoaded.mockResolvedValue(false);
-    vi.stubEnv("OPENCLAW_CONTAINER_HINT", "zhushou-demo-container");
+    vi.stubEnv("ASSISTANT_CONTAINER_HINT", "assistant-demo-container");
 
     await runServiceRestart({
       serviceNoun: "Gateway",
       service,
       renderStartHints: () => [
-        "Restart the container or the service that manages it for zhushou-demo-container.",
-        "openclaw gateway install",
+        "Restart the container or the service that manages it for assistant-demo-container.",
+        "assistant gateway install",
       ],
       opts: { json: false },
     });
 
     expect(runtimeLogs).toContain("Gateway service not loaded.");
     expect(runtimeLogs).toContain(
-      "Start with: Restart the container or the service that manages it for zhushou-demo-container.",
+      "Start with: Restart the container or the service that manages it for assistant-demo-container.",
     );
   });
 
@@ -108,9 +108,9 @@ describe("runServiceRestart token drift", () => {
     });
     service.readCommand.mockResolvedValue({
       programArguments: [],
-      environment: { ZHUSHOU_GATEWAY_TOKEN: "env-token" },
+      environment: { ASSISTANT_GATEWAY_TOKEN: "env-token" },
     });
-    vi.stubEnv("ZHUSHOU_GATEWAY_TOKEN", "env-token");
+    vi.stubEnv("ASSISTANT_GATEWAY_TOKEN", "env-token");
 
     await runServiceRestart(createServiceRunArgs(true));
 
@@ -141,7 +141,7 @@ describe("runServiceRestart token drift", () => {
     service.readCommand.mockResolvedValue({
       programArguments: [],
       environment: {
-        ZHUSHOU_GATEWAY_TOKEN: "service-token",
+        ASSISTANT_GATEWAY_TOKEN: "service-token",
         SERVICE_GATEWAY_TOKEN: "service-token",
       },
     });
@@ -173,7 +173,7 @@ describe("runServiceRestart token drift", () => {
     service.readCommand.mockResolvedValue({
       programArguments: [],
       environment: {
-        ZHUSHOU_GATEWAY_TOKEN: "service-token",
+        ASSISTANT_GATEWAY_TOKEN: "service-token",
         SERVICE_GATEWAY_TOKEN: "service-token",
       },
     });
@@ -352,7 +352,7 @@ describe("runServiceRestart token drift", () => {
     await runServiceStart({
       serviceNoun: "Gateway",
       service,
-      renderStartHints: () => ["openclaw gateway install"],
+      renderStartHints: () => ["assistant gateway install"],
       opts: { json: true },
     });
 
@@ -364,12 +364,12 @@ describe("runServiceRestart token drift", () => {
     }>();
     expect(payload.ok).toBe(true);
     expect(payload.result).toBe("not-loaded");
-    expect(payload.hints).toEqual(expect.arrayContaining(["openclaw gateway install"]));
+    expect(payload.hints).toEqual(expect.arrayContaining(["assistant gateway install"]));
     expect(payload.hintItems).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           kind: "install",
-          text: "openclaw gateway install",
+          text: "assistant gateway install",
         }),
       ]),
     );

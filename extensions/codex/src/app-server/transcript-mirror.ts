@@ -5,7 +5,7 @@ import { SessionManager } from "@mariozechner/pi-coding-agent";
 import {
   acquireSessionWriteLock,
   emitSessionTranscriptUpdate,
-} from "zhushou/plugin-sdk/agent-harness";
+} from "assistant/plugin-sdk/agent-harness";
 
 export async function mirrorCodexAppServerTranscript(params: {
   sessionFile: string;

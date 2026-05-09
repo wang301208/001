@@ -65,8 +65,8 @@ export async function setupWizardCommand(
     runtime.error(
       [
         "Non-interactive setup requires explicit risk acknowledgement.",
-        "Read: https://docs.zhushou.ai/security",
-        `Re-run with: ${formatCliCommand("zhushou onboard --non-interactive --accept-risk ...")}`,
+        "Read: https://docs.assistant.ai/security",
+        `Re-run with: ${formatCliCommand("assistant onboard --non-interactive --accept-risk ...")}`,
       ].join("\n"),
     );
     runtime.exit(1);
@@ -88,7 +88,7 @@ export async function setupWizardCommand(
         "Windows detected - assistant runs great on WSL2!",
         "Native Windows might be trickier.",
         "Quick setup: wsl --install (one command, one reboot)",
-        "Guide: https://docs.zhushou.ai/windows",
+        "Guide: https://docs.assistant.ai/windows",
       ].join("\n"),
     );
   }

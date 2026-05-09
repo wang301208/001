@@ -180,9 +180,9 @@ describe("pairing setup code", () => {
   }
 
   beforeEach(() => {
-    vi.stubEnv("ZHUSHOU_GATEWAY_TOKEN", "");
-    vi.stubEnv("ZHUSHOU_GATEWAY_PASSWORD", "");
-    vi.stubEnv("ZHUSHOU_GATEWAY_PORT", "");
+    vi.stubEnv("ASSISTANT_GATEWAY_TOKEN", "");
+    vi.stubEnv("ASSISTANT_GATEWAY_PASSWORD", "");
+    vi.stubEnv("ASSISTANT_GATEWAY_PORT", "");
   });
 
   beforeAll(async () => {
@@ -239,13 +239,13 @@ describe("pairing setup code", () => {
       expectedAuthLabel: "password",
     },
     {
-      name: "uses ZHUSHOU_GATEWAY_PASSWORD without resolving configured password SecretRef",
+      name: "uses ASSISTANT_GATEWAY_PASSWORD without resolving configured password SecretRef",
       auth: {
         mode: "password",
         password: { source: "env", provider: "default", id: "MISSING_GW_PASSWORD" },
       } as const,
       env: {
-        ZHUSHOU_GATEWAY_PASSWORD: "password-from-env", // pragma: allowlist secret
+        ASSISTANT_GATEWAY_PASSWORD: "password-from-env", // pragma: allowlist secret
       },
       expectedAuthLabel: "password",
     },
@@ -308,7 +308,7 @@ describe("pairing setup code", () => {
       },
       {
         env: {
-          ZHUSHOU_GATEWAY_PASSWORD: "password-from-env", // pragma: allowlist secret
+          ASSISTANT_GATEWAY_PASSWORD: "password-from-env", // pragma: allowlist secret
         },
       },
     );
@@ -395,7 +395,7 @@ describe("pairing setup code", () => {
       } satisfies ResolveSetupConfig,
       options: {
         env: {
-          ZHUSHOU_GATEWAY_TOKEN: "new-token",
+          ASSISTANT_GATEWAY_TOKEN: "new-token",
         },
       } satisfies ResolveSetupOptions,
       expected: {

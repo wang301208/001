@@ -9,7 +9,7 @@ describe("openshell plugin config", () => {
       command: "openshell",
       gateway: undefined,
       gatewayEndpoint: undefined,
-      from: "zhushou",
+      from: "assistant",
       policy: undefined,
       providers: [],
       gpu: false,
@@ -64,7 +64,7 @@ describe("openshell plugin config", () => {
 
   it("keeps the runtime json schema in sync with the manifest config schema", () => {
     const manifest = JSON.parse(
-      fsSync.readFileSync(new URL("../zhushou.plugin.json", import.meta.url), "utf8"),
+      fsSync.readFileSync(new URL("../assistant.plugin.json", import.meta.url), "utf8"),
     ) as { configSchema?: unknown };
 
     expect(createOpenShellPluginConfigSchema().jsonSchema).toEqual(manifest.configSchema);

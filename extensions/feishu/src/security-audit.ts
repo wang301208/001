@@ -1,8 +1,8 @@
-import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input";
-import type { ZhushouConfig } from "../runtime-api.js";
+import { hasConfiguredSecretInput } from "assistant/plugin-sdk/secret-input";
+import type { AssistantConfig } from "../runtime-api.js";
 import { asRecord, hasNonEmptyString } from "./comment-shared.js";
 
-function isFeishuDocToolEnabled(cfg: ZhushouConfig): boolean {
+function isFeishuDocToolEnabled(cfg: AssistantConfig): boolean {
   const channels = asRecord(cfg.channels);
   const feishu = asRecord(channels?.feishu);
   if (!feishu || feishu.enabled === false) {
@@ -42,7 +42,7 @@ function isFeishuDocToolEnabled(cfg: ZhushouConfig): boolean {
   return false;
 }
 
-export function collectFeishuSecurityAuditFindings(params: { cfg: ZhushouConfig }) {
+export function collectFeishuSecurityAuditFindings(params: { cfg: AssistantConfig }) {
   if (!isFeishuDocToolEnabled(params.cfg)) {
     return [];
   }

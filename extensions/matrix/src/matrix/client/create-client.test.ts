@@ -29,11 +29,11 @@ let createMatrixClient: typeof import("./create-client.js").createMatrixClient;
 
 describe("createMatrixClient", () => {
   const storagePaths = {
-    rootDir: "/tmp/zhushou-matrix-create-client-test",
-    storagePath: "/tmp/zhushou-matrix-create-client-test/storage.json",
-    recoveryKeyPath: "/tmp/zhushou-matrix-create-client-test/recovery.key",
-    idbSnapshotPath: "/tmp/zhushou-matrix-create-client-test/idb.snapshot",
-    metaPath: "/tmp/zhushou-matrix-create-client-test/storage-meta.json",
+    rootDir: "/tmp/assistant-matrix-create-client-test",
+    storagePath: "/tmp/assistant-matrix-create-client-test/storage.json",
+    recoveryKeyPath: "/tmp/assistant-matrix-create-client-test/recovery.key",
+    idbSnapshotPath: "/tmp/assistant-matrix-create-client-test/idb.snapshot",
+    metaPath: "/tmp/assistant-matrix-create-client-test/storage-meta.json",
     accountKey: "default",
     tokenHash: "token-hash",
   };
@@ -79,7 +79,7 @@ describe("createMatrixClient", () => {
       storagePath: storagePaths.storagePath,
       recoveryKeyPath: storagePaths.recoveryKeyPath,
       idbSnapshotPath: storagePaths.idbSnapshotPath,
-      cryptoDatabasePrefix: "zhushou-matrix-default-token-hash",
+      cryptoDatabasePrefix: "assistant-matrix-default-token-hash",
       autoBootstrapCrypto: undefined,
       ssrfPolicy: undefined,
       dispatcherPolicy: undefined,

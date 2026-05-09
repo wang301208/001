@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 const resolveGatewayLogPathsMock = vi.fn(() => ({
-  stdoutPath: "C:\\tmp\\zhushou-state\\logs\\gateway.log",
-  stderrPath: "C:\\tmp\\zhushou-state\\logs\\gateway.err.log",
+  stdoutPath: "C:\\tmp\\assistant-state\\logs\\gateway.log",
+  stderrPath: "C:\\tmp\\assistant-state\\logs\\gateway.err.log",
 }));
 
 vi.mock("./launchd.js", () => ({
@@ -20,12 +20,12 @@ describe("buildPlatformRuntimeLogHints", () => {
     expect(
       buildPlatformRuntimeLogHints({
         platform: "darwin",
-        systemdServiceName: "zhushou-gateway",
-        windowsTaskName: "OpenClaw Gateway",
+        systemdServiceName: "assistant-gateway",
+        windowsTaskName: "Assistant Gateway",
       }),
     ).toEqual([
-      "Launchd stdout (if installed): /tmp/zhushou-state/logs/gateway.log",
-      "Launchd stderr (if installed): /tmp/zhushou-state/logs/gateway.err.log",
+      "Launchd stdout (if installed): /tmp/assistant-state/logs/gateway.log",
+      "Launchd stderr (if installed): /tmp/assistant-state/logs/gateway.err.log",
     ]);
   });
 });

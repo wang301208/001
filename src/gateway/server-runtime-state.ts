@@ -48,7 +48,7 @@ import type { GatewayTlsRuntime } from "./server/tls.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
 
 export async function createGatewayRuntimeState(params: {
-  cfg: import("../config/config.js").ZhushouConfig;
+  cfg: import("../config/config.js").AssistantConfig;
   bindHost: string;
   port: number;
   controlUiEnabled?: false;

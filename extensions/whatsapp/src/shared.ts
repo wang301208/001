@@ -1,17 +1,17 @@
-import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
-import { normalizeE164 } from "zhushou/plugin-sdk/account-resolution";
+import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
+import { normalizeE164 } from "assistant/plugin-sdk/account-resolution";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
-} from "zhushou/plugin-sdk/channel-config-helpers";
-import { createAllowlistProviderRouteAllowlistWarningCollector } from "zhushou/plugin-sdk/channel-policy";
-import type { ChannelPlugin } from "zhushou/plugin-sdk/core";
-import { createChannelPluginBase, getChatChannelMeta } from "zhushou/plugin-sdk/core";
+} from "assistant/plugin-sdk/channel-config-helpers";
+import { createAllowlistProviderRouteAllowlistWarningCollector } from "assistant/plugin-sdk/channel-policy";
+import type { ChannelPlugin } from "assistant/plugin-sdk/core";
+import { createChannelPluginBase, getChatChannelMeta } from "assistant/plugin-sdk/core";
 import {
   createDelegatedSetupWizardProxy,
   type ChannelSetupWizard,
-} from "zhushou/plugin-sdk/setup-runtime";
+} from "assistant/plugin-sdk/setup-runtime";
 import {
   hasAnyWhatsAppAuth,
   listWhatsAppAccountIds,

@@ -2,7 +2,7 @@
  * Test script for shell completion installation feature.
  *
  * This script simulates the shell completion prompt that appears during
- * `zhushou update`. Use it to verify the completion installation flow
+ * `assistant update`. Use it to verify the completion installation flow
  * without running a full update.
  *
  * Run from repo root:
@@ -34,7 +34,7 @@ import {
 import { stylePromptMessage } from "../src/terminal/prompt-style.js";
 import { theme } from "../src/terminal/theme.js";
 
-const CLI_NAME = "zhushou";
+const CLI_NAME = "assistant";
 
 interface Options {
   checkOnly: boolean;
@@ -67,7 +67,7 @@ function printHelp(): void {
 ${theme.heading("Shell Completion Test Script")}
 
 This script simulates the shell completion checks that run during
-\`zhushou update\`, \`zhushou doctor\`, and \`zhushou onboard\`.
+\`assistant update\`, \`assistant doctor\`, and \`assistant onboard\`.
 
 ${theme.heading("Usage (run from repo root):")}
   node --import tsx scripts/test-shell-completion.ts [options]
@@ -198,7 +198,7 @@ async function main() {
   });
 
   if (isCancel(shouldInstall) || !shouldInstall) {
-    console.log(theme.muted(`Skipped. Run \`zhushou completion --install\` later to enable.`));
+    console.log(theme.muted(`Skipped. Run \`assistant completion --install\` later to enable.`));
     return;
   }
 

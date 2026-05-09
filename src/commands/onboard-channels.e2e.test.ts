@@ -11,7 +11,7 @@ import {
 } from "../commands/channel-setup/plugin-install.js";
 import { getChannelSetupWizardAdapter } from "../commands/channel-setup/registry.js";
 import type { ChannelSetupWizardAdapter } from "../commands/channel-setup/types.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createChannelTestPluginBase, createTestRegistry } from "../test-utils/channel-plugins.js";
@@ -53,7 +53,7 @@ let setupChannels: SetupChannels;
 type SetupChannelsOptions = Parameters<SetupChannels>[3];
 
 function runSetupChannels(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   prompter: WizardPrompter,
   options?: SetupChannelsOptions,
 ) {
@@ -90,7 +90,7 @@ function createUnexpectedQuickstartPrompter(select: WizardPrompter["select"]) {
   };
 }
 
-function createTelegramCfg(botToken: string, enabled?: boolean): ZhushouConfig {
+function createTelegramCfg(botToken: string, enabled?: boolean): AssistantConfig {
   return {
     channels: {
       telegram: {
@@ -98,13 +98,13 @@ function createTelegramCfg(botToken: string, enabled?: boolean): ZhushouConfig {
         ...(typeof enabled === "boolean" ? { enabled } : {}),
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createMSTeamsCatalogEntry(): ChannelPluginCatalogEntry {
   return {
     id: "external-chat",
-    pluginId: "@zhushou/external-chat-plugin",
+    pluginId: "@assistant/external-chat-plugin",
     meta: {
       id: "external-chat",
       label: "External Chat",
@@ -113,7 +113,7 @@ function createMSTeamsCatalogEntry(): ChannelPluginCatalogEntry {
       blurb: "external chat channel",
     },
     install: {
-      npmSpec: "@zhushou/external-chat",
+      npmSpec: "@assistant/external-chat",
     },
   };
 }
@@ -195,7 +195,7 @@ function createMatrixQuickstartPrompter(notes: string[]): WizardPrompter {
       return "matrix-token";
     }
     if (message === "Matrix device name (optional)") {
-      return "OpenClaw Gateway";
+      return "Assistant Gateway";
     }
     throw new Error(`unexpected text prompt: ${message}`);
   });
@@ -246,7 +246,7 @@ function setMinimalOnboardingRegistryForTests(): void {
               cfg,
               input,
             }: {
-              cfg: ZhushouConfig;
+              cfg: AssistantConfig;
               input: { token?: string };
             }) =>
               ({
@@ -258,14 +258,14 @@ function setMinimalOnboardingRegistryForTests(): void {
                     ...(input.token ? { botToken: input.token } : {}),
                   },
                 },
-              }) as ZhushouConfig,
+              }) as AssistantConfig,
           },
           setupWizard: {
             channel: "telegram",
             status: {
               configuredLabel: "configured",
               unconfiguredLabel: "not configured",
-              resolveConfigured: ({ cfg }: { cfg: ZhushouConfig }) =>
+              resolveConfigured: ({ cfg }: { cfg: AssistantConfig }) =>
                 Boolean(cfg.channels?.telegram?.botToken),
             },
             credentials: [
@@ -276,7 +276,7 @@ function setMinimalOnboardingRegistryForTests(): void {
                 envPrompt: "Use TELEGRAM_BOT_TOKEN from env?",
                 keepPrompt: "Keep current Telegram bot token?",
                 inputPrompt: "Enter Telegram bot token",
-                inspect: ({ cfg }: { cfg: ZhushouConfig }) => ({
+                inspect: ({ cfg }: { cfg: AssistantConfig }) => ({
                   accountConfigured: Boolean(cfg.channels?.telegram?.botToken),
                   hasConfiguredValue: Boolean(cfg.channels?.telegram?.botToken),
                 }),
@@ -299,7 +299,7 @@ function setMinimalOnboardingRegistryForTests(): void {
               cfg,
               input,
             }: {
-              cfg: ZhushouConfig;
+              cfg: AssistantConfig;
               input: { account?: string; name?: string };
             }) =>
               ({
@@ -313,16 +313,16 @@ function setMinimalOnboardingRegistryForTests(): void {
                     linked: false,
                   },
                 },
-              }) as ZhushouConfig,
+              }) as AssistantConfig,
           },
           setupWizard: {
             channel: "whatsapp",
             status: {
               configuredLabel: "configured",
               unconfiguredLabel: "not linked",
-              resolveConfigured: ({ cfg }: { cfg: ZhushouConfig }) =>
+              resolveConfigured: ({ cfg }: { cfg: AssistantConfig }) =>
                 Boolean((cfg.channels?.whatsapp as { account?: string } | undefined)?.account),
-              resolveSelectionHint: async ({ cfg }: { cfg: ZhushouConfig }) =>
+              resolveSelectionHint: async ({ cfg }: { cfg: AssistantConfig }) =>
                 (cfg.channels?.whatsapp as { account?: string } | undefined)?.account
                   ? "configured"
                   : "not linked",
@@ -333,7 +333,7 @@ function setMinimalOnboardingRegistryForTests(): void {
                 inputKey: "account",
                 message: "Your personal WhatsApp number",
                 required: true,
-                applySet: ({ cfg, value }: { cfg: ZhushouConfig; value: string }) =>
+                applySet: ({ cfg, value }: { cfg: AssistantConfig; value: string }) =>
                   ({
                     ...cfg,
                     channels: {
@@ -343,7 +343,7 @@ function setMinimalOnboardingRegistryForTests(): void {
                         account: value,
                       },
                     },
-                  }) as ZhushouConfig,
+                  }) as AssistantConfig,
               },
             ],
           },
@@ -374,7 +374,7 @@ type PatchedSetupAdapterFields = {
 
 function createMSTeamsPluginRegistryEntry(params?: { includeSetupWizard?: boolean }) {
   return {
-    pluginId: "@zhushou/external-chat-plugin",
+    pluginId: "@assistant/external-chat-plugin",
     source: "test",
     plugin: {
       id: "external-chat",
@@ -430,7 +430,7 @@ function patchTelegramAdapter(overrides: ChannelSetupWizardAdapterPatch) {
     ...overrides,
     getStatus:
       overrides.getStatus ??
-      vi.fn(async ({ cfg }: { cfg: ZhushouConfig }) => ({
+      vi.fn(async ({ cfg }: { cfg: AssistantConfig }) => ({
         channel: "telegram",
         configured: Boolean(cfg.channels?.telegram?.botToken),
         statusLines: [],
@@ -499,10 +499,10 @@ async function expectQuickstartPickerSkipsWithoutRuntime() {
   });
 
   await expect(
-    runSetupChannels({} as ZhushouConfig, prompter, {
+    runSetupChannels({} as AssistantConfig, prompter, {
       quickstartDefaults: true,
     }),
-  ).resolves.toEqual({} as ZhushouConfig);
+  ).resolves.toEqual({} as AssistantConfig);
 
   expect(select).toHaveBeenCalledWith(
     expect.objectContaining({ message: "Select channel (QuickStart)" }),
@@ -560,7 +560,7 @@ async function runQuickstartTelegramSetupWithInteractive(params: {
   );
 
   try {
-    const cfg = await runSetupChannels({} as ZhushouConfig, prompter, {
+    const cfg = await runSetupChannels({} as AssistantConfig, prompter, {
       quickstartDefaults: true,
       onSelection: selection,
       onAccountId,
@@ -622,7 +622,7 @@ vi.mock("../commands/channel-setup/plugin-install.js", async () => {
   const actual = await vi.importActual("../commands/channel-setup/plugin-install.js");
   return {
     ...(actual as Record<string, unknown>),
-    ensureChannelSetupPluginInstalled: vi.fn(async ({ cfg }: { cfg: ZhushouConfig }) => ({
+    ensureChannelSetupPluginInstalled: vi.fn(async ({ cfg }: { cfg: AssistantConfig }) => ({
       cfg,
       installed: true,
     })),
@@ -671,7 +671,7 @@ describe("setupChannels", () => {
       text: text as unknown as WizardPrompter["text"],
     });
 
-    await runSetupChannels({} as ZhushouConfig, prompter, {
+    await runSetupChannels({} as AssistantConfig, prompter, {
       quickstartDefaults: true,
       forceAllowFromChannels: ["whatsapp"],
     });
@@ -692,7 +692,7 @@ describe("setupChannels", () => {
 
       const notes: string[] = [];
       const prompter = createMatrixQuickstartPrompter(notes);
-      const cfg = await runSetupChannels({} as ZhushouConfig, prompter, {
+      const cfg = await runSetupChannels({} as AssistantConfig, prompter, {
         quickstartDefaults: true,
       });
 
@@ -700,7 +700,7 @@ describe("setupChannels", () => {
         enabled: true,
         homeserver: "https://matrix.example.org",
         accessToken: "matrix-token",
-        deviceName: "OpenClaw Gateway",
+        deviceName: "Assistant Gateway",
         encryption: false,
       });
       expect(notes.join("\n")).not.toContain("matrix does not support guided setup yet.");
@@ -732,7 +732,7 @@ describe("setupChannels", () => {
       text: text as unknown as WizardPrompter["text"],
     });
 
-    const cfg = await runSetupChannels({} as ZhushouConfig, prompter, {
+    const cfg = await runSetupChannels({} as AssistantConfig, prompter, {
       quickstartDefaults: true,
     });
 
@@ -761,7 +761,7 @@ describe("setupChannels", () => {
       text,
     });
 
-    await runSetupChannels({} as ZhushouConfig, prompter);
+    await runSetupChannels({} as AssistantConfig, prompter);
 
     const sawPrimer = note.mock.calls.some(
       ([message, title]) =>
@@ -803,7 +803,7 @@ describe("setupChannels", () => {
       text,
     });
 
-    await runSetupChannels({} as ZhushouConfig, prompter);
+    await runSetupChannels({} as AssistantConfig, prompter);
 
     const primerMessage =
       note.mock.calls.find(([, title]) => title === "How channels work")?.[0] ?? "";
@@ -853,7 +853,7 @@ describe("setupChannels", () => {
       text,
     });
 
-    await runSetupChannels({} as ZhushouConfig, prompter);
+    await runSetupChannels({} as AssistantConfig, prompter);
 
     expect(select).toHaveBeenCalledWith(expect.objectContaining({ message: "Select a channel" }));
     expect(multiselect).not.toHaveBeenCalled();
@@ -902,7 +902,7 @@ describe("setupChannels", () => {
       text,
     });
 
-    await runSetupChannels({} as ZhushouConfig, prompter);
+    await runSetupChannels({} as AssistantConfig, prompter);
 
     expect(select).toHaveBeenCalledWith(expect.objectContaining({ message: "Select a channel" }));
     expect(
@@ -944,17 +944,17 @@ describe("setupChannels", () => {
         },
         plugins: {
           entries: {
-            "@zhushou/external-chat-plugin": { enabled: true },
+            "@assistant/external-chat-plugin": { enabled: true },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       prompter,
     );
 
     expect(loadChannelSetupPluginRegistrySnapshotForChannel).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: "external-chat",
-        pluginId: "@zhushou/external-chat-plugin",
+        pluginId: "@assistant/external-chat-plugin",
       }),
     );
     expect(multiselect).not.toHaveBeenCalled();
@@ -999,7 +999,7 @@ describe("setupChannels", () => {
       text,
     });
 
-    await runSetupChannels({} as ZhushouConfig, prompter);
+    await runSetupChannels({} as AssistantConfig, prompter);
 
     expect(select).toHaveBeenCalledWith(expect.objectContaining({ message: "Select a channel" }));
     expect(multiselect).not.toHaveBeenCalled();
@@ -1011,7 +1011,7 @@ describe("setupChannels", () => {
     manifestRegistryMocks.loadPluginManifestRegistry.mockReturnValue({
       plugins: [
         {
-          id: "@zhushou/external-chat-plugin",
+          id: "@assistant/external-chat-plugin",
           channels: ["external-chat"],
         } as never,
       ],
@@ -1034,13 +1034,13 @@ describe("setupChannels", () => {
       text,
     });
 
-    await runSetupChannels({} as ZhushouConfig, prompter);
+    await runSetupChannels({} as AssistantConfig, prompter);
 
     expect(ensureChannelSetupPluginInstalled).not.toHaveBeenCalled();
     expect(loadChannelSetupPluginRegistrySnapshotForChannel).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: "external-chat",
-        pluginId: "@zhushou/external-chat-plugin",
+        pluginId: "@assistant/external-chat-plugin",
       }),
     );
     expect(multiselect).not.toHaveBeenCalled();
@@ -1054,7 +1054,7 @@ describe("setupChannels", () => {
         accountId,
         enabled,
       }: {
-        cfg: ZhushouConfig;
+        cfg: AssistantConfig;
         accountId: string;
         enabled: boolean;
       }) => ({
@@ -1102,7 +1102,7 @@ describe("setupChannels", () => {
               },
               capabilities: { chatTypes: ["direct"] },
               config: {
-                listAccountIds: (cfg: ZhushouConfig) =>
+                listAccountIds: (cfg: AssistantConfig) =>
                   Object.keys(
                     (
                       cfg.channels?.["external-chat"] as
@@ -1110,7 +1110,7 @@ describe("setupChannels", () => {
                         | undefined
                     )?.accounts ?? {},
                   ),
-                resolveAccount: (cfg: ZhushouConfig, accountId: string) =>
+                resolveAccount: (cfg: AssistantConfig, accountId: string) =>
                   (
                     cfg.channels?.["external-chat"] as
                       | {
@@ -1125,7 +1125,7 @@ describe("setupChannels", () => {
                 status: {
                   configuredLabel: "configured",
                   unconfiguredLabel: "needs setup",
-                  resolveConfigured: ({ cfg }: { cfg: ZhushouConfig }) =>
+                  resolveConfigured: ({ cfg }: { cfg: AssistantConfig }) =>
                     Boolean(
                       (cfg.channels?.["external-chat"] as { tenantId?: string } | undefined)
                         ?.tenantId,
@@ -1182,7 +1182,7 @@ describe("setupChannels", () => {
             "external-chat": { enabled: true },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       prompter,
       { allowDisable: true },
     );
@@ -1277,14 +1277,14 @@ describe("setupChannels", () => {
   });
 
   it("applies configureInteractive result cfg/account updates", async () => {
-    const configureInteractive = vi.fn(async ({ cfg }: { cfg: ZhushouConfig }) => ({
+    const configureInteractive = vi.fn(async ({ cfg }: { cfg: AssistantConfig }) => ({
       cfg: {
         ...cfg,
         channels: {
           ...cfg.channels,
           telegram: { ...cfg.channels?.telegram, botToken: "new-token" },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       accountId: "acct-1",
     }));
     const configure = createUnexpectedConfigureCall(
@@ -1303,14 +1303,14 @@ describe("setupChannels", () => {
   });
 
   it("uses configureWhenConfigured when channel is already configured", async () => {
-    const configureWhenConfigured = vi.fn(async ({ cfg }: { cfg: ZhushouConfig }) => ({
+    const configureWhenConfigured = vi.fn(async ({ cfg }: { cfg: AssistantConfig }) => ({
       cfg: {
         ...cfg,
         channels: {
           ...cfg.channels,
           telegram: { ...cfg.channels?.telegram, botToken: "updated-token" },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       accountId: "acct-2",
     }));
     const { cfg, selection, onAccountId, configure } = await runConfiguredTelegramSetup({

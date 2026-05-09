@@ -1,1 +1,1 @@
-export { isNotFoundPathError, isPathInside } from "zhushou/plugin-sdk/browser-security-runtime";
+export { isNotFoundPathError, isPathInside } from "assistant/plugin-sdk/browser-security-runtime";

@@ -5,7 +5,7 @@ import {
   type OAuthProvider,
 } from "@mariozechner/pi-ai/oauth";
 import { loadConfig } from "../../config/config.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { coerceSecretRef } from "../../config/types.secrets.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { withFileLock } from "../../infra/file-lock.js";
@@ -83,7 +83,7 @@ const isCompatibleModeType = (mode: string | undefined, type: string | undefined
 };
 
 function isProfileConfigCompatible(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   profileId: string;
   provider: string;
   mode: "api_key" | "token" | "oauth";
@@ -184,13 +184,13 @@ async function loadFreshStoredOAuthCredential(params: {
 }
 
 type ResolveApiKeyForProfileParams = {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;
 };
 
-type SecretDefaults = NonNullable<ZhushouConfig["secrets"]>["defaults"];
+type SecretDefaults = NonNullable<AssistantConfig["secrets"]>["defaults"];
 
 function adoptNewerMainOAuthCredential(params: {
   store: AuthProfileStore;
@@ -782,7 +782,7 @@ async function resolveProfileSecretString(params: {
   value: string | undefined;
   valueRef: unknown;
   refDefaults: SecretDefaults | undefined;
-  configForRefResolution: ZhushouConfig;
+  configForRefResolution: AssistantConfig;
   cache: SecretRefResolveCache;
   inlineFailureMessage: string;
   refFailureMessage: string;

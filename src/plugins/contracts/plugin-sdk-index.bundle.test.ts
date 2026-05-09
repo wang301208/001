@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url);
 const tsdownModuleUrl = pathToFileURL(require.resolve("tsdown")).href;
 const bundledRepresentativeEntrypoints = ["matrix-runtime-heavy"] as const;
 const bundleTempRootTracker = createSuiteTempRootTracker(
-  "zhushou-plugin-sdk-build",
+  "assistant-plugin-sdk-build",
   path.join(process.cwd(), "node_modules", ".cache"),
 );
 const matrixRuntimeCoverageEntries = {

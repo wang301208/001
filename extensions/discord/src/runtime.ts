@@ -1,5 +1,5 @@
-import type { PluginRuntime } from "zhushou/plugin-sdk/channel-core";
-import { createPluginRuntimeStore } from "zhushou/plugin-sdk/runtime-store";
+import type { PluginRuntime } from "assistant/plugin-sdk/channel-core";
+import { createPluginRuntimeStore } from "assistant/plugin-sdk/runtime-store";
 
 type DiscordChannelRuntime = {
   messageActions?: typeof import("./channel-actions.js").discordMessageActions;

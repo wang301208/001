@@ -1,12 +1,12 @@
-import { createAccountListHelpers } from "zhushou/plugin-sdk/account-helpers";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
-import { resolveMergedAccountConfig } from "zhushou/plugin-sdk/account-resolution";
+import { createAccountListHelpers } from "assistant/plugin-sdk/account-helpers";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import { resolveMergedAccountConfig } from "assistant/plugin-sdk/account-resolution";
 import {
   resolveChannelStreamingBlockCoalesce,
   resolveChannelStreamingBlockEnabled,
   resolveChannelStreamingChunkMode,
-} from "zhushou/plugin-sdk/channel-streaming";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/channel-streaming";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { normalizeResolvedSecretInputString, normalizeSecretInputString } from "../secret-input.js";
 import type {
   MattermostAccountConfig,
@@ -15,7 +15,7 @@ import type {
   MattermostReplyToMode,
 } from "../types.js";
 import { normalizeMattermostBaseUrl } from "./client.js";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 
 export type MattermostTokenSource = "env" | "config" | "none";
 export type MattermostBaseUrlSource = "env" | "config" | "none";
@@ -40,16 +40,16 @@ export type ResolvedMattermostAccount = {
 
 const mattermostAccountHelpers = createAccountListHelpers("mattermost");
 
-export function listMattermostAccountIds(cfg: ZhushouConfig): string[] {
+export function listMattermostAccountIds(cfg: AssistantConfig): string[] {
   return mattermostAccountHelpers.listAccountIds(cfg);
 }
 
-export function resolveDefaultMattermostAccountId(cfg: ZhushouConfig): string {
+export function resolveDefaultMattermostAccountId(cfg: AssistantConfig): string {
   return mattermostAccountHelpers.resolveDefaultAccountId(cfg);
 }
 
 function mergeMattermostAccountConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
 ): MattermostAccountConfig {
   return resolveMergedAccountConfig<MattermostAccountConfig>({
@@ -77,7 +77,7 @@ function resolveMattermostRequireMention(config: MattermostAccountConfig): boole
 }
 
 export function resolveMattermostAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   allowUnresolvedSecretRef?: boolean;
 }): ResolvedMattermostAccount {
@@ -140,7 +140,7 @@ export function resolveMattermostReplyToMode(
   return account.config.replyToMode ?? "off";
 }
 
-export function listEnabledMattermostAccounts(cfg: ZhushouConfig): ResolvedMattermostAccount[] {
+export function listEnabledMattermostAccounts(cfg: AssistantConfig): ResolvedMattermostAccount[] {
   return listMattermostAccountIds(cfg)
     .map((accountId) => resolveMattermostAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

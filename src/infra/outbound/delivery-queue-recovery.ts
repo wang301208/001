@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { formatErrorMessage } from "../errors.js";
 import {
   ackDelivery,
@@ -19,7 +19,7 @@ export type RecoverySummary = {
 
 export type DeliverFn = (
   params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
   } & QueuedDeliveryPayload & {
       skipQueue?: boolean;
     },
@@ -90,7 +90,7 @@ function releaseRecoveryEntry(entryId: string): void {
   entriesInProgress.delete(entryId);
 }
 
-function buildRecoveryDeliverParams(entry: QueuedDelivery, cfg: ZhushouConfig) {
+function buildRecoveryDeliverParams(entry: QueuedDelivery, cfg: AssistantConfig) {
   return {
     cfg,
     channel: entry.channel,
@@ -173,7 +173,7 @@ export function isPermanentDeliveryError(error: string): boolean {
 
 async function drainQueuedEntry(opts: {
   entry: QueuedDelivery;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   deliver: DeliverFn;
   stateDir?: string;
   onRecovered?: (entry: QueuedDelivery) => void;
@@ -214,7 +214,7 @@ async function drainQueuedEntry(opts: {
 export async function drainPendingDeliveries(opts: {
   drainKey: string;
   logLabel: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   log: RecoveryLogger;
   stateDir?: string;
   deliver: DeliverFn;
@@ -326,7 +326,7 @@ export async function drainPendingDeliveries(opts: {
 export async function recoverPendingDeliveries(opts: {
   deliver: DeliverFn;
   log: RecoveryLogger;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   stateDir?: string;
   /** Maximum wall-clock time for recovery in ms. Remaining entries are deferred to next startup. Default: 60 000. */
   maxRecoveryMs?: number;

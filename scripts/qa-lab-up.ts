@@ -10,8 +10,6 @@ const { values } = parseArgs({
     "provider-base-url": { type: "string" },
     image: { type: "string" },
     "use-prebuilt-image": { type: "boolean" },
-    "bind-ui-dist": { type: "boolean" },
-    "skip-ui-build": { type: "boolean" },
   },
   allowPositionals: false,
 });
@@ -26,8 +24,6 @@ Options:
   --provider-base-url <url>
   --image <name>
   --use-prebuilt-image
-  --bind-ui-dist
-  --skip-ui-build
   -h, --help
 `);
   process.exit(0);
@@ -51,6 +47,4 @@ await runQaDockerUpCommand({
   providerBaseUrl: values["provider-base-url"],
   image: values.image,
   usePrebuiltImage: values["use-prebuilt-image"],
-  bindUiDist: values["bind-ui-dist"],
-  skipUiBuild: values["skip-ui-build"],
 });

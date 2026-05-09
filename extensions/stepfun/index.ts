@@ -1,10 +1,10 @@
 import {
   definePluginEntry,
-  type ZhushouConfig,
+  type AssistantConfig,
   type ProviderCatalogContext,
-} from "zhushou/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import {
   applyStepFunPlanConfig,
   applyStepFunPlanConfigCn,
@@ -131,7 +131,7 @@ function createStepFunApiKeyMethod(params: {
   choiceId: string;
   choiceLabel: string;
   choiceHint: string;
-  applyConfig: (cfg: ZhushouConfig) => ZhushouConfig;
+  applyConfig: (cfg: AssistantConfig) => AssistantConfig;
 }) {
   return createProviderApiKeyAuthMethod({
     providerId: params.providerId,

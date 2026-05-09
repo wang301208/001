@@ -1,11 +1,11 @@
-import type { ChannelRuntimeSurface } from "zhushou/plugin-sdk/channel-contract";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import type { ChannelRuntimeSurface } from "assistant/plugin-sdk/channel-contract";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
 
 export type MonitorTelegramOpts = {
   token?: string;
   accountId?: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   runtime?: RuntimeEnv;
   channelRuntime?: ChannelRuntimeSurface;
   abortSignal?: AbortSignal;

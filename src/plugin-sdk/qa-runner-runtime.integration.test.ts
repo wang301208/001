@@ -7,13 +7,13 @@ import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.j
 import { resetFacadeRuntimeStateForTest } from "./facade-runtime.js";
 
 const ORIGINAL_ENV = {
-  OPENCLAW_DISABLE_BUNDLED_PLUGINS: process.env.OPENCLAW_DISABLE_BUNDLED_PLUGINS,
-  ZHUSHOU_CONFIG_PATH: process.env.ZHUSHOU_CONFIG_PATH,
-  OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE: process.env.OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE,
-  OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE: process.env.OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE,
-  OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS: process.env.OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS,
-  OPENCLAW_PLUGIN_MANIFEST_CACHE_MS: process.env.OPENCLAW_PLUGIN_MANIFEST_CACHE_MS,
-  OPENCLAW_TEST_FAST: process.env.OPENCLAW_TEST_FAST,
+  ASSISTANT_DISABLE_BUNDLED_PLUGINS: process.env.ASSISTANT_DISABLE_BUNDLED_PLUGINS,
+  ASSISTANT_CONFIG_PATH: process.env.ASSISTANT_CONFIG_PATH,
+  ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE: process.env.ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE,
+  ASSISTANT_DISABLE_PLUGIN_MANIFEST_CACHE: process.env.ASSISTANT_DISABLE_PLUGIN_MANIFEST_CACHE,
+  ASSISTANT_PLUGIN_DISCOVERY_CACHE_MS: process.env.ASSISTANT_PLUGIN_DISCOVERY_CACHE_MS,
+  ASSISTANT_PLUGIN_MANIFEST_CACHE_MS: process.env.ASSISTANT_PLUGIN_MANIFEST_CACHE_MS,
+  ASSISTANT_TEST_FAST: process.env.ASSISTANT_TEST_FAST,
 } as const;
 
 const tempDirs: string[] = [];
@@ -33,12 +33,12 @@ function resetQaRunnerRuntimeState() {
 describe("plugin-sdk qa-runner-runtime linked plugin smoke", () => {
   beforeEach(() => {
     resetQaRunnerRuntimeState();
-    process.env.OPENCLAW_DISABLE_BUNDLED_PLUGINS = "1";
-    process.env.OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE = "1";
-    process.env.OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE = "1";
-    process.env.OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS = "0";
-    process.env.OPENCLAW_PLUGIN_MANIFEST_CACHE_MS = "0";
-    process.env.OPENCLAW_TEST_FAST = "1";
+    process.env.ASSISTANT_DISABLE_BUNDLED_PLUGINS = "1";
+    process.env.ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE = "1";
+    process.env.ASSISTANT_DISABLE_PLUGIN_MANIFEST_CACHE = "1";
+    process.env.ASSISTANT_PLUGIN_DISCOVERY_CACHE_MS = "0";
+    process.env.ASSISTANT_PLUGIN_MANIFEST_CACHE_MS = "0";
+    process.env.ASSISTANT_TEST_FAST = "1";
   });
 
   afterEach(() => {
@@ -56,9 +56,9 @@ describe("plugin-sdk qa-runner-runtime linked plugin smoke", () => {
   });
 
   it("loads an activated qa runner from a linked plugin path without a bundled install fallback", async () => {
-    const stateDir = makeTempDir("zhushou-qa-runner-state-");
+    const stateDir = makeTempDir("assistant-qa-runner-state-");
     const pluginDir = path.join(stateDir, "extensions", "qa-linked");
-    const configPath = path.join(stateDir, "zhushou.json");
+    const configPath = path.join(stateDir, "assistant.json");
 
     fs.writeFileSync(
       configPath,
@@ -67,11 +67,11 @@ describe("plugin-sdk qa-runner-runtime linked plugin smoke", () => {
       }),
       "utf8",
     );
-    process.env.ZHUSHOU_CONFIG_PATH = configPath;
+    process.env.ASSISTANT_CONFIG_PATH = configPath;
 
     fs.mkdirSync(pluginDir, { recursive: true });
     fs.writeFileSync(
-      path.join(pluginDir, "zhushou.plugin.json"),
+      path.join(pluginDir, "assistant.plugin.json"),
       JSON.stringify({
         id: "qa-linked",
         qaRunners: [
@@ -91,12 +91,12 @@ describe("plugin-sdk qa-runner-runtime linked plugin smoke", () => {
     fs.writeFileSync(
       path.join(pluginDir, "package.json"),
       JSON.stringify({
-        name: "@zhushou/qa-linked",
+        name: "@assistant/qa-linked",
         type: "module",
-        zhushou: {
+        assistant: {
           extensions: ["./index.js"],
           install: {
-            npmSpec: "@zhushou/qa-linked",
+            npmSpec: "@assistant/qa-linked",
           },
         },
       }),

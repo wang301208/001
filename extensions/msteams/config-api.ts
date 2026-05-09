@@ -1,4 +1,4 @@
 export {
   buildChannelConfigSchema,
   MSTeamsConfigSchema,
-} from "zhushou/plugin-sdk/channel-config-schema";
+} from "assistant/plugin-sdk/channel-config-schema";

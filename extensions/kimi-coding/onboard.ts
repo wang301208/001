@@ -1,7 +1,7 @@
 import {
   createDefaultModelPresetAppliers,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import {
   buildKimiCodingProvider,
   KIMI_CODING_BASE_URL,
@@ -17,7 +17,7 @@ function resolveKimiCodingDefaultModel() {
 
 const kimiCodingPresetAppliers = createDefaultModelPresetAppliers({
   primaryModelRef: KIMI_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig) => {
+  resolveParams: (_cfg: AssistantConfig) => {
     const defaultModel = resolveKimiCodingDefaultModel();
     if (!defaultModel) {
       return null;
@@ -33,10 +33,10 @@ const kimiCodingPresetAppliers = createDefaultModelPresetAppliers({
   },
 });
 
-export function applyKimiCodeProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyKimiCodeProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return kimiCodingPresetAppliers.applyProviderConfig(cfg);
 }
 
-export function applyKimiCodeConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyKimiCodeConfig(cfg: AssistantConfig): AssistantConfig {
   return kimiCodingPresetAppliers.applyConfig(cfg);
 }

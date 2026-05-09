@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { getActivePluginRegistry, setActivePluginRegistry } from "../plugins/runtime.js";
 import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { type HeartbeatDeps, runHeartbeatOnce } from "./heartbeat-runner.js";
@@ -38,7 +38,7 @@ beforeEach(() => {
 describe("heartbeat runner skips when target session lane is busy", () => {
   it("returns requests-in-flight when session lane has queued work", async () => {
     await withTempHeartbeatSandbox(async ({ storePath, replySpy }) => {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         agents: {
           defaults: {
             heartbeat: { every: "30m" },
@@ -52,7 +52,7 @@ describe("heartbeat runner skips when target session lane is busy", () => {
             allowFrom: ["123"],
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       const sessionKey = await seedMainSessionStore(storePath, cfg, {
         lastChannel: "telegram",
@@ -94,7 +94,7 @@ describe("heartbeat runner skips when target session lane is busy", () => {
 
   it("proceeds normally when session lane is idle", async () => {
     await withTempHeartbeatSandbox(async ({ storePath, replySpy }) => {
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         agents: {
           defaults: {
             heartbeat: { every: "30m" },
@@ -108,7 +108,7 @@ describe("heartbeat runner skips when target session lane is busy", () => {
             allowFrom: ["123"],
           },
         },
-      } as unknown as ZhushouConfig;
+      } as unknown as AssistantConfig;
 
       await seedMainSessionStore(storePath, cfg, {
         lastChannel: "telegram",

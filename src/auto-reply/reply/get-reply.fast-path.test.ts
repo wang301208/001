@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
 import {
   initFastReplySessionState,
@@ -19,7 +19,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("../../agents/workspace.js", () => ({
-  DEFAULT_AGENT_WORKSPACE_DIR: "/tmp/zhushou-workspace",
+  DEFAULT_AGENT_WORKSPACE_DIR: "/tmp/assistant-workspace",
   ensureAgentWorkspace: (...args: unknown[]) => mocks.ensureAgentWorkspace(...args),
 }));
 vi.mock("./directive-handling.defaults.js", () => ({
@@ -72,7 +72,7 @@ describe("getReplyFromConfig fast test bootstrap", () => {
   });
 
   beforeEach(() => {
-    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
+    vi.stubEnv("ASSISTANT_TEST_FAST", "1");
     mocks.ensureAgentWorkspace.mockReset();
     mocks.initSessionState.mockReset();
     mocks.resolveReplyDirectives.mockReset();
@@ -106,24 +106,24 @@ describe("getReplyFromConfig fast test bootstrap", () => {
   });
 
   it("fails fast on unmarked config overrides in strict fast-test mode", async () => {
-    await expect(getReplyFromConfig(buildCtx(), undefined, {} as ZhushouConfig)).rejects.toThrow(
+    await expect(getReplyFromConfig(buildCtx(), undefined, {} as AssistantConfig)).rejects.toThrow(
       /withFastReplyConfig\(\)\/markCompleteReplyConfig\(\)/,
     );
     expect(vi.mocked(loadConfigMock)).not.toHaveBeenCalled();
   });
 
   it("skips loadConfig, workspace bootstrap, and session bootstrap for marked test configs", async () => {
-    const home = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-fast-reply-"));
+    const home = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-fast-reply-"));
     const cfg = markCompleteReplyConfig({
       agents: {
         defaults: {
           model: "anthropic/claude-opus-4-6",
-          workspace: path.join(home, "zhushou"),
+          workspace: path.join(home, "assistant"),
         },
       },
       channels: { telegram: { allowFrom: ["*"] } },
       session: { store: path.join(home, "sessions.json") },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     await expect(getReplyFromConfig(buildCtx(), undefined, cfg)).resolves.toEqual({ text: "ok" });
     expect(vi.mocked(loadConfigMock)).not.toHaveBeenCalled();
@@ -138,14 +138,14 @@ describe("getReplyFromConfig fast test bootstrap", () => {
   });
 
   it("still merges partial config overrides against loadConfig()", async () => {
-    vi.stubEnv("OPENCLAW_ALLOW_SLOW_REPLY_TESTS", "1");
+    vi.stubEnv("ASSISTANT_ALLOW_SLOW_REPLY_TESTS", "1");
     vi.mocked(loadConfigMock).mockReturnValue({
       channels: {
         telegram: {
           botToken: "resolved-telegram-token",
         },
       },
-    } satisfies ZhushouConfig);
+    } satisfies AssistantConfig);
 
     await getReplyFromConfig(buildCtx(), undefined, {
       agents: {
@@ -153,7 +153,7 @@ describe("getReplyFromConfig fast test bootstrap", () => {
           userTimezone: "America/New_York",
         },
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     expect(vi.mocked(loadConfigMock)).toHaveBeenCalledOnce();
     expect(mocks.initSessionState).toHaveBeenCalledOnce();
@@ -176,7 +176,7 @@ describe("getReplyFromConfig fast test bootstrap", () => {
   });
 
   it("marks configs through withFastReplyConfig()", async () => {
-    const cfg = withFastReplyConfig({ session: { store: "/tmp/sessions.json" } } as ZhushouConfig);
+    const cfg = withFastReplyConfig({ session: { store: "/tmp/sessions.json" } } as AssistantConfig);
 
     await expect(getReplyFromConfig(buildCtx(), undefined, cfg)).resolves.toEqual({ text: "ok" });
     expect(vi.mocked(loadConfigMock)).not.toHaveBeenCalled();
@@ -191,7 +191,7 @@ describe("getReplyFromConfig fast test bootstrap", () => {
         CommandSource: "native",
         CommandTargetSessionKey: "agent:main:main",
       }),
-      cfg: { session: { store: "/tmp/sessions.json" } } as ZhushouConfig,
+      cfg: { session: { store: "/tmp/sessions.json" } } as AssistantConfig,
       agentId: "main",
       commandAuthorized: true,
       workspaceDir: "/tmp/workspace",

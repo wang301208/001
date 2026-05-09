@@ -3,32 +3,32 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/live-docker-auth.sh"
-IMAGE_NAME="${OPENCLAW_IMAGE:-openclaw:local}"
-LIVE_IMAGE_NAME="${OPENCLAW_LIVE_IMAGE:-${IMAGE_NAME}-live}"
-CONFIG_DIR="${OPENCLAW_CONFIG_DIR:-$HOME/.openclaw}"
-WORKSPACE_DIR="${OPENCLAW_WORKSPACE_DIR:-$HOME/.openclaw/workspace}"
-PROFILE_FILE="${OPENCLAW_PROFILE_FILE:-$HOME/.profile}"
-ACP_AGENT_LIST_RAW="${OPENCLAW_LIVE_ACP_BIND_AGENTS:-${OPENCLAW_LIVE_ACP_BIND_AGENT:-claude,codex,gemini}}"
+IMAGE_NAME="${ASSISTANT_IMAGE:-assistant:local}"
+LIVE_IMAGE_NAME="${ASSISTANT_LIVE_IMAGE:-${IMAGE_NAME}-live}"
+CONFIG_DIR="${ASSISTANT_CONFIG_DIR:-$HOME/.assistant}"
+WORKSPACE_DIR="${ASSISTANT_WORKSPACE_DIR:-$HOME/.assistant/workspace}"
+PROFILE_FILE="${ASSISTANT_PROFILE_FILE:-$HOME/.profile}"
+ACP_AGENT_LIST_RAW="${ASSISTANT_LIVE_ACP_BIND_AGENTS:-${ASSISTANT_LIVE_ACP_BIND_AGENT:-claude,codex,gemini}}"
 TEMP_DIRS=()
-DOCKER_USER="${OPENCLAW_DOCKER_USER:-node}"
+DOCKER_USER="${ASSISTANT_DOCKER_USER:-node}"
 
-openclaw_live_acp_bind_resolve_auth_provider() {
+assistant_live_acp_bind_resolve_auth_provider() {
   case "${1:-}" in
     claude) printf '%s\n' "claude-cli" ;;
     codex) printf '%s\n' "codex-cli" ;;
     gemini) printf '%s\n' "google-gemini-cli" ;;
     *)
-      echo "Unsupported OPENCLAW_LIVE_ACP_BIND agent: ${1:-} (expected claude, codex, or gemini)" >&2
+      echo "Unsupported ASSISTANT_LIVE_ACP_BIND agent: ${1:-} (expected claude, codex, or gemini)" >&2
       return 1
       ;;
   esac
 }
 
-openclaw_live_acp_bind_resolve_agent_command() {
+assistant_live_acp_bind_resolve_agent_command() {
   case "${1:-}" in
-    claude) printf '%s' "${OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND_CLAUDE:-${OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND:-}}" ;;
-    codex) printf '%s' "${OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND_CODEX:-${OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND:-}}" ;;
-    gemini) printf '%s' "${OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND_GEMINI:-${OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND:-}}" ;;
+    claude) printf '%s' "${ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND_CLAUDE:-${ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND:-}}" ;;
+    codex) printf '%s' "${ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND_CODEX:-${ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND:-}}" ;;
+    gemini) printf '%s' "${ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND_GEMINI:-${ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND:-}}" ;;
     *) return 1 ;;
   esac
 }
@@ -40,21 +40,21 @@ cleanup_temp_dirs() {
 }
 trap cleanup_temp_dirs EXIT
 
-if [[ -n "${OPENCLAW_DOCKER_CLI_TOOLS_DIR:-}" ]]; then
-  CLI_TOOLS_DIR="${OPENCLAW_DOCKER_CLI_TOOLS_DIR}"
+if [[ -n "${ASSISTANT_DOCKER_CLI_TOOLS_DIR:-}" ]]; then
+  CLI_TOOLS_DIR="${ASSISTANT_DOCKER_CLI_TOOLS_DIR}"
 elif [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
-  CLI_TOOLS_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/openclaw-docker-cli-tools.XXXXXX")"
+  CLI_TOOLS_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/assistant-docker-cli-tools.XXXXXX")"
   TEMP_DIRS+=("$CLI_TOOLS_DIR")
 else
-  CLI_TOOLS_DIR="$HOME/.cache/openclaw/docker-cli-tools"
+  CLI_TOOLS_DIR="$HOME/.cache/assistant/docker-cli-tools"
 fi
-if [[ -n "${OPENCLAW_DOCKER_CACHE_HOME_DIR:-}" ]]; then
-  CACHE_HOME_DIR="${OPENCLAW_DOCKER_CACHE_HOME_DIR}"
+if [[ -n "${ASSISTANT_DOCKER_CACHE_HOME_DIR:-}" ]]; then
+  CACHE_HOME_DIR="${ASSISTANT_DOCKER_CACHE_HOME_DIR}"
 elif [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
-  CACHE_HOME_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/openclaw-docker-cache.XXXXXX")"
+  CACHE_HOME_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/assistant-docker-cache.XXXXXX")"
   TEMP_DIRS+=("$CACHE_HOME_DIR")
 else
-  CACHE_HOME_DIR="$HOME/.cache/openclaw/docker-cache"
+  CACHE_HOME_DIR="$HOME/.cache/assistant/docker-cache"
 fi
 
 mkdir -p "$CLI_TOOLS_DIR"
@@ -80,8 +80,8 @@ export npm_config_cache="$NPM_CONFIG_CACHE"
 mkdir -p "$NPM_CONFIG_PREFIX" "$XDG_CACHE_HOME" "$COREPACK_HOME" "$NPM_CONFIG_CACHE"
 chmod 700 "$XDG_CACHE_HOME" "$COREPACK_HOME" "$NPM_CONFIG_CACHE" || true
 export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-IFS=',' read -r -a auth_dirs <<<"${OPENCLAW_DOCKER_AUTH_DIRS_RESOLVED:-}"
-IFS=',' read -r -a auth_files <<<"${OPENCLAW_DOCKER_AUTH_FILES_RESOLVED:-}"
+IFS=',' read -r -a auth_dirs <<<"${ASSISTANT_DOCKER_AUTH_DIRS_RESOLVED:-}"
+IFS=',' read -r -a auth_files <<<"${ASSISTANT_DOCKER_AUTH_FILES_RESOLVED:-}"
 if ((${#auth_dirs[@]} > 0)); then
   for auth_dir in "${auth_dirs[@]}"; do
     [ -n "$auth_dir" ] || continue
@@ -102,7 +102,7 @@ if ((${#auth_files[@]} > 0)); then
     fi
   done
 fi
-agent="${OPENCLAW_LIVE_ACP_BIND_AGENT:-claude}"
+agent="${ASSISTANT_LIVE_ACP_BIND_AGENT:-claude}"
 case "$agent" in
   claude)
     if [ ! -x "$NPM_CONFIG_PREFIX/bin/claude" ]; then
@@ -116,11 +116,11 @@ case "$agent" in
       cat > "$NPM_CONFIG_PREFIX/bin/claude" <<WRAP
 #!/usr/bin/env bash
 script_dir="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)"
-if [ -n "\${OPENCLAW_LIVE_ACP_BIND_ANTHROPIC_API_KEY:-}" ]; then
-  export ANTHROPIC_API_KEY="\${OPENCLAW_LIVE_ACP_BIND_ANTHROPIC_API_KEY}"
+if [ -n "\${ASSISTANT_LIVE_ACP_BIND_ANTHROPIC_API_KEY:-}" ]; then
+  export ANTHROPIC_API_KEY="\${ASSISTANT_LIVE_ACP_BIND_ANTHROPIC_API_KEY}"
 fi
-if [ -n "\${OPENCLAW_LIVE_ACP_BIND_ANTHROPIC_API_KEY_OLD:-}" ]; then
-  export ANTHROPIC_API_KEY_OLD="\${OPENCLAW_LIVE_ACP_BIND_ANTHROPIC_API_KEY_OLD}"
+if [ -n "\${ASSISTANT_LIVE_ACP_BIND_ANTHROPIC_API_KEY_OLD:-}" ]; then
+  export ANTHROPIC_API_KEY_OLD="\${ASSISTANT_LIVE_ACP_BIND_ANTHROPIC_API_KEY_OLD}"
 fi
 exec "\$script_dir/claude-real" "\$@"
 WRAP
@@ -140,7 +140,7 @@ WRAP
     fi
     ;;
   *)
-    echo "Unsupported OPENCLAW_LIVE_ACP_BIND_AGENT: $agent" >&2
+    echo "Unsupported ASSISTANT_LIVE_ACP_BIND_AGENT: $agent" >&2
     exit 1
     ;;
 esac
@@ -150,7 +150,7 @@ cleanup() {
 }
 trap cleanup EXIT
 source /src/scripts/lib/live-docker-stage.sh
-openclaw_live_stage_source_tree "$tmp_dir"
+assistant_live_stage_source_tree "$tmp_dir"
 # Use a writable node_modules overlay in the temp repo. Vite writes bundled
 # config artifacts under the nearest node_modules/.vite-temp path, and the
 # build-stage /app/node_modules tree is root-owned in this Docker lane.
@@ -158,11 +158,11 @@ mkdir -p "$tmp_dir/node_modules"
 cp -aRs /app/node_modules/. "$tmp_dir/node_modules"
 rm -rf "$tmp_dir/node_modules/.vite-temp"
 mkdir -p "$tmp_dir/node_modules/.vite-temp"
-openclaw_live_link_runtime_tree "$tmp_dir"
-openclaw_live_stage_state_dir "$tmp_dir/.openclaw-state"
-openclaw_live_prepare_staged_config
+assistant_live_link_runtime_tree "$tmp_dir"
+assistant_live_stage_state_dir "$tmp_dir/.assistant-state"
+assistant_live_prepare_staged_config
 cd "$tmp_dir"
-export OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND="${OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND:-}"
+export ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND="${ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND:-}"
 pnpm test:live src/gateway/gateway-acp-bind.live.test.ts
 EOF
 
@@ -171,50 +171,50 @@ EOF
 IFS=',' read -r -a ACP_AGENT_TOKENS <<<"$ACP_AGENT_LIST_RAW"
 ACP_AGENTS=()
 for token in "${ACP_AGENT_TOKENS[@]}"; do
-  agent="$(openclaw_live_trim "$token")"
+  agent="$(assistant_live_trim "$token")"
   [[ -n "$agent" ]] || continue
-  openclaw_live_acp_bind_resolve_auth_provider "$agent" >/dev/null
+  assistant_live_acp_bind_resolve_auth_provider "$agent" >/dev/null
   ACP_AGENTS+=("$agent")
 done
 
 if ((${#ACP_AGENTS[@]} == 0)); then
-  echo "No ACP bind agents selected. Use OPENCLAW_LIVE_ACP_BIND_AGENTS=claude,codex,gemini." >&2
+  echo "No ACP bind agents selected. Use ASSISTANT_LIVE_ACP_BIND_AGENTS=claude,codex,gemini." >&2
   exit 1
 fi
 
 for ACP_AGENT in "${ACP_AGENTS[@]}"; do
-  AUTH_PROVIDER="$(openclaw_live_acp_bind_resolve_auth_provider "$ACP_AGENT")"
-  AGENT_COMMAND="$(openclaw_live_acp_bind_resolve_agent_command "$ACP_AGENT")"
+  AUTH_PROVIDER="$(assistant_live_acp_bind_resolve_auth_provider "$ACP_AGENT")"
+  AGENT_COMMAND="$(assistant_live_acp_bind_resolve_agent_command "$ACP_AGENT")"
 
   AUTH_DIRS=()
   AUTH_FILES=()
-  if [[ -n "${OPENCLAW_DOCKER_AUTH_DIRS:-}" ]]; then
+  if [[ -n "${ASSISTANT_DOCKER_AUTH_DIRS:-}" ]]; then
     while IFS= read -r auth_dir; do
       [[ -n "$auth_dir" ]] || continue
       AUTH_DIRS+=("$auth_dir")
-    done < <(openclaw_live_collect_auth_dirs)
+    done < <(assistant_live_collect_auth_dirs)
     while IFS= read -r auth_file; do
       [[ -n "$auth_file" ]] || continue
       AUTH_FILES+=("$auth_file")
-    done < <(openclaw_live_collect_auth_files)
+    done < <(assistant_live_collect_auth_files)
   else
     while IFS= read -r auth_dir; do
       [[ -n "$auth_dir" ]] || continue
       AUTH_DIRS+=("$auth_dir")
-    done < <(openclaw_live_collect_auth_dirs_from_csv "$AUTH_PROVIDER")
+    done < <(assistant_live_collect_auth_dirs_from_csv "$AUTH_PROVIDER")
     while IFS= read -r auth_file; do
       [[ -n "$auth_file" ]] || continue
       AUTH_FILES+=("$auth_file")
-    done < <(openclaw_live_collect_auth_files_from_csv "$AUTH_PROVIDER")
+    done < <(assistant_live_collect_auth_files_from_csv "$AUTH_PROVIDER")
   fi
 
   AUTH_DIRS_CSV=""
   if ((${#AUTH_DIRS[@]} > 0)); then
-    AUTH_DIRS_CSV="$(openclaw_live_join_csv "${AUTH_DIRS[@]}")"
+    AUTH_DIRS_CSV="$(assistant_live_join_csv "${AUTH_DIRS[@]}")"
   fi
   AUTH_FILES_CSV=""
   if ((${#AUTH_FILES[@]} > 0)); then
-    AUTH_FILES_CSV="$(openclaw_live_join_csv "${AUTH_FILES[@]}")"
+    AUTH_FILES_CSV="$(assistant_live_join_csv "${AUTH_FILES[@]}")"
   fi
 
   EXTERNAL_AUTH_MOUNTS=()
@@ -244,24 +244,24 @@ for ACP_AGENT in "${ACP_AGENTS[@]}"; do
     --entrypoint bash \
     -e ANTHROPIC_API_KEY \
     -e ANTHROPIC_API_KEY_OLD \
-    -e OPENCLAW_LIVE_ACP_BIND_ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
-    -e OPENCLAW_LIVE_ACP_BIND_ANTHROPIC_API_KEY_OLD="${ANTHROPIC_API_KEY_OLD:-}" \
+    -e ASSISTANT_LIVE_ACP_BIND_ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
+    -e ASSISTANT_LIVE_ACP_BIND_ANTHROPIC_API_KEY_OLD="${ANTHROPIC_API_KEY_OLD:-}" \
     -e OPENAI_API_KEY \
     -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
     -e HOME=/home/node \
     -e NODE_OPTIONS=--disable-warning=ExperimentalWarning \
-    -e OPENCLAW_SKIP_CHANNELS=1 \
-    -e OPENCLAW_VITEST_FS_MODULE_CACHE=0 \
-    -e OPENCLAW_DOCKER_AUTH_DIRS_RESOLVED="$AUTH_DIRS_CSV" \
-    -e OPENCLAW_DOCKER_AUTH_FILES_RESOLVED="$AUTH_FILES_CSV" \
-    -e OPENCLAW_LIVE_TEST=1 \
-    -e OPENCLAW_LIVE_ACP_BIND=1 \
-    -e OPENCLAW_LIVE_ACP_BIND_AGENT="$ACP_AGENT" \
-    -e OPENCLAW_LIVE_ACP_BIND_AGENT_COMMAND="$AGENT_COMMAND" \
+    -e ASSISTANT_SKIP_CHANNELS=1 \
+    -e ASSISTANT_VITEST_FS_MODULE_CACHE=0 \
+    -e ASSISTANT_DOCKER_AUTH_DIRS_RESOLVED="$AUTH_DIRS_CSV" \
+    -e ASSISTANT_DOCKER_AUTH_FILES_RESOLVED="$AUTH_FILES_CSV" \
+    -e ASSISTANT_LIVE_TEST=1 \
+    -e ASSISTANT_LIVE_ACP_BIND=1 \
+    -e ASSISTANT_LIVE_ACP_BIND_AGENT="$ACP_AGENT" \
+    -e ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND="$AGENT_COMMAND" \
     -v "$CACHE_HOME_DIR":/home/node/.cache \
     -v "$ROOT_DIR":/src:ro \
-    -v "$CONFIG_DIR":/home/node/.openclaw \
-    -v "$WORKSPACE_DIR":/home/node/.openclaw/workspace \
+    -v "$CONFIG_DIR":/home/node/.assistant \
+    -v "$WORKSPACE_DIR":/home/node/.assistant/workspace \
     -v "$CLI_TOOLS_DIR":/home/node/.npm-global \
     "${EXTERNAL_AUTH_MOUNTS[@]}" \
     "${PROFILE_MOUNT[@]}" \

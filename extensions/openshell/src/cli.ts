@@ -7,10 +7,10 @@ import {
   runPluginCommandWithTimeout,
   shellEscape,
   type SshSandboxSession,
-} from "zhushou/plugin-sdk/sandbox";
+} from "assistant/plugin-sdk/sandbox";
 import type { ResolvedOpenShellPluginConfig } from "./config.js";
 
-export { buildExecRemoteCommand, shellEscape } from "zhushou/plugin-sdk/sandbox";
+export { buildExecRemoteCommand, shellEscape } from "assistant/plugin-sdk/sandbox";
 
 const require = createRequire(import.meta.url);
 

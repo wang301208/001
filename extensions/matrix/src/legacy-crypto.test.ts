@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { withTempHome } from "../../../test/helpers/temp-home.js";
 
@@ -27,7 +27,7 @@ import {
   writeMatrixCredentials,
 } from "./test-helpers.js";
 
-function createDefaultMatrixConfig(): ZhushouConfig {
+function createDefaultMatrixConfig(): AssistantConfig {
   return {
     channels: {
       matrix: {
@@ -40,7 +40,7 @@ function createDefaultMatrixConfig(): ZhushouConfig {
 }
 
 function writeDefaultLegacyCryptoFixture(home: string) {
-  const stateDir = path.join(home, ".zhushou");
+  const stateDir = path.join(home, ".assistant");
   const cfg = createDefaultMatrixConfig();
   const { rootDir } = resolveMatrixAccountStorageRoot({
     stateDir,
@@ -60,7 +60,7 @@ function createOpsLegacyCryptoFixture(params: {
   accessToken?: string;
   includeStoredCredentials?: boolean;
 }) {
-  const stateDir = path.join(params.home, ".zhushou");
+  const stateDir = path.join(params.home, ".assistant");
   writeFile(
     path.join(stateDir, "matrix", "crypto", "bot-sdk.json"),
     JSON.stringify({ deviceId: MATRIX_OPS_DEVICE_ID }),
@@ -173,7 +173,7 @@ describe("matrix legacy encrypted-state migration", () => {
         home,
         includeStoredCredentials: true,
       });
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         channels: {
           matrix: {
             accounts: {

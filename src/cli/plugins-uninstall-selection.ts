@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { parseClawHubPluginSpec } from "../infra/clawhub-spec.js";
 import type { PluginRecord } from "../plugins/registry.js";
 
@@ -6,7 +6,7 @@ export function resolvePluginUninstallId<
   TPlugin extends Pick<PluginRecord, "id" | "name">,
 >(params: {
   rawId: string;
-  config: ZhushouConfig;
+  config: AssistantConfig;
   plugins: TPlugin[];
 }): { pluginId: string; plugin?: TPlugin } {
   const rawId = params.rawId.trim();

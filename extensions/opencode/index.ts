@@ -1,10 +1,10 @@
-import { createOpencodeCatalogApiKeyAuthMethod } from "zhushou/plugin-sdk/opencode";
-import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { createOpencodeCatalogApiKeyAuthMethod } from "assistant/plugin-sdk/opencode";
+import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
 import {
   matchesExactOrPrefix,
   PASSTHROUGH_GEMINI_REPLAY_HOOKS,
-} from "zhushou/plugin-sdk/provider-model-shared";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/provider-model-shared";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { applyOpencodeZenConfig, OPENCODE_ZEN_DEFAULT_MODEL } from "./api.js";
 
 const PROVIDER_ID = "opencode";

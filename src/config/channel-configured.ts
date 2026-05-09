@@ -5,10 +5,10 @@ import {
   hasMeaningfulChannelConfigShallow,
   resolveChannelConfigRecord,
 } from "./channel-configured-shared.js";
-import type { ZhushouConfig } from "./types.zhushou.js";
+import type { AssistantConfig } from "./types.assistant.js";
 
 export function isChannelConfigured(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   channelId: string,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {

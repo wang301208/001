@@ -1,14 +1,14 @@
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 
 export type DoctorConfigMutationState = {
-  cfg: ZhushouConfig;
-  candidate: ZhushouConfig;
+  cfg: AssistantConfig;
+  candidate: AssistantConfig;
   pendingChanges: boolean;
   fixHints: string[];
 };
 
 export type DoctorConfigMutationResult = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   changes: string[];
 };
 

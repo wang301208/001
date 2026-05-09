@@ -1,7 +1,7 @@
 export {
   buildChannelConfigSchema,
   TelegramConfigSchema,
-} from "zhushou/plugin-sdk/channel-config-schema";
+} from "assistant/plugin-sdk/channel-config-schema";
 export {
   normalizeTelegramCommandDescription,
   normalizeTelegramCommandName,

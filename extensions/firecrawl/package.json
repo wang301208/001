@@ -1,13 +1,13 @@
 {
-  "name": "@zhushou/firecrawl-plugin",
+  "name": "@assistant/firecrawl-plugin",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Firecrawl plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ]

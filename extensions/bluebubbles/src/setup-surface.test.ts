@@ -1,7 +1,7 @@
-import { adaptScopedAccountAccessor } from "zhushou/plugin-sdk/channel-config-helpers";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/routing";
-import { isPrivateNetworkOptInEnabled } from "zhushou/plugin-sdk/ssrf-runtime";
+import { adaptScopedAccountAccessor } from "assistant/plugin-sdk/channel-config-helpers";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/routing";
+import { isPrivateNetworkOptInEnabled } from "assistant/plugin-sdk/ssrf-runtime";
 import { describe, expect, it, vi } from "vitest";
 import {
   createSetupWizardAdapter,
@@ -201,7 +201,7 @@ describe("bluebubbles setup surface", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(blueBubblesSetupWizard.dmPolicy?.getCurrent(cfg)).toBe("allowlist");
     expect(blueBubblesSetupWizard.dmPolicy?.resolveConfigKeys?.(cfg)).toEqual({
@@ -236,7 +236,7 @@ describe("bluebubbles setup surface", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
     });
 
     expect(resolved.accountId).toBe("work");
@@ -265,7 +265,7 @@ describe("bluebubbles setup surface", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
     });
 
     expect(configured).toBe(false);

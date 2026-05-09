@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { formatZonedTimestamp } from "zhushou/plugin-sdk/matrix-runtime-shared";
+import { formatZonedTimestamp } from "assistant/plugin-sdk/matrix-runtime-shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerMatrixCli, resetMatrixCliStateForTests } from "./cli.js";
 
@@ -271,14 +271,14 @@ describe("matrix CLI verification commands", () => {
     listMatrixOwnDevicesMock.mockResolvedValue([
       {
         deviceId: "A7hWrQ70ea",
-        displayName: "OpenClaw Gateway",
+        displayName: "Assistant Gateway",
         lastSeenIp: "127.0.0.1",
         lastSeenTs: 1_741_507_200_000,
         current: true,
       },
       {
         deviceId: "BritdXC6iL",
-        displayName: "OpenClaw Gateway",
+        displayName: "Assistant Gateway",
         lastSeenIp: null,
         lastSeenTs: null,
         current: false,
@@ -290,9 +290,9 @@ describe("matrix CLI verification commands", () => {
 
     expect(listMatrixOwnDevicesMock).toHaveBeenCalledWith({ accountId: "poe" });
     expect(console.log).toHaveBeenCalledWith("Account: poe");
-    expect(console.log).toHaveBeenCalledWith("- A7hWrQ70ea (current, OpenClaw Gateway)");
+    expect(console.log).toHaveBeenCalledWith("- A7hWrQ70ea (current, Assistant Gateway)");
     expect(console.log).toHaveBeenCalledWith("  Last IP: 127.0.0.1");
-    expect(console.log).toHaveBeenCalledWith("- BritdXC6iL (OpenClaw Gateway)");
+    expect(console.log).toHaveBeenCalledWith("- BritdXC6iL (Assistant Gateway)");
   });
 
   it("prunes stale matrix gateway devices", async () => {
@@ -300,14 +300,14 @@ describe("matrix CLI verification commands", () => {
       before: [
         {
           deviceId: "A7hWrQ70ea",
-          displayName: "OpenClaw Gateway",
+          displayName: "Assistant Gateway",
           lastSeenIp: "127.0.0.1",
           lastSeenTs: 1_741_507_200_000,
           current: true,
         },
         {
           deviceId: "BritdXC6iL",
-          displayName: "OpenClaw Gateway",
+          displayName: "Assistant Gateway",
           lastSeenIp: null,
           lastSeenTs: null,
           current: false,
@@ -319,7 +319,7 @@ describe("matrix CLI verification commands", () => {
       remainingDevices: [
         {
           deviceId: "A7hWrQ70ea",
-          displayName: "OpenClaw Gateway",
+          displayName: "Assistant Gateway",
           lastSeenIp: "127.0.0.1",
           lastSeenTs: 1_741_507_200_000,
           current: true,
@@ -399,7 +399,7 @@ describe("matrix CLI verification commands", () => {
     );
     expect(console.log).toHaveBeenCalledWith("Saved matrix account: ops");
     expect(console.log).toHaveBeenCalledWith(
-      "Bind this account to an agent: zhushou agents bind --agent <id> --bind matrix:ops",
+      "Bind this account to an agent: assistant agents bind --agent <id> --bind matrix:ops",
     );
   });
 
@@ -410,14 +410,14 @@ describe("matrix CLI verification commands", () => {
     listMatrixOwnDevicesMock.mockResolvedValue([
       {
         deviceId: "BritdXC6iL",
-        displayName: "OpenClaw Gateway",
+        displayName: "Assistant Gateway",
         lastSeenIp: null,
         lastSeenTs: null,
         current: false,
       },
       {
         deviceId: "du314Zpw3A",
-        displayName: "OpenClaw Gateway",
+        displayName: "Assistant Gateway",
         lastSeenIp: null,
         lastSeenTs: null,
         current: true,
@@ -459,7 +459,7 @@ describe("matrix CLI verification commands", () => {
     );
     expect(console.log).toHaveBeenCalledWith("Backup version: 7");
     expect(console.log).toHaveBeenCalledWith(
-      "Matrix device hygiene warning: stale 助手 devices detected (BritdXC6iL). Run 'zhushou matrix devices prune-stale --account ops'.",
+      "Matrix device hygiene warning: stale 助手 devices detected (BritdXC6iL). Run 'assistant matrix devices prune-stale --account ops'.",
     );
   });
 
@@ -561,7 +561,7 @@ describe("matrix CLI verification commands", () => {
         accountId: "ops",
         deviceHealth: expect.objectContaining({
           currentDeviceId: null,
-          staleOpenClawDeviceIds: [],
+          staleAssistantDeviceIds: [],
           error: "homeserver unavailable",
         }),
       }),
@@ -603,7 +603,7 @@ describe("matrix CLI verification commands", () => {
       }),
     );
     expect(console.log).toHaveBeenCalledWith(
-      "Bind this account to an agent: zhushou agents bind --agent <id> --bind matrix:main-bot",
+      "Bind this account to an agent: assistant agents bind --agent <id> --bind matrix:main-bot",
     );
   });
 
@@ -846,10 +846,10 @@ describe("matrix CLI verification commands", () => {
       "Backup issue: backup decryption key is not loaded on this device (secret storage did not return a key)",
     );
     expect(console.log).toHaveBeenCalledWith(
-      "- Backup key is not loaded on this device. Run 'zhushou matrix verify backup restore' to load it and restore old room keys.",
+      "- Backup key is not loaded on this device. Run 'assistant matrix verify backup restore' to load it and restore old room keys.",
     );
     expect(console.log).not.toHaveBeenCalledWith(
-      "- Backup is present but not trusted for this device. Re-run 'zhushou matrix verify device <key>'.",
+      "- Backup is present but not trusted for this device. Re-run 'assistant matrix verify device <key>'.",
     );
   });
 
@@ -913,7 +913,7 @@ describe("matrix CLI verification commands", () => {
     await program.parseAsync(["matrix", "verify", "status"], { from: "user" });
 
     expect(console.log).toHaveBeenCalledWith(
-      "- If you want a fresh backup baseline and accept losing unrecoverable history, run 'zhushou matrix verify backup reset --yes'. This may also repair secret storage so the new backup key can be loaded after restart.",
+      "- If you want a fresh backup baseline and accept losing unrecoverable history, run 'assistant matrix verify backup reset --yes'. This may also repair secret storage so the new backup key can be loaded after restart.",
     );
   });
 
@@ -985,10 +985,10 @@ describe("matrix CLI verification commands", () => {
     });
     expect(console.log).toHaveBeenCalledWith("Account: assistant");
     expect(console.log).toHaveBeenCalledWith(
-      "- Run 'zhushou matrix verify device <key> --account assistant' to verify this device.",
+      "- Run 'assistant matrix verify device <key> --account assistant' to verify this device.",
     );
     expect(console.log).toHaveBeenCalledWith(
-      "- Run 'zhushou matrix verify bootstrap --account assistant' to create a room key backup.",
+      "- Run 'assistant matrix verify bootstrap --account assistant' to create a room key backup.",
     );
   });
 

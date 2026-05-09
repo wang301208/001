@@ -1,11 +1,11 @@
-import type { ZhushouConfig } from "./types.js";
+import type { AssistantConfig } from "./types.js";
 
 export const DEFAULT_AGENT_MAX_CONCURRENT = 4;
 export const DEFAULT_SUBAGENT_MAX_CONCURRENT = 8;
 // Keep depth-1 subagents as leaves unless config explicitly opts into nesting.
 export const DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH = 1;
 
-export function resolveAgentMaxConcurrent(cfg?: ZhushouConfig): number {
+export function resolveAgentMaxConcurrent(cfg?: AssistantConfig): number {
   const raw = cfg?.agents?.defaults?.maxConcurrent;
   if (typeof raw === "number" && Number.isFinite(raw)) {
     return Math.max(1, Math.floor(raw));
@@ -13,7 +13,7 @@ export function resolveAgentMaxConcurrent(cfg?: ZhushouConfig): number {
   return DEFAULT_AGENT_MAX_CONCURRENT;
 }
 
-export function resolveSubagentMaxConcurrent(cfg?: ZhushouConfig): number {
+export function resolveSubagentMaxConcurrent(cfg?: AssistantConfig): number {
   const raw = cfg?.agents?.defaults?.subagents?.maxConcurrent;
   if (typeof raw === "number" && Number.isFinite(raw)) {
     return Math.max(1, Math.floor(raw));

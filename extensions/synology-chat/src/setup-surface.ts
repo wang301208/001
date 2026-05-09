@@ -9,8 +9,8 @@ import {
   splitSetupEntries,
   type ChannelSetupAdapter,
   type ChannelSetupWizard,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/setup";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/setup";
 import { listAccountIds, resolveAccount } from "./accounts.js";
 import type { SynologyChatAccountRaw, SynologyChatChannelConfig } from "./types.js";
 
@@ -42,11 +42,11 @@ function normalizeOptionalString(value: unknown): string | undefined {
   return trimmed || undefined;
 }
 
-function getChannelConfig(cfg: ZhushouConfig): SynologyChatChannelConfig {
+function getChannelConfig(cfg: AssistantConfig): SynologyChatChannelConfig {
   return (cfg.channels?.[channel] as SynologyChatChannelConfig | undefined) ?? {};
 }
 
-function getRawAccountConfig(cfg: ZhushouConfig, accountId: string): SynologyChatAccountRaw {
+function getRawAccountConfig(cfg: AssistantConfig, accountId: string): SynologyChatAccountRaw {
   const channelConfig = getChannelConfig(cfg);
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return channelConfig;
@@ -55,12 +55,12 @@ function getRawAccountConfig(cfg: ZhushouConfig, accountId: string): SynologyCha
 }
 
 function patchSynologyChatAccountConfig(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId: string;
   patch: Record<string, unknown>;
   clearFields?: string[];
   enabled?: boolean;
-}): ZhushouConfig {
+}): AssistantConfig {
   const channelConfig = getChannelConfig(params.cfg);
   if (params.accountId === DEFAULT_ACCOUNT_ID) {
     const nextChannelConfig = { ...channelConfig } as Record<string, unknown>;
@@ -104,7 +104,7 @@ function patchSynologyChatAccountConfig(params: {
   };
 }
 
-function isSynologyChatConfigured(cfg: ZhushouConfig, accountId: string): boolean {
+function isSynologyChatConfigured(cfg: AssistantConfig, accountId: string): boolean {
   const account = resolveAccount(cfg, accountId);
   return Boolean(account.token.trim() && account.incomingUrl.trim());
 }
@@ -146,7 +146,7 @@ function normalizeSynologyAllowedUserId(value: unknown): string {
   return "";
 }
 
-function resolveExistingAllowedUserIds(cfg: ZhushouConfig, accountId: string): string[] {
+function resolveExistingAllowedUserIds(cfg: AssistantConfig, accountId: string): string[] {
   const raw = getRawAccountConfig(cfg, accountId).allowedUserIds;
   if (Array.isArray(raw)) {
     return raw.map(normalizeSynologyAllowedUserId).filter(Boolean);

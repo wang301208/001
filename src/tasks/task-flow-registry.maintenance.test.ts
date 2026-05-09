@@ -17,13 +17,13 @@ import {
   resetTaskRegistryForTests,
 } from "./task-registry.js";
 
-const ORIGINAL_STATE_DIR = process.env.ZHUSHOU_STATE_DIR;
+const ORIGINAL_STATE_DIR = process.env.ASSISTANT_STATE_DIR;
 
 async function withTaskFlowMaintenanceStateDir(
   run: (root: string) => Promise<void>,
 ): Promise<void> {
-  await withTempDir({ prefix: "zhushou-task-flow-maintenance-" }, async (root) => {
-    process.env.ZHUSHOU_STATE_DIR = root;
+  await withTempDir({ prefix: "assistant-task-flow-maintenance-" }, async (root) => {
+    process.env.ASSISTANT_STATE_DIR = root;
     resetTaskRegistryDeliveryRuntimeForTests();
     resetTaskRegistryForTests();
     resetTaskFlowRegistryForTests();
@@ -40,9 +40,9 @@ async function withTaskFlowMaintenanceStateDir(
 describe("task-flow-registry maintenance", () => {
   afterEach(() => {
     if (ORIGINAL_STATE_DIR === undefined) {
-      delete process.env.ZHUSHOU_STATE_DIR;
+      delete process.env.ASSISTANT_STATE_DIR;
     } else {
-      process.env.ZHUSHOU_STATE_DIR = ORIGINAL_STATE_DIR;
+      process.env.ASSISTANT_STATE_DIR = ORIGINAL_STATE_DIR;
     }
     resetTaskRegistryDeliveryRuntimeForTests();
     resetTaskRegistryForTests();
@@ -157,6 +157,35 @@ describe("task-flow-registry maintenance", () => {
         cancelRequestedAt: 100,
       });
       expect(child.parentFlowId).toBe(flow.flowId);
+    });
+  });
+
+  it("marks stale managed flows lost once no child tasks remain active", async () => {
+    await withTaskFlowMaintenanceStateDir(async () => {
+      const now = Date.now();
+      const flow = createManagedTaskFlow({
+        ownerKey: "agent:founder:main",
+        controllerId: "runtime.autonomy/founder",
+        goal: "Stale managed flow",
+        status: "running",
+        createdAt: now - 60 * 60_000,
+        updatedAt: now - 60 * 60_000,
+      });
+
+      expect(previewTaskFlowRegistryMaintenance()).toEqual({
+        reconciled: 1,
+        pruned: 0,
+      });
+
+      expect(await runTaskFlowRegistryMaintenance()).toEqual({
+        reconciled: 1,
+        pruned: 0,
+      });
+      expect(getTaskFlowById(flow.flowId)).toMatchObject({
+        flowId: flow.flowId,
+        status: "lost",
+      });
+      expect(getTaskFlowById(flow.flowId)?.endedAt).toBeGreaterThanOrEqual(now);
     });
   });
 

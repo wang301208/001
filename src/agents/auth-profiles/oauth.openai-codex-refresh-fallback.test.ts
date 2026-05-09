@@ -104,8 +104,8 @@ function createExpiredOauthStore(params: {
 
 describe("resolveApiKeyForProfile openai-codex refresh fallback", () => {
   const envSnapshot = captureEnv([
-    "ZHUSHOU_STATE_DIR",
-    "OPENCLAW_AGENT_DIR",
+    "ASSISTANT_STATE_DIR",
+    "ASSISTANT_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
   let tempRoot = "";
@@ -132,11 +132,11 @@ describe("resolveApiKeyForProfile openai-codex refresh fallback", () => {
     buildProviderAuthDoctorHintWithPluginMock.mockReset();
     buildProviderAuthDoctorHintWithPluginMock.mockResolvedValue(undefined);
     clearRuntimeAuthProfileStoreSnapshots();
-    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-codex-refresh-fallback-"));
+    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-codex-refresh-fallback-"));
     agentDir = path.join(tempRoot, "agents", "main", "agent");
     await fs.mkdir(agentDir, { recursive: true });
-    process.env.ZHUSHOU_STATE_DIR = tempRoot;
-    process.env.OPENCLAW_AGENT_DIR = agentDir;
+    process.env.ASSISTANT_STATE_DIR = tempRoot;
+    process.env.ASSISTANT_AGENT_DIR = agentDir;
     process.env.PI_CODING_AGENT_DIR = agentDir;
   });
 

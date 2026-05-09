@@ -1,5 +1,5 @@
 import { normalizeChatChannelId } from "../channels/ids.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -132,7 +132,7 @@ function normalizePluginEntries(
 }
 
 export function normalizePluginsConfigWithResolver(
-  config?: ZhushouConfig["plugins"],
+  config?: AssistantConfig["plugins"],
   normalizePluginId: NormalizePluginId = identityNormalizePluginId,
 ): NormalizedPluginsConfig {
   const memorySlot = normalizeSlotValue(config?.slots?.memory);
@@ -149,7 +149,7 @@ export function normalizePluginsConfigWithResolver(
   };
 }
 
-export function hasExplicitPluginConfig(plugins?: ZhushouConfig["plugins"]): boolean {
+export function hasExplicitPluginConfig(plugins?: AssistantConfig["plugins"]): boolean {
   if (!plugins) {
     return false;
   }
@@ -175,7 +175,7 @@ export function hasExplicitPluginConfig(plugins?: ZhushouConfig["plugins"]): boo
 }
 
 export function isBundledChannelEnabledByChannelConfig(
-  cfg: ZhushouConfig | undefined,
+  cfg: AssistantConfig | undefined,
   pluginId: string,
 ): boolean {
   if (!cfg) {

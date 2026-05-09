@@ -1,4 +1,4 @@
-import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-shared";
+import type { ModelProviderConfig } from "assistant/plugin-sdk/provider-model-shared";
 import {
   CHUTES_BASE_URL,
   CHUTES_MODEL_CATALOG,

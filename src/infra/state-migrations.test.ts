@@ -1,15 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { resolveChannelAllowFromPath } from "../pairing/pairing-store.js";
 import { createTrackedTempDirs } from "../test-utils/tracked-temp-dirs.js";
 import { detectLegacyStateMigrations, runLegacyStateMigrations } from "./state-migrations.js";
 
 const tempDirs = createTrackedTempDirs();
-const createTempDir = () => tempDirs.make("zhushou-state-migrations-test-");
+const createTempDir = () => tempDirs.make("assistant-state-migrations-test-");
 
-function createConfig(): ZhushouConfig {
+function createConfig(): AssistantConfig {
   return {
     agents: {
       list: [{ id: "worker-1", default: true }],
@@ -26,19 +26,19 @@ function createConfig(): ZhushouConfig {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createEnv(stateDir: string): NodeJS.ProcessEnv {
   return {
     ...process.env,
-    ZHUSHOU_STATE_DIR: stateDir,
+    ASSISTANT_STATE_DIR: stateDir,
   };
 }
 
 async function createLegacyStateFixture(params?: { includePreKey?: boolean }) {
   const root = await createTempDir();
-  const stateDir = path.join(root, ".zhushou");
+  const stateDir = path.join(root, ".assistant");
   const env = createEnv(stateDir);
   const cfg = createConfig();
 

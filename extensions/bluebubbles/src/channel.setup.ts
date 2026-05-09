@@ -1,4 +1,4 @@
-import type { ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+import type { ChannelPlugin } from "assistant/plugin-sdk/channel-core";
 import { type ResolvedBlueBubblesAccount } from "./accounts.js";
 import {
   bluebubblesCapabilities,

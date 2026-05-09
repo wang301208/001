@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import { ADMIN_SCOPE } from "../method-scopes.js";
@@ -22,7 +22,7 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 
 function resolveRequestedAgentIdOrRespondError(params: {
   rawAgentId: unknown;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   respond: RespondFn;
 }) {
   const knownAgents = listAgentIds(params.cfg);

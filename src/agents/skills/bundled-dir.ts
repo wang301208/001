@@ -1,7 +1,47 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveOpenClawPackageRootSync } from "../../infra/zhushou-root.js";
+import { resolveAssistantPackageRootSync } from "../../infra/assistant-root.js";
+
+const FALLBACK_SKILL_ASSET_DIRS = ["scripts", "bin"] as const;
+const FALLBACK_SKILL_SCRIPT_EXTENSIONS = new Set([
+  ".bat",
+  ".cmd",
+  ".cjs",
+  ".js",
+  ".mjs",
+  ".ps1",
+  ".py",
+  ".sh",
+  ".ts",
+]);
+
+function isExecutableSkillAsset(entry: fs.Dirent, assetDirName: string): boolean {
+  if (entry.name.startsWith(".")) {
+    return false;
+  }
+  if (!entry.isFile() && !entry.isSymbolicLink()) {
+    return false;
+  }
+  return (
+    assetDirName === "bin" ||
+    FALLBACK_SKILL_SCRIPT_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
+  );
+}
+
+function looksLikeScriptBackedSkillDir(skillDir: string): boolean {
+  for (const assetDirName of FALLBACK_SKILL_ASSET_DIRS) {
+    try {
+      const entries = fs.readdirSync(path.join(skillDir, assetDirName), { withFileTypes: true });
+      if (entries.some((entry) => isExecutableSkillAsset(entry, assetDirName))) {
+        return true;
+      }
+    } catch {
+      // keep scanning other asset directories
+    }
+  }
+  return false;
+}
 
 function looksLikeSkillsDir(dir: string): boolean {
   try {
@@ -18,6 +58,9 @@ function looksLikeSkillsDir(dir: string): boolean {
         if (fs.existsSync(path.join(fullPath, "SKILL.md"))) {
           return true;
         }
+        if (looksLikeScriptBackedSkillDir(fullPath)) {
+          return true;
+        }
       }
     }
   } catch {
@@ -27,6 +70,7 @@ function looksLikeSkillsDir(dir: string): boolean {
 }
 
 export type BundledSkillsResolveOptions = {
+  dir?: string;
   argv1?: string;
   moduleUrl?: string;
   cwd?: string;
@@ -36,7 +80,12 @@ export type BundledSkillsResolveOptions = {
 export function resolveBundledSkillsDir(
   opts: BundledSkillsResolveOptions = {},
 ): string | undefined {
-  const override = process.env.OPENCLAW_BUNDLED_SKILLS_DIR?.trim();
+  const explicitDir = opts.dir?.trim();
+  if (explicitDir) {
+    return explicitDir;
+  }
+
+  const override = process.env.ASSISTANT_BUNDLED_SKILLS_DIR?.trim();
   if (override) {
     return override;
   }
@@ -59,7 +108,7 @@ export function resolveBundledSkillsDir(
     const moduleDir = path.dirname(fileURLToPath(moduleUrl));
     const argv1 = opts.argv1 ?? process.argv[1];
     const cwd = opts.cwd ?? process.cwd();
-    const packageRoot = resolveOpenClawPackageRootSync({
+    const packageRoot = resolveAssistantPackageRootSync({
       argv1,
       moduleUrl,
       cwd,

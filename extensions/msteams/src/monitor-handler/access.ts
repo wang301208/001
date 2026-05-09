@@ -1,4 +1,4 @@
-import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
 import {
   DEFAULT_ACCOUNT_ID,
   createChannelPairingController,
@@ -9,7 +9,7 @@ import {
   resolveDmGroupAccessWithLists,
   resolveEffectiveAllowFromLists,
   resolveSenderScopedGroupPolicy,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "../../runtime-api.js";
 import { normalizeMSTeamsConversationId } from "../inbound.js";
 import { resolveMSTeamsAllowlistMatch, resolveMSTeamsRouteConfig } from "../policy.js";
@@ -19,7 +19,7 @@ import type { MSTeamsTurnContext } from "../sdk-types.js";
 export type MSTeamsResolvedSenderAccess = Awaited<ReturnType<typeof resolveMSTeamsSenderAccess>>;
 
 export async function resolveMSTeamsSenderAccess(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   activity: MSTeamsTurnContext["activity"];
 }) {
   const activity = params.activity;

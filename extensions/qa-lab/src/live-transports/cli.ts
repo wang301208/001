@@ -1,4 +1,4 @@
-import { listQaRunnerCliContributions } from "zhushou/plugin-sdk/qa-runner-runtime";
+import { listQaRunnerCliContributions } from "assistant/plugin-sdk/qa-runner-runtime";
 import type { LiveTransportQaCliRegistration } from "./shared/live-transport-cli.js";
 import { telegramQaCliRegistration } from "./telegram/cli.js";
 

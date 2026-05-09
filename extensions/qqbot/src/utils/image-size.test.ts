@@ -5,7 +5,7 @@ const mediaRuntimeMocks = vi.hoisted(() => ({
   fetchRemoteMedia: vi.fn(),
 }));
 
-vi.mock("zhushou/plugin-sdk/media-runtime", () => ({
+vi.mock("assistant/plugin-sdk/media-runtime", () => ({
   fetchRemoteMedia: (...args: unknown[]) => mediaRuntimeMocks.fetchRemoteMedia(...args),
 }));
 

@@ -1,7 +1,7 @@
-import type { ProviderPrepareRuntimeAuthContext } from "zhushou/plugin-sdk/core";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { ensureAuthProfileStore } from "zhushou/plugin-sdk/provider-auth";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import type { ProviderPrepareRuntimeAuthContext } from "assistant/plugin-sdk/core";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { ensureAuthProfileStore } from "assistant/plugin-sdk/provider-auth";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { getAccessTokenResultAsync } from "./cli.js";
 import {
   type CachedTokenEntry,

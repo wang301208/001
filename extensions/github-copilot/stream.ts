@@ -1,12 +1,12 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import { streamSimple } from "@mariozechner/pi-ai";
-import type { ProviderWrapStreamFnContext } from "zhushou/plugin-sdk/plugin-entry";
+import type { ProviderWrapStreamFnContext } from "assistant/plugin-sdk/plugin-entry";
 import {
   applyAnthropicEphemeralCacheControlMarkers,
   buildCopilotDynamicHeaders,
   hasCopilotVisionInput,
   streamWithPayloadPatch,
-} from "zhushou/plugin-sdk/provider-stream-shared";
+} from "assistant/plugin-sdk/provider-stream-shared";
 
 type _StreamContext = Parameters<StreamFn>[1];
 

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import type { MatrixQaProvisionedTopology } from "./topology.js";
 
 export type MatrixQaReplyToMode = "off" | "first" | "all" | "batched";
@@ -98,7 +98,7 @@ type MatrixQaGroupSnapshot = {
 };
 
 type MatrixQaGroupEntry = Omit<MatrixQaGroupSnapshot, "roomId">;
-type MatrixQaChannelConfig = NonNullable<ZhushouConfig["channels"]>["matrix"];
+type MatrixQaChannelConfig = NonNullable<AssistantConfig["channels"]>["matrix"];
 type MatrixQaChannelAccountConfig = NonNullable<
   NonNullable<MatrixQaChannelConfig>["accounts"]
 >[string];
@@ -376,7 +376,7 @@ export function summarizeMatrixQaConfigSnapshot(snapshot: MatrixQaConfigSnapshot
 }
 
 export function buildMatrixQaConfig(
-  baseCfg: ZhushouConfig,
+  baseCfg: AssistantConfig,
   params: {
     driverUserId: string;
     homeserver: string;
@@ -388,7 +388,7 @@ export function buildMatrixQaConfig(
     sutUserId: string;
     topology: MatrixQaProvisionedTopology;
   },
-): ZhushouConfig {
+): AssistantConfig {
   const pluginAllow = [...new Set([...(baseCfg.plugins?.allow ?? []), "matrix"])];
   const snapshot = buildMatrixQaConfigSnapshot({
     driverUserId: params.driverUserId,

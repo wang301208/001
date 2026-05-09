@@ -31,12 +31,12 @@ async function occupyPortOrAcceptExisting(port: number): Promise<{ close: () => 
 }
 
 describe("runQaDockerUp", () => {
-  it("builds the QA UI, writes the harness, starts compose, and waits for health", async () => {
+  it("writes the QA API harness, starts compose, and waits for health", async () => {
     const calls: string[] = [];
     const fetchCalls: string[] = [];
     const responseQueue = [false, true, true];
     const outputDir = await mkdtemp(path.join(os.tmpdir(), "qa-docker-up-"));
-    const repoRoot = path.resolve("/repo/zhushou");
+    const repoRoot = path.resolve("/repo/assistant");
 
     try {
       const result = await runQaDockerUp(
@@ -49,7 +49,7 @@ describe("runQaDockerUp", () => {
         {
           async runCommand(command, args, cwd) {
             calls.push([command, ...args, `@${cwd}`].join(" "));
-            if (args.join(" ").includes("ps --format json zhushou-qa-gateway")) {
+            if (args.join(" ").includes("ps --format json assistant-qa-gateway")) {
               return { stdout: '[{"Health":"healthy","State":"running"}]\n', stderr: "" };
             }
             return { stdout: "", stderr: "" };
@@ -63,12 +63,11 @@ describe("runQaDockerUp", () => {
       );
 
       expect(calls).toEqual([
-        `pnpm qa:lab:build @${repoRoot}`,
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} down --remove-orphans @${repoRoot}`,
         expect.stringContaining(
           `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} up --build -d @${repoRoot}`,
         ),
-        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json zhushou-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json assistant-qa-gateway @${repoRoot}`,
       ]);
       expect(fetchCalls).toEqual([
         "http://127.0.0.1:43124/healthz",
@@ -86,10 +85,10 @@ describe("runQaDockerUp", () => {
     }
   });
 
-  it("skips UI build and compose --build for prebuilt images", async () => {
+  it("skips compose --build for prebuilt images", async () => {
     const calls: string[] = [];
     const outputDir = await mkdtemp(path.join(os.tmpdir(), "qa-docker-up-"));
-    const repoRoot = path.resolve("/repo/zhushou");
+    const repoRoot = path.resolve("/repo/assistant");
 
     try {
       await runQaDockerUp(
@@ -97,13 +96,11 @@ describe("runQaDockerUp", () => {
           repoRoot,
           outputDir,
           usePrebuiltImage: true,
-          bindUiDist: true,
-          skipUiBuild: true,
         },
         {
           async runCommand(command, args, cwd) {
             calls.push([command, ...args, `@${cwd}`].join(" "));
-            if (args.join(" ").includes("ps --format json zhushou-qa-gateway")) {
+            if (args.join(" ").includes("ps --format json assistant-qa-gateway")) {
               return { stdout: '{"Health":"healthy","State":"running"}\n', stderr: "" };
             }
             return { stdout: "", stderr: "" };
@@ -116,11 +113,11 @@ describe("runQaDockerUp", () => {
       expect(calls).toEqual([
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} down --remove-orphans @${repoRoot}`,
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} up -d @${repoRoot}`,
-        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json zhushou-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json assistant-qa-gateway @${repoRoot}`,
       ]);
       const compose = await readFile(path.join(outputDir, "docker-compose.qa.yml"), "utf8");
-      expect(compose).toContain(":/opt/zhushou-qa-lab-ui:ro");
-      expect(compose).toContain("      - --ui-dist-dir");
+      expect(compose).not.toContain(":/opt/assistant-qa-lab-ui:ro");
+      expect(compose).not.toContain("      - --ui-dist-dir");
     } finally {
       await rm(outputDir, { recursive: true, force: true });
     }
@@ -135,12 +132,11 @@ describe("runQaDockerUp", () => {
         {
           repoRoot,
           usePrebuiltImage: true,
-          skipUiBuild: true,
         },
         {
           async runCommand(command, args, cwd) {
             calls.push([command, ...args, `@${cwd}`].join(" "));
-            if (args.join(" ").includes("ps --format json zhushou-qa-gateway")) {
+            if (args.join(" ").includes("ps --format json assistant-qa-gateway")) {
               return { stdout: '{"Health":"healthy","State":"running"}\n', stderr: "" };
             }
             return { stdout: "", stderr: "" };
@@ -157,7 +153,7 @@ describe("runQaDockerUp", () => {
       expect(calls).toEqual([
         `docker compose -f ${path.join(repoRoot, ".artifacts/qa-docker/docker-compose.qa.yml")} down --remove-orphans @${repoRoot}`,
         `docker compose -f ${path.join(repoRoot, ".artifacts/qa-docker/docker-compose.qa.yml")} up -d @${repoRoot}`,
-        `docker compose -f ${path.join(repoRoot, ".artifacts/qa-docker/docker-compose.qa.yml")} ps --format json zhushou-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(repoRoot, ".artifacts/qa-docker/docker-compose.qa.yml")} ps --format json assistant-qa-gateway @${repoRoot}`,
       ]);
     } finally {
       await rm(repoRoot, { recursive: true, force: true });
@@ -183,11 +179,10 @@ describe("runQaDockerUp", () => {
     try {
       const result = await runQaDockerUp(
         {
-          repoRoot: "/repo/zhushou",
+          repoRoot: "/repo/assistant",
           outputDir,
           gatewayPort,
           qaLabPort,
-          skipUiBuild: true,
           usePrebuiltImage: true,
         },
         {
@@ -218,7 +213,7 @@ describe("runQaDockerUp", () => {
     const calls: string[] = [];
     const fetchCalls: string[] = [];
     const outputDir = await mkdtemp(path.join(os.tmpdir(), "qa-docker-up-"));
-    const repoRoot = path.resolve("/repo/zhushou");
+    const repoRoot = path.resolve("/repo/assistant");
 
     try {
       const result = await runQaDockerUp(
@@ -227,17 +222,16 @@ describe("runQaDockerUp", () => {
           outputDir,
           gatewayPort: 18889,
           qaLabPort: 43124,
-          skipUiBuild: true,
           usePrebuiltImage: true,
         },
         {
           async runCommand(command, args, cwd) {
             calls.push([command, ...args, `@${cwd}`].join(" "));
             const joined = args.join(" ");
-            if (joined.includes("ps --format json zhushou-qa-gateway")) {
+            if (joined.includes("ps --format json assistant-qa-gateway")) {
               return { stdout: '{"Health":"healthy","State":"running"}\n', stderr: "" };
             }
-            if (joined.includes("ps -q zhushou-qa-gateway")) {
+            if (joined.includes("ps -q assistant-qa-gateway")) {
               return { stdout: "gateway-container\n", stderr: "" };
             }
             if (command === "docker" && args[0] === "inspect") {
@@ -260,8 +254,8 @@ describe("runQaDockerUp", () => {
       expect(calls).toEqual([
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} down --remove-orphans @${repoRoot}`,
         `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} up -d @${repoRoot}`,
-        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json zhushou-qa-gateway @${repoRoot}`,
-        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps -q zhushou-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps --format json assistant-qa-gateway @${repoRoot}`,
+        `docker compose -f ${path.join(outputDir, "docker-compose.qa.yml")} ps -q assistant-qa-gateway @${repoRoot}`,
         `docker inspect --format {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} gateway-container @${repoRoot}`,
       ]);
       expect(fetchCalls).toEqual([

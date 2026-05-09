@@ -1,11 +1,11 @@
 import type { Block, KnownBlock } from "@slack/web-api";
-import { reduceInteractiveReply } from "zhushou/plugin-sdk/interactive-runtime";
-import type { InteractiveReply } from "zhushou/plugin-sdk/interactive-runtime";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { reduceInteractiveReply } from "assistant/plugin-sdk/interactive-runtime";
+import type { InteractiveReply } from "assistant/plugin-sdk/interactive-runtime";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { truncateSlackText } from "./truncate.js";
 
-export const SLACK_REPLY_BUTTON_ACTION_ID = "zhushou:reply_button";
-export const SLACK_REPLY_SELECT_ACTION_ID = "zhushou:reply_select";
+export const SLACK_REPLY_BUTTON_ACTION_ID = "assistant:reply_button";
+export const SLACK_REPLY_SELECT_ACTION_ID = "assistant:reply_select";
 const SLACK_SECTION_TEXT_MAX = 3000;
 const SLACK_PLAIN_TEXT_MAX = 75;
 
@@ -58,7 +58,7 @@ export function buildSlackInteractiveBlocks(interactive?: InteractiveReply): Sla
       }
       state.blocks.push({
         type: "actions",
-        block_id: `openclaw_reply_buttons_${++state.buttonIndex}`,
+        block_id: `assistant_reply_buttons_${++state.buttonIndex}`,
         elements: block.buttons.map((button, choiceIndex) => {
           const style = resolveSlackButtonStyle(button.style);
           return {
@@ -81,7 +81,7 @@ export function buildSlackInteractiveBlocks(interactive?: InteractiveReply): Sla
     }
     state.blocks.push({
       type: "actions",
-      block_id: `openclaw_reply_select_${++state.selectIndex}`,
+      block_id: `assistant_reply_select_${++state.selectIndex}`,
       elements: [
         {
           type: "static_select",

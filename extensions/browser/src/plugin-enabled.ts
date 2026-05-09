@@ -1,10 +1,10 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/browser-config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/browser-config-runtime";
 import {
   normalizePluginsConfig,
   resolveEffectiveEnableState,
-} from "zhushou/plugin-sdk/browser-config-runtime";
+} from "assistant/plugin-sdk/browser-config-runtime";
 
-export function isDefaultBrowserPluginEnabled(cfg: ZhushouConfig): boolean {
+export function isDefaultBrowserPluginEnabled(cfg: AssistantConfig): boolean {
   return resolveEffectiveEnableState({
     id: "browser",
     origin: "bundled",

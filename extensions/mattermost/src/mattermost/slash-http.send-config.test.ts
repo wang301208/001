@@ -1,6 +1,6 @@
 import { ServerResponse, type IncomingMessage } from "node:http";
 import { PassThrough } from "node:stream";
-import type { ZhushouConfig, RuntimeEnv } from "zhushou/plugin-sdk/mattermost";
+import type { AssistantConfig, RuntimeEnv } from "assistant/plugin-sdk/mattermost";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ResolvedMattermostAccount } from "./accounts.js";
 
@@ -214,7 +214,7 @@ describe("slash-http cfg threading", () => {
           botToken: "exec:secret-ref",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const handler = createSlashCommandHttpHandler({
       account: accountFixture,
       cfg,
@@ -249,7 +249,7 @@ describe("slash-http cfg threading", () => {
 
     const handler = createSlashCommandHttpHandler({
       account: accountFixture,
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       runtime: {} as RuntimeEnv,
       commandTokens,
     });

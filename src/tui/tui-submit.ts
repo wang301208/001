@@ -8,6 +8,9 @@ export function createEditorSubmitHandler(params: {
   handleCommand: (value: string) => Promise<void> | void;
   sendMessage: (value: string) => Promise<void> | void;
   handleBangLine: (value: string) => Promise<void> | void;
+  resolveControlInput?: (value: string) => { routedText: string; reason: string } | null;
+  enqueueMessage?: (value: string, mode: "steer" | "followUp") => void;
+  hasActiveRun?: () => boolean;
 }) {
   return (text: string) => {
     const raw = text;
@@ -33,6 +36,17 @@ export function createEditorSubmitHandler(params: {
 
     if (value.startsWith("/")) {
       void params.handleCommand(value);
+      return;
+    }
+
+    const routed = params.resolveControlInput?.(value);
+    if (routed) {
+      void params.handleCommand(routed.routedText);
+      return;
+    }
+
+    if (params.hasActiveRun?.() && params.enqueueMessage) {
+      params.enqueueMessage(value, "followUp");
       return;
     }
 

@@ -2,11 +2,11 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { collectGovernanceCharterFindings } from "./audit.js";
 
 async function createTempCharterRoot(): Promise<{ root: string; charterDir: string }> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "zhushou-audit-governance-"));
+  const root = await mkdtemp(path.join(os.tmpdir(), "assistant-audit-governance-"));
   const charterDir = path.join(root, "governance", "charter");
   await mkdir(path.join(charterDir, "policies"), { recursive: true });
   return { root, charterDir };
@@ -56,7 +56,7 @@ describe("security audit governance findings", () => {
     const { root, charterDir } = await createTempCharterRoot();
     try {
       await seedMinimalCharter(charterDir);
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         gateway: {
           bind: "lan",
           controlUi: {
@@ -92,7 +92,7 @@ describe("security audit governance findings", () => {
     const { root, charterDir } = await createTempCharterRoot();
     try {
       await seedMinimalCharter(charterDir);
-      const cfg: ZhushouConfig = {
+      const cfg: AssistantConfig = {
         tools: {
           exec: {
             security: "full",

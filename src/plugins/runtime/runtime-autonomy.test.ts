@@ -20,7 +20,7 @@ import { createRuntimeTaskFlow } from "./runtime-taskflow.js";
 
 const cronLogger = createNoopLogger();
 const { makeStorePath } = createCronStoreHarness({
-  prefix: "zhushou-runtime-autonomy-",
+  prefix: "assistant-runtime-autonomy-",
 });
 installCronTestHooks({ logger: cronLogger });
 
@@ -87,7 +87,7 @@ async function createCronService() {
 }
 
 async function createGovernanceGapCharterRoot() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-runtime-autonomy-governance-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-runtime-autonomy-governance-"));
   const charterDir = path.join(root, "governance", "charter");
   await fs.mkdir(path.join(charterDir, "agents"), { recursive: true });
   await fs.mkdir(path.join(charterDir, "policies"), { recursive: true });
@@ -129,7 +129,7 @@ async function createGovernanceGapCharterRoot() {
 }
 
 async function createGovernedCapabilityCharterRoot() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-runtime-autonomy-capability-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-runtime-autonomy-capability-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
   await fs.mkdir(path.join(charterDir, "agents"), { recursive: true });
@@ -178,7 +178,7 @@ async function createGovernedCapabilityCharterRoot() {
 }
 
 async function createAutonomyPipelineCharterRoot() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-runtime-autonomy-pipeline-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-runtime-autonomy-pipeline-"));
   const charterDir = path.join(root, "governance", "charter");
   const workspaceDir = path.join(root, "workspace");
   await fs.mkdir(path.join(charterDir, "agents"), { recursive: true });
@@ -328,18 +328,18 @@ describe("runtime autonomy", () => {
   let previousStateDir: string | undefined;
 
   beforeEach(async () => {
-    previousStateDir = process.env.ZHUSHOU_STATE_DIR;
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-runtime-autonomy-"));
-    process.env.ZHUSHOU_STATE_DIR = tempStateDir;
+    previousStateDir = process.env.ASSISTANT_STATE_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-runtime-autonomy-"));
+    process.env.ASSISTANT_STATE_DIR = tempStateDir;
     installRuntimeTaskDeliveryMock();
     setRuntimeConfigSnapshot({});
   });
 
   afterEach(async () => {
     if (previousStateDir === undefined) {
-      delete process.env.ZHUSHOU_STATE_DIR;
+      delete process.env.ASSISTANT_STATE_DIR;
     } else {
-      process.env.ZHUSHOU_STATE_DIR = previousStateDir;
+      process.env.ASSISTANT_STATE_DIR = previousStateDir;
     }
     tempStateDir = null;
   });
@@ -657,6 +657,42 @@ describe("runtime autonomy", () => {
         ],
       });
       expect(proposals.results[0]?.operations[0]?.content).toContain("demo-skill");
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("includes project-root capability assets in inferred autonomy inventory scope", async () => {
+    const { root, charterDir, workspaceDir } = await createGovernedCapabilityCharterRoot();
+    try {
+      await fs.mkdir(path.join(root, "skills", "repo-skill"), { recursive: true });
+      await fs.writeFile(
+        path.join(root, "skills", "repo-skill", "SKILL.md"),
+        ["---", "name: repo-skill", "description: repo scoped", "---"].join("\n"),
+        "utf8",
+      );
+      setRuntimeConfigSnapshot(createScopedRuntimeConfig(workspaceDir));
+      const runtime = createAutonomyRuntime({
+        charterDir,
+      }).bindSession({
+        sessionKey: "agent:librarian:main",
+      });
+
+      const inventory = await runtime.getCapabilityInventory({
+        agentIds: ["librarian"],
+      });
+
+      expect(inventory.workspaceDirs).toEqual([root, workspaceDir]);
+      expect(
+        inventory.entries.some(
+          (entry) => entry.kind === "skill" && entry.id === `skill:${root}:repo-skill`,
+        ),
+      ).toBe(true);
+      expect(
+        inventory.entries.some(
+          (entry) => entry.kind === "skill" && entry.id === `skill:${workspaceDir}:demo-skill`,
+        ),
+      ).toBe(true);
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }

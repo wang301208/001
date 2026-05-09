@@ -1,11 +1,11 @@
-import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
 import {
   buildOutboundMediaLoadOptions,
   isGifMedia,
   kindFromMime,
   normalizePollInput,
-} from "zhushou/plugin-sdk/media-runtime";
-import type { MockFn } from "zhushou/plugin-sdk/testing";
+} from "assistant/plugin-sdk/media-runtime";
+import type { MockFn } from "assistant/plugin-sdk/testing";
 import { beforeEach, vi } from "vitest";
 
 const { botApi, botCtorSpy } = vi.hoisted(() => ({
@@ -45,7 +45,7 @@ const { imageMetadata } = vi.hoisted(() => ({
 const { loadConfig, resolveStorePath } = vi.hoisted(() => ({
   loadConfig: vi.fn(() => ({})),
   resolveStorePath: vi.fn(
-    (storePath?: string) => storePath ?? "/tmp/zhushou-telegram-send-tests.json",
+    (storePath?: string) => storePath ?? "/tmp/assistant-telegram-send-tests.json",
   ),
 }));
 
@@ -92,7 +92,7 @@ type TelegramSendTestMocks = {
   imageMetadata: { width: number | undefined; height: number | undefined };
 };
 
-vi.mock("zhushou/plugin-sdk/web-media", () => ({
+vi.mock("assistant/plugin-sdk/web-media", () => ({
   loadWebMedia,
 }));
 
@@ -166,7 +166,7 @@ export function getTelegramSendTestMocks(): TelegramSendTestMocks {
 export function installTelegramSendTestHooks() {
   beforeEach(() => {
     loadConfig.mockReturnValue({});
-    resolveStorePath.mockReturnValue("/tmp/zhushou-telegram-send-tests.json");
+    resolveStorePath.mockReturnValue("/tmp/assistant-telegram-send-tests.json");
     loadWebMedia.mockReset();
     imageMetadata.width = 1200;
     imageMetadata.height = 800;

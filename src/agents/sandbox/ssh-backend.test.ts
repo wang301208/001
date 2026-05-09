@@ -6,7 +6,7 @@ import {
   createSandboxPruneConfig,
   createSandboxSshConfig,
 } from "../../../test/helpers/sandbox-fixtures.js";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import type { SandboxConfig } from "./types.js";
 
 const sshMocks = vi.hoisted(() => ({
@@ -31,7 +31,7 @@ vi.mock("./ssh.js", async () => {
 
 const { createSshSandboxBackend, sshSandboxBackendManager } = await import("./ssh-backend.js");
 
-function createConfig(): ZhushouConfig {
+function createConfig(): AssistantConfig {
   return {
     agents: {
       defaults: {
@@ -43,7 +43,7 @@ function createConfig(): ZhushouConfig {
           ssh: {
             target: "peter@example.com:2222",
             command: "ssh",
-            workspaceRoot: "/remote/zhushou",
+            workspaceRoot: "/remote/assistant",
             strictHostKeyChecking: true,
             updateHostKeys: true,
           },
@@ -56,8 +56,8 @@ function createConfig(): ZhushouConfig {
 function createSession() {
   return {
     command: "ssh",
-    configPath: path.join(os.tmpdir(), "zhushou-test-ssh-config"),
-    host: "zhushou-sandbox",
+    configPath: path.join(os.tmpdir(), "assistant-test-ssh-config"),
+    host: "assistant-sandbox",
   };
 }
 
@@ -67,7 +67,7 @@ function createBackendSandboxConfig(params?: { binds?: string[]; target?: string
     backend: "ssh",
     scope: "session",
     workspaceAccess: "rw" as const,
-    workspaceRoot: "~/.zhushou/sandboxes",
+    workspaceRoot: "~/.assistant/sandboxes",
     docker: {
       image: "img",
       containerPrefix: "prefix-",
@@ -81,7 +81,7 @@ function createBackendSandboxConfig(params?: { binds?: string[]; target?: string
     },
     ssh: {
       ...createSandboxSshConfig(
-        "/remote/zhushou",
+        "/remote/assistant",
         params?.target ? { target: params.target } : {},
       ),
     },
@@ -153,9 +153,9 @@ describe("ssh sandbox backend", () => {
   it("describes runtimes via the configured ssh target", async () => {
     const result = await sshSandboxBackendManager.describeRuntime({
       entry: {
-        containerName: "zhushou-ssh-worker-abcd1234",
+        containerName: "assistant-ssh-worker-abcd1234",
         backendId: "ssh",
-        runtimeLabel: "zhushou-ssh-worker-abcd1234",
+        runtimeLabel: "assistant-ssh-worker-abcd1234",
         sessionKey: "agent:worker",
         createdAtMs: 1,
         lastUsedAtMs: 1,
@@ -173,12 +173,12 @@ describe("ssh sandbox backend", () => {
     expect(sshMocks.createSshSandboxSessionFromSettings).toHaveBeenCalledWith(
       expect.objectContaining({
         target: "peter@example.com:2222",
-        workspaceRoot: "/remote/zhushou",
+        workspaceRoot: "/remote/assistant",
       }),
     );
     expect(sshMocks.runSshSandboxCommand).toHaveBeenCalledWith(
       expect.objectContaining({
-        remoteCommand: expect.stringContaining("/remote/zhushou/zhushou-ssh-agent-worker"),
+        remoteCommand: expect.stringContaining("/remote/assistant/assistant-ssh-agent-worker"),
       }),
     );
   });
@@ -186,9 +186,9 @@ describe("ssh sandbox backend", () => {
   it("removes runtimes by deleting the remote scope root", async () => {
     await sshSandboxBackendManager.removeRuntime({
       entry: {
-        containerName: "zhushou-ssh-worker-abcd1234",
+        containerName: "assistant-ssh-worker-abcd1234",
         backendId: "ssh",
-        runtimeLabel: "zhushou-ssh-worker-abcd1234",
+        runtimeLabel: "assistant-ssh-worker-abcd1234",
         sessionKey: "agent:worker",
         createdAtMs: 1,
         lastUsedAtMs: 1,
@@ -234,10 +234,10 @@ describe("ssh sandbox backend", () => {
         backend: "ssh",
         scope: "session",
         workspaceAccess: "rw",
-        workspaceRoot: "~/.zhushou/sandboxes",
+        workspaceRoot: "~/.assistant/sandboxes",
         docker: {
-          image: "zhushou-sandbox:bookworm-slim",
-          containerPrefix: "zhushou-sbx-",
+          image: "assistant-sandbox:bookworm-slim",
+          containerPrefix: "assistant-sbx-",
           workdir: "/workspace",
           readOnlyRoot: true,
           tmpfs: ["/tmp"],
@@ -248,14 +248,14 @@ describe("ssh sandbox backend", () => {
         ssh: {
           target: "peter@example.com:2222",
           command: "ssh",
-          workspaceRoot: "/remote/zhushou",
+          workspaceRoot: "/remote/assistant",
           strictHostKeyChecking: true,
           updateHostKeys: true,
         },
         browser: {
           enabled: false,
-          image: "zhushou-browser",
-          containerPrefix: "zhushou-browser-",
+          image: "assistant-browser",
+          containerPrefix: "assistant-browser-",
           network: "bridge",
           cdpPort: 9222,
           vncPort: 5900,
@@ -280,7 +280,7 @@ describe("ssh sandbox backend", () => {
     expect(execSpec.argv).toEqual(
       expect.arrayContaining(["ssh", "-F", createSession().configPath, "-T", createSession().host]),
     );
-    expect(execSpec.argv.at(-1)).toContain("/remote/zhushou/zhushou-ssh-agent-worker");
+    expect(execSpec.argv.at(-1)).toContain("/remote/assistant/assistant-ssh-agent-worker");
     expect(sshMocks.uploadDirectoryToSshTarget).toHaveBeenCalledTimes(2);
     expect(sshMocks.uploadDirectoryToSshTarget).toHaveBeenNthCalledWith(
       1,

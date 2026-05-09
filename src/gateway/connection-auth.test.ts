@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   resolveGatewayConnectionAuth,
   resolveGatewayConnectionAuthFromConfig,
@@ -10,14 +10,14 @@ type ResolvedAuth = { token?: string; password?: string };
 
 type ConnectionAuthCase = {
   name: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   env: NodeJS.ProcessEnv;
   options?: Partial<Omit<GatewayConnectionAuthOptions, "config" | "env">>;
   expected: ResolvedAuth;
 };
 
-function cfg(input: Partial<ZhushouConfig>): ZhushouConfig {
-  return input as ZhushouConfig;
+function cfg(input: Partial<AssistantConfig>): AssistantConfig {
+  return input as AssistantConfig;
 }
 
 function createRemoteModeConfig() {
@@ -38,8 +38,8 @@ function createRemoteModeConfig() {
 }
 
 const DEFAULT_ENV = {
-  ZHUSHOU_GATEWAY_TOKEN: "env-token",
-  ZHUSHOU_GATEWAY_PASSWORD: "env-password", // pragma: allowlist secret
+  ASSISTANT_GATEWAY_TOKEN: "env-token",
+  ASSISTANT_GATEWAY_PASSWORD: "env-password", // pragma: allowlist secret
 } as NodeJS.ProcessEnv;
 
 describe("resolveGatewayConnectionAuth", () => {
@@ -199,7 +199,7 @@ describe("resolveGatewayConnectionAuth", () => {
     expect(syncResolved).toEqual(expected);
   });
 
-  it("resolves local SecretRef token when zhushou env is absent", async () => {
+  it("resolves local SecretRef token when assistant env is absent", async () => {
     const config = cfg({
       gateway: {
         mode: "local",
@@ -227,7 +227,7 @@ describe("resolveGatewayConnectionAuth", () => {
     });
   });
 
-  it("resolves config-first token SecretRef even when zhushou env token exists", async () => {
+  it("resolves config-first token SecretRef even when assistant env token exists", async () => {
     const config = cfg({
       gateway: {
         mode: "local",
@@ -242,7 +242,7 @@ describe("resolveGatewayConnectionAuth", () => {
       },
     });
     const env = {
-      ZHUSHOU_GATEWAY_TOKEN: "env-token",
+      ASSISTANT_GATEWAY_TOKEN: "env-token",
       CONFIG_FIRST_TOKEN: "config-first-token",
     } as NodeJS.ProcessEnv;
 
@@ -257,7 +257,7 @@ describe("resolveGatewayConnectionAuth", () => {
     });
   });
 
-  it("resolves config-first password SecretRef even when zhushou env password exists", async () => {
+  it("resolves config-first password SecretRef even when assistant env password exists", async () => {
     const config = cfg({
       gateway: {
         mode: "local",
@@ -273,7 +273,7 @@ describe("resolveGatewayConnectionAuth", () => {
       },
     });
     const env = {
-      ZHUSHOU_GATEWAY_PASSWORD: "env-password", // pragma: allowlist secret
+      ASSISTANT_GATEWAY_PASSWORD: "env-password", // pragma: allowlist secret
       CONFIG_FIRST_PASSWORD: "config-first-password", // pragma: allowlist secret
     } as NodeJS.ProcessEnv;
 
@@ -303,7 +303,7 @@ describe("resolveGatewayConnectionAuth", () => {
       },
     });
     const env = {
-      ZHUSHOU_GATEWAY_TOKEN: "env-token",
+      ASSISTANT_GATEWAY_TOKEN: "env-token",
     } as NodeJS.ProcessEnv;
 
     await expect(
@@ -338,7 +338,7 @@ describe("resolveGatewayConnectionAuth", () => {
       },
     });
     const env = {
-      ZHUSHOU_GATEWAY_PASSWORD: "env-password", // pragma: allowlist secret
+      ASSISTANT_GATEWAY_PASSWORD: "env-password", // pragma: allowlist secret
     } as NodeJS.ProcessEnv;
 
     await expect(

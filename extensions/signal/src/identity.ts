@@ -1,5 +1,5 @@
-import { evaluateSenderGroupAccessForPolicy } from "zhushou/plugin-sdk/group-access";
-import { normalizeE164, normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { evaluateSenderGroupAccessForPolicy } from "assistant/plugin-sdk/group-access";
+import { normalizeE164, normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { looksLikeUuid } from "./uuid.js";
 
 export type SignalSender =

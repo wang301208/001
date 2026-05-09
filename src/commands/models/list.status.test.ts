@@ -35,9 +35,9 @@ const mocks = vi.hoisted(() => {
 
   return {
     store,
-    resolveOpenClawAgentDir: vi.fn().mockReturnValue("/tmp/zhushou-agent"),
-    resolveAgentDir: vi.fn().mockReturnValue("/tmp/zhushou-agent"),
-    resolveAgentWorkspaceDir: vi.fn().mockReturnValue("/tmp/zhushou-agent/workspace"),
+    resolveAssistantAgentDir: vi.fn().mockReturnValue("/tmp/assistant-agent"),
+    resolveAgentDir: vi.fn().mockReturnValue("/tmp/assistant-agent"),
+    resolveAgentWorkspaceDir: vi.fn().mockReturnValue("/tmp/assistant-agent/workspace"),
     resolveAgentExplicitModelPrimary: vi.fn().mockReturnValue(undefined),
     resolveAgentEffectiveModelPrimary: vi.fn().mockReturnValue(undefined),
     resolveAgentModelFallbacksOverride: vi.fn().mockReturnValue(undefined),
@@ -51,7 +51,7 @@ const mocks = vi.hoisted(() => {
     resolveAuthProfileDisplayLabel: vi.fn(({ profileId }: { profileId: string }) => profileId),
     resolveAuthStorePathForDisplay: vi
       .fn()
-      .mockReturnValue("/tmp/zhushou-agent/auth-profiles.json"),
+      .mockReturnValue("/tmp/assistant-agent/auth-profiles.json"),
     resolveProfileUnusableUntilForDisplay: vi.fn().mockReturnValue(undefined),
     resolveEnvApiKey: vi.fn((provider: string) => {
       if (provider === "openai") {
@@ -107,7 +107,7 @@ const mocks = vi.hoisted(() => {
     getShellEnvAppliedKeys: vi.fn().mockReturnValue(["OPENAI_API_KEY", "ANTHROPIC_OAUTH_TOKEN"]),
     shouldEnableShellEnvFallback: vi.fn().mockReturnValue(true),
     createConfigIO: vi.fn().mockReturnValue({
-      configPath: "/tmp/zhushou-dev/zhushou.json",
+      configPath: "/tmp/assistant-dev/assistant.json",
     }),
     loadConfig: vi.fn().mockReturnValue({
       agents: {
@@ -124,7 +124,7 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock("../../agents/agent-paths.js", () => ({
-  resolveOpenClawAgentDir: mocks.resolveOpenClawAgentDir,
+  resolveAssistantAgentDir: mocks.resolveAssistantAgentDir,
 }));
 vi.mock("../../agents/agent-scope.js", () => ({
   resolveAgentDir: mocks.resolveAgentDir,
@@ -269,7 +269,7 @@ async function withAgentScopeOverrides<T>(
     if (originalAgentDir) {
       mocks.resolveAgentDir.mockImplementation(originalAgentDir);
     } else {
-      mocks.resolveAgentDir.mockReturnValue("/tmp/zhushou-agent");
+      mocks.resolveAgentDir.mockReturnValue("/tmp/assistant-agent");
     }
   }
 }
@@ -279,10 +279,10 @@ describe("modelsStatusCommand auth overview", () => {
     await modelsStatusCommand({ json: true }, runtime as never);
     const payload = JSON.parse(String((runtime.log as Mock).mock.calls[0]?.[0]));
 
-    expect(mocks.resolveOpenClawAgentDir).toHaveBeenCalled();
+    expect(mocks.resolveAssistantAgentDir).toHaveBeenCalled();
     expect(payload.defaultModel).toBe("anthropic/claude-opus-4-6");
-    expect(payload.configPath).toBe("/tmp/zhushou-dev/zhushou.json");
-    expect(payload.auth.storePath).toBe("/tmp/zhushou-agent/auth-profiles.json");
+    expect(payload.configPath).toBe("/tmp/assistant-dev/assistant.json");
+    expect(payload.auth.storePath).toBe("/tmp/assistant-agent/auth-profiles.json");
     expect(payload.auth.shellEnvFallback.enabled).toBe(true);
     expect(payload.auth.shellEnvFallback.appliedKeys).toContain("OPENAI_API_KEY");
     expect(payload.auth.missingProvidersInUse).toEqual([]);
@@ -336,14 +336,14 @@ describe("modelsStatusCommand auth overview", () => {
       {
         primary: "openai/gpt-4",
         fallbacks: ["openai/gpt-3.5"],
-        agentDir: "/tmp/zhushou-agent-custom",
+        agentDir: "/tmp/assistant-agent-custom",
       },
       async () => {
         await modelsStatusCommand({ json: true, agent: "Jeremiah" }, localRuntime as never);
         expect(mocks.resolveAgentDir).toHaveBeenCalledWith(expect.anything(), "jeremiah");
         const payload = JSON.parse(String((localRuntime.log as Mock).mock.calls[0]?.[0]));
         expect(payload.agentId).toBe("jeremiah");
-        expect(payload.agentDir).toBe("/tmp/zhushou-agent-custom");
+        expect(payload.agentDir).toBe("/tmp/assistant-agent-custom");
         expect(payload.defaultModel).toBe("openai/gpt-4");
         expect(payload.fallbacks).toEqual(["openai/gpt-3.5"]);
         expect(payload.modelConfig).toEqual({

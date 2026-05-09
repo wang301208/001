@@ -6,8 +6,8 @@ Write-Host "  OpenAI API Key Configuration" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-$authFilePath = "C:\Users\30676\.zhushou\agents\main\agent\auth-profiles.json"
-$authDir = "C:\Users\30676\.zhushou\agents\main\agent"
+$authFilePath = "C:\Users\30676\.assistant\agents\main\agent\auth-profiles.json"
+$authDir = "C:\Users\30676\.assistant\agents\main\agent"
 
 # Check if directory exists, create if not
 if (-not (Test-Path $authDir)) {
@@ -106,7 +106,7 @@ Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "1. Restart gateway service:" -ForegroundColor White
 Write-Host "   taskkill /F /IM node.exe" -ForegroundColor Gray
-Write-Host "   node zhushou.mjs gateway --bind lan --port 3000" -ForegroundColor Gray
+Write-Host "   node assistant.mjs gateway --bind lan --port 3000" -ForegroundColor Gray
 Write-Host ""
 Write-Host "2. Verify configuration:" -ForegroundColor White
 Write-Host "   Check logs for 'No API key found' errors" -ForegroundColor Gray

@@ -3,7 +3,7 @@ import type { SkillSnapshot } from "../../agents/skills.js";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { CliDeps } from "../../cli/outbound-send-deps.js";
 import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { resolveCronDeliveryPlan } from "../delivery-plan.js";
 import type { CronJob, CronRunTelemetry } from "../types.js";
 import {
@@ -100,7 +100,7 @@ async function loadCronDeliveryRuntime() {
   return await cronDeliveryRuntimePromise;
 }
 
-function hasConfiguredAuthProfiles(cfg: ZhushouConfig): boolean {
+function hasConfiguredAuthProfiles(cfg: AssistantConfig): boolean {
   return (
     Boolean(cfg.auth?.profiles && Object.keys(cfg.auth.profiles).length > 0) ||
     Boolean(cfg.auth?.order && Object.keys(cfg.auth.order).length > 0)
@@ -139,7 +139,7 @@ function resolveCronToolPolicy(params: {
 }
 
 async function resolveCronDeliveryContext(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   job: CronJob;
   agentId: string;
   deliveryContract: IsolatedDeliveryContract;
@@ -209,7 +209,7 @@ async function loadUsageFormatRuntime() {
 }
 
 type RunCronAgentTurnParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   deps: CliDeps;
   job: CronJob;
   message: string;
@@ -227,7 +227,7 @@ type WithRunSession = (
 
 type PreparedCronRunContext = {
   input: RunCronAgentTurnParams;
-  cfgWithAgentDefaults: ZhushouConfig;
+  cfgWithAgentDefaults: AssistantConfig;
   agentId: string;
   agentCfg: AgentDefaultsConfig;
   agentDir: string;
@@ -274,7 +274,7 @@ async function prepareCronRunContext(params: {
     defaults: input.cfg.agents?.defaults,
     agentConfigOverride,
   });
-  const cfgWithAgentDefaults: ZhushouConfig = {
+  const cfgWithAgentDefaults: AssistantConfig = {
     ...input.cfg,
     agents: Object.assign({}, input.cfg.agents, { defaults: agentCfg }),
   };
@@ -712,7 +712,7 @@ async function finalizeCronRun(params: {
 }
 
 export async function runCronIsolatedAgentTurn(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   deps: CliDeps;
   job: CronJob;
   message: string;
@@ -731,7 +731,7 @@ export async function runCronIsolatedAgentTurn(params: {
       ? reason.trim()
       : "cron: job execution timed out";
   };
-  const isFastTestEnv = process.env.OPENCLAW_TEST_FAST === "1";
+  const isFastTestEnv = process.env.ASSISTANT_TEST_FAST === "1";
   const prepared = await prepareCronRunContext({ input: params, isFastTestEnv });
   if (!prepared.ok) {
     return prepared.result;

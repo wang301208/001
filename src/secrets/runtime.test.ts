@@ -100,7 +100,7 @@ describe("secrets runtime snapshot", () => {
         }),
         env: {},
         includeAuthStoreRefs: false,
-        agentDirs: ["/tmp/zhushou-agent-main"],
+        agentDirs: ["/tmp/assistant-agent-main"],
         loadAuthStore: () => ({ version: 1, profiles: {} }),
         loadablePluginOrigins: EMPTY_LOADABLE_PLUGIN_ORIGINS,
       }),

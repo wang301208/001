@@ -49,7 +49,7 @@ describe("duckduckgo web search provider", () => {
     }
 
     const result = await tool.execute({
-      query: "zhushou docs",
+      query: "assistant docs",
       count: 4,
       region: "us-en",
       safeSearch: "off",
@@ -57,14 +57,14 @@ describe("duckduckgo web search provider", () => {
 
     expect(runDuckDuckGoSearch).toHaveBeenCalledWith({
       config: { test: true },
-      query: "zhushou docs",
+      query: "assistant docs",
       count: 4,
       region: "us-en",
       safeSearch: "off",
     });
     expect(result).toEqual({
       config: { test: true },
-      query: "zhushou docs",
+      query: "assistant docs",
       count: 4,
       region: "us-en",
       safeSearch: "off",

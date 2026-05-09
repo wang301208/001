@@ -1,12 +1,12 @@
-import { describeWebhookAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
-import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { createLoggedPairingApprovalNotifier } from "zhushou/plugin-sdk/channel-pairing";
-import { createAllowlistProviderRouteAllowlistWarningCollector } from "zhushou/plugin-sdk/channel-policy";
+import { describeWebhookAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
+import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { createLoggedPairingApprovalNotifier } from "assistant/plugin-sdk/channel-pairing";
+import { createAllowlistProviderRouteAllowlistWarningCollector } from "assistant/plugin-sdk/channel-policy";
 import {
   buildWebhookChannelStatusSummary,
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "zhushou/plugin-sdk/status-helpers";
+} from "assistant/plugin-sdk/status-helpers";
 import { resolveNextcloudTalkAccount, type ResolvedNextcloudTalkAccount } from "./accounts.js";
 import { nextcloudTalkApprovalAuth } from "./approval-auth.js";
 import { buildChannelConfigSchema, DEFAULT_ACCOUNT_ID, type ChannelPlugin } from "./channel-api.js";

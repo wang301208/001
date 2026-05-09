@@ -78,12 +78,12 @@ import { suppressDeprecations } from "./suppress-deprecations.js";
 
 const CLI_NAME = resolveCliName();
 const SERVICE_REFRESH_TIMEOUT_MS = 60_000;
-const POST_CORE_UPDATE_ENV = "OPENCLAW_UPDATE_POST_CORE";
-const POST_CORE_UPDATE_CHANNEL_ENV = "OPENCLAW_UPDATE_POST_CORE_CHANNEL";
+const POST_CORE_UPDATE_ENV = "ASSISTANT_UPDATE_POST_CORE";
+const POST_CORE_UPDATE_CHANNEL_ENV = "ASSISTANT_UPDATE_POST_CORE_CHANNEL";
 const SERVICE_REFRESH_PATH_ENV_KEYS = [
-  "ZHUSHOU_HOME",
-  "ZHUSHOU_STATE_DIR",
-  "ZHUSHOU_CONFIG_PATH",
+  "ASSISTANT_HOME",
+  "ASSISTANT_STATE_DIR",
+  "ASSISTANT_CONFIG_PATH",
 ] as const;
 
 const UPDATE_QUIPS = [
@@ -156,11 +156,11 @@ async function resolvePackageRuntimePreflightError(params: {
   }
   const targetLabel = status.version ?? target;
   return [
-    `Node ${process.versions.node ?? "unknown"} is too old for zhushou@${targetLabel}.`,
+    `Node ${process.versions.node ?? "unknown"} is too old for assistant@${targetLabel}.`,
     `The requested package requires ${status.nodeEngine}.`,
-    "Upgrade Node to 22.14+ or Node 24, then rerun `zhushou update`.",
-    "Bare `npm i -g zhushou` can silently install an older compatible release.",
-    "After upgrading Node, use `npm i -g zhushou@latest`.",
+    "Upgrade Node to 22.14+ or Node 24, then rerun `assistant update`.",
+    "Bare `npm i -g assistant` can silently install an older compatible release.",
+    "After upgrading Node, use `npm i -g assistant@latest`.",
   ].join("\n");
 }
 
@@ -312,7 +312,7 @@ async function tryInstallShellCompletion(opts: {
       if (!opts.skipPrompt) {
         defaultRuntime.log(
           theme.muted(
-            `Skipped. Run \`${replaceCliName(formatCliCommand("zhushou completion --install"), CLI_NAME)}\` later to enable.`,
+            `Skipped. Run \`${replaceCliName(formatCliCommand("assistant completion --install"), CLI_NAME)}\` later to enable.`,
           ),
         );
       }
@@ -673,7 +673,7 @@ async function maybeRestartService(params: {
       if (!params.opts.json && restarted) {
         defaultRuntime.log(theme.success("Daemon restarted successfully."));
         defaultRuntime.log("");
-        process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
+        process.env.ASSISTANT_UPDATE_IN_PROGRESS = "1";
         try {
           const interactiveDoctor =
             process.stdin.isTTY && !params.opts.json && params.opts.yes !== true;
@@ -683,7 +683,7 @@ async function maybeRestartService(params: {
         } catch (err) {
           defaultRuntime.log(theme.warn(`Doctor failed: ${String(err)}`));
         } finally {
-          delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+          delete process.env.ASSISTANT_UPDATE_IN_PROGRESS;
         }
       }
 
@@ -718,7 +718,7 @@ async function maybeRestartService(params: {
           }
           defaultRuntime.log(
             theme.muted(
-              `Run \`${replaceCliName(formatCliCommand("openclaw gateway status --deep"), CLI_NAME)}\` for details.`,
+              `Run \`${replaceCliName(formatCliCommand("assistant gateway status --deep"), CLI_NAME)}\` for details.`,
             ),
           );
         }
@@ -729,7 +729,7 @@ async function maybeRestartService(params: {
         defaultRuntime.log(theme.warn(`Daemon restart failed: ${String(err)}`));
         defaultRuntime.log(
           theme.muted(
-            `You may need to restart the service manually: ${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}`,
+            `You may need to restart the service manually: ${replaceCliName(formatCliCommand("assistant gateway restart"), CLI_NAME)}`,
           ),
         );
       }
@@ -742,13 +742,13 @@ async function maybeRestartService(params: {
     if (params.result.mode === "npm" || params.result.mode === "pnpm") {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${replaceCliName(formatCliCommand("zhushou doctor"), CLI_NAME)}\`, then \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          `Tip: Run \`${replaceCliName(formatCliCommand("assistant doctor"), CLI_NAME)}\`, then \`${replaceCliName(formatCliCommand("assistant gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
         ),
       );
     } else {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          `Tip: Run \`${replaceCliName(formatCliCommand("assistant gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
         ),
       );
     }
@@ -891,7 +891,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     updateInstallKind === "git" ? DEFAULT_GIT_CHANNEL : DEFAULT_PACKAGE_CHANNEL;
   const channel = requestedChannel ?? storedChannel ?? defaultChannel;
   const devTargetRef =
-    channel === "dev" ? process.env.OPENCLAW_UPDATE_DEV_TARGET_REF?.trim() || undefined : undefined;
+    channel === "dev" ? process.env.ASSISTANT_UPDATE_DEV_TARGET_REF?.trim() || undefined : undefined;
 
   const explicitTag = normalizeTag(opts.tag);
   let tag = explicitTag ?? channelToNpmTag(channel);
@@ -1091,18 +1091,18 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
         ),
       );
       defaultRuntime.log(
-        theme.muted("Commit, stash, or discard the local changes, then rerun `zhushou update`."),
+        theme.muted("Commit, stash, or discard the local changes, then rerun `assistant update`."),
       );
     }
     if (result.reason === "not-git-install") {
       defaultRuntime.log(
         theme.warn(
-          `Skipped: this ${PRODUCT_NAME} install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${replaceCliName(formatCliCommand("zhushou doctor"), CLI_NAME)}\` and \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\`.`,
+          `Skipped: this ${PRODUCT_NAME} install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${replaceCliName(formatCliCommand("assistant doctor"), CLI_NAME)}\` and \`${replaceCliName(formatCliCommand("assistant gateway restart"), CLI_NAME)}\`.`,
         ),
       );
       defaultRuntime.log(
         theme.muted(
-          `Examples: \`${replaceCliName("npm i -g zhushou@latest", CLI_NAME)}\` or \`${replaceCliName("pnpm add -g zhushou@latest", CLI_NAME)}\``,
+          `Examples: \`${replaceCliName("npm i -g assistant@latest", CLI_NAME)}\` or \`${replaceCliName("pnpm add -g assistant@latest", CLI_NAME)}\``,
         ),
       );
     }

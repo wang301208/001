@@ -2,21 +2,21 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type {
   CreateSandboxBackendParams,
-  ZhushouConfig,
+  AssistantConfig,
   SandboxBackendCommandParams,
   SandboxBackendCommandResult,
   SandboxBackendFactory,
   SandboxBackendManager,
   SshSandboxSession,
-} from "zhushou/plugin-sdk/sandbox";
+} from "assistant/plugin-sdk/sandbox";
 import {
   createRemoteShellSandboxFsBridge,
   disposeSshSandboxSession,
-  resolvePreferredOpenClawTmpDir,
+  resolvePreferredAssistantTmpDir,
   runSshSandboxCommand,
   sanitizeEnvVars,
-} from "zhushou/plugin-sdk/sandbox";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/sandbox";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import type { OpenShellSandboxBackend } from "./backend.types.js";
 import {
   buildExecRemoteCommand,
@@ -272,7 +272,7 @@ class OpenShellSandboxBackendImpl {
           "/bin/sh",
           "-c",
           params.script,
-          "zhushou-openshell-fs",
+          "assistant-openshell-fs",
           ...(params.args ?? []),
         ]),
         stdin: params.stdin,
@@ -412,7 +412,7 @@ class OpenShellSandboxBackendImpl {
 
   private async syncWorkspaceFromRemote(): Promise<void> {
     const tmpDir = await fs.mkdtemp(
-      path.join(resolveOpenShellTmpRoot(), "zhushou-openshell-sync-"),
+      path.join(resolveOpenShellTmpRoot(), "assistant-openshell-sync-"),
     );
     try {
       const result = await runOpenShellCli({
@@ -443,7 +443,7 @@ class OpenShellSandboxBackendImpl {
 
   private async uploadPathToRemote(localPath: string, remotePath: string): Promise<void> {
     const tmpDir = await fs.mkdtemp(
-      path.join(resolveOpenShellTmpRoot(), "zhushou-openshell-upload-"),
+      path.join(resolveOpenShellTmpRoot(), "assistant-openshell-upload-"),
     );
     try {
       // Stage a symlink-free snapshot so upload never dereferences host paths
@@ -487,7 +487,7 @@ class OpenShellSandboxBackendImpl {
 }
 
 function resolveOpenShellPluginConfigFromConfig(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   fallback: ResolvedOpenShellPluginConfig,
 ): ResolvedOpenShellPluginConfig {
   const pluginConfig = config.plugins?.entries?.openshell?.config;
@@ -507,9 +507,9 @@ function buildOpenShellSandboxName(scopeKey: string): string {
     (acc, char) => ((acc * 33) ^ char.charCodeAt(0)) >>> 0,
     5381,
   );
-  return `zhushou-${safe || "session"}-${hash.toString(16).slice(0, 8)}`;
+  return `assistant-${safe || "session"}-${hash.toString(16).slice(0, 8)}`;
 }
 
 function resolveOpenShellTmpRoot(): string {
-  return path.resolve(resolvePreferredOpenClawTmpDir());
+  return path.resolve(resolvePreferredAssistantTmpDir());
 }

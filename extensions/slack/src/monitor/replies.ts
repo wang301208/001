@@ -1,11 +1,11 @@
-import type { MarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import type { MarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
-} from "zhushou/plugin-sdk/reply-payload";
-import type { ChunkMode } from "zhushou/plugin-sdk/reply-runtime";
-import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
-import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/reply-payload";
+import type { ChunkMode } from "assistant/plugin-sdk/reply-runtime";
+import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
 import { markdownToSlackMrkdwnChunks } from "../format.js";
 import { SLACK_TEXT_LIMIT } from "../limits.js";
 import { resolveSlackReplyBlocks } from "../reply-blocks.js";

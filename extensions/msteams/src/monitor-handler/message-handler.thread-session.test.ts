@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../runtime-api.js";
+import type { AssistantConfig } from "../../runtime-api.js";
 import { createMSTeamsMessageHandler } from "./message-handler.js";
 import {
   buildChannelActivity,
@@ -45,9 +45,9 @@ vi.mock("../reply-dispatcher.js", () => ({
 
 describe("msteams thread session isolation", () => {
   it("appends thread suffix to session key for channel thread replies", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { msteams: { groupPolicy: "open" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const { deps, recordInboundSession } = createMessageHandlerDeps(cfg);
     const handler = createMSTeamsMessageHandler(deps);
 
@@ -64,9 +64,9 @@ describe("msteams thread session isolation", () => {
   });
 
   it("does not append thread suffix for top-level channel messages", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { msteams: { groupPolicy: "open" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const { deps, recordInboundSession } = createMessageHandlerDeps(cfg);
     const handler = createMSTeamsMessageHandler(deps);
 
@@ -83,9 +83,9 @@ describe("msteams thread session isolation", () => {
   });
 
   it("produces different session keys for different threads in the same channel", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { msteams: { groupPolicy: "open" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const { deps, recordInboundSession } = createMessageHandlerDeps(cfg);
     const handler = createMSTeamsMessageHandler(deps);
 
@@ -108,9 +108,9 @@ describe("msteams thread session isolation", () => {
   });
 
   it("does not affect DM session keys", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { msteams: { allowFrom: ["*"] } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const { deps, recordInboundSession } = createMessageHandlerDeps(cfg);
     const handler = createMSTeamsMessageHandler(deps);
 
@@ -134,9 +134,9 @@ describe("msteams thread session isolation", () => {
   });
 
   it("does not affect group chat session keys", async () => {
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: { msteams: { groupPolicy: "open" } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const { deps, recordInboundSession } = createMessageHandlerDeps(cfg);
     const handler = createMSTeamsMessageHandler(deps);
 

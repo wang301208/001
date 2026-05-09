@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { PluginWebSearchProviderEntry } from "../plugins/web-provider-types.js";
 import {
   createWebSearchTestProvider,
@@ -32,7 +32,7 @@ function createCustomSearchTool() {
   };
 }
 
-function getCustomSearchApiKey(config?: ZhushouConfig): unknown {
+function getCustomSearchApiKey(config?: AssistantConfig): unknown {
   const pluginConfig = config?.plugins?.entries?.["custom-search"]?.config as
     | TestPluginWebSearchConfig
     | undefined;
@@ -53,7 +53,7 @@ function createCustomSearchProvider(
   });
 }
 
-function createCustomSearchConfig(apiKey: unknown): ZhushouConfig {
+function createCustomSearchConfig(apiKey: unknown): AssistantConfig {
   return {
     plugins: {
       entries: {

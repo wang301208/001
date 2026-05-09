@@ -2,12 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type {
-  OpenClawPluginCommandDefinition,
+  AssistantPluginCommandDefinition,
   PluginCommandContext,
-} from "zhushou/plugin-sdk/core";
+} from "assistant/plugin-sdk/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestPluginApi } from "../../test/helpers/plugins/plugin-api.js";
-import type { ZhushouPluginApi } from "./api.js";
+import type { AssistantPluginApi } from "./api.js";
 import type { PendingPairingRequest } from "./notify.ts";
 
 const pluginApiMocks = vi.hoisted(() => ({
@@ -19,7 +19,7 @@ const pluginApiMocks = vi.hoisted(() => ({
   revokeDeviceBootstrapToken: vi.fn(async () => ({ removed: true })),
   renderQrPngBase64: vi.fn(async () => "ZmFrZXBuZw=="),
   resolveGatewayPort: vi.fn(() => 18789),
-  resolvePreferredOpenClawTmpDir: vi.fn(() => path.join(os.tmpdir(), "zhushou-device-pair-tests")),
+  resolvePreferredAssistantTmpDir: vi.fn(() => path.join(os.tmpdir(), "assistant-device-pair-tests")),
 }));
 
 vi.mock("./api.js", () => {
@@ -35,7 +35,7 @@ vi.mock("./api.js", () => {
     listDevicePairing: vi.fn(async () => ({ pending: [] })),
     renderQrPngBase64: pluginApiMocks.renderQrPngBase64,
     revokeDeviceBootstrapToken: pluginApiMocks.revokeDeviceBootstrapToken,
-    resolvePreferredOpenClawTmpDir: pluginApiMocks.resolvePreferredOpenClawTmpDir,
+    resolvePreferredAssistantTmpDir: pluginApiMocks.resolvePreferredAssistantTmpDir,
     resolveGatewayBindUrl: vi.fn(),
     resolveGatewayPort: pluginApiMocks.resolveGatewayPort,
     resolveTailnetHostWithRunner: vi.fn(),
@@ -62,10 +62,10 @@ type ApprovedPairingResult = Extract<
 type ApprovedPairingDevice = ApprovedPairingResult["device"];
 
 function createApi(params?: {
-  runtime?: ZhushouPluginApi["runtime"];
+  runtime?: AssistantPluginApi["runtime"];
   pluginConfig?: Record<string, unknown>;
-  registerCommand?: (command: OpenClawPluginCommandDefinition) => void;
-}): ZhushouPluginApi {
+  registerCommand?: (command: AssistantPluginCommandDefinition) => void;
+}): AssistantPluginApi {
   return createTestPluginApi({
     id: "device-pair",
     name: "device-pair",
@@ -82,16 +82,16 @@ function createApi(params?: {
       publicUrl: "ws://51.79.175.165:18789",
       ...params?.pluginConfig,
     },
-    runtime: (params?.runtime ?? {}) as ZhushouPluginApi["runtime"],
+    runtime: (params?.runtime ?? {}) as AssistantPluginApi["runtime"],
     registerCommand: params?.registerCommand,
   });
 }
 
 function registerPairCommand(params?: {
-  runtime?: ZhushouPluginApi["runtime"];
+  runtime?: AssistantPluginApi["runtime"];
   pluginConfig?: Record<string, unknown>;
-}): OpenClawPluginCommandDefinition {
-  let command: OpenClawPluginCommandDefinition | undefined;
+}): AssistantPluginCommandDefinition {
+  let command: AssistantPluginCommandDefinition | undefined;
   registerDevicePair.register(
     createApi({
       ...params,
@@ -117,7 +117,7 @@ function createChannelRuntime(
   runtimeKey: string,
   sendKey: string,
   sendMessage: (...args: unknown[]) => Promise<unknown>,
-): ZhushouPluginApi["runtime"] {
+): AssistantPluginApi["runtime"] {
   return {
     channel: {
       outbound: {
@@ -132,7 +132,7 @@ function createChannelRuntime(
             : undefined,
       },
     },
-  } as unknown as ZhushouPluginApi["runtime"];
+  } as unknown as AssistantPluginApi["runtime"];
 }
 
 function createCommandContext(params?: Partial<PluginCommandContext>): PluginCommandContext {
@@ -213,11 +213,11 @@ describe("device-pair /pair qr", () => {
       token: "boot-token",
       expiresAtMs: Date.now() + 10 * 60_000,
     });
-    await fs.mkdir(pluginApiMocks.resolvePreferredOpenClawTmpDir(), { recursive: true });
+    await fs.mkdir(pluginApiMocks.resolvePreferredAssistantTmpDir(), { recursive: true });
   });
 
   afterEach(async () => {
-    await fs.rm(pluginApiMocks.resolvePreferredOpenClawTmpDir(), { recursive: true, force: true });
+    await fs.rm(pluginApiMocks.resolvePreferredAssistantTmpDir(), { recursive: true, force: true });
   });
 
   it("returns an inline QR image for webchat surfaces", async () => {

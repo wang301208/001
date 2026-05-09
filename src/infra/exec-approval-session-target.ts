@@ -1,7 +1,7 @@
 import { resolveSessionConversationRef } from "../channels/plugins/session-conversation.js";
 import { resolveStorePath } from "../config/sessions/paths.js";
 import { loadSessionStore } from "../config/sessions/store-load.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { parseAgentSessionKey } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
@@ -36,7 +36,7 @@ export type ApprovalRequestSessionConversation = {
 
 type ApprovalRequestLike = ExecApprovalRequest | PluginApprovalRequest;
 type ApprovalRequestOriginTargetResolver<TTarget> = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: ApprovalRequestLike;
   channel: string;
   accountId?: string | null;
@@ -116,7 +116,7 @@ export function resolveApprovalRequestSessionConversation(params: {
 }
 
 export function resolveExecApprovalSessionTarget(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: ExecApprovalRequest;
   turnSourceChannel?: string | null;
   turnSourceTo?: string | null;
@@ -157,7 +157,7 @@ export function resolveExecApprovalSessionTarget(params: {
 }
 
 export function resolveApprovalRequestSessionTarget(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: ApprovalRequestLike;
 }): ExecApprovalSessionTarget | null {
   const execLikeRequest = toExecLikeApprovalRequest(params.request);
@@ -172,7 +172,7 @@ export function resolveApprovalRequestSessionTarget(params: {
 }
 
 function resolveApprovalRequestStoredSessionTarget(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   request: ApprovalRequestLike;
 }): ExecApprovalSessionTarget | null {
   const execLikeRequest = toExecLikeApprovalRequest(params.request);

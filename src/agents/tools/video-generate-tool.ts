@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 import { loadConfig } from "../../config/config.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { resolveConfiguredMediaMaxBytes } from "../../media/configured-max-bytes.js";
@@ -208,7 +208,7 @@ const VideoGenerateToolSchema = Type.Object({
 });
 
 export function resolveVideoGenerationModelConfigForTool(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   agentDir?: string;
 }): ToolModelConfig | null {
   return resolveCapabilityModelConfigForTool({
@@ -302,7 +302,7 @@ function normalizeReferenceInputs(params: {
 }
 
 function resolveSelectedVideoGenerationProvider(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   videoGenerationModelConfig: ToolModelConfig;
   modelOverride?: string;
 }): VideoGenerationProvider | undefined {
@@ -546,7 +546,7 @@ type ExecutedVideoGeneration = {
 };
 
 async function executeVideoGenerationJob(params: {
-  effectiveCfg: ZhushouConfig;
+  effectiveCfg: AssistantConfig;
   prompt: string;
   agentDir?: string;
   model?: string;
@@ -757,7 +757,7 @@ async function executeVideoGenerationJob(params: {
 }
 
 export function createVideoGenerateTool(options?: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   agentDir?: string;
   agentSessionKey?: string;
   requesterOrigin?: DeliveryContext;
@@ -766,7 +766,7 @@ export function createVideoGenerateTool(options?: {
   fsPolicy?: ToolFsPolicy;
   scheduleBackgroundWork?: VideoGenerateBackgroundScheduler;
 }): AnyAgentTool | null {
-  const cfg: ZhushouConfig = options?.config ?? loadConfig();
+  const cfg: AssistantConfig = options?.config ?? loadConfig();
   const videoGenerationModelConfig = resolveVideoGenerationModelConfigForTool({
     cfg,
     agentDir: options?.agentDir,

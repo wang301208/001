@@ -6,7 +6,7 @@ import {
   type MessagingTarget,
   type MessagingTargetKind,
   type MessagingTargetParseOptions,
-} from "zhushou/plugin-sdk/messaging-targets";
+} from "assistant/plugin-sdk/messaging-targets";
 
 export type SlackTargetKind = MessagingTargetKind;
 

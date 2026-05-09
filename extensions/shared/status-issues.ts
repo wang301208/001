@@ -1,4 +1,4 @@
 export {
   coerceStatusIssueAccountId,
   readStatusIssueFields,
-} from "zhushou/plugin-sdk/extension-shared";
+} from "assistant/plugin-sdk/extension-shared";

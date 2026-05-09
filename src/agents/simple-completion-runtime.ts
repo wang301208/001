@@ -1,5 +1,5 @@
 import { complete, type Api, type Model } from "@mariozechner/pi-ai";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resolveAgentDir, resolveAgentEffectiveModelPrimary } from "./agent-scope.js";
 import { DEFAULT_PROVIDER } from "./defaults.js";
@@ -62,7 +62,7 @@ export type PreparedSimpleCompletionModelForAgent =
     };
 
 export function resolveSimpleCompletionSelectionForAgent(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   modelRef?: string;
 }): AgentSimpleCompletionSelection | null {
@@ -127,7 +127,7 @@ function hasMissingApiKeyAllowance(params: {
 }
 
 export async function prepareSimpleCompletionModel(params: {
-  cfg: ZhushouConfig | undefined;
+  cfg: AssistantConfig | undefined;
   provider: string;
   modelId: string;
   agentDir?: string;
@@ -200,7 +200,7 @@ export async function prepareSimpleCompletionModel(params: {
 }
 
 export async function prepareSimpleCompletionModelForAgent(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   agentId: string;
   modelRef?: string;
   preferredProfile?: string;

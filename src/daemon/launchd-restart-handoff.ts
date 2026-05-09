@@ -37,11 +37,11 @@ function resolveGuiDomain(): string {
 }
 
 function resolveLaunchAgentLabel(env?: Record<string, string | undefined>): string {
-  const envLabel = normalizeOptionalString(env?.OPENCLAW_LAUNCHD_LABEL);
+  const envLabel = normalizeOptionalString(env?.ASSISTANT_LAUNCHD_LABEL);
   if (envLabel) {
     return assertValidLaunchAgentLabel(envLabel);
   }
-  return assertValidLaunchAgentLabel(resolveGatewayLaunchAgentLabel(env?.ZHUSHOU_PROFILE));
+  return assertValidLaunchAgentLabel(resolveGatewayLaunchAgentLabel(env?.ASSISTANT_PROFILE));
 }
 
 export function resolveLaunchdRestartTarget(
@@ -70,7 +70,7 @@ export function isCurrentProcessLaunchdServiceLabel(
   if (launchdLabel) {
     return launchdLabel === label;
   }
-  const configuredLabel = normalizeOptionalString(env.OPENCLAW_LAUNCHD_LABEL);
+  const configuredLabel = normalizeOptionalString(env.ASSISTANT_LAUNCHD_LABEL);
   return Boolean(configuredLabel && configuredLabel === label);
 }
 
@@ -131,7 +131,7 @@ export function scheduleDetachedLaunchdRestartHandoff(params: {
       [
         "-c",
         buildLaunchdRestartScript(params.mode),
-        "zhushou-launchd-restart-handoff",
+        "assistant-launchd-restart-handoff",
         target.serviceTarget,
         target.domain,
         target.plistPath,

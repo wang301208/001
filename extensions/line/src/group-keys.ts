@@ -1,6 +1,6 @@
-import { normalizeAccountId } from "zhushou/plugin-sdk/account-id";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/account-resolution";
-import { resolveAccountEntry } from "zhushou/plugin-sdk/account-resolution";
+import { normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import type { AssistantConfig } from "assistant/plugin-sdk/account-resolution";
+import { resolveAccountEntry } from "assistant/plugin-sdk/account-resolution";
 import type { LineConfig, LineGroupConfig } from "./types.js";
 
 export function resolveLineGroupLookupIds(groupId?: string | null): string[] {
@@ -38,7 +38,7 @@ export function resolveLineGroupConfigEntry<T>(
 }
 
 export function resolveLineGroupsConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId?: string | null,
 ): Record<string, LineGroupConfig | undefined> | undefined {
   const lineConfig = cfg.channels?.line as LineConfig | undefined;
@@ -51,7 +51,7 @@ export function resolveLineGroupsConfig(
 }
 
 export function resolveExactLineGroupConfigKey(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   groupId?: string | null;
 }): string | undefined {

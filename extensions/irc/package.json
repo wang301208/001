@@ -1,12 +1,12 @@
 {
-  "name": "@zhushou/irc",
+  "name": "@assistant/irc",
   "version": "2026.4.16",
   "description": "助手 IRC channel plugin",
   "type": "module",
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],

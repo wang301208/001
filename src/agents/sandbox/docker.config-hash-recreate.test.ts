@@ -60,7 +60,7 @@ function spawnDockerProcess(command: string, args: string[]) {
   } else if (
     args[0] === "inspect" &&
     args[1] === "-f" &&
-    args[2]?.includes('index .Config.Labels "zhushou.configHash"')
+    args[2]?.includes('index .Config.Labels "assistant.configHash"')
   ) {
     stdout = `${spawnState.labelHash}\n`;
   } else if (
@@ -124,9 +124,9 @@ function createSandboxConfig(
     backend: "docker",
     scope: "shared",
     workspaceAccess,
-    workspaceRoot: "~/.zhushou/sandboxes",
+    workspaceRoot: "~/.assistant/sandboxes",
     docker: {
-      image: "zhushou-sandbox:test",
+      image: "assistant-sandbox:test",
       containerPrefix: "oc-test-",
       workdir: "/workspace",
       readOnlyRoot: true,
@@ -141,15 +141,15 @@ function createSandboxConfig(
     },
     ssh: {
       command: "ssh",
-      workspaceRoot: "/tmp/zhushou-sandboxes",
+      workspaceRoot: "/tmp/assistant-sandboxes",
       strictHostKeyChecking: true,
       updateHostKeys: true,
     },
     browser: {
       enabled: false,
-      image: "zhushou-browser:test",
+      image: "assistant-browser:test",
       containerPrefix: "oc-browser-",
-      network: "zhushou-sandbox-browser",
+      network: "assistant-sandbox-browser",
       cdpPort: 9222,
       vncPort: 5900,
       noVncPort: 6080,
@@ -227,7 +227,7 @@ describe("ensureSandboxContainer config-hash recreation", () => {
     ).toBe(true);
     const createCall = dockerCalls.find((call) => call.args[0] === "create");
     expect(createCall).toBeDefined();
-    expect(createCall?.args).toContain(`zhushou.configHash=${newHash}`);
+    expect(createCall?.args).toContain(`assistant.configHash=${newHash}`);
     expect(registryMocks.updateRegistry).toHaveBeenCalledWith(
       expect.objectContaining({
         containerName: "oc-test-shared",
@@ -277,7 +277,7 @@ describe("ensureSandboxContainer config-hash recreation", () => {
       (call) => isDockerCommand(call.command) && call.args[0] === "create",
     );
     expect(createCall).toBeDefined();
-    expect(createCall?.args).toContain(`zhushou.configHash=${expectedHash}`);
+    expect(createCall?.args).toContain(`assistant.configHash=${expectedHash}`);
 
     const bindArgs = collectDockerFlagValues(createCall?.args ?? [], "-v");
     const workspaceMountIdx = bindArgs.indexOf("/tmp/workspace:/workspace:z");
@@ -338,7 +338,7 @@ describe("ensureSandboxContainer config-hash recreation", () => {
     );
     expect(createCall).toBeDefined();
     expect(createCall?.args).toContain(
-      `zhushou.mountFormatVersion=${SANDBOX_MOUNT_FORMAT_VERSION}`,
+      `assistant.mountFormatVersion=${SANDBOX_MOUNT_FORMAT_VERSION}`,
     );
   });
 });

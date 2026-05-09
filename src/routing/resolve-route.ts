@@ -1,7 +1,7 @@
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { ChatType } from "../channels/chat-type.js";
 import { normalizeChatType } from "../channels/chat-type.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { shouldLogVerbose } from "../globals.js";
 import { logDebug } from "../logger.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
@@ -25,7 +25,7 @@ export type RoutePeer = {
 };
 
 export type ResolveAgentRouteInput = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId?: string | null;
   peer?: RoutePeer | null;
@@ -113,20 +113,20 @@ export function buildAgentSessionKey(params: {
   });
 }
 
-function listAgents(cfg: ZhushouConfig) {
+function listAgents(cfg: AssistantConfig) {
   const agents = cfg.agents?.list;
   return Array.isArray(agents) ? agents : [];
 }
 
 type AgentLookupCache = {
-  agentsRef: ZhushouConfig["agents"] | undefined;
+  agentsRef: AssistantConfig["agents"] | undefined;
   byNormalizedId: Map<string, string>;
   fallbackDefaultAgentId: string;
 };
 
-const agentLookupCacheByCfg = new WeakMap<ZhushouConfig, AgentLookupCache>();
+const agentLookupCacheByCfg = new WeakMap<AssistantConfig, AgentLookupCache>();
 
-function resolveAgentLookupCache(cfg: ZhushouConfig): AgentLookupCache {
+function resolveAgentLookupCache(cfg: AssistantConfig): AgentLookupCache {
   const agentsRef = cfg.agents;
   const existing = agentLookupCacheByCfg.get(cfg);
   if (existing && existing.agentsRef === agentsRef) {
@@ -150,7 +150,7 @@ function resolveAgentLookupCache(cfg: ZhushouConfig): AgentLookupCache {
   return next;
 }
 
-export function pickFirstExistingAgentId(cfg: ZhushouConfig, agentId: string): string {
+export function pickFirstExistingAgentId(cfg: AssistantConfig, agentId: string): string {
   const lookup = resolveAgentLookupCache(cfg);
   const trimmed = (agentId ?? "").trim();
   if (!trimmed) {
@@ -195,20 +195,20 @@ type BindingScope = {
 };
 
 type EvaluatedBindingsCache = {
-  bindingsRef: ZhushouConfig["bindings"];
+  bindingsRef: AssistantConfig["bindings"];
   byChannel: Map<string, EvaluatedBindingsByChannel>;
   byChannelAccount: Map<string, EvaluatedBinding[]>;
   byChannelAccountIndex: Map<string, EvaluatedBindingsIndex>;
 };
 
-const evaluatedBindingsCacheByCfg = new WeakMap<ZhushouConfig, EvaluatedBindingsCache>();
+const evaluatedBindingsCacheByCfg = new WeakMap<AssistantConfig, EvaluatedBindingsCache>();
 const MAX_EVALUATED_BINDINGS_CACHE_KEYS = 2000;
 const resolvedRouteCacheByCfg = new WeakMap<
-  ZhushouConfig,
+  AssistantConfig,
   {
-    bindingsRef: ZhushouConfig["bindings"];
-    agentsRef: ZhushouConfig["agents"];
-    sessionRef: ZhushouConfig["session"];
+    bindingsRef: AssistantConfig["bindings"];
+    agentsRef: AssistantConfig["agents"];
+    sessionRef: AssistantConfig["session"];
     byKey: Map<string, ResolvedAgentRoute>;
   }
 >();
@@ -237,7 +237,7 @@ function resolveAccountPatternKey(accountPattern: string): string {
 }
 
 function buildEvaluatedBindingsByChannel(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
 ): Map<string, EvaluatedBindingsByChannel> {
   const byChannel = new Map<string, EvaluatedBindingsByChannel>();
   let order = 0;
@@ -421,7 +421,7 @@ function buildEvaluatedBindingsIndex(bindings: EvaluatedBinding[]): EvaluatedBin
 }
 
 function getEvaluatedBindingsForChannelAccount(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   channel: string,
   accountId: string,
 ): EvaluatedBinding[] {
@@ -464,7 +464,7 @@ function getEvaluatedBindingsForChannelAccount(
 }
 
 function getEvaluatedBindingIndexForChannelAccount(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   channel: string,
   accountId: string,
 ): EvaluatedBindingsIndex {
@@ -518,7 +518,7 @@ function normalizeBindingMatch(
   };
 }
 
-function resolveRouteCacheForConfig(cfg: ZhushouConfig): Map<string, ResolvedAgentRoute> {
+function resolveRouteCacheForConfig(cfg: AssistantConfig): Map<string, ResolvedAgentRoute> {
   const existing = resolvedRouteCacheByCfg.get(cfg);
   if (
     existing &&

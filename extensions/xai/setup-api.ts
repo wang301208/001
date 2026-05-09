@@ -1,4 +1,4 @@
-import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
 import { isRecord } from "./src/tool-config-shared.js";
 
 export default definePluginEntry({

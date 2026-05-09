@@ -3,14 +3,14 @@ import {
   captureWsEvent,
   createDebugProxyWebSocketAgent,
   resolveDebugProxySettings,
-} from "zhushou/plugin-sdk/proxy-capture";
+} from "assistant/plugin-sdk/proxy-capture";
 import type {
   RealtimeTranscriptionProviderConfig,
   RealtimeTranscriptionProviderPlugin,
   RealtimeTranscriptionSession,
   RealtimeTranscriptionSessionCreateRequest,
-} from "zhushou/plugin-sdk/realtime-transcription";
-import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/realtime-transcription";
+import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
 import WebSocket from "ws";
 import {
   asFiniteNumber,

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { startHeartbeatRunner } from "./heartbeat-runner.js";
 import { computeNextHeartbeatPhaseDueMs, resolveHeartbeatPhaseMs } from "./heartbeat-schedule.js";
 import { requestHeartbeatNow, resetHeartbeatWakeStateForTests } from "./heartbeat-wake.js";
@@ -22,14 +22,14 @@ describe("startHeartbeatRunner", () => {
   }
 
   function heartbeatConfig(
-    list?: NonNullable<NonNullable<ZhushouConfig["agents"]>["list"]>,
-  ): ZhushouConfig {
+    list?: NonNullable<NonNullable<AssistantConfig["agents"]>["list"]>,
+  ): AssistantConfig {
     return {
       agents: {
         defaults: { heartbeat: { every: "30m" } },
         ...(list ? { list } : {}),
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
   }
 
   function resolveDueFromNow(nowMs: number, intervalMs: number, agentId: string) {
@@ -56,7 +56,7 @@ describe("startHeartbeatRunner", () => {
   }
 
   async function expectWakeDispatch(params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     runSpy: RunOnce;
     wake: { reason: string; agentId?: string; sessionKey?: string; coalesceMs: number };
     expectedCall: Record<string, unknown>;
@@ -105,7 +105,7 @@ describe("startHeartbeatRunner", () => {
           { id: "ops", heartbeat: { every: "15m" } },
         ],
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     const nowAfterReload = Date.now();
     const nextMainDueMs = resolveDueFromNow(nowAfterReload, 10 * 60_000, "main");
@@ -166,7 +166,7 @@ describe("startHeartbeatRunner", () => {
 
     const cfg = {
       agents: { defaults: { heartbeat: { every: "30m" } } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const firstDueMs = resolveDueFromNow(0, 30 * 60_000, "main");
 
     // Start runner A
@@ -287,7 +287,7 @@ describe("startHeartbeatRunner", () => {
           { id: "main", heartbeat: { every: "30m" } },
           { id: "ops", heartbeat: { every: "15m" } },
         ]),
-      } as ZhushouConfig,
+      } as AssistantConfig,
       runSpy,
       wake: {
         reason: "cron:job-123",
@@ -314,7 +314,7 @@ describe("startHeartbeatRunner", () => {
           { id: "main", heartbeat: { every: "30m" } },
           { id: "finance", heartbeat: { every: "30m" } },
         ]),
-      } as ZhushouConfig,
+      } as AssistantConfig,
       runSpy,
       wake: {
         reason: "exec-event",

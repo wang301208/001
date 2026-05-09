@@ -68,13 +68,13 @@ vi.mock("./navigation-guard.js", () => ({
 }));
 
 const localProfile: ResolvedBrowserProfile = {
-  name: "zhushou",
+  name: "assistant",
   cdpUrl: "http://127.0.0.1:18800",
   cdpPort: 18800,
   cdpHost: "127.0.0.1",
   cdpIsLoopback: true,
   color: "#FF4500",
-  driver: "zhushou",
+  driver: "assistant",
   attachOnly: false,
 };
 

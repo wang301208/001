@@ -2,12 +2,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
-  autoMigrateLegacyStateDir,
   autoMigrateLegacyState,
   detectLegacyStateMigrations,
-  resetAutoMigrateLegacyStateDirForTest,
   resetAutoMigrateLegacyStateForTest,
   runLegacyStateMigrations,
 } from "./doctor-state-migrations.js";
@@ -23,7 +21,7 @@ vi.mock("../channels/plugins/bundled.js", () => {
     }
   }
 
-  function resolveTelegramAccountId(cfg: ZhushouConfig): string {
+  function resolveTelegramAccountId(cfg: AssistantConfig): string {
     const defaultAgentId = cfg.agents?.list?.find((agent) => agent.default)?.id ?? "main";
     const boundAccountId = cfg.bindings?.find(
       (binding) =>
@@ -35,10 +33,10 @@ vi.mock("../channels/plugins/bundled.js", () => {
   }
 
   function detectTelegramAllowFromMigration(params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     env: NodeJS.ProcessEnv;
   }) {
-    const root = params.env.ZHUSHOU_STATE_DIR;
+    const root = params.env.ASSISTANT_STATE_DIR;
     if (!root) {
       return [];
     }
@@ -119,7 +117,7 @@ vi.mock("../channels/plugins/bundled.js", () => {
                 cfg,
                 env,
               }: {
-                cfg: ZhushouConfig;
+                cfg: AssistantConfig;
                 env: NodeJS.ProcessEnv;
               }) => detectTelegramAllowFromMigration({ cfg, env }),
             },
@@ -163,14 +161,14 @@ vi.mock("../infra/json-files.js", async () => {
 });
 
 async function makeTempRoot() {
-  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "zhushou-doctor-"));
+  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "assistant-doctor-"));
   tempRoots.push(root);
   return root;
 }
 
 async function makeRootWithEmptyCfg() {
   const root = await makeTempRoot();
-  const cfg: ZhushouConfig = {};
+  const cfg: AssistantConfig = {};
   return { root, cfg };
 }
 
@@ -189,12 +187,12 @@ function writeLegacyTelegramAllowFromStore(oauthDir: string) {
   );
 }
 
-async function runTelegramAllowFromMigration(params: { root: string; cfg: ZhushouConfig }) {
+async function runTelegramAllowFromMigration(params: { root: string; cfg: AssistantConfig }) {
   const oauthDir = ensureCredentialsDir(params.root);
   writeLegacyTelegramAllowFromStore(oauthDir);
   const detected = await detectLegacyStateMigrations({
     cfg: params.cfg,
-    env: { ZHUSHOU_STATE_DIR: params.root } as NodeJS.ProcessEnv,
+    env: { ASSISTANT_STATE_DIR: params.root } as NodeJS.ProcessEnv,
   });
   const result = await runLegacyStateMigrations({ detected, now: () => 123 });
   return { oauthDir, detected, result };
@@ -202,7 +200,6 @@ async function runTelegramAllowFromMigration(params: { root: string; cfg: Zhusho
 
 afterEach(async () => {
   resetAutoMigrateLegacyStateForTest();
-  resetAutoMigrateLegacyStateDirForTest();
   await Promise.all(
     tempRoots.map((root) => fs.promises.rm(root, { recursive: true, force: true })),
   );
@@ -230,12 +227,12 @@ function writeLegacySessionsFixture(params: {
 
 async function detectAndRunMigrations(params: {
   root: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   now?: () => number;
 }) {
   const detected = await detectLegacyStateMigrations({
     cfg: params.cfg,
-    env: { ZHUSHOU_STATE_DIR: params.root } as NodeJS.ProcessEnv,
+    env: { ASSISTANT_STATE_DIR: params.root } as NodeJS.ProcessEnv,
   });
   await runLegacyStateMigrations({ detected, now: params.now });
 }
@@ -249,7 +246,7 @@ function readSessionsStore(targetDir: string) {
 
 async function runAndReadSessionsStore(params: {
   root: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   targetDir: string;
   now?: () => number;
 }) {
@@ -261,61 +258,19 @@ async function runAndReadSessionsStore(params: {
   return readSessionsStore(params.targetDir);
 }
 
-type StateDirMigrationResult = Awaited<ReturnType<typeof autoMigrateLegacyStateDir>>;
-
-const DIR_LINK_TYPE = process.platform === "win32" ? "junction" : "dir";
-
-function getStateDirMigrationPaths(root: string) {
-  return {
-    targetDir: path.join(root, ".zhushou"),
-    legacyDir: path.join(root, ".clawdbot"),
-  };
-}
-
-function ensureLegacyAndTargetStateDirs(root: string) {
-  const paths = getStateDirMigrationPaths(root);
-  fs.mkdirSync(paths.targetDir, { recursive: true });
-  fs.mkdirSync(paths.legacyDir, { recursive: true });
-  return paths;
-}
-
-async function runStateDirMigration(root: string, env = {} as NodeJS.ProcessEnv) {
-  return autoMigrateLegacyStateDir({
-    env,
-    homedir: () => root,
-  });
-}
-
-async function runFreshStateDirMigration(root: string, env = {} as NodeJS.ProcessEnv) {
-  resetAutoMigrateLegacyStateDirForTest();
-  return runStateDirMigration(root, env);
-}
-
 async function runAutoMigrateLegacyStateWithLog(params: {
   root: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   now?: () => number;
 }) {
   const log = { info: vi.fn(), warn: vi.fn() };
   const result = await autoMigrateLegacyState({
     cfg: params.cfg,
-    env: { ZHUSHOU_STATE_DIR: params.root } as NodeJS.ProcessEnv,
+    env: { ASSISTANT_STATE_DIR: params.root } as NodeJS.ProcessEnv,
     log,
     now: params.now,
   });
   return { result, log };
-}
-
-function expectTargetAlreadyExistsWarning(result: StateDirMigrationResult, targetDir: string) {
-  expect(result.migrated).toBe(false);
-  expect(result.warnings).toEqual([
-    `State dir migration skipped: target already exists (${targetDir}). Remove or merge manually.`,
-  ]);
-}
-
-function expectUnmigratedWithoutWarnings(result: StateDirMigrationResult) {
-  expect(result.migrated).toBe(false);
-  expect(result.warnings).toEqual([]);
 }
 
 function writeLegacyAgentFiles(root: string, files: Record<string, string>) {
@@ -336,7 +291,7 @@ function ensureCredentialsDir(root: string) {
 describe("doctor legacy state migrations", () => {
   it("migrates legacy sessions into agents/<id>/sessions", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = {};
+    const cfg: AssistantConfig = {};
     const legacySessionsDir = writeLegacySessionsFixture({
       root,
       sessions: {
@@ -354,7 +309,7 @@ describe("doctor legacy state migrations", () => {
 
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { ZHUSHOU_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { ASSISTANT_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     const result = await runLegacyStateMigrations({
       detected,
@@ -382,7 +337,7 @@ describe("doctor legacy state migrations", () => {
 
   it("keeps shipped WhatsApp legacy group keys channel-qualified during migration", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = {};
+    const cfg: AssistantConfig = {};
     const targetDir = path.join(root, "agents", "main", "sessions");
 
     writeLegacySessionsFixture({
@@ -496,7 +451,7 @@ describe("doctor legacy state migrations", () => {
 
   it("does not fan out legacy Telegram pairing allowFrom store to configured named accounts", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       channels: {
         telegram: {
           defaultAccount: "bot2",
@@ -528,7 +483,7 @@ describe("doctor legacy state migrations", () => {
 
   it("migrates legacy Telegram pairing allowFrom store to the default agent bound account", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: {
         list: [{ id: "ops", default: true }],
       },
@@ -564,10 +519,10 @@ describe("doctor legacy state migrations", () => {
 
   it("no-ops when nothing detected", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = {};
+    const cfg: AssistantConfig = {};
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { ZHUSHOU_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { ASSISTANT_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     const result = await runLegacyStateMigrations({ detected });
     expect(result.changes).toEqual([]);
@@ -575,7 +530,7 @@ describe("doctor legacy state migrations", () => {
 
   it("routes legacy state to the default agent entry", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = {
+    const cfg: AssistantConfig = {
       agents: { list: [{ id: "alpha", default: true }] },
     };
     writeLegacySessionsFixture({
@@ -597,7 +552,7 @@ describe("doctor legacy state migrations", () => {
 
   it("honors session.mainKey when seeding the direct-chat bucket", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = { session: { mainKey: "work" } };
+    const cfg: AssistantConfig = { session: { mainKey: "work" } };
     writeLegacySessionsFixture({
       root,
       sessions: {
@@ -637,7 +592,7 @@ describe("doctor legacy state migrations", () => {
 
   it("prefers the newest entry when collapsing main aliases", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = { session: { mainKey: "work" } };
+    const cfg: AssistantConfig = { session: { mainKey: "work" } };
     const targetDir = path.join(root, "agents", "main", "sessions");
     writeJson5(path.join(targetDir, "sessions.json"), {
       "agent:main:main": { sessionId: "legacy", updatedAt: 50 },
@@ -656,7 +611,7 @@ describe("doctor legacy state migrations", () => {
 
   it("lowercases agent session keys during canonicalization", async () => {
     const root = await makeTempRoot();
-    const cfg: ZhushouConfig = {};
+    const cfg: AssistantConfig = {};
     const targetDir = path.join(root, "agents", "main", "sessions");
     writeJson5(path.join(targetDir, "sessions.json"), {
       "agent:main:slack:channel:C123": { sessionId: "legacy", updatedAt: 10 },
@@ -690,96 +645,4 @@ describe("doctor legacy state migrations", () => {
     expect(store["agent:main:main"]?.sessionId).toBe("legacy");
   });
 
-  it("does nothing when no legacy state dir exists", async () => {
-    const root = await makeTempRoot();
-    const result = await runStateDirMigration(root);
-
-    expect(result.migrated).toBe(false);
-    expect(result.skipped).toBe(false);
-    expect(result.warnings).toHaveLength(0);
-  });
-
-  it("skips state dir migration when env override is set", async () => {
-    const root = await makeTempRoot();
-    const { legacyDir } = getStateDirMigrationPaths(root);
-    fs.mkdirSync(legacyDir, { recursive: true });
-
-    const result = await runStateDirMigration(root, {
-      ZHUSHOU_STATE_DIR: "/custom/state",
-    } as NodeJS.ProcessEnv);
-
-    expect(result.skipped).toBe(true);
-    expect(result.migrated).toBe(false);
-  });
-
-  it("classifies already-migrated symlink mirrors without warnings", async () => {
-    const flatRoot = await makeTempRoot();
-    const flat = ensureLegacyAndTargetStateDirs(flatRoot);
-    fs.mkdirSync(path.join(flat.targetDir, "sessions"), { recursive: true });
-    fs.mkdirSync(path.join(flat.targetDir, "agent"), { recursive: true });
-    fs.symlinkSync(
-      path.join(flat.targetDir, "sessions"),
-      path.join(flat.legacyDir, "sessions"),
-      DIR_LINK_TYPE,
-    );
-    fs.symlinkSync(
-      path.join(flat.targetDir, "agent"),
-      path.join(flat.legacyDir, "agent"),
-      DIR_LINK_TYPE,
-    );
-    expectUnmigratedWithoutWarnings(await runFreshStateDirMigration(flatRoot));
-
-    const nestedRoot = await makeTempRoot();
-    const nested = ensureLegacyAndTargetStateDirs(nestedRoot);
-    fs.mkdirSync(path.join(nested.targetDir, "agents", "main"), { recursive: true });
-    fs.mkdirSync(path.join(nested.legacyDir, "agents"), { recursive: true });
-    fs.symlinkSync(
-      path.join(nested.targetDir, "agents", "main"),
-      path.join(nested.legacyDir, "agents", "main"),
-      DIR_LINK_TYPE,
-    );
-    expectUnmigratedWithoutWarnings(await runFreshStateDirMigration(nestedRoot));
-  });
-
-  it("warns when target exists and legacy state is not a safe mirror", async () => {
-    const emptyRoot = await makeTempRoot();
-    const empty = ensureLegacyAndTargetStateDirs(emptyRoot);
-    expectTargetAlreadyExistsWarning(await runFreshStateDirMigration(emptyRoot), empty.targetDir);
-
-    const fileRoot = await makeTempRoot();
-    const file = ensureLegacyAndTargetStateDirs(fileRoot);
-    fs.writeFileSync(path.join(file.legacyDir, "sessions.json"), "{}", "utf-8");
-    expectTargetAlreadyExistsWarning(await runFreshStateDirMigration(fileRoot), file.targetDir);
-
-    const outsideRoot = await makeTempRoot();
-    const outside = ensureLegacyAndTargetStateDirs(outsideRoot);
-    const outsideDir = path.join(outsideRoot, ".outside-state");
-    fs.mkdirSync(path.join(outside.targetDir, "sessions"), { recursive: true });
-    fs.mkdirSync(outsideDir, { recursive: true });
-    fs.symlinkSync(outsideDir, path.join(outside.legacyDir, "sessions"), DIR_LINK_TYPE);
-    expectTargetAlreadyExistsWarning(
-      await runFreshStateDirMigration(outsideRoot),
-      outside.targetDir,
-    );
-
-    const brokenRoot = await makeTempRoot();
-    const broken = ensureLegacyAndTargetStateDirs(brokenRoot);
-    const targetSessionDir = path.join(broken.targetDir, "sessions");
-    fs.mkdirSync(targetSessionDir, { recursive: true });
-    fs.symlinkSync(targetSessionDir, path.join(broken.legacyDir, "sessions"), DIR_LINK_TYPE);
-    fs.rmSync(targetSessionDir, { recursive: true, force: true });
-    expectTargetAlreadyExistsWarning(await runFreshStateDirMigration(brokenRoot), broken.targetDir);
-
-    const secondHopRoot = await makeTempRoot();
-    const secondHop = ensureLegacyAndTargetStateDirs(secondHopRoot);
-    const secondHopOutsideDir = path.join(secondHopRoot, ".outside-state");
-    fs.mkdirSync(secondHopOutsideDir, { recursive: true });
-    const targetHop = path.join(secondHop.targetDir, "hop");
-    fs.symlinkSync(secondHopOutsideDir, targetHop, DIR_LINK_TYPE);
-    fs.symlinkSync(targetHop, path.join(secondHop.legacyDir, "sessions"), DIR_LINK_TYPE);
-    expectTargetAlreadyExistsWarning(
-      await runFreshStateDirMigration(secondHopRoot),
-      secondHop.targetDir,
-    );
-  });
 });

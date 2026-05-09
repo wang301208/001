@@ -38,7 +38,7 @@ describe("createMatrixRoomMessageHandler thread root media", () => {
         channel: "matrix",
         matchedBy: "binding.account",
       }),
-      resolveStorePath: () => "/tmp/zhushou-test-session.json",
+      resolveStorePath: () => "/tmp/assistant-test-session.json",
       getRoomInfo: async () => ({
         name: "Media Room",
         canonicalAlias: "#media:example.org",

@@ -2,7 +2,7 @@ import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
 } from "../config/model-input.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   normalizeLowercaseStringOrEmpty,
@@ -49,7 +49,7 @@ function sanitizeModelWarningValue(value: string): string {
 }
 
 export function inferUniqueProviderFromConfiguredModels(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   model: string;
 }): string | undefined {
   const model = params.model.trim();
@@ -122,7 +122,7 @@ function resolveAllowlistModelKey(raw: string, defaultProvider: string): string 
 }
 
 export function buildConfiguredAllowlistKeys(params: {
-  cfg: ZhushouConfig | undefined;
+  cfg: AssistantConfig | undefined;
   defaultProvider: string;
 }): Set<string> | null {
   const rawAllowlist = Object.keys(params.cfg?.agents?.defaults?.models ?? {});
@@ -141,7 +141,7 @@ export function buildConfiguredAllowlistKeys(params: {
 }
 
 export function buildModelAliasIndex(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   defaultProvider: string;
   allowPluginNormalization?: boolean;
 }): ModelAliasIndex {
@@ -178,7 +178,7 @@ type ModelCatalogMetadata = {
 };
 
 function buildModelCatalogMetadata(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   defaultProvider: string;
 }): ModelCatalogMetadata {
   const configuredByKey = new Map<string, ModelCatalogEntry>();
@@ -277,7 +277,7 @@ export function resolveModelRefFromString(params: {
 }
 
 export function resolveConfiguredModelRef(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   defaultProvider: string;
   defaultModel: string;
   allowPluginNormalization?: boolean;
@@ -340,7 +340,7 @@ export function resolveConfiguredModelRef(params: {
 }
 
 export function buildAllowedModelSet(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   catalog: ModelCatalogEntry[];
   defaultProvider: string;
   defaultModel?: string;
@@ -429,7 +429,7 @@ export function buildAllowedModelSet(params: {
   return { allowAny: false, allowedCatalog, allowedKeys };
 }
 
-export function buildConfiguredModelCatalog(params: { cfg: ZhushouConfig }): ModelCatalogEntry[] {
+export function buildConfiguredModelCatalog(params: { cfg: AssistantConfig }): ModelCatalogEntry[] {
   const providers = params.cfg.models?.providers;
   if (!providers || typeof providers !== "object") {
     return [];
@@ -475,7 +475,7 @@ export type ModelRefStatus = {
 };
 
 export function getModelRefStatus(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   catalog: ModelCatalogEntry[];
   ref: ModelRef;
   defaultProvider: string;
@@ -497,7 +497,7 @@ export function getModelRefStatus(params: {
 }
 
 export function resolveAllowedModelRef(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   catalog: ModelCatalogEntry[];
   raw: string;
   defaultProvider: string;
@@ -546,7 +546,7 @@ export function resolveAllowedModelRef(params: {
 }
 
 export function resolveHooksGmailModel(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   defaultProvider: string;
 }): ModelRef | null {
   const hooksModel = params.cfg.hooks?.gmail?.model;

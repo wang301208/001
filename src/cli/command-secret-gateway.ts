@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveSecretInputRef } from "../config/types.secrets.js";
 import { callGateway } from "../gateway/call.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../gateway/protocol/client-info.js";
@@ -22,7 +22,7 @@ import {
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
 type ResolveCommandSecretsResult = {
-  resolvedConfig: ZhushouConfig;
+  resolvedConfig: AssistantConfig;
   diagnostics: string[];
   targetStatesByPath: Record<string, CommandSecretTargetState>;
   hadUnresolvedTargets: boolean;
@@ -134,7 +134,7 @@ function targetsRuntimeWebPath(path: string): boolean {
 }
 
 function classifyRuntimeWebTargetPathState(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   path: string;
 }): "active" | "inactive" | "unknown" {
   if (params.path === "tools.web.search.apiKey") {
@@ -198,7 +198,7 @@ function classifyRuntimeWebTargetPathState(params: {
 }
 
 function describeInactiveRuntimeWebTargetPath(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   path: string;
 }): string | undefined {
   if (params.path === "tools.web.search.apiKey") {
@@ -278,7 +278,7 @@ function targetsRuntimeWebResolution(params: {
 }
 
 function collectConfiguredTargetRefPaths(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   targetIds: Set<string>;
   allowedPaths?: ReadonlySet<string>;
 }): Set<string> {
@@ -304,7 +304,7 @@ function collectConfiguredTargetRefPaths(params: {
 }
 
 function classifyConfiguredTargetRefs(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   configuredTargetRefPaths: Set<string>;
 }): {
   hasActiveConfiguredRef: boolean;
@@ -413,7 +413,7 @@ function isDirectRuntimeWebTargetPath(path: string): boolean {
 }
 
 async function resolveCommandSecretRefsLocally(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   commandName: string;
   targetIds: Set<string>;
   preflightDiagnostics: string[];
@@ -576,7 +576,7 @@ function buildUnresolvedDiagnostics(
 }
 
 function scrubUnresolvedAssignments(
-  config: ZhushouConfig,
+  config: AssistantConfig,
   unresolved: UnresolvedCommandSecretAssignment[],
 ): void {
   for (const entry of unresolved) {
@@ -601,8 +601,8 @@ function filterInactiveSurfaceDiagnostics(params: {
 
 async function resolveTargetSecretLocally(params: {
   target: DiscoveredConfigSecretTarget;
-  sourceConfig: ZhushouConfig;
-  resolvedConfig: ZhushouConfig;
+  sourceConfig: AssistantConfig;
+  resolvedConfig: AssistantConfig;
   env: NodeJS.ProcessEnv;
   cache: ReturnType<typeof createResolverContext>["cache"];
   activePaths: ReadonlySet<string>;
@@ -652,7 +652,7 @@ async function resolveTargetSecretLocally(params: {
 }
 
 export async function resolveCommandSecretRefsViaGateway(params: {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   commandName: string;
   targetIds: Set<string>;
   mode?: CommandSecretResolutionModeInput;

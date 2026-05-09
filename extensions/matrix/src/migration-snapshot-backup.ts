@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { writeJsonFileAtomically } from "zhushou/plugin-sdk/json-store";
-import { resolveRequiredHomeDir, resolveStateDir } from "zhushou/plugin-sdk/state-paths";
+import { writeJsonFileAtomically } from "assistant/plugin-sdk/json-store";
+import { resolveRequiredHomeDir, resolveStateDir } from "assistant/plugin-sdk/state-paths";
 
-const MATRIX_MIGRATION_SNAPSHOT_DIRNAME = "zhushou-migrations";
+const MATRIX_MIGRATION_SNAPSHOT_DIRNAME = "assistant-migrations";
 
 type MatrixMigrationSnapshotMarker = {
   version: 1;
@@ -66,12 +66,12 @@ export async function maybeCreateMatrixMigrationSnapshot(params: {
   trigger: string;
   env?: NodeJS.ProcessEnv;
   outputDir?: string;
-  createBackupArchive?: typeof import("zhushou/plugin-sdk/runtime").createBackupArchive;
+  createBackupArchive?: typeof import("assistant/plugin-sdk/runtime").createBackupArchive;
   log?: { info?: (message: string) => void; warn?: (message: string) => void };
 }): Promise<MatrixMigrationSnapshotResult> {
   const env = params.env ?? process.env;
   const createBackupArchive =
-    params.createBackupArchive ?? (await import("zhushou/plugin-sdk/runtime")).createBackupArchive;
+    params.createBackupArchive ?? (await import("assistant/plugin-sdk/runtime")).createBackupArchive;
   const markerPath = resolveMatrixMigrationSnapshotMarkerPath(env);
   const existingMarker = loadSnapshotMarker(markerPath);
   if (existingMarker?.archivePath && fs.existsSync(existingMarker.archivePath)) {

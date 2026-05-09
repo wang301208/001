@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/feishu",
+  "name": "@assistant/feishu",
   "version": "2026.4.16",
   "description": "助手 Feishu/Lark channel plugin (community maintained by @m1heng)",
   "type": "module",
@@ -9,18 +9,18 @@
     "qrcode-terminal": "^0.12.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
-    "zhushou": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*",
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
@@ -39,7 +39,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@zhushou/feishu",
+      "npmSpec": "@assistant/feishu",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -47,7 +47,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "zhushouVersion": "2026.4.16"
+      "assistantVersion": "2026.4.16"
     },
     "bundle": {
       "stageRuntimeDependencies": true

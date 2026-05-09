@@ -1,4 +1,4 @@
-import type { MockFn } from "zhushou/plugin-sdk/testing";
+import type { MockFn } from "assistant/plugin-sdk/testing";
 import { beforeEach, vi } from "vitest";
 import type { SignalDaemonExitEvent, SignalDaemonHandle } from "./daemon.js";
 
@@ -28,7 +28,7 @@ const signalCheckMock = vi.hoisted(() => vi.fn()) as unknown as MockFn;
 const signalRpcRequestMock = vi.hoisted(() => vi.fn()) as unknown as MockFn;
 const spawnSignalDaemonMock = vi.hoisted(() => vi.fn()) as unknown as MockFn;
 const signalToolResultSessionStorePath = vi.hoisted(
-  () => `/tmp/zhushou-signal-tool-result-sessions-${process.pid}.json`,
+  () => `/tmp/assistant-signal-tool-result-sessions-${process.pid}.json`,
 );
 
 export function getSignalToolResultTestMocks(): SignalToolResultTestMocks {
@@ -98,9 +98,9 @@ export function createMockSignalDaemonHandle(
 
 // Use importActual so shared-worker mocks from earlier test files do not leak
 // into this harness's partial overrides.
-vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
-    "zhushou/plugin-sdk/config-runtime",
+vi.mock("assistant/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/config-runtime")>(
+    "assistant/plugin-sdk/config-runtime",
   );
   return {
     ...actual,
@@ -112,9 +112,9 @@ vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/reply-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/reply-runtime")>(
-    "zhushou/plugin-sdk/reply-runtime",
+vi.mock("assistant/plugin-sdk/reply-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/reply-runtime")>(
+    "assistant/plugin-sdk/reply-runtime",
   );
   return {
     ...actual,
@@ -152,9 +152,9 @@ vi.mock("./send.js", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/conversation-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/conversation-runtime")>(
-    "zhushou/plugin-sdk/conversation-runtime",
+vi.mock("assistant/plugin-sdk/conversation-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/conversation-runtime")>(
+    "assistant/plugin-sdk/conversation-runtime",
   );
   return {
     ...actual,
@@ -163,9 +163,9 @@ vi.mock("zhushou/plugin-sdk/conversation-runtime", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/security-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/security-runtime")>(
-    "zhushou/plugin-sdk/security-runtime",
+vi.mock("assistant/plugin-sdk/security-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/security-runtime")>(
+    "assistant/plugin-sdk/security-runtime",
   );
   return {
     ...actual,
@@ -187,9 +187,9 @@ vi.mock("./daemon.js", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/infra-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/infra-runtime")>(
-    "zhushou/plugin-sdk/infra-runtime",
+vi.mock("assistant/plugin-sdk/infra-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/infra-runtime")>(
+    "assistant/plugin-sdk/infra-runtime",
   );
   return {
     ...actual,
@@ -204,8 +204,8 @@ vi.mock("zhushou/plugin-sdk/infra-runtime", async () => {
 export function installSignalToolResultTestHooks() {
   beforeEach(async () => {
     const [{ resetInboundDedupe }, { resetSystemEventsForTest }] = await Promise.all([
-      import("zhushou/plugin-sdk/reply-runtime"),
-      import("zhushou/plugin-sdk/infra-runtime"),
+      import("assistant/plugin-sdk/reply-runtime"),
+      import("assistant/plugin-sdk/infra-runtime"),
     ]);
     resetInboundDedupe();
     config = {

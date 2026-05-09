@@ -1,5 +1,5 @@
-import type { ChannelAccountSnapshot } from "zhushou/plugin-sdk/channel-contract";
-import { createConnectedChannelStatusPatch } from "zhushou/plugin-sdk/gateway-runtime";
+import type { ChannelAccountSnapshot } from "assistant/plugin-sdk/channel-contract";
+import { createConnectedChannelStatusPatch } from "assistant/plugin-sdk/gateway-runtime";
 import { formatMatrixErrorMessage } from "../errors.js";
 import {
   isMatrixDisconnectedSyncState,

@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredOpenClawTmpDir } from "zhushou/plugin-sdk/temp-path";
+import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
 import { afterEach, vi } from "vitest";
 import { createTestPluginApi } from "../../../test/helpers/plugins/plugin-api.js";
-import type { ZhushouPluginApi } from "../api.js";
+import type { AssistantPluginApi } from "../api.js";
 import {
   resolveMemoryWikiConfig,
   type MemoryWikiPluginConfig,
@@ -19,7 +19,7 @@ export type MemoryWikiTestVault = {
 };
 
 export type MemoryWikiPluginApiHarness = {
-  api: ZhushouPluginApi;
+  api: AssistantPluginApi;
   registerCli: ReturnType<typeof vi.fn>;
   registerGatewayMethod: ReturnType<typeof vi.fn>;
   registerMemoryCorpusSupplement: ReturnType<typeof vi.fn>;
@@ -37,7 +37,7 @@ export function createMemoryWikiTestHarness() {
   });
 
   async function createTempDir(prefix: string): Promise<string> {
-    const tempDir = await fs.mkdtemp(path.join(resolvePreferredOpenClawTmpDir(), prefix));
+    const tempDir = await fs.mkdtemp(path.join(resolvePreferredAssistantTmpDir(), prefix));
     tempDirs.push(tempDir);
     return tempDir;
   }
@@ -79,7 +79,7 @@ export function createMemoryWikiTestHarness() {
       name: "Memory Wiki",
       source: "test",
       config: {},
-      runtime: {} as ZhushouPluginApi["runtime"],
+      runtime: {} as AssistantPluginApi["runtime"],
       registerCli,
       registerGatewayMethod,
       registerMemoryCorpusSupplement,

@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestPluginApi } from "../../../test/helpers/plugins/plugin-api.js";
-import type { ZhushouPluginApi, PluginRuntime } from "../runtime-api.js";
+import type { AssistantPluginApi, PluginRuntime } from "../runtime-api.js";
 
 const createFeishuToolClientMock = vi.hoisted(() => vi.fn());
 const resolveAnyEnabledFeishuToolsConfigMock = vi.hoisted(() => vi.fn());
@@ -22,9 +22,9 @@ function createFeishuToolRuntime(): PluginRuntime {
 }
 
 function createDriveToolApi(params: {
-  config: ZhushouPluginApi["config"];
-  registerTool: ZhushouPluginApi["registerTool"];
-}): ZhushouPluginApi {
+  config: AssistantPluginApi["config"];
+  registerTool: AssistantPluginApi["registerTool"];
+}): AssistantPluginApi {
   return createTestPluginApi({
     id: "feishu-test",
     name: "Feishu Test",

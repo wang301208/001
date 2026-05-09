@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import * as agentRuntimeModule from "zhushou/plugin-sdk/simple-completion-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import * as agentRuntimeModule from "assistant/plugin-sdk/simple-completion-runtime";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const completeWithPreparedSimpleCompletionModelMock =
@@ -24,7 +24,7 @@ beforeEach(() => {
     selection: {
       provider: "anthropic",
       modelId: "claude-sonnet-4-6",
-      agentDir: "/tmp/zhushou-agent",
+      agentDir: "/tmp/assistant-agent",
     },
     model: {
       provider: "anthropic",
@@ -58,7 +58,7 @@ describe("generateThreadTitle", () => {
         provider: "openrouter",
         modelId: "anthropic/claude-sonnet-4-5",
         profileId: "work",
-        agentDir: "/tmp/zhushou-agent",
+        agentDir: "/tmp/assistant-agent",
       },
       model: {
         provider: "openrouter",
@@ -76,7 +76,7 @@ describe("generateThreadTitle", () => {
           model: "openrouter/anthropic/claude-sonnet-4-5@work",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     await generateThreadTitle({
       cfg,
@@ -92,7 +92,7 @@ describe("generateThreadTitle", () => {
   });
 
   it("passes model override refs into shared model prep", async () => {
-    const cfg = {} as ZhushouConfig;
+    const cfg = {} as AssistantConfig;
     await generateThreadTitle({
       cfg,
       agentId: "main",
@@ -114,7 +114,7 @@ describe("generateThreadTitle", () => {
     } as Awaited<ReturnType<typeof agentRuntimeModule.prepareSimpleCompletionModelForAgent>>);
 
     const result = await generateThreadTitle({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       agentId: "main",
       messageText: "Need a thread title.",
     });
@@ -129,12 +129,12 @@ describe("generateThreadTitle", () => {
       selection: {
         provider: "anthropic",
         modelId: "claude-sonnet-4-6",
-        agentDir: "/tmp/zhushou-agent",
+        agentDir: "/tmp/assistant-agent",
       },
     } as Awaited<ReturnType<typeof agentRuntimeModule.prepareSimpleCompletionModelForAgent>>);
 
     const result = await generateThreadTitle({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       agentId: "main",
       messageText: "Need a thread title.",
     });
@@ -145,7 +145,7 @@ describe("generateThreadTitle", () => {
 
   it("builds contextual prompt and forwards completion options", async () => {
     const result = await generateThreadTitle({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       agentId: "main",
       messageText: "Summarize deployment blockers and owner follow-ups.",
       channelName: "release-status",
@@ -186,7 +186,7 @@ describe("generateThreadTitle", () => {
     );
 
     const result = await generateThreadTitle({
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       agentId: "main",
       messageText: "Generate title.",
     });

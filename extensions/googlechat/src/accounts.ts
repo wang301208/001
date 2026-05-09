@@ -2,12 +2,12 @@ import {
   createAccountListHelpers,
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
-  type ZhushouConfig,
+  type AssistantConfig,
   resolveAccountEntry,
   resolveMergedAccountConfig,
-} from "zhushou/plugin-sdk/account-resolution";
-import { safeParseJsonWithSchema, safeParseWithSchema } from "zhushou/plugin-sdk/extension-shared";
-import { isSecretRef } from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/account-resolution";
+import { safeParseJsonWithSchema, safeParseWithSchema } from "assistant/plugin-sdk/extension-shared";
+import { isSecretRef } from "assistant/plugin-sdk/secret-input";
 import { z } from "zod";
 import type { GoogleChatAccountConfig } from "./types.config.js";
 
@@ -42,7 +42,7 @@ const {
 export { listGoogleChatAccountIds, resolveDefaultGoogleChatAccountId };
 
 function mergeGoogleChatAccountConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
 ): GoogleChatAccountConfig {
   const raw = cfg.channels?.["googlechat"] ?? {};
@@ -132,7 +132,7 @@ function resolveCredentialsFromConfig(params: {
 }
 
 export function resolveGoogleChatAccount(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }): ResolvedGoogleChatAccount {
   const accountId = normalizeAccountId(
@@ -155,7 +155,7 @@ export function resolveGoogleChatAccount(params: {
   };
 }
 
-export function listEnabledGoogleChatAccounts(cfg: ZhushouConfig): ResolvedGoogleChatAccount[] {
+export function listEnabledGoogleChatAccounts(cfg: AssistantConfig): ResolvedGoogleChatAccount[] {
   return listGoogleChatAccountIds(cfg)
     .map((accountId) => resolveGoogleChatAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

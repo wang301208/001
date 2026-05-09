@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 import type {
   RealtimeVoiceProviderConfig,
   RealtimeVoiceProviderPlugin,
-} from "zhushou/plugin-sdk/realtime-voice";
+} from "assistant/plugin-sdk/realtime-voice";
 import type { VoiceCallConfig } from "./config.js";
 import { resolveVoiceCallConfig, validateProviderConfig } from "./config.js";
 import type { CoreAgentDeps, CoreConfig } from "./core-bridge.js";
@@ -151,7 +151,7 @@ async function resolveProvider(config: VoiceCallConfig): Promise<VoiceCallProvid
 
 async function resolveRealtimeProvider(params: {
   config: VoiceCallConfig;
-  fullConfig: ZhushouConfig;
+  fullConfig: AssistantConfig;
 }): Promise<ResolvedRealtimeProvider> {
   const { getRealtimeVoiceProvider, listRealtimeVoiceProviders } =
     await import("./realtime-voice.runtime.js");
@@ -189,7 +189,7 @@ async function resolveRealtimeProvider(params: {
 export async function createVoiceCallRuntime(params: {
   config: VoiceCallConfig;
   coreConfig: CoreConfig;
-  fullConfig?: ZhushouConfig;
+  fullConfig?: AssistantConfig;
   agentRuntime: CoreAgentDeps;
   ttsRuntime?: TelephonyTtsRuntime;
   logger?: Logger;
@@ -224,7 +224,7 @@ export async function createVoiceCallRuntime(params: {
   const realtimeProvider = config.realtime.enabled
     ? await resolveRealtimeProvider({
         config,
-        fullConfig: fullConfig ?? (coreConfig as ZhushouConfig),
+        fullConfig: fullConfig ?? (coreConfig as AssistantConfig),
       })
     : null;
   const webhookServer = new VoiceCallWebhookServer(
@@ -232,7 +232,7 @@ export async function createVoiceCallRuntime(params: {
     manager,
     provider,
     coreConfig,
-    fullConfig ?? (coreConfig as ZhushouConfig),
+    fullConfig ?? (coreConfig as AssistantConfig),
     agentRuntime,
   );
   if (realtimeProvider) {

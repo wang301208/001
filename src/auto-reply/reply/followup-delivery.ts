@@ -1,5 +1,5 @@
 import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.types.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { stripHeartbeatToken } from "../heartbeat.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
@@ -24,7 +24,7 @@ function hasReplyPayloadMedia(payload: ReplyPayload): boolean {
 }
 
 export function resolveFollowupDeliveryPayloads(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   payloads: ReplyPayload[];
   messageProvider?: string;
   originatingAccountId?: string;

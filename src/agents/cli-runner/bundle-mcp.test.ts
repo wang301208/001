@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import {
   createBundleMcpTempHarness,
   createBundleProbePlugin,
@@ -18,7 +18,7 @@ afterEach(async () => {
 
 describe("prepareCliBundleMcpConfig", () => {
   it("injects a strict empty --mcp-config overlay for bundle-MCP-enabled backends without servers", async () => {
-    const workspaceDir = await tempHarness.createTempDir("zhushou-cli-bundle-mcp-empty-");
+    const workspaceDir = await tempHarness.createTempDir("assistant-cli-bundle-mcp-empty-");
 
     const prepared = await prepareCliBundleMcpConfig({
       enabled: true,
@@ -47,13 +47,13 @@ describe("prepareCliBundleMcpConfig", () => {
   it("injects a merged --mcp-config overlay for bundle-MCP-enabled backends", async () => {
     const env = captureEnv(["HOME"]);
     try {
-      const homeDir = await tempHarness.createTempDir("zhushou-cli-bundle-mcp-home-");
-      const workspaceDir = await tempHarness.createTempDir("zhushou-cli-bundle-mcp-workspace-");
+      const homeDir = await tempHarness.createTempDir("assistant-cli-bundle-mcp-home-");
+      const workspaceDir = await tempHarness.createTempDir("assistant-cli-bundle-mcp-workspace-");
       process.env.HOME = homeDir;
 
       const { serverPath } = await createBundleProbePlugin(homeDir);
 
-      const config: ZhushouConfig = {
+      const config: AssistantConfig = {
         plugins: {
           entries: {
             "bundle-probe": { enabled: true },
@@ -90,8 +90,8 @@ describe("prepareCliBundleMcpConfig", () => {
   });
 
   it("loads workspace bundle MCP plugins from the configured workspace root", async () => {
-    const workspaceDir = await tempHarness.createTempDir("zhushou-cli-bundle-mcp-workspace-root-");
-    const pluginRoot = path.join(workspaceDir, ".zhushou", "extensions", "workspace-probe");
+    const workspaceDir = await tempHarness.createTempDir("assistant-cli-bundle-mcp-workspace-root-");
+    const pluginRoot = path.join(workspaceDir, ".assistant", "extensions", "workspace-probe");
     const serverPath = path.join(pluginRoot, "servers", "probe.mjs");
     await fs.mkdir(path.dirname(serverPath), { recursive: true });
     await fs.writeFile(serverPath, "export {};\n", "utf-8");
@@ -147,13 +147,13 @@ describe("prepareCliBundleMcpConfig", () => {
   it("merges loopback overlay config with bundle MCP servers", async () => {
     const env = captureEnv(["HOME"]);
     try {
-      const homeDir = await tempHarness.createTempDir("zhushou-cli-bundle-mcp-home-");
-      const workspaceDir = await tempHarness.createTempDir("zhushou-cli-bundle-mcp-workspace-");
+      const homeDir = await tempHarness.createTempDir("assistant-cli-bundle-mcp-home-");
+      const workspaceDir = await tempHarness.createTempDir("assistant-cli-bundle-mcp-workspace-");
       process.env.HOME = homeDir;
 
       await createBundleProbePlugin(homeDir);
 
-      const config: ZhushouConfig = {
+      const config: AssistantConfig = {
         plugins: {
           entries: {
             "bundle-probe": { enabled: true },
@@ -172,11 +172,11 @@ describe("prepareCliBundleMcpConfig", () => {
         config,
         additionalConfig: {
           mcpServers: {
-            zhushou: {
+            assistant: {
               type: "http",
               url: "http://127.0.0.1:23119/mcp",
               headers: {
-                Authorization: "Bearer ${OPENCLAW_MCP_TOKEN}",
+                Authorization: "Bearer ${ASSISTANT_MCP_TOKEN}",
               },
             },
           },
@@ -188,9 +188,9 @@ describe("prepareCliBundleMcpConfig", () => {
       const raw = JSON.parse(await fs.readFile(generatedConfigPath as string, "utf-8")) as {
         mcpServers?: Record<string, { url?: string; headers?: Record<string, string> }>;
       };
-      expect(Object.keys(raw.mcpServers ?? {}).toSorted()).toEqual(["bundleProbe", "zhushou"]);
-      expect(raw.mcpServers?.zhushou?.url).toBe("http://127.0.0.1:23119/mcp");
-      expect(raw.mcpServers?.zhushou?.headers?.Authorization).toBe("Bearer ${OPENCLAW_MCP_TOKEN}");
+      expect(Object.keys(raw.mcpServers ?? {}).toSorted()).toEqual(["bundleProbe", "assistant"]);
+      expect(raw.mcpServers?.assistant?.url).toBe("http://127.0.0.1:23119/mcp");
+      expect(raw.mcpServers?.assistant?.headers?.Authorization).toBe("Bearer ${ASSISTANT_MCP_TOKEN}");
 
       await prepared.cleanup?.();
     } finally {
@@ -199,7 +199,7 @@ describe("prepareCliBundleMcpConfig", () => {
   });
 
   it("preserves extra env values alongside generated MCP config", async () => {
-    const workspaceDir = await tempHarness.createTempDir("zhushou-cli-bundle-mcp-env-");
+    const workspaceDir = await tempHarness.createTempDir("assistant-cli-bundle-mcp-env-");
 
     const prepared = await prepareCliBundleMcpConfig({
       enabled: true,
@@ -211,16 +211,16 @@ describe("prepareCliBundleMcpConfig", () => {
       workspaceDir,
       config: {},
       env: {
-        OPENCLAW_MCP_TOKEN: "loopback-token-123",
-        OPENCLAW_MCP_SESSION_KEY: "agent:main:telegram:group:chat123",
-        OPENCLAW_MCP_SENDER_IS_OWNER: "false",
+        ASSISTANT_MCP_TOKEN: "loopback-token-123",
+        ASSISTANT_MCP_SESSION_KEY: "agent:main:telegram:group:chat123",
+        ASSISTANT_MCP_SENDER_IS_OWNER: "false",
       },
     });
 
     expect(prepared.env).toEqual({
-      OPENCLAW_MCP_TOKEN: "loopback-token-123",
-      OPENCLAW_MCP_SESSION_KEY: "agent:main:telegram:group:chat123",
-      OPENCLAW_MCP_SENDER_IS_OWNER: "false",
+      ASSISTANT_MCP_TOKEN: "loopback-token-123",
+      ASSISTANT_MCP_SESSION_KEY: "agent:main:telegram:group:chat123",
+      ASSISTANT_MCP_SENDER_IS_OWNER: "false",
     });
 
     await prepared.cleanup?.();
@@ -233,7 +233,7 @@ describe("prepareCliBundleMcpConfig", () => {
         command: "node",
         args: ["./fake-cli.mjs"],
       },
-      workspaceDir: "/tmp/zhushou-bundle-mcp-disabled",
+      workspaceDir: "/tmp/assistant-bundle-mcp-disabled",
     });
 
     expect(prepared.backend.args).toEqual(["./fake-cli.mjs"]);
@@ -249,16 +249,16 @@ describe("prepareCliBundleMcpConfig", () => {
         args: ["exec", "--json"],
         resumeArgs: ["exec", "resume", "{sessionId}"],
       },
-      workspaceDir: "/tmp/zhushou-bundle-mcp-codex",
+      workspaceDir: "/tmp/assistant-bundle-mcp-codex",
       additionalConfig: {
         mcpServers: {
-          zhushou: {
+          assistant: {
             type: "http",
             url: "http://127.0.0.1:23119/mcp",
             headers: {
-              Authorization: "Bearer ${OPENCLAW_MCP_TOKEN}",
-              "x-session-key": "${OPENCLAW_MCP_SESSION_KEY}",
-              "x-zhushou-sender-is-owner": "${OPENCLAW_MCP_SENDER_IS_OWNER}",
+              Authorization: "Bearer ${ASSISTANT_MCP_TOKEN}",
+              "x-session-key": "${ASSISTANT_MCP_SESSION_KEY}",
+              "x-assistant-sender-is-owner": "${ASSISTANT_MCP_SENDER_IS_OWNER}",
             },
           },
         },
@@ -269,14 +269,14 @@ describe("prepareCliBundleMcpConfig", () => {
       "exec",
       "--json",
       "-c",
-      'mcp_servers={ zhushou = { url = "http://127.0.0.1:23119/mcp", bearer_token_env_var = "OPENCLAW_MCP_TOKEN", env_http_headers = { x-session-key = "OPENCLAW_MCP_SESSION_KEY", x-zhushou-sender-is-owner = "OPENCLAW_MCP_SENDER_IS_OWNER" } } }',
+      'mcp_servers={ assistant = { url = "http://127.0.0.1:23119/mcp", bearer_token_env_var = "ASSISTANT_MCP_TOKEN", env_http_headers = { x-session-key = "ASSISTANT_MCP_SESSION_KEY", x-assistant-sender-is-owner = "ASSISTANT_MCP_SENDER_IS_OWNER" } } }',
     ]);
     expect(prepared.backend.resumeArgs).toEqual([
       "exec",
       "resume",
       "{sessionId}",
       "-c",
-      'mcp_servers={ zhushou = { url = "http://127.0.0.1:23119/mcp", bearer_token_env_var = "OPENCLAW_MCP_TOKEN", env_http_headers = { x-session-key = "OPENCLAW_MCP_SESSION_KEY", x-zhushou-sender-is-owner = "OPENCLAW_MCP_SENDER_IS_OWNER" } } }',
+      'mcp_servers={ assistant = { url = "http://127.0.0.1:23119/mcp", bearer_token_env_var = "ASSISTANT_MCP_TOKEN", env_http_headers = { x-session-key = "ASSISTANT_MCP_SESSION_KEY", x-assistant-sender-is-owner = "ASSISTANT_MCP_SENDER_IS_OWNER" } } }',
     ]);
     expect(prepared.cleanup).toBeUndefined();
   });
@@ -289,25 +289,25 @@ describe("prepareCliBundleMcpConfig", () => {
         command: "gemini",
         args: ["--prompt", "{prompt}"],
       },
-      workspaceDir: "/tmp/zhushou-bundle-mcp-gemini",
+      workspaceDir: "/tmp/assistant-bundle-mcp-gemini",
       additionalConfig: {
         mcpServers: {
-          zhushou: {
+          assistant: {
             type: "http",
             url: "http://127.0.0.1:23119/mcp",
             headers: {
-              Authorization: "Bearer ${OPENCLAW_MCP_TOKEN}",
+              Authorization: "Bearer ${ASSISTANT_MCP_TOKEN}",
             },
           },
         },
       },
       env: {
-        OPENCLAW_MCP_TOKEN: "loopback-token-123",
+        ASSISTANT_MCP_TOKEN: "loopback-token-123",
       },
     });
 
     expect(prepared.backend.args).toEqual(["--prompt", "{prompt}"]);
-    expect(prepared.env?.OPENCLAW_MCP_TOKEN).toBe("loopback-token-123");
+    expect(prepared.env?.ASSISTANT_MCP_TOKEN).toBe("loopback-token-123");
     expect(typeof prepared.env?.GEMINI_CLI_SYSTEM_SETTINGS_PATH).toBe("string");
     const raw = JSON.parse(
       await fs.readFile(prepared.env?.GEMINI_CLI_SYSTEM_SETTINGS_PATH as string, "utf-8"),
@@ -315,9 +315,9 @@ describe("prepareCliBundleMcpConfig", () => {
       mcp?: { allowed?: string[] };
       mcpServers?: Record<string, { url?: string; headers?: Record<string, string> }>;
     };
-    expect(raw.mcp?.allowed).toEqual(["zhushou"]);
-    expect(raw.mcpServers?.zhushou?.url).toBe("http://127.0.0.1:23119/mcp");
-    expect(raw.mcpServers?.zhushou?.headers?.Authorization).toBe("Bearer loopback-token-123");
+    expect(raw.mcp?.allowed).toEqual(["assistant"]);
+    expect(raw.mcpServers?.assistant?.url).toBe("http://127.0.0.1:23119/mcp");
+    expect(raw.mcpServers?.assistant?.headers?.Authorization).toBe("Bearer loopback-token-123");
 
     await prepared.cleanup?.();
   });

@@ -1,13 +1,13 @@
 import type {
   ChannelDoctorAdapter,
   ChannelDoctorConfigMutation,
-} from "zhushou/plugin-sdk/channel-contract";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/channel-contract";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 
 export function normalizeCompatibilityConfig({
   cfg,
 }: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
 }): ChannelDoctorConfigMutation {
   const legacyAckReaction = cfg.messages?.ackReaction?.trim();
   if (!legacyAckReaction || cfg.channels?.whatsapp === undefined) {

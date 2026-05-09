@@ -1,14 +1,14 @@
-import { assertOkOrThrowHttpError, postJsonRequest } from "zhushou/plugin-sdk/provider-http";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/provider-onboard";
-import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
+import { assertOkOrThrowHttpError, postJsonRequest } from "assistant/plugin-sdk/provider-http";
+import type { AssistantConfig } from "assistant/plugin-sdk/provider-onboard";
+import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
 import type {
   SpeechDirectiveTokenParseContext,
   SpeechProviderConfig,
   SpeechProviderOverrides,
   SpeechProviderPlugin,
-} from "zhushou/plugin-sdk/speech-core";
-import { asObject, trimToUndefined } from "zhushou/plugin-sdk/speech-core";
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/speech-core";
+import { asObject, trimToUndefined } from "assistant/plugin-sdk/speech-core";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import { resolveGoogleGenerativeAiHttpRequestConfig } from "./api.js";
 
 const DEFAULT_GOOGLE_TTS_MODEL = "gemini-3.1-flash-tts-preview";
@@ -102,7 +102,7 @@ function resolveGoogleTtsEnvApiKey(): string | undefined {
   );
 }
 
-function resolveGoogleTtsModelProviderApiKey(cfg?: ZhushouConfig): string | undefined {
+function resolveGoogleTtsModelProviderApiKey(cfg?: AssistantConfig): string | undefined {
   return normalizeResolvedSecretInputString({
     value: cfg?.models?.providers?.google?.apiKey,
     path: "models.providers.google.apiKey",
@@ -110,7 +110,7 @@ function resolveGoogleTtsModelProviderApiKey(cfg?: ZhushouConfig): string | unde
 }
 
 function resolveGoogleTtsApiKey(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   providerConfig: SpeechProviderConfig;
 }): string | undefined {
   return (
@@ -121,7 +121,7 @@ function resolveGoogleTtsApiKey(params: {
 }
 
 function resolveGoogleTtsBaseUrl(params: {
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
   providerConfig: GoogleTtsProviderConfig;
 }): string | undefined {
   return (

@@ -1,6 +1,6 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { applyPluginAutoEnable } from "../../config/plugin-auto-enable.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { resolveRuntimePluginRegistry } from "../../plugins/loader.js";
 import {
   getActivePluginChannelRegistry,
@@ -16,7 +16,7 @@ export function resetOutboundChannelBootstrapStateForTests(): void {
 
 export function bootstrapOutboundChannelPlugin(params: {
   channel: DeliverableMessageChannel;
-  cfg?: ZhushouConfig;
+  cfg?: AssistantConfig;
 }): void {
   const cfg = params.cfg;
   if (!cfg) {

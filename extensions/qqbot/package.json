@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/qqbot",
+  "name": "@assistant/qqbot",
   "version": "2026.4.16",
   "private": false,
   "description": "助手 QQ Bot channel plugin",
@@ -10,19 +10,19 @@
     "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
+    "@assistant/plugin-sdk": "workspace:*",
     "@types/ws": "^8.18.1",
-    "zhushou": "workspace:*"
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
@@ -38,7 +38,7 @@
       "systemImage": "bubble.left.and.bubble.right"
     },
     "install": {
-      "npmSpec": "@zhushou/qqbot",
+      "npmSpec": "@assistant/qqbot",
       "localPath": "extensions/qqbot",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
@@ -47,7 +47,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "zhushouVersion": "2026.4.16"
+      "assistantVersion": "2026.4.16"
     },
     "bundle": {
       "stageRuntimeDependencies": true

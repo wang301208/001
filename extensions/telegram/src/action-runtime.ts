@@ -1,5 +1,5 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import { readBooleanParam } from "zhushou/plugin-sdk/boolean-param";
+import { readBooleanParam } from "assistant/plugin-sdk/boolean-param";
 import {
   jsonResult,
   readNumberParam,
@@ -9,12 +9,12 @@ import {
   readStringParam,
   resolvePollMaxSelections,
   resolveReactionMessageId,
-} from "zhushou/plugin-sdk/channel-actions";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/channel-actions";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import { createTelegramActionGate, resolveTelegramPollActionGateState } from "./accounts.js";
 import {
   fitsTelegramCallbackData,
@@ -202,7 +202,7 @@ function readTelegramSendContent(params: {
 
 export async function handleTelegramAction(
   params: Record<string, unknown>,
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   options?: {
     mediaLocalRoots?: readonly string[];
     mediaReadFile?: (filePath: string) => Promise<Buffer>;

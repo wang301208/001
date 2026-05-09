@@ -1,11 +1,11 @@
-import { definePluginEntry, type AnyAgentTool, type ZhushouPluginApi } from "./api.js";
+import { definePluginEntry, type AnyAgentTool, type AssistantPluginApi } from "./api.js";
 import { createLlmTaskTool } from "./src/llm-task-tool.js";
 
 export default definePluginEntry({
   id: "llm-task",
   name: "LLM Task",
   description: "Optional tool for structured subtask execution",
-  register(api: ZhushouPluginApi) {
+  register(api: AssistantPluginApi) {
     api.registerTool(createLlmTaskTool(api) as unknown as AnyAgentTool, { optional: true });
   },
 });

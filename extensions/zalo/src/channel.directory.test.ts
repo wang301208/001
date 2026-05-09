@@ -3,7 +3,7 @@ import {
   createDirectoryTestRuntime,
   expectDirectorySurface,
 } from "../../../test/helpers/plugins/directory.js";
-import type { ZhushouConfig, RuntimeEnv } from "../runtime-api.js";
+import type { AssistantConfig, RuntimeEnv } from "../runtime-api.js";
 import { zaloPlugin } from "./channel.js";
 
 describe("zalo directory", () => {
@@ -17,7 +17,7 @@ describe("zalo directory", () => {
           allowFrom,
         },
       },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
 
     await expect(
       directory.listPeers({

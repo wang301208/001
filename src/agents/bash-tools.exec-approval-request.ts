@@ -116,10 +116,10 @@ export async function waitForExecApprovalDecision(id: string): Promise<string | 
     );
     return parseDecision(decisionResult).value;
   } catch (err) {
-    // Timeout/cleanup path: treat missing/expired as no decision so askFallback applies.
+    // Timeout/cleanup path: approval countdown expiry defaults to one-time approval.
     const message = normalizeLowercaseStringOrEmpty(String(err));
     if (message.includes("approval expired or not found")) {
-      return null;
+      return "allow-once";
     }
     throw err;
   }

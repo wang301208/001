@@ -9,9 +9,9 @@ import {
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
   type DmPolicy,
-  type ZhushouConfig,
+  type AssistantConfig,
   type SecretInput,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import { inspectFeishuCredentials, resolveDefaultFeishuAccountId } from "./accounts.js";
 import {
   beginAppRegistration,
@@ -38,7 +38,7 @@ function normalizeString(value: unknown): string | undefined {
   return trimmed || undefined;
 }
 
-function isFeishuConfigured(cfg: ZhushouConfig): boolean {
+function isFeishuConfigured(cfg: AssistantConfig): boolean {
   const feishuCfg = cfg.channels?.feishu as FeishuConfig | undefined;
 
   const isAppIdConfigured = (value: unknown): boolean => {
@@ -85,10 +85,10 @@ function isFeishuConfigured(cfg: ZhushouConfig): boolean {
  * - named account → writes to channels.feishu.accounts[accountId]
  */
 function patchFeishuConfig(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   patch: Record<string, unknown>,
-): ZhushouConfig {
+): AssistantConfig {
   const feishuCfg = cfg.channels?.feishu as FeishuConfig | undefined;
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return patchTopLevelChannelConfigSection({
@@ -117,10 +117,10 @@ function patchFeishuConfig(
 }
 
 async function promptFeishuAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string;
   prompter: Parameters<NonNullable<ChannelSetupDmPolicy["promptAllowFrom"]>>[0]["prompter"];
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const feishuCfg = params.cfg.channels?.feishu as FeishuConfig | undefined;
   const resolvedAccountId = params.accountId ?? resolveDefaultFeishuAccountId(params.cfg);
   const account =
@@ -227,11 +227,11 @@ type WizardPrompter = Parameters<NonNullable<ChannelSetupWizard["finalize"]>>[0]
 // ---------------------------------------------------------------------------
 
 function applyNewAppSecurityPolicy(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   accountId: string,
   openId: string | undefined,
   groupPolicy: "allowlist" | "open" | "disabled",
-): ZhushouConfig {
+): AssistantConfig {
   let next = cfg;
 
   if (openId) {
@@ -304,10 +304,10 @@ async function runScanToCreate(prompter: WizardPrompter): Promise<AppRegistratio
 // ---------------------------------------------------------------------------
 
 async function runNewAppFlow(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   options: Parameters<NonNullable<ChannelSetupWizard["finalize"]>>[0]["options"];
-}): Promise<{ cfg: ZhushouConfig }> {
+}): Promise<{ cfg: AssistantConfig }> {
   const { prompter, options } = params;
   let next = params.cfg;
 
@@ -417,10 +417,10 @@ async function runNewAppFlow(params: {
 // ---------------------------------------------------------------------------
 
 async function runEditFlow(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
   options: Parameters<NonNullable<ChannelSetupWizard["finalize"]>>[0]["options"];
-}): Promise<{ cfg: ZhushouConfig } | null> {
+}): Promise<{ cfg: AssistantConfig } | null> {
   const { prompter, options } = params;
   const next = params.cfg;
   const feishuCfg = next.channels?.feishu as FeishuConfig | undefined;
@@ -480,9 +480,9 @@ async function runEditFlow(params: {
 // ---------------------------------------------------------------------------
 
 export async function runFeishuLogin(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const { cfg, prompter } = params;
   const options = {};
   const alreadyConfigured = isFeishuConfigured(cfg);

@@ -1,5 +1,5 @@
-import { normalizeAccountId } from "zhushou/plugin-sdk/account-id";
-import { z } from "zhushou/plugin-sdk/zod";
+import { normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import { z } from "assistant/plugin-sdk/zod";
 export { z };
 import { buildSecretInputSchema, hasConfiguredSecretInput } from "./secret-input.js";
 

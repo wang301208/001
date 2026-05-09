@@ -5,6 +5,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   MessageBus,
+  getMessageBus,
   resetMessageBus,
   type BusEvent,
 } from './message-bus.js';
@@ -28,12 +29,12 @@ describe('MessageBus', () => {
     it('should publish and receive events', async () => {
       const receivedEvents: BusEvent[] = [];
       
-      bus.subscribe('test.event', (event) => {
+      bus.subscribe('system.health.check', (event) => {
         receivedEvents.push(event);
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: {
           type: 'system',
           id: 'test',
@@ -42,7 +43,7 @@ describe('MessageBus', () => {
       });
       
       expect(receivedEvents).toHaveLength(1);
-      expect(receivedEvents[0].type).toBe('test.event');
+      expect(receivedEvents[0].type).toBe('system.health.check');
       expect(receivedEvents[0].payload).toEqual({ message: 'Hello' });
     });
     
@@ -85,13 +86,13 @@ describe('MessageBus', () => {
       });
       
       await bus.publish({
-        type: 'test.event.1',
+        type: 'system.error',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
       
       await bus.publish({
-        type: 'test.event.2',
+        type: 'system.warning',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
@@ -103,11 +104,15 @@ describe('MessageBus', () => {
       const received1: BusEvent[] = [];
       const received2: BusEvent[] = [];
       
-      bus.subscribe('test.event', (event) => received1.push(event));
-      bus.subscribe('test.event', (event) => received2.push(event));
+      bus.subscribe('system.health.check', (event) => {
+        received1.push(event);
+      });
+      bus.subscribe('system.health.check', (event) => {
+        received2.push(event);
+      });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
@@ -121,12 +126,12 @@ describe('MessageBus', () => {
     it('should stop receiving events after unsubscribe', async () => {
       const receivedEvents: BusEvent[] = [];
       
-      const subscription = bus.subscribe('test.event', (event) => {
+      const subscription = bus.subscribe('system.health.check', (event) => {
         receivedEvents.push(event);
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
@@ -136,7 +141,7 @@ describe('MessageBus', () => {
       subscription.unsubscribe();
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
@@ -149,13 +154,13 @@ describe('MessageBus', () => {
   describe('history', () => {
     it('should store events in history', async () => {
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: { value: 1 },
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: { value: 2 },
       });
@@ -169,42 +174,42 @@ describe('MessageBus', () => {
     
     it('should filter history by type', async () => {
       await bus.publish({
-        type: 'test.event.a',
+        type: 'system.error',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
       
       await bus.publish({
-        type: 'test.event.b',
+        type: 'system.warning',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
       
-      const history = bus.getHistory({ types: ['test.event.a'] });
+      const history = bus.getHistory({ types: ['system.error'] });
       
       expect(history).toHaveLength(1);
-      expect(history[0].type).toBe('test.event.a');
+      expect(history[0].type).toBe('system.error');
     });
     
     it('should filter history by time range', async () => {
       const now = Date.now();
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
         timestamp: now - 2000,
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
         timestamp: now - 1000,
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
         timestamp: now,
@@ -222,7 +227,7 @@ describe('MessageBus', () => {
     it('should support pagination', async () => {
       for (let i = 0; i < 10; i++) {
         await bus.publish({
-          type: 'test.event',
+          type: 'system.health.check',
           source: { type: 'system', id: 'test' },
           payload: { index: i },
         });
@@ -243,13 +248,13 @@ describe('MessageBus', () => {
       const replayedEvents: BusEvent[] = [];
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: { value: 1 },
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: { value: 2 },
       });
@@ -265,13 +270,13 @@ describe('MessageBus', () => {
       const timestamps: number[] = [];
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
@@ -293,19 +298,19 @@ describe('MessageBus', () => {
   describe('stats', () => {
     it('should return correct statistics', async () => {
       await bus.publish({
-        type: 'test.event.a',
+        type: 'system.error',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
       
       await bus.publish({
-        type: 'test.event.a',
+        type: 'system.error',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
       
       await bus.publish({
-        type: 'test.event.b',
+        type: 'system.warning',
         source: { type: 'system', id: 'test' },
         payload: {},
       });
@@ -314,8 +319,8 @@ describe('MessageBus', () => {
       
       expect(stats.totalEvents).toBe(3);
       expect(stats.activeSubscriptions).toBe(0);
-      expect(stats.eventTypes['test.event.a']).toBe(2);
-      expect(stats.eventTypes['test.event.b']).toBe(1);
+      expect(stats.eventTypes['system.error']).toBe(2);
+      expect(stats.eventTypes['system.warning']).toBe(1);
     });
   });
   
@@ -324,14 +329,14 @@ describe('MessageBus', () => {
       const oldTimestamp = Date.now() - 2000;
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
         timestamp: oldTimestamp,
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
         timestamp: Date.now(),
@@ -352,7 +357,7 @@ describe('MessageBus', () => {
       const { publishChannelInboundMessage } = await import('./message-bus.js');
       
       const receivedEvents: BusEvent[] = [];
-      bus.subscribe('channel.message.inbound', (event) => {
+      getMessageBus().subscribe('channel.message.inbound', (event) => {
         receivedEvents.push(event);
       });
       
@@ -367,7 +372,7 @@ describe('MessageBus', () => {
       const { publishGovernanceProposal } = await import('./message-bus.js');
       
       const receivedEvents: BusEvent[] = [];
-      bus.subscribe('governance.proposal.created', (event) => {
+      getMessageBus().subscribe('governance.proposal.created', (event) => {
         receivedEvents.push(event);
       });
       
@@ -382,7 +387,7 @@ describe('MessageBus', () => {
       const { publishFreezeActivated } = await import('./message-bus.js');
       
       const receivedEvents: BusEvent[] = [];
-      bus.subscribe('governance.freeze.activated', (event) => {
+      getMessageBus().subscribe('governance.freeze.activated', (event) => {
         receivedEvents.push(event);
       });
       
@@ -398,14 +403,14 @@ describe('MessageBus', () => {
     it('should handle subscriber errors gracefully', async () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
       
-      bus.subscribe('test.event', () => {
+      bus.subscribe('system.health.check', () => {
         throw new Error('Subscriber error');
       });
       
       // 不应该抛出异常
       await expect(
         bus.publish({
-          type: 'test.event',
+          type: 'system.health.check',
           source: { type: 'system', id: 'test' },
           payload: {},
         })
@@ -417,12 +422,12 @@ describe('MessageBus', () => {
     it('should handle async subscriber errors', async () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
       
-      bus.subscribe('test.event', async () => {
+      bus.subscribe('system.health.check', async () => {
         throw new Error('Async subscriber error');
       });
       
       await bus.publish({
-        type: 'test.event',
+        type: 'system.health.check',
         source: { type: 'system', id: 'test' },
         payload: {},
       });

@@ -24,14 +24,14 @@ const DEFAULTS = {
 };
 
 const WATCH_GATEWAY_SKIP_ENV = {
-  OPENCLAW_DISABLE_BONJOUR: "1",
-  OPENCLAW_SKIP_ACPX_RUNTIME: "1",
-  OPENCLAW_SKIP_ACPX_RUNTIME_PROBE: "1",
-  OPENCLAW_SKIP_BROWSER_CONTROL_SERVER: "1",
-  OPENCLAW_SKIP_CANVAS_HOST: "1",
-  ZHUSHOU_SKIP_CHANNELS: "1",
-  OPENCLAW_SKIP_CRON: "1",
-  OPENCLAW_SKIP_GMAIL_WATCHER: "1",
+  ASSISTANT_DISABLE_BONJOUR: "1",
+  ASSISTANT_SKIP_ACPX_RUNTIME: "1",
+  ASSISTANT_SKIP_ACPX_RUNTIME_PROBE: "1",
+  ASSISTANT_SKIP_BROWSER_CONTROL_SERVER: "1",
+  ASSISTANT_SKIP_CANVAS_HOST: "1",
+  ASSISTANT_SKIP_CHANNELS: "1",
+  ASSISTANT_SKIP_CRON: "1",
+  ASSISTANT_SKIP_GMAIL_WATCHER: "1",
 };
 
 function parseArgs(argv) {
@@ -345,15 +345,15 @@ async function allocateLoopbackPort() {
 
 function buildTimedWatchCommand(pidFilePath, timeFilePath, isolatedHomeDir, port) {
   const shellSource = [
-    'echo "$$" > "$OPENCLAW_WATCH_PID_FILE"',
-    'mkdir -p "$ZHUSHOU_HOME/.zhushou"',
-    `printf '%s\n' '{"gateway":{"controlUi":{"enabled":false}}}' > "$ZHUSHOU_HOME/.zhushou/zhushou.json"`,
+    'echo "$$" > "$ASSISTANT_WATCH_PID_FILE"',
+    'mkdir -p "$ASSISTANT_HOME/.assistant"',
+    `printf '%s\n' '{"gateway":{"controlUi":{"enabled":false}}}' > "$ASSISTANT_HOME/.assistant/assistant.json"`,
     `exec node scripts/watch-node.mjs gateway --force --allow-unconfigured --port ${String(port)} --token watch-regression-token`,
   ].join("\n");
   const env = {
-    OPENCLAW_WATCH_PID_FILE: pidFilePath,
+    ASSISTANT_WATCH_PID_FILE: pidFilePath,
     HOME: isolatedHomeDir,
-    ZHUSHOU_HOME: isolatedHomeDir,
+    ASSISTANT_HOME: isolatedHomeDir,
     ...WATCH_GATEWAY_SKIP_ENV,
   };
 
@@ -404,7 +404,7 @@ function parseTimingFile(timeFilePath) {
 async function runTimedWatch(options, outputDir) {
   const pidFilePath = path.join(outputDir, "watch.pid");
   const timeFilePath = path.join(outputDir, "watch.time.log");
-  const isolatedHomeDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-gateway-watch-"));
+  const isolatedHomeDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-gateway-watch-"));
   fs.writeFileSync(path.join(outputDir, "watch.home.txt"), `${isolatedHomeDir}\n`, "utf8");
   const stdoutPath = path.join(outputDir, "watch.stdout.log");
   const stderrPath = path.join(outputDir, "watch.stderr.log");

@@ -1,5 +1,5 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 
 export type WhatsAppAccountConfig = NonNullable<
-  NonNullable<NonNullable<ZhushouConfig["channels"]>["whatsapp"]>["accounts"]
+  NonNullable<NonNullable<AssistantConfig["channels"]>["whatsapp"]>["accounts"]
 >[string];

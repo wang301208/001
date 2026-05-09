@@ -3,9 +3,9 @@ import {
   computeBackoff,
   formatDurationPrecise,
   sleepWithAbort,
-} from "zhushou/plugin-sdk/runtime-env";
-import { formatErrorMessage } from "zhushou/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "assistant/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { createTelegramBot } from "./bot.js";
 import { type TelegramTransport } from "./fetch.js";

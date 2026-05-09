@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 
 const listPotentialConfiguredChannelIds = vi.hoisted(() => vi.fn());
 const hasPotentialConfiguredChannels = vi.hoisted(() => vi.fn());
@@ -142,8 +142,8 @@ function createManifestRegistryFixture() {
 }
 
 function expectStartupPluginIds(params: {
-  config: ZhushouConfig;
-  activationSourceConfig?: ZhushouConfig;
+  config: AssistantConfig;
+  activationSourceConfig?: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   expected: readonly string[];
 }) {
@@ -161,8 +161,8 @@ function expectStartupPluginIds(params: {
 }
 
 function expectStartupPluginIdsCase(params: {
-  config: ZhushouConfig;
-  activationSourceConfig?: ZhushouConfig;
+  config: AssistantConfig;
+  activationSourceConfig?: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   expected: readonly string[];
 }) {
@@ -281,18 +281,18 @@ function createStartupConfig(params: {
             },
           }
         : {}),
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 describe("resolveGatewayStartupPluginIds", () => {
   beforeEach(() => {
-    listPotentialConfiguredChannelIds.mockReset().mockImplementation((config: ZhushouConfig) => {
+    listPotentialConfiguredChannelIds.mockReset().mockImplementation((config: AssistantConfig) => {
       if (Object.prototype.hasOwnProperty.call(config, "channels")) {
         return Object.keys(config.channels ?? {});
       }
       return ["demo-channel"];
     });
-    hasPotentialConfiguredChannels.mockReset().mockImplementation((config: ZhushouConfig) => {
+    hasPotentialConfiguredChannels.mockReset().mockImplementation((config: AssistantConfig) => {
       if (Object.prototype.hasOwnProperty.call(config, "channels")) {
         return Object.keys(config.channels ?? {}).length > 0;
       }
@@ -312,7 +312,7 @@ describe("resolveGatewayStartupPluginIds", () => {
     ],
     [
       "keeps bundled startup sidecars with enabledByDefault at idle startup",
-      {} as ZhushouConfig,
+      {} as AssistantConfig,
       ["demo-channel", "browser"],
     ],
     [
@@ -365,7 +365,7 @@ describe("resolveGatewayStartupPluginIds", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expectStartupPluginIdsCase({
       config: effectiveConfig,
@@ -428,7 +428,7 @@ describe("resolveGatewayStartupPluginIds", () => {
       config: createStartupConfig({
         enabledPluginIds: ["codex"],
       }),
-      env: { OPENCLAW_AGENT_RUNTIME: "codex" },
+      env: { ASSISTANT_AGENT_RUNTIME: "codex" },
       expected: ["demo-channel", "browser", "codex"],
     });
   });
@@ -451,7 +451,7 @@ describe("resolveGatewayStartupPluginIds", () => {
             },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       expected: ["demo-channel", "browser"],
     });
   });
@@ -459,13 +459,13 @@ describe("resolveGatewayStartupPluginIds", () => {
 
 describe("resolveConfiguredChannelPluginIds", () => {
   beforeEach(() => {
-    listPotentialConfiguredChannelIds.mockReset().mockImplementation((config: ZhushouConfig) => {
+    listPotentialConfiguredChannelIds.mockReset().mockImplementation((config: AssistantConfig) => {
       if (Object.prototype.hasOwnProperty.call(config, "channels")) {
         return Object.keys(config.channels ?? {});
       }
       return [];
     });
-    hasPotentialConfiguredChannels.mockReset().mockImplementation((config: ZhushouConfig) => {
+    hasPotentialConfiguredChannels.mockReset().mockImplementation((config: AssistantConfig) => {
       if (Object.prototype.hasOwnProperty.call(config, "channels")) {
         return Object.keys(config.channels ?? {}).length > 0;
       }
@@ -509,7 +509,7 @@ describe("resolveConfiguredChannelPluginIds", () => {
           plugins: {
             deny: ["activation-only-channel-plugin"],
           },
-        } as ZhushouConfig,
+        } as AssistantConfig,
         workspaceDir: "/tmp",
         env: process.env,
       }),
@@ -526,7 +526,7 @@ describe("resolveConfiguredChannelPluginIds", () => {
           plugins: {
             enabled: false,
           },
-        } as ZhushouConfig,
+        } as AssistantConfig,
         workspaceDir: "/tmp",
         env: process.env,
       }),
@@ -600,7 +600,7 @@ describe("resolveConfiguredChannelPluginIds", () => {
               },
             },
           },
-        } as ZhushouConfig,
+        } as AssistantConfig,
         workspaceDir: "/tmp",
         env: process.env,
       }),

@@ -4,8 +4,8 @@ import path from "node:path";
 import {
   listActiveMemoryPublicArtifacts,
   type MemoryPluginPublicArtifact,
-} from "zhushou/plugin-sdk/memory-host-core";
-import type { ZhushouConfig } from "../api.js";
+} from "assistant/plugin-sdk/memory-host-core";
+import type { AssistantConfig } from "../api.js";
 import type { ResolvedMemoryWikiConfig } from "./config.js";
 import { appendMemoryWikiLog } from "./log.js";
 import {
@@ -190,8 +190,8 @@ async function writeBridgeSourcePage(params: {
           renderMarkdownFence(raw, contentLanguage),
           "",
           "## Notes",
-          "<!-- zhushou:human:start -->",
-          "<!-- zhushou:human:end -->",
+          "<!-- assistant:human:start -->",
+          "<!-- assistant:human:end -->",
           "",
         ].join("\n"),
       });
@@ -201,7 +201,7 @@ async function writeBridgeSourcePage(params: {
 
 export async function syncMemoryWikiBridgeSources(params: {
   config: ResolvedMemoryWikiConfig;
-  appConfig?: ZhushouConfig;
+  appConfig?: AssistantConfig;
 }): Promise<BridgeMemoryWikiResult> {
   await initializeMemoryWikiVault(params.config);
   if (

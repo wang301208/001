@@ -48,11 +48,11 @@ describe("formatSystemRunAllowlistMissMessage", () => {
 describe("handleSystemRunInvoke mac app exec host routing", () => {
   let sharedFixtureRoot = "";
   let sharedFixtureId = 0;
-  let testOpenClawHome = "";
-  let previousOpenClawHome: string | undefined;
+  let testAssistantHome = "";
+  let previousAssistantHome: string | undefined;
 
   beforeAll(() => {
-    sharedFixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-node-host-fixtures-"));
+    sharedFixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-node-host-fixtures-"));
   });
 
   afterAll(() => {
@@ -68,20 +68,20 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   }
 
   beforeEach(() => {
-    previousOpenClawHome = process.env.ZHUSHOU_HOME;
-    testOpenClawHome = createFixtureDir("zhushou-node-host-home-");
-    process.env.ZHUSHOU_HOME = testOpenClawHome;
+    previousAssistantHome = process.env.ASSISTANT_HOME;
+    testAssistantHome = createFixtureDir("assistant-node-host-home-");
+    process.env.ASSISTANT_HOME = testAssistantHome;
     clearRuntimeConfigSnapshot();
   });
 
   afterEach(() => {
     clearRuntimeConfigSnapshot();
-    if (previousOpenClawHome === undefined) {
-      delete process.env.ZHUSHOU_HOME;
+    if (previousAssistantHome === undefined) {
+      delete process.env.ASSISTANT_HOME;
     } else {
-      process.env.ZHUSHOU_HOME = previousOpenClawHome;
+      process.env.ASSISTANT_HOME = previousAssistantHome;
     }
-    testOpenClawHome = "";
+    testAssistantHome = "";
   });
 
   function createLocalRunResult(stdout = "local-ok") {
@@ -267,17 +267,17 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     approvals: Parameters<typeof saveExecApprovals>[0];
     run: (ctx: { tempHome: string }) => Promise<T>;
   }): Promise<T> {
-    const tempHome = createFixtureDir("zhushou-exec-approvals-");
-    const previousOpenClawHome = process.env.ZHUSHOU_HOME;
-    process.env.ZHUSHOU_HOME = tempHome;
+    const tempHome = createFixtureDir("assistant-exec-approvals-");
+    const previousAssistantHome = process.env.ASSISTANT_HOME;
+    process.env.ASSISTANT_HOME = tempHome;
     saveExecApprovals(params.approvals);
     try {
       return await params.run({ tempHome });
     } finally {
-      if (previousOpenClawHome === undefined) {
-        delete process.env.ZHUSHOU_HOME;
+      if (previousAssistantHome === undefined) {
+        delete process.env.ASSISTANT_HOME;
       } else {
-        process.env.ZHUSHOU_HOME = previousOpenClawHome;
+        process.env.ASSISTANT_HOME = previousAssistantHome;
       }
     }
   }
@@ -309,7 +309,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     runtime: "bun" | "deno" | "jiti" | "tsx";
     run: () => Promise<T>;
   }): Promise<T> {
-    const tmp = createFixtureDir(`zhushou-${params.runtime}-path-`);
+    const tmp = createFixtureDir(`assistant-${params.runtime}-path-`);
     const binDir = path.join(tmp, "bin");
     fs.mkdirSync(binDir, { recursive: true });
     const runtimePath =
@@ -550,7 +550,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
 
   for (const testCase of approvedEnvShellWrapperCases) {
     it.runIf(process.platform !== "win32")(testCase.name, async () => {
-      const tmp = createFixtureDir("zhushou-approved-wrapper-");
+      const tmp = createFixtureDir("assistant-approved-wrapper-");
       const marker = path.join(tmp, "marker");
       const attackerScript = path.join(tmp, "sh");
       fs.writeFileSync(attackerScript, "#!/bin/sh\necho exploited > marker\n");
@@ -645,7 +645,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     "pins PATH-token executable to canonical path for approval-based runs",
     async () => {
       await withPathTokenCommand({
-        tmpPrefix: "zhushou-approval-path-pin-",
+        tmpPrefix: "assistant-approval-path-pin-",
         run: async ({ expected }) => {
           const { runCommand, sendInvokeResult } = await runSystemInvoke({
             preferMacAppExecHost: false,
@@ -669,7 +669,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     "accepts prepared plans after PATH-token hardening rewrites argv",
     async () => {
       await withPathTokenCommand({
-        tmpPrefix: "zhushou-prepare-run-path-pin-",
+        tmpPrefix: "assistant-prepare-run-path-pin-",
         run: async ({ expected }) => {
           const prepared = buildSystemRunApprovalPlan({
             command: ["poccmd", "hello"],
@@ -706,7 +706,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       }));
       const sendInvokeResult = vi.fn(async () => {});
       await withPathTokenCommand({
-        tmpPrefix: "zhushou-allowlist-path-pin-",
+        tmpPrefix: "assistant-allowlist-path-pin-",
         run: async ({ link, expected }) => {
           await withTempApprovalsHome({
             approvals: {
@@ -747,7 +747,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   it.runIf(process.platform !== "win32")(
     "denies approval-based execution when cwd is a symlink",
     async () => {
-      const tmp = createFixtureDir("zhushou-approval-cwd-link-");
+      const tmp = createFixtureDir("assistant-approval-cwd-link-");
       const safeDir = path.join(tmp, "safe");
       const linkDir = path.join(tmp, "cwd-link");
       const script = path.join(safeDir, "run.sh");
@@ -775,7 +775,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   it.runIf(process.platform !== "win32")(
     "denies approval-based execution when cwd contains a symlink parent component",
     async () => {
-      const tmp = createFixtureDir("zhushou-approval-cwd-parent-link-");
+      const tmp = createFixtureDir("assistant-approval-cwd-parent-link-");
       const safeRoot = path.join(tmp, "safe-root");
       const safeSub = path.join(safeRoot, "sub");
       const linkRoot = path.join(tmp, "approved-link");
@@ -799,7 +799,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   );
 
   it("uses canonical executable path for approval-based relative command execution", async () => {
-    const tmp = createFixtureDir("zhushou-approval-cwd-real-");
+    const tmp = createFixtureDir("assistant-approval-cwd-real-");
     const script = path.join(tmp, "run.sh");
     fs.writeFileSync(script, "#!/bin/sh\necho SAFE\n");
     fs.chmodSync(script, 0o755);
@@ -833,8 +833,8 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   });
 
   it("denies approval-based execution when cwd identity drifts before execution", async () => {
-    const tmp = createFixtureDir("zhushou-approval-cwd-drift-");
-    const fallback = createFixtureDir("zhushou-approval-cwd-drift-alt-");
+    const tmp = createFixtureDir("assistant-approval-cwd-drift-");
+    const fallback = createFixtureDir("assistant-approval-cwd-drift-alt-");
     const script = path.join(tmp, "run.sh");
     fs.writeFileSync(script, "#!/bin/sh\necho SAFE\n");
     fs.chmodSync(script, 0o755);
@@ -873,7 +873,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   });
 
   it("denies approval-based execution when a script operand changes after approval", async () => {
-    const tmp = createFixtureDir("zhushou-approval-script-drift-");
+    const tmp = createFixtureDir("assistant-approval-script-drift-");
     const fixture = createMutableScriptOperandFixture(tmp);
     fs.writeFileSync(fixture.scriptPath, fixture.initialBody);
     if (process.platform !== "win32") {
@@ -912,7 +912,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   });
 
   it("keeps approved shell script execution working when the script is unchanged", async () => {
-    const tmp = createFixtureDir("zhushou-approval-script-stable-");
+    const tmp = createFixtureDir("assistant-approval-script-stable-");
     const fixture = createMutableScriptOperandFixture(tmp);
     fs.writeFileSync(fixture.scriptPath, fixture.initialBody);
     if (process.platform !== "win32") {
@@ -951,7 +951,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       await withFakeRuntimeOnPath({
         runtime,
         run: async () => {
-          const tmp = createFixtureDir(`zhushou-approval-${runtime}-script-drift-`);
+          const tmp = createFixtureDir(`assistant-approval-${runtime}-script-drift-`);
           const fixture = createRuntimeScriptOperandFixture({ tmp, runtime });
           fs.writeFileSync(fixture.scriptPath, fixture.initialBody);
           try {
@@ -984,7 +984,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
           } finally {
             fs.rmSync(tmp, { recursive: true, force: true });
           }
-          const stableTmp = createFixtureDir(`zhushou-approval-${runtime}-script-stable-`);
+          const stableTmp = createFixtureDir(`assistant-approval-${runtime}-script-stable-`);
           const stableFixture = createRuntimeScriptOperandFixture({ tmp: stableTmp, runtime });
           fs.writeFileSync(stableFixture.scriptPath, stableFixture.initialBody);
           try {
@@ -1022,7 +1022,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     await withFakeRuntimeOnPath({
       runtime: "tsx",
       run: async () => {
-        const tmp = createFixtureDir("zhushou-approval-tsx-missing-binding-");
+        const tmp = createFixtureDir("assistant-approval-tsx-missing-binding-");
         const fixture = createRuntimeScriptOperandFixture({ tmp, runtime: "tsx" });
         fs.writeFileSync(fixture.scriptPath, fixture.initialBody);
         try {
@@ -1061,7 +1061,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   });
 
   it("denies ./sh wrapper spoof in allowlist on-miss mode before execution", async () => {
-    const marker = path.join(os.tmpdir(), `zhushou-wrapper-spoof-${process.pid}-${Date.now()}`);
+    const marker = path.join(os.tmpdir(), `assistant-wrapper-spoof-${process.pid}-${Date.now()}`);
     const runCommand = vi.fn(async () => {
       fs.writeFileSync(marker, "executed");
       return createLocalRunResult();
@@ -1127,7 +1127,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   });
 
   it("denies semicolon-chained shell payloads in allowlist mode without explicit approval", async () => {
-    const payloads = ["zhushou status; id", "zhushou status; cat /etc/passwd"];
+    const payloads = ["assistant status; id", "assistant status; cat /etc/passwd"];
     for (const payload of payloads) {
       const command =
         process.platform === "win32"
@@ -1207,7 +1207,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       ask: "off",
       command: ["/bin/sh", "./script.sh"],
       env: {
-        OPENCLAW_TEST: "1",
+        ASSISTANT_TEST: "1",
         LANG: "C",
         LC_TIME: "C",
       },
@@ -1431,7 +1431,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
         approvals: createAllowlistOnMissApprovals(),
         run: async () => {
           for (const testCase of cases) {
-            const tempDir = createFixtureDir("zhushou-inline-eval-bin-");
+            const tempDir = createFixtureDir("assistant-inline-eval-bin-");
             try {
               const executablePath = createTempExecutable({
                 dir: tempDir,
@@ -1473,7 +1473,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       await withTempApprovalsHome({
         approvals: createAllowlistOnMissApprovals(),
         run: async () => {
-          const tempDir = createFixtureDir("zhushou-inline-eval-awk-");
+          const tempDir = createFixtureDir("assistant-inline-eval-awk-");
           try {
             const executablePath = createTempExecutable({
               dir: tempDir,
@@ -1530,7 +1530,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       await withTempApprovalsHome({
         approvals: createAllowlistOnMissApprovals(),
         run: async () => {
-          const tempDir = createFixtureDir("zhushou-inline-eval-make-");
+          const tempDir = createFixtureDir("assistant-inline-eval-make-");
           try {
             const executablePath = createTempExecutable({
               dir: tempDir,
@@ -1576,7 +1576,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   it.runIf(process.platform !== "win32")(
     "auto-runs allowlisted inner scripts through transport shell wrappers",
     async () => {
-      const tempDir = createFixtureDir("zhushou-shell-wrapper-inner-");
+      const tempDir = createFixtureDir("assistant-shell-wrapper-inner-");
       try {
         const scriptsDir = path.join(tempDir, "scripts");
         fs.mkdirSync(scriptsDir, { recursive: true });
@@ -1617,7 +1617,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
 
   it("keeps cmd.exe transport wrappers approval-gated on Windows", async () => {
     const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
-    const tempDir = createFixtureDir("zhushou-cmd-wrapper-allow-");
+    const tempDir = createFixtureDir("assistant-cmd-wrapper-allow-");
     try {
       const scriptPath = path.join(tempDir, "check_mail.cmd");
       fs.writeFileSync(scriptPath, "@echo off\r\necho ok\r\n");
@@ -1671,7 +1671,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     },
   ])("$name", async ({ command }) => {
     const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
-    const tempDir = createFixtureDir("zhushou-env-cmd-wrapper-allow-");
+    const tempDir = createFixtureDir("assistant-env-cmd-wrapper-allow-");
     try {
       const scriptPath = path.join(tempDir, "check_mail.cmd");
       fs.writeFileSync(scriptPath, "@echo off\r\necho ok\r\n");
@@ -1723,7 +1723,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       return;
     }
 
-    const tempDir = createFixtureDir("zhushou-shell-wrapper-allow-");
+    const tempDir = createFixtureDir("assistant-shell-wrapper-allow-");
     try {
       const prepared = buildSystemRunApprovalPlan({
         command: ["/bin/sh", "-lc", "cd ."],

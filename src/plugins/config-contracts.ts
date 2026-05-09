@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { isRecord } from "../utils.js";
 import { findBundledPluginMetadataById } from "./bundled-plugin-metadata.js";
 import { loadPluginManifestRegistry } from "./manifest-registry.js";
@@ -98,7 +98,7 @@ export function collectPluginConfigContractMatches(params: {
 }
 
 export function resolvePluginConfigContractsById(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   cache?: boolean;

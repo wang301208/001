@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { resolvePluginCapabilityProviders } from "../plugins/capability-provider-runtime.js";
 import {
   buildCapabilityProviderMaps,
@@ -13,27 +13,27 @@ export function normalizeSpeechProviderId(
   return normalizeCapabilityProviderId(providerId);
 }
 
-function resolveSpeechProviderPluginEntries(cfg?: ZhushouConfig): SpeechProviderPlugin[] {
+function resolveSpeechProviderPluginEntries(cfg?: AssistantConfig): SpeechProviderPlugin[] {
   return resolvePluginCapabilityProviders({
     key: "speechProviders",
     cfg,
   });
 }
 
-function buildProviderMaps(cfg?: ZhushouConfig): {
+function buildProviderMaps(cfg?: AssistantConfig): {
   canonical: Map<string, SpeechProviderPlugin>;
   aliases: Map<string, SpeechProviderPlugin>;
 } {
   return buildCapabilityProviderMaps(resolveSpeechProviderPluginEntries(cfg));
 }
 
-export function listSpeechProviders(cfg?: ZhushouConfig): SpeechProviderPlugin[] {
+export function listSpeechProviders(cfg?: AssistantConfig): SpeechProviderPlugin[] {
   return [...buildProviderMaps(cfg).canonical.values()];
 }
 
 export function getSpeechProvider(
   providerId: string | undefined,
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): SpeechProviderPlugin | undefined {
   const normalized = normalizeSpeechProviderId(providerId);
   if (!normalized) {
@@ -44,7 +44,7 @@ export function getSpeechProvider(
 
 export function canonicalizeSpeechProviderId(
   providerId: string | undefined,
-  cfg?: ZhushouConfig,
+  cfg?: AssistantConfig,
 ): SpeechProviderId | undefined {
   const normalized = normalizeSpeechProviderId(providerId);
   if (!normalized) {

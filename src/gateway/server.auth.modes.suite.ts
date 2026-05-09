@@ -55,15 +55,15 @@ export function registerAuthModesSuite(): void {
     let prevToken: string | undefined;
 
     beforeAll(async () => {
-      prevToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
-      process.env.ZHUSHOU_GATEWAY_TOKEN = "secret";
+      prevToken = process.env.ASSISTANT_GATEWAY_TOKEN;
+      process.env.ASSISTANT_GATEWAY_TOKEN = "secret";
       testState.gatewayAuth = { mode: "token", token: "secret" };
       port = await getFreePort();
       server = await startGatewayServer(port);
     });
 
     beforeEach(() => {
-      process.env.ZHUSHOU_GATEWAY_TOKEN = "secret";
+      process.env.ASSISTANT_GATEWAY_TOKEN = "secret";
       testState.gatewayAuth = { mode: "token", token: "secret" };
     });
 
@@ -89,7 +89,7 @@ export function registerAuthModesSuite(): void {
         },
       });
       expect(res.ok).toBe(false);
-      expect(res.error?.message ?? "").toContain("ZHUSHOU_GATEWAY_TOKEN");
+      expect(res.error?.message ?? "").toContain("ASSISTANT_GATEWAY_TOKEN");
       ws.close();
     });
 
@@ -117,15 +117,15 @@ export function registerAuthModesSuite(): void {
     let prevToken: string | undefined;
 
     beforeAll(async () => {
-      prevToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
-      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+      prevToken = process.env.ASSISTANT_GATEWAY_TOKEN;
+      delete process.env.ASSISTANT_GATEWAY_TOKEN;
       testState.gatewayAuth = { mode: "none" };
       port = await getFreePort();
       server = await startGatewayServer(port);
     });
 
     beforeEach(() => {
-      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+      delete process.env.ASSISTANT_GATEWAY_TOKEN;
       testState.gatewayAuth = { mode: "none" };
     });
 
@@ -138,6 +138,24 @@ export function registerAuthModesSuite(): void {
       const ws = await openWs(port);
       const res = await connectReq(ws, { skipDefaultAuth: true });
       expect(res.ok).toBe(true);
+      ws.close();
+    });
+
+    test("allows browser control ui without shared secret or device identity when mode is none", async () => {
+      const ws = await openWs(port, { origin: originForPort(port) });
+      const res = await connectReq(ws, {
+        skipDefaultAuth: true,
+        device: null,
+        scopes: ["operator.read"],
+        client: {
+          ...CONTROL_UI_CLIENT,
+        },
+      });
+      expect(res.ok).toBe(true);
+      const health = await rpcReq(ws, "health");
+      expect(health.ok).toBe(true);
+      const subscribe = await rpcReq(ws, "sessions.subscribe");
+      expect(subscribe.ok).toBe(true);
       ws.close();
     });
   });

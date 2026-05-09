@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/twitch",
+  "name": "@assistant/twitch",
   "version": "2026.4.16",
   "description": "助手 Twitch channel plugin",
   "type": "module",
@@ -9,9 +9,9 @@
     "@twurple/chat": "^8.1.3"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*"
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],

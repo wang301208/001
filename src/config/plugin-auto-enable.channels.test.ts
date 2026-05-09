@@ -53,8 +53,8 @@ describe("applyPluginAutoEnable channels", () => {
       JSON.stringify({
         entries: [
           {
-            name: "@zhushou/env-secondary",
-            zhushou: {
+            name: "@assistant/env-secondary",
+            assistant: {
               channel: {
                 id: "env-secondary",
                 label: "Env Secondary",
@@ -64,7 +64,7 @@ describe("applyPluginAutoEnable channels", () => {
                 preferOver: ["env-primary"],
               },
               install: {
-                npmSpec: "@zhushou/env-secondary",
+                npmSpec: "@assistant/env-secondary",
               },
             },
           },
@@ -94,8 +94,8 @@ describe("applyPluginAutoEnable channels", () => {
       ],
       env: {
         ...makeIsolatedEnv(),
-        ZHUSHOU_STATE_DIR: stateDir,
-        OPENCLAW_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+        ASSISTANT_STATE_DIR: stateDir,
+        ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
       },
       manifestRegistry: makeRegistry([]),
     });
@@ -113,8 +113,8 @@ describe("applyPluginAutoEnable channels", () => {
       JSON.stringify({
         entries: [
           {
-            name: "@zhushou/env-primary",
-            zhushou: {
+            name: "@assistant/env-primary",
+            assistant: {
               channel: {
                 id: "env-primary",
                 label: "Env Primary",
@@ -123,13 +123,13 @@ describe("applyPluginAutoEnable channels", () => {
                 blurb: "Env primary entry",
               },
               install: {
-                npmSpec: "@zhushou/env-primary",
+                npmSpec: "@assistant/env-primary",
               },
             },
           },
           {
-            name: "@zhushou/env-secondary",
-            zhushou: {
+            name: "@assistant/env-secondary",
+            assistant: {
               channel: {
                 id: "env-secondary",
                 label: "Env Secondary",
@@ -139,7 +139,7 @@ describe("applyPluginAutoEnable channels", () => {
                 preferOver: ["env-primary"],
               },
               install: {
-                npmSpec: "@zhushou/env-secondary",
+                npmSpec: "@assistant/env-secondary",
               },
             },
           },
@@ -165,8 +165,8 @@ describe("applyPluginAutoEnable channels", () => {
         })),
         env: {
           ...makeIsolatedEnv(),
-          ZHUSHOU_STATE_DIR: stateDir,
-          OPENCLAW_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+          ASSISTANT_STATE_DIR: stateDir,
+          ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
         },
         manifestRegistry: makeRegistry([]),
       });

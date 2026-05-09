@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import type { ConversationRef } from "../../infra/outbound/session-binding-service.js";
 import type {
   ConfiguredBindingRecordResolution,
@@ -17,7 +17,7 @@ import {
 import { resolveConfiguredBindingRecordBySessionKeyFromRegistry } from "./configured-binding-session-lookup.js";
 
 function resolveMaterializedConfiguredBinding(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   conversation: ConversationRef;
 }) {
   const conversation = toConfiguredBindingConversationRef(params.conversation);
@@ -46,7 +46,7 @@ function resolveMaterializedConfiguredBinding(params: {
   };
 }
 
-export function primeConfiguredBindingRegistry(params: { cfg: ZhushouConfig }): {
+export function primeConfiguredBindingRegistry(params: { cfg: AssistantConfig }): {
   bindingCount: number;
   channelCount: number;
 } {
@@ -54,7 +54,7 @@ export function primeConfiguredBindingRegistry(params: { cfg: ZhushouConfig }): 
 }
 
 export function resolveConfiguredBindingRecord(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel: string;
   accountId: string;
   conversationId: string;
@@ -76,7 +76,7 @@ export function resolveConfiguredBindingRecord(params: {
 }
 
 export function resolveConfiguredBindingRecordForConversation(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   conversation: ConversationRef;
 }): ConfiguredBindingRecordResolution | null {
   const resolved = resolveMaterializedConfiguredBinding(params);
@@ -87,7 +87,7 @@ export function resolveConfiguredBindingRecordForConversation(params: {
 }
 
 export function resolveConfiguredBinding(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   conversation: ConversationRef;
 }): ConfiguredBindingResolution | null {
   const resolved = resolveMaterializedConfiguredBinding(params);
@@ -103,7 +103,7 @@ export function resolveConfiguredBinding(params: {
 }
 
 export function resolveConfiguredBindingRecordBySessionKey(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   sessionKey: string;
 }): ConfiguredBindingRecordResolution | null {
   return resolveConfiguredBindingRecordBySessionKeyFromRegistry({

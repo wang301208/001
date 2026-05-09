@@ -3,8 +3,8 @@ import {
   normalizeChannelSlug,
   resolveChannelEntryMatchWithFallback,
   resolveNestedAllowlistDecision,
-} from "zhushou/plugin-sdk/channel-targets";
-import { evaluateMatchedGroupAccessForPolicy } from "zhushou/plugin-sdk/group-access";
+} from "assistant/plugin-sdk/channel-targets";
+import { evaluateMatchedGroupAccessForPolicy } from "assistant/plugin-sdk/group-access";
 import type {
   AllowlistMatch,
   ChannelGroupContext,

@@ -1,1 +1,1 @@
-export { safeEqualSecret } from "zhushou/plugin-sdk/browser-security-runtime";
+export { safeEqualSecret } from "assistant/plugin-sdk/browser-security-runtime";

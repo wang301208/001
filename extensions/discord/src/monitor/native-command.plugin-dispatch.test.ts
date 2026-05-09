@@ -1,7 +1,7 @@
 import { ChannelType } from "discord-api-types/v10";
-import type { NativeCommandSpec } from "zhushou/plugin-sdk/command-auth";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { clearPluginCommands, registerPluginCommand } from "zhushou/plugin-sdk/plugin-runtime";
+import type { NativeCommandSpec } from "assistant/plugin-sdk/command-auth";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { clearPluginCommands, registerPluginCommand } from "assistant/plugin-sdk/plugin-runtime";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createTestRegistry,
@@ -22,9 +22,9 @@ const runtimeModuleMocks = vi.hoisted(() => ({
   resolveDirectStatusReplyForSession: vi.fn(),
 }));
 
-vi.mock("zhushou/plugin-sdk/plugin-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/plugin-runtime")>(
-    "zhushou/plugin-sdk/plugin-runtime",
+vi.mock("assistant/plugin-sdk/plugin-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/plugin-runtime")>(
+    "assistant/plugin-sdk/plugin-runtime",
   );
   return {
     ...actual,
@@ -33,9 +33,9 @@ vi.mock("zhushou/plugin-sdk/plugin-runtime", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/reply-runtime", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/reply-runtime")>(
-    "zhushou/plugin-sdk/reply-runtime",
+vi.mock("assistant/plugin-sdk/reply-runtime", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/reply-runtime")>(
+    "assistant/plugin-sdk/reply-runtime",
   );
   return {
     ...actual,
@@ -44,7 +44,7 @@ vi.mock("zhushou/plugin-sdk/reply-runtime", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/command-status-runtime", () => ({
+vi.mock("assistant/plugin-sdk/command-status-runtime", () => ({
   resolveDirectStatusReplyForSession: (...args: unknown[]) =>
     runtimeModuleMocks.resolveDirectStatusReplyForSession(...args),
 }));
@@ -69,14 +69,14 @@ function createInteraction(params?: {
   });
 }
 
-function createConfig(): ZhushouConfig {
+function createConfig(): AssistantConfig {
   return {
     channels: {
       discord: {
         dm: { enabled: true, policy: "open" },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createConfiguredAcpBinding(params: {
@@ -142,7 +142,7 @@ function createConfiguredAcpCase(params: {
           agentId: params.agentId,
         }),
       ],
-    } as ZhushouConfig,
+    } as AssistantConfig,
     interaction: createInteraction({
       channelType: params.channelType,
       channelId: params.channelId,
@@ -152,7 +152,7 @@ function createConfiguredAcpCase(params: {
   };
 }
 
-async function createNativeCommand(cfg: ZhushouConfig, commandSpec: NativeCommandSpec) {
+async function createNativeCommand(cfg: AssistantConfig, commandSpec: NativeCommandSpec) {
   return createDiscordNativeCommand({
     command: commandSpec,
     cfg,
@@ -230,7 +230,7 @@ function createUnboundRouteState(params: {
   >;
 }
 
-async function createPluginCommand(params: { cfg: ZhushouConfig; name: string }) {
+async function createPluginCommand(params: { cfg: AssistantConfig; name: string }) {
   return createDiscordNativeCommand({
     command: {
       name: params.name,
@@ -267,7 +267,7 @@ function registerPairPlugin(params?: { discordNativeName?: string }) {
 }
 
 async function expectPairCommandReply(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   commandName: string;
   interaction: MockCommandInteraction;
 }) {
@@ -294,7 +294,7 @@ async function expectPairCommandReply(params: {
   expect(params.interaction.reply).not.toHaveBeenCalled();
 }
 
-async function createStatusCommand(cfg: ZhushouConfig) {
+async function createStatusCommand(cfg: AssistantConfig) {
   return await createNativeCommand(cfg, {
     name: "status",
     description: "Status",
@@ -313,7 +313,7 @@ function createDispatchSpy() {
 }
 
 async function expectBoundStatusCommandDirectReply(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   interaction: MockCommandInteraction;
   expectedPattern: RegExp;
 }) {
@@ -343,8 +343,8 @@ describe("Discord native plugin command dispatch", () => {
     clearPluginCommands();
     setActivePluginRegistry(createTestRegistry());
     const actualPluginRuntime = await vi.importActual<
-      typeof import("zhushou/plugin-sdk/plugin-runtime")
-    >("zhushou/plugin-sdk/plugin-runtime");
+      typeof import("assistant/plugin-sdk/plugin-runtime")
+    >("assistant/plugin-sdk/plugin-runtime");
     runtimeModuleMocks.matchPluginCommand.mockReset();
     runtimeModuleMocks.matchPluginCommand.mockImplementation(
       actualPluginRuntime.matchPluginCommand,
@@ -366,13 +366,13 @@ describe("Discord native plugin command dispatch", () => {
       text: "status reply",
     });
     discordNativeCommandTesting.setMatchPluginCommand(
-      runtimeModuleMocks.matchPluginCommand as typeof import("zhushou/plugin-sdk/plugin-runtime").matchPluginCommand,
+      runtimeModuleMocks.matchPluginCommand as typeof import("assistant/plugin-sdk/plugin-runtime").matchPluginCommand,
     );
     discordNativeCommandTesting.setExecutePluginCommand(
-      runtimeModuleMocks.executePluginCommand as typeof import("zhushou/plugin-sdk/plugin-runtime").executePluginCommand,
+      runtimeModuleMocks.executePluginCommand as typeof import("assistant/plugin-sdk/plugin-runtime").executePluginCommand,
     );
     discordNativeCommandTesting.setDispatchReplyWithDispatcher(
-      runtimeModuleMocks.dispatchReplyWithDispatcher as typeof import("zhushou/plugin-sdk/reply-runtime").dispatchReplyWithDispatcher,
+      runtimeModuleMocks.dispatchReplyWithDispatcher as typeof import("assistant/plugin-sdk/reply-runtime").dispatchReplyWithDispatcher,
     );
     discordNativeCommandTesting.setResolveDiscordNativeInteractionRouteState(async (params) =>
       createUnboundRouteState({
@@ -430,7 +430,7 @@ describe("Discord native plugin command dispatch", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const commandSpec: NativeCommandSpec = {
       name: "pair",
       description: "Pair",
@@ -491,7 +491,7 @@ describe("Discord native plugin command dispatch", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const interaction = createInteraction({
       channelType: ChannelType.GroupDM,
       channelId: "blocked-group",
@@ -572,7 +572,7 @@ describe("Discord native plugin command dispatch", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const commandSpec: NativeCommandSpec = {
       name: "cron_jobs",
       description: "List cron jobs",
@@ -667,7 +667,7 @@ describe("Discord native plugin command dispatch", () => {
           },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const interaction = createInteraction({
       channelType: ChannelType.GuildText,
       channelId,

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   closeActiveMemorySearchManagers,
   getActiveMemorySearchManager,
@@ -24,7 +24,7 @@ describe("memory-host-search facade", () => {
   });
 
   it("delegates active manager lookup to the lazy runtime module", async () => {
-    const cfg = { agents: { list: [{ id: "main", default: true }] } } as ZhushouConfig;
+    const cfg = { agents: { list: [{ id: "main", default: true }] } } as AssistantConfig;
     const expected = { manager: null, error: "unavailable" };
     getActiveMemorySearchManagerMock.mockResolvedValue(expected);
 
@@ -33,7 +33,7 @@ describe("memory-host-search facade", () => {
   });
 
   it("delegates runtime cleanup to the lazy runtime module", async () => {
-    const cfg = { agents: { list: [{ id: "main", default: true }] } } as ZhushouConfig;
+    const cfg = { agents: { list: [{ id: "main", default: true }] } } as AssistantConfig;
 
     await closeActiveMemorySearchManagers(cfg);
 

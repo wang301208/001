@@ -1,7 +1,7 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { loadConfig } from "../../config/config.js";
 import { applyPluginAutoEnable } from "../../config/plugin-auto-enable.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { createSubsystemLogger } from "../../logging.js";
 import type { PluginLoadOptions } from "../loader.js";
 import type { PluginLogger } from "../types.js";
@@ -9,9 +9,9 @@ import type { PluginLogger } from "../types.js";
 const log = createSubsystemLogger("plugins");
 
 export type PluginRuntimeLoadContext = {
-  rawConfig: ZhushouConfig;
-  config: ZhushouConfig;
-  activationSourceConfig: ZhushouConfig;
+  rawConfig: AssistantConfig;
+  config: AssistantConfig;
+  activationSourceConfig: AssistantConfig;
   autoEnabledReasons: Readonly<Record<string, string[]>>;
   workspaceDir: string | undefined;
   env: NodeJS.ProcessEnv;
@@ -24,8 +24,8 @@ export type PluginRuntimeResolvedLoadValues = Pick<
 >;
 
 export type PluginRuntimeLoadContextOptions = {
-  config?: ZhushouConfig;
-  activationSourceConfig?: ZhushouConfig;
+  config?: AssistantConfig;
+  activationSourceConfig?: AssistantConfig;
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
   logger?: PluginLogger;

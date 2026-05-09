@@ -1,6 +1,6 @@
-import type { ImageGenerationProvider } from "zhushou/plugin-sdk/image-generation";
-import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
-import { assertOkOrThrowHttpError, postJsonRequest } from "zhushou/plugin-sdk/provider-http";
+import type { ImageGenerationProvider } from "assistant/plugin-sdk/image-generation";
+import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
+import { assertOkOrThrowHttpError, postJsonRequest } from "assistant/plugin-sdk/provider-http";
 import {
   DEFAULT_VYDRA_IMAGE_MODEL,
   downloadVydraAsset,

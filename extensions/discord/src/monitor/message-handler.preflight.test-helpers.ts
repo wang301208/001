@@ -1,9 +1,9 @@
 import { ChannelType } from "@buape/carbon";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import type { preflightDiscordMessage } from "./message-handler.preflight.js";
 import { createNoopThreadBindingManager } from "./thread-bindings.js";
 
-export type DiscordConfig = NonNullable<ZhushouConfig["channels"]>["discord"];
+export type DiscordConfig = NonNullable<AssistantConfig["channels"]>["discord"];
 export type DiscordMessageEvent = import("./listeners.js").DiscordMessageEvent;
 export type DiscordClient = import("@buape/carbon").Client;
 
@@ -12,7 +12,7 @@ export const DEFAULT_PREFLIGHT_CFG = {
     mainKey: "main",
     scope: "per-sender",
   },
-} as ZhushouConfig;
+} as AssistantConfig;
 
 export function createGuildTextClient(channelId: string): DiscordClient {
   return {
@@ -79,7 +79,7 @@ export function createDiscordMessage(params: {
 }
 
 export function createDiscordPreflightArgs(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   discordConfig: DiscordConfig;
   data: DiscordMessageEvent;
   client: DiscordClient;
@@ -90,8 +90,8 @@ export function createDiscordPreflightArgs(params: {
     discordConfig: params.discordConfig,
     accountId: "default",
     token: "token",
-    runtime: {} as import("zhushou/plugin-sdk/runtime-env").RuntimeEnv,
-    botUserId: params.botUserId ?? "zhushou-bot",
+    runtime: {} as import("assistant/plugin-sdk/runtime-env").RuntimeEnv,
+    botUserId: params.botUserId ?? "assistant-bot",
     guildHistories: new Map(),
     historyLimit: 0,
     mediaMaxBytes: 1_000_000,

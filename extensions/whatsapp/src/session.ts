@@ -3,12 +3,12 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import type { Agent } from "node:https";
 import path from "node:path";
-import { formatCliCommand } from "zhushou/plugin-sdk/cli-runtime";
-import { VERSION } from "zhushou/plugin-sdk/cli-runtime";
-import { resolveAmbientNodeProxyAgent } from "zhushou/plugin-sdk/extension-shared";
-import { danger, success } from "zhushou/plugin-sdk/runtime-env";
-import { getChildLogger, toPinoLikeLogger } from "zhushou/plugin-sdk/runtime-env";
-import { ensureDir, resolveUserPath } from "zhushou/plugin-sdk/text-runtime";
+import { formatCliCommand } from "assistant/plugin-sdk/cli-runtime";
+import { VERSION } from "assistant/plugin-sdk/cli-runtime";
+import { resolveAmbientNodeProxyAgent } from "assistant/plugin-sdk/extension-shared";
+import { danger, success } from "assistant/plugin-sdk/runtime-env";
+import { getChildLogger, toPinoLikeLogger } from "assistant/plugin-sdk/runtime-env";
+import { ensureDir, resolveUserPath } from "assistant/plugin-sdk/text-runtime";
 import {
   maybeRestoreCredsFromBackup,
   readCredsJsonRaw,
@@ -151,7 +151,7 @@ export async function createWaSocket(
     version,
     logger,
     printQRInTerminal: false,
-    browser: ["zhushou", "cli", VERSION],
+    browser: ["assistant", "cli", VERSION],
     syncFullHistory: false,
     markOnlineOnConnect: false,
     agent,
@@ -179,7 +179,7 @@ export async function createWaSocket(
           if (status === LOGGED_OUT_STATUS) {
             console.error(
               danger(
-                `WhatsApp session logged out. Run: ${formatCliCommand("zhushou channels login")}`,
+                `WhatsApp session logged out. Run: ${formatCliCommand("assistant channels login")}`,
               ),
             );
           }

@@ -37,7 +37,7 @@ describe("bundled channel configured-state metadata", () => {
       hasBundledChannelConfiguredState({
         channelId: "irc",
         cfg: {},
-        env: { IRC_HOST: "irc.example.com", IRC_NICK: "zhushou" },
+        env: { IRC_HOST: "irc.example.com", IRC_NICK: "assistant" },
       }),
     ).toBe(true);
   });

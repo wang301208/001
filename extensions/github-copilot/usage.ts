@@ -5,7 +5,7 @@ import {
   PROVIDER_LABELS,
   type ProviderUsageSnapshot,
   type UsageWindow,
-} from "zhushou/plugin-sdk/provider-usage";
+} from "assistant/plugin-sdk/provider-usage";
 
 type CopilotUsageResponse = {
   quota_snapshots?: {

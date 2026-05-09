@@ -1,7 +1,7 @@
 import {
   createModelCatalogPresetAppliers,
-  type ZhushouConfig,
-} from "zhushou/plugin-sdk/provider-onboard";
+  type AssistantConfig,
+} from "assistant/plugin-sdk/provider-onboard";
 import { ARCEE_BASE_URL } from "./models.js";
 import {
   buildArceeCatalogModels,
@@ -14,7 +14,7 @@ export const ARCEE_OPENROUTER_DEFAULT_MODEL_REF = "arcee/trinity-large-thinking"
 
 const arceePresetAppliers = createModelCatalogPresetAppliers({
   primaryModelRef: ARCEE_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig) => ({
+  resolveParams: (_cfg: AssistantConfig) => ({
     providerId: "arcee",
     api: "openai-completions",
     baseUrl: ARCEE_BASE_URL,
@@ -25,7 +25,7 @@ const arceePresetAppliers = createModelCatalogPresetAppliers({
 
 const arceeOpenRouterPresetAppliers = createModelCatalogPresetAppliers({
   primaryModelRef: ARCEE_OPENROUTER_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: ZhushouConfig) => ({
+  resolveParams: (_cfg: AssistantConfig) => ({
     providerId: "arcee",
     api: "openai-completions",
     baseUrl: OPENROUTER_BASE_URL,
@@ -34,14 +34,14 @@ const arceeOpenRouterPresetAppliers = createModelCatalogPresetAppliers({
   }),
 });
 
-export function applyArceeProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyArceeProviderConfig(cfg: AssistantConfig): AssistantConfig {
   return arceePresetAppliers.applyProviderConfig(cfg);
 }
 
-export function applyArceeConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyArceeConfig(cfg: AssistantConfig): AssistantConfig {
   return arceePresetAppliers.applyConfig(cfg);
 }
 
-export function applyArceeOpenRouterConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyArceeOpenRouterConfig(cfg: AssistantConfig): AssistantConfig {
   return arceeOpenRouterPresetAppliers.applyConfig(cfg);
 }

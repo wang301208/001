@@ -5,15 +5,15 @@ import type {
   ExecApprovalExpiredView,
   ExecApprovalPendingView,
   ExecApprovalResolvedView,
-} from "zhushou/plugin-sdk/approval-handler-runtime";
-import { createChannelApprovalNativeRuntimeAdapter } from "zhushou/plugin-sdk/approval-handler-runtime";
-import { buildChannelApprovalNativeTargetKey } from "zhushou/plugin-sdk/approval-native-runtime";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+} from "assistant/plugin-sdk/approval-handler-runtime";
+import { createChannelApprovalNativeRuntimeAdapter } from "assistant/plugin-sdk/approval-handler-runtime";
+import { buildChannelApprovalNativeTargetKey } from "assistant/plugin-sdk/approval-native-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   buildApprovalInteractiveReplyFromActionDescriptors,
   type ExecApprovalRequest,
-} from "zhushou/plugin-sdk/infra-runtime";
-import { logError, normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/infra-runtime";
+import { logError, normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
 import {
   isSlackExecApprovalClientEnabled,
   shouldHandleSlackExecApprovalRequest,
@@ -33,7 +33,7 @@ type SlackPendingDelivery = {
 };
 
 type SlackExecApprovalConfig = NonNullable<
-  NonNullable<NonNullable<ZhushouConfig["channels"]>["slack"]>["execApprovals"]
+  NonNullable<NonNullable<AssistantConfig["channels"]>["slack"]>["execApprovals"]
 >;
 
 export type SlackApprovalHandlerContext = {

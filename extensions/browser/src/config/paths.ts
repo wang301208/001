@@ -1,1 +1,1 @@
-export { resolveGatewayPort } from "zhushou/plugin-sdk/browser-config-support";
+export { resolveGatewayPort } from "assistant/plugin-sdk/browser-config-support";

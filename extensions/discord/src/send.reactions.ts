@@ -1,5 +1,5 @@
 import { Routes } from "discord-api-types/v10";
-import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import { loadConfig } from "assistant/plugin-sdk/config-runtime";
 import {
   buildReactionIdentifier,
   createDiscordClient,

@@ -1,13 +1,13 @@
-import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
-import { PAIRING_APPROVED_MESSAGE } from "zhushou/plugin-sdk/channel-status";
-import type { ZhushouConfig } from "./runtime-api.js";
+import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
+import { PAIRING_APPROVED_MESSAGE } from "assistant/plugin-sdk/channel-status";
+import type { AssistantConfig } from "./runtime-api.js";
 import { normalizeBlueBubblesHandle } from "./targets.js";
 
 type SendBlueBubblesMessage = (
   id: string,
   message: string,
   params: {
-    cfg: ZhushouConfig;
+    cfg: AssistantConfig;
     accountId?: string;
   },
 ) => Promise<unknown>;
@@ -23,7 +23,7 @@ export function createBlueBubblesPairingText(sendMessageBlueBubbles: SendBlueBub
       message,
       accountId,
     }: {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       id: string;
       message: string;
       accountId?: string;

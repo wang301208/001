@@ -71,7 +71,7 @@ describe("prepareSimpleCompletionModel", () => {
       cfg: undefined,
       provider: "anthropic",
       modelId: "claude-opus-4-6",
-      agentDir: "/tmp/zhushou-agent",
+      agentDir: "/tmp/assistant-agent",
     });
 
     expect(result).toEqual(

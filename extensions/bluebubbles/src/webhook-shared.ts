@@ -1,5 +1,5 @@
-import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
-import { normalizeWebhookPath } from "zhushou/plugin-sdk/webhook-path";
+import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { normalizeWebhookPath } from "assistant/plugin-sdk/webhook-path";
 import type { BlueBubblesAccountConfig } from "./types.js";
 
 export { normalizeWebhookPath };

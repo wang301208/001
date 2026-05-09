@@ -54,7 +54,7 @@ describe("proxy stream wrappers", () => {
     expect(calls).toEqual([
       {
         headers: {
-          "HTTP-Referer": "https://zhushou.ai",
+          "HTTP-Referer": "https://assistant.ai",
           "X-OpenRouter-Title": "助手",
           "X-OpenRouter-Categories": "cli-agent",
           "X-Custom": "1",

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 
 export const TALK_TEST_PROVIDER_ID = "acme-speech";
 export const TALK_TEST_PROVIDER_LABEL = "Acme Speech";
@@ -10,7 +10,7 @@ export const TALK_TEST_PROVIDER_API_KEY_PATH_SEGMENTS = [
   "apiKey",
 ] as const;
 
-export function buildTalkTestProviderConfig(apiKey: unknown): ZhushouConfig {
+export function buildTalkTestProviderConfig(apiKey: unknown): AssistantConfig {
   return {
     talk: {
       providers: {
@@ -19,9 +19,9 @@ export function buildTalkTestProviderConfig(apiKey: unknown): ZhushouConfig {
         },
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
-export function readTalkTestProviderApiKey(config: ZhushouConfig): unknown {
+export function readTalkTestProviderApiKey(config: AssistantConfig): unknown {
   return config.talk?.providers?.[TALK_TEST_PROVIDER_ID]?.apiKey;
 }

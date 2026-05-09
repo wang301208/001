@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveProviderEndpoint } from "./provider-attribution.js";
 import { findNormalizedProviderValue } from "./provider-id.js";
 
@@ -21,7 +21,7 @@ function normalizePositiveInt(value: unknown): number | null {
 }
 
 export function resolveContextWindowInfo(params: {
-  cfg: ZhushouConfig | undefined;
+  cfg: AssistantConfig | undefined;
   provider: string;
   modelId: string;
   modelContextTokens?: number;

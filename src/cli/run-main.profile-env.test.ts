@@ -12,8 +12,8 @@ const dotenvState = vi.hoisted(() => {
   return {
     state,
     loadDotEnv: vi.fn(() => {
-      state.profileAtDotenvLoad = process.env.ZHUSHOU_PROFILE;
-      state.containerAtDotenvLoad = process.env.OPENCLAW_CONTAINER;
+      state.profileAtDotenvLoad = process.env.ASSISTANT_PROFILE;
+      state.containerAtDotenvLoad = process.env.ASSISTANT_CONTAINER;
     }),
   };
 });
@@ -49,7 +49,7 @@ vi.mock("../infra/runtime-guard.js", () => ({
 }));
 
 vi.mock("../infra/path-env.js", () => ({
-  ensureOpenClawCliOnPath: vi.fn(),
+  ensureAssistantCliOnPath: vi.fn(),
 }));
 
 vi.mock("./route.js", () => ({
@@ -72,24 +72,24 @@ vi.mock("./container-target.js", async () => {
 import { runCli } from "./run-main.js";
 
 describe("runCli profile env bootstrap", () => {
-  const originalProfile = process.env.ZHUSHOU_PROFILE;
-  const originalStateDir = process.env.ZHUSHOU_STATE_DIR;
-  const originalConfigPath = process.env.ZHUSHOU_CONFIG_PATH;
-  const originalContainer = process.env.OPENCLAW_CONTAINER;
-  const originalGatewayPort = process.env.ZHUSHOU_GATEWAY_PORT;
-  const originalGatewayUrl = process.env.OPENCLAW_GATEWAY_URL;
-  const originalGatewayToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
-  const originalGatewayPassword = process.env.ZHUSHOU_GATEWAY_PASSWORD;
+  const originalProfile = process.env.ASSISTANT_PROFILE;
+  const originalStateDir = process.env.ASSISTANT_STATE_DIR;
+  const originalConfigPath = process.env.ASSISTANT_CONFIG_PATH;
+  const originalContainer = process.env.ASSISTANT_CONTAINER;
+  const originalGatewayPort = process.env.ASSISTANT_GATEWAY_PORT;
+  const originalGatewayUrl = process.env.ASSISTANT_GATEWAY_URL;
+  const originalGatewayToken = process.env.ASSISTANT_GATEWAY_TOKEN;
+  const originalGatewayPassword = process.env.ASSISTANT_GATEWAY_PASSWORD;
 
   beforeEach(() => {
-    delete process.env.ZHUSHOU_PROFILE;
-    delete process.env.ZHUSHOU_STATE_DIR;
-    delete process.env.ZHUSHOU_CONFIG_PATH;
-    delete process.env.OPENCLAW_CONTAINER;
-    delete process.env.ZHUSHOU_GATEWAY_PORT;
-    delete process.env.OPENCLAW_GATEWAY_URL;
-    delete process.env.ZHUSHOU_GATEWAY_TOKEN;
-    delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
+    delete process.env.ASSISTANT_PROFILE;
+    delete process.env.ASSISTANT_STATE_DIR;
+    delete process.env.ASSISTANT_CONFIG_PATH;
+    delete process.env.ASSISTANT_CONTAINER;
+    delete process.env.ASSISTANT_GATEWAY_PORT;
+    delete process.env.ASSISTANT_GATEWAY_URL;
+    delete process.env.ASSISTANT_GATEWAY_TOKEN;
+    delete process.env.ASSISTANT_GATEWAY_PASSWORD;
     dotenvState.state.profileAtDotenvLoad = undefined;
     dotenvState.state.containerAtDotenvLoad = undefined;
     dotenvState.loadDotEnv.mockClear();
@@ -99,131 +99,131 @@ describe("runCli profile env bootstrap", () => {
 
   afterEach(() => {
     if (originalProfile === undefined) {
-      delete process.env.ZHUSHOU_PROFILE;
+      delete process.env.ASSISTANT_PROFILE;
     } else {
-      process.env.ZHUSHOU_PROFILE = originalProfile;
+      process.env.ASSISTANT_PROFILE = originalProfile;
     }
     if (originalContainer === undefined) {
-      delete process.env.OPENCLAW_CONTAINER;
+      delete process.env.ASSISTANT_CONTAINER;
     } else {
-      process.env.OPENCLAW_CONTAINER = originalContainer;
+      process.env.ASSISTANT_CONTAINER = originalContainer;
     }
     if (originalStateDir === undefined) {
-      delete process.env.ZHUSHOU_STATE_DIR;
+      delete process.env.ASSISTANT_STATE_DIR;
     } else {
-      process.env.ZHUSHOU_STATE_DIR = originalStateDir;
+      process.env.ASSISTANT_STATE_DIR = originalStateDir;
     }
     if (originalConfigPath === undefined) {
-      delete process.env.ZHUSHOU_CONFIG_PATH;
+      delete process.env.ASSISTANT_CONFIG_PATH;
     } else {
-      process.env.ZHUSHOU_CONFIG_PATH = originalConfigPath;
+      process.env.ASSISTANT_CONFIG_PATH = originalConfigPath;
     }
     if (originalGatewayPort === undefined) {
-      delete process.env.ZHUSHOU_GATEWAY_PORT;
+      delete process.env.ASSISTANT_GATEWAY_PORT;
     } else {
-      process.env.ZHUSHOU_GATEWAY_PORT = originalGatewayPort;
+      process.env.ASSISTANT_GATEWAY_PORT = originalGatewayPort;
     }
     if (originalGatewayUrl === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_URL;
+      delete process.env.ASSISTANT_GATEWAY_URL;
     } else {
-      process.env.OPENCLAW_GATEWAY_URL = originalGatewayUrl;
+      process.env.ASSISTANT_GATEWAY_URL = originalGatewayUrl;
     }
     if (originalGatewayToken === undefined) {
-      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+      delete process.env.ASSISTANT_GATEWAY_TOKEN;
     } else {
-      process.env.ZHUSHOU_GATEWAY_TOKEN = originalGatewayToken;
+      process.env.ASSISTANT_GATEWAY_TOKEN = originalGatewayToken;
     }
     if (originalGatewayPassword === undefined) {
-      delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
+      delete process.env.ASSISTANT_GATEWAY_PASSWORD;
     } else {
-      process.env.ZHUSHOU_GATEWAY_PASSWORD = originalGatewayPassword;
+      process.env.ASSISTANT_GATEWAY_PASSWORD = originalGatewayPassword;
     }
   });
 
   it("applies --profile before dotenv loading", async () => {
     fileState.hasCliDotEnv = true;
-    await runCli(["node", "zhushou", "--profile", "rawdog", "status"]);
+    await runCli(["node", "assistant", "--profile", "rawdog", "status"]);
 
     expect(dotenvState.loadDotEnv).toHaveBeenCalledOnce();
     expect(dotenvState.state.profileAtDotenvLoad).toBe("rawdog");
-    expect(process.env.ZHUSHOU_PROFILE).toBe("rawdog");
+    expect(process.env.ASSISTANT_PROFILE).toBe("rawdog");
   });
 
   it("rejects --container combined with --profile", async () => {
     await expect(
-      runCli(["node", "zhushou", "--container", "demo", "--profile", "rawdog", "status"]),
+      runCli(["node", "assistant", "--container", "demo", "--profile", "rawdog", "status"]),
     ).rejects.toThrow("--container cannot be combined with --profile/--dev");
 
     expect(dotenvState.loadDotEnv).not.toHaveBeenCalled();
-    expect(process.env.ZHUSHOU_PROFILE).toBe("rawdog");
+    expect(process.env.ASSISTANT_PROFILE).toBe("rawdog");
   });
 
   it("rejects --container combined with interleaved --profile", async () => {
     await expect(
-      runCli(["node", "zhushou", "status", "--container", "demo", "--profile", "rawdog"]),
+      runCli(["node", "assistant", "status", "--container", "demo", "--profile", "rawdog"]),
     ).rejects.toThrow("--container cannot be combined with --profile/--dev");
   });
 
   it("rejects --container combined with interleaved --dev", async () => {
     await expect(
-      runCli(["node", "zhushou", "status", "--container", "demo", "--dev"]),
+      runCli(["node", "assistant", "status", "--container", "demo", "--dev"]),
     ).rejects.toThrow("--container cannot be combined with --profile/--dev");
   });
 
   it("does not let dotenv change container target resolution", async () => {
     fileState.hasCliDotEnv = true;
     dotenvState.loadDotEnv.mockImplementationOnce(() => {
-      process.env.OPENCLAW_CONTAINER = "demo";
-      dotenvState.state.profileAtDotenvLoad = process.env.ZHUSHOU_PROFILE;
-      dotenvState.state.containerAtDotenvLoad = process.env.OPENCLAW_CONTAINER;
+      process.env.ASSISTANT_CONTAINER = "demo";
+      dotenvState.state.profileAtDotenvLoad = process.env.ASSISTANT_PROFILE;
+      dotenvState.state.containerAtDotenvLoad = process.env.ASSISTANT_CONTAINER;
     });
 
-    await runCli(["node", "zhushou", "status"]);
+    await runCli(["node", "assistant", "status"]);
 
     expect(dotenvState.loadDotEnv).toHaveBeenCalledOnce();
-    expect(process.env.OPENCLAW_CONTAINER).toBe("demo");
+    expect(process.env.ASSISTANT_CONTAINER).toBe("demo");
     expect(dotenvState.state.containerAtDotenvLoad).toBe("demo");
-    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "zhushou", "status"]);
+    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "assistant", "status"]);
     expect(maybeRunCliInContainerMock).toHaveReturnedWith({
       handled: false,
-      argv: ["node", "zhushou", "status"],
+      argv: ["node", "assistant", "status"],
     });
   });
 
-  it("allows container mode when ZHUSHOU_PROFILE is already set in env", async () => {
-    process.env.ZHUSHOU_PROFILE = "work";
+  it("allows container mode when ASSISTANT_PROFILE is already set in env", async () => {
+    process.env.ASSISTANT_PROFILE = "work";
 
     await expect(
-      runCli(["node", "zhushou", "--container", "demo", "status"]),
+      runCli(["node", "assistant", "--container", "demo", "status"]),
     ).resolves.toBeUndefined();
   });
 
   it.each([
-    ["ZHUSHOU_GATEWAY_PORT", "19001"],
-    ["OPENCLAW_GATEWAY_URL", "ws://127.0.0.1:18789"],
-    ["ZHUSHOU_GATEWAY_TOKEN", "demo-token"],
-    ["ZHUSHOU_GATEWAY_PASSWORD", "demo-password"],
+    ["ASSISTANT_GATEWAY_PORT", "19001"],
+    ["ASSISTANT_GATEWAY_URL", "ws://127.0.0.1:18789"],
+    ["ASSISTANT_GATEWAY_TOKEN", "demo-token"],
+    ["ASSISTANT_GATEWAY_PASSWORD", "demo-password"],
   ])("allows container mode when %s is set in env", async (key, value) => {
     process.env[key] = value;
 
     await expect(
-      runCli(["node", "zhushou", "--container", "demo", "status"]),
+      runCli(["node", "assistant", "--container", "demo", "status"]),
     ).resolves.toBeUndefined();
   });
 
-  it("allows container mode when only ZHUSHOU_STATE_DIR is set in env", async () => {
-    process.env.ZHUSHOU_STATE_DIR = "/tmp/zhushou-host-state";
+  it("allows container mode when only ASSISTANT_STATE_DIR is set in env", async () => {
+    process.env.ASSISTANT_STATE_DIR = "/tmp/assistant-host-state";
 
     await expect(
-      runCli(["node", "zhushou", "--container", "demo", "status"]),
+      runCli(["node", "assistant", "--container", "demo", "status"]),
     ).resolves.toBeUndefined();
   });
 
-  it("allows container mode when only ZHUSHOU_CONFIG_PATH is set in env", async () => {
-    process.env.ZHUSHOU_CONFIG_PATH = "/tmp/zhushou-host-state/zhushou.json";
+  it("allows container mode when only ASSISTANT_CONFIG_PATH is set in env", async () => {
+    process.env.ASSISTANT_CONFIG_PATH = "/tmp/assistant-host-state/assistant.json";
 
     await expect(
-      runCli(["node", "zhushou", "--container", "demo", "status"]),
+      runCli(["node", "assistant", "--container", "demo", "status"]),
     ).resolves.toBeUndefined();
   });
 });

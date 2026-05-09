@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { createEmptyPluginRegistry } from "./registry.js";
 
 type MockManifestRegistry = {
@@ -19,14 +19,14 @@ const mocks = vi.hoisted(() => ({
     createEmptyMockManifestRegistry(),
   ),
   withBundledPluginAllowlistCompat: vi.fn(
-    ({ config, pluginIds }: { config?: ZhushouConfig; pluginIds: string[] }) =>
+    ({ config, pluginIds }: { config?: AssistantConfig; pluginIds: string[] }) =>
       ({
         ...config,
         plugins: {
           ...config?.plugins,
           allow: Array.from(new Set([...(config?.plugins?.allow ?? []), ...pluginIds])),
         },
-      }) as ZhushouConfig,
+      }) as AssistantConfig,
   ),
   withBundledPluginEnablementCompat: vi.fn(({ config }) => config),
   withBundledPluginVitestCompat: vi.fn(({ config }) => config),
@@ -58,8 +58,8 @@ function expectNoResolvedCapabilityProviders(providers: Array<{ id: string }>) {
 }
 
 function expectBundledCompatLoadPath(params: {
-  cfg: ZhushouConfig;
-  allowlistCompat: ZhushouConfig;
+  cfg: AssistantConfig;
+  allowlistCompat: AssistantConfig;
   enablementCompat: {
     plugins: {
       allow?: string[];
@@ -86,12 +86,12 @@ function expectBundledCompatLoadPath(params: {
 }
 
 function createCompatChainConfig() {
-  const cfg = { plugins: { allow: ["custom-plugin"] } } as ZhushouConfig;
+  const cfg = { plugins: { allow: ["custom-plugin"] } } as AssistantConfig;
   const allowlistCompat = {
     plugins: {
       allow: ["custom-plugin", "openai"],
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
   const enablementCompat = {
     plugins: {
       allow: ["custom-plugin", "openai"],
@@ -130,8 +130,8 @@ function expectCompatChainApplied(params: {
     | "videoGenerationProviders"
     | "musicGenerationProviders";
   contractKey: string;
-  cfg: ZhushouConfig;
-  allowlistCompat: ZhushouConfig;
+  cfg: AssistantConfig;
+  allowlistCompat: AssistantConfig;
   enablementCompat: {
     plugins: {
       allow?: string[];
@@ -161,14 +161,14 @@ describe("resolvePluginCapabilityProviders", () => {
     mocks.loadPluginManifestRegistry.mockReturnValue(createEmptyMockManifestRegistry());
     mocks.withBundledPluginAllowlistCompat.mockClear();
     mocks.withBundledPluginAllowlistCompat.mockImplementation(
-      ({ config, pluginIds }: { config?: ZhushouConfig; pluginIds: string[] }) =>
+      ({ config, pluginIds }: { config?: AssistantConfig; pluginIds: string[] }) =>
         ({
           ...config,
           plugins: {
             ...config?.plugins,
             allow: Array.from(new Set([...(config?.plugins?.allow ?? []), ...pluginIds])),
           },
-        }) as ZhushouConfig,
+        }) as AssistantConfig,
     );
     mocks.withBundledPluginEnablementCompat.mockReset();
     mocks.withBundledPluginEnablementCompat.mockImplementation(({ config }) => config);
@@ -228,7 +228,7 @@ describe("resolvePluginCapabilityProviders", () => {
 
     const providers = resolvePluginCapabilityProviders({
       key: "speechProviders",
-      cfg: { messages: { tts: { provider: "edge" } } } as ZhushouConfig,
+      cfg: { messages: { tts: { provider: "edge" } } } as AssistantConfig,
     });
 
     expectResolvedCapabilityProviderIds(providers, ["microsoft"]);
@@ -264,7 +264,7 @@ describe("resolvePluginCapabilityProviders", () => {
 
     const providers = resolvePluginCapabilityProviders({
       key: "mediaUnderstandingProviders",
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
     });
 
     expectNoResolvedCapabilityProviders(providers);
@@ -280,7 +280,7 @@ describe("resolvePluginCapabilityProviders", () => {
         allow: ["google"],
         entries: { google: { enabled: true } },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const loaded = createEmptyPluginRegistry();
     loaded.mediaUnderstandingProviders.push({
       pluginId: "google",
@@ -314,12 +314,12 @@ describe("resolvePluginCapabilityProviders", () => {
   });
 
   it("loads only the bundled owner plugin for a targeted provider lookup", () => {
-    const cfg = { plugins: { allow: ["custom-plugin"] } } as ZhushouConfig;
+    const cfg = { plugins: { allow: ["custom-plugin"] } } as AssistantConfig;
     const allowlistCompat = {
       plugins: {
         allow: ["custom-plugin", "google"],
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const enablementCompat = {
       plugins: {
         allow: ["custom-plugin", "google"],

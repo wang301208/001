@@ -83,7 +83,7 @@ describe("openai codex provider", () => {
         store: { version: 1, profiles: {} },
       }),
     ).toBe(
-      "Deprecated profile. Run `zhushou models auth login --provider openai-codex` or `zhushou configure`.",
+      "Deprecated profile. Run `assistant models auth login --provider openai-codex` or `assistant configure`.",
     );
   });
 

@@ -3,4 +3,4 @@ export {
   hasConfiguredSecretInput,
   normalizeResolvedSecretInputString,
   normalizeSecretInputString,
-} from "zhushou/plugin-sdk/secret-input";
+} from "assistant/plugin-sdk/secret-input";

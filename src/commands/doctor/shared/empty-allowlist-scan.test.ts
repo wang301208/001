@@ -27,7 +27,7 @@ describe("doctor empty allowlist policy scan", () => {
           },
         },
       },
-      { doctorFixCommand: "zhushou doctor --fix" },
+      { doctorFixCommand: "assistant doctor --fix" },
     );
 
     expect(warnings).toEqual([
@@ -48,7 +48,7 @@ describe("doctor empty allowlist policy scan", () => {
         },
       },
       {
-        doctorFixCommand: "zhushou doctor --fix",
+        doctorFixCommand: "assistant doctor --fix",
         extraWarningsForAccount: ({ channelName, prefix }) =>
           channelName === "telegram" ? [`extra:${prefix}`] : [],
       },

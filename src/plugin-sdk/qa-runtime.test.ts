@@ -4,24 +4,24 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const loadBundledPluginPublicSurfaceModuleSync = vi.hoisted(() => vi.fn());
-const resolveOpenClawPackageRootSync = vi.hoisted(() => vi.fn());
+const resolveAssistantPackageRootSync = vi.hoisted(() => vi.fn());
 
 vi.mock("./facade-runtime.js", () => ({
   loadBundledPluginPublicSurfaceModuleSync,
 }));
 
-vi.mock("../infra/zhushou-root.js", () => ({
-  resolveOpenClawPackageRootSync,
+vi.mock("../infra/assistant-root.js", () => ({
+  resolveAssistantPackageRootSync,
 }));
 
 describe("plugin-sdk qa-runtime", () => {
   const tempDirs: string[] = [];
-  const originalPrivateQaCli = process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
+  const originalPrivateQaCli = process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
 
   beforeEach(() => {
     loadBundledPluginPublicSurfaceModuleSync.mockReset();
-    resolveOpenClawPackageRootSync.mockReset().mockReturnValue(null);
-    delete process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
+    resolveAssistantPackageRootSync.mockReset().mockReturnValue(null);
+    delete process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
   });
 
   afterEach(() => {
@@ -29,9 +29,9 @@ describe("plugin-sdk qa-runtime", () => {
       fs.rmSync(dir, { recursive: true, force: true });
     }
     if (originalPrivateQaCli === undefined) {
-      delete process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
+      delete process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
     } else {
-      process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = originalPrivateQaCli;
+      process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI = originalPrivateQaCli;
     }
   });
 
@@ -60,13 +60,13 @@ describe("plugin-sdk qa-runtime", () => {
   });
 
   it("uses the source bundled tree for qa-lab runtime loading in private qa mode", async () => {
-    const sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-qa-runtime-root-"));
+    const sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-qa-runtime-root-"));
     tempDirs.push(sourceRoot);
     fs.mkdirSync(path.join(sourceRoot, "src"), { recursive: true });
     fs.mkdirSync(path.join(sourceRoot, "extensions"), { recursive: true });
     fs.writeFileSync(path.join(sourceRoot, ".git"), "gitdir: /tmp/mock\n", "utf8");
-    process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = "1";
-    resolveOpenClawPackageRootSync.mockReturnValue(sourceRoot);
+    process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI = "1";
+    resolveAssistantPackageRootSync.mockReturnValue(sourceRoot);
 
     const runtimeSurface = {
       defaultQaRuntimeModelForMode: vi.fn(),
@@ -81,8 +81,8 @@ describe("plugin-sdk qa-runtime", () => {
       dirName: "qa-lab",
       artifactBasename: "runtime-api.js",
       env: expect.objectContaining({
-        ZHUSHOU_ENABLE_PRIVATE_QA_CLI: "1",
-        OPENCLAW_BUNDLED_PLUGINS_DIR: path.join(sourceRoot, "extensions"),
+        ASSISTANT_ENABLE_PRIVATE_QA_CLI: "1",
+        ASSISTANT_BUNDLED_PLUGINS_DIR: path.join(sourceRoot, "extensions"),
       }),
     });
   });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import {
   buildCommandsMessage,
   buildCommandsMessagePaginated,
@@ -9,7 +9,7 @@ import {
 
 const baseCfg = {
   commands: { useAccessGroups: true },
-} as unknown as ZhushouConfig;
+} as unknown as AssistantConfig;
 
 async function resolveAuthorization(params: {
   senderId: string;
@@ -34,7 +34,7 @@ async function resolveAuthorization(params: {
 
 describe("plugin-sdk/command-auth", () => {
   it("keeps deprecated command status builders available for compatibility", () => {
-    const cfg = { commands: { config: false, debug: false } } as unknown as ZhushouConfig;
+    const cfg = { commands: { config: false, debug: false } } as unknown as AssistantConfig;
 
     expect(buildHelpMessage(cfg)).toContain("/commands for full list");
     expect(buildCommandsMessage(cfg)).toContain("More: /tools for available capabilities");

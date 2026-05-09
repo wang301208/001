@@ -106,6 +106,21 @@ function createTaskRegistryMaintenanceHarness(params: {
       currentTasks.set(patch.taskId, next);
       return next;
     },
+    markTaskTerminalById: (patch) => {
+      const current = currentTasks.get(patch.taskId);
+      if (!current) {
+        return null;
+      }
+      const next = {
+        ...current,
+        status: patch.status,
+        endedAt: patch.endedAt,
+        lastEventAt: patch.lastEventAt ?? patch.endedAt,
+        ...(patch.error !== undefined ? { error: patch.error } : {}),
+      };
+      currentTasks.set(patch.taskId, next);
+      return next;
+    },
     maybeDeliverTaskTerminalUpdate: async () => null,
     resolveTaskForLookupToken: () => undefined,
     setTaskCleanupAfterById: (patch) => {
@@ -209,5 +224,29 @@ describe("task-registry maintenance issue #60299", () => {
 
     expect(await runTaskRegistryMaintenance()).toMatchObject({ reconciled: 0 });
     expect(currentTasks.get(task.taskId)).toMatchObject({ status: "running" });
+  });
+
+  it("cancels stale queued cli tasks that never received a child session or active run", async () => {
+    const task = makeStaleTask({
+      runtime: "cli",
+      sourceId: "runtime.autonomy/founder",
+      runId: undefined,
+      childSessionKey: undefined,
+      status: "queued",
+      ownerKey: "agent:founder:main",
+      requesterSessionKey: "agent:founder:main",
+      scopeKind: "session",
+    });
+
+    const { currentTasks } = createTaskRegistryMaintenanceHarness({
+      tasks: [task],
+    });
+
+    expect(await runTaskRegistryMaintenance()).toMatchObject({ reconciled: 1 });
+    expect(currentTasks.get(task.taskId)).toMatchObject({
+      status: "cancelled",
+      error: "queued task expired before dispatch",
+    });
+    expect(currentTasks.get(task.taskId)?.cleanupAfter).toBeTypeOf("number");
   });
 });

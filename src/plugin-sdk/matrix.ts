@@ -7,7 +7,7 @@ import {
   loadBundledPluginPublicSurfaceModuleSync,
 } from "./facade-loader.js";
 
-type MatrixFacadeModule = typeof import("@zhushou/matrix/contract-api.js");
+type MatrixFacadeModule = typeof import("@assistant/matrix/contract-api.js");
 
 function loadMatrixFacadeModule(): MatrixFacadeModule {
   return loadBundledPluginPublicSurfaceModuleSync<MatrixFacadeModule>({
@@ -103,7 +103,7 @@ export {
 export { createTypingCallbacks } from "../channels/typing.js";
 export { createChannelReplyPipeline } from "./channel-reply-pipeline.js";
 export { loadOutboundMediaFromUrl } from "./outbound-media.js";
-export type { ZhushouConfig } from "../config/config.js";
+export type { AssistantConfig } from "../config/config.js";
 export {
   GROUP_POLICY_BLOCKED_LABEL,
   resolveAllowlistProviderRuntimeGroupPolicy,
@@ -142,7 +142,7 @@ export { isPrivateOrLoopbackHost } from "../gateway/net.js";
 export { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 export type { PluginRuntime, RuntimeLogger } from "../plugins/runtime/types.js";
-export type { ZhushouPluginApi } from "../plugins/types.js";
+export type { AssistantPluginApi } from "../plugins/types.js";
 export type { PollInput } from "../polls.js";
 export { normalizePollInput } from "../polls.js";
 export {
@@ -208,7 +208,7 @@ export const resolveSingleAccountPromotionTarget: MatrixFacadeModule["resolveSin
 const matrixSetup = createOptionalChannelSetupSurface({
   channel: "matrix",
   label: "Matrix",
-  npmSpec: "@zhushou/matrix",
+  npmSpec: "@assistant/matrix",
   docsPath: "/channels/matrix",
 });
 

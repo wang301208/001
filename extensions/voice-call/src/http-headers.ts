@@ -1,4 +1,4 @@
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 
 export type HttpHeaderMap = Record<string, string | string[] | undefined>;
 

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import {
   type DeliverFn,
   drainPendingDeliveries,
@@ -21,7 +21,7 @@ function createMockLogger(): RecoveryLogger {
   };
 }
 
-const stubCfg = {} as ZhushouConfig;
+const stubCfg = {} as AssistantConfig;
 const NO_LISTENER_ERROR = "No active WhatsApp Web listener";
 
 function normalizeReconnectAccountIdForTest(accountId?: string | null): string {
@@ -58,7 +58,7 @@ describe("drainPendingDeliveries for WhatsApp reconnect", () => {
   let fixtureCount = 0;
 
   beforeAll(() => {
-    fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-drain-"));
+    fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-drain-"));
   });
 
   beforeEach(() => {

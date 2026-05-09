@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   listRuntimeVideoGenerationProviders: vi.fn(),
 }));
 
-vi.mock("zhushou/plugin-sdk/video-generation-runtime", () => ({
+vi.mock("assistant/plugin-sdk/video-generation-runtime", () => ({
   generateVideo: mocks.generateVideo,
   listRuntimeVideoGenerationProviders: mocks.listRuntimeVideoGenerationProviders,
 }));

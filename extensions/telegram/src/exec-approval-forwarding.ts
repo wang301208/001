@@ -2,14 +2,14 @@ import {
   buildExecApprovalPendingReplyPayload,
   resolveExecApprovalRequestAllowedDecisions,
   resolveExecApprovalCommandDisplay,
-} from "zhushou/plugin-sdk/approval-reply-runtime";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import type { ExecApprovalRequest } from "zhushou/plugin-sdk/infra-runtime";
-import { normalizeMessageChannel } from "zhushou/plugin-sdk/routing";
+} from "assistant/plugin-sdk/approval-reply-runtime";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ExecApprovalRequest } from "assistant/plugin-sdk/infra-runtime";
+import { normalizeMessageChannel } from "assistant/plugin-sdk/routing";
 import { isTelegramExecApprovalClientEnabled } from "./exec-approvals.js";
 
 export function shouldSuppressTelegramExecApprovalForwardingFallback(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   target: { channel: string; accountId?: string | null };
   request: ExecApprovalRequest;
 }): boolean {

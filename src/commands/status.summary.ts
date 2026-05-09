@@ -4,7 +4,7 @@ import { resolveMainSessionKey } from "../config/sessions/main-session.js";
 import { resolveStorePath } from "../config/sessions/paths.js";
 import { readSessionStoreReadOnly } from "../config/sessions/store-read.js";
 import { resolveFreshSessionTotalTokens, type SessionEntry } from "../config/sessions/types.js";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { listGatewayAgentsBasic } from "../gateway/agent-list.js";
 import { resolveHeartbeatSummaryForAgent } from "../infra/heartbeat-summary.js";
 import { peekSystemEvents } from "../infra/system-events.js";
@@ -17,6 +17,7 @@ import type {
   GovernanceOverviewResult,
   GovernanceTeamResult,
 } from "../governance/control-plane.js";
+import { loadGovernanceCharter } from "../governance/charter-runtime.js";
 import type {
   AutonomyCapabilityInventoryResult,
   AutonomyFleetHistoryEvent,
@@ -389,8 +390,8 @@ export function redactSensitiveStatusSummary(summary: StatusSummary): StatusSumm
 export async function getStatusSummary(
   options: {
     includeSensitive?: boolean;
-    config?: ZhushouConfig;
-    sourceConfig?: ZhushouConfig;
+    config?: AssistantConfig;
+    sourceConfig?: AssistantConfig;
   } = {},
 ): Promise<StatusSummary> {
   const { includeSensitive = true } = options;
@@ -465,8 +466,10 @@ export async function getStatusSummary(
         loadRuntimeAutonomyModule(),
         loadRuntimeTaskFlowModule(),
       ]);
+      const charterDir = loadGovernanceCharter().charterDir;
       const runtime = createRuntimeAutonomy({
         legacyTaskFlow: createRuntimeTaskFlow(),
+        charterDir,
       }).bindSession({
         sessionKey: mainSessionKey,
       });

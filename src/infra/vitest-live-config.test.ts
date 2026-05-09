@@ -24,7 +24,7 @@ describe("live vitest config", () => {
       BUNDLED_PLUGIN_LIVE_TEST_GLOB,
     ]);
     expect(normalizeConfigPaths(liveConfig.test?.setupFiles)).toContain(
-      "test/setup-zhushou-runtime.ts",
+      "test/setup-assistant-runtime.ts",
     );
   });
 });

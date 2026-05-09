@@ -1,14 +1,14 @@
-import { coerceNativeSetting, normalizeAllowFromList } from "zhushou/plugin-sdk/channel-policy";
-import { readChannelAllowFromStore } from "zhushou/plugin-sdk/conversation-runtime";
+import { coerceNativeSetting, normalizeAllowFromList } from "assistant/plugin-sdk/channel-policy";
+import { readChannelAllowFromStore } from "assistant/plugin-sdk/conversation-runtime";
 import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
-} from "zhushou/plugin-sdk/native-command-config-runtime";
+} from "assistant/plugin-sdk/native-command-config-runtime";
 import type { ResolvedSlackAccount } from "./accounts.js";
-import type { ZhushouConfig } from "./runtime-api.js";
+import type { AssistantConfig } from "./runtime-api.js";
 
 export async function collectSlackSecurityAuditFindings(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
   account: ResolvedSlackAccount;
 }) {

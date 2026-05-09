@@ -4,12 +4,12 @@ import {
   readConfigFileSnapshot,
   readSourceConfigBestEffort,
 } from "./config.js";
-import { withTempHome, writeZhushouConfig } from "./test-helpers.js";
+import { withTempHome, writeAssistantConfig } from "./test-helpers.js";
 
 describe("readBestEffortConfig", () => {
   it("reuses valid snapshots while preserving load-time defaults", async () => {
     await withTempHome(async (home) => {
-      await writeZhushouConfig(home, {
+      await writeAssistantConfig(home, {
         auth: {
           profiles: {
             "anthropic:api": { provider: "anthropic", mode: "api_key" },
@@ -41,7 +41,7 @@ describe("readBestEffortConfig", () => {
 describe("readSourceConfigBestEffort", () => {
   it("preserves the authored source config without load-time defaults", async () => {
     await withTempHome(async (home) => {
-      await writeZhushouConfig(home, {
+      await writeAssistantConfig(home, {
         auth: {
           profiles: {
             "anthropic:api": { provider: "anthropic", mode: "api_key" },

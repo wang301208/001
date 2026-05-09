@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { loadPluginManifestRegistry } from "../plugins/manifest-registry.js";
 
 type ChannelEnvVarLookupParams = {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 };

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { collectModelHygieneFindings } from "./audit-extra.sync.js";
 
 describe("security audit model hygiene findings", () => {
   it("classifies legacy and weak-tier model identifiers", () => {
     const cases: Array<{
       name: string;
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       expectedPresent?: Array<{ checkId: string; severity: "warn" }>;
       expectedAbsentCheckId?: string;
     }> = [

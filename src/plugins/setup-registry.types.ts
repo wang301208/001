@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import type { CliBackendPlugin } from "./cli-backend.types.js";
 
 export type SetupPluginLogger = {
@@ -15,21 +15,21 @@ export type SetupProviderPlugin = {
   resolveConfigApiKey?: (params: {
     provider: string;
     env?: NodeJS.ProcessEnv;
-    cfg?: ZhushouConfig;
+    cfg?: AssistantConfig;
     workspaceDir?: string;
   }) => string | null | undefined;
 };
 
-export type SetupPluginConfigMigration = (config: ZhushouConfig) =>
+export type SetupPluginConfigMigration = (config: AssistantConfig) =>
   | {
-      config: ZhushouConfig;
+      config: AssistantConfig;
       changes: string[];
     }
   | null
   | undefined;
 
 export type SetupPluginAutoEnableContext = {
-  config: ZhushouConfig;
+  config: AssistantConfig;
   env: NodeJS.ProcessEnv;
 };
 
@@ -45,7 +45,7 @@ export type SetupOnlyPluginApi = {
   source: string;
   rootDir?: string;
   registrationMode: "setup-only";
-  config: ZhushouConfig;
+  config: AssistantConfig;
   pluginConfig?: Record<string, unknown>;
   runtime: Record<string, never>;
   logger: SetupPluginLogger;

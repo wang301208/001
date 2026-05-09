@@ -1,13 +1,13 @@
-import type { ChannelSetupAdapter, ChannelSetupInput } from "zhushou/plugin-sdk/channel-setup";
-import type { DmPolicy } from "zhushou/plugin-sdk/config-runtime";
-import { normalizeAccountId } from "zhushou/plugin-sdk/routing";
+import type { ChannelSetupAdapter, ChannelSetupInput } from "assistant/plugin-sdk/channel-setup";
+import type { DmPolicy } from "assistant/plugin-sdk/config-runtime";
+import { normalizeAccountId } from "assistant/plugin-sdk/routing";
 import {
   applyAccountNameToChannelSection,
   createSetupInputPresenceValidator,
   createTopLevelChannelAllowFromSetter,
   createTopLevelChannelDmPolicySetter,
   patchScopedAccountConfig,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import type { CoreConfig, IrcAccountConfig, IrcNickServConfig } from "./types.js";
 
 const channel = "irc" as const;

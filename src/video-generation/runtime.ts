@@ -1,6 +1,6 @@
 import { describeFailoverError, isFailoverError } from "../agents/failover-error.js";
 import type { FallbackAttempt } from "../agents/model-fallback.types.js";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
@@ -74,7 +74,7 @@ function validateProviderOptionsAgainstDeclaration(params: {
   return undefined;
 }
 
-function buildNoVideoGenerationModelConfiguredMessage(cfg: ZhushouConfig): string {
+function buildNoVideoGenerationModelConfiguredMessage(cfg: AssistantConfig): string {
   return buildNoCapabilityModelConfiguredMessage({
     capabilityLabel: "video-generation",
     modelConfigKey: "videoGenerationModel",
@@ -82,7 +82,7 @@ function buildNoVideoGenerationModelConfiguredMessage(cfg: ZhushouConfig): strin
   });
 }
 
-export function listRuntimeVideoGenerationProviders(params?: { config?: ZhushouConfig }) {
+export function listRuntimeVideoGenerationProviders(params?: { config?: AssistantConfig }) {
   return listVideoGenerationProviders(params?.config);
 }
 

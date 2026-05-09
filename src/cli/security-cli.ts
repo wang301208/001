@@ -40,16 +40,16 @@ export function registerSecurityCli(program: Command) {
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["zhushou security audit", "Run a local security audit."],
-          ["zhushou security audit --deep", "Include best-effort live Gateway probe checks."],
-          ["zhushou security audit --deep --token <token>", "Use explicit token for deep probe."],
+          ["assistant security audit", "Run a local security audit."],
+          ["assistant security audit --deep", "Include best-effort live Gateway probe checks."],
+          ["assistant security audit --deep --token <token>", "Use explicit token for deep probe."],
           [
-            "zhushou security audit --deep --password <password>",
+            "assistant security audit --deep --password <password>",
             "Use explicit password for deep probe.",
           ],
-          ["zhushou security audit --fix", "Apply safe remediations and file-permission fixes."],
-          ["zhushou security audit --json", "Output machine-readable JSON."],
-        ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/security", "docs.zhushou.ai/cli/security")}\n`,
+          ["assistant security audit --fix", "Apply safe remediations and file-permission fixes."],
+          ["assistant security audit --json", "Output machine-readable JSON."],
+        ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/security", "docs.assistant.ai/cli/security")}\n`,
     );
 
   security
@@ -101,13 +101,13 @@ export function registerSecurityCli(program: Command) {
       const lines: string[] = [];
       lines.push(heading("助手 security audit"));
       lines.push(muted(`Summary: ${formatSummary(report.summary)}`));
-      lines.push(muted(`Run deeper: ${formatCliCommand("zhushou security audit --deep")}`));
+      lines.push(muted(`Run deeper: ${formatCliCommand("assistant security audit --deep")}`));
       for (const diagnostic of secretDiagnostics) {
         lines.push(muted(`[secrets] ${diagnostic}`));
       }
 
       if (opts.fix) {
-        lines.push(muted(`Fix: ${formatCliCommand("zhushou security audit --fix")}`));
+        lines.push(muted(`Fix: ${formatCliCommand("assistant security audit --fix")}`));
         if (!fixResult) {
           lines.push(muted("Fixes: failed to apply (unexpected error)"));
         } else if (

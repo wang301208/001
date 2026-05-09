@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeSecretInputString, resolveSecretInputRef } from "../config/types.secrets.js";
 import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 
@@ -15,7 +15,7 @@ type ProviderWithCredential = {
 export function resolveWebProviderConfig<
   TKind extends "search" | "fetch",
   TConfig extends Record<string, unknown>,
->(cfg: ZhushouConfig | undefined, kind: TKind): TConfig | undefined {
+>(cfg: AssistantConfig | undefined, kind: TKind): TConfig | undefined {
   const webConfig = cfg?.tools?.web;
   if (!webConfig || typeof webConfig !== "object") {
     return undefined;
@@ -51,11 +51,11 @@ export function hasWebProviderEntryCredential<
   TConfig extends Record<string, unknown> | undefined,
 >(params: {
   provider: TProvider;
-  config: ZhushouConfig | undefined;
+  config: AssistantConfig | undefined;
   toolConfig: TConfig;
   resolveRawValue: (params: {
     provider: TProvider;
-    config: ZhushouConfig | undefined;
+    config: AssistantConfig | undefined;
     toolConfig: TConfig;
   }) => unknown;
   resolveEnvValue: (params: {
@@ -95,7 +95,7 @@ export function resolveWebProviderDefinition<
   TRuntimeMetadata extends RuntimeWebProviderMetadata,
   TDefinition,
 >(params: {
-  config: ZhushouConfig | undefined;
+  config: AssistantConfig | undefined;
   toolConfig: TConfig;
   runtimeMetadata: TRuntimeMetadata | undefined;
   sandboxed?: boolean;
@@ -103,19 +103,19 @@ export function resolveWebProviderDefinition<
   providers: TProvider[];
   resolveEnabled: (params: { toolConfig: TConfig; sandboxed?: boolean }) => boolean;
   resolveAutoProviderId: (params: {
-    config: ZhushouConfig | undefined;
+    config: AssistantConfig | undefined;
     toolConfig: TConfig;
     providers: TProvider[];
   }) => string;
   resolveFallbackProviderId?: (params: {
-    config: ZhushouConfig | undefined;
+    config: AssistantConfig | undefined;
     toolConfig: TConfig;
     providers: TProvider[];
     providerId: string;
   }) => string | undefined;
   createTool: (params: {
     provider: TProvider;
-    config: ZhushouConfig | undefined;
+    config: AssistantConfig | undefined;
     toolConfig: TConfig;
     runtimeMetadata: TRuntimeMetadata | undefined;
   }) => TDefinition | null;

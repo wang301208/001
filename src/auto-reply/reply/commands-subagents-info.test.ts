@@ -4,13 +4,13 @@ import {
   resetSubagentRegistryForTests,
 } from "../../agents/subagent-registry.test-helpers.js";
 import type { SubagentRunRecord } from "../../agents/subagent-registry.types.js";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import { failTaskRunByRunId } from "../../tasks/task-executor.js";
 import { createTaskRecord, resetTaskRegistryForTests } from "../../tasks/task-registry.js";
 import type { ReplyPayload } from "../types.js";
 import { handleSubagentsInfoAction } from "./commands-subagents/action-info.js";
 
-function buildInfoContext(params: { cfg: ZhushouConfig; runs: object[]; restTokens: string[] }) {
+function buildInfoContext(params: { cfg: AssistantConfig; runs: object[]; restTokens: string[] }) {
   return {
     params: {
       cfg: params.cfg,
@@ -38,7 +38,7 @@ describe("subagents info", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const result = handleSubagentsInfoAction(buildInfoContext({ cfg, runs: [], restTokens: [] }));
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("/subagents info <id|#>");
@@ -75,7 +75,7 @@ describe("subagents info", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const result = handleSubagentsInfoAction(
       buildInfoContext({ cfg, runs: [run], restTokens: ["1"] }),
     );
@@ -139,7 +139,7 @@ describe("subagents info", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const result = handleSubagentsInfoAction(
       buildInfoContext({ cfg, runs: [run], restTokens: ["1"] }),
     );
@@ -184,7 +184,7 @@ describe("subagents info", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const result = handleSubagentsInfoAction({
       params: {
         cfg,

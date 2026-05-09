@@ -1,5 +1,5 @@
-import type { OutputRuntimeEnv } from "zhushou/plugin-sdk/runtime";
-import type { ChannelSetupWizardAdapter } from "zhushou/plugin-sdk/setup";
+import type { OutputRuntimeEnv } from "assistant/plugin-sdk/runtime";
+import type { ChannelSetupWizardAdapter } from "assistant/plugin-sdk/setup";
 import { afterEach, vi } from "vitest";
 import type { RuntimeEnv, WizardPrompter } from "../runtime-api.js";
 import type { CoreConfig } from "./types.js";
@@ -272,7 +272,7 @@ export function createMatrixUpdateKeepCredentialsPrompter(params?: {
     },
     text: {
       "Matrix homeserver URL": params?.homeserver ?? "https://matrix.example.org",
-      "Matrix device name (optional)": params?.deviceName ?? "OpenClaw Gateway",
+      "Matrix device name (optional)": params?.deviceName ?? "Assistant Gateway",
     },
     confirm: {
       "Matrix credentials already configured. Keep them?": true,

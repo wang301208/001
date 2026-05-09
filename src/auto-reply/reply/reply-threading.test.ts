@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 import {
@@ -8,7 +8,7 @@ import {
   resolveReplyToModeWithThreading,
 } from "./reply-threading.js";
 
-const emptyCfg = {} as ZhushouConfig;
+const emptyCfg = {} as AssistantConfig;
 
 describe("resolveReplyToMode", () => {
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe("resolveReplyToMode", () => {
         discord: { replyToMode: "first" },
         slack: { replyToMode: "all" },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const chatTypeCfg = {
       channels: {
         slack: {
@@ -34,14 +34,14 @@ describe("resolveReplyToMode", () => {
           replyToModeByChatType: { direct: "all", group: "first" },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const topLevelFallbackCfg = {
       channels: {
         slack: {
           replyToMode: "first",
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
     const legacyDmCfg = {
       channels: {
         slack: {
@@ -49,10 +49,10 @@ describe("resolveReplyToMode", () => {
           dm: { replyToMode: "all" },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     const cases: Array<{
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       channel?: "telegram" | "discord" | "slack";
       chatType?: "direct" | "group" | "channel";
       expected: "off" | "all" | "first";
@@ -89,7 +89,7 @@ describe("resolveReplyToMode", () => {
               replyToMode: "off",
             },
           },
-        } as ZhushouConfig,
+        } as AssistantConfig,
         {
           resolveReplyToMode: () => "first",
         },
@@ -121,7 +121,7 @@ describe("resolveConfiguredReplyToMode", () => {
           dm: { replyToMode: "all" },
         },
       },
-    } as ZhushouConfig;
+    } as AssistantConfig;
 
     expect(resolveConfiguredReplyToMode(cfg, "slack", "direct")).toBe("all");
     expect(resolveConfiguredReplyToMode(cfg, "slack", "group")).toBe("first");

@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { buildPluginApi } from "./api-builder.js";
 import type { MemoryEmbeddingProviderAdapter } from "./memory-embedding-providers.js";
 import type { PluginRuntime } from "./runtime/types.js";
@@ -9,9 +9,9 @@ import type {
   ImageGenerationProviderPlugin,
   MediaUnderstandingProviderPlugin,
   MusicGenerationProviderPlugin,
-  ZhushouPluginApi,
-  OpenClawPluginCliCommandDescriptor,
-  OpenClawPluginCliRegistrar,
+  AssistantPluginApi,
+  AssistantPluginCliCommandDescriptor,
+  AssistantPluginCliRegistrar,
   PluginTextTransformRegistration,
   ProviderPlugin,
   RealtimeTranscriptionProviderPlugin,
@@ -23,13 +23,13 @@ import type {
 } from "./types.js";
 
 type CapturedPluginCliRegistration = {
-  register: OpenClawPluginCliRegistrar;
+  register: AssistantPluginCliRegistrar;
   commands: string[];
-  descriptors: OpenClawPluginCliCommandDescriptor[];
+  descriptors: AssistantPluginCliCommandDescriptor[];
 };
 
 export type CapturedPluginRegistration = {
-  api: ZhushouPluginApi;
+  api: AssistantPluginApi;
   providers: ProviderPlugin[];
   agentHarnesses: AgentHarness[];
   cliRegistrars: CapturedPluginCliRegistration[];
@@ -49,8 +49,8 @@ export type CapturedPluginRegistration = {
 };
 
 export function createCapturedPluginRegistration(params?: {
-  config?: ZhushouConfig;
-  registrationMode?: ZhushouPluginApi["registrationMode"];
+  config?: AssistantConfig;
+  registrationMode?: AssistantPluginApi["registrationMode"];
 }): CapturedPluginRegistration {
   const providers: ProviderPlugin[] = [];
   const agentHarnesses: AgentHarness[] = [];
@@ -97,7 +97,7 @@ export function createCapturedPluginRegistration(params?: {
       name: "Captured Plugin Registration",
       source: "captured-plugin-registration",
       registrationMode: params?.registrationMode ?? "full",
-      config: params?.config ?? ({} as ZhushouConfig),
+      config: params?.config ?? ({} as AssistantConfig),
       runtime: {} as PluginRuntime,
       logger: noopLogger,
       resolvePath: (input) => input,
@@ -178,7 +178,7 @@ export function createCapturedPluginRegistration(params?: {
 }
 
 export function capturePluginRegistration(params: {
-  register(api: ZhushouPluginApi): void;
+  register(api: AssistantPluginApi): void;
 }): CapturedPluginRegistration {
   const captured = createCapturedPluginRegistration();
   params.register(captured.api);

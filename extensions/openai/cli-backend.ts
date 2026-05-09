@@ -1,8 +1,8 @@
-import type { CliBackendPlugin } from "zhushou/plugin-sdk/cli-backend";
+import type { CliBackendPlugin } from "assistant/plugin-sdk/cli-backend";
 import {
   CLI_FRESH_WATCHDOG_DEFAULTS,
   CLI_RESUME_WATCHDOG_DEFAULTS,
-} from "zhushou/plugin-sdk/cli-backend";
+} from "assistant/plugin-sdk/cli-backend";
 
 const CODEX_CLI_DEFAULT_MODEL_REF = "codex-cli/gpt-5.4";
 

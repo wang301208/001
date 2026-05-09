@@ -1,7 +1,7 @@
 import {
   createResolvedApproverActionAuthAdapter,
   resolveApprovalApprovers,
-} from "zhushou/plugin-sdk/approval-auth-runtime";
+} from "assistant/plugin-sdk/approval-auth-runtime";
 import { resolveZaloAccount } from "./accounts.js";
 
 function normalizeZaloApproverId(value: string | number): string | undefined {

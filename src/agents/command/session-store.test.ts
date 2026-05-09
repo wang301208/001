@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../../config/config.js";
+import type { AssistantConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import { loadSessionStore } from "../../config/sessions.js";
 import type { EmbeddedPiRunResult } from "../pi-embedded.js";
@@ -24,7 +24,7 @@ function acpMeta() {
 async function withTempSessionStore<T>(
   run: (params: { dir: string; storePath: string }) => Promise<T>,
 ): Promise<T> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-session-store-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-session-store-"));
   try {
     return await run({ dir, storePath: path.join(dir, "sessions.json") });
   } finally {
@@ -45,9 +45,9 @@ describe("updateSessionStoreAfterAgentRun", () => {
             },
           },
         },
-      } as ZhushouConfig;
+      } as AssistantConfig;
       const sessionKey = "agent:main:explicit:test-claude-cli";
-      const sessionId = "test-zhushou-session";
+      const sessionId = "test-assistant-session";
       const sessionStore: Record<string, SessionEntry> = {
         [sessionKey]: {
           sessionId,

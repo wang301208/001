@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import { joinPresentTextSegments } from "../../../shared/text/join-segments.js";
 import { normalizeStructuredPromptSection } from "../../prompt-cache-stability.js";
 
-export const ATTEMPT_CACHE_TTL_CUSTOM_TYPE = "zhushou.cache-ttl";
+export const ATTEMPT_CACHE_TTL_CUSTOM_TYPE = "assistant.cache-ttl";
 
 export function composeSystemPromptWithHookContext(params: {
   baseSystemPrompt?: string;
@@ -50,7 +50,7 @@ export function shouldUseOpenAIWebSocketTransport(params: {
 export function shouldAppendAttemptCacheTtl(params: {
   timedOutDuringCompaction: boolean;
   compactionOccurredThisAttempt: boolean;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   provider: string;
   modelId: string;
   modelApi?: string;
@@ -71,7 +71,7 @@ export function appendAttemptCacheTtlIfNeeded(params: {
   };
   timedOutDuringCompaction: boolean;
   compactionOccurredThisAttempt: boolean;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   provider: string;
   modelId: string;
   modelApi?: string;

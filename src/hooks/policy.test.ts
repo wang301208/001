@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { resolveHookEnableState, resolveHookEntries } from "./policy.js";
 import type { HookEntry, HookSource } from "./types.js";
 
@@ -28,7 +28,7 @@ function makeHookEntry(name: string, source: HookSource): HookEntry {
 describe("hook policy", () => {
   describe("resolveHookEnableState", () => {
     it("keeps workspace hooks disabled by default", () => {
-      const entry = makeHookEntry("workspace-hook", "zhushou-workspace");
+      const entry = makeHookEntry("workspace-hook", "assistant-workspace");
       expect(resolveHookEnableState({ entry })).toEqual({
         enabled: false,
         reason: "workspace hook (disabled by default)",
@@ -36,8 +36,8 @@ describe("hook policy", () => {
     });
 
     it("allows workspace hooks when explicitly enabled", () => {
-      const entry = makeHookEntry("workspace-hook", "zhushou-workspace");
-      const config: ZhushouConfig = {
+      const entry = makeHookEntry("workspace-hook", "assistant-workspace");
+      const config: AssistantConfig = {
         hooks: {
           internal: {
             entries: {
@@ -52,35 +52,35 @@ describe("hook policy", () => {
     });
 
     it("keeps plugin hooks enabled without local hook toggles", () => {
-      const entry = makeHookEntry("plugin-hook", "zhushou-plugin");
+      const entry = makeHookEntry("plugin-hook", "assistant-plugin");
       expect(resolveHookEnableState({ entry })).toEqual({ enabled: true });
     });
   });
 
   describe("resolveHookEntries", () => {
     it("lets managed hooks override bundled and plugin hooks", () => {
-      const bundled = makeHookEntry("shared", "zhushou-bundled");
-      const plugin = makeHookEntry("shared", "zhushou-plugin");
-      const managed = makeHookEntry("shared", "zhushou-managed");
+      const bundled = makeHookEntry("shared", "assistant-bundled");
+      const plugin = makeHookEntry("shared", "assistant-plugin");
+      const managed = makeHookEntry("shared", "assistant-managed");
 
       const resolved = resolveHookEntries([bundled, plugin, managed]);
       expect(resolved).toHaveLength(1);
-      expect(resolved[0]?.hook.source).toBe("zhushou-managed");
+      expect(resolved[0]?.hook.source).toBe("assistant-managed");
     });
 
     it("prevents workspace hooks from overriding non-workspace hooks", () => {
-      const managed = makeHookEntry("shared", "zhushou-managed");
-      const workspace = makeHookEntry("shared", "zhushou-workspace");
+      const managed = makeHookEntry("shared", "assistant-managed");
+      const workspace = makeHookEntry("shared", "assistant-workspace");
 
       const resolved = resolveHookEntries([managed, workspace]);
       expect(resolved).toHaveLength(1);
-      expect(resolved[0]?.hook.source).toBe("zhushou-managed");
+      expect(resolved[0]?.hook.source).toBe("assistant-managed");
     });
 
     it("keeps later workspace entries for the same source/name", () => {
-      const first = makeHookEntry("shared", "zhushou-workspace");
-      const second = makeHookEntry("shared", "zhushou-workspace");
-      second.hook.handlerPath = "/tmp/zhushou-workspace/shared/handler-2.js";
+      const first = makeHookEntry("shared", "assistant-workspace");
+      const second = makeHookEntry("shared", "assistant-workspace");
+      second.hook.handlerPath = "/tmp/assistant-workspace/shared/handler-2.js";
 
       const resolved = resolveHookEntries([first, second]);
       expect(resolved).toHaveLength(1);

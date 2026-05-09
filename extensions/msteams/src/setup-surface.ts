@@ -7,9 +7,9 @@ import {
   splitSetupEntries,
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
-  type ZhushouConfig,
+  type AssistantConfig,
   type WizardPrompter,
-} from "zhushou/plugin-sdk/setup";
+} from "assistant/plugin-sdk/setup";
 import type { MSTeamsTeamConfig } from "../runtime-api.js";
 import { formatUnknownError } from "./errors.js";
 import {
@@ -50,9 +50,9 @@ function looksLikeGuid(value: string): boolean {
 }
 
 async function promptMSTeamsAllowFrom(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   prompter: WizardPrompter;
-}): Promise<ZhushouConfig> {
+}): Promise<AssistantConfig> {
   const existing = params.cfg.channels?.msteams?.allowFrom ?? [];
   await params.prompter.note(
     [
@@ -113,9 +113,9 @@ async function promptMSTeamsAllowFrom(params: {
 }
 
 function setMSTeamsTeamsAllowlist(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   entries: Array<{ teamKey: string; channelKey?: string }>,
-): ZhushouConfig {
+): AssistantConfig {
   const baseTeams = cfg.channels?.msteams?.teams ?? {};
   const teams: Record<string, { channels?: Record<string, unknown> }> = { ...baseTeams };
   for (const entry of entries) {
@@ -145,7 +145,7 @@ function setMSTeamsTeamsAllowlist(
   };
 }
 
-function listMSTeamsGroupEntries(cfg: ZhushouConfig): string[] {
+function listMSTeamsGroupEntries(cfg: AssistantConfig): string[] {
   return Object.entries(cfg.channels?.msteams?.teams ?? {}).flatMap(([teamKey, value]) => {
     const channels = value?.channels ?? {};
     const channelKeys = Object.keys(channels);
@@ -157,7 +157,7 @@ function listMSTeamsGroupEntries(cfg: ZhushouConfig): string[] {
 }
 
 async function resolveMSTeamsGroupAllowlist(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   entries: string[];
   prompter: Pick<WizardPrompter, "note">;
 }): Promise<Array<{ teamKey: string; channelKey?: string }>> {

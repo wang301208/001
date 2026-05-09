@@ -4,17 +4,17 @@ import {
   listNativeCommandSpecsForConfig as listNativeCommandSpecsForConfigImpl,
   parseCommandArgs as parseCommandArgsImpl,
   resolveCommandArgMenu as resolveCommandArgMenuImpl,
-} from "zhushou/plugin-sdk/command-auth";
+} from "assistant/plugin-sdk/command-auth";
 
 type BuildCommandTextFromArgs =
-  typeof import("zhushou/plugin-sdk/command-auth").buildCommandTextFromArgs;
+  typeof import("assistant/plugin-sdk/command-auth").buildCommandTextFromArgs;
 type FindCommandByNativeName =
-  typeof import("zhushou/plugin-sdk/command-auth").findCommandByNativeName;
+  typeof import("assistant/plugin-sdk/command-auth").findCommandByNativeName;
 type ListNativeCommandSpecsForConfig =
-  typeof import("zhushou/plugin-sdk/command-auth").listNativeCommandSpecsForConfig;
-type ParseCommandArgs = typeof import("zhushou/plugin-sdk/command-auth").parseCommandArgs;
+  typeof import("assistant/plugin-sdk/command-auth").listNativeCommandSpecsForConfig;
+type ParseCommandArgs = typeof import("assistant/plugin-sdk/command-auth").parseCommandArgs;
 type ResolveCommandArgMenu =
-  typeof import("zhushou/plugin-sdk/command-auth").resolveCommandArgMenu;
+  typeof import("assistant/plugin-sdk/command-auth").resolveCommandArgMenu;
 
 export function buildCommandTextFromArgs(
   ...args: Parameters<BuildCommandTextFromArgs>

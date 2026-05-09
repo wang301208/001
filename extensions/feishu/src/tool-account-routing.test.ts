@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
-import type { ZhushouPluginApi } from "../runtime-api.js";
+import type { AssistantPluginApi } from "../runtime-api.js";
 import { createToolFactoryHarness } from "./tool-factory-test-harness.js";
 
 const createFeishuClientMock = vi.fn((account: { appId?: string } | undefined) => ({
@@ -27,7 +27,7 @@ function createConfig(params: {
     perm?: boolean;
   };
   defaultAccount?: string;
-}): ZhushouPluginApi["config"] {
+}): AssistantPluginApi["config"] {
   return {
     channels: {
       feishu: {
@@ -47,7 +47,7 @@ function createConfig(params: {
         },
       },
     },
-  } as ZhushouPluginApi["config"];
+  } as AssistantPluginApi["config"];
 }
 
 describe("feishu tool account routing", () => {
@@ -173,7 +173,7 @@ describe("feishu tool account routing", () => {
           },
         },
       },
-    } as ZhushouPluginApi["config"]);
+    } as AssistantPluginApi["config"]);
     registerFeishuWikiTools(api);
 
     const tool = resolveTool("feishu_wiki", { agentAccountId: "b" });

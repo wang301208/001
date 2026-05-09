@@ -2,11 +2,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { normalizeCompatibilityConfigValues } from "./doctor-legacy-config.js";
 
 vi.mock("../plugins/setup-registry.js", () => ({
-  runPluginSetupConfigMigrations: ({ config }: { config: ZhushouConfig }) => ({
+  runPluginSetupConfigMigrations: ({ config }: { config: AssistantConfig }) => ({
     config,
     changes: [],
   }),
@@ -41,7 +41,7 @@ vi.mock("../plugins/manifest-registry.js", () => ({
 }));
 
 vi.mock("./doctor/shared/channel-legacy-config-migrate.js", () => ({
-  applyChannelDoctorCompatibilityMigrations: (cfg: ZhushouConfig) => ({
+  applyChannelDoctorCompatibilityMigrations: (cfg: AssistantConfig) => ({
     next: cfg,
     changes: [],
   }),
@@ -66,9 +66,9 @@ describe("normalizeCompatibilityConfigValues", () => {
   };
 
   beforeAll(() => {
-    previousOauthDir = process.env.OPENCLAW_OAUTH_DIR;
-    tempOauthDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-oauth-"));
-    process.env.OPENCLAW_OAUTH_DIR = tempOauthDir;
+    previousOauthDir = process.env.ASSISTANT_OAUTH_DIR;
+    tempOauthDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-oauth-"));
+    process.env.ASSISTANT_OAUTH_DIR = tempOauthDir;
   });
 
   beforeEach(() => {
@@ -78,9 +78,9 @@ describe("normalizeCompatibilityConfigValues", () => {
 
   afterAll(() => {
     if (previousOauthDir === undefined) {
-      delete process.env.OPENCLAW_OAUTH_DIR;
+      delete process.env.ASSISTANT_OAUTH_DIR;
     } else {
-      process.env.OPENCLAW_OAUTH_DIR = previousOauthDir;
+      process.env.ASSISTANT_OAUTH_DIR = previousOauthDir;
     }
     fs.rmSync(tempOauthDir, { recursive: true, force: true });
   });
@@ -123,7 +123,7 @@ describe("normalizeCompatibilityConfigValues", () => {
           allowedHostnames: ["localhost"],
         },
       },
-    } as unknown as ZhushouConfig);
+    } as unknown as AssistantConfig);
 
     expect(
       (res.config.browser?.ssrfPolicy as Record<string, unknown> | undefined)?.allowPrivateNetwork,
@@ -143,7 +143,7 @@ describe("normalizeCompatibilityConfigValues", () => {
           dangerouslyAllowPrivateNetwork: false,
         },
       },
-    } as unknown as ZhushouConfig);
+    } as unknown as AssistantConfig);
 
     expect(
       (res.config.browser?.ssrfPolicy as Record<string, unknown> | undefined)?.allowPrivateNetwork,
@@ -390,7 +390,7 @@ describe("normalizeCompatibilityConfigValues", () => {
           },
         },
       },
-    } as ZhushouConfig);
+    } as AssistantConfig);
 
     expect(res.config.plugins?.entries?.firecrawl).toEqual({
       enabled: true,
@@ -418,7 +418,7 @@ describe("normalizeCompatibilityConfigValues", () => {
           },
         },
       },
-    } as unknown as ZhushouConfig);
+    } as unknown as AssistantConfig);
 
     expect(res.config.talk).toEqual({
       provider: "elevenlabs",

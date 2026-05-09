@@ -4,7 +4,7 @@ import { dispatchChannelMessageAction } from "../../channels/plugins/message-act
 import { createOutboundSendDeps } from "../../cli/deps.js";
 import { loadConfig } from "../../config/config.js";
 import { applyPluginAutoEnable } from "../../config/plugin-auto-enable.js";
-import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../config/types.assistant.js";
 import { resolveOutboundChannelPlugin } from "../../infra/outbound/channel-resolution.js";
 import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
@@ -64,7 +64,7 @@ async function resolveRequestedChannel(params: {
   rejectWebchatAsInternalOnly?: boolean;
 }): Promise<
   | {
-      cfg: ZhushouConfig;
+      cfg: AssistantConfig;
       channel: string;
     }
   | {
@@ -105,7 +105,7 @@ async function resolveRequestedChannel(params: {
 function resolveGatewayOutboundTarget(params: {
   channel: string;
   to: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string;
 }):
   | {

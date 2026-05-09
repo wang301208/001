@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { ModelProviderConfig } from "../config/types.models.js";
 import {
   buildPairedProviderApiKeyCatalog,
@@ -18,7 +18,7 @@ function createProviderConfig(overrides: Partial<ModelProviderConfig> = {}): Mod
 }
 
 function createCatalogContext(params: {
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
   apiKeys?: Record<string, string | undefined>;
 }): ProviderCatalogContext {
   return {

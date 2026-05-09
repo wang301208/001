@@ -1,5 +1,5 @@
 {
-  "name": "@zhushou/qa-lab",
+  "name": "@assistant/qa-lab",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 QA lab plugin with private debugger UI and scenario runner",
@@ -9,23 +9,23 @@
     "playwright-core": "1.59.1"
   },
   "devDependencies": {
-    "@zhushou/plugin-sdk": "workspace:*",
-    "zhushou": "workspace:*"
+    "@assistant/plugin-sdk": "workspace:*",
+    "assistant": "workspace:*"
   },
   "peerDependencies": {
-    "zhushou": ">=2026.4.16"
+    "assistant": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "zhushou": {
+    "assistant": {
       "optional": true
     }
   },
-  "zhushou": {
+  "assistant": {
     "extensions": [
       "./index.ts"
     ],
     "install": {
-      "npmSpec": "@zhushou/qa-lab",
+      "npmSpec": "@assistant/qa-lab",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },

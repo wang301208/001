@@ -1,9 +1,9 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveRuntimeCliBackends } from "../plugins/cli-backends.runtime.js";
 import { resolvePluginSetupCliBackendRuntime } from "../plugins/setup-registry.runtime.js";
 import { normalizeProviderId } from "./model-selection-normalize.js";
 
-export function isCliProvider(provider: string, cfg?: ZhushouConfig): boolean {
+export function isCliProvider(provider: string, cfg?: AssistantConfig): boolean {
   const normalized = normalizeProviderId(provider);
   const backends = cfg?.agents?.defaults?.cliBackends ?? {};
   if (Object.keys(backends).some((key) => normalizeProviderId(key) === normalized)) {

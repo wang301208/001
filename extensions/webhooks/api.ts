@@ -1,6 +1,6 @@
 export {
   definePluginEntry,
-  type ZhushouPluginApi,
+  type AssistantPluginApi,
   type PluginLogger,
   type PluginRuntime,
-} from "zhushou/plugin-sdk/core";
+} from "assistant/plugin-sdk/core";

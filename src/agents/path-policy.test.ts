@@ -18,7 +18,7 @@ describe("toRelativeWorkspacePath (windows semantics)", () => {
     const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
     try {
       const root = "C:\\Users\\User\\助手";
-      const candidate = "c:/users/user/zhushou/memory/log.txt";
+      const candidate = "c:/users/user/assistant/memory/log.txt";
       expect(toRelativeWorkspacePath(root, candidate)).toBe("memory\\log.txt");
     } finally {
       platformSpy.mockRestore();

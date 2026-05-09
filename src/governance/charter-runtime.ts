@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import YAML from "yaml";
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
+import { resolveGovernanceCharterDir } from "./charter-paths.js";
 import { summarizeGovernanceSovereigntyIncidentsSync } from "./sovereignty-incidents.js";
 
 const GOVERNANCE_FREEZE_TOOL_DENY = [
@@ -90,14 +90,6 @@ export type GovernanceEnforcementState = {
   activeSovereigntyIncidentIds: string[];
   activeSovereigntyFreezeIncidentIds: string[];
 };
-
-function moduleRepoRoot(): string {
-  return path.resolve(fileURLToPath(new URL(".", import.meta.url)), "..", "..");
-}
-
-function defaultCharterDir(): string {
-  return path.join(moduleRepoRoot(), "governance", "charter");
-}
 
 function parseYamlRecord(raw: string): Record<string, unknown> | null {
   const parsed = YAML.parse(raw, { schema: "core" }) as unknown;
@@ -201,7 +193,7 @@ function collectFreezeTargets(sovereigntyPolicy: SovereigntyPolicyRecord | null)
 }
 
 export function loadGovernanceCharter(options: { charterDir?: string } = {}): GovernanceCharterSnapshot {
-  const charterDir = path.resolve(options.charterDir ?? defaultCharterDir());
+  const charterDir = resolveGovernanceCharterDir(options);
   const repoRoot = path.resolve(charterDir, "..", "..");
   const discovered = fs.existsSync(charterDir);
   const constitution = readYamlDocument<ConstitutionRecord>(path.join(charterDir, "constitution.yaml"));
@@ -232,7 +224,7 @@ function hasReservedAuthority(snapshot: GovernanceCharterSnapshot, ...candidates
 }
 
 export function collectGovernanceBoundaryExposures(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   snapshot: GovernanceCharterSnapshot,
 ): GovernanceBoundaryExposure[] {
   if (!snapshot.discovered) {
@@ -355,7 +347,7 @@ function createGovernanceEnforcementState(params: {
 }
 
 export function collectGovernanceEnforcementSignals(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   snapshot: GovernanceCharterSnapshot,
 ): GovernanceEnforcementSignal[] {
   if (!snapshot.discovered) {
@@ -463,7 +455,7 @@ export function collectGovernanceEnforcementSignals(
 }
 
 export function resolveGovernanceEnforcementState(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   options: { charterDir?: string; stateDir?: string; env?: NodeJS.ProcessEnv } = {},
 ): GovernanceEnforcementState {
   const snapshot = loadGovernanceCharter({ charterDir: options.charterDir });
@@ -534,7 +526,7 @@ export function formatGovernanceEnforcementMessage(params: {
 }
 
 export function resolveGovernanceToolPolicy(
-  cfg: ZhushouConfig,
+  cfg: AssistantConfig,
   options: { charterDir?: string; stateDir?: string; env?: NodeJS.ProcessEnv } = {},
 ): { deny: string[] } | undefined {
   const enforcement = resolveGovernanceEnforcementState(cfg, options);

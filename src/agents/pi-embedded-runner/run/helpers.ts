@@ -1,5 +1,5 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import type { ZhushouConfig } from "../../../config/types.zhushou.js";
+import type { AssistantConfig } from "../../../config/types.assistant.js";
 import type { AgentGovernanceRuntimeSnapshot } from "../../../governance/runtime-snapshot.js";
 import { generateSecureToken } from "../../../infra/secure-random.js";
 import { extractAssistantTextForPhase } from "../../../shared/chat-message-content.js";
@@ -34,15 +34,15 @@ export const DEFAULT_OVERLOAD_FAILOVER_BACKOFF_MS = 0;
 export const DEFAULT_MAX_OVERLOAD_PROFILE_ROTATIONS = 1;
 export const DEFAULT_MAX_RATE_LIMIT_PROFILE_ROTATIONS = 1;
 
-export function resolveOverloadFailoverBackoffMs(cfg?: ZhushouConfig): number {
+export function resolveOverloadFailoverBackoffMs(cfg?: AssistantConfig): number {
   return cfg?.auth?.cooldowns?.overloadedBackoffMs ?? DEFAULT_OVERLOAD_FAILOVER_BACKOFF_MS;
 }
 
-export function resolveOverloadProfileRotationLimit(cfg?: ZhushouConfig): number {
+export function resolveOverloadProfileRotationLimit(cfg?: AssistantConfig): number {
   return cfg?.auth?.cooldowns?.overloadedProfileRotations ?? DEFAULT_MAX_OVERLOAD_PROFILE_ROTATIONS;
 }
 
-export function resolveRateLimitProfileRotationLimit(cfg?: ZhushouConfig): number {
+export function resolveRateLimitProfileRotationLimit(cfg?: AssistantConfig): number {
   return (
     cfg?.auth?.cooldowns?.rateLimitedProfileRotations ?? DEFAULT_MAX_RATE_LIMIT_PROFILE_ROTATIONS
   );

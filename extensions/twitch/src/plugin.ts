@@ -5,19 +5,19 @@
  * This is the primary entry point for the Twitch channel integration.
  */
 
-import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
-import { buildChannelConfigSchema } from "zhushou/plugin-sdk/channel-config-schema";
-import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
+import { buildChannelConfigSchema } from "assistant/plugin-sdk/channel-config-schema";
+import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
 import {
   createLoggedPairingApprovalNotifier,
   createPairingPrefixStripper,
-} from "zhushou/plugin-sdk/channel-pairing";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { buildPassiveProbedChannelStatusSummary } from "zhushou/plugin-sdk/extension-shared";
+} from "assistant/plugin-sdk/channel-pairing";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { buildPassiveProbedChannelStatusSummary } from "assistant/plugin-sdk/extension-shared";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "zhushou/plugin-sdk/status-helpers";
+} from "assistant/plugin-sdk/status-helpers";
 import { twitchMessageActions } from "./actions.js";
 import { removeClientManager } from "./client-manager-registry.js";
 import { TwitchConfigSchema } from "./config-schema.js";
@@ -80,8 +80,8 @@ export const twitchPlugin: ChannelPlugin<ResolvedTwitchAccount> =
       },
       configSchema: buildChannelConfigSchema(TwitchConfigSchema),
       config: {
-        listAccountIds: (cfg: ZhushouConfig): string[] => listAccountIds(cfg),
-        resolveAccount: (cfg: ZhushouConfig, accountId?: string | null): ResolvedTwitchAccount => {
+        listAccountIds: (cfg: AssistantConfig): string[] => listAccountIds(cfg),
+        resolveAccount: (cfg: AssistantConfig, accountId?: string | null): ResolvedTwitchAccount => {
           const resolvedAccountId = accountId ?? resolveDefaultTwitchAccountId(cfg);
           const account = getAccountConfig(cfg, resolvedAccountId);
           if (!account) {
@@ -99,8 +99,8 @@ export const twitchPlugin: ChannelPlugin<ResolvedTwitchAccount> =
             ...account,
           };
         },
-        defaultAccountId: (cfg: ZhushouConfig): string => resolveDefaultTwitchAccountId(cfg),
-        isConfigured: (_account: unknown, cfg: ZhushouConfig): boolean =>
+        defaultAccountId: (cfg: AssistantConfig): string => resolveDefaultTwitchAccountId(cfg),
+        isConfigured: (_account: unknown, cfg: AssistantConfig): boolean =>
           resolveTwitchAccountContext(cfg).configured,
         isEnabled: (account: ResolvedTwitchAccount | undefined): boolean =>
           account?.enabled !== false,
@@ -125,11 +125,11 @@ export const twitchPlugin: ChannelPlugin<ResolvedTwitchAccount> =
           kind,
           runtime,
         }: {
-          cfg: ZhushouConfig;
+          cfg: AssistantConfig;
           accountId?: string | null;
           inputs: string[];
           kind: ChannelResolveKind;
-          runtime: import("zhushou/plugin-sdk/runtime-env").RuntimeEnv;
+          runtime: import("assistant/plugin-sdk/runtime-env").RuntimeEnv;
         }): Promise<ChannelResolveResult[]> => {
           const account = getAccountConfig(cfg, accountId ?? resolveDefaultTwitchAccountId(cfg));
           if (!account) {

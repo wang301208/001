@@ -1,14 +1,14 @@
-import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
 import {
   createScopedDmSecurityResolver,
   createTopLevelChannelConfigAdapter,
-} from "zhushou/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+} from "assistant/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
 import {
   buildPassiveChannelStatusSummary,
   buildTrafficStatusSummary,
-} from "zhushou/plugin-sdk/extension-shared";
-import { createComputedAccountStatusAdapter } from "zhushou/plugin-sdk/status-helpers";
+} from "assistant/plugin-sdk/extension-shared";
+import { createComputedAccountStatusAdapter } from "assistant/plugin-sdk/status-helpers";
 import {
   buildChannelConfigSchema,
   collectStatusIssuesFromLastError,

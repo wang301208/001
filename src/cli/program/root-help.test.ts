@@ -43,11 +43,11 @@ describe("root help", () => {
     const config = {
       agents: {
         defaults: {
-          workspace: "/tmp/zhushou-root-help-workspace",
+          workspace: "/tmp/assistant-root-help-workspace",
         },
       },
     };
-    const env = { ZHUSHOU_STATE_DIR: "/tmp/zhushou-root-help-state" } as NodeJS.ProcessEnv;
+    const env = { ASSISTANT_STATE_DIR: "/tmp/assistant-root-help-state" } as NodeJS.ProcessEnv;
 
     await renderRootHelpText({ config, env, pluginSdkResolution: "src" });
 

@@ -6,7 +6,7 @@ import {
   addSubagentRunForTests,
   resetSubagentRegistryForTests,
 } from "../agents/subagent-registry.js";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { createEmptyAgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
 import { listSessionsFromStore } from "./session-utils.js";
@@ -14,7 +14,7 @@ import { listSessionsFromStore } from "./session-utils.js";
 function createModelDefaultsConfig(params: {
   primary: string;
   models?: Record<string, Record<string, never>>;
-}): ZhushouConfig {
+}): AssistantConfig {
   return {
     agents: {
       defaults: {
@@ -22,12 +22,12 @@ function createModelDefaultsConfig(params: {
         models: params.models,
       },
     },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 }
 
 function createLegacyRuntimeListConfig(
   models?: Record<string, Record<string, never>>,
-): ZhushouConfig {
+): AssistantConfig {
   return createModelDefaultsConfig({
     primary: "google-gemini-cli/gemini-3-pro-preview",
     ...(models ? { models } : {}),
@@ -86,7 +86,7 @@ function withTranscriptStoreFixture<T>(params: {
   }
 }
 
-function createAnthropicContext1mConfig(): ZhushouConfig {
+function createAnthropicContext1mConfig(): AssistantConfig {
   return {
     session: { mainKey: "main" },
     agents: {
@@ -97,11 +97,11 @@ function createAnthropicContext1mConfig(): ZhushouConfig {
         },
       },
     },
-  } as unknown as ZhushouConfig;
+  } as unknown as AssistantConfig;
 }
 
 function listSingleSession(params: {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   storePath: string;
   key: string;
   entry: SessionEntry;
@@ -124,7 +124,7 @@ describe("listSessionsFromStore search", () => {
   const baseCfg = {
     session: { mainKey: "main" },
     agents: { list: [{ id: "main", default: true }] },
-  } as ZhushouConfig;
+  } as AssistantConfig;
 
   const makeStore = (): Record<string, SessionEntry> => ({
     "agent:main:work-project": {
@@ -305,7 +305,7 @@ describe("listSessionsFromStore search", () => {
           },
         },
       },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
     const result = listSessionsFromStore({
       cfg,
       storePath: "/tmp/sessions.json",
@@ -329,7 +329,7 @@ describe("listSessionsFromStore search", () => {
 
   test("prefers persisted estimated session cost from the store", () => {
     withTranscriptStoreFixture({
-      prefix: "zhushou-session-utils-store-cost-",
+      prefix: "assistant-session-utils-store-cost-",
       transcriptId: "sess-main",
       provider: "anthropic",
       model: "claude-sonnet-4-6",
@@ -377,7 +377,7 @@ describe("listSessionsFromStore search", () => {
           },
         },
       },
-    } as unknown as ZhushouConfig;
+    } as unknown as AssistantConfig;
     const result = listSessionsFromStore({
       cfg,
       storePath: "/tmp/sessions.json",
@@ -401,7 +401,7 @@ describe("listSessionsFromStore search", () => {
 
   test("falls back to transcript usage for totalTokens and zero estimatedCostUsd", () => {
     withTranscriptStoreFixture({
-      prefix: "zhushou-session-utils-zero-cost-",
+      prefix: "assistant-session-utils-zero-cost-",
       transcriptId: "sess-main",
       provider: "openai-codex",
       model: "gpt-5.3-codex-spark",
@@ -437,7 +437,7 @@ describe("listSessionsFromStore search", () => {
 
   test("falls back to transcript usage for totalTokens and estimatedCostUsd, and derives contextTokens from the resolved model", () => {
     withTranscriptStoreFixture({
-      prefix: "zhushou-session-utils-",
+      prefix: "assistant-session-utils-",
       transcriptId: "sess-main",
       provider: "anthropic",
       model: "claude-sonnet-4-6",
@@ -474,7 +474,7 @@ describe("listSessionsFromStore search", () => {
 
   test("uses subagent run model immediately for child sessions while transcript usage fills live totals", () => {
     withTranscriptStoreFixture({
-      prefix: "zhushou-session-utils-subagent-",
+      prefix: "assistant-session-utils-subagent-",
       transcriptId: "sess-child",
       provider: "anthropic",
       model: "claude-sonnet-4-6",
@@ -525,7 +525,7 @@ describe("listSessionsFromStore search", () => {
 
   test("keeps a running subagent model when transcript fallback still reflects an older run", () => {
     withTranscriptStoreFixture({
-      prefix: "zhushou-session-utils-subagent-stale-model-",
+      prefix: "assistant-session-utils-subagent-stale-model-",
       transcriptId: "sess-child-stale",
       provider: "anthropic",
       model: "claude-sonnet-4-6",
@@ -574,7 +574,7 @@ describe("listSessionsFromStore search", () => {
 
   test("keeps the selected override model when runtime identity was intentionally cleared", () => {
     withTranscriptStoreFixture({
-      prefix: "zhushou-session-utils-cleared-runtime-model-",
+      prefix: "assistant-session-utils-cleared-runtime-model-",
       transcriptId: "sess-override",
       provider: "anthropic",
       model: "claude-sonnet-4-6",
@@ -610,7 +610,7 @@ describe("listSessionsFromStore search", () => {
 
   test("does not replace the current runtime model when transcript fallback is only for missing pricing", () => {
     withTranscriptStoreFixture({
-      prefix: "zhushou-session-utils-pricing-",
+      prefix: "assistant-session-utils-pricing-",
       transcriptId: "sess-pricing",
       provider: "anthropic",
       model: "claude-sonnet-4-6",
@@ -625,7 +625,7 @@ describe("listSessionsFromStore search", () => {
             agents: {
               list: [{ id: "main", default: true }],
             },
-          } as unknown as ZhushouConfig,
+          } as unknown as AssistantConfig,
           storePath,
           key: "agent:main:main",
           entry: {

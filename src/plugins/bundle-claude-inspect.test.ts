@@ -152,7 +152,7 @@ describe("Claude bundle plugin inspect integration", () => {
   }
 
   beforeAll(() => {
-    rootDir = makeTrackedTempDir("zhushou-claude-bundle", tempDirs);
+    rootDir = makeTrackedTempDir("assistant-claude-bundle", tempDirs);
     setupClaudeInspectFixture();
   });
 

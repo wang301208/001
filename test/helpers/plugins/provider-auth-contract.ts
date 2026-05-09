@@ -12,15 +12,15 @@ import type {
 import { registerProviders, requireProvider } from "./contracts-testkit.js";
 
 type LoginOpenAICodexOAuth =
-  (typeof import("zhushou/plugin-sdk/provider-auth-login"))["loginOpenAICodexOAuth"];
+  (typeof import("assistant/plugin-sdk/provider-auth-login"))["loginOpenAICodexOAuth"];
 type GithubCopilotLoginCommand =
-  (typeof import("zhushou/plugin-sdk/provider-auth-login"))["githubCopilotLoginCommand"];
+  (typeof import("assistant/plugin-sdk/provider-auth-login"))["githubCopilotLoginCommand"];
 type CreateVpsAwareHandlers =
   (typeof import("../../../src/plugins/provider-oauth-flow.js"))["createVpsAwareOAuthHandlers"];
 type EnsureAuthProfileStore =
-  typeof import("zhushou/plugin-sdk/provider-auth").ensureAuthProfileStore;
+  typeof import("assistant/plugin-sdk/provider-auth").ensureAuthProfileStore;
 type ListProfilesForProvider =
-  typeof import("zhushou/plugin-sdk/provider-auth").listProfilesForProvider;
+  typeof import("assistant/plugin-sdk/provider-auth").listProfilesForProvider;
 
 const loginOpenAICodexOAuthMock = vi.hoisted(() => vi.fn<LoginOpenAICodexOAuth>());
 const githubCopilotLoginCommandMock = vi.hoisted(() => vi.fn<GithubCopilotLoginCommand>());
@@ -39,9 +39,9 @@ const providerAuthContractModules = {
   }),
 };
 
-vi.mock("zhushou/plugin-sdk/provider-auth-login", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/provider-auth-login")>(
-    "zhushou/plugin-sdk/provider-auth-login",
+vi.mock("assistant/plugin-sdk/provider-auth-login", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/provider-auth-login")>(
+    "assistant/plugin-sdk/provider-auth-login",
   );
   return {
     ...actual,
@@ -50,9 +50,9 @@ vi.mock("zhushou/plugin-sdk/provider-auth-login", async () => {
   };
 });
 
-vi.mock("zhushou/plugin-sdk/provider-auth", async () => {
-  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/provider-auth")>(
-    "zhushou/plugin-sdk/provider-auth",
+vi.mock("assistant/plugin-sdk/provider-auth", async () => {
+  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/provider-auth")>(
+    "assistant/plugin-sdk/provider-auth",
   );
   return {
     ...actual,

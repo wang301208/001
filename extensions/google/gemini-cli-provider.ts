@@ -1,11 +1,11 @@
 import type {
-  ZhushouPluginApi,
+  AssistantPluginApi,
   ProviderAuthContext,
   ProviderFetchUsageSnapshotContext,
-} from "zhushou/plugin-sdk/plugin-entry";
-import { buildOauthProviderAuthResult } from "zhushou/plugin-sdk/provider-auth-result";
-import { buildProviderToolCompatFamilyHooks } from "zhushou/plugin-sdk/provider-tools";
-import { fetchGeminiUsage } from "zhushou/plugin-sdk/provider-usage";
+} from "assistant/plugin-sdk/plugin-entry";
+import { buildOauthProviderAuthResult } from "assistant/plugin-sdk/provider-auth-result";
+import { buildProviderToolCompatFamilyHooks } from "assistant/plugin-sdk/provider-tools";
+import { fetchGeminiUsage } from "assistant/plugin-sdk/provider-usage";
 import { formatGoogleOauthApiKey, parseGoogleUsageToken } from "./oauth-token-shared.js";
 import { GOOGLE_GEMINI_PROVIDER_HOOKS } from "./provider-hooks.js";
 import { isModernGoogleModel, resolveGoogleGeminiForwardCompatModel } from "./provider-models.js";
@@ -14,8 +14,8 @@ const PROVIDER_ID = "google-gemini-cli";
 const PROVIDER_LABEL = "Gemini CLI OAuth";
 const DEFAULT_MODEL = "google-gemini-cli/gemini-3.1-pro-preview";
 const ENV_VARS = [
-  "OPENCLAW_GEMINI_OAUTH_CLIENT_ID",
-  "OPENCLAW_GEMINI_OAUTH_CLIENT_SECRET",
+  "ASSISTANT_GEMINI_OAUTH_CLIENT_ID",
+  "ASSISTANT_GEMINI_OAUTH_CLIENT_SECRET",
   "GEMINI_CLI_OAUTH_CLIENT_ID",
   "GEMINI_CLI_OAUTH_CLIENT_SECRET",
 ] as const;
@@ -29,7 +29,7 @@ async function fetchGeminiCliUsage(ctx: ProviderFetchUsageSnapshotContext) {
   return await fetchGeminiUsage(ctx.token, ctx.timeoutMs, ctx.fetchFn, PROVIDER_ID);
 }
 
-export function registerGoogleGeminiCliProvider(api: ZhushouPluginApi) {
+export function registerGoogleGeminiCliProvider(api: AssistantPluginApi) {
   api.registerProvider({
     id: PROVIDER_ID,
     label: PROVIDER_LABEL,

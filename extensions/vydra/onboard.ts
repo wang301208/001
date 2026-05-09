@@ -1,8 +1,8 @@
-import type { ZhushouConfig } from "zhushou/plugin-sdk/provider-onboard";
+import type { AssistantConfig } from "assistant/plugin-sdk/provider-onboard";
 
 export const VYDRA_DEFAULT_IMAGE_MODEL_REF = "vydra/grok-imagine";
 
-export function applyVydraConfig(cfg: ZhushouConfig): ZhushouConfig {
+export function applyVydraConfig(cfg: AssistantConfig): AssistantConfig {
   if (cfg.agents?.defaults?.imageGenerationModel) {
     return cfg;
   }

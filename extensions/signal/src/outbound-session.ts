@@ -1,5 +1,5 @@
-import { type RoutePeer } from "zhushou/plugin-sdk/routing";
-import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { type RoutePeer } from "assistant/plugin-sdk/routing";
+import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
 import { resolveSignalPeerId, resolveSignalRecipient, resolveSignalSender } from "./identity.js";
 import { looksLikeUuid } from "./uuid.js";
 

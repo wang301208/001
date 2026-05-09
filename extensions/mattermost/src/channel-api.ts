@@ -1,8 +1,8 @@
-export { createAccountStatusSink } from "zhushou/plugin-sdk/channel-lifecycle";
-export type { ChannelPlugin } from "zhushou/plugin-sdk/core";
-export { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/core";
+export { createAccountStatusSink } from "assistant/plugin-sdk/channel-lifecycle";
+export type { ChannelPlugin } from "assistant/plugin-sdk/core";
+export { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/core";
 export {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
-} from "zhushou/plugin-sdk/config-runtime";
-export { chunkTextForOutbound } from "zhushou/plugin-sdk/text-chunking";
+} from "assistant/plugin-sdk/config-runtime";
+export { chunkTextForOutbound } from "assistant/plugin-sdk/text-chunking";

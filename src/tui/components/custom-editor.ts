@@ -9,9 +9,27 @@ export class CustomEditor extends Editor {
   onCtrlO?: () => void;
   onCtrlP?: () => void;
   onCtrlT?: () => void;
+  onCtrlY?: () => void;
   onShiftTab?: () => void;
   onAltEnter?: () => void;
   onAltUp?: () => void;
+  private promptHint = ">";
+
+  setPromptHint(value: string): void {
+    this.promptHint = value || ">";
+    this.invalidate();
+  }
+
+  render(width: number): string[] {
+    const lines = super.render(width);
+    if (lines.length < 3) {
+      return lines;
+    }
+    const inputLineIndex = lines.length - 2;
+    const hint = `${this.promptHint} `;
+    lines[inputLineIndex] = `${hint}${lines[inputLineIndex]?.slice(hint.length) ?? ""}`;
+    return lines;
+  }
 
   handleInput(data: string): void {
     if (matchesKey(data, Key.alt("enter")) && this.onAltEnter) {
@@ -40,6 +58,10 @@ export class CustomEditor extends Editor {
     }
     if (matchesKey(data, Key.ctrl("t")) && this.onCtrlT) {
       this.onCtrlT();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("y")) && this.onCtrlY) {
+      this.onCtrlY();
       return;
     }
     if (matchesKey(data, Key.shift("tab")) && this.onShiftTab) {

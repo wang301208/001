@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import { logWarn } from "../logger.js";
 import { redactIdentifier } from "../logging/redact-identifier.js";
 import {
@@ -25,7 +25,7 @@ export type ResolveRunWorkspaceResult = {
 function resolveRunAgentId(params: {
   sessionKey?: string;
   agentId?: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 }): {
   agentId: string;
   agentIdSource: AgentIdSource;
@@ -75,7 +75,7 @@ export function resolveRunWorkspaceDir(params: {
   workspaceDir: unknown;
   sessionKey?: string;
   agentId?: string;
-  config?: ZhushouConfig;
+  config?: AssistantConfig;
 }): ResolveRunWorkspaceResult {
   const requested = params.workspaceDir;
   const { agentId, agentIdSource } = resolveRunAgentId({

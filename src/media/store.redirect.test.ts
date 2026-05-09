@@ -8,7 +8,7 @@ import { captureEnv } from "../test-utils/env.js";
 import { saveMediaSource, setMediaStoreNetworkDepsForTest } from "./store.js";
 
 const homeRootTracker = createSuiteTempRootTracker({
-  prefix: "zhushou-home-redirect-",
+  prefix: "assistant-home-redirect-",
 });
 const mockRequest = vi.fn();
 
@@ -97,10 +97,10 @@ describe("media store redirects", () => {
   let home = "";
 
   beforeAll(async () => {
-    envSnapshot = captureEnv(["ZHUSHOU_STATE_DIR"]);
+    envSnapshot = captureEnv(["ASSISTANT_STATE_DIR"]);
     await homeRootTracker.setup();
     home = await homeRootTracker.make("state");
-    process.env.ZHUSHOU_STATE_DIR = home;
+    process.env.ASSISTANT_STATE_DIR = home;
   });
 
   beforeEach(() => {

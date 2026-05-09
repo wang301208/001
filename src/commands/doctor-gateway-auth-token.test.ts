@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import { withTempHome, writeStateDirDotEnv } from "../config/test-helpers.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import {
@@ -18,7 +18,7 @@ describe("resolveGatewayAuthTokenForService", () => {
             token: "config-token",
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {} as NodeJS.ProcessEnv,
     );
 
@@ -42,7 +42,7 @@ describe("resolveGatewayAuthTokenForService", () => {
             default: { source: "env" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {
         CUSTOM_GATEWAY_TOKEN: "resolved-token",
       } as NodeJS.ProcessEnv,
@@ -64,7 +64,7 @@ describe("resolveGatewayAuthTokenForService", () => {
             default: { source: "env" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {
         CUSTOM_GATEWAY_TOKEN: "resolved-token",
       } as NodeJS.ProcessEnv,
@@ -73,7 +73,7 @@ describe("resolveGatewayAuthTokenForService", () => {
     expect(resolved).toEqual({ token: "resolved-token" });
   });
 
-  it("falls back to ZHUSHOU_GATEWAY_TOKEN when SecretRef is unresolved", async () => {
+  it("falls back to ASSISTANT_GATEWAY_TOKEN when SecretRef is unresolved", async () => {
     const resolved = await resolveGatewayAuthTokenForService(
       {
         gateway: {
@@ -90,16 +90,16 @@ describe("resolveGatewayAuthTokenForService", () => {
             default: { source: "env" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {
-        ZHUSHOU_GATEWAY_TOKEN: "env-fallback-token",
+        ASSISTANT_GATEWAY_TOKEN: "env-fallback-token",
       } as NodeJS.ProcessEnv,
     );
 
     expect(resolved).toEqual({ token: "env-fallback-token" });
   });
 
-  it("falls back to ZHUSHOU_GATEWAY_TOKEN when SecretRef resolves to empty", async () => {
+  it("falls back to ASSISTANT_GATEWAY_TOKEN when SecretRef resolves to empty", async () => {
     const resolved = await resolveGatewayAuthTokenForService(
       {
         gateway: {
@@ -116,10 +116,10 @@ describe("resolveGatewayAuthTokenForService", () => {
             default: { source: "env" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {
         CUSTOM_GATEWAY_TOKEN: "   ",
-        ZHUSHOU_GATEWAY_TOKEN: "env-fallback-token",
+        ASSISTANT_GATEWAY_TOKEN: "env-fallback-token",
       } as NodeJS.ProcessEnv,
     );
 
@@ -143,7 +143,7 @@ describe("resolveGatewayAuthTokenForService", () => {
             default: { source: "env" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {} as NodeJS.ProcessEnv,
     );
 
@@ -161,7 +161,7 @@ describe("shouldRequireGatewayTokenForInstall", () => {
             mode: "token",
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {} as NodeJS.ProcessEnv,
     );
     expect(required).toBe(true);
@@ -175,7 +175,7 @@ describe("shouldRequireGatewayTokenForInstall", () => {
             mode: "password",
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {} as NodeJS.ProcessEnv,
     );
     expect(required).toBe(false);
@@ -183,7 +183,7 @@ describe("shouldRequireGatewayTokenForInstall", () => {
 
   it("requires token in inferred mode when password env exists only in shell", async () => {
     await withEnvAsync(
-      { [envVar("zhushou", "GATEWAY", "PASSWORD")]: "password-from-env" },
+      { [envVar("assistant", "GATEWAY", "PASSWORD")]: "password-from-env" },
       async () => {
         // pragma: allowlist secret
         const required = shouldRequireGatewayTokenForInstall(
@@ -191,7 +191,7 @@ describe("shouldRequireGatewayTokenForInstall", () => {
             gateway: {
               auth: {},
             },
-          } as ZhushouConfig,
+          } as AssistantConfig,
           process.env,
         );
         expect(required).toBe(true);
@@ -216,7 +216,7 @@ describe("shouldRequireGatewayTokenForInstall", () => {
             default: { source: "env" },
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {} as NodeJS.ProcessEnv,
     );
     expect(required).toBe(false);
@@ -230,10 +230,10 @@ describe("shouldRequireGatewayTokenForInstall", () => {
         },
         env: {
           vars: {
-            ZHUSHOU_GATEWAY_PASSWORD: "configured-password", // pragma: allowlist secret
+            ASSISTANT_GATEWAY_PASSWORD: "configured-password", // pragma: allowlist secret
           },
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {} as NodeJS.ProcessEnv,
     );
     expect(required).toBe(false);
@@ -241,7 +241,7 @@ describe("shouldRequireGatewayTokenForInstall", () => {
 
   it("does not require token in inferred mode when password env exists in state-dir .env", async () => {
     await withTempHome(async (_home) => {
-      await writeStateDirDotEnv("ZHUSHOU_GATEWAY_PASSWORD=dotenv-password\n", {
+      await writeStateDirDotEnv("ASSISTANT_GATEWAY_PASSWORD=dotenv-password\n", {
         env: process.env,
       });
 
@@ -250,7 +250,7 @@ describe("shouldRequireGatewayTokenForInstall", () => {
           gateway: {
             auth: {},
           },
-        } as ZhushouConfig,
+        } as AssistantConfig,
         process.env,
       );
       expect(required).toBe(false);
@@ -263,7 +263,7 @@ describe("shouldRequireGatewayTokenForInstall", () => {
         gateway: {
           auth: {},
         },
-      } as ZhushouConfig,
+      } as AssistantConfig,
       {} as NodeJS.ProcessEnv,
     );
     expect(required).toBe(true);

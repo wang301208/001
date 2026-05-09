@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ZhushouConfig } from "../config/config.js";
+import type { AssistantConfig } from "../config/config.js";
 import type { ReplyDispatcher } from "./reply/reply-dispatcher.js";
 import { buildTestCtx } from "./reply/test-ctx.js";
 
@@ -84,7 +84,7 @@ describe("withReplyDispatcher", () => {
 
     await dispatchInboundMessage({
       ctx: buildTestCtx(),
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       dispatcher,
       replyResolver: async () => ({ text: "ok" }),
     });
@@ -154,7 +154,7 @@ describe("withReplyDispatcher", () => {
 
     await dispatchInboundMessageWithBufferedDispatcher({
       ctx: buildTestCtx(),
-      cfg: {} as ZhushouConfig,
+      cfg: {} as AssistantConfig,
       dispatcherOptions: {
         deliver: async () => undefined,
       },

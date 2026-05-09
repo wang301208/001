@@ -24,7 +24,7 @@ describe("installFromValidatedNpmSpecArchive", () => {
       installFromValidatedNpmSpecArchive({
         spec: "  nope  ",
         timeoutMs: 30_000,
-        tempDirPrefix: "zhushou-npm-",
+        tempDirPrefix: "assistant-npm-",
         installFromArchive: vi.fn(),
         archiveInstallParams: {},
       }),
@@ -51,9 +51,9 @@ describe("installFromValidatedNpmSpecArchive", () => {
 
     await expect(
       installFromValidatedNpmSpecArchive({
-        spec: "  @zhushou/demo@beta  ",
+        spec: "  @assistant/demo@beta  ",
         timeoutMs: 45_000,
-        tempDirPrefix: "zhushou-npm-",
+        tempDirPrefix: "assistant-npm-",
         expectedIntegrity: "sha512-demo",
         onIntegrityDrift,
         warn,
@@ -63,8 +63,8 @@ describe("installFromValidatedNpmSpecArchive", () => {
     ).resolves.toBe(finalized);
 
     expect(installFromNpmSpecArchiveWithInstallerMock).toHaveBeenCalledWith({
-      tempDirPrefix: "zhushou-npm-",
-      spec: "@zhushou/demo@beta",
+      tempDirPrefix: "assistant-npm-",
+      spec: "@assistant/demo@beta",
       timeoutMs: 45_000,
       expectedIntegrity: "sha512-demo",
       onIntegrityDrift,

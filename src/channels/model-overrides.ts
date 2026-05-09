@@ -1,4 +1,4 @@
-import type { ZhushouConfig } from "../config/types.zhushou.js";
+import type { AssistantConfig } from "../config/types.assistant.js";
 import {
   parseRawSessionConversationRef,
   parseThreadSessionSuffix,
@@ -31,7 +31,7 @@ export type ChannelModelOverride = {
 type ChannelModelByChannelConfig = Record<string, Record<string, string>>;
 
 type ChannelModelOverrideParams = {
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   channel?: string | null;
   groupId?: string | null;
   groupChatType?: string | null;

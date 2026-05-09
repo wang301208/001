@@ -1,0 +1,12 @@
+
+> @assistant/web@2026.4.16 dev G:\项目\-\web
+> vite "--host" "127.0.0.1" "--port" "3000"
+
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m500[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m3000[22m/[39m
+[2m13:41:49[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/components/notifications/NotificationCenter.tsx, /src/pages/DashboardPage.tsx, /src/pages/ChatPage.tsx, /src/pages/SettingsPage.tsx, /src/pages/GovernancePage.tsx, /src/pages/ChannelsPage.tsx, /src/components/tasks/TaskIndicator.tsx, /src/pages/AdminPages.tsx, /src/pages/TasksPage.tsx, /src/components/notifications/NotificationPanel.tsx[22m
+[2m14:13:20[22m [36m[1m[vite][22m[39m [32mvite.config.ts changed, restarting server...[39m
+[2m14:13:20[22m [36m[1m[vite][22m[39m server restarted.
+ ELIFECYCLE  Command failed with exit code 4294967295.

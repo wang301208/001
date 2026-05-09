@@ -2,8 +2,8 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { defineBundledChannelEntry } from "zhushou/plugin-sdk/channel-entry-contract";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { defineBundledChannelEntry } from "assistant/plugin-sdk/channel-entry-contract";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

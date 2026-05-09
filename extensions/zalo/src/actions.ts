@@ -1,11 +1,11 @@
-import { jsonResult, readStringParam } from "zhushou/plugin-sdk/channel-actions";
+import { jsonResult, readStringParam } from "assistant/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
-} from "zhushou/plugin-sdk/channel-contract";
-import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
-import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
-import { extractToolSend } from "zhushou/plugin-sdk/tool-send";
+} from "assistant/plugin-sdk/channel-contract";
+import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
+import { extractToolSend } from "assistant/plugin-sdk/tool-send";
 import { listEnabledZaloAccounts, resolveZaloAccount } from "./accounts.js";
 
 const loadZaloActionsRuntime = createLazyRuntimeNamedExport(
@@ -15,7 +15,7 @@ const loadZaloActionsRuntime = createLazyRuntimeNamedExport(
 
 const providerId = "zalo";
 
-function listEnabledAccounts(cfg: ZhushouConfig, accountId?: string | null) {
+function listEnabledAccounts(cfg: AssistantConfig, accountId?: string | null) {
   return (
     accountId ? [resolveZaloAccount({ cfg, accountId })] : listEnabledZaloAccounts(cfg)
   ).filter((account) => account.enabled && account.tokenSource !== "none");

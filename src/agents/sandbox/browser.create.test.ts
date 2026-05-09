@@ -64,10 +64,10 @@ function buildConfig(enableNoVnc: boolean): SandboxConfig {
     backend: "docker",
     scope: "session",
     workspaceAccess: "none",
-    workspaceRoot: "/tmp/zhushou-sandboxes",
+    workspaceRoot: "/tmp/assistant-sandboxes",
     docker: {
-      image: "zhushou-sandbox:bookworm-slim",
-      containerPrefix: "zhushou-sbx-",
+      image: "assistant-sandbox:bookworm-slim",
+      containerPrefix: "assistant-sbx-",
       workdir: "/workspace",
       readOnlyRoot: true,
       tmpfs: ["/tmp", "/var/tmp", "/run"],
@@ -77,15 +77,15 @@ function buildConfig(enableNoVnc: boolean): SandboxConfig {
     },
     ssh: {
       command: "ssh",
-      workspaceRoot: "/tmp/zhushou-sandboxes",
+      workspaceRoot: "/tmp/assistant-sandboxes",
       strictHostKeyChecking: true,
       updateHostKeys: true,
     },
     browser: {
       enabled: true,
-      image: "zhushou-sandbox-browser:bookworm-slim",
-      containerPrefix: "zhushou-sbx-browser-",
-      network: "zhushou-sandbox-browser",
+      image: "assistant-sandbox-browser:bookworm-slim",
+      containerPrefix: "assistant-sbx-browser-",
+      network: "assistant-sandbox-browser",
       cdpPort: 9222,
       vncPort: 5900,
       noVncPort: 6080,
@@ -176,11 +176,11 @@ describe("ensureSandboxBrowser create args", () => {
     expect(createArgs).toBeDefined();
     expect(createArgs).toContain("127.0.0.1::6080");
     const envEntries = collectDockerFlagValues(createArgs ?? [], "-e");
-    expect(envEntries).toContain("OPENCLAW_BROWSER_NO_SANDBOX=1");
+    expect(envEntries).toContain("ASSISTANT_BROWSER_NO_SANDBOX=1");
     const passwordEntry = envEntries.find((entry) =>
-      entry.startsWith("OPENCLAW_BROWSER_NOVNC_PASSWORD="),
+      entry.startsWith("ASSISTANT_BROWSER_NOVNC_PASSWORD="),
     );
-    expect(passwordEntry).toMatch(/^OPENCLAW_BROWSER_NOVNC_PASSWORD=[A-Za-z0-9]{8}$/);
+    expect(passwordEntry).toMatch(/^ASSISTANT_BROWSER_NOVNC_PASSWORD=[A-Za-z0-9]{8}$/);
     expect(result?.noVncUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/sandbox\/novnc\?token=/);
     expect(result?.noVncUrl).not.toContain("password=");
   });
@@ -195,7 +195,7 @@ describe("ensureSandboxBrowser create args", () => {
 
     const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
     const envEntries = collectDockerFlagValues(createArgs ?? [], "-e");
-    expect(envEntries.some((entry) => entry.startsWith("OPENCLAW_BROWSER_NOVNC_PASSWORD="))).toBe(
+    expect(envEntries.some((entry) => entry.startsWith("ASSISTANT_BROWSER_NOVNC_PASSWORD="))).toBe(
       false,
     );
     expect(result?.noVncUrl).toBeUndefined();
@@ -246,7 +246,7 @@ describe("ensureSandboxBrowser create args", () => {
 
     const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
     const labels = collectDockerFlagValues(createArgs ?? [], "--label");
-    expect(labels).toContain(`zhushou.mountFormatVersion=${SANDBOX_MOUNT_FORMAT_VERSION}`);
+    expect(labels).toContain(`assistant.mountFormatVersion=${SANDBOX_MOUNT_FORMAT_VERSION}`);
   });
 
   it("force-removes the browser container when CDP never becomes reachable", async () => {
@@ -279,7 +279,7 @@ describe("ensureSandboxBrowser create args", () => {
     ).rejects.toThrow("hung container has been forcefully removed");
 
     expect(dockerMocks.execDocker).toHaveBeenCalledWith(
-      ["rm", "-f", expect.stringMatching(/^zhushou-sbx-browser-session-test-/)],
+      ["rm", "-f", expect.stringMatching(/^assistant-sbx-browser-session-test-/)],
       { allowFailure: true },
     );
   });
@@ -296,7 +296,7 @@ describe("ensureSandboxBrowser create args", () => {
 
     const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
     const envEntries = collectDockerFlagValues(createArgs ?? [], "-e");
-    expect(envEntries).toContain("OPENCLAW_BROWSER_CDP_SOURCE_RANGE=172.21.0.1/32");
+    expect(envEntries).toContain("ASSISTANT_BROWSER_CDP_SOURCE_RANGE=172.21.0.1/32");
   });
 
   it("uses explicit cdpSourceRange over auto-derived gateway", async () => {
@@ -313,7 +313,7 @@ describe("ensureSandboxBrowser create args", () => {
 
     const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
     const envEntries = collectDockerFlagValues(createArgs ?? [], "-e");
-    expect(envEntries).toContain("OPENCLAW_BROWSER_CDP_SOURCE_RANGE=10.0.0.0/24");
+    expect(envEntries).toContain("ASSISTANT_BROWSER_CDP_SOURCE_RANGE=10.0.0.0/24");
     expect(dockerMocks.readDockerNetworkGateway).not.toHaveBeenCalled();
   });
 
@@ -374,6 +374,6 @@ describe("ensureSandboxBrowser create args", () => {
     expect(result).toBeDefined();
     const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
     const envEntries = collectDockerFlagValues(createArgs ?? [], "-e");
-    expect(envEntries).toContain("OPENCLAW_BROWSER_CDP_SOURCE_RANGE=127.0.0.1/32");
+    expect(envEntries).toContain("ASSISTANT_BROWSER_CDP_SOURCE_RANGE=127.0.0.1/32");
   });
 });

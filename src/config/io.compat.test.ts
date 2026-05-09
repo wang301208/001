@@ -6,7 +6,7 @@ import { createConfigIO } from "./io.js";
 import { normalizeExecSafeBinProfilesInConfig } from "./normalize-exec-safe-bin.js";
 
 async function withTempHome(run: (home: string) => Promise<void>): Promise<void> {
-  const home = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-config-"));
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-config-"));
   try {
     await run(home);
   } finally {
@@ -16,9 +16,9 @@ async function withTempHome(run: (home: string) => Promise<void>): Promise<void>
 
 async function writeConfig(
   home: string,
-  dirname: ".zhushou",
+  dirname: ".assistant",
   port: number,
-  filename: string = "zhushou.json",
+  filename: string = "assistant.json",
 ) {
   const dir = path.join(home, dirname);
   await fs.mkdir(dir, { recursive: true });
@@ -35,35 +35,35 @@ function createIoForHome(home: string, env: NodeJS.ProcessEnv = {} as NodeJS.Pro
 }
 
 describe("config io paths", () => {
-  it("uses ~/.zhushou/zhushou.json when config exists", async () => {
+  it("uses ~/.assistant/assistant.json when config exists", async () => {
     await withTempHome(async (home) => {
-      const configPath = await writeConfig(home, ".zhushou", 19001);
+      const configPath = await writeConfig(home, ".assistant", 19001);
       const io = createIoForHome(home);
       expect(io.configPath).toBe(configPath);
     });
   });
 
-  it("defaults to ~/.zhushou/zhushou.json when config is missing", async () => {
+  it("defaults to ~/.assistant/assistant.json when config is missing", async () => {
     await withTempHome(async (home) => {
       const io = createIoForHome(home);
-      expect(io.configPath).toBe(path.join(home, ".zhushou", "zhushou.json"));
+      expect(io.configPath).toBe(path.join(home, ".assistant", "assistant.json"));
     });
   });
 
-  it("uses ZHUSHOU_HOME for default config path", async () => {
+  it("uses ASSISTANT_HOME for default config path", async () => {
     await withTempHome(async (home) => {
       const io = createConfigIO({
-        env: { ZHUSHOU_HOME: path.join(home, "svc-home") } as NodeJS.ProcessEnv,
+        env: { ASSISTANT_HOME: path.join(home, "svc-home") } as NodeJS.ProcessEnv,
         homedir: () => path.join(home, "ignored-home"),
       });
-      expect(io.configPath).toBe(path.join(home, "svc-home", ".zhushou", "zhushou.json"));
+      expect(io.configPath).toBe(path.join(home, "svc-home", ".assistant", "assistant.json"));
     });
   });
 
-  it("honors explicit ZHUSHOU_CONFIG_PATH override", async () => {
+  it("honors explicit ASSISTANT_CONFIG_PATH override", async () => {
     await withTempHome(async (home) => {
-      const customPath = await writeConfig(home, ".zhushou", 20002, "custom.json");
-      const io = createIoForHome(home, { ZHUSHOU_CONFIG_PATH: customPath } as NodeJS.ProcessEnv);
+      const customPath = await writeConfig(home, ".assistant", 20002, "custom.json");
+      const io = createIoForHome(home, { ASSISTANT_CONFIG_PATH: customPath } as NodeJS.ProcessEnv);
       expect(io.configPath).toBe(customPath);
     });
   });

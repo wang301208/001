@@ -39,11 +39,11 @@ vi.mock("../../runtime-api.js", () => ({
   loadOutboundMediaFromUrl: mockState.loadOutboundMediaFromUrl,
 }));
 
-vi.mock("zhushou/plugin-sdk/config-runtime", () => ({
+vi.mock("assistant/plugin-sdk/config-runtime", () => ({
   resolveMarkdownTableMode: vi.fn(() => "off"),
 }));
 
-vi.mock("zhushou/plugin-sdk/text-runtime", () => ({
+vi.mock("assistant/plugin-sdk/text-runtime", () => ({
   convertMarkdownTables: vi.fn((text: string) => text),
   normalizeLowercaseStringOrEmpty: vi.fn((value: string | null | undefined) => {
     if (typeof value !== "string") {

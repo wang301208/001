@@ -1,5 +1,5 @@
 import util from "node:util";
-import type { ZhushouConfig } from "../config/types.js";
+import type { AssistantConfig } from "../config/types.js";
 import { isVerbose } from "../global-state.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { stripAnsi } from "../terminal/ansi.js";
@@ -20,12 +20,12 @@ type ConsoleSettings = {
 export type ConsoleLoggerSettings = ConsoleSettings;
 
 const requireConfig = resolveNodeRequireFromMeta(import.meta.url);
-type ConsoleConfigLoader = () => ZhushouConfig["logging"] | undefined;
+type ConsoleConfigLoader = () => AssistantConfig["logging"] | undefined;
 const loadConfigFallbackDefault: ConsoleConfigLoader = () => {
   try {
     const loaded = requireConfig?.("../config/config.js") as
       | {
-          loadConfig?: () => ZhushouConfig;
+          loadConfig?: () => AssistantConfig;
         }
       | undefined;
     return loaded?.loadConfig?.().logging;
@@ -46,7 +46,7 @@ function normalizeConsoleLevel(level?: string): LogLevel {
   if (
     !level &&
     isTruthyEnvValue(process.env.VITEST) &&
-    process.env.OPENCLAW_TEST_CONSOLE !== "1"
+    process.env.ASSISTANT_TEST_CONSOLE !== "1"
   ) {
     return "silent";
   }
@@ -69,7 +69,7 @@ function resolveConsoleSettings(): ConsoleSettings {
   // Skip config-file and full config fallback reads in this fast path.
   if (
     isTruthyEnvValue(process.env.VITEST) &&
-    process.env.OPENCLAW_TEST_CONSOLE !== "1" &&
+    process.env.ASSISTANT_TEST_CONSOLE !== "1" &&
     !isVerbose() &&
     !envLevel &&
     !loggingState.overrideSettings
@@ -77,7 +77,7 @@ function resolveConsoleSettings(): ConsoleSettings {
     return { level: "silent", style: normalizeConsoleStyle(undefined) };
   }
 
-  let cfg: ZhushouConfig["logging"] | undefined =
+  let cfg: AssistantConfig["logging"] | undefined =
     (loggingState.overrideSettings as LoggerSettings | null) ?? readLoggingConfig();
   if (!cfg && !shouldSkipMutatingLoggingConfigRead()) {
     if (loggingState.resolvingConsoleSettings) {

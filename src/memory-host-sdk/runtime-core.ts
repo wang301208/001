@@ -17,7 +17,7 @@ export {
   listActiveMemoryPublicArtifacts,
 } from "../plugins/memory-state.js";
 export { parseAgentSessionKey } from "../routing/session-key.js";
-export type { ZhushouConfig } from "../config/config.js";
+export type { AssistantConfig } from "../config/config.js";
 export type { MemoryCitationsMode } from "../config/types.memory.js";
 export type {
   MemoryFlushPlan,
@@ -28,4 +28,4 @@ export type {
   MemoryPluginRuntime,
   MemoryPromptSectionBuilder,
 } from "../plugins/memory-state.js";
-export type { ZhushouPluginApi } from "../plugins/types.js";
+export type { AssistantPluginApi } from "../plugins/types.js";

@@ -3,33 +3,33 @@ import {
   buildLegacyDmAccountAllowlistAdapter,
   createAccountScopedAllowlistNameResolver,
   createNestedAllowlistOverrideResolver,
-} from "zhushou/plugin-sdk/allowlist-config-edit";
-import { createScopedDmSecurityResolver } from "zhushou/plugin-sdk/channel-config-helpers";
+} from "assistant/plugin-sdk/allowlist-config-edit";
+import { createScopedDmSecurityResolver } from "assistant/plugin-sdk/channel-config-helpers";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageToolDiscovery,
-} from "zhushou/plugin-sdk/channel-contract";
-import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
-import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
-import { createOpenProviderConfiguredRouteWarningCollector } from "zhushou/plugin-sdk/channel-policy";
+} from "assistant/plugin-sdk/channel-contract";
+import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
+import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
+import { createOpenProviderConfiguredRouteWarningCollector } from "assistant/plugin-sdk/channel-policy";
 import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
-} from "zhushou/plugin-sdk/directory-runtime";
-import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
-import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
-import { resolveOutboundSendDep } from "zhushou/plugin-sdk/outbound-runtime";
-import { sleepWithAbort } from "zhushou/plugin-sdk/runtime-env";
+} from "assistant/plugin-sdk/directory-runtime";
+import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
+import { resolveOutboundSendDep } from "assistant/plugin-sdk/outbound-runtime";
+import { sleepWithAbort } from "assistant/plugin-sdk/runtime-env";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "zhushou/plugin-sdk/status-helpers";
-import { resolveTargetsWithOptionalToken } from "zhushou/plugin-sdk/target-resolver-runtime";
+} from "assistant/plugin-sdk/status-helpers";
+import { resolveTargetsWithOptionalToken } from "assistant/plugin-sdk/target-resolver-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
   normalizeOptionalStringifiedId,
-} from "zhushou/plugin-sdk/text-runtime";
+} from "assistant/plugin-sdk/text-runtime";
 import {
   listDiscordAccountIds,
   resolveDiscordAccount,
@@ -44,7 +44,7 @@ import {
   projectCredentialSnapshotFields,
   resolveConfiguredFromCredentialStatuses,
   type ChannelPlugin,
-  type ZhushouConfig,
+  type AssistantConfig,
 } from "./channel-api.js";
 import { resolveDiscordCurrentConversationIdentity } from "./conversation-identity.js";
 import { shouldSuppressLocalDiscordExecApprovalPrompt } from "./exec-approvals.js";
@@ -205,7 +205,7 @@ const discordMessageActions = {
   },
 };
 
-function resolveDiscordStartupDelayMs(cfg: ZhushouConfig, accountId: string): number {
+function resolveDiscordStartupDelayMs(cfg: AssistantConfig, accountId: string): number {
   const startupAccountIds = listDiscordAccountIds(cfg).filter((candidateId) => {
     const candidate = resolveDiscordAccount({ cfg, accountId: candidateId });
     return (
@@ -248,7 +248,7 @@ function formatDiscordIntents(intents?: {
 function buildDiscordCrossContextComponents(params: {
   originLabel: string;
   message: string;
-  cfg: ZhushouConfig;
+  cfg: AssistantConfig;
   accountId?: string | null;
 }) {
   const { Separator, TextDisplay } = loadDiscordCarbonModule();

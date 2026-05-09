@@ -20,7 +20,7 @@ function enableAdvertiserUnitMode(hostname = "test-host") {
   delete process.env.VITEST;
   process.env.NODE_ENV = "development";
   vi.spyOn(os, "hostname").mockReturnValue(hostname);
-  process.env.OPENCLAW_MDNS_HOSTNAME = hostname;
+  process.env.ASSISTANT_MDNS_HOSTNAME = hostname;
 }
 
 function mockCiaoService(params?: {
@@ -140,12 +140,12 @@ describe("gateway bonjour advertiser", () => {
       gatewayPort: 18789,
       sshPort: 2222,
       tailnetDns: "host.tailnet.ts.net",
-      cliPath: "/opt/homebrew/bin/zhushou",
+      cliPath: "/opt/homebrew/bin/assistant",
     });
 
     expect(createService).toHaveBeenCalledTimes(1);
     const [gatewayCall] = createService.mock.calls as Array<[Record<string, unknown>]>;
-    expect(gatewayCall?.[0]?.type).toBe("zhushou-gw");
+    expect(gatewayCall?.[0]?.type).toBe("assistant-gw");
     const gatewayType = asString(gatewayCall?.[0]?.type, "");
     expect(gatewayType.length).toBeLessThanOrEqual(15);
     expect(gatewayCall?.[0]?.port).toBe(18789);
@@ -155,7 +155,7 @@ describe("gateway bonjour advertiser", () => {
     expect((gatewayCall?.[0]?.txt as Record<string, string>)?.gatewayPort).toBe("18789");
     expect((gatewayCall?.[0]?.txt as Record<string, string>)?.sshPort).toBe("2222");
     expect((gatewayCall?.[0]?.txt as Record<string, string>)?.cliPath).toBe(
-      "/opt/homebrew/bin/zhushou",
+      "/opt/homebrew/bin/assistant",
     );
     expect((gatewayCall?.[0]?.txt as Record<string, string>)?.transport).toBe("gateway");
 
@@ -179,7 +179,7 @@ describe("gateway bonjour advertiser", () => {
     const started = await startGatewayBonjourAdvertiser({
       gatewayPort: 18789,
       sshPort: 2222,
-      cliPath: "/opt/homebrew/bin/zhushou",
+      cliPath: "/opt/homebrew/bin/assistant",
       minimal: true,
     });
 
@@ -347,7 +347,7 @@ describe("gateway bonjour advertiser", () => {
       });
 
       console.log(
-        "[test._openclaw-gw._tcp.local.] failed probing with reason: Error: Can't probe for a service which is announced already. Received announcing for service test._openclaw-gw._tcp.local.. Trying again in 2 seconds!",
+        "[test._assistant-gw._tcp.local.] failed probing with reason: Error: Can't probe for a service which is announced already. Received announcing for service test._assistant-gw._tcp.local.. Trying again in 2 seconds!",
       );
       console.log("ordinary console line");
 
@@ -459,10 +459,10 @@ describe("gateway bonjour advertiser", () => {
     });
 
     const [gatewayCall] = createService.mock.calls as Array<[ServiceCall]>;
-    expect(gatewayCall?.[0]?.name).toBe("zhushou (助手)");
+    expect(gatewayCall?.[0]?.name).toBe("assistant (助手)");
     expect(gatewayCall?.[0]?.domain).toBe("local");
-    expect(gatewayCall?.[0]?.hostname).toBe("zhushou");
-    expect((gatewayCall?.[0]?.txt as Record<string, string>)?.lanHost).toBe("zhushou.local");
+    expect(gatewayCall?.[0]?.hostname).toBe("assistant");
+    expect((gatewayCall?.[0]?.txt as Record<string, string>)?.lanHost).toBe("assistant.local");
 
     await started.stop();
   });

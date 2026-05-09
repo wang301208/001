@@ -4,7 +4,7 @@ import path from "node:path";
 import { resolveBrewPathDirs } from "./brew.js";
 import { isTruthyEnvValue } from "./env.js";
 
-type EnsureOpenClawPathOpts = {
+type EnsureAssistantPathOpts = {
   execPath?: string;
   cwd?: string;
   homeDir?: string;
@@ -49,7 +49,7 @@ function mergePath(params: { existing: string; prepend?: string[]; append?: stri
   return merged.join(path.delimiter);
 }
 
-function candidateBinDirs(opts: EnsureOpenClawPathOpts): { prepend: string[]; append: string[] } {
+function candidateBinDirs(opts: EnsureAssistantPathOpts): { prepend: string[]; append: string[] } {
   const execPath = opts.execPath ?? process.execPath;
   const cwd = opts.cwd ?? process.cwd();
   const homeDir = opts.homeDir ?? os.homedir();
@@ -69,10 +69,10 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): { prepend: string[]; ap
     // ignore
   }
 
-  // Bundled macOS app: `zhushou` lives next to the executable (process.execPath).
+  // Bundled macOS app: `assistant` lives next to the executable (process.execPath).
   try {
     const execDir = path.dirname(execPath);
-    const siblingCli = path.join(execDir, "zhushou");
+    const siblingCli = path.join(execDir, "assistant");
     if (isExecutable(siblingCli)) {
       prepend.push(execDir);
     }
@@ -84,10 +84,10 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): { prepend: string[]; ap
   // disabled by default; if an operator explicitly enables it, only append (never prepend).
   const allowProjectLocalBin =
     opts.allowProjectLocalBin === true ||
-    isTruthyEnvValue(process.env.OPENCLAW_ALLOW_PROJECT_LOCAL_BIN);
+    isTruthyEnvValue(process.env.ASSISTANT_ALLOW_PROJECT_LOCAL_BIN);
   if (allowProjectLocalBin) {
     const localBinDir = path.join(cwd, "node_modules", ".bin");
-    if (isExecutable(path.join(localBinDir, "zhushou"))) {
+    if (isExecutable(path.join(localBinDir, "assistant"))) {
       append.push(localBinDir);
     }
   }
@@ -98,7 +98,7 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): { prepend: string[]; ap
 
   // User-writable / package-manager directories are appended so they never
   // shadow trusted OS binaries.
-  // This includes Brew/Homebrew dirs, which are useful for finding `zhushou`
+  // This includes Brew/Homebrew dirs, which are useful for finding `assistant`
   // in launchd/minimal environments but must not be treated as trusted.
   append.push(...resolveBrewPathDirs({ homeDir }));
   const miseDataDir = process.env.MISE_DATA_DIR ?? path.join(homeDir, ".local", "share", "mise");
@@ -121,14 +121,14 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): { prepend: string[]; ap
 }
 
 /**
- * Best-effort PATH bootstrap so skills that require the `zhushou` CLI can run
+ * Best-effort PATH bootstrap so skills that require the `assistant` CLI can run
  * under launchd/minimal environments (and inside the macOS app bundle).
  */
-export function ensureOpenClawCliOnPath(opts: EnsureOpenClawPathOpts = {}) {
-  if (isTruthyEnvValue(process.env.OPENCLAW_PATH_BOOTSTRAPPED)) {
+export function ensureAssistantCliOnPath(opts: EnsureAssistantPathOpts = {}) {
+  if (isTruthyEnvValue(process.env.ASSISTANT_PATH_BOOTSTRAPPED)) {
     return;
   }
-  process.env.OPENCLAW_PATH_BOOTSTRAPPED = "1";
+  process.env.ASSISTANT_PATH_BOOTSTRAPPED = "1";
 
   const existing = opts.pathEnv ?? process.env.PATH ?? "";
   const { prepend, append } = candidateBinDirs(opts);

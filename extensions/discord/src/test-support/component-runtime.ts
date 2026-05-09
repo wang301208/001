@@ -1,4 +1,4 @@
-import { isSingleUseReplyToMode } from "zhushou/plugin-sdk/reply-reference";
+import { isSingleUseReplyToMode } from "assistant/plugin-sdk/reply-reference";
 import { vi, type Mock } from "vitest";
 import { parsePluginBindingApprovalCustomId } from "../../../../src/plugins/conversation-binding.js";
 import { resolvePinnedMainDmOwnerFromAllowlist } from "../../../../src/security/dm-policy-shared.js";
@@ -6,7 +6,7 @@ import { resolvePinnedMainDmOwnerFromAllowlist } from "../../../../src/security/
 type UnknownMock = Mock<(...args: unknown[]) => unknown>;
 type AsyncUnknownMock = Mock<(...args: unknown[]) => Promise<unknown>>;
 type DispatchReplyWithBufferedBlockDispatcherFn =
-  typeof import("zhushou/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithBufferedBlockDispatcher;
+  typeof import("assistant/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithBufferedBlockDispatcher;
 type DispatchReplyMock = Mock<DispatchReplyWithBufferedBlockDispatcherFn>;
 
 type DiscordComponentRuntimeMocks = {
@@ -157,12 +157,12 @@ export function resetDiscordComponentRuntimeMocks() {
   readSessionUpdatedAtMock.mockClear().mockReturnValue(undefined);
   upsertPairingRequestMock.mockClear().mockResolvedValue({ code: "PAIRCODE", created: true });
   recordInboundSessionMock.mockClear().mockResolvedValue(undefined);
-  resolveStorePathMock.mockClear().mockReturnValue("/tmp/zhushou-sessions-test.json");
+  resolveStorePathMock.mockClear().mockReturnValue("/tmp/assistant-sessions-test.json");
   resolvePluginConversationBindingApprovalMock.mockReset().mockResolvedValue({
     status: "approved",
     binding: {
       bindingId: "binding-1",
-      pluginId: "zhushou-codex-app-server",
+      pluginId: "assistant-codex-app-server",
       pluginName: "助手 App Server",
       pluginRoot: "/plugins/codex",
       channel: "discord",
@@ -172,7 +172,7 @@ export function resetDiscordComponentRuntimeMocks() {
     },
     request: {
       id: "approval-1",
-      pluginId: "zhushou-codex-app-server",
+      pluginId: "assistant-codex-app-server",
       pluginName: "助手 App Server",
       pluginRoot: "/plugins/codex",
       requestedAt: Date.now(),
