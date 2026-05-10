@@ -2725,6 +2725,39 @@ export const SkillsUpdateParamsSchema = Type.Union([
   ),
 ]);
 
+export const SkillsMergeConflictSchema = Type.Object(
+  {
+    path: NonEmptyString,
+    sources: Type.Array(NonEmptyString),
+    resolution: Type.Union([Type.Literal("namespaced"), Type.Literal("failed")]),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillsMergeParamsSchema = Type.Object(
+  {
+    sources: Type.Array(NonEmptyString, { minItems: 2 }),
+    name: NonEmptyString,
+    description: Type.Optional(Type.String()),
+    conflictStrategy: Type.Optional(Type.Union([Type.Literal("namespace"), Type.Literal("fail")])),
+    overwrite: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false },
+);
+
+export const SkillsMergeResultSchema = Type.Object(
+  {
+    ok: Type.Literal(true),
+    targetSkillName: NonEmptyString,
+    targetDir: NonEmptyString,
+    sourceSkills: Type.Array(NonEmptyString),
+    mergedFiles: Type.Array(NonEmptyString),
+    deduplicatedFiles: Type.Array(NonEmptyString),
+    conflicts: Type.Array(SkillsMergeConflictSchema),
+  },
+  { additionalProperties: false },
+);
+
 export const SkillsSearchParamsSchema = Type.Object(
   {
     query: Type.Optional(NonEmptyString),
@@ -3314,6 +3347,160 @@ export const SelfModelUpdateParamsSchema = Type.Object(
 );
 
 export const SelfModelUpdateResultSchema = SelfModelGetResultSchema;
+
+export const SelfOverviewParamsSchema = Type.Object(
+  {
+    now: Type.Optional(Type.Integer({ minimum: 0 })),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfMetricsSchema = Type.Object(
+  {
+    complexTaskCount: Type.Integer({ minimum: 0 }),
+    skillCandidateCount: Type.Integer({ minimum: 0 }),
+    implementedSkillCount: Type.Integer({ minimum: 0 }),
+    selfImprovedSkillCount: Type.Integer({ minimum: 0 }),
+    selfModelFactCount: Type.Integer({ minimum: 0 }),
+    strategicMemoryCount: Type.Integer({ minimum: 0 }),
+    dueStrategicPushCount: Type.Integer({ minimum: 0 }),
+    skillReuseReadiness: Type.Integer({ minimum: 0, maximum: 100 }),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfRoadmapGoalSchema = Type.Object(
+  {
+    id: NonEmptyString,
+    title: NonEmptyString,
+    objective: NonEmptyString,
+    status: Type.Union([Type.Literal("active"), Type.Literal("waiting"), Type.Literal("completed")]),
+    priority: Type.Union([Type.Literal("high"), Type.Literal("medium"), Type.Literal("low")]),
+    nextPushAt: Type.Integer({ minimum: 0 }),
+    evidenceEventIds: Type.Array(NonEmptyString),
+    blockers: Type.Array(Type.String()),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfRoadmapSchema = Type.Object(
+  {
+    observedAt: Type.Integer({ minimum: 0 }),
+    goals: Type.Array(SelfRoadmapGoalSchema),
+    metrics: SelfMetricsSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const SelfRoadmapParamsSchema = Type.Object(
+  {
+    now: Type.Optional(Type.Integer({ minimum: 0 })),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfRoadmapResultSchema = Type.Object(
+  {
+    roadmap: SelfRoadmapSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const SelfRoadmapAdvanceResultSchema = Type.Object(
+  {
+    createdStrategicMemories: Type.Integer({ minimum: 0 }),
+    advancedGoalIds: Type.Array(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfSkillsRecommendParamsSchema = Type.Object(
+  {
+    goal: NonEmptyString,
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfSkillsRecommendationSchema = Type.Object(
+  {
+    candidate: SkillCandidateSchema,
+    score: Type.Number(),
+    reason: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const SelfSkillsRecommendResultSchema = Type.Object(
+  {
+    recommendations: Type.Array(SelfSkillsRecommendationSchema),
+  },
+  { additionalProperties: false },
+);
+
+export const SelfOverviewResultSchema = Type.Object(
+  {
+    overview: Type.Object(
+      {
+        observedAt: Type.Integer({ minimum: 0 }),
+        summary: Type.Object(
+          {
+            events: Type.Integer({ minimum: 0 }),
+            skillCandidates: Type.Integer({ minimum: 0 }),
+            implementedSkills: Type.Integer({ minimum: 0 }),
+            selfModelFacts: Type.Integer({ minimum: 0 }),
+            dueStrategicPushes: Type.Integer({ minimum: 0 }),
+          },
+          { additionalProperties: false },
+        ),
+        capabilities: Type.Object(
+          {
+            experienceMemory: Type.Boolean(),
+            sessionRecall: Type.Boolean(),
+            selfModel: Type.Boolean(),
+            userModel: Type.Boolean(),
+            skillEvolution: Type.Boolean(),
+            strategicMemory: Type.Boolean(),
+          },
+          { additionalProperties: false },
+        ),
+        metrics: SelfMetricsSchema,
+        roadmap: SelfRoadmapSchema,
+        selfModel: SelfModelSchema,
+        recentEvents: Type.Array(ExperienceEventSchema),
+        recentSkillCandidates: Type.Array(SkillCandidateSchema),
+        dueStrategicPushes: Type.Array(StrategicPushSchema),
+        backendAutomation: Type.Optional(Type.Object(
+          {
+            recentRuns: Type.Array(Type.Object(
+              {
+                id: NonEmptyString,
+                observedAt: Type.Integer({ minimum: 0 }),
+                source: Type.Union([Type.Literal("startup"), Type.Literal("supervisor")]),
+                ok: Type.Boolean(),
+                changedCount: Type.Integer({ minimum: 0 }),
+                steps: Type.Array(Type.Object(
+                  {
+                    name: NonEmptyString,
+                    ok: Type.Boolean(),
+                    changedCount: Type.Integer({ minimum: 0 }),
+                    detail: Type.Optional(Type.String()),
+                  },
+                  { additionalProperties: false },
+                )),
+              },
+              { additionalProperties: false },
+            )),
+          },
+          { additionalProperties: false },
+        )),
+      },
+      { additionalProperties: false },
+    ),
+  },
+  { additionalProperties: false },
+);
 
 export const UserModelSchema = Type.Object(
   {

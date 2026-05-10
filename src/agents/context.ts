@@ -9,6 +9,7 @@ import { consumeRootOptionToken, FLAG_TERMINATOR } from "../infra/cli-root-optio
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { resolveAssistantAgentDir } from "./agent-paths.js";
 import { lookupCachedContextTokens, MODEL_CONTEXT_TOKEN_CACHE } from "./context-cache.js";
+import { CONTEXT_WINDOW_HARD_MIN_TOKENS } from "./context-window-guard.js";
 import { CONTEXT_WINDOW_RUNTIME_STATE } from "./context-runtime-state.js";
 import { normalizeProviderId } from "./model-selection.js";
 
@@ -33,6 +34,10 @@ const CONFIG_LOAD_RETRY_POLICY: BackoffPolicy = {
   jitter: 0,
 };
 
+function floorContextTokens(tokens: number): number {
+  return Math.max(CONTEXT_WINDOW_HARD_MIN_TOKENS, Math.trunc(tokens));
+}
+
 export function applyDiscoveredContextWindows(params: {
   cache: Map<string, number>;
   models: ModelEntry[];
@@ -50,11 +55,12 @@ export function applyDiscoveredContextWindows(params: {
     if (!contextTokens || contextTokens <= 0) {
       continue;
     }
+    const effectiveContextTokens = floorContextTokens(contextTokens);
     const existing = params.cache.get(model.id);
     // Cache the most conservative effective limit. Provider/runtime callers that
     // know the active provider should still prefer qualified lookups first.
-    if (existing === undefined || contextTokens < existing) {
-      params.cache.set(model.id, contextTokens);
+    if (existing === undefined || effectiveContextTokens < existing) {
+      params.cache.set(model.id, effectiveContextTokens);
     }
   }
 }
@@ -82,7 +88,7 @@ export function applyConfiguredContextWindows(params: {
       if (!modelId || !contextTokens || contextTokens <= 0) {
         continue;
       }
-      params.cache.set(modelId, contextTokens);
+      params.cache.set(modelId, floorContextTokens(contextTokens));
     }
   }
 }
@@ -350,7 +356,7 @@ function resolveConfiguredProviderContextTokens(
           typeof contextTokens === "number" &&
           contextTokens > 0
         ) {
-          return contextTokens;
+          return floorContextTokens(contextTokens);
         }
       }
     }
@@ -390,7 +396,7 @@ export function resolveContextTokensForModel(params: {
   allowAsyncLoad?: boolean;
 }): number | undefined {
   if (typeof params.contextTokensOverride === "number" && params.contextTokensOverride > 0) {
-    return params.contextTokensOverride;
+    return floorContextTokens(params.contextTokensOverride);
   }
 
   const ref = resolveProviderModelRef({
@@ -417,7 +423,7 @@ export function resolveContextTokensForModel(params: {
         ref.model,
       );
       if (configuredWindow !== undefined) {
-        return configuredWindow;
+        return floorContextTokens(configuredWindow);
       }
     }
   }
@@ -440,7 +446,7 @@ export function resolveContextTokensForModel(params: {
       { allowAsyncLoad: params.allowAsyncLoad },
     );
     if (qualifiedResult !== undefined) {
-      return qualifiedResult;
+      return floorContextTokens(qualifiedResult);
     }
   }
 
@@ -450,7 +456,7 @@ export function resolveContextTokensForModel(params: {
     allowAsyncLoad: params.allowAsyncLoad,
   });
   if (bareResult !== undefined) {
-    return bareResult;
+    return floorContextTokens(bareResult);
   }
 
   // When provider is implicit, try qualified as a last resort so inferred
@@ -462,9 +468,11 @@ export function resolveContextTokensForModel(params: {
       { allowAsyncLoad: params.allowAsyncLoad },
     );
     if (qualifiedResult !== undefined) {
-      return qualifiedResult;
+      return floorContextTokens(qualifiedResult);
     }
   }
 
-  return params.fallbackContextTokens;
+  return typeof params.fallbackContextTokens === "number" && params.fallbackContextTokens > 0
+    ? floorContextTokens(params.fallbackContextTokens)
+    : params.fallbackContextTokens;
 }

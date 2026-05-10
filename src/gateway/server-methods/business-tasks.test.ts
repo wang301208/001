@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { businessTaskHandlers } from "./business-tasks.js";
+import { listSkillCandidates, searchExperience } from "../../experience/experience-store.js";
 
 const mocks = vi.hoisted(() => ({
   startManagedFlow: vi.fn(() => ({ flow: { id: "flow-1" } })),
@@ -194,6 +195,95 @@ describe("business task handlers", () => {
     const limited = await invoke("business.tasks.list", { limit: 1 });
     expect(limited.mock.calls[0]?.[1]?.tasks).toHaveLength(1);
     expect(limited.mock.calls[0]?.[1]?.tasks[0]).toEqual(expect.objectContaining({ id: secondId }));
+  });
+
+  it("captures terminal business task outcomes into self experience and skill candidates", async () => {
+    const createRespond = await invoke("business.tasks.create", {
+      agentId: "main",
+      name: "Self roadmap skill reuse",
+      goal: "Convert repeated fixes into reusable autonomous skills",
+      duration: "long",
+      priority: "high",
+      group: "self-roadmap",
+      business: {
+        domain: "self",
+        accessMode: "autonomous",
+        object: "skill_reuse",
+        acceptanceCriteria: "Result is persisted into self experience",
+        payload: { selfRoadmapGoalId: "skill_reuse" },
+      },
+    });
+    const taskId = createRespond.mock.calls[0]?.[1]?.task?.id;
+
+    await invoke("business.tasks.update", {
+      id: taskId,
+      status: "completed",
+      progress: 100,
+    });
+
+    expect(searchExperience({ query: "Self roadmap skill reuse" }).results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "event",
+          summary: expect.stringContaining("Self roadmap skill reuse"),
+          tags: expect.arrayContaining(["business-task", "self-roadmap", "completed"]),
+        }),
+      ]),
+    );
+    expect(listSkillCandidates({ limit: 1 })).toEqual([
+      expect.objectContaining({
+        title: expect.stringContaining("Self roadmap skill reuse"),
+        tags: expect.arrayContaining(["business-task", "autonomous"]),
+      }),
+    ]);
+  });
+
+  it("records autonomous code-change contracts as self-code experience evidence", async () => {
+    const createRespond = await invoke("business.tasks.create", {
+      agentId: "main",
+      name: "Self code upgrade",
+      goal: "Implement a bounded source change with verification",
+      duration: "long",
+      priority: "high",
+      group: "self-code-upgrade",
+      business: {
+        domain: "self-code",
+        accessMode: "autonomous-code-change",
+        object: "self_upgrade_loop",
+        payload: {
+          selfRoadmapGoalId: "self_upgrade_loop",
+          codeChangeContract: {
+            strategy: "test-first",
+            allowedPaths: ["src/"],
+            verificationCommands: ["pnpm tsgo"],
+            deliverables: ["implementation patch", "fresh verification output"],
+          },
+        },
+      },
+    });
+    const taskId = createRespond.mock.calls[0]?.[1]?.task?.id;
+
+    await invoke("business.tasks.update", {
+      id: taskId,
+      status: "completed",
+      progress: 100,
+    });
+
+    expect(searchExperience({ query: "test-first pnpm tsgo" }).results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "event",
+          summary: expect.stringContaining("Self code upgrade"),
+          tags: expect.arrayContaining([
+            "business-task",
+            "self-code-upgrade",
+            "self-code",
+            "autonomous-code-change",
+            "completed",
+          ]),
+        }),
+      ]),
+    );
   });
 
   it("clamps progress and rejects unknown update or delete ids", async () => {

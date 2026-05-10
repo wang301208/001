@@ -140,6 +140,26 @@ const METHOD_SCHEMA_NAMES: Record<
     result: "SelfModelUpdateResult",
     example: { learnedPatterns: ["Prefer durable memory for repeated fixes"] },
   },
+  "self.overview": {
+    params: "SelfOverviewParams",
+    result: "SelfOverviewResult",
+    example: { limit: 10 },
+  },
+  "self.roadmap": {
+    params: "SelfRoadmapParams",
+    result: "SelfRoadmapResult",
+    example: { now: Date.now() },
+  },
+  "self.roadmap.advance": {
+    params: "SelfRoadmapParams",
+    result: "SelfRoadmapAdvanceResult",
+    example: { now: Date.now() },
+  },
+  "self.skills.recommend": {
+    params: "SelfSkillsRecommendParams",
+    result: "SelfSkillsRecommendResult",
+    example: { goal: "Repair repeated gateway startup failure", limit: 5 },
+  },
   "governance.overview": { params: "GovernanceOverviewParams", result: "GovernanceOverviewResult" },
   "logs.tail": { params: "LogsTailParams", result: "LogsTailResult", example: { limit: 100 } },
   "models.list": { params: "ModelsListParams", result: "ModelsListResult" },
@@ -156,6 +176,11 @@ const METHOD_SCHEMA_NAMES: Record<
     params: "SkillsSearchParams",
     result: "SkillsSearchResult",
     example: { query: "browser", limit: 10 },
+  },
+  "skills.merge": {
+    params: "SkillsMergeParams",
+    result: "SkillsMergeResult",
+    example: { sources: ["alpha", "beta"], name: "alpha-beta", conflictStrategy: "namespace" },
   },
   "skills.status": { params: "SkillsStatusParams" },
   "tools.catalog": {

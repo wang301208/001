@@ -75,6 +75,7 @@ const mocks = vi.hoisted(() => {
     installSkillFromClawHubMock: vi.fn(),
     updateSkillsFromClawHubMock: vi.fn(),
     readTrackedClawHubSkillSlugsMock: vi.fn(),
+    mergeWorkspaceSkillsMock: vi.fn(),
     buildWorkspaceSkillStatusMock,
     skillStatusReportFixture,
     defaultRuntime,
@@ -92,6 +93,7 @@ const {
   installSkillFromClawHubMock,
   updateSkillsFromClawHubMock,
   readTrackedClawHubSkillSlugsMock,
+  mergeWorkspaceSkillsMock,
   buildWorkspaceSkillStatusMock,
   skillStatusReportFixture,
   defaultRuntime,
@@ -126,6 +128,10 @@ vi.mock("../agents/skills-status.js", () => ({
     mocks.buildWorkspaceSkillStatusMock(workspaceDir, options),
 }));
 
+vi.mock("../agents/skills.js", () => ({
+  mergeWorkspaceSkills: (...args: unknown[]) => mocks.mergeWorkspaceSkillsMock(...args),
+}));
+
 describe("skills cli commands", () => {
   const createProgram = () => {
     const program = new Command();
@@ -147,6 +153,7 @@ describe("skills cli commands", () => {
     installSkillFromClawHubMock.mockReset();
     updateSkillsFromClawHubMock.mockReset();
     readTrackedClawHubSkillSlugsMock.mockReset();
+    mergeWorkspaceSkillsMock.mockReset();
     buildWorkspaceSkillStatusMock.mockReset();
 
     loadConfigMock.mockReturnValue({});
@@ -159,6 +166,15 @@ describe("skills cli commands", () => {
     });
     updateSkillsFromClawHubMock.mockResolvedValue([]);
     readTrackedClawHubSkillSlugsMock.mockResolvedValue([]);
+    mergeWorkspaceSkillsMock.mockResolvedValue({
+      ok: true,
+      targetSkillName: "merged",
+      targetDir: "/tmp/workspace/skills/merged",
+      sourceSkills: ["alpha", "beta"],
+      mergedFiles: ["SKILL.md"],
+      deduplicatedFiles: [],
+      conflicts: [],
+    });
     buildWorkspaceSkillStatusMock.mockReturnValue(skillStatusReportFixture);
     defaultRuntime.log.mockClear();
     defaultRuntime.error.mockClear();
@@ -234,6 +250,42 @@ describe("skills cli commands", () => {
     expect(runtimeLogs.some((line) => line.includes("Updated calendar: 1.2.2 -> 1.2.3"))).toBe(
       true,
     );
+    expect(runtimeErrors).toEqual([]);
+  });
+
+  it("merges multiple workspace skills into a new skill", async () => {
+    await runCommand([
+      "skills",
+      "merge",
+      "alpha",
+      "beta",
+      "--name",
+      "merged",
+      "--description",
+      "Merged workflow",
+      "--strict-conflicts",
+      "--overwrite",
+      "--json",
+    ]);
+
+    expect(mergeWorkspaceSkillsMock).toHaveBeenCalledWith({
+      workspaceDir: "/tmp/workspace",
+      sourceSkillNames: ["alpha", "beta"],
+      targetName: "merged",
+      description: "Merged workflow",
+      conflictStrategy: "fail",
+      overwrite: true,
+      config: {},
+    });
+    expect(defaultRuntime.writeJson).toHaveBeenCalledWith({
+      ok: true,
+      targetSkillName: "merged",
+      targetDir: "/tmp/workspace/skills/merged",
+      sourceSkills: ["alpha", "beta"],
+      mergedFiles: ["SKILL.md"],
+      deduplicatedFiles: [],
+      conflicts: [],
+    });
     expect(runtimeErrors).toEqual([]);
   });
 

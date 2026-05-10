@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { isRootHelpInvocation, isRootVersionInvocation } from "./cli/argv.js";
 import { parseCliContainerArgs, resolveCliContainerTarget } from "./cli/container-target.js";
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
+import { resolveExplicitTuiFastPathOptions } from "./cli/tui-fast-path.js";
 import { normalizeWindowsArgv } from "./cli/windows-argv.js";
 import { buildCliRespawnPlan } from "./entry.respawn.js";
 import { isTruthyEnvValue, normalizeEnv } from "./infra/env.js";
@@ -156,7 +157,13 @@ if (
       process.argv = parsed.argv;
     }
 
-    if (!tryHandleRootVersionFastPath(process.argv)) {
+    const explicitTuiOptions = resolveExplicitTuiFastPathOptions(process.argv);
+    if (explicitTuiOptions) {
+      const { assertSupportedRuntime } = await import("./infra/runtime-guard.js");
+      assertSupportedRuntime();
+      const { runTui } = await import("./tui/tui.js");
+      await runTui(explicitTuiOptions);
+    } else if (!tryHandleRootVersionFastPath(process.argv)) {
       runMainOrRootHelp(process.argv);
     }
   }

@@ -182,6 +182,8 @@ import {
   SkillsDetailParamsSchema,
   SkillsDetailResultSchema,
   SkillsInstallParamsSchema,
+  SkillsMergeParamsSchema,
+  SkillsMergeResultSchema,
   SkillsSearchParamsSchema,
   SkillsSearchResultSchema,
   SkillsStatusParamsSchema,
@@ -212,6 +214,13 @@ import {
   SelfModelSchema,
   SelfModelUpdateParamsSchema,
   SelfModelUpdateResultSchema,
+  SelfOverviewParamsSchema,
+  SelfOverviewResultSchema,
+  SelfRoadmapAdvanceResultSchema,
+  SelfRoadmapParamsSchema,
+  SelfRoadmapResultSchema,
+  SelfSkillsRecommendParamsSchema,
+  SelfSkillsRecommendResultSchema,
   UserModelDialecticParamsSchema,
   UserModelDialecticResultSchema,
   UserModelUpdateParamsSchema,
@@ -567,6 +576,13 @@ type ProtocolSchemaMap = {
   SelfModelGetResult: typeof SelfModelGetResultSchema;
   SelfModelUpdateParams: typeof SelfModelUpdateParamsSchema;
   SelfModelUpdateResult: typeof SelfModelUpdateResultSchema;
+  SelfOverviewParams: typeof SelfOverviewParamsSchema;
+  SelfOverviewResult: typeof SelfOverviewResultSchema;
+  SelfRoadmapParams: typeof SelfRoadmapParamsSchema;
+  SelfRoadmapResult: typeof SelfRoadmapResultSchema;
+  SelfRoadmapAdvanceResult: typeof SelfRoadmapAdvanceResultSchema;
+  SelfSkillsRecommendParams: typeof SelfSkillsRecommendParamsSchema;
+  SelfSkillsRecommendResult: typeof SelfSkillsRecommendResultSchema;
   UserModelUpdateParams: typeof UserModelUpdateParamsSchema;
   UserModelUpdateResult: typeof UserModelUpdateResultSchema;
   UserModelDialecticParams: typeof UserModelDialecticParamsSchema;
@@ -593,6 +609,8 @@ type ProtocolSchemaMap = {
   SkillsDetailParams: typeof SkillsDetailParamsSchema;
   SkillsDetailResult: typeof SkillsDetailResultSchema;
   SkillsInstallParams: typeof SkillsInstallParamsSchema;
+  SkillsMergeParams: typeof SkillsMergeParamsSchema;
+  SkillsMergeResult: typeof SkillsMergeResultSchema;
   SkillsUpdateParams: typeof SkillsUpdateParamsSchema;
   CronJob: typeof CronJobSchema;
   CronListParams: typeof CronListParamsSchema;
@@ -908,6 +926,13 @@ const protocolSchemas: ProtocolSchemaMap = {
   SelfModelGetResult: SelfModelGetResultSchema,
   SelfModelUpdateParams: SelfModelUpdateParamsSchema,
   SelfModelUpdateResult: SelfModelUpdateResultSchema,
+  SelfOverviewParams: SelfOverviewParamsSchema,
+  SelfOverviewResult: SelfOverviewResultSchema,
+  SelfRoadmapParams: SelfRoadmapParamsSchema,
+  SelfRoadmapResult: SelfRoadmapResultSchema,
+  SelfRoadmapAdvanceResult: SelfRoadmapAdvanceResultSchema,
+  SelfSkillsRecommendParams: SelfSkillsRecommendParamsSchema,
+  SelfSkillsRecommendResult: SelfSkillsRecommendResultSchema,
   UserModelUpdateParams: UserModelUpdateParamsSchema,
   UserModelUpdateResult: UserModelUpdateResultSchema,
   UserModelDialecticParams: UserModelDialecticParamsSchema,
@@ -934,6 +959,8 @@ const protocolSchemas: ProtocolSchemaMap = {
   SkillsDetailParams: SkillsDetailParamsSchema,
   SkillsDetailResult: SkillsDetailResultSchema,
   SkillsInstallParams: SkillsInstallParamsSchema,
+  SkillsMergeParams: SkillsMergeParamsSchema,
+  SkillsMergeResult: SkillsMergeResultSchema,
   SkillsUpdateParams: SkillsUpdateParamsSchema,
   CronJob: CronJobSchema,
   CronListParams: CronListParamsSchema,

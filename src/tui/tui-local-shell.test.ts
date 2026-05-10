@@ -65,8 +65,8 @@ describe("createLocalShellRunner", () => {
 
     await harness.runLocalShellLine("!pwd");
 
-    expect(harness.messages).toContain("local shell: not enabled");
-    expect(harness.messages).toContain("local shell: not enabled for this session");
+    expect(harness.messages).toContain("本地 shell：未启用");
+    expect(harness.messages).toContain("本地 shell：本会话未启用");
     expect(harness.createSelectorSpy).toHaveBeenCalledTimes(1);
     expect(harness.spawnCommand).not.toHaveBeenCalled();
   });
@@ -102,7 +102,7 @@ describe("createLocalShellRunner", () => {
     const spawnOptions = spawnCommand.mock.calls[0]?.[1] as { env?: Record<string, string> };
     expect(spawnOptions.env?.ASSISTANT_SHELL).toBe("tui-local");
     expect(spawnOptions.env?.PATH).toBe("/tmp/bin");
-    expect(harness.messages).toContain("local shell: enabled for this session");
+    expect(harness.messages).toContain("本地 shell：本会话已启用");
   });
 
   it("streams stdout and stderr chunks before the process closes", async () => {
@@ -126,14 +126,14 @@ describe("createLocalShellRunner", () => {
     stdout.emit("data", Buffer.from("first\nsecond\n"));
     stderr.emit("data", Buffer.from("warn\n"));
 
-    expect(harness.messages).toContain("[local] first");
-    expect(harness.messages).toContain("[local] second");
-    expect(harness.messages).toContain("[local:err] warn");
+    expect(harness.messages).toContain("[本地] first");
+    expect(harness.messages).toContain("[本地] second");
+    expect(harness.messages).toContain("[本地:错误] warn");
 
     child.emit("close", 0, null);
     await run;
 
-    expect(harness.messages).toContain("[local] exit 0");
+    expect(harness.messages).toContain("[本地] 退出 0");
   });
 
   it("supports output redirection with > and avoids echoing redirected output", async () => {
@@ -161,8 +161,8 @@ describe("createLocalShellRunner", () => {
       await run;
 
       await expect(fs.readFile(outFile, "utf8")).resolves.toBe("hello\n");
-      expect(harness.messages).toContain(`[local] redirected stdout to ${outFile}`);
-      expect(harness.messages).not.toContain("[local] hello");
+      expect(harness.messages).toContain(`[本地] stdout 已重定向到 ${outFile}`);
+      expect(harness.messages).not.toContain("[本地] hello");
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }

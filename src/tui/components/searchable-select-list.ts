@@ -214,7 +214,7 @@ export class SearchableSelectList implements Component {
     const lines: string[] = [];
 
     // Search input line
-    const promptText = "search: ";
+    const promptText = "搜索: ";
     const prompt = this.theme.searchPrompt(promptText);
     const inputWidth = Math.max(1, width - visibleWidth(prompt));
     const inputLines = this.searchInput.render(inputWidth);
@@ -226,7 +226,7 @@ export class SearchableSelectList implements Component {
 
     // If no items match filter, show message
     if (this.filteredItems.length === 0) {
-      lines.push(this.theme.noMatch("  No matches"));
+      lines.push(this.theme.noMatch("  无匹配项"));
       return lines;
     }
 

@@ -1,14 +1,21 @@
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
+import type { AssistantAction } from "./assistant-actions.js";
 
 export function createEditorSubmitHandler(params: {
   editor: {
     setText: (value: string) => void;
     addToHistory: (value: string) => void;
   };
-  handleCommand: (value: string) => Promise<void> | void;
   sendMessage: (value: string) => Promise<void> | void;
   handleBangLine: (value: string) => Promise<void> | void;
-  resolveControlInput?: (value: string) => { routedText: string; reason: string } | null;
+  handleAction?: (action: AssistantAction) => Promise<void> | void;
+  notifyUser?: (value: string) => void;
+  resolveInput?: (
+    value: string,
+  ) =>
+    | { kind: "action"; action: AssistantAction; reason: string }
+    | { kind: "message"; message: string; reason: string }
+    | null;
   enqueueMessage?: (value: string, mode: "steer" | "followUp") => void;
   hasActiveRun?: () => boolean;
 }) {
@@ -22,12 +29,11 @@ export function createEditorSubmitHandler(params: {
       return;
     }
 
-    // Bash mode: only if the very first character is '!' and it's not just '!'.
-    // IMPORTANT: use the raw (untrimmed) text so leading spaces do NOT trigger.
-    // Per requirement: a lone '!' should be treated as a normal message.
     if (raw.startsWith("!") && raw !== "!") {
       params.editor.addToHistory(raw);
-      void params.handleBangLine(raw);
+      params.notifyUser?.(
+        "本地命令入口已改为自然语言。请说：执行本地命令 " + raw.slice(1).trim(),
+      );
       return;
     }
 
@@ -35,13 +41,25 @@ export function createEditorSubmitHandler(params: {
     params.editor.addToHistory(value);
 
     if (value.startsWith("/")) {
-      void params.handleCommand(value);
+      params.notifyUser?.("自然语言直达已启用。请直接描述目标。");
       return;
     }
 
-    const routed = params.resolveControlInput?.(value);
-    if (routed) {
-      void params.handleCommand(routed.routedText);
+    const routedInput = params.resolveInput?.(value);
+    if (routedInput?.kind === "action") {
+      if (params.handleAction) {
+        void params.handleAction(routedInput.action);
+        return;
+      }
+      params.notifyUser?.("当前运行时无法执行该自然语言动作。");
+      return;
+    }
+    if (routedInput?.kind === "message") {
+      if (params.hasActiveRun?.() && params.enqueueMessage) {
+        params.enqueueMessage(routedInput.message, "followUp");
+        return;
+      }
+      void params.sendMessage(routedInput.message);
       return;
     }
 

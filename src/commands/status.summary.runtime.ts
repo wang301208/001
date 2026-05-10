@@ -1,4 +1,5 @@
 import { resolveConfiguredProviderFallback } from "../agents/configured-provider-fallback.js";
+import { CONTEXT_WINDOW_HARD_MIN_TOKENS } from "../agents/context-window-guard.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { parseModelRef, resolvePersistedSelectedModelRef } from "../agents/model-selection.js";
 import { normalizeProviderId } from "../agents/provider-id.js";
@@ -115,7 +116,7 @@ function resolveConfiguredProviderContextTokens(
         typeof contextTokens === "number" &&
         contextTokens > 0
       ) {
-        return contextTokens;
+        return Math.max(CONTEXT_WINDOW_HARD_MIN_TOKENS, contextTokens);
       }
     }
   }
@@ -172,7 +173,7 @@ function resolveContextTokensForModel(params: {
 }): number | undefined {
   void params.allowAsyncLoad;
   if (typeof params.contextTokensOverride === "number" && params.contextTokensOverride > 0) {
-    return params.contextTokensOverride;
+    return Math.max(CONTEXT_WINDOW_HARD_MIN_TOKENS, params.contextTokensOverride);
   }
   if (params.provider && params.model) {
     const configuredContextTokens = resolveConfiguredProviderContextTokens(
@@ -184,7 +185,10 @@ function resolveContextTokensForModel(params: {
       return configuredContextTokens;
     }
   }
-  return params.fallbackContextTokens ?? DEFAULT_CONTEXT_TOKENS;
+  return Math.max(
+    CONTEXT_WINDOW_HARD_MIN_TOKENS,
+    params.fallbackContextTokens ?? DEFAULT_CONTEXT_TOKENS,
+  );
 }
 
 export const statusSummaryRuntime = {

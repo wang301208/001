@@ -288,4 +288,39 @@ describe("resolveContextTokensForModel", () => {
 
     expect(result).toBe(160_000);
   });
+
+  it("floors all resolved context windows to the global 128k minimum", () => {
+    expect(
+      resolveContextTokensForModel({
+        contextTokensOverride: 16_000,
+        allowAsyncLoad: false,
+      }),
+    ).toBe(128_000);
+
+    expect(
+      resolveContextTokensForModel({
+        cfg: {
+          models: {
+            providers: {
+              custom: {
+                baseUrl: "https://example.invalid/v1",
+                models: [testModelContextWindow("tiny", 8_000)],
+              },
+            },
+          },
+        },
+        provider: "custom",
+        model: "tiny",
+        allowAsyncLoad: false,
+      }),
+    ).toBe(128_000);
+
+    expect(
+      resolveContextTokensForModel({
+        model: "unknown",
+        fallbackContextTokens: 32_000,
+        allowAsyncLoad: false,
+      }),
+    ).toBe(128_000);
+  });
 });

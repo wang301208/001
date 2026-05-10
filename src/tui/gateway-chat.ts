@@ -130,8 +130,8 @@ function throwGatewayAuthResolutionError(reason: string): never {
   throw new Error(
     [
       reason,
-      "Fix: set ASSISTANT_GATEWAY_TOKEN/ASSISTANT_GATEWAY_PASSWORD, pass --token/--password,",
-      "or resolve the configured secret provider for this credential.",
+      "修复方式：设置 ASSISTANT_GATEWAY_TOKEN/ASSISTANT_GATEWAY_PASSWORD，传入 --token/--password，",
+      "或修复该凭据配置的密钥提供器。",
     ].join("\n"),
   );
 }
@@ -157,6 +157,9 @@ export type GatewaySessionList = {
       | "inputTokens"
       | "outputTokens"
       | "totalTokens"
+      | "totalTokensFresh"
+      | "compactionCount"
+      | "compactionCheckpointCount"
       | "modelProvider"
       | "displayName"
     > & {
@@ -852,7 +855,7 @@ export async function resolveGatewayConnection(
     urlOverride,
     urlOverrideSource: "cli",
     explicitAuth,
-    errorHint: "Fix: pass --token or --password when using --url.",
+    errorHint: "修复方式：使用 --url 时请同时传入 --token 或 --password。",
   });
   const url = buildGatewayConnectionDetails({
     config,

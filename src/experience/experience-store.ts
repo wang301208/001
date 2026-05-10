@@ -142,6 +142,65 @@ export type ExperienceSummary = {
   selfModel: SelfModel;
 };
 
+export type SelfOverview = {
+  observedAt: number;
+  summary: {
+    events: number;
+    skillCandidates: number;
+    implementedSkills: number;
+    selfModelFacts: number;
+    dueStrategicPushes: number;
+  };
+  capabilities: {
+    experienceMemory: boolean;
+    sessionRecall: boolean;
+    selfModel: boolean;
+    userModel: boolean;
+    skillEvolution: boolean;
+    strategicMemory: boolean;
+  };
+  metrics: SelfMetrics;
+  roadmap: SelfRoadmap;
+  selfModel: SelfModel;
+  recentEvents: ExperienceEvent[];
+  recentSkillCandidates: SkillCandidate[];
+  dueStrategicPushes: StrategicPush[];
+};
+
+export type SelfRoadmapGoal = {
+  id: string;
+  title: string;
+  objective: string;
+  status: "active" | "waiting" | "completed";
+  priority: "high" | "medium" | "low";
+  nextPushAt: number;
+  evidenceEventIds: string[];
+  blockers: string[];
+};
+
+export type SelfMetrics = {
+  complexTaskCount: number;
+  skillCandidateCount: number;
+  implementedSkillCount: number;
+  selfImprovedSkillCount: number;
+  selfModelFactCount: number;
+  strategicMemoryCount: number;
+  dueStrategicPushCount: number;
+  skillReuseReadiness: number;
+};
+
+export type SelfRoadmap = {
+  observedAt: number;
+  goals: SelfRoadmapGoal[];
+  metrics: SelfMetrics;
+};
+
+export type ReusableSkillRecommendation = {
+  candidate: SkillCandidate;
+  score: number;
+  reason: string;
+};
+
 type ExperienceState = {
   version: 1;
   events: ExperienceEvent[];
@@ -349,6 +408,42 @@ function buildAutonomousSkillCandidate(event: ExperienceEvent, now = Date.now())
   };
 }
 
+function countSelfModelFacts(selfModel: SelfModel): number {
+  return (
+    selfModel.strengths.length +
+    selfModel.weaknesses.length +
+    selfModel.preferences.length +
+    selfModel.learnedPatterns.length +
+    selfModel.nextGrowthAreas.length
+  );
+}
+
+function distillSelfModelFromComplexTask(
+  selfModel: SelfModel,
+  event: ExperienceEvent,
+  now: number,
+): SelfModel {
+  return {
+    strengths: mergeStringArrays(selfModel.strengths, event.source
+      ? [`Can complete complex ${event.source} work and retain reusable evidence`]
+      : ["Can complete complex tasks and retain reusable evidence"]),
+    weaknesses: mergeStringArrays(selfModel.weaknesses, []),
+    preferences: mergeStringArrays(selfModel.preferences, [
+      "Prefer converting verified complex work into durable memory and reusable skills",
+    ]),
+    learnedPatterns: mergeStringArrays(selfModel.learnedPatterns, [
+      `From complex task: ${event.summary}`,
+      ...(event.outcome ? [`Verified outcome: ${event.outcome}`] : []),
+    ]),
+    nextGrowthAreas: mergeStringArrays(selfModel.nextGrowthAreas, [
+      "Turn complex-task experience into reusable skills automatically",
+      "Reuse generated skills before repeating similar manual work",
+    ]),
+    evidenceEventIds: mergeStringArrays(selfModel.evidenceEventIds, [event.id]),
+    updatedAt: now,
+  };
+}
+
 function skillCandidateSearchText(candidate: SkillCandidate): string {
   return [
     candidate.title,
@@ -358,6 +453,66 @@ function skillCandidateSearchText(candidate: SkillCandidate): string {
     ...candidate.tags,
     ...candidate.evidenceEventIds,
   ].join("\n");
+}
+
+function isImplementedSkillCandidate(candidate: SkillCandidate): boolean {
+  return candidate.status === "implemented" || candidate.tags.includes("auto-promoted");
+}
+
+function selfMetrics(state: ExperienceState, now = Date.now()): SelfMetrics {
+  const dueStrategicPushCount = state.strategicMemories.filter((memory) => memory.nextPushAt <= now).length;
+  const implementedSkillCount = state.skillCandidates.filter(isImplementedSkillCandidate).length;
+  return {
+    complexTaskCount: state.events.filter(isComplexTaskEvent).length,
+    skillCandidateCount: state.skillCandidates.length,
+    implementedSkillCount,
+    selfImprovedSkillCount: state.skillCandidates.filter((candidate) =>
+      candidate.tags.includes("self-improved")
+    ).length,
+    selfModelFactCount: countSelfModelFacts(state.selfModel),
+    strategicMemoryCount: state.strategicMemories.length,
+    dueStrategicPushCount,
+    skillReuseReadiness: state.skillCandidates.length > 0
+      ? Math.round((implementedSkillCount / state.skillCandidates.length) * 100)
+      : 0,
+  };
+}
+
+function buildSelfRoadmapGoals(state: ExperienceState, now: number): SelfRoadmapGoal[] {
+  const metrics = selfMetrics(state, now);
+  const recentComplexEvidence = state.events.filter(isComplexTaskEvent).slice(0, 5).map((event) => event.id);
+  return [
+    {
+      id: "skill_reuse",
+      title: "Self roadmap: skill reuse",
+      objective: "Increase automatic reuse of generated skills before repeating similar work.",
+      status: metrics.skillCandidateCount > metrics.implementedSkillCount ? "active" : "waiting",
+      priority: metrics.skillCandidateCount > metrics.implementedSkillCount ? "high" : "medium",
+      nextPushAt: now,
+      evidenceEventIds: recentComplexEvidence,
+      blockers: metrics.skillCandidateCount === 0 ? ["No skill candidates have been created yet"] : [],
+    },
+    {
+      id: "self_upgrade_loop",
+      title: "Self roadmap: code-level upgrade loop",
+      objective: "Close the loop from detected capability gaps to implementation, verification, and release handoff.",
+      status: "active",
+      priority: metrics.complexTaskCount > 0 ? "high" : "medium",
+      nextPushAt: now,
+      evidenceEventIds: recentComplexEvidence,
+      blockers: ["Requires guarded code-change orchestration and release policy integration"],
+    },
+    {
+      id: "capability_metrics",
+      title: "Self roadmap: capability metrics",
+      objective: "Track trend metrics for failures, skill reuse, self repairs, and capability boundary expansion.",
+      status: metrics.selfModelFactCount > 0 ? "active" : "waiting",
+      priority: "medium",
+      nextPushAt: now,
+      evidenceEventIds: state.selfModel.evidenceEventIds.slice(0, 5),
+      blockers: [],
+    },
+  ];
 }
 
 function extractMessageText(message: unknown): string {
@@ -669,6 +824,7 @@ export function captureExperienceEvent(params: {
   };
   state.events = [event, ...state.events];
   if (isComplexTaskEvent(event)) {
+    state.selfModel = distillSelfModelFromComplexTask(state.selfModel, event, now);
     const duplicate = state.skillCandidates.some((candidate) =>
       candidate.evidenceEventIds.includes(event.id) ||
       candidate.title.toLowerCase() === event.summary.toLowerCase()
@@ -813,22 +969,121 @@ export function summarizeExperience(params: { limit?: number } = {}): Experience
     ? Math.max(1, Math.floor(params.limit))
     : 10;
   const state = readState();
-  const selfModelFacts =
-    state.selfModel.strengths.length +
-    state.selfModel.weaknesses.length +
-    state.selfModel.preferences.length +
-    state.selfModel.learnedPatterns.length +
-    state.selfModel.nextGrowthAreas.length;
   return {
     counts: {
       events: state.events.length,
       skillCandidates: state.skillCandidates.length,
-      selfModelFacts,
+      selfModelFacts: countSelfModelFacts(state.selfModel),
     },
     recentEvents: state.events.slice(0, limit),
     recentSkillCandidates: state.skillCandidates.slice(0, limit),
     selfModel: state.selfModel,
   };
+}
+
+export function getSelfOverview(params: { now?: number; limit?: number } = {}): SelfOverview {
+  const now = typeof params.now === "number" && Number.isFinite(params.now) ? params.now : Date.now();
+  const limit = typeof params.limit === "number" && Number.isFinite(params.limit)
+    ? Math.max(1, Math.floor(params.limit))
+    : 10;
+  const state = readState();
+  const dueStrategicPushes = listDueStrategicPushes({ now, limit });
+  const roadmap = getSelfRoadmap({ now });
+  return {
+    observedAt: now,
+    summary: {
+      events: state.events.length,
+      skillCandidates: state.skillCandidates.length,
+      implementedSkills: state.skillCandidates.filter((candidate) => candidate.status === "implemented").length,
+      selfModelFacts: countSelfModelFacts(state.selfModel),
+      dueStrategicPushes: dueStrategicPushes.length,
+    },
+    capabilities: {
+      experienceMemory: true,
+      sessionRecall: true,
+      selfModel: true,
+      userModel: true,
+      skillEvolution: true,
+      strategicMemory: true,
+    },
+    metrics: roadmap.metrics,
+    roadmap,
+    selfModel: state.selfModel,
+    recentEvents: state.events.slice(0, limit),
+    recentSkillCandidates: state.skillCandidates.slice(0, limit),
+    dueStrategicPushes,
+  };
+}
+
+export function getSelfRoadmap(params: { now?: number } = {}): SelfRoadmap {
+  const now = typeof params.now === "number" && Number.isFinite(params.now) ? params.now : Date.now();
+  const state = readState();
+  return {
+    observedAt: now,
+    goals: buildSelfRoadmapGoals(state, now),
+    metrics: selfMetrics(state, now),
+  };
+}
+
+export function recommendReusableSkills(params: {
+  goal: string;
+  limit?: number;
+}): ReusableSkillRecommendation[] {
+  const terms = tokenizeQuery(params.goal);
+  const limit = typeof params.limit === "number" && Number.isFinite(params.limit)
+    ? Math.max(1, Math.floor(params.limit))
+    : 5;
+  return readState().skillCandidates
+    .filter(isImplementedSkillCandidate)
+    .map((candidate) => ({
+      candidate,
+      score: scoreText(terms, skillCandidateSearchText(candidate)),
+    }))
+    .filter((entry) => entry.score > 0)
+    .toSorted((a, b) => b.score - a.score || b.candidate.updatedAt - a.candidate.updatedAt)
+    .slice(0, limit)
+    .map((entry) => ({
+      candidate: entry.candidate,
+      score: entry.score,
+      reason: `matched ${entry.score} reusable skill signal(s) for this goal`,
+    }));
+}
+
+export function advanceSelfRoadmap(params: { now?: number } = {}): {
+  createdStrategicMemories: number;
+  advancedGoalIds: string[];
+} {
+  const now = typeof params.now === "number" && Number.isFinite(params.now) ? params.now : Date.now();
+  const state = readState();
+  const goals = buildSelfRoadmapGoals(state, now).filter((goal) => goal.status === "active");
+  const existingObjectives = new Set(state.strategicMemories.map((memory) => memory.objective.toLowerCase()));
+  let createdStrategicMemories = 0;
+  const advancedGoalIds: string[] = [];
+  for (const goal of goals) {
+    const objectiveKey = goal.objective.toLowerCase();
+    if (existingObjectives.has(objectiveKey)) {
+      continue;
+    }
+    const memory: StrategicMemory = {
+      id: createId("strategy", now),
+      title: goal.title,
+      objective: goal.objective,
+      cadence: "daily",
+      nextPushAt: now,
+      evidenceEventIds: goal.evidenceEventIds,
+      tags: ["self-roadmap", goal.id],
+      createdAt: now,
+      updatedAt: now,
+    };
+    state.strategicMemories = [memory, ...state.strategicMemories];
+    existingObjectives.add(objectiveKey);
+    createdStrategicMemories += 1;
+    advancedGoalIds.push(goal.id);
+  }
+  if (createdStrategicMemories > 0) {
+    writeState(state);
+  }
+  return { createdStrategicMemories, advancedGoalIds };
 }
 
 export function captureStrategicMemory(params: {
@@ -973,6 +1228,22 @@ export function recordSkillUsage(params: {
     tags: normalizeStringArray([...candidate.tags, "self-improved"]),
     updatedAt: now,
   };
+  const successfulUsageCount = state.skillUsage.filter((usage) =>
+    usage.candidateId === params.candidateId && usage.successful
+  ).length + (usage.successful ? 1 : 0);
+  if (usage.successful && successfulUsageCount >= 2 && candidate.status !== "implemented") {
+    improvedCandidate.status = "implemented";
+    improvedCandidate.tags = normalizeStringArray([
+      ...improvedCandidate.tags,
+      "auto-promoted",
+      "agentskills.io",
+    ]);
+    state.skillCandidates[index] = improvedCandidate;
+    state.skillUsage = [usage, ...state.skillUsage];
+    writeState(state);
+    exportSkillCandidateAsAgentSkill({ candidateId: params.candidateId });
+    return { usage, candidate: improvedCandidate };
+  }
   state.skillCandidates[index] = improvedCandidate;
   state.skillUsage = [usage, ...state.skillUsage];
   writeState(state);

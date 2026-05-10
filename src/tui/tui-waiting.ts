@@ -5,21 +5,21 @@ type MinimalTheme = {
 };
 
 export const defaultWaitingPhrases = [
-  "flibbertigibbeting",
-  "kerfuffling",
-  "dillydallying",
-  "twiddling thumbs",
-  "noodling",
-  "bamboozling",
-  "moseying",
-  "hobnobbing",
-  "pondering",
-  "conjuring",
+  "思考中",
+  "整理上下文",
+  "调用能力",
+  "等待响应",
+  "分析结果",
+  "规划下一步",
+  "检查状态",
+  "汇总信息",
+  "生成回复",
+  "处理中",
 ];
 
 export function pickWaitingPhrase(tick: number, phrases = defaultWaitingPhrases) {
   const idx = Math.floor(tick / 10) % phrases.length;
-  return phrases[idx] ?? phrases[0] ?? "waiting";
+  return phrases[idx] ?? phrases[0] ?? "等待中";
 }
 
 export function shimmerText(theme: MinimalTheme, text: string, tick: number) {
@@ -46,6 +46,6 @@ export function buildWaitingStatusMessage(params: {
   phrases?: string[];
 }) {
   const phrase = pickWaitingPhrase(params.tick, params.phrases);
-  const cute = shimmerText(params.theme, `${phrase}…`, params.tick);
-  return `${cute} • ${params.elapsed} | ${params.connectionStatus}`;
+  const cute = shimmerText(params.theme, `${phrase}...`, params.tick);
+  return `${cute} - ${params.elapsed} | ${params.connectionStatus}`;
 }

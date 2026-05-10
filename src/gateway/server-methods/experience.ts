@@ -2,13 +2,17 @@ import {
   captureExperienceEvent,
   captureStrategicMemory,
   advanceStrategicMemoryPush,
+  advanceSelfRoadmap,
   createSkillCandidate,
   exportSkillCandidateAsAgentSkill,
   getSelfModel,
+  getSelfOverview,
+  getSelfRoadmap,
   listSkillCandidates,
   listDueStrategicPushes,
   queryUserModelDialectic,
   recallSessionMemory,
+  recommendReusableSkills,
   recordSkillUsage,
   searchExperience,
   summarizeExperience,
@@ -22,6 +26,9 @@ import {
   validateExperienceSummaryParams,
   validateSelfModelGetParams,
   validateSelfModelUpdateParams,
+  validateSelfOverviewParams,
+  validateSelfRoadmapParams,
+  validateSelfSkillsRecommendParams,
   validateSkillCandidatesCreateParams,
   validateSkillCandidatesExportAgentSkillParams,
   validateSkillCandidatesListParams,
@@ -34,6 +41,7 @@ import {
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
 import { assertValidParams } from "./validation.js";
+import { getGatewayBackendAutomationHistory } from "../server-runtime-services.js";
 
 export const experienceHandlers: GatewayRequestHandlers = {
   "experience.capture": ({ params, respond }) => {
@@ -159,6 +167,41 @@ export const experienceHandlers: GatewayRequestHandlers = {
       return;
     }
     respond(true, { selfModel: updateSelfModel(params) }, undefined);
+  },
+  "self.overview": ({ params, respond }) => {
+    if (!assertValidParams(params, validateSelfOverviewParams, "self.overview", respond)) {
+      return;
+    }
+    respond(
+      true,
+      {
+        overview: {
+          ...getSelfOverview(params),
+          backendAutomation: {
+            recentRuns: getGatewayBackendAutomationHistory({ limit: params.limit }),
+          },
+        },
+      },
+      undefined,
+    );
+  },
+  "self.roadmap": ({ params, respond }) => {
+    if (!assertValidParams(params, validateSelfRoadmapParams, "self.roadmap", respond)) {
+      return;
+    }
+    respond(true, { roadmap: getSelfRoadmap(params) }, undefined);
+  },
+  "self.roadmap.advance": ({ params, respond }) => {
+    if (!assertValidParams(params, validateSelfRoadmapParams, "self.roadmap.advance", respond)) {
+      return;
+    }
+    respond(true, advanceSelfRoadmap(params), undefined);
+  },
+  "self.skills.recommend": ({ params, respond }) => {
+    if (!assertValidParams(params, validateSelfSkillsRecommendParams, "self.skills.recommend", respond)) {
+      return;
+    }
+    respond(true, { recommendations: recommendReusableSkills(params) }, undefined);
   },
   "user.model.update": ({ params, respond }) => {
     if (!assertValidParams(params, validateUserModelUpdateParams, "user.model.update", respond)) {

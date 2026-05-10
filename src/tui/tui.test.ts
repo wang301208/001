@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AssistantConfig } from "../config/config.js";
-import { getSlashCommands, parseCommand } from "./commands.js";
 import {
   createBackspaceDeduper,
   drainAndStopTuiSafely,
@@ -8,6 +7,7 @@ import {
   resolveCtrlCAction,
   resolveFinalAssistantText,
   resolveGatewayDisconnectState,
+  resolveInitialTuiSessionInfo,
   resolveInitialTuiAgentId,
   resolveTuiSessionKey,
   stopTuiSafely,
@@ -35,25 +35,6 @@ describe("resolveFinalAssistantText", () => {
         errorMessage: '401 {"error":{"message":"Missing scopes: model.request"}}',
       }),
     ).toContain("HTTP 401");
-  });
-});
-
-describe("tui slash commands", () => {
-  it("treats /elev as an alias for /elevated", () => {
-    expect(parseCommand("/elev on")).toEqual({ name: "elevated", args: "on" });
-  });
-
-  it("normalizes alias case", () => {
-    expect(parseCommand("/ELEV off")).toEqual({
-      name: "elevated",
-      args: "off",
-    });
-  });
-
-  it("includes gateway text commands", () => {
-    const commands = getSlashCommands({});
-    expect(commands.some((command) => command.name === "context")).toBe(true);
-    expect(commands.some((command) => command.name === "commands")).toBe(true);
   });
 });
 
@@ -154,17 +135,45 @@ describe("resolveInitialTuiAgentId", () => {
   });
 });
 
+describe("resolveInitialTuiSessionInfo", () => {
+  it("uses configured default model and context window before the gateway replies", () => {
+    const info = resolveInitialTuiSessionInfo({
+      cfg: {
+        models: {
+          providers: {
+            longat: {
+              models: [{ id: "LongCat-Flash-Lite", contextWindow: 128_000 }],
+            },
+          },
+        },
+        agents: {
+          defaults: {
+            model: { primary: "longat/LongCat-Flash-Lite" },
+          },
+        },
+      } as never,
+      agentId: "main",
+    });
+
+    expect(info).toMatchObject({
+      modelProvider: "longat",
+      model: "LongCat-Flash-Lite",
+      contextTokens: 128_000,
+    });
+  });
+});
+
 describe("resolveGatewayDisconnectState", () => {
   it("returns pairing recovery guidance when disconnect reason requires pairing", () => {
     const state = resolveGatewayDisconnectState("gateway closed (1008): pairing required");
     expect(state.connectionStatus).toContain("pairing required");
-    expect(state.activityStatus).toBe("pairing required: run assistant devices list");
+    expect(state.activityStatus).toBe("需要配对: 运行 assistant devices list");
     expect(state.pairingHint).toContain("assistant devices list");
   });
 
   it("falls back to idle for generic disconnect reasons", () => {
     const state = resolveGatewayDisconnectState("network timeout");
-    expect(state.connectionStatus).toBe("gateway disconnected: network timeout");
+    expect(state.connectionStatus).toBe("后端已断开: network timeout");
     expect(state.activityStatus).toBe("idle");
     expect(state.pairingHint).toBeUndefined();
   });
@@ -219,6 +228,13 @@ describe("resolveCtrlCAction", () => {
   it("exits on second ctrl+c within the exit window", () => {
     expect(resolveCtrlCAction({ hasInput: false, now: 2800, lastCtrlCAt: 2000 })).toEqual({
       action: "exit",
+      nextLastCtrlCAt: 2000,
+    });
+  });
+
+  it("does not treat duplicate terminal ctrl+c events as a second press", () => {
+    expect(resolveCtrlCAction({ hasInput: false, now: 2010, lastCtrlCAt: 2000 })).toEqual({
+      action: "warn",
       nextLastCtrlCAt: 2000,
     });
   });

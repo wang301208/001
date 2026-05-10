@@ -43,36 +43,26 @@ assistant tui --history-limit 200
 assistant tui --url ws://127.0.0.1:3000
 ```
 
-## TUI 斜杠命令
+## TUI 自然语言直达
 
-常用命令：
+TUI 内只需要直接输入自然语言目标。系统会判断这是聊天、任务执行、功能调用、MCP 调用、本地命令还是后端 RPC，并映射到对应能力。
 
 ```text
-/help
-/robot
-/gateway-status
-/capabilities
-/tools-effective
-/model
-/models
-/session
-/sessions
-/new
-/reset
-/voice
-/tasks
-/config
-/logs
-/skills
-/mcp-tools
-/mcp-call
-/experience-search
-/session-recall
-/self-model
-/user-model
+查看状态
+打开设置
+列出任务
+创建任务 修复模型 | 修复远程模型调用 | long | high
+切换模型 longat/LongCat-Flash-Lite
+列出当前可调用工具
+调用接口 business.tasks.list {"status":"running"}
+调用MCP工具 probe__echo {"text":"hello"}
+执行本地命令 pnpm test
+搜索过去对话 部署失败
+更新用户模型 喜欢直接执行
+开始语音
 ```
 
-自然语言控制可通过 `/robot` 查看提示。语音入口使用 `/voice`，成功识别后会作为普通自然语言消息提交。
+输入以 `/` 或 `!` 开头的旧式快捷入口会被拦截，并提示改用自然语言。
 
 ## 按键绑定
 
@@ -87,8 +77,7 @@ Ctrl+T      显示或隐藏思考过程
 Alt+Enter   运行中追加后续任务
 Alt+Up      提交最早的排队消息
 Shift+Tab   显示或隐藏治理面板
-!<cmd>      执行本地命令
-/help       查看命令
+直接输入目标即可调用功能
 ```
 
 ## 个性与身份
@@ -125,11 +114,11 @@ assistant sessions cleanup --enforce
 TUI 内：
 
 ```text
-/sessions
-/session main
-/new
-/reset
-/session-recall 部署失败
+列出会话
+切换会话 main
+新建会话
+重置会话
+回忆会话 部署失败
 ```
 
 ## 任务与治理
@@ -144,7 +133,7 @@ assistant autonomy status
 TUI 内：
 
 ```text
-/tasks
-/task-create {"goal":"检查构建状态","kind":"short"}
-/governance
+列出任务
+创建任务 检查构建状态 | 检查构建状态 | short | high
+查看治理状态
 ```

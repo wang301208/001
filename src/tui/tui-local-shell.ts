@@ -81,15 +81,15 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
     localExecAsked = true;
 
     return await new Promise<boolean>((resolve) => {
-      deps.chatLog.addSystem("Allow local shell commands for this session?");
+      deps.chatLog.addSystem("是否允许本会话执行本地 shell 命令？");
       deps.chatLog.addSystem(
-        "This runs commands on YOUR machine (not the gateway) and may delete files or reveal secrets.",
+        "这会在你的本机执行命令（不是网关环境），可能删除文件或暴露密钥。",
       );
-      deps.chatLog.addSystem("Select Yes/No (arrows + Enter), Esc to cancel.");
+      deps.chatLog.addSystem("请选择 是/否（方向键 + Enter），Esc 取消。");
       const selector = createSelector(
         [
-          { value: "no", label: "No" },
-          { value: "yes", label: "Yes" },
+          { value: "no", label: "否" },
+          { value: "yes", label: "是" },
         ],
         2,
       );
@@ -97,17 +97,17 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
         deps.closeOverlay();
         if (item.value === "yes") {
           localExecAllowed = true;
-          deps.chatLog.addSystem("local shell: enabled for this session");
+          deps.chatLog.addSystem("本地 shell：本会话已启用");
           resolve(true);
         } else {
-          deps.chatLog.addSystem("local shell: not enabled");
+          deps.chatLog.addSystem("本地 shell：未启用");
           resolve(false);
         }
         deps.tui.requestRender();
       };
       selector.onCancel = () => {
         deps.closeOverlay();
-        deps.chatLog.addSystem("local shell: cancelled");
+        deps.chatLog.addSystem("本地 shell：已取消");
         deps.tui.requestRender();
         resolve(false);
       };
@@ -125,7 +125,7 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
     }
 
     if (localExecAsked && !localExecAllowed) {
-      deps.chatLog.addSystem("local shell: not enabled for this session");
+      deps.chatLog.addSystem("本地 shell：本会话未启用");
       deps.tui.requestRender();
       return;
     }
@@ -137,7 +137,7 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
 
     const cwd = getCwd();
     const redirection = parseShellRedirection(cmd, cwd);
-    deps.chatLog.addSystem(`[local] $ ${cmd}`);
+    deps.chatLog.addSystem(`[本地] $ ${cmd}`);
     deps.tui.requestRender();
 
     const appendWithCap = (text: string, chunk: string) => {
@@ -179,21 +179,21 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
           stdoutStream.write(chunk);
           return;
         }
-        streamLines("[local]", chunk);
+        streamLines("[本地]", chunk);
       });
       child.stderr.on("data", (buf) => {
         const chunk = buf.toString("utf8");
         stderr = appendWithCap(stderr, chunk);
-        streamLines("[local:err]", chunk);
+        streamLines("[本地:错误]", chunk);
       });
 
       child.on("close", (code, signal) => {
         const finish = () => {
           if (redirection.stdoutFile) {
-            deps.chatLog.addSystem(`[local] redirected stdout to ${redirection.stdoutFile}`);
+            deps.chatLog.addSystem(`[本地] stdout 已重定向到 ${redirection.stdoutFile}`);
           }
           deps.chatLog.addSystem(
-            `[local] exit ${code ?? "?"}${signal ? ` (signal ${signal})` : ""}`,
+            `[本地] 退出 ${code ?? "?"}${signal ? ` (信号 ${signal})` : ""}`,
           );
           deps.tui.requestRender();
           resolve();
@@ -207,7 +207,7 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
 
       child.on("error", (err) => {
         stdoutStream?.end();
-        deps.chatLog.addSystem(`[local] error: ${String(err)}`);
+        deps.chatLog.addSystem(`[本地] 错误: ${String(err)}`);
         deps.tui.requestRender();
         resolve();
       });

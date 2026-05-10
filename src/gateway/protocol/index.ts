@@ -337,8 +337,10 @@ import {
   LogsTailResultSchema,
   type ModelsListParams,
   ModelsListParamsSchema,
+  type ModelsListResult,
   type ModelsRemoteListParams,
   ModelsRemoteListParamsSchema,
+  type ModelsRemoteListResult,
   type ExperienceCaptureParams,
   ExperienceCaptureParamsSchema,
   type ExperienceSearchParams,
@@ -456,6 +458,10 @@ import {
   SkillsDetailResultSchema,
   type SkillsInstallParams,
   SkillsInstallParamsSchema,
+  type SkillsMergeParams,
+  SkillsMergeParamsSchema,
+  type SkillsMergeResult,
+  SkillsMergeResultSchema,
   type SkillsSearchParams,
   SkillsSearchParamsSchema,
   type SkillsSearchResult,
@@ -481,6 +487,12 @@ import {
   SelfModelGetParamsSchema,
   type SelfModelUpdateParams,
   SelfModelUpdateParamsSchema,
+  type SelfOverviewParams,
+  SelfOverviewParamsSchema,
+  type SelfRoadmapParams,
+  SelfRoadmapParamsSchema,
+  type SelfSkillsRecommendParams,
+  SelfSkillsRecommendParamsSchema,
   type UserModelDialecticParams,
   UserModelDialecticParamsSchema,
   type UserModelUpdateParams,
@@ -772,6 +784,12 @@ export const validateStrategyMemoryDueParams =
 export const validateSelfModelGetParams = ajv.compile<SelfModelGetParams>(SelfModelGetParamsSchema);
 export const validateSelfModelUpdateParams =
   ajv.compile<SelfModelUpdateParams>(SelfModelUpdateParamsSchema);
+export const validateSelfOverviewParams =
+  ajv.compile<SelfOverviewParams>(SelfOverviewParamsSchema);
+export const validateSelfRoadmapParams =
+  ajv.compile<SelfRoadmapParams>(SelfRoadmapParamsSchema);
+export const validateSelfSkillsRecommendParams =
+  ajv.compile<SelfSkillsRecommendParams>(SelfSkillsRecommendParamsSchema);
 export const validateUserModelUpdateParams =
   ajv.compile<UserModelUpdateParams>(UserModelUpdateParamsSchema);
 export const validateUserModelDialecticParams =
@@ -788,6 +806,7 @@ export const validateSkillsBinsParams = ajv.compile<SkillsBinsParams>(SkillsBins
 export const validateSkillsInstallParams =
   ajv.compile<SkillsInstallParams>(SkillsInstallParamsSchema);
 export const validateSkillsUpdateParams = ajv.compile<SkillsUpdateParams>(SkillsUpdateParamsSchema);
+export const validateSkillsMergeParams = ajv.compile<SkillsMergeParams>(SkillsMergeParamsSchema);
 export const validateSkillsSearchParams = ajv.compile<SkillsSearchParams>(SkillsSearchParamsSchema);
 export const validateSkillsDetailParams = ajv.compile<SkillsDetailParams>(SkillsDetailParamsSchema);
 export const validateCronListParams = ajv.compile<CronListParams>(CronListParamsSchema);
@@ -1083,6 +1102,9 @@ export {
   StrategyMemoryDueParamsSchema,
   SelfModelGetParamsSchema,
   SelfModelUpdateParamsSchema,
+  SelfOverviewParamsSchema,
+  SelfRoadmapParamsSchema,
+  SelfSkillsRecommendParamsSchema,
   UserModelDialecticParamsSchema,
   UserModelUpdateParamsSchema,
   ToolsCatalogParamsSchema,
@@ -1090,6 +1112,8 @@ export {
   GatewayMethodDescribeParamsSchema,
   GatewayMethodsParamsSchema,
   SkillsInstallParamsSchema,
+  SkillsMergeParamsSchema,
+  SkillsMergeResultSchema,
   SkillsSearchParamsSchema,
   SkillsSearchResultSchema,
   SkillsDetailParamsSchema,
@@ -1275,6 +1299,10 @@ export type {
   CommandsListParams,
   CommandsListResult,
   CommandEntry,
+  ModelsListParams,
+  ModelsListResult,
+  ModelsRemoteListParams,
+  ModelsRemoteListResult,
   ExperienceCaptureParams,
   ExperienceSearchParams,
   ExperienceSessionRecallParams,
@@ -1288,6 +1316,9 @@ export type {
   StrategyMemoryDueParams,
   SelfModelGetParams,
   SelfModelUpdateParams,
+  SelfOverviewParams,
+  SelfRoadmapParams,
+  SelfSkillsRecommendParams,
   UserModelDialecticParams,
   UserModelUpdateParams,
   SkillsStatusParams,
@@ -1307,6 +1338,8 @@ export type {
   SkillsDetailParams,
   SkillsDetailResult,
   SkillsInstallParams,
+  SkillsMergeParams,
+  SkillsMergeResult,
   SkillsUpdateParams,
   NodePairRejectParams,
   NodePairVerifyParams,

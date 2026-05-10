@@ -49,6 +49,9 @@ export type SessionInfo = {
   inputTokens?: number | null;
   outputTokens?: number | null;
   totalTokens?: number | null;
+  totalTokensFresh?: boolean | null;
+  compactionCount?: number | null;
+  compactionCheckpointCount?: number | null;
   responseUsage?: ResponseUsageMode;
   updatedAt?: number | null;
   displayName?: string;

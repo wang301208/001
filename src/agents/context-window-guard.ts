@@ -2,8 +2,8 @@ import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveProviderEndpoint } from "./provider-attribution.js";
 import { findNormalizedProviderValue } from "./provider-id.js";
 
-export const CONTEXT_WINDOW_HARD_MIN_TOKENS = 16_000;
-export const CONTEXT_WINDOW_WARN_BELOW_TOKENS = 32_000;
+export const CONTEXT_WINDOW_HARD_MIN_TOKENS = 128_000;
+export const CONTEXT_WINDOW_WARN_BELOW_TOKENS = 128_000;
 
 export type ContextWindowSource = "model" | "modelsConfig" | "agentContextTokens" | "default";
 
@@ -11,6 +11,10 @@ export type ContextWindowInfo = {
   tokens: number;
   source: ContextWindowSource;
 };
+
+function floorContextWindow(tokens: number): number {
+  return Math.max(CONTEXT_WINDOW_HARD_MIN_TOKENS, Math.floor(tokens));
+}
 
 function normalizePositiveInt(value: unknown): number | null {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -44,14 +48,14 @@ export function resolveContextWindowInfo(params: {
     normalizePositiveInt(params.modelContextTokens) ??
     normalizePositiveInt(params.modelContextWindow);
   const baseInfo = fromModelsConfig
-    ? { tokens: fromModelsConfig, source: "modelsConfig" as const }
+    ? { tokens: floorContextWindow(fromModelsConfig), source: "modelsConfig" as const }
     : fromModel
-      ? { tokens: fromModel, source: "model" as const }
-      : { tokens: Math.floor(params.defaultTokens), source: "default" as const };
+      ? { tokens: floorContextWindow(fromModel), source: "model" as const }
+      : { tokens: floorContextWindow(params.defaultTokens), source: "default" as const };
 
   const capTokens = normalizePositiveInt(params.cfg?.agents?.defaults?.contextTokens);
   if (capTokens && capTokens < baseInfo.tokens) {
-    return { tokens: capTokens, source: "agentContextTokens" };
+    return { tokens: floorContextWindow(capTokens), source: "agentContextTokens" };
   }
 
   return baseInfo;

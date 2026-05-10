@@ -109,6 +109,80 @@ describe("experience gateway handlers", () => {
     expect(current[1]).toEqual(updated[1]);
   });
 
+  it("returns a unified self overview", async () => {
+    await invoke("experience.capture", {
+      kind: "complex_task",
+      summary: "Build unified self overview endpoint",
+      tags: ["complex-task", "self"],
+      evidence: ["Added gateway handler coverage"],
+      outcome: "Self overview can be queried through JSON-RPC",
+    });
+
+    const overview = await invoke("self.overview", { limit: 5 });
+
+    expect(overview[0]).toBe(true);
+    expect(overview[1]).toEqual(expect.objectContaining({
+      overview: expect.objectContaining({
+        summary: expect.objectContaining({
+          events: 1,
+          skillCandidates: 1,
+          selfModelFacts: expect.any(Number),
+        }),
+        backendAutomation: expect.objectContaining({
+          recentRuns: expect.any(Array),
+        }),
+        capabilities: expect.objectContaining({
+          experienceMemory: true,
+          selfModel: true,
+          skillEvolution: true,
+          strategicMemory: true,
+        }),
+      }),
+    }));
+  });
+
+  it("exposes self roadmap and reusable skill recommendations through JSON-RPC", async () => {
+    await invoke("experience.capture", {
+      kind: "complex_task",
+      summary: "Improve repeated gateway startup triage",
+      tags: ["complex-task", "gateway"],
+      evidence: ["Captured repeated startup failure"],
+      outcome: "Future gateway triage should reuse generated skill",
+    });
+    const listed = await invoke("skill.candidates.list", { limit: 1 });
+    const candidate = (listed[1] as { candidates: Array<{ id: string }> }).candidates[0];
+    await invoke("skill.usage.record", {
+      candidateId: candidate.id,
+      outcome: "First reuse succeeded",
+      observations: ["Inspect backend automation history"],
+    });
+    await invoke("skill.usage.record", {
+      candidateId: candidate.id,
+      outcome: "Second reuse succeeded",
+      observations: ["Inspect gateway startup logs"],
+    });
+
+    const roadmap = await invoke("self.roadmap", { now: 5 });
+    expect(roadmap[0]).toBe(true);
+    expect(roadmap[1]).toEqual(expect.objectContaining({
+      roadmap: expect.objectContaining({
+        goals: expect.arrayContaining([expect.objectContaining({ id: "skill_reuse" })]),
+      }),
+    }));
+
+    const recommendations = await invoke("self.skills.recommend", {
+      goal: "gateway startup failure automation history",
+    });
+    expect(recommendations[0]).toBe(true);
+    expect(recommendations[1]).toEqual({
+      recommendations: [
+        expect.objectContaining({
+          candidate: expect.objectContaining({ status: "implemented" }),
+        }),
+      ],
+    });
+  });
+
   it("exposes session recall, strategic pushes, skill usage, skill export, and user model dialectic", async () => {
     const sessionsDir = path.join(stateDir, "agents", "main", "sessions");
     fs.mkdirSync(sessionsDir, { recursive: true });

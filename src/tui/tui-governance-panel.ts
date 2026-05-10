@@ -30,46 +30,46 @@ export function renderGovernancePanel(governanceStatus: GovernanceStatus | null)
   const lines: string[] = [
     "",
     "+--------------------------------------------------+",
-    "| Governance Status                               |",
+    "| 治理状态                                         |",
     "+--------------------------------------------------+",
     "",
   ];
 
   if (!governanceStatus) {
-    lines.push("  Loading governance status...", "");
+    lines.push("  正在加载治理状态...", "");
     return lines;
   }
 
   if (governanceStatus.freezeActive) {
     const freezeStatus = governanceStatus.freezeStatus;
     const affectedSubsystems = freezeStatus?.affectedSubsystems ?? [];
-    lines.push("  [FROZEN]");
-    lines.push(`     Reason: ${freezeStatus?.reason || "unknown"}`);
+    lines.push("  [已冻结]");
+    lines.push(`     原因: ${freezeStatus?.reason || "未知"}`);
     if (freezeStatus?.activatedAt) {
-      lines.push(`     Activated: ${new Date(freezeStatus.activatedAt).toLocaleString()}`);
+      lines.push(`     激活时间: ${new Date(freezeStatus.activatedAt).toLocaleString()}`);
     }
     if (affectedSubsystems.length > 0) {
-      lines.push(`     Affected: ${affectedSubsystems.join(", ")}`);
+      lines.push(`     影响范围: ${affectedSubsystems.join(", ")}`);
     }
     lines.push("");
   } else {
-    lines.push("  OK system running", "");
+    lines.push("  正常运行", "");
   }
 
-  lines.push(`  Sovereignty boundary: ${governanceStatus.sovereigntyBoundary ? "OK" : "ERROR"}`, "");
+  lines.push(`  主权边界: ${governanceStatus.sovereigntyBoundary ? "正常" : "错误"}`, "");
 
-  lines.push(`  Active agents: ${governanceStatus.activeAgents.length}`);
+  lines.push(`  活跃代理: ${governanceStatus.activeAgents.length}`);
   const activeCount = governanceStatus.activeAgents.filter((agent) => agent.status === "active").length;
   const frozenCount = governanceStatus.activeAgents.filter((agent) => agent.status === "frozen").length;
   if (activeCount > 0 || frozenCount > 0) {
-    lines.push(`     active: ${activeCount}`);
+    lines.push(`     活跃: ${activeCount}`);
     if (frozenCount > 0) {
-      lines.push(`     frozen: ${frozenCount}`);
+      lines.push(`     冻结: ${frozenCount}`);
     }
   }
   lines.push("");
 
-  lines.push(`  Evolution projects: ${governanceStatus.evolutionProjects.length}`);
+  lines.push(`  进化项目: ${governanceStatus.evolutionProjects.length}`);
   const runningProjects = governanceStatus.evolutionProjects.filter(
     (project) => project.status === "running",
   );
@@ -77,12 +77,12 @@ export function renderGovernancePanel(governanceStatus: GovernanceStatus | null)
     (project) => project.status === "completed",
   );
   if (runningProjects.length > 0 || completedProjects.length > 0) {
-    lines.push(`     running: ${runningProjects.length}`);
-    lines.push(`     completed: ${completedProjects.length}`);
+    lines.push(`     运行中: ${runningProjects.length}`);
+    lines.push(`     已完成: ${completedProjects.length}`);
   }
   lines.push("");
 
-  lines.push(`  Sandbox experiments: ${governanceStatus.sandboxExperiments.length}`);
+  lines.push(`  沙箱实验: ${governanceStatus.sandboxExperiments.length}`);
   const runningExperiments = governanceStatus.sandboxExperiments.filter(
     (experiment) => experiment.status === "running",
   );
@@ -90,8 +90,8 @@ export function renderGovernancePanel(governanceStatus: GovernanceStatus | null)
     (experiment) => experiment.status === "observing",
   );
   if (runningExperiments.length > 0 || observingExperiments.length > 0) {
-    lines.push(`     running: ${runningExperiments.length}`);
-    lines.push(`     observing: ${observingExperiments.length}`);
+    lines.push(`     运行中: ${runningExperiments.length}`);
+    lines.push(`     观察中: ${observingExperiments.length}`);
   }
   lines.push("");
 
@@ -100,15 +100,15 @@ export function renderGovernancePanel(governanceStatus: GovernanceStatus | null)
 
 export function getGovernanceSummary(governanceStatus: GovernanceStatus | null): string {
   if (!governanceStatus) {
-    return "governance loading";
+    return "治理加载中";
   }
   if (governanceStatus.freezeActive) {
-    return "governance frozen";
+    return "治理已冻结";
   }
   return [
-    "governance",
-    `agents:${governanceStatus.activeAgents.length}`,
-    `projects:${governanceStatus.evolutionProjects.length}`,
-    `experiments:${governanceStatus.sandboxExperiments.length}`,
+    "治理",
+    `代理:${governanceStatus.activeAgents.length}`,
+    `项目:${governanceStatus.evolutionProjects.length}`,
+    `实验:${governanceStatus.sandboxExperiments.length}`,
   ].join(" ");
 }

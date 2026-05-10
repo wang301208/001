@@ -1,8 +1,10 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { EventEmitter } from "node:events";
 import { existsSync } from "node:fs";
+import { appendFileSync, mkdirSync } from "node:fs";
 import { delimiter } from "node:path";
 import path from "node:path";
+import os from "node:os";
 import { createInterface, type Interface } from "node:readline";
 import { truncateUtf16Safe } from "../utils.js";
 import type { GatewayEvent } from "./gateway-chat.js";
@@ -78,7 +80,7 @@ function parsePositiveInteger(value: string | undefined, fallback: number): numb
 
 function truncateLogLine(line: string): string {
   return line.length > MAX_LOG_LINE_BYTES
-    ? `${truncateUtf16Safe(line, MAX_LOG_LINE_BYTES)} [truncated ${line.length} bytes]`
+    ? `${truncateUtf16Safe(line, MAX_LOG_LINE_BYTES)} [已截断 ${line.length} 字节]`
     : line;
 }
 
@@ -89,7 +91,7 @@ function jsonRpcErrorToError(raw: unknown): Error {
       return new Error(message);
     }
   }
-  return new Error("stdio gateway request failed");
+  return new Error("stdio 网关请求失败");
 }
 
 function normalizeEventParams(params: unknown): GatewayEvent | null {
@@ -161,6 +163,20 @@ function resolveDefaultStdioGatewayProcess(): ResolvedStdioGatewayProcess {
   };
 }
 
+function appendDebugLog(line: string) {
+  try {
+    const dir = path.join(os.homedir(), ".assistant", "logs");
+    mkdirSync(dir, { recursive: true });
+    appendFileSync(
+      path.join(dir, "tui-stdio-gateway.log"),
+      `${new Date().toISOString()} ${line}\n`,
+      "utf8",
+    );
+  } catch {
+    // Debug logging must never affect gateway startup.
+  }
+}
+
 export class StdioGatewayTransport {
   private proc: StdioChildProcess | null = null;
   private stdoutRl: Interface | null = null;
@@ -204,6 +220,9 @@ export class StdioGatewayTransport {
     this.stderrRl = null;
 
     const resolved = this.resolveProcess();
+    appendDebugLog(
+      `spawn command=${resolved.command} args=${JSON.stringify(resolved.args)} cwd=${resolved.cwd ?? process.cwd()}`,
+    );
     this.proc = this.spawnProcess(resolved.command, resolved.args, {
       cwd: resolved.cwd,
       env: resolved.env ?? process.env,
@@ -217,7 +236,7 @@ export class StdioGatewayTransport {
       }
       const stderrTail = this.getLogTail(20);
       this.pushLog(
-        `[startup] timed out waiting for gateway.ready (command=${resolved.command}, cwd=${resolved.cwd ?? process.cwd()})`,
+        `[启动] 等待 gateway.ready 超时 (命令=${resolved.command}, cwd=${resolved.cwd ?? process.cwd()})`,
       );
       this.onEvent?.({
         event: "gateway.start_timeout",
@@ -250,22 +269,24 @@ export class StdioGatewayTransport {
 
     this.proc.once("error", (err) => {
       const error = err instanceof Error ? err : new Error(String(err));
+      appendDebugLog(`error ${error.message}`);
       this.pushLog(`[spawn] ${error.message}`);
-      this.rejectPending(new Error(`stdio gateway error: ${error.message}`));
+      this.rejectPending(new Error(`stdio 网关错误: ${error.message}`));
       this.onEvent?.({ event: "gateway.stderr", payload: { line: `[spawn] ${error.message}` } });
     });
 
     this.proc.once("exit", (code, signal) => {
       this.clearReadyTimer();
-      const reason = signal ? `signal ${signal}` : `exit ${code ?? "unknown"}`;
-      this.rejectPending(new Error(`stdio gateway exited (${reason})`));
+      const reason = signal ? `信号 ${signal}` : `退出 ${code ?? "未知"}`;
+      appendDebugLog(`exit ${reason}`);
+      this.rejectPending(new Error(`stdio 网关已退出 (${reason})`));
       this.onDisconnected?.(reason);
     });
   }
 
   stop() {
     this.clearReadyTimer();
-    this.rejectPending(new Error("stdio gateway stopped"));
+    this.rejectPending(new Error("stdio 网关已停止"));
     this.stdoutRl?.close();
     this.stderrRl?.close();
     this.stdoutRl = null;
@@ -281,7 +302,7 @@ export class StdioGatewayTransport {
       this.start();
     }
     if (!this.proc?.stdin) {
-      throw new Error("stdio gateway not running");
+      throw new Error("stdio 网关未运行");
     }
 
     const id = `r${++this.nextId}`;
@@ -295,7 +316,7 @@ export class StdioGatewayTransport {
     return await new Promise<T>((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.pending.delete(id);
-        reject(new Error(`stdio gateway request timeout for ${method}`));
+        reject(new Error(`stdio 网关请求超时: ${method}`));
       }, this.requestTimeoutMs);
       timeout.unref?.();
       this.pending.set(id, {
@@ -328,8 +349,8 @@ export class StdioGatewayTransport {
     try {
       msg = JSON.parse(raw);
     } catch {
-      const preview = raw.trim().slice(0, MAX_LOG_PREVIEW) || "(empty line)";
-      this.pushLog(`[protocol] malformed stdout: ${preview}`);
+      const preview = raw.trim().slice(0, MAX_LOG_PREVIEW) || "(空行)";
+      this.pushLog(`[协议] stdout 格式错误: ${preview}`);
       this.onEvent?.({ event: "gateway.protocol_error", payload: { preview } });
       return;
     }

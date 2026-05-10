@@ -23,10 +23,16 @@ except Exception:
 DEFAULT_PROVIDER = "openai"
 DEFAULT_MODEL = "gpt-5.4"
 DEFAULT_CONTEXT_TOKENS = 200_000
+MIN_CONTEXT_TOKENS = 128_000
+DEFAULT_COMPACTION_RESERVE_TOKENS = 20_000
+DEFAULT_COMPACTION_KEEP_RECENT_TOKENS = 8_000
+MAX_COMPACTION_SUMMARY_CHARS = 1_200
+MAX_COMPACTION_CHECKPOINTS = 20
 DEFAULT_AGENT_ID = "main"
 DEFAULT_MAIN_KEY = "main"
 SESSION_VERSION = 1
 REMOTE_MODEL_PROBE_TIMEOUT_SECONDS = 15
+REMOTE_CHAT_TIMEOUT_SECONDS = 120
 ALLOWED_AGENT_FILE_NAMES = {
     "AGENTS.md",
     "SOUL.md",
@@ -309,7 +315,7 @@ def generated_skills_dir() -> Path:
 
 def read_json_file(path: Path, default: Any) -> Any:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8-sig"))
     except FileNotFoundError:
         return default
     except Exception as exc:
@@ -706,13 +712,16 @@ def resolve_session_model(cfg: dict[str, Any], entry: dict[str, Any] | None, age
 
 
 def resolve_context_tokens(cfg: dict[str, Any], provider: str, model: str, entry: dict[str, Any] | None = None) -> int:
+    def normalize(tokens: int | float) -> int:
+        return max(MIN_CONTEXT_TOKENS, int(tokens))
+
     existing = entry.get("contextTokens") if entry else None
     if isinstance(existing, (int, float)) and existing > 0:
-        return int(existing)
+        return normalize(existing)
     defaults = as_record(as_record(cfg.get("agents")).get("defaults"))
     configured = defaults.get("contextTokens")
     if isinstance(configured, (int, float)) and configured > 0:
-        return int(configured)
+        return normalize(configured)
     provider_cfg = as_record(as_record(cfg.get("models")).get("providers")).get(provider)
     models = as_record(provider_cfg).get("models")
     if isinstance(models, list):
@@ -721,8 +730,8 @@ def resolve_context_tokens(cfg: dict[str, Any], provider: str, model: str, entry
             if as_string(model_entry.get("id")) == model:
                 context = model_entry.get("contextTokens") or model_entry.get("contextWindow")
                 if isinstance(context, (int, float)) and context > 0:
-                    return int(context)
-    return DEFAULT_CONTEXT_TOKENS
+                    return normalize(context)
+    return normalize(DEFAULT_CONTEXT_TOKENS)
 
 
 def session_kind(key: str, entry: dict[str, Any]) -> str:
@@ -750,6 +759,121 @@ def extract_text(content: Any) -> str:
                 parts.append(rec["thinking"])
         return "\n".join(parts).strip()
     return ""
+
+
+def positive_int(value: Any, fallback: int) -> int:
+    if isinstance(value, bool):
+        return fallback
+    if isinstance(value, (int, float)) and value > 0:
+        return int(value)
+    if isinstance(value, str):
+        try:
+            parsed = int(value.strip())
+            if parsed > 0:
+                return parsed
+        except ValueError:
+            return fallback
+    return fallback
+
+
+def estimate_text_tokens(text: str) -> int:
+    normalized = " ".join(text.split())
+    if not normalized:
+        return 0
+    # Cheap local estimate: enough to drive stdio compaction without requiring a tokenizer.
+    return max(1, (len(normalized) + 3) // 4)
+
+
+def message_text(message: Any) -> str:
+    rec = as_record(message)
+    summary = rec.get("summary")
+    if isinstance(summary, str) and summary.strip():
+        return summary.strip()
+    return extract_text(rec.get("content"))
+
+
+def estimate_message_tokens(message: Any) -> int:
+    rec = as_record(message)
+    role = as_string(rec.get("role"))
+    return estimate_text_tokens(message_text(message)) + (4 if role else 2)
+
+
+def estimate_messages_tokens(messages: list[Any]) -> int:
+    return sum(estimate_message_tokens(message) for message in messages)
+
+
+def compaction_config(cfg: dict[str, Any], context_tokens: int) -> dict[str, int | bool]:
+    defaults = as_record(as_record(cfg.get("agents")).get("defaults"))
+    raw = as_record(defaults.get("compaction"))
+    enabled = raw.get("enabled")
+    if enabled is False:
+        return {"enabled": False, "reserveTokens": 0, "keepRecentTokens": 0}
+    reserve = positive_int(raw.get("reserveTokens"), DEFAULT_COMPACTION_RESERVE_TOKENS)
+    keep_recent = positive_int(raw.get("keepRecentTokens"), DEFAULT_COMPACTION_KEEP_RECENT_TOKENS)
+    # Keep the reserve meaningful for tiny test/dev context windows.
+    reserve = min(reserve, max(1, context_tokens // 2))
+    keep_recent = min(keep_recent, max(0, context_tokens - reserve))
+    return {"enabled": True, "reserveTokens": reserve, "keepRecentTokens": keep_recent}
+
+
+def build_compaction_summary(messages: list[Any]) -> str:
+    lines = [f"自动压缩摘要：已压缩 {len(messages)} 条历史消息。"]
+    for index, message in enumerate(messages[-12:], start=1):
+        rec = as_record(message)
+        role = as_string(rec.get("role")) or "unknown"
+        text = message_text(message).replace("\n", " ").strip()
+        if not text:
+            continue
+        lines.append(f"{index}. {role}: {text[:180]}")
+    summary = "\n".join(lines).strip()
+    if len(summary) > MAX_COMPACTION_SUMMARY_CHARS:
+        summary = summary[: MAX_COMPACTION_SUMMARY_CHARS - 12].rstrip() + "\n...[已截断]"
+    return summary or "自动压缩摘要：历史消息已压缩。"
+
+
+def select_recent_messages(messages: list[Any], keep_recent_tokens: int) -> tuple[list[Any], list[Any]]:
+    if keep_recent_tokens <= 0:
+        return messages, []
+    kept_reversed: list[Any] = []
+    used = 0
+    for message in reversed(messages):
+        tokens = estimate_message_tokens(message)
+        if kept_reversed and used + tokens > keep_recent_tokens:
+            break
+        if not kept_reversed and tokens > keep_recent_tokens:
+            break
+        kept_reversed.append(message)
+        used += tokens
+    recent = list(reversed(kept_reversed))
+    compacted = messages[: max(0, len(messages) - len(recent))]
+    return compacted, recent
+
+
+def write_transcript_messages(path: Path, session_id: str, messages: list[Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    header = {
+        "type": "session",
+        "version": SESSION_VERSION,
+        "id": session_id,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "cwd": os.getcwd(),
+    }
+    tmp = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    with tmp.open("w", encoding="utf-8") as fh:
+        fh.write(json.dumps(header, ensure_ascii=False, separators=(",", ":")) + "\n")
+        for message in messages:
+            frame = {
+                "type": "message",
+                "id": str(uuid.uuid4()),
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "message": message,
+            }
+            fh.write(json.dumps(frame, ensure_ascii=False, separators=(",", ":")) + "\n")
+    os.replace(tmp, path)
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
 
 
 def read_messages_from_transcript(session_file: Path, limit: int | None = None) -> list[Any]:
@@ -810,6 +934,102 @@ def append_transcript_message(store_path: Path, entry: dict[str, Any], message: 
     }
     with transcript_path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(frame, ensure_ascii=False, separators=(",", ":")) + "\n")
+
+
+def maybe_compact_session(
+    cfg: dict[str, Any],
+    store_path: Path,
+    store: dict[str, Any],
+    canonical: str,
+    entry: dict[str, Any],
+    run_id: str,
+    context_tokens: int,
+) -> None:
+    settings = compaction_config(cfg, context_tokens)
+    if settings.get("enabled") is not True:
+        return
+
+    transcript_path = resolve_transcript_path(store_path, entry)
+    messages = read_messages_from_transcript(transcript_path)
+    tokens_before = estimate_messages_tokens(messages)
+    reserve_tokens = int(settings.get("reserveTokens") or 0)
+    threshold = max(1, context_tokens - reserve_tokens)
+    if tokens_before <= threshold:
+        entry["totalTokens"] = tokens_before
+        entry["totalTokensFresh"] = True
+        return
+
+    emit_event(
+        "agent",
+        {
+            "runId": run_id,
+            "stream": "compaction",
+            "data": {
+                "phase": "start",
+                "tokensBefore": tokens_before,
+                "contextTokens": context_tokens,
+                "reserveTokens": reserve_tokens,
+            },
+        },
+    )
+    compacted, recent = select_recent_messages(messages, int(settings.get("keepRecentTokens") or 0))
+    summary = build_compaction_summary(compacted or messages)
+    summary_message = {
+        "role": "compactionSummary",
+        "summary": summary,
+        "content": [{"type": "text", "text": summary}],
+        "timestamp": now_ms(),
+    }
+    next_messages = [summary_message, *recent] if compacted else [summary_message]
+    tokens_after = estimate_messages_tokens(next_messages)
+    if tokens_after > context_tokens:
+        # Tiny context windows can be smaller than the summary plus metadata. Keep a terse boundary.
+        summary = f"自动压缩摘要：已压缩 {len(messages)} 条历史消息。"
+        summary_message = {
+            "role": "compactionSummary",
+            "summary": summary,
+            "content": [{"type": "text", "text": summary}],
+            "timestamp": now_ms(),
+        }
+        next_messages = [summary_message]
+        tokens_after = estimate_messages_tokens(next_messages)
+
+    checkpoint = {
+        "id": f"compact_{now_ms()}_{uuid.uuid4().hex[:8]}",
+        "createdAt": now_ms(),
+        "summary": summary,
+        "tokensBefore": tokens_before,
+        "tokensAfter": tokens_after,
+        "messageCount": len(messages),
+        "compactedCount": len(compacted) if compacted else len(messages),
+        "sessionFile": str(transcript_path),
+    }
+    checkpoints = entry.get("compactionCheckpoints")
+    if not isinstance(checkpoints, list):
+        checkpoints = []
+    checkpoints.append(checkpoint)
+    entry["compactionCheckpoints"] = checkpoints[-MAX_COMPACTION_CHECKPOINTS:]
+    entry["compactionCount"] = int(entry.get("compactionCount") or 0) + 1
+    entry["totalTokens"] = tokens_after
+    entry["totalTokensFresh"] = True
+    entry["updatedAt"] = now_ms()
+    write_transcript_messages(transcript_path, as_string(entry.get("sessionId")), next_messages)
+    store[canonical] = entry
+    save_store(store_path, store)
+    emit_event(
+        "agent",
+        {
+            "runId": run_id,
+            "stream": "compaction",
+            "data": {
+                "phase": "end",
+                "tokensBefore": tokens_before,
+                "tokensAfter": tokens_after,
+                "compactedCount": checkpoint["compactedCount"],
+                "compactionCount": entry["compactionCount"],
+            },
+        },
+    )
 
 
 def ensure_session(cfg: dict[str, Any], session_key: str) -> tuple[str, str, Path, dict[str, Any], dict[str, Any]]:
@@ -908,6 +1128,11 @@ def handle_sessions_list(params: dict[str, Any]) -> dict[str, Any]:
                 "inputTokens": entry.get("inputTokens"),
                 "outputTokens": entry.get("outputTokens"),
                 "totalTokens": entry.get("totalTokens"),
+                "totalTokensFresh": entry.get("totalTokensFresh"),
+                "compactionCount": entry.get("compactionCount"),
+                "compactionCheckpointCount": len(entry.get("compactionCheckpoints") or [])
+                if isinstance(entry.get("compactionCheckpoints"), list)
+                else 0,
             }
         )
     rows.sort(key=lambda row: int(row.get("updatedAt") or 0), reverse=True)
@@ -1186,6 +1411,105 @@ def handle_models_remote_list(params: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"remote model probe failed: {exc}")
 
 
+def resolve_provider_config(cfg: dict[str, Any], provider: str) -> dict[str, Any]:
+    providers = as_record(as_record(cfg.get("models")).get("providers"))
+    if provider in providers and isinstance(providers.get(provider), dict):
+        return as_record(providers.get(provider))
+    normalized = normalize_provider_id(provider)
+    for provider_id, provider_cfg in providers.items():
+        if normalize_provider_id(provider_id) == normalized and isinstance(provider_cfg, dict):
+            return as_record(provider_cfg)
+    return {}
+
+
+def text_from_openai_chat_payload(payload: Any) -> str:
+    choices = as_record(payload).get("choices")
+    if not isinstance(choices, list) or not choices:
+        return ""
+    first = as_record(choices[0])
+    message = as_record(first.get("message"))
+    content = message.get("content")
+    if isinstance(content, str):
+        return content.strip()
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            rec = as_record(item)
+            text = as_string(rec.get("text"))
+            if text:
+                parts.append(text)
+        return "\n".join(parts).strip()
+    text = as_string(first.get("text"))
+    return text.strip()
+
+
+def usage_from_openai_payload(payload: Any) -> dict[str, Any] | None:
+    usage = as_record(as_record(payload).get("usage"))
+    if not usage:
+        return None
+    input_tokens = usage.get("prompt_tokens") or usage.get("input_tokens")
+    output_tokens = usage.get("completion_tokens") or usage.get("output_tokens")
+    total_tokens = usage.get("total_tokens")
+    result: dict[str, Any] = {}
+    if isinstance(input_tokens, (int, float)):
+        result["inputTokens"] = int(input_tokens)
+    if isinstance(output_tokens, (int, float)):
+        result["outputTokens"] = int(output_tokens)
+    if isinstance(total_tokens, (int, float)):
+        result["totalTokens"] = int(total_tokens)
+    return result or None
+
+
+def call_openai_compatible_chat(
+    provider_cfg: dict[str, Any],
+    model: str,
+    messages: list[dict[str, str]],
+) -> dict[str, Any]:
+    base_url = require_string(provider_cfg.get("baseUrl") or provider_cfg.get("endpoint"), "baseUrl")
+    api_key = as_string(provider_cfg.get("apiKey") or provider_cfg.get("token"))
+    url = append_endpoint_path(base_url, "/chat/completions")
+    payload = {
+        "model": model,
+        "messages": messages,
+        "stream": False,
+    }
+    max_tokens = provider_cfg.get("maxTokens")
+    if isinstance(max_tokens, (int, float)) and max_tokens > 0:
+        payload["max_tokens"] = int(max_tokens)
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    request = urllib.request.Request(url, data=data, headers=headers, method="POST")
+    with urllib.request.urlopen(request, timeout=REMOTE_CHAT_TIMEOUT_SECONDS) as response:
+        status = getattr(response, "status", 200)
+        body = response.read().decode("utf-8")
+        if status < 200 or status >= 300:
+            raise ValueError(f"remote chat failed: HTTP {status}")
+        payload = json.loads(body) if body else {}
+        text = text_from_openai_chat_payload(payload)
+        if not text:
+            raise ValueError("remote chat returned no assistant text")
+        return {"text": text, "usage": usage_from_openai_payload(payload)}
+
+
+def call_remote_chat(cfg: dict[str, Any], model_ref: dict[str, Any], message: str) -> dict[str, Any] | None:
+    provider_cfg = resolve_provider_config(cfg, model_ref["provider"])
+    if not provider_cfg:
+        return None
+    api = as_string(provider_cfg.get("api")) or "openai-completions"
+    if api in {"openai-completions", "openai-responses"}:
+        return call_openai_compatible_chat(
+            provider_cfg,
+            model_ref["model"],
+            [{"role": "user", "content": message}],
+        )
+    return None
+
+
 def handle_chat_send(params: dict[str, Any]) -> dict[str, Any]:
     cfg = load_config()
     session_key = require_string(params.get("sessionKey") or params.get("key"), "sessionKey")
@@ -1195,43 +1519,61 @@ def handle_chat_send(params: dict[str, Any]) -> dict[str, Any]:
     user_message = {"role": "user", "content": [{"type": "text", "text": message}], "timestamp": int(time.time() * 1000)}
     append_transcript_message(store_path, entry, user_message)
     active_chat_runs[run_id] = {"sessionKey": canonical, "aborted": False}
-    emit_event(
-        "chat",
-        {
-            "runId": run_id,
-            "sessionKey": canonical,
-            "state": "delta",
-            "message": {"role": "assistant", "content": [{"type": "text", "text": "Python gateway received: "}]},
-        },
-    )
-    if not active_chat_runs.get(run_id, {}).get("aborted"):
-        model_ref = resolve_session_model(cfg, entry, agent_id)
-        assistant_message = {
-            "role": "assistant",
-            "content": [{"type": "text", "text": message}],
-            "provider": model_ref["provider"],
-            "model": model_ref["model"],
-            "api": "python-stdio",
-            "timestamp": int(time.time() * 1000),
-            "stopReason": "stop",
-        }
-        append_transcript_message(store_path, entry, assistant_message)
-        entry["modelProvider"] = model_ref["provider"]
-        entry["model"] = model_ref["model"]
-        entry["contextTokens"] = resolve_context_tokens(cfg, model_ref["provider"], model_ref["model"], entry)
-        entry["updatedAt"] = int(time.time() * 1000)
-        store[canonical] = entry
-        save_store(store_path, store)
+    try:
+        if not active_chat_runs.get(run_id, {}).get("aborted"):
+            model_ref = resolve_session_model(cfg, entry, agent_id)
+            remote_result = call_remote_chat(cfg, model_ref, message)
+            assistant_text = remote_result["text"] if remote_result else message
+            assistant_message = {
+                "role": "assistant",
+                "content": [{"type": "text", "text": assistant_text}],
+                "provider": model_ref["provider"],
+                "model": model_ref["model"],
+                "api": "remote" if remote_result else "python-stdio",
+                "timestamp": int(time.time() * 1000),
+                "stopReason": "stop",
+            }
+            usage = as_record(remote_result.get("usage")) if remote_result else {}
+            if usage:
+                assistant_message["usage"] = usage
+            append_transcript_message(store_path, entry, assistant_message)
+            entry["modelProvider"] = model_ref["provider"]
+            entry["model"] = model_ref["model"]
+            entry["contextTokens"] = resolve_context_tokens(cfg, model_ref["provider"], model_ref["model"], entry)
+            if isinstance(usage.get("inputTokens"), int):
+                entry["inputTokens"] = usage["inputTokens"]
+            if isinstance(usage.get("outputTokens"), int):
+                entry["outputTokens"] = usage["outputTokens"]
+            if isinstance(usage.get("totalTokens"), int):
+                entry["totalTokens"] = usage["totalTokens"]
+                entry["totalTokensFresh"] = True
+            entry["updatedAt"] = int(time.time() * 1000)
+            maybe_compact_session(cfg, store_path, store, canonical, entry, run_id, entry["contextTokens"])
+            store[canonical] = entry
+            save_store(store_path, store)
+            emit_event(
+                "chat",
+                {
+                    "runId": run_id,
+                    "sessionKey": canonical,
+                    "state": "final",
+                    "message": assistant_message,
+                },
+            )
+    except Exception as exc:
+        append_log(f"chat.send failed runId={run_id} error={exc}")
         emit_event(
             "chat",
             {
                 "runId": run_id,
                 "sessionKey": canonical,
-                "state": "final",
-                "message": assistant_message,
+                "state": "error",
+                "errorMessage": str(exc),
             },
         )
-    active_chat_runs.pop(run_id, None)
+        raise
+    finally:
+        active_chat_runs.pop(run_id, None)
     return {"status": "accepted", "runId": run_id}
 
 

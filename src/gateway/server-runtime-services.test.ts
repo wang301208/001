@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => {
+  const businessTasks: unknown[] = [];
   const heartbeatRunner = {
     stop: vi.fn(),
     updateConfig: vi.fn(),
@@ -12,6 +13,112 @@ const hoisted = vi.hoisted(() => {
     startGatewayModelPricingRefresh: vi.fn(() => vi.fn()),
     recoverPendingDeliveries: vi.fn(async () => undefined),
     deliverOutboundPayloads: vi.fn(),
+    loadModelCatalog: vi.fn(async () => [{ id: "model-1" }]),
+    listAgentIds: vi.fn(() => ["main", "ops"]),
+    resolveAgentWorkspaceDir: vi.fn((_cfg: unknown, agentId: string) => `/workspace/${agentId}`),
+    buildWorkspaceSkillStatus: vi.fn((workspaceDir: string) => ({
+      workspaceDir,
+      managedSkillsDir: `${workspaceDir}/.assistant/skills`,
+      skills: [{ eligible: true }, { eligible: false }],
+    })),
+    sweepTaskRegistry: vi.fn(async () => ({
+      reconciled: 2,
+      governanceStamped: 1,
+      cleanupStamped: 1,
+      pruned: 0,
+    })),
+    primeRemoteSkillsCache: vi.fn(async () => undefined),
+    refreshRemoteBinsForConnectedNodes: vi.fn(async () => undefined),
+    buildToolsCatalogResult: vi.fn(() => ({
+      groups: [
+        { id: "core", tools: [{ id: "shell" }, { id: "files" }] },
+        { id: "plugin:test", tools: [{ id: "plugin_echo" }] },
+      ],
+    })),
+    getGovernanceOverview: vi.fn(() => ({
+      findings: [{ id: "finding_1" }],
+      organization: { agentCount: 2 },
+    })),
+    getGovernanceCapabilityInventory: vi.fn(() => ({
+      entries: [{ id: "capability_1" }, { id: "capability_2" }],
+      workspaceDirs: ["/workspace/main"],
+      requestedAgentIds: ["main"],
+    })),
+    getGovernanceCapabilityAssetRegistry: vi.fn(() => ({
+      currentAssetCount: 1,
+      planned: [],
+    })),
+    getGovernanceGenesisPlan: vi.fn(() => ({
+      stages: [{ id: "stage_1" }],
+    })),
+    repairDreamingArtifacts: vi.fn(async () => ({ changed: true, warnings: [] })),
+    dedupeDreamDiaryEntries: vi.fn(async () => ({ removed: 2, kept: 5 })),
+    advanceSelfRoadmap: vi.fn(() => ({ createdStrategicMemories: 1, advancedGoalIds: ["skill_reuse"] })),
+    getSelfRoadmap: vi.fn(() => ({
+      observedAt: 1,
+      metrics: {
+        complexTaskCount: 1,
+        skillCandidateCount: 1,
+        implementedSkillCount: 0,
+        selfImprovedSkillCount: 0,
+        selfModelFactCount: 1,
+        strategicMemoryCount: 0,
+        dueStrategicPushCount: 0,
+        skillReuseReadiness: 25,
+      },
+      goals: [
+        {
+          id: "skill_reuse",
+          title: "Self roadmap: reusable skill adoption",
+          objective: "Turn repeated fixes into reusable skills and apply them before starting new work.",
+          status: "active",
+          priority: "high",
+          nextPushAt: 1,
+          evidenceEventIds: ["exp_1"],
+          blockers: [],
+        },
+        {
+          id: "self_upgrade_loop",
+          title: "Self roadmap: code-level upgrade loop",
+          objective: "Close the loop from detected capability gaps to implementation, verification, and release handoff.",
+          status: "active",
+          priority: "high",
+          nextPushAt: 1,
+          evidenceEventIds: ["exp_2"],
+          blockers: ["Requires guarded code-change orchestration and release policy integration"],
+        },
+      ],
+    })),
+    businessTasks,
+    listBusinessTasks: vi.fn(((params?: { status?: string }) =>
+      params?.status
+        ? businessTasks.filter((task) =>
+            task && typeof task === "object" && (task as { status?: unknown }).status === params.status
+          )
+        : businessTasks) as (
+      params?: { status?: string },
+    ) => unknown[]),
+    createBusinessTask: vi.fn((params: {
+      agentId: string;
+      name: string;
+      goal: string;
+      duration: string;
+      priority: string;
+      group: string;
+      business: { payload?: Record<string, unknown> };
+    }) => {
+      const task = {
+        id: "bt_self_1",
+        status: "running",
+        progress: 0,
+        createdAt: 1,
+        updatedAt: 1,
+        ...params,
+      };
+      businessTasks.unshift(task);
+      return task;
+    }),
+    updateBusinessTask: vi.fn(),
     reconcileLoopJobs: vi.fn(async () => ({
       reconciled: [],
       createdCount: 0,
@@ -83,6 +190,10 @@ const hoisted = vi.hoisted(() => {
         recommendedNextActions: [],
       },
     })),
+    startManagedFlow: vi.fn(() => ({
+      flow: { id: "flow_1" },
+      seedTask: { id: "seed_1" },
+    })),
     bindAutonomySession: vi.fn(),
     createRuntimeAutonomy: vi.fn(),
     createRuntimeTaskFlow: vi.fn(() => ({ kind: "taskflow-runtime" })),
@@ -109,6 +220,55 @@ vi.mock("./model-pricing-cache.js", () => ({
   startGatewayModelPricingRefresh: hoisted.startGatewayModelPricingRefresh,
 }));
 
+vi.mock("../agents/model-catalog.js", () => ({
+  loadModelCatalog: hoisted.loadModelCatalog,
+}));
+
+vi.mock("../agents/agent-scope.js", () => ({
+  listAgentIds: hoisted.listAgentIds,
+  resolveAgentWorkspaceDir: hoisted.resolveAgentWorkspaceDir,
+}));
+
+vi.mock("../agents/skills-status.js", () => ({
+  buildWorkspaceSkillStatus: hoisted.buildWorkspaceSkillStatus,
+}));
+
+vi.mock("../tasks/task-registry.maintenance.js", () => ({
+  sweepTaskRegistry: hoisted.sweepTaskRegistry,
+}));
+
+vi.mock("../infra/skills-remote.js", () => ({
+  primeRemoteSkillsCache: hoisted.primeRemoteSkillsCache,
+  refreshRemoteBinsForConnectedNodes: hoisted.refreshRemoteBinsForConnectedNodes,
+}));
+
+vi.mock("./server-methods/tools-catalog.js", () => ({
+  buildToolsCatalogResult: hoisted.buildToolsCatalogResult,
+}));
+
+vi.mock("../governance/control-plane.js", () => ({
+  getGovernanceOverview: hoisted.getGovernanceOverview,
+  getGovernanceCapabilityInventory: hoisted.getGovernanceCapabilityInventory,
+  getGovernanceCapabilityAssetRegistry: hoisted.getGovernanceCapabilityAssetRegistry,
+  getGovernanceGenesisPlan: hoisted.getGovernanceGenesisPlan,
+}));
+
+vi.mock("./server-methods/doctor.memory-core-runtime.js", () => ({
+  repairDreamingArtifacts: hoisted.repairDreamingArtifacts,
+  dedupeDreamDiaryEntries: hoisted.dedupeDreamDiaryEntries,
+}));
+
+vi.mock("../experience/experience-store.js", () => ({
+  advanceSelfRoadmap: hoisted.advanceSelfRoadmap,
+  getSelfRoadmap: hoisted.getSelfRoadmap,
+}));
+
+vi.mock("../tasks/business-task-store.js", () => ({
+  createBusinessTask: hoisted.createBusinessTask,
+  listBusinessTasks: hoisted.listBusinessTasks,
+  updateBusinessTask: hoisted.updateBusinessTask,
+}));
+
 vi.mock("../plugins/runtime/runtime-taskflow.js", () => ({
   createRuntimeTaskFlow: hoisted.createRuntimeTaskFlow,
 }));
@@ -117,7 +277,11 @@ vi.mock("../plugins/runtime/runtime-autonomy.js", () => ({
   createRuntimeAutonomy: hoisted.createRuntimeAutonomy,
 }));
 
-const { activateGatewayScheduledServices, startGatewayRuntimeServices } =
+const {
+  activateGatewayScheduledServices,
+  getGatewayBackendAutomationHistory,
+  startGatewayRuntimeServices,
+} =
   await import("./server-runtime-services.js");
 
 describe("server-runtime-services", () => {
@@ -132,6 +296,8 @@ describe("server-runtime-services", () => {
     delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE;
     delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY;
     delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN;
+    delete process.env.ASSISTANT_SKIP_BACKEND_AUTOMATION;
+    delete process.env.ASSISTANT_BACKEND_AUTOMATION_INTERVAL_MS;
     hoisted.heartbeatRunner.stop.mockClear();
     hoisted.heartbeatRunner.updateConfig.mockClear();
     hoisted.startHeartbeatRunner.mockClear();
@@ -139,9 +305,36 @@ describe("server-runtime-services", () => {
     hoisted.startGatewayModelPricingRefresh.mockClear();
     hoisted.recoverPendingDeliveries.mockClear();
     hoisted.deliverOutboundPayloads.mockClear();
+    hoisted.loadModelCatalog.mockClear();
+    hoisted.listAgentIds.mockClear();
+    hoisted.resolveAgentWorkspaceDir.mockClear();
+    hoisted.buildWorkspaceSkillStatus.mockClear();
+    hoisted.sweepTaskRegistry.mockClear();
+    hoisted.primeRemoteSkillsCache.mockClear();
+    hoisted.refreshRemoteBinsForConnectedNodes.mockClear();
+    hoisted.buildToolsCatalogResult.mockClear();
+    hoisted.getGovernanceOverview.mockClear();
+    hoisted.getGovernanceCapabilityInventory.mockClear();
+    hoisted.getGovernanceCapabilityAssetRegistry.mockClear();
+    hoisted.getGovernanceGenesisPlan.mockClear();
+    hoisted.repairDreamingArtifacts.mockClear();
+    hoisted.dedupeDreamDiaryEntries.mockClear();
+    hoisted.advanceSelfRoadmap.mockClear();
+    hoisted.getSelfRoadmap.mockClear();
+    hoisted.businessTasks.length = 0;
+    hoisted.listBusinessTasks.mockReset().mockImplementation((params?: { status?: string }) =>
+      params?.status
+        ? hoisted.businessTasks.filter((task) =>
+            task && typeof task === "object" && (task as { status?: unknown }).status === params.status
+          )
+        : hoisted.businessTasks
+    );
+    hoisted.createBusinessTask.mockClear();
+    hoisted.updateBusinessTask.mockClear();
     hoisted.reconcileLoopJobs.mockClear();
     hoisted.healFleet.mockClear();
     hoisted.superviseFleet.mockClear();
+    hoisted.startManagedFlow.mockClear();
     hoisted.bindAutonomySession.mockClear();
     hoisted.createRuntimeAutonomy.mockReset();
     hoisted.createRuntimeTaskFlow.mockClear();
@@ -149,6 +342,7 @@ describe("server-runtime-services", () => {
       reconcileLoopJobs: hoisted.reconcileLoopJobs,
       healFleet: hoisted.healFleet,
       superviseFleet: hoisted.superviseFleet,
+      startManagedFlow: hoisted.startManagedFlow,
     });
     hoisted.createRuntimeAutonomy.mockReturnValue({
       bindSession: hoisted.bindAutonomySession,
@@ -227,6 +421,329 @@ describe("server-runtime-services", () => {
         cfg: {},
       }),
     );
+    expect(hoisted.loadModelCatalog).toHaveBeenCalledWith({ config: {} });
+    expect(hoisted.buildWorkspaceSkillStatus).toHaveBeenCalledTimes(2);
+    expect(hoisted.buildWorkspaceSkillStatus).toHaveBeenNthCalledWith(1, "/workspace/main", {
+      config: {},
+    });
+    expect(hoisted.buildWorkspaceSkillStatus).toHaveBeenNthCalledWith(2, "/workspace/ops", {
+      config: {},
+    });
+    expect(hoisted.sweepTaskRegistry).toHaveBeenCalledTimes(1);
+    expect(hoisted.primeRemoteSkillsCache).toHaveBeenCalledTimes(1);
+    expect(hoisted.refreshRemoteBinsForConnectedNodes).toHaveBeenCalledWith({});
+    expect(hoisted.buildToolsCatalogResult).toHaveBeenCalledTimes(2);
+    expect(hoisted.buildToolsCatalogResult).toHaveBeenNthCalledWith(1, {
+      cfg: {},
+      agentId: "main",
+      includePlugins: true,
+    });
+    expect(hoisted.buildToolsCatalogResult).toHaveBeenNthCalledWith(2, {
+      cfg: {},
+      agentId: "ops",
+      includePlugins: true,
+    });
+    expect(hoisted.getGovernanceOverview).toHaveBeenCalledWith({ cfg: {} });
+    expect(hoisted.getGovernanceCapabilityInventory).toHaveBeenCalledWith({ cfg: {} });
+    expect(hoisted.getGovernanceCapabilityAssetRegistry).toHaveBeenCalledWith({
+      cfg: {},
+    });
+    expect(hoisted.getGovernanceGenesisPlan).toHaveBeenCalledWith({
+      cfg: {},
+      inventory: expect.any(Object),
+    });
+    expect(hoisted.repairDreamingArtifacts).toHaveBeenCalledTimes(2);
+    expect(hoisted.repairDreamingArtifacts).toHaveBeenNthCalledWith(1, {
+      workspaceDir: "/workspace/main",
+    });
+    expect(hoisted.repairDreamingArtifacts).toHaveBeenNthCalledWith(2, {
+      workspaceDir: "/workspace/ops",
+    });
+    expect(hoisted.dedupeDreamDiaryEntries).toHaveBeenCalledTimes(2);
+    expect(hoisted.advanceSelfRoadmap).toHaveBeenCalledTimes(1);
+  });
+
+  it("recovers active business tasks through backend automation on startup", async () => {
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+    hoisted.listBusinessTasks.mockImplementation((params?: { status?: string }) =>
+      params?.status === "running"
+        ? [
+            {
+              id: "bt_1",
+              agentId: "main",
+              name: "恢复业务接入",
+              goal: "继续完成业务接入",
+              status: "running",
+              progress: 5,
+              duration: "long",
+              priority: "high",
+              group: "ai",
+              business: { domain: "general", accessMode: "automatic" },
+              createdAt: 1,
+              updatedAt: 1,
+            },
+          ]
+        : [],
+    );
+
+    activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await vi.dynamicImportSettled();
+    expect(hoisted.startManagedFlow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agentId: "main",
+        goal: expect.stringContaining("继续完成业务接入"),
+        status: "running",
+      }),
+    );
+    expect(hoisted.updateBusinessTask).toHaveBeenCalledWith(
+      "bt_1",
+      expect.objectContaining({
+        progress: 15,
+        autonomy: expect.objectContaining({
+          flowId: "flow_1",
+        }),
+      }),
+    );
+  });
+
+  it("materializes active self-roadmap goals as autonomous business tasks on startup", async () => {
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await vi.dynamicImportSettled();
+
+    expect(hoisted.getSelfRoadmap).toHaveBeenCalledTimes(1);
+    expect(hoisted.createBusinessTask).toHaveBeenCalledWith(expect.objectContaining({
+      agentId: "main",
+      name: "Self roadmap: reusable skill adoption",
+      goal: expect.stringContaining("Turn repeated fixes into reusable skills"),
+      duration: "long",
+      priority: "high",
+      group: "self-roadmap",
+      business: expect.objectContaining({
+        domain: "self",
+        accessMode: "autonomous",
+        payload: expect.objectContaining({
+          selfRoadmapGoalId: "skill_reuse",
+        }),
+      }),
+    }));
+    expect(hoisted.createBusinessTask).toHaveBeenCalledWith(expect.objectContaining({
+      agentId: "main",
+      name: "Self roadmap: code-level upgrade loop",
+      group: "self-code-upgrade",
+      business: expect.objectContaining({
+        domain: "self-code",
+        accessMode: "autonomous-code-change",
+        payload: expect.objectContaining({
+          selfRoadmapGoalId: "self_upgrade_loop",
+          codeChangeContract: expect.objectContaining({
+            strategy: "test-first",
+            verificationCommands: expect.arrayContaining(["pnpm tsgo"]),
+            allowedPaths: expect.arrayContaining(["src/"]),
+            deliverables: expect.arrayContaining([
+              "implementation patch",
+              "fresh verification output",
+              "experience memory update",
+            ]),
+          }),
+        }),
+      }),
+    }));
+    expect(hoisted.startManagedFlow).toHaveBeenCalledWith(expect.objectContaining({
+      agentId: "main",
+      goal: expect.stringContaining("[backend-automation:business-task-recovery]"),
+      status: "running",
+    }));
+    expect(hoisted.updateBusinessTask).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        progress: 15,
+        autonomy: expect.objectContaining({
+          flowId: "flow_1",
+        }),
+      }),
+    );
+  });
+
+  it("does not duplicate already materialized self-roadmap business tasks", async () => {
+    hoisted.businessTasks.push({
+      id: "bt_existing",
+      agentId: "main",
+      name: "Existing self roadmap task",
+      goal: "Already materialized",
+      status: "running",
+      progress: 15,
+      duration: "long",
+      priority: "high",
+      group: "self-roadmap",
+      business: {
+        domain: "self",
+        accessMode: "autonomous",
+        payload: { selfRoadmapGoalId: "skill_reuse" },
+      },
+      autonomy: { flowId: "existing-flow" },
+      createdAt: 1,
+      updatedAt: 1,
+    });
+    hoisted.businessTasks.push({
+      id: "bt_existing_code",
+      agentId: "main",
+      name: "Existing self code upgrade task",
+      goal: "Already materialized",
+      status: "running",
+      progress: 15,
+      duration: "long",
+      priority: "high",
+      group: "self-code-upgrade",
+      business: {
+        domain: "self-code",
+        accessMode: "autonomous-code-change",
+        payload: { selfRoadmapGoalId: "self_upgrade_loop" },
+      },
+      autonomy: { flowId: "existing-code-flow" },
+      createdAt: 1,
+      updatedAt: 1,
+    });
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await vi.dynamicImportSettled();
+
+    expect(hoisted.getSelfRoadmap).toHaveBeenCalledTimes(1);
+    expect(hoisted.createBusinessTask).not.toHaveBeenCalled();
+  });
+
+  it("keeps backend automation running on an interval until stopped", async () => {
+    vi.useFakeTimers();
+    process.env.ASSISTANT_BACKEND_AUTOMATION_INTERVAL_MS = "1000";
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    const services = activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await vi.dynamicImportSettled();
+    expect(hoisted.loadModelCatalog).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await vi.dynamicImportSettled();
+    expect(hoisted.loadModelCatalog).toHaveBeenCalledTimes(2);
+
+    services.heartbeatRunner.stop();
+    await vi.advanceTimersByTimeAsync(1000);
+    await vi.dynamicImportSettled();
+    expect(hoisted.loadModelCatalog).toHaveBeenCalledTimes(2);
+  });
+
+  it("isolates backend automation step failures so the remaining startup automation still runs", async () => {
+    hoisted.loadModelCatalog.mockRejectedValueOnce(new Error("catalog down"));
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await vi.dynamicImportSettled();
+    expect(hoisted.buildWorkspaceSkillStatus).toHaveBeenCalledTimes(2);
+    expect(hoisted.sweepTaskRegistry).toHaveBeenCalledTimes(1);
+    expect(hoisted.refreshRemoteBinsForConnectedNodes).toHaveBeenCalledTimes(1);
+    expect(hoisted.buildToolsCatalogResult).toHaveBeenCalledTimes(2);
+    expect(hoisted.getGovernanceOverview).toHaveBeenCalledTimes(1);
+    expect(hoisted.repairDreamingArtifacts).toHaveBeenCalledTimes(2);
+  });
+
+  it("persists backend automation run history for self status inspection", async () => {
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await vi.dynamicImportSettled();
+
+    const history = getGatewayBackendAutomationHistory({ limit: 1 });
+    expect(history).toEqual([
+      expect.objectContaining({
+        source: "startup",
+        changedCount: expect.any(Number),
+        ok: true,
+        steps: expect.arrayContaining([
+          expect.objectContaining({ name: "model-catalog", ok: true }),
+          expect.objectContaining({ name: "memory-artifacts", ok: true }),
+          expect.objectContaining({ name: "self-roadmap", ok: true }),
+        ]),
+      }),
+    ]);
   });
 
   it("falls back to loop reconcile when startup flow heal is disabled", async () => {

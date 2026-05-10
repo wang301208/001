@@ -104,9 +104,9 @@ export function createEventHandlers(context: EventHandlerContext) {
       state.activeChatRunId = null;
       setActivityStatus("idle");
       chatLog.addSystem(
-        `streaming watchdog: no stream updates for ${Math.round(
+        `流式输出看门狗：${Math.round(
           streamingWatchdogMs / 1000,
-        )}s; resetting status. The backend may have dropped this run silently; send a new message to resync.`,
+        )} 秒内没有收到更新，已重置状态。后端可能静默丢失了这次运行；请发送新消息重新同步。`,
       );
       tui.requestRender();
     }, streamingWatchdogMs);
@@ -351,7 +351,7 @@ export function createEventHandlers(context: EventHandlerContext) {
         evt.errorMessage,
       );
       const suppressEmptyExternalPlaceholder =
-        finalText === "(no output)" && !isLocalRunId?.(evt.runId);
+        finalText === "(无输出)" && !isLocalRunId?.(evt.runId);
       if (suppressEmptyExternalPlaceholder) {
         chatLog.dropAssistant(evt.runId);
       } else {
@@ -366,14 +366,14 @@ export function createEventHandlers(context: EventHandlerContext) {
     if (evt.state === "aborted") {
       forgetLocalBtwRunId?.(evt.runId);
       const wasActiveRun = state.activeChatRunId === evt.runId;
-      chatLog.addSystem("run aborted");
+      chatLog.addSystem("运行已中止");
       terminateRun({ runId: evt.runId, wasActiveRun, status: "aborted" });
       maybeRefreshHistoryForRun(evt.runId);
     }
     if (evt.state === "error") {
       forgetLocalBtwRunId?.(evt.runId);
       const wasActiveRun = state.activeChatRunId === evt.runId;
-      chatLog.addSystem(`run error: ${evt.errorMessage ?? "unknown"}`);
+      chatLog.addSystem(`运行错误: ${evt.errorMessage ?? "未知"}`);
       terminateRun({ runId: evt.runId, wasActiveRun, status: "error" });
       maybeRefreshHistoryForRun(evt.runId);
     }
@@ -428,6 +428,52 @@ export function createEventHandlers(context: EventHandlerContext) {
       }
       tui.requestRender();
       return;
+    }
+    if (evt.stream === "compaction") {
+      if (!isActiveRun) {
+        return;
+      }
+      const data = evt.data ?? {};
+      const phase = asString(data.phase, "");
+      const tokensBefore =
+        typeof data.tokensBefore === "number" && Number.isFinite(data.tokensBefore)
+          ? data.tokensBefore
+          : null;
+      const tokensAfter =
+        typeof data.tokensAfter === "number" && Number.isFinite(data.tokensAfter)
+          ? data.tokensAfter
+          : null;
+      const contextTokens =
+        typeof data.contextTokens === "number" && Number.isFinite(data.contextTokens)
+          ? data.contextTokens
+          : null;
+      const compactedCount =
+        typeof data.compactedCount === "number" && Number.isFinite(data.compactedCount)
+          ? data.compactedCount
+          : null;
+      if (phase === "start") {
+        const usage =
+          tokensBefore !== null && contextTokens !== null
+            ? `上下文 ${tokensBefore}/${contextTokens}`
+            : "上下文接近上限";
+        chatLog.addSystem(`自动压缩开始：${usage}，正在生成摘要。`);
+        setActivityStatus("compacting");
+        tui.requestRender();
+        return;
+      }
+      if (phase === "end") {
+        const usage =
+          tokensBefore !== null && tokensAfter !== null
+            ? `${tokensBefore} -> ${tokensAfter}`
+            : "已更新上下文";
+        const compacted =
+          compactedCount !== null ? `已压缩 ${compactedCount} 条消息。` : "历史消息已压缩。";
+        chatLog.addSystem(`自动压缩完成：${usage}，${compacted}`);
+        setActivityStatus("running");
+        void refreshSessionInfo?.();
+        tui.requestRender();
+        return;
+      }
     }
     if (evt.stream === "lifecycle") {
       if (!isActiveRun) {

@@ -27,31 +27,31 @@ describe("createEditorSubmitHandler", () => {
     expect(editor.addToHistory).not.toHaveBeenCalled();
   });
 
-  it("routes slash commands to handleCommand", () => {
-    const { editor, handleCommand, sendMessage, onSubmit } = createSubmitHarness();
+  it("blocks direct slash commands and asks for natural language", () => {
+    const { editor, sendMessage, notifyUser, onSubmit } = createSubmitHarness();
 
     onSubmit("/models");
 
     expect(editor.addToHistory).toHaveBeenCalledWith("/models");
-    expect(handleCommand).toHaveBeenCalledWith("/models");
+    expect(notifyUser).toHaveBeenCalledWith("自然语言直达已启用。请直接描述目标。");
     expect(sendMessage).not.toHaveBeenCalled();
   });
 
   it("routes normal messages to sendMessage", () => {
-    const { editor, handleCommand, sendMessage, onSubmit } = createSubmitHarness();
+    const { editor, sendMessage, onSubmit } = createSubmitHarness();
 
     onSubmit("hello");
 
     expect(editor.addToHistory).toHaveBeenCalledWith("hello");
     expect(sendMessage).toHaveBeenCalledWith("hello");
-    expect(handleCommand).not.toHaveBeenCalled();
   });
 
-  it("routes bang-prefixed lines to handleBangLine", () => {
-    const { handleBangLine, onSubmit } = createSubmitHarness();
+  it("blocks bang-prefixed lines from direct execution", () => {
+    const { handleBangLine, notifyUser, onSubmit } = createSubmitHarness();
 
     onSubmit("!ls");
 
-    expect(handleBangLine).toHaveBeenCalledWith("!ls");
+    expect(handleBangLine).not.toHaveBeenCalled();
+    expect(notifyUser).toHaveBeenCalledWith("本地命令入口已改为自然语言。请说：执行本地命令 ls");
   });
 });

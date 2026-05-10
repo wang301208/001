@@ -171,6 +171,31 @@ describe("runCli exit behavior", () => {
     exitSpy.mockRestore();
   });
 
+  it("opens explicit assistant tui through the fast path without route or full program registration", async () => {
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`unexpected process.exit(${String(code)})`);
+    }) as typeof process.exit);
+
+    await runCli(["node", "assistant", "tui", "--session", "work", "--timeout-ms", "45000"]);
+
+    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith([
+      "node",
+      "assistant",
+      "tui",
+      "--session",
+      "work",
+      "--timeout-ms",
+      "45000",
+    ]);
+    expect(tryRouteCliMock).not.toHaveBeenCalled();
+    expect(runTuiMock).toHaveBeenCalledWith({ session: "work", timeoutMs: 45_000 });
+    expect(loadDotEnvMock).not.toHaveBeenCalled();
+    expect(ensurePathMock).not.toHaveBeenCalled();
+    expect(buildProgramMock).not.toHaveBeenCalled();
+    expect(exitSpy).not.toHaveBeenCalled();
+    exitSpy.mockRestore();
+  });
+
   it("closes memory managers when a runtime was registered", async () => {
     tryRouteCliMock.mockResolvedValueOnce(true);
     hasMemoryRuntimeMock.mockReturnValue(true);

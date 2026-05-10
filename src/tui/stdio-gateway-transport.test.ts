@@ -151,4 +151,24 @@ describe("StdioGatewayTransport", () => {
     await vi.waitFor(() => expect(connected).toHaveBeenCalledTimes(1));
     expect(events).toEqual([{ event: "chat", payload: { state: "delta" } }]);
   });
+
+  it("uses Chinese user-facing errors for stdio gateway failures", async () => {
+    const child = createFakeChild();
+    const spawn = vi.fn(
+      () => child as ReturnType<NonNullable<StdioGatewayTransportOptions["spawn"]>>,
+    );
+    const transport = new StdioGatewayTransport({
+      spawn,
+      startupTimeoutMs: 1000,
+      requestTimeoutMs: 10,
+      resolveProcess: () => ({
+        command: "python-test",
+        args: ["-m", "tui_gateway.entry"],
+      }),
+    });
+
+    transport.start();
+    await expect(transport.request("status")).rejects.toThrow("stdio 网关请求超时: status");
+    transport.stop();
+  });
 });

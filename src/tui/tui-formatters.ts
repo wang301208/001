@@ -105,7 +105,7 @@ function redactBinaryLikeLine(line: string): string {
     replacementCount >= BINARY_LINE_REPLACEMENT_THRESHOLD &&
     replacementCount * 2 >= line.length
   ) {
-    return "[binary data omitted]";
+    return "[二进制数据已省略]";
   }
   return line;
 }
@@ -171,7 +171,7 @@ export function resolveFinalAssistantText(params: {
   if (errorMessage.trim()) {
     return formatRawAssistantErrorForUi(errorMessage);
   }
-  return "(no output)";
+  return "(无输出)";
 }
 
 export function composeThinkingAndContent(params: {
@@ -184,7 +184,7 @@ export function composeThinkingAndContent(params: {
   const parts: string[] = [];
 
   if (params.showThinking && thinkingText) {
-    parts.push(`[thinking]\n${thinkingText}`);
+    parts.push(`[思考]\n${thinkingText}`);
   }
   if (contentText) {
     parts.push(contentText);
@@ -372,17 +372,17 @@ export function isCommandMessage(message: unknown): boolean {
 
 export function formatTokens(total?: number | null, context?: number | null) {
   if (total == null && context == null) {
-    return "tokens ?";
+    return "令牌 ?";
   }
   const totalLabel = total == null ? "?" : formatTokenCount(total);
   if (context == null) {
-    return `tokens ${totalLabel}`;
+    return `令牌 ${totalLabel}`;
   }
   const pct =
     typeof total === "number" && context > 0
       ? Math.min(999, Math.round((total / context) * 100))
       : null;
-  return `tokens ${totalLabel}/${formatTokenCount(context)}${pct !== null ? ` (${pct}%)` : ""}`;
+  return `令牌 ${totalLabel}/${formatTokenCount(context)}${pct !== null ? ` (${pct}%)` : ""}`;
 }
 
 export function formatContextUsageLine(params: {
@@ -395,10 +395,10 @@ export function formatContextUsageLine(params: {
   const ctxLabel = typeof params.context === "number" ? formatTokenCount(params.context) : "?";
   const pct = typeof params.percent === "number" ? Math.min(999, Math.round(params.percent)) : null;
   const remainingLabel =
-    typeof params.remaining === "number" ? `${formatTokenCount(params.remaining)} left` : null;
+    typeof params.remaining === "number" ? `剩余 ${formatTokenCount(params.remaining)}` : null;
   const pctLabel = pct !== null ? `${pct}%` : null;
   const extra = [remainingLabel, pctLabel].filter(Boolean).join(", ");
-  return `tokens ${totalLabel}/${ctxLabel}${extra ? ` (${extra})` : ""}`;
+  return `令牌 ${totalLabel}/${ctxLabel}${extra ? ` (${extra})` : ""}`;
 }
 
 export function asString(value: unknown, fallback = ""): string {

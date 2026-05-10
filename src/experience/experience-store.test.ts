@@ -8,13 +8,17 @@ import {
   createSkillCandidate,
   exportSkillCandidateAsAgentSkill,
   getSelfModel,
+  getSelfOverview,
+  getSelfRoadmap,
   listDueStrategicPushes,
   advanceStrategicMemoryPush,
   listSkillCandidates,
+  recommendReusableSkills,
   queryUserModelDialectic,
   recallSessionMemory,
   recordSkillUsage,
   searchExperience,
+  advanceSelfRoadmap,
   updateUserModel,
   updateSelfModel,
 } from "./experience-store.js";
@@ -184,6 +188,30 @@ describe("experience store", () => {
     expect(fs.readFileSync(exported.skillPath, "utf8")).toBe(exported.content);
   });
 
+  it("distills complex task outcomes into the persistent self model", () => {
+    const event = captureExperienceEvent({
+      kind: "complex_task",
+      summary: "Stabilize autonomous backend automation after gateway startup",
+      source: "backend-automation",
+      tags: ["complex-task", "self", "automation"],
+      evidence: [
+        "Startup automation scanned skills and memory artifacts",
+        "Supervisor history exposed backend automation runs",
+      ],
+      outcome: "Backend self-maintenance continued without manual prompts",
+    });
+
+    const selfModel = getSelfModel();
+
+    expect(selfModel.learnedPatterns).toEqual(expect.arrayContaining([
+      expect.stringContaining("Stabilize autonomous backend automation"),
+    ]));
+    expect(selfModel.nextGrowthAreas).toEqual(expect.arrayContaining([
+      expect.stringContaining("Turn complex-task experience into reusable skills"),
+    ]));
+    expect(selfModel.evidenceEventIds).toContain(event.id);
+  });
+
   it("improves a skill candidate from usage observations", () => {
     const candidate = createSkillCandidate({
       title: "Gateway timeout triage",
@@ -202,6 +230,155 @@ describe("experience store", () => {
     expect(result.candidate.steps).toContain("Inspect pending config.patch operations before restarting services");
     expect(result.candidate.tags).toContain("self-improved");
     expect(result.usage.outcome).toContain("Recovered");
+  });
+
+  it("auto-promotes repeatedly successful skill candidates into generated skills", () => {
+    const candidate = createSkillCandidate({
+      title: "Startup automation regression check",
+      trigger: "When validating gateway startup self-maintenance",
+      steps: ["Run startup automation smoke checks"],
+      tags: ["automation"],
+    });
+
+    recordSkillUsage({
+      candidateId: candidate.id,
+      successful: true,
+      outcome: "First successful reuse",
+      observations: ["Check backend automation history after startup"],
+    });
+    const promoted = recordSkillUsage({
+      candidateId: candidate.id,
+      successful: true,
+      outcome: "Second successful reuse",
+      observations: ["Verify skill is exported after stable reuse"],
+    });
+
+    expect(promoted.candidate.status).toBe("implemented");
+    expect(promoted.candidate.tags).toEqual(expect.arrayContaining([
+      "self-improved",
+      "auto-promoted",
+      "agentskills.io",
+    ]));
+
+    const generated = path.join(stateDir, "skills", "generated");
+    const skillFiles = fs.readdirSync(generated, { recursive: true }).map(String);
+    expect(skillFiles).toEqual(expect.arrayContaining([expect.stringContaining("SKILL.md")]));
+  });
+
+  it("summarizes the full self subsystem in one overview", () => {
+    captureExperienceEvent({
+      kind: "complex_task",
+      summary: "Repair self status aggregation",
+      tags: ["complex-task", "self"],
+      evidence: ["Added overview tests"],
+      outcome: "Self overview reports memory and skills",
+    });
+    captureStrategicMemory({
+      title: "Self improvement cadence",
+      objective: "Review self overview gaps periodically",
+      nextPushAt: 1,
+    });
+
+    const overview = getSelfOverview({ now: 2, limit: 5 });
+
+    expect(overview.summary.events).toBe(1);
+    expect(overview.summary.skillCandidates).toBe(1);
+    expect(overview.summary.selfModelFacts).toBeGreaterThan(0);
+    expect(overview.summary.dueStrategicPushes).toBe(1);
+    expect(overview.capabilities).toEqual(expect.objectContaining({
+      experienceMemory: true,
+      selfModel: true,
+      skillEvolution: true,
+      strategicMemory: true,
+    }));
+    expect(overview.recentEvents[0]?.summary).toContain("Repair self status");
+  });
+
+  it("maintains a long-horizon self roadmap and autonomous metrics", () => {
+    captureExperienceEvent({
+      kind: "complex_task",
+      summary: "Improve automatic skill reuse for repeated gateway failures",
+      tags: ["complex-task", "self-roadmap"],
+      evidence: ["Observed repeated gateway failures", "Created reusable triage steps"],
+      outcome: "Skill reuse should reduce repeated manual work",
+    });
+
+    const roadmap = getSelfRoadmap({ now: 10 });
+
+    expect(roadmap.goals).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "skill_reuse",
+        status: "active",
+        priority: "high",
+      }),
+    ]));
+    expect(roadmap.metrics.complexTaskCount).toBe(1);
+    expect(roadmap.metrics.skillCandidateCount).toBe(1);
+    expect(roadmap.metrics.selfModelFactCount).toBeGreaterThan(0);
+
+    const overview = getSelfOverview({ now: 10 });
+    expect(overview.roadmap.goals).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "skill_reuse" }),
+    ]));
+    expect(overview.metrics.complexTaskCount).toBe(1);
+  });
+
+  it("recommends reusable implemented skills for similar future work", () => {
+    const candidate = createSkillCandidate({
+      title: "Gateway failure triage",
+      trigger: "Use when gateway failures repeat during startup",
+      steps: ["Check backend automation history", "Inspect gateway logs"],
+      tags: ["gateway", "startup"],
+    });
+    recordSkillUsage({
+      candidateId: candidate.id,
+      successful: true,
+      outcome: "Resolved startup gateway failure",
+      observations: ["Check backend automation history first"],
+    });
+    recordSkillUsage({
+      candidateId: candidate.id,
+      successful: true,
+      outcome: "Resolved repeated gateway startup failure",
+      observations: ["Inspect gateway logs second"],
+    });
+
+    const recommendations = recommendReusableSkills({
+      goal: "Repair repeated gateway startup failure and inspect automation history",
+      limit: 3,
+    });
+
+    expect(recommendations).toEqual([
+      expect.objectContaining({
+        candidate: expect.objectContaining({
+          title: "Gateway failure triage",
+          status: "implemented",
+        }),
+        score: expect.any(Number),
+        reason: expect.stringContaining("matched"),
+      }),
+    ]);
+  });
+
+  it("advances due self roadmap goals into strategic memory", () => {
+    captureExperienceEvent({
+      kind: "complex_task",
+      summary: "Strengthen self roadmap automation",
+      tags: ["complex-task", "self-roadmap"],
+      evidence: ["Roadmap gap identified"],
+      outcome: "Roadmap should push itself forward",
+    });
+
+    const advanced = advanceSelfRoadmap({ now: 1_000 });
+    const pushes = listDueStrategicPushes({ now: 1_000 });
+
+    expect(advanced.createdStrategicMemories).toBeGreaterThan(0);
+    expect(pushes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        title: expect.stringContaining("Self roadmap"),
+        prompt: expect.stringContaining("skill reuse"),
+      }),
+    ]));
   });
 
   it("keeps strategic memories due for periodic pushing", () => {

@@ -3,9 +3,10 @@ import { theme } from "./theme/theme.js";
 import { formatTokens } from "./tui-formatters.js";
 import { getGovernanceSummary, type GovernanceStatus } from "./tui-governance-panel.js";
 import type { AgentSummary, QueuedMessage, SessionInfo } from "./tui-types.js";
+import { formatTokenCount } from "../utils/usage-format.js";
 
 export const ASSISTANT_HELP_TEXT = [
-  "助手命令:",
+  "助手自然语言交互:",
   "Ctrl+C 清空 / 中断 / 退出",
   "Ctrl+D 退出",
   "Ctrl+L 打开模型选择器",
@@ -16,19 +17,34 @@ export const ASSISTANT_HELP_TEXT = [
   "Alt+Enter 运行中追加后续任务",
   "Alt+Up 提交最早的排队消息",
   "Shift+Tab 显示或隐藏治理面板",
-  "!<cmd> 执行本地命令",
-  "/help 查看命令",
+  "直接输入自然语言目标即可调用功能",
 ].join("\n");
 
-const ASSISTANT_ART = ["   /\\_/\\", "  ( o.o )", "   > ^ <", "    助手"] as const;
+const ASSISTANT_HEADER_ART = [
+  "⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⡴⠒⠒⠂⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀",
+  "⠀⠀⠀⠀⠀⢀⣤⣾⣿⡿⠋⠀⠀⠀⣀⣀⡀⠈⠑⠤⡀⠀⠀⠀⠀⠀",
+  "⠀⠀⠀⠀⣠⣿⣿⣿⡟⠀⠀⠀⠀⣾⣿⣿⣿⣆⠀⠀⠘⢄⠀⠀⠀⠀",
+  "⠀⠀⠀⣰⣿⣿⣿⣿⣷⡀⠀⠀⠀⢿⣿⣿⣿⠏⠀⠀⠀⠈⢆⠀⠀⠀",
+  "⠀⠀⢀⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠉⠉⠁⠀⠀⠀⠀⠀⠘⡀⠀⠀",
+  "⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀",
+  "⠀⠀⠈⣿⣿⣿⣿⣿⣿⡿⠿⠿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⢠⠁⠀⠀",
+  "⠀⠀⠀⠹⣿⣿⣿⣿⠏⠀⠀⠀⠈⣿⣿⣿⣷⡀⠀⠀⠀⢀⠎⠀⠀⠀",
+  "⠀⠀⠀⠀⠙⣿⣿⣿⣆⠀⠀⠀⢀⣿⣿⣿⣿⠃⠀⠀⢠⠊⠀⠀⠀⠀",
+  "⠀⠀⠀⠀⠀⠈⠛⢿⣿⣷⣶⣶⣿⣿⣿⠟⠁⢀⡠⠒⠁⠀⠀⠀⠀⠀",
+  "⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⠻⠿⠿⠅⠒⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀",
+] as const;
+
+const ASSISTANT_HEADER_ART_WIDTH = 26;
+
+const ASSISTANT_ART = ASSISTANT_HEADER_ART;
 
 const ASSISTANT_COMMANDS = [
-  ["/help", "查看全部命令"],
-  ["/status", "查看当前状态"],
-  ["/model", "切换模型"],
-  ["/agent", "切换代理"],
-  ["/session", "切换会话"],
-  ["!<cmd>", "执行本地命令"],
+  ["查看状态", "查看当前状态"],
+  ["列出任务", "查看任务中心"],
+  ["切换模型", "打开模型选择"],
+  ["切换代理", "打开代理选择"],
+  ["回忆会话", "搜索历史记忆"],
+  ["执行本地命令", "运行终端命令"],
 ] as const;
 
 function padVisible(text: string, width: number): string {
@@ -37,21 +53,23 @@ function padVisible(text: string, width: number): string {
 
 function formatAssistantCommandLines() {
   return [
-    theme.bold(theme.accent("助手终端")),
-    theme.dim("本地自治工作台 | 输入 /help 查看命令"),
+    centeredLine("助手", 34),
+    theme.dim("自然语言"),
     "",
     ...ASSISTANT_COMMANDS.map(
       ([command, description]) =>
         `${theme.accent(command.padEnd(9))}${theme.dim(description)}`,
     ),
+    "",
+    theme.dim("直接描述目标即可调用功能"),
   ];
 }
 
 export function formatAssistantWelcomePanel(width = 120): string {
   const safeWidth = Math.max(32, Math.floor(width));
-  const artLines = ASSISTANT_ART.map((line) => theme.banner(line));
+  const artLines = ASSISTANT_ART.map((line) => theme.banner(truncateAnsi(line, ASSISTANT_HEADER_ART_WIDTH)));
   const commandLines = formatAssistantCommandLines();
-  const artWidth = Math.max(...ASSISTANT_ART.map((line) => visibleWidth(line)));
+  const artWidth = ASSISTANT_HEADER_ART_WIDTH;
   const wide = safeWidth >= 82;
 
   if (!wide) {
@@ -119,9 +137,9 @@ export function formatAssistantStatusRule(params: {
     ? params.sessionInfo.modelProvider
       ? `${params.sessionInfo.modelProvider}/${params.sessionInfo.model}`
       : params.sessionInfo.model
-    : "model ?";
+    : "模型 ?";
   const busy = ["sending", "waiting", "streaming", "running"].includes(params.activityStatus);
-  const status = busy ? `${params.activityStatus}...` : params.activityStatus || "idle";
+  const status = busy ? `${formatActivityStatus(params.activityStatus)}...` : formatActivityStatus(params.activityStatus || "idle");
   const tokens = formatTokens(params.sessionInfo.totalTokens ?? null, params.sessionInfo.contextTokens ?? null);
   const { bar, pct } = contextBar({
     total: params.sessionInfo.totalTokens,
@@ -136,8 +154,8 @@ export function formatAssistantStatusRule(params: {
     model,
     tokens,
     pct !== null ? `[${bar}] ${pct}%` : `[${bar}]`,
-    `agent ${params.agentLabel}`,
-    `session ${params.sessionLabel}`,
+    `代理 ${params.agentLabel}`,
+    `会话 ${params.sessionLabel}`,
     governance,
   ];
   const left = parts.join(" | ");
@@ -160,7 +178,7 @@ export function formatQueuedMessages(params: {
       ? 0
       : Math.max(0, Math.min(activeIndex - 1, Math.max(0, params.queued.length - maxRows)));
   const end = Math.min(params.queued.length, start + maxRows);
-  const lines = [`queued (${params.queued.length})${activeIndex !== null ? ` | editing ${activeIndex + 1}` : ""}`];
+  const lines = [`队列 (${params.queued.length})${activeIndex !== null ? ` | 正在编辑 ${activeIndex + 1}` : ""}`];
   if (start > 0) {
     lines.push("  ...");
   }
@@ -170,12 +188,12 @@ export function formatQueuedMessages(params: {
       continue;
     }
     const marker = activeIndex === i ? ">" : " ";
-    const mode = item.mode === "steer" ? "steer" : "follow-up";
+    const mode = item.mode === "steer" ? "重定向" : "后续任务";
     const preview = item.text.replace(/\s+/g, " ").trim();
     lines.push(truncateAnsi(`${marker} ${i + 1}. ${mode}: ${preview}`, Math.max(20, params.width)));
   }
   if (end < params.queued.length) {
-    lines.push(`  ... and ${params.queued.length - end} more`);
+    lines.push(`  ... 还有 ${params.queued.length - end} 条`);
   }
   return lines;
 }
@@ -217,7 +235,7 @@ export class AssistantSessionPanel extends Container {
     sessionLabel: string;
     sessionInfo: SessionInfo;
     agents: AgentSummary[];
-    commandCount: number;
+    gatewayLabel?: string;
     width?: number;
   }) {
     const width = Math.max(40, params.width ?? 120);
@@ -225,23 +243,64 @@ export class AssistantSessionPanel extends Container {
       ? params.sessionInfo.modelProvider
         ? `${params.sessionInfo.modelProvider}/${params.sessionInfo.model}`
         : params.sessionInfo.model
-      : "unknown";
-    const lines = [
-      theme.panelBorder("+" + "-".repeat(Math.min(76, width - 2)) + "+"),
-      theme.panelBorder("| ") +
-        theme.bold(theme.accent("助手终端")) +
-        theme.dim(` | agent ${params.agentLabel} | session ${params.sessionLabel}`),
-      theme.panelBorder("| ") +
-        theme.dim(
-          `${params.agents.length} agents | ${params.commandCount} commands | ${model} | ${formatTokens(
-            params.sessionInfo.totalTokens ?? null,
-            params.sessionInfo.contextTokens ?? null,
-          )}`,
+      : "未知";
+    const innerWidth = Math.max(20, width - 4);
+    const wide = width >= 90;
+    const toolsLine = ["shell", "files", "models", "memory", "skills", "mcp", "cron", "agents"].join(", ");
+    const rightLines = formatAssistantSessionCommandLines({
+      agentsCount: params.agents.length,
+      gatewayLabel: params.gatewayLabel,
+      rightWidth: Math.max(20, innerWidth - ASSISTANT_HEADER_ART_WIDTH - 6),
+      sessionInfo: params.sessionInfo,
+      toolsLine,
+    });
+
+    const top = theme.panelBorder(`╭${"─".repeat(innerWidth)}╮`);
+    const bottom = theme.panelBorder(`╰${"─".repeat(innerWidth)}╯`);
+    const body: string[] = [];
+
+    if (!wide) {
+      for (const line of [
+        ...ASSISTANT_HEADER_ART.map((item) => theme.banner(truncateAnsi(item, ASSISTANT_HEADER_ART_WIDTH))),
+        "",
+        theme.bold(theme.accent("助手")),
+        theme.dim("自然语言"),
+        `${theme.accent("▾ 示例")}`,
+        ...ASSISTANT_COMMANDS.map(
+          ([command, description]) => `${theme.accent(command.padEnd(9))}${theme.dim(description)}`,
         ),
-      theme.panelBorder("| ") + theme.dim("Ctrl+L 模型 | Ctrl+G 代理 | Ctrl+P 会话 | Shift+Tab 治理"),
-      theme.panelBorder("+" + "-".repeat(Math.min(76, width - 2)) + "+"),
+        "",
+        `${theme.accent("▸ 可用工具")}`,
+        theme.dim(`tools: ${toolsLine}`),
+        `${theme.accent("▸ 可用技能")} ${theme.dim("(0)")}`,
+        theme.dim("直接输入目标即可调用功能"),
+      ]) {
+        body.push(theme.panelBorder("│ ") + truncateAnsi(line, innerWidth - 1));
+      }
+      this.content.setText([top, ...body, bottom].map((line) => truncateAnsi(line, width)).join("\n"));
+      return;
+    }
+
+    const artLines = ASSISTANT_HEADER_ART.map((line) =>
+      theme.banner(truncateAnsi(line, ASSISTANT_HEADER_ART_WIDTH)),
+    );
+    const artWidth = ASSISTANT_HEADER_ART_WIDTH;
+    const divider = theme.panelBorder("│");
+    const leftMeta = [
+      "",
+      `${theme.accent(`模型 ${shortModelLabel(model)}`)}${theme.dim(" · 助手")}`,
+      theme.dim(process.cwd().replace(/\\/g, "/")),
+      `${theme.dim("会话 ")}${theme.accent(params.sessionLabel)}`,
     ];
-    this.content.setText(lines.map((line) => truncateAnsi(line, width)).join("\n"));
+    const leftLines = [...artLines, ...leftMeta];
+    const rowCount = Math.max(leftLines.length, rightLines.length);
+    const rightWidth = Math.max(10, innerWidth - artWidth - 5);
+    for (let i = 0; i < rowCount; i++) {
+      const left = padVisible(leftLines[i] ?? "", artWidth + 2);
+      const right = truncateAnsi(rightLines[i] ?? "", rightWidth);
+      body.push(`${theme.panelBorder("│ ")}${left}${divider} ${right}`);
+    }
+    this.content.setText([top, ...body, bottom].map((line) => truncateAnsi(line, width)).join("\n"));
   }
 }
 
@@ -264,6 +323,88 @@ export function colorizeStatusRule(text: string, busy: boolean) {
     return theme.statusBusy(text);
   }
   return theme.status(text);
+}
+
+function formatActivityStatus(status: string): string {
+  const normalized = status.trim();
+  const labels: Record<string, string> = {
+    idle: "空闲",
+    sending: "发送中",
+    waiting: "等待中",
+    streaming: "接收中",
+    running: "运行中",
+    steering: "重定向中",
+    listening: "监听中",
+    "voice unavailable": "语音不可用",
+    connected: "已连接",
+    disconnected: "已断开",
+    error: "错误",
+  };
+  return labels[normalized] ?? normalized;
+}
+
+function centeredLine(text: string, width: number): string {
+  const visible = visibleWidth(text);
+  if (visible >= width) {
+    return theme.bold(theme.accent(truncateAnsi(text, width)));
+  }
+  const left = Math.floor((width - visible) / 2);
+  return `${" ".repeat(left)}${theme.bold(theme.accent(text))}`;
+}
+
+function formatAssistantSessionCommandLines(params: {
+  agentsCount: number;
+  gatewayLabel?: string;
+  rightWidth: number;
+  sessionInfo: SessionInfo;
+  toolsLine: string;
+}) {
+  return [
+    centeredLine("助手", params.rightWidth),
+    theme.dim("自然语言"),
+    "",
+    `${theme.accent("▾ 示例")}`,
+    ...ASSISTANT_COMMANDS.map(
+      ([command, description]) => `${theme.accent(command.padEnd(9))}${theme.dim(description)}`,
+    ),
+    "",
+    `${theme.accent("▸ 可用工具")}`,
+    `${theme.dim("tools: ")}${theme.fg(params.toolsLine)}`,
+    `${theme.accent("▸ 可用技能")} ${theme.dim("(0)")}`,
+    `${theme.accent("▸ 系统提示")} ${theme.dim("当前会话上下文")}`,
+    `${theme.accent("▸ MCP 服务器")} ${theme.dim("connected")}`,
+    "",
+    theme.fg(
+      `自然语言直达 · ${params.agentsCount} agents`,
+    ),
+    theme.dim(formatCompactionProgressLine(params.sessionInfo)),
+    theme.dim("直接输入目标即可调用功能"),
+  ];
+}
+
+function formatCompactionProgressLine(sessionInfo: SessionInfo) {
+  const totalTokens =
+    typeof sessionInfo.totalTokens === "number" ? sessionInfo.totalTokens : 0;
+  const { bar, pct } = contextBar({
+    total: totalTokens,
+    context: sessionInfo.contextTokens,
+  });
+  const contextTokens =
+    typeof sessionInfo.contextTokens === "number" ? sessionInfo.contextTokens : null;
+  const tokens =
+    contextTokens === null
+      ? formatTokens(totalTokens, null)
+      : `令牌 ${formatTokenCount(totalTokens)}/${formatTokenCount(contextTokens)}`;
+  const count = Math.max(0, Math.floor(sessionInfo.compactionCount ?? 0));
+  const checkpointCount = Math.max(0, Math.floor(sessionInfo.compactionCheckpointCount ?? 0));
+  const countLabel = count > 0 ? ` · ${count} 次` : "";
+  const checkpointLabel = checkpointCount > 0 ? ` · ${checkpointCount} 个检查点` : "";
+  const pctLabel = `${pct ?? 0}%`;
+  return `自动压缩 ${tokens} · [${bar}] ${pctLabel}${countLabel}${checkpointLabel}`;
+}
+
+function shortModelLabel(model: string): string {
+  return model.split("/").pop()?.replace(/[-_]/g, " ").trim() || model;
 }
 
 export function shellPromptSymbol(input: string) {

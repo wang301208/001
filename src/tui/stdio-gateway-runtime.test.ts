@@ -1,4 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { createServer, type Server } from "node:http";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -93,6 +94,7 @@ class PythonGatewayHarness {
 
 describe("Python stdio gateway runtime", () => {
   const harnesses: PythonGatewayHarness[] = [];
+  const servers: Server[] = [];
   let stateDir = "";
 
   beforeEach(async () => {
@@ -102,6 +104,9 @@ describe("Python stdio gateway runtime", () => {
   afterEach(async () => {
     for (const harness of harnesses.splice(0)) {
       harness.stop();
+    }
+    for (const server of servers.splice(0)) {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
     }
     if (stateDir) {
       await fs.rm(stateDir, { recursive: true, force: true });
@@ -134,6 +139,44 @@ describe("Python stdio gateway runtime", () => {
       )
       .filter(Boolean)
       .join("\n");
+  }
+
+  async function startOpenAiCompatibleProbe(responseText: string) {
+    const requests: Array<{ url?: string; body: unknown; authorization?: string }> = [];
+    const server = createServer((req, res) => {
+      const chunks: Buffer[] = [];
+      req.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+      req.on("end", () => {
+        const raw = Buffer.concat(chunks).toString("utf8");
+        requests.push({
+          url: req.url,
+          authorization: Array.isArray(req.headers.authorization)
+            ? req.headers.authorization[0]
+            : req.headers.authorization,
+          body: raw ? JSON.parse(raw) : null,
+        });
+        res.writeHead(200, { "content-type": "application/json; charset=utf-8" });
+        res.end(
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: responseText,
+                },
+              },
+            ],
+            usage: { prompt_tokens: 7, completion_tokens: 5, total_tokens: 12 },
+          }),
+        );
+      });
+    });
+    servers.push(server);
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));
+    const address = server.address();
+    if (!address || typeof address === "string") {
+      throw new Error("failed to start OpenAI-compatible probe");
+    }
+    return { baseUrl: `http://127.0.0.1:${address.port}/v1`, requests };
   }
 
   async function writeMcpProbeServer() {
@@ -294,6 +337,142 @@ rl.on("line", (line) => {
     expect(history.error).toBeUndefined();
     const messages = (history.result as { messages?: unknown[] }).messages ?? [];
     expect(messages.map(messageText)).toEqual([message, message]);
+  });
+
+  it("calls the configured OpenAI-compatible remote model for chat.send", async () => {
+    const harness = await startHarness();
+    const probe = await startOpenAiCompatibleProbe("远程回复：已接入 LongCat");
+    const userText = "在";
+
+    const patched = await harness.request("config.patch", {
+      raw: JSON.stringify({
+        models: {
+          providers: {
+            longat: {
+              baseUrl: probe.baseUrl,
+              apiKey: "test-key",
+              api: "openai-completions",
+              models: [{ id: "LongCat-Flash-Lite", contextWindow: 128_000 }],
+            },
+          },
+        },
+        agents: {
+          defaults: {
+            model: { primary: "longat/LongCat-Flash-Lite" },
+          },
+        },
+      }),
+    });
+    const sent = await harness.request("chat.send", {
+      sessionKey: "agent:main:remote",
+      message: userText,
+    });
+    const history = await harness.request("chat.history", {
+      sessionKey: "agent:main:remote",
+    });
+
+    expect(patched.error).toBeUndefined();
+    expect(sent.error).toBeUndefined();
+    expect(history.error).toBeUndefined();
+    expect(probe.requests).toHaveLength(1);
+    expect(probe.requests[0]?.url).toBe("/v1/chat/completions");
+    expect(probe.requests[0]?.authorization).toBe("Bearer test-key");
+    expect(probe.requests[0]?.body).toMatchObject({
+      model: "LongCat-Flash-Lite",
+      messages: [{ role: "user", content: userText }],
+    });
+    const messages = (history.result as { messages?: unknown[] }).messages ?? [];
+    expect(messages.map(messageText)).toEqual([userText, "远程回复：已接入 LongCat"]);
+  });
+
+  it("floors configured stdio context below 128k and reports the effective budget", async () => {
+    const harness = await startHarness();
+    const patched = await harness.request("config.patch", {
+      raw: JSON.stringify({
+        agents: {
+          defaults: {
+            contextTokens: 60,
+            compaction: {
+              enabled: true,
+              reserveTokens: 20,
+              keepRecentTokens: 20,
+            },
+          },
+        },
+      }),
+    });
+    expect(patched.error).toBeUndefined();
+
+    const longMessage = "自动压缩验证 ".repeat(20);
+    const sent = await harness.request("chat.send", {
+      sessionKey: "agent:main:compact",
+      message: longMessage,
+    });
+    const sessions = await harness.request("sessions.list", { agentId: "main" });
+
+    expect(sent.error).toBeUndefined();
+    expect(sessions.error).toBeUndefined();
+
+    const session = (sessions.result as { sessions?: Array<Record<string, unknown>> }).sessions?.find(
+      (entry) => entry.key === "agent:main:compact",
+    );
+    expect(session?.contextTokens).toBe(128_000);
+    expect(session?.totalTokens).toBeGreaterThan(0);
+    expect(session?.totalTokens).toBeLessThan(128_000);
+    expect(session?.totalTokensFresh).toBe(true);
+  });
+
+  it("auto-compacts stdio chat history when the effective context budget is exceeded", async () => {
+    const harness = await startHarness();
+    const patched = await harness.request("config.patch", {
+      raw: JSON.stringify({
+        agents: {
+          defaults: {
+            contextTokens: 128_000,
+            compaction: {
+              enabled: true,
+              reserveTokens: 64_000,
+              keepRecentTokens: 8_000,
+            },
+          },
+        },
+      }),
+    });
+    expect(patched.error).toBeUndefined();
+
+    const longMessage = "自动压缩验证 ".repeat(18_000);
+    const first = await harness.request("chat.send", {
+      sessionKey: "agent:main:compact-large",
+      message: longMessage,
+    });
+    const second = await harness.request("chat.send", {
+      sessionKey: "agent:main:compact-large",
+      message: longMessage,
+    });
+    const sessions = await harness.request("sessions.list", { agentId: "main" });
+    const history = await harness.request("chat.history", {
+      sessionKey: "agent:main:compact-large",
+    });
+
+    expect(first.error).toBeUndefined();
+    expect(second.error).toBeUndefined();
+    expect(sessions.error).toBeUndefined();
+    expect(history.error).toBeUndefined();
+
+    const session = (sessions.result as { sessions?: Array<Record<string, unknown>> }).sessions?.find(
+      (entry) => entry.key === "agent:main:compact-large",
+    );
+    expect(session?.contextTokens).toBe(128_000);
+    expect(session?.compactionCount).toBeGreaterThanOrEqual(1);
+    expect(session?.compactionCheckpointCount).toBeGreaterThanOrEqual(1);
+    expect(session?.totalTokens).toBeLessThanOrEqual(128_000);
+    expect(session?.totalTokensFresh).toBe(true);
+
+    const messages = (history.result as { messages?: unknown[] }).messages ?? [];
+    const compactionMessage = messages.find(
+      (message) => (message as { role?: string }).role === "compactionSummary",
+    ) as { summary?: string } | undefined;
+    expect(compactionMessage?.summary).toContain("自动压缩摘要");
   });
 
   it("exposes runnable core RPCs used by terminal natural-language commands", async () => {

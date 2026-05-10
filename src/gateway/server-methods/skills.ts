@@ -11,7 +11,7 @@ import {
 } from "../../agents/skills-clawhub.js";
 import { installSkill } from "../../agents/skills-install.js";
 import { buildWorkspaceSkillStatus } from "../../agents/skills-status.js";
-import { loadWorkspaceSkillEntries, type SkillEntry } from "../../agents/skills.js";
+import { loadWorkspaceSkillEntries, mergeWorkspaceSkills, type SkillEntry } from "../../agents/skills.js";
 import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import type { AssistantConfig } from "../../config/types.assistant.js";
@@ -29,6 +29,7 @@ import {
   validateSkillsBinsParams,
   validateSkillsDetailParams,
   validateSkillsInstallParams,
+  validateSkillsMergeParams,
   validateSkillsSearchParams,
   validateSkillsStatusParams,
   validateSkillsUpdateParams,
@@ -244,6 +245,42 @@ export const skillsHandlers: GatewayRequestHandlers = {
       result,
       result.ok ? undefined : errorShape(ErrorCodes.UNAVAILABLE, result.message),
     );
+  },
+  "skills.merge": async ({ params, respond }) => {
+    if (!validateSkillsMergeParams(params)) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          `invalid skills.merge params: ${formatValidationErrors(validateSkillsMergeParams.errors)}`,
+        ),
+      );
+      return;
+    }
+    const cfg = loadConfig();
+    const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
+    const p = params as {
+      sources: string[];
+      name: string;
+      description?: string;
+      conflictStrategy?: "namespace" | "fail";
+      overwrite?: boolean;
+    };
+    try {
+      const result = await mergeWorkspaceSkills({
+        workspaceDir,
+        sourceSkillNames: p.sources,
+        targetName: p.name,
+        description: p.description,
+        conflictStrategy: p.conflictStrategy ?? "namespace",
+        overwrite: Boolean(p.overwrite),
+        config: cfg,
+      });
+      respond(true, result, undefined);
+    } catch (err) {
+      respond(false, undefined, errorShape(ErrorCodes.UNAVAILABLE, formatErrorMessage(err)));
+    }
   },
   "skills.update": async ({ params, respond }) => {
     if (!validateSkillsUpdateParams(params)) {

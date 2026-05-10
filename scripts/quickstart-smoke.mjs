@@ -35,7 +35,7 @@ requireIncludes("docs/quickstart.md", [
   "assistant onboard",
   "assistant tui --message",
 ]);
-requireIncludes("docs/cli.md", ["Ctrl+L", "Ctrl+G", "Ctrl+P", "/session", "/model"]);
+requireIncludes("docs/cli.md", ["Ctrl+L", "Ctrl+G", "Ctrl+P", "自然语言直达", "切换模型"]);
 requireIncludes("docs/configuration.md", [
   "~/.assistant/assistant.json",
   "models.providers",

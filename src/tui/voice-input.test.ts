@@ -34,7 +34,7 @@ describe("captureVoiceInput", () => {
     if (result.ok) {
       throw new Error("expected voice input setup failure");
     }
-    expect(result.message).toContain("not configured");
+    expect(result.message).toContain("未配置");
     expect(result.setupHint).toContain("ASSISTANT_TUI_STT_COMMAND");
   });
 

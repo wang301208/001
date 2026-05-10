@@ -16,6 +16,7 @@ import {
   resolveAgentModelFallbacksOverride,
 } from "./agent-scope.js";
 import { resolveConfiguredProviderFallback } from "./configured-provider-fallback.js";
+import { CONTEXT_WINDOW_HARD_MIN_TOKENS } from "./context-window-guard.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import type { ModelCatalogEntry } from "./model-catalog.types.js";
 import { splitTrailingAuthProfile } from "./model-ref-profile.js";
@@ -663,7 +664,7 @@ export function buildConfiguredModelCatalog(params: { cfg: AssistantConfig }): M
       const name = normalizeOptionalString(model?.name) || id;
       const contextWindow =
         typeof model?.contextWindow === "number" && model.contextWindow > 0
-          ? model.contextWindow
+          ? Math.max(CONTEXT_WINDOW_HARD_MIN_TOKENS, model.contextWindow)
           : undefined;
       const reasoning = typeof model?.reasoning === "boolean" ? model.reasoning : undefined;
       const input = Array.isArray(model?.input) ? model.input : undefined;

@@ -18,7 +18,7 @@ describe("statusSummaryRuntime.resolveContextTokensForModel", () => {
       fallbackContextTokens: 999,
     });
 
-    expect(contextTokens).toBe(123_456);
+    expect(contextTokens).toBe(128_000);
   });
 
   it("prefers per-model contextTokens over contextWindow", () => {
@@ -38,6 +38,25 @@ describe("statusSummaryRuntime.resolveContextTokensForModel", () => {
     });
 
     expect(contextTokens).toBe(272_000);
+  });
+
+  it("floors configured model context windows at 128k", () => {
+    const contextTokens = statusSummaryRuntime.resolveContextTokensForModel({
+      cfg: {
+        models: {
+          providers: {
+            longat: {
+              models: [{ id: "LongCat-Flash-Lite", contextWindow: 16_000 }],
+            },
+          },
+        },
+      } as never,
+      provider: "longat",
+      model: "LongCat-Flash-Lite",
+      fallbackContextTokens: 32_000,
+    });
+
+    expect(contextTokens).toBe(128_000);
   });
 });
 

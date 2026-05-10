@@ -107,7 +107,7 @@ export function createSessionActions(context: SessionActionContext) {
       const result = await client.listAgents();
       applyAgentsResult(result);
     } catch (err) {
-      chatLog.addSystem(`agents list failed: ${String(err)}`);
+      chatLog.addSystem(`代理列表获取失败: ${String(err)}`);
     }
   };
 
@@ -190,6 +190,15 @@ export function createSessionActions(context: SessionActionContext) {
     if (entry?.totalTokens !== undefined) {
       next.totalTokens = entry.totalTokens;
     }
+    if (entry?.totalTokensFresh !== undefined) {
+      next.totalTokensFresh = entry.totalTokensFresh;
+    }
+    if (entry?.compactionCount !== undefined) {
+      next.compactionCount = entry.compactionCount;
+    }
+    if (entry?.compactionCheckpointCount !== undefined) {
+      next.compactionCheckpointCount = entry.compactionCheckpointCount;
+    }
     if (entry?.contextTokens !== undefined || defaults?.contextTokens !== undefined) {
       next.contextTokens =
         entry?.contextTokens ?? defaults?.contextTokens ?? state.sessionInfo.contextTokens;
@@ -211,6 +220,7 @@ export function createSessionActions(context: SessionActionContext) {
 
     state.sessionInfo = next;
     updateAutocompleteProvider();
+    updateHeader();
     updateFooter();
     tui.requestRender();
   };
@@ -250,7 +260,7 @@ export function createSessionActions(context: SessionActionContext) {
         defaults: result.defaults,
       });
     } catch (err) {
-      chatLog.addSystem(`sessions list failed: ${String(err)}`);
+      chatLog.addSystem(`会话列表获取失败: ${String(err)}`);
     }
   };
 
@@ -305,13 +315,33 @@ export function createSessionActions(context: SessionActionContext) {
       const showTools = (state.sessionInfo.verboseLevel ?? "off") !== "off";
       chatLog.clearAll();
       btw.clear();
-      chatLog.addSystem(`session ${state.currentSessionKey}`);
+      const displayedTurnKeys = new Set<string>();
+      let currentTurn: { user?: string; assistant?: string } = {};
+      const appendPendingTurn = () => {
+        const turn = currentTurn;
+        if (!turn.user && !turn.assistant) {
+          return;
+        }
+        currentTurn = {};
+        const key = `${turn.user ?? ""}\u0000${turn.assistant ?? ""}`;
+        if (displayedTurnKeys.has(key)) {
+          return;
+        }
+        displayedTurnKeys.add(key);
+        if (turn.user) {
+          chatLog.addUser(turn.user);
+        }
+        if (turn.assistant && turn.assistant !== turn.user) {
+          chatLog.finalizeAssistant(turn.assistant);
+        }
+      };
       for (const entry of record.messages ?? []) {
         if (!entry || typeof entry !== "object") {
           continue;
         }
         const message = entry as Record<string, unknown>;
         if (isCommandMessage(message)) {
+          appendPendingTurn();
           const text = extractTextFromMessage(message);
           if (text) {
             chatLog.addSystem(text);
@@ -319,9 +349,10 @@ export function createSessionActions(context: SessionActionContext) {
           continue;
         }
         if (message.role === "user") {
+          appendPendingTurn();
           const text = extractTextFromMessage(message);
           if (text) {
-            chatLog.addUser(text);
+            currentTurn.user = text.trim();
           }
           continue;
         }
@@ -330,11 +361,12 @@ export function createSessionActions(context: SessionActionContext) {
             includeThinking: state.showThinking,
           });
           if (text) {
-            chatLog.finalizeAssistant(text);
+            currentTurn.assistant = text.trim();
           }
           continue;
         }
         if (message.role === "toolResult") {
+          appendPendingTurn();
           if (!showTools) {
             continue;
           }
@@ -355,9 +387,10 @@ export function createSessionActions(context: SessionActionContext) {
           );
         }
       }
+      appendPendingTurn();
       state.historyLoaded = true;
     } catch (err) {
-      chatLog.addSystem(`history failed: ${String(err)}`);
+      chatLog.addSystem(`历史记录加载失败: ${String(err)}`);
     }
     await refreshSessionInfo();
     tui.requestRender();
@@ -383,7 +416,7 @@ export function createSessionActions(context: SessionActionContext) {
 
   const abortActive = async () => {
     if (!state.activeChatRunId) {
-      chatLog.addSystem("no active run");
+      chatLog.addSystem("当前没有活动运行");
       tui.requestRender();
       return;
     }
@@ -394,7 +427,7 @@ export function createSessionActions(context: SessionActionContext) {
       });
       setActivityStatus("aborted");
     } catch (err) {
-      chatLog.addSystem(`abort failed: ${String(err)}`);
+      chatLog.addSystem(`中止失败: ${String(err)}`);
       setActivityStatus("abort failed");
     }
     tui.requestRender();

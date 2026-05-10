@@ -52,7 +52,7 @@ export async function captureVoiceInput(options: VoiceInputOptions = {}): Promis
   if (!resolved) {
     return {
       ok: false,
-      message: "voice input command is not configured",
+      message: "语音输入命令未配置",
       setupHint: getVoiceInputSetupHint(),
     };
   }
@@ -83,7 +83,7 @@ export async function captureVoiceInput(options: VoiceInputOptions = {}): Promis
       }
       finish({
         ok: false,
-        message: `voice input timed out after ${timeoutMs}ms`,
+        message: `语音输入超时：${timeoutMs}ms`,
         setupHint: getVoiceInputSetupHint(),
       });
     }, timeoutMs);
@@ -97,7 +97,7 @@ export async function captureVoiceInput(options: VoiceInputOptions = {}): Promis
     } catch (err) {
       finish({
         ok: false,
-        message: `voice input failed to start: ${formatErrorMessage(err)}`,
+        message: `语音输入启动失败: ${formatErrorMessage(err)}`,
         setupHint: getVoiceInputSetupHint(),
       });
       return;
@@ -114,7 +114,7 @@ export async function captureVoiceInput(options: VoiceInputOptions = {}): Promis
     proc.once("error", (err) => {
       finish({
         ok: false,
-        message: `voice input failed: ${formatErrorMessage(err)}`,
+        message: `语音输入失败: ${formatErrorMessage(err)}`,
         setupHint: getVoiceInputSetupHint(),
       });
     });
@@ -124,11 +124,11 @@ export async function captureVoiceInput(options: VoiceInputOptions = {}): Promis
         finish({ ok: true, text, source: resolved.command });
         return;
       }
-      const reason = signal ? `signal ${signal}` : `exit ${code ?? "unknown"}`;
-      const detail = stderr.trim() || stdout.trim() || "no transcript produced";
+      const reason = signal ? `信号 ${signal}` : `退出 ${code ?? "未知"}`;
+      const detail = stderr.trim() || stdout.trim() || "未产生转写文本";
       finish({
         ok: false,
-        message: `voice input failed (${reason}): ${detail}`,
+        message: `语音输入失败 (${reason}): ${detail}`,
         setupHint: getVoiceInputSetupHint(),
       });
     });

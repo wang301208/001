@@ -6,6 +6,7 @@ import {
   searchSkillsFromClawHub,
   updateSkillsFromClawHub,
 } from "../agents/skills-clawhub.js";
+import { mergeWorkspaceSkills } from "../agents/skills.js";
 import { loadConfig } from "../config/config.js";
 import { defaultRuntime } from "../runtime.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
@@ -168,6 +169,58 @@ export function registerSkillsCli(program: Command) {
         defaultRuntime.exit(1);
       }
     });
+
+  skills
+    .command("merge")
+    .description("Merge multiple workspace skills into a new skill")
+    .argument("<sources...>", "Source skill names to merge")
+    .requiredOption("--name <name>", "Name of the new merged skill")
+    .option("--description <description>", "Description for the new merged skill")
+    .option("--strict-conflicts", "Fail instead of namespacing conflicting asset files", false)
+    .option("--overwrite", "Overwrite an existing target skill", false)
+    .option("--json", "Output as JSON", false)
+    .action(
+      async (
+        sources: string[],
+        opts: {
+          name: string;
+          description?: string;
+          strictConflicts?: boolean;
+          overwrite?: boolean;
+          json?: boolean;
+        },
+      ) => {
+        try {
+          const config = loadConfig();
+          const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
+          const result = await mergeWorkspaceSkills({
+            workspaceDir,
+            sourceSkillNames: sources,
+            targetName: opts.name,
+            description: opts.description,
+            conflictStrategy: opts.strictConflicts ? "fail" : "namespace",
+            overwrite: Boolean(opts.overwrite),
+            config,
+          });
+          if (opts.json) {
+            defaultRuntime.writeJson(result);
+            return;
+          }
+          defaultRuntime.log(
+            `Merged ${result.sourceSkills.join(", ")} -> ${result.targetSkillName} (${result.targetDir})`,
+          );
+          if (result.deduplicatedFiles.length > 0) {
+            defaultRuntime.log(`Deduplicated ${result.deduplicatedFiles.length} file(s).`);
+          }
+          if (result.conflicts.length > 0) {
+            defaultRuntime.log(`Resolved ${result.conflicts.length} conflict(s) by namespacing.`);
+          }
+        } catch (err) {
+          defaultRuntime.error(String(err));
+          defaultRuntime.exit(1);
+        }
+      },
+    );
 
   skills
     .command("list")

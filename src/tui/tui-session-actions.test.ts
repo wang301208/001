@@ -51,6 +51,7 @@ describe("tui session actions", () => {
     };
 
     const updateFooter = vi.fn();
+    const updateHeader = vi.fn();
     const updateAutocompleteProvider = vi.fn();
     const requestRender = vi.fn();
 
@@ -65,7 +66,7 @@ describe("tui session actions", () => {
       initialSessionInput: "",
       initialSessionAgentId: null,
       resolveSessionKey: vi.fn(),
-      updateHeader: vi.fn(),
+      updateHeader,
       updateFooter,
       updateAutocompleteProvider,
       setActivityStatus: vi.fn(),
@@ -114,6 +115,7 @@ describe("tui session actions", () => {
 
     expect(state.sessionInfo.model).toBe("Minimax-M2.7");
     expect(updateAutocompleteProvider).toHaveBeenCalledTimes(2);
+    expect(updateHeader).toHaveBeenCalledTimes(2);
     expect(updateFooter).toHaveBeenCalledTimes(2);
     expect(requestRender).toHaveBeenCalledTimes(2);
   });
@@ -197,6 +199,215 @@ describe("tui session actions", () => {
     expect(state.sessionInfo.model).toBe("new-model");
     expect(state.sessionInfo.modelProvider).toBe("openai");
     expect(state.sessionInfo.updatedAt).toBe(200);
+  });
+
+  it("loads history without duplicating the session banner in the chat log", async () => {
+    const loadHistoryClient = vi.fn().mockResolvedValue({
+      sessionId: "session-1",
+      messages: [],
+    });
+    const addSystem = vi.fn();
+    const clearAll = vi.fn();
+    const btw = createBtwPresenter();
+    const state: TuiStateAccess = {
+      agentDefaultId: "main",
+      sessionMainKey: "agent:main:main",
+      sessionScope: "global",
+      agents: [],
+      currentAgentId: "main",
+      currentSessionKey: "agent:main:main",
+      currentSessionId: null,
+      activeChatRunId: null,
+      historyLoaded: false,
+      sessionInfo: {},
+      initialSessionApplied: true,
+      isConnected: true,
+      autoMessageSent: false,
+      toolsExpanded: false,
+      showThinking: false,
+      connectionStatus: "connected",
+      activityStatus: "idle",
+      statusTimeout: null,
+      lastCtrlCAt: 0,
+    };
+
+    const { loadHistory } = createSessionActions({
+      client: {
+        loadHistory: loadHistoryClient,
+        listSessions: vi.fn().mockResolvedValue({
+          ts: Date.now(),
+          path: "/tmp/sessions.json",
+          count: 0,
+          defaults: {},
+          sessions: [],
+        }),
+      } as unknown as GatewayChatClient,
+      chatLog: {
+        addSystem,
+        clearAll,
+      } as unknown as import("./components/chat-log.js").ChatLog,
+      btw,
+      tui: { requestRender: vi.fn() } as unknown as import("@mariozechner/pi-tui").TUI,
+      opts: {},
+      state,
+      agentNames: new Map(),
+      initialSessionInput: "",
+      initialSessionAgentId: null,
+      resolveSessionKey: vi.fn(),
+      updateHeader: vi.fn(),
+      updateFooter: vi.fn(),
+      updateAutocompleteProvider: vi.fn(),
+      setActivityStatus: vi.fn(),
+    });
+
+    await loadHistory();
+
+    expect(clearAll).toHaveBeenCalledOnce();
+    expect(btw.clear).toHaveBeenCalledOnce();
+    expect(addSystem).not.toHaveBeenCalledWith("会话 agent:main:main");
+    expect(state.historyLoaded).toBe(true);
+  });
+
+  it("collapses adjacent duplicate history turns in the TUI display", async () => {
+    const loadHistoryClient = vi.fn().mockResolvedValue({
+      sessionId: "session-1",
+      messages: [
+        { role: "user", content: "stdio smoke" },
+        { role: "assistant", content: "stdio smoke" },
+        { role: "user", content: "stdio smoke" },
+        { role: "assistant", content: "stdio smoke" },
+      ],
+    });
+    const addUser = vi.fn();
+    const finalizeAssistant = vi.fn();
+    const state: TuiStateAccess = {
+      agentDefaultId: "main",
+      sessionMainKey: "agent:main:main",
+      sessionScope: "global",
+      agents: [],
+      currentAgentId: "main",
+      currentSessionKey: "agent:main:main",
+      currentSessionId: null,
+      activeChatRunId: null,
+      historyLoaded: false,
+      sessionInfo: {},
+      initialSessionApplied: true,
+      isConnected: true,
+      autoMessageSent: false,
+      toolsExpanded: false,
+      showThinking: false,
+      connectionStatus: "connected",
+      activityStatus: "idle",
+      statusTimeout: null,
+      lastCtrlCAt: 0,
+    };
+
+    const { loadHistory } = createSessionActions({
+      client: {
+        loadHistory: loadHistoryClient,
+        listSessions: vi.fn().mockResolvedValue({
+          ts: Date.now(),
+          path: "/tmp/sessions.json",
+          count: 0,
+          defaults: {},
+          sessions: [],
+        }),
+      } as unknown as GatewayChatClient,
+      chatLog: {
+        addSystem: vi.fn(),
+        addUser,
+        clearAll: vi.fn(),
+        finalizeAssistant,
+      } as unknown as import("./components/chat-log.js").ChatLog,
+      btw: createBtwPresenter(),
+      tui: { requestRender: vi.fn() } as unknown as import("@mariozechner/pi-tui").TUI,
+      opts: {},
+      state,
+      agentNames: new Map(),
+      initialSessionInput: "",
+      initialSessionAgentId: null,
+      resolveSessionKey: vi.fn(),
+      updateHeader: vi.fn(),
+      updateFooter: vi.fn(),
+      updateAutocompleteProvider: vi.fn(),
+      setActivityStatus: vi.fn(),
+    });
+
+    await loadHistory();
+
+    expect(addUser).toHaveBeenCalledTimes(1);
+    expect(addUser).toHaveBeenCalledWith("stdio smoke");
+    expect(finalizeAssistant).not.toHaveBeenCalled();
+  });
+
+  it("suppresses assistant echo when it exactly repeats the user input", async () => {
+    const loadHistoryClient = vi.fn().mockResolvedValue({
+      sessionId: "session-1",
+      messages: [
+        { role: "user", content: "stdio smoke" },
+        { role: "assistant", content: "stdio smoke" },
+      ],
+    });
+    const addUser = vi.fn();
+    const finalizeAssistant = vi.fn();
+    const state: TuiStateAccess = {
+      agentDefaultId: "main",
+      sessionMainKey: "agent:main:main",
+      sessionScope: "global",
+      agents: [],
+      currentAgentId: "main",
+      currentSessionKey: "agent:main:main",
+      currentSessionId: null,
+      activeChatRunId: null,
+      historyLoaded: false,
+      sessionInfo: {},
+      initialSessionApplied: true,
+      isConnected: true,
+      autoMessageSent: false,
+      toolsExpanded: false,
+      showThinking: false,
+      connectionStatus: "connected",
+      activityStatus: "idle",
+      statusTimeout: null,
+      lastCtrlCAt: 0,
+    };
+
+    const { loadHistory } = createSessionActions({
+      client: {
+        loadHistory: loadHistoryClient,
+        listSessions: vi.fn().mockResolvedValue({
+          ts: Date.now(),
+          path: "/tmp/sessions.json",
+          count: 0,
+          defaults: {},
+          sessions: [],
+        }),
+      } as unknown as GatewayChatClient,
+      chatLog: {
+        addSystem: vi.fn(),
+        addUser,
+        clearAll: vi.fn(),
+        finalizeAssistant,
+      } as unknown as import("./components/chat-log.js").ChatLog,
+      btw: createBtwPresenter(),
+      tui: { requestRender: vi.fn() } as unknown as import("@mariozechner/pi-tui").TUI,
+      opts: {},
+      state,
+      agentNames: new Map(),
+      initialSessionInput: "",
+      initialSessionAgentId: null,
+      resolveSessionKey: vi.fn(),
+      updateHeader: vi.fn(),
+      updateFooter: vi.fn(),
+      updateAutocompleteProvider: vi.fn(),
+      setActivityStatus: vi.fn(),
+    });
+
+    await loadHistory();
+
+    expect(addUser).toHaveBeenCalledTimes(1);
+    expect(addUser).toHaveBeenCalledWith("stdio smoke");
+    expect(finalizeAssistant).not.toHaveBeenCalled();
   });
 
   it("accepts older session snapshots after switching session keys", async () => {

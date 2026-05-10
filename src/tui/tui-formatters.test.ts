@@ -1,11 +1,42 @@
 import { describe, expect, it } from "vitest";
 import {
+  composeThinkingAndContent,
   extractContentFromMessage,
   extractTextFromMessage,
   extractThinkingFromMessage,
+  formatContextUsageLine,
+  formatTokens,
   isCommandMessage,
+  resolveFinalAssistantText,
   sanitizeRenderableText,
 } from "./tui-formatters.js";
+
+describe("tui display text localization", () => {
+  it("uses Chinese labels for fallback placeholders and thinking blocks", () => {
+    expect(resolveFinalAssistantText({ finalText: "", streamedText: "" })).toBe("(无输出)");
+    expect(
+      composeThinkingAndContent({
+        thinkingText: "ponder",
+        contentText: "hello",
+        showThinking: true,
+      }),
+    ).toBe("[思考]\nponder\n\nhello");
+  });
+
+  it("uses Chinese labels for token usage lines", () => {
+    expect(formatTokens()).toBe("令牌 ?");
+    expect(formatTokens(1200)).toBe("令牌 1.2k");
+    expect(formatTokens(1200, 6000)).toBe("令牌 1.2k/6.0k (20%)");
+    expect(
+      formatContextUsageLine({
+        total: 1200,
+        context: 6000,
+        remaining: 4800,
+        percent: 20,
+      }),
+    ).toBe("令牌 1.2k/6.0k (剩余 4.8k, 20%)");
+  });
+});
 
 describe("extractTextFromMessage", () => {
   it("prefers final_answer text over commentary text for assistant messages", () => {
@@ -95,7 +126,7 @@ describe("extractTextFromMessage", () => {
       { includeThinking: true },
     );
 
-    expect(text).toBe("[thinking]\nponder\n\nhello");
+    expect(text).toBe("[思考]\nponder\n\nhello");
   });
 
   it("sanitizes ANSI and control chars from string content", () => {
@@ -113,7 +144,7 @@ describe("extractTextFromMessage", () => {
       content: [{ type: "text", text: "������������������������" }],
     });
 
-    expect(text).toBe("[binary data omitted]");
+    expect(text).toBe("[二进制数据已省略]");
   });
 
   it("strips leading inbound metadata blocks for user messages", () => {

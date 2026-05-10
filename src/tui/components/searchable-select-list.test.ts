@@ -60,7 +60,7 @@ describe("SearchableSelectList", () => {
   function expectNoMatchesForQuery(list: SearchableSelectList, query: string) {
     typeInput(list, query);
     const output = list.render(80);
-    expect(output.some((line) => line.includes("No matches"))).toBe(true);
+    expect(output.some((line) => line.includes("无匹配项"))).toBe(true);
   }
 
   function expectDescriptionVisibilityAtWidth(width: number, shouldContainDescription: boolean) {
@@ -85,7 +85,7 @@ describe("SearchableSelectList", () => {
 
     // Should have search prompt line, spacer, and items
     expect(output.length).toBeGreaterThanOrEqual(3);
-    expect(output[0]).toContain("search");
+    expect(output[0]).toContain("搜索");
   });
 
   it("does not truncate long labels on wide terminals when description is present", () => {

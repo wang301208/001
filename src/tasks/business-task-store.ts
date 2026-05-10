@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+import { captureExperienceEvent } from "../experience/experience-store.js";
 
 export type BusinessTaskStatus = "pending" | "running" | "completed" | "failed" | "cancelled";
 export type BusinessTaskDuration = "short" | "medium" | "long";
@@ -75,6 +76,70 @@ function writeSnapshot(snapshot: BusinessTaskSnapshot) {
   fs.writeFileSync(filePath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
 }
 
+function isTerminalTaskStatus(status: BusinessTaskStatus): boolean {
+  return status === "completed" || status === "failed" || status === "cancelled";
+}
+
+function summarizeCodeChangeContract(payload: Record<string, unknown> | undefined): string[] {
+  const contract = payload?.codeChangeContract;
+  if (!contract || typeof contract !== "object" || Array.isArray(contract)) {
+    return [];
+  }
+  const record = contract as Record<string, unknown>;
+  const evidence: string[] = [];
+  if (typeof record.strategy === "string" && record.strategy.trim()) {
+    evidence.push(`Code change strategy: ${record.strategy.trim()}`);
+  }
+  if (Array.isArray(record.allowedPaths)) {
+    const allowedPaths = record.allowedPaths.filter((entry): entry is string => typeof entry === "string");
+    if (allowedPaths.length > 0) {
+      evidence.push(`Allowed paths: ${allowedPaths.join(", ")}`);
+    }
+  }
+  if (Array.isArray(record.verificationCommands)) {
+    const commands = record.verificationCommands.filter((entry): entry is string => typeof entry === "string");
+    if (commands.length > 0) {
+      evidence.push(`Verification commands: ${commands.join(" && ")}`);
+    }
+  }
+  if (Array.isArray(record.deliverables)) {
+    const deliverables = record.deliverables.filter((entry): entry is string => typeof entry === "string");
+    if (deliverables.length > 0) {
+      evidence.push(`Deliverables: ${deliverables.join(", ")}`);
+    }
+  }
+  return evidence;
+}
+
+function captureTerminalTaskExperience(task: BusinessTaskRecord) {
+  captureExperienceEvent({
+    kind: task.group === "self-roadmap" ? "complex_task" : "business_task",
+    summary: `${task.name} ${task.status}`,
+    source: "business-task",
+    tags: [
+      "business-task",
+      task.group,
+      task.status,
+      task.duration,
+      task.priority,
+      task.business.domain,
+      task.business.accessMode,
+    ],
+    evidence: [
+      `Task id: ${task.id}`,
+      `Goal: ${task.goal}`,
+      `Progress: ${task.progress}`,
+      task.business.object ? `Object: ${task.business.object}` : "",
+      task.business.acceptanceCriteria ? `Acceptance criteria: ${task.business.acceptanceCriteria}` : "",
+      ...summarizeCodeChangeContract(task.business.payload),
+      task.error ? `Error: ${task.error}` : "",
+    ].filter(Boolean),
+    outcome: task.status === "completed"
+      ? "Business task completed and persisted"
+      : `Business task ended as ${task.status}${task.error ? `: ${task.error}` : ""}`,
+  });
+}
+
 export function listBusinessTasks(params: {
   status?: BusinessTaskStatus;
   limit?: number;
@@ -126,6 +191,7 @@ export function updateBusinessTask(
   }
   const current = snapshot.tasks[index]!;
   const nextStatus = patch.status ?? current.status;
+  const shouldCaptureExperience = !isTerminalTaskStatus(current.status) && isTerminalTaskStatus(nextStatus);
   const next: BusinessTaskRecord = {
     ...current,
     ...patch,
@@ -138,6 +204,9 @@ export function updateBusinessTask(
   };
   snapshot.tasks[index] = next;
   writeSnapshot(snapshot);
+  if (shouldCaptureExperience) {
+    captureTerminalTaskExperience(next);
+  }
   return next;
 }
 

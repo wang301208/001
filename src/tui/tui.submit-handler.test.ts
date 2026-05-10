@@ -6,15 +6,14 @@ import {
 } from "./tui-submit.js";
 
 describe("createEditorSubmitHandler", () => {
-  it("routes lines starting with ! to handleBangLine", () => {
-    const { handleCommand, sendMessage, handleBangLine, onSubmit } = createSubmitHarness();
+  it("blocks direct bang commands and asks for natural language", () => {
+    const { sendMessage, handleBangLine, notifyUser, onSubmit } = createSubmitHarness();
 
     onSubmit("!ls");
 
-    expect(handleBangLine).toHaveBeenCalledTimes(1);
-    expect(handleBangLine).toHaveBeenCalledWith("!ls");
+    expect(handleBangLine).not.toHaveBeenCalled();
+    expect(notifyUser).toHaveBeenCalledWith("本地命令入口已改为自然语言。请说：执行本地命令 ls");
     expect(sendMessage).not.toHaveBeenCalled();
-    expect(handleCommand).not.toHaveBeenCalled();
   });
 
   it("treats a lone ! as a normal message", () => {
@@ -37,6 +36,15 @@ describe("createEditorSubmitHandler", () => {
     expect(editor.addToHistory).toHaveBeenCalledWith("!ls");
   });
 
+  it("routes natural-language local shell requests to handleBangLine", () => {
+    const { handleAction, handleBangLine, onSubmit } = createSubmitHarness();
+
+    onSubmit("执行本地命令 pnpm test");
+
+    expect(handleAction).toHaveBeenCalledWith({ type: "shell.run", command: "pnpm test" });
+    expect(handleBangLine).not.toHaveBeenCalled();
+  });
+
   it("trims normal messages before sending and adding to history", () => {
     const { editor, sendMessage, onSubmit } = createSubmitHarness();
 
@@ -47,13 +55,12 @@ describe("createEditorSubmitHandler", () => {
   });
 
   it("preserves internal newlines for multiline messages", () => {
-    const { editor, handleCommand, sendMessage, handleBangLine, onSubmit } = createSubmitHarness();
+    const { editor, sendMessage, handleBangLine, onSubmit } = createSubmitHarness();
 
     onSubmit("Line 1\nLine 2\nLine 3");
 
     expect(sendMessage).toHaveBeenCalledWith("Line 1\nLine 2\nLine 3");
     expect(editor.addToHistory).toHaveBeenCalledWith("Line 1\nLine 2\nLine 3");
-    expect(handleCommand).not.toHaveBeenCalled();
     expect(handleBangLine).not.toHaveBeenCalled();
   });
 
@@ -69,12 +76,41 @@ describe("createEditorSubmitHandler", () => {
   });
 
   it("routes natural-language control intents before sending to the agent", () => {
-    const { handleCommand, sendMessage, onSubmit } = createSubmitHarness();
+    const { handleAction, sendMessage, onSubmit } = createSubmitHarness();
 
     onSubmit("打开设置");
 
-    expect(handleCommand).toHaveBeenCalledWith("/settings");
+    expect(handleAction).toHaveBeenCalledWith({
+      type: "tui.operation",
+      operation: "settings",
+    });
     expect(sendMessage).not.toHaveBeenCalled();
+  });
+
+  it("does not accept old natural-language command routes from the submit path", () => {
+    const { handleAction, sendMessage, notifyUser, onSubmit } = createSubmitHarness({
+      resolveInput: () => ({
+        kind: "action",
+        action: { type: "tui.operation", operation: "settings" },
+        reason: "settings",
+      }),
+    });
+
+    onSubmit("/settings");
+
+    expect(handleAction).not.toHaveBeenCalled();
+    expect(sendMessage).not.toHaveBeenCalled();
+    expect(notifyUser).toHaveBeenCalledWith("自然语言直达已启用。请直接描述目标。");
+  });
+
+  it("routes natural-language project work into an execution message", () => {
+    const { sendMessage, onSubmit } = createSubmitHarness();
+
+    onSubmit("请检查项目测试并修复失败项");
+
+    expect(sendMessage).toHaveBeenCalledWith(
+      "[意图: 执行任务]\n用户目标: 请检查项目测试并修复失败项",
+    );
   });
 });
 

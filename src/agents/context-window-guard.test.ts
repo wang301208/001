@@ -10,7 +10,7 @@ import {
 } from "./context-window-guard.js";
 
 describe("context-window-guard", () => {
-  it("blocks below 16k (model metadata)", () => {
+  it("floors low model metadata at 128k", () => {
     const info = resolveContextWindowInfo({
       cfg: undefined,
       provider: "openrouter",
@@ -20,12 +20,12 @@ describe("context-window-guard", () => {
     });
     const guard = evaluateContextWindowGuard({ info });
     expect(guard.source).toBe("model");
-    expect(guard.tokens).toBe(8000);
-    expect(guard.shouldWarn).toBe(true);
-    expect(guard.shouldBlock).toBe(true);
+    expect(guard.tokens).toBe(128_000);
+    expect(guard.shouldWarn).toBe(false);
+    expect(guard.shouldBlock).toBe(false);
   });
 
-  it("warns below 32k but does not block at 16k+", () => {
+  it("floors mid-sized model metadata at 128k", () => {
     const info = resolveContextWindowInfo({
       cfg: undefined,
       provider: "openai",
@@ -34,12 +34,12 @@ describe("context-window-guard", () => {
       defaultTokens: 200_000,
     });
     const guard = evaluateContextWindowGuard({ info });
-    expect(guard.tokens).toBe(24_000);
-    expect(guard.shouldWarn).toBe(true);
+    expect(guard.tokens).toBe(128_000);
+    expect(guard.shouldWarn).toBe(false);
     expect(guard.shouldBlock).toBe(false);
   });
 
-  it("does not warn at 32k+ (model metadata)", () => {
+  it("floors 32k+ model metadata at 128k", () => {
     const info = resolveContextWindowInfo({
       cfg: undefined,
       provider: "openai",
@@ -48,6 +48,7 @@ describe("context-window-guard", () => {
       defaultTokens: 200_000,
     });
     const guard = evaluateContextWindowGuard({ info });
+    expect(guard.tokens).toBe(128_000);
     expect(guard.shouldWarn).toBe(false);
     expect(guard.shouldBlock).toBe(false);
   });
@@ -84,7 +85,8 @@ describe("context-window-guard", () => {
     });
     const guard = evaluateContextWindowGuard({ info });
     expect(info.source).toBe("modelsConfig");
-    expect(guard.shouldBlock).toBe(true);
+    expect(guard.tokens).toBe(128_000);
+    expect(guard.shouldBlock).toBe(false);
   });
 
   it("prefers models.providers.*.models[].contextTokens over contextWindow", () => {
@@ -122,7 +124,7 @@ describe("context-window-guard", () => {
 
     expect(info).toEqual({
       source: "modelsConfig",
-      tokens: 12_000,
+      tokens: 128_000,
     });
   });
 
@@ -159,11 +161,11 @@ describe("context-window-guard", () => {
 
     expect(info).toEqual({
       source: "modelsConfig",
-      tokens: 12_000,
+      tokens: 128_000,
     });
   });
 
-  it("caps with agents.defaults.contextTokens", () => {
+  it("floors agents.defaults.contextTokens caps at 128k", () => {
     const cfg = {
       agents: { defaults: { contextTokens: 20_000 } },
     } satisfies AssistantConfig;
@@ -176,11 +178,12 @@ describe("context-window-guard", () => {
     });
     const guard = evaluateContextWindowGuard({ info });
     expect(info.source).toBe("agentContextTokens");
-    expect(guard.shouldWarn).toBe(true);
+    expect(guard.tokens).toBe(128_000);
+    expect(guard.shouldWarn).toBe(false);
     expect(guard.shouldBlock).toBe(false);
   });
 
-  it("does not override when cap exceeds base window", () => {
+  it("does not override when cap equals floored base window", () => {
     const cfg = {
       agents: { defaults: { contextTokens: 128_000 } },
     } satisfies AssistantConfig;
@@ -192,7 +195,7 @@ describe("context-window-guard", () => {
       defaultTokens: 200_000,
     });
     expect(info.source).toBe("model");
-    expect(info.tokens).toBe(64_000);
+    expect(info.tokens).toBe(128_000);
   });
 
   it("uses default when nothing else is available", () => {
@@ -221,8 +224,8 @@ describe("context-window-guard", () => {
   });
 
   it("exports thresholds as expected", () => {
-    expect(CONTEXT_WINDOW_HARD_MIN_TOKENS).toBe(16_000);
-    expect(CONTEXT_WINDOW_WARN_BELOW_TOKENS).toBe(32_000);
+    expect(CONTEXT_WINDOW_HARD_MIN_TOKENS).toBe(128_000);
+    expect(CONTEXT_WINDOW_WARN_BELOW_TOKENS).toBe(128_000);
   });
 
   it("adds a local-model hint to warning messages for localhost endpoints", () => {
@@ -237,7 +240,7 @@ describe("context-window-guard", () => {
         guard,
         runtimeBaseUrl: "http://127.0.0.1:1234/v1",
       }),
-    ).toContain("local/self-hosted runs work best at 32000+ tokens");
+    ).toContain("local/self-hosted runs work best at 128000+ tokens");
   });
 
   it("does not add local-model hints for generic custom endpoints", () => {
@@ -252,7 +255,7 @@ describe("context-window-guard", () => {
         guard,
         runtimeBaseUrl: "https://models.example.com/v1",
       }),
-    ).toBe("low context window: custom/hosted-proxy-model ctx=24000 (warn<32000) source=model");
+    ).toBe("low context window: custom/hosted-proxy-model ctx=24000 (warn<128000) source=model");
   });
 
   it("adds a local-model hint to block messages for localhost endpoints", () => {
@@ -305,6 +308,6 @@ describe("context-window-guard", () => {
         guard,
         runtimeBaseUrl: "https://api.openai.com/v1",
       }),
-    ).toBe(`Model context window too small (8000 tokens; source=model). Minimum is 16000.`);
+    ).toBe(`Model context window too small (8000 tokens; source=model). Minimum is 128000.`);
   });
 });

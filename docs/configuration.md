@@ -189,8 +189,8 @@ assistant tui
 TUI 内：
 
 ```text
-/mcp-tools
-/mcp-call <tool> <json>
+列出 MCP 工具
+调用MCP工具 <tool> <json>
 ```
 
 ## 发现所有选项

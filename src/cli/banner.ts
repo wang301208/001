@@ -30,29 +30,26 @@ function resolveTaglineMode(options: BannerOptions): TaglineMode | undefined {
 }
 
 export function formatCliBannerLine(version: string, options: BannerOptions = {}): string {
+  void version;
   const commit =
     options.commit ?? resolveCommitHash({ env: options.env, moduleUrl: import.meta.url });
-  const commitLabel = commit ?? "unknown";
+  void commit;
   const tagline = pickTagline({ ...options, mode: resolveTaglineMode(options) });
   const rich = options.richTty ?? isRich();
   const title = PRODUCT_NAME;
   const prefix = `${PRODUCT_NAME} `;
   const columns = options.columns ?? process.stdout.columns ?? 120;
-  const plainBaseLine = `${title} ${version} (${commitLabel})`;
+  const plainBaseLine = title;
   const plainFullLine = tagline ? `${plainBaseLine} — ${tagline}` : plainBaseLine;
   const fitsOnOneLine = visibleWidth(plainFullLine) <= columns;
   if (rich) {
     if (fitsOnOneLine) {
       if (!tagline) {
-        return `${theme.heading(title)} ${theme.info(version)} ${theme.muted(`(${commitLabel})`)}`;
+        return theme.heading(title);
       }
-      return `${theme.heading(title)} ${theme.info(version)} ${theme.muted(
-        `(${commitLabel})`,
-      )} ${theme.muted("—")} ${theme.accentDim(tagline)}`;
+      return `${theme.heading(title)} ${theme.muted("—")} ${theme.accentDim(tagline)}`;
     }
-    const line1 = `${theme.heading(title)} ${theme.info(version)} ${theme.muted(
-      `(${commitLabel})`,
-    )}`;
+    const line1 = theme.heading(title);
     if (!tagline) {
       return line1;
     }

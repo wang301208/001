@@ -9,8 +9,13 @@ import {
   TUI,
 } from "@mariozechner/pi-tui";
 import { resolveAgentIdByWorkspacePath, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { resolveContextTokensForModel } from "../agents/context.js";
 import { loadConfig, type AssistantConfig } from "../config/config.js";
+import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
 import { randomUUID } from "node:crypto";
+import { appendFileSync, mkdirSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import {
   buildAgentMainSessionKey,
   normalizeAgentId,
@@ -18,11 +23,10 @@ import {
   parseAgentSessionKey,
 } from "../routing/session-key.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
-import { getSlashCommands } from "./commands.js";
 import { ChatLog } from "./components/chat-log.js";
 import { CustomEditor } from "./components/custom-editor.js";
 import { GatewayChatClient } from "./gateway-chat.js";
-import { resolveRobotControlInput } from "./robot-control.js";
+import { resolveAssistantIntentInput } from "./intent-router.js";
 import {
   colorizeStatusRule,
   formatAssistantStatusRule,
@@ -35,6 +39,7 @@ import { editorTheme, theme } from "./theme/theme.js";
 import { createCommandHandlers } from "./tui-command-handlers.js";
 import { createEventHandlers } from "./tui-event-handlers.js";
 import { createLocalShellRunner } from "./tui-local-shell.js";
+import type { AssistantAction } from "./assistant-actions.js";
 import { createOverlayHandlers } from "./tui-overlays.js";
 import { createSessionActions } from "./tui-session-actions.js";
 import {
@@ -60,6 +65,20 @@ export {
   createSubmitBurstCoalescer,
   shouldEnableWindowsGitBashPasteFallback,
 } from "./tui-submit.js";
+
+function appendTuiDebugLog(line: string) {
+  try {
+    const dir = path.join(os.homedir(), ".assistant", "logs");
+    mkdirSync(dir, { recursive: true });
+    appendFileSync(
+      path.join(dir, "tui-startup.log"),
+      `${new Date().toISOString()} ${line}\n`,
+      "utf8",
+    );
+  } catch {
+    // Startup diagnostics must never affect the UI.
+  }
+}
 
 export function resolveTuiSessionKey(params: {
   raw?: string;
@@ -108,24 +127,66 @@ export function resolveInitialTuiAgentId(params: {
   return normalizeAgentId(params.fallbackAgentId);
 }
 
+export function resolveInitialTuiSessionInfo(params: {
+  cfg: AssistantConfig;
+  agentId?: string;
+}): SessionInfo {
+  const modelRef = resolveDefaultModelForAgent({
+    cfg: params.cfg,
+    agentId: params.agentId,
+  });
+  const contextTokens =
+    resolveContextTokensForModel({
+      cfg: params.cfg,
+      provider: modelRef.provider,
+      model: modelRef.model,
+      allowAsyncLoad: false,
+    }) ?? null;
+  return {
+    modelProvider: modelRef.provider,
+    model: modelRef.model,
+    contextTokens,
+    totalTokens: 0,
+    totalTokensFresh: false,
+  };
+}
+
 export function resolveGatewayDisconnectState(reason?: string): {
   connectionStatus: string;
   activityStatus: string;
   pairingHint?: string;
 } {
-  const reasonLabel = reason?.trim() ? reason.trim() : "closed";
+  const reasonLabel = reason?.trim() ? reason.trim() : "已关闭";
   if (/pairing required/i.test(reasonLabel)) {
     return {
-      connectionStatus: `gateway disconnected: ${reasonLabel}`,
-      activityStatus: "pairing required: run assistant devices list",
+      connectionStatus: `后端已断开: ${reasonLabel}`,
+      activityStatus: "需要配对: 运行 assistant devices list",
       pairingHint:
-        "Pairing required. Run `assistant devices list`, approve your request ID, then reconnect.",
+        "需要设备配对。请运行 `assistant devices list`，批准你的请求 ID，然后重新连接。",
     };
   }
   return {
-    connectionStatus: `gateway disconnected: ${reasonLabel}`,
+    connectionStatus: `后端已断开: ${reasonLabel}`,
     activityStatus: "idle",
   };
+}
+
+function formatActivityStatusForDisplay(status: string): string {
+  const labels: Record<string, string> = {
+    idle: "空闲",
+    sending: "发送中",
+    waiting: "等待中",
+    streaming: "接收中",
+    running: "运行中",
+    steering: "重定向中",
+    listening: "监听中",
+    disconnected: "已断开",
+    error: "错误",
+    aborted: "已中止",
+    "abort failed": "中止失败",
+    "voice unavailable": "语音不可用",
+  };
+  return labels[status] ?? status;
 }
 
 export function createBackspaceDeduper(params?: { dedupeWindowMs?: number; now?: () => number }) {
@@ -195,8 +256,16 @@ export function resolveCtrlCAction(params: {
   now: number;
   lastCtrlCAt: number;
   exitWindowMs?: number;
+  dedupeWindowMs?: number;
 }): { action: CtrlCAction; nextLastCtrlCAt: number } {
   const exitWindowMs = Math.max(1, Math.floor(params.exitWindowMs ?? 1000));
+  const dedupeWindowMs = Math.max(0, Math.floor(params.dedupeWindowMs ?? 80));
+  if (params.lastCtrlCAt > 0 && params.now - params.lastCtrlCAt <= dedupeWindowMs) {
+    return {
+      action: "warn",
+      nextLastCtrlCAt: params.lastCtrlCAt,
+    };
+  }
   if (params.hasInput) {
     return {
       action: "clear",
@@ -216,7 +285,9 @@ export function resolveCtrlCAction(params: {
 }
 
 export async function runTui(opts: TuiOptions) {
+  appendTuiDebugLog("runTui:start");
   const config = loadConfig();
+  appendTuiDebugLog("config:loaded");
   const initialSessionInput = (opts.session ?? "").trim();
   let sessionScope: SessionScope = (config.session?.scope ?? "per-sender") as SessionScope;
   let sessionMainKey = normalizeMainKey(config.session?.mainKey);
@@ -246,11 +317,14 @@ export async function runTui(opts: TuiOptions) {
   const deliverDefault = opts.deliver ?? false;
   const autoMessage = opts.message?.trim();
   let autoMessageSent = false;
-  let sessionInfo: SessionInfo = {};
+  let sessionInfo: SessionInfo = resolveInitialTuiSessionInfo({
+    cfg: config,
+    agentId: currentAgentId,
+  });
   let lastCtrlCAt = 0;
   let exitRequested = false;
   let activityStatus = "idle";
-  let connectionStatus = "connecting";
+  let connectionStatus = "连接中";
   let statusTimeout: NodeJS.Timeout | null = null;
   let statusTimer: NodeJS.Timeout | null = null;
   let statusStartedAt: number | null = null;
@@ -435,13 +509,16 @@ export async function runTui(opts: TuiOptions) {
     localBtwRunIds.clear();
   };
 
+  appendTuiDebugLog(`connect:begin url=${opts.url ? "set" : "stdio"}`);
   const client = await GatewayChatClient.connect({
     url: opts.url,
     token: opts.token,
     password: opts.password,
   });
+  appendTuiDebugLog(`connect:created kind=${client.connection.kind ?? "websocket"}`);
 
   const tui = new TUI(new ProcessTerminal());
+  appendTuiDebugLog("tui:created");
   const dedupeBackspace = createBackspaceDeduper();
   tui.addInputListener((data) => {
     const next = dedupeBackspace(data);
@@ -469,16 +546,7 @@ export async function runTui(opts: TuiOptions) {
   root.addChild(editor);
 
   const updateAutocompleteProvider = () => {
-    editor.setAutocompleteProvider(
-      new CombinedAutocompleteProvider(
-        getSlashCommands({
-          cfg: config,
-          provider: sessionInfo.modelProvider,
-          model: sessionInfo.model,
-        }),
-        process.cwd(),
-      ),
-    );
+    editor.setAutocompleteProvider(new CombinedAutocompleteProvider([], process.cwd()));
   };
 
   tui.addChild(root);
@@ -512,22 +580,17 @@ export async function runTui(opts: TuiOptions) {
     const sessionLabel = formatSessionKey(currentSessionKey);
     const agentLabel = formatAgentLabel(currentAgentId);
     const width = tui.terminal?.columns ?? 120;
-    banner.setVisible(!historyLoaded, width);
+    banner.setVisible(false, width);
     sessionPanel.update({
       agentLabel,
       sessionLabel,
       sessionInfo,
       agents,
-      commandCount: getSlashCommands({
-        cfg: config,
-        provider: sessionInfo.modelProvider,
-        model: sessionInfo.model,
-      }).length,
+      gatewayLabel:
+        client.connection.kind === "stdio" ? client.connection.display : client.connection.url,
       width,
     });
-    const gatewayLabel =
-      client.connection.kind === "stdio" ? client.connection.display : client.connection.url;
-    header.setText(theme.dim(`gateway ${gatewayLabel}`));
+    header.setText("");
   };
 
   const busyStates = new Set(["sending", "waiting", "streaming", "running"]);
@@ -594,7 +657,7 @@ export async function runTui(opts: TuiOptions) {
       return;
     }
 
-    statusLoader.setMessage(`${activityStatus} - ${elapsed} | ${connectionStatus}`);
+    statusLoader.setMessage(`${formatActivityStatusForDisplay(activityStatus)} - ${elapsed} | ${connectionStatus}`);
   };
 
   const startStatusTimer = () => {
@@ -625,7 +688,7 @@ export async function runTui(opts: TuiOptions) {
     // Pick a phrase once per waiting session.
     if (!waitingPhrase) {
       const idx = Math.floor(Math.random() * defaultWaitingPhrases.length);
-      waitingPhrase = defaultWaitingPhrases[idx] ?? defaultWaitingPhrases[0] ?? "waiting";
+      waitingPhrase = defaultWaitingPhrases[idx] ?? defaultWaitingPhrases[0] ?? "等待中";
     }
 
     waitingTick = 0;
@@ -669,8 +732,7 @@ export async function runTui(opts: TuiOptions) {
       statusLoader?.stop();
       statusLoader = null;
       ensureStatusText();
-      const text = activityStatus ? `${connectionStatus} | ${activityStatus}` : connectionStatus;
-      statusText?.setText(theme.dim(text));
+      statusText?.setText("");
     }
     lastActivityStatus = activityStatus;
   };
@@ -683,7 +745,7 @@ export async function runTui(opts: TuiOptions) {
     }
     if (ttlMs && ttlMs > 0) {
       statusTimeout = setTimeout(() => {
-        connectionStatus = isConnected ? "connected" : "disconnected";
+        connectionStatus = isConnected ? "已连接" : "已断开";
         renderStatus();
       }, ttlMs);
     }
@@ -705,6 +767,11 @@ export async function runTui(opts: TuiOptions) {
     const busy = ["sending", "waiting", "streaming", "running"].includes(activityStatus);
     queuedPanel.update(queuedMessages, width);
     editor.setPromptHint(shellPromptSymbol(editor.getText()));
+    if (!busy && queuedMessages.length === 0) {
+      footer.setText("");
+      updateHeader();
+      return;
+    }
     footer.setText(
       colorizeStatusRule(
         formatAssistantStatusRule({
@@ -754,7 +821,7 @@ export async function runTui(opts: TuiOptions) {
         mode,
       },
     ];
-    setActivityStatus(`queued ${queuedMessages.length} message${queuedMessages.length === 1 ? "" : "s"}`);
+    setActivityStatus(`已排队 ${queuedMessages.length} 条消息`);
     refreshQueuedPanel();
   };
 
@@ -774,14 +841,14 @@ export async function runTui(opts: TuiOptions) {
   const toggleGovernancePanel = () => {
     showGovernancePanel = !showGovernancePanel;
     chatLog.toggleGovernancePanel(governanceStatus, showGovernancePanel);
-    setActivityStatus(showGovernancePanel ? "governance panel shown" : "governance panel hidden");
+    setActivityStatus(showGovernancePanel ? "治理面板已显示" : "治理面板已隐藏");
     tui.requestRender();
   };
 
   const setToolsExpanded = (expanded: boolean) => {
     toolsExpanded = expanded;
     chatLog.setToolsExpanded(toolsExpanded);
-    setActivityStatus(toolsExpanded ? "tools expanded" : "tools collapsed");
+    setActivityStatus(toolsExpanded ? "工具输出已展开" : "工具输出已收起");
     tui.requestRender();
   };
 
@@ -891,7 +958,13 @@ export async function runTui(opts: TuiOptions) {
 
   let submitRobotInput: (text: string) => void = () => {};
 
-  const { handleCommand, sendMessage, openModelSelector, openAgentSelector, openSessionSelector } =
+  const {
+    handleAction,
+    sendMessage,
+    openModelSelector,
+    openAgentSelector,
+    openSessionSelector,
+  } =
     createCommandHandlers({
       client,
       chatLog,
@@ -924,15 +997,26 @@ export async function runTui(opts: TuiOptions) {
     chatLog,
     tui,
     openOverlay,
-    closeOverlay,
-  });
+      closeOverlay,
+    });
+  const handleAssistantAction = (action: AssistantAction) => {
+    if (action.type === "shell.run") {
+      void runLocalShellLine(`!${action.command}`);
+      return;
+    }
+    void handleAction(action);
+  };
   updateAutocompleteProvider();
   const submitHandler = createEditorSubmitHandler({
     editor,
-    handleCommand,
     sendMessage,
     handleBangLine: runLocalShellLine,
-    resolveControlInput: resolveRobotControlInput,
+    handleAction: handleAssistantAction,
+    notifyUser: (message) => {
+      chatLog.addSystem(message);
+      tui.requestRender();
+    },
+    resolveInput: resolveAssistantIntentInput,
     enqueueMessage,
     hasActiveRun: () => Boolean(state.activeChatRunId),
   });
@@ -960,7 +1044,7 @@ export async function runTui(opts: TuiOptions) {
     lastCtrlCAt = decision.nextLastCtrlCAt;
     if (decision.action === "clear") {
       editor.setText("");
-      setActivityStatus("cleared input; press ctrl+c again to exit");
+      setActivityStatus("已清空输入；再次按 Ctrl+C 退出");
       tui.requestRender();
       return;
     }
@@ -968,7 +1052,7 @@ export async function runTui(opts: TuiOptions) {
       requestExit();
       return;
     }
-    setActivityStatus("press ctrl+c again to exit");
+    setActivityStatus("再次按 Ctrl+C 退出");
     tui.requestRender();
   };
   editor.onCtrlC = () => {
@@ -994,7 +1078,7 @@ export async function runTui(opts: TuiOptions) {
     void loadHistory();
   };
   editor.onCtrlY = () => {
-    void handleCommand("/voice");
+    void handleAction({ type: "tui.operation", operation: "voice" });
   };
   editor.onShiftTab = () => {
     toggleGovernancePanel();
@@ -1043,13 +1127,13 @@ export async function runTui(opts: TuiOptions) {
     pairingHintShown = false;
     const reconnected = wasDisconnected;
     wasDisconnected = false;
-    setConnectionStatus("connected");
+    setConnectionStatus("已连接");
     void (async () => {
       await refreshAgents();
       await refreshGovernanceStatus();
       updateHeader();
       await loadHistory();
-      setConnectionStatus(reconnected ? "gateway reconnected" : "gateway connected", 4000);
+      setConnectionStatus(reconnected ? "后端已重新连接" : "后端已连接", 4000);
       tui.requestRender();
       if (!autoMessageSent && autoMessage) {
         autoMessageSent = true;
@@ -1076,12 +1160,12 @@ export async function runTui(opts: TuiOptions) {
   };
 
   client.onGap = (info) => {
-    setConnectionStatus(`event gap: expected ${info.expected}, got ${info.received}`, 5000);
+    setConnectionStatus(`事件缺口: 期望 ${info.expected}, 实收 ${info.received}`, 5000);
     tui.requestRender();
   };
 
   updateHeader();
-  setConnectionStatus("connecting");
+  setConnectionStatus("连接中");
   updateFooter();
   const sigintHandler = () => {
     handleCtrlC();
@@ -1091,8 +1175,11 @@ export async function runTui(opts: TuiOptions) {
   };
   process.on("SIGINT", sigintHandler);
   process.on("SIGTERM", sigtermHandler);
-  tui.start();
+  appendTuiDebugLog("client:start");
   client.start();
+  appendTuiDebugLog("client:started");
+  tui.start();
+  appendTuiDebugLog("tui:started");
   await new Promise<void>((resolve) => {
     const finish = () => {
       process.removeListener("SIGINT", sigintHandler);

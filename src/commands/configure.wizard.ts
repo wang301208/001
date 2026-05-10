@@ -25,8 +25,8 @@ import {
 } from "../wizard/validation.js";
 import { removeChannelConfigWizard } from "./configure.channels.js";
 import { maybeInstallDaemon } from "./configure.daemon.js";
-import { promptAuthConfig } from "./configure.gateway-auth.js";
 import { promptGatewayConfig } from "./configure.gateway.js";
+import { promptModelConfig } from "./configure.model.js";
 import type {
   ChannelsWizardMode,
   ConfigureWizardParams,
@@ -664,7 +664,7 @@ export async function runConfigureWizard(
       }
 
       if (selected.includes("model")) {
-        nextConfig = await promptAuthConfig(nextConfig, runtime, prompter);
+        nextConfig = await promptModelConfig(nextConfig, runtime, prompter);
       }
 
       if (selected.includes("web")) {
@@ -729,7 +729,7 @@ export async function runConfigureWizard(
         }
 
         if (choice === "model") {
-          nextConfig = await promptAuthConfig(nextConfig, runtime, prompter);
+          nextConfig = await promptModelConfig(nextConfig, runtime, prompter);
           if (!(await persistConfig())) {
             return;
           }

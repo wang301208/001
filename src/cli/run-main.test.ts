@@ -3,6 +3,7 @@ import type { PluginManifestRegistry } from "../plugins/manifest-registry.js";
 import {
   rewriteUpdateFlagArgv,
   resolveMissingPluginCommandMessage,
+  resolveExplicitTuiFastPathOptions,
   shouldEnsureCliPath,
   shouldRunTuiByDefault,
   shouldUseRootHelpFastPath,
@@ -107,6 +108,37 @@ describe("shouldRunTuiByDefault", () => {
     expect(shouldRunTuiByDefault(["node", "assistant", "status"])).toBe(false);
     expect(shouldRunTuiByDefault(["node", "assistant", "tui"])).toBe(false);
     expect(shouldRunTuiByDefault(["node", "assistant", "--update"])).toBe(false);
+  });
+});
+
+describe("resolveExplicitTuiFastPathOptions", () => {
+  it("parses explicit tui invocations without requiring full CLI registration", () => {
+    expect(
+      resolveExplicitTuiFastPathOptions([
+        "node",
+        "assistant",
+        "tui",
+        "--session",
+        "work",
+        "--message=你好",
+        "--timeout-ms",
+        "45000",
+        "--history-limit",
+        "50",
+        "--deliver",
+      ]),
+    ).toEqual({
+      session: "work",
+      message: "你好",
+      timeoutMs: 45_000,
+      historyLimit: 50,
+      deliver: true,
+    });
+  });
+
+  it("keeps tui help and unknown options on the normal Commander path", () => {
+    expect(resolveExplicitTuiFastPathOptions(["node", "assistant", "tui", "--help"])).toBeNull();
+    expect(resolveExplicitTuiFastPathOptions(["node", "assistant", "tui", "--unknown"])).toBeNull();
   });
 });
 

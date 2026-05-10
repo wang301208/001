@@ -1,4 +1,4 @@
-import { Editor, Key, matchesKey } from "@mariozechner/pi-tui";
+import { Editor, Key, matchesKey, truncateToWidth, visibleWidth } from "@mariozechner/pi-tui";
 
 export class CustomEditor extends Editor {
   onEscape?: () => void;
@@ -21,14 +21,16 @@ export class CustomEditor extends Editor {
   }
 
   render(width: number): string[] {
-    const lines = super.render(width);
+    const hint = `${this.promptHint} `;
+    const hintWidth = visibleWidth(hint);
+    const editorWidth = Math.max(1, width - hintWidth);
+    const lines = super.render(editorWidth);
     if (lines.length < 3) {
-      return lines;
+      return lines.map((line) => truncateToWidth(line, width, "", true));
     }
     const inputLineIndex = lines.length - 2;
-    const hint = `${this.promptHint} `;
-    lines[inputLineIndex] = `${hint}${lines[inputLineIndex]?.slice(hint.length) ?? ""}`;
-    return lines;
+    lines[inputLineIndex] = `${hint}${lines[inputLineIndex] ?? ""}`;
+    return lines.map((line) => truncateToWidth(line, width, "", true));
   }
 
   handleInput(data: string): void {

@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+import { resolveStateDir } from "../config/paths.js";
 import type { AssistantConfig } from "../config/types.assistant.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
 import { loadGovernanceCharter } from "../governance/charter-runtime.js";
@@ -44,6 +47,31 @@ type GatewayAutonomyMaintenanceResult =
     };
 
 type GatewayAutonomySupervisor = {
+  start: () => void;
+  stop: () => void;
+  updateConfig: (cfg: AssistantConfig) => void;
+};
+
+type GatewayBackendAutomationStep = {
+  name: string;
+  ok: boolean;
+  changedCount: number;
+  detail?: string;
+};
+
+type GatewayBackendAutomationResult = {
+  source: "startup" | "supervisor";
+  steps: GatewayBackendAutomationStep[];
+  changedCount: number;
+};
+
+export type GatewayBackendAutomationHistoryEntry = GatewayBackendAutomationResult & {
+  id: string;
+  observedAt: number;
+  ok: boolean;
+};
+
+type GatewayBackendAutomationSupervisor = {
   start: () => void;
   stop: () => void;
   updateConfig: (cfg: AssistantConfig) => void;
@@ -256,6 +284,587 @@ function resolveAutonomySupervisorIntervalMs(): number | undefined {
   return 15 * 60_000;
 }
 
+function resolveBackendAutomationIntervalMs(): number | undefined {
+  if (process.env.ASSISTANT_SKIP_BACKEND_AUTOMATION === "1") {
+    return undefined;
+  }
+  const explicit = process.env.ASSISTANT_BACKEND_AUTOMATION_INTERVAL_MS?.trim();
+  if (explicit) {
+    const parsed = Number.parseInt(explicit, 10);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+    if (parsed === 0) {
+      return undefined;
+    }
+  }
+  return 5 * 60_000;
+}
+
+function shouldRunBackendAutomation(params: {
+  minimalTestGateway: boolean;
+}): boolean {
+  if (params.minimalTestGateway) {
+    return false;
+  }
+  if (process.env.ASSISTANT_SKIP_BACKEND_AUTOMATION === "1") {
+    return false;
+  }
+  return true;
+}
+
+function resolveBackendAutomationHistoryPath(): string {
+  return path.join(resolveStateDir(), "self", "backend-automation-history.json");
+}
+
+function readBackendAutomationHistory(): GatewayBackendAutomationHistoryEntry[] {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(resolveBackendAutomationHistoryPath(), "utf8")) as unknown;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed.filter((entry): entry is GatewayBackendAutomationHistoryEntry =>
+      typeof entry === "object" && entry !== null && typeof (entry as { id?: unknown }).id === "string"
+    );
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return [];
+    }
+    return [];
+  }
+}
+
+function recordBackendAutomationHistory(result: GatewayBackendAutomationResult): void {
+  const observedAt = Date.now();
+  const entry: GatewayBackendAutomationHistoryEntry = {
+    ...result,
+    id: `backend_automation_${observedAt}_${Math.random().toString(36).slice(2, 10)}`,
+    observedAt,
+    ok: result.steps.every((step) => step.ok),
+  };
+  const filePath = resolveBackendAutomationHistoryPath();
+  const history = [entry, ...readBackendAutomationHistory()].slice(0, 100);
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, `${JSON.stringify(history, null, 2)}\n`, "utf8");
+}
+
+export function getGatewayBackendAutomationHistory(params: {
+  limit?: number;
+} = {}): GatewayBackendAutomationHistoryEntry[] {
+  const limit = typeof params.limit === "number" && Number.isFinite(params.limit)
+    ? Math.max(1, Math.floor(params.limit))
+    : 20;
+  return readBackendAutomationHistory().slice(0, limit);
+}
+
+async function runBackendAutomationStep(params: {
+  steps: GatewayBackendAutomationStep[];
+  name: string;
+  log: GatewayRuntimeServiceLogger;
+  run: () => Promise<number | void> | number | void;
+}): Promise<number> {
+  try {
+    const changedCount = (await params.run()) ?? 0;
+    params.steps.push({
+      name: params.name,
+      ok: true,
+      changedCount,
+    });
+    return changedCount;
+  } catch (err) {
+    params.steps.push({
+      name: params.name,
+      ok: false,
+      changedCount: 0,
+      detail: String(err),
+    });
+    params.log.child("backend-automation").warn(`${params.name} failed: ${String(err)}`);
+    return 0;
+  }
+}
+
+async function prewarmBackendModelCatalog(params: {
+  cfgAtStart: AssistantConfig;
+}): Promise<number> {
+  const { loadModelCatalog } = await import("../agents/model-catalog.js");
+  const catalog = await loadModelCatalog({ config: params.cfgAtStart });
+  return Array.isArray(catalog) ? catalog.length : 0;
+}
+
+async function refreshBackendSkillsState(params: {
+  cfgAtStart: AssistantConfig;
+}): Promise<number> {
+  const [{ listAgentIds, resolveAgentWorkspaceDir }, { buildWorkspaceSkillStatus }] =
+    await Promise.all([
+      import("../agents/agent-scope.js"),
+      import("../agents/skills-status.js"),
+    ]);
+  let eligibleCount = 0;
+  for (const agentId of listAgentIds(params.cfgAtStart)) {
+    const workspaceDir = resolveAgentWorkspaceDir(params.cfgAtStart, agentId);
+    const report = buildWorkspaceSkillStatus(workspaceDir, { config: params.cfgAtStart });
+    eligibleCount += report.skills.filter((skill) => skill.eligible).length;
+  }
+  return eligibleCount;
+}
+
+async function prewarmBackendToolCatalog(params: {
+  cfgAtStart: AssistantConfig;
+}): Promise<number> {
+  const [{ listAgentIds }, { buildToolsCatalogResult }] = await Promise.all([
+    import("../agents/agent-scope.js"),
+    import("./server-methods/tools-catalog.js"),
+  ]);
+  let toolCount = 0;
+  for (const agentId of listAgentIds(params.cfgAtStart)) {
+    const result = buildToolsCatalogResult({
+      cfg: params.cfgAtStart,
+      agentId,
+      includePlugins: true,
+    });
+    toolCount += result.groups.reduce((count, group) => count + group.tools.length, 0);
+  }
+  return toolCount;
+}
+
+async function refreshBackendRemoteSkills(params: {
+  cfgAtStart: AssistantConfig;
+}): Promise<number> {
+  const { primeRemoteSkillsCache, refreshRemoteBinsForConnectedNodes } = await import(
+    "../infra/skills-remote.js"
+  );
+  await primeRemoteSkillsCache();
+  await refreshRemoteBinsForConnectedNodes(params.cfgAtStart);
+  return 0;
+}
+
+async function sweepBackendTaskRegistry(): Promise<number> {
+  const { sweepTaskRegistry } = await import("../tasks/task-registry.maintenance.js");
+  const summary = await sweepTaskRegistry();
+  return summary.reconciled + summary.governanceStamped + summary.cleanupStamped + summary.pruned;
+}
+
+async function runBackendGovernanceInventory(params: {
+  cfgAtStart: AssistantConfig;
+}): Promise<number> {
+  const {
+    getGovernanceOverview,
+    getGovernanceCapabilityInventory,
+    getGovernanceCapabilityAssetRegistry,
+    getGovernanceGenesisPlan,
+  } = await import("../governance/control-plane.js");
+  const overview = getGovernanceOverview({ cfg: params.cfgAtStart });
+  const inventory = getGovernanceCapabilityInventory({ cfg: params.cfgAtStart });
+  const assetRegistry = getGovernanceCapabilityAssetRegistry({
+    cfg: params.cfgAtStart,
+  });
+  const genesisPlan = getGovernanceGenesisPlan({
+    cfg: params.cfgAtStart,
+    inventory,
+  });
+  return (
+    overview.findings.length +
+    inventory.entries.length +
+    assetRegistry.currentAssetCount +
+    genesisPlan.stages.length
+  );
+}
+
+async function repairBackendMemoryArtifacts(params: {
+  cfgAtStart: AssistantConfig;
+}): Promise<number> {
+  const [
+    { listAgentIds, resolveAgentWorkspaceDir },
+    { repairDreamingArtifacts, dedupeDreamDiaryEntries },
+  ] = await Promise.all([
+    import("../agents/agent-scope.js"),
+    import("./server-methods/doctor.memory-core-runtime.js"),
+  ]);
+  let changedCount = 0;
+  for (const agentId of listAgentIds(params.cfgAtStart)) {
+    const workspaceDir = resolveAgentWorkspaceDir(params.cfgAtStart, agentId);
+    const repair = await repairDreamingArtifacts({ workspaceDir });
+    const dedupe = await dedupeDreamDiaryEntries({ workspaceDir });
+    if (repair.changed) {
+      changedCount += 1;
+    }
+    changedCount += dedupe.removed;
+  }
+  return changedCount;
+}
+
+async function advanceBackendSelfRoadmap(): Promise<number> {
+  const { advanceSelfRoadmap } = await import("../experience/experience-store.js");
+  const result = advanceSelfRoadmap();
+  return result.createdStrategicMemories;
+}
+
+function buildSelfRoadmapTaskParams(goal: {
+  id: string;
+  title: string;
+  objective: string;
+  priority: "high" | "medium" | "low";
+  nextPushAt: number;
+  evidenceEventIds: string[];
+  blockers: string[];
+}) {
+  const baseGoalText = [
+    "[self-roadmap]",
+    goal.objective,
+    "",
+    goal.blockers.length > 0 ? `Blockers: ${goal.blockers.join("; ")}` : "Blockers: none",
+  ].join("\n");
+  if (goal.id === "self_upgrade_loop") {
+    const codeChangeContract = {
+      strategy: "test-first",
+      allowedPaths: ["src/", "scripts/", "test/"],
+      verificationCommands: [
+        "pnpm tsgo",
+        "pnpm check:import-cycles",
+      ],
+      deliverables: [
+        "implementation patch",
+        "fresh verification output",
+        "experience memory update",
+      ],
+      releaseHandoff: "record verification evidence and leave deployment to the release workflow",
+    };
+    return {
+      agentId: "main",
+      name: goal.title,
+      goal: [
+        baseGoalText,
+        "",
+        "[self-code-upgrade-contract]",
+        `Strategy: ${codeChangeContract.strategy}`,
+        `Allowed paths: ${codeChangeContract.allowedPaths.join(", ")}`,
+        `Verification: ${codeChangeContract.verificationCommands.join(" && ")}`,
+        `Deliverables: ${codeChangeContract.deliverables.join(", ")}`,
+      ].join("\n"),
+      duration: "long" as const,
+      priority: goal.priority,
+      group: "self-code-upgrade",
+      business: {
+        domain: "self-code",
+        domainLabel: "Self code evolution",
+        accessMode: "autonomous-code-change",
+        accessModeLabel: "Autonomous code change pipeline",
+        object: goal.id,
+        acceptanceCriteria:
+          "A bounded source change is implemented with test-first evidence, fresh verification output, and experience memory update.",
+        payload: {
+          selfRoadmapGoalId: goal.id,
+          evidenceEventIds: goal.evidenceEventIds,
+          nextPushAt: goal.nextPushAt,
+          codeChangeContract,
+        },
+      },
+    };
+  }
+  return {
+    agentId: "main",
+    name: goal.title,
+    goal: baseGoalText,
+    duration: "long" as const,
+    priority: goal.priority,
+    group: "self-roadmap",
+    business: {
+      domain: "self",
+      domainLabel: "Self evolution",
+      accessMode: "autonomous",
+      accessModeLabel: "Backend startup automation",
+      object: goal.id,
+      acceptanceCriteria: "Autonomy flow is started and the result is captured back into experience memory.",
+      payload: {
+        selfRoadmapGoalId: goal.id,
+        evidenceEventIds: goal.evidenceEventIds,
+        nextPushAt: goal.nextPushAt,
+      },
+    },
+  };
+}
+
+async function materializeSelfRoadmapTasks(): Promise<number> {
+  const [{ getSelfRoadmap }, { createBusinessTask, listBusinessTasks }] = await Promise.all([
+    import("../experience/experience-store.js"),
+    import("../tasks/business-task-store.js"),
+  ]);
+  const existingGoalIds = new Set(
+    listBusinessTasks()
+      .map((task) => task.business.payload?.selfRoadmapGoalId)
+      .filter((goalId): goalId is string => typeof goalId === "string" && goalId.length > 0),
+  );
+  let createdCount = 0;
+  for (const goal of getSelfRoadmap().goals) {
+    if (goal.status !== "active" || existingGoalIds.has(goal.id)) {
+      continue;
+    }
+    createBusinessTask(buildSelfRoadmapTaskParams(goal));
+    existingGoalIds.add(goal.id);
+    createdCount += 1;
+  }
+  return createdCount;
+}
+
+async function recoverRunningBusinessTasks(params: {
+  cfgAtStart: AssistantConfig;
+  cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
+}): Promise<number> {
+  if (
+    typeof params.cron.list !== "function" ||
+    typeof params.cron.add !== "function" ||
+    typeof params.cron.update !== "function" ||
+    typeof params.cron.remove !== "function"
+  ) {
+    return 0;
+  }
+  const [
+    { listBusinessTasks, updateBusinessTask },
+    { createRuntimeAutonomy },
+    { createRuntimeTaskFlow },
+  ] = await Promise.all([
+    import("../tasks/business-task-store.js"),
+    import("../plugins/runtime/runtime-autonomy.js"),
+    import("../plugins/runtime/runtime-taskflow.js"),
+  ]);
+  const runningTasks = listBusinessTasks({ status: "running" });
+  if (runningTasks.length === 0) {
+    return 0;
+  }
+  const charterDir = loadGovernanceCharter().charterDir;
+  const autonomyByAgent = new Map<
+    string,
+    import("../plugins/runtime/runtime-autonomy.types.js").BoundAutonomyRuntime
+  >();
+  let recoveredCount = 0;
+  for (const task of runningTasks) {
+    if (task.autonomy?.flowId) {
+      continue;
+    }
+    const agentId = task.agentId || "main";
+    const sessionKey = `agent:${agentId}:main`;
+    let autonomy = autonomyByAgent.get(agentId);
+    if (!autonomy) {
+      autonomy = createRuntimeAutonomy({
+        legacyTaskFlow: createRuntimeTaskFlow(),
+        charterDir,
+        cronService: params.cron as import("../cron/service-contract.js").CronServiceContract,
+      }).bindSession({ sessionKey });
+      autonomyByAgent.set(agentId, autonomy);
+    }
+    const started = autonomy.startManagedFlow({
+      agentId,
+      goal: [
+        "[backend-automation:business-task-recovery]",
+        task.name,
+        "",
+        task.goal,
+      ].join("\n"),
+      status: "running",
+    });
+    updateBusinessTask(task.id, {
+      progress: Math.max(task.progress, 15),
+      autonomy: {
+        sessionKey,
+        flowId: started.flow.id,
+        started,
+      },
+    });
+    recoveredCount += 1;
+  }
+  return recoveredCount;
+}
+
+async function runGatewayBackendAutomation(params: {
+  minimalTestGateway: boolean;
+  cfgAtStart: AssistantConfig;
+  cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
+  log: GatewayRuntimeServiceLogger;
+  source: "startup" | "supervisor";
+}): Promise<GatewayBackendAutomationResult | undefined> {
+  if (!shouldRunBackendAutomation(params)) {
+    return undefined;
+  }
+  const steps: GatewayBackendAutomationStep[] = [];
+  let changedCount = 0;
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "model-catalog",
+    log: params.log,
+    run: () => prewarmBackendModelCatalog({ cfgAtStart: params.cfgAtStart }),
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "skills-state",
+    log: params.log,
+    run: () => refreshBackendSkillsState({ cfgAtStart: params.cfgAtStart }),
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "tool-catalog",
+    log: params.log,
+    run: () => prewarmBackendToolCatalog({ cfgAtStart: params.cfgAtStart }),
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "remote-skills",
+    log: params.log,
+    run: () => refreshBackendRemoteSkills({ cfgAtStart: params.cfgAtStart }),
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "task-registry",
+    log: params.log,
+    run: sweepBackendTaskRegistry,
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "governance-inventory",
+    log: params.log,
+    run: () => runBackendGovernanceInventory({ cfgAtStart: params.cfgAtStart }),
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "memory-artifacts",
+    log: params.log,
+    run: () => repairBackendMemoryArtifacts({ cfgAtStart: params.cfgAtStart }),
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "self-roadmap",
+    log: params.log,
+    run: advanceBackendSelfRoadmap,
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "self-roadmap-tasks",
+    log: params.log,
+    run: materializeSelfRoadmapTasks,
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "business-task-recovery",
+    log: params.log,
+    run: () => recoverRunningBusinessTasks({
+      cfgAtStart: params.cfgAtStart,
+      cron: params.cron,
+    }),
+  });
+  return {
+    source: params.source,
+    steps,
+    changedCount,
+  };
+}
+
+function logGatewayBackendAutomationSummary(params: {
+  log: GatewayRuntimeServiceLogger;
+  result: GatewayBackendAutomationResult;
+  prefix?: string;
+}): void {
+  const logAutomation = params.log.child("backend-automation");
+  const prefix = params.prefix ? `${params.prefix} ` : "";
+  const failedCount = params.result.steps.filter((step) => !step.ok).length;
+  const stepSummary = params.result.steps
+    .map((step) => `${step.name}:${step.ok ? step.changedCount : "failed"}`)
+    .join(", ");
+  logAutomation.info(
+    `${prefix}${params.result.source} sweep completed (changed ${params.result.changedCount}, failed ${failedCount}; ${stepSummary})`,
+  );
+}
+
+function createGatewayBackendAutomationSupervisor(params: {
+  minimalTestGateway: boolean;
+  cfgAtStart: AssistantConfig;
+  getCron: () => Partial<import("../cron/service-contract.js").CronServiceContract>;
+  log: GatewayRuntimeServiceLogger;
+}): GatewayBackendAutomationSupervisor {
+  const logSupervisor = params.log.child("backend-automation-supervisor");
+  const state = {
+    cfg: params.cfgAtStart,
+    timer: null as NodeJS.Timeout | null,
+    started: false,
+    stopped: false,
+    running: false,
+  };
+
+  const clearTimer = () => {
+    if (state.timer) {
+      clearTimeout(state.timer);
+      state.timer = null;
+    }
+  };
+
+  const scheduleNext = () => {
+    clearTimer();
+    if (!state.started || state.stopped) {
+      return;
+    }
+    const intervalMs = resolveBackendAutomationIntervalMs();
+    if (!intervalMs) {
+      return;
+    }
+    state.timer = setTimeout(() => {
+      state.timer = null;
+      void runSweep();
+    }, intervalMs);
+    state.timer.unref?.();
+  };
+
+  const runSweep = async () => {
+    if (state.stopped || state.running) {
+      return;
+    }
+    state.running = true;
+    try {
+      const result = await runGatewayBackendAutomation({
+        minimalTestGateway: params.minimalTestGateway,
+        cfgAtStart: state.cfg,
+        cron: params.getCron(),
+        log: params.log,
+        source: "supervisor",
+      });
+      if (result) {
+        recordBackendAutomationHistory(result);
+        logGatewayBackendAutomationSummary({
+          log: params.log,
+          result,
+          prefix: "supervisor",
+        });
+      }
+    } catch (err) {
+      logSupervisor.error(`sweep failed: ${String(err)}`);
+    } finally {
+      state.running = false;
+      scheduleNext();
+    }
+  };
+
+  return {
+    start: () => {
+      if (state.started || state.stopped) {
+        return;
+      }
+      state.started = true;
+      const intervalMs = resolveBackendAutomationIntervalMs();
+      if (intervalMs) {
+        logSupervisor.info(`scheduled backend automation sweep every ${intervalMs}ms`);
+      }
+      scheduleNext();
+    },
+    stop: () => {
+      state.stopped = true;
+      clearTimer();
+    },
+    updateConfig: (cfg) => {
+      state.cfg = cfg;
+      if (state.started && !state.stopped) {
+        scheduleNext();
+      }
+    },
+  };
+}
+
 function createGatewayAutonomySupervisor(params: {
   minimalTestGateway: boolean;
   cfgAtStart: AssistantConfig;
@@ -349,15 +958,18 @@ function createGatewayAutonomySupervisor(params: {
 function composeGatewayHeartbeatRunner(
   heartbeatRunner: HeartbeatRunner,
   autonomySupervisor: GatewayAutonomySupervisor,
+  backendAutomationSupervisor: GatewayBackendAutomationSupervisor,
 ): HeartbeatRunner {
   return {
     stop: () => {
+      backendAutomationSupervisor.stop();
       autonomySupervisor.stop();
       heartbeatRunner.stop();
     },
     updateConfig: (cfg) => {
       heartbeatRunner.updateConfig(cfg);
       autonomySupervisor.updateConfig(cfg);
+      backendAutomationSupervisor.updateConfig(cfg);
     },
   };
 }
@@ -378,6 +990,29 @@ export async function reconcileGatewayAutonomyLoops(params: {
     return;
   }
   logGatewayAutonomyMaintenanceSummary({
+    log: params.log,
+    result,
+  });
+}
+
+export async function runGatewayBackendAutomationStartup(params: {
+  minimalTestGateway: boolean;
+  cfgAtStart: AssistantConfig;
+  cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
+  log: GatewayRuntimeServiceLogger;
+}): Promise<void> {
+  const result = await runGatewayBackendAutomation({
+    minimalTestGateway: params.minimalTestGateway,
+    cfgAtStart: params.cfgAtStart,
+    cron: params.cron,
+    log: params.log,
+    source: "startup",
+  });
+  if (!result) {
+    return;
+  }
+  recordBackendAutomationHistory(result);
+  logGatewayBackendAutomationSummary({
     log: params.log,
     result,
   });
@@ -450,6 +1085,12 @@ export function activateGatewayScheduledServices(params: {
     getCron: params.getCron ?? (() => params.cron),
     log: params.log,
   });
+  const backendAutomationSupervisor = createGatewayBackendAutomationSupervisor({
+    minimalTestGateway: params.minimalTestGateway,
+    cfgAtStart: params.cfgAtStart,
+    getCron: params.getCron ?? (() => params.cron),
+    log: params.log,
+  });
   startGatewayCronWithLogging({
     cron: params.cron,
     logCron: params.logCron,
@@ -460,9 +1101,16 @@ export function activateGatewayScheduledServices(params: {
           cfgAtStart: params.cfgAtStart,
           cron: params.cron,
           log: params.log,
-        });
+        }).catch((err) => params.log.error(`Autonomy startup maintenance failed: ${String(err)}`));
+        await runGatewayBackendAutomationStartup({
+          minimalTestGateway: params.minimalTestGateway,
+          cfgAtStart: params.cfgAtStart,
+          cron: params.getCron?.() ?? params.cron,
+          log: params.log,
+        }).catch((err) => params.log.error(`Backend automation startup failed: ${String(err)}`));
       } finally {
         autonomySupervisor.start();
+        backendAutomationSupervisor.start();
       }
     },
   });
@@ -471,6 +1119,10 @@ export function activateGatewayScheduledServices(params: {
     log: params.log,
   });
   return {
-    heartbeatRunner: composeGatewayHeartbeatRunner(heartbeatRunner, autonomySupervisor),
+    heartbeatRunner: composeGatewayHeartbeatRunner(
+      heartbeatRunner,
+      autonomySupervisor,
+      backendAutomationSupervisor,
+    ),
   };
 }

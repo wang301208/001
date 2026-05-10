@@ -453,6 +453,36 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     );
   });
 
+  it("shows automatic compaction progress from stdio gateway agent events", () => {
+    const { chatLog, tui, handleAgentEvent } = createHandlersHarness({
+      state: {
+        activeChatRunId: "run-compact",
+        sessionInfo: { verboseLevel: "off" },
+      },
+    });
+
+    handleAgentEvent({
+      runId: "run-compact",
+      stream: "compaction",
+      data: { phase: "start", tokensBefore: 90, contextTokens: 100 },
+    });
+    handleAgentEvent({
+      runId: "run-compact",
+      stream: "compaction",
+      data: { phase: "end", tokensBefore: 90, tokensAfter: 35, compactedCount: 4 },
+    });
+
+    expect(chatLog.addSystem).toHaveBeenNthCalledWith(
+      1,
+      "自动压缩开始：上下文 90/100，正在生成摘要。",
+    );
+    expect(chatLog.addSystem).toHaveBeenNthCalledWith(
+      2,
+      "自动压缩完成：90 -> 35，已压缩 4 条消息。",
+    );
+    expect(tui.requestRender).toHaveBeenCalled();
+  });
+
   it("refreshes history after a non-local chat final", () => {
     const { state, loadHistory, handleChatEvent } = createHandlersHarness({
       state: { activeChatRunId: null },
@@ -545,7 +575,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       message: { content: [] },
     });
 
-    expect(chatLog.finalizeAssistant).not.toHaveBeenCalledWith("(no output)", "run-other");
+    expect(chatLog.finalizeAssistant).not.toHaveBeenCalledWith("(无输出)", "run-other");
     expect(chatLog.dropAssistant).toHaveBeenCalledWith("run-other");
     expect(loadHistory).not.toHaveBeenCalled();
     expect(state.activeChatRunId).toBe("run-active");
@@ -721,7 +751,7 @@ describe("tui-event-handlers: streaming watchdog", () => {
 
     expect(setActivityStatus).toHaveBeenLastCalledWith("idle");
     expect(state.activeChatRunId).toBeNull();
-    expect(chatLog.addSystem).toHaveBeenCalledWith(expect.stringContaining("streaming watchdog"));
+    expect(chatLog.addSystem).toHaveBeenCalledWith(expect.stringContaining("流式输出看门狗"));
 
     handlers.dispose?.();
   });
@@ -783,7 +813,7 @@ describe("tui-event-handlers: streaming watchdog", () => {
     const statusCalls = setActivityStatus.mock.calls.map((c) => c[0]);
     expect(statusCalls.filter((s) => s === "idle").length).toBe(1);
     expect(chatLog.addSystem).not.toHaveBeenCalledWith(
-      expect.stringContaining("streaming watchdog"),
+      expect.stringContaining("流式输出看门狗"),
     );
     expect(state.activeChatRunId).toBeNull();
 

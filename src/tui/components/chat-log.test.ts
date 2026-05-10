@@ -75,19 +75,19 @@ describe("ChatLog", () => {
 
     chatLog.addSystem("session agent:main:main");
     chatLog.showBtw({
-      question: "what is 17 * 19?",
+      question: "17 * 19 等于多少？",
       text: "323",
     });
 
     let rendered = chatLog.render(120).join("\n");
-    expect(rendered).toContain("BTW: what is 17 * 19?");
+    expect(rendered).toContain("顺便问一下：17 * 19 等于多少？");
     expect(rendered).toContain("323");
     expect(chatLog.hasVisibleBtw()).toBe(true);
 
     chatLog.dismissBtw();
 
     rendered = chatLog.render(120).join("\n");
-    expect(rendered).not.toContain("BTW: what is 17 * 19?");
+    expect(rendered).not.toContain("顺便问一下：17 * 19 等于多少？");
     expect(chatLog.hasVisibleBtw()).toBe(false);
   });
 

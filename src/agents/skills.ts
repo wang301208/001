@@ -36,6 +36,13 @@ export {
   resolveSkillsPromptForRun,
   syncSkillsToWorkspace,
 } from "./skills/workspace.js";
+export {
+  mergeWorkspaceSkills,
+  type SkillMergeConflict,
+  type SkillMergeConflictStrategy,
+  type SkillMergeParams,
+  type SkillMergeResult,
+} from "./skills/merge.js";
 export { buildWorkspaceSkillCommandSpecs } from "./skills/command-specs.js";
 
 export function resolveSkillsInstallPreferences(config?: AssistantConfig): SkillsInstallPreferences {

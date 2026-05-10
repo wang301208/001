@@ -35,6 +35,7 @@ import { shouldEnsureCliPathForCommandPath } from "./command-startup-policy.js";
 import { maybeRunCliInContainer, parseCliContainerArgs } from "./container-target.js";
 import { applyCliProfileEnv, parseCliProfileArgs } from "./profile.js";
 import { tryRouteCli } from "./route.js";
+import { resolveExplicitTuiFastPathOptions } from "./tui-fast-path.js";
 import { normalizeWindowsArgv } from "./windows-argv.js";
 
 async function closeCliMemoryManagers(): Promise<void> {
@@ -110,6 +111,8 @@ export function shouldRunStdioGateway(argv: string[]): boolean {
   void argv;
   return false;
 }
+
+export { resolveExplicitTuiFastPathOptions } from "./tui-fast-path.js";
 
 export function resolveMissingPluginCommandMessage(
   pluginId: string,
@@ -214,6 +217,14 @@ export async function runCli(argv: string[] = process.argv) {
     return;
   }
   let normalizedArgv = parsedProfile.argv;
+
+  const earlyExplicitTuiOptions = resolveExplicitTuiFastPathOptions(normalizedArgv);
+  if (earlyExplicitTuiOptions) {
+    assertSupportedRuntime();
+    const { runTui } = await import("../tui/tui.js");
+    await runTui(earlyExplicitTuiOptions);
+    return;
+  }
 
   if (shouldLoadCliDotEnv()) {
     const { loadCliDotEnv } = await import("./dotenv.js");

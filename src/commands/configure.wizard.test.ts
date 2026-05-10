@@ -24,6 +24,7 @@ const mocks = vi.hoisted(() => {
     waitForGatewayReachable: vi.fn(),
     resolveGatewayLinks: vi.fn(),
     summarizeExistingConfig: vi.fn(),
+    promptModelConfig: vi.fn(async (cfg: AssistantConfig) => cfg),
     createSnapshot: vi.fn((config: AssistantConfig, label: string) => ({
       timestamp: 1,
       config: structuredClone(config),
@@ -91,6 +92,10 @@ vi.mock("./configure.gateway.js", () => ({
 
 vi.mock("./configure.gateway-auth.js", () => ({
   promptAuthConfig: vi.fn(),
+}));
+
+vi.mock("./configure.model.js", () => ({
+  promptModelConfig: mocks.promptModelConfig,
 }));
 
 vi.mock("./configure.channels.js", () => ({
