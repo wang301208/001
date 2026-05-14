@@ -116,7 +116,7 @@ export function exerciseCapability(
   success: boolean,
 ): SelfModel {
   const cap = model.capabilities.get(kind);
-  if (!cap) return model;
+  if (!cap) {return model;}
 
   const learningRate = 0.02;
   const confidenceDelta = success ? 0.05 : -0.02;

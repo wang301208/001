@@ -57,7 +57,7 @@ export function readOwnStructure(
     try {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
+        if (entry.name.startsWith(".") || entry.name === "node_modules") {continue;}
         const fullPath = path.join(dir, entry.name);
         if (entry.isDirectory()) {
           scanDir(fullPath, domain || entry.name);

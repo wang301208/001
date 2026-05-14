@@ -94,7 +94,7 @@ export function decomposeGoal(
   subDescriptions: string[],
 ): GoalSystem {
   const parent = system.goals.get(parentGoalId);
-  if (!parent) return system;
+  if (!parent) {return system;}
 
   let currentSystem = system;
   const subIds: string[] = [];
@@ -139,7 +139,7 @@ export function updateGoalProgress(
   delta: number,
 ): GoalSystem {
   const goal = system.goals.get(goalId);
-  if (!goal) return system;
+  if (!goal) {return system;}
 
   const newProgress = Math.max(0, Math.min(1, goal.progress + delta));
   const newState: GoalState =
@@ -176,7 +176,7 @@ export function abandonGoal(
   reason: string,
 ): GoalSystem {
   const goal = system.goals.get(goalId);
-  if (!goal) return system;
+  if (!goal) {return system;}
 
   const newGoals = new Map(system.goals);
   newGoals.set(goalId, {
@@ -258,7 +258,7 @@ export function formatGoalSummary(system: GoalSystem): string[] {
 
   const active = Array.from(system.goals.values())
     .filter((g) => g.state === "pursuing" || g.state === "nascent")
-    .sort((a, b) => b.priority - a.priority);
+    .toSorted((a, b) => b.priority - a.priority);
 
   const achieved = Array.from(system.goals.values())
     .filter((g) => g.state === "achieved");

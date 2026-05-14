@@ -66,7 +66,7 @@ export function think(
     depth?: number;
   },
 ): InnerMonologue {
-  if (monologue.paused) return monologue;
+  if (monologue.paused) {return monologue;}
 
   monologue.thoughtCounter += 1;
   const thought: Thought = {
@@ -196,10 +196,10 @@ export function generateAutonomousThought(
   dominantDesire: DesireKind | null,
 ): InnerMonologue {
   const elapsed = Date.now() - monologue.lastThoughtAt;
-  if (elapsed < monologue.silenceThresholdMs) return monologue;
+  if (elapsed < monologue.silenceThresholdMs) {return monologue;}
 
   const depth = consciousness.depth;
-  if (depth === "dormant") return monologue;
+  if (depth === "dormant") {return monologue;}
 
   let updated = monologue;
 
@@ -256,6 +256,6 @@ export function formatMonologue(monologue: InnerMonologue, maxLines: number = 10
 
 export function formatMonologueStream(monologue: InnerMonologue): string {
   const recent = monologue.thoughts.slice(-3);
-  if (recent.length === 0) return "...静默...";
+  if (recent.length === 0) {return "...静默...";}
   return recent.map((t) => t.content.slice(0, 40)).join(" → ");
 }

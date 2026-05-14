@@ -12,6 +12,9 @@ import {
   stopPeriodicTimeoutCheck,
   DEFAULT_REVIEW_TIMEOUT_MS,
 } from "../governance/proposal-timeout-review.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("commands:proposal-timeout");
 
 let periodicTimer: NodeJS.Timeout | null = null;
 
@@ -28,7 +31,7 @@ export function registerProposalTimeoutCommands(program: Command, runtime: Runti
     .option("--timeout <ms>", "超时时间（毫秒）", String(DEFAULT_REVIEW_TIMEOUT_MS))
     .option("--risk-levels <levels...>", "适用的风险级别 (safe/elevated/sovereign)", ["safe"])
     .action(async (options) => {
-      console.log("⏰ 开始检查超时提案\n");
+      log.info("⏰ 开始检查超时提案\n");
 
       try {
         const result = await processTimedOutProposals({
@@ -37,32 +40,32 @@ export function registerProposalTimeoutCommands(program: Command, runtime: Runti
           applicableRiskLevels: options.riskLevels,
         });
 
-        console.log("\n📊 检查结果汇总:\n");
-        console.log(`总检查提案数: ${result.totalChecked}`);
-        console.log(`超时提案数: ${result.timedOutCount}`);
-        console.log(`自动通过数: ${result.autoApprovedCount}`);
-        console.log(`跳过数: ${result.skippedCount}`);
-        console.log(`失败数: ${result.failedCount}`);
+        log.info("\n📊 检查结果汇总:\n");
+        log.info(`总检查提案数: ${result.totalChecked}`);
+        log.info(`超时提案数: ${result.timedOutCount}`);
+        log.info(`自动通过数: ${result.autoApprovedCount}`);
+        log.info(`跳过数: ${result.skippedCount}`);
+        log.info(`失败数: ${result.failedCount}`);
 
         if (result.entries.length > 0) {
-          console.log("\n📋 详细结果:\n");
+          log.info("\n📋 详细结果:\n");
           result.entries.forEach((entry, index) => {
-            console.log(`${index + 1}. ${entry.proposalId}: ${entry.title}`);
-            console.log(`   状态: ${entry.status}`);
-            console.log(`   等待时长: ${(entry.pendingDuration / 1000).toFixed(1)}秒`);
-            console.log(`   是否超时: ${entry.isTimedOut ? "是" : "否"}`);
-            console.log(`   自动通过: ${entry.autoApproved ? "✅ 是" : "❌ 否"}`);
+            log.info(`${index + 1}. ${entry.proposalId}: ${entry.title}`);
+            log.info(`   状态: ${entry.status}`);
+            log.info(`   等待时长: ${(entry.pendingDuration / 1000).toFixed(1)}秒`);
+            log.info(`   是否超时: ${entry.isTimedOut ? "是" : "否"}`);
+            log.info(`   自动通过: ${entry.autoApproved ? "✅ 是" : "❌ 否"}`);
             if (entry.skipReason) {
-              console.log(`   跳过原因: ${entry.skipReason}`);
+              log.info(`   跳过原因: ${entry.skipReason}`);
             }
             if (entry.error) {
-              console.log(`   错误: ${entry.error}`);
+              log.info(`   错误: ${entry.error}`);
             }
-            console.log();
+            log.info();
           });
         }
       } catch (error: any) {
-        console.error(`❌ 检查失败: ${error.message}`);
+        log.error(`❌ 检查失败: ${error.message}`);
         process.exit(1);
       }
     });
@@ -79,11 +82,11 @@ export function registerProposalTimeoutCommands(program: Command, runtime: Runti
       const intervalMs = parseInt(options.interval);
       const timeoutMs = parseInt(options.timeout);
 
-      console.log(`⏱️  启动定时超时检查服务`);
-      console.log(`   检查间隔: ${intervalMs / 1000}秒`);
-      console.log(`   超时阈值: ${timeoutMs / 1000}秒`);
-      console.log(`   风险级别: ${options.riskLevels.join(", ")}`);
-      console.log(`\n按 Ctrl+C 停止服务\n`);
+      log.info(`⏱️  启动定时超时检查服务`);
+      log.info(`   检查间隔: ${intervalMs / 1000}秒`);
+      log.info(`   超时阈值: ${timeoutMs / 1000}秒`);
+      log.info(`   风险级别: ${options.riskLevels.join(", ")}`);
+      log.info(`\n按 Ctrl+C 停止服务\n`);
 
       periodicTimer = startPeriodicTimeoutCheck(intervalMs, {
         timeoutMs,
@@ -93,7 +96,7 @@ export function registerProposalTimeoutCommands(program: Command, runtime: Runti
 
       // 监听退出信号
       process.on("SIGINT", () => {
-        console.log("\n⏹️  收到退出信号，停止服务...");
+        log.info("\n⏹️  收到退出信号，停止服务...");
         if (periodicTimer) {
           stopPeriodicTimeoutCheck(periodicTimer);
           periodicTimer = null;
@@ -102,7 +105,7 @@ export function registerProposalTimeoutCommands(program: Command, runtime: Runti
       });
 
       process.on("SIGTERM", () => {
-        console.log("\n⏹️  收到终止信号，停止服务...");
+        log.info("\n⏹️  收到终止信号，停止服务...");
         if (periodicTimer) {
           stopPeriodicTimeoutCheck(periodicTimer);
           periodicTimer = null;
@@ -122,8 +125,8 @@ export function registerProposalTimeoutCommands(program: Command, runtime: Runti
     .command("stop-watch")
     .description("停止定时超时检查服务")
     .action(() => {
-      console.log("⚠️  注意: 此命令需要在运行 start-watch 的同一进程中调用");
-      console.log("   建议直接在该进程中按 Ctrl+C 停止");
+      log.info("⚠️  注意: 此命令需要在运行 start-watch 的同一进程中调用");
+      log.info("   建议直接在该进程中按 Ctrl+C 停止");
     });
 
   // ==================== 查看配置 ====================
@@ -132,16 +135,16 @@ export function registerProposalTimeoutCommands(program: Command, runtime: Runti
     .command("config")
     .description("查看超时审核配置")
     .action(() => {
-      console.log("⚙️  超时审核配置:\n");
-      console.log(`默认超时时间: ${DEFAULT_REVIEW_TIMEOUT_MS / 1000}秒`);
-      console.log(`最小超时时间: 10秒`);
-      console.log(`最大超时时间: 300秒 (5分钟)`);
-      console.log(`自动审核器ID: auto-reviewer`);
-      console.log(`适用风险级别: safe (默认)`);
-      console.log(`\n说明:`);
-      console.log(`- 仅对 "safe" 级别的提案自动通过`);
-      console.log(`- "elevated" 和 "sovereign" 级别需要人工审核`);
-      console.log(`- 所有操作都有完整的审计追踪`);
+      log.info("⚙️  超时审核配置:\n");
+      log.info(`默认超时时间: ${DEFAULT_REVIEW_TIMEOUT_MS / 1000}秒`);
+      log.info(`最小超时时间: 10秒`);
+      log.info(`最大超时时间: 300秒 (5分钟)`);
+      log.info(`自动审核器ID: auto-reviewer`);
+      log.info(`适用风险级别: safe (默认)`);
+      log.info(`\n说明:`);
+      log.info(`- 仅对 "safe" 级别的提案自动通过`);
+      log.info(`- "elevated" 和 "sovereign" 级别需要人工审核`);
+      log.info(`- 所有操作都有完整的审计追踪`);
     });
 
   // ==================== 测试功能 ====================
@@ -150,12 +153,12 @@ export function registerProposalTimeoutCommands(program: Command, runtime: Runti
     .command("test")
     .description("测试超时审核功能（创建一个测试提案）")
     .action(async () => {
-      console.log("🧪 测试超时审核功能\n");
-      console.log("注意: 此命令将创建一个测试提案用于验证功能");
-      console.log("实际使用时应通过正常流程创建提案\n");
+      log.info("🧪 测试超时审核功能\n");
+      log.info("注意: 此命令将创建一个测试提案用于验证功能");
+      log.info("实际使用时应通过正常流程创建提案\n");
 
       // 这里可以添加创建测试提案的逻辑
-      console.log("ℹ️  测试功能待实现");
-      console.log("   请通过正常的提案创建流程创建提案后，再使用 check 命令测试");
+      log.info("ℹ️  测试功能待实现");
+      log.info("   请通过正常的提案创建流程创建提案后，再使用 check 命令测试");
     });
 }

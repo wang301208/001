@@ -208,7 +208,7 @@ const log = createSubsystemLogger("internal-hooks");
  * ```ts
  * // Listen to all command events
  * registerInternalHook('command', async (event) => {
- *   console.log('Command:', event.action);
+ *   log.info('Command:', event.action);
  * });
  *
  * // Listen only to /new commands

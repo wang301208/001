@@ -282,7 +282,7 @@ export class CausalGraph extends EventEmitter {
     // 按强度和距离排序
     rootCauses.sort((a, b) => {
       // 优先强度，其次距离
-      if (b.strength !== a.strength) return b.strength - a.strength;
+      if (b.strength !== a.strength) {return b.strength - a.strength;}
       return a.distance - b.distance;
     });
 
@@ -444,11 +444,11 @@ export class CausalGraph extends EventEmitter {
     visited: Set<string>,
     results: CausalEvent[]
   ): void {
-    if (depth <= 0 || visited.has(eventId)) return;
+    if (depth <= 0 || visited.has(eventId)) {return;}
     
     visited.add(eventId);
     const event = this.events.get(eventId);
-    if (!event) return;
+    if (!event) {return;}
 
     for (const causeId of event.causes) {
       const causeEvent = this.events.get(causeId);
@@ -465,11 +465,11 @@ export class CausalGraph extends EventEmitter {
     visited: Set<string>,
     results: CausalEvent[]
   ): void {
-    if (depth <= 0 || visited.has(eventId)) return;
+    if (depth <= 0 || visited.has(eventId)) {return;}
     
     visited.add(eventId);
     const event = this.events.get(eventId);
-    if (!event) return;
+    if (!event) {return;}
 
     for (const effectId of event.effects) {
       const effectEvent = this.events.get(effectId);
@@ -488,7 +488,7 @@ export class CausalGraph extends EventEmitter {
     paths: CausalPath[],
     maxLength: number
   ): void {
-    if (path.length > maxLength) return;
+    if (path.length > maxLength) {return;}
     
     if (currentId === targetId) {
       paths.push({
@@ -517,7 +517,7 @@ export class CausalGraph extends EventEmitter {
   }
 
   private _calculatePathStrength(path: string[]): number {
-    if (path.length < 2) return 1.0;
+    if (path.length < 2) {return 1.0;}
     
     let strength = 1.0;
     for (let i = 0; i < path.length - 1; i++) {
@@ -553,11 +553,11 @@ export class CausalGraph extends EventEmitter {
       explanation: string;
     }>
   ): void {
-    if (currentDepth > maxDepth || visited.has(eventId)) return;
+    if (currentDepth > maxDepth || visited.has(eventId)) {return;}
     
     visited.add(eventId);
     const event = this.events.get(eventId);
-    if (!event) return;
+    if (!event) {return;}
 
     // 如果没有原因，这是一个根节点
     if (event.causes.length === 0) {
@@ -580,7 +580,7 @@ export class CausalGraph extends EventEmitter {
   private _calculateCausalStrength(fromId: string, toId: string): number {
     // 简化的强度计算：基于路径上的最小强度
     const path = this._findShortestPath(fromId, toId);
-    if (path.length === 0) return 0;
+    if (path.length === 0) {return 0;}
     
     let minStrength = 1.0;
     for (const eventId of path) {
@@ -654,7 +654,7 @@ export class CausalGraph extends EventEmitter {
   private _calculateConfidence(
     rootCauses: Array<{ strength: number }>
   ): number {
-    if (rootCauses.length === 0) return 0;
+    if (rootCauses.length === 0) {return 0;}
     
     // 基于根因数量和强度计算置信度
     const avgStrength = rootCauses.reduce((sum, rc) => sum + rc.strength, 0) / rootCauses.length;
@@ -777,7 +777,7 @@ export class CausalGraph extends EventEmitter {
   private _calculateInferenceConfidence(
     effects: Array<{ probability: number }>
   ): number {
-    if (effects.length === 0) return 0.3;
+    if (effects.length === 0) {return 0.3;}
     
     const avgProbability = effects.reduce((sum, e) => sum + e.probability, 0) / effects.length;
     const countBonus = Math.min(0.2, effects.length * 0.05);
@@ -809,7 +809,7 @@ export class CausalGraph extends EventEmitter {
     removedEvent: CausalEvent,
     affectedEvents: CausalEvent[]
   ): number {
-    if (affectedEvents.length === 0) return 0;
+    if (affectedEvents.length === 0) {return 0;}
     
     // 基于受影响事件的数量和强度估算
     const avgStrength = affectedEvents.reduce((sum, e) => {
@@ -841,24 +841,24 @@ export class CausalGraph extends EventEmitter {
   private _hasCausalDependency(eventId: string, dependencyId: string): boolean {
     // 检查eventId是否依赖于dependencyId
     const event = this.events.get(eventId);
-    if (!event) return false;
+    if (!event) {return false;}
 
-    if (event.causes.includes(dependencyId)) return true;
+    if (event.causes.includes(dependencyId)) {return true;}
 
     // 递归检查
     for (const causeId of event.causes) {
-      if (this._hasCausalDependency(causeId, dependencyId)) return true;
+      if (this._hasCausalDependency(causeId, dependencyId)) {return true;}
     }
 
     return false;
   }
 
   private _calculateDepth(eventId: string, visited: Set<string> = new Set()): number {
-    if (visited.has(eventId)) return 0;
+    if (visited.has(eventId)) {return 0;}
     visited.add(eventId);
 
     const event = this.events.get(eventId);
-    if (!event || event.causes.length === 0) return 0;
+    if (!event || event.causes.length === 0) {return 0;}
 
     let maxDepth = 0;
     for (const causeId of event.causes) {

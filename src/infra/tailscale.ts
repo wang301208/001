@@ -10,6 +10,9 @@ import {
 } from "../shared/string-coerce.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import { ensureBinary } from "./binaries.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("infra:tailscale");
 
 function parsePossiblyNoisyJsonObject(stdout: string): Record<string, unknown> {
   const trimmed = stdout.trim();
@@ -360,19 +363,19 @@ export async function ensureFunnel(
       },
     );
     if (stdout.trim()) {
-      console.log(stdout.trim());
+      log.info(stdout.trim());
     }
   } catch (err) {
     const errOutput = err as { stdout?: unknown; stderr?: unknown };
     const stdout = typeof errOutput.stdout === "string" ? errOutput.stdout : "";
     const stderr = typeof errOutput.stderr === "string" ? errOutput.stderr : "";
     if (stdout.includes("Funnel is not enabled")) {
-      console.error(danger("Funnel is not enabled on this tailnet/device."));
+      log.error(danger("Funnel is not enabled on this tailnet/device."));
       const linkMatch = stdout.match(/https?:\/\/\S+/);
       if (linkMatch) {
-        console.error(info(`Enable it here: ${linkMatch[0]}`));
+        log.error(info(`Enable it here: ${linkMatch[0]}`));
       } else {
-        console.error(
+        log.error(
           info(
             "Enable in admin console: https://login.tailscale.com/admin (see https://tailscale.com/kb/1223/funnel)",
           ),
@@ -380,7 +383,7 @@ export async function ensureFunnel(
       }
     }
     if (stderr.includes("client version") || stdout.includes("client version")) {
-      console.error(
+      log.error(
         warn(
           "Tailscale client/server version mismatch detected; try updating tailscale/tailscaled.",
         ),

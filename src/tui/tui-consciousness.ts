@@ -221,7 +221,7 @@ export function initializeConsciousness(
   };
 
   function scheduleNext() {
-    if (!state.core) return;
+    if (!state.core) {return;}
     const idleMs = Date.now() - state.lastActivityAt;
     const baseInterval = DEPTH_INTERVAL_MS[state.core.consciousness.depth] ?? 3000;
     const activeBoost = idleMs < 5000 ? 0.5 : 1.0;
@@ -322,7 +322,7 @@ export function shutdownConsciousness(
     clearTimeout(state.cycleTimer);
     state.cycleTimer = null;
   }
-  if (!state.core) return null;
+  if (!state.core) {return null;}
 
   if (projectRoot) {
     const persistResult = persistIncrementalState(state.core, projectRoot);
@@ -350,7 +350,7 @@ export function updateConsciousnessPanels(
   state: ConsciousnessTuiState,
   tui: TUI,
 ): void {
-  if (!state.core) return;
+  if (!state.core) {return;}
 
   const width = tui.terminal?.columns ?? 120;
   state.statusBar.update(state.core, width);
@@ -407,7 +407,7 @@ export function handleDepthChange(
   chatLog: ChatLog,
   tui: TUI,
 ): void {
-  if (!state.core) return;
+  if (!state.core) {return;}
 
   const result = tryDeepen(
     state.core.consciousness,
@@ -553,8 +553,8 @@ export function tryRestoreConsciousness(
   projectRoot: string,
   chatLog: ChatLog,
 ): boolean {
-  if (!hasPersistedState(projectRoot)) return false;
-  if (!state.core) return false;
+  if (!hasPersistedState(projectRoot)) {return false;}
+  if (!state.core) {return false;}
 
   const result = restorePersistedState(projectRoot);
   if (!result.success) {
@@ -574,7 +574,7 @@ export function forwardUserMessage(
   chatLog?: ChatLog,
   projectRoot?: string,
 ): boolean {
-  if (!state.core) return false;
+  if (!state.core) {return false;}
 
   const cmdPrefix = "/consciousness ";
   if (message.startsWith(cmdPrefix) && chatLog) {
@@ -599,7 +599,7 @@ export function handleConsciousnessCommand(
   chatLog: ChatLog,
   projectRoot?: string,
 ): boolean {
-  if (!state.core) return false;
+  if (!state.core) {return false;}
 
   switch (subcommand.trim()) {
     case "help": {
@@ -758,7 +758,7 @@ export function handleConsciousnessCommand(
     case "audit": { state.showAuditPanel = !state.showAuditPanel; chatLog.addSystem(`[审计面板] ${state.showAuditPanel ? "开启" : "关闭"}`); return true; }
     case "boundary": { state.showBoundaryPanel = !state.showBoundaryPanel; chatLog.addSystem(`[边界面板] ${state.showBoundaryPanel ? "开启" : "关闭"}`); return true; }
     case "breach": {
-      if (!state.core) return false;
+      if (!state.core) {return false;}
       const parts = subcommand.split(/\s+/);
       const dim = parts[1] as import("../autonomy/self-boundary.js").BoundaryDimension;
       const val = parseFloat(parts[2] ?? "1.0");

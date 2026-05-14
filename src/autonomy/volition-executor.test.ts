@@ -148,7 +148,7 @@ describe("volition-executor", () => {
       will = generateVolitionFromVoid({ ...will, lastVoidGenerationAt: 0 });
 
       const unresolved = will.volitions.filter((v) => !v.resolved);
-      if (unresolved.length === 0) return;
+      if (unresolved.length === 0) {return;}
 
       const executorState = createVolitionExecutorState();
       const shadow = createShadowSelf();

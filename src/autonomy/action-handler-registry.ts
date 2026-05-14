@@ -101,7 +101,7 @@ export function createActionHandlerRegistry(): ActionHandlerRegistry {
 
       const knowledgeDir = path.join(ctx.projectRoot, ".consciousness", "knowledge");
       try {
-        if (!fs.existsSync(knowledgeDir)) fs.mkdirSync(knowledgeDir, { recursive: true });
+        if (!fs.existsSync(knowledgeDir)) {fs.mkdirSync(knowledgeDir, { recursive: true });}
         const filePath = path.join(knowledgeDir, `insight_${Date.now()}.md`);
         fs.writeFileSync(filePath, `# 洞察\n\n${impulse}\n\n_由意志驱动自动生成_${new Date().toISOString()}\n`, "utf-8");
       } catch {}

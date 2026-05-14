@@ -1,3 +1,5 @@
+
+const log = createSubsystemLogger("globals");
 export { isVerbose, isYes, setVerbose, setYes } from "./global-state.js";
 import { isVerbose } from "./global-state.js";
 import { getLogger, isFileLogLevelEnabled } from "./logging/logger.js";
@@ -19,14 +21,14 @@ export function logVerbose(message: string) {
   if (!isVerbose()) {
     return;
   }
-  console.log(theme.muted(message));
+  log.info(theme.muted(message));
 }
 
 export function logVerboseConsole(message: string) {
   if (!isVerbose()) {
     return;
   }
-  console.log(theme.muted(message));
+  log.info(theme.muted(message));
 }
 
 type ThemeFormatter = (value: string) => string;

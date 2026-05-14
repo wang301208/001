@@ -8,9 +8,12 @@ import http from 'node:http';
 import { WSServer, createWSServer } from './ws-server.js';
 import { WSClient, createWSClient } from './ws-client.js';
 import { getMessageBus } from './message-bus.js';
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("communication:verify-ws");
 
 async function main() {
-  console.log('🧪 开始验证 WebSocket 实时通信...\n');
+  log.info('🧪 开始验证 WebSocket 实时通信...\n');
   
   // 创建 HTTP 服务器
   const httpServer = http.createServer();
@@ -25,13 +28,13 @@ async function main() {
     authenticate: async (token) => token === 'test-token',
   });
   
-  console.log('✅ WebSocket 服务器已创建\n');
+  log.info('✅ WebSocket 服务器已创建\n');
   
   // 启动 HTTP 服务器
   await new Promise<void>((resolve) => {
     httpServer.listen(0, '127.0.0.1', () => {
       const port = (httpServer.address() as any).port;
-      console.log(`✅ HTTP 服务器已启动在端口 ${port}\n`);
+      log.info(`✅ HTTP 服务器已启动在端口 ${port}\n`);
       resolve();
     });
   });
@@ -41,7 +44,7 @@ async function main() {
   
   try {
     // 测试 1: 客户端连接和认证
-    console.log('✅ 测试 1: 客户端连接和认证');
+    log.info('✅ 测试 1: 客户端连接和认证');
     
     const client = createWSClient({
       autoReconnect: false,
@@ -51,14 +54,14 @@ async function main() {
     await client.connect(wsUrl, 'test-token');
     
     if (client.isConnected()) {
-      console.log('   ✓ 客户端连接成功\n');
+      log.info('   ✓ 客户端连接成功\n');
     } else {
-      console.error('   ✗ 客户端连接失败\n');
+      log.error('   ✗ 客户端连接失败\n');
       process.exit(1);
     }
     
     // 测试 2: 订阅事件
-    console.log('✅ 测试 2: 订阅事件');
+    log.info('✅ 测试 2: 订阅事件');
     
     const receivedEvents: any[] = [];
     
@@ -69,10 +72,10 @@ async function main() {
     // 等待订阅完成
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    console.log('   ✓ 事件订阅成功\n');
+    log.info('   ✓ 事件订阅成功\n');
     
     // 测试 3: 发布事件并接收
-    console.log('✅ 测试 3: 发布事件并接收');
+    log.info('✅ 测试 3: 发布事件并接收');
     
     // 直接通过 WebSocket 服务器广播事件
     await wsServer.broadcast({
@@ -87,61 +90,61 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     if (receivedEvents.length > 0) {
-      console.log(`   ✓ 收到 ${receivedEvents.length} 个事件\n`);
+      log.info(`   ✓ 收到 ${receivedEvents.length} 个事件\n`);
     } else {
-      console.error('   ✗ 未收到事件（订阅数为 0，可能需要等待认证完成）\n');
+      log.error('   ✗ 未收到事件（订阅数为 0，可能需要等待认证完成）\n');
       // 这不是致命错误，因为认证和订阅的时序问题
     }
     
     // 测试 4: 心跳检测
-    console.log('✅ 测试 4: 心跳检测');
-    console.log('   ✓ 心跳机制已启用（30秒间隔）\n');
+    log.info('✅ 测试 4: 心跳检测');
+    log.info('   ✓ 心跳机制已启用（30秒间隔）\n');
     
     // 测试 5: 统计信息
-    console.log('✅ 测试 5: 统计信息');
+    log.info('✅ 测试 5: 统计信息');
     const stats = wsServer.getStats();
-    console.log(`   总连接数: ${stats.totalConnections}`);
-    console.log(`   已认证连接: ${stats.authenticatedConnections}`);
-    console.log(`   总订阅数: ${stats.totalSubscriptions}`);
-    console.log(`   发送消息: ${stats.messagesSent}`);
-    console.log(`   接收消息: ${stats.messagesReceived}`);
-    console.log();
+    log.info(`   总连接数: ${stats.totalConnections}`);
+    log.info(`   已认证连接: ${stats.authenticatedConnections}`);
+    log.info(`   总订阅数: ${stats.totalSubscriptions}`);
+    log.info(`   发送消息: ${stats.messagesSent}`);
+    log.info(`   接收消息: ${stats.messagesReceived}`);
+    log.info();
     
     // 测试 6: 断开连接
-    console.log('✅ 测试 6: 断开连接');
+    log.info('✅ 测试 6: 断开连接');
     await client.disconnect();
     
     if (!client.isConnected()) {
-      console.log('   ✓ 客户端断开成功\n');
+      log.info('   ✓ 客户端断开成功\n');
     } else {
-      console.error('   ✗ 客户端断开失败\n');
+      log.error('   ✗ 客户端断开失败\n');
       process.exit(1);
     }
     
-    console.log('🎉 所有测试通过！\n');
-    console.log('WebSocket 实时通信功能验证完成：');
-    console.log('  ✓ 服务器创建');
-    console.log('  ✓ 客户端连接');
-    console.log('  ✓ 认证机制');
-    console.log('  ✓ 事件订阅');
-    console.log('  ✓ 事件推送');
-    console.log('  ✓ 心跳检测');
-    console.log('  ✓ 统计信息');
-    console.log('  ✓ 断开连接');
+    log.info('🎉 所有测试通过！\n');
+    log.info('WebSocket 实时通信功能验证完成：');
+    log.info('  ✓ 服务器创建');
+    log.info('  ✓ 客户端连接');
+    log.info('  ✓ 认证机制');
+    log.info('  ✓ 事件订阅');
+    log.info('  ✓ 事件推送');
+    log.info('  ✓ 心跳检测');
+    log.info('  ✓ 统计信息');
+    log.info('  ✓ 断开连接');
     
   } catch (err) {
-    console.error('❌ 验证失败:', err);
+    log.error('❌ 验证失败:', err);
     process.exit(1);
   } finally {
     // 清理
     await wsServer.close();
     httpServer.close();
     
-    console.log('\n✅ 资源已清理');
+    log.info('\n✅ 资源已清理');
   }
 }
 
 main().catch((err) => {
-  console.error('❌ 验证失败:', err);
+  log.error('❌ 验证失败:', err);
   process.exit(1);
 });

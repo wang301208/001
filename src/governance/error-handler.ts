@@ -202,9 +202,9 @@ export class ErrorClassifier {
 
     // 尝试从错误对象中提取额外信息
     const errorAny = error as any;
-    if (errorAny.code) metadata.code = errorAny.code;
-    if (errorAny.statusCode) metadata.statusCode = errorAny.statusCode;
-    if (errorAny.status) metadata.status = errorAny.status;
+    if (errorAny.code) {metadata.code = errorAny.code;}
+    if (errorAny.statusCode) {metadata.statusCode = errorAny.statusCode;}
+    if (errorAny.status) {metadata.status = errorAny.status;}
 
     return metadata;
   }

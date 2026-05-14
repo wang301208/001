@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 /**
+
+const log = createSubsystemLogger("agents:openai-ws-connection");
  * OpenAI WebSocket Connection Manager
  *
  * Manages a persistent WebSocket connection to the OpenAI Responses API
@@ -26,6 +28,7 @@ import type {
   OpenAIResponsesZhushouPhase,
 } from "./openai-ws-types.js";
 import {
+import { createSubsystemLogger } from "../logging/subsystem.js";
   buildProviderRequestTlsClientOptions,
   resolveProviderRequestPolicyConfig,
   type ModelProviderRequestTransportOverrides,
@@ -267,7 +270,7 @@ type InternalEvents = {
  *
  * manager.onMessage((event) => {
  *   if (event.type === "response.completed") {
- *     console.log("Response ID:", event.response.id);
+ *     log.info("Response ID:", event.response.id);
  *   }
  * });
  *

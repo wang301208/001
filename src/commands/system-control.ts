@@ -5,6 +5,9 @@
 import { Command } from "commander";
 import type { RuntimeEnv } from "../runtime.js";
 import { getSystemController } from "../governance/system-control.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("commands:system-control");
 
 export function registerSystemControlCommands(program: Command, runtime: RuntimeEnv): void {
   const sysGroup = program.command("sys").description("系统环境感知与控制");
@@ -14,29 +17,29 @@ export function registerSystemControlCommands(program: Command, runtime: Runtime
     .command("status")
     .description("查看系统资源状态 (CPU, 内存, 磁盘)")
     .action(async () => {
-      console.log("📊 获取系统状态...\n");
+      log.info("📊 获取系统状态...\n");
       const controller = getSystemController();
       const metrics = await controller.getSystemMetrics();
 
-      console.log(`主机名: ${metrics.hostname}`);
-      console.log(`平台: ${metrics.platform}`);
-      console.log(`运行时间: ${(metrics.uptime / 3600).toFixed(2)} 小时\n`);
+      log.info(`主机名: ${metrics.hostname}`);
+      log.info(`平台: ${metrics.platform}`);
+      log.info(`运行时间: ${(metrics.uptime / 3600).toFixed(2)} 小时\n`);
 
-      console.log("🖥️  CPU:");
-      console.log(`  型号: ${metrics.cpu.model}`);
-      console.log(`  核心数: ${metrics.cpu.cores}`);
-      console.log(`  负载估算: ${metrics.cpu.usagePercent.toFixed(1)}%`);
-      console.log(`  Load Avg: ${metrics.cpu.loadAvg.join(', ')}\n`);
+      log.info("🖥️  CPU:");
+      log.info(`  型号: ${metrics.cpu.model}`);
+      log.info(`  核心数: ${metrics.cpu.cores}`);
+      log.info(`  负载估算: ${metrics.cpu.usagePercent.toFixed(1)}%`);
+      log.info(`  Load Avg: ${metrics.cpu.loadAvg.join(', ')}\n`);
 
-      console.log("💾 内存:");
-      console.log(`  总计: ${(metrics.memory.total / 1024 / 1024 / 1024).toFixed(2)} GB`);
-      console.log(`  已用: ${(metrics.memory.used / 1024 / 1024 / 1024).toFixed(2)} GB (${metrics.memory.usagePercent.toFixed(1)}%)`);
-      console.log(`  空闲: ${(metrics.memory.free / 1024 / 1024 / 1024).toFixed(2)} GB\n`);
+      log.info("💾 内存:");
+      log.info(`  总计: ${(metrics.memory.total / 1024 / 1024 / 1024).toFixed(2)} GB`);
+      log.info(`  已用: ${(metrics.memory.used / 1024 / 1024 / 1024).toFixed(2)} GB (${metrics.memory.usagePercent.toFixed(1)}%)`);
+      log.info(`  空闲: ${(metrics.memory.free / 1024 / 1024 / 1024).toFixed(2)} GB\n`);
 
       if (metrics.disk) {
-        console.log("💿 磁盘 (/):");
-        console.log(`  总计: ${(metrics.disk.total / 1024 / 1024 / 1024).toFixed(2)} GB`);
-        console.log(`  已用: ${(metrics.disk.used / 1024 / 1024 / 1024).toFixed(2)} GB (${metrics.disk.usagePercent.toFixed(1)}%)`);
+        log.info("💿 磁盘 (/):");
+        log.info(`  总计: ${(metrics.disk.total / 1024 / 1024 / 1024).toFixed(2)} GB`);
+        log.info(`  已用: ${(metrics.disk.used / 1024 / 1024 / 1024).toFixed(2)} GB (${metrics.disk.usagePercent.toFixed(1)}%)`);
       }
     });
 
@@ -46,25 +49,25 @@ export function registerSystemControlCommands(program: Command, runtime: Runtime
     .description("列出运行中的进程")
     .option("-f, --filter <name>", "按名称过滤进程")
     .action(async (options) => {
-      console.log("🔄 获取进程列表...\n");
+      log.info("🔄 获取进程列表...\n");
       const controller = getSystemController();
       const processes = await controller.listProcesses(options.filter);
 
       if (processes.length === 0) {
-        console.log("未找到匹配的进程。");
+        log.info("未找到匹配的进程。");
         return;
       }
 
-      console.log(`找到 ${processes.length} 个进程:\n`);
-      console.log("PID\tNAME\t\tCPU%\tMEM%");
-      console.log("-".repeat(50));
+      log.info(`找到 ${processes.length} 个进程:\n`);
+      log.info("PID\tNAME\t\tCPU%\tMEM%");
+      log.info("-".repeat(50));
       
       processes.slice(0, 20).forEach(p => {
-        console.log(`${p.pid}\t${p.name.padEnd(15)}\t${p.cpu?.toFixed(1) || '-'}\t${p.memory?.toFixed(1) || '-'}`);
+        log.info(`${p.pid}\t${p.name.padEnd(15)}\t${p.cpu?.toFixed(1) || '-'}\t${p.memory?.toFixed(1) || '-'}`);
       });
       
       if (processes.length > 20) {
-        console.log(`... 还有 ${processes.length - 20} 个进程`);
+        log.info(`... 还有 ${processes.length - 20} 个进程`);
       }
     });
 
@@ -73,14 +76,14 @@ export function registerSystemControlCommands(program: Command, runtime: Runtime
     .description("终止指定 PID 的进程")
     .requiredOption("-p, --pid <number>", "进程 ID", parseInt)
     .action(async (options) => {
-      console.log(`⚠️  正在终止进程 ${options.pid}...`);
+      log.info(`⚠️  正在终止进程 ${options.pid}...`);
       const controller = getSystemController();
       const success = await controller.killProcess(options.pid);
       
       if (success) {
-        console.log("✅ 进程已终止。");
+        log.info("✅ 进程已终止。");
       } else {
-        console.log("❌ 终止失败，请检查权限或 PID 是否正确。");
+        log.info("❌ 终止失败，请检查权限或 PID 是否正确。");
       }
     });
 
@@ -94,14 +97,14 @@ export function registerSystemControlCommands(program: Command, runtime: Runtime
         const controller = getSystemController();
         const items = await controller.listDirectory(dirPath);
         
-        console.log(`📂 目录: ${dirPath}\n`);
+        log.info(`📂 目录: ${dirPath}\n`);
         items.forEach(item => {
           const type = item.isDirectory ? "📁" : "📄";
           const size = item.size ? `${(item.size / 1024).toFixed(1)} KB` : "-";
-          console.log(`${type} ${item.name.padEnd(30)} ${size}`);
+          log.info(`${type} ${item.name.padEnd(30)} ${size}`);
         });
       } catch (error: any) {
-        console.error(`❌ 错误: ${error.message}`);
+        log.error(`❌ 错误: ${error.message}`);
       }
     });
 
@@ -113,10 +116,10 @@ export function registerSystemControlCommands(program: Command, runtime: Runtime
       try {
         const controller = getSystemController();
         const content = await controller.readFile(options.file);
-        console.log(`📄 文件内容 (${options.file}):\n`);
-        console.log(content);
+        log.info(`📄 文件内容 (${options.file}):\n`);
+        log.info(content);
       } catch (error: any) {
-        console.error(`❌ 错误: ${error.message}`);
+        log.error(`❌ 错误: ${error.message}`);
       }
     });
 
@@ -131,13 +134,13 @@ export function registerSystemControlCommands(program: Command, runtime: Runtime
       
       if (options.get) {
         const content = await controller.getClipboardContent();
-        console.log("📋 剪贴板内容:");
-        console.log(content);
+        log.info("📋 剪贴板内容:");
+        log.info(content);
       } else if (options.set) {
         await controller.setClipboardContent(options.set);
-        console.log("✅ 剪贴板内容已更新。");
+        log.info("✅ 剪贴板内容已更新。");
       } else {
-        console.log("请使用 -g 获取或 -s 设置剪贴板内容。");
+        log.info("请使用 -g 获取或 -s 设置剪贴板内容。");
       }
     });
 
@@ -147,7 +150,7 @@ export function registerSystemControlCommands(program: Command, runtime: Runtime
     .description("截取当前屏幕")
     .option("-o, --output <path>", "保存路径 (默认临时文件)")
     .action(async (options) => {
-      console.log("📸 正在截图...");
+      log.info("📸 正在截图...");
       try {
         const controller = getSystemController();
         const result = await controller.takeScreenshot();
@@ -155,14 +158,14 @@ export function registerSystemControlCommands(program: Command, runtime: Runtime
         if (options.output) {
           const fs = await import('node:fs/promises');
           await fs.writeFile(options.output, result.data);
-          console.log(`✅ 截图已保存至: ${options.output}`);
+          log.info(`✅ 截图已保存至: ${options.output}`);
         } else {
-          console.log(`✅ 截图完成 (Buffer大小: ${result.data.length} bytes)`);
-          console.log("提示: 使用 -o 参数保存文件。");
+          log.info(`✅ 截图完成 (Buffer大小: ${result.data.length} bytes)`);
+          log.info("提示: 使用 -o 参数保存文件。");
         }
       } catch (error: any) {
-        console.error(`❌ 截图失败: ${error.message}`);
-        console.log("注意: Linux 可能需要安装 ImageMagick (import) 或 scrot。");
+        log.error(`❌ 截图失败: ${error.message}`);
+        log.info("注意: Linux 可能需要安装 ImageMagick (import) 或 scrot。");
       }
     });
 }

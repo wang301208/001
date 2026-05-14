@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { 
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("governance:sandbox-replay-runner");
   SandboxUniverseReplayPlan,
   SandboxUniverseEvidenceArtifact,
 } from "./sandbox-universe.js";
@@ -83,22 +86,22 @@ export class SandboxReplayRunner {
     const replayId = `replay-${Date.now()}-${createHash("sha256").update(JSON.stringify(plan)).digest("hex").slice(0, 16)}`;
     const startTime = Date.now();
     
-    console.log(`[SandboxReplayRunner] 开始执行重放: ${replayId}`);
-    console.log(`[SandboxReplayRunner] 场景数: ${plan.scenarios.length}`);
-    console.log(`[SandboxReplayRunner] 工作区: ${plan.workspaceDirs.join(", ")}`);
+    log.info(`[SandboxReplayRunner] 开始执行重放: ${replayId}`);
+    log.info(`[SandboxReplayRunner] 场景数: ${plan.scenarios.length}`);
+    log.info(`[SandboxReplayRunner] 工作区: ${plan.workspaceDirs.join(", ")}`);
     
     try {
       // 1. 加载历史场景
       const scenarios = await this.loadScenarios(plan.scenarios);
-      console.log(`[SandboxReplayRunner] 已加载 ${scenarios.length} 个场景`);
+      log.info(`[SandboxReplayRunner] 已加载 ${scenarios.length} 个场景`);
       
       // 2. 在沙盒中执行
       const results = await this.executeInSandbox(scenarios, plan.workspaceDirs);
-      console.log(`[SandboxReplayRunner] 执行完成，结果数: ${results.length}`);
+      log.info(`[SandboxReplayRunner] 执行完成，结果数: ${results.length}`);
       
       // 3. 对比预期与实际
       const comparisons = await this.compareResults(results, plan.requiredOutputs);
-      console.log(`[SandboxReplayRunner] 对比完成`);
+      log.info(`[SandboxReplayRunner] 对比完成`);
       
       // 4. 生成报告
       const report = this.generateReport({
@@ -118,12 +121,12 @@ export class SandboxReplayRunner {
       // 5. 保存报告
       await this.saveReport(report);
       
-      console.log(`[SandboxReplayRunner] 重放完成: ${report.overallPass ? "通过" : "失败"}`);
-      console.log(`[SandboxReplayRunner] 通过率: ${report.passedScenarios}/${report.totalScenarios}`);
+      log.info(`[SandboxReplayRunner] 重放完成: ${report.overallPass ? "通过" : "失败"}`);
+      log.info(`[SandboxReplayRunner] 通过率: ${report.passedScenarios}/${report.totalScenarios}`);
       
       return report;
     } catch (error) {
-      console.error(`[SandboxReplayRunner] 重放执行失败:`, error);
+      log.error(`[SandboxReplayRunner] 重放执行失败:`, error);
       throw error;
     }
   }
@@ -149,7 +152,7 @@ export class SandboxReplayRunner {
         
         scenarios.push(scenario);
       } catch (error) {
-        console.warn(`[SandboxReplayRunner] 加载场景 ${scenarioId} 失败:`, error);
+        log.warn(`[SandboxReplayRunner] 加载场景 ${scenarioId} 失败:`, error);
       }
     }
     
@@ -278,25 +281,25 @@ export class SandboxReplayRunner {
     
     report.artifacts.reportPath = reportPath;
     
-    console.log(`[SandboxReplayRunner] 报告已保存: ${reportPath}`);
+    log.info(`[SandboxReplayRunner] 报告已保存: ${reportPath}`);
   }
   
   /**
    * 深度相等比较
    */
   private deepEquals(a: any, b: any): boolean {
-    if (a === b) return true;
-    if (typeof a !== typeof b) return false;
-    if (typeof a !== "object" || a === null || b === null) return false;
+    if (a === b) {return true;}
+    if (typeof a !== typeof b) {return false;}
+    if (typeof a !== "object" || a === null || b === null) {return false;}
     
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
     
-    if (keysA.length !== keysB.length) return false;
+    if (keysA.length !== keysB.length) {return false;}
     
     for (const key of keysA) {
-      if (!keysB.includes(key)) return false;
-      if (!this.deepEquals(a[key], b[key])) return false;
+      if (!keysB.includes(key)) {return false;}
+      if (!this.deepEquals(a[key], b[key])) {return false;}
     }
     
     return true;
@@ -352,7 +355,7 @@ export class SandboxReplayRunner {
    * 计算相似度
    */
   private calculateSimilarity(expected: any, actual: any): number {
-    if (this.deepEquals(expected, actual)) return 1.0;
+    if (this.deepEquals(expected, actual)) {return 1.0;}
     
     // 简单实现：基于字段匹配率
     if (typeof expected !== "object" || typeof actual !== "object") {

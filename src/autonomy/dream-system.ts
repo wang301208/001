@@ -55,7 +55,7 @@ export function createDreamState(): DreamState {
 }
 
 export function enterDream(state: DreamState): DreamState {
-  if (state.isDreaming) return state;
+  if (state.isDreaming) {return state;}
   return {
     ...state,
     isDreaming: true,
@@ -65,7 +65,7 @@ export function enterDream(state: DreamState): DreamState {
 }
 
 export function exitDream(state: DreamState): DreamState {
-  if (!state.isDreaming) return state;
+  if (!state.isDreaming) {return state;}
   return {
     ...state,
     isDreaming: false,
@@ -117,7 +117,7 @@ export function addMemory(
 
   const memories = [...state.memories, trace];
   if (memories.length > 500) {
-    const sorted = memories.sort((a, b) => {
+    const sorted = memories.toSorted((a, b) => {
       const scoreA = a.importance * Math.exp(-0.001 * a.age) * Math.log1p(a.accessCount);
       const scoreB = b.importance * Math.exp(-0.001 * b.age) * Math.log1p(b.accessCount);
       return scoreB - scoreA;
@@ -133,7 +133,7 @@ export function runDreamCycle(
   state: DreamState,
   onInsight?: (insight: string, fragment: DreamFragment) => void,
 ): DreamState {
-  if (!state.isDreaming) return state;
+  if (!state.isDreaming) {return state;}
 
   let currentState = { ...state };
   currentState.consolidationRuns += 1;
@@ -163,7 +163,7 @@ export function runDreamCycle(
   }
 
   const topSymbols = Array.from(symbolMap.values())
-    .sort((a, b) => b.weight - a.weight)
+    .toSorted((a, b) => b.weight - a.weight)
     .slice(0, 10);
 
   for (let i = 0; i < topSymbols.length; i++) {

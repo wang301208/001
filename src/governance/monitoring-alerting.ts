@@ -91,7 +91,7 @@ export class MetricsCollector {
 
     if (labels) {
       result = result.filter((m) => {
-        if (!m.labels) return false;
+        if (!m.labels) {return false;}
         return Object.entries(labels).every(([key, value]) => m.labels![key] === value);
       });
     }
@@ -300,12 +300,12 @@ export class NotificationManager {
         ? '⚠️'
         : 'ℹ️';
 
-    console.log(
+    log.info(
       `${emoji} [${notification.severity.toUpperCase()}] ${notification.alertName}: ${notification.message}`
     );
 
     if (notification.metadata) {
-      console.log('Metadata:', notification.metadata);
+      log.info('Metadata:', notification.metadata);
     }
   }
 
@@ -384,13 +384,11 @@ export class NotificationManager {
             },
           ],
           ...(notification.metadata && {
-            fields: [
-              ...Object.entries(notification.metadata).map(([key, value]) => ({
+            fields: Object.entries(notification.metadata).map(([key, value]) => ({
                 title: key,
                 value: String(value),
                 short: true,
               })),
-            ],
           }),
         },
       ],

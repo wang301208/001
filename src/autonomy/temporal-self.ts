@@ -237,9 +237,9 @@ export function formatTemporalSelf(temporal: TemporalSelf): string[] {
 
 function formatAge(ms: number): string {
   const seconds = Math.floor(ms / 1000);
-  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 60) {return `${seconds}s`;}
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 60) {return `${minutes}m`;}
   const hours = Math.floor(minutes / 60);
   return `${hours}h ${minutes % 60}m`;
 }

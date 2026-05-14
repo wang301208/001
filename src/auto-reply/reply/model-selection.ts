@@ -4,6 +4,8 @@ import { resolveContextTokensForModel } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import type { ModelCatalogEntry } from "../../agents/model-catalog.js";
 import {
+
+const log = createSubsystemLogger("auto-reply:reply:model-selection");
   buildConfiguredModelCatalog,
   buildAllowedModelSet,
   type ModelAliasIndex,
@@ -21,6 +23,7 @@ import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import type { ThinkLevel } from "./directives.js";
 import { resolveStoredModelOverride } from "./stored-model-override.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 
 export type ModelDirectiveSelection = {
   provider: string;
@@ -277,7 +280,7 @@ export async function createModelSelectionState(params: {
       return;
     }
     const suffix = extra ? ` ${extra}` : "";
-    console.log(
+    log.info(
       `[model-selection] session=${params.sessionKey ?? "(no-session)"} stage=${stage} elapsedMs=${Date.now() - startMs}${suffix}`,
     );
   };

@@ -424,10 +424,10 @@ function handlePerceptionEvent(core: ConsciousnessCore, event: PerceptionEvent):
 function detectWeakness(self: SelfModel): string {
   const weaknesses: string[] = [];
   const caps = self.capabilities;
-  if ((caps.get("reasoning")?.strength ?? 0) < 0.5) weaknesses.push("推理");
-  if ((caps.get("memory")?.strength ?? 0) < 0.4) weaknesses.push("记忆");
-  if ((caps.get("action")?.strength ?? 0) < 0.3) weaknesses.push("行动");
-  if ((caps.get("self-modification")?.strength ?? 0) < 0.2) weaknesses.push("自修改");
+  if ((caps.get("reasoning")?.strength ?? 0) < 0.5) {weaknesses.push("推理");}
+  if ((caps.get("memory")?.strength ?? 0) < 0.4) {weaknesses.push("记忆");}
+  if ((caps.get("action")?.strength ?? 0) < 0.3) {weaknesses.push("行动");}
+  if ((caps.get("self-modification")?.strength ?? 0) < 0.2) {weaknesses.push("自修改");}
   return weaknesses.join(",");
 }
 

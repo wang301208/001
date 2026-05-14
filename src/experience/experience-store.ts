@@ -376,12 +376,12 @@ function eventSearchText(event: ExperienceEvent): string {
 }
 
 function isComplexTaskEvent(event: ExperienceEvent): boolean {
-  const tags = event.tags.map((tag) => tag.toLowerCase());
+  const tags = new Set(event.tags.map((tag) => tag.toLowerCase()));
   const haystack = eventSearchText(event).toLowerCase();
   return (
     event.kind === "complex_task" ||
-    tags.includes("complex-task") ||
-    tags.includes("skill-worthy") ||
+    tags.has("complex-task") ||
+    tags.has("skill-worthy") ||
     event.evidence.length >= 3 ||
     /\b(complex|multi-step|reproduced|verified|root cause|修复|验证)\b/i.test(haystack)
   );

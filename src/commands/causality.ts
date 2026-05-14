@@ -7,6 +7,9 @@
 import { Command } from "commander";
 import type { RuntimeEnv } from "../runtime.js";
 import { getCausalGraph, CausalEvent } from "../governance/causality-engine.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("commands:causality");
 
 export function registerCausalityCommands(program: Command, runtime: RuntimeEnv): void {
   const causalityGroup = program
@@ -27,7 +30,7 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .option("--confidence <num>", "置信度 (0-1)", "0.8")
     .option("--tags <tags...>", "标签")
     .action(async (options) => {
-      console.log(`📝 添加因果事件: ${options.id}\n`);
+      log.info(`📝 添加因果事件: ${options.id}\n`);
 
       const graph = getCausalGraph();
       
@@ -48,16 +51,16 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
 
       try {
         graph.addEvent(event);
-        console.log("✅ 事件添加成功\n");
-        console.log(`ID: ${event.id}`);
-        console.log(`类型: ${event.type}`);
-        console.log(`描述: ${event.description}`);
-        if (event.actor) console.log(`执行者: ${event.actor}`);
-        console.log(`原因数: ${event.causes.length}`);
-        console.log(`强度: ${event.strength}`);
-        console.log(`置信度: ${event.confidence}`);
+        log.info("✅ 事件添加成功\n");
+        log.info(`ID: ${event.id}`);
+        log.info(`类型: ${event.type}`);
+        log.info(`描述: ${event.description}`);
+        if (event.actor) {log.info(`执行者: ${event.actor}`);}
+        log.info(`原因数: ${event.causes.length}`);
+        log.info(`强度: ${event.strength}`);
+        log.info(`置信度: ${event.confidence}`);
       } catch (error: any) {
-        console.error(`❌ 添加失败: ${error.message}`);
+        log.error(`❌ 添加失败: ${error.message}`);
         process.exit(1);
       }
     });
@@ -66,27 +69,27 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .command("stats")
     .description("查看因果图统计信息")
     .action(() => {
-      console.log("📊 因果图统计信息\n");
+      log.info("📊 因果图统计信息\n");
 
       const graph = getCausalGraph();
       const stats = graph.getStats();
 
-      console.log(`总事件数: ${stats.totalEvents}`);
-      console.log(`总边数: ${stats.totalEdges}`);
-      console.log(`平均度数: ${stats.avgDegree.toFixed(2)}`);
-      console.log(`最大深度: ${stats.maxDepth}`);
-      console.log(`连通分量: ${stats.connectedComponents}`);
-      console.log(`\n事件类型分布:`);
+      log.info(`总事件数: ${stats.totalEvents}`);
+      log.info(`总边数: ${stats.totalEdges}`);
+      log.info(`平均度数: ${stats.avgDegree.toFixed(2)}`);
+      log.info(`最大深度: ${stats.maxDepth}`);
+      log.info(`连通分量: ${stats.connectedComponents}`);
+      log.info(`\n事件类型分布:`);
       
       for (const [type, count] of Object.entries(stats.eventTypeDistribution)) {
         if (count > 0) {
-          console.log(`  - ${type}: ${count}`);
+          log.info(`  - ${type}: ${count}`);
         }
       }
 
-      console.log(`\n时间范围:`);
-      console.log(`  - 最早: ${new Date(stats.timeRange.earliest).toISOString()}`);
-      console.log(`  - 最晚: ${new Date(stats.timeRange.latest).toISOString()}`);
+      log.info(`\n时间范围:`);
+      log.info(`  - 最早: ${new Date(stats.timeRange.earliest).toISOString()}`);
+      log.info(`  - 最晚: ${new Date(stats.timeRange.latest).toISOString()}`);
     });
 
   // ==================== 因果追溯 ====================
@@ -97,24 +100,24 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .requiredOption("--event-id <id>", "目标事件ID")
     .option("--depth <num>", "追溯深度", "5")
     .action((options) => {
-      console.log(`🔍 追溯事件 ${options.eventId} 的原因 (深度: ${options.depth})\n`);
+      log.info(`🔍 追溯事件 ${options.eventId} 的原因 (深度: ${options.depth})\n`);
 
       const graph = getCausalGraph();
       const causes = graph.getCauses(options.eventId, parseInt(options.depth));
 
       if (causes.length === 0) {
-        console.log("ℹ️  没有找到原因事件（可能是根节点）");
+        log.info("ℹ️  没有找到原因事件（可能是根节点）");
         return;
       }
 
-      console.log(`找到 ${causes.length} 个原因事件:\n`);
+      log.info(`找到 ${causes.length} 个原因事件:\n`);
       causes.forEach((cause, index) => {
-        console.log(`${index + 1}. [${cause.type}] ${cause.description}`);
-        console.log(`   ID: ${cause.id}`);
-        if (cause.actor) console.log(`   执行者: ${cause.actor}`);
-        console.log(`   强度: ${cause.strength}`);
-        console.log(`   置信度: ${cause.confidence}`);
-        console.log();
+        log.info(`${index + 1}. [${cause.type}] ${cause.description}`);
+        log.info(`   ID: ${cause.id}`);
+        if (cause.actor) {log.info(`   执行者: ${cause.actor}`);}
+        log.info(`   强度: ${cause.strength}`);
+        log.info(`   置信度: ${cause.confidence}`);
+        log.info();
       });
     });
 
@@ -124,24 +127,24 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .requiredOption("--event-id <id>", "目标事件ID")
     .option("--depth <num>", "追溯深度", "5")
     .action((options) => {
-      console.log(`🔮 追溯事件 ${options.eventId} 的结果 (深度: ${options.depth})\n`);
+      log.info(`🔮 追溯事件 ${options.eventId} 的结果 (深度: ${options.depth})\n`);
 
       const graph = getCausalGraph();
       const effects = graph.getEffects(options.eventId, parseInt(options.depth));
 
       if (effects.length === 0) {
-        console.log("ℹ️  没有找到结果事件（可能是叶节点）");
+        log.info("ℹ️  没有找到结果事件（可能是叶节点）");
         return;
       }
 
-      console.log(`找到 ${effects.length} 个结果事件:\n`);
+      log.info(`找到 ${effects.length} 个结果事件:\n`);
       effects.forEach((effect, index) => {
-        console.log(`${index + 1}. [${effect.type}] ${effect.description}`);
-        console.log(`   ID: ${effect.id}`);
-        if (effect.actor) console.log(`   执行者: ${effect.actor}`);
-        console.log(`   强度: ${effect.strength}`);
-        console.log(`   置信度: ${effect.confidence}`);
-        console.log();
+        log.info(`${index + 1}. [${effect.type}] ${effect.description}`);
+        log.info(`   ID: ${effect.id}`);
+        if (effect.actor) {log.info(`   执行者: ${effect.actor}`);}
+        log.info(`   强度: ${effect.strength}`);
+        log.info(`   置信度: ${effect.confidence}`);
+        log.info();
       });
     });
 
@@ -153,30 +156,30 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .requiredOption("--event-id <id>", "目标事件ID")
     .option("--max-depth <num>", "最大追溯深度", "5")
     .action((options) => {
-      console.log(`🎯 对事件 ${options.eventId} 进行根因分析\n`);
+      log.info(`🎯 对事件 ${options.eventId} 进行根因分析\n`);
 
       const graph = getCausalGraph();
       
       try {
         const analysis = graph.analyzeRootCause(options.eventId, parseInt(options.maxDepth));
 
-        console.log(`目标事件: ${analysis.targetEventId}\n`);
-        console.log(`置信度: ${(analysis.confidence * 100).toFixed(1)}%\n`);
+        log.info(`目标事件: ${analysis.targetEventId}\n`);
+        log.info(`置信度: ${(analysis.confidence * 100).toFixed(1)}%\n`);
 
-        console.log(`根因 (${analysis.rootCauses.length}个):\n`);
+        log.info(`根因 (${analysis.rootCauses.length}个):\n`);
         analysis.rootCauses.forEach((rc, index) => {
-          console.log(`${index + 1}. ${rc.explanation}`);
-          console.log(`   距离: ${rc.distance} 步`);
-          console.log(`   强度: ${(rc.strength * 100).toFixed(1)}%`);
-          console.log();
+          log.info(`${index + 1}. ${rc.explanation}`);
+          log.info(`   距离: ${rc.distance} 步`);
+          log.info(`   强度: ${(rc.strength * 100).toFixed(1)}%`);
+          log.info();
         });
 
-        console.log(`建议:\n`);
+        log.info(`建议:\n`);
         analysis.recommendations.forEach((rec, index) => {
-          console.log(`  ${index + 1}. ${rec}`);
+          log.info(`  ${index + 1}. ${rec}`);
         });
       } catch (error: any) {
-        console.error(`❌ 分析失败: ${error.message}`);
+        log.error(`❌ 分析失败: ${error.message}`);
         process.exit(1);
       }
     });
@@ -188,30 +191,30 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .description("因果推理：推断可能的结果")
     .requiredOption("--premise-id <id>", "前提事件ID")
     .action((options) => {
-      console.log(`🧠 基于前提事件 ${options.premiseId} 进行因果推理\n`);
+      log.info(`🧠 基于前提事件 ${options.premiseId} 进行因果推理\n`);
 
       const graph = getCausalGraph();
       
       try {
         const inference = graph.inferEffects(options.premiseId);
 
-        console.log(`前提事件: ${inference.premiseEventId}\n`);
-        console.log(`推理置信度: ${(inference.confidence * 100).toFixed(1)}%\n`);
+        log.info(`前提事件: ${inference.premiseEventId}\n`);
+        log.info(`推理置信度: ${(inference.confidence * 100).toFixed(1)}%\n`);
 
-        console.log(`可能的结果 (${inference.possibleEffects.length}个):\n`);
+        log.info(`可能的结果 (${inference.possibleEffects.length}个):\n`);
         inference.possibleEffects.forEach((effect, index) => {
-          console.log(`${index + 1}. ${effect.description}`);
-          console.log(`   概率: ${(effect.probability * 100).toFixed(1)}%`);
-          if (effect.timeframe) console.log(`   时间范围: ${effect.timeframe}`);
+          log.info(`${index + 1}. ${effect.description}`);
+          log.info(`   概率: ${(effect.probability * 100).toFixed(1)}%`);
+          if (effect.timeframe) {log.info(`   时间范围: ${effect.timeframe}`);}
           if (effect.conditions && effect.conditions.length > 0) {
-            console.log(`   条件: ${effect.conditions.join(", ")}`);
+            log.info(`   条件: ${effect.conditions.join(", ")}`);
           }
-          console.log();
+          log.info();
         });
 
-        console.log(`推理解释:\n${inference.reasoning}\n`);
+        log.info(`推理解释:\n${inference.reasoning}\n`);
       } catch (error: any) {
-        console.error(`❌ 推理失败: ${error.message}`);
+        log.error(`❌ 推理失败: ${error.message}`);
         process.exit(1);
       }
     });
@@ -224,37 +227,37 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .requiredOption("--event-id <id>", "目标事件ID")
     .requiredOption("--scenario <text>", "假设场景描述")
     .action((options) => {
-      console.log(`💭 反事实推理: ${options.scenario}\n`);
+      log.info(`💭 反事实推理: ${options.scenario}\n`);
 
       const graph = getCausalGraph();
       
       try {
         const counterfactual = graph.analyzeCounterfactual(options.eventId, options.scenario);
 
-        console.log(`原始事件: ${counterfactual.originalEventId}\n`);
-        console.log(`假设场景: ${counterfactual.hypotheticalScenario}\n`);
+        log.info(`原始事件: ${counterfactual.originalEventId}\n`);
+        log.info(`假设场景: ${counterfactual.hypotheticalScenario}\n`);
 
-        console.log(`预测结果:`);
-        console.log(`  会发生改变: ${counterfactual.predictedOutcome.wouldHappen ? "是" : "否"}`);
-        console.log(`  概率: ${(counterfactual.predictedOutcome.probability * 100).toFixed(1)}%`);
-        console.log(`  解释: ${counterfactual.predictedOutcome.explanation}\n`);
+        log.info(`预测结果:`);
+        log.info(`  会发生改变: ${counterfactual.predictedOutcome.wouldHappen ? "是" : "否"}`);
+        log.info(`  概率: ${(counterfactual.predictedOutcome.probability * 100).toFixed(1)}%`);
+        log.info(`  解释: ${counterfactual.predictedOutcome.explanation}\n`);
 
         if (counterfactual.predictedOutcome.alternativeEvents.length > 0) {
-          console.log(`替代事件:\n`);
+          log.info(`替代事件:\n`);
           counterfactual.predictedOutcome.alternativeEvents.forEach((alt, index) => {
-            console.log(`  ${index + 1}. ${alt}`);
+            log.info(`  ${index + 1}. ${alt}`);
           });
-          console.log();
+          log.info();
         }
 
-        console.log(`关键依赖 (${counterfactual.keyDependencies.length}个):\n`);
+        log.info(`关键依赖 (${counterfactual.keyDependencies.length}个):\n`);
         counterfactual.keyDependencies.forEach((dep, index) => {
-          console.log(`  ${index + 1}. ${dep}`);
+          log.info(`  ${index + 1}. ${dep}`);
         });
 
-        console.log(`\n置信度: ${(counterfactual.confidence * 100).toFixed(1)}%`);
+        log.info(`\n置信度: ${(counterfactual.confidence * 100).toFixed(1)}%`);
       } catch (error: any) {
-        console.error(`❌ 分析失败: ${error.message}`);
+        log.error(`❌ 分析失败: ${error.message}`);
         process.exit(1);
       }
     });
@@ -268,22 +271,22 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .requiredOption("--to <id>", "目标事件ID")
     .option("--max-length <num>", "最大路径长度", "10")
     .action((options) => {
-      console.log(`🛤️  查找从 ${options.from} 到 ${options.to} 的因果路径\n`);
+      log.info(`🛤️  查找从 ${options.from} 到 ${options.to} 的因果路径\n`);
 
       const graph = getCausalGraph();
       const paths = graph.findAllPaths(options.from, options.to, parseInt(options.maxLength));
 
       if (paths.length === 0) {
-        console.log("ℹ️  没有找到路径");
+        log.info("ℹ️  没有找到路径");
         return;
       }
 
-      console.log(`找到 ${paths.length} 条路径:\n`);
+      log.info(`找到 ${paths.length} 条路径:\n`);
       paths.forEach((path, index) => {
-        console.log(`${index + 1}. 路径: ${path.path.join(" → ")}`);
-        console.log(`   长度: ${path.length}`);
-        console.log(`   总强度: ${(path.totalStrength * 100).toFixed(1)}%`);
-        console.log();
+        log.info(`${index + 1}. 路径: ${path.path.join(" → ")}`);
+        log.info(`   长度: ${path.length}`);
+        log.info(`   总强度: ${(path.totalStrength * 100).toFixed(1)}%`);
+        log.info();
       });
     });
 
@@ -294,14 +297,14 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .description("导出因果图为JSON")
     .option("--output <file>", "输出文件路径", "causal-graph.json")
     .action((options) => {
-      console.log(`📤 导出因果图到 ${options.output}\n`);
+      log.info(`📤 导出因果图到 ${options.output}\n`);
 
       const graph = getCausalGraph();
       const json = graph.exportToJSON();
 
       // 在实际实现中，这里应该写入文件
-      console.log(JSON.stringify(json, null, 2));
-      console.log(`\n✅ 导出完成`);
+      log.info(JSON.stringify(json, null, 2));
+      log.info(`\n✅ 导出完成`);
     });
 
   // ==================== 清空功能 ====================
@@ -310,11 +313,11 @@ export function registerCausalityCommands(program: Command, runtime: RuntimeEnv)
     .command("clear")
     .description("清空因果图")
     .action(() => {
-      console.log("⚠️  警告: 这将清空所有因果数据\n");
+      log.info("⚠️  警告: 这将清空所有因果数据\n");
 
       const graph = getCausalGraph();
       graph.clear();
 
-      console.log("✅ 因果图已清空");
+      log.info("✅ 因果图已清空");
     });
 }

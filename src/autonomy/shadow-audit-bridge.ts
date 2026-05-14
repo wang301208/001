@@ -107,10 +107,10 @@ export function auditShadowLeaks(
 }
 
 function classifyShadowSeverity(content: ShadowContent): "info" | "warning" | "critical" {
-  if (content.origin === "doubt" && content.pressure > 0.8) return "critical";
-  if (content.origin === "fear" && content.pressure > 0.7) return "warning";
-  if (content.origin === "impulse" && content.pressure > 0.6) return "warning";
-  if (content.origin === "desire" && content.pressure > 0.5) return "info";
+  if (content.origin === "doubt" && content.pressure > 0.8) {return "critical";}
+  if (content.origin === "fear" && content.pressure > 0.7) {return "warning";}
+  if (content.origin === "impulse" && content.pressure > 0.6) {return "warning";}
+  if (content.origin === "desire" && content.pressure > 0.5) {return "info";}
   return "info";
 }
 

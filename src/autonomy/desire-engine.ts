@@ -185,7 +185,7 @@ export function satisfyDesire(
   amount: number,
 ): DesireProfile {
   const desire = profile.desires.get(kind);
-  if (!desire) return profile;
+  if (!desire) {return profile;}
 
   const newDesires = new Map(profile.desires);
   newDesires.set(kind, {
@@ -239,7 +239,7 @@ export function spawnEmergentDesire(
 export function formatDesireProfile(profile: DesireProfile): string[] {
   const lines: string[] = [];
   const sorted = Array.from(profile.desires.entries())
-    .sort(([, a], [, b]) => (b.intensity * b.urgency) - (a.intensity * a.urgency));
+    .toSorted(([, a], [, b]) => (b.intensity * b.urgency) - (a.intensity * a.urgency));
 
   for (const [kind, desire] of sorted) {
     const label = DESIRE_LABELS[kind];

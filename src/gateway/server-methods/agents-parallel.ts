@@ -261,7 +261,7 @@ export const agentsParallelHandlers: GatewayRequestHandlers = {
     }
     const limit = params.limit ?? 20;
     const listed = Array.from(batches.values())
-      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .toSorted((a, b) => b.updatedAt - a.updatedAt)
       .slice(0, limit)
       .map((batch) => refreshBatch(batch));
     respond(true, { batches: listed }, undefined);

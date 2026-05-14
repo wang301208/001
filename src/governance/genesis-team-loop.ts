@@ -4,8 +4,11 @@ import path from "node:path";
 import type { SandboxUniverseControllerState } from "./sandbox-universe.js";
 import { getGovernanceCapabilityInventory } from "./capability-registry.js";
 import { createGovernanceProposal } from "./proposals.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 
 /**
+
+const log = createSubsystemLogger("governance:genesis-team-loop");
  * Genesis Team 自动化循环控制器
  * 
  * 实现完整的自动化流水线：
@@ -74,20 +77,20 @@ export class GenesisTeamLoop {
    */
   start(): void {
     if (!this.config.enabled) {
-      console.log("[GenesisTeamLoop] 已禁用，不启动");
+      log.info("[GenesisTeamLoop] 已禁用，不启动");
       return;
     }
     
     if (this.timer) {
-      console.log("[GenesisTeamLoop] 已在运行中");
+      log.info("[GenesisTeamLoop] 已在运行中");
       return;
     }
     
-    console.log(`[GenesisTeamLoop] 启动自动化循环，扫描间隔: ${this.config.scanIntervalMs / 1000 / 60} 分钟`);
+    log.info(`[GenesisTeamLoop] 启动自动化循环，扫描间隔: ${this.config.scanIntervalMs / 1000 / 60} 分钟`);
     
     // 立即执行一次
     this.runFullCycle().catch((error) => {
-      console.error("[GenesisTeamLoop] 首次执行失败:", error);
+      log.error("[GenesisTeamLoop] 首次执行失败:", error);
     });
     
     // 设置定时循环
@@ -103,7 +106,7 @@ export class GenesisTeamLoop {
     if (this.timer) {
       clearInterval(this.timer);
       this.timer = null;
-      console.log("[GenesisTeamLoop] 已停止");
+      log.info("[GenesisTeamLoop] 已停止");
     }
   }
   
@@ -120,28 +123,28 @@ export class GenesisTeamLoop {
    */
   async runFullCycle(): Promise<void> {
     if (this.isRunning) {
-      console.log("[GenesisTeamLoop] 上一个循环仍在运行，跳过本次");
+      log.info("[GenesisTeamLoop] 上一个循环仍在运行，跳过本次");
       return;
     }
     
     this.isRunning = true;
     
     try {
-      console.log("[GenesisTeamLoop] ===== 开始新的循环 =====");
+      log.info("[GenesisTeamLoop] ===== 开始新的循环 =====");
       
       // 阶段 1: Sentinel 扫描
       const gaps = await this.sentinelScan();
-      console.log(`[GenesisTeamLoop] 检测到 ${gaps.length} 个能力缺口`);
+      log.info(`[GenesisTeamLoop] 检测到 ${gaps.length} 个能力缺口`);
       
       if (gaps.length === 0) {
-        console.log("[GenesisTeamLoop] 未发现新的能力缺口，循环结束");
+        log.info("[GenesisTeamLoop] 未发现新的能力缺口，循环结束");
         return;
       }
       
       // 阶段 2: 为每个高优先级缺口创建 evolution project
       for (const gap of gaps) {
         if (this.activeProjects.size >= this.config.maxConcurrentExperiments) {
-          console.log(`[GenesisTeamLoop] 已达到最大并发实验数 (${this.config.maxConcurrentExperiments})，等待下一轮`);
+          log.info(`[GenesisTeamLoop] 已达到最大并发实验数 (${this.config.maxConcurrentExperiments})，等待下一轮`);
           break;
         }
         
@@ -151,9 +154,9 @@ export class GenesisTeamLoop {
       // 阶段 3: 处理进行中的项目
       await this.processActiveProjects();
       
-      console.log("[GenesisTeamLoop] ===== 循环完成 =====");
+      log.info("[GenesisTeamLoop] ===== 循环完成 =====");
     } catch (error) {
-      console.error("[GenesisTeamLoop] 循环执行失败:", error);
+      log.error("[GenesisTeamLoop] 循环执行失败:", error);
     } finally {
       this.isRunning = false;
     }
@@ -163,7 +166,7 @@ export class GenesisTeamLoop {
    * 阶段 1: Sentinel 扫描能力缺口
    */
   private async sentinelScan(): Promise<GapSignal[]> {
-    console.log("[Sentinel] 开始扫描能力缺口...");
+    log.info("[Sentinel] 开始扫描能力缺口...");
     
     const gaps: GapSignal[] = [];
     
@@ -199,16 +202,16 @@ export class GenesisTeamLoop {
       const regressionSignals = await this.detectRegressionSignals();
       gaps.push(...regressionSignals);
       
-      console.log(`[Sentinel] 扫描完成，发现 ${gaps.length} 个信号`);
+      log.info(`[Sentinel] 扫描完成，发现 ${gaps.length} 个信号`);
     } catch (error) {
-      console.error("[Sentinel] 扫描失败:", error);
+      log.error("[Sentinel] 扫描失败:", error);
     }
     
-    return gaps.sort((a, b) => {
+    return gaps.toSorted((a, b) => {
       // 按严重性和置信度排序
       const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
       const severityDiff = (severityOrder[b.severity] || 0) - (severityOrder[a.severity] || 0);
-      if (severityDiff !== 0) return severityDiff;
+      if (severityDiff !== 0) {return severityDiff;}
       return b.confidence - a.confidence;
     });
   }
@@ -235,7 +238,7 @@ export class GenesisTeamLoop {
    * 阶段 2: 处理单个能力缺口
    */
   private async processGap(gap: GapSignal): Promise<void> {
-    console.log(`[GenesisTeamLoop] 处理缺口: ${gap.id} (${gap.description.slice(0, 50)}...)`);
+    log.info(`[GenesisTeamLoop] 处理缺口: ${gap.id} (${gap.description.slice(0, 50)}...)`);
     
     try {
       // 创建 evolution proposal
@@ -255,9 +258,9 @@ export class GenesisTeamLoop {
       // 立即开始分析
       await this.archaeologistAnalyze(proposalId);
       
-      console.log(`[GenesisTeamLoop] 已为缺口 ${gap.id} 创建项目 ${proposalId}`);
+      log.info(`[GenesisTeamLoop] 已为缺口 ${gap.id} 创建项目 ${proposalId}`);
     } catch (error) {
-      console.error(`[GenesisTeamLoop] 处理缺口 ${gap.id} 失败:`, error);
+      log.error(`[GenesisTeamLoop] 处理缺口 ${gap.id} 失败:`, error);
     }
   }
   
@@ -311,9 +314,9 @@ ${JSON.stringify(gap, null, 2)}
    */
   private async archaeologistAnalyze(proposalId: string): Promise<void> {
     const project = this.activeProjects.get(proposalId);
-    if (!project) return;
+    if (!project) {return;}
     
-    console.log(`[Archaeologist] 开始根因分析: ${proposalId}`);
+    log.info(`[Archaeologist] 开始根因分析: ${proposalId}`);
     project.status = "analyzing";
     
     try {
@@ -331,12 +334,12 @@ ${JSON.stringify(gap, null, 2)}
       project.artifacts.changePlan = JSON.stringify(changePlan);
       project.status = "designing";
       
-      console.log(`[Archaeologist] 分析完成: ${proposalId}`);
+      log.info(`[Archaeologist] 分析完成: ${proposalId}`);
       
       // 继续下一阶段
       await this.tddDeveloperBuild(proposalId);
     } catch (error) {
-      console.error(`[Archaeologist] 分析失败: ${proposalId}`, error);
+      log.error(`[Archaeologist] 分析失败: ${proposalId}`, error);
       project.status = "failed";
     }
   }
@@ -346,9 +349,9 @@ ${JSON.stringify(gap, null, 2)}
    */
   private async tddDeveloperBuild(proposalId: string): Promise<void> {
     const project = this.activeProjects.get(proposalId);
-    if (!project) return;
+    if (!project) {return;}
     
-    console.log(`[TDD Developer] 开始构建候选方案: ${proposalId}`);
+    log.info(`[TDD Developer] 开始构建候选方案: ${proposalId}`);
     project.status = "implementing";
     
     try {
@@ -367,12 +370,12 @@ ${JSON.stringify(gap, null, 2)}
       project.artifacts.candidateManifest = JSON.stringify(candidateManifest);
       project.status = "testing";
       
-      console.log(`[TDD Developer] 构建完成: ${proposalId}`);
+      log.info(`[TDD Developer] 构建完成: ${proposalId}`);
       
       // 继续下一阶段
       await this.qaValidate(proposalId);
     } catch (error) {
-      console.error(`[TDD Developer] 构建失败: ${proposalId}`, error);
+      log.error(`[TDD Developer] 构建失败: ${proposalId}`, error);
       project.status = "failed";
     }
   }
@@ -382,9 +385,9 @@ ${JSON.stringify(gap, null, 2)}
    */
   private async qaValidate(proposalId: string): Promise<void> {
     const project = this.activeProjects.get(proposalId);
-    if (!project) return;
+    if (!project) {return;}
     
-    console.log(`[QA] 开始验证: ${proposalId}`);
+    log.info(`[QA] 开始验证: ${proposalId}`);
     project.status = "testing";
     
     try {
@@ -402,7 +405,7 @@ ${JSON.stringify(gap, null, 2)}
       project.artifacts.qaReport = JSON.stringify(qaReport);
       project.status = "validating";
       
-      console.log(`[QA] 验证完成: ${proposalId}, 结果: ${qaReport.passed ? "通过" : "失败"}`);
+      log.info(`[QA] 验证完成: ${proposalId}, 结果: ${qaReport.passed ? "通过" : "失败"}`);
       
       if (qaReport.passed) {
         // 继续下一阶段
@@ -411,7 +414,7 @@ ${JSON.stringify(gap, null, 2)}
         project.status = "failed";
       }
     } catch (error) {
-      console.error(`[QA] 验证失败: ${proposalId}`, error);
+      log.error(`[QA] 验证失败: ${proposalId}`, error);
       project.status = "failed";
     }
   }
@@ -421,9 +424,9 @@ ${JSON.stringify(gap, null, 2)}
    */
   private async publisherPromote(proposalId: string): Promise<void> {
     const project = this.activeProjects.get(proposalId);
-    if (!project) return;
+    if (!project) {return;}
     
-    console.log(`[Publisher] 开始登记资产: ${proposalId}`);
+    log.info(`[Publisher] 开始登记资产: ${proposalId}`);
     project.status = "promoting";
     
     try {
@@ -441,14 +444,14 @@ ${JSON.stringify(gap, null, 2)}
       project.status = "completed";
       project.completedAt = Date.now();
       
-      console.log(`[Publisher] 登记完成: ${proposalId}, 资产ID: ${promotionRecord.assetId}`);
+      log.info(`[Publisher] 登记完成: ${proposalId}, 资产ID: ${promotionRecord.assetId}`);
       
       // 从活跃项目中移除（保留历史记录）
       setTimeout(() => {
         this.activeProjects.delete(proposalId);
       }, 60 * 60 * 1000); // 1 小时后清理
     } catch (error) {
-      console.error(`[Publisher] 登记失败: ${proposalId}`, error);
+      log.error(`[Publisher] 登记失败: ${proposalId}`, error);
       project.status = "failed";
     }
   }
@@ -457,7 +460,7 @@ ${JSON.stringify(gap, null, 2)}
    * 处理进行中的项目
    */
   private async processActiveProjects(): Promise<void> {
-    console.log(`[GenesisTeamLoop] 处理 ${this.activeProjects.size} 个活跃项目`);
+    log.info(`[GenesisTeamLoop] 处理 ${this.activeProjects.size} 个活跃项目`);
     
     for (const [proposalId, project] of this.activeProjects.entries()) {
       try {
@@ -479,7 +482,7 @@ ${JSON.stringify(gap, null, 2)}
             break;
         }
       } catch (error) {
-        console.error(`[GenesisTeamLoop] 处理项目 ${proposalId} 失败:`, error);
+        log.error(`[GenesisTeamLoop] 处理项目 ${proposalId} 失败:`, error);
       }
     }
   }
@@ -511,7 +514,7 @@ export function getGenesisTeamLoop(): GenesisTeamLoop {
 
 export function initializeGenesisTeamLoop(config?: GenesisTeamLoopConfig): GenesisTeamLoop {
   if (genesisTeamLoopInstance) {
-    console.log("[GenesisTeamLoop] 实例已存在，使用现有实例");
+    log.info("[GenesisTeamLoop] 实例已存在，使用现有实例");
     return genesisTeamLoopInstance;
   }
   

@@ -75,7 +75,7 @@ describe("scripts/bundle-a2ui.mjs", () => {
       path.posix.join("node_modules", "signal-utils", "package.json"),
     ]);
     expect(
-      relativeDependencyPaths.every((relativePath) => /^node_modules\//u.test(relativePath)),
+      relativeDependencyPaths.every((relativePath) => relativePath.startsWith('node_modules/')),
     ).toBe(true);
     expect(getBundleHashInputPaths(repoRoot)).not.toContain(path.join(repoRoot, "package.json"));
     expect(getBundleHashInputPaths(repoRoot)).not.toContain(path.join(repoRoot, "pnpm-lock.yaml"));

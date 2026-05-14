@@ -7,6 +7,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { BusEvent, HistoryFilter } from './message-bus.js';
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("communication:event-store");
 
 // ==================== 类型定义 ====================
 
@@ -86,7 +89,7 @@ export class SQLiteEventStore implements EventStore {
    * 初始化存储
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return;
+    if (this.initialized) {return;}
     
     try {
       // 动态导入 better-sqlite3（如果可用）
@@ -111,9 +114,9 @@ export class SQLiteEventStore implements EventStore {
       }
       
       this.initialized = true;
-      console.log('[SQLiteEventStore] Initialized at', this.options.storagePath);
+      log.info('[SQLiteEventStore] Initialized at', this.options.storagePath);
     } catch (err) {
-      console.error('[SQLiteEventStore] Failed to initialize:', err);
+      log.error('[SQLiteEventStore] Failed to initialize:', err);
       throw err;
     }
   }
@@ -153,7 +156,7 @@ export class SQLiteEventStore implements EventStore {
   async storeBatch(events: BusEvent[]): Promise<void> {
     await this.ensureInitialized();
     
-    if (events.length === 0) return;
+    if (events.length === 0) {return;}
     
     const transaction = this.db.transaction((events: BusEvent[]) => {
       const stmt = this.db.prepare(`
@@ -241,7 +244,7 @@ export class SQLiteEventStore implements EventStore {
     
     const row = this.db.prepare('SELECT * FROM events WHERE id = ?').get(eventId);
     
-    if (!row) return null;
+    if (!row) {return null;}
     
     return this.deserializeEvent(row);
   }
@@ -516,7 +519,7 @@ export async function createEventStore(options: EventStoreOptions): Promise<Even
     await store.initialize();
     return store;
   } catch (err) {
-    console.warn('[EventStore] SQLite not available, falling back to in-memory store:', err);
+    log.warn('[EventStore] SQLite not available, falling back to in-memory store:', err);
     
     // 回退到内存存储
     const store = new InMemoryEventStore(options);

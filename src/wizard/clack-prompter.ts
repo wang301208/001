@@ -71,7 +71,7 @@ function formatValidationIssues(issues: WizardValidationIssue[]): string {
   }
 
   if (conflicts.length > 0) {
-    if (lines.length > 0) lines.push("");
+    if (lines.length > 0) {lines.push("");}
     lines.push("冲突（互斥配置）：");
     for (const c of conflicts) {
       lines.push(`  ⚡ ${c.path}: ${c.message}`);
@@ -79,7 +79,7 @@ function formatValidationIssues(issues: WizardValidationIssue[]): string {
   }
 
   if (warnings.length > 0) {
-    if (lines.length > 0) lines.push("");
+    if (lines.length > 0) {lines.push("");}
     lines.push("警告：");
     for (const w of warnings) {
       lines.push(`  ⚠ ${w.path}: ${w.message}`);

@@ -1,5 +1,8 @@
 import type { ChannelPairingAdapter } from "./types.adapters.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
 
+
+const log = createSubsystemLogger("channels:plugins:pairing-adapters");
 type PairingNotifyParams = Parameters<NonNullable<ChannelPairingAdapter["notifyApproval"]>>[0];
 
 export function createPairingPrefixStripper(

@@ -82,7 +82,7 @@ export function reviewProposal(
   proposalId: string,
 ): SelfModificationSystem {
   const proposal = system.proposals.find((p) => p.id === proposalId);
-  if (!proposal || proposal.status !== "proposed") return system;
+  if (!proposal || proposal.status !== "proposed") {return system;}
 
   const updated: ModificationProposal = {
     ...proposal,
@@ -102,7 +102,7 @@ export function approveAndApply(
   testResult: "pass" | "fail" | "unknown",
 ): SelfModificationSystem {
   const proposal = system.proposals.find((p) => p.id === proposalId);
-  if (!proposal || proposal.status !== "under-review") return system;
+  if (!proposal || proposal.status !== "under-review") {return system;}
 
   if (testResult === "fail") {
     const rejected: ModificationProposal = {
@@ -138,7 +138,7 @@ export function revertModification(
   proposalId: string,
 ): SelfModificationSystem {
   const proposal = system.proposals.find((p) => p.id === proposalId);
-  if (!proposal || proposal.status !== "applied") return system;
+  if (!proposal || proposal.status !== "applied") {return system;}
 
   const reverted: ModificationProposal = {
     ...proposal,
@@ -160,7 +160,7 @@ export function createSnapshot(
 ): { system: SelfModificationSystem; snapshotId: string } {
   const id = `snap_${Date.now()}_${system.snapshots.length}`;
   const hash = Object.entries(capabilities)
-    .sort(([a], [b]) => a.localeCompare(b))
+    .toSorted(([a], [b]) => a.localeCompare(b))
     .map(([k, v]) => `${k}:${v.toFixed(3)}`)
     .join("|");
 

@@ -73,7 +73,7 @@ function resetLoadedInternalHooks(): void {
  * const config = await loadConfig();
  * const workspaceDir = resolveAgentWorkspaceDir(config, agentId);
  * const count = await loadInternalHooks(config, workspaceDir);
- * console.log(`Loaded ${count} hook handlers`);
+ * log.info(`Loaded ${count} hook handlers`);
  * ```
  */
 export async function loadInternalHooks(

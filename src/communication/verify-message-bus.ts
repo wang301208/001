@@ -5,9 +5,12 @@
  */
 
 import { MessageBus, type BusEvent } from './message-bus.js';
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("communication:verify-message-bus");
 
 async function main() {
-  console.log('🧪 开始验证消息总线...\n');
+  log.info('🧪 开始验证消息总线...\n');
   
   const bus = new MessageBus({
     enablePersistence: false,
@@ -15,7 +18,7 @@ async function main() {
   });
   
   // 测试 1: 发布和订阅
-  console.log('✅ 测试 1: 发布和订阅');
+  log.info('✅ 测试 1: 发布和订阅');
   const receivedEvents: BusEvent[] = [];
   
   bus.subscribe('system.health.check', (event) => {
@@ -33,14 +36,14 @@ async function main() {
   
   const firstPayload = receivedEvents[0]?.payload as { message?: string } | undefined;
   if (receivedEvents.length === 1 && firstPayload?.message === 'Hello') {
-    console.log('   ✓ 发布和订阅成功\n');
+    log.info('   ✓ 发布和订阅成功\n');
   } else {
-    console.error('   ✗ 发布和订阅失败\n');
+    log.error('   ✗ 发布和订阅失败\n');
     process.exit(1);
   }
   
   // 测试 2: 通配符模式
-  console.log('✅ 测试 2: 通配符模式');
+  log.info('✅ 测试 2: 通配符模式');
   const wildcardEvents: BusEvent[] = [];
   
   bus.subscribe('governance.*', (event) => {
@@ -66,14 +69,14 @@ async function main() {
   });
   
   if (wildcardEvents.length === 2) {
-    console.log('   ✓ 通配符模式成功\n');
+    log.info('   ✓ 通配符模式成功\n');
   } else {
-    console.error(`   ✗ 通配符模式失败 (收到 ${wildcardEvents.length} 个事件，期望 2 个)\n`);
+    log.error(`   ✗ 通配符模式失败 (收到 ${wildcardEvents.length} 个事件，期望 2 个)\n`);
     process.exit(1);
   }
   
   // 测试 3: 历史记录
-  console.log('✅ 测试 3: 历史记录');
+  log.info('✅ 测试 3: 历史记录');
   await bus.publish({
     type: 'system.config.reload',
     source: { type: 'system', id: 'test' },
@@ -89,14 +92,14 @@ async function main() {
   const history = bus.getHistory();
   
   if (history.length >= 2) {
-    console.log(`   ✓ 历史记录成功 (共 ${history.length} 个事件)\n`);
+    log.info(`   ✓ 历史记录成功 (共 ${history.length} 个事件)\n`);
   } else {
-    console.error('   ✗ 历史记录失败\n');
+    log.error('   ✗ 历史记录失败\n');
     process.exit(1);
   }
   
   // 测试 4: 取消订阅
-  console.log('✅ 测试 4: 取消订阅');
+  log.info('✅ 测试 4: 取消订阅');
   let unsubscribeCount = 0;
   
   const subscription = bus.subscribe('system.warning', () => {
@@ -118,26 +121,26 @@ async function main() {
   });
   
   if (unsubscribeCount === 1) {
-    console.log('   ✓ 取消订阅成功\n');
+    log.info('   ✓ 取消订阅成功\n');
   } else {
-    console.error(`   ✗ 取消订阅失败 (收到 ${unsubscribeCount} 次，期望 1 次)\n`);
+    log.error(`   ✗ 取消订阅失败 (收到 ${unsubscribeCount} 次，期望 1 次)\n`);
     process.exit(1);
   }
   
   // 测试 5: 统计信息
-  console.log('✅ 测试 5: 统计信息');
+  log.info('✅ 测试 5: 统计信息');
   const stats = bus.getStats();
   
-  console.log(`   总事件数: ${stats.totalEvents}`);
-  console.log(`   活跃订阅: ${stats.activeSubscriptions}`);
-  console.log(`   事件类型分布:`);
+  log.info(`   总事件数: ${stats.totalEvents}`);
+  log.info(`   活跃订阅: ${stats.activeSubscriptions}`);
+  log.info(`   事件类型分布:`);
   for (const [type, count] of Object.entries(stats.eventTypes)) {
-    console.log(`     - ${type}: ${count}`);
+    log.info(`     - ${type}: ${count}`);
   }
-  console.log();
+  log.info();
   
   // 测试 6: 便捷函数
-  console.log('✅ 测试 6: 便捷函数');
+  log.info('✅ 测试 6: 便捷函数');
   const { publishChannelInboundMessage, publishGovernanceProposal } = await import('./message-bus.js');
   
   const channelEvents: BusEvent[] = [];
@@ -162,23 +165,23 @@ async function main() {
   });
   
   if (channelEvents.length >= 1) {
-    console.log('   ✓ 便捷函数成功\n');
+    log.info('   ✓ 便捷函数成功\n');
   } else {
-    console.error('   ✗ 便捷函数失败\n');
+    log.error('   ✗ 便捷函数失败\n');
     process.exit(1);
   }
   
-  console.log('🎉 所有测试通过！\n');
-  console.log('消息总线核心功能验证完成：');
-  console.log('  ✓ 发布和订阅');
-  console.log('  ✓ 通配符模式');
-  console.log('  ✓ 历史记录');
-  console.log('  ✓ 取消订阅');
-  console.log('  ✓ 统计信息');
-  console.log('  ✓ 便捷函数');
+  log.info('🎉 所有测试通过！\n');
+  log.info('消息总线核心功能验证完成：');
+  log.info('  ✓ 发布和订阅');
+  log.info('  ✓ 通配符模式');
+  log.info('  ✓ 历史记录');
+  log.info('  ✓ 取消订阅');
+  log.info('  ✓ 统计信息');
+  log.info('  ✓ 便捷函数');
 }
 
 main().catch((err) => {
-  console.error('❌ 验证失败:', err);
+  log.error('❌ 验证失败:', err);
   process.exit(1);
 });

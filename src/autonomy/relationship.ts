@@ -175,12 +175,12 @@ function evolveArchetype(
   trust: number,
   care: number,
 ): RelationalArchetype {
-  if (interactions < 3) return "stranger";
-  if (interactions < 10) return "acquaintance";
-  if (trust > 0.7 && care > 0.5) return "companion";
-  if (trust > 0.6 && interactions > 20) return "collaborator";
-  if (current === "mentor" || current === "student") return current;
-  if (care > 0.7) return "symbiont";
+  if (interactions < 3) {return "stranger";}
+  if (interactions < 10) {return "acquaintance";}
+  if (trust > 0.7 && care > 0.5) {return "companion";}
+  if (trust > 0.6 && interactions > 20) {return "collaborator";}
+  if (current === "mentor" || current === "student") {return current;}
+  if (care > 0.7) {return "symbiont";}
   return current;
 }
 
@@ -215,7 +215,7 @@ export function shouldInitiateContact(
   elapsedSinceLast: number,
 ): { should: boolean; reason: string; intimacy: number } {
   const user = state.primaryUserId ? state.users.get(state.primaryUserId) : null;
-  if (!user) return { should: false, reason: "无已知用户", intimacy: 0 };
+  if (!user) {return { should: false, reason: "无已知用户", intimacy: 0 };}
 
   if (elapsedSinceLast > user.communicationPattern.silenceToleranceMs * 3) {
     return { should: true, reason: "长时间沉默，关心用户状态", intimacy: user.careLevel };

@@ -81,7 +81,7 @@ function shouldIgnore(filePath: string, ignorePatterns: string[]): boolean {
   for (const pattern of ignorePatterns) {
     if (pattern.startsWith("*.")) {
       const ext = pattern.slice(1);
-      if (basename.endsWith(ext)) return true;
+      if (basename.endsWith(ext)) {return true;}
     } else if (segments.includes(pattern)) {
       return true;
     } else if (basename === pattern) {
@@ -170,14 +170,14 @@ export class PerceptionEngine {
   }
 
   start(): void {
-    if (this.running) return;
+    if (this.running) {return;}
     this.running = true;
     this.startFileWatchers();
     this.startIdleMonitor();
   }
 
   stop(): void {
-    if (!this.running) return;
+    if (!this.running) {return;}
     this.running = false;
     this.stopFileWatchers();
     this.stopIdleMonitor();
@@ -265,9 +265,9 @@ export class PerceptionEngine {
         dirPath,
         { recursive: true, persistent: false },
         (eventType, filename) => {
-          if (!filename) return;
+          if (!filename) {return;}
           const filePath = path.join(dirPath, filename);
-          if (shouldIgnore(filePath, this.config.ignorePatterns)) return;
+          if (shouldIgnore(filePath, this.config.ignorePatterns)) {return;}
           this.handleFileEvent(eventType, filePath, dirPath);
         },
       );
@@ -304,7 +304,7 @@ export class PerceptionEngine {
           kind = "file.modified";
         }
 
-        if (!this.config.enabledKinds.has(kind)) return;
+        if (!this.config.enabledKinds.has(kind)) {return;}
 
         const event: PerceptionEvent = {
           id: nextEventId(),
@@ -322,7 +322,7 @@ export class PerceptionEngine {
   }
 
   private startIdleMonitor(): void {
-    if (!this.config.enabledKinds.has("system.idle")) return;
+    if (!this.config.enabledKinds.has("system.idle")) {return;}
     this.idleTimer = setInterval(() => {
       const now = Date.now();
       const elapsed = now - this.lastActivityAt;
@@ -355,7 +355,7 @@ export class PerceptionEngine {
     }
 
     for (const observer of this.observers.values()) {
-      if (observer.filter && !observer.filter(event)) continue;
+      if (observer.filter && !observer.filter(event)) {continue;}
       try {
         observer.onEvent(event);
       } catch {}

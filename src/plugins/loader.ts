@@ -249,7 +249,7 @@ function profilePluginLoaderSync<T>(params: {
     return params.run();
   } finally {
     const elapsedMs = performance.now() - startMs;
-    console.error(
+    log.error(
       `[plugin-load-profile] phase=${params.phase} plugin=${params.pluginId ?? "(core)"} elapsedMs=${elapsedMs.toFixed(1)} source=${params.source}`,
     );
   }

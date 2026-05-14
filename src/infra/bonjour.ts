@@ -1,11 +1,14 @@
 import { logDebug, logWarn } from "../logger.js";
 import { getLogger } from "../logging.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 import { PRODUCT_NAME } from "../wizard/zhushou-constants.js";
 import { classifyCiaoUnhandledRejection } from "./bonjour-ciao.js";
 import { formatBonjourError } from "./bonjour-errors.js";
 import { isTruthyEnvValue } from "./env.js";
 import { registerUnhandledRejectionHandler } from "./unhandled-rejections.js";
 
+
+const log = createSubsystemLogger("infra:bonjour");
 export type GatewayBonjourAdvertiser = {
   stop: () => Promise<void>;
 };

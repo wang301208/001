@@ -17,6 +17,9 @@ import {
   type GovernanceProposalRecord,
   type GovernanceProposalStatus,
 } from "./proposals.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("governance:proposal-timeout-review");
 
 // ==================== 配置常量 ====================
 
@@ -203,7 +206,7 @@ export async function processTimedOutProposals(
   // 验证超时时间范围
   const validatedTimeoutMs = validateTimeout(timeoutMs);
 
-  console.log(`🔍 开始检查超时提案 (超时阈值: ${validatedTimeoutMs / 1000}秒)`);
+  log.info(`🔍 开始检查超时提案 (超时阈值: ${validatedTimeoutMs / 1000}秒)`);
 
   // 获取所有pending状态的提案
   const proposals = await listGovernanceProposals({
@@ -213,7 +216,7 @@ export async function processTimedOutProposals(
     ...(env ? { env } : {}),
   });
 
-  console.log(`📋 找到 ${proposals.proposals.length} 个待审核提案`);
+  log.info(`📋 找到 ${proposals.proposals.length} 个待审核提案`);
 
   const now = Date.now();
   const result: TimeoutReviewResult = {
@@ -261,12 +264,12 @@ export async function processTimedOutProposals(
     }
   }
 
-  console.log(`✅ 超时审核完成:`);
-  console.log(`   - 总检查: ${result.totalChecked}`);
-  console.log(`   - 超时: ${result.timedOutCount}`);
-  console.log(`   - 自动通过: ${result.autoApprovedCount}`);
-  console.log(`   - 跳过: ${result.skippedCount}`);
-  console.log(`   - 失败: ${result.failedCount}`);
+  log.info(`✅ 超时审核完成:`);
+  log.info(`   - 总检查: ${result.totalChecked}`);
+  log.info(`   - 超时: ${result.timedOutCount}`);
+  log.info(`   - 自动通过: ${result.autoApprovedCount}`);
+  log.info(`   - 跳过: ${result.skippedCount}`);
+  log.info(`   - 失败: ${result.failedCount}`);
 
   return result;
 }
@@ -306,9 +309,9 @@ async function checkAndAutoApproveProposal(
   }
 
   // 执行自动通过
-  console.log(`⏰ 提案超时，自动通过: ${proposal.id} (${proposal.title})`);
-  console.log(`   - 等待时长: ${pendingDuration / 1000}秒`);
-  console.log(`   - 风险级别: ${riskLevel}`);
+  log.info(`⏰ 提案超时，自动通过: ${proposal.id} (${proposal.title})`);
+  log.info(`   - 等待时长: ${pendingDuration / 1000}秒`);
+  log.info(`   - 风险级别: ${riskLevel}`);
 
   try {
     await reviewGovernanceProposal({
@@ -345,14 +348,14 @@ async function checkAndAutoApproveProposal(
       },
     });
 
-    console.log(`✅ 已自动通过提案: ${proposal.id}`);
+    log.info(`✅ 已自动通过提案: ${proposal.id}`);
 
     return {
       ...baseEntry,
       autoApproved: true,
     };
   } catch (error) {
-    console.error(`❌ 自动通过失败: ${proposal.id}`, error);
+    log.error(`❌ 自动通过失败: ${proposal.id}`, error);
     throw error;
   }
 }
@@ -362,12 +365,12 @@ async function checkAndAutoApproveProposal(
  */
 function validateTimeout(timeoutMs: number): number {
   if (timeoutMs < MIN_REVIEW_TIMEOUT_MS) {
-    console.warn(`⚠️  超时时间过小 (${timeoutMs}ms)，调整为最小值 ${MIN_REVIEW_TIMEOUT_MS}ms`);
+    log.warn(`⚠️  超时时间过小 (${timeoutMs}ms)，调整为最小值 ${MIN_REVIEW_TIMEOUT_MS}ms`);
     return MIN_REVIEW_TIMEOUT_MS;
   }
 
   if (timeoutMs > MAX_REVIEW_TIMEOUT_MS) {
-    console.warn(`⚠️  超时时间过大 (${timeoutMs}ms)，调整为最大值 ${MAX_REVIEW_TIMEOUT_MS}ms`);
+    log.warn(`⚠️  超时时间过大 (${timeoutMs}ms)，调整为最大值 ${MAX_REVIEW_TIMEOUT_MS}ms`);
     return MAX_REVIEW_TIMEOUT_MS;
   }
 
@@ -393,19 +396,19 @@ export function startPeriodicTimeoutCheck(
   intervalMs: number = 60_000,
   config: TimeoutReviewConfig = {}
 ): NodeJS.Timeout {
-  console.log(`⏱️  启动定时超时检查 (间隔: ${intervalMs / 1000}秒)`);
+  log.info(`⏱️  启动定时超时检查 (间隔: ${intervalMs / 1000}秒)`);
 
   const timer = setInterval(async () => {
     try {
       await processTimedOutProposals(config);
     } catch (error) {
-      console.error("❌ 定时超时检查失败:", error);
+      log.error("❌ 定时超时检查失败:", error);
     }
   }, intervalMs);
 
   // 立即执行一次
   processTimedOutProposals(config).catch((error) => {
-    console.error("❌ 初始超时检查失败:", error);
+    log.error("❌ 初始超时检查失败:", error);
   });
 
   return timer;
@@ -416,5 +419,5 @@ export function startPeriodicTimeoutCheck(
  */
 export function stopPeriodicTimeoutCheck(timer: NodeJS.Timeout): void {
   clearInterval(timer);
-  console.log("⏹️  已停止定时超时检查");
+  log.info("⏹️  已停止定时超时检查");
 }

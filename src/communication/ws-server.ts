@@ -22,6 +22,9 @@ import {
   createErrorMessage,
   generateMessageId,
 } from './ws-protocol.js';
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("communication:ws-server");
 
 // ==================== 类型定义 ====================
 
@@ -133,7 +136,7 @@ export class WSServer {
     // 启动心跳检测
     this.startHeartbeat();
     
-    console.log(`[WSServer] Initialized on path: ${this.options.path}`);
+    log.info(`[WSServer] Initialized on path: ${this.options.path}`);
   }
   
   /**
@@ -155,7 +158,7 @@ export class WSServer {
       this.wss.close(() => resolve());
     });
     
-    console.log('[WSServer] Closed');
+    log.info('[WSServer] Closed');
   }
   
   /**
@@ -191,7 +194,7 @@ export class WSServer {
     });
     
     this.wss.on('error', (err: Error) => {
-      console.error('[WSServer] Error:', err);
+      log.error('[WSServer] Error:', err);
       this.stats.errors++;
     });
   }
@@ -227,7 +230,7 @@ export class WSServer {
     this.connections.set(connId, connection);
     this.stats.totalConnections++;
     
-    console.log(`[WSServer] New connection: ${connId} from ${connection.remoteAddress}`);
+    log.info(`[WSServer] New connection: ${connId} from ${connection.remoteAddress}`);
     
     // 设置消息处理器
     ws.on('message', (data: WebSocket.Data) => {
@@ -241,7 +244,7 @@ export class WSServer {
     
     // 设置错误处理器
     ws.on('error', (err: Error) => {
-      console.error(`[WSServer] Connection error (${connId}):`, err);
+      log.error(`[WSServer] Connection error (${connId}):`, err);
       this.stats.errors++;
     });
     
@@ -315,7 +318,7 @@ export class WSServer {
           success: true,
         });
         
-        console.log(`[WSServer] Connection authenticated: ${connection.id}`);
+        log.info(`[WSServer] Connection authenticated: ${connection.id}`);
       } else {
         this.sendError(connection, 'AUTH_FAILED', 'Invalid token', {
           id: message.id,
@@ -329,7 +332,7 @@ export class WSServer {
         }, 5000);
       }
     } catch (err) {
-      console.error('[WSServer] Auth error:', err);
+      log.error('[WSServer] Auth error:', err);
       this.sendError(connection, 'INTERNAL_ERROR', 'Authentication failed');
     }
   }
@@ -362,7 +365,7 @@ export class WSServer {
       subscriptionIds,
     });
     
-    console.log(`[WSServer] Subscribed ${subscriptionIds.length} patterns for ${connection.id}`);
+    log.info(`[WSServer] Subscribed ${subscriptionIds.length} patterns for ${connection.id}`);
   }
   
   /**
@@ -392,7 +395,7 @@ export class WSServer {
       success: true,
     });
     
-    console.log(`[WSServer] Unsubscribed ${removedCount} patterns for ${connection.id}`);
+    log.info(`[WSServer] Unsubscribed ${removedCount} patterns for ${connection.id}`);
   }
   
   /**
@@ -425,7 +428,7 @@ export class WSServer {
       this.stats.authenticatedConnections--;
     }
     
-    console.log(`[WSServer] Connection closed: ${connection.id} (code: ${code}, reason: ${reason})`);
+    log.info(`[WSServer] Connection closed: ${connection.id} (code: ${code}, reason: ${reason})`);
   }
   
   /**
@@ -438,7 +441,7 @@ export class WSServer {
         connection.ws.send(json);
         this.stats.messagesSent++;
       } catch (err) {
-        console.error(`[WSServer] Failed to send message to ${connection.id}:`, err);
+        log.error(`[WSServer] Failed to send message to ${connection.id}:`, err);
         this.stats.errors++;
       }
     }
@@ -469,7 +472,7 @@ export class WSServer {
     const subscribers: WSConnection[] = [];
     
     for (const conn of this.connections.values()) {
-      if (!conn.authenticated) continue;
+      if (!conn.authenticated) {continue;}
       
       for (const pattern of conn.subscriptions.values()) {
         if (this.matchesPattern(eventType, pattern)) {
@@ -542,7 +545,7 @@ export class WSServer {
       for (const conn of this.connections.values()) {
         if (now - conn.lastHeartbeat > timeout) {
           // 心跳超时，关闭连接
-          console.log(`[WSServer] Heartbeat timeout for ${conn.id}`);
+          log.info(`[WSServer] Heartbeat timeout for ${conn.id}`);
           conn.ws.close(1001, 'Heartbeat timeout');
         } else {
           // 发送心跳 ping

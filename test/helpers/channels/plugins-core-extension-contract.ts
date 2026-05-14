@@ -102,7 +102,7 @@ function getTelegramConfigForDirectory(params: {
   }
   return {
     ...telegram,
-    ...(telegram?.accounts?.[accountId] ?? {}),
+    ...telegram?.accounts?.[accountId],
   };
 }
 
@@ -247,7 +247,7 @@ function getWhatsAppConfigForDirectory(params: {
   }
   return {
     ...whatsapp,
-    ...(whatsapp?.accounts?.[effectiveAccountId] ?? {}),
+    ...whatsapp?.accounts?.[effectiveAccountId],
   };
 }
 

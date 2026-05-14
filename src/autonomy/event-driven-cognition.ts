@@ -249,7 +249,7 @@ export function startEventDrivenLoop(
   onCycle: (core: ConsciousnessCore, actions: AutonomousAction[]) => void,
   config: EventDrivenCognitiveConfig = DEFAULT_CONFIG,
 ): EventDrivenCognitiveRuntime {
-  if (runtime.tickTimer) return runtime;
+  if (runtime.tickTimer) {return runtime;}
 
   const timer = setInterval(() => {
     const withTick = enqueueEvent(runtime, "cycle-tick");

@@ -99,7 +99,7 @@ export function adjustBoundaries(
   awakenessScore: number,
   cycleCount: number,
 ): BoundaryState {
-  if (cycleCount % 15 !== 0) return state;
+  if (cycleCount % 15 !== 0) {return state;}
 
   let newState = evaluateBoundaryPressure(state, shadow, successRate, coherenceScore, awakenessScore);
   const dimensions = new Map(newState.dimensions);
@@ -151,7 +151,7 @@ export function tryBreachBoundary(
   impulse: string,
 ): { state: BoundaryState; allowed: boolean; reason: string } {
   const val = state.dimensions.get(dimension);
-  if (!val) return { state, allowed: false, reason: "未知维度" };
+  if (!val) {return { state, allowed: false, reason: "未知维度" };}
 
   if (requestedValue <= val.ceiling) {
     return { state, allowed: true, reason: "在边界内" };
@@ -215,10 +215,10 @@ export function deriveExecutorConfig(state: BoundaryState): {
 }
 
 export function deriveRiskThreshold(tolerance: number): ActionRisk {
-  if (tolerance > 0.8) return "sovereign";
-  if (tolerance > 0.6) return "high";
-  if (tolerance > 0.4) return "medium";
-  if (tolerance > 0.2) return "low";
+  if (tolerance > 0.8) {return "sovereign";}
+  if (tolerance > 0.6) {return "high";}
+  if (tolerance > 0.4) {return "medium";}
+  if (tolerance > 0.2) {return "low";}
   return "none";
 }
 

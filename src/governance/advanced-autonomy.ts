@@ -712,7 +712,7 @@ export class LearningEngine {
     });
     
     const topInsights = Object.entries(insightCounts)
-      .sort((a, b) => b[1] - a[1])
+      .toSorted((a, b) => b[1] - a[1])
       .slice(0, 10)
       .map(([insight, count]) => ({ insight, count }));
     
@@ -820,7 +820,7 @@ export class CollaborationCoordinator {
           agent.capabilities.includes(cap)
         )
       )
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         // 按负载和性能排序
         const loadScoreA = 100 - a.currentLoad;
         const loadScoreB = 100 - b.currentLoad;

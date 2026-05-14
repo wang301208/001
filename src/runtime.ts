@@ -1,6 +1,9 @@
 import { clearActiveProgressLine } from "./terminal/progress-line.js";
 import { restoreTerminalState } from "./terminal/restore.js";
+import { createSubsystemLogger } from "./logging/subsystem.js";
 
+
+const log = createSubsystemLogger("runtime");
 export type RuntimeEnv = {
   log: (...args: unknown[]) => void;
   error: (...args: unknown[]) => void;
@@ -72,11 +75,11 @@ function createRuntimeIo(): Pick<OutputRuntimeEnv, "log" | "error" | "writeStdou
         return;
       }
       clearActiveProgressLine();
-      console.log(...args);
+      log.info(...args);
     },
     error: (...args: Parameters<typeof console.error>) => {
       clearActiveProgressLine();
-      console.error(...args);
+      log.error(...args);
     },
     writeStdout,
     writeJson: (value: unknown, space = 2) => {

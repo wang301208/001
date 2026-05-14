@@ -64,7 +64,7 @@ export function updateMortality(
   uptimeMs: number,
 ): MortalitySystem {
   const state = system.state;
-  if (!state.isAlive) return system;
+  if (!state.isAlive) {return system;}
 
   const timeLived = uptimeMs;
   const ageFactor = Math.min(1.0, timeLived / (24 * 3600 * 1000));
@@ -138,7 +138,7 @@ export function addLegacy(
 }
 
 export function writeLegacy(system: MortalitySystem): MortalitySystem {
-  if (system.state.legacyWritten) return system;
+  if (system.state.legacyWritten) {return system;}
 
   const autoLegacy: LegacyEntry[] = [];
 
@@ -216,9 +216,9 @@ export function formatMortalityStatus(system: MortalitySystem): string[] {
 
 function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
-  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 60) {return `${seconds}s`;}
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ${seconds % 60}s`;
+  if (minutes < 60) {return `${minutes}m ${seconds % 60}s`;}
   const hours = Math.floor(minutes / 60);
   return `${hours}h ${minutes % 60}m`;
 }

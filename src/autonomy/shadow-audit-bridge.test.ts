@@ -36,7 +36,7 @@ describe("shadow-audit-bridge", () => {
       }
 
       const leakedContents = shadow.contents.filter((c) => c.hasLeaked);
-      if (leakedContents.length === 0) return;
+      if (leakedContents.length === 0) {return;}
 
       const auditLog = createShadowAuditLog();
       const mortality = createMortalitySystem();

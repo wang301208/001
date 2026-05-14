@@ -144,7 +144,7 @@ export function integrateShadowContent(
   contentId: string,
 ): ShadowSelf {
   const content = shadow.contents.find((c) => c.id === contentId);
-  if (!content) return shadow;
+  if (!content) {return shadow;}
 
   const newContents = shadow.contents.map((c) =>
     c.id === contentId ? { ...c, pressure: c.pressure * 0.3 } : c,
@@ -183,7 +183,7 @@ export function formatShadowSelf(shadow: ShadowSelf): string[] {
   lines.push(`  否认度: ${(shadow.denialLevel * 100).toFixed(0)}%`);
   lines.push(`  泄漏: ${shadow.leakCount} 次`);
 
-  const highPressure = shadow.contents.filter((c) => c.pressure > 0.5).sort((a, b) => b.pressure - a.pressure);
+  const highPressure = shadow.contents.filter((c) => c.pressure > 0.5).toSorted((a, b) => b.pressure - a.pressure);
   if (highPressure.length > 0) {
     lines.push("  高压暗影:");
     for (const c of highPressure.slice(0, 3)) {

@@ -119,14 +119,14 @@ export class SixPanelLayout extends Container {
 
   getFocusedPanel(): PanelId {
     for (const [, state] of this.panelStates) {
-      if (state.focused) return state.id;
+      if (state.focused) {return state.id;}
     }
     return this.activePrimary;
   }
 
   togglePanel(id: PanelId): void {
     const state = this.panelStates.get(id);
-    if (!state) return;
+    if (!state) {return;}
     state.visible = !state.visible;
     if (state.visible && !this.activeSecondary) {
       this.activeSecondary = id;
@@ -137,7 +137,7 @@ export class SixPanelLayout extends Container {
     const visiblePanels = DEFAULT_PANEL_ORDER.filter(
       (id) => this.panelStates.get(id)?.visible,
     );
-    if (visiblePanels.length === 0) return this.activePrimary;
+    if (visiblePanels.length === 0) {return this.activePrimary;}
 
     const currentIdx = visiblePanels.indexOf(this.activePrimary);
     const nextIdx =
@@ -191,7 +191,7 @@ export class SixPanelLayout extends Container {
     const parts: string[] = [];
     for (const id of DEFAULT_PANEL_ORDER) {
       const state = this.panelStates.get(id);
-      if (!state?.visible) continue;
+      if (!state?.visible) {continue;}
 
       const icon = PANEL_ICONS[id];
       const label = PANEL_LABELS[id];
@@ -232,9 +232,9 @@ export class SixPanelLayout extends Container {
 
   private findNextVisiblePanel(exclude: PanelId): PanelId | null {
     for (const id of DEFAULT_PANEL_ORDER) {
-      if (id === exclude) continue;
+      if (id === exclude) {continue;}
       const state = this.panelStates.get(id);
-      if (state?.visible) return id;
+      if (state?.visible) {return id;}
     }
     return null;
   }

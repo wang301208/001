@@ -329,8 +329,8 @@ export function assertObjectEquals(
   expected: Record<string, any>,
   message?: string
 ): void {
-  const actualKeys = Object.keys(actual).sort();
-  const expectedKeys = Object.keys(expected).sort();
+  const actualKeys = Object.keys(actual).toSorted();
+  const expectedKeys = Object.keys(expected).toSorted();
 
   if (JSON.stringify(actualKeys) !== JSON.stringify(expectedKeys)) {
     throw new AssertionError(

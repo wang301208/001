@@ -296,12 +296,10 @@ describe("parseNpmPackJsonOutput", () => {
 
 describe("collectRequiredPackErrors", () => {
   it("rejects packs missing required release paths", () => {
-    expect(collectRequiredPackErrors(["dist/index.mjs"])).toEqual([
-      ...REQUIRED_PACKED_PATHS.map(
+    expect(collectRequiredPackErrors(["dist/index.mjs"])).toEqual(REQUIRED_PACKED_PATHS.map(
         (requiredPath) =>
           `npm package is missing required path "${requiredPath}". Ensure build artifacts are included before publish.`,
-      ),
-    ]);
+      ));
   });
 
   it("accepts packs that ship required release paths", () => {

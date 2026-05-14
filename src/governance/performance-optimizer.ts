@@ -578,7 +578,7 @@ export class PerformanceMonitor {
     const relevant = this.metrics
       .filter((m) => m.name === name && now - m.timestamp < windowMs)
       .map((m) => m.value)
-      .sort((a, b) => a - b);
+      .toSorted((a, b) => a - b);
 
     if (relevant.length === 0) {
       return { count: 0, avg: 0, min: 0, max: 0, p50: 0, p95: 0, p99: 0 };

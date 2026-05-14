@@ -1,7 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 
 /**
+
+const log = createSubsystemLogger("governance:post-promotion-observer");
  * 晋升后观察器
  * 
  * 负责监控已晋升资产的行为，检测回归并自动触发告警或回滚。
@@ -107,7 +110,7 @@ export class PostPromotionObserver {
    * @param assetId 资产 ID
    */
   async startObserving(promotionId: string, assetId: string): Promise<void> {
-    console.log(`[PostPromotionObserver] 开始观察资产: ${assetId} (晋升ID: ${promotionId})`);
+    log.info(`[PostPromotionObserver] 开始观察资产: ${assetId} (晋升ID: ${promotionId})`);
     
     // 如果已有观察任务，先停止
     this.stopObserving(promotionId);
@@ -125,7 +128,7 @@ export class PostPromotionObserver {
     // 在观察窗口结束后自动停止
     setTimeout(() => {
       this.stopObserving(promotionId);
-      console.log(`[PostPromotionObserver] 观察窗口结束: ${assetId}`);
+      log.info(`[PostPromotionObserver] 观察窗口结束: ${assetId}`);
     }, this.config.observationWindowMs);
   }
   
@@ -137,7 +140,7 @@ export class PostPromotionObserver {
     if (timer) {
       clearInterval(timer);
       this.timers.delete(promotionId);
-      console.log(`[PostPromotionObserver] 停止观察: ${promotionId}`);
+      log.info(`[PostPromotionObserver] 停止观察: ${promotionId}`);
     }
   }
   
@@ -148,7 +151,7 @@ export class PostPromotionObserver {
     const reportId = `obs-${Date.now()}-${promotionId.slice(0, 8)}`;
     const startTime = Date.now();
     
-    console.log(`[PostPromotionObserver] 执行观察: ${reportId}`);
+    log.info(`[PostPromotionObserver] 执行观察: ${reportId}`);
     
     try {
       // 1. 收集指标
@@ -197,11 +200,11 @@ export class PostPromotionObserver {
         await this.sendAlert(report);
       }
       
-      console.log(`[PostPromotionObserver] 观察完成: ${overallStatus}`);
+      log.info(`[PostPromotionObserver] 观察完成: ${overallStatus}`);
       
       return report;
     } catch (error) {
-      console.error(`[PostPromotionObserver] 观察失败:`, error);
+      log.error(`[PostPromotionObserver] 观察失败:`, error);
       throw error;
     }
   }
@@ -306,7 +309,7 @@ export class PostPromotionObserver {
     assetId: string,
     regression: RegressionDetection
   ): Promise<RollbackTrigger> {
-    console.log(`[PostPromotionObserver] 触发回滚: ${assetId}, 原因: ${regression.description}`);
+    log.info(`[PostPromotionObserver] 触发回滚: ${assetId}, 原因: ${regression.description}`);
     
     const rollbackTrigger: RollbackTrigger = {
       triggered: true,
@@ -329,7 +332,7 @@ export class PostPromotionObserver {
     // 当前模拟回滚成功
     rollbackTrigger.success = true;
     
-    console.log(`[PostPromotionObserver] 回滚执行完成: ${assetId}`);
+    log.info(`[PostPromotionObserver] 回滚执行完成: ${assetId}`);
     
     return rollbackTrigger;
   }
@@ -428,12 +431,12 @@ export class PostPromotionObserver {
    * 发送告警
    */
   private async sendAlert(report: ObservationReport): Promise<void> {
-    console.warn(`[PostPromotionObserver] ⚠️  严重告警: ${report.summary}`);
-    console.warn(`[PostPromotionObserver] 资产: ${report.assetId}`);
-    console.warn(`[PostPromotionObserver] 回归数: ${report.regressions.length}`);
+    log.warn(`[PostPromotionObserver] ⚠️  严重告警: ${report.summary}`);
+    log.warn(`[PostPromotionObserver] 资产: ${report.assetId}`);
+    log.warn(`[PostPromotionObserver] 回归数: ${report.regressions.length}`);
     
     if (report.rollbackTrigger) {
-      console.warn(`[PostPromotionObserver] 已触发回滚: ${report.rollbackTrigger.reason}`);
+      log.warn(`[PostPromotionObserver] 已触发回滚: ${report.rollbackTrigger.reason}`);
     }
     
     // TODO: 集成实际的告警系统（如 Slack、邮件等）
@@ -452,7 +455,7 @@ export class PostPromotionObserver {
   cleanup(): void {
     for (const [promotionId, timer] of this.timers.entries()) {
       clearInterval(timer);
-      console.log(`[PostPromotionObserver] 清理观察任务: ${promotionId}`);
+      log.info(`[PostPromotionObserver] 清理观察任务: ${promotionId}`);
     }
     this.timers.clear();
   }
@@ -470,7 +473,7 @@ export function getPostPromotionObserver(): PostPromotionObserver {
 
 export function initializePostPromotionObserver(config?: PromotionObservationConfig): PostPromotionObserver {
   if (postPromotionObserverInstance) {
-    console.log("[PostPromotionObserver] 实例已存在，使用现有实例");
+    log.info("[PostPromotionObserver] 实例已存在，使用现有实例");
     return postPromotionObserverInstance;
   }
   

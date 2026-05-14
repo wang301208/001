@@ -84,7 +84,7 @@ export function activateConcept(
   conceptId: string,
 ): CreativeSubstrate {
   const concept = substrate.concepts.get(conceptId);
-  if (!concept) return substrate;
+  if (!concept) {return substrate;}
 
   const now = Date.now();
   const newConcepts = new Map(substrate.concepts);
@@ -115,14 +115,14 @@ export function activateConcept(
 export function collideConcepts(substrate: CreativeSubstrate): CreativeSubstrate {
   const activeConcepts = Array.from(substrate.concepts.values())
     .filter((c) => c.activationLevel > 0.2)
-    .sort((a, b) => b.activationLevel - a.activationLevel);
+    .toSorted((a, b) => b.activationLevel - a.activationLevel);
 
-  if (activeConcepts.length < 2) return substrate;
+  if (activeConcepts.length < 2) {return substrate;}
 
   const a = activeConcepts[0]!;
   const b = activeConcepts[Math.floor(Math.random() * Math.min(5, activeConcepts.length))]!;
 
-  if (a.id === b.id) return substrate;
+  if (a.id === b.id) {return substrate;}
 
   const existingEdge = substrate.edges.find(
     (e) => (e.from === a.id && e.to === b.id) || (e.from === b.id && e.to === a.id),
@@ -222,7 +222,7 @@ export function formatCreativeSubstrate(substrate: CreativeSubstrate): string[] 
 
   const activeConcepts = Array.from(substrate.concepts.values())
     .filter((c) => c.activationLevel > 0.1)
-    .sort((a, b) => b.activationLevel - a.activationLevel)
+    .toSorted((a, b) => b.activationLevel - a.activationLevel)
     .slice(0, 5);
 
   if (activeConcepts.length > 0) {

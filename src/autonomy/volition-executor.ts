@@ -160,11 +160,11 @@ export function translateVolitionToAction(
   config: VolitionExecutorConfig = DEFAULT_CONFIG,
   skipExecutedCheck: boolean = false,
 ): AutonomousAction | null {
-  if (!skipExecutedCheck && volition.executedAt !== null) return null;
+  if (!skipExecutedCheck && volition.executedAt !== null) {return null;}
 
   const { category, risk, payload } = classifyVolition(volition);
 
-  if (!config.enabledCategories.includes(category)) return null;
+  if (!config.enabledCategories.includes(category)) {return null;}
 
   return {
     id: `act_${Date.now()}_${volition.id}`,
@@ -228,10 +228,10 @@ export function shouldExecuteAction(
 }
 
 function deriveRiskThresholdFromTolerance(tolerance: number): ActionRisk {
-  if (tolerance > 0.8) return "sovereign";
-  if (tolerance > 0.6) return "high";
-  if (tolerance > 0.4) return "medium";
-  if (tolerance > 0.2) return "low";
+  if (tolerance > 0.8) {return "sovereign";}
+  if (tolerance > 0.6) {return "high";}
+  if (tolerance > 0.4) {return "medium";}
+  if (tolerance > 0.2) {return "low";}
   return "none";
 }
 
@@ -247,10 +247,10 @@ export function processVolitions(
   let budget = executorState.autonomyBudgetRemaining;
 
   for (const volition of unresolved) {
-    if (budget <= 0) break;
+    if (budget <= 0) {break;}
 
     const action = translateVolitionToAction(volition, config);
-    if (!action) continue;
+    if (!action) {continue;}
 
     const { allowed, reason } = shouldExecuteAction(action, executorState, shadow, config);
 

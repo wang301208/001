@@ -494,16 +494,16 @@ export class MessageNormalizer {
    */
   private getAttachmentType(filename?: string, mimeType?: string): 'image' | 'video' | 'audio' | 'file' {
     if (mimeType) {
-      if (mimeType.startsWith('image/')) return 'image';
-      if (mimeType.startsWith('video/')) return 'video';
-      if (mimeType.startsWith('audio/')) return 'audio';
+      if (mimeType.startsWith('image/')) {return 'image';}
+      if (mimeType.startsWith('video/')) {return 'video';}
+      if (mimeType.startsWith('audio/')) {return 'audio';}
     }
     
     if (filename) {
       const ext = filename.split('.').pop()?.toLowerCase();
-      if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '')) return 'image';
-      if (['mp4', 'avi', 'mov', 'webm'].includes(ext || '')) return 'video';
-      if (['mp3', 'wav', 'ogg', 'flac'].includes(ext || '')) return 'audio';
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '')) {return 'image';}
+      if (['mp4', 'avi', 'mov', 'webm'].includes(ext || '')) {return 'video';}
+      if (['mp3', 'wav', 'ogg', 'flac'].includes(ext || '')) {return 'audio';}
     }
     
     return 'file';

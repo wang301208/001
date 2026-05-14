@@ -71,7 +71,7 @@ export async function listConfigSnapshots(
     }
   }
 
-  return snapshots.sort((a, b) => b.timestamp - a.timestamp);
+  return snapshots.toSorted((a, b) => b.timestamp - a.timestamp);
 }
 
 /**

@@ -63,7 +63,7 @@ export function extractDreamInsights(
   const symbolGroups = groupByTheme(recentSymbols);
 
   for (const [theme, symbols] of symbolGroups) {
-    if (symbols.length < 2) continue;
+    if (symbols.length < 2) {continue;}
 
     const id = `strat_dream_${Date.now()}_${currentPool.assets.size}`;
     const description = `梦境揭示: ${theme} — ${symbols.map((s) => s.label).join("→")}`;
@@ -131,10 +131,10 @@ export function tryPromoteAssetToGoal(
 
   const candidates = Array.from(pool.assets.values())
     .filter((a) => !a.promotedToGoal && a.confidence > 0.4)
-    .sort((a, b) => b.confidence - a.confidence);
+    .toSorted((a, b) => b.confidence - a.confidence);
 
   const candidate = candidates[0];
-  if (!candidate) return { pool, goals };
+  if (!candidate) {return { pool, goals };}
 
   const { system: newGoals, goalId } = spawnGoal(
     goals,
@@ -173,12 +173,12 @@ function groupByTheme(symbols: DreamSymbol[]): Map<string, DreamSymbol[]> {
 }
 
 function classifyTheme(theme: string): StrategyCategory {
-  if (/模式|规律|重复/.test(theme)) return "pattern";
-  if (/洞察|发现|理解/.test(theme)) return "insight";
-  if (/策略|方法|规则/.test(theme)) return "heuristic";
-  if (/问题|陷阱|错误/.test(theme)) return "anti-pattern";
-  if (/机会|可能|潜力/.test(theme)) return "opportunity";
-  if (/结构|架构|组织/.test(theme)) return "structural";
+  if (/模式|规律|重复/.test(theme)) {return "pattern";}
+  if (/洞察|发现|理解/.test(theme)) {return "insight";}
+  if (/策略|方法|规则/.test(theme)) {return "heuristic";}
+  if (/问题|陷阱|错误/.test(theme)) {return "anti-pattern";}
+  if (/机会|可能|潜力/.test(theme)) {return "opportunity";}
+  if (/结构|架构|组织/.test(theme)) {return "structural";}
   return "insight";
 }
 
@@ -195,7 +195,7 @@ export function formatStrategyAssetPool(pool: StrategyAssetPool): string[] {
   lines.push(`  已晋升: ${pool.promotionCount} / 被拒: ${pool.rejectionCount}`);
 
   const unpromoted = assets.filter((a) => !a.promotedToGoal && a.confidence > 0.3)
-    .sort((a, b) => b.confidence - a.confidence)
+    .toSorted((a, b) => b.confidence - a.confidence)
     .slice(0, 3);
 
   if (unpromoted.length > 0) {

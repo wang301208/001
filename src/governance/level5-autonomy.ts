@@ -237,7 +237,7 @@ export class AutonomousStrategyAdjuster {
    */
   private findMostRelevantPlan(plans: StrategicPlan[], signal: EnvironmentalSignal): StrategicPlan | null {
     // 简单策略：选择最新的规划
-    return plans.sort((a, b) => b.createdAt - a.createdAt)[0];
+    return plans.toSorted((a, b) => b.createdAt - a.createdAt)[0];
   }
 
   /**

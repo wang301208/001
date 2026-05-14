@@ -22,6 +22,9 @@ import {
 } from './ws-protocol.js';
 import type { BusEvent, EventHandler, EventPattern } from './message-bus.js';
 import { randomUUID } from 'node:crypto';
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("communication:ws-client");
 
 // ==================== 类型定义 ====================
 
@@ -102,7 +105,7 @@ export class WSClient {
    */
   async connect(url: string, token: string): Promise<void> {
     if (this.state === 'connected' || this.state === 'connecting') {
-      console.warn('[WSClient] Already connected or connecting');
+      log.warn('[WSClient] Already connected or connecting');
       return;
     }
     
@@ -232,7 +235,7 @@ export class WSClient {
     this.state = 'connected';
     this.reconnectAttempts = 0;
     
-    console.log('[WSClient] Connected');
+    log.info('[WSClient] Connected');
     
     // 发送认证
     if (this.token) {
@@ -256,7 +259,7 @@ export class WSClient {
     const message = deserializeMessage(typeof data === 'string' ? data : String(data));
     
     if (!message) {
-      console.error('[WSClient] Invalid message received');
+      log.error('[WSClient] Invalid message received');
       return;
     }
     
@@ -292,7 +295,7 @@ export class WSClient {
           try {
             handler(event);
           } catch (err) {
-            console.error('[WSClient] Error in event handler:', err);
+            log.error('[WSClient] Error in event handler:', err);
           }
         }
       }
@@ -304,9 +307,9 @@ export class WSClient {
    */
   private handleAuthResponse(message: any): void {
     if (message.success) {
-      console.log('[WSClient] Authenticated');
+      log.info('[WSClient] Authenticated');
     } else {
-      console.error('[WSClient] Authentication failed:', message.error);
+      log.error('[WSClient] Authentication failed:', message.error);
     }
   }
   
@@ -322,9 +325,9 @@ export class WSClient {
    */
   private handleError(message: ErrorMessage | Event): void {
     if ('code' in message) {
-      console.error(`[WSClient] Error (${message.code}): ${message.message}`);
+      log.error(`[WSClient] Error (${message.code}): ${message.message}`);
     } else {
-      console.error('[WSClient] WebSocket error:', message);
+      log.error('[WSClient] WebSocket error:', message);
     }
   }
   
@@ -332,7 +335,7 @@ export class WSClient {
    * 处理连接关闭
    */
   private handleClose(event: CloseEvent): void {
-    console.log(`[WSClient] Connection closed (code: ${event.code}, reason: ${event.reason})`);
+    log.info(`[WSClient] Connection closed (code: ${event.code}, reason: ${event.reason})`);
     
     this.cleanup();
     
@@ -392,7 +395,7 @@ export class WSClient {
    */
   private attemptReconnect(): void {
     if (this.reconnectAttempts >= this.options.maxReconnectAttempts) {
-      console.error('[WSClient] Max reconnection attempts reached');
+      log.error('[WSClient] Max reconnection attempts reached');
       this.state = 'disconnected';
       return;
     }
@@ -403,11 +406,11 @@ export class WSClient {
     const delay = this.options.reconnectDelay * 
       Math.pow(this.options.reconnectBackoffMultiplier, this.reconnectAttempts - 1);
     
-    console.log(`[WSClient] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+    log.info(`[WSClient] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
     
     this.reconnectTimer = setTimeout(() => {
       this.connect(this.url, this.token || '').catch((err) => {
-        console.error('[WSClient] Reconnection failed:', err);
+        log.error('[WSClient] Reconnection failed:', err);
       });
     }, delay);
   }

@@ -1,3 +1,5 @@
+
+const log = createSubsystemLogger("acp:server");
 #!/usr/bin/env node
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
@@ -11,6 +13,7 @@ import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { readSecretFromFile } from "./secret-file.js";
 import { AcpGatewayAgent } from "./translator.js";
 import { normalizeAcpProvenanceMode, type AcpServerOptions } from "./types.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 
 export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
   const cfg = loadConfig();
@@ -213,7 +216,7 @@ function parseArgs(args: string[]): AcpServerOptions {
 }
 
 function printHelp(): void {
-  console.log(`Usage: zhushou acp [options]
+  log.info(`Usage: zhushou acp [options]
 
 Gateway-backed ACP server for IDE integration.
 
@@ -237,18 +240,18 @@ Options:
 if (isMainModule({ currentFile: fileURLToPath(import.meta.url) })) {
   const argv = process.argv.slice(2);
   if (argv.includes("--token") || argv.includes("--gateway-token")) {
-    console.error(
+    log.error(
       "Warning: --token can be exposed via process listings. Prefer --token-file or ZHUSHOU_GATEWAY_TOKEN.",
     );
   }
   if (argv.includes("--password") || argv.includes("--gateway-password")) {
-    console.error(
+    log.error(
       "Warning: --password can be exposed via process listings. Prefer --password-file or ZHUSHOU_GATEWAY_PASSWORD.",
     );
   }
   const opts = parseArgs(argv);
   serveAcpGateway(opts).catch((err) => {
-    console.error(String(err));
+    log.error(String(err));
     process.exit(1);
   });
 }

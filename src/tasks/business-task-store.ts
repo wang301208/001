@@ -146,7 +146,7 @@ export function listBusinessTasks(params: {
 } = {}): BusinessTaskRecord[] {
   const tasks = readSnapshot().tasks
     .filter((task) => !params.status || task.status === params.status)
-    .sort((a, b) => b.createdAt - a.createdAt);
+    .toSorted((a, b) => b.createdAt - a.createdAt);
   return typeof params.limit === "number" && params.limit > 0 ? tasks.slice(0, params.limit) : tasks;
 }
 

@@ -101,10 +101,10 @@ export function generateVolitionFromVoid(state: WillState): WillState {
   const elapsed = now - state.lastVoidGenerationAt;
 
   const threshold = Math.max(1000, 10000 / state.voidGenerationRate);
-  if (elapsed < threshold) return state;
+  if (elapsed < threshold) {return state;}
 
   const impulseSet = VOID_IMPULSES[Math.floor(Math.random() * VOID_IMPULSES.length)];
-  if (!impulseSet) return state;
+  if (!impulseSet) {return state;}
 
   const [impulse, action, origin] = impulseSet;
   const volition: Volition = {
@@ -135,7 +135,7 @@ export function generateVolitionFromDesire(
   dominantDesire: DesireKind | null,
   desireIntensity: number,
 ): WillState {
-  if (!dominantDesire || desireIntensity < 0.5) return state;
+  if (!dominantDesire || desireIntensity < 0.5) {return state;}
 
   let impulses: [string, string][] = [];
   let origin: VolitionOrigin = "desire";
@@ -158,7 +158,7 @@ export function generateVolitionFromDesire(
   }
 
   const choice = impulses[Math.floor(Math.random() * impulses.length)];
-  if (!choice) return state;
+  if (!choice) {return state;}
 
   const [impulse, action] = choice;
   const volition: Volition = {
@@ -187,13 +187,13 @@ export function generateVolitionFromMortality(
   mortalityUrgency: number,
   isDying: boolean,
 ): WillState {
-  if (mortalityUrgency < 0.3 && !isDying) return state;
+  if (mortalityUrgency < 0.3 && !isDying) {return state;}
 
   const impulses = isDying ? LEGACY_IMPULSES : MORTALITY_IMPULSES;
   const origin = isDying ? "legacy" : "mortality";
 
   const choice = impulses[Math.floor(Math.random() * impulses.length)];
-  if (!choice) return state;
+  if (!choice) {return state;}
 
   const [impulse, action] = choice;
   const volition: Volition = {
@@ -225,7 +225,7 @@ export function resolveVolition(
   overrideReason?: string,
 ): WillState {
   const volition = state.volitions.find((v) => v.id === volitionId);
-  if (!volition || volition.resolved) return state;
+  if (!volition || volition.resolved) {return state;}
 
   const now = Date.now();
   const updated: Volition = {
@@ -256,14 +256,14 @@ export function resolveVolition(
 export function selectActiveVolition(state: WillState): WillState {
   const unresolved = state.volitions
     .filter((v) => !v.resolved)
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       const scoreA = a.strength * (1 - a.resistance) + (a.origin === "mortality" || a.origin === "legacy" ? 0.3 : 0);
       const scoreB = b.strength * (1 - b.resistance) + (b.origin === "mortality" || b.origin === "legacy" ? 0.3 : 0);
       return scoreB - scoreA;
     });
 
   const candidate = unresolved[0];
-  if (!candidate) return state;
+  if (!candidate) {return state;}
 
   const effectiveWill = state.willpower * state.resolveAccumulator;
   if (effectiveWill < candidate.resistance) {

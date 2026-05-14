@@ -125,19 +125,19 @@ export function shouldAutoAdapt(
 export function describeDepthLayout(depth: ConsciousnessDepth): string {
   const layout = LAYOUT_BY_DEPTH[depth];
   const panels: string[] = [];
-  if (layout.showMonologue) panels.push("独白");
-  if (layout.showDesire) panels.push("欲求");
-  if (layout.showDream) panels.push("梦境");
-  if (layout.showGoal) panels.push("目标");
-  if (layout.showWill) panels.push("意志");
-  if (layout.showShadow) panels.push("暗影");
-  if (layout.showCreative) panels.push("创造");
-  if (layout.showMortality) panels.push("终局");
-  if (layout.showRelationship) panels.push("关系");
-  if (layout.showTemporal) panels.push("时间");
-  if (layout.showExecutor) panels.push("执行");
-  if (layout.showStrategy) panels.push("策略");
-  if (layout.showAudit) panels.push("审计");
+  if (layout.showMonologue) {panels.push("独白");}
+  if (layout.showDesire) {panels.push("欲求");}
+  if (layout.showDream) {panels.push("梦境");}
+  if (layout.showGoal) {panels.push("目标");}
+  if (layout.showWill) {panels.push("意志");}
+  if (layout.showShadow) {panels.push("暗影");}
+  if (layout.showCreative) {panels.push("创造");}
+  if (layout.showMortality) {panels.push("终局");}
+  if (layout.showRelationship) {panels.push("关系");}
+  if (layout.showTemporal) {panels.push("时间");}
+  if (layout.showExecutor) {panels.push("执行");}
+  if (layout.showStrategy) {panels.push("策略");}
+  if (layout.showAudit) {panels.push("审计");}
 
   const depthLabels: Record<ConsciousnessDepth, string> = {
     dormant: "休眠",
@@ -165,7 +165,7 @@ export function slotsToConfig(slots: PersistedLayout["slots"]): Partial<Record<P
     config[key] = false;
   }
   for (const slot of Object.values(slots)) {
-    if (slot) config[slot] = true;
+    if (slot) {config[slot] = true;}
   }
   return config;
 }

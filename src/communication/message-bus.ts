@@ -7,6 +7,9 @@
 import { EventEmitter } from 'node:events';
 import { createHash } from 'node:crypto';
 import type { ChannelType } from '../channels/chat-type.js';
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("communication:message-bus");
 
 // ==================== 类型定义 ====================
 
@@ -371,7 +374,7 @@ export class MessageBus {
   private async persistEvent(event: BusEvent): Promise<void> {
     // TODO: 实现持久化逻辑
     // 可以保存到 SQLite、LanceDB 或文件系统
-    console.log('[MessageBus] Persisting event:', event.id);
+    log.info('[MessageBus] Persisting event:', event.id);
   }
   
   /**
@@ -386,11 +389,11 @@ export class MessageBus {
           // 如果是 Promise，捕获错误
           if (result instanceof Promise) {
             result.catch(err => {
-              console.error(`[MessageBus] Error in subscriber ${subscription.id}:`, err);
+              log.error(`[MessageBus] Error in subscriber ${subscription.id}:`, err);
             });
           }
         } catch (err) {
-          console.error(`[MessageBus] Error in subscriber ${subscription.id}:`, err);
+          log.error(`[MessageBus] Error in subscriber ${subscription.id}:`, err);
         }
       }
     }
