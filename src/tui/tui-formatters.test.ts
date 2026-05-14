@@ -7,13 +7,13 @@ import {
   formatContextUsageLine,
   formatTokens,
   isCommandMessage,
-  resolveFinalAssistantText,
+  resolveFinalZhushouText,
   sanitizeRenderableText,
 } from "./tui-formatters.js";
 
 describe("tui display text localization", () => {
   it("uses Chinese labels for fallback placeholders and thinking blocks", () => {
-    expect(resolveFinalAssistantText({ finalText: "", streamedText: "" })).toBe("(无输出)");
+    expect(resolveFinalZhushouText({ finalText: "", streamedText: "" })).toBe("(无输出)");
     expect(
       composeThinkingAndContent({
         thinkingText: "ponder",
@@ -39,7 +39,7 @@ describe("tui display text localization", () => {
 });
 
 describe("extractTextFromMessage", () => {
-  it("prefers final_answer text over commentary text for assistant messages", () => {
+  it("prefers final_answer text over commentary text for zhushou messages", () => {
     const text = extractTextFromMessage({
       role: "assistant",
       content: [
@@ -59,7 +59,7 @@ describe("extractTextFromMessage", () => {
     expect(text).toBe("Final answer for the TUI");
   });
 
-  it("renders errorMessage when assistant content is empty", () => {
+  it("renders errorMessage when zhushou content is empty", () => {
     const text = extractTextFromMessage({
       role: "assistant",
       content: [],
@@ -201,11 +201,11 @@ Exec completed: task finished successfully`,
 {"message_id":"abc123"}
 \`\`\`
 
-Assistant body`,
+Zhushou body`,
     });
 
     expect(text).toContain("Conversation info (untrusted metadata):");
-    expect(text).toContain("Assistant body");
+    expect(text).toContain("Zhushou body");
   });
 
   it("does not strip metadata-like blocks that are not a leading prefix", () => {

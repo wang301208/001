@@ -4,13 +4,13 @@ import {
   type ResolverContext,
   type SecretDefaults,
   type SecretTargetRegistryEntry,
-} from "assistant/plugin-sdk/channel-secret-basic-runtime";
+} from "zhushou/plugin-sdk/channel-secret-basic-runtime";
 
 export const secretTargetRegistryEntries = [
   {
     id: "channels.mattermost.accounts.*.botToken",
     targetType: "channels.mattermost.accounts.*.botToken",
-    configFile: "assistant.json",
+    configFile: "zhushou.json",
     pathPattern: "channels.mattermost.accounts.*.botToken",
     secretShape: "secret_input",
     expectedResolvedValue: "string",
@@ -21,7 +21,7 @@ export const secretTargetRegistryEntries = [
   {
     id: "channels.mattermost.botToken",
     targetType: "channels.mattermost.botToken",
-    configFile: "assistant.json",
+    configFile: "zhushou.json",
     pathPattern: "channels.mattermost.botToken",
     secretShape: "secret_input",
     expectedResolvedValue: "string",

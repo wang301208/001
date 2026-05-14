@@ -1,4 +1,4 @@
-import type { ModelProviderConfig } from "assistant/plugin-sdk/provider-model-types";
+import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-types";
 import { normalizeAntigravityModelId, normalizeGoogleModelId } from "./model-id.js";
 
 type GoogleApiCarrier = {

@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import type { AgentContextInjection } from "../config/types.agent-defaults.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import type { SessionTaskContinuation } from "../config/sessions.js";
 import {
@@ -31,7 +31,7 @@ export type BootstrapContextRunKind = "default" | "heartbeat" | "cron";
 
 const CONTINUATION_SCAN_MAX_TAIL_BYTES = 256 * 1024;
 const CONTINUATION_SCAN_MAX_RECORDS = 500;
-export const FULL_BOOTSTRAP_COMPLETED_CUSTOM_TYPE = "assistant:bootstrap-context:full";
+export const FULL_BOOTSTRAP_COMPLETED_CUSTOM_TYPE = "zhushou:bootstrap-context:full";
 const BOOTSTRAP_WARNING_DEDUPE_LIMIT = 1024;
 const seenBootstrapWarnings = new Set<string>();
 const bootstrapWarningOrder: string[] = [];
@@ -56,7 +56,7 @@ export function _resetBootstrapWarningCacheForTest(): void {
   bootstrapWarningOrder.length = 0;
 }
 
-export function resolveContextInjectionMode(config?: AssistantConfig): AgentContextInjection {
+export function resolveContextInjectionMode(config?: ZhushouConfig): AgentContextInjection {
   return config?.agents?.defaults?.contextInjection ?? "always";
 }
 
@@ -96,7 +96,7 @@ export async function hasCompletedBootstrapTurn(
         continuation: checkpointContinuation,
         source: checkpointContinuation ? "checkpoint" : undefined,
       });
-      let compactedAfterLatestAssistant =
+      let compactedAfterLatestZhushou =
         shouldTreatContinuationStateAsRestoreBoundary(checkpointState);
 
       for (let i = records.length - 1; i >= 0; i--) {
@@ -125,8 +125,8 @@ export async function hasCompletedBootstrapTurn(
             details: record.details,
             summary: record.summary,
           });
-          compactedAfterLatestAssistant =
-            compactedAfterLatestAssistant ||
+          compactedAfterLatestZhushou =
+            compactedAfterLatestZhushou ||
             shouldTreatContinuationStateAsRestoreBoundary(compactionState);
           continue;
         }
@@ -134,7 +134,7 @@ export async function hasCompletedBootstrapTurn(
           record?.type === "custom" &&
           record.customType === FULL_BOOTSTRAP_COMPLETED_CUSTOM_TYPE
         ) {
-          return !compactedAfterLatestAssistant;
+          return !compactedAfterLatestZhushou;
         }
       }
 
@@ -202,7 +202,7 @@ function applyContextModeFilter(params: {
 }
 
 function shouldExcludeHeartbeatBootstrapFile(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;
@@ -238,7 +238,7 @@ function filterHeartbeatBootstrapFile(
 
 export async function resolveBootstrapFilesForRun(params: {
   workspaceDir: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;
@@ -276,7 +276,7 @@ export async function resolveBootstrapFilesForRun(params: {
 
 export async function resolveBootstrapContextForRun(params: {
   workspaceDir: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;

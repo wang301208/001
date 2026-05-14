@@ -1,5 +1,5 @@
-import type { GatewayRequestHandlerOptions } from "assistant/plugin-sdk/gateway-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
+import type { GatewayRequestHandlerOptions } from "zhushou/plugin-sdk/gateway-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
 import { formatMatrixErrorMessage } from "./matrix/errors.js";
 
 function sendError(respond: (ok: boolean, payload?: unknown) => void, err: unknown) {

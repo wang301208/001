@@ -27,12 +27,12 @@ function createClaudeHistoryLines(sessionId: string) {
       message: {
         role: "user",
         content:
-          'Sender (untrusted metadata):\n```json\n{"label":"assistant-control-ui"}\n```\n\n[Thu 2026-03-26 16:29 GMT] hi',
+          'Sender (untrusted metadata):\n```json\n{"label":"zhushou-control-ui"}\n```\n\n[Thu 2026-03-26 16:29 GMT] hi',
       },
     }),
     JSON.stringify({
-      type: "assistant",
-      uuid: "assistant-1",
+      type: "zhushou",
+      uuid: "zhushou-1",
       timestamp: "2026-03-26T16:29:55.500Z",
       message: {
         role: "assistant",
@@ -47,8 +47,8 @@ function createClaudeHistoryLines(sessionId: string) {
       },
     }),
     JSON.stringify({
-      type: "assistant",
-      uuid: "assistant-2",
+      type: "zhushou",
+      uuid: "zhushou-2",
       timestamp: "2026-03-26T16:29:56.000Z",
       message: {
         role: "assistant",
@@ -92,7 +92,7 @@ function createClaudeHistoryLines(sessionId: string) {
 async function withClaudeProjectsDir<T>(
   run: (params: { homeDir: string; sessionId: string; filePath: string }) => Promise<T>,
 ): Promise<T> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-claude-history-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-claude-history-"));
   const homeDir = path.join(root, "home");
   const sessionId = "5b8b202c-f6bb-4046-9475-d2f15fd07530";
   const projectsDir = path.join(homeDir, ".claude", "projects", "demo-workspace");
@@ -129,7 +129,7 @@ describe("cli session history", () => {
       expect(messages[0]).toMatchObject({
         role: "user",
         content: expect.stringContaining("[Thu 2026-03-26 16:29 GMT] hi"),
-        __assistant: {
+        __zhushou: {
           importedFrom: "claude-cli",
           externalId: "user-1",
           cliSessionId: sessionId,
@@ -145,9 +145,9 @@ describe("cli session history", () => {
           output: 7,
           cacheRead: 22,
         },
-        __assistant: {
+        __zhushou: {
           importedFrom: "claude-cli",
-          externalId: "assistant-1",
+          externalId: "zhushou-1",
           cliSessionId: sessionId,
         },
       });
@@ -190,9 +190,9 @@ describe("cli session history", () => {
       {
         role: "user",
         content:
-          'Sender (untrusted metadata):\n```json\n{"label":"assistant-control-ui"}\n```\n\n[Thu 2026-03-26 16:29 GMT] hi',
+          'Sender (untrusted metadata):\n```json\n{"label":"zhushou-control-ui"}\n```\n\n[Thu 2026-03-26 16:29 GMT] hi',
         timestamp: Date.parse("2026-03-26T16:29:54.800Z"),
-        __assistant: {
+        __zhushou: {
           importedFrom: "claude-cli",
           externalId: "user-1",
           cliSessionId: "session-1",
@@ -202,9 +202,9 @@ describe("cli session history", () => {
         role: "assistant",
         content: [{ type: "text", text: "hello from Claude" }],
         timestamp: Date.parse("2026-03-26T16:29:55.500Z"),
-        __assistant: {
+        __zhushou: {
           importedFrom: "claude-cli",
-          externalId: "assistant-1",
+          externalId: "zhushou-1",
           cliSessionId: "session-1",
         },
       },
@@ -212,7 +212,7 @@ describe("cli session history", () => {
         role: "user",
         content: "[Thu 2026-03-26 16:31 GMT] follow-up",
         timestamp: Date.parse("2026-03-26T16:31:00.000Z"),
-        __assistant: {
+        __zhushou: {
           importedFrom: "claude-cli",
           externalId: "user-2",
           cliSessionId: "session-1",
@@ -224,7 +224,7 @@ describe("cli session history", () => {
     expect(merged).toHaveLength(3);
     expect(merged[2]).toMatchObject({
       role: "user",
-      __assistant: {
+      __zhushou: {
         importedFrom: "claude-cli",
         externalId: "user-2",
       },
@@ -235,7 +235,7 @@ describe("cli session history", () => {
     await withClaudeProjectsDir(async ({ homeDir, sessionId }) => {
       const messages = augmentChatHistoryWithCliSessionImports({
         entry: {
-          sessionId: "assistant-session",
+          sessionId: "zhushou-session",
           updatedAt: Date.now(),
           cliSessionBindings: {
             "claude-cli": {
@@ -250,7 +250,7 @@ describe("cli session history", () => {
       expect(messages).toHaveLength(3);
       expect(messages[0]).toMatchObject({
         role: "user",
-        __assistant: { cliSessionId: sessionId },
+        __zhushou: { cliSessionId: sessionId },
       });
     });
   });
@@ -259,7 +259,7 @@ describe("cli session history", () => {
     await withClaudeProjectsDir(async ({ homeDir, sessionId }) => {
       const messages = augmentChatHistoryWithCliSessionImports({
         entry: {
-          sessionId: "assistant-session",
+          sessionId: "zhushou-session",
           updatedAt: Date.now(),
           cliSessionIds: {
             "claude-cli": sessionId,
@@ -272,7 +272,7 @@ describe("cli session history", () => {
       expect(messages).toHaveLength(3);
       expect(messages[1]).toMatchObject({
         role: "assistant",
-        __assistant: { cliSessionId: sessionId },
+        __zhushou: { cliSessionId: sessionId },
       });
     });
   });
@@ -281,7 +281,7 @@ describe("cli session history", () => {
     await withClaudeProjectsDir(async ({ homeDir, sessionId }) => {
       const messages = augmentChatHistoryWithCliSessionImports({
         entry: {
-          sessionId: "assistant-session",
+          sessionId: "zhushou-session",
           updatedAt: Date.now(),
           claudeCliSessionId: sessionId,
         },
@@ -292,7 +292,7 @@ describe("cli session history", () => {
       expect(messages).toHaveLength(3);
       expect(messages[0]).toMatchObject({
         role: "user",
-        __assistant: { cliSessionId: sessionId },
+        __zhushou: { cliSessionId: sessionId },
       });
     });
   });

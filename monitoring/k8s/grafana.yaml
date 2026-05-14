@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: assistant-grafana-dashboards
+  name: zhushou-grafana-dashboards
   labels:
-    app: assistant-grafana
+    app: zhushou-grafana
 data:
-  assistant-overview.json: |
+  zhushou-overview.json: |
     {
       "editable": true,
       "panels": [
@@ -35,7 +35,7 @@ data:
             "textMode": "auto"
           },
           "targets": [
-            { "expr": "up{job=\"assistant-gateway\"}", "legendFormat": "gateway", "refId": "A" }
+            { "expr": "up{job=\"zhushou-gateway\"}", "legendFormat": "gateway", "refId": "A" }
           ],
           "title": "Gateway Availability",
           "type": "stat"
@@ -43,19 +43,19 @@ data:
       ],
       "refresh": "30s",
       "schemaVersion": 39,
-      "tags": ["assistant", "operations"],
+      "tags": ["zhushou", "operations"],
       "time": { "from": "now-6h", "to": "now" },
-      "title": "Assistant Overview",
-      "uid": "assistant-overview",
+      "title": "Zhushou Overview",
+      "uid": "zhushou-overview",
       "version": 1
     }
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: assistant-grafana-provisioning
+  name: zhushou-grafana-provisioning
   labels:
-    app: assistant-grafana
+    app: zhushou-grafana
 data:
   datasources.yaml: |
     apiVersion: 1
@@ -64,14 +64,14 @@ data:
         type: prometheus
         uid: prometheus
         access: proxy
-        url: http://assistant-prometheus:9090
+        url: http://zhushou-prometheus:9090
         isDefault: true
   dashboards.yaml: |
     apiVersion: 1
     providers:
-      - name: assistant
+      - name: zhushou
         orgId: 1
-        folder: Assistant
+        folder: Zhushou
         type: file
         disableDeletion: false
         allowUiUpdates: true
@@ -81,18 +81,18 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: assistant-grafana
+  name: zhushou-grafana
   labels:
-    app: assistant-grafana
+    app: zhushou-grafana
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: assistant-grafana
+      app: zhushou-grafana
   template:
     metadata:
       labels:
-        app: assistant-grafana
+        app: zhushou-grafana
     spec:
       automountServiceAccountToken: false
       containers:
@@ -102,7 +102,7 @@ spec:
             - name: GF_SECURITY_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: assistant-secrets
+                  name: zhushou-secrets
                   key: GRAFANA_ADMIN_PASSWORD
                   optional: true
           ports:
@@ -132,21 +132,21 @@ spec:
       volumes:
         - name: dashboards
           configMap:
-            name: assistant-grafana-dashboards
+            name: zhushou-grafana-dashboards
         - name: provisioning
           configMap:
-            name: assistant-grafana-provisioning
+            name: zhushou-grafana-provisioning
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: assistant-grafana
+  name: zhushou-grafana
   labels:
-    app: assistant-grafana
+    app: zhushou-grafana
 spec:
   type: ClusterIP
   selector:
-    app: assistant-grafana
+    app: zhushou-grafana
   ports:
     - name: http
       port: 3000

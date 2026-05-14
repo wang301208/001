@@ -3,7 +3,7 @@ import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import {
   clearRuntimeConfigSnapshot,
   setRuntimeConfigSnapshot,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "../config/config.js";
 import * as configSessions from "../config/sessions.js";
 import type { SessionEntry } from "../config/sessions/types.js";
@@ -62,12 +62,12 @@ const resolveStorePathSpy = vi.spyOn(configSessions, "resolveStorePath");
 const resolveMainSessionKeySpy = vi.spyOn(configSessions, "resolveMainSessionKey");
 const callGatewaySpy = vi.spyOn(gatewayCall, "callGateway");
 const getGlobalHookRunnerSpy = vi.spyOn(hookRunnerGlobal, "getGlobalHookRunner");
-const readLatestAssistantReplySpy = vi.spyOn(agentStep, "readLatestAssistantReply");
+const readLatestZhushouReplySpy = vi.spyOn(agentStep, "readLatestZhushouReply");
 const isEmbeddedPiRunActiveSpy = vi.spyOn(piEmbedded, "isEmbeddedPiRunActive");
 const isEmbeddedPiRunStreamingSpy = vi.spyOn(piEmbedded, "isEmbeddedPiRunStreaming");
 const queueEmbeddedPiMessageSpy = vi.spyOn(piEmbedded, "queueEmbeddedPiMessage");
 const waitForEmbeddedPiRunEndSpy = vi.spyOn(piEmbedded, "waitForEmbeddedPiRunEnd");
-const readLatestAssistantReplyMock = vi.fn(
+const readLatestZhushouReplyMock = vi.fn(
   async (_sessionKey?: string): Promise<string | undefined> => "raw subagent reply",
 );
 const embeddedPiRunActiveMock = vi.fn<typeof piEmbedded.isEmbeddedPiRunActive>(
@@ -126,7 +126,7 @@ const chatHistoryMock = vi.fn(async (_sessionKey?: string) => ({
   messages: [] as Array<unknown>,
 }));
 let sessionStore: SessionStoreFixture = {};
-let configOverride: AssistantConfig = {
+let configOverride: ZhushouConfig = {
   session: {
     mainKey: "main",
     scope: "per-sender",
@@ -148,7 +148,7 @@ async function getSingleAgentCallParams() {
   return call?.params ?? {};
 }
 
-function setConfigOverride(next: AssistantConfig): void {
+function setConfigOverride(next: ZhushouConfig): void {
   configOverride = next;
   setRuntimeConfigSnapshot(configOverride);
 }
@@ -196,9 +196,9 @@ describe("subagent announce formatting", () => {
     // Set FAST_TEST_MODE before importing the module to ensure the module-level
     // constant picks it up. This fixes flaky Windows CI failures where the test
     // timeout budget is too tight without fast mode enabled.
-    // See: https://github.com/assistant/assistant/issues/31298
-    previousFastTestEnv = process.env.ASSISTANT_TEST_FAST;
-    process.env.ASSISTANT_TEST_FAST = "1";
+    // See: https://github.com/wang301208/zhushou/issues/31298
+    previousFastTestEnv = process.env.ZHUSHOU_TEST_FAST;
+    process.env.ZHUSHOU_TEST_FAST = "1";
     ({ runSubagentAnnounceFlow } = await import("./subagent-announce.js"));
   });
 
@@ -206,14 +206,14 @@ describe("subagent announce formatting", () => {
     subagentAnnounceDeliveryTesting.setDepsForTest();
     clearRuntimeConfigSnapshot();
     if (previousFastTestEnv === undefined) {
-      delete process.env.ASSISTANT_TEST_FAST;
+      delete process.env.ZHUSHOU_TEST_FAST;
       return;
     }
-    process.env.ASSISTANT_TEST_FAST = previousFastTestEnv;
+    process.env.ZHUSHOU_TEST_FAST = previousFastTestEnv;
   });
 
   beforeEach(() => {
-    // ASSISTANT_TEST_FAST is set in beforeAll before module import
+    // ZHUSHOU_TEST_FAST is set in beforeAll before module import
     // to ensure the module-level constant picks it up.
     agentSpy
       .mockClear()
@@ -259,9 +259,9 @@ describe("subagent announce formatting", () => {
       .mockImplementation(
         () => hookRunnerMock as unknown as ReturnType<typeof hookRunnerGlobal.getGlobalHookRunner>,
       );
-    readLatestAssistantReplySpy
+    readLatestZhushouReplySpy
       .mockReset()
-      .mockImplementation(async (params) => await readLatestAssistantReplyMock(params?.sessionKey));
+      .mockImplementation(async (params) => await readLatestZhushouReplyMock(params?.sessionKey));
     isEmbeddedPiRunActiveSpy
       .mockReset()
       .mockImplementation((sessionId) => embeddedRunMock.isEmbeddedPiRunActive(sessionId));
@@ -308,9 +308,9 @@ describe("subagent announce formatting", () => {
     hookHasHooksMock.mockClear();
     hookRunSubagentDeliveryTargetMock.mockClear();
     subagentDeliveryTargetHookMock.mockReset().mockResolvedValue(undefined);
-    readLatestAssistantReplyMock.mockClear().mockResolvedValue("raw subagent reply");
+    readLatestZhushouReplyMock.mockClear().mockResolvedValue("raw subagent reply");
     chatHistoryMock.mockReset().mockImplementation(async (sessionKey?: string) => {
-      const text = await readLatestAssistantReplyMock(sessionKey);
+      const text = await readLatestZhushouReplyMock(sessionKey);
       if (!text?.trim()) {
         return { messages: [] };
       }
@@ -379,7 +379,7 @@ describe("subagent announce formatting", () => {
     expect(msg).toContain("raw subagent reply");
     expect(msg).toContain("Stats:");
     expect(msg).toContain("A completed subagent task is ready for user delivery.");
-    expect(msg).toContain("Convert the result above into your normal assistant voice");
+    expect(msg).toContain("Convert the result above into your normal zhushou voice");
     expect(msg).toContain("Keep this internal context private");
     expect(call?.params?.internalEvents?.[0]?.type).toBe("task_completion");
     expect(call?.params?.internalEvents?.[0]?.taskLabel).toBe("do thing");
@@ -431,7 +431,7 @@ describe("subagent announce formatting", () => {
       }
       return {};
     });
-    readLatestAssistantReplyMock.mockResolvedValue("Worker executed successfully");
+    readLatestZhushouReplyMock.mockResolvedValue("Worker executed successfully");
 
     await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:test",
@@ -476,7 +476,7 @@ describe("subagent announce formatting", () => {
     { role: "toolResult", toolOutput: "tool output line 1", childRunId: "run-tool-fallback-1" },
     { role: "tool", toolOutput: "tool output line 2", childRunId: "run-tool-fallback-2" },
   ] as const)(
-    "falls back to latest $role output when assistant reply is empty",
+    "falls back to latest $role output when zhushou reply is empty",
     async (testCase) => {
       chatHistoryMock.mockResolvedValueOnce({
         messages: [
@@ -490,7 +490,7 @@ describe("subagent announce formatting", () => {
           },
         ],
       });
-      readLatestAssistantReplyMock.mockResolvedValue("");
+      readLatestZhushouReplyMock.mockResolvedValue("");
 
       await runSubagentAnnounceFlow({
         childSessionKey: "agent:main:subagent:worker",
@@ -507,7 +507,7 @@ describe("subagent announce formatting", () => {
     },
   );
 
-  it("uses latest assistant text when it appears after a tool output", async () => {
+  it("uses latest zhushou text when it appears after a tool output", async () => {
     chatHistoryMock.mockResolvedValueOnce({
       messages: [
         {
@@ -516,15 +516,15 @@ describe("subagent announce formatting", () => {
         },
         {
           role: "assistant",
-          content: [{ type: "text", text: "assistant final line" }],
+          content: [{ type: "text", text: "zhushou final line" }],
         },
       ],
     });
-    readLatestAssistantReplyMock.mockResolvedValue("");
+    readLatestZhushouReplyMock.mockResolvedValue("");
 
     await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:worker",
-      childRunId: "run-latest-assistant",
+      childRunId: "run-latest-zhushou",
       requesterSessionKey: "agent:main:main",
       requesterDisplayKey: "main",
       ...defaultOutcomeAnnounce,
@@ -533,7 +533,7 @@ describe("subagent announce formatting", () => {
 
     const call = agentSpy.mock.calls[0]?.[0] as { params?: { message?: string } };
     const msg = call?.params?.message as string;
-    expect(msg).toContain("assistant final line");
+    expect(msg).toContain("zhushou final line");
   });
 
   it("keeps full findings and includes compact stats", async () => {
@@ -545,7 +545,7 @@ describe("subagent announce formatting", () => {
         totalTokens: 197000,
       },
     };
-    readLatestAssistantReplyMock.mockResolvedValue(
+    readLatestZhushouReplyMock.mockResolvedValue(
       Array.from({ length: 140 }, (_, index) => `step-${index}`).join(" "),
     );
 
@@ -587,7 +587,7 @@ describe("subagent announce formatting", () => {
     chatHistoryMock.mockResolvedValueOnce({
       messages: [{ role: "assistant", content: [{ type: "text", text: "final answer: 2" }] }],
     });
-    readLatestAssistantReplyMock.mockResolvedValue("");
+    readLatestZhushouReplyMock.mockResolvedValue("");
 
     const didAnnounce = await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:test",
@@ -1104,7 +1104,7 @@ describe("subagent announce formatting", () => {
       chatHistoryMock.mockResolvedValueOnce({
         messages: [{ role: "assistant", content: [{ type: "text", text: testCase.replyText }] }],
       });
-      readLatestAssistantReplyMock.mockResolvedValue("");
+      readLatestZhushouReplyMock.mockResolvedValue("");
 
       const didAnnounce = await runSubagentAnnounceFlow({
         childSessionKey: "agent:main:subagent:test",
@@ -1835,7 +1835,7 @@ describe("subagent announce formatting", () => {
     expect(agentSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("uses assistant output for completion-mode when latest assistant text exists", async () => {
+  it("uses zhushou output for completion-mode when latest zhushou text exists", async () => {
     chatHistoryMock.mockResolvedValueOnce({
       messages: [
         {
@@ -1844,15 +1844,15 @@ describe("subagent announce formatting", () => {
         },
         {
           role: "assistant",
-          content: [{ type: "text", text: "assistant completion text" }],
+          content: [{ type: "text", text: "zhushou completion text" }],
         },
       ],
     });
-    readLatestAssistantReplyMock.mockResolvedValue("");
+    readLatestZhushouReplyMock.mockResolvedValue("");
 
     const didAnnounce = await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:worker",
-      childRunId: "run-completion-assistant-output",
+      childRunId: "run-completion-zhushou-output",
       requesterSessionKey: "agent:main:main",
       requesterDisplayKey: "main",
       requesterOrigin: { channel: "discord", to: "channel:12345", accountId: "acct-1" },
@@ -1865,11 +1865,11 @@ describe("subagent announce formatting", () => {
     expect(agentSpy).toHaveBeenCalledTimes(1);
     const call = agentSpy.mock.calls[0]?.[0] as { params?: { message?: string } };
     const msg = call?.params?.message as string;
-    expect(msg).toContain("assistant completion text");
+    expect(msg).toContain("zhushou completion text");
     expect(msg).not.toContain("old tool output");
   });
 
-  it("falls back to latest tool output for completion-mode when assistant output is empty", async () => {
+  it("falls back to latest tool output for completion-mode when zhushou output is empty", async () => {
     chatHistoryMock.mockResolvedValueOnce({
       messages: [
         {
@@ -1882,7 +1882,7 @@ describe("subagent announce formatting", () => {
         },
       ],
     });
-    readLatestAssistantReplyMock.mockResolvedValue("");
+    readLatestZhushouReplyMock.mockResolvedValue("");
 
     const didAnnounce = await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:worker",
@@ -1911,7 +1911,7 @@ describe("subagent announce formatting", () => {
         },
       ],
     });
-    readLatestAssistantReplyMock.mockResolvedValue("");
+    readLatestZhushouReplyMock.mockResolvedValue("");
 
     const didAnnounce = await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:worker",
@@ -2178,7 +2178,7 @@ describe("subagent announce formatting", () => {
   it("retries reading subagent output when early lifecycle completion had no text", async () => {
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValueOnce(true).mockReturnValue(false);
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockResolvedValue(true);
-    readLatestAssistantReplyMock
+    readLatestZhushouReplyMock
       .mockResolvedValueOnce(undefined)
       .mockResolvedValueOnce("Read #12 complete.");
     sessionStore = {

@@ -3,7 +3,7 @@ import type {
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.public.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   getChannelMessageAdapter,
   type CrossContextComponentsBuilder,
@@ -93,7 +93,7 @@ export function enforceCrossContextPolicy(params: {
   action: ChannelMessageActionName;
   args: Record<string, unknown>;
   toolContext?: ChannelThreadingToolContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
 }): void {
   const currentTarget = params.toolContext?.currentChannelId?.trim();
   if (!currentTarget) {
@@ -141,7 +141,7 @@ export function enforceCrossContextPolicy(params: {
 }
 
 export async function buildCrossContextDecoration(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel: ChannelId;
   target: string;
   toolContext?: ChannelThreadingToolContext;

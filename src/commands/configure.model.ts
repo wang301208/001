@@ -1,5 +1,5 @@
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { promptAuthConfig } from "./configure.gateway-auth.js";
@@ -15,10 +15,10 @@ import { promptCustomApiConfig } from "./onboard-custom.js";
 type ModelConfigAction = "custom" | "auth" | "default" | "allowlist" | "skip";
 
 export async function promptModelConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
-): Promise<AssistantConfig> {
+): Promise<ZhushouConfig> {
   await prompter.note(
     [
       "这里用于配置远程模型、提供商凭据、默认模型和模型选择列表。",

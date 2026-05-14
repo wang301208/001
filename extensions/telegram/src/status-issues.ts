@@ -1,13 +1,13 @@
 import type {
   ChannelAccountSnapshot,
   ChannelStatusIssue,
-} from "assistant/plugin-sdk/channel-contract";
+} from "zhushou/plugin-sdk/channel-contract";
 import {
   appendMatchMetadata,
   asString,
   isRecord,
   resolveEnabledConfiguredAccountId,
-} from "assistant/plugin-sdk/status-helpers";
+} from "zhushou/plugin-sdk/status-helpers";
 
 type TelegramAccountStatus = {
   accountId?: unknown;

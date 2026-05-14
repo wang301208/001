@@ -20,7 +20,7 @@ export function parseFrontmatterBool(value: string | undefined, fallback: boolea
   return parsed === undefined ? fallback : parsed;
 }
 
-export function resolveAssistantManifestBlock(params: {
+export function resolveZhushouManifestBlock(params: {
   frontmatter: Record<string, unknown>;
   key?: string;
 }): Record<string, unknown> | undefined {
@@ -45,16 +45,16 @@ export function resolveAssistantManifestBlock(params: {
   }
 }
 
-export type AssistantManifestRequires = {
+export type ZhushouManifestRequires = {
   bins: string[];
   anyBins: string[];
   env: string[];
   config: string[];
 };
 
-export function resolveAssistantManifestRequires(
+export function resolveZhushouManifestRequires(
   metadataObj: Record<string, unknown>,
-): AssistantManifestRequires | undefined {
+): ZhushouManifestRequires | undefined {
   const requiresRaw =
     typeof metadataObj.requires === "object" && metadataObj.requires !== null
       ? (metadataObj.requires as Record<string, unknown>)
@@ -70,7 +70,7 @@ export function resolveAssistantManifestRequires(
   };
 }
 
-export function resolveAssistantManifestInstall<T>(
+export function resolveZhushouManifestInstall<T>(
   metadataObj: Record<string, unknown>,
   parseInstallSpec: (input: unknown) => T | undefined,
 ): T[] {
@@ -80,11 +80,11 @@ export function resolveAssistantManifestInstall<T>(
     .filter((entry): entry is T => Boolean(entry));
 }
 
-export function resolveAssistantManifestOs(metadataObj: Record<string, unknown>): string[] {
+export function resolveZhushouManifestOs(metadataObj: Record<string, unknown>): string[] {
   return normalizeStringList(metadataObj.os);
 }
 
-export type ParsedAssistantManifestInstallBase = {
+export type ParsedZhushouManifestInstallBase = {
   raw: Record<string, unknown>;
   kind: string;
   id?: string;
@@ -92,10 +92,10 @@ export type ParsedAssistantManifestInstallBase = {
   bins?: string[];
 };
 
-export function parseAssistantManifestInstallBase(
+export function parseZhushouManifestInstallBase(
   input: unknown,
   allowedKinds: readonly string[],
-): ParsedAssistantManifestInstallBase | undefined {
+): ParsedZhushouManifestInstallBase | undefined {
   if (!input || typeof input !== "object") {
     return undefined;
   }
@@ -107,7 +107,7 @@ export function parseAssistantManifestInstallBase(
     return undefined;
   }
 
-  const spec: ParsedAssistantManifestInstallBase = {
+  const spec: ParsedZhushouManifestInstallBase = {
     raw,
     kind,
   };
@@ -124,9 +124,9 @@ export function parseAssistantManifestInstallBase(
   return spec;
 }
 
-export function applyAssistantManifestInstallCommonFields<
+export function applyZhushouManifestInstallCommonFields<
   T extends { id?: string; label?: string; bins?: string[] },
->(spec: T, parsed: Pick<ParsedAssistantManifestInstallBase, "id" | "label" | "bins">): T {
+>(spec: T, parsed: Pick<ParsedZhushouManifestInstallBase, "id" | "label" | "bins">): T {
   if (parsed.id) {
     spec.id = parsed.id;
   }

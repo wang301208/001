@@ -27,7 +27,7 @@ describe("whatsapp doctor compatibility", () => {
           whatsapp: {
             accounts: {
               work: {
-                authDir: "/tmp/assistant-wa-auth",
+                authDir: "/tmp/zhushou-wa-auth",
               },
             },
           },

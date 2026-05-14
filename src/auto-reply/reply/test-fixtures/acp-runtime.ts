@@ -1,7 +1,7 @@
 import type { SessionAcpMeta } from "../../../config/sessions/types.js";
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 
-export function createAcpTestConfig(overrides?: Partial<AssistantConfig>): AssistantConfig {
+export function createAcpTestConfig(overrides?: Partial<ZhushouConfig>): ZhushouConfig {
   return {
     acp: {
       enabled: true,
@@ -11,7 +11,7 @@ export function createAcpTestConfig(overrides?: Partial<AssistantConfig>): Assis
       },
     },
     ...overrides,
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 export function createAcpSessionMeta(overrides?: Partial<SessionAcpMeta>): SessionAcpMeta {

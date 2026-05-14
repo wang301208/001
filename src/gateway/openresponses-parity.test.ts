@@ -213,7 +213,7 @@ describe("OpenResponses Feature Parity", () => {
       expect(result.success).toBe(true);
     });
 
-    it("should validate assistant message phase metadata", async () => {
+    it("should validate zhushou message phase metadata", async () => {
       const validRequest = {
         model: "gpt-5.4",
         input: [
@@ -235,7 +235,7 @@ describe("OpenResponses Feature Parity", () => {
       expect(result.success).toBe(true);
     });
 
-    it("should reject phase metadata on non-assistant messages", async () => {
+    it("should reject phase metadata on non-zhushou messages", async () => {
       const invalidRequest = {
         model: "gpt-5.4",
         input: [
@@ -308,8 +308,8 @@ describe("OpenResponses Feature Parity", () => {
   });
 
   describe("Response Resource Schema", () => {
-    it("should validate assistant output item phase metadata", async () => {
-      const assistantOutput = {
+    it("should validate zhushou output item phase metadata", async () => {
+      const zhushouOutput = {
         type: "message" as const,
         id: "msg_123",
         role: "assistant" as const,
@@ -318,7 +318,7 @@ describe("OpenResponses Feature Parity", () => {
         status: "completed" as const,
       };
 
-      const result = OutputItemSchema.safeParse(assistantOutput);
+      const result = OutputItemSchema.safeParse(zhushouOutput);
       expect(result.success).toBe(true);
     });
 

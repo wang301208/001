@@ -1,14 +1,14 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { makeAssistantMessageFixture } from "../test-helpers/assistant-message-fixtures.js";
+import { makeZhushouMessageFixture } from "../test-helpers/zhushou-message-fixtures.js";
 import { makeModelFallbackCfg } from "../test-helpers/model-fallback-config-fixture.js";
 import { makeAttemptResult } from "./run.overflow-compaction.fixture.js";
 import {
   loadRunOverflowCompactionHarness,
   MockedFailoverError,
   mockedClassifyFailoverReason,
-  mockedFormatAssistantErrorText,
+  mockedFormatZhushouErrorText,
   mockedGlobalHookRunner,
-  mockedIsFailoverAssistantError,
+  mockedIsFailoverZhushouError,
   mockedRunEmbeddedAttempt,
   overflowBaseRunParams,
   resetRunOverflowCompactionHarnessMocks,
@@ -31,11 +31,11 @@ describe("runEmbeddedPiAgent Codex server_error fallback handoff", () => {
       'Codex error: {"type":"error","error":{"type":"server_error","code":"server_error","message":"An error occurred while processing your request."},"sequence_number":2}';
 
     mockedClassifyFailoverReason.mockReturnValue("timeout");
-    mockedIsFailoverAssistantError.mockReturnValue(true);
-    mockedFormatAssistantErrorText.mockReturnValue(
+    mockedIsFailoverZhushouError.mockReturnValue(true);
+    mockedFormatZhushouErrorText.mockReturnValue(
       "LLM error server_error: An error occurred while processing your request.",
     );
-    const currentAttemptAssistant = makeAssistantMessageFixture({
+    const currentAttemptZhushou = makeZhushouMessageFixture({
       stopReason: "error",
       errorMessage: rawCodexError,
       provider: "openai-codex",
@@ -43,9 +43,9 @@ describe("runEmbeddedPiAgent Codex server_error fallback handoff", () => {
     });
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: currentAttemptAssistant,
-        currentAttemptAssistant,
+        zhushouTexts: [],
+        lastZhushou: currentAttemptZhushou,
+        currentAttemptZhushou,
       }),
     );
 

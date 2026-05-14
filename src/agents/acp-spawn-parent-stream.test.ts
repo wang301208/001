@@ -77,7 +77,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
     vi.useRealTimers();
   });
 
-  it("relays assistant progress and completion to the parent session", () => {
+  it("relays zhushou progress and completion to the parent session", () => {
     const deliveryContext = {
       channel: "telegram",
       to: "-1001234567890",
@@ -96,7 +96,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
 
     emitAgentEvent({
       runId: "run-1",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: "hello from child",
       },
@@ -157,7 +157,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
 
     emitAgentEvent({
       runId: "run-2",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: "resumed output",
       },
@@ -199,7 +199,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
     const before = enqueueSystemEventMock.mock.calls.length;
     emitAgentEvent({
       runId: "run-3",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: "late output",
       },
@@ -241,7 +241,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
     relay.notifyStarted();
     emitAgentEvent({
       runId: "run-quiet",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: "hello from child",
       },
@@ -272,14 +272,14 @@ describe("startAcpSpawnParentStreamRelay", () => {
 
     emitAgentEvent({
       runId: "run-5",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: "hello",
       },
     });
     emitAgentEvent({
       runId: "run-5",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: " world",
       },
@@ -291,7 +291,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
     relay.dispose();
   });
 
-  it("suppresses commentary-phase assistant relay text", () => {
+  it("suppresses commentary-phase zhushou relay text", () => {
     const relay = startAcpSpawnParentStreamRelay({
       runId: "run-commentary",
       parentSessionKey: "agent:main:main",
@@ -303,7 +303,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
 
     emitAgentEvent({
       runId: "run-commentary",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: "checking thread context; then post a tight progress reply here.",
         phase: "commentary",
@@ -317,7 +317,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
     relay.dispose();
   });
 
-  it("still relays final_answer assistant text after suppressed commentary", () => {
+  it("still relays final_answer zhushou text after suppressed commentary", () => {
     const relay = startAcpSpawnParentStreamRelay({
       runId: "run-final",
       parentSessionKey: "agent:main:main",
@@ -329,7 +329,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
 
     emitAgentEvent({
       runId: "run-final",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: "checking thread context; then post a tight progress reply here.",
         phase: "commentary",
@@ -337,7 +337,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
     });
     emitAgentEvent({
       runId: "run-final",
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         delta: "final answer ready",
         phase: "final_answer",
@@ -353,14 +353,14 @@ describe("startAcpSpawnParentStreamRelay", () => {
 
   it("resolves ACP spawn stream log path from session metadata", () => {
     readAcpSessionEntryMock.mockReturnValue({
-      storePath: "/tmp/assistant/agents/codex/sessions/sessions.json",
+      storePath: "/tmp/zhushou/agents/codex/sessions/sessions.json",
       entry: {
         sessionId: "sess-123",
-        sessionFile: "/tmp/assistant/agents/codex/sessions/sess-123.jsonl",
+        sessionFile: "/tmp/zhushou/agents/codex/sessions/sess-123.jsonl",
       },
     });
     resolveSessionFilePathMock.mockReturnValue(
-      "/tmp/assistant/agents/codex/sessions/sess-123.jsonl",
+      "/tmp/zhushou/agents/codex/sessions/sess-123.jsonl",
     );
 
     const resolved = resolveAcpSpawnStreamLogPath({
@@ -368,7 +368,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
     });
 
     expect(resolved).toBe(
-      resolveUserPath("/tmp/assistant/agents/codex/sessions/sess-123.acp-stream.jsonl"),
+      resolveUserPath("/tmp/zhushou/agents/codex/sessions/sess-123.acp-stream.jsonl"),
     );
     expect(readAcpSessionEntryMock).toHaveBeenCalledWith({
       sessionKey: "agent:codex:acp:child-1",
@@ -379,7 +379,7 @@ describe("startAcpSpawnParentStreamRelay", () => {
         sessionId: "sess-123",
       }),
       expect.objectContaining({
-        storePath: "/tmp/assistant/agents/codex/sessions/sessions.json",
+        storePath: "/tmp/zhushou/agents/codex/sessions/sessions.json",
       }),
     );
   });

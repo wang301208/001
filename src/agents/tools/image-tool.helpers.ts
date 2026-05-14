@@ -1,9 +1,9 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { estimateBase64DecodedBytes } from "../../media/base64.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import { findNormalizedProviderValue } from "../model-selection.js";
-import { extractAssistantText } from "../pi-embedded-utils.js";
+import { extractZhushouText } from "../pi-embedded-utils.js";
 import { coerceToolModelConfig, type ToolModelConfig } from "./model-config.helpers.js";
 
 export type ImageModelConfig = ToolModelConfig;
@@ -36,7 +36,7 @@ export function decodeDataUrl(
   return { buffer, mimeType, kind: "image" };
 }
 
-export function coerceImageAssistantText(params: {
+export function coerceImageZhushouText(params: {
   message: AssistantMessage;
   provider: string;
   model: string;
@@ -53,19 +53,19 @@ export function coerceImageAssistantText(params: {
   if (errorMessage) {
     throw new Error(`Image model failed (${params.provider}/${params.model}): ${errorMessage}`);
   }
-  const text = extractAssistantText(params.message);
+  const text = extractZhushouText(params.message);
   if (text.trim()) {
     return text.trim();
   }
   throw new Error(`Image model returned no text (${params.provider}/${params.model}).`);
 }
 
-export function coerceImageModelConfig(cfg?: AssistantConfig): ImageModelConfig {
+export function coerceImageModelConfig(cfg?: ZhushouConfig): ImageModelConfig {
   return coerceToolModelConfig(cfg?.agents?.defaults?.imageModel);
 }
 
 export function resolveProviderVisionModelFromConfig(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   provider: string;
 }): string | null {
   const providerCfg = findNormalizedProviderValue(

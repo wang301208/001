@@ -1,6 +1,6 @@
 import type { RequestClient } from "@buape/carbon";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { RetryConfig } from "assistant/plugin-sdk/retry-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { RetryConfig } from "zhushou/plugin-sdk/retry-runtime";
 
 export class DiscordSendError extends Error {
   kind?: "missing-permissions" | "dm-blocked";
@@ -30,12 +30,12 @@ export type DiscordSendResult = {
 };
 
 export type DiscordRuntimeAccountContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
 };
 
 export type DiscordReactOpts = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   accountId?: string;
   token?: string;
   rest?: RequestClient;

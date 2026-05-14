@@ -2,12 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { AuthProfileFailureReason } from "./auth-profiles.js";
 import { runWithModelFallback } from "./model-fallback.js";
 import type { EmbeddedRunAttemptResult } from "./pi-embedded-runner/run/types.js";
 import {
-  buildEmbeddedRunnerAssistant,
+  buildEmbeddedRunnerZhushou,
   createResolvedEmbeddedRunnerModel,
   makeEmbeddedRunnerAttempt,
 } from "./test-helpers/pi-embedded-runner-e2e-fixtures.js";
@@ -49,7 +49,7 @@ vi.mock("./models-config.js", async () => {
   const mod = await vi.importActual<typeof import("./models-config.js")>("./models-config.js");
   return {
     ...mod,
-    ensureAssistantModelsJson: vi.fn(async () => ({ wrote: false })),
+    ensureZhushouModelsJson: vi.fn(async () => ({ wrote: false })),
   };
 });
 
@@ -103,7 +103,7 @@ const OVERLOADED_ERROR_PAYLOAD =
 const RATE_LIMIT_ERROR_MESSAGE = "rate limit exceeded";
 const NO_ENDPOINTS_FOUND_ERROR_MESSAGE = "404 No endpoints found for deepseek/deepseek-r1:free.";
 
-function makeConfig(): AssistantConfig {
+function makeConfig(): ZhushouConfig {
   const apiKeyField = ["api", "Key"].join("");
   return {
     agents: {
@@ -150,13 +150,13 @@ function makeConfig(): AssistantConfig {
         },
       },
     },
-  } satisfies AssistantConfig;
+  } satisfies ZhushouConfig;
 }
 
 async function withAgentWorkspace<T>(
   fn: (ctx: { agentDir: string; workspaceDir: string }) => Promise<T>,
 ): Promise<T> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-model-fallback-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-model-fallback-"));
   const agentDir = path.join(root, "agent");
   const workspaceDir = path.join(root, "workspace");
   await fs.mkdir(agentDir, { recursive: true });
@@ -243,7 +243,7 @@ async function runEmbeddedFallback(params: {
   sessionKey: string;
   runId: string;
   abortSignal?: AbortSignal;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }) {
   const cfg = params.config ?? makeConfig();
   return await runWithModelFallback({
@@ -287,8 +287,8 @@ function mockPrimaryPromptErrorThenFallbackSuccess(errorMessage: string) {
     }
     if (attemptParams.provider === "groq") {
       return makeEmbeddedRunnerAttempt({
-        assistantTexts: ["fallback ok"],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: ["fallback ok"],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           provider: "groq",
           model: "mock-2",
           stopReason: "stop",
@@ -305,8 +305,8 @@ function mockPrimaryErrorThenFallbackSuccess(errorMessage: string) {
     const attemptParams = params as { provider: string; modelId: string; authProfileId?: string };
     if (attemptParams.provider === "openai") {
       return makeEmbeddedRunnerAttempt({
-        assistantTexts: [],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: [],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           provider: "openai",
           model: "mock-1",
           stopReason: "error",
@@ -316,8 +316,8 @@ function mockPrimaryErrorThenFallbackSuccess(errorMessage: string) {
     }
     if (attemptParams.provider === "groq") {
       return makeEmbeddedRunnerAttempt({
-        assistantTexts: ["fallback ok"],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: ["fallback ok"],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           provider: "groq",
           model: "mock-2",
           stopReason: "stop",
@@ -334,8 +334,8 @@ function mockPrimaryRunLoopRateLimitThenFallbackSuccess(errorMessage: string) {
     const attemptParams = params as { provider: string };
     if (attemptParams.provider === "openai") {
       return makeEmbeddedRunnerAttempt({
-        assistantTexts: [],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: [],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           provider: "openai",
           model: "mock-1",
           stopReason: "length",
@@ -345,8 +345,8 @@ function mockPrimaryRunLoopRateLimitThenFallbackSuccess(errorMessage: string) {
     }
     if (attemptParams.provider === "groq") {
       return makeEmbeddedRunnerAttempt({
-        assistantTexts: ["fallback ok"],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: ["fallback ok"],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           provider: "groq",
           model: "mock-2",
           stopReason: "stop",
@@ -378,8 +378,8 @@ function mockAllProvidersOverloaded() {
     const attemptParams = params as { provider: string; modelId: string; authProfileId?: string };
     if (attemptParams.provider === "openai" || attemptParams.provider === "groq") {
       return makeEmbeddedRunnerAttempt({
-        assistantTexts: [],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: [],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           provider: attemptParams.provider,
           model: attemptParams.provider === "openai" ? "mock-1" : "mock-2",
           stopReason: "error",
@@ -392,7 +392,7 @@ function mockAllProvidersOverloaded() {
 }
 
 describe("runWithModelFallback + runEmbeddedPiAgent failover behavior", () => {
-  it("falls back on OpenRouter-style no-endpoints assistant errors", async () => {
+  it("falls back on OpenRouter-style no-endpoints zhushou errors", async () => {
     await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
       await writeAuthStore(agentDir);
       mockPrimaryErrorThenFallbackSuccess(NO_ENDPOINTS_FOUND_ERROR_MESSAGE);
@@ -639,8 +639,8 @@ describe("runWithModelFallback + runEmbeddedPiAgent failover behavior", () => {
         };
         if (attemptParams.provider === "openai") {
           return makeEmbeddedRunnerAttempt({
-            assistantTexts: [],
-            lastAssistant: buildEmbeddedRunnerAssistant({
+            zhushouTexts: [],
+            lastZhushou: buildEmbeddedRunnerZhushou({
               provider: "openai",
               model: "mock-1",
               stopReason: "error",
@@ -650,8 +650,8 @@ describe("runWithModelFallback + runEmbeddedPiAgent failover behavior", () => {
         }
         if (attemptParams.provider === "groq") {
           return makeEmbeddedRunnerAttempt({
-            assistantTexts: ["fallback ok"],
-            lastAssistant: buildEmbeddedRunnerAssistant({
+            zhushouTexts: ["fallback ok"],
+            lastZhushou: buildEmbeddedRunnerZhushou({
               provider: "groq",
               model: "mock-2",
               stopReason: "stop",
@@ -698,8 +698,8 @@ describe("runWithModelFallback + runEmbeddedPiAgent failover behavior", () => {
         const attemptParams = params as { provider: string };
         if (attemptParams.provider === "openai") {
           return makeEmbeddedRunnerAttempt({
-            assistantTexts: [],
-            lastAssistant: buildEmbeddedRunnerAssistant({
+            zhushouTexts: [],
+            lastZhushou: buildEmbeddedRunnerZhushou({
               provider: "openai",
               model: "mock-1",
               stopReason: "error",
@@ -709,8 +709,8 @@ describe("runWithModelFallback + runEmbeddedPiAgent failover behavior", () => {
         }
         if (attemptParams.provider === "groq") {
           return makeEmbeddedRunnerAttempt({
-            assistantTexts: ["fallback ok"],
-            lastAssistant: buildEmbeddedRunnerAssistant({
+            zhushouTexts: ["fallback ok"],
+            lastZhushou: buildEmbeddedRunnerZhushou({
               provider: "groq",
               model: "mock-2",
               stopReason: "stop",

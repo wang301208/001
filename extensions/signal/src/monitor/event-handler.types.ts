@@ -1,12 +1,12 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import type {
   DmPolicy,
   GroupPolicy,
   SignalReactionNotificationMode,
-} from "assistant/plugin-sdk/config-runtime";
-import type { HistoryEntry } from "assistant/plugin-sdk/reply-history";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/config-runtime";
+import type { HistoryEntry } from "zhushou/plugin-sdk/reply-history";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import type { SignalSender } from "../identity.js";
 
 export type SignalEnvelope = {
@@ -77,7 +77,7 @@ export type SignalReceivePayload = {
 
 export type SignalEventHandlerDeps = {
   runtime: RuntimeEnv;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   baseUrl: string;
   account?: string;
   accountUuid?: string;

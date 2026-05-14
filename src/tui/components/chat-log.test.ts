@@ -17,23 +17,23 @@ describe("ChatLog", () => {
 
   it("drops stale streaming references when old components are pruned", () => {
     const chatLog = new ChatLog(20);
-    chatLog.startAssistant("first", "run-1");
+    chatLog.startZhushou("first", "run-1");
     for (let i = 0; i < 25; i++) {
       chatLog.addSystem(`overflow-${i}`);
     }
 
     // Should not throw if the original streaming component was pruned.
-    chatLog.updateAssistant("recreated", "run-1");
+    chatLog.updateZhushou("recreated", "run-1");
 
     const rendered = chatLog.render(120).join("\n");
     expect(chatLog.children.length).toBe(20);
     expect(rendered).toContain("recreated");
   });
 
-  it("does not append duplicate assistant components when a run is started twice", () => {
+  it("does not append duplicate zhushou components when a run is started twice", () => {
     const chatLog = new ChatLog(40);
-    chatLog.startAssistant("first", "run-dup");
-    chatLog.startAssistant("second", "run-dup");
+    chatLog.startZhushou("first", "run-dup");
+    chatLog.startZhushou("second", "run-dup");
 
     const rendered = chatLog.render(120).join("\n");
     expect(rendered).toContain("second");

@@ -83,7 +83,7 @@ async function withModeExecProviderFixture(
   label: string,
   run: (fixture: ModeExecProviderFixture) => Promise<void>,
 ) {
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), `assistant-tui-mode-${label}-`));
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), `zhushou-tui-mode-${label}-`));
   const tokenMarker = path.join(tempDir, "token-provider-ran");
   const passwordMarker = path.join(tempDir, "password-provider-ran");
   const tokenExecProgram = [
@@ -126,9 +126,9 @@ describe("resolveGatewayConnection", () => {
 
   beforeEach(() => {
     envSnapshot = captureEnv([
-      "ASSISTANT_GATEWAY_URL",
-      "ASSISTANT_GATEWAY_TOKEN",
-      "ASSISTANT_GATEWAY_PASSWORD",
+      "ZHUSHOU_GATEWAY_URL",
+      "ZHUSHOU_GATEWAY_TOKEN",
+      "ZHUSHOU_GATEWAY_PASSWORD",
     ]);
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
@@ -136,15 +136,15 @@ describe("resolveGatewayConnection", () => {
     resolveConfigPath.mockReset();
     resolveGatewayPort.mockReturnValue(18789);
     resolveStateDir.mockImplementation(
-      (env: NodeJS.ProcessEnv) => env.ASSISTANT_STATE_DIR ?? "/tmp/assistant",
+      (env: NodeJS.ProcessEnv) => env.ZHUSHOU_STATE_DIR ?? "/tmp/zhushou",
     );
     resolveConfigPath.mockImplementation(
       (env: NodeJS.ProcessEnv, stateDir: string) =>
-        env.ASSISTANT_CONFIG_PATH ?? `${stateDir}/assistant.json`,
+        env.ZHUSHOU_CONFIG_PATH ?? `${stateDir}/zhushou.json`,
     );
-    delete process.env.ASSISTANT_GATEWAY_URL;
-    delete process.env.ASSISTANT_GATEWAY_TOKEN;
-    delete process.env.ASSISTANT_GATEWAY_PASSWORD;
+    delete process.env.ZHUSHOU_GATEWAY_URL;
+    delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+    delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
   });
 
   afterEach(() => {
@@ -187,16 +187,16 @@ describe("resolveGatewayConnection", () => {
   it("uses config auth token for local mode when both config and env tokens are set", async () => {
     loadConfig.mockReturnValue({ gateway: { mode: "local", auth: { token: "config-token" } } });
 
-    await withEnvAsync({ ASSISTANT_GATEWAY_TOKEN: "env-token" }, async () => {
+    await withEnvAsync({ ZHUSHOU_GATEWAY_TOKEN: "env-token" }, async () => {
       const result = await resolveGatewayConnection({});
       expect(result.token).toBe("config-token");
     });
   });
 
-  it("falls back to ASSISTANT_GATEWAY_TOKEN when config token is missing", async () => {
+  it("falls back to ZHUSHOU_GATEWAY_TOKEN when config token is missing", async () => {
     loadConfig.mockReturnValue({ gateway: { mode: "local" } });
 
-    await withEnvAsync({ ASSISTANT_GATEWAY_TOKEN: "env-token" }, async () => {
+    await withEnvAsync({ ZHUSHOU_GATEWAY_TOKEN: "env-token" }, async () => {
       const result = await resolveGatewayConnection({});
       expect(result.token).toBe("env-token");
     });
@@ -265,7 +265,7 @@ describe("resolveGatewayConnection", () => {
     );
   });
 
-  it("prefers ASSISTANT_GATEWAY_PASSWORD over remote password fallback", async () => {
+  it("prefers ZHUSHOU_GATEWAY_PASSWORD over remote password fallback", async () => {
     loadConfig.mockReturnValue({
       gateway: {
         mode: "remote",
@@ -273,7 +273,7 @@ describe("resolveGatewayConnection", () => {
       },
     });
 
-    const gatewayPasswordEnv = "ASSISTANT_GATEWAY_PASSWORD"; // pragma: allowlist secret
+    const gatewayPasswordEnv = "ZHUSHOU_GATEWAY_PASSWORD"; // pragma: allowlist secret
     const gatewayPassword = "env-pass"; // pragma: allowlist secret
     await withEnvAsync({ [gatewayPasswordEnv]: gatewayPassword }, async () => {
       const result = await resolveGatewayConnection({});
@@ -284,7 +284,7 @@ describe("resolveGatewayConnection", () => {
   it.runIf(process.platform !== "win32")(
     "resolves file-backed SecretRef token for local mode",
     async () => {
-      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-tui-file-secret-"));
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-tui-file-secret-"));
       const secretFile = path.join(tempDir, "secrets.json");
       await fs.writeFile(secretFile, JSON.stringify({ gatewayToken: "file-secret-token" }), "utf8");
       await fs.chmod(secretFile, 0o600);
@@ -491,7 +491,7 @@ describe("GatewayChatClient", () => {
     expect(
       (client as unknown as { transport: { opts: { clientName?: string; mode?: string } } })
         .transport.opts.clientName,
-    ).toBe("assistant-tui");
+    ).toBe("zhushou-tui");
     expect(
       (client as unknown as { transport: { opts: { clientName?: string; mode?: string } } })
         .transport.opts.mode,
@@ -681,7 +681,7 @@ describe("GatewayChatClient", () => {
       .mockResolvedValueOnce({ task: { id: "task_1" } })
       .mockResolvedValueOnce({ task: { id: "task_1", status: "completed" } })
       .mockResolvedValueOnce({ ok: true, id: "task_1" })
-      .mockResolvedValueOnce({ raw: "{}", config: {}, path: "/tmp/assistant.json" })
+      .mockResolvedValueOnce({ raw: "{}", config: {}, path: "/tmp/zhushou.json" })
       .mockResolvedValueOnce({ ok: true, changedPaths: ["models"] })
       .mockResolvedValueOnce({ lines: ["log"], cursor: 1, size: 1 })
       .mockResolvedValueOnce({ models: [{ id: "llama3", name: "llama3", provider: "ollama" }] })

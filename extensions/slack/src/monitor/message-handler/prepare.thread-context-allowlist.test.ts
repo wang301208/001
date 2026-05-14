@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { App } from "@slack/bolt";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import type { SlackMessageEvent } from "../../types.js";
 
@@ -11,7 +11,7 @@ const [{ prepareSlackMessage }, helpers] = await Promise.all([
   import("./prepare.test-helpers.js"),
 ]);
 const { createInboundSlackTestContext, createSlackTestAccount } = helpers;
-let fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-slack-room-thread-context-"));
+let fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-slack-room-thread-context-"));
 let caseId = 0;
 
 function makeTmpStorePath() {
@@ -52,7 +52,7 @@ async function prepareThreadContextCase(params: ThreadContextCaseParams) {
     .mockResolvedValueOnce({
       messages: [
         { text: params.starterText, user: params.user, ts: params.startTs },
-        { text: "assistant reply", bot_id: "B1", ts: params.replyTs },
+        { text: "zhushou reply", bot_id: "B1", ts: params.replyTs },
         { text: params.followUpText, user: params.user, ts: params.followUpTs },
         { text: "current message", user: params.user, ts: params.currentTs },
       ],
@@ -69,7 +69,7 @@ async function prepareThreadContextCase(params: ThreadContextCaseParams) {
           contextVisibility: "allowlist",
         },
       },
-    } as AssistantConfig,
+    } as ZhushouConfig,
     appClient: { conversations: { replies } } as unknown as App["client"],
     defaultRequireMention: false,
     replyToMode: "all",
@@ -140,7 +140,7 @@ describe("prepareSlackMessage thread context allowlists", () => {
     expect(prepared).toBeTruthy();
     expect(prepared!.ctxPayload.ThreadStarterBody).toBe("starter from room user");
     expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("starter from room user");
-    expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("assistant reply");
+    expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("zhushou reply");
     expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("allowed follow-up");
     expect(prepared!.ctxPayload.ThreadHistoryBody).not.toContain("current message");
     expect(replies).toHaveBeenCalledTimes(2);
@@ -169,7 +169,7 @@ describe("prepareSlackMessage thread context allowlists", () => {
     expect(prepared).toBeTruthy();
     expect(prepared!.ctxPayload.ThreadStarterBody).toBe("starter from open room");
     expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("starter from open room");
-    expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("assistant reply");
+    expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("zhushou reply");
     expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("open-room follow-up");
     expect(prepared!.ctxPayload.ThreadHistoryBody).not.toContain("current message");
     expect(replies).toHaveBeenCalledTimes(2);
@@ -192,7 +192,7 @@ describe("prepareSlackMessage thread context allowlists", () => {
     expect(prepared).toBeTruthy();
     expect(prepared!.ctxPayload.ThreadStarterBody).toBe("starter from open dm");
     expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("starter from open dm");
-    expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("assistant reply");
+    expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("zhushou reply");
     expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("dm follow-up");
     expect(prepared!.ctxPayload.ThreadHistoryBody).not.toContain("current message");
     expect(replies).toHaveBeenCalledTimes(2);
@@ -215,7 +215,7 @@ describe("prepareSlackMessage thread context allowlists", () => {
     expect(prepared).toBeTruthy();
     expect(prepared!.ctxPayload.ThreadStarterBody).toBe("starter from mpim");
     expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("starter from mpim");
-    expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("assistant reply");
+    expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("zhushou reply");
     expect(prepared!.ctxPayload.ThreadHistoryBody).toContain("mpim follow-up");
     expect(prepared!.ctxPayload.ThreadHistoryBody).not.toContain("current message");
     expect(replies).toHaveBeenCalledTimes(2);

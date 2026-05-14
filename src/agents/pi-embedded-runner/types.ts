@@ -46,7 +46,7 @@ export type TraceAttempt = {
     | "aborted"
     | "error";
   reason?: string;
-  stage?: "prompt" | "assistant";
+  stage?: "prompt" | "zhushou";
   elapsedMs?: number;
   status?: number;
 };
@@ -102,8 +102,8 @@ export type EmbeddedPiRunMeta = {
   aborted?: boolean;
   systemPromptReport?: SessionSystemPromptReport;
   finalPromptText?: string;
-  finalAssistantVisibleText?: string;
-  finalAssistantRawText?: string;
+  finalZhushouVisibleText?: string;
+  finalZhushouRawText?: string;
   replayInvalid?: boolean;
   livenessState?: EmbeddedRunLivenessState;
   error?: {

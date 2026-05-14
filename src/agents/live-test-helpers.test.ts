@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { isLiveProfileKeyModeEnabled, isLiveTestEnabled } from "./live-test-helpers.js";
 
 describe("isLiveTestEnabled", () => {
-  it("treats LIVE and ASSISTANT_LIVE_TEST as shared live gates", () => {
+  it("treats LIVE and ZHUSHOU_LIVE_TEST as shared live gates", () => {
     expect(isLiveTestEnabled([], { LIVE: "1" })).toBe(true);
-    expect(isLiveTestEnabled([], { ASSISTANT_LIVE_TEST: "1" })).toBe(true);
+    expect(isLiveTestEnabled([], { ZHUSHOU_LIVE_TEST: "1" })).toBe(true);
     expect(isLiveTestEnabled([], {})).toBe(false);
   });
 
@@ -16,8 +16,8 @@ describe("isLiveTestEnabled", () => {
 
 describe("isLiveProfileKeyModeEnabled", () => {
   it("only enables profile-key mode for the dedicated flag", () => {
-    expect(isLiveProfileKeyModeEnabled({ ASSISTANT_LIVE_REQUIRE_PROFILE_KEYS: "1" })).toBe(true);
-    expect(isLiveProfileKeyModeEnabled({ ASSISTANT_LIVE_TEST: "1" })).toBe(false);
+    expect(isLiveProfileKeyModeEnabled({ ZHUSHOU_LIVE_REQUIRE_PROFILE_KEYS: "1" })).toBe(true);
+    expect(isLiveProfileKeyModeEnabled({ ZHUSHOU_LIVE_TEST: "1" })).toBe(false);
     expect(isLiveProfileKeyModeEnabled({ LIVE: "1" })).toBe(false);
   });
 });

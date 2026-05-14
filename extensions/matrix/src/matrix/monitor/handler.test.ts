@@ -4,10 +4,10 @@ import path from "node:path";
 import {
   __testing as sessionBindingTesting,
   registerSessionBindingAdapter,
-} from "assistant/plugin-sdk/session-binding-runtime";
+} from "zhushou/plugin-sdk/session-binding-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { installMatrixMonitorTestRuntime } from "../../test-runtime.js";
-import { MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY } from "../send/types.js";
+import { MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY } from "../send/types.js";
 import { createMatrixRoomMessageHandler, MatrixRetryableInboundError } from "./handler.js";
 import {
   createMatrixHandlerTestHarness,
@@ -2129,9 +2129,9 @@ describe("matrix monitor handler draft streaming", () => {
         text?: string;
         isCompactionNotice?: boolean;
       },
-      context?: { assistantMessageIndex?: number },
+      context?: { zhushouMessageIndex?: number },
     ) => Promise<void> | void;
-    onAssistantMessageStart?: () => void;
+    onZhushouMessageStart?: () => void;
     disableBlockStreaming?: boolean;
   };
 
@@ -2242,7 +2242,7 @@ describe("matrix monitor handler draft streaming", () => {
       "$draft1",
       "Single block",
       expect.objectContaining({
-        extraContent: { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true },
+        extraContent: { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true },
       }),
     );
     expect(deliverMatrixRepliesMock).not.toHaveBeenCalled();
@@ -2330,13 +2330,13 @@ describe("matrix monitor handler draft streaming", () => {
       "$draft1",
       "Block one",
       expect.objectContaining({
-        extraContent: { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true },
+        extraContent: { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true },
       }),
     );
     expect(deliverMatrixRepliesMock).not.toHaveBeenCalled();
     expect(redactEventMock).not.toHaveBeenCalled();
 
-    opts.onAssistantMessageStart?.();
+    opts.onZhushouMessageStart?.();
     sendSingleTextMessageMatrixMock.mockResolvedValueOnce({
       messageId: "$draft2",
       roomId: "!room",
@@ -2353,7 +2353,7 @@ describe("matrix monitor handler draft streaming", () => {
       "$draft2",
       "Block two",
       expect.objectContaining({
-        extraContent: { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true },
+        extraContent: { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true },
       }),
     );
     expect(deliverMatrixRepliesMock).not.toHaveBeenCalled();
@@ -2481,7 +2481,7 @@ describe("matrix monitor handler draft streaming", () => {
     }
   });
 
-  it("resets draft block offsets on assistant message start", async () => {
+  it("resets draft block offsets on zhushou message start", async () => {
     const { dispatch } = createStreamingHarness();
     const { deliver, opts, finish } = await dispatch();
 
@@ -2495,8 +2495,8 @@ describe("matrix monitor handler draft streaming", () => {
     // Tool call delivered (bypasses draft stream).
     await deliver({ text: "tool result" }, { kind: "tool" });
 
-    // New assistant message starts — payload.text will reset upstream.
-    opts.onAssistantMessageStart?.();
+    // New zhushou message starts — payload.text will reset upstream.
+    opts.onZhushouMessageStart?.();
 
     // Block 2: partial text starts fresh (no stale offset).
     sendSingleTextMessageMatrixMock.mockClear();
@@ -2513,7 +2513,7 @@ describe("matrix monitor handler draft streaming", () => {
     await finish();
   });
 
-  it("preserves queued block boundaries across assistant message start", async () => {
+  it("preserves queued block boundaries across zhushou message start", async () => {
     const { dispatch, redactEventMock } = createStreamingHarness({ blockStreamingEnabled: true });
     const { deliver, opts, finish } = await dispatch();
 
@@ -2523,7 +2523,7 @@ describe("matrix monitor handler draft streaming", () => {
     });
 
     await opts.onBlockReplyQueued?.({ text: "Alpha" });
-    opts.onAssistantMessageStart?.();
+    opts.onZhushouMessageStart?.();
     opts.onPartialReply?.({ text: "Beta" });
 
     await vi.waitFor(() => {
@@ -2563,18 +2563,18 @@ describe("matrix monitor handler draft streaming", () => {
     await finish();
   });
 
-  it("queues late block boundaries against the source assistant message", async () => {
+  it("queues late block boundaries against the source zhushou message", async () => {
     const { dispatch, redactEventMock } = createStreamingHarness({ blockStreamingEnabled: true });
     const { deliver, opts, finish } = await dispatch();
 
-    opts.onAssistantMessageStart?.();
+    opts.onZhushouMessageStart?.();
     opts.onPartialReply?.({ text: "Alpha" });
     await vi.waitFor(() => {
       expect(sendSingleTextMessageMatrixMock).toHaveBeenCalledTimes(1);
     });
 
-    opts.onAssistantMessageStart?.();
-    await opts.onBlockReplyQueued?.({ text: "Alpha" }, { assistantMessageIndex: 1 });
+    opts.onZhushouMessageStart?.();
+    await opts.onBlockReplyQueued?.({ text: "Alpha" }, { zhushouMessageIndex: 1 });
     opts.onPartialReply?.({ text: "Beta" });
 
     await vi.waitFor(() => {
@@ -2649,7 +2649,7 @@ describe("matrix monitor handler draft streaming", () => {
       "$draft1",
       "Alpha",
       expect.objectContaining({
-        extraContent: { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true },
+        extraContent: { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true },
       }),
     );
 
@@ -2670,7 +2670,7 @@ describe("matrix monitor handler draft streaming", () => {
       "$draft2",
       "Beta",
       expect.objectContaining({
-        extraContent: { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true },
+        extraContent: { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true },
       }),
     );
 
@@ -2850,10 +2850,10 @@ describe("matrix monitor handler draft streaming", () => {
     const { deliver, opts, finish } = await dispatch();
 
     // A tool payload can consume the first reply slot upstream while draft
-    // streaming for the next assistant block still starts from the original
+    // streaming for the next zhushou block still starts from the original
     // reply target.
     await deliver({ text: "tool result", replyToId: "$msg1" }, { kind: "tool" });
-    opts.onAssistantMessageStart?.();
+    opts.onZhushouMessageStart?.();
 
     opts.onPartialReply?.({ text: "Partial reply" });
     await vi.waitFor(() => {
@@ -2949,7 +2949,7 @@ describe("matrix monitor handler draft streaming", () => {
       "$draft1",
       "@room screenshot ready",
       expect.objectContaining({
-        extraContent: { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true },
+        extraContent: { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true },
       }),
     );
     expect(redactEventMock).not.toHaveBeenCalled();

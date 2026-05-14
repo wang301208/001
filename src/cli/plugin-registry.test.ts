@@ -28,7 +28,7 @@ function withActivatedPluginIdsForTest<T extends Record<string, unknown>>(
 }
 
 const mocks = vi.hoisted(() => ({
-  loadAssistantPlugins: vi.fn<typeof import("../plugins/loader.js").loadAssistantPlugins>(),
+  loadZhushouPlugins: vi.fn<typeof import("../plugins/loader.js").loadZhushouPlugins>(),
   getActivePluginRegistry: vi.fn<typeof import("../plugins/runtime.js").getActivePluginRegistry>(),
   resolveConfiguredChannelPluginIds:
     vi.fn<typeof import("../plugins/channel-plugin-ids.js").resolveConfiguredChannelPluginIds>(),
@@ -42,8 +42,8 @@ let ensurePluginRegistryLoaded: typeof import("./plugin-registry.js").ensurePlug
 let resetPluginRegistryLoadedForTests: typeof import("./plugin-registry.js").__testing.resetPluginRegistryLoadedForTests;
 
 vi.mock("../plugins/loader.js", () => ({
-  loadAssistantPlugins: (...args: Parameters<typeof mocks.loadAssistantPlugins>) =>
-    mocks.loadAssistantPlugins(...args),
+  loadZhushouPlugins: (...args: Parameters<typeof mocks.loadZhushouPlugins>) =>
+    mocks.loadZhushouPlugins(...args),
 }));
 
 vi.mock("../plugins/runtime.js", () => ({
@@ -111,7 +111,7 @@ describe("ensurePluginRegistryLoaded", () => {
   });
 
   beforeEach(() => {
-    mocks.loadAssistantPlugins.mockReset();
+    mocks.loadZhushouPlugins.mockReset();
     mocks.getActivePluginRegistry.mockReset();
     mocks.resolveConfiguredChannelPluginIds.mockReset();
     mocks.resolveChannelPluginIds.mockReset();
@@ -169,7 +169,7 @@ describe("ensurePluginRegistryLoaded", () => {
         workspaceDir: "/tmp/workspace",
       }),
     );
-    expect(mocks.loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(mocks.loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: autoEnabledConfig,
         activationSourceConfig: autoEnabledConfig,
@@ -204,15 +204,15 @@ describe("ensurePluginRegistryLoaded", () => {
     ensurePluginRegistryLoaded({ scope: "configured-channels" });
     ensurePluginRegistryLoaded({ scope: "channels" });
 
-    expect(mocks.loadAssistantPlugins).toHaveBeenCalledTimes(2);
-    expect(mocks.loadAssistantPlugins).toHaveBeenNthCalledWith(
+    expect(mocks.loadZhushouPlugins).toHaveBeenCalledTimes(2);
+    expect(mocks.loadZhushouPlugins).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         onlyPluginIds: ["demo-channel-a"],
         throwOnLoadError: true,
       }),
     );
-    expect(mocks.loadAssistantPlugins).toHaveBeenNthCalledWith(
+    expect(mocks.loadZhushouPlugins).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
         onlyPluginIds: ["demo-channel-a", "demo-channel-b"],
@@ -244,8 +244,8 @@ describe("ensurePluginRegistryLoaded", () => {
 
     ensurePluginRegistryLoaded({ scope: "all" });
 
-    expect(mocks.loadAssistantPlugins).toHaveBeenCalledTimes(1);
-    expect(mocks.loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(mocks.loadZhushouPlugins).toHaveBeenCalledTimes(1);
+    expect(mocks.loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config,
         throwOnLoadError: true,
@@ -279,8 +279,8 @@ describe("ensurePluginRegistryLoaded", () => {
 
     ensurePluginRegistryLoaded({ scope: "configured-channels" });
 
-    expect(mocks.loadAssistantPlugins).toHaveBeenCalledTimes(1);
-    expect(mocks.loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(mocks.loadZhushouPlugins).toHaveBeenCalledTimes(1);
+    expect(mocks.loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: activatedConfig,
         activationSourceConfig: activatedConfig,
@@ -320,8 +320,8 @@ describe("ensurePluginRegistryLoaded", () => {
     } as never);
     ensurePluginRegistryLoaded({ scope: "configured-channels" });
 
-    expect(mocks.loadAssistantPlugins).toHaveBeenCalledTimes(1);
-    expect(mocks.loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(mocks.loadZhushouPlugins).toHaveBeenCalledTimes(1);
+    expect(mocks.loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: activatedConfig,
         activationSourceConfig: activatedConfig,

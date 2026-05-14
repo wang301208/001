@@ -8,12 +8,12 @@ import {
   type OpenAiCompatibleVideoPayload,
   type VideoDescriptionRequest,
   type VideoDescriptionResult,
-} from "assistant/plugin-sdk/media-understanding";
+} from "zhushou/plugin-sdk/media-understanding";
 import {
   assertOkOrThrowHttpError,
   postJsonRequest,
   resolveProviderHttpRequestConfig,
-} from "assistant/plugin-sdk/provider-http";
+} from "zhushou/plugin-sdk/provider-http";
 import { QWEN_STANDARD_CN_BASE_URL, QWEN_STANDARD_GLOBAL_BASE_URL } from "./models.js";
 
 const DEFAULT_QWEN_VIDEO_MODEL = "qwen-vl-max-latest";

@@ -4,7 +4,7 @@
  */
 
 import crypto from "node:crypto";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import type { SessionEntry } from "../api.js";
 import type { VoiceCallConfig } from "./config.js";
 import type { CoreAgentDeps, CoreConfig } from "./core-bridge.js";
@@ -225,12 +225,12 @@ export async function generateVoiceResponse(
 
   // Resolve agent identity for personalized prompt
   const identity = agentRuntime.resolveAgentIdentity(cfg, agentId);
-  const agentName = identity?.name?.trim() || "assistant";
+  const agentName = identity?.name?.trim() || "zhushou";
 
   // Build system prompt with conversation history
   const basePrompt =
     voiceConfig.responseSystemPrompt ??
-    `You are ${agentName}, a helpful voice assistant on a phone call. Keep responses brief and conversational (1-2 sentences max). Be natural and friendly. The caller's phone number is ${from}. You have access to tools - use them when helpful.`;
+    `You are ${agentName}, a helpful voice zhushou on a phone call. Keep responses brief and conversational (1-2 sentences max). Be natural and friendly. The caller's phone number is ${from}. You have access to tools - use them when helpful.`;
 
   let extraSystemPrompt = basePrompt;
   if (transcript.length > 0) {

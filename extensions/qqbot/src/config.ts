@@ -1,10 +1,10 @@
 import fs from "node:fs";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   hasConfiguredSecretInput,
   normalizeResolvedSecretInputString,
   normalizeSecretInputString,
-} from "assistant/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/secret-input";
 import type { ResolvedQQBotAccount, QQBotAccountConfig } from "./types.js";
 
 export const DEFAULT_ACCOUNT_ID = "default";
@@ -43,7 +43,7 @@ function normalizeAppId(raw: unknown): string {
 }
 
 /** List all configured QQBot account IDs. */
-export function listQQBotAccountIds(cfg: AssistantConfig): string[] {
+export function listQQBotAccountIds(cfg: ZhushouConfig): string[] {
   const ids = new Set<string>();
   const qqbot = cfg.channels?.qqbot as QQBotChannelConfig | undefined;
 
@@ -63,7 +63,7 @@ export function listQQBotAccountIds(cfg: AssistantConfig): string[] {
 }
 
 /** Resolve the default QQBot account ID. */
-export function resolveDefaultQQBotAccountId(cfg: AssistantConfig): string {
+export function resolveDefaultQQBotAccountId(cfg: ZhushouConfig): string {
   const qqbot = cfg.channels?.qqbot as QQBotChannelConfig | undefined;
   const configuredDefaultAccountId = normalizeConfiguredDefaultAccountId(qqbot?.defaultAccount);
   if (
@@ -87,7 +87,7 @@ export function resolveDefaultQQBotAccountId(cfg: AssistantConfig): string {
 
 /** Resolve QQBot account config for runtime or setup flows. */
 export function resolveQQBotAccount(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId?: string | null,
   opts?: { allowUnresolvedSecretRef?: boolean },
 ): ResolvedQQBotAccount {
@@ -156,7 +156,7 @@ export function resolveQQBotAccount(
 
 /** Apply account config updates back into the 助手 config object. */
 export function applyQQBotAccountConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   input: {
     appId?: string;
@@ -164,7 +164,7 @@ export function applyQQBotAccountConfig(
     clientSecretFile?: string;
     name?: string;
   },
-): AssistantConfig {
+): ZhushouConfig {
   const next = { ...cfg };
 
   if (accountId === DEFAULT_ACCOUNT_ID) {

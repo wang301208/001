@@ -2,14 +2,14 @@ import {
   type ChannelOutboundAdapter,
   createAttachedChannelResultAdapter,
   createEmptyChannelResult,
-} from "assistant/plugin-sdk/channel-send-result";
-import { resolveOutboundSendDep, sanitizeForPlainText } from "assistant/plugin-sdk/outbound-runtime";
+} from "zhushou/plugin-sdk/channel-send-result";
+import { resolveOutboundSendDep, sanitizeForPlainText } from "zhushou/plugin-sdk/outbound-runtime";
 import {
   resolveSendableOutboundReplyParts,
   sendTextMediaPayload,
-} from "assistant/plugin-sdk/reply-payload";
-import { chunkText } from "assistant/plugin-sdk/reply-runtime";
-import { shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/reply-payload";
+import { chunkText } from "zhushou/plugin-sdk/reply-runtime";
+import { shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
 import { WHATSAPP_LEGACY_OUTBOUND_SEND_DEP_KEYS } from "./outbound-send-deps.js";
 import { resolveWhatsAppOutboundTarget } from "./runtime-api.js";
 import { sendPollWhatsApp } from "./send.js";

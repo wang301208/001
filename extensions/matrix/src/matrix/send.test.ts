@@ -9,7 +9,7 @@ import {
   sendSingleTextMessageMatrix,
   sendTypingMatrix,
 } from "./send.js";
-import { MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY } from "./send/types.js";
+import { MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY } from "./send/types.js";
 
 const loadOutboundMediaFromUrlMock = vi.hoisted(() => vi.fn());
 const loadWebMediaMock = vi.fn().mockResolvedValue({
@@ -382,14 +382,14 @@ describe("sendMessageMatrix media", () => {
     await sendMessageMatrix("room:!room:example", "caption", {
       client,
       mediaUrl: "file:///tmp/photo.png",
-      mediaLocalRoots: ["/tmp/assistant-matrix-test"],
+      mediaLocalRoots: ["/tmp/zhushou-matrix-test"],
     });
 
     expect(loadWebMediaMock).toHaveBeenCalledWith(
       "file:///tmp/photo.png",
       expect.objectContaining({
         maxBytes: undefined,
-        localRoots: ["/tmp/assistant-matrix-test"],
+        localRoots: ["/tmp/zhushou-matrix-test"],
       }),
     );
   });
@@ -628,12 +628,12 @@ describe("sendSingleTextMessageMatrix", () => {
 
     await sendSingleTextMessageMatrix("room:!room:example", "done", {
       client,
-      extraContent: { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true },
+      extraContent: { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true },
     });
 
     expect(sendMessage.mock.calls[0]?.[1]).toMatchObject({
       body: "done",
-      [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true,
+      [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true,
     });
   });
 });
@@ -752,13 +752,13 @@ describe("editMessageMatrix mentions", () => {
 
     await editMessageMatrix("room:!room:example", "$original", "done", {
       client,
-      extraContent: { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true },
+      extraContent: { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true },
     });
 
     expect(sendMessage.mock.calls[0]?.[1]).toMatchObject({
-      [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true,
+      [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true,
       "m.new_content": {
-        [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true,
+        [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true,
       },
     });
   });

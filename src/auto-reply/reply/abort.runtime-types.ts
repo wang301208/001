@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { FinalizedMsgContext } from "../templating.js";
 
 export type FastAbortResult = {
@@ -9,7 +9,7 @@ export type FastAbortResult = {
 
 export type TryFastAbortFromMessage = (params: {
   ctx: FinalizedMsgContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
 }) => Promise<FastAbortResult>;
 
 export type FormatAbortReplyText = (stoppedSubagents?: number) => string;

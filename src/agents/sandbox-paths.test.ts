@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { describe, expect, it, vi } from "vitest";
-import { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
+import { resolvePreferredZhushouTmpDir } from "../infra/tmp-zhushou-dir.js";
 import { resolveSandboxedMediaSource } from "./sandbox-paths.js";
 
 async function withSandboxRoot<T>(run: (sandboxDir: string) => Promise<T>) {
@@ -28,9 +28,9 @@ function makeTmpProbePath(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}.txt`;
 }
 
-async function withOutsideHardlinkInAssistantTmp<T>(
+async function withOutsideHardlinkInZhushouTmp<T>(
   params: {
-    assistantTmpDir: string;
+    zhushouTmpDir: string;
     hardlinkPrefix: string;
     symlinkPrefix?: string;
   },
@@ -38,16 +38,16 @@ async function withOutsideHardlinkInAssistantTmp<T>(
 ): Promise<void> {
   const outsideDir = await fs.mkdtemp(path.join(process.cwd(), "sandbox-media-hardlink-outside-"));
   const outsideFile = path.join(outsideDir, "outside-secret.txt");
-  const hardlinkPath = path.join(params.assistantTmpDir, makeTmpProbePath(params.hardlinkPrefix));
+  const hardlinkPath = path.join(params.zhushouTmpDir, makeTmpProbePath(params.hardlinkPrefix));
   const symlinkPath = params.symlinkPrefix
-    ? path.join(params.assistantTmpDir, makeTmpProbePath(params.symlinkPrefix))
+    ? path.join(params.zhushouTmpDir, makeTmpProbePath(params.symlinkPrefix))
     : undefined;
   try {
-    if (isPathInside(params.assistantTmpDir, outsideFile)) {
+    if (isPathInside(params.zhushouTmpDir, outsideFile)) {
       return;
     }
     await fs.writeFile(outsideFile, "secret", "utf8");
-    await fs.mkdir(params.assistantTmpDir, { recursive: true });
+    await fs.mkdir(params.zhushouTmpDir, { recursive: true });
     try {
       await fs.link(outsideFile, hardlinkPath);
     } catch (err) {
@@ -70,24 +70,24 @@ async function withOutsideHardlinkInAssistantTmp<T>(
 }
 
 describe("resolveSandboxedMediaSource", () => {
-  const assistantTmpDir = resolvePreferredAssistantTmpDir();
+  const zhushouTmpDir = resolvePreferredZhushouTmpDir();
 
   // Group 1: /tmp paths (the bug fix)
   it.each([
     {
       name: "absolute paths under preferred 助手 tmp root",
-      media: path.join(assistantTmpDir, "image.png"),
-      expected: path.join(assistantTmpDir, "image.png"),
+      media: path.join(zhushouTmpDir, "image.png"),
+      expected: path.join(zhushouTmpDir, "image.png"),
     },
     {
       name: "file:// URLs pointing to preferred 助手 tmp root",
-      media: pathToFileURL(path.join(assistantTmpDir, "photo.png")).href,
-      expected: path.join(assistantTmpDir, "photo.png"),
+      media: pathToFileURL(path.join(zhushouTmpDir, "photo.png")).href,
+      expected: path.join(zhushouTmpDir, "photo.png"),
     },
     {
       name: "nested paths under preferred 助手 tmp root",
-      media: path.join(assistantTmpDir, "subdir", "deep", "file.png"),
-      expected: path.join(assistantTmpDir, "subdir", "deep", "file.png"),
+      media: path.join(zhushouTmpDir, "subdir", "deep", "file.png"),
+      expected: path.join(zhushouTmpDir, "subdir", "deep", "file.png"),
     },
   ])("allows $name", async ({ media, expected }) => {
     await withSandboxRoot(async (sandboxDir) => {
@@ -154,12 +154,12 @@ describe("resolveSandboxedMediaSource", () => {
     },
     {
       name: "path traversal through tmpdir",
-      media: path.join(assistantTmpDir, "..", "etc", "passwd"),
+      media: path.join(zhushouTmpDir, "..", "etc", "passwd"),
       expected: /sandbox/i,
     },
     {
-      name: "absolute paths under host tmp outside assistant tmp root",
-      media: path.join(os.tmpdir(), "outside-assistant", "passwd"),
+      name: "absolute paths under host tmp outside zhushou tmp root",
+      media: path.join(os.tmpdir(), "outside-zhushou", "passwd"),
       expected: /sandbox/i,
     },
     {
@@ -208,14 +208,14 @@ describe("resolveSandboxedMediaSource", () => {
       return;
     }
     const outsideTmpTarget = path.resolve(process.cwd(), "package.json");
-    if (isPathInside(assistantTmpDir, outsideTmpTarget)) {
+    if (isPathInside(zhushouTmpDir, outsideTmpTarget)) {
       return;
     }
 
     await withSandboxRoot(async (sandboxDir) => {
       await fs.access(outsideTmpTarget);
-      await fs.mkdir(assistantTmpDir, { recursive: true });
-      const symlinkPath = path.join(assistantTmpDir, `tmp-link-escape-${process.pid}`);
+      await fs.mkdir(zhushouTmpDir, { recursive: true });
+      const symlinkPath = path.join(zhushouTmpDir, `tmp-link-escape-${process.pid}`);
       await fs.symlink(outsideTmpTarget, symlinkPath);
       try {
         await expectSandboxRejection(symlinkPath, sandboxDir, /symlink|sandbox/i);
@@ -249,9 +249,9 @@ describe("resolveSandboxedMediaSource", () => {
     if (process.platform === "win32") {
       return;
     }
-    await withOutsideHardlinkInAssistantTmp(
+    await withOutsideHardlinkInZhushouTmp(
       {
-        assistantTmpDir,
+        zhushouTmpDir,
         hardlinkPrefix: "sandbox-media-hardlink",
       },
       async ({ hardlinkPath }) => {
@@ -266,9 +266,9 @@ describe("resolveSandboxedMediaSource", () => {
     if (process.platform === "win32") {
       return;
     }
-    await withOutsideHardlinkInAssistantTmp(
+    await withOutsideHardlinkInZhushouTmp(
       {
-        assistantTmpDir,
+        zhushouTmpDir,
         hardlinkPrefix: "sandbox-media-hardlink-target",
         symlinkPrefix: "sandbox-media-hardlink-symlink",
       },

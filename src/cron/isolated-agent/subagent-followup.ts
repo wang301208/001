@@ -1,11 +1,11 @@
-import { readLatestAssistantReply, waitForAgentRunsToDrain } from "../../agents/run-wait.js";
+import { readLatestZhushouReply, waitForAgentRunsToDrain } from "../../agents/run-wait.js";
 import { listDescendantRunsForRequester } from "../../agents/subagent-registry-read.js";
 import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
 import { expectsSubagentFollowup, isLikelyInterimCronMessage } from "./subagent-followup-hints.js";
 export { expectsSubagentFollowup, isLikelyInterimCronMessage } from "./subagent-followup-hints.js";
 
 function resolveCronSubagentTimings() {
-  const fastTestMode = process.env.ASSISTANT_TEST_FAST === "1";
+  const fastTestMode = process.env.ZHUSHOU_TEST_FAST === "1";
   return {
     waitMinMs: fastTestMode ? 10 : 30_000,
     finalReplyGraceMs: fastTestMode ? 50 : 5_000,
@@ -46,7 +46,7 @@ export async function readDescendantSubagentFallbackReply(params: {
     .toSorted((a, b) => (a.endedAt ?? 0) - (b.endedAt ?? 0))
     .slice(-4);
   for (const entry of latestRuns) {
-    let reply = (await readLatestAssistantReply({ sessionKey: entry.childSessionKey }))?.trim();
+    let reply = (await readLatestZhushouReply({ sessionKey: entry.childSessionKey }))?.trim();
     // Fall back to the registry's frozen result text when the session transcript
     // is unavailable (e.g. child session already deleted by announce cleanup).
     if (!reply && typeof entry.frozenResultText === "string" && entry.frozenResultText.trim()) {
@@ -107,12 +107,12 @@ export async function waitForDescendantSubagentSummary(params: {
 
   // --- Grace period: wait for the cron agent's synthesis ---
   // After the subagent announces fire and the cron agent processes them, it
-  // produces a new assistant message.  Poll briefly (bounded by
+  // produces a new zhushou message.  Poll briefly (bounded by
   // finalReplyGraceMs) to capture that synthesis.
   const gracePeriodDeadline = Math.min(Date.now() + timings.finalReplyGraceMs, deadline);
 
   const resolveUsableLatestReply = async () => {
-    const latest = (await readLatestAssistantReply({ sessionKey: params.sessionKey }))?.trim();
+    const latest = (await readLatestZhushouReply({ sessionKey: params.sessionKey }))?.trim();
     if (
       latest &&
       latest.toUpperCase() !== SILENT_REPLY_TOKEN.toUpperCase() &&

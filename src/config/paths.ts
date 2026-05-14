@@ -1,29 +1,29 @@
 import os from "node:os";
 import path from "node:path";
 import { resolveHomeRelativePath, resolveRequiredHomeDir } from "../infra/home-dir.js";
-import type { AssistantConfig } from "./types.js";
+import type { ZhushouConfig } from "./types.js";
 
 /**
- * Nix mode detection: When ASSISTANT_NIX_MODE=1, the gateway is running under Nix.
+ * Nix mode detection: When ZHUSHOU_NIX_MODE=1, the gateway is running under Nix.
  * In this mode:
  * - No auto-install flows should be attempted
  * - Missing dependencies should produce actionable Nix-specific error messages
  * - Config is managed externally (read-only from Nix perspective)
  */
 export function resolveIsNixMode(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.ASSISTANT_NIX_MODE === "1";
+  return env.ZHUSHOU_NIX_MODE === "1";
 }
 
 export const isNixMode = resolveIsNixMode();
 
-const NEW_STATE_DIRNAME = ".assistant";
-const CONFIG_FILENAME = "assistant.json";
+const NEW_STATE_DIRNAME = ".zhushou";
+const CONFIG_FILENAME = "zhushou.json";
 
 function resolveDefaultHomeDir(): string {
   return resolveRequiredHomeDir(process.env, os.homedir);
 }
 
-/** Build a homedir thunk that respects ASSISTANT_HOME for the given env. */
+/** Build a homedir thunk that respects ZHUSHOU_HOME for the given env. */
 function envHomedir(env: NodeJS.ProcessEnv): () => string {
   return () => resolveRequiredHomeDir(env, os.homedir);
 }
@@ -47,15 +47,15 @@ export function resolveNewStateDir(homedir: () => string = resolveDefaultHomeDir
 
 /**
  * State directory for mutable data (sessions, logs, caches).
- * Can be overridden via ASSISTANT_STATE_DIR.
- * Default: ~/.assistant
+ * Can be overridden via ZHUSHOU_STATE_DIR.
+ * Default: ~/.zhushou
  */
 export function resolveStateDir(
   env: NodeJS.ProcessEnv = process.env,
   homedir: () => string = envHomedir(env),
 ): string {
   const effectiveHomedir = () => resolveRequiredHomeDir(env, homedir);
-  const override = env.ASSISTANT_STATE_DIR?.trim();
+  const override = env.ZHUSHOU_STATE_DIR?.trim();
   if (override) {
     return resolveUserPath(override, env, effectiveHomedir);
   }
@@ -74,14 +74,14 @@ export const STATE_DIR = resolveStateDir();
 
 /**
  * Config file path (JSON or JSON5).
- * Can be overridden via ASSISTANT_CONFIG_PATH.
- * Default: ~/.assistant/assistant.json (or $ASSISTANT_STATE_DIR/assistant.json)
+ * Can be overridden via ZHUSHOU_CONFIG_PATH.
+ * Default: ~/.wang301208/zhushou.json (or $ZHUSHOU_STATE_DIR/zhushou.json)
  */
 export function resolveCanonicalConfigPath(
   env: NodeJS.ProcessEnv = process.env,
   stateDir: string = resolveStateDir(env, envHomedir(env)),
 ): string {
-  const override = env.ASSISTANT_CONFIG_PATH?.trim();
+  const override = env.ZHUSHOU_CONFIG_PATH?.trim();
   if (override) {
     return resolveUserPath(override, env, envHomedir(env));
   }
@@ -107,7 +107,7 @@ export function resolveConfigPath(
   stateDir: string = resolveStateDir(env, envHomedir(env)),
   homedir: () => string = envHomedir(env),
 ): string {
-  const override = env.ASSISTANT_CONFIG_PATH?.trim();
+  const override = env.ZHUSHOU_CONFIG_PATH?.trim();
   if (override) {
     return resolveUserPath(override, env, homedir);
   }
@@ -127,15 +127,15 @@ export function resolveDefaultConfigCandidates(
   homedir: () => string = envHomedir(env),
 ): string[] {
   const effectiveHomedir = () => resolveRequiredHomeDir(env, homedir);
-  const explicit = env.ASSISTANT_CONFIG_PATH?.trim();
+  const explicit = env.ZHUSHOU_CONFIG_PATH?.trim();
   if (explicit) {
     return [resolveUserPath(explicit, env, effectiveHomedir)];
   }
 
   const candidates: string[] = [];
-  const assistantStateDir = env.ASSISTANT_STATE_DIR?.trim();
-  if (assistantStateDir) {
-    const resolved = resolveUserPath(assistantStateDir, env, effectiveHomedir);
+  const zhushouStateDir = env.ZHUSHOU_STATE_DIR?.trim();
+  if (zhushouStateDir) {
+    const resolved = resolveUserPath(zhushouStateDir, env, effectiveHomedir);
     candidates.push(path.join(resolved, CONFIG_FILENAME));
   }
 
@@ -147,12 +147,12 @@ export const DEFAULT_GATEWAY_PORT = 3000;
 
 /**
  * Gateway lock directory (ephemeral).
- * Default: os.tmpdir()/assistant-<uid> (uid suffix when available).
+ * Default: os.tmpdir()/zhushou-<uid> (uid suffix when available).
  */
 export function resolveGatewayLockDir(tmpdir: () => string = os.tmpdir): string {
   const base = tmpdir();
   const uid = typeof process.getuid === "function" ? process.getuid() : undefined;
-  const suffix = uid != null ? `assistant-${uid}` : "assistant";
+  const suffix = uid != null ? `zhushou-${uid}` : "zhushou";
   return path.join(base, suffix);
 }
 
@@ -162,14 +162,14 @@ const OAUTH_FILENAME = "oauth.json";
  * OAuth credentials storage directory.
  *
  * Precedence:
- * - `ASSISTANT_OAUTH_DIR` (explicit override)
+ * - `ZHUSHOU_OAUTH_DIR` (explicit override)
  * - `$*_STATE_DIR/credentials` (canonical server/default)
  */
 export function resolveOAuthDir(
   env: NodeJS.ProcessEnv = process.env,
   stateDir: string = resolveStateDir(env, envHomedir(env)),
 ): string {
-  const override = env.ASSISTANT_OAUTH_DIR?.trim();
+  const override = env.ZHUSHOU_OAUTH_DIR?.trim();
   if (override) {
     return resolveUserPath(override, env, envHomedir(env));
   }
@@ -215,10 +215,10 @@ function parseGatewayPortEnvValue(raw: string | undefined): number | null {
 }
 
 export function resolveGatewayPort(
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): number {
-  const envRaw = env.ASSISTANT_GATEWAY_PORT?.trim();
+  const envRaw = env.ZHUSHOU_GATEWAY_PORT?.trim();
   const envPort = parseGatewayPortEnvValue(envRaw);
   if (envPort !== null) {
     return envPort;

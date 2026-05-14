@@ -125,8 +125,8 @@ type HomeEnvSnapshot = {
   USERPROFILE: string | undefined;
   HOMEDRIVE: string | undefined;
   HOMEPATH: string | undefined;
-  ASSISTANT_STATE_DIR: string | undefined;
-  ASSISTANT_AGENT_DIR: string | undefined;
+  ZHUSHOU_STATE_DIR: string | undefined;
+  ZHUSHOU_AGENT_DIR: string | undefined;
   PI_CODING_AGENT_DIR: string | undefined;
 };
 
@@ -136,8 +136,8 @@ function snapshotHomeEnv(): HomeEnvSnapshot {
     USERPROFILE: process.env.USERPROFILE,
     HOMEDRIVE: process.env.HOMEDRIVE,
     HOMEPATH: process.env.HOMEPATH,
-    ASSISTANT_STATE_DIR: process.env.ASSISTANT_STATE_DIR,
-    ASSISTANT_AGENT_DIR: process.env.ASSISTANT_AGENT_DIR,
+    ZHUSHOU_STATE_DIR: process.env.ZHUSHOU_STATE_DIR,
+    ZHUSHOU_AGENT_DIR: process.env.ZHUSHOU_AGENT_DIR,
     PI_CODING_AGENT_DIR: process.env.PI_CODING_AGENT_DIR,
   };
 }
@@ -169,13 +169,13 @@ export function createTempHomeHarness(options: { prefix: string; beforeEachCase?
 
   async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
     const home = path.join(fixtureRoot, `case-${++caseId}`);
-    await fs.mkdir(path.join(home, ".assistant", "agents", "main", "sessions"), { recursive: true });
+    await fs.mkdir(path.join(home, ".zhushou", "agents", "main", "sessions"), { recursive: true });
     const envSnapshot = snapshotHomeEnv();
     process.env.HOME = home;
     process.env.USERPROFILE = home;
-    process.env.ASSISTANT_STATE_DIR = path.join(home, ".assistant");
-    process.env.ASSISTANT_AGENT_DIR = path.join(home, ".assistant", "agent");
-    process.env.PI_CODING_AGENT_DIR = path.join(home, ".assistant", "agent");
+    process.env.ZHUSHOU_STATE_DIR = path.join(home, ".zhushou");
+    process.env.ZHUSHOU_AGENT_DIR = path.join(home, ".zhushou", "agent");
+    process.env.PI_CODING_AGENT_DIR = path.join(home, ".zhushou", "agent");
 
     if (process.platform === "win32") {
       const match = home.match(/^([A-Za-z]:)(.*)$/);
@@ -201,7 +201,7 @@ export function makeReplyConfig(home: string) {
     agents: {
       defaults: {
         model: "anthropic/claude-opus-4-6",
-        workspace: path.join(home, "assistant"),
+        workspace: path.join(home, "zhushou"),
       },
     },
     channels: {

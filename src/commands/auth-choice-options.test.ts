@@ -49,11 +49,11 @@ vi.mock("../flows/provider-flow.js", () => ({
                     },
                   }
                 : {}),
-              ...(choice.assistantPriority !== undefined
-                ? { assistantPriority: choice.assistantPriority }
+              ...(choice.zhushouPriority !== undefined
+                ? { zhushouPriority: choice.zhushouPriority }
                 : {}),
-              ...(choice.assistantVisibility
-                ? { assistantVisibility: choice.assistantVisibility }
+              ...(choice.zhushouVisibility
+                ? { zhushouVisibility: choice.zhushouVisibility }
                 : {}),
             },
           })),
@@ -69,11 +69,11 @@ vi.mock("../flows/provider-flow.js", () => ({
                 label: option.groupLabel,
                 ...(option.groupHint ? { hint: option.groupHint } : {}),
               },
-              ...(option.assistantPriority !== undefined
-                ? { assistantPriority: option.assistantPriority }
+              ...(option.zhushouPriority !== undefined
+                ? { zhushouPriority: option.zhushouPriority }
                 : {}),
-              ...(option.assistantVisibility
-                ? { assistantVisibility: option.assistantVisibility }
+              ...(option.zhushouVisibility
+                ? { zhushouVisibility: option.zhushouVisibility }
                 : {}),
             },
           })),
@@ -429,7 +429,7 @@ describe("buildAuthChoiceOptions", () => {
         methodId: "cli",
         choiceId: "anthropic-cli",
         choiceLabel: "Anthropic Claude CLI",
-        assistantPriority: -20,
+        zhushouPriority: -20,
         groupId: "anthropic",
         groupLabel: "Anthropic",
       },

@@ -1,4 +1,4 @@
-import { embeddedAgentLog, type EmbeddedRunAttemptParams } from "assistant/plugin-sdk/agent-harness";
+import { embeddedAgentLog, type EmbeddedRunAttemptParams } from "zhushou/plugin-sdk/agent-harness";
 import type { CodexAppServerClient } from "./client.js";
 import type { CodexAppServerRuntimeOptions } from "./config.js";
 import {

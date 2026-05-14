@@ -44,16 +44,16 @@ describe("runDaemonInstall integration", () => {
   beforeAll(async () => {
     envSnapshot = captureEnv([
       "HOME",
-      "ASSISTANT_STATE_DIR",
-      "ASSISTANT_CONFIG_PATH",
-      "ASSISTANT_GATEWAY_TOKEN",
-      "ASSISTANT_GATEWAY_PASSWORD",
+      "ZHUSHOU_STATE_DIR",
+      "ZHUSHOU_CONFIG_PATH",
+      "ZHUSHOU_GATEWAY_TOKEN",
+      "ZHUSHOU_GATEWAY_PASSWORD",
     ]);
-    tempHome = await makeTempWorkspace("assistant-daemon-install-int-");
-    configPath = path.join(tempHome, "assistant.json");
+    tempHome = await makeTempWorkspace("zhushou-daemon-install-int-");
+    configPath = path.join(tempHome, "zhushou.json");
     process.env.HOME = tempHome;
-    process.env.ASSISTANT_STATE_DIR = tempHome;
-    process.env.ASSISTANT_CONFIG_PATH = configPath;
+    process.env.ZHUSHOU_STATE_DIR = tempHome;
+    process.env.ZHUSHOU_CONFIG_PATH = configPath;
   });
 
   afterAll(async () => {
@@ -66,8 +66,8 @@ describe("runDaemonInstall integration", () => {
     resetRuntimeCapture();
     clearRuntimeConfigSnapshot();
     // Keep these defined-but-empty so dotenv won't repopulate from local .env.
-    process.env.ASSISTANT_GATEWAY_TOKEN = "";
-    process.env.ASSISTANT_GATEWAY_PASSWORD = "";
+    process.env.ZHUSHOU_GATEWAY_TOKEN = "";
+    process.env.ZHUSHOU_GATEWAY_PASSWORD = "";
     serviceMock.isLoaded.mockResolvedValue(false);
     await fs.writeFile(configPath, JSON.stringify({}, null, 2));
     clearConfigCache();
@@ -134,6 +134,6 @@ describe("runDaemonInstall integration", () => {
     expect((persistedToken ?? "").length).toBeGreaterThan(0);
 
     const installEnv = serviceMock.install.mock.calls[0]?.[0]?.environment;
-    expect(installEnv?.ASSISTANT_GATEWAY_TOKEN).toBeUndefined();
+    expect(installEnv?.ZHUSHOU_GATEWAY_TOKEN).toBeUndefined();
   });
 });

@@ -128,7 +128,7 @@ export function registerBrowserAgentActHookRoutes(
             userDataDir: profileCtx.profile.userDataDir,
             targetId: tab.targetId,
             fn: `() => {
-              const state = (window.__assistantDialogHook ??= {});
+              const state = (window.__zhushouDialogHook ??= {});
               if (!state.originals) {
                 state.originals = {
                   alert: window.alert.bind(window),
@@ -141,7 +141,7 @@ export function registerBrowserAgentActHookRoutes(
                 window.alert = originals.alert;
                 window.confirm = originals.confirm;
                 window.prompt = originals.prompt;
-                delete window.__assistantDialogHook;
+                delete window.__zhushouDialogHook;
               };
               window.alert = (...args) => {
                 try {

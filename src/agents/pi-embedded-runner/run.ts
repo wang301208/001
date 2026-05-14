@@ -13,7 +13,7 @@ import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import { sanitizeForLog } from "../../terminal/ansi.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
 import { resolveUserPath } from "../../utils.js";
-import { resolveAssistantAgentDir } from "../agent-paths.js";
+import { resolveZhushouAgentDir } from "../agent-paths.js";
 import {
   hasConfiguredModelFallbacks,
   resolveAgentExecutionContract,
@@ -50,20 +50,20 @@ import {
   shouldPreferExplicitConfigApiKeyAuth,
 } from "../model-auth.js";
 import { normalizeProviderId } from "../model-selection.js";
-import { ensureAssistantModelsJson } from "../models-config.js";
+import { ensureZhushouModelsJson } from "../models-config.js";
 import { disposeSessionMcpRuntime } from "../pi-bundle-mcp-tools.js";
 import {
   classifyFailoverReason,
   extractObservedOverflowTokenCount,
   type FailoverReason,
-  formatAssistantErrorText,
-  isAuthAssistantError,
-  isBillingAssistantError,
+  formatZhushouErrorText,
+  isAuthZhushouError,
+  isBillingZhushouError,
   isCompactionFailureError,
-  isFailoverAssistantError,
+  isFailoverZhushouError,
   isFailoverErrorMessage,
   isLikelyContextOverflowError,
-  isRateLimitAssistantError,
+  isRateLimitZhushouError,
   parseImageDimensionError,
   parseImageSizeError,
   pickFallbackThinkingLevel,
@@ -78,7 +78,7 @@ import { resolveGlobalLane, resolveSessionLane } from "./lanes.js";
 import { log } from "./logger.js";
 import { resolveModelAsync } from "./model.js";
 import { createEmbeddedRunReplayState, observeReplayMetadata } from "./replay-state.js";
-import { handleAssistantFailover } from "./run/assistant-failover.js";
+import { handleZhushouFailover } from "./run/zhushou-failover.js";
 import { createEmbeddedRunAuthController } from "./run/auth-controller.js";
 import { runEmbeddedAttemptWithBackend } from "./run/backend.js";
 import { createFailoverDecisionLogger } from "./run/failover-observation.js";
@@ -88,8 +88,8 @@ import {
   buildUsageAgentMetaFields,
   createCompactionDiagId,
   resolveActiveErrorContext,
-  resolveFinalAssistantRawText,
-  resolveFinalAssistantVisibleText,
+  resolveFinalZhushouRawText,
+  resolveFinalZhushouVisibleText,
   resolveMaxRunRetryIterations,
   resolveOverloadFailoverBackoffMs,
   resolveOverloadProfileRotationLimit,
@@ -163,7 +163,7 @@ function buildTraceToolSummary(params: {
  * The return value is normalized: whitespace-only inputs collapse to undefined, and
  * successful resolution returns a trimmed session key. This is a read-only lookup
  * with no side effects.
- * See: https://github.com/assistant/assistant/issues/60552
+ * See: https://github.com/wang301208/zhushou/issues/60552
  */
 function backfillSessionKey(params: {
   config: RunEmbeddedPiAgentParams["config"];
@@ -288,14 +288,14 @@ export async function runEmbeddedPiAgent(
 
       let provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
       let modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
-      const agentDir = params.agentDir ?? resolveAssistantAgentDir();
+      const agentDir = params.agentDir ?? resolveZhushouAgentDir();
       const normalizedSessionKey = params.sessionKey?.trim();
       const fallbackConfigured = hasConfiguredModelFallbacks({
         cfg: params.config,
         agentId: params.agentId,
         sessionKey: normalizedSessionKey,
       });
-      await ensureAssistantModelsJson(params.config, agentDir);
+      await ensureZhushouModelsJson(params.config, agentDir);
       const resolvedSessionKey = normalizedSessionKey;
       const hookRunner = getGlobalHookRunner();
       const hookCtx = {
@@ -757,7 +757,7 @@ export async function runEmbeddedPiAgent(
             shouldEmitToolResult: params.shouldEmitToolResult,
             shouldEmitToolOutput: params.shouldEmitToolOutput,
             onPartialReply: params.onPartialReply,
-            onAssistantMessageStart: params.onAssistantMessageStart,
+            onZhushouMessageStart: params.onZhushouMessageStart,
             onBlockReply: params.onBlockReply,
             onBlockReplyFlush: params.onBlockReplyFlush,
             blockReplyBreak: params.blockReplyBreak,
@@ -793,8 +793,8 @@ export async function runEmbeddedPiAgent(
             idleTimedOut,
             timedOutDuringCompaction,
             sessionIdUsed,
-            lastAssistant: sessionLastAssistant,
-            currentAttemptAssistant,
+            lastZhushou: sessionLastZhushou,
+            currentAttemptZhushou,
           } = attempt;
           bootstrapPromptWarningSignaturesSeen =
             attempt.bootstrapPromptWarningSignaturesSeen ??
@@ -806,19 +806,19 @@ export async function runEmbeddedPiAgent(
                   ]),
                 )
               : bootstrapPromptWarningSignaturesSeen);
-          const lastAssistantUsage = normalizeUsage(sessionLastAssistant?.usage as UsageLike);
-          const attemptUsage = attempt.attemptUsage ?? lastAssistantUsage;
+          const lastZhushouUsage = normalizeUsage(sessionLastZhushou?.usage as UsageLike);
+          const attemptUsage = attempt.attemptUsage ?? lastZhushouUsage;
           mergeUsageIntoAccumulator(usageAccumulator, attemptUsage);
           // Keep prompt size from the latest model call so session totalTokens
           // reflects current context usage, not accumulated tool-loop usage.
-          lastRunPromptUsage = lastAssistantUsage ?? attemptUsage;
-          lastTurnTotal = lastAssistantUsage?.total ?? attemptUsage?.total;
+          lastRunPromptUsage = lastZhushouUsage ?? attemptUsage;
+          lastTurnTotal = lastZhushouUsage?.total ?? attemptUsage?.total;
           const attemptCompactionCount = Math.max(0, attempt.compactionCount ?? 0);
           autoCompactionCount += attemptCompactionCount;
           const activeErrorContext = resolveActiveErrorContext({
             provider,
             model: modelId,
-            assistant: currentAttemptAssistant ?? sessionLastAssistant,
+            zhushou: currentAttemptZhushou ?? sessionLastZhushou,
           });
           const resolveReplayInvalidForAttempt = (incompleteTurnText?: string | null) =>
             accumulatedReplayState.replayInvalid ||
@@ -833,24 +833,24 @@ export async function runEmbeddedPiAgent(
             accumulatedReplayState,
             attempt.replayMetadata,
           );
-          const formattedAssistantErrorText = sessionLastAssistant
-            ? formatAssistantErrorText(sessionLastAssistant, {
+          const formattedZhushouErrorText = sessionLastZhushou
+            ? formatZhushouErrorText(sessionLastZhushou, {
                 cfg: params.config,
                 sessionKey: resolvedSessionKey ?? params.sessionId,
                 provider: activeErrorContext.provider,
                 model: activeErrorContext.model,
               })
             : undefined;
-          const assistantErrorText =
-            sessionLastAssistant?.stopReason === "error"
-              ? sessionLastAssistant.errorMessage?.trim() || formattedAssistantErrorText
+          const zhushouErrorText =
+            sessionLastZhushou?.stopReason === "error"
+              ? sessionLastZhushou.errorMessage?.trim() || formattedZhushouErrorText
               : undefined;
           const canRestartForLiveSwitch =
             !attempt.didSendViaMessagingTool &&
             !attempt.didSendDeterministicApprovalPrompt &&
             !attempt.lastToolError &&
             attempt.toolMetas.length === 0 &&
-            attempt.assistantTexts.length === 0;
+            attempt.zhushouTexts.length === 0;
           if (preflightRecovery?.handled) {
             log.info(
               `[context-overflow-precheck] early recovery route=${preflightRecovery.route} ` +
@@ -986,13 +986,13 @@ export async function runEmbeddedPiAgent(
                     return { text: errorText, source: "promptError" as const };
                   }
                   // Prompt submission failed with a non-overflow error. Do not
-                  // inspect prior assistant errors from history for this attempt.
+                  // inspect prior zhushou errors from history for this attempt.
                   return null;
                 }
-                if (assistantErrorText && isLikelyContextOverflowError(assistantErrorText)) {
+                if (zhushouErrorText && isLikelyContextOverflowError(zhushouErrorText)) {
                   return {
-                    text: assistantErrorText,
-                    source: "assistantError" as const,
+                    text: zhushouErrorText,
+                    source: "zhushouError" as const,
                   };
                 }
                 return null;
@@ -1221,7 +1221,7 @@ export async function runEmbeddedPiAgent(
                   governanceRuntime,
                   usageAccumulator,
                   lastRunPromptUsage,
-                  lastAssistant: sessionLastAssistant,
+                  lastZhushou: sessionLastZhushou,
                   lastTurnTotal,
                 }),
                 systemPromptReport: attempt.systemPromptReport,
@@ -1277,7 +1277,7 @@ export async function runEmbeddedPiAgent(
                     governanceRuntime,
                     usageAccumulator,
                     lastRunPromptUsage,
-                    lastAssistant: sessionLastAssistant,
+                    lastZhushou: sessionLastZhushou,
                     lastTurnTotal,
                   }),
                   systemPromptReport: attempt.systemPromptReport,
@@ -1317,7 +1317,7 @@ export async function runEmbeddedPiAgent(
                     governanceRuntime,
                     usageAccumulator,
                     lastRunPromptUsage,
-                    lastAssistant: sessionLastAssistant,
+                    lastZhushou: sessionLastZhushou,
                     lastTurnTotal,
                   }),
                   systemPromptReport: attempt.systemPromptReport,
@@ -1452,9 +1452,9 @@ export async function runEmbeddedPiAgent(
             throw promptError;
           }
 
-          const assistantForFailover = currentAttemptAssistant ?? sessionLastAssistant;
+          const zhushouForFailover = currentAttemptZhushou ?? sessionLastZhushou;
           const fallbackThinking = pickFallbackThinkingLevel({
-            message: assistantForFailover?.errorMessage,
+            message: zhushouForFailover?.errorMessage,
             attempted: attemptedThinking,
           });
           if (fallbackThinking && !aborted) {
@@ -1465,35 +1465,35 @@ export async function runEmbeddedPiAgent(
             continue;
           }
 
-          const authFailure = isAuthAssistantError(assistantForFailover);
-          const rateLimitFailure = isRateLimitAssistantError(assistantForFailover);
-          const billingFailure = isBillingAssistantError(assistantForFailover);
-          const failoverFailure = isFailoverAssistantError(assistantForFailover);
-          const assistantFailoverReason = classifyFailoverReason(
-            assistantForFailover?.errorMessage ?? "",
+          const authFailure = isAuthZhushouError(zhushouForFailover);
+          const rateLimitFailure = isRateLimitZhushouError(zhushouForFailover);
+          const billingFailure = isBillingZhushouError(zhushouForFailover);
+          const failoverFailure = isFailoverZhushouError(zhushouForFailover);
+          const zhushouFailoverReason = classifyFailoverReason(
+            zhushouForFailover?.errorMessage ?? "",
             {
-              provider: assistantForFailover?.provider,
+              provider: zhushouForFailover?.provider,
             },
           );
-          const assistantProfileFailureReason =
-            resolveAuthProfileFailureReason(assistantFailoverReason);
+          const zhushouProfileFailureReason =
+            resolveAuthProfileFailureReason(zhushouFailoverReason);
           const cloudCodeAssistFormatError = attempt.cloudCodeAssistFormatError;
           const imageDimensionError = parseImageDimensionError(
-            assistantForFailover?.errorMessage ?? "",
+            zhushouForFailover?.errorMessage ?? "",
           );
           // Capture the failing profile before auth-profile rotation mutates `lastProfileId`.
-          const failedAssistantProfileId = lastProfileId;
-          const logAssistantFailoverDecision = createFailoverDecisionLogger({
-            stage: "assistant",
+          const failedZhushouProfileId = lastProfileId;
+          const logZhushouFailoverDecision = createFailoverDecisionLogger({
+            stage: "zhushou",
             runId: params.runId,
-            rawError: assistantForFailover?.errorMessage?.trim(),
-            failoverReason: assistantFailoverReason,
-            profileFailureReason: assistantProfileFailureReason,
+            rawError: zhushouForFailover?.errorMessage?.trim(),
+            failoverReason: zhushouFailoverReason,
+            profileFailureReason: zhushouProfileFailureReason,
             provider: activeErrorContext.provider,
             model: activeErrorContext.model,
-            sourceProvider: assistantForFailover?.provider ?? provider,
-            sourceModel: assistantForFailover?.model ?? modelId,
-            profileId: failedAssistantProfileId,
+            sourceProvider: zhushouForFailover?.provider ?? provider,
+            sourceModel: zhushouForFailover?.model ?? modelId,
+            profileId: failedZhushouProfileId,
             fallbackConfigured,
             timedOut,
             aborted,
@@ -1502,7 +1502,7 @@ export async function runEmbeddedPiAgent(
           if (
             authFailure &&
             (await maybeRefreshRuntimeAuthForAuthError(
-              assistantForFailover?.errorMessage ?? "",
+              zhushouForFailover?.errorMessage ?? "",
               runtimeAuthRetry,
             ))
           ) {
@@ -1528,24 +1528,24 @@ export async function runEmbeddedPiAgent(
             );
           }
 
-          const assistantFailoverDecision = resolveRunFailoverDecision({
-            stage: "assistant",
+          const zhushouFailoverDecision = resolveRunFailoverDecision({
+            stage: "zhushou",
             aborted,
             externalAbort,
             fallbackConfigured,
             failoverFailure,
-            failoverReason: assistantFailoverReason,
+            failoverReason: zhushouFailoverReason,
             timedOut,
             timedOutDuringCompaction,
             profileRotated: false,
           });
-          const assistantFailoverOutcome = await handleAssistantFailover({
-            initialDecision: assistantFailoverDecision,
+          const zhushouFailoverOutcome = await handleZhushouFailover({
+            initialDecision: zhushouFailoverDecision,
             aborted,
             externalAbort,
             fallbackConfigured,
             failoverFailure,
-            failoverReason: assistantFailoverReason,
+            failoverReason: zhushouFailoverReason,
             timedOut,
             idleTimedOut,
             timedOutDuringCompaction,
@@ -1556,12 +1556,12 @@ export async function runEmbeddedPiAgent(
               !fallbackConfigured &&
               canRestartForLiveSwitch &&
               sameModelIdleTimeoutRetries < MAX_SAME_MODEL_IDLE_TIMEOUT_RETRIES,
-            assistantProfileFailureReason,
+            zhushouProfileFailureReason,
             lastProfileId,
             modelId,
             provider,
             activeErrorContext,
-            lastAssistant: assistantForFailover,
+            lastZhushou: zhushouForFailover,
             config: params.config,
             sessionKey: params.sessionKey ?? params.sessionId,
             authFailure,
@@ -1572,73 +1572,73 @@ export async function runEmbeddedPiAgent(
             overloadProfileRotations,
             overloadProfileRotationLimit,
             previousRetryFailoverReason: lastRetryFailoverReason,
-            logAssistantFailoverDecision,
+            logZhushouFailoverDecision,
             warn: (message) => log.warn(message),
             maybeMarkAuthProfileFailure,
             maybeEscalateRateLimitProfileFallback,
             maybeBackoffBeforeOverloadFailover,
             advanceAuthProfile,
           });
-          overloadProfileRotations = assistantFailoverOutcome.overloadProfileRotations;
-          if (assistantFailoverOutcome.action === "retry") {
+          overloadProfileRotations = zhushouFailoverOutcome.overloadProfileRotations;
+          if (zhushouFailoverOutcome.action === "retry") {
             traceAttempts.push({
               provider: activeErrorContext.provider,
               model: activeErrorContext.model,
               result:
-                assistantFailoverOutcome.retryKind === "same_model_idle_timeout" ||
-                assistantFailoverReason === "timeout"
+                zhushouFailoverOutcome.retryKind === "same_model_idle_timeout" ||
+                zhushouFailoverReason === "timeout"
                   ? "timeout"
                   : "rotate_profile",
-              ...(assistantFailoverReason ? { reason: assistantFailoverReason } : {}),
-              stage: "assistant",
+              ...(zhushouFailoverReason ? { reason: zhushouFailoverReason } : {}),
+              stage: "zhushou",
             });
-            if (assistantFailoverOutcome.retryKind === "same_model_idle_timeout") {
+            if (zhushouFailoverOutcome.retryKind === "same_model_idle_timeout") {
               sameModelIdleTimeoutRetries += 1;
             }
-            lastRetryFailoverReason = assistantFailoverOutcome.lastRetryFailoverReason;
+            lastRetryFailoverReason = zhushouFailoverOutcome.lastRetryFailoverReason;
             continue;
           }
-          if (assistantFailoverOutcome.action === "throw") {
+          if (zhushouFailoverOutcome.action === "throw") {
             traceAttempts.push({
               provider: activeErrorContext.provider,
               model: activeErrorContext.model,
               result:
-                assistantFailoverReason === "timeout"
+                zhushouFailoverReason === "timeout"
                   ? "timeout"
-                  : assistantFailoverDecision.action === "fallback_model"
+                  : zhushouFailoverDecision.action === "fallback_model"
                     ? "fallback_model"
                     : "error",
-              ...(assistantFailoverReason ? { reason: assistantFailoverReason } : {}),
-              stage: "assistant",
-              ...(typeof assistantFailoverOutcome.error.status === "number"
-                ? { status: assistantFailoverOutcome.error.status }
+              ...(zhushouFailoverReason ? { reason: zhushouFailoverReason } : {}),
+              stage: "zhushou",
+              ...(typeof zhushouFailoverOutcome.error.status === "number"
+                ? { status: zhushouFailoverOutcome.error.status }
                 : {}),
             });
-            throw assistantFailoverOutcome.error;
+            throw zhushouFailoverOutcome.error;
           }
           const usageMeta = buildUsageAgentMetaFields({
             usageAccumulator,
-            lastAssistantUsage: sessionLastAssistant?.usage as UsageLike | undefined,
+            lastZhushouUsage: sessionLastZhushou?.usage as UsageLike | undefined,
             lastRunPromptUsage,
             lastTurnTotal,
           });
           const agentMeta: EmbeddedPiAgentMeta = {
             sessionId: sessionIdUsed,
-            provider: sessionLastAssistant?.provider ?? provider,
-            model: sessionLastAssistant?.model ?? model.id,
+            provider: sessionLastZhushou?.provider ?? provider,
+            model: sessionLastZhushou?.model ?? model.id,
             ...(governanceRuntime ? { governanceRuntime } : {}),
             usage: usageMeta.usage,
             lastCallUsage: usageMeta.lastCallUsage,
             promptTokens: usageMeta.promptTokens,
             compactionCount: autoCompactionCount > 0 ? autoCompactionCount : undefined,
           };
-          const finalAssistantVisibleText = resolveFinalAssistantVisibleText(sessionLastAssistant);
-          const finalAssistantRawText = resolveFinalAssistantRawText(sessionLastAssistant);
+          const finalZhushouVisibleText = resolveFinalZhushouVisibleText(sessionLastZhushou);
+          const finalZhushouRawText = resolveFinalZhushouRawText(sessionLastZhushou);
 
           const payloads = buildEmbeddedRunPayloads({
-            assistantTexts: attempt.assistantTexts,
+            zhushouTexts: attempt.zhushouTexts,
             toolMetas: attempt.toolMetas,
-            lastAssistant: attempt.lastAssistant,
+            lastZhushou: attempt.lastZhushou,
             lastToolError: attempt.lastToolError,
             config: params.config,
             isCronTrigger: params.trigger === "cron",
@@ -1659,7 +1659,7 @@ export async function runEmbeddedPiAgent(
             toolAudioAsVoice: attempt.toolAudioAsVoice,
           });
 
-          // Timeout aborts can leave the run without any assistant payloads.
+          // Timeout aborts can leave the run without any zhushou payloads.
           // Emit an explicit timeout error instead of silently completing, so
           // callers do not lose the turn as an orphaned user message.
           if (timedOut && !timedOutDuringCompaction && !payloadsWithToolMedia?.length) {
@@ -1693,8 +1693,8 @@ export async function runEmbeddedPiAgent(
                 aborted,
                 systemPromptReport: attempt.systemPromptReport,
                 finalPromptText: attempt.finalPromptText,
-                finalAssistantVisibleText,
-                finalAssistantRawText,
+                finalZhushouVisibleText,
+                finalZhushouRawText,
                 replayInvalid,
                 livenessState,
               },
@@ -1735,7 +1735,7 @@ export async function runEmbeddedPiAgent(
             nextPlanningOnlyRetryInstruction &&
             planningOnlyRetryAttempts < maxPlanningOnlyRetryAttempts
           ) {
-            const planningOnlyText = attempt.assistantTexts.join("\n\n").trim();
+            const planningOnlyText = attempt.zhushouTexts.join("\n\n").trim();
             const planDetails = extractPlanningOnlyPlanDetails(planningOnlyText);
             if (planDetails) {
               emitAgentPlanEvent({
@@ -1743,7 +1743,7 @@ export async function runEmbeddedPiAgent(
                 ...(params.sessionKey ? { sessionKey: params.sessionKey } : {}),
                 data: {
                   phase: "update",
-                  title: "Assistant proposed a plan",
+                  title: "Zhushou proposed a plan",
                   explanation: planDetails.explanation,
                   steps: planDetails.steps,
                   source: "planning_only_retry",
@@ -1753,7 +1753,7 @@ export async function runEmbeddedPiAgent(
                 stream: "plan",
                 data: {
                   phase: "update",
-                  title: "Assistant proposed a plan",
+                  title: "Zhushou proposed a plan",
                   explanation: planDetails.explanation,
                   steps: planDetails.steps,
                   source: "planning_only_retry",
@@ -1777,7 +1777,7 @@ export async function runEmbeddedPiAgent(
             reasoningOnlyRetryAttempts += 1;
             reasoningOnlyRetryInstruction = nextReasoningOnlyRetryInstruction;
             log.warn(
-              `reasoning-only assistant turn detected: runId=${params.runId} sessionId=${params.sessionId} ` +
+              `reasoning-only zhushou turn detected: runId=${params.runId} sessionId=${params.sessionId} ` +
                 `provider=${activeErrorContext.provider}/${activeErrorContext.model} — retrying ${reasoningOnlyRetryAttempts}/${maxReasoningOnlyRetryAttempts} ` +
                 `with visible-answer continuation`,
             );
@@ -1808,7 +1808,7 @@ export async function runEmbeddedPiAgent(
             timedOut,
             attempt,
           });
-          if (reasoningOnlyRetriesExhausted && !finalAssistantVisibleText) {
+          if (reasoningOnlyRetriesExhausted && !finalZhushouVisibleText) {
             log.warn(
               `reasoning-only retries exhausted: runId=${params.runId} sessionId=${params.sessionId} ` +
                 `provider=${activeErrorContext.provider}/${activeErrorContext.model} attempts=${reasoningOnlyRetryAttempts}/${maxReasoningOnlyRetryAttempts} — surfacing incomplete-turn error`,
@@ -1850,8 +1850,8 @@ export async function runEmbeddedPiAgent(
                 aborted,
                 systemPromptReport: attempt.systemPromptReport,
                 finalPromptText: attempt.finalPromptText,
-                finalAssistantVisibleText,
-                finalAssistantRawText,
+                finalZhushouVisibleText,
+                finalZhushouRawText,
                 replayInvalid,
                 livenessState,
               },
@@ -1863,7 +1863,7 @@ export async function runEmbeddedPiAgent(
               successfulCronAdds: attempt.successfulCronAdds,
             };
           }
-          if (reasoningOnlyRetriesExhausted && !finalAssistantVisibleText) {
+          if (reasoningOnlyRetriesExhausted && !finalZhushouVisibleText) {
             const replayInvalid = resolveReplayInvalidForAttempt(
               "⚠️ Agent couldn't generate a response. Please try again.",
             );
@@ -1881,7 +1881,7 @@ export async function runEmbeddedPiAgent(
             if (lastProfileId) {
               await maybeMarkAuthProfileFailure({
                 profileId: lastProfileId,
-                reason: resolveAuthProfileFailureReason(assistantFailoverReason),
+                reason: resolveAuthProfileFailureReason(zhushouFailoverReason),
               });
             }
             return {
@@ -1897,8 +1897,8 @@ export async function runEmbeddedPiAgent(
                 aborted,
                 systemPromptReport: attempt.systemPromptReport,
                 finalPromptText: attempt.finalPromptText,
-                finalAssistantVisibleText,
-                finalAssistantRawText,
+                finalZhushouVisibleText,
+                finalZhushouRawText,
                 replayInvalid,
                 livenessState,
               },
@@ -1934,7 +1934,7 @@ export async function runEmbeddedPiAgent(
               replayInvalid,
               livenessState,
             });
-            const incompleteStopReason = attempt.lastAssistant?.stopReason;
+            const incompleteStopReason = attempt.lastZhushou?.stopReason;
             log.warn(
               `incomplete turn detected: runId=${params.runId} sessionId=${params.sessionId} ` +
                 `stopReason=${incompleteStopReason} payloads=0 — surfacing error to user`,
@@ -1945,7 +1945,7 @@ export async function runEmbeddedPiAgent(
             if (lastProfileId) {
               await maybeMarkAuthProfileFailure({
                 profileId: lastProfileId,
-                reason: resolveAuthProfileFailureReason(assistantFailoverReason),
+                reason: resolveAuthProfileFailureReason(zhushouFailoverReason),
               });
             }
 
@@ -1962,8 +1962,8 @@ export async function runEmbeddedPiAgent(
                 aborted,
                 systemPromptReport: attempt.systemPromptReport,
                 finalPromptText: attempt.finalPromptText,
-                finalAssistantVisibleText,
-                finalAssistantRawText,
+                finalZhushouVisibleText,
+                finalZhushouRawText,
                 replayInvalid,
                 livenessState,
               },
@@ -2004,7 +2004,7 @@ export async function runEmbeddedPiAgent(
             ? "tool_calls"
             : attempt.yieldDetected
               ? "end_turn"
-              : (sessionLastAssistant?.stopReason as string | undefined);
+              : (sessionLastZhushou?.stopReason as string | undefined);
           attempt.setTerminalLifecycleMeta?.({
             replayInvalid,
             livenessState,
@@ -2017,8 +2017,8 @@ export async function runEmbeddedPiAgent(
               aborted,
               systemPromptReport: attempt.systemPromptReport,
               finalPromptText: attempt.finalPromptText,
-              finalAssistantVisibleText,
-              finalAssistantRawText,
+              finalZhushouVisibleText,
+              finalZhushouRawText,
               replayInvalid,
               livenessState,
               // Handle client tool calls (OpenResponses hosted tools)
@@ -2035,19 +2035,19 @@ export async function runEmbeddedPiAgent(
                   ]
                 : undefined,
               executionTrace: {
-                winnerProvider: sessionLastAssistant?.provider ?? provider,
-                winnerModel: sessionLastAssistant?.model ?? model.id,
+                winnerProvider: sessionLastZhushou?.provider ?? provider,
+                winnerModel: sessionLastZhushou?.model ?? model.id,
                 attempts:
                   traceAttempts.length > 0 ||
-                  sessionLastAssistant?.provider ||
-                  sessionLastAssistant?.model
+                  sessionLastZhushou?.provider ||
+                  sessionLastZhushou?.model
                     ? [
                         ...traceAttempts,
                         {
-                          provider: sessionLastAssistant?.provider ?? provider,
-                          model: sessionLastAssistant?.model ?? model.id,
+                          provider: sessionLastZhushou?.provider ?? provider,
+                          model: sessionLastZhushou?.model ?? model.id,
                           result: "success",
-                          stage: "assistant",
+                          stage: "zhushou",
                         },
                       ]
                     : undefined,

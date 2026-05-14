@@ -16,7 +16,7 @@ import {
   resolveSessionStoreEntry,
   resolveStorePath,
 } from "../../config/sessions.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { CronServiceContract } from "../../cron/service-contract.js";
 import { CronService } from "../../cron/service.js";
 import { resolveCronStorePath } from "../../cron/store.js";
@@ -204,7 +204,7 @@ function assertSessionKey(sessionKey: string | undefined, errorMessage: string):
   return normalized;
 }
 
-function resolveRuntimeConfig(): AssistantConfig {
+function resolveRuntimeConfig(): ZhushouConfig {
   return getRuntimeConfigSnapshot() ?? loadConfig();
 }
 
@@ -261,7 +261,7 @@ function resolveCharterRepoCapabilityWorkspaceDir(charterDir: string | undefined
 }
 
 function resolveSessionWorkspaceDir(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
 }): string | undefined {
   const normalizedSessionKey = normalizeOptionalString(params.sessionKey);
@@ -292,7 +292,7 @@ function resolveSessionWorkspaceDir(params: {
 }
 
 function resolveBoundAutonomyWorkspaceDir(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   workspaceDir?: string;
 }): string | undefined {
@@ -307,7 +307,7 @@ function resolveBoundAutonomyWorkspaceDir(params: {
 }
 
 function resolveAutonomyWorkspaceDirs(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   charterDir?: string;
   agentIds?: string[];
@@ -1013,7 +1013,7 @@ function buildGenesisManagedFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   const assignedStageId = resolveGenesisAssignedStageId(params.profile.id);
@@ -1132,7 +1132,7 @@ function buildAlgorithmResearchManagedFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   if (params.profile.id !== "algorithmist") {
@@ -1311,7 +1311,7 @@ function buildExecutorManagedFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   if (params.profile.id !== "executor") {
@@ -1542,7 +1542,7 @@ function buildSovereigntyAuditorManagedFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   if (params.profile.id !== "sovereignty_auditor") {
@@ -1660,7 +1660,7 @@ function resolveManagedAutonomyFlowPlan(params: {
   profile: AutonomyAgentProfile;
   goal: string;
   workspaceDirs?: string[];
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
 }): ManagedAutonomyFlowPlan | undefined {
   if (params.automationMode !== "autonomous") {
@@ -1675,7 +1675,7 @@ function resolveManagedAutonomyFlowPlan(params: {
 }
 
 function resolveAutonomyProfile(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   charterDir?: string;
 }): AutonomyAgentProfile | undefined {
@@ -1715,7 +1715,7 @@ function resolveAutonomyProfile(params: {
 }
 
 function assertManagedAutonomyProfile(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   charterDir?: string;
 }): AutonomyAgentProfile {
@@ -1749,7 +1749,7 @@ function sortManagedAutonomyAgentIds(agentIds: string[]): string[] {
 }
 
 function listAutonomyProfiles(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
 }): AutonomyAgentProfile[] {
   return sortManagedAutonomyAgentIds(
@@ -2289,7 +2289,7 @@ function inferManagedFlowSandboxReplaySubmission(params: {
 }
 
 async function maybeAutoSubmitManagedFlowSandboxReplay(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   profile: AutonomyAgentProfile;
   profileSessionKey: string;
   taskFlow: ReturnType<PluginRuntimeTaskFlow["bindSession"]>;
@@ -2363,7 +2363,7 @@ async function maybeAutoSubmitManagedFlowSandboxReplay(params: {
   });
 }
 
-function createStandaloneCronService(cfg: AssistantConfig): CronServiceContract {
+function createStandaloneCronService(cfg: ZhushouConfig): CronServiceContract {
   return new CronService({
     storePath: resolveCronStorePath(cfg.cron?.store),
     // This runtime path is used by CLI/plugin status calls when the gateway has
@@ -2383,7 +2383,7 @@ function createStandaloneCronService(cfg: AssistantConfig): CronServiceContract 
 }
 
 function resolveAutonomyCronService(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   cronService?: CronServiceContract;
 }): CronServiceContract {
   return params.cronService ?? createStandaloneCronService(params.cfg);
@@ -2400,7 +2400,7 @@ function sortAutonomyLoopJobs(jobs: CronJob[]): CronJob[] {
 }
 
 async function listAutonomyLoopJobRecords(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   cronService?: CronServiceContract;
 }): Promise<CronJob[]> {
@@ -2430,7 +2430,7 @@ function createLoopJobSnapshot(params: {
 }
 
 async function listAutonomyLoopJobSnapshots(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   profiles: AutonomyAgentProfile[];
   cronService?: CronServiceContract;
 }): Promise<AutonomyLoopJobSnapshot[]> {
@@ -2476,7 +2476,7 @@ function resolveLoopEveryMs(input: number | undefined, fallbackEveryMs: number):
 }
 
 function resolveManagedLoopProfiles(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentIds?: string[];
   charterDir?: string;
 }): AutonomyAgentProfile[] {
@@ -2505,7 +2505,7 @@ function resolveManagedLoopProfiles(params: {
 }
 
 function resolveGovernanceProposalProfiles(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentIds?: string[];
   charterDir?: string;
 }): AutonomyAgentProfile[] {
@@ -3413,7 +3413,7 @@ function buildAutonomyArchitectureReadinessSummary(
 }
 
 async function resolveFleetProfileRuntimeState(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   profile: AutonomyAgentProfile;
   requesterOrigin?: import("../../tasks/task-registry.types.js").TaskDeliveryState["requesterOrigin"];
   legacyTaskFlow: PluginRuntimeTaskFlow;
@@ -3500,7 +3500,7 @@ function resolveManagedFlowHealDecision(params: {
 }
 
 async function cancelManagedAutonomyFlowById(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   profile: AutonomyAgentProfile;
   taskFlow: BoundTaskFlowRuntime;
   targetFlowId: string;
@@ -3538,7 +3538,7 @@ async function cancelManagedAutonomyFlowById(params: {
 }
 
 async function submitManagedAutonomySandboxReplay(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   profile: AutonomyAgentProfile;
   taskFlow: BoundTaskFlowRuntime;
   targetFlowId: string;
@@ -3774,7 +3774,7 @@ async function submitManagedAutonomySandboxReplay(params: {
 }
 
 function createManagedAutonomyFlow(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   ownerKey: string;
   taskFlow: BoundTaskFlowRuntime;
   profile: AutonomyAgentProfile;

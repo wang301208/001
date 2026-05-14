@@ -12,9 +12,9 @@ type EventHandlerChatLog = {
     options?: { partial?: boolean; isError?: boolean },
   ) => void;
   addSystem: (text: string) => void;
-  updateAssistant: (text: string, runId: string) => void;
-  finalizeAssistant: (text: string, runId: string) => void;
-  dropAssistant: (runId: string) => void;
+  updateZhushou: (text: string, runId: string) => void;
+  finalizeZhushou: (text: string, runId: string) => void;
+  dropZhushou: (runId: string) => void;
 };
 
 type EventHandlerTui = {
@@ -302,7 +302,7 @@ export function createEventHandlers(context: EventHandlerContext) {
       if (!displayText) {
         return;
       }
-      chatLog.updateAssistant(displayText, evt.runId);
+      chatLog.updateZhushou(displayText, evt.runId);
       setActivityStatus("streaming");
       if (state.activeChatRunId === evt.runId) {
         armStreamingWatchdog(evt.runId);
@@ -321,7 +321,7 @@ export function createEventHandlers(context: EventHandlerContext) {
         maybeRefreshHistoryForRun(evt.runId, {
           allowLocalWithoutDisplayableFinal: true,
         });
-        chatLog.dropAssistant(evt.runId);
+        chatLog.dropZhushou(evt.runId);
         finalizeRun({ runId: evt.runId, wasActiveRun, status: "idle" });
         tui.requestRender();
         return;
@@ -353,9 +353,9 @@ export function createEventHandlers(context: EventHandlerContext) {
       const suppressEmptyExternalPlaceholder =
         finalText === "(无输出)" && !isLocalRunId?.(evt.runId);
       if (suppressEmptyExternalPlaceholder) {
-        chatLog.dropAssistant(evt.runId);
+        chatLog.dropZhushou(evt.runId);
       } else {
-        chatLog.finalizeAssistant(finalText, evt.runId);
+        chatLog.finalizeZhushou(finalText, evt.runId);
       }
       finalizeRun({
         runId: evt.runId,

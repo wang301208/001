@@ -24,62 +24,62 @@ describe("renderGatewayServiceStartHints", () => {
   it("resolves daemon container context from either env key", () => {
     expect(
       resolveDaemonContainerContext({
-        ASSISTANT_CONTAINER: "assistant-demo-container",
+        ZHUSHOU_CONTAINER: "zhushou-demo-container",
       } as NodeJS.ProcessEnv),
-    ).toBe("assistant-demo-container");
+    ).toBe("zhushou-demo-container");
     expect(
       resolveDaemonContainerContext({
-        ASSISTANT_CONTAINER_HINT: "assistant-demo-container",
+        ZHUSHOU_CONTAINER_HINT: "zhushou-demo-container",
       } as NodeJS.ProcessEnv),
-    ).toBe("assistant-demo-container");
+    ).toBe("zhushou-demo-container");
   });
 
-  it("prepends a single container restart hint when ASSISTANT_CONTAINER is set", () => {
+  it("prepends a single container restart hint when ZHUSHOU_CONTAINER is set", () => {
     expect(
       renderGatewayServiceStartHints({
-        ASSISTANT_CONTAINER: "assistant-demo-container",
+        ZHUSHOU_CONTAINER: "zhushou-demo-container",
       } as NodeJS.ProcessEnv),
     ).toEqual(
       expect.arrayContaining([
-        "Restart the container or the service that manages it for assistant-demo-container.",
+        "Restart the container or the service that manages it for zhushou-demo-container.",
       ]),
     );
   });
 
-  it("prepends a single container restart hint when ASSISTANT_CONTAINER_HINT is set", () => {
+  it("prepends a single container restart hint when ZHUSHOU_CONTAINER_HINT is set", () => {
     expect(
       renderGatewayServiceStartHints({
-        ASSISTANT_CONTAINER_HINT: "assistant-demo-container",
+        ZHUSHOU_CONTAINER_HINT: "zhushou-demo-container",
       } as NodeJS.ProcessEnv),
     ).toEqual(
       expect.arrayContaining([
-        "Restart the container or the service that manages it for assistant-demo-container.",
+        "Restart the container or the service that manages it for zhushou-demo-container.",
       ]),
     );
   });
 });
 
 describe("filterContainerGenericHints", () => {
-  it("drops the generic container foreground hint when ASSISTANT_CONTAINER is set", () => {
+  it("drops the generic container foreground hint when ZHUSHOU_CONTAINER is set", () => {
     expect(
       filterContainerGenericHints(
         [
           "systemd user services are unavailable; install/enable systemd or run the gateway under your supervisor.",
-          "If you're in a container, run the gateway in the foreground instead of `assistant gateway`.",
+          "If you're in a container, run the gateway in the foreground instead of `zhushou gateway`.",
         ],
-        { ASSISTANT_CONTAINER: "assistant-demo-container" } as NodeJS.ProcessEnv,
+        { ZHUSHOU_CONTAINER: "zhushou-demo-container" } as NodeJS.ProcessEnv,
       ),
     ).toEqual([]);
   });
 
-  it("drops the generic container foreground hint when ASSISTANT_CONTAINER_HINT is set", () => {
+  it("drops the generic container foreground hint when ZHUSHOU_CONTAINER_HINT is set", () => {
     expect(
       filterContainerGenericHints(
         [
           "systemd user services are unavailable; install/enable systemd or run the gateway under your supervisor.",
-          "If you're in a container, run the gateway in the foreground instead of `assistant gateway`.",
+          "If you're in a container, run the gateway in the foreground instead of `zhushou gateway`.",
         ],
-        { ASSISTANT_CONTAINER_HINT: "assistant-demo-container" } as NodeJS.ProcessEnv,
+        { ZHUSHOU_CONTAINER_HINT: "zhushou-demo-container" } as NodeJS.ProcessEnv,
       ),
     ).toEqual([]);
   });

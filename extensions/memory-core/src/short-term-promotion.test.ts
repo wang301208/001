@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-vi.mock("assistant/plugin-sdk/memory-host-events", () => ({
+vi.mock("zhushou/plugin-sdk/memory-host-events", () => ({
   appendMemoryHostEvent: vi.fn(async () => {}),
 }));
 
@@ -926,7 +926,7 @@ describe("short-term promotion", () => {
       expect(secondApply.reconciledExisting).toBe(1);
 
       const memoryText = await fs.readFile(path.join(workspaceDir, "MEMORY.md"), "utf-8");
-      expect(memoryText.match(/assistant-memory-promotion:/g)?.length).toBe(1);
+      expect(memoryText.match(/zhushou-memory-promotion:/g)?.length).toBe(1);
       expect(
         memoryText.match(/The gateway should stay loopback-only on port 18789\./g)?.length,
       ).toBe(1);
@@ -1046,7 +1046,7 @@ describe("short-term promotion", () => {
                 endLine: 1,
                 source: "memory",
                 snippet:
-                  "Reflections: Theme: assistant. confidence: 1.00 evidence: memory/.dreams/session-corpus/2026-04-08.txt:2-2 recalls: 4 status: staged",
+                  "Reflections: Theme: zhushou. confidence: 1.00 evidence: memory/.dreams/session-corpus/2026-04-08.txt:2-2 recalls: 4 status: staged",
                 recallCount: 4,
                 dailyCount: 0,
                 groundedCount: 0,
@@ -1056,7 +1056,7 @@ describe("short-term promotion", () => {
                 lastRecalledAt: "2026-04-04T00:00:00.000Z",
                 queryHashes: ["a", "b"],
                 recallDays: ["2026-04-03", "2026-04-04"],
-                conceptTags: ["assistant"],
+                conceptTags: ["zhushou"],
               },
             },
           },
@@ -1181,7 +1181,7 @@ describe("short-term promotion", () => {
             ageDays: 0,
             score: 0.99,
             recallDays: ["2026-04-03", "2026-04-04"],
-            conceptTags: ["assistant"],
+            conceptTags: ["zhushou"],
             components: {
               frequency: 1,
               relevance: 1,

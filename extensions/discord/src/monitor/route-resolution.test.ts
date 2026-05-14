@@ -1,5 +1,5 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { ResolvedAgentRoute } from "assistant/plugin-sdk/routing";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { ResolvedAgentRoute } from "zhushou/plugin-sdk/routing";
 import { describe, expect, it } from "vitest";
 import {
   buildDiscordRoutePeer,
@@ -11,7 +11,7 @@ import {
 function buildWorkerBindingConfig(peer: {
   kind: "channel" | "direct";
   id: string;
-}): AssistantConfig {
+}): ZhushouConfig {
   return {
     agents: {
       list: [{ id: "worker" }],

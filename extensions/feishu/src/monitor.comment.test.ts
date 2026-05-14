@@ -1,11 +1,11 @@
-﻿import { hasControlCommand } from "assistant/plugin-sdk/command-auth";
+﻿import { hasControlCommand } from "zhushou/plugin-sdk/command-auth";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
-} from "assistant/plugin-sdk/reply-runtime";
+} from "zhushou/plugin-sdk/reply-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createNonExitingRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
-import type { AssistantConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
+import type { ZhushouConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
 import * as dedup from "./dedup.js";
 import { monitorSingleAccount } from "./monitor.account.js";
 import {
@@ -45,14 +45,14 @@ vi.mock("./thread-bindings.js", () => ({
   createFeishuThreadBindingManager: createFeishuThreadBindingManagerMock,
 }));
 
-function buildMonitorConfig(): AssistantConfig {
+function buildMonitorConfig(): ZhushouConfig {
   return {
     channels: {
       feishu: {
         enabled: true,
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function buildMonitorAccount(): ResolvedFeishuAccount {
@@ -393,7 +393,7 @@ describe("resolveDriveCommentEventTurn", () => {
     });
 
     expect(turn?.targetReplyText).toBe(
-      `璇?鎬荤粨涓?https://www.larksuite.com/docx/${TEST_DOC_TOKEN} 鍜?https://www.larksuite.com/wiki/${TEST_WIKI_TOKEN}`,
+      `璇? 鎬荤粨涓?https://www.larksuite.com/docx/${TEST_DOC_TOKEN} 鍜?https://www.larksuite.com/wiki/${TEST_WIKI_TOKEN}`,
     );
     expect(turn?.prompt).toContain("Bot routing mention detected in the current user comment.");
     expect(turn?.prompt).toContain("Referenced documents from current user comment:");
@@ -699,7 +699,7 @@ describe("resolveDriveCommentEventTurn", () => {
       "comment_id=7623358762119646411 author=user user_id=UNKNOWN current_comment=yes",
     );
     expect(turn?.prompt).not.toContain(
-      "author=assistant user_id=UNKNOWN reply_id=reply_missing_user",
+      "author=zhushou user_id=UNKNOWN reply_id=reply_missing_user",
     );
   });
 
@@ -792,14 +792,14 @@ describe("resolveDriveCommentEventTurn", () => {
             reply_id: "7623358762136374451",
             text: "Also send it to the agent after receiving the comment event",
           },
-          { reply_id: "7623358762999999999", text: "Earlier assistant summary" },
+          { reply_id: "7623358762999999999", text: "Earlier zhushou summary" },
         ],
         [
           {
             reply_id: "7623358762136374451",
             text: "Also send it to the agent after receiving the comment event",
           },
-          { reply_id: "7623358762999999999", text: "Earlier assistant summary" },
+          { reply_id: "7623358762999999999", text: "Earlier zhushou summary" },
         ],
         [
           {

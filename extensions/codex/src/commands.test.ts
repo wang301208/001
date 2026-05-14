@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { PluginCommandContext } from "assistant/plugin-sdk/plugin-entry";
+import type { PluginCommandContext } from "zhushou/plugin-sdk/plugin-entry";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CODEX_CONTROL_METHODS } from "./app-server/capabilities.js";
 import type { CodexAppServerStartOptions } from "./app-server/config.js";
@@ -47,7 +47,7 @@ function createDeps(overrides: Partial<CodexCommandDeps> = {}): Partial<CodexCom
 
 describe("codex command", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-codex-command-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-codex-command-"));
   });
 
   afterEach(async () => {

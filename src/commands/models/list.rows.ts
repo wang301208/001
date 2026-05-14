@@ -3,7 +3,7 @@ import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
 import type { AuthProfileStore } from "../../agents/auth-profiles/types.js";
 import { shouldSuppressBuiltInModel } from "../../agents/model-suppression.js";
 import { normalizeProviderId } from "../../agents/provider-id.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { loadModelRegistry, toModelRow } from "./list.registry.js";
 import { loadModelCatalog, resolveModelWithRegistry } from "./list.runtime.js";
 import type { ConfiguredEntry, ModelRow } from "./list.types.js";
@@ -17,7 +17,7 @@ type RowFilter = {
 };
 
 type RowBuilderContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   authStore: AuthProfileStore;
   availableKeys?: Set<string>;
   configuredByKey: ConfiguredByKey;
@@ -55,8 +55,8 @@ function buildRow(params: {
 }
 
 export async function loadListModelRegistry(
-  cfg: AssistantConfig,
-  opts?: { sourceConfig?: AssistantConfig },
+  cfg: ZhushouConfig,
+  opts?: { sourceConfig?: ZhushouConfig },
 ) {
   const loaded = await loadModelRegistry(cfg, opts);
   return {

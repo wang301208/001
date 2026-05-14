@@ -1,5 +1,5 @@
 import { normalizeProviderId } from "../agents/model-selection.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isBlockedObjectKey } from "../infra/prototype-keys.js";
 import { resolvePluginCapabilityProviders } from "../plugins/capability-provider-runtime.js";
 import type { ImageGenerationProviderPlugin } from "../plugins/types.js";
@@ -20,7 +20,7 @@ function isSafeImageGenerationProviderId(id: string | undefined): id is string {
 }
 
 function resolvePluginImageGenerationProviders(
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
 ): ImageGenerationProviderPlugin[] {
   return resolvePluginCapabilityProviders({
     key: "imageGenerationProviders",
@@ -28,7 +28,7 @@ function resolvePluginImageGenerationProviders(
   });
 }
 
-function buildProviderMaps(cfg?: AssistantConfig): {
+function buildProviderMaps(cfg?: ZhushouConfig): {
   canonical: Map<string, ImageGenerationProviderPlugin>;
   aliases: Map<string, ImageGenerationProviderPlugin>;
 } {
@@ -60,14 +60,14 @@ function buildProviderMaps(cfg?: AssistantConfig): {
 }
 
 export function listImageGenerationProviders(
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
 ): ImageGenerationProviderPlugin[] {
   return [...buildProviderMaps(cfg).canonical.values()];
 }
 
 export function getImageGenerationProvider(
   providerId: string | undefined,
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
 ): ImageGenerationProviderPlugin | undefined {
   const normalized = normalizeImageGenerationProviderId(providerId);
   if (!normalized) {

@@ -1,24 +1,24 @@
-import type { AssistantConfig as RuntimeApiAssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig as RuntimeApiZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 
 export {
   DEFAULT_ACCOUNT_ID,
   getChatChannelMeta,
   type ChannelPlugin,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/core";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/core";
 export { buildChannelConfigSchema, IMessageConfigSchema } from "./config-api.js";
-export { PAIRING_APPROVED_MESSAGE } from "assistant/plugin-sdk/channel-status";
+export { PAIRING_APPROVED_MESSAGE } from "zhushou/plugin-sdk/channel-status";
 export {
   buildComputedAccountStatusSnapshot,
   collectStatusIssuesFromLastError,
-} from "assistant/plugin-sdk/status-helpers";
-export { formatTrimmedAllowFromEntries } from "assistant/plugin-sdk/channel-config-helpers";
+} from "zhushou/plugin-sdk/status-helpers";
+export { formatTrimmedAllowFromEntries } from "zhushou/plugin-sdk/channel-config-helpers";
 export {
   resolveIMessageConfigAllowFrom,
   resolveIMessageConfigDefaultTo,
 } from "./src/config-accessors.js";
 export { looksLikeIMessageTargetId, normalizeIMessageMessagingTarget } from "./src/normalize.js";
-export { resolveChannelMediaMaxBytes } from "assistant/plugin-sdk/media-runtime";
+export { resolveChannelMediaMaxBytes } from "zhushou/plugin-sdk/media-runtime";
 export {
   resolveIMessageGroupRequireMention,
   resolveIMessageGroupToolPolicy,
@@ -32,6 +32,6 @@ export { sendMessageIMessage } from "./src/send.js";
 export { setIMessageRuntime } from "./src/runtime.js";
 export { chunkTextForOutbound } from "./src/channel-api.js";
 export type IMessageAccountConfig = Omit<
-  NonNullable<NonNullable<RuntimeApiAssistantConfig["channels"]>["imessage"]>,
+  NonNullable<NonNullable<RuntimeApiZhushouConfig["channels"]>["imessage"]>,
   "accounts" | "defaultAccount"
 >;

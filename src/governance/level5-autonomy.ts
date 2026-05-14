@@ -13,6 +13,7 @@ import { strategicPlanner, resourceScheduler, learningEngine, collaborationCoord
 import { metricsCollector, notificationManager } from './monitoring-alerting.js';
 import { errorClassifier, retryHandler, fallbackHandler, circuitBreaker } from './error-handler.js';
 import type { StrategicPlan, StrategicGoal } from './advanced-autonomy.js';
+import { randomUUID } from 'node:crypto';
 
 const log = createSubsystemLogger('level5-autonomy');
 
@@ -151,12 +152,25 @@ export class AutonomousStrategyAdjuster {
    * 启动自主战略监控
    */
   startAutonomousMonitoring(checkIntervalMs: number = 60 * 60 * 1000): void {
+    if (this.monitoringInterval) {
+      clearInterval(this.monitoringInterval);
+    }
     // 每小时检查一次环境信号
     this.monitoringInterval = setInterval(async () => {
       await this.checkAndAdjust();
     }, checkIntervalMs);
+    this.monitoringInterval.unref?.();
     
     log.info('Autonomous strategy monitoring started');
+  }
+
+  stopAutonomousMonitoring(): void {
+    if (!this.monitoringInterval) {
+      return;
+    }
+    clearInterval(this.monitoringInterval);
+    this.monitoringInterval = null;
+    log.info('Autonomous strategy monitoring stopped');
   }
 
   /**
@@ -270,7 +284,7 @@ export class AutonomousStrategyAdjuster {
     }
     
     const adjustment: StrategyAdjustment = {
-      id: `adj-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `adj-${randomUUID()}`,
       planId: plan.id,
       trigger: signal,
       adjustments,
@@ -451,12 +465,25 @@ export class EnhancedSelfHealingEngine {
    * 启动自主健康监控
    */
   startAutonomousHealthMonitoring(checkIntervalMs: number = 5 * 60 * 1000): void {
+    if (this.monitoringInterval) {
+      clearInterval(this.monitoringInterval);
+    }
     // 每5分钟检查一次健康状态
     this.monitoringInterval = setInterval(async () => {
       await this.performHealthCheck();
     }, checkIntervalMs);
+    this.monitoringInterval.unref?.();
     
     log.info('Autonomous health monitoring started');
+  }
+
+  stopAutonomousHealthMonitoring(): void {
+    if (!this.monitoringInterval) {
+      return;
+    }
+    clearInterval(this.monitoringInterval);
+    this.monitoringInterval = null;
+    log.info('Autonomous health monitoring stopped');
   }
 
   /**
@@ -631,7 +658,7 @@ export class CrossSystemCoordinator {
   async createCrossSystemTask(task: Omit<CrossSystemTask, 'id' | 'status' | 'createdAt'>): Promise<CrossSystemTask> {
     const fullTask: CrossSystemTask = {
       ...task,
-      id: `cross-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `cross-${randomUUID()}`,
       status: 'pending',
       createdAt: Date.now(),
     };
@@ -646,11 +673,24 @@ export class CrossSystemCoordinator {
    * 启动任务处理循环
    */
   startTaskProcessing(intervalMs: number = 30 * 1000): void {
+    if (this.processingInterval) {
+      clearInterval(this.processingInterval);
+    }
     this.processingInterval = setInterval(async () => {
       await this.processTaskQueue();
     }, intervalMs);
+    this.processingInterval.unref?.();
     
     log.info('Cross-system task processing started');
+  }
+
+  stopTaskProcessing(): void {
+    if (!this.processingInterval) {
+      return;
+    }
+    clearInterval(this.processingInterval);
+    this.processingInterval = null;
+    log.info('Cross-system task processing stopped');
   }
 
   /**
@@ -791,6 +831,7 @@ export class CreativeProblemSolver {
     successRate: number;
   }> = [];
   private solutionHistory: CreativeSolution[] = [];
+  private solvingInterval: NodeJS.Timeout | null = null;
 
   /**
    * 检测新问题
@@ -807,7 +848,7 @@ export class CreativeProblemSolver {
       if (pattern.similarity < 0.3) {
         // 低相似度表示是新问题
         problems.push({
-          id: `problem-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+          id: `problem-${randomUUID()}`,
           description: pattern.description,
           context: pattern.context,
           constraints: [],
@@ -928,12 +969,25 @@ export class CreativeProblemSolver {
    * 启动创造性问题解决循环
    */
   startCreativeProblemSolving(checkIntervalMs: number = 2 * 60 * 60 * 1000): void {
+    if (this.solvingInterval) {
+      clearInterval(this.solvingInterval);
+    }
     // 每2小时检查一次新问题
-    setInterval(async () => {
+    this.solvingInterval = setInterval(async () => {
       await this.solveNovelProblems();
     }, checkIntervalMs);
+    this.solvingInterval.unref?.();
     
     log.info('Creative problem solving cycle started');
+  }
+
+  stopCreativeProblemSolving(): void {
+    if (!this.solvingInterval) {
+      return;
+    }
+    clearInterval(this.solvingInterval);
+    this.solvingInterval = null;
+    log.info('Creative problem solving cycle stopped');
   }
 
   /**

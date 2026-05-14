@@ -1,21 +1,20 @@
 import { expect } from "vitest";
-import { requireBundledChannelPlugin } from "../../../src/channels/plugins/bundled.js";
 import type { ChannelPlugin } from "../../../src/channels/plugins/types.js";
-import type { AssistantConfig } from "../../../src/config/config.js";
+import type { ZhushouConfig } from "../../../src/config/config.js";
 
 type SetupContractEntry = {
   id: string;
   plugin: Pick<ChannelPlugin, "id" | "config" | "setup">;
   cases: Array<{
     name: string;
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     accountId?: string;
     input: Record<string, unknown>;
     expectedAccountId?: string;
     expectedValidation?: string | null;
     beforeTest?: () => void;
-    assertPatchedConfig?: (cfg: AssistantConfig) => void;
-    assertResolvedAccount?: (account: unknown, cfg: AssistantConfig) => void;
+    assertPatchedConfig?: (cfg: ZhushouConfig) => void;
+    assertResolvedAccount?: (account: unknown, cfg: ZhushouConfig) => void;
   }>;
 };
 
@@ -24,7 +23,7 @@ type StatusContractEntry = {
   plugin: Pick<ChannelPlugin, "id" | "config" | "status">;
   cases: Array<{
     name: string;
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     accountId?: string;
     runtime?: Record<string, unknown>;
     probe?: unknown;
@@ -37,15 +36,184 @@ type StatusContractEntry = {
 let setupContractRegistryCache: SetupContractEntry[] | undefined;
 let statusContractRegistryCache: StatusContractEntry[] | undefined;
 
+function trimString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeBaseUrl(value: unknown): string | undefined {
+  const trimmed = trimString(value);
+  return trimmed ? trimmed.replace(/\/+$/u, "") : undefined;
+}
+
+function createSlackContractPlugin(): Pick<ChannelPlugin, "id" | "config" | "setup" | "status"> {
+  return {
+    id: "slack",
+    config: {
+      listAccountIds: () => ["default"],
+      resolveAccount: (cfg, accountId) => ({
+        accountId: accountId?.trim() || "default",
+        botToken: cfg.channels?.slack?.botToken,
+        appToken: cfg.channels?.slack?.appToken,
+        enabled: cfg.channels?.slack?.enabled !== false,
+      }),
+    },
+    setup: {
+      validateInput: ({ accountId, input }) =>
+        accountId !== "default" && input.useEnv === true
+          ? "Slack env tokens can only be used for the default account."
+          : null,
+      applyAccountConfig: ({ cfg, input }) =>
+        ({
+          ...cfg,
+          channels: {
+            ...cfg.channels,
+            slack: {
+              ...cfg.channels?.slack,
+              enabled: true,
+              botToken: trimString(input.botToken),
+              appToken: trimString(input.appToken),
+            },
+          },
+        }) as ZhushouConfig,
+    },
+    status: {
+      buildAccountSnapshot: ({ account, runtime }) => {
+        const resolved = account as { accountId: string; botToken?: string; enabled?: boolean };
+        return {
+          ...runtime,
+          accountId: resolved.accountId,
+          enabled: resolved.enabled !== false,
+          configured: Boolean(trimString(resolved.botToken)),
+        };
+      },
+    },
+  };
+}
+
+function createMattermostContractPlugin(): Pick<
+  ChannelPlugin,
+  "id" | "config" | "setup" | "status"
+> {
+  return {
+    id: "mattermost",
+    config: {
+      listAccountIds: () => ["default"],
+      resolveAccount: (cfg, accountId) => ({
+        accountId: accountId?.trim() || "default",
+        enabled: cfg.channels?.mattermost?.enabled !== false,
+        botToken: cfg.channels?.mattermost?.botToken,
+        baseUrl: cfg.channels?.mattermost?.baseUrl,
+      }),
+    },
+    setup: {
+      validateInput: ({ input }) => {
+        const botToken = trimString(input.botToken);
+        const baseUrl = normalizeBaseUrl(input.httpUrl);
+        return botToken && baseUrl
+          ? null
+          : "Mattermost requires --bot-token and --http-url (or --use-env).";
+      },
+      applyAccountConfig: ({ cfg, input }) =>
+        ({
+          ...cfg,
+          channels: {
+            ...cfg.channels,
+            mattermost: {
+              ...cfg.channels?.mattermost,
+              enabled: true,
+              botToken: trimString(input.botToken),
+              baseUrl: normalizeBaseUrl(input.httpUrl),
+            },
+          },
+        }) as ZhushouConfig,
+    },
+    status: {
+      buildAccountSnapshot: ({ account, runtime }) => {
+        const resolved = account as {
+          accountId: string;
+          enabled?: boolean;
+          botToken?: string;
+          baseUrl?: string;
+        };
+        return {
+          ...runtime,
+          accountId: resolved.accountId,
+          enabled: resolved.enabled !== false,
+          configured: Boolean(trimString(resolved.botToken) && trimString(resolved.baseUrl)),
+          baseUrl: resolved.baseUrl,
+        };
+      },
+    },
+  };
+}
+
+function createLineContractPlugin(): Pick<ChannelPlugin, "id" | "config" | "setup" | "status"> {
+  return {
+    id: "line",
+    config: {
+      listAccountIds: () => ["default"],
+      resolveAccount: (cfg, accountId) => ({
+        accountId: accountId?.trim() || "default",
+        enabled: cfg.channels?.line?.enabled !== false,
+        channelAccessToken: cfg.channels?.line?.channelAccessToken,
+        channelSecret: cfg.channels?.line?.channelSecret,
+      }),
+    },
+    setup: {
+      validateInput: ({ accountId, input }) =>
+        accountId !== "default" && input.useEnv === true
+          ? "LINE_CHANNEL_ACCESS_TOKEN can only be used for the default account."
+          : null,
+      applyAccountConfig: ({ cfg, input }) => {
+        const lineInput = input as typeof input & {
+          channelAccessToken?: string;
+          channelSecret?: string;
+        };
+        return {
+          ...cfg,
+          channels: {
+            ...cfg.channels,
+            line: {
+              ...cfg.channels?.line,
+              enabled: true,
+              channelAccessToken: trimString(lineInput.channelAccessToken),
+              channelSecret: trimString(lineInput.channelSecret),
+            },
+          },
+        } as ZhushouConfig;
+      },
+    },
+    status: {
+      buildAccountSnapshot: ({ account, runtime }) => {
+        const resolved = account as {
+          accountId: string;
+          enabled?: boolean;
+          channelAccessToken?: string;
+          channelSecret?: string;
+        };
+        return {
+          ...runtime,
+          accountId: resolved.accountId,
+          enabled: resolved.enabled !== false,
+          configured: Boolean(
+            trimString(resolved.channelAccessToken) && trimString(resolved.channelSecret),
+          ),
+          mode: "webhook",
+        };
+      },
+    },
+  };
+}
+
 export function getSetupContractRegistry(): SetupContractEntry[] {
   setupContractRegistryCache ??= [
     {
       id: "slack",
-      plugin: requireBundledChannelPlugin("slack"),
+      plugin: createSlackContractPlugin(),
       cases: [
         {
           name: "default account stores tokens and enables the channel",
-          cfg: {} as AssistantConfig,
+          cfg: {} as ZhushouConfig,
           input: {
             botToken: "xoxb-test",
             appToken: "xapp-test",
@@ -59,7 +227,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
         },
         {
           name: "non-default env setup is rejected",
-          cfg: {} as AssistantConfig,
+          cfg: {} as ZhushouConfig,
           accountId: "ops",
           input: {
             useEnv: true,
@@ -71,11 +239,11 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
     },
     {
       id: "mattermost",
-      plugin: requireBundledChannelPlugin("mattermost"),
+      plugin: createMattermostContractPlugin(),
       cases: [
         {
           name: "default account stores token and normalized base URL",
-          cfg: {} as AssistantConfig,
+          cfg: {} as ZhushouConfig,
           input: {
             botToken: "test-token",
             httpUrl: "https://chat.example.com/",
@@ -89,7 +257,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
         },
         {
           name: "missing credentials are rejected",
-          cfg: {} as AssistantConfig,
+          cfg: {} as ZhushouConfig,
           input: {
             httpUrl: "",
           },
@@ -100,11 +268,11 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
     },
     {
       id: "line",
-      plugin: requireBundledChannelPlugin("line"),
+      plugin: createLineContractPlugin(),
       cases: [
         {
           name: "default account stores token and secret",
-          cfg: {} as AssistantConfig,
+          cfg: {} as ZhushouConfig,
           input: {
             channelAccessToken: "line-token",
             channelSecret: "line-secret",
@@ -118,7 +286,7 @@ export function getSetupContractRegistry(): SetupContractEntry[] {
         },
         {
           name: "non-default env setup is rejected",
-          cfg: {} as AssistantConfig,
+          cfg: {} as ZhushouConfig,
           accountId: "ops",
           input: {
             useEnv: true,
@@ -136,7 +304,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
   statusContractRegistryCache ??= [
     {
       id: "slack",
-      plugin: requireBundledChannelPlugin("slack"),
+      plugin: createSlackContractPlugin(),
       cases: [
         {
           name: "configured account produces a configured status snapshot",
@@ -147,7 +315,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
                 appToken: "xapp-test",
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           runtime: {
             accountId: "default",
             connected: true,
@@ -164,7 +332,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
     },
     {
       id: "mattermost",
-      plugin: requireBundledChannelPlugin("mattermost"),
+      plugin: createMattermostContractPlugin(),
       cases: [
         {
           name: "configured account preserves connectivity details in the snapshot",
@@ -176,7 +344,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
                 baseUrl: "https://chat.example.com",
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           runtime: {
             accountId: "default",
             connected: true,
@@ -195,7 +363,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
     },
     {
       id: "line",
-      plugin: requireBundledChannelPlugin("line"),
+      plugin: createLineContractPlugin(),
       cases: [
         {
           name: "configured account produces a webhook status snapshot",
@@ -207,7 +375,7 @@ export function getStatusContractRegistry(): StatusContractEntry[] {
                 channelSecret: "line-secret",
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           runtime: {
             accountId: "default",
             running: true,

@@ -3,46 +3,46 @@ import {
   EmbeddedBlockChunker,
   resolveAckReaction,
   resolveHumanDelayConfig,
-} from "assistant/plugin-sdk/agent-runtime";
+} from "zhushou/plugin-sdk/agent-runtime";
 import {
   createStatusReactionController,
   DEFAULT_TIMING,
   logAckFailure,
   logTypingFailure,
   shouldAckReaction as shouldAckReactionGate,
-} from "assistant/plugin-sdk/channel-feedback";
+} from "zhushou/plugin-sdk/channel-feedback";
 import {
   formatInboundEnvelope,
   resolveEnvelopeFormatOptions,
-} from "assistant/plugin-sdk/channel-inbound";
-import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
-import { resolveChannelStreamingBlockEnabled } from "assistant/plugin-sdk/channel-streaming";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+import { resolveChannelStreamingBlockEnabled } from "zhushou/plugin-sdk/channel-streaming";
 import {
   isDangerousNameMatchingEnabled,
   readSessionUpdatedAt,
   resolveChannelContextVisibilityMode,
   resolveMarkdownTableMode,
   resolveStorePath,
-} from "assistant/plugin-sdk/config-runtime";
-import { recordInboundSession } from "assistant/plugin-sdk/conversation-runtime";
-import { getAgentScopedMediaLocalRoots } from "assistant/plugin-sdk/media-runtime";
-import { resolveChunkMode } from "assistant/plugin-sdk/reply-chunking";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-dispatch-runtime";
-import { finalizeInboundContext } from "assistant/plugin-sdk/reply-dispatch-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
+import { recordInboundSession } from "zhushou/plugin-sdk/conversation-runtime";
+import { getAgentScopedMediaLocalRoots } from "zhushou/plugin-sdk/media-runtime";
+import { resolveChunkMode } from "zhushou/plugin-sdk/reply-chunking";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-dispatch-runtime";
+import { finalizeInboundContext } from "zhushou/plugin-sdk/reply-dispatch-runtime";
 import {
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
-} from "assistant/plugin-sdk/reply-history";
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
-import { buildAgentSessionKey, resolveThreadSessionKeys } from "assistant/plugin-sdk/routing";
-import { danger, logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
-import { evaluateSupplementalContextVisibility } from "assistant/plugin-sdk/security-runtime";
+} from "zhushou/plugin-sdk/reply-history";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
+import { buildAgentSessionKey, resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
+import { danger, logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { evaluateSupplementalContextVisibility } from "zhushou/plugin-sdk/security-runtime";
 import {
   convertMarkdownTables,
   stripInlineDirectiveTagsForDelivery,
   stripReasoningTagsFromText,
   truncateUtf16Safe,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveDiscordMaxLinesPerMessage } from "../accounts.js";
 import { chunkDiscordTextWithMode } from "../chunk.js";
 import { createDiscordRestClient } from "../client.js";
@@ -86,10 +86,10 @@ function sleep(ms: number): Promise<void> {
 }
 
 const DISCORD_TYPING_MAX_DURATION_MS = 20 * 60_000;
-let replyRuntimePromise: Promise<typeof import("assistant/plugin-sdk/reply-runtime")> | undefined;
+let replyRuntimePromise: Promise<typeof import("zhushou/plugin-sdk/reply-runtime")> | undefined;
 
 async function loadReplyRuntime() {
-  replyRuntimePromise ??= import("assistant/plugin-sdk/reply-runtime");
+  replyRuntimePromise ??= import("zhushou/plugin-sdk/reply-runtime");
   return await replyRuntimePromise;
 }
 
@@ -884,7 +884,7 @@ export async function processDiscordMessage(
             ? !resolvedBlockStreamingEnabled
             : undefined),
         onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
-        onAssistantMessageStart: draftStream
+        onZhushouMessageStart: draftStream
           ? () => {
               if (shouldSplitPreviewMessages && hasStreamedMessage) {
                 logVerbose("discord: calling forceNewMessage() for draft stream");

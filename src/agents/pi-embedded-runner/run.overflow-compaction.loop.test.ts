@@ -413,15 +413,15 @@ describe("overflow compaction in run loop", () => {
     expect(result.meta.error?.kind).toBe("compaction_failure");
   });
 
-  it("retries after successful compaction on assistant context overflow errors", async () => {
+  it("retries after successful compaction on zhushou context overflow errors", async () => {
     mockedRunEmbeddedAttempt
       .mockResolvedValueOnce(
         makeAttemptResult({
           promptError: null,
-          lastAssistant: {
+          lastZhushou: {
             stopReason: "error",
             errorMessage: "request_too_large: Request size exceeds model context window",
-          } as EmbeddedRunAttemptResult["lastAssistant"],
+          } as EmbeddedRunAttemptResult["lastZhushou"],
         }),
       )
       .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
@@ -438,18 +438,18 @@ describe("overflow compaction in run loop", () => {
 
     expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(2);
-    expect(mockedLog.warn).toHaveBeenCalledWith(expect.stringContaining("source=assistantError"));
+    expect(mockedLog.warn).toHaveBeenCalledWith(expect.stringContaining("source=zhushouError"));
     expect(result.meta.error).toBeUndefined();
   });
 
-  it("does not treat stale assistant overflow as current-attempt overflow when promptError is non-overflow", async () => {
+  it("does not treat stale zhushou overflow as current-attempt overflow when promptError is non-overflow", async () => {
     mockedRunEmbeddedAttempt.mockResolvedValue(
       makeAttemptResult({
         promptError: new Error("transport disconnected"),
-        lastAssistant: {
+        lastZhushou: {
           stopReason: "error",
           errorMessage: "request_too_large: Request size exceeds model context window",
-        } as EmbeddedRunAttemptResult["lastAssistant"],
+        } as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -457,7 +457,7 @@ describe("overflow compaction in run loop", () => {
 
     expect(mockedCompactDirect).not.toHaveBeenCalled();
     expect(mockedLog.warn).not.toHaveBeenCalledWith(
-      expect.stringContaining("source=assistantError"),
+      expect.stringContaining("source=zhushouError"),
     );
   });
 
@@ -467,7 +467,7 @@ describe("overflow compaction in run loop", () => {
         aborted: true,
         timedOut: true,
         timedOutDuringCompaction: false,
-        assistantTexts: [],
+        zhushouTexts: [],
       }),
     );
 
@@ -486,7 +486,7 @@ describe("overflow compaction in run loop", () => {
           cacheWrite: 0,
           total: 124_000,
         },
-        lastAssistant: {
+        lastZhushou: {
           stopReason: "end_turn",
           usage: {
             input: 900,
@@ -494,7 +494,7 @@ describe("overflow compaction in run loop", () => {
             cacheWrite: 0,
             total: 2_000,
           },
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 

@@ -1,7 +1,7 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import type { SimpleStreamOptions } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { normalizeOptionalLowercaseString, readStringValue } from "../../shared/string-coerce.js";
 import {
   patchCodexNativeWebSearchPayload,
@@ -321,7 +321,7 @@ export function createOpenAITextVerbosityWrapper(
 }
 export function createCodexNativeWebSearchWrapper(
   baseStreamFn: StreamFn | undefined,
-  params: { config?: AssistantConfig; agentDir?: string },
+  params: { config?: ZhushouConfig; agentDir?: string },
 ): StreamFn {
   const underlying = baseStreamFn ?? streamSimple;
   return (model, context, options) => {

@@ -17,7 +17,7 @@ import {
 } from "./memory-tool-manager-mock.js";
 import { createMemoryCoreTestHarness } from "./test-helpers.js";
 import {
-  asAssistantConfig,
+  asZhushouConfig,
   createAutoCitationsMemorySearchTool,
   createDefaultMemoryToolConfig,
   createMemoryGetToolOrThrow,
@@ -56,7 +56,7 @@ beforeEach(() => {
         startLine: 5,
         endLine: 7,
         score: 0.9,
-        snippet: "@@ -5,3 @@\nAssistant: noted",
+        snippet: "@@ -5,3 @@\nZhushou: noted",
         source: "memory" as const,
       },
     ],
@@ -72,7 +72,7 @@ beforeEach(() => {
 describe("memory search citations", () => {
   it("appends source information when citations are enabled", async () => {
     setMemoryBackend("builtin");
-    const cfg = asAssistantConfig({
+    const cfg = asZhushouConfig({
       memory: { citations: "on" },
       agents: { list: [{ id: "main", default: true }] },
     });
@@ -85,7 +85,7 @@ describe("memory search citations", () => {
 
   it("leaves snippet untouched when citations are off", async () => {
     setMemoryBackend("builtin");
-    const cfg = asAssistantConfig({
+    const cfg = asZhushouConfig({
       memory: { citations: "off" },
       agents: { list: [{ id: "main", default: true }] },
     });
@@ -98,7 +98,7 @@ describe("memory search citations", () => {
 
   it("clamps decorated snippets to qmd injected budget", async () => {
     setMemoryBackend("qmd");
-    const cfg = asAssistantConfig({
+    const cfg = asZhushouConfig({
       memory: { citations: "on", backend: "qmd", qmd: { limits: { maxInjectedChars: 20 } } },
       agents: { list: [{ id: "main", default: true }] },
     });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AudioSchema, BindingsSchema } from "./zod-schema.agents.js";
-import { AssistantSchema } from "./zod-schema.js";
+import { ZhushouSchema } from "./zod-schema.js";
 import {
   DiscordConfigSchema,
   IMessageConfigSchema,
@@ -48,7 +48,7 @@ function expectInvalidSchemaIssuePath(params: {
   }
 }
 
-function expectAssistantSchemaInvalidPreservesField(params: {
+function expectZhushouSchemaInvalidPreservesField(params: {
   config: unknown;
   readValue: (parsed: unknown) => unknown;
   expectedValue: unknown;
@@ -56,7 +56,7 @@ function expectAssistantSchemaInvalidPreservesField(params: {
   expectedMessageIncludes?: string;
 }) {
   const before = JSON.stringify(params.config);
-  const res = AssistantSchema.safeParse(params.config);
+  const res = ZhushouSchema.safeParse(params.config);
   expect(res.success).toBe(false);
   if (!res.success) {
     if (params.expectedPath !== undefined) {
@@ -187,7 +187,7 @@ describe("legacy config detection", () => {
     expectSchemaValid(schema, config);
   });
   it("rejects legacy agent.model string", () => {
-    const res = AssistantSchema.safeParse({
+    const res = ZhushouSchema.safeParse({
       agent: { model: "anthropic/claude-opus-4-6" },
     });
     expect(res.success).toBe(false);
@@ -197,7 +197,7 @@ describe("legacy config detection", () => {
     }
   });
   it("rejects removed legacy provider sections", () => {
-    expectAssistantSchemaInvalidPreservesField({
+    expectZhushouSchemaInvalidPreservesField({
       config: { whatsapp: { allowFrom: ["+1555"] } },
       readValue: (parsed) =>
         (parsed as { whatsapp?: { allowFrom?: string[] } }).whatsapp?.allowFrom?.[0],
@@ -214,7 +214,7 @@ describe("legacy config detection", () => {
         },
       },
     };
-    const res = AssistantSchema.safeParse(config);
+    const res = ZhushouSchema.safeParse(config);
     expect(res.success).toBe(true);
     if (res.success) {
       expect(res.data.auth?.profiles?.["anthropic:claude-cli"]?.mode).toBe("token");
@@ -222,7 +222,7 @@ describe("legacy config detection", () => {
     expect(config.auth.profiles["anthropic:claude-cli"].mode).toBe("token");
   });
   it("rejects bindings[].match.provider without mutating the source", () => {
-    expectAssistantSchemaInvalidPreservesField({
+    expectZhushouSchemaInvalidPreservesField({
       config: {
         bindings: [{ agentId: "main", match: { provider: "slack" } }],
       },
@@ -233,7 +233,7 @@ describe("legacy config detection", () => {
     });
   });
   it("rejects bindings[].match.accountID without mutating the source", () => {
-    expectAssistantSchemaInvalidPreservesField({
+    expectZhushouSchemaInvalidPreservesField({
       config: {
         bindings: [{ agentId: "main", match: { channel: "telegram", accountID: "work" } }],
       },
@@ -252,7 +252,7 @@ describe("legacy config detection", () => {
     });
   });
   it("rejects session.sendPolicy.rules[].match.provider without mutating the source", () => {
-    expectAssistantSchemaInvalidPreservesField({
+    expectZhushouSchemaInvalidPreservesField({
       config: {
         session: {
           sendPolicy: {
@@ -270,7 +270,7 @@ describe("legacy config detection", () => {
     });
   });
   it("rejects messages.queue.byProvider without mutating the source", () => {
-    expectAssistantSchemaInvalidPreservesField({
+    expectZhushouSchemaInvalidPreservesField({
       config: { messages: { queue: { byProvider: { whatsapp: "queue" } } } },
       readValue: (parsed) =>
         (

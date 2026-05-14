@@ -16,9 +16,9 @@ describe("quickstart assets", () => {
     for (const text of [readme, quickstart]) {
       expect(text).toContain("pnpm install");
       expect(text).toContain("pnpm build");
-      expect(text).toContain("assistant onboard");
-      expect(text).toContain("assistant tui");
-      expect(text).toContain("assistant tui --message");
+      expect(text).toContain("zhushou onboard");
+      expect(text).toContain("zhushou tui");
+      expect(text).toContain("zhushou tui --message");
     }
   });
 
@@ -37,9 +37,9 @@ describe("quickstart assets", () => {
   it("documents config path, providers, models, and option discovery", () => {
     const config = readRepoFile("docs/configuration.md");
 
-    expect(config).toContain("~/.assistant/assistant.json");
-    expect(config).toContain("ASSISTANT_STATE_DIR");
-    expect(config).toContain("ASSISTANT_CONFIG_PATH");
+    expect(config).toContain("~/.wang301208/zhushou.json");
+    expect(config).toContain("ZHUSHOU_STATE_DIR");
+    expect(config).toContain("ZHUSHOU_CONFIG_PATH");
     expect(config).toContain("models.providers");
     expect(config).toContain("agents.defaults.model");
     expect(config).toContain("openai-completions");

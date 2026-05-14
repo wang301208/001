@@ -1,4 +1,4 @@
-import { defineBundledChannelSetupEntry } from "assistant/plugin-sdk/channel-entry-contract";
+import { defineBundledChannelSetupEntry } from "zhushou/plugin-sdk/channel-entry-contract";
 
 export default defineBundledChannelSetupEntry({
   importMetaUrl: import.meta.url,

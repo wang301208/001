@@ -14,7 +14,7 @@ import { createMockTypingController } from "./test-helpers.js";
 
 type AgentRunParams = {
   onPartialReply?: (payload: { text?: string }) => Promise<void> | void;
-  onAssistantMessageStart?: () => Promise<void> | void;
+  onZhushouMessageStart?: () => Promise<void> | void;
   onReasoningStream?: (payload: { text?: string }) => Promise<void> | void;
   onBlockReply?: (payload: { text?: string; mediaUrls?: string[] }) => Promise<void> | void;
   onToolResult?: (payload: ReplyPayload) => Promise<void> | void;
@@ -96,7 +96,7 @@ beforeEach(() => {
   vi.mocked(enqueueFollowupRun).mockClear();
   vi.mocked(refreshQueuedFollowupSession).mockClear();
   vi.mocked(scheduleFollowupDrain).mockClear();
-  vi.stubEnv("ASSISTANT_TEST_FAST", "1");
+  vi.stubEnv("ZHUSHOU_TEST_FAST", "1");
 });
 
 function createMinimalRun(params?: {
@@ -148,7 +148,7 @@ function createMinimalRun(params?: {
       },
       timeoutMs: 1_000,
       blockReplyBreak: "message_end",
-      skipProviderRuntimeHints: process.env.ASSISTANT_TEST_FAST === "1",
+      skipProviderRuntimeHints: process.env.ZHUSHOU_TEST_FAST === "1",
       ...params?.runOverrides,
     },
   } as unknown as FollowupRun;
@@ -389,7 +389,7 @@ describe("runReplyAgent typing (heartbeat)", () => {
       await params.onReasoningStream?.({ text: "Reasoning:\nNO_REPLY" });
       await params.onPartialReply?.({ text: "NO_REPLY" });
       await params.onBlockReply?.({ text: "NO_REPLY" });
-      return { payloads: [{ text: "NO_REPLY" }], meta: { finalAssistantText: "NO_REPLY" } };
+      return { payloads: [{ text: "NO_REPLY" }], meta: { finalZhushouText: "NO_REPLY" } };
     });
 
     const { run } = createMinimalRun({
@@ -405,9 +405,9 @@ describe("runReplyAgent typing (heartbeat)", () => {
     expect(res).toBeUndefined();
   });
 
-  it("does not start typing on assistant message start without prior text in message mode", async () => {
+  it("does not start typing on zhushou message start without prior text in message mode", async () => {
     state.runEmbeddedPiAgentMock.mockImplementationOnce(async (params: AgentRunParams) => {
-      await params.onAssistantMessageStart?.();
+      await params.onZhushouMessageStart?.();
       return { payloads: [{ text: "final" }], meta: {} };
     });
 
@@ -436,7 +436,7 @@ describe("runReplyAgent typing (heartbeat)", () => {
     expect(typing.startTypingOnText).not.toHaveBeenCalled();
   });
 
-  it("keeps assistant partial streaming enabled when reasoning mode is stream", async () => {
+  it("keeps zhushou partial streaming enabled when reasoning mode is stream", async () => {
     const onPartialReply = vi.fn();
     const onReasoningStream = vi.fn();
     state.runEmbeddedPiAgentMock.mockImplementationOnce(async (params: AgentRunParams) => {

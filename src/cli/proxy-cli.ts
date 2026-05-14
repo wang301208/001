@@ -21,7 +21,7 @@ function parseOptionalNumber(value: string | undefined): number | undefined {
 export function registerProxyCli(program: Command) {
   const proxy = program
     .command("proxy")
-    .description("Run the assistant debug proxy and inspect captured traffic");
+    .description("Run the zhushou debug proxy and inspect captured traffic");
 
   proxy
     .command("start")
@@ -35,7 +35,7 @@ export function registerProxyCli(program: Command) {
 
   proxy
     .command("run")
-    .description("Run a child command with assistant debug proxy capture enabled")
+    .description("Run a child command with zhushou debug proxy capture enabled")
     .allowUnknownOption(true)
     .allowExcessArguments(true)
     .option("--host <host>", "Bind host", "127.0.0.1")

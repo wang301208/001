@@ -1,4 +1,4 @@
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 /**
  * Maximal Marginal Relevance (MMR) re-ranking algorithm.

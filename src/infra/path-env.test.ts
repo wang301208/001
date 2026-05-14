@@ -1,6 +1,6 @@
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ensureAssistantCliOnPath } from "./path-env.js";
+import { ensureZhushouCliOnPath } from "./path-env.js";
 
 const state = vi.hoisted(() => ({
   dirs: new Set<string>(),
@@ -44,11 +44,11 @@ vi.mock("./env.js", () => ({
   isTruthyEnvValue: (value?: string) => value === "1" || value === "true",
 }));
 
-describe("ensureAssistantCliOnPath", () => {
+describe("ensureZhushouCliOnPath", () => {
   const envKeys = [
     "PATH",
-    "ASSISTANT_PATH_BOOTSTRAPPED",
-    "ASSISTANT_ALLOW_PROJECT_LOCAL_BIN",
+    "ZHUSHOU_PATH_BOOTSTRAPPED",
+    "ZHUSHOU_ALLOW_PROJECT_LOCAL_BIN",
     "MISE_DATA_DIR",
     "HOMEBREW_PREFIX",
     "HOMEBREW_BREW_FILE",
@@ -78,9 +78,9 @@ describe("ensureAssistantCliOnPath", () => {
   });
 
   function setupAppCliRoot(name: string) {
-    const tmp = abs(`/tmp/assistant-path/${name}`);
+    const tmp = abs(`/tmp/zhushou-path/${name}`);
     const appBinDir = path.join(tmp, "AppBin");
-    const appCli = path.join(appBinDir, "assistant");
+    const appCli = path.join(appBinDir, "zhushou");
     setDir(tmp);
     setDir(appBinDir);
     setExe(appCli);
@@ -94,14 +94,14 @@ describe("ensureAssistantCliOnPath", () => {
     platform: NodeJS.Platform;
     allowProjectLocalBin?: boolean;
   }) {
-    ensureAssistantCliOnPath(params);
+    ensureZhushouCliOnPath(params);
     return (process.env.PATH ?? "").split(path.delimiter);
   }
 
   function resetBootstrapEnv(pathValue = "/usr/bin") {
     process.env.PATH = pathValue;
-    delete process.env.ASSISTANT_PATH_BOOTSTRAPPED;
-    delete process.env.ASSISTANT_ALLOW_PROJECT_LOCAL_BIN;
+    delete process.env.ZHUSHOU_PATH_BOOTSTRAPPED;
+    delete process.env.ZHUSHOU_ALLOW_PROJECT_LOCAL_BIN;
     delete process.env.HOMEBREW_PREFIX;
     delete process.env.HOMEBREW_BREW_FILE;
     delete process.env.XDG_BIN_HOME;
@@ -118,7 +118,7 @@ describe("ensureAssistantCliOnPath", () => {
     }
   }
 
-  it("prepends the bundled app bin dir when a sibling assistant exists", () => {
+  it("prepends the bundled app bin dir when a sibling zhushou exists", () => {
     const { tmp, appBinDir, appCli } = setupAppCliRoot("case-bundled");
     resetBootstrapEnv();
 
@@ -132,7 +132,7 @@ describe("ensureAssistantCliOnPath", () => {
   });
 
   it("keeps the current runtime directory ahead of system PATH hardening", () => {
-    const tmp = abs("/tmp/assistant-path/case-runtime-dir");
+    const tmp = abs("/tmp/zhushou-path/case-runtime-dir");
     const nodeBinDir = path.join(tmp, "node-bin");
     const nodeExec = path.join(nodeBinDir, "node");
     setDir(tmp);
@@ -153,8 +153,8 @@ describe("ensureAssistantCliOnPath", () => {
 
   it("is idempotent", () => {
     process.env.PATH = "/bin";
-    process.env.ASSISTANT_PATH_BOOTSTRAPPED = "1";
-    ensureAssistantCliOnPath({
+    process.env.ZHUSHOU_PATH_BOOTSTRAPPED = "1";
+    ensureZhushouCliOnPath({
       execPath: "/tmp/does-not-matter",
       cwd: "/tmp",
       homeDir: "/tmp",
@@ -198,7 +198,7 @@ describe("ensureAssistantCliOnPath", () => {
     ({ envValue, allowProjectLocalBin }) => {
       const { tmp, appCli } = setupAppCliRoot("case-project-local");
       const localBinDir = path.join(tmp, "node_modules", ".bin");
-      const localCli = path.join(localBinDir, "assistant");
+      const localCli = path.join(localBinDir, "zhushou");
       setDir(path.join(tmp, "node_modules"));
       setDir(localBinDir);
       setExe(localCli);
@@ -215,9 +215,9 @@ describe("ensureAssistantCliOnPath", () => {
 
       resetBootstrapEnv();
       if (envValue === undefined) {
-        delete process.env.ASSISTANT_ALLOW_PROJECT_LOCAL_BIN;
+        delete process.env.ZHUSHOU_ALLOW_PROJECT_LOCAL_BIN;
       } else {
-        process.env.ASSISTANT_ALLOW_PROJECT_LOCAL_BIN = envValue;
+        process.env.ZHUSHOU_ALLOW_PROJECT_LOCAL_BIN = envValue;
       }
 
       const withOptIn = bootstrapPath({
@@ -317,7 +317,7 @@ describe("ensureAssistantCliOnPath", () => {
     {
       name: "appends Linuxbrew dirs after system dirs",
       setup: () => {
-        const tmp = abs("/tmp/assistant-path/case-linuxbrew");
+        const tmp = abs("/tmp/zhushou-path/case-linuxbrew");
         const execDir = path.join(tmp, "exec");
         setDir(tmp);
         setDir(execDir);

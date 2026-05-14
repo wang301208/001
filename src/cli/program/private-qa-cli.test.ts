@@ -6,22 +6,22 @@ import { loadPrivateQaCliModule } from "./private-qa-cli.js";
 
 describe("private-qa-cli", () => {
   const tempDirs: string[] = [];
-  const originalPrivateQaCli = process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
+  const originalPrivateQaCli = process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) {
       fs.rmSync(dir, { recursive: true, force: true });
     }
     if (originalPrivateQaCli === undefined) {
-      delete process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
+      delete process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
     } else {
-      process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI = originalPrivateQaCli;
+      process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = originalPrivateQaCli;
     }
   });
 
   it("loads the private QA CLI from a source checkout path", async () => {
-    process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI = "1";
-    const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-private-qa-source-"));
+    process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = "1";
+    const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-private-qa-source-"));
     tempDirs.push(repoRoot);
     const expectedPaths = new Set([
       path.join(repoRoot, ".git"),
@@ -52,10 +52,10 @@ describe("private-qa-cli", () => {
   });
 
   it("rejects non-source package roots even when private QA is enabled", async () => {
-    process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI = "1";
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-private-qa-"));
+    process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = "1";
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-private-qa-"));
     tempDirs.push(root);
-    fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "assistant" }), "utf8");
+    fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "zhushou" }), "utf8");
     const importModule = vi.fn(async () => ({}));
 
     expect(() =>
@@ -68,7 +68,7 @@ describe("private-qa-cli", () => {
   });
 
   it("rejects when the private QA env flag is disabled", async () => {
-    delete process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
+    delete process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
     const importModule = vi.fn(async () => ({}));
 
     expect(() => loadPrivateQaCliModule({ importModule })).toThrow(

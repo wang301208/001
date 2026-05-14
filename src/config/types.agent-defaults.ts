@@ -31,7 +31,7 @@ export type AgentContextPruningConfig = {
   mode?: "off" | "cache-ttl";
   /** TTL to consider cache expired (duration string, default unit: minutes). */
   ttl?: string;
-  keepLastAssistants?: number;
+  keepLastZhushous?: number;
   softTrimRatio?: number;
   hardClearRatio?: number;
   minPrunableToolChars?: number;
@@ -202,7 +202,7 @@ export type AgentDefaultsConfig = {
    * injected into the system prompt:
    * - always: inject on every turn (default)
    * - continuation-skip: skip injection on safe continuation turns once the
-   *   transcript already contains a completed assistant turn
+   *   transcript already contains a completed zhushou turn
    */
   contextInjection?: AgentContextInjection;
   /** Max chars for injected bootstrap files before truncation (default: 20000). */
@@ -282,8 +282,8 @@ export type AgentDefaultsConfig = {
   blockStreamingDefault?: "off" | "on";
   /**
    * Block streaming boundary:
-   * - "text_end": end of each assistant text content block (before tool calls)
-   * - "message_end": end of the whole assistant message (may include tool blocks)
+   * - "text_end": end of each zhushou text content block (before tool calls)
+   * - "message_end": end of the whole zhushou message (may include tool blocks)
    */
   blockStreamingBreak?: "text_end" | "message_end";
   /** Soft block chunking for streamed replies (min/max chars, prefer paragraph/newline). */
@@ -413,7 +413,7 @@ export type AgentCompactionConfig = {
   maxHistoryShare?: number;
   /** Additional compaction-summary instructions that can preserve language or persona continuity. */
   customInstructions?: string;
-  /** Preserve this many most-recent user/assistant turns verbatim in compaction summary context. */
+  /** Preserve this many most-recent user/zhushou turns verbatim in compaction summary context. */
   recentTurnsPreserve?: number;
   /** Identifier-preservation instruction policy for compaction summaries. */
   identifierPolicy?: AgentCompactionIdentifierPolicy;

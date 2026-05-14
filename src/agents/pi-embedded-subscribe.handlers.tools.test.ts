@@ -446,7 +446,7 @@ describe("handleToolExecutionEnd timeout metadata", () => {
 });
 
 describe("handleToolExecutionEnd exec approval prompts", () => {
-  it("emits a deterministic approval payload and marks assistant output suppressed", async () => {
+  it("emits a deterministic approval payload and marks zhushou output suppressed", async () => {
     const { ctx } = createTestContext();
     const onToolResult = vi.fn();
     ctx.params.onToolResult = onToolResult;
@@ -619,7 +619,7 @@ describe("handleToolExecutionEnd exec approval prompts", () => {
     expect(ctx.state.deterministicApprovalPromptSent).toBe(true);
   });
 
-  it("does not suppress assistant output when deterministic prompt delivery rejects", async () => {
+  it("does not suppress zhushou output when deterministic prompt delivery rejects", async () => {
     const { ctx } = createTestContext();
     ctx.params.onToolResult = vi.fn(async () => {
       throw new Error("delivery failed");

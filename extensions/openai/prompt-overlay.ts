@@ -1,4 +1,4 @@
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 const OPENAI_PROVIDER_IDS = new Set(["openai", "openai-codex"]);
 const OPENAI_GPT5_MODEL_PREFIX = "gpt-5";

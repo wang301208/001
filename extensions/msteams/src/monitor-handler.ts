@@ -1,5 +1,5 @@
-import { resolveThreadSessionKeys } from "assistant/plugin-sdk/routing";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+import { resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 import { formatUnknownError } from "./errors.js";
 import { buildFeedbackEvent, runFeedbackReflection } from "./feedback-reflection.js";
 import { buildFileInfoCard, parseFileConsentInvoke, uploadToConsentUrl } from "./file-consent.js";

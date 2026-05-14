@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import type { DoctorAccountRecord, DoctorAllowFromList } from "../types.js";
 import { collectEmptyAllowlistPolicyWarningsForAccount } from "./empty-allowlist-policy.js";
 import { asObjectRecord } from "./object.js";
@@ -18,7 +18,7 @@ type ScanEmptyAllowlistPolicyWarningsParams = {
 };
 
 export function scanEmptyAllowlistPolicyWarnings(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params: ScanEmptyAllowlistPolicyWarningsParams,
 ): string[] {
   const channels = cfg.channels;

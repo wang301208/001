@@ -4,11 +4,11 @@ import {
   canonicalizeAllowlistWithResolvedIds,
   patchAllowlistUsersInConfigEntries,
   summarizeMapping,
-} from "assistant/plugin-sdk/allow-from";
-import type { DiscordGuildEntry } from "assistant/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { formatErrorMessage } from "assistant/plugin-sdk/ssrf-runtime";
-import { normalizeStringEntries } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/allow-from";
+import type { DiscordGuildEntry } from "zhushou/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "zhushou/plugin-sdk/ssrf-runtime";
+import { normalizeStringEntries } from "zhushou/plugin-sdk/text-runtime";
 import { resolveDiscordChannelAllowlist } from "../resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../resolve-users.js";
 

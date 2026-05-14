@@ -20,14 +20,14 @@ export type ReplyPayload = {
   isReasoning?: boolean;
   /** Marks this payload as a compaction status notice (start/end).
    *  Should be excluded from TTS transcript accumulation so compaction
-   *  status lines are not synthesised into the spoken assistant reply. */
+   *  status lines are not synthesised into the spoken zhushou reply. */
   isCompactionNotice?: boolean;
   /** Channel-specific payload data (per-channel envelope). */
   channelData?: Record<string, unknown>;
 };
 
 export type ReplyPayloadMetadata = {
-  assistantMessageIndex?: number;
+  zhushouMessageIndex?: number;
 };
 
 const replyPayloadMetadata = new WeakMap<object, ReplyPayloadMetadata>();

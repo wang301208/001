@@ -8,8 +8,8 @@ function collectFindings(
     config,
     sourceConfig: config,
     env: {} as NodeJS.ProcessEnv,
-    stateDir: "/tmp/assistant-state",
-    configPath: "/tmp/assistant.json",
+    stateDir: "/tmp/zhushou-state",
+    configPath: "/tmp/zhushou.json",
   });
 }
 

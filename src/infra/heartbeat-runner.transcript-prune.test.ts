@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions.js";
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
 import {
@@ -23,7 +23,7 @@ describe("heartbeat transcript append-only (#39609)", () => {
       timestamp: new Date().toISOString(),
       cwd: process.cwd(),
     };
-    const existingContent = `${JSON.stringify(header)}\n{"role":"user","content":"Hello"}\n{"role":"assistant","content":"Hi there"}\n`;
+    const existingContent = `${JSON.stringify(header)}\n{"role":"user","content":"Hello"}\n{role: "assistant","content":"Hi there"}\n`;
     await fs.mkdir(path.dirname(transcriptPath), { recursive: true });
     await fs.writeFile(transcriptPath, existingContent);
     return existingContent;
@@ -63,7 +63,7 @@ describe("heartbeat transcript append-only (#39609)", () => {
           agent: { workspace: tmpDir },
           sessionStore: storePath,
           channels: { telegram: {} },
-        } as unknown as AssistantConfig;
+        } as unknown as ZhushouConfig;
 
         await runHeartbeatOnce({
           agentId: undefined,
@@ -81,7 +81,7 @@ describe("heartbeat transcript append-only (#39609)", () => {
         // build time instead of being removed via fs.truncate (#39609).
         expect(finalSize).toBeGreaterThanOrEqual(originalSize);
       },
-      { prefix: "assistant-hb-prune-" },
+      { prefix: "zhushou-hb-prune-" },
     );
   }
 

@@ -1,19 +1,19 @@
 import type {
   ChannelApprovalCapabilityHandlerContext,
   PendingApprovalView,
-} from "assistant/plugin-sdk/approval-handler-runtime";
-import { createChannelApprovalNativeRuntimeAdapter } from "assistant/plugin-sdk/approval-handler-runtime";
-import { buildChannelApprovalNativeTargetKey } from "assistant/plugin-sdk/approval-native-runtime";
-import { buildPluginApprovalPendingReplyPayload } from "assistant/plugin-sdk/approval-reply-runtime";
+} from "zhushou/plugin-sdk/approval-handler-runtime";
+import { createChannelApprovalNativeRuntimeAdapter } from "zhushou/plugin-sdk/approval-handler-runtime";
+import { buildChannelApprovalNativeTargetKey } from "zhushou/plugin-sdk/approval-native-runtime";
+import { buildPluginApprovalPendingReplyPayload } from "zhushou/plugin-sdk/approval-reply-runtime";
 import {
   buildApprovalInteractiveReplyFromActionDescriptors,
   buildExecApprovalPendingReplyPayload,
   type ExecApprovalPendingReplyParams,
   type ExecApprovalRequest,
   type PluginApprovalRequest,
-} from "assistant/plugin-sdk/infra-runtime";
-import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/infra-runtime";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { resolveTelegramInlineButtons } from "./button-types.js";
 import {
   isTelegramExecApprovalHandlerConfigured,

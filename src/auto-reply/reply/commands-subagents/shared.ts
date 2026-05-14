@@ -6,7 +6,7 @@ import { countPendingDescendantRunsFromRuns } from "../../../agents/subagent-reg
 import { getSubagentRunsSnapshotForRead } from "../../../agents/subagent-registry-state.js";
 import type { SubagentRunRecord } from "../../../agents/subagent-registry.types.js";
 import {
-  extractAssistantText,
+  extractZhushouText,
   resolveInternalSessionKey,
   resolveMainSessionAlias,
   stripToolMessages,
@@ -38,7 +38,7 @@ import {
   type SubagentTargetResolution,
 } from "../subagents-utils.js";
 
-export { extractAssistantText, stripToolMessages };
+export { extractZhushouText, stripToolMessages };
 export { resolveCommandSurfaceChannel, resolveChannelAccountId };
 export type { ChatMessage } from "../commands-subagents-text.js";
 
@@ -387,7 +387,7 @@ export function formatLogLines(messages: ChatMessage[]) {
     if (!extracted) {
       continue;
     }
-    const label = extracted.role === "assistant" ? "Assistant" : "User";
+    const label = extracted.role === "assistant" ? "Zhushou" : "User";
     lines.push(`${label}: ${extracted.text}`);
   }
   return lines;

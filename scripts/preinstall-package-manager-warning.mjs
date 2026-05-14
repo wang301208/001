@@ -44,9 +44,9 @@ export function createPackageManagerWarningMessage(packageManager) {
   }
 
   return [
-    `[assistant] warning: detected ${packageManager} for install lifecycle.`,
-    "[assistant] this repo works best with pnpm; npm-compatible installs are slower and much larger here.",
-    "[assistant] prefer: corepack pnpm install",
+    `[zhushou] warning: detected ${packageManager} for install lifecycle.`,
+    "[zhushou] this repo works best with pnpm; npm-compatible installs are slower and much larger here.",
+    "[zhushou] prefer: corepack pnpm install",
   ].join("\n");
 }
 

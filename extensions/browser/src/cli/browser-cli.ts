@@ -26,13 +26,13 @@ export function registerBrowserCli(program: Command) {
       () =>
         `\n${theme.muted("Docs:")} ${formatDocsLink(
           "/cli/browser",
-          "docs.assistant.ai/cli/browser",
+          "docs.zhushou.ai/cli/browser",
         )}\n`,
     )
     .action(() => {
       browser.outputHelp();
       defaultRuntime.error(
-        danger(`Missing subcommand. Try: "${formatCliCommand("assistant browser status")}"`),
+        danger(`Missing subcommand. Try: "${formatCliCommand("zhushou browser status")}"`),
       );
       defaultRuntime.exit(1);
     });

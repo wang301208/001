@@ -1,7 +1,7 @@
 import type { Command } from "commander";
-import { normalizeAccountId } from "assistant/plugin-sdk/account-id";
-import { formatZonedTimestamp } from "assistant/plugin-sdk/matrix-runtime-shared";
-import type { ChannelSetupInput } from "assistant/plugin-sdk/setup";
+import { normalizeAccountId } from "zhushou/plugin-sdk/account-id";
+import { formatZonedTimestamp } from "zhushou/plugin-sdk/matrix-runtime-shared";
+import type { ChannelSetupInput } from "zhushou/plugin-sdk/setup";
 import { resolveMatrixAccount, resolveMatrixAccountConfig } from "./matrix/accounts.js";
 import { listMatrixOwnDevices, pruneMatrixStaleGatewayDevices } from "./matrix/actions/devices.js";
 import { updateMatrixOwnProfile } from "./matrix/actions/profile.js";
@@ -17,7 +17,7 @@ import { resolveMatrixRoomKeyBackupIssue } from "./matrix/backup-health.js";
 import { resolveMatrixAuthContext } from "./matrix/client.js";
 import { setMatrixSdkConsoleLogging, setMatrixSdkLogMode } from "./matrix/client/logging.js";
 import { resolveMatrixConfigPath, updateMatrixAccountConfig } from "./matrix/config-update.js";
-import { isAssistantManagedMatrixDevice } from "./matrix/device-health.js";
+import { isZhushouManagedMatrixDevice } from "./matrix/device-health.js";
 import type { MatrixDirectRoomCandidate } from "./matrix/direct-management.js";
 import { formatMatrixErrorMessage } from "./matrix/errors.js";
 import { applyMatrixProfileUpdate, type MatrixProfileUpdateResult } from "./profile-update.js";
@@ -84,7 +84,7 @@ function resolveMatrixCliAccountId(accountId?: string): string {
 function formatMatrixCliCommand(command: string, accountId?: string): string {
   const normalizedAccountId = normalizeAccountId(accountId);
   const suffix = normalizedAccountId === "default" ? "" : ` --account ${normalizedAccountId}`;
-  return `assistant matrix ${command}${suffix}`;
+  return `zhushou matrix ${command}${suffix}`;
 }
 
 function printMatrixOwnDevices(
@@ -135,7 +135,7 @@ type MatrixCliAccountAddResult = {
   useEnv: boolean;
   deviceHealth: {
     currentDeviceId: string | null;
-    staleAssistantDeviceIds: string[];
+    staleZhushouDeviceIds: string[];
     error?: string;
   };
   verificationBootstrap: {
@@ -272,20 +272,20 @@ async function addMatrixAccount(params: {
 
   let deviceHealth: MatrixCliAccountAddResult["deviceHealth"] = {
     currentDeviceId: null,
-    staleAssistantDeviceIds: [],
+    staleZhushouDeviceIds: [],
   };
   try {
     const addedDevices = await listMatrixOwnDevices({ accountId });
     deviceHealth = {
       currentDeviceId: addedDevices.find((device) => device.current)?.deviceId ?? null,
-      staleAssistantDeviceIds: addedDevices
-        .filter((device) => !device.current && isAssistantManagedMatrixDevice(device.displayName))
+      staleZhushouDeviceIds: addedDevices
+        .filter((device) => !device.current && isZhushouManagedMatrixDevice(device.displayName))
         .map((device) => device.deviceId),
     };
   } catch (err) {
     deviceHealth = {
       currentDeviceId: null,
-      staleAssistantDeviceIds: [],
+      staleZhushouDeviceIds: [],
       error: toErrorMessage(err),
     };
   }
@@ -676,7 +676,7 @@ export function registerMatrixCli(params: { program: Command }): void {
   const root = params.program
     .command("matrix")
     .description("Matrix channel utilities")
-    .addHelpText("after", () => "\nDocs: https://docs.assistant.ai/channels/matrix\n");
+    .addHelpText("after", () => "\nDocs: https://docs.zhushou.ai/channels/matrix\n");
 
   const account = root.command("account").description("Manage matrix channel accounts");
 
@@ -762,9 +762,9 @@ export function registerMatrixCli(params: { program: Command }): void {
             }
             if (result.deviceHealth.error) {
               console.error(`Matrix device health warning: ${result.deviceHealth.error}`);
-            } else if (result.deviceHealth.staleAssistantDeviceIds.length > 0) {
+            } else if (result.deviceHealth.staleZhushouDeviceIds.length > 0) {
               console.log(
-                `Matrix device hygiene warning: stale 助手 devices detected (${result.deviceHealth.staleAssistantDeviceIds.join(", ")}). Run 'assistant matrix devices prune-stale --account ${result.accountId}'.`,
+                `Matrix device hygiene warning: stale 助手 devices detected (${result.deviceHealth.staleZhushouDeviceIds.join(", ")}). Run 'zhushou matrix devices prune-stale --account ${result.accountId}'.`,
               );
             }
             if (result.profile.attempted) {
@@ -779,7 +779,7 @@ export function registerMatrixCli(params: { program: Command }): void {
                 }
               }
             }
-            const bindHint = `assistant agents bind --agent <id> --bind matrix:${result.accountId}`;
+            const bindHint = `zhushou agents bind --agent <id> --bind matrix:${result.accountId}`;
             console.log(`Bind this account to an agent: ${bindHint}`);
           },
           errorPrefix: "Account setup failed",

@@ -18,7 +18,7 @@ function resolveCommand(command: string): string {
 export type ChildAdapter = SpawnProcessAdapter<NodeJS.Signals | null>;
 
 function isServiceManagedRuntime(): boolean {
-  return Boolean(process.env.ASSISTANT_SERVICE_MARKER?.trim());
+  return Boolean(process.env.ZHUSHOU_SERVICE_MARKER?.trim());
 }
 
 export async function createChildAdapter(params: {

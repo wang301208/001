@@ -1,9 +1,9 @@
 import type {
   ChannelThreadingContext,
   ChannelThreadingToolContext,
-} from "assistant/plugin-sdk/channel-contract";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/channel-contract";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { parseTelegramTarget } from "./targets.js";
 
 function resolveTelegramToolContextThreadId(context: ChannelThreadingContext): string | undefined {
@@ -19,7 +19,7 @@ function resolveTelegramToolContextThreadId(context: ChannelThreadingContext): s
 }
 
 export function buildTelegramThreadingToolContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   context: ChannelThreadingContext;
   hasRepliedRef?: { value: boolean };

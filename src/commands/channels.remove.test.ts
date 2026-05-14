@@ -101,7 +101,7 @@ describe("channelsRemoveCommand", () => {
       .mockReturnValueOnce(
         createTestRegistry([
           {
-            pluginId: "@assistant/msteams-plugin",
+            pluginId: "@zhushou/msteams-plugin",
             plugin: scopedPlugin,
             source: "test",
           },

@@ -1,5 +1,5 @@
 import "./test-helpers.js";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { describe, expect, it, vi } from "vitest";
 import {
   monitorWebChannelWithCapture,
@@ -28,7 +28,7 @@ describe("broadcast groups", () => {
       broadcast: {
         "+1000": ["alfred", "missing"],
       },
-    } satisfies AssistantConfig);
+    } satisfies ZhushouConfig);
 
     const { seen, resolver } = await sendWebDirectInboundAndCollectSessionKeys();
 
@@ -48,7 +48,7 @@ describe("broadcast groups", () => {
         strategy: "sequential",
         "+1000": ["alfred", "baerbel"],
       },
-    } satisfies AssistantConfig);
+    } satisfies ZhushouConfig);
 
     const { seen, resolver } = await sendWebDirectInboundAndCollectSessionKeys();
 
@@ -69,7 +69,7 @@ describe("broadcast groups", () => {
         strategy: "sequential",
         "123@g.us": ["alfred", "baerbel"],
       },
-    } satisfies AssistantConfig);
+    } satisfies ZhushouConfig);
 
     const resolver = vi.fn().mockResolvedValue({ text: "ok" });
 
@@ -149,7 +149,7 @@ describe("broadcast groups", () => {
         strategy: "parallel",
         "+1000": ["alfred", "baerbel"],
       },
-    } satisfies AssistantConfig);
+    } satisfies ZhushouConfig);
 
     const sendMedia = vi.fn();
     const reply = vi.fn().mockResolvedValue(undefined);

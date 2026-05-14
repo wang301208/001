@@ -4,7 +4,7 @@ import path from "node:path";
 import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
-} from "assistant/plugin-sdk/memory-host-markdown";
+} from "zhushou/plugin-sdk/memory-host-markdown";
 import { compileMemoryWikiVault } from "./compile.js";
 import type { ResolvedMemoryWikiConfig } from "./config.js";
 import { appendMemoryWikiLog } from "./log.js";
@@ -18,8 +18,8 @@ import { initializeMemoryWikiVault } from "./vault.js";
 
 const CHATGPT_PREFERENCE_SIGNAL_RE =
   /\b(prefer|prefers|preference|want|wants|need|needs|avoid|avoids|hate|hates|love|loves|default to|should default to|always use|don't want|does not want|likes|dislikes)\b/i;
-const HUMAN_START_MARKER = "<!-- assistant:human:start -->";
-const HUMAN_END_MARKER = "<!-- assistant:human:end -->";
+const HUMAN_START_MARKER = "<!-- zhushou:human:start -->";
+const HUMAN_END_MARKER = "<!-- zhushou:human:end -->";
 
 const CHATGPT_RISK_RULES: Array<{ label: string; pattern: RegExp }> = [
   {
@@ -69,7 +69,7 @@ type ChatGptConversationRecord = {
   labels: string[];
   risk: ChatGptRiskAssessment;
   userMessageCount: number;
-  assistantMessageCount: number;
+  zhushouMessageCount: number;
   preferenceSignals: string[];
   firstUserLine?: string;
   lastUserLine?: string;
@@ -86,7 +86,7 @@ export type ChatGptImportAction = {
   riskLevel: ChatGptRiskAssessment["level"];
   labels: string[];
   userMessageCount: number;
-  assistantMessageCount: number;
+  zhushouMessageCount: number;
   preferenceSignals: string[];
 };
 
@@ -477,7 +477,7 @@ function toConversationRecord(
       : "Untitled conversation";
   const transcript = activeBranchMessages(conversation);
   const userTexts = transcript.filter((entry) => entry.role === "user").map((entry) => entry.text);
-  const assistantTexts = transcript.filter((entry) => entry.role === "assistant");
+  const zhushouTexts = transcript.filter((entry) => entry.role === "assistant");
   const sampleText = userTexts.slice(0, 6).join("\n");
   const risk = inferRisk(title, sampleText);
   const labels = inferLabels(title, sampleText);
@@ -496,7 +496,7 @@ function toConversationRecord(
     labels,
     risk,
     userMessageCount: userTexts.length,
-    assistantMessageCount: assistantTexts.length,
+    zhushouMessageCount: zhushouTexts.length,
     preferenceSignals: risk.level === "low" ? collectPreferenceSignals(userTexts) : [],
     firstUserLine: userTexts[0]?.split(/\r?\n/)[0]?.trim(),
     lastUserLine: userTexts.at(-1)?.split(/\r?\n/)[0]?.trim(),
@@ -509,7 +509,7 @@ function renderConversationPage(record: ChatGptConversationRecord): string {
     record.risk.level === "low"
       ? [
           `- User messages: ${record.userMessageCount}`,
-          `- Assistant messages: ${record.assistantMessageCount}`,
+          `- Zhushou messages: ${record.zhushouMessageCount}`,
           ...(record.firstUserLine ? [`- First user line: ${record.firstUserLine}`] : []),
           ...(record.lastUserLine ? [`- Last user line: ${record.lastUserLine}`] : []),
           ...(record.preferenceSignals.length > 0
@@ -650,7 +650,7 @@ function buildRunId(exportPath: string, nowIso: string): string {
 }
 
 function resolveImportRunsDir(vaultRoot: string): string {
-  return path.join(vaultRoot, ".assistant-wiki", "import-runs");
+  return path.join(vaultRoot, ".zhushou-wiki", "import-runs");
 }
 
 function resolveImportRunPath(vaultRoot: string, runId: string): string {
@@ -669,7 +669,7 @@ function normalizeConversationActions(
     riskLevel: record.risk.level,
     labels: record.labels,
     userMessageCount: record.userMessageCount,
-    assistantMessageCount: record.assistantMessageCount,
+    zhushouMessageCount: record.zhushouMessageCount,
     preferenceSignals: record.preferenceSignals,
   }));
 }

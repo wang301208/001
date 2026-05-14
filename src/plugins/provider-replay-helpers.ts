@@ -25,12 +25,12 @@ export function buildOpenAICompatibleReplayPolicy(
     toolCallIdMode: "strict",
     ...(modelApi === "openai-completions"
       ? {
-          applyAssistantFirstOrderingFix: true,
+          applyZhushouFirstOrderingFix: true,
           validateGeminiTurns: true,
           validateAnthropicTurns: true,
         }
       : {
-          applyAssistantFirstOrderingFix: false,
+          applyZhushouFirstOrderingFix: false,
           validateGeminiTurns: false,
           validateAnthropicTurns: false,
         }),
@@ -132,7 +132,7 @@ export function buildHybridAnthropicOrOpenAIReplayPolicy(
 const GOOGLE_TURN_ORDERING_CUSTOM_TYPE = "google-turn-ordering-bootstrap";
 const GOOGLE_TURN_ORDER_BOOTSTRAP_TEXT = "(session bootstrap)";
 
-function sanitizeGoogleAssistantFirstOrdering(messages: AgentMessage[]): AgentMessage[] {
+function sanitizeGoogleZhushouFirstOrdering(messages: AgentMessage[]): AgentMessage[] {
   const first = messages[0] as { role?: unknown; content?: unknown } | undefined;
   const role = first?.role;
   const content = first?.content;
@@ -178,7 +178,7 @@ export function buildGoogleGeminiReplayPolicy(): ProviderReplayPolicy {
       includeCamelCase: true,
     },
     repairToolUseResultPairing: true,
-    applyAssistantFirstOrderingFix: true,
+    applyZhushouFirstOrderingFix: true,
     validateGeminiTurns: true,
     validateAnthropicTurns: false,
     allowSyntheticToolResults: true,
@@ -190,7 +190,7 @@ export function buildPassthroughGeminiSanitizingReplayPolicy(
 ): ProviderReplayPolicy {
   const normalizedModelId = normalizeLowercaseStringOrEmpty(modelId);
   return {
-    applyAssistantFirstOrderingFix: false,
+    applyZhushouFirstOrderingFix: false,
     validateGeminiTurns: false,
     validateAnthropicTurns: false,
     ...(normalizedModelId.includes("gemini")
@@ -207,7 +207,7 @@ export function buildPassthroughGeminiSanitizingReplayPolicy(
 export function sanitizeGoogleGeminiReplayHistory(
   ctx: ProviderSanitizeReplayHistoryContext,
 ): AgentMessage[] {
-  const messages = sanitizeGoogleAssistantFirstOrdering(ctx.messages);
+  const messages = sanitizeGoogleZhushouFirstOrdering(ctx.messages);
   if (
     messages !== ctx.messages &&
     ctx.sessionState &&

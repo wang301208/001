@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { buildAttemptReplayMetadata } from "../pi-embedded-runner/run/incomplete-turn.js";
 import type { EmbeddedRunAttemptResult } from "../pi-embedded-runner/run/types.js";
 
@@ -32,7 +32,7 @@ export async function cleanupEmbeddedPiRunnerTestWorkspace(
   await fs.rm(workspace.tempRoot, { recursive: true, force: true });
 }
 
-export function createEmbeddedPiRunnerOpenAiConfig(modelIds: string[]): AssistantConfig {
+export function createEmbeddedPiRunnerOpenAiConfig(modelIds: string[]): ZhushouConfig {
   return {
     models: {
       providers: {
@@ -78,7 +78,7 @@ export function createMockUsage(input: number, output: number) {
 
 const baseUsage = createMockUsage(0, 0);
 
-export function buildEmbeddedRunnerAssistant(
+export function buildEmbeddedRunnerZhushou(
   overrides: Partial<AssistantMessage>,
 ): AssistantMessage {
   return {
@@ -111,9 +111,9 @@ export function makeEmbeddedRunnerAttempt(
     sessionIdUsed: "session:test",
     systemPromptReport: undefined,
     messagesSnapshot: [],
-    assistantTexts: [],
+    zhushouTexts: [],
     toolMetas,
-    lastAssistant: undefined,
+    lastZhushou: undefined,
     replayMetadata:
       overrides.replayMetadata ??
       buildAttemptReplayMetadata({

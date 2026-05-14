@@ -39,7 +39,7 @@ function makeEntry(params: {
       description: `desc:${params.name}`,
       filePath,
       baseDir,
-      source: params.source ?? "assistant-workspace",
+      source: params.source ?? "zhushou-workspace",
     }),
     frontmatter: {},
     metadata: {
@@ -117,7 +117,7 @@ describe("buildWorkspaceSkillStatus", () => {
   it("marks bundled skills blocked by allowlist", async () => {
     const entry = makeEntry({
       name: "peekaboo",
-      source: "assistant-bundled",
+      source: "zhushou-bundled",
     });
 
     const report = buildWorkspaceSkillStatus("/tmp/ws", {
@@ -133,7 +133,7 @@ describe("buildWorkspaceSkillStatus", () => {
   });
 
   it("does not mark an overridden workspace skill as bundled by bundled name alone", async () => {
-    const bundledDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-bundled-"));
+    const bundledDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-bundled-"));
     tempDirs.push(bundledDir);
     await writeSkill({
       dir: path.join(bundledDir, "peekaboo"),
@@ -141,12 +141,12 @@ describe("buildWorkspaceSkillStatus", () => {
       description: "Bundled peekaboo",
     });
 
-    await withEnvAsync({ ASSISTANT_BUNDLED_SKILLS_DIR: bundledDir }, async () => {
+    await withEnvAsync({ ZHUSHOU_BUNDLED_SKILLS_DIR: bundledDir }, async () => {
       const report = buildWorkspaceSkillStatus("/tmp/ws", {
         entries: [
           makeEntry({
             name: "peekaboo",
-            source: "assistant-workspace",
+            source: "zhushou-workspace",
           }),
         ],
         config: { skills: { allowBundled: ["other-skill"] } },
@@ -154,7 +154,7 @@ describe("buildWorkspaceSkillStatus", () => {
       const skill = report.skills.find((reportEntry) => reportEntry.name === "peekaboo");
 
       expect(skill).toBeDefined();
-      expect(skill?.source).toBe("assistant-workspace");
+      expect(skill?.source).toBe("zhushou-workspace");
       expect(skill?.bundled).toBe(false);
       expect(skill?.blockedByAllowlist).toBe(false);
       expect(skill?.eligible).toBe(true);
@@ -162,7 +162,7 @@ describe("buildWorkspaceSkillStatus", () => {
   });
 
   it("discovers script-backed workspace skill directories without SKILL.md", async () => {
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-script-skill-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-script-skill-"));
     tempDirs.push(workspaceDir);
     const scriptDir = path.join(workspaceDir, "skills", "script-backed-skill", "scripts");
     await fs.mkdir(scriptDir, { recursive: true });
@@ -177,7 +177,7 @@ describe("buildWorkspaceSkillStatus", () => {
       expect.objectContaining({
         name: "script-backed-skill",
         description: "Workspace skill asset discovered from executable project files.",
-        source: "assistant-workspace",
+        source: "zhushou-workspace",
         baseDir: path.join(workspaceDir, "skills", "script-backed-skill"),
         filePath: path.join(scriptDir, "run.py"),
         eligible: true,

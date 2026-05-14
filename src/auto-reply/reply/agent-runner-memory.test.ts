@@ -66,7 +66,7 @@ describe("runMemoryFlushIfNeeded", () => {
   let rootDir = "";
 
   beforeEach(async () => {
-    rootDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-memory-unit-"));
+    rootDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-memory-unit-"));
     registerMemoryFlushPlanResolver(() => ({
       softThresholdTokens: 4_000,
       forceFlushTranscriptBytes: 1_000_000_000,
@@ -127,7 +127,7 @@ describe("runMemoryFlushIfNeeded", () => {
     const sessionEntry: SessionEntry = {
       sessionId: "session",
       updatedAt: Date.now(),
-      totalTokens: 80_000,
+      totalTokens: 120_000,
       compactionCount: 1,
     };
     const sessionStore = { [sessionKey]: sessionEntry };
@@ -200,7 +200,7 @@ describe("runMemoryFlushIfNeeded", () => {
     const sessionEntry: SessionEntry = {
       sessionId: "session",
       updatedAt: Date.now(),
-      totalTokens: 80_000,
+      totalTokens: 120_000,
       compactionCount: 1,
     };
 
@@ -226,7 +226,7 @@ describe("runMemoryFlushIfNeeded", () => {
     const sessionEntry: SessionEntry = {
       sessionId: "session",
       updatedAt: Date.now(),
-      totalTokens: 80_000,
+      totalTokens: 120_000,
       compactionCount: 1,
       systemPromptReport: {
         source: "run",

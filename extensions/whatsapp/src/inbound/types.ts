@@ -1,6 +1,6 @@
 import type { AnyMessageContent } from "@whiskeysockets/baileys";
-import type { NormalizedLocation } from "assistant/plugin-sdk/channel-inbound";
-import type { PollInput } from "assistant/plugin-sdk/media-runtime";
+import type { NormalizedLocation } from "zhushou/plugin-sdk/channel-inbound";
+import type { PollInput } from "zhushou/plugin-sdk/media-runtime";
 import type { WhatsAppIdentity, WhatsAppReplyContext, WhatsAppSelfIdentity } from "../identity.js";
 
 export type WebListenerCloseReason = {

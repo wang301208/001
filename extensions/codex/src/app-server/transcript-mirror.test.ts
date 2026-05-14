@@ -8,14 +8,14 @@ let tempDir: string;
 
 describe("mirrorCodexAppServerTranscript", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-codex-transcript-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-codex-transcript-"));
   });
 
   afterEach(async () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-  it("mirrors user and assistant messages into the PI transcript", async () => {
+  it("mirrors user and zhushou messages into the PI transcript", async () => {
     const sessionFile = path.join(tempDir, "session.jsonl");
 
     await mirrorCodexAppServerTranscript({
@@ -67,8 +67,8 @@ describe("mirrorCodexAppServerTranscript", () => {
     expect(records[0]?.type).toBe("session");
     expect(records.slice(1).map((record) => record.message?.role)).toEqual([
       "user",
-      "assistant",
-      "assistant",
+      "zhushou",
+      "zhushou",
     ]);
   });
 
@@ -113,7 +113,7 @@ describe("mirrorCodexAppServerTranscript", () => {
     expect(records.slice(1).map((record) => record.message?.role)).toEqual(["user", "assistant"]);
     expect(records.slice(1).map((record) => record.message?.idempotencyKey)).toEqual([
       "codex-app-server:thread-1:turn-1:user:0",
-      "codex-app-server:thread-1:turn-1:assistant:1",
+      "codex-app-server:thread-1:turn-1:zhushou:1",
     ]);
   });
 });

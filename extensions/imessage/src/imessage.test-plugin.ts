@@ -1,8 +1,8 @@
-import type { ChannelOutboundAdapter } from "assistant/plugin-sdk/channel-contract";
-import type { ChannelPlugin } from "assistant/plugin-sdk/core";
-import { resolveOutboundSendDep } from "assistant/plugin-sdk/outbound-runtime";
-import { collectStatusIssuesFromLastError } from "assistant/plugin-sdk/status-helpers";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import type { ChannelOutboundAdapter } from "zhushou/plugin-sdk/channel-contract";
+import type { ChannelPlugin } from "zhushou/plugin-sdk/core";
+import { resolveOutboundSendDep } from "zhushou/plugin-sdk/outbound-runtime";
+import { collectStatusIssuesFromLastError } from "zhushou/plugin-sdk/status-helpers";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 function normalizeIMessageTestHandle(raw: string): string {
   let trimmed = raw.trim();

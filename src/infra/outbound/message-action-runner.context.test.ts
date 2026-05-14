@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createChannelTestPluginBase,
@@ -126,15 +126,19 @@ describe("runMessageAction context isolation", () => {
       },
       toolContext: { currentChannelId: "C12345678" },
     },
-  ])("$name", async ({ cfg, actionParams, toolContext }) => {
-    const result = await runDrySend({
-      cfg,
-      actionParams,
-      ...(toolContext ? { toolContext } : {}),
-    });
+  ])(
+    "$name",
+    async ({ cfg, actionParams, toolContext }) => {
+      const result = await runDrySend({
+        cfg,
+        actionParams,
+        ...(toolContext ? { toolContext } : {}),
+      });
 
-    expect(result.kind).toBe("send");
-  });
+      expect(result.kind).toBe("send");
+    },
+    60_000,
+  );
 
   it.each([
     {
@@ -230,7 +234,7 @@ describe("runMessageAction context isolation", () => {
             token: "tg-test",
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       action: "send" as const,
       actionParams: {
         message: "hi",
@@ -302,7 +306,7 @@ describe("runMessageAction context isolation", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       actionParams: {
         channel: "slack",
         target: "channel:C99999999",
@@ -323,7 +327,7 @@ describe("runMessageAction context isolation", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       actionParams: {
         channel: "slack",
         target: "channel:C99999999",

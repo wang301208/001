@@ -1,5 +1,5 @@
-import { KeyedAsyncQueue } from "assistant/plugin-sdk/keyed-async-queue";
-import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
+import { KeyedAsyncQueue } from "zhushou/plugin-sdk/keyed-async-queue";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
 import { inspectMatrixDirectRoomEvidence } from "./direct-room.js";
 import type { MatrixClient } from "./sdk.js";
 import { EventType, type MatrixDirectAccountData } from "./send/types.js";

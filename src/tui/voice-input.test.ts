@@ -35,7 +35,7 @@ describe("captureVoiceInput", () => {
       throw new Error("expected voice input setup failure");
     }
     expect(result.message).toContain("未配置");
-    expect(result.setupHint).toContain("ASSISTANT_TUI_STT_COMMAND");
+    expect(result.setupHint).toContain("ZHUSHOU_TUI_STT_COMMAND");
   });
 
   it("returns stdout transcript from the configured command", async () => {

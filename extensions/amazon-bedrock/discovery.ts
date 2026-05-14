@@ -5,18 +5,18 @@ import {
   ListInferenceProfilesCommand,
   type ListInferenceProfilesCommandOutput,
 } from "@aws-sdk/client-bedrock";
-import { createSubsystemLogger } from "assistant/plugin-sdk/core";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { resolveAwsSdkEnvVarName } from "assistant/plugin-sdk/provider-auth-runtime";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/core";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { resolveAwsSdkEnvVarName } from "zhushou/plugin-sdk/provider-auth-runtime";
 import type {
   BedrockDiscoveryConfig,
   ModelDefinitionConfig,
   ModelProviderConfig,
-} from "assistant/plugin-sdk/provider-model-shared";
+} from "zhushou/plugin-sdk/provider-model-shared";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 const log = createSubsystemLogger("bedrock-discovery");
 

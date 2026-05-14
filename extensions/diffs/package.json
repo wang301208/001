@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/diffs",
+  "name": "@zhushou/diffs",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 diff viewer plugin",
@@ -14,9 +14,9 @@
     "playwright-core": "1.59.1"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "bundle": {
       "stageRuntimeDependencies": true
     },

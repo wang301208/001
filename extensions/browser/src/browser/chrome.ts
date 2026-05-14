@@ -2,7 +2,7 @@ import { type ChildProcess, type ChildProcessWithoutNullStreams, spawn } from "n
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
 import { ensurePortAvailable } from "../infra/ports.js";
 import { rawDataToString } from "../infra/ws.js";
@@ -32,14 +32,14 @@ import {
   resolveBrowserExecutableForPlatform,
 } from "./chrome.executables.js";
 import {
-  decorateAssistantProfile,
+  decorateZhushouProfile,
   ensureProfileCleanExit,
   isProfileDecorated,
 } from "./chrome.profile-decoration.js";
 import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
 import {
-  DEFAULT_ASSISTANT_BROWSER_COLOR,
-  DEFAULT_ASSISTANT_BROWSER_PROFILE_NAME,
+  DEFAULT_ZHUSHOU_BROWSER_COLOR,
+  DEFAULT_ZHUSHOU_BROWSER_PROFILE_NAME,
 } from "./constants.js";
 
 const log = createSubsystemLogger("browser").child("chrome");
@@ -52,7 +52,7 @@ export {
   resolveBrowserExecutableForPlatform,
 } from "./chrome.executables.js";
 export {
-  decorateAssistantProfile,
+  decorateZhushouProfile,
   ensureProfileCleanExit,
   isProfileDecorated,
 } from "./chrome.profile-decoration.js";
@@ -78,7 +78,7 @@ function resolveBrowserExecutable(resolved: ResolvedBrowserConfig): BrowserExecu
   return resolveBrowserExecutableForPlatform(resolved, process.platform);
 }
 
-export function resolveAssistantUserDataDir(profileName = DEFAULT_ASSISTANT_BROWSER_PROFILE_NAME) {
+export function resolveZhushouUserDataDir(profileName = DEFAULT_ZHUSHOU_BROWSER_PROFILE_NAME) {
   return path.join(CONFIG_DIR, "browser", profileName, "user-data");
 }
 
@@ -86,7 +86,7 @@ function cdpUrlForPort(cdpPort: number) {
   return `http://127.0.0.1:${cdpPort}`;
 }
 
-export function buildAssistantChromeLaunchArgs(params: {
+export function buildZhushouChromeLaunchArgs(params: {
   resolved: ResolvedBrowserConfig;
   profile: ResolvedBrowserProfile;
   userDataDir: string;
@@ -302,7 +302,7 @@ export async function isChromeCdpReady(
   return await canRunCdpHealthCommand(wsUrl, handshakeTimeoutMs);
 }
 
-export async function launchAssistantChrome(
+export async function launchZhushouChrome(
   resolved: ResolvedBrowserConfig,
   profile: ResolvedBrowserProfile,
 ): Promise<RunningChrome> {
@@ -318,18 +318,18 @@ export async function launchAssistantChrome(
     );
   }
 
-  const userDataDir = resolveAssistantUserDataDir(profile.name);
+  const userDataDir = resolveZhushouUserDataDir(profile.name);
   fs.mkdirSync(userDataDir, { recursive: true });
 
   const needsDecorate = !isProfileDecorated(
     userDataDir,
     profile.name,
-    (profile.color ?? DEFAULT_ASSISTANT_BROWSER_COLOR).toUpperCase(),
+    (profile.color ?? DEFAULT_ZHUSHOU_BROWSER_COLOR).toUpperCase(),
   );
 
   // First launch to create preference files if missing, then decorate and relaunch.
   const spawnOnce = () => {
-    const args = buildAssistantChromeLaunchArgs({
+    const args = buildZhushouChromeLaunchArgs({
       resolved,
       profile,
       userDataDir,
@@ -381,20 +381,20 @@ export async function launchAssistantChrome(
 
   if (needsDecorate) {
     try {
-      decorateAssistantProfile(userDataDir, {
+      decorateZhushouProfile(userDataDir, {
         name: profile.name,
         color: profile.color,
       });
-      log.info(`🦞 assistant browser profile decorated (${profile.color})`);
+      log.info(`🦞 zhushou browser profile decorated (${profile.color})`);
     } catch (err) {
-      log.warn(`assistant browser profile decoration failed: ${String(err)}`);
+      log.warn(`zhushou browser profile decoration failed: ${String(err)}`);
     }
   }
 
   try {
     ensureProfileCleanExit(userDataDir);
   } catch (err) {
-    log.warn(`assistant browser clean-exit prefs failed: ${String(err)}`);
+    log.warn(`zhushou browser clean-exit prefs failed: ${String(err)}`);
   }
 
   const proc = spawnOnce();
@@ -443,7 +443,7 @@ export async function launchAssistantChrome(
 
   const pid = proc.pid ?? -1;
   log.info(
-    `🦞 assistant browser started (${exe.kind}) profile "${profile.name}" on 127.0.0.1:${profile.cdpPort} (pid ${pid})`,
+    `🦞 zhushou browser started (${exe.kind}) profile "${profile.name}" on 127.0.0.1:${profile.cdpPort} (pid ${pid})`,
   );
 
   return {
@@ -456,7 +456,7 @@ export async function launchAssistantChrome(
   };
 }
 
-export async function stopAssistantChrome(
+export async function stopZhushouChrome(
   running: RunningChrome,
   timeoutMs = CHROME_STOP_TIMEOUT_MS,
 ) {

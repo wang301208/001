@@ -1,4 +1,4 @@
-import type { ExecApprovalReplyDecision } from "assistant/plugin-sdk/approval-runtime";
+import type { ExecApprovalReplyDecision } from "zhushou/plugin-sdk/approval-runtime";
 
 const MATRIX_APPROVAL_REACTION_META = {
   "allow-once": {

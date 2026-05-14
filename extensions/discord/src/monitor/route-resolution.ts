@@ -1,11 +1,11 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   deriveLastRoutePolicy,
   resolveAgentRoute,
   type ResolvedAgentRoute,
   type RoutePeer,
-} from "assistant/plugin-sdk/routing";
-import { resolveAgentIdFromSessionKey } from "assistant/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/routing";
+import { resolveAgentIdFromSessionKey } from "zhushou/plugin-sdk/routing";
 
 export function buildDiscordRoutePeer(params: {
   isDirectMessage: boolean;
@@ -22,7 +22,7 @@ export function buildDiscordRoutePeer(params: {
 }
 
 export function resolveDiscordConversationRoute(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   guildId?: string | null;
   memberRoleIds?: string[];
@@ -43,7 +43,7 @@ export function resolveDiscordConversationRoute(params: {
 }
 
 export function resolveDiscordBoundConversationRoute(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   guildId?: string | null;
   memberRoleIds?: string[];

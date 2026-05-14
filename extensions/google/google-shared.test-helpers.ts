@@ -65,7 +65,7 @@ export const makeGeminiCliModel = (id: string): Model<"google-gemini-cli"> =>
     maxTokens: 1,
   }) as Model<"google-gemini-cli">;
 
-export function makeGoogleAssistantMessage(model: string, content: unknown) {
+export function makeGoogleZhushouMessage(model: string, content: unknown) {
   return {
     role: "assistant",
     content,
@@ -78,7 +78,7 @@ export function makeGoogleAssistantMessage(model: string, content: unknown) {
   };
 }
 
-export function makeGeminiCliAssistantMessage(model: string, content: unknown) {
+export function makeGeminiCliZhushouMessage(model: string, content: unknown) {
   return {
     role: "assistant",
     content,

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { captureEnv } from "assistant/plugin-sdk/testing";
+import { captureEnv } from "zhushou/plugin-sdk/testing";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { hasAnyWhatsAppAuth, listWhatsAppAuthDirs } from "./accounts.js";
 
@@ -15,9 +15,9 @@ describe("hasAnyWhatsAppAuth", () => {
   };
 
   beforeEach(() => {
-    envSnapshot = captureEnv(["ASSISTANT_OAUTH_DIR"]);
-    tempOauthDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-oauth-"));
-    process.env.ASSISTANT_OAUTH_DIR = tempOauthDir;
+    envSnapshot = captureEnv(["ZHUSHOU_OAUTH_DIR"]);
+    tempOauthDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-oauth-"));
+    process.env.ZHUSHOU_OAUTH_DIR = tempOauthDir;
   });
 
   afterEach(() => {
@@ -43,7 +43,7 @@ describe("hasAnyWhatsAppAuth", () => {
   });
 
   it("includes authDir overrides", () => {
-    const customDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-wa-auth-"));
+    const customDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-wa-auth-"));
     try {
       writeCreds(customDir);
       const cfg = {

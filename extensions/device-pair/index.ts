@@ -4,7 +4,7 @@ import path from "node:path";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   clearDeviceBootstrapTokens,
   definePluginEntry,
@@ -15,10 +15,10 @@ import {
   revokeDeviceBootstrapToken,
   resolveGatewayBindUrl,
   resolveGatewayPort,
-  resolvePreferredAssistantTmpDir,
+  resolvePreferredZhushouTmpDir,
   runPluginCommandWithTimeout,
   resolveTailnetHostWithRunner,
-  type AssistantPluginApi,
+  type ZhushouPluginApi,
 } from "./api.js";
 import {
   armPairNotifyOnce,
@@ -42,7 +42,7 @@ async function renderQrDataUrl(data: string): Promise<string> {
 
 async function writeQrPngTempFile(data: string): Promise<string> {
   const pngBase64 = await renderQrPngBase64(data);
-  const tmpRoot = resolvePreferredAssistantTmpDir();
+  const tmpRoot = resolvePreferredZhushouTmpDir();
   const qrDir = await mkdtemp(path.join(tmpRoot, "device-pair-qr-"));
   const filePath = path.join(qrDir, "pair-qr.png");
   await writeFile(filePath, Buffer.from(pngBase64, "base64"));
@@ -173,7 +173,7 @@ function parseNormalizedGatewayUrl(raw: string): string | null {
 }
 
 function resolveScheme(
-  cfg: AssistantPluginApi["config"],
+  cfg: ZhushouPluginApi["config"],
   opts?: { forceSecure?: boolean },
 ): "ws" | "wss" {
   if (opts?.forceSecure) {
@@ -263,12 +263,12 @@ async function resolveTailnetHost(): Promise<string | null> {
   );
 }
 
-function resolveAuthLabel(cfg: AssistantPluginApi["config"]): ResolveAuthLabelResult {
+function resolveAuthLabel(cfg: ZhushouPluginApi["config"]): ResolveAuthLabelResult {
   const mode = cfg.gateway?.auth?.mode;
   const token =
-    pickFirstDefined([process.env.ASSISTANT_GATEWAY_TOKEN, cfg.gateway?.auth?.token]) ?? undefined;
+    pickFirstDefined([process.env.ZHUSHOU_GATEWAY_TOKEN, cfg.gateway?.auth?.token]) ?? undefined;
   const password =
-    pickFirstDefined([process.env.ASSISTANT_GATEWAY_PASSWORD, cfg.gateway?.auth?.password]) ??
+    pickFirstDefined([process.env.ZHUSHOU_GATEWAY_PASSWORD, cfg.gateway?.auth?.password]) ??
     undefined;
 
   if (mode === "token" || mode === "password") {
@@ -307,7 +307,7 @@ function resolveRequiredAuthLabel(
     : { error: "Gateway auth is set to password, but no password is configured." };
 }
 
-async function resolveGatewayUrl(api: AssistantPluginApi): Promise<ResolveUrlResult> {
+async function resolveGatewayUrl(api: ZhushouPluginApi): Promise<ResolveUrlResult> {
   const cfg = api.config;
   const pluginCfg = (api.pluginConfig ?? {}) as DevicePairPluginConfig;
   const scheme = resolveScheme(cfg);
@@ -521,7 +521,7 @@ async function issueSetupPayload(url: string): Promise<SetupPayload> {
 }
 
 async function sendQrPngToSupportedChannel(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   ctx: QrCommandContext;
   target: string;
   caption: string;
@@ -556,7 +556,7 @@ export default definePluginEntry({
   id: "device-pair",
   name: "Device Pair",
   description: "QR/bootstrap pairing helpers for 助手 devices",
-  register(api: AssistantPluginApi) {
+  register(api: ZhushouPluginApi) {
     registerPairingNotifierService(api);
 
     api.registerCommand({

@@ -1,4 +1,4 @@
-import type { PluginRuntime } from "assistant/plugin-sdk/runtime-store";
+import type { PluginRuntime } from "zhushou/plugin-sdk/runtime-store";
 
 type SessionRecord = {
   sessionKey: string;

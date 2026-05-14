@@ -1,8 +1,8 @@
 import { getCommandPathWithRootOptions } from "../cli/argv.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveNodeRequireFromMeta } from "./node-require.js";
 
-type LoggingConfig = AssistantConfig["logging"];
+type LoggingConfig = ZhushouConfig["logging"];
 
 const requireConfig = resolveNodeRequireFromMeta(import.meta.url);
 
@@ -18,7 +18,7 @@ export function readLoggingConfig(): LoggingConfig | undefined {
   try {
     const loaded = requireConfig?.("../config/config.js") as
       | {
-          loadConfig?: () => AssistantConfig;
+          loadConfig?: () => ZhushouConfig;
         }
       | undefined;
     const parsed = loaded?.loadConfig?.();

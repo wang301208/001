@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import { Static, Type } from "@sinclair/typebox";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
-import type { AnyAgentTool, AssistantPluginApi, AssistantPluginToolContext } from "../api.js";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import type { AnyAgentTool, ZhushouPluginApi, ZhushouPluginToolContext } from "../api.js";
 import { PlaywrightDiffScreenshotter, type DiffScreenshotter } from "./browser.js";
 import { resolveDiffImageRenderOptions } from "./config.js";
 import { renderDiffDocument } from "./render.js";
@@ -141,12 +141,12 @@ type DiffsToolRawParams = DiffsToolParams & {
 };
 
 export function createDiffsTool(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   store: DiffArtifactStore;
   defaults: DiffToolDefaults;
   viewerBaseUrl?: string;
   screenshotter?: DiffScreenshotter;
-  context?: AssistantPluginToolContext;
+  context?: ZhushouPluginToolContext;
 }): AnyAgentTool {
   return {
     name: "diffs",
@@ -421,7 +421,7 @@ async function renderDiffArtifactFile(params: {
 }
 
 function buildArtifactContext(
-  context: AssistantPluginToolContext | undefined,
+  context: ZhushouPluginToolContext | undefined,
 ): DiffArtifactContext | undefined {
   if (!context) {
     return undefined;

@@ -50,14 +50,14 @@ describe("discord tool result dispatch", () => {
     const cfg = createMentionRequiredGuildConfig({
       messages: {
         inbound: { debounceMs: 0 },
-        groupChat: { mentionPatterns: ["\\bassistant\\b"] },
+        groupChat: { mentionPatterns: ["\\bzhushou\\b"] },
       },
     } as Partial<Config>);
 
     const handler = await createHandler(cfg);
     const client = createGuildTextClient();
 
-    await handler(createGuildMessageEvent({ messageId: "m2", content: "assistant: hello" }), client);
+    await handler(createGuildMessageEvent({ messageId: "m2", content: "zhushou: hello" }), client);
 
     await vi.waitFor(() => expect(dispatchMock).toHaveBeenCalledTimes(1));
   });

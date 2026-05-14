@@ -81,7 +81,7 @@ export type SlackActionConfig = {
 export type SlackSlashCommandConfig = {
   /** Enable handling for the configured slash command (default: false). */
   enabled?: boolean;
-  /** Slash command name (default: "assistant"). */
+  /** Slash command name (default: "zhushou"). */
   name?: string;
   /** Session key prefix for slash commands (default: "slack:slash"). */
   sessionPrefix?: string;
@@ -200,7 +200,7 @@ export type SlackAccountConfig = {
    * Slack uses shortcodes (e.g., "eyes") rather than unicode emoji.
    */
   ackReaction?: string;
-  /** Reaction emoji added while processing a reply (e.g. "hourglass_flowing_sand"). Removed when done. Useful as a typing indicator fallback when assistant mode is not enabled. */
+  /** Reaction emoji added while processing a reply (e.g. "hourglass_flowing_sand"). Removed when done. Useful as a typing indicator fallback when zhushou mode is not enabled. */
   typingReaction?: string;
 };
 

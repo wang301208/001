@@ -4,7 +4,7 @@ import { resolveUserPath } from "../../utils.js";
 import {
   applyExtraParamsToAgentMock,
   contextEngineCompactMock,
-  createAssistantCodingToolsMock,
+  createZhushouCodingToolsMock,
   ensureRuntimePluginsLoaded,
   estimateTokensMock,
   getMemorySearchManagerMock,
@@ -283,7 +283,7 @@ describe("compactEmbeddedPiSessionDirect hooks", () => {
       senderE164: "+15551234567",
     });
 
-    expect(createAssistantCodingToolsMock).toHaveBeenCalledWith(
+    expect(createZhushouCodingToolsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         senderId: "sender-1",
         senderName: "Alice",
@@ -577,7 +577,7 @@ describe("compactEmbeddedPiSessionDirect hooks", () => {
     expect(compactTesting.containsRealConversationMessages(messages)).toBe(false);
   });
 
-  it("does not treat assistant-only tool-call blocks as meaningful conversation", () => {
+  it("does not treat zhushou-only tool-call blocks as meaningful conversation", () => {
     expect(
       compactTesting.hasMeaningfulConversationContent({
         role: "assistant",

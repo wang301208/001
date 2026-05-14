@@ -3,9 +3,9 @@ import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
 } from "../../config/model-input.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { bundledProviderSupportsNativePdfDocument } from "../../media-understanding/bundled-defaults.js";
-import { extractAssistantText } from "../pi-embedded-utils.js";
+import { extractZhushouText } from "../pi-embedded-utils.js";
 
 export type PdfModelConfig = { primary?: string; fallbacks?: string[] };
 
@@ -74,7 +74,7 @@ export function parsePageRange(range: string, maxPages: number): number[] {
   return Array.from(pages).toSorted((a, b) => a - b);
 }
 
-export function coercePdfAssistantText(params: {
+export function coercePdfZhushouText(params: {
   message: AssistantMessage;
   provider: string;
   model: string;
@@ -92,7 +92,7 @@ export function coercePdfAssistantText(params: {
   if (errorMessage) {
     fail(errorMessage);
   }
-  const text = extractAssistantText(params.message);
+  const text = extractZhushouText(params.message);
   const trimmed = text.trim();
   if (trimmed) {
     return trimmed;
@@ -100,7 +100,7 @@ export function coercePdfAssistantText(params: {
   throw new Error(`PDF model returned no text (${label}).`);
 }
 
-export function coercePdfModelConfig(cfg?: AssistantConfig): PdfModelConfig {
+export function coercePdfModelConfig(cfg?: ZhushouConfig): PdfModelConfig {
   const primary = resolveAgentModelPrimaryValue(cfg?.agents?.defaults?.pdfModel);
   const fallbacks = resolveAgentModelFallbackValues(cfg?.agents?.defaults?.pdfModel);
   const modelConfig: PdfModelConfig = {};

@@ -1,5 +1,5 @@
 import { vi, type Mock } from "vitest";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { GatewayRequestHandlerOptions } from "./types.js";
 
 type UnknownMock = Mock<(...args: unknown[]) => unknown>;
@@ -25,10 +25,10 @@ function createGatewayLog(): GatewayLogMocks {
   };
 }
 
-export function createConfigWriteSnapshot(config: AssistantConfig) {
+export function createConfigWriteSnapshot(config: ZhushouConfig) {
   return {
     snapshot: {
-      path: "/tmp/assistant.json",
+      path: "/tmp/zhushou.json",
       exists: true,
       raw: JSON.stringify(config, null, 2),
       parsed: config,

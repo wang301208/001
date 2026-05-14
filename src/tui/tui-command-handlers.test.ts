@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ASSISTANT_HELP_TEXT } from "./assistant-style.js";
+import { ZHUSHOU_HELP_TEXT } from "./zhushou-style.js";
 import { createCommandHandlers } from "./tui-command-handlers.js";
 
 function createHarness(params?: {
@@ -43,7 +43,7 @@ function createHarness(params?: {
       listBusinessTasks,
       sendChat,
     } as never,
-    chatLog: { addSystem, addUser, startAssistant: vi.fn() } as never,
+    chatLog: { addSystem, addUser, startZhushou: vi.fn() } as never,
     tui: { requestRender } as never,
     opts: {},
     state: {
@@ -74,6 +74,7 @@ function createHarness(params?: {
     forgetLocalBtwRunId: vi.fn(),
     toggleGovernancePanel,
     requestExit: vi.fn(),
+    onUserMessage: vi.fn(),
   });
 
   return {
@@ -111,7 +112,7 @@ describe("TUI structured action handlers", () => {
     await handlers.handleAction({ type: "tui.operation", operation: "governance" });
     await handlers.handleAction({ type: "tui.operation", operation: "tasks", args: "running" });
 
-    expect(addSystem).toHaveBeenCalledWith(ASSISTANT_HELP_TEXT);
+    expect(addSystem).toHaveBeenCalledWith(ZHUSHOU_HELP_TEXT);
     expect(openOverlay).toHaveBeenCalled();
     expect(toggleGovernancePanel).toHaveBeenCalled();
     expect(listBusinessTasks).toHaveBeenCalledWith({ status: "running" });

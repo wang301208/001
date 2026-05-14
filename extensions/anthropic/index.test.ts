@@ -1,8 +1,8 @@
 import type {
   ProviderResolveDynamicModelContext,
   ProviderRuntimeModel,
-} from "assistant/plugin-sdk/plugin-entry";
-import { capturePluginRegistration } from "assistant/plugin-sdk/testing";
+} from "zhushou/plugin-sdk/plugin-entry";
+import { capturePluginRegistration } from "zhushou/plugin-sdk/testing";
 import { describe, expect, it, vi } from "vitest";
 import { registerSingleProviderPlugin } from "../../test/helpers/plugins/plugin-registration.js";
 

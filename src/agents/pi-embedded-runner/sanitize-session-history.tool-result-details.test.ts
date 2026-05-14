@@ -2,7 +2,7 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ToolResultMessage, UserMessage } from "@mariozechner/pi-ai";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 import { describe, expect, it, vi } from "vitest";
-import { makeAgentAssistantMessage } from "../test-helpers/agent-message-fixtures.js";
+import { makeAgentZhushouMessage } from "../test-helpers/agent-message-fixtures.js";
 import { sanitizeSessionHistory } from "./replay-history.js";
 
 vi.mock("../../plugins/provider-runtime.js", () => ({
@@ -20,7 +20,7 @@ describe("sanitizeSessionHistory toolResult details stripping", () => {
     const sm = SessionManager.inMemory();
 
     const messages: AgentMessage[] = [
-      makeAgentAssistantMessage({
+      makeAgentZhushouMessage({
         content: [{ type: "toolCall", id: "call_1", name: "web_fetch", arguments: { url: "x" } }],
         model: "gpt-5.4",
         stopReason: "toolUse",

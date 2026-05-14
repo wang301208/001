@@ -1,10 +1,10 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { withActivatedPluginIds } from "../activation-context.js";
 import {
   resolveChannelPluginIds,
   resolveConfiguredChannelPluginIds,
 } from "../channel-plugin-ids.js";
-import { loadAssistantPlugins } from "../loader.js";
+import { loadZhushouPlugins } from "../loader.js";
 import {
   hasExplicitPluginIdScope,
   hasNonEmptyPluginIdScope,
@@ -75,8 +75,8 @@ function shouldForwardChannelScope(params: {
 
 export function ensurePluginRegistryLoaded(options?: {
   scope?: PluginRegistryScope;
-  config?: AssistantConfig;
-  activationSourceConfig?: AssistantConfig;
+  config?: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   onlyPluginIds?: string[];
 }): void {
@@ -131,7 +131,7 @@ export function ensurePluginRegistryLoaded(options?: {
           pluginIds: expectedChannelPluginIds,
         }) ?? context.activationSourceConfig)
       : context.activationSourceConfig;
-  loadAssistantPlugins(
+  loadZhushouPlugins(
     buildPluginRuntimeLoadOptionsFromValues(
       {
         ...context,

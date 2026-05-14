@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto";
 import type { Context, Message, StopReason } from "@mariozechner/pi-ai";
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import {
-  encodeAssistantTextSignature,
-  normalizeAssistantPhase,
-  parseAssistantTextSignature,
+  encodeZhushouTextSignature,
+  normalizeZhushouPhase,
+  parseZhushouTextSignature,
 } from "../shared/chat-message-content.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
@@ -15,14 +15,14 @@ import type {
   ContentPart,
   FunctionToolDefinition,
   InputItem,
-  OpenAIResponsesAssistantPhase,
+  OpenAIResponsesZhushouPhase,
   ResponseObject,
 } from "./openai-ws-connection.js";
-import { buildAssistantMessage, buildUsageWithNoCost } from "./stream-message-shared.js";
+import { buildZhushouMessage, buildUsageWithNoCost } from "./stream-message-shared.js";
 import { normalizeUsage } from "./usage.js";
 
 type AnyMessage = Message & { role: string; content: unknown };
-type AssistantMessageWithPhase = AssistantMessage & { phase?: OpenAIResponsesAssistantPhase };
+type ZhushouMessageWithPhase = AssistantMessage & { phase?: OpenAIResponsesZhushouPhase };
 export type ReplayModelInfo = { input?: ReadonlyArray<string> };
 type ReplayableReasoningItem = Extract<InputItem, { type: "reasoning" }>;
 type ReplayableReasoningSignature = {
@@ -326,10 +326,10 @@ export function convertMessagesToInputItems(
 
     if (m.role === "assistant") {
       const content = m.content;
-      const assistantMessagePhase = normalizeAssistantPhase(m.phase);
+      const zhushouMessagePhase = normalizeZhushouPhase(m.phase);
       if (Array.isArray(content)) {
         const textParts: string[] = [];
-        let currentTextPhase: OpenAIResponsesAssistantPhase | undefined;
+        let currentTextPhase: OpenAIResponsesZhushouPhase | undefined;
         const hasExplicitBlockPhase = content.some((block) => {
           if (!block || typeof block !== "object") {
             return false;
@@ -337,10 +337,10 @@ export function convertMessagesToInputItems(
           const record = block as { type?: unknown; textSignature?: unknown };
           return (
             record.type === "text" &&
-            Boolean(parseAssistantTextSignature(record.textSignature)?.phase)
+            Boolean(parseZhushouTextSignature(record.textSignature)?.phase)
           );
         });
-        const pushAssistantText = (phase?: OpenAIResponsesAssistantPhase) => {
+        const pushZhushouText = (phase?: OpenAIResponsesZhushouPhase) => {
           if (textParts.length === 0) {
             return;
           }
@@ -363,16 +363,16 @@ export function convertMessagesToInputItems(
           thinkingSignature?: unknown;
         }>) {
           if (block.type === "text" && typeof block.text === "string") {
-            const parsedSignature = parseAssistantTextSignature(block.textSignature);
+            const parsedSignature = parseZhushouTextSignature(block.textSignature);
             const blockPhase =
               parsedSignature?.phase ??
               (parsedSignature?.id
-                ? assistantMessagePhase
+                ? zhushouMessagePhase
                 : hasExplicitBlockPhase
                   ? undefined
-                  : assistantMessagePhase);
+                  : zhushouMessagePhase);
             if (textParts.length > 0 && blockPhase !== currentTextPhase) {
-              pushAssistantText(currentTextPhase);
+              pushZhushouText(currentTextPhase);
             }
             textParts.push(block.text);
             currentTextPhase = blockPhase;
@@ -380,7 +380,7 @@ export function convertMessagesToInputItems(
           }
 
           if (block.type === "thinking") {
-            pushAssistantText(currentTextPhase);
+            pushZhushouText(currentTextPhase);
             const reasoningItem = parseThinkingSignature(block.thinkingSignature);
             if (reasoningItem) {
               items.push(reasoningItem);
@@ -392,7 +392,7 @@ export function convertMessagesToInputItems(
             continue;
           }
 
-          pushAssistantText(currentTextPhase);
+          pushZhushouText(currentTextPhase);
           const replayId = decodeToolCallReplayId(block.id);
           const toolName = toNonEmptyString(block.name);
           if (!replayId || !toolName) {
@@ -410,7 +410,7 @@ export function convertMessagesToInputItems(
           });
         }
 
-        pushAssistantText(currentTextPhase);
+        pushZhushouText(currentTextPhase);
         continue;
       }
 
@@ -422,7 +422,7 @@ export function convertMessagesToInputItems(
         type: "message",
         role: "assistant",
         content: text,
-        ...(assistantMessagePhase ? { phase: assistantMessagePhase } : {}),
+        ...(zhushouMessagePhase ? { phase: zhushouMessagePhase } : {}),
       });
       continue;
     }
@@ -462,52 +462,52 @@ export function convertMessagesToInputItems(
   return items;
 }
 
-export function buildAssistantMessageFromResponse(
+export function buildZhushouMessageFromResponse(
   response: ResponseObject,
   modelInfo: { api: string; provider: string; id: string },
 ): AssistantMessage {
   const content: AssistantMessage["content"] = [];
-  const assistantMessageOutputs = (response.output ?? []).filter(
+  const zhushouMessageOutputs = (response.output ?? []).filter(
     (item): item is Extract<ResponseObject["output"][number], { type: "message" }> =>
       item.type === "message",
   );
-  const hasExplicitPhasedAssistantText = assistantMessageOutputs.some((item) => {
-    const itemPhase = normalizeAssistantPhase(item.phase);
+  const hasExplicitPhasedZhushouText = zhushouMessageOutputs.some((item) => {
+    const itemPhase = normalizeZhushouPhase(item.phase);
     return Boolean(
       itemPhase && item.content?.some((part) => part.type === "output_text" && Boolean(part.text)),
     );
   });
-  const hasFinalAnswerText = assistantMessageOutputs.some((item) => {
-    if (normalizeAssistantPhase(item.phase) !== "final_answer") {
+  const hasFinalAnswerText = zhushouMessageOutputs.some((item) => {
+    if (normalizeZhushouPhase(item.phase) !== "final_answer") {
       return false;
     }
     return item.content?.some((part) => part.type === "output_text" && Boolean(part.text)) ?? false;
   });
-  const includedAssistantPhases = new Set<OpenAIResponsesAssistantPhase>();
-  let hasIncludedUnphasedAssistantText = false;
+  const includedZhushouPhases = new Set<OpenAIResponsesZhushouPhase>();
+  let hasIncludedUnphasedZhushouText = false;
 
   for (const item of response.output ?? []) {
     if (item.type === "message") {
-      const itemPhase = normalizeAssistantPhase(item.phase);
+      const itemPhase = normalizeZhushouPhase(item.phase);
       for (const part of item.content ?? []) {
         if (part.type === "output_text" && part.text) {
           const shouldIncludeText = hasFinalAnswerText
             ? itemPhase === "final_answer"
-            : hasExplicitPhasedAssistantText
+            : hasExplicitPhasedZhushouText
               ? itemPhase === undefined
               : true;
           if (!shouldIncludeText) {
             continue;
           }
           if (itemPhase) {
-            includedAssistantPhases.add(itemPhase);
+            includedZhushouPhases.add(itemPhase);
           } else {
-            hasIncludedUnphasedAssistantText = true;
+            hasIncludedUnphasedZhushouText = true;
           }
           content.push({
             type: "text",
             text: part.text,
-            textSignature: encodeAssistantTextSignature({
+            textSignature: encodeZhushouTextSignature({
               id: item.id,
               ...(itemPhase ? { phase: itemPhase } : {}),
             }),
@@ -572,7 +572,7 @@ export function buildAssistantMessageFromResponse(
         (normalizedUsage?.cacheRead ?? 0) +
         (normalizedUsage?.cacheWrite ?? 0);
 
-  const message = buildAssistantMessage({
+  const message = buildZhushouMessage({
     model: modelInfo,
     content,
     stopReason,
@@ -585,12 +585,12 @@ export function buildAssistantMessageFromResponse(
     }),
   });
 
-  const finalAssistantPhase =
-    includedAssistantPhases.size === 1 && !hasIncludedUnphasedAssistantText
-      ? [...includedAssistantPhases][0]
+  const finalZhushouPhase =
+    includedZhushouPhases.size === 1 && !hasIncludedUnphasedZhushouText
+      ? [...includedZhushouPhases][0]
       : undefined;
 
-  return finalAssistantPhase
-    ? ({ ...message, phase: finalAssistantPhase } as AssistantMessageWithPhase)
+  return finalZhushouPhase
+    ? ({ ...message, phase: finalZhushouPhase } as ZhushouMessageWithPhase)
     : message;
 }

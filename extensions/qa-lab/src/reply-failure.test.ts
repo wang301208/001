@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { extractQaFailureReplyText, extractQaVisibleReplyLeakText } from "./reply-failure.js";
 
 describe("extractQaFailureReplyText", () => {
-  it("returns undefined for normal assistant replies", () => {
+  it("returns undefined for normal zhushou replies", () => {
     expect(
       extractQaFailureReplyText("Yes, precious. The build is green and a little cursed."),
     ).toBe(undefined);

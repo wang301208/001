@@ -1,5 +1,5 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
-import type { EmbeddedRunAttemptParams } from "assistant/plugin-sdk/agent-harness";
+import type { EmbeddedRunAttemptParams } from "zhushou/plugin-sdk/agent-harness";
 import { describe, expect, it, vi } from "vitest";
 import { CodexAppServerEventProjector } from "./event-projector.js";
 
@@ -25,12 +25,12 @@ function createParams(): EmbeddedRunAttemptParams {
 }
 
 describe("CodexAppServerEventProjector", () => {
-  it("projects assistant deltas and usage into embedded attempt results", async () => {
-    const onAssistantMessageStart = vi.fn();
+  it("projects zhushou deltas and usage into embedded attempt results", async () => {
+    const onZhushouMessageStart = vi.fn();
     const onPartialReply = vi.fn();
     const params = {
       ...createParams(),
-      onAssistantMessageStart,
+      onZhushouMessageStart,
       onPartialReply,
     };
     const projector = new CodexAppServerEventProjector(params, "thread-1", "turn-1");
@@ -78,21 +78,21 @@ describe("CodexAppServerEventProjector", () => {
       messagingToolSentTargets: [],
     });
 
-    expect(onAssistantMessageStart).toHaveBeenCalledTimes(1);
+    expect(onZhushouMessageStart).toHaveBeenCalledTimes(1);
     expect(onPartialReply).not.toHaveBeenCalled();
-    expect(result.assistantTexts).toEqual(["hello"]);
+    expect(result.zhushouTexts).toEqual(["hello"]);
     expect(result.messagesSnapshot.map((message) => message.role)).toEqual(["user", "assistant"]);
-    expect(result.lastAssistant?.content).toEqual([{ type: "text", text: "hello" }]);
+    expect(result.lastZhushou?.content).toEqual([{ type: "text", text: "hello" }]);
     expect(result.attemptUsage).toMatchObject({ input: 5, output: 7, cacheRead: 2, total: 12 });
     expect(result.replayMetadata.replaySafe).toBe(true);
   });
 
   it("keeps intermediate agentMessage items out of the final visible reply", async () => {
-    const onAssistantMessageStart = vi.fn();
+    const onZhushouMessageStart = vi.fn();
     const onPartialReply = vi.fn();
     const params = {
       ...createParams(),
-      onAssistantMessageStart,
+      onZhushouMessageStart,
       onPartialReply,
     };
     const projector = new CodexAppServerEventProjector(params, "thread-1", "turn-1");
@@ -146,12 +146,12 @@ describe("CodexAppServerEventProjector", () => {
       messagingToolSentTargets: [],
     });
 
-    expect(onAssistantMessageStart).toHaveBeenCalledTimes(1);
+    expect(onZhushouMessageStart).toHaveBeenCalledTimes(1);
     expect(onPartialReply).not.toHaveBeenCalled();
-    expect(result.assistantTexts).toEqual([
+    expect(result.zhushouTexts).toEqual([
       "release fixes first. please drop affected PRs, failing checks, and blockers here.",
     ]);
-    expect(result.lastAssistant?.content).toEqual([
+    expect(result.lastZhushou?.content).toEqual([
       {
         type: "text",
         text: "release fixes first. please drop affected PRs, failing checks, and blockers here.",
@@ -175,7 +175,7 @@ describe("CodexAppServerEventProjector", () => {
       messagingToolSentMediaUrls: [],
       messagingToolSentTargets: [],
     });
-    expect(result.assistantTexts).toEqual([]);
+    expect(result.zhushouTexts).toEqual([]);
   });
 
   it("preserves sessions_yield detection in attempt results", () => {
@@ -288,8 +288,8 @@ describe("CodexAppServerEventProjector", () => {
     expect(result.toolMetas).toEqual([{ toolName: "sessions_send", meta: "completed" }]);
     expect(result.messagesSnapshot.map((message) => message.role)).toEqual([
       "user",
-      "assistant",
-      "assistant",
+      "zhushou",
+      "zhushou",
     ]);
     expect(JSON.stringify(result.messagesSnapshot[1])).toContain("Codex reasoning");
     expect(JSON.stringify(result.messagesSnapshot[2])).toContain("Codex plan");

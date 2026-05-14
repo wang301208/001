@@ -1,18 +1,18 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   readConfigFileSnapshotForWrite,
   writeConfigFile,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import {
   loadCronStore,
   resolveCronStorePath,
   saveCronStore,
-} from "assistant/plugin-sdk/config-runtime";
-import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/config-runtime";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   normalizeTelegramChatId,
   normalizeTelegramLookupTarget,
@@ -103,7 +103,7 @@ function rewriteTargetIfMatch(params: {
 }
 
 function replaceTelegramDefaultToTargets(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   matchKey: string;
   resolvedTarget: string;
 }): boolean {
@@ -142,7 +142,7 @@ function replaceTelegramDefaultToTargets(params: {
 }
 
 export async function maybePersistResolvedTelegramTarget(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   rawTarget: string;
   resolvedChatId: string;
   verbose?: boolean;

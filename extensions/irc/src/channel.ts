@@ -1,23 +1,23 @@
-import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
-import { formatNormalizedAllowFromEntries } from "assistant/plugin-sdk/allow-from";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { formatNormalizedAllowFromEntries } from "zhushou/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
   createScopedDmSecurityResolver,
-} from "assistant/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
 import {
   composeAccountWarningCollectors,
   createAllowlistProviderOpenWarningCollector,
-} from "assistant/plugin-sdk/channel-policy";
+} from "zhushou/plugin-sdk/channel-policy";
 import {
   createChannelDirectoryAdapter,
   createResolvedDirectoryEntriesLister,
-} from "assistant/plugin-sdk/directory-runtime";
+} from "zhushou/plugin-sdk/directory-runtime";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "assistant/plugin-sdk/status-helpers";
+} from "zhushou/plugin-sdk/status-helpers";
 import {
   listIrcAccountIds,
   resolveDefaultIrcAccountId,

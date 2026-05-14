@@ -3,12 +3,12 @@ import {
   readNumberParam,
   readStringArrayParam,
   readStringParam,
-} from "assistant/plugin-sdk/agent-runtime";
-import { readBooleanParam } from "assistant/plugin-sdk/boolean-param";
-import { resolveReactionMessageId } from "assistant/plugin-sdk/channel-actions";
-import type { ChannelMessageActionContext } from "assistant/plugin-sdk/channel-contract";
-import { normalizeInteractiveReply } from "assistant/plugin-sdk/interactive-runtime";
-import { normalizeOptionalStringifiedId } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/agent-runtime";
+import { readBooleanParam } from "zhushou/plugin-sdk/boolean-param";
+import { resolveReactionMessageId } from "zhushou/plugin-sdk/channel-actions";
+import type { ChannelMessageActionContext } from "zhushou/plugin-sdk/channel-contract";
+import { normalizeInteractiveReply } from "zhushou/plugin-sdk/interactive-runtime";
+import { normalizeOptionalStringifiedId } from "zhushou/plugin-sdk/text-runtime";
 import { handleDiscordAction } from "../../action-runtime-api.js";
 import { buildDiscordInteractiveComponents } from "../shared-interactive.js";
 import { resolveDiscordChannelId } from "../targets.js";

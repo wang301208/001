@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { runQaManualLane } from "./manual-lane.runtime.js";
 import { isQaFastModeModelRef, type QaProviderMode } from "./model-selection.js";
 import {
@@ -47,7 +47,7 @@ export type QaCharacterEvalRun = {
     transcriptChars: number;
     transcriptLines: number;
     userTurns: number;
-    assistantTurns: number;
+    zhushouTurns: number;
   };
   error?: string;
 };
@@ -220,7 +220,7 @@ function collectTranscriptStats(transcript: string) {
     transcriptChars: transcript.length,
     transcriptLines: transcript.length === 0 ? 0 : transcript.split(/\r?\n/).length,
     userTurns: transcript.match(/^USER\b/gm)?.length ?? 0,
-    assistantTurns: transcript.match(/^ASSISTANT\b/gm)?.length ?? 0,
+    zhushouTurns: transcript.match(/^ZHUSHOU\b/gm)?.length ?? 0,
   };
 }
 
@@ -280,7 +280,7 @@ function summarizeRunStats(run: QaCharacterEvalRun) {
   return [
     `status=${run.status}`,
     `duration=${formatDuration(run.durationMs)}`,
-    `turns=${run.stats.userTurns}/${run.stats.assistantTurns}`,
+    `turns=${run.stats.userTurns}/${run.stats.zhushouTurns}`,
     `chars=${run.stats.transcriptChars}`,
     ...(run.error ? [`error="${run.error}"`] : []),
   ].join(" ");
@@ -307,7 +307,7 @@ Duration ms (not used for ranking): ${run.durationMs}
 Fast mode: ${run.fastMode ? "on" : "off"}
 Thinking: ${run.thinkingDefault}
 Transcript chars: ${run.stats.transcriptChars}
-Assistant turns: ${run.stats.assistantTurns}
+Zhushou turns: ${run.stats.zhushouTurns}
 Error: ${run.error ?? "none"}
 
 \`\`\`text
@@ -470,12 +470,12 @@ function renderCharacterEvalReport(params: {
 
   lines.push("## Run Stats", "");
   lines.push(
-    "| Model | Thinking | Fast mode | Status | Duration | User turns | Assistant turns | Transcript chars |",
+    "| Model | Thinking | Fast mode | Status | Duration | User turns | Zhushou turns | Transcript chars |",
   );
   lines.push("| --- | --- | --- | --- | ---: | ---: | ---: | ---: |");
   for (const run of params.runs) {
     lines.push(
-      `| ${run.model} | ${run.thinkingDefault} | ${run.fastMode ? "on" : "off"} | ${run.status} | ${formatDuration(run.durationMs)} | ${run.stats.userTurns} | ${run.stats.assistantTurns} | ${run.stats.transcriptChars} |`,
+      `| ${run.model} | ${run.thinkingDefault} | ${run.fastMode ? "on" : "off"} | ${run.status} | ${formatDuration(run.durationMs)} | ${run.stats.userTurns} | ${run.stats.zhushouTurns} | ${run.stats.transcriptChars} |`,
     );
   }
 

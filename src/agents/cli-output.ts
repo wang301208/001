@@ -243,7 +243,7 @@ function collectExplicitCliErrorText(parsed: Record<string, unknown>): string {
     return unwrapCliErrorText(parsed.result);
   }
 
-  if (parsed.type === "assistant") {
+  if (parsed.type === "zhushou") {
     const text = collectCliText(parsed.message);
     if (/^\s*API Error:/i.test(text)) {
       return unwrapCliErrorText(text);
@@ -379,10 +379,10 @@ function parseClaudeCliStreamingDelta(params: {
 export function createCliJsonlStreamingParser(params: {
   backend: CliBackendConfig;
   providerId: string;
-  onAssistantDelta: (delta: CliStreamingDelta) => void;
+  onZhushouDelta: (delta: CliStreamingDelta) => void;
 }) {
   let lineBuffer = "";
-  let assistantText = "";
+  let zhushouText = "";
   let sessionId: string | undefined;
   let usage: CliUsage | undefined;
 
@@ -399,15 +399,15 @@ export function createCliJsonlStreamingParser(params: {
       backend: params.backend,
       providerId: params.providerId,
       parsed,
-      textSoFar: assistantText,
+      textSoFar: zhushouText,
       sessionId,
       usage,
     });
     if (!delta) {
       return;
     }
-    assistantText = delta.text;
-    params.onAssistantDelta(delta);
+    zhushouText = delta.text;
+    params.onZhushouDelta(delta);
   };
 
   const flushLines = (flushPartial: boolean) => {

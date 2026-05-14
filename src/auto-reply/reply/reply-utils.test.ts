@@ -16,13 +16,13 @@ import { createTypingSignaler, resolveTypingMode } from "./typing-mode.js";
 import { createTypingController } from "./typing.js";
 
 describe("matchesMentionWithExplicit", () => {
-  const mentionRegexes = [/\bassistant\b/i];
+  const mentionRegexes = [/\bzhushou\b/i];
 
   it("combines explicit-mention state with regex fallback rules", () => {
     const cases = [
       {
         name: "regex match with explicit resolver available",
-        text: "@assistant hello",
+        text: "@zhushou hello",
         mentionRegexes,
         explicit: {
           hasAnyMention: true,
@@ -55,7 +55,7 @@ describe("matchesMentionWithExplicit", () => {
       },
       {
         name: "falls back to regex when explicit cannot resolve",
-        text: "assistant please",
+        text: "zhushou please",
         mentionRegexes,
         explicit: {
           hasAnyMention: true,

@@ -19,9 +19,9 @@ COPY --chown=appuser:appuser patches ./patches
 # This image only exercises the root qrcode-terminal dependency path.
 # Keep the pre-install copy set limited to the manifests needed for root
 # workspace resolution so unrelated extension edits do not bust the layer.
-RUN --mount=type=cache,id=assistant-pnpm-store,target=/home/appuser/.local/share/pnpm/store,sharing=locked \
-    if ! pnpm install --frozen-lockfile --ignore-scripts >/tmp/assistant-qr-pnpm-install.log 2>&1; then \
-      cat /tmp/assistant-qr-pnpm-install.log; \
+RUN --mount=type=cache,id=zhushou-pnpm-store,target=/home/appuser/.local/share/pnpm/store,sharing=locked \
+    if ! pnpm install --frozen-lockfile --ignore-scripts >/tmp/zhushou-qr-pnpm-install.log 2>&1; then \
+      cat /tmp/zhushou-qr-pnpm-install.log; \
       exit 1; \
     fi
 

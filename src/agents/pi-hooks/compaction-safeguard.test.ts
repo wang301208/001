@@ -5,7 +5,7 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { Api, Model } from "@mariozechner/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import {
   clearCompactionProviders,
   registerCompactionProvider,
@@ -375,7 +375,7 @@ describe("compaction-safeguard summary budgets", () => {
       "\n\n## Tool Failures\n- exec: failed\n\n<read-files>\nfoo.ts\n</read-files>\n\n" +
       "<workspace-critical-rules>\n## Session Startup\nRead AGENTS.md\n</workspace-critical-rules>";
     const preservedTurns =
-      "## Recent turns preserved verbatim\n- User: x\n- Assistant: y\n" +
+      "## Recent turns preserved verbatim\n- User: x\n- Zhushou: y\n" +
       "x".repeat(MAX_COMPACTION_SUMMARY_CHARS);
     const oversizedSuffix = preservedTurns + criticalTail;
 
@@ -593,7 +593,7 @@ describe("compaction-safeguard runtime registry", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     buildEmbeddedExtensionFactories({
       cfg,
@@ -614,7 +614,7 @@ describe("compaction-safeguard runtime registry", () => {
 });
 
 describe("compaction-safeguard recent-turn preservation", () => {
-  it("preserves the most recent user/assistant messages", () => {
+  it("preserves the most recent user/zhushou messages", () => {
     const messages: AgentMessage[] = [
       { role: "user", content: "older ask", timestamp: 1 },
       {
@@ -642,7 +642,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
     );
   });
 
-  it("drops orphaned tool results from preserved assistant turns", () => {
+  it("drops orphaned tool results from preserved zhushou turns", () => {
     const messages: AgentMessage[] = [
       { role: "user", content: "older ask", timestamp: 1 },
       {
@@ -684,9 +684,9 @@ describe("compaction-safeguard recent-turn preservation", () => {
 
     expect(split.preservedMessages.map((msg) => msg.role)).toEqual([
       "user",
-      "assistant",
+      "zhushou",
       "toolResult",
-      "assistant",
+      "zhushou",
     ]);
     expect(
       split.preservedMessages.some(
@@ -752,7 +752,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
     ]);
 
     expect(section).toContain("- User: [non-text content: image]");
-    expect(section).toContain("- Assistant: [non-text content: toolCall]");
+    expect(section).toContain("- Zhushou: [non-text content: toolCall]");
   });
 
   it("keeps non-text placeholders for mixed-content preserved messages", () => {
@@ -780,7 +780,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
       } as unknown as AgentMessage,
     ]);
 
-    expect(section).toContain("- Assistant: plain text reply");
+    expect(section).toContain("- Zhushou: plain text reply");
     expect(section).not.toContain("[non-text content]");
   });
 
@@ -789,42 +789,42 @@ describe("compaction-safeguard recent-turn preservation", () => {
       { role: "user", content: "single user prompt", timestamp: 1 },
       {
         role: "assistant",
-        content: [{ type: "text", text: "assistant-1" }],
+        content: [{ type: "text", text: "zhushou-1" }],
         timestamp: 2,
       } as unknown as AgentMessage,
       {
         role: "assistant",
-        content: [{ type: "text", text: "assistant-2" }],
+        content: [{ type: "text", text: "zhushou-2" }],
         timestamp: 3,
       } as unknown as AgentMessage,
       {
         role: "assistant",
-        content: [{ type: "text", text: "assistant-3" }],
+        content: [{ type: "text", text: "zhushou-3" }],
         timestamp: 4,
       } as unknown as AgentMessage,
       {
         role: "assistant",
-        content: [{ type: "text", text: "assistant-4" }],
+        content: [{ type: "text", text: "zhushou-4" }],
         timestamp: 5,
       } as unknown as AgentMessage,
       {
         role: "assistant",
-        content: [{ type: "text", text: "assistant-5" }],
+        content: [{ type: "text", text: "zhushou-5" }],
         timestamp: 6,
       } as unknown as AgentMessage,
       {
         role: "assistant",
-        content: [{ type: "text", text: "assistant-6" }],
+        content: [{ type: "text", text: "zhushou-6" }],
         timestamp: 7,
       } as unknown as AgentMessage,
       {
         role: "assistant",
-        content: [{ type: "text", text: "assistant-7" }],
+        content: [{ type: "text", text: "zhushou-7" }],
         timestamp: 8,
       } as unknown as AgentMessage,
       {
         role: "assistant",
-        content: [{ type: "text", text: "assistant-8" }],
+        content: [{ type: "text", text: "zhushou-8" }],
         timestamp: 9,
       } as unknown as AgentMessage,
     ];
@@ -842,8 +842,8 @@ describe("compaction-safeguard recent-turn preservation", () => {
           msg.role === "user" && (msg as { content?: unknown }).content === "single user prompt",
       ),
     ).toBe(true);
-    expect(formatPreservedTurnsSection(split.preservedMessages)).toContain("assistant-8");
-    expect(formatPreservedTurnsSection(split.preservedMessages)).not.toContain("assistant-2");
+    expect(formatPreservedTurnsSection(split.preservedMessages)).toContain("zhushou-8");
+    expect(formatPreservedTurnsSection(split.preservedMessages)).not.toContain("zhushou-2");
   });
 
   it("trim-starts preserved section when history summary is empty", () => {
@@ -1662,7 +1662,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
           { role: "user", content: "latest ask status", timestamp: 3 },
           {
             role: "assistant",
-            content: "latest assistant reply",
+            content: "latest zhushou reply",
             timestamp: 4,
           } as unknown as AgentMessage,
         ],
@@ -1725,7 +1725,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
           { role: "user", content: "latest ask status", timestamp: 3 },
           {
             role: "assistant",
-            content: [{ type: "text", text: "latest assistant reply" }],
+            content: [{ type: "text", text: "latest zhushou reply" }],
             timestamp: 4,
           } as unknown as AgentMessage,
         ],
@@ -1760,7 +1760,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
     expect(summary).toContain(splitTurnPrefixSummary);
     expect(summary).toContain("## Recent turns preserved verbatim");
     expect(summary).toContain("latest ask status");
-    expect(summary).toContain("latest assistant reply");
+    expect(summary).toContain("latest zhushou reply");
     expect(mockSummarizeInStages).toHaveBeenCalledTimes(3);
   });
 
@@ -1786,7 +1786,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
           { role: "user", content: "latest user ask", timestamp: 1 },
           {
             role: "assistant",
-            content: [{ type: "text", text: "latest assistant reply" }],
+            content: [{ type: "text", text: "latest zhushou reply" }],
             timestamp: 2,
           } as unknown as AgentMessage,
         ],
@@ -1919,7 +1919,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
           { role: "user", content: "latest ask status", timestamp: 3 },
           {
             role: "assistant",
-            content: [{ type: "text", text: "latest assistant reply" }],
+            content: [{ type: "text", text: "latest zhushou reply" }],
             timestamp: 4,
           } as AgentMessage,
         ],
@@ -1965,7 +1965,7 @@ describe("compaction-safeguard recent-turn preservation", () => {
     expect(compaction.summary).toContain("prefix request that was split out");
     expect(compaction.summary).toContain("## Recent turns preserved verbatim");
     expect(compaction.summary).toContain("latest ask status");
-    expect(compaction.summary).toContain("latest assistant reply");
+    expect(compaction.summary).toContain("latest zhushou reply");
   });
 });
 
@@ -2113,7 +2113,7 @@ describe("compaction-safeguard double-compaction guard", () => {
     expect(compaction.firstKeptEntryId).toBe("entry-2");
   });
 
-  it("writes boundary again on repeated empty preparation (no cancel loop after new assistant message)", async () => {
+  it("writes boundary again on repeated empty preparation (no cancel loop after new zhushou message)", async () => {
     const sessionManager = stubSessionManager();
     const model = createAnthropicModelFixture();
     setCompactionSafeguardRuntime(sessionManager, { model });
@@ -2139,7 +2139,7 @@ describe("compaction-safeguard double-compaction guard", () => {
     const compaction1 = expectCompactionResult(result1);
     expect(compaction1.summary).toContain("## Decisions");
 
-    // Simulate: after the boundary, a new assistant message arrives, SDK
+    // Simulate: after the boundary, a new zhushou message arrives, SDK
     // triggers compaction again with another empty preparation. The safeguard
     // must write another boundary (not cancel) to avoid re-entering the
     // cancel loop described in the maintainer review.
@@ -2244,7 +2244,7 @@ describe("compaction-safeguard double-compaction guard", () => {
     ).toBe(true);
   });
 
-  it("does not treat assistant-only tool calls as meaningful conversation", () => {
+  it("does not treat zhushou-only tool calls as meaningful conversation", () => {
     expect(
       __testing.hasMeaningfulConversationContent({
         role: "assistant",
@@ -2253,7 +2253,7 @@ describe("compaction-safeguard double-compaction guard", () => {
     ).toBe(false);
   });
 
-  it("does not treat reasoning-only assistant blocks as meaningful conversation", () => {
+  it("does not treat reasoning-only zhushou blocks as meaningful conversation", () => {
     expect(
       __testing.hasMeaningfulConversationContent({
         role: "assistant",
@@ -2284,7 +2284,7 @@ describe("compaction-safeguard double-compaction guard", () => {
 async function expectWorkspaceSummaryEmptyForAgentsAlias(
   createAlias: (outsidePath: string, agentsPath: string) => void,
 ) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-compaction-summary-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-compaction-summary-"));
   const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(root);
   try {
     const outside = path.join(root, "outside-secret.txt");

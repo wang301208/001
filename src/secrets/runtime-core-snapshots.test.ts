@@ -41,14 +41,14 @@ type SecretsRuntimeEnvSnapshot = ReturnType<typeof captureEnv>;
 
 function beginSecretsRuntimeIsolationForTest(): SecretsRuntimeEnvSnapshot {
   const envSnapshot = captureEnv([
-    "ASSISTANT_BUNDLED_PLUGINS_DIR",
-    "ASSISTANT_DISABLE_BUNDLED_PLUGINS",
-    "ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE",
-    "ASSISTANT_VERSION",
+    "ZHUSHOU_BUNDLED_PLUGINS_DIR",
+    "ZHUSHOU_DISABLE_BUNDLED_PLUGINS",
+    "ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE",
+    "ZHUSHOU_VERSION",
   ]);
-  delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
-  process.env.ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE = "1";
-  delete process.env.ASSISTANT_VERSION;
+  delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
+  process.env.ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE = "1";
+  delete process.env.ZHUSHOU_VERSION;
   return envSnapshot;
 }
 
@@ -78,9 +78,9 @@ describe("secrets runtime snapshot core lanes", () => {
   async function prepareOpenAiRuntimeSnapshot(params?: { includeAuthStoreRefs?: boolean }) {
     return withEnvAsync(
       {
-        ASSISTANT_BUNDLED_PLUGINS_DIR: undefined,
-        ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
-        ASSISTANT_VERSION: undefined,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR: undefined,
+        ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
+        ZHUSHOU_VERSION: undefined,
       },
       async () =>
         prepareSecretsRuntimeSnapshot({
@@ -96,7 +96,7 @@ describe("secrets runtime snapshot core lanes", () => {
             },
           }),
           env: { OPENAI_API_KEY: "sk-runtime" },
-          agentDirs: ["/tmp/assistant-agent-main"],
+          agentDirs: ["/tmp/zhushou-agent-main"],
           includeAuthStoreRefs: params?.includeAuthStoreRefs,
           loadablePluginOrigins: new Map(),
           loadAuthStore: () =>
@@ -207,7 +207,7 @@ describe("secrets runtime snapshot core lanes", () => {
         OPENAI_API_KEY: "sk-env-openai",
         GITHUB_TOKEN: "ghp-env-token",
       },
-      agentDirs: ["/tmp/assistant-agent-main"],
+      agentDirs: ["/tmp/zhushou-agent-main"],
       loadablePluginOrigins: new Map(),
       loadAuthStore: () =>
         loadAuthStoreWithProfiles({
@@ -228,8 +228,8 @@ describe("secrets runtime snapshot core lanes", () => {
 
     expect(snapshot.warnings.map((warning) => warning.path)).toEqual(
       expect.arrayContaining([
-        `${resolveUserPath("/tmp/assistant-agent-main")}.auth-profiles.openai:default.key`,
-        `${resolveUserPath("/tmp/assistant-agent-main")}.auth-profiles.github-copilot:default.token`,
+        `${resolveUserPath("/tmp/zhushou-agent-main")}.auth-profiles.openai:default.key`,
+        `${resolveUserPath("/tmp/zhushou-agent-main")}.auth-profiles.github-copilot:default.token`,
       ]),
     );
     expect(snapshot.authStores[0]?.store.profiles["openai:default"]).toMatchObject({
@@ -248,7 +248,7 @@ describe("secrets runtime snapshot core lanes", () => {
       env: {
         OPENAI_API_KEY: "sk-env-openai",
       },
-      agentDirs: ["/tmp/assistant-agent-main"],
+      agentDirs: ["/tmp/zhushou-agent-main"],
       loadablePluginOrigins: new Map(),
       loadAuthStore: () =>
         loadAuthStoreWithProfiles({
@@ -286,7 +286,7 @@ describe("secrets runtime snapshot core lanes", () => {
     activateSecretsRuntimeSnapshot(prepared);
 
     expect(
-      ensureAuthProfileStore("/tmp/assistant-agent-main").profiles["openai:default"],
+      ensureAuthProfileStore("/tmp/zhushou-agent-main").profiles["openai:default"],
     ).toMatchObject({
       type: "api_key",
       key: "sk-runtime",

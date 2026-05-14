@@ -1,4 +1,4 @@
-import { isAbortRequestText, isBtwRequestText } from "assistant/plugin-sdk/reply-runtime";
+import { isAbortRequestText, isBtwRequestText } from "zhushou/plugin-sdk/reply-runtime";
 import { parseFeishuMessageEvent, type FeishuMessageEvent } from "./bot.js";
 
 export function getFeishuSequentialKey(params: {

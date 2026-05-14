@@ -1,7 +1,7 @@
 ﻿import "./lifecycle.test-support.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { getFeishuLifecycleTestMocks } from "./lifecycle.test-support.js";
 import {
   createFeishuLifecycleFixture,
@@ -28,7 +28,7 @@ const {
 
 let _handlers: Record<string, (data: unknown) => Promise<void>> = {};
 let lastRuntime: ReturnType<typeof createRuntimeEnv> | null = null;
-const originalStateDir = process.env.ASSISTANT_STATE_DIR;
+const originalStateDir = process.env.ZHUSHOU_STATE_DIR;
 const { cfg: lifecycleConfig, account: lifecycleAccount } = createFeishuLifecycleFixture({
   accountId: "acct-acp",
   appId: "cli_test",
@@ -51,7 +51,7 @@ const { cfg: lifecycleConfig, account: lifecycleAccount } = createFeishuLifecycl
     session: { mainKey: "main", scope: "per-sender" },
   },
 }) as {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   account: ResolvedFeishuAccount;
 };
 
@@ -76,7 +76,7 @@ describe("Feishu ACP-init failure lifecycle", () => {
     vi.clearAllMocks();
     _handlers = {};
     lastRuntime = null;
-    setFeishuLifecycleStateDir("assistant-feishu-acp-failure");
+    setFeishuLifecycleStateDir("zhushou-feishu-acp-failure");
 
     resolveBoundConversationMock.mockReturnValue(null);
     resolveAgentRouteMock.mockReturnValue({

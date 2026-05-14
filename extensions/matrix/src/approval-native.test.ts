@@ -1,10 +1,10 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import { matrixApprovalCapability } from "./approval-native.js";
 
 function buildConfig(
-  overrides?: Partial<NonNullable<NonNullable<AssistantConfig["channels"]>["matrix"]>>,
-): AssistantConfig {
+  overrides?: Partial<NonNullable<NonNullable<ZhushouConfig["channels"]>["matrix"]>>,
+): ZhushouConfig {
   return {
     channels: {
       matrix: {
@@ -19,7 +19,7 @@ function buildConfig(
         ...overrides,
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 describe("matrix approval capability", () => {

@@ -1,9 +1,9 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/routing";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/routing";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
   normalizeOptionalStringifiedId,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 const DISCORD_DIRECTORY_CACHE_MAX_ENTRIES = 4000;
 const DISCORD_DISCRIMINATOR_SUFFIX = /#\d{4}$/;

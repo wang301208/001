@@ -1,25 +1,25 @@
 import { ChannelType, MessageType, type Message, type User } from "@buape/carbon";
 import { Routes, type APIMessage } from "discord-api-types/v10";
-import { formatAllowlistMatchMeta } from "assistant/plugin-sdk/allow-from";
+import { formatAllowlistMatchMeta } from "zhushou/plugin-sdk/allow-from";
 import {
   buildMentionRegexes,
   implicitMentionKindWhen,
   logInboundDrop,
   matchesMentionWithExplicit,
   resolveInboundMentionDecision,
-} from "assistant/plugin-sdk/channel-inbound";
-import { resolveControlCommandGate } from "assistant/plugin-sdk/command-auth-native";
-import { hasControlCommand } from "assistant/plugin-sdk/command-detection";
-import { shouldHandleTextCommands } from "assistant/plugin-sdk/command-surface";
-import { isDangerousNameMatchingEnabled, loadConfig } from "assistant/plugin-sdk/config-runtime";
-import type { SessionBindingRecord } from "assistant/plugin-sdk/conversation-binding-runtime";
-import { enqueueSystemEvent, recordChannelActivity } from "assistant/plugin-sdk/infra-runtime";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { resolveControlCommandGate } from "zhushou/plugin-sdk/command-auth-native";
+import { hasControlCommand } from "zhushou/plugin-sdk/command-detection";
+import { shouldHandleTextCommands } from "zhushou/plugin-sdk/command-surface";
+import { isDangerousNameMatchingEnabled, loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { SessionBindingRecord } from "zhushou/plugin-sdk/conversation-binding-runtime";
+import { enqueueSystemEvent, recordChannelActivity } from "zhushou/plugin-sdk/infra-runtime";
 import {
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "assistant/plugin-sdk/reply-history";
-import { getChildLogger, logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
-import { logDebug, normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/reply-history";
+import { getChildLogger, logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { logDebug, normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { resolveDefaultDiscordAccountId } from "../accounts.js";
 import { resolveDiscordConversationIdentity } from "../conversation-identity.js";
 import {
@@ -64,7 +64,7 @@ export type {
 const DISCORD_BOUND_THREAD_SYSTEM_PREFIXES = ["⚙️", "🤖", "🧰"];
 
 let conversationRuntimePromise:
-  | Promise<typeof import("assistant/plugin-sdk/conversation-binding-runtime")>
+  | Promise<typeof import("zhushou/plugin-sdk/conversation-binding-runtime")>
   | undefined;
 let pluralkitRuntimePromise: Promise<typeof import("../pluralkit.js")> | undefined;
 let discordSendRuntimePromise: Promise<typeof import("../send.js")> | undefined;
@@ -73,7 +73,7 @@ let systemEventsRuntimePromise: Promise<typeof import("./system-events.js")> | u
 let discordThreadingRuntimePromise: Promise<typeof import("./threading.js")> | undefined;
 
 async function loadConversationRuntime() {
-  conversationRuntimePromise ??= import("assistant/plugin-sdk/conversation-binding-runtime");
+  conversationRuntimePromise ??= import("zhushou/plugin-sdk/conversation-binding-runtime");
   return await conversationRuntimePromise;
 }
 

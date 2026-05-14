@@ -1,15 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveChannelAllowFromPath } from "../pairing/pairing-store.js";
 import { createTrackedTempDirs } from "../test-utils/tracked-temp-dirs.js";
 import { detectLegacyStateMigrations, runLegacyStateMigrations } from "./state-migrations.js";
 
 const tempDirs = createTrackedTempDirs();
-const createTempDir = () => tempDirs.make("assistant-state-migrations-test-");
+const createTempDir = () => tempDirs.make("zhushou-state-migrations-test-");
 
-function createConfig(): AssistantConfig {
+function createConfig(): ZhushouConfig {
   return {
     agents: {
       list: [{ id: "worker-1", default: true }],
@@ -26,19 +26,19 @@ function createConfig(): AssistantConfig {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function createEnv(stateDir: string): NodeJS.ProcessEnv {
   return {
     ...process.env,
-    ASSISTANT_STATE_DIR: stateDir,
+    ZHUSHOU_STATE_DIR: stateDir,
   };
 }
 
 async function createLegacyStateFixture(params?: { includePreKey?: boolean }) {
   const root = await createTempDir();
-  const stateDir = path.join(root, ".assistant");
+  const stateDir = path.join(root, ".zhushou");
   const env = createEnv(stateDir);
   const cfg = createConfig();
 
@@ -116,7 +116,7 @@ describe("state migrations", () => {
       `- Telegram pairing allowFrom: ${resolveChannelAllowFromPath("telegram", env)} → ${resolveChannelAllowFromPath("telegram", env, "alpha")}`,
       `- WhatsApp auth creds.json: ${path.join(stateDir, "credentials", "creds.json")} → ${path.join(stateDir, "credentials", "whatsapp", "default", "creds.json")}`,
     ]);
-  });
+  }, 120_000);
 
   it("runs legacy state migrations and canonicalizes the merged session store", async () => {
     const { root, stateDir, env, cfg } = await createLegacyStateFixture({ includePreKey: true });

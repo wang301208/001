@@ -1,4 +1,4 @@
-import { buildAgentSessionKey } from "assistant/plugin-sdk/routing";
+import { buildAgentSessionKey } from "zhushou/plugin-sdk/routing";
 
 const CHANNEL_ID = "synology-chat";
 

@@ -3,18 +3,18 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { serializePayload, type MessagePayloadObject, type RequestClient } from "@buape/carbon";
 import { ChannelType, Routes } from "discord-api-types/v10";
-import { loadConfig, type AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
-import { recordChannelActivity } from "assistant/plugin-sdk/infra-runtime";
-import { maxBytesForKind } from "assistant/plugin-sdk/media-runtime";
-import { extensionForMime } from "assistant/plugin-sdk/media-runtime";
-import { unlinkIfExists } from "assistant/plugin-sdk/media-runtime";
-import type { PollInput } from "assistant/plugin-sdk/media-runtime";
-import { resolveChunkMode } from "assistant/plugin-sdk/reply-chunking";
-import type { RetryConfig } from "assistant/plugin-sdk/retry-runtime";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
-import { convertMarkdownTables, normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
-import { loadWebMediaRaw } from "assistant/plugin-sdk/web-media";
+import { loadConfig, type ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import { recordChannelActivity } from "zhushou/plugin-sdk/infra-runtime";
+import { maxBytesForKind } from "zhushou/plugin-sdk/media-runtime";
+import { extensionForMime } from "zhushou/plugin-sdk/media-runtime";
+import { unlinkIfExists } from "zhushou/plugin-sdk/media-runtime";
+import type { PollInput } from "zhushou/plugin-sdk/media-runtime";
+import { resolveChunkMode } from "zhushou/plugin-sdk/reply-chunking";
+import type { RetryConfig } from "zhushou/plugin-sdk/retry-runtime";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
+import { convertMarkdownTables, normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import { loadWebMediaRaw } from "zhushou/plugin-sdk/web-media";
 import { resolveDiscordAccount } from "./accounts.js";
 import { resolveDiscordClientAccountContext } from "./client.js";
 import { rewriteDiscordKnownMentions } from "./mentions.js";
@@ -45,7 +45,7 @@ import {
 } from "./voice-message.js";
 
 type DiscordSendOpts = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   token?: string;
   accountId?: string;
   mediaUrl?: string;
@@ -327,7 +327,7 @@ export async function sendMessageDiscord(
 }
 
 type DiscordWebhookSendOpts = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   webhookId: string;
   webhookToken: string;
   accountId?: string;
@@ -496,7 +496,7 @@ async function resolveDiscordStructuredSendContext(
 }
 
 type VoiceMessageOpts = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   token?: string;
   accountId?: string;
   verbose?: boolean;
@@ -513,7 +513,7 @@ async function materializeVoiceMessageInput(mediaUrl: string): Promise<{ filePat
   const extFromName = media.fileName ? path.extname(media.fileName) : "";
   const extFromMime = media.contentType ? extensionForMime(media.contentType) : "";
   const ext = extFromName || extFromMime || ".bin";
-  const tempDir = resolvePreferredAssistantTmpDir();
+  const tempDir = resolvePreferredZhushouTmpDir();
   const filePath = path.join(tempDir, `voice-src-${crypto.randomUUID()}${ext}`);
   await fs.writeFile(filePath, media.buffer, { mode: 0o600 });
   return { filePath };

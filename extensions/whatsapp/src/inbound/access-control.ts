@@ -1,15 +1,15 @@
-import { createChannelPairingChallengeIssuer } from "assistant/plugin-sdk/channel-pairing";
-import { loadConfig } from "assistant/plugin-sdk/config-runtime";
+import { createChannelPairingChallengeIssuer } from "zhushou/plugin-sdk/channel-pairing";
+import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "assistant/plugin-sdk/config-runtime";
-import { upsertChannelPairingRequest } from "assistant/plugin-sdk/conversation-runtime";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/config-runtime";
+import { upsertChannelPairingRequest } from "zhushou/plugin-sdk/conversation-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import {
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
-} from "assistant/plugin-sdk/security-runtime";
+} from "zhushou/plugin-sdk/security-runtime";
 import { resolveWhatsAppAccount } from "../accounts.js";
 import { resolveWhatsAppRuntimeGroupPolicy } from "../runtime-group-policy.js";
 import { isSelfChatMode, normalizeE164 } from "../text-runtime.js";

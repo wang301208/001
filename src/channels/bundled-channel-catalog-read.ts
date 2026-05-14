@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
-import { resolveAssistantPackageRootSync } from "../infra/assistant-root.js";
+import { resolveZhushouPackageRootSync } from "../infra/zhushou-root.js";
 import { resolveBundledPluginsDir } from "../plugins/bundled-dir.js";
 import type { PluginPackageChannel } from "../plugins/manifest.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 
 type ChannelCatalogEntryLike = {
-  assistant?: {
+  zhushou?: {
     channel?: PluginPackageChannel;
   };
 };
@@ -22,8 +22,8 @@ const OFFICIAL_CHANNEL_CATALOG_RELATIVE_PATH = path.join("dist", "channel-catalo
 
 function listPackageRoots(): string[] {
   return [
-    resolveAssistantPackageRootSync({ cwd: process.cwd() }),
-    resolveAssistantPackageRootSync({ moduleUrl: import.meta.url }),
+    resolveZhushouPackageRootSync({ cwd: process.cwd() }),
+    resolveZhushouPackageRootSync({ moduleUrl: import.meta.url }),
   ].filter((entry, index, all): entry is string => Boolean(entry) && all.indexOf(entry) === index);
 }
 
@@ -34,7 +34,7 @@ function listBundledExtensionPackageJsonPaths(env: NodeJS.ProcessEnv = process.e
   // dist-runtime/extensions when paired with dist, etc.). See
   // src/plugins/bundled-dir.ts for the full candidate-order policy and
   // src/plugins/bundled-dir.test.ts for the precedence coverage. Reusing the
-  // resolver also picks up ASSISTANT_BUNDLED_PLUGINS_DIR overrides and the
+  // resolver also picks up ZHUSHOU_BUNDLED_PLUGINS_DIR overrides and the
   // bun --compile sibling layout for free.
   const extensionsRoot = resolveBundledPluginsDir(env);
   if (!extensionsRoot) {
@@ -85,7 +85,7 @@ function readOfficialCatalogFileSync(): ChannelCatalogEntryLike[] {
 }
 
 function toBundledChannelEntry(entry: ChannelCatalogEntryLike): BundledChannelCatalogEntry | null {
-  const channel = entry.assistant?.channel;
+  const channel = entry.zhushou?.channel;
   const id = normalizeOptionalLowercaseString(channel?.id);
   if (!id || !channel) {
     return null;

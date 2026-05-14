@@ -6,9 +6,9 @@ import {
   promptSingleChannelSecretInput,
   runSingleChannelSecretStep,
   type ChannelSetupWizard,
-  type AssistantConfig,
+  type ZhushouConfig,
   type SecretInput,
-} from "assistant/plugin-sdk/setup";
+} from "zhushou/plugin-sdk/setup";
 import { resolveZaloAccount } from "./accounts.js";
 import { noteZaloTokenHelp, promptZaloAllowFrom } from "./setup-allow-from.js";
 import { zaloDmPolicy } from "./setup-core.js";
@@ -18,13 +18,13 @@ const channel = "zalo" as const;
 type UpdateMode = "polling" | "webhook";
 
 function setZaloUpdateMode(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   mode: UpdateMode,
   webhookUrl?: string,
   webhookSecret?: SecretInput,
   webhookPath?: string,
-): AssistantConfig {
+): ZhushouConfig {
   const isDefault = accountId === DEFAULT_ACCOUNT_ID;
   if (mode === "polling") {
     if (isDefault) {
@@ -40,7 +40,7 @@ function setZaloUpdateMode(
           ...cfg.channels,
           zalo: rest,
         },
-      } as AssistantConfig;
+      } as ZhushouConfig;
     }
     const accounts = { ...cfg.channels?.zalo?.accounts } as Record<string, Record<string, unknown>>;
     const existing = accounts[accountId] ?? {};
@@ -55,7 +55,7 @@ function setZaloUpdateMode(
           accounts,
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
   }
 
   if (isDefault) {
@@ -70,7 +70,7 @@ function setZaloUpdateMode(
           webhookPath,
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
   }
 
   const accounts = { ...cfg.channels?.zalo?.accounts } as Record<string, Record<string, unknown>>;
@@ -89,7 +89,7 @@ function setZaloUpdateMode(
         accounts,
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 export { zaloSetupAdapter } from "./setup-core.js";
@@ -157,7 +157,7 @@ export const zaloSetupWizard: ChannelSetupWizard = {
                   enabled: true,
                 },
               },
-            } as AssistantConfig)
+            } as ZhushouConfig)
           : currentCfg,
       applySet: async (currentCfg, value) =>
         accountId === DEFAULT_ACCOUNT_ID
@@ -171,7 +171,7 @@ export const zaloSetupWizard: ChannelSetupWizard = {
                   botToken: value,
                 },
               },
-            } as AssistantConfig)
+            } as ZhushouConfig)
           : ({
               ...currentCfg,
               channels: {
@@ -191,7 +191,7 @@ export const zaloSetupWizard: ChannelSetupWizard = {
                   },
                 },
               },
-            } as AssistantConfig),
+            } as ZhushouConfig),
     });
     next = tokenStep.cfg;
 

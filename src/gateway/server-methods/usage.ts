@@ -5,7 +5,7 @@ import {
   resolveSessionFilePathOptions,
 } from "../../config/sessions/paths.js";
 import type { SessionEntry } from "../../config/sessions/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { loadProviderUsageSummary } from "../../infra/provider-usage.js";
 import type {
   CostUsageSummary,
@@ -67,7 +67,7 @@ function resolveSessionUsageFileOrRespond(
   key: string,
   respond: RespondFn,
 ): {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   entry: SessionEntry | undefined;
   agentId: string | undefined;
   sessionId: string;
@@ -280,7 +280,7 @@ function buildStoreBySessionId(
 }
 
 async function discoverAllSessionsForUsage(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   startMs: number;
   endMs: number;
 }): Promise<DiscoveredSessionWithAgent[]> {
@@ -301,7 +301,7 @@ async function discoverAllSessionsForUsage(params: {
 async function loadCostUsageSummaryCached(params: {
   startMs: number;
   endMs: number;
-  config: AssistantConfig;
+  config: ZhushouConfig;
 }): Promise<CostUsageSummary> {
   const cacheKey = `${params.startMs}-${params.endMs}`;
   const now = Date.now();
@@ -543,7 +543,7 @@ export const usageHandlers: GatewayRequestHandlers = {
     const aggregateMessages: SessionMessageCounts = {
       total: 0,
       user: 0,
-      assistant: 0,
+      zhushou: 0,
       toolCalls: 0,
       toolResults: 0,
       errors: 0,
@@ -640,7 +640,7 @@ export const usageHandlers: GatewayRequestHandlers = {
         if (usage.messageCounts) {
           aggregateMessages.total += usage.messageCounts.total;
           aggregateMessages.user += usage.messageCounts.user;
-          aggregateMessages.assistant += usage.messageCounts.assistant;
+          aggregateMessages.zhushou += usage.messageCounts.zhushou;
           aggregateMessages.toolCalls += usage.messageCounts.toolCalls;
           aggregateMessages.toolResults += usage.messageCounts.toolResults;
           aggregateMessages.errors += usage.messageCounts.errors;

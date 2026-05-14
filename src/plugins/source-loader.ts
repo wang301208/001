@@ -4,7 +4,7 @@ import { getCachedPluginJitiLoader } from "./jiti-loader-cache.js";
 export type PluginSourceLoader = (modulePath: string) => unknown;
 
 function shouldProfilePluginSourceLoader(): boolean {
-  return process.env.ASSISTANT_PLUGIN_LOAD_PROFILE === "1";
+  return process.env.ZHUSHOU_PLUGIN_LOAD_PROFILE === "1";
 }
 
 export function createPluginSourceLoader(): PluginSourceLoader {

@@ -1,15 +1,15 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/provider-auth";
-import { normalizeOptionalSecretInput } from "assistant/plugin-sdk/provider-auth";
-import { resolveEnvApiKey } from "assistant/plugin-sdk/provider-auth-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/provider-auth";
+import { normalizeOptionalSecretInput } from "zhushou/plugin-sdk/provider-auth";
+import { resolveEnvApiKey } from "zhushou/plugin-sdk/provider-auth-runtime";
 import {
   hasConfiguredSecretInput,
   normalizeResolvedSecretInputString,
-} from "assistant/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/secret-input";
 import {
   fetchWithSsrFGuard,
   formatErrorMessage,
   type SsrFPolicy,
-} from "assistant/plugin-sdk/ssrf-runtime";
+} from "zhushou/plugin-sdk/ssrf-runtime";
 import { resolveOllamaApiBase } from "./provider-models.js";
 
 export type OllamaEmbeddingProvider = {
@@ -21,7 +21,7 @@ export type OllamaEmbeddingProvider = {
 };
 
 type OllamaEmbeddingOptions = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   agentDir?: string;
   provider?: string;
   remote?: {

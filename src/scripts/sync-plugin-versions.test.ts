@@ -16,23 +16,23 @@ describe("syncPluginVersions", () => {
     cleanupTempDirs(tempDirs);
   });
 
-  it("preserves workspace assistant devDependencies and plugin host floors", () => {
-    const rootDir = makeTempDir(tempDirs, "assistant-sync-plugin-versions-");
+  it("preserves workspace zhushou devDependencies and plugin host floors", () => {
+    const rootDir = makeTempDir(tempDirs, "zhushou-sync-plugin-versions-");
 
     writeJson(path.join(rootDir, "package.json"), {
-      name: "assistant",
+      name: "zhushou",
       version: "2026.4.1",
     });
     writeJson(path.join(rootDir, "extensions/bluebubbles/package.json"), {
-      name: "@assistant/bluebubbles",
+      name: "@zhushou/bluebubbles",
       version: "2026.3.30",
       devDependencies: {
-        assistant: "workspace:*",
+        zhushou: "workspace:*",
       },
       peerDependencies: {
-        assistant: ">=2026.3.30",
+        zhushou: ">=2026.3.30",
       },
-      assistant: {
+      zhushou: {
         install: {
           minHostVersion: ">=2026.3.30",
         },
@@ -40,7 +40,7 @@ describe("syncPluginVersions", () => {
           pluginApi: ">=2026.3.30",
         },
         build: {
-          assistantVersion: "2026.3.30",
+          zhushouVersion: "2026.3.30",
         },
       },
     });
@@ -52,7 +52,7 @@ describe("syncPluginVersions", () => {
       version?: string;
       devDependencies?: Record<string, string>;
       peerDependencies?: Record<string, string>;
-      assistant?: {
+      zhushou?: {
         install?: {
           minHostVersion?: string;
         };
@@ -60,17 +60,17 @@ describe("syncPluginVersions", () => {
           pluginApi?: string;
         };
         build?: {
-          assistantVersion?: string;
+          zhushouVersion?: string;
         };
       };
     };
 
-    expect(summary.updated).toContain("@assistant/bluebubbles");
+    expect(summary.updated).toContain("@zhushou/bluebubbles");
     expect(updatedPackage.version).toBe("2026.4.1");
-    expect(updatedPackage.devDependencies?.assistant).toBe("workspace:*");
-    expect(updatedPackage.peerDependencies?.assistant).toBe(">=2026.4.1");
-    expect(updatedPackage.assistant?.install?.minHostVersion).toBe(">=2026.3.30");
-    expect(updatedPackage.assistant?.compat?.pluginApi).toBe(">=2026.4.1");
-    expect(updatedPackage.assistant?.build?.assistantVersion).toBe("2026.4.1");
+    expect(updatedPackage.devDependencies?.zhushou).toBe("workspace:*");
+    expect(updatedPackage.peerDependencies?.zhushou).toBe(">=2026.4.1");
+    expect(updatedPackage.zhushou?.install?.minHostVersion).toBe(">=2026.3.30");
+    expect(updatedPackage.zhushou?.compat?.pluginApi).toBe(">=2026.4.1");
+    expect(updatedPackage.zhushou?.build?.zhushouVersion).toBe("2026.4.1");
   });
 });

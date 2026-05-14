@@ -3,7 +3,7 @@ import path from "node:path";
 import { expect, vi } from "vitest";
 import { ensureAuthProfileStore, type AuthProfileStore } from "../agents/auth-profiles.js";
 import { clearConfigCache, clearRuntimeConfigSnapshot, loadConfig } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { clearPluginDiscoveryCache } from "../plugins/discovery.js";
 import { clearPluginLoaderCache } from "../plugins/loader.js";
 import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.js";
@@ -31,8 +31,8 @@ export type SecretsRuntimeEnvSnapshot = ReturnType<typeof captureEnv>;
 
 const allowInsecureTempSecretFile = process.platform === "win32";
 
-export function asConfig(value: unknown): AssistantConfig {
-  return value as AssistantConfig;
+export function asConfig(value: unknown): ZhushouConfig {
+  return value as ZhushouConfig;
 }
 
 export function loadAuthStoreWithProfiles(
@@ -45,7 +45,7 @@ export function loadAuthStoreWithProfiles(
 }
 
 export async function createOpenAIFileRuntimeFixture(home: string) {
-  const configDir = path.join(home, ".assistant");
+  const configDir = path.join(home, ".zhushou");
   const secretFile = path.join(configDir, "secrets.json");
   const agentDir = path.join(configDir, "agents", "main", "agent");
   const authStorePath = path.join(agentDir, "auth-profiles.json");
@@ -83,7 +83,7 @@ export async function createOpenAIFileRuntimeFixture(home: string) {
   };
 }
 
-export function createOpenAIFileRuntimeConfig(secretFile: string): AssistantConfig {
+export function createOpenAIFileRuntimeConfig(secretFile: string): ZhushouConfig {
   return asConfig({
     secrets: {
       providers: {
@@ -117,14 +117,14 @@ export function expectResolvedOpenAIRuntime(agentDir: string) {
 
 export function beginSecretsRuntimeIsolationForTest(): SecretsRuntimeEnvSnapshot {
   const envSnapshot = captureEnv([
-    "ASSISTANT_BUNDLED_PLUGINS_DIR",
-    "ASSISTANT_DISABLE_BUNDLED_PLUGINS",
-    "ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE",
-    "ASSISTANT_VERSION",
+    "ZHUSHOU_BUNDLED_PLUGINS_DIR",
+    "ZHUSHOU_DISABLE_BUNDLED_PLUGINS",
+    "ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE",
+    "ZHUSHOU_VERSION",
   ]);
-  delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
-  process.env.ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE = "1";
-  delete process.env.ASSISTANT_VERSION;
+  delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
+  process.env.ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE = "1";
+  delete process.env.ZHUSHOU_VERSION;
   return envSnapshot;
 }
 

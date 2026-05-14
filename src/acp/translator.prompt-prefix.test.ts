@@ -35,7 +35,7 @@ describe("acp prompt cwd prefix", () => {
     sessionStore.createSession({
       sessionId: TEST_SESSION_ID,
       sessionKey: TEST_SESSION_KEY,
-      cwd: options.cwd ?? path.join(os.homedir(), "assistant-test"),
+      cwd: options.cwd ?? path.join(os.homedir(), "zhushou-test"),
     });
 
     const requestSpy = createStopAfterSendSpy();
@@ -55,18 +55,18 @@ describe("acp prompt cwd prefix", () => {
 
   async function runPromptWithCwd(cwd: string) {
     const pinnedHome = os.homedir();
-    const previousAssistantHome = process.env.ASSISTANT_HOME;
+    const previousZhushouHome = process.env.ZHUSHOU_HOME;
     const previousHome = process.env.HOME;
-    delete process.env.ASSISTANT_HOME;
+    delete process.env.ZHUSHOU_HOME;
     process.env.HOME = pinnedHome;
 
     try {
       return await runPromptAndCaptureRequest({ cwd, prefixCwd: true });
     } finally {
-      if (previousAssistantHome === undefined) {
-        delete process.env.ASSISTANT_HOME;
+      if (previousZhushouHome === undefined) {
+        delete process.env.ZHUSHOU_HOME;
       } else {
-        process.env.ASSISTANT_HOME = previousAssistantHome;
+        process.env.ZHUSHOU_HOME = previousZhushouHome;
       }
       if (previousHome === undefined) {
         delete process.env.HOME;
@@ -77,22 +77,22 @@ describe("acp prompt cwd prefix", () => {
   }
 
   it("redacts home directory in prompt prefix", async () => {
-    const requestSpy = await runPromptWithCwd(path.join(os.homedir(), "assistant-test"));
+    const requestSpy = await runPromptWithCwd(path.join(os.homedir(), "zhushou-test"));
     expect(requestSpy).toHaveBeenCalledWith(
       "chat.send",
       expect.objectContaining({
-        message: expect.stringMatching(/\[Working directory: ~[\\/]assistant-test\]/),
+        message: expect.stringMatching(/\[Working directory: ~[\\/]zhushou-test\]/),
       }),
       { timeoutMs: null },
     );
   });
 
   it("keeps backslash separators when cwd uses them", async () => {
-    const requestSpy = await runPromptWithCwd(`${os.homedir()}\\assistant-test`);
+    const requestSpy = await runPromptWithCwd(`${os.homedir()}\\zhushou-test`);
     expect(requestSpy).toHaveBeenCalledWith(
       "chat.send",
       expect.objectContaining({
-        message: expect.stringContaining("[Working directory: ~\\assistant-test]"),
+        message: expect.stringContaining("[Working directory: ~\\zhushou-test]"),
       }),
       { timeoutMs: null },
     );
@@ -107,7 +107,7 @@ describe("acp prompt cwd prefix", () => {
           kind: "external_user",
           originSessionId: TEST_SESSION_ID,
           sourceChannel: "acp",
-          sourceTool: "assistant_acp",
+          sourceTool: "zhushou_acp",
         },
         systemProvenanceReceipt: undefined,
       }),
@@ -124,7 +124,7 @@ describe("acp prompt cwd prefix", () => {
           kind: "external_user",
           originSessionId: TEST_SESSION_ID,
           sourceChannel: "acp",
-          sourceTool: "assistant_acp",
+          sourceTool: "zhushou_acp",
         },
         systemProvenanceReceipt: expect.stringContaining("[Source Receipt]"),
       }),
@@ -133,7 +133,7 @@ describe("acp prompt cwd prefix", () => {
     expect(requestSpy).toHaveBeenCalledWith(
       "chat.send",
       expect.objectContaining({
-        systemProvenanceReceipt: expect.stringContaining("bridge=assistant-acp"),
+        systemProvenanceReceipt: expect.stringContaining("bridge=zhushou-acp"),
       }),
       { timeoutMs: null },
     );
@@ -167,7 +167,7 @@ describe("acp prompt cwd prefix", () => {
     sessionStore.createSession({
       sessionId: TEST_SESSION_ID,
       sessionKey: TEST_SESSION_KEY,
-      cwd: path.join(os.homedir(), "assistant-test"),
+      cwd: path.join(os.homedir(), "zhushou-test"),
     });
     const agent = new AcpGatewayAgent(
       createAcpConnection(),
@@ -188,7 +188,7 @@ describe("acp prompt cwd prefix", () => {
           kind: "external_user",
           originSessionId: TEST_SESSION_ID,
           sourceChannel: "acp",
-          sourceTool: "assistant_acp",
+          sourceTool: "zhushou_acp",
         },
         systemProvenanceReceipt: expect.stringContaining("[Source Receipt]"),
       }),

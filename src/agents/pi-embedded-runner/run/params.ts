@@ -2,7 +2,7 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 import type { ReplyPayload } from "../../../auto-reply/reply-payload.js";
 import type { ReplyOperation } from "../../../auto-reply/reply/reply-run-registry.js";
 import type { ReasoningLevel, ThinkLevel, VerboseLevel } from "../../../auto-reply/thinking.js";
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import type { PromptImageOrderEntry } from "../../../media/prompt-image-order.js";
 import type { CommandQueueEnqueueFn } from "../../../process/command-queue.types.js";
 import type { InputProvenance } from "../../../sessions/input-provenance.js";
@@ -69,7 +69,7 @@ export type RunEmbeddedPiAgentParams = {
   sessionFile: string;
   workspaceDir: string;
   agentDir?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   skillsSnapshot?: SkillSnapshot;
   prompt: string;
   images?: ImageContent[];
@@ -108,7 +108,7 @@ export type RunEmbeddedPiAgentParams = {
   shouldEmitToolResult?: () => boolean;
   shouldEmitToolOutput?: () => boolean;
   onPartialReply?: (payload: { text?: string; mediaUrls?: string[] }) => void | Promise<void>;
-  onAssistantMessageStart?: () => void | Promise<void>;
+  onZhushouMessageStart?: () => void | Promise<void>;
   onBlockReply?: (payload: BlockReplyPayload) => void | Promise<void>;
   onBlockReplyFlush?: () => void | Promise<void>;
   blockReplyBreak?: "text_end" | "message_end";

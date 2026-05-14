@@ -11,4 +11,4 @@ export {
   type ParsedChatAllowTarget,
   type ParsedChatTarget,
   type ServicePrefix,
-} from "assistant/plugin-sdk/channel-targets";
+} from "zhushou/plugin-sdk/channel-targets";

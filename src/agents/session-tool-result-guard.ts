@@ -17,7 +17,7 @@ import {
 } from "./session-raw-append-message.js";
 import { createPendingToolCallState } from "./session-tool-result-state.js";
 import { makeMissingToolResult, sanitizeToolCallInputs } from "./session-transcript-repair.js";
-import { extractToolCallsFromAssistant, extractToolResultId } from "./tool-call-id.js";
+import { extractToolCallsFromZhushou, extractToolResultId } from "./tool-call-id.js";
 
 /**
  * Truncate oversized text content blocks in a tool result message.
@@ -91,7 +91,7 @@ export function installSessionToolResultGuard(
      */
     allowSyntheticToolResults?: boolean;
     /**
-     * Optional set/list of tool names accepted for assistant toolCall/toolUse blocks.
+     * Optional set/list of tool names accepted for zhushou toolCall/toolUse blocks.
      * When set, tool calls with unknown names are dropped before persistence.
      */
     allowedToolNames?: Iterable<string>;
@@ -214,7 +214,7 @@ export function installSessionToolResultGuard(
       return originalAppend(capToolResultSize(persisted, maxToolResultChars) as never);
     }
 
-    // Skip tool call extraction for aborted/errored assistant messages.
+    // Skip tool call extraction for aborted/errored zhushou messages.
     // When stopReason is "error" or "aborted", the tool_use blocks may be incomplete
     // and should not have synthetic tool_results created. Creating synthetic results
     // for incomplete tool calls causes API 400 errors:
@@ -223,7 +223,7 @@ export function installSessionToolResultGuard(
     const stopReason = (nextMessage as { stopReason?: string }).stopReason;
     const toolCalls =
       nextRole === "assistant" && stopReason !== "aborted" && stopReason !== "error"
-        ? extractToolCallsFromAssistant(nextMessage as Extract<AgentMessage, { role: "assistant" }>)
+        ? extractToolCallsFromZhushou(nextMessage as Extract<AgentMessage, { role: "assistant" }>)
         : [];
 
     // Always clear pending tool call state before appending non-tool-result messages.

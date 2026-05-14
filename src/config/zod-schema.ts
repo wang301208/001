@@ -230,7 +230,7 @@ const McpConfigSchema = z
   .strict()
   .optional();
 
-export const AssistantSchema = z
+export const ZhushouSchema = z
   .object({
     $schema: z.string().optional(),
     meta: z
@@ -386,7 +386,7 @@ export const AssistantSchema = z
                 cdpPort: z.number().int().min(1).max(65535).optional(),
                 cdpUrl: z.string().optional(),
                 userDataDir: z.string().optional(),
-                driver: z.union([z.literal("assistant"), z.literal("existing-session")]).optional(),
+                driver: z.union([z.literal("zhushou"), z.literal("existing-session")]).optional(),
                 attachOnly: z.boolean().optional(),
                 color: HexColorSchema,
               })
@@ -409,7 +409,7 @@ export const AssistantSchema = z
     ui: z
       .object({
         seamColor: HexColorSchema.optional(),
-        assistant: z
+        zhushou: z
           .object({
             name: z.string().max(50).optional(),
             avatar: z.string().max(200).optional(),

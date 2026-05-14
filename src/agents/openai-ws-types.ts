@@ -1,4 +1,4 @@
-export type OpenAIResponsesAssistantPhase = "commentary" | "final_answer";
+export type OpenAIResponsesZhushouPhase = "commentary" | "final_answer";
 
 export type ContentPart =
   | { type: "input_text"; text: string }
@@ -13,7 +13,7 @@ export type InputItem =
       type: "message";
       role: "system" | "developer" | "user" | "assistant";
       content: string | ContentPart[];
-      phase?: OpenAIResponsesAssistantPhase;
+      phase?: OpenAIResponsesZhushouPhase;
     }
   | { type: "function_call"; id?: string; call_id?: string; name: string; arguments: string }
   | { type: "function_call_output"; call_id: string; output: string }

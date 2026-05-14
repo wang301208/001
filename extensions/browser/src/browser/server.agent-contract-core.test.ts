@@ -87,7 +87,7 @@ describe("browser control server", () => {
     "returns ACT_EXISTING_SESSION_UNSUPPORTED for unsupported existing-session actions",
     async () => {
       setBrowserControlServerProfiles({
-        assistant: {
+        zhushou: {
           color: "#FF4500",
           driver: "existing-session",
         },
@@ -463,7 +463,7 @@ describe("profile CRUD endpoints", () => {
     const createDuplicate = await realFetch(`${base}/profiles/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: "assistant" }),
+      body: JSON.stringify({ name: "zhushou" }),
     });
     expect(createDuplicate.status).toBe(409);
     const createDuplicateBody = (await createDuplicate.json()) as { error: string };
@@ -502,7 +502,7 @@ describe("profile CRUD endpoints", () => {
     const createOldDriverBody = (await createOldDriver.json()) as { error: string };
     expect(createOldDriverBody.error).toContain('unsupported profile driver "clawd"');
 
-    const explicitUserDataDir = path.resolve("/tmp/assistant-brave-profile");
+    const explicitUserDataDir = path.resolve("/tmp/zhushou-brave-profile");
     await fs.promises.mkdir(explicitUserDataDir, { recursive: true });
     const createExistingSession = await realFetch(`${base}/profiles/create`, {
       method: "POST",
@@ -553,7 +553,7 @@ describe("profile CRUD endpoints", () => {
     const deleteMissingBody = (await deleteMissing.json()) as { error: string };
     expect(deleteMissingBody.error).toContain("not found");
 
-    const deleteDefault = await realFetch(`${base}/profiles/assistant`, {
+    const deleteDefault = await realFetch(`${base}/profiles/zhushou`, {
       method: "DELETE",
     });
     expect(deleteDefault.status).toBe(400);

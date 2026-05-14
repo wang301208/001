@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import type {
   AcpRuntime,
-  AssistantPluginService,
-  AssistantPluginServiceContext,
+  ZhushouPluginService,
+  ZhushouPluginServiceContext,
   PluginLogger,
 } from "../runtime-api.js";
 import { registerAcpRuntimeBackend, unregisterAcpRuntimeBackend } from "../runtime-api.js";
@@ -84,15 +84,15 @@ function formatDoctorFailureMessage(report: { message: string; details?: string[
 
 export function createAcpxRuntimeService(
   params: CreateAcpxRuntimeServiceParams = {},
-): AssistantPluginService {
+): ZhushouPluginService {
   let runtime: AcpxRuntimeLike | null = null;
   let lifecycleRevision = 0;
 
   return {
     id: "acpx-runtime",
-    async start(ctx: AssistantPluginServiceContext): Promise<void> {
-      if (process.env.ASSISTANT_SKIP_ACPX_RUNTIME === "1") {
-        ctx.logger.info("skipping embedded acpx runtime backend (ASSISTANT_SKIP_ACPX_RUNTIME=1)");
+    async start(ctx: ZhushouPluginServiceContext): Promise<void> {
+      if (process.env.ZHUSHOU_SKIP_ACPX_RUNTIME === "1") {
+        ctx.logger.info("skipping embedded acpx runtime backend (ZHUSHOU_SKIP_ACPX_RUNTIME=1)");
         return;
       }
 
@@ -119,7 +119,7 @@ export function createAcpxRuntimeService(
       });
       ctx.logger.info(`embedded acpx runtime backend registered (cwd: ${pluginConfig.cwd})`);
 
-      if (process.env.ASSISTANT_SKIP_ACPX_RUNTIME_PROBE === "1") {
+      if (process.env.ZHUSHOU_SKIP_ACPX_RUNTIME_PROBE === "1") {
         return;
       }
 
@@ -150,7 +150,7 @@ export function createAcpxRuntimeService(
         }
       })();
     },
-    async stop(_ctx: AssistantPluginServiceContext): Promise<void> {
+    async stop(_ctx: ZhushouPluginServiceContext): Promise<void> {
       lifecycleRevision += 1;
       unregisterAcpRuntimeBackend(ACPX_BACKEND_ID);
       runtime = null;

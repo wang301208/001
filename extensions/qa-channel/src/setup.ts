@@ -1,12 +1,12 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { DEFAULT_ACCOUNT_ID } from "./accounts.js";
 import type { CoreConfig } from "./types.js";
 
 export function applyQaSetup(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   input: Record<string, unknown>;
-}): AssistantConfig {
+}): ZhushouConfig {
   const nextCfg = structuredClone(params.cfg) as CoreConfig;
   const section = nextCfg.channels?.["qa-channel"] ?? {};
   const accounts = { ...section.accounts };
@@ -34,5 +34,5 @@ export function applyQaSetup(params: {
       accounts,
     };
   }
-  return nextCfg as AssistantConfig;
+  return nextCfg as ZhushouConfig;
 }

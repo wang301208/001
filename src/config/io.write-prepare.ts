@@ -3,7 +3,7 @@ import { isRecord } from "../utils.js";
 import { pruneInactiveGatewayAuthCredentials } from "./gateway-auth-cleanup.js";
 import { applyMergePatch } from "./merge-patch.js";
 import { isBlockedObjectKey } from "./prototype-keys.js";
-import type { AssistantConfig } from "./types.js";
+import type { ZhushouConfig } from "./types.js";
 
 const OPEN_DM_POLICY_ALLOW_FROM_RE =
   /^(?<policyPath>[a-z0-9_.-]+)\s*=\s*"open"\s+requires\s+(?<allowPath>[a-z0-9_.-]+)(?:\s+\(or\s+[a-z0-9_.-]+\))?\s+to include "\*"$/i;
@@ -90,10 +90,10 @@ export function formatConfigValidationFailure(pathLabel: string, issueMessage: s
     `Configuration mismatch: ${policyPath} is "open", but ${allowPath} does not include "*".`,
     "",
     "Fix with:",
-    `  assistant config set ${allowPath} '["*"]'`,
+    `  zhushou config set ${allowPath} '["*"]'`,
     "",
     "Or switch policy:",
-    `  assistant config set ${policyPath} "pairing"`,
+    `  zhushou config set ${policyPath} "pairing"`,
   ].join("\n");
 }
 
@@ -111,11 +111,11 @@ function hasOwnObjectKey(value: Record<string, unknown>, key: string): boolean {
 
 const WRITE_PRUNED_OBJECT = Symbol("write-pruned-object");
 
-function coerceConfig(value: unknown): AssistantConfig {
+function coerceConfig(value: unknown): ZhushouConfig {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }
-  return value as AssistantConfig;
+  return value as ZhushouConfig;
 }
 
 function unsetPathForWriteAt(
@@ -188,9 +188,9 @@ function unsetPathForWriteAt(
 }
 
 export function unsetPathForWrite(
-  root: AssistantConfig,
+  root: ZhushouConfig,
   pathSegments: string[],
-): { changed: boolean; next: AssistantConfig } {
+): { changed: boolean; next: ZhushouConfig } {
   if (pathSegments.length === 0) {
     return { changed: false, next: root };
   }

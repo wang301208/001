@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/memory-wiki",
+  "name": "@zhushou/memory-wiki",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 persistent wiki plugin",
@@ -8,18 +8,18 @@
     "yaml": "^2.8.3"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*",
-    "assistant": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "assistant": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "assistant": {
+    "zhushou": {
       "optional": true
     }
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

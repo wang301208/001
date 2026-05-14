@@ -34,16 +34,16 @@ describe("browser server-context loopback direct WebSocket profiles", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("assistant");
+    const state = makeState("zhushou");
     state.resolved.ssrfPolicy = {};
-    state.resolved.profiles.assistant = {
+    state.resolved.profiles.zhushou = {
       cdpUrl: "ws://127.0.0.1:18800/devtools/browser/SESSION?token=abc",
       color: "#FF4500",
     };
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const assistant = ctx.forProfile("assistant");
+    const zhushou = ctx.forProfile("zhushou");
 
-    const opened = await assistant.openTab("about:blank");
+    const opened = await zhushou.openTab("about:blank");
     expect(opened.targetId).toBe("CREATED");
     expect(createTargetViaCdp).toHaveBeenCalledWith({
       cdpUrl: "ws://127.0.0.1:18800/devtools/browser/SESSION?token=abc",
@@ -79,17 +79,17 @@ describe("browser server-context loopback direct WebSocket profiles", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("assistant");
+    const state = makeState("zhushou");
     state.resolved.ssrfPolicy = {};
-    state.resolved.profiles.assistant = {
+    state.resolved.profiles.zhushou = {
       cdpUrl: "ws://127.0.0.1:18800/devtools/browser/SESSION?token=abc",
       color: "#FF4500",
     };
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const assistant = ctx.forProfile("assistant");
+    const zhushou = ctx.forProfile("zhushou");
 
-    await assistant.focusTab("T1");
-    await assistant.closeTab("T1");
+    await zhushou.focusTab("T1");
+    await zhushou.closeTab("T1");
 
     expect(fetchMock).toHaveBeenCalledWith(
       "http://127.0.0.1:18800/json/activate/T1?token=abc",
@@ -128,19 +128,19 @@ describe("browser server-context loopback direct WebSocket profiles", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("assistant");
-    state.resolved.profiles.assistant = {
+    const state = makeState("zhushou");
+    state.resolved.profiles.zhushou = {
       cdpUrl: "wss://127.0.0.1:18800/cdp?token=abc",
       color: "#FF4500",
     };
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const assistant = ctx.forProfile("assistant");
+    const zhushou = ctx.forProfile("zhushou");
 
-    const tabs = await assistant.listTabs();
+    const tabs = await zhushou.listTabs();
     expect(tabs.map((tab) => tab.targetId)).toEqual(["T2"]);
 
-    await assistant.focusTab("T2");
-    await assistant.closeTab("T2");
+    await zhushou.focusTab("T2");
+    await zhushou.closeTab("T2");
   });
 
   it("blocks direct WebSocket tab operations when strict SSRF policy rejects the cdpUrl", async () => {
@@ -149,18 +149,18 @@ describe("browser server-context loopback direct WebSocket profiles", () => {
     });
 
     global.fetch = withFetchPreconnect(fetchMock);
-    const state = makeState("assistant");
+    const state = makeState("zhushou");
     state.resolved.ssrfPolicy = { dangerouslyAllowPrivateNetwork: false };
-    state.resolved.profiles.assistant = {
+    state.resolved.profiles.zhushou = {
       cdpUrl: "ws://10.0.0.42:18800/devtools/browser/SESSION?token=abc",
       color: "#FF4500",
     };
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const assistant = ctx.forProfile("assistant");
+    const zhushou = ctx.forProfile("zhushou");
 
-    await expect(assistant.listTabs()).rejects.toBeInstanceOf(BrowserCdpEndpointBlockedError);
-    await expect(assistant.focusTab("T1")).rejects.toBeInstanceOf(BrowserCdpEndpointBlockedError);
-    await expect(assistant.closeTab("T1")).rejects.toBeInstanceOf(BrowserCdpEndpointBlockedError);
+    await expect(zhushou.listTabs()).rejects.toBeInstanceOf(BrowserCdpEndpointBlockedError);
+    await expect(zhushou.focusTab("T1")).rejects.toBeInstanceOf(BrowserCdpEndpointBlockedError);
+    await expect(zhushou.closeTab("T1")).rejects.toBeInstanceOf(BrowserCdpEndpointBlockedError);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });

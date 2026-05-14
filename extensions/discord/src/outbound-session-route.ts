@@ -1,14 +1,14 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   buildOutboundBaseSessionKey,
   normalizeOutboundThreadId,
   resolveThreadSessionKeys,
   type RoutePeer,
-} from "assistant/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/routing";
 import { parseDiscordTarget } from "./target-parsing.js";
 
 export type ResolveDiscordOutboundSessionRouteParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   accountId?: string | null;
   target: string;

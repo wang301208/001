@@ -1,10 +1,10 @@
-import type { ProviderRuntimeModel } from "assistant/plugin-sdk/plugin-entry";
+import type { ProviderRuntimeModel } from "zhushou/plugin-sdk/plugin-entry";
 import {
   normalizeModelCompat,
   type ModelDefinitionConfig,
   type ModelProviderConfig,
   type ProviderPlugin,
-} from "assistant/plugin-sdk/provider-model-shared";
+} from "zhushou/plugin-sdk/provider-model-shared";
 import {
   listCodexAppServerModels,
   type CodexAppServerModel,
@@ -21,7 +21,7 @@ const CODEX_BASE_URL = "https://chatgpt.com/backend-api";
 const DEFAULT_CONTEXT_WINDOW = 272_000;
 const DEFAULT_MAX_TOKENS = 128_000;
 const DEFAULT_DISCOVERY_TIMEOUT_MS = 2500;
-const LIVE_DISCOVERY_ENV = "ASSISTANT_CODEX_DISCOVERY_LIVE";
+const LIVE_DISCOVERY_ENV = "ZHUSHOU_CODEX_DISCOVERY_LIVE";
 
 type CodexModelLister = (options: {
   timeoutMs: number;

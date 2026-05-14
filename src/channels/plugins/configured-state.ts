@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   hasBundledChannelPackageState,
   listBundledChannelIdsForPackageState,
@@ -10,7 +10,7 @@ export function listBundledChannelIdsWithConfiguredState(): string[] {
 
 export function hasBundledChannelConfiguredState(params: {
   channelId: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
 }): boolean {
   return hasBundledChannelPackageState({

@@ -4,28 +4,28 @@
 export type {
   ChannelAccountSnapshot,
   ChannelPlugin,
-  AssistantConfig,
-  AssistantPluginApi,
+  ZhushouConfig,
+  ZhushouPluginApi,
   PluginRuntime,
-} from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 export type {
   ChannelGatewayContext,
   ChannelStatusIssue,
-} from "assistant/plugin-sdk/channel-contract";
-export { clearAccountEntryFields } from "assistant/plugin-sdk/core";
-export { buildChannelConfigSchema } from "assistant/plugin-sdk/channel-config-schema";
-export type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
-export type { ChannelSetupDmPolicy, ChannelSetupWizard } from "assistant/plugin-sdk/setup";
+} from "zhushou/plugin-sdk/channel-contract";
+export { clearAccountEntryFields } from "zhushou/plugin-sdk/core";
+export { buildChannelConfigSchema } from "zhushou/plugin-sdk/channel-config-schema";
+export type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+export type { ChannelSetupDmPolicy, ChannelSetupWizard } from "zhushou/plugin-sdk/setup";
 export {
   buildComputedAccountStatusSnapshot,
   buildTokenChannelStatusSummary,
-} from "assistant/plugin-sdk/status-helpers";
+} from "zhushou/plugin-sdk/status-helpers";
 export {
   DEFAULT_ACCOUNT_ID,
   formatDocsLink,
   setSetupChannelEnabled,
   splitSetupEntries,
-} from "assistant/plugin-sdk/setup";
+} from "zhushou/plugin-sdk/setup";
 export { setLineRuntime } from "./src/runtime.js";
 export {
   firstDefined,

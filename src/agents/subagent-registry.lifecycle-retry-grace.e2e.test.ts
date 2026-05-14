@@ -117,8 +117,8 @@ describe("subagent registry lifecycle error grace", () => {
   let previousFastTestEnv: string | undefined;
 
   beforeEach(async () => {
-    previousFastTestEnv = process.env.ASSISTANT_TEST_FAST;
-    process.env.ASSISTANT_TEST_FAST = "1";
+    previousFastTestEnv = process.env.ZHUSHOU_TEST_FAST;
+    process.env.ZHUSHOU_TEST_FAST = "1";
     vi.useFakeTimers();
     callGatewayMock.mockClear();
     onAgentEventMock.mockClear();
@@ -194,9 +194,9 @@ describe("subagent registry lifecycle error grace", () => {
     mod.resetSubagentRegistryForTests({ persist: false });
     vi.useRealTimers();
     if (previousFastTestEnv === undefined) {
-      delete process.env.ASSISTANT_TEST_FAST;
+      delete process.env.ZHUSHOU_TEST_FAST;
     } else {
-      process.env.ASSISTANT_TEST_FAST = previousFastTestEnv;
+      process.env.ZHUSHOU_TEST_FAST = previousFastTestEnv;
     }
   });
 
@@ -282,7 +282,7 @@ describe("subagent registry lifecycle error grace", () => {
     };
   }
 
-  function setAssistantOutput(sessionKey: string, text: string) {
+  function setZhushouOutput(sessionKey: string, text: string) {
     chatHistoryBySessionKey.set(sessionKey, [
       {
         role: "assistant",
@@ -322,7 +322,7 @@ describe("subagent registry lifecycle error grace", () => {
 
   it("ignores transient lifecycle errors when run retries and then ends successfully", async () => {
     registerCompletionRun("run-transient-error", "transient-error", "transient error test");
-    setAssistantOutput("agent:main:subagent:transient-error", "Final answer transient");
+    setZhushouOutput("agent:main:subagent:transient-error", "Final answer transient");
 
     emitLifecycleEvent("run-transient-error", {
       phase: "error",
@@ -350,7 +350,7 @@ describe("subagent registry lifecycle error grace", () => {
 
   it("announces error when lifecycle error remains terminal after grace window", async () => {
     registerCompletionRun("run-terminal-error", "terminal-error", "terminal error test");
-    setAssistantOutput("agent:main:subagent:terminal-error", "fatal summary");
+    setZhushouOutput("agent:main:subagent:terminal-error", "fatal summary");
 
     emitLifecycleEvent("run-terminal-error", {
       phase: "error",
@@ -371,7 +371,7 @@ describe("subagent registry lifecycle error grace", () => {
   it("freezes completion result at run termination across deferred announce retries", async () => {
     // Regression guard: late lifecycle noise must never overwrite the frozen completion reply.
     registerCompletionRun("run-freeze", "freeze", "freeze test");
-    setAssistantOutput("agent:main:subagent:freeze", "Final answer X");
+    setZhushouOutput("agent:main:subagent:freeze", "Final answer X");
     agentCallPlan = ["throw", "ok"];
 
     const endedAt = Date.now();
@@ -385,7 +385,7 @@ describe("subagent registry lifecycle error grace", () => {
 
     await waitForCleanupHandledFalse("run-freeze");
 
-    setAssistantOutput("agent:main:subagent:freeze", "Late reply Y");
+    setZhushouOutput("agent:main:subagent:freeze", "Late reply Y");
     emitLifecycleEvent("run-freeze", { phase: "end", endedAt: endedAt + 100 });
     await flushAsync();
 
@@ -398,7 +398,7 @@ describe("subagent registry lifecycle error grace", () => {
 
   it("refreshes frozen completion output from later turns in the same session", async () => {
     registerCompletionRun("run-refresh", "refresh", "refresh frozen output test");
-    setAssistantOutput(
+    setZhushouOutput(
       "agent:main:subagent:refresh",
       "Both spawned. Waiting for completion events...",
     );
@@ -420,7 +420,7 @@ describe("subagent registry lifecycle error grace", () => {
       .find((candidate) => candidate.runId === "run-refresh");
     const firstCapturedAt = runBeforeRefresh?.frozenResultCapturedAt ?? 0;
 
-    setAssistantOutput(
+    setZhushouOutput(
       "agent:main:subagent:refresh",
       "All 3 subagents complete. Here's the final summary.",
     );
@@ -450,7 +450,7 @@ describe("subagent registry lifecycle error grace", () => {
 
   it("ignores silent follow-up turns when refreshing frozen completion output", async () => {
     registerCompletionRun("run-refresh-silent", "refresh-silent", "refresh silent test");
-    setAssistantOutput("agent:main:subagent:refresh-silent", "All work complete, final summary");
+    setZhushouOutput("agent:main:subagent:refresh-silent", "All work complete, final summary");
     agentCallPlan = ["throw", "ok"];
 
     const endedAt = Date.now();
@@ -458,7 +458,7 @@ describe("subagent registry lifecycle error grace", () => {
     await flushAsync();
     await waitForCleanupHandledFalse("run-refresh-silent");
 
-    setAssistantOutput("agent:main:subagent:refresh-silent", "NO_REPLY");
+    setZhushouOutput("agent:main:subagent:refresh-silent", "NO_REPLY");
     emitLifecycleEvent(
       "run-refresh-silent-followup-turn",
       { phase: "end", endedAt: endedAt + 200 },
@@ -483,7 +483,7 @@ describe("subagent registry lifecycle error grace", () => {
 
   it("regression, captures frozen completion output with 100KB cap and retains it for keep-mode cleanup", async () => {
     registerCompletionRun("run-capped", "capped", "capped result test");
-    setAssistantOutput("agent:main:subagent:capped", "x".repeat(120 * 1024));
+    setZhushouOutput("agent:main:subagent:capped", "x".repeat(120 * 1024));
 
     emitLifecycleEvent("run-capped", { phase: "end", endedAt: Date.now() });
     await flushAsync();
@@ -510,8 +510,8 @@ describe("subagent registry lifecycle error grace", () => {
     // Regression guard: fan-out retries must preserve each child's first frozen result text.
     registerCompletionRun("run-parallel-a", "parallel-a", "parallel a");
     registerCompletionRun("run-parallel-b", "parallel-b", "parallel b");
-    setAssistantOutput("agent:main:subagent:parallel-a", "Final answer A");
-    setAssistantOutput("agent:main:subagent:parallel-b", "Final answer B");
+    setZhushouOutput("agent:main:subagent:parallel-a", "Final answer A");
+    setZhushouOutput("agent:main:subagent:parallel-b", "Final answer B");
     agentCallPlan = ["throw", "throw", "ok", "ok"];
 
     const parallelEndedAt = Date.now();
@@ -523,8 +523,8 @@ describe("subagent registry lifecycle error grace", () => {
     await waitForCleanupHandledFalse("run-parallel-a");
     await waitForCleanupHandledFalse("run-parallel-b");
 
-    setAssistantOutput("agent:main:subagent:parallel-a", "Late overwrite");
-    setAssistantOutput("agent:main:subagent:parallel-b", "Late overwrite");
+    setZhushouOutput("agent:main:subagent:parallel-a", "Late overwrite");
+    setZhushouOutput("agent:main:subagent:parallel-b", "Late overwrite");
 
     emitLifecycleEvent("run-parallel-a", { phase: "end", endedAt: parallelEndedAt + 100 });
     emitLifecycleEvent("run-parallel-b", { phase: "end", endedAt: parallelEndedAt + 101 });

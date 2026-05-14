@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   isCommandEnabled,
   maybeResolveTextAlias,
@@ -29,7 +29,7 @@ function isResetCommandCandidate(text: string): boolean {
 
 export function shouldBypassAcpDispatchForCommand(
   ctx: FinalizedMsgContext,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): boolean {
   const candidate = resolveCommandCandidateText(ctx);
   if (!candidate) {

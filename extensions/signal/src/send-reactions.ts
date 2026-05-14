@@ -2,14 +2,14 @@
  * Signal reactions via signal-cli JSON-RPC API
  */
 
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 import { signalRpcRequest } from "./client.js";
 import { resolveSignalRpcContext } from "./rpc-context.js";
 
 export type SignalReactionOpts = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   baseUrl?: string;
   account?: string;
   accountId?: string;
@@ -32,11 +32,11 @@ type SignalReactionErrorMessages = {
 };
 
 let signalConfigRuntimePromise:
-  | Promise<typeof import("assistant/plugin-sdk/config-runtime")>
+  | Promise<typeof import("zhushou/plugin-sdk/config-runtime")>
   | undefined;
 
 async function loadSignalConfigRuntime() {
-  signalConfigRuntimePromise ??= import("assistant/plugin-sdk/config-runtime");
+  signalConfigRuntimePromise ??= import("zhushou/plugin-sdk/config-runtime");
   return await signalConfigRuntimePromise;
 }
 

@@ -11,7 +11,7 @@ import {
 const tempDirs: string[] = [];
 
 async function makeTempRoot(): Promise<string> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-templates-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-templates-"));
   tempDirs.push(root);
   return root;
 }
@@ -26,7 +26,7 @@ describe("resolveWorkspaceTemplateDir", () => {
 
   it("resolves templates from package root when module url is dist-rooted", async () => {
     const root = await makeTempRoot();
-    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "assistant" }));
+    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "zhushou" }));
 
     const templatesDir = path.join(root, "docs", "reference", "templates");
     await fs.mkdir(templatesDir, { recursive: true });
@@ -40,15 +40,15 @@ describe("resolveWorkspaceTemplateDir", () => {
     expect(resolved).toBe(templatesDir);
   });
 
-  it("falls back to package-root docs path when templates directory is missing", async () => {
+  it("falls back to package-root docs path when templates directory is missing everywhere", async () => {
     const root = await makeTempRoot();
-    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "assistant" }));
+    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "zhushou" }));
 
     const distDir = path.join(root, "dist");
     await fs.mkdir(distDir, { recursive: true });
     const moduleUrl = pathToFileURL(path.join(distDir, "model-selection.mjs")).toString();
 
     const resolved = await resolveWorkspaceTemplateDir({ cwd: distDir, moduleUrl });
-    expect(path.normalize(resolved)).toBe(path.resolve("docs", "reference", "templates"));
+    expect(path.normalize(resolved)).toBe(path.join(root, "docs", "reference", "templates"));
   });
 });

@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   resolveMemorySlotDecisionShared,
   resolveEnableStateShared,
@@ -28,7 +28,7 @@ export type PluginActivationState = {
 export type NormalizedPluginsConfig = SharedNormalizedPluginsConfig;
 
 export function normalizePluginsConfigWithResolver(
-  config?: AssistantConfig["plugins"],
+  config?: ZhushouConfig["plugins"],
   normalizePluginId: NormalizePluginId = identityNormalizePluginId,
 ): NormalizedPluginsConfig {
   return normalizePluginsConfigWithResolverShared(config, normalizePluginId);
@@ -38,7 +38,7 @@ function resolveExplicitPluginSelection(params: {
   id: string;
   origin: PluginOrigin;
   config: NormalizedPluginsConfig;
-  rootConfig?: AssistantConfig;
+  rootConfig?: ZhushouConfig;
 }): { explicitlyEnabled: boolean; reason?: string } {
   if (params.config.entries[params.id]?.enabled === true) {
     return { explicitlyEnabled: true, reason: "enabled in config" };
@@ -65,10 +65,10 @@ export function resolvePluginActivationState(params: {
   id: string;
   origin: PluginOrigin;
   config: NormalizedPluginsConfig;
-  rootConfig?: AssistantConfig;
+  rootConfig?: ZhushouConfig;
   enabledByDefault?: boolean;
   sourceConfig?: NormalizedPluginsConfig;
-  sourceRootConfig?: AssistantConfig;
+  sourceRootConfig?: ZhushouConfig;
   autoEnabledReason?: string;
 }): PluginActivationState {
   const explicitSelection = resolveExplicitPluginSelection({
@@ -212,7 +212,7 @@ export function resolvePluginActivationState(params: {
     source: "default",
   };
 }
-export function hasExplicitPluginConfig(plugins?: AssistantConfig["plugins"]): boolean {
+export function hasExplicitPluginConfig(plugins?: ZhushouConfig["plugins"]): boolean {
   return hasExplicitPluginConfigShared(plugins);
 }
 export function resolveEnableState(
@@ -228,7 +228,7 @@ export function resolveEnableState(
 }
 
 export function isBundledChannelEnabledByChannelConfig(
-  cfg: AssistantConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   pluginId: string,
 ): boolean {
   return isBundledChannelEnabledByChannelConfigShared(cfg, pluginId);
@@ -238,10 +238,10 @@ export function resolveEffectiveEnableState(params: {
   id: string;
   origin: PluginOrigin;
   config: NormalizedPluginsConfig;
-  rootConfig?: AssistantConfig;
+  rootConfig?: ZhushouConfig;
   enabledByDefault?: boolean;
   sourceConfig?: NormalizedPluginsConfig;
-  sourceRootConfig?: AssistantConfig;
+  sourceRootConfig?: ZhushouConfig;
   autoEnabledReason?: string;
 }): { enabled: boolean; reason?: string } {
   return resolveEnableStateResult(params, resolveEffectivePluginActivationState);
@@ -251,10 +251,10 @@ export function resolveEffectivePluginActivationState(params: {
   id: string;
   origin: PluginOrigin;
   config: NormalizedPluginsConfig;
-  rootConfig?: AssistantConfig;
+  rootConfig?: ZhushouConfig;
   enabledByDefault?: boolean;
   sourceConfig?: NormalizedPluginsConfig;
-  sourceRootConfig?: AssistantConfig;
+  sourceRootConfig?: ZhushouConfig;
   autoEnabledReason?: string;
 }): PluginActivationState {
   return resolvePluginActivationState(params);

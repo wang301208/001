@@ -7,7 +7,7 @@ export function createPluginSdkLightVitestConfig(env?: Record<string, string | u
     dir: "src",
     env,
     exclude: getUnitFastTestFiles(),
-    includeAssistantRuntimeSetup: false,
+    includeZhushouRuntimeSetup: false,
     name: "plugin-sdk-light",
     passWithNoTests: true,
   });

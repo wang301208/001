@@ -1,4 +1,4 @@
-import { loadConfig, type AssistantConfig } from "../config/config.js";
+import { loadConfig, type ZhushouConfig } from "../config/config.js";
 import { DEFAULT_GATEWAY_PORT } from "../config/paths.js";
 import { GatewayClient } from "../gateway/client.js";
 import { resolveGatewayConnectionAuth } from "../gateway/connection-auth.js";
@@ -8,7 +8,7 @@ import type { SkillBinTrustEntry } from "../infra/exec-approvals.js";
 import { resolveExecutableFromPathEnv } from "../infra/executable-path.js";
 import { getMachineDisplayName } from "../infra/machine-name.js";
 import { NODE_EXEC_APPROVALS_COMMANDS, NODE_SYSTEM_RUN_COMMANDS } from "../infra/node-commands.js";
-import { ensureAssistantCliOnPath } from "../infra/path-env.js";
+import { ensureZhushouCliOnPath } from "../infra/path-env.js";
 import { VERSION } from "../version.js";
 import { ensureNodeHostConfig, saveNodeHostConfig, type NodeHostGatewayConfig } from "./config.js";
 import {
@@ -104,7 +104,7 @@ class SkillBinsCache implements SkillBinsProvider {
 }
 
 function ensureNodePathEnv(): string {
-  ensureAssistantCliOnPath({ pathEnv: process.env.PATH ?? "" });
+  ensureZhushouCliOnPath({ pathEnv: process.env.PATH ?? "" });
   const current = process.env.PATH ?? "";
   if (current.trim()) {
     return current;
@@ -114,7 +114,7 @@ function ensureNodePathEnv(): string {
 }
 
 export async function resolveNodeHostGatewayCredentials(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ token?: string; password?: string }> {
   const mode = params.config.gateway?.mode === "remote" ? "remote" : "local";
@@ -130,7 +130,7 @@ export async function resolveNodeHostGatewayCredentials(params: {
   });
 }
 
-function buildNodeHostLocalAuthConfig(config: AssistantConfig): AssistantConfig {
+function buildNodeHostLocalAuthConfig(config: ZhushouConfig): ZhushouConfig {
   if (!config.gateway?.remote?.token && !config.gateway?.remote?.password) {
     return config;
   }

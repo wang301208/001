@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 
 const dockerMocks = vi.hoisted(() => ({
   dockerContainerState: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock("./docker.js", async () => {
 
 const { dockerSandboxBackendManager } = await import("./docker-backend.js");
 
-function createConfig(): AssistantConfig {
+function createConfig(): ZhushouConfig {
   return {
     agents: {
       defaults: {
@@ -30,11 +30,11 @@ function createConfig(): AssistantConfig {
           scope: "session",
           workspaceAccess: "none",
           docker: {
-            image: "assistant-sandbox:bookworm-slim",
+            image: "zhushou-sandbox:bookworm-slim",
           },
           browser: {
             enabled: true,
-            image: "assistant-sandbox-browser:bookworm-slim",
+            image: "zhushou-sandbox-browser:bookworm-slim",
           },
         },
       },
@@ -60,7 +60,7 @@ describe("docker sandbox backend manager", () => {
   it("matches ordinary sandbox runtimes against sandbox.docker.image", async () => {
     dockerMocks.execDocker.mockResolvedValueOnce({
       code: 0,
-      stdout: "assistant-sandbox:bookworm-slim\n",
+      stdout: "zhushou-sandbox:bookworm-slim\n",
       stderr: "",
     });
 
@@ -81,7 +81,7 @@ describe("docker sandbox backend manager", () => {
 
     expect(result).toEqual({
       running: true,
-      actualConfigLabel: "assistant-sandbox:bookworm-slim",
+      actualConfigLabel: "zhushou-sandbox:bookworm-slim",
       configLabelMatch: true,
     });
   });
@@ -89,7 +89,7 @@ describe("docker sandbox backend manager", () => {
   it("matches browser runtimes against sandbox.browser.image", async () => {
     dockerMocks.execDocker.mockResolvedValueOnce({
       code: 0,
-      stdout: "assistant-sandbox-browser:bookworm-slim\n",
+      stdout: "zhushou-sandbox-browser:bookworm-slim\n",
       stderr: "",
     });
 
@@ -110,7 +110,7 @@ describe("docker sandbox backend manager", () => {
 
     expect(result).toEqual({
       running: true,
-      actualConfigLabel: "assistant-sandbox-browser:bookworm-slim",
+      actualConfigLabel: "zhushou-sandbox-browser:bookworm-slim",
       configLabelMatch: true,
     });
   });
@@ -118,7 +118,7 @@ describe("docker sandbox backend manager", () => {
   it("defaults docker-backed runtime matching to sandbox.docker.image when label kind is missing", async () => {
     dockerMocks.execDocker.mockResolvedValueOnce({
       code: 0,
-      stdout: "assistant-sandbox:bookworm-slim\n",
+      stdout: "zhushou-sandbox:bookworm-slim\n",
       stderr: "",
     });
 
@@ -138,7 +138,7 @@ describe("docker sandbox backend manager", () => {
 
     expect(result).toEqual({
       running: true,
-      actualConfigLabel: "assistant-sandbox:bookworm-slim",
+      actualConfigLabel: "zhushou-sandbox:bookworm-slim",
       configLabelMatch: true,
     });
   });

@@ -1,5 +1,5 @@
 import type { ModelProviderConfig } from "../config/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 /**
  * Provider-owned config normalization for `models.providers.<id>` entries.
@@ -31,6 +31,6 @@ export type ProviderResolveConfigApiKeyContext = {
  */
 export type ProviderApplyConfigDefaultsContext = {
   provider: string;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 };

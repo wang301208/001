@@ -6,7 +6,7 @@ const buildSessionContextMock = vi.fn();
 const getLeafEntryMock = vi.fn();
 const branchMock = vi.fn();
 const resetLeafMock = vi.fn();
-const ensureAssistantModelsJsonMock = vi.fn();
+const ensureZhushouModelsJsonMock = vi.fn();
 const discoverAuthStorageMock = vi.fn();
 const discoverModelsMock = vi.fn();
 const resolveModelWithRegistryMock = vi.fn();
@@ -41,7 +41,7 @@ vi.mock("@mariozechner/pi-coding-agent", () => ({
 }));
 
 vi.mock("./models-config.js", () => ({
-  ensureAssistantModelsJson: (...args: unknown[]) => ensureAssistantModelsJsonMock(...args),
+  ensureZhushouModelsJson: (...args: unknown[]) => ensureZhushouModelsJsonMock(...args),
 }));
 
 vi.mock("./pi-model-discovery.js", () => ({
@@ -199,7 +199,7 @@ describe("runBtwSideQuestion", () => {
     getLeafEntryMock.mockReset();
     branchMock.mockReset();
     resetLeafMock.mockReset();
-    ensureAssistantModelsJsonMock.mockReset();
+    ensureZhushouModelsJsonMock.mockReset();
     discoverAuthStorageMock.mockReset();
     discoverModelsMock.mockReset();
     resolveModelWithRegistryMock.mockReset();
@@ -445,7 +445,7 @@ describe("runBtwSideQuestion", () => {
   it("uses active-run snapshot messages for BTW context while the main run is in flight", async () => {
     clearBuiltSessionMessages();
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",
@@ -548,14 +548,14 @@ describe("runBtwSideQuestion", () => {
   it("branches away from an unresolved trailing user turn before building BTW context", async () => {
     getLeafEntryMock.mockReturnValue({
       type: "message",
-      parentId: "assistant-1",
+      parentId: "zhushou-1",
       message: { role: "user" },
     });
     mockDoneAnswer(MATH_ANSWER);
 
     const result = await runMathSideQuestion();
 
-    expect(branchMock).toHaveBeenCalledWith("assistant-1");
+    expect(branchMock).toHaveBeenCalledWith("zhushou-1");
     expect(resetLeafMock).not.toHaveBeenCalled();
     expect(buildSessionContextMock).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ text: MATH_ANSWER });
@@ -563,20 +563,20 @@ describe("runBtwSideQuestion", () => {
 
   it("branches to the active run snapshot leaf when the session is busy", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-seed",
+      transcriptLeafId: "zhushou-seed",
     });
     mockDoneAnswer(MATH_ANSWER);
 
     const result = await runMathSideQuestion();
 
-    expect(branchMock).toHaveBeenCalledWith("assistant-seed");
+    expect(branchMock).toHaveBeenCalledWith("zhushou-seed");
     expect(getLeafEntryMock).not.toHaveBeenCalled();
     expect(result).toEqual({ text: MATH_ANSWER });
   });
 
   it("falls back when the active run snapshot leaf no longer exists", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-gone",
+      transcriptLeafId: "zhushou-gone",
     });
     branchMock.mockImplementationOnce(() => {
       throw new Error("Entry 3235c7c4 not found");
@@ -585,7 +585,7 @@ describe("runBtwSideQuestion", () => {
 
     const result = await runMathSideQuestion();
 
-    expect(branchMock).toHaveBeenCalledWith("assistant-gone");
+    expect(branchMock).toHaveBeenCalledWith("zhushou-gone");
     expect(resetLeafMock).toHaveBeenCalled();
     expect(result).toEqual({ text: MATH_ANSWER });
     expect(diagDebugMock).toHaveBeenCalledWith(
@@ -615,7 +615,7 @@ describe("runBtwSideQuestion", () => {
 
   it("excludes tool results from BTW context to avoid replaying raw tool output", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",
@@ -652,9 +652,9 @@ describe("runBtwSideQuestion", () => {
     );
   });
 
-  it("strips assistant tool calls from BTW context so no-tool side questions stay tool-free", async () => {
+  it("strips zhushou tool calls from BTW context so no-tool side questions stay tool-free", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",
@@ -717,9 +717,9 @@ describe("runBtwSideQuestion", () => {
     );
   });
 
-  it("drops assistant messages that contain only tool calls", async () => {
+  it("drops zhushou messages that contain only tool calls", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",
@@ -759,7 +759,7 @@ describe("runBtwSideQuestion", () => {
 
   it("strips embedded user tool results from BTW context", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",
@@ -796,9 +796,9 @@ describe("runBtwSideQuestion", () => {
     });
   });
 
-  it("drops assistant thinking blocks from BTW context", async () => {
+  it("drops zhushou thinking blocks from BTW context", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",
@@ -855,9 +855,9 @@ describe("runBtwSideQuestion", () => {
     );
   });
 
-  it("drops thinking-only assistant messages from BTW context", async () => {
+  it("drops thinking-only zhushou messages from BTW context", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",
@@ -897,7 +897,7 @@ describe("runBtwSideQuestion", () => {
 
   it("drops malformed user image blocks from BTW context", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",
@@ -925,9 +925,9 @@ describe("runBtwSideQuestion", () => {
     });
   });
 
-  it("normalizes malformed assistant content before stripping tool blocks", async () => {
+  it("normalizes malformed zhushou content before stripping tool blocks", async () => {
     getActiveEmbeddedRunSnapshotMock.mockReturnValue({
-      transcriptLeafId: "assistant-1",
+      transcriptLeafId: "zhushou-1",
       messages: [
         {
           role: "user",

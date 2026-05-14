@@ -27,7 +27,7 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "backup",
-    description: "Create and verify local backup archives for assistant state",
+    description: "Create and verify local backup archives for zhushou state",
     hasSubcommands: true,
   },
   {
@@ -52,7 +52,7 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "mcp",
-    description: "Manage assistant MCP config and channel bridge",
+    description: "Manage zhushou MCP config and channel bridge",
     hasSubcommands: true,
   },
   {

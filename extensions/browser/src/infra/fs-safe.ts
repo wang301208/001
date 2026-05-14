@@ -2,4 +2,4 @@ export {
   SafeOpenError,
   openFileWithinRoot,
   writeFileFromPathWithinRoot,
-} from "assistant/plugin-sdk/browser-security-runtime";
+} from "zhushou/plugin-sdk/browser-security-runtime";

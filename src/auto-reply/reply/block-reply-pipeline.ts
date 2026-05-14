@@ -1,4 +1,4 @@
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
 import { logVerbose } from "../../globals.js";
 import { getReplyPayloadMetadata } from "../reply-payload.js";
 import type { ReplyPayload } from "../types.js";
@@ -91,7 +91,7 @@ export function createBlockReplyPipeline(params: {
   const bufferedKeys = new Set<string>();
   const bufferedPayloadKeys = new Set<string>();
   const bufferedPayloads: ReplyPayload[] = [];
-  let bufferedAssistantMessageIndex: number | undefined;
+  let bufferedZhushouMessageIndex: number | undefined;
   let sendChain: Promise<void> = Promise.resolve();
   let aborted = false;
   let didStream = false;
@@ -100,8 +100,8 @@ export function createBlockReplyPipeline(params: {
   const hasSeenOrQueuedPayloadKey = (payloadKey: string) =>
     seenKeys.has(payloadKey) || sentKeys.has(payloadKey) || pendingKeys.has(payloadKey);
 
-  const flushBufferedAssistantBlock = () => {
-    bufferedAssistantMessageIndex = undefined;
+  const flushBufferedZhushouBlock = () => {
+    bufferedZhushouMessageIndex = undefined;
     void coalescer?.flush({ force: true });
   };
 
@@ -173,7 +173,7 @@ export function createBlockReplyPipeline(params: {
         config: coalescing,
         shouldAbort: () => aborted,
         onFlush: (payload) => {
-          bufferedAssistantMessageIndex = undefined;
+          bufferedZhushouMessageIndex = undefined;
           bufferedKeys.clear();
           sendPayload(payload, /* bypassSeenCheck */ true);
         },
@@ -221,17 +221,17 @@ export function createBlockReplyPipeline(params: {
       return;
     }
     if (coalescer) {
-      const assistantMessageIndex = getReplyPayloadMetadata(payload)?.assistantMessageIndex;
+      const zhushouMessageIndex = getReplyPayloadMetadata(payload)?.zhushouMessageIndex;
       if (
-        assistantMessageIndex !== undefined &&
-        bufferedAssistantMessageIndex !== undefined &&
-        assistantMessageIndex !== bufferedAssistantMessageIndex &&
+        zhushouMessageIndex !== undefined &&
+        bufferedZhushouMessageIndex !== undefined &&
+        zhushouMessageIndex !== bufferedZhushouMessageIndex &&
         coalescer.hasBuffered()
       ) {
-        // Logical assistant blocks must not be merged together by the generic
+        // Logical zhushou blocks must not be merged together by the generic
         // coalescer. Force-flush the previous buffered block before starting a
-        // new assistant-message block.
-        flushBufferedAssistantBlock();
+        // new zhushou-message block.
+        flushBufferedZhushouBlock();
       }
       const payloadKey = createBlockReplyPayloadKey(payload);
       if (hasSeenOrQueuedPayloadKey(payloadKey) || bufferedKeys.has(payloadKey)) {
@@ -239,7 +239,7 @@ export function createBlockReplyPipeline(params: {
       }
       seenKeys.add(payloadKey);
       bufferedKeys.add(payloadKey);
-      bufferedAssistantMessageIndex = assistantMessageIndex;
+      bufferedZhushouMessageIndex = zhushouMessageIndex;
       coalescer.enqueue(payload);
       return;
     }
@@ -248,7 +248,7 @@ export function createBlockReplyPipeline(params: {
 
   const flush = async (options?: { force?: boolean }) => {
     await coalescer?.flush(options);
-    bufferedAssistantMessageIndex = undefined;
+    bufferedZhushouMessageIndex = undefined;
     flushBuffered();
     await sendChain;
   };

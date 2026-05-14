@@ -13,7 +13,7 @@ import type {
   RealtimeTranscriptionProviderConfig,
   RealtimeTranscriptionProviderPlugin,
   RealtimeTranscriptionSession,
-} from "assistant/plugin-sdk/realtime-transcription";
+} from "zhushou/plugin-sdk/realtime-transcription";
 import { type RawData, WebSocket, WebSocketServer } from "ws";
 
 /**

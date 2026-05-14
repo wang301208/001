@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+﻿import { describe, expect, it, vi } from "vitest";
 import {
   CONSENT_UPLOAD_HOST_ALLOWLIST,
   isPrivateOrReservedIP,
@@ -17,7 +17,7 @@ const failingResolve = async () => {
   throw new Error("DNS failure");
 };
 
-// ─── isPrivateOrReservedIP ───────────────────────────────────────────────────
+// isPrivateOrReservedIP
 
 describe("isPrivateOrReservedIP", () => {
   it.each([
@@ -37,7 +37,7 @@ describe("isPrivateOrReservedIP", () => {
     ["8.8.8.8", false],
     ["13.107.136.10", false],
     ["52.96.0.1", false],
-  ] as const)("IPv4 %s → %s", (ip, expected) => {
+  ] as const)("IPv4 %s -> %s", (ip, expected) => {
     expect(isPrivateOrReservedIP(ip)).toBe(expected);
   });
 
@@ -57,7 +57,7 @@ describe("isPrivateOrReservedIP", () => {
     ["::ffff:169.254.169.254", true],
     ["::ffff:8.8.8.8", false],
     ["::ffff:13.107.136.10", false],
-  ] as const)("IPv6 %s → %s", (ip, expected) => {
+  ] as const)("IPv6 %s -> %s", (ip, expected) => {
     expect(isPrivateOrReservedIP(ip)).toBe(expected);
   });
 
@@ -67,12 +67,12 @@ describe("isPrivateOrReservedIP", () => {
     ["10.0.0.256", false],
     ["-1.0.0.1", false],
     ["1.2.3.4.5", false],
-  ] as const)("malformed IPv4 %s → %s", (ip, expected) => {
+  ] as const)("malformed IPv4 %s -> %s", (ip, expected) => {
     expect(isPrivateOrReservedIP(ip)).toBe(expected);
   });
 });
 
-// ─── validateConsentUploadUrl ────────────────────────────────────────────────
+// validateConsentUploadUrl
 
 describe("validateConsentUploadUrl", () => {
   it("accepts a valid SharePoint HTTPS URL", async () => {
@@ -228,7 +228,7 @@ describe("validateConsentUploadUrl", () => {
   });
 });
 
-// ─── CONSENT_UPLOAD_HOST_ALLOWLIST ───────────────────────────────────────────
+// CONSENT_UPLOAD_HOST_ALLOWLIST
 
 describe("CONSENT_UPLOAD_HOST_ALLOWLIST", () => {
   it("contains only Microsoft/SharePoint domains", () => {
@@ -257,10 +257,10 @@ describe("CONSENT_UPLOAD_HOST_ALLOWLIST", () => {
   });
 });
 
-// ─── uploadToConsentUrl (integration with validation) ────────────────────────
+// uploadToConsentUrl (integration with validation)
 
 describe("uploadToConsentUrl", () => {
-  it("sends the 助手 User-Agent header with consent uploads", async () => {
+  it("sends the zhushou User-Agent header with consent uploads", async () => {
     const fetchFn = vi.fn(async () => new Response(null, { status: 200 }));
 
     await uploadToConsentUrl({
@@ -277,7 +277,7 @@ describe("uploadToConsentUrl", () => {
         headers: expect.objectContaining({
           "Content-Range": "bytes 0-4/5",
           "Content-Type": "application/octet-stream",
-          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ 助手\/.+$/),
+          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ zhushou\/.+$/),
         }),
       }),
     );

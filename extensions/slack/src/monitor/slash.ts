@@ -1,18 +1,18 @@
 import type { SlackActionMiddlewareArgs, SlackCommandMiddlewareArgs } from "@slack/bolt";
-import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
+import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
 import {
   resolveCommandAuthorizedFromAuthorizers,
   resolveNativeCommandSessionTargets,
   listProviderPluginCommandSpecs,
-} from "assistant/plugin-sdk/command-auth";
-import { type ChatCommandDefinition, type CommandArgs } from "assistant/plugin-sdk/command-auth";
+} from "zhushou/plugin-sdk/command-auth";
+import { type ChatCommandDefinition, type CommandArgs } from "zhushou/plugin-sdk/command-auth";
 import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
-} from "assistant/plugin-sdk/config-runtime";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
-import { danger, logVerbose } from "assistant/plugin-sdk/runtime-env";
-import { chunkItems, normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import { danger, logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { chunkItems, normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import type { ResolvedSlackAccount } from "../accounts.js";
 import { truncateSlackText } from "../truncate.js";
 import { resolveSlackAllowListMatch, resolveSlackUserAllowed } from "./allow-list.js";
@@ -33,8 +33,8 @@ import { resolveSlackRoomContextHints } from "./room-context.js";
 
 type SlackBlock = { type: string; [key: string]: unknown };
 
-const SLACK_COMMAND_ARG_ACTION_ID = "assistant_cmdarg";
-const SLACK_COMMAND_ARG_ACTION_LISTENER = /^assistant_cmdarg/;
+const SLACK_COMMAND_ARG_ACTION_ID = "zhushou_cmdarg";
+const SLACK_COMMAND_ARG_ACTION_LISTENER = /^zhushou_cmdarg/;
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
 const SLACK_COMMAND_ARG_BUTTON_ROW_SIZE = 5;
 const SLACK_COMMAND_ARG_OVERFLOW_MIN = 3;

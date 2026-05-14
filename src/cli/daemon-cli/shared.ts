@@ -106,11 +106,11 @@ export function pickProbeHostForBind(
 }
 
 const SAFE_DAEMON_ENV_KEYS = [
-  "ASSISTANT_PROFILE",
-  "ASSISTANT_STATE_DIR",
-  "ASSISTANT_CONFIG_PATH",
-  "ASSISTANT_GATEWAY_PORT",
-  "ASSISTANT_NIX_MODE",
+  "ZHUSHOU_PROFILE",
+  "ZHUSHOU_STATE_DIR",
+  "ZHUSHOU_CONFIG_PATH",
+  "ZHUSHOU_GATEWAY_PORT",
+  "ZHUSHOU_NIX_MODE",
 ];
 
 export function filterDaemonEnv(env: Record<string, string> | undefined): Record<string, string> {
@@ -154,7 +154,7 @@ export function renderRuntimeHints(
   const hints: string[] = [];
   const fileLog = logFile ?? null;
   if (runtime.missingUnit) {
-    hints.push(`Service not installed. Run: ${formatCliCommand("assistant gateway install", env)}`);
+    hints.push(`Service not installed. Run: ${formatCliCommand("zhushou gateway install", env)}`);
     if (fileLog) {
       hints.push(`File logs: ${fileLog}`);
     }
@@ -167,8 +167,8 @@ export function renderRuntimeHints(
     hints.push(
       ...buildPlatformRuntimeLogHints({
         env,
-        systemdServiceName: resolveGatewaySystemdServiceName(env.ASSISTANT_PROFILE),
-        windowsTaskName: resolveGatewayWindowsTaskName(env.ASSISTANT_PROFILE),
+        systemdServiceName: resolveGatewaySystemdServiceName(env.ZHUSHOU_PROFILE),
+        windowsTaskName: resolveGatewayWindowsTaskName(env.ZHUSHOU_PROFILE),
       }),
     );
   }
@@ -176,11 +176,11 @@ export function renderRuntimeHints(
 }
 
 export function renderGatewayServiceStartHints(env: NodeJS.ProcessEnv = process.env): string[] {
-  const profile = env.ASSISTANT_PROFILE;
+  const profile = env.ZHUSHOU_PROFILE;
   const container = resolveDaemonContainerContext(env);
   const hints = buildPlatformServiceStartHints({
-    installCommand: formatCliCommand("assistant gateway install", env),
-    startCommand: formatCliCommand("assistant gateway", env),
+    installCommand: formatCliCommand("zhushou gateway install", env),
+    startCommand: formatCliCommand("zhushou gateway", env),
     launchAgentPlistPath: `~/Library/LaunchAgents/${resolveGatewayLaunchAgentLabel(profile)}.plist`,
     systemdServiceName: resolveGatewaySystemdServiceName(profile),
     windowsTaskName: resolveGatewayWindowsTaskName(profile),

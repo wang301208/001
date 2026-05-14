@@ -1,5 +1,5 @@
-import type { ProviderCatalogContext } from "assistant/plugin-sdk/provider-catalog-shared";
-import type { ModelProviderConfig } from "assistant/plugin-sdk/provider-model-shared";
+import type { ProviderCatalogContext } from "zhushou/plugin-sdk/provider-catalog-shared";
+import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-shared";
 import { OLLAMA_DEFAULT_BASE_URL } from "./src/defaults.js";
 import {
   buildOllamaModelDefinition,

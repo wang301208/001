@@ -6,7 +6,7 @@ import {
 } from "../auto-reply/heartbeat.js";
 import { parseDurationMs } from "../cli/parse-duration.js";
 import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
@@ -24,12 +24,12 @@ export type HeartbeatSummary = {
 
 const DEFAULT_HEARTBEAT_TARGET = "none";
 
-function hasExplicitHeartbeatAgents(cfg: AssistantConfig) {
+function hasExplicitHeartbeatAgents(cfg: ZhushouConfig) {
   const list = cfg.agents?.list ?? [];
   return list.some((entry) => Boolean(entry?.heartbeat));
 }
 
-export function isHeartbeatEnabledForAgent(cfg: AssistantConfig, agentId?: string): boolean {
+export function isHeartbeatEnabledForAgent(cfg: ZhushouConfig, agentId?: string): boolean {
   const resolvedAgentId = normalizeAgentId(agentId ?? resolveDefaultAgentId(cfg));
   const list = cfg.agents?.list ?? [];
   const hasExplicit = hasExplicitHeartbeatAgents(cfg);
@@ -42,7 +42,7 @@ export function isHeartbeatEnabledForAgent(cfg: AssistantConfig, agentId?: strin
 }
 
 export function resolveHeartbeatIntervalMs(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   overrideEvery?: string,
   heartbeat?: HeartbeatConfig,
 ) {
@@ -71,7 +71,7 @@ export function resolveHeartbeatIntervalMs(
 }
 
 export function resolveHeartbeatSummaryForAgent(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   agentId?: string,
 ): HeartbeatSummary {
   const defaults = cfg.agents?.defaults?.heartbeat;

@@ -3,7 +3,7 @@ import {
   createDirectoryTestRuntime,
   expectDirectorySurface,
 } from "../../../test/helpers/plugins/directory.ts";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import {
   googlechatDirectoryAdapter,
   googlechatOutboundAdapter,
@@ -45,7 +45,7 @@ function normalizeGoogleChatTarget(raw?: string | null): string | undefined {
   return normalized;
 }
 
-function resolveGoogleChatAccountImpl(params: { cfg: AssistantConfig; accountId?: string | null }) {
+function resolveGoogleChatAccountImpl(params: { cfg: ZhushouConfig; accountId?: string | null }) {
   const accountId = params.accountId?.trim() || DEFAULT_ACCOUNT_ID;
   const channelConfig = (params.cfg.channels?.googlechat ?? {}) as Record<string, unknown>;
   const accounts =
@@ -127,7 +127,7 @@ vi.mock("./channel.deps.runtime.js", () => {
     getChatChannelMeta: (id: string) => ({ id, name: id }),
     isGoogleChatSpaceTarget: (value: string) => value.toLowerCase().startsWith("spaces/"),
     isGoogleChatUserTarget: (value: string) => value.toLowerCase().startsWith("users/"),
-    listGoogleChatAccountIds: (cfg: AssistantConfig) => {
+    listGoogleChatAccountIds: (cfg: ZhushouConfig) => {
       const ids = Object.keys(cfg.channels?.googlechat?.accounts ?? {});
       return ids.length > 0 ? ids : ["default"];
     },
@@ -137,9 +137,9 @@ vi.mock("./channel.deps.runtime.js", () => {
     normalizeGoogleChatTarget,
     PAIRING_APPROVED_MESSAGE: "approved",
     resolveChannelMediaMaxBytes: (params: {
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       resolveChannelLimitMb: (args: {
-        cfg: AssistantConfig;
+        cfg: ZhushouConfig;
         accountId?: string;
       }) => number | undefined;
       accountId?: string;
@@ -171,7 +171,7 @@ afterEach(() => {
   mockGoogleChatMediaLoaders();
 });
 
-function createGoogleChatCfg(): AssistantConfig {
+function createGoogleChatCfg(): ZhushouConfig {
   return {
     channels: {
       googlechat: {
@@ -325,7 +325,7 @@ describe("googlechatPlugin threading", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     const workAccount = googlechatThreadingAdapter.scopedAccountReplyToMode.resolveAccount(
       cfg,
@@ -601,7 +601,7 @@ describe("googlechat directory", () => {
           },
         },
       },
-    } as unknown as AssistantConfig;
+    } as unknown as ZhushouConfig;
 
     const directory = expectDirectorySurface(googlechatDirectoryAdapter);
 
@@ -644,7 +644,7 @@ describe("googlechat directory", () => {
           dm: { allowFrom: [" users/alice ", " googlechat:user:Bob@Example.com "] },
         },
       },
-    } as unknown as AssistantConfig;
+    } as unknown as ZhushouConfig;
 
     const directory = expectDirectorySurface(googlechatDirectoryAdapter);
 
@@ -677,7 +677,7 @@ describe("googlechatPlugin security", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     const account = resolveGoogleChatAccountImpl({ cfg, accountId: "default" });
 

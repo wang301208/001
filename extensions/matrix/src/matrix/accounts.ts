@@ -1,6 +1,6 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
-import { hasConfiguredSecretInput } from "assistant/plugin-sdk/secret-input-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
+import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
 import {
   resolveConfiguredMatrixAccountIds,
   resolveMatrixDefaultOrOnlyAccountId,

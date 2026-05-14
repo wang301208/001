@@ -2,7 +2,7 @@ import { runLiveCacheRegression } from "../src/agents/live-cache-regression-runn
 import { LIVE_CACHE_TEST_ENABLED, logLiveCache } from "../src/agents/live-cache-test-support.js";
 
 if (!LIVE_CACHE_TEST_ENABLED) {
-  logLiveCache("skipped; set ASSISTANT_LIVE_TEST=1 and ASSISTANT_LIVE_CACHE_TEST=1");
+  logLiveCache("skipped; set ZHUSHOU_LIVE_TEST=1 and ZHUSHOU_LIVE_CACHE_TEST=1");
   process.exit(0);
 }
 

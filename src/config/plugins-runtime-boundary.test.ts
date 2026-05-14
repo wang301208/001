@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FIELD_HELP } from "./schema.help.js";
 import { FIELD_LABELS } from "./schema.labels.js";
-import { AssistantSchema } from "./zod-schema.js";
+import { ZhushouSchema } from "./zod-schema.js";
 
 function hasLegacyPluginsRuntimeKeys(keys: string[]): boolean {
   return keys.some((key) => key === "plugins.runtime" || key.startsWith("plugins.runtime."));
@@ -14,7 +14,7 @@ describe("plugins runtime boundary config", () => {
   });
 
   it("omits plugins.runtime from the generated config schema", () => {
-    const schema = AssistantSchema.toJSONSchema({
+    const schema = ZhushouSchema.toJSONSchema({
       target: "draft-7",
       io: "input",
       reused: "ref",
@@ -26,7 +26,7 @@ describe("plugins runtime boundary config", () => {
   });
 
   it("rejects legacy plugins.runtime config entries", () => {
-    const result = AssistantSchema.safeParse({
+    const result = ZhushouSchema.safeParse({
       plugins: {
         runtime: {
           allowLegacyExec: true,

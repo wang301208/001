@@ -56,7 +56,7 @@ vi.mock("undici", () => ({
   setGlobalDispatcher,
 }));
 
-vi.mock("assistant/plugin-sdk/runtime-env", () => ({
+vi.mock("zhushou/plugin-sdk/runtime-env", () => ({
   createSubsystemLogger: () => ({
     info: loggerInfo,
     debug: loggerDebug,
@@ -103,8 +103,8 @@ beforeAll(async () => {
 beforeEach(() => {
   vi.unstubAllEnvs();
   for (const key of [
-    "ASSISTANT_DEBUG_PROXY_ENABLED",
-    "ASSISTANT_DEBUG_PROXY_URL",
+    "ZHUSHOU_DEBUG_PROXY_ENABLED",
+    "ZHUSHOU_DEBUG_PROXY_URL",
     "ALL_PROXY",
     "all_proxy",
     "HTTP_PROXY",
@@ -369,8 +369,8 @@ describe("resolveTelegramFetch", () => {
   });
 
   it("uses the 助手 debug proxy URL when no explicit proxy fetch is provided", async () => {
-    vi.stubEnv("ASSISTANT_DEBUG_PROXY_ENABLED", "1");
-    vi.stubEnv("ASSISTANT_DEBUG_PROXY_URL", "http://127.0.0.1:7777");
+    vi.stubEnv("ZHUSHOU_DEBUG_PROXY_ENABLED", "1");
+    vi.stubEnv("ZHUSHOU_DEBUG_PROXY_URL", "http://127.0.0.1:7777");
     undiciFetch.mockResolvedValue({ ok: true } as Response);
 
     const resolved = resolveTelegramFetch(undefined);

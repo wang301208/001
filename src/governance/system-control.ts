@@ -14,6 +14,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
+import { randomUUID } from 'node:crypto';
 import { createSubsystemLogger } from '../logging/subsystem.js';
 
 const execAsync = promisify(exec);
@@ -346,7 +347,9 @@ export class SystemController {
    */
   async takeScreenshot(): Promise<ScreenshotResult> {
     try {
-      const tempFile = path.join(os.tmpdir(), `screenshot-${Date.now()}.png`);
+      const tempDir = path.join(os.tmpdir(), 'zhushou-screenshots');
+      await fs.mkdir(tempDir, { recursive: true });
+      const tempFile = path.join(tempDir, `screenshot-${randomUUID()}.png`);
       let command = '';
 
       if (process.platform === 'darwin') {

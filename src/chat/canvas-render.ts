@@ -1,6 +1,6 @@
 import { parseFenceSpans } from "../markdown/fences.js";
 
-export type CanvasSurface = "assistant_message";
+export type CanvasSurface = "zhushou_message";
 
 export type CanvasPreview = {
   kind: "canvas";
@@ -55,7 +55,7 @@ function getNestedRecord(
 }
 
 function normalizeSurface(value: string | undefined): CanvasSurface | undefined {
-  return value === "assistant_message" ? value : undefined;
+  return value === "zhushou_message" ? value : undefined;
 }
 
 function normalizePreferredHeight(value: number | undefined): number | undefined {
@@ -79,7 +79,7 @@ function coerceCanvasPreview(
   const source = getNestedRecord(record, "source");
   const requestedSurface =
     getRecordStringField(presentation, "target") ?? getRecordStringField(record, "target");
-  const surface = requestedSurface ? normalizeSurface(requestedSurface) : "assistant_message";
+  const surface = requestedSurface ? normalizeSurface(requestedSurface) : "zhushou_message";
   if (!surface) {
     return undefined;
   }
@@ -145,14 +145,14 @@ function parseCanvasAttributes(raw: string): Record<string, string> {
 
 function defaultCanvasEntryUrl(ref: string): string {
   const encoded = encodeURIComponent(ref.trim());
-  return `/__assistant__/canvas/documents/${encoded}/index.html`;
+  return `/__zhushou__/canvas/documents/${encoded}/index.html`;
 }
 
 function previewFromShortcode(attrs: Record<string, string>): CanvasPreview | undefined {
-  if (attrs.target && normalizeSurface(attrs.target) !== "assistant_message") {
+  if (attrs.target && normalizeSurface(attrs.target) !== "zhushou_message") {
     return undefined;
   }
-  const surface = "assistant_message";
+  const surface = "zhushou_message";
   const title = attrs.title?.trim() || undefined;
   const preferredHeight =
     attrs.height && Number.isFinite(Number(attrs.height))

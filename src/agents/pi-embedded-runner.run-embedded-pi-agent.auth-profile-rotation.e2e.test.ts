@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { redactIdentifier } from "../logging/redact-identifier.js";
 import type { AuthProfileFailureReason } from "./auth-profiles.js";
 import { buildAttemptReplayMetadata } from "./pi-embedded-runner/run/incomplete-turn.js";
@@ -100,7 +100,7 @@ const installRunEmbeddedMocks = () => {
     const mod = await vi.importActual<typeof import("./models-config.js")>("./models-config.js");
     return {
       ...mod,
-      ensureAssistantModelsJson: vi.fn(async () => ({ wrote: false })),
+      ensureZhushouModelsJson: vi.fn(async () => ({ wrote: false })),
     };
   });
 };
@@ -167,7 +167,7 @@ const baseUsage = {
   cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
 };
 
-const buildAssistant = (overrides: Partial<AssistantMessage>): AssistantMessage => ({
+const buildZhushou = (overrides: Partial<AssistantMessage>): AssistantMessage => ({
   role: "assistant",
   content: [],
   api: "openai-responses",
@@ -194,9 +194,9 @@ const makeAttempt = (overrides: Partial<EmbeddedRunAttemptResult>): EmbeddedRunA
     sessionIdUsed: "session:test",
     systemPromptReport: undefined,
     messagesSnapshot: [],
-    assistantTexts: [],
+    zhushouTexts: [],
     toolMetas,
-    lastAssistant: undefined,
+    lastZhushou: undefined,
     replayMetadata:
       overrides.replayMetadata ??
       buildAttemptReplayMetadata({
@@ -219,7 +219,7 @@ const makeConfig = (opts?: {
   apiKey?: string;
   overloadedBackoffMs?: number;
   overloadedProfileRotations?: number;
-}): AssistantConfig =>
+}): ZhushouConfig =>
   ({
     auth:
       opts?.overloadedBackoffMs != null || opts?.overloadedProfileRotations != null
@@ -261,9 +261,9 @@ const makeConfig = (opts?: {
         },
       },
     },
-  }) satisfies AssistantConfig;
+  }) satisfies ZhushouConfig;
 
-const makeAgentOverrideOnlyFallbackConfig = (agentId: string): AssistantConfig =>
+const makeAgentOverrideOnlyFallbackConfig = (agentId: string): ZhushouConfig =>
   ({
     agents: {
       defaults: {
@@ -300,11 +300,11 @@ const makeAgentOverrideOnlyFallbackConfig = (agentId: string): AssistantConfig =
         },
       },
     },
-  }) satisfies AssistantConfig;
+  }) satisfies ZhushouConfig;
 
 const copilotModelId = "gpt-4o";
 
-const makeCopilotConfig = (): AssistantConfig =>
+const makeCopilotConfig = (): ZhushouConfig =>
   ({
     models: {
       providers: {
@@ -325,7 +325,7 @@ const makeCopilotConfig = (): AssistantConfig =>
         },
       },
     },
-  }) satisfies AssistantConfig;
+  }) satisfies ZhushouConfig;
 
 const writeAuthStore = async (
   agentDir: string,
@@ -381,15 +381,15 @@ const writeCopilotAuthStore = async (agentDir: string, token = "gh-token") => {
   await fs.writeFile(authPath, JSON.stringify(payload));
 };
 
-const buildCopilotAssistant = (overrides: Partial<AssistantMessage> = {}) =>
-  buildAssistant({ provider: "github-copilot", model: copilotModelId, ...overrides });
+const buildCopilotZhushou = (overrides: Partial<AssistantMessage> = {}) =>
+  buildZhushou({ provider: "github-copilot", model: copilotModelId, ...overrides });
 
 const mockFailedThenSuccessfulAttempt = (errorMessage = "rate limit") => {
   runEmbeddedAttemptMock
     .mockResolvedValueOnce(
       makeAttempt({
-        assistantTexts: [],
-        lastAssistant: buildAssistant({
+        zhushouTexts: [],
+        lastZhushou: buildZhushou({
           stopReason: "error",
           errorMessage,
         }),
@@ -397,8 +397,8 @@ const mockFailedThenSuccessfulAttempt = (errorMessage = "rate limit") => {
     )
     .mockResolvedValueOnce(
       makeAttempt({
-        assistantTexts: ["ok"],
-        lastAssistant: buildAssistant({
+        zhushouTexts: ["ok"],
+        lastZhushou: buildZhushou({
           stopReason: "stop",
           content: [{ type: "text", text: "ok" }],
         }),
@@ -415,8 +415,8 @@ const mockPromptErrorThenSuccessfulAttempt = (errorMessage: string) => {
     )
     .mockResolvedValueOnce(
       makeAttempt({
-        assistantTexts: ["ok"],
-        lastAssistant: buildAssistant({
+        zhushouTexts: ["ok"],
+        lastZhushou: buildZhushou({
           stopReason: "stop",
           content: [{ type: "text", text: "ok" }],
         }),
@@ -430,7 +430,7 @@ async function runAutoPinnedOpenAiTurn(params: {
   sessionKey: string;
   runId: string;
   authProfileId?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }) {
   await runEmbeddedPiAgentInline({
     sessionId: "session:test",
@@ -473,7 +473,7 @@ async function runAutoPinnedRotationCase(params: {
   errorMessage: string;
   sessionKey: string;
   runId: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }) {
   runEmbeddedAttemptMock.mockReset();
   return withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
@@ -497,7 +497,7 @@ async function runAutoPinnedPromptErrorRotationCase(params: {
   errorMessage: string;
   sessionKey: string;
   runId: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }) {
   runEmbeddedAttemptMock.mockReset();
   return withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
@@ -520,8 +520,8 @@ async function runAutoPinnedPromptErrorRotationCase(params: {
 function mockSingleSuccessfulAttempt() {
   runEmbeddedAttemptMock.mockResolvedValueOnce(
     makeAttempt({
-      assistantTexts: ["ok"],
-      lastAssistant: buildAssistant({
+      zhushouTexts: ["ok"],
+      lastZhushou: buildZhushou({
         stopReason: "stop",
         content: [{ type: "text", text: "ok" }],
       }),
@@ -536,8 +536,8 @@ function mockSingleErrorAttempt(params: {
 }) {
   runEmbeddedAttemptMock.mockResolvedValueOnce(
     makeAttempt({
-      assistantTexts: [],
-      lastAssistant: buildAssistant({
+      zhushouTexts: [],
+      lastZhushou: buildZhushou({
         stopReason: "error",
         errorMessage: params.errorMessage,
         ...(params.provider ? { provider: params.provider } : {}),
@@ -552,8 +552,8 @@ async function withTimedAgentWorkspace<T>(
 ) {
   vi.useFakeTimers();
   try {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-workspace-"));
     const now = Date.now();
     vi.setSystemTime(now);
 
@@ -571,8 +571,8 @@ async function withTimedAgentWorkspace<T>(
 async function withAgentWorkspace<T>(
   run: (ctx: { agentDir: string; workspaceDir: string }) => Promise<T>,
 ) {
-  const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-agent-"));
-  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-workspace-"));
+  const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-agent-"));
+  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-workspace-"));
   try {
     return await run({ agentDir, workspaceDir });
   } finally {
@@ -619,8 +619,8 @@ async function runTurnWithCooldownSeed(params: {
 
 describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("refreshes copilot token after auth error and retries once", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-workspace-"));
     try {
       await writeCopilotAuthStore(agentDir);
       const now = Date.now();
@@ -644,8 +644,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
       runEmbeddedAttemptMock
         .mockResolvedValueOnce(
           makeAttempt({
-            assistantTexts: [],
-            lastAssistant: buildCopilotAssistant({
+            zhushouTexts: [],
+            lastZhushou: buildCopilotZhushou({
               stopReason: "error",
               errorMessage: "unauthorized",
             }),
@@ -653,8 +653,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
         )
         .mockResolvedValueOnce(
           makeAttempt({
-            assistantTexts: ["ok"],
-            lastAssistant: buildCopilotAssistant({
+            zhushouTexts: ["ok"],
+            lastZhushou: buildCopilotZhushou({
               stopReason: "stop",
               content: [{ type: "text", text: "ok" }],
             }),
@@ -685,8 +685,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("allows another auth refresh after a successful retry", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-workspace-"));
     try {
       await writeCopilotAuthStore(agentDir);
       const now = Date.now();
@@ -715,8 +715,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
       runEmbeddedAttemptMock
         .mockResolvedValueOnce(
           makeAttempt({
-            assistantTexts: [],
-            lastAssistant: buildCopilotAssistant({
+            zhushouTexts: [],
+            lastZhushou: buildCopilotZhushou({
               stopReason: "error",
               errorMessage: "401 unauthorized",
             }),
@@ -729,8 +729,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
         )
         .mockResolvedValueOnce(
           makeAttempt({
-            assistantTexts: [],
-            lastAssistant: buildCopilotAssistant({
+            zhushouTexts: [],
+            lastZhushou: buildCopilotZhushou({
               stopReason: "error",
               errorMessage: "token has expired",
             }),
@@ -738,8 +738,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
         )
         .mockResolvedValueOnce(
           makeAttempt({
-            assistantTexts: ["ok"],
-            lastAssistant: buildCopilotAssistant({
+            zhushouTexts: ["ok"],
+            lastZhushou: buildCopilotZhushou({
               stopReason: "stop",
               content: [{ type: "text", text: "ok" }],
             }),
@@ -769,8 +769,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("does not reschedule copilot refresh after shutdown", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-workspace-"));
     vi.useFakeTimers();
     try {
       await writeCopilotAuthStore(agentDir);
@@ -786,8 +786,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
 
       runEmbeddedAttemptMock.mockResolvedValueOnce(
         makeAttempt({
-          assistantTexts: ["ok"],
-          lastAssistant: buildCopilotAssistant({
+          zhushouTexts: ["ok"],
+          lastZhushou: buildCopilotZhushou({
             stopReason: "stop",
             content: [{ type: "text", text: "ok" }],
           }),
@@ -832,7 +832,7 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
     expect(typeof usageStats["openai:p2"]?.lastUsed).toBe("number");
   });
 
-  it("rotates for overloaded assistant failures across auto-pinned profiles", async () => {
+  it("rotates for overloaded zhushou failures across auto-pinned profiles", async () => {
     const { usageStats } = await runAutoPinnedRotationCase({
       errorMessage: '{"type":"error","error":{"type":"overloaded_error","message":"Overloaded"}}',
       sessionKey: "agent:test:overloaded-rotation",
@@ -844,12 +844,12 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
     expect(sleepWithAbortMock).not.toHaveBeenCalled();
   });
 
-  it("logs structured failover decision metadata for overloaded assistant rotation", async () => {
+  it("logs structured failover decision metadata for overloaded zhushou rotation", async () => {
     const records: Array<Record<string, unknown>> = [];
     setLoggerOverrideFn({
       level: "trace",
       consoleLevel: "silent",
-      file: path.join(os.tmpdir(), `assistant-auth-rotation-${Date.now()}.log`),
+      file: path.join(os.tmpdir(), `zhushou-auth-rotation-${Date.now()}.log`),
     });
     unregisterLogTransport = registerLogTransportFn((record) => {
       records.push(record);
@@ -957,8 +957,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
           aborted: true,
           timedOut: true,
           timedOutDuringCompaction: true,
-          assistantTexts: ["partial"],
-          lastAssistant: buildAssistant({
+          zhushouTexts: ["partial"],
+          lastZhushou: buildZhushou({
             stopReason: "stop",
             content: [{ type: "text", text: "partial" }],
           }),
@@ -996,8 +996,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
         makeAttempt({
           promptError: new Error("rate limit exceeded"),
           promptErrorSource: "compaction",
-          assistantTexts: ["partial"],
-          lastAssistant: buildAssistant({
+          zhushouTexts: ["partial"],
+          lastZhushou: buildZhushou({
             stopReason: "stop",
             content: [{ type: "text", text: "partial" }],
           }),
@@ -1105,8 +1105,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
 
       runEmbeddedAttemptMock.mockResolvedValueOnce(
         makeAttempt({
-          assistantTexts: ["ok"],
-          lastAssistant: buildAssistant({
+          zhushouTexts: ["ok"],
+          lastZhushou: buildZhushou({
             stopReason: "stop",
             content: [{ type: "text", text: "ok" }],
           }),
@@ -1191,8 +1191,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
 
       runEmbeddedAttemptMock.mockResolvedValueOnce(
         makeAttempt({
-          assistantTexts: ["ok"],
-          lastAssistant: buildAssistant({
+          zhushouTexts: ["ok"],
+          lastZhushou: buildZhushou({
             stopReason: "stop",
             content: [{ type: "text", text: "ok" }],
           }),
@@ -1239,8 +1239,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
 
       runEmbeddedAttemptMock.mockResolvedValueOnce(
         makeAttempt({
-          assistantTexts: ["ok"],
-          lastAssistant: buildAssistant({
+          zhushouTexts: ["ok"],
+          lastZhushou: buildZhushou({
             stopReason: "stop",
             content: [{ type: "text", text: "ok" }],
           }),
@@ -1287,8 +1287,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
 
       runEmbeddedAttemptMock.mockResolvedValueOnce(
         makeAttempt({
-          assistantTexts: ["ok"],
-          lastAssistant: buildAssistant({
+          zhushouTexts: ["ok"],
+          lastZhushou: buildZhushou({
             stopReason: "stop",
             content: [{ type: "text", text: "ok" }],
           }),

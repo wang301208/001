@@ -2,7 +2,7 @@ import { createAllowlistProviderRestrictSendersWarningCollector } from "../chann
 import type { ChannelSecurityAdapter } from "../channels/plugins/types.adapters.js";
 import { collectProviderDangerousNameMatchingScopes } from "../config/dangerous-name-matching.js";
 import type { GroupPolicy } from "../config/types.base.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { sanitizeForLog } from "../terminal/ansi.js";
 import { createScopedDmSecurityResolver } from "./channel-config-helpers.js";
 /** Shared policy warnings and DM/group policy helpers for channel plugins. */
@@ -112,7 +112,7 @@ export function createDangerousNameMatchingMutableAllowlistWarningCollector(para
     dangerousFlagPath: string;
   }) => ChannelMutableAllowlistCandidate[];
 }) {
-  return ({ cfg }: { cfg: AssistantConfig }): string[] => {
+  return ({ cfg }: { cfg: ZhushouConfig }): string[] => {
     const hits: ChannelMutableAllowlistHit[] = [];
     for (const scope of collectProviderDangerousNameMatchingScopes(cfg, params.channel)) {
       if (scope.dangerousNameMatchingEnabled) {
@@ -152,7 +152,7 @@ export function createRestrictSendersChannelSecurity<
   groupPolicyPath: string;
   groupAllowFromPath: string;
   mentionGated?: boolean;
-  providerConfigPresent?: (cfg: AssistantConfig) => boolean;
+  providerConfigPresent?: (cfg: ZhushouConfig) => boolean;
   resolveFallbackAccountId?: (account: ResolvedAccount) => string | null | undefined;
   defaultDmPolicy?: string;
   allowFromPathSuffix?: string;

@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import type { RuntimeEnv } from "../runtime-api.js";
 import { waitForAbortableDelay } from "./async.js";
 import { fetchBotIdentityForMonitor, type FeishuMonitorBotIdentity } from "./monitor.startup.js";

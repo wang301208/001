@@ -1,6 +1,6 @@
-import { shouldAckReactionForWhatsApp } from "assistant/plugin-sdk/channel-feedback";
-import type { loadConfig } from "assistant/plugin-sdk/config-runtime";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { shouldAckReactionForWhatsApp } from "zhushou/plugin-sdk/channel-feedback";
+import type { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import { getSenderIdentity } from "../../identity.js";
 import { resolveWhatsAppReactionLevel } from "../../reaction-level.js";
 import { sendReactionWhatsApp } from "../../send.js";

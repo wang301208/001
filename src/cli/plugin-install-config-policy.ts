@@ -37,7 +37,7 @@ function readBundledInstallRecoveryMetadata(rootDir: string): {
   const pluginId = manifest.ok ? manifest.manifest.id : undefined;
   try {
     const parsed = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
-      assistant?: {
+      zhushou?: {
         install?: {
           allowInvalidConfigRecovery?: boolean;
         };
@@ -45,7 +45,7 @@ function readBundledInstallRecoveryMetadata(rootDir: string): {
     };
     return {
       ...(pluginId ? { pluginId } : {}),
-      allowInvalidConfigRecovery: parsed.assistant?.install?.allowInvalidConfigRecovery === true,
+      allowInvalidConfigRecovery: parsed.zhushou?.install?.allowInvalidConfigRecovery === true,
     };
   } catch {
     return {

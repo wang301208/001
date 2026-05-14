@@ -3,22 +3,22 @@ export {
   PAIRING_APPROVED_MESSAGE,
   projectCredentialSnapshotFields,
   resolveConfiguredFromRequiredCredentialStatuses,
-} from "assistant/plugin-sdk/channel-status";
+} from "zhushou/plugin-sdk/channel-status";
 export { buildChannelConfigSchema, SlackConfigSchema } from "../config-api.js";
-export type { ChannelMessageActionContext } from "assistant/plugin-sdk/channel-contract";
-export { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+export type { ChannelMessageActionContext } from "zhushou/plugin-sdk/channel-contract";
+export { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
 export type {
   ChannelPlugin,
-  AssistantPluginApi,
+  ZhushouPluginApi,
   PluginRuntime,
-} from "assistant/plugin-sdk/channel-plugin-common";
-export type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-export type { SlackAccountConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-plugin-common";
+export type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+export type { SlackAccountConfig } from "zhushou/plugin-sdk/config-runtime";
 export {
   emptyPluginConfigSchema,
   formatPairingApproveHint,
-} from "assistant/plugin-sdk/channel-plugin-common";
-export { loadOutboundMediaFromUrl } from "assistant/plugin-sdk/outbound-media";
+} from "zhushou/plugin-sdk/channel-plugin-common";
+export { loadOutboundMediaFromUrl } from "zhushou/plugin-sdk/outbound-media";
 export { looksLikeSlackTargetId, normalizeSlackMessagingTarget } from "./target-parsing.js";
 export { getChatChannelMeta } from "./channel-api.js";
 export {
@@ -29,4 +29,4 @@ export {
   readReactionParams,
   readStringParam,
   withNormalizedTimestamp,
-} from "assistant/plugin-sdk/channel-actions";
+} from "zhushou/plugin-sdk/channel-actions";

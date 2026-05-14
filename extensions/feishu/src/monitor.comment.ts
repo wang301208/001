@@ -1,5 +1,5 @@
-﻿import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import type { AssistantConfig } from "../runtime-api.js";
+﻿import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { raceWithTimeoutAndAbort } from "./async.js";
 import { createFeishuClient } from "./client.js";
@@ -50,7 +50,7 @@ export type FeishuDriveCommentNoticeEvent = {
 };
 
 type ResolveDriveCommentEventParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   event: FeishuDriveCommentNoticeEvent;
   botOpenId?: string;
@@ -625,7 +625,7 @@ function formatCommentThreadPromptLines(params: {
   return promptReplies.map((reply, index) => {
     const text = reply.content.semanticText ?? reply.content.plainText;
     return (
-      `- [${index + 1}] author=${reply.isBotAuthored ? "assistant" : "user"} ` +
+      `- [${index + 1}] author=${reply.isBotAuthored ? "zhushou" : "user"} ` +
       `user_id=${reply.userId ?? "UNKNOWN"} ` +
       `reply_id=${reply.replyId ?? "UNKNOWN"} ` +
       `current_event=${reply.replyId === params.targetReplyId ? "yes" : "no"} ` +
@@ -711,7 +711,7 @@ function formatWholeCommentTimelinePromptLines(params: {
     return (
       `- [${index + 1}] create_time=${entry.createTime ?? "UNKNOWN"} ` +
       `comment_id=${entry.commentId} ` +
-      `author=${entry.isBotAuthored ? "assistant" : "user"} ` +
+      `author=${entry.isBotAuthored ? "zhushou" : "user"} ` +
       `user_id=${entry.userId ?? "UNKNOWN"} ` +
       `current_comment=${entry.commentId === params.currentCommentId ? "yes" : "no"} ` +
       `text=${formatPromptTextValue(text)} ` +

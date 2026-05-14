@@ -28,7 +28,7 @@ let resolveExecApprovalsSocketPath: ExecApprovalsModule["resolveExecApprovalsSoc
 let saveExecApprovals: ExecApprovalsModule["saveExecApprovals"];
 
 const tempDirs: string[] = [];
-const originalAssistantHome = process.env.ASSISTANT_HOME;
+const originalZhushouHome = process.env.ZHUSHOU_HOME;
 
 beforeAll(async () => {
   ({
@@ -54,10 +54,10 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
-  if (originalAssistantHome === undefined) {
-    delete process.env.ASSISTANT_HOME;
+  if (originalZhushouHome === undefined) {
+    delete process.env.ZHUSHOU_HOME;
   } else {
-    process.env.ASSISTANT_HOME = originalAssistantHome;
+    process.env.ZHUSHOU_HOME = originalZhushouHome;
   }
   for (const dir of tempDirs.splice(0)) {
     fs.rmSync(dir, { recursive: true, force: true });
@@ -67,12 +67,12 @@ afterEach(() => {
 function createHomeDir(): string {
   const dir = makeTempDir();
   tempDirs.push(dir);
-  process.env.ASSISTANT_HOME = dir;
+  process.env.ZHUSHOU_HOME = dir;
   return dir;
 }
 
 function approvalsFilePath(homeDir: string): string {
-  return path.join(homeDir, ".assistant", "exec-approvals.json");
+  return path.join(homeDir, ".zhushou", "exec-approvals.json");
 }
 
 function readApprovalsFile(homeDir: string): ExecApprovalsFile {
@@ -84,10 +84,10 @@ describe("exec approvals store helpers", () => {
     const dir = createHomeDir();
 
     expect(path.normalize(resolveExecApprovalsPath())).toBe(
-      path.normalize(path.join(dir, ".assistant", "exec-approvals.json")),
+      path.normalize(path.join(dir, ".zhushou", "exec-approvals.json")),
     );
     expect(path.normalize(resolveExecApprovalsSocketPath())).toBe(
-      path.normalize(path.join(dir, ".assistant", "exec-approvals.sock")),
+      path.normalize(path.join(dir, ".zhushou", "exec-approvals.sock")),
     );
   });
 
@@ -192,12 +192,12 @@ describe("exec approvals store helpers", () => {
     const linkedHome = `${realHome}-link`;
     tempDirs.push(realHome);
     fs.symlinkSync(realHome, linkedHome, process.platform === "win32" ? "junction" : "dir");
-    process.env.ASSISTANT_HOME = linkedHome;
+    process.env.ZHUSHOU_HOME = linkedHome;
 
     expect(() =>
       saveExecApprovals({ version: 1, defaults: { security: "full" }, agents: {} }),
     ).toThrow(/Refusing to traverse symlink in exec approvals path/);
-    expect(fs.existsSync(path.join(realHome, ".assistant"))).toBe(false);
+    expect(fs.existsSync(path.join(realHome, ".zhushou"))).toBe(false);
   });
 
   it("adds trimmed allowlist entries once and persists generated ids", () => {

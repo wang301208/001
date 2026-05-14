@@ -1,11 +1,11 @@
-﻿import { hasControlCommand } from "assistant/plugin-sdk/command-auth";
+﻿import { hasControlCommand } from "zhushou/plugin-sdk/command-auth";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
-} from "assistant/plugin-sdk/reply-runtime";
+} from "zhushou/plugin-sdk/reply-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createNonExitingTypedRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
-import type { AssistantConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
+import type { ZhushouConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
 import { parseFeishuMessageEvent, type FeishuMessageEvent } from "./bot.js";
 import * as dedup from "./dedup.js";
 import { monitorSingleAccount } from "./monitor.account.js";
@@ -42,7 +42,7 @@ vi.mock("./thread-bindings.js", () => ({
   createFeishuThreadBindingManager: createFeishuThreadBindingManagerMock,
 }));
 
-const cfg = {} as AssistantConfig;
+const cfg = {} as ZhushouConfig;
 
 function makeReactionEvent(
   overrides: Partial<FeishuReactionCreatedEvent> = {},
@@ -83,7 +83,7 @@ async function resolveReactionWithLookup(params: {
   });
 }
 
-async function resolveNonBotReaction(params?: { cfg?: AssistantConfig; uuid?: () => string }) {
+async function resolveNonBotReaction(params?: { cfg?: ZhushouConfig; uuid?: () => string }) {
   return await resolveReactionSyntheticEvent({
     cfg: params?.cfg ?? cfg,
     accountId: "default",
@@ -104,7 +104,7 @@ async function resolveNonBotReaction(params?: { cfg?: AssistantConfig; uuid?: ()
 
 type FeishuMention = NonNullable<FeishuMessageEvent["message"]["mentions"]>[number];
 
-function buildDebounceConfig(): AssistantConfig {
+function buildDebounceConfig(): ZhushouConfig {
   return {
     messages: {
       inbound: {
@@ -119,7 +119,7 @@ function buildDebounceConfig(): AssistantConfig {
         enabled: true,
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function buildDebounceAccount(): ResolvedFeishuAccount {
@@ -301,7 +301,7 @@ describe("resolveReactionSyntheticEvent", () => {
             reactionNotifications: "off",
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       accountId: "default",
       event,
       botOpenId: "ou_bot",
@@ -330,7 +330,7 @@ describe("resolveReactionSyntheticEvent", () => {
             reactionNotifications: "all",
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       uuid: () => "fixed-uuid",
     });
     expect(result?.message.message_id).toBe("om_msg1:reaction:THUMBSUP:fixed-uuid");

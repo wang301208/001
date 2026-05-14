@@ -229,7 +229,7 @@ describe("compaction hook wiring", () => {
     expect(ctx.incrementCompactionCount).not.toHaveBeenCalled();
   });
 
-  it("resets stale assistant usage after final compaction", () => {
+  it("resets stale zhushou usage after final compaction", () => {
     const messages = [
       { role: "user", content: "hello" },
       {
@@ -255,13 +255,13 @@ describe("compaction hook wiring", () => {
 
     runCompactionEnd(ctx, { willRetry: false, result: { summary: "compacted" } });
 
-    const assistantOne = messages[1] as { usage?: unknown };
-    const assistantTwo = messages[2] as { usage?: unknown };
-    expect(assistantOne.usage).toEqual(makeZeroUsageSnapshot());
-    expect(assistantTwo.usage).toEqual(makeZeroUsageSnapshot());
+    const zhushouOne = messages[1] as { usage?: unknown };
+    const zhushouTwo = messages[2] as { usage?: unknown };
+    expect(zhushouOne.usage).toEqual(makeZeroUsageSnapshot());
+    expect(zhushouTwo.usage).toEqual(makeZeroUsageSnapshot());
   });
 
-  it("does not clear assistant usage while compaction is retrying", () => {
+  it("does not clear zhushou usage while compaction is retrying", () => {
     const messages = [
       {
         role: "assistant",
@@ -281,7 +281,7 @@ describe("compaction hook wiring", () => {
 
     runCompactionEnd(ctx, { willRetry: true });
 
-    const assistant = messages[0] as { usage?: unknown };
-    expect(assistant.usage).toEqual({ totalTokens: 184_297, input: 130_000, output: 2_000 });
+    const zhushou = messages[0] as { usage?: unknown };
+    expect(zhushou.usage).toEqual({ totalTokens: 184_297, input: 130_000, output: 2_000 });
   });
 });

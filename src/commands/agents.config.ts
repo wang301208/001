@@ -12,7 +12,7 @@ import {
 } from "../agents/identity-file.js";
 import { listRouteBindings } from "../config/bindings.js";
 import type { IdentityConfig } from "../config/types.base.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { listGovernanceCharterAgentBlueprints } from "../governance/charter-agents.js";
 import type { AgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
 import { resolveAgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
@@ -45,7 +45,7 @@ export type AgentSummary = {
   governanceContract: AgentGovernanceRuntimeContract;
 };
 
-type AgentEntry = NonNullable<NonNullable<AssistantConfig["agents"]>["list"]>[number];
+type AgentEntry = NonNullable<NonNullable<ZhushouConfig["agents"]>["list"]>[number];
 
 export type AgentIdentity = AgentIdentityFile;
 export { listAgentEntries };
@@ -55,7 +55,7 @@ export function findAgentEntryIndex(list: AgentEntry[], agentId: string): number
   return list.findIndex((entry) => normalizeAgentId(entry.id) === id);
 }
 
-function resolveAgentModel(cfg: AssistantConfig, agentId: string) {
+function resolveAgentModel(cfg: ZhushouConfig, agentId: string) {
   const entry = listAgentEntries(cfg).find(
     (agent) => normalizeAgentId(agent.id) === normalizeAgentId(agentId),
   );
@@ -79,7 +79,7 @@ export function loadAgentIdentity(workspace: string): AgentIdentity | null {
 }
 
 export function buildAgentSummaries(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   options: { includeGovernanceCharter?: boolean } = {},
 ): AgentSummary[] {
   const defaultAgentId = normalizeAgentId(resolveDefaultAgentId(cfg));
@@ -146,7 +146,7 @@ export function buildAgentSummaries(
 }
 
 export function applyAgentConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params: {
     agentId: string;
     name?: string;
@@ -155,7 +155,7 @@ export function applyAgentConfig(
     model?: string;
     identity?: IdentityConfig;
   },
-): AssistantConfig {
+): ZhushouConfig {
   const agentId = normalizeAgentId(params.agentId);
   const name = params.name?.trim();
   const list = listAgentEntries(cfg);
@@ -189,10 +189,10 @@ export function applyAgentConfig(
 }
 
 export function pruneAgentConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   agentId: string,
 ): {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   removedBindings: number;
   removedAllow: number;
 } {

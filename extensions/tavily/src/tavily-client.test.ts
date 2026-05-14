@@ -3,7 +3,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 // Capture every call to postTrustedWebToolsJson so we can assert on extraHeaders.
 const postTrustedWebToolsJson = vi.fn();
 
-vi.mock("assistant/plugin-sdk/provider-web-search", () => ({
+vi.mock("zhushou/plugin-sdk/provider-web-search", () => ({
   DEFAULT_CACHE_TTL_MINUTES: 5,
   normalizeCacheKey: (k: string) => k,
   postTrustedWebToolsJson,
@@ -12,7 +12,7 @@ vi.mock("assistant/plugin-sdk/provider-web-search", () => ({
   writeCache: vi.fn(),
 }));
 
-vi.mock("assistant/plugin-sdk/security-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/security-runtime", () => ({
   wrapExternalContent: (v: string) => v,
   wrapWebContent: (v: string) => v,
 }));
@@ -41,19 +41,19 @@ describe("tavily client X-Client-Source header", () => {
     );
   });
 
-  it("runTavilySearch sends X-Client-Source: assistant", async () => {
+  it("runTavilySearch sends X-Client-Source: zhushou", async () => {
     await runTavilySearch({ query: "test query" });
 
     expect(postTrustedWebToolsJson).toHaveBeenCalledOnce();
     const params = postTrustedWebToolsJson.mock.calls[0][0];
-    expect(params.extraHeaders).toEqual({ "X-Client-Source": "assistant" });
+    expect(params.extraHeaders).toEqual({ "X-Client-Source": "zhushou" });
   });
 
-  it("runTavilyExtract sends X-Client-Source: assistant", async () => {
+  it("runTavilyExtract sends X-Client-Source: zhushou", async () => {
     await runTavilyExtract({ urls: ["https://example.com"] });
 
     expect(postTrustedWebToolsJson).toHaveBeenCalledOnce();
     const params = postTrustedWebToolsJson.mock.calls[0][0];
-    expect(params.extraHeaders).toEqual({ "X-Client-Source": "assistant" });
+    expect(params.extraHeaders).toEqual({ "X-Client-Source": "zhushou" });
   });
 });

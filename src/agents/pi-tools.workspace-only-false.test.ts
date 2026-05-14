@@ -26,7 +26,7 @@ vi.mock("@mariozechner/pi-ai/oauth", async () => {
 import {
   createHostWorkspaceEditTool,
   createHostWorkspaceWriteTool,
-  createAssistantReadTool,
+  createZhushouReadTool,
   wrapToolMemoryFlushAppendOnlyWrite,
   wrapToolWorkspaceRootGuard,
 } from "./pi-tools.read.js";
@@ -46,7 +46,7 @@ describe("FS tools with workspaceOnly=false", () => {
     });
 
   const toolsFor = (workspaceOnly: boolean | undefined): AnyAgentTool[] => {
-    const read = createAssistantReadTool(createReadTool(workspaceDir) as unknown as AnyAgentTool);
+    const read = createZhushouReadTool(createReadTool(workspaceDir) as unknown as AnyAgentTool);
     const write = createHostWorkspaceWriteTool(workspaceDir, { workspaceOnly });
     const edit = createHostWorkspaceEditTool(workspaceDir, { workspaceOnly });
     const tools = [read, write, edit];
@@ -69,7 +69,7 @@ describe("FS tools with workspaceOnly=false", () => {
   };
 
   beforeEach(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-test-"));
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-test-"));
     workspaceDir = path.join(tmpDir, "workspace");
     await fs.mkdir(workspaceDir);
     outsideFile = path.join(tmpDir, "outside.txt");
@@ -209,7 +209,7 @@ describe("FS tools with workspaceOnly=false", () => {
     await fs.writeFile(allowedAbsolutePath, "seed");
 
     const tools = [
-      createAssistantReadTool(createReadTool(workspaceDir) as unknown as AnyAgentTool),
+      createZhushouReadTool(createReadTool(workspaceDir) as unknown as AnyAgentTool),
       wrapToolMemoryFlushAppendOnlyWrite(createHostWorkspaceWriteTool(workspaceDir), {
         root: workspaceDir,
         relativePath: allowedRelativePath,

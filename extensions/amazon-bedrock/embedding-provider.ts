@@ -3,8 +3,8 @@ import {
   sanitizeAndNormalizeEmbedding,
   type MemoryEmbeddingProvider,
   type MemoryEmbeddingProviderCreateOptions,
-} from "assistant/plugin-sdk/memory-core-host-engine-embeddings";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/memory-core-host-engine-embeddings";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 // ---------------------------------------------------------------------------
 // Types & constants

@@ -52,7 +52,7 @@ function buildPreparedContext(params?: {
     reusableCliSession: params?.cliSessionId ? { sessionId: params.cliSessionId } : {},
     modelId: "gpt-5.4",
     normalizedModel: "gpt-5.4",
-    systemPrompt: "You are a helpful assistant.",
+    systemPrompt: "You are a helpful zhushou.",
     systemPromptReport: {} as PreparedCliRunContext["systemPromptReport"],
     bootstrapPromptWarningLines: [],
   };
@@ -200,7 +200,7 @@ describe("runCliAgent reliability", () => {
 
     expect(result.meta.finalPromptText).toContain("Warning: prompt budget low.");
     expect(result.meta.finalPromptText).toContain("hi");
-    expect(result.meta.finalAssistantRawText).toBe("hello from cli");
+    expect(result.meta.finalZhushouRawText).toBe("hello from cli");
     expect(result.meta.executionTrace).toMatchObject({
       winnerProvider: "codex-cli",
       winnerModel: "gpt-5.4",
@@ -218,7 +218,7 @@ describe("runCliAgent reliability", () => {
     });
   });
 
-  it("keeps raw assistant output separate from transformed visible CLI output", async () => {
+  it("keeps raw zhushou output separate from transformed visible CLI output", async () => {
     supervisorSpawnMock.mockResolvedValueOnce(
       createManagedRun({
         reason: "exit",
@@ -243,8 +243,8 @@ describe("runCliAgent reliability", () => {
     });
 
     expect(result.payloads).toEqual([{ text: "goodbye from cli" }]);
-    expect(result.meta.finalAssistantVisibleText).toBe("goodbye from cli");
-    expect(result.meta.finalAssistantRawText).toBe("hello from cli");
+    expect(result.meta.finalZhushouVisibleText).toBe("goodbye from cli");
+    expect(result.meta.finalZhushouRawText).toBe("hello from cli");
   });
 });
 

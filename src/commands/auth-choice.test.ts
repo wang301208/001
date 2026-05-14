@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { resolveAgentDir } from "../agents/agent-scope.js";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import type { ModelProviderConfig } from "../config/types.models.js";
 import type { ProviderAuthMethod, ProviderAuthResult, ProviderPlugin } from "../plugins/types.js";
@@ -12,7 +12,7 @@ import {
   createAuthTestLifecycle,
   createExitThrowingRuntime,
   createWizardPrompter,
-  requireAssistantAgentDir,
+  requireZhushouAgentDir,
   setupAuthTestEnv,
 } from "./test-wizard-helpers.js";
 
@@ -104,18 +104,18 @@ vi.mock("../plugins/provider-zai-endpoint.js", () => ({
 }));
 
 vi.mock("../agents/agent-paths.js", () => ({
-  resolveAssistantAgentDir: () => process.env.ASSISTANT_AGENT_DIR ?? "/tmp/assistant-agent",
+  resolveZhushouAgentDir: () => process.env.ZHUSHOU_AGENT_DIR ?? "/tmp/zhushou-agent",
 }));
 
 vi.mock("../agents/agent-scope.js", () => ({
   resolveDefaultAgentId: () => "main",
-  resolveAgentDir: (_config: unknown, agentId: string) => `/tmp/assistant-agents/${agentId}`,
+  resolveAgentDir: (_config: unknown, agentId: string) => `/tmp/zhushou-agents/${agentId}`,
   resolveAgentWorkspaceDir: (_config: unknown, agentId: string) =>
-    `/tmp/assistant-workspaces/${agentId}`,
+    `/tmp/zhushou-workspaces/${agentId}`,
 }));
 
 vi.mock("../agents/workspace.js", () => ({
-  resolveDefaultAgentWorkspaceDir: () => "/tmp/assistant-workspace",
+  resolveDefaultAgentWorkspaceDir: () => "/tmp/zhushou-workspace",
 }));
 
 vi.mock("../plugins/setup-browser.js", () => ({
@@ -129,7 +129,7 @@ vi.mock("../plugins/provider-oauth-flow.js", () => ({
 
 vi.mock("../plugins/provider-auth-helpers.js", () => ({
   applyAuthProfileConfig: (
-    cfg: AssistantConfig,
+    cfg: ZhushouConfig,
     params: {
       profileId: string;
       provider: string;
@@ -137,7 +137,7 @@ vi.mock("../plugins/provider-auth-helpers.js", () => ({
       email?: string;
       displayName?: string;
     },
-  ): AssistantConfig => ({
+  ): ZhushouConfig => ({
     ...cfg,
     auth: {
       ...cfg.auth,
@@ -173,7 +173,7 @@ const testAuthProfileStores = vi.hoisted(
 
 // These tests verify profile payloads, not file locking; keep auth stores in memory.
 function resolveTestAuthStoreKey(agentDir?: string): string {
-  return agentDir?.trim() || process.env.ASSISTANT_AGENT_DIR || "__main__";
+  return agentDir?.trim() || process.env.ZHUSHOU_AGENT_DIR || "__main__";
 }
 
 function readTestAuthProfileStore(agentDir?: string): {
@@ -210,7 +210,7 @@ function normalizeText(value: unknown): string {
 function providerConfigPatch(
   providerId: string,
   patch: Record<string, unknown>,
-): Partial<AssistantConfig> {
+): Partial<ZhushouConfig> {
   const providers: Record<string, ModelProviderConfig> = {
     [providerId]: patch as ModelProviderConfig,
   };
@@ -341,7 +341,7 @@ async function createApiKeyProvider(params: {
   expectedProviders?: string[];
   noteMessage?: string;
   noteTitle?: string;
-  applyConfig?: Partial<AssistantConfig>;
+  applyConfig?: Partial<ZhushouConfig>;
 }): Promise<ProviderPlugin> {
   const profileIds =
     params.profileIds && params.profileIds.length > 0
@@ -380,7 +380,7 @@ async function createApiKeyProvider(params: {
                 input,
               ),
             })),
-            ...(params.applyConfig ? { configPatch: params.applyConfig as AssistantConfig } : {}),
+            ...(params.applyConfig ? { configPatch: params.applyConfig as ZhushouConfig } : {}),
             ...(params.defaultModel ? { defaultModel: params.defaultModel } : {}),
           };
         },
@@ -456,7 +456,7 @@ async function createDefaultProviderPlugins(): Promise<ProviderPlugin[]> {
             credential: buildApiKeyCredential("zai", token),
           },
         ],
-        configPatch: providerConfigPatch("zai", { baseUrl }) as AssistantConfig,
+        configPatch: providerConfigPatch("zai", { baseUrl }) as ZhushouConfig,
         defaultModel: `zai/${modelId}`,
       };
     },
@@ -551,8 +551,8 @@ async function createDefaultProviderPlugins(): Promise<ProviderPlugin[]> {
 
 describe("applyAuthChoice", () => {
   const lifecycle = createAuthTestLifecycle([
-    "ASSISTANT_STATE_DIR",
-    "ASSISTANT_AGENT_DIR",
+    "ZHUSHOU_STATE_DIR",
+    "ZHUSHOU_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
     "ANTHROPIC_API_KEY",
     "OPENROUTER_API_KEY",
@@ -571,8 +571,8 @@ describe("applyAuthChoice", () => {
     testAuthProfileStores.clear();
     const stateDir = path.join(authTestRoot, `state-${++authStateCounter}`);
     const agentDir = path.join(stateDir, "agent");
-    process.env.ASSISTANT_STATE_DIR = stateDir;
-    process.env.ASSISTANT_AGENT_DIR = agentDir;
+    process.env.ZHUSHOU_STATE_DIR = stateDir;
+    process.env.ZHUSHOU_AGENT_DIR = agentDir;
     process.env.PI_CODING_AGENT_DIR = agentDir;
   }
   function createPrompter(overrides: Partial<WizardPrompter>): WizardPrompter {
@@ -602,7 +602,7 @@ describe("applyAuthChoice", () => {
     };
   }
   async function readAuthProfiles() {
-    return readTestAuthProfileStore(requireAssistantAgentDir());
+    return readTestAuthProfileStore(requireZhushouAgentDir());
   }
   async function readAuthProfilesForAgentDir(agentDir: string) {
     return readTestAuthProfileStore(agentDir);
@@ -614,7 +614,7 @@ describe("applyAuthChoice", () => {
   let defaultProviderPlugins: ProviderPlugin[] = [];
 
   beforeAll(async () => {
-    authTestRoot = (await setupAuthTestEnv("assistant-auth-")).stateDir;
+    authTestRoot = (await setupAuthTestEnv("zhushou-auth-")).stateDir;
     defaultProviderPlugins = await createDefaultProviderPlugins();
     resolvePluginProviders.mockReturnValue(defaultProviderPlugins);
   });
@@ -669,7 +669,7 @@ describe("applyAuthChoice", () => {
 
     const result = await applyAuthChoice({
       authChoice: "token",
-      config: {} as AssistantConfig,
+      config: {} as ZhushouConfig,
       prompter: createPrompter({}),
       runtime: createExitThrowingRuntime(),
       setDefaultModel: true,
@@ -815,7 +815,7 @@ describe("applyAuthChoice", () => {
   it("uses provided tokens without prompting across alias and direct provider choices", async () => {
     const scenarios: Array<{
       authChoice: "apiKey" | "gemini-api-key";
-      config?: AssistantConfig;
+      config?: ZhushouConfig;
       setDefaultModel: boolean;
       tokenProvider: string;
       token: string;

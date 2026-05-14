@@ -1,12 +1,12 @@
-import { formatCliCommand } from "assistant/plugin-sdk/cli-runtime";
-import { loadConfig, type AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
-import { generateSecureUuid } from "assistant/plugin-sdk/core";
-import { normalizePollInput, type PollInput } from "assistant/plugin-sdk/media-runtime";
-import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
-import { getChildLogger } from "assistant/plugin-sdk/text-runtime";
-import { redactIdentifier } from "assistant/plugin-sdk/text-runtime";
-import { convertMarkdownTables } from "assistant/plugin-sdk/text-runtime";
+import { formatCliCommand } from "zhushou/plugin-sdk/cli-runtime";
+import { loadConfig, type ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import { generateSecureUuid } from "zhushou/plugin-sdk/core";
+import { normalizePollInput, type PollInput } from "zhushou/plugin-sdk/media-runtime";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
+import { getChildLogger } from "zhushou/plugin-sdk/text-runtime";
+import { redactIdentifier } from "zhushou/plugin-sdk/text-runtime";
+import { convertMarkdownTables } from "zhushou/plugin-sdk/text-runtime";
 import {
   resolveDefaultWhatsAppAccountId,
   resolveWhatsAppAccount,
@@ -20,7 +20,7 @@ import { markdownToWhatsApp, toWhatsappJid } from "./text-runtime.js";
 const outboundLog = createSubsystemLogger("gateway/channels/whatsapp").child("outbound");
 
 function resolveOutboundWhatsAppAccountId(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string;
 }): string | undefined {
   const explicitAccountId = params.accountId?.trim();
@@ -30,7 +30,7 @@ function resolveOutboundWhatsAppAccountId(params: {
   return resolveDefaultWhatsAppAccountId(params.cfg);
 }
 
-function requireOutboundActiveWebListener(params: { cfg: AssistantConfig; accountId?: string }): {
+function requireOutboundActiveWebListener(params: { cfg: ZhushouConfig; accountId?: string }): {
   accountId: string;
   listener: ActiveWebListener;
 } {
@@ -40,7 +40,7 @@ function requireOutboundActiveWebListener(params: { cfg: AssistantConfig; accoun
     getRegisteredWhatsAppConnectionController(resolvedAccountId)?.getActiveListener() ?? null;
   if (!listener) {
     throw new Error(
-      `No active WhatsApp Web listener (account: ${resolvedAccountId}). Start the gateway, then link WhatsApp with: ${formatCliCommand(`assistant channels login --channel whatsapp --account ${resolvedAccountId}`)}.`,
+      `No active WhatsApp Web listener (account: ${resolvedAccountId}). Start the gateway, then link WhatsApp with: ${formatCliCommand(`zhushou channels login --channel whatsapp --account ${resolvedAccountId}`)}.`,
     );
   }
   return { accountId: resolvedAccountId, listener };
@@ -51,7 +51,7 @@ export async function sendMessageWhatsApp(
   body: string,
   options: {
     verbose: boolean;
-    cfg?: AssistantConfig;
+    cfg?: ZhushouConfig;
     mediaUrl?: string;
     mediaUrls?: readonly string[];
     mediaAccess?: {
@@ -211,7 +211,7 @@ export async function sendReactionWhatsApp(
 export async function sendPollWhatsApp(
   to: string,
   poll: PollInput,
-  options: { verbose: boolean; accountId?: string; cfg?: AssistantConfig },
+  options: { verbose: boolean; accountId?: string; cfg?: ZhushouConfig },
 ): Promise<{ messageId: string; toJid: string }> {
   const correlationId = generateSecureUuid();
   const startedAt = Date.now();

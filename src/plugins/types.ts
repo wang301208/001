@@ -22,7 +22,7 @@ import type { ChannelPlugin } from "../channels/plugins/types.plugin.js";
 import type { ChannelId } from "../channels/plugins/types.public.js";
 import type { ModelProviderConfig } from "../config/types.js";
 import type { ModelCompatConfig } from "../config/types.models.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { OperatorScope } from "../gateway/operator-scopes.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import type { InternalHookHandler } from "../hooks/internal-hook-types.js";
@@ -110,10 +110,10 @@ import type {
 } from "./provider-thinking.types.js";
 import type { PluginRuntime } from "./runtime/types.js";
 import type {
-  AssistantPluginHookOptions,
-  AssistantPluginToolContext,
-  AssistantPluginToolFactory,
-  AssistantPluginToolOptions,
+  ZhushouPluginHookOptions,
+  ZhushouPluginToolContext,
+  ZhushouPluginToolFactory,
+  ZhushouPluginToolOptions,
 } from "./tool-types.js";
 import type { WebFetchProviderPlugin, WebSearchProviderPlugin } from "./web-provider-types.js";
 
@@ -126,10 +126,10 @@ export type {
   PluginFormat,
 } from "./manifest-types.js";
 export type {
-  AssistantPluginHookOptions,
-  AssistantPluginToolContext,
-  AssistantPluginToolFactory,
-  AssistantPluginToolOptions,
+  ZhushouPluginHookOptions,
+  ZhushouPluginToolContext,
+  ZhushouPluginToolFactory,
+  ZhushouPluginToolOptions,
 } from "./tool-types.js";
 export type { AnyAgentTool } from "../agents/tools/common.js";
 export type { AgentHarness } from "../agents/harness/types.js";
@@ -202,7 +202,7 @@ export type PluginConfigValidation =
  * function, or both. `uiHints` and `jsonSchema` are optional extras for docs,
  * forms, and config UIs.
  */
-export type AssistantPluginConfigSchema = {
+export type ZhushouPluginConfigSchema = {
   safeParse?: (value: unknown) => {
     success: boolean;
     data?: unknown;
@@ -228,14 +228,14 @@ export type ProviderAuthResult = {
    * `models.providers.<id>` entries, default aliases, or agent model helpers.
    * The caller still persists auth-profile bindings separately.
    */
-  configPatch?: Partial<AssistantConfig>;
+  configPatch?: Partial<ZhushouConfig>;
   defaultModel?: string;
   notes?: string[];
 };
 
 /** Interactive auth context passed to provider login/setup methods. */
 export type ProviderAuthContext = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   agentDir?: string;
   workspaceDir?: string;
@@ -299,8 +299,8 @@ export type ProviderNonInteractiveApiKeyCredentialParams = {
 
 export type ProviderAuthMethodNonInteractiveContext = {
   authChoice: string;
-  config: AssistantConfig;
-  baseConfig: AssistantConfig;
+  config: ZhushouConfig;
+  baseConfig: ZhushouConfig;
   opts: ProviderAuthOptionBag;
   runtime: RuntimeEnv;
   agentDir?: string;
@@ -329,13 +329,13 @@ export type ProviderAuthMethod = {
   run: (ctx: ProviderAuthContext) => Promise<ProviderAuthResult>;
   runNonInteractive?: (
     ctx: ProviderAuthMethodNonInteractiveContext,
-  ) => Promise<AssistantConfig | null>;
+  ) => Promise<ZhushouConfig | null>;
 };
 
 export type ProviderCatalogOrder = "simple" | "profile" | "paired" | "late";
 
 export type ProviderCatalogContext = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -384,7 +384,7 @@ export type ProviderRuntimeProviderConfig = {
  * belong in `prepareDynamicModel`.
  */
 export type ProviderResolveDynamicModelContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   provider: string;
@@ -403,7 +403,7 @@ export type ProviderResolveDynamicModelContext = {
 export type ProviderPrepareDynamicModelContext = ProviderResolveDynamicModelContext;
 
 export type ProviderPreferRuntimeResolvedModelContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   provider: string;
@@ -418,7 +418,7 @@ export type ProviderPreferRuntimeResolvedModelContext = {
  * patch provider-specific compat bits.
  */
 export type ProviderNormalizeResolvedModelContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   provider: string;
@@ -463,7 +463,7 @@ export type ProviderNormalizeTransportContext = {
  * for the request.
  */
 export type ProviderPrepareRuntimeAuthContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -507,7 +507,7 @@ export type ProviderPreparedRuntimeAuth = {
  * token blob, read a legacy credential file, or pick between aliases).
  */
 export type ProviderResolveUsageAuthContext = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -539,7 +539,7 @@ export type ProviderResolvedUsageAuth = {
  * owns the provider-specific HTTP request + response normalization.
  */
 export type ProviderFetchUsageSnapshotContext = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -558,7 +558,7 @@ export type ProviderFetchUsageSnapshotContext = {
  * migrations or other provider-owned auth-store cleanup guidance.
  */
 export type ProviderAuthDoctorHintContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   store: AuthProfileStore;
   provider: string;
   profileId?: string;
@@ -572,7 +572,7 @@ export type ProviderAuthDoctorHintContext = {
  * into the merged `extraParams` object. Return the full next extraParams object.
  */
 export type ProviderPrepareExtraParamsContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   provider: string;
@@ -616,7 +616,7 @@ export type ProviderReplayPolicy = {
   };
   dropThinkingBlocks?: boolean;
   repairToolUseResultPairing?: boolean;
-  applyAssistantFirstOrderingFix?: boolean;
+  applyZhushouFirstOrderingFix?: boolean;
   validateGeminiTurns?: boolean;
   validateAnthropicTurns?: boolean;
   allowSyntheticToolResults?: boolean;
@@ -629,7 +629,7 @@ export type ProviderReplayPolicy = {
  * behavior and should stay with the provider plugin instead of core tables.
  */
 export type ProviderReplayPolicyContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
@@ -706,7 +706,7 @@ export type ProviderReasoningOutputModeContext = ProviderReplayPolicyContext;
  * as a wrapper around `streamSimple`).
  */
 export type ProviderCreateStreamFnContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   provider: string;
@@ -812,7 +812,7 @@ export type PluginEmbeddingProvider = {
  * plugin instead of the core memory switchboard.
  */
 export type ProviderCreateEmbeddingProviderContext = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   provider: string;
@@ -847,7 +847,7 @@ export type ProviderCacheTtlEligibilityContext = {
  * "No API key found" error.
  */
 export type ProviderBuildMissingAuthMessageContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -863,7 +863,7 @@ export type ProviderBuildMissingAuthMessageContext = {
  * error.
  */
 export type ProviderBuildUnknownModelHintContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -880,7 +880,7 @@ export type ProviderBuildUnknownModelHintContext = {
  * resolution, model listing, and catalog loading.
  */
 export type ProviderBuiltInModelSuppressionContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -919,7 +919,7 @@ export type ProviderModernModelPolicyContext = {
  * upstream registry has not caught up yet.
  */
 export type ProviderAugmentModelCatalogContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
@@ -950,8 +950,8 @@ export type ProviderPluginWizardSetup = {
   choiceId?: string;
   choiceLabel?: string;
   choiceHint?: string;
-  assistantPriority?: number;
-  assistantVisibility?: "visible" | "manual-only";
+  zhushouPriority?: number;
+  zhushouVisibility?: "visible" | "manual-only";
   groupId?: string;
   groupLabel?: string;
   groupHint?: string;
@@ -1015,7 +1015,7 @@ export type ProviderOAuthProfileIdRepair = {
 };
 
 export type ProviderModelSelectedContext = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   model: string;
   prompter: WizardPrompter;
   agentDir?: string;
@@ -1023,14 +1023,14 @@ export type ProviderModelSelectedContext = {
 };
 
 export type ProviderDeferSyntheticProfileAuthContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   provider: string;
   providerConfig?: ModelProviderConfig;
   resolvedApiKey?: string;
 };
 
 export type ProviderSystemPromptContributionContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   provider: string;
@@ -1431,7 +1431,7 @@ export type ProviderPlugin = {
    * Provider-owned bidirectional text replacements.
    *
    * `input` applies to system prompts and text message content before transport.
-   * `output` applies to assistant text deltas/final text before 助手 handles
+   * `output` applies to zhushou text deltas/final text before 助手 handles
    * its own control markers or channel delivery.
    */
   textTransforms?: PluginTextTransforms;
@@ -1443,7 +1443,7 @@ export type ProviderPlugin = {
    */
   applyConfigDefaults?: (
     ctx: ProviderApplyConfigDefaultsContext,
-  ) => AssistantConfig | null | undefined;
+  ) => ZhushouConfig | null | undefined;
   /**
    * Provider-owned "modern model" matcher used by live profile/smoke filters.
    *
@@ -1462,7 +1462,7 @@ export type ProviderPlugin = {
    */
   formatApiKey?: (cred: AuthProfileCredential) => string;
   /**
-   * Legacy auth-profile ids that should be retired by `assistant doctor`.
+   * Legacy auth-profile ids that should be retired by `zhushou doctor`.
    *
    * Use this when a provider plugin replaces an older core-managed profile id
    * and wants cleanup/migration messaging to live with the provider instead of
@@ -1470,7 +1470,7 @@ export type ProviderPlugin = {
    */
   deprecatedProfileIds?: string[];
   /**
-   * Legacy OAuth profile-id migrations that `assistant doctor` should offer.
+   * Legacy OAuth profile-id migrations that `zhushou doctor` should offer.
    *
    * Use this when a provider moved from a legacy default OAuth profile id to a
    * newer identity-based id and wants doctor to own the config rewrite without
@@ -1629,7 +1629,7 @@ export type ImageGenerationProviderPlugin = ImageGenerationProvider;
 export type VideoGenerationProviderPlugin = VideoGenerationProvider;
 export type MusicGenerationProviderPlugin = MusicGenerationProvider;
 
-export type AssistantPluginGatewayMethod = {
+export type ZhushouPluginGatewayMethod = {
   method: string;
   handler: GatewayRequestHandler;
 };
@@ -1663,7 +1663,7 @@ export type PluginCommandContext = {
   /** The full normalized command body */
   commandBody: string;
   /** Current 助手 configuration */
-  config: AssistantConfig;
+  config: ZhushouConfig;
   /** Raw "From" value (channel-scoped id) */
   from?: string;
   /** Raw "To" value (channel-scoped id) */
@@ -1696,7 +1696,7 @@ export type PluginCommandHandler = (
 /**
  * Definition for a plugin-registered command.
  */
-export type AssistantPluginCommandDefinition = {
+export type ZhushouPluginCommandDefinition = {
   /** Command name without leading slash (e.g., "tts") */
   name: string;
   /**
@@ -1743,32 +1743,32 @@ export type PluginInteractiveRegistration<
 
 export type PluginInteractiveHandlerRegistration = PluginInteractiveRegistration;
 
-export type AssistantPluginHttpRouteAuth = "gateway" | "plugin";
-export type AssistantPluginHttpRouteMatch = "exact" | "prefix";
-export type AssistantPluginGatewayRuntimeScopeSurface = "write-default" | "trusted-operator";
+export type ZhushouPluginHttpRouteAuth = "gateway" | "plugin";
+export type ZhushouPluginHttpRouteMatch = "exact" | "prefix";
+export type ZhushouPluginGatewayRuntimeScopeSurface = "write-default" | "trusted-operator";
 
-export type AssistantPluginHttpRouteHandler = (
+export type ZhushouPluginHttpRouteHandler = (
   req: IncomingMessage,
   res: ServerResponse,
 ) => Promise<boolean | void> | boolean | void;
 
-export type AssistantPluginHttpRouteParams = {
+export type ZhushouPluginHttpRouteParams = {
   path: string;
-  handler: AssistantPluginHttpRouteHandler;
-  auth: AssistantPluginHttpRouteAuth;
-  match?: AssistantPluginHttpRouteMatch;
-  gatewayRuntimeScopeSurface?: AssistantPluginGatewayRuntimeScopeSurface;
+  handler: ZhushouPluginHttpRouteHandler;
+  auth: ZhushouPluginHttpRouteAuth;
+  match?: ZhushouPluginHttpRouteMatch;
+  gatewayRuntimeScopeSurface?: ZhushouPluginGatewayRuntimeScopeSurface;
   replaceExisting?: boolean;
 };
 
-export type AssistantPluginCliContext = {
+export type ZhushouPluginCliContext = {
   program: Command;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   workspaceDir?: string;
   logger: PluginLogger;
 };
 
-export type AssistantPluginCliRegistrar = (ctx: AssistantPluginCliContext) => void | Promise<void>;
+export type ZhushouPluginCliRegistrar = (ctx: ZhushouPluginCliContext) => void | Promise<void>;
 
 /**
  * Top-level CLI metadata for plugin-owned commands.
@@ -1778,84 +1778,84 @@ export type AssistantPluginCliRegistrar = (ctx: AssistantPluginCliContext) => vo
  * advertising it at the root CLI level, provide descriptors that cover every
  * top-level command root registered by that plugin CLI surface.
  */
-export type AssistantPluginCliCommandDescriptor = {
+export type ZhushouPluginCliCommandDescriptor = {
   name: string;
   description: string;
   hasSubcommands: boolean;
 };
 
-export type AssistantPluginReloadRegistration = {
+export type ZhushouPluginReloadRegistration = {
   restartPrefixes?: string[];
   hotPrefixes?: string[];
   noopPrefixes?: string[];
 };
 
-export type AssistantPluginNodeHostCommand = {
+export type ZhushouPluginNodeHostCommand = {
   command: string;
   cap?: string;
   handle: (paramsJSON?: string | null) => Promise<string>;
 };
 
-export type AssistantPluginSecurityAuditContext = {
-  config: AssistantConfig;
-  sourceConfig: AssistantConfig;
+export type ZhushouPluginSecurityAuditContext = {
+  config: ZhushouConfig;
+  sourceConfig: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   stateDir: string;
   configPath: string;
 };
 
-export type AssistantPluginSecurityAuditCollector = (
-  ctx: AssistantPluginSecurityAuditContext,
+export type ZhushouPluginSecurityAuditCollector = (
+  ctx: ZhushouPluginSecurityAuditContext,
 ) => SecurityAuditFinding[] | Promise<SecurityAuditFinding[]>;
 
 /** Context passed to long-lived plugin services. */
-export type AssistantPluginServiceContext = {
-  config: AssistantConfig;
+export type ZhushouPluginServiceContext = {
+  config: ZhushouConfig;
   workspaceDir?: string;
   stateDir: string;
   logger: PluginLogger;
 };
 
 /** Background service registered by a plugin during `register(api)`. */
-export type AssistantPluginService = {
+export type ZhushouPluginService = {
   id: string;
-  start: (ctx: AssistantPluginServiceContext) => void | Promise<void>;
-  stop?: (ctx: AssistantPluginServiceContext) => void | Promise<void>;
+  start: (ctx: ZhushouPluginServiceContext) => void | Promise<void>;
+  stop?: (ctx: ZhushouPluginServiceContext) => void | Promise<void>;
 };
 
-export type AssistantPluginChannelRegistration = {
+export type ZhushouPluginChannelRegistration = {
   plugin: ChannelPlugin;
 };
 
 /** Module-level plugin definition loaded from a native plugin entry file. */
-export type AssistantPluginDefinition = {
+export type ZhushouPluginDefinition = {
   id?: string;
   name?: string;
   description?: string;
   version?: string;
   kind?: PluginKind | PluginKind[];
-  configSchema?: AssistantPluginConfigSchema;
-  reload?: AssistantPluginReloadRegistration;
-  nodeHostCommands?: AssistantPluginNodeHostCommand[];
-  securityAuditCollectors?: AssistantPluginSecurityAuditCollector[];
-  register?: (api: AssistantPluginApi) => void;
-  activate?: (api: AssistantPluginApi) => void;
+  configSchema?: ZhushouPluginConfigSchema;
+  reload?: ZhushouPluginReloadRegistration;
+  nodeHostCommands?: ZhushouPluginNodeHostCommand[];
+  securityAuditCollectors?: ZhushouPluginSecurityAuditCollector[];
+  register?: (api: ZhushouPluginApi) => void;
+  activate?: (api: ZhushouPluginApi) => void;
 };
 
-export type AssistantPluginModule = AssistantPluginDefinition | ((api: AssistantPluginApi) => void);
+export type ZhushouPluginModule = ZhushouPluginDefinition | ((api: ZhushouPluginApi) => void);
 
 export type PluginRegistrationMode = "full" | "setup-only" | "setup-runtime" | "cli-metadata";
 
-export type PluginConfigMigration = (config: AssistantConfig) =>
+export type PluginConfigMigration = (config: ZhushouConfig) =>
   | {
-      config: AssistantConfig;
+      config: ZhushouConfig;
       changes: string[];
     }
   | null
   | undefined;
 
 export type PluginSetupAutoEnableContext = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 };
 
@@ -1864,7 +1864,7 @@ export type PluginSetupAutoEnableProbe = (
 ) => string | string[] | null | undefined;
 
 /** Main registration API injected into native plugin entry files. */
-export type AssistantPluginApi = {
+export type ZhushouPluginApi = {
   id: string;
   name: string;
   version?: string;
@@ -1872,7 +1872,7 @@ export type AssistantPluginApi = {
   source: string;
   rootDir?: string;
   registrationMode: PluginRegistrationMode;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   pluginConfig?: Record<string, unknown>;
   /**
    * In-process runtime helpers for trusted native plugins.
@@ -1883,17 +1883,17 @@ export type AssistantPluginApi = {
   runtime: PluginRuntime;
   logger: PluginLogger;
   registerTool: (
-    tool: AnyAgentTool | AssistantPluginToolFactory,
-    opts?: AssistantPluginToolOptions,
+    tool: AnyAgentTool | ZhushouPluginToolFactory,
+    opts?: ZhushouPluginToolOptions,
   ) => void;
   registerHook: (
     events: string | string[],
     handler: InternalHookHandler,
-    opts?: AssistantPluginHookOptions,
+    opts?: ZhushouPluginHookOptions,
   ) => void;
-  registerHttpRoute: (params: AssistantPluginHttpRouteParams) => void;
+  registerHttpRoute: (params: ZhushouPluginHttpRouteParams) => void;
   /** Register a native messaging channel plugin (channel capability). */
-  registerChannel: (registration: AssistantPluginChannelRegistration | ChannelPlugin) => void;
+  registerChannel: (registration: ZhushouPluginChannelRegistration | ChannelPlugin) => void;
   /**
    * Register a gateway RPC method for this plugin.
    *
@@ -1907,7 +1907,7 @@ export type AssistantPluginApi = {
     opts?: { scope?: OperatorScope },
   ) => void;
   registerCli: (
-    registrar: AssistantPluginCliRegistrar,
+    registrar: ZhushouPluginCliRegistrar,
     opts?: {
       /** Explicit top-level command roots owned by this registrar. */
       commands?: string[];
@@ -1918,13 +1918,13 @@ export type AssistantPluginApi = {
        * the plugin registrar lazy in the normal root CLI path. Command-only
        * registrations stay on the eager compatibility path.
        */
-      descriptors?: AssistantPluginCliCommandDescriptor[];
+      descriptors?: ZhushouPluginCliCommandDescriptor[];
     },
   ) => void;
-  registerReload: (registration: AssistantPluginReloadRegistration) => void;
-  registerNodeHostCommand: (command: AssistantPluginNodeHostCommand) => void;
-  registerSecurityAuditCollector: (collector: AssistantPluginSecurityAuditCollector) => void;
-  registerService: (service: AssistantPluginService) => void;
+  registerReload: (registration: ZhushouPluginReloadRegistration) => void;
+  registerNodeHostCommand: (command: ZhushouPluginNodeHostCommand) => void;
+  registerSecurityAuditCollector: (collector: ZhushouPluginSecurityAuditCollector) => void;
+  registerService: (service: ZhushouPluginService) => void;
   /** Register a text-only CLI backend used by the local CLI runner. */
   registerCliBackend: (backend: CliBackendPlugin) => void;
   /** Register plugin-owned prompt/message compatibility text transforms. */
@@ -1962,7 +1962,7 @@ export type AssistantPluginApi = {
    * Plugin commands are processed before built-in commands and before agent invocation.
    * Use this for simple state-toggling or status commands that don't need AI reasoning.
    */
-  registerCommand: (command: AssistantPluginCommandDefinition) => void;
+  registerCommand: (command: ZhushouPluginCommandDefinition) => void;
   /** Register a context engine implementation (exclusive slot - only one active at a time). */
   registerContextEngine: (
     id: string,

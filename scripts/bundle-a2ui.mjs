@@ -12,7 +12,7 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const hashFile = path.join(rootDir, "src", "canvas-host", "a2ui", ".bundle.hash");
 const outputFile = path.join(rootDir, "src", "canvas-host", "a2ui", "a2ui.bundle.js");
 const a2uiRendererDir = path.join(rootDir, "vendor", "a2ui", "renderers", "lit");
-const a2uiAppDir = path.join(rootDir, "apps", "shared", "AssistantKit", "Tools", "CanvasA2UI");
+const a2uiAppDir = path.join(rootDir, "apps", "shared", "ZhushouKit", "Tools", "CanvasA2UI");
 const bundleDependencyIds = ["lit", "@lit/context", "@lit-labs/signals", "signal-utils"];
 const repoInputPaths = [a2uiRendererDir, a2uiAppDir];
 const ignoredBundleHashInputPrefixes = ["vendor/a2ui/renderers/lit/dist"];
@@ -67,7 +67,7 @@ export function getLocalRolldownCliCandidates(repoRoot = rootDir) {
 export function getBundleHashRepoInputPaths(repoRoot = rootDir) {
   return [
     path.join(repoRoot, "vendor", "a2ui", "renderers", "lit"),
-    path.join(repoRoot, "apps", "shared", "AssistantKit", "Tools", "CanvasA2UI"),
+    path.join(repoRoot, "apps", "shared", "ZhushouKit", "Tools", "CanvasA2UI"),
   ];
 }
 
@@ -191,9 +191,9 @@ async function main() {
       console.log("A2UI sources missing; keeping prebuilt bundle.");
       return;
     }
-    if (process.env.ASSISTANT_SPARSE_PROFILE || process.env.ASSISTANT_A2UI_SKIP_MISSING === "1") {
+    if (process.env.ZHUSHOU_SPARSE_PROFILE || process.env.ZHUSHOU_A2UI_SKIP_MISSING === "1") {
       console.error(
-        "A2UI sources missing; skipping bundle because ASSISTANT_A2UI_SKIP_MISSING=1 or ASSISTANT_SPARSE_PROFILE is set.",
+        "A2UI sources missing; skipping bundle because ZHUSHOU_A2UI_SKIP_MISSING=1 or ZHUSHOU_SPARSE_PROFILE is set.",
       );
       return;
     }

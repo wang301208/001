@@ -117,7 +117,7 @@ const writeWatchLock = (lockPath, payload) => {
 };
 
 const logWatcher = (message, deps) => {
-  deps.process.stderr?.write?.(`[assistant] ${message}\n`);
+  deps.process.stderr?.write?.(`[zhushou] ${message}\n`);
 };
 
 const waitForWatcherRelease = async (lockPath, pid, deps) => {
@@ -229,13 +229,13 @@ export async function runWatchMain(params = {}) {
 
   const childEnv = { ...deps.env };
   const watchSession = `${deps.now()}-${deps.process.pid}`;
-  childEnv.ASSISTANT_WATCH_MODE = "1";
-  childEnv.ASSISTANT_WATCH_SESSION = watchSession;
+  childEnv.ZHUSHOU_WATCH_MODE = "1";
+  childEnv.ZHUSHOU_WATCH_SESSION = watchSession;
   // The watcher owns process restarts; keep SIGUSR1/config reloads in-process
   // so inherited launchd/systemd markers do not make the child exit and stall.
-  childEnv.ASSISTANT_NO_RESPAWN = "1";
+  childEnv.ZHUSHOU_NO_RESPAWN = "1";
   if (deps.args.length > 0) {
-    childEnv.ASSISTANT_WATCH_COMMAND = deps.args.join(" ");
+    childEnv.ZHUSHOU_WATCH_COMMAND = deps.args.join(" ");
   }
 
   return await new Promise((resolve) => {

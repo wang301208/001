@@ -9,7 +9,7 @@ import {
   loadConfig,
   readConfigFileSnapshot,
   replaceConfigFile,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "../config/config.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import { setVerbose } from "../globals.js";
@@ -31,7 +31,7 @@ function supportsChannelAuthMode(plugin: ChannelPlugin, mode: ChannelAuthMode): 
   return mode === "login" ? Boolean(plugin.auth?.login) : Boolean(plugin.gateway?.logoutAccount);
 }
 
-function isConfiguredAuthPlugin(plugin: ChannelPlugin, cfg: AssistantConfig): boolean {
+function isConfiguredAuthPlugin(plugin: ChannelPlugin, cfg: ZhushouConfig): boolean {
   const key = plugin.id;
   if (isBlockedObjectKey(key)) {
     return false;
@@ -65,7 +65,7 @@ function isConfiguredAuthPlugin(plugin: ChannelPlugin, cfg: AssistantConfig): bo
   return false;
 }
 
-function resolveConfiguredAuthChannelInput(cfg: AssistantConfig, mode: ChannelAuthMode): string {
+function resolveConfiguredAuthChannelInput(cfg: ZhushouConfig, mode: ChannelAuthMode): string {
   const configured = listChannelPlugins()
     .filter((plugin): plugin is ChannelPlugin => supportsChannelAuthMode(plugin, mode))
     .filter((plugin) => isConfiguredAuthPlugin(plugin, cfg))
@@ -86,10 +86,10 @@ function resolveConfiguredAuthChannelInput(cfg: AssistantConfig, mode: ChannelAu
 async function resolveChannelPluginForMode(
   opts: ChannelAuthOptions,
   mode: ChannelAuthMode,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   runtime: RuntimeEnv,
 ): Promise<{
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   configChanged: boolean;
   channelInput: string;
   channelId: string;
@@ -127,7 +127,7 @@ async function resolveChannelPluginForMode(
 function resolveAccountContext(
   plugin: ChannelPlugin,
   opts: ChannelAuthOptions,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ) {
   const accountId =
     normalizeOptionalString(opts.account) || resolveChannelDefaultAccountId({ plugin, cfg });

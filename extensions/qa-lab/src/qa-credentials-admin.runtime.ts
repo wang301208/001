@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { z } from "zod";
 
 const DEFAULT_ENDPOINT_PREFIX = "/qa-credentials/v1";
 const DEFAULT_HTTP_TIMEOUT_MS = 15_000;
-const ALLOW_INSECURE_HTTP_ENV_KEY = "ASSISTANT_QA_ALLOW_INSECURE_HTTP";
+const ALLOW_INSECURE_HTTP_ENV_KEY = "ZHUSHOU_QA_ALLOW_INSECURE_HTTP";
 
 const actorRoleSchema = z.union([z.literal("ci"), z.literal("maintainer")]);
 const credentialStatusSchema = z.union([z.literal("active"), z.literal("disabled")]);
@@ -137,7 +137,7 @@ function normalizeConvexSiteUrl(raw: string, env: NodeJS.ProcessEnv): string {
   } catch {
     throw new QaCredentialAdminError({
       code: "INVALID_SITE_URL",
-      message: `ASSISTANT_QA_CONVEX_SITE_URL must be a valid URL, got "${raw || "<empty>"}".`,
+      message: `ZHUSHOU_QA_CONVEX_SITE_URL must be a valid URL, got "${raw || "<empty>"}".`,
     });
   }
   if (parsed.protocol === "https:") {
@@ -147,14 +147,14 @@ function normalizeConvexSiteUrl(raw: string, env: NodeJS.ProcessEnv): string {
   if (parsed.protocol !== "http:") {
     throw new QaCredentialAdminError({
       code: "INVALID_SITE_URL",
-      message: "ASSISTANT_QA_CONVEX_SITE_URL must use https://.",
+      message: "ZHUSHOU_QA_CONVEX_SITE_URL must use https://.",
     });
   }
   const allowInsecureHttp = isTruthyOptIn(env[ALLOW_INSECURE_HTTP_ENV_KEY]);
   if (!allowInsecureHttp || !isLoopbackHostname(parsed.hostname)) {
     throw new QaCredentialAdminError({
       code: "INVALID_SITE_URL",
-      message: `ASSISTANT_QA_CONVEX_SITE_URL must use https://. http:// is only allowed for loopback hosts when ${ALLOW_INSECURE_HTTP_ENV_KEY}=1.`,
+      message: `ZHUSHOU_QA_CONVEX_SITE_URL must use https://. http:// is only allowed for loopback hosts when ${ALLOW_INSECURE_HTTP_ENV_KEY}=1.`,
     });
   }
   const text = parsed.toString();
@@ -193,32 +193,32 @@ function joinEndpoint(baseUrl: string, prefix: string, suffix: string): string {
 }
 
 function resolveAdminAuthToken(env: NodeJS.ProcessEnv): string {
-  const token = env.ASSISTANT_QA_CONVEX_SECRET_MAINTAINER?.trim();
+  const token = env.ZHUSHOU_QA_CONVEX_SECRET_MAINTAINER?.trim();
   if (token) {
     return token;
   }
   throw new QaCredentialAdminError({
     code: "MISSING_MAINTAINER_SECRET",
-    message: "Missing ASSISTANT_QA_CONVEX_SECRET_MAINTAINER for qa credential admin commands.",
+    message: "Missing ZHUSHOU_QA_CONVEX_SECRET_MAINTAINER for qa credential admin commands.",
   });
 }
 
 function resolveAdminConfig(options: AdminBaseOptions): AdminConfig {
   const env = options.env ?? process.env;
-  const siteUrl = options.siteUrl?.trim() || env.ASSISTANT_QA_CONVEX_SITE_URL?.trim();
+  const siteUrl = options.siteUrl?.trim() || env.ZHUSHOU_QA_CONVEX_SITE_URL?.trim();
   if (!siteUrl) {
     throw new QaCredentialAdminError({
       code: "MISSING_SITE_URL",
-      message: "Missing ASSISTANT_QA_CONVEX_SITE_URL for qa credential admin commands.",
+      message: "Missing ZHUSHOU_QA_CONVEX_SITE_URL for qa credential admin commands.",
     });
   }
   const normalizedSiteUrl = normalizeConvexSiteUrl(siteUrl, env);
   const endpointPrefix = normalizeEndpointPrefix(
-    options.endpointPrefix?.trim() || env.ASSISTANT_QA_CONVEX_ENDPOINT_PREFIX,
+    options.endpointPrefix?.trim() || env.ZHUSHOU_QA_CONVEX_ENDPOINT_PREFIX,
   );
   const actorId =
     options.actorId?.trim() ||
-    env.ASSISTANT_QA_CREDENTIAL_OWNER_ID?.trim() ||
+    env.ZHUSHOU_QA_CREDENTIAL_OWNER_ID?.trim() ||
     `qa-lab-admin-${process.pid}-${randomUUID().slice(0, 8)}`;
 
   return {
@@ -228,7 +228,7 @@ function resolveAdminConfig(options: AdminBaseOptions): AdminConfig {
     endpointPrefix,
     httpTimeoutMs: parsePositiveIntegerEnv(
       env,
-      "ASSISTANT_QA_CREDENTIAL_HTTP_TIMEOUT_MS",
+      "ZHUSHOU_QA_CREDENTIAL_HTTP_TIMEOUT_MS",
       DEFAULT_HTTP_TIMEOUT_MS,
     ),
     addUrl: joinEndpoint(normalizedSiteUrl, endpointPrefix, "admin/add"),

@@ -83,7 +83,7 @@ describe("printDaemonStatus", () => {
           notLoadedText: "not loaded",
           runtime: { status: "running", pid: 8000 },
         },
-        logFile: "/tmp/assistant.log",
+        logFile: "/tmp/zhushou.log",
         gateway: {
           bindMode: "loopback",
           bindHost: "127.0.0.1",
@@ -115,7 +115,7 @@ describe("printDaemonStatus", () => {
       expect.stringContaining("Gateway runtime PID does not own the listening port"),
     );
     expect(runtime.error).toHaveBeenCalledWith(
-      expect.stringContaining(formatCliCommand("assistant gateway restart")),
+      expect.stringContaining(formatCliCommand("zhushou gateway restart")),
     );
   });
 });

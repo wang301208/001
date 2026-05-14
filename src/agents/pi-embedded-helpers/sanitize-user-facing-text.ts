@@ -1,10 +1,10 @@
 import {
   extractLeadingHttpStatus,
-  formatRawAssistantErrorForUi,
+  formatRawZhushouErrorForUi,
   isCloudflareOrHtmlErrorPage,
   parseApiErrorInfo,
   parseApiErrorPayload,
-} from "../../shared/assistant-error-format.js";
+} from "../../shared/zhushou-error-format.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -390,7 +390,7 @@ export function sanitizeUserFacingText(text: unknown, opts?: { errorContext?: bo
   }
 
   if (!errorContext && shouldRewriteRawPayloadWithoutErrorContext(trimmed)) {
-    return formatRawAssistantErrorForUi(trimmed);
+    return formatRawZhushouErrorForUi(trimmed);
   }
 
   if (errorContext) {
@@ -429,7 +429,7 @@ export function sanitizeUserFacingText(text: unknown, opts?: { errorContext?: bo
     }
 
     if (isRawApiErrorPayload(trimmed) || isLikelyHttpErrorText(trimmed)) {
-      return formatRawAssistantErrorForUi(trimmed);
+      return formatRawZhushouErrorForUi(trimmed);
     }
 
     if (ERROR_PREFIX_RE.test(trimmed)) {
@@ -444,7 +444,7 @@ export function sanitizeUserFacingText(text: unknown, opts?: { errorContext?: bo
       if (isTimeoutErrorMessage(trimmed)) {
         return "LLM request timed out.";
       }
-      return formatRawAssistantErrorForUi(trimmed);
+      return formatRawZhushouErrorForUi(trimmed);
     }
   }
 

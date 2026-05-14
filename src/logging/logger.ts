@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Logger as TsLogger } from "tslog";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import {
-  POSIX_ASSISTANT_TMP_DIR,
-  resolvePreferredAssistantTmpDir,
-} from "../infra/tmp-assistant-dir.js";
+  POSIX_ZHUSHOU_TMP_DIR,
+  resolvePreferredZhushouTmpDir,
+} from "../infra/tmp-zhushou-dir.js";
 import { readLoggingConfig, shouldSkipMutatingLoggingConfigRead } from "./config.js";
 import { resolveEnvLogLevelOverride } from "./env-log-level.js";
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
@@ -33,19 +33,19 @@ function canUseNodeFs(): boolean {
 }
 
 function resolveDefaultLogDir(): string {
-  return canUseNodeFs() ? resolvePreferredAssistantTmpDir() : POSIX_ASSISTANT_TMP_DIR;
+  return canUseNodeFs() ? resolvePreferredZhushouTmpDir() : POSIX_ZHUSHOU_TMP_DIR;
 }
 
 function resolveDefaultLogFile(defaultLogDir: string): string {
   return canUseNodeFs()
-    ? path.join(defaultLogDir, "assistant.log")
-    : `${POSIX_ASSISTANT_TMP_DIR}/assistant.log`;
+    ? path.join(defaultLogDir, "zhushou.log")
+    : `${POSIX_ZHUSHOU_TMP_DIR}/zhushou.log`;
 }
 
 export const DEFAULT_LOG_DIR = resolveDefaultLogDir();
 export const DEFAULT_LOG_FILE = resolveDefaultLogFile(DEFAULT_LOG_DIR); // legacy single-file path
 
-const LOG_PREFIX = "assistant";
+const LOG_PREFIX = "zhushou";
 const LOG_SUFFIX = ".log";
 const MAX_LOG_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 const DEFAULT_MAX_LOG_FILE_BYTES = 500 * 1024 * 1024; // 500 MB
@@ -81,7 +81,7 @@ function attachExternalTransport(logger: TsLogger<LogObj>, transport: LogTranspo
 function canUseSilentVitestFileLogFastPath(envLevel: LogLevel | undefined): boolean {
   return (
     isTruthyEnvValue(process.env.VITEST) &&
-    process.env.ASSISTANT_TEST_FILE_LOG !== "1" &&
+    process.env.ZHUSHOU_TEST_FILE_LOG !== "1" &&
     !envLevel &&
     !loggingState.overrideSettings
   );
@@ -107,13 +107,13 @@ function resolveSettings(): ResolvedSettings {
     };
   }
 
-  let cfg: AssistantConfig["logging"] | undefined =
+  let cfg: ZhushouConfig["logging"] | undefined =
     (loggingState.overrideSettings as LoggerSettings | null) ?? readLoggingConfig();
   if (!cfg && !shouldSkipMutatingLoggingConfigRead()) {
     try {
       const loaded = requireConfig?.("../config/config.js") as
         | {
-            loadConfig?: () => AssistantConfig;
+            loadConfig?: () => ZhushouConfig;
           }
         | undefined;
       cfg = loaded?.loadConfig?.().logging;
@@ -122,7 +122,7 @@ function resolveSettings(): ResolvedSettings {
     }
   }
   const defaultLevel =
-    isTruthyEnvValue(process.env.VITEST) && process.env.ASSISTANT_TEST_FILE_LOG !== "1"
+    isTruthyEnvValue(process.env.VITEST) && process.env.ZHUSHOU_TEST_FILE_LOG !== "1"
       ? "silent"
       : "info";
   const fromConfig = normalizeLogLevel(cfg?.level, defaultLevel);
@@ -155,7 +155,7 @@ export function isFileLogLevelEnabled(level: LogLevel): boolean {
 
 function buildLogger(settings: ResolvedSettings): TsLogger<LogObj> {
   const logger = new TsLogger<LogObj>({
-    name: "assistant",
+    name: "zhushou",
     minLevel: levelToMinLevel(settings.level),
     type: "hidden", // no ansi formatting
   });
@@ -194,7 +194,7 @@ function buildLogger(settings: ResolvedSettings): TsLogger<LogObj> {
           });
           appendLogLine(settings.file, `${warningLine}\n`);
           process.stderr.write(
-            `[assistant] log file size cap reached; suppressing writes file=${settings.file} maxFileBytes=${settings.maxFileBytes}\n`,
+            `[zhushou] log file size cap reached; suppressing writes file=${settings.file} maxFileBytes=${settings.maxFileBytes}\n`,
           );
         }
         return;

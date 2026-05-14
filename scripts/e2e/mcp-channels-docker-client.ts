@@ -69,7 +69,7 @@ async function main() {
     const messages = history.structuredContent?.messages ?? [];
     assert(messages.length >= 2, "expected seeded transcript messages");
     const attachmentMessage = messages.find((entry) => {
-      const raw = entry.__assistant;
+      const raw = entry.__zhushou;
       return raw && typeof raw === "object" && (raw as { id?: unknown }).id === "msg-attachment";
     });
     assert(attachmentMessage, "expected seeded attachment message");
@@ -100,17 +100,17 @@ async function main() {
       }>,
       gateway.request("chat.inject", {
         sessionKey: "agent:main:main",
-        message: "assistant live event",
+        message: "zhushou live event",
       }),
     ]).then(([result]) => result)) as {
       structuredContent?: { event?: Record<string, unknown> };
     };
-    const assistantEvent = waited.structuredContent?.event;
-    assert(assistantEvent, "expected events_wait result");
-    assert(assistantEvent.type === "message", "expected message event");
-    assert(assistantEvent.role === "assistant", "expected assistant event role");
-    assert(assistantEvent.text === "assistant live event", "expected assistant event text");
-    const assistantCursor = typeof assistantEvent.cursor === "number" ? assistantEvent.cursor : 0;
+    const zhushouEvent = waited.structuredContent?.event;
+    assert(zhushouEvent, "expected events_wait result");
+    assert(zhushouEvent.type === "message", "expected message event");
+    assert(zhushouEvent.ROLE_ZHUSHOU_PLACEHOLDER, "expected zhushou event role");
+    assert(zhushouEvent.text === "zhushou live event", "expected zhushou event text");
+    const zhushouCursor = typeof zhushouEvent.cursor === "number" ? zhushouEvent.cursor : 0;
 
     const polled = (await mcp.callTool({
       name: "events_poll",
@@ -120,9 +120,9 @@ async function main() {
     };
     assert(
       (polled.structuredContent?.events ?? []).some(
-        (entry) => entry.text === "assistant live event",
+        (entry) => entry.text === "zhushou live event",
       ),
-      "expected assistant event in events_poll",
+      "expected zhushou event in events_poll",
     );
 
     const channelMessage = `hello from docker ${randomUUID()}`;
@@ -131,7 +131,7 @@ async function main() {
         name: "events_wait",
         arguments: {
           session_key: "agent:main:main",
-          after_cursor: assistantCursor,
+          after_cursor: zhushouCursor,
           timeout_ms: 10_000,
         },
       }) as Promise<{

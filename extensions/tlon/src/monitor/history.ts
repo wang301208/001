@@ -1,4 +1,4 @@
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
 import { asRecord, extractMessageText, formatErrorMessage } from "./utils.js";
 
 /**

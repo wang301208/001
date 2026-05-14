@@ -1,6 +1,6 @@
 import { DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { normalizeProviderId } from "../agents/model-selection.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -24,8 +24,8 @@ export type ProviderWizardOption = {
   groupLabel: string;
   groupHint?: string;
   onboardingScopes?: Array<"text-inference" | "image-generation">;
-  assistantPriority?: number;
-  assistantVisibility?: "visible" | "manual-only";
+  zhushouPriority?: number;
+  zhushouVisibility?: "visible" | "manual-only";
 };
 
 export type ProviderModelPickerEntry = {
@@ -93,12 +93,12 @@ function buildSetupOptionForMethod(params: {
     groupLabel: normalizeOptionalString(params.wizard.groupLabel) || params.provider.label,
     groupHint: normalizeOptionalString(params.wizard.groupHint),
     ...(params.wizard.onboardingScopes ? { onboardingScopes: params.wizard.onboardingScopes } : {}),
-    ...(typeof params.wizard.assistantPriority === "number" &&
-    Number.isFinite(params.wizard.assistantPriority)
-      ? { assistantPriority: params.wizard.assistantPriority }
+    ...(typeof params.wizard.zhushouPriority === "number" &&
+    Number.isFinite(params.wizard.zhushouPriority)
+      ? { zhushouPriority: params.wizard.zhushouPriority }
       : {}),
-    ...(params.wizard.assistantVisibility
-      ? { assistantVisibility: params.wizard.assistantVisibility }
+    ...(params.wizard.zhushouVisibility
+      ? { zhushouVisibility: params.wizard.zhushouVisibility }
       : {}),
   };
 }
@@ -108,7 +108,7 @@ export function buildProviderPluginMethodChoice(providerId: string, methodId: st
 }
 
 function resolveProviderWizardProviders(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ProviderPlugin[] {
@@ -121,7 +121,7 @@ function resolveProviderWizardProviders(params: {
 }
 
 export function resolveProviderWizardOptions(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ProviderWizardOption[] {
@@ -192,7 +192,7 @@ function resolveModelPickerChoiceValue(
 }
 
 export function resolveProviderModelPickerEntries(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ProviderModelPickerEntry[] {
@@ -273,7 +273,7 @@ export function resolveProviderPluginChoice(params: {
 }
 
 export async function runProviderModelSelectedHook(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   model: string;
   prompter: WizardPrompter;
   agentDir?: string;

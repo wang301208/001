@@ -18,7 +18,7 @@ import {
   resolveStorePath,
 } from "../config/sessions/paths.js";
 import { loadSessionStore } from "../config/sessions/store-load.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 import { resolveMemoryBackendConfig } from "../memory-host-sdk/engine-storage.js";
 import { normalizeAgentId } from "../routing/session-key.js";
@@ -103,7 +103,7 @@ function formatOrphanAgentDirPreview(entries: OrphanAgentDir[], limit = 3): stri
   return labels.join(", ");
 }
 
-function listOrphanAgentDirs(cfg: AssistantConfig, stateDir: string): OrphanAgentDir[] {
+function listOrphanAgentDirs(cfg: ZhushouConfig, stateDir: string): OrphanAgentDir[] {
   const configuredIds = new Set<string>();
   configuredIds.add(normalizeAgentId(resolveDefaultAgentId(cfg)));
   for (const entry of listAgentEntries(cfg)) {
@@ -222,7 +222,7 @@ function findOtherStateDirs(stateDir: string): string[] {
       if (entry.name.startsWith(".")) {
         continue;
       }
-      const candidates = [".assistant"].map((dir) => path.resolve(root, entry.name, dir));
+      const candidates = [".zhushou"].map((dir) => path.resolve(root, entry.name, dir));
       for (const candidate of candidates) {
         if (candidate === resolvedState) {
           continue;
@@ -455,7 +455,7 @@ export function formatLinuxSdBackedStateDirWarning(
   return [
     `- State directory appears to be on SD/eMMC storage (${displayStateDir}; device ${safeSource}, fs ${safeFsType}, mount ${safeMountPoint}).`,
     "- SD/eMMC media can be slower for random I/O and wear faster under session/log churn.",
-    "- For better startup and state durability, prefer SSD/NVMe (or USB SSD on Raspberry Pi) for ASSISTANT_STATE_DIR.",
+    "- For better startup and state durability, prefer SSD/NVMe (or USB SSD on Raspberry Pi) for ZHUSHOU_STATE_DIR.",
   ].join("\n");
 }
 
@@ -476,7 +476,7 @@ export function detectMacCloudSyncedStateDir(
   }
 
   // Cloud-sync roots should always be anchored to the OS account home on macOS.
-  // ASSISTANT_HOME can relocate app data defaults, but iCloud/CloudStorage remain under the OS home.
+  // ZHUSHOU_HOME can relocate app data defaults, but iCloud/CloudStorage remain under the OS home.
   const homedir = deps?.homedir ?? os.homedir();
   const roots = [
     {
@@ -541,8 +541,8 @@ function isSlashRoutingSessionKey(sessionKey: string): boolean {
   return /^[^:]+:slash:[^:]+(?:$|:)/.test(scoped);
 }
 
-function shouldRequireOAuthDir(cfg: AssistantConfig, env: NodeJS.ProcessEnv): boolean {
-  if (env.ASSISTANT_OAUTH_DIR?.trim()) {
+function shouldRequireOAuthDir(cfg: ZhushouConfig, env: NodeJS.ProcessEnv): boolean {
+  if (env.ZHUSHOU_OAUTH_DIR?.trim()) {
     return true;
   }
   const channels = asNullableObjectRecord(cfg.channels);
@@ -566,13 +566,13 @@ function shouldRequireOAuthDir(cfg: AssistantConfig, env: NodeJS.ProcessEnv): bo
   return false;
 }
 
-function shouldSuppressOrphanTranscriptWarning(cfg: AssistantConfig, agentId: string): boolean {
+function shouldSuppressOrphanTranscriptWarning(cfg: ZhushouConfig, agentId: string): boolean {
   const backendConfig = resolveMemoryBackendConfig({ cfg, agentId });
   return backendConfig?.backend === "qmd" && backendConfig.qmd?.sessions.enabled === true;
 }
 
 export async function noteStateIntegrity(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   prompter: DoctorPrompterLike,
   configPath?: string,
 ) {
@@ -582,7 +582,7 @@ export async function noteStateIntegrity(
   const env = process.env;
   const homedir = () => resolveRequiredHomeDir(env, os.homedir);
   const stateDir = resolveStateDir(env, homedir);
-  const defaultStateDir = path.join(homedir(), ".assistant");
+  const defaultStateDir = path.join(homedir(), ".zhushou");
   const oauthDir = resolveOAuthDir(env, stateDir);
   const agentId = resolveDefaultAgentId(cfg);
   const sessionsDir = resolveSessionTranscriptsDirForAgent(agentId, env, homedir);
@@ -604,8 +604,8 @@ export async function noteStateIntegrity(
       [
         `- State directory is under macOS cloud-synced storage (${displayStateDir}; ${cloudSyncedStateDir.storage}).`,
         "- This can cause slow I/O and sync/lock races for sessions and credentials.",
-        "- Prefer a local non-synced state dir (for example: ~/.assistant).",
-        `  Set locally: ASSISTANT_STATE_DIR=~/.assistant ${formatCliCommand("assistant doctor")}`,
+        "- Prefer a local non-synced state dir (for example: ~/.zhushou).",
+        `  Set locally: ZHUSHOU_STATE_DIR=~/.zhushou ${formatCliCommand("zhushou doctor")}`,
       ].join("\n"),
     );
   }
@@ -838,9 +838,9 @@ export async function noteStateIntegrity(
       warnings.push(
         [
           `- ${missing.length}/${recentTranscriptCandidates.length} recent sessions are missing transcripts.`,
-          `  Verify sessions in store: ${formatCliCommand(`assistant sessions --store "${absoluteStorePath}"`)}`,
-          `  Preview cleanup impact: ${formatCliCommand(`assistant sessions cleanup --store "${absoluteStorePath}" --dry-run`)}`,
-          `  Prune missing entries: ${formatCliCommand(`assistant sessions cleanup --store "${absoluteStorePath}" --enforce --fix-missing`)}`,
+          `  Verify sessions in store: ${formatCliCommand(`zhushou sessions --store "${absoluteStorePath}"`)}`,
+          `  Preview cleanup impact: ${formatCliCommand(`zhushou sessions cleanup --store "${absoluteStorePath}" --dry-run`)}`,
+          `  Prune missing entries: ${formatCliCommand(`zhushou sessions cleanup --store "${absoluteStorePath}" --enforce --fix-missing`)}`,
         ].join("\n"),
       );
     }
@@ -944,7 +944,7 @@ export function noteWorkspaceBackupTip(workspaceDir: string) {
   note(
     [
       "- Tip: back up the workspace in a private git repo (GitHub or GitLab).",
-      "- Keep ~/.assistant out of git; it contains credentials and session history.",
+      "- Keep ~/.zhushou out of git; it contains credentials and session history.",
       "- Details: /concepts/agent-workspace#git-backup-recommended",
     ].join("\n"),
     "Workspace",

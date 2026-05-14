@@ -16,7 +16,7 @@ describe("provider replay helpers", () => {
     expect(buildOpenAICompatibleReplayPolicy("openai-completions")).toMatchObject({
       sanitizeToolCallIds: true,
       toolCallIdMode: "strict",
-      applyAssistantFirstOrderingFix: true,
+      applyZhushouFirstOrderingFix: true,
       validateGeminiTurns: true,
       validateAnthropicTurns: true,
     });
@@ -128,7 +128,7 @@ describe("provider replay helpers", () => {
       } as never),
     ).toMatchObject({
       sanitizeToolCallIds: true,
-      applyAssistantFirstOrderingFix: true,
+      applyZhushouFirstOrderingFix: true,
     });
   });
 
@@ -142,7 +142,7 @@ describe("provider replay helpers", () => {
 
   it("builds passthrough Gemini signature sanitization only when needed", () => {
     expect(buildPassthroughGeminiSanitizingReplayPolicy("gemini-2.5-pro")).toMatchObject({
-      applyAssistantFirstOrderingFix: false,
+      applyZhushouFirstOrderingFix: false,
       validateGeminiTurns: false,
       validateAnthropicTurns: false,
       sanitizeThoughtSignatures: {

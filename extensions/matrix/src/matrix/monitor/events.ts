@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
 import type { PluginRuntime, RuntimeLogger } from "../../runtime-api.js";
 import type { CoreConfig } from "../../types.js";
 import type { MatrixAuth } from "../client.js";
@@ -25,7 +25,7 @@ function formatMatrixPostHealthySyncDecryptionHint(accountId: string): string {
   return (
     "matrix: repeated fresh encrypted messages are still failing to decrypt after Matrix resumed healthy sync. " +
     "This device may still be missing new room keys. " +
-    `Check 'assistant matrix verify status --verbose --account ${accountId}' and 'assistant matrix devices list --account ${accountId}'.`
+    `Check 'zhushou matrix verify status --verbose --account ${accountId}' and 'zhushou matrix devices list --account ${accountId}'.`
   );
 }
 
@@ -146,7 +146,7 @@ function formatMatrixSelfDecryptionHint(accountId: string): string {
   return (
     "matrix: failed to decrypt a message from this same Matrix user. " +
     "This usually means another Matrix device did not share the room key, or another 助手 runtime is using the same account. " +
-    `Check 'assistant matrix verify status --verbose --account ${accountId}' and 'assistant matrix devices list --account ${accountId}'.`
+    `Check 'zhushou matrix verify status --verbose --account ${accountId}' and 'zhushou matrix devices list --account ${accountId}'.`
   );
 }
 

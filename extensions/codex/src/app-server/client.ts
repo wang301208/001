@@ -1,5 +1,5 @@
 import { createInterface, type Interface as ReadlineInterface } from "node:readline";
-import { embeddedAgentLog, ASSISTANT_VERSION } from "assistant/plugin-sdk/agent-harness";
+import { embeddedAgentLog, ZHUSHOU_VERSION } from "zhushou/plugin-sdk/agent-harness";
 import { resolveCodexAppServerRuntimeOptions, type CodexAppServerStartOptions } from "./config.js";
 import {
   type CodexInitializeResponse,
@@ -108,9 +108,9 @@ export class CodexAppServerClient {
     // which matters when callers override the binary or app-server args.
     const response = await this.request<CodexInitializeResponse>("initialize", {
       clientInfo: {
-        name: "assistant",
+        name: "zhushou",
         title: "助手",
-        version: ASSISTANT_VERSION,
+        version: ZHUSHOU_VERSION,
       },
       capabilities: {
         experimentalApi: true,

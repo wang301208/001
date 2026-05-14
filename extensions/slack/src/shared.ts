@@ -1,12 +1,12 @@
-import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "assistant/plugin-sdk/allow-from";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "assistant/plugin-sdk/channel-config-helpers";
-import { hasConfiguredSecretInput } from "assistant/plugin-sdk/secret-input";
-import { patchChannelConfigForAccount } from "assistant/plugin-sdk/setup-runtime";
-import { formatDocsLink } from "assistant/plugin-sdk/setup-tools";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input";
+import { patchChannelConfigForAccount } from "zhushou/plugin-sdk/setup-runtime";
+import { formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
 import { inspectSlackAccount } from "./account-inspect.js";
 import {
   listSlackAccountIds,
@@ -14,7 +14,7 @@ import {
   resolveSlackAccount,
   type ResolvedSlackAccount,
 } from "./accounts.js";
-import { getChatChannelMeta, type ChannelPlugin, type AssistantConfig } from "./channel-api.js";
+import { getChatChannelMeta, type ChannelPlugin, type ZhushouConfig } from "./channel-api.js";
 import { SlackChannelConfigSchema } from "./config-schema.js";
 import { slackDoctor } from "./doctor.js";
 import { isSlackInteractiveRepliesEnabled } from "./interactive-replies.js";
@@ -40,7 +40,7 @@ function buildSlackManifest(botName: string) {
       },
       slash_commands: [
         {
-          command: "/assistant",
+          command: "/zhushou",
           description: "Send a message to 助手",
           should_escape: false,
         },
@@ -50,7 +50,7 @@ function buildSlackManifest(botName: string) {
       scopes: {
         bot: [
           "app_mentions:read",
-          "assistant:write",
+          "zhushou:write",
           "channels:history",
           "channels:read",
           "chat:write",
@@ -113,10 +113,10 @@ export function buildSlackSetupLines(botName = "助手"): string[] {
 }
 
 export function setSlackChannelAllowlist(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   channelKeys: string[],
-): AssistantConfig {
+): ZhushouConfig {
   const channels = Object.fromEntries(channelKeys.map((key) => [key, { enabled: true }]));
   return patchChannelConfigForAccount({
     cfg,

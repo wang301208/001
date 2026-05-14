@@ -9,7 +9,7 @@ import {
 } from "../chat/tool-content.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
-import { attachAssistantTranscriptMeta } from "./session-utils.fs.js";
+import { attachZhushouTranscriptMeta } from "./session-utils.fs.js";
 
 export const CLAUDE_CLI_PROVIDER = "claude-cli";
 const CLAUDE_PROJECTS_RELATIVE_DIR = path.join(".claude", "projects");
@@ -157,7 +157,7 @@ function getMessageBlocks(message: unknown): ToolContentBlock[] | null {
   return Array.isArray(content) ? (content as ToolContentBlock[]) : null;
 }
 
-function isAssistantToolCallMessage(message: unknown): boolean {
+function isZhushouToolCallMessage(message: unknown): boolean {
   if (!message || typeof message !== "object") {
     return false;
   }
@@ -186,7 +186,7 @@ function coalesceClaudeCliToolMessages(messages: TranscriptLikeMessage[]): Trans
   for (let index = 0; index < messages.length; index += 1) {
     const current = messages[index];
     const next = messages[index + 1];
-    if (!isAssistantToolCallMessage(current) || !isUserToolResultMessage(next)) {
+    if (!isZhushouToolCallMessage(current) || !isUserToolResultMessage(next)) {
       coalesced.push(current);
       continue;
     }
@@ -246,7 +246,7 @@ function parseClaudeCliHistoryEntry(
   }
 
   if (type === "user") {
-    return attachAssistantTranscriptMeta(
+    return attachZhushouTranscriptMeta(
       {
         role: "user",
         content,
@@ -256,7 +256,7 @@ function parseClaudeCliHistoryEntry(
     ) as TranscriptLikeMessage;
   }
 
-  return attachAssistantTranscriptMeta(
+  return attachZhushouTranscriptMeta(
     {
       role: "assistant",
       content,

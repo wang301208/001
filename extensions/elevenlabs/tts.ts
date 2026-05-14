@@ -7,7 +7,7 @@ import {
   requireInRange,
   trimToUndefined,
   truncateErrorDetail,
-} from "assistant/plugin-sdk/speech";
+} from "zhushou/plugin-sdk/speech";
 import { isValidElevenLabsVoiceId, normalizeElevenLabsBaseUrl } from "./shared.js";
 
 function formatElevenLabsErrorPayload(payload: unknown): string | undefined {

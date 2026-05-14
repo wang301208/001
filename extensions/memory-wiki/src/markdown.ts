@@ -4,12 +4,12 @@ import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
   normalizeSingleOrTrimmedStringList,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import YAML from "yaml";
 
 export const WIKI_PAGE_KINDS = ["entity", "concept", "source", "synthesis", "report"] as const;
-export const WIKI_RELATED_START_MARKER = "<!-- assistant:wiki:related:start -->";
-export const WIKI_RELATED_END_MARKER = "<!-- assistant:wiki:related:end -->";
+export const WIKI_RELATED_START_MARKER = "<!-- zhushou:wiki:related:start -->";
+export const WIKI_RELATED_END_MARKER = "<!-- zhushou:wiki:related:end -->";
 
 export type WikiPageKind = (typeof WIKI_PAGE_KINDS)[number];
 

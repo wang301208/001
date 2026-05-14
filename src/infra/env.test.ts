@@ -82,16 +82,16 @@ describe("logAcceptedEnvOption", () => {
       {
         VITEST: "",
         NODE_ENV: "development",
-        ASSISTANT_TEST_ENV: "  line one\nline two  ",
+        ZHUSHOU_TEST_ENV: "  line one\nline two  ",
       },
       () => {
         logAcceptedEnvOption({
-          key: "ASSISTANT_TEST_ENV",
+          key: "ZHUSHOU_TEST_ENV",
           description: "test option",
           redact: true,
         });
         logAcceptedEnvOption({
-          key: "ASSISTANT_TEST_ENV",
+          key: "ZHUSHOU_TEST_ENV",
           description: "test option",
           redact: true,
         });
@@ -100,7 +100,7 @@ describe("logAcceptedEnvOption", () => {
 
     expect(loggerMocks.info).toHaveBeenCalledTimes(1);
     expect(loggerMocks.info).toHaveBeenCalledWith(
-      "env: ASSISTANT_TEST_ENV=<redacted> (test option)",
+      "env: ZHUSHOU_TEST_ENV=<redacted> (test option)",
     );
   });
 
@@ -111,11 +111,11 @@ describe("logAcceptedEnvOption", () => {
       {
         VITEST: "1",
         NODE_ENV: "development",
-        ASSISTANT_BLANK_ENV: "value",
+        ZHUSHOU_BLANK_ENV: "value",
       },
       () => {
         logAcceptedEnvOption({
-          key: "ASSISTANT_BLANK_ENV",
+          key: "ZHUSHOU_BLANK_ENV",
           description: "skipped in vitest",
         });
       },
@@ -125,11 +125,11 @@ describe("logAcceptedEnvOption", () => {
       {
         VITEST: "",
         NODE_ENV: "development",
-        ASSISTANT_BLANK_ENV: "   ",
+        ZHUSHOU_BLANK_ENV: "   ",
       },
       () => {
         logAcceptedEnvOption({
-          key: "ASSISTANT_BLANK_ENV",
+          key: "ZHUSHOU_BLANK_ENV",
           description: "blank value",
         });
       },

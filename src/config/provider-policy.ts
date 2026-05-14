@@ -1,5 +1,5 @@
 import { resolveBundledProviderPolicySurface } from "../plugins/provider-public-artifacts.js";
-import type { ModelProviderConfig, AssistantConfig } from "./types.js";
+import type { ModelProviderConfig, ZhushouConfig } from "./types.js";
 
 export function normalizeProviderConfigForConfigDefaults(params: {
   provider: string;
@@ -14,9 +14,9 @@ export function normalizeProviderConfigForConfigDefaults(params: {
 
 export function applyProviderConfigDefaultsForConfig(params: {
   provider: string;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
-}): AssistantConfig {
+}): ZhushouConfig {
   return (
     resolveBundledProviderPolicySurface(params.provider)?.applyConfigDefaults?.({
       provider: params.provider,

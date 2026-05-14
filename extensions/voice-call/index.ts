@@ -1,10 +1,10 @@
 import { Type } from "@sinclair/typebox";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   definePluginEntry,
   type GatewayRequestHandlerOptions,
-  type AssistantPluginApi,
+  type ZhushouPluginApi,
 } from "./api.js";
 import { createVoiceCallRuntime, type VoiceCallRuntime } from "./runtime-entry.js";
 import { registerVoiceCallCli } from "./src/cli.js";
@@ -143,7 +143,7 @@ export default definePluginEntry({
   name: "Voice Call",
   description: "Voice-call plugin with Telnyx/Twilio/Plivo providers",
   configSchema: voiceCallConfigSchema,
-  register(api: AssistantPluginApi) {
+  register(api: ZhushouPluginApi) {
     const config = resolveVoiceCallConfig(voiceCallConfigSchema.parse(api.pluginConfig));
     const validation = validateProviderConfig(config);
 
@@ -151,7 +151,7 @@ export default definePluginEntry({
       for (const warning of formatVoiceCallLegacyConfigWarnings({
         value: api.pluginConfig,
         configPathPrefix: "plugins.entries.voice-call.config",
-        doctorFixCommand: "assistant doctor --fix",
+        doctorFixCommand: "zhushou doctor --fix",
       })) {
         api.logger.warn(warning);
       }

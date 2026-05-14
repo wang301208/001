@@ -2,22 +2,22 @@ import {
   attachChannelToResult,
   type ChannelOutboundAdapter,
   createAttachedChannelResultAdapter,
-} from "assistant/plugin-sdk/channel-send-result";
+} from "zhushou/plugin-sdk/channel-send-result";
 import {
   resolveInteractiveTextFallback,
   type InteractiveReply,
-} from "assistant/plugin-sdk/interactive-runtime";
+} from "zhushou/plugin-sdk/interactive-runtime";
 import {
   resolveOutboundSendDep,
   type OutboundIdentity,
-} from "assistant/plugin-sdk/outbound-runtime";
-import { getGlobalHookRunner } from "assistant/plugin-sdk/plugin-runtime";
+} from "zhushou/plugin-sdk/outbound-runtime";
+import { getGlobalHookRunner } from "zhushou/plugin-sdk/plugin-runtime";
 import {
   resolvePayloadMediaUrls,
   sendPayloadMediaSequenceAndFinalize,
   sendTextMediaPayload,
-} from "assistant/plugin-sdk/reply-payload";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/reply-payload";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { resolveSlackAccount } from "./accounts.js";
 import { parseSlackBlocksInput } from "./blocks-input.js";
 import { buildSlackInteractiveBlocks, type SlackBlock } from "./blocks-render.js";

@@ -118,7 +118,7 @@ export function createPluginSdkScope(_repoRoot: string): TopologyScope {
     entrypoint,
     sourcePath: `src/plugin-sdk/${entrypoint}.ts`,
     importSpecifier:
-      entrypoint === "index" ? "assistant/plugin-sdk" : `assistant/plugin-sdk/${entrypoint}`,
+      entrypoint === "index" ? "zhushou/plugin-sdk" : `zhushou/plugin-sdk/${entrypoint}`,
   }));
   return buildScopeFromEntrypoints("plugin-sdk", "助手 plugin-sdk public surface", entrypoints);
 }

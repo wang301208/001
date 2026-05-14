@@ -250,7 +250,7 @@ describe("registerAgentCommands", () => {
       "--emoji",
       ":robot:",
       "--avatar",
-      "https://example.com/assistant.png",
+      "https://example.com/zhushou.png",
       "--json",
     ]);
     expect(agentsSetIdentityCommandMock).toHaveBeenCalledWith(
@@ -262,7 +262,7 @@ describe("registerAgentCommands", () => {
         name: "助手",
         theme: "ops",
         emoji: ":robot:",
-        avatar: "https://example.com/assistant.png",
+        avatar: "https://example.com/zhushou.png",
         json: true,
       },
       runtime,

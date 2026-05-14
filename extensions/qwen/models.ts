@@ -1,11 +1,11 @@
 import {
   applyProviderNativeStreamingUsageCompat,
   supportsNativeStreamingUsageCompat,
-} from "assistant/plugin-sdk/provider-catalog-shared";
+} from "zhushou/plugin-sdk/provider-catalog-shared";
 import type {
   ModelDefinitionConfig,
   ModelProviderConfig,
-} from "assistant/plugin-sdk/provider-model-shared";
+} from "zhushou/plugin-sdk/provider-model-shared";
 
 export const QWEN_BASE_URL = "https://coding-intl.dashscope.aliyuncs.com/v1";
 export const QWEN_GLOBAL_BASE_URL = QWEN_BASE_URL;

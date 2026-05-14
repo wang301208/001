@@ -6,13 +6,13 @@ import {
   normalizeE164,
   readChannelAllowFromStoreSync,
   resolveStorePath,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "./heartbeat-recipients.runtime.js";
 
 type HeartbeatRecipientsResult = { recipients: string[]; source: string };
 type HeartbeatRecipientsOpts = { to?: string; all?: boolean; accountId?: string };
 
-function getSessionRecipients(cfg: AssistantConfig) {
+function getSessionRecipients(cfg: ZhushouConfig) {
   const sessionCfg = cfg.session;
   const scope = sessionCfg?.scope ?? "per-sender";
   if (scope === "global") {
@@ -48,7 +48,7 @@ function getSessionRecipients(cfg: AssistantConfig) {
 }
 
 export function resolveWhatsAppHeartbeatRecipients(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   opts: HeartbeatRecipientsOpts = {},
 ): HeartbeatRecipientsResult {
   if (opts.to) {

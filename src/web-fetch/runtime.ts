@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { logVerbose } from "../globals.js";
 import type {
   PluginWebFetchProviderEntry,
@@ -17,14 +17,14 @@ import {
   resolveWebProviderDefinition,
 } from "../web/provider-runtime-shared.js";
 
-type WebFetchConfig = NonNullable<AssistantConfig["tools"]>["web"] extends infer Web
+type WebFetchConfig = NonNullable<ZhushouConfig["tools"]>["web"] extends infer Web
   ? Web extends { fetch?: infer Fetch }
     ? Fetch
     : undefined
   : undefined;
 
 export type ResolveWebFetchDefinitionParams = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   sandboxed?: boolean;
   runtimeWebFetch?: RuntimeWebFetchMetadata;
   providerId?: string;
@@ -41,7 +41,7 @@ export function resolveWebFetchEnabled(params: {
   return true;
 }
 
-function resolveFetchConfig(config: AssistantConfig | undefined): WebFetchConfig | undefined {
+function resolveFetchConfig(config: ZhushouConfig | undefined): WebFetchConfig | undefined {
   return resolveWebProviderConfig<"fetch", NonNullable<WebFetchConfig>>(config, "fetch");
 }
 
@@ -50,7 +50,7 @@ function hasEntryCredential(
     PluginWebFetchProviderEntry,
     "envVars" | "getConfiguredCredentialValue" | "getCredentialValue" | "requiresCredential"
   >,
-  config: AssistantConfig | undefined,
+  config: ZhushouConfig | undefined,
   fetch: WebFetchConfig | undefined,
 ): boolean {
   return hasWebProviderEntryCredential({
@@ -70,13 +70,13 @@ export function isWebFetchProviderConfigured(params: {
     PluginWebFetchProviderEntry,
     "envVars" | "getConfiguredCredentialValue" | "getCredentialValue" | "requiresCredential"
   >;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }): boolean {
   return hasEntryCredential(params.provider, params.config, resolveFetchConfig(params.config));
 }
 
 export function listWebFetchProviders(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }): PluginWebFetchProviderEntry[] {
   return resolvePluginWebFetchProviders({
     config: params?.config,
@@ -86,7 +86,7 @@ export function listWebFetchProviders(params?: {
 }
 
 export function listConfiguredWebFetchProviders(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }): PluginWebFetchProviderEntry[] {
   return resolvePluginWebFetchProviders({
     config: params?.config,
@@ -96,7 +96,7 @@ export function listConfiguredWebFetchProviders(params?: {
 
 export function resolveWebFetchProviderId(params: {
   fetch?: WebFetchConfig;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   providers?: PluginWebFetchProviderEntry[];
 }): string {
   const providers = sortWebFetchProvidersForAutoDetect(

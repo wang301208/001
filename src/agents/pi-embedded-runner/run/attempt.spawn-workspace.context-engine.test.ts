@@ -10,7 +10,7 @@ import {
   buildLoopPromptCacheInfo,
   assembleAttemptContextEngine,
   buildContextEnginePromptCacheInfo,
-  findCurrentAttemptAssistantMessage,
+  findCurrentAttemptZhushouMessage,
   finalizeAttemptContextEngineTurn,
   resolvePromptCacheTouchTimestamp,
   runAttemptContextEngineBootstrap,
@@ -262,7 +262,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
       blockReplyBreak: undefined,
       blockReplyChunking: undefined,
       onPartialReply: undefined,
-      onAssistantMessageStart: undefined,
+      onZhushouMessageStart: undefined,
       onAgentEvent: undefined,
       enforceFinalTag: undefined,
       silentExpected: true,
@@ -343,8 +343,8 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
     expect(buildContextEnginePromptCacheInfo({})).toBeUndefined();
   });
 
-  it("does not reuse a prior turn's usage when the current attempt has no assistant", () => {
-    const priorAssistant = {
+  it("does not reuse a prior turn's usage when the current attempt has no zhushou", () => {
+    const priorZhushou = {
       role: "assistant",
       content: "prior turn",
       timestamp: 2,
@@ -355,21 +355,21 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
         total: 1340,
       },
     } as unknown as AgentMessage;
-    const currentAttemptAssistant = findCurrentAttemptAssistantMessage({
-      messagesSnapshot: [seedMessage, priorAssistant],
+    const currentAttemptZhushou = findCurrentAttemptZhushouMessage({
+      messagesSnapshot: [seedMessage, priorZhushou],
       prePromptMessageCount: 2,
     });
     const promptCache = buildContextEnginePromptCacheInfo({
       retention: "short",
-      lastCallUsage: (currentAttemptAssistant as { usage?: undefined } | undefined)?.usage,
+      lastCallUsage: (currentAttemptZhushou as { usage?: undefined } | undefined)?.usage,
     });
 
-    expect(currentAttemptAssistant).toBeUndefined();
+    expect(currentAttemptZhushou).toBeUndefined();
     expect(promptCache).toEqual({ retention: "short" });
   });
 
-  it("derives live loop prompt-cache info from the current attempt assistant", () => {
-    const toolUseAssistant = {
+  it("derives live loop prompt-cache info from the current attempt zhushou", () => {
+    const toolUseZhushou = {
       role: "assistant",
       content: "tool use",
       timestamp: "2026-04-16T16:49:59.536Z",
@@ -384,7 +384,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
 
     expect(
       buildLoopPromptCacheInfo({
-        messagesSnapshot: [seedMessage, toolUseAssistant],
+        messagesSnapshot: [seedMessage, toolUseZhushou],
         prePromptMessageCount: 1,
         retention: "short",
         fallbackLastCacheTouchAt: 123,
@@ -403,7 +403,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
   });
 
   it("falls back to the persisted cache touch when loop usage has no cache metrics", () => {
-    const toolUseAssistant = {
+    const toolUseZhushou = {
       role: "assistant",
       content: "tool use",
       timestamp: "2026-04-16T16:49:59.536Z",
@@ -416,7 +416,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
 
     expect(
       buildLoopPromptCacheInfo({
-        messagesSnapshot: [seedMessage, toolUseAssistant],
+        messagesSnapshot: [seedMessage, toolUseZhushou],
         prePromptMessageCount: 1,
         retention: "short",
         fallbackLastCacheTouchAt: 123,
@@ -444,7 +444,7 @@ describe("runEmbeddedAttempt context engine sessionKey forwarding", () => {
     expect(
       resolvePromptCacheTouchTimestamp({
         lastCallUsage,
-        assistantTimestamp: "2026-04-16T17:04:46.974Z",
+        zhushouTimestamp: "2026-04-16T17:04:46.974Z",
         fallbackLastCacheTouchAt: 123,
       }),
     ).toBe(Date.parse("2026-04-16T17:04:46.974Z"));

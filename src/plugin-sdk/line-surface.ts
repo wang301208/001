@@ -1,5 +1,5 @@
 // Manual facade. Keep loader boundary explicit.
-type FacadeModule = typeof import("@assistant/line/runtime-api.js");
+type FacadeModule = typeof import("@zhushou/line/runtime-api.js");
 import {
   createLazyFacadeObjectValue,
   loadBundledPluginPublicSurfaceModuleSync,
@@ -58,9 +58,9 @@ export const resolveExactLineGroupConfigKey: FacadeModule["resolveExactLineGroup
   )) as FacadeModule["resolveExactLineGroupConfigKey"];
 export const resolveLineAccount: FacadeModule["resolveLineAccount"] = ((...args) =>
   loadFacadeModule()["resolveLineAccount"](...args)) as FacadeModule["resolveLineAccount"];
-export type CardAction = import("@assistant/line/runtime-api.js").CardAction;
-export type LineChannelData = import("@assistant/line/runtime-api.js").LineChannelData;
-export type LineConfig = import("@assistant/line/runtime-api.js").LineConfig;
-export type LineProbeResult = import("@assistant/line/runtime-api.js").LineProbeResult;
-export type ListItem = import("@assistant/line/runtime-api.js").ListItem;
-export type ResolvedLineAccount = import("@assistant/line/runtime-api.js").ResolvedLineAccount;
+export type CardAction = import("@zhushou/line/runtime-api.js").CardAction;
+export type LineChannelData = import("@zhushou/line/runtime-api.js").LineChannelData;
+export type LineConfig = import("@zhushou/line/runtime-api.js").LineConfig;
+export type LineProbeResult = import("@zhushou/line/runtime-api.js").LineProbeResult;
+export type ListItem = import("@zhushou/line/runtime-api.js").ListItem;
+export type ResolvedLineAccount = import("@zhushou/line/runtime-api.js").ResolvedLineAccount;

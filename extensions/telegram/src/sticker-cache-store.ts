@@ -1,7 +1,7 @@
 import path from "node:path";
-import { loadJsonFile, saveJsonFile } from "assistant/plugin-sdk/json-store";
-import { resolveStateDir } from "assistant/plugin-sdk/state-paths";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { loadJsonFile, saveJsonFile } from "zhushou/plugin-sdk/json-store";
+import { resolveStateDir } from "zhushou/plugin-sdk/state-paths";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 const CACHE_VERSION = 1;
 

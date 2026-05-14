@@ -56,7 +56,7 @@ const mocks = vi.hoisted(() => {
     sourceConfig,
     resolvedConfig,
     loadModelsConfigWithSource: vi.fn(),
-    ensureAssistantModelsJson: vi.fn(),
+    ensureZhushouModelsJson: vi.fn(),
     ensureAuthProfileStore: vi.fn(),
     loadModelRegistry: vi.fn(),
     loadModelCatalog: vi.fn(),
@@ -73,7 +73,7 @@ function resetMocks() {
     resolvedConfig: mocks.resolvedConfig,
     diagnostics: [],
   });
-  mocks.ensureAssistantModelsJson.mockResolvedValue({ wrote: false });
+  mocks.ensureZhushouModelsJson.mockResolvedValue({ wrote: false });
   mocks.ensureAuthProfileStore.mockReturnValue({ version: 1, profiles: {}, order: {} });
   mocks.loadModelRegistry.mockResolvedValue({
     models: [],
@@ -136,7 +136,7 @@ function installModelsListCommandForwardCompatMocks() {
   }));
 
   vi.doMock("./list.runtime.js", () => ({
-    ensureAssistantModelsJson: mocks.ensureAssistantModelsJson,
+    ensureZhushouModelsJson: mocks.ensureZhushouModelsJson,
     ensureAuthProfileStore: mocks.ensureAuthProfileStore,
     listProfilesForProvider: mocks.listProfilesForProvider,
     loadModelCatalog: mocks.loadModelCatalog,

@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest";
 import { normalizePackageTagInput } from "./package-tag.js";
 
 describe("normalizePackageTagInput", () => {
-  const packageNames = ["assistant", "@assistant/plugin"] as const;
+  const packageNames = ["zhushou", "@zhushou/plugin"] as const;
 
   it.each([
     { input: undefined, expected: null },
     { input: "   ", expected: null },
-    { input: "assistant@beta", expected: "beta" },
-    { input: "@assistant/plugin@2026.2.24", expected: "2026.2.24" },
-    { input: "assistant@   ", expected: null },
-    { input: "assistant", expected: null },
-    { input: " @assistant/plugin ", expected: null },
+    { input: "zhushou@beta", expected: "beta" },
+    { input: "@zhushou/plugin@2026.2.24", expected: "2026.2.24" },
+    { input: "zhushou@   ", expected: null },
+    { input: "zhushou", expected: null },
+    { input: " @zhushou/plugin ", expected: null },
     { input: " latest ", expected: "latest" },
     { input: "@other/plugin@beta", expected: "@other/plugin@beta" },
-    { input: "assistanter@beta", expected: "assistanter@beta" },
+    { input: "zhushouer@beta", expected: "zhushouer@beta" },
   ] satisfies ReadonlyArray<{ input: string | undefined; expected: string | null }>)(
     "normalizes %j",
     ({ input, expected }) => {

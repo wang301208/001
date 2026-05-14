@@ -99,7 +99,7 @@ describe("applyPluginAutoEnable core", () => {
     const result = applyPluginAutoEnable({
       config: {
         browser: {
-          defaultProfile: "assistant",
+          defaultProfile: "zhushou",
         },
         plugins: {
           allow: ["telegram"],
@@ -250,7 +250,7 @@ describe("applyPluginAutoEnable core", () => {
   it("auto-enables an opt-in plugin when an agent harness runtime is forced by env", () => {
     const result = applyPluginAutoEnable({
       config: {},
-      env: makeIsolatedEnv({ ASSISTANT_AGENT_RUNTIME: "codex" }),
+      env: makeIsolatedEnv({ ZHUSHOU_AGENT_RUNTIME: "codex" }),
       manifestRegistry: makeRegistry([
         {
           id: "codex",
@@ -465,7 +465,7 @@ describe("applyPluginAutoEnable core", () => {
       env: {
         ...makeIsolatedEnv(),
         IRC_HOST: "irc.libera.chat",
-        IRC_NICK: "assistant-bot",
+        IRC_NICK: "zhushou-bot",
       },
     });
 

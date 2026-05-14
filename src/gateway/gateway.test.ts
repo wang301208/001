@@ -25,16 +25,16 @@ const GATEWAY_E2E_TIMEOUT_MS = 90_000;
 let gatewayTestSeq = 0;
 const GATEWAY_TEST_ENV_KEYS = [
   "HOME",
-  "ASSISTANT_STATE_DIR",
-  "ASSISTANT_CONFIG_PATH",
-  "ASSISTANT_GATEWAY_TOKEN",
-  "ASSISTANT_SKIP_CHANNELS",
-  "ASSISTANT_SKIP_GMAIL_WATCHER",
-  "ASSISTANT_SKIP_CRON",
-  "ASSISTANT_SKIP_CANVAS_HOST",
-  "ASSISTANT_SKIP_BROWSER_CONTROL_SERVER",
-  "ASSISTANT_SKIP_PROVIDERS",
-  "ASSISTANT_BUNDLED_PLUGINS_DIR",
+  "ZHUSHOU_STATE_DIR",
+  "ZHUSHOU_CONFIG_PATH",
+  "ZHUSHOU_GATEWAY_TOKEN",
+  "ZHUSHOU_SKIP_CHANNELS",
+  "ZHUSHOU_SKIP_GMAIL_WATCHER",
+  "ZHUSHOU_SKIP_CRON",
+  "ZHUSHOU_SKIP_CANVAS_HOST",
+  "ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER",
+  "ZHUSHOU_SKIP_PROVIDERS",
+  "ZHUSHOU_BUNDLED_PLUGINS_DIR",
 ] as const;
 
 function nextGatewayId(prefix: string): string {
@@ -42,7 +42,7 @@ function nextGatewayId(prefix: string): string {
 }
 
 async function createEmptyBundledPluginsDir(tempHome: string): Promise<string> {
-  const bundledPluginsDir = path.join(tempHome, "assistant-test-empty-bundled-plugins");
+  const bundledPluginsDir = path.join(tempHome, "zhushou-test-empty-bundled-plugins");
   await fs.mkdir(bundledPluginsDir, { recursive: true });
   return bundledPluginsDir;
 }
@@ -52,10 +52,10 @@ async function writeWorkspacePlugin(params: {
   id: string;
   body: string;
 }): Promise<void> {
-  const pluginDir = path.join(params.workspaceDir, ".assistant", "extensions", params.id);
+  const pluginDir = path.join(params.workspaceDir, ".zhushou", "extensions", params.id);
   await fs.mkdir(pluginDir, { recursive: true });
   await fs.writeFile(
-    path.join(pluginDir, "assistant.plugin.json"),
+    path.join(pluginDir, "zhushou.plugin.json"),
     `${JSON.stringify(
       {
         id: params.id,
@@ -88,28 +88,28 @@ async function readCounterWithRetry(filePath: string): Promise<number> {
 async function setupGatewayTempHome(params: { prefix: string; minimalGateway?: boolean }) {
   const envSnapshot = captureEnv([
     ...GATEWAY_TEST_ENV_KEYS,
-    ...(params.minimalGateway ? (["ASSISTANT_TEST_MINIMAL_GATEWAY"] as const) : []),
+    ...(params.minimalGateway ? (["ZHUSHOU_TEST_MINIMAL_GATEWAY"] as const) : []),
   ]);
 
   const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), params.prefix));
   process.env.HOME = tempHome;
-  process.env.ASSISTANT_STATE_DIR = path.join(tempHome, ".assistant");
-  delete process.env.ASSISTANT_CONFIG_PATH;
-  process.env.ASSISTANT_SKIP_CHANNELS = "1";
-  process.env.ASSISTANT_SKIP_GMAIL_WATCHER = "1";
-  process.env.ASSISTANT_SKIP_CRON = "1";
-  process.env.ASSISTANT_SKIP_CANVAS_HOST = "1";
-  process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER = "1";
-  process.env.ASSISTANT_SKIP_PROVIDERS = "1";
+  process.env.ZHUSHOU_STATE_DIR = path.join(tempHome, ".zhushou");
+  delete process.env.ZHUSHOU_CONFIG_PATH;
+  process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+  process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = "1";
+  process.env.ZHUSHOU_SKIP_CRON = "1";
+  process.env.ZHUSHOU_SKIP_CANVAS_HOST = "1";
+  process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER = "1";
+  process.env.ZHUSHOU_SKIP_PROVIDERS = "1";
   if (params.minimalGateway) {
-    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY = "1";
+    process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY = "1";
   } else {
-    delete process.env.ASSISTANT_TEST_MINIMAL_GATEWAY;
+    delete process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY;
   }
 
-  const workspaceDir = path.join(tempHome, "assistant");
+  const workspaceDir = path.join(tempHome, "zhushou");
   await fs.mkdir(workspaceDir, { recursive: true });
-  process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = await createEmptyBundledPluginsDir(tempHome);
+  process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = await createEmptyBundledPluginsDir(tempHome);
   return { envSnapshot, tempHome, workspaceDir };
 }
 
@@ -142,16 +142,16 @@ describe("gateway e2e", () => {
     async () => {
       const { baseUrl: openaiBaseUrl, restore } = installOpenAiResponsesMock();
       const { envSnapshot, tempHome, workspaceDir } = await setupGatewayTempHome({
-        prefix: "assistant-gw-mock-home-",
+        prefix: "zhushou-gw-mock-home-",
         minimalGateway: true,
       });
 
       const token = nextGatewayId("test-token");
-      process.env.ASSISTANT_GATEWAY_TOKEN = token;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
 
-      const configDir = path.join(tempHome, ".assistant");
+      const configDir = path.join(tempHome, ".zhushou");
       await fs.mkdir(configDir, { recursive: true });
-      const configPath = path.join(configDir, "assistant.json");
+      const configPath = path.join(configDir, "zhushou.json");
       const mockProvider = buildMockOpenAiResponsesProvider(openaiBaseUrl);
 
       const cfg = {
@@ -222,11 +222,11 @@ describe("gateway e2e", () => {
     { timeout: GATEWAY_E2E_TIMEOUT_MS },
     async () => {
       const { envSnapshot, tempHome, workspaceDir } = await setupGatewayTempHome({
-        prefix: "assistant-gw-http-tools-home-",
+        prefix: "zhushou-gw-http-tools-home-",
       });
 
       const token = nextGatewayId("http-tools-token");
-      process.env.ASSISTANT_GATEWAY_TOKEN = token;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
       const registerCountPath = path.join(tempHome, "workspace-plugin-register-count.txt");
       await writeWorkspacePlugin({
         workspaceDir,
@@ -246,9 +246,9 @@ module.exports = {
 `.trimStart(),
       });
 
-      const configDir = path.join(tempHome, ".assistant");
+      const configDir = path.join(tempHome, ".zhushou");
       await fs.mkdir(configDir, { recursive: true });
-      const configPath = path.join(configDir, "assistant.json");
+      const configPath = path.join(configDir, "zhushou.json");
       const cfg = {
         agents: {
           defaults: { workspace: workspaceDir },
@@ -260,7 +260,7 @@ module.exports = {
         gateway: { auth: { token } },
       };
       await fs.writeFile(configPath, `${JSON.stringify(cfg, null, 2)}\n`);
-      process.env.ASSISTANT_CONFIG_PATH = configPath;
+      process.env.ZHUSHOU_CONFIG_PATH = configPath;
 
       const port = await getFreeGatewayPort();
       const server = await startGatewayServer(port, {
@@ -308,33 +308,33 @@ module.exports = {
     async () => {
       const envSnapshot = captureEnv([
         "HOME",
-        "ASSISTANT_STATE_DIR",
-        "ASSISTANT_CONFIG_PATH",
-        "ASSISTANT_GATEWAY_TOKEN",
-        "ASSISTANT_SKIP_CHANNELS",
-        "ASSISTANT_SKIP_GMAIL_WATCHER",
-        "ASSISTANT_SKIP_CRON",
-        "ASSISTANT_SKIP_CANVAS_HOST",
-        "ASSISTANT_SKIP_BROWSER_CONTROL_SERVER",
-        "ASSISTANT_SKIP_PROVIDERS",
-        "ASSISTANT_BUNDLED_PLUGINS_DIR",
-        "ASSISTANT_TEST_MINIMAL_GATEWAY",
+        "ZHUSHOU_STATE_DIR",
+        "ZHUSHOU_CONFIG_PATH",
+        "ZHUSHOU_GATEWAY_TOKEN",
+        "ZHUSHOU_SKIP_CHANNELS",
+        "ZHUSHOU_SKIP_GMAIL_WATCHER",
+        "ZHUSHOU_SKIP_CRON",
+        "ZHUSHOU_SKIP_CANVAS_HOST",
+        "ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER",
+        "ZHUSHOU_SKIP_PROVIDERS",
+        "ZHUSHOU_BUNDLED_PLUGINS_DIR",
+        "ZHUSHOU_TEST_MINIMAL_GATEWAY",
       ]);
 
-      process.env.ASSISTANT_SKIP_CHANNELS = "1";
-      process.env.ASSISTANT_SKIP_GMAIL_WATCHER = "1";
-      process.env.ASSISTANT_SKIP_CRON = "1";
-      process.env.ASSISTANT_SKIP_CANVAS_HOST = "1";
-      process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER = "1";
-      process.env.ASSISTANT_SKIP_PROVIDERS = "1";
-      process.env.ASSISTANT_TEST_MINIMAL_GATEWAY = "1";
-      delete process.env.ASSISTANT_GATEWAY_TOKEN;
+      process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+      process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = "1";
+      process.env.ZHUSHOU_SKIP_CRON = "1";
+      process.env.ZHUSHOU_SKIP_CANVAS_HOST = "1";
+      process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER = "1";
+      process.env.ZHUSHOU_SKIP_PROVIDERS = "1";
+      process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY = "1";
+      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
 
-      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-wizard-home-"));
+      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-wizard-home-"));
       process.env.HOME = tempHome;
-      process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = await createEmptyBundledPluginsDir(tempHome);
-      delete process.env.ASSISTANT_STATE_DIR;
-      delete process.env.ASSISTANT_CONFIG_PATH;
+      process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = await createEmptyBundledPluginsDir(tempHome);
+      delete process.env.ZHUSHOU_STATE_DIR;
+      delete process.env.ZHUSHOU_CONFIG_PATH;
 
       const wizardToken = nextGatewayId("wiz-token");
       const port = await getFreeGatewayPort();
@@ -442,38 +442,38 @@ module.exports = {
     async () => {
       const envSnapshot = captureEnv([
         "HOME",
-        "ASSISTANT_STATE_DIR",
-        "ASSISTANT_CONFIG_PATH",
-        "ASSISTANT_GATEWAY_TOKEN",
-        "ASSISTANT_SKIP_CHANNELS",
-        "ASSISTANT_SKIP_GMAIL_WATCHER",
-        "ASSISTANT_SKIP_CRON",
-        "ASSISTANT_SKIP_CANVAS_HOST",
-        "ASSISTANT_SKIP_BROWSER_CONTROL_SERVER",
-        "ASSISTANT_SKIP_PROVIDERS",
-        "ASSISTANT_BUNDLED_PLUGINS_DIR",
-        "ASSISTANT_TEST_MINIMAL_GATEWAY",
+        "ZHUSHOU_STATE_DIR",
+        "ZHUSHOU_CONFIG_PATH",
+        "ZHUSHOU_GATEWAY_TOKEN",
+        "ZHUSHOU_SKIP_CHANNELS",
+        "ZHUSHOU_SKIP_GMAIL_WATCHER",
+        "ZHUSHOU_SKIP_CRON",
+        "ZHUSHOU_SKIP_CANVAS_HOST",
+        "ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER",
+        "ZHUSHOU_SKIP_PROVIDERS",
+        "ZHUSHOU_BUNDLED_PLUGINS_DIR",
+        "ZHUSHOU_TEST_MINIMAL_GATEWAY",
         "DISCORD_BOT_TOKEN",
       ]);
 
-      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-minimal-gateway-home-"));
-      const configPath = path.join(tempHome, ".assistant", "assistant.json");
-      const bundledPluginsDir = path.join(tempHome, "assistant-test-no-bundled-extensions");
+      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-minimal-gateway-home-"));
+      const configPath = path.join(tempHome, ".zhushou", "zhushou.json");
+      const bundledPluginsDir = path.join(tempHome, "zhushou-test-no-bundled-extensions");
       process.env.HOME = tempHome;
-      process.env.ASSISTANT_STATE_DIR = path.join(tempHome, ".assistant");
-      process.env.ASSISTANT_CONFIG_PATH = configPath;
-      process.env.ASSISTANT_SKIP_CHANNELS = "1";
-      process.env.ASSISTANT_SKIP_GMAIL_WATCHER = "1";
-      process.env.ASSISTANT_SKIP_CRON = "1";
-      process.env.ASSISTANT_SKIP_CANVAS_HOST = "1";
-      process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER = "1";
-      process.env.ASSISTANT_SKIP_PROVIDERS = "1";
-      process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledPluginsDir;
-      process.env.ASSISTANT_TEST_MINIMAL_GATEWAY = "1";
+      process.env.ZHUSHOU_STATE_DIR = path.join(tempHome, ".zhushou");
+      process.env.ZHUSHOU_CONFIG_PATH = configPath;
+      process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+      process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = "1";
+      process.env.ZHUSHOU_SKIP_CRON = "1";
+      process.env.ZHUSHOU_SKIP_CANVAS_HOST = "1";
+      process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER = "1";
+      process.env.ZHUSHOU_SKIP_PROVIDERS = "1";
+      process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledPluginsDir;
+      process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY = "1";
       process.env.DISCORD_BOT_TOKEN = "discord-test-token";
 
       const token = nextGatewayId("minimal-token");
-      process.env.ASSISTANT_GATEWAY_TOKEN = token;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
       await fs.mkdir(path.dirname(configPath), { recursive: true });
       await fs.mkdir(bundledPluginsDir, { recursive: true });
       await fs.writeFile(

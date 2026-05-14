@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { type GraphResponse, fetchGraphJson, resolveGraphToken } from "./graph.js";
 
 // ---------------------------------------------------------------------------
@@ -15,7 +15,7 @@ export type GraphTeamsChannel = {
 };
 
 export type ListChannelsMSTeamsParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   teamId: string;
 };
 
@@ -30,7 +30,7 @@ export type ListChannelsMSTeamsResult = {
 };
 
 export type GetChannelInfoMSTeamsParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   teamId: string;
   channelId: string;
 };

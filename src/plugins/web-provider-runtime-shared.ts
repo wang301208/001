@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { withActivatedPluginIds } from "./activation-context.js";
 import {
   buildPluginSnapshotCacheEnvKey,
@@ -7,7 +7,7 @@ import {
 } from "./cache-controls.js";
 import {
   isPluginRegistryLoadInFlight,
-  loadAssistantPlugins,
+  loadZhushouPlugins,
   resolveCompatibleRuntimePluginRegistry,
   resolveRuntimePluginRegistry,
 } from "./loader.js";
@@ -28,7 +28,7 @@ type WebProviderSnapshotCacheEntry<TEntry> = {
 };
 
 export type WebProviderSnapshotCache<TEntry> = WeakMap<
-  AssistantConfig,
+  ZhushouConfig,
   WeakMap<NodeJS.ProcessEnv, Map<string, WebProviderSnapshotCacheEntry<TEntry>>>
 >;
 
@@ -71,7 +71,7 @@ type ResolveWebProviderRuntimeDeps<TEntry> = {
 
 export function createWebProviderSnapshotCache<TEntry>(): WebProviderSnapshotCache<TEntry> {
   return new WeakMap<
-    AssistantConfig,
+    ZhushouConfig,
     WeakMap<NodeJS.ProcessEnv, Map<string, WebProviderSnapshotCacheEntry<TEntry>>>
   >();
 }
@@ -132,7 +132,7 @@ export function resolvePluginWebProviders<TEntry>(
     if (pluginIds.length === 0) {
       return [];
     }
-    const registry = loadAssistantPlugins(
+    const registry = loadZhushouPlugins(
       buildPluginRuntimeLoadOptionsFromValues(
         {
           config: withActivatedPluginIds({
@@ -212,7 +212,7 @@ export function resolvePluginWebProviders<TEntry>(
     return [];
   }
   const resolved = deps.mapRegistryProviders({
-    registry: loadAssistantPlugins(loadOptions),
+    registry: loadZhushouPlugins(loadOptions),
     onlyPluginIds: params.onlyPluginIds,
   });
   memoizeSnapshot(resolved);

@@ -10,15 +10,15 @@ import { hasExplicitOptions } from "../command-options.js";
 export function registerSetupCommand(program: Command) {
   program
     .command("setup")
-    .description("Initialize the active assistant config and agent workspace")
+    .description("Initialize the active zhushou config and agent workspace")
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/setup", "docs.assistant.ai/cli/setup")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/setup", "docs.zhushou.ai/cli/setup")}\n`,
     )
     .option(
       "--workspace <dir>",
-      "Agent workspace directory (default: ~/.assistant/workspace; stored as agents.defaults.workspace)",
+      "Agent workspace directory (default: ~/.zhushou/workspace; stored as agents.defaults.workspace)",
     )
     .option("--wizard", "Run interactive onboarding", false)
     .option("--non-interactive", "Run onboarding without prompts", false)

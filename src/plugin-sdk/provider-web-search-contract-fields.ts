@@ -7,7 +7,7 @@ import {
   setProviderWebSearchPluginConfigValue,
   setTopLevelCredentialValue,
 } from "../agents/tools/web-search-provider-config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { WebSearchProviderPlugin } from "../plugins/types.js";
 
 export type WebSearchProviderContractCredential =
@@ -73,9 +73,9 @@ function createConfiguredCredentialFields(
   const field = configuredCredential.field ?? "apiKey";
 
   return {
-    getConfiguredCredentialValue: (config?: AssistantConfig) =>
+    getConfiguredCredentialValue: (config?: ZhushouConfig) =>
       resolveProviderWebSearchPluginConfig(config, configuredCredential.pluginId)?.[field],
-    setConfiguredCredentialValue: (configTarget: AssistantConfig, value: unknown) => {
+    setConfiguredCredentialValue: (configTarget: ZhushouConfig, value: unknown) => {
       setProviderWebSearchPluginConfigValue(
         configTarget,
         configuredCredential.pluginId,

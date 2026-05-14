@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/microsoft-speech",
+  "name": "@zhushou/microsoft-speech",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Microsoft speech plugin",
@@ -8,9 +8,9 @@
     "node-edge-tts": "^1.2.10"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

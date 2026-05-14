@@ -12,14 +12,14 @@ const DOCS_JSON_PATH = path.join(DOCS_DIR, "docs.json");
 const MINTLIFY_BROKEN_LINKS_ARGS = ["dlx", "mint", "broken-links", "--check-anchors"];
 const NODE_25_UNSUPPORTED_BY_MINTLIFY = 25;
 
-if (!fs.existsSync(DOCS_DIR) || !fs.statSync(DOCS_DIR).isDirectory()) {
-  console.error("docs:check-links: missing docs directory; run from repo root.");
-  process.exit(1);
-}
-
-if (!fs.existsSync(DOCS_JSON_PATH)) {
-  console.error("docs:check-links: missing docs/docs.json.");
-  process.exit(1);
+function validateDocsTree() {
+  if (!fs.existsSync(DOCS_DIR) || !fs.statSync(DOCS_DIR).isDirectory()) {
+    return "docs:check-links: missing docs directory; run from repo root.";
+  }
+  if (!fs.existsSync(DOCS_JSON_PATH)) {
+    return "docs:check-links: missing docs/docs.json.";
+  }
+  return "";
 }
 
 /** @param {string} dir */
@@ -59,7 +59,9 @@ function stripInlineCode(text) {
   return text.replace(/`[^`]+`/g, "");
 }
 
-const docsConfig = JSON.parse(fs.readFileSync(DOCS_JSON_PATH, "utf8"));
+const docsConfig = fs.existsSync(DOCS_JSON_PATH)
+  ? JSON.parse(fs.readFileSync(DOCS_JSON_PATH, "utf8"))
+  : { redirects: [], navigation: [] };
 const redirects = new Map();
 for (const item of docsConfig.redirects || []) {
   const source = normalizeRoute(item.source || "");
@@ -67,7 +69,7 @@ for (const item of docsConfig.redirects || []) {
   redirects.set(source, destination);
 }
 
-const allFiles = walk(DOCS_DIR);
+const allFiles = fs.existsSync(DOCS_DIR) && fs.statSync(DOCS_DIR).isDirectory() ? walk(DOCS_DIR) : [];
 const relAllFiles = new Set(allFiles.map((abs) => normalizeSlashes(path.relative(DOCS_DIR, abs))));
 
 function isLocalizedDocPath(p) {
@@ -242,7 +244,7 @@ export function sanitizeDocsConfigForEnglishOnly(value) {
 }
 
 export function prepareAnchorAuditDocsDir(sourceDir = DOCS_DIR) {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-docs-anchor-audit-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-docs-anchor-audit-"));
   fs.cpSync(sourceDir, tempDir, { recursive: true });
 
   for (const entry of fs.readdirSync(tempDir, { withFileTypes: true })) {
@@ -314,6 +316,11 @@ export function resolveMintlifyAnchorAuditInvocation(params) {
 }
 
 export function auditDocsLinks() {
+  const docsError = validateDocsTree();
+  if (docsError) {
+    throw new Error(docsError);
+  }
+
   /** @type {{file: string; line: number; link: string; reason: string}[]} */
   const broken = [];
   let checked = 0;
@@ -445,6 +452,13 @@ export function auditDocsLinks() {
 export function runDocsLinkAuditCli(options = {}) {
   const args = options.args ?? process.argv.slice(2);
   if (args.includes("--anchors")) {
+    if (!options.prepareAnchorAuditDocsDirImpl) {
+      const docsError = validateDocsTree();
+      if (docsError) {
+        console.error(docsError);
+        return 1;
+      }
+    }
     const spawnSyncImpl = options.spawnSyncImpl ?? spawnSync;
     const prepareAnchorAuditDocsDirImpl =
       options.prepareAnchorAuditDocsDirImpl ?? prepareAnchorAuditDocsDir;
@@ -473,7 +487,14 @@ export function runDocsLinkAuditCli(options = {}) {
     }
   }
 
-  const { checked, broken } = auditDocsLinks();
+  let checked;
+  let broken;
+  try {
+    ({ checked, broken } = auditDocsLinks());
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    return 1;
+  }
   console.log(`checked_internal_links=${checked}`);
   console.log(`broken_links=${broken.length}`);
 

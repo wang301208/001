@@ -58,7 +58,7 @@ function buildReasoningPart(id = "rs_test") {
   };
 }
 
-function buildAssistantMessage(params: {
+function buildZhushouMessage(params: {
   stopReason: AssistantMessage["stopReason"];
   content: AssistantMessage["content"];
 }): AssistantMessage {
@@ -114,7 +114,7 @@ async function runAbortedOpenAIResponsesStream(params: {
 
 describe("openai-responses reasoning replay", () => {
   it("replays reasoning for tool-call-only turns (OpenAI requires it)", async () => {
-    const assistantToolOnly = buildAssistantMessage({
+    const zhushouToolOnly = buildZhushouMessage({
       stopReason: "toolUse",
       content: [
         buildReasoningPart(),
@@ -143,7 +143,7 @@ describe("openai-responses reasoning replay", () => {
           content: "Call noop.",
           timestamp: Date.now(),
         },
-        assistantToolOnly,
+        zhushouToolOnly,
         toolResult,
         {
           role: "user",
@@ -174,8 +174,8 @@ describe("openai-responses reasoning replay", () => {
     expect(functionCall?.id).toBe("fc_123");
   });
 
-  it("still replays reasoning when paired with an assistant message", async () => {
-    const assistantWithText = buildAssistantMessage({
+  it("still replays reasoning when paired with an zhushou message", async () => {
+    const zhushouWithText = buildZhushouMessage({
       stopReason: "stop",
       content: [buildReasoningPart(), { type: "text", text: "hello", textSignature: "msg_test" }],
     });
@@ -183,7 +183,7 @@ describe("openai-responses reasoning replay", () => {
     const { types } = await runAbortedOpenAIResponsesStream({
       messages: [
         { role: "user", content: "Hi", timestamp: Date.now() },
-        assistantWithText,
+        zhushouWithText,
         { role: "user", content: "Ok", timestamp: Date.now() },
       ],
     });
@@ -193,9 +193,9 @@ describe("openai-responses reasoning replay", () => {
   });
 
   it.each(["commentary", "final_answer"] as const)(
-    "replays assistant message phase metadata for %s",
+    "replays zhushou message phase metadata for %s",
     async (phase) => {
-      const assistantWithText = buildAssistantMessage({
+      const zhushouWithText = buildZhushouMessage({
         stopReason: "stop",
         content: [
           buildReasoningPart(),
@@ -210,7 +210,7 @@ describe("openai-responses reasoning replay", () => {
       const { input, types } = await runAbortedOpenAIResponsesStream({
         messages: [
           { role: "user", content: "Hi", timestamp: Date.now() },
-          assistantWithText,
+          zhushouWithText,
           { role: "user", content: "Ok", timestamp: Date.now() },
         ],
       });

@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/googlechat",
+  "name": "@zhushou/googlechat",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Google Chat channel plugin",
@@ -8,18 +8,18 @@
     "google-auth-library": "^10.6.2"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*",
-    "assistant": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "assistant": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "assistant": {
+    "zhushou": {
       "optional": true
     }
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -41,7 +41,7 @@
       "markdownCapable": true
     },
     "install": {
-      "npmSpec": "@assistant/googlechat",
+      "npmSpec": "@zhushou/googlechat",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     }

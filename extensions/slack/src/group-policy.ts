@@ -1,11 +1,11 @@
-import { normalizeAccountId } from "assistant/plugin-sdk/account-resolution";
-import type { ChannelGroupContext } from "assistant/plugin-sdk/channel-contract";
+import { normalizeAccountId } from "zhushou/plugin-sdk/account-resolution";
+import type { ChannelGroupContext } from "zhushou/plugin-sdk/channel-contract";
 import {
   resolveToolsBySender,
   type GroupToolPolicyBySenderConfig,
   type GroupToolPolicyConfig,
-} from "assistant/plugin-sdk/channel-policy";
-import { normalizeHyphenSlug } from "assistant/plugin-sdk/string-normalization-runtime";
+} from "zhushou/plugin-sdk/channel-policy";
+import { normalizeHyphenSlug } from "zhushou/plugin-sdk/string-normalization-runtime";
 import { mergeSlackAccountConfig, resolveDefaultSlackAccountId } from "./accounts.js";
 
 type SlackChannelPolicyEntry = {

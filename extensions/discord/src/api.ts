@@ -1,9 +1,9 @@
-import { resolveFetch } from "assistant/plugin-sdk/fetch-runtime";
+import { resolveFetch } from "zhushou/plugin-sdk/fetch-runtime";
 import {
   resolveRetryConfig,
   retryAsync,
   type RetryConfig,
-} from "assistant/plugin-sdk/retry-runtime";
+} from "zhushou/plugin-sdk/retry-runtime";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const DISCORD_API_RETRY_DEFAULTS = {

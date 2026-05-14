@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { setTimeout as sleep } from "node:timers/promises";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import type { MatrixQaObservedEvent } from "./events.js";
 import { requestMatrixJson, type MatrixQaFetchLike } from "./request.js";
 import {

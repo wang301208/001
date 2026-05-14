@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { startGmailWatcher } from "./gmail-watcher.js";
 
@@ -9,11 +9,11 @@ export type GMailWatcherLog = {
 };
 
 export async function startGmailWatcherWithLogs(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   log: GMailWatcherLog;
   onSkipped?: () => void;
 }) {
-  if (isTruthyEnvValue(process.env.ASSISTANT_SKIP_GMAIL_WATCHER)) {
+  if (isTruthyEnvValue(process.env.ZHUSHOU_SKIP_GMAIL_WATCHER)) {
     params.onSkipped?.();
     return;
   }

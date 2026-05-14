@@ -2,7 +2,7 @@ import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
 import {
   createParagraphChunkedBlockReplyHarness,
-  emitAssistantTextDeltaAndEnd,
+  emitZhushouTextDeltaAndEnd,
   expectFencedChunks,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 import { subscribeEmbeddedPiSession } from "./pi-embedded-subscribe.js";
@@ -22,7 +22,7 @@ describe("subscribeEmbeddedPiSession", () => {
     });
 
     const text = `\`\`\`json\n${"x".repeat(120)}\n\`\`\``;
-    emitAssistantTextDeltaAndEnd({ emit, text });
+    emitZhushouTextDeltaAndEnd({ emit, text });
     await Promise.resolve();
     expectFencedChunks(onBlockReply.mock.calls, "```json");
   });
@@ -45,16 +45,16 @@ describe("subscribeEmbeddedPiSession", () => {
       runId: "run-1",
     });
 
-    const assistantMessage = {
+    const zhushouMessage = {
       role: "assistant",
       content: [{ type: "text", text: "oops" }],
     } as AssistantMessage;
 
     for (const listener of listeners) {
-      listener({ type: "message_end", message: assistantMessage });
+      listener({ type: "message_end", message: zhushouMessage });
     }
 
-    expect(subscription.assistantTexts.length).toBe(1);
+    expect(subscription.zhushouTexts.length).toBe(1);
 
     for (const listener of listeners) {
       listener({
@@ -64,7 +64,7 @@ describe("subscribeEmbeddedPiSession", () => {
     }
 
     expect(subscription.isCompacting()).toBe(true);
-    expect(subscription.assistantTexts.length).toBe(0);
+    expect(subscription.zhushouTexts.length).toBe(0);
 
     let resolved = false;
     const waitPromise = subscription.waitForCompactionRetry().then(() => {
@@ -118,7 +118,7 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(subscription.isCompacting()).toBe(false);
   });
 
-  it("resets assistant usage to a zero snapshot after compaction without retry", () => {
+  it("resets zhushou usage to a zero snapshot after compaction without retry", () => {
     const listeners: SessionEventHandler[] = [];
     const session = {
       messages: [

@@ -4,7 +4,7 @@ import {
   createTestWizardPrompter,
   runSetupWizardConfigure,
 } from "../../../test/helpers/plugins/setup-wizard.js";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import "./zalo-js.test-mocks.js";
 import { zalouserSetupWizard } from "./setup-surface.js";
 import { zalouserSetupPlugin } from "./setup-test-helpers.js";
@@ -12,7 +12,7 @@ import { zalouserSetupPlugin } from "./setup-test-helpers.js";
 const zalouserConfigure = createPluginSetupWizardConfigure(zalouserSetupPlugin);
 
 async function runSetup(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   prompter: ReturnType<typeof createTestWizardPrompter>;
   options?: Record<string, unknown>;
   forceAllowFrom?: boolean;
@@ -234,7 +234,7 @@ describe("zalouser setup wizard", () => {
         plugins: {
           allow: ["telegram"],
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       prompter,
     });
 
@@ -257,14 +257,14 @@ describe("zalouser setup wizard", () => {
               },
             },
           },
-        } as AssistantConfig,
+        } as ZhushouConfig,
         "work",
       ),
     ).toBe("allowlist");
   });
 
   it("reports account-scoped config keys for named accounts", () => {
-    expect(zalouserSetupWizard.dmPolicy?.resolveConfigKeys?.({} as AssistantConfig, "work")).toEqual(
+    expect(zalouserSetupWizard.dmPolicy?.resolveConfigKeys?.({} as ZhushouConfig, "work")).toEqual(
       {
         policyKey: "channels.zalouser.accounts.work.dmPolicy",
         allowFromKey: "channels.zalouser.accounts.work.allowFrom",
@@ -287,7 +287,7 @@ describe("zalouser setup wizard", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     expect(zalouserSetupWizard.dmPolicy?.getCurrent(cfg)).toBe("allowlist");
     expect(zalouserSetupWizard.dmPolicy?.resolveConfigKeys?.(cfg)).toEqual({
@@ -316,7 +316,7 @@ describe("zalouser setup wizard", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       "open",
       "work",
     );
@@ -348,7 +348,7 @@ describe("zalouser setup wizard", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       prompter,
       options: { quickstartDefaults: true },
       accountOverrides: { zalouser: "work" },

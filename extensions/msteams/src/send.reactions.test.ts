@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import type { AssistantConfig, PluginRuntime } from "../runtime-api.js";
+import type { ZhushouConfig, PluginRuntime } from "../runtime-api.js";
 import { setMSTeamsRuntime } from "./runtime.js";
 import { reactMessageMSTeams, removeReactionMSTeams } from "./send.reactions.js";
 
@@ -22,7 +22,7 @@ function buildMockRuntime(): PluginRuntime {
   } as unknown as PluginRuntime;
 }
 
-const validCfg: AssistantConfig = {
+const validCfg: ZhushouConfig = {
   channels: {
     msteams: {
       enabled: true,
@@ -30,7 +30,7 @@ const validCfg: AssistantConfig = {
       appPassword: "test-secret",
     },
   },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 describe("reactMessageMSTeams", () => {
   beforeEach(() => {

@@ -8,13 +8,13 @@ export function makeBrowserProfile(
   overrides: Partial<ResolvedBrowserProfile> = {},
 ): ResolvedBrowserProfile {
   return {
-    name: "assistant",
+    name: "zhushou",
     cdpUrl: "http://127.0.0.1:18800",
     cdpHost: "127.0.0.1",
     cdpIsLoopback: true,
     cdpPort: 18800,
     color: "#FF4500",
-    driver: "assistant",
+    driver: "zhushou",
     attachOnly: false,
     ...overrides,
   };
@@ -56,14 +56,14 @@ export function makeBrowserServerState(params?: {
 }
 
 export function mockLaunchedChrome(
-  launchAssistantChrome: { mockResolvedValue: (value: RunningChrome) => unknown },
+  launchZhushouChrome: { mockResolvedValue: (value: RunningChrome) => unknown },
   pid: number,
 ) {
   const proc = new EventEmitter() as unknown as ChildProcessWithoutNullStreams;
-  launchAssistantChrome.mockResolvedValue({
+  launchZhushouChrome.mockResolvedValue({
     pid,
     exe: { kind: "chromium", path: "/usr/bin/chromium" },
-    userDataDir: "/tmp/assistant-test",
+    userDataDir: "/tmp/zhushou-test",
     cdpPort: 18800,
     startedAt: Date.now(),
     proc,

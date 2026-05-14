@@ -9,7 +9,7 @@ describe("buildCliRespawnPlan", () => {
   it("does not create a CLI respawn plan", () => {
     expect(
       buildCliRespawnPlan({
-        argv: ["node", "assistant", "gateway", "run"],
+        argv: ["node", "zhushou", "gateway", "run"],
         env: {},
         execArgv: [],
         autoNodeExtraCaCerts: "/etc/ssl/certs/ca-certificates.crt",
@@ -20,7 +20,7 @@ describe("buildCliRespawnPlan", () => {
   it("does not create a plan even when startup guards are missing", () => {
     expect(
       buildCliRespawnPlan({
-        argv: ["node", "assistant", "status"],
+        argv: ["node", "zhushou", "status"],
         env: {
           NODE_EXTRA_CA_CERTS: "",
         },

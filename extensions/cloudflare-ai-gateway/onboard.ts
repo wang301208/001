@@ -1,8 +1,8 @@
 import {
   applyAgentDefaultModelPrimary,
   applyProviderConfigWithDefaultModel,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/provider-onboard";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/provider-onboard";
 import {
   buildCloudflareAiGatewayModelDefinition,
   CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
@@ -37,9 +37,9 @@ export function buildCloudflareAiGatewayConfigPatch(params: {
 }
 
 export function applyCloudflareAiGatewayProviderConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params?: { accountId?: string; gatewayId?: string },
-): AssistantConfig {
+): ZhushouConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF] = {
     ...models[CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF],
@@ -81,9 +81,9 @@ export function applyCloudflareAiGatewayProviderConfig(
 }
 
 export function applyCloudflareAiGatewayConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params?: { accountId?: string; gatewayId?: string },
-): AssistantConfig {
+): ZhushouConfig {
   return applyAgentDefaultModelPrimary(
     applyCloudflareAiGatewayProviderConfig(cfg, params),
     CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,

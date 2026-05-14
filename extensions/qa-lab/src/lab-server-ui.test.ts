@@ -7,6 +7,6 @@ describe("qa-lab server ui helpers", () => {
 
     expect(html).toContain("QA Lab browser UI removed");
     expect(html).toContain("terminal TUI");
-    expect(html).toContain("assistant --tui");
+    expect(html).toContain("zhushou --tui");
   });
 });

@@ -1,4 +1,4 @@
-import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
+import { PRODUCT_NAME } from "../wizard/zhushou-constants.js";
 
 const DEFAULT_TAGLINE = `所有对话，一个${PRODUCT_NAME}入口。`;
 export type TaglineMode = "random" | "default" | "off";
@@ -215,7 +215,7 @@ export function pickTagline(options: TaglineOptions = {}): string {
     return DEFAULT_TAGLINE;
   }
   const env = options.env ?? process.env;
-  const override = env?.ASSISTANT_TAGLINE_INDEX;
+  const override = env?.ZHUSHOU_TAGLINE_INDEX;
   if (override !== undefined) {
     const parsed = Number.parseInt(override, 10);
     if (!Number.isNaN(parsed) && parsed >= 0) {

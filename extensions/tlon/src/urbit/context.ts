@@ -1,7 +1,7 @@
 export {
   ssrfPolicyFromDangerouslyAllowPrivateNetwork,
   ssrfPolicyFromAllowPrivateNetwork,
-} from "assistant/plugin-sdk/ssrf-runtime";
+} from "zhushou/plugin-sdk/ssrf-runtime";
 import { normalizeUrbitHostname, validateUrbitBaseUrl } from "./base-url.js";
 import { UrbitUrlError } from "./errors.js";
 

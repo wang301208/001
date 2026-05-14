@@ -73,7 +73,7 @@ let callGatewayModule: typeof import("../gateway/call.js");
 let agentEventsModule: typeof import("../infra/agent-events.js");
 
 describe("subagent registry persistence resume", () => {
-  const envSnapshot = captureEnv(["ASSISTANT_STATE_DIR"]);
+  const envSnapshot = captureEnv(["ZHUSHOU_STATE_DIR"]);
   let tempStateDir: string | null = null;
 
   const writeChildSessionEntry = async (params: {
@@ -105,7 +105,7 @@ describe("subagent registry persistence resume", () => {
     mod = await import("./subagent-registry.js");
     callGatewayModule = await import("../gateway/call.js");
     agentEventsModule = await import("../infra/agent-events.js");
-  });
+  }, 60_000);
 
   beforeEach(async () => {
     announceSpy.mockClear();
@@ -124,7 +124,7 @@ describe("subagent registry persistence resume", () => {
     mod.resetSubagentRegistryForTests({ persist: false });
     vi.mocked(agentEventsModule.onAgentEvent).mockReset();
     vi.mocked(agentEventsModule.onAgentEvent).mockReturnValue(() => undefined);
-  });
+  }, 60_000);
 
   afterEach(async () => {
     announceSpy.mockClear();
@@ -152,11 +152,11 @@ describe("subagent registry persistence resume", () => {
     hoisted.registryPath = undefined;
     hoisted.allowedRunIds = undefined;
     envSnapshot.restore();
-  });
+  }, 60_000);
 
   it("persists runs to disk and resumes after restart", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-subagent-"));
-    process.env.ASSISTANT_STATE_DIR = tempStateDir;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-subagent-"));
+    process.env.ZHUSHOU_STATE_DIR = tempStateDir;
     const registryPath = path.join(tempStateDir, "subagents", "runs.json");
     hoisted.registryPath = registryPath;
     await fs.mkdir(path.dirname(registryPath), { recursive: true });

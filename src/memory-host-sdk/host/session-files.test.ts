@@ -9,15 +9,15 @@ let originalStateDir: string | undefined;
 
 beforeEach(async () => {
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "session-entry-test-"));
-  originalStateDir = process.env.ASSISTANT_STATE_DIR;
-  process.env.ASSISTANT_STATE_DIR = tmpDir;
+  originalStateDir = process.env.ZHUSHOU_STATE_DIR;
+  process.env.ZHUSHOU_STATE_DIR = tmpDir;
 });
 
 afterEach(async () => {
   if (originalStateDir === undefined) {
-    delete process.env.ASSISTANT_STATE_DIR;
+    delete process.env.ZHUSHOU_STATE_DIR;
   } else {
-    process.env.ASSISTANT_STATE_DIR = originalStateDir;
+    process.env.ZHUSHOU_STATE_DIR = originalStateDir;
   }
   await fs.rm(tmpDir, { recursive: true, force: true });
 });
@@ -56,11 +56,11 @@ describe("buildSessionEntry", () => {
     // Lines 1-3: non-message metadata records
     // Line 4: user message
     // Line 5: metadata
-    // Line 6: assistant message
+    // Line 6: zhushou message
     // Line 7: user message
     const jsonlLines = [
       JSON.stringify({ type: "custom", customType: "model-snapshot", data: {} }),
-      JSON.stringify({ type: "custom", customType: "assistant.cache-ttl", data: {} }),
+      JSON.stringify({ type: "custom", customType: "zhushou.cache-ttl", data: {} }),
       JSON.stringify({ type: "session-meta", agentId: "test" }),
       JSON.stringify({ type: "message", message: { role: "user", content: "Hello world" } }),
       JSON.stringify({ type: "custom", customType: "tool-result", data: {} }),
@@ -80,12 +80,12 @@ describe("buildSessionEntry", () => {
     const contentLines = entry!.content.split("\n");
     expect(contentLines).toHaveLength(3);
     expect(contentLines[0]).toContain("User: Hello world");
-    expect(contentLines[1]).toContain("Assistant: Hi there");
+    expect(contentLines[1]).toContain("Zhushou: Hi there");
     expect(contentLines[2]).toContain("User: Tell me a joke");
 
     // lineMap should map each content line to its original JSONL line (1-indexed)
     // Content line 0 → JSONL line 4 (the first user message)
-    // Content line 1 → JSONL line 6 (the assistant message)
+    // Content line 1 → JSONL line 6 (the zhushou message)
     // Content line 2 → JSONL line 7 (the second user message)
     expect(entry!.lineMap).toBeDefined();
     expect(entry!.lineMap).toEqual([4, 6, 7]);
@@ -156,7 +156,7 @@ describe("buildSessionEntry", () => {
     // to the actual user text. Without stripping, the JSON envelope dominates
     // the corpus entry and the user's real words get truncated by the
     // SESSION_INGESTION_MAX_SNIPPET_CHARS cap downstream.
-    // See: https://github.com/assistant/assistant/issues/63921
+    // See: https://github.com/wang301208/zhushou/issues/63921
     const envelopedUserText = [
       "Conversation info (untrusted metadata):",
       "```json",
@@ -194,7 +194,7 @@ describe("buildSessionEntry", () => {
     expect(contentLines[0]).not.toContain("untrusted metadata");
     expect(contentLines[0]).not.toContain("message_id");
     expect(contentLines[0]).not.toContain("```json");
-    expect(contentLines[1]).toBe("Assistant: 好的,我来查一下");
+    expect(contentLines[1]).toBe("Zhushou: 好的,我来查一下");
   });
 
   it("strips inbound metadata when a user envelope is split across text blocks", async () => {
@@ -227,30 +227,30 @@ describe("buildSessionEntry", () => {
     expect(entry!.content).toBe("User: Actual user text");
   });
 
-  it("preserves assistant messages that happen to contain sentinel-like text", async () => {
-    // Assistant role must NOT be stripped — only user messages carry inbound
-    // envelopes, and assistants may legitimately discuss metadata formats.
-    const assistantText =
+  it("preserves zhushou messages that happen to contain sentinel-like text", async () => {
+    // Zhushou role must NOT be stripped — only user messages carry inbound
+    // envelopes, and zhushous may legitimately discuss metadata formats.
+    const zhushouText =
       "The envelope format uses 'Conversation info (untrusted metadata):' as a sentinel";
     const jsonlLines = [
       JSON.stringify({
         type: "message",
-        message: { role: "assistant", content: assistantText },
+        message: { role: "assistant", content: zhushouText },
       }),
     ];
-    const filePath = path.join(tmpDir, "assistant-sentinel.jsonl");
+    const filePath = path.join(tmpDir, "zhushou-sentinel.jsonl");
     await fs.writeFile(filePath, jsonlLines.join("\n"));
 
     const entry = await buildSessionEntry(filePath);
     expect(entry).not.toBeNull();
-    expect(entry!.content).toBe(`Assistant: ${assistantText}`);
+    expect(entry!.content).toBe(`Zhushou: ${zhushouText}`);
   });
 
   it("flags dreaming narrative transcripts from bootstrap metadata", async () => {
     const jsonlLines = [
       JSON.stringify({
         type: "custom",
-        customType: "assistant:bootstrap-context:full",
+        customType: "zhushou:bootstrap-context:full",
         data: {
           runId: "dreaming-narrative-light-1775894400455",
           sessionId: "sid-1",
@@ -339,7 +339,7 @@ describe("buildSessionEntry", () => {
     expect(entry?.content).toContain(
       "User: Write a dream diary entry from these memory fragments:",
     );
-    expect(entry?.content).toContain("Assistant: A drifting archive breathed in moonlight.");
+    expect(entry?.content).toContain("Zhushou: A drifting archive breathed in moonlight.");
     expect(entry?.lineMap).toEqual([1, 2]);
   });
 

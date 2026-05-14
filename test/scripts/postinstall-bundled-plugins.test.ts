@@ -15,7 +15,7 @@ import { createScriptTestHarness } from "./test-helpers.js";
 const { createTempDirAsync } = createScriptTestHarness();
 
 async function createExtensionsDir() {
-  const root = await createTempDirAsync("assistant-postinstall-");
+  const root = await createTempDirAsync("zhushou-postinstall-");
   const extensionsDir = path.join(root, "dist", "extensions");
   await fs.mkdir(extensionsDir, { recursive: true });
   return extensionsDir;
@@ -123,7 +123,7 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("prunes source-checkout bundled plugin node_modules", async () => {
-    const packageRoot = await createTempDirAsync("assistant-source-checkout-");
+    const packageRoot = await createTempDirAsync("zhushou-source-checkout-");
     const extensionsDir = path.join(packageRoot, "extensions");
     await fs.mkdir(path.join(packageRoot, ".git"), { recursive: true });
     await fs.mkdir(path.join(packageRoot, "src"), { recursive: true });
@@ -154,7 +154,7 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("keeps source-checkout prune non-fatal", async () => {
-    const packageRoot = await createTempDirAsync("assistant-source-checkout-prune-error-");
+    const packageRoot = await createTempDirAsync("zhushou-source-checkout-prune-error-");
     const extensionsDir = path.join(packageRoot, "extensions");
     await fs.mkdir(path.join(packageRoot, ".git"), { recursive: true });
     await fs.mkdir(path.join(packageRoot, "src"), { recursive: true });
@@ -179,7 +179,7 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("honors disable env before source-checkout pruning", async () => {
-    const packageRoot = await createTempDirAsync("assistant-source-checkout-disabled-");
+    const packageRoot = await createTempDirAsync("zhushou-source-checkout-disabled-");
     const extensionsDir = path.join(packageRoot, "extensions");
     await fs.mkdir(path.join(packageRoot, ".git"), { recursive: true });
     await fs.mkdir(path.join(packageRoot, "src"), { recursive: true });
@@ -187,7 +187,7 @@ describe("bundled plugin postinstall", () => {
     await fs.writeFile(path.join(extensionsDir, "acpx", "package.json"), "{}\n");
 
     runBundledPluginPostinstall({
-      env: { ASSISTANT_DISABLE_BUNDLED_PLUGIN_POSTINSTALL: "1" },
+      env: { ZHUSHOU_DISABLE_BUNDLED_PLUGIN_POSTINSTALL: "1" },
       packageRoot,
       log: { log: vi.fn(), warn: vi.fn() },
     });
@@ -196,7 +196,7 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("prunes stale dist files from packaged installs", async () => {
-    const packageRoot = await createTempDirAsync("assistant-packaged-install-");
+    const packageRoot = await createTempDirAsync("zhushou-packaged-install-");
     const currentFile = path.join(packageRoot, "dist", "channel-BOa4MfoC.js");
     const staleFile = path.join(packageRoot, "dist", "channel-CJUAgRQR.js");
     await fs.mkdir(path.dirname(currentFile), { recursive: true });
@@ -216,7 +216,7 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("restores only postinstall-generated QA compat sidecars after pruning old installs", async () => {
-    const packageRoot = await createTempDirAsync("assistant-packaged-install-qa-compat-");
+    const packageRoot = await createTempDirAsync("zhushou-packaged-install-qa-compat-");
     const currentFile = path.join(packageRoot, "dist", "entry.js");
     const stalePackage = path.join(packageRoot, "dist", "extensions", "qa-lab", "package.json");
     const staleManifest = path.join(
@@ -224,7 +224,7 @@ describe("bundled plugin postinstall", () => {
       "dist",
       "extensions",
       "qa-lab",
-      "assistant.plugin.json",
+      "zhushou.plugin.json",
     );
     await fs.mkdir(path.dirname(stalePackage), { recursive: true });
     await fs.writeFile(currentFile, "export {};\n");
@@ -252,7 +252,7 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("creates only empty QA compat sidecars for fresh installs", async () => {
-    const packageRoot = await createTempDirAsync("assistant-packaged-install-no-qa-compat-");
+    const packageRoot = await createTempDirAsync("zhushou-packaged-install-no-qa-compat-");
     await fs.mkdir(path.join(packageRoot, "dist"), { recursive: true });
     await fs.writeFile(path.join(packageRoot, "dist", "entry.js"), "export {};\n");
     await writePackageDistInventory(packageRoot);
@@ -285,18 +285,18 @@ describe("bundled plugin postinstall", () => {
       fs.stat(path.join(packageRoot, "dist", "extensions", "qa-channel", "package.json")),
     ).rejects.toMatchObject({ code: "ENOENT" });
     await expect(
-      fs.stat(path.join(packageRoot, "dist", "extensions", "qa-channel", "assistant.plugin.json")),
+      fs.stat(path.join(packageRoot, "dist", "extensions", "qa-channel", "zhushou.plugin.json")),
     ).rejects.toMatchObject({ code: "ENOENT" });
     await expect(
       fs.stat(path.join(packageRoot, "dist", "extensions", "qa-lab", "package.json")),
     ).rejects.toMatchObject({ code: "ENOENT" });
     await expect(
-      fs.stat(path.join(packageRoot, "dist", "extensions", "qa-lab", "assistant.plugin.json")),
+      fs.stat(path.join(packageRoot, "dist", "extensions", "qa-lab", "zhushou.plugin.json")),
     ).rejects.toMatchObject({ code: "ENOENT" });
   });
 
   it("keeps packaged postinstall non-fatal when the dist inventory is missing", async () => {
-    const packageRoot = await createTempDirAsync("assistant-packaged-install-missing-inventory-");
+    const packageRoot = await createTempDirAsync("zhushou-packaged-install-missing-inventory-");
     const staleFile = path.join(packageRoot, "dist", "channel-CJUAgRQR.js");
     await fs.mkdir(path.dirname(staleFile), { recursive: true });
     await fs.writeFile(staleFile, "export {};\n");
@@ -316,7 +316,7 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("keeps packaged postinstall non-fatal when the dist inventory is invalid", async () => {
-    const packageRoot = await createTempDirAsync("assistant-packaged-install-invalid-inventory-");
+    const packageRoot = await createTempDirAsync("zhushou-packaged-install-invalid-inventory-");
     const currentFile = path.join(packageRoot, "dist", "channel-BOa4MfoC.js");
     const inventoryPath = path.join(packageRoot, "dist", "postinstall-inventory.json");
     await fs.mkdir(path.dirname(currentFile), { recursive: true });
@@ -697,13 +697,13 @@ describe("bundled plugin postinstall", () => {
   });
 
   it("prunes only bundled plugin package node_modules in source checkouts", async () => {
-    const packageRoot = await createTempDirAsync("assistant-source-prune-");
+    const packageRoot = await createTempDirAsync("zhushou-source-prune-");
     const extensionsDir = path.join(packageRoot, "extensions");
     await fs.mkdir(path.join(extensionsDir, "acpx", "node_modules"), { recursive: true });
     await fs.mkdir(path.join(extensionsDir, "fixtures", "node_modules"), { recursive: true });
     await fs.writeFile(
       path.join(extensionsDir, "acpx", "package.json"),
-      JSON.stringify({ name: "@assistant/acpx" }),
+      JSON.stringify({ name: "@zhushou/acpx" }),
     );
 
     pruneBundledPluginSourceNodeModules({ extensionsDir });

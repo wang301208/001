@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { collectSandboxBrowserHashLabelFindings } from "./audit-extra.async.js";
 import { collectSandboxDangerousConfigFindings } from "./audit-extra.sync.js";
 
@@ -20,19 +20,19 @@ describe("security audit sandbox browser findings", () => {
       execDockerRawFn: async (args: string[]) => {
         if (args[0] === "ps") {
           return {
-            stdout: Buffer.from("assistant-sbx-browser-old\nassistant-sbx-browser-missing-hash\n"),
+            stdout: Buffer.from("zhushou-sbx-browser-old\nzhushou-sbx-browser-missing-hash\n"),
             stderr: Buffer.alloc(0),
             code: 0,
           };
         }
-        if (args[0] === "inspect" && args.at(-1) === "assistant-sbx-browser-old") {
+        if (args[0] === "inspect" && args.at(-1) === "zhushou-sbx-browser-old") {
           return {
             stdout: Buffer.from("abc123\tepoch-v0\n"),
             stderr: Buffer.alloc(0),
             code: 0,
           };
         }
-        if (args[0] === "inspect" && args.at(-1) === "assistant-sbx-browser-missing-hash") {
+        if (args[0] === "inspect" && args.at(-1) === "zhushou-sbx-browser-missing-hash") {
           return {
             stdout: Buffer.from("<no value>\t<no value>\n"),
             stderr: Buffer.alloc(0),
@@ -52,7 +52,7 @@ describe("security audit sandbox browser findings", () => {
     const staleEpoch = findings.find(
       (finding) => finding.checkId === "sandbox.browser_container.hash_epoch_stale",
     );
-    expect(staleEpoch?.detail).toContain("assistant-sbx-browser-old");
+    expect(staleEpoch?.detail).toContain("zhushou-sbx-browser-old");
   });
 
   it("skips sandbox browser hash label checks when docker inspect is unavailable", async () => {
@@ -72,19 +72,19 @@ describe("security audit sandbox browser findings", () => {
       execDockerRawFn: async (args: string[]) => {
         if (args[0] === "ps") {
           return {
-            stdout: Buffer.from("assistant-sbx-browser-exposed\n"),
+            stdout: Buffer.from("zhushou-sbx-browser-exposed\n"),
             stderr: Buffer.alloc(0),
             code: 0,
           };
         }
-        if (args[0] === "inspect" && args.at(-1) === "assistant-sbx-browser-exposed") {
+        if (args[0] === "inspect" && args.at(-1) === "zhushou-sbx-browser-exposed") {
           return {
             stdout: Buffer.from("hash123\t2026-02-21-novnc-auth-default\n"),
             stderr: Buffer.alloc(0),
             code: 0,
           };
         }
-        if (args[0] === "port" && args.at(-1) === "assistant-sbx-browser-exposed") {
+        if (args[0] === "port" && args.at(-1) === "zhushou-sbx-browser-exposed") {
           return {
             stdout: Buffer.from("6080/tcp -> 0.0.0.0:49101\n9222/tcp -> 127.0.0.1:49100\n"),
             stderr: Buffer.alloc(0),
@@ -114,7 +114,7 @@ describe("security audit sandbox browser findings", () => {
           },
         },
       },
-    } satisfies AssistantConfig);
+    } satisfies ZhushouConfig);
     expect(findings.some((f) => f.checkId === "sandbox.browser_cdp_bridge_unrestricted")).toBe(
       false,
     );

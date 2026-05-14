@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { stripModelSpecialTokens } from "./pi-embedded-utils.js";
 
 /**
- * @see https://github.com/assistant/assistant/issues/40020
+ * @see https://github.com/wang301208/zhushou/issues/40020
  */
 describe("stripModelSpecialTokens", () => {
   it("strips tokens and inserts space between adjacent words", () => {
-    expect(stripModelSpecialTokens("<|user|>Question<|assistant|>Answer")).toBe("Question Answer");
+    expect(stripModelSpecialTokens("<|user|>Question<|zhushou|>Answer")).toBe("Question Answer");
   });
 
   it("strips full-width pipe variants (DeepSeek U+FF5C)", () => {

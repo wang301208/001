@@ -1,6 +1,56 @@
 import { requireBundledChannelPlugin } from "../../../src/channels/plugins/bundled.js";
 import type { ChannelPlugin } from "../../../src/channels/plugins/types.js";
-import type { AssistantConfig } from "../../../src/config/config.js";
+import type { ZhushouConfig } from "../../../src/config/config.js";
+import { loadBundledPluginPublicSurfaceSync } from "../../../src/test-utils/bundled-plugin-public-surface.js";
+import { Type } from "@sinclair/typebox";
+
+type ChannelActions = NonNullable<ChannelPlugin["actions"]>;
+
+let slackMessageToolApiCache:
+  | {
+      describeMessageTool: NonNullable<ChannelActions["describeMessageTool"]>;
+    }
+  | undefined;
+let telegramRuntimeApiCache:
+  | {
+      telegramMessageActions: ChannelActions;
+    }
+  | undefined;
+let discordRuntimeApiCache:
+  | {
+      discordMessageActions: ChannelActions;
+    }
+  | undefined;
+
+function getSlackMessageToolApi() {
+  slackMessageToolApiCache ??= loadBundledPluginPublicSurfaceSync<{
+    describeMessageTool: NonNullable<ChannelActions["describeMessageTool"]>;
+  }>({
+    pluginId: "slack",
+    artifactBasename: "message-tool-api.js",
+  });
+  return slackMessageToolApiCache;
+}
+
+function getTelegramRuntimeApi() {
+  telegramRuntimeApiCache ??= loadBundledPluginPublicSurfaceSync<{
+    telegramMessageActions: ChannelActions;
+  }>({
+    pluginId: "telegram",
+    artifactBasename: "runtime-api.js",
+  });
+  return telegramRuntimeApiCache;
+}
+
+function getDiscordRuntimeApi() {
+  discordRuntimeApiCache ??= loadBundledPluginPublicSurfaceSync<{
+    discordMessageActions: ChannelActions;
+  }>({
+    pluginId: "discord",
+    artifactBasename: "runtime-api.js",
+  });
+  return discordRuntimeApiCache;
+}
 
 type ActionsContractEntry = {
   id: string;
@@ -8,7 +58,7 @@ type ActionsContractEntry = {
   unsupportedAction?: string;
   cases: Array<{
     name: string;
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     expectedActions: string[];
     expectedCapabilities?: string[];
     beforeTest?: () => void;
@@ -17,11 +67,105 @@ type ActionsContractEntry = {
 
 let actionContractRegistryCache: ActionsContractEntry[] | undefined;
 
+function createSlackActionsContractPlugin(): Pick<ChannelPlugin, "id" | "actions"> {
+  return {
+    id: "slack",
+    actions: {
+      describeMessageTool: (ctx) => getSlackMessageToolApi().describeMessageTool(ctx),
+    },
+  };
+}
+
+function listMattermostAccountIds(cfg: ZhushouConfig): string[] {
+  const mattermost = cfg.channels?.mattermost as
+    | {
+        accounts?: Record<string, unknown>;
+        defaultAccount?: string;
+      }
+    | undefined;
+  const accountIds = Object.keys(mattermost?.accounts ?? {});
+  if (accountIds.length > 0) {
+    return accountIds;
+  }
+  return [mattermost?.defaultAccount?.trim() || "default"];
+}
+
+function resolveMattermostAccount(cfg: ZhushouConfig, accountId: string) {
+  const mattermost = cfg.channels?.mattermost as
+    | {
+        enabled?: boolean;
+        botToken?: string;
+        baseUrl?: string;
+        actions?: { reactions?: boolean };
+        accounts?: Record<
+          string,
+          {
+            enabled?: boolean;
+            botToken?: string;
+            baseUrl?: string;
+            actions?: { reactions?: boolean };
+          }
+        >;
+      }
+    | undefined;
+  const account = mattermost?.accounts?.[accountId] ?? {};
+  return {
+    enabled: mattermost?.enabled !== false && account.enabled !== false,
+    botToken: account.botToken ?? mattermost?.botToken,
+    baseUrl: account.baseUrl ?? mattermost?.baseUrl,
+    actions: account.actions ?? mattermost?.actions,
+  };
+}
+
+function createMattermostActionsContractPlugin(): Pick<ChannelPlugin, "id" | "actions"> {
+  return {
+    id: "mattermost",
+    actions: {
+      describeMessageTool: ({ cfg, accountId }) => {
+        const enabledAccounts = (accountId ? [accountId] : listMattermostAccountIds(cfg))
+          .map((id) => resolveMattermostAccount(cfg, id))
+          .filter((account) => account.enabled)
+          .filter((account) => Boolean(account.botToken?.trim() && account.baseUrl?.trim()));
+        if (enabledAccounts.length === 0) {
+          return { actions: [], capabilities: [], schema: null };
+        }
+        const reactionsEnabled = enabledAccounts.some(
+          (account) => account.actions?.reactions ?? true,
+        );
+        return {
+          actions: reactionsEnabled ? ["send", "react"] : ["send"],
+          capabilities: ["buttons"],
+          schema: {
+            properties: {
+              buttons: Type.Array(Type.Unknown()),
+            },
+          },
+        };
+      },
+      supportsAction: ({ action }) => action === "send" || action === "react",
+    },
+  };
+}
+
+function createTelegramActionsContractPlugin(): Pick<ChannelPlugin, "id" | "actions"> {
+  return {
+    id: "telegram",
+    actions: getTelegramRuntimeApi().telegramMessageActions,
+  };
+}
+
+function createDiscordActionsContractPlugin(): Pick<ChannelPlugin, "id" | "actions"> {
+  return {
+    id: "discord",
+    actions: getDiscordRuntimeApi().discordMessageActions,
+  };
+}
+
 export function getActionContractRegistry(): ActionsContractEntry[] {
   actionContractRegistryCache ??= [
     {
       id: "slack",
-      plugin: requireBundledChannelPlugin("slack"),
+      plugin: createSlackActionsContractPlugin(),
       unsupportedAction: "poll",
       cases: [
         {
@@ -33,7 +177,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 appToken: "xapp-test",
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           expectedActions: [
             "send",
             "react",
@@ -63,7 +207,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 },
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           expectedActions: [
             "send",
             "react",
@@ -89,7 +233,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 enabled: true,
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           expectedActions: [],
           expectedCapabilities: [],
         },
@@ -97,7 +241,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
     },
     {
       id: "mattermost",
-      plugin: requireBundledChannelPlugin("mattermost"),
+      plugin: createMattermostActionsContractPlugin(),
       unsupportedAction: "poll",
       cases: [
         {
@@ -110,7 +254,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 baseUrl: "https://chat.example.com",
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           expectedActions: ["send", "react"],
           expectedCapabilities: ["buttons"],
         },
@@ -125,7 +269,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 actions: { reactions: false },
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           expectedActions: ["send"],
           expectedCapabilities: ["buttons"],
         },
@@ -137,7 +281,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 enabled: true,
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           expectedActions: [],
           expectedCapabilities: [],
         },
@@ -145,7 +289,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
     },
     {
       id: "telegram",
-      plugin: requireBundledChannelPlugin("telegram"),
+      plugin: createTelegramActionsContractPlugin(),
       cases: [
         {
           name: "exposes configured Telegram actions and capabilities",
@@ -155,7 +299,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 botToken: "123:telegram-test-token",
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           expectedActions: [
             "send",
             "poll",
@@ -171,7 +315,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
     },
     {
       id: "discord",
-      plugin: requireBundledChannelPlugin("discord"),
+      plugin: createDiscordActionsContractPlugin(),
       cases: [
         {
           name: "describes configured Discord actions and capabilities",
@@ -202,7 +346,7 @@ export function getActionContractRegistry(): ActionsContractEntry[] {
                 },
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           expectedActions: ["send", "poll", "react", "reactions", "emoji-list"],
           expectedCapabilities: ["interactive", "components"],
         },

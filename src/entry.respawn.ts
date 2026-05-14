@@ -1,6 +1,6 @@
 export const EXPERIMENTAL_WARNING_FLAG = "--disable-warning=ExperimentalWarning";
-export const ASSISTANT_NODE_OPTIONS_READY = "ASSISTANT_NODE_OPTIONS_READY";
-export const ASSISTANT_NODE_EXTRA_CA_CERTS_READY = "ASSISTANT_NODE_EXTRA_CA_CERTS_READY";
+export const ZHUSHOU_NODE_OPTIONS_READY = "ZHUSHOU_NODE_OPTIONS_READY";
+export const ZHUSHOU_NODE_EXTRA_CA_CERTS_READY = "ZHUSHOU_NODE_EXTRA_CA_CERTS_READY";
 
 export function hasExperimentalWarningSuppressed(
   params: {

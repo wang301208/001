@@ -2,16 +2,16 @@ import type {
   ChannelApprovalCapabilityHandlerContext,
   PendingApprovalView,
   ResolvedApprovalView,
-} from "assistant/plugin-sdk/approval-handler-runtime";
-import { createChannelApprovalNativeRuntimeAdapter } from "assistant/plugin-sdk/approval-handler-runtime";
-import { buildChannelApprovalNativeTargetKey } from "assistant/plugin-sdk/approval-native-runtime";
+} from "zhushou/plugin-sdk/approval-handler-runtime";
+import { createChannelApprovalNativeRuntimeAdapter } from "zhushou/plugin-sdk/approval-handler-runtime";
+import { buildChannelApprovalNativeTargetKey } from "zhushou/plugin-sdk/approval-native-runtime";
 import {
   buildExecApprovalPendingReplyPayload,
   buildPluginApprovalPendingReplyPayload,
   type ExecApprovalReplyDecision,
-} from "assistant/plugin-sdk/approval-reply-runtime";
-import { buildPluginApprovalResolvedReplyPayload } from "assistant/plugin-sdk/approval-runtime";
-import type { ExecApprovalRequest, PluginApprovalRequest } from "assistant/plugin-sdk/infra-runtime";
+} from "zhushou/plugin-sdk/approval-reply-runtime";
+import { buildPluginApprovalResolvedReplyPayload } from "zhushou/plugin-sdk/approval-runtime";
+import type { ExecApprovalRequest, PluginApprovalRequest } from "zhushou/plugin-sdk/infra-runtime";
 import {
   buildMatrixApprovalReactionHint,
   listMatrixApprovalReactionBindings,

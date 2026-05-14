@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { zaloMessageActions } from "./actions.js";
-import type { AssistantConfig } from "./runtime-api.js";
+import type { ZhushouConfig } from "./runtime-api.js";
 
 describe("zaloMessageActions.describeMessageTool", () => {
   it("honors the selected Zalo account during discovery", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         zalo: {
           enabled: true,

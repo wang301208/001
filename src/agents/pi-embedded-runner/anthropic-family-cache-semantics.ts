@@ -28,7 +28,7 @@ export function isAnthropicBedrockModel(modelId: string): boolean {
   // e.g. "arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/my-claude-profile"
   //
   // Limitation: This is a name-heuristic only. Application inference profiles have
-  // user-defined names, so a profile named "my-prod-assistant" routing to Claude would
+  // user-defined names, so a profile named "my-prod-zhushou" routing to Claude would
   // miss cache semantics, while "my-claude-compat-llama" on a non-Claude model would
   // incorrectly get them. The Bedrock API does not expose the underlying model in the
   // profile ID itself — resolving this would require a GetInferenceProfile call, which

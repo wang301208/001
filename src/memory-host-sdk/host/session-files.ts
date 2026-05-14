@@ -42,7 +42,7 @@ function isDreamingNarrativeBootstrapRecord(record: unknown): boolean {
   };
   if (
     candidate.type !== "custom" ||
-    candidate.customType !== "assistant:bootstrap-context:full" ||
+    candidate.customType !== "zhushou:bootstrap-context:full" ||
     !candidate.data ||
     typeof candidate.data !== "object" ||
     Array.isArray(candidate.data)
@@ -214,7 +214,7 @@ function collectRawSessionText(content: unknown): string | null {
  * `normalizeSessionText` collapses newlines into spaces, stripping is
  * impossible.
  *
- * See: https://github.com/assistant/assistant/issues/63921
+ * See: https://github.com/wang301208/zhushou/issues/63921
  */
 function stripInboundMetadataForUserRole(text: string, role: "user" | "assistant"): string {
   if (role !== "user") {
@@ -309,7 +309,7 @@ export async function buildSessionEntry(
         continue;
       }
       const safe = redactSensitiveText(text, { mode: "tools" });
-      const label = message.role === "user" ? "User" : "Assistant";
+      const label = message.role === "user" ? "User" : "Zhushou";
       collected.push(`${label}: ${safe}`);
       lineMap.push(jsonlIdx + 1);
       messageTimestampsMs.push(

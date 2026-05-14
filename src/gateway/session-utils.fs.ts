@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { deriveSessionTotalTokens, hasNonzeroUsage, normalizeUsage } from "../agents/usage.js";
 import { jsonUtf8Bytes } from "../infra/json-utf8-bytes.js";
 import { hasInterSessionUserProvenance } from "../sessions/input-provenance.js";
-import { extractAssistantVisibleText } from "../shared/chat-message-content.js";
+import { extractZhushouVisibleText } from "../shared/chat-message-content.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { stripInlineDirectiveTagsForDisplay } from "../utils/directive-tags.js";
 import { extractToolCallNames, hasToolCall } from "../utils/transcript-tools.js";
@@ -69,7 +69,7 @@ function setCachedSessionTitleFields(cacheKey: string, stat: fs.Stats, value: Se
   }
 }
 
-export function attachAssistantTranscriptMeta(
+export function attachZhushouTranscriptMeta(
   message: unknown,
   meta: Record<string, unknown>,
 ): unknown {
@@ -78,12 +78,12 @@ export function attachAssistantTranscriptMeta(
   }
   const record = message as Record<string, unknown>;
   const existing =
-    record.__assistant && typeof record.__assistant === "object" && !Array.isArray(record.__assistant)
-      ? (record.__assistant as Record<string, unknown>)
+    record.__zhushou && typeof record.__zhushou === "object" && !Array.isArray(record.__zhushou)
+      ? (record.__zhushou as Record<string, unknown>)
       : {};
   return {
     ...record,
-    __assistant: {
+    __zhushou: {
       ...existing,
       ...meta,
     },
@@ -114,7 +114,7 @@ export function readSessionMessages(
       if (parsed?.message) {
         messageSeq += 1;
         messages.push(
-          attachAssistantTranscriptMeta(parsed.message, {
+          attachZhushouTranscriptMeta(parsed.message, {
             ...(typeof parsed.id === "string" ? { id: parsed.id } : {}),
             seq: messageSeq,
           }),
@@ -132,7 +132,7 @@ export function readSessionMessages(
           role: "system",
           content: [{ type: "text", text: "Compaction" }],
           timestamp,
-          __assistant: {
+          __zhushou: {
             kind: "compaction",
             id: typeof parsed.id === "string" ? parsed.id : undefined,
             seq: messageSeq,
@@ -493,7 +493,7 @@ function extractLatestUsageFromTranscriptChunk(
           : typeof parsed.model === "string"
             ? parsed.model.trim()
             : undefined;
-      const isDeliveryMirror = modelProvider === "assistant" && model === "delivery-mirror";
+      const isDeliveryMirror = modelProvider === "zhushou" && model === "delivery-mirror";
       const hasMeaningfulUsage =
         hasNonzeroUsage(usage) ||
         typeof totalTokens === "number" ||
@@ -610,8 +610,8 @@ function normalizeRole(role: string | undefined, isTool: boolean): SessionPrevie
   switch (normalizeLowercaseStringOrEmpty(role)) {
     case "user":
       return "user";
-    case "assistant":
-      return "assistant";
+    case "zhushou":
+      return "zhushou";
     case "system":
       return "system";
     case "tool":
@@ -634,9 +634,9 @@ function truncatePreviewText(text: string, maxChars: number): string {
 function extractPreviewText(message: TranscriptPreviewMessage): string | null {
   const role = normalizeLowercaseStringOrEmpty(message.role);
   if (role === "assistant") {
-    const assistantText = extractAssistantVisibleText(message);
-    if (assistantText) {
-      const normalized = stripInlineDirectiveTagsForDisplay(assistantText).text.trim();
+    const zhushouText = extractZhushouVisibleText(message);
+    if (zhushouText) {
+      const normalized = stripInlineDirectiveTagsForDisplay(zhushouText).text.trim();
       return normalized ? normalized : null;
     }
     return null;

@@ -1,10 +1,10 @@
-import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
-import { formatNormalizedAllowFromEntries } from "assistant/plugin-sdk/allow-from";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { formatNormalizedAllowFromEntries } from "zhushou/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "assistant/plugin-sdk/channel-config-helpers";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import {
   collectMattermostSlashCallbackPaths,
   resolveMattermostGatewayAuthBypassPaths,

@@ -1,7 +1,7 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { AssistantMessage, ToolResultMessage } from "@mariozechner/pi-ai";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { makeAgentAssistantMessage } from "./test-helpers/agent-message-fixtures.js";
+import { makeAgentZhushouMessage } from "./test-helpers/agent-message-fixtures.js";
 
 const piCodingAgentMocks = vi.hoisted(() => ({
   estimateTokens: vi.fn((message: unknown) => estimateTokenish(message)),
@@ -57,13 +57,13 @@ function makeMessages(count: number, size: number): AgentMessage[] {
   return Array.from({ length: count }, (_, index) => makeMessage(index + 1, size));
 }
 
-function makeAssistantToolCall(
+function makeZhushouToolCall(
   timestamp: number,
   toolCallId: string,
   text = "x".repeat(4000),
   stopReason: AssistantMessage["stopReason"] = "stop",
 ): AssistantMessage {
-  return makeAgentAssistantMessage({
+  return makeAgentZhushouMessage({
     content: [
       { type: "text", text },
       { type: "toolCall", id: toolCallId, name: "test_tool", arguments: {} },
@@ -118,7 +118,7 @@ describe("splitMessagesByTokenShare", () => {
   it("keeps tool_use and matching toolResult in the same chunk", () => {
     const messages: AgentMessage[] = [
       makeMessage(1, 4000),
-      makeAssistantToolCall(2, "call_split"),
+      makeZhushouToolCall(2, "call_split"),
       makeToolResult(3, "call_split", "r".repeat(800)),
       makeMessage(4, 4000),
     ];
@@ -137,8 +137,8 @@ describe("splitMessagesByTokenShare", () => {
     expect(parts.flat().length).toBe(messages.length);
   });
 
-  it("keeps multiple toolResults with their assistant in the same chunk", () => {
-    const assistant = makeAgentAssistantMessage({
+  it("keeps multiple toolResults with their zhushou in the same chunk", () => {
+    const zhushou = makeAgentZhushouMessage({
       content: [
         { type: "text", text: "x".repeat(4000) },
         { type: "toolCall", id: "call_a", name: "tool_a", arguments: {} },
@@ -151,7 +151,7 @@ describe("splitMessagesByTokenShare", () => {
 
     const messages: AgentMessage[] = [
       makeMessage(1, 4000),
-      assistant,
+      zhushou,
       makeToolResult(3, "call_a", "result_a".repeat(200)),
       makeToolResult(4, "call_b", "result_b".repeat(200)),
       makeMessage(5, 4000),
@@ -159,10 +159,10 @@ describe("splitMessagesByTokenShare", () => {
 
     const parts = splitMessagesByTokenShare(messages, 2);
 
-    const chunkWithAssistant = parts.find((chunk) =>
+    const chunkWithZhushou = parts.find((chunk) =>
       chunk.some((m) => m.role === "assistant" && m.timestamp === 2),
     )!;
-    const resultTimestamps = chunkWithAssistant
+    const resultTimestamps = chunkWithZhushou
       .filter((m) => m.role === "toolResult")
       .map((m) => m.timestamp);
     expect(resultTimestamps).toContain(3);
@@ -170,10 +170,10 @@ describe("splitMessagesByTokenShare", () => {
     expect(parts.flat().length).toBe(messages.length);
   });
 
-  it("keeps displaced toolResults with their assistant chunk", () => {
+  it("keeps displaced toolResults with their zhushou chunk", () => {
     const messages: AgentMessage[] = [
       makeMessage(1, 4000),
-      makeAssistantToolCall(2, "call_split"),
+      makeZhushouToolCall(2, "call_split"),
       makeMessage(3, 800),
       makeToolResult(4, "call_split", "r".repeat(800)),
       makeMessage(5, 4000),
@@ -194,7 +194,7 @@ describe("splitMessagesByTokenShare", () => {
 
   it("splits after a completed tool_call/result pair when over budget", () => {
     const messages: AgentMessage[] = [
-      makeAssistantToolCall(1, "call_x", "y".repeat(4000)),
+      makeZhushouToolCall(1, "call_x", "y".repeat(4000)),
       makeToolResult(2, "call_x", "r".repeat(4000)),
       makeMessage(3, 4000),
     ];
@@ -211,7 +211,7 @@ describe("splitMessagesByTokenShare", () => {
   it("splits before a trailing completed tool-call pair", () => {
     const messages: AgentMessage[] = [
       makeMessage(1, 4000),
-      makeAssistantToolCall(2, "call_tail", "y".repeat(200)),
+      makeZhushouToolCall(2, "call_tail", "y".repeat(200)),
       makeToolResult(3, "call_tail", "r".repeat(4000)),
     ];
 
@@ -222,9 +222,9 @@ describe("splitMessagesByTokenShare", () => {
     expect(parts[1]?.map((m) => m.timestamp)).toEqual([2, 3]);
   });
 
-  it("does not block splits after aborted tool-call assistants", () => {
+  it("does not block splits after aborted tool-call zhushous", () => {
     const messages: AgentMessage[] = [
-      makeAssistantToolCall(1, "call_abort", "y".repeat(4000), "aborted"),
+      makeZhushouToolCall(1, "call_abort", "y".repeat(4000), "aborted"),
       makeMessage(2, 4000),
       makeMessage(3, 4000),
     ];
@@ -238,7 +238,7 @@ describe("splitMessagesByTokenShare", () => {
   it("splits before unfinished tool-call turns that never get a result", () => {
     const messages: AgentMessage[] = [
       makeMessage(1, 4000),
-      makeAssistantToolCall(2, "call_missing"),
+      makeZhushouToolCall(2, "call_missing"),
       makeMessage(3, 4000),
     ];
 
@@ -321,7 +321,7 @@ describe("pruneHistoryForContextShare", () => {
 
   it("removes orphaned tool_result messages when tool_use is dropped", () => {
     const messages: AgentMessage[] = [
-      makeAssistantToolCall(1, "call_123"),
+      makeZhushouToolCall(1, "call_123"),
       makeToolResult(2, "call_123", "result".repeat(500)),
       {
         role: "user",
@@ -349,7 +349,7 @@ describe("pruneHistoryForContextShare", () => {
         content: "x".repeat(4000),
         timestamp: 1,
       },
-      makeAssistantToolCall(2, "call_456", "y".repeat(500)),
+      makeZhushouToolCall(2, "call_456", "y".repeat(500)),
       makeToolResult(3, "call_456", "result"),
     ];
 
@@ -367,7 +367,7 @@ describe("pruneHistoryForContextShare", () => {
 
   it("removes multiple orphaned tool_results from the same dropped tool_use", () => {
     const messages: AgentMessage[] = [
-      makeAgentAssistantMessage({
+      makeAgentZhushouMessage({
         content: [
           { type: "text", text: "x".repeat(4000) },
           { type: "toolCall", id: "call_a", name: "tool_a", arguments: {} },

@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import { normalizeTalkSection } from "../../../config/talk.js";
-import type { AssistantConfig } from "../../../config/types.js";
+import type { ZhushouConfig } from "../../../config/types.js";
 
 function buildLegacyTalkProviderCompat(
   talk: Record<string, unknown>,
@@ -18,13 +18,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
-export function normalizeLegacyTalkConfig(cfg: AssistantConfig, changes: string[]): AssistantConfig {
+export function normalizeLegacyTalkConfig(cfg: ZhushouConfig, changes: string[]): ZhushouConfig {
   const rawTalk = cfg.talk;
   if (!isRecord(rawTalk)) {
     return cfg;
   }
 
-  const normalizedTalk = normalizeTalkSection(rawTalk as AssistantConfig["talk"]) ?? {};
+  const normalizedTalk = normalizeTalkSection(rawTalk as ZhushouConfig["talk"]) ?? {};
   const legacyProviderCompat = buildLegacyTalkProviderCompat(rawTalk);
   if (legacyProviderCompat) {
     normalizedTalk.providers = {

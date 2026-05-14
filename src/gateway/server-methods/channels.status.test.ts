@@ -14,7 +14,7 @@ vi.mock("../../config/config.js", () => ({
   loadConfig: mocks.loadConfig,
   readConfigFileSnapshot: vi.fn(async () => ({
     config: {},
-    path: "assistant.config.json",
+    path: "zhushou.config.json",
     raw: "{}",
   })),
 }));

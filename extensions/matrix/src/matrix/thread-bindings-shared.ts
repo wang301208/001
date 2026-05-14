@@ -1,8 +1,8 @@
 import type {
   BindingTargetKind,
   SessionBindingRecord,
-} from "assistant/plugin-sdk/thread-bindings-session-runtime";
-import { resolveThreadBindingLifecycle } from "assistant/plugin-sdk/thread-bindings-session-runtime";
+} from "zhushou/plugin-sdk/thread-bindings-session-runtime";
+import { resolveThreadBindingLifecycle } from "zhushou/plugin-sdk/thread-bindings-session-runtime";
 
 export type MatrixThreadBindingTargetKind = "subagent" | "acp";
 

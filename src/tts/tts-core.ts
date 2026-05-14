@@ -9,7 +9,7 @@ import {
 } from "../agents/model-selection.js";
 import { resolveModelAsync } from "../agents/pi-embedded-runner/model.js";
 import { prepareModelForSimpleCompletion } from "../agents/simple-completion-transport.js";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -88,7 +88,7 @@ type SummaryModelSelection = {
 };
 
 function resolveSummaryModelRef(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   config: ResolvedTtsConfig,
 ): SummaryModelSelection {
   const defaultRef = resolveDefaultModelForAgent({ cfg });
@@ -117,7 +117,7 @@ export async function summarizeText(
   params: {
     text: string;
     targetLength: number;
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     config: ResolvedTtsConfig;
     timeoutMs: number;
   },
@@ -152,7 +152,7 @@ export async function summarizeText(
             {
               role: "user",
               content:
-                `You are an assistant that summarizes texts concisely while keeping the most important information. ` +
+                `You are an zhushou that summarizes texts concisely while keeping the most important information. ` +
                 `Summarize the text to approximately ${targetLength} characters. Maintain the original tone and style. ` +
                 `Reply only with the summary, without additional explanations.\n\n` +
                 `<text_to_summarize>\n${text}\n</text_to_summarize>`,

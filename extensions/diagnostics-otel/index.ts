@@ -1,4 +1,4 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 import { createDiagnosticsOtelService } from "./src/service.js";
 
 export default definePluginEntry({

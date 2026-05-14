@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
@@ -39,7 +39,7 @@ const PLUGIN_DISCOVERY_ORDERS = ["simple", "profile", "paired", "late"] as const
 
 type ImplicitProviderParams = {
   agentDir: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
   explicitProviders?: Record<string, ProviderConfig> | null;
@@ -54,11 +54,11 @@ type ImplicitProviderContext = ImplicitProviderParams & {
 
 function resolveLiveProviderCatalogTimeoutMs(env: NodeJS.ProcessEnv): number | null {
   const live =
-    env.ASSISTANT_LIVE_TEST === "1" || env.ASSISTANT_LIVE_GATEWAY === "1" || env.LIVE === "1";
+    env.ZHUSHOU_LIVE_TEST === "1" || env.ZHUSHOU_LIVE_GATEWAY === "1" || env.LIVE === "1";
   if (!live) {
     return null;
   }
-  const raw = env.ASSISTANT_LIVE_PROVIDER_DISCOVERY_TIMEOUT_MS?.trim();
+  const raw = env.ZHUSHOU_LIVE_PROVIDER_DISCOVERY_TIMEOUT_MS?.trim();
   if (!raw) {
     return 15_000;
   }
@@ -67,12 +67,12 @@ function resolveLiveProviderCatalogTimeoutMs(env: NodeJS.ProcessEnv): number | n
 }
 
 function resolveProviderDiscoveryFilter(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
 }): string[] | undefined {
   const { config, workspaceDir, env } = params;
-  const testRaw = env.ASSISTANT_TEST_ONLY_PROVIDER_PLUGIN_IDS?.trim();
+  const testRaw = env.ZHUSHOU_TEST_ONLY_PROVIDER_PLUGIN_IDS?.trim();
   if (testRaw) {
     const ids = testRaw
       .split(",")
@@ -81,13 +81,13 @@ function resolveProviderDiscoveryFilter(params: {
     return ids.length > 0 ? [...new Set(ids)] : undefined;
   }
   const live =
-    env.ASSISTANT_LIVE_TEST === "1" || env.ASSISTANT_LIVE_GATEWAY === "1" || env.LIVE === "1";
+    env.ZHUSHOU_LIVE_TEST === "1" || env.ZHUSHOU_LIVE_GATEWAY === "1" || env.LIVE === "1";
   if (!live) {
     return undefined;
   }
   const rawValues = [
-    env.ASSISTANT_LIVE_PROVIDERS?.trim(),
-    env.ASSISTANT_LIVE_GATEWAY_PROVIDERS?.trim(),
+    env.ZHUSHOU_LIVE_PROVIDERS?.trim(),
+    env.ZHUSHOU_LIVE_GATEWAY_PROVIDERS?.trim(),
   ].filter((value): value is string => Boolean(value && value !== "all"));
   if (rawValues.length === 0) {
     return undefined;
@@ -122,7 +122,7 @@ function resolveProviderDiscoveryFilter(params: {
 }
 
 export function resolveProviderDiscoveryFilterForTest(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;
 }): string[] | undefined {
@@ -282,7 +282,7 @@ async function resolvePluginImplicitProviders(
   return Object.keys(discovered).length > 0 ? discovered : undefined;
 }
 
-function buildPluginCatalogConfig(ctx: ImplicitProviderContext): AssistantConfig {
+function buildPluginCatalogConfig(ctx: ImplicitProviderContext): ZhushouConfig {
   if (!ctx.explicitProviders || Object.keys(ctx.explicitProviders).length === 0) {
     return ctx.config ?? {};
   }
@@ -338,7 +338,7 @@ async function runProviderCatalogWithTimeout(
 
 export async function resolveImplicitProviders(
   params: ImplicitProviderParams,
-): Promise<NonNullable<AssistantConfig["models"]>["providers"]> {
+): Promise<NonNullable<ZhushouConfig["models"]>["providers"]> {
   const providers: Record<string, ProviderConfig> = {};
   const env = params.env ?? process.env;
   let authStore: ReturnType<typeof ensureAuthProfileStore> | undefined;

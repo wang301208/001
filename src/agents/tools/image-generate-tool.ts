@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 import { loadConfig } from "../../config/config.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { parseImageGenerationModelRef } from "../../image-generation/model-ref.js";
 import {
   generateImage,
@@ -115,7 +115,7 @@ function getImageGenerationProviderAuthEnvVars(providerId: string): string[] {
 }
 
 export function resolveImageGenerationModelConfigForTool(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentDir?: string;
 }): ToolModelConfig | null {
   return resolveCapabilityModelConfigForTool({
@@ -180,7 +180,7 @@ function normalizeReferenceImages(args: Record<string, unknown>): string[] {
 }
 
 function resolveSelectedImageGenerationProvider(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   imageGenerationModelConfig: ToolModelConfig;
   modelOverride?: string;
 }): ImageGenerationProvider | undefined {
@@ -360,7 +360,7 @@ async function inferResolutionFromInputImages(
 }
 
 export function createImageGenerateTool(options?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   sandbox?: ImageGenerateSandboxConfig;

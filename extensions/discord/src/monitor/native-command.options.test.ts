@@ -1,5 +1,5 @@
 import { ChannelType } from "discord-api-types/v10";
-import type { AssistantConfig, loadConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig, loadConfig } from "zhushou/plugin-sdk/config-runtime";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { logVerboseMock } = vi.hoisted(() => ({
@@ -9,9 +9,9 @@ const { loggerWarnMock } = vi.hoisted(() => ({
   loggerWarnMock: vi.fn(),
 }));
 
-vi.mock("assistant/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/runtime-env")>(
-    "assistant/plugin-sdk/runtime-env",
+vi.mock("zhushou/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/runtime-env")>(
+    "zhushou/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -26,11 +26,11 @@ vi.mock("assistant/plugin-sdk/runtime-env", async () => {
   };
 });
 
-vi.mock("assistant/plugin-sdk/agent-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/agent-runtime", () => ({
   resolveHumanDelayConfig: () => undefined,
 }));
 
-let listNativeCommandSpecs: typeof import("assistant/plugin-sdk/command-auth").listNativeCommandSpecs;
+let listNativeCommandSpecs: typeof import("zhushou/plugin-sdk/command-auth").listNativeCommandSpecs;
 let createDiscordNativeCommand: typeof import("./native-command.js").createDiscordNativeCommand;
 let createNoopThreadBindingManager: typeof import("./thread-bindings.js").createNoopThreadBindingManager;
 
@@ -38,7 +38,7 @@ function createNativeCommand(
   name: string,
   opts?: {
     cfg?: ReturnType<typeof loadConfig>;
-    discordConfig?: NonNullable<AssistantConfig["channels"]>["discord"];
+    discordConfig?: NonNullable<ZhushouConfig["channels"]>["discord"];
   },
 ): ReturnType<typeof import("./native-command.js").createDiscordNativeCommand> {
   const command = listNativeCommandSpecs({ provider: "discord" }).find(
@@ -48,7 +48,7 @@ function createNativeCommand(
     throw new Error(`missing native command: ${name}`);
   }
   const baseCfg: ReturnType<typeof loadConfig> = opts?.cfg ?? {};
-  const discordConfig: NonNullable<AssistantConfig["channels"]>["discord"] =
+  const discordConfig: NonNullable<ZhushouConfig["channels"]>["discord"] =
     opts?.discordConfig ?? baseCfg.channels?.discord ?? {};
   const cfg =
     opts?.discordConfig === undefined
@@ -158,7 +158,7 @@ async function runAutocomplete(
 
 describe("createDiscordNativeCommand option wiring", () => {
   beforeAll(async () => {
-    ({ listNativeCommandSpecs } = await import("assistant/plugin-sdk/command-auth"));
+    ({ listNativeCommandSpecs } = await import("zhushou/plugin-sdk/command-auth"));
     ({ createDiscordNativeCommand } = await import("./native-command.js"));
     ({ createNoopThreadBindingManager } = await import("./thread-bindings.js"));
   });
@@ -276,7 +276,7 @@ describe("createDiscordNativeCommand option wiring", () => {
         groupEnabled: true,
         groupChannels: ["allowed-group"],
       },
-    } satisfies NonNullable<AssistantConfig["channels"]>["discord"];
+    } satisfies NonNullable<ZhushouConfig["channels"]>["discord"];
     const command = createNativeCommand("think", {
       cfg: {
         commands: {
@@ -305,7 +305,7 @@ describe("createDiscordNativeCommand option wiring", () => {
   it("truncates Discord command and option descriptions to Discord's limit", () => {
     const longDescription = "x".repeat(140);
     const cfg = {} as ReturnType<typeof loadConfig>;
-    const discordConfig = {} as NonNullable<AssistantConfig["channels"]>["discord"];
+    const discordConfig = {} as NonNullable<ZhushouConfig["channels"]>["discord"];
     const command = createDiscordNativeCommand({
       command: {
         name: "longdesc",

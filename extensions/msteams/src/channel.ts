@@ -1,28 +1,28 @@
 import { Type } from "@sinclair/typebox";
-import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "assistant/plugin-sdk/allow-from";
-import { createMessageToolCardSchema } from "assistant/plugin-sdk/channel-actions";
-import { createTopLevelChannelConfigAdapter } from "assistant/plugin-sdk/channel-config-helpers";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
+import { createMessageToolCardSchema } from "zhushou/plugin-sdk/channel-actions";
+import { createTopLevelChannelConfigAdapter } from "zhushou/plugin-sdk/channel-config-helpers";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageToolDiscovery,
-} from "assistant/plugin-sdk/channel-contract";
-import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
-import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
+} from "zhushou/plugin-sdk/channel-contract";
+import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
 import {
   createAllowlistProviderGroupPolicyWarningCollector,
   projectConfigWarningCollector,
-} from "assistant/plugin-sdk/channel-policy";
+} from "zhushou/plugin-sdk/channel-policy";
 import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
   listDirectoryEntriesFromSources,
-} from "assistant/plugin-sdk/directory-runtime";
-import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
-import { createRuntimeOutboundDelegates } from "assistant/plugin-sdk/outbound-runtime";
-import { createComputedAccountStatusAdapter } from "assistant/plugin-sdk/status-helpers";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
-import type { ChannelMessageActionName, ChannelPlugin, AssistantConfig } from "../runtime-api.js";
+} from "zhushou/plugin-sdk/directory-runtime";
+import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
+import { createRuntimeOutboundDelegates } from "zhushou/plugin-sdk/outbound-runtime";
+import { createComputedAccountStatusAdapter } from "zhushou/plugin-sdk/status-helpers";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import type { ChannelMessageActionName, ChannelPlugin, ZhushouConfig } from "../runtime-api.js";
 import {
   buildProbeChannelStatusSummary,
   chunkTextForOutbound,
@@ -77,7 +77,7 @@ const TEAMS_GRAPH_PERMISSION_HINTS: Record<string, string> = {
 };
 
 const collectMSTeamsSecurityWarnings = createAllowlistProviderGroupPolicyWarningCollector<{
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
 }>({
   providerConfigPresent: (cfg) => cfg.channels?.msteams !== undefined,
   resolveGroupPolicy: ({ cfg }) => cfg.channels?.msteams?.groupPolicy,
@@ -94,7 +94,7 @@ const loadMSTeamsChannelRuntime = createLazyRuntimeNamedExport(
   "msTeamsChannelRuntime",
 );
 
-const resolveMSTeamsChannelConfig = (cfg: AssistantConfig) => ({
+const resolveMSTeamsChannelConfig = (cfg: ZhushouConfig) => ({
   allowFrom: cfg.channels?.msteams?.allowFrom,
   defaultTo: cfg.channels?.msteams?.defaultTo,
 });
@@ -1081,7 +1081,7 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount, ProbeMSTeamsRe
       },
     },
     security: {
-      collectWarnings: projectConfigWarningCollector<{ cfg: AssistantConfig }>(
+      collectWarnings: projectConfigWarningCollector<{ cfg: ZhushouConfig }>(
         collectMSTeamsSecurityWarnings,
       ),
     },

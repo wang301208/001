@@ -3,7 +3,7 @@ import { resolveCommitHash } from "../../infra/git-commit.js";
 import { formatDocsLink } from "../../terminal/links.js";
 import { isRich, theme } from "../../terminal/theme.js";
 import { escapeRegExp } from "../../utils.js";
-import { PRODUCT_NAME } from "../../wizard/assistant-constants.js";
+import { PRODUCT_NAME } from "../../wizard/zhushou-constants.js";
 import { hasFlag, hasRootVersionAlias } from "../argv.js";
 import { formatCliBannerLine, hasEmittedCliBanner } from "../banner.js";
 import { replaceCliName, resolveCliName } from "../cli-name.js";
@@ -22,26 +22,29 @@ const ROOT_COMMANDS_HINT =
   "Hint: commands suffixed with * have subcommands. Run <command> --help for details.";
 
 const EXAMPLES = [
-  ["assistant --tui", "Open the assistant terminal UI."],
-  ["assistant models --help", "Show detailed help for the models command."],
+  ["zhushou --tui", "Open the zhushou terminal UI."],
+  ["zhushou models --help", "Show detailed help for the models command."],
   [
-    "assistant channels login --verbose",
+    "zhushou channels login --verbose",
     "Link personal WhatsApp Web and show QR + connection logs.",
   ],
   [
-    'assistant message send --target +15555550123 --message "Hi" --json',
+    'zhushou message send --target +15555550123 --message "Hi" --json',
     "Send via your web session and print JSON result.",
   ],
-  ["assistant gateway --port 18789", "Run the WebSocket Gateway locally."],
-  ["assistant --dev gateway", "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001."],
-  ["assistant gateway --force", "Kill anything bound to the default gateway port, then start it."],
-  ["assistant gateway ...", "Gateway control via WebSocket."],
+  ["zhushou gateway --port 18789", "Run the WebSocket network adapter locally."],
   [
-    'assistant agent --to +15555550123 --message "Run summary" --deliver',
+    "zhushou --dev gateway",
+    "Run a dev network adapter (isolated state/config) on ws://127.0.0.1:19001.",
+  ],
+  ["zhushou gateway --force", "Kill anything bound to the default adapter port, then start it."],
+  ["zhushou gateway ...", "Network adapter control via WebSocket."],
+  [
+    'zhushou agent --to +15555550123 --message "Run summary" --deliver',
     "Talk directly to the agent using the Gateway; optionally send the WhatsApp reply.",
   ],
   [
-    'assistant message send --channel telegram --target @mychat --message "Hi"',
+    'zhushou message send --channel telegram --target @mychat --message "Hi"',
     "Send via your Telegram bot.",
   ],
 ] as const;
@@ -53,15 +56,15 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     .version(ctx.programVersion)
     .option(
       "--container <name>",
-      "Run the CLI inside a running Podman/Docker container named <name> (default: env ASSISTANT_CONTAINER)",
+      "Run the CLI inside a running Podman/Docker container named <name> (default: env ZHUSHOU_CONTAINER)",
     )
     .option(
       "--dev",
-      "Dev profile: isolate state under ~/.assistant-dev, default gateway port 19001, and shift derived ports (browser/canvas)",
+      "Dev profile: isolate state under ~/.zhushou-dev, default gateway port 19001, and shift derived ports (browser/canvas)",
     )
     .option(
       "--profile <name>",
-      "Use a named profile (isolates ASSISTANT_STATE_DIR/ASSISTANT_CONFIG_PATH under ~/.assistant-<name>)",
+      "Use a named profile (isolates ZHUSHOU_STATE_DIR/ZHUSHOU_CONFIG_PATH under ~/.zhushou-<name>)",
     )
     .option(
       "--log-level <level>",
@@ -141,7 +144,7 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     if (command !== program) {
       return "";
     }
-    const docs = formatDocsLink("/cli", "docs.assistant.ai/cli");
+    const docs = formatDocsLink("/cli", "docs.zhushou.ai/cli");
     return `\n${theme.heading("Examples:")}\n${fmtExamples}\n\n${theme.muted("Docs:")} ${docs}\n`;
   });
 }

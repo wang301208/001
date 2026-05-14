@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveRuntimePluginRegistry } from "./loader.js";
 import { getMemoryRuntime } from "./memory-state.js";
 import {
@@ -6,7 +6,7 @@ import {
   resolvePluginRuntimeLoadContext,
 } from "./runtime/load-context.js";
 
-function ensureMemoryRuntime(cfg?: AssistantConfig) {
+function ensureMemoryRuntime(cfg?: ZhushouConfig) {
   const current = getMemoryRuntime();
   if (current || !cfg) {
     return current;
@@ -18,7 +18,7 @@ function ensureMemoryRuntime(cfg?: AssistantConfig) {
 }
 
 export async function getActiveMemorySearchManager(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   purpose?: "default" | "status";
 }) {
@@ -29,11 +29,11 @@ export async function getActiveMemorySearchManager(params: {
   return await runtime.getMemorySearchManager(params);
 }
 
-export function resolveActiveMemoryBackendConfig(params: { cfg: AssistantConfig; agentId: string }) {
+export function resolveActiveMemoryBackendConfig(params: { cfg: ZhushouConfig; agentId: string }) {
   return ensureMemoryRuntime(params.cfg)?.resolveMemoryBackendConfig(params) ?? null;
 }
 
-export async function closeActiveMemorySearchManagers(cfg?: AssistantConfig): Promise<void> {
+export async function closeActiveMemorySearchManagers(cfg?: ZhushouConfig): Promise<void> {
   void cfg;
   const runtime = getMemoryRuntime();
   await runtime?.closeAllMemorySearchManagers?.();

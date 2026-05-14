@@ -22,12 +22,12 @@ describe("experience gateway handlers", () => {
   let stateDir: string;
 
   beforeEach(() => {
-    stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-experience-gateway-"));
-    process.env.ASSISTANT_STATE_DIR = stateDir;
+    stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-experience-gateway-"));
+    process.env.ZHUSHOU_STATE_DIR = stateDir;
   });
 
   afterEach(() => {
-    delete process.env.ASSISTANT_STATE_DIR;
+    delete process.env.ZHUSHOU_STATE_DIR;
     fs.rmSync(stateDir, { recursive: true, force: true });
   });
 

@@ -8,11 +8,11 @@ import {
 } from "@buape/carbon";
 import type { GatewayPlugin } from "@buape/carbon/gateway";
 import { VoicePlugin } from "@buape/carbon/voice";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { isDangerousNameMatchingEnabled } from "assistant/plugin-sdk/config-runtime";
-import { danger } from "assistant/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { isDangerousNameMatchingEnabled } from "zhushou/plugin-sdk/config-runtime";
+import { danger } from "zhushou/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { createDiscordRequestClient } from "../proxy-request-client.js";
 import type { DiscordGuildEntryResolved } from "./allow-list.js";
 import { createDiscordAutoPresenceController } from "./auto-presence.js";
@@ -232,7 +232,7 @@ export async function fetchDiscordBotIdentity(params: {
 }
 
 export function registerDiscordMonitorListeners(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   client: Pick<Client, "listeners">;
   accountId: string;
   discordConfig: DiscordListenerConfig;

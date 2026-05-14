@@ -8,24 +8,24 @@ import {
 describe("parseCliContainerArgs", () => {
   it("extracts a root --container flag before the command", () => {
     expect(
-      parseCliContainerArgs(["node", "assistant", "--container", "demo", "status", "--deep"]),
+      parseCliContainerArgs(["node", "zhushou", "--container", "demo", "status", "--deep"]),
     ).toEqual({
       ok: true,
       container: "demo",
-      argv: ["node", "assistant", "status", "--deep"],
+      argv: ["node", "zhushou", "status", "--deep"],
     });
   });
 
   it("accepts the equals form", () => {
-    expect(parseCliContainerArgs(["node", "assistant", "--container=demo", "health"])).toEqual({
+    expect(parseCliContainerArgs(["node", "zhushou", "--container=demo", "health"])).toEqual({
       ok: true,
       container: "demo",
-      argv: ["node", "assistant", "health"],
+      argv: ["node", "zhushou", "health"],
     });
   });
 
   it("rejects a missing container value", () => {
-    expect(parseCliContainerArgs(["node", "assistant", "--container"])).toEqual({
+    expect(parseCliContainerArgs(["node", "zhushou", "--container"])).toEqual({
       ok: false,
       error: "--container requires a value",
     });
@@ -33,7 +33,7 @@ describe("parseCliContainerArgs", () => {
 
   it("does not consume an adjacent flag as the container value", () => {
     expect(
-      parseCliContainerArgs(["node", "assistant", "--container", "--no-color", "status"]),
+      parseCliContainerArgs(["node", "zhushou", "--container", "--no-color", "status"]),
     ).toEqual({
       ok: false,
       error: "--container requires a value",
@@ -41,20 +41,20 @@ describe("parseCliContainerArgs", () => {
   });
 
   it("leaves argv unchanged when the flag is absent", () => {
-    expect(parseCliContainerArgs(["node", "assistant", "status"])).toEqual({
+    expect(parseCliContainerArgs(["node", "zhushou", "status"])).toEqual({
       ok: true,
       container: null,
-      argv: ["node", "assistant", "status"],
+      argv: ["node", "zhushou", "status"],
     });
   });
 
   it("extracts --container after the command like other root options", () => {
     expect(
-      parseCliContainerArgs(["node", "assistant", "status", "--container", "demo", "--deep"]),
+      parseCliContainerArgs(["node", "zhushou", "status", "--container", "demo", "--deep"]),
     ).toEqual({
       ok: true,
       container: "demo",
-      argv: ["node", "assistant", "status", "--deep"],
+      argv: ["node", "zhushou", "status", "--deep"],
     });
   });
 
@@ -62,7 +62,7 @@ describe("parseCliContainerArgs", () => {
     expect(
       parseCliContainerArgs([
         "node",
-        "assistant",
+        "zhushou",
         "nodes",
         "run",
         "--",
@@ -77,7 +77,7 @@ describe("parseCliContainerArgs", () => {
       container: null,
       argv: [
         "node",
-        "assistant",
+        "zhushou",
         "nodes",
         "run",
         "--",
@@ -92,14 +92,14 @@ describe("parseCliContainerArgs", () => {
 });
 
 describe("resolveCliContainerTarget", () => {
-  it("uses argv first and falls back to ASSISTANT_CONTAINER", () => {
+  it("uses argv first and falls back to ZHUSHOU_CONTAINER", () => {
     expect(
-      resolveCliContainerTarget(["node", "assistant", "--container", "demo", "status"], {}),
+      resolveCliContainerTarget(["node", "zhushou", "--container", "demo", "status"], {}),
     ).toBe("demo");
-    expect(resolveCliContainerTarget(["node", "assistant", "status"], {})).toBeNull();
+    expect(resolveCliContainerTarget(["node", "zhushou", "status"], {})).toBeNull();
     expect(
-      resolveCliContainerTarget(["node", "assistant", "status"], {
-        ASSISTANT_CONTAINER: "demo",
+      resolveCliContainerTarget(["node", "zhushou", "status"], {
+        ZHUSHOU_CONTAINER: "demo",
       } as NodeJS.ProcessEnv),
     ).toBe("demo");
   });
@@ -107,13 +107,13 @@ describe("resolveCliContainerTarget", () => {
 
 describe("maybeRunCliInContainer", () => {
   it("passes through when no container target is provided", () => {
-    expect(maybeRunCliInContainer(["node", "assistant", "status"], { env: {} })).toEqual({
+    expect(maybeRunCliInContainer(["node", "zhushou", "status"], { env: {} })).toEqual({
       handled: false,
-      argv: ["node", "assistant", "status"],
+      argv: ["node", "zhushou", "status"],
     });
   });
 
-  it("uses ASSISTANT_CONTAINER when the flag is absent", () => {
+  it("uses ZHUSHOU_CONTAINER when the flag is absent", () => {
     const spawnSync = vi
       .fn()
       .mockReturnValueOnce({
@@ -130,8 +130,8 @@ describe("maybeRunCliInContainer", () => {
       });
 
     expect(
-      maybeRunCliInContainer(["node", "assistant", "status"], {
-        env: { ASSISTANT_CONTAINER: "demo" } as NodeJS.ProcessEnv,
+      maybeRunCliInContainer(["node", "zhushou", "status"], {
+        env: { ZHUSHOU_CONTAINER: "demo" } as NodeJS.ProcessEnv,
         spawnSync,
       }),
     ).toEqual({
@@ -146,17 +146,17 @@ describe("maybeRunCliInContainer", () => {
         "exec",
         "-i",
         "--env",
-        "ASSISTANT_CONTAINER_HINT=demo",
+        "ZHUSHOU_CONTAINER_HINT=demo",
         "--env",
-        "ASSISTANT_CLI_CONTAINER_BYPASS=1",
+        "ZHUSHOU_CLI_CONTAINER_BYPASS=1",
         "demo",
-        "assistant",
+        "zhushou",
         "status",
       ],
       {
         stdio: "inherit",
         env: {
-          ASSISTANT_CONTAINER: "",
+          ZHUSHOU_CONTAINER: "",
         },
       },
     );
@@ -178,14 +178,14 @@ describe("maybeRunCliInContainer", () => {
         stdout: "",
       });
 
-    maybeRunCliInContainer(["node", "assistant", "status"], {
+    maybeRunCliInContainer(["node", "zhushou", "status"], {
       env: {
-        ASSISTANT_CONTAINER: "demo",
-        ASSISTANT_PROFILE: "work",
-        ASSISTANT_GATEWAY_PORT: "19001",
-        ASSISTANT_GATEWAY_URL: "ws://127.0.0.1:18789",
-        ASSISTANT_GATEWAY_TOKEN: "token",
-        ASSISTANT_GATEWAY_PASSWORD: "password",
+        ZHUSHOU_CONTAINER: "demo",
+        ZHUSHOU_PROFILE: "work",
+        ZHUSHOU_GATEWAY_PORT: "19001",
+        ZHUSHOU_GATEWAY_URL: "ws://127.0.0.1:18789",
+        ZHUSHOU_GATEWAY_TOKEN: "token",
+        ZHUSHOU_GATEWAY_PASSWORD: "password",
       } as NodeJS.ProcessEnv,
       spawnSync,
     });
@@ -197,17 +197,17 @@ describe("maybeRunCliInContainer", () => {
         "exec",
         "-i",
         "--env",
-        "ASSISTANT_CONTAINER_HINT=demo",
+        "ZHUSHOU_CONTAINER_HINT=demo",
         "--env",
-        "ASSISTANT_CLI_CONTAINER_BYPASS=1",
+        "ZHUSHOU_CLI_CONTAINER_BYPASS=1",
         "demo",
-        "assistant",
+        "zhushou",
         "status",
       ],
       {
         stdio: "inherit",
         env: {
-          ASSISTANT_CONTAINER: "",
+          ZHUSHOU_CONTAINER: "",
         },
       },
     );
@@ -230,7 +230,7 @@ describe("maybeRunCliInContainer", () => {
       });
 
     expect(
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "status"], {
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "status"], {
         env: {},
         spawnSync,
       }),
@@ -252,16 +252,16 @@ describe("maybeRunCliInContainer", () => {
         "exec",
         "-i",
         "--env",
-        "ASSISTANT_CONTAINER_HINT=demo",
+        "ZHUSHOU_CONTAINER_HINT=demo",
         "--env",
-        "ASSISTANT_CLI_CONTAINER_BYPASS=1",
+        "ZHUSHOU_CLI_CONTAINER_BYPASS=1",
         "demo",
-        "assistant",
+        "zhushou",
         "status",
       ],
       {
         stdio: "inherit",
-        env: { ASSISTANT_CONTAINER: "" },
+        env: { ZHUSHOU_CONTAINER: "" },
       },
     );
   });
@@ -283,8 +283,8 @@ describe("maybeRunCliInContainer", () => {
       });
 
     expect(
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "health"], {
-        env: { USER: "assistant" } as NodeJS.ProcessEnv,
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "health"], {
+        env: { USER: "zhushou" } as NodeJS.ProcessEnv,
         spawnSync,
       }),
     ).toEqual({
@@ -305,16 +305,16 @@ describe("maybeRunCliInContainer", () => {
         "exec",
         "-i",
         "-e",
-        "ASSISTANT_CONTAINER_HINT=demo",
+        "ZHUSHOU_CONTAINER_HINT=demo",
         "-e",
-        "ASSISTANT_CLI_CONTAINER_BYPASS=1",
+        "ZHUSHOU_CLI_CONTAINER_BYPASS=1",
         "demo",
-        "assistant",
+        "zhushou",
         "health",
       ],
       {
         stdio: "inherit",
-        env: { USER: "assistant", ASSISTANT_CONTAINER: "" },
+        env: { USER: "zhushou", ZHUSHOU_CONTAINER: "" },
       },
     );
   });
@@ -340,7 +340,7 @@ describe("maybeRunCliInContainer", () => {
       });
 
     expect(
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "status"], {
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "status"], {
         env: { USER: "somalley" } as NodeJS.ProcessEnv,
         spawnSync,
       }),
@@ -368,16 +368,16 @@ describe("maybeRunCliInContainer", () => {
         "exec",
         "-i",
         "-e",
-        "ASSISTANT_CONTAINER_HINT=demo",
+        "ZHUSHOU_CONTAINER_HINT=demo",
         "-e",
-        "ASSISTANT_CLI_CONTAINER_BYPASS=1",
+        "ZHUSHOU_CLI_CONTAINER_BYPASS=1",
         "demo",
-        "assistant",
+        "zhushou",
         "status",
       ],
       {
         stdio: "inherit",
-        env: { USER: "somalley", ASSISTANT_CONTAINER: "" },
+        env: { USER: "somalley", ZHUSHOU_CONTAINER: "" },
       },
     );
     expect(spawnSync).toHaveBeenCalledTimes(3);
@@ -396,7 +396,7 @@ describe("maybeRunCliInContainer", () => {
       });
 
     expect(() =>
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "status"], {
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "status"], {
         env: { USER: "somalley" } as NodeJS.ProcessEnv,
         spawnSync,
       }),
@@ -434,7 +434,7 @@ describe("maybeRunCliInContainer", () => {
       });
 
     expect(() =>
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "status"], {
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "status"], {
         env: { USER: "somalley" } as NodeJS.ProcessEnv,
         spawnSync,
       }),
@@ -459,7 +459,7 @@ describe("maybeRunCliInContainer", () => {
         stdout: "",
       });
 
-    maybeRunCliInContainer(["node", "assistant", "--container", "demo", "setup"], {
+    maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "setup"], {
       env: {},
       spawnSync,
       stdinIsTTY: true,
@@ -474,21 +474,21 @@ describe("maybeRunCliInContainer", () => {
         "-i",
         "-t",
         "--env",
-        "ASSISTANT_CONTAINER_HINT=demo",
+        "ZHUSHOU_CONTAINER_HINT=demo",
         "--env",
-        "ASSISTANT_CLI_CONTAINER_BYPASS=1",
+        "ZHUSHOU_CLI_CONTAINER_BYPASS=1",
         "demo",
-        "assistant",
+        "zhushou",
         "setup",
       ],
       {
         stdio: "inherit",
-        env: { ASSISTANT_CONTAINER: "" },
+        env: { ZHUSHOU_CONTAINER: "" },
       },
     );
   });
 
-  it("prefers --container over ASSISTANT_CONTAINER", () => {
+  it("prefers --container over ZHUSHOU_CONTAINER", () => {
     const spawnSync = vi
       .fn()
       .mockReturnValueOnce({
@@ -505,8 +505,8 @@ describe("maybeRunCliInContainer", () => {
       });
 
     expect(
-      maybeRunCliInContainer(["node", "assistant", "--container", "flag-demo", "health"], {
-        env: { ASSISTANT_CONTAINER: "env-demo" } as NodeJS.ProcessEnv,
+      maybeRunCliInContainer(["node", "zhushou", "--container", "flag-demo", "health"], {
+        env: { ZHUSHOU_CONTAINER: "env-demo" } as NodeJS.ProcessEnv,
         spawnSync,
       }),
     ).toEqual({
@@ -529,7 +529,7 @@ describe("maybeRunCliInContainer", () => {
     });
 
     expect(() =>
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "status"], {
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "status"], {
         env: {},
         spawnSync,
       }),
@@ -538,12 +538,12 @@ describe("maybeRunCliInContainer", () => {
 
   it("skips recursion when the bypass env is set", () => {
     expect(
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "status"], {
-        env: { ASSISTANT_CLI_CONTAINER_BYPASS: "1" } as NodeJS.ProcessEnv,
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "status"], {
+        env: { ZHUSHOU_CLI_CONTAINER_BYPASS: "1" } as NodeJS.ProcessEnv,
       }),
     ).toEqual({
       handled: false,
-      argv: ["node", "assistant", "--container", "demo", "status"],
+      argv: ["node", "zhushou", "--container", "demo", "status"],
     });
   });
 
@@ -554,12 +554,12 @@ describe("maybeRunCliInContainer", () => {
     });
 
     expect(() =>
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "update"], {
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "update"], {
         env: {},
         spawnSync,
       }),
     ).toThrow(
-      "assistant update is not supported with --container; rebuild or restart the container image instead.",
+      "zhushou update is not supported with --container; rebuild or restart the container image instead.",
     );
     expect(spawnSync).not.toHaveBeenCalled();
   });
@@ -571,12 +571,12 @@ describe("maybeRunCliInContainer", () => {
     });
 
     expect(() =>
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "--no-color", "update"], {
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "--no-color", "update"], {
         env: {},
         spawnSync,
       }),
     ).toThrow(
-      "assistant update is not supported with --container; rebuild or restart the container image instead.",
+      "zhushou update is not supported with --container; rebuild or restart the container image instead.",
     );
     expect(spawnSync).not.toHaveBeenCalled();
   });
@@ -588,12 +588,12 @@ describe("maybeRunCliInContainer", () => {
     });
 
     expect(() =>
-      maybeRunCliInContainer(["node", "assistant", "--container", "demo", "--update"], {
+      maybeRunCliInContainer(["node", "zhushou", "--container", "demo", "--update"], {
         env: {},
         spawnSync,
       }),
     ).toThrow(
-      "assistant update is not supported with --container; rebuild or restart the container image instead.",
+      "zhushou update is not supported with --container; rebuild or restart the container image instead.",
     );
     expect(spawnSync).not.toHaveBeenCalled();
   });

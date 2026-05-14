@@ -5,11 +5,11 @@ import { __setModelCatalogImportForTest, resetModelCatalogCacheForTest } from ".
 export type PiSdkModule = typeof import("./pi-model-discovery.js");
 
 vi.mock("./models-config.js", () => ({
-  ensureAssistantModelsJson: vi.fn().mockResolvedValue({ agentDir: "/tmp", wrote: false }),
+  ensureZhushouModelsJson: vi.fn().mockResolvedValue({ agentDir: "/tmp", wrote: false }),
 }));
 
 vi.mock("./agent-paths.js", () => ({
-  resolveAssistantAgentDir: () => "/tmp/assistant",
+  resolveZhushouAgentDir: () => "/tmp/zhushou",
 }));
 
 vi.mock("../plugins/provider-runtime.runtime.js", () => ({

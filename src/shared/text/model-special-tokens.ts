@@ -1,8 +1,8 @@
 /**
- * Strip model control tokens leaked into assistant text output.
+ * Strip model control tokens leaked into zhushou text output.
  *
  * Models like GLM-5 and DeepSeek sometimes emit internal delimiter tokens
- * (e.g. `<|assistant|>`, `<|tool_call_result_begin|>`, `<｜begin▁of▁sentence｜>`)
+ * (e.g. `<|zhushou|>`, `<|tool_call_result_begin|>`, `<｜begin▁of▁sentence｜>`)
  * in their responses. These use the universal `<|...|>` convention (ASCII or
  * full-width pipe variants) and should never reach end users.
  *
@@ -11,7 +11,7 @@
  *
  * This is a provider bug — no upstream fix tracked yet.
  * Remove this function when upstream providers stop leaking tokens.
- * @see https://github.com/assistant/assistant/issues/40020
+ * @see https://github.com/wang301208/zhushou/issues/40020
  */
 import { findCodeRegions, isInsideCode } from "./code-regions.js";
 

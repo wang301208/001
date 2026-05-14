@@ -1,6 +1,6 @@
 import { normalizeChatType } from "../channels/chat-type.js";
 import type { SessionChatType, SessionEntry } from "../config/sessions.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -79,7 +79,7 @@ function deriveChatTypeFromKey(key?: string): SessionChatType | undefined {
 }
 
 export function resolveSendPolicy(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   entry?: SessionEntry;
   sessionKey?: string;
   channel?: string;

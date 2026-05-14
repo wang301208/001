@@ -1,5 +1,5 @@
 import type { ChannelApprovalNativeAdapter } from "../channels/plugins/approval-native.types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   resolveChannelNativeApprovalDeliveryPlan,
   type ChannelApprovalNativePlannedTarget,
@@ -37,7 +37,7 @@ export async function deliverApprovalRequestViaChannelNativePlan<
   TPendingEntry,
   TRequest extends ApprovalRequest = ApprovalRequest,
 >(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   approvalKind: ChannelApprovalKind;
   request: TRequest;

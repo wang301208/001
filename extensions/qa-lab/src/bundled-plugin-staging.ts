@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { ModelProviderConfig } from "assistant/plugin-sdk/provider-model-shared";
+import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-shared";
 
 const QA_ALWAYS_STAGE_RUNTIME_PLUGIN_IDS = Object.freeze([
   "image-generation-core",
@@ -115,7 +115,7 @@ export async function resolveQaOwnerPluginIdsForProviderIds(params: {
       if (!entry.isDirectory()) {
         continue;
       }
-      const manifestPath = path.join(sourceRoot, entry.name, "assistant.plugin.json");
+      const manifestPath = path.join(sourceRoot, entry.name, "zhushou.plugin.json");
       if (!existsSync(manifestPath)) {
         continue;
       }
@@ -252,7 +252,7 @@ async function seedQaStagedNodeModules(params: { repoRoot: string; stagedRoot: s
   const stagedNodeModulesDir = path.join(params.stagedRoot, "node_modules");
   await fs.mkdir(stagedNodeModulesDir, { recursive: true });
   for (const entry of await fs.readdir(sourceNodeModulesDir, { withFileTypes: true })) {
-    if (entry.name === "assistant") {
+    if (entry.name === "zhushou") {
       continue;
     }
     await symlinkQaStagedDirEntry({
@@ -346,13 +346,13 @@ export async function resolveQaRuntimeHostVersion(params: {
     }
     const packageRaw = await fs.readFile(packagePath, "utf8");
     const packageJson = JSON.parse(packageRaw) as {
-      assistant?: {
+      zhushou?: {
         install?: {
           minHostVersion?: string;
         };
       };
     };
-    const candidate = parseStableSemverFloor(packageJson.assistant?.install?.minHostVersion);
+    const candidate = parseStableSemverFloor(packageJson.zhushou?.install?.minHostVersion);
     if (compareSemverFloors(candidate, selected) > 0) {
       selected = candidate;
     }
@@ -386,11 +386,11 @@ export async function createQaBundledPluginsDir(params: {
     repoRoot: params.repoRoot,
     stagedRoot,
   });
-  const stagedAssistantPackageDir = path.join(stagedRoot, "node_modules", "assistant");
-  await fs.mkdir(stagedAssistantPackageDir, { recursive: true });
+  const stagedZhushouPackageDir = path.join(stagedRoot, "node_modules", "zhushou");
+  await fs.mkdir(stagedZhushouPackageDir, { recursive: true });
   await fs.copyFile(
     path.join(params.repoRoot, "package.json"),
-    path.join(stagedAssistantPackageDir, "package.json"),
+    path.join(stagedZhushouPackageDir, "package.json"),
   );
   const stagedTreeName = resolveQaStagedBundledTreeName(params.repoRoot);
   const stagedTreeRoot = path.join(stagedRoot, stagedTreeName);
@@ -426,7 +426,7 @@ export async function createQaBundledPluginsDir(params: {
   }
   await symlinkQaStagedDirEntry({
     sourcePath: path.join(stagedRoot, "dist"),
-    targetPath: path.join(stagedAssistantPackageDir, "dist"),
+    targetPath: path.join(stagedZhushouPackageDir, "dist"),
     directory: true,
   });
   return {

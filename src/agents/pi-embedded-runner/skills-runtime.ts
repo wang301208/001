@@ -1,10 +1,10 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { loadWorkspaceSkillEntries, type SkillEntry, type SkillSnapshot } from "../skills.js";
 import { resolveSkillRuntimeConfig } from "../skills/runtime-config.js";
 
 export function resolveEmbeddedRunSkillEntries(params: {
   workspaceDir: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentId?: string;
   skillsSnapshot?: SkillSnapshot;
 }): {

@@ -9,7 +9,7 @@ import {
 } from "../../agents/model-selection.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import {
-  type AssistantConfig,
+  type ZhushouConfig,
   readConfigFileSnapshot,
   replaceConfigFile,
 } from "../../config/config.js";
@@ -51,7 +51,7 @@ export const formatMs = (value?: number | null) => {
   return `${Math.round(value / 100) / 10}s`;
 };
 
-export async function loadValidConfigOrThrow(): Promise<AssistantConfig> {
+export async function loadValidConfigOrThrow(): Promise<ZhushouConfig> {
   const snapshot = await readConfigFileSnapshot();
   if (!snapshot.valid) {
     const issues = formatConfigIssueLines(snapshot.issues, "-").join("\n");
@@ -61,8 +61,8 @@ export async function loadValidConfigOrThrow(): Promise<AssistantConfig> {
 }
 
 export async function updateConfig(
-  mutator: (cfg: AssistantConfig) => AssistantConfig,
-): Promise<AssistantConfig> {
+  mutator: (cfg: ZhushouConfig) => ZhushouConfig,
+): Promise<ZhushouConfig> {
   const snapshot = await readConfigFileSnapshot();
   if (!snapshot.valid) {
     const issues = formatConfigIssueLines(snapshot.issues, "-").join("\n");
@@ -76,7 +76,7 @@ export async function updateConfig(
   return next;
 }
 
-export function resolveModelTarget(params: { raw: string; cfg: AssistantConfig }): {
+export function resolveModelTarget(params: { raw: string; cfg: ZhushouConfig }): {
   provider: string;
   model: string;
 } {
@@ -96,7 +96,7 @@ export function resolveModelTarget(params: { raw: string; cfg: AssistantConfig }
 }
 
 export function resolveModelKeysFromEntries(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   entries: readonly string[];
 }): string[] {
   const aliasIndex = buildModelAliasIndex({
@@ -115,7 +115,7 @@ export function resolveModelKeysFromEntries(params: {
     .map((entry) => modelKey(entry.ref.provider, entry.ref.model));
 }
 
-export function buildAllowlistSet(cfg: AssistantConfig): Set<string> {
+export function buildAllowlistSet(cfg: ZhushouConfig): Set<string> {
   const allowed = new Set<string>();
   const models = cfg.agents?.defaults?.models ?? {};
   for (const raw of Object.keys(models)) {
@@ -129,7 +129,7 @@ export function buildAllowlistSet(cfg: AssistantConfig): Set<string> {
 }
 
 export function resolveKnownAgentId(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   rawAgentId?: string | null;
 }): string | undefined {
   const raw = params.rawAgentId?.trim();
@@ -143,7 +143,7 @@ export function resolveKnownAgentId(params: {
       buildUnknownAgentIdMessage({
         cfg: params.cfg,
         rawAgentId: raw,
-        inspectHint: `Use "${formatCliCommand("assistant agents list")}" to inspect available agents.`,
+        inspectHint: `Use "${formatCliCommand("zhushou agents list")}" to inspect available agents.`,
       }),
     );
   }
@@ -187,10 +187,10 @@ export function mergePrimaryFallbackConfig(
 }
 
 export function applyDefaultModelPrimaryUpdate(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   modelRaw: string;
   field: "model" | "imageModel";
-}): AssistantConfig {
+}): ZhushouConfig {
   const resolved = resolveModelTarget({ raw: params.modelRaw, cfg: params.cfg });
   const nextModels = {
     ...params.cfg.agents?.defaults?.models,

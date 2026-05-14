@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { resolveAssistantAgentDir } from "../src/agents/agent-paths.js";
+import { resolveZhushouAgentDir } from "../src/agents/agent-paths.js";
 import { collectProviderApiKeys } from "../src/agents/live-auth-keys.js";
 import { isLiveProfileKeyModeEnabled, isLiveTestEnabled } from "../src/agents/live-test-helpers.js";
 import { resolveApiKeyForProvider } from "../src/agents/model-auth.js";
-import { loadConfig, type AssistantConfig } from "../src/config/config.js";
+import { loadConfig, type ZhushouConfig } from "../src/config/config.js";
 import {
   DEFAULT_LIVE_IMAGE_MODELS,
   parseCaseFilter,
@@ -25,11 +25,11 @@ import {
 
 const LIVE = isLiveTestEnabled();
 const REQUIRE_PROFILE_KEYS =
-  isLiveProfileKeyModeEnabled() || isTruthyEnvValue(process.env.ASSISTANT_LIVE_REQUIRE_PROFILE_KEYS);
+  isLiveProfileKeyModeEnabled() || isTruthyEnvValue(process.env.ZHUSHOU_LIVE_REQUIRE_PROFILE_KEYS);
 const describeLive = LIVE ? describe : describe.skip;
-const providerFilter = parseCsvFilter(process.env.ASSISTANT_LIVE_IMAGE_GENERATION_PROVIDERS);
-const caseFilter = parseCaseFilter(process.env.ASSISTANT_LIVE_IMAGE_GENERATION_CASES);
-const envModelMap = parseProviderModelMap(process.env.ASSISTANT_LIVE_IMAGE_GENERATION_MODELS);
+const providerFilter = parseCsvFilter(process.env.ZHUSHOU_LIVE_IMAGE_GENERATION_PROVIDERS);
+const caseFilter = parseCaseFilter(process.env.ZHUSHOU_LIVE_IMAGE_GENERATION_CASES);
+const envModelMap = parseProviderModelMap(process.env.ZHUSHOU_LIVE_IMAGE_GENERATION_MODELS);
 
 type LiveProviderCase = {
   pluginId: string;
@@ -109,7 +109,7 @@ function createEditReferencePng(): Buffer {
   return encodePngRgba(buf, width, height);
 }
 
-function withPluginsEnabled(cfg: AssistantConfig): AssistantConfig {
+function withPluginsEnabled(cfg: ZhushouConfig): ZhushouConfig {
   return {
     ...cfg,
     plugins: {
@@ -185,7 +185,7 @@ describeLive("image generation live (provider sweep)", () => {
     async () => {
       const cfg = withPluginsEnabled(loadConfig());
       const configuredModels = resolveConfiguredLiveImageModels(cfg);
-      const agentDir = resolveAssistantAgentDir();
+      const agentDir = resolveZhushouAgentDir();
       const attempted: string[] = [];
       const skipped: string[] = [];
       const failures: string[] = [];

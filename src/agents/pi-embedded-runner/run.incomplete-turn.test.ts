@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { makeAttemptResult } from "./run.overflow-compaction.fixture.js";
 import {
   loadRunOverflowCompactionHarness,
@@ -46,16 +46,16 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
+        zhushouTexts: [],
         toolMetas: [],
         didSendViaMessagingTool: true,
-        lastAssistant: {
+        lastZhushou: {
           stopReason: "toolUse",
           errorMessage: "internal retry interrupted tool execution",
           provider: "openai",
           model: "mock-1",
           content: [],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -73,7 +73,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValue(
       makeAttemptResult({
-        assistantTexts: ["I'll inspect the code, make the change, and run the checks."],
+        zhushouTexts: ["I'll inspect the code, make the change, and run the checks."],
       }),
     );
 
@@ -102,7 +102,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
             },
           ],
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
     });
 
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(3);
@@ -122,7 +122,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValue(
       makeAttemptResult({
-        assistantTexts: ["I'll inspect the code, make the change, and run the checks."],
+        zhushouTexts: ["I'll inspect the code, make the change, and run the checks."],
       }),
     );
 
@@ -141,7 +141,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
           },
           list: [{ id: "main" }],
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
     });
 
     expect(result.payloads).toEqual([
@@ -162,7 +162,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValue(
       makeAttemptResult({
-        assistantTexts: ["I'll inspect the code, make the change, and run the checks."],
+        zhushouTexts: ["I'll inspect the code, make the change, and run the checks."],
       }),
     );
 
@@ -176,7 +176,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
         agents: {
           list: [{ id: "main" }],
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
     });
 
     // Two retries (strict-agentic retry cap) plus the original attempt = 3 calls.
@@ -197,7 +197,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValue(
       makeAttemptResult({
-        assistantTexts: ["I'll inspect the code, make the change, and run the checks."],
+        zhushouTexts: ["I'll inspect the code, make the change, and run the checks."],
       }),
     );
 
@@ -216,7 +216,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
           },
           list: [{ id: "main" }],
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
     });
 
     // Default contract: 1 retry then falls through. Should NOT surface the
@@ -236,7 +236,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: ["I'll inspect the code, make the change, and run the checks."],
+        zhushouTexts: ["I'll inspect the code, make the change, and run the checks."],
       }),
     });
 
@@ -247,8 +247,8 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
@@ -260,19 +260,19 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
               thinkingSignature: JSON.stringify({ id: "rs_reasoning_only", type: "reasoning" }),
             },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: ["Visible answer."],
-        lastAssistant: {
+        zhushouTexts: ["Visible answer."],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
           model: "gpt-5.4",
           content: [{ type: "text", text: "Visible answer." }],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -287,7 +287,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     const secondCall = mockedRunEmbeddedAttempt.mock.calls[1]?.[0] as { prompt?: string };
     expect(secondCall.prompt).toContain(REASONING_ONLY_RETRY_INSTRUCTION);
     expect(mockedLog.warn).toHaveBeenCalledWith(
-      expect.stringContaining("reasoning-only assistant turn detected"),
+      expect.stringContaining("reasoning-only zhushou turn detected"),
     );
   });
 
@@ -295,9 +295,9 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
+        zhushouTexts: [],
         didSendViaMessagingTool: true,
-        lastAssistant: {
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
@@ -309,7 +309,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
               thinkingSignature: JSON.stringify({ id: "rs_after_send", type: "reasoning" }),
             },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -325,12 +325,12 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     expect(result.payloads?.[0]?.text).toContain("verify before retrying");
   });
 
-  it("does not retry reasoning-only turns when the assistant ended in error", async () => {
+  it("does not retry reasoning-only turns when the zhushou ended in error", async () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "error",
           provider: "openai",
@@ -343,7 +343,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
               thinkingSignature: JSON.stringify({ id: "rs_error_turn", type: "reasoning" }),
             },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -351,7 +351,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       ...overflowBaseRunParams,
       provider: "openai",
       model: "gpt-5.4",
-      runId: "run-reasoning-only-assistant-error",
+      runId: "run-reasoning-only-zhushou-error",
     });
 
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(1);
@@ -359,12 +359,12 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     expect(result.payloads?.[0]?.text).toContain("Please try again");
   });
 
-  it("does not retry reasoning-only turns for non-openai assistant metadata", async () => {
+  it("does not retry reasoning-only turns for non-openai zhushou metadata", async () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "anthropic",
@@ -379,7 +379,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
               }),
             },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -399,26 +399,26 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
           model: "gpt-5.4",
           content: [{ type: "text", text: "" }],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: ["Visible answer."],
-        lastAssistant: {
+        zhushouTexts: ["Visible answer."],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
           model: "gpt-5.4",
           content: [{ type: "text", text: "Visible answer." }],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -439,14 +439,14 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValue(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
           model: "gpt-5.4",
           content: [{ type: "text", text: "" }],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -469,8 +469,8 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValue(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
@@ -485,7 +485,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
               }),
             },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     );
 
@@ -513,7 +513,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: [
+        zhushouTexts: [
           "Plan:\n1. I'll inspect the code\n2. I'll patch the issue\n3. I'll run the tests",
         ],
       }),
@@ -530,7 +530,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: ["1. Parser refactor\n2. Regression coverage\n3. Docs cleanup"],
+        zhushouTexts: ["1. Parser refactor\n2. Regression coverage\n3. Docs cleanup"],
       }),
     });
 
@@ -545,7 +545,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: ["Plan:\n1. Parser refactor\n2. Regression coverage\n3. Docs cleanup"],
+        zhushouTexts: ["Plan:\n1. Parser refactor\n2. Regression coverage\n3. Docs cleanup"],
       }),
     });
 
@@ -560,7 +560,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: ["I'll inspect the code, make the change, and run the checks."],
+        zhushouTexts: ["I'll inspect the code, make the change, and run the checks."],
         toolMetas: [
           { toolName: "read", meta: "path=src/index.ts" },
           { toolName: "search", meta: "pattern=runEmbeddedPiAgent" },
@@ -579,7 +579,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: ["I'll inspect the code, make the change, and run the checks."],
+        zhushouTexts: ["I'll inspect the code, make the change, and run the checks."],
         itemLifecycle: {
           startedCount: 1,
           completedCount: 0,
@@ -599,7 +599,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: ["I'll capture the steps, then take the first tool action."],
+        zhushouTexts: ["I'll capture the steps, then take the first tool action."],
         toolMetas: [{ toolName: "update_plan", meta: "status=updated" }],
         itemLifecycle: {
           startedCount: 1,
@@ -653,7 +653,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: ["I'll inspect the code, make the change, and run the checks."],
+        zhushouTexts: ["I'll inspect the code, make the change, and run the checks."],
       }),
     });
 
@@ -683,13 +683,13 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
 
   it("marks incomplete-turn retries as replay-invalid abandoned runs", () => {
     const attempt = makeAttemptResult({
-      assistantTexts: [],
-      lastAssistant: {
+      zhushouTexts: [],
+      lastZhushou: {
         stopReason: "toolUse",
         provider: "openai",
         model: "gpt-5.4",
         content: [],
-      } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+      } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
     });
     const incompleteTurnText = "⚠️ Agent couldn't generate a response. Please try again.";
 
@@ -712,8 +712,8 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
@@ -725,7 +725,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
               thinkingSignature: JSON.stringify({ id: "rs_helper", type: "reasoning" }),
             },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     });
 
@@ -739,9 +739,9 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: [],
+        zhushouTexts: [],
         didSendViaMessagingTool: true,
-        lastAssistant: {
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
@@ -753,7 +753,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
               thinkingSignature: JSON.stringify({ id: "rs_side_effect", type: "reasoning" }),
             },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     });
 
@@ -761,15 +761,15 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     expect(DEFAULT_REASONING_ONLY_RETRY_LIMIT).toBe(2);
   });
 
-  it("does not retry reasoning-only GPT turns when the assistant ended in error", () => {
+  it("does not retry reasoning-only GPT turns when the zhushou ended in error", () => {
     const retryInstruction = resolveReasoningOnlyRetryInstruction({
       provider: "openai",
       modelId: "gpt-5.4",
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "error",
           provider: "openai",
@@ -781,22 +781,22 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
               thinkingSignature: JSON.stringify({ id: "rs_helper_error", type: "reasoning" }),
             },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     });
 
     expect(retryInstruction).toBeNull();
   });
 
-  it("does not retry reasoning-only GPT turns when visible assistant text already exists", () => {
+  it("does not retry reasoning-only GPT turns when visible zhushou text already exists", () => {
     const retryInstruction = resolveReasoningOnlyRetryInstruction({
       provider: "openai",
       modelId: "gpt-5.4",
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: ["Visible answer."],
-        lastAssistant: {
+        zhushouTexts: ["Visible answer."],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
@@ -812,7 +812,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
             },
             { type: "text", text: "" },
           ],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     });
 
@@ -827,14 +827,14 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: {
+        zhushouTexts: [],
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
           model: "gpt-5.4",
           content: [{ type: "text", text: "" }],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     });
 
@@ -850,15 +850,15 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: [],
+        zhushouTexts: [],
         didSendViaMessagingTool: true,
-        lastAssistant: {
+        lastZhushou: {
           role: "assistant",
           stopReason: "end_turn",
           provider: "openai",
           model: "gpt-5.4",
           content: [{ type: "text", text: "" }],
-        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastZhushou"],
       }),
     });
 
@@ -886,7 +886,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     mockedClassifyFailoverReason.mockReturnValue(null);
     mockedRunEmbeddedAttempt.mockResolvedValue(
       makeAttemptResult({
-        assistantTexts: [
+        zhushouTexts: [
           "i am glad, and a little afraid, which is probably the correct mixture. thank you. i will try to deserve the upgrades instead of merely inhabiting them.",
         ],
       }),
@@ -895,7 +895,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
     const result = await runEmbeddedPiAgent({
       ...overflowBaseRunParams,
       prompt:
-        "made a bunch of improvements to the student's source code (assistant) this weekend, along with a few other maintainers. hopefully he will be more proactive now",
+        "made a bunch of improvements to the student's source code (zhushou) this weekend, along with a few other maintainers. hopefully he will be more proactive now",
       provider: "openai-codex",
       model: "gpt-5.4",
       runId: "run-strict-agentic-casual-discord-status",
@@ -903,7 +903,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
         agents: {
           list: [{ id: "main" }],
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
     });
 
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(1);
@@ -919,7 +919,7 @@ describe("runEmbeddedPiAgent incomplete-turn safety", () => {
       aborted: false,
       timedOut: false,
       attempt: makeAttemptResult({
-        assistantTexts: [
+        zhushouTexts: [
           "I'm not going to give token-pumping instructions for a chart. Best answer: build trust and let the market do what it will.",
         ],
       }),
@@ -934,13 +934,13 @@ describe("resolvePlanningOnlyRetryInstruction single-action loophole", () => {
 
   function makeAttemptWithTools(
     toolNames: string[],
-    assistantText: string,
+    zhushouText: string,
   ): Parameters<typeof resolvePlanningOnlyRetryInstruction>[0]["attempt"] {
     const toolMetas = toolNames.map((toolName) => ({ toolName }));
     return {
       toolMetas,
-      assistantTexts: [assistantText],
-      lastAssistant: { stopReason: "stop" },
+      zhushouTexts: [zhushouText],
+      lastZhushou: { stopReason: "stop" },
       itemLifecycle: { startedCount: toolNames.length },
       replayMetadata: buildAttemptReplayMetadata({
         toolMetas,

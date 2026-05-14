@@ -116,6 +116,11 @@ const entrySpecs: readonly CommandGroupDescriptorSpec<SubCliRegistrar>[] = [
       exportName: "registerTuiCli",
     },
     {
+      commandNames: ["stdio-gateway"],
+      loadModule: () => import("../stdio-gateway-cli.js"),
+      exportName: "registerStdioGatewayCli",
+    },
+    {
       commandNames: ["cron"],
       loadModule: () => import("../cron-cli.js"),
       exportName: "registerCronCli",

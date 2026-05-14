@@ -3,7 +3,7 @@ import path from "node:path";
 import "./test-helpers/fast-coding-tools.js";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  buildEmbeddedRunnerAssistant,
+  buildEmbeddedRunnerZhushou,
   cleanupEmbeddedPiRunnerTestWorkspace,
   createMockUsage,
   createEmbeddedPiRunnerOpenAiConfig,
@@ -26,7 +26,7 @@ let refreshRuntimeAuthOnFirstPromptError = false;
 vi.mock("@mariozechner/pi-ai", async () => {
   const actual = await vi.importActual<typeof import("@mariozechner/pi-ai")>("@mariozechner/pi-ai");
 
-  const buildAssistantMessage = (model: { api: string; provider: string; id: string }) => ({
+  const buildZhushouMessage = (model: { api: string; provider: string; id: string }) => ({
     role: "assistant" as const,
     content: [{ type: "text" as const, text: "ok" }],
     stopReason: "stop" as const,
@@ -37,7 +37,7 @@ vi.mock("@mariozechner/pi-ai", async () => {
     timestamp: Date.now(),
   });
 
-  const buildAssistantErrorMessage = (model: { api: string; provider: string; id: string }) => ({
+  const buildZhushouErrorMessage = (model: { api: string; provider: string; id: string }) => ({
     role: "assistant" as const,
     content: [],
     stopReason: "error" as const,
@@ -53,15 +53,15 @@ vi.mock("@mariozechner/pi-ai", async () => {
     ...actual,
     complete: async (model: { api: string; provider: string; id: string }) => {
       if (model.id === "mock-error") {
-        return buildAssistantErrorMessage(model);
+        return buildZhushouErrorMessage(model);
       }
-      return buildAssistantMessage(model);
+      return buildZhushouMessage(model);
     },
     completeSimple: async (model: { api: string; provider: string; id: string }) => {
       if (model.id === "mock-error") {
-        return buildAssistantErrorMessage(model);
+        return buildZhushouErrorMessage(model);
       }
-      return buildAssistantMessage(model);
+      return buildZhushouMessage(model);
     },
     streamSimple: (model: { api: string; provider: string; id: string }) => {
       const stream = actual.createAssistantMessageEventStream();
@@ -71,8 +71,8 @@ vi.mock("@mariozechner/pi-ai", async () => {
           reason: "stop",
           message:
             model.id === "mock-error"
-              ? buildAssistantErrorMessage(model)
-              : buildAssistantMessage(model),
+              ? buildZhushouErrorMessage(model)
+              : buildZhushouMessage(model),
         });
         stream.end();
       });
@@ -161,7 +161,7 @@ const installRunEmbeddedMocks = () => {
     const mod = await vi.importActual<typeof import("./models-config.js")>("./models-config.js");
     return {
       ...mod,
-      ensureAssistantModelsJson: vi.fn(async () => ({ wrote: false })),
+      ensureZhushouModelsJson: vi.fn(async () => ({ wrote: false })),
     };
   });
 };
@@ -180,7 +180,7 @@ beforeAll(async () => {
   installRunEmbeddedMocks();
   ({ runEmbeddedPiAgent } = await import("./pi-embedded-runner/run.js"));
   ({ SessionManager } = await import("@mariozechner/pi-coding-agent"));
-  e2eWorkspace = await createEmbeddedPiRunnerTestWorkspace("assistant-embedded-agent-");
+  e2eWorkspace = await createEmbeddedPiRunnerTestWorkspace("zhushou-embedded-agent-");
   ({ agentDir, workspaceDir } = e2eWorkspace);
 }, 180_000);
 
@@ -220,8 +220,8 @@ const runWithOrphanedSingleUserMessage = async (text: string, sessionKey: string
 
   runEmbeddedAttemptMock.mockResolvedValueOnce(
     makeEmbeddedRunnerAttempt({
-      assistantTexts: ["ok"],
-      lastAssistant: buildEmbeddedRunnerAssistant({
+      zhushouTexts: ["ok"],
+      lastZhushou: buildEmbeddedRunnerZhushou({
         content: [{ type: "text", text: "ok" }],
       }),
     }),
@@ -275,8 +275,8 @@ const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string, sessi
   const cfg = createEmbeddedPiRunnerOpenAiConfig(["mock-error"]);
   runEmbeddedAttemptMock.mockResolvedValueOnce(
     makeEmbeddedRunnerAttempt({
-      assistantTexts: ["ok"],
-      lastAssistant: buildEmbeddedRunnerAssistant({
+      zhushouTexts: ["ok"],
+      lastZhushou: buildEmbeddedRunnerZhushou({
         content: [{ type: "text", text: "ok" }],
       }),
     }),
@@ -308,8 +308,8 @@ describe("runEmbeddedPiAgent", () => {
     });
     runEmbeddedAttemptMock.mockResolvedValueOnce(
       makeEmbeddedRunnerAttempt({
-        assistantTexts: ["ok"],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: ["ok"],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           content: [{ type: "text", text: "ok" }],
         }),
       }),
@@ -349,8 +349,8 @@ describe("runEmbeddedPiAgent", () => {
     });
     runEmbeddedAttemptMock.mockResolvedValueOnce(
       makeEmbeddedRunnerAttempt({
-        assistantTexts: ["ok"],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: ["ok"],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           content: [{ type: "text", text: "ok" }],
         }),
       }),
@@ -388,8 +388,8 @@ describe("runEmbeddedPiAgent", () => {
     });
     runEmbeddedAttemptMock.mockResolvedValueOnce(
       makeEmbeddedRunnerAttempt({
-        assistantTexts: ["ok"],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: ["ok"],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           content: [{ type: "text", text: "ok" }],
         }),
       }),
@@ -426,8 +426,8 @@ describe("runEmbeddedPiAgent", () => {
     });
     runEmbeddedAttemptMock.mockResolvedValueOnce(
       makeEmbeddedRunnerAttempt({
-        assistantTexts: ["ok"],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: ["ok"],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           content: [{ type: "text", text: "ok" }],
         }),
       }),
@@ -463,8 +463,8 @@ describe("runEmbeddedPiAgent", () => {
     const sessionKey = nextSessionKey();
     runEmbeddedAttemptMock.mockResolvedValueOnce(
       makeEmbeddedRunnerAttempt({
-        assistantTexts: ["ok"],
-        lastAssistant: buildEmbeddedRunnerAssistant({
+        zhushouTexts: ["ok"],
+        lastZhushou: buildEmbeddedRunnerZhushou({
           content: [{ type: "text", text: "ok" }],
         }),
       }),
@@ -506,8 +506,8 @@ describe("runEmbeddedPiAgent", () => {
       .mockImplementationOnce(async () => {
         expect(disposeSessionMcpRuntimeMock).not.toHaveBeenCalled();
         return makeEmbeddedRunnerAttempt({
-          assistantTexts: ["ok"],
-          lastAssistant: buildEmbeddedRunnerAssistant({
+          zhushouTexts: ["ok"],
+          lastZhushou: buildEmbeddedRunnerZhushou({
             content: [{ type: "text", text: "ok" }],
           }),
         });
@@ -544,8 +544,8 @@ describe("runEmbeddedPiAgent", () => {
       .mockImplementationOnce(async (params: unknown) => {
         expect((params as { prompt?: string }).prompt).toMatch(/^ship it(?:\n\n|$)/);
         return makeEmbeddedRunnerAttempt({
-          assistantTexts: ["I'll inspect the files, make the change, and run the checks."],
-          lastAssistant: buildEmbeddedRunnerAssistant({
+          zhushouTexts: ["I'll inspect the files, make the change, and run the checks."],
+          lastZhushou: buildEmbeddedRunnerZhushou({
             model: "gpt-5.4",
             content: [
               {
@@ -561,8 +561,8 @@ describe("runEmbeddedPiAgent", () => {
           "Do not restate the plan. Act now",
         );
         return makeEmbeddedRunnerAttempt({
-          assistantTexts: ["done"],
-          lastAssistant: buildEmbeddedRunnerAssistant({
+          zhushouTexts: ["done"],
+          lastZhushou: buildEmbeddedRunnerZhushou({
             model: "gpt-5.4",
             content: [{ type: "text", text: "done" }],
           }),
@@ -642,7 +642,7 @@ describe("runEmbeddedPiAgent", () => {
       });
       sessionManager.appendMessage({
         role: "assistant",
-        content: [{ type: "text", text: "seed assistant" }],
+        content: [{ type: "text", text: "seed zhushou" }],
         stopReason: "stop",
         api: "openai-responses",
         provider: "openai",
@@ -657,12 +657,12 @@ describe("runEmbeddedPiAgent", () => {
       const seedUserIndex = messages.findIndex(
         (message) => message?.role === "user" && textFromContent(message.content) === "seed user",
       );
-      const seedAssistantIndex = messages.findIndex(
+      const seedZhushouIndex = messages.findIndex(
         (message) =>
-          message?.role === "assistant" && textFromContent(message.content) === "seed assistant",
+          message?.role === "assistant" && textFromContent(message.content) === "seed zhushou",
       );
       expect(seedUserIndex).toBeGreaterThanOrEqual(0);
-      expect(seedAssistantIndex).toBeGreaterThan(seedUserIndex);
+      expect(seedZhushouIndex).toBeGreaterThan(seedUserIndex);
       expect(messages.length).toBeGreaterThanOrEqual(2);
     },
   );

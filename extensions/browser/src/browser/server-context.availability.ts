@@ -15,8 +15,8 @@ import {
 import {
   isChromeCdpReady,
   isChromeReachable,
-  launchAssistantChrome,
-  stopAssistantChrome,
+  launchZhushouChrome,
+  stopZhushouChrome,
 } from "./chrome.js";
 import type { ResolvedBrowserProfile } from "./config.js";
 import { BrowserProfileUnavailableError } from "./errors.js";
@@ -119,7 +119,7 @@ export function createProfileAvailability({
 
     const previousProfile = reconcile.previousProfile;
     if (profileState.running) {
-      await stopAssistantChrome(profileState.running).catch(() => {});
+      await stopZhushouChrome(profileState.running).catch(() => {});
       setProfileRunning(null);
     }
     if (getBrowserProfileCapabilities(previousProfile).usesChromeMcp) {
@@ -132,7 +132,7 @@ export function createProfileAvailability({
   };
 
   const waitForCdpReadyAfterLaunch = async (): Promise<void> => {
-    // launchAssistantChrome() can return before Chrome is fully ready to serve /json/version + CDP WS.
+    // launchZhushouChrome() can return before Chrome is fully ready to serve /json/version + CDP WS.
     // If a follow-up call races ahead, we can hit PortInUseError trying to launch again on the same port.
     const deadlineMs = Date.now() + CDP_READY_AFTER_LAUNCH_WINDOW_MS;
     while (Date.now() < deadlineMs) {
@@ -214,12 +214,12 @@ export function createProfileAvailability({
             : `Browser attachOnly is enabled and profile "${profile.name}" is not running.`,
         );
       }
-      const launched = await launchAssistantChrome(current.resolved, profile);
+      const launched = await launchZhushouChrome(current.resolved, profile);
       attachRunning(launched);
       try {
         await waitForCdpReadyAfterLaunch();
       } catch (err) {
-        await stopAssistantChrome(launched).catch(() => {});
+        await stopZhushouChrome(launched).catch(() => {});
         setProfileRunning(null);
         throw err;
       }
@@ -253,15 +253,15 @@ export function createProfileAvailability({
     // HTTP responds but WebSocket fails - port in use by something else.
     if (!profileState.running) {
       throw new BrowserProfileUnavailableError(
-        `Port ${profile.cdpPort} is in use for profile "${profile.name}" but not by assistant. ` +
+        `Port ${profile.cdpPort} is in use for profile "${profile.name}" but not by zhushou. ` +
           `Run action=reset-profile profile=${profile.name} to kill the process.`,
       );
     }
 
-    await stopAssistantChrome(profileState.running);
+    await stopZhushouChrome(profileState.running);
     setProfileRunning(null);
 
-    const relaunched = await launchAssistantChrome(current.resolved, profile);
+    const relaunched = await launchZhushouChrome(current.resolved, profile);
     attachRunning(relaunched);
 
     if (!(await isReachable(PROFILE_POST_RESTART_WS_TIMEOUT_MS))) {
@@ -287,7 +287,7 @@ export function createProfileAvailability({
       }
       return { stopped: idleStop.stopped };
     }
-    await stopAssistantChrome(profileState.running);
+    await stopZhushouChrome(profileState.running);
     setProfileRunning(null);
     return { stopped: true };
   };

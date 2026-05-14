@@ -22,12 +22,28 @@ export function retainSafeHeadersForCrossOriginRedirect(
   if (!headers) {
     return headers;
   }
-  const incoming = new Headers(headers);
   const safeHeaders: Record<string, string> = {};
-  for (const [key, value] of incoming.entries()) {
-    if (CROSS_ORIGIN_REDIRECT_SAFE_HEADERS.has(normalizeLowercaseStringOrEmpty(key))) {
-      safeHeaders[key] = value;
+  const incoming =
+    headers instanceof Headers
+      ? headers.entries()
+      : Array.isArray(headers)
+        ? headers
+        : Object.entries(headers);
+  for (const [key, value] of incoming) {
+    const normalizedKey = normalizeLowercaseStringOrEmpty(key);
+    const normalizedValue = normalizeHeaderValueForRedirect(value);
+    if (
+      CROSS_ORIGIN_REDIRECT_SAFE_HEADERS.has(normalizedKey) &&
+      normalizedKey &&
+      normalizedValue !== undefined
+    ) {
+      safeHeaders[normalizedKey] = normalizedValue;
     }
   }
   return safeHeaders;
+}
+
+function normalizeHeaderValueForRedirect(value: unknown): string | undefined {
+  const normalized = String(value);
+  return /^[\t\x20-\x7e\x80-\xff]*$/u.test(normalized) ? normalized : undefined;
 }

@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import type { AssistantChannelBridge } from "./channel-bridge.js";
+import type { ZhushouChannelBridge } from "./channel-bridge.js";
 import {
   extractAttachmentsFromMessage,
   resolveMessageId,
@@ -20,7 +20,7 @@ export function getChannelMcpCapabilities(claudeChannelMode: "off" | "on" | "aut
   };
 }
 
-export function registerChannelMcpTools(server: McpServer, bridge: AssistantChannelBridge): void {
+export function registerChannelMcpTools(server: McpServer, bridge: ZhushouChannelBridge): void {
   server.tool(
     "conversations_list",
     "List 助手 channel-backed conversations available through session routes.",

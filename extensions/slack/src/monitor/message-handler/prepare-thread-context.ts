@@ -1,10 +1,10 @@
-import { formatInboundEnvelope } from "assistant/plugin-sdk/channel-inbound";
-import type { ContextVisibilityMode } from "assistant/plugin-sdk/config-runtime";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { formatInboundEnvelope } from "zhushou/plugin-sdk/channel-inbound";
+import type { ContextVisibilityMode } from "zhushou/plugin-sdk/config-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import {
   filterSupplementalContextItems,
   shouldIncludeSupplementalContext,
-} from "assistant/plugin-sdk/security-runtime";
+} from "zhushou/plugin-sdk/security-runtime";
 import type { ResolvedSlackAccount } from "../../accounts.js";
 import type { SlackMessageEvent } from "../../types.js";
 import { resolveSlackAllowListMatch } from "../allow-list.js";
@@ -60,7 +60,7 @@ export async function resolveSlackThreadContextData(params: {
   allowNameMatching: boolean;
   contextVisibilityMode: ContextVisibilityMode;
   envelopeOptions: ReturnType<
-    typeof import("assistant/plugin-sdk/channel-inbound").resolveEnvelopeFormatOptions
+    typeof import("zhushou/plugin-sdk/channel-inbound").resolveEnvelopeFormatOptions
   >;
   effectiveDirectMedia: SlackMediaResult[] | null;
 }): Promise<SlackThreadContextData> {

@@ -27,7 +27,7 @@ export type ToolCallSummary = {
 };
 
 export type EmbeddedPiSubscribeState = {
-  assistantTexts: string[];
+  zhushouTexts: string[];
   toolMetas: Array<{ toolName?: string; meta?: string }>;
   toolMetaById: Map<string, ToolCallSummary>;
   toolSummaryById: Set<string>;
@@ -46,18 +46,18 @@ export type EmbeddedPiSubscribeState = {
   blockBuffer: string;
   blockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
   partialBlockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
-  lastStreamedAssistant?: string;
-  lastStreamedAssistantCleaned?: string;
-  emittedAssistantUpdate: boolean;
+  lastStreamedZhushou?: string;
+  lastStreamedZhushouCleaned?: string;
+  emittedZhushouUpdate: boolean;
   lastStreamedReasoning?: string;
   lastBlockReplyText?: string;
   reasoningStreamOpen: boolean;
-  assistantMessageIndex: number;
-  lastAssistantStreamItemId?: string;
-  lastAssistantTextMessageIndex: number;
-  lastAssistantTextNormalized?: string;
-  lastAssistantTextTrimmed?: string;
-  assistantTextBaseline: number;
+  zhushouMessageIndex: number;
+  lastZhushouStreamItemId?: string;
+  lastZhushouTextMessageIndex: number;
+  lastZhushouTextNormalized?: string;
+  lastZhushouTextTrimmed?: string;
+  zhushouTextBaseline: number;
   suppressBlockChunks: boolean;
   lastReasoningSent?: string;
 
@@ -83,7 +83,7 @@ export type EmbeddedPiSubscribeState = {
   pendingToolAudioAsVoice: boolean;
   deterministicApprovalPromptPending: boolean;
   deterministicApprovalPromptSent: boolean;
-  lastAssistant?: AgentMessage;
+  lastZhushou?: AgentMessage;
 };
 
 export type EmbeddedPiSubscribeContext = {
@@ -94,7 +94,7 @@ export type EmbeddedPiSubscribeContext = {
   blockChunker: EmbeddedBlockChunker | null;
   hookRunner?: HookRunner;
   builtinToolNames?: ReadonlySet<string>;
-  noteLastAssistant: (msg: AgentMessage) => void;
+  noteLastZhushou: (msg: AgentMessage) => void;
 
   shouldEmitToolResult: () => boolean;
   shouldEmitToolOutput: () => boolean;
@@ -104,8 +104,8 @@ export type EmbeddedPiSubscribeContext = {
     text: string,
     state: { thinking: boolean; final: boolean; inlineCode?: InlineCodeState },
   ) => string;
-  emitBlockChunk: (text: string, options?: { assistantMessageIndex?: number }) => void;
-  flushBlockReplyBuffer: (options?: { assistantMessageIndex?: number }) => void | Promise<void>;
+  emitBlockChunk: (text: string, options?: { zhushouMessageIndex?: number }) => void;
+  flushBlockReplyBuffer: (options?: { zhushouMessageIndex?: number }) => void | Promise<void>;
   emitReasoningStream: (text: string) => void;
   consumeReplyDirectives: (
     text: string,
@@ -115,9 +115,9 @@ export type EmbeddedPiSubscribeContext = {
     text: string,
     options?: { final?: boolean },
   ) => ReplyDirectiveParseResult | null;
-  resetAssistantMessageState: (nextAssistantTextBaseline: number) => void;
+  resetZhushouMessageState: (nextZhushouTextBaseline: number) => void;
   resetForCompactionRetry: () => void;
-  finalizeAssistantTexts: (args: {
+  finalizeZhushouTexts: (args: {
     text: string;
     addedDuringMessage: boolean;
     chunkerHasBuffered: boolean;
@@ -127,7 +127,7 @@ export type EmbeddedPiSubscribeContext = {
   noteCompactionRetry: () => void;
   resolveCompactionRetry: () => void;
   maybeResolveCompactionWait: () => void;
-  recordAssistantUsage: (usage: unknown) => void;
+  recordZhushouUsage: (usage: unknown) => void;
   incrementCompactionCount: () => void;
   getUsageTotals: () => NormalizedUsage | undefined;
   getCompactionCount: () => number;

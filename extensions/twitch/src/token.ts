@@ -2,15 +2,15 @@
  * Twitch access token resolution with environment variable support.
  *
  * Supports reading Twitch OAuth access tokens from config or environment variable.
- * The ASSISTANT_TWITCH_ACCESS_TOKEN env var is only used for the default account.
+ * The ZHUSHOU_TWITCH_ACCESS_TOKEN env var is only used for the default account.
  *
  * Token resolution priority:
  * 1. Account access token from merged config (accounts.{id} or base-level for default)
- * 2. Environment variable: ASSISTANT_TWITCH_ACCESS_TOKEN (default account only)
+ * 2. Environment variable: ZHUSHOU_TWITCH_ACCESS_TOKEN (default account only)
  */
 
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/routing";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/routing";
 
 export type TwitchTokenSource = "env" | "config" | "none";
 
@@ -39,7 +39,7 @@ function normalizeTwitchToken(raw?: string | null): string | undefined {
  *
  * Priority:
  * 1. Account access token (from merged config - base-level for default, or accounts.{accountId})
- * 2. Environment variable: ASSISTANT_TWITCH_ACCESS_TOKEN (default account only)
+ * 2. Environment variable: ZHUSHOU_TWITCH_ACCESS_TOKEN (default account only)
  *
  * The getAccountConfig function handles merging base-level config with accounts.default,
  * so this logic works for both simplified and multi-account patterns.
@@ -49,7 +49,7 @@ function normalizeTwitchToken(raw?: string | null): string | undefined {
  * @returns Token resolution with source
  */
 export function resolveTwitchToken(
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
   opts: { accountId?: string | null; envToken?: string | null } = {},
 ): TwitchTokenResolution {
   const accountId = normalizeAccountId(opts.accountId);
@@ -81,7 +81,7 @@ export function resolveTwitchToken(
   // Environment variable (default account only)
   const allowEnv = accountId === DEFAULT_ACCOUNT_ID;
   const envToken = allowEnv
-    ? normalizeTwitchToken(opts.envToken ?? process.env.ASSISTANT_TWITCH_ACCESS_TOKEN)
+    ? normalizeTwitchToken(opts.envToken ?? process.env.ZHUSHOU_TWITCH_ACCESS_TOKEN)
     : undefined;
   if (envToken) {
     return { token: envToken, source: "env" };

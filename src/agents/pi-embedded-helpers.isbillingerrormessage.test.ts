@@ -32,7 +32,7 @@ const ANTHROPIC_OVERLOADED_PAYLOAD =
 // OpenRouter 402 billing example: https://openrouter.ai/docs/api-reference/errors
 const OPENROUTER_CREDITS_MESSAGE = "Payment Required: insufficient credits";
 // Issue-backed Anthropic/OpenAI-compatible insufficient_quota payload under HTTP 400:
-// https://github.com/assistant/assistant/issues/23440
+// https://github.com/wang301208/zhushou/issues/23440
 const INSUFFICIENT_QUOTA_PAYLOAD =
   '{"type":"error","error":{"type":"insufficient_quota","message":"Your account has insufficient quota balance to run this request."}}'; // pragma: allowlist secret
 // Together AI error code examples: https://docs.together.ai/docs/error-codes
@@ -172,8 +172,8 @@ describe("isBillingErrorMessage", () => {
     expectMessageMatches(isBillingErrorMessage, samples, expected);
   });
 
-  it("does not false-positive on long assistant responses mentioning billing keywords", () => {
-    // Simulate a multi-paragraph assistant response that mentions billing terms
+  it("does not false-positive on long zhushou responses mentioning billing keywords", () => {
+    // Simulate a multi-paragraph zhushou response that mentions billing terms
     const longResponse =
       "Sure! Here's how to set up billing for your SaaS application.\n\n" +
       "## Payment Integration\n\n" +
@@ -672,7 +672,7 @@ describe("classifyFailoverReason", () => {
     expect(classifyFailoverReason("HTTP 410: insufficient credits")).toBe("billing");
   });
 
-  it("classifies HTTP 404 assistant errors as model_not_found so model fallback can continue", () => {
+  it("classifies HTTP 404 zhushou errors as model_not_found so model fallback can continue", () => {
     expect(classifyFailoverReason("404 status code (no body)")).toBe("model_not_found");
     expect(classifyFailoverReason("HTTP 404: No body")).toBe("model_not_found");
   });
@@ -944,7 +944,7 @@ describe("classifyFailoverReason", () => {
     expect(classifyFailoverReason("no api key found")).toBe("auth");
     expect(
       classifyFailoverReason(
-        'No API key found for provider "openai". Auth store: /tmp/assistant-agent-abc/auth-profiles.json (agentDir: /tmp/assistant-agent-abc).',
+        'No API key found for provider "openai". Auth store: /tmp/zhushou-agent-abc/auth-profiles.json (agentDir: /tmp/zhushou-agent-abc).',
       ),
     ).toBe("auth");
     expect(classifyFailoverReason("You have insufficient permissions for this operation.")).toBe(

@@ -2,8 +2,8 @@ import {
   createAllowFromSection,
   createStandardChannelSetupStatus,
   mergeAllowFromEntries,
-} from "assistant/plugin-sdk/setup";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/setup";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { resolveDefaultLineAccountId } from "./accounts.js";
 import {
   isLineConfigured,

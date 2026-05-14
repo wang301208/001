@@ -7,7 +7,7 @@ export type PluginConfigUiHint = {
   placeholder?: string;
 };
 
-export type PluginFormat = "assistant" | "bundle";
+export type PluginFormat = "zhushou" | "bundle";
 
 export type PluginBundleFormat = "codex" | "claude" | "cursor";
 

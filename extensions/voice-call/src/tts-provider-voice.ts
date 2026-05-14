@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import type { VoiceCallTtsConfig } from "./config.js";
 
 function resolveProviderVoiceSetting(providerConfig: unknown): string | undefined {

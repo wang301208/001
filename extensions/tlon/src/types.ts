@@ -3,12 +3,12 @@ import {
   listCombinedAccountIds,
   normalizeAccountId,
   resolveMergedAccountConfig,
-} from "assistant/plugin-sdk/account-resolution";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/account-resolution";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   hasLegacyFlatAllowPrivateNetworkAlias,
   isPrivateNetworkOptInEnabled,
-} from "assistant/plugin-sdk/ssrf-runtime";
+} from "zhushou/plugin-sdk/ssrf-runtime";
 
 type TlonAccountConfig = {
   name?: string;
@@ -53,12 +53,12 @@ export type TlonResolvedAccount = {
   ownerShip: string | null;
 };
 
-function resolveTlonChannelConfig(cfg: AssistantConfig): TlonAccountConfig | undefined {
+function resolveTlonChannelConfig(cfg: ZhushouConfig): TlonAccountConfig | undefined {
   return cfg.channels?.tlon as TlonAccountConfig | undefined;
 }
 
 function resolveMergedTlonAccountConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
 ): Record<string, unknown> & TlonAccountConfig {
   const channel = resolveTlonChannelConfig(cfg);
@@ -76,7 +76,7 @@ function resolveMergedTlonAccountConfig(
 }
 
 export function resolveTlonAccount(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId?: string | null,
 ): TlonResolvedAccount {
   const resolvedAccountId = normalizeAccountId(accountId);
@@ -148,7 +148,7 @@ export function resolveTlonAccount(
   };
 }
 
-export function listTlonAccountIds(cfg: AssistantConfig): string[] {
+export function listTlonAccountIds(cfg: ZhushouConfig): string[] {
   const base = resolveTlonChannelConfig(cfg);
   if (!base) {
     return [];

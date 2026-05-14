@@ -1,5 +1,5 @@
 import { resolveThinkingDefaultForModel } from "../auto-reply/thinking.shared.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -11,7 +11,7 @@ import { normalizeModelSelection } from "./model-selection-resolve.js";
 type ThinkLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "adaptive";
 
 export function resolveThinkingDefault(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   provider: string;
   model: string;
   catalog?: ModelCatalogEntry[];

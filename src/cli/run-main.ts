@@ -4,13 +4,13 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { CommanderError } from "commander";
 import { resolveStateDir } from "../config/paths.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { consumeRootOptionToken, FLAG_TERMINATOR } from "../infra/cli-root-options.js";
 import { normalizeEnv } from "../infra/env.js";
 import { formatUncaughtError } from "../infra/errors.js";
 import { isMainModule } from "../infra/is-main.js";
 import { ensureGlobalUndiciEnvProxyDispatcher } from "../infra/net/undici-global-dispatcher.js";
-import { ensureAssistantCliOnPath } from "../infra/path-env.js";
+import { ensureZhushouCliOnPath } from "../infra/path-env.js";
 import { assertSupportedRuntime } from "../infra/runtime-guard.js";
 import { enableConsoleCapture } from "../logging.js";
 import type { PluginManifestCommandAliasRegistry } from "../plugins/manifest-command-aliases.js";
@@ -108,15 +108,15 @@ export function shouldRunTuiByDefault(argv: string[]): boolean {
 }
 
 export function shouldRunStdioGateway(argv: string[]): boolean {
-  void argv;
-  return false;
+  const invocation = resolveCliArgvInvocation(argv);
+  return invocation.primary === "stdio-gateway" && !invocation.hasHelpOrVersion;
 }
 
 export { resolveExplicitTuiFastPathOptions } from "./tui-fast-path.js";
 
 export function resolveMissingPluginCommandMessage(
   pluginId: string,
-  config?: AssistantConfig,
+  config?: ZhushouConfig,
   options?: { registry?: PluginManifestCommandAliasRegistry },
 ): string | null {
   const normalizedPluginId = normalizeLowercaseStringOrEmpty(pluginId);
@@ -146,14 +146,14 @@ export function resolveMissingPluginCommandMessage(
     }
     if (config?.plugins?.entries?.[parentPluginId]?.enabled === false) {
       return (
-        `The \`assistant ${normalizedPluginId}\` command is unavailable because ` +
+        `The \`zhushou ${normalizedPluginId}\` command is unavailable because ` +
         `\`plugins.entries.${parentPluginId}.enabled=false\`. Re-enable that entry if you want ` +
         "the bundled plugin command surface."
       );
     }
     if (commandAlias.kind === "runtime-slash") {
       const cliHint = commandAlias.cliCommand
-        ? `Use \`assistant ${commandAlias.cliCommand}\` for related CLI operations, or `
+        ? `Use \`zhushou ${commandAlias.cliCommand}\` for related CLI operations, or `
         : "Use ";
       return (
         `"${normalizedPluginId}" is a runtime slash command (/${normalizedPluginId}), not a CLI command. ` +
@@ -168,14 +168,14 @@ export function resolveMissingPluginCommandMessage(
       return null;
     }
     return (
-      `The \`assistant ${normalizedPluginId}\` command is unavailable because ` +
+      `The \`zhushou ${normalizedPluginId}\` command is unavailable because ` +
       `\`plugins.allow\` excludes "${normalizedPluginId}". Add "${normalizedPluginId}" to ` +
       `\`plugins.allow\` if you want that bundled plugin CLI surface.`
     );
   }
   if (config?.plugins?.entries?.[normalizedPluginId]?.enabled === false) {
     return (
-      `The \`assistant ${normalizedPluginId}\` command is unavailable because ` +
+      `The \`zhushou ${normalizedPluginId}\` command is unavailable because ` +
       `\`plugins.entries.${normalizedPluginId}.enabled=false\`. Re-enable that entry if you want ` +
       "the bundled plugin CLI surface."
     );
@@ -204,7 +204,7 @@ export async function runCli(argv: string[] = process.argv) {
     applyCliProfileEnv({ profile: parsedProfile.profile });
   }
   const containerTargetName =
-    parsedContainer.container ?? normalizeOptionalString(process.env.ASSISTANT_CONTAINER) ?? null;
+    parsedContainer.container ?? normalizeOptionalString(process.env.ZHUSHOU_CONTAINER) ?? null;
   if (containerTargetName && parsedProfile.profile) {
     throw new Error("--container cannot be combined with --profile/--dev");
   }
@@ -226,6 +226,12 @@ export async function runCli(argv: string[] = process.argv) {
     return;
   }
 
+  if (shouldRunStdioGateway(normalizedArgv)) {
+    const { runGatewayStdioBridge } = await import("../gateway/stdio-bridge.js");
+    await runGatewayStdioBridge();
+    return;
+  }
+
   if (shouldLoadCliDotEnv()) {
     const { loadCliDotEnv } = await import("./dotenv.js");
     loadCliDotEnv({ quiet: true });
@@ -238,7 +244,7 @@ export async function runCli(argv: string[] = process.argv) {
   ensureGlobalUndiciEnvProxyDispatcher();
   maybeWarnAboutDebugProxyCoverage();
   if (shouldEnsureCliPath(normalizedArgv)) {
-    ensureAssistantCliOnPath();
+    ensureZhushouCliOnPath();
   }
 
   // Enforce the minimum supported runtime before doing any work.
@@ -280,7 +286,7 @@ export async function runCli(argv: string[] = process.argv) {
     installUnhandledRejectionHandler();
 
     process.on("uncaughtException", (error) => {
-      console.error("[assistant] Uncaught exception:", formatUncaughtError(error));
+      console.error("[zhushou] Uncaught exception:", formatUncaughtError(error));
       restoreTerminalState("uncaught exception", { resumeStdinIfPaused: false });
       process.exit(1);
     });

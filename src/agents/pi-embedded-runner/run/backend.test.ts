@@ -7,22 +7,22 @@ describe("resolveEmbeddedAgentRuntime", () => {
   });
 
   it("accepts the PI kill switch", () => {
-    expect(resolveEmbeddedAgentRuntime({ ASSISTANT_AGENT_RUNTIME: "pi" })).toBe("pi");
+    expect(resolveEmbeddedAgentRuntime({ ZHUSHOU_AGENT_RUNTIME: "pi" })).toBe("pi");
   });
 
   it("preserves plugin harness ids without core-owned aliases", () => {
-    expect(resolveEmbeddedAgentRuntime({ ASSISTANT_AGENT_RUNTIME: "codex" })).toBe("codex");
-    expect(resolveEmbeddedAgentRuntime({ ASSISTANT_AGENT_RUNTIME: "codex-app-server" })).toBe(
+    expect(resolveEmbeddedAgentRuntime({ ZHUSHOU_AGENT_RUNTIME: "codex" })).toBe("codex");
+    expect(resolveEmbeddedAgentRuntime({ ZHUSHOU_AGENT_RUNTIME: "codex-app-server" })).toBe(
       "codex-app-server",
     );
   });
 
   it("accepts auto mode", () => {
-    expect(resolveEmbeddedAgentRuntime({ ASSISTANT_AGENT_RUNTIME: "auto" })).toBe("auto");
+    expect(resolveEmbeddedAgentRuntime({ ZHUSHOU_AGENT_RUNTIME: "auto" })).toBe("auto");
   });
 
   it("preserves plugin harness runtime ids", () => {
-    expect(resolveEmbeddedAgentRuntime({ ASSISTANT_AGENT_RUNTIME: "custom-harness" })).toBe(
+    expect(resolveEmbeddedAgentRuntime({ ZHUSHOU_AGENT_RUNTIME: "custom-harness" })).toBe(
       "custom-harness",
     );
   });
@@ -30,17 +30,17 @@ describe("resolveEmbeddedAgentRuntime", () => {
 
 describe("resolveEmbeddedAgentHarnessFallback", () => {
   it("accepts the PI fallback kill switch", () => {
-    expect(resolveEmbeddedAgentHarnessFallback({ ASSISTANT_AGENT_HARNESS_FALLBACK: "none" })).toBe(
+    expect(resolveEmbeddedAgentHarnessFallback({ ZHUSHOU_AGENT_HARNESS_FALLBACK: "none" })).toBe(
       "none",
     );
-    expect(resolveEmbeddedAgentHarnessFallback({ ASSISTANT_AGENT_HARNESS_FALLBACK: "pi" })).toBe(
+    expect(resolveEmbeddedAgentHarnessFallback({ ZHUSHOU_AGENT_HARNESS_FALLBACK: "pi" })).toBe(
       "pi",
     );
   });
 
   it("ignores unknown fallback values", () => {
     expect(
-      resolveEmbeddedAgentHarnessFallback({ ASSISTANT_AGENT_HARNESS_FALLBACK: "custom" }),
+      resolveEmbeddedAgentHarnessFallback({ ZHUSHOU_AGENT_HARNESS_FALLBACK: "custom" }),
     ).toBeUndefined();
   });
 });

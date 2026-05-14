@@ -1,5 +1,5 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 export default definePluginEntry({
   id: "acpx",

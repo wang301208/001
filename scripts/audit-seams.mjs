@@ -508,7 +508,7 @@ async function buildMissingPackages(params = {}) {
       decisionReason: classification.reason,
       packageName: pkg.name ?? meta.packageName,
       packagePath: relativePackagePath,
-      npmSpec: redactNpmSpec(pkg.assistant?.install?.npmSpec),
+      npmSpec: redactNpmSpec(pkg.zhushou?.install?.npmSpec),
       private: pkg.private === true,
       pluginSdkReachability:
         pluginSdkEntries.length > 0 ? { staticEntryPoints: pluginSdkEntries } : undefined,

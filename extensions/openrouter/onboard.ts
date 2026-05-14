@@ -1,11 +1,11 @@
 import {
   applyAgentDefaultModelPrimary,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/provider-onboard";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/provider-onboard";
 
 export const OPENROUTER_DEFAULT_MODEL_REF = "openrouter/auto";
 
-export function applyOpenrouterProviderConfig(cfg: AssistantConfig): AssistantConfig {
+export function applyOpenrouterProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[OPENROUTER_DEFAULT_MODEL_REF] = {
     ...models[OPENROUTER_DEFAULT_MODEL_REF],
@@ -24,7 +24,7 @@ export function applyOpenrouterProviderConfig(cfg: AssistantConfig): AssistantCo
   };
 }
 
-export function applyOpenrouterConfig(cfg: AssistantConfig): AssistantConfig {
+export function applyOpenrouterConfig(cfg: ZhushouConfig): ZhushouConfig {
   return applyAgentDefaultModelPrimary(
     applyOpenrouterProviderConfig(cfg),
     OPENROUTER_DEFAULT_MODEL_REF,

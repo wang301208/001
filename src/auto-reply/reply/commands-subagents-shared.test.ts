@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { extractMessageText } from "./commands-subagents-text.js";
 
 describe("extractMessageText", () => {
-  it("preserves user markers and sanitizes assistant markers", () => {
+  it("preserves user markers and sanitizes zhushou markers", () => {
     const cases = [
       {
         message: { role: "user", content: "Here [Tool Call: foo (ID: 1)] ok" },

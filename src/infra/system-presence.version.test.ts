@@ -12,8 +12,8 @@ async function withPresenceModule<T>(
 ): Promise<T> {
   return withEnvAsync(
     {
-      ASSISTANT_VERSION: undefined,
-      ASSISTANT_SERVICE_VERSION: undefined,
+      ZHUSHOU_VERSION: undefined,
+      ZHUSHOU_SERVICE_VERSION: undefined,
       npm_package_version: undefined,
       ...env,
     },
@@ -44,32 +44,32 @@ describe("system-presence version fallback", () => {
     });
   }
 
-  it("uses runtime VERSION when ASSISTANT_VERSION is not set", async () => {
+  it("uses runtime VERSION when ZHUSHOU_VERSION is not set", async () => {
     await expectSelfVersion(
       {
-        ASSISTANT_SERVICE_VERSION: "2.4.6-service",
+        ZHUSHOU_SERVICE_VERSION: "2.4.6-service",
         npm_package_version: "1.0.0-package",
       },
       runtimeVersion,
     );
   });
 
-  it("prefers ASSISTANT_VERSION over runtime VERSION", async () => {
+  it("prefers ZHUSHOU_VERSION over runtime VERSION", async () => {
     await expectSelfVersion(
       {
-        ASSISTANT_VERSION: "9.9.9-cli",
-        ASSISTANT_SERVICE_VERSION: "2.4.6-service",
+        ZHUSHOU_VERSION: "9.9.9-cli",
+        ZHUSHOU_SERVICE_VERSION: "2.4.6-service",
         npm_package_version: "1.0.0-package",
       },
       "9.9.9-cli",
     );
   });
 
-  it("still prefers runtime VERSION over ASSISTANT_SERVICE_VERSION when ASSISTANT_VERSION is blank", async () => {
+  it("still prefers runtime VERSION over ZHUSHOU_SERVICE_VERSION when ZHUSHOU_VERSION is blank", async () => {
     await expectSelfVersion(
       {
-        ASSISTANT_VERSION: " ",
-        ASSISTANT_SERVICE_VERSION: "2.4.6-service",
+        ZHUSHOU_VERSION: " ",
+        ZHUSHOU_SERVICE_VERSION: "2.4.6-service",
         npm_package_version: "1.0.0-package",
       },
       runtimeVersion,
@@ -79,19 +79,19 @@ describe("system-presence version fallback", () => {
   it("still prefers runtime VERSION over npm_package_version when service markers are blank", async () => {
     await expectSelfVersion(
       {
-        ASSISTANT_VERSION: " ",
-        ASSISTANT_SERVICE_VERSION: "\t",
+        ZHUSHOU_VERSION: " ",
+        ZHUSHOU_SERVICE_VERSION: "\t",
         npm_package_version: "1.0.0-package",
       },
       runtimeVersion,
     );
   });
 
-  it("uses runtime VERSION when ASSISTANT_VERSION and ASSISTANT_SERVICE_VERSION are blank", async () => {
+  it("uses runtime VERSION when ZHUSHOU_VERSION and ZHUSHOU_SERVICE_VERSION are blank", async () => {
     await expectSelfVersion(
       {
-        ASSISTANT_VERSION: " ",
-        ASSISTANT_SERVICE_VERSION: "\t",
+        ZHUSHOU_VERSION: " ",
+        ZHUSHOU_SERVICE_VERSION: "\t",
         npm_package_version: "1.0.0-package",
       },
       runtimeVersion,

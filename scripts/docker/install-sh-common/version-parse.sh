@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-extract_assistant_semver() {
+extract_zhushou_semver() {
   local raw="${1:-}"
   local parsed=""
   parsed="$(

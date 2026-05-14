@@ -1,6 +1,6 @@
 import { callGateway } from "../gateway/call.js";
 import { formatErrorMessage } from "../infra/errors.js";
-import { extractAssistantText, stripToolMessages } from "./tools/chat-history-text.js";
+import { extractZhushouText, stripToolMessages } from "./tools/chat-history-text.js";
 
 type GatewayCaller = typeof callGateway;
 
@@ -12,7 +12,7 @@ let runWaitDeps: {
   callGateway: GatewayCaller;
 } = defaultRunWaitDeps;
 
-export type AssistantReplySnapshot = {
+export type ZhushouReplySnapshot = {
   text?: string;
   fingerprint?: string;
 };
@@ -61,7 +61,7 @@ function normalizePendingRunIds(runIds: Iterable<string>): string[] {
   return [...seen];
 }
 
-function resolveLatestAssistantReplySnapshot(messages: unknown[]): AssistantReplySnapshot {
+function resolveLatestZhushouReplySnapshot(messages: unknown[]): ZhushouReplySnapshot {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const candidate = messages[i];
     if (!candidate || typeof candidate !== "object") {
@@ -70,7 +70,7 @@ function resolveLatestAssistantReplySnapshot(messages: unknown[]): AssistantRepl
     if ((candidate as { role?: unknown }).role !== "assistant") {
       continue;
     }
-    const text = extractAssistantText(candidate);
+    const text = extractZhushouText(candidate);
     if (!text?.trim()) {
       continue;
     }
@@ -85,29 +85,29 @@ function resolveLatestAssistantReplySnapshot(messages: unknown[]): AssistantRepl
   return {};
 }
 
-export async function readLatestAssistantReplySnapshot(params: {
+export async function readLatestZhushouReplySnapshot(params: {
   sessionKey: string;
   limit?: number;
   callGateway?: GatewayCaller;
-}): Promise<AssistantReplySnapshot> {
+}): Promise<ZhushouReplySnapshot> {
   const history = await (params.callGateway ?? runWaitDeps.callGateway)<{
     messages: Array<unknown>;
   }>({
     method: "chat.history",
     params: { sessionKey: params.sessionKey, limit: params.limit ?? 50 },
   });
-  return resolveLatestAssistantReplySnapshot(
+  return resolveLatestZhushouReplySnapshot(
     stripToolMessages(Array.isArray(history?.messages) ? history.messages : []),
   );
 }
 
-export async function readLatestAssistantReply(params: {
+export async function readLatestZhushouReply(params: {
   sessionKey: string;
   limit?: number;
   callGateway?: GatewayCaller;
 }): Promise<string | undefined> {
   return (
-    await readLatestAssistantReplySnapshot({
+    await readLatestZhushouReplySnapshot({
       sessionKey: params.sessionKey,
       limit: params.limit,
       callGateway: params.callGateway,
@@ -149,12 +149,12 @@ export async function waitForAgentRun(params: {
   }
 }
 
-export async function waitForAgentRunAndReadUpdatedAssistantReply(params: {
+export async function waitForAgentRunAndReadUpdatedZhushouReply(params: {
   runId: string;
   sessionKey: string;
   timeoutMs: number;
   limit?: number;
-  baseline?: AssistantReplySnapshot;
+  baseline?: ZhushouReplySnapshot;
   callGateway?: GatewayCaller;
 }): Promise<AgentWaitResult & { replyText?: string }> {
   const wait = await waitForAgentRun({
@@ -166,7 +166,7 @@ export async function waitForAgentRunAndReadUpdatedAssistantReply(params: {
     return wait;
   }
 
-  const latestReply = await readLatestAssistantReplySnapshot({
+  const latestReply = await readLatestZhushouReplySnapshot({
     sessionKey: params.sessionKey,
     limit: params.limit,
     callGateway: params.callGateway,

@@ -19,7 +19,7 @@ describe("buildProviderReplayFamilyHooks", () => {
         },
         match: {
           sanitizeToolCallIds: true,
-          applyAssistantFirstOrderingFix: true,
+          applyZhushouFirstOrderingFix: true,
           validateGeminiTurns: true,
         },
         hasSanitizeReplayHistory: false,
@@ -81,7 +81,7 @@ describe("buildProviderReplayFamilyHooks", () => {
           modelId: "gemini-2.5-pro",
         },
         match: {
-          applyAssistantFirstOrderingFix: false,
+          applyZhushouFirstOrderingFix: false,
           validateGeminiTurns: false,
           validateAnthropicTurns: false,
           sanitizeThoughtSignatures: {
@@ -187,7 +187,7 @@ describe("buildProviderReplayFamilyHooks", () => {
       } as never),
     ).toMatchObject({
       sanitizeToolCallIds: true,
-      applyAssistantFirstOrderingFix: true,
+      applyZhushouFirstOrderingFix: true,
       validateGeminiTurns: true,
     });
 
@@ -198,7 +198,7 @@ describe("buildProviderReplayFamilyHooks", () => {
         modelId: "gemini-2.5-pro",
       } as never),
     ).toMatchObject({
-      applyAssistantFirstOrderingFix: false,
+      applyZhushouFirstOrderingFix: false,
       validateGeminiTurns: false,
       validateAnthropicTurns: false,
       sanitizeThoughtSignatures: {

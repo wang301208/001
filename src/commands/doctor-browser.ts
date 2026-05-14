@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { loadBundledPluginPublicSurfaceModuleSync } from "../plugin-sdk/facade-loader.js";
 import { note } from "../terminal/note.js";
 
@@ -10,7 +10,7 @@ type BrowserDoctorDeps = {
 };
 
 type BrowserDoctorSurface = {
-  noteChromeMcpBrowserReadiness: (cfg: AssistantConfig, deps?: BrowserDoctorDeps) => Promise<void>;
+  noteChromeMcpBrowserReadiness: (cfg: ZhushouConfig, deps?: BrowserDoctorDeps) => Promise<void>;
 };
 
 function loadBrowserDoctorSurface(): BrowserDoctorSurface {
@@ -20,7 +20,7 @@ function loadBrowserDoctorSurface(): BrowserDoctorSurface {
   });
 }
 
-export async function noteChromeMcpBrowserReadiness(cfg: AssistantConfig, deps?: BrowserDoctorDeps) {
+export async function noteChromeMcpBrowserReadiness(cfg: ZhushouConfig, deps?: BrowserDoctorDeps) {
   try {
     await loadBrowserDoctorSurface().noteChromeMcpBrowserReadiness(cfg, deps);
   } catch (error) {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import {
-  coercePdfAssistantText,
+  coercePdfZhushouText,
   coercePdfModelConfig,
   parsePageRange,
   providerSupportsNativePdf,
@@ -106,16 +106,16 @@ describe("pdf-tool.helpers", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
     expect(coercePdfModelConfig(cfg)).toEqual({
       primary: ANTHROPIC_PDF_MODEL,
       fallbacks: ["google/gemini-2.5-pro"],
     });
   });
 
-  it("coercePdfAssistantText returns trimmed text", () => {
+  it("coercePdfZhushouText returns trimmed text", () => {
     expect(
-      coercePdfAssistantText({
+      coercePdfZhushouText({
         provider: "anthropic",
         model: "claude-opus-4-7",
         message: {
@@ -127,9 +127,9 @@ describe("pdf-tool.helpers", () => {
     ).toBe("summary");
   });
 
-  it("coercePdfAssistantText throws clear error for failed model output", () => {
+  it("coercePdfZhushouText throws clear error for failed model output", () => {
     expect(() =>
-      coercePdfAssistantText({
+      coercePdfZhushouText({
         provider: "google",
         model: "gemini-2.5-pro",
         message: {

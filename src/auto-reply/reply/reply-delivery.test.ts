@@ -129,7 +129,7 @@ describe("createBlockReplyDeliveryHandler", () => {
     const blockReplyPipeline = {
       enqueue: vi.fn(),
     } as unknown as BlockReplyPipelineLike;
-    const absPath = path.join("/tmp/home", "assistant", "image.png");
+    const absPath = path.join("/tmp/home", "zhushou", "image.png");
 
     const handler = createBlockReplyDeliveryHandler({
       onBlockReply: vi.fn(async () => {}),
@@ -179,7 +179,7 @@ describe("createBlockReplyDeliveryHandler", () => {
       directlySentBlockKeys: new Set(),
     });
 
-    const payload = setReplyPayloadMetadata({ text: "Alpha" }, { assistantMessageIndex: 7 });
+    const payload = setReplyPayloadMetadata({ text: "Alpha" }, { zhushouMessageIndex: 7 });
 
     await handler(payload);
 
@@ -194,7 +194,7 @@ describe("createBlockReplyDeliveryHandler", () => {
       mediaUrls: undefined,
     });
     expect(getReplyPayloadMetadata(enqueuedPayload)).toEqual({
-      assistantMessageIndex: 7,
+      zhushouMessageIndex: 7,
     });
   });
 });

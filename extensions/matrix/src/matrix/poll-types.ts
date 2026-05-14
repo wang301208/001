@@ -7,8 +7,8 @@
  * - m.poll.end - Closes a poll
  */
 
-import { normalizePollInput, type PollInput } from "assistant/plugin-sdk/poll-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
+import { normalizePollInput, type PollInput } from "zhushou/plugin-sdk/poll-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
 
 export const M_POLL_START = "m.poll.start" as const;
 export const M_POLL_RESPONSE = "m.poll.response" as const;

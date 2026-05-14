@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { AssistantSchema } from "./zod-schema.js";
+import { ZhushouSchema } from "./zod-schema.js";
 
-describe("AssistantSchema talk validation", () => {
+describe("ZhushouSchema talk validation", () => {
   it("accepts a positive integer talk.silenceTimeoutMs", () => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         talk: {
           silenceTimeoutMs: 1500,
         },
@@ -18,7 +18,7 @@ describe("AssistantSchema talk validation", () => {
     ["float", 1500.5],
   ])("rejects %s talk.silenceTimeoutMs", (_label, value) => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         talk: {
           silenceTimeoutMs: value,
         },
@@ -28,7 +28,7 @@ describe("AssistantSchema talk validation", () => {
 
   it("rejects talk.provider when it does not match talk.providers", () => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         talk: {
           provider: "acme",
           providers: {
@@ -43,7 +43,7 @@ describe("AssistantSchema talk validation", () => {
 
   it("rejects multi-provider talk config without talk.provider", () => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         talk: {
           providers: {
             acme: {

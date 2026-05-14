@@ -91,12 +91,12 @@ describe("registerBackupCommand", () => {
   });
 
   it("runs backup verify with forwarded options", async () => {
-    await runCli(["backup", "verify", "/tmp/assistant-backup.tar.gz", "--json"]);
+    await runCli(["backup", "verify", "/tmp/zhushou-backup.tar.gz", "--json"]);
 
     expect(backupVerifyCommand).toHaveBeenCalledWith(
       runtime,
       expect.objectContaining({
-        archive: "/tmp/assistant-backup.tar.gz",
+        archive: "/tmp/zhushou-backup.tar.gz",
         json: true,
       }),
     );

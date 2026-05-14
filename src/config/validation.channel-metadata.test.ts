@@ -80,7 +80,7 @@ function createPluginManifestRecord(
     channels: [],
     cliBackends: [],
     hooks: [],
-    manifestPath: `/tmp/${overrides.id}/assistant.plugin.json`,
+    manifestPath: `/tmp/${overrides.id}/zhushou.plugin.json`,
     origin: "bundled",
     providers: [],
     rootDir: `/tmp/${overrides.id}`,
@@ -106,7 +106,7 @@ vi.mock("../channels/plugins/legacy-config.js", () => ({
 }));
 
 vi.mock("./zod-schema.js", () => ({
-  AssistantSchema: {
+  ZhushouSchema: {
     safeParse: (raw: unknown) => ({ success: true, data: raw }),
   },
 }));

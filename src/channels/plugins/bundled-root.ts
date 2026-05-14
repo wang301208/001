@@ -1,10 +1,10 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveAssistantPackageRootSync } from "../../infra/assistant-root.js";
+import { resolveZhushouPackageRootSync } from "../../infra/zhushou-root.js";
 import { resolveBundledPluginsDir } from "../../plugins/bundled-dir.js";
 
-const ASSISTANT_PACKAGE_ROOT =
-  resolveAssistantPackageRootSync({
+const ZHUSHOU_PACKAGE_ROOT =
+  resolveZhushouPackageRootSync({
     argv1: process.argv[1],
     cwd: process.cwd(),
     moduleUrl: import.meta.url.startsWith("file:") ? import.meta.url : undefined,
@@ -34,8 +34,8 @@ export function resolveBundledChannelRootScope(
   const bundledPluginsDir = resolveBundledPluginsDir(env);
   if (!bundledPluginsDir) {
     return {
-      packageRoot: ASSISTANT_PACKAGE_ROOT,
-      cacheKey: ASSISTANT_PACKAGE_ROOT,
+      packageRoot: ZHUSHOU_PACKAGE_ROOT,
+      cacheKey: ZHUSHOU_PACKAGE_ROOT,
     };
   }
   const resolvedPluginsDir = path.resolve(bundledPluginsDir);

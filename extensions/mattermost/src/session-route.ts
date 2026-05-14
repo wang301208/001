@@ -4,9 +4,9 @@ import {
   stripChannelTargetPrefix,
   stripTargetKindPrefix,
   type ChannelOutboundSessionRouteParams,
-} from "assistant/plugin-sdk/core";
-import { normalizeOutboundThreadId } from "assistant/plugin-sdk/routing";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/core";
+import { normalizeOutboundThreadId } from "zhushou/plugin-sdk/routing";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 export function resolveMattermostOutboundSessionRoute(params: ChannelOutboundSessionRouteParams) {
   let trimmed = stripChannelTargetPrefix(params.target, "mattermost");

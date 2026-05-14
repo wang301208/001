@@ -42,7 +42,7 @@ async function seedSessionStore(params: {
 }
 
 async function createCompactionSessionFixture(entry: SessionEntry) {
-  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-compact-"));
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-compact-"));
   tempDirs.push(tmp);
   const storePath = path.join(tmp, "sessions.json");
   const sessionKey = "main";
@@ -366,8 +366,8 @@ describe("hasAlreadyFlushedForCurrentCompaction", () => {
 });
 
 describe("resolveMemoryFlushContextWindowTokens", () => {
-  it("falls back to agent config or default tokens", () => {
-    expect(resolveMemoryFlushContextWindowTokens({ agentCfgContextTokens: 42_000 })).toBe(42_000);
+  it("enforces the default minimum context window for smaller agent config values", () => {
+    expect(resolveMemoryFlushContextWindowTokens({ agentCfgContextTokens: 42_000 })).toBe(128_000);
   });
 
   it("uses provider-specific configured limits when the same model id exists on multiple providers", () => {
@@ -395,7 +395,7 @@ describe("resolveMemoryFlushContextWindowTokens", () => {
     ).toBe(200_000);
   });
 
-  it("prefers agent contextTokens override over the provider configured window", () => {
+  it("enforces the default minimum context window over smaller agent overrides", () => {
     const cfg = {
       models: {
         providers: {
@@ -410,7 +410,7 @@ describe("resolveMemoryFlushContextWindowTokens", () => {
         modelId: "shared-model",
         agentCfgContextTokens: 100_000,
       }),
-    ).toBe(100_000);
+    ).toBe(128_000);
   });
 });
 
@@ -460,7 +460,7 @@ describe("incrementCompactionCount", () => {
 
   it("updates sessionId and sessionFile when compaction rotated transcripts", async () => {
     const { stored, sessionKey, expectedDir } = await rotateCompactionSessionFile({
-      tempPrefix: "assistant-compact-rotate-",
+      tempPrefix: "zhushou-compact-rotate-",
       sessionFile: (tmp) => path.join(tmp, "s1-topic-456.jsonl"),
       newSessionId: "s2",
     });
@@ -470,7 +470,7 @@ describe("incrementCompactionCount", () => {
 
   it("preserves fork transcript filenames when compaction rotates transcripts", async () => {
     const { stored, sessionKey, expectedDir } = await rotateCompactionSessionFile({
-      tempPrefix: "assistant-compact-fork-",
+      tempPrefix: "zhushou-compact-fork-",
       sessionFile: (tmp) => path.join(tmp, "2026-03-23T12-34-56-789Z_s1.jsonl"),
       newSessionId: "s2",
     });
@@ -482,7 +482,7 @@ describe("incrementCompactionCount", () => {
 
   it("keeps rewritten absolute sessionFile paths that stay inside the sessions directory", async () => {
     const { stored, sessionKey, expectedDir } = await rotateCompactionSessionFile({
-      tempPrefix: "assistant-compact-unsafe-",
+      tempPrefix: "zhushou-compact-unsafe-",
       sessionFile: (tmp) => path.join(tmp, "outside", "s1.jsonl"),
       newSessionId: "s2",
     });

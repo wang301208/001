@@ -1,5 +1,5 @@
 ﻿import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 
 const createFeishuClientMock = vi.hoisted(() => vi.fn());
 
@@ -7,7 +7,7 @@ vi.mock("./client.js", () => ({
   createFeishuClient: createFeishuClientMock,
 }));
 
-const freshDirectoryModulePath = "./directory.js?directory-test";
+const freshDirectoryModulePath = "./directory.ts?directory-test";
 const {
   listFeishuDirectoryGroups,
   listFeishuDirectoryGroupsLive,
@@ -15,7 +15,7 @@ const {
   listFeishuDirectoryPeersLive,
 } = await import(freshDirectoryModulePath);
 
-function makeStaticCfg(): AssistantConfig {
+function makeStaticCfg(): ZhushouConfig {
   return {
     channels: {
       feishu: {
@@ -29,10 +29,10 @@ function makeStaticCfg(): AssistantConfig {
         groupAllowFrom: ["chat-2"],
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
-function makeConfiguredCfg(): AssistantConfig {
+function makeConfiguredCfg(): ZhushouConfig {
   return {
     channels: {
       feishu: {
@@ -41,7 +41,7 @@ function makeConfiguredCfg(): AssistantConfig {
         appSecret: "cli_test_app_secret",
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 describe("feishu directory (config-backed)", () => {
@@ -69,7 +69,7 @@ describe("feishu directory (config-backed)", () => {
           groupAllowFrom: [],
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     const peers = await listFeishuDirectoryPeers({ cfg });
     expect(peers).toEqual([

@@ -2,21 +2,21 @@ import {
   attachChannelToResult,
   type ChannelOutboundAdapter,
   createAttachedChannelResultAdapter,
-} from "assistant/plugin-sdk/channel-send-result";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-send-result";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   resolveOutboundSendDep,
   type OutboundIdentity,
-} from "assistant/plugin-sdk/outbound-runtime";
+} from "zhushou/plugin-sdk/outbound-runtime";
 import {
   resolvePayloadMediaUrls,
   sendPayloadMediaSequenceOrFallback,
   sendTextMediaPayload,
-} from "assistant/plugin-sdk/reply-payload";
+} from "zhushou/plugin-sdk/reply-payload";
 import {
   normalizeOptionalString,
   normalizeOptionalStringifiedId,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import type { DiscordComponentMessageSpec } from "./components.js";
 import { getThreadBindingManager, type ThreadBindingRecord } from "./monitor/thread-bindings.js";
 import { normalizeDiscordOutboundTarget } from "./normalize.js";
@@ -79,7 +79,7 @@ function resolveDiscordWebhookIdentity(params: {
 }
 
 async function maybeSendDiscordWebhookText(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   text: string;
   threadId?: string | number | null;
   accountId?: string | null;

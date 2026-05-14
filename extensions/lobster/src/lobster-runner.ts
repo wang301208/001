@@ -246,7 +246,7 @@ async function withTimeout<T>(
 }
 
 async function loadEmbeddedToolRuntimeFromPackage(): Promise<EmbeddedToolRuntime> {
-  const runtime = await import("@assistant/lobster-runtime/core");
+  const runtime = await import("@zhushou/lobster-runtime/core");
   return {
     runToolRequest: runtime.runToolRequest,
     resumeToolRequest: runtime.resumeToolRequest,

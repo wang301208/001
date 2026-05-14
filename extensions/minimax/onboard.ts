@@ -2,8 +2,8 @@ import {
   applyAgentDefaultModelPrimary,
   applyOnboardAuthAgentModelsAndProviders,
   type ModelProviderConfig,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/provider-onboard";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/provider-onboard";
 import {
   buildMinimaxApiModelDefinition,
   MINIMAX_API_BASE_URL,
@@ -17,9 +17,9 @@ type MinimaxApiProviderConfigParams = {
 };
 
 function applyMinimaxApiProviderConfigWithBaseUrl(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params: MinimaxApiProviderConfigParams,
-): AssistantConfig {
+): ZhushouConfig {
   const providers = { ...cfg.models?.providers } as Record<string, ModelProviderConfig>;
   const existingProvider = providers[params.providerId];
   const existingModels = existingProvider?.models ?? [];
@@ -52,17 +52,17 @@ function applyMinimaxApiProviderConfigWithBaseUrl(
 }
 
 function applyMinimaxApiConfigWithBaseUrl(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params: MinimaxApiProviderConfigParams,
-): AssistantConfig {
+): ZhushouConfig {
   const next = applyMinimaxApiProviderConfigWithBaseUrl(cfg, params);
   return applyAgentDefaultModelPrimary(next, `${params.providerId}/${params.modelId}`);
 }
 
 export function applyMinimaxApiProviderConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   modelId: string = "MiniMax-M2.7",
-): AssistantConfig {
+): ZhushouConfig {
   return applyMinimaxApiProviderConfigWithBaseUrl(cfg, {
     providerId: "minimax",
     modelId,
@@ -71,9 +71,9 @@ export function applyMinimaxApiProviderConfig(
 }
 
 export function applyMinimaxApiConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   modelId: string = "MiniMax-M2.7",
-): AssistantConfig {
+): ZhushouConfig {
   return applyMinimaxApiConfigWithBaseUrl(cfg, {
     providerId: "minimax",
     modelId,
@@ -82,9 +82,9 @@ export function applyMinimaxApiConfig(
 }
 
 export function applyMinimaxApiProviderConfigCn(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   modelId: string = "MiniMax-M2.7",
-): AssistantConfig {
+): ZhushouConfig {
   return applyMinimaxApiProviderConfigWithBaseUrl(cfg, {
     providerId: "minimax",
     modelId,
@@ -93,9 +93,9 @@ export function applyMinimaxApiProviderConfigCn(
 }
 
 export function applyMinimaxApiConfigCn(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   modelId: string = "MiniMax-M2.7",
-): AssistantConfig {
+): ZhushouConfig {
   return applyMinimaxApiConfigWithBaseUrl(cfg, {
     providerId: "minimax",
     modelId,

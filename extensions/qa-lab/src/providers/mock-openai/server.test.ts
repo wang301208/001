@@ -13,7 +13,7 @@ const QA_EMPTY_RESPONSE_RECOVERY_PROMPT =
 const QA_EMPTY_RESPONSE_EXHAUSTION_PROMPT =
   "Empty response exhaustion QA check: read QA_KICKOFF_TASK.md, then answer with exactly EMPTY-EXHAUSTED-OK.";
 const QA_REASONING_ONLY_RETRY_INSTRUCTION =
-  "The previous assistant turn recorded reasoning but did not produce a user-visible answer. Continue from that partial turn and produce the visible answer now. Do not restate the reasoning or restart from scratch.";
+  "The previous zhushou turn recorded reasoning but did not produce a user-visible answer. Continue from that partial turn and produce the visible answer now. Do not restate the reasoning or restart from scratch.";
 const QA_EMPTY_RESPONSE_RETRY_INSTRUCTION =
   "The previous attempt did not produce a user-visible answer. Continue from the current state and produce the visible answer now. Do not restart from scratch.";
 
@@ -144,7 +144,7 @@ describe("qa mock openai server", () => {
         stream: true,
         input: [
           makeUserInput(
-            "Block streaming QA check: emit exactly two assistant message blocks in order. First exact marker: `BLOCK_ONE_OK`. Second exact marker: `BLOCK_TWO_OK`.",
+            "Block streaming QA check: emit exactly two zhushou message blocks in order. First exact marker: `BLOCK_ONE_OK`. Second exact marker: `BLOCK_TWO_OK`.",
           ),
         ],
       }),

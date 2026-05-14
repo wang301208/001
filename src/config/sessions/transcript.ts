@@ -91,7 +91,7 @@ export async function resolveSessionTranscriptFile(params: {
   };
 }
 
-export async function appendAssistantMessageToSessionTranscript(params: {
+export async function appendZhushouMessageToSessionTranscript(params: {
   agentId?: string;
   sessionKey: string;
   text?: string;
@@ -114,7 +114,7 @@ export async function appendAssistantMessageToSessionTranscript(params: {
     return { ok: false, reason: "empty text" };
   }
 
-  return appendExactAssistantMessageToSessionTranscript({
+  return appendExactZhushouMessageToSessionTranscript({
     agentId: params.agentId,
     sessionKey,
     storePath: params.storePath,
@@ -124,7 +124,7 @@ export async function appendAssistantMessageToSessionTranscript(params: {
       role: "assistant" as const,
       content: [{ type: "text", text: mirrorText }],
       api: "openai-responses",
-      provider: "assistant",
+      provider: "zhushou",
       model: "delivery-mirror",
       usage: {
         input: 0,
@@ -146,7 +146,7 @@ export async function appendAssistantMessageToSessionTranscript(params: {
   });
 }
 
-export async function appendExactAssistantMessageToSessionTranscript(params: {
+export async function appendExactZhushouMessageToSessionTranscript(params: {
   agentId?: string;
   sessionKey: string;
   message: SessionTranscriptAssistantMessage;
@@ -158,8 +158,8 @@ export async function appendExactAssistantMessageToSessionTranscript(params: {
   if (!sessionKey) {
     return { ok: false, reason: "missing sessionKey" };
   }
-  if (params.message.role !== "assistant") {
-    return { ok: false, reason: "message role must be assistant" };
+  if (params.message.role === "assistant") {
+    return { ok: false, reason: "message role must be zhushou" };
   }
 
   const storePath = params.storePath ?? resolveDefaultSessionStorePath(params.agentId);
@@ -201,11 +201,11 @@ export async function appendExactAssistantMessageToSessionTranscript(params: {
     return { ok: true, sessionFile, messageId: existingMessageId };
   }
 
-  const latestEquivalentAssistantId = isRedundantDeliveryMirror(params.message)
-    ? await findLatestEquivalentAssistantMessageId(sessionFile, params.message)
+  const latestEquivalentZhushouId = isRedundantDeliveryMirror(params.message)
+    ? await findLatestEquivalentZhushouMessageId(sessionFile, params.message)
     : undefined;
-  if (latestEquivalentAssistantId) {
-    return { ok: true, sessionFile, messageId: latestEquivalentAssistantId };
+  if (latestEquivalentZhushouId) {
+    return { ok: true, sessionFile, messageId: latestEquivalentZhushouId };
   }
 
   const message = {
@@ -261,10 +261,10 @@ async function transcriptHasIdempotencyKey(
 }
 
 function isRedundantDeliveryMirror(message: SessionTranscriptAssistantMessage): boolean {
-  return message.provider === "assistant" && message.model === "delivery-mirror";
+  return message.provider === "zhushou" && message.model === "delivery-mirror";
 }
 
-function extractAssistantMessageText(message: SessionTranscriptAssistantMessage): string | null {
+function extractZhushouMessageText(message: SessionTranscriptAssistantMessage): string | null {
   if (!Array.isArray(message.content)) {
     return null;
   }
@@ -283,11 +283,11 @@ function extractAssistantMessageText(message: SessionTranscriptAssistantMessage)
   return parts.length > 0 ? parts.join("\n").trim() : null;
 }
 
-async function findLatestEquivalentAssistantMessageId(
+async function findLatestEquivalentZhushouMessageId(
   transcriptPath: string,
   message: SessionTranscriptAssistantMessage,
 ): Promise<string | undefined> {
-  const expectedText = extractAssistantMessageText(message);
+  const expectedText = extractZhushouMessageText(message);
   if (!expectedText) {
     return undefined;
   }
@@ -309,7 +309,7 @@ async function findLatestEquivalentAssistantMessageId(
         if (!candidate || candidate.role !== "assistant") {
           continue;
         }
-        const candidateText = extractAssistantMessageText(candidate);
+        const candidateText = extractZhushouMessageText(candidate);
         if (candidateText !== expectedText) {
           return undefined;
         }

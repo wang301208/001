@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveProviderRuntimePlugin } from "../plugins/provider-hook-runtime.js";
 import { shouldPreserveThinkingBlocks } from "../plugins/provider-replay-helpers.js";
 import type { ProviderRuntimeModel } from "../plugins/provider-runtime-model.types.js";
@@ -114,7 +114,7 @@ function buildUnownedProviderTransportReplayFallback(params: {
     ...(isAnthropic && modelId.includes("claude")
       ? { dropThinkingBlocks: !shouldPreserveThinkingBlocks(modelId) }
       : {}),
-    ...(isGoogle || isStrictOpenAiCompatible ? { applyAssistantFirstOrderingFix: true } : {}),
+    ...(isGoogle || isStrictOpenAiCompatible ? { applyZhushouFirstOrderingFix: true } : {}),
     ...(isGoogle || isStrictOpenAiCompatible ? { validateGeminiTurns: true } : {}),
     ...(isAnthropic || isStrictOpenAiCompatible ? { validateAnthropicTurns: true } : {}),
     ...(isGoogle || isAnthropic ? { allowSyntheticToolResults: true } : {}),
@@ -151,8 +151,8 @@ function mergeTranscriptPolicy(
     ...(typeof policy.dropThinkingBlocks === "boolean"
       ? { dropThinkingBlocks: policy.dropThinkingBlocks }
       : {}),
-    ...(typeof policy.applyAssistantFirstOrderingFix === "boolean"
-      ? { applyGoogleTurnOrdering: policy.applyAssistantFirstOrderingFix }
+    ...(typeof policy.applyZhushouFirstOrderingFix === "boolean"
+      ? { applyGoogleTurnOrdering: policy.applyZhushouFirstOrderingFix }
       : {}),
     ...(typeof policy.validateGeminiTurns === "boolean"
       ? { validateGeminiTurns: policy.validateGeminiTurns }
@@ -170,7 +170,7 @@ export function resolveTranscriptPolicy(params: {
   modelApi?: string | null;
   provider?: string | null;
   modelId?: string | null;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   model?: ProviderRuntimeModel;

@@ -55,7 +55,7 @@ type DiscordUser = {
 
 const execFileAsync = promisify(execFile);
 
-type DriverMode = "token" | "webhook" | "assistant";
+type DriverMode = "token" | "webhook" | "zhushou";
 
 type Args = {
   channelId: string;
@@ -70,7 +70,7 @@ type Args = {
   mentionUserId?: string;
   instruction?: string;
   threadBindingsPath: string;
-  assistantBin: string;
+  zhushouBin: string;
   json: boolean;
 };
 
@@ -134,14 +134,14 @@ function parseNumber(value: string | undefined, fallback: number): number {
 }
 
 function resolveStateDir(): string {
-  const override = process.env.ASSISTANT_STATE_DIR?.trim();
+  const override = process.env.ZHUSHOU_STATE_DIR?.trim();
   if (override) {
     return override.startsWith("~")
       ? path.resolve(process.env.HOME || "", override.slice(1))
       : path.resolve(override);
   }
-  const home = process.env.ASSISTANT_HOME?.trim() || process.env.HOME || "";
-  return path.join(home, ".assistant");
+  const home = process.env.ZHUSHOU_HOME?.trim() || process.env.HOME || "";
+  return path.join(home, ".zhushou");
 }
 
 function resolveArg(flag: string): string | undefined {
@@ -164,13 +164,13 @@ function hasFlag(flag: string): boolean {
 function usage(): string {
   return (
     "Usage: bun scripts/dev/discord-acp-plain-language-smoke.ts " +
-    "--channel <discord-channel-id> [--token <driver-token> | --driver webhook --bot-token <bot-token> | --driver assistant] [options]\n\n" +
+    "--channel <discord-channel-id> [--token <driver-token> | --driver webhook --bot-token <bot-token> | --driver zhushou] [options]\n\n" +
     "Manual live smoke only (not CI). Sends a plain-language instruction in Discord and verifies:\n" +
     "1) 助手 spawned an ACP thread binding\n" +
     "2) agent replied in that bound thread with the expected ACK token\n\n" +
     "Options:\n" +
     "  --channel <id>               Parent Discord channel id (required)\n" +
-    "  --driver <token|webhook|assistant> Driver transport mode (default: token)\n" +
+    "  --driver <token|webhook|zhushou> Driver transport mode (default: token)\n" +
     "  --token <token>              Driver Discord token (required for driver=token)\n" +
     "  --token-prefix <prefix>      Auth prefix for --token (default: Bot)\n" +
     "  --bot-token <token>          Bot token for webhook driver mode\n" +
@@ -181,71 +181,71 @@ function usage(): string {
     "  --timeout-ms <n>             Total timeout in ms (default: 240000)\n" +
     "  --poll-ms <n>                Poll interval in ms (default: 1500)\n" +
     "  --thread-bindings-path <p>   Override thread-bindings json path\n" +
-    "  --assistant-bin <path>        助手 CLI binary for driver=assistant (default: assistant)\n" +
+    "  --zhushou-bin <path>        助手 CLI binary for driver=zhushou (default: zhushou)\n" +
     "  --json                       Emit JSON output\n" +
     "\n" +
     "Environment fallbacks:\n" +
-    "  ASSISTANT_DISCORD_SMOKE_CHANNEL_ID\n" +
-    "  ASSISTANT_DISCORD_SMOKE_DRIVER\n" +
-    "  ASSISTANT_DISCORD_SMOKE_DRIVER_TOKEN\n" +
-    "  ASSISTANT_DISCORD_SMOKE_DRIVER_TOKEN_PREFIX\n" +
-    "  ASSISTANT_DISCORD_SMOKE_BOT_TOKEN\n" +
-    "  ASSISTANT_DISCORD_SMOKE_BOT_TOKEN_PREFIX\n" +
-    "  ASSISTANT_DISCORD_SMOKE_AGENT\n" +
-    "  ASSISTANT_DISCORD_SMOKE_MENTION_USER_ID\n" +
-    "  ASSISTANT_DISCORD_SMOKE_TIMEOUT_MS\n" +
-    "  ASSISTANT_DISCORD_SMOKE_POLL_MS\n" +
-    "  ASSISTANT_DISCORD_SMOKE_THREAD_BINDINGS_PATH\n" +
-    "  ASSISTANT_DISCORD_SMOKE_ASSISTANT_BIN"
+    "  ZHUSHOU_DISCORD_SMOKE_CHANNEL_ID\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_DRIVER\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_DRIVER_TOKEN\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_DRIVER_TOKEN_PREFIX\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_BOT_TOKEN\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_BOT_TOKEN_PREFIX\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_AGENT\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_MENTION_USER_ID\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_TIMEOUT_MS\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_POLL_MS\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_THREAD_BINDINGS_PATH\n" +
+    "  ZHUSHOU_DISCORD_SMOKE_ZHUSHOU_BIN"
   );
 }
 
 function parseArgs(): Args {
-  const channelId = resolveArg("--channel") || process.env.ASSISTANT_DISCORD_SMOKE_CHANNEL_ID || "";
+  const channelId = resolveArg("--channel") || process.env.ZHUSHOU_DISCORD_SMOKE_CHANNEL_ID || "";
   const driverModeRaw =
-    resolveArg("--driver") || process.env.ASSISTANT_DISCORD_SMOKE_DRIVER || "token";
+    resolveArg("--driver") || process.env.ZHUSHOU_DISCORD_SMOKE_DRIVER || "token";
   const normalizedDriverMode = driverModeRaw.trim().toLowerCase();
   const driverMode: DriverMode =
     normalizedDriverMode === "webhook"
       ? "webhook"
-      : normalizedDriverMode === "assistant"
-        ? "assistant"
+      : normalizedDriverMode === "zhushou"
+        ? "zhushou"
         : normalizedDriverMode === "token"
           ? "token"
           : "token";
   const driverToken =
-    resolveArg("--token") || process.env.ASSISTANT_DISCORD_SMOKE_DRIVER_TOKEN || "";
+    resolveArg("--token") || process.env.ZHUSHOU_DISCORD_SMOKE_DRIVER_TOKEN || "";
   const driverTokenPrefix =
-    resolveArg("--token-prefix") || process.env.ASSISTANT_DISCORD_SMOKE_DRIVER_TOKEN_PREFIX || "Bot";
+    resolveArg("--token-prefix") || process.env.ZHUSHOU_DISCORD_SMOKE_DRIVER_TOKEN_PREFIX || "Bot";
   const botToken =
     resolveArg("--bot-token") ||
-    process.env.ASSISTANT_DISCORD_SMOKE_BOT_TOKEN ||
+    process.env.ZHUSHOU_DISCORD_SMOKE_BOT_TOKEN ||
     process.env.DISCORD_BOT_TOKEN ||
     "";
   const botTokenPrefix =
     resolveArg("--bot-token-prefix") ||
-    process.env.ASSISTANT_DISCORD_SMOKE_BOT_TOKEN_PREFIX ||
+    process.env.ZHUSHOU_DISCORD_SMOKE_BOT_TOKEN_PREFIX ||
     "Bot";
-  const targetAgent = resolveArg("--agent") || process.env.ASSISTANT_DISCORD_SMOKE_AGENT || "codex";
+  const targetAgent = resolveArg("--agent") || process.env.ZHUSHOU_DISCORD_SMOKE_AGENT || "codex";
   const mentionUserId =
-    resolveArg("--mention") || process.env.ASSISTANT_DISCORD_SMOKE_MENTION_USER_ID || undefined;
+    resolveArg("--mention") || process.env.ZHUSHOU_DISCORD_SMOKE_MENTION_USER_ID || undefined;
   const instruction =
-    resolveArg("--instruction") || process.env.ASSISTANT_DISCORD_SMOKE_INSTRUCTION || undefined;
+    resolveArg("--instruction") || process.env.ZHUSHOU_DISCORD_SMOKE_INSTRUCTION || undefined;
   const timeoutMs = parseNumber(
-    resolveArg("--timeout-ms") || process.env.ASSISTANT_DISCORD_SMOKE_TIMEOUT_MS,
+    resolveArg("--timeout-ms") || process.env.ZHUSHOU_DISCORD_SMOKE_TIMEOUT_MS,
     240_000,
   );
   const pollMs = parseNumber(
-    resolveArg("--poll-ms") || process.env.ASSISTANT_DISCORD_SMOKE_POLL_MS,
+    resolveArg("--poll-ms") || process.env.ZHUSHOU_DISCORD_SMOKE_POLL_MS,
     1_500,
   );
   const defaultBindingsPath = path.join(resolveStateDir(), "discord", "thread-bindings.json");
   const threadBindingsPath =
     resolveArg("--thread-bindings-path") ||
-    process.env.ASSISTANT_DISCORD_SMOKE_THREAD_BINDINGS_PATH ||
+    process.env.ZHUSHOU_DISCORD_SMOKE_THREAD_BINDINGS_PATH ||
     defaultBindingsPath;
-  const assistantBin =
-    resolveArg("--assistant-bin") || process.env.ASSISTANT_DISCORD_SMOKE_ASSISTANT_BIN || "assistant";
+  const zhushouBin =
+    resolveArg("--zhushou-bin") || process.env.ZHUSHOU_DISCORD_SMOKE_ZHUSHOU_BIN || "zhushou";
   const json = hasFlag("--json");
 
   if (!channelId) {
@@ -271,34 +271,34 @@ function parseArgs(): Args {
     mentionUserId,
     instruction,
     threadBindingsPath,
-    assistantBin,
+    zhushouBin,
     json,
   };
 }
 
-async function assistantCliJson<T>(params: { assistantBin: string; args: string[] }): Promise<T> {
-  const result = await execFileAsync(params.assistantBin, params.args, {
+async function zhushouCliJson<T>(params: { zhushouBin: string; args: string[] }): Promise<T> {
+  const result = await execFileAsync(params.zhushouBin, params.args, {
     maxBuffer: 8 * 1024 * 1024,
     env: process.env,
   });
   const stdout = (result.stdout || "").trim();
   if (!stdout) {
-    throw new Error(`assistant ${params.args.join(" ")} returned empty stdout`);
+    throw new Error(`zhushou ${params.args.join(" ")} returned empty stdout`);
   }
   return JSON.parse(stdout) as T;
 }
 
-async function readMessagesWithAssistant(params: {
-  assistantBin: string;
+async function readMessagesWithZhushou(params: {
+  zhushouBin: string;
   target: string;
   limit: number;
 }): Promise<DiscordMessage[]> {
-  const response = await assistantCliJson<{
+  const response = await zhushouCliJson<{
     payload?: {
       messages?: DiscordMessage[];
     };
   }>({
-    assistantBin: params.assistantBin,
+    zhushouBin: params.zhushouBin,
     args: [
       "message",
       "read",
@@ -475,9 +475,9 @@ async function loadParentRecentMessages(params: {
   args: Args;
   readAuthHeader: string;
 }): Promise<DiscordMessage[]> {
-  if (params.args.driverMode === "assistant") {
-    return await readMessagesWithAssistant({
-      assistantBin: params.args.assistantBin,
+  if (params.args.driverMode === "zhushou") {
+    return await readMessagesWithZhushou({
+      zhushouBin: params.args.zhushouBin,
       target: params.args.channelId,
       limit: 20,
     });
@@ -609,7 +609,7 @@ async function run(): Promise<SuccessResult | FailureResult> {
         path: `/channels/${encodeURIComponent(args.channelId)}/webhooks`,
         authHeader: botAuthHeader,
         body: {
-          name: `assistant-acp-smoke-${smokeId.slice(-8)}`,
+          name: `zhushou-acp-smoke-${smokeId.slice(-8)}`,
         },
       });
       if (!webhook.id || !webhook.token) {
@@ -639,14 +639,14 @@ async function run(): Promise<SuccessResult | FailureResult> {
       senderAuthorId = sent.author?.id;
     } else {
       setupStage = "send-message";
-      const sent = await assistantCliJson<{
+      const sent = await zhushouCliJson<{
         payload?: {
           result?: {
             messageId?: string;
           };
         };
       }>({
-        assistantBin: args.assistantBin,
+        zhushouBin: args.zhushouBin,
         args: [
           "message",
           "send",
@@ -661,7 +661,7 @@ async function run(): Promise<SuccessResult | FailureResult> {
       });
       sentMessageId = sent.payload?.result?.messageId || "";
       if (!sentMessageId) {
-        throw new Error("assistant message send did not return payload.result.messageId");
+        throw new Error("zhushou message send did not return payload.result.messageId");
       }
     }
   } catch (err) {
@@ -727,9 +727,9 @@ async function run(): Promise<SuccessResult | FailureResult> {
     while (Date.now() < deadline && !ackMessage) {
       try {
         const threadMessages =
-          args.driverMode === "assistant"
-            ? await readMessagesWithAssistant({
-                assistantBin: args.assistantBin,
+          args.driverMode === "zhushou"
+            ? await readMessagesWithZhushou({
+                zhushouBin: args.zhushouBin,
                 target: threadId,
                 limit: 50,
               })

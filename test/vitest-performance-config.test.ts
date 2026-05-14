@@ -14,7 +14,7 @@ describe("loadVitestExperimentalConfig", () => {
     expect(
       loadVitestExperimentalConfig(
         {
-          ASSISTANT_VITEST_FS_MODULE_CACHE: "1",
+          ZHUSHOU_VITEST_FS_MODULE_CACHE: "1",
         },
         "linux",
       ),
@@ -29,14 +29,14 @@ describe("loadVitestExperimentalConfig", () => {
     expect(
       loadVitestExperimentalConfig(
         {
-          ASSISTANT_VITEST_FS_MODULE_CACHE_PATH: "/tmp/assistant-vitest-cache",
+          ZHUSHOU_VITEST_FS_MODULE_CACHE_PATH: "/tmp/zhushou-vitest-cache",
         },
         "linux",
       ),
     ).toEqual({
       experimental: {
         fsModuleCache: true,
-        fsModuleCachePath: "/tmp/assistant-vitest-cache",
+        fsModuleCachePath: "/tmp/zhushou-vitest-cache",
       },
     });
   });
@@ -49,7 +49,7 @@ describe("loadVitestExperimentalConfig", () => {
     expect(
       loadVitestExperimentalConfig(
         {
-          ASSISTANT_VITEST_FS_MODULE_CACHE: "1",
+          ZHUSHOU_VITEST_FS_MODULE_CACHE: "1",
         },
         "win32",
       ),
@@ -64,7 +64,7 @@ describe("loadVitestExperimentalConfig", () => {
     expect(
       loadVitestExperimentalConfig(
         {
-          ASSISTANT_VITEST_FS_MODULE_CACHE: "0",
+          ZHUSHOU_VITEST_FS_MODULE_CACHE: "0",
         },
         "linux",
       ),
@@ -75,8 +75,8 @@ describe("loadVitestExperimentalConfig", () => {
     expect(
       loadVitestExperimentalConfig(
         {
-          ASSISTANT_VITEST_IMPORT_DURATIONS: "true",
-          ASSISTANT_VITEST_PRINT_IMPORT_BREAKDOWN: "1",
+          ZHUSHOU_VITEST_IMPORT_DURATIONS: "true",
+          ZHUSHOU_VITEST_PRINT_IMPORT_BREAKDOWN: "1",
         },
         "linux",
       ),

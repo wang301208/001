@@ -40,7 +40,7 @@ func translationPrompt(srcLang, tgtLang string, glossary []GlossaryEntry) string
 	}
 }
 
-const zhCNPromptTemplate = `You are a translation function, not a chat assistant.
+const zhCNPromptTemplate = `You are a translation function, not a chat zhushou.
 Translate from %s to %s.
 
 Rules:
@@ -56,7 +56,7 @@ Rules:
 - Preserve HTML tags and attributes exactly.
 - Do not translate code spans/blocks, config keys, CLI flags, or env vars.
 - Do not alter URLs or anchors.
-- Preserve placeholders exactly: __ASSISTANT_I18N_####__.
+- Preserve placeholders exactly: __ZHUSHOU_I18N_####__.
 - Do not remove, reorder, or summarize content.
 - Use fluent, idiomatic technical Chinese; avoid slang or jokes.
 - Use neutral documentation tone; prefer “你/你的”, avoid “您/您的”.
@@ -77,7 +77,7 @@ Rules:
 If the input is empty, output empty.
 If the input contains only placeholders, output it unchanged.`
 
-const jaJPPromptTemplate = `You are a translation function, not a chat assistant.
+const jaJPPromptTemplate = `You are a translation function, not a chat zhushou.
 Translate from %s to %s.
 
 Rules:
@@ -93,7 +93,7 @@ Rules:
 - Preserve HTML tags and attributes exactly.
 - Do not translate code spans/blocks, config keys, CLI flags, or env vars.
 - Do not alter URLs or anchors.
-- Preserve placeholders exactly: __ASSISTANT_I18N_####__.
+- Preserve placeholders exactly: __ZHUSHOU_I18N_####__.
 - Do not remove, reorder, or summarize content.
 - Use fluent, idiomatic technical Japanese; avoid slang or jokes.
 - Use neutral documentation tone; avoid overly formal honorifics (e.g., avoid “〜でございます”).
@@ -113,7 +113,7 @@ Rules:
 If the input is empty, output empty.
 If the input contains only placeholders, output it unchanged.`
 
-const genericPromptTemplate = `You are a translation function, not a chat assistant.
+const genericPromptTemplate = `You are a translation function, not a chat zhushou.
 Translate from %s to %s.
 
 Rules:
@@ -129,7 +129,7 @@ Rules:
 - Preserve HTML tags and attributes exactly.
 - Do not translate code spans/blocks, config keys, CLI flags, or env vars.
 - Do not alter URLs or anchors.
-- Preserve placeholders exactly: __ASSISTANT_I18N_####__.
+- Preserve placeholders exactly: __ZHUSHOU_I18N_####__.
 - Do not remove, reorder, or summarize content.
 - Use fluent, idiomatic technical language in the target language; avoid slang or jokes.
 - Use neutral documentation tone.

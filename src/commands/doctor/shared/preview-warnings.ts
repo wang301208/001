@@ -1,18 +1,18 @@
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 
 function hasRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
-function hasChannels(cfg: AssistantConfig): boolean {
+function hasChannels(cfg: ZhushouConfig): boolean {
   return hasRecord(cfg.channels);
 }
 
-function hasPlugins(cfg: AssistantConfig): boolean {
+function hasPlugins(cfg: ZhushouConfig): boolean {
   return hasRecord(cfg.plugins);
 }
 
-function hasPluginLoadPaths(cfg: AssistantConfig): boolean {
+function hasPluginLoadPaths(cfg: ZhushouConfig): boolean {
   const plugins = cfg.plugins;
   if (!hasRecord(plugins)) {
     return false;
@@ -21,7 +21,7 @@ function hasPluginLoadPaths(cfg: AssistantConfig): boolean {
   return hasRecord(load) && Array.isArray(load.paths) && load.paths.length > 0;
 }
 
-function hasExplicitChannelPluginBlockerConfig(cfg: AssistantConfig): boolean {
+function hasExplicitChannelPluginBlockerConfig(cfg: ZhushouConfig): boolean {
   if (cfg.plugins?.enabled === false) {
     return true;
   }
@@ -49,7 +49,7 @@ function hasToolsBySenderKey(value: unknown): boolean {
   );
 }
 
-function hasConfiguredSafeBins(cfg: AssistantConfig): boolean {
+function hasConfiguredSafeBins(cfg: ZhushouConfig): boolean {
   const globalExec = cfg.tools?.exec;
   if (
     hasRecord(globalExec) &&
@@ -67,7 +67,7 @@ function hasConfiguredSafeBins(cfg: AssistantConfig): boolean {
 }
 
 export async function collectDoctorPreviewWarnings(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   doctorFixCommand: string;
 }): Promise<string[]> {
   const warnings: string[] = [];

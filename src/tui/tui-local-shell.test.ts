@@ -71,7 +71,7 @@ describe("createLocalShellRunner", () => {
     expect(harness.spawnCommand).not.toHaveBeenCalled();
   });
 
-  it("sets ASSISTANT_SHELL when running local shell commands", async () => {
+  it("sets ZHUSHOU_SHELL when running local shell commands", async () => {
     const spawnCommand = vi.fn((_command: string, _options: unknown) => {
       const stdout = new EventEmitter();
       const stderr = new EventEmitter();
@@ -100,7 +100,7 @@ describe("createLocalShellRunner", () => {
     expect(harness.createSelectorSpy).toHaveBeenCalledTimes(1);
     expect(spawnCommand).toHaveBeenCalledTimes(1);
     const spawnOptions = spawnCommand.mock.calls[0]?.[1] as { env?: Record<string, string> };
-    expect(spawnOptions.env?.ASSISTANT_SHELL).toBe("tui-local");
+    expect(spawnOptions.env?.ZHUSHOU_SHELL).toBe("tui-local");
     expect(spawnOptions.env?.PATH).toBe("/tmp/bin");
     expect(harness.messages).toContain("本地 shell：本会话已启用");
   });
@@ -137,7 +137,7 @@ describe("createLocalShellRunner", () => {
   });
 
   it("supports output redirection with > and avoids echoing redirected output", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-tui-shell-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-tui-shell-"));
     const outFile = path.join(tmpDir, "out.txt");
     const stdout = new EventEmitter();
     const stderr = new EventEmitter();

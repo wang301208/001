@@ -1,4 +1,4 @@
-import { readStringValue } from "assistant/plugin-sdk/text-runtime";
+import { readStringValue } from "zhushou/plugin-sdk/text-runtime";
 
 type GoogleOauthApiKeyCredential = {
   type?: string;

@@ -7,9 +7,9 @@ const resolveThreadTsMock = vi.fn(async ({ message }: { message: Record<string, 
 }));
 const { createSlackMessageHandler } = await import("./message-handler.js");
 
-vi.mock("assistant/plugin-sdk/channel-inbound", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/channel-inbound")>(
-    "assistant/plugin-sdk/channel-inbound",
+vi.mock("zhushou/plugin-sdk/channel-inbound", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/channel-inbound")>(
+    "zhushou/plugin-sdk/channel-inbound",
   );
   return {
     ...actual,

@@ -5,7 +5,7 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { AssistantMessage, ToolResultMessage, UserMessage } from "@mariozechner/pi-ai";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { makeAgentAssistantMessage } from "../test-helpers/agent-message-fixtures.js";
+import { makeAgentZhushouMessage } from "../test-helpers/agent-message-fixtures.js";
 
 let truncateToolResultText: typeof import("./tool-result-truncation.js").truncateToolResultText;
 let truncateToolResultMessage: typeof import("./tool-result-truncation.js").truncateToolResultMessage;
@@ -74,8 +74,8 @@ function makeUserMessage(text: string): UserMessage {
   };
 }
 
-function makeAssistantMessage(text: string): AssistantMessage {
-  return makeAgentAssistantMessage({
+function makeZhushouMessage(text: string): AssistantMessage {
+  return makeAgentZhushouMessage({
     content: [{ type: "text", text }],
     model: "gpt-5.2",
     stopReason: "stop",
@@ -163,7 +163,7 @@ describe("getToolResultTextLength", () => {
   });
 
   it("returns zero for non-toolResult messages", () => {
-    expect(getToolResultTextLength(makeAssistantMessage("hello"))).toBe(0);
+    expect(getToolResultTextLength(makeZhushouMessage("hello"))).toBe(0);
   });
 });
 
@@ -358,7 +358,7 @@ describe("truncateOversizedToolResultsInMessages", () => {
   it("returns unchanged messages when nothing is oversized", () => {
     const messages = [
       makeUserMessage("hello"),
-      makeAssistantMessage("using tool"),
+      makeZhushouMessage("using tool"),
       makeToolResult("small result"),
     ];
     const { messages: result, truncatedCount } = truncateOversizedToolResultsInMessages(
@@ -373,7 +373,7 @@ describe("truncateOversizedToolResultsInMessages", () => {
     const bigContent = "x".repeat(500_000);
     const messages: AgentMessage[] = [
       makeUserMessage("hello"),
-      makeAssistantMessage("reading file"),
+      makeZhushouMessage("reading file"),
       makeToolResult(bigContent),
     ];
     const { messages: result, truncatedCount } = truncateOversizedToolResultsInMessages(
@@ -391,7 +391,7 @@ describe("truncateOversizedToolResultsInMessages", () => {
   it("preserves non-toolResult messages", () => {
     const messages = [
       makeUserMessage("hello"),
-      makeAssistantMessage("reading file"),
+      makeZhushouMessage("reading file"),
       makeToolResult("x".repeat(500_000)),
     ];
     const { messages: result } = truncateOversizedToolResultsInMessages(messages, 128_000);
@@ -402,7 +402,7 @@ describe("truncateOversizedToolResultsInMessages", () => {
   it("handles multiple oversized tool results", () => {
     const messages: AgentMessage[] = [
       makeUserMessage("hello"),
-      makeAssistantMessage("reading files"),
+      makeZhushouMessage("reading files"),
       makeToolResult("x".repeat(500_000), "call_1"),
       makeToolResult("y".repeat(500_000), "call_2"),
     ];
@@ -424,7 +424,7 @@ describe("truncateOversizedToolResultsInSession", () => {
     const dir = await createTmpDir();
     const sm = SessionManager.create(dir, dir);
     sm.appendMessage(makeUserMessage("hello"));
-    sm.appendMessage(makeAssistantMessage("calling tools"));
+    sm.appendMessage(makeZhushouMessage("calling tools"));
     const medium = "alpha beta gamma delta epsilon ".repeat(600);
     sm.appendMessage(makeToolResult(medium, "call_1"));
     sm.appendMessage(makeToolResult(medium, "call_2"));
@@ -480,7 +480,7 @@ describe("truncateOversizedToolResultsInSession", () => {
     const dir = await createTmpDir();
     const sm = SessionManager.create(dir, dir);
     sm.appendMessage(makeUserMessage("hello"));
-    sm.appendMessage(makeAssistantMessage("calling tools"));
+    sm.appendMessage(makeZhushouMessage("calling tools"));
     const olderLarge = "older-large ".repeat(1_000);
     const newerEnough = "newer-enough ".repeat(500);
     sm.appendMessage(makeToolResult(olderLarge, "call_1"));
@@ -520,7 +520,7 @@ describe("truncateOversizedToolResultsInSession", () => {
     const dir = await createTmpDir();
     const sm = SessionManager.create(dir, dir);
     sm.appendMessage(makeUserMessage("hello"));
-    sm.appendMessage(makeAssistantMessage("calling tools"));
+    sm.appendMessage(makeZhushouMessage("calling tools"));
     sm.appendMessage(makeToolResult("x".repeat(500_000), "call_1"));
     const sessionFile = sm.getSessionFile()!;
 
@@ -546,7 +546,7 @@ describe("truncateOversizedToolResultsInSession", () => {
     const dir = await createTmpDir();
     const sm = SessionManager.create(dir, dir);
     sm.appendMessage(makeUserMessage("hello"));
-    sm.appendMessage(makeAssistantMessage("calling tools"));
+    sm.appendMessage(makeZhushouMessage("calling tools"));
     sm.appendMessage(makeToolResult("x".repeat(500_000), "call_1"));
     const medium = "alpha beta gamma delta epsilon ".repeat(800);
     sm.appendMessage(makeToolResult(medium, "call_2"));
@@ -578,7 +578,7 @@ describe("truncateOversizedToolResultsInSession", () => {
     const dir = await createTmpDir();
     const sm = SessionManager.create(dir, dir);
     sm.appendMessage(makeUserMessage("hello"));
-    sm.appendMessage(makeAssistantMessage("calling tools"));
+    sm.appendMessage(makeZhushouMessage("calling tools"));
     const medium = "alpha beta gamma delta epsilon ".repeat(800);
     sm.appendMessage(makeToolResult(medium, "call_1"));
     sm.appendMessage(makeToolResult(medium, "call_2"));

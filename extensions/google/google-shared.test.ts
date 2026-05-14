@@ -8,9 +8,9 @@ import {
   asRecord,
   expectConvertedRoles,
   getFirstToolParameters,
-  makeGeminiCliAssistantMessage,
+  makeGeminiCliZhushouMessage,
   makeGeminiCliModel,
-  makeGoogleAssistantMessage,
+  makeGoogleZhushouMessage,
   makeModel,
 } from "./google-shared.test-helpers.js";
 
@@ -166,7 +166,7 @@ describe("google-shared convertMessages", () => {
     const model = makeModel("gemini-1.5-pro");
     const context = {
       messages: [
-        makeGoogleAssistantMessage(model.id, [
+        makeGoogleZhushouMessage(model.id, [
           {
             type: "thinking",
             thinking: "hidden",
@@ -189,7 +189,7 @@ describe("google-shared convertMessages", () => {
     const model = makeModel("claude-3-opus");
     const context = {
       messages: [
-        makeGoogleAssistantMessage(model.id, [
+        makeGoogleZhushouMessage(model.id, [
           {
             type: "thinking",
             thinking: "structured",
@@ -232,8 +232,8 @@ describe("google-shared convertMessages", () => {
           role: "user",
           content: "Hello",
         },
-        makeGoogleAssistantMessage(model.id, [{ type: "text", text: "Hi there!" }]),
-        makeGoogleAssistantMessage(model.id, [{ type: "text", text: "How can I help?" }]),
+        makeGoogleZhushouMessage(model.id, [{ type: "text", text: "Hi there!" }]),
+        makeGoogleZhushouMessage(model.id, [{ type: "text", text: "How can I help?" }]),
       ],
     } as unknown as Context;
 
@@ -251,7 +251,7 @@ describe("google-shared convertMessages", () => {
           role: "user",
           content: "Use a tool",
         },
-        makeGoogleAssistantMessage(model.id, [
+        makeGoogleZhushouMessage(model.id, [
           {
             type: "toolCall",
             id: "call_1",
@@ -296,8 +296,8 @@ describe("google-shared convertMessages", () => {
           role: "user",
           content: "Hello",
         },
-        makeGoogleAssistantMessage(model.id, [{ type: "text", text: "Hi!" }]),
-        makeGoogleAssistantMessage(model.id, [
+        makeGoogleZhushouMessage(model.id, [{ type: "text", text: "Hi!" }]),
+        makeGoogleZhushouMessage(model.id, [
           {
             type: "toolCall",
             id: "call_1",
@@ -325,7 +325,7 @@ describe("google-shared convertMessages", () => {
           role: "user",
           content: "Use a tool",
         },
-        makeGeminiCliAssistantMessage(model.id, [
+        makeGeminiCliZhushouMessage(model.id, [
           {
             type: "toolCall",
             id: "call_1",

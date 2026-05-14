@@ -1,11 +1,11 @@
-# Assistant Installer for Windows (PowerShell)
-# Usage: iwr -useb https://assistant.ai/install.ps1 | iex
-# Or: & ([scriptblock]::Create((iwr -useb https://assistant.ai/install.ps1))) -NoOnboard
+# Zhushou Installer for Windows (PowerShell)
+# Usage: iwr -useb https://zhushou.ai/install.ps1 | iex
+# Or: & ([scriptblock]::Create((iwr -useb https://zhushou.ai/install.ps1))) -NoOnboard
 
 param(
     [string]$InstallMethod = "npm",
     [string]$Tag = "latest",
-    [string]$GitDir = "$env:USERPROFILE\assistant",
+    [string]$GitDir = "$env:USERPROFILE\zhushou",
     [switch]$NoOnboard,
     [switch]$NoGitUpdate,
     [switch]$DryRun
@@ -34,8 +34,8 @@ function Write-Host {
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "${ACCENT}  🦞 Assistant Installer$NC" -Level info
-    Write-Host "${MUTED}  All your chats, one Assistant.$NC" -Level info
+    Write-Host "${ACCENT}  🦞 Zhushou Installer$NC" -Level info
+    Write-Host "${MUTED}  All your chats, one Zhushou.$NC" -Level info
     Write-Host ""
 }
 
@@ -269,12 +269,12 @@ function Invoke-NativeCommandCapture {
     }
 }
 
-function Install-AssistantNpm {
+function Install-ZhushouNpm {
     param([string]$Target = "latest")
 
     $installSpec = Resolve-PackageInstallSpec -Target $Target
     
-    Write-Host "Installing Assistant ($installSpec)..." -Level info
+    Write-Host "Installing Zhushou ($installSpec)..." -Level info
     
     try {
         # Run npm out-of-process so warning chatter on stderr does not get
@@ -296,7 +296,7 @@ function Install-AssistantNpm {
             Write-Host "npm install failed with exit code $($installResult.ExitCode)" -Level error
             return $false
         }
-        Write-Host "Assistant installed" -Level success
+        Write-Host "Zhushou installed" -Level success
         return $true
     } catch {
         Write-Host "npm install failed: $_" -Level error
@@ -304,14 +304,14 @@ function Install-AssistantNpm {
     }
 }
 
-function Install-AssistantGit {
+function Install-ZhushouGit {
     param([string]$RepoDir, [switch]$Update)
     
-    Write-Host "Installing Assistant from git..." -Level info
+    Write-Host "Installing Zhushou from git..." -Level info
     
     if (!(Test-Path $RepoDir)) {
         Write-Host "  Cloning repository..." -Level info
-        git clone https://github.com/assistant/assistant.git $RepoDir 2>&1
+        git clone https://github.com/wang301208/zhushou.git $RepoDir 2>&1
     } elseif ($Update) {
         Write-Host "  Updating repository..." -Level info
         git -C $RepoDir pull --rebase 2>&1
@@ -339,10 +339,10 @@ function Install-AssistantGit {
     
     @"
 @echo off
-node "%~dp0..\assistant\dist\entry.js" %*
-"@ | Out-File -FilePath "$wrapperDir\assistant.cmd" -Encoding ASCII -Force
+node "%~dp0..\zhushou\dist\entry.js" %*
+"@ | Out-File -FilePath "$wrapperDir\zhushou.cmd" -Encoding ASCII -Force
     
-    Write-Host "Assistant installed" -Level success
+    Write-Host "Zhushou installed" -Level success
     return $true
 }
 
@@ -363,15 +363,15 @@ function Resolve-PackageInstallSpec {
 
     $trimmed = $Target.Trim()
     if ([string]::IsNullOrWhiteSpace($trimmed)) {
-        return "assistant@latest"
+        return "zhushou@latest"
     }
     if ($trimmed.ToLowerInvariant() -eq "main") {
-        return "github:assistant/assistant#main"
+        return "github:wang301208/zhushou#main"
     }
     if (Test-ExplicitPackageInstallSpec -Target $trimmed) {
         return $trimmed
     }
-    return "assistant@$trimmed"
+    return "zhushou@$trimmed"
 }
 
 function Add-ToPath {
@@ -407,9 +407,9 @@ function Main {
         }
         
         if ($DryRun) {
-            Write-Host "[DRY RUN] Would install Assistant from git to $GitDir" -Level info
+            Write-Host "[DRY RUN] Would install Zhushou from git to $GitDir" -Level info
         } else {
-            Install-AssistantGit -RepoDir $GitDir -Update:(-not $NoGitUpdate)
+            Install-ZhushouGit -RepoDir $GitDir -Update:(-not $NoGitUpdate)
         }
     } else {
         # npm method
@@ -418,9 +418,9 @@ function Main {
         }
         
         if ($DryRun) {
-            Write-Host "[DRY RUN] Would install Assistant via npm ($((Resolve-PackageInstallSpec -Target $Tag)))" -Level info
+            Write-Host "[DRY RUN] Would install Zhushou via npm ($((Resolve-PackageInstallSpec -Target $Tag)))" -Level info
         } else {
-            if (!(Install-AssistantNpm -Target $Tag)) {
+            if (!(Install-ZhushouNpm -Target $Tag)) {
                 exit 1
             }
         }
@@ -441,11 +441,11 @@ function Main {
     
     if (!$NoOnboard -and !$DryRun) {
         Write-Host ""
-        Write-Host "Run 'assistant onboard' to complete setup" -Level info
+        Write-Host "Run 'zhushou onboard' to complete setup" -Level info
     }
     
     Write-Host ""
-    Write-Host "🦞 Assistant installed successfully!" -Level success
+    Write-Host "🦞 Zhushou installed successfully!" -Level success
 }
 
 Main

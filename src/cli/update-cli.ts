@@ -35,7 +35,7 @@ export function registerUpdateCli(program: Command) {
   program.enablePositionalOptions();
   const update = program
     .command("update")
-    .description("Update assistant and inspect update channel status")
+    .description("Update zhushou and inspect update channel status")
     .option("--json", "Output result as JSON", false)
     .option("--no-restart", "Skip restarting the gateway service after a successful update")
     .option("--dry-run", "Preview update actions without making changes", false)
@@ -48,17 +48,17 @@ export function registerUpdateCli(program: Command) {
     .option("--yes", "Skip confirmation prompts (non-interactive)", false)
     .addHelpText("after", () => {
       const examples = [
-        ["assistant update", "Update a source checkout (git)"],
-        ["assistant update --channel beta", "Switch to beta channel (git + npm)"],
-        ["assistant update --channel dev", "Switch to dev channel (git + npm)"],
-        ["assistant update --tag beta", "One-off update to a dist-tag or version"],
-        ["assistant update --tag main", "One-off package install from GitHub main"],
-        ["assistant update --dry-run", "Preview actions without changing anything"],
-        ["assistant update --no-restart", "Update without restarting the service"],
-        ["assistant update --json", "Output result as JSON"],
-        ["assistant update --yes", "Non-interactive (accept downgrade prompts)"],
-        ["assistant update wizard", "Interactive update wizard"],
-        ["assistant --update", "Shorthand for assistant update"],
+        ["zhushou update", "Update a source checkout (git)"],
+        ["zhushou update --channel beta", "Switch to beta channel (git + npm)"],
+        ["zhushou update --channel dev", "Switch to dev channel (git + npm)"],
+        ["zhushou update --tag beta", "One-off update to a dist-tag or version"],
+        ["zhushou update --tag main", "One-off package install from GitHub main"],
+        ["zhushou update --dry-run", "Preview actions without changing anything"],
+        ["zhushou update --no-restart", "Update without restarting the service"],
+        ["zhushou update --json", "Output result as JSON"],
+        ["zhushou update --yes", "Non-interactive (accept downgrade prompts)"],
+        ["zhushou update wizard", "Interactive update wizard"],
+        ["zhushou --update", "Shorthand for zhushou update"],
       ] as const;
       const fmtExamples = examples
         .map(([cmd, desc]) => `  ${theme.command(cmd)} ${theme.muted(`# ${desc}`)}`)
@@ -70,7 +70,7 @@ ${theme.heading("What this does:")}
 
 ${theme.heading("Switch channels:")}
   - Use --channel stable|beta|dev to persist the update channel in config
-  - Run assistant update status to see the active channel and source
+  - Run zhushou update status to see the active channel and source
   - Use --tag <dist-tag|version|spec> for a one-off package update without persisting
 
 ${theme.heading("Non-interactive:")}
@@ -87,7 +87,7 @@ ${theme.heading("Notes:")}
   - Downgrades require confirmation (can break configuration)
   - Skips update if the working directory has uncommitted changes
 
-${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.assistant.ai/cli/update")}`;
+${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.zhushou.ai/cli/update")}`;
     })
     .action(async (opts) => {
       try {
@@ -112,7 +112,7 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.assistant.ai/cli/u
     .option("--timeout <seconds>", "Timeout for each update step in seconds (default: 1200)")
     .addHelpText(
       "after",
-      `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.assistant.ai/cli/update")}\n`,
+      `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.zhushou.ai/cli/update")}\n`,
     )
     .action(async (opts, command) => {
       try {
@@ -134,14 +134,14 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.assistant.ai/cli/u
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["assistant update status", "Show channel + version status."],
-          ["assistant update status --json", "JSON output."],
-          ["assistant update status --timeout 10", "Custom timeout."],
+          ["zhushou update status", "Show channel + version status."],
+          ["zhushou update status --json", "JSON output."],
+          ["zhushou update status --timeout 10", "Custom timeout."],
         ])}\n\n${theme.heading("Notes:")}\n${theme.muted(
           "- Shows current update channel (stable/beta/dev) and source",
         )}\n${theme.muted("- Includes git tag/branch/SHA for source checkouts")}\n\n${theme.muted(
           "Docs:",
-        )} ${formatDocsLink("/cli/update", "docs.assistant.ai/cli/update")}`,
+        )} ${formatDocsLink("/cli/update", "docs.zhushou.ai/cli/update")}`,
     )
     .action(async (opts, command) => {
       try {

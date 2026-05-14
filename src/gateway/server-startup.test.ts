@@ -1,7 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 
-const ensureAssistantModelsJsonMock = vi.fn<
+const ensureZhushouModelsJsonMock = vi.fn<
   (config: unknown, agentDir: unknown) => Promise<{ agentDir: string; wrote: boolean }>
 >(async () => ({ agentDir: "/tmp/agent", wrote: false }));
 const resolveModelMock = vi.fn<
@@ -23,12 +23,12 @@ const selectAgentHarnessMock = vi.fn((_params: unknown) => ({ id: "pi" }));
 const resolveEmbeddedAgentRuntimeMock = vi.fn(() => "auto");
 
 vi.mock("../agents/agent-paths.js", () => ({
-  resolveAssistantAgentDir: () => "/tmp/agent",
+  resolveZhushouAgentDir: () => "/tmp/agent",
 }));
 
 vi.mock("../agents/models-config.js", () => ({
-  ensureAssistantModelsJson: (config: unknown, agentDir: unknown) =>
-    ensureAssistantModelsJsonMock(config, agentDir),
+  ensureZhushouModelsJson: (config: unknown, agentDir: unknown) =>
+    ensureZhushouModelsJsonMock(config, agentDir),
 }));
 
 vi.mock("../agents/harness/selection.js", () => ({
@@ -59,7 +59,7 @@ describe("gateway startup primary model warmup", () => {
   });
 
   beforeEach(() => {
-    ensureAssistantModelsJsonMock.mockClear();
+    ensureZhushouModelsJsonMock.mockClear();
     resolveModelMock.mockClear();
     selectAgentHarnessMock.mockClear();
     selectAgentHarnessMock.mockReturnValue({ id: "pi" });
@@ -76,14 +76,14 @@ describe("gateway startup primary model warmup", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     await prewarmConfiguredPrimaryModel({
       cfg,
       log: { warn: vi.fn() },
     });
 
-    expect(ensureAssistantModelsJsonMock).toHaveBeenCalledWith(cfg, "/tmp/agent");
+    expect(ensureZhushouModelsJsonMock).toHaveBeenCalledWith(cfg, "/tmp/agent");
     expect(resolveModelMock).toHaveBeenCalledWith("openai-codex", "gpt-5.4", "/tmp/agent", cfg, {
       skipProviderRuntimeHooks: true,
     });
@@ -91,11 +91,11 @@ describe("gateway startup primary model warmup", () => {
 
   it("skips warmup when no explicit primary model is configured", async () => {
     await prewarmConfiguredPrimaryModel({
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       log: { warn: vi.fn() },
     });
 
-    expect(ensureAssistantModelsJsonMock).not.toHaveBeenCalled();
+    expect(ensureZhushouModelsJsonMock).not.toHaveBeenCalled();
     expect(resolveModelMock).not.toHaveBeenCalled();
   });
 
@@ -115,11 +115,11 @@ describe("gateway startup primary model warmup", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       log: { warn: vi.fn() },
     });
 
-    expect(ensureAssistantModelsJsonMock).not.toHaveBeenCalled();
+    expect(ensureZhushouModelsJsonMock).not.toHaveBeenCalled();
     expect(resolveModelMock).not.toHaveBeenCalled();
   });
 
@@ -133,7 +133,7 @@ describe("gateway startup primary model warmup", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     await prewarmConfiguredPrimaryModel({
       cfg,
@@ -145,7 +145,7 @@ describe("gateway startup primary model warmup", () => {
       modelId: "gpt-5.4",
       config: cfg,
     });
-    expect(ensureAssistantModelsJsonMock).not.toHaveBeenCalled();
+    expect(ensureZhushouModelsJsonMock).not.toHaveBeenCalled();
     expect(resolveModelMock).not.toHaveBeenCalled();
   });
 
@@ -160,12 +160,12 @@ describe("gateway startup primary model warmup", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       log: { warn: vi.fn() },
     });
 
     expect(selectAgentHarnessMock).not.toHaveBeenCalled();
-    expect(ensureAssistantModelsJsonMock).not.toHaveBeenCalled();
+    expect(ensureZhushouModelsJsonMock).not.toHaveBeenCalled();
     expect(resolveModelMock).not.toHaveBeenCalled();
   });
 
@@ -179,7 +179,7 @@ describe("gateway startup primary model warmup", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     await prewarmConfiguredPrimaryModel({
       cfg,
@@ -191,7 +191,7 @@ describe("gateway startup primary model warmup", () => {
       modelId: "gpt-5.4",
       config: cfg,
     });
-    expect(ensureAssistantModelsJsonMock).toHaveBeenCalledWith(cfg, "/tmp/agent");
+    expect(ensureZhushouModelsJsonMock).toHaveBeenCalledWith(cfg, "/tmp/agent");
     expect(resolveModelMock).toHaveBeenCalled();
   });
 });

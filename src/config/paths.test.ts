@@ -18,10 +18,10 @@ function envWith(overrides: Record<string, string | undefined>): NodeJS.ProcessE
 }
 
 describe("oauth paths", () => {
-  it("prefers ASSISTANT_OAUTH_DIR over ASSISTANT_STATE_DIR", () => {
+  it("prefers ZHUSHOU_OAUTH_DIR over ZHUSHOU_STATE_DIR", () => {
     const env = {
-      ASSISTANT_OAUTH_DIR: "/custom/oauth",
-      ASSISTANT_STATE_DIR: "/custom/state",
+      ZHUSHOU_OAUTH_DIR: "/custom/oauth",
+      ZHUSHOU_STATE_DIR: "/custom/state",
     } as NodeJS.ProcessEnv;
 
     expect(resolveOAuthDir(env, "/custom/state")).toBe(path.resolve("/custom/oauth"));
@@ -30,9 +30,9 @@ describe("oauth paths", () => {
     );
   });
 
-  it("derives oauth path from ASSISTANT_STATE_DIR when unset", () => {
+  it("derives oauth path from ZHUSHOU_STATE_DIR when unset", () => {
     const env = {
-      ASSISTANT_STATE_DIR: "/custom/state",
+      ZHUSHOU_STATE_DIR: "/custom/state",
     } as NodeJS.ProcessEnv;
 
     expect(resolveOAuthDir(env, "/custom/state")).toBe(path.join("/custom/state", "credentials"));
@@ -50,7 +50,7 @@ describe("gateway port resolution", () => {
 
   it("prefers numeric env values over config", () => {
     expect(
-      resolveGatewayPort({ gateway: { port: 19002 } }, envWith({ ASSISTANT_GATEWAY_PORT: "19001" })),
+      resolveGatewayPort({ gateway: { port: 19002 } }, envWith({ ZHUSHOU_GATEWAY_PORT: "19001" })),
     ).toBe(19001);
   });
 
@@ -58,7 +58,7 @@ describe("gateway port resolution", () => {
     expect(
       resolveGatewayPort(
         { gateway: { port: 19002 } },
-        envWith({ ASSISTANT_GATEWAY_PORT: "127.0.0.1:18789" }),
+        envWith({ ZHUSHOU_GATEWAY_PORT: "127.0.0.1:18789" }),
       ),
     ).toBe(18789);
   });
@@ -67,7 +67,7 @@ describe("gateway port resolution", () => {
     expect(
       resolveGatewayPort(
         { gateway: { port: 19002 } },
-        envWith({ ASSISTANT_GATEWAY_PORT: "[::1]:28789" }),
+        envWith({ ZHUSHOU_GATEWAY_PORT: "[::1]:28789" }),
       ),
     ).toBe(28789);
   });
@@ -85,74 +85,74 @@ describe("gateway port resolution", () => {
     expect(
       resolveGatewayPort(
         { gateway: { port: 19003 } },
-        envWith({ ASSISTANT_GATEWAY_PORT: "127.0.0.1:not-a-port" }),
+        envWith({ ZHUSHOU_GATEWAY_PORT: "127.0.0.1:not-a-port" }),
       ),
     ).toBe(19003);
   });
 
   it("falls back when malformed IPv6 inputs do not provide an explicit port", () => {
     expect(
-      resolveGatewayPort({ gateway: { port: 19003 } }, envWith({ ASSISTANT_GATEWAY_PORT: "::1" })),
+      resolveGatewayPort({ gateway: { port: 19003 } }, envWith({ ZHUSHOU_GATEWAY_PORT: "::1" })),
     ).toBe(19003);
-    expect(resolveGatewayPort({}, envWith({ ASSISTANT_GATEWAY_PORT: "2001:db8::1" }))).toBe(
+    expect(resolveGatewayPort({}, envWith({ ZHUSHOU_GATEWAY_PORT: "2001:db8::1" }))).toBe(
       DEFAULT_GATEWAY_PORT,
     );
   });
 
   it("falls back to the default port when env is invalid and config is unset", () => {
-    expect(resolveGatewayPort({}, envWith({ ASSISTANT_GATEWAY_PORT: "127.0.0.1:not-a-port" }))).toBe(
+    expect(resolveGatewayPort({}, envWith({ ZHUSHOU_GATEWAY_PORT: "127.0.0.1:not-a-port" }))).toBe(
       DEFAULT_GATEWAY_PORT,
     );
   });
 });
 
 describe("state + config path candidates", () => {
-  function expectAssistantHomeDefaults(env: NodeJS.ProcessEnv): void {
-    const configuredHome = env.ASSISTANT_HOME;
+  function expectZhushouHomeDefaults(env: NodeJS.ProcessEnv): void {
+    const configuredHome = env.ZHUSHOU_HOME;
     if (!configuredHome) {
-      throw new Error("ASSISTANT_HOME must be set for this assertion helper");
+      throw new Error("ZHUSHOU_HOME must be set for this assertion helper");
     }
     const resolvedHome = path.resolve(configuredHome);
-    expect(resolveStateDir(env)).toBe(path.join(resolvedHome, ".assistant"));
+    expect(resolveStateDir(env)).toBe(path.join(resolvedHome, ".zhushou"));
 
     const candidates = resolveDefaultConfigCandidates(env);
-    expect(candidates[0]).toBe(path.join(resolvedHome, ".assistant", "assistant.json"));
+    expect(candidates[0]).toBe(path.join(resolvedHome, ".zhushou", "zhushou.json"));
   }
 
-  it("uses ASSISTANT_STATE_DIR when set", () => {
+  it("uses ZHUSHOU_STATE_DIR when set", () => {
     const env = {
-      ASSISTANT_STATE_DIR: "/new/state",
+      ZHUSHOU_STATE_DIR: "/new/state",
     } as NodeJS.ProcessEnv;
 
     expect(resolveStateDir(env, () => "/home/test")).toBe(path.resolve("/new/state"));
   });
 
-  it("uses ASSISTANT_HOME for default state/config locations", () => {
+  it("uses ZHUSHOU_HOME for default state/config locations", () => {
     const env = {
-      ASSISTANT_HOME: "/srv/assistant-home",
+      ZHUSHOU_HOME: "/srv/zhushou-home",
     } as NodeJS.ProcessEnv;
-    expectAssistantHomeDefaults(env);
+    expectZhushouHomeDefaults(env);
   });
 
-  it("prefers ASSISTANT_HOME over HOME for default state/config locations", () => {
+  it("prefers ZHUSHOU_HOME over HOME for default state/config locations", () => {
     const env = {
-      ASSISTANT_HOME: "/srv/assistant-home",
+      ZHUSHOU_HOME: "/srv/zhushou-home",
       HOME: "/home/other",
     } as NodeJS.ProcessEnv;
-    expectAssistantHomeDefaults(env);
+    expectZhushouHomeDefaults(env);
   });
 
   it("orders default config candidates in a stable order", () => {
     const home = "/home/test";
     const resolvedHome = path.resolve(home);
     const candidates = resolveDefaultConfigCandidates({} as NodeJS.ProcessEnv, () => home);
-    const expected = [path.join(resolvedHome, ".assistant", "assistant.json")];
+    const expected = [path.join(resolvedHome, ".zhushou", "zhushou.json")];
     expect(candidates).toEqual(expected);
   });
 
-  it("uses ~/.assistant when it exists", async () => {
-    await withTempDir({ prefix: "assistant-state-" }, async (root) => {
-      const newDir = path.join(root, ".assistant");
+  it("uses ~/.zhushou when it exists", async () => {
+    await withTempDir({ prefix: "zhushou-state-" }, async (root) => {
+      const newDir = path.join(root, ".zhushou");
       await fs.mkdir(newDir, { recursive: true });
       const resolved = resolveStateDir({} as NodeJS.ProcessEnv, () => root);
       expect(resolved).toBe(newDir);
@@ -160,10 +160,10 @@ describe("state + config path candidates", () => {
   });
 
   it("CONFIG_PATH prefers existing config when present", async () => {
-    await withTempDir({ prefix: "assistant-config-" }, async (root) => {
-      const configDir = path.join(root, ".assistant");
+    await withTempDir({ prefix: "zhushou-config-" }, async (root) => {
+      const configDir = path.join(root, ".zhushou");
       await fs.mkdir(configDir, { recursive: true });
-      const configPath = path.join(configDir, "assistant.json");
+      const configPath = path.join(configDir, "zhushou.json");
       await fs.writeFile(configPath, "{}", "utf-8");
 
       const resolved = resolveConfigPathCandidate({} as NodeJS.ProcessEnv, () => root);
@@ -172,16 +172,16 @@ describe("state + config path candidates", () => {
   });
 
   it("respects state dir overrides when config is missing", async () => {
-    await withTempDir({ prefix: "assistant-config-override-" }, async (root) => {
-      const configDir = path.join(root, ".assistant");
+    await withTempDir({ prefix: "zhushou-config-override-" }, async (root) => {
+      const configDir = path.join(root, ".zhushou");
       await fs.mkdir(configDir, { recursive: true });
-      const configPath = path.join(configDir, "assistant.json");
+      const configPath = path.join(configDir, "zhushou.json");
       await fs.writeFile(configPath, "{}", "utf-8");
 
       const overrideDir = path.join(root, "override");
-      const env = { ASSISTANT_STATE_DIR: overrideDir } as NodeJS.ProcessEnv;
+      const env = { ZHUSHOU_STATE_DIR: overrideDir } as NodeJS.ProcessEnv;
       const resolved = resolveConfigPath(env, overrideDir, () => root);
-      expect(resolved).toBe(path.join(overrideDir, "assistant.json"));
+      expect(resolved).toBe(path.join(overrideDir, "zhushou.json"));
     });
   });
 });

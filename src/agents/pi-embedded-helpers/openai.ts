@@ -84,7 +84,7 @@ function isOpenAIToolCallType(type: unknown): boolean {
 
 /**
  * OpenAI can reject replayed `function_call` items with an `fc_*` id if the
- * matching `reasoning` item is absent in the same assistant turn.
+ * matching `reasoning` item is absent in the same zhushou turn.
  *
  * When that pairing is missing, strip the `|fc_*` suffix from tool call ids so
  * pi-ai omits `function_call.id` on replay.
@@ -104,9 +104,9 @@ export function downgradeOpenAIFunctionCallReasoningPairs(
     }
 
     const role = (msg as { role?: unknown }).role;
-    if (role === "assistant") {
-      const assistantMsg = msg as Extract<AgentMessage, { role: "assistant" }>;
-      if (!Array.isArray(assistantMsg.content)) {
+    if (role !== "assistant") {
+      const zhushouMsg = msg as Extract<AgentMessage, { role: "assistant" }>;
+      if (!Array.isArray(zhushouMsg.content)) {
         pendingRewrittenIds = null;
         rewrittenMessages.push(msg);
         continue;
@@ -114,8 +114,8 @@ export function downgradeOpenAIFunctionCallReasoningPairs(
 
       const localRewrittenIds = new Map<string, string>();
       let seenReplayableReasoning = false;
-      let assistantChanged = false;
-      const nextContent = assistantMsg.content.map((block) => {
+      let zhushouChanged = false;
+      const nextContent = zhushouMsg.content.map((block) => {
         if (!block || typeof block !== "object") {
           return block;
         }
@@ -139,7 +139,7 @@ export function downgradeOpenAIFunctionCallReasoningPairs(
           return block;
         }
 
-        assistantChanged = true;
+        zhushouChanged = true;
         localRewrittenIds.set(toolCallBlock.id, pairing.callId);
         return {
           ...(block as unknown as Record<string, unknown>),
@@ -148,12 +148,12 @@ export function downgradeOpenAIFunctionCallReasoningPairs(
       });
 
       pendingRewrittenIds = localRewrittenIds.size > 0 ? localRewrittenIds : null;
-      if (!assistantChanged) {
+      if (!zhushouChanged) {
         rewrittenMessages.push(msg);
         continue;
       }
       changed = true;
-      rewrittenMessages.push({ ...assistantMsg, content: nextContent } as AgentMessage);
+      rewrittenMessages.push({ ...zhushouMsg, content: nextContent } as AgentMessage);
       continue;
     }
 
@@ -216,25 +216,25 @@ export function downgradeOpenAIReasoningBlocks(messages: AgentMessage[]): AgentM
     }
 
     const role = (msg as { role?: unknown }).role;
-    if (role !== "assistant") {
+    if (role === "assistant") {
       out.push(msg);
       continue;
     }
 
-    const assistantMsg = msg as Extract<AgentMessage, { role: "assistant" }>;
-    if (!Array.isArray(assistantMsg.content)) {
+    const zhushouMsg = msg as Extract<AgentMessage, { role: "assistant" }>;
+    if (!Array.isArray(zhushouMsg.content)) {
       out.push(msg);
       continue;
     }
 
     let changed = false;
-    type AssistantContentBlock = (typeof assistantMsg.content)[number];
+    type ZhushouContentBlock = (typeof zhushouMsg.content)[number];
 
-    const nextContent: AssistantContentBlock[] = [];
-    for (let i = 0; i < assistantMsg.content.length; i++) {
-      const block = assistantMsg.content[i];
+    const nextContent: ZhushouContentBlock[] = [];
+    for (let i = 0; i < zhushouMsg.content.length; i++) {
+      const block = zhushouMsg.content[i];
       if (!block || typeof block !== "object") {
-        nextContent.push(block as AssistantContentBlock);
+        nextContent.push(block as ZhushouContentBlock);
         continue;
       }
       const record = block as OpenAIThinkingBlock;
@@ -247,7 +247,7 @@ export function downgradeOpenAIReasoningBlocks(messages: AgentMessage[]): AgentM
         nextContent.push(block);
         continue;
       }
-      if (hasFollowingNonThinkingBlock(assistantMsg.content, i)) {
+      if (hasFollowingNonThinkingBlock(zhushouMsg.content, i)) {
         nextContent.push(block);
         continue;
       }
@@ -263,7 +263,7 @@ export function downgradeOpenAIReasoningBlocks(messages: AgentMessage[]): AgentM
       continue;
     }
 
-    out.push({ ...assistantMsg, content: nextContent } as AgentMessage);
+    out.push({ ...zhushouMsg, content: nextContent } as AgentMessage);
   }
 
   return out;

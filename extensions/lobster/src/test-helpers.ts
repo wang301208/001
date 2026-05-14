@@ -1,6 +1,6 @@
 type PathEnvKey = "PATH" | "Path" | "PATHEXT" | "Pathext";
 
-export { createWindowsCmdShimFixture } from "assistant/plugin-sdk/testing";
+export { createWindowsCmdShimFixture } from "zhushou/plugin-sdk/testing";
 const PATH_ENV_KEYS = ["PATH", "Path", "PATHEXT", "Pathext"] as const;
 
 export type PlatformPathEnvSnapshot = {

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-INSTALL_URL="${ASSISTANT_INSTALL_URL:-https://assistant.bot/install.sh}"
-DEFAULT_PACKAGE="assistant"
-PACKAGE_NAME="${ASSISTANT_INSTALL_PACKAGE:-$DEFAULT_PACKAGE}"
+INSTALL_URL="${ZHUSHOU_INSTALL_URL:-https://zhushou.bot/install.sh}"
+DEFAULT_PACKAGE="zhushou"
+PACKAGE_NAME="${ZHUSHOU_INSTALL_PACKAGE:-$DEFAULT_PACKAGE}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # shellcheck source=../install-sh-common/cli-verify.sh
@@ -37,7 +37,7 @@ export PATH="$HOME/.npm-global/bin:$PATH"
 echo "==> Verify git installed"
 command -v git >/dev/null
 
-EXPECTED_VERSION="${ASSISTANT_INSTALL_EXPECT_VERSION:-}"
+EXPECTED_VERSION="${ZHUSHOU_INSTALL_EXPECT_VERSION:-}"
 if [[ -n "$EXPECTED_VERSION" ]]; then
   LATEST_VERSION="$EXPECTED_VERSION"
 else

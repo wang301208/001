@@ -1,5 +1,5 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { normalizeOptionalLowercaseString } from "../../shared/string-coerce.js";
 import { normalizeProviderId } from "../provider-id.js";
 
@@ -12,7 +12,7 @@ function stripThreadSuffix(value: string): string {
 
 /**
  * Limits conversation history to the last N user turns (and their associated
- * assistant responses). This reduces token usage for long-running DM sessions.
+ * zhushou responses). This reduces token usage for long-running DM sessions.
  */
 export function limitHistoryTurns(
   messages: AgentMessage[],
@@ -44,7 +44,7 @@ export function limitHistoryTurns(
  */
 export function getHistoryLimitFromSessionKey(
   sessionKey: string | undefined,
-  config: AssistantConfig | undefined,
+  config: ZhushouConfig | undefined,
 ): number | undefined {
   if (!sessionKey || !config) {
     return undefined;
@@ -63,7 +63,7 @@ export function getHistoryLimitFromSessionKey(
   const userId = stripThreadSuffix(userIdRaw);
 
   const resolveProviderConfig = (
-    cfg: AssistantConfig | undefined,
+    cfg: ZhushouConfig | undefined,
     providerId: string,
   ):
     | {

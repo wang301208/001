@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createWizardPrompter as buildWizardPrompter } from "../../test/helpers/wizard-prompter.js";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import type { PluginWebSearchProviderEntry } from "../plugins/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 
@@ -42,16 +42,16 @@ const resolveSetupSecretInputString = vi.hoisted(() =>
   vi.fn<() => Promise<string | undefined>>(async () => undefined),
 );
 const resolveExistingKey = vi.hoisted(() =>
-  vi.fn<(config: AssistantConfig, provider: string) => string | undefined>(() => undefined),
+  vi.fn<(config: ZhushouConfig, provider: string) => string | undefined>(() => undefined),
 );
 const hasExistingKey = vi.hoisted(() =>
-  vi.fn<(config: AssistantConfig, provider: string) => boolean>(() => false),
+  vi.fn<(config: ZhushouConfig, provider: string) => boolean>(() => false),
 );
 const hasKeyInEnv = vi.hoisted(() =>
   vi.fn<(entry: Pick<PluginWebSearchProviderEntry, "envVars">) => boolean>(() => false),
 );
 const listConfiguredWebSearchProviders = vi.hoisted(() =>
-  vi.fn<(params?: { config?: AssistantConfig }) => PluginWebSearchProviderEntry[]>(() => []),
+  vi.fn<(params?: { config?: ZhushouConfig }) => PluginWebSearchProviderEntry[]>(() => []),
 );
 
 vi.mock("../commands/onboard-helpers.js", () => ({
@@ -103,14 +103,14 @@ vi.mock("../daemon/service.js", () => ({
       ? {
           scheduled: true,
           daemonActionResult: "scheduled",
-          message: `restart scheduled, ${serviceNoun.toLowerCase()} will restart momentarily`,
-          progressMessage: `${serviceNoun} service restart scheduled.`,
+          message: `${serviceNoun} 重启已安排，将很快重启`,
+          progressMessage: `${serviceNoun} 服务重启已安排。`,
         }
       : {
           scheduled: false,
           daemonActionResult: "restarted",
-          message: `${serviceNoun} service restarted.`,
-          progressMessage: `${serviceNoun} service restarted.`,
+          message: `${serviceNoun} 服务已重启。`,
+          progressMessage: `${serviceNoun} 服务已重启。`,
         },
   ),
   resolveGatewayService: vi.fn(() => ({
@@ -175,7 +175,7 @@ function expectFirstOnboardingInstallPlanCallOmitsToken() {
 }
 
 type AdvancedFinalizeArgs = {
-  nextConfig?: AssistantConfig;
+  nextConfig?: ZhushouConfig;
   prompter?: ReturnType<typeof buildWizardPrompter>;
   runtime?: RuntimeEnv;
   installDaemon?: boolean;
@@ -188,7 +188,7 @@ function createLaterPrompter() {
   });
 }
 
-function createEnabledFirecrawlSearchConfig(): AssistantConfig {
+function createEnabledFirecrawlSearchConfig(): ZhushouConfig {
   return {
     tools: {
       web: {
@@ -259,8 +259,8 @@ describe("finalizeSetupWizard", () => {
   });
 
   it("resolves gateway password SecretRef for probe and TUI", async () => {
-    const previous = process.env.ASSISTANT_GATEWAY_PASSWORD;
-    process.env.ASSISTANT_GATEWAY_PASSWORD = "resolved-gateway-password"; // pragma: allowlist secret
+    const previous = process.env.ZHUSHOU_GATEWAY_PASSWORD;
+    process.env.ZHUSHOU_GATEWAY_PASSWORD = "resolved-gateway-password"; // pragma: allowlist secret
     resolveSetupSecretInputString.mockResolvedValueOnce("resolved-gateway-password");
     const select = vi.fn(async (params: { message: string }) => {
       if (params.message === "如何启动你的助手？") {
@@ -292,7 +292,7 @@ describe("finalizeSetupWizard", () => {
               password: {
                 source: "env",
                 provider: "default",
-                id: "ASSISTANT_GATEWAY_PASSWORD",
+                id: "ZHUSHOU_GATEWAY_PASSWORD",
               },
             },
           },
@@ -318,9 +318,9 @@ describe("finalizeSetupWizard", () => {
       });
     } finally {
       if (previous === undefined) {
-        delete process.env.ASSISTANT_GATEWAY_PASSWORD;
+        delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
       } else {
-        process.env.ASSISTANT_GATEWAY_PASSWORD = previous;
+        process.env.ZHUSHOU_GATEWAY_PASSWORD = previous;
       }
     }
 
@@ -362,7 +362,7 @@ describe("finalizeSetupWizard", () => {
             token: {
               source: "env",
               provider: "default",
-              id: "ASSISTANT_GATEWAY_TOKEN",
+              id: "ZHUSHOU_GATEWAY_TOKEN",
             },
           },
         },
@@ -429,8 +429,8 @@ describe("finalizeSetupWizard", () => {
     expect(gatewayServiceRestart).toHaveBeenCalledTimes(1);
     expect(gatewayServiceInstall).not.toHaveBeenCalled();
     expect(gatewayServiceUninstall).not.toHaveBeenCalled();
-    expect(progressUpdate).toHaveBeenCalledWith("Restarting Gateway service…");
-    expect(progressStop).toHaveBeenCalledWith("Gateway service restart scheduled.");
+    expect(progressUpdate).toHaveBeenCalledWith("正在重启网关服务…");
+    expect(progressStop).toHaveBeenCalledWith("Gateway 服务重启已安排。");
   });
 
   it("reports selected providers blocked by plugin policy as unavailable", async () => {

@@ -1,5 +1,5 @@
-import { extractAssistantTextForPhase } from "../../shared/chat-message-content.js";
-import { sanitizeAssistantVisibleTextWithProfile } from "../../shared/text/assistant-visible-text.js";
+import { extractZhushouTextForPhase } from "../../shared/chat-message-content.js";
+import { sanitizeZhushouVisibleTextWithProfile } from "../../shared/text/zhushou-visible-text.js";
 import { sanitizeUserFacingText } from "../pi-embedded-helpers/sanitize-user-facing-text.js";
 
 export function stripToolMessages(messages: unknown[]): unknown[] {
@@ -17,10 +17,10 @@ export function stripToolMessages(messages: unknown[]): unknown[] {
  * This ensures user-facing text doesn't leak internal tool representations.
  */
 export function sanitizeTextContent(text: string): string {
-  return sanitizeAssistantVisibleTextWithProfile(text, "history");
+  return sanitizeZhushouVisibleTextWithProfile(text, "history");
 }
 
-export function hasAssistantPhaseMetadata(message: unknown): boolean {
+export function hasZhushouPhaseMetadata(message: unknown): boolean {
   if (!message || typeof message !== "object") {
     return false;
   }
@@ -38,7 +38,7 @@ export function hasAssistantPhaseMetadata(message: unknown): boolean {
       typeof (block as { textSignature?: unknown }).textSignature === "string",
   );
 }
-export function extractAssistantText(message: unknown): string | undefined {
+export function extractZhushouText(message: unknown): string | undefined {
   if (!message || typeof message !== "object") {
     return undefined;
   }
@@ -46,12 +46,12 @@ export function extractAssistantText(message: unknown): string | undefined {
     return undefined;
   }
   const joined =
-    extractAssistantTextForPhase(message, {
+    extractZhushouTextForPhase(message, {
       phase: "final_answer",
       sanitizeText: sanitizeTextContent,
       joinWith: "",
     }) ??
-    extractAssistantTextForPhase(message, {
+    extractZhushouTextForPhase(message, {
       sanitizeText: sanitizeTextContent,
       joinWith: "",
     });

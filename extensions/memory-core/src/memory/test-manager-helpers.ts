@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/memory-core-host-engine-foundation";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
 import type { MemoryIndexManager } from "./index.js";
 
 type MemoryIndexModule = typeof import("./index.js");
@@ -18,7 +18,7 @@ async function loadGetMemorySearchManager(): Promise<MemoryIndexModule["getMemor
 }
 
 export async function getRequiredMemoryIndexManager(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId?: string;
   purpose?: "default" | "status";
 }): Promise<MemoryIndexManager> {

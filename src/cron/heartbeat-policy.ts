@@ -1,4 +1,4 @@
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
 import { stripHeartbeatToken } from "../auto-reply/heartbeat.js";
 
 export type HeartbeatDeliveryPayload = {

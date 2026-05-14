@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { ssrfPolicyFromPrivateNetworkOptIn } from "assistant/plugin-sdk/ssrf-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { ssrfPolicyFromPrivateNetworkOptIn } from "zhushou/plugin-sdk/ssrf-runtime";
 import { fetchWithSsrFGuard, type RuntimeEnv } from "../runtime-api.js";
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 import { normalizeResolvedSecretInputString } from "./secret-input.js";

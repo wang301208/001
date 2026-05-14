@@ -8,7 +8,7 @@ import {
   loadIncludePatternsFromEnv,
 } from "./vitest/vitest.unit.config.ts";
 
-const patternFiles = createPatternFileHelper("assistant-vitest-unit-config-");
+const patternFiles = createPatternFileHelper("zhushou-vitest-unit-config-");
 
 afterEach(() => {
   patternFiles.cleanup();
@@ -29,7 +29,7 @@ describe("loadIncludePatternsFromEnv", () => {
 
     expect(
       loadIncludePatternsFromEnv({
-        ASSISTANT_VITEST_INCLUDE_FILE: filePath,
+        ZHUSHOU_VITEST_INCLUDE_FILE: filePath,
       }),
     ).toEqual(["src/infra/update-runner.test.ts", "src/utils/path.test.ts"]);
   });
@@ -50,7 +50,7 @@ describe("loadExtraExcludePatternsFromEnv", () => {
 
     expect(
       loadExtraExcludePatternsFromEnv({
-        ASSISTANT_VITEST_EXTRA_EXCLUDE_FILE: filePath,
+        ZHUSHOU_VITEST_EXTRA_EXCLUDE_FILE: filePath,
       }),
     ).toEqual(["src/infra/update-runner.test.ts", "src/utils/path.test.ts"]);
   });
@@ -62,7 +62,7 @@ describe("loadExtraExcludePatternsFromEnv", () => {
 
     expect(() =>
       loadExtraExcludePatternsFromEnv({
-        ASSISTANT_VITEST_EXTRA_EXCLUDE_FILE: filePath,
+        ZHUSHOU_VITEST_EXTRA_EXCLUDE_FILE: filePath,
       }),
     ).toThrow(/JSON array/u);
   });
@@ -95,7 +95,7 @@ describe("unit vitest config", () => {
     const unitConfig = createUnitVitestConfig({});
     expect(normalizeConfigPaths(unitConfig.test?.setupFiles)).toEqual([
       "test/setup.ts",
-      "test/setup-assistant-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
     ]);
   });
 

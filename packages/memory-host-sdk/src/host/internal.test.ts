@@ -403,7 +403,7 @@ describe("remapChunkLines", () => {
     const lineMap = [4, 6, 7, 10, 13];
 
     // Create chunks from content that has 5 lines
-    const content = "User: Hello\nAssistant: Hi\nUser: Question\nAssistant: Answer\nUser: Thanks";
+    const content = "User: Hello\nZhushou: Hi\nUser: Question\nZhushou: Answer\nUser: Thanks";
     const chunks = chunkMarkdown(content, { tokens: 400, overlap: 0 });
     expect(chunks.length).toBeGreaterThan(0);
 
@@ -437,7 +437,7 @@ describe("remapChunkLines", () => {
     // lineMap: 10 content lines from JSONL lines [2, 5, 8, 11, 14, 17, 20, 23, 26, 29]
     const lineMap = [2, 5, 8, 11, 14, 17, 20, 23, 26, 29];
     const contentLines = lineMap.map((_, i) =>
-      i % 2 === 0 ? `User: Message ${i}` : `Assistant: Reply ${i}`,
+      i % 2 === 0 ? `User: Message ${i}` : `Zhushou: Reply ${i}`,
     );
     const content = contentLines.join("\n");
 

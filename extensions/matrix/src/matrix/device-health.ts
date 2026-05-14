@@ -6,26 +6,26 @@ export type MatrixManagedDeviceInfo = {
 
 export type MatrixDeviceHealthSummary = {
   currentDeviceId: string | null;
-  staleAssistantDevices: MatrixManagedDeviceInfo[];
-  currentAssistantDevices: MatrixManagedDeviceInfo[];
+  staleZhushouDevices: MatrixManagedDeviceInfo[];
+  currentZhushouDevices: MatrixManagedDeviceInfo[];
 };
 
-const ASSISTANT_DEVICE_NAME_PREFIX = "助手 ";
+const ZHUSHOU_DEVICE_NAME_PREFIX = "助手 ";
 
-export function isAssistantManagedMatrixDevice(displayName: string | null | undefined): boolean {
-  return displayName?.startsWith(ASSISTANT_DEVICE_NAME_PREFIX) === true;
+export function isZhushouManagedMatrixDevice(displayName: string | null | undefined): boolean {
+  return displayName?.startsWith(ZHUSHOU_DEVICE_NAME_PREFIX) === true;
 }
 
 export function summarizeMatrixDeviceHealth(
   devices: MatrixManagedDeviceInfo[],
 ): MatrixDeviceHealthSummary {
   const currentDeviceId = devices.find((device) => device.current)?.deviceId ?? null;
-  const assistantDevices = devices.filter((device) =>
-    isAssistantManagedMatrixDevice(device.displayName),
+  const zhushouDevices = devices.filter((device) =>
+    isZhushouManagedMatrixDevice(device.displayName),
   );
   return {
     currentDeviceId,
-    staleAssistantDevices: assistantDevices.filter((device) => !device.current),
-    currentAssistantDevices: assistantDevices.filter((device) => device.current),
+    staleZhushouDevices: zhushouDevices.filter((device) => !device.current),
+    currentZhushouDevices: zhushouDevices.filter((device) => device.current),
   };
 }

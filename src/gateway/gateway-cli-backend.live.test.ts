@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { resolveCliBackendConfig, resolveCliBackendLiveTest } from "../agents/cli-backends.js";
 import { isLiveTestEnabled } from "../agents/live-test-helpers.js";
 import { parseModelRef } from "../agents/model-selection.js";
-import { clearRuntimeConfigSnapshot, type AssistantConfig } from "../config/config.js";
+import { clearRuntimeConfigSnapshot, type ZhushouConfig } from "../config/config.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import {
   applyCliBackendLiveEnv,
@@ -32,9 +32,9 @@ import { startGatewayServer } from "./server.js";
 import { extractPayloadText } from "./test-helpers.agent-results.js";
 
 const LIVE = isLiveTestEnabled();
-const CLI_LIVE = isTruthyEnvValue(process.env.ASSISTANT_LIVE_CLI_BACKEND);
-const CLI_RESUME = isTruthyEnvValue(process.env.ASSISTANT_LIVE_CLI_BACKEND_RESUME_PROBE);
-const CLI_DEBUG = isTruthyEnvValue(process.env.ASSISTANT_LIVE_CLI_BACKEND_DEBUG);
+const CLI_LIVE = isTruthyEnvValue(process.env.ZHUSHOU_LIVE_CLI_BACKEND);
+const CLI_RESUME = isTruthyEnvValue(process.env.ZHUSHOU_LIVE_CLI_BACKEND_RESUME_PROBE);
+const CLI_DEBUG = isTruthyEnvValue(process.env.ZHUSHOU_LIVE_CLI_BACKEND_DEBUG);
 const describeLive = LIVE && CLI_LIVE ? describe : describe.skip;
 
 const DEFAULT_PROVIDER = "claude-cli";
@@ -56,8 +56,8 @@ describeLive("gateway live (cli backend)", () => {
     async () => {
       const preservedEnv = new Set(
         parseJsonStringArray(
-          "ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV",
-          process.env.ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV,
+          "ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV",
+          process.env.ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV,
         ) ?? [],
       );
       const previousEnv = snapshotCliBackendLiveEnv();
@@ -66,15 +66,15 @@ describeLive("gateway live (cli backend)", () => {
       applyCliBackendLiveEnv(preservedEnv);
 
       const token = `test-${randomUUID()}`;
-      process.env.ASSISTANT_GATEWAY_TOKEN = token;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
       const port = await getFreeGatewayPort();
       logCliBackendLiveStep("env-ready", { port });
 
-      const rawModel = process.env.ASSISTANT_LIVE_CLI_BACKEND_MODEL ?? DEFAULT_MODEL;
+      const rawModel = process.env.ZHUSHOU_LIVE_CLI_BACKEND_MODEL ?? DEFAULT_MODEL;
       const parsed = parseModelRef(rawModel, "claude-cli");
       if (!parsed) {
         throw new Error(
-          `ASSISTANT_LIVE_CLI_BACKEND_MODEL must resolve to a CLI backend model. Got: ${rawModel}`,
+          `ZHUSHOU_LIVE_CLI_BACKEND_MODEL must resolve to a CLI backend model. Got: ${rawModel}`,
         );
       }
 
@@ -97,26 +97,26 @@ describeLive("gateway live (cli backend)", () => {
       });
       const providerDefaults = backendResolved?.config;
 
-      const cliCommand = process.env.ASSISTANT_LIVE_CLI_BACKEND_COMMAND ?? providerDefaults?.command;
+      const cliCommand = process.env.ZHUSHOU_LIVE_CLI_BACKEND_COMMAND ?? providerDefaults?.command;
       if (!cliCommand) {
         throw new Error(
-          `ASSISTANT_LIVE_CLI_BACKEND_COMMAND is required for provider "${providerId}".`,
+          `ZHUSHOU_LIVE_CLI_BACKEND_COMMAND is required for provider "${providerId}".`,
         );
       }
 
       const baseCliArgs =
         parseJsonStringArray(
-          "ASSISTANT_LIVE_CLI_BACKEND_ARGS",
-          process.env.ASSISTANT_LIVE_CLI_BACKEND_ARGS,
+          "ZHUSHOU_LIVE_CLI_BACKEND_ARGS",
+          process.env.ZHUSHOU_LIVE_CLI_BACKEND_ARGS,
         ) ?? providerDefaults?.args;
       if (!baseCliArgs || baseCliArgs.length === 0) {
-        throw new Error(`ASSISTANT_LIVE_CLI_BACKEND_ARGS is required for provider "${providerId}".`);
+        throw new Error(`ZHUSHOU_LIVE_CLI_BACKEND_ARGS is required for provider "${providerId}".`);
       }
 
       const cliClearEnv =
         parseJsonStringArray(
-          "ASSISTANT_LIVE_CLI_BACKEND_CLEAR_ENV",
-          process.env.ASSISTANT_LIVE_CLI_BACKEND_CLEAR_ENV,
+          "ZHUSHOU_LIVE_CLI_BACKEND_CLEAR_ENV",
+          process.env.ZHUSHOU_LIVE_CLI_BACKEND_CLEAR_ENV,
         ) ??
         providerDefaults?.clearEnv ??
         [];
@@ -127,26 +127,26 @@ describeLive("gateway live (cli backend)", () => {
           .filter((entry): entry is [string, string] => typeof entry[1] === "string"),
       );
       const cliImageArg =
-        process.env.ASSISTANT_LIVE_CLI_BACKEND_IMAGE_ARG?.trim() || providerDefaults?.imageArg;
+        process.env.ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_ARG?.trim() || providerDefaults?.imageArg;
       const cliImageMode =
-        parseImageMode(process.env.ASSISTANT_LIVE_CLI_BACKEND_IMAGE_MODE) ??
+        parseImageMode(process.env.ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_MODE) ??
         providerDefaults?.imageMode;
       if (cliImageMode && !cliImageArg) {
         throw new Error(
-          "ASSISTANT_LIVE_CLI_BACKEND_IMAGE_MODE requires ASSISTANT_LIVE_CLI_BACKEND_IMAGE_ARG.",
+          "ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_MODE requires ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_ARG.",
         );
       }
 
-      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-live-cli-"));
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-live-cli-"));
       const stateDir = path.join(tempDir, "state");
       await fs.mkdir(stateDir, { recursive: true });
-      process.env.ASSISTANT_STATE_DIR = stateDir;
+      process.env.ZHUSHOU_STATE_DIR = stateDir;
       const bundleMcp = backendResolved?.bundleMcp === true;
       const bootstrapWorkspace =
         backendResolved?.bundleMcpMode === "claude-config-file"
           ? await createBootstrapWorkspace(tempDir)
           : null;
-      const disableMcpConfig = process.env.ASSISTANT_LIVE_CLI_BACKEND_DISABLE_MCP_CONFIG !== "0";
+      const disableMcpConfig = process.env.ZHUSHOU_LIVE_CLI_BACKEND_DISABLE_MCP_CONFIG !== "0";
       let cliArgs = baseCliArgs;
       if (
         bundleMcp &&
@@ -158,8 +158,8 @@ describeLive("gateway live (cli backend)", () => {
         cliArgs = withClaudeMcpConfigOverrides(baseCliArgs, mcpConfigPath);
       }
 
-      const cfg: AssistantConfig = {};
-      const cfgWithCliBackends = cfg as AssistantConfig & {
+      const cfg: ZhushouConfig = {};
+      const cfgWithCliBackends = cfg as ZhushouConfig & {
         agents?: {
           defaults?: {
             cliBackends?: Record<string, Record<string, unknown>>;
@@ -200,9 +200,9 @@ describeLive("gateway live (cli backend)", () => {
           },
         },
       };
-      const tempConfigPath = path.join(tempDir, "assistant.json");
+      const tempConfigPath = path.join(tempDir, "zhushou.json");
       await fs.writeFile(tempConfigPath, `${JSON.stringify(nextCfg, null, 2)}\n`);
-      process.env.ASSISTANT_CONFIG_PATH = tempConfigPath;
+      process.env.ZHUSHOU_CONFIG_PATH = tempConfigPath;
       const deviceIdentity = await ensurePairedTestGatewayClientIdentity();
       logCliBackendLiveStep("config-written", {
         tempConfigPath,

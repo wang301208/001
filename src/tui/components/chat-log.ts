@@ -1,7 +1,7 @@
 import type { Component } from "@mariozechner/pi-tui";
 import { Container, Spacer, Text } from "@mariozechner/pi-tui";
 import { theme } from "../theme/theme.js";
-import { AssistantMessageComponent } from "./assistant-message.js";
+import { ZhushouMessageComponent } from "./zhushou-message.js";
 import { BtwInlineMessage } from "./btw-inline-message.js";
 import { ToolExecutionComponent } from "./tool-execution.js";
 import { UserMessageComponent } from "./user-message.js";
@@ -12,7 +12,7 @@ const PENDING_HISTORY_CLOCK_SKEW_TOLERANCE_MS = 60_000;
 export class ChatLog extends Container {
   private readonly maxComponents: number;
   private toolById = new Map<string, ToolExecutionComponent>();
-  private streamingRuns = new Map<string, AssistantMessageComponent>();
+  private streamingRuns = new Map<string, ZhushouMessageComponent>();
   private pendingUsers = new Map<
     string,
     {
@@ -185,30 +185,30 @@ export class ChatLog extends Container {
     return runId ?? "default";
   }
 
-  startAssistant(text: string, runId?: string) {
+  startZhushou(text: string, runId?: string) {
     const effectiveRunId = this.resolveRunId(runId);
     const existing = this.streamingRuns.get(effectiveRunId);
     if (existing) {
       existing.setText(text);
       return existing;
     }
-    const component = new AssistantMessageComponent(text);
+    const component = new ZhushouMessageComponent(text);
     this.streamingRuns.set(effectiveRunId, component);
     this.append(component);
     return component;
   }
 
-  updateAssistant(text: string, runId?: string) {
+  updateZhushou(text: string, runId?: string) {
     const effectiveRunId = this.resolveRunId(runId);
     const existing = this.streamingRuns.get(effectiveRunId);
     if (!existing) {
-      this.startAssistant(text, runId);
+      this.startZhushou(text, runId);
       return;
     }
     existing.setText(text);
   }
 
-  finalizeAssistant(text: string, runId?: string) {
+  finalizeZhushou(text: string, runId?: string) {
     const effectiveRunId = this.resolveRunId(runId);
     const existing = this.streamingRuns.get(effectiveRunId);
     if (existing) {
@@ -216,10 +216,10 @@ export class ChatLog extends Container {
       this.streamingRuns.delete(effectiveRunId);
       return;
     }
-    this.append(new AssistantMessageComponent(text));
+    this.append(new ZhushouMessageComponent(text));
   }
 
-  dropAssistant(runId?: string) {
+  dropZhushou(runId?: string) {
     const effectiveRunId = this.resolveRunId(runId);
     const existing = this.streamingRuns.get(effectiveRunId);
     if (!existing) {

@@ -6,7 +6,7 @@ import {
   resolveSubagentMaxConcurrent,
 } from "./agent-limits.js";
 import { applyAgentDefaults } from "./defaults.js";
-import { AssistantSchema } from "./zod-schema.js";
+import { ZhushouSchema } from "./zod-schema.js";
 
 describe("agent concurrency defaults", () => {
   it("resolves defaults when unset", () => {
@@ -28,7 +28,7 @@ describe("agent concurrency defaults", () => {
   });
 
   it("accepts subagent spawn depth and per-agent child limits", () => {
-    const parsed = AssistantSchema.parse({
+    const parsed = ZhushouSchema.parse({
       agents: {
         defaults: {
           subagents: {

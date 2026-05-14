@@ -24,7 +24,7 @@ export function buildAgentMessageFromConversationEntries(entries: ConversationEn
   }
 
   // Prefer the last user/tool entry as "current message" so the agent responds to
-  // the latest user input or tool output, not the assistant's previous message.
+  // the latest user input or tool output, not the zhushou's previous message.
   let currentIndex = -1;
   for (let i = entries.length - 1; i >= 0; i -= 1) {
     const role = entries[i]?.role;

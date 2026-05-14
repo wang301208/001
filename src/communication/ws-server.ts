@@ -8,6 +8,7 @@ import http from 'node:http';
 import { IncomingMessage } from 'node:http';
 import { Socket } from 'node:net';
 import { URL } from 'node:url';
+import { randomUUID } from 'node:crypto';
 import { WebSocket, WebSocketServer } from 'ws';
 import { getMessageBus, type BusEvent, type EventPattern } from './message-bus.js';
 import {
@@ -212,7 +213,7 @@ export class WSServer {
     }
     
     // 创建连接对象
-    const connId = `conn_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const connId = `conn_${randomUUID()}`;
     const connection: WSConnection = {
       id: connId,
       ws,
@@ -347,7 +348,7 @@ export class WSServer {
     const subscriptionIds: string[] = [];
     
     for (const pattern of message.patterns) {
-      const subId = `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      const subId = `sub_${randomUUID()}`;
       connection.subscriptions.set(subId, pattern);
       subscriptionIds.push(subId);
       this.stats.totalSubscriptions++;

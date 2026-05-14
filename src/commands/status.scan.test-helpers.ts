@@ -1,6 +1,6 @@
 import type { Mock } from "vitest";
 import { vi } from "vitest";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 
 type UnknownMock = Mock<(...args: unknown[]) => unknown>;
 type ResolveConfigPathMock = Mock<() => string>;
@@ -24,7 +24,7 @@ export type StatusScanSharedMocks = {
 
 export function createStatusScanSharedMocks(configPathLabel: string): StatusScanSharedMocks {
   return {
-    resolveConfigPath: vi.fn(() => `/tmp/assistant-${configPathLabel}-missing-${process.pid}.json`),
+    resolveConfigPath: vi.fn(() => `/tmp/zhushou-${configPathLabel}-missing-${process.pid}.json`),
     hasPotentialConfiguredChannels: vi.fn(),
     readBestEffortConfig: vi.fn(),
     resolveCommandSecretRefsViaGateway: vi.fn(),
@@ -248,14 +248,14 @@ export async function loadStatusScanModuleForTest(
   return await import("./status.scan.js");
 }
 
-export function createStatusScanConfig<T extends object = AssistantConfig>(
+export function createStatusScanConfig<T extends object = ZhushouConfig>(
   overrides: T = {} as T,
-): AssistantConfig & T {
+): ZhushouConfig & T {
   return {
     session: {},
     gateway: {},
     ...overrides,
-  } as AssistantConfig & T;
+  } as ZhushouConfig & T;
 }
 
 export function createStatusSummary(
@@ -337,7 +337,7 @@ export function createStatusGatewayProbeFailure() {
   };
 }
 
-export function createStatusMemorySearchConfig(): AssistantConfig {
+export function createStatusMemorySearchConfig(): ZhushouConfig {
   return createStatusScanConfig({
     agents: {
       defaults: {
@@ -365,8 +365,8 @@ export function applyStatusScanDefaults(
   mocks: StatusScanSharedMocks,
   options: {
     hasConfiguredChannels?: boolean;
-    sourceConfig?: AssistantConfig;
-    resolvedConfig?: AssistantConfig;
+    sourceConfig?: ZhushouConfig;
+    resolvedConfig?: ZhushouConfig;
     summary?: ReturnType<typeof createStatusSummary>;
     update?: ReturnType<typeof createStatusUpdateResult> | false;
     gatewayProbe?: ReturnType<typeof createStatusGatewayProbeFailure> | false;

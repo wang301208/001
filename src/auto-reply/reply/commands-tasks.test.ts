@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import {
   completeTaskRunByRunId,
   createQueuedTaskRun,
@@ -26,7 +26,7 @@ const baseCfg = {
   commands: { text: true },
   channels: { whatsapp: { allowFrom: ["*"] } },
   session: { mainKey: "main", scope: "per-sender" },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 async function buildTasksReplyForTest(params: { sessionKey?: string } = {}) {
   const commandParams = buildCommandTestParams("/tasks", baseCfg);
@@ -142,7 +142,7 @@ describe("buildTasksReply", () => {
       childSessionKey: "agent:main:main",
       runId: "run-tasks-inline-fence",
       task: [
-        "[Mon 2026-04-06 02:42 GMT+1] <<<BEGIN_ASSISTANT_INTERNAL_CONTEXT>>>",
+        "[Mon 2026-04-06 02:42 GMT+1] <<<BEGIN_ZHUSHOU_INTERNAL_CONTEXT>>>",
         "助手 runtime context (internal):",
         "This context is runtime-generated, not user-authored. Keep internal details private.",
       ].join("\n"),
@@ -157,7 +157,7 @@ describe("buildTasksReply", () => {
     const reply = await buildTasksReplyForTest();
 
     expect(reply.text).toContain("[Mon 2026-04-06 02:42 GMT+1]");
-    expect(reply.text).not.toContain("BEGIN_ASSISTANT_INTERNAL_CONTEXT");
+    expect(reply.text).not.toContain("BEGIN_ZHUSHOU_INTERNAL_CONTEXT");
     expect(reply.text).not.toContain("助手 runtime context (internal):");
   });
 

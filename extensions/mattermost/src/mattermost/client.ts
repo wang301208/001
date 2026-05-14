@@ -1,12 +1,12 @@
 import {
   fetchWithSsrFGuard,
   ssrfPolicyFromPrivateNetworkOptIn,
-} from "assistant/plugin-sdk/ssrf-runtime";
+} from "zhushou/plugin-sdk/ssrf-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
-import { z } from "assistant/plugin-sdk/zod";
+} from "zhushou/plugin-sdk/text-runtime";
+import { z } from "zhushou/plugin-sdk/zod";
 
 export type MattermostFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 

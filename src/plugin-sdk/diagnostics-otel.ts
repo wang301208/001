@@ -7,7 +7,7 @@ export { registerLogTransport } from "../logging/logger.js";
 export { redactSensitiveText } from "../logging/redact.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 export type {
-  AssistantPluginApi,
-  AssistantPluginService,
-  AssistantPluginServiceContext,
+  ZhushouPluginApi,
+  ZhushouPluginService,
+  ZhushouPluginServiceContext,
 } from "../plugins/types.js";

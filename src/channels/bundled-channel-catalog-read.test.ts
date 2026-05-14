@@ -14,12 +14,12 @@ vi.mock("../plugins/bundled-dir.js", () => ({
 }));
 
 // The channel-catalog.json fallback still walks package roots via
-// resolveAssistantPackageRootSync. Isolate from the real repo by mocking
+// resolveZhushouPackageRootSync. Isolate from the real repo by mocking
 // moduleUrl/argv1 resolution to null and deriving only from the tmp cwd.
-vi.mock("../infra/assistant-root.js", () => ({
-  resolveAssistantPackageRootSync: (opts: { cwd?: string; argv1?: string; moduleUrl?: string }) =>
+vi.mock("../infra/zhushou-root.js", () => ({
+  resolveZhushouPackageRootSync: (opts: { cwd?: string; argv1?: string; moduleUrl?: string }) =>
     opts.cwd ?? null,
-  resolveAssistantPackageRoot: async (opts: { cwd?: string; argv1?: string; moduleUrl?: string }) =>
+  resolveZhushouPackageRoot: async (opts: { cwd?: string; argv1?: string; moduleUrl?: string }) =>
     opts.cwd ?? null,
 }));
 
@@ -36,7 +36,7 @@ afterEach(() => {
 
 function seedRoot(prefix: string): string {
   const root = makeTempRepoRoot(tempDirs, prefix);
-  writeJsonFile(path.join(root, "package.json"), { name: "assistant" });
+  writeJsonFile(path.join(root, "package.json"), { name: "zhushou" });
   vi.spyOn(process, "cwd").mockReturnValue(root);
   return root;
 }
@@ -46,8 +46,8 @@ function seedChannelPkg(
   opts: { id: string; docsPath: string; label?: string; blurb?: string },
 ): void {
   writeJsonFile(pkgJsonPath, {
-    name: `@assistant/${opts.id}`,
-    assistant: {
+    name: `@zhushou/${opts.id}`,
+    zhushou: {
       channel: {
         id: opts.id,
         label: opts.label ?? opts.id,
@@ -88,7 +88,7 @@ describe("listBundledChannelCatalogEntries", () => {
   });
 
   it("falls back to dist/channel-catalog.json when the resolver returns undefined", () => {
-    // ASSISTANT_DISABLE_BUNDLED_PLUGINS, missing bundled tree, or an unresolvable
+    // ZHUSHOU_DISABLE_BUNDLED_PLUGINS, missing bundled tree, or an unresolvable
     // package root all surface as undefined from resolveBundledPluginsDir. In
     // that case the loader should consult the shipped channel-catalog.json
     // rather than report zero bundled channels.
@@ -96,8 +96,8 @@ describe("listBundledChannelCatalogEntries", () => {
     writeJsonFile(path.join(root, "dist", "channel-catalog.json"), {
       entries: [
         {
-          name: "@assistant/fallback",
-          assistant: {
+          name: "@zhushou/fallback",
+          zhushou: {
             channel: {
               id: "fallback-channel",
               label: "Fallback",
@@ -115,7 +115,7 @@ describe("listBundledChannelCatalogEntries", () => {
   });
 
   it("falls back to dist/channel-catalog.json when the resolved dir has no plugin package.jsons", () => {
-    // A stale staged dir or an ASSISTANT_BUNDLED_PLUGINS_DIR override pointing at
+    // A stale staged dir or an ZHUSHOU_BUNDLED_PLUGINS_DIR override pointing at
     // an empty tree should not hide the shipped catalog entries. The loader's
     // own readdir returns nothing, bundledEntries is empty, and control falls
     // through to readOfficialCatalogFileSync.
@@ -125,8 +125,8 @@ describe("listBundledChannelCatalogEntries", () => {
     writeJsonFile(path.join(root, "dist", "channel-catalog.json"), {
       entries: [
         {
-          name: "@assistant/fallback",
-          assistant: {
+          name: "@zhushou/fallback",
+          zhushou: {
             channel: {
               id: "fallback-channel",
               label: "Fallback",

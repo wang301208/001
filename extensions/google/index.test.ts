@@ -3,7 +3,7 @@ import type { Context, Model } from "@mariozechner/pi-ai";
 import type {
   ProviderReplaySessionEntry,
   ProviderSanitizeReplayHistoryContext,
-} from "assistant/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";
 import { describe, expect, it } from "vitest";
 import {
   registerProviderPlugin,
@@ -44,7 +44,7 @@ describe("google provider plugin hooks", () => {
         includeCamelCase: true,
       },
       repairToolUseResultPairing: true,
-      applyAssistantFirstOrderingFix: true,
+      applyZhushouFirstOrderingFix: true,
       validateGeminiTurns: true,
       validateAnthropicTurns: false,
       allowSyntheticToolResults: true,

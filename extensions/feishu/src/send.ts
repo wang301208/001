@@ -1,10 +1,10 @@
-﻿import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
+﻿import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
 import {
   convertMarkdownTables,
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "assistant/plugin-sdk/text-runtime";
-import type { AssistantConfig } from "../runtime-api.js";
+} from "zhushou/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import type { MentionTarget } from "./mention-target.types.js";
@@ -286,7 +286,7 @@ function parseFeishuMessageItem(
  * Useful for fetching quoted/replied message content.
  */
 export async function getMessageFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   messageId: string;
   accountId?: string;
 }): Promise<FeishuMessageInfo | null> {
@@ -339,7 +339,7 @@ export type FeishuThreadMessageInfo = {
  * which includes both the root message and all replies (including bot replies).
  */
 export async function listFeishuThreadMessages(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   threadId: string;
   currentMessageId?: string;
   /** Exclude the root message (already provided separately as ThreadStarterBody). */
@@ -417,7 +417,7 @@ export async function listFeishuThreadMessages(params: {
 }
 
 export type SendFeishuMessageParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   text: string;
   replyToMessageId?: string;
@@ -483,7 +483,7 @@ export async function sendMessageFeishu(
 }
 
 export type SendFeishuCardParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   card: Record<string, unknown>;
   replyToMessageId?: string;
@@ -510,7 +510,7 @@ export async function sendCardFeishu(params: SendFeishuCardParams): Promise<Feis
 }
 
 export async function editMessageFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   messageId: string;
   text?: string;
   card?: Record<string, unknown>;
@@ -563,7 +563,7 @@ export async function editMessageFeishu(params: {
 }
 
 export async function updateCardFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   messageId: string;
   card: Record<string, unknown>;
   accountId?: string;
@@ -659,7 +659,7 @@ export function buildStructuredCard(
  * Send a message as a structured card with optional header and note.
  */
 export async function sendStructuredCardFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   text: string;
   replyToMessageId?: string;
@@ -685,7 +685,7 @@ export async function sendStructuredCardFeishu(params: {
  * This renders markdown properly in Feishu (code blocks, tables, bold/italic, etc.)
  */
 export async function sendMarkdownCardFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   text: string;
   replyToMessageId?: string;

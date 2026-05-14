@@ -1,12 +1,12 @@
 import type {
   ChannelDirectoryEntry,
   DirectoryConfigParams,
-} from "assistant/plugin-sdk/directory-runtime";
+} from "zhushou/plugin-sdk/directory-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
   normalizeOptionalLowercaseString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveSlackAccount } from "./accounts.js";
 import { createSlackWebClient } from "./client.js";
 

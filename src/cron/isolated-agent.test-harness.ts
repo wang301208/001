@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { CronJob } from "./types.js";
 
 export async function withTempCronHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "assistant-cron-" });
+  return withTempHomeBase(fn, { prefix: "zhushou-cron-" });
 }
 
 export async function writeSessionStore(
@@ -25,7 +25,7 @@ export async function writeSessionStoreEntries(
   home: string,
   entries: Record<string, Record<string, unknown>>,
 ): Promise<string> {
-  const dir = path.join(home, ".assistant", "sessions");
+  const dir = path.join(home, ".zhushou", "sessions");
   await fs.mkdir(dir, { recursive: true });
   const storePath = path.join(dir, "sessions.json");
   await fs.writeFile(storePath, JSON.stringify(entries, null, 2), "utf-8");
@@ -35,17 +35,17 @@ export async function writeSessionStoreEntries(
 export function makeCfg(
   home: string,
   storePath: string,
-  overrides: Partial<AssistantConfig> = {},
-): AssistantConfig {
-  const base: AssistantConfig = {
+  overrides: Partial<ZhushouConfig> = {},
+): ZhushouConfig {
+  const base: ZhushouConfig = {
     agents: {
       defaults: {
         model: "anthropic/claude-opus-4-6",
-        workspace: path.join(home, "assistant"),
+        workspace: path.join(home, "zhushou"),
       },
     },
     session: { store: storePath, mainKey: "main" },
-  } as AssistantConfig;
+  } as ZhushouConfig;
   return { ...base, ...overrides };
 }
 

@@ -6,11 +6,11 @@ import { detectMime } from "../media/mime.js";
 import { lowercasePreservingWhitespace } from "../shared/string-coerce.js";
 import { resolveFileWithinRoot } from "./file-resolver.js";
 
-export const A2UI_PATH = "/__assistant__/a2ui";
+export const A2UI_PATH = "/__zhushou__/a2ui";
 
-export const CANVAS_HOST_PATH = "/__assistant__/canvas";
+export const CANVAS_HOST_PATH = "/__zhushou__/canvas";
 
-export const CANVAS_WS_PATH = "/__assistant__/ws";
+export const CANVAS_WS_PATH = "/__zhushou__/ws";
 
 let cachedA2uiRootReal: string | null | undefined;
 let resolvingA2uiRoot: Promise<string | null> | null = null;
@@ -85,9 +85,9 @@ export function injectCanvasLiveReload(html: string): string {
 (() => {
   // Cross-platform action bridge helper.
   // Works on:
-  // - iOS: window.webkit.messageHandlers.assistantCanvasA2UIAction.postMessage(...)
-  // - Android: window.assistantCanvasA2UIAction.postMessage(...)
-  const handlerNames = ["assistantCanvasA2UIAction"];
+  // - iOS: window.webkit.messageHandlers.zhushouCanvasA2UIAction.postMessage(...)
+  // - Android: window.zhushouCanvasA2UIAction.postMessage(...)
+  const handlerNames = ["zhushouCanvasA2UIAction"];
   function postToNode(payload) {
     try {
       const raw = typeof payload === "string" ? payload : JSON.stringify(payload);
@@ -117,8 +117,8 @@ export function injectCanvasLiveReload(html: string): string {
   globalThis.助手 = globalThis.助手 ?? {};
   globalThis.助手.postMessage = postToNode;
   globalThis.助手.sendUserAction = sendUserAction;
-  globalThis.assistantPostMessage = postToNode;
-  globalThis.assistantSendUserAction = sendUserAction;
+  globalThis.zhushouPostMessage = postToNode;
+  globalThis.zhushouSendUserAction = sendUserAction;
 
   try {
     const cap = new URLSearchParams(location.search).get("oc_cap");

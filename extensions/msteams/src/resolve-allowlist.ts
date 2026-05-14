@@ -1,8 +1,8 @@
-import { mapAllowlistResolutionInputs } from "assistant/plugin-sdk/allow-from";
+import { mapAllowlistResolutionInputs } from "zhushou/plugin-sdk/allow-from";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { searchGraphUsers } from "./graph-users.js";
 import {
   listChannelsForTeam,

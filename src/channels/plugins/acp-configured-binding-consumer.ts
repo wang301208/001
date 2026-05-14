@@ -12,7 +12,7 @@ import {
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../../agents/agent-scope.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -24,7 +24,7 @@ import type {
 import type { ConfiguredBindingConsumer } from "./configured-binding-consumers.js";
 import type { ChannelConfiguredBindingConversationRef } from "./types.adapters.js";
 
-function resolveAgentRuntimeAcpDefaults(params: { cfg: AssistantConfig; ownerAgentId: string }): {
+function resolveAgentRuntimeAcpDefaults(params: { cfg: ZhushouConfig; ownerAgentId: string }): {
   acpAgentId?: string;
   mode?: string;
   cwd?: string;
@@ -46,7 +46,7 @@ function resolveAgentRuntimeAcpDefaults(params: { cfg: AssistantConfig; ownerAge
 }
 
 function resolveConfiguredBindingWorkspaceCwd(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
 }): string | undefined {
   const explicitAgentWorkspace = normalizeText(
@@ -90,7 +90,7 @@ function buildConfiguredAcpSpec(params: {
 }
 
 function buildAcpTargetFactory(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   binding: ConfiguredBindingRuleConfig;
   channel: string;
   agentId: string;

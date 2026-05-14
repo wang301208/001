@@ -1,11 +1,11 @@
-import type { MarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
+import type { MarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
 import {
   markdownToIR,
   normalizeLowercaseStringOrEmpty,
   type MarkdownIR,
   type MarkdownStyle,
   renderMarkdownIRChunksWithinLimit,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 type SignalTextStyle = "BOLD" | "ITALIC" | "STRIKETHROUGH" | "MONOSPACE" | "SPOILER";
 

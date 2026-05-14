@@ -1,10 +1,10 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
-import { listCombinedAccountIds } from "assistant/plugin-sdk/account-resolution";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
+import { listCombinedAccountIds } from "zhushou/plugin-sdk/account-resolution";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   hasConfiguredSecretInput,
   normalizeSecretInputString,
-} from "assistant/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/secret-input";
 import { resolveDefaultDiscordAccountId } from "./accounts.js";
 import { mergeDiscordAccountConfig, resolveDiscordAccountConfig } from "./accounts.js";
 import type { DiscordAccountConfig } from "./runtime-api.js";
@@ -43,7 +43,7 @@ function inspectConfiguredToken(value: unknown): {
   return null;
 }
 
-export function listDiscordSetupAccountIds(cfg: AssistantConfig): string[] {
+export function listDiscordSetupAccountIds(cfg: ZhushouConfig): string[] {
   const accounts = cfg.channels?.discord?.accounts;
   return listCombinedAccountIds({
     configuredAccountIds:
@@ -54,12 +54,12 @@ export function listDiscordSetupAccountIds(cfg: AssistantConfig): string[] {
   });
 }
 
-export function resolveDefaultDiscordSetupAccountId(cfg: AssistantConfig): string {
+export function resolveDefaultDiscordSetupAccountId(cfg: ZhushouConfig): string {
   return resolveDefaultDiscordAccountId(cfg);
 }
 
 export function resolveDiscordSetupAccountConfig(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): { accountId: string; config: DiscordAccountConfig } {
   const accountId = normalizeAccountId(
@@ -72,7 +72,7 @@ export function resolveDiscordSetupAccountConfig(params: {
 }
 
 export function inspectDiscordSetupAccount(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): InspectedDiscordSetupAccount {
   const { accountId, config } = resolveDiscordSetupAccountConfig(params);

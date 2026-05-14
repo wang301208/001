@@ -6,11 +6,11 @@ import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import type { ModelProviderConfig } from "assistant/plugin-sdk/provider-model-shared";
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-shared";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
 import {
   createQaBundledPluginsDir,
   resolveQaBundledPluginSourceDir,
@@ -183,26 +183,26 @@ export function buildQaRuntimeEnv(params: {
           claudeCliAuthMode: params.claudeCliAuthMode,
         })
       : {}),
-    ASSISTANT_HOME: params.homeDir,
-    ASSISTANT_CONFIG_PATH: params.configPath,
-    ASSISTANT_STATE_DIR: params.stateDir,
-    ASSISTANT_OAUTH_DIR: path.join(params.stateDir, "credentials"),
-    ASSISTANT_GATEWAY_TOKEN: params.gatewayToken,
-    ASSISTANT_SKIP_BROWSER_CONTROL_SERVER: "1",
-    ASSISTANT_SKIP_GMAIL_WATCHER: "1",
-    ASSISTANT_SKIP_CANVAS_HOST: "1",
-    ASSISTANT_NO_RESPAWN: "1",
-    ASSISTANT_TEST_FAST: "1",
-    ASSISTANT_QA_ALLOW_LOCAL_IMAGE_PROVIDER: "1",
+    ZHUSHOU_HOME: params.homeDir,
+    ZHUSHOU_CONFIG_PATH: params.configPath,
+    ZHUSHOU_STATE_DIR: params.stateDir,
+    ZHUSHOU_OAUTH_DIR: path.join(params.stateDir, "credentials"),
+    ZHUSHOU_GATEWAY_TOKEN: params.gatewayToken,
+    ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER: "1",
+    ZHUSHOU_SKIP_GMAIL_WATCHER: "1",
+    ZHUSHOU_SKIP_CANVAS_HOST: "1",
+    ZHUSHOU_NO_RESPAWN: "1",
+    ZHUSHOU_TEST_FAST: "1",
+    ZHUSHOU_QA_ALLOW_LOCAL_IMAGE_PROVIDER: "1",
     // QA uses the fast runtime envelope for speed, but it still exercises
     // normal config-driven heartbeats and runtime config writes.
-    ASSISTANT_ALLOW_SLOW_REPLY_TESTS: "1",
+    ZHUSHOU_ALLOW_SLOW_REPLY_TESTS: "1",
     XDG_CONFIG_HOME: params.xdgConfigHome,
     XDG_DATA_HOME: params.xdgDataHome,
     XDG_CACHE_HOME: params.xdgCacheHome,
-    ...(params.bundledPluginsDir ? { ASSISTANT_BUNDLED_PLUGINS_DIR: params.bundledPluginsDir } : {}),
+    ...(params.bundledPluginsDir ? { ZHUSHOU_BUNDLED_PLUGINS_DIR: params.bundledPluginsDir } : {}),
     ...(params.compatibilityHostVersion
-      ? { ASSISTANT_COMPATIBILITY_HOST_VERSION: params.compatibilityHostVersion }
+      ? { ZHUSHOU_COMPATIBILITY_HOST_VERSION: params.compatibilityHostVersion }
       : {}),
   };
   const normalizedEnv = normalizeQaProviderModeEnv(env, params.providerMode);
@@ -424,10 +424,10 @@ export async function startQaGatewayChild(params: {
   controlUiEnabled?: boolean;
   enabledPluginIds?: string[];
   forwardHostHome?: boolean;
-  mutateConfig?: (cfg: AssistantConfig) => AssistantConfig;
+  mutateConfig?: (cfg: ZhushouConfig) => ZhushouConfig;
 }) {
   const tempRoot = await fs.mkdtemp(
-    path.join(resolvePreferredAssistantTmpDir(), "assistant-qa-suite-"),
+    path.join(resolvePreferredZhushouTmpDir(), "zhushou-qa-suite-"),
   );
   const runtimeCwd = tempRoot;
   const distEntryPath = path.join(params.repoRoot, "dist", "index.js");
@@ -437,7 +437,7 @@ export async function startQaGatewayChild(params: {
   const xdgConfigHome = path.join(tempRoot, "xdg-config");
   const xdgDataHome = path.join(tempRoot, "xdg-data");
   const xdgCacheHome = path.join(tempRoot, "xdg-cache");
-  const configPath = path.join(tempRoot, "assistant.json");
+  const configPath = path.join(tempRoot, "zhushou.json");
   const gatewayToken = `qa-suite-${randomUUID()}`;
   await seedQaAgentWorkspace({
     workspaceDir,
@@ -519,7 +519,7 @@ export async function startQaGatewayChild(params: {
 
   const logs = () =>
     `${Buffer.concat(stdout).toString("utf8")}\n${Buffer.concat(stderr).toString("utf8")}`.trim();
-  const keepTemp = process.env.ASSISTANT_QA_KEEP_TEMP === "1";
+  const keepTemp = process.env.ZHUSHOU_QA_KEEP_TEMP === "1";
   let gatewayPort = 0;
   let baseUrl = "";
   let wsUrl = "";

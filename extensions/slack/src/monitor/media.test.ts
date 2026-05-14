@@ -1,8 +1,8 @@
-import * as ssrf from "assistant/plugin-sdk/infra-runtime";
-import * as mediaFetch from "assistant/plugin-sdk/media-runtime";
-import type { SavedMedia } from "assistant/plugin-sdk/media-runtime";
-import * as mediaStore from "assistant/plugin-sdk/media-runtime";
-import { type FetchMock, withFetchPreconnect } from "assistant/plugin-sdk/testing";
+import * as ssrf from "zhushou/plugin-sdk/infra-runtime";
+import * as mediaFetch from "zhushou/plugin-sdk/media-runtime";
+import type { SavedMedia } from "zhushou/plugin-sdk/media-runtime";
+import * as mediaStore from "zhushou/plugin-sdk/media-runtime";
+import { type FetchMock, withFetchPreconnect } from "zhushou/plugin-sdk/testing";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPinnedHostnameResolution } from "../../../../src/test-helpers/ssrf.js";
 import {

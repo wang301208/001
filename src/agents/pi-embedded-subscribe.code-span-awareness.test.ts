@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createStubSessionHarness,
-  emitAssistantTextDelta,
+  emitZhushouTextDelta,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 import { subscribeEmbeddedPiSession } from "./pi-embedded-subscribe.js";
 
@@ -22,7 +22,7 @@ describe("subscribeEmbeddedPiSession thinking tag code span awareness", () => {
   it("does not strip thinking tags inside inline code backticks", () => {
     const { emit, onPartialReply } = createPartialReplyHarness();
 
-    emitAssistantTextDelta({
+    emitZhushouTextDelta({
       emit,
       delta: "The fix strips leaked `<thinking>` tags from messages.",
     });
@@ -35,7 +35,7 @@ describe("subscribeEmbeddedPiSession thinking tag code span awareness", () => {
   it("does not strip thinking tags inside fenced code blocks", () => {
     const { emit, onPartialReply } = createPartialReplyHarness();
 
-    emitAssistantTextDelta({
+    emitZhushouTextDelta({
       emit,
       delta: "Example:\n  ````\n<thinking>code example</thinking>\n  ````\nDone.",
     });
@@ -48,7 +48,7 @@ describe("subscribeEmbeddedPiSession thinking tag code span awareness", () => {
   it("still strips actual thinking tags outside code spans", () => {
     const { emit, onPartialReply } = createPartialReplyHarness();
 
-    emitAssistantTextDelta({
+    emitZhushouTextDelta({
       emit,
       delta: "Hello <thinking>internal thought</thinking> world",
     });

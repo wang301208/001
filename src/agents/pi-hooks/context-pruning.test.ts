@@ -59,7 +59,7 @@ function makeImageToolResult(params: {
   };
 }
 
-function makeAssistant(text: string): AgentMessage {
+function makeZhushou(text: string): AgentMessage {
   return {
     role: "assistant",
     content: [{ type: "text", text }],
@@ -96,7 +96,7 @@ function makeAggressiveSettings(
 ): ContextPruningSettings {
   return {
     ...DEFAULT_CONTEXT_PRUNING_SETTINGS,
-    keepLastAssistants: 0,
+    keepLastZhushous: 0,
     softTrimRatio: 0,
     hardClearRatio: 0,
     minPrunableToolChars: 0,
@@ -127,12 +127,12 @@ function makeLargeExecToolResult(toolCallId: string, textChar: string): AgentMes
   });
 }
 
-function makeSimpleToolPruningMessages(includeTrailingAssistant = false): AgentMessage[] {
+function makeSimpleToolPruningMessages(includeTrailingZhushou = false): AgentMessage[] {
   return [
     makeUser("u1"),
-    makeAssistant("a1"),
+    makeZhushou("a1"),
     makeLargeExecToolResult("t1", "x"),
-    ...(includeTrailingAssistant ? [makeAssistant("a2")] : []),
+    ...(includeTrailingZhushou ? [makeZhushou("a2")] : []),
   ];
 }
 
@@ -176,31 +176,31 @@ describe("context-pruning", () => {
     expect(computeEffectiveSettings({})).toBeNull();
   });
 
-  it("does not touch tool results after the last N assistants", () => {
+  it("does not touch tool results after the last N zhushous", () => {
     const messages: AgentMessage[] = [
       makeUser("u1"),
-      makeAssistant("a1"),
+      makeZhushou("a1"),
       makeToolResult({
         toolCallId: "t1",
         toolName: "exec",
         text: "x".repeat(20_000),
       }),
       makeUser("u2"),
-      makeAssistant("a2"),
+      makeZhushou("a2"),
       makeToolResult({
         toolCallId: "t2",
         toolName: "exec",
         text: "y".repeat(20_000),
       }),
       makeUser("u3"),
-      makeAssistant("a3"),
+      makeZhushou("a3"),
       makeToolResult({
         toolCallId: "t3",
         toolName: "exec",
         text: "z".repeat(20_000),
       }),
       makeUser("u4"),
-      makeAssistant("a4"),
+      makeZhushou("a4"),
       makeToolResult({
         toolCallId: "t4",
         toolName: "exec",
@@ -208,7 +208,7 @@ describe("context-pruning", () => {
       }),
     ];
 
-    const next = pruneWithAggressiveDefaults(messages, { keepLastAssistants: 3 });
+    const next = pruneWithAggressiveDefaults(messages, { keepLastZhushous: 3 });
 
     expect(toolText(findToolResult(next, "t2"))).toContain("y".repeat(20_000));
     expect(toolText(findToolResult(next, "t3"))).toContain("z".repeat(20_000));
@@ -218,13 +218,13 @@ describe("context-pruning", () => {
 
   it("never prunes tool results before the first user message", () => {
     const messages: AgentMessage[] = [
-      makeAssistant("bootstrap tool calls"),
+      makeZhushou("bootstrap tool calls"),
       makeToolResult({
         toolCallId: "t0",
         toolName: "read",
         text: "x".repeat(20_000),
       }),
-      makeAssistant("greeting"),
+      makeZhushou("greeting"),
       makeUser("u1"),
       makeToolResult({
         toolCallId: "t1",
@@ -249,23 +249,23 @@ describe("context-pruning", () => {
   it("hard-clear removes eligible tool results before cutoff", () => {
     const messages: AgentMessage[] = [
       makeUser("u1"),
-      makeAssistant("a1"),
+      makeZhushou("a1"),
       makeLargeExecToolResult("t1", "x"),
       makeLargeExecToolResult("t2", "y"),
       makeUser("u2"),
-      makeAssistant("a2"),
+      makeZhushou("a2"),
       makeLargeExecToolResult("t3", "z"),
     ];
 
     const next = pruneWithAggressiveDefaults(messages, {
-      keepLastAssistants: 1,
+      keepLastZhushous: 1,
       softTrimRatio: 10.0,
       softTrim: DEFAULT_CONTEXT_PRUNING_SETTINGS.softTrim,
     });
 
     expect(toolText(findToolResult(next, "t1"))).toBe("[cleared]");
     expect(toolText(findToolResult(next, "t2"))).toBe("[cleared]");
-    // Tool results after the last assistant are protected.
+    // Tool results after the last zhushou are protected.
     expect(toolText(findToolResult(next, "t3"))).toContain("z".repeat(20_000));
   });
 
@@ -283,7 +283,7 @@ describe("context-pruning", () => {
     const next = pruneContextMessages({
       messages,
       settings: makeAggressiveSettings({
-        keepLastAssistants: 0,
+        keepLastZhushous: 0,
         softTrimRatio: 1,
         hardClearRatio: 1,
         minPrunableToolChars: 0,

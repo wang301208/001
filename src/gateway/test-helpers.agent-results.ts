@@ -1,6 +1,6 @@
 type AgentDeltaEvent = {
   runId: string;
-  stream: "assistant";
+  stream: "zhushou";
   data: { delta: string };
 };
 
@@ -13,7 +13,7 @@ function extractCliStreamJsonText(text: string): string | null {
     return null;
   }
 
-  let assistantText: string | null = null;
+  let zhushouText: string | null = null;
   let resultText: string | null = null;
 
   for (const line of lines) {
@@ -27,7 +27,7 @@ function extractCliStreamJsonText(text: string): string | null {
       continue;
     }
     const record = parsed as Record<string, unknown>;
-    if (record.type === "assistant") {
+    if (record.type === "zhushou") {
       const message =
         record.message && typeof record.message === "object"
           ? (record.message as Record<string, unknown>)
@@ -39,7 +39,7 @@ function extractCliStreamJsonText(text: string): string | null {
         )
         .filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0);
       if (textParts.length > 0) {
-        assistantText = textParts.join("\n").trim();
+        zhushouText = textParts.join("\n").trim();
       }
       continue;
     }
@@ -48,7 +48,7 @@ function extractCliStreamJsonText(text: string): string | null {
     }
   }
 
-  return resultText ?? assistantText;
+  return resultText ?? zhushouText;
 }
 
 export function extractPayloadText(result: unknown): string {
@@ -64,7 +64,7 @@ export function extractPayloadText(result: unknown): string {
   return extractCliStreamJsonText(joined) ?? joined;
 }
 
-export function buildAssistantDeltaResult(params: {
+export function buildZhushouDeltaResult(params: {
   opts: unknown;
   emit: (event: AgentDeltaEvent) => void;
   deltas: string[];
@@ -72,7 +72,7 @@ export function buildAssistantDeltaResult(params: {
 }): { payloads: Array<{ text: string }> } {
   const runId = (params.opts as { runId?: string } | undefined)?.runId ?? "";
   for (const delta of params.deltas) {
-    params.emit({ runId, stream: "assistant", data: { delta } });
+    params.emit({ runId, stream: "zhushou", data: { delta } });
   }
   return { payloads: [{ text: params.text }] };
 }

@@ -7,7 +7,7 @@ import {
   isMessagingToolSendAction,
   type AnyAgentTool,
   type MessagingToolSend,
-} from "assistant/plugin-sdk/agent-harness";
+} from "zhushou/plugin-sdk/agent-harness";
 import {
   type CodexDynamicToolCallOutputContentItem,
   type CodexDynamicToolCallParams,

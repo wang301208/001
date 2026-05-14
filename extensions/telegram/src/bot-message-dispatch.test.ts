@@ -347,7 +347,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
       expect.objectContaining({
         thread: { id: 777, scope: "dm" },
         mediaLocalRoots: expect.arrayContaining([
-          expect.stringMatching(/[\\/]\.assistant[\\/]workspace-work$/u),
+          expect.stringMatching(/[\\/]\.zhushou[\\/]workspace-work$/u),
         ]),
       }),
     );
@@ -712,14 +712,14 @@ describe("dispatchTelegramMessage draft streaming", () => {
   });
 
   it.each(["block", "partial"] as const)(
-    "forces new message when assistant message restarts (%s mode)",
+    "forces new message when zhushou message restarts (%s mode)",
     async (streamMode) => {
       const draftStream = createDraftStream(999);
       createTelegramDraftStream.mockReturnValue(draftStream);
       dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
         async ({ dispatcherOptions, replyOptions }) => {
           await replyOptions?.onPartialReply?.({ text: "First response" });
-          await replyOptions?.onAssistantMessageStart?.();
+          await replyOptions?.onZhushouMessageStart?.();
           await replyOptions?.onPartialReply?.({ text: "After tool call" });
           await dispatcherOptions.deliver({ text: "After tool call" }, { kind: "final" });
           return { queuedFinal: true };
@@ -742,7 +742,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
       .mockImplementationOnce(() => reasoningDraftStream);
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(async ({ replyOptions }) => {
       await replyOptions?.onPartialReply?.({ text: "Before tool boundary" });
-      await replyOptions?.onAssistantMessageStart?.();
+      await replyOptions?.onZhushouMessageStart?.();
       return { queuedFinal: false };
     });
 
@@ -773,7 +773,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
       async ({ dispatcherOptions, replyOptions }) => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
-        const startPromise = replyOptions?.onAssistantMessageStart?.();
+        const startPromise = replyOptions?.onZhushouMessageStart?.();
         const finalPromise = dispatcherOptions.deliver(
           { text: "Message B final" },
           { kind: "final" },
@@ -811,7 +811,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
         await replyOptions?.onPartialReply?.({ text: "Message B early" });
-        void replyOptions?.onAssistantMessageStart?.();
+        void replyOptions?.onZhushouMessageStart?.();
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
         return { queuedFinal: true };
       },
@@ -838,7 +838,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     );
   });
 
-  it("does not double-rotate when assistant_message_start arrives after final delivery drains", async () => {
+  it("does not double-rotate when zhushou_message_start arrives after final delivery drains", async () => {
     const answerDraftStream = createSequencedDraftStream(1001);
     const reasoningDraftStream = createDraftStream();
     createTelegramDraftStream
@@ -850,7 +850,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
         await replyOptions?.onPartialReply?.({ text: "Message B early" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         return { queuedFinal: true };
       },
     );
@@ -888,7 +888,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
       .mockImplementationOnce(() => reasoningDraftStream);
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(async ({ replyOptions }) => {
       await replyOptions?.onPartialReply?.({ text: "Before tool boundary" });
-      await replyOptions?.onAssistantMessageStart?.();
+      await replyOptions?.onZhushouMessageStart?.();
       await replyOptions?.onPartialReply?.({ text: "Unfinalized next preview" });
       return { queuedFinal: false };
     });
@@ -919,7 +919,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
 
       // Simulate provider fire-and-forget ordering: boundary callback starts
       // and a new partial arrives before boundary materialization resolves.
-      const startPromise = replyOptions?.onAssistantMessageStart?.();
+      const startPromise = replyOptions?.onZhushouMessageStart?.();
       const nextPartialPromise = replyOptions?.onPartialReply?.({ text: "Message B early" });
 
       expect(answerDraftStream.update).toHaveBeenCalledTimes(1);
@@ -953,7 +953,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
         // Simulate provider ordering bug: first chunk arrives before message-start callback.
         await replyOptions?.onPartialReply?.({ text: "Message B early" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
         return { queuedFinal: true };
@@ -981,13 +981,13 @@ describe("dispatchTelegramMessage draft streaming", () => {
     );
   });
 
-  it("does not force new message on first assistant message start", async () => {
+  it("does not force new message on first zhushou message start", async () => {
     const draftStream = createDraftStream(999);
     createTelegramDraftStream.mockReturnValue(draftStream);
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
       async ({ dispatcherOptions, replyOptions }) => {
-        // First assistant message starts (no previous output)
-        await replyOptions?.onAssistantMessageStart?.();
+        // First zhushou message starts (no previous output)
+        await replyOptions?.onZhushouMessageStart?.();
         // Partial updates
         await replyOptions?.onPartialReply?.({ text: "Hello" });
         await replyOptions?.onPartialReply?.({ text: "Hello world" });
@@ -1015,7 +1015,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
         // Simulate provider ordering bug: first chunk arrives before message-start callback.
         await replyOptions?.onPartialReply?.({ text: "Message B early" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
         return { queuedFinal: true };
@@ -1061,7 +1061,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
         // Provider ordering bug: next message partial arrives before message-start.
         await replyOptions?.onPartialReply?.({ text: "Message B early" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
         return { queuedFinal: true };
@@ -1074,7 +1074,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     await dispatchWithContext({ context: createContext(), streamMode: "partial", bot });
 
     // Early pre-rotation could not force (no streamed partials yet), so the
-    // real assistant message_start must still rotate once.
+    // real zhushou message_start must still rotate once.
     expect(answerDraftStream.forceNewMessage).toHaveBeenCalledTimes(1);
     expect(answerDraftStream.update).toHaveBeenNthCalledWith(1, "Message B early");
     expect(answerDraftStream.update).toHaveBeenNthCalledWith(2, "Message B partial");
@@ -1100,7 +1100,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     expect((bot.api.deleteMessage as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(0);
   });
 
-  it("does not trigger late pre-rotation mid-message after an explicit assistant message start", async () => {
+  it("does not trigger late pre-rotation mid-message after an explicit zhushou message start", async () => {
     const answerDraftStream = createDraftStream(1001);
     const reasoningDraftStream = createDraftStream();
     createTelegramDraftStream
@@ -1111,7 +1111,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         // Message A finalizes without streamed partials.
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
         // Message B starts normally before partials.
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B first chunk" });
         await replyOptions?.onPartialReply?.({ text: "Message B second chunk" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
@@ -1130,7 +1130,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     expect(answerDraftStream.update).toHaveBeenNthCalledWith(2, "Message B second chunk");
   });
 
-  it("does not rotate the streamed preview when compaction retries replay the same assistant message", async () => {
+  it("does not rotate the streamed preview when compaction retries replay the same zhushou message", async () => {
     const answerDraftStream = createSequencedDraftStream(1001);
     const reasoningDraftStream = createDraftStream();
     createTelegramDraftStream
@@ -1141,7 +1141,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
         await replyOptions?.onCompactionStart?.();
         await replyOptions?.onCompactionEnd?.();
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
         await replyOptions?.onPartialReply?.({ text: "Message A partial extended" });
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
@@ -1175,10 +1175,10 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
         await replyOptions?.onCompactionStart?.();
         await replyOptions?.onCompactionEnd?.();
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message A partial extended" });
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
         return { queuedFinal: true };
@@ -1217,7 +1217,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
         await replyOptions?.onCompactionStart?.();
         await replyOptions?.onCompactionEnd?.();
-        void replyOptions?.onAssistantMessageStart?.();
+        void replyOptions?.onZhushouMessageStart?.();
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
         return { queuedFinal: true };
       },
@@ -1248,7 +1248,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
         await replyOptions?.onCompactionStart?.();
         await replyOptions?.onCompactionEnd?.();
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
         return { queuedFinal: true };
       },
@@ -1293,7 +1293,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
           },
           { kind: "tool" },
         );
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
         return { queuedFinal: true };
@@ -1328,7 +1328,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     );
   });
 
-  it("rotates after a visible tool payload lands between compaction and the next assistant message", async () => {
+  it("rotates after a visible tool payload lands between compaction and the next zhushou message", async () => {
     const answerDraftStream = createSequencedDraftStream(1001);
     const reasoningDraftStream = createDraftStream();
     createTelegramDraftStream
@@ -1343,7 +1343,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
           { mediaUrl: "file:///tmp/tool-result.png" },
           { kind: "tool" },
         );
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
         return { queuedFinal: true };
@@ -1369,7 +1369,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     );
   });
 
-  it("finalizes multi-message assistant stream to matching preview messages in order", async () => {
+  it("finalizes multi-message zhushou stream to matching preview messages in order", async () => {
     const answerDraftStream = createSequencedDraftStream(1001);
     const reasoningDraftStream = createDraftStream();
     createTelegramDraftStream
@@ -1378,9 +1378,9 @@ describe("dispatchTelegramMessage draft streaming", () => {
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
       async ({ dispatcherOptions, replyOptions }) => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message C partial" });
 
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
@@ -1450,7 +1450,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
       async ({ dispatcherOptions, replyOptions }) => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         // Simulate late resolution of message A preview ID after boundary rotation.
         answerDraftParams?.onSupersededPreview?.({
@@ -1516,7 +1516,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
       async ({ dispatcherOptions, replyOptions }) => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         answerDraftParams?.onSupersededPreview?.({
           messageId: 1001,
@@ -1573,7 +1573,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
       async ({ dispatcherOptions, replyOptions }) => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         answerDraftParams?.onSupersededPreview?.({
           messageId: 1001,
@@ -1641,7 +1641,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
       async ({ dispatcherOptions, replyOptions }) => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         answerDraftParams?.onSupersededPreview?.({
           messageId: 1001,
@@ -1686,7 +1686,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
   });
 
   it.each(["partial", "block"] as const)(
-    "keeps finalized text preview when the next assistant message is media-only (%s mode)",
+    "keeps finalized text preview when the next zhushou message is media-only (%s mode)",
     async (streamMode) => {
       let answerMessageId: number | undefined = 1001;
       const answerDraftStream = {
@@ -1707,7 +1707,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
         async ({ dispatcherOptions, replyOptions }) => {
           await replyOptions?.onPartialReply?.({ text: "First message preview" });
           await dispatcherOptions.deliver({ text: "First message final" }, { kind: "final" });
-          await replyOptions?.onAssistantMessageStart?.();
+          await replyOptions?.onZhushouMessageStart?.();
           await dispatcherOptions.deliver({ mediaUrl: "file:///tmp/voice.ogg" }, { kind: "final" });
           return { queuedFinal: true };
         },
@@ -1771,7 +1771,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
       async ({ dispatcherOptions, replyOptions }) => {
         await replyOptions?.onPartialReply?.({ text: "Message A partial" });
-        await replyOptions?.onAssistantMessageStart?.();
+        await replyOptions?.onZhushouMessageStart?.();
         await replyOptions?.onPartialReply?.({ text: "Message B partial" });
         await dispatcherOptions.deliver({ text: "Message A final" }, { kind: "final" });
         await dispatcherOptions.deliver({ text: "Message B final" }, { kind: "final" });
@@ -2080,7 +2080,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     expect(reasoningDraftStream.forceNewMessage).not.toHaveBeenCalled();
   });
 
-  it("does not edit reasoning preview bubble with final answer when no assistant partial arrived yet", async () => {
+  it("does not edit reasoning preview bubble with final answer when no zhushou partial arrived yet", async () => {
     setupDraftStreams({ reasoningMessageId: 999 });
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
       async ({ dispatcherOptions, replyOptions }) => {

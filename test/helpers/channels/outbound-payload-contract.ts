@@ -3,19 +3,24 @@ import type { ReplyPayload } from "../../../src/auto-reply/types.js";
 import { primeChannelOutboundSendMock } from "../../../src/channels/plugins/contracts/test-helpers.js";
 import { createDirectTextMediaOutbound } from "../../../src/channels/plugins/outbound/direct-text-media.js";
 import type { ChannelOutboundAdapter } from "../../../src/channels/plugins/types.js";
+import { sendPayloadWithChunkedTextAndMedia } from "../../../src/plugin-sdk/reply-payload.js";
+import { chunkTextForOutbound } from "../../../src/plugin-sdk/text-chunking.js";
 import { resetGlobalHookRunner } from "../../../src/plugins/hook-runner-global.js";
 import {
-  loadBundledPluginPublicSurfaceSync,
-  loadBundledPluginTestApiSync,
   resolveRelativeBundledPluginPublicModuleId,
 } from "../../../src/test-utils/bundled-plugin-public-surface.js";
-type ParseZalouserOutboundTarget = (raw: string) => { threadId: string; isGroup: boolean };
+
+type ChunkZaloTextForOutbound = typeof chunkTextForOutbound;
+type ParseZalouserOutboundTarget = (raw: string) => {
+  isGroup: boolean;
+  threadId: string;
+};
+
 type CreateSlackOutboundPayloadHarness = (params: PayloadHarnessParams) => {
   run: () => Promise<Record<string, unknown>>;
   sendMock: Mock;
   to: string;
 };
-type ChunkZaloTextForOutbound = (text: string, maxLength?: number) => string[];
 type SendPayloadWithChunkedTextAndMedia = (params: {
   ctx: {
     cfg: unknown;
@@ -56,9 +61,13 @@ const whatsappTestApiModuleId = resolveRelativeBundledPluginPublicModuleId({
   pluginId: "whatsapp",
   artifactBasename: "test-api.js",
 });
+const zalouserTestApiModuleId = resolveRelativeBundledPluginPublicModuleId({
+  fromModuleUrl: import.meta.url,
+  pluginId: "zalouser",
+  artifactBasename: "test-api.js",
+});
 
 let discordOutboundCache: Promise<ChannelOutboundAdapter> | undefined;
-let parseZalouserOutboundTargetCache: ParseZalouserOutboundTarget | undefined;
 let slackTestApiPromise:
   | Promise<{
       createSlackOutboundPayloadHarness: CreateSlackOutboundPayloadHarness;
@@ -69,9 +78,11 @@ let whatsappTestApiPromise:
       whatsappOutbound: ChannelOutboundAdapter;
     }>
   | undefined;
-let chunkZaloTextForOutboundCache: ChunkZaloTextForOutbound | undefined;
-let sendZaloPayloadWithChunkedTextAndMediaCache: SendPayloadWithChunkedTextAndMedia | undefined;
-let sendZalouserPayloadWithChunkedTextAndMediaCache: SendPayloadWithChunkedTextAndMedia | undefined;
+let zalouserTestApiPromise:
+  | Promise<{
+      parseZalouserOutboundTarget: ParseZalouserOutboundTarget;
+    }>
+  | undefined;
 
 async function getDiscordOutbound(): Promise<ChannelOutboundAdapter> {
   discordOutboundCache ??= (async () => {
@@ -99,52 +110,12 @@ async function getWhatsAppOutboundAsync(): Promise<ChannelOutboundAdapter> {
   return whatsappOutbound;
 }
 
-function getChunkZaloTextForOutbound(): ChunkZaloTextForOutbound {
-  if (!chunkZaloTextForOutboundCache) {
-    ({ chunkTextForOutbound: chunkZaloTextForOutboundCache } = loadBundledPluginPublicSurfaceSync<{
-      chunkTextForOutbound: ChunkZaloTextForOutbound;
-    }>({
-      pluginId: "zalo",
-      artifactBasename: "runtime-api.js",
-    }));
-  }
-  return chunkZaloTextForOutboundCache;
-}
-
-function getSendZaloPayloadWithChunkedTextAndMedia(): SendPayloadWithChunkedTextAndMedia {
-  if (!sendZaloPayloadWithChunkedTextAndMediaCache) {
-    ({ sendPayloadWithChunkedTextAndMedia: sendZaloPayloadWithChunkedTextAndMediaCache } =
-      loadBundledPluginPublicSurfaceSync<{
-        sendPayloadWithChunkedTextAndMedia: SendPayloadWithChunkedTextAndMedia;
-      }>({
-        pluginId: "zalo",
-        artifactBasename: "runtime-api.js",
-      }));
-  }
-  return sendZaloPayloadWithChunkedTextAndMediaCache;
-}
-
-function getParseZalouserOutboundTarget(): ParseZalouserOutboundTarget {
-  if (!parseZalouserOutboundTargetCache) {
-    ({ parseZalouserOutboundTarget: parseZalouserOutboundTargetCache } =
-      loadBundledPluginTestApiSync<{
-        parseZalouserOutboundTarget: ParseZalouserOutboundTarget;
-      }>("zalouser"));
-  }
-  return parseZalouserOutboundTargetCache;
-}
-
-function getSendZalouserPayloadWithChunkedTextAndMedia(): SendPayloadWithChunkedTextAndMedia {
-  if (!sendZalouserPayloadWithChunkedTextAndMediaCache) {
-    ({ sendPayloadWithChunkedTextAndMedia: sendZalouserPayloadWithChunkedTextAndMediaCache } =
-      loadBundledPluginPublicSurfaceSync<{
-        sendPayloadWithChunkedTextAndMedia: SendPayloadWithChunkedTextAndMedia;
-      }>({
-        pluginId: "zalouser",
-        artifactBasename: "runtime-api.js",
-      }));
-  }
-  return sendZalouserPayloadWithChunkedTextAndMediaCache;
+async function getParseZalouserOutboundTarget(): Promise<ParseZalouserOutboundTarget> {
+  zalouserTestApiPromise ??= import(zalouserTestApiModuleId) as Promise<{
+    parseZalouserOutboundTarget: ParseZalouserOutboundTarget;
+  }>;
+  const { parseZalouserOutboundTarget } = await zalouserTestApiPromise;
+  return parseZalouserOutboundTarget;
 }
 
 type PayloadHarnessParams = {
@@ -367,10 +338,10 @@ function createZaloHarness(params: PayloadHarnessParams) {
   };
   return {
     run: async () =>
-      await getSendZaloPayloadWithChunkedTextAndMedia()({
+      await sendPayloadWithChunkedTextAndMedia({
         ctx,
         textChunkLimit: 2000,
-        chunker: getChunkZaloTextForOutbound(),
+        chunker: chunkTextForOutbound,
         sendText: async (nextCtx) =>
           buildChannelSendResult(
             "zalo",
@@ -406,10 +377,11 @@ function createZalouserHarness(params: PayloadHarnessParams) {
   };
   return {
     run: async () =>
-      await getSendZalouserPayloadWithChunkedTextAndMedia()({
+      await sendPayloadWithChunkedTextAndMedia({
         ctx,
         sendText: async (nextCtx) => {
-          const target = getParseZalouserOutboundTarget()(nextCtx.to);
+          const parseZalouserOutboundTarget = await getParseZalouserOutboundTarget();
+          const target = parseZalouserOutboundTarget(nextCtx.to);
           return buildChannelSendResult(
             "zalouser",
             await sendZalouser(target.threadId, nextCtx.text, {
@@ -422,7 +394,8 @@ function createZalouserHarness(params: PayloadHarnessParams) {
           );
         },
         sendMedia: async (nextCtx) => {
-          const target = getParseZalouserOutboundTarget()(nextCtx.to);
+          const parseZalouserOutboundTarget = await getParseZalouserOutboundTarget();
+          const target = parseZalouserOutboundTarget(nextCtx.to);
           return buildChannelSendResult(
             "zalouser",
             await sendZalouser(target.threadId, nextCtx.text, {

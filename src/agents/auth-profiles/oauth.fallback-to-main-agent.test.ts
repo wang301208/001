@@ -57,8 +57,8 @@ async function loadFreshOAuthModuleForTest() {
 
 describe("resolveApiKeyForProfile fallback to main agent", () => {
   const envSnapshot = captureEnv([
-    "ASSISTANT_STATE_DIR",
-    "ASSISTANT_AGENT_DIR",
+    "ZHUSHOU_STATE_DIR",
+    "ZHUSHOU_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
   let tmpDir: string;
@@ -77,9 +77,9 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
     await fs.mkdir(mainAgentDir, { recursive: true });
     await fs.mkdir(secondaryAgentDir, { recursive: true });
 
-    // Set environment variables so resolveAssistantAgentDir() returns mainAgentDir
-    process.env.ASSISTANT_STATE_DIR = tmpDir;
-    process.env.ASSISTANT_AGENT_DIR = mainAgentDir;
+    // Set environment variables so resolveZhushouAgentDir() returns mainAgentDir
+    process.env.ZHUSHOU_STATE_DIR = tmpDir;
+    process.env.ZHUSHOU_AGENT_DIR = mainAgentDir;
     process.env.PI_CODING_AGENT_DIR = mainAgentDir;
     await loadFreshOAuthModuleForTest();
     clearRuntimeAuthProfileStoreSnapshots();

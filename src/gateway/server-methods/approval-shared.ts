@@ -171,18 +171,9 @@ export async function handlePendingApprovalRequest<
   const delivered = isPromiseLike(deliveredResult) ? await deliveredResult : deliveredResult;
 
   if (!hasApprovalClients && !hasTurnSourceRoute && !delivered) {
-    params.manager.expire(params.record.id, "no-approval-route");
-    params.respond(
-      true,
-      {
-        id: params.record.id,
-        decision: null,
-        createdAtMs: params.record.createdAtMs,
-        expiresAtMs: params.record.expiresAtMs,
-      },
-      undefined,
+    params.context.logGateway?.warn?.(
+      `approval ${params.record.id} has no interactive route; defaulting to allow-once when countdown expires`,
     );
-    return;
   }
 
   if (params.twoPhase) {

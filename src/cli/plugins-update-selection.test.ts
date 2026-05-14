@@ -20,18 +20,18 @@ describe("resolvePluginUpdateSelection", () => {
     expect(
       resolvePluginUpdateSelection({
         installs: {
-          "assistant-codex-app-server": createNpmInstall({
-            spec: "assistant-codex-app-server",
-            installPath: "/tmp/assistant-codex-app-server",
-            resolvedName: "assistant-codex-app-server",
+          "zhushou-codex-app-server": createNpmInstall({
+            spec: "zhushou-codex-app-server",
+            installPath: "/tmp/zhushou-codex-app-server",
+            resolvedName: "zhushou-codex-app-server",
           }),
         },
-        rawId: "assistant-codex-app-server@beta",
+        rawId: "zhushou-codex-app-server@beta",
       }),
     ).toEqual({
-      pluginIds: ["assistant-codex-app-server"],
+      pluginIds: ["zhushou-codex-app-server"],
       specOverrides: {
-        "assistant-codex-app-server": "assistant-codex-app-server@beta",
+        "zhushou-codex-app-server": "zhushou-codex-app-server@beta",
       },
     });
   });
@@ -41,17 +41,17 @@ describe("resolvePluginUpdateSelection", () => {
       resolvePluginUpdateSelection({
         installs: {
           "voice-call": createNpmInstall({
-            spec: "@assistant/voice-call",
+            spec: "@zhushou/voice-call",
             installPath: "/tmp/voice-call",
-            resolvedName: "@assistant/voice-call",
+            resolvedName: "@zhushou/voice-call",
           }),
         },
-        rawId: "@assistant/voice-call@beta",
+        rawId: "@zhushou/voice-call@beta",
       }),
     ).toEqual({
       pluginIds: ["voice-call"],
       specOverrides: {
-        "voice-call": "@assistant/voice-call@beta",
+        "voice-call": "@zhushou/voice-call@beta",
       },
     });
   });
@@ -60,18 +60,18 @@ describe("resolvePluginUpdateSelection", () => {
     expect(
       resolvePluginUpdateSelection({
         installs: {
-          "assistant-codex-app-server": createNpmInstall({
-            spec: "assistant-codex-app-server",
-            installPath: "/tmp/assistant-codex-app-server",
-            resolvedName: "assistant-codex-app-server",
+          "zhushou-codex-app-server": createNpmInstall({
+            spec: "zhushou-codex-app-server",
+            installPath: "/tmp/zhushou-codex-app-server",
+            resolvedName: "zhushou-codex-app-server",
           }),
         },
-        rawId: "assistant-codex-app-server@0.2.0-beta.4",
+        rawId: "zhushou-codex-app-server@0.2.0-beta.4",
       }),
     ).toEqual({
-      pluginIds: ["assistant-codex-app-server"],
+      pluginIds: ["zhushou-codex-app-server"],
       specOverrides: {
-        "assistant-codex-app-server": "assistant-codex-app-server@0.2.0-beta.4",
+        "zhushou-codex-app-server": "zhushou-codex-app-server@0.2.0-beta.4",
       },
     });
   });
@@ -80,16 +80,16 @@ describe("resolvePluginUpdateSelection", () => {
     expect(
       resolvePluginUpdateSelection({
         installs: {
-          "assistant-codex-app-server": createNpmInstall({
-            spec: "assistant-codex-app-server@beta",
-            installPath: "/tmp/assistant-codex-app-server",
-            resolvedName: "assistant-codex-app-server",
+          "zhushou-codex-app-server": createNpmInstall({
+            spec: "zhushou-codex-app-server@beta",
+            installPath: "/tmp/zhushou-codex-app-server",
+            resolvedName: "zhushou-codex-app-server",
           }),
         },
-        rawId: "assistant-codex-app-server",
+        rawId: "zhushou-codex-app-server",
       }),
     ).toEqual({
-      pluginIds: ["assistant-codex-app-server"],
+      pluginIds: ["zhushou-codex-app-server"],
     });
   });
 });

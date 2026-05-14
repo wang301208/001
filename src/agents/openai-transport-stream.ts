@@ -86,7 +86,7 @@ type OpenAIModeModel = Model<Api> & {
   compat?: Record<string, unknown>;
 };
 
-type MutableAssistantOutput = {
+type MutableZhushouOutput = {
   role: "assistant";
   content: Array<Record<string, unknown>>;
   api: Api;
@@ -143,7 +143,7 @@ function getServiceTierCostMultiplier(serviceTier: ResponseCreateParamsStreaming
 }
 
 function applyServiceTierPricing(
-  usage: MutableAssistantOutput["usage"],
+  usage: MutableZhushouOutput["usage"],
   serviceTier?: ResponseCreateParamsStreaming["service_tier"],
 ): void {
   const multiplier = getServiceTierCostMultiplier(serviceTier);
@@ -371,13 +371,13 @@ function convertResponsesTools(
 
 async function processResponsesStream(
   openaiStream: AsyncIterable<unknown>,
-  output: MutableAssistantOutput,
+  output: MutableZhushouOutput,
   stream: { push(event: unknown): void },
   model: Model<Api>,
   options?: {
     serviceTier?: ResponseCreateParamsStreaming["service_tier"];
     applyServiceTierPricing?: (
-      usage: MutableAssistantOutput["usage"],
+      usage: MutableZhushouOutput["usage"],
       serviceTier?: ResponseCreateParamsStreaming["service_tier"],
     ) => void;
   },
@@ -655,7 +655,7 @@ export function createOpenAIResponsesTransportStreamFn(): StreamFn {
     const eventStream = createAssistantMessageEventStream();
     const stream = eventStream as unknown as { push(event: unknown): void; end(): void };
     void (async () => {
-      const output: MutableAssistantOutput = {
+      const output: MutableZhushouOutput = {
         role: "assistant" as const,
         content: [],
         api: model.api,
@@ -841,7 +841,7 @@ export function createAzureOpenAIResponsesTransportStreamFn(): StreamFn {
     const eventStream = createAssistantMessageEventStream();
     const stream = eventStream as unknown as { push(event: unknown): void; end(): void };
     void (async () => {
-      const output: MutableAssistantOutput = {
+      const output: MutableZhushouOutput = {
         role: "assistant" as const,
         content: [],
         api: "azure-openai-responses",
@@ -1072,7 +1072,7 @@ export function createOpenAICompletionsTransportStreamFn(): StreamFn {
     const eventStream = createAssistantMessageEventStream();
     const stream = eventStream as unknown as { push(event: unknown): void; end(): void };
     void (async () => {
-      const output: MutableAssistantOutput = {
+      const output: MutableZhushouOutput = {
         role: "assistant" as const,
         content: [],
         api: model.api,
@@ -1128,7 +1128,7 @@ export function createOpenAICompletionsTransportStreamFn(): StreamFn {
 
 async function processOpenAICompletionsStream(
   responseStream: AsyncIterable<ChatCompletionChunk>,
-  output: MutableAssistantOutput,
+  output: MutableZhushouOutput,
   model: Model<Api>,
   stream: { push(event: unknown): void },
 ) {

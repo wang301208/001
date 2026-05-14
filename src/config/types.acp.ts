@@ -16,7 +16,7 @@ export type AcpStreamConfig = {
   deliveryMode?: "live" | "final_only";
   /** Separator inserted before visible text when hidden tool events occurred. */
   hiddenBoundarySeparator?: "none" | "space" | "newline" | "paragraph";
-  /** Maximum assistant output characters forwarded per turn. */
+  /** Maximum zhushou output characters forwarded per turn. */
   maxOutputChars?: number;
   /** Maximum visible characters for projected session/update lines. */
   maxSessionUpdateChars?: number;

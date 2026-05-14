@@ -2,7 +2,7 @@ import { completeSimple, type Model } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import {
   createSingleUserPromptMessage,
-  extractNonEmptyAssistantText,
+  extractNonEmptyZhushouText,
   isLiveTestEnabled,
 } from "./live-test-helpers.js";
 
@@ -19,12 +19,12 @@ function forceMoonshotInstantMode(payload: unknown): void {
   }
   // Moonshot's official API exposes instant mode via thinking.type=disabled.
   // Without this, tiny smoke probes can spend the full token budget in hidden
-  // reasoning_content and never emit visible assistant text.
+  // reasoning_content and never emit visible zhushou text.
   (payload as Record<string, unknown>).thinking = { type: "disabled" };
 }
 
 describeLive("moonshot live", () => {
-  it("returns assistant text", async () => {
+  it("returns zhushou text", async () => {
     const model: Model<"openai-completions"> = {
       id: MOONSHOT_MODEL,
       name: `Moonshot ${MOONSHOT_MODEL}`,
@@ -52,7 +52,7 @@ describeLive("moonshot live", () => {
       },
     );
 
-    const text = extractNonEmptyAssistantText(res.content);
+    const text = extractNonEmptyZhushouText(res.content);
     expect(text.length).toBeGreaterThan(0);
   }, 30000);
 });

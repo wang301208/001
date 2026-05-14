@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { collectChannelSecurityFindings } from "./audit-channel.js";
 
 describe("security audit channel dm policy", () => {
   it("warns when multiple DM senders share the main session", async () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       session: { dmScope: "main" },
       channels: { whatsapp: { enabled: true } },
     };

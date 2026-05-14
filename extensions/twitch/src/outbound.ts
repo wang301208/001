@@ -99,7 +99,7 @@ export const twitchOutbound: ChannelOutboundAdapter = {
    *
    * @example
    * const result = await twitchOutbound.sendText({
-   *   cfg: assistantConfig,
+   *   cfg: zhushouConfig,
    *   to: "#mychannel",
    *   text: "Hello Twitch!",
    *   accountId: "default",
@@ -158,7 +158,7 @@ export const twitchOutbound: ChannelOutboundAdapter = {
    *
    * @example
    * const result = await twitchOutbound.sendMedia({
-   *   cfg: assistantConfig,
+   *   cfg: zhushouConfig,
    *   to: "#mychannel",
    *   text: "Check this out!",
    *   mediaUrl: "https://example.com/image.png",

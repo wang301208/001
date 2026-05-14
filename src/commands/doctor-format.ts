@@ -59,14 +59,14 @@ export function buildGatewayRuntimeHints(
     return hints;
   }
   if (runtime.cachedLabel && platform === "darwin") {
-    const label = resolveGatewayLaunchAgentLabel(env.ASSISTANT_PROFILE);
+    const label = resolveGatewayLaunchAgentLabel(env.ZHUSHOU_PROFILE);
     hints.push(
       `LaunchAgent label cached but plist missing. Clear with: launchctl bootout gui/$UID/${label}`,
     );
-    hints.push(`Then reinstall: ${formatCliCommand("assistant gateway install", env)}`);
+    hints.push(`Then reinstall: ${formatCliCommand("zhushou gateway install", env)}`);
   }
   if (runtime.missingUnit) {
-    hints.push(`Service not installed. Run: ${formatCliCommand("assistant gateway install", env)}`);
+    hints.push(`Service not installed. Run: ${formatCliCommand("zhushou gateway install", env)}`);
     if (fileLog) {
       hints.push(`File logs: ${fileLog}`);
     }
@@ -81,8 +81,8 @@ export function buildGatewayRuntimeHints(
       ...buildPlatformRuntimeLogHints({
         platform,
         env,
-        systemdServiceName: resolveGatewaySystemdServiceName(env.ASSISTANT_PROFILE),
-        windowsTaskName: resolveGatewayWindowsTaskName(env.ASSISTANT_PROFILE),
+        systemdServiceName: resolveGatewaySystemdServiceName(env.ZHUSHOU_PROFILE),
+        windowsTaskName: resolveGatewayWindowsTaskName(env.ZHUSHOU_PROFILE),
       }),
     );
   }

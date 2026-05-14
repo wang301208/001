@@ -1,25 +1,25 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
-  createReplyDispatcher,
+  createReplyDispatcherWithTyping,
   resetInboundDedupe,
   type GetReplyOptions,
   type MsgContext,
-} from "assistant/plugin-sdk/reply-runtime";
-import type { MockFn } from "assistant/plugin-sdk/testing";
+} from "zhushou/plugin-sdk/reply-runtime";
+import type { MockFn } from "zhushou/plugin-sdk/testing";
 import { beforeEach, vi } from "vitest";
 import type { TelegramBotDeps } from "./bot-deps.js";
 
 type AnyMock = ReturnType<typeof vi.fn>;
 type AnyAsyncMock = ReturnType<typeof vi.fn>;
-type LoadConfigFn = typeof import("assistant/plugin-sdk/config-runtime").loadConfig;
-type LoadSessionStoreFn = typeof import("assistant/plugin-sdk/config-runtime").loadSessionStore;
-type ResolveStorePathFn = typeof import("assistant/plugin-sdk/config-runtime").resolveStorePath;
+type LoadConfigFn = typeof import("zhushou/plugin-sdk/config-runtime").loadConfig;
+type LoadSessionStoreFn = typeof import("zhushou/plugin-sdk/config-runtime").loadSessionStore;
+type ResolveStorePathFn = typeof import("zhushou/plugin-sdk/config-runtime").resolveStorePath;
 type SessionStore = ReturnType<LoadSessionStoreFn>;
 type TelegramBotRuntimeForTest = NonNullable<
   Parameters<typeof import("./bot.js").setTelegramBotRuntimeForTest>[0]
 >;
 type DispatchReplyWithBufferedBlockDispatcherFn =
-  typeof import("assistant/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithBufferedBlockDispatcher;
+  typeof import("zhushou/plugin-sdk/reply-dispatch-runtime").dispatchReplyWithBufferedBlockDispatcher;
 type DispatchReplyWithBufferedBlockDispatcherResult = Awaited<
   ReturnType<DispatchReplyWithBufferedBlockDispatcherFn>
 >;
@@ -38,20 +38,33 @@ const _EMPTY_REPLY_COUNTS: DispatchReplyWithBufferedBlockDispatcherResult["count
 };
 
 const { sessionStorePath } = vi.hoisted(() => ({
-  sessionStorePath: `/tmp/assistant-telegram-${process.pid}-${process.env.VITEST_POOL_ID ?? "0"}.json`,
+  sessionStorePath: `/tmp/zhushou-telegram-${process.pid}-${process.env.VITEST_POOL_ID ?? "0"}.json`,
 }));
 
 const { loadWebMedia } = vi.hoisted((): { loadWebMedia: AnyMock } => ({
   loadWebMedia: vi.fn(),
 }));
 
+const { writeConfigFileMock } = vi.hoisted(() => ({
+  writeConfigFileMock: vi.fn(async () => undefined),
+}));
+
 export function getLoadWebMediaMock(): AnyMock {
   return loadWebMedia;
 }
 
-vi.mock("assistant/plugin-sdk/web-media", () => ({
+vi.mock("zhushou/plugin-sdk/web-media", () => ({
   loadWebMedia,
 }));
+
+vi.mock("zhushou/plugin-sdk/config-runtime", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("zhushou/plugin-sdk/config-runtime")>();
+  return {
+    ...actual,
+    writeConfigFile: writeConfigFileMock,
+  };
+});
 
 const { loadConfig, loadSessionStoreMock, resolveStorePathMock, sessionStoreEntries } = vi.hoisted(
   (): {
@@ -118,7 +131,7 @@ const replySpyHoisted = vi.hoisted(() => ({
     (
       ctx: MsgContext,
       opts?: GetReplyOptions,
-      configOverride?: AssistantConfig,
+      configOverride?: ZhushouConfig,
     ) => Promise<ReplyPayloadLike | ReplyPayloadLike[] | undefined>
   >,
 }));
@@ -129,26 +142,24 @@ async function dispatchHarnessReplies(
     params: DispatchReplyHarnessParams,
   ) => Promise<ReplyPayloadLike | ReplyPayloadLike[] | undefined>,
 ): Promise<DispatchReplyWithBufferedBlockDispatcherResult> {
-  await params.dispatcherOptions.typingCallbacks?.onReplyStart?.();
-  const reply = await runReply(params);
+  const { dispatcher, replyOptions, markDispatchIdle, markRunComplete } =
+    createReplyDispatcherWithTyping({
+      ...params.dispatcherOptions,
+      deliver: async (payload, info) => {
+        await params.dispatcherOptions.deliver?.(payload, info);
+      },
+    });
+  let finalCount = 0;
+  try {
+    const reply = await runReply({
+      ...params,
+      replyOptions: {
+        ...params.replyOptions,
+        ...replyOptions,
+      },
+    });
   const payloads: ReplyPayloadLike[] =
     reply === undefined ? [] : Array.isArray(reply) ? reply : [reply];
-  const dispatcher = createReplyDispatcher({
-    deliver: async (payload, info) => {
-      await params.dispatcherOptions.deliver?.(payload, info);
-    },
-    responsePrefix: params.dispatcherOptions.responsePrefix,
-    responsePrefixContextProvider: params.dispatcherOptions.responsePrefixContextProvider,
-    responsePrefixContext: params.dispatcherOptions.responsePrefixContext,
-    onHeartbeatStrip: params.dispatcherOptions.onHeartbeatStrip,
-    onSkip: (payload, info) => {
-      params.dispatcherOptions.onSkip?.(payload, info);
-    },
-    onError: (err, info) => {
-      params.dispatcherOptions.onError?.(err, info);
-    },
-  });
-  let finalCount = 0;
   for (const payload of payloads) {
     if (dispatcher.sendFinalReply(payload)) {
       finalCount += 1;
@@ -156,6 +167,10 @@ async function dispatchHarnessReplies(
   }
   dispatcher.markComplete();
   await dispatcher.waitForIdle();
+  } finally {
+    markRunComplete();
+    markDispatchIdle();
+  }
   return {
     queuedFinal: finalCount > 0,
     counts: {
@@ -205,7 +220,7 @@ function normalizeLowercaseStringOrEmptyForTest(value: string | undefined): stri
   return value?.trim().toLowerCase() ?? "";
 }
 
-function resolveDefaultModelForAgentForTest(params: { cfg: AssistantConfig }): {
+function resolveDefaultModelForAgentForTest(params: { cfg: ZhushouConfig }): {
   provider: string;
   model: string;
 } {
@@ -220,7 +235,7 @@ function resolveDefaultModelForAgentForTest(params: { cfg: AssistantConfig }): {
   };
 }
 
-function createModelsProviderDataFromConfig(cfg: AssistantConfig): {
+function createModelsProviderDataFromConfig(cfg: ZhushouConfig): {
   byProvider: Map<string, Set<string>>;
   providers: string[];
   resolvedDefault: { provider: string; model: string };
@@ -289,7 +304,7 @@ const grammySpies = vi.hoisted(() => ({
   setMessageReactionSpy: vi.fn(async () => undefined) as AnyAsyncMock,
   setMyCommandsSpy: vi.fn(async () => undefined) as AnyAsyncMock,
   getMeSpy: vi.fn(async () => ({
-    username: "assistant_bot",
+    username: "zhushou_bot",
     has_topics_enabled: true,
   })) as AnyAsyncMock,
   getChatSpy: vi.fn(async () => undefined) as AnyAsyncMock,
@@ -403,14 +418,14 @@ export const telegramBotDepsForTest: TelegramBotDeps = {
 vi.doMock("./bot.runtime.js", () => telegramBotRuntimeForTest);
 
 export const getOnHandler = (event: string) => {
-  const handler = onSpy.mock.calls.find((call) => call[0] === event)?.[1];
+  const handler = onSpy.mock.calls.findLast((call) => call[0] === event)?.[1];
   if (!handler) {
     throw new Error(`Missing handler for event: ${event}`);
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
 
-const DEFAULT_TELEGRAM_TEST_CONFIG: AssistantConfig = {
+const DEFAULT_TELEGRAM_TEST_CONFIG: ZhushouConfig = {
   agents: {
     defaults: {
       envelopeTimezone: "utc",
@@ -445,7 +460,7 @@ export function makeTelegramMessageCtx(params: {
         ? {}
         : { message_thread_id: params.messageThreadId }),
     },
-    me: { username: "assistant_bot" },
+    me: { username: "zhushou_bot" },
     getFile: async () => ({ download: async () => new Uint8Array() }),
   };
 }
@@ -472,7 +487,10 @@ export function makeForumGroupMessageCtx(params?: {
 }
 
 beforeEach(() => {
+  vi.useRealTimers();
   resetInboundDedupe();
+  writeConfigFileMock.mockReset();
+  writeConfigFileMock.mockResolvedValue(undefined);
   loadConfig.mockReset();
   loadConfig.mockReturnValue(DEFAULT_TELEGRAM_TEST_CONFIG);
   sessionStoreEntries.value = {};
@@ -529,7 +547,7 @@ beforeEach(() => {
   getChatSpy.mockResolvedValue(undefined);
   getMeSpy.mockReset();
   getMeSpy.mockResolvedValue({
-    username: "assistant_bot",
+    username: "zhushou_bot",
     has_topics_enabled: true,
   });
   editMessageTextSpy.mockReset();
@@ -544,7 +562,7 @@ beforeEach(() => {
   listSkillCommandsForAgents.mockReset();
   listSkillCommandsForAgents.mockReturnValue([]);
   buildModelsProviderData.mockReset();
-  buildModelsProviderData.mockImplementation(async (cfg: AssistantConfig) => {
+  buildModelsProviderData.mockImplementation(async (cfg: ZhushouConfig) => {
     return createModelsProviderDataFromConfig(cfg);
   });
   middlewareUseSpy.mockReset();

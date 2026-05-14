@@ -2,11 +2,11 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { extractTextFromChatContent } from "../shared/chat-content.js";
 import {
-  normalizeAssistantPhase,
-  parseAssistantTextSignature,
-  type AssistantPhase,
+  normalizeZhushouPhase,
+  parseZhushouTextSignature,
+  type ZhushouPhase,
 } from "../shared/chat-message-content.js";
-import { sanitizeAssistantVisibleText } from "../shared/text/assistant-visible-text.js";
+import { sanitizeZhushouVisibleText } from "../shared/text/zhushou-visible-text.js";
 import { stripReasoningTagsFromText } from "../shared/text/reasoning-tags.js";
 import { sanitizeUserFacingText } from "./pi-embedded-helpers/sanitize-user-facing-text.js";
 import { formatToolDetail, resolveToolDisplay } from "./tool-display.js";
@@ -14,10 +14,10 @@ import { formatToolDetail, resolveToolDisplay } from "./tool-display.js";
 export {
   stripDowngradedToolCallText,
   stripMinimaxToolCallXml,
-} from "../shared/text/assistant-visible-text.js";
+} from "../shared/text/zhushou-visible-text.js";
 export { stripModelSpecialTokens } from "../shared/text/model-special-tokens.js";
 
-export function isAssistantMessage(msg: AgentMessage | undefined): msg is AssistantMessage {
+export function isZhushouMessage(msg: AgentMessage | undefined): msg is AssistantMessage {
   return msg?.role === "assistant";
 }
 
@@ -30,26 +30,26 @@ export function stripThinkingTagsFromText(text: string): string {
   return stripReasoningTagsFromText(text, { mode: "strict", trim: "both" });
 }
 
-function sanitizeAssistantText(text: string): string {
-  return sanitizeAssistantVisibleText(text);
+function sanitizeZhushouText(text: string): string {
+  return sanitizeZhushouVisibleText(text);
 }
 
-function finalizeAssistantExtraction(msg: AssistantMessage, extracted: string): string {
+function finalizeZhushouExtraction(msg: AssistantMessage, extracted: string): string {
   const errorContext = msg.stopReason === "error";
   return sanitizeUserFacingText(extracted, { errorContext });
 }
 
-type AssistantTextExtractionResult = {
+type ZhushouTextExtractionResult = {
   text: string;
   hadRequestedPhase: boolean;
 };
 
-function extractAssistantTextForPhase(
+function extractZhushouTextForPhase(
   msg: AssistantMessage,
-  phase?: AssistantPhase,
-): AssistantTextExtractionResult {
-  const messagePhase = normalizeAssistantPhase((msg as { phase?: unknown }).phase);
-  const shouldIncludeContent = (resolvedPhase?: AssistantPhase) => {
+  phase?: ZhushouPhase,
+): ZhushouTextExtractionResult {
+  const messagePhase = normalizeZhushouPhase((msg as { phase?: unknown }).phase);
+  const shouldIncludeContent = (resolvedPhase?: ZhushouPhase) => {
     if (phase) {
       return resolvedPhase === phase;
     }
@@ -60,7 +60,7 @@ function extractAssistantTextForPhase(
     const hadRequestedPhase = phase ? messagePhase === phase : messagePhase === undefined;
     return {
       text: shouldIncludeContent(messagePhase)
-        ? finalizeAssistantExtraction(msg, sanitizeAssistantText(msg.content))
+        ? finalizeZhushouExtraction(msg, sanitizeZhushouText(msg.content))
         : "",
       hadRequestedPhase,
     };
@@ -78,7 +78,7 @@ function extractAssistantTextForPhase(
     if (record.type !== "text") {
       return false;
     }
-    return Boolean(parseAssistantTextSignature(record.textSignature)?.phase);
+    return Boolean(parseZhushouTextSignature(record.textSignature)?.phase);
   });
 
   let hadRequestedPhase = false;
@@ -92,7 +92,7 @@ function extractAssistantTextForPhase(
         if (record.type !== "text") {
           return false;
         }
-        const signature = parseAssistantTextSignature(record.textSignature);
+        const signature = parseZhushouTextSignature(record.textSignature);
         const resolvedPhase =
           signature?.phase ?? (hasExplicitPhasedTextBlocks ? undefined : messagePhase);
         if (phase ? resolvedPhase === phase : resolvedPhase === undefined) {
@@ -101,42 +101,42 @@ function extractAssistantTextForPhase(
         return shouldIncludeContent(resolvedPhase);
       }),
       {
-        sanitizeText: (text) => sanitizeAssistantText(text),
+        sanitizeText: (text) => sanitizeZhushouText(text),
         joinWith: "\n",
         normalizeText: (text) => text.trim(),
       },
     ) ?? "";
 
   return {
-    text: finalizeAssistantExtraction(msg, extracted),
+    text: finalizeZhushouExtraction(msg, extracted),
     hadRequestedPhase,
   };
 }
 
-export function extractAssistantVisibleText(msg: AssistantMessage): string {
-  const finalAnswerExtraction = extractAssistantTextForPhase(msg, "final_answer");
+export function extractZhushouVisibleText(msg: AssistantMessage): string {
+  const finalAnswerExtraction = extractZhushouTextForPhase(msg, "final_answer");
   if (finalAnswerExtraction.hadRequestedPhase) {
     return finalAnswerExtraction.text.trim() ? finalAnswerExtraction.text : "";
   }
 
-  return extractAssistantTextForPhase(msg).text;
+  return extractZhushouTextForPhase(msg).text;
 }
 
-export function extractAssistantText(msg: AssistantMessage): string {
+export function extractZhushouText(msg: AssistantMessage): string {
   const extracted =
     extractTextFromChatContent(msg.content, {
-      sanitizeText: (text) => sanitizeAssistantText(text),
+      sanitizeText: (text) => sanitizeZhushouText(text),
       joinWith: "\n",
       normalizeText: (text) => text.trim(),
     }) ?? "";
-  // Only apply keyword-based error rewrites when the assistant message is actually an error.
+  // Only apply keyword-based error rewrites when the zhushou message is actually an error.
   // Otherwise normal prose that *mentions* errors (e.g. "context overflow") can get clobbered.
   // Gate on stopReason only — a non-error response with an errorMessage set (e.g. from a
   // background tool failure) should not have its content rewritten (#13935).
-  return finalizeAssistantExtraction(msg, extracted);
+  return finalizeZhushouExtraction(msg, extracted);
 }
 
-export function extractAssistantThinking(msg: AssistantMessage): string {
+export function extractZhushouThinking(msg: AssistantMessage): string {
   if (!Array.isArray(msg.content)) {
     return "";
   }

@@ -23,7 +23,7 @@ import {
   assertLiveImageProbeReply,
   buildLiveCronProbeMessage,
   createLiveCronProbeSpec,
-  runAssistantCliJson,
+  runZhushouCliJson,
   type CronListJob,
 } from "./live-agent-probes.js";
 import { renderCatFacePngBase64 } from "./live-image-probe.js";
@@ -79,11 +79,11 @@ export function parseImageMode(raw?: string): "list" | "repeat" | undefined {
   if (trimmed === "list" || trimmed === "repeat") {
     return trimmed;
   }
-  throw new Error("ASSISTANT_LIVE_CLI_BACKEND_IMAGE_MODE must be 'list' or 'repeat'.");
+  throw new Error("ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_MODE must be 'list' or 'repeat'.");
 }
 
 export function shouldRunCliImageProbe(providerId: string): boolean {
-  const raw = process.env.ASSISTANT_LIVE_CLI_BACKEND_IMAGE_PROBE?.trim();
+  const raw = process.env.ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_PROBE?.trim();
   if (raw) {
     return isTruthyEnvValue(raw);
   }
@@ -91,7 +91,7 @@ export function shouldRunCliImageProbe(providerId: string): boolean {
 }
 
 export function shouldRunCliMcpProbe(providerId: string): boolean {
-  const raw = process.env.ASSISTANT_LIVE_CLI_BACKEND_MCP_PROBE?.trim();
+  const raw = process.env.ZHUSHOU_LIVE_CLI_BACKEND_MCP_PROBE?.trim();
   if (raw) {
     return isTruthyEnvValue(raw);
   }
@@ -114,7 +114,7 @@ export function resolveCliModelSwitchProbeTarget(
 }
 
 export function shouldRunCliModelSwitchProbe(providerId: string, modelRef: string): boolean {
-  const raw = process.env.ASSISTANT_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE?.trim();
+  const raw = process.env.ZHUSHOU_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE?.trim();
   if (raw) {
     return isTruthyEnvValue(raw);
   }
@@ -267,30 +267,30 @@ function isRetryableGatewayConnectError(error: Error): boolean {
 
 export function snapshotCliBackendLiveEnv(): CliBackendLiveEnvSnapshot {
   return {
-    configPath: process.env.ASSISTANT_CONFIG_PATH,
-    stateDir: process.env.ASSISTANT_STATE_DIR,
-    token: process.env.ASSISTANT_GATEWAY_TOKEN,
-    skipChannels: process.env.ASSISTANT_SKIP_CHANNELS,
-    skipProviders: process.env.ASSISTANT_SKIP_PROVIDERS,
-    skipGmail: process.env.ASSISTANT_SKIP_GMAIL_WATCHER,
-    skipCron: process.env.ASSISTANT_SKIP_CRON,
-    skipCanvas: process.env.ASSISTANT_SKIP_CANVAS_HOST,
-    skipBrowserControl: process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER,
-    bundledPluginsDir: process.env.ASSISTANT_BUNDLED_PLUGINS_DIR,
-    minimalGateway: process.env.ASSISTANT_TEST_MINIMAL_GATEWAY,
+    configPath: process.env.ZHUSHOU_CONFIG_PATH,
+    stateDir: process.env.ZHUSHOU_STATE_DIR,
+    token: process.env.ZHUSHOU_GATEWAY_TOKEN,
+    skipChannels: process.env.ZHUSHOU_SKIP_CHANNELS,
+    skipProviders: process.env.ZHUSHOU_SKIP_PROVIDERS,
+    skipGmail: process.env.ZHUSHOU_SKIP_GMAIL_WATCHER,
+    skipCron: process.env.ZHUSHOU_SKIP_CRON,
+    skipCanvas: process.env.ZHUSHOU_SKIP_CANVAS_HOST,
+    skipBrowserControl: process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER,
+    bundledPluginsDir: process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR,
+    minimalGateway: process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
     anthropicApiKeyOld: process.env.ANTHROPIC_API_KEY_OLD,
   };
 }
 
 export function applyCliBackendLiveEnv(preservedEnv: ReadonlySet<string>): void {
-  process.env.ASSISTANT_SKIP_CHANNELS = "1";
-  process.env.ASSISTANT_SKIP_PROVIDERS = "1";
-  process.env.ASSISTANT_SKIP_GMAIL_WATCHER = "1";
-  process.env.ASSISTANT_SKIP_CRON = "1";
-  process.env.ASSISTANT_SKIP_CANVAS_HOST = "1";
-  process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER = "1";
-  process.env.ASSISTANT_TEST_MINIMAL_GATEWAY = "1";
+  process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+  process.env.ZHUSHOU_SKIP_PROVIDERS = "1";
+  process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = "1";
+  process.env.ZHUSHOU_SKIP_CRON = "1";
+  process.env.ZHUSHOU_SKIP_CANVAS_HOST = "1";
+  process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER = "1";
+  process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY = "1";
   if (!preservedEnv.has("ANTHROPIC_API_KEY")) {
     delete process.env.ANTHROPIC_API_KEY;
   }
@@ -300,17 +300,17 @@ export function applyCliBackendLiveEnv(preservedEnv: ReadonlySet<string>): void 
 }
 
 export function restoreCliBackendLiveEnv(snapshot: CliBackendLiveEnvSnapshot): void {
-  restoreEnvVar("ASSISTANT_CONFIG_PATH", snapshot.configPath);
-  restoreEnvVar("ASSISTANT_STATE_DIR", snapshot.stateDir);
-  restoreEnvVar("ASSISTANT_GATEWAY_TOKEN", snapshot.token);
-  restoreEnvVar("ASSISTANT_SKIP_CHANNELS", snapshot.skipChannels);
-  restoreEnvVar("ASSISTANT_SKIP_PROVIDERS", snapshot.skipProviders);
-  restoreEnvVar("ASSISTANT_SKIP_GMAIL_WATCHER", snapshot.skipGmail);
-  restoreEnvVar("ASSISTANT_SKIP_CRON", snapshot.skipCron);
-  restoreEnvVar("ASSISTANT_SKIP_CANVAS_HOST", snapshot.skipCanvas);
-  restoreEnvVar("ASSISTANT_SKIP_BROWSER_CONTROL_SERVER", snapshot.skipBrowserControl);
-  restoreEnvVar("ASSISTANT_BUNDLED_PLUGINS_DIR", snapshot.bundledPluginsDir);
-  restoreEnvVar("ASSISTANT_TEST_MINIMAL_GATEWAY", snapshot.minimalGateway);
+  restoreEnvVar("ZHUSHOU_CONFIG_PATH", snapshot.configPath);
+  restoreEnvVar("ZHUSHOU_STATE_DIR", snapshot.stateDir);
+  restoreEnvVar("ZHUSHOU_GATEWAY_TOKEN", snapshot.token);
+  restoreEnvVar("ZHUSHOU_SKIP_CHANNELS", snapshot.skipChannels);
+  restoreEnvVar("ZHUSHOU_SKIP_PROVIDERS", snapshot.skipProviders);
+  restoreEnvVar("ZHUSHOU_SKIP_GMAIL_WATCHER", snapshot.skipGmail);
+  restoreEnvVar("ZHUSHOU_SKIP_CRON", snapshot.skipCron);
+  restoreEnvVar("ZHUSHOU_SKIP_CANVAS_HOST", snapshot.skipCanvas);
+  restoreEnvVar("ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER", snapshot.skipBrowserControl);
+  restoreEnvVar("ZHUSHOU_BUNDLED_PLUGINS_DIR", snapshot.bundledPluginsDir);
+  restoreEnvVar("ZHUSHOU_TEST_MINIMAL_GATEWAY", snapshot.minimalGateway);
   restoreEnvVar("ANTHROPIC_API_KEY", snapshot.anthropicApiKey);
   restoreEnvVar("ANTHROPIC_API_KEY_OLD", snapshot.anthropicApiKeyOld);
 }
@@ -456,7 +456,7 @@ export async function verifyCliCronMcpProbe(params: {
     expectedSessionKey: params.sessionKey,
   });
   if (createdJob?.id) {
-    await runAssistantCliJson(
+    await runZhushouCliJson(
       [
         "cron",
         "rm",

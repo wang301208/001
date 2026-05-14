@@ -1,14 +1,14 @@
 import {
   fetchWithRuntimeDispatcherOrMockedGlobal,
   isMockedFetch,
-} from "assistant/plugin-sdk/runtime-fetch";
+} from "zhushou/plugin-sdk/runtime-fetch";
 import {
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostnameWithPolicy,
   type PinnedDispatcherPolicy,
   type SsrFPolicy,
-} from "assistant/plugin-sdk/ssrf-dispatcher";
+} from "zhushou/plugin-sdk/ssrf-dispatcher";
 
 export {
   closeDispatcher,

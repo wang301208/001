@@ -1,14 +1,14 @@
-import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
+import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
 import type {
   SpeechDirectiveTokenParseContext,
   SpeechProviderConfig,
   SpeechProviderOverrides,
   SpeechProviderPlugin,
-} from "assistant/plugin-sdk/speech";
+} from "zhushou/plugin-sdk/speech";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   asFiniteNumber,
   asObjectRecord,

@@ -302,7 +302,7 @@ function normalizeSystemdUnit(raw?: string, profile?: string): string {
   return unit.endsWith(".service") ? unit : `${unit}.service`;
 }
 
-export function triggerAssistantRestart(): RestartAttempt {
+export function triggerZhushouRestart(): RestartAttempt {
   if (process.env.VITEST || process.env.NODE_ENV === "test") {
     return { ok: true, method: "supervisor", detail: "test mode" };
   }
@@ -312,8 +312,8 @@ export function triggerAssistantRestart(): RestartAttempt {
   const tried: string[] = [];
   if (process.platform === "linux") {
     const unit = normalizeSystemdUnit(
-      process.env.ASSISTANT_SYSTEMD_UNIT,
-      process.env.ASSISTANT_PROFILE,
+      process.env.ZHUSHOU_SYSTEMD_UNIT,
+      process.env.ZHUSHOU_PROFILE,
     );
     const userArgs = ["--user", "restart", unit];
     tried.push(`systemctl ${userArgs.join(" ")}`);
@@ -353,8 +353,8 @@ export function triggerAssistantRestart(): RestartAttempt {
   }
 
   const label =
-    process.env.ASSISTANT_LAUNCHD_LABEL ||
-    resolveGatewayLaunchAgentLabel(process.env.ASSISTANT_PROFILE);
+    process.env.ZHUSHOU_LAUNCHD_LABEL ||
+    resolveGatewayLaunchAgentLabel(process.env.ZHUSHOU_PROFILE);
   const uid = typeof process.getuid === "function" ? process.getuid() : undefined;
   const domain = uid !== undefined ? `gui/${uid}` : "gui/501";
   const target = `${domain}/${label}`;

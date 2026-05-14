@@ -16,19 +16,19 @@ export type ExtraGatewayService = {
   label: string;
   detail: string;
   scope: "user" | "system";
-  marker?: "assistant";
+  marker?: "zhushou";
 };
 
 export type FindExtraGatewayServicesOptions = {
   deep?: boolean;
 };
 
-const EXTRA_MARKERS = ["assistant"] as const;
+const EXTRA_MARKERS = ["zhushou"] as const;
 
 export function renderGatewayServiceCleanupHints(
   env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
 ): string[] {
-  const profile = env.ASSISTANT_PROFILE;
+  const profile = env.ZHUSHOU_PROFILE;
   switch (process.platform) {
     case "darwin": {
       const label = resolveGatewayLaunchAgentLabel(profile);
@@ -80,8 +80,8 @@ export function detectMarkerLineWithGateway(contents: string): Marker | null {
 
 function hasGatewayServiceMarker(content: string): boolean {
   const lower = normalizeLowercaseStringOrEmpty(content);
-  const markerKeys = ["assistant_service_marker"];
-  const kindKeys = ["assistant_service_kind"];
+  const markerKeys = ["zhushou_service_marker"];
+  const kindKeys = ["zhushou_service_kind"];
   const markerValues = [normalizeLowercaseStringOrEmpty(GATEWAY_SERVICE_MARKER)];
   const hasMarkerKey = markerKeys.some((key) => lower.includes(key));
   const hasKindKey = kindKeys.some((key) => lower.includes(key));
@@ -94,7 +94,7 @@ function hasGatewayServiceMarker(content: string): boolean {
   );
 }
 
-function isAssistantGatewayLaunchdService(label: string, contents: string): boolean {
+function isZhushouGatewayLaunchdService(label: string, contents: string): boolean {
   if (hasGatewayServiceMarker(contents)) {
     return true;
   }
@@ -102,26 +102,26 @@ function isAssistantGatewayLaunchdService(label: string, contents: string): bool
   if (!lowerContents.includes("gateway")) {
     return false;
   }
-  return label.startsWith("ai.assistant.");
+  return label.startsWith("ai.zhushou.");
 }
 
-function isAssistantGatewaySystemdService(name: string, contents: string): boolean {
+function isZhushouGatewaySystemdService(name: string, contents: string): boolean {
   if (hasGatewayServiceMarker(contents)) {
     return true;
   }
-  if (!name.startsWith("assistant-gateway")) {
+  if (!name.startsWith("zhushou-gateway")) {
     return false;
   }
   return normalizeLowercaseStringOrEmpty(contents).includes("gateway");
 }
 
-function isAssistantGatewayTaskName(name: string): boolean {
+function isZhushouGatewayTaskName(name: string): boolean {
   const normalized = normalizeLowercaseStringOrEmpty(name);
   if (!normalized) {
     return false;
   }
   const defaultName = normalizeLowercaseStringOrEmpty(resolveGatewayWindowsTaskName());
-  return normalized === defaultName || normalized.startsWith("assistant gateway");
+  return normalized === defaultName || normalized.startsWith("zhushou gateway");
 }
 
 function tryExtractPlistLabel(contents: string): string | null {
@@ -208,7 +208,7 @@ async function scanLaunchdDir(params: {
     if (isIgnoredLaunchdLabel(label)) {
       continue;
     }
-    if (marker === "assistant" && isAssistantGatewayLaunchdService(label, contents)) {
+    if (marker === "zhushou" && isZhushouGatewayLaunchdService(label, contents)) {
       continue;
     }
     results.push({
@@ -239,7 +239,7 @@ async function scanSystemdDir(params: {
     if (!marker) {
       continue;
     }
-    if (marker === "assistant" && isAssistantGatewaySystemdService(name, contents)) {
+    if (marker === "zhushou" && isZhushouGatewaySystemdService(name, contents)) {
       continue;
     }
     results.push({
@@ -391,7 +391,7 @@ export async function findExtraGatewayServices(
       if (!name) {
         continue;
       }
-      if (isAssistantGatewayTaskName(name)) {
+      if (isZhushouGatewayTaskName(name)) {
         continue;
       }
       const lowerName = normalizeLowercaseStringOrEmpty(name);

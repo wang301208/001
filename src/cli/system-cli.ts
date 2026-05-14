@@ -46,7 +46,7 @@ export function registerSystemCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/system", "docs.assistant.ai/cli/system")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/system", "docs.zhushou.ai/cli/system")}\n`,
     );
 
   addGatewayClientOptions(

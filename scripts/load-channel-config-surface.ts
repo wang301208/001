@@ -173,7 +173,7 @@ function copyModuleImportGraphWithoutNodeModules(params: {
   const relativeFiles = collectRelativeImportGraph(params.modulePath);
   const copyRoot = resolveCommonAncestor([packageRoot, ...relativeFiles]);
   const relativeModulePath = path.relative(copyRoot, params.modulePath);
-  const tempParent = path.join(params.repoRoot, ".assistant-config-doc-cache");
+  const tempParent = path.join(params.repoRoot, ".zhushou-config-doc-cache");
   fs.mkdirSync(tempParent, { recursive: true });
   const isolatedRoot = fs.mkdtempSync(path.join(tempParent, `${path.basename(packageRoot)}-`));
 
@@ -204,9 +204,9 @@ export async function loadChannelConfigSurfaceModule(
     const script = `
       import { pathToFileURL } from "node:url";
       const { buildChannelConfigSchema } = await import(${JSON.stringify(bunBuildChannelConfigSchemaUrl)});
-      const modulePath = process.env.ASSISTANT_CONFIG_SURFACE_MODULE;
+      const modulePath = process.env.ZHUSHOU_CONFIG_SURFACE_MODULE;
       if (!modulePath) {
-        throw new Error("missing ASSISTANT_CONFIG_SURFACE_MODULE");
+        throw new Error("missing ZHUSHOU_CONFIG_SURFACE_MODULE");
       }
       const imported = await import(pathToFileURL(modulePath).href);
       const isBuilt = (value) => Boolean(
@@ -236,7 +236,7 @@ export async function loadChannelConfigSurfaceModule(
       encoding: "utf8",
       env: {
         ...process.env,
-        ASSISTANT_CONFIG_SURFACE_MODULE: path.resolve(candidatePath),
+        ZHUSHOU_CONFIG_SURFACE_MODULE: path.resolve(candidatePath),
       },
     });
     if (result.error) {
@@ -262,7 +262,7 @@ export async function loadChannelConfigSurfaceModule(
       pluginSdkResolution: "src",
     });
     const aliasMap = {
-      ...(pluginSdkAlias ? { "assistant/plugin-sdk": pluginSdkAlias } : {}),
+      ...(pluginSdkAlias ? { "zhushou/plugin-sdk": pluginSdkAlias } : {}),
       ...resolvePluginSdkScopedAliasMap({
         modulePath: resolvedPath,
         pluginSdkResolution: "src",

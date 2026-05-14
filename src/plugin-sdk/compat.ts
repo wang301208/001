@@ -5,15 +5,15 @@ import { isTruthyEnvValue } from "../infra/env.js";
 const shouldWarnCompatImport =
   !isTruthyEnvValue(process.env.VITEST) &&
   process.env.NODE_ENV !== "test" &&
-  process.env.ASSISTANT_SUPPRESS_PLUGIN_SDK_COMPAT_WARNING !== "1";
+  process.env.ZHUSHOU_SUPPRESS_PLUGIN_SDK_COMPAT_WARNING !== "1";
 
 if (shouldWarnCompatImport) {
   process.emitWarning(
-    "assistant/plugin-sdk/compat is deprecated for new plugins. Migrate to focused assistant/plugin-sdk/<subpath> imports. See https://docs.assistant.ai/plugins/sdk-migration",
+    "zhushou/plugin-sdk/compat is deprecated for new plugins. Migrate to focused zhushou/plugin-sdk/<subpath> imports. See https://docs.zhushou.ai/plugins/sdk-migration",
     {
-      code: "ASSISTANT_PLUGIN_SDK_COMPAT_DEPRECATED",
+      code: "ZHUSHOU_PLUGIN_SDK_COMPAT_DEPRECATED",
       detail:
-        "Bundled plugins must use scoped plugin-sdk subpaths. External plugins may keep compat temporarily while migrating. Migration guide: https://docs.assistant.ai/plugins/sdk-migration",
+        "Bundled plugins must use scoped plugin-sdk subpaths. External plugins may keep compat temporarily while migrating. Migration guide: https://docs.zhushou.ai/plugins/sdk-migration",
     },
   );
 }

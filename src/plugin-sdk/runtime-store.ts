@@ -1,6 +1,6 @@
 export type { PluginRuntime } from "../plugins/runtime/types.js";
 
-const pluginRuntimeStoreRegistryKey = Symbol.for("assistant.plugin-sdk.runtime-store-registry");
+const pluginRuntimeStoreRegistryKey = Symbol.for("zhushou.plugin-sdk.runtime-store-registry");
 
 type PluginRuntimeStoreRegistry = Map<string, { runtime: unknown }>;
 type PluginRuntimeStoreKeyOptions = {

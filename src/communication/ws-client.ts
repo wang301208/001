@@ -21,6 +21,7 @@ import {
   serializeMessage,
 } from './ws-protocol.js';
 import type { BusEvent, EventHandler, EventPattern } from './message-bus.js';
+import { randomUUID } from 'node:crypto';
 
 // ==================== 类型定义 ====================
 
@@ -184,7 +185,7 @@ export class WSClient {
     
     // 返回订阅对象
     const subscription: ClientSubscription = {
-      id: `client_sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      id: `client_sub_${randomUUID()}`,
       pattern,
       unsubscribe: () => {
         // 移除本地处理器

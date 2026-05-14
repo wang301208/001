@@ -1,5 +1,5 @@
 import { resolveProviderIdForAuth } from "../agents/provider-auth-aliases.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizePluginsConfig, resolveEffectiveEnableState } from "./config-state.js";
 import { loadPluginManifestRegistry, type PluginManifestRecord } from "./manifest-registry.js";
 import type { PluginOrigin } from "./plugin-origin.types.js";
@@ -11,8 +11,8 @@ export type ProviderAuthChoiceMetadata = {
   choiceId: string;
   choiceLabel: string;
   choiceHint?: string;
-  assistantPriority?: number;
-  assistantVisibility?: "visible" | "manual-only";
+  zhushouPriority?: number;
+  zhushouVisibility?: "visible" | "manual-only";
   deprecatedChoiceIds?: string[];
   groupId?: string;
   groupLabel?: string;
@@ -69,10 +69,10 @@ function toProviderAuthChoiceCandidate(params: {
     choiceId: choice.choiceId,
     choiceLabel: choice.choiceLabel ?? choice.choiceId,
     ...(choice.choiceHint ? { choiceHint: choice.choiceHint } : {}),
-    ...(choice.assistantPriority !== undefined
-      ? { assistantPriority: choice.assistantPriority }
+    ...(choice.zhushouPriority !== undefined
+      ? { zhushouPriority: choice.zhushouPriority }
       : {}),
-    ...(choice.assistantVisibility ? { assistantVisibility: choice.assistantVisibility } : {}),
+    ...(choice.zhushouVisibility ? { zhushouVisibility: choice.zhushouVisibility } : {}),
     ...(choice.deprecatedChoiceIds ? { deprecatedChoiceIds: choice.deprecatedChoiceIds } : {}),
     ...(choice.groupId ? { groupId: choice.groupId } : {}),
     ...(choice.groupLabel ? { groupLabel: choice.groupLabel } : {}),
@@ -91,7 +91,7 @@ function stripChoiceOrigin(choice: ProviderAuthChoiceCandidate): ProviderAuthCho
 }
 
 function resolveManifestProviderAuthChoiceCandidates(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   includeUntrustedWorkspacePlugins?: boolean;
@@ -166,7 +166,7 @@ function resolvePreferredManifestAuthChoicesByChoiceId(
 }
 
 export function resolveManifestProviderAuthChoices(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   includeUntrustedWorkspacePlugins?: boolean;
@@ -179,7 +179,7 @@ export function resolveManifestProviderAuthChoices(params?: {
 export function resolveManifestProviderAuthChoice(
   choiceId: string,
   params?: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     workspaceDir?: string;
     env?: NodeJS.ProcessEnv;
     includeUntrustedWorkspacePlugins?: boolean;
@@ -198,7 +198,7 @@ export function resolveManifestProviderAuthChoice(
 
 export function resolveManifestProviderApiKeyChoice(params: {
   providerId: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   includeUntrustedWorkspacePlugins?: boolean;
@@ -220,7 +220,7 @@ export function resolveManifestProviderApiKeyChoice(params: {
 export function resolveManifestDeprecatedProviderAuthChoice(
   choiceId: string,
   params?: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     workspaceDir?: string;
     env?: NodeJS.ProcessEnv;
     includeUntrustedWorkspacePlugins?: boolean;
@@ -238,7 +238,7 @@ export function resolveManifestDeprecatedProviderAuthChoice(
 }
 
 export function resolveManifestProviderOnboardAuthFlags(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   includeUntrustedWorkspacePlugins?: boolean;

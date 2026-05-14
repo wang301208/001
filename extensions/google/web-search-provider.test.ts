@@ -1,6 +1,6 @@
-import { withEnv } from "assistant/plugin-sdk/testing";
+import { withEnv } from "zhushou/plugin-sdk/testing";
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../src/config/config.js";
+import type { ZhushouConfig } from "../../src/config/config.js";
 import { __testing, createGeminiWebSearchProvider } from "./src/gemini-web-search-provider.js";
 
 describe("google web search provider", () => {
@@ -20,7 +20,7 @@ describe("google web search provider", () => {
 
   it("stores configured credentials at the canonical plugin config path", () => {
     const provider = createGeminiWebSearchProvider();
-    const config = {} as AssistantConfig;
+    const config = {} as ZhushouConfig;
 
     provider.setConfiguredCredentialValue?.(config, "AIza-plugin-test");
 

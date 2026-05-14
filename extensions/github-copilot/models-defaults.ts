@@ -1,4 +1,4 @@
-import type { ModelDefinitionConfig } from "assistant/plugin-sdk/provider-model-shared";
+import type { ModelDefinitionConfig } from "zhushou/plugin-sdk/provider-model-shared";
 import { resolveCopilotTransportApi } from "./models.js";
 
 const DEFAULT_CONTEXT_WINDOW = 128_000;

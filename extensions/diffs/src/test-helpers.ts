@@ -1,13 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredAssistantTmpDir } from "../api.js";
+import { resolvePreferredZhushouTmpDir } from "../api.js";
 import { DiffArtifactStore } from "./store.js";
 
 export async function createTempDiffRoot(prefix: string): Promise<{
   rootDir: string;
   cleanup: () => Promise<void>;
 }> {
-  const rootDir = await fs.mkdtemp(path.join(resolvePreferredAssistantTmpDir(), prefix));
+  const rootDir = await fs.mkdtemp(path.join(resolvePreferredZhushouTmpDir(), prefix));
   return {
     rootDir,
     cleanup: async () => {

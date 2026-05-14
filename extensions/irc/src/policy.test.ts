@@ -1,4 +1,4 @@
-import { resolveChannelGroupPolicy } from "assistant/plugin-sdk/config-runtime";
+import { resolveChannelGroupPolicy } from "zhushou/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import {
   resolveIrcGroupAccessGate,

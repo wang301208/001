@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { GovernanceGenesisPlanStageStatus } from "../../governance/capability-registry.js";
 import type { AgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import type {
@@ -15,7 +15,7 @@ import type {
   TaskRegistrySummary,
   TaskRuntime,
 } from "../../tasks/task-registry.types.js";
-import type { AssistantPluginToolContext } from "../tool-types.js";
+import type { ZhushouPluginToolContext } from "../tool-types.js";
 
 export type ManagedTaskFlowRecord = TaskFlowRecord & {
   syncMode: "managed";
@@ -280,7 +280,7 @@ export type BoundTaskFlowRuntime = {
     expectedRevision: number;
     cancelRequestedAt?: number;
   }) => ManagedTaskFlowMutationResult;
-  cancel: (params: { flowId: string; cfg: AssistantConfig }) => Promise<BoundTaskFlowCancelResult>;
+  cancel: (params: { flowId: string; cfg: ZhushouConfig }) => Promise<BoundTaskFlowCancelResult>;
   runTask: (params: {
     flowId: string;
     runtime: TaskRuntime;
@@ -308,6 +308,6 @@ export type PluginRuntimeTaskFlow = {
     requesterOrigin?: TaskDeliveryState["requesterOrigin"];
   }) => BoundTaskFlowRuntime;
   fromToolContext: (
-    ctx: Pick<AssistantPluginToolContext, "sessionKey" | "deliveryContext">,
+    ctx: Pick<ZhushouPluginToolContext, "sessionKey" | "deliveryContext">,
   ) => BoundTaskFlowRuntime;
 };

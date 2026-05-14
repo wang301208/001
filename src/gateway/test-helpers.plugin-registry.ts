@@ -36,7 +36,7 @@ function createStubPluginRegistry(): PluginRegistry {
 }
 
 const GATEWAY_TEST_PLUGIN_REGISTRY_STATE_KEY = Symbol.for(
-  "assistant.gatewayTestHelpers.pluginRegistryState",
+  "zhushou.gatewayTestHelpers.pluginRegistryState",
 );
 
 const pluginRegistryState = resolveGlobalSingleton(GATEWAY_TEST_PLUGIN_REGISTRY_STATE_KEY, () => ({

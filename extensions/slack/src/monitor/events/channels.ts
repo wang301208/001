@@ -1,8 +1,8 @@
 import type { SlackEventMiddlewareArgs } from "@slack/bolt";
-import { resolveChannelConfigWrites } from "assistant/plugin-sdk/channel-config-writes";
-import { loadConfig, writeConfigFile } from "assistant/plugin-sdk/config-runtime";
-import { enqueueSystemEvent } from "assistant/plugin-sdk/infra-runtime";
-import { danger, warn } from "assistant/plugin-sdk/runtime-env";
+import { resolveChannelConfigWrites } from "zhushou/plugin-sdk/channel-config-writes";
+import { loadConfig, writeConfigFile } from "zhushou/plugin-sdk/config-runtime";
+import { enqueueSystemEvent } from "zhushou/plugin-sdk/infra-runtime";
+import { danger, warn } from "zhushou/plugin-sdk/runtime-env";
 import { migrateSlackChannelConfig } from "../../channel-migration.js";
 import { resolveSlackChannelLabel } from "../channel-config.js";
 import type { SlackMonitorContext } from "../context.js";

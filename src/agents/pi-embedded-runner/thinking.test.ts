@@ -3,16 +3,16 @@ import { createAssistantMessageEventStream } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import { castAgentMessage, castAgentMessages } from "../test-helpers/agent-message-fixtures.js";
 import {
-  assessLastAssistantMessage,
+  assessLastZhushouMessage,
   dropThinkingBlocks,
-  isAssistantMessageWithContent,
+  isZhushouMessageWithContent,
   sanitizeThinkingForRecovery,
   wrapAnthropicStreamWithRecovery,
 } from "./thinking.js";
 
 type AssistantMessage = Extract<AgentMessage, { role: "assistant" }>;
 
-function dropSingleAssistantContent(content: Array<Record<string, unknown>>) {
+function dropSingleZhushouContent(content: Array<Record<string, unknown>>) {
   const messages: AgentMessage[] = [
     castAgentMessage({
       role: "assistant",
@@ -22,24 +22,24 @@ function dropSingleAssistantContent(content: Array<Record<string, unknown>>) {
 
   const result = dropThinkingBlocks(messages);
   return {
-    assistant: result[0] as Extract<AgentMessage, { role: "assistant" }>,
+    zhushou: result[0] as Extract<AgentMessage, { role: "assistant" }>,
     messages,
     result,
   };
 }
 
-describe("isAssistantMessageWithContent", () => {
-  it("accepts assistant messages with array content and rejects others", () => {
-    const assistant = castAgentMessage({
+describe("isZhushouMessageWithContent", () => {
+  it("accepts zhushou messages with array content and rejects others", () => {
+    const zhushou = castAgentMessage({
       role: "assistant",
       content: [{ type: "text", text: "ok" }],
     });
     const user = castAgentMessage({ role: "user", content: "hi" });
     const malformed = castAgentMessage({ role: "assistant", content: "not-array" });
 
-    expect(isAssistantMessageWithContent(assistant)).toBe(true);
-    expect(isAssistantMessageWithContent(user)).toBe(false);
-    expect(isAssistantMessageWithContent(malformed)).toBe(false);
+    expect(isZhushouMessageWithContent(zhushou)).toBe(true);
+    expect(isZhushouMessageWithContent(user)).toBe(false);
+    expect(isZhushouMessageWithContent(malformed)).toBe(false);
   });
 });
 
@@ -54,26 +54,26 @@ describe("dropThinkingBlocks", () => {
     expect(result).toBe(messages);
   });
 
-  it("preserves thinking blocks when the assistant message is the latest assistant turn", () => {
-    const { assistant, messages, result } = dropSingleAssistantContent([
+  it("preserves thinking blocks when the zhushou message is the latest zhushou turn", () => {
+    const { zhushou, messages, result } = dropSingleZhushouContent([
       { type: "thinking", thinking: "internal" },
       { type: "text", text: "final" },
     ]);
     expect(result).toBe(messages);
-    expect(assistant.content).toEqual([
+    expect(zhushou.content).toEqual([
       { type: "thinking", thinking: "internal" },
       { type: "text", text: "final" },
     ]);
   });
 
-  it("preserves a latest assistant turn even when all content blocks are thinking", () => {
-    const { assistant } = dropSingleAssistantContent([
+  it("preserves a latest zhushou turn even when all content blocks are thinking", () => {
+    const { zhushou } = dropSingleZhushouContent([
       { type: "thinking", thinking: "internal-only" },
     ]);
-    expect(assistant.content).toEqual([{ type: "thinking", thinking: "internal-only" }]);
+    expect(zhushou.content).toEqual([{ type: "thinking", thinking: "internal-only" }]);
   });
 
-  it("preserves thinking blocks in the latest assistant message", () => {
+  it("preserves thinking blocks in the latest zhushou message", () => {
     const messages: AgentMessage[] = [
       castAgentMessage({ role: "user", content: "first" }),
       castAgentMessage({
@@ -94,11 +94,11 @@ describe("dropThinkingBlocks", () => {
     ];
 
     const result = dropThinkingBlocks(messages);
-    const firstAssistant = result[1] as Extract<AgentMessage, { role: "assistant" }>;
-    const latestAssistant = result[3] as Extract<AgentMessage, { role: "assistant" }>;
+    const firstZhushou = result[1] as Extract<AgentMessage, { role: "assistant" }>;
+    const latestZhushou = result[3] as Extract<AgentMessage, { role: "assistant" }>;
 
-    expect(firstAssistant.content).toEqual([{ type: "text", text: "old text" }]);
-    expect(latestAssistant.content).toEqual([
+    expect(firstZhushou.content).toEqual([{ type: "text", text: "old text" }]);
+    expect(latestZhushou.content).toEqual([
       { type: "thinking", thinking: "latest", thinkingSignature: "sig_latest" },
       { type: "text", text: "latest text" },
     ]);
@@ -106,7 +106,7 @@ describe("dropThinkingBlocks", () => {
 });
 
 describe("sanitizeThinkingForRecovery", () => {
-  it("drops the latest assistant message when the thinking block is unsigned", () => {
+  it("drops the latest zhushou message when the thinking block is unsigned", () => {
     const messages = castAgentMessages([
       { role: "user", content: "hello" },
       {
@@ -120,7 +120,7 @@ describe("sanitizeThinkingForRecovery", () => {
     expect(result.prefill).toBe(false);
   });
 
-  it("preserves later turns when dropping an incomplete assistant message", () => {
+  it("preserves later turns when dropping an incomplete zhushou message", () => {
     const messages = castAgentMessages([
       { role: "user", content: "hello" },
       {
@@ -158,7 +158,7 @@ describe("sanitizeThinkingForRecovery", () => {
       ],
     });
 
-    expect(assessLastAssistantMessage(message)).toBe("incomplete-text");
+    expect(assessLastZhushouMessage(message)).toBe("incomplete-text");
   });
 
   it("treats partial text after signed thinking as valid", () => {
@@ -170,7 +170,7 @@ describe("sanitizeThinkingForRecovery", () => {
       ],
     });
 
-    expect(assessLastAssistantMessage(message)).toBe("valid");
+    expect(assessLastZhushouMessage(message)).toBe("valid");
   });
 
   it("treats non-string text blocks as incomplete text when thinking is signed", () => {
@@ -182,13 +182,13 @@ describe("sanitizeThinkingForRecovery", () => {
       ],
     });
 
-    expect(assessLastAssistantMessage(message)).toBe("incomplete-text");
+    expect(assessLastZhushouMessage(message)).toBe("incomplete-text");
   });
 });
 
 describe("wrapAnthropicStreamWithRecovery", () => {
   const anthropicThinkingError = new Error(
-    "thinking or redacted_thinking blocks in the latest assistant message cannot be modified",
+    "thinking or redacted_thinking blocks in the latest zhushou message cannot be modified",
   );
 
   it("retries once when the request is rejected before streaming", async () => {

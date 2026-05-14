@@ -15,7 +15,7 @@ export async function expectPassthroughReplayPolicy(params: {
   } as never);
 
   expect(policy).toMatchObject({
-    applyAssistantFirstOrderingFix: false,
+    applyZhushouFirstOrderingFix: false,
     validateGeminiTurns: false,
     validateAnthropicTurns: false,
   });

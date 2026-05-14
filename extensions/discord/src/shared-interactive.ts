@@ -1,8 +1,8 @@
-import { reduceInteractiveReply } from "assistant/plugin-sdk/interactive-runtime";
+import { reduceInteractiveReply } from "zhushou/plugin-sdk/interactive-runtime";
 import type {
   InteractiveButtonStyle,
   InteractiveReply,
-} from "assistant/plugin-sdk/interactive-runtime";
+} from "zhushou/plugin-sdk/interactive-runtime";
 import type {
   DiscordComponentButtonStyle,
   DiscordComponentMessageSpec,

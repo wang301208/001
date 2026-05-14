@@ -28,7 +28,7 @@ import type {
   QaBusWaitForInput,
 } from "./runtime-api.js";
 
-const DEFAULT_BOT_ID = "assistant";
+const DEFAULT_BOT_ID = "zhushou";
 const DEFAULT_BOT_NAME = "助手 QA";
 
 type QaBusEventSeed =

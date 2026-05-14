@@ -1,1 +1,1 @@
-export { resolveGatewayAuth } from "assistant/plugin-sdk/browser-node-runtime";
+export { resolveGatewayAuth } from "zhushou/plugin-sdk/browser-node-runtime";

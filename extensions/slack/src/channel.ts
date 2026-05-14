@@ -2,33 +2,33 @@ import {
   buildLegacyDmAccountAllowlistAdapter,
   createAccountScopedAllowlistNameResolver,
   createFlatAllowlistOverrideResolver,
-} from "assistant/plugin-sdk/allowlist-config-edit";
+} from "zhushou/plugin-sdk/allowlist-config-edit";
 import {
   adaptScopedAccountAccessor,
   createScopedDmSecurityResolver,
-} from "assistant/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
-import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
-import { createOpenProviderConfiguredRouteWarningCollector } from "assistant/plugin-sdk/channel-policy";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
+import { createOpenProviderConfiguredRouteWarningCollector } from "zhushou/plugin-sdk/channel-policy";
 import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
-} from "assistant/plugin-sdk/directory-runtime";
-import { buildPassiveProbedChannelStatusSummary } from "assistant/plugin-sdk/extension-shared";
-import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
-import { resolveOutboundSendDep } from "assistant/plugin-sdk/outbound-runtime";
+} from "zhushou/plugin-sdk/directory-runtime";
+import { buildPassiveProbedChannelStatusSummary } from "zhushou/plugin-sdk/extension-shared";
+import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
+import { resolveOutboundSendDep } from "zhushou/plugin-sdk/outbound-runtime";
 import {
   buildOutboundBaseSessionKey,
   normalizeOutboundThreadId,
   resolveThreadSessionKeys,
   type RoutePeer,
-} from "assistant/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/routing";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "assistant/plugin-sdk/status-helpers";
-import { resolveTargetsWithOptionalToken } from "assistant/plugin-sdk/target-resolver-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/status-helpers";
+import { resolveTargetsWithOptionalToken } from "zhushou/plugin-sdk/target-resolver-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   resolveDefaultSlackAccountId,
   resolveSlackAccount,
@@ -47,7 +47,7 @@ import {
   projectCredentialSnapshotFields,
   resolveConfiguredFromRequiredCredentialStatuses,
   type ChannelPlugin,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "./channel-api.js";
 import { resolveSlackChannelType } from "./channel-type.js";
 import { shouldSuppressLocalSlackExecApprovalPrompt } from "./exec-approvals.js";
@@ -190,7 +190,7 @@ function parseSlackExplicitTarget(raw: string) {
 }
 
 function buildSlackBaseSessionKey(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   accountId?: string | null;
   peer: RoutePeer;
@@ -199,7 +199,7 @@ function buildSlackBaseSessionKey(params: {
 }
 
 async function resolveSlackOutboundSessionRoute(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   accountId?: string | null;
   target: string;
@@ -427,7 +427,7 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount, SlackProbe> = crea
       invoke: async (action, cfg, toolContext) =>
         await (
           await resolveSlackHandleAction()
-        )(action, cfg as AssistantConfig, toolContext as SlackActionContext | undefined),
+        )(action, cfg as ZhushouConfig, toolContext as SlackActionContext | undefined),
     }),
     status: createComputedAccountStatusAdapter<ResolvedSlackAccount, SlackProbe>({
       defaultRuntime: createDefaultChannelRuntimeState(DEFAULT_ACCOUNT_ID),

@@ -1,7 +1,7 @@
 import {
   createDefaultModelPresetAppliers,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/provider-onboard";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/provider-onboard";
 import {
   buildMoonshotProvider,
   MOONSHOT_BASE_URL,
@@ -12,7 +12,7 @@ export const MOONSHOT_DEFAULT_MODEL_REF = `moonshot/${MOONSHOT_DEFAULT_MODEL_ID}
 
 const moonshotPresetAppliers = createDefaultModelPresetAppliers<[string]>({
   primaryModelRef: MOONSHOT_DEFAULT_MODEL_REF,
-  resolveParams: (_cfg: AssistantConfig, baseUrl: string) => {
+  resolveParams: (_cfg: ZhushouConfig, baseUrl: string) => {
     const defaultModel = buildMoonshotProvider().models[0];
     if (!defaultModel) {
       return null;
@@ -29,18 +29,18 @@ const moonshotPresetAppliers = createDefaultModelPresetAppliers<[string]>({
   },
 });
 
-export function applyMoonshotProviderConfig(cfg: AssistantConfig): AssistantConfig {
+export function applyMoonshotProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
   return moonshotPresetAppliers.applyProviderConfig(cfg, MOONSHOT_BASE_URL);
 }
 
-export function applyMoonshotProviderConfigCn(cfg: AssistantConfig): AssistantConfig {
+export function applyMoonshotProviderConfigCn(cfg: ZhushouConfig): ZhushouConfig {
   return moonshotPresetAppliers.applyProviderConfig(cfg, MOONSHOT_CN_BASE_URL);
 }
 
-export function applyMoonshotConfig(cfg: AssistantConfig): AssistantConfig {
+export function applyMoonshotConfig(cfg: ZhushouConfig): ZhushouConfig {
   return moonshotPresetAppliers.applyConfig(cfg, MOONSHOT_BASE_URL);
 }
 
-export function applyMoonshotConfigCn(cfg: AssistantConfig): AssistantConfig {
+export function applyMoonshotConfigCn(cfg: ZhushouConfig): ZhushouConfig {
   return moonshotPresetAppliers.applyConfig(cfg, MOONSHOT_CN_BASE_URL);
 }

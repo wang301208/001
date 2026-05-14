@@ -1,4 +1,4 @@
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 
 type MemoryEmbeddingTextPart = {
   type: "text";

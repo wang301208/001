@@ -57,7 +57,7 @@ export function registerSkillsCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/skills", "docs.assistant.ai/cli/skills")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/skills", "docs.zhushou.ai/cli/skills")}\n`,
     );
 
   skills

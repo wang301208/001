@@ -10,25 +10,25 @@ import type {
   Usage,
 } from "@mariozechner/pi-ai";
 import { createAssistantMessageEventStream, streamSimple } from "@mariozechner/pi-ai";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import type {
-  AssistantConfig,
+  ZhushouConfig,
   ProviderRuntimeModel,
   ProviderWrapStreamFnContext,
-} from "assistant/plugin-sdk/plugin-entry";
-import { isNonSecretApiKeyMarker } from "assistant/plugin-sdk/provider-auth";
+} from "zhushou/plugin-sdk/plugin-entry";
+import { isNonSecretApiKeyMarker } from "zhushou/plugin-sdk/provider-auth";
 import {
   DEFAULT_CONTEXT_TOKENS,
   normalizeProviderId,
-} from "assistant/plugin-sdk/provider-model-shared";
+} from "zhushou/plugin-sdk/provider-model-shared";
 import {
   createMoonshotThinkingWrapper,
   resolveMoonshotThinkingType,
   streamWithPayloadPatch,
-} from "assistant/plugin-sdk/provider-stream-shared";
-import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty, readStringValue } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-stream-shared";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty, readStringValue } from "zhushou/plugin-sdk/text-runtime";
 import { OLLAMA_DEFAULT_BASE_URL } from "./defaults.js";
 import {
   parseJsonObjectPreservingUnsafeIntegers,
@@ -56,7 +56,7 @@ export function resolveOllamaBaseUrlForRun(params: {
 }
 
 export function resolveConfiguredOllamaProviderConfig(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   providerId?: string;
 }) {
   const providerId = params.providerId?.trim();
@@ -116,7 +116,7 @@ export function isOllamaCompatProvider(model: {
 }
 
 export function resolveOllamaCompatNumCtxEnabled(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   providerId?: string;
 }): boolean {
   return resolveConfiguredOllamaProviderConfig(params)?.injectNumCtxForOpenAICompat ?? true;
@@ -124,7 +124,7 @@ export function resolveOllamaCompatNumCtxEnabled(params: {
 
 export function shouldInjectOllamaCompatNumCtx(params: {
   model: { api?: string; provider?: string; baseUrl?: string };
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   providerId?: string;
 }): boolean {
   if (params.model.api !== "openai-completions") {
@@ -270,7 +270,7 @@ function buildUsageWithNoCost(params: {
   };
 }
 
-function buildStreamAssistantMessage(params: {
+function buildStreamZhushouMessage(params: {
   model: StreamModelDescriptor;
   content: AssistantMessage["content"];
   stopReason: StopReason;
@@ -289,13 +289,13 @@ function buildStreamAssistantMessage(params: {
   };
 }
 
-function buildStreamErrorAssistantMessage(params: {
+function buildStreamErrorZhushouMessage(params: {
   model: StreamModelDescriptor;
   errorMessage: string;
   timestamp?: number;
 }): AssistantMessage & { stopReason: "error"; errorMessage: string } {
   return {
-    ...buildStreamAssistantMessage({
+    ...buildStreamZhushouMessage({
       model: params.model,
       content: [],
       stopReason: "error",
@@ -519,7 +519,7 @@ function extractOllamaTools(tools: Tool[] | undefined): OllamaTool[] {
   return result;
 }
 
-export function buildAssistantMessage(
+export function buildZhushouMessage(
   response: OllamaChatResponse,
   modelInfo: StreamModelDescriptor,
 ): AssistantMessage {
@@ -545,7 +545,7 @@ export function buildAssistantMessage(
     }
   }
 
-  return buildStreamAssistantMessage({
+  return buildStreamZhushouMessage({
     model: modelInfo,
     content,
     stopReason: toolCalls && toolCalls.length > 0 ? "toolUse" : "stop",
@@ -707,7 +707,7 @@ export function createOllamaStreamFn(
               return;
             }
             thinkingEnded = true;
-            const partial = buildStreamAssistantMessage({
+            const partial = buildStreamZhushouMessage({
               model: modelInfo,
               content: buildCurrentContent(),
               stopReason: "stop",
@@ -726,7 +726,7 @@ export function createOllamaStreamFn(
               return;
             }
             textBlockClosed = true;
-            const partial = buildStreamAssistantMessage({
+            const partial = buildStreamZhushouMessage({
               model: modelInfo,
               content: buildCurrentContent(),
               stopReason: "stop",
@@ -745,7 +745,7 @@ export function createOllamaStreamFn(
             if (thinkingDelta) {
               if (!streamStarted) {
                 streamStarted = true;
-                const emptyPartial = buildStreamAssistantMessage({
+                const emptyPartial = buildStreamZhushouMessage({
                   model: modelInfo,
                   content: [],
                   stopReason: "stop",
@@ -755,7 +755,7 @@ export function createOllamaStreamFn(
               }
               if (!thinkingStarted) {
                 thinkingStarted = true;
-                const partial = buildStreamAssistantMessage({
+                const partial = buildStreamZhushouMessage({
                   model: modelInfo,
                   content: buildCurrentContent(),
                   stopReason: "stop",
@@ -764,7 +764,7 @@ export function createOllamaStreamFn(
                 stream.push({ type: "thinking_start", contentIndex: 0, partial });
               }
               accumulatedThinking += thinkingDelta;
-              const partial = buildStreamAssistantMessage({
+              const partial = buildStreamZhushouMessage({
                 model: modelInfo,
                 content: buildCurrentContent(),
                 stopReason: "stop",
@@ -786,7 +786,7 @@ export function createOllamaStreamFn(
 
               if (!streamStarted) {
                 streamStarted = true;
-                const emptyPartial = buildStreamAssistantMessage({
+                const emptyPartial = buildStreamZhushouMessage({
                   model: modelInfo,
                   content: [],
                   stopReason: "stop",
@@ -796,7 +796,7 @@ export function createOllamaStreamFn(
               }
               if (!textBlockStarted) {
                 textBlockStarted = true;
-                const partial = buildStreamAssistantMessage({
+                const partial = buildStreamZhushouMessage({
                   model: modelInfo,
                   content: buildCurrentContent(),
                   stopReason: "stop",
@@ -806,7 +806,7 @@ export function createOllamaStreamFn(
               }
 
               accumulatedContent += delta;
-              const partial = buildStreamAssistantMessage({
+              const partial = buildStreamZhushouMessage({
                 model: modelInfo,
                 content: buildCurrentContent(),
                 stopReason: "stop",
@@ -842,14 +842,14 @@ export function createOllamaStreamFn(
             finalResponse.message.tool_calls = accumulatedToolCalls;
           }
 
-          const assistantMessage = buildAssistantMessage(finalResponse, modelInfo);
+          const zhushouMessage = buildZhushouMessage(finalResponse, modelInfo);
           closeThinkingBlock();
           closeTextBlock();
 
           stream.push({
             type: "done",
-            reason: assistantMessage.stopReason === "toolUse" ? "toolUse" : "stop",
-            message: assistantMessage,
+            reason: zhushouMessage.stopReason === "toolUse" ? "toolUse" : "stop",
+            message: zhushouMessage,
           });
         } finally {
           await release();
@@ -858,7 +858,7 @@ export function createOllamaStreamFn(
         stream.push({
           type: "error",
           reason: "error",
-          error: buildStreamErrorAssistantMessage({
+          error: buildStreamErrorZhushouMessage({
             model,
             errorMessage: formatErrorMessage(err),
           }),

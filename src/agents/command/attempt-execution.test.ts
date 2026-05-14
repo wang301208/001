@@ -103,7 +103,7 @@ describe("sessionFileHasContent", () => {
     expect(await sessionFileHasContent(file)).toBe(false);
   });
 
-  it("returns false when session file has only user message (no assistant flush)", async () => {
+  it("returns false when session file has only user message (no zhushou flush)", async () => {
     const file = path.join(tmpDir, "user-only.jsonl");
     await fs.writeFile(
       file,
@@ -113,37 +113,37 @@ describe("sessionFileHasContent", () => {
     expect(await sessionFileHasContent(file)).toBe(false);
   });
 
-  it("returns true when session file has assistant message (flushed)", async () => {
-    const file = path.join(tmpDir, "with-assistant.jsonl");
+  it("returns true when session file has zhushou message (flushed)", async () => {
+    const file = path.join(tmpDir, "with-zhushou.jsonl");
     await fs.writeFile(
       file,
-      '{"type":"session","id":"s1"}\n{"type":"message","message":{"role":"user","content":"hello"}}\n{"type":"message","message":{"role":"assistant","content":"hi"}}\n',
+      '{"type":"session","id":"s1"}\n{"type":"message","message":{"role":"user","content":"hello"}}\n{"type":"message","message":{role: "assistant","content":"hi"}}\n',
       "utf-8",
     );
     expect(await sessionFileHasContent(file)).toBe(true);
   });
 
-  it("returns true when session file has spaced JSON (role : assistant)", async () => {
+  it("returns true when session file has spaced JSON (role : zhushou)", async () => {
     const file = path.join(tmpDir, "spaced.jsonl");
     await fs.writeFile(
       file,
-      '{"type":"message","message":{"role": "assistant","content":"hi"}}\n',
+      '{"type":"message","message":{role: "assistant","content":"hi"}}\n',
       "utf-8",
     );
     expect(await sessionFileHasContent(file)).toBe(true);
   });
 
-  it("returns true when assistant message appears after large user content", async () => {
+  it("returns true when zhushou message appears after large user content", async () => {
     const file = path.join(tmpDir, "large-user.jsonl");
     // Create a user message whose JSON line exceeds 256KB to ensure the
-    // JSONL-based parser (CWE-703 fix) finds the assistant record that a
+    // JSONL-based parser (CWE-703 fix) finds the zhushou record that a
     // naive byte-prefix approach would miss.
     const bigContent = "x".repeat(300 * 1024);
     const lines =
       [
         `{"type":"session","id":"s1"}`,
         `{"type":"message","message":{"role":"user","content":"${bigContent}"}}`,
-        `{"type":"message","message":{"role":"assistant","content":"done"}}`,
+        `{"type":"message","message":{role: "assistant","content":"done"}}`,
       ].join("\n") + "\n";
     await fs.writeFile(file, lines, "utf-8");
     expect(await sessionFileHasContent(file)).toBe(true);
@@ -153,7 +153,7 @@ describe("sessionFileHasContent", () => {
     const realFile = path.join(tmpDir, "real.jsonl");
     await fs.writeFile(
       realFile,
-      '{"type":"message","message":{"role":"assistant","content":"hi"}}\n',
+      '{"type":"message","message":{role: "assistant","content":"hi"}}\n',
       "utf-8",
     );
     const link = path.join(tmpDir, "link.jsonl");

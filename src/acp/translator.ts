@@ -255,7 +255,7 @@ function buildSessionPresentation(params: {
       name: "Thought level",
       category: "thought_level",
       description:
-        "Controls how much deliberate reasoning the assistant requests from the Gateway model.",
+        "Controls how much deliberate reasoning the zhushou requests from the Gateway model.",
       currentValue: currentModeId,
       values: availableLevelIds,
     }),
@@ -270,7 +270,7 @@ function buildSessionPresentation(params: {
       id: ACP_VERBOSE_LEVEL_CONFIG_ID,
       name: "Tool verbosity",
       description:
-        "Controls how much tool progress and output detail the assistant keeps enabled for the session.",
+        "Controls how much tool progress and output detail the zhushou keeps enabled for the session.",
       currentValue: normalizeOptionalString(row.verboseLevel) || "off",
       values: ["off", "on", "full"],
     }),
@@ -292,7 +292,7 @@ function buildSessionPresentation(params: {
       id: ACP_RESPONSE_USAGE_CONFIG_ID,
       name: "Usage detail",
       description:
-        "Controls how much usage information the assistant attaches to responses for the session.",
+        "Controls how much usage information the zhushou attaches to responses for the session.",
       currentValue: normalizeOptionalString(row.responseUsage) || "off",
       values: ["off", "tokens", "full"],
     }),
@@ -396,7 +396,7 @@ function buildSystemInputProvenance(originSessionId: string) {
     kind: "external_user" as const,
     originSessionId,
     sourceChannel: "acp",
-    sourceTool: "assistant_acp",
+    sourceTool: "zhushou_acp",
   };
 }
 
@@ -407,7 +407,7 @@ function buildSystemProvenanceReceipt(params: {
 }) {
   return [
     "[Source Receipt]",
-    "bridge=assistant-acp",
+    "bridge=zhushou-acp",
     `originHost=${os.hostname()}`,
     `originCwd=${shortenHomePath(params.cwd)}`,
     `acpSessionId=${params.sessionId}`,
@@ -945,9 +945,9 @@ export class AcpGatewayAgent implements Agent {
 
     const shouldHandleMessageSnapshot = messageData && (state === "delta" || state === "final");
     if (shouldHandleMessageSnapshot) {
-      // Gateway chat events can carry the latest full assistant snapshot on both
+      // Gateway chat events can carry the latest full zhushou snapshot on both
       // incremental updates and the terminal final event. Process the snapshot
-      // first so ACP clients never drop the last visible assistant text.
+      // first so ACP clients never drop the last visible zhushou text.
       await this.handleDeltaEvent(pending.sessionId, messageData);
       if (state === "delta") {
         return;
@@ -1402,7 +1402,7 @@ export class AcpGatewayAgent implements Agent {
       return;
     }
     throw new Error(
-      "ACP bridge mode does not support per-session MCP servers. Configure MCP on the assistant gateway or agent instead.",
+      "ACP bridge mode does not support per-session MCP servers. Configure MCP on the zhushou gateway or agent instead.",
     );
   }
 

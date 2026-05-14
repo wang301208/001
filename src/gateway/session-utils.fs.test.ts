@@ -39,12 +39,12 @@ function writeTranscript(tmpDir: string, sessionId: string, lines: unknown[]): s
 function buildBasicSessionTranscript(
   sessionId: string,
   userText = "Hello world",
-  assistantText = "Hi there",
+  zhushouText = "Hi there",
 ): unknown[] {
   return [
     { type: "session", version: 1, id: sessionId },
     { message: { role: "user", content: userText } },
-    { message: { role: "assistant", content: assistantText } },
+    { message: { role: "assistant", content: zhushouText } },
   ];
 }
 
@@ -52,7 +52,7 @@ describe("readFirstUserMessageFromTranscript", () => {
   let tmpDir: string;
   let storePath: string;
 
-  registerTempSessionStore("assistant-session-fs-test-", (nextTmpDir, nextStorePath) => {
+  registerTempSessionStore("zhushou-session-fs-test-", (nextTmpDir, nextStorePath) => {
     tmpDir = nextTmpDir;
     storePath = nextStorePath;
   });
@@ -180,7 +180,7 @@ describe("readLastMessagePreviewFromTranscript", () => {
   let tmpDir: string;
   let storePath: string;
 
-  registerTempSessionStore("assistant-session-fs-test-", (nextTmpDir, nextStorePath) => {
+  registerTempSessionStore("zhushou-session-fs-test-", (nextTmpDir, nextStorePath) => {
     tmpDir = nextTmpDir;
     storePath = nextStorePath;
   });
@@ -199,21 +199,21 @@ describe("readLastMessagePreviewFromTranscript", () => {
       sessionId: "test-last-user",
       lines: [
         JSON.stringify({ message: { role: "user", content: "First user" } }),
-        JSON.stringify({ message: { role: "assistant", content: "First assistant" } }),
+        JSON.stringify({ message: { role: "assistant", content: "First zhushou" } }),
         JSON.stringify({ message: { role: "user", content: "Last user message" } }),
       ],
       expected: "Last user message",
     },
     {
-      sessionId: "test-last-assistant",
+      sessionId: "test-last-zhushou",
       lines: [
         JSON.stringify({ message: { role: "user", content: "User question" } }),
-        JSON.stringify({ message: { role: "assistant", content: "Final assistant reply" } }),
+        JSON.stringify({ message: { role: "assistant", content: "Final zhushou reply" } }),
       ],
-      expected: "Final assistant reply",
+      expected: "Final zhushou reply",
     },
   ] as const)(
-    "returns the last user or assistant message from transcript for $sessionId",
+    "returns the last user or zhushou message from transcript for $sessionId",
     ({ sessionId, lines, expected }) => {
       const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
       fs.writeFileSync(transcriptPath, lines.join("\n"), "utf-8");
@@ -222,7 +222,7 @@ describe("readLastMessagePreviewFromTranscript", () => {
     },
   );
 
-  test("skips system messages to find last user/assistant", () => {
+  test("skips system messages to find last user/zhushou", () => {
     const sessionId = "test-last-skip-system";
     const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
     const lines = [
@@ -235,7 +235,7 @@ describe("readLastMessagePreviewFromTranscript", () => {
     expect(result).toBe("Real last");
   });
 
-  test("returns null when no user/assistant messages exist", () => {
+  test("returns null when no user/zhushou messages exist", () => {
     const sessionId = "test-last-no-match";
     const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
     const lines = [
@@ -350,7 +350,7 @@ describe("shared transcript read behaviors", () => {
   let tmpDir: string;
   let storePath: string;
 
-  registerTempSessionStore("assistant-session-fs-test-", (nextTmpDir, nextStorePath) => {
+  registerTempSessionStore("zhushou-session-fs-test-", (nextTmpDir, nextStorePath) => {
     tmpDir = nextTmpDir;
     storePath = nextStorePath;
   });
@@ -411,7 +411,7 @@ describe("readSessionTitleFieldsFromTranscript cache", () => {
   let tmpDir: string;
   let storePath: string;
 
-  registerTempSessionStore("assistant-session-fs-test-", (nextTmpDir, nextStorePath) => {
+  registerTempSessionStore("zhushou-session-fs-test-", (nextTmpDir, nextStorePath) => {
     tmpDir = nextTmpDir;
     storePath = nextStorePath;
   });
@@ -463,7 +463,7 @@ describe("readSessionMessages", () => {
   let tmpDir: string;
   let storePath: string;
 
-  registerTempSessionStore("assistant-session-fs-test-", (nextTmpDir, nextStorePath) => {
+  registerTempSessionStore("zhushou-session-fs-test-", (nextTmpDir, nextStorePath) => {
     tmpDir = nextTmpDir;
     storePath = nextStorePath;
   });
@@ -491,13 +491,13 @@ describe("readSessionMessages", () => {
     const marker = out[1] as {
       role: string;
       content?: Array<{ text?: string }>;
-      __assistant?: { kind?: string; id?: string };
+      __zhushou?: { kind?: string; id?: string };
       timestamp?: number;
     };
     expect(marker.role).toBe("system");
     expect(marker.content?.[0]?.text).toBe("Compaction");
-    expect(marker.__assistant?.kind).toBe("compaction");
-    expect(marker.__assistant?.id).toBe("comp-1");
+    expect(marker.__zhushou?.kind).toBe("compaction");
+    expect(marker.__zhushou?.id).toBe("comp-1");
     expect(typeof marker.timestamp).toBe("number");
   });
 
@@ -532,7 +532,7 @@ describe("readSessionMessages", () => {
       const out = readSessionMessages(sessionId, wrongStorePath, sessionFile);
       expect(out).toHaveLength(1);
       expect(out[0]).toMatchObject(message);
-      expect((out[0] as { __assistant?: { seq?: number } }).__assistant?.seq).toBe(1);
+      expect((out[0] as { __zhushou?: { seq?: number } }).__zhushou?.seq).toBe(1);
     },
   );
 });
@@ -541,7 +541,7 @@ describe("readSessionPreviewItemsFromTranscript", () => {
   let tmpDir: string;
   let storePath: string;
 
-  registerTempSessionStore("assistant-session-preview-test-", (nextTmpDir, nextStorePath) => {
+  registerTempSessionStore("zhushou-session-preview-test-", (nextTmpDir, nextStorePath) => {
     tmpDir = nextTmpDir;
     storePath = nextStorePath;
   });
@@ -629,7 +629,7 @@ describe("readSessionPreviewItemsFromTranscript", () => {
     expect(result[0]?.text).toBe("A  B");
   });
 
-  test("prefers final_answer text for assistant preview items", () => {
+  test("prefers final_answer text for zhushou preview items", () => {
     const sessionId = "preview-final-answer";
     const lines = [
       JSON.stringify({
@@ -657,7 +657,7 @@ describe("readSessionPreviewItemsFromTranscript", () => {
     expect(result[0]?.text).toBe("Actual final answer");
   });
 
-  test("hides commentary-only assistant preview items", () => {
+  test("hides commentary-only zhushou preview items", () => {
     const sessionId = "preview-commentary-only";
     const lines = [
       JSON.stringify({
@@ -684,12 +684,12 @@ describe("readLatestSessionUsageFromTranscript", () => {
   let tmpDir: string;
   let storePath: string;
 
-  registerTempSessionStore("assistant-session-usage-test-", (nextTmpDir, nextStorePath) => {
+  registerTempSessionStore("zhushou-session-usage-test-", (nextTmpDir, nextStorePath) => {
     tmpDir = nextTmpDir;
     storePath = nextStorePath;
   });
 
-  test("returns the latest assistant usage snapshot and skips delivery mirrors", () => {
+  test("returns the latest zhushou usage snapshot and skips delivery mirrors", () => {
     const sessionId = "usage-session";
     writeTranscript(tmpDir, sessionId, [
       { type: "session", version: 1, id: sessionId },
@@ -709,7 +709,7 @@ describe("readLatestSessionUsageFromTranscript", () => {
       {
         message: {
           role: "assistant",
-          provider: "assistant",
+          provider: "zhushou",
           model: "delivery-mirror",
           usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
         },
@@ -728,7 +728,7 @@ describe("readLatestSessionUsageFromTranscript", () => {
     });
   });
 
-  test("aggregates assistant usage across the full transcript and keeps the latest context snapshot", () => {
+  test("aggregates zhushou usage across the full transcript and keeps the latest context snapshot", () => {
     const sessionId = "usage-aggregate";
     writeTranscript(tmpDir, sessionId, [
       { type: "session", version: 1, id: sessionId },
@@ -771,7 +771,7 @@ describe("readLatestSessionUsageFromTranscript", () => {
     expect(snapshot?.costUsd).toBeCloseTo(0.0115, 8);
   });
 
-  test("reads earlier assistant usage outside the old tail window", () => {
+  test("reads earlier zhushou usage outside the old tail window", () => {
     const sessionId = "usage-full-transcript";
     const filler = "x".repeat(20_000);
     writeTranscript(tmpDir, sessionId, [
@@ -818,7 +818,7 @@ describe("readLatestSessionUsageFromTranscript", () => {
     expect(snapshot?.costUsd).toBeCloseTo(0.0063, 8);
   });
 
-  test("returns null when the transcript has no assistant usage snapshot", () => {
+  test("returns null when the transcript has no zhushou usage snapshot", () => {
     const sessionId = "usage-empty";
     writeTranscript(tmpDir, sessionId, [
       { type: "session", version: 1, id: sessionId },
@@ -835,14 +835,14 @@ describe("resolveSessionTranscriptCandidates", () => {
     vi.unstubAllEnvs();
   });
 
-  test("fallback candidate uses ASSISTANT_HOME instead of os.homedir()", () => {
-    vi.stubEnv("ASSISTANT_HOME", "/srv/assistant-home");
+  test("fallback candidate uses ZHUSHOU_HOME instead of os.homedir()", () => {
+    vi.stubEnv("ZHUSHOU_HOME", "/srv/zhushou-home");
     vi.stubEnv("HOME", "/home/other");
 
     const candidates = resolveSessionTranscriptCandidates("sess-1", undefined);
     const fallback = candidates[candidates.length - 1];
     expect(fallback).toBe(
-      path.join(path.resolve("/srv/assistant-home"), ".assistant", "sessions", "sess-1.jsonl"),
+      path.join(path.resolve("/srv/zhushou-home"), ".zhushou", "sessions", "sess-1.jsonl"),
     );
   });
 });
@@ -850,8 +850,8 @@ describe("resolveSessionTranscriptCandidates", () => {
 describe("resolveSessionTranscriptCandidates safety", () => {
   test.each([
     {
-      storePath: "/tmp/assistant/agents/main/sessions/sessions.json",
-      sessionFile: "/tmp/assistant/agents/ops/sessions/sess-safe.jsonl",
+      storePath: "/tmp/zhushou/agents/main/sessions/sessions.json",
+      sessionFile: "/tmp/zhushou/agents/ops/sessions/sess-safe.jsonl",
     },
     {
       storePath: "/srv/custom/agents/main/sessions/sessions.json",
@@ -868,14 +868,14 @@ describe("resolveSessionTranscriptCandidates safety", () => {
   test("drops unsafe session IDs instead of producing traversal paths", () => {
     const candidates = resolveSessionTranscriptCandidates(
       "../etc/passwd",
-      "/tmp/assistant/agents/main/sessions/sessions.json",
+      "/tmp/zhushou/agents/main/sessions/sessions.json",
     );
 
     expect(candidates).toEqual([]);
   });
 
   test("drops unsafe sessionFile candidates and keeps safe fallbacks", () => {
-    const storePath = "/tmp/assistant/agents/main/sessions/sessions.json";
+    const storePath = "/tmp/zhushou/agents/main/sessions/sessions.json";
     const candidates = resolveSessionTranscriptCandidates(
       "sess-safe",
       storePath,
@@ -889,24 +889,24 @@ describe("resolveSessionTranscriptCandidates safety", () => {
   });
 
   test("prefers the current sessionId transcript before a stale sessionFile candidate", () => {
-    const storePath = "/tmp/assistant/agents/main/sessions/sessions.json";
+    const storePath = "/tmp/zhushou/agents/main/sessions/sessions.json";
     const candidates = resolveSessionTranscriptCandidates(
       "11111111-1111-4111-8111-111111111111",
       storePath,
-      "/tmp/assistant/agents/main/sessions/22222222-2222-4222-8222-222222222222.jsonl",
+      "/tmp/zhushou/agents/main/sessions/22222222-2222-4222-8222-222222222222.jsonl",
     );
 
     expect(candidates[0]).toBe(
-      path.resolve("/tmp/assistant/agents/main/sessions/11111111-1111-4111-8111-111111111111.jsonl"),
+      path.resolve("/tmp/zhushou/agents/main/sessions/11111111-1111-4111-8111-111111111111.jsonl"),
     );
     expect(candidates).toContain(
-      path.resolve("/tmp/assistant/agents/main/sessions/22222222-2222-4222-8222-222222222222.jsonl"),
+      path.resolve("/tmp/zhushou/agents/main/sessions/22222222-2222-4222-8222-222222222222.jsonl"),
     );
   });
 
   test("keeps explicit custom sessionFile ahead of synthesized fallback", () => {
-    const storePath = "/tmp/assistant/agents/main/sessions/sessions.json";
-    const sessionFile = "/tmp/assistant/agents/main/sessions/custom-transcript.jsonl";
+    const storePath = "/tmp/zhushou/agents/main/sessions/sessions.json";
+    const sessionFile = "/tmp/zhushou/agents/main/sessions/custom-transcript.jsonl";
     const candidates = resolveSessionTranscriptCandidates(
       "11111111-1111-4111-8111-111111111111",
       storePath,
@@ -917,8 +917,8 @@ describe("resolveSessionTranscriptCandidates safety", () => {
   });
 
   test("keeps custom topic-like transcript paths ahead of synthesized fallback", () => {
-    const storePath = "/tmp/assistant/agents/main/sessions/sessions.json";
-    const sessionFile = "/tmp/assistant/agents/main/sessions/custom-topic-notes.jsonl";
+    const storePath = "/tmp/zhushou/agents/main/sessions/sessions.json";
+    const sessionFile = "/tmp/zhushou/agents/main/sessions/custom-topic-notes.jsonl";
     const candidates = resolveSessionTranscriptCandidates(
       "11111111-1111-4111-8111-111111111111",
       storePath,
@@ -929,33 +929,33 @@ describe("resolveSessionTranscriptCandidates safety", () => {
   });
 
   test("keeps forked transcript paths ahead of synthesized fallback", () => {
-    const storePath = "/tmp/assistant/agents/main/sessions/sessions.json";
+    const storePath = "/tmp/zhushou/agents/main/sessions/sessions.json";
     const sessionId = "11111111-1111-4111-8111-111111111111";
     const sessionFile =
-      "/tmp/assistant/agents/main/sessions/2026-03-23T16-30-00-000Z_11111111-1111-4111-8111-111111111111.jsonl";
+      "/tmp/zhushou/agents/main/sessions/2026-03-23T16-30-00-000Z_11111111-1111-4111-8111-111111111111.jsonl";
     const candidates = resolveSessionTranscriptCandidates(sessionId, storePath, sessionFile);
 
     expect(candidates[0]).toBe(path.resolve(sessionFile));
   });
 
   test("keeps timestamped custom transcript paths ahead of synthesized fallback", () => {
-    const storePath = "/tmp/assistant/agents/main/sessions/sessions.json";
+    const storePath = "/tmp/zhushou/agents/main/sessions/sessions.json";
     const sessionId = "11111111-1111-4111-8111-111111111111";
-    const sessionFile = "/tmp/assistant/agents/main/sessions/2026-03-23T16-30-00-000Z_notes.jsonl";
+    const sessionFile = "/tmp/zhushou/agents/main/sessions/2026-03-23T16-30-00-000Z_notes.jsonl";
     const candidates = resolveSessionTranscriptCandidates(sessionId, storePath, sessionFile);
 
     expect(candidates[0]).toBe(path.resolve(sessionFile));
   });
 
   test("still treats generated topic transcripts from another session as stale", () => {
-    const storePath = "/tmp/assistant/agents/main/sessions/sessions.json";
+    const storePath = "/tmp/zhushou/agents/main/sessions/sessions.json";
     const sessionId = "11111111-1111-4111-8111-111111111111";
     const staleSessionFile =
-      "/tmp/assistant/agents/main/sessions/22222222-2222-4222-8222-222222222222-topic-thread.jsonl";
+      "/tmp/zhushou/agents/main/sessions/22222222-2222-4222-8222-222222222222-topic-thread.jsonl";
     const candidates = resolveSessionTranscriptCandidates(sessionId, storePath, staleSessionFile);
 
     expect(candidates[0]).toBe(
-      path.resolve("/tmp/assistant/agents/main/sessions/11111111-1111-4111-8111-111111111111.jsonl"),
+      path.resolve("/tmp/zhushou/agents/main/sessions/11111111-1111-4111-8111-111111111111.jsonl"),
     );
     expect(candidates).toContain(path.resolve(staleSessionFile));
   });
@@ -965,13 +965,13 @@ describe("archiveSessionTranscripts", () => {
   let tmpDir: string;
   let storePath: string;
 
-  registerTempSessionStore("assistant-archive-test-", (nextTmpDir, nextStorePath) => {
+  registerTempSessionStore("zhushou-archive-test-", (nextTmpDir, nextStorePath) => {
     tmpDir = nextTmpDir;
     storePath = nextStorePath;
   });
 
   beforeAll(() => {
-    vi.stubEnv("ASSISTANT_HOME", tmpDir);
+    vi.stubEnv("ZHUSHOU_HOME", tmpDir);
   });
 
   afterAll(() => {

@@ -1,4 +1,4 @@
-import { readStoreAllowFromForDmPolicy } from "assistant/plugin-sdk/security-runtime";
+import { readStoreAllowFromForDmPolicy } from "zhushou/plugin-sdk/security-runtime";
 import {
   allowListMatches,
   normalizeAllowList,
@@ -28,7 +28,7 @@ let slackAllowFromCache = new WeakMap<SlackMonitorContext, SlackAllowFromCacheSt
 const DEFAULT_PAIRING_ALLOW_FROM_CACHE_TTL_MS = 5000;
 
 function getPairingAllowFromCacheTtlMs(): number {
-  const raw = process.env.ASSISTANT_SLACK_PAIRING_ALLOWFROM_CACHE_TTL_MS?.trim();
+  const raw = process.env.ZHUSHOU_SLACK_PAIRING_ALLOWFROM_CACHE_TTL_MS?.trim();
   if (!raw) {
     return DEFAULT_PAIRING_ALLOW_FROM_CACHE_TTL_MS;
   }

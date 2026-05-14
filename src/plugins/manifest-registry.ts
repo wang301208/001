@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -13,7 +13,7 @@ import {
   normalizePluginsConfigWithResolver,
   type NormalizedPluginsConfig,
 } from "./config-policy.js";
-import { discoverAssistantPlugins, type PluginCandidate } from "./discovery.js";
+import { discoverZhushouPlugins, type PluginCandidate } from "./discovery.js";
 import type { PluginManifestCommandAlias } from "./manifest-command-aliases.js";
 import {
   clearPluginManifestRegistryCache,
@@ -27,7 +27,7 @@ import type {
 } from "./manifest-types.js";
 import {
   loadPluginManifest,
-  type AssistantPackageManifest,
+  type ZhushouPackageManifest,
   type PluginManifestActivation,
   type PluginManifestConfigContracts,
   type PluginManifest,
@@ -143,7 +143,7 @@ function listContractValues(
 export function resolveManifestContractPluginIds(params: {
   contract: PluginManifestContractListKey;
   origin?: PluginOrigin;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   onlyPluginIds?: readonly string[];
@@ -169,7 +169,7 @@ export function resolveManifestContractPluginIdsByCompatibilityRuntimePath(param
   contract: PluginManifestContractListKey;
   path: string | undefined;
   origin?: PluginOrigin;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): string[] {
@@ -196,7 +196,7 @@ export function resolveManifestContractOwnerPluginId(params: {
   contract: PluginManifestContractListKey;
   value: string | undefined;
   origin?: PluginOrigin;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): string | undefined {
@@ -218,7 +218,7 @@ export function resolveManifestContractOwnerPluginId(params: {
 }
 
 function resolveManifestCacheMs(env: NodeJS.ProcessEnv): number {
-  const raw = env.ASSISTANT_PLUGIN_MANIFEST_CACHE_MS?.trim();
+  const raw = env.ZHUSHOU_PLUGIN_MANIFEST_CACHE_MS?.trim();
   if (raw === "" || raw === "0") {
     return 0;
   }
@@ -233,7 +233,7 @@ function resolveManifestCacheMs(env: NodeJS.ProcessEnv): number {
 }
 
 function shouldUseManifestCache(env: NodeJS.ProcessEnv): boolean {
-  const disabled = env.ASSISTANT_DISABLE_PLUGIN_MANIFEST_CACHE?.trim();
+  const disabled = env.ZHUSHOU_DISABLE_PLUGIN_MANIFEST_CACHE?.trim();
   if (disabled) {
     return false;
   }
@@ -273,7 +273,7 @@ function normalizePreferredPluginIds(raw: unknown): string[] | undefined {
 
 function mergePackageChannelMetaIntoChannelConfigs(params: {
   channelConfigs?: Record<string, PluginManifestChannelConfig>;
-  packageChannel?: AssistantPackageManifest["channel"];
+  packageChannel?: ZhushouPackageManifest["channel"];
 }): Record<string, PluginManifestChannelConfig> | undefined {
   const channelId = params.packageChannel?.id?.trim();
   if (!channelId || !params.channelConfigs?.[channelId]) {
@@ -318,7 +318,7 @@ function buildRecord(params: {
     enabledByDefault: params.manifest.enabledByDefault === true ? true : undefined,
     autoEnableWhenConfiguredProviders: params.manifest.autoEnableWhenConfiguredProviders,
     legacyPluginIds: params.manifest.legacyPluginIds,
-    format: params.candidate.format ?? "assistant",
+    format: params.candidate.format ?? "zhushou",
     bundleFormat: params.candidate.bundleFormat,
     kind: params.manifest.kind,
     channels: params.manifest.channels ?? [],
@@ -417,7 +417,7 @@ function buildBundleRecord(params: {
 function matchesInstalledPluginRecord(params: {
   pluginId: string;
   candidate: PluginCandidate;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 }): boolean {
   if (params.candidate.origin !== "global") {
@@ -442,7 +442,7 @@ function matchesInstalledPluginRecord(params: {
 function resolveDuplicatePrecedenceRank(params: {
   pluginId: string;
   candidate: PluginCandidate;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 }): number {
   if (params.candidate.origin === "config") {
@@ -471,7 +471,7 @@ function resolveDuplicatePrecedenceRank(params: {
 
 export function loadPluginManifestRegistry(
   params: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     workspaceDir?: string;
     cache?: boolean;
     env?: NodeJS.ProcessEnv;
@@ -496,7 +496,7 @@ export function loadPluginManifestRegistry(
         candidates: params.candidates,
         diagnostics: params.diagnostics ?? [],
       }
-    : discoverAssistantPlugins({
+    : discoverZhushouPlugins({
         workspaceDir: params.workspaceDir,
         extraPaths: normalized.loadPaths,
         cache: params.cache,
@@ -511,7 +511,7 @@ export function loadPluginManifestRegistry(
 
   for (const candidate of candidates) {
     const rejectHardlinks = candidate.origin !== "bundled";
-    const isBundleRecord = (candidate.format ?? "assistant") === "bundle";
+    const isBundleRecord = (candidate.format ?? "zhushou") === "bundle";
     const manifestRes:
       | ReturnType<typeof loadPluginManifest>
       | ReturnType<typeof loadBundleManifest>

@@ -1,5 +1,5 @@
 ﻿import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import {
   buildBroadcastSessionKey,
   buildFeishuAgentBody,
@@ -49,22 +49,22 @@ describe("toMessageResourceType", () => {
 
 describe("resolveBroadcastAgents", () => {
   it("returns agent list when broadcast config has the peerId", () => {
-    const cfg: AssistantConfig = { broadcast: { oc_group123: ["susan", "main"] } };
+    const cfg: ZhushouConfig = { broadcast: { oc_group123: ["susan", "main"] } };
     expect(resolveBroadcastAgents(cfg, "oc_group123")).toEqual(["susan", "main"]);
   });
 
   it("returns null when no broadcast config", () => {
-    const cfg = {} as AssistantConfig;
+    const cfg = {} as ZhushouConfig;
     expect(resolveBroadcastAgents(cfg, "oc_group123")).toBeNull();
   });
 
   it("returns null when peerId not in broadcast", () => {
-    const cfg: AssistantConfig = { broadcast: { oc_other: ["susan"] } };
+    const cfg: ZhushouConfig = { broadcast: { oc_other: ["susan"] } };
     expect(resolveBroadcastAgents(cfg, "oc_group123")).toBeNull();
   });
 
   it("returns null when agent list is empty", () => {
-    const cfg: AssistantConfig = { broadcast: { oc_group123: [] } };
+    const cfg: ZhushouConfig = { broadcast: { oc_group123: [] } };
     expect(resolveBroadcastAgents(cfg, "oc_group123")).toBeNull();
   });
 });

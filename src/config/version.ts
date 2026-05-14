@@ -3,7 +3,7 @@ import {
   normalizeLegacyDotBetaVersion,
 } from "../infra/semver-compare.js";
 
-export type AssistantVersion = {
+export type ZhushouVersion = {
   major: number;
   minor: number;
   patch: number;
@@ -13,7 +13,7 @@ export type AssistantVersion = {
 
 const VERSION_RE = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
 
-export function parseAssistantVersion(raw: string | null | undefined): AssistantVersion | null {
+export function parseZhushouVersion(raw: string | null | undefined): ZhushouVersion | null {
   if (!raw) {
     return null;
   }
@@ -33,20 +33,20 @@ export function parseAssistantVersion(raw: string | null | undefined): Assistant
   };
 }
 
-export function normalizeAssistantVersionBase(raw: string | null | undefined): string | null {
-  const parsed = parseAssistantVersion(raw);
+export function normalizeZhushouVersionBase(raw: string | null | undefined): string | null {
+  const parsed = parseZhushouVersion(raw);
   if (!parsed) {
     return null;
   }
   return `${parsed.major}.${parsed.minor}.${parsed.patch}`;
 }
 
-export function isSameAssistantStableFamily(
+export function isSameZhushouStableFamily(
   a: string | null | undefined,
   b: string | null | undefined,
 ): boolean {
-  const parsedA = parseAssistantVersion(a);
-  const parsedB = parseAssistantVersion(b);
+  const parsedA = parseZhushouVersion(a);
+  const parsedB = parseZhushouVersion(b);
   if (!parsedA || !parsedB) {
     return false;
   }
@@ -60,12 +60,12 @@ export function isSameAssistantStableFamily(
   );
 }
 
-export function compareAssistantVersions(
+export function compareZhushouVersions(
   a: string | null | undefined,
   b: string | null | undefined,
 ): number | null {
-  const parsedA = parseAssistantVersion(a);
-  const parsedB = parseAssistantVersion(b);
+  const parsedA = parseZhushouVersion(a);
+  const parsedB = parseZhushouVersion(b);
   if (!parsedA || !parsedB) {
     return null;
   }
@@ -104,8 +104,8 @@ export function shouldWarnOnTouchedVersion(
   current: string | null | undefined,
   touched: string | null | undefined,
 ): boolean {
-  const parsedCurrent = parseAssistantVersion(current);
-  const parsedTouched = parseAssistantVersion(touched);
+  const parsedCurrent = parseZhushouVersion(current);
+  const parsedTouched = parseZhushouVersion(touched);
   if (
     parsedCurrent &&
     parsedTouched &&
@@ -116,14 +116,14 @@ export function shouldWarnOnTouchedVersion(
   ) {
     return false;
   }
-  if (isSameAssistantStableFamily(current, touched)) {
+  if (isSameZhushouStableFamily(current, touched)) {
     return false;
   }
-  const cmp = compareAssistantVersions(current, touched);
+  const cmp = compareZhushouVersions(current, touched);
   return cmp !== null && cmp < 0;
 }
 
-function releaseRank(version: AssistantVersion): number {
+function releaseRank(version: ZhushouVersion): number {
   if (version.prerelease?.length) {
     return 0;
   }

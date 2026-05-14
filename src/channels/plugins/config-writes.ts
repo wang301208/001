@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import {
   authorizeConfigWriteShared,
@@ -21,7 +21,7 @@ function isInternalConfigWriteMessageChannel(channel?: string | null): boolean {
 }
 
 export function resolveChannelConfigWrites(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channelId?: ChannelId | null;
   accountId?: string | null;
 }): boolean {
@@ -29,7 +29,7 @@ export function resolveChannelConfigWrites(params: {
 }
 
 export function authorizeConfigWrite(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   origin?: ConfigWriteScope;
   target?: ConfigWriteTarget;
   allowBypass?: boolean;

@@ -1,5 +1,5 @@
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   withBundledPluginAllowlistCompat,
   withBundledPluginEnablementCompat,
@@ -25,10 +25,10 @@ export type PluginActivationBundledCompatMode = {
 };
 
 export type PluginActivationInputs = {
-  rawConfig?: AssistantConfig;
-  config?: AssistantConfig;
+  rawConfig?: ZhushouConfig;
+  config?: ZhushouConfig;
   normalized: NormalizedPluginsConfig;
-  activationSourceConfig?: AssistantConfig;
+  activationSourceConfig?: ZhushouConfig;
   activationSource: PluginActivationConfigSource;
   autoEnabledReasons: Record<string, string[]>;
 };
@@ -53,11 +53,11 @@ export type BundledPluginCompatibleLoadValues = Pick<
 >;
 
 export function withActivatedPluginIds(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   pluginIds: readonly string[];
   overrideGlobalDisable?: boolean;
   overrideExplicitDisable?: boolean;
-}): AssistantConfig | undefined {
+}): ZhushouConfig | undefined {
   if (params.pluginIds.length === 0) {
     return params.config;
   }
@@ -91,10 +91,10 @@ export function withActivatedPluginIds(params: {
 }
 
 export function applyPluginCompatibilityOverrides(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   compat?: PluginActivationCompatConfig;
   env: NodeJS.ProcessEnv;
-}): AssistantConfig | undefined {
+}): ZhushouConfig | undefined {
   const allowlistCompat = params.compat?.allowlistPluginIds?.length
     ? withBundledPluginAllowlistCompat({
         config: params.config,
@@ -118,8 +118,8 @@ export function applyPluginCompatibilityOverrides(params: {
 }
 
 export function resolvePluginActivationSnapshot(params: {
-  rawConfig?: AssistantConfig;
-  resolvedConfig?: AssistantConfig;
+  rawConfig?: ZhushouConfig;
+  resolvedConfig?: ZhushouConfig;
   autoEnabledReasons?: Record<string, string[]>;
   env?: NodeJS.ProcessEnv;
   applyAutoEnable?: boolean;
@@ -151,8 +151,8 @@ export function resolvePluginActivationSnapshot(params: {
 }
 
 export function resolvePluginActivationInputs(params: {
-  rawConfig?: AssistantConfig;
-  resolvedConfig?: AssistantConfig;
+  rawConfig?: ZhushouConfig;
+  resolvedConfig?: ZhushouConfig;
   autoEnabledReasons?: Record<string, string[]>;
   env?: NodeJS.ProcessEnv;
   compat?: PluginActivationCompatConfig;
@@ -183,8 +183,8 @@ export function resolvePluginActivationInputs(params: {
 }
 
 export function resolveBundledPluginCompatibleActivationInputs(params: {
-  rawConfig?: AssistantConfig;
-  resolvedConfig?: AssistantConfig;
+  rawConfig?: ZhushouConfig;
+  resolvedConfig?: ZhushouConfig;
   autoEnabledReasons?: Record<string, string[]>;
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
@@ -192,7 +192,7 @@ export function resolveBundledPluginCompatibleActivationInputs(params: {
   applyAutoEnable?: boolean;
   compatMode: PluginActivationBundledCompatMode;
   resolveCompatPluginIds: (params: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     workspaceDir?: string;
     env?: NodeJS.ProcessEnv;
     onlyPluginIds?: readonly string[];
@@ -242,8 +242,8 @@ export function resolveBundledPluginCompatibleActivationInputs(params: {
 }
 
 export function resolveBundledPluginCompatibleLoadValues(params: {
-  rawConfig?: AssistantConfig;
-  resolvedConfig?: AssistantConfig;
+  rawConfig?: ZhushouConfig;
+  resolvedConfig?: ZhushouConfig;
   autoEnabledReasons?: Record<string, string[]>;
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
@@ -251,7 +251,7 @@ export function resolveBundledPluginCompatibleLoadValues(params: {
   applyAutoEnable?: boolean;
   compatMode: PluginActivationBundledCompatMode;
   resolveCompatPluginIds: (params: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     workspaceDir?: string;
     env?: NodeJS.ProcessEnv;
     onlyPluginIds?: readonly string[];

@@ -1,10 +1,10 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveThreadSessionKeys } from "assistant/plugin-sdk/routing";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
 import { describe, expect, it } from "vitest";
 import { resolveTelegramConversationBaseSessionKey } from "./conversation-route.js";
 
 describe("resolveTelegramConversationBaseSessionKey", () => {
-  const cfg: AssistantConfig = {};
+  const cfg: ZhushouConfig = {};
 
   it("keeps the routed session key for the default account", () => {
     expect(

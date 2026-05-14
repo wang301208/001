@@ -37,9 +37,18 @@ const { inferAction, registerCapabilityCli } = vi.hoisted(() => {
   return { inferAction: action, registerCapabilityCli: register };
 });
 
+const { stdioGatewayAction, registerStdioGatewayCli } = vi.hoisted(() => {
+  const action = vi.fn();
+  const register = vi.fn((program: Command) => {
+    program.command("stdio-gateway").action(action);
+  });
+  return { stdioGatewayAction: action, registerStdioGatewayCli: register };
+});
+
 vi.mock("../acp-cli.js", () => ({ registerAcpCli }));
 vi.mock("../nodes-cli.js", () => ({ registerNodesCli }));
 vi.mock("../capability-cli.js", () => ({ registerCapabilityCli }));
+vi.mock("../stdio-gateway-cli.js", () => ({ registerStdioGatewayCli }));
 vi.mock("./private-qa-cli.js", async () => {
   const actual = await vi.importActual<typeof import("./private-qa-cli.js")>("./private-qa-cli.js");
   return {
@@ -50,8 +59,8 @@ vi.mock("./private-qa-cli.js", async () => {
 
 describe("registerSubCliCommands", () => {
   const originalArgv = process.argv;
-  const originalDisableLazySubcommands = process.env.ASSISTANT_DISABLE_LAZY_SUBCOMMANDS;
-  const originalEnablePrivateQaCli = process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
+  const originalDisableLazySubcommands = process.env.ZHUSHOU_DISABLE_LAZY_SUBCOMMANDS;
+  const originalEnablePrivateQaCli = process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
 
   const createRegisteredProgram = (argv: string[], name?: string) => {
     process.argv = argv;
@@ -65,11 +74,11 @@ describe("registerSubCliCommands", () => {
 
   beforeEach(() => {
     if (originalDisableLazySubcommands === undefined) {
-      delete process.env.ASSISTANT_DISABLE_LAZY_SUBCOMMANDS;
+      delete process.env.ZHUSHOU_DISABLE_LAZY_SUBCOMMANDS;
     } else {
-      process.env.ASSISTANT_DISABLE_LAZY_SUBCOMMANDS = originalDisableLazySubcommands;
+      process.env.ZHUSHOU_DISABLE_LAZY_SUBCOMMANDS = originalDisableLazySubcommands;
     }
-    process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI = "1";
+    process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = "1";
     registerAcpCli.mockClear();
     acpAction.mockClear();
     registerNodesCli.mockClear();
@@ -78,24 +87,26 @@ describe("registerSubCliCommands", () => {
     loadPrivateQaCliModule.mockClear();
     registerCapabilityCli.mockClear();
     inferAction.mockClear();
+    registerStdioGatewayCli.mockClear();
+    stdioGatewayAction.mockClear();
   });
 
   afterEach(() => {
     process.argv = originalArgv;
     if (originalDisableLazySubcommands === undefined) {
-      delete process.env.ASSISTANT_DISABLE_LAZY_SUBCOMMANDS;
+      delete process.env.ZHUSHOU_DISABLE_LAZY_SUBCOMMANDS;
     } else {
-      process.env.ASSISTANT_DISABLE_LAZY_SUBCOMMANDS = originalDisableLazySubcommands;
+      process.env.ZHUSHOU_DISABLE_LAZY_SUBCOMMANDS = originalDisableLazySubcommands;
     }
     if (originalEnablePrivateQaCli === undefined) {
-      delete process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
+      delete process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
     } else {
-      process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI = originalEnablePrivateQaCli;
+      process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI = originalEnablePrivateQaCli;
     }
   });
 
   it("registers the primary placeholder plus completion and dispatches", async () => {
-    const program = createRegisteredProgram(["node", "assistant", "acp"]);
+    const program = createRegisteredProgram(["node", "zhushou", "acp"]);
 
     expect(program.commands.map((cmd) => cmd.name())).toEqual(["acp", "completion"]);
 
@@ -106,7 +117,7 @@ describe("registerSubCliCommands", () => {
   });
 
   it("registers placeholders for all subcommands when no primary", () => {
-    const program = createRegisteredProgram(["node", "assistant"]);
+    const program = createRegisteredProgram(["node", "zhushou"]);
 
     const names = program.commands.map((cmd) => cmd.name());
     expect(names).toContain("acp");
@@ -117,15 +128,15 @@ describe("registerSubCliCommands", () => {
   });
 
   it("omits the qa placeholder when the private qa cli is disabled", () => {
-    delete process.env.ASSISTANT_ENABLE_PRIVATE_QA_CLI;
+    delete process.env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI;
 
-    const program = createRegisteredProgram(["node", "assistant"]);
+    const program = createRegisteredProgram(["node", "zhushou"]);
 
     expect(program.commands.map((cmd) => cmd.name())).not.toContain("qa");
   });
 
   it("re-parses argv for lazy subcommands", async () => {
-    const program = createRegisteredProgram(["node", "assistant", "nodes", "list"], "assistant");
+    const program = createRegisteredProgram(["node", "zhushou", "nodes", "list"], "zhushou");
 
     expect(program.commands.map((cmd) => cmd.name())).toEqual(["nodes", "completion"]);
 
@@ -136,7 +147,7 @@ describe("registerSubCliCommands", () => {
   });
 
   it("registers the infer placeholder and dispatches through the capability registrar", async () => {
-    const program = createRegisteredProgram(["node", "assistant", "infer"], "assistant");
+    const program = createRegisteredProgram(["node", "zhushou", "infer"], "zhushou");
 
     expect(program.commands.map((cmd) => cmd.name())).toEqual(["infer", "completion"]);
 
@@ -146,8 +157,19 @@ describe("registerSubCliCommands", () => {
     expect(inferAction).toHaveBeenCalledTimes(1);
   });
 
+  it("registers the internal stdio gateway bridge command", async () => {
+    const program = createRegisteredProgram(["node", "zhushou", "stdio-gateway"], "zhushou");
+
+    expect(program.commands.map((cmd) => cmd.name())).toEqual(["stdio-gateway", "completion"]);
+
+    await program.parseAsync(["stdio-gateway"], { from: "user" });
+
+    expect(registerStdioGatewayCli).toHaveBeenCalledTimes(1);
+    expect(stdioGatewayAction).toHaveBeenCalledTimes(1);
+  });
+
   it("replaces placeholder when registering a subcommand by name", async () => {
-    const program = createRegisteredProgram(["node", "assistant", "acp", "--help"], "assistant");
+    const program = createRegisteredProgram(["node", "zhushou", "acp", "--help"], "zhushou");
 
     await registerSubCliByName(program, "acp");
 

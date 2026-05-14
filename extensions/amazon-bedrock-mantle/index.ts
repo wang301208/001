@@ -1,4 +1,4 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 import { registerBedrockMantlePlugin } from "./register.sync.runtime.js";
 
 export default definePluginEntry({

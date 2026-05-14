@@ -70,7 +70,7 @@ export function createOpenAiResponsesTextEvent(params: {
       ...(params.messagePhase ? { phase: params.messagePhase } : {}),
       content: params.content ?? [],
     },
-    assistantMessageEvent: {
+    zhushouMessageEvent: {
       type: params.type,
       ...(params.type === "text_delta"
         ? { delta: params.delta ?? params.text }

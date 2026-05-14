@@ -1,4 +1,4 @@
-import { resolveFetch } from "assistant/plugin-sdk/fetch-runtime";
+import { resolveFetch } from "zhushou/plugin-sdk/fetch-runtime";
 
 const PLURALKIT_API_BASE = "https://api.pluralkit.me/v2";
 

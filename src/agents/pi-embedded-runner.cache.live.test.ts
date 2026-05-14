@@ -4,13 +4,13 @@ import path from "node:path";
 import type { AssistantMessage, Message, Tool } from "@mariozechner/pi-ai";
 import { Type } from "@sinclair/typebox";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
-  buildAssistantHistoryTurn as buildTypedAssistantHistoryTurn,
+  buildZhushouHistoryTurn as buildTypedZhushouHistoryTurn,
   buildStableCachePrefix,
   completeSimpleWithLiveTimeout,
   computeCacheHitRate,
-  extractAssistantText,
+  extractZhushouText,
   LIVE_CACHE_TEST_ENABLED,
   logLiveCache,
   resolveLiveDirectModel,
@@ -75,11 +75,11 @@ let previousCacheTraceEnv: {
 
 type UserContent = Extract<Message, { role: "user" }>["content"];
 
-function makeAssistantHistoryTurn(
+function makeZhushouHistoryTurn(
   text: string,
   model?: Awaited<ReturnType<typeof resolveLiveDirectModel>>["model"],
 ): Message {
-  return buildTypedAssistantHistoryTurn(text, model);
+  return buildTypedZhushouHistoryTurn(text, model);
 }
 
 function makeUserHistoryTurn(content: UserContent): Message {
@@ -230,7 +230,7 @@ function buildEmbeddedRunnerConfig(
     cacheRetention: "none" | "short" | "long";
     transport?: "sse" | "websocket";
   },
-): AssistantConfig {
+): ZhushouConfig {
   const provider = params.model.provider;
   const modelKey = `${provider}/${params.model.id}`;
   const providerBaseUrl =
@@ -426,7 +426,7 @@ async function runToolOnlyTurn(params: {
   );
 
   let toolCall = extractFirstToolCall(response);
-  let text = extractAssistantText(response);
+  let text = extractZhushouText(response);
   for (let attempt = 0; attempt < 2 && (!toolCall || text.length > 0); attempt += 1) {
     prompt = `Return only a tool call for \`${params.tool.name}\` with {}. No text.`;
     response = await completeSimpleWithLiveTimeout(
@@ -454,7 +454,7 @@ async function runToolOnlyTurn(params: {
       params.providerTag === "openai" ? OPENAI_TIMEOUT_MS : ANTHROPIC_TIMEOUT_MS,
     );
     toolCall = extractFirstToolCall(response);
-    text = extractAssistantText(response);
+    text = extractZhushouText(response);
   }
 
   expect(toolCall).toBeTruthy();
@@ -497,9 +497,9 @@ async function runOpenAiToolCacheProbe(params: {
         },
         toolTurn.response,
         buildToolResultMessage(toolTurn.toolCall.id, NOOP_TOOL.name, "ok"),
-        makeAssistantHistoryTurn("TOOL HISTORY ACKNOWLEDGED", params.model),
+        makeZhushouHistoryTurn("TOOL HISTORY ACKNOWLEDGED", params.model),
         makeUserHistoryTurn("Keep the tool output stable in history."),
-        makeAssistantHistoryTurn("TOOL HISTORY PRESERVED", params.model),
+        makeZhushouHistoryTurn("TOOL HISTORY PRESERVED", params.model),
         {
           role: "user",
           content: `Reply with exactly CACHE-OK ${params.suffix}.`,
@@ -519,7 +519,7 @@ async function runOpenAiToolCacheProbe(params: {
     `openai cache probe ${params.suffix}`,
     OPENAI_TIMEOUT_MS,
   );
-  const text = extractAssistantText(response);
+  const text = extractZhushouText(response);
   expect(text.toLowerCase()).toContain(params.suffix.toLowerCase());
   return {
     suffix: params.suffix,
@@ -557,7 +557,7 @@ async function runOpenAiCacheProbe(params: {
     `openai cache probe ${params.suffix}`,
     OPENAI_TIMEOUT_MS,
   );
-  const text = extractAssistantText(response);
+  const text = extractZhushouText(response);
   expect(text.toLowerCase()).toContain(params.suffix.toLowerCase());
   return {
     suffix: params.suffix,
@@ -581,9 +581,9 @@ async function runOpenAiImageCacheProbe(params: {
         makeImageUserTurn(
           "An image is attached. Ignore image semantics but keep the bytes in history.",
         ),
-        makeAssistantHistoryTurn("IMAGE HISTORY ACKNOWLEDGED", params.model),
+        makeZhushouHistoryTurn("IMAGE HISTORY ACKNOWLEDGED", params.model),
         makeUserHistoryTurn("Keep the earlier image turn stable in context."),
-        makeAssistantHistoryTurn("IMAGE HISTORY PRESERVED", params.model),
+        makeZhushouHistoryTurn("IMAGE HISTORY PRESERVED", params.model),
         makeUserHistoryTurn(`Reply with exactly CACHE-OK ${params.suffix}.`),
       ],
     },
@@ -598,7 +598,7 @@ async function runOpenAiImageCacheProbe(params: {
     `openai image cache probe ${params.suffix}`,
     OPENAI_TIMEOUT_MS,
   );
-  const text = extractAssistantText(response);
+  const text = extractZhushouText(response);
   expect(text.toLowerCase()).toContain(params.suffix.toLowerCase());
   return {
     suffix: params.suffix,
@@ -637,7 +637,7 @@ async function runAnthropicCacheProbe(params: {
     `anthropic cache probe ${params.suffix} (${params.cacheRetention})`,
     ANTHROPIC_TIMEOUT_MS,
   );
-  const text = extractAssistantText(response);
+  const text = extractZhushouText(response);
   expect(text.toLowerCase()).toContain(params.suffix.toLowerCase());
   return {
     suffix: params.suffix,
@@ -675,9 +675,9 @@ async function runAnthropicToolCacheProbe(params: {
         },
         toolTurn.response,
         buildToolResultMessage(toolTurn.toolCall.id, NOOP_TOOL.name, "ok"),
-        makeAssistantHistoryTurn("TOOL HISTORY ACKNOWLEDGED", params.model),
+        makeZhushouHistoryTurn("TOOL HISTORY ACKNOWLEDGED", params.model),
         makeUserHistoryTurn("Keep the tool output stable in history."),
-        makeAssistantHistoryTurn("TOOL HISTORY PRESERVED", params.model),
+        makeZhushouHistoryTurn("TOOL HISTORY PRESERVED", params.model),
         {
           role: "user",
           content: `Reply with exactly CACHE-OK ${params.suffix}.`,
@@ -696,7 +696,7 @@ async function runAnthropicToolCacheProbe(params: {
     `anthropic cache probe ${params.suffix} (${params.cacheRetention})`,
     ANTHROPIC_TIMEOUT_MS,
   );
-  const text = extractAssistantText(response);
+  const text = extractZhushouText(response);
   expect(text.toLowerCase()).toContain(params.suffix.toLowerCase());
   return {
     suffix: params.suffix,
@@ -721,9 +721,9 @@ async function runAnthropicImageCacheProbe(params: {
         makeImageUserTurn(
           "An image is attached. Ignore image semantics but keep the bytes in history.",
         ),
-        makeAssistantHistoryTurn("IMAGE HISTORY ACKNOWLEDGED", params.model),
+        makeZhushouHistoryTurn("IMAGE HISTORY ACKNOWLEDGED", params.model),
         makeUserHistoryTurn("Keep the earlier image turn stable in context."),
-        makeAssistantHistoryTurn("IMAGE HISTORY PRESERVED", params.model),
+        makeZhushouHistoryTurn("IMAGE HISTORY PRESERVED", params.model),
         makeUserHistoryTurn(`Reply with exactly CACHE-OK ${params.suffix}.`),
       ],
     },
@@ -737,7 +737,7 @@ async function runAnthropicImageCacheProbe(params: {
     `anthropic image cache probe ${params.suffix} (${params.cacheRetention})`,
     ANTHROPIC_TIMEOUT_MS,
   );
-  const text = extractAssistantText(response);
+  const text = extractZhushouText(response);
   expect(text.toLowerCase()).toContain(params.suffix.toLowerCase());
   return {
     suffix: params.suffix,
@@ -749,32 +749,32 @@ async function runAnthropicImageCacheProbe(params: {
 
 describeCacheLive("pi embedded runner prompt caching (live)", () => {
   beforeAll(async () => {
-    liveRunnerRootDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-live-cache-"));
+    liveRunnerRootDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-live-cache-"));
     liveCacheTraceFile = path.join(liveRunnerRootDir, "cache-trace.jsonl");
     liveTestPngBase64 = (await fs.readFile(LIVE_TEST_PNG_URL, "utf8")).trim();
     previousCacheTraceEnv = {
-      enabled: process.env.ASSISTANT_CACHE_TRACE,
-      file: process.env.ASSISTANT_CACHE_TRACE_FILE,
-      messages: process.env.ASSISTANT_CACHE_TRACE_MESSAGES,
-      prompt: process.env.ASSISTANT_CACHE_TRACE_PROMPT,
-      system: process.env.ASSISTANT_CACHE_TRACE_SYSTEM,
+      enabled: process.env.ZHUSHOU_CACHE_TRACE,
+      file: process.env.ZHUSHOU_CACHE_TRACE_FILE,
+      messages: process.env.ZHUSHOU_CACHE_TRACE_MESSAGES,
+      prompt: process.env.ZHUSHOU_CACHE_TRACE_PROMPT,
+      system: process.env.ZHUSHOU_CACHE_TRACE_SYSTEM,
     };
-    process.env.ASSISTANT_CACHE_TRACE = "1";
-    process.env.ASSISTANT_CACHE_TRACE_FILE = liveCacheTraceFile;
-    process.env.ASSISTANT_CACHE_TRACE_MESSAGES = "0";
-    process.env.ASSISTANT_CACHE_TRACE_PROMPT = "0";
-    process.env.ASSISTANT_CACHE_TRACE_SYSTEM = "0";
+    process.env.ZHUSHOU_CACHE_TRACE = "1";
+    process.env.ZHUSHOU_CACHE_TRACE_FILE = liveCacheTraceFile;
+    process.env.ZHUSHOU_CACHE_TRACE_MESSAGES = "0";
+    process.env.ZHUSHOU_CACHE_TRACE_PROMPT = "0";
+    process.env.ZHUSHOU_CACHE_TRACE_SYSTEM = "0";
   }, 120_000);
 
   afterAll(async () => {
     if (previousCacheTraceEnv) {
       const restore = (
         key:
-          | "ASSISTANT_CACHE_TRACE"
-          | "ASSISTANT_CACHE_TRACE_FILE"
-          | "ASSISTANT_CACHE_TRACE_MESSAGES"
-          | "ASSISTANT_CACHE_TRACE_PROMPT"
-          | "ASSISTANT_CACHE_TRACE_SYSTEM",
+          | "ZHUSHOU_CACHE_TRACE"
+          | "ZHUSHOU_CACHE_TRACE_FILE"
+          | "ZHUSHOU_CACHE_TRACE_MESSAGES"
+          | "ZHUSHOU_CACHE_TRACE_PROMPT"
+          | "ZHUSHOU_CACHE_TRACE_SYSTEM",
         value: string | undefined,
       ) => {
         if (value === undefined) {
@@ -783,11 +783,11 @@ describeCacheLive("pi embedded runner prompt caching (live)", () => {
           process.env[key] = value;
         }
       };
-      restore("ASSISTANT_CACHE_TRACE", previousCacheTraceEnv.enabled);
-      restore("ASSISTANT_CACHE_TRACE_FILE", previousCacheTraceEnv.file);
-      restore("ASSISTANT_CACHE_TRACE_MESSAGES", previousCacheTraceEnv.messages);
-      restore("ASSISTANT_CACHE_TRACE_PROMPT", previousCacheTraceEnv.prompt);
-      restore("ASSISTANT_CACHE_TRACE_SYSTEM", previousCacheTraceEnv.system);
+      restore("ZHUSHOU_CACHE_TRACE", previousCacheTraceEnv.enabled);
+      restore("ZHUSHOU_CACHE_TRACE_FILE", previousCacheTraceEnv.file);
+      restore("ZHUSHOU_CACHE_TRACE_MESSAGES", previousCacheTraceEnv.messages);
+      restore("ZHUSHOU_CACHE_TRACE_PROMPT", previousCacheTraceEnv.prompt);
+      restore("ZHUSHOU_CACHE_TRACE_SYSTEM", previousCacheTraceEnv.system);
     }
     previousCacheTraceEnv = null;
     liveCacheTraceFile = undefined;
@@ -804,7 +804,7 @@ describeCacheLive("pi embedded runner prompt caching (live)", () => {
       fixture = await resolveLiveDirectModel({
         provider: "openai",
         api: "openai-responses",
-        envVar: "ASSISTANT_LIVE_OPENAI_CACHE_MODEL",
+        envVar: "ZHUSHOU_LIVE_OPENAI_CACHE_MODEL",
         preferredModelIds: ["gpt-5.4-mini", "gpt-5.4", "gpt-5.4"],
       });
       logLiveCache(`openai model=${fixture.model.provider}/${fixture.model.id}`);
@@ -1060,7 +1060,7 @@ describeCacheLive("pi embedded runner prompt caching (live)", () => {
       fixture = await resolveLiveDirectModel({
         provider: "anthropic",
         api: "anthropic-messages",
-        envVar: "ASSISTANT_LIVE_ANTHROPIC_CACHE_MODEL",
+        envVar: "ZHUSHOU_LIVE_ANTHROPIC_CACHE_MODEL",
         preferredModelIds: ["claude-sonnet-4-6", "claude-sonnet-4-6", "claude-haiku-3-5"],
       });
       logLiveCache(`anthropic model=${fixture.model.provider}/${fixture.model.id}`);

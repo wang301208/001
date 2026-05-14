@@ -1,1 +1,1 @@
-export { extractErrorCode, formatErrorMessage } from "assistant/plugin-sdk/browser-security-runtime";
+export { extractErrorCode, formatErrorMessage } from "zhushou/plugin-sdk/browser-security-runtime";

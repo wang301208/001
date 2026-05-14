@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { trimToUndefined, type ExplicitGatewayAuth } from "./credentials.js";
 
 export function hasExplicitGatewayConnectionAuth(auth?: ExplicitGatewayAuth): boolean {
@@ -6,7 +6,7 @@ export function hasExplicitGatewayConnectionAuth(auth?: ExplicitGatewayAuth): bo
 }
 
 export function canSkipGatewayConfigLoad(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   urlOverride?: string;
   explicitAuth?: ExplicitGatewayAuth;
 }): boolean {

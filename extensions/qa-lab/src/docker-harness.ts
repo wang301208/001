@@ -24,7 +24,7 @@ function renderImageBlock(params: {
     return `    image: ${params.imageName}\n`;
   }
   const context = toPosixRelative(params.outputDir, params.repoRoot) || ".";
-  return `    build:\n      context: ${context}\n      dockerfile: Dockerfile\n      args:\n        ASSISTANT_EXTENSIONS: "qa-channel qa-lab"\n`;
+  return `    build:\n      context: ${context}\n      dockerfile: Dockerfile\n      args:\n        ZHUSHOU_EXTENSIONS: "qa-channel qa-lab"\n`;
 }
 
 function renderCompose(params: {
@@ -79,10 +79,10 @@ ${imageBlock}    pull_policy: never
       retries: 6
       start_period: 5s
     environment:
-      ASSISTANT_SKIP_GMAIL_WATCHER: "1"
-      ASSISTANT_SKIP_BROWSER_CONTROL_SERVER: "1"
-      ASSISTANT_SKIP_CANVAS_HOST: "1"
-      ASSISTANT_PROFILE: ""
+      ZHUSHOU_SKIP_GMAIL_WATCHER: "1"
+      ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER: "1"
+      ZHUSHOU_SKIP_CANVAS_HOST: "1"
+      ZHUSHOU_PROFILE: ""
     command:
       - node
       - dist/index.js
@@ -106,23 +106,23 @@ ${imageBlock}    pull_policy: never
         condition: service_healthy
 `
     : ""
-}  assistant-qa-gateway:
+}  zhushou-qa-gateway:
 ${imageBlock}    pull_policy: never
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
       - "${params.gatewayPort}:18789"
     environment:
-      ASSISTANT_CONFIG_PATH: /tmp/assistant/assistant.json
-      ASSISTANT_STATE_DIR: /tmp/assistant/state
-      ASSISTANT_NO_RESPAWN: "1"
-      ASSISTANT_SKIP_GMAIL_WATCHER: "1"
-      ASSISTANT_SKIP_BROWSER_CONTROL_SERVER: "1"
-      ASSISTANT_SKIP_CANVAS_HOST: "1"
-      ASSISTANT_PROFILE: ""
+      ZHUSHOU_CONFIG_PATH: /tmp/wang301208/zhushou.json
+      ZHUSHOU_STATE_DIR: /tmp/zhushou/state
+      ZHUSHOU_NO_RESPAWN: "1"
+      ZHUSHOU_SKIP_GMAIL_WATCHER: "1"
+      ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER: "1"
+      ZHUSHOU_SKIP_CANVAS_HOST: "1"
+      ZHUSHOU_PROFILE: ""
     volumes:
-      - ./state:/opt/assistant-scaffold:ro
-      - ${repoMount}:/opt/assistant-repo:ro
+      - ./state:/opt/zhushou-scaffold:ro
+      - ${repoMount}:/opt/zhushou-repo:ro
     healthcheck:
       test:
         - CMD
@@ -145,7 +145,7 @@ ${
     command:
       - sh
       - -lc
-      - mkdir -p /tmp/assistant/workspace /tmp/assistant/state && cp /opt/assistant-scaffold/assistant.json /tmp/assistant/assistant.json && cp -R /opt/assistant-scaffold/seed-workspace/. /tmp/assistant/workspace/ && ln -snf /opt/assistant-repo /tmp/assistant/workspace/repo && exec node dist/index.js gateway run --port 18789 --bind lan --allow-unconfigured
+      - mkdir -p /tmp/zhushou/workspace /tmp/zhushou/state && cp /opt/zhushou-scaffold/zhushou.json /tmp/wang301208/zhushou.json && cp -R /opt/zhushou-scaffold/seed-workspace/. /tmp/zhushou/workspace/ && ln -snf /opt/zhushou-repo /tmp/zhushou/workspace/repo && exec node dist/index.js gateway run --port 18789 --bind lan --allow-unconfigured
 `;
 }
 
@@ -158,7 +158,7 @@ function renderEnvExample(params: {
   includeQaLabApi: boolean;
 }) {
   return `# QA Docker harness example env
-ASSISTANT_GATEWAY_TOKEN=${params.gatewayToken}
+ZHUSHOU_GATEWAY_TOKEN=${params.gatewayToken}
 QA_GATEWAY_PORT=${params.gatewayPort}
 QA_BUS_BASE_URL=${params.qaBusBaseUrl}
 QA_PROVIDER_BASE_URL=${params.providerBaseUrl}
@@ -179,17 +179,17 @@ Files:
 
 - \`docker-compose.qa.yml\`
 - \`.env.example\`
-- \`state/assistant.json\`
+- \`state/zhushou.json\`
 
 Suggested flow:
 
 1. Build the prebaked image once:
-   - \`docker build -t assistant:qa-local-prebaked --build-arg ASSISTANT_EXTENSIONS="qa-channel qa-lab" -f Dockerfile .\`
+   - \`docker build -t zhushou:qa-local-prebaked --build-arg ZHUSHOU_EXTENSIONS="qa-channel qa-lab" -f Dockerfile .\`
 2. Start the stack:
    - \`docker compose -f docker-compose.qa.yml up${params.usePrebuiltImage ? "" : " --build"} -d\`
 3. QA Lab API:
    - \`${params.includeQaLabApi ? `http://127.0.0.1:${params.qaLabPort}` : "not published in this scaffold"}\`
-4. Browser frontends are removed from this project. Use \`assistant --tui\` for interactive work.
+4. Browser frontends are removed from this project. Use \`zhushou --tui\` for interactive work.
 5. The repo-backed kickoff task auto-injects on startup when the QA API service is enabled.
 
 Gateway:
@@ -219,7 +219,7 @@ export async function writeQaDockerHarnessFiles(params: {
   const gatewayToken = params.gatewayToken ?? `qa-token-${randomUUID()}`;
   const providerBaseUrl = params.providerBaseUrl ?? "http://qa-mock-openai:44080/v1";
   const qaBusBaseUrl = params.qaBusBaseUrl ?? "http://qa-lab:43123";
-  const imageName = params.imageName ?? "assistant:qa-local-prebaked";
+  const imageName = params.imageName ?? "zhushou:qa-local-prebaked";
   const usePrebuiltImage = params.usePrebuiltImage ?? false;
   const includeQaLabApi = params.includeQaLabApi ?? true;
 
@@ -234,7 +234,7 @@ export async function writeQaDockerHarnessFiles(params: {
     gatewayPort: 18789,
     gatewayToken,
     providerBaseUrl,
-    workspaceDir: "/tmp/assistant/workspace",
+    workspaceDir: "/tmp/zhushou/workspace",
     transportPluginIds: QA_CHANNEL_REQUIRED_PLUGIN_IDS,
     transportConfig: createQaChannelGatewayConfig({
       baseUrl: qaBusBaseUrl,
@@ -245,7 +245,7 @@ export async function writeQaDockerHarnessFiles(params: {
     path.join(params.outputDir, "docker-compose.qa.yml"),
     path.join(params.outputDir, ".env.example"),
     path.join(params.outputDir, "README.md"),
-    path.join(params.outputDir, "state", "assistant.json"),
+    path.join(params.outputDir, "state", "zhushou.json"),
   ];
 
   await Promise.all([
@@ -286,7 +286,7 @@ export async function writeQaDockerHarnessFiles(params: {
       "utf8",
     ),
     fs.writeFile(
-      path.join(params.outputDir, "state", "assistant.json"),
+      path.join(params.outputDir, "state", "zhushou.json"),
       `${JSON.stringify(config, null, 2)}\n`,
       "utf8",
     ),
@@ -318,7 +318,7 @@ export async function buildQaDockerHarnessImage(
     ) => Promise<{ stdout: string; stderr: string }>;
   },
 ) {
-  const imageName = params.imageName ?? "assistant:qa-local-prebaked";
+  const imageName = params.imageName ?? "zhushou:qa-local-prebaked";
   const runCommand =
     deps?.runCommand ??
     (async (command: string, args: string[], cwd: string) => {
@@ -341,7 +341,7 @@ export async function buildQaDockerHarnessImage(
       "-t",
       imageName,
       "--build-arg",
-      "ASSISTANT_EXTENSIONS=qa-channel qa-lab",
+      "ZHUSHOU_EXTENSIONS=qa-channel qa-lab",
       "-f",
       "Dockerfile",
       ".",

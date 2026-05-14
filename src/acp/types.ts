@@ -46,7 +46,7 @@ export type AcpServerOptions = {
 };
 
 export const ACP_AGENT_INFO = {
-  name: "assistant-acp",
+  name: "zhushou-acp",
   title: "助手 ACP Gateway",
   version: VERSION,
 };

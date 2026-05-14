@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { AssistantSchema } from "./zod-schema.js";
+import { ZhushouSchema } from "./zod-schema.js";
 
 describe("ACP binding cutover schema", () => {
   it("accepts top-level typed ACP bindings with per-agent runtime defaults", () => {
-    const parsed = AssistantSchema.safeParse({
+    const parsed = ZhushouSchema.safeParse({
       agents: {
         list: [
           { id: "main", default: true, runtime: { type: "embedded" } },
@@ -15,7 +15,7 @@ describe("ACP binding cutover schema", () => {
                 agent: "codex",
                 backend: "acpx",
                 mode: "persistent",
-                cwd: "/workspace/assistant",
+                cwd: "/workspace/zhushou",
               },
             },
           },
@@ -47,7 +47,7 @@ describe("ACP binding cutover schema", () => {
   });
 
   it("rejects legacy Discord channel-local ACP binding fields", () => {
-    const parsed = AssistantSchema.safeParse({
+    const parsed = ZhushouSchema.safeParse({
       channels: {
         discord: {
           guilds: {
@@ -72,7 +72,7 @@ describe("ACP binding cutover schema", () => {
   });
 
   it("rejects legacy Telegram topic-local ACP binding fields", () => {
-    const parsed = AssistantSchema.safeParse({
+    const parsed = ZhushouSchema.safeParse({
       channels: {
         telegram: {
           groups: {
@@ -96,7 +96,7 @@ describe("ACP binding cutover schema", () => {
   });
 
   it("rejects ACP bindings without a peer conversation target", () => {
-    const parsed = AssistantSchema.safeParse({
+    const parsed = ZhushouSchema.safeParse({
       bindings: [
         {
           type: "acp",
@@ -110,7 +110,7 @@ describe("ACP binding cutover schema", () => {
   });
 
   it("accepts ACP bindings for arbitrary channel ids when the peer target is explicit", () => {
-    const parsed = AssistantSchema.safeParse({
+    const parsed = ZhushouSchema.safeParse({
       bindings: [
         {
           type: "acp",
@@ -128,7 +128,7 @@ describe("ACP binding cutover schema", () => {
   });
 
   it("accepts ACP bindings for generic direct and group peer kinds", () => {
-    const parsed = AssistantSchema.safeParse({
+    const parsed = ZhushouSchema.safeParse({
       bindings: [
         {
           type: "acp",
@@ -155,7 +155,7 @@ describe("ACP binding cutover schema", () => {
   });
 
   it("accepts deprecated dm peer kind for backward compatibility", () => {
-    const parsed = AssistantSchema.safeParse({
+    const parsed = ZhushouSchema.safeParse({
       bindings: [
         {
           type: "acp",

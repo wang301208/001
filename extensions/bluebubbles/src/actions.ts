@@ -1,15 +1,15 @@
-import { readBooleanParam } from "assistant/plugin-sdk/boolean-param";
+import { readBooleanParam } from "zhushou/plugin-sdk/boolean-param";
 import {
   createActionGate,
   jsonResult,
   readNumberParam,
   readReactionParams,
   readStringParam,
-} from "assistant/plugin-sdk/channel-actions";
-import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
-import { isPrivateNetworkOptInEnabled } from "assistant/plugin-sdk/ssrf-runtime";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
-import { extractToolSend } from "assistant/plugin-sdk/tool-send";
+} from "zhushou/plugin-sdk/channel-actions";
+import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
+import { isPrivateNetworkOptInEnabled } from "zhushou/plugin-sdk/ssrf-runtime";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+import { extractToolSend } from "zhushou/plugin-sdk/tool-send";
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import {
   BLUEBUBBLES_ACTION_NAMES,

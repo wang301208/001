@@ -5,18 +5,18 @@ import {
   TRUSTED_CLIENT_TOKEN,
   generateSecMsGecToken,
 } from "node-edge-tts/dist/drm.js";
-import { isVoiceCompatibleAudio } from "assistant/plugin-sdk/media-runtime";
+import { isVoiceCompatibleAudio } from "zhushou/plugin-sdk/media-runtime";
 import {
   captureHttpExchange,
   isDebugProxyGlobalFetchPatchInstalled,
-} from "assistant/plugin-sdk/proxy-capture";
+} from "zhushou/plugin-sdk/proxy-capture";
 import type {
   SpeechProviderConfig,
   SpeechProviderPlugin,
   SpeechVoiceOption,
-} from "assistant/plugin-sdk/speech";
-import { asBoolean, asFiniteNumber, asObject, trimToUndefined } from "assistant/plugin-sdk/speech";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+} from "zhushou/plugin-sdk/speech";
+import { asBoolean, asFiniteNumber, asObject, trimToUndefined } from "zhushou/plugin-sdk/speech";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
 import { edgeTTS, inferEdgeExtension } from "./tts.js";
 
 const DEFAULT_EDGE_VOICE = "en-US-MichelleNeural";
@@ -224,7 +224,7 @@ export function buildMicrosoftSpeechProvider(): SpeechProviderPlugin {
     isConfigured: ({ providerConfig }) => readMicrosoftProviderConfig(providerConfig).enabled,
     synthesize: async (req) => {
       const config = readMicrosoftProviderConfig(req.providerConfig);
-      const tempRoot = resolvePreferredAssistantTmpDir();
+      const tempRoot = resolvePreferredZhushouTmpDir();
       mkdirSync(tempRoot, { recursive: true, mode: 0o700 });
       const tempDir = mkdtempSync(path.join(tempRoot, "tts-microsoft-"));
       const overrideVoice = trimToUndefined(req.providerOverrides?.voice);

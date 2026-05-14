@@ -1,20 +1,20 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { listGatewayMethods } from "../gateway/server-methods-list.js";
 import {
   buildTaskExecutionMessage,
-  resolveAssistantIntentInput,
+  resolveZhushouIntentInput,
 } from "./intent-router.js";
 
 function expectAction(input: string, action: Record<string, unknown>) {
-  expect(resolveAssistantIntentInput(input)).toMatchObject({
+  expect(resolveZhushouIntentInput(input)).toMatchObject({
     kind: "action",
     action,
   });
 }
 
-describe("resolveAssistantIntentInput", () => {
+describe("resolveZhushouIntentInput", () => {
   it("keeps ordinary knowledge questions as chat", () => {
-    expect(resolveAssistantIntentInput("什么是自动压缩上下文？")).toEqual({
+    expect(resolveZhushouIntentInput("什么是自动压缩上下文？")).toEqual({
       kind: "message",
       intent: "chat",
       message: "什么是自动压缩上下文？",
@@ -24,7 +24,7 @@ describe("resolveAssistantIntentInput", () => {
   });
 
   it("routes project operation requests to task execution", () => {
-    const route = resolveAssistantIntentInput("请检查项目测试并修复失败项");
+    const route = resolveZhushouIntentInput("请检查项目测试并修复失败项");
 
     expect(route).toMatchObject({
       kind: "message",
@@ -37,7 +37,7 @@ describe("resolveAssistantIntentInput", () => {
   });
 
   it("routes explicit tool and gateway requests to structured actions", () => {
-    expect(resolveAssistantIntentInput("用 web_search 工具搜索最新 Node.js LTS")).toEqual({
+    expect(resolveZhushouIntentInput("用 web_search 工具搜索最新 Node.js LTS")).toEqual({
       kind: "action",
       intent: "tool",
       action: {
@@ -49,7 +49,7 @@ describe("resolveAssistantIntentInput", () => {
       confidence: 0.92,
     });
 
-    expect(resolveAssistantIntentInput('调用接口 business.tasks.list {"status":"running"}')).toEqual({
+    expect(resolveZhushouIntentInput('调用接口 business.tasks.list {"status":"running"}')).toEqual({
       kind: "action",
       intent: "rpc",
       action: {
@@ -173,7 +173,7 @@ describe("resolveAssistantIntentInput", () => {
   });
 
   it("routes MCP, shell, and tool requests to structured actions without exposing command bridges", () => {
-    expect(resolveAssistantIntentInput("执行TUI命令 config-patch {\"models\":{}}")).toBeNull();
+    expect(resolveZhushouIntentInput("执行TUI命令 config-patch {\"models\":{}}")).toBeNull();
     expectAction("调用MCP工具 probe__echo {\"text\":\"hello\"}", {
       type: "mcp.call",
       name: "probe__echo",
@@ -189,11 +189,8 @@ describe("resolveAssistantIntentInput", () => {
     });
   });
 
-  it("audits every Python gateway RPC through the natural-language RPC bridge", () => {
-    const gatewaySource = readFileSync("tui_gateway/entry.py", "utf8");
-    const methods = [
-      ...gatewaySource.matchAll(/"([A-Za-z0-9_.:-]+)"\s*:\s*handle_/g),
-    ].map((match) => match[1] ?? "");
+  it("audits every Node gateway RPC through the natural-language RPC bridge", () => {
+    const methods = listGatewayMethods();
 
     expect(methods.length).toBeGreaterThan(50);
     for (const method of methods) {
@@ -207,7 +204,7 @@ describe("resolveAssistantIntentInput", () => {
   });
 
   it("asks for clarification before taking vague action", () => {
-    expect(resolveAssistantIntentInput("处理一下")).toEqual({
+    expect(resolveZhushouIntentInput("处理一下")).toEqual({
       kind: "message",
       intent: "clarify",
       message: "需要补充要处理的对象和期望结果。请说明目标、范围和成功标准。",

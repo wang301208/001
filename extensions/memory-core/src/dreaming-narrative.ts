@@ -7,17 +7,17 @@ import {
   loadSessionStore,
   resolveStorePath,
   updateSessionStore,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import {
   extractErrorCode,
   formatErrorMessage,
   RequestScopedSubagentRuntimeError,
   readErrorName,
   SUBAGENT_RUNTIME_REQUEST_SCOPE_ERROR_CODE,
-} from "assistant/plugin-sdk/error-runtime";
-import { resolveGlobalMap } from "assistant/plugin-sdk/global-singleton";
-import { createAsyncLock } from "assistant/plugin-sdk/infra-runtime";
-import { resolveStateDir } from "assistant/plugin-sdk/memory-core-host-runtime-core";
+} from "zhushou/plugin-sdk/error-runtime";
+import { resolveGlobalMap } from "zhushou/plugin-sdk/global-singleton";
+import { createAsyncLock } from "zhushou/plugin-sdk/infra-runtime";
+import { resolveStateDir } from "zhushou/plugin-sdk/memory-core-host-runtime-core";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -91,10 +91,10 @@ const DREAMING_TRANSCRIPT_RUN_MARKER = '"runId":"dreaming-narrative-';
 const DREAMING_ORPHAN_MIN_AGE_MS = 300_000;
 const SAFE_SESSION_ID_RE = /^[a-z0-9][a-z0-9._-]{0,127}$/i;
 const DREAMS_FILENAMES = ["DREAMS.md", "dreams.md"] as const;
-const DIARY_START_MARKER = "<!-- assistant:dreaming:diary:start -->";
-const DIARY_END_MARKER = "<!-- assistant:dreaming:diary:end -->";
-const BACKFILL_ENTRY_MARKER = "assistant:dreaming:backfill-entry";
-const DREAMS_FILE_LOCKS_KEY = Symbol.for("assistant.memoryCore.dreamingNarrative.fileLocks");
+const DIARY_START_MARKER = "<!-- zhushou:dreaming:diary:start -->";
+const DIARY_END_MARKER = "<!-- zhushou:dreaming:diary:end -->";
+const BACKFILL_ENTRY_MARKER = "zhushou:dreaming:backfill-entry";
+const DREAMS_FILE_LOCKS_KEY = Symbol.for("zhushou.memoryCore.dreamingNarrative.fileLocks");
 
 type DreamsFileLockEntry = {
   withLock: ReturnType<typeof createAsyncLock>;

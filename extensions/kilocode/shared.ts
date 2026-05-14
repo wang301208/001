@@ -9,4 +9,4 @@ export {
   KILOCODE_MODEL_CATALOG,
 } from "./provider-models.js";
 
-export type { KilocodeModelCatalogEntry } from "assistant/plugin-sdk/provider-model-shared";
+export type { KilocodeModelCatalogEntry } from "zhushou/plugin-sdk/provider-model-shared";

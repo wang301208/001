@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 
 type BrowserRequestProfileParams = {
   query?: Record<string, unknown>;

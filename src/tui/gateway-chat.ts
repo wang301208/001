@@ -130,7 +130,7 @@ function throwGatewayAuthResolutionError(reason: string): never {
   throw new Error(
     [
       reason,
-      "修复方式：设置 ASSISTANT_GATEWAY_TOKEN/ASSISTANT_GATEWAY_PASSWORD，传入 --token/--password，",
+      "修复方式：设置 ZHUSHOU_GATEWAY_TOKEN/ZHUSHOU_GATEWAY_PASSWORD，传入 --token/--password，",
       "或修复该凭据配置的密钥提供器。",
     ].join("\n"),
   );
@@ -457,7 +457,7 @@ export class GatewayChatClient {
       token: connection.token,
       password: connection.password,
       clientName: GATEWAY_CLIENT_NAMES.TUI,
-      clientDisplayName: "assistant-tui",
+      clientDisplayName: "zhushou-tui",
       clientVersion: VERSION,
       platform: process.platform,
       mode: GATEWAY_CLIENT_MODES.UI,

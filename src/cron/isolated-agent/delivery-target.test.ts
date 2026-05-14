@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { telegramMessagingForTest } from "../../infra/outbound/targets.test-helpers.js";
 import { resetPluginRuntimeStateForTest, setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
@@ -110,7 +110,7 @@ beforeEach(() => {
           config: {
             listAccountIds: () => [],
             resolveAccount: () => ({}),
-            resolveAllowFrom: ({ cfg }: { cfg: AssistantConfig }) =>
+            resolveAllowFrom: ({ cfg }: { cfg: ZhushouConfig }) =>
               (cfg.channels?.whatsapp as { allowFrom?: string[] } | undefined)?.allowFrom,
           },
         },
@@ -124,15 +124,15 @@ afterEach(() => {
   resetPluginRuntimeStateForTest();
 });
 
-function makeCfg(overrides?: Partial<AssistantConfig>): AssistantConfig {
+function makeCfg(overrides?: Partial<ZhushouConfig>): ZhushouConfig {
   return {
     bindings: [],
     channels: {},
     ...overrides,
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
-function makeTelegramBoundCfg(accountId = "account-b"): AssistantConfig {
+function makeTelegramBoundCfg(accountId = "account-b"): ZhushouConfig {
   return makeCfg({
     bindings: [
       {
@@ -182,7 +182,7 @@ function setStoredWhatsAppAllowFrom(allowFrom: string[]) {
 }
 
 async function resolveForAgent(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   target?: { channel?: "last" | "telegram"; to?: string };
 }) {
   const channel = params.target ? params.target.channel : DEFAULT_TARGET.channel;
@@ -193,7 +193,7 @@ async function resolveForAgent(params: {
   });
 }
 
-async function resolveLastTarget(cfg: AssistantConfig) {
+async function resolveLastTarget(cfg: ZhushouConfig) {
   return resolveForAgent({
     cfg,
     target: { channel: "last", to: undefined },

@@ -2,8 +2,8 @@ import {
   buildChannelOutboundSessionRoute,
   stripChannelTargetPrefix,
   type ChannelOutboundSessionRouteParams,
-} from "assistant/plugin-sdk/channel-core";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/channel-core";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 export function resolveFeishuOutboundSessionRoute(params: ChannelOutboundSessionRouteParams) {
   let trimmed = stripChannelTargetPrefix(params.target, "feishu", "lark");

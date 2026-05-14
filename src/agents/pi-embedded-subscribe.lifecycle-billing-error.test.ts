@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createSubscribedSessionHarness,
-  emitAssistantLifecycleErrorAndEnd,
+  emitZhushouLifecycleErrorAndEnd,
   findLifecycleErrorAgentEvent,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 
@@ -22,7 +22,7 @@ describe("subscribeEmbeddedPiSession lifecycle billing errors", () => {
       sessionKey: "test-session",
     });
 
-    emitAssistantLifecycleErrorAndEnd({
+    emitZhushouLifecycleErrorAndEnd({
       emit,
       errorMessage: "insufficient credits",
       provider: "Anthropic",

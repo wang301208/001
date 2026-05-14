@@ -1,22 +1,22 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import {
   extractLeadingHttpStatus,
-  formatRawAssistantErrorForUi,
+  formatRawZhushouErrorForUi,
   isCloudflareOrHtmlErrorPage,
   parseApiErrorInfo,
-} from "../../shared/assistant-error-format.js";
+} from "../../shared/zhushou-error-format.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
 } from "../../shared/string-coerce.js";
 export {
   extractLeadingHttpStatus,
-  formatRawAssistantErrorForUi,
+  formatRawZhushouErrorForUi,
   isCloudflareOrHtmlErrorPage,
   parseApiErrorInfo,
-} from "../../shared/assistant-error-format.js";
+} from "../../shared/zhushou-error-format.js";
 import { classifyOAuthRefreshFailure } from "../auth-profiles/oauth-refresh-failure.js";
 import { formatExecDeniedUserMessage } from "../exec-approval-result.js";
 import { isModelNotFoundErrorMessage } from "../live-model-errors.js";
@@ -852,9 +852,9 @@ export function classifyProviderRuntimeFailureKind(
   return "unknown";
 }
 
-export function formatAssistantErrorText(
+export function formatZhushouErrorText(
   msg: AssistantMessage,
-  opts?: { cfg?: AssistantConfig; sessionKey?: string; provider?: string; model?: string },
+  opts?: { cfg?: ZhushouConfig; sessionKey?: string; provider?: string; model?: string },
 ): string | undefined {
   // Also format errors if errorMessage is present, even if stopReason isn't "error"
   const raw = (msg.errorMessage ?? "").trim();
@@ -993,7 +993,7 @@ export function formatAssistantErrorText(
   }
 
   if (isLikelyHttpErrorText(raw) || isRawApiErrorPayload(raw)) {
-    return formatRawAssistantErrorForUi(raw);
+    return formatRawZhushouErrorForUi(raw);
   }
 
   // Never return raw unhandled errors - log for debugging but return safe message
@@ -1003,7 +1003,7 @@ export function formatAssistantErrorText(
   return raw.length > 600 ? `${raw.slice(0, 600)}…` : raw;
 }
 
-export function isRateLimitAssistantError(msg: AssistantMessage | undefined): boolean {
+export function isRateLimitZhushouError(msg: AssistantMessage | undefined): boolean {
   if (!msg || msg.stopReason !== "error") {
     return false;
   }
@@ -1027,7 +1027,7 @@ export function isMissingToolCallInputError(raw: string): boolean {
   return TOOL_CALL_INPUT_MISSING_RE.test(raw) || TOOL_CALL_INPUT_PATH_RE.test(raw);
 }
 
-export function isBillingAssistantError(msg: AssistantMessage | undefined): boolean {
+export function isBillingZhushouError(msg: AssistantMessage | undefined): boolean {
   if (!msg || msg.stopReason !== "error") {
     return false;
   }
@@ -1120,7 +1120,7 @@ export function isCloudCodeAssistFormatError(raw: string): boolean {
   return !isImageDimensionErrorMessage(raw) && matchesFormatErrorPattern(raw);
 }
 
-export function isAuthAssistantError(msg: AssistantMessage | undefined): boolean {
+export function isAuthZhushouError(msg: AssistantMessage | undefined): boolean {
   if (!msg || msg.stopReason !== "error") {
     return false;
   }
@@ -1170,7 +1170,7 @@ export function isFailoverErrorMessage(raw: string, opts?: { provider?: string }
   return classifyFailoverReason(raw, opts) !== null;
 }
 
-export function isFailoverAssistantError(msg: AssistantMessage | undefined): boolean {
+export function isFailoverZhushouError(msg: AssistantMessage | undefined): boolean {
   if (!msg || msg.stopReason !== "error") {
     return false;
   }

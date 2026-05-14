@@ -1,5 +1,5 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 
 type DiscordAudioAttachment = {
   content_type?: string;
@@ -23,7 +23,7 @@ export async function resolveDiscordPreflightAudioMentionContext(params: {
   isDirectMessage: boolean;
   shouldRequireMention: boolean;
   mentionRegexes: RegExp[];
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   abortSignal?: AbortSignal;
 }): Promise<{
   hasAudioAttachment: boolean;

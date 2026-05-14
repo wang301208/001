@@ -14,13 +14,13 @@ function withNodeServiceEnv(
 ): Record<string, string | undefined> {
   return {
     ...env,
-    ASSISTANT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-    ASSISTANT_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-    ASSISTANT_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-    ASSISTANT_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-    ASSISTANT_LOG_PREFIX: "node",
-    ASSISTANT_SERVICE_MARKER: NODE_SERVICE_MARKER,
-    ASSISTANT_SERVICE_KIND: NODE_SERVICE_KIND,
+    ZHUSHOU_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+    ZHUSHOU_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+    ZHUSHOU_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+    ZHUSHOU_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+    ZHUSHOU_LOG_PREFIX: "node",
+    ZHUSHOU_SERVICE_MARKER: NODE_SERVICE_MARKER,
+    ZHUSHOU_SERVICE_KIND: NODE_SERVICE_KIND,
   };
 }
 
@@ -30,13 +30,13 @@ function withNodeInstallEnv(args: GatewayServiceInstallArgs): GatewayServiceInst
     env: withNodeServiceEnv(args.env),
     environment: {
       ...args.environment,
-      ASSISTANT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-      ASSISTANT_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-      ASSISTANT_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-      ASSISTANT_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-      ASSISTANT_LOG_PREFIX: "node",
-      ASSISTANT_SERVICE_MARKER: NODE_SERVICE_MARKER,
-      ASSISTANT_SERVICE_KIND: NODE_SERVICE_KIND,
+      ZHUSHOU_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+      ZHUSHOU_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+      ZHUSHOU_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+      ZHUSHOU_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+      ZHUSHOU_LOG_PREFIX: "node",
+      ZHUSHOU_SERVICE_MARKER: NODE_SERVICE_MARKER,
+      ZHUSHOU_SERVICE_KIND: NODE_SERVICE_KIND,
     },
   };
 }

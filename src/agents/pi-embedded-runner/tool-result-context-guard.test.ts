@@ -29,7 +29,7 @@ function makeToolResult(id: string, text: string, toolName = "grep"): AgentMessa
   });
 }
 
-function makeAssistant(text: string, extras: Record<string, unknown> = {}): AgentMessage {
+function makeZhushou(text: string, extras: Record<string, unknown> = {}): AgentMessage {
   return castAgentMessage({
     role: "assistant",
     content: text,
@@ -412,7 +412,7 @@ describe("installContextEngineLoopHook", () => {
 
     const messages = [
       makeUser("first"),
-      makeAssistant("tool use", { usage: { cacheRead: 40, total: 50 }, timestamp: 456 }),
+      makeZhushou("tool use", { usage: { cacheRead: 40, total: 50 }, timestamp: 456 }),
       makeToolResult("call_1", "result"),
     ];
     await callTransform(agent, messages);

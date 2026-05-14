@@ -284,10 +284,10 @@ export function registerAdvancedAutonomyCommands(program: Command): void {
       // TODO: 启动其他自治组件
       
       console.log("\n💡 提示: 使用以下命令监控系统状态:");
-      console.log("  assistant autonomy strategy list-plans");
-      console.log("  assistant autonomy resource stats");
-      console.log("  assistant autonomy learning stats");
-      console.log("  assistant autonomy collaboration stats");
+      console.log("  zhushou autonomy strategy list-plans");
+      console.log("  zhushou autonomy resource stats");
+      console.log("  zhushou autonomy learning stats");
+      console.log("  zhushou autonomy collaboration stats");
       console.log("\n按 Ctrl+C 停止\n");
       
       // 保持进程运行
@@ -336,9 +336,9 @@ export function registerAdvancedAutonomyCommands(program: Command): void {
       
       console.log("\n" + "=".repeat(60));
       console.log("\n💡 提示: 使用子命令查看详细信息");
-      console.log("  assistant autonomy strategy --help");
-      console.log("  assistant autonomy resource --help");
-      console.log("  assistant autonomy learning --help");
-      console.log("  assistant autonomy collaboration --help\n");
+      console.log("  zhushou autonomy strategy --help");
+      console.log("  zhushou autonomy resource --help");
+      console.log("  zhushou autonomy learning --help");
+      console.log("  zhushou autonomy collaboration --help\n");
     });
 }

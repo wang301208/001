@@ -10,7 +10,7 @@ type EnvSnapshot = {
   userProfile: string | undefined;
   homeDrive: string | undefined;
   homePath: string | undefined;
-  assistantHome: string | undefined;
+  zhushouHome: string | undefined;
   stateDir: string | undefined;
 };
 
@@ -27,8 +27,8 @@ function snapshotEnv(): EnvSnapshot {
     userProfile: process.env.USERPROFILE,
     homeDrive: process.env.HOMEDRIVE,
     homePath: process.env.HOMEPATH,
-    assistantHome: process.env.ASSISTANT_HOME,
-    stateDir: process.env.ASSISTANT_STATE_DIR,
+    zhushouHome: process.env.ZHUSHOU_HOME,
+    stateDir: process.env.ZHUSHOU_STATE_DIR,
   };
 }
 
@@ -44,8 +44,8 @@ function restoreEnv(snapshot: EnvSnapshot) {
   restoreKey("USERPROFILE", snapshot.userProfile);
   restoreKey("HOMEDRIVE", snapshot.homeDrive);
   restoreKey("HOMEPATH", snapshot.homePath);
-  restoreKey("ASSISTANT_HOME", snapshot.assistantHome);
-  restoreKey("ASSISTANT_STATE_DIR", snapshot.stateDir);
+  restoreKey("ZHUSHOU_HOME", snapshot.zhushouHome);
+  restoreKey("ZHUSHOU_STATE_DIR", snapshot.stateDir);
 }
 
 function snapshotExtraEnv(keys: string[]): Record<string, string | undefined> {
@@ -69,9 +69,9 @@ function restoreExtraEnv(snapshot: Record<string, string | undefined>) {
 function setTempHome(base: string) {
   process.env.HOME = base;
   process.env.USERPROFILE = base;
-  // Ensure tests using HOME isolation aren't affected by leaked ASSISTANT_HOME.
-  delete process.env.ASSISTANT_HOME;
-  process.env.ASSISTANT_STATE_DIR = path.join(base, ".assistant");
+  // Ensure tests using HOME isolation aren't affected by leaked ZHUSHOU_HOME.
+  delete process.env.ZHUSHOU_HOME;
+  process.env.ZHUSHOU_STATE_DIR = path.join(base, ".zhushou");
 
   if (process.platform !== "win32") {
     return;
@@ -107,7 +107,7 @@ export async function withTempHome<T>(
     skipSessionCleanup?: boolean;
   } = {},
 ): Promise<T> {
-  const prefix = opts.prefix ?? "assistant-test-home-";
+  const prefix = opts.prefix ?? "zhushou-test-home-";
   const base = await allocateTempHomeBase(prefix);
   const snapshot = snapshotEnv();
   const envKeys = Object.keys(opts.env ?? {});
@@ -119,7 +119,7 @@ export async function withTempHome<T>(
   const envSnapshot = snapshotExtraEnv(envKeys);
 
   setTempHome(base);
-  await fs.mkdir(path.join(base, ".assistant", "agents", "main", "sessions"), { recursive: true });
+  await fs.mkdir(path.join(base, ".zhushou", "agents", "main", "sessions"), { recursive: true });
   if (opts.env) {
     for (const [key, raw] of Object.entries(opts.env)) {
       const value = typeof raw === "function" ? raw(base) : raw;

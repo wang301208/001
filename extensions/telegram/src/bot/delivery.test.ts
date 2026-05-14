@@ -1,5 +1,5 @@
 import type { Bot } from "grammy";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { loadWebMedia } = vi.hoisted(() => ({
@@ -25,10 +25,10 @@ type DeliverWithParams = Omit<
   Partial<Pick<DeliverRepliesParams, "replyToMode" | "textLimit" | "mediaLoader">>;
 type RuntimeStub = Pick<RuntimeEnv, "error" | "log" | "exit">;
 
-vi.mock("assistant/plugin-sdk/web-media", () => ({
+vi.mock("zhushou/plugin-sdk/web-media", () => ({
   loadWebMedia: (...args: unknown[]) => loadWebMedia(...args),
 }));
-vi.mock("assistant/plugin-sdk/web-media", () => ({
+vi.mock("zhushou/plugin-sdk/web-media", () => ({
   loadWebMedia: (...args: unknown[]) => loadWebMedia(...args),
 }));
 

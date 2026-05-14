@@ -99,7 +99,7 @@ export async function runQaDockerUp(
     composeFile,
   });
   await waitForDockerServiceHealth(
-    "assistant-qa-gateway",
+    "zhushou-qa-gateway",
     composeFile,
     repoRoot,
     runCommand,
@@ -112,7 +112,7 @@ export async function runQaDockerUp(
       .catch(() => false))
   ) {
     const containerGatewayUrl = await resolveComposeServiceUrl(
-      "assistant-qa-gateway",
+      "zhushou-qa-gateway",
       18789,
       composeFile,
       repoRoot,

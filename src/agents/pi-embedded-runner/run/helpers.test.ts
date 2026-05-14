@@ -1,8 +1,8 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
-import { resolveFinalAssistantRawText, resolveFinalAssistantVisibleText } from "./helpers.js";
+import { resolveFinalZhushouRawText, resolveFinalZhushouVisibleText } from "./helpers.js";
 
-function makeAssistantMessage(
+function makeZhushouMessage(
   content: AssistantMessage["content"],
   phase?: string,
 ): AssistantMessage {
@@ -26,9 +26,9 @@ function makeAssistantMessage(
   };
 }
 
-describe("resolveFinalAssistantVisibleText", () => {
+describe("resolveFinalZhushouVisibleText", () => {
   it("prefers final_answer text over commentary blocks", () => {
-    const lastAssistant = makeAssistantMessage([
+    const lastZhushou = makeZhushouMessage([
       {
         type: "text",
         text: "Working...",
@@ -41,11 +41,11 @@ describe("resolveFinalAssistantVisibleText", () => {
       },
     ]);
 
-    expect(resolveFinalAssistantVisibleText(lastAssistant)).toBe("Section 1\nSection 2");
+    expect(resolveFinalZhushouVisibleText(lastZhushou)).toBe("Section 1\nSection 2");
   });
 
   it("returns undefined when the final visible text is empty", () => {
-    const lastAssistant = makeAssistantMessage([
+    const lastZhushou = makeZhushouMessage([
       {
         type: "text",
         text: "Working...",
@@ -58,11 +58,11 @@ describe("resolveFinalAssistantVisibleText", () => {
       },
     ]);
 
-    expect(resolveFinalAssistantVisibleText(lastAssistant)).toBeUndefined();
+    expect(resolveFinalZhushouVisibleText(lastZhushou)).toBeUndefined();
   });
 
   it("preserves raw final answer text without visible-text sanitization", () => {
-    const lastAssistant = makeAssistantMessage([
+    const lastZhushou = makeZhushouMessage([
       {
         type: "text",
         text: "<final>keep this</final>",
@@ -70,6 +70,6 @@ describe("resolveFinalAssistantVisibleText", () => {
       },
     ]);
 
-    expect(resolveFinalAssistantRawText(lastAssistant)).toBe("<final>keep this</final>");
+    expect(resolveFinalZhushouRawText(lastZhushou)).toBe("<final>keep this</final>");
   });
 });

@@ -4,7 +4,7 @@ import type { GatewayRequestHandlerOptions } from "./types.js";
 
 const mocks = vi.hoisted(() => ({
   loadConfig: vi.fn(() => ({})),
-  resolveAssistantAgentDir: vi.fn(() => "/tmp/agent"),
+  resolveZhushouAgentDir: vi.fn(() => "/tmp/agent"),
   ensureAuthProfileStore: vi.fn(() => ({ profiles: {} })),
   buildAuthHealthSummary: vi.fn(
     (): AuthHealthSummary => ({ now: 0, warnAfterMs: 0, profiles: [], providers: [] }),
@@ -17,7 +17,7 @@ vi.mock("../../config/config.js", () => ({
 }));
 
 vi.mock("../../agents/agent-paths.js", () => ({
-  resolveAssistantAgentDir: mocks.resolveAssistantAgentDir,
+  resolveZhushouAgentDir: mocks.resolveZhushouAgentDir,
 }));
 
 vi.mock("../../agents/auth-profiles.js", () => ({

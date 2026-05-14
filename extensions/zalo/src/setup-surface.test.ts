@@ -1,4 +1,4 @@
-import { adaptScopedAccountAccessor } from "assistant/plugin-sdk/channel-config-helpers";
+import { adaptScopedAccountAccessor } from "zhushou/plugin-sdk/channel-config-helpers";
 import { describe, expect, it, vi } from "vitest";
 import {
   createPluginSetupWizardConfigure,
@@ -6,7 +6,7 @@ import {
   runSetupWizardConfigure,
   type WizardPrompter,
 } from "../../../test/helpers/plugins/setup-wizard.js";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { listZaloAccountIds, resolveDefaultZaloAccountId, resolveZaloAccount } from "./accounts.js";
 import { zaloDmPolicy } from "./setup-core.js";
 import { zaloSetupAdapter, zaloSetupWizard } from "./setup-surface.js";
@@ -54,7 +54,7 @@ describe("zalo setup wizard", () => {
 
     const result = await runSetupWizardConfigure({
       configure: zaloConfigure,
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       prompter,
       options: { secretInputMode: "plaintext" as const },
     });
@@ -80,14 +80,14 @@ describe("zalo setup wizard", () => {
               },
             },
           },
-        } as AssistantConfig,
+        } as ZhushouConfig,
         "work",
       ),
     ).toBe("allowlist");
   });
 
   it("reports account-scoped config keys for named accounts", () => {
-    expect(zaloDmPolicy.resolveConfigKeys?.({} as AssistantConfig, "work")).toEqual({
+    expect(zaloDmPolicy.resolveConfigKeys?.({} as ZhushouConfig, "work")).toEqual({
       policyKey: "channels.zalo.accounts.work.dmPolicy",
       allowFromKey: "channels.zalo.accounts.work.allowFrom",
     });
@@ -108,7 +108,7 @@ describe("zalo setup wizard", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     expect(zaloDmPolicy.getCurrent(cfg)).toBe("allowlist");
     expect(zaloDmPolicy.resolveConfigKeys?.(cfg)).toEqual({
@@ -137,7 +137,7 @@ describe("zalo setup wizard", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       "open",
       "work",
     );
@@ -167,7 +167,7 @@ describe("zalo setup wizard", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
     });
 
     expect(configured).toBe(false);

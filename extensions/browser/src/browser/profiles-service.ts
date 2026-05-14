@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
-import type { BrowserProfileConfig, AssistantConfig } from "../config/config.js";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
+import type { BrowserProfileConfig, ZhushouConfig } from "../config/config.js";
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import { deriveDefaultBrowserCdpPortRange } from "../config/port-defaults.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resolveUserPath } from "../utils.js";
 import { assertCdpEndpointAllowed } from "./cdp.helpers.js";
-import { resolveAssistantUserDataDir } from "./chrome.js";
+import { resolveZhushouUserDataDir } from "./chrome.js";
 import { parseHttpUrl, resolveProfile } from "./config.js";
 import {
   BrowserConflictError,
@@ -31,7 +31,7 @@ export type CreateProfileParams = {
   color?: string;
   cdpUrl?: string;
   userDataDir?: string;
-  driver?: "assistant" | "existing-session";
+  driver?: "zhushou" | "existing-session";
 };
 
 export type CreateProfileResult = {
@@ -165,7 +165,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
       }
     }
 
-    const nextConfig: AssistantConfig = {
+    const nextConfig: ZhushouConfig = {
       ...cfg,
       browser: {
         ...cfg.browser,
@@ -222,14 +222,14 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
     let deleted = false;
     const resolved = resolveProfile(state.resolved, name);
 
-    if (resolved?.cdpIsLoopback && resolved.driver === "assistant") {
+    if (resolved?.cdpIsLoopback && resolved.driver === "zhushou") {
       try {
         await ctx.forProfile(name).stopRunningBrowser();
       } catch {
         // ignore
       }
 
-      const userDataDir = resolveAssistantUserDataDir(name);
+      const userDataDir = resolveZhushouUserDataDir(name);
       const profileDir = path.dirname(userDataDir);
       if (fs.existsSync(profileDir)) {
         await movePathToTrash(profileDir);
@@ -238,7 +238,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
     }
 
     const { [name]: _removed, ...remainingProfiles } = profiles;
-    const nextConfig: AssistantConfig = {
+    const nextConfig: ZhushouConfig = {
       ...cfg,
       browser: {
         ...cfg.browser,

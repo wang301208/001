@@ -8,11 +8,11 @@ import {
   type LiveCacheFloor,
 } from "./live-cache-regression-baseline.js";
 import {
-  buildAssistantHistoryTurn,
+  buildZhushouHistoryTurn,
   buildStableCachePrefix,
   completeSimpleWithLiveTimeout,
   computeCacheHitRate,
-  extractAssistantText,
+  extractZhushouText,
   logLiveCache,
   resolveLiveDirectModel,
 } from "./live-cache-test-support.js";
@@ -154,7 +154,7 @@ async function runToolOnlyTurn(params: {
   );
 
   let toolCall = extractFirstToolCall(response);
-  let text = extractAssistantText(response);
+  let text = extractZhushouText(response);
   for (let attempt = 0; attempt < 2 && (!toolCall || text.length > 0); attempt += 1) {
     prompt = `Return only a tool call for \`${params.tool.name}\` with {}. No text.`;
     response = await completeSimpleWithLiveTimeout(
@@ -169,7 +169,7 @@ async function runToolOnlyTurn(params: {
       timeoutMs,
     );
     toolCall = extractFirstToolCall(response);
-    text = extractAssistantText(response);
+    text = extractZhushouText(response);
   }
 
   assert(toolCall, `expected tool call for ${params.tool.name}`);
@@ -217,7 +217,7 @@ async function completeCacheProbe(params: {
     `${params.providerTag} cache lane ${params.suffix}`,
     timeoutMs,
   );
-  const text = extractAssistantText(response);
+  const text = extractZhushouText(response);
   const responseTextLower = normalizeLowercaseStringOrEmpty(text);
   const suffixLower = normalizeLowercaseStringOrEmpty(params.suffix);
   assert(
@@ -274,9 +274,9 @@ async function runRepeatedLane(params: {
                   "An image is attached. Ignore image semantics but keep the bytes in history.",
                   params.pngBase64,
                 ),
-                buildAssistantHistoryTurn("IMAGE HISTORY ACKNOWLEDGED", params.fixture.model),
+                buildZhushouHistoryTurn("IMAGE HISTORY ACKNOWLEDGED", params.fixture.model),
                 makeUserTurn("Keep the earlier image turn stable in context."),
-                buildAssistantHistoryTurn("IMAGE HISTORY PRESERVED", params.fixture.model),
+                buildZhushouHistoryTurn("IMAGE HISTORY PRESERVED", params.fixture.model),
                 makeUserTurn(`Reply with exactly CACHE-OK ${suffix}.`),
               ],
               model: params.fixture.model,
@@ -305,13 +305,13 @@ async function runRepeatedLane(params: {
                 makeUserTurn(toolTurn.prompt),
                 toolTurn.response,
                 makeToolResultMessage(toolTurn.toolCall.id, tool.name, toolText),
-                buildAssistantHistoryTurn(`${historyPrefix} ACKNOWLEDGED`, params.fixture.model),
+                buildZhushouHistoryTurn(`${historyPrefix} ACKNOWLEDGED`, params.fixture.model),
                 makeUserTurn(
                   params.lane === "mcp"
                     ? "Keep the MCP tool output stable in history."
                     : "Keep the tool output stable in history.",
                 ),
-                buildAssistantHistoryTurn(`${historyPrefix} PRESERVED`, params.fixture.model),
+                buildZhushouHistoryTurn(`${historyPrefix} PRESERVED`, params.fixture.model),
                 makeUserTurn(`Reply with exactly CACHE-OK ${suffix}.`),
               ],
               model: params.fixture.model,
@@ -409,13 +409,13 @@ export async function runLiveCacheRegression(): Promise<LiveCacheRegressionResul
   const openai = await resolveLiveDirectModel({
     provider: "openai",
     api: "openai-responses",
-    envVar: "ASSISTANT_LIVE_OPENAI_CACHE_MODEL",
+    envVar: "ZHUSHOU_LIVE_OPENAI_CACHE_MODEL",
     preferredModelIds: ["gpt-5.4-mini", "gpt-5.4", "gpt-5.2"],
   });
   const anthropic = await resolveLiveDirectModel({
     provider: "anthropic",
     api: "anthropic-messages",
-    envVar: "ASSISTANT_LIVE_ANTHROPIC_CACHE_MODEL",
+    envVar: "ZHUSHOU_LIVE_ANTHROPIC_CACHE_MODEL",
     preferredModelIds: ["claude-sonnet-4-6", "claude-sonnet-4-5", "claude-haiku-3-5"],
   });
 

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import {
   resolveConfiguredSecretInputWithFallback,
   resolveRequiredConfiguredSecretRefInputString,
 } from "./resolve-configured-secret-input-string.js";
 
-function createConfig(value: unknown): AssistantConfig {
+function createConfig(value: unknown): ZhushouConfig {
   return {
     gateway: {
       auth: {
@@ -17,7 +17,7 @@ function createConfig(value: unknown): AssistantConfig {
         default: { source: "env" },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 describe("resolveConfiguredSecretInputWithFallback", () => {

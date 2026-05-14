@@ -5,9 +5,9 @@
 # One-tap: shows status toast
 # If expired: directly opens auth URL
 
-SERVER="${ASSISTANT_SERVER:-l36}"
+SERVER="${ZHUSHOU_SERVER:-l36}"
 
-STATUS=$(ssh -o ConnectTimeout=5 "$SERVER" '$HOME/assistant/scripts/claude-auth-status.sh simple' 2>&1)
+STATUS=$(ssh -o ConnectTimeout=5 "$SERVER" '$HOME/zhushou/scripts/claude-auth-status.sh simple' 2>&1)
 
 case "$STATUS" in
     OK)
@@ -22,7 +22,7 @@ case "$STATUS" in
         termux-toast "Auth expired - opening console..."
         termux-open-url "https://console.anthropic.com/settings/api-keys"
         sleep 2
-        termux-notification -t "Assistant Re-Auth" -c "After getting key, run: ssh $SERVER '~/assistant/scripts/mobile-reauth.sh'" --id assistant-auth
+        termux-notification -t "Zhushou Re-Auth" -c "After getting key, run: ssh $SERVER '~/zhushou/scripts/mobile-reauth.sh'" --id zhushou-auth
         ;;
     *)
         termux-toast "Connection error"

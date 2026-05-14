@@ -2,7 +2,7 @@ import type {
   ProviderAuthContext,
   ProviderAuthMethod,
   ProviderAuthResult,
-} from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 import {
   ensureApiKeyFromOptionEnvOrPrompt,
   ensureAuthProfileStore,
@@ -10,7 +10,7 @@ import {
   normalizeOptionalSecretInput,
   type SecretInput,
   validateApiKeyInput,
-} from "assistant/plugin-sdk/provider-auth";
+} from "zhushou/plugin-sdk/provider-auth";
 import { getLoggedInAccount, isAzCliInstalled } from "./cli.js";
 import {
   loginWithTenantFallback,

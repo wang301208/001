@@ -12,7 +12,7 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 import { DEFAULT_CONTEXT_TOKENS } from "./defaults.js";
 import { isTimeoutError } from "./failover-error.js";
 import { repairToolUseResultPairing, stripToolResultDetails } from "./session-transcript-repair.js";
-import { extractToolCallsFromAssistant, extractToolResultId } from "./tool-call-id.js";
+import { extractToolCallsFromZhushou, extractToolResultId } from "./tool-call-id.js";
 
 const log = createSubsystemLogger("compaction");
 
@@ -172,7 +172,7 @@ export function splitMessagesByTokenShare(
     currentTokens += messageTokens;
 
     if (message.role === "assistant") {
-      const toolCalls = extractToolCallsFromAssistant(message);
+      const toolCalls = extractToolCallsFromZhushou(message);
       const stopReason = (message as { stopReason?: unknown }).stopReason;
       const keepsPending =
         stopReason !== "aborted" && stopReason !== "error" && toolCalls.length > 0;

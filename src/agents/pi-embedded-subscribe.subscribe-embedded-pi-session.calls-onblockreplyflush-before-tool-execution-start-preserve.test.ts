@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createStubSessionHarness,
-  emitAssistantTextDelta,
+  emitZhushouTextDelta,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 import { subscribeEmbeddedPiSession } from "./pi-embedded-subscribe.js";
 
@@ -26,7 +26,7 @@ describe("subscribeEmbeddedPiSession", () => {
       message: { role: "assistant" },
     });
 
-    emitAssistantTextDelta({ emit, delta: "First message before tool." });
+    emitZhushouTextDelta({ emit, delta: "First message before tool." });
 
     expect(onBlockReplyFlush).not.toHaveBeenCalled();
 
@@ -70,7 +70,7 @@ describe("subscribeEmbeddedPiSession", () => {
       message: { role: "assistant" },
     });
 
-    emitAssistantTextDelta({ emit, delta: "Short chunk." });
+    emitZhushouTextDelta({ emit, delta: "Short chunk." });
 
     expect(onBlockReply).not.toHaveBeenCalled();
 
@@ -112,7 +112,7 @@ describe("subscribeEmbeddedPiSession", () => {
       type: "message_start",
       message: { role: "assistant" },
     });
-    emitAssistantTextDelta({ emit, delta: "Short chunk." });
+    emitZhushouTextDelta({ emit, delta: "Short chunk." });
 
     emit({
       type: "tool_execution_start",
@@ -144,7 +144,7 @@ describe("subscribeEmbeddedPiSession", () => {
       type: "message_start",
       message: { role: "assistant" },
     });
-    emitAssistantTextDelta({ emit, delta: "Final reply before lifecycle end." });
+    emitZhushouTextDelta({ emit, delta: "Final reply before lifecycle end." });
     expect(onBlockReplyFlush).not.toHaveBeenCalled();
 
     emit({
@@ -185,7 +185,7 @@ describe("subscribeEmbeddedPiSession", () => {
       type: "message_start",
       message: { role: "assistant" },
     });
-    emitAssistantTextDelta({ emit, delta: "Final reply before lifecycle end." });
+    emitZhushouTextDelta({ emit, delta: "Final reply before lifecycle end." });
 
     emit({
       type: "message_end",

@@ -1,5 +1,5 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   __testing as threadBindingTesting,
@@ -50,9 +50,9 @@ vi.mock("../send.shared.js", () => ({
   sendDiscordText: (...args: unknown[]) => sendDiscordTextMock(...args),
 }));
 
-vi.mock("assistant/plugin-sdk/retry-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/retry-runtime")>(
-    "assistant/plugin-sdk/retry-runtime",
+vi.mock("zhushou/plugin-sdk/retry-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/retry-runtime")>(
+    "zhushou/plugin-sdk/retry-runtime",
   );
   return {
     ...actual,
@@ -66,7 +66,7 @@ describe("deliverDiscordReply", () => {
   const runtime = {} as RuntimeEnv;
   const cfg = {
     channels: { discord: { token: "test-token" } },
-  } as AssistantConfig;
+  } as ZhushouConfig;
   const expectBotSendRetrySuccess = async (status: number, message: string) => {
     sendMessageDiscordMock
       .mockRejectedValueOnce(Object.assign(new Error(message), { status }))

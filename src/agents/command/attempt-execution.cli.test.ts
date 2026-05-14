@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionEntry } from "../../config/sessions.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { FailoverError } from "../failover-error.js";
 import type { EmbeddedPiRunResult } from "../pi-embedded.js";
 import { persistCliTurnTranscript, runAgentAttempt } from "./attempt-execution.js";
@@ -28,7 +28,7 @@ function makeCliResult(text: string): EmbeddedPiRunResult {
     payloads: [{ text }],
     meta: {
       durationMs: 5,
-      finalAssistantVisibleText: text,
+      finalZhushouVisibleText: text,
       agentMeta: {
         sessionId: "session-cli",
         provider: "claude-cli",
@@ -69,7 +69,7 @@ describe("CLI attempt execution", () => {
   let storePath: string;
 
   beforeEach(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-cli-attempt-"));
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-cli-attempt-"));
     storePath = path.join(tmpDir, "sessions.json");
     runCliAgentMock.mockReset();
   });
@@ -103,7 +103,7 @@ describe("CLI attempt execution", () => {
     await runAgentAttempt({
       providerOverride: "claude-cli",
       modelOverride: "opus",
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       sessionEntry,
       sessionId: sessionEntry.sessionId,
       sessionKey,

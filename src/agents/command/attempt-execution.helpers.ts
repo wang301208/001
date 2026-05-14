@@ -13,8 +13,8 @@ const SESSION_FILE_MAX_RECORDS = 500;
 
 /**
  * Check whether a session transcript file exists and contains at least one
- * assistant message, indicating that the SessionManager has flushed the
- * initial user+assistant exchange to disk.
+ * zhushou message, indicating that the SessionManager has flushed the
+ * initial user+zhushou exchange to disk.
  */
 export async function sessionFileHasContent(sessionFile: string | undefined): Promise<boolean> {
   if (!sessionFile) {

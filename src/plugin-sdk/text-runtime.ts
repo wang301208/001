@@ -15,7 +15,7 @@ export * from "../shared/scoped-expiring-id-cache.js";
 export * from "../shared/string-coerce.js";
 export * from "../shared/string-normalization.js";
 export * from "../shared/string-sample.js";
-export * from "../shared/text/assistant-visible-text.js";
+export * from "../shared/text/zhushou-visible-text.js";
 export * from "../shared/text/auto-linked-file-ref.js";
 export * from "../shared/text/code-regions.js";
 export * from "../shared/text/reasoning-tags.js";

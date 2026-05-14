@@ -1,5 +1,5 @@
 import { getChannelPlugin, resolveChannelApprovalCapability } from "../channels/plugins/index.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isImplicitSameChatApprovalAuthorization } from "../plugin-sdk/approval-auth-helpers.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
 
@@ -10,7 +10,7 @@ export type ApprovalCommandAuthorization = {
 };
 
 export function resolveApprovalCommandAuthorization(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel?: string | null;
   accountId?: string | null;
   senderId?: string | null;

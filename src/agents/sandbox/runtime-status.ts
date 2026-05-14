@@ -3,7 +3,7 @@ import {
   canonicalizeMainSessionAlias,
   resolveAgentMainSessionKey,
 } from "../../config/sessions/main-session.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   formatGovernanceEnforcementMessage,
   resolveGovernanceEnforcementState,
@@ -28,7 +28,7 @@ function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessio
 }
 
 function resolveMainSessionKeyForSandbox(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentId: string;
 }): string {
   if (params.cfg?.session?.scope === "global") {
@@ -41,7 +41,7 @@ function resolveMainSessionKeyForSandbox(params: {
 }
 
 function resolveComparableSessionKeyForSandbox(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentId: string;
   sessionKey: string;
 }): string {
@@ -53,7 +53,7 @@ function resolveComparableSessionKeyForSandbox(params: {
 }
 
 export function resolveSandboxRuntimeStatus(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   sessionKey?: string;
   charterDir?: string;
 }): {
@@ -149,7 +149,7 @@ function shellEscapeSingleArg(value: string): string {
 }
 
 export function formatSandboxToolPolicyBlockedMessage(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   sessionKey?: string;
   toolName: string;
 }): string | undefined {
@@ -201,9 +201,9 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
   }
   const explainCommand = runtime.sessionKey
     ? hasUnsafeControlChars(runtime.sessionKey)
-      ? `assistant sandbox explain --agent ${runtime.agentId}`
-      : `assistant sandbox explain --session ${shellEscapeSingleArg(runtime.sessionKey)}`
-    : "assistant sandbox explain";
+      ? `zhushou sandbox explain --agent ${runtime.agentId}`
+      : `zhushou sandbox explain --session ${shellEscapeSingleArg(runtime.sessionKey)}`
+    : "zhushou sandbox explain";
   lines.push(`- See: ${formatCliCommand(explainCommand)}`);
 
   return lines.join("\n");

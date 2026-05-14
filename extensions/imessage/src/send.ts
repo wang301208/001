@@ -1,9 +1,9 @@
-import { loadConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
-import { kindFromMime } from "assistant/plugin-sdk/media-runtime";
-import { resolveOutboundAttachmentFromUrl } from "assistant/plugin-sdk/media-runtime";
-import { convertMarkdownTables } from "assistant/plugin-sdk/text-runtime";
-import { stripInlineDirectiveTagsForDelivery } from "assistant/plugin-sdk/text-runtime";
+import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import { kindFromMime } from "zhushou/plugin-sdk/media-runtime";
+import { resolveOutboundAttachmentFromUrl } from "zhushou/plugin-sdk/media-runtime";
+import { convertMarkdownTables } from "zhushou/plugin-sdk/text-runtime";
+import { stripInlineDirectiveTagsForDelivery } from "zhushou/plugin-sdk/text-runtime";
 import { resolveIMessageAccount, type ResolvedIMessageAccount } from "./accounts.js";
 import { createIMessageRpcClient, type IMessageRpcClient } from "./client.js";
 import { formatIMessageChatTarget, type IMessageService, parseIMessageTarget } from "./targets.js";

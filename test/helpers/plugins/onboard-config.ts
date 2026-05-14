@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../../src/config/config.js";
+import type { ZhushouConfig } from "../../../src/config/config.js";
 import type { ModelApi } from "../../../src/config/types.models.js";
 
 export const EXPECTED_FALLBACKS = ["anthropic/claude-opus-4-5"] as const;
@@ -10,7 +10,7 @@ export function createLegacyProviderConfig(params: {
   modelName?: string;
   baseUrl?: string;
   apiKey?: string;
-}): AssistantConfig {
+}): ZhushouConfig {
   return {
     models: {
       providers: {
@@ -32,10 +32,10 @@ export function createLegacyProviderConfig(params: {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
-export function createConfigWithFallbacks(): AssistantConfig {
+export function createConfigWithFallbacks(): ZhushouConfig {
   return {
     agents: {
       defaults: {

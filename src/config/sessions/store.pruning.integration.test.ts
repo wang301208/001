@@ -5,7 +5,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { createSuiteTempRootTracker } from "../../test-helpers/temp-dir.js";
 import type { SessionEntry } from "./types.js";
 
-// Keep integration tests deterministic: never read a real assistant.json.
+// Keep integration tests deterministic: never read a real zhushou.json.
 vi.mock("../config.js", async () => ({
   ...(await vi.importActual<typeof import("../config.js")>("../config.js")),
   loadConfig: vi.fn().mockReturnValue({}),
@@ -31,7 +31,7 @@ const ENFORCED_MAINTENANCE_OVERRIDE = {
 
 const archiveTimestamp = (ms: number) => new Date(ms).toISOString().replaceAll(":", "-");
 
-const suiteRootTracker = createSuiteTempRootTracker({ prefix: "assistant-pruning-integ-" });
+const suiteRootTracker = createSuiteTempRootTracker({ prefix: "zhushou-pruning-integ-" });
 
 function makeEntry(updatedAt: number): SessionEntry {
   return { sessionId: crypto.randomUUID(), updatedAt };
@@ -95,8 +95,8 @@ describe("Integration: saveSessionStore with pruning", () => {
     mockLoadConfig = vi.mocked(loadConfig) as ReturnType<typeof vi.fn>;
     testDir = await createCaseDir("pruning-integ");
     storePath = path.join(testDir, "sessions.json");
-    savedCacheTtl = process.env.ASSISTANT_SESSION_CACHE_TTL_MS;
-    process.env.ASSISTANT_SESSION_CACHE_TTL_MS = "0";
+    savedCacheTtl = process.env.ZHUSHOU_SESSION_CACHE_TTL_MS;
+    process.env.ZHUSHOU_SESSION_CACHE_TTL_MS = "0";
     clearSessionStoreCacheForTest();
     mockLoadConfig.mockClear();
   });
@@ -105,9 +105,9 @@ describe("Integration: saveSessionStore with pruning", () => {
     vi.restoreAllMocks();
     clearSessionStoreCacheForTest();
     if (savedCacheTtl === undefined) {
-      delete process.env.ASSISTANT_SESSION_CACHE_TTL_MS;
+      delete process.env.ZHUSHOU_SESSION_CACHE_TTL_MS;
     } else {
-      process.env.ASSISTANT_SESSION_CACHE_TTL_MS = savedCacheTtl;
+      process.env.ZHUSHOU_SESSION_CACHE_TTL_MS = savedCacheTtl;
     }
   });
 

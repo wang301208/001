@@ -156,7 +156,7 @@ let cachedTailscaleBinary: string | null = null;
 export function getTestTailscaleBinaryOverride(
   env: NodeJS.ProcessEnv = process.env,
 ): string | null {
-  const forcedBinary = env.ASSISTANT_TEST_TAILSCALE_BINARY?.trim();
+  const forcedBinary = env.ZHUSHOU_TEST_TAILSCALE_BINARY?.trim();
   if (!forcedBinary) {
     return null;
   }
@@ -389,7 +389,7 @@ export async function ensureFunnel(
     runtime.error("Failed to enable Tailscale Funnel. Is it allowed on your tailnet?");
     runtime.error(
       info(
-        `Tip: Funnel is optional for 助手. You can keep running the web gateway without it: \`${formatCliCommand("assistant gateway")}\``,
+        `Tip: Funnel is optional for 助手. You can keep running the web gateway without it: \`${formatCliCommand("zhushou gateway")}\``,
       ),
     );
     if (shouldLogVerbose()) {

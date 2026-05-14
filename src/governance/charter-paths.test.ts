@@ -7,19 +7,19 @@ import { resolveGovernanceCharterDir } from "./charter-paths.js";
 
 describe("governance charter path resolution", () => {
   it("resolves charter directory from package root instead of compiled module depth", async () => {
-    const cwd = await mkdtemp(path.join(os.tmpdir(), "assistant-charter-cwd-"));
-    const packageRoot = await mkdtemp(path.join(os.tmpdir(), "assistant-charter-paths-"));
+    const cwd = await mkdtemp(path.join(os.tmpdir(), "zhushou-charter-cwd-"));
+    const packageRoot = await mkdtemp(path.join(os.tmpdir(), "zhushou-charter-paths-"));
     try {
       await mkdir(path.join(packageRoot, "dist"), { recursive: true });
       await mkdir(path.join(packageRoot, "governance", "charter"), { recursive: true });
-      await writeFile(path.join(packageRoot, "package.json"), '{"name":"assistant"}\n', "utf8");
+      await writeFile(path.join(packageRoot, "package.json"), '{"name":"zhushou"}\n', "utf8");
 
       const moduleUrl = pathToFileURL(path.join(packageRoot, "dist", "charter-runtime.js")).href;
 
       expect(
         resolveGovernanceCharterDir({
           moduleUrl,
-          argv1: path.join(packageRoot, "assistant.mjs"),
+          argv1: path.join(packageRoot, "zhushou.mjs"),
           cwd,
         }),
       ).toBe(path.join(packageRoot, "governance", "charter"));

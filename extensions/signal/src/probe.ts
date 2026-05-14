@@ -1,5 +1,5 @@
-import type { BaseProbeResult } from "assistant/plugin-sdk/channel-contract";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import type { BaseProbeResult } from "zhushou/plugin-sdk/channel-contract";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { signalCheck, signalRpcRequest } from "./client.js";
 
 export type SignalProbe = BaseProbeResult & {

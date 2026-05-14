@@ -1,5 +1,5 @@
-import { normalizeE164 } from "assistant/plugin-sdk/account-resolution";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { normalizeE164 } from "zhushou/plugin-sdk/account-resolution";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import {
   createAllowedChatSenderMatcher,
   type ChatSenderAllowParams,

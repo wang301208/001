@@ -1,9 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import path, { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import ts from "typescript";
 import { describe, expect, it } from "vitest";
-import { listBundledPluginMetadata } from "../bundled-plugin-metadata.js";
+import { collectBundledPluginPublicSurfaceArtifacts } from "../bundled-plugin-scan.js";
 import { loadPluginManifestRegistry } from "../manifest-registry.js";
 
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
@@ -11,7 +10,7 @@ const RUNTIME_ENTRY_HELPER_RE = /(^|\/)plugin-entry\.runtime\.[cm]?[jt]s$/;
 const SOURCE_MODULE_EXTENSIONS = [".ts", ".mts", ".cts", ".js", ".mjs", ".cjs"] as const;
 const FORBIDDEN_CONTRACT_MODULE_SPECIFIER_PATTERNS = [
   /^vitest$/u,
-  /^assistant\/plugin-sdk\/testing$/u,
+  /^zhushou\/plugin-sdk\/testing$/u,
   /(^|\/)test-api(?:\.[cm]?[jt]s)?$/u,
   /(^|\/)__tests__(\/|$)/u,
   /(^|\/)test-support(\/|$)/u,
@@ -25,12 +24,19 @@ const FORBIDDEN_CONTRACT_MODULE_PATH_PATTERNS = [
   /(^|\/)[^/]*\.test(?:[-.][^/]*)?\.[cm]?[jt]s$/u,
   /(^|\/)[^/]*(?:test-harness|test-plugin|test-helper|test-support|harness)[^/]*\.[cm]?[jt]s$/u,
 ] as const;
+const sourceAnalysisCache = new Map<
+  string,
+  ReturnType<typeof analyzeSourceModule> & { repoRelativePath: string }
+>();
+
 function listBundledPluginRoots() {
   return loadPluginManifestRegistry({})
     .plugins.filter((plugin) => plugin.origin === "bundled")
     .map((plugin) => ({
       pluginId: plugin.id,
       rootDir: plugin.workspaceDir ?? plugin.rootDir,
+      source: plugin.source,
+      setupSource: plugin.setupSource,
     }))
     .toSorted((left, right) => left.pluginId.localeCompare(right.pluginId));
 }
@@ -60,22 +66,30 @@ function collectProductionContractEntryPaths(): Array<{
   entryPath: string;
   pluginRoot: string;
 }> {
-  return listBundledPluginMetadata({ rootDir: REPO_ROOT }).flatMap((plugin) => {
-    const pluginRoot = resolve(REPO_ROOT, "extensions", plugin.dirName);
+  return listBundledPluginRoots().flatMap((plugin) => {
+    const sourceEntry = plugin.source;
+    if (!sourceEntry) {
+      return [];
+    }
+    const publicSurfaceArtifacts = collectBundledPluginPublicSurfaceArtifacts({
+      pluginDir: plugin.rootDir,
+      sourceEntry,
+      ...(plugin.setupSource ? { setupEntry: plugin.setupSource } : {}),
+    });
     const entryPaths = new Set<string>();
-    for (const artifact of plugin.publicSurfaceArtifacts ?? []) {
+    for (const artifact of publicSurfaceArtifacts ?? []) {
       if (!isGuardedContractArtifactBasename(artifact)) {
         continue;
       }
-      const sourcePath = resolvePublicSurfaceSourcePath(pluginRoot, artifact);
+      const sourcePath = resolvePublicSurfaceSourcePath(plugin.rootDir, artifact);
       if (sourcePath) {
         entryPaths.add(sourcePath);
       }
     }
     return [...entryPaths].map((entryPath) => ({
-      pluginId: plugin.manifest.id,
+      pluginId: plugin.pluginId,
       entryPath,
-      pluginRoot,
+      pluginRoot: plugin.rootDir,
     }));
   });
 }
@@ -89,44 +103,12 @@ function analyzeSourceModule(params: { filePath: string; source: string }): {
   relativeSpecifiers: string[];
   importsDefinePluginEntryFromCore: boolean;
 } {
-  const sourceFile = ts.createSourceFile(
-    params.filePath,
-    params.source,
-    ts.ScriptTarget.Latest,
-    true,
-  );
   const specifiers = new Set<string>();
-  let importsDefinePluginEntryFromCore = false;
-
-  for (const statement of sourceFile.statements) {
-    if (ts.isImportDeclaration(statement)) {
-      const specifier = ts.isStringLiteral(statement.moduleSpecifier)
-        ? statement.moduleSpecifier.text
-        : undefined;
-      if (specifier) {
-        specifiers.add(specifier);
-      }
-
-      if (
-        specifier === "assistant/plugin-sdk/core" &&
-        statement.importClause?.namedBindings &&
-        ts.isNamedImports(statement.importClause.namedBindings) &&
-        statement.importClause.namedBindings.elements.some(
-          (element) => (element.propertyName?.text ?? element.name.text) === "definePluginEntry",
-        )
-      ) {
-        importsDefinePluginEntryFromCore = true;
-      }
-
-      continue;
-    }
-
-    if (!ts.isExportDeclaration(statement)) {
-      continue;
-    }
-
-    if (statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier)) {
-      specifiers.add(statement.moduleSpecifier.text);
+  const importExportSpecifierPattern =
+    /^\s*(?:import(?:\s+type)?(?:\s+(?:[^"';]+?\s+from\s+)?)?|export(?:\s+type)?\s+(?:\{[^}]*\}|\*)\s+from\s+)["']([^"']+)["']/gmu;
+  for (const match of params.source.matchAll(importExportSpecifierPattern)) {
+    if (match[1]) {
+      specifiers.add(match[1]);
     }
   }
 
@@ -134,8 +116,26 @@ function analyzeSourceModule(params: { filePath: string; source: string }): {
   return {
     specifiers: nextSpecifiers,
     relativeSpecifiers: nextSpecifiers.filter((specifier) => specifier.startsWith(".")),
-    importsDefinePluginEntryFromCore,
+    importsDefinePluginEntryFromCore: importsDefinePluginEntryFromCore(params.source),
   };
+}
+
+function importsDefinePluginEntryFromCore(source: string): boolean {
+  const namedCoreImportPattern =
+    /\bimport\s+(?:type\s+)?\{(?<bindings>[\s\S]*?)\}\s+from\s+["']zhushou\/plugin-sdk\/core["']/gmu;
+  for (const match of source.matchAll(namedCoreImportPattern)) {
+    const bindings = match.groups?.bindings ?? "";
+    if (
+      bindings
+        .split(",")
+        .map((binding) => binding.trim())
+        .filter(Boolean)
+        .some((binding) => binding.split(/\s+as\s+/iu)[0]?.trim() === "definePluginEntry")
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function matchesForbiddenContractSpecifier(specifier: string): boolean {
@@ -144,6 +144,20 @@ function matchesForbiddenContractSpecifier(specifier: string): boolean {
 
 function collectForbiddenContractSpecifiers(specifiers: readonly string[]): string[] {
   return specifiers.filter((specifier) => matchesForbiddenContractSpecifier(specifier));
+}
+
+function getSourceModuleAnalysis(filePath: string) {
+  const cached = sourceAnalysisCache.get(filePath);
+  if (cached) {
+    return cached;
+  }
+  const source = readFileSync(filePath, "utf8");
+  const analysis = {
+    ...analyzeSourceModule({ filePath, source }),
+    repoRelativePath: formatRepoRelativePath(filePath),
+  };
+  sourceAnalysisCache.set(filePath, analysis);
+  return analysis;
 }
 
 function resolveRelativeSourceModulePath(fromPath: string, specifier: string): string | null {
@@ -187,15 +201,14 @@ function findForbiddenContractModuleGraphPaths(params: {
     }
     visited.add(currentPath);
 
-    const repoRelativePath = formatRepoRelativePath(currentPath);
+    const analysis = getSourceModuleAnalysis(currentPath);
+    const repoRelativePath = analysis.repoRelativePath;
     for (const pattern of FORBIDDEN_CONTRACT_MODULE_PATH_PATTERNS) {
       if (pattern.test(repoRelativePath)) {
         failures.push(`${repoRelativePath} matched ${pattern}`);
       }
     }
 
-    const source = readFileSync(currentPath, "utf8");
-    const analysis = analyzeSourceModule({ filePath: currentPath, source });
     for (const specifier of collectForbiddenContractSpecifiers(analysis.specifiers)) {
       failures.push(`${repoRelativePath} imported ${specifier}`);
     }
@@ -244,9 +257,9 @@ describe("plugin entry guardrails", () => {
       const packageJsonPath = resolve(plugin.rootDir, "package.json");
       try {
         const pkg = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
-          assistant?: { extensions?: unknown };
+          zhushou?: { extensions?: unknown };
         };
-        const extensions = Array.isArray(pkg.assistant?.extensions) ? pkg.assistant.extensions : [];
+        const extensions = Array.isArray(pkg.zhushou?.extensions) ? pkg.zhushou.extensions : [];
         if (
           extensions.some(
             (candidate) => typeof candidate === "string" && RUNTIME_ENTRY_HELPER_RE.test(candidate),
@@ -283,7 +296,7 @@ describe("plugin entry guardrails", () => {
         import "./setup.js";
         export { x };
         export * from "./barrel.js";
-        import { y } from "assistant/plugin-sdk/testing";
+        import { y } from "zhushou/plugin-sdk/testing";
       `,
       }).relativeSpecifiers.toSorted(),
     ).toEqual(["./barrel.js", "./safe.js", "./setup.js"]);
@@ -313,8 +326,8 @@ describe("plugin entry guardrails", () => {
       analyzeSourceModule({
         filePath: "aliased-plugin-entry.ts",
         source: `
-          import { definePluginEntry as dpe } from "assistant/plugin-sdk/core";
-          import { somethingElse } from "assistant/plugin-sdk/core";
+          import { definePluginEntry as dpe } from "zhushou/plugin-sdk/core";
+          import { somethingElse } from "zhushou/plugin-sdk/core";
         `,
       }).importsDefinePluginEntryFromCore,
     ).toBe(true);

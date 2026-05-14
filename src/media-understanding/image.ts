@@ -7,8 +7,8 @@ import {
   resolveApiKeyForProvider,
 } from "../agents/model-auth.js";
 import { normalizeModelRef } from "../agents/model-selection.js";
-import { ensureAssistantModelsJson } from "../agents/models-config.js";
-import { coerceImageAssistantText } from "../agents/tools/image-tool.helpers.js";
+import { ensureZhushouModelsJson } from "../agents/models-config.js";
+import { coerceImageZhushouText } from "../agents/tools/image-tool.helpers.js";
 import type {
   ImageDescriptionRequest,
   ImageDescriptionResult,
@@ -44,7 +44,7 @@ async function resolveImageRuntime(params: {
   profile?: string;
   preferredProfile?: string;
 }): Promise<{ apiKey: string; model: Model<Api> }> {
-  await ensureAssistantModelsJson(params.cfg, params.agentDir);
+  await ensureZhushouModelsJson(params.cfg, params.agentDir);
   const { discoverAuthStorage, discoverModels } = await loadPiModelDiscoveryRuntime();
   const authStorage = discoverAuthStorage(params.agentDir);
   const modelRegistry = discoverModels(authStorage, params.agentDir);
@@ -200,7 +200,7 @@ export async function describeImagesWithModel(
   }).finally(() => {
     clearTimeout(timeout);
   });
-  const text = coerceImageAssistantText({
+  const text = coerceImageZhushouText({
     message,
     provider: model.provider,
     model: model.id,

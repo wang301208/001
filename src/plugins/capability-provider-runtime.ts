@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   withBundledPluginAllowlistCompat,
   withBundledPluginEnablementCompat,
@@ -44,7 +44,7 @@ const CAPABILITY_CONTRACT_KEY: Record<CapabilityProviderRegistryKey, CapabilityC
 
 function resolveBundledCapabilityCompatPluginIds(params: {
   key: CapabilityProviderRegistryKey;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   providerId?: string;
 }): string[] {
   const contractKey = CAPABILITY_CONTRACT_KEY[params.key];
@@ -64,7 +64,7 @@ function resolveBundledCapabilityCompatPluginIds(params: {
 
 function resolveCapabilityProviderConfig(params: {
   key: CapabilityProviderRegistryKey;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   pluginIds?: string[];
 }) {
   const pluginIds = params.pluginIds ?? resolveBundledCapabilityCompatPluginIds(params);
@@ -101,7 +101,7 @@ function findProviderById<K extends CapabilityProviderRegistryKey>(
 export function resolvePluginCapabilityProvider<K extends CapabilityProviderRegistryKey>(params: {
   key: K;
   providerId: string;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
 }): CapabilityProviderForKey<K> | undefined {
   const activeRegistry = resolveRuntimePluginRegistry();
   const activeProvider = findProviderById(activeRegistry?.[params.key] ?? [], params.providerId);
@@ -130,7 +130,7 @@ export function resolvePluginCapabilityProvider<K extends CapabilityProviderRegi
 
 export function resolvePluginCapabilityProviders<K extends CapabilityProviderRegistryKey>(params: {
   key: K;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
 }): CapabilityProviderForKey<K>[] {
   const activeRegistry = resolveRuntimePluginRegistry();
   const activeProviders = activeRegistry?.[params.key] ?? [];

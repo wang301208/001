@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { createDelegatedSetupWizardStatusResolvers } from "./setup-wizard-binary.js";
 import type { ChannelSetupDmPolicy } from "./setup-wizard-types.js";
 import type { ChannelSetupWizard } from "./setup-wizard.js";
@@ -73,7 +73,7 @@ export function createDelegatedSetupWizardProxy(params: {
 export function createAllowlistSetupWizardProxy<TGroupResolved>(params: {
   loadWizard: () => Promise<ChannelSetupWizard>;
   createBase: (handlers: {
-    promptAllowFrom: (params: PromptAllowFromParams) => Promise<AssistantConfig>;
+    promptAllowFrom: (params: PromptAllowFromParams) => Promise<ZhushouConfig>;
     resolveAllowFromEntries: (
       params: ResolveAllowFromEntriesParams,
     ) => Promise<ResolveAllowFromEntriesResult>;

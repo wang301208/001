@@ -1,13 +1,13 @@
 import path from "node:path";
-import { readJsonFileWithFallback, writeJsonFileAtomically } from "assistant/plugin-sdk/json-store";
-import { resolveAgentIdFromSessionKey } from "assistant/plugin-sdk/session-key-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
+import { readJsonFileWithFallback, writeJsonFileAtomically } from "zhushou/plugin-sdk/json-store";
+import { resolveAgentIdFromSessionKey } from "zhushou/plugin-sdk/session-key-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
 import {
   registerSessionBindingAdapter,
   resolveThreadBindingFarewellText,
   type SessionBindingAdapter,
   unregisterSessionBindingAdapter,
-} from "assistant/plugin-sdk/thread-bindings-session-runtime";
+} from "zhushou/plugin-sdk/thread-bindings-session-runtime";
 import { claimCurrentTokenStorageState, resolveMatrixStateFilePath } from "./client/storage.js";
 import type { MatrixAuth } from "./client/types.js";
 import type { MatrixClient } from "./sdk.js";

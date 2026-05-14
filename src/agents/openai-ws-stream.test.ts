@@ -3,7 +3,7 @@
  *
  * Covers:
  *  - Message format converters (convertMessagesToInputItems, convertTools)
- *  - Response → AssistantMessage parser (buildAssistantMessageFromResponse)
+ *  - Response → AssistantMessage parser (buildZhushouMessageFromResponse)
  *  - createOpenAIWebSocketStreamFn behaviour (connect, send, receive, fallback)
  *  - Session registry helpers (releaseWsSession, hasWsSession)
  */
@@ -14,7 +14,7 @@ import type { ResponseObject } from "./openai-ws-connection.js";
 import { buildOpenAIWebSocketResponseCreatePayload } from "./openai-ws-request.js";
 import {
   __testing as openAIWsStreamTesting,
-  buildAssistantMessageFromResponse,
+  buildZhushouMessageFromResponse,
   convertMessagesToInputItems,
   convertTools,
   createOpenAIWebSocketStreamFn,
@@ -219,7 +219,7 @@ const mockStreamSimple = vi.fn((model: unknown, context: unknown, options?: unkn
   streamSimpleCalls.push({ model, context, options });
   const stream = createAssistantMessageEventStream();
   queueMicrotask(() => {
-    const msg = makeFakeAssistantMessage("http fallback response");
+    const msg = makeFakeZhushouMessage("http fallback response");
     stream.push({ type: "done", reason: "stop", message: msg });
     stream.end();
   });
@@ -268,7 +268,7 @@ function userMsg(text: string): FakeMessage {
   return { role: "user", content: text, timestamp: 0 };
 }
 
-function assistantMsg(
+function zhushouMsg(
   textBlocks: string[],
   toolCalls: Array<{ id: string; name: string; args: Record<string, unknown> }> = [],
   phase?: "commentary" | "final_answer",
@@ -304,7 +304,7 @@ function toolResultMsg(callId: string, output: string): FakeMessage {
   };
 }
 
-function makeFakeAssistantMessage(text: string) {
+function makeFakeZhushouMessage(text: string) {
   return {
     role: "assistant" as const,
     content: [{ type: "text" as const, text }],
@@ -570,17 +570,17 @@ describe("convertMessagesToInputItems", () => {
     expect(items[0]).toMatchObject({ type: "message", role: "user", content: "Hello!" });
   });
 
-  it("converts an assistant text-only message", () => {
-    const items = convertMessagesToInputItems([assistantMsg(["Hi there."])] as Parameters<
+  it("converts an zhushou text-only message", () => {
+    const items = convertMessagesToInputItems([zhushouMsg(["Hi there."])] as Parameters<
       typeof convertMessagesToInputItems
     >[0]);
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ type: "message", role: "assistant", content: "Hi there." });
   });
 
-  it("preserves assistant phase on replayed assistant messages", () => {
+  it("preserves zhushou phase on replayed zhushou messages", () => {
     const items = convertMessagesToInputItems([
-      assistantMsg(["Working on it."], [], "commentary"),
+      zhushouMsg(["Working on it."], [], "commentary"),
     ] as Parameters<typeof convertMessagesToInputItems>[0]);
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({
@@ -591,8 +591,8 @@ describe("convertMessagesToInputItems", () => {
     });
   });
 
-  it("converts an assistant message with a tool call", () => {
-    const msg = assistantMsg(
+  it("converts an zhushou message with a tool call", () => {
+    const msg = zhushouMsg(
       ["Let me run that."],
       [{ id: "call_1", name: "exec", args: { cmd: "ls" } }],
     );
@@ -613,8 +613,8 @@ describe("convertMessagesToInputItems", () => {
     expect(JSON.parse(fc.arguments)).toEqual({ cmd: "ls" });
   });
 
-  it("preserves assistant phase on commentary text before tool calls", () => {
-    const msg = assistantMsg(
+  it("preserves zhushou phase on commentary text before tool calls", () => {
+    const msg = zhushouMsg(
       ["Let me run that."],
       [{ id: "call_1", name: "exec", args: { cmd: "ls" } }],
       "commentary",
@@ -631,7 +631,7 @@ describe("convertMessagesToInputItems", () => {
     });
   });
 
-  it("preserves assistant phase from textSignature metadata without local phase field", () => {
+  it("preserves zhushou phase from textSignature metadata without local phase field", () => {
     const msg = {
       role: "assistant" as const,
       content: [
@@ -660,7 +660,7 @@ describe("convertMessagesToInputItems", () => {
     });
   });
 
-  it("splits replayed assistant text on phase changes from block signatures", () => {
+  it("splits replayed zhushou text on phase changes from block signatures", () => {
     const msg = {
       role: "assistant" as const,
       phase: "final_answer" as const,
@@ -784,7 +784,7 @@ describe("convertMessagesToInputItems", () => {
     ]);
   });
 
-  it("preserves ordering when commentary text, tool calls, and final answer share one stored assistant message", () => {
+  it("preserves ordering when commentary text, tool calls, and final answer share one stored zhushou message", () => {
     const msg = {
       role: "assistant" as const,
       content: [
@@ -888,7 +888,7 @@ describe("convertMessagesToInputItems", () => {
   it("converts a full multi-turn conversation", () => {
     const messages: FakeMessage[] = [
       userMsg("Run ls"),
-      assistantMsg([], [{ id: "call_1", name: "exec", args: { cmd: "ls" } }]),
+      zhushouMsg([], [{ id: "call_1", name: "exec", args: { cmd: "ls" } }]),
       toolResultMsg("call_1", "file.txt\nfoo.ts"),
     ];
     const items = convertMessagesToInputItems(
@@ -906,8 +906,8 @@ describe("convertMessagesToInputItems", () => {
     expect(outputItem).toBeDefined();
   });
 
-  it("handles assistant messages with only tool calls (no text)", () => {
-    const msg = assistantMsg([], [{ id: "call_2", name: "read", args: { path: "/etc/hosts" } }]);
+  it("handles zhushou messages with only tool calls (no text)", () => {
+    const msg = zhushouMsg([], [{ id: "call_2", name: "read", args: { path: "/etc/hosts" } }]);
     const items = convertMessagesToInputItems([msg] as unknown as Parameters<
       typeof convertMessagesToInputItems
     >[0]);
@@ -915,15 +915,15 @@ describe("convertMessagesToInputItems", () => {
     expect(items[0]?.type).toBe("function_call");
   });
 
-  it("drops assistant tool calls with empty ids", () => {
-    const msg = assistantMsg([], [{ id: "   ", name: "read", args: { path: "/tmp/a" } }]);
+  it("drops zhushou tool calls with empty ids", () => {
+    const msg = zhushouMsg([], [{ id: "   ", name: "read", args: { path: "/tmp/a" } }]);
     const items = convertMessagesToInputItems([msg] as Parameters<
       typeof convertMessagesToInputItems
     >[0]);
     expect(items).toEqual([]);
   });
 
-  it("skips thinking blocks in assistant messages", () => {
+  it("skips thinking blocks in zhushou messages", () => {
     const msg = {
       role: "assistant" as const,
       content: [
@@ -1044,27 +1044,27 @@ describe("convertMessagesToInputItems", () => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("buildAssistantMessageFromResponse", () => {
+describe("buildZhushouMessageFromResponse", () => {
   const modelInfo = { api: "openai-responses", provider: "openai", id: "gpt-5.4" };
 
   it("extracts text content from a message output item", () => {
-    const response = makeResponseObject("resp_1", "Hello from assistant");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const response = makeResponseObject("resp_1", "Hello from zhushou");
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.content).toHaveLength(1);
     const textBlock = msg.content[0] as { type: string; text: string };
     expect(textBlock.type).toBe("text");
-    expect(textBlock.text).toBe("Hello from assistant");
+    expect(textBlock.text).toBe("Hello from zhushou");
   });
 
   it("sets stopReason to 'stop' for text-only responses", () => {
     const response = makeResponseObject("resp_1", "Just text");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.stopReason).toBe("stop");
   });
 
   it("extracts tool call from function_call output item", () => {
     const response = makeResponseObject("resp_2", undefined, "exec");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     const tc = msg.content.find((c) => c.type === "toolCall") as {
       type: string;
       id: string;
@@ -1096,7 +1096,7 @@ describe("buildAssistantMessageFromResponse", () => {
       usage: { input_tokens: 10, output_tokens: 5, total_tokens: 15 },
     };
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     const tc = msg.content.find((c) => c.type === "toolCall") as {
       type: string;
       name: string;
@@ -1110,13 +1110,13 @@ describe("buildAssistantMessageFromResponse", () => {
 
   it("sets stopReason to 'toolUse' when tool calls are present", () => {
     const response = makeResponseObject("resp_3", undefined, "exec");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.stopReason).toBe("toolUse");
   });
 
   it("includes both text and tool calls when both present", () => {
     const response = makeResponseObject("resp_4", "Running...", "exec");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.content.some((c) => c.type === "text")).toBe(true);
     expect(msg.content.some((c) => c.type === "toolCall")).toBe(true);
     expect(msg.stopReason).toBe("toolUse");
@@ -1124,7 +1124,7 @@ describe("buildAssistantMessageFromResponse", () => {
 
   it("maps usage tokens correctly", () => {
     const response = makeResponseObject("resp_5", "Hello");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.usage.input).toBe(100);
     expect(msg.usage.output).toBe(50);
     expect(msg.usage.totalTokens).toBe(150);
@@ -1138,7 +1138,7 @@ describe("buildAssistantMessageFromResponse", () => {
       total_tokens: 55,
     };
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.usage.input).toBe(44);
     expect(msg.usage.output).toBe(11);
     expect(msg.usage.totalTokens).toBe(55);
@@ -1151,7 +1151,7 @@ describe("buildAssistantMessageFromResponse", () => {
       completion_tokens: 5,
     };
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.usage.input).toBe(10);
     expect(msg.usage.output).toBe(5);
     expect(msg.usage.totalTokens).toBe(15);
@@ -1165,7 +1165,7 @@ describe("buildAssistantMessageFromResponse", () => {
       total_tokens: 0,
     };
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.usage.input).toBe(10);
     expect(msg.usage.output).toBe(5);
     expect(msg.usage.totalTokens).toBe(15);
@@ -1173,7 +1173,7 @@ describe("buildAssistantMessageFromResponse", () => {
 
   it("sets model/provider/api from modelInfo", () => {
     const response = makeResponseObject("resp_6", "Hi");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.api).toBe("openai-responses");
     expect(msg.provider).toBe("openai");
     expect(msg.model).toBe("gpt-5.4");
@@ -1181,14 +1181,14 @@ describe("buildAssistantMessageFromResponse", () => {
 
   it("handles empty output gracefully", () => {
     const response = makeResponseObject("resp_7");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.content).toEqual([]);
     expect(msg.stopReason).toBe("stop");
   });
 
-  it("preserves phase from assistant message output items", () => {
+  it("preserves phase from zhushou message output items", () => {
     const response = makeResponseObject("resp_8", "Final answer", undefined, "final_answer");
-    const msg = buildAssistantMessageFromResponse(response, modelInfo) as {
+    const msg = buildZhushouMessageFromResponse(response, modelInfo) as {
       phase?: string;
       content: Array<{ type: string; text?: string }>;
     };
@@ -1196,7 +1196,7 @@ describe("buildAssistantMessageFromResponse", () => {
     expect(msg.content[0]?.text).toBe("Final answer");
   });
 
-  it("keeps only final-answer text when a response contains mixed assistant phases", () => {
+  it("keeps only final-answer text when a response contains mixed zhushou phases", () => {
     const response = {
       id: "resp_mixed_phase",
       object: "response",
@@ -1222,7 +1222,7 @@ describe("buildAssistantMessageFromResponse", () => {
       usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
     } as unknown as ResponseObject;
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo) as {
+    const msg = buildZhushouMessageFromResponse(response, modelInfo) as {
       phase?: string;
       content: Array<{ type: string; text?: string; textSignature?: string }>;
     };
@@ -1262,7 +1262,7 @@ describe("buildAssistantMessageFromResponse", () => {
       usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
     } as unknown as ResponseObject;
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo) as {
+    const msg = buildZhushouMessageFromResponse(response, modelInfo) as {
       phase?: string;
       content: Array<{ type: string; text?: string; textSignature?: string }>;
     };
@@ -1277,7 +1277,7 @@ describe("buildAssistantMessageFromResponse", () => {
     ]);
   });
 
-  it("drops commentary-only text from completed assistant messages but keeps tool calls", () => {
+  it("drops commentary-only text from completed zhushou messages but keeps tool calls", () => {
     const response = {
       id: "resp_commentary_only_tool",
       object: "response",
@@ -1303,7 +1303,7 @@ describe("buildAssistantMessageFromResponse", () => {
       usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
     } as unknown as ResponseObject;
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo) as {
+    const msg = buildZhushouMessageFromResponse(response, modelInfo) as {
       phase?: string;
       content: Array<{ type: string; text?: string; name?: string }>;
       stopReason: string;
@@ -1337,7 +1337,7 @@ describe("buildAssistantMessageFromResponse", () => {
       ],
       usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
     } as unknown as ResponseObject;
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     const thinkingBlock = msg.content.find((c) => c.type === "thinking") as
       | { type: "thinking"; thinking: string; thinkingSignature?: string }
       | undefined;
@@ -1363,7 +1363,7 @@ describe("buildAssistantMessageFromResponse", () => {
       ],
       usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
     } as unknown as ResponseObject;
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     const thinkingBlock = msg.content[0] as
       | { type: "thinking"; thinking: string; thinkingSignature?: string }
       | undefined;
@@ -1399,7 +1399,7 @@ describe("buildAssistantMessageFromResponse", () => {
       usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
     } as unknown as ResponseObject;
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.content.map((block) => block.type)).toEqual(["thinking", "toolCall"]);
     const thinkingBlock = msg.content[0] as
       | { type: "thinking"; thinking: string; thinkingSignature?: string }
@@ -1427,7 +1427,7 @@ describe("buildAssistantMessageFromResponse", () => {
       usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
     } as unknown as ResponseObject;
 
-    const msg = buildAssistantMessageFromResponse(response, modelInfo);
+    const msg = buildZhushouMessageFromResponse(response, modelInfo);
     expect(msg.content).toEqual([{ type: "thinking", thinking: "Hidden reasoning" }]);
   });
 
@@ -1455,13 +1455,13 @@ describe("buildAssistantMessageFromResponse", () => {
       usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
     } as ResponseObject;
 
-    const assistant = buildAssistantMessageFromResponse(response, modelInfo);
-    const toolCall = assistant.content.find((item) => item.type === "toolCall") as
+    const zhushou = buildZhushouMessageFromResponse(response, modelInfo);
+    const toolCall = zhushou.content.find((item) => item.type === "toolCall") as
       | { type: "toolCall"; id: string }
       | undefined;
     expect(toolCall?.id).toBe("call_tool|fc_tool");
 
-    const replayItems = convertMessagesToInputItems([assistant] as Parameters<
+    const replayItems = convertMessagesToInputItems([zhushou] as Parameters<
       typeof convertMessagesToInputItems
     >[0]);
     expect(replayItems.map((item) => item.type)).toEqual(["reasoning", "function_call"]);
@@ -1483,7 +1483,7 @@ describe("planTurnInput", () => {
       systemPrompt: "You are helpful.",
       messages: [
         userMsg("Run ls"),
-        assistantMsg([], [{ id: "call_1|fc_1", name: "exec", args: { cmd: "ls" } }]),
+        zhushouMsg([], [{ id: "call_1|fc_1", name: "exec", args: { cmd: "ls" } }]),
         toolResultMsg("call_1|fc_1", "file.txt"),
       ] as Parameters<typeof convertMessagesToInputItems>[0],
       tools: [],
@@ -1535,7 +1535,7 @@ describe("planTurnInput", () => {
       systemPrompt: "You are helpful.",
       messages: [
         userMsg("Run ls"),
-        buildAssistantMessageFromResponse(turn1Response, {
+        buildZhushouMessageFromResponse(turn1Response, {
           api: "openai-responses",
           provider: "openai",
           id: "gpt-5.4",
@@ -2515,12 +2515,12 @@ describe("createOpenAIWebSocketStreamFn", () => {
 
     const firstPayload = firstManager.sentEvents[0] as { metadata?: Record<string, string> };
     const secondPayload = secondManager.sentEvents[0] as { metadata?: Record<string, string> };
-    expect(firstPayload.metadata?.assistant_session_id).toBe("sess-turn-metadata-retry");
-    expect(firstPayload.metadata?.assistant_transport).toBe("websocket");
-    expect(firstPayload.metadata?.assistant_turn_id).toBeTruthy();
-    expect(secondPayload.metadata?.assistant_turn_id).toBe(firstPayload.metadata?.assistant_turn_id);
-    expect(firstPayload.metadata?.assistant_turn_attempt).toBe("1");
-    expect(secondPayload.metadata?.assistant_turn_attempt).toBe("2");
+    expect(firstPayload.metadata?.zhushou_session_id).toBe("sess-turn-metadata-retry");
+    expect(firstPayload.metadata?.zhushou_transport).toBe("websocket");
+    expect(firstPayload.metadata?.zhushou_turn_id).toBeTruthy();
+    expect(secondPayload.metadata?.zhushou_turn_id).toBe(firstPayload.metadata?.zhushou_turn_id);
+    expect(firstPayload.metadata?.zhushou_turn_attempt).toBe("1");
+    expect(secondPayload.metadata?.zhushou_turn_attempt).toBe("2");
   });
 
   it("keeps websocket degraded for the session until the cool-down expires", async () => {
@@ -2623,7 +2623,7 @@ describe("createOpenAIWebSocketStreamFn", () => {
       systemPrompt: "You are helpful.",
       messages: [
         userMsg("Run ls"),
-        assistantMsg([], [{ id: "call_1", name: "exec", args: { cmd: "ls" } }]),
+        zhushouMsg([], [{ id: "call_1", name: "exec", args: { cmd: "ls" } }]),
         toolResultMsg("call_1", "file.txt"),
       ] as Parameters<typeof convertMessagesToInputItems>[0],
       tools: [],
@@ -2714,7 +2714,7 @@ describe("createOpenAIWebSocketStreamFn", () => {
       systemPrompt: "You are helpful.",
       messages: [
         userMsg("Run ls"),
-        buildAssistantMessageFromResponse(turn1Response, modelStub),
+        buildZhushouMessageFromResponse(turn1Response, modelStub),
       ] as Parameters<typeof convertMessagesToInputItems>[0],
       tools: [],
     };
@@ -2866,7 +2866,7 @@ describe("createOpenAIWebSocketStreamFn", () => {
       httpFallbackCalls.push({ model, context, options });
       const stream = createAssistantMessageEventStream();
       queueMicrotask(() => {
-        const msg = makeFakeAssistantMessage("boundary-safe fallback");
+        const msg = makeFakeZhushouMessage("boundary-safe fallback");
         stream.push({ type: "done", reason: "stop", message: msg });
         stream.end();
       });
@@ -3615,27 +3615,27 @@ describe("convertMessagesToInputItems — phase inheritance", () => {
     const items = convertMessagesToInputItems([msg] as unknown as Parameters<
       typeof convertMessagesToInputItems
     >[0]);
-    const assistantItems = items.filter((i: Record<string, unknown>) => i.role === "assistant");
-    expect(assistantItems).toHaveLength(4);
-    expect(assistantItems[0]).toMatchObject({
+    const zhushouItems = items.filter((i: Record<string, unknown>) => i.role === "assistant");
+    expect(zhushouItems).toHaveLength(4);
+    expect(zhushouItems[0]).toMatchObject({
       role: "assistant",
       content: "Untagged block A",
     });
-    expect((assistantItems[0] as Record<string, unknown>).phase).toBeUndefined();
-    expect(assistantItems[1]).toMatchObject({
+    expect((zhushouItems[0] as Record<string, unknown>).phase).toBeUndefined();
+    expect(zhushouItems[1]).toMatchObject({
       role: "assistant",
       content: "Replay block",
       phase: "commentary",
     });
-    expect(assistantItems[2]).toMatchObject({
+    expect(zhushouItems[2]).toMatchObject({
       role: "assistant",
       content: "Explicitly final",
       phase: "final_answer",
     });
-    expect(assistantItems[3]).toMatchObject({
+    expect(zhushouItems[3]).toMatchObject({
       role: "assistant",
       content: "Untagged block B",
     });
-    expect((assistantItems[3] as Record<string, unknown>).phase).toBeUndefined();
+    expect((zhushouItems[3] as Record<string, unknown>).phase).toBeUndefined();
   });
 });

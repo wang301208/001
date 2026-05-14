@@ -223,7 +223,7 @@ describe("qa-lab server", () => {
     expect(rootResponse.status).toBe(200);
     const html = await rootResponse.text();
     expect(html).toContain("QA Lab browser UI removed");
-    expect(html).toContain("assistant --tui");
+    expect(html).toContain("zhushou --tui");
   });
 
   it("uses the explicit repo root for runner model discovery", async () => {
@@ -332,7 +332,7 @@ describe("qa-lab server", () => {
       path.join(repoRoot, "dist/index.js"),
       [
         'const fs = require("node:fs");',
-        `fs.writeFileSync(${JSON.stringify(markerPath)}, process.env.ASSISTANT_CODEX_DISCOVERY_LIVE || "", "utf8");`,
+        `fs.writeFileSync(${JSON.stringify(markerPath)}, process.env.ZHUSHOU_CODEX_DISCOVERY_LIVE || "", "utf8");`,
         "process.on('SIGTERM', () => {",
         `  fs.writeFileSync(${JSON.stringify(stoppedPath)}, "terminated", "utf8");`,
         "  process.exit(0);",
@@ -467,28 +467,28 @@ describe("qa-lab server", () => {
     cleanups.push(async () => {
       await rm(tempDir, { recursive: true, force: true });
     });
-    process.env.ASSISTANT_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
-    process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
+    process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
+    process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
     const { closeDebugProxyCaptureStore, getDebugProxyCaptureStore } =
       await import("../../../src/proxy-capture/store.sqlite.js");
     const store = getDebugProxyCaptureStore(
-      process.env.ASSISTANT_DEBUG_PROXY_DB_PATH,
-      process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR,
+      process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH,
+      process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR,
     );
     store.upsertSession({
       id: "qa-capture-session",
       startedAt: Date.now(),
       mode: "proxy-run",
-      sourceScope: "assistant",
-      sourceProcess: "assistant",
-      dbPath: process.env.ASSISTANT_DEBUG_PROXY_DB_PATH,
-      blobDir: process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR,
+      sourceScope: "zhushou",
+      sourceProcess: "zhushou",
+      dbPath: process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH,
+      blobDir: process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR,
     });
     store.recordEvent({
       sessionId: "qa-capture-session",
       ts: Date.now(),
-      sourceScope: "assistant",
-      sourceProcess: "assistant",
+      sourceScope: "zhushou",
+      sourceProcess: "zhushou",
       protocol: "https",
       direction: "outbound",
       kind: "request",
@@ -508,8 +508,8 @@ describe("qa-lab server", () => {
     store.recordEvent({
       sessionId: "qa-capture-session",
       ts: Date.now() + 1,
-      sourceScope: "assistant",
-      sourceProcess: "assistant",
+      sourceScope: "zhushou",
+      sourceProcess: "zhushou",
       protocol: "https",
       direction: "outbound",
       kind: "request",
@@ -529,8 +529,8 @@ describe("qa-lab server", () => {
     store.recordEvent({
       sessionId: "qa-capture-session",
       ts: Date.now() + 2,
-      sourceScope: "assistant",
-      sourceProcess: "assistant",
+      sourceScope: "zhushou",
+      sourceProcess: "zhushou",
       protocol: "https",
       direction: "outbound",
       kind: "request",
@@ -553,8 +553,8 @@ describe("qa-lab server", () => {
       closeDebugProxyCaptureStore();
     });
     cleanups.push(async () => {
-      delete process.env.ASSISTANT_DEBUG_PROXY_DB_PATH;
-      delete process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR;
+      delete process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH;
+      delete process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR;
       await lab.stop();
     });
 

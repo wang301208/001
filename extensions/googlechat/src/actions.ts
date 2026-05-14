@@ -4,14 +4,14 @@ import {
   readNumberParam,
   readReactionParams,
   readStringParam,
-} from "assistant/plugin-sdk/channel-actions";
+} from "zhushou/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
-} from "assistant/plugin-sdk/channel-contract";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { loadOutboundMediaFromUrl } from "assistant/plugin-sdk/outbound-media";
-import { extractToolSend } from "assistant/plugin-sdk/tool-send";
+} from "zhushou/plugin-sdk/channel-contract";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { loadOutboundMediaFromUrl } from "zhushou/plugin-sdk/outbound-media";
+import { extractToolSend } from "zhushou/plugin-sdk/tool-send";
 import { listEnabledGoogleChatAccounts, resolveGoogleChatAccount } from "./accounts.js";
 import {
   createGoogleChatReaction,
@@ -25,7 +25,7 @@ import { resolveGoogleChatOutboundSpace } from "./targets.js";
 
 const providerId = "googlechat";
 
-function listEnabledAccounts(cfg: AssistantConfig) {
+function listEnabledAccounts(cfg: ZhushouConfig) {
   return listEnabledGoogleChatAccounts(cfg).filter(
     (account) => account.enabled && account.credentialSource !== "none",
   );

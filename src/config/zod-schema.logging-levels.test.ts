@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { AssistantSchema } from "./zod-schema.js";
+import { ZhushouSchema } from "./zod-schema.js";
 
-describe("AssistantSchema logging levels", () => {
+describe("ZhushouSchema logging levels", () => {
   it("accepts valid logging level values for level and consoleLevel", () => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         logging: {
           level: "debug",
           consoleLevel: "warn",
@@ -15,14 +15,14 @@ describe("AssistantSchema logging levels", () => {
 
   it("rejects invalid logging level values", () => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         logging: {
           level: "loud",
         },
       }),
     ).toThrow();
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         logging: {
           consoleLevel: "verbose",
         },

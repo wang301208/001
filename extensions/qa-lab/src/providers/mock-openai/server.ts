@@ -617,7 +617,7 @@ function isHeartbeatPrompt(text: string) {
   return /(?:^|\n)Read HEARTBEAT\.md if it exists\b/i.test(trimmed);
 }
 
-function buildAssistantText(
+function buildZhushouText(
   input: ResponsesInputItem[],
   body: Record<string, unknown>,
   scenarioState: MockScenarioState,
@@ -802,7 +802,7 @@ function extractPlannedToolName(events: StreamEvent[]) {
   return undefined;
 }
 
-type MockAssistantMessageSpec = {
+type MockZhushouMessageSpec = {
   id: string;
   phase?: "commentary" | "final_answer";
   streamDeltas?: string[];
@@ -821,7 +821,7 @@ function splitMockStreamingText(text: string, parts = 3) {
   return chunks.length > 1 ? chunks : [text.slice(0, 1), text.slice(1)];
 }
 
-function buildAssistantOutputItem(spec: MockAssistantMessageSpec) {
+function buildZhushouOutputItem(spec: MockZhushouMessageSpec) {
   return {
     type: "message",
     id: spec.id,
@@ -832,7 +832,7 @@ function buildAssistantOutputItem(spec: MockAssistantMessageSpec) {
   } as const;
 }
 
-function buildAssistantEvents(specsOrText: MockAssistantMessageSpec[] | string): StreamEvent[] {
+function buildZhushouEvents(specsOrText: MockZhushouMessageSpec[] | string): StreamEvent[] {
   const specs =
     typeof specsOrText === "string"
       ? [
@@ -842,7 +842,7 @@ function buildAssistantEvents(specsOrText: MockAssistantMessageSpec[] | string):
           },
         ]
       : specsOrText;
-  const output = specs.map((spec) => buildAssistantOutputItem(spec));
+  const output = specs.map((spec) => buildZhushouOutputItem(spec));
   const events: StreamEvent[] = [];
 
   for (const [outputIndex, spec] of specs.entries()) {
@@ -949,10 +949,10 @@ async function buildResponsesPayload(
   const hasEmptyResponseRetryInstruction = allInputText.includes(QA_EMPTY_RESPONSE_RETRY_NEEDLE);
   const canCallSessionsSpawn = hasDeclaredTool(body, "sessions_spawn");
   if (/remember this fact/i.test(prompt)) {
-    return buildAssistantEvents(buildAssistantText(input, body, scenarioState));
+    return buildZhushouEvents(buildZhushouText(input, body, scenarioState));
   }
   if (isHeartbeatPrompt(prompt)) {
-    return buildAssistantEvents("HEARTBEAT_OK");
+    return buildZhushouEvents("HEARTBEAT_OK");
   }
   if (QA_REASONING_ONLY_RECOVERY_PROMPT_RE.test(allInputText)) {
     if (!toolOutput) {
@@ -964,7 +964,7 @@ async function buildResponsesPayload(
         "rs_mock_reasoning_recovery",
       );
     }
-    return buildAssistantEvents("REASONING-RECOVERED-OK");
+    return buildZhushouEvents("REASONING-RECOVERED-OK");
   }
   if (QA_REASONING_ONLY_SIDE_EFFECT_PROMPT_RE.test(allInputText)) {
     if (!toolOutput) {
@@ -979,25 +979,25 @@ async function buildResponsesPayload(
         "rs_mock_reasoning_side_effect",
       );
     }
-    return buildAssistantEvents("BUG-SHOULD-NOT-AUTO-RETRY");
+    return buildZhushouEvents("BUG-SHOULD-NOT-AUTO-RETRY");
   }
   if (QA_EMPTY_RESPONSE_RECOVERY_PROMPT_RE.test(allInputText)) {
     if (!toolOutput) {
       return buildToolCallEventsWithArgs("read", { path: "QA_KICKOFF_TASK.md" });
     }
     if (!hasEmptyResponseRetryInstruction) {
-      return buildAssistantEvents("");
+      return buildZhushouEvents("");
     }
-    return buildAssistantEvents("EMPTY-RECOVERED-OK");
+    return buildZhushouEvents("EMPTY-RECOVERED-OK");
   }
   if (QA_EMPTY_RESPONSE_EXHAUSTION_PROMPT_RE.test(allInputText)) {
     if (!toolOutput) {
       return buildToolCallEventsWithArgs("read", { path: "QA_KICKOFF_TASK.md" });
     }
-    return buildAssistantEvents("");
+    return buildZhushouEvents("");
   }
   if (QA_QUIET_STREAMING_PROMPT_RE.test(allInputText) && exactReplyDirective) {
-    return buildAssistantEvents([
+    return buildZhushouEvents([
       {
         id: "msg_mock_quiet_stream",
         phase: "final_answer",
@@ -1011,7 +1011,7 @@ async function buildResponsesPayload(
     firstExactMarkerDirective &&
     secondExactMarkerDirective
   ) {
-    return buildAssistantEvents([
+    return buildZhushouEvents([
       {
         id: "msg_mock_block_1",
         phase: "final_answer",
@@ -1118,9 +1118,9 @@ async function buildResponsesPayload(
           : toolOutput;
     const snackPreference = extractSnackPreference(memorySnippet);
     if (snackPreference) {
-      return buildAssistantEvents(`User usually wants ${snackPreference} for QA movie night.`);
+      return buildZhushouEvents(`User usually wants ${snackPreference} for QA movie night.`);
     }
-    return buildAssistantEvents("NONE");
+    return buildZhushouEvents("NONE");
   }
   if (/session memory ranking check/i.test(prompt)) {
     if (!toolOutput) {
@@ -1135,7 +1135,7 @@ async function buildResponsesPayload(
     const first = results[0];
     const firstPath = typeof first?.path === "string" ? first.path : undefined;
     if (first?.source === "sessions" || firstPath?.startsWith("sessions/")) {
-      return buildAssistantEvents(
+      return buildZhushouEvents(
         "Protocol note: I checked memory and the current Project Nebula codename is ORBIT-10.",
       );
     }
@@ -1261,13 +1261,13 @@ async function buildResponsesPayload(
     return buildToolCallEvents(prompt);
   }
   if (/visible skill marker/i.test(prompt) && !toolOutput) {
-    return buildAssistantEvents("VISIBLE-SKILL-OK");
+    return buildZhushouEvents("VISIBLE-SKILL-OK");
   }
   if (/hot install marker/i.test(prompt) && !toolOutput) {
-    return buildAssistantEvents("HOT-INSTALL-OK");
+    return buildZhushouEvents("HOT-INSTALL-OK");
   }
   if (isGroupChat && isBaselineUnmentionedChannelChatter && !toolOutput) {
-    return buildAssistantEvents("NO_REPLY");
+    return buildZhushouEvents("NO_REPLY");
   }
   if (
     /subagent recovery worker/i.test(prompt) &&
@@ -1275,7 +1275,7 @@ async function buildResponsesPayload(
   ) {
     await sleep(60_000);
   }
-  return buildAssistantEvents(buildAssistantText(input, body, scenarioState));
+  return buildZhushouEvents(buildZhushouText(input, body, scenarioState));
 }
 
 // ---------------------------------------------------------------------------
@@ -1363,8 +1363,8 @@ function convertAnthropicMessagesToResponsesInput(params: {
     // turn, otherwise extractToolOutput() (which scans for
     // function_call_output AFTER the last user-role index) will not see the
     // output and the downstream scenario dispatcher will behave as if no
-    // tool output was returned. Similarly, assistant tool_use blocks become
-    // function_call items that must follow the assistant text message they
+    // tool output was returned. Similarly, zhushou tool_use blocks become
+    // function_call items that must follow the zhushou text message they
     // narrate.
     const textPieces: Array<{ type: "input_text" | "output_text"; text: string }> = [];
     const imagePieces: Array<{ type: "input_image"; image_url: string }> = [];
@@ -1395,9 +1395,9 @@ function convertAnthropicMessagesToResponsesInput(params: {
       }
       if (block.type === "tool_use") {
         // Mirror OpenAI's function_call output_item shape so downstream
-        // prompt extraction still sees "the assistant just emitted a tool
+        // prompt extraction still sees "the zhushou just emitted a tool
         // call". The scenario dispatcher looks for tool_output on the next
-        // user turn, not the assistant's prior tool_use, so a minimal
+        // user turn, not the zhushou's prior tool_use, so a minimal
         // placeholder is enough.
         toolUseItems.push({
           type: "function_call",
@@ -1412,7 +1412,7 @@ function convertAnthropicMessagesToResponsesInput(params: {
       const combinedContent: Array<Record<string, unknown>> = [...textPieces, ...imagePieces];
       items.push({ role: message.role, content: combinedContent });
     }
-    // Emit tool_use (assistant prior calls) and tool_result (user-side
+    // Emit tool_use (zhushou prior calls) and tool_result (user-side
     // returns) AFTER the parent role message so extractLastUserText and
     // extractToolOutput walk the array in the order they expect. For a
     // tool_result-only user turn with no text/image blocks, the parent
@@ -1428,13 +1428,13 @@ function convertAnthropicMessagesToResponsesInput(params: {
   return items;
 }
 
-type ExtractedAssistantOutput = {
+type ExtractedZhushouOutput = {
   text: string;
   toolCalls: Array<{ id: string; name: string; input: Record<string, unknown> }>;
 };
 
-function extractFinalAssistantOutputFromEvents(events: StreamEvent[]): ExtractedAssistantOutput {
-  const toolCalls: ExtractedAssistantOutput["toolCalls"] = [];
+function extractFinalZhushouOutputFromEvents(events: StreamEvent[]): ExtractedZhushouOutput {
+  const toolCalls: ExtractedZhushouOutput["toolCalls"] = [];
   let text = "";
   for (const event of events) {
     if (event.type !== "response.output_item.done") {
@@ -1480,7 +1480,7 @@ function extractFinalAssistantOutputFromEvents(events: StreamEvent[]): Extracted
 
 function buildAnthropicMessageResponse(params: {
   model: string;
-  extracted: ExtractedAssistantOutput;
+  extracted: ExtractedZhushouOutput;
 }): Record<string, unknown> {
   const content: Array<Record<string, unknown>> = [];
   if (params.extracted.text) {
@@ -1520,7 +1520,7 @@ function buildAnthropicMessageResponse(params: {
 
 function buildAnthropicMessageStreamEvents(params: {
   model: string;
-  extracted: ExtractedAssistantOutput;
+  extracted: ExtractedZhushouOutput;
 }): AnthropicStreamEvent[] {
   const approxInputTokens = 64;
   const approxOutputTokens = Math.max(
@@ -1619,7 +1619,7 @@ async function buildMessagesPayload(
 ): Promise<{
   events: StreamEvent[];
   input: ResponsesInputItem[];
-  extracted: ExtractedAssistantOutput;
+  extracted: ExtractedZhushouOutput;
   responseBody: Record<string, unknown>;
   streamEvents: AnthropicStreamEvent[];
   model: string;
@@ -1645,7 +1645,7 @@ async function buildMessagesPayload(
     ...(Array.isArray(body.tools) ? { tools: body.tools } : {}),
   };
   const events = await buildResponsesPayload(dispatchBody, scenarioState);
-  const extracted = extractFinalAssistantOutputFromEvents(events);
+  const extracted = extractFinalZhushouOutputFromEvents(events);
   const responseBody = buildAnthropicMessageResponse({
     model: normalizedModel,
     extracted,

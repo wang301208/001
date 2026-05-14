@@ -29,7 +29,7 @@ const cachedFacadeModuleLocationsByKey = new Map<
   } | null
 >();
 let facadeLoaderJitiFactory: PluginJitiLoaderFactory | undefined;
-let cachedAssistantPackageRoot: string | undefined;
+let cachedZhushouPackageRoot: string | undefined;
 
 function getJitiFactory() {
   if (facadeLoaderJitiFactory) {
@@ -40,16 +40,16 @@ function getJitiFactory() {
   return facadeLoaderJitiFactory;
 }
 
-function getAssistantPackageRoot() {
-  if (cachedAssistantPackageRoot) {
-    return cachedAssistantPackageRoot;
+function getZhushouPackageRoot() {
+  if (cachedZhushouPackageRoot) {
+    return cachedZhushouPackageRoot;
   }
-  cachedAssistantPackageRoot =
+  cachedZhushouPackageRoot =
     resolveLoaderPackageRoot({
       modulePath: fileURLToPath(import.meta.url),
       moduleUrl: import.meta.url,
     }) ?? fileURLToPath(new URL("../..", import.meta.url));
-  return cachedAssistantPackageRoot;
+  return cachedZhushouPackageRoot;
 }
 
 function createFacadeResolutionKey(params: {
@@ -67,16 +67,15 @@ function resolveFacadeModuleLocationUncached(params: {
   env?: NodeJS.ProcessEnv;
 }): { modulePath: string; boundaryRoot: string } | null {
   const bundledPluginsDir = resolveBundledPluginsDir(params.env ?? process.env);
-  const preferSource =
-    process.platform !== "win32" && !CURRENT_MODULE_PATH.includes(`${path.sep}dist${path.sep}`);
+  const preferSource = !CURRENT_MODULE_PATH.includes(`${path.sep}dist${path.sep}`);
   if (preferSource) {
     const modulePath =
       resolveBundledPluginSourcePublicSurfacePath({
         ...params,
-        sourceRoot: bundledPluginsDir ?? path.resolve(getAssistantPackageRoot(), "extensions"),
+        sourceRoot: bundledPluginsDir ?? path.resolve(getZhushouPackageRoot(), "extensions"),
       }) ??
       resolveBundledPluginPublicSurfacePath({
-        rootDir: getAssistantPackageRoot(),
+        rootDir: getZhushouPackageRoot(),
         env: params.env,
         ...(bundledPluginsDir ? { bundledPluginsDir } : {}),
         dirName: params.dirName,
@@ -88,13 +87,13 @@ function resolveFacadeModuleLocationUncached(params: {
         boundaryRoot:
           bundledPluginsDir && modulePath.startsWith(path.resolve(bundledPluginsDir) + path.sep)
             ? path.resolve(bundledPluginsDir)
-            : getAssistantPackageRoot(),
+            : getZhushouPackageRoot(),
       };
     }
     return null;
   }
   const modulePath = resolveBundledPluginPublicSurfacePath({
-    rootDir: getAssistantPackageRoot(),
+    rootDir: getZhushouPackageRoot(),
     env: params.env,
     ...(bundledPluginsDir ? { bundledPluginsDir } : {}),
     dirName: params.dirName,
@@ -108,7 +107,7 @@ function resolveFacadeModuleLocationUncached(params: {
     boundaryRoot:
       bundledPluginsDir && modulePath.startsWith(path.resolve(bundledPluginsDir) + path.sep)
         ? path.resolve(bundledPluginsDir)
-        : getAssistantPackageRoot(),
+        : getZhushouPackageRoot(),
   };
 }
 
@@ -218,7 +217,7 @@ export function loadFacadeModuleAtLocationSync<T extends object>(params: {
     absolutePath: params.location.modulePath,
     rootPath: params.location.boundaryRoot,
     boundaryLabel:
-      params.location.boundaryRoot === getAssistantPackageRoot()
+      params.location.boundaryRoot === getZhushouPackageRoot()
         ? "助手 package root"
         : (() => {
             const bundledDir = resolveBundledPluginsDir();
@@ -297,7 +296,7 @@ export async function loadBundledPluginPublicSurfaceModule<T extends object>(par
     absolutePath: location.modulePath,
     rootPath: location.boundaryRoot,
     boundaryLabel:
-      location.boundaryRoot === getAssistantPackageRoot() ? "助手 package root" : "plugin root",
+      location.boundaryRoot === getZhushouPackageRoot() ? "助手 package root" : "plugin root",
     rejectHardlinks: false,
   });
   if (!opened.ok) {
@@ -334,7 +333,7 @@ export function resetFacadeLoaderStateForTest(): void {
   jitiLoaders.clear();
   cachedFacadeModuleLocationsByKey.clear();
   facadeLoaderJitiFactory = undefined;
-  cachedAssistantPackageRoot = undefined;
+  cachedZhushouPackageRoot = undefined;
 }
 
 export function setFacadeLoaderJitiFactoryForTest(

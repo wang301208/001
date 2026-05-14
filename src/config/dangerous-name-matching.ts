@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "./config.js";
+import type { ZhushouConfig } from "./config.js";
 
 export type DangerousNameMatchingConfig = {
   dangerouslyAllowNameMatching?: boolean;
@@ -43,7 +43,7 @@ export function resolveDangerousNameMatchingEnabled(
 }
 
 export function collectProviderDangerousNameMatchingScopes(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   provider: string,
 ): ProviderDangerousNameMatchingScope[] {
   const scopes: ProviderDangerousNameMatchingScope[] = [];

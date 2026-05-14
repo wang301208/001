@@ -7,29 +7,29 @@ import {
   matchesMentionPatterns,
   resolveEnvelopeFormatOptions,
   resolveInboundMentionDecision,
-} from "assistant/plugin-sdk/channel-inbound";
-import { hasControlCommand } from "assistant/plugin-sdk/command-auth";
-import { resolveDualTextControlCommandGate } from "assistant/plugin-sdk/command-auth";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { hasControlCommand } from "zhushou/plugin-sdk/command-auth";
+import { resolveDualTextControlCommandGate } from "zhushou/plugin-sdk/command-auth";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   resolveChannelContextVisibilityMode,
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import {
   buildPendingHistoryContextFromMap,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "assistant/plugin-sdk/reply-history";
-import { finalizeInboundContext } from "assistant/plugin-sdk/reply-runtime";
-import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/reply-history";
+import { finalizeInboundContext } from "zhushou/plugin-sdk/reply-runtime";
+import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
 import {
   DM_GROUP_ACCESS_REASON,
   resolveDmGroupAccessWithLists,
   evaluateSupplementalContextVisibility,
-} from "assistant/plugin-sdk/security-runtime";
-import { sanitizeTerminalText } from "assistant/plugin-sdk/text-runtime";
-import { truncateUtf16Safe } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/security-runtime";
+import { sanitizeTerminalText } from "zhushou/plugin-sdk/text-runtime";
+import { truncateUtf16Safe } from "zhushou/plugin-sdk/text-runtime";
 import { resolveIMessageConversationRoute } from "../conversation-route.js";
 import {
   formatIMessageChatTarget,
@@ -138,7 +138,7 @@ export type IMessageInboundDecision =
   | IMessageInboundDispatchDecision;
 
 export function resolveIMessageInboundDecision(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   message: IMessagePayload;
   opts?: Pick<MonitorIMessageOpts, "requireMention">;
@@ -367,15 +367,15 @@ export function resolveIMessageInboundDecision(params: {
     }
   }
 
-  // Reflection guard: drop inbound messages that contain assistant-internal
+  // Reflection guard: drop inbound messages that contain zhushou-internal
   // metadata markers. These indicate outbound content was reflected back as
   // inbound, which causes recursive echo amplification.
   const reflection = detectReflectedContent(messageText);
   if (reflection.isReflection) {
     params.logVerbose?.(
-      `imessage: dropping reflected assistant content (markers: ${reflection.matchedLabels.join(", ")})`,
+      `imessage: dropping reflected zhushou content (markers: ${reflection.matchedLabels.join(", ")})`,
     );
-    return { kind: "drop", reason: "reflected assistant content" };
+    return { kind: "drop", reason: "reflected zhushou content" };
   }
 
   const replyContext = describeReplyContext(params.message);
@@ -524,7 +524,7 @@ export function resolveIMessageInboundDecision(params: {
 }
 
 export function buildIMessageInboundContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   decision: IMessageInboundDispatchDecision;
   message: IMessagePayload;
   envelopeOptions?: EnvelopeFormatOptions;

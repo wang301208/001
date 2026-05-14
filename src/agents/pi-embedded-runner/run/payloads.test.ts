@@ -12,9 +12,9 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads).toHaveLength(0);
   }
 
-  it("does not fall back to commentary-only assistant text when streamed text was suppressed", () => {
+  it("does not fall back to commentary-only zhushou text when streamed text was suppressed", () => {
     const payloads = buildPayloads({
-      lastAssistant: {
+      lastZhushou: {
         role: "assistant",
         stopReason: "toolUse",
         content: [
@@ -34,9 +34,9 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads).toEqual([]);
   });
 
-  it("falls back to final-answer assistant text when streamed text is unavailable", () => {
+  it("falls back to final-answer zhushou text when streamed text is unavailable", () => {
     const payloads = buildPayloads({
-      lastAssistant: {
+      lastZhushou: {
         role: "assistant",
         stopReason: "stop",
         content: [
@@ -187,16 +187,16 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     });
   });
 
-  it("suppresses assistant text when a deterministic exec approval prompt was already delivered", () => {
+  it("suppresses zhushou text when a deterministic exec approval prompt was already delivered", () => {
     expectNoPayloads({
-      assistantTexts: ["Approval is needed. Please run /approve abc allow-once"],
+      zhushouTexts: ["Approval is needed. Please run /approve abc allow-once"],
       didSendDeterministicApprovalPrompt: true,
     });
   });
 
-  it("suppresses JSON NO_REPLY assistant payloads", () => {
+  it("suppresses JSON NO_REPLY zhushou payloads", () => {
     expectNoPayloads({
-      assistantTexts: ['{"action":"NO_REPLY"}'],
+      zhushouTexts: ['{"action":"NO_REPLY"}'],
     });
   });
 });

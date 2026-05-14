@@ -2,7 +2,7 @@ import {
   resolveDefaultGroupPolicy,
   resolveOpenProviderRuntimeGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "assistant/plugin-sdk/runtime-group-policy";
+} from "zhushou/plugin-sdk/runtime-group-policy";
 import { vi, type Mock } from "vitest";
 
 export type AsyncMock<TArgs extends unknown[] = unknown[], TResult = unknown> = {
@@ -23,7 +23,7 @@ export function resetPairingSecurityMocks(config: Record<string, unknown>) {
   upsertPairingRequestMock.mockReset().mockResolvedValue({ code: "PAIRCODE", created: true });
 }
 
-vi.mock("assistant/plugin-sdk/config-runtime", () => {
+vi.mock("zhushou/plugin-sdk/config-runtime", () => {
   return {
     loadConfig: (...args: unknown[]) => loadConfigMock(...args),
     resolveDefaultGroupPolicy,
@@ -32,15 +32,15 @@ vi.mock("assistant/plugin-sdk/config-runtime", () => {
   };
 });
 
-vi.mock("assistant/plugin-sdk/conversation-runtime", () => {
+vi.mock("zhushou/plugin-sdk/conversation-runtime", () => {
   return {
     upsertChannelPairingRequest: (...args: unknown[]) => upsertPairingRequestMock(...args),
   };
 });
 
-vi.mock("assistant/plugin-sdk/security-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/security-runtime")>(
-    "assistant/plugin-sdk/security-runtime",
+vi.mock("zhushou/plugin-sdk/security-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/security-runtime")>(
+    "zhushou/plugin-sdk/security-runtime",
   );
   return {
     ...actual,

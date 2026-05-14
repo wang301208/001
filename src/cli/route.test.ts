@@ -48,10 +48,10 @@ describe("tryRouteCli", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    originalDisableRouteFirst = process.env.ASSISTANT_DISABLE_ROUTE_FIRST;
-    originalHideBanner = process.env.ASSISTANT_HIDE_BANNER;
-    delete process.env.ASSISTANT_DISABLE_ROUTE_FIRST;
-    delete process.env.ASSISTANT_HIDE_BANNER;
+    originalDisableRouteFirst = process.env.ZHUSHOU_DISABLE_ROUTE_FIRST;
+    originalHideBanner = process.env.ZHUSHOU_HIDE_BANNER;
+    delete process.env.ZHUSHOU_DISABLE_ROUTE_FIRST;
+    delete process.env.ZHUSHOU_HIDE_BANNER;
     originalForceStderr = loggingState.forceConsoleToStderr;
     loggingState.forceConsoleToStderr = false;
     findRoutedCommandMock.mockReturnValue({
@@ -65,26 +65,26 @@ describe("tryRouteCli", () => {
       loggingState.forceConsoleToStderr = originalForceStderr;
     }
     if (originalDisableRouteFirst === undefined) {
-      delete process.env.ASSISTANT_DISABLE_ROUTE_FIRST;
+      delete process.env.ZHUSHOU_DISABLE_ROUTE_FIRST;
     } else {
-      process.env.ASSISTANT_DISABLE_ROUTE_FIRST = originalDisableRouteFirst;
+      process.env.ZHUSHOU_DISABLE_ROUTE_FIRST = originalDisableRouteFirst;
     }
     if (originalHideBanner === undefined) {
-      delete process.env.ASSISTANT_HIDE_BANNER;
+      delete process.env.ZHUSHOU_HIDE_BANNER;
     } else {
-      process.env.ASSISTANT_HIDE_BANNER = originalHideBanner;
+      process.env.ZHUSHOU_HIDE_BANNER = originalHideBanner;
     }
   });
 
   it("skips config guard for routed status --json commands", async () => {
-    await expect(tryRouteCli(["node", "assistant", "status", "--json"])).resolves.toBe(true);
+    await expect(tryRouteCli(["node", "zhushou", "status", "--json"])).resolves.toBe(true);
 
     expect(ensureConfigReadyMock).not.toHaveBeenCalled();
     expect(ensurePluginRegistryLoadedMock).not.toHaveBeenCalled();
   });
 
   it("does not pass suppressDoctorStdout for routed non-json commands", async () => {
-    await expect(tryRouteCli(["node", "assistant", "status"])).resolves.toBe(true);
+    await expect(tryRouteCli(["node", "zhushou", "status"])).resolves.toBe(true);
 
     expect(ensureConfigReadyMock).toHaveBeenCalledWith({
       runtime: expect.any(Object),
@@ -106,7 +106,7 @@ describe("tryRouteCli", () => {
       captured.push(loggingState.forceConsoleToStderr);
     });
 
-    await tryRouteCli(["node", "assistant", "agents", "--json"]);
+    await tryRouteCli(["node", "zhushou", "agents", "--json"]);
 
     expect(ensurePluginRegistryLoadedMock).toHaveBeenCalled();
     expect(captured[0]).toBe(true);
@@ -124,7 +124,7 @@ describe("tryRouteCli", () => {
       captured.push(loggingState.forceConsoleToStderr);
     });
 
-    await tryRouteCli(["node", "assistant", "agents"]);
+    await tryRouteCli(["node", "zhushou", "agents"]);
 
     expect(ensurePluginRegistryLoadedMock).toHaveBeenCalled();
     expect(captured[0]).toBe(false);
@@ -132,7 +132,7 @@ describe("tryRouteCli", () => {
   });
 
   it("routes status when root options precede the command", async () => {
-    await expect(tryRouteCli(["node", "assistant", "--log-level", "debug", "status"])).resolves.toBe(
+    await expect(tryRouteCli(["node", "zhushou", "--log-level", "debug", "status"])).resolves.toBe(
       true,
     );
 
@@ -144,10 +144,10 @@ describe("tryRouteCli", () => {
     expect(ensurePluginRegistryLoadedMock).toHaveBeenCalledWith({ scope: "channels" });
   });
 
-  it("respects ASSISTANT_HIDE_BANNER for routed commands", async () => {
-    process.env.ASSISTANT_HIDE_BANNER = "1";
+  it("respects ZHUSHOU_HIDE_BANNER for routed commands", async () => {
+    process.env.ZHUSHOU_HIDE_BANNER = "1";
 
-    await expect(tryRouteCli(["node", "assistant", "status"])).resolves.toBe(true);
+    await expect(tryRouteCli(["node", "zhushou", "status"])).resolves.toBe(true);
 
     expect(emitCliBannerMock).not.toHaveBeenCalled();
   });

@@ -3,20 +3,20 @@ import {
   getRequiredHookHandler,
   registerHookHandlersForTest,
 } from "../../../test/helpers/plugins/subagent-hooks.js";
-import type { AssistantConfig, AssistantPluginApi } from "../runtime-api.js";
+import type { ZhushouConfig, ZhushouPluginApi } from "../runtime-api.js";
 import { registerFeishuSubagentHooks } from "./subagent-hooks.js";
 import {
   createFeishuThreadBindingManager,
   __testing as threadBindingTesting,
 } from "./thread-bindings.js";
 
-const baseConfig: AssistantConfig = {
+const baseConfig: ZhushouConfig = {
   session: { mainKey: "main", scope: "per-sender" },
   channels: { feishu: {} },
 };
 
 function registerHandlersForTest(config: Record<string, unknown> = baseConfig) {
-  return registerHookHandlersForTest<AssistantPluginApi>({
+  return registerHookHandlersForTest<ZhushouPluginApi>({
     config,
     register: registerFeishuSubagentHooks,
   });

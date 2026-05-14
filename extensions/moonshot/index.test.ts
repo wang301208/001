@@ -17,7 +17,7 @@ describe("moonshot provider plugin", () => {
     ).toMatchObject({
       sanitizeToolCallIds: true,
       toolCallIdMode: "strict",
-      applyAssistantFirstOrderingFix: true,
+      applyZhushouFirstOrderingFix: true,
       validateGeminiTurns: true,
       validateAnthropicTurns: true,
     });

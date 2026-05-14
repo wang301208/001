@@ -17,7 +17,7 @@ export type GatewayTlsConfig = {
 
 export type WideAreaDiscoveryConfig = {
   enabled?: boolean;
-  /** Optional unicast DNS-SD domain (e.g. "assistant.internal"). */
+  /** Optional unicast DNS-SD domain (e.g. "zhushou.internal"). */
   domain?: string;
 };
 
@@ -40,7 +40,7 @@ export type DiscoveryConfig = {
 
 export type CanvasHostConfig = {
   enabled?: boolean;
-  /** Directory to serve (default: ~/.assistant/workspace/canvas). */
+  /** Directory to serve (default: ~/.zhushou/workspace/canvas). */
   root?: string;
   /** HTTP port to listen on (default: 18793). */
   port?: number;
@@ -92,7 +92,7 @@ export type GatewayControlUiConfig = {
   embedSandbox?: "strict" | "scripts" | "trusted";
   /**
    * DANGEROUS: Allow hosted embeds to load absolute external http(s) URLs.
-   * Default off; prefer hosted /__assistant__/canvas or /__assistant__/a2ui content.
+   * Default off; prefer hosted /__zhushou__/canvas or /__zhushou__/a2ui content.
    */
   allowExternalEmbedUrls?: boolean;
   /** Allowed browser origins for operator/WebChat websocket connections. */
@@ -116,7 +116,7 @@ export type GatewayAuthMode = "none" | "token" | "password" | "trusted-proxy";
 
 /**
  * Configuration for trusted reverse proxy authentication.
- * Used when Assistant runs behind an identity-aware proxy (Pomerium, Caddy + OAuth, etc.)
+ * Used when Zhushou runs behind an identity-aware proxy (Pomerium, Caddy + OAuth, etc.)
  * that handles authentication and passes user identity via headers.
  */
 export type GatewayTrustedProxyConfig = {
@@ -207,7 +207,7 @@ export type GatewayReloadConfig = {
    * Maximum time (ms) to wait for in-flight operations to complete before
    * forcing a SIGUSR1 restart. Default: 300000 (5 minutes).
    * Lower values risk aborting active subagent LLM calls.
-   * @see https://github.com/assistant/assistant/issues/47711
+   * @see https://github.com/wang301208/zhushou/issues/47711
    */
   deferralTimeoutMs?: number;
 };

@@ -1,1 +1,1 @@
-export * from "assistant/plugin-sdk/diagnostics-otel";
+export * from "zhushou/plugin-sdk/diagnostics-otel";

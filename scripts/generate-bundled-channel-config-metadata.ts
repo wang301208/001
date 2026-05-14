@@ -87,19 +87,19 @@ function resolveChannelConfigSchemaModulePath(rootDir: string): string | null {
 }
 
 function resolvePackageChannelMeta(source: BundledPluginSource) {
-  const assistantMeta =
+  const zhushouMeta =
     source.packageJson &&
     typeof source.packageJson === "object" &&
     !Array.isArray(source.packageJson) &&
-    "assistant" in source.packageJson
-      ? (source.packageJson.assistant as Record<string, unknown> | undefined)
+    "zhushou" in source.packageJson
+      ? (source.packageJson.zhushou as Record<string, unknown> | undefined)
       : undefined;
   const channelMeta =
-    assistantMeta &&
-    typeof assistantMeta.channel === "object" &&
-    assistantMeta.channel &&
-    !Array.isArray(assistantMeta.channel)
-      ? (assistantMeta.channel as Record<string, unknown>)
+    zhushouMeta &&
+    typeof zhushouMeta.channel === "object" &&
+    zhushouMeta.channel &&
+    !Array.isArray(zhushouMeta.channel)
+      ? (zhushouMeta.channel as Record<string, unknown>)
       : undefined;
   return channelMeta;
 }

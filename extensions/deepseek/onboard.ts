@@ -1,13 +1,13 @@
 import {
   applyAgentDefaultModelPrimary,
   applyProviderConfigWithModelCatalog,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/provider-onboard";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/provider-onboard";
 import { buildDeepSeekModelDefinition, DEEPSEEK_BASE_URL, DEEPSEEK_MODEL_CATALOG } from "./api.js";
 
 export const DEEPSEEK_DEFAULT_MODEL_REF = "deepseek/deepseek-chat";
 
-export function applyDeepSeekProviderConfig(cfg: AssistantConfig): AssistantConfig {
+export function applyDeepSeekProviderConfig(cfg: ZhushouConfig): ZhushouConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[DEEPSEEK_DEFAULT_MODEL_REF] = {
     ...models[DEEPSEEK_DEFAULT_MODEL_REF],
@@ -23,7 +23,7 @@ export function applyDeepSeekProviderConfig(cfg: AssistantConfig): AssistantConf
   });
 }
 
-export function applyDeepSeekConfig(cfg: AssistantConfig): AssistantConfig {
+export function applyDeepSeekConfig(cfg: ZhushouConfig): ZhushouConfig {
   return applyAgentDefaultModelPrimary(
     applyDeepSeekProviderConfig(cfg),
     DEEPSEEK_DEFAULT_MODEL_REF,

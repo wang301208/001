@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { resolveAssistantPackageRootSync } from "../../infra/assistant-root.js";
+import { resolveZhushouPackageRootSync } from "../../infra/zhushou-root.js";
 
 const PRIVATE_QA_DIST_RELATIVE_PATH = path.join("dist", "plugin-sdk", "qa-lab.js");
 
 export function isPrivateQaCliEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.ASSISTANT_ENABLE_PRIVATE_QA_CLI === "1";
+  return env.ZHUSHOU_ENABLE_PRIVATE_QA_CLI === "1";
 }
 
 function resolvePrivateQaSourceModuleSpecifier(params?: {
@@ -14,14 +14,14 @@ function resolvePrivateQaSourceModuleSpecifier(params?: {
   cwd?: string;
   argv1?: string;
   moduleUrl?: string;
-  resolvePackageRootSync?: typeof resolveAssistantPackageRootSync;
+  resolvePackageRootSync?: typeof resolveZhushouPackageRootSync;
   existsSync?: typeof fs.existsSync;
 }): string | null {
   const env = params?.env ?? process.env;
   if (!isPrivateQaCliEnabled(env)) {
     return null;
   }
-  const resolvePackageRootSync = params?.resolvePackageRootSync ?? resolveAssistantPackageRootSync;
+  const resolvePackageRootSync = params?.resolvePackageRootSync ?? resolveZhushouPackageRootSync;
   const packageRoot = resolvePackageRootSync({
     argv1: params?.argv1 ?? process.argv[1],
     cwd: params?.cwd ?? process.cwd(),
@@ -53,7 +53,7 @@ export function loadPrivateQaCliModule(params?: {
   cwd?: string;
   argv1?: string;
   moduleUrl?: string;
-  resolvePackageRootSync?: typeof resolveAssistantPackageRootSync;
+  resolvePackageRootSync?: typeof resolveZhushouPackageRootSync;
   existsSync?: typeof fs.existsSync;
   importModule?: (specifier: string) => Promise<Record<string, unknown>>;
 }): Promise<Record<string, unknown>> {

@@ -1,4 +1,4 @@
-import { hasOutboundReplyContent } from "assistant/plugin-sdk/reply-payload";
+import { hasOutboundReplyContent } from "zhushou/plugin-sdk/reply-payload";
 import { splitMediaFromOutput } from "../../media/parse.js";
 import { parseInlineDirectives } from "../../utils/directive-tags.js";
 import {
@@ -127,7 +127,7 @@ export function createStreamingDirectiveAccumulator() {
       return null;
     }
 
-    // Keep reply context sticky for the full assistant message so split/newline chunks
+    // Keep reply context sticky for the full zhushou message so split/newline chunks
     // stay on the same native reply target until reset() is called for the next message.
     activeReply = {
       explicitId,

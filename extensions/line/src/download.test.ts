@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const getMessageContentMock = vi.hoisted(() => vi.fn());
@@ -15,7 +15,7 @@ vi.mock("@line/bot-sdk", () => ({
   },
 }));
 
-vi.mock("assistant/plugin-sdk/runtime-env", () => ({
+vi.mock("zhushou/plugin-sdk/runtime-env", () => ({
   createSubsystemLogger: () => {
     const logger = {
       debug: () => {},
@@ -69,7 +69,7 @@ describe("downloadLineMedia", () => {
     expect(writtenPath).not.toContain(messageId);
     expect(writtenPath).not.toContain("..");
 
-    const tmpRoot = path.resolve(resolvePreferredAssistantTmpDir());
+    const tmpRoot = path.resolve(resolvePreferredZhushouTmpDir());
     const rel = path.relative(tmpRoot, path.resolve(writtenPath));
     expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
   });

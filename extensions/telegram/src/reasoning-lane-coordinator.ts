@@ -1,10 +1,10 @@
-import { formatReasoningMessage } from "assistant/plugin-sdk/agent-runtime";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
-import { findCodeRegions, isInsideCode } from "assistant/plugin-sdk/text-runtime";
+import { formatReasoningMessage } from "zhushou/plugin-sdk/agent-runtime";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import { findCodeRegions, isInsideCode } from "zhushou/plugin-sdk/text-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   stripReasoningTagsFromText,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 const REASONING_MESSAGE_PREFIX = "Reasoning:\n";
 const REASONING_TAG_PREFIXES = [

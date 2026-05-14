@@ -1,4 +1,4 @@
-type FacadeModule = typeof import("@assistant/ollama/runtime-api.js");
+type FacadeModule = typeof import("@zhushou/ollama/runtime-api.js");
 import { loadBundledPluginPublicSurfaceModuleSync } from "./facade-loader.js";
 
 function loadFacadeModule(): FacadeModule {
@@ -8,10 +8,10 @@ function loadFacadeModule(): FacadeModule {
   });
 }
 
-export type OllamaEmbeddingClient = import("@assistant/ollama/runtime-api.js").OllamaEmbeddingClient;
+export type OllamaEmbeddingClient = import("@zhushou/ollama/runtime-api.js").OllamaEmbeddingClient;
 export const DEFAULT_OLLAMA_EMBEDDING_MODEL = "nomic-embed-text";
-export const buildAssistantMessage: FacadeModule["buildAssistantMessage"] = ((...args) =>
-  loadFacadeModule().buildAssistantMessage(...args)) as FacadeModule["buildAssistantMessage"];
+export const buildZhushouMessage: FacadeModule["buildZhushouMessage"] = ((...args) =>
+  loadFacadeModule().buildZhushouMessage(...args)) as FacadeModule["buildZhushouMessage"];
 export const buildOllamaChatRequest: FacadeModule["buildOllamaChatRequest"] = ((...args) =>
   loadFacadeModule().buildOllamaChatRequest(...args)) as FacadeModule["buildOllamaChatRequest"];
 export const convertToOllamaMessages: FacadeModule["convertToOllamaMessages"] = ((...args) =>

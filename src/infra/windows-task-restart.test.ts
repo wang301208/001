@@ -5,11 +5,11 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { captureFullEnv } from "../test-utils/env.js";
 
 const spawnMock = vi.hoisted(() => vi.fn());
-const resolvePreferredAssistantTmpDirMock = vi.hoisted(() => vi.fn(() => os.tmpdir()));
+const resolvePreferredZhushouTmpDirMock = vi.hoisted(() => vi.fn(() => os.tmpdir()));
 const resolveTaskScriptPathMock = vi.hoisted(() =>
   vi.fn((env: Record<string, string | undefined>) => {
     const home = env.USERPROFILE || env.HOME || os.homedir();
-    return path.join(home, ".assistant", "gateway.cmd");
+    return path.join(home, ".zhushou", "gateway.cmd");
   }),
 );
 
@@ -22,8 +22,8 @@ vi.mock("node:child_process", async () => {
     },
   );
 });
-vi.mock("./tmp-assistant-dir.js", () => ({
-  resolvePreferredAssistantTmpDir: () => resolvePreferredAssistantTmpDirMock(),
+vi.mock("./tmp-zhushou-dir.js", () => ({
+  resolvePreferredZhushouTmpDir: () => resolvePreferredZhushouTmpDirMock(),
 }));
 vi.mock("../daemon/schtasks.js", () => ({
   resolveTaskScriptPath: (env: Record<string, string | undefined>) =>
@@ -72,12 +72,12 @@ describe("relaunchGatewayScheduledTask", () => {
 
   beforeEach(() => {
     spawnMock.mockReset();
-    resolvePreferredAssistantTmpDirMock.mockReset();
-    resolvePreferredAssistantTmpDirMock.mockReturnValue(os.tmpdir());
+    resolvePreferredZhushouTmpDirMock.mockReset();
+    resolvePreferredZhushouTmpDirMock.mockReturnValue(os.tmpdir());
     resolveTaskScriptPathMock.mockReset();
     resolveTaskScriptPathMock.mockImplementation((env: Record<string, string | undefined>) => {
       const home = env.USERPROFILE || env.HOME || os.homedir();
-      return path.join(home, ".assistant", "gateway.cmd");
+      return path.join(home, ".zhushou", "gateway.cmd");
     });
   });
 
@@ -90,12 +90,12 @@ describe("relaunchGatewayScheduledTask", () => {
       return { unref };
     });
 
-    const result = relaunchGatewayScheduledTask({ ASSISTANT_PROFILE: "work" });
+    const result = relaunchGatewayScheduledTask({ ZHUSHOU_PROFILE: "work" });
 
     expect(result).toMatchObject({
       ok: true,
       method: "schtasks",
-      tried: expect.arrayContaining(['schtasks /Run /TN "Assistant Gateway (work)"']),
+      tried: expect.arrayContaining(['schtasks /Run /TN "Zhushou Gateway (work)"']),
     });
     expect(result.tried).toContain(`cmd.exe /d /s /c ${seenCommandArg}`);
     expect(spawnMock).toHaveBeenCalledWith(
@@ -113,24 +113,24 @@ describe("relaunchGatewayScheduledTask", () => {
     expect(scriptPath).toBeTruthy();
     const script = fs.readFileSync(scriptPath, "utf8");
     expect(script).toContain("timeout /t 1 /nobreak >nul");
-    expect(script).toContain('schtasks /Run /TN "Assistant Gateway (work)" >nul 2>&1');
+    expect(script).toContain('schtasks /Run /TN "Zhushou Gateway (work)" >nul 2>&1');
     expect(script).toContain('del "%~f0" >nul 2>&1');
   });
 
-  it("prefers ASSISTANT_WINDOWS_TASK_NAME overrides", () => {
+  it("prefers ZHUSHOU_WINDOWS_TASK_NAME overrides", () => {
     spawnMock.mockImplementation((_file: string, args: string[]) => {
       createdScriptPaths.add(decodeCmdPathArg(args[3]));
       return { unref: vi.fn() };
     });
 
     relaunchGatewayScheduledTask({
-      ASSISTANT_PROFILE: "work",
-      ASSISTANT_WINDOWS_TASK_NAME: "Assistant Gateway (custom)",
+      ZHUSHOU_PROFILE: "work",
+      ZHUSHOU_WINDOWS_TASK_NAME: "Zhushou Gateway (custom)",
     });
 
     const scriptPath = [...createdScriptPaths][0];
     const script = fs.readFileSync(scriptPath, "utf8");
-    expect(script).toContain('schtasks /Run /TN "Assistant Gateway (custom)" >nul 2>&1');
+    expect(script).toContain('schtasks /Run /TN "Zhushou Gateway (custom)" >nul 2>&1');
   });
 
   it("returns failed when the helper cannot be spawned", () => {
@@ -138,7 +138,7 @@ describe("relaunchGatewayScheduledTask", () => {
       throw new Error("spawn failed");
     });
 
-    const result = relaunchGatewayScheduledTask({ ASSISTANT_PROFILE: "work" });
+    const result = relaunchGatewayScheduledTask({ ZHUSHOU_PROFILE: "work" });
 
     expect(result.ok).toBe(false);
     expect(result.method).toBe("schtasks");
@@ -147,12 +147,12 @@ describe("relaunchGatewayScheduledTask", () => {
 
   it("quotes the cmd /c script path when temp paths contain metacharacters", () => {
     const unref = vi.fn();
-    const metacharTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant&(restart)-"));
+    const metacharTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou&(restart)-"));
     createdTmpDirs.add(metacharTmpDir);
-    resolvePreferredAssistantTmpDirMock.mockReturnValue(metacharTmpDir);
+    resolvePreferredZhushouTmpDirMock.mockReturnValue(metacharTmpDir);
     spawnMock.mockReturnValue({ unref });
 
-    relaunchGatewayScheduledTask({ ASSISTANT_PROFILE: "work" });
+    relaunchGatewayScheduledTask({ ZHUSHOU_PROFILE: "work" });
 
     expect(spawnMock).toHaveBeenCalledWith(
       "cmd.exe",
@@ -162,7 +162,7 @@ describe("relaunchGatewayScheduledTask", () => {
   });
 
   it("includes startup fallback", () => {
-    const taskScriptDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-state-"));
+    const taskScriptDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-state-"));
     createdTmpDirs.add(taskScriptDir);
     const taskScriptPath = path.join(taskScriptDir, "gateway.cmd");
     fs.writeFileSync(taskScriptPath, "@echo off\r\nrem placeholder\r\n", "utf8");
@@ -173,7 +173,7 @@ describe("relaunchGatewayScheduledTask", () => {
       return { unref: vi.fn() };
     });
 
-    const result = relaunchGatewayScheduledTask({ ASSISTANT_PROFILE: "work" });
+    const result = relaunchGatewayScheduledTask({ ZHUSHOU_PROFILE: "work" });
 
     expect(result.ok).toBe(true);
     const scriptPath = [...createdScriptPaths][0];

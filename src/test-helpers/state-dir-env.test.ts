@@ -9,17 +9,17 @@ import {
 } from "./state-dir-env.js";
 
 type EnvSnapshot = {
-  assistant?: string;
+  zhushou?: string;
 };
 
 function snapshotCurrentStateDirVars(): EnvSnapshot {
   return {
-    assistant: process.env.ASSISTANT_STATE_DIR,
+    zhushou: process.env.ZHUSHOU_STATE_DIR,
   };
 }
 
 function expectStateDirVars(snapshot: EnvSnapshot) {
-  expect(process.env.ASSISTANT_STATE_DIR).toBe(snapshot.assistant);
+  expect(process.env.ZHUSHOU_STATE_DIR).toBe(snapshot.zhushou);
 }
 
 async function expectPathMissing(filePath: string) {
@@ -37,12 +37,12 @@ async function expectStateDirEnvRestored(params: {
 }
 
 describe("state-dir-env helpers", () => {
-  it("set/snapshot/restore round-trips ASSISTANT_STATE_DIR", () => {
+  it("set/snapshot/restore round-trips ZHUSHOU_STATE_DIR", () => {
     const prev = snapshotCurrentStateDirVars();
     const snapshot = snapshotStateDirEnv();
 
-    setStateDirEnv("/tmp/assistant-state-dir-test");
-    expect(process.env.ASSISTANT_STATE_DIR).toBe("/tmp/assistant-state-dir-test");
+    setStateDirEnv("/tmp/zhushou-state-dir-test");
+    expect(process.env.ZHUSHOU_STATE_DIR).toBe("/tmp/zhushou-state-dir-test");
 
     restoreStateDirEnv(snapshot);
     expectStateDirVars(prev);
@@ -53,10 +53,10 @@ describe("state-dir-env helpers", () => {
 
     let capturedTempRoot = "";
     let capturedStateDir = "";
-    await withStateDirEnv("assistant-state-dir-env-", async ({ tempRoot, stateDir }) => {
+    await withStateDirEnv("zhushou-state-dir-env-", async ({ tempRoot, stateDir }) => {
       capturedTempRoot = tempRoot;
       capturedStateDir = stateDir;
-      expect(process.env.ASSISTANT_STATE_DIR).toBe(stateDir);
+      expect(process.env.ZHUSHOU_STATE_DIR).toBe(stateDir);
       await fs.writeFile(path.join(stateDir, "probe.txt"), "ok", "utf8");
     });
 
@@ -69,7 +69,7 @@ describe("state-dir-env helpers", () => {
     let capturedTempRoot = "";
     let capturedStateDir = "";
     await expect(
-      withStateDirEnv("assistant-state-dir-env-", async ({ tempRoot, stateDir }) => {
+      withStateDirEnv("zhushou-state-dir-env-", async ({ tempRoot, stateDir }) => {
         capturedTempRoot = tempRoot;
         capturedStateDir = stateDir;
         throw new Error("boom");

@@ -2,13 +2,13 @@ import {
   compileAllowlist,
   resolveCompiledAllowlistMatch,
   type AllowlistMatch,
-} from "assistant/plugin-sdk/allow-from";
+} from "zhushou/plugin-sdk/allow-from";
 import {
   normalizeHyphenSlug,
   normalizeStringEntries,
   normalizeStringEntriesLower,
-} from "assistant/plugin-sdk/string-normalization-runtime";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/string-normalization-runtime";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 
 const SLACK_SLUG_CACHE_MAX = 512;
 const slackSlugCache = new Map<string, string>();

@@ -1,14 +1,14 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 
 export async function finalizeDoctorConfigFlow(params: {
-  cfg: AssistantConfig;
-  candidate: AssistantConfig;
+  cfg: ZhushouConfig;
+  candidate: ZhushouConfig;
   pendingChanges: boolean;
   shouldRepair: boolean;
   fixHints: string[];
   confirm: (p: { message: string; initialValue: boolean }) => Promise<boolean>;
   note: (message: string, title?: string) => void;
-}): Promise<{ cfg: AssistantConfig; shouldWriteConfig: boolean }> {
+}): Promise<{ cfg: ZhushouConfig; shouldWriteConfig: boolean }> {
   if (!params.shouldRepair && params.pendingChanges) {
     const shouldApply = await params.confirm({
       message: "Apply recommended config repairs now?",

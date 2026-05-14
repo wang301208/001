@@ -1,5 +1,5 @@
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import type { MemorySyncProgressUpdate } from "assistant/plugin-sdk/memory-core-host-engine-storage";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import type { MemorySyncProgressUpdate } from "zhushou/plugin-sdk/memory-core-host-engine-storage";
 
 type TargetedSyncProgress = {
   completed: number;

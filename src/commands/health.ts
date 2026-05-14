@@ -6,7 +6,7 @@ import type { ChannelAccountSnapshot } from "../channels/plugins/types.public.js
 import { inspectReadOnlyChannelAccount } from "../channels/read-only-account-inspect.js";
 import { withProgress } from "../cli/progress.js";
 import { resolveStorePath } from "../config/sessions/paths.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { info } from "../globals.js";
 import { isTruthyEnvValue } from "../infra/env.js";
@@ -37,7 +37,7 @@ export type {
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 const debugHealth = (...args: unknown[]) => {
-  if (isTruthyEnvValue(process.env.ASSISTANT_DEBUG_HEALTH)) {
+  if (isTruthyEnvValue(process.env.ZHUSHOU_DEBUG_HEALTH)) {
     console.warn("[health:debug]", ...args);
   }
 };
@@ -71,10 +71,10 @@ const formatDurationParts = (ms: number): string => {
   return parts.join(" ");
 };
 
-const resolveHeartbeatSummary = (cfg: AssistantConfig, agentId: string) =>
+const resolveHeartbeatSummary = (cfg: ZhushouConfig, agentId: string) =>
   resolveHeartbeatSummaryForAgent(cfg, agentId);
 
-const resolveAgentOrder = (cfg: AssistantConfig) => {
+const resolveAgentOrder = (cfg: ZhushouConfig) => {
   const defaultAgentId = resolveDefaultAgentId(cfg);
   const entries = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
   const seen = new Set<string>();
@@ -125,7 +125,7 @@ const buildSessionSummary = async (storePath: string) => {
   } satisfies HealthSummary["sessions"];
 };
 
-async function inspectHealthAccount(plugin: ChannelPlugin, cfg: AssistantConfig, accountId: string) {
+async function inspectHealthAccount(plugin: ChannelPlugin, cfg: ZhushouConfig, accountId: string) {
   return (
     plugin.config.inspectAccount?.(cfg, accountId) ??
     (await inspectReadOnlyChannelAccount({
@@ -146,7 +146,7 @@ function readBooleanField(value: unknown, key: string): boolean | undefined {
 
 async function resolveHealthAccountContext(params: {
   plugin: ChannelPlugin;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
 }): Promise<{
   account: unknown;
@@ -384,7 +384,7 @@ export async function getHealthSnapshot(params?: {
 }
 
 export async function healthCommand(
-  opts: { json?: boolean; timeoutMs?: number; verbose?: boolean; config?: AssistantConfig },
+  opts: { json?: boolean; timeoutMs?: number; verbose?: boolean; config?: ZhushouConfig },
   runtime: RuntimeEnv,
 ) {
   const cfg = opts.config ?? (await readBestEffortHealthConfig());
@@ -409,7 +409,7 @@ export async function healthCommand(
   if (opts.json) {
     writeRuntimeJson(runtime, summary);
   } else {
-    const debugEnabled = isTruthyEnvValue(process.env.ASSISTANT_DEBUG_HEALTH);
+    const debugEnabled = isTruthyEnvValue(process.env.ZHUSHOU_DEBUG_HEALTH);
     const rich = isRich();
     if (opts.verbose) {
       const details = buildGatewayConnectionDetails({ config: cfg });
@@ -635,7 +635,7 @@ export async function healthCommand(
   }
 }
 
-async function readBestEffortHealthConfig(): Promise<AssistantConfig> {
+async function readBestEffortHealthConfig(): Promise<ZhushouConfig> {
   const { readBestEffortConfig } = await import("../config/config.js");
   return await readBestEffortConfig();
 }

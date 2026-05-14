@@ -6,12 +6,12 @@ import {
   type MediaUnderstandingProvider,
   type VideoDescriptionRequest,
   type VideoDescriptionResult,
-} from "assistant/plugin-sdk/media-understanding";
+} from "zhushou/plugin-sdk/media-understanding";
 import {
   assertOkOrThrowHttpError,
   postJsonRequest,
   type ProviderRequestTransportOverrides,
-} from "assistant/plugin-sdk/provider-http";
+} from "zhushou/plugin-sdk/provider-http";
 import {
   DEFAULT_GOOGLE_API_BASE_URL,
   normalizeGoogleModelId,

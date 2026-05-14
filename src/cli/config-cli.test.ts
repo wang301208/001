@@ -3,18 +3,18 @@ import os from "node:os";
 import path from "node:path";
 import { Command } from "commander";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ConfigFileSnapshot, AssistantConfig } from "../config/types.js";
+import type { ConfigFileSnapshot, ZhushouConfig } from "../config/types.js";
 import { createCliRuntimeCapture, mockRuntimeModule } from "./test-runtime-capture.js";
 
 /**
  * Test for issue #6070:
- * `assistant config set/unset` must update snapshot.resolved (user config after $include/${ENV},
+ * `zhushou config set/unset` must update snapshot.resolved (user config after $include/${ENV},
  * but before runtime defaults), so runtime defaults don't leak into the written config.
  */
 
 const mockReadConfigFileSnapshot = vi.fn<() => Promise<ConfigFileSnapshot>>();
 const mockWriteConfigFile = vi.fn<
-  (cfg: AssistantConfig, options?: { unsetPaths?: string[][] }) => Promise<void>
+  (cfg: ZhushouConfig, options?: { unsetPaths?: string[][] }) => Promise<void>
 >(async () => {});
 const mockResolveSecretRefValue = vi.fn();
 const mockReadBestEffortRuntimeConfigSchema = vi.fn();
@@ -26,10 +26,10 @@ vi.mock("../config/config.js", async (importOriginal) => {
   return {
     ...actual,
     readConfigFileSnapshot: () => mockReadConfigFileSnapshot(),
-    writeConfigFile: (cfg: AssistantConfig, options?: { unsetPaths?: string[][] }) =>
+    writeConfigFile: (cfg: ZhushouConfig, options?: { unsetPaths?: string[][] }) =>
       mockWriteConfigFile(cfg, options),
     replaceConfigFile: (params: {
-      nextConfig: AssistantConfig;
+      nextConfig: ZhushouConfig;
       writeOptions?: { unsetPaths?: string[][] };
     }) => mockWriteConfigFile(params.nextConfig, params.writeOptions),
   };
@@ -61,11 +61,11 @@ vi.mock("../runtime.js", async () => {
 });
 
 function buildSnapshot(params: {
-  resolved: AssistantConfig;
-  config: AssistantConfig;
+  resolved: ZhushouConfig;
+  config: ZhushouConfig;
 }): ConfigFileSnapshot {
   return {
-    path: "/tmp/assistant.json",
+    path: "/tmp/zhushou.json",
     exists: true,
     raw: JSON.stringify(params.resolved),
     parsed: params.resolved,
@@ -80,7 +80,7 @@ function buildSnapshot(params: {
   };
 }
 
-function setSnapshot(resolved: AssistantConfig, config: AssistantConfig) {
+function setSnapshot(resolved: ZhushouConfig, config: ZhushouConfig) {
   mockReadConfigFileSnapshot.mockResolvedValueOnce(buildSnapshot({ resolved, config }));
 }
 
@@ -88,7 +88,7 @@ function setSnapshotOnce(snapshot: ConfigFileSnapshot) {
   mockReadConfigFileSnapshot.mockResolvedValueOnce(snapshot);
 }
 
-function withRuntimeDefaults(resolved: AssistantConfig): AssistantConfig {
+function withRuntimeDefaults(resolved: ZhushouConfig): ZhushouConfig {
   return {
     ...resolved,
     agents: {
@@ -105,7 +105,7 @@ function makeInvalidSnapshot(params: {
   path?: string;
 }): ConfigFileSnapshot {
   return {
-    path: params.path ?? "/tmp/custom-assistant.json",
+    path: params.path ?? "/tmp/custom-zhushou.json",
     exists: true,
     raw: "{}",
     parsed: {},
@@ -195,7 +195,7 @@ describe("config cli", () => {
 
   describe("config set - issue #6070", () => {
     it("preserves existing config keys when setting a new value", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         agents: {
           list: [{ id: "main" }, { id: "oracle", workspace: "~/oracle-workspace" }],
         },
@@ -203,7 +203,7 @@ describe("config cli", () => {
         tools: { allow: ["group:fs"] },
         logging: { level: "debug" },
       };
-      const runtimeMerged: AssistantConfig = {
+      const runtimeMerged: ZhushouConfig = {
         ...withRuntimeDefaults(resolved),
       };
       setSnapshot(resolved, runtimeMerged);
@@ -221,7 +221,7 @@ describe("config cli", () => {
     });
 
     it("does not inject runtime defaults into the written config", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       const runtimeMerged = {
@@ -235,7 +235,7 @@ describe("config cli", () => {
         } as never,
         messages: { ackReaction: "✅" } as never,
         sessions: { persistence: { enabled: true } } as never,
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
       setSnapshot(resolved, runtimeMerged);
 
       await runConfigCommand(["config", "set", "gateway.auth.mode", "token"]);
@@ -252,7 +252,7 @@ describe("config cli", () => {
     });
 
     it("writes agents.defaults.videoGenerationModel.primary without disturbing sibling defaults", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         agents: {
           defaults: {
             model: "openai/gpt-5.4",
@@ -283,7 +283,7 @@ describe("config cli", () => {
     });
 
     it("writes agents.defaults.llm.idleTimeoutSeconds without disturbing sibling defaults", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         agents: {
           defaults: {
             model: "openai/gpt-5.4",
@@ -305,7 +305,7 @@ describe("config cli", () => {
     });
 
     it("drops gateway.auth.password when switching mode to token", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: {
           auth: {
             mode: "password",
@@ -334,7 +334,7 @@ describe("config cli", () => {
     });
 
     it("drops gateway.auth.token when switching mode to password", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: {
           auth: {
             mode: "token",
@@ -361,7 +361,7 @@ describe("config cli", () => {
     });
 
     it("drops gateway auth credentials when switching mode to none", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: {
           auth: {
             mode: "token",
@@ -387,7 +387,7 @@ describe("config cli", () => {
     });
 
     it("applies mode-based credential cleanup using the final batch result", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: {
           auth: {
             mode: "password",
@@ -421,7 +421,7 @@ describe("config cli", () => {
 
   describe("config get", () => {
     it("redacts sensitive values", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: {
           auth: {
             token: "super-secret-token",
@@ -432,13 +432,13 @@ describe("config cli", () => {
 
       await runConfigCommand(["config", "get", "gateway.auth.token"]);
 
-      expect(mockLog).toHaveBeenCalledWith("__ASSISTANT_REDACTED__");
+      expect(mockLog).toHaveBeenCalledWith("__ZHUSHOU_REDACTED__");
     });
   });
 
   describe("config validate", () => {
     it("prints success and exits 0 when config is valid", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -480,7 +480,7 @@ describe("config cli", () => {
 
       const payload = await runValidateJsonAndGetPayload();
       expect(payload.valid).toBe(false);
-      expect(payload.path).toBe("/tmp/custom-assistant.json");
+      expect(payload.path).toBe("/tmp/custom-zhushou.json");
       expect(payload.issues).toEqual([{ path: "gateway.bind", message: "Invalid enum value" }]);
       expect(mockError).not.toHaveBeenCalled();
     });
@@ -501,7 +501,7 @@ describe("config cli", () => {
 
       const payload = await runValidateJsonAndGetPayload();
       expect(payload.valid).toBe(false);
-      expect(payload.path).toBe("/tmp/custom-assistant.json");
+      expect(payload.path).toBe("/tmp/custom-zhushou.json");
       expect(payload.issues).toEqual([
         {
           path: "update.channel",
@@ -514,7 +514,7 @@ describe("config cli", () => {
 
     it("prints file-not-found and exits 1 when config file is missing", async () => {
       setSnapshotOnce({
-        path: "/tmp/assistant.json",
+        path: "/tmp/zhushou.json",
         exists: false,
         raw: null,
         parsed: {},
@@ -616,7 +616,7 @@ describe("config cli", () => {
 
   describe("config set parsing flags", () => {
     it("falls back to raw string when parsing fails and strict mode is off", async () => {
-      const resolved: AssistantConfig = { gateway: { port: 18789 } };
+      const resolved: ZhushouConfig = { gateway: { port: 18789 } };
       setSnapshot(resolved, resolved);
 
       await runConfigCommand(["config", "set", "gateway.auth.mode", "{bad"]);
@@ -654,7 +654,7 @@ describe("config cli", () => {
     });
 
     it("accepts --strict-json with batch mode and applies batch payload", async () => {
-      const resolved: AssistantConfig = { gateway: { port: 18789 } };
+      const resolved: ZhushouConfig = { gateway: { port: 18789 } };
       setSnapshot(resolved, resolved);
 
       await runConfigCommand([
@@ -688,20 +688,20 @@ describe("config cli", () => {
       expect(helpText).toContain("--batch-json");
       expect(helpText).toContain("--dry-run");
       expect(helpText).toContain("--allow-exec");
-      expect(helpText).toContain("assistant config set gateway.port 19001 --strict-json");
+      expect(helpText).toContain("zhushou config set gateway.port 19001 --strict-json");
       expect(helpText).toContain(
-        "assistant config set channels.discord.token --ref-provider default --ref-source",
+        "zhushou config set channels.discord.token --ref-provider default --ref-source",
       );
       expect(helpText).toContain("--ref-id DISCORD_BOT_TOKEN");
       expect(helpText).toContain(
-        "assistant config set --batch-file ./config-set.batch.json --dry-run",
+        "zhushou config set --batch-file ./config-set.batch.json --dry-run",
       );
     });
   });
 
   describe("config set builders and dry-run", () => {
     it("supports SecretRef builder mode without requiring a value argument", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -728,7 +728,7 @@ describe("config cli", () => {
     });
 
     it("fails early when unsupported mutable paths are assigned SecretRef objects (builder mode)", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -755,7 +755,7 @@ describe("config cli", () => {
     });
 
     it("fails early when parent-object writes include unsupported SecretRef objects", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -778,7 +778,7 @@ describe("config cli", () => {
     });
 
     it("supports provider builder mode under secrets.providers.<alias>", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -805,7 +805,7 @@ describe("config cli", () => {
     });
 
     it("runs resolvability checks in builder dry-run mode without writing", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -843,7 +843,7 @@ describe("config cli", () => {
     });
 
     it("requires schema validation in JSON dry-run mode", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -866,7 +866,7 @@ describe("config cli", () => {
     });
 
     it("fails dry-run when unsupported mutable paths receive SecretRef objects in value/json mode", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -895,7 +895,7 @@ describe("config cli", () => {
     });
 
     it("aggregates policy failures across batch entries", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -918,7 +918,7 @@ describe("config cli", () => {
     });
 
     it("does not duplicate policy errors in --dry-run --json mode for parent-object writes", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -953,7 +953,7 @@ describe("config cli", () => {
     });
 
     it("logs a dry-run note when value mode performs no validation checks", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
       };
       setSnapshot(resolved, resolved);
@@ -973,7 +973,7 @@ describe("config cli", () => {
     });
 
     it("supports batch mode for refs/providers in dry-run", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -996,7 +996,7 @@ describe("config cli", () => {
     });
 
     it("skips exec SecretRef resolvability checks in dry-run by default", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1033,7 +1033,7 @@ describe("config cli", () => {
     });
 
     it("allows exec SecretRef resolvability checks in dry-run when --allow-exec is set", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1079,7 +1079,7 @@ describe("config cli", () => {
     it("rejects --allow-exec without --dry-run", async () => {
       const nonexistentBatchPath = path.join(
         os.tmpdir(),
-        `assistant-config-batch-nonexistent-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+        `zhushou-config-batch-nonexistent-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
       );
       await expect(
         runConfigCommand(["config", "set", "--batch-file", nonexistentBatchPath, "--allow-exec"]),
@@ -1093,7 +1093,7 @@ describe("config cli", () => {
     });
 
     it("fails dry-run when skipped exec refs use an unconfigured provider", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {},
@@ -1123,7 +1123,7 @@ describe("config cli", () => {
     });
 
     it("fails dry-run when skipped exec refs use a provider with mismatched source", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1159,7 +1159,7 @@ describe("config cli", () => {
     });
 
     it("writes sibling SecretRef paths when target uses sibling-ref shape", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         channels: {
           googlechat: {
@@ -1237,12 +1237,12 @@ describe("config cli", () => {
     });
 
     it("supports batch-file mode", async () => {
-      const resolved: AssistantConfig = { gateway: { port: 18789 } };
+      const resolved: ZhushouConfig = { gateway: { port: 18789 } };
       setSnapshot(resolved, resolved);
 
       const pathname = path.join(
         os.tmpdir(),
-        `assistant-config-batch-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+        `zhushou-config-batch-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
       );
       fs.writeFileSync(pathname, '[{"path":"gateway.auth.mode","value":"token"}]', "utf8");
       try {
@@ -1259,7 +1259,7 @@ describe("config cli", () => {
     it("rejects malformed batch-file payloads", async () => {
       const pathname = path.join(
         os.tmpdir(),
-        `assistant-config-batch-invalid-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+        `zhushou-config-batch-invalid-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
       );
       fs.writeFileSync(pathname, '{"path":"gateway.auth.mode","value":"token"}', "utf8");
       try {
@@ -1291,7 +1291,7 @@ describe("config cli", () => {
     });
 
     it("fails dry-run when a builder-assigned SecretRef is unresolved", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1323,7 +1323,7 @@ describe("config cli", () => {
     });
 
     it("emits structured JSON for --dry-run --json success", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1368,7 +1368,7 @@ describe("config cli", () => {
     });
 
     it("emits skipped exec metadata for --dry-run --json success", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1412,7 +1412,7 @@ describe("config cli", () => {
     });
 
     it("emits structured JSON for --dry-run --json failure", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1453,7 +1453,7 @@ describe("config cli", () => {
     });
 
     it("keeps distinct resolvability failures when messages are identical but refs differ", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1493,7 +1493,7 @@ describe("config cli", () => {
     });
 
     it("aggregates schema and resolvability failures in --dry-run --json mode", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1530,7 +1530,7 @@ describe("config cli", () => {
     });
 
     it("fails dry-run when provider updates make existing refs unresolvable", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1573,7 +1573,7 @@ describe("config cli", () => {
     });
 
     it("fails dry-run for nested provider edits that make existing refs unresolvable", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         gateway: { port: 18789 },
         secrets: {
           providers: {
@@ -1654,7 +1654,7 @@ describe("config cli", () => {
 
   describe("config unset - issue #6070", () => {
     it("preserves existing config keys when unsetting a value", async () => {
-      const resolved: AssistantConfig = {
+      const resolved: ZhushouConfig = {
         agents: { list: [{ id: "main" }] },
         gateway: { port: 18789 },
         tools: {
@@ -1663,7 +1663,7 @@ describe("config cli", () => {
         },
         logging: { level: "debug" },
       };
-      const runtimeMerged: AssistantConfig = {
+      const runtimeMerged: ZhushouConfig = {
         ...withRuntimeDefaults(resolved),
       };
       setSnapshot(resolved, runtimeMerged);
@@ -1686,24 +1686,24 @@ describe("config cli", () => {
 
   describe("config file", () => {
     it("prints the active config file path", async () => {
-      const resolved: AssistantConfig = { gateway: { port: 18789 } };
+      const resolved: ZhushouConfig = { gateway: { port: 18789 } };
       setSnapshot(resolved, resolved);
 
       await runConfigCommand(["config", "file"]);
 
-      expect(mockLog).toHaveBeenCalledWith("/tmp/assistant.json");
+      expect(mockLog).toHaveBeenCalledWith("/tmp/zhushou.json");
       expect(mockWriteConfigFile).not.toHaveBeenCalled();
     });
 
     it("handles config file path with home directory", async () => {
-      const resolved: AssistantConfig = { gateway: { port: 18789 } };
+      const resolved: ZhushouConfig = { gateway: { port: 18789 } };
       const snapshot = buildSnapshot({ resolved, config: resolved });
-      snapshot.path = "/home/user/.assistant/assistant.json";
+      snapshot.path = "/home/user/.wang301208/zhushou.json";
       mockReadConfigFileSnapshot.mockResolvedValueOnce(snapshot);
 
       await runConfigCommand(["config", "file"]);
 
-      expect(mockLog).toHaveBeenCalledWith("/home/user/.assistant/assistant.json");
+      expect(mockLog).toHaveBeenCalledWith("/home/user/.wang301208/zhushou.json");
     });
   });
 

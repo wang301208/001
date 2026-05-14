@@ -2,12 +2,12 @@ import type { ReactionTypeEmoji } from "@grammyjs/types";
 import {
   resolveAckReaction,
   shouldAckReaction as shouldAckReactionGate,
-} from "assistant/plugin-sdk/channel-feedback";
-import { logInboundDrop } from "assistant/plugin-sdk/channel-inbound";
-import type { TelegramDirectConfig, TelegramGroupConfig } from "assistant/plugin-sdk/config-runtime";
-import { deriveLastRoutePolicy } from "assistant/plugin-sdk/routing";
-import { DEFAULT_ACCOUNT_ID, resolveThreadSessionKeys } from "assistant/plugin-sdk/routing";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/channel-feedback";
+import { logInboundDrop } from "zhushou/plugin-sdk/channel-inbound";
+import type { TelegramDirectConfig, TelegramGroupConfig } from "zhushou/plugin-sdk/config-runtime";
+import { deriveLastRoutePolicy } from "zhushou/plugin-sdk/routing";
+import { DEFAULT_ACCOUNT_ID, resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { firstDefined, normalizeAllowFrom, normalizeDmAllowFromWithStore } from "./bot-access.js";
 import { resolveTelegramInboundBody } from "./bot-message-context.body.js";

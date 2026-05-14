@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { collectGatewayConfigFindings } from "./audit.js";
 
 function hasFinding(
@@ -22,7 +22,7 @@ describe("security audit gateway HTTP tool findings", () => {
           auth: { token: "secret" },
           tools: { allow: ["sessions_spawn"] },
         },
-      } satisfies AssistantConfig,
+      } satisfies ZhushouConfig,
       expectedSeverity: "warn" as const,
     },
     {
@@ -33,7 +33,7 @@ describe("security audit gateway HTTP tool findings", () => {
           auth: { token: "secret" },
           tools: { allow: ["sessions_spawn", "gateway"] },
         },
-      } satisfies AssistantConfig,
+      } satisfies ZhushouConfig,
       expectedSeverity: "critical" as const,
     },
     {
@@ -44,7 +44,7 @@ describe("security audit gateway HTTP tool findings", () => {
           auth: { token: "secret" },
           tools: { allow: ["exec"] },
         },
-      } satisfies AssistantConfig,
+      } satisfies ZhushouConfig,
       expectedSeverity: "critical" as const,
     },
   ])(

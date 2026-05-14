@@ -4,4 +4,4 @@ export {
   getPluginCommandSpecs,
   matchPluginCommand,
 } from "./commands.js";
-export { loadAssistantPlugins } from "./loader.js";
+export { loadZhushouPlugins } from "./loader.js";

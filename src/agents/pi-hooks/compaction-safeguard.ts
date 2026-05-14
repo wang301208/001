@@ -31,7 +31,7 @@ import {
 import { collectTextContentBlocks } from "../content-blocks.js";
 import { isTimeoutError } from "../failover-error.js";
 import { repairToolUseResultPairing } from "../session-transcript-repair.js";
-import { extractToolCallsFromAssistant, extractToolResultId } from "../tool-call-id.js";
+import { extractToolCallsFromZhushou, extractToolResultId } from "../tool-call-id.js";
 import {
   composeSplitTurnInstructions,
   resolveCompactionInstructions,
@@ -559,7 +559,7 @@ function splitPreservedRecentTurns(params: {
     if (role !== "assistant") {
       continue;
     }
-    const toolCalls = extractToolCallsFromAssistant(
+    const toolCalls = extractToolCallsFromZhushou(
       message as Extract<AgentMessage, { role: "assistant" }>,
     );
     for (const toolCall of toolCalls) {
@@ -590,7 +590,7 @@ function splitPreservedRecentTurns(params: {
     }
   }
   const summarizableMessages = params.messages.filter((_, idx) => !preservedIndexSet.has(idx));
-  // Preserving recent assistant turns can orphan downstream toolResult messages.
+  // Preserving recent zhushou turns can orphan downstream toolResult messages.
   // Repair pairings here so compaction summarization doesn't trip strict providers.
   const repairedSummarizableMessages = repairToolUseResultPairing(summarizableMessages).messages;
   const preservedMessages = params.messages
@@ -607,7 +607,7 @@ function formatContextMessages(messages: AgentMessage[]): string[] {
     .map((message) => {
       let roleLabel: string;
       if (message.role === "assistant") {
-        roleLabel = "Assistant";
+        roleLabel = "Zhushou";
       } else if (message.role === "user") {
         roleLabel = "User";
       } else if (message.role === "toolResult") {
@@ -752,13 +752,13 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
     if (!hasRealSummarizable && !hasRealTurnPrefix) {
       // When there are no summarizable messages AND no real turn-prefix content,
       // cancelling compaction leaves context unchanged but the SDK re-triggers
-      // _checkCompaction after every assistant response — creating a cancel loop
+      // _checkCompaction after every zhushou response — creating a cancel loop
       // that blocks cron lanes (#41981).
       //
       // Strategy: always return a minimal compaction result so the SDK writes a
       // boundary entry. The SDK's prepareCompaction() returns undefined when the
       // last entry is a compaction, which blocks immediate re-triggering within
-      // the same turn. After a new assistant message arrives, if the SDK triggers
+      // the same turn. After a new zhushou message arrives, if the SDK triggers
       // compaction again with an empty preparation, we write another boundary —
       // this is bounded to at most one boundary per LLM round-trip, not a tight
       // loop.

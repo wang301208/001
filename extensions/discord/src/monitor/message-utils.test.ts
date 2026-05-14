@@ -5,9 +5,9 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 const fetchRemoteMedia = vi.fn();
 const saveMediaBuffer = vi.fn();
 
-vi.mock("assistant/plugin-sdk/media-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/media-runtime")>(
-    "assistant/plugin-sdk/media-runtime",
+vi.mock("zhushou/plugin-sdk/media-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/media-runtime")>(
+    "zhushou/plugin-sdk/media-runtime",
   );
   return {
     ...actual,
@@ -16,9 +16,9 @@ vi.mock("assistant/plugin-sdk/media-runtime", async () => {
   };
 });
 
-vi.mock("assistant/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/runtime-env")>(
-    "assistant/plugin-sdk/runtime-env",
+vi.mock("zhushou/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/runtime-env")>(
+    "zhushou/plugin-sdk/runtime-env",
   );
   return {
     ...actual,

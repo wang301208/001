@@ -421,17 +421,17 @@ export function resetRunCronIsolatedAgentTurnHarness(): void {
 }
 
 export function clearFastTestEnv(): string | undefined {
-  const previousFastTestEnv = process.env.ASSISTANT_TEST_FAST;
-  delete process.env.ASSISTANT_TEST_FAST;
+  const previousFastTestEnv = process.env.ZHUSHOU_TEST_FAST;
+  delete process.env.ZHUSHOU_TEST_FAST;
   return previousFastTestEnv;
 }
 
 export function restoreFastTestEnv(previousFastTestEnv: string | undefined): void {
   if (previousFastTestEnv == null) {
-    delete process.env.ASSISTANT_TEST_FAST;
+    delete process.env.ZHUSHOU_TEST_FAST;
     return;
   }
-  process.env.ASSISTANT_TEST_FAST = previousFastTestEnv;
+  process.env.ZHUSHOU_TEST_FAST = previousFastTestEnv;
 }
 
 export async function loadRunCronIsolatedAgentTurn() {

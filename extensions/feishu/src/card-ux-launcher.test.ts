@@ -1,6 +1,6 @@
 ﻿import { describe, expect, it, vi, beforeEach } from "vitest";
 import { createRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
-import type { AssistantConfig, RuntimeEnv } from "../runtime-api.js";
+import type { ZhushouConfig, RuntimeEnv } from "../runtime-api.js";
 import {
   createQuickActionLauncherCard,
   isFeishuQuickActionMenuEventKey,
@@ -14,7 +14,7 @@ vi.mock("./send.js", () => ({
 }));
 
 describe("feishu quick-action launcher", () => {
-  const cfg: AssistantConfig = {};
+  const cfg: ZhushouConfig = {};
 
   beforeEach(() => {
     vi.clearAllMocks();

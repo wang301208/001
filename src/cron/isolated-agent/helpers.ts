@@ -1,4 +1,4 @@
-import { hasOutboundReplyContent } from "assistant/plugin-sdk/reply-payload";
+import { hasOutboundReplyContent } from "zhushou/plugin-sdk/reply-payload";
 import { DEFAULT_HEARTBEAT_ACK_MAX_CHARS } from "../../auto-reply/heartbeat.js";
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
@@ -137,8 +137,8 @@ export function resolveHeartbeatAckMaxChars(agentCfg?: { heartbeat?: { ackMaxCha
 export function resolveCronPayloadOutcome(params: {
   payloads: DeliveryPayload[];
   runLevelError?: unknown;
-  finalAssistantVisibleText?: string;
-  preferFinalAssistantVisibleText?: boolean;
+  finalZhushouVisibleText?: string;
+  preferFinalZhushouVisibleText?: boolean;
 }): CronPayloadOutcome {
   const firstText = params.payloads[0]?.text ?? "";
   const fallbackSummary =
@@ -158,28 +158,28 @@ export function resolveCronPayloadOutcome(params: {
       .slice(lastErrorPayloadIndex + 1)
       .some((payload) => payload?.isError !== true && Boolean(payload?.text?.trim()));
   const hasFatalErrorPayload = hasErrorPayload && !hasSuccessfulPayloadAfterLastError;
-  const normalizedFinalAssistantVisibleText = normalizeOptionalString(
-    params.finalAssistantVisibleText,
+  const normalizedFinalZhushouVisibleText = normalizeOptionalString(
+    params.finalZhushouVisibleText,
   );
   const hasStructuredDeliveryPayloads = selectedDeliveryPayloads.some((payload) =>
     payloadHasStructuredDeliveryContent(payload),
   );
   // Keep structured/media announce payloads intact. Only collapse purely textual
-  // cron announce output to the final assistant-visible answer.
-  const shouldUseFinalAssistantVisibleText =
-    params.preferFinalAssistantVisibleText === true &&
-    normalizedFinalAssistantVisibleText !== undefined &&
+  // cron announce output to the final zhushou-visible answer.
+  const shouldUseFinalZhushouVisibleText =
+    params.preferFinalZhushouVisibleText === true &&
+    normalizedFinalZhushouVisibleText !== undefined &&
     !hasFatalErrorPayload &&
     !hasStructuredDeliveryPayloads;
-  const summary = shouldUseFinalAssistantVisibleText
-    ? (pickSummaryFromOutput(normalizedFinalAssistantVisibleText) ?? fallbackSummary)
+  const summary = shouldUseFinalZhushouVisibleText
+    ? (pickSummaryFromOutput(normalizedFinalZhushouVisibleText) ?? fallbackSummary)
     : fallbackSummary;
-  const outputText = shouldUseFinalAssistantVisibleText
-    ? normalizedFinalAssistantVisibleText
+  const outputText = shouldUseFinalZhushouVisibleText
+    ? normalizedFinalZhushouVisibleText
     : fallbackOutputText;
   const synthesizedText = normalizeOptionalString(outputText) ?? normalizeOptionalString(summary);
-  const resolvedDeliveryPayloads = shouldUseFinalAssistantVisibleText
-    ? [{ text: normalizedFinalAssistantVisibleText }]
+  const resolvedDeliveryPayloads = shouldUseFinalZhushouVisibleText
+    ? [{ text: normalizedFinalZhushouVisibleText }]
     : selectedDeliveryPayloads.length > 0
       ? selectedDeliveryPayloads
       : synthesizedText

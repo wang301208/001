@@ -1,12 +1,12 @@
 import { DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveAllowlistModelKey } from "../agents/model-allowlist-ref.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export function ensureModelAllowlistEntry(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   modelRef: string;
   defaultProvider?: string;
-}): AssistantConfig {
+}): ZhushouConfig {
   const rawModelRef = params.modelRef.trim();
   if (!rawModelRef) {
     return params.cfg;

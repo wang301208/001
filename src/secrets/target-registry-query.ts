@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { loadBundledChannelSecretContractApi } from "./channel-contract-api.js";
 import { getPath } from "./path-utils.js";
 import { getCoreSecretTargetRegistry, getSecretTargetRegistry } from "./target-registry-data.js";
@@ -20,19 +20,19 @@ let compiledSecretTargetRegistryState: {
   authProfilesTargetsById: Map<string, CompiledTargetRegistryEntry[]>;
   compiledSecretTargetRegistry: CompiledTargetRegistryEntry[];
   knownTargetIds: Set<string>;
-  assistantCompiledSecretTargets: CompiledTargetRegistryEntry[];
-  assistantTargetsById: Map<string, CompiledTargetRegistryEntry[]>;
+  zhushouCompiledSecretTargets: CompiledTargetRegistryEntry[];
+  zhushouTargetsById: Map<string, CompiledTargetRegistryEntry[]>;
   targetsByType: Map<string, CompiledTargetRegistryEntry[]>;
 } | null = null;
 
-let compiledCoreAssistantTargetState: {
+let compiledCoreZhushouTargetState: {
   knownTargetIds: Set<string>;
-  assistantCompiledSecretTargets: CompiledTargetRegistryEntry[];
-  assistantTargetsById: Map<string, CompiledTargetRegistryEntry[]>;
+  zhushouCompiledSecretTargets: CompiledTargetRegistryEntry[];
+  zhushouTargetsById: Map<string, CompiledTargetRegistryEntry[]>;
   targetsByType: Map<string, CompiledTargetRegistryEntry[]>;
 } | null = null;
 
-const compiledBundledChannelAssistantTargets = new Map<
+const compiledBundledChannelZhushouTargets = new Map<
   string,
   CompiledTargetRegistryEntry[] | null
 >();
@@ -78,8 +78,8 @@ function getCompiledSecretTargetRegistryState() {
     return compiledSecretTargetRegistryState;
   }
   const compiledSecretTargetRegistry = getSecretTargetRegistry().map(compileTargetRegistryEntry);
-  const assistantCompiledSecretTargets = compiledSecretTargetRegistry.filter(
-    (entry) => entry.configFile === "assistant.json",
+  const zhushouCompiledSecretTargets = compiledSecretTargetRegistry.filter(
+    (entry) => entry.configFile === "zhushou.json",
   );
   const authProfilesCompiledSecretTargets = compiledSecretTargetRegistry.filter(
     (entry) => entry.configFile === "auth-profiles.json",
@@ -89,44 +89,44 @@ function getCompiledSecretTargetRegistryState() {
     authProfilesTargetsById: buildConfigTargetIdIndex(authProfilesCompiledSecretTargets),
     compiledSecretTargetRegistry,
     knownTargetIds: new Set(compiledSecretTargetRegistry.map((entry) => entry.id)),
-    assistantCompiledSecretTargets,
-    assistantTargetsById: buildConfigTargetIdIndex(assistantCompiledSecretTargets),
+    zhushouCompiledSecretTargets,
+    zhushouTargetsById: buildConfigTargetIdIndex(zhushouCompiledSecretTargets),
     targetsByType: buildTargetTypeIndex(compiledSecretTargetRegistry),
   };
   return compiledSecretTargetRegistryState;
 }
 
-function getCompiledCoreAssistantTargetState() {
-  if (compiledCoreAssistantTargetState) {
-    return compiledCoreAssistantTargetState;
+function getCompiledCoreZhushouTargetState() {
+  if (compiledCoreZhushouTargetState) {
+    return compiledCoreZhushouTargetState;
   }
-  const assistantCompiledSecretTargets = getCoreSecretTargetRegistry()
-    .filter((entry) => entry.configFile === "assistant.json")
+  const zhushouCompiledSecretTargets = getCoreSecretTargetRegistry()
+    .filter((entry) => entry.configFile === "zhushou.json")
     .map(compileTargetRegistryEntry);
-  compiledCoreAssistantTargetState = {
-    knownTargetIds: new Set(assistantCompiledSecretTargets.map((entry) => entry.id)),
-    assistantCompiledSecretTargets,
-    assistantTargetsById: buildConfigTargetIdIndex(assistantCompiledSecretTargets),
-    targetsByType: buildTargetTypeIndex(assistantCompiledSecretTargets),
+  compiledCoreZhushouTargetState = {
+    knownTargetIds: new Set(zhushouCompiledSecretTargets.map((entry) => entry.id)),
+    zhushouCompiledSecretTargets,
+    zhushouTargetsById: buildConfigTargetIdIndex(zhushouCompiledSecretTargets),
+    targetsByType: buildTargetTypeIndex(zhushouCompiledSecretTargets),
   };
-  return compiledCoreAssistantTargetState;
+  return compiledCoreZhushouTargetState;
 }
 
-function getCompiledBundledChannelAssistantTargets(
+function getCompiledBundledChannelZhushouTargets(
   channelId: string,
 ): CompiledTargetRegistryEntry[] | null {
   const normalizedChannelId = channelId.trim();
   if (!normalizedChannelId) {
     return null;
   }
-  if (compiledBundledChannelAssistantTargets.has(normalizedChannelId)) {
-    return compiledBundledChannelAssistantTargets.get(normalizedChannelId) ?? null;
+  if (compiledBundledChannelZhushouTargets.has(normalizedChannelId)) {
+    return compiledBundledChannelZhushouTargets.get(normalizedChannelId) ?? null;
   }
   const compiledEntries =
     loadBundledChannelSecretContractApi(normalizedChannelId)
-      ?.secretTargetRegistryEntries?.filter((entry) => entry.configFile === "assistant.json")
+      ?.secretTargetRegistryEntries?.filter((entry) => entry.configFile === "zhushou.json")
       .map(compileTargetRegistryEntry) ?? null;
-  compiledBundledChannelAssistantTargets.set(normalizedChannelId, compiledEntries);
+  compiledBundledChannelZhushouTargets.set(normalizedChannelId, compiledEntries);
   return compiledEntries;
 }
 
@@ -267,7 +267,7 @@ export function resolvePlanTargetAgainstRegistry(candidate: {
   providerId?: string;
   accountId?: string;
 }): ResolvedPlanTarget | null {
-  const coreEntries = getCompiledCoreAssistantTargetState().targetsByType.get(candidate.type);
+  const coreEntries = getCompiledCoreZhushouTargetState().targetsByType.get(candidate.type);
   if (coreEntries) {
     return resolvePlanTargetAgainstEntries(candidate, coreEntries);
   }
@@ -316,7 +316,7 @@ function resolvePlanTargetAgainstEntries(
 }
 
 export function resolveConfigSecretTargetByPath(pathSegments: string[]): ResolvedPlanTarget | null {
-  for (const entry of getCompiledCoreAssistantTargetState().assistantCompiledSecretTargets) {
+  for (const entry of getCompiledCoreZhushouTargetState().zhushouCompiledSecretTargets) {
     if (!entry.includeInPlan) {
       continue;
     }
@@ -334,7 +334,7 @@ export function resolveConfigSecretTargetByPath(pathSegments: string[]): Resolve
   const explicitBundledChannelId =
     pathSegments[0] === "channels" ? (pathSegments[1]?.trim() ?? "") : "";
   const explicitBundledChannelEntries = explicitBundledChannelId
-    ? getCompiledBundledChannelAssistantTargets(explicitBundledChannelId)
+    ? getCompiledBundledChannelZhushouTargets(explicitBundledChannelId)
     : null;
   for (const entry of explicitBundledChannelEntries ?? []) {
     if (!entry.includeInPlan) {
@@ -351,7 +351,7 @@ export function resolveConfigSecretTargetByPath(pathSegments: string[]): Resolve
     return resolved;
   }
 
-  for (const entry of getCompiledSecretTargetRegistryState().assistantCompiledSecretTargets) {
+  for (const entry of getCompiledSecretTargetRegistryState().zhushouCompiledSecretTargets) {
     if (!entry.includeInPlan) {
       continue;
     }
@@ -369,27 +369,27 @@ export function resolveConfigSecretTargetByPath(pathSegments: string[]): Resolve
 }
 
 export function discoverConfigSecretTargets(
-  config: AssistantConfig,
+  config: ZhushouConfig,
 ): DiscoveredConfigSecretTarget[] {
   return discoverConfigSecretTargetsByIds(config);
 }
 
 export function discoverConfigSecretTargetsByIds(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   targetIds?: Iterable<string>,
 ): DiscoveredConfigSecretTarget[] {
   const allowedTargetIds = normalizeAllowedTargetIds(targetIds);
   const registryState =
     allowedTargetIds !== null &&
     Array.from(allowedTargetIds).every((targetId) =>
-      getCompiledCoreAssistantTargetState().knownTargetIds.has(targetId),
+      getCompiledCoreZhushouTargetState().knownTargetIds.has(targetId),
     )
-      ? getCompiledCoreAssistantTargetState()
+      ? getCompiledCoreZhushouTargetState()
       : getCompiledSecretTargetRegistryState();
   const discoveryEntries = resolveDiscoveryEntries({
     allowedTargetIds,
-    defaultEntries: registryState.assistantCompiledSecretTargets,
-    entriesById: registryState.assistantTargetsById,
+    defaultEntries: registryState.zhushouCompiledSecretTargets,
+    entriesById: registryState.zhushouTargetsById,
   });
   return discoverSecretTargetsFromEntries(config, discoveryEntries);
 }

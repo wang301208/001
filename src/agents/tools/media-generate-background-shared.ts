@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { parseAgentSessionKey } from "../../sessions/session-key-utils.js";
@@ -54,7 +54,7 @@ type FailMediaGenerationTaskRunParams = {
 };
 
 type WakeMediaGenerationTaskCompletionParams = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   handle: MediaGenerationTaskHandle | null;
   status: "ok" | "error";
   statusLabel: string;
@@ -187,18 +187,18 @@ function buildMediaGenerationReplyInstruction(params: {
     return [
       `A completed ${params.completionLabel} generation task is ready for user delivery.`,
       `Prefer the message tool for delivery: use action="send" to the current/original chat, put your user-facing caption in message, attach each generated file with path/filePath using the exact path from the result, then reply ONLY: ${SILENT_REPLY_TOKEN}.`,
-      `If you cannot use the message tool, reply in your normal assistant voice and include the exact MEDIA: lines from the result so 助手 attaches the finished ${params.completionLabel}.`,
+      `If you cannot use the message tool, reply in your normal zhushou voice and include the exact MEDIA: lines from the result so 助手 attaches the finished ${params.completionLabel}.`,
       "Keep internal task/session details private and do not copy the internal event text verbatim.",
     ].join(" ");
   }
   return [
     `${params.completionLabel[0]?.toUpperCase() ?? "T"}${params.completionLabel.slice(1)} generation task failed.`,
-    "Reply in your normal assistant voice with the failure summary now.",
+    "Reply in your normal zhushou voice with the failure summary now.",
     "Keep internal task/session details private and do not copy the internal event text verbatim.",
   ].join(" ");
 }
 
-function isAsyncMediaDirectSendEnabled(config: AssistantConfig | undefined): boolean {
+function isAsyncMediaDirectSendEnabled(config: ZhushouConfig | undefined): boolean {
   return config?.tools?.media?.asyncCompletion?.directSend === true;
 }
 
@@ -241,7 +241,7 @@ async function maybeDeliverMediaGenerationResultDirectly(params: {
 }
 
 export async function wakeMediaGenerationTaskCompletion(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   handle: MediaGenerationTaskHandle | null;
   status: "ok" | "error";
   statusLabel: string;

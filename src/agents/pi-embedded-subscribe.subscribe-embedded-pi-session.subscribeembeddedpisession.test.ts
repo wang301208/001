@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import {
   THINKING_TAG_CASES,
   createStubSessionHarness,
-  emitAssistantLifecycleErrorAndEnd,
-  emitMessageStartAndEndForAssistantText,
+  emitZhushouLifecycleErrorAndEnd,
+  emitMessageStartAndEndForZhushouText,
   expectSingleAgentEventText,
   extractAgentEventPayloads,
   findLifecycleErrorAgentEvent,
@@ -53,7 +53,7 @@ describe("subscribeEmbeddedPiSession", () => {
     return { emit };
   }
 
-  function emitAssistantTextDelta(
+  function emitZhushouTextDelta(
     emit: (evt: unknown) => void,
     delta: string,
     message: Record<string, unknown> = { role: "assistant" },
@@ -61,7 +61,7 @@ describe("subscribeEmbeddedPiSession", () => {
     emit({
       type: "message_update",
       message,
-      assistantMessageEvent: {
+      zhushouMessageEvent: {
         type: "text_delta",
         delta,
       },
@@ -123,10 +123,10 @@ describe("subscribeEmbeddedPiSession", () => {
         reasoningMode: "stream",
       });
 
-      emitAssistantTextDelta(emit, `${open}\nBecause`);
-      emitAssistantTextDelta(emit, ` it helps\n${close}\n\nFinal answer`);
+      emitZhushouTextDelta(emit, `${open}\nBecause`);
+      emitZhushouTextDelta(emit, ` it helps\n${close}\n\nFinal answer`);
 
-      const assistantMessage = {
+      const zhushouMessage = {
         role: "assistant",
         content: [
           {
@@ -136,7 +136,7 @@ describe("subscribeEmbeddedPiSession", () => {
         ],
       } as AssistantMessage;
 
-      emit({ type: "message_end", message: assistantMessage });
+      emit({ type: "message_end", message: zhushouMessage });
       await flushBlockReplyCallbacks();
 
       expect(onBlockReply).toHaveBeenCalledTimes(1);
@@ -147,14 +147,14 @@ describe("subscribeEmbeddedPiSession", () => {
         .filter((value): value is string => typeof value === "string");
       expect(streamTexts.at(-1)).toBe("Reasoning:\n_Because it helps_");
 
-      expect(assistantMessage.content).toEqual([
+      expect(zhushouMessage.content).toEqual([
         { type: "thinking", thinking: "Because it helps" },
         { type: "text", text: "Final answer" },
       ]);
     },
   );
 
-  it("suppresses assistant streaming while deterministic exec approval delivery is pending", async () => {
+  it("suppresses zhushou streaming while deterministic exec approval delivery is pending", async () => {
     let resolveToolResult: (() => void) | undefined;
     const onToolResult = vi.fn(
       () =>
@@ -196,7 +196,7 @@ describe("subscribeEmbeddedPiSession", () => {
       type: "message_start",
       message: { role: "assistant" },
     });
-    emitAssistantTextDelta(emit, "After tool");
+    emitZhushouTextDelta(emit, "After tool");
 
     await vi.waitFor(() => {
       expect(onToolResult).toHaveBeenCalledTimes(1);
@@ -238,7 +238,7 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(payload?.mediaUrls).toBeUndefined();
   });
 
-  it("attaches media from internal completion events even when assistant omits MEDIA lines", async () => {
+  it("attaches media from internal completion events even when zhushou omits MEDIA lines", async () => {
     const onBlockReply = vi.fn();
     const { emit } = createSubscribedHarness({
       runId: "run",
@@ -264,7 +264,7 @@ describe("subscribeEmbeddedPiSession", () => {
       type: "message_start",
       message: { role: "assistant" },
     });
-    emitAssistantTextDelta(emit, "Here it is.");
+    emitZhushouTextDelta(emit, "Here it is.");
     emit({
       type: "message_end",
       message: {
@@ -300,15 +300,15 @@ describe("subscribeEmbeddedPiSession", () => {
       });
 
       emit({ type: "message_start", message: { role: "assistant" } });
-      emitAssistantTextDelta(emit, `${open}Reasoning chunk that should not leak`);
+      emitZhushouTextDelta(emit, `${open}Reasoning chunk that should not leak`);
 
       expect(onBlockReply).not.toHaveBeenCalled();
 
-      emitAssistantTextDelta(emit, `${close}\n\nFinal answer`);
+      emitZhushouTextDelta(emit, `${close}\n\nFinal answer`);
       emit({
         type: "message_update",
         message: { role: "assistant" },
-        assistantMessageEvent: { type: "text_end" },
+        zhushouMessageEvent: { type: "text_end" },
       });
       await flushBlockReplyCallbacks();
 
@@ -342,7 +342,7 @@ describe("subscribeEmbeddedPiSession", () => {
         role: "assistant",
         content: [{ type: "thinking", thinking: "Checking files" }],
       },
-      assistantMessageEvent: {
+      zhushouMessageEvent: {
         type: "thinking_delta",
         delta: "Checking files",
       },
@@ -354,7 +354,7 @@ describe("subscribeEmbeddedPiSession", () => {
         role: "assistant",
         content: [{ type: "thinking", thinking: "Checking files done" }],
       },
-      assistantMessageEvent: {
+      zhushouMessageEvent: {
         type: "thinking_end",
       },
     });
@@ -377,36 +377,36 @@ describe("subscribeEmbeddedPiSession", () => {
     });
 
     emit({ type: "message_start", message: { role: "assistant" } });
-    emitAssistantTextDelta(emit, "<think>Checking");
+    emitZhushouTextDelta(emit, "<think>Checking");
     emit({
       type: "message_update",
       message: {
         role: "assistant",
         content: [{ type: "thinking", thinking: "Checking" }],
       },
-      assistantMessageEvent: {
+      zhushouMessageEvent: {
         type: "thinking_end",
       },
     });
 
-    emitAssistantTextDelta(emit, " files</think>\nFinal answer");
+    emitZhushouTextDelta(emit, " files</think>\nFinal answer");
 
     expect(onReasoningEnd).toHaveBeenCalledTimes(1);
   });
 
-  it("emits delta chunks in agent events for streaming assistant text", () => {
+  it("emits delta chunks in agent events for streaming zhushou text", () => {
     const { emit, onAgentEvent } = createAgentEventHarness();
 
     emit({ type: "message_start", message: { role: "assistant" } });
     emit({
       type: "message_update",
       message: { role: "assistant" },
-      assistantMessageEvent: { type: "text_delta", delta: "Hello" },
+      zhushouMessageEvent: { type: "text_delta", delta: "Hello" },
     });
     emit({
       type: "message_update",
       message: { role: "assistant" },
-      assistantMessageEvent: { type: "text_delta", delta: " world" },
+      zhushouMessageEvent: { type: "text_delta", delta: " world" },
     });
 
     const payloads = extractAgentEventPayloads(onAgentEvent.mock.calls);
@@ -416,7 +416,7 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(payloads[1]?.delta).toBe(" world");
   });
 
-  it("emits agent events on message_end for non-streaming assistant text", () => {
+  it("emits agent events on message_end for non-streaming zhushou text", () => {
     const { session, emit } = createStubSessionHarness();
 
     const onAgentEvent = vi.fn();
@@ -426,21 +426,21 @@ describe("subscribeEmbeddedPiSession", () => {
       runId: "run",
       onAgentEvent,
     });
-    emitMessageStartAndEndForAssistantText({ emit, text: "Hello world" });
+    emitMessageStartAndEndForZhushouText({ emit, text: "Hello world" });
     expectSingleAgentEventText(onAgentEvent.mock.calls, "Hello world");
   });
 
   it("does not emit duplicate agent events when message_end repeats", () => {
     const { emit, onAgentEvent } = createAgentEventHarness();
 
-    const assistantMessage = {
+    const zhushouMessage = {
       role: "assistant",
       content: [{ type: "text", text: "Hello world" }],
     } as AssistantMessage;
 
-    emit({ type: "message_start", message: assistantMessage });
-    emit({ type: "message_end", message: assistantMessage });
-    emit({ type: "message_end", message: assistantMessage });
+    emit({ type: "message_start", message: zhushouMessage });
+    emit({ type: "message_end", message: zhushouMessage });
+    emit({ type: "message_end", message: zhushouMessage });
 
     const payloads = extractAgentEventPayloads(onAgentEvent.mock.calls);
     expect(payloads).toHaveLength(1);
@@ -450,8 +450,8 @@ describe("subscribeEmbeddedPiSession", () => {
     const { emit, onAgentEvent } = createAgentEventHarness();
 
     emit({ type: "message_start", message: { role: "assistant" } });
-    emitAssistantTextDelta(emit, "MEDIA:");
-    emitAssistantTextDelta(emit, " https://example.com/a.png\nCaption");
+    emitZhushouTextDelta(emit, "MEDIA:");
+    emitZhushouTextDelta(emit, " https://example.com/a.png\nCaption");
 
     const payloads = extractAgentEventPayloads(onAgentEvent.mock.calls);
     expect(payloads).toHaveLength(2);
@@ -467,7 +467,7 @@ describe("subscribeEmbeddedPiSession", () => {
     const { emit, onAgentEvent } = createAgentEventHarness();
 
     emit({ type: "message_start", message: { role: "assistant" } });
-    emitAssistantTextDelta(emit, "MEDIA: https://example.com/a.png");
+    emitZhushouTextDelta(emit, "MEDIA: https://example.com/a.png");
 
     const payloads = extractAgentEventPayloads(onAgentEvent.mock.calls);
     expect(payloads).toHaveLength(1);
@@ -561,13 +561,13 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(subscription.getLastToolError()?.toolName).toBe("session_status");
   });
 
-  it("emits lifecycle:error event on agent_end when last assistant message was an error", async () => {
+  it("emits lifecycle:error event on agent_end when last zhushou message was an error", async () => {
     const { emit, onAgentEvent } = createAgentEventHarness({
       runId: "run-error",
       sessionKey: "test-session",
     });
 
-    emitAssistantLifecycleErrorAndEnd({
+    emitZhushouLifecycleErrorAndEnd({
       emit,
       errorMessage: "429 Rate limit exceeded",
     });

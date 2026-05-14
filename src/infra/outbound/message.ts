@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { PollInput } from "../../polls.js";
 import { normalizePollInput } from "../../polls.js";
 import {
@@ -75,7 +75,7 @@ type MessageSendParams = {
   dryRun?: boolean;
   bestEffort?: boolean;
   deps?: OutboundSendDeps;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   gateway?: MessageGatewayOptions;
   idempotencyKey?: string;
   mirror?: OutboundMirror;
@@ -106,7 +106,7 @@ type MessagePollParams = {
   silent?: boolean;
   isAnonymous?: boolean;
   dryRun?: boolean;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   gateway?: MessageGatewayOptions;
   idempotencyKey?: string;
 };
@@ -157,7 +157,7 @@ function buildMessagePollResult(params: {
 }
 
 async function resolveRequiredChannel(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel?: string;
 }): Promise<string> {
   return (
@@ -168,7 +168,7 @@ async function resolveRequiredChannel(params: {
   ).channel;
 }
 
-function resolveRequiredPlugin(channel: string, cfg: AssistantConfig) {
+function resolveRequiredPlugin(channel: string, cfg: ZhushouConfig) {
   const plugin = resolveOutboundChannelPlugin({ channel, cfg });
   if (!plugin) {
     throw new Error(`Unknown channel: ${channel}`);
@@ -216,7 +216,7 @@ async function callMessageGateway<T>(params: {
   });
 }
 
-async function resolveMessageConfig(cfg?: AssistantConfig): Promise<AssistantConfig> {
+async function resolveMessageConfig(cfg?: ZhushouConfig): Promise<ZhushouConfig> {
   if (cfg) {
     return cfg;
   }

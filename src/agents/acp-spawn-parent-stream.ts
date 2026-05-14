@@ -6,7 +6,7 @@ import { onAgentEvent } from "../infra/agent-events.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { scopedHeartbeatWakeOptions } from "../routing/session-key.js";
-import { normalizeAssistantPhase } from "../shared/chat-message-content.js";
+import { normalizeZhushouPhase } from "../shared/chat-message-content.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { recordTaskRunProgressByRunId } from "../tasks/task-executor.js";
 import type { DeliveryContext } from "../utils/delivery-context.types.js";
@@ -309,9 +309,9 @@ export function startAcpSpawnParentStreamRelay(params: {
       return;
     }
 
-    if (event.stream === "assistant") {
+    if (event.stream === "zhushou") {
       const data = event.data;
-      const assistantPhase = normalizeAssistantPhase(
+      const zhushouPhase = normalizeZhushouPhase(
         (data as { phase?: unknown } | undefined)?.phase,
       );
       const deltaCandidate =
@@ -321,12 +321,12 @@ export function startAcpSpawnParentStreamRelay(params: {
       if (!delta || !delta.trim()) {
         return;
       }
-      logEvent("assistant_delta", {
+      logEvent("zhushou_delta", {
         delta,
-        ...(assistantPhase ? { phase: assistantPhase } : {}),
+        ...(zhushouPhase ? { phase: zhushouPhase } : {}),
       });
 
-      if (assistantPhase === "commentary") {
+      if (zhushouPhase === "commentary") {
         lastProgressAt = Date.now();
         return;
       }

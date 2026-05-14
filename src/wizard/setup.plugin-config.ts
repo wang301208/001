@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { PluginConfigUiHint } from "../plugins/types.js";
 import { getPath, setPathCreateStrict } from "../secrets/path-utils.js";
 import type { WizardPrompter } from "./prompts.js";
@@ -43,7 +43,7 @@ function resolveJsonSchemaProperty(
 }
 
 function getExistingPluginConfig(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   pluginId: string,
 ): Record<string, unknown> {
   return (config.plugins?.entries?.[pluginId]?.config as Record<string, unknown>) ?? {};
@@ -119,7 +119,7 @@ export function discoverUnconfiguredPlugins(params: {
     configSchema?: Record<string, unknown>;
     enabled?: boolean;
   }>;
-  config: AssistantConfig;
+  config: ZhushouConfig;
 }): ConfigurablePlugin[] {
   const all = discoverConfigurablePlugins(params);
   return all.filter((plugin) => {
@@ -137,11 +137,11 @@ export function discoverUnconfiguredPlugins(params: {
  */
 async function promptPluginFields(params: {
   plugin: ConfigurablePlugin;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   prompter: WizardPrompter;
   /** When true, show all fields including already-configured ones (for configure flow). */
   showConfigured?: boolean;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   const { plugin, config, prompter } = params;
   const existing = getExistingPluginConfig(config, plugin.id);
   const updatedConfig = structuredClone(existing);
@@ -162,10 +162,10 @@ async function promptPluginFields(params: {
     const helpSuffix = hint.help ? ` — ${hint.help}` : "";
 
     // Skip sensitive fields — WizardPrompter has no masked input;
-    // direct users to assistant config set or the Web UI instead.
+    // direct users to zhushou config set or the Web UI instead.
     if (hint.sensitive) {
       await prompter.note(
-        `"${label}" 是敏感字段，请通过以下方式设置：\n  assistant config set plugins.entries.${plugin.id}.config.${key} <值>\n或使用 Web 界面的设置页面。`,
+        `"${label}" 是敏感字段，请通过以下方式设置：\n  zhushou config set plugins.entries.${plugin.id}.config.${key} <值>\n或使用 Web 界面的设置页面。`,
         "敏感字段",
       );
       continue;
@@ -285,10 +285,10 @@ async function promptPluginFields(params: {
  * Shows unconfigured plugin fields and prompts the user.
  */
 export async function setupPluginConfig(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   prompter: WizardPrompter;
   workspaceDir?: string;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   const { loadPluginManifestRegistry } = await import("../plugins/manifest-registry.js");
   const registry = loadPluginManifestRegistry({
     config: params.config,
@@ -347,10 +347,10 @@ export async function setupPluginConfig(params: {
  * Shows all configurable plugins and all their non-advanced fields.
  */
 export async function configurePluginConfig(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   prompter: WizardPrompter;
   workspaceDir?: string;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   const { loadPluginManifestRegistry } = await import("../plugins/manifest-registry.js");
   const registry = loadPluginManifestRegistry({
     config: params.config,

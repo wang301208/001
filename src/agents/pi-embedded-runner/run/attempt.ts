@@ -41,7 +41,7 @@ import { buildTtsSystemPromptHint } from "../../../tts/tts.js";
 import { resolveUserPath } from "../../../utils.js";
 import { normalizeMessageChannel } from "../../../utils/message-channel.js";
 import { isReasoningTagProvider } from "../../../utils/provider-utils.js";
-import { resolveAssistantAgentDir } from "../../agent-paths.js";
+import { resolveZhushouAgentDir } from "../../agent-paths.js";
 import { resolveSessionAgentIds } from "../../agent-scope.js";
 import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
 import {
@@ -67,7 +67,7 @@ import {
   resolveChannelReactionGuidance,
 } from "../../channel-tools.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../defaults.js";
-import { resolveAssistantDocsPath } from "../../docs-path.js";
+import { resolveZhushouDocsPath } from "../../docs-path.js";
 import { isTimeoutError } from "../../failover-error.js";
 import { resolveHeartbeatPromptForSystemPrompt } from "../../heartbeat-system-prompt.js";
 import { resolveImageSanitizationLimits } from "../../image-sanitization.js";
@@ -98,7 +98,7 @@ import {
   findClientToolNameConflicts,
   toClientToolDefinitions,
 } from "../../pi-tool-definition-adapter.js";
-import { createAssistantCodingTools, resolveToolLoopDetectionConfig } from "../../pi-tools.js";
+import { createZhushouCodingTools, resolveToolLoopDetectionConfig } from "../../pi-tools.js";
 import { wrapStreamFnTextTransforms } from "../../plugin-text-transforms.js";
 import { describeProviderRequestRoutingSummary } from "../../provider-attribution.js";
 import { registerProviderStreamForModel } from "../../provider-stream.js";
@@ -197,7 +197,7 @@ import {
   assembleAttemptContextEngine,
   buildLoopPromptCacheInfo,
   buildContextEnginePromptCacheInfo,
-  findCurrentAttemptAssistantMessage,
+  findCurrentAttemptZhushouMessage,
   finalizeAttemptContextEngineTurn,
   resolvePromptCacheTouchTimestamp,
   resolveAttemptBootstrapContext,
@@ -315,7 +315,7 @@ export function resolveUnknownToolGuardThreshold(loopDetection?: {
   // The unknown-tool guard is a safety net against the model hallucinating a
   // tool name or calling a tool that has since been removed from the allowlist
   // (for example after a `skills.allowBundled` config change). After `threshold`
-  // consecutive unknown-tool attempts the stream wrapper rewrites the assistant
+  // consecutive unknown-tool attempts the stream wrapper rewrites the zhushou
   // message content to tell the model to stop, which breaks otherwise-infinite
   // Tool-not-found loops against the provider. Unlike the genericRepeat /
   // pingPong / pollNoProgress detectors this guard has no false-positive
@@ -501,11 +501,11 @@ export async function runEmbeddedAttempt(
     const bootstrapCheckpointContinuation = (
       params.sessionKey ? loadGatewaySessionRow(params.sessionKey) : null
     )?.latestCompactionCheckpoint?.continuation as SessionTaskContinuation | undefined;
-    const agentDir = params.agentDir ?? resolveAssistantAgentDir();
+    const agentDir = params.agentDir ?? resolveZhushouAgentDir();
     const toolsRaw = params.disableTools
       ? []
       : (() => {
-          const allTools = createAssistantCodingTools({
+          const allTools = createZhushouCodingTools({
             agentId: sessionAgentId,
             ...buildEmbeddedAttemptToolRunContext(params),
             exec: {
@@ -823,7 +823,7 @@ export async function runEmbeddedAttempt(
     // When toolsAllow is set, use minimal prompt and strip skills catalog
     const effectivePromptMode = params.toolsAllow?.length ? ("minimal" as const) : promptMode;
     const effectiveSkillsPrompt = params.toolsAllow?.length ? undefined : skillsPrompt;
-    const docsPath = await resolveAssistantDocsPath({
+    const docsPath = await resolveZhushouDocsPath({
       workspaceDir: effectiveWorkspace,
       argv1: process.argv[1],
       cwd: effectiveWorkspace,
@@ -1530,10 +1530,10 @@ export async function runEmbeddedAttempt(
         );
         // Re-run tool_use/tool_result pairing repair after truncation, since
         // limitHistoryTurns can orphan tool_result blocks by removing the
-        // assistant message that contained the matching tool_use.
+        // zhushou message that contained the matching tool_use.
         const limited = transcriptPolicy.repairToolUseResultPairing
           ? sanitizeToolUseResultPairing(truncated, {
-              erroredAssistantResultPolicy: "drop",
+              erroredZhushouResultPolicy: "drop",
             })
           : truncated;
         cacheTrace?.recordStage("session:limited", { messages: limited });
@@ -1686,7 +1686,7 @@ export async function runEmbeddedAttempt(
           blockReplyBreak: params.blockReplyBreak,
           blockReplyChunking: params.blockReplyChunking,
           onPartialReply: params.onPartialReply,
-          onAssistantMessageStart: params.onAssistantMessageStart,
+          onZhushouMessageStart: params.onZhushouMessageStart,
           onAgentEvent: params.onAgentEvent,
           enforceFinalTag: params.enforceFinalTag,
           silentExpected: params.silentExpected,
@@ -1700,7 +1700,7 @@ export async function runEmbeddedAttempt(
       );
 
       const {
-        assistantTexts,
+        zhushouTexts,
         toolMetas,
         unsubscribe,
         waitForCompactionRetry,
@@ -1733,8 +1733,8 @@ export async function runEmbeddedAttempt(
         },
         abort: abortRun,
       };
-      let lastAssistant: AgentMessage | undefined;
-      let currentAttemptAssistant: EmbeddedRunAttemptResult["currentAttemptAssistant"];
+      let lastZhushou: AgentMessage | undefined;
+      let currentAttemptZhushou: EmbeddedRunAttemptResult["currentAttemptZhushou"];
       let attemptUsage: NormalizedUsage | undefined;
       let cacheBreak: ReturnType<typeof completePromptCacheObservation> = null;
       let promptCache: EmbeddedRunAttemptResult["promptCache"];
@@ -2002,7 +2002,7 @@ export async function runEmbeddedAttempt(
 
         try {
           // Idempotent cleanup: prune old image blocks to limit context
-          // growth. Only mutates turns older than a few assistant replies;
+          // growth. Only mutates turns older than a few zhushou replies;
           // the delay also reduces prompt-cache churn.
           const didPruneImages = pruneProcessedHistoryImages(activeSession.messages);
           if (didPruneImages) {
@@ -2245,7 +2245,7 @@ export async function runEmbeddedAttempt(
 
         try {
           // Flush buffered block replies before waiting for compaction so the
-          // user receives the assistant response immediately.  Without this,
+          // user receives the zhushou response immediately.  Without this,
           // coalesced/buffered blocks stay in the pipeline until compaction
           // finishes — which can take minutes on large contexts (#35074).
           if (params.onBlockReplyFlush) {
@@ -2296,7 +2296,7 @@ export async function runEmbeddedAttempt(
         // Previously this was before the prompt, which caused a custom entry to be
         // inserted between compaction and the next prompt — breaking the
         // prepareCompaction() guard that checks the last entry type, leading to
-        // double-compaction. See: https://github.com/assistant/assistant/issues/9282
+        // double-compaction. See: https://github.com/wang301208/zhushou/issues/9282
         // Skip when timed out during compaction — session state may be inconsistent.
         // Also skip when compaction ran this attempt — appending a custom entry
         // after compaction would break the guard again. See: #28491
@@ -2312,7 +2312,7 @@ export async function runEmbeddedAttempt(
         });
 
         // If timeout occurred during compaction, use pre-compaction snapshot when available
-        // (compaction restructures messages but does not add user/assistant turns).
+        // (compaction restructures messages but does not add user/zhushou turns).
         const snapshotSelection = selectCompactionTimeoutSnapshot({
           timedOutDuringCompaction,
           preCompactionSnapshot,
@@ -2330,11 +2330,11 @@ export async function runEmbeddedAttempt(
         messagesSnapshot = snapshotSelection.messagesSnapshot;
         sessionIdUsed = snapshotSelection.sessionIdUsed;
 
-        lastAssistant = messagesSnapshot
+        lastZhushou = messagesSnapshot
           .slice()
           .toReversed()
           .find((m) => m.role === "assistant");
-        currentAttemptAssistant = findCurrentAttemptAssistantMessage({
+        currentAttemptZhushou = findCurrentAttemptZhushouMessage({
           messagesSnapshot,
           prePromptMessageCount,
         });
@@ -2346,7 +2346,7 @@ export async function runEmbeddedAttempt(
               usage: attemptUsage,
             })
           : null;
-        const lastCallUsage = normalizeUsage(currentAttemptAssistant?.usage);
+        const lastCallUsage = normalizeUsage(currentAttemptZhushou?.usage);
         const promptCacheObservation =
           cacheObservabilityEnabled &&
           (cacheBreak || promptCacheChangesForTurn || typeof attemptUsage?.cacheRead === "number")
@@ -2373,14 +2373,14 @@ export async function runEmbeddedAttempt(
           observation: promptCacheObservation,
           lastCacheTouchAt: resolvePromptCacheTouchTimestamp({
             lastCallUsage,
-            assistantTimestamp: currentAttemptAssistant?.timestamp,
+            zhushouTimestamp: currentAttemptZhushou?.timestamp,
             fallbackLastCacheTouchAt,
           }),
         });
 
         if (promptError && promptErrorSource === "prompt" && !compactionOccurredThisAttempt) {
           try {
-            sessionManager.appendCustomEntry("assistant:prompt-error", {
+            sessionManager.appendCustomEntry("zhushou:prompt-error", {
               timestamp: Date.now(),
               runId: params.runId,
               sessionId: params.sessionId,
@@ -2570,8 +2570,8 @@ export async function runEmbeddedAttempt(
               sessionId: params.sessionId,
               provider: params.provider,
               model: params.modelId,
-              assistantTexts,
-              lastAssistant,
+              zhushouTexts,
+              lastZhushou,
               usage: attemptUsage,
             },
             {
@@ -2617,10 +2617,10 @@ export async function runEmbeddedAttempt(
         systemPromptReport,
         finalPromptText,
         messagesSnapshot,
-        assistantTexts,
+        zhushouTexts,
         toolMetas: toolMetasNormalized,
-        lastAssistant,
-        currentAttemptAssistant,
+        lastZhushou,
+        currentAttemptZhushou,
         lastToolError: getLastToolError?.(),
         didSendViaMessagingTool: didSendViaMessagingTool(),
         messagingToolSentTexts: getMessagingToolSentTexts(),
@@ -2628,7 +2628,7 @@ export async function runEmbeddedAttempt(
         messagingToolSentTargets: getMessagingToolSentTargets(),
         successfulCronAdds: getSuccessfulCronAdds(),
         cloudCodeAssistFormatError: Boolean(
-          lastAssistant?.errorMessage && isCloudCodeAssistFormatError(lastAssistant.errorMessage),
+          lastZhushou?.errorMessage && isCloudCodeAssistFormatError(lastZhushou.errorMessage),
         ),
         attemptUsage,
         promptCache,
@@ -2641,11 +2641,11 @@ export async function runEmbeddedAttempt(
       // Always tear down the session (and release the lock) before we leave this attempt.
       //
       // BUGFIX: Wait for the agent to be truly idle before flushing pending tool results.
-      // pi-agent-core's auto-retry resolves waitForRetry() on assistant message receipt,
+      // pi-agent-core's auto-retry resolves waitForRetry() on zhushou message receipt,
       // *before* tool execution completes in the retried agent loop. Without this wait,
       // flushPendingToolResults() fires while tools are still executing, inserting
       // synthetic "missing tool result" errors and causing silent agent failures.
-      // See: https://github.com/assistant/assistant/issues/8643
+      // See: https://github.com/wang301208/zhushou/issues/8643
       await cleanupEmbeddedAttemptResources({
         removeToolResultContextGuard,
         flushPendingToolResultsAfterIdle,

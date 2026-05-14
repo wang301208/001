@@ -116,8 +116,8 @@ describe("cli program (nodes media)", () => {
       .map((l) => l.replace(/^MEDIA:/, ""))
       .filter(Boolean);
     expect(mediaPaths).toHaveLength(2);
-    expect(mediaPaths[0]).toContain("assistant-camera-snap-");
-    expect(mediaPaths[1]).toContain("assistant-camera-snap-");
+    expect(mediaPaths[0]).toContain("zhushou-camera-snap-");
+    expect(mediaPaths[1]).toContain("zhushou-camera-snap-");
 
     try {
       // Content bytes are covered by single-output camera/file tests; here we
@@ -158,7 +158,7 @@ describe("cli program (nodes media)", () => {
     );
 
     await expectLoggedSingleMediaFile({
-      expectedPathPattern: /assistant-camera-clip-front-.*\.mp4$/,
+      expectedPathPattern: /zhushou-camera-clip-front-.*\.mp4$/,
     });
   });
 
@@ -273,7 +273,7 @@ describe("cli program (nodes media)", () => {
     await runNodesCommand(["nodes", "canvas", "snapshot", "--node", "ios-node", "--format", "png"]);
 
     await expectLoggedSingleMediaFile({
-      expectedPathPattern: /assistant-canvas-snapshot-.*\.png$/,
+      expectedPathPattern: /zhushou-canvas-snapshot-.*\.png$/,
     });
   });
 
@@ -330,7 +330,7 @@ describe("cli program (nodes media)", () => {
           height: 480,
         },
         argv: ["nodes", "camera", "snap", "--node", "ios-node", "--facing", "front"],
-        expectedPathPattern: /assistant-camera-snap-front-.*\.jpg$/,
+        expectedPathPattern: /zhushou-camera-snap-front-.*\.jpg$/,
       },
       {
         label: "runs nodes camera clip with url payload",
@@ -342,7 +342,7 @@ describe("cli program (nodes media)", () => {
           hasAudio: true,
         },
         argv: ["nodes", "camera", "clip", "--node", "ios-node", "--duration", "5000"],
-        expectedPathPattern: /assistant-camera-clip-front-.*\.mp4$/,
+        expectedPathPattern: /zhushou-camera-clip-front-.*\.mp4$/,
       },
     ])("$label", async ({ command, payload, argv, expectedPathPattern }) => {
       await runAndExpectUrlPayloadMediaFile({

@@ -55,7 +55,7 @@ export type {
 } from "../channels/plugins/types.public.js";
 export type { ChannelPlugin } from "../channels/plugins/types.plugin.js";
 export { createChannelReplyPipeline } from "./channel-reply-pipeline.js";
-export type { AssistantConfig } from "../config/config.js";
+export type { ZhushouConfig } from "../config/config.js";
 export { isDangerousNameMatchingEnabled } from "../config/dangerous-name-matching.js";
 export {
   GROUP_POLICY_BLOCKED_LABEL,
@@ -70,7 +70,7 @@ export { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 export { missingTargetError } from "../infra/outbound/target-errors.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 export type { PluginRuntime } from "../plugins/runtime/types.js";
-export type { AssistantPluginApi } from "../plugins/types.js";
+export type { ZhushouPluginApi } from "../plugins/types.js";
 export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 export { resolveDmGroupAccessWithLists } from "../security/dm-policy-shared.js";
 export { formatDocsLink } from "../terminal/links.js";
@@ -95,7 +95,7 @@ export {
 } from "./webhook-ingress.js";
 
 type GoogleChatGroupContext = {
-  cfg: import("../config/config.js").AssistantConfig;
+  cfg: import("../config/config.js").ZhushouConfig;
   accountId?: string | null;
   groupId?: string | null;
 };
@@ -112,7 +112,7 @@ export function resolveGoogleChatGroupRequireMention(params: GoogleChatGroupCont
 const googlechatSetup = createOptionalChannelSetupSurface({
   channel: "googlechat",
   label: "Google Chat",
-  npmSpec: "@assistant/googlechat",
+  npmSpec: "@zhushou/googlechat",
   docsPath: "/channels/googlechat",
 });
 

@@ -1,10 +1,10 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { getChannelPlugin } from "./registry.js";
 import type { ChannelId } from "./types.public.js";
 
 export async function createChannelConversationBindingManager(params: {
   channelId: ChannelId;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): Promise<{ stop: () => void | Promise<void> } | null> {
   const createManager = getChannelPlugin(params.channelId)?.conversationBindings?.createManager;

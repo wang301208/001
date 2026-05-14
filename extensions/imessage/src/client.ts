@@ -1,8 +1,8 @@
 import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import { createInterface, type Interface } from "node:readline";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty, resolveUserPath } from "assistant/plugin-sdk/text-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty, resolveUserPath } from "zhushou/plugin-sdk/text-runtime";
 import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 
 export type IMessageRpcError = {

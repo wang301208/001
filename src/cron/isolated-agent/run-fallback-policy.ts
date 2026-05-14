@@ -1,9 +1,9 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { CronJob } from "../types.js";
 import { resolveEffectiveModelFallbacks } from "./run-execution.runtime.js";
 
 export function resolveCronFallbacksOverride(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   job: CronJob;
   agentId: string;
 }): string[] | undefined {

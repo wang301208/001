@@ -1,16 +1,16 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export type RealtimeTranscriptionProviderId = string;
 
 export type RealtimeTranscriptionProviderConfig = Record<string, unknown>;
 
 export type RealtimeTranscriptionProviderResolveConfigContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   rawConfig: RealtimeTranscriptionProviderConfig;
 };
 
 export type RealtimeTranscriptionProviderConfiguredContext = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   providerConfig: RealtimeTranscriptionProviderConfig;
 };
 

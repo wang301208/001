@@ -46,7 +46,7 @@ export function buildAgentPrompt(input: string | ItemParam[]): {
       }
 
       const normalizedRole = item.role === "assistant" ? "assistant" : "user";
-      const sender = normalizedRole === "assistant" ? "Assistant" : "User";
+      const sender = normalizedRole === "assistant" ? "Zhushou" : "User";
 
       conversationEntries.push({
         role: normalizedRole,

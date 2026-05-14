@@ -11,7 +11,7 @@ describe("resolveWebhooksPluginConfig", () => {
             secret: {
               source: "env",
               provider: "default",
-              id: "ASSISTANT_WEBHOOK_SECRET",
+              id: "ZHUSHOU_WEBHOOK_SECRET",
             },
           },
         },
@@ -26,7 +26,7 @@ describe("resolveWebhooksPluginConfig", () => {
         secret: {
           source: "env",
           provider: "default",
-          id: "ASSISTANT_WEBHOOK_SECRET",
+          id: "ZHUSHOU_WEBHOOK_SECRET",
         },
         controllerId: "webhooks/zapier",
       },

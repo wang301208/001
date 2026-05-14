@@ -58,7 +58,7 @@ afterAll(async () => {
 
 async function createFreshOperatorDevice(scopes: string[], nonce: string) {
   const identity = loadOrCreateDeviceIdentity(
-    path.join(os.tmpdir(), `assistant-talk-config-device-${process.pid}-${talkConfigDeviceSeq++}`),
+    path.join(os.tmpdir(), `zhushou-talk-config-device-${process.pid}-${talkConfigDeviceSeq++}`),
   );
   const signedAtMs = Date.now();
   const payload = buildDeviceAuthPayload({
@@ -195,7 +195,7 @@ describe("gateway talk.config", () => {
       expectTalkConfig(res.payload?.config?.talk, {
         provider: GENERIC_TALK_PROVIDER_ID,
         voiceId: "voice-123",
-        apiKey: "__ASSISTANT_REDACTED__",
+        apiKey: "__ZHUSHOU_REDACTED__",
         silenceTimeoutMs: 1500,
       });
       expect(res.payload?.config?.session?.mainKey).toBe("main-test");

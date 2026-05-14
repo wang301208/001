@@ -4,11 +4,11 @@ import {
   resolveOAuthDir,
   resolveStateDir,
 } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { buildCleanupPlan } from "./cleanup-utils.js";
 
 export function resolveCleanupPlanFromDisk(): {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   stateDir: string;
   configPath: string;
   oauthDir: string;

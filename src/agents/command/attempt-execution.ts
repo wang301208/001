@@ -4,7 +4,7 @@ import { normalizeReplyPayload } from "../../auto-reply/reply/normalize-reply.js
 import type { ThinkLevel, VerboseLevel } from "../../auto-reply/thinking.js";
 import { resolveSessionTranscriptFile } from "../../config/sessions/transcript.js";
 import type { SessionEntry } from "../../config/sessions/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { AgentGovernanceRuntimeSnapshot } from "../../governance/runtime-snapshot.js";
 import { emitAgentEvent } from "../../infra/agent-events.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -67,7 +67,7 @@ type PersistTextTurnTranscriptParams = {
   sessionAgentId: string;
   threadId?: string | number;
   sessionCwd: string;
-  assistant: {
+  zhushou: {
     api: string;
     provider: string;
     model: string;
@@ -75,7 +75,7 @@ type PersistTextTurnTranscriptParams = {
   };
 };
 
-function resolveTranscriptUsage(usage: PersistTextTurnTranscriptParams["assistant"]["usage"]) {
+function resolveTranscriptUsage(usage: PersistTextTurnTranscriptParams["zhushou"]["usage"]) {
   if (!usage) {
     return ACP_TRANSCRIPT_USAGE;
   }
@@ -131,10 +131,10 @@ async function persistTextTurnTranscript(
     sessionManager.appendMessage({
       role: "assistant",
       content: [{ type: "text", text: replyText }],
-      api: params.assistant.api,
-      provider: params.assistant.provider,
-      model: params.assistant.model,
-      usage: resolveTranscriptUsage(params.assistant.usage),
+      api: params.zhushou.api,
+      provider: params.zhushou.provider,
+      model: params.zhushou.model,
+      usage: resolveTranscriptUsage(params.zhushou.usage),
       stopReason: "stop",
       timestamp: Date.now(),
     });
@@ -145,7 +145,7 @@ async function persistTextTurnTranscript(
 }
 
 function resolveCliTranscriptReplyText(result: EmbeddedPiRunResult): string {
-  const visibleText = result.meta.finalAssistantVisibleText?.trim();
+  const visibleText = result.meta.finalZhushouVisibleText?.trim();
   if (visibleText) {
     return visibleText;
   }
@@ -171,9 +171,9 @@ export async function persistAcpTurnTranscript(params: {
 }): Promise<SessionEntry | undefined> {
   return await persistTextTurnTranscript({
     ...params,
-    assistant: {
+    zhushou: {
       api: "openai-responses",
-      provider: "assistant",
+      provider: "zhushou",
       model: "acp-runtime",
     },
   });
@@ -206,7 +206,7 @@ export async function persistCliTurnTranscript(params: {
     sessionAgentId: params.sessionAgentId,
     threadId: params.threadId,
     sessionCwd: params.sessionCwd,
-    assistant: {
+    zhushou: {
       api: "cli",
       provider,
       model,
@@ -218,7 +218,7 @@ export async function persistCliTurnTranscript(params: {
 export function runAgentAttempt(params: {
   providerOverride: string;
   modelOverride: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionEntry: SessionEntry | undefined;
   sessionId: string;
   sessionKey: string | undefined;
@@ -424,7 +424,7 @@ export function buildAcpResult(params: {
           ? {
               agentMeta: {
                 sessionId: params.sessionId,
-                provider: "assistant",
+                provider: "zhushou",
                 model: "acp-runtime",
                 ...(params.governanceRuntime ? { governanceRuntime: params.governanceRuntime } : {}),
               },
@@ -468,10 +468,10 @@ export function emitAcpLifecycleError(params: { runId: string; message: string }
   });
 }
 
-export function emitAcpAssistantDelta(params: { runId: string; text: string; delta: string }) {
+export function emitAcpZhushouDelta(params: { runId: string; text: string; delta: string }) {
   emitAgentEvent({
     runId: params.runId,
-    stream: "assistant",
+    stream: "zhushou",
     data: {
       text: params.text,
       delta: params.delta,

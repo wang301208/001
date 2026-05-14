@@ -25,20 +25,20 @@ describe("matchesExecAllowlistPattern", () => {
   });
 
   it("expands home-prefix patterns", () => {
-    const prevAssistantHome = process.env.ASSISTANT_HOME;
+    const prevZhushouHome = process.env.ZHUSHOU_HOME;
     const prevHome = process.env.HOME;
-    process.env.ASSISTANT_HOME = "/srv/assistant-home";
+    process.env.ZHUSHOU_HOME = "/srv/zhushou-home";
     process.env.HOME = "/home/other";
-    const assistantHome = path.join(path.resolve("/srv/assistant-home"), "bin", "tool");
+    const zhushouHome = path.join(path.resolve("/srv/zhushou-home"), "bin", "tool");
     const fallbackHome = path.join(path.resolve("/home/other"), "bin", "tool");
     try {
-      expect(matchesExecAllowlistPattern("~/bin/tool", assistantHome)).toBe(true);
+      expect(matchesExecAllowlistPattern("~/bin/tool", zhushouHome)).toBe(true);
       expect(matchesExecAllowlistPattern("~/bin/tool", fallbackHome)).toBe(false);
     } finally {
-      if (prevAssistantHome === undefined) {
-        delete process.env.ASSISTANT_HOME;
+      if (prevZhushouHome === undefined) {
+        delete process.env.ZHUSHOU_HOME;
       } else {
-        process.env.ASSISTANT_HOME = prevAssistantHome;
+        process.env.ZHUSHOU_HOME = prevZhushouHome;
       }
       if (prevHome === undefined) {
         delete process.env.HOME;

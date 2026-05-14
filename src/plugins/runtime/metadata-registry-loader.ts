@@ -1,12 +1,12 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
-import { loadAssistantPlugins } from "../loader.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import { loadZhushouPlugins } from "../loader.js";
 import { hasExplicitPluginIdScope } from "../plugin-scope.js";
 import type { PluginRegistry } from "../registry.js";
 import { buildPluginRuntimeLoadOptions, resolvePluginRuntimeLoadContext } from "./load-context.js";
 
 export function loadPluginMetadataRegistrySnapshot(options?: {
-  config?: AssistantConfig;
-  activationSourceConfig?: AssistantConfig;
+  config?: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   workspaceDir?: string;
   onlyPluginIds?: string[];
@@ -14,7 +14,7 @@ export function loadPluginMetadataRegistrySnapshot(options?: {
 }): PluginRegistry {
   const context = resolvePluginRuntimeLoadContext(options);
 
-  return loadAssistantPlugins(
+  return loadZhushouPlugins(
     buildPluginRuntimeLoadOptions(context, {
       throwOnLoadError: true,
       cache: false,

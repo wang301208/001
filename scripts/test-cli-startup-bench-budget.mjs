@@ -45,14 +45,14 @@ const opts = parseFlagArgs(
   {
     baseline: CLI_STARTUP_BENCH_FIXTURE_PATH,
     report: "",
-    entry: "assistant.mjs",
+    entry: "zhushou.mjs",
     preset: "all",
     runs: 1,
     warmup: 0,
     timeoutMs: 30_000,
     maxDurationRegressionPct:
-      readEnvNumber("ASSISTANT_STARTUP_BENCH_MAX_DURATION_REGRESSION_PCT") ?? 20,
-    maxRssRegressionPct: readEnvNumber("ASSISTANT_STARTUP_BENCH_MAX_RSS_REGRESSION_PCT") ?? 20,
+      readEnvNumber("ZHUSHOU_STARTUP_BENCH_MAX_DURATION_REGRESSION_PCT") ?? 20,
+    maxRssRegressionPct: readEnvNumber("ZHUSHOU_STARTUP_BENCH_MAX_RSS_REGRESSION_PCT") ?? 20,
   },
   [
     stringFlag("--baseline", "baseline"),

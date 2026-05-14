@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { detectBinary as defaultDetectBinary } from "../../plugins/setup-binary.js";
 import type {
   ChannelSetupWizard,
@@ -19,10 +19,10 @@ export function createDetectedBinaryStatus(params: {
   configuredScore: number;
   unconfiguredScore: number;
   resolveConfigured: (params: {
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     accountId?: string;
   }) => boolean | Promise<boolean>;
-  resolveBinaryPath: (params: { cfg: AssistantConfig; accountId?: string }) => string;
+  resolveBinaryPath: (params: { cfg: ZhushouConfig; accountId?: string }) => string;
   detectBinary?: (path: string) => Promise<boolean>;
 }): ChannelSetupWizardStatus {
   const detectBinary = params.detectBinary ?? defaultDetectBinary;
@@ -47,7 +47,7 @@ export function createDetectedBinaryStatus(params: {
       cfg,
       accountId,
     }: {
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       accountId?: string;
       configured: boolean;
     }): Promise<string | undefined> {
@@ -59,7 +59,7 @@ export function createDetectedBinaryStatus(params: {
       cfg,
       accountId,
     }: {
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       accountId?: string;
       configured: boolean;
     }): Promise<number | undefined> {

@@ -4,11 +4,11 @@ import * as transcriptEvents from "../../sessions/transcript-events.js";
 import { resolveSessionTranscriptPathInDir } from "./paths.js";
 import { useTempSessionsFixture } from "./test-helpers.js";
 import {
-  appendAssistantMessageToSessionTranscript,
-  appendExactAssistantMessageToSessionTranscript,
+  appendZhushouMessageToSessionTranscript,
+  appendExactZhushouMessageToSessionTranscript,
 } from "./transcript.js";
 
-describe("appendAssistantMessageToSessionTranscript", () => {
+describe("appendZhushouMessageToSessionTranscript", () => {
   const fixture = useTempSessionsFixture("transcript-test-");
   const sessionId = "test-session-id";
   const sessionKey = "test-session";
@@ -30,7 +30,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
   it("creates transcript file and appends message for valid session", async () => {
     writeTranscriptStore();
 
-    const result = await appendAssistantMessageToSessionTranscript({
+    const result = await appendZhushouMessageToSessionTranscript({
       sessionKey,
       text: "Hello from delivery mirror!",
       storePath: fixture.storePath(),
@@ -70,7 +70,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
     fs.writeFileSync(fixture.storePath(), JSON.stringify(store), "utf-8");
     const emitSpy = vi.spyOn(transcriptEvents, "emitSessionTranscriptUpdate");
 
-    await appendAssistantMessageToSessionTranscript({
+    await appendZhushouMessageToSessionTranscript({
       sessionKey,
       text: "Hello from delivery mirror!",
       storePath: fixture.storePath(),
@@ -84,7 +84,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
         messageId: expect.any(String),
         message: expect.objectContaining({
           role: "assistant",
-          provider: "assistant",
+          provider: "zhushou",
           model: "delivery-mirror",
           content: [{ type: "text", text: "Hello from delivery mirror!" }],
         }),
@@ -96,13 +96,13 @@ describe("appendAssistantMessageToSessionTranscript", () => {
   it("does not append a duplicate delivery mirror for the same idempotency key", async () => {
     writeTranscriptStore();
 
-    await appendAssistantMessageToSessionTranscript({
+    await appendZhushouMessageToSessionTranscript({
       sessionKey,
       text: "Hello from delivery mirror!",
       idempotencyKey: "mirror:test-source-message",
       storePath: fixture.storePath(),
     });
-    await appendAssistantMessageToSessionTranscript({
+    await appendZhushouMessageToSessionTranscript({
       sessionKey,
       text: "Hello from delivery mirror!",
       idempotencyKey: "mirror:test-source-message",
@@ -118,10 +118,10 @@ describe("appendAssistantMessageToSessionTranscript", () => {
     expect(messageLine.message.content[0].text).toBe("Hello from delivery mirror!");
   });
 
-  it("does not append a duplicate delivery mirror when the latest assistant message already matches", async () => {
+  it("does not append a duplicate delivery mirror when the latest zhushou message already matches", async () => {
     writeTranscriptStore();
 
-    const exactResult = await appendExactAssistantMessageToSessionTranscript({
+    const exactResult = await appendExactZhushouMessageToSessionTranscript({
       sessionKey,
       storePath: fixture.storePath(),
       message: {
@@ -145,7 +145,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
 
     expect(exactResult.ok).toBe(true);
 
-    const mirrorResult = await appendAssistantMessageToSessionTranscript({
+    const mirrorResult = await appendZhushouMessageToSessionTranscript({
       sessionKey,
       text: "Hello from Codex!",
       storePath: fixture.storePath(),
@@ -164,10 +164,10 @@ describe("appendAssistantMessageToSessionTranscript", () => {
     }
   });
 
-  it("does not reuse an older matching assistant message across turns", async () => {
+  it("does not reuse an older matching zhushou message across turns", async () => {
     writeTranscriptStore();
 
-    const olderResult = await appendExactAssistantMessageToSessionTranscript({
+    const olderResult = await appendExactZhushouMessageToSessionTranscript({
       sessionKey,
       storePath: fixture.storePath(),
       message: {
@@ -189,7 +189,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
       },
     });
 
-    const latestResult = await appendExactAssistantMessageToSessionTranscript({
+    const latestResult = await appendExactZhushouMessageToSessionTranscript({
       sessionKey,
       storePath: fixture.storePath(),
       message: {
@@ -211,7 +211,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
       },
     });
 
-    const mirrorResult = await appendAssistantMessageToSessionTranscript({
+    const mirrorResult = await appendZhushouMessageToSessionTranscript({
       sessionKey,
       text: "Repeated answer",
       storePath: fixture.storePath(),
@@ -228,7 +228,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
       expect(lines.length).toBe(4);
 
       const messageLine = JSON.parse(lines[3]);
-      expect(messageLine.message.provider).toBe("assistant");
+      expect(messageLine.message.provider).toBe("zhushou");
       expect(messageLine.message.model).toBe("delivery-mirror");
       expect(messageLine.message.content[0].text).toBe("Repeated answer");
     }
@@ -245,7 +245,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
     };
     fs.writeFileSync(fixture.storePath(), JSON.stringify(store), "utf-8");
 
-    const result = await appendAssistantMessageToSessionTranscript({
+    const result = await appendZhushouMessageToSessionTranscript({
       sessionKey: "agent:main:BlueBubbles:direct:+15551234567",
       text: "Hello normalized!",
       storePath: fixture.storePath(),
@@ -265,7 +265,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
     };
     fs.writeFileSync(fixture.storePath(), JSON.stringify(store), "utf-8");
 
-    const result = await appendAssistantMessageToSessionTranscript({
+    const result = await appendZhushouMessageToSessionTranscript({
       sessionKey: "agent:main:slack:direct:U12345ABC",
       text: "Hello Slack user!",
       storePath: fixture.storePath(),
@@ -301,7 +301,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
       "utf-8",
     );
 
-    const result = await appendAssistantMessageToSessionTranscript({
+    const result = await appendZhushouMessageToSessionTranscript({
       sessionKey,
       text: "Hello from delivery mirror!",
       idempotencyKey: "mirror:test-source-message",
@@ -313,10 +313,10 @@ describe("appendAssistantMessageToSessionTranscript", () => {
     expect(lines.length).toBe(3);
   });
 
-  it("appends exact assistant transcript messages without rewriting phased content", async () => {
+  it("appends exact zhushou transcript messages without rewriting phased content", async () => {
     writeTranscriptStore();
 
-    const result = await appendExactAssistantMessageToSessionTranscript({
+    const result = await appendExactZhushouMessageToSessionTranscript({
       sessionKey,
       storePath: fixture.storePath(),
       message: {
@@ -334,7 +334,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
           },
         ],
         api: "openai-responses",
-        provider: "assistant",
+        provider: "zhushou",
         model: "delivery-mirror",
         usage: {
           input: 0,
@@ -368,11 +368,11 @@ describe("appendAssistantMessageToSessionTranscript", () => {
     }
   });
 
-  it("can emit file-only transcript refresh events for exact assistant appends", async () => {
+  it("can emit file-only transcript refresh events for exact zhushou appends", async () => {
     writeTranscriptStore();
     const emitSpy = vi.spyOn(transcriptEvents, "emitSessionTranscriptUpdate");
 
-    const result = await appendExactAssistantMessageToSessionTranscript({
+    const result = await appendExactZhushouMessageToSessionTranscript({
       sessionKey,
       storePath: fixture.storePath(),
       updateMode: "file-only",
@@ -380,7 +380,7 @@ describe("appendAssistantMessageToSessionTranscript", () => {
         role: "assistant",
         content: [{ type: "text", text: "Done." }],
         api: "openai-responses",
-        provider: "assistant",
+        provider: "zhushou",
         model: "delivery-mirror",
         usage: {
           input: 0,

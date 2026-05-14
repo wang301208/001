@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { parseInlineDirectives } from "./directive-handling.parse.js";
 import { maybeHandleQueueDirective } from "./directive-handling.queue-validation.js";
 
@@ -7,7 +7,7 @@ describe("maybeHandleQueueDirective", () => {
   it("reports invalid queue options and current queue settings", () => {
     const invalid = maybeHandleQueueDirective({
       directives: parseInlineDirectives("/queue collect debounce:bogus cap:zero drop:maybe"),
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       channel: "whatsapp",
     });
     expect(invalid?.text).toContain("Invalid debounce");
@@ -25,7 +25,7 @@ describe("maybeHandleQueueDirective", () => {
             drop: "summarize",
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       channel: "whatsapp",
     });
     expect(current?.text).toContain(

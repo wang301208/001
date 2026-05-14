@@ -62,7 +62,7 @@ jobs:
       - name: Core unit and integration tests
         env:
           CI: "true"
-          ASSISTANT_VITEST_MAX_WORKERS: "2"
+          ZHUSHOU_VITEST_MAX_WORKERS: "2"
           NODE_OPTIONS: --max-old-space-size=6144
         run: pnpm test
 
@@ -89,4 +89,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build gateway image
-        run: docker build -t assistant:ci .
+        run: docker build -t zhushou:ci .

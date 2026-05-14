@@ -23,7 +23,7 @@ import {
   type SessionEntry,
   updateSessionStore,
 } from "../../config/sessions.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { buildUnknownAgentIdMessage } from "../../governance/agent-selection-feedback.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import {
@@ -58,9 +58,9 @@ import {
   isGatewayMessageChannel,
   normalizeMessageChannel,
 } from "../../utils/message-channel.js";
-import { resolveAssistantIdentity } from "../assistant-identity.js";
+import { resolveZhushouIdentity } from "../zhushou-identity.js";
 import { MediaOffloadError, parseMessageWithAttachments } from "../chat-attachments.js";
-import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
+import { resolveZhushouAvatarUrl } from "../control-ui-shared.js";
 import { ADMIN_SCOPE } from "../method-scopes.js";
 import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
 import {
@@ -133,7 +133,7 @@ async function runSessionResetFromAgent(params: {
 }
 
 function resolveSessionRuntimeWorkspace(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   sessionEntry?: SessionEntry;
   spawnedBy?: string;
@@ -530,7 +530,7 @@ export const agentHandlers: GatewayRequestHandlers = {
     let resolvedSessionId = normalizeOptionalString(request.sessionId);
     let sessionEntry: SessionEntry | undefined;
     let bestEffortDeliver = requestedBestEffortDeliver ?? false;
-    let cfgForAgent: AssistantConfig | undefined;
+    let cfgForAgent: ZhushouConfig | undefined;
     let resolvedSessionKey = requestedSessionKey;
     let isNewSession = false;
     let skipTimestampInjection = false;
@@ -616,7 +616,7 @@ export const agentHandlers: GatewayRequestHandlers = {
     // Inject timestamp into user-authored messages that don't already have one.
     // Channel messages (Discord, Telegram, etc.) get timestamps via envelope
     // formatting in a separate code path — they never reach this handler.
-    // See: https://github.com/assistant/assistant/issues/3658
+    // See: https://github.com/wang301208/zhushou/issues/3658
     if (!skipTimestampInjection) {
       message = injectTimestamp(message, timestampOptsFromConfig(cfg));
     }
@@ -1017,9 +1017,9 @@ export const agentHandlers: GatewayRequestHandlers = {
       agentId = resolved;
     }
     const cfg = loadConfig();
-    const identity = resolveAssistantIdentity({ cfg, agentId });
+    const identity = resolveZhushouIdentity({ cfg, agentId });
     const avatarValue =
-      resolveAssistantAvatarUrl({
+      resolveZhushouAvatarUrl({
         avatar: identity.avatar,
         agentId: identity.agentId,
         basePath: cfg.gateway?.controlUi?.basePath,

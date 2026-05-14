@@ -36,7 +36,7 @@ describe("gateway agent prompt", () => {
 
   it("uses history context when there is history", () => {
     const entries = [
-      { role: "assistant", entry: { sender: "Assistant", body: "prev" } },
+      { role: "assistant", entry: { sender: "Zhushou", body: "prev" } },
       { role: "user", entry: { sender: "User", body: "next" } },
     ] as const;
 
@@ -49,11 +49,11 @@ describe("gateway agent prompt", () => {
     expect(buildAgentMessageFromConversationEntries([...entries])).toBe(expected);
   });
 
-  it("prefers last tool entry over assistant for current message", () => {
+  it("prefers last tool entry over zhushou for current message", () => {
     const entries = [
       { role: "user", entry: { sender: "User", body: "question" } },
       { role: "tool", entry: { sender: "Tool:x", body: "tool output" } },
-      { role: "assistant", entry: { sender: "Assistant", body: "assistant text" } },
+      { role: "assistant", entry: { sender: "Zhushou", body: "zhushou text" } },
     ] as const;
 
     const expected = buildHistoryContextFromEntries({
@@ -70,7 +70,7 @@ describe("gateway agent prompt", () => {
       {
         role: "assistant",
         entry: {
-          sender: "Assistant",
+          sender: "Zhushou",
           body: [{ type: "text", text: "prev" }] as unknown as string,
         },
       },

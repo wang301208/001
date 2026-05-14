@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import {
   normalizeLowercaseStringOrEmpty,
@@ -24,7 +24,7 @@ export type SessionAccessResult =
   | { allowed: true }
   | { allowed: false; error: string; status: "forbidden" };
 
-export function resolveSessionToolsVisibility(cfg: AssistantConfig): SessionToolsVisibility {
+export function resolveSessionToolsVisibility(cfg: ZhushouConfig): SessionToolsVisibility {
   const raw = (cfg.tools as { sessions?: { visibility?: unknown } } | undefined)?.sessions
     ?.visibility;
   const value = normalizeLowercaseStringOrEmpty(raw);
@@ -35,7 +35,7 @@ export function resolveSessionToolsVisibility(cfg: AssistantConfig): SessionTool
 }
 
 export function resolveEffectiveSessionToolsVisibility(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sandboxed: boolean;
 }): SessionToolsVisibility {
   const visibility = resolveSessionToolsVisibility(params.cfg);
@@ -49,12 +49,12 @@ export function resolveEffectiveSessionToolsVisibility(params: {
   return visibility;
 }
 
-export function resolveSandboxSessionToolsVisibility(cfg: AssistantConfig): "spawned" | "all" {
+export function resolveSandboxSessionToolsVisibility(cfg: ZhushouConfig): "spawned" | "all" {
   return cfg.agents?.defaults?.sandbox?.sessionToolsVisibility ?? "spawned";
 }
 
 export function resolveSandboxedSessionToolContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentSessionKey?: string;
   sandboxed?: boolean;
 }): {
@@ -91,7 +91,7 @@ export function resolveSandboxedSessionToolContext(params: {
   };
 }
 
-export function createAgentToAgentPolicy(cfg: AssistantConfig): AgentToAgentPolicy {
+export function createAgentToAgentPolicy(cfg: ZhushouConfig): AgentToAgentPolicy {
   const routingA2A = cfg.tools?.agentToAgent;
   const enabled = routingA2A?.enabled === true;
   const allowPatterns = Array.isArray(routingA2A?.allow) ? routingA2A.allow : [];

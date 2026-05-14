@@ -17,7 +17,7 @@ describe("zai provider plugin", () => {
     ).toMatchObject({
       sanitizeToolCallIds: true,
       toolCallIdMode: "strict",
-      applyAssistantFirstOrderingFix: true,
+      applyZhushouFirstOrderingFix: true,
       validateGeminiTurns: true,
       validateAnthropicTurns: true,
     });
@@ -31,7 +31,7 @@ describe("zai provider plugin", () => {
     ).toMatchObject({
       sanitizeToolCallIds: true,
       toolCallIdMode: "strict",
-      applyAssistantFirstOrderingFix: false,
+      applyZhushouFirstOrderingFix: false,
       validateGeminiTurns: false,
       validateAnthropicTurns: false,
     });

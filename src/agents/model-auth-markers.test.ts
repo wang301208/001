@@ -2,22 +2,22 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { captureEnv, withEnvAsync } from "../test-utils/env.js";
 
 const PLUGIN_MANIFEST_ENV_KEYS = [
-  "ASSISTANT_BUNDLED_PLUGINS_DIR",
-  "ASSISTANT_DISABLE_BUNDLED_PLUGINS",
-  "ASSISTANT_SKIP_PROVIDERS",
-  "ASSISTANT_SKIP_CHANNELS",
-  "ASSISTANT_SKIP_CRON",
-  "ASSISTANT_TEST_MINIMAL_GATEWAY",
+  "ZHUSHOU_BUNDLED_PLUGINS_DIR",
+  "ZHUSHOU_DISABLE_BUNDLED_PLUGINS",
+  "ZHUSHOU_SKIP_PROVIDERS",
+  "ZHUSHOU_SKIP_CHANNELS",
+  "ZHUSHOU_SKIP_CRON",
+  "ZHUSHOU_TEST_MINIMAL_GATEWAY",
 ] as const;
 
 function cleanPluginManifestEnv(): Record<(typeof PLUGIN_MANIFEST_ENV_KEYS)[number], undefined> {
   return {
-    ASSISTANT_BUNDLED_PLUGINS_DIR: undefined,
-    ASSISTANT_DISABLE_BUNDLED_PLUGINS: undefined,
-    ASSISTANT_SKIP_PROVIDERS: undefined,
-    ASSISTANT_SKIP_CHANNELS: undefined,
-    ASSISTANT_SKIP_CRON: undefined,
-    ASSISTANT_TEST_MINIMAL_GATEWAY: undefined,
+    ZHUSHOU_BUNDLED_PLUGINS_DIR: undefined,
+    ZHUSHOU_DISABLE_BUNDLED_PLUGINS: undefined,
+    ZHUSHOU_SKIP_PROVIDERS: undefined,
+    ZHUSHOU_SKIP_CHANNELS: undefined,
+    ZHUSHOU_SKIP_CRON: undefined,
+    ZHUSHOU_TEST_MINIMAL_GATEWAY: undefined,
   };
 }
 

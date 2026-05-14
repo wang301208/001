@@ -3,23 +3,23 @@ import {
   resolveEnvelopeFormatOptions,
   toLocationContext,
   type NormalizedLocation,
-} from "assistant/plugin-sdk/channel-inbound";
-import { normalizeCommandBody } from "assistant/plugin-sdk/command-surface";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveChannelContextVisibilityMode } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { normalizeCommandBody } from "zhushou/plugin-sdk/command-surface";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveChannelContextVisibilityMode } from "zhushou/plugin-sdk/config-runtime";
 import type {
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import {
   buildPendingHistoryContextFromMap,
   type HistoryEntry,
-} from "assistant/plugin-sdk/reply-history";
-import type { ResolvedAgentRoute } from "assistant/plugin-sdk/routing";
-import { logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
-import { evaluateSupplementalContextVisibility } from "assistant/plugin-sdk/security-runtime";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/reply-history";
+import type { ResolvedAgentRoute } from "zhushou/plugin-sdk/routing";
+import { logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { evaluateSupplementalContextVisibility } from "zhushou/plugin-sdk/security-runtime";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 import type { NormalizedAllowFrom } from "./bot-access.js";
 import { isSenderAllowed, normalizeAllowFrom } from "./bot-access.js";
 import type {
@@ -77,7 +77,7 @@ async function loadTelegramMessageContextSessionRuntime(
 }
 
 export async function resolveTelegramMessageContextStorePath(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   sessionRuntime?: TelegramMessageContextSessionRuntimeOverrides;
 }): Promise<string> {
@@ -88,7 +88,7 @@ export async function resolveTelegramMessageContextStorePath(params: {
 }
 
 export async function buildTelegramInboundContextPayload(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   primaryCtx: TelegramContext;
   msg: TelegramContext["message"];
   allMedia: TelegramMediaRef[];

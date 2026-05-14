@@ -1,6 +1,6 @@
 import { type Api, type Model } from "@mariozechner/pi-ai";
 import type { AgentModelConfig } from "../../config/types.agents-shared.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { getDefaultLocalRoots } from "../../media/web-media.js";
 import { readSnakeCaseParamRaw } from "../../param-key.js";
 import {
@@ -51,38 +51,38 @@ type TaskRunDetailHandle = {
 };
 
 export function applyImageModelConfigDefaults(
-  cfg: AssistantConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   imageModelConfig: ImageModelConfig,
-): AssistantConfig | undefined {
+): ZhushouConfig | undefined {
   return applyAgentDefaultModelConfig(cfg, "imageModel", imageModelConfig);
 }
 
 export function applyImageGenerationModelConfigDefaults(
-  cfg: AssistantConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   imageGenerationModelConfig: ToolModelConfig,
-): AssistantConfig | undefined {
+): ZhushouConfig | undefined {
   return applyAgentDefaultModelConfig(cfg, "imageGenerationModel", imageGenerationModelConfig);
 }
 
 export function applyVideoGenerationModelConfigDefaults(
-  cfg: AssistantConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   videoGenerationModelConfig: ToolModelConfig,
-): AssistantConfig | undefined {
+): ZhushouConfig | undefined {
   return applyAgentDefaultModelConfig(cfg, "videoGenerationModel", videoGenerationModelConfig);
 }
 
 export function applyMusicGenerationModelConfigDefaults(
-  cfg: AssistantConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   musicGenerationModelConfig: ToolModelConfig,
-): AssistantConfig | undefined {
+): ZhushouConfig | undefined {
   return applyAgentDefaultModelConfig(cfg, "musicGenerationModel", musicGenerationModelConfig);
 }
 
 function applyAgentDefaultModelConfig(
-  cfg: AssistantConfig | undefined,
+  cfg: ZhushouConfig | undefined,
   key: "imageModel" | "imageGenerationModel" | "videoGenerationModel" | "musicGenerationModel",
   modelConfig: ToolModelConfig,
-): AssistantConfig | undefined {
+): ZhushouConfig | undefined {
   if (!cfg) {
     return undefined;
   }
@@ -102,7 +102,7 @@ type CapabilityProvider = {
   id: string;
   aliases?: string[];
   defaultModel?: string;
-  isConfigured?: (ctx: { cfg?: AssistantConfig; agentDir?: string }) => boolean;
+  isConfigured?: (ctx: { cfg?: ZhushouConfig; agentDir?: string }) => boolean;
 };
 
 export function findCapabilityProviderById<T extends CapabilityProvider>(params: {
@@ -121,7 +121,7 @@ export function isCapabilityProviderConfigured<T extends CapabilityProvider>(par
   providers: T[];
   provider?: T;
   providerId?: string;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentDir?: string;
 }): boolean {
   const provider =
@@ -162,7 +162,7 @@ export function resolveSelectedCapabilityProvider<T extends CapabilityProvider>(
 }
 
 export function resolveCapabilityModelCandidatesForTool<T extends CapabilityProvider>(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentDir?: string;
   providers: T[];
 }): string[] {
@@ -207,7 +207,7 @@ export function resolveCapabilityModelCandidatesForTool<T extends CapabilityProv
 }
 
 export function resolveCapabilityModelConfigForTool<T extends CapabilityProvider>(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentDir?: string;
   modelConfig?: AgentModelConfig;
   providers: T[];
@@ -414,7 +414,7 @@ export function resolveModelFromRegistry(params: {
 
 export async function resolveModelRuntimeApiKey(params: {
   model: Model<Api>;
-  cfg: AssistantConfig | undefined;
+  cfg: ZhushouConfig | undefined;
   agentDir: string;
   authStorage: {
     setRuntimeApiKey: (provider: string, apiKey: string) => void;

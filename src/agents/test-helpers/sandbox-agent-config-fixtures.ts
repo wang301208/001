@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 
-type AgentToolsConfig = NonNullable<NonNullable<AssistantConfig["agents"]>["list"]>[number]["tools"];
+type AgentToolsConfig = NonNullable<NonNullable<ZhushouConfig["agents"]>["list"]>[number]["tools"];
 type SandboxToolsConfig = {
   allow?: string[];
   deny?: string[];
@@ -10,7 +10,7 @@ export function createRestrictedAgentSandboxConfig(params: {
   agentTools?: AgentToolsConfig;
   globalSandboxTools?: SandboxToolsConfig;
   workspace?: string;
-}): AssistantConfig {
+}): ZhushouConfig {
   return {
     agents: {
       defaults: {
@@ -22,7 +22,7 @@ export function createRestrictedAgentSandboxConfig(params: {
       list: [
         {
           id: "restricted",
-          workspace: params.workspace ?? "~/assistant-restricted",
+          workspace: params.workspace ?? "~/zhushou-restricted",
           sandbox: {
             mode: "all",
             scope: "agent",
@@ -40,5 +40,5 @@ export function createRestrictedAgentSandboxConfig(params: {
           },
         }
       : {}),
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }

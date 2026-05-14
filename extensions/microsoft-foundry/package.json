@@ -1,13 +1,13 @@
 {
-  "name": "@assistant/microsoft-foundry",
+  "name": "@zhushou/microsoft-foundry",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Microsoft Foundry provider plugin",
   "type": "module",
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
 import { loadGovernanceCharter } from "../governance/charter-runtime.js";
 import { isTruthyEnvValue } from "../infra/env.js";
@@ -49,7 +49,7 @@ type GatewayAutonomyMaintenanceResult =
 type GatewayAutonomySupervisor = {
   start: () => void;
   stop: () => void;
-  updateConfig: (cfg: AssistantConfig) => void;
+  updateConfig: (cfg: ZhushouConfig) => void;
 };
 
 type GatewayBackendAutomationStep = {
@@ -74,18 +74,290 @@ export type GatewayBackendAutomationHistoryEntry = GatewayBackendAutomationResul
 type GatewayBackendAutomationSupervisor = {
   start: () => void;
   stop: () => void;
-  updateConfig: (cfg: AssistantConfig) => void;
+  updateConfig: (cfg: ZhushouConfig) => void;
 };
+
+type GatewayLevel5SelfRuntime = {
+  start: () => void;
+  stop: () => void;
+};
+
+const LEVEL5_SELF_RUNTIME_UNITS: Array<{
+  id: string;
+  name: string;
+  intervalMs: number;
+  start: (
+    runtime: Awaited<typeof import("../governance/level5-autonomy.js")>,
+    intervalMs: number,
+  ) => void;
+  stop: (runtime: Awaited<typeof import("../governance/level5-autonomy.js")>) => void;
+}> = [
+  {
+    id: "self.level5.strategy-monitor",
+    name: "Level 5 strategy monitor",
+    intervalMs: 60 * 60_000,
+    start: (runtime, intervalMs) =>
+      runtime.autonomousStrategyAdjuster.startAutonomousMonitoring(intervalMs),
+    stop: (runtime) =>
+      runtime.autonomousStrategyAdjuster.stopAutonomousMonitoring?.(),
+  },
+  {
+    id: "self.level5.health-monitor",
+    name: "Level 5 health monitor",
+    intervalMs: 5 * 60_000,
+    start: (runtime, intervalMs) =>
+      runtime.enhancedSelfHealingEngine.startAutonomousHealthMonitoring(intervalMs),
+    stop: (runtime) =>
+      runtime.enhancedSelfHealingEngine.stopAutonomousHealthMonitoring?.(),
+  },
+  {
+    id: "self.level5.cross-system",
+    name: "Level 5 cross-system coordinator",
+    intervalMs: 30_000,
+    start: (runtime, intervalMs) =>
+      runtime.crossSystemCoordinator.startTaskProcessing(intervalMs),
+    stop: (runtime) => runtime.crossSystemCoordinator.stopTaskProcessing?.(),
+  },
+  {
+    id: "self.level5.creative-solver",
+    name: "Level 5 creative problem solver",
+    intervalMs: 2 * 60 * 60_000,
+    start: (runtime, intervalMs) =>
+      runtime.creativeProblemSolver.startCreativeProblemSolving(intervalMs),
+    stop: (runtime) => runtime.creativeProblemSolver.stopCreativeProblemSolving?.(),
+  },
+];
+
+const BACKEND_AUTOMATION_UNITS: Array<{
+  id: string;
+  name: string;
+  category: GatewayAutomationRuntimeCategory;
+}> = [
+  { id: "backend.model-catalog", name: "model-catalog", category: "maintenance" },
+  { id: "backend.skills-state", name: "skills-state", category: "maintenance" },
+  { id: "backend.tool-catalog", name: "tool-catalog", category: "maintenance" },
+  { id: "backend.remote-skills", name: "remote-skills", category: "maintenance" },
+  { id: "backend.task-registry", name: "task-registry", category: "maintenance" },
+  { id: "backend.governance-inventory", name: "governance-inventory", category: "autonomy" },
+  { id: "self.memory-artifacts", name: "memory-artifacts", category: "self" },
+  { id: "self.experience-summary", name: "experience-summary", category: "self" },
+  { id: "self.strategic-pushes", name: "strategic-pushes", category: "self" },
+  { id: "self.skill-candidate-scan", name: "skill-candidate-scan", category: "self" },
+  { id: "self.self-model-calibration", name: "self-model-calibration", category: "self" },
+  { id: "self.roadmap", name: "self-roadmap", category: "self" },
+  { id: "self.roadmap-tasks", name: "self-roadmap-tasks", category: "self" },
+  { id: "autonomy.business-task-recovery", name: "business-task-recovery", category: "autonomy" },
+];
+
+export type GatewayAutomationRuntimeCategory =
+  | "core"
+  | "autonomy"
+  | "self"
+  | "maintenance";
+
+export type GatewayAutomationRuntimeStatus =
+  | "registered"
+  | "starting"
+  | "running"
+  | "idle"
+  | "disabled"
+  | "failed"
+  | "stopped";
+
+export type GatewayAutomationRuntimeUnit = {
+  id: string;
+  name: string;
+  category: GatewayAutomationRuntimeCategory;
+  status: GatewayAutomationRuntimeStatus;
+  enabled: boolean;
+  started: boolean;
+  running: boolean;
+  lastStartedAt?: number;
+  lastFinishedAt?: number;
+  lastOk?: boolean;
+  lastError?: string;
+  lastChangedCount?: number;
+  lastDetail?: string;
+  intervalMs?: number;
+  nextRunAt?: number;
+  lastSteps?: GatewayBackendAutomationStep[];
+};
+
+export type GatewayAutomationRuntimeState = {
+  observedAt: number;
+  summary: {
+    units: number;
+    enabled: number;
+    started: number;
+    running: number;
+    failed: number;
+    disabled: number;
+  };
+  units: GatewayAutomationRuntimeUnit[];
+};
+
+const gatewayAutomationRuntimeUnits = new Map<string, GatewayAutomationRuntimeUnit>();
+
+function upsertGatewayAutomationUnit(params: {
+  id: string;
+  name: string;
+  category: GatewayAutomationRuntimeCategory;
+  enabled?: boolean;
+  status?: GatewayAutomationRuntimeStatus;
+  intervalMs?: number;
+  nextRunAt?: number;
+}): GatewayAutomationRuntimeUnit {
+  const existing = gatewayAutomationRuntimeUnits.get(params.id);
+  const unit: GatewayAutomationRuntimeUnit = {
+    ...(existing ?? {
+      id: params.id,
+      name: params.name,
+      category: params.category,
+      status: "registered" as const,
+      enabled: true,
+      started: false,
+      running: false,
+    }),
+    name: params.name,
+    category: params.category,
+    enabled: params.enabled ?? existing?.enabled ?? true,
+    status: params.status ?? existing?.status ?? "registered",
+  };
+  if (params.intervalMs !== undefined) {
+    unit.intervalMs = params.intervalMs;
+  }
+  if (params.nextRunAt !== undefined) {
+    unit.nextRunAt = params.nextRunAt;
+  }
+  gatewayAutomationRuntimeUnits.set(params.id, unit);
+  return unit;
+}
+
+function markGatewayAutomationStarted(params: {
+  id: string;
+  name: string;
+  category: GatewayAutomationRuntimeCategory;
+  intervalMs?: number;
+  nextRunAt?: number;
+}): void {
+  const unit = upsertGatewayAutomationUnit({
+    ...params,
+    status: "idle",
+    enabled: true,
+  });
+  unit.started = true;
+  unit.running = false;
+  unit.lastError = undefined;
+}
+
+function markGatewayAutomationRunStarted(params: {
+  id: string;
+  name: string;
+  category: GatewayAutomationRuntimeCategory;
+}): void {
+  const unit = upsertGatewayAutomationUnit({
+    ...params,
+    status: "running",
+    enabled: true,
+  });
+  unit.started = true;
+  unit.running = true;
+  unit.lastStartedAt = Date.now();
+  unit.lastError = undefined;
+}
+
+function markGatewayAutomationRunFinished(params: {
+  id: string;
+  ok: boolean;
+  changedCount?: number;
+  detail?: string;
+  steps?: GatewayBackendAutomationStep[];
+  nextRunAt?: number;
+}): void {
+  const unit = gatewayAutomationRuntimeUnits.get(params.id);
+  if (!unit) {
+    return;
+  }
+  unit.running = false;
+  unit.lastFinishedAt = Date.now();
+  unit.lastOk = params.ok;
+  unit.status = params.ok ? "idle" : "failed";
+  unit.lastChangedCount = params.changedCount ?? 0;
+  unit.lastError = params.ok ? undefined : params.detail ?? "automation failed";
+  unit.lastDetail = params.detail;
+  unit.lastSteps = params.steps;
+  if (params.nextRunAt !== undefined) {
+    unit.nextRunAt = params.nextRunAt;
+  }
+}
+
+function markGatewayAutomationStopped(id: string): void {
+  const unit = gatewayAutomationRuntimeUnits.get(id);
+  if (!unit) {
+    return;
+  }
+  unit.status = "stopped";
+  unit.started = false;
+  unit.running = false;
+  unit.nextRunAt = undefined;
+}
+
+function markGatewayAutomationDisabled(params: {
+  id: string;
+  name: string;
+  category: GatewayAutomationRuntimeCategory;
+}): void {
+  const unit = upsertGatewayAutomationUnit({
+    ...params,
+    enabled: false,
+    status: "disabled",
+  });
+  unit.started = false;
+  unit.running = false;
+  unit.nextRunAt = undefined;
+}
+
+export function getGatewayAutomationRuntimeState(): GatewayAutomationRuntimeState {
+  const units = [...gatewayAutomationRuntimeUnits.values()].toSorted((a, b) =>
+    a.category.localeCompare(b.category) || a.id.localeCompare(b.id)
+  );
+  return {
+    observedAt: Date.now(),
+    summary: {
+      units: units.length,
+      enabled: units.filter((unit) => unit.enabled).length,
+      started: units.filter((unit) => unit.started).length,
+      running: units.filter((unit) => unit.running).length,
+      failed: units.filter((unit) => unit.status === "failed").length,
+      disabled: units.filter((unit) => unit.status === "disabled").length,
+    },
+    units,
+  };
+}
+
+export function resetGatewayAutomationRuntimeState(): void {
+  gatewayAutomationRuntimeUnits.clear();
+}
+
+function registerGatewayBackendAutomationUnits(params: { enabled: boolean }): void {
+  for (const unit of BACKEND_AUTOMATION_UNITS) {
+    if (params.enabled) {
+      markGatewayAutomationStarted(unit);
+    } else {
+      markGatewayAutomationDisabled(unit);
+    }
+  }
+}
 
 function createNoopHeartbeatRunner(): HeartbeatRunner {
   return {
     stop: () => {},
-    updateConfig: (_cfg: AssistantConfig) => {},
+    updateConfig: (_cfg: ZhushouConfig) => {},
   };
 }
 
 export function startGatewayChannelHealthMonitor(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channelManager: GatewayChannelManager;
 }): ChannelHealthMonitor | null {
   const healthCheckMinutes = params.cfg.gateway?.channelHealthCheckMinutes;
@@ -126,17 +398,17 @@ export function startGatewayCronWithLogging(params: {
 
 async function runGatewayAutonomyMaintenance(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
   source: "startup" | "supervisor";
 }): Promise<GatewayAutonomyMaintenanceResult | undefined> {
   if (params.minimalTestGateway) {
     return undefined;
   }
-  if (process.env.ASSISTANT_SKIP_AUTONOMY_RECONCILE === "1") {
+  if (process.env.ZHUSHOU_SKIP_AUTONOMY_RECONCILE === "1") {
     return undefined;
   }
-  if (process.env.ASSISTANT_SKIP_CRON === "1" || params.cfgAtStart.cron?.enabled === false) {
+  if (process.env.ZHUSHOU_SKIP_CRON === "1" || params.cfgAtStart.cron?.enabled === false) {
     return undefined;
   }
   if (
@@ -241,10 +513,10 @@ function resolveBooleanEnvFlag(name: string): boolean | undefined {
 }
 
 function resolveGatewayAutonomyMaintenanceMode(): "reconcile" | "heal" | "supervise" {
-  if (process.env.ASSISTANT_SKIP_AUTONOMY_FLOW_HEAL === "1") {
+  if (process.env.ZHUSHOU_SKIP_AUTONOMY_FLOW_HEAL === "1") {
     return "reconcile";
   }
-  const explicit = process.env.ASSISTANT_AUTONOMY_SUPERVISOR_MODE?.trim().toLowerCase();
+  const explicit = process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_MODE?.trim().toLowerCase();
   if (explicit === "reconcile" || explicit === "heal" || explicit === "supervise") {
     return explicit;
   }
@@ -252,7 +524,7 @@ function resolveGatewayAutonomyMaintenanceMode(): "reconcile" | "heal" | "superv
 }
 
 function resolveAutonomySupervisorGovernanceMode(): "none" | "apply_safe" | "force_apply_all" {
-  const explicit = process.env.ASSISTANT_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE?.trim();
+  const explicit = process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE?.trim();
   if (explicit === "none" || explicit === "apply_safe" || explicit === "force_apply_all") {
     return explicit;
   }
@@ -260,18 +532,18 @@ function resolveAutonomySupervisorGovernanceMode(): "none" | "apply_safe" | "for
 }
 
 function resolveAutonomySupervisorIncludeCapabilityInventory(): boolean {
-  return resolveBooleanEnvFlag("ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY") ?? true;
+  return resolveBooleanEnvFlag("ZHUSHOU_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY") ?? true;
 }
 
 function resolveAutonomySupervisorIncludeGenesisPlan(): boolean {
-  return resolveBooleanEnvFlag("ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN") ?? true;
+  return resolveBooleanEnvFlag("ZHUSHOU_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN") ?? true;
 }
 
 function resolveAutonomySupervisorIntervalMs(): number | undefined {
-  if (process.env.ASSISTANT_SKIP_AUTONOMY_SUPERVISOR === "1") {
+  if (process.env.ZHUSHOU_SKIP_AUTONOMY_SUPERVISOR === "1") {
     return undefined;
   }
-  const explicit = process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INTERVAL_MS?.trim();
+  const explicit = process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_INTERVAL_MS?.trim();
   if (explicit) {
     const parsed = Number.parseInt(explicit, 10);
     if (Number.isFinite(parsed) && parsed > 0) {
@@ -285,10 +557,10 @@ function resolveAutonomySupervisorIntervalMs(): number | undefined {
 }
 
 function resolveBackendAutomationIntervalMs(): number | undefined {
-  if (process.env.ASSISTANT_SKIP_BACKEND_AUTOMATION === "1") {
+  if (process.env.ZHUSHOU_SKIP_BACKEND_AUTOMATION === "1") {
     return undefined;
   }
-  const explicit = process.env.ASSISTANT_BACKEND_AUTOMATION_INTERVAL_MS?.trim();
+  const explicit = process.env.ZHUSHOU_BACKEND_AUTOMATION_INTERVAL_MS?.trim();
   if (explicit) {
     const parsed = Number.parseInt(explicit, 10);
     if (Number.isFinite(parsed) && parsed > 0) {
@@ -307,7 +579,7 @@ function shouldRunBackendAutomation(params: {
   if (params.minimalTestGateway) {
     return false;
   }
-  if (process.env.ASSISTANT_SKIP_BACKEND_AUTOMATION === "1") {
+  if (process.env.ZHUSHOU_SKIP_BACKEND_AUTOMATION === "1") {
     return false;
   }
   return true;
@@ -360,9 +632,17 @@ export function getGatewayBackendAutomationHistory(params: {
 async function runBackendAutomationStep(params: {
   steps: GatewayBackendAutomationStep[];
   name: string;
+  automationId?: string;
+  category?: GatewayAutomationRuntimeCategory;
   log: GatewayRuntimeServiceLogger;
   run: () => Promise<number | void> | number | void;
 }): Promise<number> {
+  const automationId = params.automationId ?? `backend.${params.name}`;
+  markGatewayAutomationRunStarted({
+    id: automationId,
+    name: params.name,
+    category: params.category ?? "maintenance",
+  });
   try {
     const changedCount = (await params.run()) ?? 0;
     params.steps.push({
@@ -370,21 +650,32 @@ async function runBackendAutomationStep(params: {
       ok: true,
       changedCount,
     });
+    markGatewayAutomationRunFinished({
+      id: automationId,
+      ok: true,
+      changedCount,
+    });
     return changedCount;
   } catch (err) {
+    const detail = String(err);
     params.steps.push({
       name: params.name,
       ok: false,
       changedCount: 0,
-      detail: String(err),
+      detail,
     });
-    params.log.child("backend-automation").warn(`${params.name} failed: ${String(err)}`);
+    markGatewayAutomationRunFinished({
+      id: automationId,
+      ok: false,
+      detail,
+    });
+    params.log.child("backend-automation").warn(`${params.name} failed: ${detail}`);
     return 0;
   }
 }
 
 async function prewarmBackendModelCatalog(params: {
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
 }): Promise<number> {
   const { loadModelCatalog } = await import("../agents/model-catalog.js");
   const catalog = await loadModelCatalog({ config: params.cfgAtStart });
@@ -392,7 +683,7 @@ async function prewarmBackendModelCatalog(params: {
 }
 
 async function refreshBackendSkillsState(params: {
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
 }): Promise<number> {
   const [{ listAgentIds, resolveAgentWorkspaceDir }, { buildWorkspaceSkillStatus }] =
     await Promise.all([
@@ -409,7 +700,7 @@ async function refreshBackendSkillsState(params: {
 }
 
 async function prewarmBackendToolCatalog(params: {
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
 }): Promise<number> {
   const [{ listAgentIds }, { buildToolsCatalogResult }] = await Promise.all([
     import("../agents/agent-scope.js"),
@@ -428,7 +719,7 @@ async function prewarmBackendToolCatalog(params: {
 }
 
 async function refreshBackendRemoteSkills(params: {
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
 }): Promise<number> {
   const { primeRemoteSkillsCache, refreshRemoteBinsForConnectedNodes } = await import(
     "../infra/skills-remote.js"
@@ -445,7 +736,7 @@ async function sweepBackendTaskRegistry(): Promise<number> {
 }
 
 async function runBackendGovernanceInventory(params: {
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
 }): Promise<number> {
   const {
     getGovernanceOverview,
@@ -471,7 +762,7 @@ async function runBackendGovernanceInventory(params: {
 }
 
 async function repairBackendMemoryArtifacts(params: {
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
 }): Promise<number> {
   const [
     { listAgentIds, resolveAgentWorkspaceDir },
@@ -497,6 +788,54 @@ async function advanceBackendSelfRoadmap(): Promise<number> {
   const { advanceSelfRoadmap } = await import("../experience/experience-store.js");
   const result = advanceSelfRoadmap();
   return result.createdStrategicMemories;
+}
+
+async function summarizeBackendExperienceMemory(): Promise<number> {
+  const { summarizeExperience } = await import("../experience/experience-store.js");
+  const summary = summarizeExperience({ limit: 20 });
+  return summary.counts.events + summary.counts.skillCandidates + summary.counts.selfModelFacts;
+}
+
+async function advanceBackendStrategicPushes(): Promise<number> {
+  const { listDueStrategicPushes, advanceStrategicMemoryPush } = await import(
+    "../experience/experience-store.js"
+  );
+  const pushes = listDueStrategicPushes({ limit: 20 });
+  for (const push of pushes) {
+    advanceStrategicMemoryPush({ id: push.id });
+  }
+  return pushes.length;
+}
+
+async function scanBackendSkillCandidates(): Promise<number> {
+  const { listSkillCandidates } = await import("../experience/experience-store.js");
+  return listSkillCandidates({ limit: 100 }).length;
+}
+
+async function calibrateBackendSelfModel(): Promise<number> {
+  const { getSelfModel, updateSelfModel } = await import("../experience/experience-store.js");
+  const before = getSelfModel();
+  const beforeCount =
+    before.strengths.length +
+    before.weaknesses.length +
+    before.preferences.length +
+    before.learnedPatterns.length +
+    before.nextGrowthAreas.length;
+  const after = updateSelfModel({
+    learnedPatterns: [
+      "Startup automation continuously reconciles memory, skills, roadmap, and autonomous task recovery.",
+    ],
+    nextGrowthAreas: [
+      "Keep every self-improvement loop observable through the unified automation runtime state.",
+    ],
+  });
+  const afterCount =
+    after.strengths.length +
+    after.weaknesses.length +
+    after.preferences.length +
+    after.learnedPatterns.length +
+    after.nextGrowthAreas.length;
+  return Math.max(0, afterCount - beforeCount);
 }
 
 function buildSelfRoadmapTaskParams(goal: {
@@ -607,7 +946,7 @@ async function materializeSelfRoadmapTasks(): Promise<number> {
 }
 
 async function recoverRunningBusinessTasks(params: {
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
 }): Promise<number> {
   if (
@@ -677,7 +1016,7 @@ async function recoverRunningBusinessTasks(params: {
 
 async function runGatewayBackendAutomation(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
   source: "startup" | "supervisor";
@@ -690,60 +1029,112 @@ async function runGatewayBackendAutomation(params: {
   changedCount += await runBackendAutomationStep({
     steps,
     name: "model-catalog",
+    automationId: "backend.model-catalog",
+    category: "maintenance",
     log: params.log,
     run: () => prewarmBackendModelCatalog({ cfgAtStart: params.cfgAtStart }),
   });
   changedCount += await runBackendAutomationStep({
     steps,
     name: "skills-state",
+    automationId: "backend.skills-state",
+    category: "maintenance",
     log: params.log,
     run: () => refreshBackendSkillsState({ cfgAtStart: params.cfgAtStart }),
   });
   changedCount += await runBackendAutomationStep({
     steps,
     name: "tool-catalog",
+    automationId: "backend.tool-catalog",
+    category: "maintenance",
     log: params.log,
     run: () => prewarmBackendToolCatalog({ cfgAtStart: params.cfgAtStart }),
   });
   changedCount += await runBackendAutomationStep({
     steps,
     name: "remote-skills",
+    automationId: "backend.remote-skills",
+    category: "maintenance",
     log: params.log,
     run: () => refreshBackendRemoteSkills({ cfgAtStart: params.cfgAtStart }),
   });
   changedCount += await runBackendAutomationStep({
     steps,
     name: "task-registry",
+    automationId: "backend.task-registry",
+    category: "maintenance",
     log: params.log,
     run: sweepBackendTaskRegistry,
   });
   changedCount += await runBackendAutomationStep({
     steps,
     name: "governance-inventory",
+    automationId: "backend.governance-inventory",
+    category: "autonomy",
     log: params.log,
     run: () => runBackendGovernanceInventory({ cfgAtStart: params.cfgAtStart }),
   });
   changedCount += await runBackendAutomationStep({
     steps,
     name: "memory-artifacts",
+    automationId: "self.memory-artifacts",
+    category: "self",
     log: params.log,
     run: () => repairBackendMemoryArtifacts({ cfgAtStart: params.cfgAtStart }),
   });
   changedCount += await runBackendAutomationStep({
     steps,
+    name: "experience-summary",
+    automationId: "self.experience-summary",
+    category: "self",
+    log: params.log,
+    run: summarizeBackendExperienceMemory,
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "strategic-pushes",
+    automationId: "self.strategic-pushes",
+    category: "self",
+    log: params.log,
+    run: advanceBackendStrategicPushes,
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "skill-candidate-scan",
+    automationId: "self.skill-candidate-scan",
+    category: "self",
+    log: params.log,
+    run: scanBackendSkillCandidates,
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
+    name: "self-model-calibration",
+    automationId: "self.self-model-calibration",
+    category: "self",
+    log: params.log,
+    run: calibrateBackendSelfModel,
+  });
+  changedCount += await runBackendAutomationStep({
+    steps,
     name: "self-roadmap",
+    automationId: "self.roadmap",
+    category: "self",
     log: params.log,
     run: advanceBackendSelfRoadmap,
   });
   changedCount += await runBackendAutomationStep({
     steps,
     name: "self-roadmap-tasks",
+    automationId: "self.roadmap-tasks",
+    category: "self",
     log: params.log,
     run: materializeSelfRoadmapTasks,
   });
   changedCount += await runBackendAutomationStep({
     steps,
     name: "business-task-recovery",
+    automationId: "autonomy.business-task-recovery",
+    category: "autonomy",
     log: params.log,
     run: () => recoverRunningBusinessTasks({
       cfgAtStart: params.cfgAtStart,
@@ -775,7 +1166,7 @@ function logGatewayBackendAutomationSummary(params: {
 
 function createGatewayBackendAutomationSupervisor(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   getCron: () => Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
 }): GatewayBackendAutomationSupervisor {
@@ -802,13 +1193,26 @@ function createGatewayBackendAutomationSupervisor(params: {
     }
     const intervalMs = resolveBackendAutomationIntervalMs();
     if (!intervalMs) {
+      markGatewayAutomationDisabled({
+        id: "backend.supervisor",
+        name: "Backend automation supervisor",
+        category: "self",
+      });
       return;
     }
+    const nextRunAt = Date.now() + intervalMs;
     state.timer = setTimeout(() => {
       state.timer = null;
       void runSweep();
     }, intervalMs);
     state.timer.unref?.();
+    markGatewayAutomationStarted({
+      id: "backend.supervisor",
+      name: "Backend automation supervisor",
+      category: "self",
+      intervalMs,
+      nextRunAt,
+    });
   };
 
   const runSweep = async () => {
@@ -816,6 +1220,11 @@ function createGatewayBackendAutomationSupervisor(params: {
       return;
     }
     state.running = true;
+    markGatewayAutomationRunStarted({
+      id: "backend.supervisor",
+      name: "Backend automation supervisor",
+      category: "self",
+    });
     try {
       const result = await runGatewayBackendAutomation({
         minimalTestGateway: params.minimalTestGateway,
@@ -832,8 +1241,20 @@ function createGatewayBackendAutomationSupervisor(params: {
           prefix: "supervisor",
         });
       }
+      markGatewayAutomationRunFinished({
+        id: "backend.supervisor",
+        ok: true,
+        changedCount: result?.changedCount ?? 0,
+        steps: result?.steps,
+      });
     } catch (err) {
-      logSupervisor.error(`sweep failed: ${String(err)}`);
+      const detail = String(err);
+      logSupervisor.error(`sweep failed: ${detail}`);
+      markGatewayAutomationRunFinished({
+        id: "backend.supervisor",
+        ok: false,
+        detail,
+      });
     } finally {
       state.running = false;
       scheduleNext();
@@ -849,12 +1270,26 @@ function createGatewayBackendAutomationSupervisor(params: {
       const intervalMs = resolveBackendAutomationIntervalMs();
       if (intervalMs) {
         logSupervisor.info(`scheduled backend automation sweep every ${intervalMs}ms`);
+        markGatewayAutomationStarted({
+          id: "backend.supervisor",
+          name: "Backend automation supervisor",
+          category: "self",
+          intervalMs,
+          nextRunAt: Date.now() + intervalMs,
+        });
+      } else {
+        markGatewayAutomationDisabled({
+          id: "backend.supervisor",
+          name: "Backend automation supervisor",
+          category: "self",
+        });
       }
       scheduleNext();
     },
     stop: () => {
       state.stopped = true;
       clearTimer();
+      markGatewayAutomationStopped("backend.supervisor");
     },
     updateConfig: (cfg) => {
       state.cfg = cfg;
@@ -867,7 +1302,7 @@ function createGatewayBackendAutomationSupervisor(params: {
 
 function createGatewayAutonomySupervisor(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   getCron: () => Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
 }): GatewayAutonomySupervisor {
@@ -894,13 +1329,26 @@ function createGatewayAutonomySupervisor(params: {
     }
     const intervalMs = resolveAutonomySupervisorIntervalMs();
     if (!intervalMs) {
+      markGatewayAutomationDisabled({
+        id: "autonomy.supervisor",
+        name: "Autonomy supervisor",
+        category: "autonomy",
+      });
       return;
     }
+    const nextRunAt = Date.now() + intervalMs;
     state.timer = setTimeout(() => {
       state.timer = null;
       void runSweep();
     }, intervalMs);
     state.timer.unref?.();
+    markGatewayAutomationStarted({
+      id: "autonomy.supervisor",
+      name: "Autonomy supervisor",
+      category: "autonomy",
+      intervalMs,
+      nextRunAt,
+    });
   };
 
   const runSweep = async () => {
@@ -908,6 +1356,11 @@ function createGatewayAutonomySupervisor(params: {
       return;
     }
     state.running = true;
+    markGatewayAutomationRunStarted({
+      id: "autonomy.supervisor",
+      name: "Autonomy supervisor",
+      category: "autonomy",
+    });
     try {
       const result = await runGatewayAutonomyMaintenance({
         minimalTestGateway: params.minimalTestGateway,
@@ -922,8 +1375,19 @@ function createGatewayAutonomySupervisor(params: {
           prefix: "supervisor",
         });
       }
+      markGatewayAutomationRunFinished({
+        id: "autonomy.supervisor",
+        ok: true,
+        changedCount: result?.changedCount ?? 0,
+      });
     } catch (err) {
-      logSupervisor.error(`sweep failed: ${String(err)}`);
+      const detail = String(err);
+      logSupervisor.error(`sweep failed: ${detail}`);
+      markGatewayAutomationRunFinished({
+        id: "autonomy.supervisor",
+        ok: false,
+        detail,
+      });
     } finally {
       state.running = false;
       scheduleNext();
@@ -939,12 +1403,26 @@ function createGatewayAutonomySupervisor(params: {
       const intervalMs = resolveAutonomySupervisorIntervalMs();
       if (intervalMs) {
         logSupervisor.info(`scheduled managed autonomy sweep every ${intervalMs}ms`);
+        markGatewayAutomationStarted({
+          id: "autonomy.supervisor",
+          name: "Autonomy supervisor",
+          category: "autonomy",
+          intervalMs,
+          nextRunAt: Date.now() + intervalMs,
+        });
+      } else {
+        markGatewayAutomationDisabled({
+          id: "autonomy.supervisor",
+          name: "Autonomy supervisor",
+          category: "autonomy",
+        });
       }
       scheduleNext();
     },
     stop: () => {
       state.stopped = true;
       clearTimer();
+      markGatewayAutomationStopped("autonomy.supervisor");
     },
     updateConfig: (cfg) => {
       state.cfg = cfg;
@@ -959,9 +1437,11 @@ function composeGatewayHeartbeatRunner(
   heartbeatRunner: HeartbeatRunner,
   autonomySupervisor: GatewayAutonomySupervisor,
   backendAutomationSupervisor: GatewayBackendAutomationSupervisor,
+  level5SelfRuntime: GatewayLevel5SelfRuntime,
 ): HeartbeatRunner {
   return {
     stop: () => {
+      level5SelfRuntime.stop();
       backendAutomationSupervisor.stop();
       autonomySupervisor.stop();
       heartbeatRunner.stop();
@@ -974,52 +1454,206 @@ function composeGatewayHeartbeatRunner(
   };
 }
 
+function createGatewayLevel5SelfRuntime(params: {
+  minimalTestGateway: boolean;
+  log: GatewayRuntimeServiceLogger;
+}): GatewayLevel5SelfRuntime {
+  const logSelf = params.log.child("level5-self-runtime");
+  const state = {
+    started: false,
+    stopped: false,
+    runtime: undefined as Awaited<typeof import("../governance/level5-autonomy.js")> | undefined,
+  };
+
+  const markDisabled = () => {
+    for (const unit of LEVEL5_SELF_RUNTIME_UNITS) {
+      markGatewayAutomationDisabled({
+        id: unit.id,
+        name: unit.name,
+        category: "self",
+      });
+    }
+  };
+
+  return {
+    start: () => {
+      if (state.started || state.stopped) {
+        return;
+      }
+      state.started = true;
+      if (
+        params.minimalTestGateway &&
+        process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES !== "1"
+      ) {
+        markDisabled();
+        return;
+      }
+      for (const unit of LEVEL5_SELF_RUNTIME_UNITS) {
+        markGatewayAutomationStarted({
+          id: unit.id,
+          name: unit.name,
+          category: "self",
+          intervalMs: unit.intervalMs,
+          nextRunAt: Date.now() + unit.intervalMs,
+        });
+      }
+      void import("../governance/level5-autonomy.js")
+        .then((runtime) => {
+          if (state.stopped) {
+            return;
+          }
+          state.runtime = runtime;
+          for (const unit of LEVEL5_SELF_RUNTIME_UNITS) {
+            try {
+              unit.start(runtime, unit.intervalMs);
+              markGatewayAutomationStarted({
+                id: unit.id,
+                name: unit.name,
+                category: "self",
+                intervalMs: unit.intervalMs,
+                nextRunAt: Date.now() + unit.intervalMs,
+              });
+            } catch (err) {
+              const detail = String(err);
+              logSelf.error(`${unit.name} failed to start: ${detail}`);
+              markGatewayAutomationRunFinished({
+                id: unit.id,
+                ok: false,
+                detail,
+              });
+            }
+          }
+        })
+        .catch((err) => {
+          const detail = String(err);
+          logSelf.error(`failed to load level 5 self runtime: ${detail}`);
+          for (const unit of LEVEL5_SELF_RUNTIME_UNITS) {
+            markGatewayAutomationRunFinished({
+              id: unit.id,
+              ok: false,
+              detail,
+            });
+          }
+        });
+    },
+    stop: () => {
+      state.stopped = true;
+      if (state.runtime) {
+        for (const unit of LEVEL5_SELF_RUNTIME_UNITS) {
+          try {
+            unit.stop(state.runtime);
+          } catch (err) {
+            logSelf.error(`${unit.name} failed to stop: ${String(err)}`);
+          }
+        }
+      }
+      for (const unit of LEVEL5_SELF_RUNTIME_UNITS) {
+        markGatewayAutomationStopped(unit.id);
+      }
+    },
+  };
+}
+
 export async function reconcileGatewayAutonomyLoops(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
 }): Promise<void> {
-  const result = await runGatewayAutonomyMaintenance({
-    minimalTestGateway: params.minimalTestGateway,
-    cfgAtStart: params.cfgAtStart,
-    cron: params.cron,
-    source: "startup",
+  markGatewayAutomationRunStarted({
+    id: "autonomy.startup-maintenance",
+    name: "Autonomy startup maintenance",
+    category: "autonomy",
   });
-  if (!result) {
-    return;
+  try {
+    const result = await runGatewayAutonomyMaintenance({
+      minimalTestGateway: params.minimalTestGateway,
+      cfgAtStart: params.cfgAtStart,
+      cron: params.cron,
+      source: "startup",
+    });
+    if (!result) {
+      markGatewayAutomationRunFinished({
+        id: "autonomy.startup-maintenance",
+        ok: true,
+        changedCount: 0,
+        detail: "skipped",
+      });
+      return;
+    }
+    logGatewayAutonomyMaintenanceSummary({
+      log: params.log,
+      result,
+    });
+    markGatewayAutomationRunFinished({
+      id: "autonomy.startup-maintenance",
+      ok: true,
+      changedCount: result.changedCount,
+      detail: result.mode,
+    });
+  } catch (err) {
+    const detail = String(err);
+    markGatewayAutomationRunFinished({
+      id: "autonomy.startup-maintenance",
+      ok: false,
+      detail,
+    });
+    throw err;
   }
-  logGatewayAutonomyMaintenanceSummary({
-    log: params.log,
-    result,
-  });
 }
 
 export async function runGatewayBackendAutomationStartup(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   cron: Partial<import("../cron/service-contract.js").CronServiceContract>;
   log: GatewayRuntimeServiceLogger;
 }): Promise<void> {
-  const result = await runGatewayBackendAutomation({
-    minimalTestGateway: params.minimalTestGateway,
-    cfgAtStart: params.cfgAtStart,
-    cron: params.cron,
-    log: params.log,
-    source: "startup",
+  markGatewayAutomationRunStarted({
+    id: "backend.startup-automation",
+    name: "Backend startup automation",
+    category: "self",
   });
-  if (!result) {
-    return;
+  try {
+    const result = await runGatewayBackendAutomation({
+      minimalTestGateway: params.minimalTestGateway,
+      cfgAtStart: params.cfgAtStart,
+      cron: params.cron,
+      log: params.log,
+      source: "startup",
+    });
+    if (!result) {
+      markGatewayAutomationRunFinished({
+        id: "backend.startup-automation",
+        ok: true,
+        changedCount: 0,
+        detail: "skipped",
+      });
+      return;
+    }
+    recordBackendAutomationHistory(result);
+    logGatewayBackendAutomationSummary({
+      log: params.log,
+      result,
+    });
+    markGatewayAutomationRunFinished({
+      id: "backend.startup-automation",
+      ok: result.steps.every((step) => step.ok),
+      changedCount: result.changedCount,
+      steps: result.steps,
+    });
+  } catch (err) {
+    const detail = String(err);
+    markGatewayAutomationRunFinished({
+      id: "backend.startup-automation",
+      ok: false,
+      detail,
+    });
+    throw err;
   }
-  recordBackendAutomationHistory(result);
-  logGatewayBackendAutomationSummary({
-    log: params.log,
-    result,
-  });
 }
 
 function recoverPendingOutboundDeliveries(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   log: GatewayRuntimeServiceLogger;
 }): void {
   void (async () => {
@@ -1036,7 +1670,7 @@ function recoverPendingOutboundDeliveries(params: {
 
 export function startGatewayRuntimeServices(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   channelManager: GatewayChannelManager;
   log: GatewayRuntimeServiceLogger;
 }): {
@@ -1066,7 +1700,7 @@ export function startGatewayRuntimeServices(params: {
  */
 export function activateGatewayScheduledServices(params: {
   minimalTestGateway: boolean;
-  cfgAtStart: AssistantConfig;
+  cfgAtStart: ZhushouConfig;
   cron: { start: () => Promise<void> };
   getCron?: () => Partial<import("../cron/service-contract.js").CronServiceContract>;
   logCron: { error: (message: string) => void };
@@ -1074,11 +1708,19 @@ export function activateGatewayScheduledServices(params: {
 }): { heartbeatRunner: HeartbeatRunner } {
   if (
     params.minimalTestGateway &&
-    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES !== "1"
+    process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES !== "1"
   ) {
     return { heartbeatRunner: createNoopHeartbeatRunner() };
   }
   const heartbeatRunner = startHeartbeatRunner({ cfg: params.cfgAtStart });
+  markGatewayAutomationStarted({
+    id: "core.heartbeat",
+    name: "Heartbeat runner",
+    category: "core",
+  });
+  registerGatewayBackendAutomationUnits({
+    enabled: shouldRunBackendAutomation({ minimalTestGateway: params.minimalTestGateway }),
+  });
   const autonomySupervisor = createGatewayAutonomySupervisor({
     minimalTestGateway: params.minimalTestGateway,
     cfgAtStart: params.cfgAtStart,
@@ -1091,29 +1733,46 @@ export function activateGatewayScheduledServices(params: {
     getCron: params.getCron ?? (() => params.cron),
     log: params.log,
   });
+  const level5SelfRuntime = createGatewayLevel5SelfRuntime({
+    minimalTestGateway: params.minimalTestGateway,
+    log: params.log,
+  });
+  const cronUnit = upsertGatewayAutomationUnit({
+    id: "core.cron",
+    name: "Cron scheduler",
+    category: "core",
+    status: "starting",
+    enabled: true,
+  });
+  cronUnit.started = true;
   startGatewayCronWithLogging({
     cron: params.cron,
     logCron: params.logCron,
-    onStarted: async () => {
-      try {
-        await reconcileGatewayAutonomyLoops({
-          minimalTestGateway: params.minimalTestGateway,
-          cfgAtStart: params.cfgAtStart,
-          cron: params.cron,
-          log: params.log,
-        }).catch((err) => params.log.error(`Autonomy startup maintenance failed: ${String(err)}`));
-        await runGatewayBackendAutomationStartup({
-          minimalTestGateway: params.minimalTestGateway,
-          cfgAtStart: params.cfgAtStart,
-          cron: params.getCron?.() ?? params.cron,
-          log: params.log,
-        }).catch((err) => params.log.error(`Backend automation startup failed: ${String(err)}`));
-      } finally {
-        autonomySupervisor.start();
-        backendAutomationSupervisor.start();
-      }
+    onStarted: () => {
+      markGatewayAutomationStarted({
+        id: "core.cron",
+        name: "Cron scheduler",
+        category: "core",
+      });
     },
   });
+  autonomySupervisor.start();
+  backendAutomationSupervisor.start();
+  level5SelfRuntime.start();
+  void Promise.all([
+    reconcileGatewayAutonomyLoops({
+      minimalTestGateway: params.minimalTestGateway,
+      cfgAtStart: params.cfgAtStart,
+      cron: params.cron,
+      log: params.log,
+    }).catch((err) => params.log.error(`Autonomy startup maintenance failed: ${String(err)}`)),
+    runGatewayBackendAutomationStartup({
+      minimalTestGateway: params.minimalTestGateway,
+      cfgAtStart: params.cfgAtStart,
+      cron: params.getCron?.() ?? params.cron,
+      log: params.log,
+    }).catch((err) => params.log.error(`Backend automation startup failed: ${String(err)}`)),
+  ]);
   recoverPendingOutboundDeliveries({
     cfg: params.cfgAtStart,
     log: params.log,
@@ -1123,6 +1782,7 @@ export function activateGatewayScheduledServices(params: {
       heartbeatRunner,
       autonomySupervisor,
       backendAutomationSupervisor,
+      level5SelfRuntime,
     ),
   };
 }

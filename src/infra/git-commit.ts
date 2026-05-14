@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { resolveGitHeadPath } from "./git-root.js";
-import { resolveAssistantPackageRootSync } from "./assistant-root.js";
+import { resolveZhushouPackageRootSync } from "./zhushou-root.js";
 
 const formatCommit = (value?: string | null) => {
   if (!value) {
@@ -230,7 +230,7 @@ export const resolveCommitHash = (
   if (cachedGitCommitBySearchDir.has(searchDir)) {
     return cachedGitCommitBySearchDir.get(searchDir) ?? null;
   }
-  const packageRoot = resolveAssistantPackageRootSync({
+  const packageRoot = resolveZhushouPackageRootSync({
     cwd: options.cwd,
     moduleUrl: options.moduleUrl,
   });

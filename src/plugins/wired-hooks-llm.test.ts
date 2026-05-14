@@ -26,7 +26,7 @@ async function expectLlmHookCall(params: {
     await runner.runLlmOutput(
       {
         ...params.event,
-        assistantTexts: [...((params.event.assistantTexts as string[] | undefined) ?? [])],
+        zhushouTexts: [...((params.event.zhushouTexts as string[] | undefined) ?? [])],
       } as Parameters<typeof runner.runLlmOutput>[0],
       hookCtx,
     );
@@ -65,15 +65,15 @@ describe("llm hook runner methods", () => {
         sessionId: "session-1",
         provider: "openai",
         model: "gpt-5",
-        assistantTexts: ["hi"],
-        lastAssistant: { role: "assistant", content: "hi" },
+        zhushouTexts: ["hi"],
+        lastZhushou: { role: "assistant", content: "hi" },
         usage: {
           input: 10,
           output: 20,
           total: 30,
         },
       },
-      expectedEvent: { runId: "run-1", assistantTexts: ["hi"] },
+      expectedEvent: { runId: "run-1", zhushouTexts: ["hi"] },
     },
   ] as const)("$name", async ({ hookName, expectedEvent, event }) => {
     await expectLlmHookCall({ hookName, event, expectedEvent });

@@ -1,23 +1,23 @@
 import type {
   GeneratedImageAsset,
   ImageGenerationProvider,
-} from "assistant/plugin-sdk/image-generation";
-import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "assistant/plugin-sdk/provider-auth-runtime";
+} from "zhushou/plugin-sdk/image-generation";
+import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   resolveProviderHttpRequestConfig,
-} from "assistant/plugin-sdk/provider-http";
+} from "zhushou/plugin-sdk/provider-http";
 import {
   buildHostnameAllowlistPolicyFromSuffixAllowlist,
   fetchWithSsrFGuard,
   type SsrFPolicy,
   ssrfPolicyFromDangerouslyAllowPrivateNetwork,
-} from "assistant/plugin-sdk/ssrf-runtime";
+} from "zhushou/plugin-sdk/ssrf-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 const DEFAULT_FAL_BASE_URL = "https://fal.run";
 const DEFAULT_FAL_IMAGE_MODEL = "fal-ai/flux/dev";

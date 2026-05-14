@@ -7,8 +7,8 @@ describe("buildIrcConnectOptions", () => {
       host: "irc.libera.chat",
       port: 6697,
       tls: true,
-      nick: "assistant",
-      username: "assistant",
+      nick: "zhushou",
+      username: "zhushou",
       realname: "助手 Bot",
       password: "server-pass",
       config: {
@@ -30,8 +30,8 @@ describe("buildIrcConnectOptions", () => {
       host: "irc.libera.chat",
       port: 6697,
       tls: true,
-      nick: "assistant",
-      username: "assistant",
+      nick: "zhushou",
+      username: "zhushou",
       realname: "助手 Bot",
       password: "server-pass",
       nickserv: {

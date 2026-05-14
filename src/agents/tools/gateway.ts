@@ -1,6 +1,6 @@
 import { loadConfig, resolveGatewayPort } from "../../config/config.js";
 import { DEFAULT_GATEWAY_PORT } from "../../config/paths.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { callGateway } from "../../gateway/call.js";
 import { resolveGatewayCredentialsFromConfig, trimToUndefined } from "../../gateway/credentials.js";
 import {
@@ -64,7 +64,7 @@ function canonicalizeToolGatewayWsUrl(raw: string): { origin: string; key: strin
 }
 
 function validateGatewayUrlOverrideForAgentTools(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   urlOverride: string;
 }): { url: string; target: GatewayOverrideTarget } {
   const { cfg } = params;
@@ -106,7 +106,7 @@ function validateGatewayUrlOverrideForAgentTools(params: {
 }
 
 function resolveGatewayOverrideToken(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   target: GatewayOverrideTarget;
   explicitToken?: string;
 }): string | undefined {

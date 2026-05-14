@@ -67,12 +67,12 @@ async function closeTrackedClient(ws: WebSocket, timeoutMs = 2_000): Promise<voi
 export async function startGatewayServerHarness(options?: {
   minimalGateway?: boolean;
 }): Promise<GatewayServerHarness> {
-  const envSnapshot = captureEnv(["ASSISTANT_GATEWAY_TOKEN", "ASSISTANT_TEST_MINIMAL_GATEWAY"]);
-  delete process.env.ASSISTANT_GATEWAY_TOKEN;
+  const envSnapshot = captureEnv(["ZHUSHOU_GATEWAY_TOKEN", "ZHUSHOU_TEST_MINIMAL_GATEWAY"]);
+  delete process.env.ZHUSHOU_GATEWAY_TOKEN;
   if (options?.minimalGateway === true) {
-    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY = "1";
+    process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY = "1";
   } else if (options?.minimalGateway === false) {
-    delete process.env.ASSISTANT_TEST_MINIMAL_GATEWAY;
+    delete process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY;
   }
   const port = await getFreePort();
   const server = await startGatewayServer(port, {

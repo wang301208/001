@@ -62,7 +62,7 @@ vi.mock("../plugins/provider-hook-runtime.js", async () => {
                 ? {
                     sanitizeToolCallIds: true,
                     toolCallIdMode: "strict",
-                    applyAssistantFirstOrderingFix: true,
+                    applyZhushouFirstOrderingFix: true,
                     validateGeminiTurns: true,
                     validateAnthropicTurns: true,
                   }
@@ -86,7 +86,7 @@ vi.mock("../plugins/provider-hook-runtime.js", async () => {
                 ? {
                     sanitizeToolCallIds: true,
                     toolCallIdMode: "strict",
-                    applyAssistantFirstOrderingFix: true,
+                    applyZhushouFirstOrderingFix: true,
                     validateGeminiTurns: true,
                     validateAnthropicTurns: true,
                   }
@@ -101,7 +101,7 @@ vi.mock("../plugins/provider-hook-runtime.js", async () => {
                   includeCamelCase: true,
                 },
                 repairToolUseResultPairing: true,
-                applyAssistantFirstOrderingFix: true,
+                applyZhushouFirstOrderingFix: true,
                 validateGeminiTurns: true,
                 validateAnthropicTurns: false,
                 allowSyntheticToolResults: true,
@@ -123,7 +123,7 @@ vi.mock("../plugins/provider-hook-runtime.js", async () => {
                 sanitizeMode: "images-only",
                 sanitizeToolCallIds: context?.modelApi === "openai-completions",
                 ...(context?.modelApi === "openai-completions" ? { toolCallIdMode: "strict" } : {}),
-                applyAssistantFirstOrderingFix: false,
+                applyZhushouFirstOrderingFix: false,
                 validateGeminiTurns: false,
                 validateAnthropicTurns: false,
               };
@@ -136,7 +136,7 @@ vi.mock("../plugins/provider-hook-runtime.js", async () => {
             case "opencode":
             case "opencode-go":
               return {
-                applyAssistantFirstOrderingFix: false,
+                applyZhushouFirstOrderingFix: false,
                 validateGeminiTurns: false,
                 validateAnthropicTurns: false,
                 ...(modelId.includes("gemini")
@@ -158,12 +158,12 @@ vi.mock("../plugins/provider-hook-runtime.js", async () => {
                   toolCallIdMode: "strict",
                   ...(context.modelApi === "openai-completions"
                     ? {
-                        applyAssistantFirstOrderingFix: true,
+                        applyZhushouFirstOrderingFix: true,
                         validateGeminiTurns: true,
                         validateAnthropicTurns: true,
                       }
                     : {
-                        applyAssistantFirstOrderingFix: false,
+                        applyZhushouFirstOrderingFix: false,
                         validateGeminiTurns: false,
                         validateAnthropicTurns: false,
                       }),
@@ -487,7 +487,7 @@ describe("resolveTranscriptPolicy", () => {
     ).toBe(false);
   });
 
-  it("enables turn-ordering and assistant-merge for strict OpenAI-compatible providers (#38962)", () => {
+  it("enables turn-ordering and zhushou-merge for strict OpenAI-compatible providers (#38962)", () => {
     const policy = resolveTranscriptPolicy({
       provider: "vllm",
       modelId: "gemma-3-27b",

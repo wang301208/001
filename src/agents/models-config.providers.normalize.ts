@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { ensureAuthProfileStore } from "./auth-profiles/store.js";
 import {
   normalizeProviderSpecificConfig,
@@ -14,7 +14,7 @@ import {
 } from "./models-config.providers.secret-helpers.js";
 import { enforceSourceManagedProviderSecrets } from "./models-config.providers.source-managed.js";
 
-type ModelsConfig = NonNullable<AssistantConfig["models"]>;
+type ModelsConfig = NonNullable<ZhushouConfig["models"]>;
 
 export function normalizeProviders(params: {
   providers: ModelsConfig["providers"];

@@ -38,7 +38,7 @@ export type NormalizedUsage = {
   total?: number;
 };
 
-export type AssistantUsageSnapshot = {
+export type ZhushouUsageSnapshot = {
   input: number;
   output: number;
   cacheRead: number;
@@ -53,7 +53,7 @@ export type AssistantUsageSnapshot = {
   };
 };
 
-export function makeZeroUsageSnapshot(): AssistantUsageSnapshot {
+export function makeZeroUsageSnapshot(): ZhushouUsageSnapshot {
   return {
     input: 0,
     output: 0,

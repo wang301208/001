@@ -1,13 +1,13 @@
-import { buildDmGroupAccountAllowlistAdapter } from "assistant/plugin-sdk/allowlist-config-edit";
-import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
-import { buildPassiveProbedChannelStatusSummary } from "assistant/plugin-sdk/extension-shared";
-import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
-import { sanitizeForPlainText } from "assistant/plugin-sdk/outbound-runtime";
-import { buildOutboundBaseSessionKey, type RoutePeer } from "assistant/plugin-sdk/routing";
+import { buildDmGroupAccountAllowlistAdapter } from "zhushou/plugin-sdk/allowlist-config-edit";
+import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+import { buildPassiveProbedChannelStatusSummary } from "zhushou/plugin-sdk/extension-shared";
+import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
+import { sanitizeForPlainText } from "zhushou/plugin-sdk/outbound-runtime";
+import { buildOutboundBaseSessionKey, type RoutePeer } from "zhushou/plugin-sdk/routing";
 import {
   createComputedAccountStatusAdapter,
   createDefaultChannelRuntimeState,
-} from "assistant/plugin-sdk/status-helpers";
+} from "zhushou/plugin-sdk/status-helpers";
 import { resolveIMessageAccount, type ResolvedIMessageAccount } from "./accounts.js";
 import {
   chunkTextForOutbound,

@@ -8,30 +8,30 @@ import {
 
 describe("command-registration-policy", () => {
   it("matches primary command registration policy", () => {
-    expect(shouldRegisterPrimaryCommandOnly(["node", "assistant", "status"])).toBe(true);
-    expect(shouldRegisterPrimaryCommandOnly(["node", "assistant", "status", "--help"])).toBe(true);
-    expect(shouldRegisterPrimaryCommandOnly(["node", "assistant", "-V"])).toBe(false);
-    expect(shouldRegisterPrimaryCommandOnly(["node", "assistant", "acp", "-v"])).toBe(true);
+    expect(shouldRegisterPrimaryCommandOnly(["node", "zhushou", "status"])).toBe(true);
+    expect(shouldRegisterPrimaryCommandOnly(["node", "zhushou", "status", "--help"])).toBe(true);
+    expect(shouldRegisterPrimaryCommandOnly(["node", "zhushou", "-V"])).toBe(false);
+    expect(shouldRegisterPrimaryCommandOnly(["node", "zhushou", "acp", "-v"])).toBe(true);
   });
 
   it("matches plugin registration skip policy", () => {
     expect(
       shouldSkipPluginCommandRegistration({
-        argv: ["node", "assistant", "--help"],
+        argv: ["node", "zhushou", "--help"],
         primary: null,
         hasBuiltinPrimary: false,
       }),
     ).toBe(true);
     expect(
       shouldSkipPluginCommandRegistration({
-        argv: ["node", "assistant", "config", "--help"],
+        argv: ["node", "zhushou", "config", "--help"],
         primary: "config",
         hasBuiltinPrimary: true,
       }),
     ).toBe(true);
     expect(
       shouldSkipPluginCommandRegistration({
-        argv: ["node", "assistant", "voicecall", "--help"],
+        argv: ["node", "zhushou", "voicecall", "--help"],
         primary: "voicecall",
         hasBuiltinPrimary: false,
       }),
@@ -39,15 +39,15 @@ describe("command-registration-policy", () => {
   });
 
   it("matches lazy subcommand registration policy", () => {
-    expect(shouldEagerRegisterSubcommands({ ASSISTANT_DISABLE_LAZY_SUBCOMMANDS: "1" })).toBe(true);
-    expect(shouldEagerRegisterSubcommands({ ASSISTANT_DISABLE_LAZY_SUBCOMMANDS: "0" })).toBe(false);
-    expect(shouldRegisterPrimarySubcommandOnly(["node", "assistant", "acp"], {})).toBe(true);
-    expect(shouldRegisterPrimarySubcommandOnly(["node", "assistant", "acp", "--help"], {})).toBe(
+    expect(shouldEagerRegisterSubcommands({ ZHUSHOU_DISABLE_LAZY_SUBCOMMANDS: "1" })).toBe(true);
+    expect(shouldEagerRegisterSubcommands({ ZHUSHOU_DISABLE_LAZY_SUBCOMMANDS: "0" })).toBe(false);
+    expect(shouldRegisterPrimarySubcommandOnly(["node", "zhushou", "acp"], {})).toBe(true);
+    expect(shouldRegisterPrimarySubcommandOnly(["node", "zhushou", "acp", "--help"], {})).toBe(
       true,
     );
     expect(
-      shouldRegisterPrimarySubcommandOnly(["node", "assistant", "acp"], {
-        ASSISTANT_DISABLE_LAZY_SUBCOMMANDS: "1",
+      shouldRegisterPrimarySubcommandOnly(["node", "zhushou", "acp"], {
+        ZHUSHOU_DISABLE_LAZY_SUBCOMMANDS: "1",
       }),
     ).toBe(false);
   });

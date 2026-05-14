@@ -32,9 +32,9 @@ describe("subscribeEmbeddedPiSession", () => {
   it("emits reasoning as a separate message when enabled", () => {
     const { emit, onBlockReply } = createReasoningBlockReplyHarness();
 
-    const assistantMessage = createReasoningFinalAnswerMessage();
+    const zhushouMessage = createReasoningFinalAnswerMessage();
 
-    emit({ type: "message_end", message: assistantMessage });
+    emit({ type: "message_end", message: zhushouMessage });
 
     expectReasoningAndAnswerCalls(onBlockReply);
   });
@@ -43,7 +43,7 @@ describe("subscribeEmbeddedPiSession", () => {
     ({ open, close }) => {
       const { emit, onBlockReply } = createReasoningBlockReplyHarness();
 
-      const assistantMessage = {
+      const zhushouMessage = {
         role: "assistant",
         content: [
           {
@@ -53,11 +53,11 @@ describe("subscribeEmbeddedPiSession", () => {
         ],
       } as AssistantMessage;
 
-      emit({ type: "message_end", message: assistantMessage });
+      emit({ type: "message_end", message: zhushouMessage });
 
       expectReasoningAndAnswerCalls(onBlockReply);
 
-      expect(assistantMessage.content).toEqual([
+      expect(zhushouMessage.content).toEqual([
         { type: "thinking", thinking: "Because it helps" },
         { type: "text", text: "Final answer" },
       ]);

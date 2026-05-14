@@ -50,12 +50,12 @@ describe("auth-profiles (chutes)", () => {
   });
 
   it("refreshes expired Chutes OAuth credentials", async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-chutes-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-chutes-"));
     const agentDir = path.join(tempDir, "agents", "main", "agent");
     await withEnvAsync(
       {
-        ASSISTANT_STATE_DIR: tempDir,
-        ASSISTANT_AGENT_DIR: agentDir,
+        ZHUSHOU_STATE_DIR: tempDir,
+        ZHUSHOU_AGENT_DIR: agentDir,
         PI_CODING_AGENT_DIR: agentDir,
         CHUTES_CLIENT_ID: undefined,
       },

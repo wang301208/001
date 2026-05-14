@@ -1,13 +1,13 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 import {
   resolveOAuthApiKeyMarker,
   type ProviderAuthContext,
   type ProviderAuthResult,
-} from "assistant/plugin-sdk/provider-auth";
-import { buildOauthProviderAuthResult } from "assistant/plugin-sdk/provider-auth";
-import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
-import { loginChutes } from "assistant/plugin-sdk/provider-auth-login";
-import { normalizeOptionalString, readStringValue } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-auth";
+import { buildOauthProviderAuthResult } from "zhushou/plugin-sdk/provider-auth";
+import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
+import { loginChutes } from "zhushou/plugin-sdk/provider-auth-login";
+import { normalizeOptionalString, readStringValue } from "zhushou/plugin-sdk/text-runtime";
 import {
   CHUTES_DEFAULT_MODEL_REF,
   applyChutesApiKeyConfig,

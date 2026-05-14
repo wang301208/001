@@ -1,10 +1,10 @@
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { getChannelPlugin, normalizeChannelId } from "./registry.js";
 
 export function shouldSuppressLocalExecApprovalPrompt(params: {
   channel?: string | null;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   payload: ReplyPayload;
 }): boolean {

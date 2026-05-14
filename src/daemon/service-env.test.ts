@@ -285,15 +285,15 @@ describe("buildServiceEnvironment", () => {
     } else {
       expect(env.PATH).toContain("/usr/bin");
     }
-    expect(env.ASSISTANT_GATEWAY_PORT).toBe("18789");
-    expect(env.ASSISTANT_GATEWAY_TOKEN).toBeUndefined();
-    expect(env.ASSISTANT_SERVICE_MARKER).toBe("assistant");
-    expect(env.ASSISTANT_SERVICE_KIND).toBe("gateway");
-    expect(typeof env.ASSISTANT_SERVICE_VERSION).toBe("string");
-    expect(env.ASSISTANT_SYSTEMD_UNIT).toBe("assistant-gateway.service");
-    expect(env.ASSISTANT_WINDOWS_TASK_NAME).toBe("Assistant Gateway");
+    expect(env.ZHUSHOU_GATEWAY_PORT).toBe("18789");
+    expect(env.ZHUSHOU_GATEWAY_TOKEN).toBeUndefined();
+    expect(env.ZHUSHOU_SERVICE_MARKER).toBe("zhushou");
+    expect(env.ZHUSHOU_SERVICE_KIND).toBe("gateway");
+    expect(typeof env.ZHUSHOU_SERVICE_VERSION).toBe("string");
+    expect(env.ZHUSHOU_SYSTEMD_UNIT).toBe("zhushou-gateway.service");
+    expect(env.ZHUSHOU_WINDOWS_TASK_NAME).toBe("Zhushou Gateway");
     if (process.platform === "darwin") {
-      expect(env.ASSISTANT_LAUNCHD_LABEL).toBe("ai.assistant.gateway");
+      expect(env.ZHUSHOU_LAUNCHD_LABEL).toBe("ai.zhushou.gateway");
     }
   });
 
@@ -315,13 +315,13 @@ describe("buildServiceEnvironment", () => {
 
   it("uses profile-specific unit and label", () => {
     const env = buildServiceEnvironment({
-      env: { HOME: "/home/user", ASSISTANT_PROFILE: "work" },
+      env: { HOME: "/home/user", ZHUSHOU_PROFILE: "work" },
       port: 18789,
     });
-    expect(env.ASSISTANT_SYSTEMD_UNIT).toBe("assistant-gateway-work.service");
-    expect(env.ASSISTANT_WINDOWS_TASK_NAME).toBe("Assistant Gateway (work)");
+    expect(env.ZHUSHOU_SYSTEMD_UNIT).toBe("zhushou-gateway-work.service");
+    expect(env.ZHUSHOU_WINDOWS_TASK_NAME).toBe("Zhushou Gateway (work)");
     if (process.platform === "darwin") {
-      expect(env.ASSISTANT_LAUNCHD_LABEL).toBe("ai.assistant.work");
+      expect(env.ZHUSHOU_LAUNCHD_LABEL).toBe("ai.zhushou.work");
     }
   });
 
@@ -356,7 +356,7 @@ describe("buildServiceEnvironment", () => {
     });
 
     expect(env).not.toHaveProperty("PATH");
-    expect(env.ASSISTANT_WINDOWS_TASK_NAME).toBe("Assistant Gateway");
+    expect(env.ZHUSHOU_WINDOWS_TASK_NAME).toBe("Zhushou Gateway");
   });
 
   it("prepends extra runtime directories to the gateway service PATH", () => {
@@ -381,21 +381,21 @@ describe("buildNodeServiceEnvironment", () => {
     expect(env.HOME).toBe("/home/user");
   });
 
-  it("passes through ASSISTANT_GATEWAY_TOKEN for node services", () => {
+  it("passes through ZHUSHOU_GATEWAY_TOKEN for node services", () => {
     const env = buildNodeServiceEnvironment({
-      env: { HOME: "/home/user", ASSISTANT_GATEWAY_TOKEN: " node-token " },
+      env: { HOME: "/home/user", ZHUSHOU_GATEWAY_TOKEN: " node-token " },
     });
-    expect(env.ASSISTANT_GATEWAY_TOKEN).toBe("node-token");
+    expect(env.ZHUSHOU_GATEWAY_TOKEN).toBe("node-token");
   });
 
-  it("omits ASSISTANT_GATEWAY_TOKEN when the env var is empty", () => {
+  it("omits ZHUSHOU_GATEWAY_TOKEN when the env var is empty", () => {
     const env = buildNodeServiceEnvironment({
       env: {
         HOME: "/home/user",
-        ASSISTANT_GATEWAY_TOKEN: "   ",
+        ZHUSHOU_GATEWAY_TOKEN: "   ",
       },
     });
-    expect(env.ASSISTANT_GATEWAY_TOKEN).toBeUndefined();
+    expect(env.ZHUSHOU_GATEWAY_TOKEN).toBeUndefined();
   });
 
   it("forwards proxy environment variables for node services", () => {
@@ -486,32 +486,32 @@ describe("shared Node TLS env defaults", () => {
 describe("resolveGatewayStateDir", () => {
   it("uses the default state dir when no overrides are set", () => {
     const env = { HOME: "/Users/test" };
-    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".assistant"));
+    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".zhushou"));
   });
 
   it("appends the profile suffix when set", () => {
-    const env = { HOME: "/Users/test", ASSISTANT_PROFILE: "rescue" };
-    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".assistant-rescue"));
+    const env = { HOME: "/Users/test", ZHUSHOU_PROFILE: "rescue" };
+    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".zhushou-rescue"));
   });
 
   it("treats default profiles as the base state dir", () => {
-    const env = { HOME: "/Users/test", ASSISTANT_PROFILE: "Default" };
-    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".assistant"));
+    const env = { HOME: "/Users/test", ZHUSHOU_PROFILE: "Default" };
+    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".zhushou"));
   });
 
-  it("uses ASSISTANT_STATE_DIR when provided", () => {
-    const env = { HOME: "/Users/test", ASSISTANT_STATE_DIR: "/var/lib/assistant" };
-    expect(resolveGatewayStateDir(env)).toBe(path.resolve("/var/lib/assistant"));
+  it("uses ZHUSHOU_STATE_DIR when provided", () => {
+    const env = { HOME: "/Users/test", ZHUSHOU_STATE_DIR: "/var/lib/zhushou" };
+    expect(resolveGatewayStateDir(env)).toBe(path.resolve("/var/lib/zhushou"));
   });
 
-  it("expands ~ in ASSISTANT_STATE_DIR", () => {
-    const env = { HOME: "/Users/test", ASSISTANT_STATE_DIR: "~/assistant-state" };
-    expect(resolveGatewayStateDir(env)).toBe(path.resolve("/Users/test/assistant-state"));
+  it("expands ~ in ZHUSHOU_STATE_DIR", () => {
+    const env = { HOME: "/Users/test", ZHUSHOU_STATE_DIR: "~/zhushou-state" };
+    expect(resolveGatewayStateDir(env)).toBe(path.resolve("/Users/test/zhushou-state"));
   });
 
   it("preserves Windows absolute paths without HOME", () => {
-    const env = { ASSISTANT_STATE_DIR: "C:\\State\\assistant" };
-    expect(resolveGatewayStateDir(env)).toBe("C:\\State\\assistant");
+    const env = { ZHUSHOU_STATE_DIR: "C:\\State\\zhushou" };
+    expect(resolveGatewayStateDir(env)).toBe("C:\\State\\zhushou");
   });
 });
 

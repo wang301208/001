@@ -1,9 +1,9 @@
 import {
   createResolvedApproverActionAuthAdapter,
   resolveApprovalApprovers,
-} from "assistant/plugin-sdk/approval-auth-runtime";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
-import type { AssistantConfig } from "../runtime-api.js";
+} from "zhushou/plugin-sdk/approval-auth-runtime";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { normalizeMSTeamsMessagingTarget } from "./resolve-allowlist.js";
 
 const MSTEAMS_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -20,7 +20,7 @@ function normalizeMSTeamsApproverId(value: string | number): string | undefined 
   return MSTEAMS_ID_RE.test(id) ? id : undefined;
 }
 
-function resolveMSTeamsChannelConfig(cfg: AssistantConfig) {
+function resolveMSTeamsChannelConfig(cfg: ZhushouConfig) {
   return cfg.channels?.msteams;
 }
 

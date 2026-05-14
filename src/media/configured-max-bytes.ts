@@ -1,8 +1,8 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 const MB = 1024 * 1024;
 
-export function resolveConfiguredMediaMaxBytes(cfg?: AssistantConfig): number | undefined {
+export function resolveConfiguredMediaMaxBytes(cfg?: ZhushouConfig): number | undefined {
   const configured = cfg?.agents?.defaults?.mediaMaxMb;
   if (typeof configured === "number" && Number.isFinite(configured) && configured > 0) {
     return Math.floor(configured * MB);

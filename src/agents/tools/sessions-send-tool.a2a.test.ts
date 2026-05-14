@@ -6,7 +6,7 @@ import { runSessionsSendA2AFlow, __testing } from "./sessions-send-tool.a2a.js";
 
 vi.mock("../run-wait.js", () => ({
   waitForAgentRun: vi.fn().mockResolvedValue({ status: "ok" }),
-  readLatestAssistantReply: vi.fn().mockResolvedValue("Test announce reply"),
+  readLatestZhushouReply: vi.fn().mockResolvedValue("Test announce reply"),
 }));
 
 vi.mock("./agent-step.js", () => ({

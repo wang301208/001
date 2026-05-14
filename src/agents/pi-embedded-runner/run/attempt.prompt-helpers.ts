@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import type {
   ContextEnginePromptCacheInfo,
   ContextEngineRuntimeContext,
@@ -97,7 +97,7 @@ export function resolvePromptModeForSession(sessionKey?: string): "minimal" | "f
 }
 
 export function shouldInjectHeartbeatPrompt(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentId?: string;
   defaultAgentId?: string;
   isDefaultAgent: boolean;
@@ -167,7 +167,7 @@ export function mergeOrphanedTrailingUserPrompt(params: {
 }
 
 export function resolveAttemptFsWorkspaceOnly(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   sessionAgentId: string;
 }): boolean {
   return resolveEffectiveToolFsWorkspaceOnly({

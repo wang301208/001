@@ -83,22 +83,22 @@ import type {
   CliBackendPlugin,
   ImageGenerationProviderPlugin,
   MusicGenerationProviderPlugin,
-  AssistantPluginApi,
-  AssistantPluginChannelRegistration,
-  AssistantPluginCliCommandDescriptor,
-  AssistantPluginCliRegistrar,
-  AssistantPluginCommandDefinition,
+  ZhushouPluginApi,
+  ZhushouPluginChannelRegistration,
+  ZhushouPluginCliCommandDescriptor,
+  ZhushouPluginCliRegistrar,
+  ZhushouPluginCommandDefinition,
   PluginConversationBindingResolvedEvent,
-  AssistantPluginGatewayRuntimeScopeSurface,
-  AssistantPluginHttpRouteParams,
-  AssistantPluginHookOptions,
-  AssistantPluginNodeHostCommand,
-  AssistantPluginReloadRegistration,
-  AssistantPluginSecurityAuditCollector,
+  ZhushouPluginGatewayRuntimeScopeSurface,
+  ZhushouPluginHttpRouteParams,
+  ZhushouPluginHookOptions,
+  ZhushouPluginNodeHostCommand,
+  ZhushouPluginReloadRegistration,
+  ZhushouPluginSecurityAuditCollector,
   MediaUnderstandingProviderPlugin,
-  AssistantPluginService,
-  AssistantPluginToolContext,
-  AssistantPluginToolFactory,
+  ZhushouPluginService,
+  ZhushouPluginToolContext,
+  ZhushouPluginToolFactory,
   PluginHookHandlerMap,
   PluginHookName,
   PluginHookRegistration as TypedPluginHookRegistration,
@@ -114,7 +114,7 @@ import type {
 } from "./types.js";
 
 export type PluginHttpRouteRegistration = RegistryTypesPluginHttpRouteRegistration & {
-  gatewayRuntimeScopeSurface?: AssistantPluginGatewayRuntimeScopeSurface;
+  gatewayRuntimeScopeSurface?: ZhushouPluginGatewayRuntimeScopeSurface;
 };
 type PluginOwnedProviderRegistration<T extends { id: string }> = {
   pluginId: string;
@@ -175,7 +175,7 @@ const constrainLegacyPromptInjectionHook = (
 
 export { createEmptyPluginRegistry } from "./registry-empty.js";
 
-const ACTIVE_PLUGIN_HOOK_REGISTRATIONS_KEY = Symbol.for("assistant.activePluginHookRegistrations");
+const ACTIVE_PLUGIN_HOOK_REGISTRATIONS_KEY = Symbol.for("zhushou.activePluginHookRegistrations");
 const activePluginHookRegistrations = resolveGlobalSingleton<
   Map<string, Array<{ event: string; handler: Parameters<typeof registerInternalHook>[1] }>>
 >(ACTIVE_PLUGIN_HOOK_REGISTRATIONS_KEY, () => new Map());
@@ -194,13 +194,13 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
 
   const registerTool = (
     record: PluginRecord,
-    tool: AnyAgentTool | AssistantPluginToolFactory,
+    tool: AnyAgentTool | ZhushouPluginToolFactory,
     opts?: { name?: string; names?: string[]; optional?: boolean },
   ) => {
     const names = opts?.names ?? (opts?.name ? [opts.name] : []);
     const optional = opts?.optional === true;
-    const factory: AssistantPluginToolFactory =
-      typeof tool === "function" ? tool : (_ctx: AssistantPluginToolContext) => tool;
+    const factory: ZhushouPluginToolFactory =
+      typeof tool === "function" ? tool : (_ctx: ZhushouPluginToolContext) => tool;
 
     if (typeof tool !== "function") {
       names.push(tool.name);
@@ -225,8 +225,8 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     record: PluginRecord,
     events: string | string[],
     handler: Parameters<typeof registerInternalHook>[1],
-    opts: AssistantPluginHookOptions | undefined,
-    config: AssistantPluginApi["config"],
+    opts: ZhushouPluginHookOptions | undefined,
+    config: ZhushouPluginApi["config"],
   ) => {
     const eventList = Array.isArray(events) ? events : [events];
     const normalizedEvents = eventList.map((event) => event.trim()).filter(Boolean);
@@ -260,7 +260,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
             ...entry.hook,
             name,
             description,
-            source: "assistant-plugin",
+            source: "zhushou-plugin",
             pluginId: record.id,
           },
           metadata: {
@@ -272,7 +272,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
           hook: {
             name,
             description,
-            source: "assistant-plugin",
+            source: "zhushou-plugin",
             pluginId: record.id,
             filePath: record.source,
             baseDir: path.dirname(record.source),
@@ -365,7 +365,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     return `${plugin} (${source})`;
   };
 
-  const registerHttpRoute = (record: PluginRecord, params: AssistantPluginHttpRouteParams) => {
+  const registerHttpRoute = (record: PluginRecord, params: ZhushouPluginHttpRouteParams) => {
     const normalizedPath = normalizePluginHttpPath(params.path);
     if (!normalizedPath) {
       pushDiagnostic({
@@ -457,12 +457,12 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
 
   const registerChannel = (
     record: PluginRecord,
-    registration: AssistantPluginChannelRegistration | ChannelPlugin,
+    registration: ZhushouPluginChannelRegistration | ChannelPlugin,
     mode: PluginRegistrationMode = "full",
   ) => {
     const normalized =
-      typeof (registration as AssistantPluginChannelRegistration).plugin === "object"
-        ? (registration as AssistantPluginChannelRegistration)
+      typeof (registration as ZhushouPluginChannelRegistration).plugin === "object"
+        ? (registration as ZhushouPluginChannelRegistration)
         : { plugin: registration as ChannelPlugin };
     const plugin = normalizeRegisteredChannelPlugin({
       pluginId: record.id,
@@ -807,8 +807,8 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
 
   const registerCli = (
     record: PluginRecord,
-    registrar: AssistantPluginCliRegistrar,
-    opts?: { commands?: string[]; descriptors?: AssistantPluginCliCommandDescriptor[] },
+    registrar: ZhushouPluginCliRegistrar,
+    opts?: { commands?: string[]; descriptors?: ZhushouPluginCliCommandDescriptor[] },
   ) => {
     const descriptors = (opts?.descriptors ?? [])
       .map((descriptor) => ({
@@ -863,10 +863,10 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     NODE_SYSTEM_NOTIFY_COMMAND,
   ]);
 
-  const registerReload = (record: PluginRecord, registration: AssistantPluginReloadRegistration) => {
+  const registerReload = (record: PluginRecord, registration: ZhushouPluginReloadRegistration) => {
     const normalize = (values?: string[]) =>
       (values ?? []).map((value) => value.trim()).filter(Boolean);
-    const normalized: AssistantPluginReloadRegistration = {
+    const normalized: ZhushouPluginReloadRegistration = {
       restartPrefixes: normalize(registration.restartPrefixes),
       hotPrefixes: normalize(registration.hotPrefixes),
       noopPrefixes: normalize(registration.noopPrefixes),
@@ -896,7 +896,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
 
   const registerNodeHostCommand = (
     record: PluginRecord,
-    nodeCommand: AssistantPluginNodeHostCommand,
+    nodeCommand: ZhushouPluginNodeHostCommand,
   ) => {
     const command = nodeCommand.command.trim();
     if (!command) {
@@ -943,7 +943,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
 
   const registerSecurityAuditCollector = (
     record: PluginRecord,
-    collector: AssistantPluginSecurityAuditCollector,
+    collector: ZhushouPluginSecurityAuditCollector,
   ) => {
     registry.securityAuditCollectors ??= [];
     registry.securityAuditCollectors.push({
@@ -955,7 +955,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     });
   };
 
-  const registerService = (record: PluginRecord, service: AssistantPluginService) => {
+  const registerService = (record: PluginRecord, service: ZhushouPluginService) => {
     const id = service.id.trim();
     if (!id) {
       return;
@@ -985,7 +985,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     });
   };
 
-  const registerCommand = (record: PluginRecord, command: AssistantPluginCommandDefinition) => {
+  const registerCommand = (record: PluginRecord, command: ZhushouPluginCommandDefinition) => {
     const name = command.name.trim();
     if (!name) {
       pushDiagnostic({
@@ -1143,12 +1143,12 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
   const createApi = (
     record: PluginRecord,
     params: {
-      config: AssistantPluginApi["config"];
+      config: ZhushouPluginApi["config"];
       pluginConfig?: Record<string, unknown>;
       hookPolicy?: PluginTypedHookPolicy;
       registrationMode?: PluginRegistrationMode;
     },
-  ): AssistantPluginApi => {
+  ): ZhushouPluginApi => {
     const registrationMode = params.registrationMode ?? "full";
     return buildPluginApi({
       id: record.id,
@@ -1240,7 +1240,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
                 }
               },
               registerCompactionProvider: (
-                provider: Parameters<AssistantPluginApi["registerCompactionProvider"]>[0],
+                provider: Parameters<ZhushouPluginApi["registerCompactionProvider"]>[0],
               ) => {
                 const existing = getRegisteredCompactionProvider(provider.id);
                 if (existing) {

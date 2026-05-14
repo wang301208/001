@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   resolveSecretInputRef,
   type SecretProviderConfig,
@@ -18,7 +18,7 @@ export type ConfigureCandidate = {
   path: string;
   pathSegments: string[];
   label: string;
-  configFile: "assistant.json" | "auth-profiles.json";
+  configFile: "zhushou.json" | "auth-profiles.json";
   expectedResolvedValue: "string" | "string-or-object";
   existingRef?: SecretRef;
   isDerived?: boolean;
@@ -37,14 +37,14 @@ export type ConfigureProviderChanges = {
   deletes: string[];
 };
 
-function getSecretProviders(config: AssistantConfig): Record<string, SecretProviderConfig> {
+function getSecretProviders(config: ZhushouConfig): Record<string, SecretProviderConfig> {
   if (!isRecord(config.secrets?.providers)) {
     return {};
   }
   return config.secrets.providers;
 }
 
-export function buildConfigureCandidates(config: AssistantConfig): ConfigureCandidate[] {
+export function buildConfigureCandidates(config: ZhushouConfig): ConfigureCandidate[] {
   return buildConfigureCandidatesForScope({ config });
 }
 
@@ -53,7 +53,7 @@ function configureCandidateSortKey(candidate: ConfigureCandidate): string {
     const agentId = candidate.agentId ?? "";
     return `auth-profiles:${agentId}:${candidate.path}`;
   }
-  return `assistant:${candidate.path}`;
+  return `zhushou:${candidate.path}`;
 }
 
 function resolveAuthProfileProvider(
@@ -73,19 +73,19 @@ function resolveAuthProfileProvider(
 }
 
 export function buildConfigureCandidatesForScope(params: {
-  config: AssistantConfig;
-  authoredAssistantConfig?: AssistantConfig;
+  config: ZhushouConfig;
+  authoredZhushouConfig?: ZhushouConfig;
   authProfiles?: {
     agentId: string;
     store: AuthProfileStore;
   };
 }): ConfigureCandidate[] {
-  const authoredConfig = params.authoredAssistantConfig ?? params.config;
+  const authoredConfig = params.authoredZhushouConfig ?? params.config;
 
   const hasPathInAuthoredConfig = (pathSegments: string[]): boolean =>
     hasPath(authoredConfig, pathSegments);
 
-  const assistantCandidates = discoverConfigSecretTargets(params.config)
+  const zhushouCandidates = discoverConfigSecretTargets(params.config)
     .filter((entry) => entry.entry.includeInConfigure)
     .map((entry) => {
       const resolved = resolveSecretInputRef({
@@ -102,7 +102,7 @@ export function buildConfigureCandidatesForScope(params: {
         path: entry.path,
         pathSegments: [...entry.pathSegments],
         label: entry.path,
-        configFile: "assistant.json" as const,
+        configFile: "zhushou.json" as const,
         expectedResolvedValue: entry.entry.expectedResolvedValue,
         ...(resolved.ref ? { existingRef: resolved.ref } : {}),
         ...(pathExists || refPathExists ? {} : { isDerived: true }),
@@ -143,7 +143,7 @@ export function buildConfigureCandidatesForScope(params: {
             };
           });
 
-  return [...assistantCandidates, ...authCandidates].toSorted((a, b) =>
+  return [...zhushouCandidates, ...authCandidates].toSorted((a, b) =>
     configureCandidateSortKey(a).localeCompare(configureCandidateSortKey(b)),
   );
 }
@@ -184,8 +184,8 @@ function hasPath(root: unknown, segments: string[]): boolean {
 }
 
 export function collectConfigureProviderChanges(params: {
-  original: AssistantConfig;
-  next: AssistantConfig;
+  original: ZhushouConfig;
+  next: ZhushouConfig;
 }): ConfigureProviderChanges {
   const originalProviders = getSecretProviders(params.original);
   const nextProviders = getSecretProviders(params.next);
@@ -233,7 +233,7 @@ export function buildSecretsConfigurePlan(params: {
     version: 1,
     protocolVersion: 1,
     generatedAt: params.generatedAt ?? new Date().toISOString(),
-    generatedBy: "assistant secrets configure",
+    generatedBy: "zhushou secrets configure",
     targets: [...params.selectedTargets.values()].map((entry) => ({
       type: entry.type,
       path: entry.path,

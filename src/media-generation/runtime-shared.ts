@@ -8,7 +8,7 @@ import {
   resolveAgentModelPrimaryValue,
 } from "../config/model-input.js";
 import type { AgentModelConfig } from "../config/types.agents-shared.js";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { getProviderEnvVars } from "../secrets/provider-env-vars.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import type {
@@ -44,7 +44,7 @@ const IMAGE_RESOLUTION_ORDER = ["1K", "2K", "4K"] as const;
 type CapabilityProviderCandidate = {
   id: string;
   defaultModel?: string | null;
-  isConfigured?: (ctx: { cfg?: AssistantConfig; agentDir?: string }) => boolean;
+  isConfigured?: (ctx: { cfg?: ZhushouConfig; agentDir?: string }) => boolean;
 };
 
 type ParsedAspectRatio = {
@@ -60,7 +60,7 @@ type ParsedSize = {
   area: number;
 };
 
-function resolveCurrentDefaultProviderId(cfg?: AssistantConfig): string {
+function resolveCurrentDefaultProviderId(cfg?: ZhushouConfig): string {
   const configured = resolveAgentModelPrimaryValue(cfg?.agents?.defaults?.model);
   const trimmed = normalizeOptionalString(configured);
   if (!trimmed) {
@@ -76,7 +76,7 @@ function resolveCurrentDefaultProviderId(cfg?: AssistantConfig): string {
 
 function isCapabilityProviderConfigured(params: {
   provider: CapabilityProviderCandidate;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentDir?: string;
 }): boolean {
   if (params.provider.isConfigured) {
@@ -99,9 +99,9 @@ function isCapabilityProviderConfigured(params: {
 }
 
 function resolveAutoCapabilityFallbackRefs(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentDir?: string;
-  listProviders: (cfg?: AssistantConfig) => CapabilityProviderCandidate[];
+  listProviders: (cfg?: ZhushouConfig) => CapabilityProviderCandidate[];
 }): string[] {
   const providerDefaults = new Map<string, string>();
   for (const provider of params.listProviders(params.cfg)) {
@@ -136,12 +136,12 @@ function resolveAutoCapabilityFallbackRefs(params: {
 }
 
 export function resolveCapabilityModelCandidates(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   modelConfig: AgentModelConfig | undefined;
   modelOverride?: string;
   parseModelRef: (raw: string | undefined) => ParsedProviderModelRef | null;
   agentDir?: string;
-  listProviders?: (cfg?: AssistantConfig) => CapabilityProviderCandidate[];
+  listProviders?: (cfg?: ZhushouConfig) => CapabilityProviderCandidate[];
   autoProviderFallback?: boolean;
 }): ParsedProviderModelRef[] {
   const candidates: ParsedProviderModelRef[] = [];

@@ -67,7 +67,7 @@ export function buildMatrixBlockStreamingPrompt(
   return [
     sutUserId,
     "Block streaming QA check:",
-    "emit exactly two assistant message blocks in order.",
+    "emit exactly two zhushou message blocks in order.",
     `First exact marker: \`${firstText}\`.`,
     `Second exact marker: \`${secondText}\`.`,
   ].join(" ");

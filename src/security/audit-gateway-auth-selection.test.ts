@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveGatewayProbeAuthSafe, resolveGatewayProbeTarget } from "../gateway/probe-auth.js";
 import { collectDeepProbeFindings } from "./audit-deep-probe-findings.js";
 
@@ -8,17 +8,17 @@ describe("security audit gateway auth selection", () => {
     const makeProbeEnv = (env?: { token?: string; password?: string }) => {
       const probeEnv: NodeJS.ProcessEnv = {};
       if (env?.token !== undefined) {
-        probeEnv.ASSISTANT_GATEWAY_TOKEN = env.token;
+        probeEnv.ZHUSHOU_GATEWAY_TOKEN = env.token;
       }
       if (env?.password !== undefined) {
-        probeEnv.ASSISTANT_GATEWAY_PASSWORD = env.password;
+        probeEnv.ZHUSHOU_GATEWAY_PASSWORD = env.password;
       }
       return probeEnv;
     };
 
     const cases: Array<{
       name: string;
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       env?: { token?: string; password?: string };
       expectedAuth: { token?: string; password?: string };
     }> = [
@@ -109,7 +109,7 @@ describe("security audit gateway auth selection", () => {
   });
 
   it("adds warning finding when probe auth SecretRef is unavailable", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       gateway: {
         mode: "local",
         auth: {

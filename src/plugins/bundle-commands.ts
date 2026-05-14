@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { parseFrontmatterBlock } from "../markdown/frontmatter.js";
 import { isPathInsideWithRealpath } from "../security/scan-paths.js";
@@ -167,7 +167,7 @@ function loadBundleCommandsFromRoot(params: {
 
 export function loadEnabledClaudeBundleCommands(params: {
   workspaceDir: string;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
 }): ClaudeBundleCommandSpec[] {
   const registry = loadPluginManifestRegistry({
     workspaceDir: params.workspaceDir,

@@ -1,15 +1,15 @@
-import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "assistant/plugin-sdk/channel-config-helpers";
-import { createRestrictSendersChannelSecurity } from "assistant/plugin-sdk/channel-policy";
-import { createChannelPluginBase, getChatChannelMeta } from "assistant/plugin-sdk/core";
-import type { ChannelPlugin } from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { createRestrictSendersChannelSecurity } from "zhushou/plugin-sdk/channel-policy";
+import { createChannelPluginBase, getChatChannelMeta } from "zhushou/plugin-sdk/core";
+import type { ChannelPlugin } from "zhushou/plugin-sdk/core";
 import {
   normalizeE164,
   normalizeStringifiedOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   listSignalAccountIds,
   resolveDefaultSignalAccountId,

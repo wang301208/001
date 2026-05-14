@@ -1,6 +1,6 @@
-import { buildPluginConfigSchema } from "assistant/plugin-sdk/plugin-entry";
-import { z } from "assistant/plugin-sdk/zod";
-import type { AssistantPluginConfigSchema } from "../api.js";
+import { buildPluginConfigSchema } from "zhushou/plugin-sdk/plugin-entry";
+import { z } from "zhushou/plugin-sdk/zod";
+import type { ZhushouPluginConfigSchema } from "../api.js";
 import {
   DIFF_IMAGE_QUALITY_PRESETS,
   DIFF_INDICATORS,
@@ -192,7 +192,7 @@ const diffsPluginConfigSchemaBase = buildPluginConfigSchema(DiffsPluginJsonSchem
   },
 });
 
-export const diffsPluginConfigSchema: AssistantPluginConfigSchema = {
+export const diffsPluginConfigSchema: ZhushouPluginConfigSchema = {
   ...diffsPluginConfigSchemaBase,
   jsonSchema: {
     ...diffsPluginConfigSchemaBase.jsonSchema,

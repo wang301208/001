@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { HISTORY_CONTEXT_MARKER } from "../auto-reply/reply/history.js";
 import { CURRENT_MESSAGE_MARKER } from "../auto-reply/reply/mentions.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
-import { buildAssistantDeltaResult } from "./test-helpers.agent-results.js";
+import { buildZhushouDeltaResult } from "./test-helpers.agent-results.js";
 import {
   agentCommand,
   getFreePort,
@@ -59,9 +59,9 @@ async function startTokenServer(port: number, opts?: { openAiChatCompletionsEnab
 }
 
 async function writeGatewayConfig(config: Record<string, unknown>) {
-  const configPath = process.env.ASSISTANT_CONFIG_PATH;
+  const configPath = process.env.ZHUSHOU_CONFIG_PATH;
   if (!configPath) {
-    throw new Error("ASSISTANT_CONFIG_PATH is required for gateway config tests");
+    throw new Error("ZHUSHOU_CONFIG_PATH is required for gateway config tests");
   }
   await fs.mkdir(path.dirname(configPath), { recursive: true });
   await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf-8");
@@ -72,7 +72,7 @@ async function postChatCompletions(port: number, body: unknown, headers?: Record
     method: "POST",
     headers: {
       "content-type": "application/json",
-      "x-assistant-scopes": "operator.write",
+      "x-zhushou-scopes": "operator.write",
       ...headers,
     },
     body: JSON.stringify(body),
@@ -138,7 +138,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     const expectInvalidRequestNoDispatch = async (messages: unknown[]) => {
       agentCommand.mockClear();
       const res = await postChatCompletions(port, {
-        model: "assistant",
+        model: "zhushou",
         messages,
       });
       expect(res.status).toBe(400);
@@ -151,7 +151,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     const postSyncUserMessage = async (message: string) => {
       const res = await postChatCompletions(port, {
         stream: false,
-        model: "assistant",
+        model: "zhushou",
         messages: [{ role: "user", content: message }],
       });
       expect(res.status).toBe(200);
@@ -187,7 +187,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         await expectAgentSessionKeyMatch({
           body: { model: "assistant", messages: [{ role: "user", content: "hi" }] },
-          headers: { "x-assistant-agent-id": "beta" },
+          headers: { "x-zhushou-agent-id": "beta" },
           matcher: /^agent:beta:/,
         });
       }
@@ -195,7 +195,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         await expectAgentSessionKeyMatch({
           body: {
-            model: "assistant/beta",
+            model: "zhushou/beta",
             messages: [{ role: "user", content: "hi" }],
           },
           matcher: /^agent:beta:/,
@@ -205,7 +205,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         await expectAgentSessionKeyMatch({
           body: {
-            model: "assistant/default",
+            model: "zhushou/default",
             messages: [{ role: "user", content: "hi" }],
           },
           matcher: /^agent:main:/,
@@ -218,8 +218,8 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
           port,
           { model: "assistant", messages: [{ role: "user", content: "hi" }] },
           {
-            "x-assistant-agent-id": "beta",
-            "x-assistant-session-key": "agent:beta:openai:custom",
+            "x-zhushou-agent-id": "beta",
+            "x-zhushou-session-key": "agent:beta:openai:custom",
           },
         );
         expect(res.status).toBe(200);
@@ -235,7 +235,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         mockAgentOnce([{ text: "hello" }]);
         const res = await postChatCompletions(port, {
           user: "alice",
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         });
         expect(res.status).toBe(200);
@@ -252,10 +252,10 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const res = await postChatCompletions(
           port,
           {
-            model: "assistant",
+            model: "zhushou",
             messages: [{ role: "user", content: "hi" }],
           },
-          { "x-assistant-message-channel": "custom-client-channel" },
+          { "x-zhushou-message-channel": "custom-client-channel" },
         );
         expect(res.status).toBe(200);
         expect(getFirstAgentCall()?.messageChannel).toBe("custom-client-channel");
@@ -267,11 +267,11 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const res = await postChatCompletions(
           port,
           {
-            model: "assistant",
+            model: "zhushou",
             messages: [{ role: "user", content: "hi" }],
           },
           {
-            "x-assistant-model": "openai/gpt-5.4",
+            "x-zhushou-model": "openai/gpt-5.4",
           },
         );
         expect(res.status).toBe(200);
@@ -295,11 +295,11 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const res = await postChatCompletions(
           port,
           {
-            model: "assistant",
+            model: "zhushou",
             messages: [{ role: "user", content: "hi" }],
           },
           {
-            "x-assistant-model": "gpt-5.4",
+            "x-zhushou-model": "gpt-5.4",
           },
         );
         expect(res.status).toBe(200);
@@ -319,7 +319,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const json = (await res.json()) as { error?: { type?: string; message?: string } };
         expect(json.error?.type).toBe("invalid_request_error");
         expect(json.error?.message).toBe(
-          "Invalid `model`. Use `assistant` or `assistant/<agentId>`.",
+          "Invalid `model`. Use `zhushou` or `zhushou/<agentId>`.",
         );
         expect(agentCommand).toHaveBeenCalledTimes(0);
       }
@@ -329,22 +329,22 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const res = await postChatCompletions(
           port,
           {
-            model: "assistant",
+            model: "zhushou",
             messages: [{ role: "user", content: "hi" }],
           },
-          { "x-assistant-model": "openai/" },
+          { "x-zhushou-model": "openai/" },
         );
         expect(res.status).toBe(400);
         const json = (await res.json()) as { error?: { type?: string; message?: string } };
         expect(json.error?.type).toBe("invalid_request_error");
-        expect(json.error?.message).toBe("Invalid `x-assistant-model`.");
+        expect(json.error?.message).toBe("Invalid `x-zhushou-model`.");
         expect(agentCommand).toHaveBeenCalledTimes(0);
       }
 
       {
         mockAgentOnce([{ text: "hello" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
             {
               role: "user",
@@ -366,7 +366,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const imageData = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAA";
         mockAgentOnce([{ text: "looks good" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
             {
               role: "user",
@@ -394,7 +394,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const imageData = "QUJDRA==";
         mockAgentOnce([{ text: "supports data-uri params" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
             {
               role: "user",
@@ -434,7 +434,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         mockAgentOnce([{ text: "I can see the image" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
             {
               role: "user",
@@ -460,7 +460,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         mockAgentOnce([{ text: "follow up answer" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
             {
               role: "user",
@@ -483,7 +483,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         mockAgentOnce([{ text: "latest image only" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
             {
               role: "user",
@@ -515,7 +515,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const largeMessage = "x".repeat(1_200_000);
         mockAgentOnce([{ text: "accepted" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: largeMessage }],
         });
         expect(res.status).toBe(200);
@@ -552,9 +552,9 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         mockAgentOnce([{ text: "I am Claude" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
-            { role: "system", content: "You are a helpful assistant." },
+            { role: "system", content: "You are a helpful zhushou." },
             { role: "user", content: "Hello, who are you?" },
             { role: "assistant", content: "I am Claude." },
             { role: "user", content: "What did I just ask you?" },
@@ -564,7 +564,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
 
         const message = getFirstAgentMessage();
         expectMessageContext(message, {
-          history: ["User: Hello, who are you?", "Assistant: I am Claude."],
+          history: ["User: Hello, who are you?", "Zhushou: I am Claude."],
           current: ["User: What did I just ask you?"],
         });
         await res.text();
@@ -573,9 +573,9 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         mockAgentOnce([{ text: "hello" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
-            { role: "system", content: "You are a helpful assistant." },
+            { role: "system", content: "You are a helpful zhushou." },
             { role: "user", content: "Hello" },
           ],
         });
@@ -591,25 +591,25 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         mockAgentOnce([{ text: "hello" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
-            { role: "developer", content: "You are a helpful assistant." },
+            { role: "developer", content: "You are a helpful zhushou." },
             { role: "user", content: "Hello" },
           ],
         });
         expect(res.status).toBe(200);
 
         const extraSystemPrompt = getFirstAgentCall()?.extraSystemPrompt ?? "";
-        expect(extraSystemPrompt).toBe("You are a helpful assistant.");
+        expect(extraSystemPrompt).toBe("You are a helpful zhushou.");
         await res.text();
       }
 
       {
         mockAgentOnce([{ text: "ok" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
-            { role: "system", content: "You are a helpful assistant." },
+            { role: "system", content: "You are a helpful zhushou." },
             { role: "user", content: "What's the weather?" },
             { role: "assistant", content: "Checking the weather." },
             { role: "tool", content: "Sunny, 70F." },
@@ -619,7 +619,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
 
         const message = getFirstAgentMessage();
         expectMessageContext(message, {
-          history: ["User: What's the weather?", "Assistant: Checking the weather."],
+          history: ["User: What's the weather?", "Zhushou: Checking the weather."],
           current: ["Tool: Sunny, 70F."],
         });
         await res.text();
@@ -628,7 +628,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         mockAgentOnce([{ text: "tool follow-up ok" }]);
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [
             {
               role: "user",
@@ -647,7 +647,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         expect(firstCall?.images).toBeUndefined();
         const message = getFirstAgentMessage();
         expectMessageContext(message, {
-          history: ["User: look at this", "Assistant: Checking the image."],
+          history: ["User: look at this", "Zhushou: Checking the image."],
           current: ["Tool: Vision tool says it is blue."],
         });
         expect(message).not.toContain("User sent image(s) with no text.");
@@ -829,7 +829,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
 
       {
         const res = await postChatCompletions(port, {
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "system", content: "yo" }],
         });
         expect(res.status).toBe(400);
@@ -856,7 +856,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
           authorization: "Bearer wrong",
         };
         const body = {
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         };
 
@@ -891,7 +891,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         agentCommand.mockClear();
         agentCommand.mockImplementationOnce((async (opts: unknown) =>
-          buildAssistantDeltaResult({
+          buildZhushouDeltaResult({
             opts,
             emit: emitAgentEvent,
             deltas: ["he", "llo"],
@@ -900,7 +900,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
 
         const res = await postChatCompletions(port, {
           stream: true,
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         });
         expect(res.status).toBe(200);
@@ -927,7 +927,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       {
         agentCommand.mockClear();
         agentCommand.mockImplementationOnce((async (opts: unknown) =>
-          buildAssistantDeltaResult({
+          buildZhushouDeltaResult({
             opts,
             emit: emitAgentEvent,
             deltas: ["hi", "hi"],
@@ -936,7 +936,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
 
         const repeatedRes = await postChatCompletions(port, {
           stream: true,
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         });
         expect(repeatedRes.status).toBe(200);
@@ -961,7 +961,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
 
         const fallbackRes = await postChatCompletions(port, {
           stream: true,
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         });
         expect(fallbackRes.status).toBe(200);
@@ -976,7 +976,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
 
         const errorRes = await postChatCompletions(port, {
           stream: true,
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         });
         expect(errorRes.status).toBe(200);
@@ -1004,8 +1004,8 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     agentCommand.mockClear();
     agentCommand.mockImplementationOnce((async (opts: unknown) => {
       const runId = (opts as { runId?: string } | undefined)?.runId ?? "";
-      emitAgentEvent({ runId, stream: "assistant", data: { delta: "he" } });
-      emitAgentEvent({ runId, stream: "assistant", data: { delta: "llo" } });
+      emitAgentEvent({ runId, stream: "zhushou", data: { delta: "he" } });
+      emitAgentEvent({ runId, stream: "zhushou", data: { delta: "llo" } });
       return {
         payloads: [{ text: "hello" }],
         meta: {
@@ -1025,7 +1025,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     const res = await postChatCompletions(port, {
       stream: true,
       stream_options: { include_usage: true },
-      model: "assistant",
+      model: "zhushou",
       messages: [{ role: "user", content: "hi" }],
     });
     expect(res.status).toBe(200);
@@ -1051,7 +1051,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     agentCommand.mockClear();
     agentCommand.mockImplementationOnce((async (opts: unknown) => {
       const runId = (opts as { runId?: string } | undefined)?.runId ?? "";
-      emitAgentEvent({ runId, stream: "assistant", data: { delta: "hello" } });
+      emitAgentEvent({ runId, stream: "zhushou", data: { delta: "hello" } });
       return {
         payloads: [{ text: "hello" }],
         meta: {
@@ -1067,7 +1067,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     const res = await postChatCompletions(port, {
       stream: true,
       stream_options: { include_usage: true },
-      model: "assistant",
+      model: "zhushou",
       messages: [{ role: "user", content: "hi" }],
     });
     expect(res.status).toBe(200);
@@ -1093,7 +1093,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       ((opts: unknown) =>
         new Promise((resolve) => {
           const runId = (opts as { runId?: string } | undefined)?.runId ?? "";
-          emitAgentEvent({ runId, stream: "assistant", data: { delta: "hello" } });
+          emitAgentEvent({ runId, stream: "zhushou", data: { delta: "hello" } });
           emitAgentEvent({ runId, stream: "lifecycle", data: { phase: "end" } });
           setTimeout(() => {
             resolve({
@@ -1111,7 +1111,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     const res = await postChatCompletions(port, {
       stream: true,
       stream_options: { include_usage: true },
-      model: "assistant",
+      model: "zhushou",
       messages: [{ role: "user", content: "hi" }],
     });
     expect(res.status).toBe(200);
@@ -1144,7 +1144,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
             const runId = (opts as { runId?: string } | undefined)?.runId ?? "";
             const signal = (opts as { abortSignal?: AbortSignal } | undefined)?.abortSignal;
             serverAbortSignal = signal;
-            emitAgentEvent({ runId, stream: "assistant", data: { delta: "hello" } });
+            emitAgentEvent({ runId, stream: "zhushou", data: { delta: "hello" } });
             emitAgentEvent({ runId, stream: "lifecycle", data: { phase: "end" } });
             if (signal?.aborted) {
               resolve(undefined);
@@ -1169,7 +1169,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         JSON.stringify({
           stream: true,
           stream_options: { include_usage: true },
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         }),
       );
@@ -1196,14 +1196,14 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       ((opts: unknown) =>
         new Promise(() => {
           const runId = (opts as { runId?: string } | undefined)?.runId ?? "";
-          emitAgentEvent({ runId, stream: "assistant", data: { delta: "hello" } });
+          emitAgentEvent({ runId, stream: "zhushou", data: { delta: "hello" } });
           emitAgentEvent({ runId, stream: "lifecycle", data: { phase: "end" } });
         })) as never,
     );
 
     const res = await postChatCompletions(port, {
       stream: true,
-      model: "assistant",
+      model: "zhushou",
       messages: [{ role: "user", content: "hi" }],
     });
     expect(res.status).toBe(200);
@@ -1230,10 +1230,10 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         headers: {
           authorization: "Bearer secret",
           "content-type": "application/json",
-          "x-assistant-scopes": "operator.approvals",
+          "x-zhushou-scopes": "operator.approvals",
         },
         body: JSON.stringify({
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         }),
       });
@@ -1281,7 +1281,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     clientReq.end(
       JSON.stringify({
         stream: true,
-        model: "assistant",
+        model: "zhushou",
         messages: [{ role: "user", content: "hi" }],
       }),
     );
@@ -1334,7 +1334,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       clientReq.on("error", () => {});
       clientReq.end(
         JSON.stringify({
-          model: "assistant",
+          model: "zhushou",
           messages: [{ role: "user", content: "hi" }],
         }),
       );

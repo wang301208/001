@@ -19,8 +19,8 @@ function restoreEnvKey(key: string, previous: string | undefined): void {
 
 describe("env test utils", () => {
   it("captureEnv restores mutated keys", () => {
-    const keyA = "ASSISTANT_ENV_TEST_A";
-    const keyB = "ASSISTANT_ENV_TEST_B";
+    const keyA = "ZHUSHOU_ENV_TEST_A";
+    const keyB = "ZHUSHOU_ENV_TEST_B";
     const snapshot = captureEnv([keyA, keyB]);
     const prevA = process.env[keyA];
     const prevB = process.env[keyB];
@@ -34,7 +34,7 @@ describe("env test utils", () => {
   });
 
   it("captureFullEnv restores added keys and baseline values", () => {
-    const key = "ASSISTANT_ENV_TEST_ADDED";
+    const key = "ZHUSHOU_ENV_TEST_ADDED";
     const prevHome = process.env.HOME;
     const snapshot = captureFullEnv();
     process.env[key] = "1";
@@ -47,7 +47,7 @@ describe("env test utils", () => {
   });
 
   it("withEnv applies values only inside callback", () => {
-    const key = "ASSISTANT_ENV_TEST_SYNC";
+    const key = "ZHUSHOU_ENV_TEST_SYNC";
     const prev = process.env[key];
 
     const seen = withEnv({ [key]: "inside" }, () => process.env[key]);
@@ -57,7 +57,7 @@ describe("env test utils", () => {
   });
 
   it("withEnv restores values when callback throws", () => {
-    const key = "ASSISTANT_ENV_TEST_SYNC_THROW";
+    const key = "ZHUSHOU_ENV_TEST_SYNC_THROW";
     const prev = process.env[key];
 
     expect(() =>
@@ -71,7 +71,7 @@ describe("env test utils", () => {
   });
 
   it("withEnv can delete a key only inside callback", () => {
-    const key = "ASSISTANT_ENV_TEST_SYNC_DELETE";
+    const key = "ZHUSHOU_ENV_TEST_SYNC_DELETE";
     const prev = process.env[key];
     process.env[key] = "outer";
 
@@ -83,7 +83,7 @@ describe("env test utils", () => {
   });
 
   it("withEnvAsync restores values when callback throws", async () => {
-    const key = "ASSISTANT_ENV_TEST_ASYNC";
+    const key = "ZHUSHOU_ENV_TEST_ASYNC";
     const prev = process.env[key];
 
     await expect(
@@ -97,7 +97,7 @@ describe("env test utils", () => {
   });
 
   it("withEnvAsync applies values only inside async callback", async () => {
-    const key = "ASSISTANT_ENV_TEST_ASYNC_OK";
+    const key = "ZHUSHOU_ENV_TEST_ASYNC_OK";
     const prev = process.env[key];
 
     const seen = await withEnvAsync({ [key]: "inside" }, async () => process.env[key]);
@@ -107,7 +107,7 @@ describe("env test utils", () => {
   });
 
   it("withEnvAsync can delete a key only inside callback", async () => {
-    const key = "ASSISTANT_ENV_TEST_ASYNC_DELETE";
+    const key = "ZHUSHOU_ENV_TEST_ASYNC_DELETE";
     const prev = process.env[key];
     process.env[key] = "outer";
 
@@ -119,58 +119,58 @@ describe("env test utils", () => {
   });
 
   it("createPathResolutionEnv clears leaked path overrides before applying explicit ones", () => {
-    const homeDir = path.join(path.sep, "tmp", "assistant-home");
+    const homeDir = path.join(path.sep, "tmp", "zhushou-home");
     const resolvedHomeDir = path.resolve(homeDir);
-    const previousAssistantHome = process.env.ASSISTANT_HOME;
-    const previousStateDir = process.env.ASSISTANT_STATE_DIR;
-    const previousBundledDir = process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
-    process.env.ASSISTANT_HOME = "/srv/assistant-home";
-    process.env.ASSISTANT_STATE_DIR = "/srv/assistant-state";
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = "/srv/assistant-bundled";
+    const previousZhushouHome = process.env.ZHUSHOU_HOME;
+    const previousStateDir = process.env.ZHUSHOU_STATE_DIR;
+    const previousBundledDir = process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
+    process.env.ZHUSHOU_HOME = "/srv/zhushou-home";
+    process.env.ZHUSHOU_STATE_DIR = "/srv/zhushou-state";
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = "/srv/zhushou-bundled";
 
     try {
       const env = createPathResolutionEnv(homeDir, {
-        ASSISTANT_STATE_DIR: "~/state",
+        ZHUSHOU_STATE_DIR: "~/state",
       });
 
       expect(env.HOME).toBe(resolvedHomeDir);
-      expect(env.ASSISTANT_HOME).toBeUndefined();
-      expect(env.ASSISTANT_BUNDLED_PLUGINS_DIR).toBeUndefined();
-      expect(env.ASSISTANT_STATE_DIR).toBe("~/state");
+      expect(env.ZHUSHOU_HOME).toBeUndefined();
+      expect(env.ZHUSHOU_BUNDLED_PLUGINS_DIR).toBeUndefined();
+      expect(env.ZHUSHOU_STATE_DIR).toBe("~/state");
     } finally {
-      restoreEnvKey("ASSISTANT_HOME", previousAssistantHome);
-      restoreEnvKey("ASSISTANT_STATE_DIR", previousStateDir);
-      restoreEnvKey("ASSISTANT_BUNDLED_PLUGINS_DIR", previousBundledDir);
+      restoreEnvKey("ZHUSHOU_HOME", previousZhushouHome);
+      restoreEnvKey("ZHUSHOU_STATE_DIR", previousStateDir);
+      restoreEnvKey("ZHUSHOU_BUNDLED_PLUGINS_DIR", previousBundledDir);
     }
   });
 
   it("withPathResolutionEnv only applies the explicit path env inside the callback", () => {
-    const homeDir = path.join(path.sep, "tmp", "assistant-home");
+    const homeDir = path.join(path.sep, "tmp", "zhushou-home");
     const resolvedHomeDir = path.resolve(homeDir);
-    const previousAssistantHome = process.env.ASSISTANT_HOME;
-    process.env.ASSISTANT_HOME = "/srv/assistant-home";
+    const previousZhushouHome = process.env.ZHUSHOU_HOME;
+    process.env.ZHUSHOU_HOME = "/srv/zhushou-home";
 
     try {
       const seen = withPathResolutionEnv(
         homeDir,
-        { ASSISTANT_BUNDLED_PLUGINS_DIR: "~/bundled" },
+        { ZHUSHOU_BUNDLED_PLUGINS_DIR: "~/bundled" },
         (env) => ({
           processHome: process.env.HOME,
-          processAssistantHome: process.env.ASSISTANT_HOME,
-          processBundledDir: process.env.ASSISTANT_BUNDLED_PLUGINS_DIR,
-          envBundledDir: env.ASSISTANT_BUNDLED_PLUGINS_DIR,
+          processZhushouHome: process.env.ZHUSHOU_HOME,
+          processBundledDir: process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR,
+          envBundledDir: env.ZHUSHOU_BUNDLED_PLUGINS_DIR,
         }),
       );
 
       expect(seen).toEqual({
         processHome: resolvedHomeDir,
-        processAssistantHome: undefined,
+        processZhushouHome: undefined,
         processBundledDir: "~/bundled",
         envBundledDir: "~/bundled",
       });
-      expect(process.env.ASSISTANT_HOME).toBe("/srv/assistant-home");
+      expect(process.env.ZHUSHOU_HOME).toBe("/srv/zhushou-home");
     } finally {
-      restoreEnvKey("ASSISTANT_HOME", previousAssistantHome);
+      restoreEnvKey("ZHUSHOU_HOME", previousZhushouHome);
     }
   });
 });

@@ -1,4 +1,4 @@
-﻿import type { AssistantConfig } from "../runtime-api.js";
+﻿import type { ZhushouConfig } from "../runtime-api.js";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { resolveReceiveIdType, normalizeFeishuTarget } from "./targets.js";
@@ -10,7 +10,7 @@ type FeishuSendTarget = {
 };
 
 export function resolveFeishuSendTarget(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   accountId?: string;
 }): FeishuSendTarget {

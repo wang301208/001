@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 // IHttpServerAdapter is re-exported via the public barrel (`export * from './http'`)
 // but tsgo cannot resolve the chain. Use the dist subpath directly (type-only import).
 import type { IHttpServerAdapter } from "@microsoft/teams.apps/dist/http/index.js";
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
 import { formatUnknownError } from "./errors.js";
 import type { MSTeamsAdapter } from "./messenger.js";
 import type { MSTeamsCredentials, MSTeamsFederatedCredentials } from "./token.js";
@@ -92,8 +92,8 @@ export async function loadMSTeamsSdk(): Promise<MSTeamsTeamsSdk> {
  * HttpPlugin (which uses the deprecated `plugins` array and registers an
  * Express middleware with the pattern `/api*` — invalid in Express 5).
  *
- * See: https://github.com/assistant/assistant/issues/55161
- * See: https://github.com/assistant/assistant/issues/60732
+ * See: https://github.com/wang301208/zhushou/issues/55161
+ * See: https://github.com/wang301208/zhushou/issues/60732
  */
 function createNoOpHttpServerAdapter(): IHttpServerAdapter {
   return {

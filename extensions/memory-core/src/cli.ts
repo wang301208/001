@@ -3,7 +3,7 @@ import {
   formatDocsLink,
   formatHelpExamples,
   theme,
-} from "assistant/plugin-sdk/memory-core-host-runtime-cli";
+} from "zhushou/plugin-sdk/memory-core-host-runtime-cli";
 import type {
   MemoryCommandOptions,
   MemoryPromoteCommandOptions,
@@ -73,44 +73,44 @@ export function registerMemoryCli(program: Command) {
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["assistant memory status", "Show index and provider status."],
+          ["zhushou memory status", "Show index and provider status."],
           [
-            "assistant memory status --fix",
+            "zhushou memory status --fix",
             "Repair stale recall locks and normalize promotion metadata.",
           ],
-          ["assistant memory status --deep", "Probe embedding provider readiness."],
-          ["assistant memory index --force", "Force a full reindex."],
-          ['assistant memory search "meeting notes"', "Quick search using positional query."],
+          ["zhushou memory status --deep", "Probe embedding provider readiness."],
+          ["zhushou memory index --force", "Force a full reindex."],
+          ['zhushou memory search "meeting notes"', "Quick search using positional query."],
           [
-            'assistant memory search --query "deployment" --max-results 20',
+            'zhushou memory search --query "deployment" --max-results 20',
             "Limit results for focused troubleshooting.",
           ],
           [
-            `assistant memory promote --limit 10 --min-score ${DEFAULT_PROMOTION_MIN_SCORE}`,
+            `zhushou memory promote --limit 10 --min-score ${DEFAULT_PROMOTION_MIN_SCORE}`,
             "Review weighted short-term candidates for long-term memory.",
           ],
           [
-            "assistant memory promote --apply",
+            "zhushou memory promote --apply",
             "Append top-ranked short-term candidates into MEMORY.md.",
           ],
           [
-            'assistant memory promote-explain "router vlan"',
+            'zhushou memory promote-explain "router vlan"',
             "Explain why a specific candidate would or would not promote.",
           ],
           [
-            "assistant memory rem-harness --json",
+            "zhushou memory rem-harness --json",
             "Preview REM reflections, candidate truths, and deep promotion output.",
           ],
           [
-            "assistant memory rem-backfill --path ./memory",
+            "zhushou memory rem-backfill --path ./memory",
             "Write grounded historical REM entries into DREAMS.md for UI review.",
           ],
           [
-            "assistant memory rem-backfill --path ./memory --stage-short-term",
+            "zhushou memory rem-backfill --path ./memory --stage-short-term",
             "Also seed durable grounded candidates into the live short-term promotion store.",
           ],
-          ["assistant memory status --json", "Output machine-readable JSON (good for scripts)."],
-        ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/memory", "docs.assistant.ai/cli/memory")}\n`,
+          ["zhushou memory status --json", "Output machine-readable JSON (good for scripts)."],
+        ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/memory", "docs.zhushou.ai/cli/memory")}\n`,
     );
 
   memory

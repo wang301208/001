@@ -338,7 +338,7 @@ vi.mock("../plugins/loader.js", async () => {
     await vi.importActual<typeof import("../plugins/loader.js")>("../plugins/loader.js");
   return {
     ...actual,
-    loadAssistantPlugins: () => getTestPluginRegistry(),
+    loadZhushouPlugins: () => getTestPluginRegistry(),
   };
 });
 vi.mock("../plugins/runtime/runtime-web-channel-plugin.js", () => ({
@@ -350,7 +350,7 @@ vi.mock("/src/plugins/runtime/runtime-web-channel-plugin.js", () => ({
     (gatewayTestHoisted.sendWhatsAppMock as (...args: unknown[]) => unknown)(...args),
 }));
 
-process.env.ASSISTANT_SKIP_CHANNELS = "1";
-process.env.ASSISTANT_SKIP_CRON = "1";
-process.env.ASSISTANT_SKIP_CHANNELS = "1";
-process.env.ASSISTANT_SKIP_CRON = "1";
+process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+process.env.ZHUSHOU_SKIP_CRON = "1";
+process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+process.env.ZHUSHOU_SKIP_CRON = "1";

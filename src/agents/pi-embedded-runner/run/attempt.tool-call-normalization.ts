@@ -7,7 +7,7 @@ import {
   sanitizeToolUseResultPairing,
 } from "../../session-transcript-repair.js";
 import {
-  extractToolCallsFromAssistant,
+  extractToolCallsFromZhushou,
   sanitizeToolCallIdsForCloudCodeAssist,
   type ToolCallIdMode,
 } from "../../tool-call-id.js";
@@ -236,7 +236,7 @@ type ReplayToolCallBlock = {
 
 type ReplayToolCallSanitizeReport = {
   messages: AgentMessage[];
-  droppedAssistantMessages: number;
+  droppedZhushouMessages: number;
 };
 
 type AnthropicToolResultContentBlock = {
@@ -346,7 +346,7 @@ function sanitizeReplayToolCallInputs(
   allowProviderOwnedThinkingReplay?: boolean,
 ): ReplayToolCallSanitizeReport {
   let changed = false;
-  let droppedAssistantMessages = 0;
+  let droppedZhushouMessages = 0;
   const out: AgentMessage[] = [];
   const claimedReplaySafeToolCallIds = new Set<string>();
 
@@ -364,7 +364,7 @@ function sanitizeReplayToolCallInputs(
       message.content.some((block) => isThinkingLikeReplayBlock(block)) &&
       message.content.some((block) => isReplayToolCallBlock(block))
     ) {
-      const replaySafeToolCalls = extractToolCallsFromAssistant(message);
+      const replaySafeToolCalls = extractToolCallsFromZhushou(message);
       if (
         isReplaySafeThinkingTurn(message.content, allowedToolNames) &&
         replaySafeToolCalls.every((toolCall) => !claimedReplaySafeToolCallIds.has(toolCall.id))
@@ -375,7 +375,7 @@ function sanitizeReplayToolCallInputs(
         out.push(message);
       } else {
         changed = true;
-        droppedAssistantMessages += 1;
+        droppedZhushouMessages += 1;
       }
       continue;
     }
@@ -418,7 +418,7 @@ function sanitizeReplayToolCallInputs(
       if (nextContent.length > 0) {
         out.push({ ...message, content: nextContent });
       } else {
-        droppedAssistantMessages += 1;
+        droppedZhushouMessages += 1;
       }
       continue;
     }
@@ -428,7 +428,7 @@ function sanitizeReplayToolCallInputs(
 
   return {
     messages: changed ? out : messages,
-    droppedAssistantMessages,
+    droppedZhushouMessages,
   };
 }
 
@@ -447,8 +447,8 @@ function extractAnthropicReplayToolResultIds(block: AnthropicToolResultContentBl
   return ids;
 }
 
-function isSignedThinkingReplayAssistantSpan(message: AgentMessage | undefined): boolean {
-  if (!message || typeof message !== "object" || message.role !== "assistant") {
+if (!message || typeof message !== "object" || message.role !== "assistant") {
+  if (!message || typeof message !== "object" || message.role === "assistant") {
     return false;
   }
   const content = (message as { content?: unknown }).content;
@@ -486,7 +486,7 @@ function sanitizeAnthropicReplayToolResults(
     const previous = messages[index - 1];
     const shouldStripEmbeddedToolResults =
       disallowEmbeddedUserToolResultsForSignedThinkingReplay &&
-      isSignedThinkingReplayAssistantSpan(previous);
+      isSignedThinkingReplayZhushouSpan(previous);
     const validToolUseIds = new Set<string>();
     if (previous && typeof previous === "object" && previous.role === "assistant") {
       const previousContent = (previous as { content?: unknown }).content;
@@ -930,7 +930,7 @@ export function wrapStreamFnSanitizeMalformedToolCalls(
     if (nextMessages === messages) {
       return baseFn(model, context, options);
     }
-    if (sanitized.droppedAssistantMessages > 0 || transcriptPolicy?.validateAnthropicTurns) {
+    if (sanitized.droppedZhushouMessages > 0 || transcriptPolicy?.validateAnthropicTurns) {
       if (transcriptPolicy?.validateGeminiTurns) {
         nextMessages = validateGeminiTurns(nextMessages);
       }

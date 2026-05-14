@@ -4,10 +4,10 @@ import path from "node:path";
 import { getModel } from "@mariozechner/pi-ai";
 import { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
 import OpenAI from "openai";
-import type { ResolvedTtsConfig } from "assistant/plugin-sdk/agent-runtime";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { loadConfig } from "assistant/plugin-sdk/config-runtime";
-import { encodePngRgba, fillPixel } from "assistant/plugin-sdk/media-runtime";
+import type { ResolvedTtsConfig } from "zhushou/plugin-sdk/agent-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
+import { encodePngRgba, fillPixel } from "zhushou/plugin-sdk/media-runtime";
 import { describe, expect, it } from "vitest";
 import {
   registerProviderPlugin,
@@ -16,10 +16,10 @@ import {
 import plugin from "./index.js";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? "";
-const LIVE_MODEL_ID = process.env.ASSISTANT_LIVE_OPENAI_PLUGIN_MODEL?.trim() || "gpt-5.4-nano";
-const LIVE_IMAGE_MODEL = process.env.ASSISTANT_LIVE_OPENAI_IMAGE_MODEL?.trim() || "gpt-image-1";
-const LIVE_VISION_MODEL = process.env.ASSISTANT_LIVE_OPENAI_VISION_MODEL?.trim() || "gpt-4.1-mini";
-const liveEnabled = OPENAI_API_KEY.trim().length > 0 && process.env.ASSISTANT_LIVE_TEST === "1";
+const LIVE_MODEL_ID = process.env.ZHUSHOU_LIVE_OPENAI_PLUGIN_MODEL?.trim() || "gpt-5.4-nano";
+const LIVE_IMAGE_MODEL = process.env.ZHUSHOU_LIVE_OPENAI_IMAGE_MODEL?.trim() || "gpt-image-1";
+const LIVE_VISION_MODEL = process.env.ZHUSHOU_LIVE_OPENAI_VISION_MODEL?.trim() || "gpt-4.1-mini";
+const liveEnabled = OPENAI_API_KEY.trim().length > 0 && process.env.ZHUSHOU_LIVE_TEST === "1";
 const describeLive = liveEnabled ? describe : describe.skip;
 const EMPTY_AUTH_STORE = { version: 1, profiles: {} } as const;
 const ModelRegistryCtor = ModelRegistry as unknown as {
@@ -89,7 +89,7 @@ function createReferencePng(): Buffer {
   return encodePngRgba(buf, width, height);
 }
 
-function createLiveConfig(): AssistantConfig {
+function createLiveConfig(): ZhushouConfig {
   const cfg = loadConfig();
   return {
     ...cfg,
@@ -104,7 +104,7 @@ function createLiveConfig(): AssistantConfig {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function createLiveTtsConfig(): ResolvedTtsConfig {
@@ -242,7 +242,7 @@ describeLive("openai plugin live", () => {
 
     const text = (transcription?.text ?? "").toLowerCase();
     expect(text.length).toBeGreaterThan(0);
-    expect(text).toContain("assistant");
+    expect(text).toContain("zhushou");
     expect(text).toMatch(/\bok\b/);
   }, 45_000);
 

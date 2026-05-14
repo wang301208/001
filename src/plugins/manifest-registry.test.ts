@@ -6,7 +6,7 @@ import {
   clearPluginManifestRegistryCache,
   loadPluginManifestRegistry,
 } from "./manifest-registry.js";
-import type { AssistantPackageManifest } from "./manifest.js";
+import type { ZhushouPackageManifest } from "./manifest.js";
 import { cleanupTrackedTempDirs, makeTrackedTempDir } from "./test-helpers/fs-fixtures.js";
 
 vi.unmock("../version.js");
@@ -26,11 +26,11 @@ function mkdirSafe(dir: string) {
 }
 
 function makeTempDir() {
-  return makeTrackedTempDir("assistant-manifest-registry", tempDirs);
+  return makeTrackedTempDir("zhushou-manifest-registry", tempDirs);
 }
 
 function writeManifest(dir: string, manifest: Record<string, unknown>) {
-  fs.writeFileSync(path.join(dir, "assistant.plugin.json"), JSON.stringify(manifest), "utf-8");
+  fs.writeFileSync(path.join(dir, "zhushou.plugin.json"), JSON.stringify(manifest), "utf-8");
 }
 
 function writeTextFile(rootDir: string, relativePath: string, value: string) {
@@ -61,9 +61,9 @@ function createPluginCandidate(params: {
   rootDir: string;
   sourceName?: string;
   origin: "bundled" | "global" | "workspace" | "config";
-  format?: "assistant" | "bundle";
+  format?: "zhushou" | "bundle";
   bundleFormat?: "codex" | "claude" | "cursor";
-  packageManifest?: AssistantPackageManifest;
+  packageManifest?: ZhushouPackageManifest;
   packageDir?: string;
   bundledManifest?: PluginCandidate["bundledManifest"];
   bundledManifestPath?: string;
@@ -91,9 +91,9 @@ function loadRegistry(candidates: PluginCandidate[]) {
 
 function hermeticEnv(overrides: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
   return {
-    ASSISTANT_BUNDLED_PLUGINS_DIR: undefined,
-    ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
-    ASSISTANT_VERSION: undefined,
+    ZHUSHOU_BUNDLED_PLUGINS_DIR: undefined,
+    ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
+    ZHUSHOU_VERSION: undefined,
     VITEST: "true",
     ...overrides,
   };
@@ -127,8 +127,8 @@ function prepareLinkedManifestFixture(params: { id: string; mode: "symlink" | "h
 } {
   const rootDir = makeTempDir();
   const outsideDir = makeTempDir();
-  const outsideManifest = path.join(outsideDir, "assistant.plugin.json");
-  const linkedManifest = path.join(rootDir, "assistant.plugin.json");
+  const outsideManifest = path.join(outsideDir, "zhushou.plugin.json");
+  const linkedManifest = path.join(rootDir, "zhushou.plugin.json");
   fs.writeFileSync(path.join(rootDir, "index.ts"), "export default function () {}", "utf-8");
   fs.writeFileSync(
     outsideManifest,
@@ -184,7 +184,7 @@ function loadRegistryForMinHostVersionCase(params: {
         origin: "global",
         packageManifest: {
           install: {
-            npmSpec: "@assistant/synology-chat",
+            npmSpec: "@zhushou/synology-chat",
             minHostVersion: params.minHostVersion,
           },
         },
@@ -391,8 +391,8 @@ describe("loadPluginManifestRegistry", () => {
           method: "api-key",
           choiceId: "openai-api-key",
           choiceLabel: "OpenAI API key",
-          assistantPriority: 10,
-          assistantVisibility: "visible",
+          zhushouPriority: 10,
+          zhushouVisibility: "visible",
         },
       ],
       configSchema: { type: "object" },
@@ -417,8 +417,8 @@ describe("loadPluginManifestRegistry", () => {
         method: "api-key",
         choiceId: "openai-api-key",
         choiceLabel: "OpenAI API key",
-        assistantPriority: 10,
-        assistantVisibility: "visible",
+        zhushouPriority: 10,
+        zhushouVisibility: "visible",
       },
     ]);
   });
@@ -587,7 +587,7 @@ describe("loadPluginManifestRegistry", () => {
         idHint: "telegram",
         rootDir: dir,
         origin: "bundled",
-        bundledManifestPath: path.join(dir, "assistant.plugin.json"),
+        bundledManifestPath: path.join(dir, "zhushou.plugin.json"),
         bundledManifest: {
           id: "telegram",
           configSchema: { type: "object" },
@@ -713,20 +713,20 @@ describe("loadPluginManifestRegistry", () => {
     {
       name: "skips plugins whose minHostVersion is newer than the current host",
       minHostVersion: ">=2026.3.22",
-      env: { ASSISTANT_VERSION: "2026.3.21" } as NodeJS.ProcessEnv,
+      env: { ZHUSHOU_VERSION: "2026.3.21" } as NodeJS.ProcessEnv,
       expectedMessage: "plugin requires 助手 >=2026.3.22, but this host is 2026.3.21",
       expectWarn: false,
     },
     {
       name: "rejects invalid minHostVersion metadata",
       minHostVersion: "2026.3.22",
-      expectedMessage: "plugin manifest invalid | assistant.install.minHostVersion must use",
+      expectedMessage: "plugin manifest invalid | zhushou.install.minHostVersion must use",
       expectWarn: false,
     },
     {
       name: "warns distinctly when host version cannot be determined",
       minHostVersion: ">=2026.3.22",
-      env: { ASSISTANT_VERSION: "unknown" } as NodeJS.ProcessEnv,
+      env: { ZHUSHOU_VERSION: "unknown" } as NodeJS.ProcessEnv,
       expectedMessage: "host version could not be determined",
       expectWarn: true,
     },
@@ -1037,13 +1037,13 @@ describe("loadPluginManifestRegistry", () => {
     const first = loadPluginManifestRegistry({
       cache: true,
       env: hermeticEnv({
-        ASSISTANT_BUNDLED_PLUGINS_DIR: bundledA,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledA,
       }),
     });
     const second = loadPluginManifestRegistry({
       cache: true,
       env: hermeticEnv({
-        ASSISTANT_BUNDLED_PLUGINS_DIR: bundledB,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledB,
       }),
     });
 
@@ -1085,8 +1085,8 @@ describe("loadPluginManifestRegistry", () => {
       config,
       env: hermeticEnv({
         HOME: homeA,
-        ASSISTANT_HOME: undefined,
-        ASSISTANT_STATE_DIR: path.join(homeA, ".state"),
+        ZHUSHOU_HOME: undefined,
+        ZHUSHOU_STATE_DIR: path.join(homeA, ".state"),
       }),
     });
     const second = loadPluginManifestRegistry({
@@ -1094,8 +1094,8 @@ describe("loadPluginManifestRegistry", () => {
       config,
       env: hermeticEnv({
         HOME: homeB,
-        ASSISTANT_HOME: undefined,
-        ASSISTANT_STATE_DIR: path.join(homeB, ".state"),
+        ZHUSHOU_HOME: undefined,
+        ZHUSHOU_STATE_DIR: path.join(homeB, ".state"),
       }),
     });
 
@@ -1120,7 +1120,7 @@ describe("loadPluginManifestRegistry", () => {
         origin: "global",
         packageManifest: {
           install: {
-            npmSpec: "@assistant/synology-chat",
+            npmSpec: "@zhushou/synology-chat",
             minHostVersion: ">=2026.3.22",
           },
         },
@@ -1131,14 +1131,14 @@ describe("loadPluginManifestRegistry", () => {
       cache: true,
       candidates,
       env: hermeticEnv({
-        ASSISTANT_VERSION: "2026.3.21",
+        ZHUSHOU_VERSION: "2026.3.21",
       }),
     });
     const newerHost = loadPluginManifestRegistry({
       cache: true,
       candidates,
       env: hermeticEnv({
-        ASSISTANT_VERSION: "2026.3.22",
+        ZHUSHOU_VERSION: "2026.3.22",
       }),
     });
 

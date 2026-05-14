@@ -1,9 +1,9 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveRuntimePluginRegistry } from "../plugins/loader.js";
 import { resolveUserPath } from "../utils.js";
 
 export function ensureRuntimePluginsLoaded(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string | null;
   allowGatewaySubagentBinding?: boolean;
 }): void {

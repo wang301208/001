@@ -1,5 +1,5 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { getRuntimeConfigSnapshot } from "../config/runtime-snapshot.js";
 import {
   formatGovernanceEnforcementMessage,
@@ -33,7 +33,7 @@ export type ProcessToolDefaults = {
   cleanupMs?: number;
   hasCronTool?: boolean;
   scopeKey?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   charterDir?: string;
 };
 

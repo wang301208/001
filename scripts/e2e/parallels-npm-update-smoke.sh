@@ -16,7 +16,7 @@ PYTHON_BIN="${PYTHON_BIN:-}"
 PACKAGE_SPEC=""
 UPDATE_TARGET=""
 JSON_OUTPUT=0
-RUN_DIR="$(mktemp -d /tmp/assistant-parallels-npm-update.XXXXXX)"
+RUN_DIR="$(mktemp -d /tmp/zhushou-parallels-npm-update.XXXXXX)"
 MAIN_TGZ_DIR="$(mktemp -d)"
 MAIN_TGZ_PATH=""
 WINDOWS_UPDATE_SCRIPT_PATH=""
@@ -31,7 +31,7 @@ UPDATE_EXPECTED_NEEDLE=""
 API_KEY_VALUE=""
 PROGRESS_INTERVAL_S=15
 PROGRESS_STALE_S=60
-TIMEOUT_UPDATE_S="${ASSISTANT_PARALLELS_NPM_UPDATE_TIMEOUT_S:-900}"
+TIMEOUT_UPDATE_S="${ZHUSHOU_PARALLELS_NPM_UPDATE_TIMEOUT_S:-900}"
 TIMEOUT_UPDATE_POLL_GRACE_S=60
 
 child_job_running() {
@@ -109,10 +109,10 @@ usage() {
 Usage: bash scripts/e2e/parallels-npm-update-smoke.sh [options]
 
 Options:
-  --package-spec <npm-spec>  Baseline npm package spec. Default: assistant@latest
-  --update-target <target>    Target passed to guest 'assistant update --tag'.
+  --package-spec <npm-spec>  Baseline npm package spec. Default: zhushou@latest
+  --update-target <target>    Target passed to guest 'zhushou update --tag'.
                              Default: host-served tgz packed from current checkout.
-                             Examples: latest, beta, 2026.4.10, http://host/assistant.tgz
+                             Examples: latest, beta, 2026.4.10, http://host/zhushou.tgz
   --provider <openai|anthropic|minimax>
                              Provider auth/model lane. Default: openai
   --api-key-env <var>        Host env var name for provider API key.
@@ -252,7 +252,7 @@ PY
 }
 
 resolve_latest_version() {
-  npm view assistant version --userconfig "$(mktemp)"
+  npm view zhushou version --userconfig "$(mktemp)"
 }
 
 vm_status() {
@@ -341,7 +341,7 @@ pack_main_tgz() {
     npm pack --ignore-scripts --json --pack-destination "$MAIN_TGZ_DIR" \
       | "$PYTHON_BIN" -c 'import json, sys; data = json.load(sys.stdin); print(data[-1]["filename"])'
   )"
-  MAIN_TGZ_PATH="$MAIN_TGZ_DIR/assistant-main-$CURRENT_HEAD_SHORT.tgz"
+  MAIN_TGZ_PATH="$MAIN_TGZ_DIR/zhushou-main-$CURRENT_HEAD_SHORT.tgz"
   cp "$MAIN_TGZ_DIR/$pkg" "$MAIN_TGZ_PATH"
 }
 
@@ -353,8 +353,8 @@ resolve_current_head() {
 resolve_registry_target_version() {
   local target="$1"
   local spec="$target"
-  if [[ "$spec" != assistant@* ]]; then
-    spec="assistant@$spec"
+  if [[ "$spec" != zhushou@* ]]; then
+    spec="zhushou@$spec"
   fi
   npm view "$spec" version 2>/dev/null || true
 }
@@ -365,7 +365,7 @@ is_explicit_package_target() {
 }
 
 write_windows_update_script() {
-  WINDOWS_UPDATE_SCRIPT_PATH="$MAIN_TGZ_DIR/assistant-main-update.ps1"
+  WINDOWS_UPDATE_SCRIPT_PATH="$MAIN_TGZ_DIR/zhushou-main-update.ps1"
   cat >"$WINDOWS_UPDATE_SCRIPT_PATH" <<'EOF'
 param(
   [Parameter(Mandatory = $true)][string]$UpdateTarget,
@@ -400,7 +400,7 @@ function Invoke-Logged {
   try {
     $ErrorActionPreference = 'Continue'
     $PSNativeCommandUseErrorActionPreference = $false
-    # Merge native stderr into stdout before logging so npm/assistant warnings do not
+    # Merge native stderr into stdout before logging so npm/zhushou warnings do not
     # surface as PowerShell error records and abort a healthy in-place update.
     $output = & $Command *>&1
     $exitCode = $LASTEXITCODE
@@ -449,7 +449,7 @@ function Invoke-CaptureLogged {
 
 function Wait-GatewayRpcReady {
   param(
-    [Parameter(Mandatory = $true)][string]$AssistantPath,
+    [Parameter(Mandatory = $true)][string]$ZhushouPath,
     [int]$Attempts = 20,
     [int]$SleepSeconds = 3
   )
@@ -457,7 +457,7 @@ function Wait-GatewayRpcReady {
   for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
     Write-ProgressLog "update.gateway-status.attempt-$attempt"
     try {
-      Invoke-Logged 'assistant gateway status' { & $AssistantPath gateway status --deep --require-rpc }
+      Invoke-Logged 'zhushou gateway status' { & $ZhushouPath gateway status --deep --require-rpc }
       return
     } catch {
       if ($attempt -ge $Attempts) {
@@ -469,13 +469,13 @@ function Wait-GatewayRpcReady {
   }
 }
 
-function Stop-AssistantGatewayProcesses {
+function Stop-ZhushouGatewayProcesses {
   Write-ProgressLog 'update.stop-old-gateway'
   $patterns = @(
-    'assistant-gateway',
-    'assistant.*gateway --port 18789',
-    'assistant.*gateway run',
-    'assistant\.mjs gateway',
+    'zhushou-gateway',
+    'zhushou.*gateway --port 18789',
+    'zhushou.*gateway run',
+    'zhushou\.mjs gateway',
     'dist\\index\.js gateway --port 18789'
   )
   Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
@@ -506,7 +506,7 @@ function Stop-AssistantGatewayProcesses {
 
 function Restart-GatewayWithRecovery {
   param(
-    [Parameter(Mandatory = $true)][string]$AssistantPath
+    [Parameter(Mandatory = $true)][string]$ZhushouPath
   )
 
   $restartFailed = $false
@@ -517,7 +517,7 @@ function Restart-GatewayWithRecovery {
       ExitCode = $LASTEXITCODE
       Output = ($output | Out-String).Trim()
     }
-  } -ArgumentList $AssistantPath
+  } -ArgumentList $ZhushouPath
 
   $restartCompleted = Wait-Job $restartJob -Timeout 20
   if ($null -ne $restartCompleted) {
@@ -528,33 +528,33 @@ function Restart-GatewayWithRecovery {
     if ($restartResult.ExitCode -ne 0) {
       $restartFailed = $true
       Write-ProgressLog 'update.restart-gateway.soft-fail'
-      "assistant gateway restart failed with exit code $($restartResult.ExitCode)" | Tee-Object -FilePath $LogPath -Append | Out-Null
+      "zhushou gateway restart failed with exit code $($restartResult.ExitCode)" | Tee-Object -FilePath $LogPath -Append | Out-Null
     }
   } else {
     $restartFailed = $true
     Stop-Job $restartJob -ErrorAction SilentlyContinue
     Write-ProgressLog 'update.restart-gateway.timeout'
-    'assistant gateway restart timed out after 20s; continuing to RPC readiness checks' | Tee-Object -FilePath $LogPath -Append | Out-Null
+    'zhushou gateway restart timed out after 20s; continuing to RPC readiness checks' | Tee-Object -FilePath $LogPath -Append | Out-Null
   }
   Remove-Job $restartJob -Force -ErrorAction SilentlyContinue
 
   Write-ProgressLog 'update.gateway-status'
   try {
-    Wait-GatewayRpcReady -AssistantPath $AssistantPath
+    Wait-GatewayRpcReady -ZhushouPath $ZhushouPath
     return
   } catch {
     if (-not $restartFailed) {
       throw
     }
     Write-ProgressLog 'update.gateway-start-recover'
-    Invoke-Logged 'assistant gateway start' { & $AssistantPath gateway start }
+    Invoke-Logged 'zhushou gateway start' { & $ZhushouPath gateway start }
     Write-ProgressLog 'update.gateway-status-recover'
-    Wait-GatewayRpcReady -AssistantPath $AssistantPath
+    Wait-GatewayRpcReady -ZhushouPath $ZhushouPath
   }
 }
 
 try {
-  $env:PATH = "$env:LOCALAPPDATA\Assistant\deps\portable-git\cmd;$env:LOCALAPPDATA\Assistant\deps\portable-git\mingw64\bin;$env:LOCALAPPDATA\Assistant\deps\portable-git\usr\bin;$env:PATH"
+  $env:PATH = "$env:LOCALAPPDATA\Zhushou\deps\portable-git\cmd;$env:LOCALAPPDATA\Zhushou\deps\portable-git\mingw64\bin;$env:LOCALAPPDATA\Zhushou\deps\portable-git\usr\bin;$env:PATH"
   Remove-Item $LogPath, $DonePath -Force -ErrorAction SilentlyContinue
   Write-ProgressLog 'update.start'
   if ($ProviderKeyFile) {
@@ -565,29 +565,29 @@ try {
     throw "$ProviderKeyEnv is required"
   }
   Set-Item -Path ('Env:' + $ProviderKeyEnv) -Value $ProviderKey
-  $assistant = Join-Path $env:APPDATA 'npm\assistant.cmd'
-  Stop-AssistantGatewayProcesses
-  Write-ProgressLog 'update.assistant-update'
-  Invoke-Logged 'assistant update' { & $assistant update --tag $UpdateTarget --yes --json }
+  $zhushou = Join-Path $env:APPDATA 'npm\zhushou.cmd'
+  Stop-ZhushouGatewayProcesses
+  Write-ProgressLog 'update.zhushou-update'
+  Invoke-Logged 'zhushou update' { & $zhushou update --tag $UpdateTarget --yes --json }
   Write-ProgressLog 'update.verify-version'
-  $version = Invoke-CaptureLogged 'assistant --version' { & $assistant --version }
+  $version = Invoke-CaptureLogged 'zhushou --version' { & $zhushou --version }
   if ($ExpectedNeedle -and $version -notmatch [regex]::Escape($ExpectedNeedle)) {
     throw "version mismatch: expected substring $ExpectedNeedle"
   }
   Write-ProgressLog $version
   Write-ProgressLog 'update.status'
-  Invoke-Logged 'assistant update status' { & $assistant update status --json }
+  Invoke-Logged 'zhushou update status' { & $zhushou update status --json }
   Write-ProgressLog 'update.set-model'
-  Invoke-Logged 'assistant models set' { & $assistant models set $ModelId }
+  Invoke-Logged 'zhushou models set' { & $zhushou models set $ModelId }
   # Windows can keep the old hashed dist modules alive across in-place global npm upgrades.
   # Restart the gateway/service before verifying status or the next agent turn.
   # Current login-item restarts can report failure before the background service
   # is fully observable again, so verify readiness separately and fall back to
   # an explicit start only if the RPC endpoint never returns.
   Write-ProgressLog 'update.restart-gateway'
-  Restart-GatewayWithRecovery -AssistantPath $assistant
+  Restart-GatewayWithRecovery -ZhushouPath $zhushou
   Write-ProgressLog 'update.agent-turn'
-  Invoke-CaptureLogged 'assistant agent' { & $assistant agent --agent main --session-id $SessionId --message 'Reply with exact ASCII text OK only.' --json } | Out-Null
+  Invoke-CaptureLogged 'zhushou agent' { & $zhushou agent --agent main --session-id $SessionId --message 'Reply with exact ASCII text OK only.' --json } | Out-Null
   $exitCode = $LASTEXITCODE
   if ($null -eq $exitCode) {
     $exitCode = 0
@@ -614,7 +614,7 @@ start_server() {
   (
     cd "$MAIN_TGZ_DIR"
     exec "$PYTHON_BIN" -m http.server "$HOST_PORT" --bind 0.0.0.0
-  ) >/tmp/assistant-parallels-npm-update-http.log 2>&1 &
+  ) >/tmp/zhushou-parallels-npm-update-http.log 2>&1 &
   SERVER_PID=$!
   sleep 1
   kill -0 "$SERVER_PID" >/dev/null 2>&1 || die "failed to start host HTTP server"
@@ -656,9 +656,9 @@ import sys
 text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
 if "==> update.done" in text:
     raise SystemExit(0)
-if '"finalAssistantRawText": "OK"' in text:
+if '"finalZhushouRawText": "OK"' in text:
     raise SystemExit(0)
-if '"finalAssistantVisibleText": "OK"' in text:
+if '"finalZhushouVisibleText": "OK"' in text:
     raise SystemExit(0)
 raise SystemExit(1)
 PY
@@ -666,16 +666,16 @@ PY
 
 verify_macos_update_after_transport_loss() {
   local expected_needle="$1"
-  local script_path="/tmp/assistant-npm-update-macos-recover.sh"
+  local script_path="/tmp/zhushou-npm-update-macos-recover.sh"
   cat <<EOF | prlctl exec "$MACOS_VM" /usr/bin/tee "$script_path" >/dev/null
 set -euo pipefail
 export PATH=/opt/homebrew/bin:/opt/homebrew/opt/node/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin
-busy="\$(/bin/ps -axo command | /usr/bin/egrep 'assistant update|npm install|pnpm install|pnpm run build' | /usr/bin/egrep -v 'egrep|assistant-npm-update-macos-recover' || true)"
+busy="\$(/bin/ps -axo command | /usr/bin/egrep 'zhushou update|npm install|pnpm install|pnpm run build' | /usr/bin/egrep -v 'egrep|zhushou-npm-update-macos-recover' || true)"
 if [ -n "\$busy" ]; then
-  printf 'update still has active npm/pnpm/assistant processes\n%s\n' "\$busy" >&2
+  printf 'update still has active npm/pnpm/zhushou processes\n%s\n' "\$busy" >&2
   exit 1
 fi
-version="\$(/opt/homebrew/bin/assistant --version)"
+version="\$(/opt/homebrew/bin/zhushou --version)"
 printf '%s\n' "\$version"
 if [ -n "$expected_needle" ]; then
   case "\$version" in
@@ -686,19 +686,19 @@ if [ -n "$expected_needle" ]; then
       ;;
   esac
 fi
-/opt/homebrew/bin/assistant gateway status --deep --require-rpc >/dev/null 2>&1 || /opt/homebrew/bin/assistant gateway restart || true
+/opt/homebrew/bin/zhushou gateway status --deep --require-rpc >/dev/null 2>&1 || /opt/homebrew/bin/zhushou gateway restart || true
 gateway_ready=0
 for _ in 1 2 3 4 5 6; do
-  if /opt/homebrew/bin/assistant gateway status --deep --require-rpc; then
+  if /opt/homebrew/bin/zhushou gateway status --deep --require-rpc; then
     gateway_ready=1
     break
   fi
   sleep 2
 done
 if [ "\$gateway_ready" != "1" ]; then
-  /opt/homebrew/bin/assistant gateway start || true
+  /opt/homebrew/bin/zhushou gateway start || true
   for _ in 1 2 3 4 5 6; do
-    if /opt/homebrew/bin/assistant gateway status --deep --require-rpc; then
+    if /opt/homebrew/bin/zhushou gateway status --deep --require-rpc; then
       gateway_ready=1
       break
     fi
@@ -709,8 +709,8 @@ if [ "\$gateway_ready" != "1" ]; then
   echo "gateway did not become RPC-ready after transport recovery" >&2
   exit 1
 fi
-/opt/homebrew/bin/assistant models set "$MODEL_ID"
-/opt/homebrew/bin/assistant agent --agent main --session-id "parallels-npm-update-macos-transport-recovery-$expected_needle" --message "Reply with exact ASCII text OK only." --json
+/opt/homebrew/bin/zhushou models set "$MODEL_ID"
+/opt/homebrew/bin/zhushou agent --agent main --session-id "parallels-npm-update-macos-transport-recovery-$expected_needle" --message "Reply with exact ASCII text OK only." --json
 EOF
   macos_desktop_user_exec /bin/bash "$script_path"
 }
@@ -729,26 +729,26 @@ PY
   set +e
   guest_powershell_poll 120 "$(cat <<EOF
 \$ErrorActionPreference = 'Stop'
-\$assistant = Join-Path \$env:APPDATA 'npm\\assistant.cmd'
-if (-not (Test-Path \$assistant)) {
-  throw "assistant shim missing: \$assistant"
+\$zhushou = Join-Path \$env:APPDATA 'npm\\zhushou.cmd'
+if (-not (Test-Path \$zhushou)) {
+  throw "zhushou shim missing: \$zhushou"
 }
 \$busy = Get-CimInstance Win32_Process |
   Where-Object {
     \$_.CommandLine -and
-    (\$_.CommandLine -match 'assistant update|npm install|pnpm install|pnpm run build')
+    (\$_.CommandLine -match 'zhushou update|npm install|pnpm install|pnpm run build')
   }
 if (\$busy) {
-  throw 'update still has active npm/pnpm/assistant processes'
+  throw 'update still has active npm/pnpm/zhushou processes'
 }
-\$version = & \$assistant --version
+\$version = & \$zhushou --version
 Write-Output \$version
 if ('$expected_needle' -and \$version -notmatch [regex]::Escape('$expected_needle')) {
   throw "version mismatch after transport loss: expected substring $expected_needle"
 }
 \$gatewayReady = \$false
 for (\$i = 0; \$i -lt 6; \$i++) {
-  & \$assistant gateway status --deep --require-rpc
+  & \$zhushou gateway status --deep --require-rpc
   if (\$LASTEXITCODE -eq 0) {
     \$gatewayReady = \$true
     break
@@ -756,9 +756,9 @@ for (\$i = 0; \$i -lt 6; \$i++) {
   Start-Sleep -Seconds 2
 }
 if (-not \$gatewayReady) {
-  & \$assistant gateway restart
+  & \$zhushou gateway restart
   for (\$i = 0; \$i -lt 6; \$i++) {
-    & \$assistant gateway status --deep --require-rpc
+    & \$zhushou gateway status --deep --require-rpc
     if (\$LASTEXITCODE -eq 0) {
       \$gatewayReady = \$true
       break
@@ -767,9 +767,9 @@ if (-not \$gatewayReady) {
   }
 }
 if (-not \$gatewayReady) {
-  & \$assistant gateway start
+  & \$zhushou gateway start
   for (\$i = 0; \$i -lt 6; \$i++) {
-    & \$assistant gateway status --deep --require-rpc
+    & \$zhushou gateway status --deep --require-rpc
     if (\$LASTEXITCODE -eq 0) {
       \$gatewayReady = \$true
       break
@@ -783,8 +783,8 @@ if (-not \$gatewayReady) {
 \$providerBytes = [Convert]::FromBase64String('$provider_key_b64')
 \$providerValue = [Text.Encoding]::UTF8.GetString(\$providerBytes)
 Set-Item -Path ('Env:' + '$API_KEY_ENV') -Value \$providerValue
-& \$assistant models set '$MODEL_ID'
-& \$assistant agent --agent main --session-id 'parallels-npm-update-windows-transport-recovery-$expected_needle' --message 'Reply with exact ASCII text OK only.' --json
+& \$zhushou models set '$MODEL_ID'
+& \$zhushou agent --agent main --session-id 'parallels-npm-update-windows-transport-recovery-$expected_needle' --message 'Reply with exact ASCII text OK only.' --json
 EOF
   )"
   local rc=$?
@@ -909,8 +909,8 @@ import re
 import sys
 
 text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
-matches = re.findall(r"Assistant [^\r\n]+", text)
-matches = [match for match in matches if re.search(r"Assistant \d", match)]
+matches = re.findall(r"Zhushou [^\r\n]+", text)
+matches = [match for match in matches if re.search(r"Zhushou \d", match)]
 print(matches[-1] if matches else "")
 PY
 }
@@ -992,10 +992,10 @@ run_windows_script_via_log() {
   local runner_name log_name done_name done_status launcher_state guest_log
   local start_seconds poll_deadline startup_checked poll_rc state_rc log_rc
   local log_state_path provider_key_b64
-  runner_name="assistant-update-$RANDOM-$RANDOM.ps1"
-  log_name="assistant-update-$RANDOM-$RANDOM.log"
-  done_name="assistant-update-$RANDOM-$RANDOM.done"
-  log_state_path="$(mktemp "${TMPDIR:-/tmp}/assistant-update-log-state.XXXXXX")"
+  runner_name="zhushou-update-$RANDOM-$RANDOM.ps1"
+  log_name="zhushou-update-$RANDOM-$RANDOM.log"
+  done_name="zhushou-update-$RANDOM-$RANDOM.done"
+  log_state_path="$(mktemp "${TMPDIR:-/tmp}/zhushou-update-log-state.XXXXXX")"
   : >"$log_state_path"
   provider_key_b64="$(
     PROVIDER_KEY="$provider_key" "$PYTHON_BIN" - <<'PY'
@@ -1123,7 +1123,7 @@ PY
 run_macos_update() {
   local update_target="$1"
   local expected_needle="$2"
-  cat <<EOF | prlctl exec "$MACOS_VM" /usr/bin/tee /tmp/assistant-main-update.sh >/dev/null
+  cat <<EOF | prlctl exec "$MACOS_VM" /usr/bin/tee /tmp/zhushou-main-update.sh >/dev/null
 set -euo pipefail
 export PATH=/opt/homebrew/bin:/opt/homebrew/opt/node/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 if [ -z "\${HOME:-}" ]; then export HOME="/Users/\$(id -un)"; fi
@@ -1132,23 +1132,23 @@ if [ -z "\${$API_KEY_ENV:-}" ]; then
   exit 1
 fi
 cd "\$HOME"
-stop_assistant_gateway_processes() {
-  /opt/homebrew/bin/assistant gateway stop >/dev/null 2>&1 || true
-  /usr/bin/pkill -9 -f assistant-gateway || true
-  /usr/bin/pkill -9 -f 'assistant gateway run' || true
-  /usr/bin/pkill -9 -f 'assistant.mjs gateway' || true
+stop_zhushou_gateway_processes() {
+  /opt/homebrew/bin/zhushou gateway stop >/dev/null 2>&1 || true
+  /usr/bin/pkill -9 -f zhushou-gateway || true
+  /usr/bin/pkill -9 -f 'zhushou gateway run' || true
+  /usr/bin/pkill -9 -f 'zhushou.mjs gateway' || true
   for pid in \$(/usr/sbin/lsof -tiTCP:18789 -sTCP:LISTEN 2>/dev/null || true); do
     /bin/kill -9 "\$pid" 2>/dev/null || true
   done
 }
 # Stop the pre-update gateway before replacing the package. Otherwise the old
 # host can observe new plugin metadata mid-update and abort config validation.
-stop_assistant_gateway_processes
-/opt/homebrew/bin/assistant update --tag "$update_target" --yes --json
+stop_zhushou_gateway_processes
+/opt/homebrew/bin/zhushou update --tag "$update_target" --yes --json
 # Same-guest npm upgrades can leave the old gateway process holding the old
 # bundled plugin host version. Stop it before post-update config commands.
-stop_assistant_gateway_processes
-version="\$(/opt/homebrew/bin/assistant --version)"
+stop_zhushou_gateway_processes
+version="\$(/opt/homebrew/bin/zhushou --version)"
 printf '%s\n' "\$version"
 if [ -n "$expected_needle" ]; then
   case "\$version" in
@@ -1159,26 +1159,26 @@ if [ -n "$expected_needle" ]; then
       ;;
   esac
 fi
-/opt/homebrew/bin/assistant update status --json
-/opt/homebrew/bin/assistant models set "$MODEL_ID"
+/opt/homebrew/bin/zhushou update status --json
+/opt/homebrew/bin/zhushou models set "$MODEL_ID"
 # Same-guest npm upgrades can leave launchd holding the old gateway process or
 # module graph briefly; wait for a fresh RPC-ready restart before the agent turn.
 # Fresh npm installs may not have a launchd service yet, so fall back to the
 # same manual gateway launch used by the fresh macOS lane.
-/opt/homebrew/bin/assistant gateway restart || true
+/opt/homebrew/bin/zhushou gateway restart || true
 gateway_ready=0
 for _ in 1 2 3 4 5 6 7 8; do
-  if /opt/homebrew/bin/assistant gateway status --deep --require-rpc >/dev/null 2>&1; then
+  if /opt/homebrew/bin/zhushou gateway status --deep --require-rpc >/dev/null 2>&1; then
     gateway_ready=1
     break
   fi
   sleep 2
 done
 if [ "\$gateway_ready" != "1" ]; then
-  stop_assistant_gateway_processes
-  /opt/homebrew/bin/assistant gateway run --bind loopback --port 18789 --force >/tmp/assistant-parallels-npm-update-macos-gateway.log 2>&1 </dev/null &
+  stop_zhushou_gateway_processes
+  /opt/homebrew/bin/zhushou gateway run --bind loopback --port 18789 --force >/tmp/zhushou-parallels-npm-update-macos-gateway.log 2>&1 </dev/null &
   for _ in 1 2 3 4 5 6 7 8; do
-    if /opt/homebrew/bin/assistant gateway status --deep --require-rpc >/dev/null 2>&1; then
+    if /opt/homebrew/bin/zhushou gateway status --deep --require-rpc >/dev/null 2>&1; then
       gateway_ready=1
       break
     fi
@@ -1186,12 +1186,12 @@ if [ "\$gateway_ready" != "1" ]; then
   done
 fi
 if [ "\$gateway_ready" != "1" ]; then
-  tail -n 120 /tmp/assistant-parallels-npm-update-macos-gateway.log 2>/dev/null || true
+  tail -n 120 /tmp/zhushou-parallels-npm-update-macos-gateway.log 2>/dev/null || true
 fi
-/opt/homebrew/bin/assistant gateway status --deep --require-rpc
-/opt/homebrew/bin/assistant agent --agent main --session-id parallels-npm-update-macos-$expected_needle --message "Reply with exact ASCII text OK only." --json
+/opt/homebrew/bin/zhushou gateway status --deep --require-rpc
+/opt/homebrew/bin/zhushou agent --agent main --session-id parallels-npm-update-macos-$expected_needle --message "Reply with exact ASCII text OK only." --json
 EOF
-  macos_desktop_user_exec /bin/bash /tmp/assistant-main-update.sh
+  macos_desktop_user_exec /bin/bash /tmp/zhushou-main-update.sh
 }
 
 run_windows_update() {
@@ -1211,15 +1211,15 @@ run_windows_update() {
 run_linux_update() {
   local update_target="$1"
   local expected_needle="$2"
-  cat <<EOF | prlctl exec "$LINUX_VM" /usr/bin/tee /tmp/assistant-main-update.sh >/dev/null
+  cat <<EOF | prlctl exec "$LINUX_VM" /usr/bin/tee /tmp/zhushou-main-update.sh >/dev/null
 set -euo pipefail
 export HOME=/root
 cd "\$HOME"
-stop_assistant_gateway_processes() {
-  assistant gateway stop >/dev/null 2>&1 || true
-  pkill -9 -f assistant-gateway || true
-  pkill -9 -f 'assistant gateway run' || true
-  pkill -9 -f 'assistant.mjs gateway' || true
+stop_zhushou_gateway_processes() {
+  zhushou gateway stop >/dev/null 2>&1 || true
+  pkill -9 -f zhushou-gateway || true
+  pkill -9 -f 'zhushou gateway run' || true
+  pkill -9 -f 'zhushou.mjs gateway' || true
   if command -v fuser >/dev/null 2>&1; then
     fuser -k 18789/tcp >/dev/null 2>&1 || true
   fi
@@ -1231,12 +1231,12 @@ stop_assistant_gateway_processes() {
 }
 # Stop the pre-update manual gateway before replacing the package. Otherwise
 # the old host can observe new plugin metadata mid-update and abort validation.
-stop_assistant_gateway_processes
-assistant update --tag "$update_target" --yes --json
+stop_zhushou_gateway_processes
+zhushou update --tag "$update_target" --yes --json
 # The fresh Linux lane starts a manual gateway; stop the old process before
 # post-update config validation sees mixed old-host/new-plugin metadata.
-stop_assistant_gateway_processes
-version="\$(assistant --version)"
+stop_zhushou_gateway_processes
+version="\$(zhushou --version)"
 printf '%s\n' "\$version"
 if [ -n "$expected_needle" ]; then
   case "\$version" in
@@ -1247,11 +1247,11 @@ if [ -n "$expected_needle" ]; then
       ;;
   esac
 fi
-assistant update status --json
-assistant models set "$MODEL_ID"
-assistant agent --local --agent main --session-id parallels-npm-update-linux-$expected_needle --message "Reply with exact ASCII text OK only." --json
+zhushou update status --json
+zhushou models set "$MODEL_ID"
+zhushou agent --local --agent main --session-id parallels-npm-update-linux-$expected_needle --message "Reply with exact ASCII text OK only." --json
 EOF
-  prlctl exec "$LINUX_VM" /usr/bin/env "$API_KEY_ENV=$API_KEY_VALUE" /bin/bash /tmp/assistant-main-update.sh
+  prlctl exec "$LINUX_VM" /usr/bin/env "$API_KEY_ENV=$API_KEY_VALUE" /bin/bash /tmp/zhushou-main-update.sh
 }
 
 write_summary_json() {
@@ -1298,7 +1298,7 @@ PY
 
 LATEST_VERSION="$(resolve_latest_version)"
 if [[ -z "$PACKAGE_SPEC" ]]; then
-  PACKAGE_SPEC="assistant@$LATEST_VERSION"
+  PACKAGE_SPEC="zhushou@$LATEST_VERSION"
 fi
 resolve_current_head
 
@@ -1368,7 +1368,7 @@ if [[ -n "$MAIN_TGZ_PATH" ]]; then
 fi
 windows_update_script_url="http://$HOST_IP:$HOST_PORT/$(basename "$WINDOWS_UPDATE_SCRIPT_PATH")"
 
-say "Run same-guest assistant update to $UPDATE_TARGET_EFFECTIVE"
+say "Run same-guest zhushou update to $UPDATE_TARGET_EFFECTIVE"
 ensure_vm_running_for_update "$MACOS_VM"
 ensure_vm_running_for_update "$WINDOWS_VM"
 ensure_vm_running_for_update "$LINUX_VM"

@@ -4,7 +4,7 @@ import {
   extractShortModelName,
   type ResponsePrefixContext,
 } from "../auto-reply/reply/response-prefix-template.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
 type ModelSelectionContext = Parameters<NonNullable<GetReplyOptions["onModelSelected"]>>[0];
@@ -22,7 +22,7 @@ export type ReplyPrefixOptions = Pick<
 >;
 
 export function createReplyPrefixContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   channel?: string;
   accountId?: string;
@@ -52,7 +52,7 @@ export function createReplyPrefixContext(params: {
 }
 
 export function createReplyPrefixOptions(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   channel?: string;
   accountId?: string;

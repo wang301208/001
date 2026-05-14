@@ -1,1 +1,1 @@
-export { getProxyUrlFromFetch, makeProxyFetch } from "assistant/plugin-sdk/fetch-runtime";
+export { getProxyUrlFromFetch, makeProxyFetch } from "zhushou/plugin-sdk/fetch-runtime";

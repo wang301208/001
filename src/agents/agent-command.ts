@@ -272,7 +272,7 @@ async function prepareAgentCommandExecution(
         buildUnknownAgentIdMessage({
           cfg,
           rawAgentId: agentIdOverrideRaw ?? agentIdOverride,
-          inspectHint: `Use "${formatCliCommand("assistant agents list")}" to inspect available agents.`,
+          inspectHint: `Use "${formatCliCommand("zhushou agents list")}" to inspect available agents.`,
         }),
       );
     }
@@ -505,7 +505,7 @@ async function agentCommandInternal(
             if (!visibleUpdate) {
               return;
             }
-            attemptExecutionRuntime.emitAcpAssistantDelta({
+            attemptExecutionRuntime.emitAcpZhushouDelta({
               runId,
               text: visibleUpdate.text,
               delta: visibleUpdate.delta,

@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   formatGovernanceEnforcementMessage,
   resolveGovernanceEnforcementState,
@@ -16,12 +16,12 @@ export type AcpDispatchPolicyState =
   | "dispatch_disabled"
   | "governance_frozen";
 
-export function isAcpEnabledByPolicy(cfg: AssistantConfig): boolean {
+export function isAcpEnabledByPolicy(cfg: ZhushouConfig): boolean {
   return cfg.acp?.enabled !== false;
 }
 
 export function resolveAcpDispatchPolicyState(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   options: { charterDir?: string } = {},
 ): AcpDispatchPolicyState {
   if (!isAcpEnabledByPolicy(cfg)) {
@@ -39,14 +39,14 @@ export function resolveAcpDispatchPolicyState(
 }
 
 export function isAcpDispatchEnabledByPolicy(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   options: { charterDir?: string } = {},
 ): boolean {
   return resolveAcpDispatchPolicyState(cfg, options) === "enabled";
 }
 
 export function resolveAcpDispatchPolicyMessage(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   options: { charterDir?: string } = {},
 ): string | null {
   const state = resolveAcpDispatchPolicyState(cfg, options);
@@ -67,7 +67,7 @@ export function resolveAcpDispatchPolicyMessage(
 }
 
 export function resolveAcpDispatchPolicyError(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   options: { charterDir?: string } = {},
 ): AcpRuntimeError | null {
   const message = resolveAcpDispatchPolicyMessage(cfg, options);
@@ -77,7 +77,7 @@ export function resolveAcpDispatchPolicyError(
   return new AcpRuntimeError("ACP_DISPATCH_DISABLED", message);
 }
 
-export function isAcpAgentAllowedByPolicy(cfg: AssistantConfig, agentId: string): boolean {
+export function isAcpAgentAllowedByPolicy(cfg: ZhushouConfig, agentId: string): boolean {
   const allowed = (cfg.acp?.allowedAgents ?? [])
     .map((entry) => normalizeAgentId(entry))
     .filter(Boolean);
@@ -88,7 +88,7 @@ export function isAcpAgentAllowedByPolicy(cfg: AssistantConfig, agentId: string)
 }
 
 export function resolveAcpAgentPolicyError(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   agentId: string,
 ): AcpRuntimeError | null {
   if (isAcpAgentAllowedByPolicy(cfg, agentId)) {

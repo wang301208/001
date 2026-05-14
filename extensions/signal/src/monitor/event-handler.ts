@@ -1,5 +1,5 @@
-import { resolveHumanDelayConfig } from "assistant/plugin-sdk/agent-runtime";
-import { logTypingFailure } from "assistant/plugin-sdk/channel-feedback";
+import { resolveHumanDelayConfig } from "zhushou/plugin-sdk/agent-runtime";
+import { logTypingFailure } from "zhushou/plugin-sdk/channel-feedback";
 import {
   buildMentionRegexes,
   createChannelInboundDebouncer,
@@ -9,40 +9,40 @@ import {
   resolveInboundMentionDecision,
   resolveEnvelopeFormatOptions,
   shouldDebounceTextInbound,
-} from "assistant/plugin-sdk/channel-inbound";
-import { logInboundDrop } from "assistant/plugin-sdk/channel-inbound";
-import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
-import { resolveControlCommandGate } from "assistant/plugin-sdk/command-auth";
-import { hasControlCommand } from "assistant/plugin-sdk/command-auth";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { logInboundDrop } from "zhushou/plugin-sdk/channel-inbound";
+import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+import { resolveControlCommandGate } from "zhushou/plugin-sdk/command-auth";
+import { hasControlCommand } from "zhushou/plugin-sdk/command-auth";
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
-} from "assistant/plugin-sdk/config-runtime";
-import { readSessionUpdatedAt, resolveStorePath } from "assistant/plugin-sdk/config-runtime";
-import { recordInboundSession } from "assistant/plugin-sdk/conversation-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
+import { readSessionUpdatedAt, resolveStorePath } from "zhushou/plugin-sdk/config-runtime";
+import { recordInboundSession } from "zhushou/plugin-sdk/conversation-runtime";
 import {
   createInternalHookEvent,
   fireAndForgetHook,
   toInternalMessageReceivedContext,
   triggerInternalHook,
-} from "assistant/plugin-sdk/hook-runtime";
-import { enqueueSystemEvent } from "assistant/plugin-sdk/infra-runtime";
-import { kindFromMime } from "assistant/plugin-sdk/media-runtime";
+} from "zhushou/plugin-sdk/hook-runtime";
+import { enqueueSystemEvent } from "zhushou/plugin-sdk/infra-runtime";
+import { kindFromMime } from "zhushou/plugin-sdk/media-runtime";
 import {
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
   recordPendingHistoryEntryIfEnabled,
-} from "assistant/plugin-sdk/reply-history";
-import { dispatchInboundMessage } from "assistant/plugin-sdk/reply-runtime";
-import { finalizeInboundContext } from "assistant/plugin-sdk/reply-runtime";
-import { createReplyDispatcherWithTyping } from "assistant/plugin-sdk/reply-runtime";
-import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
-import { danger, logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/reply-history";
+import { dispatchInboundMessage } from "zhushou/plugin-sdk/reply-runtime";
+import { finalizeInboundContext } from "zhushou/plugin-sdk/reply-runtime";
+import { createReplyDispatcherWithTyping } from "zhushou/plugin-sdk/reply-runtime";
+import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import { danger, logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
 import {
   DM_GROUP_ACCESS_REASON,
   resolvePinnedMainDmOwnerFromAllowlist,
-} from "assistant/plugin-sdk/security-runtime";
-import { normalizeE164, normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/security-runtime";
+import { normalizeE164, normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   formatSignalPairingIdLine,
   formatSignalSenderDisplay,

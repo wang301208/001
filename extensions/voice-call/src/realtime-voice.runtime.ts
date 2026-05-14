@@ -1,4 +1,4 @@
 export {
   getRealtimeVoiceProvider,
   listRealtimeVoiceProviders,
-} from "assistant/plugin-sdk/realtime-voice";
+} from "zhushou/plugin-sdk/realtime-voice";

@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { loggingState } from "../logging/state.js";
 import type { PluginRegistryScope } from "./plugin-registry.js";
 
@@ -18,8 +18,8 @@ export function resolvePluginRegistryScopeForCommandPath(
 export async function ensureCliPluginRegistryLoaded(params: {
   scope: PluginRegistryScope;
   routeLogsToStderr?: boolean;
-  config?: AssistantConfig;
-  activationSourceConfig?: AssistantConfig;
+  config?: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
 }) {
   const { ensurePluginRegistryLoaded } = await loadPluginRegistryModule();
   const previousForceStderr = loggingState.forceConsoleToStderr;

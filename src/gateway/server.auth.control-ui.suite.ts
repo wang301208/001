@@ -134,7 +134,7 @@ export function registerControlUiAndPairingSuite(): void {
     };
   };
 
-  const startServerWithOperatorIdentity = async (identityPrefix = "assistant-device-scope-") => {
+  const startServerWithOperatorIdentity = async (identityPrefix = "zhushou-device-scope-") => {
     const { server, ws, port, prevToken } = await startServerWithClient("secret", {
       controlUiEnabled: true,
     });
@@ -264,7 +264,7 @@ export function registerControlUiAndPairingSuite(): void {
     const { publicKeyRawBase64UrlFromPem } = await import("../infra/device-identity.js");
     const { rejectDevicePairing, requestDevicePairing } =
       await import("../infra/device-pairing.js");
-    const { identity } = await createOperatorIdentityFixture("assistant-control-ui-trusted-proxy-");
+    const { identity } = await createOperatorIdentityFixture("zhushou-control-ui-trusted-proxy-");
     const pendingRequest = await requestDevicePairing({
       deviceId: identity.deviceId,
       publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
@@ -340,8 +340,8 @@ export function registerControlUiAndPairingSuite(): void {
     };
     testState.gatewayAuth = { mode: "token", token: "secret" };
     await writeTrustedProxyControlUiConfig({ allowInsecureAuth: true });
-    const prevToken = process.env.ASSISTANT_GATEWAY_TOKEN;
-    process.env.ASSISTANT_GATEWAY_TOKEN = "secret";
+    const prevToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
+    process.env.ZHUSHOU_GATEWAY_TOKEN = "secret";
     try {
       await withControlUiGatewayServer(async ({ port }) => {
         const ws = new WebSocket(`ws://127.0.0.1:${port}`, {
@@ -358,7 +358,7 @@ export function registerControlUiAndPairingSuite(): void {
         const challenge = await challengePromise;
         const nonce = (challenge.payload as { nonce?: unknown } | undefined)?.nonce;
         expect(typeof nonce).toBe("string");
-        const { identityPath } = await createOperatorIdentityFixture("assistant-controlui-device-");
+        const { identityPath } = await createOperatorIdentityFixture("zhushou-controlui-device-");
         const scopes = [
           "operator.admin",
           "operator.read",
@@ -397,8 +397,8 @@ export function registerControlUiAndPairingSuite(): void {
   test("allows control ui auth bypasses when device auth is disabled", async () => {
     testState.gatewayControlUi = { dangerouslyDisableDeviceAuth: true };
     testState.gatewayAuth = { mode: "token", token: "secret" };
-    const prevToken = process.env.ASSISTANT_GATEWAY_TOKEN;
-    process.env.ASSISTANT_GATEWAY_TOKEN = "secret";
+    const prevToken = process.env.ZHUSHOU_GATEWAY_TOKEN;
+    process.env.ZHUSHOU_GATEWAY_TOKEN = "secret";
     try {
       await withControlUiGatewayServer(async ({ port }) => {
         const staleDeviceWs = await openWs(port, { origin: originForPort(port) });
@@ -688,7 +688,7 @@ export function registerControlUiAndPairingSuite(): void {
     const { getPairedDevice, listDevicePairing } = await import("../infra/device-pairing.js");
     const { server, ws, port, prevToken } = await startControlUiServerWithClient("secret");
     const { identity, identityPath } = await seedApprovedOperatorReadPairing({
-      identityPrefix: "assistant-device-token-scope-",
+      identityPrefix: "zhushou-device-token-scope-",
       clientId: CONTROL_UI_CLIENT.id,
       clientMode: CONTROL_UI_CLIENT.mode,
       displayName: "loopback-control-ui-upgrade",
@@ -734,10 +734,10 @@ export function registerControlUiAndPairingSuite(): void {
     ws.close();
 
     const { identityPath, identity } = await createOperatorIdentityFixture(
-      "assistant-bootstrap-node-",
+      "zhushou-bootstrap-node-",
     );
     const client = {
-      id: "assistant-ios",
+      id: "zhushou-ios",
       version: "2026.3.30",
       platform: "iOS 26.3.1",
       mode: "node",
@@ -905,11 +905,11 @@ export function registerControlUiAndPairingSuite(): void {
     ws.close();
 
     const { identityPath, client } = await createOperatorIdentityFixture(
-      "assistant-bootstrap-reconcile-fail-",
+      "zhushou-bootstrap-reconcile-fail-",
     );
     const nodeClient = {
       ...client,
-      id: "assistant-android",
+      id: "zhushou-android",
       mode: "node",
     };
 
@@ -964,10 +964,10 @@ export function registerControlUiAndPairingSuite(): void {
     ws.close();
 
     const { identityPath, identity } = await createOperatorIdentityFixture(
-      "assistant-bootstrap-role-upgrade-",
+      "zhushou-bootstrap-role-upgrade-",
     );
     const client = {
-      id: "assistant-ios",
+      id: "zhushou-ios",
       version: "2026.3.30",
       platform: "iOS 26.3.1",
       mode: "node",
@@ -1035,7 +1035,7 @@ export function registerControlUiAndPairingSuite(): void {
     ws.close();
 
     const { identityPath, identity, client } = await createOperatorIdentityFixture(
-      "assistant-bootstrap-operator-",
+      "zhushou-bootstrap-operator-",
     );
 
     try {
@@ -1079,7 +1079,7 @@ export function registerControlUiAndPairingSuite(): void {
     const { server, ws, port, prevToken } = await startControlUiServerWithClient("secret");
     ws.close();
     const { identityPath, identity, client } =
-      await createOperatorIdentityFixture("assistant-device-scope-");
+      await createOperatorIdentityFixture("zhushou-device-scope-");
     const connectWithNonce = async (role: "operator" | "node", scopes: string[]) => {
       const socket = new WebSocket(`ws://127.0.0.1:${port}`, {
         headers: { host: "gateway.example" },
@@ -1189,7 +1189,7 @@ export function registerControlUiAndPairingSuite(): void {
     const { approveDevicePairing, getPairedDevice, listDevicePairing, requestDevicePairing } =
       await import("../infra/device-pairing.js");
     const { identityPath, identity } = await createOperatorIdentityFixture(
-      "assistant-device-legacy-meta-",
+      "zhushou-device-legacy-meta-",
     );
     const deviceId = identity.deviceId;
     const publicKey = publicKeyRawBase64UrlFromPem(identity.publicKeyPem);
@@ -1247,7 +1247,7 @@ export function registerControlUiAndPairingSuite(): void {
   test("requires approval for local scope upgrades even when paired metadata is legacy-shaped", async () => {
     const { getPairedDevice, listDevicePairing } = await import("../infra/device-pairing.js");
     const { identity, identityPath } = await seedApprovedOperatorReadPairing({
-      identityPrefix: "assistant-device-legacy-",
+      identityPrefix: "zhushou-device-legacy-",
       clientId: TEST_OPERATOR_CLIENT.id,
       clientMode: TEST_OPERATOR_CLIENT.mode,
       displayName: "legacy-upgrade-test",
@@ -1314,9 +1314,9 @@ export function registerControlUiAndPairingSuite(): void {
     ws2.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.ASSISTANT_GATEWAY_TOKEN;
+      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
     } else {
-      process.env.ASSISTANT_GATEWAY_TOKEN = prevToken;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = prevToken;
     }
   });
 
@@ -1342,7 +1342,7 @@ export function registerControlUiAndPairingSuite(): void {
     const wsDockerCli = await openWs(port, { host: "172.17.0.2:18789" });
     try {
       const { identity, identityPath } =
-        await createOperatorIdentityFixture("assistant-cli-docker-");
+        await createOperatorIdentityFixture("zhushou-cli-docker-");
       const nonce = await readConnectChallengeNonce(wsDockerCli);
       const dockerCli = await connectReq(wsDockerCli, {
         token: "secret",

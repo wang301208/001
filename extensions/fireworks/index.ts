@@ -1,11 +1,11 @@
-import type { ProviderResolveDynamicModelContext } from "assistant/plugin-sdk/plugin-entry";
-import { defineSingleProviderPluginEntry } from "assistant/plugin-sdk/provider-entry";
+import type { ProviderResolveDynamicModelContext } from "zhushou/plugin-sdk/plugin-entry";
+import { defineSingleProviderPluginEntry } from "zhushou/plugin-sdk/provider-entry";
 import {
   cloneFirstTemplateModel,
   DEFAULT_CONTEXT_TOKENS,
   normalizeModelCompat,
   OPENAI_COMPATIBLE_REPLAY_HOOKS,
-} from "assistant/plugin-sdk/provider-model-shared";
+} from "zhushou/plugin-sdk/provider-model-shared";
 import { isFireworksKimiModelId } from "./model-id.js";
 import { applyFireworksConfig, FIREWORKS_DEFAULT_MODEL_REF } from "./onboard.js";
 import {

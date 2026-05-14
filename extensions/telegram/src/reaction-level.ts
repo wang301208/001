@@ -1,9 +1,9 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   resolveReactionLevel,
   type ReactionLevel,
   type ResolvedReactionLevel as BaseResolvedReactionLevel,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveTelegramAccount } from "./accounts.js";
 
 export type TelegramReactionLevel = ReactionLevel;
@@ -13,7 +13,7 @@ export type ResolvedReactionLevel = BaseResolvedReactionLevel;
  * Resolve the effective reaction level and its implications.
  */
 export function resolveTelegramReactionLevel(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string;
 }): ResolvedReactionLevel {
   const account = resolveTelegramAccount({

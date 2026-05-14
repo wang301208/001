@@ -35,7 +35,7 @@ vi.mock("../../infra/git-commit.js", () => ({
 }));
 
 vi.mock("../cli-name.js", () => ({
-  resolveCliName: () => "assistant",
+  resolveCliName: () => "zhushou",
   replaceCliName: (cmd: string) => cmd,
 }));
 
@@ -109,7 +109,7 @@ describe("configureProgramHelp", () => {
   }
 
   it("adds root help hint and marks commands with subcommands", () => {
-    process.argv = ["node", "assistant", "--help"];
+    process.argv = ["node", "zhushou", "--help"];
     const program = makeProgramWithCommands();
     configureProgramHelp(program, testProgramContext);
 
@@ -121,7 +121,7 @@ describe("configureProgramHelp", () => {
   });
 
   it("includes banner and docs/examples in root help output", () => {
-    process.argv = ["node", "assistant", "--help"];
+    process.argv = ["node", "zhushou", "--help"];
     const program = makeProgramWithCommands();
     configureProgramHelp(program, testProgramContext);
 
@@ -129,18 +129,18 @@ describe("configureProgramHelp", () => {
     expect(help).toContain("BANNER-LINE");
     expect(help).toContain("Examples:");
     expect(help).toContain("--tui");
-    expect(help).toContain("assistant --tui");
-    expect(help).toContain("Open the assistant terminal UI.");
-    expect(help).toContain("https://docs.assistant.ai/cli");
+    expect(help).toContain("zhushou --tui");
+    expect(help).toContain("Open the zhushou terminal UI.");
+    expect(help).toContain("https://docs.zhushou.ai/cli");
   });
 
   it("prints version and exits immediately when version flags are present", () => {
-    process.argv = ["node", "assistant", "--version"];
+    process.argv = ["node", "zhushou", "--version"];
     expectVersionExit({ expectedVersion: "助手 9.9.9-test (abc1234)" });
   });
 
   it("prints version and exits immediately without commit metadata", () => {
-    process.argv = ["node", "assistant", "--version"];
+    process.argv = ["node", "zhushou", "--version"];
     resolveCommitHashMock.mockReturnValue(null);
     expectVersionExit({ expectedVersion: "助手 9.9.9-test" });
   });

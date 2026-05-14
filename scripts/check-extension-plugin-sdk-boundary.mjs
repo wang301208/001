@@ -101,25 +101,25 @@ async function collectParsedExtensionSourceFiles() {
   if (!parsedExtensionSourceFilesPromise) {
     parsedExtensionSourceFilesPromise = (async () => {
       const files = await collectExtensionSourceFiles(extensionsRoot);
-      return await Promise.all(
-        files.map(async (filePath) => {
-          const source = await fs.readFile(filePath, "utf8");
-          const scriptKind =
-            filePath.endsWith(".tsx") || filePath.endsWith(".jsx")
-              ? ts.ScriptKind.TSX
-              : ts.ScriptKind.TS;
-          return {
+      const parsed = [];
+      for (const filePath of files) {
+        const source = await fs.readFile(filePath, "utf8");
+        const scriptKind =
+          filePath.endsWith(".tsx") || filePath.endsWith(".jsx")
+            ? ts.ScriptKind.TSX
+            : ts.ScriptKind.TS;
+        parsed.push({
+          filePath,
+          sourceFile: ts.createSourceFile(
             filePath,
-            sourceFile: ts.createSourceFile(
-              filePath,
-              source,
-              ts.ScriptTarget.Latest,
-              true,
-              scriptKind,
-            ),
-          };
-        }),
-      );
+            source,
+            ts.ScriptTarget.Latest,
+            true,
+            scriptKind,
+          ),
+        });
+      }
+      return parsed;
     })();
   }
   return await parsedExtensionSourceFilesPromise;
@@ -143,7 +143,7 @@ function classifyReason(mode, kind, resolvedPath, specifier) {
         : "imports";
   if (mode === "relative-outside-package") {
     if (resolvedPath?.startsWith("src/plugin-sdk/")) {
-      return `${verb} plugin-sdk via relative path; use assistant/plugin-sdk/<subpath>`;
+      return `${verb} plugin-sdk via relative path; use zhushou/plugin-sdk/<subpath>`;
     }
     if (resolvedPath?.startsWith("src/")) {
       return `${verb} core src path via relative path outside the extension package`;

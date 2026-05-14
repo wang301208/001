@@ -1,15 +1,15 @@
 const SUPERVISOR_HINTS = {
-  launchd: ["LAUNCH_JOB_LABEL", "LAUNCH_JOB_NAME", "XPC_SERVICE_NAME", "ASSISTANT_LAUNCHD_LABEL"],
-  systemd: ["ASSISTANT_SYSTEMD_UNIT", "INVOCATION_ID", "SYSTEMD_EXEC_PID", "JOURNAL_STREAM"],
-  schtasks: ["ASSISTANT_WINDOWS_TASK_NAME"],
+  launchd: ["LAUNCH_JOB_LABEL", "LAUNCH_JOB_NAME", "XPC_SERVICE_NAME", "ZHUSHOU_LAUNCHD_LABEL"],
+  systemd: ["ZHUSHOU_SYSTEMD_UNIT", "INVOCATION_ID", "SYSTEMD_EXEC_PID", "JOURNAL_STREAM"],
+  schtasks: ["ZHUSHOU_WINDOWS_TASK_NAME"],
 } as const;
 
 export const SUPERVISOR_HINT_ENV_VARS = [
   ...SUPERVISOR_HINTS.launchd,
   ...SUPERVISOR_HINTS.systemd,
   ...SUPERVISOR_HINTS.schtasks,
-  "ASSISTANT_SERVICE_MARKER",
-  "ASSISTANT_SERVICE_KIND",
+  "ZHUSHOU_SERVICE_MARKER",
+  "ZHUSHOU_SERVICE_KIND",
 ] as const;
 
 export type RespawnSupervisor = "launchd" | "systemd" | "schtasks";
@@ -35,8 +35,8 @@ export function detectRespawnSupervisor(
     if (hasAnyHint(env, SUPERVISOR_HINTS.schtasks)) {
       return "schtasks";
     }
-    const marker = env.ASSISTANT_SERVICE_MARKER?.trim();
-    const serviceKind = env.ASSISTANT_SERVICE_KIND?.trim();
+    const marker = env.ZHUSHOU_SERVICE_MARKER?.trim();
+    const serviceKind = env.ZHUSHOU_SERVICE_KIND?.trim();
     return marker && serviceKind === "gateway" ? "schtasks" : null;
   }
   return null;

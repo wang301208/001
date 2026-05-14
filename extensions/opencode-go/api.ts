@@ -1,7 +1,7 @@
 import {
   applyAgentDefaultModelPrimary,
   resolveAgentModelPrimaryValue,
-} from "assistant/plugin-sdk/provider-onboard";
+} from "zhushou/plugin-sdk/provider-onboard";
 import { OPENCODE_GO_DEFAULT_MODEL_REF } from "./onboard.js";
 
 export {
@@ -11,9 +11,9 @@ export {
 } from "./onboard.js";
 
 export function applyOpencodeGoModelDefault(
-  cfg: import("assistant/plugin-sdk/provider-onboard").AssistantConfig,
+  cfg: import("zhushou/plugin-sdk/provider-onboard").ZhushouConfig,
 ): {
-  next: import("assistant/plugin-sdk/provider-onboard").AssistantConfig;
+  next: import("zhushou/plugin-sdk/provider-onboard").ZhushouConfig;
   changed: boolean;
 } {
   const current = resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model);

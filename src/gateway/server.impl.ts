@@ -5,7 +5,7 @@ import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js
 import { createDefaultDeps } from "../cli/deps.js";
 import { isRestartEnabled } from "../config/commands.flags.js";
 import {
-  type AssistantConfig,
+  type ZhushouConfig,
   DEFAULT_GATEWAY_PORT,
   applyConfigOverrides,
   getRuntimeConfig,
@@ -21,7 +21,7 @@ import { clearAgentRunContext } from "../infra/agent-events.js";
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { logAcceptedEnvOption } from "../infra/env.js";
-import { ensureAssistantCliOnPath } from "../infra/path-env.js";
+import { ensureZhushouCliOnPath } from "../infra/path-env.js";
 import { setGatewaySigusr1RestartPolicy, setPreRestartDeferralCheck } from "../infra/restart.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
@@ -93,7 +93,7 @@ import { resolveSharedGatewaySessionGeneration } from "./server/ws-shared-genera
 
 export { __resetModelCatalogCacheForTest } from "./server-model-catalog.js";
 
-ensureAssistantCliOnPath();
+ensureZhushouCliOnPath();
 
 const MAX_MEDIA_TTL_HOURS = 24 * 7;
 
@@ -206,23 +206,26 @@ export async function startGatewayServer(
   port = DEFAULT_GATEWAY_PORT,
   opts: GatewayServerOptions = {},
 ): Promise<GatewayServer> {
-  const traceStartup = isTruthyEnvValue(process.env.ASSISTANT_TRACE_GATEWAY_STARTUP);
+  // Network adapter entrypoint. The TUI/local primary path is the Node stdio
+  // gateway bridge; this server exposes the same gateway surface over HTTP/WS
+  // for remote clients and integrations.
+  const traceStartup = isTruthyEnvValue(process.env.ZHUSHOU_TRACE_GATEWAY_STARTUP);
   const trace = (message: string) => {
     if (traceStartup) {
       log.info(`[startup-trace] ${message}`);
     }
   };
   const minimalTestGateway =
-    isTruthyEnvValue(process.env.VITEST) && process.env.ASSISTANT_TEST_MINIMAL_GATEWAY === "1";
+    isTruthyEnvValue(process.env.VITEST) && process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY === "1";
 
   // Ensure all default port derivations (browser/canvas) see the actual runtime port.
-  process.env.ASSISTANT_GATEWAY_PORT = String(port);
+  process.env.ZHUSHOU_GATEWAY_PORT = String(port);
   logAcceptedEnvOption({
-    key: "ASSISTANT_RAW_STREAM",
+    key: "ZHUSHOU_RAW_STREAM",
     description: "raw stream logging enabled",
   });
   logAcceptedEnvOption({
-    key: "ASSISTANT_RAW_STREAM_PATH",
+    key: "ZHUSHOU_RAW_STREAM_PATH",
     description: "raw stream log path override",
   });
 
@@ -236,7 +239,7 @@ export async function startGatewayServer(
   const emitSecretsStateEvent = (
     code: "SECRETS_RELOADER_DEGRADED" | "SECRETS_RELOADER_RECOVERED",
     message: string,
-    cfg: AssistantConfig,
+    cfg: ZhushouConfig,
   ) => {
     enqueueSystemEvent(`[${code}] ${message}`, {
       sessionKey: resolveMainSessionKey(cfg),
@@ -248,7 +251,7 @@ export async function startGatewayServer(
     emitStateEvent: emitSecretsStateEvent,
   });
 
-  let cfgAtStart: AssistantConfig;
+  let cfgAtStart: ZhushouConfig;
   let startupInternalWriteHash: string | null = null;
   const startupRuntimeConfig = applyConfigOverrides(configSnapshot.config);
   trace("before prepareGatewayStartupConfig");
@@ -267,7 +270,7 @@ export async function startGatewayServer(
       );
     } else {
       log.warn(
-        "Gateway auth token was missing. Generated a runtime token for this startup without changing config; restart will generate a different token. Persist one with `assistant config set gateway.auth.mode token` and `assistant config set gateway.auth.token <token>`.",
+        "Gateway auth token was missing. Generated a runtime token for this startup without changing config; restart will generate a different token. Persist one with `zhushou config set gateway.auth.mode token` and `zhushou config set gateway.auth.token <token>`.",
       );
     }
   }
@@ -359,7 +362,7 @@ export async function startGatewayServer(
       env: process.env,
       tailscaleMode,
     });
-  const resolveSharedGatewaySessionGenerationForConfig = (config: AssistantConfig) =>
+  const resolveSharedGatewaySessionGenerationForConfig = (config: ZhushouConfig) =>
     resolveSharedGatewaySessionGeneration(
       resolveGatewayAuth({
         authConfig: config.gateway?.auth,
@@ -660,7 +663,7 @@ export async function startGatewayServer(
       nodeUnsubscribeAll,
       hasConnectedMobileNode: hasMobileNodeConnected,
       clients,
-      enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: AssistantConfig) => {
+      enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: ZhushouConfig) => {
         enforceSharedGatewaySessionGenerationForConfigWrite({
           state: sharedGatewaySessionGenerationState,
           nextConfig,

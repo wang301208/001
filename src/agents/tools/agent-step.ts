@@ -2,9 +2,9 @@ import crypto from "node:crypto";
 import { callGateway } from "../../gateway/call.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import { AGENT_LANE_NESTED } from "../lanes.js";
-import { waitForAgentRunAndReadUpdatedAssistantReply } from "../run-wait.js";
+import { waitForAgentRunAndReadUpdatedZhushouReply } from "../run-wait.js";
 
-export { readLatestAssistantReply } from "../run-wait.js";
+export { readLatestZhushouReply } from "../run-wait.js";
 
 type GatewayCaller = typeof callGateway;
 
@@ -50,7 +50,7 @@ export async function runAgentStep(params: {
 
   const stepRunId = typeof response?.runId === "string" && response.runId ? response.runId : "";
   const resolvedRunId = stepRunId || stepIdem;
-  const result = await waitForAgentRunAndReadUpdatedAssistantReply({
+  const result = await waitForAgentRunAndReadUpdatedZhushouReply({
     runId: resolvedRunId,
     sessionKey: params.sessionKey,
     timeoutMs: Math.min(params.timeoutMs, 60_000),

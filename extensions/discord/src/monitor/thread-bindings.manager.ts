@@ -6,14 +6,14 @@ import {
   type BindingTargetKind,
   type SessionBindingAdapter,
   type SessionBindingRecord,
-} from "assistant/plugin-sdk/conversation-runtime";
-import { normalizeAccountId, resolveAgentIdFromSessionKey } from "assistant/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/conversation-runtime";
+import { normalizeAccountId, resolveAgentIdFromSessionKey } from "zhushou/plugin-sdk/routing";
 import {
   getRuntimeConfigSnapshot,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/runtime-config-snapshot";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/runtime-config-snapshot";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { createDiscordRestClient } from "../client.js";
 import {
   createThreadForBinding,
@@ -176,7 +176,7 @@ export function createThreadBindingManager(
   params: {
     accountId?: string;
     token?: string;
-    cfg?: AssistantConfig;
+    cfg?: ZhushouConfig;
     persist?: boolean;
     enableSweeper?: boolean;
     idleTimeoutMs?: number;

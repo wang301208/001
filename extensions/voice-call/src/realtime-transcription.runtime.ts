@@ -1,4 +1,4 @@
 export {
   getRealtimeTranscriptionProvider,
   listRealtimeTranscriptionProviders,
-} from "assistant/plugin-sdk/realtime-transcription";
+} from "zhushou/plugin-sdk/realtime-transcription";

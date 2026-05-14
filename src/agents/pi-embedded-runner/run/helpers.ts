@@ -1,9 +1,9 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import type { AgentGovernanceRuntimeSnapshot } from "../../../governance/runtime-snapshot.js";
 import { generateSecureToken } from "../../../infra/secure-random.js";
-import { extractAssistantTextForPhase } from "../../../shared/chat-message-content.js";
-import { extractAssistantVisibleText } from "../../pi-embedded-utils.js";
+import { extractZhushouTextForPhase } from "../../../shared/chat-message-content.js";
+import { extractZhushouVisibleText } from "../../pi-embedded-utils.js";
 import { derivePromptTokens, normalizeUsage } from "../../usage.js";
 import type { EmbeddedPiAgentMeta } from "../types.js";
 import { toLastCallUsage, toNormalizedUsage, type UsageAccumulator } from "../usage-accumulator.js";
@@ -34,15 +34,15 @@ export const DEFAULT_OVERLOAD_FAILOVER_BACKOFF_MS = 0;
 export const DEFAULT_MAX_OVERLOAD_PROFILE_ROTATIONS = 1;
 export const DEFAULT_MAX_RATE_LIMIT_PROFILE_ROTATIONS = 1;
 
-export function resolveOverloadFailoverBackoffMs(cfg?: AssistantConfig): number {
+export function resolveOverloadFailoverBackoffMs(cfg?: ZhushouConfig): number {
   return cfg?.auth?.cooldowns?.overloadedBackoffMs ?? DEFAULT_OVERLOAD_FAILOVER_BACKOFF_MS;
 }
 
-export function resolveOverloadProfileRotationLimit(cfg?: AssistantConfig): number {
+export function resolveOverloadProfileRotationLimit(cfg?: ZhushouConfig): number {
   return cfg?.auth?.cooldowns?.overloadedProfileRotations ?? DEFAULT_MAX_OVERLOAD_PROFILE_ROTATIONS;
 }
 
-export function resolveRateLimitProfileRotationLimit(cfg?: AssistantConfig): number {
+export function resolveRateLimitProfileRotationLimit(cfg?: ZhushouConfig): number {
   return (
     cfg?.auth?.cooldowns?.rateLimitedProfileRotations ?? DEFAULT_MAX_RATE_LIMIT_PROFILE_ROTATIONS
   );
@@ -82,22 +82,22 @@ export function resolveMaxRunRetryIterations(profileCandidateCount: number): num
 export function resolveActiveErrorContext(params: {
   provider: string;
   model: string;
-  assistant?: { provider?: string; model?: string };
+  zhushou?: { provider?: string; model?: string };
 }): {
   provider: string;
   model: string;
 } {
-  const assistantProvider = params.assistant?.provider?.trim();
-  const assistantModel = params.assistant?.model?.trim();
+  const zhushouProvider = params.zhushou?.provider?.trim();
+  const zhushouModel = params.zhushou?.model?.trim();
   return {
-    provider: assistantProvider || params.provider,
-    model: assistantModel || params.model,
+    provider: zhushouProvider || params.provider,
+    model: zhushouModel || params.model,
   };
 }
 
 export function buildUsageAgentMetaFields(params: {
   usageAccumulator: UsageAccumulator;
-  lastAssistantUsage?: UsageSnapshot | null;
+  lastZhushouUsage?: UsageSnapshot | null;
   lastRunPromptUsage: UsageSnapshot | undefined;
   lastTurnTotal?: number;
 }): Pick<EmbeddedPiAgentMeta, "usage" | "lastCallUsage" | "promptTokens"> {
@@ -106,7 +106,7 @@ export function buildUsageAgentMetaFields(params: {
     usage.total = params.lastTurnTotal;
   }
   const lastCallUsage =
-    normalizeUsage(params.lastAssistantUsage as never) ?? toLastCallUsage(params.usageAccumulator);
+    normalizeUsage(params.lastZhushouUsage as never) ?? toLastCallUsage(params.usageAccumulator);
   const promptTokens = derivePromptTokens(params.lastRunPromptUsage);
   return {
     usage,
@@ -128,12 +128,12 @@ export function buildErrorAgentMeta(params: {
   governanceRuntime?: AgentGovernanceRuntimeSnapshot;
   usageAccumulator: UsageAccumulator;
   lastRunPromptUsage: UsageSnapshot | undefined;
-  lastAssistant?: { usage?: unknown } | null;
+  lastZhushou?: { usage?: unknown } | null;
   lastTurnTotal?: number;
 }): EmbeddedPiAgentMeta {
   const usageMeta = buildUsageAgentMetaFields({
     usageAccumulator: params.usageAccumulator,
-    lastAssistantUsage: params.lastAssistant?.usage as UsageSnapshot | undefined,
+    lastZhushouUsage: params.lastZhushou?.usage as UsageSnapshot | undefined,
     lastRunPromptUsage: params.lastRunPromptUsage,
     lastTurnTotal: params.lastTurnTotal,
   });
@@ -148,23 +148,23 @@ export function buildErrorAgentMeta(params: {
   };
 }
 
-export function resolveFinalAssistantVisibleText(
-  lastAssistant: AssistantMessage | undefined,
+export function resolveFinalZhushouVisibleText(
+  lastZhushou: AssistantMessage | undefined,
 ): string | undefined {
-  if (!lastAssistant) {
+  if (!lastZhushou) {
     return undefined;
   }
-  const visibleText = extractAssistantVisibleText(lastAssistant).trim();
+  const visibleText = extractZhushouVisibleText(lastZhushou).trim();
   return visibleText || undefined;
 }
 
-export function resolveFinalAssistantRawText(
-  lastAssistant: AssistantMessage | undefined,
+export function resolveFinalZhushouRawText(
+  lastZhushou: AssistantMessage | undefined,
 ): string | undefined {
-  if (!lastAssistant) {
+  if (!lastZhushou) {
     return undefined;
   }
-  const finalAnswerText = extractAssistantTextForPhase(lastAssistant, { phase: "final_answer" });
-  const rawText = (finalAnswerText ?? extractAssistantTextForPhase(lastAssistant) ?? "").trim();
+  const finalAnswerText = extractZhushouTextForPhase(lastZhushou, { phase: "final_answer" });
+  const rawText = (finalAnswerText ?? extractZhushouTextForPhase(lastZhushou) ?? "").trim();
   return rawText || undefined;
 }

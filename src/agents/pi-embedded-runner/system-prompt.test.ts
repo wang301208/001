@@ -41,7 +41,7 @@ function applyAndGetMutableSession(
 
 describe("applySystemPromptOverrideToSession", () => {
   it("applies a string override to the session system prompt", () => {
-    const prompt = "You are a helpful assistant with custom context.";
+    const prompt = "You are a helpful zhushou with custom context.";
     const { mutable } = applyAndGetMutableSession(prompt);
 
     expect(mutable.agent.state.systemPrompt).toBe(prompt);
@@ -74,7 +74,7 @@ describe("buildEmbeddedSystemPrompt", () => {
 
   it("forwards provider prompt contributions into the embedded prompt", () => {
     const prompt = buildEmbeddedSystemPrompt({
-      workspaceDir: "/tmp/assistant",
+      workspaceDir: "/tmp/zhushou",
       reasoningTagHint: false,
       runtimeInfo: {
         host: "local",
@@ -99,7 +99,7 @@ describe("buildEmbeddedSystemPrompt", () => {
     registerMemoryPromptSection(() => ["## Memory Recall", "Use memory carefully.", ""]);
 
     const prompt = buildEmbeddedSystemPrompt({
-      workspaceDir: "/tmp/assistant",
+      workspaceDir: "/tmp/zhushou",
       reasoningTagHint: false,
       runtimeInfo: {
         host: "local",

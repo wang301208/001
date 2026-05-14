@@ -17,7 +17,7 @@ export type GatewayInjectedTranscriptAppendResult = {
   error?: string;
 };
 
-function resolveInjectedAssistantContent(params: {
+function resolveInjectedZhushouContent(params: {
   message: string;
   label?: string;
   content?: Array<Record<string, unknown>>;
@@ -41,11 +41,11 @@ function resolveInjectedAssistantContent(params: {
   return [{ type: "text", text: `${labelPrefix}${params.message}` }];
 }
 
-export function appendInjectedAssistantMessageToTranscript(params: {
+export function appendInjectedZhushouMessageToTranscript(params: {
   transcriptPath: string;
   message: string;
   label?: string;
-  /** When set, used as the assistant `content` array (e.g. text + embedded audio blocks). */
+  /** When set, used as the zhushou `content` array (e.g. text + embedded audio blocks). */
   content?: Array<Record<string, unknown>>;
   idempotencyKey?: string;
   abortMeta?: GatewayInjectedAbortMeta;
@@ -66,31 +66,31 @@ export function appendInjectedAssistantMessageToTranscript(params: {
       total: 0,
     },
   };
-  const resolvedContent = resolveInjectedAssistantContent({
+  const resolvedContent = resolveInjectedZhushouContent({
     message: params.message,
     label: params.label,
     content: params.content,
   });
   const messageBody: AppendMessageArg & Record<string, unknown> = {
     role: "assistant",
-    // Gateway-injected assistant messages can include non-model content blocks (e.g. embedded TTS audio).
+    // Gateway-injected zhushou messages can include non-model content blocks (e.g. embedded TTS audio).
     content: resolvedContent as unknown as Extract<
       AppendMessageArg,
       { role: "assistant" }
     >["content"],
     timestamp: now,
     // Pi stopReason is a strict enum; this is not model output, but we still store it as a
-    // normal assistant message so it participates in the session parentId chain.
+    // normal zhushou message so it participates in the session parentId chain.
     stopReason: "stop",
     usage,
     // Make these explicit so downstream tooling never treats this as model output.
     api: "openai-responses",
-    provider: "assistant",
+    provider: "zhushou",
     model: "gateway-injected",
     ...(params.idempotencyKey ? { idempotencyKey: params.idempotencyKey } : {}),
     ...(params.abortMeta
       ? {
-          assistantAbort: {
+          zhushouAbort: {
             aborted: true,
             origin: params.abortMeta.origin,
             runId: params.abortMeta.runId,

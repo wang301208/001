@@ -8,13 +8,13 @@ import {
   resolveDebugProxyDbPath,
 } from "./paths.js";
 
-export const ASSISTANT_DEBUG_PROXY_ENABLED = "ASSISTANT_DEBUG_PROXY_ENABLED";
-export const ASSISTANT_DEBUG_PROXY_URL = "ASSISTANT_DEBUG_PROXY_URL";
-export const ASSISTANT_DEBUG_PROXY_DB_PATH = "ASSISTANT_DEBUG_PROXY_DB_PATH";
-export const ASSISTANT_DEBUG_PROXY_BLOB_DIR = "ASSISTANT_DEBUG_PROXY_BLOB_DIR";
-export const ASSISTANT_DEBUG_PROXY_CERT_DIR = "ASSISTANT_DEBUG_PROXY_CERT_DIR";
-export const ASSISTANT_DEBUG_PROXY_SESSION_ID = "ASSISTANT_DEBUG_PROXY_SESSION_ID";
-export const ASSISTANT_DEBUG_PROXY_REQUIRE = "ASSISTANT_DEBUG_PROXY_REQUIRE";
+export const ZHUSHOU_DEBUG_PROXY_ENABLED = "ZHUSHOU_DEBUG_PROXY_ENABLED";
+export const ZHUSHOU_DEBUG_PROXY_URL = "ZHUSHOU_DEBUG_PROXY_URL";
+export const ZHUSHOU_DEBUG_PROXY_DB_PATH = "ZHUSHOU_DEBUG_PROXY_DB_PATH";
+export const ZHUSHOU_DEBUG_PROXY_BLOB_DIR = "ZHUSHOU_DEBUG_PROXY_BLOB_DIR";
+export const ZHUSHOU_DEBUG_PROXY_CERT_DIR = "ZHUSHOU_DEBUG_PROXY_CERT_DIR";
+export const ZHUSHOU_DEBUG_PROXY_SESSION_ID = "ZHUSHOU_DEBUG_PROXY_SESSION_ID";
+export const ZHUSHOU_DEBUG_PROXY_REQUIRE = "ZHUSHOU_DEBUG_PROXY_REQUIRE";
 
 export type DebugProxySettings = {
   enabled: boolean;
@@ -36,18 +36,18 @@ function isTruthy(value: string | undefined): boolean {
 export function resolveDebugProxySettings(
   env: NodeJS.ProcessEnv = process.env,
 ): DebugProxySettings {
-  const enabled = isTruthy(env[ASSISTANT_DEBUG_PROXY_ENABLED]);
-  const explicitSessionId = env[ASSISTANT_DEBUG_PROXY_SESSION_ID]?.trim() || undefined;
+  const enabled = isTruthy(env[ZHUSHOU_DEBUG_PROXY_ENABLED]);
+  const explicitSessionId = env[ZHUSHOU_DEBUG_PROXY_SESSION_ID]?.trim() || undefined;
   const sessionId = explicitSessionId ?? (cachedImplicitSessionId ??= randomUUID());
   return {
     enabled,
-    required: isTruthy(env[ASSISTANT_DEBUG_PROXY_REQUIRE]),
-    proxyUrl: env[ASSISTANT_DEBUG_PROXY_URL]?.trim() || undefined,
-    dbPath: env[ASSISTANT_DEBUG_PROXY_DB_PATH]?.trim() || resolveDebugProxyDbPath(env),
-    blobDir: env[ASSISTANT_DEBUG_PROXY_BLOB_DIR]?.trim() || resolveDebugProxyBlobDir(env),
-    certDir: env[ASSISTANT_DEBUG_PROXY_CERT_DIR]?.trim() || resolveDebugProxyCertDir(env),
+    required: isTruthy(env[ZHUSHOU_DEBUG_PROXY_REQUIRE]),
+    proxyUrl: env[ZHUSHOU_DEBUG_PROXY_URL]?.trim() || undefined,
+    dbPath: env[ZHUSHOU_DEBUG_PROXY_DB_PATH]?.trim() || resolveDebugProxyDbPath(env),
+    blobDir: env[ZHUSHOU_DEBUG_PROXY_BLOB_DIR]?.trim() || resolveDebugProxyBlobDir(env),
+    certDir: env[ZHUSHOU_DEBUG_PROXY_CERT_DIR]?.trim() || resolveDebugProxyCertDir(env),
     sessionId,
-    sourceProcess: "assistant",
+    sourceProcess: "zhushou",
   };
 }
 
@@ -63,13 +63,13 @@ export function applyDebugProxyEnv(
 ): NodeJS.ProcessEnv {
   return {
     ...env,
-    [ASSISTANT_DEBUG_PROXY_ENABLED]: "1",
-    [ASSISTANT_DEBUG_PROXY_REQUIRE]: "1",
-    [ASSISTANT_DEBUG_PROXY_URL]: params.proxyUrl,
-    [ASSISTANT_DEBUG_PROXY_DB_PATH]: params.dbPath ?? resolveDebugProxyDbPath(env),
-    [ASSISTANT_DEBUG_PROXY_BLOB_DIR]: params.blobDir ?? resolveDebugProxyBlobDir(env),
-    [ASSISTANT_DEBUG_PROXY_CERT_DIR]: params.certDir ?? resolveDebugProxyCertDir(env),
-    [ASSISTANT_DEBUG_PROXY_SESSION_ID]: params.sessionId,
+    [ZHUSHOU_DEBUG_PROXY_ENABLED]: "1",
+    [ZHUSHOU_DEBUG_PROXY_REQUIRE]: "1",
+    [ZHUSHOU_DEBUG_PROXY_URL]: params.proxyUrl,
+    [ZHUSHOU_DEBUG_PROXY_DB_PATH]: params.dbPath ?? resolveDebugProxyDbPath(env),
+    [ZHUSHOU_DEBUG_PROXY_BLOB_DIR]: params.blobDir ?? resolveDebugProxyBlobDir(env),
+    [ZHUSHOU_DEBUG_PROXY_CERT_DIR]: params.certDir ?? resolveDebugProxyCertDir(env),
+    [ZHUSHOU_DEBUG_PROXY_SESSION_ID]: params.sessionId,
     HTTP_PROXY: params.proxyUrl,
     HTTPS_PROXY: params.proxyUrl,
     ALL_PROXY: params.proxyUrl,

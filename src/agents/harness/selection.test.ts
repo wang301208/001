@@ -1,6 +1,6 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import type {
   EmbeddedRunAttemptParams,
   EmbeddedRunAttemptResult,
@@ -20,25 +20,25 @@ vi.mock("./builtin-pi.js", () => ({
   }),
 }));
 
-const originalRuntime = process.env.ASSISTANT_AGENT_RUNTIME;
-const originalHarnessFallback = process.env.ASSISTANT_AGENT_HARNESS_FALLBACK;
+const originalRuntime = process.env.ZHUSHOU_AGENT_RUNTIME;
+const originalHarnessFallback = process.env.ZHUSHOU_AGENT_HARNESS_FALLBACK;
 
 afterEach(() => {
   clearAgentHarnesses();
   piRunAttempt.mockClear();
   if (originalRuntime == null) {
-    delete process.env.ASSISTANT_AGENT_RUNTIME;
+    delete process.env.ZHUSHOU_AGENT_RUNTIME;
   } else {
-    process.env.ASSISTANT_AGENT_RUNTIME = originalRuntime;
+    process.env.ZHUSHOU_AGENT_RUNTIME = originalRuntime;
   }
   if (originalHarnessFallback == null) {
-    delete process.env.ASSISTANT_AGENT_HARNESS_FALLBACK;
+    delete process.env.ZHUSHOU_AGENT_HARNESS_FALLBACK;
   } else {
-    process.env.ASSISTANT_AGENT_HARNESS_FALLBACK = originalHarnessFallback;
+    process.env.ZHUSHOU_AGENT_HARNESS_FALLBACK = originalHarnessFallback;
   }
 });
 
-function createAttemptParams(config?: AssistantConfig): EmbeddedRunAttemptParams {
+function createAttemptParams(config?: ZhushouConfig): EmbeddedRunAttemptParams {
   return {
     prompt: "hello",
     sessionId: "session-1",
@@ -67,9 +67,9 @@ function createAttemptResult(sessionIdUsed: string): EmbeddedRunAttemptResult {
     promptErrorSource: null,
     sessionIdUsed,
     messagesSnapshot: [],
-    assistantTexts: [`${sessionIdUsed} ok`],
+    zhushouTexts: [`${sessionIdUsed} ok`],
     toolMetas: [],
-    lastAssistant: undefined,
+    lastZhushou: undefined,
     didSendViaMessagingTool: false,
     messagingToolSentTexts: [],
     messagingToolSentMediaUrls: [],
@@ -97,7 +97,7 @@ function registerFailingCodexHarness(): void {
 
 describe("runAgentHarnessAttemptWithFallback", () => {
   it("falls back to the PI harness when a forced plugin harness is unavailable", async () => {
-    process.env.ASSISTANT_AGENT_RUNTIME = "codex";
+    process.env.ZHUSHOU_AGENT_RUNTIME = "codex";
 
     const result = await runAgentHarnessAttemptWithFallback(createAttemptParams());
 
@@ -106,7 +106,7 @@ describe("runAgentHarnessAttemptWithFallback", () => {
   });
 
   it("falls back to the PI harness in auto mode when the selected plugin harness fails", async () => {
-    process.env.ASSISTANT_AGENT_RUNTIME = "auto";
+    process.env.ZHUSHOU_AGENT_RUNTIME = "auto";
     registerFailingCodexHarness();
 
     const result = await runAgentHarnessAttemptWithFallback(createAttemptParams());
@@ -116,7 +116,7 @@ describe("runAgentHarnessAttemptWithFallback", () => {
   });
 
   it("surfaces a forced plugin harness failure instead of replaying through PI", async () => {
-    process.env.ASSISTANT_AGENT_RUNTIME = "codex";
+    process.env.ZHUSHOU_AGENT_RUNTIME = "codex";
     registerFailingCodexHarness();
 
     await expect(runAgentHarnessAttemptWithFallback(createAttemptParams())).rejects.toThrow(
@@ -126,7 +126,7 @@ describe("runAgentHarnessAttemptWithFallback", () => {
   });
 
   it("disables PI retry fallback when auto-selected harness fails and fallback is none", async () => {
-    process.env.ASSISTANT_AGENT_RUNTIME = "auto";
+    process.env.ZHUSHOU_AGENT_RUNTIME = "auto";
     registerFailingCodexHarness();
 
     await expect(
@@ -138,8 +138,8 @@ describe("runAgentHarnessAttemptWithFallback", () => {
   });
 
   it("honors env fallback override over config fallback", async () => {
-    process.env.ASSISTANT_AGENT_RUNTIME = "auto";
-    process.env.ASSISTANT_AGENT_HARNESS_FALLBACK = "none";
+    process.env.ZHUSHOU_AGENT_RUNTIME = "auto";
+    process.env.ZHUSHOU_AGENT_HARNESS_FALLBACK = "none";
     registerFailingCodexHarness();
 
     await expect(runAgentHarnessAttemptWithFallback(createAttemptParams())).rejects.toThrow(
@@ -162,7 +162,7 @@ describe("selectAgentHarness", () => {
   });
 
   it("allows per-agent embedded harness policy overrides", () => {
-    const config: AssistantConfig = {
+    const config: ZhushouConfig = {
       agents: {
         defaults: { embeddedHarness: { fallback: "pi" } },
         list: [

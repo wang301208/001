@@ -22,7 +22,7 @@ import {
 import {
   __testing,
   clearPluginLoaderCache,
-  loadAssistantPlugins,
+  loadZhushouPlugins,
   PluginLoadReentryError,
   resolveRuntimePluginRegistry,
 } from "./loader.js";
@@ -114,7 +114,7 @@ function writeBundledPlugin(params: {
     filename: params.filename ?? "index.cjs",
     body: params.body ?? simplePluginBody(params.id),
   });
-  process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledDir;
+  process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledDir;
   return { bundledDir, plugin };
 }
 
@@ -125,7 +125,7 @@ function writeWorkspacePlugin(params: {
   workspaceDir?: string;
 }) {
   const workspaceDir = params.workspaceDir ?? makeTempDir();
-  const workspacePluginDir = path.join(workspaceDir, ".assistant", "extensions", params.id);
+  const workspacePluginDir = path.join(workspaceDir, ".zhushou", "extensions", params.id);
   mkdirSafe(workspacePluginDir);
   const plugin = writePlugin({
     id: params.id,
@@ -138,7 +138,7 @@ function writeWorkspacePlugin(params: {
 
 function withStateDir<T>(run: (stateDir: string) => T) {
   const stateDir = makeTempDir();
-  return withEnv({ ASSISTANT_STATE_DIR: stateDir }, () => run(stateDir));
+  return withEnv({ ZHUSHOU_STATE_DIR: stateDir }, () => run(stateDir));
 }
 
 function loadBundledMemoryPluginRegistry(options?: {
@@ -147,8 +147,8 @@ function loadBundledMemoryPluginRegistry(options?: {
   pluginFilename?: string;
 }) {
   if (!options && cachedBundledMemoryDir) {
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = cachedBundledMemoryDir;
-    return loadAssistantPlugins({
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = cachedBundledMemoryDir;
+    return loadZhushouPlugins({
       cache: false,
       workspaceDir: cachedBundledMemoryDir,
       config: {
@@ -176,7 +176,7 @@ function loadBundledMemoryPluginRegistry(options?: {
           name: options.packageMeta.name,
           version: options.packageMeta.version,
           description: options.packageMeta.description,
-          assistant: { extensions: [`./${pluginFilename}`] },
+          zhushou: { extensions: [`./${pluginFilename}`] },
         },
         null,
         2,
@@ -196,9 +196,9 @@ function loadBundledMemoryPluginRegistry(options?: {
   if (!options) {
     cachedBundledMemoryDir = bundledDir;
   }
-  process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledDir;
+  process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledDir;
 
-  return loadAssistantPlugins({
+  return loadZhushouPlugins({
     cache: false,
     workspaceDir: bundledDir,
     config: {
@@ -221,10 +221,10 @@ function setupBundledTelegramPlugin() {
       filename: "telegram.cjs",
     });
   }
-  process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = cachedBundledTelegramDir;
+  process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = cachedBundledTelegramDir;
 }
 
-function expectTelegramLoaded(registry: ReturnType<typeof loadAssistantPlugins>) {
+function expectTelegramLoaded(registry: ReturnType<typeof loadZhushouPlugins>) {
   const telegram = registry.plugins.find((entry) => entry.id === "telegram");
   expect(telegram?.status).toBe("loaded");
   expect(registry.channels.some((entry) => entry.plugin.id === "telegram")).toBe(true);
@@ -234,10 +234,10 @@ function loadRegistryFromSinglePlugin(params: {
   plugin: TempPlugin;
   pluginConfig?: Record<string, unknown>;
   includeWorkspaceDir?: boolean;
-  options?: Omit<Parameters<typeof loadAssistantPlugins>[0], "cache" | "workspaceDir" | "config">;
+  options?: Omit<Parameters<typeof loadZhushouPlugins>[0], "cache" | "workspaceDir" | "config">;
 }) {
   const pluginConfig = params.pluginConfig ?? {};
-  return loadAssistantPlugins({
+  return loadZhushouPlugins({
     cache: false,
     ...(params.includeWorkspaceDir === false ? {} : { workspaceDir: params.plugin.dir }),
     ...params.options,
@@ -252,9 +252,9 @@ function loadRegistryFromSinglePlugin(params: {
 
 function loadRegistryFromAllowedPlugins(
   plugins: TempPlugin[],
-  options?: Omit<Parameters<typeof loadAssistantPlugins>[0], "cache" | "config">,
+  options?: Omit<Parameters<typeof loadZhushouPlugins>[0], "cache" | "config">,
 ) {
-  return loadAssistantPlugins({
+  return loadZhushouPlugins({
     cache: false,
     ...options,
     config: {
@@ -467,7 +467,7 @@ function createEscapingEntryFixture(params: { id: string; sourceBody: string }) 
   const linkedEntry = path.join(pluginDir, "entry.cjs");
   fs.writeFileSync(outsideEntry, params.sourceBody, "utf-8");
   fs.writeFileSync(
-    path.join(pluginDir, "assistant.plugin.json"),
+    path.join(pluginDir, "zhushou.plugin.json"),
     JSON.stringify(
       {
         id: params.id,
@@ -482,7 +482,7 @@ function createEscapingEntryFixture(params: { id: string; sourceBody: string }) 
 }
 
 function resolveLoadedPluginSource(
-  registry: ReturnType<typeof loadAssistantPlugins>,
+  registry: ReturnType<typeof loadZhushouPlugins>,
   pluginId: string,
 ) {
   return fs.realpathSync(registry.plugins.find((entry) => entry.id === pluginId)?.source ?? "");
@@ -490,8 +490,8 @@ function resolveLoadedPluginSource(
 
 function expectCachePartitionByPluginSource(params: {
   pluginId: string;
-  loadFirst: () => ReturnType<typeof loadAssistantPlugins>;
-  loadSecond: () => ReturnType<typeof loadAssistantPlugins>;
+  loadFirst: () => ReturnType<typeof loadZhushouPlugins>;
+  loadSecond: () => ReturnType<typeof loadZhushouPlugins>;
   expectedFirstSource: string;
   expectedSecondSource: string;
 }) {
@@ -508,8 +508,8 @@ function expectCachePartitionByPluginSource(params: {
 }
 
 function expectCacheMissThenHit(params: {
-  loadFirst: () => ReturnType<typeof loadAssistantPlugins>;
-  loadVariant: () => ReturnType<typeof loadAssistantPlugins>;
+  loadFirst: () => ReturnType<typeof loadZhushouPlugins>;
+  loadVariant: () => ReturnType<typeof loadZhushouPlugins>;
 }) {
   const first = params.loadFirst();
   const second = params.loadVariant();
@@ -551,7 +551,7 @@ function createSetupEntryChannelPluginFixture(params: {
     JSON.stringify(
       {
         name: params.packageName,
-        assistant: {
+        zhushou: {
           extensions: ["./index.cjs"],
           setupEntry: "./setup-entry.cjs",
           ...(params.startupDeferConfiguredChannelFullLoadUntilAfterListen
@@ -569,7 +569,7 @@ function createSetupEntryChannelPluginFixture(params: {
     "utf-8",
   );
   fs.writeFileSync(
-    path.join(pluginDir, "assistant.plugin.json"),
+    path.join(pluginDir, "zhushou.plugin.json"),
     JSON.stringify(
       {
         id: params.id,
@@ -723,10 +723,10 @@ module.exports = {
 
 function createEnvResolvedPluginFixture(pluginId: string) {
   useNoBundledPlugins();
-  const assistantHome = makeTempDir();
+  const zhushouHome = makeTempDir();
   const ignoredHome = makeTempDir();
   const stateDir = makeTempDir();
-  const pluginDir = path.join(assistantHome, "plugins", pluginId);
+  const pluginDir = path.join(zhushouHome, "plugins", pluginId);
   mkdirSafe(pluginDir);
   const plugin = writePlugin({
     id: pluginId,
@@ -736,10 +736,10 @@ function createEnvResolvedPluginFixture(pluginId: string) {
   });
   const env = {
     ...process.env,
-    ASSISTANT_HOME: assistantHome,
+    ZHUSHOU_HOME: zhushouHome,
     HOME: ignoredHome,
-    ASSISTANT_STATE_DIR: stateDir,
-    ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+    ZHUSHOU_STATE_DIR: stateDir,
+    ZHUSHOU_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
   };
   return { plugin, env };
 }
@@ -770,7 +770,7 @@ function expectEscapingEntryRejected(params: {
     throw err;
   }
 
-  const registry = loadAssistantPlugins({
+  const registry = loadZhushouPlugins({
     cache: false,
     config: {
       plugins: {
@@ -796,7 +796,7 @@ afterAll(() => {
   cachedBundledMemoryDir = "";
 });
 
-describe("loadAssistantPlugins", () => {
+describe("loadZhushouPlugins", () => {
   it("disables bundled plugins by default", () => {
     const bundledDir = makeTempDir();
     writePlugin({
@@ -805,9 +805,9 @@ describe("loadAssistantPlugins", () => {
       dir: bundledDir,
       filename: "bundled.cjs",
     });
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledDir;
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledDir;
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -862,7 +862,7 @@ describe("loadAssistantPlugins", () => {
           },
         },
       } satisfies PluginLoadConfig,
-      assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+      assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
         expectTelegramLoaded(registry);
       },
     },
@@ -878,7 +878,7 @@ describe("loadAssistantPlugins", () => {
           enabled: true,
         },
       } satisfies PluginLoadConfig,
-      assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+      assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
         expectTelegramLoaded(registry);
       },
     },
@@ -894,7 +894,7 @@ describe("loadAssistantPlugins", () => {
           allow: ["browser"],
         },
       } satisfies PluginLoadConfig,
-      assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+      assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
         const telegram = registry.plugins.find((entry) => entry.id === "telegram");
         expect(telegram?.status).toBe("loaded");
         expect(telegram?.error).toBeUndefined();
@@ -915,7 +915,7 @@ describe("loadAssistantPlugins", () => {
           },
         },
       } satisfies PluginLoadConfig,
-      assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+      assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
         const telegram = registry.plugins.find((entry) => entry.id === "telegram");
         expect(telegram?.status).toBe("disabled");
         expect(telegram?.error).toBe("disabled in config");
@@ -925,7 +925,7 @@ describe("loadAssistantPlugins", () => {
     "handles bundled telegram plugin enablement and override rules: $name",
     ({ config, assert }) => {
       setupBundledTelegramPlugin();
-      const registry = loadAssistantPlugins({
+      const registry = loadZhushouPlugins({
         cache: false,
         workspaceDir: cachedBundledTelegramDir,
         config,
@@ -951,7 +951,7 @@ describe("loadAssistantPlugins", () => {
       env: {},
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: cachedBundledTelegramDir,
       config: autoEnabled.config,
@@ -984,7 +984,7 @@ describe("loadAssistantPlugins", () => {
       env: {},
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: cachedBundledTelegramDir,
       config: autoEnabled.config,
@@ -1017,7 +1017,7 @@ describe("loadAssistantPlugins", () => {
       },
     } satisfies PluginLoadConfig;
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: cachedBundledTelegramDir,
       config: {
@@ -1059,7 +1059,7 @@ describe("loadAssistantPlugins", () => {
       },
     } satisfies PluginLoadConfig;
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: bundledDir,
       config,
@@ -1077,7 +1077,7 @@ describe("loadAssistantPlugins", () => {
   it("preserves package.json metadata for bundled memory plugins", () => {
     const registry = loadBundledMemoryPluginRegistry({
       packageMeta: {
-        name: "@assistant/memory-core",
+        name: "@zhushou/memory-core",
         version: "1.2.3",
         description: "Memory plugin package",
       },
@@ -1095,7 +1095,7 @@ describe("loadAssistantPlugins", () => {
     {
       label: "loads plugins from config paths",
       run: () => {
-        process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+        process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
         const plugin = writePlugin({
           id: "allowed-config-path",
           filename: "allowed-config-path.cjs",
@@ -1107,7 +1107,7 @@ describe("loadAssistantPlugins", () => {
 };`,
         });
 
-        const registry = loadAssistantPlugins({
+        const registry = loadZhushouPlugins({
           cache: false,
           workspaceDir: plugin.dir,
           config: {
@@ -1142,7 +1142,7 @@ describe("loadAssistantPlugins", () => {
 };`,
         });
 
-        const registry = loadAssistantPlugins({
+        const registry = loadZhushouPlugins({
           cache: false,
           workspaceDir: plugin.dir,
           config: {
@@ -1180,7 +1180,7 @@ describe("loadAssistantPlugins", () => {
 };`,
         });
 
-        const registry = loadAssistantPlugins({
+        const registry = loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -1214,7 +1214,7 @@ describe("loadAssistantPlugins", () => {
 module.exports = { id: "skipped-scoped-only", register() { throw new Error("skipped plugin should not load"); } };`,
         });
 
-        const registry = loadAssistantPlugins({
+        const registry = loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -1241,7 +1241,7 @@ module.exports = { id: "skipped-scoped-only", register() { throw new Error("skip
 module.exports = { id: "manifest-only-plugin", register() { throw new Error("manifest-only snapshot should not register"); } };`,
         });
 
-        const registry = loadAssistantPlugins({
+        const registry = loadZhushouPlugins({
           cache: false,
           activate: false,
           loadModules: false,
@@ -1281,7 +1281,7 @@ module.exports = { id: "manifest-only-plugin", register() { throw new Error("man
 };`,
         });
         fs.writeFileSync(
-          path.join(memoryPlugin.dir, "assistant.plugin.json"),
+          path.join(memoryPlugin.dir, "zhushou.plugin.json"),
           JSON.stringify(
             {
               id: "memory-demo",
@@ -1294,7 +1294,7 @@ module.exports = { id: "manifest-only-plugin", register() { throw new Error("man
           "utf-8",
         );
 
-        const registry = loadAssistantPlugins({
+        const registry = loadZhushouPlugins({
           cache: false,
           activate: false,
           loadModules: false,
@@ -1330,7 +1330,7 @@ module.exports = { id: "manifest-only-plugin", register() { throw new Error("man
       label: "tracks plugins as imported when module evaluation throws after top-level execution",
       run: () => {
         useNoBundledPlugins();
-        const importMarker = "__assistant_loader_import_throw_marker";
+        const importMarker = "__zhushou_loader_import_throw_marker";
         Reflect.deleteProperty(globalThis, importMarker);
 
         const plugin = writePlugin({
@@ -1341,7 +1341,7 @@ throw new Error("boom after import");
 module.exports = { id: "throws-after-import", register() {} };`,
         });
 
-        const registry = loadAssistantPlugins({
+        const registry = loadZhushouPlugins({
           cache: false,
           activate: false,
           config: {
@@ -1372,13 +1372,13 @@ module.exports = { id: "throws-after-import", register() {} };`,
       label: "fails loudly when a plugin reenters the same snapshot load during register",
       run: () => {
         useNoBundledPlugins();
-        const marker = "__assistant_loader_reentry_error";
-        const reenterFnMarker = "__assistant_loader_reentry_fn";
+        const marker = "__zhushou_loader_reentry_error";
+        const reenterFnMarker = "__zhushou_loader_reentry_fn";
         Reflect.deleteProperty(globalThis, marker);
         Reflect.set(
           globalThis,
           reenterFnMarker,
-          (options: Parameters<typeof loadAssistantPlugins>[0]) => loadAssistantPlugins(options),
+          (options: Parameters<typeof loadZhushouPlugins>[0]) => loadZhushouPlugins(options),
         );
         const pluginDir = makeTempDir();
         const pluginFile = path.join(pluginDir, "reentrant-snapshot.cjs");
@@ -1392,7 +1392,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
               allow: ["reentrant-snapshot"],
             },
           },
-        } satisfies Parameters<typeof loadAssistantPlugins>[0];
+        } satisfies Parameters<typeof loadZhushouPlugins>[0];
         writePlugin({
           id: "reentrant-snapshot",
           dir: pluginDir,
@@ -1413,7 +1413,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
 };`,
         });
 
-        const registry = loadAssistantPlugins(nestedOptions);
+        const registry = loadZhushouPlugins(nestedOptions);
 
         try {
           expect(Reflect.get(globalThis, marker)).toMatchObject({
@@ -1437,8 +1437,8 @@ module.exports = { id: "throws-after-import", register() {} };`,
       label: "lets resolveRuntimePluginRegistry short-circuit during same snapshot load",
       run: () => {
         useNoBundledPlugins();
-        const marker = "__assistant_runtime_registry_reentry_marker";
-        const resolverMarker = "__assistant_runtime_registry_reentry_fn";
+        const marker = "__zhushou_runtime_registry_reentry_marker";
+        const resolverMarker = "__zhushou_runtime_registry_reentry_fn";
         Reflect.deleteProperty(globalThis, marker);
         Reflect.set(
           globalThis,
@@ -1458,7 +1458,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
               allow: ["runtime-registry-reentry"],
             },
           },
-        } satisfies Parameters<typeof loadAssistantPlugins>[0];
+        } satisfies Parameters<typeof loadZhushouPlugins>[0];
         writePlugin({
           id: "runtime-registry-reentry",
           dir: pluginDir,
@@ -1472,7 +1472,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
 };`,
         });
 
-        const registry = loadAssistantPlugins(nestedOptions);
+        const registry = loadZhushouPlugins(nestedOptions);
 
         try {
           expect(Reflect.get(globalThis, marker)).toBe("undefined");
@@ -1510,12 +1510,12 @@ module.exports = { id: "throws-after-import", register() {} };`,
           },
         };
 
-        const full = loadAssistantPlugins(options);
-        const scoped = loadAssistantPlugins({
+        const full = loadZhushouPlugins(options);
+        const scoped = loadZhushouPlugins({
           ...options,
           onlyPluginIds: ["allowed-cache-scope"],
         });
-        const scopedAgain = loadAssistantPlugins({
+        const scopedAgain = loadZhushouPlugins({
           ...options,
           onlyPluginIds: ["allowed-cache-scope"],
         });
@@ -1542,7 +1542,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
         setActivePluginRegistry(previousRegistry, "existing-registry");
         resetGlobalHookRunner();
 
-        const scoped = loadAssistantPlugins({
+        const scoped = loadZhushouPlugins({
           cache: false,
           activate: false,
           workspaceDir: plugin.dir,
@@ -1578,7 +1578,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
       body: `module.exports = { id: "extra-empty-scope", register() {} };`,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       activate: false,
       config: {
@@ -1612,7 +1612,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
     });
     clearPluginCommands();
 
-    const scoped = loadAssistantPlugins({
+    const scoped = loadZhushouPlugins({
       cache: false,
       activate: false,
       workspaceDir: plugin.dir,
@@ -1629,7 +1629,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
     expect(scoped.commands.map((entry) => entry.command.name)).toEqual(["pair"]);
     expect(getPluginCommandSpecs("telegram")).toEqual([]);
 
-    const active = loadAssistantPlugins({
+    const active = loadZhushouPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -1671,7 +1671,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
       };`,
     });
 
-    loadAssistantPlugins({
+    loadZhushouPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -1684,7 +1684,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
     });
     expect(listAgentHarnessIds()).toEqual(["codex"]);
 
-    loadAssistantPlugins({
+    loadZhushouPlugins({
       cache: false,
       workspaceDir: makeTempDir(),
       config: {
@@ -1710,7 +1710,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
     });
 
     clearInternalHooks();
-    const scoped = loadAssistantPlugins({
+    const scoped = loadZhushouPlugins({
       cache: false,
       activate: false,
       workspaceDir: plugin.dir,
@@ -1765,8 +1765,8 @@ module.exports = { id: "throws-after-import", register() {} };`,
       onlyPluginIds: ["internal-hook-reload"],
     };
 
-    loadAssistantPlugins(loadOptions);
-    loadAssistantPlugins(loadOptions);
+    loadZhushouPlugins(loadOptions);
+    loadZhushouPlugins(loadOptions);
 
     const event = createInternalHookEvent("gateway", "startup", "gateway:startup");
     await triggerInternalHook(event);
@@ -1826,7 +1826,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
     clearPluginCommands();
     clearPluginInteractiveHandlers();
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -1860,7 +1860,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
   });
 
   it("can scope bundled provider loads to deepseek without hanging", () => {
-    const scoped = loadAssistantPlugins({
+    const scoped = loadZhushouPlugins({
       cache: false,
       activate: false,
       pluginSdkResolution: "dist",
@@ -1939,7 +1939,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
       };`,
     });
 
-    const scoped = loadAssistantPlugins({
+    const scoped = loadZhushouPlugins({
       cache: false,
       activate: false,
       workspaceDir: plugin.dir,
@@ -2004,7 +2004,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
       };`,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -2078,14 +2078,14 @@ module.exports = { id: "throws-after-import", register() {} };`,
       },
     ];
 
-    const first = loadAssistantPlugins(options);
+    const first = loadZhushouPlugins(options);
     await expect(listActiveMemoryPublicArtifacts({ cfg: {} as never })).resolves.toEqual(
       expectedArtifacts,
     );
 
     clearMemoryPluginState();
 
-    const second = loadAssistantPlugins(options);
+    const second = loadZhushouPlugins(options);
     expect(second).toBe(first);
     await expect(listActiveMemoryPublicArtifacts({ cfg: {} as never })).resolves.toEqual(
       expectedArtifacts,
@@ -2093,16 +2093,16 @@ module.exports = { id: "throws-after-import", register() {} };`,
   });
 
   it("throws when activate:false is used without cache:false", () => {
-    expect(() => loadAssistantPlugins({ activate: false })).toThrow(
+    expect(() => loadZhushouPlugins({ activate: false })).toThrow(
       "activate:false requires cache:false",
     );
-    expect(() => loadAssistantPlugins({ activate: false, cache: true })).toThrow(
+    expect(() => loadZhushouPlugins({ activate: false, cache: true })).toThrow(
       "activate:false requires cache:false",
     );
   });
 
   it("re-initializes global hook runner when serving registry from cache", () => {
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "cache-hook-runner",
       filename: "cache-hook-runner.cjs",
@@ -2119,13 +2119,13 @@ module.exports = { id: "throws-after-import", register() {} };`,
       },
     };
 
-    const first = loadAssistantPlugins(options);
+    const first = loadZhushouPlugins(options);
     expect(getGlobalHookRunner()).not.toBeNull();
 
     resetGlobalHookRunner();
     expect(getGlobalHookRunner()).toBeNull();
 
-    const second = loadAssistantPlugins(options);
+    const second = loadZhushouPlugins(options);
     expect(second).toBe(first);
     expect(getGlobalHookRunner()).not.toBeNull();
 
@@ -2167,19 +2167,19 @@ module.exports = { id: "throws-after-import", register() {} };`,
           expectedFirstSource: pluginA.file,
           expectedSecondSource: pluginB.file,
           loadFirst: () =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               ...options,
               env: {
                 ...process.env,
-                ASSISTANT_BUNDLED_PLUGINS_DIR: bundledA,
+                ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledA,
               },
             }),
           loadSecond: () =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               ...options,
               env: {
                 ...process.env,
-                ASSISTANT_BUNDLED_PLUGINS_DIR: bundledB,
+                ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledB,
               },
             }),
         };
@@ -2224,25 +2224,25 @@ module.exports = { id: "throws-after-import", register() {} };`,
           expectedFirstSource: pluginA.file,
           expectedSecondSource: pluginB.file,
           loadFirst: () =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               ...options,
               env: {
                 ...process.env,
                 HOME: homeA,
-                ASSISTANT_HOME: undefined,
-                ASSISTANT_STATE_DIR: stateDir,
-                ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
+                ZHUSHOU_HOME: undefined,
+                ZHUSHOU_STATE_DIR: stateDir,
+                ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledDir,
               },
             }),
           loadSecond: () =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               ...options,
               env: {
                 ...process.env,
                 HOME: homeB,
-                ASSISTANT_HOME: undefined,
-                ASSISTANT_STATE_DIR: stateDir,
-                ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
+                ZHUSHOU_HOME: undefined,
+                ZHUSHOU_STATE_DIR: stateDir,
+                ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledDir,
               },
             }),
         };
@@ -2264,10 +2264,10 @@ module.exports = { id: "throws-after-import", register() {} };`,
       name: "does not reuse cached registries when env-resolved install paths change",
       setup: () => {
         useNoBundledPlugins();
-        const assistantHome = makeTempDir();
+        const zhushouHome = makeTempDir();
         const ignoredHome = makeTempDir();
         const stateDir = makeTempDir();
-        const pluginDir = path.join(assistantHome, "plugins", "tracked-install-cache");
+        const pluginDir = path.join(zhushouHome, "plugins", "tracked-install-cache");
         mkdirSafe(pluginDir);
         const plugin = writePlugin({
           id: "tracked-install-cache",
@@ -2295,25 +2295,25 @@ module.exports = { id: "throws-after-import", register() {} };`,
         const secondHome = makeTempDir();
         return {
           loadFirst: () =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               ...options,
               env: {
                 ...process.env,
-                ASSISTANT_HOME: assistantHome,
+                ZHUSHOU_HOME: zhushouHome,
                 HOME: ignoredHome,
-                ASSISTANT_STATE_DIR: stateDir,
-                ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+                ZHUSHOU_STATE_DIR: stateDir,
+                ZHUSHOU_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
               },
             }),
           loadVariant: () =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               ...options,
               env: {
                 ...process.env,
-                ASSISTANT_HOME: secondHome,
+                ZHUSHOU_HOME: secondHome,
                 HOME: ignoredHome,
-                ASSISTANT_STATE_DIR: stateDir,
-                ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+                ZHUSHOU_STATE_DIR: stateDir,
+                ZHUSHOU_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
               },
             }),
         };
@@ -2342,9 +2342,9 @@ module.exports = { id: "throws-after-import", register() {} };`,
         };
 
         return {
-          loadFirst: () => loadAssistantPlugins(options),
+          loadFirst: () => loadZhushouPlugins(options),
           loadVariant: () =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               ...options,
               pluginSdkResolution: "workspace" as PluginSdkResolutionPreference,
             }),
@@ -2374,9 +2374,9 @@ module.exports = { id: "throws-after-import", register() {} };`,
         };
 
         return {
-          loadFirst: () => loadAssistantPlugins(options),
+          loadFirst: () => loadZhushouPlugins(options),
           loadVariant: () =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               ...options,
               runtimeOptions: {
                 allowGatewaySubagentBinding: true,
@@ -2403,11 +2403,11 @@ module.exports = { id: "throws-after-import", register() {} };`,
     );
 
     const loadWithStateDir = (stateDir: string) =>
-      loadAssistantPlugins({
+      loadZhushouPlugins({
         env: {
           ...process.env,
-          ASSISTANT_STATE_DIR: stateDir,
-          ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+          ZHUSHOU_STATE_DIR: stateDir,
+          ZHUSHOU_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
         },
         config: {
           plugins: {
@@ -2447,12 +2447,12 @@ module.exports = { id: "throws-after-import", register() {} };`,
       body: `module.exports = { id: "tilde-bundled", register() {} };`,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       env: {
         ...process.env,
         HOME: homeDir,
-        ASSISTANT_HOME: undefined,
-        ASSISTANT_BUNDLED_PLUGINS_DIR: override,
+        ZHUSHOU_HOME: undefined,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR: override,
       },
       config: {
         plugins: {
@@ -2469,34 +2469,34 @@ module.exports = { id: "throws-after-import", register() {} };`,
     ).toBe(fs.realpathSync(plugin.file));
   });
 
-  it("prefers ASSISTANT_HOME over HOME for env-expanded load paths", () => {
+  it("prefers ZHUSHOU_HOME over HOME for env-expanded load paths", () => {
     const ignoredHome = makeTempDir();
-    const assistantHome = makeTempDir();
+    const zhushouHome = makeTempDir();
     const stateDir = makeTempDir();
     const bundledDir = makeTempDir();
     const plugin = writePlugin({
-      id: "assistant-home-demo",
-      dir: path.join(assistantHome, "plugins", "assistant-home-demo"),
+      id: "zhushou-home-demo",
+      dir: path.join(zhushouHome, "plugins", "zhushou-home-demo"),
       filename: "index.cjs",
-      body: `module.exports = { id: "assistant-home-demo", register() {} };`,
+      body: `module.exports = { id: "zhushou-home-demo", register() {} };`,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       env: {
         ...process.env,
         HOME: ignoredHome,
-        ASSISTANT_HOME: assistantHome,
-        ASSISTANT_STATE_DIR: stateDir,
-        ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
+        ZHUSHOU_HOME: zhushouHome,
+        ZHUSHOU_STATE_DIR: stateDir,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledDir,
       },
       config: {
         plugins: {
-          allow: ["assistant-home-demo"],
+          allow: ["zhushou-home-demo"],
           entries: {
-            "assistant-home-demo": { enabled: true },
+            "zhushou-home-demo": { enabled: true },
           },
           load: {
-            paths: ["~/plugins/assistant-home-demo"],
+            paths: ["~/plugins/zhushou-home-demo"],
           },
         },
       },
@@ -2504,7 +2504,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
 
     expect(
       fs.realpathSync(
-        registry.plugins.find((entry) => entry.id === "assistant-home-demo")?.source ?? "",
+        registry.plugins.find((entry) => entry.id === "zhushou-home-demo")?.source ?? "",
       ),
     ).toBe(fs.realpathSync(plugin.file));
   });
@@ -2630,7 +2630,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
     });
 
     expect(() =>
-      loadAssistantPlugins({
+      loadZhushouPlugins({
         cache: false,
         throwOnLoadError: true,
         config: {
@@ -2707,7 +2707,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
     }
   });
 } };`,
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const channel = registry.channels.find((entry) => entry.plugin.id === "demo");
           expect(channel).toBeDefined();
         },
@@ -2753,7 +2753,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
     }
   });
 } };`,
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           expect(registry.channels.filter((entry) => entry.plugin.id === "demo")).toHaveLength(1);
           expectRegistryErrorDiagnostic({
             registry,
@@ -2768,7 +2768,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
         body: `module.exports = { id: "context-engine-core-collision", register(api) {
   api.registerContextEngine("legacy", () => ({}));
 } };`,
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           expectRegistryErrorDiagnostic({
             registry,
             pluginId: "context-engine-core-collision",
@@ -2782,7 +2782,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
         body: `module.exports = { id: "cli-missing-metadata", register(api) {
   api.registerCli(() => {});
 } };`,
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           expect(registry.cliRegistrars).toHaveLength(0);
           expectRegistryErrorDiagnostic({
             registry,
@@ -2841,7 +2841,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
         buildBody: (ownerId: string) => `module.exports = { id: "${ownerId}", register(api) {
   api.registerHook("gateway:startup", () => {}, { name: "shared-hook" });
 } };`,
-        selectCount: (registry: ReturnType<typeof loadAssistantPlugins>) =>
+        selectCount: (registry: ReturnType<typeof loadZhushouPlugins>) =>
           registry.hooks.filter((entry) => entry.entry.hook.name === "shared-hook").length,
         duplicateMessage: "hook already registered: shared-hook (hook-owner-a)",
         assert: expectDuplicateRegistrationResult,
@@ -2853,7 +2853,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
         buildBody: (ownerId: string) => `module.exports = { id: "${ownerId}", register(api) {
   api.registerService({ id: "shared-service", start() {} });
 } };`,
-        selectCount: (registry: ReturnType<typeof loadAssistantPlugins>) =>
+        selectCount: (registry: ReturnType<typeof loadZhushouPlugins>) =>
           registry.services.filter((entry) => entry.service.id === "shared-service").length,
         duplicateMessage: "service already registered: shared-service (service-owner-a)",
         assert: expectDuplicateRegistrationResult,
@@ -2868,7 +2868,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
         selectCount: () => 1,
         duplicateMessage:
           "context engine already registered: shared-context-engine-loader-test (plugin:context-engine-owner-a)",
-        assertPrimaryOwner: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assertPrimaryOwner: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           expect(
             registry.plugins.find((entry) => entry.id === "context-engine-owner-a")
               ?.contextEngineIds,
@@ -2883,10 +2883,10 @@ module.exports = { id: "throws-after-import", register() {} };`,
         buildBody: (ownerId: string) => `module.exports = { id: "${ownerId}", register(api) {
   api.registerCli(() => {}, { commands: ["shared-cli"] });
 } };`,
-        selectCount: (registry: ReturnType<typeof loadAssistantPlugins>) =>
+        selectCount: (registry: ReturnType<typeof loadZhushouPlugins>) =>
           registry.cliRegistrars.length,
         duplicateMessage: "cli command already registered: shared-cli (cli-owner-a)",
-        assertPrimaryOwner: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assertPrimaryOwner: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           expect(registry.cliRegistrars[0]?.pluginId).toBe("cli-owner-a");
         },
         assert: expectDuplicateRegistrationResult,
@@ -3009,7 +3009,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
 } };`,
           }),
         ],
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           expect(
             registry.httpRoutes.find((entry) => entry.pluginId === "http-route-missing-auth"),
           ).toBeUndefined();
@@ -3032,7 +3032,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
 } };`,
           }),
         ],
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const routes = registry.httpRoutes.filter(
             (entry) => entry.pluginId === "http-route-replace-self",
           );
@@ -3059,7 +3059,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
 } };`,
           }),
         ],
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const route = registry.httpRoutes.find((entry) => entry.path === "/demo");
           expect(route?.pluginId).toBe("http-route-owner-a");
           expect(
@@ -3081,7 +3081,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
 } };`,
           }),
         ],
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const routes = registry.httpRoutes.filter(
             (entry) => entry.pluginId === "http-route-overlap",
           );
@@ -3106,7 +3106,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
 } };`,
           }),
         ],
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const routes = registry.httpRoutes.filter(
             (entry) => entry.pluginId === "http-route-overlap-same-auth",
           );
@@ -3122,13 +3122,13 @@ module.exports = { id: "throws-after-import", register() {} };`,
   });
 
   it("respects explicit disable in config", () => {
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "config-disable",
       body: `module.exports = { id: "config-disable", register() {} };`,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -3153,8 +3153,8 @@ module.exports = { id: "throws-after-import", register() {} };`,
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@assistant/nested-default-channel",
-          assistant: {
+          name: "@zhushou/nested-default-channel",
+          zhushou: {
             extensions: ["./index.cjs"],
           },
         },
@@ -3164,7 +3164,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "assistant.plugin.json"),
+      path.join(pluginDir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "nested-default-channel",
@@ -3212,7 +3212,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
       "utf-8",
     );
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         channels: {
@@ -3250,7 +3250,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
       body: `module.exports = { id: "unrelated-plugin", register() { throw new Error("unrelated plugin should not load"); } };`,
     });
     fs.writeFileSync(
-      path.join(unrelated.dir, "assistant.plugin.json"),
+      path.join(unrelated.dir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "unrelated-plugin",
@@ -3263,7 +3263,7 @@ module.exports = { id: "throws-after-import", register() {} };`,
       "utf-8",
     );
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -3313,7 +3313,7 @@ module.exports = {
 };`,
     });
     fs.writeFileSync(
-      path.join(plugin.dir, "assistant.plugin.json"),
+      path.join(plugin.dir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "lazy-channel-plugin",
@@ -3335,7 +3335,7 @@ module.exports = {
       },
     };
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config,
     });
@@ -3346,7 +3346,7 @@ module.exports = {
       "disabled",
     );
 
-    const broadSetupRegistry = loadAssistantPlugins({
+    const broadSetupRegistry = loadZhushouPlugins({
       cache: false,
       config,
       includeSetupOnlyChannelPlugins: true,
@@ -3359,7 +3359,7 @@ module.exports = {
       broadSetupRegistry.plugins.find((entry) => entry.id === "lazy-channel-plugin")?.status,
     ).toBe("disabled");
 
-    const scopedSetupRegistry = loadAssistantPlugins({
+    const scopedSetupRegistry = loadZhushouPlugins({
       cache: false,
       config,
       includeSetupOnlyChannelPlugins: true,
@@ -3380,13 +3380,13 @@ module.exports = {
       fixture: {
         id: "setup-entry-test",
         label: "Setup Entry Test",
-        packageName: "@assistant/setup-entry-test",
+        packageName: "@zhushou/setup-entry-test",
         fullBlurb: "full entry should not run in setup-only mode",
         setupBlurb: "setup entry",
         configured: false,
       },
       load: ({ pluginDir }: { pluginDir: string }) =>
-        loadAssistantPlugins({
+        loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -3409,14 +3409,14 @@ module.exports = {
       fixture: {
         id: "setup-only-bundled-contract-test",
         label: "Setup Only Bundled Contract Test",
-        packageName: "@assistant/setup-only-bundled-contract-test",
+        packageName: "@zhushou/setup-only-bundled-contract-test",
         fullBlurb: "full entry should not run in setup-only mode",
         setupBlurb: "setup-only bundled contract",
         configured: false,
         useBundledSetupEntryContract: true,
       },
       load: ({ pluginDir }: { pluginDir: string }) =>
-        loadAssistantPlugins({
+        loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -3439,13 +3439,13 @@ module.exports = {
       fixture: {
         id: "setup-runtime-test",
         label: "Setup Runtime Test",
-        packageName: "@assistant/setup-runtime-test",
+        packageName: "@zhushou/setup-runtime-test",
         fullBlurb: "full entry should not run while unconfigured",
         setupBlurb: "setup runtime",
         configured: false,
       },
       load: ({ pluginDir }: { pluginDir: string }) =>
-        loadAssistantPlugins({
+        loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -3463,14 +3463,14 @@ module.exports = {
       fixture: {
         id: "setup-runtime-bundled-contract-test",
         label: "Setup Runtime Bundled Contract Test",
-        packageName: "@assistant/setup-runtime-bundled-contract-test",
+        packageName: "@zhushou/setup-runtime-bundled-contract-test",
         fullBlurb: "full entry should not run while unconfigured",
         setupBlurb: "setup runtime bundled contract",
         configured: false,
         useBundledSetupEntryContract: true,
       },
       load: ({ pluginDir }: { pluginDir: string }) =>
-        loadAssistantPlugins({
+        loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -3488,7 +3488,7 @@ module.exports = {
       fixture: {
         id: "setup-runtime-bundled-contract-secrets-test",
         label: "Setup Runtime Bundled Contract Secrets Test",
-        packageName: "@assistant/setup-runtime-bundled-contract-secrets-test",
+        packageName: "@zhushou/setup-runtime-bundled-contract-secrets-test",
         fullBlurb: "full entry should not run while unconfigured",
         setupBlurb: "setup runtime bundled contract secrets",
         configured: false,
@@ -3496,7 +3496,7 @@ module.exports = {
         splitBundledSetupSecrets: true,
       },
       load: ({ pluginDir }: { pluginDir: string }) =>
-        loadAssistantPlugins({
+        loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -3515,7 +3515,7 @@ module.exports = {
       fixture: {
         id: "setup-runtime-bundled-contract-runtime-test",
         label: "Setup Runtime Bundled Contract Runtime Test",
-        packageName: "@assistant/setup-runtime-bundled-contract-runtime-test",
+        packageName: "@zhushou/setup-runtime-bundled-contract-runtime-test",
         fullBlurb: "full entry should not run while unconfigured",
         setupBlurb: "setup runtime bundled contract runtime",
         configured: false,
@@ -3523,7 +3523,7 @@ module.exports = {
         bundledSetupRuntimeMarker: path.join(makeTempDir(), "setup-runtime-applied.txt"),
       },
       load: ({ pluginDir }: { pluginDir: string }) =>
-        loadAssistantPlugins({
+        loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -3542,7 +3542,7 @@ module.exports = {
       fixture: {
         id: "setup-runtime-bundled-runtime-merge-test",
         label: "Setup Runtime Bundled Runtime Merge Test",
-        packageName: "@assistant/setup-runtime-bundled-runtime-merge-test",
+        packageName: "@zhushou/setup-runtime-bundled-runtime-merge-test",
         fullBlurb: "full runtime plugin",
         setupBlurb: "setup runtime override",
         configured: false,
@@ -3551,7 +3551,7 @@ module.exports = {
         bundledFullRuntimeMarker: path.join(makeTempDir(), "bundled-runtime-applied.txt"),
       },
       load: ({ pluginDir }: { pluginDir: string }) =>
-        loadAssistantPlugins({
+        loadZhushouPlugins({
           cache: false,
           config: {
             plugins: {
@@ -3570,13 +3570,13 @@ module.exports = {
       fixture: {
         id: "setup-runtime-not-preferred-test",
         label: "Setup Runtime Not Preferred Test",
-        packageName: "@assistant/setup-runtime-not-preferred-test",
+        packageName: "@zhushou/setup-runtime-not-preferred-test",
         fullBlurb: "full entry should still load without explicit startup opt-in",
         setupBlurb: "setup runtime not preferred",
         configured: true,
       },
       load: ({ pluginDir }: { pluginDir: string }) =>
-        loadAssistantPlugins({
+        loadZhushouPlugins({
           cache: false,
           preferSetupRuntimeForChannelPlugins: true,
           config: {
@@ -3649,7 +3649,7 @@ module.exports = {
     const built = createSetupEntryChannelPluginFixture({
       id: "setup-runtime-order-test",
       label: "Setup Runtime Order Test",
-      packageName: "@assistant/setup-runtime-order-test",
+      packageName: "@zhushou/setup-runtime-order-test",
       fullBlurb: "full runtime plugin",
       setupBlurb: "setup runtime override",
       configured: false,
@@ -3659,7 +3659,7 @@ module.exports = {
       requireBundledFullRuntimeBeforeLoad: true,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -3679,7 +3679,7 @@ module.exports = {
     const built = createSetupEntryChannelPluginFixture({
       id: "setup-runtime-error-test",
       label: "Setup Runtime Error Test",
-      packageName: "@assistant/setup-runtime-error-test",
+      packageName: "@zhushou/setup-runtime-error-test",
       fullBlurb: "full runtime plugin",
       setupBlurb: "setup runtime override",
       configured: false,
@@ -3692,7 +3692,7 @@ module.exports = {
       body: `module.exports = { id: "setup-runtime-helper-test", register() {} };`,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -3719,7 +3719,7 @@ module.exports = {
       id: "setup-runtime-mismatch-test",
       bundledFullEntryId: "wrong-runtime-id",
       label: "Setup Runtime Mismatch Test",
-      packageName: "@assistant/setup-runtime-mismatch-test",
+      packageName: "@zhushou/setup-runtime-mismatch-test",
       fullBlurb: "full runtime plugin",
       setupBlurb: "setup runtime override",
       configured: false,
@@ -3728,7 +3728,7 @@ module.exports = {
       bundledFullRuntimeMarker: runtimeMarker,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -3754,7 +3754,7 @@ module.exports = {
       id: "setup-export-mismatch-test",
       bundledSetupEntryId: "wrong-setup-id",
       label: "Setup Export Mismatch Test",
-      packageName: "@assistant/setup-export-mismatch-test",
+      packageName: "@zhushou/setup-export-mismatch-test",
       fullBlurb: "full runtime plugin",
       setupBlurb: "setup runtime override",
       configured: false,
@@ -3763,7 +3763,7 @@ module.exports = {
       bundledFullRuntimeMarker: runtimeMarker,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -3793,8 +3793,8 @@ module.exports = {
       path.join(pluginDir, "package.json"),
       JSON.stringify(
         {
-          name: "@assistant/setup-entry-throws-test",
-          assistant: {
+          name: "@zhushou/setup-entry-throws-test",
+          zhushou: {
             extensions: ["./index.cjs"],
             setupEntry: "./setup-entry.cjs",
           },
@@ -3805,7 +3805,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(pluginDir, "assistant.plugin.json"),
+      path.join(pluginDir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "setup-entry-throws-test",
@@ -3833,7 +3833,7 @@ module.exports = {
       "utf-8",
     );
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -3861,8 +3861,8 @@ module.exports = {
       path.join(brokenDir, "package.json"),
       JSON.stringify(
         {
-          name: "@assistant/setup-entry-throws-sibling-test",
-          assistant: {
+          name: "@zhushou/setup-entry-throws-sibling-test",
+          zhushou: {
             extensions: ["./index.cjs"],
             setupEntry: "./setup-entry.cjs",
           },
@@ -3873,7 +3873,7 @@ module.exports = {
       "utf-8",
     );
     fs.writeFileSync(
-      path.join(brokenDir, "assistant.plugin.json"),
+      path.join(brokenDir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "setup-entry-throws-sibling-test",
@@ -3924,7 +3924,7 @@ module.exports = {
 } };`,
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -4093,7 +4093,7 @@ module.exports = {
       {
         label: "enforces memory slot selection",
         loadRegistry: () => {
-          process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+          process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
           const memoryA = writePlugin({
             id: "memory-a",
             body: memoryPluginBody("memory-a"),
@@ -4103,7 +4103,7 @@ module.exports = {
             body: memoryPluginBody("memory-b"),
           });
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             config: {
               plugins: {
@@ -4113,7 +4113,7 @@ module.exports = {
             },
           });
         },
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const a = registry.plugins.find((entry) => entry.id === "memory-a");
           const b = registry.plugins.find((entry) => entry.id === "memory-b");
           expect(b?.status).toBe("loaded");
@@ -4141,7 +4141,7 @@ module.exports = {
             body: memoryPluginBody("memory-b"),
           });
           fs.writeFileSync(
-            path.join(memoryADir, "assistant.plugin.json"),
+            path.join(memoryADir, "zhushou.plugin.json"),
             JSON.stringify(
               {
                 id: "memory-a",
@@ -4154,7 +4154,7 @@ module.exports = {
             "utf-8",
           );
           fs.writeFileSync(
-            path.join(memoryBDir, "assistant.plugin.json"),
+            path.join(memoryBDir, "zhushou.plugin.json"),
             JSON.stringify(
               {
                 id: "memory-b",
@@ -4166,9 +4166,9 @@ module.exports = {
             ),
             "utf-8",
           );
-          process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledDir;
+          process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledDir;
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             config: {
               plugins: {
@@ -4182,7 +4182,7 @@ module.exports = {
             },
           });
         },
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const a = registry.plugins.find((entry) => entry.id === "memory-a");
           const b = registry.plugins.find((entry) => entry.id === "memory-b");
           expect(a?.status).toBe("disabled");
@@ -4213,7 +4213,7 @@ module.exports = {
           });
           const openSchema = { type: "object", additionalProperties: true };
           fs.writeFileSync(
-            path.join(memoryCoreDir, "assistant.plugin.json"),
+            path.join(memoryCoreDir, "zhushou.plugin.json"),
             JSON.stringify(
               { id: "memory-core", kind: "memory", configSchema: EMPTY_PLUGIN_SCHEMA },
               null,
@@ -4222,7 +4222,7 @@ module.exports = {
             "utf-8",
           );
           fs.writeFileSync(
-            path.join(memoryLanceDir, "assistant.plugin.json"),
+            path.join(memoryLanceDir, "zhushou.plugin.json"),
             JSON.stringify(
               { id: "memory-lancedb", kind: "memory", configSchema: openSchema },
               null,
@@ -4230,9 +4230,9 @@ module.exports = {
             ),
             "utf-8",
           );
-          process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledDir;
+          process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledDir;
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             config: {
               plugins: {
@@ -4246,7 +4246,7 @@ module.exports = {
             },
           });
         },
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const core = registry.plugins.find((entry) => entry.id === "memory-core");
           const lance = registry.plugins.find((entry) => entry.id === "memory-lancedb");
           expect(core?.status).toBe("loaded");
@@ -4276,7 +4276,7 @@ module.exports = {
             body: memoryPluginBody("memory-lancedb"),
           });
           fs.writeFileSync(
-            path.join(memoryCoreDir, "assistant.plugin.json"),
+            path.join(memoryCoreDir, "zhushou.plugin.json"),
             JSON.stringify(
               { id: "memory-core", kind: "memory", configSchema: EMPTY_PLUGIN_SCHEMA },
               null,
@@ -4285,7 +4285,7 @@ module.exports = {
             "utf-8",
           );
           fs.writeFileSync(
-            path.join(memoryLanceDir, "assistant.plugin.json"),
+            path.join(memoryLanceDir, "zhushou.plugin.json"),
             JSON.stringify(
               { id: "memory-lancedb", kind: "memory", configSchema: EMPTY_PLUGIN_SCHEMA },
               null,
@@ -4293,9 +4293,9 @@ module.exports = {
             ),
             "utf-8",
           );
-          process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledDir;
+          process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledDir;
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             config: {
               plugins: {
@@ -4309,7 +4309,7 @@ module.exports = {
             },
           });
         },
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const core = registry.plugins.find((entry) => entry.id === "memory-core");
           const lance = registry.plugins.find((entry) => entry.id === "memory-lancedb");
           expect(core?.status).toBe("disabled");
@@ -4329,7 +4329,7 @@ module.exports = {
             body: `throw new Error("memory-core should not load when memory slot is none");`,
           });
           fs.writeFileSync(
-            path.join(memoryCoreDir, "assistant.plugin.json"),
+            path.join(memoryCoreDir, "zhushou.plugin.json"),
             JSON.stringify(
               { id: "memory-core", kind: "memory", configSchema: EMPTY_PLUGIN_SCHEMA },
               null,
@@ -4337,9 +4337,9 @@ module.exports = {
             ),
             "utf-8",
           );
-          process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledDir;
+          process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledDir;
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             config: {
               plugins: {
@@ -4352,7 +4352,7 @@ module.exports = {
             },
           });
         },
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const core = registry.plugins.find((entry) => entry.id === "memory-core");
           expect(core?.status).toBe("disabled");
         },
@@ -4360,13 +4360,13 @@ module.exports = {
       {
         label: "disables memory plugins when slot is none",
         loadRegistry: () => {
-          process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+          process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
           const memory = writePlugin({
             id: "memory-off",
             body: memoryPluginBody("memory-off"),
           });
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             config: {
               plugins: {
@@ -4376,7 +4376,7 @@ module.exports = {
             },
           });
         },
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           const entry = registry.plugins.find((item) => item.id === "memory-off");
           expect(entry?.status).toBe("disabled");
         },
@@ -4404,7 +4404,7 @@ module.exports = {
             body: simplePluginBody("shadow"),
           });
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             config: {
               plugins: {
@@ -4439,7 +4439,7 @@ module.exports = {
               filename: "index.cjs",
             });
 
-            return loadAssistantPlugins({
+            return loadZhushouPlugins({
               cache: false,
               config: {
                 plugins: {
@@ -4476,7 +4476,7 @@ module.exports = {
               filename: "index.cjs",
             });
 
-            return loadAssistantPlugins({
+            return loadZhushouPlugins({
               cache: false,
               config: {
                 plugins: {
@@ -4519,7 +4519,7 @@ module.exports = {
             id: "warn-open-allow-config",
             body: simplePluginBody("warn-open-allow-config"),
           });
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             logger: createWarningLogger(warnings),
             config: {
@@ -4540,7 +4540,7 @@ module.exports = {
             id: "warn-open-allow-workspace",
           });
           return (warnings: string[]) =>
-            loadAssistantPlugins({
+            loadZhushouPlugins({
               cache: false,
               workspaceDir,
               logger: createWarningLogger(warnings),
@@ -4581,7 +4581,7 @@ module.exports = {
             id: "workspace-helper",
           });
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             workspaceDir,
             config: {
@@ -4591,7 +4591,7 @@ module.exports = {
             },
           });
         },
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           expectPluginOriginAndStatus({
             registry,
             pluginId: "workspace-helper",
@@ -4610,7 +4610,7 @@ module.exports = {
             id: "workspace-helper",
           });
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             workspaceDir,
             config: {
@@ -4621,7 +4621,7 @@ module.exports = {
             },
           });
         },
-        assert: (registry: ReturnType<typeof loadAssistantPlugins>) => {
+        assert: (registry: ReturnType<typeof loadZhushouPlugins>) => {
           expectPluginOriginAndStatus({
             registry,
             pluginId: "workspace-helper",
@@ -4645,7 +4645,7 @@ module.exports = {
             id: "shadowed",
           });
 
-          return loadAssistantPlugins({
+          return loadZhushouPlugins({
             cache: false,
             workspaceDir,
             config: {
@@ -4680,7 +4680,7 @@ module.exports = {
       body: simplePluginBody("profile-aware"),
     });
     fs.writeFileSync(
-      path.join(plugin.dir, "assistant.plugin.json"),
+      path.join(plugin.dir, "zhushou.plugin.json"),
       JSON.stringify(
         {
           id: "profile-aware",
@@ -4693,7 +4693,7 @@ module.exports = {
       "utf-8",
     );
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: bundledDir,
       config: {
@@ -4721,7 +4721,7 @@ module.exports = {
       filename: "unscoped.cjs",
     });
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       config: {
         plugins: {
@@ -4755,7 +4755,7 @@ module.exports = {
             });
 
             const warnings: string[] = [];
-            const registry = loadAssistantPlugins({
+            const registry = loadZhushouPlugins({
               cache: false,
               logger: createWarningLogger(warnings),
               config: {
@@ -4773,7 +4773,7 @@ module.exports = {
         label: "warns when loaded non-bundled plugin has no provenance and no allowlist is set",
         loadRegistry: () => {
           const stateDir = makeTempDir();
-          return withEnv({ ASSISTANT_STATE_DIR: stateDir }, () => {
+          return withEnv({ ZHUSHOU_STATE_DIR: stateDir }, () => {
             const globalDir = path.join(stateDir, "extensions", "rogue");
             mkdirSafe(globalDir);
             writePlugin({
@@ -4784,7 +4784,7 @@ module.exports = {
             });
 
             const warnings: string[] = [];
-            const registry = loadAssistantPlugins({
+            const registry = loadZhushouPlugins({
               cache: false,
               logger: createWarningLogger(warnings),
               config: {
@@ -4803,7 +4803,7 @@ module.exports = {
         loadRegistry: () => {
           const { plugin, env } = createEnvResolvedPluginFixture("tracked-load-path");
           const warnings: string[] = [];
-          const registry = loadAssistantPlugins({
+          const registry = loadZhushouPlugins({
             cache: false,
             logger: createWarningLogger(warnings),
             env,
@@ -4829,7 +4829,7 @@ module.exports = {
         loadRegistry: () => {
           const { plugin, env } = createEnvResolvedPluginFixture("tracked-install-path");
           const warnings: string[] = [];
-          const registry = loadAssistantPlugins({
+          const registry = loadZhushouPlugins({
             cache: false,
             logger: createWarningLogger(warnings),
             env,
@@ -4927,8 +4927,8 @@ module.exports = {
       throw err;
     }
 
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledDir;
-    const registry = loadAssistantPlugins({
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledDir;
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: bundledDir,
       config: {
@@ -4969,7 +4969,7 @@ module.exports = {
 } };`,
     });
 
-    const registry = withEnv({ ASSISTANT_STATE_DIR: stateDir }, () =>
+    const registry = withEnv({ ZHUSHOU_STATE_DIR: stateDir }, () =>
       loadRegistryFromSinglePlugin({
         plugin,
         pluginConfig: {
@@ -4992,13 +4992,13 @@ module.exports = {
       filename: "legacy-root-import.cjs",
       body: `module.exports = {
   id: "legacy-root-import",
-  configSchema: (require("assistant/plugin-sdk").emptyPluginConfigSchema)(),
+  configSchema: (require("zhushou/plugin-sdk").emptyPluginConfigSchema)(),
         register() {},
       };`,
     });
 
-    const registry = withEnv({ ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins" }, () =>
-      loadAssistantPlugins({
+    const registry = withEnv({ ZHUSHOU_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins" }, () =>
+      loadZhushouPlugins({
         cache: false,
         workspaceDir: plugin.dir,
         config: {
@@ -5015,7 +5015,7 @@ module.exports = {
 
   it("supports legacy plugins subscribing to diagnostic events from the root sdk", async () => {
     useNoBundledPlugins();
-    const seenKey = "__assistantLegacyRootDiagnosticSeen";
+    const seenKey = "__zhushouLegacyRootDiagnosticSeen";
     delete (globalThis as Record<string, unknown>)[seenKey];
 
     const plugin = writePlugin({
@@ -5023,9 +5023,9 @@ module.exports = {
       filename: "legacy-root-diagnostic-listener.cjs",
       body: `module.exports = {
   id: "legacy-root-diagnostic-listener",
-  configSchema: (require("assistant/plugin-sdk").emptyPluginConfigSchema)(),
+  configSchema: (require("zhushou/plugin-sdk").emptyPluginConfigSchema)(),
   register() {
-    const { onDiagnosticEvent } = require("assistant/plugin-sdk");
+    const { onDiagnosticEvent } = require("zhushou/plugin-sdk");
     if (typeof onDiagnosticEvent !== "function") {
       throw new Error("missing onDiagnosticEvent root export");
     }
@@ -5042,9 +5042,9 @@ module.exports = {
 
     try {
       const registry = withEnv(
-        { ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins" },
+        { ZHUSHOU_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins" },
         () =>
-          loadAssistantPlugins({
+          loadZhushouPlugins({
             cache: false,
             workspaceDir: plugin.dir,
             config: {
@@ -5080,7 +5080,7 @@ module.exports = {
   it("suppresses trust warning logs for non-activating snapshot loads", () => {
     useNoBundledPlugins();
     const stateDir = makeTempDir();
-    withEnv({ ASSISTANT_STATE_DIR: stateDir }, () => {
+    withEnv({ ZHUSHOU_STATE_DIR: stateDir }, () => {
       const globalDir = path.join(stateDir, "extensions", "rogue");
       mkdirSafe(globalDir);
       writePlugin({
@@ -5091,7 +5091,7 @@ module.exports = {
       });
 
       const warnings: string[] = [];
-      const registry = loadAssistantPlugins({
+      const registry = loadZhushouPlugins({
         activate: false,
         cache: false,
         logger: createWarningLogger(warnings),
@@ -5138,7 +5138,7 @@ export const runtimeValue = helperValue;`,
       "utf-8",
     );
 
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {

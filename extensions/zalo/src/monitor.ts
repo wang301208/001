@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { MarkdownTableMode, AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
-import type { OutboundReplyPayload } from "assistant/plugin-sdk/reply-payload";
+import type { MarkdownTableMode, ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
+import type { OutboundReplyPayload } from "zhushou/plugin-sdk/reply-payload";
 import type { ResolvedZaloAccount } from "./accounts.js";
 import {
   ZaloApiError,
@@ -42,7 +42,7 @@ import type { ZaloRuntimeEnv } from "./monitor.types.js";
 export type ZaloMonitorOptions = {
   token: string;
   account: ResolvedZaloAccount;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   runtime: ZaloRuntimeEnv;
   abortSignal: AbortSignal;
   useWebhook?: boolean;
@@ -63,7 +63,7 @@ type ZaloStatusSink = (patch: { lastInboundAt?: number; lastOutboundAt?: number 
 type ZaloProcessingContext = {
   token: string;
   account: ResolvedZaloAccount;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
   statusSink?: ZaloStatusSink;
@@ -580,7 +580,7 @@ async function deliverZaloReply(params: {
   chatId: string;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   accountId?: string;
   statusSink?: ZaloStatusSink;
   fetcher?: ZaloFetch;

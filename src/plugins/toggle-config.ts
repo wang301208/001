@@ -1,15 +1,15 @@
 import { normalizeChatChannelId } from "../channels/ids.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export function setPluginEnabledInConfig(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   pluginId: string,
   enabled: boolean,
-): AssistantConfig {
+): ZhushouConfig {
   const builtInChannelId = normalizeChatChannelId(pluginId);
   const resolvedId = builtInChannelId ?? pluginId;
 
-  const next: AssistantConfig = {
+  const next: ZhushouConfig = {
     ...config,
     plugins: {
       ...config.plugins,

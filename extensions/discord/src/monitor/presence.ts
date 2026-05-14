@@ -1,6 +1,6 @@
 import type { Activity, UpdatePresenceData } from "@buape/carbon/gateway";
-import type { DiscordAccountConfig } from "assistant/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import type { DiscordAccountConfig } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 
 const DEFAULT_CUSTOM_ACTIVITY_TYPE = 4;
 const CUSTOM_STATUS_NAME = "Custom Status";

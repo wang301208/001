@@ -90,13 +90,13 @@ if (isMain) {
   installUnhandledRejectionHandler();
 
   process.on("uncaughtException", (error) => {
-    console.error("[assistant] Uncaught exception:", formatUncaughtError(error));
+    console.error("[zhushou] Uncaught exception:", formatUncaughtError(error));
     restoreTerminalState("uncaught exception", { resumeStdinIfPaused: false });
     process.exit(1);
   });
 
   void runLegacyCliEntry(process.argv).catch((err) => {
-    console.error("[assistant] CLI failed:", formatUncaughtError(err));
+    console.error("[zhushou] CLI failed:", formatUncaughtError(err));
     restoreTerminalState("legacy cli failure", { resumeStdinIfPaused: false });
     process.exit(1);
   });

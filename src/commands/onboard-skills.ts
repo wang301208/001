@@ -1,7 +1,7 @@
 import { installSkill } from "../agents/skills-install.js";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
@@ -31,10 +31,10 @@ function formatSkillHint(skill: {
 }
 
 function upsertSkillEntry(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   skillKey: string,
   patch: { apiKey?: string },
-): AssistantConfig {
+): ZhushouConfig {
   const entries = { ...cfg.skills?.entries };
   const existing = (entries[skillKey] as { apiKey?: string } | undefined) ?? {};
   entries[skillKey] = { ...existing, ...patch };
@@ -48,11 +48,11 @@ function upsertSkillEntry(
 }
 
 export async function setupSkills(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   workspaceDir: string,
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
-): Promise<AssistantConfig> {
+): Promise<ZhushouConfig> {
   const report = buildWorkspaceSkillStatus(workspaceDir, { config: cfg });
   const eligible = report.skills.filter((s) => s.eligible);
   const unsupportedOs = report.skills.filter(
@@ -84,7 +84,7 @@ export async function setupSkills(
   const installable = missing.filter(
     (skill) => skill.install.length > 0 && skill.missing.bins.length > 0,
   );
-  let next: AssistantConfig = cfg;
+  let next: ZhushouConfig = cfg;
   if (installable.length > 0) {
     const toInstall = await prompter.multiselect({
       message: "Install missing skill dependencies",
@@ -192,9 +192,9 @@ export async function setupSkills(
         runtime.log(result.stdout.trim());
       }
       runtime.log(
-        `Tip: run \`${formatCliCommand("assistant doctor")}\` to review skills + requirements.`,
+        `Tip: run \`${formatCliCommand("zhushou doctor")}\` to review skills + requirements.`,
       );
-      runtime.log("Docs: https://docs.assistant.ai/skills");
+      runtime.log("Docs: https://docs.zhushou.ai/skills");
     }
   }
 

@@ -6,17 +6,17 @@ import {
   prepareScopedSetupConfig,
   type ChannelSetupAdapter,
   type DmPolicy,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/setup";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/setup";
 import { applyBlueBubblesConnectionConfig } from "./config-apply.js";
 
 const channel = "bluebubbles" as const;
 
 export function setBlueBubblesDmPolicy(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   dmPolicy: DmPolicy,
-): AssistantConfig {
+): ZhushouConfig {
   const resolvedAccountId = normalizeAccountId(accountId);
   const existingAllowFrom =
     resolvedAccountId === "default"
@@ -40,10 +40,10 @@ export function setBlueBubblesDmPolicy(
 }
 
 export function setBlueBubblesAllowFrom(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   allowFrom: string[],
-): AssistantConfig {
+): ZhushouConfig {
   return patchScopedAccountConfig({
     cfg,
     channelKey: channel,

@@ -44,8 +44,8 @@ export type {
   AnyAgentTool,
   CliBackendPlugin,
   MediaUnderstandingProviderPlugin,
-  AssistantPluginApi,
-  AssistantPluginConfigSchema,
+  ZhushouPluginApi,
+  ZhushouPluginConfigSchema,
   PluginLogger,
   ProviderAuthContext,
   ProviderAuthResult,
@@ -76,7 +76,7 @@ export type {
   TaskRunDetail,
   TaskRunView,
 } from "../plugins/runtime/task-domain-types.js";
-export type { AssistantConfig } from "../config/config.js";
+export type { ZhushouConfig } from "../config/config.js";
 export type {
   MemoryPluginCapability,
   MemoryPluginPublicArtifact,

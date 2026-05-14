@@ -1,12 +1,12 @@
-export { definePluginEntry } from "assistant/plugin-sdk/core";
+export { definePluginEntry } from "zhushou/plugin-sdk/core";
 export type {
   AnyAgentTool,
-  AssistantPluginApi,
-  AssistantPluginToolContext,
-  AssistantPluginToolFactory,
-} from "assistant/plugin-sdk/core";
+  ZhushouPluginApi,
+  ZhushouPluginToolContext,
+  ZhushouPluginToolFactory,
+} from "zhushou/plugin-sdk/core";
 export {
   applyWindowsSpawnProgramPolicy,
   materializeWindowsSpawnProgram,
   resolveWindowsSpawnProgramCandidate,
-} from "assistant/plugin-sdk/windows-spawn";
+} from "zhushou/plugin-sdk/windows-spawn";

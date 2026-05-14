@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/amazon-bedrock-provider",
+  "name": "@zhushou/amazon-bedrock-provider",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Amazon Bedrock provider plugin",
@@ -10,9 +10,9 @@
     "@aws-sdk/credential-provider-node": "3.972.30"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "bundle": {
       "stageRuntimeDependencies": true
     },

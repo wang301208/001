@@ -54,24 +54,24 @@ export function registerAgentCommands(program: Command, args: { agentChannelOpti
         `
 ${theme.heading("Examples:")}
 ${formatHelpExamples([
-  ['assistant agent --to +15555550123 --message "status update"', "Start a new session."],
-  ['assistant agent --agent ops --message "Summarize logs"', "Use a specific agent."],
+  ['zhushou agent --to +15555550123 --message "status update"', "Start a new session."],
+  ['zhushou agent --agent ops --message "Summarize logs"', "Use a specific agent."],
   [
-    'assistant agent --session-id 1234 --message "Summarize inbox" --thinking medium',
+    'zhushou agent --session-id 1234 --message "Summarize inbox" --thinking medium',
     "Target a session with explicit thinking level.",
   ],
   [
-    'assistant agent --to +15555550123 --message "Trace logs" --verbose on --json',
+    'zhushou agent --to +15555550123 --message "Trace logs" --verbose on --json',
     "Enable verbose logging and JSON output.",
   ],
-  ['assistant agent --to +15555550123 --message "Summon reply" --deliver', "Deliver reply."],
+  ['zhushou agent --to +15555550123 --message "Summon reply" --deliver', "Deliver reply."],
   [
-    'assistant agent --agent ops --message "Generate report" --deliver --reply-channel slack --reply-to "#reports"',
+    'zhushou agent --agent ops --message "Generate report" --deliver --reply-channel slack --reply-to "#reports"',
     "Send reply to a different channel/target.",
   ],
 ])}
 
-${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.assistant.ai/cli/agent")}`,
+${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agent")}`,
     )
     .action(async (opts) => {
       const verboseLevel =
@@ -90,7 +90,7 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.assistant.ai/cli/ag
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/agents", "docs.assistant.ai/cli/agents")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/agents", "docs.zhushou.ai/cli/agents")}\n`,
     );
 
   agents
@@ -221,14 +221,14 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.assistant.ai/cli/ag
         `
 ${theme.heading("Examples:")}
 ${formatHelpExamples([
-  ['assistant agents set-identity --agent main --name "助手" --emoji "🤖"', "Set name + emoji."],
-  ["assistant agents set-identity --agent main --avatar avatars/assistant.png", "Set avatar path."],
+  ['zhushou agents set-identity --agent main --name "助手" --emoji "🤖"', "Set name + emoji."],
+  ["zhushou agents set-identity --agent main --avatar avatars/zhushou.png", "Set avatar path."],
   [
-    "assistant agents set-identity --workspace ~/.assistant/workspace --from-identity",
+    "zhushou agents set-identity --workspace ~/.zhushou/workspace --from-identity",
     "Load from IDENTITY.md.",
   ],
   [
-    "assistant agents set-identity --identity-file ~/.assistant/workspace/IDENTITY.md --agent main",
+    "zhushou agents set-identity --identity-file ~/.zhushou/workspace/IDENTITY.md --agent main",
     "Use a specific IDENTITY.md.",
   ],
 ])}

@@ -7,9 +7,9 @@ describe("SUPERVISOR_HINT_ENV_VARS", () => {
       expect.arrayContaining([
         "LAUNCH_JOB_LABEL",
         "INVOCATION_ID",
-        "ASSISTANT_WINDOWS_TASK_NAME",
-        "ASSISTANT_SERVICE_MARKER",
-        "ASSISTANT_SERVICE_KIND",
+        "ZHUSHOU_WINDOWS_TASK_NAME",
+        "ZHUSHOU_SERVICE_MARKER",
+        "ZHUSHOU_SERVICE_KIND",
       ]),
     );
   });
@@ -17,7 +17,7 @@ describe("SUPERVISOR_HINT_ENV_VARS", () => {
 
 describe("detectRespawnSupervisor", () => {
   it("detects launchd and systemd only from non-blank platform-specific hints", () => {
-    expect(detectRespawnSupervisor({ LAUNCH_JOB_LABEL: " ai.assistant.gateway " }, "darwin")).toBe(
+    expect(detectRespawnSupervisor({ LAUNCH_JOB_LABEL: " ai.zhushou.gateway " }, "darwin")).toBe(
       "launchd",
     );
     expect(detectRespawnSupervisor({ LAUNCH_JOB_LABEL: "   " }, "darwin")).toBeNull();
@@ -28,13 +28,13 @@ describe("detectRespawnSupervisor", () => {
 
   it("detects scheduled-task supervision on Windows from either hint family", () => {
     expect(
-      detectRespawnSupervisor({ ASSISTANT_WINDOWS_TASK_NAME: "Assistant Gateway" }, "win32"),
+      detectRespawnSupervisor({ ZHUSHOU_WINDOWS_TASK_NAME: "Zhushou Gateway" }, "win32"),
     ).toBe("schtasks");
     expect(
       detectRespawnSupervisor(
         {
-          ASSISTANT_SERVICE_MARKER: "assistant",
-          ASSISTANT_SERVICE_KIND: "gateway",
+          ZHUSHOU_SERVICE_MARKER: "zhushou",
+          ZHUSHOU_SERVICE_KIND: "gateway",
         },
         "win32",
       ),
@@ -42,8 +42,8 @@ describe("detectRespawnSupervisor", () => {
     expect(
       detectRespawnSupervisor(
         {
-          ASSISTANT_SERVICE_MARKER: "assistant",
-          ASSISTANT_SERVICE_KIND: "worker",
+          ZHUSHOU_SERVICE_MARKER: "zhushou",
+          ZHUSHOU_SERVICE_KIND: "worker",
         },
         "win32",
       ),
@@ -54,14 +54,14 @@ describe("detectRespawnSupervisor", () => {
     expect(
       detectRespawnSupervisor(
         {
-          ASSISTANT_SERVICE_MARKER: "assistant",
-          ASSISTANT_SERVICE_KIND: "gateway",
+          ZHUSHOU_SERVICE_MARKER: "zhushou",
+          ZHUSHOU_SERVICE_KIND: "gateway",
         },
         "linux",
       ),
     ).toBeNull();
     expect(
-      detectRespawnSupervisor({ LAUNCH_JOB_LABEL: "ai.assistant.gateway" }, "freebsd"),
+      detectRespawnSupervisor({ LAUNCH_JOB_LABEL: "ai.zhushou.gateway" }, "freebsd"),
     ).toBeNull();
   });
 });

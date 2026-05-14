@@ -261,7 +261,7 @@ async function monitorWithAutoAbort(opts: Omit<MonitorTelegramOpts, "abortSignal
   });
 }
 
-vi.mock("assistant/plugin-sdk/config-runtime", async () => {
+vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
   return {
     loadConfig,
     resolveAgentMaxConcurrent: (cfg: { agents?: { defaults?: { maxConcurrent?: number } } }) =>
@@ -306,9 +306,9 @@ vi.mock("@grammyjs/runner", () => ({
   run: runSpy,
 }));
 
-vi.mock("assistant/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/runtime-env")>(
-    "assistant/plugin-sdk/runtime-env",
+vi.mock("zhushou/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/runtime-env")>(
+    "zhushou/plugin-sdk/runtime-env",
   );
   return {
     ...actual,

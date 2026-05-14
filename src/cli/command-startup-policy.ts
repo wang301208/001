@@ -29,7 +29,7 @@ export function shouldHideCliBannerForCommandPath(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   return (
-    isTruthyEnvValue(env.ASSISTANT_HIDE_BANNER) ||
+    isTruthyEnvValue(env.ZHUSHOU_HIDE_BANNER) ||
     resolveCliCommandPathPolicy(commandPath).hideBanner
   );
 }

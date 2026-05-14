@@ -1,6 +1,6 @@
 export { ensureAuthProfileStore } from "../../agents/auth-profiles.runtime.js";
-export { ensureAssistantModelsJson } from "../../agents/models-config.js";
-export { resolveAssistantAgentDir } from "../../agents/agent-paths.js";
+export { ensureZhushouModelsJson } from "../../agents/models-config.js";
+export { resolveZhushouAgentDir } from "../../agents/agent-paths.js";
 export { listProfilesForProvider } from "../../agents/auth-profiles.js";
 export {
   hasUsableCustomProviderApiKey,

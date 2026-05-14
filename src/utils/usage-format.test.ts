@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   __resetGatewayModelPricingCacheForTest,
   __setGatewayModelPricingForTest,
@@ -16,21 +16,21 @@ import {
 } from "./usage-format.js";
 
 describe("usage-format", () => {
-  const originalAgentDir = process.env.ASSISTANT_AGENT_DIR;
+  const originalAgentDir = process.env.ZHUSHOU_AGENT_DIR;
   let agentDir: string;
 
   beforeEach(async () => {
-    agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-usage-format-"));
-    process.env.ASSISTANT_AGENT_DIR = agentDir;
+    agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-usage-format-"));
+    process.env.ZHUSHOU_AGENT_DIR = agentDir;
     __resetUsageFormatCachesForTest();
     __resetGatewayModelPricingCacheForTest();
   });
 
   afterEach(async () => {
     if (originalAgentDir === undefined) {
-      delete process.env.ASSISTANT_AGENT_DIR;
+      delete process.env.ZHUSHOU_AGENT_DIR;
     } else {
-      process.env.ASSISTANT_AGENT_DIR = originalAgentDir;
+      process.env.ZHUSHOU_AGENT_DIR = originalAgentDir;
     }
     __resetUsageFormatCachesForTest();
     __resetGatewayModelPricingCacheForTest();
@@ -66,7 +66,7 @@ describe("usage-format", () => {
           },
         },
       },
-    } as unknown as AssistantConfig;
+    } as unknown as ZhushouConfig;
 
     const cost = resolveModelCostConfig({
       provider: "test",
@@ -105,7 +105,7 @@ describe("usage-format", () => {
     ).toBeUndefined();
   });
 
-  it("prefers models.json pricing over assistant config and cached pricing", async () => {
+  it("prefers models.json pricing over zhushou config and cached pricing", async () => {
     const config = {
       models: {
         providers: {
@@ -119,7 +119,7 @@ describe("usage-format", () => {
           },
         },
       },
-    } as unknown as AssistantConfig;
+    } as unknown as ZhushouConfig;
 
     await fs.writeFile(
       path.join(agentDir, "models.json"),
@@ -164,7 +164,7 @@ describe("usage-format", () => {
     });
   });
 
-  it("falls back to assistant config pricing when models.json is absent", () => {
+  it("falls back to zhushou config pricing when models.json is absent", () => {
     const config = {
       models: {
         providers: {
@@ -178,7 +178,7 @@ describe("usage-format", () => {
           },
         },
       },
-    } as unknown as AssistantConfig;
+    } as unknown as ZhushouConfig;
 
     __setGatewayModelPricingForTest([
       {
@@ -238,7 +238,7 @@ describe("usage-format", () => {
           },
         },
       },
-    } as unknown as AssistantConfig;
+    } as unknown as ZhushouConfig;
 
     expect(
       resolveModelCostConfig({

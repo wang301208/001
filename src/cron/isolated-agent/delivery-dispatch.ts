@@ -11,7 +11,7 @@ import {
   resolveAgentMainSessionKey,
   resolveMainSessionKey,
 } from "../../config/sessions/main-session.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { sleepWithAbort } from "../../infra/backoff.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import type { OutboundDeliveryResult } from "../../infra/outbound/deliver.js";
@@ -96,8 +96,8 @@ export function resolveCronDeliveryBestEffort(job: CronJob): boolean {
 export type SuccessfulDeliveryTarget = Extract<DeliveryTargetResolution, { ok: true }>;
 
 type DispatchCronDeliveryParams = {
-  cfg: AssistantConfig;
-  cfgWithAgentDefaults: AssistantConfig;
+  cfg: ZhushouConfig;
+  cfgWithAgentDefaults: ZhushouConfig;
   deps: CliDeps;
   job: CronJob;
   agentId: string;
@@ -238,7 +238,7 @@ function cloneDeliveryResults(
 }
 
 function pruneCompletedDirectCronDeliveries(now: number) {
-  const ttlMs = process.env.ASSISTANT_TEST_FAST === "1" ? 60_000 : 24 * 60 * 60 * 1000;
+  const ttlMs = process.env.ZHUSHOU_TEST_FAST === "1" ? 60_000 : 24 * 60 * 60 * 1000;
   for (const [key, entry] of COMPLETED_DIRECT_CRON_DELIVERIES) {
     if (now - entry.ts >= ttlMs) {
       COMPLETED_DIRECT_CRON_DELIVERIES.delete(key);
@@ -318,7 +318,7 @@ function shouldQueueCronAwareness(job: CronJob, deliveryBestEffort: boolean): bo
 }
 
 function resolveCronAwarenessMainSessionKey(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
 }): string {
   return params.cfg.session?.scope === "global"
@@ -327,7 +327,7 @@ function resolveCronAwarenessMainSessionKey(params: {
 }
 
 async function queueCronAwarenessSystemEvent(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   jobId: string;
   agentId: string;
   deliveryIdempotencyKey: string;
@@ -393,7 +393,7 @@ function isTransientDirectCronDeliveryError(error: unknown): boolean {
 }
 
 function resolveDirectCronRetryDelaysMs(): readonly number[] {
-  return process.env.NODE_ENV === "test" && process.env.ASSISTANT_TEST_FAST === "1"
+  return process.env.NODE_ENV === "test" && process.env.ZHUSHOU_TEST_FAST === "1"
     ? [8, 16, 32]
     : [5_000, 10_000, 20_000];
 }
@@ -600,7 +600,7 @@ export async function dispatchCronDelivery(
           // Keep all attempts out of the write-ahead delivery queue so a
           // late-successful first send cannot leave behind a failed queue
           // entry that replays on the next restart.
-          // See: https://github.com/assistant/assistant/issues/40545
+          // See: https://github.com/wang301208/zhushou/issues/40545
           skipQueue: true,
         });
       const deliveryResults = options?.retryTransient

@@ -320,7 +320,7 @@ describe("cron tool", () => {
     const text = readCronPayloadText(1);
     expect(text).toContain("Recent context:");
     expect(text).toContain("User: Discussed Q2 budget");
-    expect(text).toContain("Assistant: We agreed to review on Tuesday.");
+    expect(text).toContain("Zhushou: We agreed to review on Tuesday.");
     expect(text).toContain("User: Remind me about the thing at 2pm");
   });
 

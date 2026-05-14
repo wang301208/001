@@ -6,14 +6,14 @@ import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { normalizeStringEntries } from "../shared/string-normalization.js";
 import { isRecord, resolveConfigDir, resolveUserPath } from "../utils.js";
 import type { PluginAutoEnableCandidate } from "./plugin-auto-enable.types.js";
-import type { AssistantConfig } from "./types.assistant.js";
+import type { ZhushouConfig } from "./types.zhushou.js";
 
 type ExternalCatalogChannelEntry = {
   id: string;
   preferOver: string[];
 };
 
-const ENV_CATALOG_PATHS = ["ASSISTANT_PLUGIN_CATALOG_PATHS", "ASSISTANT_MPM_CATALOG_PATHS"];
+const ENV_CATALOG_PATHS = ["ZHUSHOU_PLUGIN_CATALOG_PATHS", "ZHUSHOU_MPM_CATALOG_PATHS"];
 
 function splitEnvPaths(value: string): string[] {
   const trimmed = normalizeOptionalString(value) ?? "";
@@ -54,10 +54,10 @@ function parseExternalCatalogChannelEntries(raw: unknown): ExternalCatalogChanne
 
   const channels: ExternalCatalogChannelEntry[] = [];
   for (const entry of list) {
-    if (!isRecord(entry) || !isRecord(entry.assistant) || !isRecord(entry.assistant.channel)) {
+    if (!isRecord(entry) || !isRecord(entry.zhushou) || !isRecord(entry.zhushou.channel)) {
       continue;
     }
-    const channel = entry.assistant.channel;
+    const channel = entry.zhushou.channel;
     const id = normalizeOptionalString(channel.id) ?? "";
     if (!id) {
       continue;
@@ -127,13 +127,13 @@ function getPluginAutoEnableCandidateCacheKey(candidate: PluginAutoEnableCandida
 }
 
 export function shouldSkipPreferredPluginAutoEnable(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   entry: PluginAutoEnableCandidate;
   configured: readonly PluginAutoEnableCandidate[];
   env: NodeJS.ProcessEnv;
   registry: PluginManifestRegistry;
-  isPluginDenied: (config: AssistantConfig, pluginId: string) => boolean;
-  isPluginExplicitlyDisabled: (config: AssistantConfig, pluginId: string) => boolean;
+  isPluginDenied: (config: ZhushouConfig, pluginId: string) => boolean;
+  isPluginExplicitlyDisabled: (config: ZhushouConfig, pluginId: string) => boolean;
   preferOverCache: Map<string, string[]>;
 }): boolean {
   const getPreferredOverIds = (candidate: PluginAutoEnableCandidate): string[] => {

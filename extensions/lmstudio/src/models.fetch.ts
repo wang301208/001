@@ -1,7 +1,7 @@
-import { createSubsystemLogger } from "assistant/plugin-sdk/logging-core";
-import type { ModelDefinitionConfig } from "assistant/plugin-sdk/provider-model-shared";
-import { SELF_HOSTED_DEFAULT_COST } from "assistant/plugin-sdk/provider-setup";
-import { fetchWithSsrFGuard, type SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/logging-core";
+import type { ModelDefinitionConfig } from "zhushou/plugin-sdk/provider-model-shared";
+import { SELF_HOSTED_DEFAULT_COST } from "zhushou/plugin-sdk/provider-setup";
+import { fetchWithSsrFGuard, type SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
 import { LMSTUDIO_DEFAULT_LOAD_CONTEXT_LENGTH } from "./defaults.js";
 import {
   buildLmstudioModelName,

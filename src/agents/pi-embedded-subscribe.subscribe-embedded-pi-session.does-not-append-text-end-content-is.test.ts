@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createTextEndBlockReplyHarness,
-  emitAssistantTextDelta,
-  emitAssistantTextEnd,
+  emitZhushouTextDelta,
+  emitZhushouTextEnd,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 
 describe("subscribeEmbeddedPiSession", () => {
@@ -11,11 +11,11 @@ describe("subscribeEmbeddedPiSession", () => {
     const { emit, subscription } = createTextEndBlockReplyHarness({ onBlockReply });
 
     const emitDelta = (delta: string) => {
-      emitAssistantTextDelta({ emit, delta });
+      emitZhushouTextDelta({ emit, delta });
     };
 
     const emitTextEnd = (content: string) => {
-      emitAssistantTextEnd({ emit, content });
+      emitZhushouTextEnd({ emit, content });
     };
 
     return { onBlockReply, subscription, emitDelta, emitTextEnd };
@@ -50,6 +50,6 @@ describe("subscribeEmbeddedPiSession", () => {
     await vi.waitFor(() => {
       expect(onBlockReply).toHaveBeenCalledTimes(1);
     });
-    expect(subscription.assistantTexts).toEqual([expected]);
+    expect(subscription.zhushouTexts).toEqual([expected]);
   });
 });

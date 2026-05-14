@@ -1,7 +1,7 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { AssistantMessage, ToolResultMessage } from "@mariozechner/pi-ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { makeAgentAssistantMessage } from "./test-helpers/agent-message-fixtures.js";
+import { makeAgentZhushouMessage } from "./test-helpers/agent-message-fixtures.js";
 
 const piCodingAgentMocks = vi.hoisted(() => ({
   generateSummary: vi.fn(async () => "summary"),
@@ -27,8 +27,8 @@ async function loadFreshCompactionModuleForTest() {
   ({ isOversizedForSummary, summarizeWithFallback } = await import("./compaction.js"));
 }
 
-function makeAssistantToolCall(timestamp: number): AssistantMessage {
-  return makeAgentAssistantMessage({
+function makeZhushouToolCall(timestamp: number): AssistantMessage {
+  return makeAgentZhushouMessage({
     content: [{ type: "toolCall", id: "call_1", name: "browser", arguments: { action: "tabs" } }],
     model: "gpt-5.4",
     stopReason: "toolUse",
@@ -58,7 +58,7 @@ describe("compaction toolResult details stripping", () => {
   });
 
   it("does not pass toolResult.details into generateSummary", async () => {
-    const messages: AgentMessage[] = [makeAssistantToolCall(1), makeToolResultWithDetails(2)];
+    const messages: AgentMessage[] = [makeZhushouToolCall(1), makeToolResultWithDetails(2)];
 
     const summary = await summarizeWithFallback({
       messages,

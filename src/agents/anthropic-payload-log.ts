@@ -39,8 +39,8 @@ const writers = new Map<string, PayloadLogWriter>();
 const log = createSubsystemLogger("agent/anthropic-payload");
 
 function resolvePayloadLogConfig(env: NodeJS.ProcessEnv): PayloadLogConfig {
-  const enabled = parseBooleanValue(env.ASSISTANT_ANTHROPIC_PAYLOAD_LOG) ?? false;
-  const fileOverride = env.ASSISTANT_ANTHROPIC_PAYLOAD_LOG_FILE?.trim();
+  const enabled = parseBooleanValue(env.ZHUSHOU_ANTHROPIC_PAYLOAD_LOG) ?? false;
+  const fileOverride = env.ZHUSHOU_ANTHROPIC_PAYLOAD_LOG_FILE?.trim();
   const filePath = fileOverride
     ? resolveUserPath(fileOverride)
     : path.join(resolveStateDir(env), "logs", "anthropic-payload.jsonl");
@@ -79,7 +79,7 @@ function isAnthropicModel(model: Model<Api> | undefined | null): boolean {
   return (model as { api?: unknown })?.api === "anthropic-messages";
 }
 
-function findLastAssistantUsage(messages: AgentMessage[]): Record<string, unknown> | null {
+function findLastZhushouUsage(messages: AgentMessage[]): Record<string, unknown> | null {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const msg = messages[i] as { role?: unknown; usage?: unknown };
     if (msg?.role === "assistant" && msg.usage && typeof msg.usage === "object") {
@@ -156,7 +156,7 @@ export function createAnthropicPayloadLogger(params: {
   };
 
   const recordUsage: AnthropicPayloadLogger["recordUsage"] = (messages, error) => {
-    const usage = findLastAssistantUsage(messages);
+    const usage = findLastZhushouUsage(messages);
     const errorMessage = formatError(error);
     if (!usage) {
       if (errorMessage) {

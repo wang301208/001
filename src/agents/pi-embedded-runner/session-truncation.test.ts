@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 import { afterEach, describe, expect, it } from "vitest";
-import { makeAgentAssistantMessage } from "../test-helpers/agent-message-fixtures.js";
+import { makeAgentZhushouMessage } from "../test-helpers/agent-message-fixtures.js";
 import { truncateSessionAfterCompaction } from "./session-truncation.js";
 
 let tmpDir: string;
@@ -19,8 +19,8 @@ afterEach(async () => {
   }
 });
 
-function makeAssistant(text: string, timestamp: number) {
-  return makeAgentAssistantMessage({
+function makeZhushou(text: string, timestamp: number) {
+  return makeAgentZhushouMessage({
     content: [{ type: "text", text }],
     timestamp,
   });
@@ -30,9 +30,9 @@ function createSessionWithCompaction(sessionDir: string): string {
   const sm = SessionManager.create(sessionDir, sessionDir);
   // Add messages before compaction
   sm.appendMessage({ role: "user", content: "hello", timestamp: 1 });
-  sm.appendMessage(makeAssistant("hi there", 2));
+  sm.appendMessage(makeZhushou("hi there", 2));
   sm.appendMessage({ role: "user", content: "do something", timestamp: 3 });
-  sm.appendMessage(makeAssistant("done", 4));
+  sm.appendMessage(makeZhushou("done", 4));
 
   // Add compaction (summarizing the above)
   const branch = sm.getBranch();
@@ -41,7 +41,7 @@ function createSessionWithCompaction(sessionDir: string): string {
 
   // Add messages after compaction
   sm.appendMessage({ role: "user", content: "next task", timestamp: 5 });
-  sm.appendMessage(makeAssistant("working on it", 6));
+  sm.appendMessage(makeZhushou("working on it", 6));
 
   return sm.getSessionFile()!;
 }
@@ -85,7 +85,7 @@ describe("truncateSessionAfterCompaction", () => {
     const sm = SessionManager.create(dir, dir);
     // appendMessage implicitly creates the session file
     sm.appendMessage({ role: "user", content: "hello", timestamp: 1 });
-    sm.appendMessage(makeAssistant("hi", 2));
+    sm.appendMessage(makeZhushou("hi", 2));
     sm.appendMessage({ role: "user", content: "bye", timestamp: 3 });
     const sessionFile = sm.getSessionFile()!;
 
@@ -133,13 +133,13 @@ describe("truncateSessionAfterCompaction", () => {
 
     // First cycle: messages + compaction
     sm.appendMessage({ role: "user", content: "cycle 1 message 1", timestamp: 1 });
-    sm.appendMessage(makeAssistant("response 1", 2));
+    sm.appendMessage(makeZhushou("response 1", 2));
     const branch1 = sm.getBranch();
     sm.appendCompaction("Summary of cycle 1.", branch1[branch1.length - 1].id, 3000);
 
     // Second cycle: more messages + another compaction
     sm.appendMessage({ role: "user", content: "cycle 2 message 1", timestamp: 3 });
-    sm.appendMessage(makeAssistant("response 2", 4));
+    sm.appendMessage(makeZhushou("response 2", 4));
     const branch2 = sm.getBranch();
     sm.appendCompaction("Summary of cycles 1 and 2.", branch2[branch2.length - 1].id, 6000);
 
@@ -183,7 +183,7 @@ describe("truncateSessionAfterCompaction", () => {
 
     // Messages before compaction
     sm.appendMessage({ role: "user", content: "hello", timestamp: 1 });
-    sm.appendMessage(makeAssistant("hi", 2));
+    sm.appendMessage(makeZhushou("hi", 2));
 
     // Non-message state entries interleaved with messages
     sm.appendModelChange("anthropic", "claude-sonnet-4-5-20250514");
@@ -192,7 +192,7 @@ describe("truncateSessionAfterCompaction", () => {
     sm.appendSessionInfo("my session");
 
     sm.appendMessage({ role: "user", content: "do task", timestamp: 3 });
-    sm.appendMessage(makeAssistant("done", 4));
+    sm.appendMessage(makeZhushou("done", 4));
 
     // Compaction summarizing the conversation
     const branch = sm.getBranch();
@@ -239,9 +239,9 @@ describe("truncateSessionAfterCompaction", () => {
 
     // Messages before compaction
     sm.appendMessage({ role: "user", content: "hello", timestamp: 1 });
-    sm.appendMessage(makeAssistant("hi", 2));
+    sm.appendMessage(makeZhushou("hi", 2));
     sm.appendMessage({ role: "user", content: "do task", timestamp: 3 });
-    sm.appendMessage(makeAssistant("done", 4));
+    sm.appendMessage(makeZhushou("done", 4));
 
     // Capture a pre-compaction message that will be summarized away.
     const branch = sm.getBranch();
@@ -280,9 +280,9 @@ describe("truncateSessionAfterCompaction", () => {
 
     // Build a conversation where firstKeptEntryId is NOT the last message
     sm.appendMessage({ role: "user", content: "msg1", timestamp: 1 });
-    sm.appendMessage(makeAssistant("resp1", 2));
+    sm.appendMessage(makeZhushou("resp1", 2));
     sm.appendMessage({ role: "user", content: "msg2", timestamp: 3 });
-    sm.appendMessage(makeAssistant("resp2", 4));
+    sm.appendMessage(makeZhushou("resp2", 4));
 
     const branch = sm.getBranch();
     // Set firstKeptEntryId to the second message — so msg1 is summarized
@@ -317,7 +317,7 @@ describe("truncateSessionAfterCompaction", () => {
 
     // Build main conversation
     sm.appendMessage({ role: "user", content: "hello", timestamp: 1 });
-    sm.appendMessage(makeAssistant("hi there", 2));
+    sm.appendMessage(makeZhushou("hi there", 2));
 
     // Save a branch point
     const branchPoint = sm.getBranch();
@@ -325,17 +325,17 @@ describe("truncateSessionAfterCompaction", () => {
 
     // Continue main branch
     sm.appendMessage({ role: "user", content: "do task A", timestamp: 3 });
-    sm.appendMessage(makeAssistant("done A", 4));
+    sm.appendMessage(makeZhushou("done A", 4));
 
     // Create a sibling branch from the earlier point
     sm.branch(branchFromId);
     sm.appendMessage({ role: "user", content: "do task B instead", timestamp: 5 });
-    const siblingMsg = sm.appendMessage(makeAssistant("done B", 6));
+    const siblingMsg = sm.appendMessage(makeZhushou("done B", 6));
 
     // Go back to main branch tip and add compaction there
     sm.branch(branchFromId);
     sm.appendMessage({ role: "user", content: "do task A", timestamp: 3 });
-    sm.appendMessage(makeAssistant("done A take 2", 7));
+    sm.appendMessage(makeZhushou("done A take 2", 7));
     const mainBranch = sm.getBranch();
     const firstKeptId = mainBranch[mainBranch.length - 1].id;
     sm.appendCompaction("Summary of main branch.", firstKeptId, 5000);

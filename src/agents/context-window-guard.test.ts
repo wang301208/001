@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   CONTEXT_WINDOW_HARD_MIN_TOKENS,
   CONTEXT_WINDOW_WARN_BELOW_TOKENS,
@@ -74,7 +74,7 @@ describe("context-window-guard", () => {
           },
         },
       },
-    } satisfies AssistantConfig;
+    } satisfies ZhushouConfig;
 
     const info = resolveContextWindowInfo({
       cfg,
@@ -111,7 +111,7 @@ describe("context-window-guard", () => {
           },
         },
       },
-    } satisfies AssistantConfig;
+    } satisfies ZhushouConfig;
 
     const info = resolveContextWindowInfo({
       cfg,
@@ -149,7 +149,7 @@ describe("context-window-guard", () => {
           },
         },
       },
-    } satisfies AssistantConfig;
+    } satisfies ZhushouConfig;
 
     const info = resolveContextWindowInfo({
       cfg,
@@ -168,7 +168,7 @@ describe("context-window-guard", () => {
   it("floors agents.defaults.contextTokens caps at 128k", () => {
     const cfg = {
       agents: { defaults: { contextTokens: 20_000 } },
-    } satisfies AssistantConfig;
+    } satisfies ZhushouConfig;
     const info = resolveContextWindowInfo({
       cfg,
       provider: "anthropic",
@@ -186,7 +186,7 @@ describe("context-window-guard", () => {
   it("does not override when cap equals floored base window", () => {
     const cfg = {
       agents: { defaults: { contextTokens: 128_000 } },
-    } satisfies AssistantConfig;
+    } satisfies ZhushouConfig;
     const info = resolveContextWindowInfo({
       cfg,
       provider: "anthropic",
@@ -281,7 +281,7 @@ describe("context-window-guard", () => {
       runtimeBaseUrl: "http://127.0.0.1:11434/v1",
     });
 
-    expect(message).toContain("The assistant is capped by agents.defaults.contextTokens.");
+    expect(message).toContain("The zhushou is capped by agents.defaults.contextTokens.");
     expect(message).not.toContain("choose a larger model");
   });
 

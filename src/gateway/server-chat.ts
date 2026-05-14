@@ -106,7 +106,7 @@ function appendUniqueSuffix(base: string, suffix: string): string {
   return base + suffix;
 }
 
-function resolveMergedAssistantText(params: {
+function resolveMergedZhushouText(params: {
   previousText: string;
   nextText: string;
   nextDelta: string;
@@ -696,7 +696,7 @@ export function createAgentEventHandler({
     const cleanedDelta =
       typeof delta === "string" ? stripInlineDirectiveTagsForDisplay(delta).text : "";
     const previousRawText = chatRunState.rawBuffers.get(clientRunId) ?? "";
-    const mergedRawText = resolveMergedAssistantText({
+    const mergedRawText = resolveMergedZhushouText({
       previousText: previousRawText,
       nextText: cleanedText,
       nextDelta: cleanedDelta,
@@ -933,7 +933,7 @@ export function createAgentEventHandler({
     agentRunSeq.set(evt.runId, evt.seq);
     if (isToolEvent) {
       const toolPhase = typeof evt.data?.phase === "string" ? evt.data.phase : "";
-      // Flush pending assistant text before tool-start events so clients can
+      // Flush pending zhushou text before tool-start events so clients can
       // render complete pre-tool text above tool cards (not truncated by delta throttle).
       if (toolPhase === "start" && isControlUiVisible && sessionKey && !isAborted) {
         flushBufferedChatDeltaIfNeeded(sessionKey, clientRunId, evt.runId, evt.seq);
@@ -984,7 +984,7 @@ export function createAgentEventHandler({
           isToolEvent ? { ...toolPayload, ...buildSessionEventSnapshot(sessionKey) } : agentPayload,
         );
       }
-      if (!isAborted && evt.stream === "assistant" && typeof evt.data?.text === "string") {
+      if (!isAborted && evt.stream === "zhushou" && typeof evt.data?.text === "string") {
         emitChatDelta(sessionKey, clientRunId, evt.runId, evt.seq, evt.data.text, evt.data.delta);
       }
     }

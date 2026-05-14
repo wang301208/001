@@ -1,13 +1,13 @@
 // Private runtime barrel for the bundled Signal extension.
 // Prefer narrower SDK subpaths plus local extension seams over the legacy signal barrel.
 
-export type { ChannelMessageActionAdapter } from "assistant/plugin-sdk/channel-contract";
+export type { ChannelMessageActionAdapter } from "zhushou/plugin-sdk/channel-contract";
 export { buildChannelConfigSchema, SignalConfigSchema } from "../config-api.js";
-export { PAIRING_APPROVED_MESSAGE } from "assistant/plugin-sdk/channel-status";
-import type { AssistantConfig as RuntimeAssistantConfig } from "assistant/plugin-sdk/config-runtime";
-export type { RuntimeAssistantConfig as AssistantConfig };
-export type { AssistantPluginApi, PluginRuntime } from "assistant/plugin-sdk/core";
-export type { ChannelPlugin } from "assistant/plugin-sdk/core";
+export { PAIRING_APPROVED_MESSAGE } from "zhushou/plugin-sdk/channel-status";
+import type { ZhushouConfig as RuntimeZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+export type { RuntimeZhushouConfig as ZhushouConfig };
+export type { ZhushouPluginApi, PluginRuntime } from "zhushou/plugin-sdk/core";
+export type { ChannelPlugin } from "zhushou/plugin-sdk/core";
 export {
   DEFAULT_ACCOUNT_ID,
   applyAccountNameToChannelSection,
@@ -18,22 +18,22 @@ export {
   migrateBaseNameToDefaultAccount,
   normalizeAccountId,
   setAccountEnabledInConfigSection,
-} from "assistant/plugin-sdk/core";
-export { resolveChannelMediaMaxBytes } from "assistant/plugin-sdk/media-runtime";
-export { formatCliCommand, formatDocsLink } from "assistant/plugin-sdk/setup-tools";
-export { chunkText } from "assistant/plugin-sdk/reply-runtime";
-export { detectBinary } from "assistant/plugin-sdk/setup-tools";
+} from "zhushou/plugin-sdk/core";
+export { resolveChannelMediaMaxBytes } from "zhushou/plugin-sdk/media-runtime";
+export { formatCliCommand, formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
+export { chunkText } from "zhushou/plugin-sdk/reply-runtime";
+export { detectBinary } from "zhushou/plugin-sdk/setup-tools";
 export {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 export {
   buildBaseAccountStatusSnapshot,
   buildBaseChannelStatusSummary,
   collectStatusIssuesFromLastError,
   createDefaultChannelRuntimeState,
-} from "assistant/plugin-sdk/status-helpers";
-export { normalizeE164 } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/status-helpers";
+export { normalizeE164 } from "zhushou/plugin-sdk/text-runtime";
 export { looksLikeSignalTargetId, normalizeSignalMessagingTarget } from "./normalize.js";
 export {
   listEnabledSignalAccounts,

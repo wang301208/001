@@ -1,19 +1,19 @@
 services:
   - type: web
-    name: assistant
+    name: zhushou
     runtime: docker
     plan: starter
     healthCheckPath: /health
     envVars:
-      - key: ASSISTANT_GATEWAY_PORT
+      - key: ZHUSHOU_GATEWAY_PORT
         value: "8080"
-      - key: ASSISTANT_STATE_DIR
-        value: /data/.assistant
-      - key: ASSISTANT_WORKSPACE_DIR
+      - key: ZHUSHOU_STATE_DIR
+        value: /data/.zhushou
+      - key: ZHUSHOU_WORKSPACE_DIR
         value: /data/workspace
-      - key: ASSISTANT_GATEWAY_TOKEN
+      - key: ZHUSHOU_GATEWAY_TOKEN
         generateValue: true
     disk:
-      name: assistant-data
+      name: zhushou-data
       mountPath: /data
       sizeGB: 1

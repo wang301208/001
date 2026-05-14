@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   AVATAR_MAX_BYTES,
   isAvatarDataUrl,
@@ -21,12 +21,12 @@ export type AgentAvatarResolution =
   | { kind: "data"; url: string };
 
 function resolveAvatarSource(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   agentId: string,
   opts?: { includeUiOverride?: boolean },
 ): string | null {
   if (opts?.includeUiOverride) {
-    const fromUiConfig = normalizeOptionalString(cfg.ui?.assistant?.avatar) ?? null;
+    const fromUiConfig = normalizeOptionalString(cfg.ui?.zhushou?.avatar) ?? null;
     if (fromUiConfig) {
       return fromUiConfig;
     }
@@ -81,7 +81,7 @@ function resolveLocalAvatarPath(params: {
 }
 
 export function resolveAgentAvatar(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   agentId: string,
   opts?: { includeUiOverride?: boolean },
 ): AgentAvatarResolution {

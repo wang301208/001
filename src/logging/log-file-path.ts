@@ -1,11 +1,11 @@
 import path from "node:path";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import {
-  POSIX_ASSISTANT_TMP_DIR,
-  resolvePreferredAssistantTmpDir,
-} from "../infra/tmp-assistant-dir.js";
+  POSIX_ZHUSHOU_TMP_DIR,
+  resolvePreferredZhushouTmpDir,
+} from "../infra/tmp-zhushou-dir.js";
 
-const LOG_PREFIX = "assistant";
+const LOG_PREFIX = "zhushou";
 const LOG_SUFFIX = ".log";
 
 function canUseNodeFs(): boolean {
@@ -32,10 +32,10 @@ function formatLocalDate(date: Date): string {
 }
 
 export function resolveDefaultRollingLogFile(date = new Date()): string {
-  const logDir = canUseNodeFs() ? resolvePreferredAssistantTmpDir() : POSIX_ASSISTANT_TMP_DIR;
+  const logDir = canUseNodeFs() ? resolvePreferredZhushouTmpDir() : POSIX_ZHUSHOU_TMP_DIR;
   return path.join(logDir, `${LOG_PREFIX}-${formatLocalDate(date)}${LOG_SUFFIX}`);
 }
 
-export function resolveConfiguredLogFilePath(config?: AssistantConfig | null): string {
+export function resolveConfiguredLogFilePath(config?: ZhushouConfig | null): string {
   return config?.logging?.file ?? resolveDefaultRollingLogFile();
 }

@@ -19,15 +19,15 @@ export function extractFirstTextBlock(message: unknown): string | undefined {
   return readStringValue((first as { text?: unknown }).text);
 }
 
-export type AssistantPhase = "commentary" | "final_answer";
+export type ZhushouPhase = "commentary" | "final_answer";
 
-export function normalizeAssistantPhase(value: unknown): AssistantPhase | undefined {
+export function normalizeZhushouPhase(value: unknown): ZhushouPhase | undefined {
   return value === "commentary" || value === "final_answer" ? value : undefined;
 }
 
-export function parseAssistantTextSignature(
+export function parseZhushouTextSignature(
   value: unknown,
-): { id?: string; phase?: AssistantPhase } | null {
+): { id?: string; phase?: ZhushouPhase } | null {
   if (typeof value !== "string" || value.trim().length === 0) {
     return null;
   }
@@ -41,8 +41,8 @@ export function parseAssistantTextSignature(
     }
     return {
       ...(typeof parsed.id === "string" ? { id: parsed.id } : {}),
-      ...(normalizeAssistantPhase(parsed.phase)
-        ? { phase: normalizeAssistantPhase(parsed.phase) }
+      ...(normalizeZhushouPhase(parsed.phase)
+        ? { phase: normalizeZhushouPhase(parsed.phase) }
         : {}),
     };
   } catch {
@@ -50,9 +50,9 @@ export function parseAssistantTextSignature(
   }
 }
 
-export function encodeAssistantTextSignature(params: {
+export function encodeZhushouTextSignature(params: {
   id: string;
-  phase?: AssistantPhase;
+  phase?: ZhushouPhase;
 }): string {
   return JSON.stringify({
     v: 1,
@@ -61,19 +61,19 @@ export function encodeAssistantTextSignature(params: {
   });
 }
 
-export function resolveAssistantMessagePhase(message: unknown): AssistantPhase | undefined {
+export function resolveZhushouMessagePhase(message: unknown): ZhushouPhase | undefined {
   if (!message || typeof message !== "object") {
     return undefined;
   }
   const entry = message as { phase?: unknown; content?: unknown };
-  const directPhase = normalizeAssistantPhase(entry.phase);
+  const directPhase = normalizeZhushouPhase(entry.phase);
   if (directPhase) {
     return directPhase;
   }
   if (!Array.isArray(entry.content)) {
     return undefined;
   }
-  const explicitPhases = new Set<AssistantPhase>();
+  const explicitPhases = new Set<ZhushouPhase>();
   for (const block of entry.content) {
     if (!block || typeof block !== "object") {
       continue;
@@ -82,7 +82,7 @@ export function resolveAssistantMessagePhase(message: unknown): AssistantPhase |
     if (record.type !== "text") {
       continue;
     }
-    const phase = parseAssistantTextSignature(record.textSignature)?.phase;
+    const phase = parseZhushouTextSignature(record.textSignature)?.phase;
     if (phase) {
       explicitPhases.add(phase);
     }
@@ -90,10 +90,10 @@ export function resolveAssistantMessagePhase(message: unknown): AssistantPhase |
   return explicitPhases.size === 1 ? [...explicitPhases][0] : undefined;
 }
 
-export function extractAssistantTextForPhase(
+export function extractZhushouTextForPhase(
   message: unknown,
   options?: {
-    phase?: AssistantPhase;
+    phase?: ZhushouPhase;
     sanitizeText?: (text: string) => string;
     joinWith?: string;
   },
@@ -102,9 +102,9 @@ export function extractAssistantTextForPhase(
     return undefined;
   }
   const entry = message as { text?: unknown; content?: unknown; phase?: unknown };
-  const messagePhase = normalizeAssistantPhase(entry.phase);
+  const messagePhase = normalizeZhushouPhase(entry.phase);
   const phase = options?.phase;
-  const shouldIncludeContent = (resolvedPhase?: AssistantPhase) => {
+  const shouldIncludeContent = (resolvedPhase?: ZhushouPhase) => {
     if (phase) {
       return resolvedPhase === phase;
     }
@@ -144,7 +144,7 @@ export function extractAssistantTextForPhase(
     if (record.type !== "text") {
       return false;
     }
-    return Boolean(parseAssistantTextSignature(record.textSignature)?.phase);
+    return Boolean(parseZhushouTextSignature(record.textSignature)?.phase);
   });
 
   // Once explicit phased blocks exist, unphased extraction should not revive
@@ -162,7 +162,7 @@ export function extractAssistantTextForPhase(
       if (record.type !== "text" || typeof record.text !== "string") {
         return null;
       }
-      const signature = parseAssistantTextSignature(record.textSignature);
+      const signature = parseZhushouTextSignature(record.textSignature);
       const resolvedPhase =
         signature?.phase ?? (hasExplicitPhasedTextBlocks ? undefined : messagePhase);
       if (!shouldIncludeContent(resolvedPhase)) {
@@ -179,10 +179,10 @@ export function extractAssistantTextForPhase(
   return normalizeJoinedText(parts.join(joinWith));
 }
 
-export function extractAssistantVisibleText(message: unknown): string | undefined {
-  const finalAnswerText = extractAssistantTextForPhase(message, { phase: "final_answer" });
+export function extractZhushouVisibleText(message: unknown): string | undefined {
+  const finalAnswerText = extractZhushouTextForPhase(message, { phase: "final_answer" });
   if (finalAnswerText) {
     return finalAnswerText;
   }
-  return extractAssistantTextForPhase(message);
+  return extractZhushouTextForPhase(message);
 }

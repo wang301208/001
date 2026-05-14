@@ -1,22 +1,22 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 import type { ProviderRuntimeModel } from "../plugins/provider-runtime-model.types.js";
 import type {
   AnyAgentTool,
   AgentHarness,
   MediaUnderstandingProviderPlugin,
-  AssistantPluginApi,
-  AssistantPluginCommandDefinition,
-  AssistantPluginConfigSchema,
-  AssistantPluginDefinition,
-  AssistantPluginNodeHostCommand,
-  AssistantPluginReloadRegistration,
-  AssistantPluginSecurityAuditCollector,
-  AssistantPluginSecurityAuditContext,
-  AssistantPluginService,
-  AssistantPluginServiceContext,
-  AssistantPluginToolContext,
-  AssistantPluginToolFactory,
+  ZhushouPluginApi,
+  ZhushouPluginCommandDefinition,
+  ZhushouPluginConfigSchema,
+  ZhushouPluginDefinition,
+  ZhushouPluginNodeHostCommand,
+  ZhushouPluginReloadRegistration,
+  ZhushouPluginSecurityAuditCollector,
+  ZhushouPluginSecurityAuditContext,
+  ZhushouPluginService,
+  ZhushouPluginServiceContext,
+  ZhushouPluginToolContext,
+  ZhushouPluginToolFactory,
   PluginLogger,
   ProviderAugmentModelCatalogContext,
   ProviderAuthContext,
@@ -76,15 +76,15 @@ export type {
   AnyAgentTool,
   AgentHarness,
   MediaUnderstandingProviderPlugin,
-  AssistantPluginApi,
-  AssistantPluginNodeHostCommand,
-  AssistantPluginReloadRegistration,
-  AssistantPluginSecurityAuditCollector,
-  AssistantPluginSecurityAuditContext,
-  AssistantPluginToolContext,
-  AssistantPluginToolFactory,
+  ZhushouPluginApi,
+  ZhushouPluginNodeHostCommand,
+  ZhushouPluginReloadRegistration,
+  ZhushouPluginSecurityAuditCollector,
+  ZhushouPluginSecurityAuditContext,
+  ZhushouPluginToolContext,
+  ZhushouPluginToolFactory,
   PluginCommandContext,
-  AssistantPluginConfigSchema,
+  ZhushouPluginConfigSchema,
   ProviderDiscoveryContext,
   ProviderCatalogContext,
   ProviderCatalogResult,
@@ -130,19 +130,19 @@ export type {
   ProviderValidateReplayTurnsContext,
   ProviderWebSocketSessionPolicy,
   ProviderWrapStreamFnContext,
-  AssistantPluginService,
-  AssistantPluginServiceContext,
+  ZhushouPluginService,
+  ZhushouPluginServiceContext,
   ProviderAuthContext,
   ProviderAuthDoctorHintContext,
   ProviderAuthMethodNonInteractiveContext,
   ProviderAuthMethod,
   ProviderAuthResult,
-  AssistantPluginCommandDefinition,
-  AssistantPluginDefinition,
+  ZhushouPluginCommandDefinition,
+  ZhushouPluginDefinition,
   PluginLogger,
 };
 export type { ProviderRuntimeModel } from "../plugins/provider-runtime-model.types.js";
-export type { AssistantConfig };
+export type { ZhushouConfig };
 
 export { buildPluginConfigSchema, emptyPluginConfigSchema } from "../plugins/config-schema.js";
 
@@ -151,12 +151,12 @@ type DefinePluginEntryOptions = {
   id: string;
   name: string;
   description: string;
-  kind?: AssistantPluginDefinition["kind"];
-  configSchema?: AssistantPluginConfigSchema | (() => AssistantPluginConfigSchema);
-  reload?: AssistantPluginDefinition["reload"];
-  nodeHostCommands?: AssistantPluginDefinition["nodeHostCommands"];
-  securityAuditCollectors?: AssistantPluginDefinition["securityAuditCollectors"];
-  register: (api: AssistantPluginApi) => void;
+  kind?: ZhushouPluginDefinition["kind"];
+  configSchema?: ZhushouPluginConfigSchema | (() => ZhushouPluginConfigSchema);
+  reload?: ZhushouPluginDefinition["reload"];
+  nodeHostCommands?: ZhushouPluginDefinition["nodeHostCommands"];
+  securityAuditCollectors?: ZhushouPluginDefinition["securityAuditCollectors"];
+  register: (api: ZhushouPluginApi) => void;
 };
 
 /** Normalized object shape that 助手 loads from a plugin entry module. */
@@ -164,10 +164,10 @@ type DefinedPluginEntry = {
   id: string;
   name: string;
   description: string;
-  configSchema: AssistantPluginConfigSchema;
-  register: NonNullable<AssistantPluginDefinition["register"]>;
+  configSchema: ZhushouPluginConfigSchema;
+  register: NonNullable<ZhushouPluginDefinition["register"]>;
 } & Pick<
-  AssistantPluginDefinition,
+  ZhushouPluginDefinition,
   "kind" | "reload" | "nodeHostCommands" | "securityAuditCollectors"
 >;
 
@@ -176,7 +176,7 @@ type DefinedPluginEntry = {
  *
  * Use this for provider, tool, command, service, memory, and context-engine
  * plugins. Channel plugins should use `defineChannelPluginEntry(...)` from
- * `assistant/plugin-sdk/core` so they inherit the channel capability wiring.
+ * `zhushou/plugin-sdk/core` so they inherit the channel capability wiring.
  */
 export function definePluginEntry({
   id,

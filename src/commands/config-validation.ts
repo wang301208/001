@@ -1,7 +1,7 @@
 import { formatCliCommand } from "../cli/command-format.js";
 import {
   type ConfigFileSnapshot,
-  type AssistantConfig,
+  type ZhushouConfig,
   readConfigFileSnapshot,
 } from "../config/config.js";
 import { formatConfigIssueLines } from "../config/issue-format.js";
@@ -22,7 +22,7 @@ export async function requireValidConfigFileSnapshot(
         ? formatConfigIssueLines(snapshot.issues, "-").join("\n")
         : "Unknown validation issue.";
     runtime.error(`Config invalid:\n${issues}`);
-    runtime.error(`Fix the config or run ${formatCliCommand("assistant doctor")}.`);
+    runtime.error(`Fix the config or run ${formatCliCommand("zhushou doctor")}.`);
     runtime.exit(1);
     return null;
   }
@@ -38,7 +38,7 @@ export async function requireValidConfigFileSnapshot(
           .slice(0, 3)
           .map((notice) => `- ${formatPluginCompatibilityNotice(notice)}`),
         ...(compatibility.length > 3 ? [`- ... +${compatibility.length - 3} more`] : []),
-        `Review: ${formatCliCommand("assistant doctor")}`,
+        `Review: ${formatCliCommand("zhushou doctor")}`,
       ].join("\n"),
     );
   }
@@ -48,6 +48,6 @@ export async function requireValidConfigFileSnapshot(
 export async function requireValidConfigSnapshot(
   runtime: RuntimeEnv,
   opts?: { includeCompatibilityAdvisory?: boolean },
-): Promise<AssistantConfig | null> {
+): Promise<ZhushouConfig | null> {
   return (await requireValidConfigFileSnapshot(runtime, opts))?.config ?? null;
 }

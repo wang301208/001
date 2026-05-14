@@ -1,13 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# Assistant OAuth Sync Widget
-# Syncs Claude Code tokens to Assistant on l36 server
+# Zhushou OAuth Sync Widget
+# Syncs Claude Code tokens to Zhushou on l36 server
 # Place in ~/.shortcuts/ on phone for Termux:Widget
 
-termux-toast "Syncing Assistant auth..."
+termux-toast "Syncing Zhushou auth..."
 
 # Run sync on l36 server
-SERVER="${ASSISTANT_SERVER:-l36}"
-RESULT=$(ssh "$SERVER" '/home/admin/assistant/scripts/sync-claude-code-auth.sh' 2>&1)
+SERVER="${ZHUSHOU_SERVER:-l36}"
+RESULT=$(ssh "$SERVER" '/home/admin/zhushou/scripts/sync-claude-code-auth.sh' 2>&1)
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -eq 0 ]; then
@@ -15,10 +15,10 @@ if [ $EXIT_CODE -eq 0 ]; then
     EXPIRY=$(echo "$RESULT" | grep "Token expires:" | cut -d: -f2-)
 
     termux-vibrate -d 100
-    termux-toast "Assistant synced! Expires:${EXPIRY}"
+    termux-toast "Zhushou synced! Expires:${EXPIRY}"
 
-    # Optional: restart assistant service
-    ssh "$SERVER" 'systemctl --user restart assistant' 2>/dev/null
+    # Optional: restart zhushou service
+    ssh "$SERVER" 'systemctl --user restart zhushou' 2>/dev/null
 else
     termux-vibrate -d 300
     termux-toast "Sync failed: ${RESULT}"

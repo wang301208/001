@@ -1,4 +1,4 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 import { voyageMemoryEmbeddingProviderAdapter } from "./memory-embedding-adapter.js";
 
 export default definePluginEntry({

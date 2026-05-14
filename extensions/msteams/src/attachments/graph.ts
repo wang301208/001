@@ -2,7 +2,7 @@ import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { fetchWithSsrFGuard, type SsrFPolicy } from "../../runtime-api.js";
 import { getMSTeamsRuntime } from "../runtime.js";
 import { ensureUserAgentHeader } from "../user-agent.js";

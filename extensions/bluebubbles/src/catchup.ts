@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { readJsonFileWithFallback, writeJsonFileAtomically } from "assistant/plugin-sdk/json-store";
-import { resolveStateDir } from "assistant/plugin-sdk/state-paths";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+import { readJsonFileWithFallback, writeJsonFileAtomically } from "zhushou/plugin-sdk/json-store";
+import { resolveStateDir } from "zhushou/plugin-sdk/state-paths";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
 import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
 import { warmupBlueBubblesInboundDedupe } from "./inbound-dedupe.js";
 import { asRecord, normalizeWebhookMessage } from "./monitor-normalize.js";
@@ -93,18 +93,18 @@ export type BlueBubblesCatchupCursor = {
 };
 
 function resolveStateDirFromEnv(env: NodeJS.ProcessEnv = process.env): string {
-  // Explicit ASSISTANT_STATE_DIR overrides take precedence (including
+  // Explicit ZHUSHOU_STATE_DIR overrides take precedence (including
   // per-test mkdtemp dirs in this module's test suite).
-  if (env.ASSISTANT_STATE_DIR?.trim()) {
+  if (env.ZHUSHOU_STATE_DIR?.trim()) {
     return resolveStateDir(env);
   }
-  // Default test isolation: per-pid tmpdir, no bleed into real ~/.assistant.
-  // Use resolvePreferredAssistantTmpDir + string concat (mirrors
+  // Default test isolation: per-pid tmpdir, no bleed into real ~/.zhushou.
+  // Use resolvePreferredZhushouTmpDir + string concat (mirrors
   // inbound-dedupe) so this doesn't trip the tmpdir-path-guard test that
   // flags dynamic template-literal suffixes on os.tmpdir() paths.
   if (env.VITEST || env.NODE_ENV === "test") {
-    const name = "assistant-vitest-" + process.pid;
-    return path.join(resolvePreferredAssistantTmpDir(), name);
+    const name = "zhushou-vitest-" + process.pid;
+    return path.join(resolvePreferredZhushouTmpDir(), name);
   }
   // Canonical 助手 state dir: honors `~` expansion + legacy/new
   // fallback. Sharing this resolver with inbound-dedupe is what guarantees

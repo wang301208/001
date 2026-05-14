@@ -1,10 +1,10 @@
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { MemorySearchResult } from "assistant/plugin-sdk/memory-core-host-runtime-files";
-import { formatMemoryDreamingDay } from "assistant/plugin-sdk/memory-core-host-status";
-import { appendMemoryHostEvent } from "assistant/plugin-sdk/memory-host-events";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import type { MemorySearchResult } from "zhushou/plugin-sdk/memory-core-host-runtime-files";
+import { formatMemoryDreamingDay } from "zhushou/plugin-sdk/memory-core-host-status";
+import { appendMemoryHostEvent } from "zhushou/plugin-sdk/memory-host-events";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import {
   deriveConceptTags,
   MAX_CONCEPT_TAGS,
@@ -23,7 +23,7 @@ const DEFAULT_RECENCY_HALF_LIFE_DAYS = 14;
 export const DEFAULT_PROMOTION_MIN_SCORE = 0.75;
 export const DEFAULT_PROMOTION_MIN_RECALL_COUNT = 3;
 export const DEFAULT_PROMOTION_MIN_UNIQUE_QUERIES = 2;
-const PROMOTION_MARKER_PREFIX = "assistant-memory-promotion:";
+const PROMOTION_MARKER_PREFIX = "zhushou-memory-promotion:";
 const MAX_QUERY_HASHES = 32;
 const MAX_RECALL_DAYS = 16;
 const SHORT_TERM_STORE_RELATIVE_PATH = path.join("memory", ".dreams", "short-term-recall.json");
@@ -38,7 +38,7 @@ const PHASE_SIGNAL_LIGHT_BOOST_MAX = 0.06;
 const PHASE_SIGNAL_REM_BOOST_MAX = 0.09;
 const PHASE_SIGNAL_HALF_LIFE_DAYS = 14;
 const DREAMING_TRANSCRIPT_PROMPT_LINE_RE =
-  /\[[^\]]*dreaming-narrative[^\]]*]\s*(?:User|Assistant):\s*Write a dream diary entry from these memory fragments:?/i;
+  /\[[^\]]*dreaming-narrative[^\]]*]\s*(?:User|Zhushou):\s*Write a dream diary entry from these memory fragments:?/i;
 const DREAMING_DIFF_PREFIX_RE = /@@\s*-\d+(?:,\d+)?\s+[-*+]\s+/iy;
 const inProcessShortTermLocks = new Map<string, Promise<void>>();
 const ensuredShortTermDirs = new Map<string, Promise<void>>();
@@ -278,7 +278,7 @@ function isContaminatedDreamingSnippet(raw: string): boolean {
     return false;
   }
   if (
-    /<!--\s*assistant-memory-promotion:/i.test(snippet) ||
+    /<!--\s*zhushou-memory-promotion:/i.test(snippet) ||
     DREAMING_TRANSCRIPT_PROMPT_LINE_RE.test(snippet)
   ) {
     return true;
@@ -689,6 +689,26 @@ async function sleep(ms: number): Promise<void> {
   });
 }
 
+async function isShortTermLockContentionError(
+  err: unknown,
+  lockPath: string,
+): Promise<boolean> {
+  const code = (err as NodeJS.ErrnoException)?.code;
+  if (code === "EEXIST") {
+    return true;
+  }
+  if (code !== "EPERM") {
+    return false;
+  }
+  // Windows can report EPERM instead of EEXIST for exclusive create while an
+  // active lock file is present. Treat it as contention only if the lock still
+  // exists, so unrelated permission failures continue to surface.
+  return await fs
+    .stat(lockPath)
+    .then(() => true)
+    .catch(() => false);
+}
+
 async function withInProcessShortTermLock<T>(lockPath: string, task: () => Promise<T>): Promise<T> {
   const previous = inProcessShortTermLocks.get(lockPath) ?? Promise.resolve();
   let releaseCurrent!: () => void;
@@ -728,7 +748,7 @@ async function withShortTermLock<T>(workspaceDir: string, task: () => Promise<T>
           await fs.unlink(lockPath).catch(() => undefined);
         }
       } catch (err) {
-        if ((err as NodeJS.ErrnoException)?.code !== "EEXIST") {
+        if (!(await isShortTermLockContentionError(err, lockPath))) {
           throw err;
         }
 
@@ -1505,7 +1525,7 @@ function withTrailingNewline(content: string): string {
 
 function extractPromotionMarkers(memoryText: string): Set<string> {
   const markers = new Set<string>();
-  const matches = memoryText.matchAll(/<!--\s*assistant-memory-promotion:([^\n]+?)\s*-->/gi);
+  const matches = memoryText.matchAll(/<!--\s*zhushou-memory-promotion:([^\n]+?)\s*-->/gi);
   for (const match of matches) {
     const key = match[1]?.trim();
     if (key) {

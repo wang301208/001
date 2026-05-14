@@ -6,7 +6,7 @@ import { resolveSessionTranscriptPath, resolveStorePath } from "../../config/ses
 import { resolveSessionKey } from "../../config/sessions/session-key.js";
 import { loadSessionStore } from "../../config/sessions/store.js";
 import type { SessionEntry, SessionScope } from "../../config/sessions/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -17,17 +17,17 @@ import type { CommandContext } from "./commands-types.js";
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 import type { SessionInitResult } from "./session.js";
 
-const COMPLETE_REPLY_CONFIG_SYMBOL = Symbol.for("assistant.reply.complete-config");
-const FULL_REPLY_RUNTIME_SYMBOL = Symbol.for("assistant.reply.full-runtime");
+const COMPLETE_REPLY_CONFIG_SYMBOL = Symbol.for("zhushou.reply.complete-config");
+const FULL_REPLY_RUNTIME_SYMBOL = Symbol.for("zhushou.reply.full-runtime");
 
-type ReplyConfigWithMarker = AssistantConfig & {
+type ReplyConfigWithMarker = ZhushouConfig & {
   [COMPLETE_REPLY_CONFIG_SYMBOL]?: true;
   [FULL_REPLY_RUNTIME_SYMBOL]?: true;
 };
 
 function isSlowReplyTestAllowed(env: NodeJS.ProcessEnv = process.env): boolean {
   return (
-    env.ASSISTANT_ALLOW_SLOW_REPLY_TESTS === "1" || env.ASSISTANT_STRICT_FAST_REPLY_CONFIG === "0"
+    env.ZHUSHOU_ALLOW_SLOW_REPLY_TESTS === "1" || env.ZHUSHOU_STRICT_FAST_REPLY_CONFIG === "0"
   );
 }
 
@@ -56,7 +56,7 @@ function markReplyConfigRuntimeMode(
   });
 }
 
-export function markCompleteReplyConfig<T extends AssistantConfig>(
+export function markCompleteReplyConfig<T extends ZhushouConfig>(
   config: T,
   options?: { runtimeMode?: "fast" | "full" },
 ): T {
@@ -69,15 +69,15 @@ export function markCompleteReplyConfig<T extends AssistantConfig>(
   return config;
 }
 
-export function withFastReplyConfig<T extends AssistantConfig>(config: T): T {
+export function withFastReplyConfig<T extends ZhushouConfig>(config: T): T {
   return markCompleteReplyConfig(config, { runtimeMode: "fast" });
 }
 
-export function withFullRuntimeReplyConfig<T extends AssistantConfig>(config: T): T {
+export function withFullRuntimeReplyConfig<T extends ZhushouConfig>(config: T): T {
   return markCompleteReplyConfig(config, { runtimeMode: "full" });
 }
 
-export function isCompleteReplyConfig(config: unknown): config is AssistantConfig {
+export function isCompleteReplyConfig(config: unknown): config is ZhushouConfig {
   return Boolean(
     config &&
     typeof config === "object" &&
@@ -94,28 +94,28 @@ export function usesFullReplyRuntime(config: unknown): boolean {
 }
 
 export function resolveGetReplyConfig(params: {
-  loadConfig: () => AssistantConfig;
+  loadConfig: () => ZhushouConfig;
   isFastTestEnv: boolean;
-  configOverride?: AssistantConfig;
-}): AssistantConfig {
+  configOverride?: ZhushouConfig;
+}): ZhushouConfig {
   const { configOverride } = params;
   if (configOverride == null) {
     return params.loadConfig();
   }
   if (params.isFastTestEnv && !isCompleteReplyConfig(configOverride) && !isSlowReplyTestAllowed()) {
     throw new Error(
-      "Fast reply tests must pass with withFastReplyConfig()/markCompleteReplyConfig(); set ASSISTANT_ALLOW_SLOW_REPLY_TESTS=1 to opt out.",
+      "Fast reply tests must pass with withFastReplyConfig()/markCompleteReplyConfig(); set ZHUSHOU_ALLOW_SLOW_REPLY_TESTS=1 to opt out.",
     );
   }
   if (params.isFastTestEnv && isCompleteReplyConfig(configOverride)) {
     return configOverride;
   }
-  return applyMergePatch(params.loadConfig(), configOverride) as AssistantConfig;
+  return applyMergePatch(params.loadConfig(), configOverride) as ZhushouConfig;
 }
 
 export function shouldUseReplyFastTestBootstrap(params: {
   isFastTestEnv: boolean;
-  configOverride?: AssistantConfig;
+  configOverride?: ZhushouConfig;
 }): boolean {
   return (
     params.isFastTestEnv &&
@@ -125,7 +125,7 @@ export function shouldUseReplyFastTestBootstrap(params: {
 }
 
 export function shouldUseReplyFastTestRuntime(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   isFastTestEnv: boolean;
 }): boolean {
   return (
@@ -153,7 +153,7 @@ export function shouldUseReplyFastDirectiveExecution(params: {
 
 export function buildFastReplyCommandContext(params: {
   ctx: MsgContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId?: string;
   sessionKey?: string;
   isGroup: boolean;
@@ -186,7 +186,7 @@ export function buildFastReplyCommandContext(params: {
 }
 
 export function shouldHandleFastReplyTextCommands(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   commandSource?: string;
 }): boolean {
   return params.commandSource === "native" || params.cfg.commands?.text !== false;
@@ -194,7 +194,7 @@ export function shouldHandleFastReplyTextCommands(params: {
 
 export function initFastReplySessionState(params: {
   ctx: MsgContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   commandAuthorized: boolean;
   workspaceDir: string;

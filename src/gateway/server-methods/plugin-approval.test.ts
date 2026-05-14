@@ -125,46 +125,93 @@ describe("createPluginApprovalHandlers", () => {
       );
     });
 
-    it("expires immediately when no approval route", async () => {
+    it("defaults to allow-once after the countdown when no approval route is available", async () => {
+      vi.useFakeTimers();
       const handlers = createPluginApprovalHandlers(manager);
-      const opts = createMockOptions(
-        "plugin.approval.request",
-        {
-          title: "Sensitive action",
-          description: "Desc",
-        },
-        {
-          context: createNoExecApprovalContext(),
-        },
-      );
-      await handlers["plugin.approval.request"](opts);
-      expect(opts.respond).toHaveBeenCalledWith(
-        true,
-        expect.objectContaining({ decision: null }),
-        undefined,
-      );
+      try {
+        const opts = createMockOptions(
+          "plugin.approval.request",
+          {
+            title: "Sensitive action",
+            description: "Desc",
+            timeoutMs: 30_000,
+          },
+          {
+            context: createNoExecApprovalContext(),
+          },
+        );
+        const requestPromise = handlers["plugin.approval.request"](opts);
+        await vi.advanceTimersByTimeAsync(29_999);
+        expect(opts.respond).not.toHaveBeenCalledWith(
+          true,
+          expect.objectContaining({ decision: "allow-once" }),
+          undefined,
+        );
+
+        await vi.advanceTimersByTimeAsync(1);
+        await requestPromise;
+
+        expect(opts.respond).toHaveBeenCalledWith(
+          true,
+          expect.objectContaining({ decision: "allow-once" }),
+          undefined,
+        );
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it("passes caller connId to hasExecApprovalClients to exclude self", async () => {
+      vi.useFakeTimers();
       const handlers = createPluginApprovalHandlers(manager);
       const hasExecApprovalClients = vi.fn().mockReturnValue(false);
-      const opts = createMockOptions(
-        "plugin.approval.request",
-        { title: "T", description: "D" },
-        {
-          client: {
-            connId: "backend-conn-42",
-            connect: { client: { id: "test", displayName: "Test" } },
-          } as unknown as GatewayRequestHandlerOptions["client"],
-          context: {
-            broadcast: vi.fn(),
-            logGateway: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
-            hasExecApprovalClients,
-          } as unknown as GatewayRequestHandlerOptions["context"],
-        },
-      );
-      await handlers["plugin.approval.request"](opts);
-      expect(hasExecApprovalClients).toHaveBeenCalledWith("backend-conn-42");
+      try {
+        const opts = createMockOptions(
+          "plugin.approval.request",
+          { title: "T", description: "D", timeoutMs: 30_000 },
+          {
+            client: {
+              connId: "backend-conn-42",
+              connect: { client: { id: "test", displayName: "Test" } },
+            } as unknown as GatewayRequestHandlerOptions["client"],
+            context: {
+              broadcast: vi.fn(),
+              logGateway: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
+              hasExecApprovalClients,
+            } as unknown as GatewayRequestHandlerOptions["context"],
+          },
+        );
+        const requestPromise = handlers["plugin.approval.request"](opts);
+        expect(hasExecApprovalClients).toHaveBeenCalledWith("backend-conn-42");
+        await vi.advanceTimersByTimeAsync(30_000);
+        await requestPromise;
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("passes plugin-prefixed IDs directly to manager.create", async () => {
+      vi.useFakeTimers();
+      const handlers = createPluginApprovalHandlers(manager);
+      const createSpy = vi.spyOn(manager, "create");
+      try {
+        const opts = createMockOptions(
+          "plugin.approval.request",
+          { title: "T", description: "D", timeoutMs: 30_000 },
+          {
+            context: createNoExecApprovalContext(),
+          },
+        );
+
+        const requestPromise = handlers["plugin.approval.request"](opts);
+        await vi.advanceTimersByTimeAsync(30_000);
+        await requestPromise;
+
+        expect(createSpy).toHaveBeenCalledTimes(1);
+        expect(createSpy.mock.calls[0]?.[2]).toEqual(expect.stringMatching(/^plugin:/));
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it("keeps plugin approvals pending when the originating chat can handle /approve directly", async () => {
@@ -272,40 +319,26 @@ describe("createPluginApprovalHandlers", () => {
     });
 
     it("generates plugin-prefixed IDs", async () => {
+      vi.useFakeTimers();
       const handlers = createPluginApprovalHandlers(manager);
       const respond = vi.fn();
-      const opts = createMockOptions(
-        "plugin.approval.request",
-        { title: "T", description: "D" },
-        {
-          respond,
-          context: {
-            broadcast: vi.fn(),
-            logGateway: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
-            hasExecApprovalClients: () => false,
-          } as unknown as GatewayRequestHandlerOptions["context"],
-        },
-      );
-      await handlers["plugin.approval.request"](opts);
-      const result = respond.mock.calls[0]?.[1] as Record<string, unknown> | undefined;
-      expect(result?.id).toEqual(expect.stringMatching(/^plugin:/));
-    });
-
-    it("passes plugin-prefixed IDs directly to manager.create", async () => {
-      const handlers = createPluginApprovalHandlers(manager);
-      const createSpy = vi.spyOn(manager, "create");
-      const opts = createMockOptions(
-        "plugin.approval.request",
-        { title: "T", description: "D" },
-        {
-          context: createNoExecApprovalContext(),
-        },
-      );
-
-      await handlers["plugin.approval.request"](opts);
-
-      expect(createSpy).toHaveBeenCalledTimes(1);
-      expect(createSpy.mock.calls[0]?.[2]).toEqual(expect.stringMatching(/^plugin:/));
+      try {
+        const opts = createMockOptions(
+          "plugin.approval.request",
+          { title: "T", description: "D", timeoutMs: 30_000 },
+          {
+            respond,
+            context: createNoExecApprovalContext(),
+          },
+        );
+        const requestPromise = handlers["plugin.approval.request"](opts);
+        await vi.advanceTimersByTimeAsync(30_000);
+        await requestPromise;
+        const result = respond.mock.calls[0]?.[1] as Record<string, unknown> | undefined;
+        expect(result?.id).toEqual(expect.stringMatching(/^plugin:/));
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it("rejects plugin-provided id field", async () => {

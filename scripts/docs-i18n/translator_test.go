@@ -101,7 +101,7 @@ func TestIsRetryableTranslateErrorRejectsAuthenticationFailures(t *testing.T) {
 func TestIsRetryableTranslateErrorRetriesPiTermination(t *testing.T) {
 	t.Parallel()
 
-	if !isRetryableTranslateError(errors.New("pi error: terminated; stopReason=error; assistant=partial output")) {
+	if !isRetryableTranslateError(errors.New("pi error: terminated; stopReason=error; zhushou=partial output")) {
 		t.Fatal("terminated pi session should retry")
 	}
 }
@@ -109,7 +109,7 @@ func TestIsRetryableTranslateErrorRetriesPiTermination(t *testing.T) {
 func TestIsRetryableTranslateErrorRetriesTerminatedStopReason(t *testing.T) {
 	t.Parallel()
 
-	if !isRetryableTranslateError(errors.New("pi error: stopReason=terminated; assistant=partial output")) {
+	if !isRetryableTranslateError(errors.New("pi error: stopReason=terminated; zhushou=partial output")) {
 		t.Fatal("terminated stopReason should retry")
 	}
 }
@@ -118,9 +118,9 @@ func TestIsRetryableTranslateErrorRetriesCanceledStopReasons(t *testing.T) {
 	t.Parallel()
 
 	for _, message := range []string{
-		"pi error: stopReason=cancelled; assistant=partial output",
-		"pi error: stopReason=canceled; assistant=partial output",
-		"pi error: stopReason=aborted; assistant=partial output",
+		"pi error: stopReason=cancelled; zhushou=partial output",
+		"pi error: stopReason=canceled; zhushou=partial output",
+		"pi error: stopReason=aborted; zhushou=partial output",
 	} {
 		if !isRetryableTranslateError(errors.New(message)) {
 			t.Fatalf("expected retryable stop reason for %q", message)
@@ -232,7 +232,7 @@ func TestPiTranslatorRestartsClientAfterPiTermination(t *testing.T) {
 		client := &fakePiPromptClient{
 			prompt: func(context.Context, string) (string, error) {
 				if index == 1 {
-					return "", errors.New("pi error: terminated; stopReason=error; assistant=partial output")
+					return "", errors.New("pi error: terminated; stopReason=error; zhushou=partial output")
 				}
 				return "translated", nil
 			},
@@ -279,7 +279,7 @@ func TestPiTranslatorRestartsClientAfterTerminatedStopReason(t *testing.T) {
 		client := &fakePiPromptClient{
 			prompt: func(context.Context, string) (string, error) {
 				if index == 1 {
-					return "", errors.New("pi error: stopReason=terminated; assistant=partial output")
+					return "", errors.New("pi error: stopReason=terminated; zhushou=partial output")
 				}
 				return "translated", nil
 			},
@@ -326,7 +326,7 @@ func TestPiTranslatorRestartsClientAfterCanceledStopReason(t *testing.T) {
 		client := &fakePiPromptClient{
 			prompt: func(context.Context, string) (string, error) {
 				if index == 1 {
-					return "", errors.New("pi error: stopReason=aborted; assistant=partial output")
+					return "", errors.New("pi error: stopReason=aborted; zhushou=partial output")
 				}
 				return "translated", nil
 			},

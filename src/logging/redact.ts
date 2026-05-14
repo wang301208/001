@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { compileConfigRegex } from "../security/config-regex.js";
 import { resolveNodeRequireFromMeta } from "./node-require.js";
 import { replacePatternBounded } from "./redact-bounded.js";
@@ -117,11 +117,11 @@ function redactText(text: string, patterns: RegExp[]): string {
 }
 
 function resolveConfigRedaction(): RedactOptions {
-  let cfg: AssistantConfig["logging"] | undefined;
+  let cfg: ZhushouConfig["logging"] | undefined;
   try {
     const loaded = requireConfig?.("../config/config.js") as
       | {
-          loadConfig?: () => AssistantConfig;
+          loadConfig?: () => ZhushouConfig;
         }
       | undefined;
     cfg = loaded?.loadConfig?.().logging;

@@ -3,7 +3,7 @@ import path from "node:path";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import { resetPluginLoaderTestStateForTest } from "../plugins/loader.test-fixtures.js";
 import { clearPluginSetupRegistryCache } from "../plugins/setup-registry.js";
-import { resetConfigRuntimeState, type AssistantConfig } from "./config.js";
+import { resetConfigRuntimeState, type ZhushouConfig } from "./config.js";
 
 function resetConfigTestRuntimeState(): void {
   resetConfigRuntimeState();
@@ -15,17 +15,17 @@ export async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise
   resetConfigTestRuntimeState();
   try {
     return await withTempHomeBase(fn, {
-      prefix: "assistant-config-",
+      prefix: "zhushou-config-",
       env: {
-        ASSISTANT_CONFIG_PATH: undefined,
-        ASSISTANT_BUNDLED_PLUGINS_DIR: undefined,
-        ASSISTANT_DISABLE_BUNDLED_PLUGINS: undefined,
-        ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE: undefined,
-        ASSISTANT_DISABLE_PLUGIN_MANIFEST_CACHE: undefined,
-        ASSISTANT_PLUGIN_CATALOG_PATHS: undefined,
-        ASSISTANT_MPM_CATALOG_PATHS: undefined,
-        ASSISTANT_PLUGIN_DISCOVERY_CACHE_MS: undefined,
-        ASSISTANT_PLUGIN_MANIFEST_CACHE_MS: undefined,
+        ZHUSHOU_CONFIG_PATH: undefined,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR: undefined,
+        ZHUSHOU_DISABLE_BUNDLED_PLUGINS: undefined,
+        ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE: undefined,
+        ZHUSHOU_DISABLE_PLUGIN_MANIFEST_CACHE: undefined,
+        ZHUSHOU_PLUGIN_CATALOG_PATHS: undefined,
+        ZHUSHOU_MPM_CATALOG_PATHS: undefined,
+        ZHUSHOU_PLUGIN_DISCOVERY_CACHE_MS: undefined,
+        ZHUSHOU_PLUGIN_MANIFEST_CACHE_MS: undefined,
       },
     });
   } finally {
@@ -33,8 +33,8 @@ export async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise
   }
 }
 
-export async function writeAssistantConfig(home: string, config: unknown): Promise<string> {
-  const configPath = path.join(home, ".assistant", "assistant.json");
+export async function writeZhushouConfig(home: string, config: unknown): Promise<string> {
+  const configPath = path.join(home, ".zhushou", "zhushou.json");
   await fs.mkdir(path.dirname(configPath), { recursive: true });
   await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf-8");
   return configPath;
@@ -47,9 +47,9 @@ export async function writeStateDirDotEnv(
     stateDir?: string;
   },
 ): Promise<{ dotEnvPath: string; stateDir: string }> {
-  const stateDir = params?.stateDir ?? params?.env?.ASSISTANT_STATE_DIR?.trim();
+  const stateDir = params?.stateDir ?? params?.env?.ZHUSHOU_STATE_DIR?.trim();
   if (!stateDir) {
-    throw new Error("Expected ASSISTANT_STATE_DIR or explicit stateDir for .env test setup");
+    throw new Error("Expected ZHUSHOU_STATE_DIR or explicit stateDir for .env test setup");
   }
   const dotEnvPath = path.join(stateDir, ".env");
   await fs.mkdir(path.dirname(dotEnvPath), { recursive: true });
@@ -62,7 +62,7 @@ export async function withTempHomeConfig<T>(
   fn: (params: { home: string; configPath: string }) => Promise<T>,
 ): Promise<T> {
   return withTempHome(async (home) => {
-    const configPath = await writeAssistantConfig(home, config);
+    const configPath = await writeZhushouConfig(home, config);
     return fn({ home, configPath });
   });
 }
@@ -98,7 +98,7 @@ export async function withEnvOverride<T>(
 
 export function buildWebSearchProviderConfig(params: {
   provider: NonNullable<
-    NonNullable<NonNullable<NonNullable<AssistantConfig["tools"]>["web"]>["search"]>["provider"]
+    NonNullable<NonNullable<NonNullable<ZhushouConfig["tools"]>["web"]>["search"]>["provider"]
   >;
   enabled?: boolean;
   providerConfig?: Record<string, unknown>;

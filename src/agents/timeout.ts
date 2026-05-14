@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 const DEFAULT_AGENT_TIMEOUT_SECONDS = 48 * 60 * 60;
 const MAX_SAFE_TIMEOUT_MS = 2_147_000_000;
@@ -6,14 +6,14 @@ const MAX_SAFE_TIMEOUT_MS = 2_147_000_000;
 const normalizeNumber = (value: unknown): number | undefined =>
   typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : undefined;
 
-export function resolveAgentTimeoutSeconds(cfg?: AssistantConfig): number {
+export function resolveAgentTimeoutSeconds(cfg?: ZhushouConfig): number {
   const raw = normalizeNumber(cfg?.agents?.defaults?.timeoutSeconds);
   const seconds = raw ?? DEFAULT_AGENT_TIMEOUT_SECONDS;
   return Math.max(seconds, 1);
 }
 
 export function resolveAgentTimeoutMs(opts: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   overrideMs?: number | null;
   overrideSeconds?: number | null;
   minMs?: number;

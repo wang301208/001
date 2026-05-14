@@ -3,7 +3,7 @@ import path from "node:path";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelMessagingAdapter } from "../../channels/plugins/types.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
-import { extractAssistantText, sanitizeTextContent } from "./sessions-helpers.js";
+import { extractZhushouText, sanitizeTextContent } from "./sessions-helpers.js";
 
 const callGatewayMock = vi.fn();
 vi.mock("../../gateway/call.js", () => ({
@@ -178,7 +178,7 @@ async function withStubbedStateDir<T>(
   run: (stateDir: string) => Promise<T>,
 ): Promise<T> {
   const stateDir = path.join(os.tmpdir(), name);
-  vi.stubEnv("ASSISTANT_STATE_DIR", stateDir);
+  vi.stubEnv("ZHUSHOU_STATE_DIR", stateDir);
   try {
     return await run(stateDir);
   } finally {
@@ -197,7 +197,7 @@ describe("sanitizeTextContent", () => {
     expect(result).not.toContain("Tool Call");
   });
 
-  it("strips tool_result XML via the shared assistant-visible sanitizer", () => {
+  it("strips tool_result XML via the shared zhushou-visible sanitizer", () => {
     const input = 'Prefix\n<tool_result>{"output":"hidden"}</tool_result>\nSuffix';
     const result = sanitizeTextContent(input).trim();
     expect(result).toBe("Prefix\n\nSuffix");
@@ -220,7 +220,7 @@ beforeEach(() => {
   setActivePluginRegistry(createTestRegistry([]));
 });
 
-describe("extractAssistantText", () => {
+describe("extractZhushouText", () => {
   it("sanitizes blocks without injecting newlines", () => {
     const message = {
       role: "assistant",
@@ -229,17 +229,17 @@ describe("extractAssistantText", () => {
         { type: "text", text: "<think>secret</think>there" },
       ],
     };
-    expect(extractAssistantText(message)).toBe("Hi there");
+    expect(extractZhushouText(message)).toBe("Hi there");
   });
 
-  it("rewrites error-ish assistant text only when the transcript marks it as an error", () => {
+  it("rewrites error-ish zhushou text only when the transcript marks it as an error", () => {
     const message = {
       role: "assistant",
       stopReason: "error",
       errorMessage: "500 Internal Server Error",
       content: [{ type: "text", text: "500 Internal Server Error" }],
     };
-    expect(extractAssistantText(message)).toBe("HTTP 500: Internal Server Error");
+    expect(extractZhushouText(message)).toBe("HTTP 500: Internal Server Error");
   });
 
   it("keeps normal status text that mentions billing", () => {
@@ -252,7 +252,7 @@ describe("extractAssistantText", () => {
         },
       ],
     };
-    expect(extractAssistantText(message)).toBe(
+    expect(extractZhushouText(message)).toBe(
       "Firebase downgraded us to the free Spark plan. Check whether billing should be re-enabled.",
     );
   });
@@ -264,10 +264,10 @@ describe("extractAssistantText", () => {
       errorMessage: "insufficient credits for embedding model",
       content: [{ type: "text", text: "Handle payment required errors in your API." }],
     };
-    expect(extractAssistantText(message)).toBe("Handle payment required errors in your API.");
+    expect(extractZhushouText(message)).toBe("Handle payment required errors in your API.");
   });
 
-  it("prefers final_answer text when phased assistant history is present", () => {
+  it("prefers final_answer text when phased zhushou history is present", () => {
     const message = {
       role: "assistant",
       content: [
@@ -283,7 +283,7 @@ describe("extractAssistantText", () => {
         },
       ],
     };
-    expect(extractAssistantText(message)).toBe("Done.");
+    expect(extractZhushouText(message)).toBe("Done.");
   });
 });
 
@@ -467,7 +467,7 @@ describe("sessions_list transcriptPath resolution", () => {
   });
 
   it("resolves cross-agent transcript paths from agent defaults when gateway store path is relative", async () => {
-    await withStubbedStateDir("assistant-state-relative", async () => {
+    await withStubbedStateDir("zhushou-state-relative", async () => {
       callGatewayMock.mockResolvedValueOnce({
         path: "agents/main/sessions/sessions.json",
         sessions: [
@@ -488,7 +488,7 @@ describe("sessions_list transcriptPath resolution", () => {
   });
 
   it("resolves transcriptPath even when sessions.list does not return a store path", async () => {
-    await withStubbedStateDir("assistant-state-no-path", async () => {
+    await withStubbedStateDir("zhushou-state-no-path", async () => {
       callGatewayMock.mockResolvedValueOnce({
         sessions: [
           {
@@ -508,7 +508,7 @@ describe("sessions_list transcriptPath resolution", () => {
   });
 
   it("falls back to agent defaults when gateway path is non-string", async () => {
-    await withStubbedStateDir("assistant-state-non-string-path", async () => {
+    await withStubbedStateDir("zhushou-state-non-string-path", async () => {
       callGatewayMock.mockResolvedValueOnce({
         path: { raw: "agents/main/sessions/sessions.json" },
         sessions: [
@@ -529,7 +529,7 @@ describe("sessions_list transcriptPath resolution", () => {
   });
 
   it("falls back to agent defaults when gateway path is '(multiple)'", async () => {
-    await withStubbedStateDir("assistant-state-multiple", async (stateDir) => {
+    await withStubbedStateDir("zhushou-state-multiple", async (stateDir) => {
       callGatewayMock.mockResolvedValueOnce({
         path: "(multiple)",
         sessions: [
@@ -550,7 +550,7 @@ describe("sessions_list transcriptPath resolution", () => {
   });
 
   it("resolves absolute {agentId} template paths per session agent", async () => {
-    const templateStorePath = "/tmp/assistant/agents/{agentId}/sessions/sessions.json";
+    const templateStorePath = "/tmp/zhushou/agents/{agentId}/sessions/sessions.json";
 
     callGatewayMock.mockResolvedValueOnce({
       path: templateStorePath,
@@ -658,10 +658,10 @@ describe("sessions_send gating", () => {
     expect(result.details).toMatchObject({ status: "forbidden" });
   });
 
-  it("does not reuse a stale assistant reply when no new reply appears", async () => {
+  it("does not reuse a stale zhushou reply when no new reply appears", async () => {
     const tool = createMainSessionsSendTool();
     let historyCalls = 0;
-    const staleAssistantMessage = {
+    const staleZhushouMessage = {
       role: "assistant",
       content: [{ type: "text", text: "older reply from a previous run" }],
       timestamp: 20,
@@ -683,7 +683,7 @@ describe("sessions_send gating", () => {
       }
       if (request.method === "chat.history") {
         historyCalls += 1;
-        return { messages: [staleAssistantMessage] };
+        return { messages: [staleZhushouMessage] };
       }
       return {};
     });

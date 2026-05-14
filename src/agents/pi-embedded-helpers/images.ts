@@ -15,7 +15,7 @@ function isThinkingOrRedactedBlock(block: unknown): boolean {
   return rec.type === "thinking" || rec.type === "redacted_thinking";
 }
 
-export function isEmptyAssistantMessageContent(
+export function isEmptyZhushouMessageContent(
   message: Extract<AgentMessage, { role: "assistant" }>,
 ): boolean {
   const content = message.content;
@@ -106,22 +106,22 @@ export async function sanitizeSessionMessagesImages(
     }
 
     if (role === "assistant") {
-      const assistantMsg = msg as Extract<AgentMessage, { role: "assistant" }>;
-      if (assistantMsg.stopReason === "error") {
-        const content = assistantMsg.content;
+      const zhushouMsg = msg as Extract<AgentMessage, { role: "assistant" }>;
+      if (zhushouMsg.stopReason === "error") {
+        const content = zhushouMsg.content;
         if (Array.isArray(content)) {
           const nextContent = (await sanitizeContentBlocksImages(
             content as unknown as ContentBlock[],
             label,
             imageSanitization,
-          )) as unknown as typeof assistantMsg.content;
-          out.push({ ...assistantMsg, content: nextContent });
+          )) as unknown as typeof zhushouMsg.content;
+          out.push({ ...zhushouMsg, content: nextContent });
         } else {
-          out.push(assistantMsg);
+          out.push(zhushouMsg);
         }
         continue;
       }
-      const content = assistantMsg.content;
+      const content = zhushouMsg.content;
       if (Array.isArray(content)) {
         const strippedContent = options?.preserveSignatures
           ? content // Keep signatures for Antigravity Claude
@@ -131,8 +131,8 @@ export async function sanitizeSessionMessagesImages(
             strippedContent as unknown as ContentBlock[],
             label,
             imageSanitization,
-          )) as unknown as typeof assistantMsg.content;
-          out.push({ ...assistantMsg, content: nextContent });
+          )) as unknown as typeof zhushouMsg.content;
+          out.push({ ...zhushouMsg, content: nextContent });
           continue;
         }
 
@@ -154,11 +154,11 @@ export async function sanitizeSessionMessagesImages(
           filteredContent as unknown as ContentBlock[],
           label,
           imageSanitization,
-        )) as unknown as typeof assistantMsg.content;
+        )) as unknown as typeof zhushouMsg.content;
         if (finalContent.length === 0) {
           continue;
         }
-        out.push({ ...assistantMsg, content: finalContent });
+        out.push({ ...zhushouMsg, content: finalContent });
         continue;
       }
     }

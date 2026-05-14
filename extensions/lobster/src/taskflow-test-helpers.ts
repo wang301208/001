@@ -1,8 +1,8 @@
 import { vi } from "vitest";
-import type { AssistantPluginApi } from "../runtime-api.js";
+import type { ZhushouPluginApi } from "../runtime-api.js";
 
 export type BoundTaskFlow = ReturnType<
-  NonNullable<AssistantPluginApi["runtime"]>["taskFlow"]["bindSession"]
+  NonNullable<ZhushouPluginApi["runtime"]>["taskFlow"]["bindSession"]
 >;
 
 export function createFakeTaskFlow(overrides?: Partial<BoundTaskFlow>): BoundTaskFlow {

@@ -407,7 +407,7 @@
         return true;
       }
 
-      // Hide assistant messages with only tool calls (no text) unless error/aborted
+      // Hide zhushou messages with only tool calls (no text) unless error/aborted
       if (entry.type === "message" && entry.message.role === "assistant") {
         const msg = entry.message;
         const hasText = hasTextContent(msg.content);
@@ -728,24 +728,24 @@
           if (textContent) {
             return (
               labelHtml +
-              `<span class="tree-role-assistant">assistant:</span> ${escapeHtml(textContent)}`
+              `<span class="tree-role-zhushou">zhushou:</span> ${escapeHtml(textContent)}`
             );
           }
           if (msg.stopReason === "aborted") {
             return (
               labelHtml +
-              `<span class="tree-role-assistant">assistant:</span> <span class="tree-muted">(aborted)</span>`
+              `<span class="tree-role-zhushou">zhushou:</span> <span class="tree-muted">(aborted)</span>`
             );
           }
           if (msg.errorMessage) {
             return (
               labelHtml +
-              `<span class="tree-role-assistant">assistant:</span> <span class="tree-error">${escapeHtml(truncate(msg.errorMessage))}</span>`
+              `<span class="tree-role-zhushou">zhushou:</span> <span class="tree-error">${escapeHtml(truncate(msg.errorMessage))}</span>`
             );
           }
           return (
             labelHtml +
-            `<span class="tree-role-assistant">assistant:</span> <span class="tree-muted">(no text)</span>`
+            `<span class="tree-role-zhushou">zhushou:</span> <span class="tree-muted">(no text)</span>`
           );
         }
         if (msg.role === "toolResult") {
@@ -1356,11 +1356,11 @@
       }
 
       if (msg.role === "assistant") {
-        let html = `<div class="assistant-message" id="${entryId}">${copyBtnHtml}${tsHtml}`;
+        let html = `<div class="zhushou-message" id="${entryId}">${copyBtnHtml}${tsHtml}`;
 
         for (const block of msg.content) {
           if (block.type === "text" && block.text.trim()) {
-            html += `<div class="assistant-text markdown-content">${safeMarkedParse(block.text)}</div>`;
+            html += `<div class="zhushou-text markdown-content">${safeMarkedParse(block.text)}</div>`;
           } else if (block.type === "thinking" && block.thinking.trim()) {
             html += `<div class="thinking-block">
                   <div class="thinking-text">${escapeHtml(block.thinking)}</div>
@@ -1441,7 +1441,7 @@
 
   function computeStats(entryList) {
     let userMessages = 0,
-      assistantMessages = 0,
+      zhushouMessages = 0,
       toolResults = 0;
     let customMessages = 0,
       compactions = 0,
@@ -1458,7 +1458,7 @@
           userMessages++;
         }
         if (msg.role === "assistant") {
-          assistantMessages++;
+          zhushouMessages++;
           if (msg.model) {
             models.add(msg.provider ? `${msg.provider}/${msg.model}` : msg.model);
           }
@@ -1490,7 +1490,7 @@
 
     return {
       userMessages,
-      assistantMessages,
+      zhushouMessages,
       toolResults,
       customMessages,
       compactions,
@@ -1529,8 +1529,8 @@
     if (globalStats.userMessages) {
       msgParts.push(`${globalStats.userMessages} user`);
     }
-    if (globalStats.assistantMessages) {
-      msgParts.push(`${globalStats.assistantMessages} assistant`);
+    if (globalStats.zhushouMessages) {
+      msgParts.push(`${globalStats.zhushouMessages} zhushou`);
     }
     if (globalStats.toolResults) {
       msgParts.push(`${globalStats.toolResults} tool results`);

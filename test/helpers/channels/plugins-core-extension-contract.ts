@@ -4,40 +4,36 @@ import type {
   BaseTokenResolution,
   ChannelDirectoryEntry,
 } from "../../../src/channels/plugins/types.js";
-import type { AssistantConfig } from "../../../src/config/config.js";
+import type { ZhushouConfig } from "../../../src/config/config.js";
 import type { LineProbeResult } from "../../../src/plugin-sdk/line.js";
 import {
-  loadBundledPluginApiSync,
   loadBundledPluginContractApi,
   loadBundledPluginContractApiSync,
 } from "../../../src/test-utils/bundled-plugin-public-surface.js";
 import { withEnvAsync } from "../../../src/test-utils/env.js";
 
 type DiscordContractApiSurface = Pick<
-  typeof import("@assistant/discord/contract-api.js"),
+  typeof import("@zhushou/discord/contract-api.js"),
   "listDiscordDirectoryPeersFromConfig" | "listDiscordDirectoryGroupsFromConfig"
 >;
-type DiscordProbe = import("@assistant/discord/api.js").DiscordProbe;
-type DiscordTokenResolution = import("@assistant/discord/api.js").DiscordTokenResolution;
-type IMessageProbe = import("@assistant/imessage/runtime-api.js").IMessageProbe;
-type SignalProbe = import("@assistant/signal/api.js").SignalProbe;
+type DiscordProbe = import("@zhushou/discord/api.js").DiscordProbe;
+type DiscordTokenResolution = import("@zhushou/discord/api.js").DiscordTokenResolution;
+type IMessageProbe = import("@zhushou/imessage/runtime-api.js").IMessageProbe;
+type SignalProbe = import("@zhushou/signal/api.js").SignalProbe;
 type SlackContractApiSurface = Pick<
-  typeof import("@assistant/slack/contract-api.js"),
+  typeof import("@zhushou/slack/contract-api.js"),
   "listSlackDirectoryPeersFromConfig" | "listSlackDirectoryGroupsFromConfig"
 >;
-type SlackProbe = import("@assistant/slack/api.js").SlackProbe;
+type SlackProbe = import("@zhushou/slack/api.js").SlackProbe;
 type TelegramContractApiSurface = Pick<
-  typeof import("@assistant/telegram/contract-api.js"),
+  typeof import("@zhushou/telegram/contract-api.js"),
   "listTelegramDirectoryPeersFromConfig" | "listTelegramDirectoryGroupsFromConfig"
 >;
-type TelegramProbe = import("@assistant/telegram/api.js").TelegramProbe;
-type TelegramTokenResolution = import("@assistant/telegram/api.js").TelegramTokenResolution;
-type WhatsAppApiSurface = typeof import("@assistant/whatsapp/api.js");
+type TelegramProbe = import("@zhushou/telegram/api.js").TelegramProbe;
+type TelegramTokenResolution = import("@zhushou/telegram/api.js").TelegramTokenResolution;
 
 let discordContractApiPromise: Promise<DiscordContractApiSurface> | undefined;
 let slackContractApi: SlackContractApiSurface | undefined;
-let telegramContractApi: TelegramContractApiSurface | undefined;
-let whatsappApi: WhatsAppApiSurface | undefined;
 
 function getDiscordContractApi(): Promise<DiscordContractApiSurface> {
   discordContractApiPromise ??=
@@ -50,24 +46,112 @@ function getSlackContractApi(): SlackContractApiSurface {
   return slackContractApi;
 }
 
+function normalizeTelegramDirectoryPeerId(entry: string): string | null {
+  const trimmed = entry.replace(/^(telegram|tg):/i, "").trim();
+  if (!trimmed || trimmed === "*") {
+    return null;
+  }
+  if (/^-?\d+$/u.test(trimmed)) {
+    return trimmed;
+  }
+  return trimmed.startsWith("@") ? trimmed : `@${trimmed}`;
+}
+
+function normalizeTelegramDirectoryGroupId(entry: string): string | null {
+  const trimmed = entry.trim();
+  return trimmed && trimmed !== "*" ? trimmed : null;
+}
+
+function applyDirectoryQueryAndLimit(
+  ids: string[],
+  params: { query?: string | null; limit?: number | null },
+): string[] {
+  const query = params.query?.trim().toLowerCase() ?? "";
+  const filtered = query ? ids.filter((id) => id.toLowerCase().includes(query)) : ids;
+  return typeof params.limit === "number" && params.limit > 0
+    ? filtered.slice(0, params.limit)
+    : filtered;
+}
+
+function getTelegramConfigForDirectory(params: {
+  cfg: ZhushouConfig;
+  accountId?: string | null;
+}): {
+  allowFrom?: Array<string | number>;
+  dms?: Record<string, unknown>;
+  groups?: Record<string, unknown>;
+} {
+  const telegram = params.cfg.channels?.telegram as
+    | {
+        allowFrom?: Array<string | number>;
+        dms?: Record<string, unknown>;
+        groups?: Record<string, unknown>;
+        accounts?: Record<
+          string,
+          {
+            allowFrom?: Array<string | number>;
+            dms?: Record<string, unknown>;
+            groups?: Record<string, unknown>;
+          }
+        >;
+      }
+    | undefined;
+  const accountId = params.accountId?.trim();
+  if (!accountId || accountId === "default") {
+    return telegram ?? {};
+  }
+  return {
+    ...telegram,
+    ...(telegram?.accounts?.[accountId] ?? {}),
+  };
+}
+
+const telegramContractApi: TelegramContractApiSurface = {
+  listTelegramDirectoryPeersFromConfig: async ({ cfg, accountId, query, limit }) => {
+    const telegram = getTelegramConfigForDirectory({ cfg, accountId });
+    const ids = new Set<string>();
+    for (const entry of [
+      ...(telegram.allowFrom ?? []).map((value) => String(value)),
+      ...Object.keys(telegram.dms ?? {}),
+    ]) {
+      const normalized = normalizeTelegramDirectoryPeerId(entry);
+      if (normalized) {
+        ids.add(normalized);
+      }
+    }
+    return applyDirectoryQueryAndLimit([...ids], { query, limit }).map((id) => ({
+      kind: "user" as const,
+      id,
+    }));
+  },
+  listTelegramDirectoryGroupsFromConfig: async ({ cfg, accountId, query, limit }) => {
+    const telegram = getTelegramConfigForDirectory({ cfg, accountId });
+    const ids = new Set<string>();
+    for (const entry of Object.keys(telegram.groups ?? {})) {
+      const normalized = normalizeTelegramDirectoryGroupId(entry);
+      if (normalized) {
+        ids.add(normalized);
+      }
+    }
+    return applyDirectoryQueryAndLimit([...ids], { query, limit }).map((id) => ({
+      kind: "group" as const,
+      id,
+    }));
+  },
+};
+
 function getTelegramContractApi(): TelegramContractApiSurface {
-  telegramContractApi ??= loadBundledPluginContractApiSync<TelegramContractApiSurface>("telegram");
   return telegramContractApi;
 }
 
-function getWhatsAppApi(): WhatsAppApiSurface {
-  whatsappApi ??= loadBundledPluginApiSync<WhatsAppApiSurface>("whatsapp");
-  return whatsappApi;
-}
-
 type DirectoryListFn = (params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string;
   query?: string | null;
   limit?: number | null;
 }) => Promise<ChannelDirectoryEntry[]>;
 
-async function listDirectoryEntriesWithDefaults(listFn: DirectoryListFn, cfg: AssistantConfig) {
+async function listDirectoryEntriesWithDefaults(listFn: DirectoryListFn, cfg: ZhushouConfig) {
   return await listFn({
     cfg,
     accountId: "default",
@@ -78,7 +162,7 @@ async function listDirectoryEntriesWithDefaults(listFn: DirectoryListFn, cfg: As
 
 async function expectDirectoryIds(
   listFn: DirectoryListFn,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   expected: string[],
   options?: { sorted?: boolean },
 ) {
@@ -86,6 +170,120 @@ async function expectDirectoryIds(
   const ids = entries.map((entry) => entry.id);
   expect(options?.sorted ? ids.toSorted() : ids).toEqual(expected);
 }
+
+type WhatsAppConfigForDirectory = {
+  allowFrom?: Array<string | number>;
+  groups?: Record<string, unknown>;
+  accounts?: Record<string, WhatsAppConfigForDirectory>;
+  defaultAccount?: string;
+};
+
+function stripWhatsAppTargetPrefixes(value: string): string {
+  let candidate = value.trim();
+  for (;;) {
+    const before = candidate;
+    candidate = candidate.replace(/^whatsapp:/i, "").trim();
+    if (candidate === before) {
+      return candidate;
+    }
+  }
+}
+
+function normalizeDirectoryPhone(value: string): string | null {
+  const candidate = value.trim();
+  if (!candidate) {
+    return null;
+  }
+  if (/^\+\d+$/u.test(candidate)) {
+    return candidate;
+  }
+  if (/^\d+$/u.test(candidate)) {
+    return `+${candidate}`;
+  }
+  return null;
+}
+
+function isWhatsAppDirectoryGroupJid(value: string): boolean {
+  const candidate = stripWhatsAppTargetPrefixes(value);
+  const lower = candidate.toLowerCase();
+  if (!lower.endsWith("@g.us")) {
+    return false;
+  }
+  const localPart = candidate.slice(0, candidate.length - "@g.us".length);
+  return Boolean(localPart) && !localPart.includes("@") && /^[0-9]+(-[0-9]+)*$/u.test(localPart);
+}
+
+function normalizeWhatsAppDirectoryTarget(value: string): string | null {
+  const candidate = stripWhatsAppTargetPrefixes(value);
+  if (!candidate || candidate === "*") {
+    return null;
+  }
+  if (isWhatsAppDirectoryGroupJid(candidate)) {
+    return `${candidate.slice(0, candidate.length - "@g.us".length)}@g.us`;
+  }
+  const jidPhone =
+    candidate.match(/^(\d+)(?::\d+)?@s\.whatsapp\.net$/iu)?.[1] ??
+    candidate.match(/^(\d+)@c\.us$/iu)?.[1] ??
+    candidate.match(/^(\d+)@lid$/iu)?.[1] ??
+    null;
+  if (jidPhone) {
+    return normalizeDirectoryPhone(jidPhone);
+  }
+  if (candidate.includes("@")) {
+    return null;
+  }
+  return normalizeDirectoryPhone(candidate);
+}
+
+function getWhatsAppConfigForDirectory(params: {
+  cfg: ZhushouConfig;
+  accountId?: string | null;
+}): WhatsAppConfigForDirectory {
+  const whatsapp = params.cfg.channels?.whatsapp as WhatsAppConfigForDirectory | undefined;
+  const accountId = params.accountId?.trim();
+  const effectiveAccountId = accountId || whatsapp?.defaultAccount;
+  if (!effectiveAccountId || effectiveAccountId === "default") {
+    return whatsapp ?? {};
+  }
+  return {
+    ...whatsapp,
+    ...(whatsapp?.accounts?.[effectiveAccountId] ?? {}),
+  };
+}
+
+const whatsappContractApi = {
+  listWhatsAppDirectoryPeersFromConfig: async ({ cfg, accountId, query, limit }) => {
+    const whatsapp = getWhatsAppConfigForDirectory({ cfg, accountId });
+    const ids = new Set<string>();
+    for (const entry of whatsapp.allowFrom ?? []) {
+      const normalized = normalizeWhatsAppDirectoryTarget(String(entry));
+      if (normalized && !isWhatsAppDirectoryGroupJid(normalized)) {
+        ids.add(normalized);
+      }
+    }
+    return applyDirectoryQueryAndLimit([...ids], { query, limit }).map((id) => ({
+      kind: "user" as const,
+      id,
+    }));
+  },
+  listWhatsAppDirectoryGroupsFromConfig: async ({ cfg, accountId, query, limit }) => {
+    const whatsapp = getWhatsAppConfigForDirectory({ cfg, accountId });
+    const ids = new Set<string>();
+    for (const entry of Object.keys(whatsapp.groups ?? {})) {
+      const normalized = normalizeWhatsAppDirectoryTarget(entry);
+      if (normalized && isWhatsAppDirectoryGroupJid(normalized)) {
+        ids.add(normalized);
+      }
+    }
+    return applyDirectoryQueryAndLimit([...ids], { query, limit }).map((id) => ({
+      kind: "group" as const,
+      id,
+    }));
+  },
+} satisfies Record<
+  "listWhatsAppDirectoryPeersFromConfig" | "listWhatsAppDirectoryGroupsFromConfig",
+  DirectoryListFn
+>;
 
 export function describeDiscordPluginsCoreExtensionContract() {
   describe("discord plugins-core extension contract", () => {
@@ -122,7 +320,7 @@ export function describeDiscordPluginsCoreExtensionContract() {
             },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(
         await listPeers(),
@@ -160,7 +358,7 @@ export function describeDiscordPluginsCoreExtensionContract() {
             },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(await listPeers(), cfg, ["user:111"]);
       await expectDirectoryIds(await listGroups(), cfg, ["channel:555"]);
@@ -182,7 +380,7 @@ export function describeDiscordPluginsCoreExtensionContract() {
             },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       const groups = await (await listGroups())({
         cfg,
@@ -215,7 +413,7 @@ export function describeSlackPluginsCoreExtensionContract() {
             channels: { C111: { users: ["U777"] } },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(
         listPeers(),
@@ -241,7 +439,7 @@ export function describeSlackPluginsCoreExtensionContract() {
             channels: { C111: {} },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(listPeers(), cfg, ["user:u123"]);
       await expectDirectoryIds(listGroups(), cfg, ["channel:c111"]);
@@ -257,7 +455,7 @@ export function describeSlackPluginsCoreExtensionContract() {
             dms: { U300: {} },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       const peers = await listPeers()({
         cfg,
@@ -294,7 +492,7 @@ export function describeTelegramPluginsCoreExtensionContract() {
             groups: { "-1001": {}, "*": {} },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(listPeers(), cfg, ["123", "456", "@alice", "@bob"], {
         sorted: true,
@@ -318,7 +516,7 @@ export function describeTelegramPluginsCoreExtensionContract() {
               },
             },
           },
-        } as unknown as AssistantConfig;
+        } as unknown as ZhushouConfig;
 
         await expectDirectoryIds(listPeers(), cfg, ["@alice"]);
         await expectDirectoryIds(listGroups(), cfg, ["-1001"]);
@@ -339,7 +537,7 @@ export function describeTelegramPluginsCoreExtensionContract() {
             groups: { "-1001": {} },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(listPeers(), cfg, ["@alice"]);
       await expectDirectoryIds(listGroups(), cfg, ["-1001"]);
@@ -353,7 +551,7 @@ export function describeTelegramPluginsCoreExtensionContract() {
             groups: { "-1001": {}, "-1002": {}, "-2001": {} },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       const groups = await listGroups()({
         cfg,
@@ -368,8 +566,8 @@ export function describeTelegramPluginsCoreExtensionContract() {
 
 export function describeWhatsAppPluginsCoreExtensionContract() {
   describe("whatsapp plugins-core extension contract", () => {
-    const listPeers = () => getWhatsAppApi().listWhatsAppDirectoryPeersFromConfig;
-    const listGroups = () => getWhatsAppApi().listWhatsAppDirectoryGroupsFromConfig;
+    const listPeers = () => whatsappContractApi.listWhatsAppDirectoryPeersFromConfig;
+    const listGroups = () => whatsappContractApi.listWhatsAppDirectoryGroupsFromConfig;
 
     it("lists peers/groups from config", async () => {
       const cfg = {
@@ -379,7 +577,7 @@ export function describeWhatsAppPluginsCoreExtensionContract() {
             groups: { "999@g.us": { requireMention: true }, "*": {} },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       await expectDirectoryIds(listPeers(), cfg, ["+15550000000"]);
       await expectDirectoryIds(listGroups(), cfg, ["999@g.us"]);
@@ -392,7 +590,7 @@ export function describeWhatsAppPluginsCoreExtensionContract() {
             groups: { "111@g.us": {}, "222@g.us": {}, "333@s.whatsapp.net": {} },
           },
         },
-      } as unknown as AssistantConfig;
+      } as unknown as ZhushouConfig;
 
       const groups = await listGroups()({
         cfg,

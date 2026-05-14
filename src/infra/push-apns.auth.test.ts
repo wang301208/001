@@ -12,7 +12,7 @@ import {
 const tempDirs = createTrackedTempDirs();
 
 async function makeTempDir(): Promise<string> {
-  return await tempDirs.make("assistant-push-apns-auth-test-");
+  return await tempDirs.make("zhushou-push-apns-auth-test-");
 }
 
 afterEach(async () => {
@@ -29,11 +29,11 @@ describe("push APNs auth and helper coverage", () => {
 
   it("prefers inline APNs private key values and unescapes newlines", async () => {
     const resolved = await resolveApnsAuthConfigFromEnv({
-      ASSISTANT_APNS_TEAM_ID: "TEAM123",
-      ASSISTANT_APNS_KEY_ID: "KEY123",
-      ASSISTANT_APNS_PRIVATE_KEY_P8:
+      ZHUSHOU_APNS_TEAM_ID: "TEAM123",
+      ZHUSHOU_APNS_KEY_ID: "KEY123",
+      ZHUSHOU_APNS_PRIVATE_KEY_P8:
         "-----BEGIN PRIVATE KEY-----\\nline-a\\nline-b\\n-----END PRIVATE KEY-----", // pragma: allowlist secret
-      ASSISTANT_APNS_PRIVATE_KEY: "ignored",
+      ZHUSHOU_APNS_PRIVATE_KEY: "ignored",
     } as NodeJS.ProcessEnv);
 
     expect(resolved).toMatchObject({
@@ -49,12 +49,12 @@ describe("push APNs auth and helper coverage", () => {
     }
   });
 
-  it("falls back to ASSISTANT_APNS_PRIVATE_KEY when ASSISTANT_APNS_PRIVATE_KEY_P8 is blank", async () => {
+  it("falls back to ZHUSHOU_APNS_PRIVATE_KEY when ZHUSHOU_APNS_PRIVATE_KEY_P8 is blank", async () => {
     const resolved = await resolveApnsAuthConfigFromEnv({
-      ASSISTANT_APNS_TEAM_ID: "TEAM123",
-      ASSISTANT_APNS_KEY_ID: "KEY123",
-      ASSISTANT_APNS_PRIVATE_KEY_P8: "   ",
-      ASSISTANT_APNS_PRIVATE_KEY:
+      ZHUSHOU_APNS_TEAM_ID: "TEAM123",
+      ZHUSHOU_APNS_KEY_ID: "KEY123",
+      ZHUSHOU_APNS_PRIVATE_KEY_P8: "   ",
+      ZHUSHOU_APNS_PRIVATE_KEY:
         "-----BEGIN PRIVATE KEY-----\\nline-c\\nline-d\\n-----END PRIVATE KEY-----", // pragma: allowlist secret
     } as NodeJS.ProcessEnv);
 
@@ -68,7 +68,7 @@ describe("push APNs auth and helper coverage", () => {
     });
   });
 
-  it("reads APNs private keys from ASSISTANT_APNS_PRIVATE_KEY_PATH", async () => {
+  it("reads APNs private keys from ZHUSHOU_APNS_PRIVATE_KEY_PATH", async () => {
     const dir = await makeTempDir();
     const keyPath = path.join(dir, "apns-key.p8");
     await fs.writeFile(
@@ -78,9 +78,9 @@ describe("push APNs auth and helper coverage", () => {
     );
 
     const resolved = await resolveApnsAuthConfigFromEnv({
-      ASSISTANT_APNS_TEAM_ID: "TEAM123",
-      ASSISTANT_APNS_KEY_ID: "KEY123",
-      ASSISTANT_APNS_PRIVATE_KEY_PATH: keyPath,
+      ZHUSHOU_APNS_TEAM_ID: "TEAM123",
+      ZHUSHOU_APNS_KEY_ID: "KEY123",
+      ZHUSHOU_APNS_PRIVATE_KEY_PATH: keyPath,
     } as NodeJS.ProcessEnv);
 
     expect(resolved).toMatchObject({
@@ -99,19 +99,19 @@ describe("push APNs auth and helper coverage", () => {
 
     await expect(resolveApnsAuthConfigFromEnv({} as NodeJS.ProcessEnv)).resolves.toEqual({
       ok: false,
-      error: "APNs auth missing: set ASSISTANT_APNS_TEAM_ID and ASSISTANT_APNS_KEY_ID",
+      error: "APNs auth missing: set ZHUSHOU_APNS_TEAM_ID and ZHUSHOU_APNS_KEY_ID",
     });
 
     const missingKey = await resolveApnsAuthConfigFromEnv({
-      ASSISTANT_APNS_TEAM_ID: "TEAM123",
-      ASSISTANT_APNS_KEY_ID: "KEY123",
-      ASSISTANT_APNS_PRIVATE_KEY_PATH: missingPath,
+      ZHUSHOU_APNS_TEAM_ID: "TEAM123",
+      ZHUSHOU_APNS_KEY_ID: "KEY123",
+      ZHUSHOU_APNS_PRIVATE_KEY_PATH: missingPath,
     } as NodeJS.ProcessEnv);
 
     expect(missingKey.ok).toBe(false);
     if (!missingKey.ok) {
       expect(missingKey.error).toContain(
-        `failed reading ASSISTANT_APNS_PRIVATE_KEY_PATH (${missingPath})`,
+        `failed reading ZHUSHOU_APNS_PRIVATE_KEY_PATH (${missingPath})`,
       );
     }
   });
@@ -132,7 +132,7 @@ describe("push APNs auth and helper coverage", () => {
           nodeId: "ios-node-direct",
           transport: "direct",
           token: "ABCD1234ABCD1234ABCD1234ABCD1234",
-          topic: "ai.assistant.ios",
+          topic: "ai.zhushou.ios",
           environment: "sandbox",
           updatedAtMs: 1,
         },
@@ -148,7 +148,7 @@ describe("push APNs auth and helper coverage", () => {
           relayHandle: "relay-handle-123",
           sendGrant: "send-grant-123",
           installationId: "install-123",
-          topic: "ai.assistant.ios",
+          topic: "ai.zhushou.ios",
           environment: "production",
           distribution: "official",
           updatedAtMs: 1,
@@ -163,7 +163,7 @@ describe("push APNs auth and helper coverage", () => {
           nodeId: "ios-node-direct",
           transport: "direct",
           token: "ABCD1234ABCD1234ABCD1234ABCD1234",
-          topic: "ai.assistant.ios",
+          topic: "ai.zhushou.ios",
           environment: "sandbox",
           updatedAtMs: 1,
         },

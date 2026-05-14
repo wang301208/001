@@ -7,7 +7,7 @@ const contextTestState = vi.hoisted(() => {
   const state = {
     loadConfigImpl: () => ({}) as unknown,
     discoveredModels: [] as DiscoveredModel[],
-    ensureAssistantModelsJson: vi.fn(async () => {}),
+    ensureZhushouModelsJson: vi.fn(async () => {}),
     discoverAuthStorage: vi.fn(() => ({})),
     discoverModels: vi.fn(() => ({
       getAll: () => state.discoveredModels,
@@ -21,11 +21,11 @@ vi.mock("../config/config.js", () => ({
 }));
 
 vi.mock("./models-config.js", () => ({
-  ensureAssistantModelsJson: contextTestState.ensureAssistantModelsJson,
+  ensureZhushouModelsJson: contextTestState.ensureZhushouModelsJson,
 }));
 
 vi.mock("./agent-paths.js", () => ({
-  resolveAssistantAgentDir: () => "/tmp/assistant-agent",
+  resolveZhushouAgentDir: () => "/tmp/zhushou-agent",
 }));
 
 vi.mock("./pi-model-discovery-runtime.js", () => ({
@@ -39,8 +39,8 @@ function mockContextDeps(params: {
 }) {
   contextTestState.loadConfigImpl = params.loadConfig;
   contextTestState.discoveredModels = params.discoveredModels ?? [];
-  contextTestState.ensureAssistantModelsJson.mockClear();
-  return { ensureAssistantModelsJson: contextTestState.ensureAssistantModelsJson };
+  contextTestState.ensureZhushouModelsJson.mockClear();
+  return { ensureZhushouModelsJson: contextTestState.ensureZhushouModelsJson };
 }
 
 function mockContextModuleDeps(loadConfigImpl: () => unknown) {
@@ -105,7 +105,7 @@ describe("lookupContextTokens", () => {
   beforeEach(() => {
     contextTestState.loadConfigImpl = () => ({});
     contextTestState.discoveredModels = [];
-    contextTestState.ensureAssistantModelsJson.mockClear();
+    contextTestState.ensureZhushouModelsJson.mockClear();
     contextTestState.discoverAuthStorage.mockClear();
     contextTestState.discoverModels.mockClear();
     contextModule.resetContextWindowCacheForTest();
@@ -195,24 +195,24 @@ describe("lookupContextTokens", () => {
     expect(secondLoadConfigMock).not.toHaveBeenCalled();
   });
 
-  it("only warms eagerly for real assistant startup commands that need model metadata", async () => {
+  it("only warms eagerly for real zhushou startup commands that need model metadata", async () => {
     const argvSnapshot = process.argv;
     try {
       for (const scenario of [
         {
-          argv: ["node", "assistant", "chat"],
+          argv: ["node", "zhushou", "chat"],
           expectedCalls: 1,
         },
         {
-          argv: ["node", "assistant", "--profile", "--", "config", "validate"],
+          argv: ["node", "zhushou", "--profile", "--", "config", "validate"],
           expectedCalls: 0,
         },
         {
-          argv: ["node", "assistant", "logs", "--limit", "5"],
+          argv: ["node", "zhushou", "logs", "--limit", "5"],
           expectedCalls: 0,
         },
         {
-          argv: ["node", "assistant", "status", "--json"],
+          argv: ["node", "zhushou", "status", "--json"],
           expectedCalls: 0,
         },
         {
@@ -221,11 +221,11 @@ describe("lookupContextTokens", () => {
         },
       ]) {
         const loadConfigMock = vi.fn(() => ({ models: {} }));
-        const { ensureAssistantModelsJson } = mockContextModuleDeps(loadConfigMock);
+        const { ensureZhushouModelsJson } = mockContextModuleDeps(loadConfigMock);
         process.argv = scenario.argv;
         await importFreshContextModule();
         expect(loadConfigMock).toHaveBeenCalledTimes(scenario.expectedCalls);
-        expect(ensureAssistantModelsJson).toHaveBeenCalledTimes(scenario.expectedCalls);
+        expect(ensureZhushouModelsJson).toHaveBeenCalledTimes(scenario.expectedCalls);
       }
     } finally {
       process.argv = argvSnapshot;
@@ -392,7 +392,7 @@ describe("lookupContextTokens", () => {
       provider: "amazon-bedrock",
       model: "claude-alias-test",
     });
-    expect(canonicalResult).toBe(32_000);
+    expect(canonicalResult).toBe(128_000);
   });
 
   it("resolveContextTokensForModel(model-only) does not apply config scan for inferred provider", async () => {

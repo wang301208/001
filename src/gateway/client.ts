@@ -221,7 +221,7 @@ export class GatewayClient {
       return;
     }
 
-    const allowPrivateWs = process.env.ASSISTANT_ALLOW_INSECURE_PRIVATE_WS === "1";
+    const allowPrivateWs = process.env.ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS === "1";
     // Security check: block ALL plaintext ws:// to non-loopback addresses (CWE-319, CVSS 9.8)
     // This protects both credentials AND chat/conversation data from MITM attacks.
     // Device tokens may be loaded later in sendConnect(), so we block regardless of hasCredentials.
@@ -240,8 +240,8 @@ export class GatewayClient {
           `(ssh -N -L ${DEFAULT_GATEWAY_PORT}:127.0.0.1:${DEFAULT_GATEWAY_PORT} user@gateway-host), or use Tailscale Serve/Funnel. ` +
           (allowPrivateWs
             ? ""
-            : "Break-glass (trusted private networks only): set ASSISTANT_ALLOW_INSECURE_PRIVATE_WS=1. ") +
-          "Run `assistant doctor --fix` for guidance.",
+            : "Break-glass (trusted private networks only): set ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS=1. ") +
+          "Run `zhushou doctor --fix` for guidance.",
       );
       this.opts.onConnectError?.(error);
       return;

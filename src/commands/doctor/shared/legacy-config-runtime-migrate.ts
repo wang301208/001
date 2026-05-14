@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import {
   normalizeLegacyBrowserConfig,
   normalizeLegacyCrossContextMessageConfig,
@@ -12,8 +12,8 @@ import { migrateLegacyWebFetchConfig } from "./legacy-web-fetch-migrate.js";
 import { migrateLegacyWebSearchConfig } from "./legacy-web-search-migrate.js";
 import { migrateLegacyXSearchConfig } from "./legacy-x-search-migrate.js";
 
-export function normalizeRuntimeCompatibilityConfigValues(cfg: AssistantConfig): {
-  config: AssistantConfig;
+export function normalizeRuntimeCompatibilityConfigValues(cfg: ZhushouConfig): {
+  config: ZhushouConfig;
   changes: string[];
 } {
   const changes: string[] = [];

@@ -2,14 +2,14 @@ import {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
   normalizeOptionalAccountId,
-} from "assistant/plugin-sdk/account-id";
+} from "zhushou/plugin-sdk/account-id";
 import {
   listCombinedAccountIds,
   resolveListedDefaultAccountId,
-} from "assistant/plugin-sdk/account-resolution";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { normalizeSecretInputString, type SecretInput } from "assistant/plugin-sdk/secret-input";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/account-resolution";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeSecretInputString, type SecretInput } from "zhushou/plugin-sdk/secret-input";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import type { NostrProfile } from "./config-schema.js";
 import { DEFAULT_RELAYS } from "./default-relays.js";
 import { getPublicKeyFromPrivate } from "./nostr-key-utils.js";
@@ -37,7 +37,7 @@ export interface ResolvedNostrAccount {
   config: NostrAccountConfig;
 }
 
-function resolveConfiguredDefaultNostrAccountId(cfg: AssistantConfig): string | undefined {
+function resolveConfiguredDefaultNostrAccountId(cfg: ZhushouConfig): string | undefined {
   const nostrCfg = (cfg.channels as Record<string, unknown> | undefined)?.nostr as
     | NostrAccountConfig
     | undefined;
@@ -47,7 +47,7 @@ function resolveConfiguredDefaultNostrAccountId(cfg: AssistantConfig): string | 
 /**
  * List all configured Nostr account IDs
  */
-export function listNostrAccountIds(cfg: AssistantConfig): string[] {
+export function listNostrAccountIds(cfg: ZhushouConfig): string[] {
   const nostrCfg = (cfg.channels as Record<string, unknown> | undefined)?.nostr as
     | NostrAccountConfig
     | undefined;
@@ -63,7 +63,7 @@ export function listNostrAccountIds(cfg: AssistantConfig): string[] {
 /**
  * Get the default account ID
  */
-export function resolveDefaultNostrAccountId(cfg: AssistantConfig): string {
+export function resolveDefaultNostrAccountId(cfg: ZhushouConfig): string {
   return resolveListedDefaultAccountId({
     accountIds: listNostrAccountIds(cfg),
     configuredDefaultAccountId: resolveConfiguredDefaultNostrAccountId(cfg),
@@ -74,7 +74,7 @@ export function resolveDefaultNostrAccountId(cfg: AssistantConfig): string {
  * Resolve a Nostr account from config
  */
 export function resolveNostrAccount(opts: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): ResolvedNostrAccount {
   const accountId = normalizeAccountId(opts.accountId ?? resolveDefaultNostrAccountId(opts.cfg));

@@ -20,7 +20,7 @@ export function makeAgentUserMessage(
   };
 }
 
-export function makeAgentAssistantMessage(
+export function makeAgentZhushouMessage(
   overrides: Partial<AssistantMessage> & Pick<AssistantMessage, "content">,
 ): AssistantMessage {
   return {

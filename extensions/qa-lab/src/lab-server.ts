@@ -1,10 +1,11 @@
 import { createServer, type IncomingMessage } from "node:http";
 import path from "node:path";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { setImmediate as setImmediatePromise } from "node:timers/promises";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import {
   getDebugProxyCaptureStore,
   resolveDebugProxySettings,
-} from "assistant/plugin-sdk/proxy-capture";
+} from "zhushou/plugin-sdk/proxy-capture";
 import { closeQaHttpServer, handleQaBusRequest, writeError, writeJson } from "./bus-server.js";
 import { createQaBusState, type QaBusState } from "./bus-state.js";
 import { createQaRunnerRuntime } from "./harness-runtime.js";
@@ -31,7 +32,7 @@ import {
   createQaRunOutputDir,
   normalizeQaRunSelection,
 } from "./run-config.js";
-import { qaChannelPlugin, setQaChannelRuntime, type AssistantConfig } from "./runtime-api.js";
+import { qaChannelPlugin, setQaChannelRuntime, type ZhushouConfig } from "./runtime-api.js";
 import { readQaBootstrapScenarioCatalog } from "./scenario-catalog.js";
 import { runQaSelfCheckAgainstState, type QaSelfCheckResult } from "./self-check.js";
 
@@ -113,7 +114,7 @@ function createBootstrapDefaults(autoKickoffTarget?: string): QaLabBootstrapDefa
   };
 }
 
-function createQaLabConfig(baseUrl: string): AssistantConfig {
+function createQaLabConfig(baseUrl: string): ZhushouConfig {
   return createQaChannelGatewayConfig({ baseUrl });
 }
 
@@ -123,35 +124,43 @@ async function startQaGatewayLoop(params: { state: QaBusState; baseUrl: string }
   const cfg = createQaLabConfig(params.baseUrl);
   const account = qaChannelPlugin.config.resolveAccount(cfg, "default");
   const abort = new AbortController();
-  const task = qaChannelPlugin.gateway?.startAccount?.({
-    accountId: account.accountId,
-    account,
-    cfg,
-    runtime: {
-      log: () => undefined,
-      error: () => undefined,
-      exit: () => undefined,
-    },
-    abortSignal: abort.signal,
-    log: {
-      info: () => undefined,
-      warn: () => undefined,
-      error: () => undefined,
-      debug: () => undefined,
-    },
-    getStatus: () => ({
+  const task = (async () => {
+    await setImmediatePromise();
+    await qaChannelPlugin.gateway?.startAccount?.({
       accountId: account.accountId,
-      configured: true,
-      enabled: true,
-      running: true,
-    }),
-    setStatus: () => undefined,
-  });
+      account,
+      cfg,
+      runtime: {
+        log: () => undefined,
+        error: () => undefined,
+        exit: () => undefined,
+      },
+      abortSignal: abort.signal,
+      log: {
+        info: () => undefined,
+        warn: () => undefined,
+        error: () => undefined,
+        debug: () => undefined,
+      },
+      getStatus: () => ({
+        accountId: account.accountId,
+        configured: true,
+        enabled: true,
+        running: true,
+      }),
+      setStatus: () => undefined,
+    });
+  })();
   return {
     cfg,
     async stop() {
       abort.abort();
-      await task;
+      await task.catch((error: unknown) => {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+        throw error;
+      });
     },
   };
 }
@@ -177,7 +186,7 @@ export async function startQaLabServer(
   let activeSuiteRun: Promise<void> | null = null;
   let gateway:
     | {
-        cfg: AssistantConfig;
+        cfg: ZhushouConfig;
         stop: () => Promise<void>;
       }
     | undefined;

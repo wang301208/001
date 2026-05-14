@@ -47,7 +47,7 @@ function pickHigherContrastText(r: number, g: number, b: number): boolean {
 }
 
 function isLightBackground(): boolean {
-  const explicit = normalizeOptionalLowercaseString(process.env.ASSISTANT_THEME);
+  const explicit = normalizeOptionalLowercaseString(process.env.ZHUSHOU_THEME);
   if (explicit === "light") {
     return true;
   }
@@ -165,7 +165,7 @@ function highlightCode(code: string, lang?: string): string[] {
 
 export const theme = {
   fg: fg(palette.text),
-  assistantText: (text: string) => text,
+  zhushouText: (text: string) => text,
   dim: fg(palette.dim),
   accent: fg(palette.accent),
   accentSoft: fg(palette.accentSoft),

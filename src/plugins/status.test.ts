@@ -10,7 +10,7 @@ import {
 } from "./status.test-helpers.js";
 
 const loadConfigMock = vi.fn();
-const loadAssistantPluginsMock = vi.fn();
+const loadZhushouPluginsMock = vi.fn();
 const loadPluginMetadataRegistrySnapshotMock = vi.fn();
 const applyPluginAutoEnableMock = vi.fn();
 const resolveBundledProviderCompatPluginIdsMock = vi.fn();
@@ -36,7 +36,7 @@ vi.mock("../config/plugin-auto-enable.js", () => ({
 }));
 
 vi.mock("./loader.js", () => ({
-  loadAssistantPlugins: (...args: unknown[]) => loadAssistantPluginsMock(...args),
+  loadZhushouPlugins: (...args: unknown[]) => loadZhushouPluginsMock(...args),
 }));
 
 vi.mock("./runtime/metadata-registry-loader.js", () => ({
@@ -80,7 +80,7 @@ function setPluginLoadResult(overrides: Partial<ReturnType<typeof createPluginLo
     plugins: [],
     ...overrides,
   });
-  loadAssistantPluginsMock.mockReturnValue(result);
+  loadZhushouPluginsMock.mockReturnValue(result);
   loadPluginMetadataRegistrySnapshotMock.mockReturnValue(result);
 }
 
@@ -113,7 +113,7 @@ function expectPluginLoaderCall(params: {
   env?: NodeJS.ProcessEnv;
   loadModules?: boolean;
 }) {
-  expect(loadAssistantPluginsMock).toHaveBeenCalledWith(
+  expect(loadZhushouPluginsMock).toHaveBeenCalledWith(
     expect.objectContaining({
       ...(params.config !== undefined ? { config: params.config } : {}),
       ...(params.activationSourceConfig !== undefined
@@ -324,7 +324,7 @@ describe("plugin status reports", () => {
 
   beforeEach(() => {
     loadConfigMock.mockReset();
-    loadAssistantPluginsMock.mockReset();
+    loadZhushouPluginsMock.mockReset();
     loadPluginMetadataRegistrySnapshotMock.mockReset();
     applyPluginAutoEnableMock.mockReset();
     resolveBundledProviderCompatPluginIdsMock.mockReset();
@@ -351,7 +351,7 @@ describe("plugin status reports", () => {
   });
 
   it("forwards an explicit env to plugin loading", () => {
-    const env = { HOME: "/tmp/assistant-home" } as NodeJS.ProcessEnv;
+    const env = { HOME: "/tmp/zhushou-home" } as NodeJS.ProcessEnv;
 
     buildPluginSnapshotReport({
       config: {},
@@ -375,7 +375,7 @@ describe("plugin status reports", () => {
         loadModules: false,
       }),
     );
-    expect(loadAssistantPluginsMock).not.toHaveBeenCalled();
+    expect(loadZhushouPluginsMock).not.toHaveBeenCalled();
   });
 
   it("loads plugin status from the auto-enabled config snapshot", () => {
@@ -489,7 +489,7 @@ describe("plugin status reports", () => {
     const report = buildPluginDiagnosticsReport({
       config: {},
       env: {
-        ASSISTANT_VERSION: "2026.3.23-1",
+        ZHUSHOU_VERSION: "2026.3.23-1",
       } as NodeJS.ProcessEnv,
     });
 

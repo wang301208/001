@@ -1,7 +1,7 @@
 import {
   buildChannelOutboundSessionRoute,
   type ChannelOutboundSessionRouteParams,
-} from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 import { parseTlonTarget } from "./targets.js";
 
 export function resolveTlonOutboundSessionRoute(params: ChannelOutboundSessionRouteParams) {

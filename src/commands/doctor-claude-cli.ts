@@ -12,7 +12,7 @@ import type {
 } from "../agents/auth-profiles/types.js";
 import { readClaudeCliCredentialsCached } from "../agents/cli-credentials.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveExecutablePath } from "../infra/executable-path.js";
 import {
   normalizeOptionalLowercaseString,
@@ -33,7 +33,7 @@ type ClaudeCliReadableCredential =
 
 type ClaudeCliDirHealth = "present" | "missing" | "not_directory" | "unreadable" | "readonly";
 
-function usesClaudeCliModelSelection(cfg: AssistantConfig): boolean {
+function usesClaudeCliModelSelection(cfg: ZhushouConfig): boolean {
   const primary = resolvePrimaryStringValue(
     cfg.agents?.defaults?.model as string | { primary?: string; fallbacks?: string[] } | undefined,
   );
@@ -45,7 +45,7 @@ function usesClaudeCliModelSelection(cfg: AssistantConfig): boolean {
   );
 }
 
-function hasClaudeCliConfigSignals(cfg: AssistantConfig): boolean {
+function hasClaudeCliConfigSignals(cfg: ZhushouConfig): boolean {
   if (usesClaudeCliModelSelection(cfg)) {
     return true;
   }
@@ -69,7 +69,7 @@ function hasClaudeCliStoreSignals(store: AuthProfileStore): boolean {
   return Object.values(store.profiles).some((profile) => profile?.provider === CLAUDE_CLI_PROVIDER);
 }
 
-function resolveClaudeCliCommand(cfg: AssistantConfig): string {
+function resolveClaudeCliCommand(cfg: ZhushouConfig): string {
   const configured = cfg.agents?.defaults?.cliBackends ?? {};
   for (const [key, entry] of Object.entries(configured)) {
     if (normalizeOptionalLowercaseString(key) !== CLAUDE_CLI_PROVIDER) {
@@ -209,7 +209,7 @@ function formatProjectDirHealthLine(projectDir: string, health: ClaudeCliDirHeal
 }
 
 export function noteClaudeCliHealth(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   deps?: {
     noteFn?: typeof note;
     env?: NodeJS.ProcessEnv;
@@ -266,7 +266,7 @@ export function noteClaudeCliHealth(
     lines.push("- Headless Claude auth: unavailable without interactive prompting.");
     fixHints.push(
       `- Fix: run ${formatCliCommand("claude auth login")}, then ${formatCliCommand(
-        "assistant models auth login --provider anthropic --method cli --set-default",
+        "zhushou models auth login --provider anthropic --method cli --set-default",
       )}.`,
     );
   }
@@ -275,7 +275,7 @@ export function noteClaudeCliHealth(
     lines.push(`- 助手 auth profile: missing (${CLAUDE_CLI_PROFILE_ID}) in ${authStorePath}.`);
     fixHints.push(
       `- Fix: run ${formatCliCommand(
-        "assistant models auth login --provider anthropic --method cli --set-default",
+        "zhushou models auth login --provider anthropic --method cli --set-default",
       )}.`,
     );
   } else if (storedProfile.provider !== CLAUDE_CLI_PROVIDER) {
@@ -284,7 +284,7 @@ export function noteClaudeCliHealth(
     );
     fixHints.push(
       `- Fix: rerun ${formatCliCommand(
-        "assistant models auth login --provider anthropic --method cli --set-default",
+        "zhushou models auth login --provider anthropic --method cli --set-default",
       )} to rewrite the profile cleanly.`,
     );
   } else {

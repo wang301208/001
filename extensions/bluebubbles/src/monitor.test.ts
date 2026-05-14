@@ -21,7 +21,7 @@ import {
   resetBlueBubblesParticipantContactNameCacheForTest,
   setBlueBubblesParticipantContactDepsForTest,
 } from "./participant-contact-names.js";
-import type { AssistantConfig, PluginRuntime } from "./runtime-api.js";
+import type { ZhushouConfig, PluginRuntime } from "./runtime-api.js";
 import {
   createBlueBubblesMonitorTestRuntime,
   EMPTY_DISPATCH_RESULT,
@@ -227,7 +227,7 @@ describe("BlueBubbles webhook monitor", () => {
 
   function setupWebhookTarget(params?: {
     account?: ReturnType<typeof createMockAccount>;
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     core?: PluginRuntime;
   }) {
     const registration = trackWebhookRegistrationForTest(
@@ -1009,7 +1009,7 @@ describe("BlueBubbles webhook monitor", () => {
               contextVisibility: "allowlist",
             },
           },
-        } as AssistantConfig,
+        } as ZhushouConfig,
       });
 
       const payload = createTimestampedNewMessagePayloadForTest({
@@ -1046,7 +1046,7 @@ describe("BlueBubbles webhook monitor", () => {
               contextVisibility: "allowlist_quote",
             },
           },
-        } as AssistantConfig,
+        } as ZhushouConfig,
       });
 
       const payload = createTimestampedNewMessagePayloadForTest({
@@ -1426,7 +1426,7 @@ describe("BlueBubbles webhook monitor", () => {
 
       // Outbound message ID uses short ID "2" (inbound msg-1 is "1", outbound msg-123 is "2")
       expect(mockEnqueueSystemEvent).toHaveBeenCalledWith(
-        'Assistant sent "replying now" [message_id:2]',
+        'Zhushou sent "replying now" [message_id:2]',
         expect.objectContaining({
           sessionKey: "agent:main:main",
         }),
@@ -1466,7 +1466,7 @@ describe("BlueBubbles webhook monitor", () => {
       await dispatchWebhookPayload(fromMePayload);
 
       expect(mockEnqueueSystemEvent).toHaveBeenCalledWith(
-        'Assistant sent "replying now" [message_id:2]',
+        'Zhushou sent "replying now" [message_id:2]',
         expect.objectContaining({
           sessionKey: "agent:main:main",
         }),
@@ -1505,7 +1505,7 @@ describe("BlueBubbles webhook monitor", () => {
       await dispatchWebhookPayload(fromMePayload);
 
       expect(mockEnqueueSystemEvent).toHaveBeenCalledWith(
-        'Assistant sent "replying now" [message_id:2]',
+        'Zhushou sent "replying now" [message_id:2]',
         expect.objectContaining({
           sessionKey: "agent:main:main",
         }),
@@ -1883,7 +1883,7 @@ describe("BlueBubbles webhook monitor", () => {
       expect(mockDispatchReplyWithBufferedBlockDispatcher).not.toHaveBeenCalled();
     });
 
-    it("drops reflected self-chat duplicates after a confirmed assistant outbound", async () => {
+    it("drops reflected self-chat duplicates after a confirmed zhushou outbound", async () => {
       setupWebhookTarget();
 
       const { sendMessageBlueBubbles } = await import("./send.js");
@@ -2005,7 +2005,7 @@ describe("BlueBubbles webhook monitor", () => {
       expect(mockDispatchReplyWithBufferedBlockDispatcher).toHaveBeenCalled();
     });
 
-    it("does not drop user-authored self-chat prompts without a confirmed assistant outbound", async () => {
+    it("does not drop user-authored self-chat prompts without a confirmed zhushou outbound", async () => {
       setupWebhookTarget();
 
       const timestamp = Date.now();
@@ -2033,7 +2033,7 @@ describe("BlueBubbles webhook monitor", () => {
       expect(mockDispatchReplyWithBufferedBlockDispatcher).toHaveBeenCalled();
     });
 
-    it("does not treat a pending text-only match as confirmed assistant outbound", async () => {
+    it("does not treat a pending text-only match as confirmed zhushou outbound", async () => {
       setupWebhookTarget();
 
       const { sendMessageBlueBubbles } = await import("./send.js");

@@ -1,9 +1,12 @@
 // Manual facade. Keep loader boundary explicit.
-type FacadeModule = typeof import("@assistant/zalo/setup-api.js");
+type FacadeModule = typeof import("@zhushou/zalo/setup-api.js");
+import { isNormalizedSenderAllowed } from "./allow-from.js";
 import {
   createLazyFacadeObjectValue,
   loadBundledPluginPublicSurfaceModuleSync,
 } from "./facade-loader.js";
+import { evaluateSenderGroupAccess } from "./group-access.js";
+import { resolveOpenProviderRuntimeGroupPolicy } from "../config/runtime-group-policy.js";
 
 function loadFacadeModule(): FacadeModule {
   return loadBundledPluginPublicSurfaceModuleSync<FacadeModule>({
@@ -11,16 +14,30 @@ function loadFacadeModule(): FacadeModule {
     artifactBasename: "setup-api.js",
   });
 }
-export const evaluateZaloGroupAccess: FacadeModule["evaluateZaloGroupAccess"] = ((...args) =>
-  loadFacadeModule()["evaluateZaloGroupAccess"](
-    ...args,
-  )) as FacadeModule["evaluateZaloGroupAccess"];
+const ZALO_ALLOW_FROM_PREFIX_RE = /^(zalo|zl):/i;
+
+export const evaluateZaloGroupAccess: FacadeModule["evaluateZaloGroupAccess"] = ((params) =>
+  evaluateSenderGroupAccess({
+    providerConfigPresent: params.providerConfigPresent,
+    configuredGroupPolicy: params.configuredGroupPolicy,
+    defaultGroupPolicy: params.defaultGroupPolicy,
+    groupAllowFrom: params.groupAllowFrom,
+    senderId: params.senderId,
+    isSenderAllowed: (senderId, allowFrom) =>
+      isNormalizedSenderAllowed({
+        senderId,
+        allowFrom,
+        stripPrefixRe: ZALO_ALLOW_FROM_PREFIX_RE,
+      }),
+  })) as FacadeModule["evaluateZaloGroupAccess"];
 export const resolveZaloRuntimeGroupPolicy: FacadeModule["resolveZaloRuntimeGroupPolicy"] = ((
-  ...args
+  params,
 ) =>
-  loadFacadeModule()["resolveZaloRuntimeGroupPolicy"](
-    ...args,
-  )) as FacadeModule["resolveZaloRuntimeGroupPolicy"];
+  resolveOpenProviderRuntimeGroupPolicy({
+    providerConfigPresent: params.providerConfigPresent,
+    groupPolicy: params.groupPolicy,
+    defaultGroupPolicy: params.defaultGroupPolicy,
+  })) as FacadeModule["resolveZaloRuntimeGroupPolicy"];
 export const zaloSetupAdapter: FacadeModule["zaloSetupAdapter"] = createLazyFacadeObjectValue(
   () => loadFacadeModule()["zaloSetupAdapter"] as object,
 ) as FacadeModule["zaloSetupAdapter"];

@@ -6,7 +6,7 @@ export function classifyPortListener(listener: PortListener, port: number): Port
   const raw = normalizeLowercaseStringOrEmpty(
     `${listener.commandLine ?? ""} ${listener.command ?? ""}`,
   );
-  if (raw.includes("assistant")) {
+  if (raw.includes("zhushou")) {
     return "gateway";
   }
   if (raw.includes("ssh")) {
@@ -104,7 +104,7 @@ export function buildPortHints(listeners: PortListener[], port: number): string[
   const hints: string[] = [];
   if (kinds.has("gateway")) {
     hints.push(
-      `Gateway already running locally. Stop it (${formatCliCommand("assistant gateway stop")}) or use a different port.`,
+      `Gateway already running locally. Stop it (${formatCliCommand("zhushou gateway stop")}) or use a different port.`,
     );
   }
   if (kinds.has("ssh")) {

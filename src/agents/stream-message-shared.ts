@@ -38,7 +38,7 @@ export function buildUsageWithNoCost(params: {
   };
 }
 
-export function buildAssistantMessage(params: {
+export function buildZhushouMessage(params: {
   model: StreamModelDescriptor;
   content: AssistantMessage["content"];
   stopReason: StopReason;
@@ -57,13 +57,13 @@ export function buildAssistantMessage(params: {
   };
 }
 
-export function buildAssistantMessageWithZeroUsage(params: {
+export function buildZhushouMessageWithZeroUsage(params: {
   model: StreamModelDescriptor;
   content: AssistantMessage["content"];
   stopReason: StopReason;
   timestamp?: number;
 }): AssistantMessage {
-  return buildAssistantMessage({
+  return buildZhushouMessage({
     model: params.model,
     content: params.content,
     stopReason: params.stopReason,
@@ -72,13 +72,13 @@ export function buildAssistantMessageWithZeroUsage(params: {
   });
 }
 
-export function buildStreamErrorAssistantMessage(params: {
+export function buildStreamErrorZhushouMessage(params: {
   model: StreamModelDescriptor;
   errorMessage: string;
   timestamp?: number;
 }): AssistantMessage & { stopReason: "error"; errorMessage: string } {
   return {
-    ...buildAssistantMessageWithZeroUsage({
+    ...buildZhushouMessageWithZeroUsage({
       model: params.model,
       content: [],
       stopReason: "error",

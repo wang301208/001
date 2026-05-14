@@ -1,5 +1,5 @@
 export {
-  buildAssistantMessage,
+  buildZhushouMessage,
   buildOllamaChatRequest,
   createConfiguredOllamaCompatStreamWrapper,
   convertToOllamaMessages,

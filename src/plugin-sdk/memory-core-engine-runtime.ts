@@ -1,5 +1,5 @@
 // Manual facade. Keep loader boundary explicit.
-type FacadeModule = typeof import("@assistant/memory-core/runtime-api.js");
+type FacadeModule = typeof import("@zhushou/memory-core/runtime-api.js");
 import {
   createLazyFacadeObjectValue,
   loadActivatedBundledPluginPublicSurfaceModuleSync,
@@ -44,12 +44,12 @@ export const repairDreamingArtifacts: FacadeModule["repairDreamingArtifacts"] = 
     ...args,
   )) as FacadeModule["repairDreamingArtifacts"];
 export type BuiltinMemoryEmbeddingProviderDoctorMetadata =
-  import("@assistant/memory-core/runtime-api.js").BuiltinMemoryEmbeddingProviderDoctorMetadata;
+  import("@zhushou/memory-core/runtime-api.js").BuiltinMemoryEmbeddingProviderDoctorMetadata;
 export type DreamingArtifactsAuditSummary =
-  import("@assistant/memory-core/runtime-api.js").DreamingArtifactsAuditSummary;
+  import("@zhushou/memory-core/runtime-api.js").DreamingArtifactsAuditSummary;
 export type RepairDreamingArtifactsResult =
-  import("@assistant/memory-core/runtime-api.js").RepairDreamingArtifactsResult;
+  import("@zhushou/memory-core/runtime-api.js").RepairDreamingArtifactsResult;
 export type RepairShortTermPromotionArtifactsResult =
-  import("@assistant/memory-core/runtime-api.js").RepairShortTermPromotionArtifactsResult;
+  import("@zhushou/memory-core/runtime-api.js").RepairShortTermPromotionArtifactsResult;
 export type ShortTermAuditSummary =
-  import("@assistant/memory-core/runtime-api.js").ShortTermAuditSummary;
+  import("@zhushou/memory-core/runtime-api.js").ShortTermAuditSummary;

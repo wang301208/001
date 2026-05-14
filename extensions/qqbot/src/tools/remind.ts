@@ -1,5 +1,5 @@
-import type { AssistantPluginApi } from "assistant/plugin-sdk/core";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouPluginApi } from "zhushou/plugin-sdk/core";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 interface RemindParams {
   action: "add" | "list" | "remove";
@@ -112,7 +112,7 @@ function generateJobName(content: string): string {
 
 function buildReminderPrompt(content: string): string {
   return (
-    `You are a warm reminder assistant. Please remind the user about: ${content}. ` +
+    `You are a warm reminder zhushou. Please remind the user about: ${content}. ` +
     `Requirements: (1) do not reply with HEARTBEAT_OK (2) do not explain who you are ` +
     `(3) output a direct and caring reminder message (4) you may add a short encouraging line ` +
     `(5) keep it within 2-3 sentences (6) use a small amount of emoji.`
@@ -183,7 +183,7 @@ function formatDelay(ms: number): string {
   return `${hours}h${minutes}m`;
 }
 
-export function registerRemindTool(api: AssistantPluginApi): void {
+export function registerRemindTool(api: ZhushouPluginApi): void {
   api.registerTool(
     {
       name: "qqbot_remind",

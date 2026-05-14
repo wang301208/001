@@ -23,7 +23,7 @@ import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
-import { resolveAssistantStreamDeltaText } from "./agent-event-assistant-text.js";
+import { resolveZhushouStreamDeltaText } from "./agent-event-zhushou-text.js";
 import {
   buildAgentMessageFromConversationEntries,
   type ConversationEntry,
@@ -137,7 +137,7 @@ function buildAgentCommandInput(params: {
   };
 }
 
-function writeAssistantRoleChunk(res: ServerResponse, params: { runId: string; model: string }) {
+function writeZhushouRoleChunk(res: ServerResponse, params: { runId: string; model: string }) {
   writeSse(res, {
     id: params.runId,
     object: "chat.completion.chunk",
@@ -147,7 +147,7 @@ function writeAssistantRoleChunk(res: ServerResponse, params: { runId: string; m
   });
 }
 
-function writeAssistantContentChunk(
+function writeZhushouContentChunk(
   res: ServerResponse,
   params: { runId: string; model: string; content: string; finishReason: "stop" | null },
 ) {
@@ -166,7 +166,7 @@ function writeAssistantContentChunk(
   });
 }
 
-function writeAssistantStopChunk(res: ServerResponse, params: { runId: string; model: string }) {
+function writeZhushouStopChunk(res: ServerResponse, params: { runId: string; model: string }) {
   writeSse(res, {
     id: params.runId,
     object: "chat.completion.chunk",
@@ -418,7 +418,7 @@ function buildAgentPrompt(
     const name = normalizeOptionalString(msg.name) ?? "";
     const sender =
       normalizedRole === "assistant"
-        ? "Assistant"
+        ? "Zhushou"
         : normalizedRole === "user"
           ? "User"
           : name
@@ -527,7 +527,7 @@ export async function handleOpenAiHttpRequest(
   const payload = coerceRequest(handled.body);
   const stream = Boolean(payload.stream);
   const streamIncludeUsage = stream && resolveIncludeUsageForStreaming(payload);
-  const model = typeof payload.model === "string" ? payload.model : "assistant";
+  const model = typeof payload.model === "string" ? payload.model : "zhushou";
   const user = typeof payload.user === "string" ? payload.user : undefined;
 
   const { agentId, sessionKey, messageChannel } = resolveGatewayRequestContext({
@@ -636,7 +636,7 @@ export async function handleOpenAiHttpRequest(
 
   let wroteRole = false;
   let wroteStopChunk = false;
-  let sawAssistantDelta = false;
+  let sawZhushouDelta = false;
   let finalUsage:
     | {
         prompt_tokens: number;
@@ -659,7 +659,7 @@ export async function handleOpenAiHttpRequest(
     stopWatchingDisconnect();
     unsubscribe();
     if (!wroteStopChunk) {
-      writeAssistantStopChunk(res, { runId, model });
+      writeZhushouStopChunk(res, { runId, model });
       wroteStopChunk = true;
     }
     if (streamIncludeUsage && finalUsage) {
@@ -682,19 +682,19 @@ export async function handleOpenAiHttpRequest(
       return;
     }
 
-    if (evt.stream === "assistant") {
-      const content = resolveAssistantStreamDeltaText(evt) ?? "";
+    if (evt.stream === "zhushou") {
+      const content = resolveZhushouStreamDeltaText(evt) ?? "";
       if (!content) {
         return;
       }
 
       if (!wroteRole) {
         wroteRole = true;
-        writeAssistantRoleChunk(res, { runId, model });
+        writeZhushouRoleChunk(res, { runId, model });
       }
 
-      sawAssistantDelta = true;
-      writeAssistantContentChunk(res, {
+      sawZhushouDelta = true;
+      writeZhushouContentChunk(res, {
         runId,
         model,
         content,
@@ -726,16 +726,16 @@ export async function handleOpenAiHttpRequest(
 
       finalUsage = resolveChatCompletionUsage(result);
 
-      if (!sawAssistantDelta) {
+      if (!sawZhushouDelta) {
         if (!wroteRole) {
           wroteRole = true;
-          writeAssistantRoleChunk(res, { runId, model });
+          writeZhushouRoleChunk(res, { runId, model });
         }
 
         const content = resolveAgentResponseText(result);
 
-        sawAssistantDelta = true;
-        writeAssistantContentChunk(res, {
+        sawZhushouDelta = true;
+        writeZhushouContentChunk(res, {
           runId,
           model,
           content,
@@ -748,7 +748,7 @@ export async function handleOpenAiHttpRequest(
         return;
       }
       logWarn(`openai-compat: streaming chat completion failed: ${String(err)}`);
-      writeAssistantContentChunk(res, {
+      writeZhushouContentChunk(res, {
         runId,
         model,
         content: "Error: internal error",

@@ -4,13 +4,13 @@ import path from "node:path";
 import { resetDiagnosticEventsForTest } from "../infra/diagnostic-events.js";
 import { withEnv } from "../test-utils/env.js";
 import { clearPluginDiscoveryCache } from "./discovery.js";
-import { clearPluginLoaderCache, loadAssistantPlugins } from "./loader.js";
+import { clearPluginLoaderCache, loadZhushouPlugins } from "./loader.js";
 import { clearPluginManifestRegistryCache } from "./manifest-registry.js";
 import { resetPluginRuntimeStateForTest } from "./runtime.js";
 
 export type TempPlugin = { dir: string; file: string; id: string };
-export type PluginLoadConfig = NonNullable<Parameters<typeof loadAssistantPlugins>[0]>["config"];
-export type PluginRegistry = ReturnType<typeof loadAssistantPlugins>;
+export type PluginLoadConfig = NonNullable<Parameters<typeof loadZhushouPlugins>[0]>["config"];
+export type PluginRegistry = ReturnType<typeof loadZhushouPlugins>;
 
 function chmodSafeDir(dir: string) {
   if (process.platform === "win32") {
@@ -30,9 +30,9 @@ export function mkdirSafe(dir: string) {
   chmodSafeDir(dir);
 }
 
-const fixtureRoot = mkdtempSafe(path.join(os.tmpdir(), "assistant-plugin-"));
+const fixtureRoot = mkdtempSafe(path.join(os.tmpdir(), "zhushou-plugin-"));
 let tempDirIndex = 0;
-const prevBundledDir = process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+const prevBundledDir = process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
 
 export const EMPTY_PLUGIN_SCHEMA = {
   type: "object",
@@ -85,7 +85,7 @@ export function writePlugin(params: {
   const file = path.join(dir, filename);
   fs.writeFileSync(file, params.body, "utf-8");
   fs.writeFileSync(
-    path.join(dir, "assistant.plugin.json"),
+    path.join(dir, "zhushou.plugin.json"),
     JSON.stringify(
       {
         id: params.id,
@@ -100,7 +100,7 @@ export function writePlugin(params: {
 }
 
 export function useNoBundledPlugins() {
-  process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+  process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
 }
 
 export function loadBundleFixture(params: {
@@ -112,10 +112,10 @@ export function loadBundleFixture(params: {
   useNoBundledPlugins();
   const workspaceDir = makeTempDir();
   const stateDir = makeTempDir();
-  const bundleRoot = path.join(workspaceDir, ".assistant", "extensions", params.pluginId);
+  const bundleRoot = path.join(workspaceDir, ".zhushou", "extensions", params.pluginId);
   params.build(bundleRoot);
-  return withEnv({ ASSISTANT_STATE_DIR: stateDir, ...params.env }, () =>
-    loadAssistantPlugins({
+  return withEnv({ ZHUSHOU_STATE_DIR: stateDir, ...params.env }, () =>
+    loadZhushouPlugins({
       workspaceDir,
       onlyPluginIds: params.onlyPluginIds ?? [params.pluginId],
       config: {
@@ -139,9 +139,9 @@ export function resetPluginLoaderTestStateForTest() {
   resetPluginRuntimeStateForTest();
   resetDiagnosticEventsForTest();
   if (prevBundledDir === undefined) {
-    delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+    delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
   } else {
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = prevBundledDir;
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = prevBundledDir;
   }
 }
 

@@ -1,4 +1,4 @@
-import type { BaseProbeResult } from "assistant/plugin-sdk/core";
+import type { BaseProbeResult } from "zhushou/plugin-sdk/core";
 import type {
   FeishuConfigSchema,
   FeishuGroupSchema,

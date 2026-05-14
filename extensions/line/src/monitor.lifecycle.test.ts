@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { WEBHOOK_IN_FLIGHT_DEFAULTS } from "assistant/plugin-sdk/webhook-request-guards";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { WEBHOOK_IN_FLIGHT_DEFAULTS } from "zhushou/plugin-sdk/webhook-request-guards";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type LineNodeWebhookHandler = (req: IncomingMessage, res: ServerResponse) => Promise<void>;
@@ -32,14 +32,14 @@ vi.mock("./bot.js", () => ({
   createLineBot: createLineBotMock,
 }));
 
-vi.mock("assistant/plugin-sdk/reply-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/reply-runtime", () => ({
   chunkMarkdownText: vi.fn(),
   dispatchReplyWithBufferedBlockDispatcher: vi.fn(),
 }));
 
-vi.mock("assistant/plugin-sdk/runtime-env", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/runtime-env")>(
-    "assistant/plugin-sdk/runtime-env",
+vi.mock("zhushou/plugin-sdk/runtime-env", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/runtime-env")>(
+    "zhushou/plugin-sdk/runtime-env",
   );
   return {
     ...actual,
@@ -49,11 +49,11 @@ vi.mock("assistant/plugin-sdk/runtime-env", async () => {
   };
 });
 
-vi.mock("assistant/plugin-sdk/channel-reply-pipeline", () => ({
+vi.mock("zhushou/plugin-sdk/channel-reply-pipeline", () => ({
   createChannelReplyPipeline: vi.fn(() => ({})),
 }));
 
-vi.mock("assistant/plugin-sdk/webhook-ingress", () => ({
+vi.mock("zhushou/plugin-sdk/webhook-ingress", () => ({
   normalizePluginHttpPath: (_path: string | undefined, fallback: string) => fallback,
   registerPluginHttpRoute: registerPluginHttpRouteMock,
 }));
@@ -132,7 +132,7 @@ describe("monitorLineProvider lifecycle", () => {
     const task = monitorLineProvider({
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
-      config: {} as AssistantConfig,
+      config: {} as ZhushouConfig,
       runtime: {} as RuntimeEnv,
       abortSignal: abort.signal,
     }).then((monitor) => {
@@ -158,7 +158,7 @@ describe("monitorLineProvider lifecycle", () => {
     await monitorLineProvider({
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
-      config: {} as AssistantConfig,
+      config: {} as ZhushouConfig,
       runtime: {} as RuntimeEnv,
       abortSignal: abort.signal,
     });
@@ -170,7 +170,7 @@ describe("monitorLineProvider lifecycle", () => {
     const monitor = await monitorLineProvider({
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
-      config: {} as AssistantConfig,
+      config: {} as ZhushouConfig,
       runtime: {} as RuntimeEnv,
     });
 
@@ -196,7 +196,7 @@ describe("monitorLineProvider lifecycle", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       runtime: {} as RuntimeEnv,
     });
 
@@ -234,7 +234,7 @@ describe("monitorLineProvider lifecycle", () => {
     const monitor = await monitorLineProvider({
       channelAccessToken: "token",
       channelSecret: "secret", // pragma: allowlist secret
-      config: {} as AssistantConfig,
+      config: {} as ZhushouConfig,
       runtime: {} as RuntimeEnv,
     });
 

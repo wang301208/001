@@ -3,12 +3,12 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-logs.sh"
-IMAGE_NAME="assistant-gateway-network-e2e"
+IMAGE_NAME="zhushou-gateway-network-e2e"
 
 PORT="18789"
 TOKEN="e2e-$(date +%s)-$$"
-NET_NAME="assistant-net-e2e-$$"
-GW_NAME="assistant-gateway-e2e-$$"
+NET_NAME="zhushou-net-e2e-$$"
+GW_NAME="zhushou-gateway-e2e-$$"
 
 cleanup() {
   docker rm -f "$GW_NAME" >/dev/null 2>&1 || true
@@ -26,11 +26,11 @@ echo "Starting gateway container..."
 docker run -d \
   --name "$GW_NAME" \
   --network "$NET_NAME" \
-  -e "ASSISTANT_GATEWAY_TOKEN=$TOKEN" \
-  -e "ASSISTANT_SKIP_CHANNELS=1" \
-  -e "ASSISTANT_SKIP_GMAIL_WATCHER=1" \
-  -e "ASSISTANT_SKIP_CRON=1" \
-  -e "ASSISTANT_SKIP_CANVAS_HOST=1" \
+  -e "ZHUSHOU_GATEWAY_TOKEN=$TOKEN" \
+  -e "ZHUSHOU_SKIP_CHANNELS=1" \
+  -e "ZHUSHOU_SKIP_GMAIL_WATCHER=1" \
+  -e "ZHUSHOU_SKIP_CRON=1" \
+  -e "ZHUSHOU_SKIP_CANVAS_HOST=1" \
   "$IMAGE_NAME" \
   bash -lc "set -euo pipefail; entry=dist/index.mjs; [ -f \"\$entry\" ] || entry=dist/index.js; node \"\$entry\" config set gateway.controlUi.enabled false >/dev/null; node \"\$entry\" gateway --port $PORT --bind lan --allow-unconfigured > /tmp/gateway-net-e2e.log 2>&1" >/dev/null
 

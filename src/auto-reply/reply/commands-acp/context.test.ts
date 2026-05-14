@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../../config/config.js";
+import type { ZhushouConfig } from "../../../config/config.js";
 import {
   __testing as sessionBindingTesting,
   getSessionBindingService,
@@ -20,7 +20,7 @@ import {
 
 const baseCfg = {
   session: { mainKey: "main", scope: "per-sender" },
-} satisfies AssistantConfig;
+} satisfies ZhushouConfig;
 
 function parseTelegramChatIdForTest(raw?: string | null): string | undefined {
   const trimmed = raw?.trim().replace(/^telegram:/i, "");
@@ -45,6 +45,25 @@ function parseDiscordConversationIdForTest(
     }
     if (/^channel:/i.test(target)) {
       return target;
+    }
+  }
+  return undefined;
+}
+
+function parseSlackConversationIdForTest(
+  targets: Array<string | undefined | null>,
+): string | undefined {
+  for (const rawTarget of targets) {
+    const target = rawTarget?.trim();
+    if (!target) {
+      continue;
+    }
+    const mentionMatch = /^<#([^>|]+)(?:\|[^>]+)?>$/.exec(target);
+    if (mentionMatch?.[1]) {
+      return mentionMatch[1];
+    }
+    if (/^channel:/i.test(target)) {
+      return target.replace(/^channel:/i, "").trim() || undefined;
     }
   }
   return undefined;
@@ -229,6 +248,31 @@ function setMinimalAcpContextRegistryForTests(): void {
                 }
               }
               const conversationId = parseDiscordConversationIdForTest([
+                originatingTo,
+                commandTo,
+                fallbackTo,
+              ]);
+              return conversationId ? { conversationId } : null;
+            },
+          },
+        },
+      },
+      {
+        pluginId: "slack",
+        source: "test",
+        plugin: {
+          ...createChannelTestPluginBase({ id: "slack", label: "Slack" }),
+          bindings: {
+            resolveCommandConversation: ({
+              originatingTo,
+              commandTo,
+              fallbackTo,
+            }: {
+              originatingTo?: string;
+              commandTo?: string;
+              fallbackTo?: string;
+            }) => {
+              const conversationId = parseSlackConversationIdForTest([
                 originatingTo,
                 commandTo,
                 fallbackTo,

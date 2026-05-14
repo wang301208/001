@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { loadQaRuntimeModule } from "assistant/plugin-sdk/qa-runner-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { loadQaRuntimeModule } from "zhushou/plugin-sdk/qa-runner-runtime";
 import type { QaReportCheck } from "../../report.js";
 import { renderQaMarkdownReport } from "../../report.js";
 import { type QaProviderModeInput } from "../../run-config.js";
@@ -139,7 +139,7 @@ type MatrixQaTimings = {
 };
 
 function shouldWriteMatrixQaProgress() {
-  const override = process.env.ASSISTANT_QA_MATRIX_PROGRESS;
+  const override = process.env.ZHUSHOU_QA_MATRIX_PROGRESS;
   if (override === "0") {
     return false;
   }
@@ -367,7 +367,7 @@ async function startMatrixQaLiveLaneGateway(params: {
     requiredPluginIds: readonly string[];
     createGatewayConfig: (params: {
       baseUrl: string;
-    }) => Pick<AssistantConfig, "channels" | "messages">;
+    }) => Pick<ZhushouConfig, "channels" | "messages">;
   };
   transportBaseUrl: string;
   providerMode: "mock-openai" | "live-frontier";
@@ -375,7 +375,7 @@ async function startMatrixQaLiveLaneGateway(params: {
   alternateModel: string;
   fastMode?: boolean;
   controlUiEnabled?: boolean;
-  mutateConfig?: (cfg: AssistantConfig) => AssistantConfig;
+  mutateConfig?: (cfg: ZhushouConfig) => ZhushouConfig;
 }): Promise<MatrixQaLiveLaneGatewayHarness> {
   return (await loadQaRuntimeModule().startQaLiveLaneGateway(
     params,
@@ -411,7 +411,7 @@ export async function runMatrixQaLive(params: {
     scenarios,
   });
   const observedEvents: MatrixQaObservedEvent[] = [];
-  const includeObservedEventContent = process.env.ASSISTANT_QA_MATRIX_CAPTURE_CONTENT === "1";
+  const includeObservedEventContent = process.env.ZHUSHOU_QA_MATRIX_CAPTURE_CONTENT === "1";
   const startedAtDate = new Date();
   const startedAt = startedAtDate.toISOString();
   const runStartedAtMs = Date.now();

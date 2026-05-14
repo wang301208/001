@@ -56,7 +56,7 @@ describe("memory-wiki cli", () => {
         title: "Travel preference check",
         create_time: 1_712_363_200,
         update_time: 1_712_366_800,
-        current_node: "assistant-1",
+        current_node: "zhushou-1",
         mapping: {
           root: {},
           "user-1": {
@@ -68,7 +68,7 @@ describe("memory-wiki cli", () => {
               },
             },
           },
-          "assistant-1": {
+          "zhushou-1": {
             parent: "user-1",
             message: {
               author: { role: "assistant" },
@@ -135,9 +135,9 @@ describe("memory-wiki cli", () => {
         body: `# Alpha
 
 ## Notes
-<!-- assistant:human:start -->
+<!-- zhushou:human:start -->
 cli note
-<!-- assistant:human:end -->
+<!-- zhushou:human:end -->
 `,
       }),
       "utf8",

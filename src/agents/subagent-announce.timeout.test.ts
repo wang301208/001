@@ -131,7 +131,7 @@ vi.mock("./subagent-announce-delivery.js", () => ({
           )
         : 120_000;
     const retryDelaysMs =
-      process.env.ASSISTANT_TEST_FAST === "1" ? [8, 16, 32] : [5_000, 10_000, 20_000];
+      process.env.ZHUSHOU_TEST_FAST === "1" ? [8, 16, 32] : [5_000, 10_000, 20_000];
     let retryIndex = 0;
     for (;;) {
       const request = buildRequest();
@@ -315,7 +315,7 @@ describe("subagent announce timeout config", () => {
 
   it("retries gateway timeout for externally delivered completion announces before giving up", async () => {
     try {
-      vi.stubEnv("ASSISTANT_TEST_FAST", "1");
+      vi.stubEnv("ZHUSHOU_TEST_FAST", "1");
       callGatewayImpl = async (request) => {
         if (request.method === "chat.history") {
           return { messages: [] };
@@ -480,7 +480,7 @@ describe("subagent announce timeout config", () => {
     expect(findFinalDirectAgentCall()).toBeUndefined();
   });
 
-  it("prefers visible assistant progress over a later raw tool result", async () => {
+  it("prefers visible zhushou progress over a later raw tool result", async () => {
     chatHistoryMessages = [
       {
         role: "assistant",
@@ -492,7 +492,7 @@ describe("subagent announce timeout config", () => {
       },
     ];
 
-    await runAnnounceFlowForTest("run-timeout-visible-assistant", {
+    await runAnnounceFlowForTest("run-timeout-visible-zhushou", {
       outcome: { status: "timeout" },
       roundOneReply: undefined,
     });
@@ -523,7 +523,7 @@ describe("subagent announce timeout config", () => {
     ).toBeUndefined();
   });
 
-  it("prefers later visible assistant progress over an earlier NO_REPLY marker", async () => {
+  it("prefers later visible zhushou progress over an earlier NO_REPLY marker", async () => {
     chatHistoryMessages = [
       ...createTimeoutHistoryWithNoReply(),
       {

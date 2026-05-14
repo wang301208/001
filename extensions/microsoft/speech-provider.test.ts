@@ -1,7 +1,7 @@
 import { mkdtempSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildMicrosoftSpeechProvider,
@@ -10,15 +10,15 @@ import {
 } from "./speech-provider.js";
 import * as ttsModule from "./tts.js";
 
-const TEST_CFG = {} as AssistantConfig;
+const TEST_CFG = {} as ZhushouConfig;
 
 describe("listMicrosoftVoices", () => {
   const originalFetch = globalThis.fetch;
   const proxyEnvKeys = [
-    "ASSISTANT_DEBUG_PROXY_ENABLED",
-    "ASSISTANT_DEBUG_PROXY_DB_PATH",
-    "ASSISTANT_DEBUG_PROXY_BLOB_DIR",
-    "ASSISTANT_DEBUG_PROXY_SESSION_ID",
+    "ZHUSHOU_DEBUG_PROXY_ENABLED",
+    "ZHUSHOU_DEBUG_PROXY_DB_PATH",
+    "ZHUSHOU_DEBUG_PROXY_BLOB_DIR",
+    "ZHUSHOU_DEBUG_PROXY_SESSION_ID",
   ] as const;
   let priorProxyEnv: Partial<Record<(typeof proxyEnvKeys)[number], string | undefined>> = {};
 
@@ -85,10 +85,10 @@ describe("listMicrosoftVoices", () => {
     priorProxyEnv = Object.fromEntries(
       proxyEnvKeys.map((key) => [key, process.env[key]]),
     ) as typeof priorProxyEnv;
-    process.env.ASSISTANT_DEBUG_PROXY_ENABLED = "1";
-    process.env.ASSISTANT_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
-    process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
-    process.env.ASSISTANT_DEBUG_PROXY_SESSION_ID = "ms-voices-session";
+    process.env.ZHUSHOU_DEBUG_PROXY_ENABLED = "1";
+    process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
+    process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
+    process.env.ZHUSHOU_DEBUG_PROXY_SESSION_ID = "ms-voices-session";
 
     globalThis.fetch = vi
       .fn()
@@ -98,17 +98,17 @@ describe("listMicrosoftVoices", () => {
 
     const { getDebugProxyCaptureStore } = await import("../../src/proxy-capture/store.sqlite.js");
     const store = getDebugProxyCaptureStore(
-      process.env.ASSISTANT_DEBUG_PROXY_DB_PATH,
-      process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR,
+      process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH,
+      process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR,
     );
     store.upsertSession({
       id: "ms-voices-session",
       startedAt: Date.now(),
       mode: "test",
-      sourceScope: "assistant",
-      sourceProcess: "assistant",
-      dbPath: process.env.ASSISTANT_DEBUG_PROXY_DB_PATH,
-      blobDir: process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR,
+      sourceScope: "zhushou",
+      sourceProcess: "zhushou",
+      dbPath: process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH,
+      blobDir: process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR,
     });
 
     await listMicrosoftVoices();
@@ -130,10 +130,10 @@ describe("listMicrosoftVoices", () => {
     priorProxyEnv = Object.fromEntries(
       proxyEnvKeys.map((key) => [key, process.env[key]]),
     ) as typeof priorProxyEnv;
-    process.env.ASSISTANT_DEBUG_PROXY_ENABLED = "1";
-    process.env.ASSISTANT_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
-    process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
-    process.env.ASSISTANT_DEBUG_PROXY_SESSION_ID = "ms-voices-global-session";
+    process.env.ZHUSHOU_DEBUG_PROXY_ENABLED = "1";
+    process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
+    process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
+    process.env.ZHUSHOU_DEBUG_PROXY_SESSION_ID = "ms-voices-global-session";
 
     globalThis.fetch = vi.fn(
       async () => new Response(JSON.stringify([{ ShortName: "en-US-AvaNeural" }]), { status: 200 }),
@@ -143,17 +143,17 @@ describe("listMicrosoftVoices", () => {
     const { finalizeDebugProxyCapture, initializeDebugProxyCapture } =
       await import("../../src/proxy-capture/runtime.js");
     const store = getDebugProxyCaptureStore(
-      process.env.ASSISTANT_DEBUG_PROXY_DB_PATH,
-      process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR,
+      process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH,
+      process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR,
     );
     store.upsertSession({
       id: "ms-voices-global-session",
       startedAt: Date.now(),
       mode: "test",
-      sourceScope: "assistant",
-      sourceProcess: "assistant",
-      dbPath: process.env.ASSISTANT_DEBUG_PROXY_DB_PATH,
-      blobDir: process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR,
+      sourceScope: "zhushou",
+      sourceProcess: "zhushou",
+      dbPath: process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH,
+      blobDir: process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR,
     });
     initializeDebugProxyCapture("test");
 

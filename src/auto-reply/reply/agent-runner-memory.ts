@@ -20,7 +20,7 @@ import {
   type SessionEntry,
   updateSessionStoreEntry,
 } from "../../config/sessions.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { readSessionMessages } from "../../gateway/session-utils.fs.js";
 import { logVerbose } from "../../globals.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
@@ -118,7 +118,7 @@ export type SessionTranscriptUsageSnapshot = {
   outputTokens?: number;
 };
 
-// Keep a generous near-threshold window so large assistant outputs still trigger
+// Keep a generous near-threshold window so large zhushou outputs still trigger
 // transcript reads in time to flip memory-flush gating when needed.
 const TRANSCRIPT_OUTPUT_READ_BUFFER_TOKENS = 8192;
 const TRANSCRIPT_TAIL_CHUNK_BYTES = 64 * 1024;
@@ -203,7 +203,7 @@ type SessionLogSnapshot = {
 };
 
 async function appendPostCompactionRefreshPrompt(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   followupRun: FollowupRun;
 }): Promise<void> {
   const refreshPrompt = await readPostCompactionContext(params.followupRun.run.workspaceDir, {
@@ -344,7 +344,7 @@ export async function readPromptTokensFromSessionLog(
 }
 
 export async function runPreflightCompactionIfNeeded(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   followupRun: FollowupRun;
   promptForEstimate?: string;
   defaultModel: string;
@@ -503,7 +503,7 @@ export async function runPreflightCompactionIfNeeded(params: {
 }
 
 export async function runMemoryFlushIfNeeded(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   followupRun: FollowupRun;
   promptForEstimate?: string;
   sessionCtx: TemplateContext;

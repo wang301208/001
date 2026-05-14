@@ -16,22 +16,22 @@ function parseSpecOrThrow(spec: string) {
 
 describe("npm registry spec validation", () => {
   it.each([
-    "@assistant/voice-call",
-    "@assistant/voice-call@1.2.3",
-    "@assistant/voice-call@1.2.3-beta.4",
-    "@assistant/voice-call@latest",
-    "@assistant/voice-call@beta",
+    "@zhushou/voice-call",
+    "@zhushou/voice-call@1.2.3",
+    "@zhushou/voice-call@1.2.3-beta.4",
+    "@zhushou/voice-call@latest",
+    "@zhushou/voice-call@beta",
   ])("accepts %s", (spec) => {
     expect(validateRegistryNpmSpec(spec)).toBeNull();
   });
 
   it.each([
     {
-      spec: "@assistant/voice-call@^1.2.3",
+      spec: "@zhushou/voice-call@^1.2.3",
       expected: "exact version or dist-tag",
     },
     {
-      spec: "@assistant/voice-call@~1.2.3",
+      spec: "@zhushou/voice-call@~1.2.3",
       expected: "exact version or dist-tag",
     },
     {
@@ -39,15 +39,15 @@ describe("npm registry spec validation", () => {
       expected: "URLs are not allowed",
     },
     {
-      spec: "git+ssh://github.com/assistant/assistant",
+      spec: "git+ssh://github.com/wang301208/zhushou",
       expected: "URLs are not allowed",
     },
     {
-      spec: "@assistant/voice-call@",
+      spec: "@zhushou/voice-call@",
       expected: "missing version/tag after @",
     },
     {
-      spec: "@assistant/voice-call@../beta",
+      spec: "@zhushou/voice-call@../beta",
       expected: "invalid version/tag",
     },
   ])("rejects %s", ({ spec, expected }) => {
@@ -58,29 +58,29 @@ describe("npm registry spec validation", () => {
 describe("npm registry spec parsing helpers", () => {
   it.each([
     {
-      spec: "@assistant/voice-call",
+      spec: "@zhushou/voice-call",
       expected: {
-        name: "@assistant/voice-call",
-        raw: "@assistant/voice-call",
+        name: "@zhushou/voice-call",
+        raw: "@zhushou/voice-call",
         selectorKind: "none",
         selectorIsPrerelease: false,
       },
     },
     {
-      spec: "@assistant/voice-call@beta",
+      spec: "@zhushou/voice-call@beta",
       expected: {
-        name: "@assistant/voice-call",
-        raw: "@assistant/voice-call@beta",
+        name: "@zhushou/voice-call",
+        raw: "@zhushou/voice-call@beta",
         selector: "beta",
         selectorKind: "tag",
         selectorIsPrerelease: false,
       },
     },
     {
-      spec: "@assistant/voice-call@1.2.3-beta.1",
+      spec: "@zhushou/voice-call@1.2.3-beta.1",
       expected: {
-        name: "@assistant/voice-call",
-        raw: "@assistant/voice-call@1.2.3-beta.1",
+        name: "@zhushou/voice-call",
+        raw: "@zhushou/voice-call@1.2.3-beta.1",
         selector: "1.2.3-beta.1",
         selectorKind: "exact-version",
         selectorIsPrerelease: true,
@@ -108,32 +108,32 @@ describe("npm registry spec parsing helpers", () => {
 describe("npm prerelease resolution policy", () => {
   it.each([
     {
-      spec: "@assistant/voice-call",
+      spec: "@zhushou/voice-call",
       resolvedVersion: "1.2.3-beta.1",
       expected: false,
     },
     {
-      spec: "@assistant/voice-call@latest",
+      spec: "@zhushou/voice-call@latest",
       resolvedVersion: "1.2.3-rc.1",
       expected: false,
     },
     {
-      spec: "@assistant/voice-call@beta",
+      spec: "@zhushou/voice-call@beta",
       resolvedVersion: "1.2.3-beta.4",
       expected: true,
     },
     {
-      spec: "@assistant/voice-call@1.2.3-beta.1",
+      spec: "@zhushou/voice-call@1.2.3-beta.1",
       resolvedVersion: "1.2.3-beta.1",
       expected: true,
     },
     {
-      spec: "@assistant/voice-call",
+      spec: "@zhushou/voice-call",
       resolvedVersion: "1.2.3",
       expected: true,
     },
     {
-      spec: "@assistant/voice-call@latest",
+      spec: "@zhushou/voice-call@latest",
       resolvedVersion: undefined,
       expected: true,
     },
@@ -148,12 +148,12 @@ describe("npm prerelease resolution policy", () => {
 
   it.each([
     {
-      spec: "@assistant/voice-call",
+      spec: "@zhushou/voice-call",
       resolvedVersion: "1.2.3-beta.1",
-      expected: `Use "@assistant/voice-call@beta"`,
+      expected: `Use "@zhushou/voice-call@beta"`,
     },
     {
-      spec: "@assistant/voice-call@beta",
+      spec: "@zhushou/voice-call@beta",
       resolvedVersion: "1.2.3-rc.1",
       expected: "Use an explicit prerelease tag or exact prerelease version",
     },

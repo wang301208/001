@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import type { ChannelHealthMonitor } from "./channel-health-monitor.js";
 
@@ -42,7 +42,7 @@ export function createGatewayServerMutableState(): GatewayServerMutableState {
     mediaCleanup: null as ReturnType<typeof setInterval> | null,
     heartbeatRunner: {
       stop: () => {},
-      updateConfig: (_cfg: AssistantConfig) => {},
+      updateConfig: (_cfg: ZhushouConfig) => {},
     } satisfies HeartbeatRunner,
     stopGatewayUpdateCheck: () => {},
     tailscaleCleanup: null as (() => Promise<void>) | null,

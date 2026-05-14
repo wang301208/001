@@ -1,16 +1,16 @@
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveSlackAccount } from "./accounts.js";
 import { createSlackWebClient } from "./client.js";
 import { normalizeAllowListLower } from "./monitor/allow-list.js";
-import type { AssistantConfig } from "./runtime-api.js";
+import type { ZhushouConfig } from "./runtime-api.js";
 
 const SLACK_CHANNEL_TYPE_CACHE = new Map<string, "channel" | "group" | "dm" | "unknown">();
 
 export async function resolveSlackChannelType(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   channelId: string;
 }): Promise<"channel" | "group" | "dm" | "unknown"> {

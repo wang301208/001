@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { isPathInside } from "../../infra/path-guards.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
@@ -14,7 +14,7 @@ import {
 import { resolveBundledSkillsDir } from "./bundled-dir.js";
 import { shouldIncludeSkill } from "./config.js";
 import { normalizeSkillFilter } from "./filter.js";
-import { resolveAssistantMetadata, resolveSkillInvocationPolicy } from "./frontmatter.js";
+import { resolveZhushouMetadata, resolveSkillInvocationPolicy } from "./frontmatter.js";
 import { loadSkillsFromDirSafe, readSkillFrontmatterSafe } from "./local-loader.js";
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
@@ -113,7 +113,7 @@ function isSkillVisibleInAvailableSkillsPrompt(entry: SkillEntry): boolean {
 
 function filterSkillEntries(
   entries: SkillEntry[],
-  config?: AssistantConfig,
+  config?: ZhushouConfig,
   skillFilter?: string[],
   eligibility?: SkillEligibilityContext,
 ): SkillEntry[] {
@@ -160,7 +160,7 @@ type ResolvedSkillsLimits = {
   maxSkillFileBytes: number;
 };
 
-function resolveSkillsLimits(config?: AssistantConfig, agentId?: string): ResolvedSkillsLimits {
+function resolveSkillsLimits(config?: ZhushouConfig, agentId?: string): ResolvedSkillsLimits {
   const limits = config?.skills?.limits;
   const agentSkillsLimits = resolveEffectiveAgentSkillsLimits(config, agentId);
   return {
@@ -225,7 +225,7 @@ function buildEscapedSkillPathReason(params: { source: string; candidatePath: st
   consoleHint: string;
 } {
   const candidateIsSymlink = isSymlinkPath(params.candidatePath);
-  if (params.source === "assistant-bundled" && candidateIsSymlink) {
+  if (params.source === "zhushou-bundled" && candidateIsSymlink) {
     return {
       reason: "bundled-symlink-escape",
       consoleHint:
@@ -238,7 +238,7 @@ function buildEscapedSkillPathReason(params: { source: string; candidatePath: st
       consoleHint: "reason=symlink-escape",
     };
   }
-  if (params.source === "assistant-bundled") {
+  if (params.source === "zhushou-bundled") {
     return {
       reason: "bundled-root-escape",
       consoleHint:
@@ -468,7 +468,7 @@ function buildFallbackSkillFromProjectAssets(params: {
     sourceInfo: createSyntheticSourceInfo(assetPath, {
       source: params.source,
       baseDir,
-      scope: params.source === "assistant-workspace" ? "project" : "temporary",
+      scope: params.source === "zhushou-workspace" ? "project" : "temporary",
       origin: "top-level",
     }),
   };
@@ -477,7 +477,7 @@ function buildFallbackSkillFromProjectAssets(params: {
 function loadSkillEntries(
   workspaceDir: string,
   opts?: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     agentId?: string;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
@@ -663,19 +663,19 @@ function loadSkillEntries(
   const bundledSkills = bundledSkillsDir
     ? loadSkills({
         dir: bundledSkillsDir,
-        source: "assistant-bundled",
+        source: "zhushou-bundled",
       })
     : [];
   const extraSkills = mergedExtraDirs.flatMap((dir) => {
     const resolved = resolveUserPath(dir);
     return loadSkills({
       dir: resolved,
-      source: "assistant-extra",
+      source: "zhushou-extra",
     });
   });
   const managedSkills = loadSkills({
     dir: managedSkillsDir,
-    source: "assistant-managed",
+    source: "zhushou-managed",
   });
   const osHomeDir = resolveUserHomeDir();
   const personalAgentsSkillsDir = osHomeDir
@@ -692,7 +692,7 @@ function loadSkillEntries(
   });
   const workspaceSkills = loadSkills({
     dir: workspaceSkillsDir,
-    source: "assistant-workspace",
+    source: "zhushou-workspace",
   });
 
   const merged = new Map<string, Skill>();
@@ -729,7 +729,7 @@ function loadSkillEntries(
       return {
         skill,
         frontmatter,
-        metadata: resolveAssistantMetadata(frontmatter),
+        metadata: resolveZhushouMetadata(frontmatter),
         invocation,
         exposure: {
           includeInRuntimeRegistry: true,
@@ -782,7 +782,7 @@ const COMPACT_WARNING_OVERHEAD = 150;
 
 function applySkillsPromptLimits(params: {
   skills: Skill[];
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentId?: string;
 }): {
   skillsForPrompt: Skill[];
@@ -859,7 +859,7 @@ export function buildWorkspaceSkillsPrompt(
 }
 
 type WorkspaceSkillBuildOptions = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   managedSkillsDir?: string;
   bundledSkillsDir?: string;
   entries?: SkillEntry[];
@@ -913,9 +913,9 @@ function resolveWorkspaceSkillPromptState(
     agentId: opts?.agentId,
   });
   const truncationNote = truncated
-    ? `⚠️ Skills truncated: included ${skillsForPrompt.length} of ${resolvedSkills.length}${compact ? " (compact format, descriptions omitted)" : ""}. Run \`assistant skills check\` to audit.`
+    ? `⚠️ Skills truncated: included ${skillsForPrompt.length} of ${resolvedSkills.length}${compact ? " (compact format, descriptions omitted)" : ""}. Run \`zhushou skills check\` to audit.`
     : compact
-      ? `⚠️ Skills catalog using compact format (descriptions omitted). Run \`assistant skills check\` to audit.`
+      ? `⚠️ Skills catalog using compact format (descriptions omitted). Run \`zhushou skills check\` to audit.`
       : "";
   const prompt = [
     remoteNote,
@@ -930,7 +930,7 @@ function resolveWorkspaceSkillPromptState(
 export function resolveSkillsPromptForRun(params: {
   skillsSnapshot?: SkillSnapshot;
   entries?: SkillEntry[];
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir: string;
   agentId?: string;
 }): string {
@@ -952,7 +952,7 @@ export function resolveSkillsPromptForRun(params: {
 export function loadWorkspaceSkillEntries(
   workspaceDir: string,
   opts?: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
     skillFilter?: string[];
@@ -971,7 +971,7 @@ export function loadWorkspaceSkillEntries(
 export function loadVisibleWorkspaceSkillEntries(
   workspaceDir: string,
   opts?: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
     skillFilter?: string[];
@@ -1026,7 +1026,7 @@ function resolveSyncedSkillDestinationPath(params: {
 export async function syncSkillsToWorkspace(params: {
   sourceWorkspaceDir: string;
   targetWorkspaceDir: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   skillFilter?: string[];
   agentId?: string;
   eligibility?: SkillEligibilityContext;
@@ -1093,7 +1093,7 @@ export async function syncSkillsToWorkspace(params: {
 
 export function filterWorkspaceSkillEntries(
   entries: SkillEntry[],
-  config?: AssistantConfig,
+  config?: ZhushouConfig,
 ): SkillEntry[] {
   return filterSkillEntries(entries, config);
 }
@@ -1101,7 +1101,7 @@ export function filterWorkspaceSkillEntries(
 export function filterWorkspaceSkillEntriesWithOptions(
   entries: SkillEntry[],
   opts?: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     skillFilter?: string[];
     eligibility?: SkillEligibilityContext;
   },

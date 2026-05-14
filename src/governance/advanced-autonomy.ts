@@ -12,6 +12,7 @@ import { createSubsystemLogger } from '../logging/subsystem.js';
 import { metricsCollector, notificationManager, alertEngine } from './monitoring-alerting.js';
 import { cacheManager, lazyLoader, performanceMonitor } from './performance-optimizer.js';
 import { errorClassifier, retryHandler, circuitBreaker } from './error-handler.js';
+import { randomUUID } from 'node:crypto';
 
 const log = createSubsystemLogger('advanced-autonomy');
 
@@ -69,7 +70,7 @@ export class StrategicPlanner {
    * 创建战略规划
    */
   async createPlan(name: string, timeframeMonths: number): Promise<StrategicPlan> {
-    const planId = `plan-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const planId = `plan-${randomUUID()}`;
     
     // 分析当前状态
     const currentState = await this.analyzeCurrentState();
@@ -173,7 +174,7 @@ export class StrategicPlanner {
     // 基于机会生成增长目标
     for (const opp of opportunities.slice(0, 3)) {
       goals.push({
-        id: `goal-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+        id: `goal-${randomUUID()}`,
         name: `Leverage ${opp.type}`,
         description: opp.description,
         priority: Math.round(opp.potential / opp.effort * 10),
@@ -191,7 +192,7 @@ export class StrategicPlanner {
     // 基于挑战生成改进目标
     for (const chal of challenges.slice(0, 2)) {
       goals.push({
-        id: `goal-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+        id: `goal-${randomUUID()}`,
         name: `Address ${chal.type}`,
         description: chal.description,
         priority: Math.round(chal.urgency * chal.complexity),
@@ -590,7 +591,7 @@ export class LearningEngine {
   recordLearning(event: Omit<LearningRecord, 'id' | 'timestamp'>): void {
     const record: LearningRecord = {
       ...event,
-      id: `learn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `learn-${randomUUID()}`,
       timestamp: Date.now(),
     };
     
@@ -787,7 +788,7 @@ export class CollaborationCoordinator {
    * 创建协作任务
    */
   async createTask(task: Omit<CollaborationTask, 'id' | 'createdAt' | 'status' | 'assignedAgents'>): Promise<CollaborationTask> {
-    const taskId = `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const taskId = `task-${randomUUID()}`;
     
     const fullTask: CollaborationTask = {
       ...task,

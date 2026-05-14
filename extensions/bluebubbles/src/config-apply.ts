@@ -1,5 +1,5 @@
-import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 
 type BlueBubblesConfigPatch = {
   serverUrl?: string;
@@ -34,12 +34,12 @@ function normalizePatch(
 }
 
 export function applyBlueBubblesConnectionConfig(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   patch: BlueBubblesConfigPatch;
   onlyDefinedFields?: boolean;
   accountEnabled?: AccountEnabledMode;
-}): AssistantConfig {
+}): ZhushouConfig {
   const patch = normalizePatch(params.patch, params.onlyDefinedFields === true);
   if (params.accountId === DEFAULT_ACCOUNT_ID) {
     return {

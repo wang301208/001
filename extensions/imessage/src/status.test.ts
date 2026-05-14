@@ -1,5 +1,5 @@
-import * as processRuntime from "assistant/plugin-sdk/process-runtime";
-import * as setupRuntime from "assistant/plugin-sdk/setup";
+import * as processRuntime from "zhushou/plugin-sdk/process-runtime";
+import * as setupRuntime from "zhushou/plugin-sdk/setup";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPluginSetupWizardStatus } from "../../../test/helpers/plugins/setup-wizard.js";
 import { resolveIMessageAccount } from "./accounts.js";

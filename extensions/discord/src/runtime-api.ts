@@ -4,61 +4,61 @@ export {
   PAIRING_APPROVED_MESSAGE,
   projectCredentialSnapshotFields,
   resolveConfiguredFromCredentialStatuses,
-} from "assistant/plugin-sdk/channel-status";
+} from "zhushou/plugin-sdk/channel-status";
 export { buildChannelConfigSchema, DiscordConfigSchema } from "../config-api.js";
 export type {
   ChannelMessageActionAdapter,
   ChannelMessageActionContext,
   ChannelMessageActionName,
-} from "assistant/plugin-sdk/channel-contract";
+} from "zhushou/plugin-sdk/channel-contract";
 export type {
   ChannelPlugin,
-  AssistantPluginApi,
+  ZhushouPluginApi,
   PluginRuntime,
-} from "assistant/plugin-sdk/channel-plugin-common";
+} from "zhushou/plugin-sdk/channel-plugin-common";
 export type {
   DiscordAccountConfig,
   DiscordActionConfig,
   DiscordConfig,
-  AssistantConfig,
-} from "assistant/plugin-sdk/config-runtime";
+  ZhushouConfig,
+} from "zhushou/plugin-sdk/config-runtime";
 export {
   jsonResult,
   readNumberParam,
   readStringArrayParam,
   readStringParam,
   resolvePollMaxSelections,
-} from "assistant/plugin-sdk/channel-actions";
-export type { ActionGate } from "assistant/plugin-sdk/channel-actions";
-export { readBooleanParam } from "assistant/plugin-sdk/boolean-param";
+} from "zhushou/plugin-sdk/channel-actions";
+export type { ActionGate } from "zhushou/plugin-sdk/channel-actions";
+export { readBooleanParam } from "zhushou/plugin-sdk/boolean-param";
 export {
   assertMediaNotDataUrl,
   parseAvailableTags,
   readReactionParams,
   withNormalizedTimestamp,
-} from "assistant/plugin-sdk/channel-actions";
+} from "zhushou/plugin-sdk/channel-actions";
 export {
   createHybridChannelConfigAdapter,
   createScopedChannelConfigAdapter,
   createScopedAccountConfigAccessors,
   createScopedChannelConfigBase,
   createTopLevelChannelConfigAdapter,
-} from "assistant/plugin-sdk/channel-config-helpers";
+} from "zhushou/plugin-sdk/channel-config-helpers";
 export {
   createAccountActionGate,
   createAccountListHelpers,
-} from "assistant/plugin-sdk/account-helpers";
-export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
+} from "zhushou/plugin-sdk/account-helpers";
+export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
 export {
   emptyPluginConfigSchema,
   formatPairingApproveHint,
-} from "assistant/plugin-sdk/channel-plugin-common";
-export { loadOutboundMediaFromUrl } from "assistant/plugin-sdk/outbound-media";
-export { resolveAccountEntry } from "assistant/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/channel-plugin-common";
+export { loadOutboundMediaFromUrl } from "zhushou/plugin-sdk/outbound-media";
+export { resolveAccountEntry } from "zhushou/plugin-sdk/routing";
 export {
   hasConfiguredSecretInput,
   normalizeResolvedSecretInputString,
   normalizeSecretInputString,
-} from "assistant/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/secret-input";
 export { getChatChannelMeta } from "./channel-api.js";
 export { resolveDiscordOutboundSessionRoute } from "./outbound-session-route.js";

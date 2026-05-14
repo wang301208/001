@@ -1,8 +1,8 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { buildAgentSessionKey, type RoutePeer } from "../../routing/resolve-route.js";
 
 export function buildOutboundBaseSessionKey(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   channel: string;
   accountId?: string | null;

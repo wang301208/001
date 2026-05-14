@@ -8,7 +8,7 @@ import {
 } from "./bundled-compat.js";
 import { resolveBundledPluginRepoEntryPath } from "./bundled-plugin-metadata.js";
 import { createCapturedPluginRegistration } from "./captured-registration.js";
-import { discoverAssistantPlugins } from "./discovery.js";
+import { discoverZhushouPlugins } from "./discovery.js";
 import { getCachedPluginJitiLoader, type PluginJitiLoaderCache } from "./jiti-loader-cache.js";
 import type { PluginLoadOptions } from "./loader.js";
 import { loadPluginManifestRegistry } from "./manifest-registry.js";
@@ -20,7 +20,7 @@ import {
   shouldPreferNativeJiti,
   type PluginSdkResolutionPreference,
 } from "./sdk-alias.js";
-import type { AssistantPluginDefinition, AssistantPluginModule } from "./types.js";
+import type { ZhushouPluginDefinition, ZhushouPluginModule } from "./types.js";
 
 const log = createSubsystemLogger("plugins");
 
@@ -52,8 +52,8 @@ export function buildVitestCapabilityShimAliasMap(): Record<string, string> {
     CAPABILITY_VITEST_SHIM_ALIASES.flatMap(({ subpath, target }) => {
       const targetPath = fileURLToPath(target);
       return [
-        [`assistant/plugin-sdk/${subpath}`, targetPath],
-        [`@assistant/plugin-sdk/${subpath}`, targetPath],
+        [`zhushou/plugin-sdk/${subpath}`, targetPath],
+        [`@zhushou/plugin-sdk/${subpath}`, targetPath],
       ];
     }),
   );
@@ -69,8 +69,8 @@ function applyVitestCapabilityAliasOverrides(params: {
   }
 
   const {
-    ["assistant/plugin-sdk"]: _ignoredLegacyRootAlias,
-    ["@assistant/plugin-sdk"]: _ignoredScopedRootAlias,
+    ["zhushou/plugin-sdk"]: _ignoredLegacyRootAlias,
+    ["@zhushou/plugin-sdk"]: _ignoredScopedRootAlias,
     ...scopedAliasMap
   } = params.aliasMap;
   return {
@@ -98,17 +98,17 @@ export function buildBundledCapabilityRuntimeConfig(
 }
 
 function resolvePluginModuleExport(moduleExport: unknown): {
-  definition?: AssistantPluginDefinition;
-  register?: AssistantPluginDefinition["register"];
+  definition?: ZhushouPluginDefinition;
+  register?: ZhushouPluginDefinition["register"];
 } {
   const resolved = unwrapDefaultModuleExport(moduleExport);
   if (typeof resolved === "function") {
     return {
-      register: resolved as AssistantPluginDefinition["register"],
+      register: resolved as ZhushouPluginDefinition["register"],
     };
   }
   if (resolved && typeof resolved === "object") {
-    const definition = resolved as AssistantPluginDefinition;
+    const definition = resolved as ZhushouPluginDefinition;
     return {
       definition,
       register: definition.register ?? definition.activate,
@@ -213,7 +213,7 @@ export function loadBundledCapabilityRuntimeRegistry(params: {
     });
   };
 
-  const discovery = discoverAssistantPlugins({
+  const discovery = discoverZhushouPlugins({
     cache: false,
     env,
   });
@@ -278,9 +278,9 @@ export function loadBundledCapabilityRuntimeRegistry(params: {
     const safeSource = opened.path;
     fs.closeSync(opened.fd);
 
-    let mod: AssistantPluginModule | null = null;
+    let mod: ZhushouPluginModule | null = null;
     try {
-      mod = getJiti(safeSource)(safeSource) as AssistantPluginModule;
+      mod = getJiti(safeSource)(safeSource) as ZhushouPluginModule;
     } catch (error) {
       recordCapabilityLoadError(registry, record, String(error));
       continue;

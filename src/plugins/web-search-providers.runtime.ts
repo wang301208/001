@@ -1,4 +1,4 @@
-import { loadAssistantPlugins } from "./loader.js";
+import { loadZhushouPlugins } from "./loader.js";
 import type { PluginLoadOptions } from "./loader.js";
 import { type PluginManifestRecord } from "./manifest-registry.js";
 import type { PluginWebSearchProviderEntry } from "./types.js";
@@ -45,7 +45,7 @@ function resolveWebSearchCandidatePluginIds(params: {
 }
 
 function mapRegistryWebSearchProviders(params: {
-  registry: ReturnType<typeof loadAssistantPlugins>;
+  registry: ReturnType<typeof loadZhushouPlugins>;
   onlyPluginIds?: readonly string[];
 }): PluginWebSearchProviderEntry[] {
   return mapRegistryProviders({

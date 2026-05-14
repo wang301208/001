@@ -41,7 +41,11 @@ function setOpenChannelPostConfig() {
 }
 
 function getChannelPostHandler() {
-  createTelegramBot({ token: "tok", testTimings: TELEGRAM_TEST_TIMINGS });
+  createTelegramBot({
+    token: "tok",
+    testTimings: TELEGRAM_TEST_TIMINGS,
+    proxyFetch: globalThis.fetch,
+  });
   return getOnHandler("channel_post") as (ctx: Record<string, unknown>) => Promise<void>;
 }
 
@@ -92,7 +96,7 @@ function createChannelPostContext(params: {
       ...(params.mediaGroupId ? { media_group_id: params.mediaGroupId } : {}),
       ...(photoFileId ? { photo: [{ file_id: photoFileId }] } : {}),
     },
-    me: { username: "assistant_bot" },
+    me: { username: "zhushou_bot" },
     getFile: async () =>
       params.getFileResult ?? (photoFileId ? { file_path: `photos/${photoFileId}.jpg` } : {}),
   };
@@ -198,7 +202,7 @@ describe("createTelegramBot channel_post media", () => {
           date: 1736380800,
           text: part1,
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({}),
       });
 
@@ -209,7 +213,7 @@ describe("createTelegramBot channel_post media", () => {
           date: 1736380801,
           text: part2,
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({}),
       });
 
@@ -233,7 +237,7 @@ describe("createTelegramBot channel_post media", () => {
       contentType: "image/jpeg",
     });
 
-    createTelegramBot({ token: "tok", mediaMaxMb: 0 });
+    createTelegramBot({ token: "tok", mediaMaxMb: 0, proxyFetch: globalThis.fetch });
     const handler = getOnHandler("channel_post") as (ctx: Record<string, unknown>) => Promise<void>;
 
     await handler(
@@ -263,7 +267,7 @@ describe("createTelegramBot channel_post media", () => {
       );
 
     try {
-      createTelegramBot({ token: "tok" });
+      createTelegramBot({ token: "tok", proxyFetch: globalThis.fetch });
       const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
 
       await handler({
@@ -274,7 +278,7 @@ describe("createTelegramBot channel_post media", () => {
           photo: [{ file_id: "p1" }],
           from: { id: 55, is_bot: false, first_name: "u" },
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({ file_path: "photos/p1.jpg" }),
       });
 

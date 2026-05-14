@@ -1,6 +1,6 @@
 import type { PluginRegistry } from "./registry-types.js";
 
-export const PLUGIN_REGISTRY_STATE = Symbol.for("assistant.pluginRegistryState");
+export const PLUGIN_REGISTRY_STATE = Symbol.for("zhushou.pluginRegistryState");
 
 export type RuntimeTrackedPluginRegistry = PluginRegistry;
 

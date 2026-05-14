@@ -12,7 +12,7 @@ beforeAll(async () => {
 
 describe("createLiveTargetMatcher", () => {
   const env = {
-    ASSISTANT_DISABLE_PLUGIN_MANIFEST_CACHE: "1",
+    ZHUSHOU_DISABLE_PLUGIN_MANIFEST_CACHE: "1",
   } as NodeJS.ProcessEnv;
 
   it("matches Anthropic-owned models for the claude-cli provider filter", () => {

@@ -2,12 +2,12 @@
 // Keep this list additive and scoped to the bundled diffs surface.
 
 export { definePluginEntry } from "./plugin-entry.js";
-export type { AssistantConfig } from "../config/config.js";
-export { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
+export type { ZhushouConfig } from "../config/config.js";
+export { resolvePreferredZhushouTmpDir } from "../infra/tmp-zhushou-dir.js";
 export type {
   AnyAgentTool,
-  AssistantPluginApi,
-  AssistantPluginConfigSchema,
-  AssistantPluginToolContext,
+  ZhushouPluginApi,
+  ZhushouPluginConfigSchema,
+  ZhushouPluginToolContext,
   PluginLogger,
 } from "../plugins/types.js";

@@ -5,7 +5,7 @@ import { pruneContextMessages } from "./pruner.js";
 import { DEFAULT_CONTEXT_PRUNING_SETTINGS } from "./settings.js";
 
 type AssistantMessage = Extract<AgentMessage, { role: "assistant" }>;
-type AssistantContentBlock = AssistantMessage["content"][number];
+type ZhushouContentBlock = AssistantMessage["content"][number];
 
 const CONTEXT_WINDOW_1M = {
   model: { contextWindow: 1_000_000 },
@@ -22,7 +22,7 @@ function makeUser(text: string): AgentMessage {
   };
 }
 
-function makeAssistant(content: AssistantMessage["content"]): AgentMessage {
+function makeZhushou(content: AssistantMessage["content"]): AgentMessage {
   return {
     role: "assistant",
     content,
@@ -61,15 +61,15 @@ function makeToolResult(
   } as AgentMessage;
 }
 
-function pruneWithOversizedAssistantThinking(params: {
-  assistantBlock: AssistantContentBlock;
+function pruneWithOversizedZhushouThinking(params: {
+  zhushouBlock: ZhushouContentBlock;
   dropThinkingBlocksForEstimate?: boolean;
 }) {
   return pruneContextMessages({
     messages: [
       makeUser("hello"),
       makeToolResult([{ type: "text", text: "X".repeat(2_000) }]),
-      makeAssistant([params.assistantBlock, { type: "text", text: "done" }]),
+      makeZhushou([params.zhushouBlock, { type: "text", text: "done" }]),
     ],
     settings: {
       ...buildToolTrimSettings(),
@@ -84,7 +84,7 @@ function buildToolTrimSettings() {
   return {
     mode: DEFAULT_CONTEXT_PRUNING_SETTINGS.mode,
     ttlMs: DEFAULT_CONTEXT_PRUNING_SETTINGS.ttlMs,
-    keepLastAssistants: 1,
+    keepLastZhushous: 1,
     softTrimRatio: 0.5,
     hardClearRatio: DEFAULT_CONTEXT_PRUNING_SETTINGS.hardClearRatio,
     minPrunableToolChars: DEFAULT_CONTEXT_PRUNING_SETTINGS.minPrunableToolChars,
@@ -104,11 +104,11 @@ function expectToolResultWasTrimmed(result: AgentMessage[]) {
 }
 
 describe("pruneContextMessages", () => {
-  it("does not crash on assistant message with malformed thinking block (missing thinking string)", () => {
+  it("does not crash on zhushou message with malformed thinking block (missing thinking string)", () => {
     const messages: AgentMessage[] = [
       makeUser("hello"),
-      makeAssistant([
-        { type: "thinking" } as unknown as AssistantContentBlock,
+      makeZhushou([
+        { type: "thinking" } as unknown as ZhushouContentBlock,
         { type: "text", text: "ok" },
       ]),
     ];
@@ -121,10 +121,10 @@ describe("pruneContextMessages", () => {
     ).not.toThrow();
   });
 
-  it("does not crash on assistant message with null content entries", () => {
+  it("does not crash on zhushou message with null content entries", () => {
     const messages: AgentMessage[] = [
       makeUser("hello"),
-      makeAssistant([null as unknown as AssistantContentBlock, { type: "text", text: "world" }]),
+      makeZhushou([null as unknown as ZhushouContentBlock, { type: "text", text: "world" }]),
     ];
     expect(() =>
       pruneContextMessages({
@@ -135,11 +135,11 @@ describe("pruneContextMessages", () => {
     ).not.toThrow();
   });
 
-  it("does not crash on assistant message with malformed text block (missing text string)", () => {
+  it("does not crash on zhushou message with malformed text block (missing text string)", () => {
     const messages: AgentMessage[] = [
       makeUser("hello"),
-      makeAssistant([
-        { type: "text" } as unknown as AssistantContentBlock,
+      makeZhushou([
+        { type: "text" } as unknown as ZhushouContentBlock,
         { type: "thinking", thinking: "still fine" },
       ]),
     ];
@@ -155,7 +155,7 @@ describe("pruneContextMessages", () => {
   it("handles well-formed thinking blocks correctly", () => {
     const messages: AgentMessage[] = [
       makeUser("hello"),
-      makeAssistant([
+      makeZhushou([
         { type: "thinking", thinking: "let me think" },
         { type: "text", text: "here is the answer" },
       ]),
@@ -168,25 +168,25 @@ describe("pruneContextMessages", () => {
     expect(result).toHaveLength(2);
   });
 
-  it("counts thinkingSignature bytes when estimating assistant message size", () => {
-    const result = pruneWithOversizedAssistantThinking({
-      assistantBlock: {
+  it("counts thinkingSignature bytes when estimating zhushou message size", () => {
+    const result = pruneWithOversizedZhushouThinking({
+      zhushouBlock: {
         type: "thinking",
         thinking: "[redacted]",
         thinkingSignature: "S".repeat(40_000),
         redacted: true,
-      } as unknown as AssistantContentBlock,
+      } as unknown as ZhushouContentBlock,
     });
     expectToolResultWasTrimmed(result);
   });
 
-  it("counts redacted_thinking data bytes when estimating assistant message size", () => {
-    const result = pruneWithOversizedAssistantThinking({
-      assistantBlock: {
+  it("counts redacted_thinking data bytes when estimating zhushou message size", () => {
+    const result = pruneWithOversizedZhushouThinking({
+      zhushouBlock: {
         type: "redacted_thinking",
         data: "D".repeat(40_000),
         thinkingSignature: "sig",
-      } as unknown as AssistantContentBlock,
+      } as unknown as ZhushouContentBlock,
     });
     expectToolResultWasTrimmed(result);
   });
@@ -194,17 +194,17 @@ describe("pruneContextMessages", () => {
   it("ignores non-latest thinking signatures that will be dropped before send", () => {
     const messages: AgentMessage[] = [
       makeUser("first"),
-      makeAssistant([
+      makeZhushou([
         {
           type: "thinking",
           thinking: "internal",
           thinkingSignature: "S".repeat(40_000),
-        } as unknown as AssistantContentBlock,
+        } as unknown as ZhushouContentBlock,
         { type: "text", text: "older reply" },
       ]),
       makeToolResult([{ type: "text", text: "X".repeat(2_000) }]),
       makeUser("latest"),
-      makeAssistant([{ type: "text", text: "latest reply" }]),
+      makeZhushou([{ type: "text", text: "latest reply" }]),
     ];
 
     const result = pruneContextMessages({
@@ -229,14 +229,14 @@ describe("pruneContextMessages", () => {
         { type: "image", data: "img", mimeType: "image/png" },
         { type: "text", text: "B".repeat(120) },
       ]),
-      makeAssistant([{ type: "text", text: "done" }]),
+      makeZhushou([{ type: "text", text: "done" }]),
     ];
 
     const result = pruneContextMessages({
       messages,
       settings: {
         ...DEFAULT_CONTEXT_PRUNING_SETTINGS,
-        keepLastAssistants: 1,
+        keepLastZhushous: 1,
         softTrimRatio: 0,
         hardClear: {
           ...DEFAULT_CONTEXT_PRUNING_SETTINGS.hardClear,
@@ -267,14 +267,14 @@ describe("pruneContextMessages", () => {
     const messages: AgentMessage[] = [
       makeUser("summarize this"),
       makeToolResult([{ type: "image", data: "img", mimeType: "image/png" }]),
-      makeAssistant([{ type: "text", text: "done" }]),
+      makeZhushou([{ type: "text", text: "done" }]),
     ];
 
     const result = pruneContextMessages({
       messages,
       settings: {
         ...DEFAULT_CONTEXT_PRUNING_SETTINGS,
-        keepLastAssistants: 1,
+        keepLastZhushous: 1,
         softTrimRatio: 0,
         hardClearRatio: 10,
         hardClear: {
@@ -305,7 +305,7 @@ describe("pruneContextMessages", () => {
         { type: "text", text: "small text" },
         { type: "image", data: "img", mimeType: "image/png" },
       ]),
-      makeAssistant([{ type: "text", text: "done" }]),
+      makeZhushou([{ type: "text", text: "done" }]),
     ];
 
     const placeholder = "[hard cleared test placeholder]";
@@ -313,7 +313,7 @@ describe("pruneContextMessages", () => {
       messages,
       settings: {
         ...DEFAULT_CONTEXT_PRUNING_SETTINGS,
-        keepLastAssistants: 1,
+        keepLastZhushous: 1,
         softTrimRatio: 0,
         hardClearRatio: 0,
         minPrunableToolChars: 1,

@@ -7,7 +7,7 @@ import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { note } from "../terminal/note.js";
 import type { DoctorOptions } from "./doctor-prompter.js";
 
-async function detectAssistantGitCheckout(root: string): Promise<"git" | "not-git" | "unknown"> {
+async function detectZhushouGitCheckout(root: string): Promise<"git" | "not-git" | "unknown"> {
   const res = await runCommandWithTimeout(["git", "-C", root, "rev-parse", "--show-toplevel"], {
     timeoutMs: 5000,
   }).catch(() => null);
@@ -32,7 +32,7 @@ export async function maybeOfferUpdateBeforeDoctor(params: {
   confirm: (p: { message: string; initialValue: boolean }) => Promise<boolean>;
   outro: (message: string) => void;
 }) {
-  const updateInProgress = isTruthyEnvValue(process.env.ASSISTANT_UPDATE_IN_PROGRESS);
+  const updateInProgress = isTruthyEnvValue(process.env.ZHUSHOU_UPDATE_IN_PROGRESS);
   const canOfferUpdate =
     !updateInProgress &&
     params.options.nonInteractive !== true &&
@@ -43,10 +43,10 @@ export async function maybeOfferUpdateBeforeDoctor(params: {
     return { updated: false };
   }
 
-  const git = await detectAssistantGitCheckout(params.root);
+  const git = await detectZhushouGitCheckout(params.root);
   if (git === "git") {
     const shouldUpdate = await params.confirm({
-      message: "Update assistant from git before running doctor?",
+      message: "Update zhushou from git before running doctor?",
       initialValue: true,
     });
     if (!shouldUpdate) {
@@ -79,7 +79,7 @@ export async function maybeOfferUpdateBeforeDoctor(params: {
     note(
       [
         "This install is not a git checkout.",
-        `Run \`${formatCliCommand("assistant update")}\` to update via your package manager (npm/pnpm), then rerun doctor.`,
+        `Run \`${formatCliCommand("zhushou update")}\` to update via your package manager (npm/pnpm), then rerun doctor.`,
       ].join("\n"),
       "Update",
     );

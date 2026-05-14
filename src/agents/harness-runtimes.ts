@@ -1,9 +1,9 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
 
 export function collectConfiguredAgentHarnessRuntimes(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   env: NodeJS.ProcessEnv,
 ): string[] {
   const runtimes = new Set<string>();
@@ -27,7 +27,7 @@ export function collectConfiguredAgentHarnessRuntimes(
       pushRuntime((agent.embeddedHarness as Record<string, unknown> | undefined)?.runtime);
     }
   }
-  pushRuntime(env.ASSISTANT_AGENT_RUNTIME);
+  pushRuntime(env.ZHUSHOU_AGENT_RUNTIME);
 
   return [...runtimes].toSorted((left, right) => left.localeCompare(right));
 }

@@ -9,7 +9,7 @@
  *  - Connection lifecycle cleanup via releaseWsSession
  *
  * Run manually with a valid OPENAI_API_KEY:
- *   ASSISTANT_LIVE_TEST=1 pnpm test:e2e -- src/agents/openai-ws-stream.e2e.test.ts
+ *   ZHUSHOU_LIVE_TEST=1 pnpm test:e2e -- src/agents/openai-ws-stream.e2e.test.ts
  *
  * Skipped in CI — no API key available and we avoid billable external calls.
  */
@@ -50,7 +50,7 @@ const model = {
 type StreamFnParams = Parameters<ReturnType<StreamFactory>>;
 function makeContext(userMessage: string): StreamFnParams[1] {
   return {
-    systemPrompt: "You are a helpful assistant. Reply in one sentence.",
+    systemPrompt: "You are a helpful zhushou. Reply in one sentence.",
     messages: [{ role: "user" as const, content: userMessage }],
     tools: [],
   } as unknown as StreamFnParams[1];
@@ -58,7 +58,7 @@ function makeContext(userMessage: string): StreamFnParams[1] {
 
 function makeToolContext(userMessage: string): StreamFnParams[1] {
   return {
-    systemPrompt: "You are a precise assistant. Follow tool instructions exactly.",
+    systemPrompt: "You are a precise zhushou. Follow tool instructions exactly.",
     messages: [{ role: "user" as const, content: userMessage }],
     tools: [
       {
@@ -129,7 +129,7 @@ function expectDone(events: AssistantMessageEvent[]): AssistantMessage {
   return done!;
 }
 
-function assistantText(message: AssistantMessage): string {
+function zhushouText(message: AssistantMessage): string {
   return message.content
     .filter((block) => block.type === "text")
     .map((block) => block.text)
@@ -236,7 +236,7 @@ describe("OpenAI WebSocket e2e", () => {
       const done = expectDone(await collectEvents(stream));
 
       expect(done.content.length).toBeGreaterThan(0);
-      const text = assistantText(done);
+      const text = zhushouText(done);
       expect(text).toMatch(/4/);
     },
     45_000,
@@ -290,7 +290,7 @@ describe("OpenAI WebSocket e2e", () => {
         output: "TOOL_OK",
       });
 
-      expect(assistantText(secondDone)).toMatch(/TOOL_OK/);
+      expect(zhushouText(secondDone)).toMatch(/TOOL_OK/);
     },
     60_000,
   );
@@ -365,7 +365,7 @@ describe("OpenAI WebSocket e2e", () => {
         output: "TOOL_OK",
       });
 
-      expect(assistantText(secondDone)).toMatch(/TOOL_OK/);
+      expect(zhushouText(secondDone)).toMatch(/TOOL_OK/);
     },
     60_000,
   );
@@ -388,7 +388,7 @@ describe("OpenAI WebSocket e2e", () => {
 
       const done = events.find((event) => event.type === "done")?.message;
       if (done) {
-        expect(assistantText(done).toLowerCase()).toContain("warmed");
+        expect(zhushouText(done).toLowerCase()).toContain("warmed");
       }
     },
     45_000,

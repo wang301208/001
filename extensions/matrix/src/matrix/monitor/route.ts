@@ -1,11 +1,11 @@
-import { resolveConfiguredAcpBindingRecord } from "assistant/plugin-sdk/acp-binding-resolve-runtime";
-import type { PluginRuntime } from "assistant/plugin-sdk/plugin-runtime";
+import { resolveConfiguredAcpBindingRecord } from "zhushou/plugin-sdk/acp-binding-resolve-runtime";
+import type { PluginRuntime } from "zhushou/plugin-sdk/plugin-runtime";
 import {
   buildAgentSessionKey,
   deriveLastRoutePolicy,
   resolveAgentIdFromSessionKey,
-} from "assistant/plugin-sdk/routing";
-import { getSessionBindingService } from "assistant/plugin-sdk/session-binding-runtime";
+} from "zhushou/plugin-sdk/routing";
+import { getSessionBindingService } from "zhushou/plugin-sdk/session-binding-runtime";
 import type { CoreConfig } from "../../types.js";
 import { resolveMatrixThreadSessionKeys } from "./threads.js";
 

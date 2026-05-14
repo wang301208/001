@@ -1,10 +1,10 @@
 import { Type } from "@sinclair/typebox";
-import type { AssistantPluginApi } from "assistant/plugin-sdk/plugin-runtime";
+import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-runtime";
 import {
   jsonResult,
   readNumberParam,
   readStringParam,
-} from "assistant/plugin-sdk/provider-web-search";
+} from "zhushou/plugin-sdk/provider-web-search";
 import { runTavilyExtract } from "./tavily-client.js";
 
 function optionalStringEnum<const T extends readonly string[]>(
@@ -51,7 +51,7 @@ const TavilyExtractToolSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export function createTavilyExtractTool(api: AssistantPluginApi) {
+export function createTavilyExtractTool(api: ZhushouPluginApi) {
   return {
     name: "tavily_extract",
     label: "Tavily Extract",

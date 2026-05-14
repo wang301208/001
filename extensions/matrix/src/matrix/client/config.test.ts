@@ -291,7 +291,7 @@ describe("Matrix auth/config live surfaces", () => {
               homeserver: "https://matrix.gumadeiras.com",
               userId: "@pinguini:matrix.gumadeiras.com",
               password: "cfg-pass", // pragma: allowlist secret
-              deviceName: "Assistant Gateway Pinguini",
+              deviceName: "Zhushou Gateway Pinguini",
               encryption: true,
             },
           },
@@ -311,7 +311,7 @@ describe("Matrix auth/config live surfaces", () => {
       homeserver: "https://matrix.gumadeiras.com",
       userId: "@pinguini:matrix.gumadeiras.com",
       password: "cfg-pass",
-      deviceName: "Assistant Gateway Pinguini",
+      deviceName: "Zhushou Gateway Pinguini",
       encryption: true,
     });
   });
@@ -337,9 +337,9 @@ describe("Matrix auth/config live surfaces", () => {
       channels: {
         matrix: {
           accounts: {
-            assistant: {
-              homeserver: "https://matrix.assistant.example.org",
-              accessToken: "assistant-token",
+            zhushou: {
+              homeserver: "https://matrix.zhushou.example.org",
+              accessToken: "zhushou-token",
             },
             ops: {
               homeserver: "https://matrix.ops.example.org",

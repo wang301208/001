@@ -1,6 +1,6 @@
-﻿import type { EnvelopeFormatOptions } from "assistant/plugin-sdk/channel-inbound";
+﻿import type { EnvelopeFormatOptions } from "zhushou/plugin-sdk/channel-inbound";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig, PluginRuntime } from "../runtime-api.js";
+import type { ZhushouConfig, PluginRuntime } from "../runtime-api.js";
 import type { FeishuMessageEvent } from "./bot.js";
 import { handleFeishuMessage } from "./bot.js";
 import { setFeishuRuntime } from "./runtime.js";
@@ -119,7 +119,7 @@ describe("broadcast dispatch", () => {
     },
   } as unknown as PluginRuntime;
 
-  function createBroadcastConfig(): AssistantConfig {
+  function createBroadcastConfig(): ZhushouConfig {
     return {
       broadcast: { "oc-broadcast-group": ["susan", "main"] },
       agents: { list: [{ id: "main" }, { id: "susan" }] },
@@ -247,7 +247,7 @@ describe("broadcast dispatch", () => {
   });
 
   it("preserves single-agent dispatch when no broadcast config", async () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         feishu: {
           groups: {
@@ -286,7 +286,7 @@ describe("broadcast dispatch", () => {
   });
 
   it("cross-account broadcast dedup: second account skips dispatch", async () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       broadcast: { "oc-broadcast-group": ["susan", "main"] },
       agents: { list: [{ id: "main" }, { id: "susan" }] },
       channels: {
@@ -332,7 +332,7 @@ describe("broadcast dispatch", () => {
   });
 
   it("skips unknown agents not in agents.list", async () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       broadcast: { "oc-broadcast-group": ["susan", "unknown-agent"] },
       agents: { list: [{ id: "main" }, { id: "susan" }] },
       channels: {

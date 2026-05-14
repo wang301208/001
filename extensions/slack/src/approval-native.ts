@@ -1,20 +1,20 @@
 import {
   createApproverRestrictedNativeApprovalCapability,
   splitChannelApprovalCapability,
-} from "assistant/plugin-sdk/approval-delivery-runtime";
-import { createLazyChannelApprovalNativeRuntimeAdapter } from "assistant/plugin-sdk/approval-handler-adapter-runtime";
-import type { ChannelApprovalNativeRuntimeAdapter } from "assistant/plugin-sdk/approval-handler-runtime";
+} from "zhushou/plugin-sdk/approval-delivery-runtime";
+import { createLazyChannelApprovalNativeRuntimeAdapter } from "zhushou/plugin-sdk/approval-handler-adapter-runtime";
+import type { ChannelApprovalNativeRuntimeAdapter } from "zhushou/plugin-sdk/approval-handler-runtime";
 import {
   createChannelApproverDmTargetResolver,
   createChannelNativeOriginTargetResolver,
   resolveApprovalRequestSessionConversation,
-} from "assistant/plugin-sdk/approval-native-runtime";
-import type { ChannelApprovalCapability } from "assistant/plugin-sdk/channel-contract";
-import type { ExecApprovalRequest, PluginApprovalRequest } from "assistant/plugin-sdk/infra-runtime";
+} from "zhushou/plugin-sdk/approval-native-runtime";
+import type { ChannelApprovalCapability } from "zhushou/plugin-sdk/channel-contract";
+import type { ExecApprovalRequest, PluginApprovalRequest } from "zhushou/plugin-sdk/infra-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { listSlackAccountIds } from "./accounts.js";
 import { isSlackApprovalAuthorizedSender } from "./approval-auth.js";
 import {

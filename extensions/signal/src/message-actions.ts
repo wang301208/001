@@ -1,10 +1,10 @@
-import { resolveReactionMessageId } from "assistant/plugin-sdk/channel-actions";
-import { createActionGate, jsonResult, readStringParam } from "assistant/plugin-sdk/channel-actions";
+import { resolveReactionMessageId } from "zhushou/plugin-sdk/channel-actions";
+import { createActionGate, jsonResult, readStringParam } from "zhushou/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
-} from "assistant/plugin-sdk/channel-contract";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/channel-contract";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { removeReactionSignal, sendReactionSignal } from "../reaction-runtime-api.js";
 import { listEnabledSignalAccounts, resolveSignalAccount } from "./accounts.js";
 import { resolveSignalReactionLevel } from "./reaction-level.js";

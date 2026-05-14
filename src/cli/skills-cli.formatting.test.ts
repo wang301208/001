@@ -14,10 +14,10 @@ describe("skills-cli (e2e)", () => {
   let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeAll(() => {
-    envSnapshot = captureEnv(["ASSISTANT_BUNDLED_SKILLS_DIR"]);
-    tempWorkspaceDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-skills-test-"));
-    tempBundledDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-bundled-skills-test-"));
-    process.env.ASSISTANT_BUNDLED_SKILLS_DIR = tempBundledDir;
+    envSnapshot = captureEnv(["ZHUSHOU_BUNDLED_SKILLS_DIR"]);
+    tempWorkspaceDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-skills-test-"));
+    tempBundledDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-bundled-skills-test-"));
+    process.env.ZHUSHOU_BUNDLED_SKILLS_DIR = tempBundledDir;
   });
 
   afterAll(() => {
@@ -40,7 +40,7 @@ describe("skills-cli (e2e)", () => {
           description: "Capture UI screenshots",
           filePath,
           baseDir,
-          source: "assistant-bundled",
+          source: "zhushou-bundled",
         }),
         frontmatter: {},
         metadata: { emoji: "📸" },

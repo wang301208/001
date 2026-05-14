@@ -2,11 +2,11 @@
 // Keep this list additive and scoped to the bundled LLM task surface.
 
 export { definePluginEntry } from "./plugin-entry.js";
-export { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
+export { resolvePreferredZhushouTmpDir } from "../infra/tmp-zhushou-dir.js";
 export {
   formatThinkingLevels,
   formatXHighModelHint,
   normalizeThinkLevel,
   supportsXHighThinking,
 } from "../auto-reply/thinking.js";
-export type { AnyAgentTool, AssistantPluginApi } from "../plugins/types.js";
+export type { AnyAgentTool, ZhushouPluginApi } from "../plugins/types.js";

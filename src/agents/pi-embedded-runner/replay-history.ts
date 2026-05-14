@@ -1,6 +1,6 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { ProviderRuntimeModel } from "../../plugins/provider-runtime-model.types.js";
 import {
   sanitizeProviderReplayHistoryWithPlugin,
@@ -42,7 +42,7 @@ import {
 import {
   makeZeroUsageSnapshot,
   normalizeUsage,
-  type AssistantUsageSnapshot,
+  type ZhushouUsageSnapshot,
   type UsageLike,
 } from "../usage.js";
 import { dropThinkingBlocks } from "./thinking.js";
@@ -204,7 +204,7 @@ function parseMessageTimestamp(value: unknown): number | null {
   return null;
 }
 
-function stripStaleAssistantUsageBeforeLatestCompaction(messages: AgentMessage[]): AgentMessage[] {
+function stripStaleZhushouUsageBeforeLatestCompaction(messages: AgentMessage[]): AgentMessage[] {
   let latestCompactionSummaryIndex = -1;
   let latestCompactionTimestamp: number | null = null;
   for (let i = 0; i < messages.length; i += 1) {
@@ -244,7 +244,7 @@ function stripStaleAssistantUsageBeforeLatestCompaction(messages: AgentMessage[]
       continue;
     }
 
-    // pi-coding-agent expects assistant usage to always be present during context
+    // pi-coding-agent expects zhushou usage to always be present during context
     // accounting. Keep stale snapshots structurally valid, but zeroed out.
     const candidateRecord = candidate as unknown as Record<string, unknown>;
     out[i] = {
@@ -256,7 +256,7 @@ function stripStaleAssistantUsageBeforeLatestCompaction(messages: AgentMessage[]
   return touched ? out : messages;
 }
 
-function normalizeAssistantUsageSnapshot(usage: unknown) {
+function normalizeZhushouUsageSnapshot(usage: unknown) {
   const normalized = normalizeUsage((usage ?? undefined) as UsageLike | undefined);
   if (!normalized) {
     return makeZeroUsageSnapshot();
@@ -266,7 +266,7 @@ function normalizeAssistantUsageSnapshot(usage: unknown) {
   const cacheRead = normalized.cacheRead ?? 0;
   const cacheWrite = normalized.cacheWrite ?? 0;
   const totalTokens = normalized.total ?? input + output + cacheRead + cacheWrite;
-  const cost = normalizeAssistantUsageCost(usage);
+  const cost = normalizeZhushouUsageCost(usage);
   return {
     input,
     output,
@@ -277,7 +277,7 @@ function normalizeAssistantUsageSnapshot(usage: unknown) {
   };
 }
 
-function normalizeAssistantUsageCost(usage: unknown): AssistantUsageSnapshot["cost"] | undefined {
+function normalizeZhushouUsageCost(usage: unknown): ZhushouUsageSnapshot["cost"] | undefined {
   const base = makeZeroUsageSnapshot().cost;
   if (!usage || typeof usage !== "object") {
     return undefined;
@@ -313,7 +313,7 @@ function toFiniteCostNumber(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
-function ensureAssistantUsageSnapshots(messages: AgentMessage[]): AgentMessage[] {
+function ensureZhushouUsageSnapshots(messages: AgentMessage[]): AgentMessage[] {
   if (messages.length === 0) {
     return messages;
   }
@@ -325,7 +325,7 @@ function ensureAssistantUsageSnapshots(messages: AgentMessage[]): AgentMessage[]
     if (!message || message.role !== "assistant") {
       continue;
     }
-    const normalizedUsage = normalizeAssistantUsageSnapshot(message.usage);
+    const normalizedUsage = normalizeZhushouUsageSnapshot(message.usage);
     const usageCost =
       message.usage && typeof message.usage === "object"
         ? (message.usage as { cost?: unknown }).cost
@@ -443,7 +443,7 @@ export async function sanitizeSessionHistory(params: {
   modelId?: string;
   provider?: string;
   allowedToolNames?: Iterable<string>;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   model?: ProviderRuntimeModel;
@@ -504,11 +504,11 @@ export async function sanitizeSessionHistory(params: {
   });
   // OpenAI's fc_* pairing downgrade needs the raw call_id|fc_id separator intact,
   // but displaced tool results must first be repaired back next to their
-  // assistant turn so the downgrade can rewrite both sides consistently.
+  // zhushou turn so the downgrade can rewrite both sides consistently.
   const openAIRepairedToolCalls =
     isOpenAIResponsesApi && policy.repairToolUseResultPairing
       ? sanitizeToolUseResultPairing(sanitizedToolCalls, {
-          erroredAssistantResultPolicy: "drop",
+          erroredZhushouResultPolicy: "drop",
         })
       : sanitizedToolCalls;
   const openAISafeToolCalls = isOpenAIResponsesApi
@@ -527,12 +527,12 @@ export async function sanitizeSessionHistory(params: {
   const repairedTools =
     !isOpenAIResponsesApi && policy.repairToolUseResultPairing
       ? sanitizeToolUseResultPairing(sanitizedToolIds, {
-          erroredAssistantResultPolicy: "drop",
+          erroredZhushouResultPolicy: "drop",
         })
       : sanitizedToolIds;
   const sanitizedToolResults = stripToolResultDetails(repairedTools);
-  const sanitizedCompactionUsage = ensureAssistantUsageSnapshots(
-    stripStaleAssistantUsageBeforeLatestCompaction(sanitizedToolResults),
+  const sanitizedCompactionUsage = ensureZhushouUsageSnapshots(
+    stripStaleZhushouUsageBeforeLatestCompaction(sanitizedToolResults),
   );
   const hasSnapshot = Boolean(params.provider || params.modelApi || params.modelId);
   const priorSnapshot = hasSnapshot ? readLastModelSnapshot(params.sessionManager) : null;
@@ -583,10 +583,10 @@ export async function sanitizeSessionHistory(params: {
   }
 
   // Strict OpenAI-compatible providers (vLLM, Gemma, etc.) also reject
-  // conversations that start with an assistant turn (e.g. delivery-mirror
+  // conversations that start with an zhushou turn (e.g. delivery-mirror
   // messages after /new). Provider hooks may already have applied a
   // provider-owned ordering rewrite above; keep this generic fallback for the
-  // strict OpenAI-compatible path and for any provider that leaves assistant-
+  // strict OpenAI-compatible path and for any provider that leaves zhushou-
   // first repair to core. See #38962.
   return sanitizeGoogleTurnOrdering(sanitizedWithProvider);
 }
@@ -600,7 +600,7 @@ export async function validateReplayTurns(params: {
   modelApi?: string | null;
   modelId?: string;
   provider?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   model?: ProviderRuntimeModel;

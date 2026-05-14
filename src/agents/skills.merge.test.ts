@@ -22,7 +22,7 @@ describe("mergeWorkspaceSkills", () => {
   let workspaceDir = "";
 
   beforeEach(async () => {
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-skills-merge-"));
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-skills-merge-"));
   });
 
   afterEach(async () => {

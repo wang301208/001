@@ -4,8 +4,8 @@ import type {
   ChannelId,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.public.js";
-import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import { appendZhushouMessageToSessionTranscript } from "../../config/sessions.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { OutboundMediaAccess, OutboundMediaReadFile } from "../../media/load-options.js";
 import { resolveAgentScopedOutboundMediaAccess } from "../../media/read-capability.js";
 import type { GatewayClientMode, GatewayClientName } from "../../utils/message-channel.js";
@@ -26,7 +26,7 @@ export type OutboundGatewayContext = {
 };
 
 export type OutboundSendContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel: ChannelId;
   params: Record<string, unknown>;
   /** Active agent id for per-agent outbound media root scoping. */
@@ -152,7 +152,7 @@ export async function executeSendAction(params: {
         params.ctx.mirror.mediaUrls ??
         params.mediaUrls ??
         (params.mediaUrl ? [params.mediaUrl] : undefined);
-      await appendAssistantMessageToSessionTranscript({
+      await appendZhushouMessageToSessionTranscript({
         agentId: params.ctx.mirror.agentId,
         sessionKey: params.ctx.mirror.sessionKey,
         text: mirrorText,

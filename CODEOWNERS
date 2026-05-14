@@ -1,10 +1,10 @@
 # Default ownership for all changes. Replace the placeholder team with the
 # repository's real maintainer team after creating the GitHub team.
-* @assistant/maintainers
+* @zhushou/maintainers
 
 # Delivery pipeline and production operations require focused review.
-.github/workflows/ @assistant/maintainers
-scripts/k8s/ @assistant/maintainers
-monitoring/ @assistant/maintainers
-Dockerfile @assistant/maintainers
-docker-compose.yml @assistant/maintainers
+.github/workflows/ @zhushou/maintainers
+scripts/k8s/ @zhushou/maintainers
+monitoring/ @zhushou/maintainers
+Dockerfile @zhushou/maintainers
+docker-compose.yml @zhushou/maintainers

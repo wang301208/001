@@ -1,5 +1,5 @@
-import type { CliBackendConfig } from "assistant/plugin-sdk/cli-backend";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+import type { CliBackendConfig } from "zhushou/plugin-sdk/cli-backend";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 
 export const CLAUDE_CLI_BACKEND_ID = "claude-cli";
 export const CLAUDE_CLI_DEFAULT_MODEL_REF = `${CLAUDE_CLI_BACKEND_ID}/claude-opus-4-7`;

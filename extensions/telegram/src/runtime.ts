@@ -1,4 +1,4 @@
-import { createPluginRuntimeStore } from "assistant/plugin-sdk/runtime-store";
+import { createPluginRuntimeStore } from "zhushou/plugin-sdk/runtime-store";
 export type { TelegramChannelRuntime, TelegramRuntime } from "./runtime.types.js";
 import type { TelegramRuntime } from "./runtime.types.js";
 

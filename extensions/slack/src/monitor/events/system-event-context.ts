@@ -1,4 +1,4 @@
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import { authorizeSlackSystemEventSender } from "../auth.js";
 import { resolveSlackChannelLabel } from "../channel-config.js";
 import type { SlackMonitorContext } from "../context.js";

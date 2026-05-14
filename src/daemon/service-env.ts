@@ -266,20 +266,20 @@ export function buildServiceEnvironment(params: {
     extraPathDirs,
     params.execPath,
   );
-  const profile = env.ASSISTANT_PROFILE;
+  const profile = env.ZHUSHOU_PROFILE;
   const resolvedLaunchdLabel =
     launchdLabel || (platform === "darwin" ? resolveGatewayLaunchAgentLabel(profile) : undefined);
   const systemdUnit = `${resolveGatewaySystemdServiceName(profile)}.service`;
   return {
     ...buildCommonServiceEnvironment(env, sharedEnv),
-    ASSISTANT_PROFILE: profile,
-    ASSISTANT_GATEWAY_PORT: String(port),
-    ASSISTANT_LAUNCHD_LABEL: resolvedLaunchdLabel,
-    ASSISTANT_SYSTEMD_UNIT: systemdUnit,
-    ASSISTANT_WINDOWS_TASK_NAME: resolveGatewayWindowsTaskName(profile),
-    ASSISTANT_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
-    ASSISTANT_SERVICE_KIND: GATEWAY_SERVICE_KIND,
-    ASSISTANT_SERVICE_VERSION: VERSION,
+    ZHUSHOU_PROFILE: profile,
+    ZHUSHOU_GATEWAY_PORT: String(port),
+    ZHUSHOU_LAUNCHD_LABEL: resolvedLaunchdLabel,
+    ZHUSHOU_SYSTEMD_UNIT: systemdUnit,
+    ZHUSHOU_WINDOWS_TASK_NAME: resolveGatewayWindowsTaskName(profile),
+    ZHUSHOU_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
+    ZHUSHOU_SERVICE_KIND: GATEWAY_SERVICE_KIND,
+    ZHUSHOU_SERVICE_VERSION: VERSION,
   };
 }
 
@@ -297,18 +297,18 @@ export function buildNodeServiceEnvironment(params: {
     extraPathDirs,
     params.execPath,
   );
-  const gatewayToken = normalizeOptionalString(env.ASSISTANT_GATEWAY_TOKEN);
+  const gatewayToken = normalizeOptionalString(env.ZHUSHOU_GATEWAY_TOKEN);
   return {
     ...buildCommonServiceEnvironment(env, sharedEnv),
-    ASSISTANT_GATEWAY_TOKEN: gatewayToken,
-    ASSISTANT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-    ASSISTANT_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-    ASSISTANT_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-    ASSISTANT_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-    ASSISTANT_LOG_PREFIX: "node",
-    ASSISTANT_SERVICE_MARKER: NODE_SERVICE_MARKER,
-    ASSISTANT_SERVICE_KIND: NODE_SERVICE_KIND,
-    ASSISTANT_SERVICE_VERSION: VERSION,
+    ZHUSHOU_GATEWAY_TOKEN: gatewayToken,
+    ZHUSHOU_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+    ZHUSHOU_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+    ZHUSHOU_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+    ZHUSHOU_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+    ZHUSHOU_LOG_PREFIX: "node",
+    ZHUSHOU_SERVICE_MARKER: NODE_SERVICE_MARKER,
+    ZHUSHOU_SERVICE_KIND: NODE_SERVICE_KIND,
+    ZHUSHOU_SERVICE_VERSION: VERSION,
   };
 }
 
@@ -322,8 +322,8 @@ function buildCommonServiceEnvironment(
     ...sharedEnv.proxyEnv,
     NODE_EXTRA_CA_CERTS: sharedEnv.nodeCaCerts,
     NODE_USE_SYSTEM_CA: sharedEnv.nodeUseSystemCa,
-    ASSISTANT_STATE_DIR: sharedEnv.stateDir,
-    ASSISTANT_CONFIG_PATH: sharedEnv.configPath,
+    ZHUSHOU_STATE_DIR: sharedEnv.stateDir,
+    ZHUSHOU_CONFIG_PATH: sharedEnv.configPath,
   };
   if (sharedEnv.minimalPath) {
     serviceEnv.PATH = sharedEnv.minimalPath;
@@ -337,8 +337,8 @@ function resolveSharedServiceEnvironmentFields(
   extraPathDirs: string[] | undefined,
   execPath?: string,
 ): SharedServiceEnvironmentFields {
-  const stateDir = env.ASSISTANT_STATE_DIR;
-  const configPath = env.ASSISTANT_CONFIG_PATH;
+  const stateDir = env.ZHUSHOU_STATE_DIR;
+  const configPath = env.ZHUSHOU_CONFIG_PATH;
   // Keep a usable temp directory for supervised services even when the host env omits TMPDIR.
   const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
   const proxyEnv = readServiceProxyEnvironment(env);

@@ -1,6 +1,6 @@
 import type { OutputItem } from "./open-responses.schema.js";
 
-export function createAssistantOutputItem(params: {
+export function createZhushouOutputItem(params: {
   id: string;
   text: string;
   phase?: "commentary" | "final_answer";

@@ -1,15 +1,15 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
 import {
   hasConfiguredSecretInput,
   normalizeSecretInputString,
-} from "assistant/plugin-sdk/secret-input";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/secret-input";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   mergeDiscordAccountConfig,
   resolveDefaultDiscordAccountId,
   resolveDiscordAccountConfig,
 } from "./accounts.js";
-import type { DiscordAccountConfig, AssistantConfig } from "./runtime-api.js";
+import type { DiscordAccountConfig, ZhushouConfig } from "./runtime-api.js";
 
 export type DiscordCredentialStatus = "available" | "configured_unavailable" | "missing";
 
@@ -48,7 +48,7 @@ function inspectDiscordTokenValue(value: unknown): {
 }
 
 export function inspectDiscordAccount(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   envToken?: string | null;
 }): InspectedDiscordAccount {

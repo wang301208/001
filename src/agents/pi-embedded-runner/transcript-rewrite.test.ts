@@ -57,7 +57,7 @@ function createTextContent(text: string) {
   return [{ type: "text", text }];
 }
 
-function createReadRewriteSession(options?: { tailAssistantText?: string }) {
+function createReadRewriteSession(options?: { tailZhushouText?: string }) {
   const sessionManager = SessionManager.inMemory();
   const entryIds = appendSessionMessages(sessionManager, [
     asAppendMessage({
@@ -80,14 +80,14 @@ function createReadRewriteSession(options?: { tailAssistantText?: string }) {
     }),
     asAppendMessage({
       role: "assistant",
-      content: createTextContent(options?.tailAssistantText ?? "summarized"),
+      content: createTextContent(options?.tailZhushouText ?? "summarized"),
       timestamp: 4,
     }),
   ]);
   return {
     sessionManager,
     toolResultEntryId: entryIds[2],
-    tailAssistantEntryId: entryIds[3],
+    tailZhushouEntryId: entryIds[3],
   };
 }
 
@@ -130,7 +130,7 @@ function createToolResultReplacement(toolName: string, text: string, timestamp: 
   } as AgentMessage;
 }
 
-function findAssistantEntryByText(sessionManager: SessionManager, text: string) {
+function findZhushouEntryByText(sessionManager: SessionManager, text: string) {
   return sessionManager
     .getBranch()
     .find(
@@ -171,9 +171,9 @@ describe("rewriteTranscriptEntriesInSessionManager", () => {
     const branchMessages = getBranchMessages(sessionManager);
     expect(branchMessages.map((message) => message.role)).toEqual([
       "user",
-      "assistant",
+      "zhushou",
       "toolResult",
-      "assistant",
+      "zhushou",
     ]);
     const rewrittenToolResult = branchMessages[2] as Extract<AgentMessage, { role: "toolResult" }>;
     expect(rewrittenToolResult.content).toEqual([
@@ -183,7 +183,7 @@ describe("rewriteTranscriptEntriesInSessionManager", () => {
 
   it("preserves active-branch labels after rewritten entries are re-appended", () => {
     const { sessionManager, toolResultEntryId } = createReadRewriteSession();
-    const summaryEntry = findAssistantEntryByText(sessionManager, "summarized");
+    const summaryEntry = findZhushouEntryByText(sessionManager, "summarized");
     expect(summaryEntry).toBeDefined();
     sessionManager.appendLabelChange(summaryEntry!.id, "bookmark");
 
@@ -198,7 +198,7 @@ describe("rewriteTranscriptEntriesInSessionManager", () => {
     });
 
     expect(result.changed).toBe(true);
-    const rewrittenSummaryEntry = findAssistantEntryByText(sessionManager, "summarized");
+    const rewrittenSummaryEntry = findZhushouEntryByText(sessionManager, "summarized");
     expect(rewrittenSummaryEntry).toBeDefined();
     expect(sessionManager.getLabel(rewrittenSummaryEntry!.id)).toBe("bookmark");
     expect(sessionManager.getBranch().some((entry) => entry.type === "label")).toBe(true);
@@ -208,9 +208,9 @@ describe("rewriteTranscriptEntriesInSessionManager", () => {
     const {
       sessionManager,
       toolResultEntryId,
-      tailAssistantEntryId: keptAssistantEntryId,
-    } = createReadRewriteSession({ tailAssistantText: "keep me" });
-    sessionManager.appendCompaction("summary", keptAssistantEntryId, 123);
+      tailZhushouEntryId: keptZhushouEntryId,
+    } = createReadRewriteSession({ tailZhushouText: "keep me" });
+    sessionManager.appendCompaction("summary", keptZhushouEntryId, 123);
 
     const result = rewriteTranscriptEntriesInSessionManager({
       sessionManager,
@@ -224,7 +224,7 @@ describe("rewriteTranscriptEntriesInSessionManager", () => {
 
     expect(result.changed).toBe(true);
     const branch = sessionManager.getBranch();
-    const keptAssistantEntry = branch.find(
+    const keptZhushouEntry = branch.find(
       (entry) =>
         entry.type === "message" &&
         entry.message.role === "assistant" &&
@@ -233,10 +233,10 @@ describe("rewriteTranscriptEntriesInSessionManager", () => {
     );
     const compactionEntry = branch.find((entry) => entry.type === "compaction");
 
-    expect(keptAssistantEntry).toBeDefined();
+    expect(keptZhushouEntry).toBeDefined();
     expect(compactionEntry).toBeDefined();
-    expect(compactionEntry?.firstKeptEntryId).toBe(keptAssistantEntry?.id);
-    expect(compactionEntry?.firstKeptEntryId).not.toBe(keptAssistantEntryId);
+    expect(compactionEntry?.firstKeptEntryId).toBe(keptZhushouEntry?.id);
+    expect(compactionEntry?.firstKeptEntryId).not.toBe(keptZhushouEntryId);
   });
 
   it("bypasses persistence hooks when replaying rewritten messages", () => {
@@ -265,7 +265,7 @@ describe("rewriteTranscriptEntriesInSessionManager", () => {
     expect(branchMessages.map((message) => message.role)).toEqual([
       "user",
       "toolResult",
-      "assistant",
+      "zhushou",
     ]);
     expect((branchMessages[1] as Extract<AgentMessage, { role: "toolResult" }>).content).toEqual([
       { type: "text", text: "[exact replacement]" },

@@ -1,7 +1,7 @@
 import { resolveCommitHash } from "../infra/git-commit.js";
 import { visibleWidth } from "../terminal/ansi.js";
 import { isRich, theme } from "../terminal/theme.js";
-import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
+import { PRODUCT_NAME } from "../wizard/zhushou-constants.js";
 import { hasRootVersionAlias } from "./argv.js";
 import { parseTaglineMode, readCliBannerTaglineMode } from "./banner-config-lite.js";
 import { pickTagline, type TaglineMode, type TaglineOptions } from "./tagline.js";
@@ -67,7 +67,7 @@ export function formatCliBannerLine(version: string, options: BannerOptions = {}
   return `${line1}\n${line2}`;
 }
 
-const ASSISTANT_ASCII = [
+const ZHUSHOU_ASCII = [
   "╭────────────────────────────────────────╮",
   "│                  助手                  │",
   "│        新项目语法 · 无旧字段兼容        │",
@@ -78,10 +78,10 @@ const ASSISTANT_ASCII = [
 export function formatCliBannerArt(options: BannerOptions = {}): string {
   const rich = options.richTty ?? isRich();
   if (!rich) {
-    return ASSISTANT_ASCII.join("\n");
+    return ZHUSHOU_ASCII.join("\n");
   }
 
-  const colored = ASSISTANT_ASCII.map((line) => {
+  const colored = ZHUSHOU_ASCII.map((line) => {
     if (line.includes(PRODUCT_NAME)) {
       return theme.info(line);
     }

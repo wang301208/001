@@ -20,7 +20,7 @@ type VitestHostInfo = {
   totalMemoryBytes?: number;
 };
 
-export type AssistantVitestPool = "forks" | "threads";
+export type ZhushouVitestPool = "forks" | "threads";
 
 export type LocalVitestScheduling = {
   maxWorkers: number;
@@ -44,7 +44,7 @@ function detectVitestHostInfo(): Required<VitestHostInfo> {
 export function resolveLocalVitestMaxWorkers(
   env: Record<string, string | undefined> = process.env,
   system: VitestHostInfo = detectVitestHostInfo(),
-  pool: AssistantVitestPool = resolveDefaultVitestPool(env),
+  pool: ZhushouVitestPool = resolveDefaultVitestPool(env),
 ): number {
   return resolveLocalVitestMaxWorkersImpl(env, system, pool);
 }
@@ -52,14 +52,14 @@ export function resolveLocalVitestMaxWorkers(
 export function resolveLocalVitestScheduling(
   env: Record<string, string | undefined> = process.env,
   system: VitestHostInfo = detectVitestHostInfo(),
-  pool: AssistantVitestPool = resolveDefaultVitestPool(env),
+  pool: ZhushouVitestPool = resolveDefaultVitestPool(env),
 ): LocalVitestScheduling {
   return resolveLocalVitestSchedulingImpl(env, system, pool) as LocalVitestScheduling;
 }
 
 export function resolveDefaultVitestPool(
   _env: Record<string, string | undefined> = process.env,
-): AssistantVitestPool {
+): ZhushouVitestPool {
   return "threads";
 }
 
@@ -92,23 +92,27 @@ export const sharedVitestConfig = {
   resolve: {
     alias: [
       {
-        find: "assistant/extension-api",
+        find: "zhushou/extension-api",
         replacement: path.join(repoRoot, "src", "extensionAPI.ts"),
       },
       ...pluginSdkSubpaths.map((subpath) => ({
-        find: `assistant/plugin-sdk/${subpath}`,
+        find: `zhushou/plugin-sdk/${subpath}`,
         replacement: path.join(repoRoot, "src", "plugin-sdk", `${subpath}.ts`),
       })),
       ...pluginSdkSubpaths.map((subpath) => ({
-        find: `@assistant/plugin-sdk/${subpath}`,
+        find: `@zhushou/plugin-sdk/${subpath}`,
         replacement: path.join(repoRoot, "packages", "plugin-sdk", "src", `${subpath}.ts`),
       })),
       {
-        find: "assistant/plugin-sdk",
+        find: "zhushou/plugin-sdk",
         replacement: path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
       },
       {
-        find: /^@assistant\/lobster-runtime\/(.*)$/,
+        find: "@zhushou/qa-channel/api.js",
+        replacement: path.join(repoRoot, "extensions", "qa-channel", "api.ts"),
+      },
+      {
+        find: /^@zhushou\/lobster-runtime\/(.*)$/,
         replacement: path.join(repoRoot, "packages", "lobster-runtime", "src", "$1.ts"),
       },
     ],
@@ -130,7 +134,7 @@ export const sharedVitestConfig = {
       "test/setup.ts",
       "test/setup.shared.ts",
       "test/setup.extensions.ts",
-      "test/setup-assistant-runtime.ts",
+      "test/setup-zhushou-runtime.ts",
       "test/vitest/vitest.channel-paths.mjs",
       "test/vitest/vitest.channels.config.ts",
       "test/vitest/vitest.acp.config.ts",

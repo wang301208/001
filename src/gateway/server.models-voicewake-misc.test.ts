@@ -154,9 +154,9 @@ describe("gateway server models + voicewake", () => {
   };
 
   const withModelsConfig = async <T>(config: unknown, run: () => Promise<T>): Promise<T> => {
-    const configPath = process.env.ASSISTANT_CONFIG_PATH;
+    const configPath = process.env.ZHUSHOU_CONFIG_PATH;
     if (!configPath) {
-      throw new Error("Missing ASSISTANT_CONFIG_PATH");
+      throw new Error("Missing ZHUSHOU_CONFIG_PATH");
     }
     let previousConfig: string | undefined;
     try {
@@ -186,7 +186,7 @@ describe("gateway server models + voicewake", () => {
   };
 
   const withTempHome = async <T>(fn: (homeDir: string) => Promise<T>): Promise<T> => {
-    const tempHome = await createTempHomeEnv("assistant-home-");
+    const tempHome = await createTempHomeEnv("zhushou-home-");
     try {
       return await fn(tempHome.home);
     } finally {
@@ -224,7 +224,7 @@ describe("gateway server models + voicewake", () => {
       await withTempHome(async (homeDir) => {
         const initial = await rpcReq<{ triggers: string[] }>(ws, "voicewake.get");
         expect(initial.ok).toBe(true);
-        expect(initial.payload?.triggers).toEqual(["assistant", "claude", "computer"]);
+        expect(initial.payload?.triggers).toEqual(["zhushou", "claude", "computer"]);
 
         const changedP = onceMessage(
           ws,
@@ -249,7 +249,7 @@ describe("gateway server models + voicewake", () => {
         expect(after.payload?.triggers).toEqual(["hi", "there"]);
 
         const onDisk = JSON.parse(
-          await fs.readFile(path.join(homeDir, ".assistant", "settings", "voicewake.json"), "utf8"),
+          await fs.readFile(path.join(homeDir, ".zhushou", "settings", "voicewake.json"), "utf8"),
         ) as { triggers?: unknown; updatedAtMs?: unknown };
         expect(onDisk.triggers).toEqual(["hi", "there"]);
         expect(typeof onDisk.updatedAtMs).toBe("number");
@@ -279,7 +279,7 @@ describe("gateway server models + voicewake", () => {
       const first = (await firstEventP) as { event?: string; payload?: unknown };
       expect(first.event).toBe("voicewake.changed");
       expect((first.payload as { triggers?: unknown } | undefined)?.triggers).toEqual([
-        "assistant",
+        "zhushou",
         "claude",
         "computer",
       ]);
@@ -289,14 +289,14 @@ describe("gateway server models + voicewake", () => {
         (o) => o.type === "event" && o.event === "voicewake.changed",
       );
       const setRes = await rpcReq(ws, "voicewake.set", {
-        triggers: ["assistant", "computer"],
+        triggers: ["zhushou", "computer"],
       });
       expect(setRes.ok).toBe(true);
 
       const broadcast = (await broadcastP) as { event?: string; payload?: unknown };
       expect(broadcast.event).toBe("voicewake.changed");
       expect((broadcast.payload as { triggers?: unknown } | undefined)?.triggers).toEqual([
-        "assistant",
+        "zhushou",
         "computer",
       ]);
 
@@ -394,7 +394,7 @@ describe("gateway server models + voicewake", () => {
             name: "Kimi K2.5 (Configured)",
             alias: "Kimi K2.5 (NVIDIA)",
             provider: "nvidia",
-            contextWindow: 32_000,
+            contextWindow: 128_000,
           },
         ]);
       },
@@ -437,7 +437,7 @@ describe("gateway server models + voicewake", () => {
             name: "Configured GPT Test Z",
             alias: "GPT Test Z Alias",
             provider: "openai",
-            contextWindow: 64_000,
+            contextWindow: 128_000,
           },
         ]);
       },
@@ -456,12 +456,12 @@ describe("gateway server models + voicewake", () => {
 
 describe("gateway server misc", () => {
   test("hello-ok advertises the gateway port for canvas host", async () => {
-    await withEnvAsync({ ASSISTANT_GATEWAY_TOKEN: "secret" }, async () => {
+    await withEnvAsync({ ZHUSHOU_GATEWAY_TOKEN: "secret" }, async () => {
       testTailnetIPv4.value = "100.64.0.1";
       testState.gatewayBind = "lan";
       const canvasPort = await getFreePort();
       testState.canvasHostPort = canvasPort;
-      await withEnvAsync({ ASSISTANT_CANVAS_HOST_PORT: String(canvasPort) }, async () => {
+      await withEnvAsync({ ZHUSHOU_CANVAS_HOST_PORT: String(canvasPort) }, async () => {
         const testPort = await getFreePort();
         const canvasHostUrl = resolveCanvasHostUrl({
           canvasPort,
@@ -521,9 +521,9 @@ describe("gateway server misc", () => {
   });
 
   test("auto-enables configured channel plugins on startup", async () => {
-    const configPath = process.env.ASSISTANT_CONFIG_PATH;
+    const configPath = process.env.ZHUSHOU_CONFIG_PATH;
     if (!configPath) {
-      throw new Error("Missing ASSISTANT_CONFIG_PATH");
+      throw new Error("Missing ZHUSHOU_CONFIG_PATH");
     }
     await fs.mkdir(path.dirname(configPath), { recursive: true });
     await fs.writeFile(
@@ -543,17 +543,17 @@ describe("gateway server misc", () => {
     );
 
     const prevAllowAutoEnableInMinimalGateway =
-      process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE;
-    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE = "1";
+      process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE;
+    process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE = "1";
     try {
       const autoPort = await getFreePort();
       const autoServer = await startGatewayServer(autoPort);
       await autoServer.close();
     } finally {
       if (prevAllowAutoEnableInMinimalGateway === undefined) {
-        delete process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE;
+        delete process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE;
       } else {
-        process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE =
+        process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_AUTO_ENABLE =
           prevAllowAutoEnableInMinimalGateway;
       }
     }

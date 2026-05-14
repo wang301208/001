@@ -45,29 +45,29 @@ describe("isGatewayArgv", () => {
 
   it("matches known entrypoints across slash and case variants", () => {
     expect(isGatewayArgv(["NODE", "C:\\助手\\DIST\\ENTRY.JS", "gateway"])).toBe(true);
-    expect(isGatewayArgv(["bun", "/srv/assistant/scripts/run-node.mjs", "gateway"])).toBe(true);
-    expect(isGatewayArgv(["node", "/srv/assistant/assistant.mjs", "gateway"])).toBe(true);
-    expect(isGatewayArgv(["tsx", "/srv/assistant/src/entry.ts", "gateway"])).toBe(true);
-    expect(isGatewayArgv(["tsx", "/srv/assistant/src/index.ts", "gateway"])).toBe(true);
+    expect(isGatewayArgv(["bun", "/srv/zhushou/scripts/run-node.mjs", "gateway"])).toBe(true);
+    expect(isGatewayArgv(["node", "/srv/wang301208/zhushou.mjs", "gateway"])).toBe(true);
+    expect(isGatewayArgv(["tsx", "/srv/zhushou/src/entry.ts", "gateway"])).toBe(true);
+    expect(isGatewayArgv(["tsx", "/srv/zhushou/src/index.ts", "gateway"])).toBe(true);
   });
 
-  it("matches the assistant executable but gates the gateway binary behind the opt-in flag", () => {
-    expect(isGatewayArgv(["C:\\bin\\assistant.cmd", "gateway"])).toBe(true);
-    expect(isGatewayArgv(["/usr/local/bin/assistant-gateway", "gateway"])).toBe(false);
+  it("matches the zhushou executable but gates the gateway binary behind the opt-in flag", () => {
+    expect(isGatewayArgv(["C:\\bin\\zhushou.cmd", "gateway"])).toBe(true);
+    expect(isGatewayArgv(["/usr/local/bin/zhushou-gateway", "gateway"])).toBe(false);
     expect(
-      isGatewayArgv(["/usr/local/bin/assistant-gateway", "gateway"], {
+      isGatewayArgv(["/usr/local/bin/zhushou-gateway", "gateway"], {
         allowGatewayBinary: true,
       }),
     ).toBe(true);
     expect(
-      isGatewayArgv(["C:\\bin\\assistant-gateway.EXE", "gateway"], {
+      isGatewayArgv(["C:\\bin\\zhushou-gateway.EXE", "gateway"], {
         allowGatewayBinary: true,
       }),
     ).toBe(true);
   });
 
   it("rejects unknown gateway argv even when the token is present", () => {
-    expect(isGatewayArgv(["node", "/srv/assistant/custom.js", "gateway"])).toBe(false);
+    expect(isGatewayArgv(["node", "/srv/zhushou/custom.js", "gateway"])).toBe(false);
     expect(isGatewayArgv(["python", "gateway", "script.py"])).toBe(false);
   });
 });

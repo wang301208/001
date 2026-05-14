@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { safeEqualSecret } from "assistant/plugin-sdk/browser-security-runtime";
-import { createClaimableDedupe } from "assistant/plugin-sdk/persistent-dedupe";
+import { safeEqualSecret } from "zhushou/plugin-sdk/browser-security-runtime";
+import { createClaimableDedupe } from "zhushou/plugin-sdk/persistent-dedupe";
 import type { ResolvedZaloAccount } from "./accounts.js";
 import type { ZaloFetch, ZaloUpdate } from "./api.js";
 import type { ZaloRuntimeEnv } from "./monitor.types.js";
@@ -18,7 +18,7 @@ import {
   WEBHOOK_ANOMALY_COUNTER_DEFAULTS,
   WEBHOOK_RATE_LIMIT_DEFAULTS,
   resolveClientIp,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "./runtime-api.js";
 
 const ZALO_WEBHOOK_REPLAY_WINDOW_MS = 5 * 60_000;
@@ -26,7 +26,7 @@ const ZALO_WEBHOOK_REPLAY_WINDOW_MS = 5 * 60_000;
 export type ZaloWebhookTarget = {
   token: string;
   account: ResolvedZaloAccount;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   runtime: ZaloRuntimeEnv;
   core: unknown;
   secret: string;

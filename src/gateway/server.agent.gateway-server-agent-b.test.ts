@@ -180,7 +180,7 @@ async function sendAgentWsRequestAndWaitFinal(
 }
 
 async function useTempSessionStorePath() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-"));
   testState.sessionStorePath = path.join(dir, "sessions.json");
 }
 
@@ -524,7 +524,7 @@ describe("gateway server agent", () => {
 
     emitAgentEvent({
       runId: "run-auto-1",
-      stream: "assistant",
+      stream: "zhushou",
       data: { text: "hi from agent" },
     });
     emitAgentEvent({

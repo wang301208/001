@@ -3,16 +3,16 @@ import {
   createStatusReactionController,
   logAckFailure,
   type StatusReactionAdapter,
-} from "assistant/plugin-sdk/channel-feedback";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/channel-feedback";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import { createDiscordRuntimeAccountContext } from "../client.js";
 import { reactMessageDiscord, removeReactionDiscord } from "../send.js";
 import type { DiscordReactionRuntimeContext } from "../send.types.js";
 
 export function createDiscordAckReactionContext(params: {
   rest: RequestClient;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
 }): DiscordReactionRuntimeContext {
   return {

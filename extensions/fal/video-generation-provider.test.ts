@@ -1,5 +1,5 @@
-import * as providerAuth from "assistant/plugin-sdk/provider-auth-runtime";
-import * as providerHttp from "assistant/plugin-sdk/provider-http";
+import * as providerAuth from "zhushou/plugin-sdk/provider-auth-runtime";
+import * as providerHttp from "zhushou/plugin-sdk/provider-http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectExplicitVideoGenerationCapabilities } from "../../test/helpers/media-generation/provider-capability-assertions.js";
 import {

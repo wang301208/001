@@ -3,13 +3,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/live-docker-auth.sh"
-IMAGE_NAME="${ASSISTANT_IMAGE:-assistant:local}"
-LIVE_IMAGE_NAME="${ASSISTANT_LIVE_IMAGE:-${IMAGE_NAME}-live}"
-CONFIG_DIR="${ASSISTANT_CONFIG_DIR:-$HOME/.assistant}"
-WORKSPACE_DIR="${ASSISTANT_WORKSPACE_DIR:-$HOME/.assistant/workspace}"
-PROFILE_FILE="${ASSISTANT_PROFILE_FILE:-$HOME/.profile}"
+IMAGE_NAME="${ZHUSHOU_IMAGE:-zhushou:local}"
+LIVE_IMAGE_NAME="${ZHUSHOU_LIVE_IMAGE:-${IMAGE_NAME}-live}"
+CONFIG_DIR="${ZHUSHOU_CONFIG_DIR:-$HOME/.zhushou}"
+WORKSPACE_DIR="${ZHUSHOU_WORKSPACE_DIR:-$HOME/.zhushou/workspace}"
+PROFILE_FILE="${ZHUSHOU_PROFILE_FILE:-$HOME/.profile}"
 TEMP_DIRS=()
-DOCKER_USER="${ASSISTANT_DOCKER_USER:-node}"
+DOCKER_USER="${ZHUSHOU_DOCKER_USER:-node}"
 
 cleanup_temp_dirs() {
   if ((${#TEMP_DIRS[@]} > 0)); then
@@ -18,21 +18,21 @@ cleanup_temp_dirs() {
 }
 trap cleanup_temp_dirs EXIT
 
-if [[ -n "${ASSISTANT_DOCKER_CLI_TOOLS_DIR:-}" ]]; then
-  CLI_TOOLS_DIR="${ASSISTANT_DOCKER_CLI_TOOLS_DIR}"
+if [[ -n "${ZHUSHOU_DOCKER_CLI_TOOLS_DIR:-}" ]]; then
+  CLI_TOOLS_DIR="${ZHUSHOU_DOCKER_CLI_TOOLS_DIR}"
 elif [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
-  CLI_TOOLS_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/assistant-docker-cli-tools.XXXXXX")"
+  CLI_TOOLS_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/zhushou-docker-cli-tools.XXXXXX")"
   TEMP_DIRS+=("$CLI_TOOLS_DIR")
 else
-  CLI_TOOLS_DIR="$HOME/.cache/assistant/docker-cli-tools"
+  CLI_TOOLS_DIR="$HOME/.cache/zhushou/docker-cli-tools"
 fi
-if [[ -n "${ASSISTANT_DOCKER_CACHE_HOME_DIR:-}" ]]; then
-  CACHE_HOME_DIR="${ASSISTANT_DOCKER_CACHE_HOME_DIR}"
+if [[ -n "${ZHUSHOU_DOCKER_CACHE_HOME_DIR:-}" ]]; then
+  CACHE_HOME_DIR="${ZHUSHOU_DOCKER_CACHE_HOME_DIR}"
 elif [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
-  CACHE_HOME_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/assistant-docker-cache.XXXXXX")"
+  CACHE_HOME_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/zhushou-docker-cache.XXXXXX")"
   TEMP_DIRS+=("$CACHE_HOME_DIR")
 else
-  CACHE_HOME_DIR="$HOME/.cache/assistant/docker-cache"
+  CACHE_HOME_DIR="$HOME/.cache/zhushou/docker-cache"
 fi
 
 mkdir -p "$CLI_TOOLS_DIR"
@@ -50,11 +50,11 @@ AUTH_FILES=()
 while IFS= read -r auth_file; do
   [[ -n "$auth_file" ]] || continue
   AUTH_FILES+=("$auth_file")
-done < <(assistant_live_collect_auth_files_from_csv "openai-codex")
+done < <(zhushou_live_collect_auth_files_from_csv "openai-codex")
 
 AUTH_FILES_CSV=""
 if ((${#AUTH_FILES[@]} > 0)); then
-  AUTH_FILES_CSV="$(assistant_live_join_csv "${AUTH_FILES[@]}")"
+  AUTH_FILES_CSV="$(zhushou_live_join_csv "${AUTH_FILES[@]}")"
 fi
 
 EXTERNAL_AUTH_MOUNTS=()
@@ -79,7 +79,7 @@ export npm_config_cache="$NPM_CONFIG_CACHE"
 mkdir -p "$NPM_CONFIG_PREFIX" "$XDG_CACHE_HOME" "$COREPACK_HOME" "$NPM_CONFIG_CACHE"
 chmod 700 "$XDG_CACHE_HOME" "$COREPACK_HOME" "$NPM_CONFIG_CACHE" || true
 export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-IFS=',' read -r -a auth_files <<<"${ASSISTANT_DOCKER_AUTH_FILES_RESOLVED:-}"
+IFS=',' read -r -a auth_files <<<"${ZHUSHOU_DOCKER_AUTH_FILES_RESOLVED:-}"
 if ((${#auth_files[@]} > 0)); then
   for auth_file in "${auth_files[@]}"; do
     [ -n "$auth_file" ] || continue
@@ -99,14 +99,14 @@ cleanup() {
 }
 trap cleanup EXIT
 source /src/scripts/lib/live-docker-stage.sh
-assistant_live_stage_source_tree "$tmp_dir"
+zhushou_live_stage_source_tree "$tmp_dir"
 mkdir -p "$tmp_dir/node_modules"
 cp -aRs /app/node_modules/. "$tmp_dir/node_modules"
 rm -rf "$tmp_dir/node_modules/.vite-temp"
 mkdir -p "$tmp_dir/node_modules/.vite-temp"
-assistant_live_link_runtime_tree "$tmp_dir"
-assistant_live_stage_state_dir "$tmp_dir/.assistant-state"
-assistant_live_prepare_staged_config
+zhushou_live_link_runtime_tree "$tmp_dir"
+zhushou_live_stage_state_dir "$tmp_dir/.zhushou-state"
+zhushou_live_prepare_staged_config
 cd "$tmp_dir"
 pnpm test:live src/gateway/gateway-codex-harness.live.test.ts
 EOF
@@ -114,9 +114,9 @@ EOF
 "$ROOT_DIR/scripts/test-live-build-docker.sh"
 
 echo "==> Run Codex harness live test in Docker"
-echo "==> Model: ${ASSISTANT_LIVE_CODEX_HARNESS_MODEL:-codex/gpt-5.4}"
-echo "==> Image probe: ${ASSISTANT_LIVE_CODEX_HARNESS_IMAGE_PROBE:-1}"
-echo "==> MCP probe: ${ASSISTANT_LIVE_CODEX_HARNESS_MCP_PROBE:-1}"
+echo "==> Model: ${ZHUSHOU_LIVE_CODEX_HARNESS_MODEL:-codex/gpt-5.4}"
+echo "==> Image probe: ${ZHUSHOU_LIVE_CODEX_HARNESS_IMAGE_PROBE:-1}"
+echo "==> MCP probe: ${ZHUSHOU_LIVE_CODEX_HARNESS_MCP_PROBE:-1}"
 echo "==> Harness fallback: none"
 echo "==> Auth files: ${AUTH_FILES_CSV:-none}"
 docker run --rm -t \
@@ -126,20 +126,20 @@ docker run --rm -t \
   -e HOME=/home/node \
   -e NODE_OPTIONS=--disable-warning=ExperimentalWarning \
   -e OPENAI_API_KEY \
-  -e ASSISTANT_AGENT_HARNESS_FALLBACK=none \
-  -e ASSISTANT_CODEX_APP_SERVER_BIN="${ASSISTANT_CODEX_APP_SERVER_BIN:-codex}" \
-  -e ASSISTANT_DOCKER_AUTH_FILES_RESOLVED="$AUTH_FILES_CSV" \
-  -e ASSISTANT_LIVE_CODEX_HARNESS=1 \
-  -e ASSISTANT_LIVE_CODEX_HARNESS_DEBUG="${ASSISTANT_LIVE_CODEX_HARNESS_DEBUG:-}" \
-  -e ASSISTANT_LIVE_CODEX_HARNESS_IMAGE_PROBE="${ASSISTANT_LIVE_CODEX_HARNESS_IMAGE_PROBE:-1}" \
-  -e ASSISTANT_LIVE_CODEX_HARNESS_MCP_PROBE="${ASSISTANT_LIVE_CODEX_HARNESS_MCP_PROBE:-1}" \
-  -e ASSISTANT_LIVE_CODEX_HARNESS_MODEL="${ASSISTANT_LIVE_CODEX_HARNESS_MODEL:-codex/gpt-5.4}" \
-  -e ASSISTANT_LIVE_TEST=1 \
-  -e ASSISTANT_VITEST_FS_MODULE_CACHE=0 \
+  -e ZHUSHOU_AGENT_HARNESS_FALLBACK=none \
+  -e ZHUSHOU_CODEX_APP_SERVER_BIN="${ZHUSHOU_CODEX_APP_SERVER_BIN:-codex}" \
+  -e ZHUSHOU_DOCKER_AUTH_FILES_RESOLVED="$AUTH_FILES_CSV" \
+  -e ZHUSHOU_LIVE_CODEX_HARNESS=1 \
+  -e ZHUSHOU_LIVE_CODEX_HARNESS_DEBUG="${ZHUSHOU_LIVE_CODEX_HARNESS_DEBUG:-}" \
+  -e ZHUSHOU_LIVE_CODEX_HARNESS_IMAGE_PROBE="${ZHUSHOU_LIVE_CODEX_HARNESS_IMAGE_PROBE:-1}" \
+  -e ZHUSHOU_LIVE_CODEX_HARNESS_MCP_PROBE="${ZHUSHOU_LIVE_CODEX_HARNESS_MCP_PROBE:-1}" \
+  -e ZHUSHOU_LIVE_CODEX_HARNESS_MODEL="${ZHUSHOU_LIVE_CODEX_HARNESS_MODEL:-codex/gpt-5.4}" \
+  -e ZHUSHOU_LIVE_TEST=1 \
+  -e ZHUSHOU_VITEST_FS_MODULE_CACHE=0 \
   -v "$CACHE_HOME_DIR":/home/node/.cache \
   -v "$ROOT_DIR":/src:ro \
-  -v "$CONFIG_DIR":/home/node/.assistant \
-  -v "$WORKSPACE_DIR":/home/node/.assistant/workspace \
+  -v "$CONFIG_DIR":/home/node/.zhushou \
+  -v "$WORKSPACE_DIR":/home/node/.zhushou/workspace \
   -v "$CLI_TOOLS_DIR":/home/node/.npm-global \
   "${EXTERNAL_AUTH_MOUNTS[@]}" \
   "${PROFILE_MOUNT[@]}" \

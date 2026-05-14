@@ -82,7 +82,7 @@ afterEach(() => {
 
 describe("chat abort transcript persistence", () => {
   it("persists run-scoped abort partial with rpc metadata and idempotency", async () => {
-    const { transcriptPath, sessionId } = await createTranscriptFixture("assistant-chat-abort-run-");
+    const { transcriptPath, sessionId } = await createTranscriptFixture("zhushou-chat-abort-run-");
     const runId = "idem-abort-run-1";
     const respond = vi.fn();
     const context = createChatAbortContext({
@@ -128,14 +128,14 @@ describe("chat abort transcript persistence", () => {
       .map((line) => line.message)
       .filter(
         (message): message is Record<string, unknown> =>
-          Boolean(message) && message?.idempotencyKey === `${runId}:assistant`,
+          Boolean(message) && message?.idempotencyKey === `${runId}:zhushou`,
       );
 
     expect(persisted).toHaveLength(1);
     expect(persisted[0]).toMatchObject({
       stopReason: "stop",
-      idempotencyKey: `${runId}:assistant`,
-      assistantAbort: {
+      idempotencyKey: `${runId}:zhushou`,
+      zhushouAbort: {
         aborted: true,
         origin: "rpc",
         runId,
@@ -145,7 +145,7 @@ describe("chat abort transcript persistence", () => {
 
   it("persists session-scoped abort partials with rpc metadata", async () => {
     const { transcriptPath, sessionId } = await createTranscriptFixture(
-      "assistant-chat-abort-session-",
+      "zhushou-chat-abort-session-",
     );
     const respond = vi.fn();
     const context = createChatAbortContext({
@@ -178,14 +178,14 @@ describe("chat abort transcript persistence", () => {
     const lines = await readTranscriptLines(transcriptPath);
     const runAPersisted = lines
       .map((line) => line.message)
-      .find((message) => message?.idempotencyKey === "run-a:assistant");
+      .find((message) => message?.idempotencyKey === "run-a:zhushou");
     const runBPersisted = lines
       .map((line) => line.message)
-      .find((message) => message?.idempotencyKey === "run-b:assistant");
+      .find((message) => message?.idempotencyKey === "run-b:zhushou");
 
     expect(runAPersisted).toMatchObject({
-      idempotencyKey: "run-a:assistant",
-      assistantAbort: {
+      idempotencyKey: "run-a:zhushou",
+      zhushouAbort: {
         aborted: true,
         origin: "rpc",
         runId: "run-a",
@@ -195,7 +195,7 @@ describe("chat abort transcript persistence", () => {
   });
 
   it("persists /stop partials with stop-command metadata", async () => {
-    const { transcriptPath, sessionId } = await createTranscriptFixture("assistant-chat-stop-");
+    const { transcriptPath, sessionId } = await createTranscriptFixture("zhushou-chat-stop-");
     const respond = vi.fn();
     const context = createChatAbortContext({
       chatAbortControllers: new Map([["run-stop-1", createActiveRun("main", { sessionId })]]),
@@ -228,11 +228,11 @@ describe("chat abort transcript persistence", () => {
     const lines = await readTranscriptLines(transcriptPath);
     const persisted = lines
       .map((line) => line.message)
-      .find((message) => message?.idempotencyKey === "run-stop-1:assistant");
+      .find((message) => message?.idempotencyKey === "run-stop-1:zhushou");
 
     expect(persisted).toMatchObject({
-      idempotencyKey: "run-stop-1:assistant",
-      assistantAbort: {
+      idempotencyKey: "run-stop-1:zhushou",
+      zhushouAbort: {
         aborted: true,
         origin: "stop-command",
         runId: "run-stop-1",
@@ -242,7 +242,7 @@ describe("chat abort transcript persistence", () => {
 
   it("skips run-scoped transcript persistence when partial text is blank", async () => {
     const { transcriptPath, sessionId } = await createTranscriptFixture(
-      "assistant-chat-abort-run-blank-",
+      "zhushou-chat-abort-run-blank-",
     );
     const runId = "idem-abort-run-blank";
     const respond = vi.fn();
@@ -266,7 +266,7 @@ describe("chat abort transcript persistence", () => {
     const lines = await readTranscriptLines(transcriptPath);
     const persisted = lines
       .map((line) => line.message)
-      .find((message) => message?.idempotencyKey === `${runId}:assistant`);
+      .find((message) => message?.idempotencyKey === `${runId}:zhushou`);
     expect(persisted).toBeUndefined();
   });
 });

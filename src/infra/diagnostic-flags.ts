@@ -1,7 +1,7 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
-const DIAGNOSTICS_ENV = "ASSISTANT_DIAGNOSTICS";
+const DIAGNOSTICS_ENV = "ZHUSHOU_DIAGNOSTICS";
 
 function parseEnvFlags(raw?: string): string[] {
   if (!raw) {
@@ -39,7 +39,7 @@ function uniqueFlags(flags: string[]): string[] {
 }
 
 export function resolveDiagnosticFlags(
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {
   const configFlags = Array.isArray(cfg?.diagnostics?.flags) ? cfg?.diagnostics?.flags : [];
@@ -81,7 +81,7 @@ export function matchesDiagnosticFlag(flag: string, enabledFlags: string[]): boo
 
 export function isDiagnosticFlagEnabled(
   flag: string,
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   const flags = resolveDiagnosticFlags(cfg, env);

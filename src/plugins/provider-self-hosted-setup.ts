@@ -6,7 +6,7 @@ import {
   SELF_HOSTED_DEFAULT_MAX_TOKENS,
 } from "../agents/self-hosted-provider-defaults.js";
 import type { ModelDefinitionConfig } from "../config/types.models.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   normalizeOptionalString,
@@ -94,7 +94,7 @@ export async function discoverOpenAICompatibleLocalModels(params: {
   }
 }
 
-export function applyProviderDefaultModel(cfg: AssistantConfig, modelRef: string): AssistantConfig {
+export function applyProviderDefaultModel(cfg: ZhushouConfig, modelRef: string): ZhushouConfig {
   const existingModel = cfg.agents?.defaults?.model;
   const fallbacks =
     existingModel && typeof existingModel === "object" && "fallbacks" in existingModel
@@ -117,7 +117,7 @@ export function applyProviderDefaultModel(cfg: AssistantConfig, modelRef: string
 }
 
 function buildOpenAICompatibleSelfHostedProviderConfig(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   providerId: string;
   baseUrl: string;
   providerApiKey: string;
@@ -126,7 +126,7 @@ function buildOpenAICompatibleSelfHostedProviderConfig(params: {
   reasoning?: boolean;
   contextWindow?: number;
   maxTokens?: number;
-}): { config: AssistantConfig; modelId: string; modelRef: string; profileId: string } {
+}): { config: ZhushouConfig; modelId: string; modelRef: string; profileId: string } {
   const modelRef = `${params.providerId}/${params.modelId}`;
   const profileId = `${params.providerId}:default`;
   return {
@@ -163,7 +163,7 @@ function buildOpenAICompatibleSelfHostedProviderConfig(params: {
 }
 
 type OpenAICompatibleSelfHostedProviderSetupParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   prompter: WizardPrompter;
   providerId: string;
   providerLabel: string;
@@ -177,7 +177,7 @@ type OpenAICompatibleSelfHostedProviderSetupParams = {
 };
 
 type OpenAICompatibleSelfHostedProviderPromptResult = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   credential: AuthProfileCredential;
   modelId: string;
   modelRef: string;
@@ -310,7 +310,7 @@ export async function configureOpenAICompatibleSelfHostedProviderNonInteractive(
   reasoning?: boolean;
   contextWindow?: number;
   maxTokens?: number;
-}): Promise<AssistantConfig | null> {
+}): Promise<ZhushouConfig | null> {
   const baseUrl = (
     normalizeOptionalSecretInput(params.ctx.opts.customBaseUrl) ?? params.defaultBaseUrl
   ).replace(/\/+$/, "");

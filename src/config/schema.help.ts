@@ -149,7 +149,7 @@ export const FIELD_HELP: Record<string, string> = {
   "talk.providers.*": "Provider-owned Talk config fields for the matching provider id.",
   "talk.providers.*.apiKey": "Provider API key for Talk mode.", // pragma: allowlist secret
   "talk.interruptOnSpeech":
-    "If true (default), stop assistant speech when the user starts speaking in Talk mode. Keep enabled for conversational turn-taking.",
+    "If true (default), stop zhushou speech when the user starts speaking in Talk mode. Keep enabled for conversational turn-taking.",
   "talk.silenceTimeoutMs": `Milliseconds of user silence before Talk mode finalizes and sends the current transcript. Leave unset to keep the platform default pause window (${describeTalkSilenceTimeoutDefaults()}).`,
   acp: "ACP runtime controls for enabling dispatch, selecting backends, constraining allowed agent targets, and tuning streamed turn projection behavior.",
   "acp.enabled":
@@ -175,9 +175,9 @@ export const FIELD_HELP: Record<string, string> = {
   "acp.stream.deliveryMode":
     "ACP delivery style: live streams projected output incrementally, final_only buffers all projected ACP output until terminal turn events.",
   "acp.stream.hiddenBoundarySeparator":
-    "Separator inserted before next visible assistant text when hidden ACP tool lifecycle events occurred (none|space|newline|paragraph). Default: paragraph.",
+    "Separator inserted before next visible zhushou text when hidden ACP tool lifecycle events occurred (none|space|newline|paragraph). Default: paragraph.",
   "acp.stream.maxOutputChars":
-    "Maximum assistant output characters projected per ACP turn before truncation notice is emitted.",
+    "Maximum zhushou output characters projected per ACP turn before truncation notice is emitted.",
   "acp.stream.maxSessionUpdateChars":
     "Maximum characters for projected ACP session/update lines (tool/status updates).",
   "acp.stream.tagVisibility":
@@ -235,7 +235,7 @@ export const FIELD_HELP: Record<string, string> = {
   "agents.list[].runtime.acp":
     "ACP runtime defaults for this agent when runtime.type=acp. Binding-level ACP overrides still take precedence per conversation.",
   "agents.list[].runtime.acp.agent":
-    "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, assistant).",
+    "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, zhushou).",
   "agents.list[].runtime.acp.backend":
     "Optional ACP backend override for this agent's ACP sessions (falls back to global acp.backend).",
   "agents.list[].runtime.acp.mode":
@@ -281,7 +281,7 @@ export const FIELD_HELP: Record<string, string> = {
   "browser.profiles.*.userDataDir":
     "Per-profile Chromium user data directory for existing-session attachment through Chrome DevTools MCP. Use this for host-local Brave, Edge, Chromium, or non-default Chrome profiles when the built-in auto-connect path would pick the wrong browser data directory.",
   "browser.profiles.*.driver":
-    'Per-profile browser driver mode. Use "assistant" for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
+    'Per-profile browser driver mode. Use "zhushou" for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
   "browser.profiles.*.attachOnly":
     "Per-profile attach-only override that skips local browser launch and only attaches to an existing CDP endpoint. Useful when one profile is externally managed but others are locally launched.",
   "browser.profiles.*.color":
@@ -313,7 +313,7 @@ export const FIELD_HELP: Record<string, string> = {
   "discovery.wideArea.enabled":
     "Enables wide-area discovery signaling when your environment needs non-local gateway discovery. Keep disabled unless cross-network discovery is operationally required.",
   "discovery.wideArea.domain":
-    "Optional unicast DNS-SD domain for wide-area discovery, such as assistant.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
+    "Optional unicast DNS-SD domain for wide-area discovery, such as zhushou.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
   "discovery.mdns":
     "mDNS discovery configuration group for local network advertisement and discovery behavior tuning. Keep minimal mode for routine LAN discovery unless extra metadata is required.",
   tools:
@@ -390,7 +390,7 @@ export const FIELD_HELP: Record<string, string> = {
     "Required by default for gateway access (unless using Tailscale Serve identity); required for non-loopback binds.",
   "gateway.auth.password": "Required for Tailscale funnel.",
   "agents.defaults.sandbox.browser.network":
-    "Docker network for sandbox browser containers (default: assistant-sandbox-browser). Avoid bridge if you need stricter isolation.",
+    "Docker network for sandbox browser containers (default: zhushou-sandbox-browser). Avoid bridge if you need stricter isolation.",
   "agents.list[].sandbox.browser.network": "Per-agent override for sandbox browser Docker network.",
   "agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin":
     "DANGEROUS break-glass override that allows sandbox Docker network mode container:<id>. This joins another container namespace and weakens sandbox isolation.",
@@ -405,7 +405,7 @@ export const FIELD_HELP: Record<string, string> = {
   "gateway.controlUi.embedSandbox":
     'Iframe sandbox policy for hosted operator/webchat embeds. "strict" disables scripts, "scripts" allows interactive embeds while keeping origin isolation (default), and "trusted" adds `allow-same-origin` for same-site documents that intentionally need stronger privileges.',
   "gateway.controlUi.allowExternalEmbedUrls":
-    "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__assistant__/canvas and /__assistant__/a2ui documents do not need it.",
+    "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__zhushou__/canvas and /__zhushou__/a2ui documents do not need it.",
   "gateway.controlUi.allowedOrigins":
     'Allowed browser origins for operator/WebChat websocket connections (full origins only, e.g. https://control.example.com). Required for non-loopback browser operator clients unless dangerous Host-header fallback is explicitly enabled. Setting ["*"] means allow any browser origin and should be avoided outside tightly controlled local testing.',
   "gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback":
@@ -455,7 +455,7 @@ export const FIELD_HELP: Record<string, string> = {
     'Node browser routing ("auto" = pick single connected browser node, "manual" = require node param, "off" = disable).',
   "gateway.nodes.browser.node": "Pin browser routing to a specific node id or name (optional).",
   "gateway.nodes.allowCommands":
-    "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `assistant security audit`.",
+    "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `zhushou security audit`.",
   "gateway.nodes.denyCommands":
     "Node command names to block even if present in node claims or default allowlist (exact command-name matching only, e.g. `system.run`; does not inspect shell text inside that command).",
   "gateway.webchat.chatHistoryMaxChars":
@@ -549,7 +549,7 @@ export const FIELD_HELP: Record<string, string> = {
   "diagnostics.cacheTrace.enabled":
     "Log cache trace snapshots for embedded agent runs (default: false).",
   "diagnostics.cacheTrace.filePath":
-    "JSONL output path for cache trace logs (default: $ASSISTANT_STATE_DIR/logs/cache-trace.jsonl).",
+    "JSONL output path for cache trace logs (default: $ZHUSHOU_STATE_DIR/logs/cache-trace.jsonl).",
   "diagnostics.cacheTrace.includeMessages":
     "Include full message payloads in trace output (default: true).",
   "diagnostics.cacheTrace.includePrompt": "Include prompt text in trace output (default: true).",
@@ -865,7 +865,7 @@ export const FIELD_HELP: Record<string, string> = {
   "agents.defaults.workspace":
     "Default workspace path exposed to agent runtime tools for filesystem context and repo-aware behavior. Set this explicitly when running from wrappers so path resolution stays deterministic.",
   "agents.defaults.contextInjection":
-    'Controls when workspace bootstrap files are injected into the system prompt: "always" (default) or "continuation-skip" for safe continuation turns after a completed assistant response.',
+    'Controls when workspace bootstrap files are injected into the system prompt: "always" (default) or "continuation-skip" for safe continuation turns after a completed zhushou response.',
   "agents.defaults.bootstrapMaxChars":
     "Max characters of each workspace bootstrap file injected into the system prompt before truncation (default: 20000).",
   "agents.defaults.bootstrapTotalMaxChars":
@@ -953,7 +953,7 @@ export const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.fallback":
     'Backup provider used when primary embeddings fail: "openai", "gemini", "voyage", "mistral", "bedrock", "lmstudio", "ollama", "local", or "none". Set a real fallback for production reliability; use "none" only if you prefer explicit failures.',
   "agents.defaults.memorySearch.store.path":
-    "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.assistant/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
+    "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.zhushou/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
   "agents.defaults.memorySearch.store.vector.enabled":
     "Enables the sqlite-vec extension used for vector similarity queries in memory search (default: true). Keep this enabled for normal semantic recall; disable only for debugging or fallback-only operation.",
   "agents.defaults.memorySearch.store.vector.extensionPath":
@@ -1061,15 +1061,15 @@ export const FIELD_HELP: Record<string, string> = {
     "Requires at least this many appended transcript messages before reindex is triggered (default: 50). Lower this for near-real-time transcript recall, or raise it to reduce indexing churn.",
   "agents.defaults.memorySearch.sync.sessions.postCompactionForce":
     "Forces a session memory-search reindex after compaction-triggered transcript updates (default: true). Keep enabled when compacted summaries must be immediately searchable, or disable to reduce write-time indexing pressure.",
-  ui: "UI presentation settings for accenting and assistant identity shown in control surfaces. Use this for branding and readability customization without changing runtime behavior.",
+  ui: "UI presentation settings for accenting and zhushou identity shown in control surfaces. Use this for branding and readability customization without changing runtime behavior.",
   "ui.seamColor":
     "Primary accent color used by UI surfaces for emphasis, badges, and visual identity cues. Use high-contrast values that remain readable across light/dark themes.",
-  "ui.assistant":
-    "Assistant display identity settings for name and avatar shown in UI surfaces. Keep these values aligned with your operator-facing persona and support expectations.",
-  "ui.assistant.name":
-    "Display name shown for the assistant in UI views, chat chrome, and status contexts. Keep this stable so operators can reliably identify which assistant persona is active.",
-  "ui.assistant.avatar":
-    "Assistant avatar image source used in UI surfaces (URL, path, or data URI depending on runtime support). Use trusted assets and consistent branding dimensions for clean rendering.",
+  "ui.zhushou":
+    "Zhushou display identity settings for name and avatar shown in UI surfaces. Keep these values aligned with your operator-facing persona and support expectations.",
+  "ui.zhushou.name":
+    "Display name shown for the zhushou in UI views, chat chrome, and status contexts. Keep this stable so operators can reliably identify which zhushou persona is active.",
+  "ui.zhushou.avatar":
+    "Zhushou avatar image source used in UI surfaces (URL, path, or data URI depending on runtime support). Use trusted assets and consistent branding dimensions for clean rendering.",
   plugins:
     "Plugin system controls for enabling extensions, constraining load scope, configuring entries, and tracking installs. Keep plugin policy explicit and least-privilege in production environments.",
   "plugins.enabled":
@@ -1109,7 +1109,7 @@ export const FIELD_HELP: Record<string, string> = {
   "plugins.entries.*.config":
     "Plugin-defined configuration payload interpreted by that plugin's own schema and validation rules. Use only documented fields from the plugin to prevent ignored or invalid settings.",
   "plugins.installs":
-    "CLI-managed install metadata (used by `assistant plugins update` to locate install sources).",
+    "CLI-managed install metadata (used by `zhushou plugins update` to locate install sources).",
   "plugins.installs.*.source": 'Install source ("npm", "archive", or "path").',
   "plugins.installs.*.spec": "Original npm spec used for install (if source is npm).",
   "plugins.installs.*.sourcePath": "Original archive/path used for install (if any).",
@@ -1196,7 +1196,7 @@ export const FIELD_HELP: Record<string, string> = {
   "agents.defaults.compaction.identifierInstructions":
     'Custom identifier-preservation instruction text used when identifierPolicy="custom". Keep this explicit and safety-focused so compaction summaries do not rewrite opaque IDs, URLs, hosts, or ports.',
   "agents.defaults.compaction.recentTurnsPreserve":
-    "Number of most recent user/assistant turns kept verbatim outside safeguard summarization (default: 3). Raise this to preserve exact recent dialogue context, or lower it to maximize compaction savings.",
+    "Number of most recent user/zhushou turns kept verbatim outside safeguard summarization (default: 3). Raise this to preserve exact recent dialogue context, or lower it to maximize compaction savings.",
   "agents.defaults.compaction.qualityGuard":
     "Optional quality-audit retry settings for safeguard compaction summaries. Leave this disabled unless you explicitly want summary audits and one-shot regeneration on failed checks.",
   "agents.defaults.compaction.qualityGuard.enabled":
@@ -1513,7 +1513,7 @@ export const FIELD_HELP: Record<string, string> = {
   "messages.messagePrefix":
     "Prefix text prepended to inbound user messages before they are handed to the agent runtime. Use this sparingly for channel context markers and keep it stable across sessions.",
   "messages.responsePrefix":
-    "Prefix text prepended to outbound assistant replies before sending to channels. Use for lightweight branding/context tags and avoid long prefixes that reduce content density.",
+    "Prefix text prepended to outbound zhushou replies before sending to channels. Use for lightweight branding/context tags and avoid long prefixes that reduce content density.",
   "messages.groupChat":
     "Group-message handling controls including mention triggers and history window sizing. Keep mention patterns narrow so group channels do not trigger on every message.",
   "messages.groupChat.mentionPatterns":

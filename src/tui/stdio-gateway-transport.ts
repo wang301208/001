@@ -1,8 +1,6 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { EventEmitter } from "node:events";
-import { existsSync } from "node:fs";
 import { appendFileSync, mkdirSync } from "node:fs";
-import { delimiter } from "node:path";
 import path from "node:path";
 import os from "node:os";
 import { createInterface, type Interface } from "node:readline";
@@ -120,52 +118,26 @@ function normalizeEventParams(params: unknown): GatewayEvent | null {
   };
 }
 
-function resolvePythonExecutable(root: string): string {
-  const configured =
-    process.env.ASSISTANT_PYTHON?.trim() || process.env.PYTHON?.trim();
-  if (configured) {
-    return configured;
-  }
-
-  const venv = process.env.VIRTUAL_ENV?.trim();
-  const candidates = [
-    venv ? path.resolve(venv, "Scripts", "python.exe") : "",
-    venv ? path.resolve(venv, "bin", "python") : "",
-    venv ? path.resolve(venv, "bin", "python3") : "",
-    path.resolve(root, ".venv", "Scripts", "python.exe"),
-    path.resolve(root, ".venv", "bin", "python"),
-    path.resolve(root, ".venv", "bin", "python3"),
-    path.resolve(root, "venv", "Scripts", "python.exe"),
-    path.resolve(root, "venv", "bin", "python"),
-    path.resolve(root, "venv", "bin", "python3"),
-  ];
-  const hit = candidates.find((candidate) => candidate && existsSync(candidate));
-  return hit || (process.platform === "win32" ? "python" : "python3");
-}
-
-function withPythonPath(root: string): NodeJS.ProcessEnv {
-  const pyPath = process.env.PYTHONPATH?.trim();
+function resolveNodeStdioGatewayProcess(): ResolvedStdioGatewayProcess {
+  const root = process.env.ZHUSHOU_GATEWAY_CWD?.trim() || process.cwd();
   return {
-    ...process.env,
-    PYTHONPATH: pyPath ? `${root}${delimiter}${pyPath}` : root,
-    PYTHONIOENCODING: process.env.PYTHONIOENCODING?.trim() || "utf-8",
-    PYTHONUTF8: process.env.PYTHONUTF8?.trim() || "1",
+    command: process.execPath,
+    args: ["zhushou.mjs", "stdio-gateway"],
+    cwd: root,
+    env: {
+      ...process.env,
+      ZHUSHOU_STDIO_GATEWAY_BRIDGE: "1",
+    },
   };
 }
 
 function resolveDefaultStdioGatewayProcess(): ResolvedStdioGatewayProcess {
-  const root = process.env.ASSISTANT_PYTHON_SRC_ROOT?.trim() || process.cwd();
-  return {
-    command: resolvePythonExecutable(root),
-    args: ["-m", "tui_gateway.entry"],
-    cwd: process.env.ASSISTANT_GATEWAY_CWD?.trim() || root,
-    env: withPythonPath(root),
-  };
+  return resolveNodeStdioGatewayProcess();
 }
 
 function appendDebugLog(line: string) {
   try {
-    const dir = path.join(os.homedir(), ".assistant", "logs");
+    const dir = path.join(os.homedir(), ".zhushou", "logs");
     mkdirSync(dir, { recursive: true });
     appendFileSync(
       path.join(dir, "tui-stdio-gateway.log"),
@@ -201,10 +173,10 @@ export class StdioGatewayTransport {
     this.resolveProcess = opts.resolveProcess ?? resolveDefaultStdioGatewayProcess;
     this.startupTimeoutMs =
       opts.startupTimeoutMs ??
-      parsePositiveInteger(process.env.ASSISTANT_TUI_STARTUP_TIMEOUT_MS, DEFAULT_STARTUP_TIMEOUT_MS);
+      parsePositiveInteger(process.env.ZHUSHOU_TUI_STARTUP_TIMEOUT_MS, DEFAULT_STARTUP_TIMEOUT_MS);
     this.requestTimeoutMs =
       opts.requestTimeoutMs ??
-      parsePositiveInteger(process.env.ASSISTANT_TUI_RPC_TIMEOUT_MS, DEFAULT_REQUEST_TIMEOUT_MS);
+      parsePositiveInteger(process.env.ZHUSHOU_TUI_RPC_TIMEOUT_MS, DEFAULT_REQUEST_TIMEOUT_MS);
   }
 
   start() {

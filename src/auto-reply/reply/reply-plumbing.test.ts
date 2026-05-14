@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { formatDurationCompact } from "../../infra/format-time/format-duration.js";
 import { resetPluginRuntimeStateForTest, setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
@@ -33,7 +33,7 @@ function createSlackThreadingPlugin(): ChannelPlugin {
 }
 
 describe("buildThreadingToolContext", () => {
-  const cfg = {} as AssistantConfig;
+  const cfg = {} as ZhushouConfig;
 
   afterEach(() => {
     resetPluginRuntimeStateForTest();
@@ -164,7 +164,7 @@ describe("buildThreadingToolContext", () => {
 
     const result = buildThreadingToolContext({
       sessionCtx,
-      config: { channels: { slack: { replyToMode: "all" } } } as AssistantConfig,
+      config: { channels: { slack: { replyToMode: "all" } } } as ZhushouConfig,
       hasRepliedRef: undefined,
     });
 
@@ -186,7 +186,7 @@ describe("buildThreadingToolContext", () => {
 
     const result = buildThreadingToolContext({
       sessionCtx,
-      config: { channels: { slack: { replyToMode: "all" } } } as AssistantConfig,
+      config: { channels: { slack: { replyToMode: "all" } } } as ZhushouConfig,
       hasRepliedRef: undefined,
     });
 

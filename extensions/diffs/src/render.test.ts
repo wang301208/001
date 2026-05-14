@@ -31,7 +31,7 @@ describe("renderDiffDocument", () => {
 
     expect(rendered.title).toBe("src/example.ts");
     expect(rendered.fileCount).toBe(1);
-    expect(rendered.html).toContain("data-assistant-diff-root");
+    expect(rendered.html).toContain("data-zhushou-diff-root");
     expect(rendered.html).toContain("src/example.ts");
     expect(rendered.html).toContain("../../assets/viewer.js");
     expect(rendered.imageHtml).toContain("../../assets/viewer.js");
@@ -63,8 +63,8 @@ describe("renderDiffDocument", () => {
     const loaderSrc = html.match(/<script type="module" src="([^"]+)"><\/script>/)?.[1];
     expect(loaderSrc).toBe("../../assets/viewer.js");
     expect(
-      new URL(loaderSrc ?? "", "https://example.com/assistant/plugins/diffs/view/id/token").pathname,
-    ).toBe("/assistant/plugins/diffs/assets/viewer.js");
+      new URL(loaderSrc ?? "", "https://example.com/zhushou/plugins/diffs/view/id/token").pathname,
+    ).toBe("/zhushou/plugins/diffs/assets/viewer.js");
   });
 
   it("downgrades invalid language hints to plain text", async () => {
@@ -88,7 +88,7 @@ describe("renderDiffDocument", () => {
     expect(html).toContain("diff.txt");
     expect(html).not.toContain("not-a-real-language");
 
-    const payloads = [...html.matchAll(/data-assistant-diff-payload>(.*?)<\/script>/g)].map(
+    const payloads = [...html.matchAll(/data-zhushou-diff-payload>(.*?)<\/script>/g)].map(
       (match) => parseViewerPayloadJson(match[1] ?? ""),
     );
     expect(payloads).toHaveLength(1);

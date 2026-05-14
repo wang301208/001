@@ -159,7 +159,7 @@ export function wrapNoteMessage(
 }
 
 export function note(message: string, title?: string) {
-  if (isSuppressedByEnv(process.env.ASSISTANT_SUPPRESS_NOTES)) {
+  if (isSuppressedByEnv(process.env.ZHUSHOU_SUPPRESS_NOTES)) {
     return;
   }
   clackNote(wrapNoteMessage(message), stylePromptTitle(title));

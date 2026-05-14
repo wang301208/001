@@ -1,8 +1,8 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import { streamSimple } from "@mariozechner/pi-ai";
-import type { ProviderWrapStreamFnContext } from "assistant/plugin-sdk/plugin-entry";
-import { normalizeProviderId } from "assistant/plugin-sdk/provider-model-shared";
-import { streamWithPayloadPatch } from "assistant/plugin-sdk/provider-stream-shared";
+import type { ProviderWrapStreamFnContext } from "zhushou/plugin-sdk/plugin-entry";
+import { normalizeProviderId } from "zhushou/plugin-sdk/provider-model-shared";
+import { streamWithPayloadPatch } from "zhushou/plugin-sdk/provider-stream-shared";
 import { isFireworksKimiModelId } from "./model-id.js";
 
 function isFireworksProviderId(providerId: string): boolean {

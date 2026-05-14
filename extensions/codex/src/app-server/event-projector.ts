@@ -7,7 +7,7 @@ import {
   type EmbeddedRunAttemptParams,
   type EmbeddedRunAttemptResult,
   type MessagingToolSend,
-} from "assistant/plugin-sdk/agent-harness";
+} from "zhushou/plugin-sdk/agent-harness";
 import {
   isJsonObject,
   type CodexServerNotification,
@@ -43,15 +43,15 @@ const ZERO_USAGE: Usage = {
 };
 
 export class CodexAppServerEventProjector {
-  private readonly assistantTextByItem = new Map<string, string>();
-  private readonly assistantItemOrder: string[] = [];
+  private readonly zhushouTextByItem = new Map<string, string>();
+  private readonly zhushouItemOrder: string[] = [];
   private readonly reasoningTextByItem = new Map<string, string>();
   private readonly planTextByItem = new Map<string, string>();
   private readonly activeItemIds = new Set<string>();
   private readonly completedItemIds = new Set<string>();
   private readonly activeCompactionItemIds = new Set<string>();
   private readonly toolMetas = new Map<string, { toolName: string; meta?: string }>();
-  private assistantStarted = false;
+  private zhushouStarted = false;
   private reasoningStarted = false;
   private reasoningEnded = false;
   private completedTurn: CodexTurn | undefined;
@@ -76,7 +76,7 @@ export class CodexAppServerEventProjector {
 
     switch (notification.method) {
       case "item/agentMessage/delta":
-        await this.handleAssistantDelta(params);
+        await this.handleZhushouDelta(params);
         break;
       case "item/reasoning/summaryTextDelta":
       case "item/reasoning/textDelta":
@@ -121,12 +121,12 @@ export class CodexAppServerEventProjector {
     toolTelemetry: CodexAppServerToolTelemetry,
     options?: { yieldDetected?: boolean },
   ): EmbeddedRunAttemptResult {
-    const assistantTexts = this.collectAssistantTexts();
+    const zhushouTexts = this.collectZhushouTexts();
     const reasoningText = collectTextValues(this.reasoningTextByItem).join("\n\n");
     const planText = collectTextValues(this.planTextByItem).join("\n\n");
-    const lastAssistant =
-      assistantTexts.length > 0
-        ? this.createAssistantMessage(assistantTexts.join("\n\n"))
+    const lastZhushou =
+      zhushouTexts.length > 0
+        ? this.createZhushouMessage(zhushouTexts.join("\n\n"))
         : undefined;
     const messagesSnapshot: AgentMessage[] = [
       {
@@ -138,13 +138,13 @@ export class CodexAppServerEventProjector {
     // Codex owns the canonical thread. These mirror records keep enough local
     // context for 助手 history, search, and future harness switching.
     if (reasoningText) {
-      messagesSnapshot.push(this.createAssistantMirrorMessage("Codex reasoning", reasoningText));
+      messagesSnapshot.push(this.createZhushouMirrorMessage("Codex reasoning", reasoningText));
     }
     if (planText) {
-      messagesSnapshot.push(this.createAssistantMirrorMessage("Codex plan", planText));
+      messagesSnapshot.push(this.createZhushouMirrorMessage("Codex plan", planText));
     }
-    if (lastAssistant) {
-      messagesSnapshot.push(lastAssistant);
+    if (lastZhushou) {
+      messagesSnapshot.push(lastZhushou);
     }
     const turnFailed = this.completedTurn?.status === "failed";
     const turnInterrupted = this.completedTurn?.status === "interrupted";
@@ -163,9 +163,9 @@ export class CodexAppServerEventProjector {
       bootstrapPromptWarningSignaturesSeen: this.params.bootstrapPromptWarningSignaturesSeen,
       bootstrapPromptWarningSignature: this.params.bootstrapPromptWarningSignature,
       messagesSnapshot,
-      assistantTexts,
+      zhushouTexts,
       toolMetas: [...this.toolMetas.values()],
-      lastAssistant,
+      lastZhushou,
       didSendViaMessagingTool: toolTelemetry.didSendViaMessagingTool,
       messagingToolSentTexts: toolTelemetry.messagingToolSentTexts,
       messagingToolSentMediaUrls: toolTelemetry.messagingToolSentMediaUrls,
@@ -202,22 +202,22 @@ export class CodexAppServerEventProjector {
     return this.activeCompactionItemIds.size > 0;
   }
 
-  private async handleAssistantDelta(params: JsonObject): Promise<void> {
-    const itemId = readString(params, "itemId") ?? readString(params, "id") ?? "assistant";
+  private async handleZhushouDelta(params: JsonObject): Promise<void> {
+    const itemId = readString(params, "itemId") ?? readString(params, "id") ?? "zhushou";
     const delta = readString(params, "delta") ?? "";
     if (!delta) {
       return;
     }
-    if (!this.assistantStarted) {
-      this.assistantStarted = true;
-      await this.params.onAssistantMessageStart?.();
+    if (!this.zhushouStarted) {
+      this.zhushouStarted = true;
+      await this.params.onZhushouMessageStart?.();
     }
-    this.rememberAssistantItem(itemId);
-    const text = `${this.assistantTextByItem.get(itemId) ?? ""}${delta}`;
-    this.assistantTextByItem.set(itemId, text);
+    this.rememberZhushouItem(itemId);
+    const text = `${this.zhushouTextByItem.get(itemId) ?? ""}${delta}`;
+    this.zhushouTextByItem.set(itemId, text);
     // Codex app-server can emit multiple agentMessage items per turn, including
     // intermediate coordination/progress prose. Keep those deltas internal until
-    // turn completion chooses the last assistant item as the user-visible reply.
+    // turn completion chooses the last zhushou item as the user-visible reply.
   }
 
   private async handleReasoningDelta(params: JsonObject): Promise<void> {
@@ -296,8 +296,8 @@ export class CodexAppServerEventProjector {
       this.completedItemIds.add(itemId);
     }
     if (item?.type === "agentMessage" && typeof item.text === "string" && item.text) {
-      this.rememberAssistantItem(item.id);
-      this.assistantTextByItem.set(item.id, item.text);
+      this.rememberZhushouItem(item.id);
+      this.zhushouTextByItem.set(item.id, item.text);
     }
     if (item?.type === "plan" && typeof item.text === "string" && item.text) {
       this.planTextByItem.set(item.id, item.text);
@@ -354,8 +354,8 @@ export class CodexAppServerEventProjector {
     }
     for (const item of turn.items ?? []) {
       if (item.type === "agentMessage" && typeof item.text === "string" && item.text) {
-        this.rememberAssistantItem(item.id);
-        this.assistantTextByItem.set(item.id, item.text);
+        this.rememberZhushouItem(item.id);
+        this.zhushouTextByItem.set(item.id, item.text);
       }
       if (item.type === "plan" && typeof item.text === "string" && item.text) {
         this.planTextByItem.set(item.id, item.text);
@@ -431,18 +431,18 @@ export class CodexAppServerEventProjector {
     });
   }
 
-  private collectAssistantTexts(): string[] {
-    const finalText = this.resolveFinalAssistantText();
+  private collectZhushouTexts(): string[] {
+    const finalText = this.resolveFinalZhushouText();
     return finalText ? [finalText] : [];
   }
 
-  private resolveFinalAssistantText(): string | undefined {
-    for (let i = this.assistantItemOrder.length - 1; i >= 0; i -= 1) {
-      const itemId = this.assistantItemOrder[i];
+  private resolveFinalZhushouText(): string | undefined {
+    for (let i = this.zhushouItemOrder.length - 1; i >= 0; i -= 1) {
+      const itemId = this.zhushouItemOrder[i];
       if (!itemId) {
         continue;
       }
-      const text = this.assistantTextByItem.get(itemId)?.trim();
+      const text = this.zhushouTextByItem.get(itemId)?.trim();
       if (text) {
         return text;
       }
@@ -450,14 +450,14 @@ export class CodexAppServerEventProjector {
     return undefined;
   }
 
-  private rememberAssistantItem(itemId: string): void {
-    if (!itemId || this.assistantItemOrder.includes(itemId)) {
+  private rememberZhushouItem(itemId: string): void {
+    if (!itemId || this.zhushouItemOrder.includes(itemId)) {
       return;
     }
-    this.assistantItemOrder.push(itemId);
+    this.zhushouItemOrder.push(itemId);
   }
 
-  private createAssistantMessage(text: string): AssistantMessage {
+  private createZhushouMessage(text: string): AssistantMessage {
     const usage: Usage = this.tokenUsage
       ? {
           input: this.tokenUsage.input ?? 0,
@@ -486,7 +486,7 @@ export class CodexAppServerEventProjector {
     };
   }
 
-  private createAssistantMirrorMessage(title: string, text: string): AssistantMessage {
+  private createZhushouMirrorMessage(title: string, text: string): AssistantMessage {
     return {
       role: "assistant",
       content: [{ type: "text", text: `${title}:\n${text}` }],

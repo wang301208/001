@@ -9,7 +9,7 @@ function normalizeObservation(
   overrides: Partial<Parameters<typeof normalizeFailoverDecisionObservationBase>[0]>,
 ) {
   return normalizeFailoverDecisionObservationBase({
-    stage: "assistant",
+    stage: "zhushou",
     runId: "run:base",
     rawError: "",
     failoverReason: null,
@@ -64,7 +64,7 @@ describe("createFailoverDecisionLogger", () => {
   it("includes from and to model refs when the source differs from the selected target", () => {
     const warnSpy = vi.spyOn(log, "warn").mockImplementation(() => {});
     const logDecision = createFailoverDecisionLogger({
-      stage: "assistant",
+      stage: "zhushou",
       runId: "run:failover",
       rawError: "timeout",
       failoverReason: "timeout",
@@ -99,7 +99,7 @@ describe("createFailoverDecisionLogger", () => {
   it("omits to model refs when the source matches the selected target", () => {
     const warnSpy = vi.spyOn(log, "warn").mockImplementation(() => {});
     const logDecision = createFailoverDecisionLogger({
-      stage: "assistant",
+      stage: "zhushou",
       runId: "run:same-model",
       rawError: "timeout",
       failoverReason: "timeout",

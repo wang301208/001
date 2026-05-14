@@ -57,7 +57,7 @@ beforeAll(async () => {
   server = started.server;
   ws = started.ws;
   await connectOk(ws);
-  sessionStoreDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-subagent-delivery-ctx-"));
+  sessionStoreDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-subagent-delivery-ctx-"));
   sessionStorePath = path.join(sessionStoreDir, "sessions.json");
 });
 

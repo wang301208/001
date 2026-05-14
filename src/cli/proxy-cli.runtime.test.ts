@@ -26,22 +26,22 @@ vi.mock("../proxy-capture/proxy-server.js", () => ({
 
 describe("proxy cli runtime", () => {
   const envKeys = [
-    "ASSISTANT_DEBUG_PROXY_DB_PATH",
-    "ASSISTANT_DEBUG_PROXY_BLOB_DIR",
-    "ASSISTANT_DEBUG_PROXY_CERT_DIR",
-    "ASSISTANT_DEBUG_PROXY_SESSION_ID",
-    "ASSISTANT_DEBUG_PROXY_ENABLED",
+    "ZHUSHOU_DEBUG_PROXY_DB_PATH",
+    "ZHUSHOU_DEBUG_PROXY_BLOB_DIR",
+    "ZHUSHOU_DEBUG_PROXY_CERT_DIR",
+    "ZHUSHOU_DEBUG_PROXY_SESSION_ID",
+    "ZHUSHOU_DEBUG_PROXY_ENABLED",
   ] as const;
   const savedEnv = Object.fromEntries(envKeys.map((key) => [key, process.env[key]]));
   let tempDir = "";
 
   beforeEach(() => {
-    tempDir = mkdtempSync(path.join(os.tmpdir(), "assistant-proxy-cli-runtime-"));
-    process.env.ASSISTANT_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
-    process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
-    process.env.ASSISTANT_DEBUG_PROXY_CERT_DIR = path.join(tempDir, "certs");
-    delete process.env.ASSISTANT_DEBUG_PROXY_ENABLED;
-    delete process.env.ASSISTANT_DEBUG_PROXY_SESSION_ID;
+    tempDir = mkdtempSync(path.join(os.tmpdir(), "zhushou-proxy-cli-runtime-"));
+    process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH = path.join(tempDir, "capture.sqlite");
+    process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR = path.join(tempDir, "blobs");
+    process.env.ZHUSHOU_DEBUG_PROXY_CERT_DIR = path.join(tempDir, "certs");
+    delete process.env.ZHUSHOU_DEBUG_PROXY_ENABLED;
+    delete process.env.ZHUSHOU_DEBUG_PROXY_SESSION_ID;
     serverStopSpy.mockClear();
     spawnMock.mockReset();
   });
@@ -82,8 +82,8 @@ describe("proxy cli runtime", () => {
     expect(serverStopSpy).toHaveBeenCalledTimes(1);
 
     const store = getDebugProxyCaptureStore(
-      process.env.ASSISTANT_DEBUG_PROXY_DB_PATH!,
-      process.env.ASSISTANT_DEBUG_PROXY_BLOB_DIR!,
+      process.env.ZHUSHOU_DEBUG_PROXY_DB_PATH!,
+      process.env.ZHUSHOU_DEBUG_PROXY_BLOB_DIR!,
     );
     const [session] = store.listSessions(5);
     expect(session?.mode).toBe("proxy-run");

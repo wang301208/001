@@ -1,35 +1,35 @@
 import { describe, expect, it } from "vitest";
 import {
-  compareAssistantVersions,
-  isSameAssistantStableFamily,
-  parseAssistantVersion,
+  compareZhushouVersions,
+  isSameZhushouStableFamily,
+  parseZhushouVersion,
   shouldWarnOnTouchedVersion,
 } from "./version.js";
 
-describe("parseAssistantVersion", () => {
+describe("parseZhushouVersion", () => {
   it("parses stable, correction, and beta forms", () => {
-    expect(parseAssistantVersion("2026.3.23")).toEqual({
+    expect(parseZhushouVersion("2026.3.23")).toEqual({
       major: 2026,
       minor: 3,
       patch: 23,
       revision: null,
       prerelease: null,
     });
-    expect(parseAssistantVersion("2026.3.23-1")).toEqual({
+    expect(parseZhushouVersion("2026.3.23-1")).toEqual({
       major: 2026,
       minor: 3,
       patch: 23,
       revision: 1,
       prerelease: null,
     });
-    expect(parseAssistantVersion("2026.3.23-beta.1")).toEqual({
+    expect(parseZhushouVersion("2026.3.23-beta.1")).toEqual({
       major: 2026,
       minor: 3,
       patch: 23,
       revision: null,
       prerelease: ["beta", "1"],
     });
-    expect(parseAssistantVersion("v2026.3.23.beta.2")).toEqual({
+    expect(parseZhushouVersion("v2026.3.23.beta.2")).toEqual({
       major: 2026,
       minor: 3,
       patch: 23,
@@ -39,31 +39,31 @@ describe("parseAssistantVersion", () => {
   });
 
   it("rejects invalid versions", () => {
-    expect(parseAssistantVersion("2026.3")).toBeNull();
-    expect(parseAssistantVersion("latest")).toBeNull();
+    expect(parseZhushouVersion("2026.3")).toBeNull();
+    expect(parseZhushouVersion("latest")).toBeNull();
   });
 });
 
-describe("compareAssistantVersions", () => {
+describe("compareZhushouVersions", () => {
   it("treats correction publishes as newer than the base stable release", () => {
-    expect(compareAssistantVersions("2026.3.23", "2026.3.23-1")).toBe(-1);
-    expect(compareAssistantVersions("2026.3.23-1", "2026.3.23")).toBe(1);
-    expect(compareAssistantVersions("2026.3.23-2", "2026.3.23-1")).toBe(1);
+    expect(compareZhushouVersions("2026.3.23", "2026.3.23-1")).toBe(-1);
+    expect(compareZhushouVersions("2026.3.23-1", "2026.3.23")).toBe(1);
+    expect(compareZhushouVersions("2026.3.23-2", "2026.3.23-1")).toBe(1);
   });
 
   it("treats stable as newer than beta and compares beta identifiers", () => {
-    expect(compareAssistantVersions("2026.3.23", "2026.3.23-beta.1")).toBe(1);
-    expect(compareAssistantVersions("2026.3.23-beta.2", "2026.3.23-beta.1")).toBe(1);
-    expect(compareAssistantVersions("2026.3.23.beta.1", "2026.3.23-beta.2")).toBe(-1);
+    expect(compareZhushouVersions("2026.3.23", "2026.3.23-beta.1")).toBe(1);
+    expect(compareZhushouVersions("2026.3.23-beta.2", "2026.3.23-beta.1")).toBe(1);
+    expect(compareZhushouVersions("2026.3.23.beta.1", "2026.3.23-beta.2")).toBe(-1);
   });
 });
 
-describe("isSameAssistantStableFamily", () => {
+describe("isSameZhushouStableFamily", () => {
   it("treats same-base stable and correction versions as one family", () => {
-    expect(isSameAssistantStableFamily("2026.3.23", "2026.3.23-1")).toBe(true);
-    expect(isSameAssistantStableFamily("2026.3.23-1", "2026.3.23-2")).toBe(true);
-    expect(isSameAssistantStableFamily("2026.3.23", "2026.3.24")).toBe(false);
-    expect(isSameAssistantStableFamily("2026.3.23-beta.1", "2026.3.23")).toBe(false);
+    expect(isSameZhushouStableFamily("2026.3.23", "2026.3.23-1")).toBe(true);
+    expect(isSameZhushouStableFamily("2026.3.23-1", "2026.3.23-2")).toBe(true);
+    expect(isSameZhushouStableFamily("2026.3.23", "2026.3.24")).toBe(false);
+    expect(isSameZhushouStableFamily("2026.3.23-beta.1", "2026.3.23")).toBe(false);
   });
 });
 

@@ -1,5 +1,5 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 
 export type IMessageAttachment = {
   original_path?: string | null;
@@ -33,7 +33,7 @@ export type MonitorIMessageOpts = {
   cliPath?: string;
   dbPath?: string;
   accountId?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   allowFrom?: Array<string | number>;
   groupAllowFrom?: Array<string | number>;
   includeAttachments?: boolean;

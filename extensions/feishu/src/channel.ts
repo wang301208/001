@@ -1,29 +1,29 @@
-﻿import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "assistant/plugin-sdk/allow-from";
-import { createMessageToolCardSchema } from "assistant/plugin-sdk/channel-actions";
+﻿import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
+import { createMessageToolCardSchema } from "zhushou/plugin-sdk/channel-actions";
 import {
   adaptScopedAccountAccessor,
   createHybridChannelConfigAdapter,
-} from "assistant/plugin-sdk/channel-config-helpers";
+} from "zhushou/plugin-sdk/channel-config-helpers";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageToolDiscovery,
-} from "assistant/plugin-sdk/channel-contract";
-import { createChatChannelPlugin } from "assistant/plugin-sdk/channel-core";
-import { createPairingPrefixStripper } from "assistant/plugin-sdk/channel-pairing";
+} from "zhushou/plugin-sdk/channel-contract";
+import { createChatChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+import { createPairingPrefixStripper } from "zhushou/plugin-sdk/channel-pairing";
 import {
   createAllowlistProviderGroupPolicyWarningCollector,
   projectConfigAccountIdWarningCollector,
-} from "assistant/plugin-sdk/channel-policy";
-import { getSessionBindingService } from "assistant/plugin-sdk/conversation-runtime";
+} from "zhushou/plugin-sdk/channel-policy";
+import { getSessionBindingService } from "zhushou/plugin-sdk/conversation-runtime";
 import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
-} from "assistant/plugin-sdk/directory-runtime";
-import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
-import { createRuntimeOutboundDelegates } from "assistant/plugin-sdk/outbound-runtime";
-import { createComputedAccountStatusAdapter } from "assistant/plugin-sdk/status-helpers";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/directory-runtime";
+import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
+import { createRuntimeOutboundDelegates } from "zhushou/plugin-sdk/outbound-runtime";
+import { createComputedAccountStatusAdapter } from "zhushou/plugin-sdk/status-helpers";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import {
   inspectFeishuCredentials,
   listEnabledFeishuAccounts,
@@ -38,7 +38,7 @@ import type {
   ChannelMessageActionName,
   ChannelMeta,
   ChannelPlugin,
-  AssistantConfig,
+  ZhushouConfig,
 } from "./channel-runtime-api.js";
 import {
   buildChannelConfigSchema,
@@ -120,7 +120,7 @@ const loadFeishuChannelRuntime = createLazyRuntimeNamedExport(
 );
 
 const collectFeishuSecurityWarnings = createAllowlistProviderGroupPolicyWarningCollector<{
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }>({
   providerConfigPresent: (cfg) => cfg.channels?.feishu !== undefined,
@@ -200,10 +200,10 @@ function describeFeishuMessageTool({
 }
 
 function setFeishuNamedAccountEnabled(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   enabled: boolean,
-): AssistantConfig {
+): ZhushouConfig {
   const feishuCfg = cfg.channels?.feishu as FeishuConfig | undefined;
   return {
     ...cfg,
@@ -237,7 +237,7 @@ const feishuConfigAdapter = createHybridChannelConfigAdapter<
 });
 
 function isFeishuReactionsActionEnabled(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   account: ResolvedFeishuAccount;
 }): boolean {
   if (!params.account.enabled || !params.account.configured) {
@@ -253,7 +253,7 @@ function isFeishuReactionsActionEnabled(params: {
   return gate("reactions");
 }
 
-function areAnyFeishuReactionActionsEnabled(cfg: AssistantConfig): boolean {
+function areAnyFeishuReactionActionsEnabled(cfg: ZhushouConfig): boolean {
   for (const account of listEnabledFeishuAccounts(cfg)) {
     if (isFeishuReactionsActionEnabled({ cfg, account })) {
       return true;
@@ -597,7 +597,7 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount, FeishuProbeResul
 
           if (isDefault) {
             // Delete entire feishu config
-            const next = { ...cfg } as AssistantConfig;
+            const next = { ...cfg } as ZhushouConfig;
             const nextChannels = { ...cfg.channels };
             delete (nextChannels as Record<string, unknown>).feishu;
             if (Object.keys(nextChannels).length > 0) {
@@ -1093,8 +1093,8 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount, FeishuProbeResul
       },
       auth: {
         login: async ({ cfg }) => {
-          const { createClackPrompter } = await import("assistant/plugin-sdk/setup-runtime");
-          const { writeConfigFile } = await import("assistant/plugin-sdk/config-runtime");
+          const { createClackPrompter } = await import("zhushou/plugin-sdk/setup-runtime");
+          const { writeConfigFile } = await import("zhushou/plugin-sdk/config-runtime");
           const prompter = createClackPrompter();
           const { runFeishuLogin } = await import("./setup-surface.js");
           const nextCfg = await runFeishuLogin({ cfg, prompter });
@@ -1195,7 +1195,7 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount, FeishuProbeResul
     },
     security: {
       collectWarnings: projectConfigAccountIdWarningCollector<{
-        cfg: AssistantConfig;
+        cfg: ZhushouConfig;
         accountId?: string | null;
       }>(collectFeishuSecurityWarnings),
       collectAuditFindings: ({ cfg }) => collectFeishuSecurityAuditFindings({ cfg }),

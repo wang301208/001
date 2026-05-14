@@ -2,14 +2,14 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveAssistantPackageRootSync } from "../infra/assistant-root.js";
+import { resolveZhushouPackageRootSync } from "../infra/zhushou-root.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { resolveUserPath } from "../utils.js";
 
-const DISABLED_BUNDLED_PLUGINS_DIR = path.join(os.tmpdir(), "assistant-empty-bundled-plugins");
+const DISABLED_BUNDLED_PLUGINS_DIR = path.join(os.tmpdir(), "zhushou-empty-bundled-plugins");
 
 function bundledPluginsDisabled(env: NodeJS.ProcessEnv): boolean {
-  const raw = normalizeOptionalLowercaseString(env.ASSISTANT_DISABLE_BUNDLED_PLUGINS);
+  const raw = normalizeOptionalLowercaseString(env.ZHUSHOU_DISABLE_BUNDLED_PLUGINS);
   return raw === "1" || raw === "true";
 }
 
@@ -38,7 +38,7 @@ function hasUsableBundledPluginTree(pluginsDir: string): boolean {
       const pluginDir = path.join(pluginsDir, entry.name);
       return (
         fs.existsSync(path.join(pluginDir, "package.json")) ||
-        fs.existsSync(path.join(pluginDir, "assistant.plugin.json"))
+        fs.existsSync(path.join(pluginDir, "zhushou.plugin.json"))
       );
     });
   } catch {
@@ -113,7 +113,7 @@ export function resolveBundledPluginsDir(env: NodeJS.ProcessEnv = process.env): 
     return resolveDisabledBundledPluginsDir();
   }
 
-  const override = env.ASSISTANT_BUNDLED_PLUGINS_DIR?.trim();
+  const override = env.ZHUSHOU_BUNDLED_PLUGINS_DIR?.trim();
   if (override) {
     const resolvedOverride = resolveUserPath(override, env);
     if (fs.existsSync(resolvedOverride)) {
@@ -123,7 +123,7 @@ export function resolveBundledPluginsDir(env: NodeJS.ProcessEnv = process.env): 
     // or debug sessions. Prefer the package that owns argv[1] over a broken
     // override so bundled providers keep working in packaged installs.
     try {
-      const argvPackageRoot = resolveAssistantPackageRootSync({ argv1: process.argv[1] });
+      const argvPackageRoot = resolveZhushouPackageRootSync({ argv1: process.argv[1] });
       if (argvPackageRoot && !isSourceCheckoutRoot(argvPackageRoot)) {
         const argvFallback = resolveBundledDirFromPackageRoot(argvPackageRoot, false);
         if (argvFallback) {
@@ -140,9 +140,9 @@ export function resolveBundledPluginsDir(env: NodeJS.ProcessEnv = process.env): 
 
   try {
     const packageRoots = [
-      resolveAssistantPackageRootSync({ argv1: process.argv[1] }),
-      resolveAssistantPackageRootSync({ cwd: process.cwd() }),
-      resolveAssistantPackageRootSync({ moduleUrl: import.meta.url }),
+      resolveZhushouPackageRootSync({ argv1: process.argv[1] }),
+      resolveZhushouPackageRootSync({ cwd: process.cwd() }),
+      resolveZhushouPackageRootSync({ moduleUrl: import.meta.url }),
     ].filter(
       (entry, index, all): entry is string => Boolean(entry) && all.indexOf(entry) === index,
     );

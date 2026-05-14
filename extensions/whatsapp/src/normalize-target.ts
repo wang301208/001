@@ -1,5 +1,5 @@
-import { normalizeE164 } from "assistant/plugin-sdk/account-resolution";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { normalizeE164 } from "zhushou/plugin-sdk/account-resolution";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 const WHATSAPP_USER_JID_RE = /^(\d+)(?::\d+)?@s\.whatsapp\.net$/i;
 const WHATSAPP_LEGACY_USER_JID_RE = /^(\d+)@c\.us$/i;

@@ -23,15 +23,15 @@ vi.mock("@buape/carbon/voice", () => ({
   },
 }));
 
-vi.mock("assistant/plugin-sdk/config-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/config-runtime", () => ({
   isDangerousNameMatchingEnabled: () => false,
 }));
 
-vi.mock("assistant/plugin-sdk/runtime-env", () => ({
+vi.mock("zhushou/plugin-sdk/runtime-env", () => ({
   danger: (value: string) => value,
 }));
 
-vi.mock("assistant/plugin-sdk/text-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/text-runtime", () => ({
   normalizeOptionalString: (value: string | null | undefined) => {
     if (typeof value !== "string") {
       return undefined;

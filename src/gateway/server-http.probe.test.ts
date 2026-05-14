@@ -286,8 +286,8 @@ describe("gateway probe endpoints", () => {
           "Content-Type",
           "text/plain; version=0.0.4; charset=utf-8",
         );
-        expect(getBody()).toContain("assistant_gateway_up 1");
-        expect(getBody()).toContain("assistant_gateway_ready 1");
+        expect(getBody()).toContain("zhushou_gateway_up 1");
+        expect(getBody()).toContain("zhushou_gateway_ready 1");
       },
     });
   });

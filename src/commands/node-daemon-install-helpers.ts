@@ -62,7 +62,7 @@ export async function buildNodeInstallPlan(params: {
     extraPathDirs: resolveDaemonNodeBinDir(nodePath),
   });
   const description = formatNodeServiceDescription({
-    version: environment.ASSISTANT_SERVICE_VERSION,
+    version: environment.ZHUSHOU_SERVICE_VERSION,
   });
 
   return { programArguments, workingDirectory, environment, description };

@@ -10,11 +10,11 @@ import {
 import { withTempCronHome, writeSessionStore } from "./isolated-agent.test-harness.js";
 import { setupIsolatedAgentTurnMocks } from "./isolated-agent.test-setup.js";
 
-function makeRunMeta(finalAssistantVisibleText: string) {
+function makeRunMeta(finalZhushouVisibleText: string) {
   return {
     durationMs: 5,
     agentMeta: { sessionId: "s", provider: "p", model: "m" },
-    finalAssistantVisibleText,
+    finalZhushouVisibleText,
   };
 }
 
@@ -47,7 +47,7 @@ describe("runCronIsolatedAgentTurn forum topic delivery", () => {
     });
   });
 
-  it("delivers only the final assistant-visible text to forum-topic telegram targets", async () => {
+  it("delivers only the final zhushou-visible text to forum-topic telegram targets", async () => {
     await withTempCronHome(async (home) => {
       const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
       const deps = createCliDeps();
@@ -97,7 +97,7 @@ describe("runCronIsolatedAgentTurn forum topic delivery", () => {
     });
   });
 
-  it("delivers only the final assistant-visible text to plain telegram targets", async () => {
+  it("delivers only the final zhushou-visible text to plain telegram targets", async () => {
     await withTempCronHome(async (home) => {
       const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
       const deps = createCliDeps();

@@ -5,7 +5,7 @@ export type ServiceStatusSummary = {
   label: string;
   installed: boolean | null;
   loaded: boolean;
-  managedByAssistant: boolean;
+  managedByZhushou: boolean;
   externallyManaged: boolean;
   loadedText: string;
   runtime: GatewayServiceRuntime | undefined;
@@ -17,9 +17,9 @@ export async function readServiceStatusSummary(
 ): Promise<ServiceStatusSummary> {
   try {
     const state = await readGatewayServiceState(service, { env: process.env });
-    const managedByAssistant = state.installed;
-    const externallyManaged = !managedByAssistant && state.running;
-    const installed = managedByAssistant || externallyManaged;
+    const managedByZhushou = state.installed;
+    const externallyManaged = !managedByZhushou && state.running;
+    const installed = managedByZhushou || externallyManaged;
     const loadedText = externallyManaged
       ? "running (externally managed)"
       : state.loaded
@@ -29,7 +29,7 @@ export async function readServiceStatusSummary(
       label: service.label,
       installed,
       loaded: state.loaded,
-      managedByAssistant,
+      managedByZhushou,
       externallyManaged,
       loadedText,
       runtime: state.runtime,
@@ -39,7 +39,7 @@ export async function readServiceStatusSummary(
       label: fallbackLabel,
       installed: null,
       loaded: false,
-      managedByAssistant: false,
+      managedByZhushou: false,
       externallyManaged: false,
       loadedText: "unknown",
       runtime: undefined,

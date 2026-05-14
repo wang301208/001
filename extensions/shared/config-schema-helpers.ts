@@ -1,5 +1,5 @@
-import { requireOpenAllowFrom } from "assistant/plugin-sdk/channel-config-primitives";
-import type { z } from "assistant/plugin-sdk/zod";
+import { requireOpenAllowFrom } from "zhushou/plugin-sdk/channel-config-primitives";
+import type { z } from "zhushou/plugin-sdk/zod";
 
 export function requireChannelOpenAllowFrom(params: {
   channel: string;

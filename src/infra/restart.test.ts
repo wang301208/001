@@ -58,7 +58,7 @@ afterEach(() => {
 });
 
 describe.runIf(process.platform !== "win32")("findGatewayPidsOnPortSync", () => {
-  it("parses lsof output and filters non-assistant/current processes", () => {
+  it("parses lsof output and filters non-zhushou/current processes", () => {
     const gatewayPidA = process.pid + 1000;
     const gatewayPidB = process.pid + 2000;
     const foreignPid = process.pid + 3000;
@@ -67,13 +67,13 @@ describe.runIf(process.platform !== "win32")("findGatewayPidsOnPortSync", () => 
       status: 0,
       stdout: [
         `p${process.pid}`,
-        "cassistant",
+        "czhushou",
         `p${gatewayPidA}`,
-        "cassistant-gateway",
+        "czhushou-gateway",
         `p${foreignPid}`,
         "cnode",
         `p${gatewayPidB}`,
-        "cAssistant",
+        "cZhushou",
       ].join("\n"),
     });
 
@@ -107,7 +107,7 @@ describe.runIf(process.platform !== "win32")("cleanStaleGatewayProcessesSync", (
       .mockReturnValueOnce({
         error: undefined,
         status: 0,
-        stdout: [`p${stalePidA}`, "cassistant", `p${stalePidB}`, "cassistant-gateway"].join("\n"),
+        stdout: [`p${stalePidA}`, "czhushou", `p${stalePidB}`, "czhushou-gateway"].join("\n"),
       })
       .mockReturnValue({
         error: undefined,
@@ -132,7 +132,7 @@ describe.runIf(process.platform !== "win32")("cleanStaleGatewayProcessesSync", (
       .mockReturnValueOnce({
         error: undefined,
         status: 0,
-        stdout: [`p${stalePid}`, "cassistant"].join("\n"),
+        stdout: [`p${stalePid}`, "czhushou"].join("\n"),
       })
       .mockReturnValue({
         error: undefined,

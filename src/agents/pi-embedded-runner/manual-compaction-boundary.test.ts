@@ -24,7 +24,7 @@ afterEach(async () => {
   }
 });
 
-function createAssistantTextMessage(text: string, timestamp: number): AssistantMessage {
+function createZhushouTextMessage(text: string, timestamp: number): AssistantMessage {
   return {
     role: "assistant",
     content: [{ type: "text", text }],
@@ -77,7 +77,7 @@ describe("hardenManualCompactionBoundary", () => {
     const session = SessionManager.create(dir, dir);
 
     session.appendMessage({ role: "user", content: "old question", timestamp: 1 });
-    session.appendMessage(createAssistantTextMessage("very long old answer", 2));
+    session.appendMessage(createZhushouTextMessage("very long old answer", 2));
     const firstKeepId = session.getBranch().at(-1)?.id;
     expect(firstKeepId).toBeTruthy();
     session.appendCompaction(
@@ -144,7 +144,7 @@ describe("hardenManualCompactionBoundary", () => {
     const session = SessionManager.create(dir, dir);
 
     session.appendMessage({ role: "user", content: "old question", timestamp: 1 });
-    session.appendMessage(createAssistantTextMessage("very long old answer", 2));
+    session.appendMessage(createZhushouTextMessage("very long old answer", 2));
     const firstKeepId = session.getBranch().at(-1)?.id;
     expect(firstKeepId).toBeTruthy();
     session.appendCompaction(
@@ -198,7 +198,7 @@ describe("hardenManualCompactionBoundary", () => {
     const session = SessionManager.create(dir, dir);
 
     session.appendMessage({ role: "user", content: "old question", timestamp: 1 });
-    session.appendMessage(createAssistantTextMessage("very long old answer", 2));
+    session.appendMessage(createZhushouTextMessage("very long old answer", 2));
     const firstKeepId = session.getBranch().at(-1)?.id;
     expect(firstKeepId).toBeTruthy();
     session.appendCompaction(
@@ -263,14 +263,14 @@ describe("hardenManualCompactionBoundary", () => {
     const session = SessionManager.create(dir, dir);
 
     session.appendMessage({ role: "user", content: "old question", timestamp: 1 });
-    session.appendMessage(createAssistantTextMessage("very long old answer", 2));
+    session.appendMessage(createZhushouTextMessage("very long old answer", 2));
     const firstKeepId = session.getBranch().at(-1)?.id;
     expect(firstKeepId).toBeTruthy();
     session.appendCompaction("old summary", firstKeepId!, 100);
 
     session.appendMessage({ role: "user", content: "new question", timestamp: 3 });
     session.appendMessage(
-      createAssistantTextMessage("detailed new answer that should be summarized away", 4),
+      createZhushouTextMessage("detailed new answer that should be summarized away", 4),
     );
     const secondKeepId = session.getBranch().at(-1)?.id;
     expect(secondKeepId).toBeTruthy();
@@ -311,7 +311,7 @@ describe("hardenManualCompactionBoundary", () => {
     const dir = await makeTmpDir();
     const session = SessionManager.create(dir, dir);
     session.appendMessage({ role: "user", content: "hello", timestamp: 1 });
-    session.appendMessage(createAssistantTextMessage("hi", 2));
+    session.appendMessage(createZhushouTextMessage("hi", 2));
     const sessionFile = session.getSessionFile();
     expect(sessionFile).toBeTruthy();
 

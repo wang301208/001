@@ -1,8 +1,8 @@
 import path from "node:path";
 import type { ZodIssue } from "zod";
 import { CONFIG_PATH } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
-import { AssistantSchema } from "../config/zod-schema.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
+import { ZhushouSchema } from "../config/zod-schema.js";
 import { note } from "../terminal/note.js";
 import { isRecord } from "../utils.js";
 
@@ -59,11 +59,11 @@ export function resolveConfigPathTarget(root: unknown, path: Array<string | numb
   return current;
 }
 
-export function stripUnknownConfigKeys(config: AssistantConfig): {
-  config: AssistantConfig;
+export function stripUnknownConfigKeys(config: ZhushouConfig): {
+  config: ZhushouConfig;
   removed: string[];
 } {
-  const parsed = AssistantSchema.safeParse(config);
+  const parsed = ZhushouSchema.safeParse(config);
   if (parsed.success) {
     return { config, removed: [] };
   }
@@ -92,7 +92,7 @@ export function stripUnknownConfigKeys(config: AssistantConfig): {
   return { config: next, removed };
 }
 
-export function noteOpencodeProviderOverrides(cfg: AssistantConfig): void {
+export function noteOpencodeProviderOverrides(cfg: ZhushouConfig): void {
   const providers = cfg.models?.providers;
   if (!providers) {
     return;

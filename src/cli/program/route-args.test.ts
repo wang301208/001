@@ -14,7 +14,7 @@ import {
 describe("route-args", () => {
   it("parses health and status route args", () => {
     expect(
-      parseHealthRouteArgs(["node", "assistant", "health", "--json", "--timeout", "5000"]),
+      parseHealthRouteArgs(["node", "zhushou", "health", "--json", "--timeout", "5000"]),
     ).toEqual({
       json: true,
       verbose: false,
@@ -23,7 +23,7 @@ describe("route-args", () => {
     expect(
       parseStatusRouteArgs([
         "node",
-        "assistant",
+        "zhushou",
         "status",
         "--json",
         "--deep",
@@ -40,14 +40,14 @@ describe("route-args", () => {
       verbose: false,
       timeoutMs: 5000,
     });
-    expect(parseStatusRouteArgs(["node", "assistant", "status", "--timeout"])).toBeNull();
+    expect(parseStatusRouteArgs(["node", "zhushou", "status", "--timeout"])).toBeNull();
   });
 
   it("parses gateway status route args and rejects probe-only ssh flags", () => {
     expect(
       parseGatewayStatusRouteArgs([
         "node",
-        "assistant",
+        "zhushou",
         "gateway",
         "status",
         "--url",
@@ -75,10 +75,10 @@ describe("route-args", () => {
       json: true,
     });
     expect(
-      parseGatewayStatusRouteArgs(["node", "assistant", "gateway", "status", "--ssh", "host"]),
+      parseGatewayStatusRouteArgs(["node", "zhushou", "gateway", "status", "--ssh", "host"]),
     ).toBeNull();
     expect(
-      parseGatewayStatusRouteArgs(["node", "assistant", "gateway", "status", "--ssh-auto"]),
+      parseGatewayStatusRouteArgs(["node", "zhushou", "gateway", "status", "--ssh-auto"]),
     ).toBeNull();
   });
 
@@ -86,7 +86,7 @@ describe("route-args", () => {
     expect(
       parseSessionsRouteArgs([
         "node",
-        "assistant",
+        "zhushou",
         "sessions",
         "--json",
         "--all-agents",
@@ -104,9 +104,9 @@ describe("route-args", () => {
       store: "sqlite",
       active: "true",
     });
-    expect(parseSessionsRouteArgs(["node", "assistant", "sessions", "--agent"])).toBeNull();
+    expect(parseSessionsRouteArgs(["node", "zhushou", "sessions", "--agent"])).toBeNull();
     expect(
-      parseAgentsListRouteArgs(["node", "assistant", "agents", "list", "--json", "--bindings"]),
+      parseAgentsListRouteArgs(["node", "zhushou", "agents", "list", "--json", "--bindings"]),
     ).toEqual({
       json: true,
       bindings: true,
@@ -117,7 +117,7 @@ describe("route-args", () => {
     expect(
       parseConfigGetRouteArgs([
         "node",
-        "assistant",
+        "zhushou",
         "--log-level",
         "debug",
         "config",
@@ -132,7 +132,7 @@ describe("route-args", () => {
     expect(
       parseConfigUnsetRouteArgs([
         "node",
-        "assistant",
+        "zhushou",
         "config",
         "unset",
         "--profile",
@@ -142,14 +142,14 @@ describe("route-args", () => {
     ).toEqual({
       path: "update.channel",
     });
-    expect(parseConfigGetRouteArgs(["node", "assistant", "config", "get", "--json"])).toBeNull();
+    expect(parseConfigGetRouteArgs(["node", "zhushou", "config", "get", "--json"])).toBeNull();
   });
 
   it("parses models list and models status route args", () => {
     expect(
       parseModelsListRouteArgs([
         "node",
-        "assistant",
+        "zhushou",
         "models",
         "list",
         "--provider",
@@ -169,7 +169,7 @@ describe("route-args", () => {
     expect(
       parseModelsStatusRouteArgs([
         "node",
-        "assistant",
+        "zhushou",
         "models",
         "status",
         "--probe-provider",
@@ -204,7 +204,7 @@ describe("route-args", () => {
       probe: true,
     });
     expect(
-      parseModelsStatusRouteArgs(["node", "assistant", "models", "status", "--probe-profile"]),
+      parseModelsStatusRouteArgs(["node", "zhushou", "models", "status", "--probe-profile"]),
     ).toBeNull();
   });
 });

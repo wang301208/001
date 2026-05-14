@@ -3,9 +3,9 @@ import type {
   ProviderResolveWebSocketSessionPolicyContext,
   ProviderTransportTurnState,
   ProviderWebSocketSessionPolicy,
-} from "assistant/plugin-sdk/plugin-entry";
-import { normalizeProviderId } from "assistant/plugin-sdk/provider-model-shared";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/plugin-entry";
+import { normalizeProviderId } from "zhushou/plugin-sdk/provider-model-shared";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { isOpenAIApiBaseUrl, isOpenAICodexBaseUrl } from "./base-url.js";
 
 const DEFAULT_OPENAI_WS_DEGRADE_COOLDOWN_MS = 60_000;
@@ -60,7 +60,7 @@ function resolveSessionHeaders(params: {
   }
   return {
     "x-client-request-id": sessionId,
-    "x-assistant-session-id": sessionId,
+    "x-zhushou-session-id": sessionId,
   };
 }
 
@@ -82,14 +82,14 @@ export function resolveOpenAITransportTurnState(
   return {
     headers: {
       ...sessionHeaders,
-      "x-assistant-turn-id": turnId,
-      "x-assistant-turn-attempt": attempt,
+      "x-zhushou-turn-id": turnId,
+      "x-zhushou-turn-attempt": attempt,
     },
     metadata: {
-      assistant_session_id: sessionHeaders["x-assistant-session-id"] ?? "",
-      assistant_turn_id: turnId,
-      assistant_turn_attempt: attempt,
-      assistant_transport: ctx.transport,
+      zhushou_session_id: sessionHeaders["x-zhushou-session-id"] ?? "",
+      zhushou_turn_id: turnId,
+      zhushou_turn_attempt: attempt,
+      zhushou_transport: ctx.transport,
     },
   };
 }

@@ -1,29 +1,29 @@
 # CLI 与 TUI
 
-助手以 CLI 和终端 TUI 为主入口。源码仓库内使用 `pnpm start -- <command>`，构建或安装后使用 `assistant <command>`。
+助手以 CLI 和终端 TUI 为主入口。源码仓库内使用 `pnpm start -- <command>`，构建或安装后使用 `zhushou <command>`。
 
 ## 根命令
 
 ```bash
-assistant --help
-assistant setup --wizard
-assistant onboard --flow quickstart
-assistant configure
-assistant config validate
-assistant doctor
-assistant status
+zhushou --help
+zhushou setup --wizard
+zhushou onboard --flow quickstart
+zhushou configure
+zhushou config validate
+zhushou doctor
+zhushou status
 ```
 
 ## 模型
 
 ```bash
-assistant models status
-assistant models status --probe
-assistant models list --all
-assistant models list --provider openai
-assistant models set openai/gpt-4.1
-assistant models auth login --provider openai
-assistant models auth paste-token --provider anthropic
+zhushou models status
+zhushou models status --probe
+zhushou models list --all
+zhushou models list --provider openai
+zhushou models set openai/gpt-4.1
+zhushou models auth login --provider openai
+zhushou models auth paste-token --provider anthropic
 ```
 
 ## TUI
@@ -31,16 +31,16 @@ assistant models auth paste-token --provider anthropic
 启动：
 
 ```bash
-assistant tui
-assistant tui --session main
-assistant tui --message "总结当前项目"
-assistant tui --history-limit 200
+zhushou tui
+zhushou tui --session main
+zhushou tui --message "总结当前项目"
+zhushou tui --history-limit 200
 ```
 
 默认模式会由 TUI 进程启动本地 Python gateway 子进程，并通过 stdin/stdout JSON-RPC 通信。只有传入 `--url` 时才连接远端 Gateway WebSocket。
 
 ```bash
-assistant tui --url ws://127.0.0.1:3000
+zhushou tui --url ws://127.0.0.1:3000
 ```
 
 ## TUI 自然语言直达
@@ -85,30 +85,30 @@ Shift+Tab   显示或隐藏治理面板
 显示身份可配置：
 
 ```bash
-assistant config set ui.assistant.name 助手
-assistant config set ui.assistant.avatar 助
+zhushou config set ui.zhushou.name 助手
+zhushou config set ui.zhushou.avatar 助
 ```
 
 智能体人格和系统提示可通过 `systemPromptOverride` 控制：
 
 ```bash
-assistant config set agents.defaults.systemPromptOverride "你是助手，回答直接、清晰、可执行。"
+zhushou config set agents.defaults.systemPromptOverride "你是助手，回答直接、清晰、可执行。"
 ```
 
 也可为单个代理配置：
 
 ```bash
-assistant config set agents.list.0.systemPromptOverride "你是项目维护代理，优先修复构建和测试。"
+zhushou config set agents.list.0.systemPromptOverride "你是项目维护代理，优先修复构建和测试。"
 ```
 
 ## 会话
 
 ```bash
-assistant sessions
-assistant sessions --agent main
-assistant sessions --all-agents
-assistant sessions cleanup --dry-run
-assistant sessions cleanup --enforce
+zhushou sessions
+zhushou sessions --agent main
+zhushou sessions --all-agents
+zhushou sessions cleanup --dry-run
+zhushou sessions cleanup --enforce
 ```
 
 TUI 内：
@@ -124,10 +124,10 @@ TUI 内：
 ## 任务与治理
 
 ```bash
-assistant tasks list
-assistant tasks show <task-id>
-assistant governance status
-assistant autonomy status
+zhushou tasks list
+zhushou tasks show <task-id>
+zhushou governance status
+zhushou autonomy status
 ```
 
 TUI 内：

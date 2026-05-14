@@ -1,4 +1,4 @@
-import { loadConfig } from "assistant/plugin-sdk/config-runtime";
+import { loadConfig } from "zhushou/plugin-sdk/config-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { defaultRouteConfig } = vi.hoisted(() => ({
@@ -11,9 +11,9 @@ const { defaultRouteConfig } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("assistant/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/config-runtime")>(
-    "assistant/plugin-sdk/config-runtime",
+vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
+    "zhushou/plugin-sdk/config-runtime",
   );
   return {
     ...actual,

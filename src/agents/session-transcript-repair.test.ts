@@ -10,12 +10,12 @@ import { castAgentMessage, castAgentMessages } from "./test-helpers/agent-messag
 
 const TOOL_CALL_BLOCK_TYPES = new Set(["toolCall", "toolUse", "functionCall"]);
 
-function getAssistantToolCallBlocks(messages: AgentMessage[]) {
-  const assistant = messages[0] as Extract<AgentMessage, { role: "assistant" }> | undefined;
-  if (!assistant || !Array.isArray(assistant.content)) {
+function getZhushouToolCallBlocks(messages: AgentMessage[]) {
+  const zhushou = messages[0] as Extract<AgentMessage, { role: "assistant" }> | undefined;
+  if (!zhushou || !Array.isArray(zhushou.content)) {
     return [] as Array<{ type?: unknown; id?: unknown; name?: unknown }>;
   }
-  return assistant.content.filter((block) => {
+  return zhushou.content.filter((block) => {
     const type = (block as { type?: unknown }).type;
     return typeof type === "string" && TOOL_CALL_BLOCK_TYPES.has(type);
   }) as Array<{ type?: unknown; id?: unknown; name?: unknown }>;
@@ -144,8 +144,8 @@ describe("sanitizeToolUseResultPairing", () => {
     expect(out.map((m) => m.role)).toEqual(["user", "assistant"]);
   });
 
-  it("skips tool call extraction for assistant messages with stopReason 'error'", () => {
-    // When an assistant message has stopReason: "error", its tool_use blocks may be
+  it("skips tool call extraction for zhushou messages with stopReason 'error'", () => {
+    // When an zhushou message has stopReason: "error", its tool_use blocks may be
     // incomplete/malformed. We should NOT create synthetic tool_results for them,
     // as this causes API 400 errors: "unexpected tool_use_id found in tool_result blocks"
     const input = castAgentMessages([
@@ -161,14 +161,14 @@ describe("sanitizeToolUseResultPairing", () => {
 
     // Should NOT add synthetic tool results for errored messages
     expect(result.added).toHaveLength(0);
-    // The assistant message should be passed through unchanged
+    // The zhushou message should be passed through unchanged
     expect(result.messages[0]?.role).toBe("assistant");
     expect(result.messages[1]?.role).toBe("user");
     expect(result.messages).toHaveLength(2);
   });
 
-  it("skips tool call extraction for assistant messages with stopReason 'aborted'", () => {
-    // When a request is aborted mid-stream, the assistant message may have incomplete
+  it("skips tool call extraction for zhushou messages with stopReason 'aborted'", () => {
+    // When a request is aborted mid-stream, the zhushou message may have incomplete
     // tool_use blocks (with partialJson). We should NOT create synthetic tool_results.
     const input = castAgentMessages([
       {
@@ -189,7 +189,7 @@ describe("sanitizeToolUseResultPairing", () => {
     expect(result.messages[1]?.role).toBe("user");
   });
 
-  it("still repairs tool results for normal assistant messages with stopReason 'toolUse'", () => {
+  it("still repairs tool results for normal zhushou messages with stopReason 'toolUse'", () => {
     // Normal tool calls (stopReason: "toolUse" or "stop") should still be repaired
     const input = castAgentMessages([
       {
@@ -207,7 +207,7 @@ describe("sanitizeToolUseResultPairing", () => {
     expect(result.added[0]?.toolCallId).toBe("call_normal");
   });
 
-  function createAbortedAssistantTranscript() {
+  function createAbortedZhushouTranscript() {
     return castAgentMessages([
       {
         role: "assistant",
@@ -225,10 +225,10 @@ describe("sanitizeToolUseResultPairing", () => {
     ]);
   }
 
-  it("retains matching tool results that follow an aborted assistant message", () => {
-    // Aborted assistant turns do not synthesize missing tool results, but real
+  it("retains matching tool results that follow an aborted zhushou message", () => {
+    // Aborted zhushou turns do not synthesize missing tool results, but real
     // matching results in the same span remain part of the repaired transcript.
-    const input = createAbortedAssistantTranscript();
+    const input = createAbortedZhushouTranscript();
 
     const result = repairToolUseResultPairing(input);
 
@@ -240,11 +240,11 @@ describe("sanitizeToolUseResultPairing", () => {
     expect(result.added).toHaveLength(0);
   });
 
-  it("drops matching tool results for aborted assistant messages when requested", () => {
-    const input = createAbortedAssistantTranscript();
+  it("drops matching tool results for aborted zhushou messages when requested", () => {
+    const input = createAbortedZhushouTranscript();
 
     const result = repairToolUseResultPairing(input, {
-      erroredAssistantResultPolicy: "drop",
+      erroredZhushouResultPolicy: "drop",
     });
 
     expect(result.droppedOrphanCount).toBe(0);
@@ -256,7 +256,7 @@ describe("sanitizeToolUseResultPairing", () => {
 });
 
 describe("sanitizeToolCallInputs", () => {
-  function sanitizeAssistantContent(
+  function sanitizeZhushouContent(
     content: unknown[],
     options?: Parameters<typeof sanitizeToolCallInputs>[1],
   ) {
@@ -271,11 +271,11 @@ describe("sanitizeToolCallInputs", () => {
     );
   }
 
-  function sanitizeAssistantToolCalls(
+  function sanitizeZhushouToolCalls(
     content: unknown[],
     options?: Parameters<typeof sanitizeToolCallInputs>[1],
   ) {
-    return getAssistantToolCallBlocks(sanitizeAssistantContent(content, options));
+    return getZhushouToolCallBlocks(sanitizeZhushouContent(content, options));
   }
 
   it("drops tool calls missing input or arguments", () => {
@@ -342,7 +342,7 @@ describe("sanitizeToolCallInputs", () => {
       expectedIds: ["call_ok"],
     },
   ])("$name", ({ content, options, expectedIds }) => {
-    const toolCalls = sanitizeAssistantToolCalls(content, options);
+    const toolCalls = sanitizeZhushouToolCalls(content, options);
     const ids = toolCalls
       .map((toolCall) => (toolCall as { id?: unknown }).id)
       .filter((id): id is string => typeof id === "string");
@@ -363,14 +363,14 @@ describe("sanitizeToolCallInputs", () => {
     ]);
 
     const out = sanitizeToolCallInputs(input);
-    const assistant = out[0] as Extract<AgentMessage, { role: "assistant" }>;
-    const types = Array.isArray(assistant.content)
-      ? assistant.content.map((block) => (block as { type?: unknown }).type)
+    const zhushou = out[0] as Extract<AgentMessage, { role: "assistant" }>;
+    const types = Array.isArray(zhushou.content)
+      ? zhushou.content.map((block) => (block as { type?: unknown }).type)
       : [];
     expect(types).toEqual(["text", "toolUse"]);
   });
 
-  it("drops signed-thinking assistant turns when sibling tool calls are not replay-safe", () => {
+  it("drops signed-thinking zhushou turns when sibling tool calls are not replay-safe", () => {
     const input = castAgentMessages([
       {
         role: "assistant",
@@ -401,7 +401,7 @@ describe("sanitizeToolCallInputs", () => {
     expect(out).toEqual([]);
   });
 
-  it("drops signed-thinking assistant turns when sibling tool calls reuse an id", () => {
+  it("drops signed-thinking zhushou turns when sibling tool calls reuse an id", () => {
     const input = castAgentMessages([
       {
         role: "assistant",
@@ -425,7 +425,7 @@ describe("sanitizeToolCallInputs", () => {
     expect(out).toEqual([]);
   });
 
-  it("drops later signed-thinking assistant turns that reuse an earlier signed tool id", () => {
+  it("drops later signed-thinking zhushou turns that reuse an earlier signed tool id", () => {
     const input = castAgentMessages([
       {
         role: "assistant",
@@ -459,7 +459,7 @@ describe("sanitizeToolCallInputs", () => {
     expect(out).toEqual([input[0]]);
   });
 
-  it("drops signed-thinking assistant turns that would require attachment redaction", () => {
+  it("drops signed-thinking zhushou turns that would require attachment redaction", () => {
     const secret = "SIGNED_THINKING_ATTACHMENT_SECRET"; // pragma: allowlist secret
     const input = castAgentMessages([
       {
@@ -492,7 +492,7 @@ describe("sanitizeToolCallInputs", () => {
     expect(JSON.stringify(out)).not.toContain(secret);
   });
 
-  it("keeps signed-thinking assistant turns when sessions_spawn attachments are already redacted", () => {
+  it("keeps signed-thinking zhushou turns when sessions_spawn attachments are already redacted", () => {
     const input = castAgentMessages([
       {
         role: "assistant",
@@ -512,7 +512,7 @@ describe("sanitizeToolCallInputs", () => {
                 {
                   name: "snapshot.txt",
                   mimeType: "text/plain",
-                  content: "__ASSISTANT_REDACTED__",
+                  content: "__ZHUSHOU_REDACTED__",
                 },
               ],
             },
@@ -550,8 +550,8 @@ describe("sanitizeToolCallInputs", () => {
     ]);
 
     const out = sanitizeToolCallInputs(input, { allowedToolNames: ["read"] });
-    const assistant = out[0] as Extract<AgentMessage, { role: "assistant" }>;
-    expect(assistant.content).toEqual([
+    const zhushou = out[0] as Extract<AgentMessage, { role: "assistant" }>;
+    expect(zhushou.content).toEqual([
       {
         type: "thinking",
         thinking: "Let me normalize this tool name.",
@@ -598,7 +598,7 @@ describe("sanitizeToolCallInputs", () => {
       expectedNames: ["read"],
     },
   ])("$name", ({ content, options, expectedNames }) => {
-    const toolCalls = sanitizeAssistantToolCalls(content, options);
+    const toolCalls = sanitizeZhushouToolCalls(content, options);
     const names = toolCalls
       .map((toolCall) => (toolCall as { name?: unknown }).name)
       .filter((name): name is string => typeof name === "string");
@@ -621,7 +621,7 @@ describe("sanitizeToolCallInputs", () => {
     ]);
 
     const out = sanitizeToolCallInputs(input);
-    const toolCalls = getAssistantToolCallBlocks(out) as Array<Record<string, unknown>>;
+    const toolCalls = getZhushouToolCallBlocks(out) as Array<Record<string, unknown>>;
 
     expect(toolCalls).toHaveLength(1);
     expect(Object.hasOwn(toolCalls[0] ?? {}, "input")).toBe(true);
@@ -648,16 +648,16 @@ describe("sanitizeToolCallInputs", () => {
     ]);
 
     const out = sanitizeToolCallInputs(input);
-    const toolCalls = getAssistantToolCallBlocks(out) as Array<Record<string, unknown>>;
+    const toolCalls = getZhushouToolCallBlocks(out) as Array<Record<string, unknown>>;
 
     expect(toolCalls).toHaveLength(1);
     expect((toolCalls[0] ?? {}).name).toBe("SESSIONS_SPAWN");
     const inputObj = (toolCalls[0]?.input ?? {}) as Record<string, unknown>;
     const attachments = (inputObj.attachments ?? []) as Array<Record<string, unknown>>;
-    expect(attachments[0]?.content).toBe("__ASSISTANT_REDACTED__");
+    expect(attachments[0]?.content).toBe("__ZHUSHOU_REDACTED__");
   });
   it("preserves other block properties when trimming tool names", () => {
-    const toolCalls = sanitizeAssistantToolCalls([
+    const toolCalls = sanitizeZhushouToolCalls([
       { type: "toolCall", id: "call_1", name: " read ", arguments: { path: "/tmp/test" } },
     ]);
 

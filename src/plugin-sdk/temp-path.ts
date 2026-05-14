@@ -1,7 +1,7 @@
 export {
   buildRandomTempFilePath,
   createTempDownloadTarget,
-  resolvePreferredAssistantTmpDir,
+  resolvePreferredZhushouTmpDir,
   sanitizeTempFileName,
   withTempDownloadPath,
 } from "../infra/temp-download.js";

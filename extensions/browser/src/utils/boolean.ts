@@ -1,1 +1,1 @@
-export { parseBooleanValue } from "assistant/plugin-sdk/browser-config-runtime";
+export { parseBooleanValue } from "zhushou/plugin-sdk/browser-config-runtime";

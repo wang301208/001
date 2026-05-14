@@ -5,7 +5,7 @@ import type { ModelAliasIndex } from "../../agents/model-selection.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox/runtime-status.js";
 import type { SkillCommandSpec } from "../../agents/skills.js";
 import type { SessionEntry } from "../../config/sessions.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import {
   normalizeLowercaseStringOrEmpty,
@@ -37,7 +37,7 @@ import { formatElevatedUnavailableMessage, resolveElevatedPermissions } from "./
 import { stripInlineStatus } from "./reply-inline.js";
 import type { TypingController } from "./typing.js";
 
-type AgentDefaults = NonNullable<AssistantConfig["agents"]>["defaults"];
+type AgentDefaults = NonNullable<ZhushouConfig["agents"]>["defaults"];
 
 let commandsRegistryPromise: Promise<typeof import("../commands-registry.runtime.js")> | null =
   null;
@@ -123,7 +123,7 @@ export type ReplyDirectiveResult =
 
 export async function resolveReplyDirectives(params: {
   ctx: MsgContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   agentDir: string;
   workspaceDir: string;
@@ -425,7 +425,7 @@ export async function resolveReplyDirectives(params: {
     : undefined;
   const useFastReplyRuntime = shouldUseReplyFastTestRuntime({
     cfg,
-    isFastTestEnv: process.env.ASSISTANT_TEST_FAST === "1",
+    isFastTestEnv: process.env.ZHUSHOU_TEST_FAST === "1",
   });
 
   const modelState =

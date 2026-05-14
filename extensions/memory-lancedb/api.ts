@@ -1,1 +1,1 @@
-export * from "assistant/plugin-sdk/memory-lancedb";
+export * from "zhushou/plugin-sdk/memory-lancedb";

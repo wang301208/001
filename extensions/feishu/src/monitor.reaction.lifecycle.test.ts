@@ -1,11 +1,11 @@
 ﻿import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import {
   resolveReactionSyntheticEvent,
   type FeishuReactionCreatedEvent,
 } from "./monitor.account.js";
 
-const cfg = {} as AssistantConfig;
+const cfg = {} as ZhushouConfig;
 
 function makeReactionEvent(
   overrides: Partial<FeishuReactionCreatedEvent> = {},

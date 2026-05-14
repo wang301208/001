@@ -1,5 +1,4 @@
 import { EventEmitter } from "node:events";
-import { delimiter } from "node:path";
 import { PassThrough } from "node:stream";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
@@ -37,10 +36,8 @@ describe("StdioGatewayTransport", () => {
     process.env = { ...originalEnv };
   });
 
-  it("spawns the Python tui_gateway entry by default", () => {
+  it("spawns the Node stdio gateway bridge by default", () => {
     const child = createFakeChild();
-    process.env.ASSISTANT_PYTHON = "python-test";
-    process.env.PYTHONPATH = "existing-pythonpath";
     const spawn = vi.fn(
       () => child as ReturnType<NonNullable<StdioGatewayTransportOptions["spawn"]>>,
     );
@@ -53,13 +50,13 @@ describe("StdioGatewayTransport", () => {
     transport.start();
 
     expect(spawn).toHaveBeenCalledWith(
-      "python-test",
-      ["-m", "tui_gateway.entry"],
+      process.execPath,
+      ["zhushou.mjs", "stdio-gateway"],
       expect.objectContaining({
         cwd: process.cwd(),
         stdio: ["pipe", "pipe", "pipe"],
         env: expect.objectContaining({
-          PYTHONPATH: `${process.cwd()}${delimiter}existing-pythonpath`,
+          ZHUSHOU_STDIO_GATEWAY_BRIDGE: "1",
         }),
       }),
     );
@@ -67,7 +64,7 @@ describe("StdioGatewayTransport", () => {
     transport.stop();
   });
 
-  it("uses assistant JSON-RPC lines over child stdin/stdout", async () => {
+  it("uses zhushou JSON-RPC lines over child stdin/stdout", async () => {
     const child = createFakeChild();
     const writes: string[] = [];
     child.stdin.on("data", (chunk) => writes.push(String(chunk)));
@@ -79,8 +76,8 @@ describe("StdioGatewayTransport", () => {
       startupTimeoutMs: 1000,
       requestTimeoutMs: 1000,
       resolveProcess: () => ({
-        command: "python-test",
-        args: ["-m", "tui_gateway.entry"],
+        command: process.execPath,
+        args: ["zhushou.mjs", "stdio-gateway"],
         cwd: process.cwd(),
       }),
     });
@@ -89,8 +86,8 @@ describe("StdioGatewayTransport", () => {
     const request = transport.request("status", { verbose: true });
 
     expect(spawn).toHaveBeenCalledWith(
-      "python-test",
-      ["-m", "tui_gateway.entry"],
+      process.execPath,
+      ["zhushou.mjs", "stdio-gateway"],
       expect.objectContaining({
         cwd: process.cwd(),
         stdio: ["pipe", "pipe", "pipe"],
@@ -123,8 +120,8 @@ describe("StdioGatewayTransport", () => {
       startupTimeoutMs: 1000,
       requestTimeoutMs: 1000,
       resolveProcess: () => ({
-        command: "python-test",
-        args: ["-m", "tui_gateway.entry"],
+        command: process.execPath,
+        args: ["zhushou.mjs", "stdio-gateway"],
       }),
     });
     const connected = vi.fn();
@@ -162,8 +159,8 @@ describe("StdioGatewayTransport", () => {
       startupTimeoutMs: 1000,
       requestTimeoutMs: 10,
       resolveProcess: () => ({
-        command: "python-test",
-        args: ["-m", "tui_gateway.entry"],
+        command: process.execPath,
+        args: ["zhushou.mjs", "stdio-gateway"],
       }),
     });
 

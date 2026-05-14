@@ -7,22 +7,22 @@ import {
   resolveAgentDir,
   resolveAgentEffectiveModelPrimary,
   resolveAgentWorkspaceDir,
-} from "assistant/plugin-sdk/agent-runtime";
+} from "zhushou/plugin-sdk/agent-runtime";
 import {
   resolveSessionStoreEntry,
   updateSessionStore,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/config-runtime";
-import { definePluginEntry, type AssistantPluginApi } from "assistant/plugin-sdk/plugin-entry";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/config-runtime";
+import { definePluginEntry, type ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-entry";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_AGENT_ID = "main";
 const DEFAULT_MAX_SUMMARY_CHARS = 220;
 const DEFAULT_RECENT_USER_TURNS = 2;
-const DEFAULT_RECENT_ASSISTANT_TURNS = 1;
+const DEFAULT_RECENT_ZHUSHOU_TURNS = 1;
 const DEFAULT_RECENT_USER_CHARS = 220;
-const DEFAULT_RECENT_ASSISTANT_CHARS = 180;
+const DEFAULT_RECENT_ZHUSHOU_CHARS = 180;
 const DEFAULT_CACHE_TTL_MS = 15_000;
 const DEFAULT_MAX_CACHE_ENTRIES = 1000;
 const DEFAULT_QUERY_MODE = "recent" as const;
@@ -75,9 +75,9 @@ type ActiveRecallPluginConfig = {
   queryMode?: "message" | "recent" | "full";
   maxSummaryChars?: number;
   recentUserTurns?: number;
-  recentAssistantTurns?: number;
+  recentZhushouTurns?: number;
   recentUserChars?: number;
-  recentAssistantChars?: number;
+  recentZhushouChars?: number;
   logging?: boolean;
   cacheTtlMs?: number;
   persistTranscripts?: boolean;
@@ -110,9 +110,9 @@ type ResolvedActiveRecallPluginConfig = {
   queryMode: "message" | "recent" | "full";
   maxSummaryChars: number;
   recentUserTurns: number;
-  recentAssistantTurns: number;
+  recentZhushouTurns: number;
   recentUserChars: number;
-  recentAssistantChars: number;
+  recentZhushouChars: number;
   logging: boolean;
   cacheTtlMs: number;
   persistTranscripts: boolean;
@@ -295,7 +295,7 @@ function toSafeTranscriptAgentDirName(agentId: string): string {
   return encoded ? encoded : "unknown-agent";
 }
 
-function resolvePersistentTranscriptBaseDir(api: AssistantPluginApi, agentId: string): string {
+function resolvePersistentTranscriptBaseDir(api: ZhushouPluginApi, agentId: string): string {
   return path.join(
     api.runtime.state.resolveStateDir(),
     "plugins",
@@ -307,7 +307,7 @@ function resolvePersistentTranscriptBaseDir(api: AssistantPluginApi, agentId: st
 }
 
 function resolveCanonicalSessionKeyFromSessionId(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   agentId: string;
   sessionId?: string;
 }): string | undefined {
@@ -359,7 +359,7 @@ function normalizeOptionalString(value: unknown): string | undefined {
 }
 
 function resolveRecallRunChannelContext(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   agentId: string;
   sessionKey?: string;
   sessionId?: string;
@@ -433,7 +433,7 @@ function resolveRecallRunChannelContext(params: {
   }
 }
 
-function resolveToggleStatePath(api: AssistantPluginApi): string {
+function resolveToggleStatePath(api: ZhushouPluginApi): string {
   return path.join(
     api.runtime.state.resolveStateDir(),
     "plugins",
@@ -488,7 +488,7 @@ async function writeToggleStore(statePath: string, store: ActiveMemoryToggleStor
 }
 
 async function isSessionActiveMemoryDisabled(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   sessionKey?: string;
 }): Promise<boolean> {
   const sessionKey = params.sessionKey?.trim();
@@ -507,7 +507,7 @@ async function isSessionActiveMemoryDisabled(params: {
 }
 
 async function setSessionActiveMemoryDisabled(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   sessionKey: string;
   disabled: boolean;
 }): Promise<void> {
@@ -525,7 +525,7 @@ async function setSessionActiveMemoryDisabled(params: {
 }
 
 function resolveCommandSessionKey(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   config: ResolvedActiveRecallPluginConfig;
   sessionKey?: string;
   sessionId?: string;
@@ -563,7 +563,7 @@ function formatActiveMemoryCommandHelp(): string {
   ].join("\n");
 }
 
-function isActiveMemoryGloballyEnabled(cfg: AssistantConfig): boolean {
+function isActiveMemoryGloballyEnabled(cfg: ZhushouConfig): boolean {
   const entry = asRecord(cfg.plugins?.entries?.["active-memory"]);
   if (entry?.enabled === false) {
     return false;
@@ -572,14 +572,14 @@ function isActiveMemoryGloballyEnabled(cfg: AssistantConfig): boolean {
   return pluginConfig?.enabled !== false;
 }
 
-function resolveActiveMemoryPluginConfigFromConfig(cfg: AssistantConfig): unknown {
+function resolveActiveMemoryPluginConfigFromConfig(cfg: ZhushouConfig): unknown {
   return asRecord(cfg.plugins?.entries?.["active-memory"])?.config;
 }
 
 function updateActiveMemoryGlobalEnabledInConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   enabled: boolean,
-): AssistantConfig {
+): ZhushouConfig {
   const entries = { ...cfg.plugins?.entries };
   const existingEntry = asRecord(entries["active-memory"]) ?? {};
   const existingConfig = asRecord(existingEntry.config) ?? {};
@@ -641,11 +641,11 @@ function normalizePluginConfig(pluginConfig: unknown): ResolvedActiveRecallPlugi
         : DEFAULT_QUERY_MODE,
     maxSummaryChars: clampInt(raw.maxSummaryChars, DEFAULT_MAX_SUMMARY_CHARS, 40, 1000),
     recentUserTurns: clampInt(raw.recentUserTurns, DEFAULT_RECENT_USER_TURNS, 0, 4),
-    recentAssistantTurns: clampInt(raw.recentAssistantTurns, DEFAULT_RECENT_ASSISTANT_TURNS, 0, 3),
+    recentZhushouTurns: clampInt(raw.recentZhushouTurns, DEFAULT_RECENT_ZHUSHOU_TURNS, 0, 3),
     recentUserChars: clampInt(raw.recentUserChars, DEFAULT_RECENT_USER_CHARS, 40, 1000),
-    recentAssistantChars: clampInt(
-      raw.recentAssistantChars,
-      DEFAULT_RECENT_ASSISTANT_CHARS,
+    recentZhushouChars: clampInt(
+      raw.recentZhushouChars,
+      DEFAULT_RECENT_ZHUSHOU_CHARS,
       40,
       1000,
     ),
@@ -660,9 +660,9 @@ function normalizePluginConfig(pluginConfig: unknown): ResolvedActiveRecallPlugi
 }
 
 function applyActiveMemoryRuntimeConfigSnapshot(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   pluginConfig: ResolvedActiveRecallPluginConfig,
-): AssistantConfig {
+): ZhushouConfig {
   const existingEntry = asRecord(cfg.plugins?.entries?.["active-memory"]);
   const existingPluginConfig = asRecord(existingEntry?.config);
   return {
@@ -1113,7 +1113,7 @@ function sanitizeDebugText(text: string): string {
 }
 
 async function persistPluginStatusLines(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   agentId: string;
   sessionKey?: string;
   statusLine?: string;
@@ -1378,7 +1378,7 @@ function buildQuery(params: {
     );
   }
   let remainingUser = params.config.recentUserTurns;
-  let remainingAssistant = params.config.recentAssistantTurns;
+  let remainingZhushou = params.config.recentZhushouTurns;
   const selected: ActiveRecallRecentTurn[] = [];
   for (let index = (params.recentTurns ?? []).length - 1; index >= 0; index -= 1) {
     const turn = params.recentTurns?.[index];
@@ -1396,13 +1396,13 @@ function buildQuery(params: {
       });
       continue;
     }
-    if (remainingAssistant <= 0) {
+    if (remainingZhushou <= 0) {
       continue;
     }
-    remainingAssistant -= 1;
+    remainingZhushou -= 1;
     selected.push({
       role: "assistant",
-      text: turn.text.trim().replace(/\s+/g, " ").slice(0, params.config.recentAssistantChars),
+      text: turn.text.trim().replace(/\s+/g, " ").slice(0, params.config.recentZhushouChars),
     });
   }
   const recentTurns = selected.toReversed().filter((turn) => turn.text.length > 0);
@@ -1527,8 +1527,7 @@ function extractRecentTurns(messages: unknown[]): ActiveRecallRecentTurn[] {
     }
     const rawText = extractTextContent(typed.content);
     const text =
-      role === "assistant"
-        ? stripRecalledContextNoise(rawText)
+      role === "assistant" ? stripRecalledContextNoise(rawText)
         : stripInjectedActiveMemoryPrefixOnly(rawText);
     if (!text) {
       continue;
@@ -1548,7 +1547,7 @@ function parseModelCandidate(modelRef: string | undefined) {
 }
 
 function getModelRef(
-  api: AssistantPluginApi,
+  api: ZhushouPluginApi,
   agentId: string,
   config: ResolvedActiveRecallPluginConfig,
   ctx?: {
@@ -1574,7 +1573,7 @@ function getModelRef(
 }
 
 async function runRecallSubagent(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   config: ResolvedActiveRecallPluginConfig;
   agentId: string;
   sessionKey?: string;
@@ -1621,7 +1620,7 @@ async function runRecallSubagent(params: {
     : `agent:${params.agentId}:${subagentSuffix}`;
   const tempDir = params.config.persistTranscripts
     ? undefined
-    : await fs.mkdtemp(path.join(resolvePreferredAssistantTmpDir(), "assistant-active-memory-"));
+    : await fs.mkdtemp(path.join(resolvePreferredZhushouTmpDir(), "zhushou-active-memory-"));
   const persistedDir = params.config.persistTranscripts
     ? resolveSafeTranscriptDir(
         resolvePersistentTranscriptBaseDir(params.api, params.agentId),
@@ -1708,7 +1707,7 @@ async function runRecallSubagent(params: {
 }
 
 async function maybeResolveActiveRecall(params: {
-  api: AssistantPluginApi;
+  api: ZhushouPluginApi;
   config: ResolvedActiveRecallPluginConfig;
   agentId: string;
   sessionKey?: string;
@@ -1862,7 +1861,7 @@ export default definePluginEntry({
   id: "active-memory",
   name: "Active Memory",
   description: "Proactively surfaces relevant memory before eligible conversational replies.",
-  register(api: AssistantPluginApi) {
+  register(api: ZhushouPluginApi) {
     let config = normalizePluginConfig(api.pluginConfig);
     const warnDeprecatedModelFallbackPolicy = (pluginConfig: unknown) => {
       if (hasDeprecatedModelFallbackPolicy(pluginConfig)) {

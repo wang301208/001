@@ -85,7 +85,7 @@ describe("maybeInstallDaemon", () => {
       warnings: [],
     });
     buildGatewayInstallPlan.mockResolvedValue({
-      programArguments: ["assistant", "gateway", "run"],
+      programArguments: ["zhushou", "gateway", "run"],
       workingDirectory: "/tmp",
       environment: {},
     });

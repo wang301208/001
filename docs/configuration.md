@@ -1,41 +1,41 @@
 # 配置
 
-助手的默认状态目录是 `~/.assistant`，默认配置文件是 `~/.assistant/assistant.json`。
+助手的默认状态目录是 `~/.zhushou`，默认配置文件是 `~/.wang301208/zhushou.json`。
 
 可用环境变量覆盖：
 
 ```bash
-ASSISTANT_STATE_DIR=/path/to/state
-ASSISTANT_CONFIG_PATH=/path/to/assistant.json
+ZHUSHOU_STATE_DIR=/path/to/state
+ZHUSHOU_CONFIG_PATH=/path/to/zhushou.json
 ```
 
 查看与校验：
 
 ```bash
-assistant config file
-assistant config validate
-assistant config schema
-assistant config get agents.defaults.model
-assistant config get models.providers
+zhushou config file
+zhushou config validate
+zhushou config schema
+zhushou config get agents.defaults.model
+zhushou config get models.providers
 ```
 
 ## 配置命令
 
 ```bash
-assistant config get <path>
-assistant config set <path> <value>
-assistant config unset <path>
-assistant config file
-assistant config schema
-assistant config validate
-assistant config snapshots list
-assistant config snapshots rollback <timestamp>
+zhushou config get <path>
+zhushou config set <path> <value>
+zhushou config unset <path>
+zhushou config file
+zhushou config schema
+zhushou config validate
+zhushou config snapshots list
+zhushou config snapshots rollback <timestamp>
 ```
 
 复杂值使用 JSON：
 
 ```bash
-assistant config set agents.defaults.model '{"primary":"openai/gpt-4.1","fallbacks":["anthropic/claude-sonnet-4"]}'
+zhushou config set agents.defaults.model '{"primary":"openai/gpt-4.1","fallbacks":["anthropic/claude-sonnet-4"]}'
 ```
 
 ## 模型 Provider
@@ -174,7 +174,7 @@ gateway.remote.token
 远端 gateway：
 
 ```bash
-assistant tui --url ws://127.0.0.1:3000
+zhushou tui --url ws://127.0.0.1:3000
 ```
 
 ## MCP
@@ -182,8 +182,8 @@ assistant tui --url ws://127.0.0.1:3000
 MCP 配置位于 `mcp`。常用检查命令：
 
 ```bash
-assistant mcp --help
-assistant tui
+zhushou mcp --help
+zhushou tui
 ```
 
 TUI 内：
@@ -198,13 +198,13 @@ TUI 内：
 配置 schema 是最终来源：
 
 ```bash
-assistant config schema
+zhushou config schema
 ```
 
 也可以搜索源码类型：
 
 ```text
-src/config/types.assistant.ts
+src/config/types.zhushou.ts
 src/config/types.models.ts
 src/config/types.agent-defaults.ts
 src/config/types.agents.ts

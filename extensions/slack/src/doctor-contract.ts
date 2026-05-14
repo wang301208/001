@@ -1,14 +1,14 @@
 import type {
   ChannelDoctorConfigMutation,
   ChannelDoctorLegacyConfigRule,
-} from "assistant/plugin-sdk/channel-contract";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-contract";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   hasLegacyAccountStreamingAliases,
   hasLegacyStreamingAliases,
   normalizeLegacyDmAliases,
   normalizeLegacyStreamingAliases,
-} from "assistant/plugin-sdk/runtime-doctor";
+} from "zhushou/plugin-sdk/runtime-doctor";
 import { resolveSlackNativeStreaming, resolveSlackStreamingMode } from "./streaming-compat.js";
 
 function asObjectRecord(value: unknown): Record<string, unknown> | null {
@@ -39,7 +39,7 @@ export const legacyConfigRules: ChannelDoctorLegacyConfigRule[] = [
 export function normalizeCompatibilityConfig({
   cfg,
 }: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
 }): ChannelDoctorConfigMutation {
   const rawEntry = asObjectRecord((cfg.channels as Record<string, unknown> | undefined)?.slack);
   if (!rawEntry) {
@@ -114,8 +114,8 @@ export function normalizeCompatibilityConfig({
       ...cfg,
       channels: {
         ...cfg.channels,
-        slack: updated as unknown as NonNullable<AssistantConfig["channels"]>["slack"],
-      } as AssistantConfig["channels"],
+        slack: updated as unknown as NonNullable<ZhushouConfig["channels"]>["slack"],
+      } as ZhushouConfig["channels"],
     },
     changes,
   };

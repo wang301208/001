@@ -5,13 +5,13 @@ import {
   type ResolverContext,
   type SecretDefaults,
   type SecretTargetRegistryEntry,
-} from "assistant/plugin-sdk/channel-secret-basic-runtime";
+} from "zhushou/plugin-sdk/channel-secret-basic-runtime";
 
 export const secretTargetRegistryEntries = [
   {
     id: "channels.zalo.accounts.*.botToken",
     targetType: "channels.zalo.accounts.*.botToken",
-    configFile: "assistant.json",
+    configFile: "zhushou.json",
     pathPattern: "channels.zalo.accounts.*.botToken",
     secretShape: "secret_input",
     expectedResolvedValue: "string",
@@ -22,7 +22,7 @@ export const secretTargetRegistryEntries = [
   {
     id: "channels.zalo.accounts.*.webhookSecret",
     targetType: "channels.zalo.accounts.*.webhookSecret",
-    configFile: "assistant.json",
+    configFile: "zhushou.json",
     pathPattern: "channels.zalo.accounts.*.webhookSecret",
     secretShape: "secret_input",
     expectedResolvedValue: "string",
@@ -33,7 +33,7 @@ export const secretTargetRegistryEntries = [
   {
     id: "channels.zalo.botToken",
     targetType: "channels.zalo.botToken",
-    configFile: "assistant.json",
+    configFile: "zhushou.json",
     pathPattern: "channels.zalo.botToken",
     secretShape: "secret_input",
     expectedResolvedValue: "string",
@@ -44,7 +44,7 @@ export const secretTargetRegistryEntries = [
   {
     id: "channels.zalo.webhookSecret",
     targetType: "channels.zalo.webhookSecret",
-    configFile: "assistant.json",
+    configFile: "zhushou.json",
     pathPattern: "channels.zalo.webhookSecret",
     secretShape: "secret_input",
     expectedResolvedValue: "string",

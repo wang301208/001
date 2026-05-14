@@ -1,12 +1,12 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import * as agentRuntimeModule from "assistant/plugin-sdk/simple-completion-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import * as agentRuntimeModule from "zhushou/plugin-sdk/simple-completion-runtime";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const completeWithPreparedSimpleCompletionModelMock =
   vi.fn<typeof agentRuntimeModule.completeWithPreparedSimpleCompletionModel>();
 const prepareSimpleCompletionModelForAgentMock =
   vi.fn<typeof agentRuntimeModule.prepareSimpleCompletionModelForAgent>();
-const extractAssistantTextMock = vi.fn<typeof agentRuntimeModule.extractAssistantText>();
+const extractZhushouTextMock = vi.fn<typeof agentRuntimeModule.extractZhushouText>();
 
 let generateThreadTitle: typeof import("./thread-title.js").generateThreadTitle;
 
@@ -18,13 +18,13 @@ beforeEach(() => {
   vi.restoreAllMocks();
   completeWithPreparedSimpleCompletionModelMock.mockReset();
   prepareSimpleCompletionModelForAgentMock.mockReset();
-  extractAssistantTextMock.mockReset();
+  extractZhushouTextMock.mockReset();
 
   prepareSimpleCompletionModelForAgentMock.mockResolvedValue({
     selection: {
       provider: "anthropic",
       modelId: "claude-sonnet-4-6",
-      agentDir: "/tmp/assistant-agent",
+      agentDir: "/tmp/zhushou-agent",
     },
     model: {
       provider: "anthropic",
@@ -39,15 +39,15 @@ beforeEach(() => {
   completeWithPreparedSimpleCompletionModelMock.mockResolvedValue(
     {} as Awaited<ReturnType<typeof agentRuntimeModule.completeWithPreparedSimpleCompletionModel>>,
   );
-  extractAssistantTextMock.mockReturnValue("Generated title");
+  extractZhushouTextMock.mockReturnValue("Generated title");
   vi.spyOn(agentRuntimeModule, "prepareSimpleCompletionModelForAgent").mockImplementation(
     (...args) => prepareSimpleCompletionModelForAgentMock(...args),
   );
   vi.spyOn(agentRuntimeModule, "completeWithPreparedSimpleCompletionModel").mockImplementation(
     (...args) => completeWithPreparedSimpleCompletionModelMock(...args),
   );
-  vi.spyOn(agentRuntimeModule, "extractAssistantText").mockImplementation((...args) =>
-    extractAssistantTextMock(...args),
+  vi.spyOn(agentRuntimeModule, "extractZhushouText").mockImplementation((...args) =>
+    extractZhushouTextMock(...args),
   );
 });
 
@@ -58,7 +58,7 @@ describe("generateThreadTitle", () => {
         provider: "openrouter",
         modelId: "anthropic/claude-sonnet-4-5",
         profileId: "work",
-        agentDir: "/tmp/assistant-agent",
+        agentDir: "/tmp/zhushou-agent",
       },
       model: {
         provider: "openrouter",
@@ -76,7 +76,7 @@ describe("generateThreadTitle", () => {
           model: "openrouter/anthropic/claude-sonnet-4-5@work",
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     await generateThreadTitle({
       cfg,
@@ -92,7 +92,7 @@ describe("generateThreadTitle", () => {
   });
 
   it("passes model override refs into shared model prep", async () => {
-    const cfg = {} as AssistantConfig;
+    const cfg = {} as ZhushouConfig;
     await generateThreadTitle({
       cfg,
       agentId: "main",
@@ -114,7 +114,7 @@ describe("generateThreadTitle", () => {
     } as Awaited<ReturnType<typeof agentRuntimeModule.prepareSimpleCompletionModelForAgent>>);
 
     const result = await generateThreadTitle({
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       agentId: "main",
       messageText: "Need a thread title.",
     });
@@ -129,12 +129,12 @@ describe("generateThreadTitle", () => {
       selection: {
         provider: "anthropic",
         modelId: "claude-sonnet-4-6",
-        agentDir: "/tmp/assistant-agent",
+        agentDir: "/tmp/zhushou-agent",
       },
     } as Awaited<ReturnType<typeof agentRuntimeModule.prepareSimpleCompletionModelForAgent>>);
 
     const result = await generateThreadTitle({
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       agentId: "main",
       messageText: "Need a thread title.",
     });
@@ -145,7 +145,7 @@ describe("generateThreadTitle", () => {
 
   it("builds contextual prompt and forwards completion options", async () => {
     const result = await generateThreadTitle({
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       agentId: "main",
       messageText: "Summarize deployment blockers and owner follow-ups.",
       channelName: "release-status",
@@ -186,7 +186,7 @@ describe("generateThreadTitle", () => {
     );
 
     const result = await generateThreadTitle({
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       agentId: "main",
       messageText: "Generate title.",
     });

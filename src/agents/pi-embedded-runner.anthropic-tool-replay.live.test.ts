@@ -2,12 +2,12 @@ import type { Message, Model } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
 import {
   completeSimpleWithLiveTimeout,
-  extractAssistantText,
+  extractZhushouText,
   logLiveCache,
 } from "./live-cache-test-support.js";
 import { isLiveTestEnabled } from "./live-test-helpers.js";
 import { wrapStreamFnSanitizeMalformedToolCalls } from "./pi-embedded-runner/run/attempt.tool-call-normalization.js";
-import { buildAssistantMessageWithZeroUsage } from "./stream-message-shared.js";
+import { buildZhushouMessageWithZeroUsage } from "./stream-message-shared.js";
 
 const ANTHROPIC_LIVE = isLiveTestEnabled(["ANTHROPIC_LIVE_TEST"]);
 const describeLive = ANTHROPIC_LIVE ? describe : describe.skip;
@@ -23,7 +23,7 @@ function buildLiveAnthropicModel(): {
     throw new Error("missing ANTHROPIC_API_KEY");
   }
   const modelId =
-    (process.env.ASSISTANT_LIVE_ANTHROPIC_CACHE_MODEL || "claude-sonnet-4-6")
+    (process.env.ZHUSHOU_LIVE_ANTHROPIC_CACHE_MODEL || "claude-sonnet-4-6")
       .split(/[/:]/)
       .findLast(Boolean) || "claude-sonnet-4-6";
   return {
@@ -50,7 +50,7 @@ describeLive("pi embedded anthropic replay sanitization (live)", () => {
       const { apiKey, model } = buildLiveAnthropicModel();
       const messages: Message[] = [
         {
-          ...buildAssistantMessageWithZeroUsage({
+          ...buildZhushouMessageWithZeroUsage({
             model: { api: model.api, provider: model.provider, id: model.id },
             content: [{ type: "toolCall", id: "call_1", name: "noop", arguments: {} }],
             stopReason: "toolUse",
@@ -101,7 +101,7 @@ describeLive("pi embedded anthropic replay sanitization (live)", () => {
         ANTHROPIC_TIMEOUT_MS,
       );
 
-      const text = extractAssistantText(response);
+      const text = extractZhushouText(response);
       logLiveCache(`anthropic replay live result=${JSON.stringify(text)}`);
       expect(response.content.length).toBeGreaterThanOrEqual(0);
     },

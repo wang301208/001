@@ -1,8 +1,8 @@
 import type {
-  AssistantPluginCommandDefinition,
+  ZhushouPluginCommandDefinition,
   PluginCommandContext,
-} from "assistant/plugin-sdk/core";
-import type { AssistantConfig, AssistantPluginApi } from "assistant/plugin-sdk/memory-core";
+} from "zhushou/plugin-sdk/core";
+import type { ZhushouConfig, ZhushouPluginApi } from "zhushou/plugin-sdk/memory-core";
 import { describe, expect, it, vi } from "vitest";
 import { registerDreamingCommand } from "./dreaming-command.js";
 
@@ -13,31 +13,31 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>;
 }
 
-function resolveStoredDreaming(config: AssistantConfig): Record<string, unknown> {
+function resolveStoredDreaming(config: ZhushouConfig): Record<string, unknown> {
   const entry = asRecord(config.plugins?.entries?.["memory-core"]);
   const pluginConfig = asRecord(entry?.config);
   return asRecord(pluginConfig?.dreaming) ?? {};
 }
 
-function createHarness(initialConfig: AssistantConfig = {}) {
-  const registered: { command?: AssistantPluginCommandDefinition } = {};
-  let runtimeConfig: AssistantConfig = initialConfig;
+function createHarness(initialConfig: ZhushouConfig = {}) {
+  const registered: { command?: ZhushouPluginCommandDefinition } = {};
+  let runtimeConfig: ZhushouConfig = initialConfig;
 
   const runtime = {
     config: {
       loadConfig: vi.fn(() => runtimeConfig),
-      writeConfigFile: vi.fn(async (nextConfig: AssistantConfig) => {
+      writeConfigFile: vi.fn(async (nextConfig: ZhushouConfig) => {
         runtimeConfig = nextConfig;
       }),
     },
-  } as unknown as AssistantPluginApi["runtime"];
+  } as unknown as ZhushouPluginApi["runtime"];
 
   const api = {
     runtime,
-    registerCommand: vi.fn((definition: AssistantPluginCommandDefinition) => {
+    registerCommand: vi.fn((definition: ZhushouPluginCommandDefinition) => {
       registered.command = definition;
     }),
-  } as unknown as AssistantPluginApi;
+  } as unknown as ZhushouPluginApi;
 
   registerDreamingCommand(api);
 

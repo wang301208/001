@@ -76,19 +76,19 @@ export function registerDirectoryCli(program: Command) {
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["assistant directory self --channel slack", "Show the connected account identity."],
+          ["zhushou directory self --channel slack", "Show the connected account identity."],
           [
-            'assistant directory peers list --channel slack --query "alice"',
+            'zhushou directory peers list --channel slack --query "alice"',
             "Search contact/user IDs by name.",
           ],
-          ["assistant directory groups list --channel discord", "List available groups/channels."],
+          ["zhushou directory groups list --channel discord", "List available groups/channels."],
           [
-            "assistant directory groups members --channel discord --group-id <id>",
+            "zhushou directory groups members --channel discord --group-id <id>",
             "List members for a specific group.",
           ],
         ])}\n\n${theme.muted("Docs:")} ${formatDocsLink(
           "/cli/directory",
-          "docs.assistant.ai/cli/directory",
+          "docs.zhushou.ai/cli/directory",
         )}\n`,
     )
     .action(() => {

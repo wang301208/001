@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { MsgContext } from "../templating.js";
 import type { InlineDirectives } from "./directive-handling.parse.js";
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
@@ -7,7 +7,7 @@ export function isDirectiveOnly(params: {
   directives: InlineDirectives;
   cleanedBody: string;
   ctx: MsgContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId?: string;
   isGroup: boolean;
 }): boolean {

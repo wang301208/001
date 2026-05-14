@@ -2,9 +2,9 @@ import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
   listDirectoryEntriesFromSources,
-} from "assistant/plugin-sdk/directory-runtime";
-import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/directory-runtime";
+import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import type { ChannelPlugin } from "./channel-api.js";
 import { normalizeMSTeamsMessagingTarget } from "./resolve-allowlist.js";
 import { resolveMSTeamsCredentials } from "./token.js";

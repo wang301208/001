@@ -1,10 +1,10 @@
 import { Type } from "@sinclair/typebox";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   isNonSecretApiKeyMarker,
   normalizeOptionalSecretInput,
-} from "assistant/plugin-sdk/provider-auth";
-import { resolveEnvApiKey } from "assistant/plugin-sdk/provider-auth-runtime";
+} from "zhushou/plugin-sdk/provider-auth";
+import { resolveEnvApiKey } from "zhushou/plugin-sdk/provider-auth-runtime";
 import {
   enablePluginInConfig,
   readNumberParam,
@@ -16,9 +16,9 @@ import {
   truncateText,
   wrapWebContent,
   type WebSearchProviderPlugin,
-} from "assistant/plugin-sdk/provider-web-search";
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-web-search";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { OLLAMA_CLOUD_BASE_URL, OLLAMA_DEFAULT_BASE_URL } from "./defaults.js";
 import {
   buildOllamaBaseUrlSsrFPolicy,
@@ -56,7 +56,7 @@ type OllamaWebSearchResponse = {
   results?: OllamaWebSearchResult[];
 };
 
-function resolveOllamaWebSearchApiKey(config?: AssistantConfig): string | undefined {
+function resolveOllamaWebSearchApiKey(config?: ZhushouConfig): string | undefined {
   const providerApiKey = normalizeOptionalSecretInput(config?.models?.providers?.ollama?.apiKey);
   if (providerApiKey && !isNonSecretApiKeyMarker(providerApiKey)) {
     return providerApiKey;
@@ -64,7 +64,7 @@ function resolveOllamaWebSearchApiKey(config?: AssistantConfig): string | undefi
   return resolveEnvApiKey("ollama")?.apiKey;
 }
 
-function resolveOllamaWebSearchBaseUrl(config?: AssistantConfig): string {
+function resolveOllamaWebSearchBaseUrl(config?: ZhushouConfig): string {
   const pluginBaseUrl = normalizeOptionalString(
     resolveProviderWebSearchPluginConfig(config, "ollama")?.baseUrl,
   );
@@ -96,7 +96,7 @@ function normalizeOllamaWebSearchResult(
 }
 
 export async function runOllamaWebSearch(params: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   query: string;
   count?: number;
 }): Promise<Record<string, unknown>> {
@@ -174,11 +174,11 @@ export async function runOllamaWebSearch(params: {
 }
 
 async function warnOllamaWebSearchPrereqs(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   prompter: {
     note: (message: string, title?: string) => Promise<void>;
   };
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   const baseUrl = resolveOllamaWebSearchBaseUrl(params.config);
   const { reachable } = await fetchOllamaModels(baseUrl);
   if (!reachable) {
@@ -217,7 +217,7 @@ export function createOllamaWebSearchProvider(): WebSearchProviderPlugin {
     envVars: [],
     placeholder: "(run ollama signin)",
     signupUrl: "https://ollama.com/",
-    docsUrl: "https://docs.assistant.ai/tools/web",
+    docsUrl: "https://docs.zhushou.ai/tools/web",
     autoDetectOrder: 110,
     credentialPath: "",
     getCredentialValue: () => undefined,

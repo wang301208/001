@@ -10,9 +10,9 @@ import { randomUUID } from "node:crypto";
 import type * as LanceDB from "@lancedb/lancedb";
 import { Type } from "@sinclair/typebox";
 import OpenAI from "openai";
-import { ensureGlobalUndiciEnvProxyDispatcher } from "assistant/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
-import { definePluginEntry, type AssistantPluginApi } from "./api.js";
+import { ensureGlobalUndiciEnvProxyDispatcher } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import { definePluginEntry, type ZhushouPluginApi } from "./api.js";
 import {
   DEFAULT_CAPTURE_MAX_CHARS,
   MEMORY_CATEGORIES,
@@ -203,7 +203,7 @@ const PROMPT_INJECTION_PATTERNS = [
   /do not follow (the )?(system|developer)/i,
   /system prompt/i,
   /developer message/i,
-  /<\s*(system|assistant|developer|tool|function|relevant-memories)\b/i,
+  /<\s*(system|zhushou|developer|tool|function|relevant-memories)\b/i,
   /\b(run|execute|call|invoke)\b.{0,40}\b(tool|command)\b/i,
 ];
 
@@ -293,7 +293,7 @@ export default definePluginEntry({
   kind: "memory" as const,
   configSchema: memoryConfigSchema,
 
-  register(api: AssistantPluginApi) {
+  register(api: ZhushouPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
     const dbPath = cfg.dbPath!;
     const resolvedDbPath = dbPath.includes("://") ? dbPath : api.resolvePath(dbPath);

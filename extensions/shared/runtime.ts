@@ -1,1 +1,1 @@
-export { resolveLoggerBackedRuntime } from "assistant/plugin-sdk/extension-shared";
+export { resolveLoggerBackedRuntime } from "zhushou/plugin-sdk/extension-shared";

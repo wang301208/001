@@ -1,17 +1,17 @@
 import { completeSimple, type Api, type AssistantMessage, type Model } from "@mariozechner/pi-ai";
 import { loadConfig } from "../config/config.js";
 import { isTruthyEnvValue } from "../infra/env.js";
-import { resolveAssistantAgentDir } from "./agent-paths.js";
+import { resolveZhushouAgentDir } from "./agent-paths.js";
 import { collectProviderApiKeys } from "./live-auth-keys.js";
 import { isLiveTestEnabled } from "./live-test-helpers.js";
 import { getApiKeyForModel, requireApiKey } from "./model-auth.js";
 import { normalizeProviderId, parseModelRef } from "./model-selection.js";
-import { ensureAssistantModelsJson } from "./models-config.js";
+import { ensureZhushouModelsJson } from "./models-config.js";
 import { discoverAuthStorage, discoverModels } from "./pi-model-discovery.js";
-import { buildAssistantMessageWithZeroUsage } from "./stream-message-shared.js";
+import { buildZhushouMessageWithZeroUsage } from "./stream-message-shared.js";
 
 export const LIVE_CACHE_TEST_ENABLED =
-  isLiveTestEnabled() && isTruthyEnvValue(process.env.ASSISTANT_LIVE_CACHE_TEST);
+  isLiveTestEnabled() && isTruthyEnvValue(process.env.ZHUSHOU_LIVE_CACHE_TEST);
 
 const DEFAULT_HEARTBEAT_MS = 20_000;
 const DEFAULT_TIMEOUT_MS = 90_000;
@@ -40,7 +40,7 @@ export async function withLiveCacheHeartbeat<T>(
 ): Promise<T> {
   const heartbeatMs = Math.max(
     1_000,
-    toInt(process.env.ASSISTANT_LIVE_HEARTBEAT_MS, DEFAULT_HEARTBEAT_MS),
+    toInt(process.env.ZHUSHOU_LIVE_HEARTBEAT_MS, DEFAULT_HEARTBEAT_MS),
   );
   const startedAt = Date.now();
   let heartbeatCount = 0;
@@ -70,7 +70,7 @@ export async function completeSimpleWithLiveTimeout<TApi extends Api>(
   progressContext: string,
   timeoutMs = Math.max(
     1_000,
-    toInt(process.env.ASSISTANT_LIVE_MODEL_TIMEOUT_MS, DEFAULT_TIMEOUT_MS),
+    toInt(process.env.ZHUSHOU_LIVE_MODEL_TIMEOUT_MS, DEFAULT_TIMEOUT_MS),
   ),
 ): Promise<AssistantMessage> {
   const controller = new AbortController();
@@ -116,7 +116,7 @@ export function buildStableCachePrefix(tag: string, sections = 160): string {
   return lines.join("\n");
 }
 
-export function extractAssistantText(message: AssistantMessage): string {
+export function extractZhushouText(message: AssistantMessage): string {
   return message.content
     .filter((block) => block.type === "text")
     .map((block) => block.text.trim())
@@ -124,11 +124,11 @@ export function extractAssistantText(message: AssistantMessage): string {
     .join(" ");
 }
 
-export function buildAssistantHistoryTurn(
+export function buildZhushouHistoryTurn(
   text: string,
   model?: Pick<Model<Api>, "api" | "provider" | "id">,
 ): AssistantMessage {
-  return buildAssistantMessageWithZeroUsage({
+  return buildZhushouMessageWithZeroUsage({
     model: {
       api: model?.api ?? "openai-responses",
       provider: model?.provider ?? "openai",
@@ -162,8 +162,8 @@ export async function resolveLiveDirectModel(params: {
   preferredModelIds: readonly string[];
 }): Promise<LiveResolvedModel> {
   const cfg = loadConfig();
-  await ensureAssistantModelsJson(cfg);
-  const agentDir = resolveAssistantAgentDir();
+  await ensureZhushouModelsJson(cfg);
+  const agentDir = resolveZhushouAgentDir();
   const authStorage = discoverAuthStorage(agentDir);
   const models = discoverModels(authStorage, agentDir).getAll();
 

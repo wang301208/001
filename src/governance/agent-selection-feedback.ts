@@ -1,5 +1,5 @@
 import { listAgentIds, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { resolveAgentToolGovernanceSummary } from "./tool-governance-summary.js";
@@ -11,7 +11,7 @@ function formatLimitedList(items: string[], limit = 6): string {
   return `${items.slice(0, limit).join(", ")} (+${items.length - limit} more)`;
 }
 
-function resolveConfiguredAgentIds(cfg: AssistantConfig): string[] {
+function resolveConfiguredAgentIds(cfg: ZhushouConfig): string[] {
   const seen = new Set<string>();
   const result: string[] = [];
   for (const entry of cfg.agents?.list ?? []) {
@@ -30,7 +30,7 @@ function resolveConfiguredAgentIds(cfg: AssistantConfig): string[] {
 }
 
 export function buildUnknownAgentIdMessage(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   rawAgentId: string;
   inspectHint?: string;
 }): string {
@@ -55,7 +55,7 @@ export function buildUnknownAgentIdMessage(params: {
 }
 
 export function buildAgentGovernanceSelectionHint(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
 }): string | undefined {
   const governance = resolveAgentToolGovernanceSummary({

@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { resolveAssistantPackageRoot } from "../../infra/assistant-root.js";
+import { resolveZhushouPackageRoot } from "../../infra/zhushou-root.js";
 import { readPackageName, readPackageVersion } from "../../infra/package-json.js";
 import { normalizePackageTagInput } from "../../infra/package-tag.js";
 import { trimLogTail } from "../../infra/restart-sentinel.js";
@@ -54,14 +54,14 @@ export function parseTimeoutMsOrExit(timeout?: string): number | undefined | nul
   return timeoutMs;
 }
 
-const ASSISTANT_REPO_URL = "https://github.com/assistant/assistant.git";
+const ZHUSHOU_REPO_URL = "https://github.com/wang301208/zhushou.git";
 const MAX_LOG_CHARS = 8000;
 
-export const DEFAULT_PACKAGE_NAME = "assistant";
+export const DEFAULT_PACKAGE_NAME = "zhushou";
 const CORE_PACKAGE_NAMES = new Set([DEFAULT_PACKAGE_NAME]);
 
 export function normalizeTag(value?: string | null): string | null {
-  return normalizePackageTagInput(value, ["assistant", DEFAULT_PACKAGE_NAME]);
+  return normalizePackageTagInput(value, ["zhushou", DEFAULT_PACKAGE_NAME]);
 }
 
 export function normalizeVersionTag(tag: string): string | null {
@@ -114,7 +114,7 @@ export async function isEmptyDir(targetPath: string): Promise<boolean> {
 }
 
 export function resolveGitInstallDir(): string {
-  const override = process.env.ASSISTANT_GIT_DIR?.trim();
+  const override = process.env.ZHUSHOU_GIT_DIR?.trim();
   if (override) {
     return path.resolve(override);
   }
@@ -124,9 +124,9 @@ export function resolveGitInstallDir(): string {
 function resolveDefaultGitDir(): string {
   const home = os.homedir();
   if (home.startsWith("/")) {
-    return path.posix.join(home, "assistant");
+    return path.posix.join(home, "zhushou");
   }
-  return path.join(home, "assistant");
+  return path.join(home, "zhushou");
 }
 
 export function resolveNodeRunner(): string {
@@ -139,7 +139,7 @@ export function resolveNodeRunner(): string {
 
 export async function resolveUpdateRoot(): Promise<string> {
   return (
-    (await resolveAssistantPackageRoot({
+    (await resolveZhushouPackageRoot({
       moduleUrl: import.meta.url,
       argv1: process.argv[1],
       cwd: process.cwd(),
@@ -204,7 +204,7 @@ export async function ensureGitCheckout(params: {
   if (!dirExists) {
     return await runUpdateStep({
       name: "git clone",
-      argv: ["git", "clone", ASSISTANT_REPO_URL, params.dir],
+      argv: ["git", "clone", ZHUSHOU_REPO_URL, params.dir],
       env: gitEnv,
       timeoutMs: params.timeoutMs,
       progress: params.progress,
@@ -215,13 +215,13 @@ export async function ensureGitCheckout(params: {
     const empty = await isEmptyDir(params.dir);
     if (!empty) {
       throw new Error(
-        `ASSISTANT_GIT_DIR points at a non-git directory: ${params.dir}. Set ASSISTANT_GIT_DIR to an empty folder or an assistant checkout.`,
+        `ZHUSHOU_GIT_DIR points at a non-git directory: ${params.dir}. Set ZHUSHOU_GIT_DIR to an empty folder or an zhushou checkout.`,
       );
     }
 
     return await runUpdateStep({
       name: "git clone",
-      argv: ["git", "clone", ASSISTANT_REPO_URL, params.dir],
+      argv: ["git", "clone", ZHUSHOU_REPO_URL, params.dir],
       cwd: params.dir,
       env: gitEnv,
       timeoutMs: params.timeoutMs,
@@ -230,7 +230,7 @@ export async function ensureGitCheckout(params: {
   }
 
   if (!(await isCorePackage(params.dir))) {
-    throw new Error(`ASSISTANT_GIT_DIR does not look like a core checkout: ${params.dir}.`);
+    throw new Error(`ZHUSHOU_GIT_DIR does not look like a core checkout: ${params.dir}.`);
   }
 
   return null;
@@ -259,7 +259,7 @@ export async function resolveGlobalManager(params: {
 }
 
 export async function tryWriteCompletionCache(root: string, jsonMode: boolean): Promise<void> {
-  const binPath = path.join(root, "assistant.mjs");
+  const binPath = path.join(root, "zhushou.mjs");
   if (!(await pathExists(binPath))) {
     return;
   }

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import { applyInlineDirectivesFastLane } from "./directive-handling.fast-lane.js";
 import { parseInlineDirectives } from "./directive-handling.parse.js";
@@ -36,11 +36,11 @@ function createSessionEntry(overrides?: Partial<SessionEntry>): SessionEntry {
   };
 }
 
-function createConfig(): AssistantConfig {
+function createConfig(): ZhushouConfig {
   return {
     commands: { text: true },
     agents: { defaults: {} },
-  } as unknown as AssistantConfig;
+  } as unknown as ZhushouConfig;
 }
 
 describe("mixed inline directives", () => {

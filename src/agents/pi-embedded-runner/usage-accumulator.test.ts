@@ -166,7 +166,7 @@ describe("usage-accumulator", () => {
   });
 
   describe("resolveLastCallUsage", () => {
-    it("prefers raw assistant usage when present", () => {
+    it("prefers raw zhushou usage when present", () => {
       const acc = createUsageAccumulator();
       mergeUsageIntoAccumulator(acc, {
         input: 150,
@@ -196,7 +196,7 @@ describe("usage-accumulator", () => {
       });
     });
 
-    it("falls back to the accumulator when assistant usage is missing", () => {
+    it("falls back to the accumulator when zhushou usage is missing", () => {
       const acc = createUsageAccumulator();
       mergeUsageIntoAccumulator(acc, {
         input: 150,
@@ -215,7 +215,7 @@ describe("usage-accumulator", () => {
       });
     });
 
-    it("falls back when assistant usage exists but is unusable", () => {
+    it("falls back when zhushou usage exists but is unusable", () => {
       const acc = createUsageAccumulator();
       mergeUsageIntoAccumulator(acc, {
         input: 150,

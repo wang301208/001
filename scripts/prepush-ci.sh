@@ -38,8 +38,8 @@ run_linux_ci_mirror() {
   run_step node scripts/run-vitest.mjs run --config test/vitest/vitest.extensions.config.ts --maxWorkers=1
   run_step env CI=true node scripts/run-vitest.mjs run --config test/vitest/vitest.unit.config.ts --maxWorkers=1
 
-  log_step "ASSISTANT_VITEST_MAX_WORKERS=${ASSISTANT_VITEST_MAX_WORKERS:-1} NODE_OPTIONS=${NODE_OPTIONS:---max-old-space-size=6144} pnpm test"
-  ASSISTANT_VITEST_MAX_WORKERS="${ASSISTANT_VITEST_MAX_WORKERS:-1}" \
+  log_step "ZHUSHOU_VITEST_MAX_WORKERS=${ZHUSHOU_VITEST_MAX_WORKERS:-1} NODE_OPTIONS=${NODE_OPTIONS:---max-old-space-size=6144} pnpm test"
+  ZHUSHOU_VITEST_MAX_WORKERS="${ZHUSHOU_VITEST_MAX_WORKERS:-1}" \
   NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=6144}" \
     pnpm test
 }

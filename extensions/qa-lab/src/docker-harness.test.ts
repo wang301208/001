@@ -26,7 +26,7 @@ describe("qa docker harness", () => {
       qaLabPort: 43124,
       gatewayToken: "qa-token",
       providerBaseUrl: "http://host.docker.internal:45123/v1",
-      repoRoot: "/repo/assistant",
+      repoRoot: "/repo/zhushou",
       usePrebuiltImage: true,
       includeQaLabApi: true,
     });
@@ -36,7 +36,7 @@ describe("qa docker harness", () => {
         path.join(outputDir, ".env.example"),
         path.join(outputDir, "README.md"),
         path.join(outputDir, "docker-compose.qa.yml"),
-        path.join(outputDir, "state", "assistant.json"),
+        path.join(outputDir, "state", "zhushou.json"),
         path.join(outputDir, "state", "seed-workspace", "QA_KICKOFF_TASK.md"),
         path.join(outputDir, "state", "seed-workspace", "QA_SCENARIO_PLAN.md"),
         path.join(outputDir, "state", "seed-workspace", "QA_SCENARIOS.md"),
@@ -45,7 +45,7 @@ describe("qa docker harness", () => {
     );
 
     const compose = await readFile(path.join(outputDir, "docker-compose.qa.yml"), "utf8");
-    expect(compose).toContain("image: assistant:qa-local-prebaked");
+    expect(compose).toContain("image: zhushou:qa-local-prebaked");
     expect(compose).toContain("qa-mock-openai:");
     expect(compose).toContain("18889:18789");
     expect(compose).toContain('      - "43124:43123"');
@@ -59,27 +59,27 @@ describe("qa docker harness", () => {
     expect(compose).not.toContain("--control-ui-url");
     expect(compose).not.toContain("--control-ui-token");
     expect(compose).not.toContain("      - --ui-dist-dir");
-    expect(compose).not.toContain(":/opt/assistant-qa-lab-ui:ro");
-    expect(compose).toContain(":/opt/assistant-repo:ro");
-    expect(compose).toContain("./state:/opt/assistant-scaffold:ro");
+    expect(compose).not.toContain(":/opt/zhushou-qa-lab-ui:ro");
+    expect(compose).toContain(":/opt/zhushou-repo:ro");
+    expect(compose).toContain("./state:/opt/zhushou-scaffold:ro");
     expect(compose).toContain(
-      "cp -R /opt/assistant-scaffold/seed-workspace/. /tmp/assistant/workspace/",
+      "cp -R /opt/zhushou-scaffold/seed-workspace/. /tmp/zhushou/workspace/",
     );
-    expect(compose).toContain("ASSISTANT_CONFIG_PATH: /tmp/assistant/assistant.json");
-    expect(compose).toContain("ASSISTANT_STATE_DIR: /tmp/assistant/state");
-    expect(compose).toContain('ASSISTANT_NO_RESPAWN: "1"');
+    expect(compose).toContain("ZHUSHOU_CONFIG_PATH: /tmp/wang301208/zhushou.json");
+    expect(compose).toContain("ZHUSHOU_STATE_DIR: /tmp/zhushou/state");
+    expect(compose).toContain('ZHUSHOU_NO_RESPAWN: "1"');
 
     const envExample = await readFile(path.join(outputDir, ".env.example"), "utf8");
-    expect(envExample).toContain("ASSISTANT_GATEWAY_TOKEN=qa-token");
+    expect(envExample).toContain("ZHUSHOU_GATEWAY_TOKEN=qa-token");
     expect(envExample).toContain("QA_BUS_BASE_URL=http://qa-lab:43123");
     expect(envExample).toContain("QA_PROVIDER_BASE_URL=http://host.docker.internal:45123/v1");
     expect(envExample).toContain("QA_LAB_URL=http://127.0.0.1:43124");
 
-    const config = await readFile(path.join(outputDir, "state", "assistant.json"), "utf8");
+    const config = await readFile(path.join(outputDir, "state", "zhushou.json"), "utf8");
     expect(config).toContain('"allowInsecureAuth": true');
     expect(config).toContain('"enabled": false');
     expect(config).toContain("C-3PO QA");
-    expect(config).toContain('"/tmp/assistant/workspace"');
+    expect(config).toContain('"/tmp/zhushou/workspace"');
 
     const kickoff = await readFile(
       path.join(outputDir, "state", "seed-workspace", "QA_KICKOFF_TASK.md"),
@@ -102,15 +102,15 @@ describe("qa docker harness", () => {
 
     const readme = await readFile(path.join(outputDir, "README.md"), "utf8");
     expect(readme).toContain("in-process restarts inside Docker");
-    expect(readme).toContain("assistant --tui");
+    expect(readme).toContain("zhushou --tui");
   });
 
   it("builds the reusable QA image with bundled QA extensions", async () => {
     const calls: string[] = [];
     const result = await buildQaDockerHarnessImage(
       {
-        repoRoot: "/repo/assistant",
-        imageName: "assistant:qa-local-prebaked",
+        repoRoot: "/repo/zhushou",
+        imageName: "zhushou:qa-local-prebaked",
       },
       {
         async runCommand(command, args, cwd) {
@@ -120,10 +120,10 @@ describe("qa docker harness", () => {
       },
     );
 
-    expect(result.imageName).toBe("assistant:qa-local-prebaked");
+    expect(result.imageName).toBe("zhushou:qa-local-prebaked");
     expect(calls).toEqual([
       expect.stringContaining(
-        "docker build -t assistant:qa-local-prebaked --build-arg ASSISTANT_EXTENSIONS=qa-channel qa-lab -f Dockerfile . @/repo/assistant",
+        "docker build -t zhushou:qa-local-prebaked --build-arg ZHUSHOU_EXTENSIONS=qa-channel qa-lab -f Dockerfile . @/repo/zhushou",
       ),
     ]);
   });

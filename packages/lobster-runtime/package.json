@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/lobster-runtime",
+  "name": "@zhushou/lobster-runtime",
   "version": "0.0.0-private",
   "private": true,
   "type": "module",

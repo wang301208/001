@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { fetchGraphJson, resolveGraphToken } from "./graph.js";
 
 type GraphUserProfile = {
@@ -11,7 +11,7 @@ type GraphUserProfile = {
 };
 
 export type GetMemberInfoMSTeamsParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   userId: string;
 };
 

@@ -3,7 +3,7 @@ import path from "node:path";
 import { resolveAgentContextLimits } from "../../agents/agent-scope.js";
 import { resolveCronStyleNow } from "../../agents/current-time.js";
 import { resolveUserTimezone } from "../../agents/date-time.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { openBoundaryFile } from "../../infra/boundary-file-read.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 
@@ -63,7 +63,7 @@ function formatDateStamp(nowMs: number, timezone: string): string {
  * daily memory files instead of guessing based on training cutoff.
  */
 export type PostCompactionContextOptions = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentId?: string;
   nowMs?: number;
 };

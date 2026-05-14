@@ -1,4 +1,4 @@
-import type { ProviderRequestTransportOverrides } from "assistant/plugin-sdk/provider-http";
+import type { ProviderRequestTransportOverrides } from "zhushou/plugin-sdk/provider-http";
 import { describe, expect, it } from "vitest";
 import {
   isGoogleGenerativeAiApi,

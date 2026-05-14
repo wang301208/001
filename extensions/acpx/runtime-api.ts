@@ -1,11 +1,11 @@
-export type { AcpRuntimeErrorCode } from "assistant/plugin-sdk/acp-runtime";
+export type { AcpRuntimeErrorCode } from "zhushou/plugin-sdk/acp-runtime";
 export {
   AcpRuntimeError,
   getAcpRuntimeBackend,
   tryDispatchAcpReplyHook,
   registerAcpRuntimeBackend,
   unregisterAcpRuntimeBackend,
-} from "assistant/plugin-sdk/acp-runtime";
+} from "zhushou/plugin-sdk/acp-runtime";
 export type {
   AcpRuntime,
   AcpRuntimeCapabilities,
@@ -17,30 +17,30 @@ export type {
   AcpRuntimeTurnAttachment,
   AcpRuntimeTurnInput,
   AcpSessionUpdateTag,
-} from "assistant/plugin-sdk/acp-runtime";
+} from "zhushou/plugin-sdk/acp-runtime";
 export type {
-  AssistantPluginApi,
-  AssistantPluginConfigSchema,
-  AssistantPluginService,
-  AssistantPluginServiceContext,
+  ZhushouPluginApi,
+  ZhushouPluginConfigSchema,
+  ZhushouPluginService,
+  ZhushouPluginServiceContext,
   PluginLogger,
-} from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 export type {
   PluginHookReplyDispatchContext,
   PluginHookReplyDispatchEvent,
   PluginHookReplyDispatchResult,
-} from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 export type {
   WindowsSpawnProgram,
   WindowsSpawnProgramCandidate,
   WindowsSpawnResolution,
-} from "assistant/plugin-sdk/windows-spawn";
+} from "zhushou/plugin-sdk/windows-spawn";
 export {
   applyWindowsSpawnProgramPolicy,
   materializeWindowsSpawnProgram,
   resolveWindowsSpawnProgramCandidate,
-} from "assistant/plugin-sdk/windows-spawn";
+} from "zhushou/plugin-sdk/windows-spawn";
 export {
   listKnownProviderAuthEnvVarNames,
   omitEnvKeysCaseInsensitive,
-} from "assistant/plugin-sdk/provider-env-vars";
+} from "zhushou/plugin-sdk/provider-env-vars";

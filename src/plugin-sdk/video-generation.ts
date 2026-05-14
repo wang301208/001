@@ -4,7 +4,7 @@
 // emitted declaration surface stays stable for package-boundary consumers.
 
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type {
   GeneratedVideoAsset as CoreGeneratedVideoAsset,
   VideoGenerationAssetRole as CoreVideoGenerationAssetRole,
@@ -62,7 +62,7 @@ export type VideoGenerationSourceAsset = {
 };
 
 export type VideoGenerationProviderConfiguredContext = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentDir?: string;
 };
 
@@ -70,7 +70,7 @@ export type VideoGenerationRequest = {
   provider: string;
   model: string;
   prompt: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentDir?: string;
   authStore?: AuthProfileStore;
   timeoutMs?: number;

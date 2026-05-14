@@ -1,8 +1,8 @@
-import type { SignalSender } from "@assistant/signal/contract-api.js";
+import type { SignalSender } from "@zhushou/signal/contract-api.js";
 import { loadBundledPluginContractApiSync } from "../../../src/test-utils/bundled-plugin-public-surface.js";
 
 type SignalContractApiSurface = Pick<
-  typeof import("@assistant/signal/contract-api.js"),
+  typeof import("@zhushou/signal/contract-api.js"),
   "isSignalSenderAllowed"
 >;
 

@@ -1,0 +1,20 @@
+groups:
+  - name: zhushou.rules
+    rules:
+      - alert: ZhushouGatewayDown
+        expr: up{job="zhushou-gateway"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Zhushou gateway is down
+          description: Prometheus cannot scrape the zhushou gateway for more than two minutes.
+
+      - alert: ZhushouHealthProbeDown
+        expr: up{job="zhushou-health"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Zhushou health endpoint is unavailable
+          description: The /healthz endpoint is not responding through the service endpoint.

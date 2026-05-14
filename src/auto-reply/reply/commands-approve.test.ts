@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { resolveApprovalApprovers } from "../../plugin-sdk/approval-approvers.js";
 import {
   createApproverRestrictedNativeApprovalAdapter,
@@ -34,7 +34,7 @@ function normalizeDiscordDirectApproverId(value: string | number): string | unde
   return normalized || undefined;
 }
 
-function getDiscordExecApprovalApproversForTests(params: { cfg: AssistantConfig }): string[] {
+function getDiscordExecApprovalApproversForTests(params: { cfg: ZhushouConfig }): string[] {
   const discord = params.cfg.channels?.discord;
   return resolveApprovalApprovers({
     explicit: discord?.execApprovals?.approvers,
@@ -100,6 +100,20 @@ const slackApproveTestPlugin: ChannelPlugin = {
   }),
 };
 
+const whatsappApproveTestPlugin: ChannelPlugin = {
+  ...createChannelTestPluginBase({
+    id: "whatsapp",
+    label: "WhatsApp",
+    docsPath: "/channels/whatsapp",
+    capabilities: {
+      chatTypes: ["direct", "group"],
+      reactions: true,
+      media: true,
+      nativeCommands: true,
+    },
+  }),
+};
+
 const signalApproveTestPlugin: ChannelPlugin = {
   ...createChannelTestPluginBase({
     id: "signal",
@@ -141,7 +155,7 @@ type TelegramTestSectionConfig = TelegramTestAccountConfig & {
   accounts?: Record<string, TelegramTestAccountConfig>;
 };
 
-function listConfiguredTelegramAccountIds(cfg: AssistantConfig): string[] {
+function listConfiguredTelegramAccountIds(cfg: ZhushouConfig): string[] {
   const channel = cfg.channels?.telegram as TelegramTestSectionConfig | undefined;
   const accountIds = Object.keys(channel?.accounts ?? {});
   if (accountIds.length > 0) {
@@ -155,7 +169,7 @@ function listConfiguredTelegramAccountIds(cfg: AssistantConfig): string[] {
 }
 
 function resolveTelegramTestAccount(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId?: string | null,
 ): TelegramTestAccountConfig {
   const resolvedAccountId = normalizeAccountId(accountId);
@@ -204,7 +218,7 @@ function normalizeTelegramDirectApproverId(value: string | number): string | und
 }
 
 function getTelegramExecApprovalApprovers(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): string[] {
   const account = resolveTelegramTestAccount(params.cfg, params.accountId);
@@ -216,7 +230,7 @@ function getTelegramExecApprovalApprovers(params: {
 }
 
 function isTelegramExecApprovalTargetRecipient(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   senderId?: string | null;
   accountId?: string | null;
 }): boolean {
@@ -243,7 +257,7 @@ function isTelegramExecApprovalTargetRecipient(params: {
 }
 
 function isTelegramExecApprovalAuthorizedSender(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   senderId?: string | null;
 }): boolean {
@@ -258,7 +272,7 @@ function isTelegramExecApprovalAuthorizedSender(params: {
 }
 
 function isTelegramExecApprovalClientEnabled(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): boolean {
   const config = resolveTelegramTestAccount(params.cfg, params.accountId).execApprovals;
@@ -266,7 +280,7 @@ function isTelegramExecApprovalClientEnabled(params: {
 }
 
 function resolveTelegramExecApprovalTarget(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): "dm" | "channel" | "both" {
   return resolveTelegramTestAccount(params.cfg, params.accountId).execApprovals?.target ?? "dm";
@@ -307,9 +321,9 @@ const telegramApproveTestPlugin: ChannelPlugin = {
     },
     config: {
       listAccountIds: listConfiguredTelegramAccountIds,
-      resolveAccount: (cfg: AssistantConfig, accountId?: string | null) =>
+      resolveAccount: (cfg: ZhushouConfig, accountId?: string | null) =>
         resolveTelegramTestAccount(cfg, accountId),
-      defaultAccountId: (cfg: AssistantConfig) =>
+      defaultAccountId: (cfg: ZhushouConfig) =>
         (cfg.channels?.telegram as TelegramTestSectionConfig | undefined)?.defaultAccount ??
         DEFAULT_ACCOUNT_ID,
     },
@@ -346,6 +360,7 @@ function setApprovePluginRegistry(): void {
     createTestRegistry([
       { pluginId: "discord", plugin: discordApproveTestPlugin, source: "test" },
       { pluginId: "slack", plugin: slackApproveTestPlugin, source: "test" },
+      { pluginId: "whatsapp", plugin: whatsappApproveTestPlugin, source: "test" },
       { pluginId: "signal", plugin: signalApproveTestPlugin, source: "test" },
       { pluginId: "telegram", plugin: telegramApproveTestPlugin, source: "test" },
     ]),
@@ -354,7 +369,7 @@ function setApprovePluginRegistry(): void {
 
 function buildApproveParams(
   commandBodyNormalized: string,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   ctxOverrides?: {
     Provider?: string;
     Surface?: string;
@@ -396,7 +411,7 @@ describe("handleApproveCommand", () => {
       approvers: string[];
       target: "dm";
     } | null = { enabled: true, approvers: ["123"], target: "dm" },
-  ): AssistantConfig {
+  ): ZhushouConfig {
     return {
       commands: { text: true },
       channels: {
@@ -405,7 +420,7 @@ describe("handleApproveCommand", () => {
           ...(execApprovals ? { execApprovals } : {}),
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
   }
 
   function createDiscordApproveCfg(
@@ -414,7 +429,7 @@ describe("handleApproveCommand", () => {
       approvers: string[];
       target: "dm" | "channel" | "both";
     } | null = { enabled: true, approvers: ["123"], target: "channel" },
-  ): AssistantConfig {
+  ): ZhushouConfig {
     return {
       commands: { text: true },
       channels: {
@@ -423,7 +438,7 @@ describe("handleApproveCommand", () => {
           ...(execApprovals ? { execApprovals } : {}),
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
   }
 
   it("rejects invalid usage", async () => {
@@ -431,7 +446,7 @@ describe("handleApproveCommand", () => {
       buildApproveParams("/approve", {
         commands: { text: true },
         channels: { whatsapp: { allowFrom: ["*"] } },
-      } as AssistantConfig),
+      } as ZhushouConfig),
       true,
     );
     expect(result?.shouldContinue).toBe(false);
@@ -446,7 +461,7 @@ describe("handleApproveCommand", () => {
         {
           commands: { text: true },
           channels: { whatsapp: { allowFrom: ["*"] } },
-        } as AssistantConfig,
+        } as ZhushouConfig,
         { SenderId: "123" },
       ),
       true,
@@ -470,7 +485,7 @@ describe("handleApproveCommand", () => {
         {
           commands: { text: true },
           channels: { slack: { allowFrom: ["*"] } },
-        } as AssistantConfig,
+        } as ZhushouConfig,
         {
           Provider: "slack",
           Surface: "slack",
@@ -536,7 +551,7 @@ describe("handleApproveCommand", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       {
         Provider: "telegram",
         Surface: "telegram",
@@ -567,7 +582,7 @@ describe("handleApproveCommand", () => {
             allowFrom: ["+15551230000"],
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       {
         Provider: "signal",
         Surface: "signal",
@@ -593,7 +608,7 @@ describe("handleApproveCommand", () => {
       "/approve abc12345 allow-once",
       {
         commands: { text: true },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       {
         Provider: "webchat",
         Surface: "webchat",
@@ -629,7 +644,7 @@ describe("handleApproveCommand", () => {
       {
         commands: { text: true },
         channels: { slack: { allowFrom: ["*"] } },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       {
         Provider: "slack",
         Surface: "slack",
@@ -654,7 +669,7 @@ describe("handleApproveCommand", () => {
             allowFrom: [],
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       {
         Provider: "signal",
         Surface: "signal",
@@ -680,7 +695,7 @@ describe("handleApproveCommand", () => {
             allowFrom: [],
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       {
         Provider: "signal",
         Surface: "signal",
@@ -717,7 +732,7 @@ describe("handleApproveCommand", () => {
             allowFrom: ["*"],
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       {
         Provider: "telegram",
         Surface: "telegram",
@@ -883,7 +898,7 @@ describe("handleApproveCommand", () => {
         {
           commands: { text: true },
           channels: { matrix: { allowFrom: ["*"] } },
-        } as AssistantConfig,
+        } as ZhushouConfig,
         {
           Provider: "matrix",
           Surface: "matrix",
@@ -1015,7 +1030,7 @@ describe("handleApproveCommand", () => {
   it("enforces gateway approval scopes", async () => {
     const cfg = {
       commands: { text: true },
-    } as AssistantConfig;
+    } as ZhushouConfig;
     for (const testCase of [
       {
         scopes: ["operator.write"],

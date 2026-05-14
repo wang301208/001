@@ -140,7 +140,7 @@ describe("export html security hardening", () => {
           role: "assistant",
           model: attack,
           provider: "p",
-          content: [{ type: "text", text: "assistant" }],
+          content: [{ type: "text", text: "zhushou" }],
         },
       },
       {

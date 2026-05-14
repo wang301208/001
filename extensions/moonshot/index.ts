@@ -1,6 +1,6 @@
-import { defineSingleProviderPluginEntry } from "assistant/plugin-sdk/provider-entry";
-import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "assistant/plugin-sdk/provider-model-shared";
-import { MOONSHOT_THINKING_STREAM_HOOKS } from "assistant/plugin-sdk/provider-stream-family";
+import { defineSingleProviderPluginEntry } from "zhushou/plugin-sdk/provider-entry";
+import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "zhushou/plugin-sdk/provider-model-shared";
+import { MOONSHOT_THINKING_STREAM_HOOKS } from "zhushou/plugin-sdk/provider-stream-family";
 import { applyMoonshotNativeStreamingUsageCompat } from "./api.js";
 import { moonshotMediaUnderstandingProvider } from "./media-understanding-provider.js";
 import {

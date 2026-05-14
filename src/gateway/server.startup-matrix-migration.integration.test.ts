@@ -20,10 +20,10 @@ installGatewayTestHooks({ scope: "suite" });
 
 describe("gateway startup channel maintenance wiring", () => {
   it("runs startup channel maintenance with the resolved startup config", async () => {
-    const previousBundledPluginsDir = process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
-    const previousSkipChannels = process.env.ASSISTANT_SKIP_CHANNELS;
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = path.resolve(process.cwd(), "extensions");
-    process.env.ASSISTANT_SKIP_CHANNELS = "0";
+    const previousBundledPluginsDir = process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
+    const previousSkipChannels = process.env.ZHUSHOU_SKIP_CHANNELS;
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = path.resolve(process.cwd(), "extensions");
+    process.env.ZHUSHOU_SKIP_CHANNELS = "0";
     clearPluginDiscoveryCache();
     clearPluginManifestRegistryCache();
     runChannelPluginStartupMaintenanceMock.mockClear();
@@ -59,14 +59,14 @@ describe("gateway startup channel maintenance wiring", () => {
     } finally {
       await server?.close();
       if (previousBundledPluginsDir === undefined) {
-        delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
       } else {
-        process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+        process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
       }
       if (previousSkipChannels === undefined) {
-        delete process.env.ASSISTANT_SKIP_CHANNELS;
+        delete process.env.ZHUSHOU_SKIP_CHANNELS;
       } else {
-        process.env.ASSISTANT_SKIP_CHANNELS = previousSkipChannels;
+        process.env.ZHUSHOU_SKIP_CHANNELS = previousSkipChannels;
       }
       clearPluginDiscoveryCache();
       clearPluginManifestRegistryCache();

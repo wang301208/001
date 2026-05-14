@@ -1,6 +1,6 @@
 import { loadConfig } from "../../config/config.js";
 import { extractDeliveryInfo } from "../../config/sessions.js";
-import { resolveAssistantPackageRoot } from "../../infra/assistant-root.js";
+import { resolveZhushouPackageRoot } from "../../infra/zhushou-root.js";
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
@@ -43,7 +43,7 @@ export const updateHandlers: GatewayRequestHandlers = {
       const config = loadConfig();
       const configChannel = normalizeUpdateChannel(config.update?.channel);
       const root =
-        (await resolveAssistantPackageRoot({
+        (await resolveZhushouPackageRoot({
           moduleUrl: import.meta.url,
           argv1: process.argv[1],
           cwd: process.cwd(),

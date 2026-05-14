@@ -1,6 +1,6 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { ChannelAgentTool } from "../../channels/plugins/types.core.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   getDefaultLocalRoots as getDefaultLocalRootsImpl,
   loadWebMedia as loadWebMediaImpl,
@@ -55,7 +55,7 @@ type WebChannelHeavyRuntimeModule = {
     body: string,
     options: {
       verbose: boolean;
-      cfg?: AssistantConfig;
+      cfg?: ZhushouConfig;
       mediaUrl?: string;
       mediaAccess?: {
         localRoots?: readonly string[];
@@ -70,7 +70,7 @@ type WebChannelHeavyRuntimeModule = {
   sendPollWhatsApp: (
     to: string,
     poll: PollInput,
-    options: { verbose: boolean; accountId?: string; cfg?: AssistantConfig },
+    options: { verbose: boolean; accountId?: string; cfg?: ZhushouConfig },
   ) => Promise<{ messageId: string; toJid: string }>;
   sendReactionWhatsApp: (
     chatJid: string,
@@ -90,7 +90,7 @@ type WebChannelHeavyRuntimeModule = {
   ) => Promise<unknown>;
   handleWhatsAppAction: (
     params: Record<string, unknown>,
-    cfg: AssistantConfig,
+    cfg: ZhushouConfig,
   ) => Promise<AgentToolResult<unknown>>;
   monitorWebChannel: (...args: unknown[]) => Promise<unknown>;
   monitorWebInbox: (...args: unknown[]) => Promise<unknown>;

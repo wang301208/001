@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { parseInlineDirectives } from "./directive-handling.parse.js";
 import {
   reserveSkillCommandNames,
   resolveConfiguredDirectiveAliases,
 } from "./get-reply-directive-aliases.js";
 
-function configWithModelAlias(alias: string): AssistantConfig {
+function configWithModelAlias(alias: string): ZhushouConfig {
   return {
     agents: {
       defaults: {
@@ -15,7 +15,7 @@ function configWithModelAlias(alias: string): AssistantConfig {
         },
       },
     },
-  } as unknown as AssistantConfig;
+  } as unknown as ZhushouConfig;
 }
 
 describe("reply directive aliases", () => {

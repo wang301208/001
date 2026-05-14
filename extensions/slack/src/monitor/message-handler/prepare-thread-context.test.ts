@@ -1,6 +1,6 @@
 import type { App } from "@slack/bolt";
-import { resolveEnvelopeFormatOptions } from "assistant/plugin-sdk/channel-inbound";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { resolveEnvelopeFormatOptions } from "zhushou/plugin-sdk/channel-inbound";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SlackMessageEvent } from "../../types.js";
 import { resolveSlackThreadContextData } from "./prepare-thread-context.js";
@@ -11,7 +11,7 @@ import {
 } from "./prepare.test-helpers.js";
 
 describe("resolveSlackThreadContextData", () => {
-  const storeFixture = createSlackSessionStoreFixture("assistant-slack-thread-context-");
+  const storeFixture = createSlackSessionStoreFixture("zhushou-slack-thread-context-");
 
   beforeAll(() => {
     storeFixture.setup();
@@ -25,7 +25,7 @@ describe("resolveSlackThreadContextData", () => {
     return createInboundSlackTestContext({
       cfg: {
         channels: { slack: { enabled: true, replyToMode: "all", groupPolicy: "open" } },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       appClient: { conversations: { replies: params.replies } } as App["client"],
       defaultRequireMention: false,
       replyToMode: "all",
@@ -73,7 +73,7 @@ describe("resolveSlackThreadContextData", () => {
       allowFromLower: params.allowFromLower,
       allowNameMatching: params.allowNameMatching,
       contextVisibilityMode: "allowlist",
-      envelopeOptions: resolveEnvelopeFormatOptions({} as AssistantConfig),
+      envelopeOptions: resolveEnvelopeFormatOptions({} as ZhushouConfig),
       effectiveDirectMedia: null,
     });
 
@@ -84,7 +84,7 @@ describe("resolveSlackThreadContextData", () => {
     const { replies, result } = await resolveAllowlistedThreadContext({
       repliesMessages: [
         { text: "starter secret", user: "U2", ts: "100.000" },
-        { text: "assistant reply", bot_id: "B1", ts: "100.500" },
+        { text: "zhushou reply", bot_id: "B1", ts: "100.500" },
         { text: "blocked follow-up", user: "U2", ts: "100.700" },
         { text: "allowed follow-up", user: "U1", ts: "100.800" },
         { text: "current message", user: "U1", ts: "101.000" },
@@ -100,7 +100,7 @@ describe("resolveSlackThreadContextData", () => {
 
     expect(result.threadStarterBody).toBeUndefined();
     expect(result.threadLabel).toBe("Slack thread #general");
-    expect(result.threadHistoryBody).toContain("assistant reply");
+    expect(result.threadHistoryBody).toContain("zhushou reply");
     expect(result.threadHistoryBody).toContain("allowed follow-up");
     expect(result.threadHistoryBody).not.toContain("starter secret");
     expect(result.threadHistoryBody).not.toContain("blocked follow-up");

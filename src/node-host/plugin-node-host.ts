@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
 
 let pluginRegistryLoaderModulePromise:
@@ -11,7 +11,7 @@ async function loadPluginRegistryLoaderModule() {
 }
 
 export async function ensureNodeHostPluginRegistry(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
 }): Promise<void> {
   (await loadPluginRegistryLoaderModule()).ensurePluginRegistryLoaded({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { withTempDir } from "../test-helpers/temp-dir.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import { runCapability } from "./runner.js";
@@ -10,8 +10,8 @@ describe("runCapability video provider wiring", () => {
     let seenBaseUrl: string | undefined;
     let seenHeaders: Record<string, string> | undefined;
 
-    await withTempDir({ prefix: "assistant-video-auth-" }, async (isolatedAgentDir) => {
-      await withVideoFixture("assistant-video-merge", async ({ ctx, media, cache }) => {
+    await withTempDir({ prefix: "zhushou-video-auth-" }, async (isolatedAgentDir) => {
+      await withVideoFixture("zhushou-video-merge", async ({ ctx, media, cache }) => {
         const cfg = {
           models: {
             providers: {
@@ -41,7 +41,7 @@ describe("runCapability video provider wiring", () => {
               },
             },
           },
-        } as unknown as AssistantConfig;
+        } as unknown as ZhushouConfig;
 
         const result = await runCapability({
           capability: "video",
@@ -79,17 +79,17 @@ describe("runCapability video provider wiring", () => {
   });
 
   it("auto-selects moonshot for video when google is unavailable", async () => {
-    await withTempDir({ prefix: "assistant-video-agent-" }, async (isolatedAgentDir) => {
+    await withTempDir({ prefix: "zhushou-video-agent-" }, async (isolatedAgentDir) => {
       await withEnvAsync(
         {
           GEMINI_API_KEY: undefined,
           GOOGLE_API_KEY: undefined,
           MOONSHOT_API_KEY: undefined,
-          ASSISTANT_AGENT_DIR: isolatedAgentDir,
+          ZHUSHOU_AGENT_DIR: isolatedAgentDir,
           PI_CODING_AGENT_DIR: isolatedAgentDir,
         },
         async () => {
-          await withVideoFixture("assistant-video-auto-moonshot", async ({ ctx, media, cache }) => {
+          await withVideoFixture("zhushou-video-auto-moonshot", async ({ ctx, media, cache }) => {
             const cfg = {
               models: {
                 providers: {
@@ -107,7 +107,7 @@ describe("runCapability video provider wiring", () => {
                   },
                 },
               },
-            } as unknown as AssistantConfig;
+            } as unknown as ZhushouConfig;
 
             const result = await runCapability({
               capability: "video",

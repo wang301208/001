@@ -1,4 +1,4 @@
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
 import { describe, expect, it, vi } from "vitest";
 import { createTestDraftStream } from "./draft-stream.test-helpers.js";
 import {

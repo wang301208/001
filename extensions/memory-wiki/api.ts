@@ -2,8 +2,8 @@ export {
   buildPluginConfigSchema,
   definePluginEntry,
   type AnyAgentTool,
-  type AssistantConfig,
-  type AssistantPluginApi,
-  type AssistantPluginConfigSchema,
-} from "assistant/plugin-sdk/plugin-entry";
-export { z } from "assistant/plugin-sdk/zod";
+  type ZhushouConfig,
+  type ZhushouPluginApi,
+  type ZhushouPluginConfigSchema,
+} from "zhushou/plugin-sdk/plugin-entry";
+export { z } from "zhushou/plugin-sdk/zod";

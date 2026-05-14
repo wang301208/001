@@ -17,7 +17,7 @@ describe("extractPayloadText", () => {
         subtype: "init",
       }),
       JSON.stringify({
-        type: "assistant",
+        type: "zhushou",
         message: {
           content: [{ type: "text", text: "CLI backend OK ABC123." }],
         },

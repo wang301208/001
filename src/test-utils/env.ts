@@ -34,10 +34,10 @@ const PATH_RESOLUTION_ENV_KEYS = [
   "USERPROFILE",
   "HOMEDRIVE",
   "HOMEPATH",
-  "ASSISTANT_HOME",
-  "ASSISTANT_STATE_DIR",
-  "ASSISTANT_BUNDLED_PLUGINS_DIR",
-  "ASSISTANT_DISABLE_BUNDLED_PLUGINS",
+  "ZHUSHOU_HOME",
+  "ZHUSHOU_STATE_DIR",
+  "ZHUSHOU_BUNDLED_PLUGINS_DIR",
+  "ZHUSHOU_DISABLE_BUNDLED_PLUGINS",
 ] as const;
 
 function resolveWindowsHomeParts(homeDir: string): { homeDrive?: string; homePath?: string } {
@@ -63,10 +63,10 @@ export function createPathResolutionEnv(
     ...process.env,
     HOME: resolvedHome,
     USERPROFILE: resolvedHome,
-    ASSISTANT_HOME: undefined,
-    ASSISTANT_STATE_DIR: undefined,
-    ASSISTANT_BUNDLED_PLUGINS_DIR: undefined,
-    ASSISTANT_DISABLE_BUNDLED_PLUGINS: undefined,
+    ZHUSHOU_HOME: undefined,
+    ZHUSHOU_STATE_DIR: undefined,
+    ZHUSHOU_BUNDLED_PLUGINS_DIR: undefined,
+    ZHUSHOU_DISABLE_BUNDLED_PLUGINS: undefined,
   };
 
   const windowsHome = resolveWindowsHomeParts(resolvedHome);

@@ -5,7 +5,7 @@ import type {
   ReplyDispatcher,
 } from "../auto-reply/reply/reply-dispatcher.types.js";
 import type { FinalizedMsgContext } from "../auto-reply/templating.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { TtsAutoMode } from "../config/types.tts.js";
 import {
   PLUGIN_PROMPT_MUTATION_RESULT_FIELDS,
@@ -176,8 +176,8 @@ export type PluginHookLlmOutputEvent = {
   sessionId: string;
   provider: string;
   model: string;
-  assistantTexts: string[];
-  lastAssistant?: unknown;
+  zhushouTexts: string[];
+  lastZhushou?: unknown;
   usage?: {
     input?: number;
     output?: number;
@@ -259,7 +259,7 @@ export type PluginHookReplyDispatchEvent = {
 };
 
 export type PluginHookReplyDispatchContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   dispatcher: ReplyDispatcher;
   abortSignal?: AbortSignal;
   onReplyStart?: () => Promise<void> | void;

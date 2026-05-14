@@ -121,7 +121,7 @@ describe("qa suite runtime agent tools helpers", () => {
           gateway: {
             runtimeEnv: {
               PATH: "/usr/bin",
-              ASSISTANT_KEY: "1",
+              ZHUSHOU_KEY: "1",
               EMPTY: undefined,
             },
           },
@@ -139,7 +139,7 @@ describe("qa suite runtime agent tools helpers", () => {
       stderr: "pipe",
       env: {
         PATH: "/usr/bin",
-        ASSISTANT_KEY: "1",
+        ZHUSHOU_KEY: "1",
       },
     });
     expect(callToolMock).toHaveBeenCalledWith({

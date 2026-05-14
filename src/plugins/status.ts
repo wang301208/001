@@ -1,7 +1,7 @@
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { loadConfig } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
-import { normalizeAssistantVersionBase } from "../config/version.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
+import { normalizeZhushouVersionBase } from "../config/version.js";
 import { listImportedBundledPluginFacadeIds } from "../plugin-sdk/facade-runtime.js";
 import { resolveCompatibilityHostVersion } from "../version.js";
 import { inspectBundleLspRuntimeSupport } from "./bundle-lsp.js";
@@ -11,7 +11,7 @@ import {
   withBundledPluginEnablementCompat,
 } from "./bundled-compat.js";
 import { normalizePluginsConfig } from "./config-state.js";
-import { loadAssistantPlugins } from "./loader.js";
+import { loadZhushouPlugins } from "./loader.js";
 import type { PluginDiagnostic } from "./manifest-types.js";
 import { resolveBundledProviderCompatPluginIds } from "./providers.js";
 import type { PluginRegistry } from "./registry.js";
@@ -139,14 +139,14 @@ function resolveReportedPluginVersion(
     return plugin.version;
   }
   return (
-    normalizeAssistantVersionBase(resolveCompatibilityHostVersion(env)) ??
-    normalizeAssistantVersionBase(plugin.version) ??
+    normalizeZhushouVersionBase(resolveCompatibilityHostVersion(env)) ??
+    normalizeZhushouVersionBase(plugin.version) ??
     plugin.version
   );
 }
 
 type PluginReportParams = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   /** Use an explicit env when plugin roots should resolve independently from process.env. */
   env?: NodeJS.ProcessEnv;
@@ -193,7 +193,7 @@ function buildPluginReport(
   });
 
   const registry = loadModules
-    ? loadAssistantPlugins(
+    ? loadZhushouPlugins(
         buildPluginRuntimeLoadOptions(context, {
           config: runtimeCompatConfig,
           activationSourceConfig: rawConfig,
@@ -295,7 +295,7 @@ function deriveInspectShape(params: {
 
 export function buildPluginInspectReport(params: {
   id: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   report?: PluginStatusReport;
@@ -433,7 +433,7 @@ export function buildPluginInspectReport(params: {
 }
 
 export function buildAllPluginInspectReports(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   report?: PluginStatusReport;
@@ -459,7 +459,7 @@ export function buildAllPluginInspectReports(params?: {
 }
 
 export function buildPluginCompatibilityWarnings(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   report?: PluginStatusReport;
@@ -468,7 +468,7 @@ export function buildPluginCompatibilityWarnings(params?: {
 }
 
 export function buildPluginCompatibilityNotices(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   report?: PluginStatusReport;

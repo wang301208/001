@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import * as runtimeEnvModule from "assistant/plugin-sdk/runtime-env";
-import { withEnv } from "assistant/plugin-sdk/testing";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import * as runtimeEnvModule from "zhushou/plugin-sdk/runtime-env";
+import { withEnv } from "zhushou/plugin-sdk/testing";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createTelegramActionGate,
@@ -27,7 +27,7 @@ function expectNoMissingDefaultWarning() {
 
 function resolveAccountWithEnv(
   env: Record<string, string>,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId?: string,
 ) {
   return withEnv(env, () => resolveTelegramAccount({ cfg, ...(accountId ? { accountId } : {}) }));
@@ -108,8 +108,8 @@ describe("resolveTelegramAccount", () => {
   });
 
   it("formats debug logs with inspect-style output when debug env is enabled", () => {
-    withEnv({ TELEGRAM_BOT_TOKEN: "", ASSISTANT_DEBUG_TELEGRAM_ACCOUNTS: "1" }, () => {
-      const cfg: AssistantConfig = {
+    withEnv({ TELEGRAM_BOT_TOKEN: "", ZHUSHOU_DEBUG_TELEGRAM_ACCOUNTS: "1" }, () => {
+      const cfg: ZhushouConfig = {
         channels: {
           telegram: { accounts: { work: { botToken: "tok-work" } } },
         },
@@ -136,7 +136,7 @@ describe("resolveDefaultTelegramAccountId", () => {
   });
 
   it("warns when accounts.default is missing in multi-account setup (#32137)", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           accounts: { work: { botToken: "tok-work" }, alerts: { botToken: "tok-alerts" } },
@@ -150,7 +150,7 @@ describe("resolveDefaultTelegramAccountId", () => {
   });
 
   it("does not warn when accounts.default exists", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           accounts: { default: { botToken: "tok-default" }, work: { botToken: "tok-work" } },
@@ -163,7 +163,7 @@ describe("resolveDefaultTelegramAccountId", () => {
   });
 
   it("does not warn when defaultAccount is explicitly set", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           defaultAccount: "work",
@@ -177,7 +177,7 @@ describe("resolveDefaultTelegramAccountId", () => {
   });
 
   it("does not warn when only one non-default account is configured", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           accounts: { work: { botToken: "tok-work" } },
@@ -190,7 +190,7 @@ describe("resolveDefaultTelegramAccountId", () => {
   });
 
   it("warns only once per process lifetime", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           accounts: { work: { botToken: "tok-work" }, alerts: { botToken: "tok-alerts" } },
@@ -209,7 +209,7 @@ describe("resolveDefaultTelegramAccountId", () => {
   });
 
   it("prefers channels.telegram.defaultAccount when it matches a configured account", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           defaultAccount: "work",
@@ -222,7 +222,7 @@ describe("resolveDefaultTelegramAccountId", () => {
   });
 
   it("normalizes channels.telegram.defaultAccount before lookup", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           defaultAccount: "Router D",
@@ -235,7 +235,7 @@ describe("resolveDefaultTelegramAccountId", () => {
   });
 
   it("falls back when channels.telegram.defaultAccount is not configured", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           defaultAccount: "missing",
@@ -319,7 +319,7 @@ describe("resolveTelegramAccount allowFrom precedence", () => {
 
 describe("mergeTelegramAccountConfig", () => {
   it("inherits top-level policy fallback for named accounts", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           enabled: true,
@@ -355,7 +355,7 @@ describe("mergeTelegramAccountConfig", () => {
   });
 
   it("keeps top-level policy fallback when auth lives in accounts.default", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           enabled: true,
@@ -423,7 +423,7 @@ describe("resolveTelegramPollActionGateState", () => {
 });
 
 describe("resolveTelegramAccount groups inheritance (#30673)", () => {
-  const createMultiAccountGroupsConfig = (): AssistantConfig => ({
+  const createMultiAccountGroupsConfig = (): ZhushouConfig => ({
     channels: {
       telegram: {
         groups: { "-100123": { requireMention: false } },
@@ -435,7 +435,7 @@ describe("resolveTelegramAccount groups inheritance (#30673)", () => {
     },
   });
 
-  const createDefaultAccountGroupsConfig = (includeDevAccount: boolean): AssistantConfig => ({
+  const createDefaultAccountGroupsConfig = (includeDevAccount: boolean): ZhushouConfig => ({
     channels: {
       telegram: {
         groups: { "-100999": { requireMention: true } },

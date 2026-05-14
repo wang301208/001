@@ -3,13 +3,13 @@ import path from "node:path";
 import {
   getRuntimeConfigSourceSnapshot,
   projectConfigOntoRuntimeSourceSnapshot,
-  type AssistantConfig,
+  type ZhushouConfig,
   loadConfig,
 } from "../config/config.js";
 import { createConfigRuntimeEnv } from "../config/env-vars.js";
-import { resolveAssistantAgentDir } from "./agent-paths.js";
+import { resolveZhushouAgentDir } from "./agent-paths.js";
 import { MODELS_JSON_STATE } from "./models-config-state.js";
-import { planAssistantModelsJson } from "./models-config.plan.js";
+import { planZhushouModelsJson } from "./models-config.plan.js";
 
 export { resetModelsJsonReadyCacheForTest } from "./models-config-state.js";
 
@@ -38,8 +38,8 @@ function stableStringify(value: unknown): string {
 }
 
 async function buildModelsJsonFingerprint(params: {
-  config: AssistantConfig;
-  sourceConfigForSecrets: AssistantConfig;
+  config: ZhushouConfig;
+  sourceConfigForSecrets: ZhushouConfig;
   agentDir: string;
 }): Promise<string> {
   const authProfilesMtimeMs = await readFileMtimeMs(
@@ -89,9 +89,9 @@ export async function writeModelsFileAtomicForModelsJson(
   await fs.rename(tempPath, targetPath);
 }
 
-function resolveModelsConfigInput(config?: AssistantConfig): {
-  config: AssistantConfig;
-  sourceConfigForSecrets: AssistantConfig;
+function resolveModelsConfigInput(config?: ZhushouConfig): {
+  config: ZhushouConfig;
+  sourceConfigForSecrets: ZhushouConfig;
 } {
   const runtimeSource = getRuntimeConfigSourceSnapshot();
   if (!config) {
@@ -135,13 +135,13 @@ async function withModelsJsonWriteLock<T>(targetPath: string, run: () => Promise
   }
 }
 
-export async function ensureAssistantModelsJson(
-  config?: AssistantConfig,
+export async function ensureZhushouModelsJson(
+  config?: ZhushouConfig,
   agentDirOverride?: string,
 ): Promise<{ agentDir: string; wrote: boolean }> {
   const resolved = resolveModelsConfigInput(config);
   const cfg = resolved.config;
-  const agentDir = agentDirOverride?.trim() ? agentDirOverride.trim() : resolveAssistantAgentDir();
+  const agentDir = agentDirOverride?.trim() ? agentDirOverride.trim() : resolveZhushouAgentDir();
   const targetPath = path.join(agentDir, "models.json");
   const fingerprint = await buildModelsJsonFingerprint({
     config: cfg,
@@ -162,7 +162,7 @@ export async function ensureAssistantModelsJson(
     // are available to provider discovery without mutating process.env.
     const env = createConfigRuntimeEnv(cfg);
     const existingModelsFile = await readExistingModelsFile(targetPath);
-    const plan = await planAssistantModelsJson({
+    const plan = await planZhushouModelsJson({
       cfg,
       sourceConfigForSecrets: resolved.sourceConfigForSecrets,
       agentDir,

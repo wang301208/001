@@ -1,9 +1,9 @@
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBundledBrowserPluginFixture } from "../../test/helpers/browser-bundled-plugin-fixture.js";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { clearPluginDiscoveryCache } from "./discovery.js";
-import { clearPluginLoaderCache, loadAssistantPlugins } from "./loader.js";
+import { clearPluginLoaderCache, loadZhushouPlugins } from "./loader.js";
 import { clearPluginManifestRegistryCache } from "./manifest-registry.js";
 import { resetPluginRuntimeStateForTest } from "./runtime.js";
 
@@ -19,7 +19,7 @@ describe("registerPluginCliCommands browser plugin integration", () => {
 
   beforeEach(() => {
     bundledFixture = createBundledBrowserPluginFixture();
-    vi.stubEnv("ASSISTANT_BUNDLED_PLUGINS_DIR", bundledFixture.rootDir);
+    vi.stubEnv("ZHUSHOU_BUNDLED_PLUGINS_DIR", bundledFixture.rootDir);
     resetPluginState();
   });
 
@@ -31,17 +31,17 @@ describe("registerPluginCliCommands browser plugin integration", () => {
   });
 
   it("registers the browser command from the bundled browser plugin", () => {
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       config: {
         plugins: {
           allow: ["browser"],
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       cache: false,
       env: {
         ...process.env,
-        ASSISTANT_DISABLE_BUNDLED_PLUGINS: undefined,
-        ASSISTANT_BUNDLED_PLUGINS_DIR:
+        ZHUSHOU_DISABLE_BUNDLED_PLUGINS: undefined,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR:
           bundledFixture?.rootDir ?? path.join(process.cwd(), "extensions"),
       } as NodeJS.ProcessEnv,
     });
@@ -50,7 +50,7 @@ describe("registerPluginCliCommands browser plugin integration", () => {
   });
 
   it("omits the browser command when the bundled browser plugin is disabled", () => {
-    const registry = loadAssistantPlugins({
+    const registry = loadZhushouPlugins({
       config: {
         plugins: {
           allow: ["browser"],
@@ -60,12 +60,12 @@ describe("registerPluginCliCommands browser plugin integration", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       cache: false,
       env: {
         ...process.env,
-        ASSISTANT_DISABLE_BUNDLED_PLUGINS: undefined,
-        ASSISTANT_BUNDLED_PLUGINS_DIR:
+        ZHUSHOU_DISABLE_BUNDLED_PLUGINS: undefined,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR:
           bundledFixture?.rootDir ?? path.join(process.cwd(), "extensions"),
       } as NodeJS.ProcessEnv,
     });

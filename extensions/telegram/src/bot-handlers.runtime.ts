@@ -1,31 +1,31 @@
 import type { Message, ReactionTypeEmoji } from "@grammyjs/types";
-import { resolveChannelConfigWrites } from "assistant/plugin-sdk/channel-config-helpers";
-import { shouldDebounceTextInbound } from "assistant/plugin-sdk/channel-inbound";
+import { resolveChannelConfigWrites } from "zhushou/plugin-sdk/channel-config-helpers";
+import { shouldDebounceTextInbound } from "zhushou/plugin-sdk/channel-inbound";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
-} from "assistant/plugin-sdk/channel-inbound";
-import { resolveStoredModelOverride } from "assistant/plugin-sdk/command-auth";
-import { buildCommandsMessagePaginated } from "assistant/plugin-sdk/command-status";
-import { writeConfigFile } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { resolveStoredModelOverride } from "zhushou/plugin-sdk/command-auth";
+import { buildCommandsMessagePaginated } from "zhushou/plugin-sdk/command-status";
+import { writeConfigFile } from "zhushou/plugin-sdk/config-runtime";
 import {
   loadSessionStore,
   resolveSessionStoreEntry,
   updateSessionStore,
-} from "assistant/plugin-sdk/config-runtime";
-import type { DmPolicy } from "assistant/plugin-sdk/config-runtime";
-import type { TelegramGroupConfig, TelegramTopicConfig } from "assistant/plugin-sdk/config-runtime";
-import { applyModelOverrideToSessionEntry } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
+import type { DmPolicy } from "zhushou/plugin-sdk/config-runtime";
+import type { TelegramGroupConfig, TelegramTopicConfig } from "zhushou/plugin-sdk/config-runtime";
+import { applyModelOverrideToSessionEntry } from "zhushou/plugin-sdk/config-runtime";
 import {
   buildPluginBindingResolvedText,
   parsePluginBindingApprovalCustomId,
   resolvePluginConversationBindingApproval,
-} from "assistant/plugin-sdk/conversation-runtime";
-import { parseExecApprovalCommandText } from "assistant/plugin-sdk/infra-runtime";
-import { formatModelsAvailableHeader } from "assistant/plugin-sdk/models-provider-runtime";
-import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
-import { resolveThreadSessionKeys } from "assistant/plugin-sdk/routing";
-import { danger, logVerbose, warn } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/conversation-runtime";
+import { parseExecApprovalCommandText } from "zhushou/plugin-sdk/infra-runtime";
+import { formatModelsAvailableHeader } from "zhushou/plugin-sdk/models-provider-runtime";
+import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import { resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
+import { danger, logVerbose, warn } from "zhushou/plugin-sdk/runtime-env";
 import { resolveTelegramMediaRuntimeOptions } from "./accounts.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import {

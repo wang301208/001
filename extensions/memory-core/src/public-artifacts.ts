@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveMemoryHostEventLogPath } from "assistant/plugin-sdk/memory-core-host-events";
-import { resolveMemoryDreamingWorkspaces } from "assistant/plugin-sdk/memory-core-host-status";
-import type { MemoryPluginPublicArtifact } from "assistant/plugin-sdk/memory-host-core";
-import type { AssistantConfig } from "../api.js";
+import { resolveMemoryHostEventLogPath } from "zhushou/plugin-sdk/memory-core-host-events";
+import { resolveMemoryDreamingWorkspaces } from "zhushou/plugin-sdk/memory-core-host-status";
+import type { MemoryPluginPublicArtifact } from "zhushou/plugin-sdk/memory-host-core";
+import type { ZhushouConfig } from "../api.js";
 
 async function pathExists(inputPath: string): Promise<boolean> {
   try {
@@ -88,7 +88,7 @@ async function collectWorkspaceArtifacts(params: {
 }
 
 export async function listMemoryCorePublicArtifacts(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
 }): Promise<MemoryPluginPublicArtifact[]> {
   const workspaces = resolveMemoryDreamingWorkspaces(params.cfg);
   const artifacts: MemoryPluginPublicArtifact[] = [];

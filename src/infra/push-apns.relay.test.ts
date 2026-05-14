@@ -48,15 +48,15 @@ describe("push-apns.relay", () => {
       expect(resolveApnsRelayConfigFromEnv({} as NodeJS.ProcessEnv)).toEqual({
         ok: false,
         error:
-          "APNs relay config missing: set gateway.push.apns.relay.baseUrl or ASSISTANT_APNS_RELAY_BASE_URL",
+          "APNs relay config missing: set gateway.push.apns.relay.baseUrl or ZHUSHOU_APNS_RELAY_BASE_URL",
       });
     });
 
     it("lets env overrides win and clamps tiny timeout values", () => {
       const resolved = resolveApnsRelayConfigFromEnv(
         {
-          ASSISTANT_APNS_RELAY_BASE_URL: " https://relay-override.example.com/base/ ",
-          ASSISTANT_APNS_RELAY_TIMEOUT_MS: "999",
+          ZHUSHOU_APNS_RELAY_BASE_URL: " https://relay-override.example.com/base/ ",
+          ZHUSHOU_APNS_RELAY_TIMEOUT_MS: "999",
         } as NodeJS.ProcessEnv,
         {
           push: {
@@ -81,9 +81,9 @@ describe("push-apns.relay", () => {
 
     it("allows loopback http URLs for alternate truthy env values", () => {
       const resolved = resolveApnsRelayConfigFromEnv({
-        ASSISTANT_APNS_RELAY_BASE_URL: "http://[::1]:8787",
-        ASSISTANT_APNS_RELAY_ALLOW_HTTP: "yes",
-        ASSISTANT_APNS_RELAY_TIMEOUT_MS: "nope",
+        ZHUSHOU_APNS_RELAY_BASE_URL: "http://[::1]:8787",
+        ZHUSHOU_APNS_RELAY_ALLOW_HTTP: "yes",
+        ZHUSHOU_APNS_RELAY_TIMEOUT_MS: "nope",
       } as NodeJS.ProcessEnv);
 
       expect(resolved).toMatchObject({
@@ -98,25 +98,25 @@ describe("push-apns.relay", () => {
     it.each([
       {
         name: "unsupported protocol",
-        env: { ASSISTANT_APNS_RELAY_BASE_URL: "ftp://relay.example.com" },
+        env: { ZHUSHOU_APNS_RELAY_BASE_URL: "ftp://relay.example.com" },
         expected: "unsupported protocol",
       },
       {
         name: "http non-loopback host",
         env: {
-          ASSISTANT_APNS_RELAY_BASE_URL: "http://relay.example.com",
-          ASSISTANT_APNS_RELAY_ALLOW_HTTP: "true",
+          ZHUSHOU_APNS_RELAY_BASE_URL: "http://relay.example.com",
+          ZHUSHOU_APNS_RELAY_ALLOW_HTTP: "true",
         },
         expected: "loopback hosts",
       },
       {
         name: "query string",
-        env: { ASSISTANT_APNS_RELAY_BASE_URL: "https://relay.example.com/path?debug=1" },
+        env: { ZHUSHOU_APNS_RELAY_BASE_URL: "https://relay.example.com/path?debug=1" },
         expected: "query and fragment are not allowed",
       },
       {
         name: "userinfo",
-        env: { ASSISTANT_APNS_RELAY_BASE_URL: "https://user:pass@relay.example.com/path" },
+        env: { ZHUSHOU_APNS_RELAY_BASE_URL: "https://user:pass@relay.example.com/path" },
         expected: "userinfo is not allowed",
       },
     ])("rejects invalid relay URL: $name", ({ env, expected }) => {
@@ -180,7 +180,7 @@ describe("push-apns.relay", () => {
         verifyDeviceSignature(
           relayGatewayIdentity.publicKey,
           [
-            "assistant-relay-send-v1",
+            "zhushou-relay-send-v1",
             sent?.gatewayDeviceId,
             String(sent?.signedAtMs),
             sent?.bodyJson,

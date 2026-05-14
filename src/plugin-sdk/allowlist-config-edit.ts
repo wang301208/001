@@ -1,7 +1,7 @@
 import type { ConfigWriteTarget } from "../channels/plugins/config-writes.js";
 import type { ChannelAllowlistAdapter } from "../channels/plugins/types.adapters.js";
 import type { ChannelId } from "../channels/plugins/types.public.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isBlockedObjectKey } from "../infra/prototype-keys.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 
@@ -18,12 +18,12 @@ export type AllowlistNameResolution = Array<{
   name?: string | null;
 }>;
 type AllowlistNormalizer = (params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   values: Array<string | number>;
 }) => string[];
 type AllowlistAccountResolver<ResolvedAccount> = (params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }) => ResolvedAccount;
 
@@ -143,7 +143,7 @@ export function createNestedAllowlistOverrideResolver<ResolvedAccount, Outer, In
 
 /** Build the common account-scoped token-gated allowlist name resolver. */
 export function createAccountScopedAllowlistNameResolver<ResolvedAccount>(params: {
-  resolveAccount: (params: { cfg: AssistantConfig; accountId?: string | null }) => ResolvedAccount;
+  resolveAccount: (params: { cfg: ZhushouConfig; accountId?: string | null }) => ResolvedAccount;
   resolveToken: (account: ResolvedAccount) => string | null | undefined;
   resolveNames: (params: { token: string; entries: string[] }) => Promise<AllowlistNameResolution>;
 }): NonNullable<ChannelAllowlistAdapter["resolveNames"]> {

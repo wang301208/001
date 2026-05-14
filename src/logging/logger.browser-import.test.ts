@@ -8,24 +8,24 @@ const originalGetBuiltinModule = (
 ).getBuiltinModule;
 
 async function importBrowserSafeLogger(params?: {
-  resolvePreferredAssistantTmpDir?: ReturnType<typeof vi.fn>;
+  resolvePreferredZhushouTmpDir?: ReturnType<typeof vi.fn>;
 }): Promise<{
   module: LoggerModule;
-  resolvePreferredAssistantTmpDir: ReturnType<typeof vi.fn>;
+  resolvePreferredZhushouTmpDir: ReturnType<typeof vi.fn>;
 }> {
-  const resolvePreferredAssistantTmpDir =
-    params?.resolvePreferredAssistantTmpDir ??
+  const resolvePreferredZhushouTmpDir =
+    params?.resolvePreferredZhushouTmpDir ??
     vi.fn(() => {
-      throw new Error("resolvePreferredAssistantTmpDir should not run during browser-safe import");
+      throw new Error("resolvePreferredZhushouTmpDir should not run during browser-safe import");
     });
 
-  vi.doMock("../infra/tmp-assistant-dir.js", async () => {
-    const actual = await vi.importActual<typeof import("../infra/tmp-assistant-dir.js")>(
-      "../infra/tmp-assistant-dir.js",
+  vi.doMock("../infra/tmp-zhushou-dir.js", async () => {
+    const actual = await vi.importActual<typeof import("../infra/tmp-zhushou-dir.js")>(
+      "../infra/tmp-zhushou-dir.js",
     );
     return {
       ...actual,
-      resolvePreferredAssistantTmpDir,
+      resolvePreferredZhushouTmpDir,
     };
   });
 
@@ -38,12 +38,12 @@ async function importBrowserSafeLogger(params?: {
     import.meta.url,
     "./logger.js?scope=browser-safe",
   );
-  return { module, resolvePreferredAssistantTmpDir };
+  return { module, resolvePreferredZhushouTmpDir };
 }
 
 describe("logging/logger browser-safe import", () => {
   afterEach(() => {
-    vi.doUnmock("../infra/tmp-assistant-dir.js");
+    vi.doUnmock("../infra/tmp-zhushou-dir.js");
     Object.defineProperty(process, "getBuiltinModule", {
       configurable: true,
       value: originalGetBuiltinModule,
@@ -51,22 +51,22 @@ describe("logging/logger browser-safe import", () => {
   });
 
   it("does not resolve the preferred temp dir at import time when node fs is unavailable", async () => {
-    const { module, resolvePreferredAssistantTmpDir } = await importBrowserSafeLogger();
+    const { module, resolvePreferredZhushouTmpDir } = await importBrowserSafeLogger();
 
-    expect(resolvePreferredAssistantTmpDir).not.toHaveBeenCalled();
-    expect(module.DEFAULT_LOG_DIR).toBe("/tmp/assistant");
-    expect(module.DEFAULT_LOG_FILE).toBe("/tmp/assistant/assistant.log");
+    expect(resolvePreferredZhushouTmpDir).not.toHaveBeenCalled();
+    expect(module.DEFAULT_LOG_DIR).toBe("/tmp/zhushou");
+    expect(module.DEFAULT_LOG_FILE).toBe("/tmp/wang301208/zhushou.log");
   });
 
   it("disables file logging when imported in a browser-like environment", async () => {
-    const { module, resolvePreferredAssistantTmpDir } = await importBrowserSafeLogger();
+    const { module, resolvePreferredZhushouTmpDir } = await importBrowserSafeLogger();
 
     expect(module.getResolvedLoggerSettings()).toMatchObject({
       level: "silent",
-      file: "/tmp/assistant/assistant.log",
+      file: "/tmp/wang301208/zhushou.log",
     });
     expect(module.isFileLogLevelEnabled("info")).toBe(false);
     expect(() => module.getLogger().info("browser-safe")).not.toThrow();
-    expect(resolvePreferredAssistantTmpDir).not.toHaveBeenCalled();
+    expect(resolvePreferredZhushouTmpDir).not.toHaveBeenCalled();
   });
 });

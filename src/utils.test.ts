@@ -14,7 +14,7 @@ import {
 
 describe("ensureDir", () => {
   it("creates nested directory", async () => {
-    await withTempDir({ prefix: "assistant-test-" }, async (tmp) => {
+    await withTempDir({ prefix: "zhushou-test-" }, async (tmp) => {
       const target = path.join(tmp, "nested", "dir");
       await ensureDir(target);
       expect(fs.existsSync(target)).toBe(true);
@@ -33,52 +33,52 @@ describe("sleep", () => {
 });
 
 describe("resolveConfigDir", () => {
-  it("prefers ~/.assistant when legacy dir is missing", async () => {
-    await withTempDir({ prefix: "assistant-config-dir-" }, async (root) => {
-      const newDir = path.join(root, ".assistant");
+  it("prefers ~/.zhushou when legacy dir is missing", async () => {
+    await withTempDir({ prefix: "zhushou-config-dir-" }, async (root) => {
+      const newDir = path.join(root, ".zhushou");
       await fs.promises.mkdir(newDir, { recursive: true });
       const resolved = resolveConfigDir({} as NodeJS.ProcessEnv, () => root);
       expect(resolved).toBe(newDir);
     });
   });
 
-  it("expands ASSISTANT_STATE_DIR using the provided env", () => {
+  it("expands ZHUSHOU_STATE_DIR using the provided env", () => {
     const env = {
-      HOME: "/tmp/assistant-home",
-      ASSISTANT_STATE_DIR: "~/state",
+      HOME: "/tmp/zhushou-home",
+      ZHUSHOU_STATE_DIR: "~/state",
     } as NodeJS.ProcessEnv;
 
-    expect(resolveConfigDir(env)).toBe(path.resolve("/tmp/assistant-home", "state"));
+    expect(resolveConfigDir(env)).toBe(path.resolve("/tmp/zhushou-home", "state"));
   });
 
-  it("falls back to the config file directory when only ASSISTANT_CONFIG_PATH is set", () => {
+  it("falls back to the config file directory when only ZHUSHOU_CONFIG_PATH is set", () => {
     const env = {
-      HOME: "/tmp/assistant-home",
-      ASSISTANT_CONFIG_PATH: "~/profiles/dev/assistant.json",
+      HOME: "/tmp/zhushou-home",
+      ZHUSHOU_CONFIG_PATH: "~/profiles/dev/zhushou.json",
     } as NodeJS.ProcessEnv;
 
-    expect(resolveConfigDir(env)).toBe(path.resolve("/tmp/assistant-home", "profiles", "dev"));
+    expect(resolveConfigDir(env)).toBe(path.resolve("/tmp/zhushou-home", "profiles", "dev"));
   });
 });
 
 describe("resolveHomeDir", () => {
-  it("prefers ASSISTANT_HOME over HOME", () => {
-    vi.stubEnv("ASSISTANT_HOME", "/srv/assistant-home");
+  it("prefers ZHUSHOU_HOME over HOME", () => {
+    vi.stubEnv("ZHUSHOU_HOME", "/srv/zhushou-home");
     vi.stubEnv("HOME", "/home/other");
 
-    expect(resolveHomeDir()).toBe(path.resolve("/srv/assistant-home"));
+    expect(resolveHomeDir()).toBe(path.resolve("/srv/zhushou-home"));
 
     vi.unstubAllEnvs();
   });
 });
 
 describe("shortenHomePath", () => {
-  it("uses $ASSISTANT_HOME prefix when ASSISTANT_HOME is set", () => {
-    vi.stubEnv("ASSISTANT_HOME", "/srv/assistant-home");
+  it("uses $ZHUSHOU_HOME prefix when ZHUSHOU_HOME is set", () => {
+    vi.stubEnv("ZHUSHOU_HOME", "/srv/zhushou-home");
     vi.stubEnv("HOME", "/home/other");
 
-    expect(shortenHomePath(`${path.resolve("/srv/assistant-home")}/.assistant/assistant.json`)).toBe(
-      "$ASSISTANT_HOME/.assistant/assistant.json",
+    expect(shortenHomePath(`${path.resolve("/srv/zhushou-home")}/.wang301208/zhushou.json`)).toBe(
+      "$ZHUSHOU_HOME/.wang301208/zhushou.json",
     );
 
     vi.unstubAllEnvs();
@@ -86,13 +86,13 @@ describe("shortenHomePath", () => {
 });
 
 describe("shortenHomeInString", () => {
-  it("uses $ASSISTANT_HOME replacement when ASSISTANT_HOME is set", () => {
-    vi.stubEnv("ASSISTANT_HOME", "/srv/assistant-home");
+  it("uses $ZHUSHOU_HOME replacement when ZHUSHOU_HOME is set", () => {
+    vi.stubEnv("ZHUSHOU_HOME", "/srv/zhushou-home");
     vi.stubEnv("HOME", "/home/other");
 
     expect(
-      shortenHomeInString(`config: ${path.resolve("/srv/assistant-home")}/.assistant/assistant.json`),
-    ).toBe("config: $ASSISTANT_HOME/.assistant/assistant.json");
+      shortenHomeInString(`config: ${path.resolve("/srv/zhushou-home")}/.wang301208/zhushou.json`),
+    ).toBe("config: $ZHUSHOU_HOME/.wang301208/zhushou.json");
 
     vi.unstubAllEnvs();
   });
@@ -104,8 +104,8 @@ describe("resolveUserPath", () => {
   });
 
   it("expands ~/ to home dir", () => {
-    expect(resolveUserPath("~/assistant", {}, () => "/Users/thoffman")).toBe(
-      path.resolve("/Users/thoffman", "assistant"),
+    expect(resolveUserPath("~/zhushou", {}, () => "/Users/thoffman")).toBe(
+      path.resolve("/Users/thoffman", "zhushou"),
     );
   });
 
@@ -113,22 +113,22 @@ describe("resolveUserPath", () => {
     expect(resolveUserPath("tmp/dir")).toBe(path.resolve("tmp/dir"));
   });
 
-  it("prefers ASSISTANT_HOME for tilde expansion", () => {
-    vi.stubEnv("ASSISTANT_HOME", "/srv/assistant-home");
+  it("prefers ZHUSHOU_HOME for tilde expansion", () => {
+    vi.stubEnv("ZHUSHOU_HOME", "/srv/zhushou-home");
     vi.stubEnv("HOME", "/home/other");
 
-    expect(resolveUserPath("~/assistant")).toBe(path.resolve("/srv/assistant-home", "assistant"));
+    expect(resolveUserPath("~/zhushou")).toBe(path.resolve("/srv/zhushou-home", "zhushou"));
 
     vi.unstubAllEnvs();
   });
 
   it("uses the provided env for tilde expansion", () => {
     const env = {
-      HOME: "/tmp/assistant-home",
-      ASSISTANT_HOME: "/srv/assistant-home",
+      HOME: "/tmp/zhushou-home",
+      ZHUSHOU_HOME: "/srv/zhushou-home",
     } as NodeJS.ProcessEnv;
 
-    expect(resolveUserPath("~/assistant", env)).toBe(path.resolve("/srv/assistant-home", "assistant"));
+    expect(resolveUserPath("~/zhushou", env)).toBe(path.resolve("/srv/zhushou-home", "zhushou"));
   });
 
   it("keeps blank paths blank", () => {

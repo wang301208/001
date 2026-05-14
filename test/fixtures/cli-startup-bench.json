@@ -6,7 +6,7 @@
   "cpuProfDir": null,
   "heapProfDir": null,
   "primary": {
-    "entry": "assistant.mjs",
+    "entry": "zhushou.mjs",
     "cases": [
       {
         "id": "version",

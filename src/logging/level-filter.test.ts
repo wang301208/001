@@ -23,8 +23,8 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  delete process.env.ASSISTANT_TEST_FILE_LOG;
-  delete process.env.ASSISTANT_LOG_LEVEL;
+  delete process.env.ZHUSHOU_TEST_FILE_LOG;
+  delete process.env.ZHUSHOU_LOG_LEVEL;
   readLoggingConfigMock.mockClear();
   shouldSkipMutatingLoggingConfigReadMock.mockReset();
   shouldSkipMutatingLoggingConfigReadMock.mockReturnValue(false);
@@ -33,8 +33,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete process.env.ASSISTANT_TEST_FILE_LOG;
-  delete process.env.ASSISTANT_LOG_LEVEL;
+  delete process.env.ZHUSHOU_TEST_FILE_LOG;
+  delete process.env.ZHUSHOU_LOG_LEVEL;
   logging.resetLogger();
   logging.setLoggerOverride(null);
   vi.restoreAllMocks();

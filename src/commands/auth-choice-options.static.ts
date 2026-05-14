@@ -10,8 +10,8 @@ export type AuthChoiceOption = {
   groupId?: AuthChoiceGroupId;
   groupLabel?: string;
   groupHint?: string;
-  assistantPriority?: number;
-  assistantVisibility?: "visible" | "manual-only";
+  zhushouPriority?: number;
+  zhushouVisibility?: "visible" | "manual-only";
 };
 
 export type AuthChoiceGroup = {
@@ -35,7 +35,7 @@ export const CORE_AUTH_CHOICE_OPTIONS: ReadonlyArray<AuthChoiceOption> = [
 export function formatStaticAuthChoiceChoicesForCli(params?: {
   includeSkip?: boolean;
   includeLegacyAliases?: boolean;
-  config?: import("../config/config.js").AssistantConfig;
+  config?: import("../config/config.js").ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): string {

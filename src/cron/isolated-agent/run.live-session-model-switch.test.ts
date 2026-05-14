@@ -97,9 +97,9 @@ describe("runCronIsolatedAgentTurn — LiveSessionModelSwitchError retry (#57206
 
   afterEach(() => {
     if (previousFastTestEnv !== undefined) {
-      process.env.ASSISTANT_TEST_FAST = previousFastTestEnv;
+      process.env.ZHUSHOU_TEST_FAST = previousFastTestEnv;
     } else {
-      delete process.env.ASSISTANT_TEST_FAST;
+      delete process.env.ZHUSHOU_TEST_FAST;
     }
   });
 

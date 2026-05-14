@@ -1,2 +1,2 @@
-export { enqueueSystemEvent } from "assistant/plugin-sdk/infra-runtime";
-export { readSessionUpdatedAt, resolveStorePath } from "assistant/plugin-sdk/session-store-runtime";
+export { enqueueSystemEvent } from "zhushou/plugin-sdk/infra-runtime";
+export { readSessionUpdatedAt, resolveStorePath } from "zhushou/plugin-sdk/session-store-runtime";

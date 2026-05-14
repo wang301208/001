@@ -3,14 +3,14 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import { access, appendFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
 import type { QaProviderMode } from "./model-selection.js";
 import { resolveQaForwardedLiveEnv, resolveQaLiveProviderConfigPath } from "./providers/env.js";
 import { DEFAULT_QA_LIVE_PROVIDER_MODE, getQaProvider } from "./providers/index.js";
 
-const MULTIPASS_MOUNTED_REPO_PATH = "/workspace/assistant-host";
-const MULTIPASS_GUEST_REPO_PATH = "/workspace/assistant";
-const MULTIPASS_GUEST_CODEX_HOME_PATH = "/workspace/assistant-codex-home";
+const MULTIPASS_MOUNTED_REPO_PATH = "/workspace/zhushou-host";
+const MULTIPASS_GUEST_REPO_PATH = "/workspace/zhushou";
+const MULTIPASS_GUEST_CODEX_HOME_PATH = "/workspace/zhushou-codex-home";
 const MULTIPASS_GUEST_PACKAGES = [
   "build-essential",
   "ca-certificates",
@@ -258,12 +258,12 @@ export function createQaMultipassPlan(params: {
     liveProviderConfig && fs.existsSync(liveProviderConfig.path)
       ? liveProviderConfig.path
       : undefined;
-  const vmName = `assistant-qa-${createVmSuffix()}`;
+  const vmName = `zhushou-qa-${createVmSuffix()}`;
   const guestOutputDir = resolveGuestMountedPath(params.repoRoot, outputDir);
   const qaCommand = appendScenarioArgs(
     [
       "pnpm",
-      "assistant",
+      "zhushou",
       "qa",
       "suite",
       "--transport",
@@ -332,15 +332,15 @@ export function renderQaMultipassGuestScript(
       .filter(
         ([key]) =>
           key !== "CODEX_HOME" &&
-          key !== "ASSISTANT_CONFIG_PATH" &&
-          key !== "ASSISTANT_QA_LIVE_PROVIDER_CONFIG_PATH",
+          key !== "ZHUSHOU_CONFIG_PATH" &&
+          key !== "ZHUSHOU_QA_LIVE_PROVIDER_CONFIG_PATH",
       )
       .map(([key, value]) => `${key}=${shellQuote(redactSecrets ? "<redacted>" : value)}`),
     ...(plan.guestCodexHomePath ? [`CODEX_HOME=${shellQuote(plan.guestCodexHomePath)}`] : []),
     ...(plan.guestLiveProviderConfigPath
       ? [
-          `ASSISTANT_CONFIG_PATH=${shellQuote(plan.guestLiveProviderConfigPath)}`,
-          `ASSISTANT_QA_LIVE_PROVIDER_CONFIG_PATH=${shellQuote(plan.guestLiveProviderConfigPath)}`,
+          `ZHUSHOU_CONFIG_PATH=${shellQuote(plan.guestLiveProviderConfigPath)}`,
+          `ZHUSHOU_QA_LIVE_PROVIDER_CONFIG_PATH=${shellQuote(plan.guestLiveProviderConfigPath)}`,
         ]
       : []),
     plan.qaCommand.map(shellQuote).join(" "),
@@ -577,13 +577,13 @@ export async function runQaMultipass(params: {
       );
     }
     throw new Error(
-      `Multipass is not installed on this host. Install it with '${resolveMultipassInstallHint()}', then rerun 'pnpm assistant qa suite --runner multipass'.`,
+      `Multipass is not installed on this host. Install it with '${resolveMultipassInstallHint()}', then rerun 'pnpm zhushou qa suite --runner multipass'.`,
       { cause: error },
     );
   }
 
   const hostTransferDirPath = await fs.promises.mkdtemp(
-    path.join(resolvePreferredAssistantTmpDir(), `${plan.vmName}-qa-suite-`),
+    path.join(resolvePreferredZhushouTmpDir(), `${plan.vmName}-qa-suite-`),
   );
   const hostTransferScriptPath = path.join(hostTransferDirPath, "guest-run.sh");
   await writeFile(hostTransferScriptPath, renderQaMultipassGuestScript(plan), {

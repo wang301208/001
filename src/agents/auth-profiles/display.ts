@@ -1,9 +1,9 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { resolveAuthProfileMetadata } from "./identity.js";
 import type { AuthProfileStore } from "./types.js";
 
 export function resolveAuthProfileDisplayLabel(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   store: AuthProfileStore;
   profileId: string;
 }): string {

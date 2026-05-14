@@ -1,5 +1,5 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
-import { NATIVE_ANTHROPIC_REPLAY_HOOKS } from "assistant/plugin-sdk/provider-model-shared";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { NATIVE_ANTHROPIC_REPLAY_HOOKS } from "zhushou/plugin-sdk/provider-model-shared";
 import {
   mergeImplicitAnthropicVertexProvider,
   resolveAnthropicVertexConfigApiKey,

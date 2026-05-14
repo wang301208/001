@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { flushPendingToolResultsAfterIdle } from "./pi-embedded-runner/wait-for-idle-before-flush.js";
 import { guardSessionManager } from "./session-tool-result-guard-wrapper.js";
 
-function assistantToolCall(id: string): AgentMessage {
+function zhushouToolCall(id: string): AgentMessage {
   return {
     role: "assistant",
     content: [{ type: "toolCall", id, name: "exec", arguments: {} }],
@@ -47,7 +47,7 @@ describe("flushPendingToolResultsAfterIdle", () => {
     const idle = deferred<void>();
     const agent = { waitForIdle: () => idle.promise };
 
-    appendMessage(assistantToolCall("call_retry_1"));
+    appendMessage(zhushouToolCall("call_retry_1"));
     const flushPromise = flushPendingToolResultsAfterIdle({
       agent,
       sessionManager: sm,
@@ -77,7 +77,7 @@ describe("flushPendingToolResultsAfterIdle", () => {
     vi.useFakeTimers();
     const agent = { waitForIdle: () => new Promise<void>(() => {}) };
 
-    appendMessage(assistantToolCall("call_orphan_1"));
+    appendMessage(zhushouToolCall("call_orphan_1"));
 
     const flushPromise = flushPendingToolResultsAfterIdle({
       agent,
@@ -103,7 +103,7 @@ describe("flushPendingToolResultsAfterIdle", () => {
     vi.useFakeTimers();
     const agent = { waitForIdle: () => new Promise<void>(() => {}) };
 
-    appendMessage(assistantToolCall("call_orphan_2"));
+    appendMessage(zhushouToolCall("call_orphan_2"));
 
     const flushPromise = flushPendingToolResultsAfterIdle({
       agent,

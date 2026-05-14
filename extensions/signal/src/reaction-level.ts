@@ -1,9 +1,9 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   resolveReactionLevel,
   type ReactionLevel,
   type ResolvedReactionLevel,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 
 export type SignalReactionLevel = ReactionLevel;
@@ -19,7 +19,7 @@ export type ResolvedSignalReactionLevel = ResolvedReactionLevel;
  * - "extensive": Agent can react liberally
  */
 export function resolveSignalReactionLevel(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string;
 }): ResolvedSignalReactionLevel {
   const account = resolveSignalAccount({

@@ -1,6 +1,6 @@
 import { format } from "node:util";
-import { redactSensitiveText } from "assistant/plugin-sdk/logging-core";
-import type { RuntimeLogger } from "assistant/plugin-sdk/plugin-runtime";
+import { redactSensitiveText } from "zhushou/plugin-sdk/logging-core";
+import type { RuntimeLogger } from "zhushou/plugin-sdk/plugin-runtime";
 import { getMatrixRuntime } from "../../runtime.js";
 
 export type Logger = {

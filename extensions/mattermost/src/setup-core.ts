@@ -1,12 +1,12 @@
-import type { ChannelSetupAdapter } from "assistant/plugin-sdk/channel-setup";
-import { createSetupInputPresenceValidator } from "assistant/plugin-sdk/setup-runtime";
+import type { ChannelSetupAdapter } from "zhushou/plugin-sdk/channel-setup";
+import { createSetupInputPresenceValidator } from "zhushou/plugin-sdk/setup-runtime";
 import {
   applyAccountNameToChannelSection,
   applySetupAccountConfigPatch,
   DEFAULT_ACCOUNT_ID,
   migrateBaseNameToDefaultAccount,
   normalizeAccountId,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "./runtime-api.js";
 import {
   resolveMattermostAccount,
@@ -23,7 +23,7 @@ export function isMattermostConfigured(account: ResolvedMattermostAccount): bool
   return tokenConfigured && Boolean(account.baseUrl);
 }
 
-export function resolveMattermostAccountWithSecrets(cfg: AssistantConfig, accountId: string) {
+export function resolveMattermostAccountWithSecrets(cfg: ZhushouConfig, accountId: string) {
   return resolveMattermostAccount({
     cfg,
     accountId,

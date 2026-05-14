@@ -1,7 +1,7 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import * as conversationRuntime from "assistant/plugin-sdk/conversation-binding-runtime";
-import type { ResolvedAgentRoute } from "assistant/plugin-sdk/routing";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import * as conversationRuntime from "zhushou/plugin-sdk/conversation-binding-runtime";
+import type { ResolvedAgentRoute } from "zhushou/plugin-sdk/routing";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   resolveDiscordBoundConversationRoute,
   resolveDiscordEffectiveRoute,
@@ -27,7 +27,7 @@ export type DiscordNativeInteractionRouteState = {
 };
 
 export async function resolveDiscordNativeInteractionRouteState(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   guildId?: string;
   memberRoleIds?: string[];

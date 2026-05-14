@@ -27,7 +27,7 @@ function appendToolResultText(sm: SessionManager, text: string) {
   );
 }
 
-function appendAssistantToolCall(
+function appendZhushouToolCall(
   sm: SessionManager,
   params: { id: string; name: string; withArguments?: boolean },
 ) {
@@ -330,25 +330,25 @@ describe("installSessionToolResultGuard", () => {
     expect(getPersistedMessages(sm)).toHaveLength(0);
   });
 
-  it("flushes pending tool results when a sanitized assistant message is dropped", () => {
+  it("flushes pending tool results when a sanitized zhushou message is dropped", () => {
     const sm = SessionManager.inMemory();
     installSessionToolResultGuard(sm);
 
-    appendAssistantToolCall(sm, { id: "call_1", name: "read" });
-    appendAssistantToolCall(sm, { id: "call_2", name: "read", withArguments: false });
+    appendZhushouToolCall(sm, { id: "call_1", name: "read" });
+    appendZhushouToolCall(sm, { id: "call_2", name: "read", withArguments: false });
 
     expectPersistedRoles(sm, ["assistant", "toolResult"]);
   });
 
-  it("clears pending when a sanitized assistant message is dropped and synthetic results are disabled", () => {
+  it("clears pending when a sanitized zhushou message is dropped and synthetic results are disabled", () => {
     const sm = SessionManager.inMemory();
     const guard = installSessionToolResultGuard(sm, {
       allowSyntheticToolResults: false,
       allowedToolNames: ["read"],
     });
 
-    appendAssistantToolCall(sm, { id: "call_1", name: "read" });
-    appendAssistantToolCall(sm, { id: "call_2", name: "write" });
+    appendZhushouToolCall(sm, { id: "call_1", name: "read" });
+    appendZhushouToolCall(sm, { id: "call_2", name: "write" });
 
     expectPersistedRoles(sm, ["assistant"]);
     expect(guard.getPendingIds()).toEqual([]);
@@ -486,14 +486,14 @@ describe("installSessionToolResultGuard", () => {
     });
   });
 
-  // When an assistant message with toolCalls is aborted, no synthetic toolResult
+  // When an zhushou message with toolCalls is aborted, no synthetic toolResult
   // should be created. Creating synthetic results for aborted/incomplete tool calls
   // causes API 400 errors: "unexpected tool_use_id found in tool_result blocks".
-  it("does NOT create synthetic toolResult for aborted assistant messages with toolCalls", () => {
+  it("does NOT create synthetic toolResult for aborted zhushou messages with toolCalls", () => {
     const sm = SessionManager.inMemory();
     installSessionToolResultGuard(sm);
 
-    // Aborted assistant message with incomplete toolCall
+    // Aborted zhushou message with incomplete toolCall
     sm.appendMessage(
       asAppendMessage({
         role: "assistant",
@@ -511,18 +511,18 @@ describe("installSessionToolResultGuard", () => {
       }),
     );
 
-    // Should only have assistant + user, NO synthetic toolResult
+    // Should only have zhushou + user, NO synthetic toolResult
     const messages = getPersistedMessages(sm);
     const roles = messages.map((m) => m.role);
     expect(roles).toEqual(["assistant", "user"]);
     expect(roles).not.toContain("toolResult");
   });
 
-  it("does NOT create synthetic toolResult for errored assistant messages with toolCalls", () => {
+  it("does NOT create synthetic toolResult for errored zhushou messages with toolCalls", () => {
     const sm = SessionManager.inMemory();
     const guard = installSessionToolResultGuard(sm);
 
-    // Error assistant message with incomplete toolCall
+    // Error zhushou message with incomplete toolCall
     sm.appendMessage(
       asAppendMessage({
         role: "assistant",

@@ -88,7 +88,7 @@ describe("agent-events sequencing", () => {
     });
     emitAgentEvent({
       runId: "run-hidden",
-      stream: "assistant",
+      stream: "zhushou",
       data: { text: "hi" },
       sessionKey: "session-imessage",
     });
@@ -126,7 +126,7 @@ describe("agent-events sequencing", () => {
     });
     emitAgentEvent({
       runId: "run-ctx",
-      stream: "assistant",
+      stream: "zhushou",
       data: { text: "hi" },
       sessionKey: "   ",
     });
@@ -169,7 +169,7 @@ describe("agent-events sequencing", () => {
     });
     emitAgentEvent({
       runId: "run-governed",
-      stream: "assistant",
+      stream: "zhushou",
       data: { text: "hi" },
       sessionKey: "   ",
     });
@@ -196,7 +196,7 @@ describe("agent-events sequencing", () => {
     expect(() =>
       emitAgentEvent({
         runId: "run-safe",
-        stream: "assistant",
+        stream: "zhushou",
         data: { text: "hi" },
       }),
     ).not.toThrow();
@@ -223,13 +223,13 @@ describe("agent-events sequencing", () => {
 
     second.emitAgentEvent({
       runId: "run-dup",
-      stream: "assistant",
+      stream: "zhushou",
       data: { text: "from second" },
       sessionKey: "   ",
     });
     first.emitAgentEvent({
       runId: "run-dup",
-      stream: "assistant",
+      stream: "zhushou",
       data: { text: "from first" },
       sessionKey: "   ",
     });
@@ -252,10 +252,10 @@ describe("agent-events sequencing", () => {
     registerAgentRunContext("run-active", { sessionKey: "session-active", registeredAt: 100 });
 
     stop.mockReturnValue(200);
-    emitAgentEvent({ runId: "run-stale", stream: "assistant", data: { text: "stale" } });
+    emitAgentEvent({ runId: "run-stale", stream: "zhushou", data: { text: "stale" } });
 
     stop.mockReturnValue(900);
-    emitAgentEvent({ runId: "run-active", stream: "assistant", data: { text: "active" } });
+    emitAgentEvent({ runId: "run-active", stream: "zhushou", data: { text: "active" } });
 
     stop.mockReturnValue(1_000);
     expect(sweepStaleRunContexts(500)).toBe(1);
@@ -269,8 +269,8 @@ describe("agent-events sequencing", () => {
       }
     });
 
-    emitAgentEvent({ runId: "run-stale", stream: "assistant", data: { text: "restarted" } });
-    emitAgentEvent({ runId: "run-active", stream: "assistant", data: { text: "continued" } });
+    emitAgentEvent({ runId: "run-stale", stream: "zhushou", data: { text: "restarted" } });
+    emitAgentEvent({ runId: "run-active", stream: "zhushou", data: { text: "continued" } });
 
     unsubscribe();
     stop.mockRestore();

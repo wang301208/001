@@ -1,25 +1,25 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveSetupSecretInputString } from "./setup.secret-input.js";
 
-function makeConfig(): AssistantConfig {
+function makeConfig(): ZhushouConfig {
   return {
     secrets: {
       providers: {
         default: { source: "env" },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 describe("resolveSetupSecretInputString", () => {
   it("resolves env-template SecretInput strings", async () => {
     const resolved = await resolveSetupSecretInputString({
       config: makeConfig(),
-      value: "${ASSISTANT_GATEWAY_PASSWORD}",
+      value: "${ZHUSHOU_GATEWAY_PASSWORD}",
       path: "gateway.auth.password",
       env: {
-        ASSISTANT_GATEWAY_PASSWORD: "gateway-secret", // pragma: allowlist secret
+        ZHUSHOU_GATEWAY_PASSWORD: "gateway-secret", // pragma: allowlist secret
       },
     });
 
@@ -40,12 +40,12 @@ describe("resolveSetupSecretInputString", () => {
     await expect(
       resolveSetupSecretInputString({
         config: makeConfig(),
-        value: "${ASSISTANT_GATEWAY_PASSWORD}",
+        value: "${ZHUSHOU_GATEWAY_PASSWORD}",
         path: "gateway.auth.password",
         env: {},
       }),
     ).rejects.toThrow(
-      'gateway.auth.password: failed to resolve SecretRef "env:default:ASSISTANT_GATEWAY_PASSWORD"',
+      'gateway.auth.password: failed to resolve SecretRef "env:default:ZHUSHOU_GATEWAY_PASSWORD"',
     );
   });
 });

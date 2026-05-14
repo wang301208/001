@@ -1,9 +1,9 @@
 import { resolveWhatsAppAccount } from "./accounts.js";
-import type { AssistantConfig } from "./runtime-api.js";
+import type { ZhushouConfig } from "./runtime-api.js";
 import { loadWhatsAppChannelRuntime } from "./shared.js";
 
 export async function checkWhatsAppHeartbeatReady(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string;
   deps?: {
     webAuthExists?: (authDir: string) => Promise<boolean>;

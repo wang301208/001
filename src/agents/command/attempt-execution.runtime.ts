@@ -1,7 +1,7 @@
 export {
   buildAcpResult,
   createAcpVisibleTextAccumulator,
-  emitAcpAssistantDelta,
+  emitAcpZhushouDelta,
   emitAcpLifecycleEnd,
   emitAcpLifecycleError,
   emitAcpLifecycleStart,

@@ -1,5 +1,5 @@
 import type { SessionEntry } from "../../config/sessions.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { ReplyPayload } from "../types.js";
 import type { InlineDirectives } from "./directive-handling.parse.js";
 import { withOptions } from "./directive-handling.shared.js";
@@ -7,7 +7,7 @@ import { resolveQueueSettings } from "./queue/settings.js";
 
 export function maybeHandleQueueDirective(params: {
   directives: InlineDirectives;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel: string;
   sessionEntry?: SessionEntry;
 }): ReplyPayload | undefined {

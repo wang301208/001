@@ -2,11 +2,11 @@ import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
   type GroupToolPolicyConfig,
-} from "assistant/plugin-sdk/channel-policy";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-policy";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 
 type WhatsAppGroupContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   groupId?: string | null;
   senderId?: string | null;

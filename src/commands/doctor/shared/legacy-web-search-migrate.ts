@@ -1,5 +1,5 @@
 import { mergeMissing } from "../../../config/legacy.shared.js";
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import {
   loadPluginManifestRegistry,
   resolveManifestContractOwnerPluginId,
@@ -253,7 +253,7 @@ function normalizeLegacyWebSearchConfigRecord<T extends JsonRecord>(
 }
 
 export function resolvePluginWebSearchConfig(
-  config: AssistantConfig | undefined,
+  config: ZhushouConfig | undefined,
   pluginId: string,
 ): Record<string, unknown> | undefined {
   const pluginConfig = config?.plugins?.entries?.[pluginId]?.config;

@@ -2,55 +2,55 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "assistant/extension-api": ["../src/extensionAPI.ts"],
-      "assistant/plugin-sdk": ["../dist/plugin-sdk/src/plugin-sdk/index.d.ts"],
-      "assistant/plugin-sdk/*": ["../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
-      "assistant/plugin-sdk/account-id": ["../dist/plugin-sdk/src/plugin-sdk/account-id.d.ts"],
-      "assistant/plugin-sdk/channel-entry-contract": [
+      "zhushou/extension-api": ["../src/extensionAPI.ts"],
+      "zhushou/plugin-sdk": ["../dist/plugin-sdk/src/plugin-sdk/index.d.ts"],
+      "zhushou/plugin-sdk/*": ["../dist/plugin-sdk/src/plugin-sdk/*.d.ts"],
+      "zhushou/plugin-sdk/account-id": ["../dist/plugin-sdk/src/plugin-sdk/account-id.d.ts"],
+      "zhushou/plugin-sdk/channel-entry-contract": [
         "../packages/plugin-sdk/dist/src/plugin-sdk/channel-entry-contract.d.ts"
       ],
-      "assistant/plugin-sdk/browser-maintenance": [
+      "zhushou/plugin-sdk/browser-maintenance": [
         "../packages/plugin-sdk/dist/extensions/browser/browser-maintenance.d.ts"
       ],
-      "assistant/plugin-sdk/browser-config-runtime": [
+      "zhushou/plugin-sdk/browser-config-runtime": [
         "../dist/plugin-sdk/src/plugin-sdk/browser-config-runtime.d.ts"
       ],
-      "assistant/plugin-sdk/browser-node-runtime": [
+      "zhushou/plugin-sdk/browser-node-runtime": [
         "../dist/plugin-sdk/src/plugin-sdk/browser-node-runtime.d.ts"
       ],
-      "assistant/plugin-sdk/browser-setup-tools": [
+      "zhushou/plugin-sdk/browser-setup-tools": [
         "../dist/plugin-sdk/src/plugin-sdk/browser-setup-tools.d.ts"
       ],
-      "assistant/plugin-sdk/browser-security-runtime": [
+      "zhushou/plugin-sdk/browser-security-runtime": [
         "../dist/plugin-sdk/src/plugin-sdk/browser-security-runtime.d.ts"
       ],
-      "assistant/plugin-sdk/channel-secret-basic-runtime": [
+      "zhushou/plugin-sdk/channel-secret-basic-runtime": [
         "../packages/plugin-sdk/dist/src/plugin-sdk/channel-secret-basic-runtime.d.ts"
       ],
-      "assistant/plugin-sdk/channel-secret-runtime": [
+      "zhushou/plugin-sdk/channel-secret-runtime": [
         "../dist/plugin-sdk/src/plugin-sdk/channel-secret-runtime.d.ts"
       ],
-      "assistant/plugin-sdk/channel-secret-tts-runtime": [
+      "zhushou/plugin-sdk/channel-secret-tts-runtime": [
         "../packages/plugin-sdk/dist/src/plugin-sdk/channel-secret-tts-runtime.d.ts"
       ],
-      "assistant/plugin-sdk/channel-streaming": [
+      "zhushou/plugin-sdk/channel-streaming": [
         "../dist/plugin-sdk/src/plugin-sdk/channel-streaming.d.ts"
       ],
-      "assistant/plugin-sdk/error-runtime": ["../dist/plugin-sdk/src/plugin-sdk/error-runtime.d.ts"],
-      "assistant/plugin-sdk/provider-catalog-shared": [
+      "zhushou/plugin-sdk/error-runtime": ["../dist/plugin-sdk/src/plugin-sdk/error-runtime.d.ts"],
+      "zhushou/plugin-sdk/provider-catalog-shared": [
         "../packages/plugin-sdk/dist/src/plugin-sdk/provider-catalog-shared.d.ts"
       ],
-      "assistant/plugin-sdk/provider-entry": [
+      "zhushou/plugin-sdk/provider-entry": [
         "../packages/plugin-sdk/dist/src/plugin-sdk/provider-entry.d.ts"
       ],
-      "assistant/plugin-sdk/secret-ref-runtime": [
+      "zhushou/plugin-sdk/secret-ref-runtime": [
         "../dist/plugin-sdk/src/plugin-sdk/secret-ref-runtime.d.ts"
       ],
-      "assistant/plugin-sdk/ssrf-runtime": ["../dist/plugin-sdk/src/plugin-sdk/ssrf-runtime.d.ts"],
-      "@assistant/qa-channel/api.js": ["../dist/plugin-sdk/extensions/qa-channel/api.d.ts"],
-      "@assistant/*.js": ["../packages/plugin-sdk/dist/extensions/*.d.ts", "../extensions/*"],
-      "@assistant/*": ["../packages/plugin-sdk/dist/extensions/*", "../extensions/*"],
-      "@assistant/plugin-sdk/*": ["../dist/plugin-sdk/src/plugin-sdk/*.d.ts"]
+      "zhushou/plugin-sdk/ssrf-runtime": ["../dist/plugin-sdk/src/plugin-sdk/ssrf-runtime.d.ts"],
+      "@zhushou/qa-channel/api.js": ["../dist/plugin-sdk/extensions/qa-channel/api.d.ts"],
+      "@zhushou/*.js": ["../packages/plugin-sdk/dist/extensions/*.d.ts", "../extensions/*"],
+      "@zhushou/*": ["../packages/plugin-sdk/dist/extensions/*", "../extensions/*"],
+      "@zhushou/plugin-sdk/*": ["../dist/plugin-sdk/src/plugin-sdk/*.d.ts"]
     }
   }
 }

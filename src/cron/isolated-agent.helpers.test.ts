@@ -43,7 +43,7 @@ describe("resolveCronPayloadOutcome", () => {
     const result = resolveCronPayloadOutcome({
       payloads: [
         { text: "Model context overflow", isError: true },
-        { text: "Partial assistant text before error" },
+        { text: "Partial zhushou text before error" },
       ],
       runLevelError: { kind: "context_overflow", message: "exceeded context window" },
     });
@@ -60,7 +60,7 @@ describe("resolveCronPayloadOutcome", () => {
     expect(result.summary ?? "").toMatch(/…$/);
   });
 
-  it("preserves all successful deliverable payloads when no final assistant text is available", () => {
+  it("preserves all successful deliverable payloads when no final zhushou text is available", () => {
     const result = resolveCronPayloadOutcome({
       payloads: [
         { text: "line 1" },
@@ -73,15 +73,15 @@ describe("resolveCronPayloadOutcome", () => {
     expect(result.deliveryPayload).toEqual({ text: "line 2" });
   });
 
-  it("prefers finalAssistantVisibleText for text-only announce delivery", () => {
+  it("prefers finalZhushouVisibleText for text-only announce delivery", () => {
     const result = resolveCronPayloadOutcome({
       payloads: [
         { text: "section 1" },
         { text: "temporary error", isError: true },
         { text: "section 2" },
       ],
-      finalAssistantVisibleText: "section 1\nsection 2",
-      preferFinalAssistantVisibleText: true,
+      finalZhushouVisibleText: "section 1\nsection 2",
+      preferFinalZhushouVisibleText: true,
     });
 
     expect(result.summary).toBe("section 1\nsection 2");
@@ -94,8 +94,8 @@ describe("resolveCronPayloadOutcome", () => {
   it("keeps structured-content detection scoped to the last delivery payload", () => {
     const result = resolveCronPayloadOutcome({
       payloads: [{ mediaUrl: "https://example.com/report.png" }, { text: "final text" }],
-      finalAssistantVisibleText: "full final report",
-      preferFinalAssistantVisibleText: true,
+      finalZhushouVisibleText: "full final report",
+      preferFinalZhushouVisibleText: true,
     });
 
     expect(result.deliveryPayloads).toEqual([
@@ -113,8 +113,8 @@ describe("resolveCronPayloadOutcome", () => {
         { text: "first error", isError: true },
         { text: "last error", isError: true },
       ],
-      finalAssistantVisibleText: "Recovered final answer",
-      preferFinalAssistantVisibleText: true,
+      finalZhushouVisibleText: "Recovered final answer",
+      preferFinalZhushouVisibleText: true,
     });
 
     expect(result.outputText).toBe("last error");
@@ -122,10 +122,10 @@ describe("resolveCronPayloadOutcome", () => {
     expect(result.deliveryPayload).toEqual({ text: "last error", isError: true });
   });
 
-  it("keeps multi-payload direct delivery when finalAssistantVisibleText is not preferred", () => {
+  it("keeps multi-payload direct delivery when finalZhushouVisibleText is not preferred", () => {
     const result = resolveCronPayloadOutcome({
       payloads: [{ text: "Working on it..." }, { text: "Final weather summary" }],
-      finalAssistantVisibleText: "Final weather summary",
+      finalZhushouVisibleText: "Final weather summary",
     });
 
     expect(result.outputText).toBe("Final weather summary");

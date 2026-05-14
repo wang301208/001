@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { sendProactive } from "./proactive.js";
 
@@ -41,7 +41,7 @@ describe("qqbot proactive sends", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     const result = await sendProactive(
       {

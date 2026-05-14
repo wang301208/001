@@ -103,12 +103,12 @@ prepare_gates() {
       echo "Docs-only change detected with high confidence; skipping pnpm test."
     else
       gates_mode="full"
-      if [ -n "${ASSISTANT_VITEST_MAX_WORKERS:-}" ]; then
-        echo "Running pnpm test with ASSISTANT_VITEST_MAX_WORKERS=$ASSISTANT_VITEST_MAX_WORKERS."
+      if [ -n "${ZHUSHOU_VITEST_MAX_WORKERS:-}" ]; then
+        echo "Running pnpm test with ZHUSHOU_VITEST_MAX_WORKERS=$ZHUSHOU_VITEST_MAX_WORKERS."
         run_quiet_logged \
           "pnpm test" \
           ".local/gates-test.log" \
-          env ASSISTANT_VITEST_MAX_WORKERS="$ASSISTANT_VITEST_MAX_WORKERS" pnpm test
+          env ZHUSHOU_VITEST_MAX_WORKERS="$ZHUSHOU_VITEST_MAX_WORKERS" pnpm test
       else
         echo "Running pnpm test with host-aware scheduling defaults."
         run_quiet_logged "pnpm test" ".local/gates-test.log" pnpm test

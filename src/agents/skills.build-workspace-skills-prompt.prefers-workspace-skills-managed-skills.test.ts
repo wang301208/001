@@ -5,7 +5,7 @@ import { createFixtureSuite } from "../test-utils/fixture-suite.js";
 import { writeSkill } from "./skills.e2e-test-helpers.js";
 import { buildWorkspaceSkillsPrompt } from "./skills/workspace.js";
 
-const fixtureSuite = createFixtureSuite("assistant-skills-prompt-suite-");
+const fixtureSuite = createFixtureSuite("zhushou-skills-prompt-suite-");
 
 beforeAll(async () => {
   await fixtureSuite.setup();
@@ -63,31 +63,31 @@ describe("buildWorkspaceSkillsPrompt", () => {
       dir: path.join(skillsDir, "bin-skill"),
       name: "bin-skill",
       description: "Needs a bin",
-      metadata: '{"assistant":{"requires":{"bins":["fakebin"]}}}',
+      metadata: '{"zhushou":{"requires":{"bins":["fakebin"]}}}',
     });
     await writeSkill({
       dir: path.join(skillsDir, "anybin-skill"),
       name: "anybin-skill",
       description: "Needs any bin",
-      metadata: '{"assistant":{"requires":{"anyBins":["missingbin","fakebin"]}}}',
+      metadata: '{"zhushou":{"requires":{"anyBins":["missingbin","fakebin"]}}}',
     });
     await writeSkill({
       dir: path.join(skillsDir, "config-skill"),
       name: "config-skill",
       description: "Needs config",
-      metadata: '{"assistant":{"requires":{"config":["browser.enabled"]}}}',
+      metadata: '{"zhushou":{"requires":{"config":["browser.enabled"]}}}',
     });
     await writeSkill({
       dir: path.join(skillsDir, "always-skill"),
       name: "always-skill",
       description: "Always on",
-      metadata: '{"assistant":{"always":true,"requires":{"env":["MISSING"]}}}',
+      metadata: '{"zhushou":{"always":true,"requires":{"env":["MISSING"]}}}',
     });
     await writeSkill({
       dir: path.join(skillsDir, "env-skill"),
       name: "env-skill",
       description: "Needs env",
-      metadata: '{"assistant":{"requires":{"env":["ENV_KEY"]},"primaryEnv":"ENV_KEY"}}',
+      metadata: '{"zhushou":{"requires":{"env":["ENV_KEY"]},"primaryEnv":"ENV_KEY"}}',
     });
 
     const managedSkillsDir = path.join(workspaceDir, ".managed");
@@ -140,7 +140,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
       dir: skillDir,
       name: "alias-skill",
       description: "Uses skillKey",
-      metadata: '{"assistant":{"skillKey":"alias"}}',
+      metadata: '{"zhushou":{"skillKey":"alias"}}',
     });
 
     const prompt = withEnv({ HOME: workspaceDir, PATH: "" }, () =>

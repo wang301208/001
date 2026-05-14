@@ -1,9 +1,9 @@
-import { createClaimableDedupe, type ClaimableDedupe } from "assistant/plugin-sdk/persistent-dedupe";
-import { isPrivateNetworkOptInEnabled } from "assistant/plugin-sdk/ssrf-runtime";
+import { createClaimableDedupe, type ClaimableDedupe } from "zhushou/plugin-sdk/persistent-dedupe";
+import { isPrivateNetworkOptInEnabled } from "zhushou/plugin-sdk/ssrf-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { getMattermostRuntime } from "../runtime.js";
 import { resolveMattermostAccount, resolveMattermostReplyToMode } from "./accounts.js";
 import {
@@ -55,7 +55,7 @@ import { deliverMattermostReplyPayload } from "./reply-delivery.js";
 import type {
   ChannelAccountSnapshot,
   ChatType,
-  AssistantConfig,
+  ZhushouConfig,
   ReplyPayload,
   RuntimeEnv,
 } from "./runtime-api.js";
@@ -99,7 +99,7 @@ export type MonitorMattermostOpts = {
   botToken?: string;
   baseUrl?: string;
   accountId?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   statusSink?: (patch: Partial<ChannelAccountSnapshot>) => void;

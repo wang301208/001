@@ -1,5 +1,5 @@
 import { replaceConfigFile } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { type HookInstallUpdate, recordHookInstall } from "../hooks/installs.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
 import { type PluginInstallUpdate, recordPluginInstall } from "../plugins/installs.js";
@@ -13,13 +13,13 @@ import {
 } from "./plugins-command-helpers.js";
 
 export async function persistPluginInstall(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   baseHash?: string;
   pluginId: string;
   install: Omit<PluginInstallUpdate, "pluginId">;
   successMessage?: string;
   warningMessage?: string;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   let next = enablePluginInConfig(params.config, params.pluginId).config;
   next = recordPluginInstall(next, {
     pluginId: params.pluginId,
@@ -41,13 +41,13 @@ export async function persistPluginInstall(params: {
 }
 
 export async function persistHookPackInstall(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   baseHash?: string;
   hookPackId: string;
   hooks: string[];
   install: Omit<HookInstallUpdate, "hookId" | "hooks">;
   successMessage?: string;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   let next = enableInternalHookEntries(params.config, params.hooks);
   next = recordHookInstall(next, {
     hookId: params.hookPackId,

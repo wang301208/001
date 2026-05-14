@@ -30,7 +30,7 @@ export function registerDefaultAuthTokenSuite(): void {
     let port: number;
     const testsWithoutDefaultServer = new Set([
       "closes silent handshakes after timeout",
-      "prefers ASSISTANT_HANDSHAKE_TIMEOUT_MS and falls back on empty string",
+      "prefers ZHUSHOU_HANDSHAKE_TIMEOUT_MS and falls back on empty string",
     ]);
 
     beforeEach(async (context) => {
@@ -86,8 +86,8 @@ export function registerDefaultAuthTokenSuite(): void {
 
     test("closes silent handshakes after timeout", async () => {
       vi.useRealTimers();
-      const prevHandshakeTimeout = process.env.ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS;
-      process.env.ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS = "20";
+      const prevHandshakeTimeout = process.env.ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS;
+      process.env.ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS = "20";
       try {
         await withGatewayServer(async ({ port: isolatedPort }) => {
           const ws = await openWs(isolatedPort);
@@ -97,32 +97,32 @@ export function registerDefaultAuthTokenSuite(): void {
         });
       } finally {
         if (prevHandshakeTimeout === undefined) {
-          delete process.env.ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS;
+          delete process.env.ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS;
         } else {
-          process.env.ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS = prevHandshakeTimeout;
+          process.env.ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS = prevHandshakeTimeout;
         }
       }
     });
 
-    test("prefers ASSISTANT_HANDSHAKE_TIMEOUT_MS and falls back on empty string", () => {
-      const prevHandshakeTimeout = process.env.ASSISTANT_HANDSHAKE_TIMEOUT_MS;
-      const prevTestHandshakeTimeout = process.env.ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS;
-      process.env.ASSISTANT_HANDSHAKE_TIMEOUT_MS = "75";
-      process.env.ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS = "20";
+    test("prefers ZHUSHOU_HANDSHAKE_TIMEOUT_MS and falls back on empty string", () => {
+      const prevHandshakeTimeout = process.env.ZHUSHOU_HANDSHAKE_TIMEOUT_MS;
+      const prevTestHandshakeTimeout = process.env.ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS;
+      process.env.ZHUSHOU_HANDSHAKE_TIMEOUT_MS = "75";
+      process.env.ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS = "20";
       try {
         expect(getPreauthHandshakeTimeoutMsFromEnv()).toBe(75);
-        process.env.ASSISTANT_HANDSHAKE_TIMEOUT_MS = "";
+        process.env.ZHUSHOU_HANDSHAKE_TIMEOUT_MS = "";
         expect(getPreauthHandshakeTimeoutMsFromEnv()).toBe(20);
       } finally {
         if (prevHandshakeTimeout === undefined) {
-          delete process.env.ASSISTANT_HANDSHAKE_TIMEOUT_MS;
+          delete process.env.ZHUSHOU_HANDSHAKE_TIMEOUT_MS;
         } else {
-          process.env.ASSISTANT_HANDSHAKE_TIMEOUT_MS = prevHandshakeTimeout;
+          process.env.ZHUSHOU_HANDSHAKE_TIMEOUT_MS = prevHandshakeTimeout;
         }
         if (prevTestHandshakeTimeout === undefined) {
-          delete process.env.ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS;
+          delete process.env.ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS;
         } else {
-          process.env.ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS = prevTestHandshakeTimeout;
+          process.env.ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS = prevTestHandshakeTimeout;
         }
       }
     });
@@ -151,24 +151,24 @@ export function registerDefaultAuthTokenSuite(): void {
       for (const testCase of [
         {
           env: {
-            ASSISTANT_VERSION: " ",
-            ASSISTANT_SERVICE_VERSION: "2.4.6-service",
+            ZHUSHOU_VERSION: " ",
+            ZHUSHOU_SERVICE_VERSION: "2.4.6-service",
             npm_package_version: "1.0.0-package",
           },
           expectedVersion: VERSION,
         },
         {
           env: {
-            ASSISTANT_VERSION: "9.9.9-cli",
-            ASSISTANT_SERVICE_VERSION: "2.4.6-service",
+            ZHUSHOU_VERSION: "9.9.9-cli",
+            ZHUSHOU_SERVICE_VERSION: "2.4.6-service",
             npm_package_version: "1.0.0-package",
           },
           expectedVersion: "9.9.9-cli",
         },
         {
           env: {
-            ASSISTANT_VERSION: " ",
-            ASSISTANT_SERVICE_VERSION: "\t",
+            ZHUSHOU_VERSION: " ",
+            ZHUSHOU_SERVICE_VERSION: "\t",
             npm_package_version: "1.0.0-package",
           },
           expectedVersion: VERSION,
@@ -277,7 +277,7 @@ export function registerDefaultAuthTokenSuite(): void {
       const token = resolveGatewayTokenOrEnv();
       const deviceIdentityPath = path.join(
         os.tmpdir(),
-        `assistant-shared-auth-scope-reuse-${randomUUID()}.json`,
+        `zhushou-shared-auth-scope-reuse-${randomUUID()}.json`,
       );
       const wsInitial = await openWs(port);
       let pairedDeviceToken: string | undefined;
@@ -347,7 +347,7 @@ export function registerDefaultAuthTokenSuite(): void {
         scopes: [],
         clientId: GATEWAY_CLIENT_NAMES.TEST,
         clientMode: GATEWAY_CLIENT_MODES.TEST,
-        identityPath: path.join(os.tmpdir(), `assistant-test-device-${randomUUID()}.json`),
+        identityPath: path.join(os.tmpdir(), `zhushou-test-device-${randomUUID()}.json`),
         nonce,
       });
 

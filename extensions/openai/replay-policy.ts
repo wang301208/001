@@ -1,7 +1,7 @@
 import type {
   ProviderReplayPolicy,
   ProviderReplayPolicyContext,
-} from "assistant/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";
 
 /**
  * Returns the provider-owned replay policy for OpenAI-family transports.
@@ -9,7 +9,7 @@ import type {
 export function buildOpenAIReplayPolicy(ctx: ProviderReplayPolicyContext): ProviderReplayPolicy {
   return {
     sanitizeMode: "images-only",
-    applyAssistantFirstOrderingFix: false,
+    applyZhushouFirstOrderingFix: false,
     validateGeminiTurns: false,
     validateAnthropicTurns: false,
     ...(ctx.modelApi === "openai-completions"

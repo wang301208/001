@@ -5,15 +5,15 @@ import {
   buildTextObservationFields,
   sanitizeForConsole,
 } from "./pi-embedded-error-observation.js";
-import { classifyFailoverReason, formatAssistantErrorText } from "./pi-embedded-helpers.js";
-import { isIncompleteTerminalAssistantTurn } from "./pi-embedded-runner/run/incomplete-turn.js";
+import { classifyFailoverReason, formatZhushouErrorText } from "./pi-embedded-helpers.js";
+import { isIncompleteTerminalZhushouTurn } from "./pi-embedded-runner/run/incomplete-turn.js";
 import {
   consumePendingToolMediaReply,
-  hasAssistantVisibleReply,
+  hasZhushouVisibleReply,
 } from "./pi-embedded-subscribe.handlers.messages.js";
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 import { isPromiseLike } from "./pi-embedded-subscribe.promise.js";
-import { isAssistantMessage } from "./pi-embedded-utils.js";
+import { isZhushouMessage } from "./pi-embedded-utils.js";
 
 export {
   handleAutoCompactionEnd,
@@ -37,65 +37,65 @@ export function handleAgentStart(ctx: EmbeddedPiSubscribeContext) {
 }
 
 export function handleAgentEnd(ctx: EmbeddedPiSubscribeContext): void | Promise<void> {
-  const lastAssistant = ctx.state.lastAssistant;
-  const isError = isAssistantMessage(lastAssistant) && lastAssistant.stopReason === "error";
+  const lastZhushou = ctx.state.lastZhushou;
+  const isError = isZhushouMessage(lastZhushou) && lastZhushou.stopReason === "error";
   let lifecycleErrorText: string | undefined;
-  const hasAssistantVisibleText =
-    Array.isArray(ctx.state.assistantTexts) &&
-    ctx.state.assistantTexts.some((text) => hasAssistantVisibleReply({ text }));
+  const hasZhushouVisibleText =
+    Array.isArray(ctx.state.zhushouTexts) &&
+    ctx.state.zhushouTexts.some((text) => hasZhushouVisibleReply({ text }));
   const hadDeterministicSideEffect =
     ctx.state.hadDeterministicSideEffect === true ||
     (ctx.state.messagingToolSentTexts?.length ?? 0) > 0 ||
     (ctx.state.messagingToolSentMediaUrls?.length ?? 0) > 0 ||
     (ctx.state.successfulCronAdds ?? 0) > 0;
-  const incompleteTerminalAssistant = isIncompleteTerminalAssistantTurn({
-    hasAssistantVisibleText,
-    lastAssistant: isAssistantMessage(lastAssistant) ? lastAssistant : null,
+  const incompleteTerminalZhushou = isIncompleteTerminalZhushouTurn({
+    hasZhushouVisibleText,
+    lastZhushou: isZhushouMessage(lastZhushou) ? lastZhushou : null,
   });
   const replayInvalid =
-    ctx.state.replayState.replayInvalid || incompleteTerminalAssistant ? true : undefined;
+    ctx.state.replayState.replayInvalid || incompleteTerminalZhushou ? true : undefined;
   const derivedWorkingTerminalState = isError
     ? "blocked"
-    : replayInvalid && !hasAssistantVisibleText && !hadDeterministicSideEffect
+    : replayInvalid && !hasZhushouVisibleText && !hadDeterministicSideEffect
       ? "abandoned"
       : ctx.state.livenessState;
   const livenessState =
     ctx.state.livenessState === "working" ? derivedWorkingTerminalState : ctx.state.livenessState;
 
-  if (isError && lastAssistant) {
-    const friendlyError = formatAssistantErrorText(lastAssistant, {
+  if (isError && lastZhushou) {
+    const friendlyError = formatZhushouErrorText(lastZhushou, {
       cfg: ctx.params.config,
       sessionKey: ctx.params.sessionKey,
-      provider: lastAssistant.provider,
-      model: lastAssistant.model,
+      provider: lastZhushou.provider,
+      model: lastZhushou.model,
     });
-    const rawError = lastAssistant.errorMessage?.trim();
+    const rawError = lastZhushou.errorMessage?.trim();
     const failoverReason = classifyFailoverReason(rawError ?? "", {
-      provider: lastAssistant.provider,
+      provider: lastZhushou.provider,
     });
-    const errorText = (friendlyError || lastAssistant.errorMessage || "LLM request failed.").trim();
+    const errorText = (friendlyError || lastZhushou.errorMessage || "LLM request failed.").trim();
     const observedError = buildApiErrorObservationFields(rawError, {
-      provider: lastAssistant.provider,
+      provider: lastZhushou.provider,
     });
     const safeErrorText =
       buildTextObservationFields(errorText, {
-        provider: lastAssistant.provider,
+        provider: lastZhushou.provider,
       }).textPreview ?? "LLM request failed.";
     lifecycleErrorText = safeErrorText;
     const safeRunId = sanitizeForConsole(ctx.params.runId) ?? "-";
-    const safeModel = sanitizeForConsole(lastAssistant.model) ?? "unknown";
-    const safeProvider = sanitizeForConsole(lastAssistant.provider) ?? "unknown";
+    const safeModel = sanitizeForConsole(lastZhushou.model) ?? "unknown";
+    const safeProvider = sanitizeForConsole(lastZhushou.provider) ?? "unknown";
     const safeRawErrorPreview = sanitizeForConsole(observedError.rawErrorPreview);
     const rawErrorConsoleSuffix = safeRawErrorPreview ? ` rawError=${safeRawErrorPreview}` : "";
     ctx.log.warn("embedded run agent end", {
       event: "embedded_run_agent_end",
-      tags: ["error_handling", "lifecycle", "agent_end", "assistant_error"],
+      tags: ["error_handling", "lifecycle", "agent_end", "zhushou_error"],
       runId: ctx.params.runId,
       isError: true,
       error: safeErrorText,
       failoverReason,
-      model: lastAssistant.model,
-      provider: lastAssistant.provider,
+      model: lastZhushou.model,
+      provider: lastZhushou.provider,
       ...observedError,
       consoleMessage: `embedded run agent end: runId=${safeRunId} isError=true model=${safeModel} provider=${safeProvider} error=${safeErrorText}${rawErrorConsoleSuffix}`,
     });
@@ -161,7 +161,7 @@ export function handleAgentEnd(ctx: EmbeddedPiSubscribeContext): void | Promise<
 
   const flushPendingMediaAndChannel = () => {
     const pendingToolMediaReply = consumePendingToolMediaReply(ctx.state);
-    if (pendingToolMediaReply && hasAssistantVisibleReply(pendingToolMediaReply)) {
+    if (pendingToolMediaReply && hasZhushouVisibleReply(pendingToolMediaReply)) {
       ctx.emitBlockReply(pendingToolMediaReply);
     }
 

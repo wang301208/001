@@ -9,7 +9,7 @@ type ResolveOutboundTarget = typeof import("../../infra/outbound/targets.js").re
 
 const mocks = vi.hoisted(() => ({
   deliverOutboundPayloads: vi.fn(),
-  appendAssistantMessageToSessionTranscript: vi.fn(async () => ({ ok: true, sessionFile: "x" })),
+  appendZhushouMessageToSessionTranscript: vi.fn(async () => ({ ok: true, sessionFile: "x" })),
   recordSessionMetaFromInbound: vi.fn(async () => ({ ok: true })),
   resolveOutboundTarget: vi.fn<ResolveOutboundTarget>(() => ({ ok: true, to: "resolved" })),
   resolveOutboundSessionRoute: vi.fn(),
@@ -25,7 +25,7 @@ const mocks = vi.hoisted(() => ({
     }>
   >(async () => ({ messageId: "poll-1" })),
   getChannelPlugin: vi.fn(),
-  loadAssistantPlugins: vi.fn(),
+  loadZhushouPlugins: vi.fn(),
   applyPluginAutoEnable: vi.fn(),
 }));
 
@@ -44,7 +44,7 @@ vi.mock("../../channels/plugins/index.js", () => ({
   normalizeChannelId: (value: string) => (value === "webchat" ? null : value),
 }));
 
-const TEST_AGENT_WORKSPACE = "/tmp/assistant-test-workspace";
+const TEST_AGENT_WORKSPACE = "/tmp/zhushou-test-workspace";
 let sendHandlers: typeof import("./send.js").sendHandlers;
 
 function resolveAgentIdFromSessionKeyForTests(params: { sessionKey?: string }): string {
@@ -75,7 +75,7 @@ vi.mock("../../config/plugin-auto-enable.js", () => ({
 }));
 
 vi.mock("../../plugins/loader.js", () => ({
-  loadAssistantPlugins: mocks.loadAssistantPlugins,
+  loadZhushouPlugins: mocks.loadZhushouPlugins,
 }));
 
 vi.mock("../../infra/outbound/targets.js", () => ({
@@ -101,7 +101,7 @@ vi.mock("../../config/sessions.js", async () => {
   );
   return {
     ...actual,
-    appendAssistantMessageToSessionTranscript: mocks.appendAssistantMessageToSessionTranscript,
+    appendZhushouMessageToSessionTranscript: mocks.appendZhushouMessageToSessionTranscript,
     recordSessionMetaFromInbound: mocks.recordSessionMetaFromInbound,
   };
 });

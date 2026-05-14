@@ -1,17 +1,17 @@
 import { expect } from "vitest";
-import type { AssistantConfig } from "../api.js";
+import type { ZhushouConfig } from "../api.js";
 import { createMemoryGetTool, createMemorySearchTool } from "./tools.js";
 
-export function asAssistantConfig(config: Partial<AssistantConfig>): AssistantConfig {
+export function asZhushouConfig(config: Partial<ZhushouConfig>): ZhushouConfig {
   return config;
 }
 
-export function createDefaultMemoryToolConfig(): AssistantConfig {
-  return asAssistantConfig({ agents: { list: [{ id: "main", default: true }] } });
+export function createDefaultMemoryToolConfig(): ZhushouConfig {
+  return asZhushouConfig({ agents: { list: [{ id: "main", default: true }] } });
 }
 
 export function createMemorySearchToolOrThrow(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentSessionKey?: string;
 }) {
   const tool = createMemorySearchTool({
@@ -25,7 +25,7 @@ export function createMemorySearchToolOrThrow(params?: {
 }
 
 export function createMemoryGetToolOrThrow(
-  config: AssistantConfig = createDefaultMemoryToolConfig(),
+  config: ZhushouConfig = createDefaultMemoryToolConfig(),
 ) {
   const tool = createMemoryGetTool({ config });
   if (!tool) {
@@ -36,7 +36,7 @@ export function createMemoryGetToolOrThrow(
 
 export function createAutoCitationsMemorySearchTool(agentSessionKey: string) {
   return createMemorySearchToolOrThrow({
-    config: asAssistantConfig({
+    config: asZhushouConfig({
       memory: { citations: "auto" },
       agents: { list: [{ id: "main", default: true }] },
     }),

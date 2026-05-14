@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   getMatrixExecApprovalApprovers,
@@ -28,15 +28,15 @@ afterEach(() => {
 });
 
 function createTempDir(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-matrix-exec-approvals-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-matrix-exec-approvals-"));
   tempDirs.push(dir);
   return dir;
 }
 
 function buildConfig(
-  execApprovals?: NonNullable<NonNullable<AssistantConfig["channels"]>["matrix"]>["execApprovals"],
-  channelOverrides?: Partial<NonNullable<NonNullable<AssistantConfig["channels"]>["matrix"]>>,
-): AssistantConfig {
+  execApprovals?: NonNullable<NonNullable<ZhushouConfig["channels"]>["matrix"]>["execApprovals"],
+  channelOverrides?: Partial<NonNullable<NonNullable<ZhushouConfig["channels"]>["matrix"]>>,
+): ZhushouConfig {
   return {
     channels: {
       matrix: {
@@ -47,7 +47,7 @@ function buildConfig(
         execApprovals,
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function matrixAccount(
@@ -70,7 +70,7 @@ function buildMultiAccountMatrixConfig(params: {
   opsExecApprovals?: MatrixExecApprovalConfig;
   defaultOverrides?: Partial<MatrixAccountConfig>;
   opsOverrides?: Partial<MatrixAccountConfig>;
-}): AssistantConfig {
+}): ZhushouConfig {
   return {
     ...(params.sessionStorePath ? { session: { store: params.sessionStorePath } } : {}),
     channels: {
@@ -95,7 +95,7 @@ function buildMultiAccountMatrixConfig(params: {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function makeForeignChannelApprovalRequest(params: {
@@ -183,7 +183,7 @@ describe("matrix exec approvals", () => {
           ],
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     expect(isMatrixExecApprovalTargetRecipient({ cfg, senderId: "@target:example.org" })).toBe(
       true,

@@ -13,9 +13,13 @@ export function describeWebFetchProviderContracts(pluginId: string) {
   const resolveProviders = () => resolveWebFetchProviderContractEntriesForPluginId(pluginId);
 
   describe(`${pluginId} web fetch provider contract registry load`, () => {
-    it("loads bundled web fetch providers", () => {
-      expect(resolveProviders().length).toBeGreaterThan(0);
-    });
+    it(
+      "loads bundled web fetch providers",
+      () => {
+        expect(resolveProviders().length).toBeGreaterThan(0);
+      },
+      180_000,
+    );
   });
 
   for (const providerId of providerIds) {

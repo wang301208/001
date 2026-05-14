@@ -2,12 +2,12 @@ import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
 import { createSubscribedSessionHarness } from "./pi-embedded-subscribe.e2e-harness.js";
 
-type AssistantMessageWithPhase = AssistantMessage & {
+type ZhushouMessageWithPhase = AssistantMessage & {
   phase?: "commentary" | "final_answer";
 };
 
 describe("subscribeEmbeddedPiSession", () => {
-  it("suppresses commentary-phase assistant messages before tool use", () => {
+  it("suppresses commentary-phase zhushou messages before tool use", () => {
     const onBlockReply = vi.fn();
     const onPartialReply = vi.fn();
     const { emit, subscription } = createSubscribedSessionHarness({
@@ -22,14 +22,14 @@ describe("subscribeEmbeddedPiSession", () => {
       phase: "commentary",
       content: [{ type: "text", text: "Need send." }],
       stopReason: "toolUse",
-    } as AssistantMessageWithPhase;
+    } as ZhushouMessageWithPhase;
 
     emit({ type: "message_start", message: commentaryMessage });
     emit({ type: "message_end", message: commentaryMessage });
 
     expect(onBlockReply).not.toHaveBeenCalled();
     expect(onPartialReply).not.toHaveBeenCalled();
-    expect(subscription.assistantTexts).toEqual([]);
+    expect(subscription.zhushouTexts).toEqual([]);
   });
 
   it("suppresses commentary when phase is only present in textSignature metadata", () => {
@@ -58,12 +58,12 @@ describe("subscribeEmbeddedPiSession", () => {
     emit({
       type: "message_update",
       message: commentaryMessage,
-      assistantMessageEvent: { type: "text_delta", delta: "Need send." },
+      zhushouMessageEvent: { type: "text_delta", delta: "Need send." },
     });
     emit({ type: "message_end", message: commentaryMessage });
 
     expect(onBlockReply).not.toHaveBeenCalled();
     expect(onPartialReply).not.toHaveBeenCalled();
-    expect(subscription.assistantTexts).toEqual([]);
+    expect(subscription.zhushouTexts).toEqual([]);
   });
 });

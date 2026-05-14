@@ -1,5 +1,5 @@
-﻿import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
-import type { AssistantConfig } from "../runtime-api.js";
+﻿import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import {
@@ -12,7 +12,7 @@ import {
 export { listFeishuDirectoryGroups, listFeishuDirectoryPeers } from "./directory.static.js";
 
 export async function listFeishuDirectoryPeersLive(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   query?: string;
   limit?: number;
   accountId?: string;
@@ -69,7 +69,7 @@ export async function listFeishuDirectoryPeersLive(params: {
 }
 
 export async function listFeishuDirectoryGroupsLive(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   query?: string;
   limit?: number;
   accountId?: string;

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   autoMigrateLegacyState,
   detectLegacyStateMigrations,
@@ -21,7 +21,7 @@ vi.mock("../channels/plugins/bundled.js", () => {
     }
   }
 
-  function resolveTelegramAccountId(cfg: AssistantConfig): string {
+  function resolveTelegramAccountId(cfg: ZhushouConfig): string {
     const defaultAgentId = cfg.agents?.list?.find((agent) => agent.default)?.id ?? "main";
     const boundAccountId = cfg.bindings?.find(
       (binding) =>
@@ -33,10 +33,10 @@ vi.mock("../channels/plugins/bundled.js", () => {
   }
 
   function detectTelegramAllowFromMigration(params: {
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     env: NodeJS.ProcessEnv;
   }) {
-    const root = params.env.ASSISTANT_STATE_DIR;
+    const root = params.env.ZHUSHOU_STATE_DIR;
     if (!root) {
       return [];
     }
@@ -117,7 +117,7 @@ vi.mock("../channels/plugins/bundled.js", () => {
                 cfg,
                 env,
               }: {
-                cfg: AssistantConfig;
+                cfg: ZhushouConfig;
                 env: NodeJS.ProcessEnv;
               }) => detectTelegramAllowFromMigration({ cfg, env }),
             },
@@ -161,14 +161,14 @@ vi.mock("../infra/json-files.js", async () => {
 });
 
 async function makeTempRoot() {
-  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "assistant-doctor-"));
+  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "zhushou-doctor-"));
   tempRoots.push(root);
   return root;
 }
 
 async function makeRootWithEmptyCfg() {
   const root = await makeTempRoot();
-  const cfg: AssistantConfig = {};
+  const cfg: ZhushouConfig = {};
   return { root, cfg };
 }
 
@@ -187,12 +187,12 @@ function writeLegacyTelegramAllowFromStore(oauthDir: string) {
   );
 }
 
-async function runTelegramAllowFromMigration(params: { root: string; cfg: AssistantConfig }) {
+async function runTelegramAllowFromMigration(params: { root: string; cfg: ZhushouConfig }) {
   const oauthDir = ensureCredentialsDir(params.root);
   writeLegacyTelegramAllowFromStore(oauthDir);
   const detected = await detectLegacyStateMigrations({
     cfg: params.cfg,
-    env: { ASSISTANT_STATE_DIR: params.root } as NodeJS.ProcessEnv,
+    env: { ZHUSHOU_STATE_DIR: params.root } as NodeJS.ProcessEnv,
   });
   const result = await runLegacyStateMigrations({ detected, now: () => 123 });
   return { oauthDir, detected, result };
@@ -227,12 +227,12 @@ function writeLegacySessionsFixture(params: {
 
 async function detectAndRunMigrations(params: {
   root: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   now?: () => number;
 }) {
   const detected = await detectLegacyStateMigrations({
     cfg: params.cfg,
-    env: { ASSISTANT_STATE_DIR: params.root } as NodeJS.ProcessEnv,
+    env: { ZHUSHOU_STATE_DIR: params.root } as NodeJS.ProcessEnv,
   });
   await runLegacyStateMigrations({ detected, now: params.now });
 }
@@ -246,7 +246,7 @@ function readSessionsStore(targetDir: string) {
 
 async function runAndReadSessionsStore(params: {
   root: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   targetDir: string;
   now?: () => number;
 }) {
@@ -260,13 +260,13 @@ async function runAndReadSessionsStore(params: {
 
 async function runAutoMigrateLegacyStateWithLog(params: {
   root: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   now?: () => number;
 }) {
   const log = { info: vi.fn(), warn: vi.fn() };
   const result = await autoMigrateLegacyState({
     cfg: params.cfg,
-    env: { ASSISTANT_STATE_DIR: params.root } as NodeJS.ProcessEnv,
+    env: { ZHUSHOU_STATE_DIR: params.root } as NodeJS.ProcessEnv,
     log,
     now: params.now,
   });
@@ -291,7 +291,7 @@ function ensureCredentialsDir(root: string) {
 describe("doctor legacy state migrations", () => {
   it("migrates legacy sessions into agents/<id>/sessions", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const legacySessionsDir = writeLegacySessionsFixture({
       root,
       sessions: {
@@ -309,7 +309,7 @@ describe("doctor legacy state migrations", () => {
 
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { ASSISTANT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { ZHUSHOU_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     const result = await runLegacyStateMigrations({
       detected,
@@ -337,7 +337,7 @@ describe("doctor legacy state migrations", () => {
 
   it("keeps shipped WhatsApp legacy group keys channel-qualified during migration", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const targetDir = path.join(root, "agents", "main", "sessions");
 
     writeLegacySessionsFixture({
@@ -451,7 +451,7 @@ describe("doctor legacy state migrations", () => {
 
   it("does not fan out legacy Telegram pairing allowFrom store to configured named accounts", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           defaultAccount: "bot2",
@@ -483,7 +483,7 @@ describe("doctor legacy state migrations", () => {
 
   it("migrates legacy Telegram pairing allowFrom store to the default agent bound account", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         list: [{ id: "ops", default: true }],
       },
@@ -519,10 +519,10 @@ describe("doctor legacy state migrations", () => {
 
   it("no-ops when nothing detected", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { ASSISTANT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { ZHUSHOU_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     const result = await runLegacyStateMigrations({ detected });
     expect(result.changes).toEqual([]);
@@ -530,7 +530,7 @@ describe("doctor legacy state migrations", () => {
 
   it("routes legacy state to the default agent entry", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       agents: { list: [{ id: "alpha", default: true }] },
     };
     writeLegacySessionsFixture({
@@ -552,7 +552,7 @@ describe("doctor legacy state migrations", () => {
 
   it("honors session.mainKey when seeding the direct-chat bucket", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = { session: { mainKey: "work" } };
+    const cfg: ZhushouConfig = { session: { mainKey: "work" } };
     writeLegacySessionsFixture({
       root,
       sessions: {
@@ -592,7 +592,7 @@ describe("doctor legacy state migrations", () => {
 
   it("prefers the newest entry when collapsing main aliases", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = { session: { mainKey: "work" } };
+    const cfg: ZhushouConfig = { session: { mainKey: "work" } };
     const targetDir = path.join(root, "agents", "main", "sessions");
     writeJson5(path.join(targetDir, "sessions.json"), {
       "agent:main:main": { sessionId: "legacy", updatedAt: 50 },
@@ -611,7 +611,7 @@ describe("doctor legacy state migrations", () => {
 
   it("lowercases agent session keys during canonicalization", async () => {
     const root = await makeTempRoot();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const targetDir = path.join(root, "agents", "main", "sessions");
     writeJson5(path.join(targetDir, "sessions.json"), {
       "agent:main:slack:channel:C123": { sessionId: "legacy", updatedAt: 10 },

@@ -118,11 +118,11 @@ describeLaunchdIntegration("launchd integration", () => {
 
   beforeAll(async () => {
     const testId = randomUUID().slice(0, 8);
-    homeDir = await fs.mkdtemp(path.join(os.tmpdir(), `assistant-launchd-int-${testId}-`));
+    homeDir = await fs.mkdtemp(path.join(os.tmpdir(), `zhushou-launchd-int-${testId}-`));
     env = {
       HOME: homeDir,
-      ASSISTANT_LAUNCHD_LABEL: `ai.assistant.launchd-int-${testId}`,
-      ASSISTANT_LOG_PREFIX: `gateway-launchd-int-${testId}`,
+      ZHUSHOU_LAUNCHD_LABEL: `ai.zhushou.launchd-int-${testId}`,
+      ZHUSHOU_LOG_PREFIX: `gateway-launchd-int-${testId}`,
     };
   });
 

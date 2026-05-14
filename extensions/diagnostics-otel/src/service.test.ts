@@ -103,11 +103,11 @@ vi.mock("../api.js", async () => {
   };
 });
 
-import type { AssistantPluginServiceContext } from "../api.js";
+import type { ZhushouPluginServiceContext } from "../api.js";
 import { emitDiagnosticEvent } from "../api.js";
 import { createDiagnosticsOtelService } from "./service.js";
 
-const OTEL_TEST_STATE_DIR = "/tmp/assistant-diagnostics-otel-test";
+const OTEL_TEST_STATE_DIR = "/tmp/zhushou-diagnostics-otel-test";
 const OTEL_TEST_ENDPOINT = "http://otel-collector:4318";
 const OTEL_TEST_PROTOCOL = "http/protobuf";
 
@@ -128,7 +128,7 @@ type OtelContextFlags = {
 function createOtelContext(
   endpoint: string,
   { traces = false, metrics = false, logs = false }: OtelContextFlags = {},
-): AssistantPluginServiceContext {
+): ZhushouPluginServiceContext {
   return {
     config: {
       diagnostics: {
@@ -148,7 +148,7 @@ function createOtelContext(
   };
 }
 
-function createTraceOnlyContext(endpoint: string): AssistantPluginServiceContext {
+function createTraceOnlyContext(endpoint: string): ZhushouPluginServiceContext {
   return createOtelContext(endpoint, { traces: true });
 }
 
@@ -238,26 +238,26 @@ describe("diagnostics-otel service", () => {
       attempt: 2,
     });
 
-    expect(telemetryState.counters.get("assistant.webhook.received")?.add).toHaveBeenCalled();
+    expect(telemetryState.counters.get("zhushou.webhook.received")?.add).toHaveBeenCalled();
     expect(
-      telemetryState.histograms.get("assistant.webhook.duration_ms")?.record,
+      telemetryState.histograms.get("zhushou.webhook.duration_ms")?.record,
     ).toHaveBeenCalled();
-    expect(telemetryState.counters.get("assistant.message.queued")?.add).toHaveBeenCalled();
-    expect(telemetryState.counters.get("assistant.message.processed")?.add).toHaveBeenCalled();
+    expect(telemetryState.counters.get("zhushou.message.queued")?.add).toHaveBeenCalled();
+    expect(telemetryState.counters.get("zhushou.message.processed")?.add).toHaveBeenCalled();
     expect(
-      telemetryState.histograms.get("assistant.message.duration_ms")?.record,
+      telemetryState.histograms.get("zhushou.message.duration_ms")?.record,
     ).toHaveBeenCalled();
-    expect(telemetryState.histograms.get("assistant.queue.wait_ms")?.record).toHaveBeenCalled();
-    expect(telemetryState.counters.get("assistant.session.stuck")?.add).toHaveBeenCalled();
+    expect(telemetryState.histograms.get("zhushou.queue.wait_ms")?.record).toHaveBeenCalled();
+    expect(telemetryState.counters.get("zhushou.session.stuck")?.add).toHaveBeenCalled();
     expect(
-      telemetryState.histograms.get("assistant.session.stuck_age_ms")?.record,
+      telemetryState.histograms.get("zhushou.session.stuck_age_ms")?.record,
     ).toHaveBeenCalled();
-    expect(telemetryState.counters.get("assistant.run.attempt")?.add).toHaveBeenCalled();
+    expect(telemetryState.counters.get("zhushou.run.attempt")?.add).toHaveBeenCalled();
 
     const spanNames = telemetryState.tracer.startSpan.mock.calls.map((call) => call[0]);
-    expect(spanNames).toContain("assistant.webhook.processed");
-    expect(spanNames).toContain("assistant.message.processed");
-    expect(spanNames).toContain("assistant.session.stuck");
+    expect(spanNames).toContain("zhushou.webhook.processed");
+    expect(spanNames).toContain("zhushou.message.processed");
+    expect(spanNames).toContain("zhushou.session.stuck");
 
     expect(registerLogTransportMock).toHaveBeenCalledTimes(1);
     expect(registeredTransports).toHaveLength(1);
@@ -329,7 +329,7 @@ describe("diagnostics-otel service", () => {
       _meta: { logLevelName: "DEBUG", date: new Date() },
     });
 
-    const tokenAttr = emitCall?.attributes?.["assistant.token"];
+    const tokenAttr = emitCall?.attributes?.["zhushou.token"];
     expect(tokenAttr).not.toBe("ghp_abcdefghijklmnopqrstuvwxyz123456"); // pragma: allowlist secret
     if (typeof tokenAttr === "string") {
       expect(tokenAttr).toContain("…");
@@ -347,16 +347,16 @@ describe("diagnostics-otel service", () => {
       reason: "token=ghp_abcdefghijklmnopqrstuvwxyz123456", // pragma: allowlist secret
     });
 
-    const sessionCounter = telemetryState.counters.get("assistant.session.state");
+    const sessionCounter = telemetryState.counters.get("zhushou.session.state");
     expect(sessionCounter?.add).toHaveBeenCalledWith(
       1,
       expect.objectContaining({
-        "assistant.reason": expect.stringContaining("…"),
+        "zhushou.reason": expect.stringContaining("…"),
       }),
     );
     const attrs = sessionCounter?.add.mock.calls[0]?.[1] as Record<string, unknown> | undefined;
-    expect(typeof attrs?.["assistant.reason"]).toBe("string");
-    expect(String(attrs?.["assistant.reason"])).not.toContain(
+    expect(typeof attrs?.["zhushou.reason"]).toBe("string");
+    expect(String(attrs?.["zhushou.reason"])).not.toContain(
       "ghp_abcdefghijklmnopqrstuvwxyz123456", // pragma: allowlist secret
     );
     await service.stop?.(ctx);

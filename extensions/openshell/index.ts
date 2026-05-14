@@ -1,5 +1,5 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
-import { registerSandboxBackend } from "assistant/plugin-sdk/sandbox";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { registerSandboxBackend } from "zhushou/plugin-sdk/sandbox";
 import {
   createOpenShellSandboxBackendFactory,
   createOpenShellSandboxBackendManager,

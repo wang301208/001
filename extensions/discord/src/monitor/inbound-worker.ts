@@ -1,8 +1,8 @@
-import { createRunStateMachine } from "assistant/plugin-sdk/channel-lifecycle";
-import { KeyedAsyncQueue } from "assistant/plugin-sdk/keyed-async-queue";
-import type { ClaimableDedupe } from "assistant/plugin-sdk/persistent-dedupe";
-import { danger, formatDurationSeconds } from "assistant/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { createRunStateMachine } from "zhushou/plugin-sdk/channel-lifecycle";
+import { KeyedAsyncQueue } from "zhushou/plugin-sdk/keyed-async-queue";
+import type { ClaimableDedupe } from "zhushou/plugin-sdk/persistent-dedupe";
+import { danger, formatDurationSeconds } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   commitDiscordInboundReplay,
   createDiscordInboundReplayGuard,

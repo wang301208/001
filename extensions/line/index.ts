@@ -1,13 +1,13 @@
 import {
   defineBundledChannelEntry,
-  type AssistantPluginApi,
-} from "assistant/plugin-sdk/channel-entry-contract";
+  type ZhushouPluginApi,
+} from "zhushou/plugin-sdk/channel-entry-contract";
 
-type RegisteredLineCardCommand = Parameters<AssistantPluginApi["registerCommand"]>[0];
+type RegisteredLineCardCommand = Parameters<ZhushouPluginApi["registerCommand"]>[0];
 
 let lineCardCommandPromise: Promise<RegisteredLineCardCommand> | null = null;
 
-async function loadLineCardCommand(api: AssistantPluginApi): Promise<RegisteredLineCardCommand> {
+async function loadLineCardCommand(api: ZhushouPluginApi): Promise<RegisteredLineCardCommand> {
   lineCardCommandPromise ??= (async () => {
     let registered: RegisteredLineCardCommand | null = null;
     const { registerLineCardCommand } = await import("./src/card-command.js");

@@ -5,13 +5,13 @@ type SessionMessageEntry = { type: "message"; message?: { role?: string } };
 
 /**
  * pi-coding-agent SessionManager persistence quirk:
- * - If the file exists but has no assistant message, SessionManager marks itself `flushed=true`
+ * - If the file exists but has no zhushou message, SessionManager marks itself `flushed=true`
  *   and will never persist the initial user message.
  * - If the file doesn't exist yet, SessionManager builds a new session in memory and flushes
- *   header+user+assistant once the first assistant arrives (good).
+ *   header+user+zhushou once the first zhushou arrives (good).
  *
  * This normalizes the file/session state so the first user prompt is persisted before the first
- * assistant entry, even for pre-created session files.
+ * zhushou entry, even for pre-created session files.
  */
 export async function prepareSessionManagerForRun(params: {
   sessionManager: unknown;
@@ -30,7 +30,7 @@ export async function prepareSessionManagerForRun(params: {
   };
 
   const header = sm.fileEntries.find((e): e is SessionHeaderEntry => e.type === "session");
-  const hasAssistant = sm.fileEntries.some(
+  const hasZhushou = sm.fileEntries.some(
     (e) => e.type === "message" && (e as SessionMessageEntry).message?.role === "assistant",
   );
 
@@ -41,8 +41,8 @@ export async function prepareSessionManagerForRun(params: {
     return;
   }
 
-  if (params.hadSessionFile && header && !hasAssistant) {
-    // Reset file so the first assistant flush includes header+user+assistant in order.
+  if (params.hadSessionFile && header && !hasZhushou) {
+    // Reset file so the first zhushou flush includes header+user+zhushou in order.
     await fs.writeFile(params.sessionFile, "", "utf-8");
     sm.fileEntries = [header];
     sm.byId?.clear?.();

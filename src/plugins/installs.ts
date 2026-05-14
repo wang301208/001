@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { PluginInstallRecord } from "../config/types.plugins.js";
 import { buildNpmResolutionFields, type NpmSpecResolution } from "../infra/install-source-utils.js";
 
@@ -14,9 +14,9 @@ export function buildNpmResolutionInstallFields(
 }
 
 export function recordPluginInstall(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   update: PluginInstallUpdate,
-): AssistantConfig {
+): ZhushouConfig {
   const { pluginId, ...record } = update;
   const installs = {
     ...cfg.plugins?.installs,

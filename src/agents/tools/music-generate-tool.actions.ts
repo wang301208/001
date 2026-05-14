@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { listSupportedMusicGenerationModes } from "../../music-generation/capabilities.js";
 import { listRuntimeMusicGenerationProviders } from "../../music-generation/runtime.js";
 import {
@@ -44,7 +44,7 @@ function summarizeMusicGenerationCapabilities(
 }
 
 export function createMusicGenerateListActionResult(
-  config?: AssistantConfig,
+  config?: ZhushouConfig,
 ): MusicGenerateActionResult {
   const providers = listRuntimeMusicGenerationProviders({ config });
   return createMediaGenerateProviderListActionResult({

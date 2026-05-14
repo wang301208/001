@@ -92,7 +92,7 @@ function buildPreparedCliRunContext(params: {
     reusableCliSession: {},
     modelId: params.model,
     normalizedModel: params.model,
-    systemPrompt: "You are a helpful assistant.",
+    systemPrompt: "You are a helpful zhushou.",
     systemPromptReport: {} as PreparedCliRunContext["systemPromptReport"],
     bootstrapPromptWarningLines: [],
   };
@@ -134,7 +134,7 @@ describe("runCliAgent spawn path", () => {
         model: "sonnet",
         timeoutMs: 1_000,
         runId: "run-no-tools-disabled",
-        extraSystemPrompt: "You are a helpful assistant.",
+        extraSystemPrompt: "You are a helpful zhushou.",
       },
       started: Date.now(),
       workspaceDir: "/tmp",
@@ -151,7 +151,7 @@ describe("runCliAgent spawn path", () => {
       reusableCliSession: {},
       modelId: "sonnet",
       normalizedModel: "sonnet",
-      systemPrompt: "You are a helpful assistant.",
+      systemPrompt: "You are a helpful zhushou.",
       systemPromptReport: {} as PreparedCliRunContext["systemPromptReport"],
       bootstrapPromptWarningLines: [],
     };
@@ -160,7 +160,7 @@ describe("runCliAgent spawn path", () => {
     const input = supervisorSpawnMock.mock.calls[0]?.[0] as { argv?: string[] };
     const allArgs = (input.argv ?? []).join("\n");
     expect(allArgs).not.toContain("Tools are disabled in this session");
-    expect(allArgs).toContain("You are a helpful assistant.");
+    expect(allArgs).toContain("You are a helpful zhushou.");
   });
 
   it("includes the 助手 skills prompt in CLI system prompts", () => {
@@ -241,7 +241,7 @@ describe("runCliAgent spawn path", () => {
   });
 
   it("passes 助手 skills to Claude as a session plugin", async () => {
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-cli-skills-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-cli-skills-"));
     const skillDir = path.join(workspaceDir, "skills", "weather");
     await fs.mkdir(skillDir, { recursive: true });
     await fs.writeFile(
@@ -267,7 +267,7 @@ describe("runCliAgent spawn path", () => {
         await fs.readFile(path.join(pluginDir, ".claude-plugin", "plugin.json"), "utf-8"),
       ) as { name?: string; skills?: string };
       expect(manifest).toMatchObject({
-        name: "assistant-skills",
+        name: "zhushou-skills",
         skills: "./skills",
       });
       await expect(
@@ -370,7 +370,7 @@ describe("runCliAgent spawn path", () => {
 
   it("ignores legacy claudeSessionId on the compat wrapper", () => {
     const params = buildRunClaudeCliAgentParams({
-      sessionId: "assistant-session",
+      sessionId: "zhushou-session",
       sessionFile: "/tmp/session.jsonl",
       workspaceDir: "/tmp",
       prompt: "hi",
@@ -388,7 +388,7 @@ describe("runCliAgent spawn path", () => {
 
   it("forwards senderIsOwner through the compat wrapper", () => {
     const params = buildRunClaudeCliAgentParams({
-      sessionId: "assistant-session",
+      sessionId: "zhushou-session",
       sessionKey: "agent:main:matrix:room:123",
       sessionFile: "/tmp/session.jsonl",
       workspaceDir: "/tmp",
@@ -489,7 +489,7 @@ describe("runCliAgent spawn path", () => {
       }),
     );
 
-    expect(promptFileText).toBe("You are a helpful assistant.");
+    expect(promptFileText).toBe("You are a helpful zhushou.");
   });
 
   it("cancels the managed CLI run when the abort signal fires", async () => {
@@ -618,8 +618,8 @@ describe("runCliAgent spawn path", () => {
 
       expect(result.text).toBe("Hello world");
       expect(agentEvents).toEqual([
-        { stream: "assistant", text: "Hello", delta: "Hello" },
-        { stream: "assistant", text: "Hello world", delta: " world" },
+        { stream: "zhushou", text: "Hello", delta: "Hello" },
+        { stream: "zhushou", text: "Hello world", delta: " world" },
       ]);
     } finally {
       stop();
@@ -647,7 +647,7 @@ describe("runCliAgent spawn path", () => {
         stdout: [
           JSON.stringify({ type: "system", subtype: "init", session_id: "session-api-error" }),
           JSON.stringify({
-            type: "assistant",
+            type: "zhushou",
             message: {
               model: "<synthetic>",
               role: "assistant",
@@ -743,7 +743,7 @@ describe("runCliAgent spawn path", () => {
 
   it("can preserve selected clearEnv keys for live CLI backend probes", async () => {
     try {
-      process.env.ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV = '["SAFE_CLEAR"]';
+      process.env.ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV = '["SAFE_CLEAR"]';
       process.env.SAFE_CLEAR = "from-base";
       mockSuccessfulCliRun();
       await executePreparedCliRun(
@@ -764,7 +764,7 @@ describe("runCliAgent spawn path", () => {
       expect(input.env?.SAFE_CLEAR).toBe("from-base");
       expect(input.env?.SAFE_DROP).toBeUndefined();
     } finally {
-      delete process.env.ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV;
+      delete process.env.ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV;
       delete process.env.SAFE_CLEAR;
     }
   });
@@ -926,7 +926,7 @@ describe("runCliAgent spawn path", () => {
 
   it("loads workspace bootstrap files into the Claude CLI system prompt", async () => {
     const workspaceDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "assistant-cli-bootstrap-context-"),
+      path.join(os.tmpdir(), "zhushou-cli-bootstrap-context-"),
     );
 
     await fs.writeFile(

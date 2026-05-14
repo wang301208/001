@@ -23,7 +23,7 @@ import type {
   ClientEvent,
   FunctionToolDefinition,
   InputItem,
-  OpenAIResponsesAssistantPhase,
+  OpenAIResponsesZhushouPhase,
 } from "./openai-ws-types.js";
 import {
   buildProviderRequestTlsClientOptions,
@@ -64,7 +64,7 @@ export type OutputItem =
       id: string;
       role: "assistant";
       content: Array<{ type: "output_text"; text: string }>;
-      phase?: OpenAIResponsesAssistantPhase;
+      phase?: OpenAIResponsesZhushouPhase;
       status?: "in_progress" | "completed";
     }
   | {
@@ -207,7 +207,7 @@ export type {
   ContentPart,
   FunctionToolDefinition,
   InputItem,
-  OpenAIResponsesAssistantPhase,
+  OpenAIResponsesZhushouPhase,
   ResponseCreateEvent,
   ToolChoice,
   WarmUpEvent,

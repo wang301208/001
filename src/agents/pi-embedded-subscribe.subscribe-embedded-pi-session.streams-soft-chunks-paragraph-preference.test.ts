@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createParagraphChunkedBlockReplyHarness,
-  emitAssistantTextDeltaAndEnd,
+  emitZhushouTextDeltaAndEnd,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 
 describe("subscribeEmbeddedPiSession", () => {
@@ -17,12 +17,12 @@ describe("subscribeEmbeddedPiSession", () => {
 
     const text = "First block line\n\nSecond block line";
 
-    emitAssistantTextDeltaAndEnd({ emit, text });
+    emitZhushouTextDeltaAndEnd({ emit, text });
 
     expect(onBlockReply).toHaveBeenCalledTimes(2);
     expect(onBlockReply.mock.calls[0][0].text).toBe("First block line");
     expect(onBlockReply.mock.calls[1][0].text).toBe("Second block line");
-    expect(subscription.assistantTexts).toEqual(["First block line", "Second block line"]);
+    expect(subscription.zhushouTexts).toEqual(["First block line", "Second block line"]);
   });
   it("avoids splitting inside fenced code blocks", () => {
     const onBlockReply = vi.fn();
@@ -36,7 +36,7 @@ describe("subscribeEmbeddedPiSession", () => {
 
     const text = "Intro\n\n```bash\nline1\nline2\n```\n\nOutro";
 
-    emitAssistantTextDeltaAndEnd({ emit, text });
+    emitZhushouTextDeltaAndEnd({ emit, text });
 
     expect(onBlockReply).toHaveBeenCalledTimes(3);
     expect(onBlockReply.mock.calls[0][0].text).toBe("Intro");

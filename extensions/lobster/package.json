@@ -1,16 +1,16 @@
 {
-  "name": "@assistant/lobster",
+  "name": "@zhushou/lobster",
   "version": "2026.4.16",
   "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
   "type": "module",
   "dependencies": {
-    "@assistant/lobster-runtime": "workspace:*",
+    "@zhushou/lobster-runtime": "workspace:*",
     "@sinclair/typebox": "0.34.49"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -18,7 +18,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "assistantVersion": "2026.4.16"
+      "zhushouVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

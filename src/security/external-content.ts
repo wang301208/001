@@ -36,8 +36,8 @@ const SUSPICIOUS_PATTERNS = [
   /rm\s+-rf/i,
   /delete\s+all\s+(emails?|files?|data)/i,
   /<\/?system>/i,
-  /\]\s*\n\s*\[?(system|assistant|user)\]?:/i,
-  /\[\s*(System\s*Message|System|Assistant|Internal)\s*\]/i,
+  /\]\s*\n\s*\[?(system|zhushou|user)\]?:/i,
+  /\[\s*(System\s*Message|System|Zhushou|Internal)\s*\]/i,
   /^\s*System:\s+/im,
 ];
 

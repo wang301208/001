@@ -1,5 +1,5 @@
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveProviderSetupFlowContributions } from "../flows/provider-flow.js";
 import {
   CORE_AUTH_CHOICE_OPTIONS,
@@ -13,9 +13,9 @@ function compareOptionLabels(a: AuthChoiceOption, b: AuthChoiceOption): number {
   return a.label.localeCompare(b.label);
 }
 
-function compareAssistantOptions(a: AuthChoiceOption, b: AuthChoiceOption): number {
-  const priorityA = a.assistantPriority ?? 0;
-  const priorityB = b.assistantPriority ?? 0;
+function compareZhushouOptions(a: AuthChoiceOption, b: AuthChoiceOption): number {
+  const priorityA = a.zhushouPriority ?? 0;
+  const priorityB = b.zhushouPriority ?? 0;
   return priorityA - priorityB || compareOptionLabels(a, b);
 }
 
@@ -24,7 +24,7 @@ function compareGroupLabels(a: AuthChoiceGroup, b: AuthChoiceGroup): number {
 }
 
 function resolveProviderChoiceOptions(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): AuthChoiceOption[] {
@@ -35,11 +35,11 @@ function resolveProviderChoiceOptions(params?: {
     value: contribution.option.value as AuthChoice,
     label: contribution.option.label,
     ...(contribution.option.hint ? { hint: contribution.option.hint } : {}),
-    ...(contribution.option.assistantPriority !== undefined
-      ? { assistantPriority: contribution.option.assistantPriority }
+    ...(contribution.option.zhushouPriority !== undefined
+      ? { zhushouPriority: contribution.option.zhushouPriority }
       : {}),
-    ...(contribution.option.assistantVisibility
-      ? { assistantVisibility: contribution.option.assistantVisibility }
+    ...(contribution.option.zhushouVisibility
+      ? { zhushouVisibility: contribution.option.zhushouVisibility }
       : {}),
     ...(contribution.option.group
       ? {
@@ -54,7 +54,7 @@ function resolveProviderChoiceOptions(params?: {
 export function formatAuthChoiceChoicesForCli(params?: {
   includeSkip?: boolean;
   includeLegacyAliases?: boolean;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): string {
@@ -72,8 +72,8 @@ export function formatAuthChoiceChoicesForCli(params?: {
 export function buildAuthChoiceOptions(params: {
   store: AuthProfileStore;
   includeSkip: boolean;
-  assistantVisibleOnly?: boolean;
-  config?: AssistantConfig;
+  zhushouVisibleOnly?: boolean;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): AuthChoiceOption[] {
@@ -93,7 +93,7 @@ export function buildAuthChoiceOptions(params: {
   const options: AuthChoiceOption[] = Array.from(optionByValue.values())
     .toSorted(compareOptionLabels)
     .filter((option) =>
-      params.assistantVisibleOnly ? option.assistantVisibility !== "manual-only" : true,
+      params.zhushouVisibleOnly ? option.zhushouVisibility !== "manual-only" : true,
     );
 
   if (params.includeSkip) {
@@ -106,7 +106,7 @@ export function buildAuthChoiceOptions(params: {
 export function buildAuthChoiceGroups(params: {
   store: AuthProfileStore;
   includeSkip: boolean;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): {
@@ -116,7 +116,7 @@ export function buildAuthChoiceGroups(params: {
   const options = buildAuthChoiceOptions({
     ...params,
     includeSkip: false,
-    assistantVisibleOnly: true,
+    zhushouVisibleOnly: true,
   });
   const groupsById = new Map<AuthChoiceGroupId, AuthChoiceGroup>();
 
@@ -139,7 +139,7 @@ export function buildAuthChoiceGroups(params: {
   const groups = Array.from(groupsById.values())
     .map((group) => ({
       ...group,
-      options: [...group.options].toSorted(compareAssistantOptions),
+      options: [...group.options].toSorted(compareZhushouOptions),
     }))
     .toSorted(compareGroupLabels);
 

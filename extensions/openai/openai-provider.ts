@@ -1,15 +1,15 @@
 import {
   type ProviderResolveDynamicModelContext,
   type ProviderRuntimeModel,
-} from "assistant/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
+} from "zhushou/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
 import {
   DEFAULT_CONTEXT_TOKENS,
   normalizeModelCompat,
   normalizeProviderId,
   type ProviderPlugin,
-} from "assistant/plugin-sdk/provider-model-shared";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-model-shared";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { isOpenAIApiBaseUrl } from "./base-url.js";
 import { applyOpenAIConfig, OPENAI_DEFAULT_MODEL } from "./default-models.js";
 import {

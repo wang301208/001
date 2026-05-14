@@ -1,7 +1,7 @@
-import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
-import type { DmPolicy } from "assistant/plugin-sdk/config-runtime";
-import type { WizardPrompter } from "assistant/plugin-sdk/matrix-runtime-shared";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
+import type { DmPolicy } from "zhushou/plugin-sdk/config-runtime";
+import type { WizardPrompter } from "zhushou/plugin-sdk/matrix-runtime-shared";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
 import {
   type ChannelSetupDmPolicy,
   type ChannelSetupWizardAdapter,
@@ -13,13 +13,13 @@ import {
   promptAccountId,
   promptChannelAccessConfig,
   splitSetupEntries,
-} from "assistant/plugin-sdk/setup";
-import { isPrivateNetworkOptInEnabled } from "assistant/plugin-sdk/ssrf-policy";
+} from "zhushou/plugin-sdk/setup";
+import { isPrivateNetworkOptInEnabled } from "zhushou/plugin-sdk/ssrf-policy";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
   normalizeStringifiedOptionalString,
-} from "assistant/plugin-sdk/string-coerce-runtime";
+} from "zhushou/plugin-sdk/string-coerce-runtime";
 import { requiresExplicitMatrixDefaultAccount } from "./account-selection.js";
 import {
   listMatrixAccountIds,
@@ -633,7 +633,7 @@ async function runMatrixConfigure(params: {
     normalizeStringifiedOptionalString(
       await params.prompter.text({
         message: "Matrix device name (optional)",
-        initialValue: existing.deviceName ?? "Assistant Gateway",
+        initialValue: existing.deviceName ?? "助手 Gateway",
       }),
     ) ?? "";
 

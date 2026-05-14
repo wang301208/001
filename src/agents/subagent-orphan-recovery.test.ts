@@ -353,12 +353,12 @@ describe("subagent-orphan-recovery", () => {
     expect(message).toContain("last message from the user");
   });
 
-  it("adds config change hint when assistant messages reference config modifications", async () => {
+  it("adds config change hint when zhushou messages reference config modifications", async () => {
     mockSingleAbortedSession();
 
     vi.mocked(sessionUtils.readSessionMessages).mockReturnValue([
       { role: "user", content: "Update the config" },
-      { role: "assistant", content: "I've modified assistant.json to add the new setting." },
+      { role: "assistant", content: "I've modified zhushou.json to add the new setting." },
     ]);
 
     const activeRuns = createActiveRuns(createTestRunRecord());

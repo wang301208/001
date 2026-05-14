@@ -8,9 +8,9 @@ describe("slack allowlist log formatting", () => {
         input: "C0AQXEG6QFJ",
         resolved: true,
         id: "C0AQXEG6QFJ",
-        name: "assistanttest",
+        name: "zhushoutest",
       }),
-    ).toBe("C0AQXEG6QFJ→assistanttest (id:C0AQXEG6QFJ)");
+    ).toBe("C0AQXEG6QFJ→zhushoutest (id:C0AQXEG6QFJ)");
   });
 
   it("prints user names alongside ids", () => {

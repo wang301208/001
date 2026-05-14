@@ -1,7 +1,7 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import { formatBillingErrorMessage } from "../../pi-embedded-helpers.js";
-import { makeAssistantMessageFixture } from "../../test-helpers/assistant-message-fixtures.js";
+import { makeZhushouMessageFixture } from "../../test-helpers/zhushou-message-fixtures.js";
 import {
   buildPayloads,
   expectSinglePayloadText,
@@ -22,14 +22,14 @@ describe("buildEmbeddedRunPayloads", () => {
   },
   "request_id": "req_011CX7DwS7tSvggaNHmefwWg"
 }`;
-  const makeAssistant = (overrides: Partial<AssistantMessage>): AssistantMessage =>
-    makeAssistantMessageFixture({
+  const makeZhushou = (overrides: Partial<AssistantMessage>): AssistantMessage =>
+    makeZhushouMessageFixture({
       errorMessage: errorJson,
       content: [{ type: "text", text: errorJson }],
       ...overrides,
     });
-  const makeStoppedAssistant = () =>
-    makeAssistant({
+  const makeStoppedZhushou = () =>
+    makeZhushou({
       stopReason: "stop",
       errorMessage: undefined,
       content: [],
@@ -61,7 +61,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expectNoPayloads({
       sessionKey,
       toolMetas: [{ toolName: "write", meta: "/tmp/out.md" }],
-      lastAssistant: makeAssistant({
+      lastZhushou: makeZhushou({
         stopReason: "stop",
         errorMessage: undefined,
         content: [],
@@ -69,10 +69,10 @@ describe("buildEmbeddedRunPayloads", () => {
     });
   }
 
-  it("suppresses raw API error JSON when the assistant errored", () => {
+  it("suppresses raw API error JSON when the zhushou errored", () => {
     const payloads = buildPayloads({
-      assistantTexts: [errorJson],
-      lastAssistant: makeAssistant({}),
+      zhushouTexts: [errorJson],
+      lastZhushou: makeZhushou({}),
     });
 
     expectOverloadedFallback(payloads);
@@ -82,8 +82,8 @@ describe("buildEmbeddedRunPayloads", () => {
 
   it("suppresses pretty-printed error JSON that differs from the errorMessage", () => {
     const payloads = buildPayloads({
-      assistantTexts: [errorJsonPretty],
-      lastAssistant: makeAssistant({ errorMessage: errorJson }),
+      zhushouTexts: [errorJsonPretty],
+      lastZhushou: makeZhushou({ errorMessage: errorJson }),
       inlineToolResultsAllowed: true,
       verboseLevel: "on",
     });
@@ -92,9 +92,9 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads.some((payload) => payload.text === errorJsonPretty)).toBe(false);
   });
 
-  it("suppresses raw error JSON from fallback assistant text", () => {
+  it("suppresses raw error JSON from fallback zhushou text", () => {
     const payloads = buildPayloads({
-      lastAssistant: makeAssistant({ content: [{ type: "text", text: errorJsonPretty }] }),
+      lastZhushou: makeZhushou({ content: [{ type: "text", text: errorJsonPretty }] }),
     });
 
     expectOverloadedFallback(payloads);
@@ -103,7 +103,7 @@ describe("buildEmbeddedRunPayloads", () => {
 
   it("includes provider and model context for billing errors", () => {
     const payloads = buildPayloads({
-      lastAssistant: makeAssistant({
+      lastZhushou: makeZhushou({
         model: "claude-3-5-sonnet",
         errorMessage: "insufficient credits",
         content: [{ type: "text", text: "insufficient credits" }],
@@ -120,7 +120,7 @@ describe("buildEmbeddedRunPayloads", () => {
 
   it("does not emit a synthetic billing error for successful turns with stale errorMessage", () => {
     const payloads = buildPayloads({
-      lastAssistant: makeAssistant({
+      lastZhushou: makeZhushou({
         stopReason: "stop",
         errorMessage: "insufficient credits for embedding model",
         content: [{ type: "text", text: "Handle payment required errors in your API." }],
@@ -132,8 +132,8 @@ describe("buildEmbeddedRunPayloads", () => {
 
   it("suppresses raw error JSON even when errorMessage is missing", () => {
     const payloads = buildPayloads({
-      assistantTexts: [errorJsonPretty],
-      lastAssistant: makeAssistant({ errorMessage: undefined }),
+      zhushouTexts: [errorJsonPretty],
+      lastZhushou: makeZhushou({ errorMessage: undefined }),
     });
 
     expect(payloads).toHaveLength(1);
@@ -141,16 +141,16 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads.some((payload) => payload.text?.includes("request_id"))).toBe(false);
   });
 
-  it("does not suppress error-shaped JSON when the assistant did not error", () => {
+  it("does not suppress error-shaped JSON when the zhushou did not error", () => {
     const payloads = buildPayloads({
-      assistantTexts: [errorJsonPretty],
-      lastAssistant: makeStoppedAssistant(),
+      zhushouTexts: [errorJsonPretty],
+      lastZhushou: makeStoppedZhushou(),
     });
 
     expectSinglePayloadText(payloads, errorJsonPretty.trim());
   });
 
-  it("adds a fallback error when a tool fails and no assistant output exists", () => {
+  it("adds a fallback error when a tool fails and no zhushou output exists", () => {
     const payloads = buildPayloads({
       lastToolError: { toolName: "browser", error: "tab not found" },
     });
@@ -161,21 +161,21 @@ describe("buildEmbeddedRunPayloads", () => {
     });
   });
 
-  it("does not add tool error fallback when assistant output exists", () => {
+  it("does not add tool error fallback when zhushou output exists", () => {
     const payloads = buildPayloads({
-      assistantTexts: ["All good"],
-      lastAssistant: makeStoppedAssistant(),
+      zhushouTexts: ["All good"],
+      lastZhushou: makeStoppedZhushou(),
       lastToolError: { toolName: "browser", error: "tab not found" },
     });
 
     expectSinglePayloadText(payloads, "All good");
   });
 
-  it("does not add synthetic completion text when tools run without final assistant text", () => {
+  it("does not add synthetic completion text when tools run without final zhushou text", () => {
     expectNoPayloads({
       sessionKey: "agent:main:discord:direct:u123",
       toolMetas: [{ toolName: "write", meta: "/tmp/out.md" }],
-      lastAssistant: makeStoppedAssistant(),
+      lastZhushou: makeStoppedZhushou(),
     });
   });
 
@@ -192,7 +192,7 @@ describe("buildEmbeddedRunPayloads", () => {
       sessionKey: "agent:main:discord:direct:u123",
       toolMetas: [{ toolName: "message_send", meta: "sent to #ops" }],
       didSendViaMessagingTool: true,
-      lastAssistant: makeAssistant({
+      lastZhushou: makeZhushou({
         stopReason: "stop",
         errorMessage: undefined,
         content: [],
@@ -209,13 +209,13 @@ describe("buildEmbeddedRunPayloads", () => {
 
   it("does not add synthetic completion text when no tools ran", () => {
     expectNoPayloads({
-      lastAssistant: makeStoppedAssistant(),
+      lastZhushou: makeStoppedZhushou(),
     });
   });
 
-  it("adds tool error fallback when the assistant only invoked tools and verbose mode is on", () => {
+  it("adds tool error fallback when the zhushou only invoked tools and verbose mode is on", () => {
     const payloads = buildPayloads({
-      lastAssistant: makeAssistant({
+      lastZhushou: makeZhushou({
         stopReason: "toolUse",
         errorMessage: undefined,
         content: [
@@ -237,10 +237,10 @@ describe("buildEmbeddedRunPayloads", () => {
     });
   });
 
-  it("does not add tool error fallback when assistant text exists after tool calls", () => {
+  it("does not add tool error fallback when zhushou text exists after tool calls", () => {
     const payloads = buildPayloads({
-      assistantTexts: ["Checked the page and recovered with final answer."],
-      lastAssistant: makeAssistant({
+      zhushouTexts: ["Checked the page and recovered with final answer."],
+      lastZhushou: makeZhushou({
         stopReason: "toolUse",
         errorMessage: undefined,
         content: [
@@ -248,7 +248,7 @@ describe("buildEmbeddedRunPayloads", () => {
             type: "toolCall",
             id: "toolu_01",
             name: "browser",
-            arguments: { action: "search", query: "assistant docs" },
+            arguments: { action: "search", query: "zhushou docs" },
           },
         ],
       }),
@@ -314,10 +314,10 @@ describe("buildEmbeddedRunPayloads", () => {
     expectSingleToolErrorPayload(payloads, { title, absentDetail });
   });
 
-  it("shows mutating tool errors even when assistant output exists", () => {
+  it("shows mutating tool errors even when zhushou output exists", () => {
     const payloads = buildPayloads({
-      assistantTexts: ["Done."],
-      lastAssistant: { stopReason: "end_turn" } as unknown as AssistantMessage,
+      zhushouTexts: ["Done."],
+      lastZhushou: { stopReason: "end_turn" } as unknown as AssistantMessage,
       lastToolError: { toolName: "write", error: "file missing" },
     });
 
@@ -330,8 +330,8 @@ describe("buildEmbeddedRunPayloads", () => {
 
   it("does not treat session_status read failures as mutating when explicitly flagged", () => {
     const payloads = buildPayloads({
-      assistantTexts: ["Status loaded."],
-      lastAssistant: { stopReason: "end_turn" } as unknown as AssistantMessage,
+      zhushouTexts: ["Status loaded."],
+      lastZhushou: { stopReason: "end_turn" } as unknown as AssistantMessage,
       lastToolError: {
         toolName: "session_status",
         error: "model required",
@@ -342,7 +342,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expectSinglePayloadSummary(payloads, { text: "Status loaded." });
   });
 
-  it("dedupes identical tool warning text already present in assistant output", () => {
+  it("dedupes identical tool warning text already present in zhushou output", () => {
     const seed = buildPayloads({
       lastToolError: {
         toolName: "write",
@@ -354,8 +354,8 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(warningText).toBeTruthy();
 
     const payloads = buildPayloads({
-      assistantTexts: [warningText ?? ""],
-      lastAssistant: { stopReason: "end_turn" } as unknown as AssistantMessage,
+      zhushouTexts: [warningText ?? ""],
+      lastZhushou: { stopReason: "end_turn" } as unknown as AssistantMessage,
       lastToolError: {
         toolName: "write",
         error: "file missing",

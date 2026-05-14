@@ -23,7 +23,7 @@ vi.mock("../config/config.js", () => ({
 }));
 
 vi.mock("./onboard-helpers.js", () => ({
-  DEFAULT_WORKSPACE: "~/.assistant/workspace",
+  DEFAULT_WORKSPACE: "~/.zhushou/workspace",
   handleReset: mocks.handleReset,
 }));
 
@@ -68,10 +68,10 @@ describe("setupWizardCommand", () => {
 
       expect(runtime.log).toHaveBeenCalledWith(
         [
-          "Windows detected - assistant runs great on WSL2!",
+          "Windows detected - zhushou runs great on WSL2!",
           "Native Windows might be trickier.",
           "Quick setup: wsl --install (one command, one reboot)",
-          "Guide: https://docs.assistant.ai/windows",
+          "Guide: https://docs.zhushou.ai/windows",
         ].join("\n"),
       );
     } finally {
@@ -104,7 +104,7 @@ describe("setupWizardCommand", () => {
       config: {
         agents: {
           defaults: {
-            workspace: "/tmp/assistant-custom-workspace",
+            workspace: "/tmp/zhushou-custom-workspace",
           },
         },
       },
@@ -119,7 +119,7 @@ describe("setupWizardCommand", () => {
 
     expect(mocks.handleReset).toHaveBeenCalledWith(
       "config+creds+sessions",
-      path.resolve("/tmp/assistant-custom-workspace"),
+      path.resolve("/tmp/zhushou-custom-workspace"),
       runtime,
     );
   });

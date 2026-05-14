@@ -1,4 +1,4 @@
-import type { PinnedDispatcherPolicy } from "assistant/plugin-sdk/ssrf-dispatcher";
+import type { PinnedDispatcherPolicy } from "zhushou/plugin-sdk/ssrf-dispatcher";
 import type { SsrFPolicy } from "../../runtime-api.js";
 
 export type MatrixResolvedConfig = {

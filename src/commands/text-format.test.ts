@@ -3,11 +3,11 @@ import { shortenText } from "./text-format.js";
 
 describe("shortenText", () => {
   it("returns original text when it fits", () => {
-    expect(shortenText("assistant", 16)).toBe("assistant");
+    expect(shortenText("zhushou", 16)).toBe("zhushou");
   });
 
   it("truncates and appends ellipsis when over limit", () => {
-    expect(shortenText("assistant-status-output", 10)).toBe("assistant-…");
+    expect(shortenText("zhushou-status-output", 10)).toBe("zhushou…");
   });
 
   it("counts multi-byte characters correctly", () => {

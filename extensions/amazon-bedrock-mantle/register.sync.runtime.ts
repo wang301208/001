@@ -1,11 +1,11 @@
-import type { AssistantPluginApi } from "assistant/plugin-sdk/plugin-entry";
+import type { ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-entry";
 import {
   mergeImplicitMantleProvider,
   resolveImplicitMantleProvider,
   resolveMantleBearerToken,
 } from "./discovery.js";
 
-export function registerBedrockMantlePlugin(api: AssistantPluginApi): void {
+export function registerBedrockMantlePlugin(api: ZhushouPluginApi): void {
   const providerId = "amazon-bedrock-mantle";
 
   api.registerProvider({

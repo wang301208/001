@@ -22,7 +22,7 @@ describe("matrix device actions", () => {
         listOwnDevices: vi.fn(async () => [
           {
             deviceId: "A7hWrQ70ea",
-            displayName: "Assistant Gateway",
+            displayName: "助手 Gateway",
             lastSeenIp: null,
             lastSeenTs: null,
             current: true,
@@ -52,14 +52,14 @@ describe("matrix device actions", () => {
         listOwnDevices: vi.fn(async () => [
           {
             deviceId: "du314Zpw3A",
-            displayName: "Assistant Gateway",
+            displayName: "助手 Gateway",
             lastSeenIp: null,
             lastSeenTs: null,
             current: true,
           },
           {
             deviceId: "old123",
-            displayName: "Assistant Gateway",
+            displayName: "助手 Gateway",
             lastSeenIp: null,
             lastSeenTs: null,
             current: false,
@@ -70,7 +70,7 @@ describe("matrix device actions", () => {
 
     const result = await getMatrixDeviceHealth({ accountId: "poe" });
 
-    expect(result.staleAssistantDevices).toEqual([
+    expect(result.staleZhushouDevices).toEqual([
       expect.objectContaining({
         deviceId: "old123",
       }),
@@ -89,7 +89,7 @@ describe("matrix device actions", () => {
       remainingDevices: [
         {
           deviceId: "du314Zpw3A",
-          displayName: "Assistant Gateway",
+          displayName: "助手 Gateway",
           lastSeenIp: null,
           lastSeenTs: null,
           current: true,
@@ -101,14 +101,14 @@ describe("matrix device actions", () => {
         listOwnDevices: vi.fn(async () => [
           {
             deviceId: "du314Zpw3A",
-            displayName: "Assistant Gateway",
+            displayName: "助手 Gateway",
             lastSeenIp: null,
             lastSeenTs: null,
             current: true,
           },
           {
             deviceId: "BritdXC6iL",
-            displayName: "Assistant Gateway",
+            displayName: "助手 Gateway",
             lastSeenIp: null,
             lastSeenTs: null,
             current: false,
@@ -122,7 +122,7 @@ describe("matrix device actions", () => {
           },
           {
             deviceId: "My3T0hkTE0",
-            displayName: "Assistant Gateway",
+            displayName: "助手 Gateway",
             lastSeenIp: null,
             lastSeenTs: null,
             current: false,

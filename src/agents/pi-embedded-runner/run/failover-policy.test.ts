@@ -61,10 +61,10 @@ describe("resolveRunFailoverDecision", () => {
     });
   });
 
-  it("treats classified assistant-side 429s as rotation candidates even without error stopReason", () => {
+  it("treats classified zhushou-side 429s as rotation candidates even without error stopReason", () => {
     expect(
       resolveRunFailoverDecision({
-        stage: "assistant",
+        stage: "zhushou",
         aborted: false,
         externalAbort: false,
         fallbackConfigured: true,
@@ -80,10 +80,10 @@ describe("resolveRunFailoverDecision", () => {
     });
   });
 
-  it("falls back after assistant rotation is exhausted", () => {
+  it("falls back after zhushou rotation is exhausted", () => {
     expect(
       resolveRunFailoverDecision({
-        stage: "assistant",
+        stage: "zhushou",
         aborted: false,
         externalAbort: false,
         fallbackConfigured: true,
@@ -99,10 +99,10 @@ describe("resolveRunFailoverDecision", () => {
     });
   });
 
-  it("does nothing for assistant turns without failover signals", () => {
+  it("does nothing for zhushou turns without failover signals", () => {
     expect(
       resolveRunFailoverDecision({
-        stage: "assistant",
+        stage: "zhushou",
         aborted: false,
         externalAbort: false,
         fallbackConfigured: true,
@@ -134,10 +134,10 @@ describe("resolveRunFailoverDecision", () => {
     });
   });
 
-  it("does not rotate or fallback assistant timeouts after an external abort", () => {
+  it("does not rotate or fallback zhushou timeouts after an external abort", () => {
     expect(
       resolveRunFailoverDecision({
-        stage: "assistant",
+        stage: "zhushou",
         aborted: true,
         externalAbort: true,
         fallbackConfigured: true,

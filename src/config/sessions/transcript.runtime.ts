@@ -1,4 +1,4 @@
 export {
-  appendAssistantMessageToSessionTranscript,
-  appendExactAssistantMessageToSessionTranscript,
+  appendZhushouMessageToSessionTranscript,
+  appendExactZhushouMessageToSessionTranscript,
 } from "./transcript.js";

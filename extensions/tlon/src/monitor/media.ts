@@ -1,13 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import * as path from "node:path";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import {
   fetchRemoteMedia,
   MAX_IMAGE_BYTES,
   saveMediaBuffer,
-} from "assistant/plugin-sdk/media-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/media-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { getDefaultSsrFPolicy } from "../urbit/context.js";
 
 const MAX_IMAGES_PER_MESSAGE = 8;

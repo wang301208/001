@@ -17,7 +17,7 @@ describe("DiffArtifactStore", () => {
       rootDir,
       store,
       cleanup: cleanupRootDir,
-    } = await createDiffStoreHarness("assistant-diffs-store-"));
+    } = await createDiffStoreHarness("zhushou-diffs-store-"));
   });
 
   afterEach(async () => {
@@ -233,7 +233,7 @@ describe("createDiffsHttpHandler", () => {
   }
 
   beforeEach(async () => {
-    ({ store, cleanup: cleanupRootDir } = await createDiffStoreHarness("assistant-diffs-http-"));
+    ({ store, cleanup: cleanupRootDir } = await createDiffStoreHarness("zhushou-diffs-http-"));
   });
 
   afterEach(async () => {
@@ -304,7 +304,7 @@ describe("createDiffsHttpHandler", () => {
 
     expect(handled).toBe(true);
     expect(res.statusCode).toBe(200);
-    expect(String(res.body)).toContain("assistantDiffsReady");
+    expect(String(res.body)).toContain("zhushouDiffsReady");
   });
 
   it.each([

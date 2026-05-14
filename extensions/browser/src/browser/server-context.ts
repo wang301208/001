@@ -3,7 +3,7 @@ import {
   resolveCdpReachabilityPolicy,
 } from "./cdp-reachability-policy.js";
 import { usesFastLoopbackCdpProbeClass } from "./cdp-timeouts.js";
-import { isChromeReachable, resolveAssistantUserDataDir } from "./chrome.js";
+import { isChromeReachable, resolveZhushouUserDataDir } from "./chrome.js";
 import type { ResolvedBrowserProfile } from "./config.js";
 import { resolveProfile } from "./config.js";
 import { BrowserProfileNotFoundError, toBrowserErrorResponse } from "./errors.js";
@@ -102,7 +102,7 @@ function createProfileContext(
     getProfileState,
     stopRunningBrowser,
     isHttpReachable,
-    resolveAssistantUserDataDir,
+    resolveZhushouUserDataDir,
   });
 
   return {

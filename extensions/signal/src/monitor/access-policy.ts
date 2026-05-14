@@ -1,9 +1,9 @@
-import { createChannelPairingChallengeIssuer } from "assistant/plugin-sdk/channel-pairing";
-import { upsertChannelPairingRequest } from "assistant/plugin-sdk/conversation-runtime";
+import { createChannelPairingChallengeIssuer } from "zhushou/plugin-sdk/channel-pairing";
+import { upsertChannelPairingRequest } from "zhushou/plugin-sdk/conversation-runtime";
 import {
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
-} from "assistant/plugin-sdk/security-runtime";
+} from "zhushou/plugin-sdk/security-runtime";
 import { isSignalSenderAllowed, type SignalSender } from "../identity.js";
 
 type SignalDmPolicy = "open" | "pairing" | "allowlist" | "disabled";

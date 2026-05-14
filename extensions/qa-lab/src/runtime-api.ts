@@ -1,9 +1,8 @@
 export type { Command } from "commander";
-export type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-export { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
-export { callGatewayFromCli } from "assistant/plugin-sdk/browser-node-runtime";
-export type { PluginRuntime } from "assistant/plugin-sdk/runtime-store";
-export { defaultQaRuntimeModelForMode } from "./model-selection.runtime.js";
+export type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+export { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+export { callGatewayFromCli } from "zhushou/plugin-sdk/browser-node-runtime";
+export type { PluginRuntime } from "zhushou/plugin-sdk/runtime-store";
 export {
   buildQaTarget,
   createQaBusThread,
@@ -20,7 +19,7 @@ export {
   searchQaBusMessages,
   sendQaBusMessage,
   setQaChannelRuntime,
-} from "assistant/plugin-sdk/qa-channel";
+} from "@zhushou/qa-channel/api.js";
 export type {
   QaBusAttachment,
   QaBusConversation,
@@ -39,4 +38,5 @@ export type {
   QaBusStateSnapshot,
   QaBusThread,
   QaBusWaitForInput,
-} from "assistant/plugin-sdk/qa-channel";
+} from "@zhushou/qa-channel/api.js";
+export { defaultQaRuntimeModelForMode } from "./model-selection.runtime.js";

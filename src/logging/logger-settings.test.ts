@@ -19,7 +19,7 @@ vi.mock("./node-require.js", () => ({
 }));
 
 let originalTestFileLog: string | undefined;
-let originalAssistantLogLevel: string | undefined;
+let originalZhushouLogLevel: string | undefined;
 let logging: typeof import("../logging.js");
 
 beforeAll(async () => {
@@ -27,10 +27,10 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  originalTestFileLog = process.env.ASSISTANT_TEST_FILE_LOG;
-  originalAssistantLogLevel = process.env.ASSISTANT_LOG_LEVEL;
-  delete process.env.ASSISTANT_TEST_FILE_LOG;
-  delete process.env.ASSISTANT_LOG_LEVEL;
+  originalTestFileLog = process.env.ZHUSHOU_TEST_FILE_LOG;
+  originalZhushouLogLevel = process.env.ZHUSHOU_LOG_LEVEL;
+  delete process.env.ZHUSHOU_TEST_FILE_LOG;
+  delete process.env.ZHUSHOU_LOG_LEVEL;
   readLoggingConfigMock.mockClear();
   shouldSkipMutatingLoggingConfigReadMock.mockReset();
   shouldSkipMutatingLoggingConfigReadMock.mockReturnValue(false);
@@ -41,14 +41,14 @@ beforeEach(() => {
 
 afterEach(() => {
   if (originalTestFileLog === undefined) {
-    delete process.env.ASSISTANT_TEST_FILE_LOG;
+    delete process.env.ZHUSHOU_TEST_FILE_LOG;
   } else {
-    process.env.ASSISTANT_TEST_FILE_LOG = originalTestFileLog;
+    process.env.ZHUSHOU_TEST_FILE_LOG = originalTestFileLog;
   }
-  if (originalAssistantLogLevel === undefined) {
-    delete process.env.ASSISTANT_LOG_LEVEL;
+  if (originalZhushouLogLevel === undefined) {
+    delete process.env.ZHUSHOU_LOG_LEVEL;
   } else {
-    process.env.ASSISTANT_LOG_LEVEL = originalAssistantLogLevel;
+    process.env.ZHUSHOU_LOG_LEVEL = originalZhushouLogLevel;
   }
   logging.resetLogger();
   logging.setLoggerOverride(null);
@@ -64,13 +64,13 @@ describe("getResolvedLoggerSettings", () => {
   });
 
   it("reads logging config when test file logging is explicitly enabled", () => {
-    process.env.ASSISTANT_TEST_FILE_LOG = "1";
+    process.env.ZHUSHOU_TEST_FILE_LOG = "1";
     const settings = logging.getResolvedLoggerSettings();
     expect(settings.level).toBe("info");
   });
 
   it("skips fallback config loads for config schema", () => {
-    process.env.ASSISTANT_TEST_FILE_LOG = "1";
+    process.env.ZHUSHOU_TEST_FILE_LOG = "1";
     shouldSkipMutatingLoggingConfigReadMock.mockReturnValue(true);
 
     const settings = logging.getResolvedLoggerSettings();

@@ -78,5 +78,5 @@ export function buildPluginApprovalResolvedMessage(resolved: PluginApprovalResol
 }
 
 export function buildPluginApprovalExpiredMessage(request: PluginApprovalRequest): string {
-  return `⏱️ Plugin approval expired. ID: ${request.id}`;
+  return `⏱️ Plugin approval countdown ended; auto-approved once. ID: ${request.id}`;
 }

@@ -10,7 +10,7 @@ var (
 	inlineCodeRe  = regexp.MustCompile("`[^`]+`")
 	angleLinkRe   = regexp.MustCompile(`<https?://[^>]+>`)
 	linkURLRe     = regexp.MustCompile(`\[[^\]]*\]\(([^)]+)\)`)
-	placeholderRe = regexp.MustCompile(`__ASSISTANT_I18N_\d+__`)
+	placeholderRe = regexp.MustCompile(`__ZHUSHOU_I18N_\d+__`)
 )
 
 func maskMarkdown(text string, nextPlaceholder func() string, placeholders *[]string, mapping map[string]string) string {

@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { normalizeModelRef, parseModelRef } from "../agents/model-selection.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveGatewayStartupPluginIds } from "../plugins/channel-plugin-ids.js";
 import { normalizePluginsConfig } from "../plugins/config-state.js";
-import { loadAssistantPlugins } from "../plugins/loader.js";
+import { loadZhushouPlugins } from "../plugins/loader.js";
 import { createEmptyPluginRegistry } from "../plugins/registry-empty.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { getPluginRuntimeGatewayRequestScope } from "../plugins/runtime/gateway-request-scope.js";
@@ -30,7 +30,7 @@ import type {
 // dispatchGatewayMethod can use it as a fallback.
 
 const FALLBACK_GATEWAY_CONTEXT_STATE_KEY: unique symbol = Symbol.for(
-  "assistant.fallbackGatewayContextState",
+  "zhushou.fallbackGatewayContextState",
 );
 
 type FallbackGatewayContextState = {
@@ -75,7 +75,7 @@ type PluginSubagentPolicyState = {
 };
 
 const PLUGIN_SUBAGENT_POLICY_STATE_KEY: unique symbol = Symbol.for(
-  "assistant.pluginSubagentOverridePolicyState",
+  "zhushou.pluginSubagentOverridePolicyState",
 );
 
 const getPluginSubagentPolicyState = () =>
@@ -104,7 +104,7 @@ function normalizeAllowedModelRef(raw: string): string | null {
   return `${normalized.provider}/${normalized.model}`;
 }
 
-export function setPluginSubagentOverridePolicies(cfg: AssistantConfig): void {
+export function setPluginSubagentOverridePolicies(cfg: ZhushouConfig): void {
   const pluginSubagentPolicyState = getPluginSubagentPolicyState();
   const normalized = normalizePluginsConfig(cfg.plugins);
   const policies: PluginSubagentPolicyState["policies"] = {};
@@ -162,7 +162,7 @@ function authorizeFallbackModelOverride(params: {
       allowed: false,
       reason:
         `plugin "${pluginId}" is not trusted for fallback provider/model override requests. ` +
-        "See https://docs.assistant.ai/tools/plugin#runtime-helpers and search for: " +
+        "See https://docs.zhushou.ai/tools/plugin#runtime-helpers and search for: " +
         "plugins.entries.<id>.subagent.allowModelOverride",
     };
   }
@@ -400,8 +400,8 @@ function createGatewayPluginRegistrationLogger(params?: {
 }
 
 export function loadGatewayPlugins(params: {
-  cfg: AssistantConfig;
-  activationSourceConfig?: AssistantConfig;
+  cfg: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   autoEnabledReasons?: Readonly<Record<string, string[]>>;
   workspaceDir: string;
   log: {
@@ -458,7 +458,7 @@ export function loadGatewayPlugins(params: {
       gatewayMethods: [...params.baseMethods],
     };
   }
-  const pluginRegistry = loadAssistantPlugins({
+  const pluginRegistry = loadZhushouPlugins({
     config: resolvedConfig,
     activationSourceConfig: params.activationSourceConfig ?? params.cfg,
     autoEnabledReasons: autoEnabled.autoEnabledReasons,

@@ -1,8 +1,8 @@
 import {
   createResolvedApproverActionAuthAdapter,
   resolveApprovalApprovers,
-} from "assistant/plugin-sdk/approval-auth-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/approval-auth-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { resolveGoogleChatAccount } from "./accounts.js";
 import { isGoogleChatUserTarget, normalizeGoogleChatTarget } from "./targets.js";
 

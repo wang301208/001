@@ -114,7 +114,7 @@ const CLI_ENV_AUTH_LOG_KEYS = [
   "OPENROUTER_API_KEY",
 ] as const;
 
-const CLI_BACKEND_PRESERVE_ENV = "ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV";
+const CLI_BACKEND_PRESERVE_ENV = "ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV";
 
 function parseCliBackendPreserveEnv(raw: string | undefined): Set<string> {
   const trimmed = raw?.trim();
@@ -316,10 +316,10 @@ export async function executePreparedCliRun(
             ? createCliJsonlStreamingParser({
                 backend,
                 providerId: context.backendResolved.id,
-                onAssistantDelta: ({ text, delta }) => {
+                onZhushouDelta: ({ text, delta }) => {
                   emitAgentEvent({
                     runId: params.runId,
-                    stream: "assistant",
+                    stream: "zhushou",
                     data: {
                       text: applyPluginTextReplacements(
                         text,

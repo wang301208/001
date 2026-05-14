@@ -24,8 +24,8 @@ import { sendGatewayAuthFailure } from "./http-common.js";
 import { ADMIN_SCOPE, CLI_DEFAULT_OPERATOR_SCOPES } from "./method-scopes.js";
 import { loadGatewayModelCatalog } from "./server-model-catalog.js";
 
-export const ASSISTANT_MODEL_ID = "assistant";
-export const ASSISTANT_DEFAULT_MODEL_ID = "assistant/default";
+export const ZHUSHOU_MODEL_ID = "zhushou";
+export const ZHUSHOU_DEFAULT_MODEL_ID = "zhushou/default";
 
 export function getHeader(req: IncomingMessage, name: string): string | undefined {
   const raw = req.headers[normalizeLowercaseStringOrEmpty(name)];
@@ -138,7 +138,7 @@ export function resolveTrustedHttpOperatorScopes(
     return [];
   }
 
-  const headerValue = getHeader(req, "x-assistant-scopes");
+  const headerValue = getHeader(req, "x-zhushou-scopes");
   if (headerValue === undefined) {
     // No scope header present — trusted clients without an explicit header
     // get the default operator scopes (matching pre-#57783 behavior).
@@ -193,8 +193,8 @@ export function resolveOpenAiCompatibleHttpSenderIsOwner(
 
 export function resolveAgentIdFromHeader(req: IncomingMessage): string | undefined {
   const raw =
-    normalizeOptionalString(getHeader(req, "x-assistant-agent-id")) ||
-    normalizeOptionalString(getHeader(req, "x-assistant-agent")) ||
+    normalizeOptionalString(getHeader(req, "x-zhushou-agent-id")) ||
+    normalizeOptionalString(getHeader(req, "x-zhushou-agent")) ||
     "";
   if (!raw) {
     return undefined;
@@ -211,12 +211,12 @@ export function resolveAgentIdFromModel(
     return undefined;
   }
   const lowered = normalizeLowercaseStringOrEmpty(raw);
-  if (lowered === ASSISTANT_MODEL_ID || lowered === ASSISTANT_DEFAULT_MODEL_ID) {
+  if (lowered === ZHUSHOU_MODEL_ID || lowered === ZHUSHOU_DEFAULT_MODEL_ID) {
     return resolveDefaultAgentId(cfg);
   }
 
   const m =
-    raw.match(/^assistant[:/](?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i) ??
+    raw.match(/^zhushou[:/](?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i) ??
     raw.match(/^agent:(?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i);
   const agentId = m?.groups?.agentId;
   if (!agentId) {
@@ -233,11 +233,11 @@ export async function resolveOpenAiCompatModelOverride(params: {
   const requestModel = params.model?.trim();
   if (requestModel && !resolveAgentIdFromModel(requestModel)) {
     return {
-      errorMessage: "Invalid `model`. Use `assistant` or `assistant/<agentId>`.",
+      errorMessage: "Invalid `model`. Use `zhushou` or `zhushou/<agentId>`.",
     };
   }
 
-  const raw = getHeader(params.req, "x-assistant-model")?.trim();
+  const raw = getHeader(params.req, "x-zhushou-model")?.trim();
   if (!raw) {
     return {};
   }
@@ -247,7 +247,7 @@ export async function resolveOpenAiCompatModelOverride(params: {
   const defaultProvider = defaultModelRef.provider;
   const parsed = parseModelRef(raw, defaultProvider);
   if (!parsed) {
-    return { errorMessage: "Invalid `x-assistant-model`." };
+    return { errorMessage: "Invalid `x-zhushou-model`." };
   }
 
   const catalog = await loadGatewayModelCatalog();
@@ -287,7 +287,7 @@ export function resolveSessionKey(params: {
   user?: string | undefined;
   prefix: string;
 }): string {
-  const explicit = getHeader(params.req, "x-assistant-session-key")?.trim();
+  const explicit = getHeader(params.req, "x-zhushou-session-key")?.trim();
   if (explicit) {
     return explicit;
   }
@@ -314,7 +314,7 @@ export function resolveGatewayRequestContext(params: {
   });
 
   const messageChannel = params.useMessageChannelHeader
-    ? (normalizeMessageChannel(getHeader(params.req, "x-assistant-message-channel")) ??
+    ? (normalizeMessageChannel(getHeader(params.req, "x-zhushou-message-channel")) ??
       params.defaultMessageChannel)
     : params.defaultMessageChannel;
 

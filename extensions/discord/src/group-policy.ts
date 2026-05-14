@@ -1,11 +1,11 @@
-import type { ChannelGroupContext } from "assistant/plugin-sdk/channel-contract";
+import type { ChannelGroupContext } from "zhushou/plugin-sdk/channel-contract";
 import {
   resolveToolsBySender,
   type GroupToolPolicyBySenderConfig,
   type GroupToolPolicyConfig,
-} from "assistant/plugin-sdk/channel-policy";
-import { normalizeAtHashSlug } from "assistant/plugin-sdk/string-normalization-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/channel-policy";
+import { normalizeAtHashSlug } from "zhushou/plugin-sdk/string-normalization-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import type { DiscordConfig } from "./runtime-api.js";
 
 function normalizeDiscordSlug(value?: string | null) {

@@ -1,4 +1,4 @@
-import * as fs from "node:fs";
+﻿import * as fs from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createBotFrameworkJwtValidator,
@@ -12,9 +12,9 @@ import type {
   MSTeamsFederatedCredentials,
 } from "./token.js";
 
-vi.mock("assistant/plugin-sdk/ssrf-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/ssrf-runtime")>(
-    "assistant/plugin-sdk/ssrf-runtime",
+vi.mock("zhushou/plugin-sdk/ssrf-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/ssrf-runtime")>(
+    "zhushou/plugin-sdk/ssrf-runtime",
   );
   return {
     ...actual,
@@ -144,9 +144,9 @@ function createSdkStub(): MSTeamsTeamsSdk {
 
 describe("createMSTeamsApp", () => {
   it("does not crash with express 5 path-to-regexp (#55161)", async () => {
-    // Regression test for: https://github.com/assistant/assistant/issues/55161
+    // Regression test for: https://github.com/wang301208/zhushou/issues/55161
     // createMSTeamsApp passes a no-op httpServerAdapter to prevent the SDK from
-    // creating its default HttpPlugin (which registers `/api*` — invalid in Express 5).
+    // creating its default HttpPlugin (which registers `/api*`, invalid in Express 5).
     const { App } = await import("@microsoft/teams.apps");
     const { Client } = await import("@microsoft/teams.api");
     const sdk: MSTeamsTeamsSdk = { App, Client };
@@ -207,7 +207,7 @@ describe("createMSTeamsAdapter", () => {
     );
   });
 
-  it("passes the 助手 User-Agent to the Bot Framework connector client", async () => {
+  it("passes the zhushou User-Agent to the Bot Framework connector client", async () => {
     const creds = {
       type: "secret",
       appId: "app-id",
@@ -239,7 +239,7 @@ describe("createMSTeamsAdapter", () => {
       serviceUrl: "https://service.example.com/",
       options: {
         headers: {
-          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ 助手\/.+$/),
+          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ zhushou\/.+$/),
         },
       },
     });
@@ -369,7 +369,7 @@ function makeFakeSdk() {
   return { sdk: { App: FakeApp as any, Client: FakeClient as any }, appInstances, FakeApp };
 }
 
-describe("createMSTeamsApp – secret credentials", () => {
+describe("createMSTeamsApp - secret credentials", () => {
   it("passes clientId, clientSecret, tenantId to sdk.App", async () => {
     const { sdk, appInstances } = makeFakeSdk();
     const creds: MSTeamsSecretCredentials = {
@@ -388,7 +388,7 @@ describe("createMSTeamsApp – secret credentials", () => {
   });
 });
 
-describe("createMSTeamsApp – federated certificate credentials", () => {
+describe("createMSTeamsApp - federated certificate credentials", () => {
   beforeEach(() => {
     vi.mocked(fs.readFileSync).mockReturnValue(
       "-----BEGIN RSA PRIVATE KEY-----\nfake-key\n-----END RSA PRIVATE KEY-----",
@@ -446,7 +446,7 @@ describe("createMSTeamsApp – federated certificate credentials", () => {
   });
 });
 
-describe("createMSTeamsApp – federated managed identity", () => {
+describe("createMSTeamsApp - federated managed identity", () => {
   it("creates app with token function for user-assigned MI", async () => {
     const { sdk, appInstances } = makeFakeSdk();
     const creds: MSTeamsFederatedCredentials = {
@@ -498,7 +498,7 @@ describe("createMSTeamsApp – federated managed identity", () => {
   });
 });
 
-// ── createMSTeamsAdapter tests ─────────────────────────────────────────────
+// createMSTeamsAdapter tests
 
 function makeFakeApp() {
   return {
@@ -520,7 +520,7 @@ function makeFakeApiSdk() {
   };
 }
 
-describe("createMSTeamsAdapter – continueConversation", () => {
+describe("createMSTeamsAdapter - continueConversation", () => {
   const originalFetch = globalThis.fetch;
 
   afterEach(() => {
@@ -594,7 +594,7 @@ describe("createMSTeamsAdapter – continueConversation", () => {
   });
 });
 
-describe("createMSTeamsAdapter – process", () => {
+describe("createMSTeamsAdapter - process", () => {
   it("sends 200 for normal message activities", async () => {
     const { sdk } = makeFakeApiSdk();
     const adapter = createMSTeamsAdapter(makeFakeApp(), sdk);

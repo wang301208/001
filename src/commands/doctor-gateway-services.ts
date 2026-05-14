@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { writeConfigFile, type AssistantConfig } from "../config/config.js";
+import { writeConfigFile, type ZhushouConfig } from "../config/config.js";
 import { resolveGatewayPort, resolveIsNixMode } from "../config/paths.js";
 import { resolveSecretInputRef } from "../config/types.secrets.js";
 import {
@@ -82,7 +82,7 @@ async function normalizeExecutablePath(value: string): Promise<string> {
 }
 
 export async function maybeRepairGatewayServiceConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   mode: "local" | "remote",
   runtime: RuntimeEnv,
   prompter: DoctorPrompter,
@@ -132,7 +132,7 @@ export async function maybeRepairGatewayServiceConfig(
     audit.issues.push({
       code: SERVICE_AUDIT_CODES.gatewayTokenMismatch,
       message:
-        "Gateway service ASSISTANT_GATEWAY_TOKEN should be unset when gateway.auth.token is SecretRef-managed",
+        "Gateway service ZHUSHOU_GATEWAY_TOKEN should be unset when gateway.auth.token is SecretRef-managed",
       detail: "service token is stale",
       level: "recommended",
     });
@@ -233,7 +233,7 @@ export async function maybeRepairGatewayServiceConfig(
     !configuredGatewayToken &&
     gatewayTokenForRepair
   ) {
-    const nextCfg: AssistantConfig = {
+    const nextCfg: ZhushouConfig = {
       ...cfg,
       gateway: {
         ...cfg.gateway,

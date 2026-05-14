@@ -2,7 +2,7 @@ import {
   embeddedAgentLog,
   type CompactEmbeddedPiSessionParams,
   type EmbeddedPiCompactResult,
-} from "assistant/plugin-sdk/agent-harness";
+} from "zhushou/plugin-sdk/agent-harness";
 import type { CodexAppServerClient, CodexServerNotificationHandler } from "./client.js";
 import { resolveCodexAppServerRuntimeOptions, type CodexAppServerStartOptions } from "./config.js";
 import { isJsonObject, type CodexServerNotification, type JsonObject } from "./protocol.js";
@@ -179,7 +179,7 @@ function readNativeCompactionCompletion(
 }
 
 function resolveCompactionWaitTimeoutMs(): number {
-  const raw = process.env.ASSISTANT_CODEX_COMPACTION_WAIT_TIMEOUT_MS?.trim();
+  const raw = process.env.ZHUSHOU_CODEX_COMPACTION_WAIT_TIMEOUT_MS?.trim();
   const parsed = raw ? Number.parseInt(raw, 10) : NaN;
   if (Number.isFinite(parsed) && parsed > 0) {
     return parsed;

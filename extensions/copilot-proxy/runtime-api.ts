@@ -1,6 +1,6 @@
-export { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+export { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 export type {
-  AssistantPluginApi,
+  ZhushouPluginApi,
   ProviderAuthContext,
   ProviderAuthResult,
-} from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";

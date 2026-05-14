@@ -29,12 +29,12 @@ export {
   shouldVerifyRequesterSpawnedSessionVisibility,
 } from "./sessions-resolution.js";
 export {
-  extractAssistantText,
+  extractZhushouText,
   sanitizeTextContent,
   stripToolMessages,
 } from "./chat-history-text.js";
 import { loadConfig } from "../../config/config.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 
 export type SessionKind = "main" | "group" | "cron" | "hook" | "node" | "other";
@@ -92,7 +92,7 @@ export type SessionListRow = {
 export function resolveSessionToolContext(opts?: {
   agentSessionKey?: string;
   sandboxed?: boolean;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }) {
   const cfg = opts?.config ?? loadConfig();
   return {

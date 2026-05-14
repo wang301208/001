@@ -18,7 +18,7 @@ function makeEnv(homeDir: string): NodeJS.ProcessEnv {
 }
 
 function makeHomeDir(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-allow-from-read-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-allow-from-read-"));
   tempDirs.push(dir);
   return dir;
 }

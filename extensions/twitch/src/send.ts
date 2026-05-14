@@ -5,8 +5,8 @@
  * They support dependency injection via the `deps` parameter for testability.
  */
 
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { getClientManager as getRegistryClientManager } from "./client-manager-registry.js";
 import { resolveTwitchAccountContext } from "./config.js";
 import { stripMarkdownForTwitch } from "./utils/markdown.js";
@@ -42,7 +42,7 @@ export interface SendMessageResult {
  * const result = await sendMessageTwitchInternal(
  *   "#mychannel",
  *   "Hello Twitch!",
- *   assistantConfig,
+ *   zhushouConfig,
  *   "default",
  *   true,
  *   console,
@@ -51,7 +51,7 @@ export interface SendMessageResult {
 export async function sendMessageTwitchInternal(
   channel: string,
   text: string,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId?: string,
   stripMarkdown: boolean = true,
   logger: Console = console,

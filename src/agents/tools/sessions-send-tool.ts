@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { Type } from "@sinclair/typebox";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { callGateway } from "../../gateway/call.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { normalizeAgentId, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
@@ -12,8 +12,8 @@ import {
 } from "../../utils/message-channel.js";
 import { AGENT_LANE_NESTED } from "../lanes.js";
 import {
-  readLatestAssistantReplySnapshot,
-  waitForAgentRunAndReadUpdatedAssistantReply,
+  readLatestZhushouReplySnapshot,
+  waitForAgentRunAndReadUpdatedZhushouReply,
 } from "../run-wait.js";
 import {
   describeSessionsSendTool,
@@ -78,7 +78,7 @@ export function createSessionsSendTool(opts?: {
   agentSessionKey?: string;
   agentChannel?: GatewayMessageChannel;
   sandboxed?: boolean;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   callGateway?: GatewayCaller;
 }): AnyAgentTool {
   return {
@@ -252,14 +252,14 @@ export function createSessionsSendTool(opts?: {
         });
       }
 
-      // Capture the pre-run assistant snapshot before starting the nested run.
+      // Capture the pre-run zhushou snapshot before starting the nested run.
       // Fast in-process test doubles and short-circuit agent paths can finish
       // before we reach the post-run read, which would otherwise make the new
       // reply look like the baseline and hide it from the caller.
       const baselineReply =
         timeoutSeconds === 0
           ? undefined
-          : await readLatestAssistantReplySnapshot({
+          : await readLatestZhushouReplySnapshot({
               sessionKey: resolvedKey,
               limit: SESSIONS_SEND_REPLY_HISTORY_LIMIT,
               callGateway: gatewayCall,
@@ -333,7 +333,7 @@ export function createSessionsSendTool(opts?: {
         return start.result;
       }
       runId = start.runId;
-      const result = await waitForAgentRunAndReadUpdatedAssistantReply({
+      const result = await waitForAgentRunAndReadUpdatedZhushouReply({
         runId,
         sessionKey: resolvedKey,
         timeoutMs,

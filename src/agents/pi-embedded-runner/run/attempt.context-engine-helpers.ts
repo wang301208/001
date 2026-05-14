@@ -102,7 +102,7 @@ export function buildContextEnginePromptCacheInfo(params: {
   return Object.keys(promptCache).length > 0 ? promptCache : undefined;
 }
 
-export function findCurrentAttemptAssistantMessage(params: {
+export function findCurrentAttemptZhushouMessage(params: {
   messagesSnapshot: AgentMessage[];
   prePromptMessageCount: number;
 }): AssistantMessage | undefined {
@@ -125,10 +125,10 @@ function parsePromptCacheTouchTimestamp(value: unknown): number | null {
   return null;
 }
 
-/** Resolve the effective prompt-cache touch timestamp for the current assistant turn. */
+/** Resolve the effective prompt-cache touch timestamp for the current zhushou turn. */
 export function resolvePromptCacheTouchTimestamp(params: {
   lastCallUsage?: NormalizedUsage;
-  assistantTimestamp?: unknown;
+  zhushouTimestamp?: unknown;
   fallbackLastCacheTouchAt?: number | null;
 }): number | null {
   const hasCacheUsage =
@@ -138,7 +138,7 @@ export function resolvePromptCacheTouchTimestamp(params: {
     return params.fallbackLastCacheTouchAt ?? null;
   }
   return (
-    parsePromptCacheTouchTimestamp(params.assistantTimestamp) ??
+    parsePromptCacheTouchTimestamp(params.zhushouTimestamp) ??
     params.fallbackLastCacheTouchAt ??
     null
   );
@@ -150,18 +150,18 @@ export function buildLoopPromptCacheInfo(params: {
   retention?: "none" | "short" | "long";
   fallbackLastCacheTouchAt?: number | null;
 }): EmbeddedRunAttemptResult["promptCache"] {
-  const currentAttemptAssistant = findCurrentAttemptAssistantMessage({
+  const currentAttemptZhushou = findCurrentAttemptZhushouMessage({
     messagesSnapshot: params.messagesSnapshot,
     prePromptMessageCount: params.prePromptMessageCount,
   });
-  const lastCallUsage = normalizeUsage(currentAttemptAssistant?.usage);
+  const lastCallUsage = normalizeUsage(currentAttemptZhushou?.usage);
 
   return buildContextEnginePromptCacheInfo({
     retention: params.retention,
     lastCallUsage,
     lastCacheTouchAt: resolvePromptCacheTouchTimestamp({
       lastCallUsage,
-      assistantTimestamp: currentAttemptAssistant?.timestamp,
+      zhushouTimestamp: currentAttemptZhushou?.timestamp,
       fallbackLastCacheTouchAt: params.fallbackLastCacheTouchAt,
     }),
   });

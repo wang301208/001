@@ -7,8 +7,8 @@ import { cleanupTempDirs, makeTempDir } from "../test/helpers/temp-dir.js";
 const tempRoots: string[] = [];
 
 function withFakeCli(versionOutput: string): { root: string; cliPath: string } {
-  const root = makeTempDir(tempRoots, "assistant-install-sh-");
-  const cliPath = path.join(root, "assistant");
+  const root = makeTempDir(tempRoots, "zhushou-install-sh-");
+  const cliPath = path.join(root, "zhushou");
   const escapedOutput = versionOutput.replace(/'/g, "'\\''");
   fs.writeFileSync(
     cliPath,
@@ -33,19 +33,19 @@ function resolveInstallerVersionCases(params: {
     [
       "-lc",
       `source "${installerPath}" >/dev/null 2>&1
-for assistant_bin in "\${@:3}"; do
-  ASSISTANT_BIN="$assistant_bin"
-  resolve_assistant_version
+for zhushou_bin in "\${@:3}"; do
+  ZHUSHOU_BIN="$zhushou_bin"
+  resolve_zhushou_version
 done
 (
   cd "$2"
-  FAKE_ASSISTANT_BIN="\${@:1:1}" bash -s <<'ASSISTANT_STDIN_INSTALLER'
+  FAKE_ZHUSHOU_BIN="\${@:1:1}" bash -s <<'ZHUSHOU_STDIN_INSTALLER'
 ${installerSource}
-ASSISTANT_BIN="$FAKE_ASSISTANT_BIN"
-resolve_assistant_version
-ASSISTANT_STDIN_INSTALLER
+ZHUSHOU_BIN="$FAKE_ZHUSHOU_BIN"
+resolve_zhushou_version
+ZHUSHOU_STDIN_INSTALLER
 )`,
-      "assistant-version-test",
+      "zhushou-version-test",
       params.stdinCliPath,
       params.stdinCwd,
       ...params.cliPaths,
@@ -55,7 +55,7 @@ ASSISTANT_STDIN_INSTALLER
       encoding: "utf-8",
       env: {
         ...process.env,
-        ASSISTANT_INSTALL_SH_NO_RUN: "1",
+        ZHUSHOU_INSTALL_SH_NO_RUN: "1",
       },
     },
   );
@@ -74,7 +74,7 @@ describe("install.sh version resolution", () => {
       const raw = withFakeCli("助手 dev's build");
       const stdinFixture = withFakeCli("助手 2026.3.10 (abcdef0)");
 
-      const hostileCwd = makeTempDir(tempRoots, "assistant-install-stdin-");
+      const hostileCwd = makeTempDir(tempRoots, "zhushou-install-stdin-");
       const hostileHelper = path.join(
         hostileCwd,
         "docker",
@@ -85,7 +85,7 @@ describe("install.sh version resolution", () => {
       fs.writeFileSync(
         hostileHelper,
         `#!/usr/bin/env bash
-extract_assistant_semver() {
+extract_zhushou_semver() {
   printf '%s' 'poisoned'
 }
 `,

@@ -57,8 +57,8 @@ type NodeDaemonStatusOptions = {
 
 function renderNodeServiceStartHints(): string[] {
   return buildPlatformServiceStartHints({
-    installCommand: formatCliCommand("assistant node install"),
-    startCommand: formatCliCommand("assistant node start"),
+    installCommand: formatCliCommand("zhushou node install"),
+    startCommand: formatCliCommand("zhushou node start"),
     launchAgentPlistPath: `~/Library/LaunchAgents/${resolveNodeLaunchAgentLabel()}.plist`,
     systemdServiceName: resolveNodeSystemdServiceName(),
     windowsTaskName: resolveNodeWindowsTaskName(),
@@ -123,7 +123,7 @@ export async function runNodeDaemonInstall(opts: NodeDaemonInstallOptions) {
     });
     if (!json) {
       defaultRuntime.log(`Node service already ${service.loadedText}.`);
-      defaultRuntime.log(`Reinstall with: ${formatCliCommand("assistant node install --force")}`);
+      defaultRuntime.log(`Reinstall with: ${formatCliCommand("zhushou node install --force")}`);
     }
     return;
   }
@@ -265,7 +265,7 @@ export async function runNodeDaemonStatus(opts: NodeDaemonStatusOptions = {}) {
   };
   const hintEnv = {
     ...baseEnv,
-    ASSISTANT_LOG_PREFIX: baseEnv.ASSISTANT_LOG_PREFIX ?? "node",
+    ZHUSHOU_LOG_PREFIX: baseEnv.ZHUSHOU_LOG_PREFIX ?? "node",
   } as NodeJS.ProcessEnv;
 
   if (runtime?.missingUnit) {

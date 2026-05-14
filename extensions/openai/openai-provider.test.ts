@@ -276,7 +276,7 @@ describe("buildOpenAIProvider", () => {
       } as never),
     ).toEqual({
       sanitizeMode: "images-only",
-      applyAssistantFirstOrderingFix: false,
+      applyZhushouFirstOrderingFix: false,
       sanitizeToolCallIds: false,
       validateGeminiTurns: false,
       validateAnthropicTurns: false,
@@ -290,7 +290,7 @@ describe("buildOpenAIProvider", () => {
       } as never),
     ).toEqual({
       sanitizeMode: "images-only",
-      applyAssistantFirstOrderingFix: false,
+      applyZhushouFirstOrderingFix: false,
       sanitizeToolCallIds: true,
       toolCallIdMode: "strict",
       validateGeminiTurns: false,
@@ -305,7 +305,7 @@ describe("buildOpenAIProvider", () => {
       } as never),
     ).toEqual({
       sanitizeMode: "images-only",
-      applyAssistantFirstOrderingFix: false,
+      applyZhushouFirstOrderingFix: false,
       sanitizeToolCallIds: false,
       validateGeminiTurns: false,
       validateAnthropicTurns: false,

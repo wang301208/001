@@ -11,8 +11,8 @@ import {
   resolveAgentIdFromSessionKey,
   resolveStorePath,
 } from "./subagent-announce.runtime.js";
-import { readLatestAssistantReply } from "./tools/agent-step.js";
-import { extractAssistantText, sanitizeTextContent } from "./tools/session-message-text.js";
+import { readLatestZhushouReply } from "./tools/agent-step.js";
+import { extractZhushouText, sanitizeTextContent } from "./tools/session-message-text.js";
 import { isAnnounceSkip } from "./tools/sessions-send-tokens.js";
 
 const FAST_TEST_RETRY_INTERVAL_MS = 8;
@@ -20,19 +20,19 @@ const FAST_TEST_RETRY_INTERVAL_MS = 8;
 type SubagentAnnounceOutputDeps = {
   callGateway: typeof callGateway;
   loadConfig: typeof loadConfig;
-  readLatestAssistantReply: typeof readLatestAssistantReply;
+  readLatestZhushouReply: typeof readLatestZhushouReply;
 };
 
 const defaultSubagentAnnounceOutputDeps: SubagentAnnounceOutputDeps = {
   callGateway,
   loadConfig,
-  readLatestAssistantReply,
+  readLatestZhushouReply,
 };
 
 let subagentAnnounceOutputDeps: SubagentAnnounceOutputDeps = defaultSubagentAnnounceOutputDeps;
 
 function isFastTestMode() {
-  return process.env.ASSISTANT_TEST_FAST === "1";
+  return process.env.ZHUSHOU_TEST_FAST === "1";
 }
 
 type ToolResultMessage = {
@@ -41,10 +41,10 @@ type ToolResultMessage = {
 };
 
 type SubagentOutputSnapshot = {
-  latestAssistantText?: string;
+  latestZhushouText?: string;
   latestSilentText?: string;
   latestRawText?: string;
-  assistantFragments: string[];
+  zhushouFragments: string[];
   toolCallCount: number;
 };
 
@@ -123,7 +123,7 @@ function extractSubagentOutputText(message: unknown): string {
   const role = (message as { role?: unknown }).role;
   const content = (message as { content?: unknown }).content;
   if (role === "assistant") {
-    return extractAssistantText(message) ?? "";
+    return extractZhushouText(message) ?? "";
   }
   if (role === "toolResult" || role === "tool") {
     return extractToolResultText((message as ToolResultMessage).content);
@@ -139,7 +139,7 @@ function extractSubagentOutputText(message: unknown): string {
   return "";
 }
 
-function countAssistantToolCalls(content: unknown): number {
+function countZhushouToolCalls(content: unknown): number {
   if (!Array.isArray(content)) {
     return 0;
   }
@@ -164,7 +164,7 @@ function countAssistantToolCalls(content: unknown): number {
 
 function summarizeSubagentOutputHistory(messages: Array<unknown>): SubagentOutputSnapshot {
   const snapshot: SubagentOutputSnapshot = {
-    assistantFragments: [],
+    zhushouFragments: [],
     toolCallCount: 0,
   };
   for (const message of messages) {
@@ -173,20 +173,20 @@ function summarizeSubagentOutputHistory(messages: Array<unknown>): SubagentOutpu
     }
     const role = (message as { role?: unknown }).role;
     if (role === "assistant") {
-      snapshot.toolCallCount += countAssistantToolCalls((message as { content?: unknown }).content);
+      snapshot.toolCallCount += countZhushouToolCalls((message as { content?: unknown }).content);
       const text = extractSubagentOutputText(message).trim();
       if (!text) {
         continue;
       }
       if (isAnnounceSkip(text) || isSilentReplyText(text, SILENT_REPLY_TOKEN)) {
         snapshot.latestSilentText = text;
-        snapshot.latestAssistantText = undefined;
-        snapshot.assistantFragments = [];
+        snapshot.latestZhushouText = undefined;
+        snapshot.zhushouFragments = [];
         continue;
       }
       snapshot.latestSilentText = undefined;
-      snapshot.latestAssistantText = text;
-      snapshot.assistantFragments.push(text);
+      snapshot.latestZhushouText = text;
+      snapshot.zhushouFragments.push(text);
       continue;
     }
     const text = extractSubagentOutputText(message).trim();
@@ -205,7 +205,7 @@ function formatSubagentPartialProgress(
     return undefined;
   }
   const timedOut = outcome?.status === "timeout";
-  if (snapshot.assistantFragments.length === 0 && (!timedOut || snapshot.toolCallCount === 0)) {
+  if (snapshot.zhushouFragments.length === 0 && (!timedOut || snapshot.toolCallCount === 0)) {
     return undefined;
   }
   const parts: string[] = [];
@@ -214,8 +214,8 @@ function formatSubagentPartialProgress(
       `[Partial progress: ${snapshot.toolCallCount} tool call(s) executed before timeout]`,
     );
   }
-  if (snapshot.assistantFragments.length > 0) {
-    parts.push(snapshot.assistantFragments.slice(-3).join("\n\n---\n\n"));
+  if (snapshot.zhushouFragments.length > 0) {
+    parts.push(snapshot.zhushouFragments.slice(-3).join("\n\n---\n\n"));
   }
   return parts.join("\n\n") || undefined;
 }
@@ -227,8 +227,8 @@ function selectSubagentOutputText(
   if (snapshot.latestSilentText) {
     return snapshot.latestSilentText;
   }
-  if (snapshot.latestAssistantText) {
-    return snapshot.latestAssistantText;
+  if (snapshot.latestZhushouText) {
+    return snapshot.latestZhushouText;
   }
   const partialProgress = formatSubagentPartialProgress(snapshot, outcome);
   if (partialProgress) {
@@ -250,11 +250,11 @@ export async function readSubagentOutput(
   if (selected?.trim()) {
     return selected;
   }
-  const latestAssistant = await subagentAnnounceOutputDeps.readLatestAssistantReply({
+  const latestZhushou = await subagentAnnounceOutputDeps.readLatestZhushouReply({
     sessionKey,
     limit: 100,
   });
-  return latestAssistant?.trim() ? latestAssistant : undefined;
+  return latestZhushou?.trim() ? latestZhushou : undefined;
 }
 
 export async function readLatestSubagentOutputWithRetry(params: {

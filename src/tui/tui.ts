@@ -10,7 +10,7 @@ import {
 } from "@mariozechner/pi-tui";
 import { resolveAgentIdByWorkspacePath, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { resolveContextTokensForModel } from "../agents/context.js";
-import { loadConfig, type AssistantConfig } from "../config/config.js";
+import { loadConfig, type ZhushouConfig } from "../config/config.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
 import { randomUUID } from "node:crypto";
 import { appendFileSync, mkdirSync } from "node:fs";
@@ -26,20 +26,20 @@ import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { ChatLog } from "./components/chat-log.js";
 import { CustomEditor } from "./components/custom-editor.js";
 import { GatewayChatClient } from "./gateway-chat.js";
-import { resolveAssistantIntentInput } from "./intent-router.js";
+import { resolveZhushouIntentInput } from "./intent-router.js";
 import {
   colorizeStatusRule,
-  formatAssistantStatusRule,
-  AssistantBanner,
-  AssistantQueuedMessages,
-  AssistantSessionPanel,
+  formatZhushouStatusRule,
+  ZhushouBanner,
+  ZhushouQueuedMessages,
+  ZhushouSessionPanel,
   shellPromptSymbol,
-} from "./assistant-style.js";
+} from "./zhushou-style.js";
 import { editorTheme, theme } from "./theme/theme.js";
 import { createCommandHandlers } from "./tui-command-handlers.js";
 import { createEventHandlers } from "./tui-event-handlers.js";
 import { createLocalShellRunner } from "./tui-local-shell.js";
-import type { AssistantAction } from "./assistant-actions.js";
+import type { ZhushouAction } from "./zhushou-actions.js";
 import { createOverlayHandlers } from "./tui-overlays.js";
 import { createSessionActions } from "./tui-session-actions.js";
 import {
@@ -57,8 +57,33 @@ import type {
 import { captureVoiceInput } from "./voice-input.js";
 import { buildWaitingStatusMessage, defaultWaitingPhrases } from "./tui-waiting.js";
 import type { GovernanceStatus } from "./tui-governance-panel.js";
+import {
+  createConsciousnessTuiState,
+  initializeConsciousness,
+  shutdownConsciousness,
+  updateConsciousnessPanels,
+  handleDepthChange,
+  toggleConsciousnessOverlay,
+  toggleMonologuePanel,
+  toggleDesirePanel,
+  toggleDreamPanel,
+  toggleGoalPanel,
+  toggleWillPanel,
+  toggleShadowPanel,
+  toggleCreativePanel,
+  toggleMortalityPanel,
+  toggleRelationshipPanel,
+  toggleTemporalPanel,
+  toggleExecutorPanel,
+  toggleStrategyPanel,
+  toggleAuditPanel,
+  forwardUserMessage,
+  addConsciousnessComponentsToRoot,
+  type ConsciousnessTuiState,
+} from "./tui-consciousness.js";
+import { CONSCIOUSNESS_DEPTH_ORDER, type ConsciousnessDepth } from "../autonomy/consciousness.js";
 
-export { resolveFinalAssistantText } from "./tui-formatters.js";
+export { resolveFinalZhushouText } from "./tui-formatters.js";
 export type { TuiOptions } from "./tui-types.js";
 export {
   createEditorSubmitHandler,
@@ -68,7 +93,7 @@ export {
 
 function appendTuiDebugLog(line: string) {
   try {
-    const dir = path.join(os.homedir(), ".assistant", "logs");
+    const dir = path.join(os.homedir(), ".zhushou", "logs");
     mkdirSync(dir, { recursive: true });
     appendFileSync(
       path.join(dir, "tui-startup.log"),
@@ -106,7 +131,7 @@ export function resolveTuiSessionKey(params: {
 }
 
 export function resolveInitialTuiAgentId(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   fallbackAgentId: string;
   initialSessionInput?: string;
   cwd?: string;
@@ -128,7 +153,7 @@ export function resolveInitialTuiAgentId(params: {
 }
 
 export function resolveInitialTuiSessionInfo(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId?: string;
 }): SessionInfo {
   const modelRef = resolveDefaultModelForAgent({
@@ -160,9 +185,9 @@ export function resolveGatewayDisconnectState(reason?: string): {
   if (/pairing required/i.test(reasonLabel)) {
     return {
       connectionStatus: `后端已断开: ${reasonLabel}`,
-      activityStatus: "需要配对: 运行 assistant devices list",
+      activityStatus: "需要配对: 运行 zhushou devices list",
       pairingHint:
-        "需要设备配对。请运行 `assistant devices list`，批准你的请求 ID，然后重新连接。",
+        "需要设备配对。请运行 `zhushou devices list`，批准你的请求 ID，然后重新连接。",
     };
   }
   return {
@@ -333,6 +358,8 @@ export async function runTui(opts: TuiOptions) {
   let governanceStatus: GovernanceStatus | null = null;
   let showGovernancePanel = false;
   let queuedMessages: import("./tui-types.js").QueuedMessage[] = [];
+
+  const consciousnessState = createConsciousnessTuiState();
 
   const state: TuiStateAccess = {
     get agentDefaultId() {
@@ -527,11 +554,11 @@ export async function runTui(opts: TuiOptions) {
     }
     return { data: next };
   });
-  const banner = new AssistantBanner();
-  const sessionPanel = new AssistantSessionPanel();
+  const banner = new ZhushouBanner();
+  const sessionPanel = new ZhushouSessionPanel();
   const header = new Text("", 1, 0);
   const statusContainer = new Container();
-  const queuedPanel = new AssistantQueuedMessages();
+  const queuedPanel = new ZhushouQueuedMessages();
   const footer = new Text("", 1, 0);
   const chatLog = new ChatLog();
   const editor = new CustomEditor(tui, editorTheme);
@@ -544,6 +571,8 @@ export async function runTui(opts: TuiOptions) {
   root.addChild(statusContainer);
   root.addChild(footer);
   root.addChild(editor);
+
+  addConsciousnessComponentsToRoot(consciousnessState, root);
 
   const updateAutocompleteProvider = () => {
     editor.setAutocompleteProvider(new CombinedAutocompleteProvider([], process.cwd()));
@@ -774,7 +803,7 @@ export async function runTui(opts: TuiOptions) {
     }
     footer.setText(
       colorizeStatusRule(
-        formatAssistantStatusRule({
+        formatZhushouStatusRule({
           activityStatus,
           connectionStatus,
           cwd: process.cwd(),
@@ -949,6 +978,10 @@ export async function runTui(opts: TuiOptions) {
     if (exitRequested) {
       return;
     }
+    const result = shutdownConsciousness(consciousnessState, process.cwd());
+    if (result) {
+      chatLog.addSystem(result.farewell);
+    }
     exitRequested = true;
     client.stop();
     void drainAndStopTuiSafely(tui).then(() => {
@@ -991,6 +1024,7 @@ export async function runTui(opts: TuiOptions) {
       forgetLocalBtwRunId,
       toggleGovernancePanel,
       requestExit,
+      onUserMessage: (text) => forwardUserMessage(consciousnessState, "user", text, chatLog, process.cwd()),
     });
 
   const { runLocalShellLine } = createLocalShellRunner({
@@ -999,7 +1033,7 @@ export async function runTui(opts: TuiOptions) {
     openOverlay,
       closeOverlay,
     });
-  const handleAssistantAction = (action: AssistantAction) => {
+  const handleZhushouAction = (action: ZhushouAction) => {
     if (action.type === "shell.run") {
       void runLocalShellLine(`!${action.command}`);
       return;
@@ -1011,12 +1045,12 @@ export async function runTui(opts: TuiOptions) {
     editor,
     sendMessage,
     handleBangLine: runLocalShellLine,
-    handleAction: handleAssistantAction,
+    handleAction: handleZhushouAction,
     notifyUser: (message) => {
       chatLog.addSystem(message);
       tui.requestRender();
     },
-    resolveInput: resolveAssistantIntentInput,
+    resolveInput: resolveZhushouIntentInput,
     enqueueMessage,
     hasActiveRun: () => Boolean(state.activeChatRunId),
   });
@@ -1083,6 +1117,48 @@ export async function runTui(opts: TuiOptions) {
   editor.onShiftTab = () => {
     toggleGovernancePanel();
   };
+  editor.onCtrlA = () => {
+    toggleConsciousnessOverlay(consciousnessState, tui);
+  };
+  editor.onCtrlS = () => {
+    toggleMonologuePanel(consciousnessState, tui);
+  };
+  editor.onCtrlF = () => {
+    toggleDesirePanel(consciousnessState, tui);
+  };
+  editor.onCtrlJ = () => {
+    toggleDreamPanel(consciousnessState, tui);
+  };
+  editor.onCtrlM = () => {
+    toggleGoalPanel(consciousnessState, tui);
+  };
+  editor.onCtrlW = () => {
+    toggleWillPanel(consciousnessState, tui);
+  };
+  editor.onCtrlX = () => {
+    toggleShadowPanel(consciousnessState, tui);
+  };
+  editor.onCtrlE = () => {
+    toggleCreativePanel(consciousnessState, tui);
+  };
+  editor.onCtrlQ = () => {
+    toggleMortalityPanel(consciousnessState, tui);
+  };
+  editor.onCtrlR = () => {
+    toggleRelationshipPanel(consciousnessState, tui);
+  };
+  editor.onCtrlU = () => {
+    toggleTemporalPanel(consciousnessState, tui);
+  };
+  editor.onCtrl1 = () => {
+    toggleExecutorPanel(consciousnessState, tui);
+  };
+  editor.onCtrl2 = () => {
+    toggleStrategyPanel(consciousnessState, tui);
+  };
+  editor.onCtrl3 = () => {
+    toggleAuditPanel(consciousnessState, tui);
+  };
   editor.onAltEnter = () => {
     enqueueMessage(editor.getText(), "followUp");
     editor.setText("");
@@ -1141,6 +1217,9 @@ export async function runTui(opts: TuiOptions) {
       }
       updateFooter();
       tui.requestRender();
+      if (!consciousnessState.core) {
+        initializeConsciousness(consciousnessState, tui, chatLog, [process.cwd()], process.cwd());
+      }
     })();
   };
 

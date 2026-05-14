@@ -1,7 +1,7 @@
 import {
   defineBundledChannelEntry,
   loadBundledEntryExportSync,
-} from "assistant/plugin-sdk/channel-entry-contract";
+} from "zhushou/plugin-sdk/channel-entry-contract";
 import type { PluginRuntime, ResolvedNostrAccount } from "./api.js";
 
 function createNostrProfileHttpHandler() {

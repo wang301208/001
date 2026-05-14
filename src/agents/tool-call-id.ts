@@ -4,7 +4,7 @@ import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
 export type ToolCallIdMode = "strict" | "strict9";
 const NATIVE_ANTHROPIC_TOOL_USE_ID_RE = /^toolu_[A-Za-z0-9_]+$/;
-const REDACTED_SESSIONS_SPAWN_ATTACHMENT_CONTENT = "__ASSISTANT_REDACTED__";
+const REDACTED_SESSIONS_SPAWN_ATTACHMENT_CONTENT = "__ZHUSHOU_REDACTED__";
 const SESSIONS_SPAWN_ATTACHMENT_METADATA_KEYS = ["name", "encoding", "mimeType"] as const;
 const TOOL_CALL_NAME_MAX_CHARS = 64;
 const TOOL_CALL_NAME_RE = /^[A-Za-z0-9_:.-]+$/;
@@ -55,7 +55,7 @@ export function sanitizeToolCallId(id: string, mode: ToolCallIdMode = "strict"):
   return alphanumericOnly.length > 0 ? alphanumericOnly : "sanitizedtoolid";
 }
 
-export function extractToolCallsFromAssistant(
+export function extractToolCallsFromZhushou(
   msg: Extract<AgentMessage, { role: "assistant" }>,
 ): ToolCallLike[] {
   const content = msg.content;
@@ -197,7 +197,7 @@ function hasReplaySafeToolCallName(
   return allowedToolNames.has(normalizeLowercaseStringOrEmpty(trimmed));
 }
 
-function isReplaySafeThinkingAssistantMessage(
+function isReplaySafeThinkingZhushouMessage(
   message: Extract<AgentMessage, { role: "assistant" }>,
   allowedToolNames: Set<string> | null,
 ): boolean {
@@ -248,11 +248,11 @@ function collectReplaySafeThinkingToolIds(
     if (!message || typeof message !== "object" || message.role !== "assistant") {
       continue;
     }
-    const assistant = message;
-    if (!isReplaySafeThinkingAssistantMessage(assistant, allowedToolNames)) {
+    const zhushou = message;
+    if (!isReplaySafeThinkingZhushouMessage(zhushou, allowedToolNames)) {
       continue;
     }
-    const toolCalls = extractToolCallsFromAssistant(assistant);
+    const toolCalls = extractToolCallsFromZhushou(zhushou);
     if (toolCalls.some((toolCall) => reserved.has(toolCall.id))) {
       continue;
     }
@@ -337,12 +337,12 @@ function createOccurrenceAwareResolver(
     reservedIds?: Iterable<string>;
   },
 ): {
-  resolveAssistantId: (id: string) => string;
+  resolveZhushouId: (id: string) => string;
   resolveToolResultId: (id: string) => string;
-  preserveAssistantId: (id: string) => string;
+  preserveZhushouId: (id: string) => string;
 } {
   const used = new Set<string>(options?.reservedIds ?? []);
-  const assistantOccurrences = new Map<string, number>();
+  const zhushouOccurrences = new Map<string, number>();
   const orphanToolResultOccurrences = new Map<string, number>();
   const pendingByRawId = new Map<string, string[]>();
   const preserveNativeAnthropicToolUseIds = options?.preserveNativeAnthropicToolUseIds === true;
@@ -366,9 +366,9 @@ function createOccurrenceAwareResolver(
     return allocate(occurrence === 1 ? id : `${id}:${occurrence}`);
   };
 
-  const resolveAssistantId = (id: string): string => {
-    const occurrence = (assistantOccurrences.get(id) ?? 0) + 1;
-    assistantOccurrences.set(id, occurrence);
+  const resolveZhushouId = (id: string): string => {
+    const occurrence = (zhushouOccurrences.get(id) ?? 0) + 1;
+    zhushouOccurrences.set(id, occurrence);
     const next = allocatePreservingNativeAnthropicId(id, occurrence);
     const pending = pendingByRawId.get(id);
     if (pending) {
@@ -403,7 +403,7 @@ function createOccurrenceAwareResolver(
     return allocate(`${id}:tool_result:${occurrence}`);
   };
 
-  const preserveAssistantId = (id: string): string => {
+  const preserveZhushouId = (id: string): string => {
     used.add(id);
     const pending = pendingByRawId.get(id);
     if (pending) {
@@ -414,10 +414,10 @@ function createOccurrenceAwareResolver(
     return id;
   };
 
-  return { resolveAssistantId, resolveToolResultId, preserveAssistantId };
+  return { resolveZhushouId, resolveToolResultId, preserveZhushouId };
 }
 
-function rewriteAssistantToolCallIds(params: {
+function rewriteZhushouToolCallIds(params: {
   message: Extract<AgentMessage, { role: "assistant" }>;
   resolveId: (id: string) => string;
 }): Extract<AgentMessage, { role: "assistant" }> {
@@ -503,7 +503,7 @@ export function sanitizeToolCallIdsForCloudCodeAssist(
   // Strict mode: only [a-zA-Z0-9]
   // Strict9 mode: only [a-zA-Z0-9], length 9 (Mistral tool call requirement)
   // Sanitization can introduce collisions, and some providers also reject raw
-  // duplicate tool-call IDs. Track assistant occurrences in-order so repeated
+  // duplicate tool-call IDs. Track zhushou occurrences in-order so repeated
   // raw IDs receive distinct rewritten IDs, while matching tool results consume
   // the same rewritten IDs in encounter order.
   const allowedToolNames = normalizeAllowedToolNames(options?.allowedToolNames);
@@ -512,7 +512,7 @@ export function sanitizeToolCallIdsForCloudCodeAssist(
   const replaySafeThinking = preserveReplaySafeThinkingToolCallIds
     ? collectReplaySafeThinkingToolIds(messages, allowedToolNames)
     : undefined;
-  const { resolveAssistantId, resolveToolResultId, preserveAssistantId } =
+  const { resolveZhushouId, resolveToolResultId, preserveZhushouId } =
     createOccurrenceAwareResolver(mode, {
       ...options,
       reservedIds: replaySafeThinking?.reservedIds,
@@ -525,16 +525,16 @@ export function sanitizeToolCallIdsForCloudCodeAssist(
     }
     const role = (msg as { role?: unknown }).role;
     if (role === "assistant") {
-      const assistant = msg as Extract<AgentMessage, { role: "assistant" }>;
+      const zhushou = msg as Extract<AgentMessage, { role: "assistant" }>;
       if (replaySafeThinking?.preservedIndexes.has(index)) {
-        for (const toolCall of extractToolCallsFromAssistant(assistant)) {
-          preserveAssistantId(toolCall.id);
+        for (const toolCall of extractToolCallsFromZhushou(zhushou)) {
+          preserveZhushouId(toolCall.id);
         }
         return msg;
       }
-      const next = rewriteAssistantToolCallIds({
-        message: assistant,
-        resolveId: resolveAssistantId,
+      const next = rewriteZhushouToolCallIds({
+        message: zhushou,
+        resolveId: resolveZhushouId,
       });
       if (next !== msg) {
         changed = true;

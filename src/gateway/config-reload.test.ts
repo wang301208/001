@@ -350,7 +350,7 @@ function createWatcherMock() {
 
 function makeSnapshot(partial: Partial<ConfigFileSnapshot> = {}): ConfigFileSnapshot {
   return {
-    path: "/tmp/assistant.json",
+    path: "/tmp/zhushou.json",
     exists: true,
     raw: "{}",
     parsed: {},
@@ -396,7 +396,7 @@ function createReloaderHarness(
     onHotReload,
     onRestart,
     log,
-    watchPath: "/tmp/assistant.json",
+    watchPath: "/tmp/zhushou.json",
   });
   return {
     watcher,
@@ -551,7 +551,7 @@ describe("startGatewayConfigReloader", () => {
     const harness = createReloaderHarness(readSnapshot);
 
     harness.emitWrite({
-      configPath: "/tmp/assistant.json",
+      configPath: "/tmp/zhushou.json",
       sourceConfig: { gateway: { reload: { debounceMs: 0 } } },
       runtimeConfig: {
         gateway: { reload: { debounceMs: 0 } },

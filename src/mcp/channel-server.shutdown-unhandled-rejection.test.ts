@@ -51,7 +51,7 @@ vi.mock("../version.js", () => ({
 }));
 
 vi.mock("./channel-bridge.js", () => ({
-  AssistantChannelBridge: class MockAssistantChannelBridge {
+  ZhushouChannelBridge: class MockZhushouChannelBridge {
     setServer(server: unknown) {
       bridgeState.setServer(server);
     }
@@ -79,7 +79,7 @@ vi.mock("./channel-tools.js", () => ({
   registerChannelMcpTools: vi.fn(),
 }));
 
-describe("serveAssistantChannelMcp shutdown", () => {
+describe("serveZhushouChannelMcp shutdown", () => {
   const unhandledRejections: unknown[] = [];
   const onUnhandledRejection = (reason: unknown) => {
     unhandledRejections.push(reason);
@@ -99,9 +99,9 @@ describe("serveAssistantChannelMcp shutdown", () => {
 
   it("does not leak unhandled rejections when shutdown close fails", async () => {
     process.on("unhandledRejection", onUnhandledRejection);
-    const { serveAssistantChannelMcp } = await import("./channel-server.js");
+    const { serveZhushouChannelMcp } = await import("./channel-server.js");
 
-    const servePromise = serveAssistantChannelMcp({ verbose: false });
+    const servePromise = serveZhushouChannelMcp({ verbose: false });
     await Promise.resolve();
 
     transportState.lastTransport?.onclose?.();

@@ -39,7 +39,7 @@ async function getCreateJiti() {
 }
 
 const fixtureTempDirs: string[] = [];
-const fixtureRoot = makeTrackedTempDir("assistant-sdk-alias-root", fixtureTempDirs);
+const fixtureRoot = makeTrackedTempDir("zhushou-sdk-alias-root", fixtureTempDirs);
 let tempDirIndex = 0;
 
 function makeTempDir() {
@@ -91,12 +91,12 @@ function createPluginSdkAliasFixture(params?: {
     params?.trustedRootIndicatorMode ??
     (params?.trustedRootIndicators === false ? "none" : "bin+marker");
   const packageJson: Record<string, unknown> = {
-    name: "assistant",
+    name: "zhushou",
     type: "module",
   };
   if (trustedRootIndicatorMode === "bin+marker") {
     packageJson.bin = {
-      assistant: "assistant.mjs",
+      zhushou: "zhushou.mjs",
     };
   }
   if (params?.packageExports || trustedRootIndicatorMode === "cli-entry-only") {
@@ -112,7 +112,7 @@ function createPluginSdkAliasFixture(params?: {
   }
   fs.writeFileSync(path.join(root, "package.json"), JSON.stringify(packageJson, null, 2), "utf-8");
   if (trustedRootIndicatorMode === "bin+marker") {
-    fs.writeFileSync(path.join(root, "assistant.mjs"), "export {};\n", "utf-8");
+    fs.writeFileSync(path.join(root, "zhushou.mjs"), "export {};\n", "utf-8");
   }
   mkdirSafeDir(path.join(root, "scripts", "lib"));
   fs.writeFileSync(
@@ -137,10 +137,10 @@ function createExtensionApiAliasFixture(params?: {
   mkdirSafeDir(path.dirname(distFile));
   fs.writeFileSync(
     path.join(root, "package.json"),
-    JSON.stringify({ name: "assistant", type: "module" }, null, 2),
+    JSON.stringify({ name: "zhushou", type: "module" }, null, 2),
     "utf-8",
   );
-  fs.writeFileSync(path.join(root, "assistant.mjs"), "export {};\n", "utf-8");
+  fs.writeFileSync(path.join(root, "zhushou.mjs"), "export {};\n", "utf-8");
   fs.writeFileSync(srcFile, params?.srcBody ?? "export {};\n", "utf-8");
   fs.writeFileSync(distFile, params?.distBody ?? "export {};\n", "utf-8");
   return { root, srcFile, distFile };
@@ -154,7 +154,7 @@ function createPluginRuntimeAliasFixture(params?: { srcBody?: string; distBody?:
   mkdirSafeDir(path.dirname(distFile));
   fs.writeFileSync(
     path.join(root, "package.json"),
-    JSON.stringify({ name: "assistant", type: "module" }, null, 2),
+    JSON.stringify({ name: "zhushou", type: "module" }, null, 2),
     "utf-8",
   );
   fs.writeFileSync(
@@ -209,7 +209,7 @@ function writePluginEntry(root: string, relativePath: string) {
 function createUserInstalledPluginSdkAliasFixture() {
   const { fixture, sourceRootAlias, sourceChannelRuntimePath } =
     createPluginSdkAliasTargetFixture();
-  const externalPluginRoot = path.join(makeTempDir(), ".assistant", "extensions", "demo");
+  const externalPluginRoot = path.join(makeTempDir(), ".zhushou", "extensions", "demo");
   const externalPluginEntry = path.join(externalPluginRoot, "index.ts");
   mkdirSafeDir(externalPluginRoot);
   fs.writeFileSync(externalPluginEntry, 'export const plugin = "demo";\n', "utf-8");
@@ -269,17 +269,17 @@ function expectPluginSdkAliasTargets(
     channelRuntimePath?: string;
   },
 ) {
-  expect(fs.realpathSync(aliases["assistant/plugin-sdk"] ?? "")).toBe(
+  expect(fs.realpathSync(aliases["zhushou/plugin-sdk"] ?? "")).toBe(
     fs.realpathSync(params.rootAliasPath),
   );
-  expect(fs.realpathSync(aliases["@assistant/plugin-sdk"] ?? "")).toBe(
+  expect(fs.realpathSync(aliases["@zhushou/plugin-sdk"] ?? "")).toBe(
     fs.realpathSync(params.rootAliasPath),
   );
   if (params.channelRuntimePath) {
-    expect(fs.realpathSync(aliases["assistant/plugin-sdk/channel-runtime"] ?? "")).toBe(
+    expect(fs.realpathSync(aliases["zhushou/plugin-sdk/channel-runtime"] ?? "")).toBe(
       fs.realpathSync(params.channelRuntimePath),
     );
-    expect(fs.realpathSync(aliases["@assistant/plugin-sdk/channel-runtime"] ?? "")).toBe(
+    expect(fs.realpathSync(aliases["@zhushou/plugin-sdk/channel-runtime"] ?? "")).toBe(
       fs.realpathSync(params.channelRuntimePath),
     );
   }
@@ -350,7 +350,7 @@ function expectCwdFallbackPluginSdkAliasResolution(params: {
     resolvePluginSdkAlias({
       srcFile: "channel-runtime.ts",
       distFile: "channel-runtime.js",
-      modulePath: "/tmp/tsx-cache/assistant-loader.js",
+      modulePath: "/tmp/tsx-cache/zhushou-loader.js",
       env: { NODE_ENV: undefined },
     }),
   );
@@ -438,8 +438,8 @@ describe("plugin sdk alias helpers", () => {
             "./plugin-sdk/index": { default: "./dist/plugin-sdk/index.js" },
           },
         }),
-      modulePath: () => "/tmp/tsx-cache/assistant-loader.js",
-      argv1: (root: string) => path.join(root, "assistant.mjs"),
+      modulePath: () => "/tmp/tsx-cache/zhushou-loader.js",
+      argv1: (root: string) => path.join(root, "zhushou.mjs"),
       srcFile: "index.ts",
       distFile: "index.js",
       env: { NODE_ENV: undefined },
@@ -472,8 +472,8 @@ describe("plugin sdk alias helpers", () => {
     },
     {
       name: "resolves extension-api alias from package root when loader runs from transpiler cache path",
-      modulePath: () => "/tmp/tsx-cache/assistant-loader.js",
-      argv1: (root: string) => path.join(root, "assistant.mjs"),
+      modulePath: () => "/tmp/tsx-cache/zhushou-loader.js",
+      argv1: (root: string) => path.join(root, "zhushou.mjs"),
       env: { NODE_ENV: undefined },
       expected: "src" as const,
     },
@@ -557,7 +557,7 @@ describe("plugin sdk alias helpers", () => {
       "utf-8",
     );
 
-    const subpaths = withEnv({ ASSISTANT_ENABLE_PRIVATE_QA_CLI: "1" }, () =>
+    const subpaths = withEnv({ ZHUSHOU_ENABLE_PRIVATE_QA_CLI: "1" }, () =>
       listPluginSdkExportedSubpaths({
         modulePath: path.join(fixture.root, "src", "plugins", "loader.ts"),
       }),
@@ -588,7 +588,7 @@ describe("plugin sdk alias helpers", () => {
       }),
     ).toEqual(["core"]);
 
-    const privateSubpaths = withEnv({ ASSISTANT_ENABLE_PRIVATE_QA_CLI: "1" }, () =>
+    const privateSubpaths = withEnv({ ZHUSHOU_ENABLE_PRIVATE_QA_CLI: "1" }, () =>
       listPluginSdkExportedSubpaths({
         modulePath: path.join(fixture.root, "src", "plugins", "loader.ts"),
       }),
@@ -626,7 +626,7 @@ describe("plugin sdk alias helpers", () => {
     expectExportedSubpaths({
       fixture,
       cwd: fixture.root,
-      modulePath: "/tmp/tsx-cache/assistant-loader.js",
+      modulePath: "/tmp/tsx-cache/zhushou-loader.js",
       expected,
     });
   });
@@ -683,17 +683,17 @@ describe("plugin sdk alias helpers", () => {
       bundledPluginFile("qa-matrix", "src/index.ts"),
     );
 
-    const aliases = withEnv({ ASSISTANT_ENABLE_PRIVATE_QA_CLI: "1", NODE_ENV: undefined }, () =>
+    const aliases = withEnv({ ZHUSHOU_ENABLE_PRIVATE_QA_CLI: "1", NODE_ENV: undefined }, () =>
       buildPluginLoaderAliasMap(sourcePluginEntry),
     );
 
-    expect(fs.realpathSync(aliases["assistant/plugin-sdk"] ?? "")).toBe(
+    expect(fs.realpathSync(aliases["zhushou/plugin-sdk"] ?? "")).toBe(
       fs.realpathSync(sourceRootAlias),
     );
-    expect(fs.realpathSync(aliases["assistant/plugin-sdk/qa-runtime"] ?? "")).toBe(
+    expect(fs.realpathSync(aliases["zhushou/plugin-sdk/qa-runtime"] ?? "")).toBe(
       fs.realpathSync(sourceQaRuntimePath),
     );
-    expect(fs.realpathSync(aliases["assistant/plugin-sdk/qa-lab"] ?? "")).toBe(
+    expect(fs.realpathSync(aliases["zhushou/plugin-sdk/qa-lab"] ?? "")).toBe(
       fs.realpathSync(distQaLabPath),
     );
   });
@@ -735,7 +735,7 @@ describe("plugin sdk alias helpers", () => {
     });
   });
 
-  it("resolves plugin-sdk aliases for user-installed plugins via the running assistant argv hint", () => {
+  it("resolves plugin-sdk aliases for user-installed plugins via the running zhushou argv hint", () => {
     const {
       externalPluginEntry,
       externalPluginRoot,
@@ -746,7 +746,7 @@ describe("plugin sdk alias helpers", () => {
 
     const aliases = withCwd(externalPluginRoot, () =>
       withEnv({ NODE_ENV: undefined }, () =>
-        buildPluginLoaderAliasMap(externalPluginEntry, path.join(fixture.root, "assistant.mjs")),
+        buildPluginLoaderAliasMap(externalPluginEntry, path.join(fixture.root, "zhushou.mjs")),
       ),
     );
 
@@ -766,18 +766,18 @@ describe("plugin sdk alias helpers", () => {
     } = createUserInstalledPluginSdkAliasFixture();
 
     // Simulate loader.ts passing its own import.meta.url as the moduleUrl hint.
-    // This covers installations where argv1 does not resolve to the assistant root
+    // This covers installations where argv1 does not resolve to the zhushou root
     // (e.g. single-binary distributions or custom process launchers).
-    // Use assistant.mjs which is created by createPluginSdkAliasFixture (bin+marker mode).
+    // Use zhushou.mjs which is created by createPluginSdkAliasFixture (bin+marker mode).
     // Use fixture.root as cwd so process.cwd() fallback also resolves to fixture, not the
-    // real assistant repo root in the test runner environment.
-    const loaderModuleUrl = pathToFileURL(path.join(fixture.root, "assistant.mjs")).href;
+    // real zhushou repo root in the test runner environment.
+    const loaderModuleUrl = pathToFileURL(path.join(fixture.root, "zhushou.mjs")).href;
 
     // Use externalPluginRoot as cwd so process.cwd() fallback cannot accidentally
     // resolve to the fixture root — only the moduleUrl hint can bridge the gap.
     // Pass "" for argv1: undefined would trigger the STARTUP_ARGV1 default (the vitest
-    // runner binary, inside the assistant repo), which resolves before moduleUrl is checked.
-    // An empty string is falsy so resolveTrustedAssistantRootFromArgvHint returns null,
+    // runner binary, inside the zhushou repo), which resolves before moduleUrl is checked.
+    // An empty string is falsy so resolveTrustedZhushouRootFromArgvHint returns null,
     // meaning only the moduleUrl hint can bridge the gap.
     const aliases = withCwd(externalPluginRoot, () =>
       withEnv({ NODE_ENV: undefined }, () =>
@@ -883,6 +883,14 @@ describe("plugin sdk alias helpers", () => {
     });
   });
 
+  it("allows setup-only TypeScript plugin entries to use native Jiti on Windows", () => {
+    withPlatform("win32", () => {
+      expect(resolvePluginLoaderJitiTryNative("/repo/extensions/anthropic-vertex/setup-api.ts")).toBe(
+        true,
+      );
+    });
+  });
+
   it("keeps bundled plugin dist modules on the aliased Jiti path", () => {
     withPlatform("linux", () => {
       expect(
@@ -926,13 +934,13 @@ describe("plugin sdk alias helpers", () => {
   it("returns plugin loader Jiti config with stable cache keys", () => {
     const first = resolvePluginLoaderJitiConfig({
       modulePath: `/repo/${bundledDistPluginFile("browser", "index.js")}`,
-      argv1: "/repo/assistant.mjs",
+      argv1: "/repo/zhushou.mjs",
       moduleUrl: "file:///repo/src/plugins/public-surface-loader.ts",
       preferBuiltDist: true,
     });
     const second = resolvePluginLoaderJitiConfig({
       modulePath: `/repo/${bundledDistPluginFile("browser", "index.js")}`,
-      argv1: "/repo/assistant.mjs",
+      argv1: "/repo/zhushou.mjs",
       moduleUrl: "file:///repo/src/plugins/public-surface-loader.ts",
       preferBuiltDist: true,
     });
@@ -944,19 +952,19 @@ describe("plugin sdk alias helpers", () => {
     expect(
       isBundledPluginExtensionPath({
         modulePath: "/repo/extensions/demo/api.js",
-        assistantPackageRoot: "/repo",
+        zhushouPackageRoot: "/repo",
       }),
     ).toBe(true);
     expect(
       isBundledPluginExtensionPath({
         modulePath: "/repo/dist/extensions/demo/api.js",
-        assistantPackageRoot: "/repo",
+        zhushouPackageRoot: "/repo",
       }),
     ).toBe(true);
     expect(
       isBundledPluginExtensionPath({
         modulePath: "/repo/vendor/demo/api.js",
-        assistantPackageRoot: "/repo",
+        zhushouPackageRoot: "/repo",
       }),
     ).toBe(false);
   });
@@ -979,7 +987,7 @@ describe("plugin sdk alias helpers", () => {
     fs.writeFileSync(jitiBaseFile, "export {};\n", "utf-8");
     fs.writeFileSync(
       path.join(copiedSourceDir, "channel.runtime.ts"),
-      `import { resolveOutboundSendDep } from "@assistant/plugin-sdk/infra-runtime";
+      `import { resolveOutboundSendDep } from "@zhushou/plugin-sdk/infra-runtime";
 
 export const syntheticRuntimeMarker = {
   resolveOutboundSendDep,
@@ -1008,8 +1016,8 @@ export const syntheticRuntimeMarker = {
 
     const withAlias = createJiti(jitiBaseUrl, {
       ...buildPluginLoaderJitiOptions({
-        "assistant/plugin-sdk/infra-runtime": copiedChannelRuntimeShim,
-        "@assistant/plugin-sdk/infra-runtime": copiedChannelRuntimeShim,
+        "zhushou/plugin-sdk/infra-runtime": copiedChannelRuntimeShim,
+        "@zhushou/plugin-sdk/infra-runtime": copiedChannelRuntimeShim,
       }),
       tryNative: false,
     });
@@ -1028,8 +1036,8 @@ export const syntheticRuntimeMarker = {
     },
     {
       name: "resolves plugin runtime module from package root when loader runs from transpiler cache path",
-      modulePath: () => "/tmp/tsx-cache/assistant-loader.js",
-      argv1: (root: string) => path.join(root, "assistant.mjs"),
+      modulePath: () => "/tmp/tsx-cache/zhushou-loader.js",
+      argv1: (root: string) => path.join(root, "zhushou.mjs"),
       env: { NODE_ENV: undefined },
       expected: "src" as const,
     },

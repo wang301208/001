@@ -3,7 +3,7 @@ import { captureFullEnv } from "../test-utils/env.js";
 import { SUPERVISOR_HINT_ENV_VARS } from "./supervisor-markers.js";
 
 const spawnMock = vi.hoisted(() => vi.fn());
-const triggerAssistantRestartMock = vi.hoisted(() => vi.fn());
+const triggerZhushouRestartMock = vi.hoisted(() => vi.fn());
 
 vi.mock("node:child_process", async () => {
   const { mockNodeBuiltinModule } = await import("../../test/helpers/node-builtin-mocks.js");
@@ -16,7 +16,7 @@ vi.mock("node:child_process", async () => {
 });
 
 vi.mock("./restart.js", () => ({
-  triggerAssistantRestart: (...args: unknown[]) => triggerAssistantRestartMock(...args),
+  triggerZhushouRestart: (...args: unknown[]) => triggerZhushouRestartMock(...args),
 }));
 
 import { restartGatewayProcessWithFreshPid } from "./process-respawn.js";
@@ -47,7 +47,7 @@ function expectAutomaticRestartDisabled() {
     mode: "disabled",
     detail: "automatic gateway restart disabled",
   });
-  expect(triggerAssistantRestartMock).not.toHaveBeenCalled();
+  expect(triggerZhushouRestartMock).not.toHaveBeenCalled();
   expect(spawnMock).not.toHaveBeenCalled();
 }
 
@@ -56,7 +56,7 @@ afterEach(() => {
   process.argv = [...originalArgv];
   process.execArgv = [...originalExecArgv];
   spawnMock.mockClear();
-  triggerAssistantRestartMock.mockClear();
+  triggerZhushouRestartMock.mockClear();
   if (originalPlatformDescriptor) {
     Object.defineProperty(process, "platform", originalPlatformDescriptor);
   }
@@ -68,7 +68,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("does not respawn even when no-respawn is unset on Linux", () => {
-    delete process.env.ASSISTANT_NO_RESPAWN;
+    delete process.env.ZHUSHOU_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("linux");
     process.execArgv = ["--import", "tsx"];
@@ -81,9 +81,9 @@ describe("restartGatewayProcessWithFreshPid", () => {
   it("does not delegate restart to launchd", () => {
     clearSupervisorHints();
     setPlatform("darwin");
-    process.env.LAUNCH_JOB_LABEL = "ai.assistant.gateway";
-    process.env.ASSISTANT_LAUNCHD_LABEL = "ai.assistant.gateway";
-    triggerAssistantRestartMock.mockReturnValue({
+    process.env.LAUNCH_JOB_LABEL = "ai.zhushou.gateway";
+    process.env.ZHUSHOU_LAUNCHD_LABEL = "ai.zhushou.gateway";
+    triggerZhushouRestartMock.mockReturnValue({
       ok: false,
       method: "launchctl",
       detail: "Bootstrap failed: 5: Input/output error",
@@ -96,7 +96,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
     clearSupervisorHints();
     setPlatform("linux");
     process.env.INVOCATION_ID = "abc123";
-    process.env.ASSISTANT_SYSTEMD_UNIT = "assistant-gateway.service";
+    process.env.ZHUSHOU_SYSTEMD_UNIT = "zhushou-gateway.service";
 
     expectAutomaticRestartDisabled();
   });
@@ -104,9 +104,9 @@ describe("restartGatewayProcessWithFreshPid", () => {
   it("does not delegate restart to Windows Scheduled Tasks", () => {
     clearSupervisorHints();
     setPlatform("win32");
-    process.env.ASSISTANT_SERVICE_MARKER = "assistant";
-    process.env.ASSISTANT_SERVICE_KIND = "gateway";
-    triggerAssistantRestartMock.mockReturnValue({ ok: true, method: "schtasks" });
+    process.env.ZHUSHOU_SERVICE_MARKER = "zhushou";
+    process.env.ZHUSHOU_SERVICE_KIND = "gateway";
+    triggerZhushouRestartMock.mockReturnValue({ ok: true, method: "schtasks" });
 
     expectAutomaticRestartDisabled();
   });

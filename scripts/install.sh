@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# Assistant Installer for macOS and Linux
-# Usage: curl -fsSL --proto '=https' --tlsv1.2 https://assistant.ai/install.sh | bash
+# Zhushou Installer for macOS and Linux
+# Usage: curl -fsSL --proto '=https' --tlsv1.2 https://zhushou.ai/install.sh | bash
 
 BOLD='\033[1m'
 ACCENT='\033[38;2;255;77;77m'       # coral-bright  #ff4d4d
@@ -15,7 +15,7 @@ ERROR='\033[38;2;230;57;70m'        # coral-mid     #e63946
 MUTED='\033[38;2;90;100;128m'       # text-muted    #5a6480
 NC='\033[0m' # No Color
 
-DEFAULT_TAGLINE="All your chats, one Assistant."
+DEFAULT_TAGLINE="All your chats, one Zhushou."
 NODE_DEFAULT_MAJOR=24
 NODE_MIN_MAJOR=22
 NODE_MIN_MINOR=14
@@ -74,7 +74,7 @@ run_remote_bash() {
     /bin/bash "$tmp"
 }
 
-GUM_VERSION="${ASSISTANT_GUM_VERSION:-0.17.0}"
+GUM_VERSION="${ZHUSHOU_GUM_VERSION:-0.17.0}"
 GUM=""
 GUM_STATUS="skipped"
 GUM_REASON=""
@@ -236,7 +236,7 @@ print_gum_status() {
 print_installer_banner() {
     if [[ -n "$GUM" ]]; then
         local title tagline hint card
-        title="$("$GUM" style --foreground "#ff4d4d" --bold "🦞 Assistant Installer")"
+        title="$("$GUM" style --foreground "#ff4d4d" --bold "🦞 Zhushou Installer")"
         tagline="$("$GUM" style --foreground "#8892b0" "$TAGLINE")"
         hint="$("$GUM" style --foreground "#5a6480" "modern installer mode")"
         card="$(printf '%s\n%s\n%s' "$title" "$tagline" "$hint")"
@@ -246,7 +246,7 @@ print_installer_banner() {
     fi
 
     echo -e "${ACCENT}${BOLD}"
-    echo "  🦞 Assistant Installer"
+    echo "  🦞 Zhushou Installer"
     echo -e "${NC}${INFO}  ${TAGLINE}${NC}"
     echo ""
 }
@@ -262,7 +262,7 @@ detect_os_or_die() {
     if [[ "$OS" == "unknown" ]]; then
         ui_error "Unsupported operating system"
         echo "This installer supports macOS and Linux (including WSL)."
-        echo "For Windows, use: iwr -useb https://assistant.ai/install.ps1 | iex"
+        echo "For Windows, use: iwr -useb https://zhushou.ai/install.ps1 | iex"
         exit 1
     fi
 
@@ -354,7 +354,7 @@ show_install_plan() {
     ui_section "Install plan"
     ui_kv "OS" "$OS"
     ui_kv "Install method" "$INSTALL_METHOD"
-    ui_kv "Requested version" "$ASSISTANT_VERSION"
+    ui_kv "Requested version" "$ZHUSHOU_VERSION"
     if [[ "$USE_BETA" == "1" ]]; then
         ui_kv "Beta channel" "enabled"
     fi
@@ -374,7 +374,7 @@ show_install_plan() {
 }
 
 show_footer_links() {
-    local faq_url="https://docs.assistant.ai/start/faq"
+    local faq_url="https://docs.zhushou.ai/start/faq"
     if [[ -n "$GUM" ]]; then
         local content
         content="$(printf '%s\n%s' "Need help?" "FAQ: ${faq_url}")"
@@ -475,16 +475,16 @@ cleanup_legacy_submodules() {
     fi
 }
 
-cleanup_npm_assistant_paths() {
+cleanup_npm_zhushou_paths() {
     local npm_root=""
     npm_root="$(npm root -g 2>/dev/null || true)"
     if [[ -z "$npm_root" || "$npm_root" != *node_modules* ]]; then
         return 1
     fi
-    rm -rf "$npm_root"/.assistant-* "$npm_root"/assistant 2>/dev/null || true
+    rm -rf "$npm_root"/.zhushou-* "$npm_root"/zhushou 2>/dev/null || true
 }
 
-extract_assistant_conflict_path() {
+extract_zhushou_conflict_path() {
     local log="$1"
     local path=""
     path="$(sed -n 's/.*File exists: //p' "$log" | head -n1)"
@@ -498,16 +498,16 @@ extract_assistant_conflict_path() {
     return 1
 }
 
-cleanup_assistant_bin_conflict() {
+cleanup_zhushou_bin_conflict() {
     local bin_path="$1"
     if [[ -z "$bin_path" || ( ! -e "$bin_path" && ! -L "$bin_path" ) ]]; then
         return 1
     fi
     local npm_bin=""
     npm_bin="$(npm_global_bin_dir 2>/dev/null || true)"
-    if [[ -n "$npm_bin" && "$bin_path" != "$npm_bin/assistant" ]]; then
+    if [[ -n "$npm_bin" && "$bin_path" != "$npm_bin/zhushou" ]]; then
         case "$bin_path" in
-            "/opt/homebrew/bin/assistant"|"/usr/local/bin/assistant")
+            "/opt/homebrew/bin/zhushou"|"/usr/local/bin/zhushou")
                 ;;
             *)
                 return 1
@@ -517,9 +517,9 @@ cleanup_assistant_bin_conflict() {
     if [[ -L "$bin_path" ]]; then
         local target=""
         target="$(readlink "$bin_path" 2>/dev/null || true)"
-        if [[ "$target" == *"/node_modules/assistant/"* ]]; then
+        if [[ "$target" == *"/node_modules/zhushou/"* ]]; then
             rm -f "$bin_path"
-            ui_info "Removed stale assistant symlink at ${bin_path}"
+            ui_info "Removed stale zhushou symlink at ${bin_path}"
             return 0
         fi
         return 1
@@ -527,7 +527,7 @@ cleanup_assistant_bin_conflict() {
     local backup=""
     backup="${bin_path}.bak-$(date +%Y%m%d-%H%M%S)"
     if mv "$bin_path" "$backup"; then
-        ui_info "Moved existing assistant binary to ${backup}"
+        ui_info "Moved existing zhushou binary to ${backup}"
         return 0
     fi
     return 1
@@ -696,7 +696,7 @@ run_npm_global_install() {
         local log_quoted=""
         printf -v cmd_quoted '%q ' "${cmd[@]}"
         printf -v log_quoted '%q' "$log"
-        run_with_spinner "Installing Assistant package" bash -c "${cmd_quoted}>${log_quoted} 2>&1"
+        run_with_spinner "Installing Zhushou package" bash -c "${cmd_quoted}>${log_quoted} 2>&1"
         return $?
     fi
 
@@ -782,7 +782,7 @@ print_npm_failure_diagnostics() {
     fi
 }
 
-install_assistant_npm() {
+install_zhushou_npm() {
     local spec="$1"
     local log
     log="$(mktempfile)"
@@ -792,7 +792,7 @@ install_assistant_npm() {
             attempted_build_tool_fix=true
             ui_info "Retrying npm install after build tools setup"
             if run_npm_global_install "$spec" "$log"; then
-                ui_success "Assistant npm package installed"
+                ui_success "Zhushou npm package installed"
                 return 0
             fi
         fi
@@ -808,26 +808,26 @@ install_assistant_npm() {
             tail -n 80 "$log" >&2 || true
         fi
 
-        if grep -q "ENOTEMPTY: directory not empty, rename .*assistant" "$log"; then
+        if grep -q "ENOTEMPTY: directory not empty, rename .*zhushou" "$log"; then
             ui_warn "npm left stale directory; cleaning and retrying"
-            cleanup_npm_assistant_paths
+            cleanup_npm_zhushou_paths
             if run_npm_global_install "$spec" "$log"; then
-                ui_success "Assistant npm package installed"
+                ui_success "Zhushou npm package installed"
                 return 0
             fi
             return 1
         fi
         if grep -q "EEXIST" "$log"; then
             local conflict=""
-            conflict="$(extract_assistant_conflict_path "$log" || true)"
-            if [[ -n "$conflict" ]] && cleanup_assistant_bin_conflict "$conflict"; then
+            conflict="$(extract_zhushou_conflict_path "$log" || true)"
+            if [[ -n "$conflict" ]] && cleanup_zhushou_bin_conflict "$conflict"; then
                 if run_npm_global_install "$spec" "$log"; then
-                    ui_success "Assistant npm package installed"
+                    ui_success "Zhushou npm package installed"
                     return 0
                 fi
                 return 1
             fi
-            ui_error "npm failed because an assistant binary already exists"
+            ui_error "npm failed because an zhushou binary already exists"
             if [[ -n "$conflict" ]]; then
                 ui_info "Remove or move ${conflict}, then retry"
             fi
@@ -835,7 +835,7 @@ install_assistant_npm() {
         fi
         return 1
     fi
-    ui_success "Assistant npm package installed"
+    ui_success "Zhushou npm package installed"
     return 0
 }
 
@@ -855,7 +855,7 @@ TAGLINES+=("Type the command with confidence—nature will provide the stack tra
 TAGLINES+=("I don't judge, but your missing API keys are absolutely judging you.")
 TAGLINES+=("I can grep it, git blame it, and gently roast it—pick your coping mechanism.")
 TAGLINES+=("Hot reload for config, cold sweat for deploys.")
-TAGLINES+=("I'm the assistant your terminal demanded, not the one your sleep schedule requested.")
+TAGLINES+=("I'm the zhushou your terminal demanded, not the one your sleep schedule requested.")
 TAGLINES+=("I keep secrets like a vault... unless you print them in debug logs again.")
 TAGLINES+=("Automation with claws: minimal fuss, maximal pinch.")
 TAGLINES+=("I'm basically a Swiss Army knife, but with more opinions and fewer sharp edges.")
@@ -902,7 +902,7 @@ TAGLINES+=("Siri's competent cousin.")
 TAGLINES+=("Works on Android. Crazy concept, we know.")
 TAGLINES+=("No \$999 stand required.")
 TAGLINES+=("We ship features faster than Apple ships calculator updates.")
-TAGLINES+=("Your AI assistant, now without the \$3,499 headset.")
+TAGLINES+=("Your AI zhushou, now without the \$3,499 headset.")
 TAGLINES+=("Think different. Actually think.")
 TAGLINES+=("Ah, the fruit tree company! 🍎")
 
@@ -947,9 +947,9 @@ pick_tagline() {
         echo "$DEFAULT_TAGLINE"
         return
     fi
-    if [[ -n "${ASSISTANT_TAGLINE_INDEX:-}" ]]; then
-        if [[ "${ASSISTANT_TAGLINE_INDEX}" =~ ^[0-9]+$ ]]; then
-            local idx=$((ASSISTANT_TAGLINE_INDEX % count))
+    if [[ -n "${ZHUSHOU_TAGLINE_INDEX:-}" ]]; then
+        if [[ "${ZHUSHOU_TAGLINE_INDEX}" =~ ^[0-9]+$ ]]; then
+            local idx=$((ZHUSHOU_TAGLINE_INDEX % count))
             echo "${TAGLINES[$idx]}"
             return
         fi
@@ -960,30 +960,30 @@ pick_tagline() {
 
 TAGLINE=$(pick_tagline)
 
-NO_ONBOARD=${ASSISTANT_NO_ONBOARD:-0}
-NO_PROMPT=${ASSISTANT_NO_PROMPT:-0}
-DRY_RUN=${ASSISTANT_DRY_RUN:-0}
-INSTALL_METHOD=${ASSISTANT_INSTALL_METHOD:-}
-ASSISTANT_VERSION=${ASSISTANT_VERSION:-latest}
-USE_BETA=${ASSISTANT_BETA:-0}
-GIT_DIR_DEFAULT="${HOME}/assistant"
-GIT_DIR=${ASSISTANT_GIT_DIR:-$GIT_DIR_DEFAULT}
-GIT_UPDATE=${ASSISTANT_GIT_UPDATE:-1}
+NO_ONBOARD=${ZHUSHOU_NO_ONBOARD:-0}
+NO_PROMPT=${ZHUSHOU_NO_PROMPT:-0}
+DRY_RUN=${ZHUSHOU_DRY_RUN:-0}
+INSTALL_METHOD=${ZHUSHOU_INSTALL_METHOD:-}
+ZHUSHOU_VERSION=${ZHUSHOU_VERSION:-latest}
+USE_BETA=${ZHUSHOU_BETA:-0}
+GIT_DIR_DEFAULT="${HOME}/zhushou"
+GIT_DIR=${ZHUSHOU_GIT_DIR:-$GIT_DIR_DEFAULT}
+GIT_UPDATE=${ZHUSHOU_GIT_UPDATE:-1}
 SHARP_IGNORE_GLOBAL_LIBVIPS="${SHARP_IGNORE_GLOBAL_LIBVIPS:-1}"
-NPM_LOGLEVEL="${ASSISTANT_NPM_LOGLEVEL:-error}"
+NPM_LOGLEVEL="${ZHUSHOU_NPM_LOGLEVEL:-error}"
 NPM_SILENT_FLAG="--silent"
-VERBOSE="${ASSISTANT_VERBOSE:-0}"
-VERIFY_INSTALL="${ASSISTANT_VERIFY_INSTALL:-0}"
-ASSISTANT_BIN=""
+VERBOSE="${ZHUSHOU_VERBOSE:-0}"
+VERIFY_INSTALL="${ZHUSHOU_VERIFY_INSTALL:-0}"
+ZHUSHOU_BIN=""
 PNPM_CMD=()
 HELP=0
 
 print_usage() {
     cat <<EOF
-Assistant installer (macOS + Linux)
+Zhushou installer (macOS + Linux)
 
 Usage:
-  curl -fsSL --proto '=https' --tlsv1.2 https://assistant.ai/install.sh | bash -s -- [options]
+  curl -fsSL --proto '=https' --tlsv1.2 https://zhushou.ai/install.sh | bash -s -- [options]
 
 Options:
   --install-method, --method npm|git   Install via npm (default) or from a git checkout
@@ -991,7 +991,7 @@ Options:
   --git, --github                     Shortcut for --install-method git
   --version <version|dist-tag|spec>    npm install target (default: latest; use "main" for GitHub main)
   --beta                               Use beta if available, else latest
-  --git-dir, --dir <path>             Checkout directory (default: ~/assistant)
+  --git-dir, --dir <path>             Checkout directory (default: ~/zhushou)
   --no-git-update                      Skip git pull for existing checkout
   --no-onboard                          Skip onboarding (non-interactive)
   --no-prompt                           Disable prompts (required in CI/automation)
@@ -1001,25 +1001,25 @@ Options:
   --help, -h                            Show this help
 
 Environment variables:
-  ASSISTANT_INSTALL_METHOD=git|npm
-  ASSISTANT_VERSION=latest|next|main|<semver>|<spec>
-  ASSISTANT_BETA=0|1
-  ASSISTANT_GIT_DIR=...
-  ASSISTANT_GIT_UPDATE=0|1
-  ASSISTANT_NO_PROMPT=1
-  ASSISTANT_VERIFY_INSTALL=1
-  ASSISTANT_DRY_RUN=1
-  ASSISTANT_NO_ONBOARD=1
-  ASSISTANT_VERBOSE=1
-  ASSISTANT_NPM_LOGLEVEL=error|warn|notice  Default: error (hide npm deprecation noise)
+  ZHUSHOU_INSTALL_METHOD=git|npm
+  ZHUSHOU_VERSION=latest|next|main|<semver>|<spec>
+  ZHUSHOU_BETA=0|1
+  ZHUSHOU_GIT_DIR=...
+  ZHUSHOU_GIT_UPDATE=0|1
+  ZHUSHOU_NO_PROMPT=1
+  ZHUSHOU_VERIFY_INSTALL=1
+  ZHUSHOU_DRY_RUN=1
+  ZHUSHOU_NO_ONBOARD=1
+  ZHUSHOU_VERBOSE=1
+  ZHUSHOU_NPM_LOGLEVEL=error|warn|notice  Default: error (hide npm deprecation noise)
   SHARP_IGNORE_GLOBAL_LIBVIPS=0|1    Default: 1 (avoid sharp building against global libvips)
 
 Examples:
-  curl -fsSL --proto '=https' --tlsv1.2 https://assistant.ai/install.sh | bash
-  curl -fsSL --proto '=https' --tlsv1.2 https://assistant.ai/install.sh | bash -s -- --no-onboard
-  curl -fsSL --proto '=https' --tlsv1.2 https://assistant.ai/install.sh | bash -s -- --no-onboard --verify
-  curl -fsSL --proto '=https' --tlsv1.2 https://assistant.ai/install.sh | bash -s -- --version main
-  curl -fsSL --proto '=https' --tlsv1.2 https://assistant.ai/install.sh | bash -s -- --install-method git --no-onboard
+  curl -fsSL --proto '=https' --tlsv1.2 https://zhushou.ai/install.sh | bash
+  curl -fsSL --proto '=https' --tlsv1.2 https://zhushou.ai/install.sh | bash -s -- --no-onboard
+  curl -fsSL --proto '=https' --tlsv1.2 https://zhushou.ai/install.sh | bash -s -- --no-onboard --verify
+  curl -fsSL --proto '=https' --tlsv1.2 https://zhushou.ai/install.sh | bash -s -- --version main
+  curl -fsSL --proto '=https' --tlsv1.2 https://zhushou.ai/install.sh | bash -s -- --install-method git --no-onboard
 EOF
 }
 
@@ -1059,7 +1059,7 @@ parse_args() {
                 shift 2
                 ;;
             --version)
-                ASSISTANT_VERSION="$2"
+                ZHUSHOU_VERSION="$2"
                 shift 2
                 ;;
             --beta)
@@ -1130,7 +1130,7 @@ choose_install_method_interactive() {
 
     if [[ -n "$GUM" ]] && gum_is_tty; then
         local header selection
-        header="Detected Assistant checkout in: ${detected_checkout}
+        header="Detected Zhushou checkout in: ${detected_checkout}
 Choose install method"
         selection="$("$GUM" choose \
             --header "$header" \
@@ -1153,7 +1153,7 @@ Choose install method"
 
     local choice=""
     choice="$(prompt_choice "$(cat <<EOF
-${WARN}→${NC} Detected a Assistant source checkout in: ${INFO}${detected_checkout}${NC}
+${WARN}→${NC} Detected a Zhushou source checkout in: ${INFO}${detected_checkout}${NC}
 Choose install method:
   1) Update this checkout (git) and use it
   2) Install global via npm (migrate away from git)
@@ -1175,7 +1175,7 @@ EOF
     return 1
 }
 
-detect_assistant_checkout() {
+detect_zhushou_checkout() {
     local dir="$1"
     if [[ ! -f "$dir/package.json" ]]; then
         return 1
@@ -1183,7 +1183,7 @@ detect_assistant_checkout() {
     if [[ ! -f "$dir/pnpm-workspace.yaml" ]]; then
         return 1
     fi
-    if ! grep -q '"name"[[:space:]]*:[[:space:]]*"assistant"' "$dir/package.json" 2>/dev/null; then
+    if ! grep -q '"name"[[:space:]]*:[[:space:]]*"zhushou"' "$dir/package.json" 2>/dev/null; then
         return 1
     fi
     echo "$dir"
@@ -1211,7 +1211,7 @@ print_homebrew_admin_fix() {
     echo "  2) Ask an Administrator to grant admin rights, then sign out/in:"
     echo "     sudo dseditgroup -o edit -a ${current_user} -t user admin"
     echo "Then retry:"
-    echo "  curl -fsSL https://assistant.ai/install.sh | bash"
+    echo "  curl -fsSL https://zhushou.ai/install.sh | bash"
 }
 
 install_homebrew() {
@@ -1365,7 +1365,7 @@ ensure_default_node_active_shell() {
         echo "  nvm use ${NODE_DEFAULT_MAJOR}"
         echo "  nvm alias default ${NODE_DEFAULT_MAJOR}"
         echo "Then open a new shell and rerun:"
-        echo "  curl -fsSL https://assistant.ai/install.sh | bash"
+        echo "  curl -fsSL https://zhushou.ai/install.sh | bash"
     else
         echo "Install/select Node.js ${NODE_DEFAULT_MAJOR} (or Node ${NODE_MIN_VERSION}+ minimum) and ensure it is first on PATH, then rerun installer."
     fi
@@ -1590,10 +1590,10 @@ fix_npm_permissions() {
     ui_success "npm configured for user installs"
 }
 
-ensure_assistant_bin_link() {
+ensure_zhushou_bin_link() {
     local npm_root=""
     npm_root="$(npm root -g 2>/dev/null || true)"
-    if [[ -z "$npm_root" || ! -d "$npm_root/assistant" ]]; then
+    if [[ -z "$npm_root" || ! -d "$npm_root/zhushou" ]]; then
         return 1
     fi
     local npm_bin=""
@@ -1602,17 +1602,17 @@ ensure_assistant_bin_link() {
         return 1
     fi
     mkdir -p "$npm_bin"
-    if [[ ! -x "${npm_bin}/assistant" ]]; then
-        ln -sf "$npm_root/assistant/dist/entry.js" "${npm_bin}/assistant"
-        ui_info "Created assistant bin link at ${npm_bin}/assistant"
+    if [[ ! -x "${npm_bin}/zhushou" ]]; then
+        ln -sf "$npm_root/zhushou/dist/entry.js" "${npm_bin}/zhushou"
+        ui_info "Created zhushou bin link at ${npm_bin}/zhushou"
     fi
     return 0
 }
 
-# Check for existing Assistant installation
-check_existing_assistant() {
-    if [[ -n "$(type -P assistant 2>/dev/null || true)" ]]; then
-        ui_info "Existing Assistant installation detected, upgrading"
+# Check for existing Zhushou installation
+check_existing_zhushou() {
+    if [[ -n "$(type -P zhushou 2>/dev/null || true)" ]]; then
+        ui_info "Existing Zhushou installation detected, upgrading"
         return 0
     fi
     return 1
@@ -1797,7 +1797,7 @@ warn_shell_path_missing_dir() {
 
     echo ""
     ui_warn "PATH missing ${label}: ${dir}"
-    echo "  This can make assistant show as \"command not found\" in new terminals."
+    echo "  This can make zhushou show as \"command not found\" in new terminals."
     echo "  Fix (zsh: ~/.zshrc, bash: ~/.bashrc):"
     echo "    export PATH=\"${dir}:\$PATH\""
 }
@@ -1816,13 +1816,13 @@ maybe_nodenv_rehash() {
     fi
 }
 
-warn_assistant_not_found() {
-    ui_warn "Installed, but assistant is not discoverable on PATH in this shell"
+warn_zhushou_not_found() {
+    ui_warn "Installed, but zhushou is not discoverable on PATH in this shell"
     echo "  Try: hash -r (bash) or rehash (zsh), then retry."
     local t=""
-    t="$(type -t assistant 2>/dev/null || true)"
+    t="$(type -t zhushou 2>/dev/null || true)"
     if [[ "$t" == "alias" || "$t" == "function" ]]; then
-        ui_warn "Found a shell ${t} named assistant; it may shadow the real binary"
+        ui_warn "Found a shell ${t} named zhushou; it may shadow the real binary"
     fi
     if command -v nodenv &> /dev/null; then
         echo -e "Using nodenv? Run: ${INFO}nodenv rehash${NC}"
@@ -1841,10 +1841,10 @@ warn_assistant_not_found() {
     fi
 }
 
-resolve_assistant_bin() {
+resolve_zhushou_bin() {
     refresh_shell_command_cache
     local resolved=""
-    resolved="$(type -P assistant 2>/dev/null || true)"
+    resolved="$(type -P zhushou 2>/dev/null || true)"
     if [[ -n "$resolved" && -x "$resolved" ]]; then
         echo "$resolved"
         return 0
@@ -1852,7 +1852,7 @@ resolve_assistant_bin() {
 
     ensure_npm_global_bin_on_path
     refresh_shell_command_cache
-    resolved="$(type -P assistant 2>/dev/null || true)"
+    resolved="$(type -P zhushou 2>/dev/null || true)"
     if [[ -n "$resolved" && -x "$resolved" ]]; then
         echo "$resolved"
         return 0
@@ -1860,21 +1860,21 @@ resolve_assistant_bin() {
 
     local npm_bin=""
     npm_bin="$(npm_global_bin_dir || true)"
-    if [[ -n "$npm_bin" && -x "${npm_bin}/assistant" ]]; then
-        echo "${npm_bin}/assistant"
+    if [[ -n "$npm_bin" && -x "${npm_bin}/zhushou" ]]; then
+        echo "${npm_bin}/zhushou"
         return 0
     fi
 
     maybe_nodenv_rehash
     refresh_shell_command_cache
-    resolved="$(type -P assistant 2>/dev/null || true)"
+    resolved="$(type -P zhushou 2>/dev/null || true)"
     if [[ -n "$resolved" && -x "$resolved" ]]; then
         echo "$resolved"
         return 0
     fi
 
-    if [[ -n "$npm_bin" && -x "${npm_bin}/assistant" ]]; then
-        echo "${npm_bin}/assistant"
+    if [[ -n "$npm_bin" && -x "${npm_bin}/zhushou" ]]; then
+        echo "${npm_bin}/zhushou"
         return 0
     fi
 
@@ -1882,14 +1882,14 @@ resolve_assistant_bin() {
     return 1
 }
 
-install_assistant_from_git() {
+install_zhushou_from_git() {
     local repo_dir="$1"
-    local repo_url="https://github.com/assistant/assistant.git"
+    local repo_url="https://github.com/wang301208/zhushou.git"
 
     if [[ -d "$repo_dir/.git" ]]; then
-        ui_info "Installing Assistant from git checkout: ${repo_dir}"
+        ui_info "Installing Zhushou from git checkout: ${repo_dir}"
     else
-        ui_info "Installing Assistant from GitHub (${repo_url})"
+        ui_info "Installing Zhushou from GitHub (${repo_url})"
     fi
 
     if ! check_git; then
@@ -1900,7 +1900,7 @@ install_assistant_from_git() {
     ensure_pnpm_binary_for_scripts
 
     if [[ ! -d "$repo_dir" ]]; then
-        run_quiet_step "Cloning Assistant" git clone "$repo_url" "$repo_dir"
+        run_quiet_step "Cloning Zhushou" git clone "$repo_url" "$repo_dir"
     fi
 
     if [[ "$GIT_UPDATE" == "1" ]]; then
@@ -1915,24 +1915,24 @@ install_assistant_from_git() {
 
     SHARP_IGNORE_GLOBAL_LIBVIPS="$SHARP_IGNORE_GLOBAL_LIBVIPS" run_quiet_step "Installing dependencies" run_pnpm -C "$repo_dir" install
 
-    run_quiet_step "Building Assistant" run_pnpm -C "$repo_dir" build
+    run_quiet_step "Building Zhushou" run_pnpm -C "$repo_dir" build
 
     ensure_user_local_bin_on_path
 
-    cat > "$HOME/.local/bin/assistant" <<EOF
+    cat > "$HOME/.local/bin/zhushou" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
 exec node "${repo_dir}/dist/entry.js" "\$@"
 EOF
-    chmod +x "$HOME/.local/bin/assistant"
-    ui_success "Assistant wrapper installed to \$HOME/.local/bin/assistant"
+    chmod +x "$HOME/.local/bin/zhushou"
+    ui_success "Zhushou wrapper installed to \$HOME/.local/bin/zhushou"
     ui_info "This checkout uses pnpm — run pnpm install (or corepack pnpm install) for deps"
 }
 
-# Install Assistant
+# Install Zhushou
 resolve_beta_version() {
     local beta=""
-    beta="$(npm view assistant dist-tags.beta 2>/dev/null || true)"
+    beta="$(npm view zhushou dist-tags.beta 2>/dev/null || true)"
     if [[ -z "$beta" || "$beta" == "undefined" || "$beta" == "null" ]]; then
         return 1
     fi
@@ -1971,7 +1971,7 @@ resolve_package_install_spec() {
     local normalized_value=""
     normalized_value="$(to_lowercase_ascii "$value")"
     if [[ "$normalized_value" == "main" ]]; then
-        echo "github:assistant/assistant#main"
+        echo "github:wang301208/zhushou#main"
         return 0
     fi
     if is_explicit_package_install_spec "$value"; then
@@ -1985,66 +1985,66 @@ resolve_package_install_spec() {
     echo "${package_name}@${value}"
 }
 
-install_assistant() {
-    local package_name="assistant"
+install_zhushou() {
+    local package_name="zhushou"
     if [[ "$USE_BETA" == "1" ]]; then
         local beta_version=""
         beta_version="$(resolve_beta_version || true)"
         if [[ -n "$beta_version" ]]; then
-            ASSISTANT_VERSION="$beta_version"
+            ZHUSHOU_VERSION="$beta_version"
             ui_info "Beta tag detected (${beta_version})"
-            package_name="assistant"
+            package_name="zhushou"
         else
-            ASSISTANT_VERSION="latest"
+            ZHUSHOU_VERSION="latest"
             ui_info "No beta tag found; using latest"
         fi
     fi
 
-    if [[ -z "${ASSISTANT_VERSION}" ]]; then
-        ASSISTANT_VERSION="latest"
+    if [[ -z "${ZHUSHOU_VERSION}" ]]; then
+        ZHUSHOU_VERSION="latest"
     fi
 
     local resolved_version=""
-    if can_resolve_registry_package_version "${ASSISTANT_VERSION}"; then
-        resolved_version="$(npm view "${package_name}@${ASSISTANT_VERSION}" version 2>/dev/null || true)"
+    if can_resolve_registry_package_version "${ZHUSHOU_VERSION}"; then
+        resolved_version="$(npm view "${package_name}@${ZHUSHOU_VERSION}" version 2>/dev/null || true)"
     fi
     if [[ -n "$resolved_version" ]]; then
-        ui_info "Installing Assistant v${resolved_version}"
+        ui_info "Installing Zhushou v${resolved_version}"
     else
-        ui_info "Installing Assistant (${ASSISTANT_VERSION})"
+        ui_info "Installing Zhushou (${ZHUSHOU_VERSION})"
     fi
     local install_spec=""
-    install_spec="$(resolve_package_install_spec "${package_name}" "${ASSISTANT_VERSION}")"
+    install_spec="$(resolve_package_install_spec "${package_name}" "${ZHUSHOU_VERSION}")"
 
-    if ! install_assistant_npm "${install_spec}"; then
+    if ! install_zhushou_npm "${install_spec}"; then
         ui_warn "npm install failed; retrying"
-        cleanup_npm_assistant_paths
-        install_assistant_npm "${install_spec}"
+        cleanup_npm_zhushou_paths
+        install_zhushou_npm "${install_spec}"
     fi
 
-    if [[ "${ASSISTANT_VERSION}" == "latest" && "${package_name}" == "assistant" ]]; then
-        if ! resolve_assistant_bin &> /dev/null; then
-            ui_warn "npm install assistant@latest failed; retrying assistant@next"
-            cleanup_npm_assistant_paths
-            install_assistant_npm "assistant@next"
+    if [[ "${ZHUSHOU_VERSION}" == "latest" && "${package_name}" == "zhushou" ]]; then
+        if ! resolve_zhushou_bin &> /dev/null; then
+            ui_warn "npm install zhushou@latest failed; retrying zhushou@next"
+            cleanup_npm_zhushou_paths
+            install_zhushou_npm "zhushou@next"
         fi
     fi
 
-    ensure_assistant_bin_link || true
+    ensure_zhushou_bin_link || true
 
-    ui_success "Assistant installed"
+    ui_success "Zhushou installed"
 }
 
 # Run doctor for migrations (safe, non-interactive)
 run_doctor() {
     ui_info "Running doctor to migrate settings"
-    local claw="${ASSISTANT_BIN:-}"
+    local claw="${ZHUSHOU_BIN:-}"
     if [[ -z "$claw" ]]; then
-        claw="$(resolve_assistant_bin || true)"
+        claw="$(resolve_zhushou_bin || true)"
     fi
     if [[ -z "$claw" ]]; then
-        ui_info "Skipping doctor (assistant not on PATH yet)"
-        warn_assistant_not_found
+        ui_info "Skipping doctor (zhushou not on PATH yet)"
+        warn_zhushou_not_found
         return 0
     fi
     run_quiet_step "Running doctor" "$claw" doctor --non-interactive || true
@@ -2052,9 +2052,9 @@ run_doctor() {
 }
 
 maybe_open_tui() {
-    local claw="${ASSISTANT_BIN:-}"
+    local claw="${ZHUSHOU_BIN:-}"
     if [[ -z "$claw" ]]; then
-        claw="$(resolve_assistant_bin || true)"
+        claw="$(resolve_zhushou_bin || true)"
     fi
     if [[ -z "$claw" ]]; then
         return 0
@@ -2066,11 +2066,11 @@ maybe_open_tui() {
 }
 
 resolve_workspace_dir() {
-    local profile="${ASSISTANT_PROFILE:-default}"
+    local profile="${ZHUSHOU_PROFILE:-default}"
     if [[ "${profile}" != "default" ]]; then
-        echo "${HOME}/.assistant/workspace-${profile}"
+        echo "${HOME}/.zhushou/workspace-${profile}"
     else
-        echo "${HOME}/.assistant/workspace"
+        echo "${HOME}/.zhushou/workspace"
     fi
 }
 
@@ -2079,7 +2079,7 @@ run_bootstrap_onboarding_if_needed() {
         return
     fi
 
-    local config_path="${ASSISTANT_CONFIG_PATH:-$HOME/.assistant/assistant.json}"
+    local config_path="${ZHUSHOU_CONFIG_PATH:-$HOME/.wang301208/zhushou.json}"
     if [[ -f "${config_path}" ]]; then
         return
     fi
@@ -2093,23 +2093,23 @@ run_bootstrap_onboarding_if_needed() {
     fi
 
     if [[ ! -r /dev/tty || ! -w /dev/tty ]]; then
-        ui_info "BOOTSTRAP.md found but no TTY; run assistant onboard to finish setup"
+        ui_info "BOOTSTRAP.md found but no TTY; run zhushou onboard to finish setup"
         return
     fi
 
     ui_info "BOOTSTRAP.md found; starting onboarding"
-    local claw="${ASSISTANT_BIN:-}"
+    local claw="${ZHUSHOU_BIN:-}"
     if [[ -z "$claw" ]]; then
-        claw="$(resolve_assistant_bin || true)"
+        claw="$(resolve_zhushou_bin || true)"
     fi
     if [[ -z "$claw" ]]; then
-        ui_info "BOOTSTRAP.md found but assistant not on PATH; skipping onboarding"
-        warn_assistant_not_found
+        ui_info "BOOTSTRAP.md found but zhushou not on PATH; skipping onboarding"
+        warn_zhushou_not_found
         return
     fi
 
     "$claw" onboard || {
-        ui_error "Onboarding failed; run assistant onboard to retry"
+        ui_error "Onboarding failed; run zhushou onboard to retry"
         return
     }
 }
@@ -2131,9 +2131,9 @@ load_install_version_helpers() {
 
 load_install_version_helpers
 
-if ! declare -F extract_assistant_semver >/dev/null 2>&1; then
+if ! declare -F extract_zhushou_semver >/dev/null 2>&1; then
 # Inline fallback when version-parse.sh could not be sourced (for example, stdin install).
-extract_assistant_semver() {
+extract_zhushou_semver() {
     local raw="${1:-}"
     local parsed=""
     parsed="$(
@@ -2147,16 +2147,16 @@ extract_assistant_semver() {
 }
 fi
 
-resolve_assistant_version() {
+resolve_zhushou_version() {
     local version=""
     local raw_version_output=""
-    local claw="${ASSISTANT_BIN:-}"
-    if [[ -z "$claw" ]] && command -v assistant &> /dev/null; then
-        claw="$(command -v assistant)"
+    local claw="${ZHUSHOU_BIN:-}"
+    if [[ -z "$claw" ]] && command -v zhushou &> /dev/null; then
+        claw="$(command -v zhushou)"
     fi
     if [[ -n "$claw" ]]; then
         raw_version_output=$("$claw" --version 2>/dev/null | head -n 1 | tr -d '\r')
-        version="$(extract_assistant_semver "$raw_version_output")"
+        version="$(extract_zhushou_semver "$raw_version_output")"
         if [[ -z "$version" ]]; then
             version="$raw_version_output"
         fi
@@ -2164,8 +2164,8 @@ resolve_assistant_version() {
     if [[ -z "$version" ]]; then
         local npm_root=""
         npm_root=$(npm root -g 2>/dev/null || true)
-        if [[ -n "$npm_root" && -f "$npm_root/assistant/package.json" ]]; then
-            version=$(node -e "console.log(require('${npm_root}/assistant/package.json').version)" 2>/dev/null || true)
+        if [[ -n "$npm_root" && -f "$npm_root/zhushou/package.json" ]]; then
+            version=$(node -e "console.log(require('${npm_root}/zhushou/package.json').version)" 2>/dev/null || true)
         fi
     fi
     echo "$version"
@@ -2197,9 +2197,9 @@ try {
 }
 
 refresh_gateway_service_if_loaded() {
-    local claw="${ASSISTANT_BIN:-}"
+    local claw="${ZHUSHOU_BIN:-}"
     if [[ -z "$claw" ]]; then
-        claw="$(resolve_assistant_bin || true)"
+        claw="$(resolve_zhushou_bin || true)"
     fi
     if [[ -z "$claw" ]]; then
         return 0
@@ -2233,22 +2233,22 @@ verify_installation() {
     fi
 
     ui_stage "Verifying installation"
-    local claw="${ASSISTANT_BIN:-}"
+    local claw="${ZHUSHOU_BIN:-}"
     if [[ -z "$claw" ]]; then
-        claw="$(resolve_assistant_bin || true)"
+        claw="$(resolve_zhushou_bin || true)"
     fi
     if [[ -z "$claw" ]]; then
-        ui_error "Install verify failed: assistant not on PATH yet"
-        warn_assistant_not_found
+        ui_error "Install verify failed: zhushou not on PATH yet"
+        warn_zhushou_not_found
         return 1
     fi
 
-    run_quiet_step "Checking Assistant version" "$claw" --version || return 1
+    run_quiet_step "Checking Zhushou version" "$claw" --version || return 1
 
     if is_gateway_daemon_loaded "$claw"; then
         run_quiet_step "Checking gateway service" "$claw" gateway status --deep || {
             ui_error "Install verify failed: gateway service unhealthy"
-            ui_info "Run: assistant gateway status --deep"
+            ui_info "Run: zhushou gateway status --deep"
             return 1
         }
     else
@@ -2271,11 +2271,11 @@ main() {
     detect_os_or_die
 
     local detected_checkout=""
-    detected_checkout="$(detect_assistant_checkout "$PWD" || true)"
+    detected_checkout="$(detect_zhushou_checkout "$PWD" || true)"
 
     if [[ -z "$INSTALL_METHOD" && -n "$detected_checkout" ]]; then
         if ! is_promptable; then
-            ui_info "Found Assistant checkout but no TTY; defaulting to npm install"
+            ui_info "Found Zhushou checkout but no TTY; defaulting to npm install"
             INSTALL_METHOD="npm"
         else
             local selected_method=""
@@ -2286,7 +2286,7 @@ main() {
                     ;;
                 *)
                     ui_error "no install method selected"
-                    echo "Re-run with: --install-method git|npm (or set ASSISTANT_INSTALL_METHOD)."
+                    echo "Re-run with: --install-method git|npm (or set ZHUSHOU_INSTALL_METHOD)."
                     exit 2
                     ;;
             esac
@@ -2312,7 +2312,7 @@ main() {
 
     # Check for existing installation
     local is_upgrade=false
-    if check_existing_assistant; then
+    if check_existing_zhushou; then
         is_upgrade=true
     fi
     local should_open_tui=false
@@ -2331,14 +2331,14 @@ main() {
         exit 1
     fi
 
-    ui_stage "Installing Assistant"
+    ui_stage "Installing Zhushou"
 
     local final_git_dir=""
     if [[ "$INSTALL_METHOD" == "git" ]]; then
         # Clean up npm global install if switching to git
-        if npm list -g assistant &>/dev/null; then
+        if npm list -g zhushou &>/dev/null; then
             ui_info "Removing npm global install (switching to git)"
-            npm uninstall -g assistant 2>/dev/null || true
+            npm uninstall -g zhushou 2>/dev/null || true
             ui_success "npm global install removed"
         fi
 
@@ -2347,12 +2347,12 @@ main() {
             repo_dir="$detected_checkout"
         fi
         final_git_dir="$repo_dir"
-        install_assistant_from_git "$repo_dir"
+        install_zhushou_from_git "$repo_dir"
     else
         # Clean up git wrapper if switching to npm
-        if [[ -x "$HOME/.local/bin/assistant" ]]; then
+        if [[ -x "$HOME/.local/bin/zhushou" ]]; then
             ui_info "Removing git wrapper (switching to npm)"
-            rm -f "$HOME/.local/bin/assistant"
+            rm -f "$HOME/.local/bin/zhushou"
             ui_success "git wrapper removed"
         fi
 
@@ -2364,13 +2364,13 @@ main() {
         # Step 4: npm permissions (Linux)
         fix_npm_permissions
 
-        # Step 5: Assistant
-        install_assistant
+        # Step 5: Zhushou
+        install_zhushou
     fi
 
     ui_stage "Finalizing setup"
 
-    ASSISTANT_BIN="$(resolve_assistant_bin || true)"
+    ZHUSHOU_BIN="$(resolve_zhushou_bin || true)"
 
     # PATH warning: installs can succeed while the user's login shell still lacks npm's global bin dir.
     local npm_bin=""
@@ -2379,7 +2379,7 @@ main() {
         warn_shell_path_missing_dir "$npm_bin" "npm global bin dir"
     fi
     if [[ "$INSTALL_METHOD" == "git" ]]; then
-        if [[ -x "$HOME/.local/bin/assistant" ]]; then
+        if [[ -x "$HOME/.local/bin/zhushou" ]]; then
             warn_shell_path_missing_dir "$HOME/.local/bin" "user-local bin dir (~/.local/bin)"
         fi
     fi
@@ -2400,13 +2400,13 @@ main() {
     run_bootstrap_onboarding_if_needed
 
     local installed_version
-    installed_version=$(resolve_assistant_version)
+    installed_version=$(resolve_zhushou_version)
 
     echo ""
     if [[ -n "$installed_version" ]]; then
-        ui_celebrate "🦞 Assistant installed successfully (${installed_version})!"
+        ui_celebrate "🦞 Zhushou installed successfully (${installed_version})!"
     else
-        ui_celebrate "🦞 Assistant installed successfully!"
+        ui_celebrate "🦞 Zhushou installed successfully!"
     fi
     if [[ "$is_upgrade" == "true" ]]; then
         local update_messages=(
@@ -2456,46 +2456,46 @@ main() {
     if [[ "$INSTALL_METHOD" == "git" && -n "$final_git_dir" ]]; then
         ui_section "Source install details"
         ui_kv "Checkout" "$final_git_dir"
-        ui_kv "Wrapper" "$HOME/.local/bin/assistant"
-        ui_kv "Update command" "assistant update --restart"
-        ui_kv "Switch to npm" "curl -fsSL --proto '=https' --tlsv1.2 https://assistant.ai/install.sh | bash -s -- --install-method npm"
+        ui_kv "Wrapper" "$HOME/.local/bin/zhushou"
+        ui_kv "Update command" "zhushou update --restart"
+        ui_kv "Switch to npm" "curl -fsSL --proto '=https' --tlsv1.2 https://zhushou.ai/install.sh | bash -s -- --install-method npm"
     elif [[ "$is_upgrade" == "true" ]]; then
         ui_info "Upgrade complete"
         if [[ -r /dev/tty && -w /dev/tty ]]; then
-            local claw="${ASSISTANT_BIN:-}"
+            local claw="${ZHUSHOU_BIN:-}"
             if [[ -z "$claw" ]]; then
-                claw="$(resolve_assistant_bin || true)"
+                claw="$(resolve_zhushou_bin || true)"
             fi
             if [[ -z "$claw" ]]; then
-                ui_info "Skipping doctor (assistant not on PATH yet)"
-                warn_assistant_not_found
+                ui_info "Skipping doctor (zhushou not on PATH yet)"
+                warn_zhushou_not_found
                 return 0
             fi
             local -a doctor_args=()
             if [[ "$NO_ONBOARD" == "1" || "$NO_PROMPT" == "1" ]]; then
                 doctor_args+=("--non-interactive")
             fi
-            ui_info "Running assistant doctor"
+            ui_info "Running zhushou doctor"
             local doctor_ok=0
             if (( ${#doctor_args[@]} )); then
-                ASSISTANT_UPDATE_IN_PROGRESS=1 "$claw" doctor "${doctor_args[@]}" </dev/null && doctor_ok=1
+                ZHUSHOU_UPDATE_IN_PROGRESS=1 "$claw" doctor "${doctor_args[@]}" </dev/null && doctor_ok=1
             else
-                ASSISTANT_UPDATE_IN_PROGRESS=1 "$claw" doctor </dev/tty && doctor_ok=1
+                ZHUSHOU_UPDATE_IN_PROGRESS=1 "$claw" doctor </dev/tty && doctor_ok=1
             fi
             if (( doctor_ok )); then
                 ui_info "Updating plugins"
-                ASSISTANT_UPDATE_IN_PROGRESS=1 "$claw" plugins update --all || true
+                ZHUSHOU_UPDATE_IN_PROGRESS=1 "$claw" plugins update --all || true
             else
                 ui_warn "Doctor failed; skipping plugin updates"
             fi
         else
-            ui_info "No TTY; run assistant doctor and assistant plugins update --all manually"
+            ui_info "No TTY; run zhushou doctor and zhushou plugins update --all manually"
         fi
     else
         if [[ "$NO_ONBOARD" == "1" || "$skip_onboard" == "true" ]]; then
-            ui_info "Skipping onboard (requested); run assistant onboard later"
+            ui_info "Skipping onboard (requested); run zhushou onboard later"
         else
-            local config_path="${ASSISTANT_CONFIG_PATH:-$HOME/.assistant/assistant.json}"
+            local config_path="${ZHUSHOU_CONFIG_PATH:-$HOME/.wang301208/zhushou.json}"
             if [[ -f "${config_path}" ]]; then
                 ui_info "Config already present; running doctor"
                 run_doctor
@@ -2506,37 +2506,37 @@ main() {
             ui_info "Starting setup"
             echo ""
             if [[ -r /dev/tty && -w /dev/tty ]]; then
-                local claw="${ASSISTANT_BIN:-}"
+                local claw="${ZHUSHOU_BIN:-}"
                 if [[ -z "$claw" ]]; then
-                    claw="$(resolve_assistant_bin || true)"
+                    claw="$(resolve_zhushou_bin || true)"
                 fi
                 if [[ -z "$claw" ]]; then
-                    ui_info "Skipping onboarding (assistant not on PATH yet)"
-                    warn_assistant_not_found
+                    ui_info "Skipping onboarding (zhushou not on PATH yet)"
+                    warn_zhushou_not_found
                     return 0
                 fi
                 exec </dev/tty
                 exec "$claw" onboard
             fi
-            ui_info "No TTY; run assistant onboard to finish setup"
+            ui_info "No TTY; run zhushou onboard to finish setup"
             return 0
         fi
     fi
 
-    if command -v assistant &> /dev/null; then
-        local claw="${ASSISTANT_BIN:-}"
+    if command -v zhushou &> /dev/null; then
+        local claw="${ZHUSHOU_BIN:-}"
         if [[ -z "$claw" ]]; then
-            claw="$(resolve_assistant_bin || true)"
+            claw="$(resolve_zhushou_bin || true)"
         fi
         if [[ -n "$claw" ]] && is_gateway_daemon_loaded "$claw"; then
             if [[ "$DRY_RUN" == "1" ]]; then
-                ui_info "Gateway daemon detected; would restart (assistant daemon restart)"
+                ui_info "Gateway daemon detected; would restart (zhushou daemon restart)"
             else
                 ui_info "Gateway daemon detected; restarting"
-                if ASSISTANT_UPDATE_IN_PROGRESS=1 "$claw" daemon restart >/dev/null 2>&1; then
+                if ZHUSHOU_UPDATE_IN_PROGRESS=1 "$claw" daemon restart >/dev/null 2>&1; then
                     ui_success "Gateway restarted"
                 else
-                    ui_warn "Gateway restart failed; try: assistant daemon restart"
+                    ui_warn "Gateway restart failed; try: zhushou daemon restart"
                 fi
             fi
         fi
@@ -2553,7 +2553,7 @@ main() {
     show_footer_links
 }
 
-if [[ "${ASSISTANT_INSTALL_SH_NO_RUN:-0}" != "1" ]]; then
+if [[ "${ZHUSHOU_INSTALL_SH_NO_RUN:-0}" != "1" ]]; then
     parse_args "$@"
     configure_verbose
     main

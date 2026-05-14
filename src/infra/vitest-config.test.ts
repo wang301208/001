@@ -25,11 +25,11 @@ describe("resolveLocalVitestMaxWorkers", () => {
     ).toBe(6);
   });
 
-  it("lets ASSISTANT_VITEST_MAX_WORKERS override the inferred cap", () => {
+  it("lets ZHUSHOU_VITEST_MAX_WORKERS override the inferred cap", () => {
     expect(
       resolveLocalVitestMaxWorkers(
         {
-          ASSISTANT_VITEST_MAX_WORKERS: "2",
+          ZHUSHOU_VITEST_MAX_WORKERS: "2",
         },
         {
           cpuCount: 10,
@@ -41,11 +41,11 @@ describe("resolveLocalVitestMaxWorkers", () => {
     ).toBe(2);
   });
 
-  it("respects the legacy ASSISTANT_TEST_WORKERS override too", () => {
+  it("respects the legacy ZHUSHOU_TEST_WORKERS override too", () => {
     expect(
       resolveLocalVitestMaxWorkers(
         {
-          ASSISTANT_TEST_WORKERS: "3",
+          ZHUSHOU_TEST_WORKERS: "3",
         },
         {
           cpuCount: 16,
@@ -155,7 +155,7 @@ describe("resolveLocalVitestScheduling", () => {
     expect(
       resolveLocalVitestScheduling(
         {
-          ASSISTANT_VITEST_DISABLE_SYSTEM_THROTTLE: "1",
+          ZHUSHOU_VITEST_DISABLE_SYSTEM_THROTTLE: "1",
         },
         {
           cpuCount: 16,
@@ -232,7 +232,7 @@ describe("test scripts", () => {
     };
 
     expect(pkg.scripts?.["test:serial"]).toBe(
-      "ASSISTANT_TEST_PROJECTS_SERIAL=1 ASSISTANT_VITEST_MAX_WORKERS=1 node scripts/test-projects.mjs",
+      "ZHUSHOU_TEST_PROJECTS_SERIAL=1 ZHUSHOU_VITEST_MAX_WORKERS=1 node scripts/test-projects.mjs",
     );
     expect(pkg.scripts?.["test:fast"]).toBe(
       "node scripts/run-vitest.mjs run --config test/vitest/vitest.unit.config.ts",

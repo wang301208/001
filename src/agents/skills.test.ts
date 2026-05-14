@@ -5,7 +5,7 @@ import {
   clearRuntimeConfigSnapshot,
   setRuntimeConfigSnapshot,
 } from "../config/runtime-snapshot.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { clearPluginDiscoveryCache } from "../plugins/discovery.js";
 import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.js";
 import { withPathResolutionEnv } from "../test-utils/env.js";
@@ -27,7 +27,7 @@ import {
   type SkillsHomeEnvSnapshot,
 } from "./skills/home-env.test-support.js";
 
-const fixtureSuite = createFixtureSuite("assistant-skills-suite-");
+const fixtureSuite = createFixtureSuite("zhushou-skills-suite-");
 let tempHome: TempHomeEnv | null = null;
 let skillsHomeEnv: SkillsHomeEnvSnapshot | null = null;
 
@@ -108,9 +108,9 @@ function envSkillSnapshot(name: string, metadata: SkillEntry["metadata"]): Skill
 
 beforeAll(async () => {
   await fixtureSuite.setup();
-  tempHome = await createTempHomeEnv("assistant-skills-home-");
+  tempHome = await createTempHomeEnv("zhushou-skills-home-");
   skillsHomeEnv = setMockSkillsHomeEnv(tempHome.home);
-  await fs.mkdir(path.join(tempHome.home, ".assistant", "agents", "main", "sessions"), {
+  await fs.mkdir(path.join(tempHome.home, ".zhushou", "agents", "main", "sessions"), {
     recursive: true,
   });
 });
@@ -252,7 +252,7 @@ describe("buildWorkspaceSkillCommandSpecs", () => {
           "compound-bundle": { enabled: true },
         },
       },
-    } satisfies AssistantConfig;
+    } satisfies ZhushouConfig;
 
     // Prime plugin discovery before the bundle exists so command loading proves
     // it sees the current filesystem state instead of a stale cached snapshot.
@@ -261,7 +261,7 @@ describe("buildWorkspaceSkillCommandSpecs", () => {
       config,
     });
 
-    const pluginRoot = path.join(tempHome!.home, ".assistant", "extensions", "compound-bundle");
+    const pluginRoot = path.join(tempHome!.home, ".zhushou", "extensions", "compound-bundle");
     await fs.mkdir(path.join(pluginRoot, ".claude-plugin"), { recursive: true });
     await fs.mkdir(path.join(pluginRoot, "commands"), { recursive: true });
     await fs.writeFile(
@@ -568,7 +568,7 @@ describe("applySkillEnvOverrides", () => {
       primaryEnv: "ENV_KEY",
       requires: { env: ["ENV_KEY"] },
     });
-    const sourceConfig: AssistantConfig = {
+    const sourceConfig: ZhushouConfig = {
       skills: {
         entries: {
           "env-skill": {
@@ -581,7 +581,7 @@ describe("applySkillEnvOverrides", () => {
         },
       },
     };
-    const runtimeConfig: AssistantConfig = {
+    const runtimeConfig: ZhushouConfig = {
       skills: {
         entries: {
           "env-skill": {
@@ -612,7 +612,7 @@ describe("applySkillEnvOverrides", () => {
       primaryEnv: "ENV_KEY",
       requires: { env: ["ENV_KEY"] },
     });
-    const sourceConfig: AssistantConfig = {
+    const sourceConfig: ZhushouConfig = {
       skills: {
         entries: {
           "env-skill": {
@@ -625,7 +625,7 @@ describe("applySkillEnvOverrides", () => {
         },
       },
     };
-    const callerConfig: AssistantConfig = {
+    const callerConfig: ZhushouConfig = {
       skills: {
         entries: {
           "env-skill": {

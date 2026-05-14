@@ -11,8 +11,8 @@ import { listImportedBundledPluginFacadeIds as listImportedFacadeRuntimeIds } fr
 import { createPluginSdkTestHarness } from "./test-helpers.js";
 
 const { createTempDirSync } = createPluginSdkTestHarness();
-const originalBundledPluginsDir = process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
-const FACADE_LOADER_GLOBAL = "__assistantTestLoadBundledPluginPublicSurfaceModuleSync";
+const originalBundledPluginsDir = process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
+const FACADE_LOADER_GLOBAL = "__zhushouTestLoadBundledPluginPublicSurfaceModuleSync";
 type FacadeLoaderJitiFactory = NonNullable<Parameters<typeof setFacadeLoaderJitiFactoryForTest>[0]>;
 
 function createBundledPluginDir(prefix: string, marker: string): string {
@@ -73,25 +73,25 @@ afterEach(() => {
   setFacadeLoaderJitiFactoryForTest(undefined);
   delete (globalThis as typeof globalThis & Record<string, unknown>)[FACADE_LOADER_GLOBAL];
   if (originalBundledPluginsDir === undefined) {
-    delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+    delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
   } else {
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = originalBundledPluginsDir;
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = originalBundledPluginsDir;
   }
 });
 
 describe("plugin-sdk facade loader", () => {
   it("honors bundled plugin dir overrides outside the package root", () => {
-    const overrideA = createBundledPluginDir("assistant-facade-loader-a-", "override-a");
-    const overrideB = createBundledPluginDir("assistant-facade-loader-b-", "override-b");
+    const overrideA = createBundledPluginDir("zhushou-facade-loader-a-", "override-a");
+    const overrideB = createBundledPluginDir("zhushou-facade-loader-b-", "override-b");
 
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = overrideA;
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = overrideA;
     const fromA = loadBundledPluginPublicSurfaceModuleSync<{ marker: string }>({
       dirName: "demo",
       artifactBasename: "api.js",
     });
     expect(fromA.marker).toBe("override-a");
 
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = overrideB;
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = overrideB;
     const fromB = loadBundledPluginPublicSurfaceModuleSync<{ marker: string }>({
       dirName: "demo",
       artifactBasename: "api.js",
@@ -100,8 +100,8 @@ describe("plugin-sdk facade loader", () => {
   });
 
   it("shares loaded facade ids with facade-runtime", () => {
-    const dir = createBundledPluginDir("assistant-facade-loader-ids-", "identity-check");
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = dir;
+    const dir = createBundledPluginDir("zhushou-facade-loader-ids-", "identity-check");
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = dir;
 
     const first = loadBundledPluginPublicSurfaceModuleSync<{ marker: string }>({
       dirName: "demo",
@@ -119,7 +119,7 @@ describe("plugin-sdk facade loader", () => {
   });
 
   it("keeps Windows dist facade loads off Jiti native import", () => {
-    const dir = createTempDirSync("assistant-facade-loader-windows-dist-");
+    const dir = createTempDirSync("zhushou-facade-loader-windows-dist-");
     const bundledPluginsDir = path.join(dir, "dist");
     fs.mkdirSync(path.join(bundledPluginsDir, "demo"), { recursive: true });
     fs.writeFileSync(
@@ -127,7 +127,7 @@ describe("plugin-sdk facade loader", () => {
       'export const marker = "windows-dist-ok";\n',
       "utf8",
     );
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledPluginsDir;
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledPluginsDir;
 
     const createJitiCalls: Parameters<FacadeLoaderJitiFactory>[] = [];
     setFacadeLoaderJitiFactoryForTest(((...args) => {
@@ -158,8 +158,8 @@ describe("plugin-sdk facade loader", () => {
   });
 
   it("breaks circular facade re-entry during module evaluation", () => {
-    const dir = createCircularPluginDir("assistant-facade-loader-circular-");
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = dir;
+    const dir = createCircularPluginDir("zhushou-facade-loader-circular-");
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = dir;
     (globalThis as typeof globalThis & Record<string, unknown>)[FACADE_LOADER_GLOBAL] =
       loadBundledPluginPublicSurfaceModuleSync;
 
@@ -172,8 +172,8 @@ describe("plugin-sdk facade loader", () => {
   });
 
   it("clears the cache on load failure so retries re-execute", () => {
-    const dir = createThrowingPluginDir("assistant-facade-loader-throw-");
-    process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = dir;
+    const dir = createThrowingPluginDir("zhushou-facade-loader-throw-");
+    process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = dir;
 
     expect(() =>
       loadBundledPluginPublicSurfaceModuleSync<{ marker: string }>({

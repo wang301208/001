@@ -17,7 +17,7 @@ vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout: vi.fn(),
 }));
 
-const suiteTempRootTracker = createSuiteTempRootTracker("assistant-plugin-install-path");
+const suiteTempRootTracker = createSuiteTempRootTracker("zhushou-plugin-install-path");
 
 async function packToArchive(params: {
   pkgDir: string;
@@ -96,15 +96,15 @@ function setupDualFormatInstallFixture(params: { bundleFormat: "codex" | "claude
   fs.writeFileSync(
     path.join(pluginDir, "package.json"),
     JSON.stringify({
-      name: "@assistant/native-dual",
+      name: "@zhushou/native-dual",
       version: "0.0.1",
-      assistant: { extensions: ["./dist/index.js"] },
+      zhushou: { extensions: ["./dist/index.js"] },
       dependencies: { "left-pad": "1.3.0" },
     }),
     "utf-8",
   );
   fs.writeFileSync(
-    path.join(pluginDir, "assistant.plugin.json"),
+    path.join(pluginDir, "zhushou.plugin.json"),
     JSON.stringify({
       id: "native-dual",
       configSchema: { type: "object", properties: {} },

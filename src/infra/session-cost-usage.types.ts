@@ -72,7 +72,7 @@ export type SessionDailyMessageCounts = {
   date: string; // YYYY-MM-DD
   total: number;
   user: number;
-  assistant: number;
+  zhushou: number;
   toolCalls: number;
   toolResults: number;
   errors: number;
@@ -102,7 +102,7 @@ export type SessionDailyModelUsage = {
 export type SessionMessageCounts = {
   total: number;
   user: number;
-  assistant: number;
+  zhushou: number;
   toolCalls: number;
   toolResults: number;
   errors: number;

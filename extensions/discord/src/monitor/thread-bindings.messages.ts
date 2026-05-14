@@ -3,4 +3,4 @@ export {
   resolveThreadBindingIntroText,
   resolveThreadBindingThreadName,
   formatThreadBindingDurationLabel,
-} from "assistant/plugin-sdk/conversation-runtime";
+} from "zhushou/plugin-sdk/conversation-runtime";

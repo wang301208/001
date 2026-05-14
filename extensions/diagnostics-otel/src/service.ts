@@ -9,10 +9,10 @@ import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { ParentBasedSampler, TraceIdRatioBasedSampler } from "@opentelemetry/sdk-trace-base";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
-import type { DiagnosticEventPayload, AssistantPluginService } from "../api.js";
+import type { DiagnosticEventPayload, ZhushouPluginService } from "../api.js";
 import { onDiagnosticEvent, redactSensitiveText, registerLogTransport } from "../api.js";
 
-const DEFAULT_SERVICE_NAME = "assistant";
+const DEFAULT_SERVICE_NAME = "zhushou";
 
 function normalizeEndpoint(endpoint?: string): string | undefined {
   const trimmed = endpoint?.trim();
@@ -62,7 +62,7 @@ function redactOtelAttributes(attributes: Record<string, string | number | boole
   return redactedAttributes;
 }
 
-export function createDiagnosticsOtelService(): AssistantPluginService {
+export function createDiagnosticsOtelService(): ZhushouPluginService {
   let sdk: NodeSDK | null = null;
   let logProvider: LoggerProvider | null = null;
   let stopLogTransport: (() => void) | null = null;
@@ -157,78 +157,78 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         FATAL: 21 as SeverityNumber,
       };
 
-      const meter = metrics.getMeter("assistant");
-      const tracer = trace.getTracer("assistant");
+      const meter = metrics.getMeter("zhushou");
+      const tracer = trace.getTracer("zhushou");
 
-      const tokensCounter = meter.createCounter("assistant.tokens", {
+      const tokensCounter = meter.createCounter("zhushou.tokens", {
         unit: "1",
         description: "Token usage by type",
       });
-      const costCounter = meter.createCounter("assistant.cost.usd", {
+      const costCounter = meter.createCounter("zhushou.cost.usd", {
         unit: "1",
         description: "Estimated model cost (USD)",
       });
-      const durationHistogram = meter.createHistogram("assistant.run.duration_ms", {
+      const durationHistogram = meter.createHistogram("zhushou.run.duration_ms", {
         unit: "ms",
         description: "Agent run duration",
       });
-      const contextHistogram = meter.createHistogram("assistant.context.tokens", {
+      const contextHistogram = meter.createHistogram("zhushou.context.tokens", {
         unit: "1",
         description: "Context window size and usage",
       });
-      const webhookReceivedCounter = meter.createCounter("assistant.webhook.received", {
+      const webhookReceivedCounter = meter.createCounter("zhushou.webhook.received", {
         unit: "1",
         description: "Webhook requests received",
       });
-      const webhookErrorCounter = meter.createCounter("assistant.webhook.error", {
+      const webhookErrorCounter = meter.createCounter("zhushou.webhook.error", {
         unit: "1",
         description: "Webhook processing errors",
       });
-      const webhookDurationHistogram = meter.createHistogram("assistant.webhook.duration_ms", {
+      const webhookDurationHistogram = meter.createHistogram("zhushou.webhook.duration_ms", {
         unit: "ms",
         description: "Webhook processing duration",
       });
-      const messageQueuedCounter = meter.createCounter("assistant.message.queued", {
+      const messageQueuedCounter = meter.createCounter("zhushou.message.queued", {
         unit: "1",
         description: "Messages queued for processing",
       });
-      const messageProcessedCounter = meter.createCounter("assistant.message.processed", {
+      const messageProcessedCounter = meter.createCounter("zhushou.message.processed", {
         unit: "1",
         description: "Messages processed by outcome",
       });
-      const messageDurationHistogram = meter.createHistogram("assistant.message.duration_ms", {
+      const messageDurationHistogram = meter.createHistogram("zhushou.message.duration_ms", {
         unit: "ms",
         description: "Message processing duration",
       });
-      const queueDepthHistogram = meter.createHistogram("assistant.queue.depth", {
+      const queueDepthHistogram = meter.createHistogram("zhushou.queue.depth", {
         unit: "1",
         description: "Queue depth on enqueue/dequeue",
       });
-      const queueWaitHistogram = meter.createHistogram("assistant.queue.wait_ms", {
+      const queueWaitHistogram = meter.createHistogram("zhushou.queue.wait_ms", {
         unit: "ms",
         description: "Queue wait time before execution",
       });
-      const laneEnqueueCounter = meter.createCounter("assistant.queue.lane.enqueue", {
+      const laneEnqueueCounter = meter.createCounter("zhushou.queue.lane.enqueue", {
         unit: "1",
         description: "Command queue lane enqueue events",
       });
-      const laneDequeueCounter = meter.createCounter("assistant.queue.lane.dequeue", {
+      const laneDequeueCounter = meter.createCounter("zhushou.queue.lane.dequeue", {
         unit: "1",
         description: "Command queue lane dequeue events",
       });
-      const sessionStateCounter = meter.createCounter("assistant.session.state", {
+      const sessionStateCounter = meter.createCounter("zhushou.session.state", {
         unit: "1",
         description: "Session state transitions",
       });
-      const sessionStuckCounter = meter.createCounter("assistant.session.stuck", {
+      const sessionStuckCounter = meter.createCounter("zhushou.session.stuck", {
         unit: "1",
         description: "Sessions stuck in processing",
       });
-      const sessionStuckAgeHistogram = meter.createHistogram("assistant.session.stuck_age_ms", {
+      const sessionStuckAgeHistogram = meter.createHistogram("zhushou.session.stuck_age_ms", {
         unit: "ms",
         description: "Age of stuck sessions",
       });
-      const runAttemptCounter = meter.createCounter("assistant.run.attempt", {
+      const runAttemptCounter = meter.createCounter("zhushou.run.attempt", {
         unit: "1",
         description: "Run attempts",
       });
@@ -248,7 +248,7 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
           resource,
           processors: [logProcessor],
         });
-        const otelLogger = logProvider.getLogger("assistant");
+        const otelLogger = logProvider.getLogger("zhushou");
 
         stopLogTransport = registerLogTransport((logObj) => {
           try {
@@ -307,13 +307,13 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
             }
 
             const attributes: Record<string, string | number | boolean> = {
-              "assistant.log.level": logLevelName,
+              "zhushou.log.level": logLevelName,
             };
             if (meta?.name) {
-              attributes["assistant.logger"] = meta.name;
+              attributes["zhushou.logger"] = meta.name;
             }
             if (meta?.parentNames?.length) {
-              attributes["assistant.logger.parents"] = meta.parentNames.join(".");
+              attributes["zhushou.logger.parents"] = meta.parentNames.join(".");
             }
             if (bindings) {
               for (const [key, value] of Object.entries(bindings)) {
@@ -322,14 +322,14 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
                   typeof value === "number" ||
                   typeof value === "boolean"
                 ) {
-                  attributes[`assistant.${key}`] = value;
+                  attributes[`zhushou.${key}`] = value;
                 } else if (value != null) {
-                  attributes[`assistant.${key}`] = safeStringify(value);
+                  attributes[`zhushou.${key}`] = safeStringify(value);
                 }
               }
             }
             if (numericArgs.length > 0) {
-              attributes["assistant.log.args"] = safeStringify(numericArgs);
+              attributes["zhushou.log.args"] = safeStringify(numericArgs);
             }
             if (meta?.path?.filePath) {
               attributes["code.filepath"] = meta.path.filePath;
@@ -341,7 +341,7 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
               attributes["code.function"] = meta.path.method;
             }
             if (meta?.path?.filePathWithLine) {
-              attributes["assistant.code.location"] = meta.path.filePathWithLine;
+              attributes["zhushou.code.location"] = meta.path.filePathWithLine;
             }
 
             // OTLP can leave the host boundary, so redact string fields before export.
@@ -374,29 +374,29 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
 
       const recordModelUsage = (evt: Extract<DiagnosticEventPayload, { type: "model.usage" }>) => {
         const attrs = {
-          "assistant.channel": evt.channel ?? "unknown",
-          "assistant.provider": evt.provider ?? "unknown",
-          "assistant.model": evt.model ?? "unknown",
+          "zhushou.channel": evt.channel ?? "unknown",
+          "zhushou.provider": evt.provider ?? "unknown",
+          "zhushou.model": evt.model ?? "unknown",
         };
 
         const usage = evt.usage;
         if (usage.input) {
-          tokensCounter.add(usage.input, { ...attrs, "assistant.token": "input" });
+          tokensCounter.add(usage.input, { ...attrs, "zhushou.token": "input" });
         }
         if (usage.output) {
-          tokensCounter.add(usage.output, { ...attrs, "assistant.token": "output" });
+          tokensCounter.add(usage.output, { ...attrs, "zhushou.token": "output" });
         }
         if (usage.cacheRead) {
-          tokensCounter.add(usage.cacheRead, { ...attrs, "assistant.token": "cache_read" });
+          tokensCounter.add(usage.cacheRead, { ...attrs, "zhushou.token": "cache_read" });
         }
         if (usage.cacheWrite) {
-          tokensCounter.add(usage.cacheWrite, { ...attrs, "assistant.token": "cache_write" });
+          tokensCounter.add(usage.cacheWrite, { ...attrs, "zhushou.token": "cache_write" });
         }
         if (usage.promptTokens) {
-          tokensCounter.add(usage.promptTokens, { ...attrs, "assistant.token": "prompt" });
+          tokensCounter.add(usage.promptTokens, { ...attrs, "zhushou.token": "prompt" });
         }
         if (usage.total) {
-          tokensCounter.add(usage.total, { ...attrs, "assistant.token": "total" });
+          tokensCounter.add(usage.total, { ...attrs, "zhushou.token": "total" });
         }
 
         if (evt.costUsd) {
@@ -408,13 +408,13 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         if (evt.context?.limit) {
           contextHistogram.record(evt.context.limit, {
             ...attrs,
-            "assistant.context": "limit",
+            "zhushou.context": "limit",
           });
         }
         if (evt.context?.used) {
           contextHistogram.record(evt.context.used, {
             ...attrs,
-            "assistant.context": "used",
+            "zhushou.context": "used",
           });
         }
 
@@ -423,16 +423,16 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         }
         const spanAttrs: Record<string, string | number> = {
           ...attrs,
-          "assistant.sessionKey": evt.sessionKey ?? "",
-          "assistant.sessionId": evt.sessionId ?? "",
-          "assistant.tokens.input": usage.input ?? 0,
-          "assistant.tokens.output": usage.output ?? 0,
-          "assistant.tokens.cache_read": usage.cacheRead ?? 0,
-          "assistant.tokens.cache_write": usage.cacheWrite ?? 0,
-          "assistant.tokens.total": usage.total ?? 0,
+          "zhushou.sessionKey": evt.sessionKey ?? "",
+          "zhushou.sessionId": evt.sessionId ?? "",
+          "zhushou.tokens.input": usage.input ?? 0,
+          "zhushou.tokens.output": usage.output ?? 0,
+          "zhushou.tokens.cache_read": usage.cacheRead ?? 0,
+          "zhushou.tokens.cache_write": usage.cacheWrite ?? 0,
+          "zhushou.tokens.total": usage.total ?? 0,
         };
 
-        const span = spanWithDuration("assistant.model.usage", spanAttrs, evt.durationMs);
+        const span = spanWithDuration("zhushou.model.usage", spanAttrs, evt.durationMs);
         span.end();
       };
 
@@ -440,8 +440,8 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "webhook.received" }>,
       ) => {
         const attrs = {
-          "assistant.channel": evt.channel ?? "unknown",
-          "assistant.webhook": evt.updateType ?? "unknown",
+          "zhushou.channel": evt.channel ?? "unknown",
+          "zhushou.webhook": evt.updateType ?? "unknown",
         };
         webhookReceivedCounter.add(1, attrs);
       };
@@ -450,8 +450,8 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "webhook.processed" }>,
       ) => {
         const attrs = {
-          "assistant.channel": evt.channel ?? "unknown",
-          "assistant.webhook": evt.updateType ?? "unknown",
+          "zhushou.channel": evt.channel ?? "unknown",
+          "zhushou.webhook": evt.updateType ?? "unknown",
         };
         if (typeof evt.durationMs === "number") {
           webhookDurationHistogram.record(evt.durationMs, attrs);
@@ -461,9 +461,9 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
         if (evt.chatId !== undefined) {
-          spanAttrs["assistant.chatId"] = String(evt.chatId);
+          spanAttrs["zhushou.chatId"] = String(evt.chatId);
         }
-        const span = spanWithDuration("assistant.webhook.processed", spanAttrs, evt.durationMs);
+        const span = spanWithDuration("zhushou.webhook.processed", spanAttrs, evt.durationMs);
         span.end();
       };
 
@@ -471,8 +471,8 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "webhook.error" }>,
       ) => {
         const attrs = {
-          "assistant.channel": evt.channel ?? "unknown",
-          "assistant.webhook": evt.updateType ?? "unknown",
+          "zhushou.channel": evt.channel ?? "unknown",
+          "zhushou.webhook": evt.updateType ?? "unknown",
         };
         webhookErrorCounter.add(1, attrs);
         if (!tracesEnabled) {
@@ -481,12 +481,12 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         const redactedError = redactSensitiveText(evt.error);
         const spanAttrs: Record<string, string | number> = {
           ...attrs,
-          "assistant.error": redactedError,
+          "zhushou.error": redactedError,
         };
         if (evt.chatId !== undefined) {
-          spanAttrs["assistant.chatId"] = String(evt.chatId);
+          spanAttrs["zhushou.chatId"] = String(evt.chatId);
         }
-        const span = tracer.startSpan("assistant.webhook.error", {
+        const span = tracer.startSpan("zhushou.webhook.error", {
           attributes: spanAttrs,
         });
         span.setStatus({ code: SpanStatusCode.ERROR, message: redactedError });
@@ -497,8 +497,8 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "message.queued" }>,
       ) => {
         const attrs = {
-          "assistant.channel": evt.channel ?? "unknown",
-          "assistant.source": evt.source ?? "unknown",
+          "zhushou.channel": evt.channel ?? "unknown",
+          "zhushou.source": evt.source ?? "unknown",
         };
         messageQueuedCounter.add(1, attrs);
         if (typeof evt.queueDepth === "number") {
@@ -511,10 +511,10 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         evt: { sessionKey?: string; sessionId?: string },
       ) => {
         if (evt.sessionKey) {
-          spanAttrs["assistant.sessionKey"] = evt.sessionKey;
+          spanAttrs["zhushou.sessionKey"] = evt.sessionKey;
         }
         if (evt.sessionId) {
-          spanAttrs["assistant.sessionId"] = evt.sessionId;
+          spanAttrs["zhushou.sessionId"] = evt.sessionId;
         }
       };
 
@@ -522,8 +522,8 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "message.processed" }>,
       ) => {
         const attrs = {
-          "assistant.channel": evt.channel ?? "unknown",
-          "assistant.outcome": evt.outcome ?? "unknown",
+          "zhushou.channel": evt.channel ?? "unknown",
+          "zhushou.outcome": evt.outcome ?? "unknown",
         };
         messageProcessedCounter.add(1, attrs);
         if (typeof evt.durationMs === "number") {
@@ -535,15 +535,15 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         const spanAttrs: Record<string, string | number> = { ...attrs };
         addSessionIdentityAttrs(spanAttrs, evt);
         if (evt.chatId !== undefined) {
-          spanAttrs["assistant.chatId"] = String(evt.chatId);
+          spanAttrs["zhushou.chatId"] = String(evt.chatId);
         }
         if (evt.messageId !== undefined) {
-          spanAttrs["assistant.messageId"] = String(evt.messageId);
+          spanAttrs["zhushou.messageId"] = String(evt.messageId);
         }
         if (evt.reason) {
-          spanAttrs["assistant.reason"] = redactSensitiveText(evt.reason);
+          spanAttrs["zhushou.reason"] = redactSensitiveText(evt.reason);
         }
-        const span = spanWithDuration("assistant.message.processed", spanAttrs, evt.durationMs);
+        const span = spanWithDuration("zhushou.message.processed", spanAttrs, evt.durationMs);
         if (evt.outcome === "error" && evt.error) {
           span.setStatus({ code: SpanStatusCode.ERROR, message: redactSensitiveText(evt.error) });
         }
@@ -553,7 +553,7 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
       const recordLaneEnqueue = (
         evt: Extract<DiagnosticEventPayload, { type: "queue.lane.enqueue" }>,
       ) => {
-        const attrs = { "assistant.lane": evt.lane };
+        const attrs = { "zhushou.lane": evt.lane };
         laneEnqueueCounter.add(1, attrs);
         queueDepthHistogram.record(evt.queueSize, attrs);
       };
@@ -561,7 +561,7 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
       const recordLaneDequeue = (
         evt: Extract<DiagnosticEventPayload, { type: "queue.lane.dequeue" }>,
       ) => {
-        const attrs = { "assistant.lane": evt.lane };
+        const attrs = { "zhushou.lane": evt.lane };
         laneDequeueCounter.add(1, attrs);
         queueDepthHistogram.record(evt.queueSize, attrs);
         if (typeof evt.waitMs === "number") {
@@ -572,9 +572,9 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
       const recordSessionState = (
         evt: Extract<DiagnosticEventPayload, { type: "session.state" }>,
       ) => {
-        const attrs: Record<string, string> = { "assistant.state": evt.state };
+        const attrs: Record<string, string> = { "zhushou.state": evt.state };
         if (evt.reason) {
-          attrs["assistant.reason"] = redactSensitiveText(evt.reason);
+          attrs["zhushou.reason"] = redactSensitiveText(evt.reason);
         }
         sessionStateCounter.add(1, attrs);
       };
@@ -582,7 +582,7 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
       const recordSessionStuck = (
         evt: Extract<DiagnosticEventPayload, { type: "session.stuck" }>,
       ) => {
-        const attrs: Record<string, string> = { "assistant.state": evt.state };
+        const attrs: Record<string, string> = { "zhushou.state": evt.state };
         sessionStuckCounter.add(1, attrs);
         if (typeof evt.ageMs === "number") {
           sessionStuckAgeHistogram.record(evt.ageMs, attrs);
@@ -592,21 +592,21 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
         addSessionIdentityAttrs(spanAttrs, evt);
-        spanAttrs["assistant.queueDepth"] = evt.queueDepth ?? 0;
-        spanAttrs["assistant.ageMs"] = evt.ageMs;
-        const span = tracer.startSpan("assistant.session.stuck", { attributes: spanAttrs });
+        spanAttrs["zhushou.queueDepth"] = evt.queueDepth ?? 0;
+        spanAttrs["zhushou.ageMs"] = evt.ageMs;
+        const span = tracer.startSpan("zhushou.session.stuck", { attributes: spanAttrs });
         span.setStatus({ code: SpanStatusCode.ERROR, message: "session stuck" });
         span.end();
       };
 
       const recordRunAttempt = (evt: Extract<DiagnosticEventPayload, { type: "run.attempt" }>) => {
-        runAttemptCounter.add(1, { "assistant.attempt": evt.attempt });
+        runAttemptCounter.add(1, { "zhushou.attempt": evt.attempt });
       };
 
       const recordHeartbeat = (
         evt: Extract<DiagnosticEventPayload, { type: "diagnostic.heartbeat" }>,
       ) => {
-        queueDepthHistogram.record(evt.queued, { "assistant.channel": "heartbeat" });
+        queueDepthHistogram.record(evt.queued, { "zhushou.channel": "heartbeat" });
       };
 
       unsubscribe = onDiagnosticEvent((evt: DiagnosticEventPayload) => {
@@ -674,5 +674,5 @@ export function createDiagnosticsOtelService(): AssistantPluginService {
         sdk = null;
       }
     },
-  } satisfies AssistantPluginService;
+  } satisfies ZhushouPluginService;
 }

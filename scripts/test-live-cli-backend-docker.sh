@@ -3,18 +3,18 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/live-docker-auth.sh"
-IMAGE_NAME="${ASSISTANT_IMAGE:-assistant:local}"
-LIVE_IMAGE_NAME="${ASSISTANT_LIVE_IMAGE:-${IMAGE_NAME}-live}"
-CONFIG_DIR="${ASSISTANT_CONFIG_DIR:-$HOME/.assistant}"
-WORKSPACE_DIR="${ASSISTANT_WORKSPACE_DIR:-$HOME/.assistant/workspace}"
-PROFILE_FILE="${ASSISTANT_PROFILE_FILE:-$HOME/.profile}"
-DEFAULT_PROVIDER="${ASSISTANT_DOCKER_CLI_BACKEND_PROVIDER:-claude-cli}"
-CLI_MODEL="${ASSISTANT_LIVE_CLI_BACKEND_MODEL:-}"
+IMAGE_NAME="${ZHUSHOU_IMAGE:-zhushou:local}"
+LIVE_IMAGE_NAME="${ZHUSHOU_LIVE_IMAGE:-${IMAGE_NAME}-live}"
+CONFIG_DIR="${ZHUSHOU_CONFIG_DIR:-$HOME/.zhushou}"
+WORKSPACE_DIR="${ZHUSHOU_WORKSPACE_DIR:-$HOME/.zhushou/workspace}"
+PROFILE_FILE="${ZHUSHOU_PROFILE_FILE:-$HOME/.profile}"
+DEFAULT_PROVIDER="${ZHUSHOU_DOCKER_CLI_BACKEND_PROVIDER:-claude-cli}"
+CLI_MODEL="${ZHUSHOU_LIVE_CLI_BACKEND_MODEL:-}"
 CLI_PROVIDER="${CLI_MODEL%%/*}"
-CLI_DISABLE_MCP_CONFIG="${ASSISTANT_LIVE_CLI_BACKEND_DISABLE_MCP_CONFIG:-}"
-CLI_AUTH_MODE="${ASSISTANT_LIVE_CLI_BACKEND_AUTH:-auto}"
+CLI_DISABLE_MCP_CONFIG="${ZHUSHOU_LIVE_CLI_BACKEND_DISABLE_MCP_CONFIG:-}"
+CLI_AUTH_MODE="${ZHUSHOU_LIVE_CLI_BACKEND_AUTH:-auto}"
 TEMP_DIRS=()
-DOCKER_USER="${ASSISTANT_DOCKER_USER:-node}"
+DOCKER_USER="${ZHUSHOU_DOCKER_USER:-node}"
 
 if [[ -z "$CLI_PROVIDER" || "$CLI_PROVIDER" == "$CLI_MODEL" ]]; then
   CLI_PROVIDER="$DEFAULT_PROVIDER"
@@ -24,13 +24,13 @@ case "$CLI_AUTH_MODE" in
   auto | api-key | subscription)
     ;;
   *)
-    echo "ERROR: ASSISTANT_LIVE_CLI_BACKEND_AUTH must be one of: auto, api-key, subscription." >&2
+    echo "ERROR: ZHUSHOU_LIVE_CLI_BACKEND_AUTH must be one of: auto, api-key, subscription." >&2
     exit 1
     ;;
 esac
 
 if [[ "$CLI_AUTH_MODE" == "subscription" && "$CLI_PROVIDER" != "claude-cli" ]]; then
-  echo "ERROR: ASSISTANT_LIVE_CLI_BACKEND_AUTH=subscription is only supported for claude-cli." >&2
+  echo "ERROR: ZHUSHOU_LIVE_CLI_BACKEND_AUTH=subscription is only supported for claude-cli." >&2
   exit 1
 fi
 
@@ -63,21 +63,21 @@ cleanup_temp_dirs() {
 }
 trap cleanup_temp_dirs EXIT
 
-if [[ -n "${ASSISTANT_DOCKER_CLI_TOOLS_DIR:-}" ]]; then
-  CLI_TOOLS_DIR="${ASSISTANT_DOCKER_CLI_TOOLS_DIR}"
+if [[ -n "${ZHUSHOU_DOCKER_CLI_TOOLS_DIR:-}" ]]; then
+  CLI_TOOLS_DIR="${ZHUSHOU_DOCKER_CLI_TOOLS_DIR}"
 elif [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
-  CLI_TOOLS_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/assistant-docker-cli-tools.XXXXXX")"
+  CLI_TOOLS_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/zhushou-docker-cli-tools.XXXXXX")"
   TEMP_DIRS+=("$CLI_TOOLS_DIR")
 else
-  CLI_TOOLS_DIR="$HOME/.cache/assistant/docker-cli-tools"
+  CLI_TOOLS_DIR="$HOME/.cache/zhushou/docker-cli-tools"
 fi
-if [[ -n "${ASSISTANT_DOCKER_CACHE_HOME_DIR:-}" ]]; then
-  CACHE_HOME_DIR="${ASSISTANT_DOCKER_CACHE_HOME_DIR}"
+if [[ -n "${ZHUSHOU_DOCKER_CACHE_HOME_DIR:-}" ]]; then
+  CACHE_HOME_DIR="${ZHUSHOU_DOCKER_CACHE_HOME_DIR}"
 elif [[ "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
-  CACHE_HOME_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/assistant-docker-cache.XXXXXX")"
+  CACHE_HOME_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/zhushou-docker-cache.XXXXXX")"
   TEMP_DIRS+=("$CACHE_HOME_DIR")
 else
-  CACHE_HOME_DIR="$HOME/.cache/assistant/docker-cache"
+  CACHE_HOME_DIR="$HOME/.cache/zhushou/docker-cache"
 fi
 
 mkdir -p "$CLI_TOOLS_DIR"
@@ -115,25 +115,25 @@ if [[ "$CLI_PROVIDER" == "claude-cli" && "$CLI_AUTH_MODE" == "subscription" ]]; 
     echo "  - CLAUDE_CODE_OAUTH_TOKEN from 'claude setup-token'." >&2
     exit 1
   fi
-  if [[ -z "${ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV:-}" ]]; then
+  if [[ -z "${ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV:-}" ]]; then
     if [[ "$CLAUDE_SUBSCRIPTION_AUTH_SOURCE" == "env-token" ]]; then
-      export ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV='["CLAUDE_CODE_OAUTH_TOKEN"]'
+      export ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV='["CLAUDE_CODE_OAUTH_TOKEN"]'
     else
-      export ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV="[]"
+      export ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV="[]"
     fi
   fi
-  if [[ "$ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV" == *ANTHROPIC_API_KEY* ]]; then
+  if [[ "$ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV" == *ANTHROPIC_API_KEY* ]]; then
     echo "ERROR: subscription auth smoke must not preserve Anthropic API-key env vars." >&2
     exit 1
   fi
-  if [[ "$CLAUDE_SUBSCRIPTION_AUTH_SOURCE" == "env-token" && "$ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV" != *CLAUDE_CODE_OAUTH_TOKEN* ]]; then
+  if [[ "$CLAUDE_SUBSCRIPTION_AUTH_SOURCE" == "env-token" && "$ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV" != *CLAUDE_CODE_OAUTH_TOKEN* ]]; then
     echo "ERROR: CLAUDE_CODE_OAUTH_TOKEN subscription smoke must preserve CLAUDE_CODE_OAUTH_TOKEN for the Gateway child process." >&2
     exit 1
   fi
-  export ASSISTANT_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE="${ASSISTANT_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE:-0}"
-  export ASSISTANT_LIVE_CLI_BACKEND_RESUME_PROBE="${ASSISTANT_LIVE_CLI_BACKEND_RESUME_PROBE:-1}"
-  export ASSISTANT_LIVE_CLI_BACKEND_IMAGE_PROBE="${ASSISTANT_LIVE_CLI_BACKEND_IMAGE_PROBE:-0}"
-  export ASSISTANT_LIVE_CLI_BACKEND_MCP_PROBE="${ASSISTANT_LIVE_CLI_BACKEND_MCP_PROBE:-0}"
+  export ZHUSHOU_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE="${ZHUSHOU_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE:-0}"
+  export ZHUSHOU_LIVE_CLI_BACKEND_RESUME_PROBE="${ZHUSHOU_LIVE_CLI_BACKEND_RESUME_PROBE:-1}"
+  export ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_PROBE="${ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_PROBE:-0}"
+  export ZHUSHOU_LIVE_CLI_BACKEND_MCP_PROBE="${ZHUSHOU_LIVE_CLI_BACKEND_MCP_PROBE:-0}"
 fi
 
 PROFILE_MOUNT=()
@@ -143,32 +143,32 @@ fi
 
 AUTH_DIRS=()
 AUTH_FILES=()
-if [[ -n "${ASSISTANT_DOCKER_AUTH_DIRS:-}" ]]; then
+if [[ -n "${ZHUSHOU_DOCKER_AUTH_DIRS:-}" ]]; then
   while IFS= read -r auth_dir; do
     [[ -n "$auth_dir" ]] || continue
     AUTH_DIRS+=("$auth_dir")
-  done < <(assistant_live_collect_auth_dirs)
+  done < <(zhushou_live_collect_auth_dirs)
   while IFS= read -r auth_file; do
     [[ -n "$auth_file" ]] || continue
     AUTH_FILES+=("$auth_file")
-  done < <(assistant_live_collect_auth_files)
+  done < <(zhushou_live_collect_auth_files)
 else
   while IFS= read -r auth_dir; do
     [[ -n "$auth_dir" ]] || continue
     AUTH_DIRS+=("$auth_dir")
-  done < <(assistant_live_collect_auth_dirs_from_csv "$CLI_PROVIDER")
+  done < <(zhushou_live_collect_auth_dirs_from_csv "$CLI_PROVIDER")
   while IFS= read -r auth_file; do
     [[ -n "$auth_file" ]] || continue
     AUTH_FILES+=("$auth_file")
-  done < <(assistant_live_collect_auth_files_from_csv "$CLI_PROVIDER")
+  done < <(zhushou_live_collect_auth_files_from_csv "$CLI_PROVIDER")
 fi
 AUTH_DIRS_CSV=""
 if ((${#AUTH_DIRS[@]} > 0)); then
-  AUTH_DIRS_CSV="$(assistant_live_join_csv "${AUTH_DIRS[@]}")"
+  AUTH_DIRS_CSV="$(zhushou_live_join_csv "${AUTH_DIRS[@]}")"
 fi
 AUTH_FILES_CSV=""
 if ((${#AUTH_FILES[@]} > 0)); then
-  AUTH_FILES_CSV="$(assistant_live_join_csv "${AUTH_FILES[@]}")"
+  AUTH_FILES_CSV="$(zhushou_live_join_csv "${AUTH_FILES[@]}")"
 fi
 
 EXTERNAL_AUTH_MOUNTS=()
@@ -201,8 +201,8 @@ export npm_config_cache="$NPM_CONFIG_CACHE"
 mkdir -p "$NPM_CONFIG_PREFIX" "$XDG_CACHE_HOME" "$COREPACK_HOME" "$NPM_CONFIG_CACHE"
 chmod 700 "$XDG_CACHE_HOME" "$COREPACK_HOME" "$NPM_CONFIG_CACHE" || true
 export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-IFS=',' read -r -a auth_dirs <<<"${ASSISTANT_DOCKER_AUTH_DIRS_RESOLVED:-}"
-IFS=',' read -r -a auth_files <<<"${ASSISTANT_DOCKER_AUTH_FILES_RESOLVED:-}"
+IFS=',' read -r -a auth_dirs <<<"${ZHUSHOU_DOCKER_AUTH_DIRS_RESOLVED:-}"
+IFS=',' read -r -a auth_files <<<"${ZHUSHOU_DOCKER_AUTH_FILES_RESOLVED:-}"
 if ((${#auth_dirs[@]} > 0)); then
   for auth_dir in "${auth_dirs[@]}"; do
     [ -n "$auth_dir" ] || continue
@@ -223,21 +223,21 @@ if ((${#auth_files[@]} > 0)); then
     fi
   done
 fi
-provider="${ASSISTANT_DOCKER_CLI_BACKEND_PROVIDER:-claude-cli}"
-default_command="${ASSISTANT_DOCKER_CLI_BACKEND_COMMAND_DEFAULT:-}"
-docker_package="${ASSISTANT_DOCKER_CLI_BACKEND_NPM_PACKAGE:-}"
-binary_name="${ASSISTANT_DOCKER_CLI_BACKEND_BINARY_NAME:-}"
+provider="${ZHUSHOU_DOCKER_CLI_BACKEND_PROVIDER:-claude-cli}"
+default_command="${ZHUSHOU_DOCKER_CLI_BACKEND_COMMAND_DEFAULT:-}"
+docker_package="${ZHUSHOU_DOCKER_CLI_BACKEND_NPM_PACKAGE:-}"
+binary_name="${ZHUSHOU_DOCKER_CLI_BACKEND_BINARY_NAME:-}"
 if [ -z "$binary_name" ] && [ -n "$default_command" ]; then
   binary_name="$(basename "$default_command")"
 fi
-if [ -z "${ASSISTANT_LIVE_CLI_BACKEND_COMMAND:-}" ] && [ -n "$binary_name" ]; then
-  export ASSISTANT_LIVE_CLI_BACKEND_COMMAND="$NPM_CONFIG_PREFIX/bin/$binary_name"
+if [ -z "${ZHUSHOU_LIVE_CLI_BACKEND_COMMAND:-}" ] && [ -n "$binary_name" ]; then
+  export ZHUSHOU_LIVE_CLI_BACKEND_COMMAND="$NPM_CONFIG_PREFIX/bin/$binary_name"
 fi
-if [ -n "${ASSISTANT_LIVE_CLI_BACKEND_COMMAND:-}" ] && [ ! -x "${ASSISTANT_LIVE_CLI_BACKEND_COMMAND}" ] && [ -n "$docker_package" ]; then
+if [ -n "${ZHUSHOU_LIVE_CLI_BACKEND_COMMAND:-}" ] && [ ! -x "${ZHUSHOU_LIVE_CLI_BACKEND_COMMAND}" ] && [ -n "$docker_package" ]; then
   npm install -g "$docker_package"
 fi
 if [ "$provider" = "claude-cli" ]; then
-  auth_mode="${ASSISTANT_LIVE_CLI_BACKEND_AUTH:-auto}"
+  auth_mode="${ZHUSHOU_LIVE_CLI_BACKEND_AUTH:-auto}"
   if [ "$auth_mode" = "subscription" ]; then
     unset ANTHROPIC_API_KEY
     unset ANTHROPIC_API_KEY_OLD
@@ -269,22 +269,22 @@ NODE
     cat > "$NPM_CONFIG_PREFIX/bin/claude" <<WRAP
 #!/usr/bin/env bash
 script_dir="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)"
-if [ -n "\${ASSISTANT_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY:-}" ]; then
-  export ANTHROPIC_API_KEY="\${ASSISTANT_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY}"
+if [ -n "\${ZHUSHOU_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY:-}" ]; then
+  export ANTHROPIC_API_KEY="\${ZHUSHOU_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY}"
 fi
-if [ -n "\${ASSISTANT_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY_OLD:-}" ]; then
-  export ANTHROPIC_API_KEY_OLD="\${ASSISTANT_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY_OLD}"
+if [ -n "\${ZHUSHOU_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY_OLD:-}" ]; then
+  export ANTHROPIC_API_KEY_OLD="\${ZHUSHOU_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY_OLD}"
 fi
 exec "\$script_dir/claude-real" "\$@"
 WRAP
     chmod +x "$NPM_CONFIG_PREFIX/bin/claude"
   fi
-  if [ -z "${ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV:-}" ]; then
-    export ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV='["ANTHROPIC_API_KEY","ANTHROPIC_API_KEY_OLD"]'
+  if [ -z "${ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV:-}" ]; then
+    export ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV='["ANTHROPIC_API_KEY","ANTHROPIC_API_KEY_OLD"]'
   fi
   if [ "$auth_mode" = "subscription" ]; then
     claude --version
-    direct_token="ASSISTANT-CLAUDE-SUBSCRIPTION-DIRECT"
+    direct_token="ZHUSHOU-CLAUDE-SUBSCRIPTION-DIRECT"
     direct_output="$(
       claude \
         -p "Reply exactly: $direct_token" \
@@ -312,7 +312,7 @@ cleanup() {
 }
 trap cleanup EXIT
 source /src/scripts/lib/live-docker-stage.sh
-assistant_live_stage_source_tree "$tmp_dir"
+zhushou_live_stage_source_tree "$tmp_dir"
 # Use a writable node_modules overlay in the temp repo. Vite writes bundled
 # config artifacts under the nearest node_modules/.vite-temp path, and the
 # build-stage /app/node_modules tree is root-owned in this Docker lane.
@@ -320,15 +320,15 @@ mkdir -p "$tmp_dir/node_modules"
 cp -aRs /app/node_modules/. "$tmp_dir/node_modules"
 rm -rf "$tmp_dir/node_modules/.vite-temp"
 mkdir -p "$tmp_dir/node_modules/.vite-temp"
-assistant_live_link_runtime_tree "$tmp_dir"
-assistant_live_stage_state_dir "$tmp_dir/.assistant-state"
-assistant_live_prepare_staged_config
+zhushou_live_link_runtime_tree "$tmp_dir"
+zhushou_live_stage_state_dir "$tmp_dir/.zhushou-state"
+zhushou_live_prepare_staged_config
 cd "$tmp_dir"
 pnpm test:live src/gateway/gateway-cli-backend.live.test.ts
 EOF
 
-if [[ "${ASSISTANT_SKIP_DOCKER_BUILD:-}" == "1" ]]; then
-  echo "==> Reuse live-test image: $LIVE_IMAGE_NAME (ASSISTANT_SKIP_DOCKER_BUILD=1)"
+if [[ "${ZHUSHOU_SKIP_DOCKER_BUILD:-}" == "1" ]]; then
+  echo "==> Reuse live-test image: $LIVE_IMAGE_NAME (ZHUSHOU_SKIP_DOCKER_BUILD=1)"
 else
   "$ROOT_DIR/scripts/test-live-build-docker.sh"
 fi
@@ -344,20 +344,20 @@ fi
 echo "==> External auth dirs: ${AUTH_DIRS_CSV:-none}"
 echo "==> External auth files: ${AUTH_FILES_CSV:-none}"
 DOCKER_AUTH_ENV=(
-  -e ASSISTANT_LIVE_CLI_BACKEND_AUTH="$CLI_AUTH_MODE"
+  -e ZHUSHOU_LIVE_CLI_BACKEND_AUTH="$CLI_AUTH_MODE"
 )
 if [[ "$CLI_PROVIDER" == "claude-cli" && "$CLI_AUTH_MODE" == "subscription" ]]; then
   DOCKER_AUTH_ENV+=(
     -e CLAUDE_CODE_OAUTH_TOKEN="${CLAUDE_CODE_OAUTH_TOKEN:-}"
-    -e ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV="$ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV"
+    -e ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV="$ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV"
   )
 else
   DOCKER_AUTH_ENV+=(
     -e ANTHROPIC_API_KEY
     -e ANTHROPIC_API_KEY_OLD
-    -e ASSISTANT_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}"
-    -e ASSISTANT_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY_OLD="${ANTHROPIC_API_KEY_OLD:-}"
-    -e ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV="${ASSISTANT_LIVE_CLI_BACKEND_PRESERVE_ENV:-}"
+    -e ZHUSHOU_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}"
+    -e ZHUSHOU_LIVE_CLI_BACKEND_ANTHROPIC_API_KEY_OLD="${ANTHROPIC_API_KEY_OLD:-}"
+    -e ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV="${ZHUSHOU_LIVE_CLI_BACKEND_PRESERVE_ENV:-}"
   )
 fi
 
@@ -367,33 +367,33 @@ docker run --rm -t \
   -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
   -e HOME=/home/node \
   -e NODE_OPTIONS=--disable-warning=ExperimentalWarning \
-  -e ASSISTANT_SKIP_CHANNELS=1 \
-  -e ASSISTANT_VITEST_FS_MODULE_CACHE=0 \
-  -e ASSISTANT_DOCKER_AUTH_DIRS_RESOLVED="$AUTH_DIRS_CSV" \
-  -e ASSISTANT_DOCKER_AUTH_FILES_RESOLVED="$AUTH_FILES_CSV" \
-  -e ASSISTANT_DOCKER_CLI_BACKEND_PROVIDER="$CLI_PROVIDER" \
-  -e ASSISTANT_DOCKER_CLI_BACKEND_COMMAND_DEFAULT="$CLI_DEFAULT_COMMAND" \
-  -e ASSISTANT_DOCKER_CLI_BACKEND_NPM_PACKAGE="$CLI_DOCKER_NPM_PACKAGE" \
-  -e ASSISTANT_DOCKER_CLI_BACKEND_BINARY_NAME="$CLI_DOCKER_BINARY_NAME" \
-  -e ASSISTANT_LIVE_TEST=1 \
-  -e ASSISTANT_LIVE_CLI_BACKEND=1 \
-  -e ASSISTANT_LIVE_CLI_BACKEND_DEBUG="${ASSISTANT_LIVE_CLI_BACKEND_DEBUG:-}" \
-  -e ASSISTANT_CLI_BACKEND_LOG_OUTPUT="${ASSISTANT_CLI_BACKEND_LOG_OUTPUT:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_MODEL="$CLI_MODEL" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_COMMAND="${ASSISTANT_LIVE_CLI_BACKEND_COMMAND:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_ARGS="${ASSISTANT_LIVE_CLI_BACKEND_ARGS:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_CLEAR_ENV="${ASSISTANT_LIVE_CLI_BACKEND_CLEAR_ENV:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_DISABLE_MCP_CONFIG="$CLI_DISABLE_MCP_CONFIG" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_RESUME_PROBE="${ASSISTANT_LIVE_CLI_BACKEND_RESUME_PROBE:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE="${ASSISTANT_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_IMAGE_PROBE="${ASSISTANT_LIVE_CLI_BACKEND_IMAGE_PROBE:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_MCP_PROBE="${ASSISTANT_LIVE_CLI_BACKEND_MCP_PROBE:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_IMAGE_ARG="${ASSISTANT_LIVE_CLI_BACKEND_IMAGE_ARG:-}" \
-  -e ASSISTANT_LIVE_CLI_BACKEND_IMAGE_MODE="${ASSISTANT_LIVE_CLI_BACKEND_IMAGE_MODE:-}" \
+  -e ZHUSHOU_SKIP_CHANNELS=1 \
+  -e ZHUSHOU_VITEST_FS_MODULE_CACHE=0 \
+  -e ZHUSHOU_DOCKER_AUTH_DIRS_RESOLVED="$AUTH_DIRS_CSV" \
+  -e ZHUSHOU_DOCKER_AUTH_FILES_RESOLVED="$AUTH_FILES_CSV" \
+  -e ZHUSHOU_DOCKER_CLI_BACKEND_PROVIDER="$CLI_PROVIDER" \
+  -e ZHUSHOU_DOCKER_CLI_BACKEND_COMMAND_DEFAULT="$CLI_DEFAULT_COMMAND" \
+  -e ZHUSHOU_DOCKER_CLI_BACKEND_NPM_PACKAGE="$CLI_DOCKER_NPM_PACKAGE" \
+  -e ZHUSHOU_DOCKER_CLI_BACKEND_BINARY_NAME="$CLI_DOCKER_BINARY_NAME" \
+  -e ZHUSHOU_LIVE_TEST=1 \
+  -e ZHUSHOU_LIVE_CLI_BACKEND=1 \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_DEBUG="${ZHUSHOU_LIVE_CLI_BACKEND_DEBUG:-}" \
+  -e ZHUSHOU_CLI_BACKEND_LOG_OUTPUT="${ZHUSHOU_CLI_BACKEND_LOG_OUTPUT:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_MODEL="$CLI_MODEL" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_COMMAND="${ZHUSHOU_LIVE_CLI_BACKEND_COMMAND:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_ARGS="${ZHUSHOU_LIVE_CLI_BACKEND_ARGS:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_CLEAR_ENV="${ZHUSHOU_LIVE_CLI_BACKEND_CLEAR_ENV:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_DISABLE_MCP_CONFIG="$CLI_DISABLE_MCP_CONFIG" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_RESUME_PROBE="${ZHUSHOU_LIVE_CLI_BACKEND_RESUME_PROBE:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE="${ZHUSHOU_LIVE_CLI_BACKEND_MODEL_SWITCH_PROBE:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_PROBE="${ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_PROBE:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_MCP_PROBE="${ZHUSHOU_LIVE_CLI_BACKEND_MCP_PROBE:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_ARG="${ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_ARG:-}" \
+  -e ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_MODE="${ZHUSHOU_LIVE_CLI_BACKEND_IMAGE_MODE:-}" \
   -v "$CACHE_HOME_DIR":/home/node/.cache \
   -v "$ROOT_DIR":/src:ro \
-  -v "$CONFIG_DIR":/home/node/.assistant \
-  -v "$WORKSPACE_DIR":/home/node/.assistant/workspace \
+  -v "$CONFIG_DIR":/home/node/.zhushou \
+  -v "$WORKSPACE_DIR":/home/node/.zhushou/workspace \
   -v "$CLI_TOOLS_DIR":/home/node/.npm-global \
   "${EXTERNAL_AUTH_MOUNTS[@]}" \
   "${DOCKER_AUTH_ENV[@]}" \

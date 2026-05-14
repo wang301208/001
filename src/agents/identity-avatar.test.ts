@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { AVATAR_MAX_BYTES } from "../shared/avatar-policy.js";
 import { resolveAgentAvatar } from "./identity-avatar.js";
 
@@ -12,7 +12,7 @@ async function writeFile(filePath: string, contents = "avatar") {
 }
 
 async function expectLocalAvatarPath(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   workspace: string,
   expectedRelativePath: string,
   opts?: Parameters<typeof resolveAgentAvatar>[2],
@@ -29,7 +29,7 @@ async function expectLocalAvatarPath(
 const tempRoots: string[] = [];
 
 async function createTempAvatarRoot() {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-avatar-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-avatar-"));
   tempRoots.push(root);
   return root;
 }
@@ -49,7 +49,7 @@ describe("resolveAgentAvatar", () => {
     const avatarPath = path.join(workspace, "avatars", "main.png");
     await writeFile(avatarPath);
 
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         list: [
           {
@@ -71,7 +71,7 @@ describe("resolveAgentAvatar", () => {
     const outsidePath = path.join(root, "outside.png");
     await writeFile(outsidePath);
 
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         list: [
           {
@@ -102,7 +102,7 @@ describe("resolveAgentAvatar", () => {
       "utf-8",
     );
 
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         list: [{ id: "main", workspace }],
       },
@@ -116,7 +116,7 @@ describe("resolveAgentAvatar", () => {
     const workspace = path.join(root, "work");
     await fs.mkdir(workspace, { recursive: true });
 
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         list: [{ id: "main", workspace, identity: { avatar: "avatars/missing.png" } }],
       },
@@ -136,7 +136,7 @@ describe("resolveAgentAvatar", () => {
     await fs.mkdir(path.dirname(avatarPath), { recursive: true });
     await fs.writeFile(avatarPath, Buffer.alloc(AVATAR_MAX_BYTES + 1));
 
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         list: [{ id: "main", workspace, identity: { avatar: "avatars/too-big.png" } }],
       },
@@ -150,7 +150,7 @@ describe("resolveAgentAvatar", () => {
   });
 
   it("accepts remote and data avatars", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       agents: {
         list: [
           { id: "main", identity: { avatar: "https://example.com/avatar.png" } },
@@ -166,21 +166,21 @@ describe("resolveAgentAvatar", () => {
     expect(data.kind).toBe("data");
   });
 
-  it("resolves local avatar from ui.assistant.avatar when no agents.list identity is set", async () => {
+  it("resolves local avatar from ui.zhushou.avatar when no agents.list identity is set", async () => {
     const root = await createTempAvatarRoot();
     const workspace = path.join(root, "work");
     const avatarPath = path.join(workspace, "ui-avatar.png");
     await writeFile(avatarPath);
 
-    const cfg: AssistantConfig = {
-      ui: { assistant: { avatar: "ui-avatar.png" } },
+    const cfg: ZhushouConfig = {
+      ui: { zhushou: { avatar: "ui-avatar.png" } },
       agents: { list: [{ id: "main", workspace }] },
     };
 
     await expectLocalAvatarPath(cfg, workspace, "ui-avatar.png", { includeUiOverride: true });
   });
 
-  it("ui.assistant.avatar ignored without includeUiOverride (outbound callers)", async () => {
+  it("ui.zhushou.avatar ignored without includeUiOverride (outbound callers)", async () => {
     const root = await createTempAvatarRoot();
     const workspace = path.join(root, "work");
     const uiAvatarPath = path.join(workspace, "ui-avatar.png");
@@ -188,8 +188,8 @@ describe("resolveAgentAvatar", () => {
     await writeFile(uiAvatarPath);
     await writeFile(cfgAvatarPath);
 
-    const cfg: AssistantConfig = {
-      ui: { assistant: { avatar: "ui-avatar.png" } },
+    const cfg: ZhushouConfig = {
+      ui: { zhushou: { avatar: "ui-avatar.png" } },
       agents: { list: [{ id: "main", workspace, identity: { avatar: "cfg-avatar.png" } }] },
     };
 
@@ -197,7 +197,7 @@ describe("resolveAgentAvatar", () => {
     await expectLocalAvatarPath(cfg, workspace, "cfg-avatar.png");
   });
 
-  it("ui.assistant.avatar takes priority over agents.list identity.avatar with includeUiOverride", async () => {
+  it("ui.zhushou.avatar takes priority over agents.list identity.avatar with includeUiOverride", async () => {
     const root = await createTempAvatarRoot();
     const workspace = path.join(root, "work");
     const uiAvatarPath = path.join(workspace, "ui-avatar.png");
@@ -205,15 +205,15 @@ describe("resolveAgentAvatar", () => {
     await writeFile(uiAvatarPath);
     await writeFile(cfgAvatarPath);
 
-    const cfg: AssistantConfig = {
-      ui: { assistant: { avatar: "ui-avatar.png" } },
+    const cfg: ZhushouConfig = {
+      ui: { zhushou: { avatar: "ui-avatar.png" } },
       agents: { list: [{ id: "main", workspace, identity: { avatar: "cfg-avatar.png" } }] },
     };
 
     await expectLocalAvatarPath(cfg, workspace, "ui-avatar.png", { includeUiOverride: true });
   });
 
-  it("ui.assistant.avatar takes priority over IDENTITY.md avatar with includeUiOverride", async () => {
+  it("ui.zhushou.avatar takes priority over IDENTITY.md avatar with includeUiOverride", async () => {
     const root = await createTempAvatarRoot();
     const workspace = path.join(root, "work");
     const uiAvatarPath = path.join(workspace, "ui-avatar.png");
@@ -226,8 +226,8 @@ describe("resolveAgentAvatar", () => {
       "utf-8",
     );
 
-    const cfg: AssistantConfig = {
-      ui: { assistant: { avatar: "ui-avatar.png" } },
+    const cfg: ZhushouConfig = {
+      ui: { zhushou: { avatar: "ui-avatar.png" } },
       agents: { list: [{ id: "main", workspace }] },
     };
 

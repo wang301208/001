@@ -82,7 +82,7 @@ describe("legacy config detection", () => {
         list: [
           {
             id: "work",
-            workspace: "~/assistant-work",
+            workspace: "~/zhushou-work",
             tools: {
               elevated: {
                 enabled: false,

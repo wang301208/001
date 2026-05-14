@@ -37,9 +37,9 @@ export type SessionLockInspection = {
 
 const CLEANUP_SIGNALS = ["SIGINT", "SIGTERM", "SIGQUIT", "SIGABRT"] as const;
 type CleanupSignal = (typeof CLEANUP_SIGNALS)[number];
-const CLEANUP_STATE_KEY = Symbol.for("assistant.sessionWriteLockCleanupState");
-const HELD_LOCKS_KEY = Symbol.for("assistant.sessionWriteLockHeldLocks");
-const WATCHDOG_STATE_KEY = Symbol.for("assistant.sessionWriteLockWatchdogState");
+const CLEANUP_STATE_KEY = Symbol.for("zhushou.sessionWriteLockCleanupState");
+const HELD_LOCKS_KEY = Symbol.for("zhushou.sessionWriteLockHeldLocks");
+const WATCHDOG_STATE_KEY = Symbol.for("zhushou.sessionWriteLockWatchdogState");
 
 const DEFAULT_STALE_MS = 30 * 60 * 1000;
 const DEFAULT_MAX_HOLD_MS = 5 * 60 * 1000;

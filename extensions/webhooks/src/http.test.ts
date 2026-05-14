@@ -3,7 +3,7 @@ import type { IncomingMessage } from "node:http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createMockServerResponse } from "../../../test/helpers/plugins/mock-http-response.js";
 import { createRuntimeTaskFlow } from "../../../test/helpers/plugins/runtime-taskflow.js";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { createTaskFlowWebhookRequestHandler, type TaskFlowWebhookTarget } from "./http.js";
 
 const hoisted = vi.hoisted(() => {
@@ -62,7 +62,7 @@ function createJsonRequest(params: {
   req.url = params.path;
   req.headers = {
     "content-type": "application/json",
-    ...(params.secret ? { "x-assistant-webhook-secret": params.secret } : {}),
+    ...(params.secret ? { "x-zhushou-webhook-secret": params.secret } : {}),
   };
   req.socket = { remoteAddress: "127.0.0.1" } as MockIncomingMessage["socket"];
   req.destroyed = false;
@@ -100,7 +100,7 @@ function createHandler(): {
   const targetsByPath = new Map<string, TaskFlowWebhookTarget[]>([[target.path, [target]]]);
   return {
     handler: createTaskFlowWebhookRequestHandler({
-      cfg: {} as AssistantConfig,
+      cfg: {} as ZhushouConfig,
       targetsByPath,
     }),
     target,
@@ -110,7 +110,7 @@ function createHandler(): {
 
 function createHandlerWithTarget(
   target: TaskFlowWebhookTarget,
-  cfg: AssistantConfig = {} as AssistantConfig,
+  cfg: ZhushouConfig = {} as ZhushouConfig,
 ): ReturnType<typeof createTaskFlowWebhookRequestHandler> {
   const targetsByPath = new Map<string, TaskFlowWebhookTarget[]>([[target.path, [target]]]);
   return createTaskFlowWebhookRequestHandler({
@@ -168,7 +168,7 @@ describe("createTaskFlowWebhookRequestHandler", () => {
       secretInput: {
         source: "env",
         provider: "default",
-        id: "ASSISTANT_WEBHOOK_SECRET",
+        id: "ZHUSHOU_WEBHOOK_SECRET",
       },
       secretConfigPath: "plugins.entries.webhooks.routes.cached.secret",
       defaultControllerId: "webhooks/cached",

@@ -20,7 +20,7 @@ const runtimeStub = {
     resizeToJpeg: async () => Buffer.from(""),
   },
   state: {
-    resolveStateDir: () => "/tmp/assistant-matrix-test",
+    resolveStateDir: () => "/tmp/zhushou-matrix-test",
   },
   channel: {
     text: {
@@ -130,7 +130,7 @@ describe("matrixMessageActions", () => {
       cfg: {
         channels: {
           matrix: {
-            defaultAccount: "assistant",
+            defaultAccount: "zhushou",
             actions: {
               messages: true,
               reactions: true,
@@ -141,7 +141,7 @@ describe("matrixMessageActions", () => {
               verification: true,
             },
             accounts: {
-              assistant: {
+              zhushou: {
                 homeserver: "https://matrix.example.org",
                 userId: "@bot:example.org",
                 accessToken: "token",
@@ -175,9 +175,9 @@ describe("matrixMessageActions", () => {
         channels: {
           matrix: {
             accounts: {
-              assistant: {
+              zhushou: {
                 homeserver: "https://matrix.example.org",
-                accessToken: "assistant-token",
+                accessToken: "zhushou-token",
               },
               ops: {
                 homeserver: "https://matrix.example.org",
@@ -200,12 +200,12 @@ describe("matrixMessageActions", () => {
     const cfg = {
       channels: {
         matrix: {
-          defaultAccount: "assistant",
+          defaultAccount: "zhushou",
           accounts: {
-            assistant: {
+            zhushou: {
               homeserver: "https://matrix.example.org",
-              userId: "@assistant:example.org",
-              accessToken: "assistant-token",
+              userId: "@zhushou:example.org",
+              accessToken: "zhushou-token",
               actions: {
                 messages: true,
                 reactions: false,
@@ -230,24 +230,24 @@ describe("matrixMessageActions", () => {
       throw new Error("matrix message action discovery is unavailable");
     }
 
-    const assistantDiscovery = describeMessageTool({
+    const zhushouDiscovery = describeMessageTool({
       cfg,
-      accountId: "assistant",
+      accountId: "zhushou",
     } as never);
     const opsDiscovery = describeMessageTool({
       cfg,
       accountId: "ops",
     } as never);
 
-    if (!assistantDiscovery || !opsDiscovery) {
+    if (!zhushouDiscovery || !opsDiscovery) {
       throw new Error("matrix action discovery returned null");
     }
 
-    const assistantActions = assistantDiscovery.actions;
+    const zhushouActions = zhushouDiscovery.actions;
     const opsActions = opsDiscovery.actions;
 
-    expect(assistantActions).not.toContain("react");
-    expect(assistantActions).not.toContain("reactions");
+    expect(zhushouActions).not.toContain("react");
+    expect(zhushouActions).not.toContain("reactions");
     expect(opsActions).toContain("react");
     expect(opsActions).toContain("reactions");
   });

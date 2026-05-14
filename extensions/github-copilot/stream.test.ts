@@ -1,4 +1,4 @@
-import { buildCopilotDynamicHeaders } from "assistant/plugin-sdk/provider-stream-shared";
+import { buildCopilotDynamicHeaders } from "zhushou/plugin-sdk/provider-stream-shared";
 import { describe, expect, it, vi } from "vitest";
 import { wrapCopilotAnthropicStream, wrapCopilotProviderStream } from "./stream.js";
 

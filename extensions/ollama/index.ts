@@ -1,17 +1,17 @@
 import {
   definePluginEntry,
-  type AssistantPluginApi,
+  type ZhushouPluginApi,
   type ProviderAuthContext,
   type ProviderAuthMethodNonInteractiveContext,
   type ProviderAuthResult,
   type ProviderDiscoveryContext,
-} from "assistant/plugin-sdk/plugin-entry";
-import { buildApiKeyCredential } from "assistant/plugin-sdk/provider-auth";
+} from "zhushou/plugin-sdk/plugin-entry";
+import { buildApiKeyCredential } from "zhushou/plugin-sdk/provider-auth";
 import {
   OPENAI_COMPATIBLE_REPLAY_HOOKS,
   type ModelProviderConfig,
-} from "assistant/plugin-sdk/provider-model-shared";
-import { normalizeOptionalString, readStringValue } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-model-shared";
+import { normalizeOptionalString, readStringValue } from "zhushou/plugin-sdk/text-runtime";
 import {
   buildOllamaProvider,
   configureOllamaNonInteractive,
@@ -97,7 +97,7 @@ export default definePluginEntry({
   id: "ollama",
   name: "Ollama Provider",
   description: "Bundled Ollama provider plugin",
-  register(api: AssistantPluginApi) {
+  register(api: ZhushouPluginApi) {
     api.registerMemoryEmbeddingProvider(ollamaMemoryEmbeddingProviderAdapter);
     const pluginConfig = (api.pluginConfig ?? {}) as OllamaPluginConfig;
     api.registerWebSearchProvider(createOllamaWebSearchProvider());
@@ -278,8 +278,8 @@ export default definePluginEntry({
         resolvedApiKey?.trim() === DEFAULT_API_KEY,
       buildUnknownModelHint: () =>
         "Ollama requires authentication to be registered as a provider. " +
-        'Set OLLAMA_API_KEY="ollama-local" (any value works) or run "assistant configure". ' +
-        "See: https://docs.assistant.ai/providers/ollama",
+        'Set OLLAMA_API_KEY="ollama-local" (any value works) or run "zhushou configure". ' +
+        "See: https://docs.zhushou.ai/providers/ollama",
     });
   },
 });

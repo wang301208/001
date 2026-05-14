@@ -1,7 +1,7 @@
 ﻿import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { vi } from "vitest";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import type { monitorFeishuProvider } from "./monitor.js";
 
 const WEBHOOK_READY_MAX_ATTEMPTS = 200;
@@ -40,7 +40,7 @@ export function buildWebhookConfig(params: {
   port: number;
   verificationToken?: string;
   encryptKey?: string;
-}): AssistantConfig {
+}): ZhushouConfig {
   return {
     channels: {
       feishu: {
@@ -60,7 +60,7 @@ export function buildWebhookConfig(params: {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 export async function withRunningWebhookMonitor(

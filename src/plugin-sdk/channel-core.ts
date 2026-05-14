@@ -1,8 +1,8 @@
 export type {
   ChannelConfigUiHint,
   ChannelPlugin,
-  AssistantConfig,
-  AssistantPluginApi,
+  ZhushouConfig,
+  ZhushouPluginApi,
   PluginCommandContext,
   PluginRuntime,
   ChannelOutboundSessionRouteParams,

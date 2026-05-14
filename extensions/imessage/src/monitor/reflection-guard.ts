@@ -1,13 +1,13 @@
 /**
- * Detects inbound messages that are reflections of assistant-originated content.
+ * Detects inbound messages that are reflections of zhushou-originated content.
  * These patterns indicate internal metadata leaked into a channel and then
  * bounced back as a new inbound message — creating an echo loop.
  */
 
-import { findCodeRegions, isInsideCode } from "assistant/plugin-sdk/text-runtime";
+import { findCodeRegions, isInsideCode } from "zhushou/plugin-sdk/text-runtime";
 
 const INTERNAL_SEPARATOR_RE = /(?:#\+){2,}#?/;
-const ASSISTANT_ROLE_MARKER_RE = /\bassistant\s+to\s*=\s*\w+/i;
+const ZHUSHOU_ROLE_MARKER_RE = /\bzhushou\s+to\s*=\s*\w+/i;
 // Require closing `>` to avoid false-positives on phrases like "<thought experiment>".
 const THINKING_TAG_RE = /<\s*\/?\s*(?:think(?:ing)?|thought|antthinking)\b[^<>]*>/i;
 const RELEVANT_MEMORIES_TAG_RE = /<\s*\/?\s*relevant[-_]memories\b[^<>]*>/i;
@@ -16,7 +16,7 @@ const FINAL_TAG_RE = /<\s*\/?\s*final\b[^<>]*>/i;
 
 const REFLECTION_PATTERNS: Array<{ re: RegExp; label: string }> = [
   { re: INTERNAL_SEPARATOR_RE, label: "internal-separator" },
-  { re: ASSISTANT_ROLE_MARKER_RE, label: "assistant-role-marker" },
+  { re: ZHUSHOU_ROLE_MARKER_RE, label: "zhushou-role-marker" },
   { re: THINKING_TAG_RE, label: "thinking-tag" },
   { re: RELEVANT_MEMORIES_TAG_RE, label: "relevant-memories-tag" },
   { re: FINAL_TAG_RE, label: "final-tag" },
@@ -43,7 +43,7 @@ function hasMatchOutsideCode(text: string, re: RegExp): boolean {
 
 /**
  * Check whether an inbound message appears to be a reflection of
- * assistant-originated content. Returns matched pattern labels for telemetry.
+ * zhushou-originated content. Returns matched pattern labels for telemetry.
  */
 export function detectReflectedContent(text: string): ReflectionDetection {
   if (!text) {

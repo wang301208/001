@@ -9,7 +9,7 @@ import type { SessionEntry } from "../config/sessions.js";
 import { saveSessionStore } from "../config/sessions.js";
 import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
 import type { SessionScope } from "../config/sessions/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   buildAgentMainSessionKey,
@@ -422,7 +422,7 @@ export function resetAutoMigrateLegacyAgentDirForTest() {
 }
 
 async function collectChannelLegacyStateMigrationPlans(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   stateDir: string;
   oauthDir: string;
@@ -445,7 +445,7 @@ async function collectChannelLegacyStateMigrationPlans(params: {
 }
 
 export async function detectLegacyStateMigrations(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;
 }): Promise<LegacyStateDetection> {
@@ -735,7 +735,7 @@ export async function runLegacyStateMigrations(params: {
 }
 
 export async function autoMigrateLegacyAgentDir(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;
   log?: MigrationLogger;
@@ -761,7 +761,7 @@ export async function autoMigrateLegacyAgentDir(params: {
  * Safe to run multiple times (idempotent). See #29683.
  */
 export async function migrateOrphanedSessionKeys(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ changes: string[]; warnings: string[] }> {
   const changes: string[] = [];
@@ -890,7 +890,7 @@ function resolveStorePathFromTemplate(
 }
 
 export async function autoMigrateLegacyState(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;
   log?: MigrationLogger;
@@ -930,7 +930,7 @@ export async function autoMigrateLegacyState(params: {
     }
   };
 
-  if (env.ASSISTANT_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim()) {
+  if (env.ZHUSHOU_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim()) {
     const changes = [...orphanKeys.changes];
     const warnings = [...orphanKeys.warnings];
     logMigrationResults(changes, warnings);

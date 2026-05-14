@@ -1,4 +1,4 @@
-import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
+import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
 
 export function normalizeSlackToken(raw?: unknown): string | undefined {
   return normalizeResolvedSecretInputString({

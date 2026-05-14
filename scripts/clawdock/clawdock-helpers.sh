@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# ClawDock - Docker helpers for Assistant
-# Inspired by Simon Willison's "Running Assistant in Docker"
-# https://til.simonwillison.net/llms/assistant-docker
+# ClawDock - Docker helpers for Zhushou
+# Inspired by Simon Willison's "Running Zhushou in Docker"
+# https://til.simonwillison.net/llms/zhushou-docker
 #
 # Installation:
-#   mkdir -p ~/.clawdock && curl -sL https://raw.githubusercontent.com/assistant/assistant/main/scripts/clawdock/clawdock-helpers.sh -o ~/.clawdock/clawdock-helpers.sh
+#   mkdir -p ~/.clawdock && curl -sL https://raw.githubusercontent.com/wang301208/zhushou/main/scripts/clawdock/clawdock-helpers.sh -o ~/.clawdock/clawdock-helpers.sh
 #   echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc
 #
 # Usage:
@@ -38,14 +38,14 @@ _cmd() {
 # =============================================================================
 CLAWDOCK_CONFIG="${HOME}/.clawdock/config"
 
-# Common paths to check for Assistant
+# Common paths to check for Zhushou
 CLAWDOCK_COMMON_PATHS=(
-  "${HOME}/assistant"
-  "${HOME}/workspace/assistant"
-  "${HOME}/projects/assistant"
-  "${HOME}/dev/assistant"
-  "${HOME}/code/assistant"
-  "${HOME}/src/assistant"
+  "${HOME}/zhushou"
+  "${HOME}/workspace/zhushou"
+  "${HOME}/projects/zhushou"
+  "${HOME}/dev/zhushou"
+  "${HOME}/code/zhushou"
+  "${HOME}/src/zhushou"
 )
 
 _clawdock_filter_warnings() {
@@ -111,28 +111,28 @@ _clawdock_ensure_dir() {
 
   if [[ -n "$found_path" ]]; then
     echo ""
-    echo "🦞 Found Assistant at: $found_path"
+    echo "🦞 Found Zhushou at: $found_path"
     echo -n "   Use this location? [Y/n] "
     read -r response
     if [[ "$response" =~ ^[Nn] ]]; then
       echo ""
       echo "Set CLAWDOCK_DIR manually:"
-      echo "  export CLAWDOCK_DIR=/path/to/assistant"
+      echo "  export CLAWDOCK_DIR=/path/to/zhushou"
       return 1
     fi
     CLAWDOCK_DIR="$found_path"
   else
     echo ""
-    echo "❌ Assistant not found in common locations."
+    echo "❌ Zhushou not found in common locations."
     echo ""
     echo "Clone it first:"
     echo ""
-    echo "  git clone https://github.com/assistant/assistant.git ~/assistant"
-    echo "  cd ~/assistant && ./scripts/docker/setup.sh"
+    echo "  git clone https://github.com/wang301208/zhushou.git ~/zhushou"
+    echo "  cd ~/zhushou && ./scripts/docker/setup.sh"
     echo ""
     echo "Or set CLAWDOCK_DIR if it's elsewhere:"
     echo ""
-    echo "  export CLAWDOCK_DIR=/path/to/assistant"
+    echo "  export CLAWDOCK_DIR=/path/to/zhushou"
     echo ""
     return 1
   fi
@@ -163,7 +163,7 @@ _clawdock_read_env_token() {
     return 1
   fi
   local raw
-  raw=$(sed -n 's/^ASSISTANT_GATEWAY_TOKEN=//p' "${CLAWDOCK_DIR}/.env" | head -n 1)
+  raw=$(sed -n 's/^ZHUSHOU_GATEWAY_TOKEN=//p' "${CLAWDOCK_DIR}/.env" | head -n 1)
   if [[ -z "$raw" ]]; then
     return 1
   fi
@@ -172,7 +172,7 @@ _clawdock_read_env_token() {
 
 # Basic Operations
 clawdock-start() {
-  _clawdock_compose up -d assistant-gateway
+  _clawdock_compose up -d zhushou-gateway
 }
 
 clawdock-stop() {
@@ -180,11 +180,11 @@ clawdock-stop() {
 }
 
 clawdock-restart() {
-  _clawdock_compose restart assistant-gateway
+  _clawdock_compose restart zhushou-gateway
 }
 
 clawdock-logs() {
-  _clawdock_compose logs -f assistant-gateway
+  _clawdock_compose logs -f zhushou-gateway
 }
 
 clawdock-status() {
@@ -198,21 +198,21 @@ clawdock-cd() {
 }
 
 clawdock-config() {
-  cd ~/.assistant
+  cd ~/.zhushou
 }
 
 clawdock-show-config() {
   _clawdock_ensure_dir >/dev/null 2>&1 || true
-  local config_dir="${HOME}/.assistant"
+  local config_dir="${HOME}/.zhushou"
   echo -e "${_CLR_BOLD}Config directory:${_CLR_RESET} ${_CLR_CYAN}${config_dir}${_CLR_RESET}"
   echo ""
 
-  # Show assistant.json
-  if [[ -f "${config_dir}/assistant.json" ]]; then
-    echo -e "${_CLR_BOLD}${config_dir}/assistant.json${_CLR_RESET}"
-    echo -e "${_CLR_DIM}$(cat "${config_dir}/assistant.json")${_CLR_RESET}"
+  # Show zhushou.json
+  if [[ -f "${config_dir}/zhushou.json" ]]; then
+    echo -e "${_CLR_BOLD}${config_dir}/zhushou.json${_CLR_RESET}"
+    echo -e "${_CLR_DIM}$(cat "${config_dir}/zhushou.json")${_CLR_RESET}"
   else
-    echo -e "${_CLR_YELLOW}No assistant.json found${_CLR_RESET}"
+    echo -e "${_CLR_YELLOW}No zhushou.json found${_CLR_RESET}"
   fi
   echo ""
 
@@ -254,28 +254,28 @@ clawdock-show-config() {
 }
 
 clawdock-workspace() {
-  cd ~/.assistant/workspace
+  cd ~/.zhushou/workspace
 }
 
 # Container Access
 clawdock-shell() {
-  _clawdock_compose exec assistant-gateway \
-    bash -c 'echo "alias assistant=\"./assistant.mjs\"" > /tmp/.bashrc_assistant && bash --rcfile /tmp/.bashrc_assistant'
+  _clawdock_compose exec zhushou-gateway \
+    bash -c 'echo "alias zhushou=\"./zhushou.mjs\"" > /tmp/.bashrc_zhushou && bash --rcfile /tmp/.bashrc_zhushou'
 }
 
 clawdock-exec() {
-  _clawdock_compose exec assistant-gateway "$@"
+  _clawdock_compose exec zhushou-gateway "$@"
 }
 
 clawdock-cli() {
-  _clawdock_compose run --rm assistant-cli "$@"
+  _clawdock_compose run --rm zhushou-cli "$@"
 }
 
 # Maintenance
 clawdock-update() {
   _clawdock_ensure_dir || return 1
 
-  echo "🔄 Updating Assistant..."
+  echo "🔄 Updating Zhushou..."
 
   echo ""
   echo "📥 Pulling latest source..."
@@ -283,12 +283,12 @@ clawdock-update() {
 
   echo ""
   echo "🔨 Rebuilding Docker image (this may take a few minutes)..."
-  _clawdock_compose build assistant-gateway || { echo "❌ Build failed"; return 1; }
+  _clawdock_compose build zhushou-gateway || { echo "❌ Build failed"; return 1; }
 
   echo ""
   echo "♻️  Recreating container with new image..."
   _clawdock_compose down 2>&1 | _clawdock_filter_warnings
-  _clawdock_compose up -d assistant-gateway 2>&1 | _clawdock_filter_warnings
+  _clawdock_compose up -d zhushou-gateway 2>&1 | _clawdock_filter_warnings
 
   echo ""
   echo "⏳ Waiting for gateway to start..."
@@ -299,7 +299,7 @@ clawdock-update() {
 }
 
 clawdock-rebuild() {
-  _clawdock_compose build assistant-gateway
+  _clawdock_compose build zhushou-gateway
 }
 
 clawdock-clean() {
@@ -316,7 +316,7 @@ clawdock-health() {
     echo "   Check: ${CLAWDOCK_DIR}/.env"
     return 1
   fi
-  _clawdock_compose exec -e "ASSISTANT_GATEWAY_TOKEN=$token" assistant-gateway \
+  _clawdock_compose exec -e "ZHUSHOU_GATEWAY_TOKEN=$token" zhushou-gateway \
     node dist/index.js health
 }
 
@@ -340,13 +340,13 @@ clawdock-fix-token() {
 
   echo "📝 Setting token: ${token:0:20}..."
 
-  _clawdock_compose exec -e "TOKEN=$token" assistant-gateway \
-    bash -c './assistant.mjs config set gateway.remote.token "$TOKEN" && ./assistant.mjs config set gateway.auth.token "$TOKEN"' 2>&1 | _clawdock_filter_warnings
+  _clawdock_compose exec -e "TOKEN=$token" zhushou-gateway \
+    bash -c './zhushou.mjs config set gateway.remote.token "$TOKEN" && ./zhushou.mjs config set gateway.auth.token "$TOKEN"' 2>&1 | _clawdock_filter_warnings
 
   echo "🔍 Verifying token was saved..."
   local saved_token
-  saved_token=$(_clawdock_compose exec assistant-gateway \
-    bash -c "./assistant.mjs config get gateway.remote.token 2>/dev/null" 2>&1 | _clawdock_filter_warnings | tr -d '\r\n' | head -c 64)
+  saved_token=$(_clawdock_compose exec zhushou-gateway \
+    bash -c "./zhushou.mjs config get gateway.remote.token 2>/dev/null" 2>&1 | _clawdock_filter_warnings | tr -d '\r\n' | head -c 64)
 
   if [[ "$saved_token" == "$token" ]]; then
     echo "✅ Token saved correctly!"
@@ -357,7 +357,7 @@ clawdock-fix-token() {
   fi
 
   echo "🔄 Restarting gateway..."
-  _clawdock_compose restart assistant-gateway 2>&1 | _clawdock_filter_warnings
+  _clawdock_compose restart zhushou-gateway 2>&1 | _clawdock_filter_warnings
 
   echo "⏳ Waiting for gateway to start..."
   sleep 5
@@ -372,7 +372,7 @@ clawdock-tui() {
 
   echo "🦞 Starting terminal UI..."
   local output exit_status
-  output=$(_clawdock_compose run --rm assistant-cli tui 2>&1)
+  output=$(_clawdock_compose run --rm zhushou-cli tui 2>&1)
   exit_status=$?
   if [[ $exit_status -ne 0 ]]; then
     echo "❌ Failed to start terminal UI"
@@ -390,7 +390,7 @@ clawdock-devices() {
 
   echo "🔍 Checking device pairings..."
   local output exit_status
-  output=$(_clawdock_compose exec assistant-gateway node dist/index.js devices list 2>&1)
+  output=$(_clawdock_compose exec zhushou-gateway node dist/index.js devices list 2>&1)
   exit_status=$?
   printf "%s\n" "$output" | _clawdock_filter_warnings
   if [ $exit_status -ne 0 ]; then
@@ -400,7 +400,7 @@ clawdock-devices() {
     echo -e "   2. Try fixing the token automatically: $(_cmd clawdock-fix-token)"
     echo "   3. If you still see errors, try manual config inside container:"
     echo -e "      $(_cmd clawdock-shell)"
-    echo -e "      $(_cmd 'assistant config get gateway.remote.token')"
+    echo -e "      $(_cmd 'zhushou config get gateway.remote.token')"
     return 1
   fi
 
@@ -427,7 +427,7 @@ clawdock-approve() {
   fi
 
   echo "✅ Approving device: $1"
-  _clawdock_compose exec assistant-gateway \
+  _clawdock_compose exec zhushou-gateway \
     node dist/index.js devices approve "$1" 2>&1 | _clawdock_filter_warnings
 
   echo ""
@@ -436,7 +436,7 @@ clawdock-approve() {
 
 # Show all available clawdock helper commands
 clawdock-help() {
-  echo -e "\n${_CLR_BOLD}${_CLR_CYAN}🦞 ClawDock - Docker Helpers for Assistant${_CLR_RESET}\n"
+  echo -e "\n${_CLR_BOLD}${_CLR_CYAN}🦞 ClawDock - Docker Helpers for Zhushou${_CLR_RESET}\n"
 
   echo -e "${_CLR_BOLD}${_CLR_MAGENTA}⚡ Basic Operations${_CLR_RESET}"
   echo -e "  $(_cmd clawdock-start)       ${_CLR_DIM}Start the gateway${_CLR_RESET}"
@@ -447,7 +447,7 @@ clawdock-help() {
   echo ""
 
   echo -e "${_CLR_BOLD}${_CLR_MAGENTA}🐚 Container Access${_CLR_RESET}"
-  echo -e "  $(_cmd clawdock-shell)       ${_CLR_DIM}Shell into container (assistant alias ready)${_CLR_RESET}"
+  echo -e "  $(_cmd clawdock-shell)       ${_CLR_DIM}Shell into container (zhushou alias ready)${_CLR_RESET}"
   echo -e "  $(_cmd clawdock-cli)         ${_CLR_DIM}Run CLI commands (e.g., clawdock-cli status)${_CLR_RESET}"
   echo -e "  $(_cmd clawdock-exec) ${_CLR_CYAN}<cmd>${_CLR_RESET}  ${_CLR_DIM}Execute command in gateway container${_CLR_RESET}"
   echo ""
@@ -471,8 +471,8 @@ clawdock-help() {
   echo -e "${_CLR_BOLD}${_CLR_MAGENTA}🛠️  Utilities${_CLR_RESET}"
   echo -e "  $(_cmd clawdock-health)      ${_CLR_DIM}Run health check${_CLR_RESET}"
   echo -e "  $(_cmd clawdock-token)       ${_CLR_DIM}Show gateway auth token${_CLR_RESET}"
-  echo -e "  $(_cmd clawdock-cd)          ${_CLR_DIM}Jump to assistant project directory${_CLR_RESET}"
-  echo -e "  $(_cmd clawdock-config)      ${_CLR_DIM}Open config directory (~/.assistant)${_CLR_RESET}"
+  echo -e "  $(_cmd clawdock-cd)          ${_CLR_DIM}Jump to zhushou project directory${_CLR_RESET}"
+  echo -e "  $(_cmd clawdock-config)      ${_CLR_DIM}Open config directory (~/.zhushou)${_CLR_RESET}"
   echo -e "  $(_cmd clawdock-show-config) ${_CLR_DIM}Print config files with redacted values${_CLR_RESET}"
   echo -e "  $(_cmd clawdock-workspace)   ${_CLR_DIM}Open workspace directory${_CLR_RESET}"
   echo ""
@@ -488,14 +488,14 @@ clawdock-help() {
 
   echo -e "${_CLR_BOLD}${_CLR_GREEN}💬 WhatsApp Setup${_CLR_RESET}"
   echo -e "  $(_cmd clawdock-shell)"
-  echo -e "    ${_CLR_BLUE}>${_CLR_RESET} $(_cmd 'assistant channels login --channel whatsapp')"
-  echo -e "    ${_CLR_BLUE}>${_CLR_RESET} $(_cmd 'assistant status')"
+  echo -e "    ${_CLR_BLUE}>${_CLR_RESET} $(_cmd 'zhushou channels login --channel whatsapp')"
+  echo -e "    ${_CLR_BLUE}>${_CLR_RESET} $(_cmd 'zhushou status')"
   echo ""
 
   echo -e "${_CLR_BOLD}${_CLR_CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${_CLR_RESET}"
   echo ""
 
   echo -e "${_CLR_CYAN}💡 All commands guide you through next steps!${_CLR_RESET}"
-  echo -e "${_CLR_BLUE}📚 Docs: ${_CLR_RESET}${_CLR_CYAN}https://docs.assistant.ai${_CLR_RESET}"
+  echo -e "${_CLR_BLUE}📚 Docs: ${_CLR_RESET}${_CLR_CYAN}https://docs.zhushou.ai${_CLR_RESET}"
   echo ""
 }

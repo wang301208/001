@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createSubscribedSessionHarness,
-  emitAssistantTextDelta,
-  emitAssistantTextEnd,
-  emitMessageStartAndEndForAssistantText,
+  emitZhushouTextDelta,
+  emitZhushouTextEnd,
+  emitMessageStartAndEndForZhushouText,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 
 const waitForAsyncCallbacks = async () => {
@@ -31,8 +31,8 @@ describe("subscribeEmbeddedPiSession block reply rejections", () => {
       blockReplyBreak: "text_end",
     });
 
-    emitAssistantTextDelta({ emit, delta: "Hello block" });
-    emitAssistantTextEnd({ emit });
+    emitZhushouTextDelta({ emit, delta: "Hello block" });
+    emitZhushouTextEnd({ emit });
     await waitForAsyncCallbacks();
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
@@ -48,7 +48,7 @@ describe("subscribeEmbeddedPiSession block reply rejections", () => {
       blockReplyBreak: "message_end",
     });
 
-    emitMessageStartAndEndForAssistantText({ emit, text: "Hello block" });
+    emitMessageStartAndEndForZhushouText({ emit, text: "Hello block" });
     await waitForAsyncCallbacks();
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);

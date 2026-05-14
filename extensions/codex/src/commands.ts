@@ -1,13 +1,13 @@
 import type {
-  AssistantPluginCommandDefinition,
+  ZhushouPluginCommandDefinition,
   PluginCommandContext,
-} from "assistant/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";
 import { handleCodexSubcommand, type CodexCommandDeps } from "./command-handlers.js";
 
 export function createCodexCommand(options: {
   pluginConfig?: unknown;
   deps?: Partial<CodexCommandDeps>;
-}): AssistantPluginCommandDefinition {
+}): ZhushouPluginCommandDefinition {
   return {
     name: "codex",
     description: "Inspect and control the Codex app-server harness",

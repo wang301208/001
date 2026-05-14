@@ -110,8 +110,8 @@ export type ProviderRequestCapabilities = ProviderRequestPolicyResolution & {
   compatibilityFamily?: ProviderRequestCompatibilityFamily;
 };
 
-const ASSISTANT_ATTRIBUTION_PRODUCT = "助手";
-const ASSISTANT_ATTRIBUTION_ORIGINATOR = "assistant";
+const ZHUSHOU_ATTRIBUTION_PRODUCT = "助手";
+const ZHUSHOU_ATTRIBUTION_ORIGINATOR = "zhushou";
 
 const LOCAL_ENDPOINT_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 const MOONSHOT_NATIVE_BASE_URLS = new Set([
@@ -132,8 +132,8 @@ const OPENAI_RESPONSES_APIS = new Set([
 const OPENAI_RESPONSES_PROVIDERS = new Set(["openai", "azure-openai", "azure-openai-responses"]);
 const MOONSHOT_COMPAT_PROVIDERS = new Set(["moonshot", "kimi"]);
 
-function formatAssistantUserAgent(version: string): string {
-  return `${ASSISTANT_ATTRIBUTION_ORIGINATOR}/${version}`;
+function formatZhushouUserAgent(version: string): string {
+  return `${ZHUSHOU_ATTRIBUTION_ORIGINATOR}/${version}`;
 }
 
 function tryParseHostname(value: string): string | undefined {
@@ -330,7 +330,7 @@ export function resolveProviderAttributionIdentity(
   env: RuntimeVersionEnv = process.env as RuntimeVersionEnv,
 ): ProviderAttributionIdentity {
   return {
-    product: ASSISTANT_ATTRIBUTION_PRODUCT,
+    product: ZHUSHOU_ATTRIBUTION_PRODUCT,
     version: resolveRuntimeServiceVersion(env),
   };
 }
@@ -348,7 +348,7 @@ function buildOpenRouterAttributionPolicy(
     reviewNote: "Documented app attribution headers. Verified in 助手 runtime wrapper.",
     ...identity,
     headers: {
-      "HTTP-Referer": "https://assistant.ai",
+      "HTTP-Referer": "https://zhushou.ai",
       "X-OpenRouter-Title": identity.product,
       "X-OpenRouter-Categories": "cli-agent",
     },
@@ -368,9 +368,9 @@ function buildOpenAIAttributionPolicy(
       "OpenAI native traffic supports hidden originator/User-Agent attribution. Verified against the Codex wire contract.",
     ...identity,
     headers: {
-      originator: ASSISTANT_ATTRIBUTION_ORIGINATOR,
+      originator: ZHUSHOU_ATTRIBUTION_ORIGINATOR,
       version: identity.version,
-      "User-Agent": formatAssistantUserAgent(identity.version),
+      "User-Agent": formatZhushouUserAgent(identity.version),
     },
   };
 }
@@ -388,9 +388,9 @@ function buildOpenAICodexAttributionPolicy(
       "OpenAI Codex ChatGPT-backed traffic supports the same hidden originator/User-Agent attribution contract.",
     ...identity,
     headers: {
-      originator: ASSISTANT_ATTRIBUTION_ORIGINATOR,
+      originator: ZHUSHOU_ATTRIBUTION_ORIGINATOR,
       version: identity.version,
-      "User-Agent": formatAssistantUserAgent(identity.version),
+      "User-Agent": formatZhushouUserAgent(identity.version),
     },
   };
 }

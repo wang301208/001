@@ -2,13 +2,13 @@ import fs from "node:fs/promises";
 import {
   buildEmbeddedAttemptToolRunContext,
   clearActiveEmbeddedRun,
-  createAssistantCodingTools,
+  createZhushouCodingTools,
   embeddedAgentLog,
   isSubagentSessionKey,
   normalizeProviderToolSchemas,
   resolveAttemptSpawnWorkspaceDir,
   resolveModelAuthMode,
-  resolveAssistantAgentDir,
+  resolveZhushouAgentDir,
   resolveSandboxContext,
   resolveSessionAgentIds,
   resolveUserPath,
@@ -16,7 +16,7 @@ import {
   supportsModelTools,
   type EmbeddedRunAttemptParams,
   type EmbeddedRunAttemptResult,
-} from "assistant/plugin-sdk/agent-harness";
+} from "zhushou/plugin-sdk/agent-harness";
 import { handleCodexAppServerApprovalRequest } from "./approval-bridge.js";
 import { isCodexAppServerApprovalRequest, type CodexAppServerClient } from "./client.js";
 import { resolveCodexAppServerRuntimeOptions, type CodexAppServerStartOptions } from "./config.js";
@@ -295,8 +295,8 @@ async function buildDynamicTools(input: DynamicToolBuildParams) {
     return [];
   }
   const modelHasVision = params.model.input?.includes("image") ?? false;
-  const agentDir = params.agentDir ?? resolveAssistantAgentDir();
-  const allTools = createAssistantCodingTools({
+  const agentDir = params.agentDir ?? resolveZhushouAgentDir();
+  const allTools = createZhushouCodingTools({
     agentId: input.sessionAgentId,
     ...buildEmbeddedAttemptToolRunContext(params),
     exec: {

@@ -26,9 +26,9 @@ const slackBlockTestState = vi.hoisted(() => ({
   config: {},
 }));
 
-vi.mock("assistant/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/config-runtime")>(
-    "assistant/plugin-sdk/config-runtime",
+vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
+    "zhushou/plugin-sdk/config-runtime",
   );
   return {
     ...actual,

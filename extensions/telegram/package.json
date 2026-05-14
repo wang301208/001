@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/telegram",
+  "name": "@zhushou/telegram",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 Telegram channel plugin",
@@ -10,9 +10,9 @@
     "grammy": "^1.42.0"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -29,7 +29,7 @@
       "selectionDocsPrefix": "",
       "selectionDocsOmitLabel": true,
       "selectionExtras": [
-        "https://assistant.ai"
+        "https://zhushou.ai"
       ],
       "markdownCapable": true,
       "configuredState": {

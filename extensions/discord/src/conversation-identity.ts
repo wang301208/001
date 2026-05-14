@@ -1,7 +1,7 @@
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { parseDiscordTarget } from "./target-parsing.js";
 
 function normalizeDiscordTarget(

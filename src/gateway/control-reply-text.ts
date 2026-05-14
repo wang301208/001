@@ -35,7 +35,7 @@ export function isSuppressedControlReplyText(text: string): boolean {
 }
 
 /**
- * Return true when streamed assistant text looks like the leading fragment of a control token.
+ * Return true when streamed zhushou text looks like the leading fragment of a control token.
  */
 export function isSuppressedControlReplyLeadFragment(text: string): boolean {
   const trimmed = text.trim();

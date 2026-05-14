@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-NS="${ASSISTANT_NAMESPACE:-assistant}"
-APP="${ASSISTANT_APP_LABEL:-assistant}"
-OUT_DIR="${ASSISTANT_DEPLOY_FEEDBACK_DIR:-.artifacts/deploy-feedback}"
-GATEWAY_PORT="${ASSISTANT_GATEWAY_PORT:-3000}"
+NS="${ZHUSHOU_NAMESPACE:-zhushou}"
+APP="${ZHUSHOU_APP_LABEL:-zhushou}"
+OUT_DIR="${ZHUSHOU_DEPLOY_FEEDBACK_DIR:-.artifacts/deploy-feedback}"
+GATEWAY_PORT="${ZHUSHOU_GATEWAY_PORT:-3000}"
 
 mkdir -p "$OUT_DIR"
 

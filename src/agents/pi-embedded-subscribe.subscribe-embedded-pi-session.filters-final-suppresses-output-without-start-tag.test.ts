@@ -2,8 +2,8 @@ import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
 import {
   createStubSessionHarness,
-  emitAssistantTextDelta,
-  emitMessageStartAndEndForAssistantText,
+  emitZhushouTextDelta,
+  emitMessageStartAndEndForZhushouText,
   extractAgentEventPayloads,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 import { subscribeEmbeddedPiSession } from "./pi-embedded-subscribe.js";
@@ -24,7 +24,7 @@ describe("subscribeEmbeddedPiSession", () => {
     });
 
     emit({ type: "message_start", message: { role: "assistant" } });
-    emitAssistantTextDelta({ emit, delta: "<final>Hi there</final>" });
+    emitZhushouTextDelta({ emit, delta: "<final>Hi there</final>" });
 
     expect(onPartialReply).toHaveBeenCalled();
     const firstPayload = onPartialReply.mock.calls[0][0];
@@ -33,7 +33,7 @@ describe("subscribeEmbeddedPiSession", () => {
     onPartialReply.mockClear();
 
     emit({ type: "message_start", message: { role: "assistant" } });
-    emitAssistantTextDelta({ emit, delta: "</final>Oops no start" });
+    emitZhushouTextDelta({ emit, delta: "</final>Oops no start" });
 
     expect(onPartialReply).not.toHaveBeenCalled();
   });
@@ -48,7 +48,7 @@ describe("subscribeEmbeddedPiSession", () => {
       enforceFinalTag: true,
       onAgentEvent,
     });
-    emitMessageStartAndEndForAssistantText({ emit, text: "Hello world" });
+    emitMessageStartAndEndForZhushouText({ emit, text: "Hello world" });
     // With enforceFinalTag, text without <final> tags is treated as leaked
     // reasoning and should NOT be recovered by the message_end fallback.
     const payloads = extractAgentEventPayloads(onAgentEvent.mock.calls);
@@ -69,11 +69,11 @@ describe("subscribeEmbeddedPiSession", () => {
     });
 
     // With enforceFinalTag, content is emitted via streaming (text_delta path),
-    // NOT recovered from message_end fallback. extractAssistantText strips
+    // NOT recovered from message_end fallback. extractZhushouText strips
     // <final> tags, so message_end would see plain text with no <final> markers
     // and correctly suppress it (treated as reasoning leak).
     emit({ type: "message_start", message: { role: "assistant" } });
-    emitAssistantTextDelta({ emit, delta: "<final>Hello world</final>" });
+    emitZhushouTextDelta({ emit, delta: "<final>Hello world</final>" });
 
     expect(onPartialReply).toHaveBeenCalled();
     expect(onPartialReply.mock.calls[0][0].text).toBe("Hello world");
@@ -89,7 +89,7 @@ describe("subscribeEmbeddedPiSession", () => {
       onPartialReply,
     });
 
-    emitAssistantTextDelta({ emit, delta: "Hello world" });
+    emitZhushouTextDelta({ emit, delta: "Hello world" });
 
     const payload = onPartialReply.mock.calls[0][0];
     expect(payload.text).toBe("Hello world");
@@ -106,12 +106,12 @@ describe("subscribeEmbeddedPiSession", () => {
       blockReplyBreak: "message_end",
     });
 
-    const assistantMessage = {
+    const zhushouMessage = {
       role: "assistant",
       content: [{ type: "text", text: "Hello block" }],
     } as AssistantMessage;
 
-    emit({ type: "message_end", message: assistantMessage });
+    emit({ type: "message_end", message: zhushouMessage });
     await Promise.resolve();
 
     expect(onBlockReply).toHaveBeenCalled();

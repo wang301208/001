@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/diagnostics-otel",
+  "name": "@zhushou/diagnostics-otel",
   "version": "2026.4.16",
   "description": "助手 diagnostics OpenTelemetry exporter",
   "type": "module",
@@ -17,9 +17,9 @@
     "@opentelemetry/semantic-conventions": "^1.40.0"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -27,7 +27,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "assistantVersion": "2026.4.16"
+      "zhushouVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

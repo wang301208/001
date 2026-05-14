@@ -1,4 +1,4 @@
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { raceWithTimeoutAndAbort } from "./async.js";
 import { createFeishuClient, type FeishuClientCredentials } from "./client.js";
 import type { FeishuProbeResult } from "./types.js";
@@ -86,7 +86,7 @@ export async function probeFeishu(
     const responseResult = await raceWithTimeoutAndAbort<FeishuPingResponse>(
       client.request({
         method: "POST",
-        url: "/open-apis/bot/v1/assistant_bot/ping",
+        url: "/open-apis/bot/v1/zhushou_bot/ping",
         data: { needBotInfo: true },
         timeout: timeoutMs,
       }),

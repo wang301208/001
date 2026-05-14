@@ -1,8 +1,8 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/provider-onboard";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/provider-onboard";
 
 export const FAL_DEFAULT_IMAGE_MODEL_REF = "fal/fal-ai/flux/dev";
 
-export function applyFalConfig(cfg: AssistantConfig): AssistantConfig {
+export function applyFalConfig(cfg: ZhushouConfig): ZhushouConfig {
   if (cfg.agents?.defaults?.imageGenerationModel) {
     return cfg;
   }

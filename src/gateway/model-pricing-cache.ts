@@ -8,7 +8,7 @@ import {
   type ModelRef,
 } from "../agents/model-selection.js";
 import { resolvePluginWebSearchConfig } from "../config/plugin-web-search-config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveManifestContractPluginIds } from "../plugins/manifest-registry.js";
 import { normalizeProviderModelIdWithPlugin } from "../plugins/provider-runtime.js";
@@ -245,7 +245,7 @@ function addProviderModelPair(params: {
 }
 
 function addConfiguredWebSearchPluginModels(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   aliasIndex: ReturnType<typeof buildModelAliasIndex>;
   refs: Map<string, ModelRef>;
 }): void {
@@ -261,7 +261,7 @@ function addConfiguredWebSearchPluginModels(params: {
   }
 }
 
-export function collectConfiguredModelPricingRefs(config: AssistantConfig): ModelRef[] {
+export function collectConfiguredModelPricingRefs(config: ZhushouConfig): ModelRef[] {
   const refs = new Map<string, ModelRef>();
   const aliasIndex = buildModelAliasIndex({
     cfg: config,
@@ -367,7 +367,7 @@ function resolveCatalogPricingForRef(params: {
   return undefined;
 }
 
-function scheduleRefresh(params: { config: AssistantConfig; fetchImpl: typeof fetch }): void {
+function scheduleRefresh(params: { config: ZhushouConfig; fetchImpl: typeof fetch }): void {
   clearRefreshTimer();
   refreshTimer = setTimeout(() => {
     refreshTimer = null;
@@ -378,7 +378,7 @@ function scheduleRefresh(params: { config: AssistantConfig; fetchImpl: typeof fe
 }
 
 export async function refreshGatewayModelPricingCache(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   fetchImpl?: typeof fetch;
 }): Promise<void> {
   if (inFlightRefresh) {
@@ -428,7 +428,7 @@ export async function refreshGatewayModelPricingCache(params: {
 }
 
 export function startGatewayModelPricingRefresh(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   fetchImpl?: typeof fetch;
 }): () => void {
   void refreshGatewayModelPricingCache(params).catch((error: unknown) => {

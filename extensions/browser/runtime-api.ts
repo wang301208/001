@@ -6,7 +6,7 @@ export { handleBrowserGatewayRequest } from "./src/gateway/browser-request.js";
 export { browserHandlers } from "./src/gateway/browser-request.js";
 export {
   definePluginEntry,
-  type AssistantPluginApi,
-  type AssistantPluginToolContext,
-  type AssistantPluginToolFactory,
-} from "assistant/plugin-sdk/plugin-entry";
+  type ZhushouPluginApi,
+  type ZhushouPluginToolContext,
+  type ZhushouPluginToolFactory,
+} from "zhushou/plugin-sdk/plugin-entry";

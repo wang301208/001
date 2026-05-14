@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -19,7 +19,7 @@ export {
   applySkillEnvOverridesFromSnapshot,
 } from "./skills/env-overrides.js";
 export type {
-  AssistantSkillMetadata,
+  ZhushouSkillMetadata,
   SkillEligibilityContext,
   SkillCommandSpec,
   SkillEntry,
@@ -45,7 +45,7 @@ export {
 } from "./skills/merge.js";
 export { buildWorkspaceSkillCommandSpecs } from "./skills/command-specs.js";
 
-export function resolveSkillsInstallPreferences(config?: AssistantConfig): SkillsInstallPreferences {
+export function resolveSkillsInstallPreferences(config?: ZhushouConfig): SkillsInstallPreferences {
   const raw = config?.skills?.install;
   const preferBrew = raw?.preferBrew ?? true;
   const manager = normalizeLowercaseStringOrEmpty(normalizeOptionalString(raw?.nodeManager));

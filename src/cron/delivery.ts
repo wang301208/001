@@ -1,6 +1,6 @@
 import type { CliDeps } from "../cli/deps.types.js";
 import { createOutboundSendDeps } from "../cli/outbound-send-deps.js";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { deliverOutboundPayloads } from "../infra/outbound/deliver.js";
 import { resolveAgentOutboundIdentity } from "../infra/outbound/identity.js";
@@ -29,7 +29,7 @@ const cronDeliveryLogger = getChildLogger({ subsystem: "cron-delivery" });
 
 export async function sendFailureNotificationAnnounce(
   deps: CliDeps,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   agentId: string,
   jobId: string,
   target: { channel?: string; to?: string; accountId?: string; sessionKey?: string },

@@ -28,7 +28,7 @@ export function resolveBashExecutable(): string {
 
   const gitRoot = resolveGitInstallRoot();
   const candidates = [
-    process.env.ASSISTANT_TEST_BASH,
+    process.env.ZHUSHOU_TEST_BASH,
     gitRoot ? path.join(gitRoot, "bin", "bash.exe") : null,
     gitRoot ? path.join(gitRoot, "usr", "bin", "bash.exe") : null,
   ];

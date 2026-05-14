@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 import { normalizeCommandBody } from "../commands-registry-normalize.js";
@@ -8,7 +8,7 @@ import { stripMentions } from "./mentions.js";
 
 export function buildCommandContext(params: {
   ctx: MsgContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId?: string;
   sessionKey?: string;
   isGroup: boolean;

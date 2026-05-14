@@ -11,7 +11,7 @@ import {
   buildPluginRuntimeLoadOptions,
   resolvePluginRuntimeLoadContext,
 } from "./runtime/load-context.js";
-import type { AssistantPluginToolContext } from "./types.js";
+import type { ZhushouPluginToolContext } from "./types.js";
 
 type PluginToolMeta = {
   pluginId: string;
@@ -69,7 +69,7 @@ function resolvePluginToolRegistry(params: {
 }
 
 export function resolvePluginTools(params: {
-  context: AssistantPluginToolContext;
+  context: ZhushouPluginToolContext;
   existingToolNames?: Set<string>;
   toolAllowlist?: string[];
   suppressNameConflicts?: boolean;

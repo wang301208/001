@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { applyMergePatch } from "../config/merge-patch.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { isRecord } from "../utils.js";
 import {
@@ -283,7 +283,7 @@ export function inspectBundleMcpRuntimeSupport(params: {
 
 export function loadEnabledBundleMcpConfig(params: {
   workspaceDir: string;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
 }): EnabledBundleMcpConfigResult {
   return loadEnabledBundleConfig({
     workspaceDir: params.workspaceDir,

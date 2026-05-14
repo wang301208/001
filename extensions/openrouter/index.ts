@@ -2,16 +2,16 @@ import {
   definePluginEntry,
   type ProviderResolveDynamicModelContext,
   type ProviderRuntimeModel,
-} from "assistant/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
+} from "zhushou/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
 import {
   DEFAULT_CONTEXT_TOKENS,
   PASSTHROUGH_GEMINI_REPLAY_HOOKS,
-} from "assistant/plugin-sdk/provider-model-shared";
+} from "zhushou/plugin-sdk/provider-model-shared";
 import {
   getOpenRouterModelCapabilities,
   loadOpenRouterModelCapabilities,
-} from "assistant/plugin-sdk/provider-stream-family";
+} from "zhushou/plugin-sdk/provider-stream-family";
 import { openrouterMediaUnderstandingProvider } from "./media-understanding-provider.js";
 import { applyOpenrouterConfig, OPENROUTER_DEFAULT_MODEL_REF } from "./onboard.js";
 import { buildOpenrouterProvider } from "./provider-catalog.js";

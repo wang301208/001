@@ -1,6 +1,6 @@
 import { createServer } from "node:net";
-import { runExec } from "assistant/plugin-sdk/process-runtime";
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
+import { runExec } from "zhushou/plugin-sdk/process-runtime";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
 
 export type RunCommand = (
   command: string,

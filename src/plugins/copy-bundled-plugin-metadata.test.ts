@@ -8,7 +8,7 @@ import {
 import { cleanupTempDirs, makeTempRepoRoot, writeJsonFile } from "../../test/helpers/temp-repo.js";
 
 const tempDirs: string[] = [];
-const excludeOptionalEnv = { ASSISTANT_INCLUDE_OPTIONAL_BUNDLED: "0" } as const;
+const excludeOptionalEnv = { ZHUSHOU_INCLUDE_OPTIONAL_BUNDLED: "0" } as const;
 const copyBundledPluginMetadataWithEnv = copyBundledPluginMetadata as (params?: {
   repoRoot?: string;
   env?: NodeJS.ProcessEnv;
@@ -28,19 +28,19 @@ function createPlugin(
     id: string;
     packageName: string;
     manifest?: Record<string, unknown>;
-    packageAssistant?: Record<string, unknown>;
+    packageZhushou?: Record<string, unknown>;
   },
 ) {
   const pluginDir = path.join(repoRoot, "extensions", params.id);
   fs.mkdirSync(pluginDir, { recursive: true });
-  writeJson(path.join(pluginDir, "assistant.plugin.json"), {
+  writeJson(path.join(pluginDir, "zhushou.plugin.json"), {
     id: params.id,
     configSchema: { type: "object" },
     ...params.manifest,
   });
   writeJson(path.join(pluginDir, "package.json"), {
     name: params.packageName,
-    ...(params.packageAssistant ? { assistant: params.packageAssistant } : {}),
+    ...(params.packageZhushou ? { zhushou: params.packageZhushou } : {}),
   });
   return pluginDir;
 }
@@ -48,7 +48,7 @@ function createPlugin(
 function readBundledManifest(repoRoot: string, pluginId: string) {
   return JSON.parse(
     fs.readFileSync(
-      path.join(repoRoot, "dist", "extensions", pluginId, "assistant.plugin.json"),
+      path.join(repoRoot, "dist", "extensions", pluginId, "zhushou.plugin.json"),
       "utf8",
     ),
   ) as { skills?: string[] };
@@ -57,7 +57,7 @@ function readBundledManifest(repoRoot: string, pluginId: string) {
 function readBundledPackageJson(repoRoot: string, pluginId: string) {
   return JSON.parse(
     fs.readFileSync(path.join(repoRoot, "dist", "extensions", pluginId, "package.json"), "utf8"),
-  ) as { assistant?: { extensions?: string[] } };
+  ) as { zhushou?: { extensions?: string[] } };
 }
 
 function bundledPluginDir(repoRoot: string, pluginId: string) {
@@ -75,9 +75,9 @@ function expectBundledSkills(repoRoot: string, pluginId: string, skills: string[
 function createTlonSkillPlugin(repoRoot: string, skillPath = "node_modules/@tloncorp/tlon-skill") {
   return createPlugin(repoRoot, {
     id: "tlon",
-    packageName: "@assistant/tlon",
+    packageName: "@zhushou/tlon",
     manifest: { skills: [skillPath] },
-    packageAssistant: { extensions: ["./index.ts"] },
+    packageZhushou: { extensions: ["./index.ts"] },
   });
 }
 
@@ -96,12 +96,12 @@ describe("rewritePackageExtensions", () => {
 
 describe("copyBundledPluginMetadata", () => {
   it("copies plugin manifests, package metadata, and local skill directories", () => {
-    const repoRoot = makeRepoRoot("assistant-bundled-plugin-meta-");
+    const repoRoot = makeRepoRoot("zhushou-bundled-plugin-meta-");
     const pluginDir = createPlugin(repoRoot, {
       id: "acpx",
-      packageName: "@assistant/acpx",
+      packageName: "@zhushou/acpx",
       manifest: { skills: ["./skills"] },
-      packageAssistant: { extensions: ["./index.ts"] },
+      packageZhushou: { extensions: ["./index.ts"] },
     });
     fs.mkdirSync(path.join(pluginDir, "skills", "acp-router"), { recursive: true });
     fs.writeFileSync(
@@ -113,7 +113,7 @@ describe("copyBundledPluginMetadata", () => {
     copyBundledPluginMetadata({ repoRoot });
 
     expect(
-      fs.existsSync(path.join(repoRoot, "dist", "extensions", "acpx", "assistant.plugin.json")),
+      fs.existsSync(path.join(repoRoot, "dist", "extensions", "acpx", "zhushou.plugin.json")),
     ).toBe(true);
     expect(
       fs.readFileSync(
@@ -123,11 +123,11 @@ describe("copyBundledPluginMetadata", () => {
     ).toContain("ACP Router");
     expectBundledSkills(repoRoot, "acpx", ["./skills"]);
     const packageJson = readBundledPackageJson(repoRoot, "acpx");
-    expect(packageJson.assistant?.extensions).toEqual(["./index.js"]);
+    expect(packageJson.zhushou?.extensions).toEqual(["./index.js"]);
   });
 
   it("relocates node_modules-backed skill paths into bundled-skills and rewrites the manifest", () => {
-    const repoRoot = makeRepoRoot("assistant-bundled-plugin-node-modules-");
+    const repoRoot = makeRepoRoot("zhushou-bundled-plugin-node-modules-");
     const pluginDir = createTlonSkillPlugin(repoRoot);
     const storeSkillDir = path.join(
       repoRoot,
@@ -179,7 +179,7 @@ describe("copyBundledPluginMetadata", () => {
   });
 
   it("falls back to repo-root hoisted node_modules skill paths", () => {
-    const repoRoot = makeRepoRoot("assistant-bundled-plugin-hoisted-skill-");
+    const repoRoot = makeRepoRoot("zhushou-bundled-plugin-hoisted-skill-");
     const pluginDir = createTlonSkillPlugin(repoRoot);
     const hoistedSkillDir = path.join(repoRoot, "node_modules", "@tloncorp", "tlon-skill");
     fs.mkdirSync(hoistedSkillDir, { recursive: true });
@@ -198,7 +198,7 @@ describe("copyBundledPluginMetadata", () => {
   });
 
   it("omits missing declared skill paths and removes stale generated outputs", () => {
-    const repoRoot = makeRepoRoot("assistant-bundled-plugin-missing-skill-");
+    const repoRoot = makeRepoRoot("zhushou-bundled-plugin-missing-skill-");
     createTlonSkillPlugin(repoRoot);
     const staleBundledSkillDir = path.join(
       bundledPluginDir(repoRoot, "tlon"),
@@ -221,12 +221,12 @@ describe("copyBundledPluginMetadata", () => {
   });
 
   it("retries transient skill copy races from concurrent runtime postbuilds", () => {
-    const repoRoot = makeRepoRoot("assistant-bundled-plugin-retry-");
+    const repoRoot = makeRepoRoot("zhushou-bundled-plugin-retry-");
     const pluginDir = createPlugin(repoRoot, {
       id: "diffs",
-      packageName: "@assistant/diffs",
+      packageName: "@zhushou/diffs",
       manifest: { skills: ["./skills"] },
-      packageAssistant: { extensions: ["./index.ts"] },
+      packageZhushou: { extensions: ["./index.ts"] },
     });
     fs.mkdirSync(path.join(pluginDir, "skills", "diffs"), { recursive: true });
     fs.writeFileSync(path.join(pluginDir, "skills", "diffs", "SKILL.md"), "# Diffs\n", "utf8");
@@ -258,7 +258,7 @@ describe("copyBundledPluginMetadata", () => {
   });
 
   it("removes generated outputs for plugins no longer present in source", () => {
-    const repoRoot = makeRepoRoot("assistant-bundled-plugin-removed-");
+    const repoRoot = makeRepoRoot("zhushou-bundled-plugin-removed-");
     const staleBundledSkillDir = path.join(
       repoRoot,
       "dist",
@@ -283,13 +283,13 @@ describe("copyBundledPluginMetadata", () => {
       "export default {}\n",
       "utf8",
     );
-    writeJson(path.join(repoRoot, "dist", "extensions", "removed-plugin", "assistant.plugin.json"), {
+    writeJson(path.join(repoRoot, "dist", "extensions", "removed-plugin", "zhushou.plugin.json"), {
       id: "removed-plugin",
       configSchema: { type: "object" },
       skills: ["./bundled-skills/@scope/skill"],
     });
     writeJson(path.join(repoRoot, "dist", "extensions", "removed-plugin", "package.json"), {
-      name: "@assistant/removed-plugin",
+      name: "@zhushou/removed-plugin",
     });
     fs.mkdirSync(path.join(repoRoot, "extensions"), { recursive: true });
 
@@ -299,18 +299,18 @@ describe("copyBundledPluginMetadata", () => {
   });
 
   it("removes stale dist outputs when a source extension directory no longer has a manifest", () => {
-    const repoRoot = makeRepoRoot("assistant-bundled-plugin-manifestless-source-");
+    const repoRoot = makeRepoRoot("zhushou-bundled-plugin-manifestless-source-");
     const sourcePluginDir = path.join(repoRoot, "extensions", "google-gemini-cli-auth");
     fs.mkdirSync(path.join(sourcePluginDir, "node_modules"), { recursive: true });
     const staleDistDir = path.join(repoRoot, "dist", "extensions", "google-gemini-cli-auth");
     fs.mkdirSync(staleDistDir, { recursive: true });
     fs.writeFileSync(path.join(staleDistDir, "index.js"), "export default {}\n", "utf8");
-    writeJson(path.join(staleDistDir, "assistant.plugin.json"), {
+    writeJson(path.join(staleDistDir, "zhushou.plugin.json"), {
       id: "google-gemini-cli-auth",
       configSchema: { type: "object" },
     });
     writeJson(path.join(staleDistDir, "package.json"), {
-      name: "@assistant/google-gemini-cli-auth",
+      name: "@zhushou/google-gemini-cli-auth",
     });
 
     copyBundledPluginMetadata({ repoRoot });
@@ -319,11 +319,11 @@ describe("copyBundledPluginMetadata", () => {
   });
 
   it("removes non-packaged private QA plugin metadata unless private QA build is enabled", () => {
-    const repoRoot = makeRepoRoot("assistant-private-qa-metadata-");
+    const repoRoot = makeRepoRoot("zhushou-private-qa-metadata-");
     createPlugin(repoRoot, {
       id: "qa-lab",
-      packageName: "@assistant/qa-lab",
-      packageAssistant: { extensions: ["./index.ts"] },
+      packageName: "@zhushou/qa-lab",
+      packageZhushou: { extensions: ["./index.ts"] },
     });
     const staleDistDir = path.join(repoRoot, "dist", "extensions", "qa-lab");
     fs.mkdirSync(staleDistDir, { recursive: true });
@@ -335,10 +335,10 @@ describe("copyBundledPluginMetadata", () => {
 
     copyBundledPluginMetadataWithEnv({
       repoRoot,
-      env: { ASSISTANT_BUILD_PRIVATE_QA: "1" } as NodeJS.ProcessEnv,
+      env: { ZHUSHOU_BUILD_PRIVATE_QA: "1" } as NodeJS.ProcessEnv,
     });
 
-    expect(fs.existsSync(path.join(staleDistDir, "assistant.plugin.json"))).toBe(true);
+    expect(fs.existsSync(path.join(staleDistDir, "zhushou.plugin.json"))).toBe(true);
     expect(fs.existsSync(path.join(staleDistDir, "package.json"))).toBe(true);
   });
 
@@ -346,28 +346,28 @@ describe("copyBundledPluginMetadata", () => {
     {
       name: "skips metadata for optional bundled clusters only when explicitly disabled",
       pluginId: "acpx",
-      packageName: "@assistant/acpx-plugin",
-      packageAssistant: { extensions: ["./index.ts"] },
+      packageName: "@zhushou/acpx-plugin",
+      packageZhushou: { extensions: ["./index.ts"] },
       env: excludeOptionalEnv,
       expectedExists: false,
     },
     {
       name: "still bundles previously released optional plugins without the opt-in env",
       pluginId: "whatsapp",
-      packageName: "@assistant/whatsapp",
-      packageAssistant: {
+      packageName: "@zhushou/whatsapp",
+      packageZhushou: {
         extensions: ["./index.ts"],
-        install: { npmSpec: "@assistant/whatsapp" },
+        install: { npmSpec: "@zhushou/whatsapp" },
       },
       env: {},
       expectedExists: true,
     },
-  ] as const)("$name", ({ pluginId, packageName, packageAssistant, env, expectedExists }) => {
-    const repoRoot = makeRepoRoot(`assistant-bundled-plugin-${pluginId}-`);
+  ] as const)("$name", ({ pluginId, packageName, packageZhushou, env, expectedExists }) => {
+    const repoRoot = makeRepoRoot(`zhushou-bundled-plugin-${pluginId}-`);
     createPlugin(repoRoot, {
       id: pluginId,
       packageName,
-      packageAssistant,
+      packageZhushou,
     });
 
     copyBundledPluginMetadataWithEnv({ repoRoot, env });
@@ -376,11 +376,11 @@ describe("copyBundledPluginMetadata", () => {
   });
 
   it("preserves manifest-less runtime support package outputs and copies package metadata", () => {
-    const repoRoot = makeRepoRoot("assistant-bundled-runtime-support-");
+    const repoRoot = makeRepoRoot("zhushou-bundled-runtime-support-");
     const pluginDir = path.join(repoRoot, "extensions", "image-generation-core");
     fs.mkdirSync(pluginDir, { recursive: true });
     writeJson(path.join(pluginDir, "package.json"), {
-      name: "@assistant/image-generation-core",
+      name: "@zhushou/image-generation-core",
       version: "0.0.1",
       private: true,
       type: "module",
@@ -407,7 +407,7 @@ describe("copyBundledPluginMetadata", () => {
     ).toBe(true);
     expect(
       fs.existsSync(
-        path.join(repoRoot, "dist", "extensions", "image-generation-core", "assistant.plugin.json"),
+        path.join(repoRoot, "dist", "extensions", "image-generation-core", "zhushou.plugin.json"),
       ),
     ).toBe(false);
     expect(
@@ -418,7 +418,7 @@ describe("copyBundledPluginMetadata", () => {
         ),
       ),
     ).toMatchObject({
-      name: "@assistant/image-generation-core",
+      name: "@zhushou/image-generation-core",
       type: "module",
     });
   });

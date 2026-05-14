@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   DEFAULT_CACHE_TTL_MINUTES,
   markdownToText,
@@ -9,9 +9,9 @@ import {
   truncateText,
   withStrictWebToolsEndpoint,
   writeCache,
-} from "assistant/plugin-sdk/provider-web-fetch";
-import { normalizeSecretInput } from "assistant/plugin-sdk/secret-input";
-import { wrapExternalContent, wrapWebContent } from "assistant/plugin-sdk/security-runtime";
+} from "zhushou/plugin-sdk/provider-web-fetch";
+import { normalizeSecretInput } from "zhushou/plugin-sdk/secret-input";
+import { wrapExternalContent, wrapWebContent } from "zhushou/plugin-sdk/security-runtime";
 import {
   resolveFirecrawlApiKey,
   resolveFirecrawlBaseUrl,
@@ -43,7 +43,7 @@ type FirecrawlSearchItem = {
 };
 
 export type FirecrawlSearchParams = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   query: string;
   count?: number;
   timeoutSeconds?: number;
@@ -53,7 +53,7 @@ export type FirecrawlSearchParams = {
 };
 
 export type FirecrawlScrapeParams = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   url: string;
   extractMode: "markdown" | "text";
   maxChars?: number;

@@ -1,4 +1,4 @@
-import { discoverAssistantPlugins } from "./discovery.js";
+import { discoverZhushouPlugins } from "./discovery.js";
 import {
   loadPluginManifest,
   type PluginPackageChannel,
@@ -23,7 +23,7 @@ export function listChannelCatalogEntries(
     env?: NodeJS.ProcessEnv;
   } = {},
 ): PluginChannelCatalogEntry[] {
-  return discoverAssistantPlugins({
+  return discoverZhushouPlugins({
     workspaceDir: params.workspaceDir,
     env: params.env,
   }).candidates.flatMap((candidate) => {

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import { setMinimalOutboundSessionPluginRegistryForTests } from "./outbound-session.test-helpers.js";
 
@@ -22,8 +22,8 @@ describe("resolveOutboundSessionRoute", () => {
     setMinimalOutboundSessionPluginRegistryForTests();
   });
 
-  const baseConfig = {} as AssistantConfig;
-  const perChannelPeerCfg = { session: { dmScope: "per-channel-peer" } } as AssistantConfig;
+  const baseConfig = {} as ZhushouConfig;
+  const perChannelPeerCfg = { session: { dmScope: "per-channel-peer" } } as ZhushouConfig;
   const identityLinksCfg = {
     session: {
       dmScope: "per-peer",
@@ -31,7 +31,7 @@ describe("resolveOutboundSessionRoute", () => {
         alice: ["discord:123"],
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
   const slackMpimCfg = {
     channels: {
       slack: {
@@ -40,10 +40,10 @@ describe("resolveOutboundSessionRoute", () => {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 
   async function expectResolvedRoute(params: {
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     channel: string;
     target: string;
     replyToId?: string;
@@ -82,7 +82,7 @@ describe("resolveOutboundSessionRoute", () => {
   type RouteCase = Parameters<typeof expectResolvedRoute>[0];
   type NamedRouteCase = RouteCase & { name: string };
 
-  const perChannelPeerSessionCfg = { session: { dmScope: "per-channel-peer" } } as AssistantConfig;
+  const perChannelPeerSessionCfg = { session: { dmScope: "per-channel-peer" } } as ZhushouConfig;
 
   it.each([
     {
@@ -421,7 +421,7 @@ describe("ensureOutboundSessionEntry", () => {
         session: {
           store: "/stores/{agentId}.json",
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       channel: "slack",
       route: {
         sessionKey: "agent:main:slack:channel:c1",

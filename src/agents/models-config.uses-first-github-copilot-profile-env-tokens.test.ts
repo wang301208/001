@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  planAssistantModelsJson,
-  planAssistantModelsJsonWithDeps,
+  planZhushouModelsJson,
+  planZhushouModelsJsonWithDeps,
   type ResolveImplicitProvidersForModelsJson,
 } from "./models-config.plan.js";
 import type { ProviderConfig } from "./models-config.providers.secrets.js";
@@ -46,7 +46,7 @@ describe("models-config", () => {
   });
 
   it("does not override explicit github-copilot provider config", async () => {
-    const plan = await planAssistantModelsJson({
+    const plan = await planZhushouModelsJson({
       cfg: {
         models: {
           providers: {
@@ -58,7 +58,7 @@ describe("models-config", () => {
           },
         },
       },
-      agentDir: "/tmp/assistant-agent",
+      agentDir: "/tmp/zhushou-agent",
       env: {} as NodeJS.ProcessEnv,
       existingRaw: "",
       existingParsed: null,
@@ -84,7 +84,7 @@ describe("models-config", () => {
       },
     );
 
-    const plan = await planAssistantModelsJsonWithDeps(
+    const plan = await planZhushouModelsJsonWithDeps(
       {
         cfg: {
           models: {
@@ -97,7 +97,7 @@ describe("models-config", () => {
             },
           },
         },
-        agentDir: "/tmp/assistant-agent",
+        agentDir: "/tmp/zhushou-agent",
         env: { VLLM_API_KEY: "test-vllm-key" } as NodeJS.ProcessEnv,
         existingRaw: "",
         existingParsed: null,
@@ -144,7 +144,7 @@ describe("models-config", () => {
       2,
     )}\n`;
 
-    const plan = await planAssistantModelsJsonWithDeps(
+    const plan = await planZhushouModelsJsonWithDeps(
       {
         cfg: {
           models: {
@@ -160,7 +160,7 @@ describe("models-config", () => {
             },
           },
         },
-        agentDir: "/tmp/assistant-agent",
+        agentDir: "/tmp/zhushou-agent",
         env: {} as NodeJS.ProcessEnv,
         existingRaw: existingContents,
         existingParsed: JSON.parse(existingContents),
@@ -229,10 +229,10 @@ function createCopilotImplicitResolver(
 }
 
 async function planCopilotWithImplicitProvider(params: { provider: ProviderConfig }) {
-  return await planAssistantModelsJsonWithDeps(
+  return await planZhushouModelsJsonWithDeps(
     {
       cfg: { models: { providers: {} } },
-      agentDir: "/tmp/assistant-agent",
+      agentDir: "/tmp/zhushou-agent",
       env: {} as NodeJS.ProcessEnv,
       existingRaw: "",
       existingParsed: null,

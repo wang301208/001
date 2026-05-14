@@ -32,7 +32,7 @@ case "$AUTH_STATUS" in
         "$SCRIPT_DIR/claude-auth-status.sh" full
         exit 0
         ;;
-    CLAUDE_EXPIRING|ASSISTANT_EXPIRING)
+    CLAUDE_EXPIRING|ZHUSHOU_EXPIRING)
         echo -e "${YELLOW}Auth is expiring soon.${NC}"
         echo ""
         ;;
@@ -69,11 +69,11 @@ if claude setup-token; then
     echo ""
     "$SCRIPT_DIR/claude-auth-status.sh" full
 
-    # Restart assistant service if running
-    if systemctl --user is-active assistant >/dev/null 2>&1; then
+    # Restart zhushou service if running
+    if systemctl --user is-active zhushou >/dev/null 2>&1; then
         echo ""
-        echo "Restarting assistant service..."
-        systemctl --user restart assistant
+        echo "Restarting zhushou service..."
+        systemctl --user restart zhushou
         echo -e "${GREEN}Service restarted.${NC}"
     fi
 else

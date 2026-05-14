@@ -144,9 +144,9 @@ if (candidatePids.length > 0) {
 const includePattern = /codex|claude/i;
 
 const excludePatterns = [
-  /assistant-gateway/i,
+  /zhushou-gateway/i,
   /signal-cli/i,
-  /node_modules\/\.bin\/assistant/i,
+  /node_modules\/\.bin\/zhushou/i,
   /recover-orphaned-processes\.sh/i,
 ];
 

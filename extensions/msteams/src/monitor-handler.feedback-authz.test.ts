@@ -2,7 +2,7 @@ import { access, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
+import type { ZhushouConfig, PluginRuntime, RuntimeEnv } from "../runtime-api.js";
 import {
   type MSTeamsActivityHandler,
   type MSTeamsMessageHandlerDeps,
@@ -59,7 +59,7 @@ function createRuntimeStub(readAllowFromStore: ReturnType<typeof vi.fn>): Plugin
 }
 
 function createDeps(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   readAllowFromStore?: ReturnType<typeof vi.fn>;
 }): MSTeamsMessageHandlerDeps {
   const readAllowFromStore = params.readAllowFromStore ?? vi.fn(async () => []);
@@ -126,11 +126,11 @@ async function expectFileMissing(filePath: string) {
 }
 
 async function withFeedbackHandler(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   context: Parameters<typeof createFeedbackInvokeContext>[0];
   assertResult: (args: { tmpDir: string; originalRun: ReturnType<typeof vi.fn> }) => Promise<void>;
 }) {
-  const tmpDir = await mkdtemp(path.join(tmpdir(), "assistant-msteams-feedback-"));
+  const tmpDir = await mkdtemp(path.join(tmpdir(), "zhushou-msteams-feedback-"));
   try {
     const originalRun = vi.fn(async () => undefined);
     const handler = registerMSTeamsHandlers(
@@ -167,7 +167,7 @@ describe("msteams feedback invoke authz", () => {
             allowFrom: ["owner-aad"],
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       context: {
         reaction: "like",
         conversationId: "a:personal-chat;messageid=bot-msg-1",
@@ -210,7 +210,7 @@ describe("msteams feedback invoke authz", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       context: {
         reaction: "like",
         conversationId: "a:personal-chat;messageid=bot-msg-1",
@@ -244,7 +244,7 @@ describe("msteams feedback invoke authz", () => {
             allowFrom: ["owner-aad"],
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       context: {
         reaction: "like",
         conversationId: "a:personal-chat;messageid=bot-msg-1",
@@ -262,7 +262,7 @@ describe("msteams feedback invoke authz", () => {
   });
 
   it("does not trigger reflection for a group sender outside groupAllowFrom", async () => {
-    const tmpDir = await mkdtemp(path.join(tmpdir(), "assistant-msteams-feedback-"));
+    const tmpDir = await mkdtemp(path.join(tmpdir(), "zhushou-msteams-feedback-"));
     try {
       const originalRun = vi.fn(async () => undefined);
       const handler = registerMSTeamsHandlers(
@@ -277,7 +277,7 @@ describe("msteams feedback invoke authz", () => {
                 feedbackReflection: true,
               },
             },
-          } as AssistantConfig,
+          } as ZhushouConfig,
         }),
       ) as MSTeamsActivityHandler & {
         run: NonNullable<MSTeamsActivityHandler["run"]>;

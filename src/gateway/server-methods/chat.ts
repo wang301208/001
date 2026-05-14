@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { resolveThinkingDefault } from "../../agents/model-selection.js";
 import { rewriteTranscriptEntriesInSessionFile } from "../../agents/pi-embedded-runner/transcript-rewrite.js";
@@ -23,8 +23,8 @@ import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { parseAgentSessionKey } from "../../sessions/session-key-utils.js";
 import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
 import {
-  parseAssistantTextSignature,
-  resolveAssistantMessagePhase,
+  parseZhushouTextSignature,
+  resolveZhushouMessagePhase,
 } from "../../shared/chat-message-content.js";
 import {
   stripInlineDirectiveTagsForDisplay,
@@ -81,7 +81,7 @@ import { formatForLog } from "../ws-log.js";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 import { setGatewayDedupeEntry } from "./agent-wait-dedupe.js";
 import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";
-import { appendInjectedAssistantMessageToTranscript } from "./chat-transcript-inject.js";
+import { appendInjectedZhushouMessageToTranscript } from "./chat-transcript-inject.js";
 import { buildWebchatAudioContentBlocksFromReplyPayloads } from "./chat-webchat-media.js";
 import type {
   GatewayRequestContext,
@@ -122,7 +122,7 @@ function isMediaBearingPayload(payload: ReplyPayload): boolean {
   return false;
 }
 
-async function buildWebchatAudioOnlyAssistantMessage(
+async function buildWebchatAudioOnlyZhushouMessage(
   payloads: ReplyPayload[],
   options?: {
     localRoots?: readonly string[];
@@ -698,7 +698,7 @@ function sanitizeChatHistoryContentBlock(
   return { block: changed ? entry : block, changed };
 }
 
-function sanitizeAssistantPhasedContentBlocks(content: unknown[]): {
+function sanitizeZhushouPhasedContentBlocks(content: unknown[]): {
   content: unknown[];
   changed: boolean;
 } {
@@ -708,7 +708,7 @@ function sanitizeAssistantPhasedContentBlocks(content: unknown[]): {
     }
     const entry = block as { type?: unknown; textSignature?: unknown };
     return (
-      entry.type === "text" && Boolean(parseAssistantTextSignature(entry.textSignature)?.phase)
+      entry.type === "text" && Boolean(parseZhushouTextSignature(entry.textSignature)?.phase)
     );
   });
   if (!hasExplicitPhasedText) {
@@ -722,7 +722,7 @@ function sanitizeAssistantPhasedContentBlocks(content: unknown[]): {
     if (entry.type !== "text") {
       return true;
     }
-    return parseAssistantTextSignature(entry.textSignature)?.phase === "final_answer";
+    return parseZhushouTextSignature(entry.textSignature)?.phase === "final_answer";
   });
   return {
     content: filtered,
@@ -818,7 +818,6 @@ function sanitizeChatHistoryMessage(
   }
 
   // Keep usage/cost so the chat UI can render per-message token and cost badges.
-  // Only retain usage/cost on assistant messages and validate numeric fields to prevent UI crashes.
   if (entry.role !== "assistant") {
     if ("usage" in entry) {
       delete entry.usage;
@@ -829,7 +828,7 @@ function sanitizeChatHistoryMessage(
       changed = true;
     }
   } else {
-    // Validate and sanitize usage/cost for assistant messages
+    // Validate and sanitize usage/cost for zhushou messages
     if ("usage" in entry) {
       const sanitized = sanitizeUsage(entry.usage);
       if (sanitized) {
@@ -869,7 +868,7 @@ function sanitizeChatHistoryMessage(
       changed = true;
     }
     if (entry.role === "assistant" && Array.isArray(entry.content)) {
-      const sanitizedPhases = sanitizeAssistantPhasedContentBlocks(entry.content);
+      const sanitizedPhases = sanitizeZhushouPhasedContentBlocks(entry.content);
       if (sanitizedPhases.changed) {
         entry.content = sanitizedPhases.content;
         changed = true;
@@ -893,12 +892,12 @@ function sanitizeChatHistoryMessage(
 }
 
 /**
- * Extract the visible text from an assistant history message for silent-token checks.
- * Returns `undefined` for non-assistant messages or messages with no extractable text.
+ * Extract the visible text from an zhushou history message for silent-token checks.
+ * Returns `undefined` for non-zhushou messages or messages with no extractable text.
  * When `entry.text` is present it takes precedence over `entry.content` to avoid
  * dropping messages that carry real text alongside a stale `content: "NO_REPLY"`.
  */
-function extractAssistantTextForSilentCheck(message: unknown): string | undefined {
+function extractZhushouTextForSilentCheck(message: unknown): string | undefined {
   if (!message || typeof message !== "object") {
     return undefined;
   }
@@ -930,7 +929,7 @@ function extractAssistantTextForSilentCheck(message: unknown): string | undefine
   return texts.length > 0 ? texts.join("\n") : undefined;
 }
 
-function hasAssistantNonTextContent(message: unknown): boolean {
+function hasZhushouNonTextContent(message: unknown): boolean {
   if (!message || typeof message !== "object") {
     return false;
   }
@@ -943,7 +942,7 @@ function hasAssistantNonTextContent(message: unknown): boolean {
   );
 }
 
-function shouldDropAssistantHistoryMessage(message: unknown): boolean {
+function shouldDropZhushouHistoryMessage(message: unknown): boolean {
   if (!message || typeof message !== "object") {
     return false;
   }
@@ -951,14 +950,14 @@ function shouldDropAssistantHistoryMessage(message: unknown): boolean {
   if (entry.role !== "assistant") {
     return false;
   }
-  if (resolveAssistantMessagePhase(message) === "commentary") {
+  if (resolveZhushouMessagePhase(message) === "commentary") {
     return true;
   }
-  const text = extractAssistantTextForSilentCheck(message);
+  const text = extractZhushouTextForSilentCheck(message);
   if (text === undefined || !isSuppressedControlReplyText(text)) {
     return false;
   }
-  return !hasAssistantNonTextContent(message);
+  return !hasZhushouNonTextContent(message);
 }
 
 export function sanitizeChatHistoryMessages(
@@ -971,13 +970,13 @@ export function sanitizeChatHistoryMessages(
   let changed = false;
   const next: unknown[] = [];
   for (const message of messages) {
-    if (shouldDropAssistantHistoryMessage(message)) {
+    if (shouldDropZhushouHistoryMessage(message)) {
       changed = true;
       continue;
     }
     const res = sanitizeChatHistoryMessage(message, maxChars);
     changed ||= res.changed;
-    if (shouldDropAssistantHistoryMessage(res.message)) {
+    if (shouldDropZhushouHistoryMessage(res.message)) {
       changed = true;
       continue;
     }
@@ -986,7 +985,7 @@ export function sanitizeChatHistoryMessages(
   return changed ? next : messages;
 }
 
-function appendCanvasBlockToAssistantHistoryMessage(params: {
+function appendCanvasBlockToZhushouHistoryMessage(params: {
   message: unknown;
   preview: ReturnType<typeof extractCanvasFromText>;
   rawText: string | null;
@@ -1061,8 +1060,8 @@ export function augmentChatHistoryWithCanvasBlocks(messages: unknown[]): unknown
   }
   const next = [...messages];
   let changed = false;
-  let lastAssistantIndex = -1;
-  let lastRenderableAssistantIndex = -1;
+  let lastZhushouIndex = -1;
+  let lastRenderableZhushouIndex = -1;
   const pending: Array<{
     preview: NonNullable<ReturnType<typeof extractCanvasFromText>>;
     rawText: string | null;
@@ -1075,13 +1074,13 @@ export function augmentChatHistoryWithCanvasBlocks(messages: unknown[]): unknown
     const entry = message as Record<string, unknown>;
     const role = typeof entry.role === "string" ? entry.role.toLowerCase() : "";
     if (role === "assistant") {
-      lastAssistantIndex = index;
+      lastZhushouIndex = index;
       if (!messageContainsToolHistoryContent(entry)) {
-        lastRenderableAssistantIndex = index;
+        lastRenderableZhushouIndex = index;
         if (pending.length > 0) {
           let target = next[index];
           for (const item of pending) {
-            target = appendCanvasBlockToAssistantHistoryMessage({
+            target = appendCanvasBlockToZhushouHistoryMessage({
               message: target,
               preview: item.preview,
               rawText: item.rawText,
@@ -1115,11 +1114,11 @@ export function augmentChatHistoryWithCanvasBlocks(messages: unknown[]): unknown
   }
   if (pending.length > 0) {
     const targetIndex =
-      lastRenderableAssistantIndex >= 0 ? lastRenderableAssistantIndex : lastAssistantIndex;
+      lastRenderableZhushouIndex >= 0 ? lastRenderableZhushouIndex : lastZhushouIndex;
     if (targetIndex >= 0) {
       let target = next[targetIndex];
       for (const item of pending) {
-        target = appendCanvasBlockToAssistantHistoryMessage({
+        target = appendCanvasBlockToZhushouHistoryMessage({
           message: target,
           preview: item.preview,
           rawText: item.rawText,
@@ -1149,7 +1148,7 @@ function buildOversizedHistoryPlaceholder(message?: unknown): Record<string, unk
     role,
     timestamp,
     content: [{ type: "text", text: CHAT_HISTORY_OVERSIZED_PLACEHOLDER }],
-    __assistant: { truncated: true, reason: "oversized" },
+    __zhushou: { truncated: true, reason: "oversized" },
   };
 }
 
@@ -1260,7 +1259,7 @@ function transcriptHasIdempotencyKey(transcriptPath: string, idempotencyKey: str
   }
 }
 
-function appendAssistantTranscriptMessage(params: {
+function appendZhushouTranscriptMessage(params: {
   message: string;
   label?: string;
   content?: Array<Record<string, unknown>>;
@@ -1303,7 +1302,7 @@ function appendAssistantTranscriptMessage(params: {
     return { ok: true };
   }
 
-  return appendInjectedAssistantMessageToTranscript({
+  return appendInjectedZhushouMessageToTranscript({
     transcriptPath,
     message: params.message,
     label: params.label,
@@ -1349,13 +1348,13 @@ function persistAbortedPartials(params: {
   const { storePath, entry } = loadSessionEntry(params.sessionKey);
   for (const snapshot of params.snapshots) {
     const sessionId = entry?.sessionId ?? snapshot.sessionId ?? snapshot.runId;
-    const appended = appendAssistantTranscriptMessage({
+    const appended = appendZhushouTranscriptMessage({
       message: snapshot.text,
       sessionId,
       storePath,
       sessionFile: entry?.sessionFile,
       createIfMissing: true,
-      idempotencyKey: `${snapshot.runId}:assistant`,
+      idempotencyKey: `${snapshot.runId}:zhushou`,
       abortMeta: {
         aborted: true,
         origin: snapshot.abortOrigin,
@@ -2089,7 +2088,7 @@ export const chatHandlers: GatewayRequestHandlers = {
         if (!agentRunStarted || appendedWebchatAgentAudio || !isMediaBearingPayload(payload)) {
           return;
         }
-        const audioMessage = await buildWebchatAudioOnlyAssistantMessage([payload], {
+        const audioMessage = await buildWebchatAudioOnlyZhushouMessage([payload], {
           localRoots: getAgentScopedMediaLocalRoots(cfg, agentId),
           onLocalAudioAccessDenied: (message) => {
             context.logGateway.warn(`webchat audio embedding denied local path: ${message}`);
@@ -2100,7 +2099,7 @@ export const chatHandlers: GatewayRequestHandlers = {
         }
         const { storePath: latestStorePath, entry: latestEntry } = loadSessionEntry(sessionKey);
         const sessionId = latestEntry?.sessionId ?? entry?.sessionId ?? clientRunId;
-        const appended = appendAssistantTranscriptMessage({
+        const appended = appendZhushouTranscriptMessage({
           message: audioMessage.transcriptText,
           content: audioMessage.content,
           sessionId,
@@ -2108,7 +2107,7 @@ export const chatHandlers: GatewayRequestHandlers = {
           sessionFile: latestEntry?.sessionFile,
           agentId,
           createIfMissing: true,
-          idempotencyKey: `${clientRunId}:assistant-audio`,
+          idempotencyKey: `${clientRunId}:zhushou-audio`,
         });
         if (appended.ok) {
           appendedWebchatAgentAudio = true;
@@ -2232,7 +2231,7 @@ export const chatHandlers: GatewayRequestHandlers = {
                 const { storePath: latestStorePath, entry: latestEntry } =
                   loadSessionEntry(sessionKey);
                 const sessionId = latestEntry?.sessionId ?? entry?.sessionId ?? clientRunId;
-                const appended = appendAssistantTranscriptMessage({
+                const appended = appendZhushouTranscriptMessage({
                   message: combinedReply,
                   sessionId,
                   storePath: latestStorePath,
@@ -2364,7 +2363,7 @@ export const chatHandlers: GatewayRequestHandlers = {
       return;
     }
 
-    const appended = appendAssistantTranscriptMessage({
+    const appended = appendZhushouTranscriptMessage({
       message: p.message,
       label: p.label,
       sessionId,

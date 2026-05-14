@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { SafeOpenError, openFileWithinRoot } from "../infra/fs-safe.js";
 import { isNotFoundPathError, isPathInside } from "../infra/path-guards.js";
-import { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
+import { resolvePreferredZhushouTmpDir } from "../infra/tmp-zhushou-dir.js";
 
-const DEFAULT_FALLBACK_BROWSER_TMP_DIR = "/tmp/assistant";
+const DEFAULT_FALLBACK_BROWSER_TMP_DIR = "/tmp/zhushou";
 
 function canUseNodeFs(): boolean {
   const getBuiltinModule = (
@@ -23,7 +23,7 @@ function canUseNodeFs(): boolean {
 }
 
 export const DEFAULT_BROWSER_TMP_DIR = canUseNodeFs()
-  ? resolvePreferredAssistantTmpDir()
+  ? resolvePreferredZhushouTmpDir()
   : DEFAULT_FALLBACK_BROWSER_TMP_DIR;
 export const DEFAULT_TRACE_DIR = DEFAULT_BROWSER_TMP_DIR;
 export const DEFAULT_DOWNLOAD_DIR = path.join(DEFAULT_BROWSER_TMP_DIR, "downloads");

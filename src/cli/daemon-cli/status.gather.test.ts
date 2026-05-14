@@ -43,8 +43,8 @@ const serviceReadCommand = vi.fn<
 >(async (_env?: NodeJS.ProcessEnv) => ({
   programArguments: ["/bin/node", "cli", "gateway", "--port", "19001"],
   environment: {
-    ASSISTANT_STATE_DIR: "/tmp/assistant-daemon",
-    ASSISTANT_CONFIG_PATH: "/tmp/assistant-daemon/assistant.json",
+    ZHUSHOU_STATE_DIR: "/tmp/zhushou-daemon",
+    ZHUSHOU_CONFIG_PATH: "/tmp/zhushou-daemon/zhushou.json",
   },
 }));
 const resolveGatewayBindHost = vi.fn(
@@ -53,10 +53,10 @@ const resolveGatewayBindHost = vi.fn(
 const pickPrimaryTailnetIPv4 = vi.fn(() => "100.64.0.9");
 const resolveGatewayPort = vi.fn((_cfg?: unknown, _env?: unknown) => 18789);
 const resolveStateDir = vi.fn(
-  (env: NodeJS.ProcessEnv) => env.ASSISTANT_STATE_DIR ?? "/tmp/assistant-cli",
+  (env: NodeJS.ProcessEnv) => env.ZHUSHOU_STATE_DIR ?? "/tmp/zhushou-cli",
 );
 const resolveConfigPath = vi.fn((env: NodeJS.ProcessEnv, stateDir: string) => {
-  return env.ASSISTANT_CONFIG_PATH ?? `${stateDir}/assistant.json`;
+  return env.ZHUSHOU_CONFIG_PATH ?? `${stateDir}/zhushou.json`;
 });
 const readConfigFileSnapshotCalls = vi.fn((configPath: string) => configPath);
 const loadConfigCalls = vi.fn((configPath: string) => configPath);
@@ -75,7 +75,7 @@ let cliLoadedConfig: Record<string, unknown> = {
 
 vi.mock("../../config/config.js", () => ({
   createConfigIO: ({ configPath }: { configPath: string }) => {
-    const isDaemon = configPath.includes("/assistant-daemon/");
+    const isDaemon = configPath.includes("/zhushou-daemon/");
     const runtimeConfig = isDaemon ? daemonLoadedConfig : cliLoadedConfig;
     return {
       readConfigFileSnapshot: async () => {
@@ -153,17 +153,17 @@ describe("gatherDaemonStatus", () => {
 
   beforeEach(() => {
     envSnapshot = captureEnv([
-      "ASSISTANT_STATE_DIR",
-      "ASSISTANT_CONFIG_PATH",
-      "ASSISTANT_GATEWAY_TOKEN",
-      "ASSISTANT_GATEWAY_PASSWORD",
+      "ZHUSHOU_STATE_DIR",
+      "ZHUSHOU_CONFIG_PATH",
+      "ZHUSHOU_GATEWAY_TOKEN",
+      "ZHUSHOU_GATEWAY_PASSWORD",
       "DAEMON_GATEWAY_TOKEN",
       "DAEMON_GATEWAY_PASSWORD",
     ]);
-    process.env.ASSISTANT_STATE_DIR = "/tmp/assistant-cli";
-    process.env.ASSISTANT_CONFIG_PATH = "/tmp/assistant-cli/assistant.json";
-    delete process.env.ASSISTANT_GATEWAY_TOKEN;
-    delete process.env.ASSISTANT_GATEWAY_PASSWORD;
+    process.env.ZHUSHOU_STATE_DIR = "/tmp/zhushou-cli";
+    process.env.ZHUSHOU_CONFIG_PATH = "/tmp/zhushou-cli/zhushou.json";
+    delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+    delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
     delete process.env.DAEMON_GATEWAY_TOKEN;
     delete process.env.DAEMON_GATEWAY_PASSWORD;
     callGatewayStatusProbe.mockClear();
@@ -220,7 +220,7 @@ describe("gatherDaemonStatus", () => {
     expect(callGatewayStatusProbe).toHaveBeenCalledWith(
       expect.objectContaining({
         requireRpc: true,
-        configPath: "/tmp/assistant-daemon/assistant.json",
+        configPath: "/tmp/zhushou-daemon/zhushou.json",
       }),
     );
   });
@@ -237,7 +237,7 @@ describe("gatherDaemonStatus", () => {
     });
 
     expect(readConfigFileSnapshotCalls).toHaveBeenCalledTimes(1);
-    expect(readConfigFileSnapshotCalls).toHaveBeenCalledWith("/tmp/assistant-cli/assistant.json");
+    expect(readConfigFileSnapshotCalls).toHaveBeenCalledWith("/tmp/zhushou-cli/zhushou.json");
     expect(loadConfigCalls).not.toHaveBeenCalled();
   });
 
@@ -311,14 +311,14 @@ describe("gatherDaemonStatus", () => {
     serviceReadCommand.mockResolvedValueOnce({
       programArguments: ["/bin/node", "cli", "gateway", "--port", "19001"],
       environment: {
-        ASSISTANT_GATEWAY_PORT: "19001",
-        ASSISTANT_CONFIG_PATH: "/tmp/assistant-daemon/assistant.json",
-        ASSISTANT_STATE_DIR: "/tmp/assistant-daemon",
+        ZHUSHOU_GATEWAY_PORT: "19001",
+        ZHUSHOU_CONFIG_PATH: "/tmp/zhushou-daemon/zhushou.json",
+        ZHUSHOU_STATE_DIR: "/tmp/zhushou-daemon",
       } as Record<string, string>,
     });
     serviceReadRuntime.mockImplementationOnce(async (env?: NodeJS.ProcessEnv) => ({
-      status: env?.ASSISTANT_GATEWAY_PORT === "19001" ? "running" : "unknown",
-      detail: env?.ASSISTANT_GATEWAY_PORT ?? "missing-port",
+      status: env?.ZHUSHOU_GATEWAY_PORT === "19001" ? "running" : "unknown",
+      detail: env?.ZHUSHOU_GATEWAY_PORT ?? "missing-port",
     }));
 
     const status = await gatherDaemonStatus({
@@ -329,7 +329,7 @@ describe("gatherDaemonStatus", () => {
 
     expect(serviceReadRuntime).toHaveBeenCalledWith(
       expect.objectContaining({
-        ASSISTANT_GATEWAY_PORT: "19001",
+        ZHUSHOU_GATEWAY_PORT: "19001",
       }),
     );
     expect(status.service.runtime).toMatchObject({
@@ -513,8 +513,8 @@ describe("gatherDaemonStatus", () => {
         },
       },
     };
-    process.env.ASSISTANT_GATEWAY_TOKEN = "env-token";
-    process.env.ASSISTANT_GATEWAY_PASSWORD = "env-password"; // pragma: allowlist secret
+    process.env.ZHUSHOU_GATEWAY_TOKEN = "env-token";
+    process.env.ZHUSHOU_GATEWAY_PASSWORD = "env-password"; // pragma: allowlist secret
 
     await gatherDaemonStatus({
       rpc: {},
@@ -548,7 +548,7 @@ describe("gatherDaemonStatus", () => {
       portUsage: {
         port: 19001,
         status: "busy",
-        listeners: [{ pid: 9000, ppid: 8999, commandLine: "assistant-gateway" }],
+        listeners: [{ pid: 9000, ppid: 8999, commandLine: "zhushou-gateway" }],
         hints: [],
       },
       healthy: false,

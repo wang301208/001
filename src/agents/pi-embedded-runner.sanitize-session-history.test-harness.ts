@@ -113,7 +113,7 @@ export async function loadSanitizeSessionHistoryWithCleanMocks(): Promise<Saniti
   };
 }
 
-export function makeReasoningAssistantMessages(opts?: {
+export function makeReasoningZhushouMessages(opts?: {
   thinkingSignature?: "object" | "json";
 }): AgentMessage[] {
   const thinkingSignature: unknown =
@@ -180,7 +180,7 @@ export function makeSnapshotChangedOpenAIReasoningScenario() {
   ];
   return {
     sessionManager: makeInMemorySessionManager(sessionEntries),
-    messages: makeReasoningAssistantMessages({ thinkingSignature: "object" }),
+    messages: makeReasoningZhushouMessages({ thinkingSignature: "object" }),
     modelId: "gpt-5.4",
   };
 }

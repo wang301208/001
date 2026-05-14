@@ -45,7 +45,7 @@ parallels_macos_desktop_user_exec_with_secret_file() {
   shift 7
 
   local secret_path
-  secret_path="/tmp/assistant-secret-${api_key_env:-env}-$RANDOM-$RANDOM"
+  secret_path="/tmp/zhushou-secret-${api_key_env:-env}-$RANDOM-$RANDOM"
 
   if [[ -n "$api_key_env" && -n "$api_key_value" ]]; then
     if [[ "$user_flag" == "current-user" ]]; then
@@ -59,17 +59,17 @@ parallels_macos_desktop_user_exec_with_secret_file() {
 
   local wrapper
   local wrapper_path
-  wrapper_path="/tmp/assistant-secret-env-wrapper-$RANDOM-$RANDOM.sh"
+  wrapper_path="/tmp/zhushou-secret-env-wrapper-$RANDOM-$RANDOM.sh"
   wrapper='#!/bin/bash
 set -e
 cleanup() {
-  rm -f "${ASSISTANT_WRAPPER_FILE:-}"
+  rm -f "${ZHUSHOU_WRAPPER_FILE:-}"
 }
 trap cleanup EXIT
-if [ -n "${ASSISTANT_SECRET_ENV_NAME:-}" ] && [ -n "${ASSISTANT_SECRET_FILE:-}" ] && [ -f "$ASSISTANT_SECRET_FILE" ]; then
-  secret_value="$(cat "$ASSISTANT_SECRET_FILE")"
-  rm -f "$ASSISTANT_SECRET_FILE"
-  export "${ASSISTANT_SECRET_ENV_NAME}=${secret_value}"
+if [ -n "${ZHUSHOU_SECRET_ENV_NAME:-}" ] && [ -n "${ZHUSHOU_SECRET_FILE:-}" ] && [ -f "$ZHUSHOU_SECRET_FILE" ]; then
+  secret_value="$(cat "$ZHUSHOU_SECRET_FILE")"
+  rm -f "$ZHUSHOU_SECRET_FILE"
+  export "${ZHUSHOU_SECRET_ENV_NAME}=${secret_value}"
 fi
 "$@"
 '
@@ -85,9 +85,9 @@ fi
   if [[ "$user_flag" == "current-user" ]]; then
     prlctl exec "$vm_name" --current-user /usr/bin/env \
       "PATH=$path_value" \
-      "ASSISTANT_SECRET_ENV_NAME=$api_key_env" \
-      "ASSISTANT_SECRET_FILE=$secret_path" \
-      "ASSISTANT_WRAPPER_FILE=$wrapper_path" \
+      "ZHUSHOU_SECRET_ENV_NAME=$api_key_env" \
+      "ZHUSHOU_SECRET_FILE=$secret_path" \
+      "ZHUSHOU_WRAPPER_FILE=$wrapper_path" \
       /bin/bash "$wrapper_path" "$@"
     return
   fi
@@ -97,9 +97,9 @@ fi
     "USER=$user_name" \
     "LOGNAME=$user_name" \
     "PATH=$path_value" \
-    "ASSISTANT_SECRET_ENV_NAME=$api_key_env" \
-    "ASSISTANT_SECRET_FILE=$secret_path" \
-    "ASSISTANT_WRAPPER_FILE=$wrapper_path" \
+    "ZHUSHOU_SECRET_ENV_NAME=$api_key_env" \
+    "ZHUSHOU_SECRET_FILE=$secret_path" \
+    "ZHUSHOU_WRAPPER_FILE=$wrapper_path" \
     /bin/bash "$wrapper_path" "$@"
 }
 

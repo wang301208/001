@@ -1,4 +1,4 @@
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
 import { logVerbose } from "../../globals.js";
 import { getReplyPayloadMetadata, setReplyPayloadMetadata } from "../reply-payload.js";
 import { SILENT_REPLY_TOKEN } from "../tokens.js";
@@ -154,7 +154,7 @@ export function createBlockReplyDeliveryHandler(params: {
     } else if (blockHasMedia) {
       // When block streaming is disabled, text-only block replies are accumulated into the
       // final response. Media cannot be reconstructed later, so send it immediately and let
-      // the assistant's final text arrive through the normal final-reply path.
+      // the zhushou's final text arrive through the normal final-reply path.
       await sendDirectBlockReply({
         onBlockReply: params.onBlockReply,
         directlySentBlockKeys: params.directlySentBlockKeys,

@@ -39,8 +39,8 @@ export async function runPreparedCliAgent(
           : {}),
         ...(text || rawText
           ? {
-              ...(text ? { finalAssistantVisibleText: text } : {}),
-              ...(rawText ? { finalAssistantRawText: rawText } : {}),
+              ...(text ? { finalZhushouVisibleText: text } : {}),
+              ...(rawText ? { finalZhushouRawText: rawText } : {}),
             }
           : {}),
         systemPromptReport: context.systemPromptReport,

@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import * as configRuntimeModule from "assistant/plugin-sdk/config-runtime";
+import * as configRuntimeModule from "zhushou/plugin-sdk/config-runtime";
 import {
   RequestScopedSubagentRuntimeError,
   SUBAGENT_RUNTIME_REQUEST_SCOPE_ERROR_CODE,
-} from "assistant/plugin-sdk/error-runtime";
-import * as memoryCoreHostRuntimeCoreModule from "assistant/plugin-sdk/memory-core-host-runtime-core";
+} from "zhushou/plugin-sdk/error-runtime";
+import * as memoryCoreHostRuntimeCoreModule from "zhushou/plugin-sdk/memory-core-host-runtime-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { resolveGlobalMap } from "../../../src/shared/global-singleton.js";
 import {
@@ -26,7 +26,7 @@ import {
 import { createMemoryCoreTestHarness } from "./test-helpers.js";
 
 const { createTempWorkspace } = createMemoryCoreTestHarness();
-const DREAMS_FILE_LOCKS_KEY = Symbol.for("assistant.memoryCore.dreamingNarrative.fileLocks");
+const DREAMS_FILE_LOCKS_KEY = Symbol.for("zhushou.memoryCore.dreamingNarrative.fileLocks");
 
 async function tryCreateSymlink(
   targetPath: string,
@@ -98,7 +98,7 @@ describe("buildNarrativePrompt", () => {
 });
 
 describe("extractNarrativeText", () => {
-  it("extracts string content from assistant message", () => {
+  it("extracts string content from zhushou message", () => {
     const messages = [
       { role: "user", content: "hello" },
       { role: "assistant", content: "The workspace hummed quietly." },
@@ -119,17 +119,17 @@ describe("extractNarrativeText", () => {
     expect(extractNarrativeText(messages)).toBe("First paragraph.\nSecond paragraph.");
   });
 
-  it("returns null when no assistant message exists", () => {
+  it("returns null when no zhushou message exists", () => {
     const messages = [{ role: "user", content: "hello" }];
     expect(extractNarrativeText(messages)).toBeNull();
   });
 
-  it("returns null for empty assistant content", () => {
+  it("returns null for empty zhushou content", () => {
     const messages = [{ role: "assistant", content: "   " }];
     expect(extractNarrativeText(messages)).toBeNull();
   });
 
-  it("picks the last assistant message", () => {
+  it("picks the last zhushou message", () => {
     const messages = [
       { role: "assistant", content: "First response." },
       { role: "user", content: "more" },
@@ -204,12 +204,12 @@ describe("backfill diary entries", () => {
       timezone: "UTC",
     });
     expect(entry).toContain("*January 1, 2026*");
-    expect(entry).toContain("assistant:dreaming:backfill-entry");
+    expect(entry).toContain("zhushou:dreaming:backfill-entry");
     expect(entry).toContain("What Happened");
   });
 
   it("writes and replaces backfill diary entries", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-backfill-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-backfill-");
     const first = await writeBackfillDiaryEntries({
       workspaceDir,
       timezone: "UTC",
@@ -241,11 +241,11 @@ describe("backfill diary entries", () => {
     const content = await fs.readFile(path.join(workspaceDir, "DREAMS.md"), "utf-8");
     expect(content).not.toContain("First pass.");
     expect(content).toContain("Second pass.");
-    expect(content.match(/assistant:dreaming:backfill-entry/g)?.length).toBe(1);
+    expect(content.match(/zhushou:dreaming:backfill-entry/g)?.length).toBe(1);
   });
 
   it("removes only backfill diary entries", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-backfill-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-backfill-");
     await appendNarrativeEntry({
       workspaceDir,
       narrative: "Keep this real dream.",
@@ -273,7 +273,7 @@ describe("backfill diary entries", () => {
   });
 
   it("refuses to overwrite a symlinked DREAMS.md during backfill writes", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-backfill-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-backfill-");
     const targetPath = path.join(workspaceDir, "outside.txt");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(targetPath, "outside\n", "utf-8");
@@ -301,7 +301,7 @@ describe("backfill diary entries", () => {
 
 describe("appendNarrativeEntry", () => {
   it("creates DREAMS.md with diary header on fresh workspace", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const dreamsPath = await appendNarrativeEntry({
       workspaceDir,
       narrative: "Fragments of authentication logic kept surfacing.",
@@ -312,12 +312,12 @@ describe("appendNarrativeEntry", () => {
     const content = await fs.readFile(dreamsPath, "utf-8");
     expect(content).toContain("# Dream Diary");
     expect(content).toContain("Fragments of authentication logic kept surfacing.");
-    expect(content).toContain("<!-- assistant:dreaming:diary:start -->");
-    expect(content).toContain("<!-- assistant:dreaming:diary:end -->");
+    expect(content).toContain("<!-- zhushou:dreaming:diary:start -->");
+    expect(content).toContain("<!-- zhushou:dreaming:diary:end -->");
   });
 
   it("appends a second entry within the diary markers", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     await appendNarrativeEntry({
       workspaceDir,
       narrative: "First dream.",
@@ -334,8 +334,8 @@ describe("appendNarrativeEntry", () => {
     expect(content).toContain("First dream.");
     expect(content).toContain("Second dream.");
     // Both entries should be between start and end markers.
-    const start = content.indexOf("<!-- assistant:dreaming:diary:start -->");
-    const end = content.indexOf("<!-- assistant:dreaming:diary:end -->");
+    const start = content.indexOf("<!-- zhushou:dreaming:diary:start -->");
+    const end = content.indexOf("<!-- zhushou:dreaming:diary:end -->");
     const firstIdx = content.indexOf("First dream.");
     const secondIdx = content.indexOf("Second dream.");
     expect(firstIdx).toBeGreaterThan(start);
@@ -344,11 +344,11 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("prepends diary before existing managed blocks", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(
       dreamsPath,
-      "## Light Sleep\n<!-- assistant:dreaming:light:start -->\n- Candidate: test\n<!-- assistant:dreaming:light:end -->\n",
+      "## Light Sleep\n<!-- zhushou:dreaming:light:start -->\n- Candidate: test\n<!-- zhushou:dreaming:light:end -->\n",
       "utf-8",
     );
     await appendNarrativeEntry({
@@ -366,7 +366,7 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("reuses existing dreams file when present", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(dreamsPath, "# Existing\n", "utf-8");
     const result = await appendNarrativeEntry({
@@ -383,7 +383,7 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("keeps existing diary content intact when the atomic replace fails", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(dreamsPath, "# Existing\n", "utf-8");
     const renameError = Object.assign(new Error("replace failed"), { code: "ENOSPC" });
@@ -403,7 +403,7 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("preserves restrictive dreams file permissions across atomic replace", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(dreamsPath, "# Existing\n", { encoding: "utf-8", mode: 0o600 });
     await fs.chmod(dreamsPath, 0o600);
@@ -425,14 +425,14 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("dedupes only exact diary duplicates while keeping distinct timestamps", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-dedupe-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-dedupe-");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(
       dreamsPath,
       [
         "# Dream Diary",
         "",
-        "<!-- assistant:dreaming:diary:start -->",
+        "<!-- zhushou:dreaming:diary:start -->",
         "---",
         "",
         "*April 11, 2026, 8:00 AM*",
@@ -453,7 +453,7 @@ describe("appendNarrativeEntry", () => {
         "",
         "The server room smelled like rain.",
         "",
-        "<!-- assistant:dreaming:diary:end -->",
+        "<!-- zhushou:dreaming:diary:end -->",
         "",
       ].join("\n"),
       "utf-8",
@@ -470,14 +470,14 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("serializes append and dedupe so concurrent rewrites keep the new entry", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-dedupe-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-dedupe-");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(
       dreamsPath,
       [
         "# Dream Diary",
         "",
-        "<!-- assistant:dreaming:diary:start -->",
+        "<!-- zhushou:dreaming:diary:start -->",
         "---",
         "",
         "*April 11, 2026, 8:00 AM*",
@@ -490,7 +490,7 @@ describe("appendNarrativeEntry", () => {
         "",
         "The server room smelled like rain.",
         "",
-        "<!-- assistant:dreaming:diary:end -->",
+        "<!-- zhushou:dreaming:diary:end -->",
         "",
       ].join("\n"),
       "utf-8",
@@ -512,7 +512,7 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("keeps dedupe a no-op when no exact duplicates exist", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-dedupe-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-dedupe-");
     await appendNarrativeEntry({
       workspaceDir,
       narrative: "Only one entry exists.",
@@ -530,7 +530,7 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("does not rewrite the diary file when dedupe finds nothing to remove", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-dedupe-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-dedupe-");
     const dreamsPath = await appendNarrativeEntry({
       workspaceDir,
       narrative: "Only one entry exists.",
@@ -548,7 +548,7 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("cleans up the per-file lock entry after diary updates finish", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-dedupe-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-dedupe-");
     const dreamsLocks = resolveGlobalMap<string, unknown>(DREAMS_FILE_LOCKS_KEY);
 
     expect(dreamsLocks.size).toBe(0);
@@ -564,7 +564,7 @@ describe("appendNarrativeEntry", () => {
   });
 
   it("surfaces temp cleanup failure after atomic replace error", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const dreamsPath = path.join(workspaceDir, "DREAMS.md");
     await fs.writeFile(dreamsPath, "# Existing\n", "utf-8");
     vi.spyOn(fs, "rename").mockRejectedValueOnce(
@@ -609,7 +609,7 @@ describe("generateAndAppendDreamNarrative", () => {
   }
 
   it("generates narrative and writes diary entry", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("The repository whispered of forgotten endpoints.");
     const logger = createMockLogger();
     const nowMs = Date.parse("2026-04-05T03:00:00Z");
@@ -643,7 +643,7 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("skips narrative when no snippets are available", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("Should not appear.");
     const logger = createMockLogger();
 
@@ -663,7 +663,7 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("handles subagent timeout gracefully", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("");
     subagent.waitForRun.mockResolvedValue({ status: "timeout" });
     const logger = createMockLogger();
@@ -685,7 +685,7 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("waits once more before cleanup after timeout and logs cleanup failures", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("");
     subagent.waitForRun
       .mockResolvedValueOnce({ status: "timeout" })
@@ -708,7 +708,7 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("handles subagent error gracefully", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("");
     subagent.run.mockRejectedValue(
       new Error("connection failed", {
@@ -732,7 +732,7 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("falls back to a local narrative when subagent runtime is request-scoped", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("");
     subagent.run.mockRejectedValue(new RequestScopedSubagentRuntimeError());
     const logger = createMockLogger();
@@ -754,7 +754,7 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("falls back when the request-scoped runtime error is detected by stable code", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("");
     const crossBoundaryError = new Error("different wrapper text");
     crossBoundaryError.name = "RequestScopedSubagentRuntimeError";
@@ -778,7 +778,7 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("does not fall back for non-Error objects that only spoof the stable code", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("");
     subagent.run.mockRejectedValue({
       code: SUBAGENT_RUNTIME_REQUEST_SCOPE_ERROR_CODE,
@@ -803,7 +803,7 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("cleans up session even on failure", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("");
     subagent.getSessionMessages.mockRejectedValue(new Error("fetch failed"));
     const logger = createMockLogger();
@@ -819,8 +819,8 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("scrubs stale dreaming entries and orphan transcripts after cleanup", async () => {
-    const workspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
-    const stateDir = await createTempWorkspace("assistant-dreaming-state-");
+    const workspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
+    const stateDir = await createTempWorkspace("zhushou-dreaming-state-");
     const sessionsDir = path.join(stateDir, "agents", "main", "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
     const storePath = path.join(sessionsDir, "sessions.json");
@@ -881,8 +881,8 @@ describe("generateAndAppendDreamNarrative", () => {
   });
 
   it("isolates narrative sessions across workspaces even at the same timestamp", async () => {
-    const firstWorkspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
-    const secondWorkspaceDir = await createTempWorkspace("assistant-dreaming-narrative-");
+    const firstWorkspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
+    const secondWorkspaceDir = await createTempWorkspace("zhushou-dreaming-narrative-");
     const subagent = createMockSubagent("A quiet memory took shape.");
     const logger = createMockLogger();
     const nowMs = Date.parse("2026-04-05T03:00:00Z");

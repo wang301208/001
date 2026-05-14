@@ -4,7 +4,7 @@ import {
   resolveIMessageAttachmentRoots,
   resolveIMessageRemoteAttachmentRoots,
 } from "../../test/helpers/channels/channel-media-roots-contract.js";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 
 describe("channel-inbound-roots contract", () => {
   function expectResolvedRootsCase(resolve: () => string[], expected: readonly string[]) {
@@ -24,7 +24,7 @@ describe("channel-inbound-roots contract", () => {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 
   it("resolves configured attachment roots with account overrides", () => {
     expectResolvedRootsCase(
@@ -56,7 +56,7 @@ describe("channel-inbound-roots contract", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     expectResolvedRootsCase(
       () => resolveIMessageAttachmentRoots({ cfg, accountId: "work" }),
@@ -66,14 +66,14 @@ describe("channel-inbound-roots contract", () => {
 
   it("falls back to default iMessage attachment roots", () => {
     expectResolvedRootsCase(
-      () => resolveIMessageAttachmentRoots({ cfg: {} as AssistantConfig }),
+      () => resolveIMessageAttachmentRoots({ cfg: {} as ZhushouConfig }),
       [...DEFAULT_IMESSAGE_ATTACHMENT_ROOTS],
     );
   });
 
   it("falls back to default iMessage remote attachment roots", () => {
     expectResolvedRootsCase(
-      () => resolveIMessageRemoteAttachmentRoots({ cfg: {} as AssistantConfig }),
+      () => resolveIMessageRemoteAttachmentRoots({ cfg: {} as ZhushouConfig }),
       [...DEFAULT_IMESSAGE_ATTACHMENT_ROOTS],
     );
   });

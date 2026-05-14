@@ -1,4 +1,4 @@
-import { isRecord } from "assistant/plugin-sdk/text-runtime";
+import { isRecord } from "zhushou/plugin-sdk/text-runtime";
 import { normalizeXaiModelId } from "../model-id.js";
 
 export { isRecord };

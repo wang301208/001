@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { configureChannelAccessWithAllowlist } from "./setup-group-access-configure.js";
 import type { ChannelAccessPolicy } from "./setup-group-access.js";
 
@@ -13,13 +13,13 @@ function createPrompter(params: { confirm: boolean; policy?: ChannelAccessPolicy
 }
 
 async function runConfigureChannelAccess<TResolved>(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   prompter: ReturnType<typeof createPrompter>;
   label?: string;
   placeholder?: string;
-  setPolicy: (cfg: AssistantConfig, policy: ChannelAccessPolicy) => AssistantConfig;
-  resolveAllowlist: (params: { cfg: AssistantConfig; entries: string[] }) => Promise<TResolved>;
-  applyAllowlist: (params: { cfg: AssistantConfig; resolved: TResolved }) => AssistantConfig;
+  setPolicy: (cfg: ZhushouConfig, policy: ChannelAccessPolicy) => ZhushouConfig;
+  resolveAllowlist: (params: { cfg: ZhushouConfig; entries: string[] }) => Promise<TResolved>;
+  applyAllowlist: (params: { cfg: ZhushouConfig; resolved: TResolved }) => ZhushouConfig;
 }) {
   return await configureChannelAccessWithAllowlist({
     cfg: params.cfg,
@@ -37,11 +37,11 @@ async function runConfigureChannelAccess<TResolved>(params: {
 
 describe("configureChannelAccessWithAllowlist", () => {
   it("returns input config when user skips access configuration", async () => {
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const prompter = createPrompter({ confirm: false });
-    const setPolicy = vi.fn((next: AssistantConfig) => next);
+    const setPolicy = vi.fn((next: ZhushouConfig) => next);
     const resolveAllowlist = vi.fn(async () => [] as string[]);
-    const applyAllowlist = vi.fn((params: { cfg: AssistantConfig }) => params.cfg);
+    const applyAllowlist = vi.fn((params: { cfg: ZhushouConfig }) => params.cfg);
 
     const next = await runConfigureChannelAccess({
       cfg,
@@ -58,19 +58,19 @@ describe("configureChannelAccessWithAllowlist", () => {
   });
 
   it("applies non-allowlist policy directly", async () => {
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const prompter = createPrompter({
       confirm: true,
       policy: "open",
     });
     const setPolicy = vi.fn(
-      (next: AssistantConfig, policy: ChannelAccessPolicy): AssistantConfig => ({
+      (next: ZhushouConfig, policy: ChannelAccessPolicy): ZhushouConfig => ({
         ...next,
         channels: { discord: { groupPolicy: policy } },
       }),
     );
     const resolveAllowlist = vi.fn(async () => ["ignored"]);
-    const applyAllowlist = vi.fn((params: { cfg: AssistantConfig }) => params.cfg);
+    const applyAllowlist = vi.fn((params: { cfg: ZhushouConfig }) => params.cfg);
 
     const next = await runConfigureChannelAccess({
       cfg,
@@ -89,19 +89,19 @@ describe("configureChannelAccessWithAllowlist", () => {
   });
 
   it("supports allowlist policies without prompting for entries", async () => {
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const prompter = createPrompter({
       confirm: true,
       policy: "allowlist",
     });
     const setPolicy = vi.fn(
-      (next: AssistantConfig, policy: ChannelAccessPolicy): AssistantConfig => ({
+      (next: ZhushouConfig, policy: ChannelAccessPolicy): ZhushouConfig => ({
         ...next,
         channels: { twitch: { groupPolicy: policy } },
       }),
     );
     const resolveAllowlist = vi.fn(async () => ["ignored"]);
-    const applyAllowlist = vi.fn((params: { cfg: AssistantConfig }) => params.cfg);
+    const applyAllowlist = vi.fn((params: { cfg: ZhushouConfig }) => params.cfg);
 
     const next = await configureChannelAccessWithAllowlist({
       cfg,
@@ -123,27 +123,27 @@ describe("configureChannelAccessWithAllowlist", () => {
   });
 
   it("resolves allowlist entries and applies them after forcing allowlist policy", async () => {
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const prompter = createPrompter({
       confirm: true,
       policy: "allowlist",
       text: "#general, #support",
     });
     const calls: string[] = [];
-    const setPolicy = vi.fn((next: AssistantConfig, policy: ChannelAccessPolicy): AssistantConfig => {
+    const setPolicy = vi.fn((next: ZhushouConfig, policy: ChannelAccessPolicy): ZhushouConfig => {
       calls.push("setPolicy");
       return {
         ...next,
         channels: { slack: { groupPolicy: policy } },
       };
     });
-    const resolveAllowlist = vi.fn(async (params: { cfg: AssistantConfig; entries: string[] }) => {
+    const resolveAllowlist = vi.fn(async (params: { cfg: ZhushouConfig; entries: string[] }) => {
       calls.push("resolve");
       expect(params.cfg).toBe(cfg);
       expect(params.entries).toEqual(["#general", "#support"]);
       return ["C1", "C2"];
     });
-    const applyAllowlist = vi.fn((params: { cfg: AssistantConfig; resolved: string[] }) => {
+    const applyAllowlist = vi.fn((params: { cfg: ZhushouConfig; resolved: string[] }) => {
       calls.push("apply");
       expect(params.cfg.channels?.slack?.groupPolicy).toBe("allowlist");
       return {

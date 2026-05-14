@@ -1,12 +1,12 @@
-import type { MarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
-import { chunkMarkdownTextWithMode, type ChunkMode } from "assistant/plugin-sdk/reply-chunking";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-chunking";
+import type { MarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import { chunkMarkdownTextWithMode, type ChunkMode } from "zhushou/plugin-sdk/reply-chunking";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-chunking";
 import {
   resolveOutboundMediaUrls,
   sendMediaWithLeadingCaption,
-} from "assistant/plugin-sdk/reply-payload";
-import { logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/reply-payload";
+import { logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { loadWebMedia } from "../media.js";
 import { newConnectionId } from "../reconnect.js";
 import { formatError } from "../session.js";

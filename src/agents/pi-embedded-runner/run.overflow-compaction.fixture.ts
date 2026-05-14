@@ -41,9 +41,9 @@ export function makeAttemptResult(
     promptError: null,
     promptErrorSource: null,
     sessionIdUsed: "test-session",
-    assistantTexts: ["Hello!"],
+    zhushouTexts: ["Hello!"],
     toolMetas,
-    lastAssistant: undefined,
+    lastZhushou: undefined,
     messagesSnapshot: [],
     replayMetadata:
       overrides.replayMetadata ??

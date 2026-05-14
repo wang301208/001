@@ -186,7 +186,7 @@ export function registerBrowserBasicRoutes(app: BrowserRouteRegistrar, ctx: Brow
       return jsonError(
         res,
         400,
-        `unsupported profile driver "${driver}"; use "assistant" or "existing-session"`,
+        `unsupported profile driver "${driver}"; use "zhushou" or "existing-session"`,
       );
     }
 
@@ -202,8 +202,8 @@ export function registerBrowserBasicRoutes(app: BrowserRouteRegistrar, ctx: Brow
           driver:
             driver === "existing-session"
               ? "existing-session"
-              : driver === "assistant"
-                ? "assistant"
+              : driver === "zhushou"
+                ? "zhushou"
                 : undefined,
         }),
     });

@@ -16,7 +16,7 @@ describe("Matrix inbound event dedupe", () => {
   });
 
   function createStoragePath(): string {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-matrix-inbound-dedupe-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-matrix-inbound-dedupe-"));
     tempDirs.push(dir);
     return path.join(dir, "inbound-dedupe.json");
   }

@@ -499,9 +499,9 @@ describe("matrix onboarding", () => {
     const status = await matrixOnboardingAdapter.getStatus({
       cfg: createMatrixNamedAccountsConfig({
         accounts: {
-          assistant: {
-            homeserver: "https://matrix.assistant.example.org",
-            accessToken: "assistant-token",
+          zhushou: {
+            homeserver: "https://matrix.zhushou.example.org",
+            accessToken: "zhushou-token",
           },
           ops: {
             homeserver: "https://matrix.ops.example.org",

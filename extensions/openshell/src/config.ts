@@ -1,6 +1,6 @@
 import path from "node:path";
-import { buildPluginConfigSchema, type AssistantPluginConfigSchema } from "assistant/plugin-sdk/core";
-import { z } from "assistant/plugin-sdk/zod";
+import { buildPluginConfigSchema, type ZhushouPluginConfigSchema } from "zhushou/plugin-sdk/core";
+import { z } from "zhushou/plugin-sdk/zod";
 
 export type OpenShellPluginConfig = {
   mode?: "mirror" | "remote";
@@ -34,7 +34,7 @@ export type ResolvedOpenShellPluginConfig = {
 
 const DEFAULT_COMMAND = "openshell";
 const DEFAULT_MODE = "mirror";
-const DEFAULT_SOURCE = "assistant";
+const DEFAULT_SOURCE = "zhushou";
 const DEFAULT_REMOTE_WORKSPACE_DIR = "/sandbox";
 const DEFAULT_REMOTE_AGENT_WORKSPACE_DIR = "/agent";
 const DEFAULT_TIMEOUT_MS = 120_000;
@@ -128,7 +128,7 @@ export function normalizeOpenShellRemotePath(
   return normalized;
 }
 
-export function createOpenShellPluginConfigSchema(): AssistantPluginConfigSchema {
+export function createOpenShellPluginConfigSchema(): ZhushouPluginConfigSchema {
   return buildPluginConfigSchema(OpenShellPluginConfigSchema, {
     safeParse(value) {
       if (value === undefined) {

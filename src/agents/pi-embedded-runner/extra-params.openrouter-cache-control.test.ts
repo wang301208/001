@@ -112,7 +112,7 @@ describe("extra-params: OpenRouter Anthropic cache_control", () => {
     ]);
   });
 
-  it("removes pre-existing cache_control from assistant thinking blocks", () => {
+  it("removes pre-existing cache_control from zhushou thinking blocks", () => {
     const payload = {
       messages: [
         {

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import {
   normalizePluginsConfigWithResolver,
@@ -45,7 +45,7 @@ function createRegistryPluginIdNormalizer(
 
 export function resolvePluginSkillDirs(params: {
   workspaceDir: string | undefined;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 }): string[] {
   const workspaceDir = (params.workspaceDir ?? "").trim();
   if (!workspaceDir) {

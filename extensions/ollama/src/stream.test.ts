@@ -4,11 +4,11 @@ const { fetchWithSsrFGuardMock } = vi.hoisted(() => ({
   fetchWithSsrFGuardMock: vi.fn(),
 }));
 
-vi.mock("assistant/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: fetchWithSsrFGuardMock,
 }));
 
-import { buildAssistantMessage, createOllamaStreamFn } from "./stream.js";
+import { buildZhushouMessage, createOllamaStreamFn } from "./stream.js";
 
 function makeOllamaResponse(params: {
   content?: string;
@@ -34,13 +34,13 @@ function makeOllamaResponse(params: {
 
 const MODEL_INFO = { api: "ollama", provider: "ollama", id: "qwen3.5" };
 
-describe("buildAssistantMessage", () => {
+describe("buildZhushouMessage", () => {
   it("includes thinking block when response has thinking field", () => {
     const response = makeOllamaResponse({
       thinking: "Let me think about this",
       content: "The answer is 42",
     });
-    const msg = buildAssistantMessage(response, MODEL_INFO);
+    const msg = buildZhushouMessage(response, MODEL_INFO);
     expect(msg.content).toHaveLength(2);
     expect(msg.content[0]).toEqual({ type: "thinking", thinking: "Let me think about this" });
     expect(msg.content[1]).toEqual({ type: "text", text: "The answer is 42" });
@@ -51,7 +51,7 @@ describe("buildAssistantMessage", () => {
       reasoning: "Step by step analysis",
       content: "Result is 7",
     });
-    const msg = buildAssistantMessage(response, MODEL_INFO);
+    const msg = buildZhushouMessage(response, MODEL_INFO);
     expect(msg.content).toHaveLength(2);
     expect(msg.content[0]).toEqual({ type: "thinking", thinking: "Step by step analysis" });
     expect(msg.content[1]).toEqual({ type: "text", text: "Result is 7" });
@@ -63,7 +63,7 @@ describe("buildAssistantMessage", () => {
       reasoning: "From reasoning field",
       content: "Answer",
     });
-    const msg = buildAssistantMessage(response, MODEL_INFO);
+    const msg = buildZhushouMessage(response, MODEL_INFO);
     expect(msg.content[0]).toEqual({ type: "thinking", thinking: "From thinking field" });
   });
 
@@ -71,7 +71,7 @@ describe("buildAssistantMessage", () => {
     const response = makeOllamaResponse({
       content: "Just text",
     });
-    const msg = buildAssistantMessage(response, MODEL_INFO);
+    const msg = buildZhushouMessage(response, MODEL_INFO);
     expect(msg.content).toHaveLength(1);
     expect(msg.content[0]).toEqual({ type: "text", text: "Just text" });
   });
@@ -81,7 +81,7 @@ describe("buildAssistantMessage", () => {
       thinking: "",
       content: "Just text",
     });
-    const msg = buildAssistantMessage(response, MODEL_INFO);
+    const msg = buildZhushouMessage(response, MODEL_INFO);
     expect(msg.content).toHaveLength(1);
     expect(msg.content[0]).toEqual({ type: "text", text: "Just text" });
   });

@@ -103,7 +103,6 @@ describe("fetchWithSsrFGuard hardening", () => {
   const CROSS_ORIGIN_REDIRECT_PRESERVED_HEADERS = [
     ["accept", "application/json"],
     ["content-type", "application/json"],
-    ["user-agent", "助手-Test/1.0"],
   ] as const;
 
   const createPublicLookup = (): LookupFn =>
@@ -373,7 +372,7 @@ describe("fetchWithSsrFGuard hardening", () => {
         globalFetchCalls += 1;
         throw new Error("ambient global fetch should not be used when a dispatcher is attached");
       },
-      { __assistantAcceptsDispatcher: true as const },
+      { __zhushouAcceptsDispatcher: true as const },
     );
 
     class MockAgent {
@@ -861,7 +860,6 @@ describe("fetchWithSsrFGuard hardening", () => {
 
     expect(headers).toEqual({
       accept: "application/json",
-      "user-agent": "助手-Test/1.0",
     });
   });
 

@@ -152,10 +152,10 @@ jobs:
         run: pnpm build
 
       - name: Publish
-        run: bash scripts/assistant-npm-publish.sh --publish
+        run: bash scripts/zhushou-npm-publish.sh --publish
 
       - name: Verify published package
-        run: pnpm release:assistant:npm:verify-published ${{ needs.release-check.outputs.version }}
+        run: pnpm release:zhushou:npm:verify-published ${{ needs.release-check.outputs.version }}
 
   deploy-kubernetes:
     name: Deploy Kubernetes
@@ -183,13 +183,13 @@ jobs:
 
       - name: Deploy manifests
         env:
-          ASSISTANT_NAMESPACE: ${{ vars.ASSISTANT_NAMESPACE || 'assistant' }}
-          ASSISTANT_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.release-check.outputs.image_tag }}
+          ZHUSHOU_NAMESPACE: ${{ vars.ZHUSHOU_NAMESPACE || 'zhushou' }}
+          ZHUSHOU_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.release-check.outputs.image_tag }}
         run: bash scripts/k8s/deploy.sh
 
       - name: Post-deploy health and logs feedback
         env:
-          ASSISTANT_NAMESPACE: ${{ vars.ASSISTANT_NAMESPACE || 'assistant' }}
+          ZHUSHOU_NAMESPACE: ${{ vars.ZHUSHOU_NAMESPACE || 'zhushou' }}
         run: bash scripts/ci/post-deploy-feedback.sh
 
       - name: Upload deployment feedback

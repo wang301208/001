@@ -9,15 +9,15 @@ let originalStateDir: string | undefined;
 
 beforeEach(async () => {
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "session-entry-test-"));
-  originalStateDir = process.env.ASSISTANT_STATE_DIR;
-  process.env.ASSISTANT_STATE_DIR = tmpDir;
+  originalStateDir = process.env.ZHUSHOU_STATE_DIR;
+  process.env.ZHUSHOU_STATE_DIR = tmpDir;
 });
 
 afterEach(async () => {
   if (originalStateDir === undefined) {
-    delete process.env.ASSISTANT_STATE_DIR;
+    delete process.env.ZHUSHOU_STATE_DIR;
   } else {
-    process.env.ASSISTANT_STATE_DIR = originalStateDir;
+    process.env.ZHUSHOU_STATE_DIR = originalStateDir;
   }
   await fs.rm(tmpDir, { recursive: true, force: true });
 });
@@ -56,11 +56,11 @@ describe("buildSessionEntry", () => {
     // Lines 1-3: non-message metadata records
     // Line 4: user message
     // Line 5: metadata
-    // Line 6: assistant message
+    // Line 6: zhushou message
     // Line 7: user message
     const jsonlLines = [
       JSON.stringify({ type: "custom", customType: "model-snapshot", data: {} }),
-      JSON.stringify({ type: "custom", customType: "assistant.cache-ttl", data: {} }),
+      JSON.stringify({ type: "custom", customType: "zhushou.cache-ttl", data: {} }),
       JSON.stringify({ type: "session-meta", agentId: "test" }),
       JSON.stringify({ type: "message", message: { role: "user", content: "Hello world" } }),
       JSON.stringify({ type: "custom", customType: "tool-result", data: {} }),
@@ -80,12 +80,12 @@ describe("buildSessionEntry", () => {
     const contentLines = entry!.content.split("\n");
     expect(contentLines).toHaveLength(3);
     expect(contentLines[0]).toContain("User: Hello world");
-    expect(contentLines[1]).toContain("Assistant: Hi there");
+    expect(contentLines[1]).toContain("Zhushou: Hi there");
     expect(contentLines[2]).toContain("User: Tell me a joke");
 
     // lineMap should map each content line to its original JSONL line (1-indexed)
     // Content line 0 → JSONL line 4 (the first user message)
-    // Content line 1 → JSONL line 6 (the assistant message)
+    // Content line 1 → JSONL line 6 (the zhushou message)
     // Content line 2 → JSONL line 7 (the second user message)
     expect(entry!.lineMap).toBeDefined();
     expect(entry!.lineMap).toEqual([4, 6, 7]);

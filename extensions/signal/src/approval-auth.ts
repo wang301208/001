@@ -1,8 +1,8 @@
 import {
   createResolvedApproverActionAuthAdapter,
   resolveApprovalApprovers,
-} from "assistant/plugin-sdk/approval-auth-runtime";
-import { normalizeE164 } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/approval-auth-runtime";
+import { normalizeE164 } from "zhushou/plugin-sdk/text-runtime";
 import { resolveSignalAccount } from "./accounts.js";
 import { normalizeSignalMessagingTarget } from "./normalize.js";
 import { looksLikeUuid } from "./uuid.js";

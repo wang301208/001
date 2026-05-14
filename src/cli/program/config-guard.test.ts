@@ -18,7 +18,7 @@ function makeSnapshot() {
     valid: true,
     issues: [],
     legacyIssues: [],
-    path: "/tmp/assistant.json",
+    path: "/tmp/zhushou.json",
   };
 }
 

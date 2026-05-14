@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
   bundledProviderSupportsNativePdfDocument,
@@ -54,12 +54,12 @@ function providerSupportsCapability(
   return Boolean(provider.describeVideo);
 }
 
-function resolveDefaultRegistry(cfg?: AssistantConfig) {
-  return buildMediaUnderstandingRegistry(undefined, cfg ?? ({} as AssistantConfig));
+function resolveDefaultRegistry(cfg?: ZhushouConfig) {
+  return buildMediaUnderstandingRegistry(undefined, cfg ?? ({} as ZhushouConfig));
 }
 
 function resolveConfiguredImageProviderModel(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   providerId: string;
 }): string | undefined {
   const providers = params.cfg?.models?.providers;
@@ -86,7 +86,7 @@ function resolveConfiguredImageProviderModel(params: {
 export function resolveDefaultMediaModel(params: {
   providerId: string;
   capability: MediaUnderstandingCapability;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   providerRegistry?: Map<string, MediaUnderstandingProvider>;
 }): string | undefined {
   if (!params.providerRegistry) {
@@ -115,7 +115,7 @@ export function resolveDefaultMediaModel(params: {
 
 export function resolveAutoMediaKeyProviders(params: {
   capability: MediaUnderstandingCapability;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   providerRegistry?: Map<string, MediaUnderstandingProvider>;
 }): string[] {
   if (!params.providerRegistry) {
@@ -166,7 +166,7 @@ export function resolveAutoMediaKeyProviders(params: {
 
 export function providerSupportsNativePdfDocument(params: {
   providerId: string;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   providerRegistry?: Map<string, MediaUnderstandingProvider>;
 }): boolean {
   if (!params.providerRegistry && bundledProviderSupportsNativePdfDocument(params.providerId)) {

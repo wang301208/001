@@ -6,9 +6,9 @@ import {
   patchChannelConfigForAccount,
   setSetupChannelEnabled,
   splitSetupEntries,
-} from "assistant/plugin-sdk/setup";
-import type { ChannelSetupWizard } from "assistant/plugin-sdk/setup";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/setup";
+import type { ChannelSetupWizard } from "zhushou/plugin-sdk/setup";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { inspectTelegramAccount } from "./account-inspect.js";
 import { listTelegramAccountIds, resolveTelegramAccount } from "./accounts.js";
 import {

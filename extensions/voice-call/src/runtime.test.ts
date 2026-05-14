@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/core";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { VoiceCallConfig } from "./config.js";
 import type { CoreConfig } from "./core-bridge.js";
@@ -121,7 +121,7 @@ describe("createVoiceCallRuntime lifecycle", () => {
           openai: { enabled: true },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     await createVoiceCallRuntime({
       config: createBaseConfig(),

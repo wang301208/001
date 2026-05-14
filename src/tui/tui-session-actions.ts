@@ -316,14 +316,14 @@ export function createSessionActions(context: SessionActionContext) {
       chatLog.clearAll();
       btw.clear();
       const displayedTurnKeys = new Set<string>();
-      let currentTurn: { user?: string; assistant?: string } = {};
+      let currentTurn: { user?: string; zhushou?: string } = {};
       const appendPendingTurn = () => {
         const turn = currentTurn;
-        if (!turn.user && !turn.assistant) {
+        if (!turn.user && !turn.zhushou) {
           return;
         }
         currentTurn = {};
-        const key = `${turn.user ?? ""}\u0000${turn.assistant ?? ""}`;
+        const key = `${turn.user ?? ""}\u0000${turn.zhushou ?? ""}`;
         if (displayedTurnKeys.has(key)) {
           return;
         }
@@ -331,8 +331,8 @@ export function createSessionActions(context: SessionActionContext) {
         if (turn.user) {
           chatLog.addUser(turn.user);
         }
-        if (turn.assistant && turn.assistant !== turn.user) {
-          chatLog.finalizeAssistant(turn.assistant);
+        if (turn.zhushou && turn.zhushou !== turn.user) {
+          chatLog.finalizeZhushou(turn.zhushou);
         }
       };
       for (const entry of record.messages ?? []) {
@@ -361,7 +361,7 @@ export function createSessionActions(context: SessionActionContext) {
             includeThinking: state.showThinking,
           });
           if (text) {
-            currentTurn.assistant = text.trim();
+            currentTurn.zhushou = text.trim();
           }
           continue;
         }

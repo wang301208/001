@@ -47,7 +47,7 @@ describe("shared/node-match", () => {
     ).toBe("mac-studio");
   });
 
-  it("prefers a unique current assistant client over another client", () => {
+  it("prefers a unique current zhushou client over another client", () => {
     expect(
       resolveNodeIdFromCandidates(
         [
@@ -60,7 +60,7 @@ describe("shared/node-match", () => {
           {
             nodeId: "current-mac",
             displayName: "Peter’s Mac Studio",
-            clientId: "assistant-macos",
+            clientId: "zhushou-macos",
             connected: false,
           },
         ],
@@ -117,22 +117,22 @@ describe("shared/node-match", () => {
             connected: true,
           },
           {
-            nodeId: "assistant-mac-a",
+            nodeId: "zhushou-mac-a",
             displayName: "Peter’s Mac Studio",
-            clientId: "assistant-macos",
+            clientId: "zhushou-macos",
             connected: true,
           },
           {
-            nodeId: "assistant-mac-b",
+            nodeId: "zhushou-mac-b",
             displayName: "Peter’s Mac Studio",
-            clientId: "assistant-macos",
+            clientId: "zhushou-macos",
             connected: true,
           },
         ],
         "Peter's Mac Studio",
       ),
     ).toThrow(
-      /ambiguous node: Peter's Mac Studio.*node=assistant-mac-a.*client=assistant-macos.*node=assistant-mac-b.*client=assistant-macos/,
+      /ambiguous node: Peter's Mac Studio.*node=zhushou-mac-a.*client=zhushou-macos.*node=zhushou-mac-b.*client=zhushou-macos/,
     );
   });
 

@@ -1,8 +1,8 @@
 ﻿import fs from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 
 const createFeishuClientMock = vi.hoisted(() => vi.fn());
 const resolveFeishuAccountMock = vi.hoisted(() => vi.fn());
@@ -18,7 +18,7 @@ const messageResourceGetMock = vi.hoisted(() => vi.fn());
 const messageReplyMock = vi.hoisted(() => vi.fn());
 
 const FEISHU_MEDIA_HTTP_TIMEOUT_MS = 120_000;
-const emptyConfig: AssistantConfig = {};
+const emptyConfig: ZhushouConfig = {};
 
 vi.mock("./client.js", () => ({
   createFeishuClient: createFeishuClientMock,
@@ -56,7 +56,7 @@ function expectPathIsolatedToTmpRoot(pathValue: string, key: string): void {
   expect(pathValue).not.toContain(key);
   expect(pathValue).not.toContain("..");
 
-  const tmpRoot = path.resolve(resolvePreferredAssistantTmpDir());
+  const tmpRoot = path.resolve(resolvePreferredZhushouTmpDir());
   const resolved = path.resolve(pathValue);
   const rel = path.relative(tmpRoot, resolved);
   expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
@@ -340,7 +340,7 @@ describe("sendMediaFeishu msg_type routing", () => {
       contentType: "application/pdf",
     });
 
-    const roots = ["/allowed/workspace", "/tmp/assistant"];
+    const roots = ["/allowed/workspace", "/tmp/zhushou"];
     await sendMediaFeishu({
       cfg: emptyConfig,
       to: "user:ou_target",

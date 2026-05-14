@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
 import { afterAll, beforeAll } from "vitest";
 
 export function createMemoryCoreTestHarness() {
@@ -9,7 +9,7 @@ export function createMemoryCoreTestHarness() {
 
   beforeAll(async () => {
     fixtureRoot = await fs.mkdtemp(
-      path.join(resolvePreferredAssistantTmpDir(), "memory-core-test-fixtures-"),
+      path.join(resolvePreferredZhushouTmpDir(), "memory-core-test-fixtures-"),
     );
   });
 

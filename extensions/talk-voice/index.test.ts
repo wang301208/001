@@ -1,10 +1,10 @@
-import type { AssistantPluginCommandDefinition } from "assistant/plugin-sdk/core";
+import type { ZhushouPluginCommandDefinition } from "zhushou/plugin-sdk/core";
 import { describe, expect, it, vi } from "vitest";
 import type { PluginRuntime } from "./api.js";
 import register from "./index.js";
 
 function createHarness(config: Record<string, unknown>) {
-  let command: AssistantPluginCommandDefinition | undefined;
+  let command: ZhushouPluginCommandDefinition | undefined;
   const runtime = {
     config: {
       loadConfig: vi.fn(() => config),
@@ -16,7 +16,7 @@ function createHarness(config: Record<string, unknown>) {
   } as unknown as PluginRuntime;
   const api = {
     runtime,
-    registerCommand: vi.fn((definition: AssistantPluginCommandDefinition) => {
+    registerCommand: vi.fn((definition: ZhushouPluginCommandDefinition) => {
       command = definition;
     }),
   };

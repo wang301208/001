@@ -1,6 +1,6 @@
 import type { SkillCommandSpec } from "../agents/skills/types.js";
 import { isCommandFlagEnabled } from "../config/commands.flags.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { getChatCommands } from "./commands-registry.data.js";
 import type { ChatCommandDefinition } from "./commands-registry.types.js";
 
@@ -30,7 +30,7 @@ export function listChatCommands(params?: {
   return [...commands, ...buildSkillCommandDefinitions(params.skillCommands)];
 }
 
-export function isCommandEnabled(cfg: AssistantConfig, commandKey: string): boolean {
+export function isCommandEnabled(cfg: ZhushouConfig, commandKey: string): boolean {
   if (commandKey === "config") {
     return isCommandFlagEnabled(cfg, "config");
   }
@@ -50,7 +50,7 @@ export function isCommandEnabled(cfg: AssistantConfig, commandKey: string): bool
 }
 
 export function listChatCommandsForConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params?: { skillCommands?: SkillCommandSpec[] },
 ): ChatCommandDefinition[] {
   const base = getChatCommands().filter((command) => isCommandEnabled(cfg, command.key));

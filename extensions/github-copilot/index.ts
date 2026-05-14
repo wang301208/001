@@ -1,6 +1,6 @@
-import { definePluginEntry, type ProviderAuthContext } from "assistant/plugin-sdk/plugin-entry";
-import { ensureAuthProfileStore } from "assistant/plugin-sdk/provider-auth";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+import { definePluginEntry, type ProviderAuthContext } from "zhushou/plugin-sdk/plugin-entry";
+import { ensureAuthProfileStore } from "zhushou/plugin-sdk/provider-auth";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 import { resolveFirstGithubToken } from "./auth.js";
 import { githubCopilotMemoryEmbeddingProviderAdapter } from "./embeddings.js";
 import { PROVIDER_ID, resolveCopilotForwardCompatModel } from "./models.js";

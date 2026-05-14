@@ -3,6 +3,24 @@ import path from "node:path";
 
 const parsedTypeScriptSourceCache = new Map();
 
+function isTooManyOpenFilesError(error) {
+  return error && typeof error === "object" && "code" in error && error.code === "EMFILE";
+}
+
+async function readFileWithOpenFileRetry(filePath, encoding) {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      return await fs.readFile(filePath, encoding);
+    } catch (error) {
+      if (!isTooManyOpenFilesError(error) || attempt === 4) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 25 * (attempt + 1)));
+    }
+  }
+  return await fs.readFile(filePath, encoding);
+}
+
 export function normalizeRepoPath(repoRoot, filePath) {
   return path.relative(repoRoot, filePath).split(path.sep).join("/");
 }
@@ -82,7 +100,7 @@ export async function collectTypeScriptInventory(params) {
     const cacheKey = `${scriptKind}:${filePath}`;
     let sourceFile = parsedTypeScriptSourceCache.get(cacheKey);
     if (!sourceFile) {
-      const source = await fs.readFile(filePath, "utf8");
+      const source = await readFileWithOpenFileRetry(filePath, "utf8");
       if (params.shouldParseSource && !params.shouldParseSource(source, filePath)) {
         continue;
       }

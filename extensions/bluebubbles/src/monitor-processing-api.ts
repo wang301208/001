@@ -1,20 +1,20 @@
-export { resolveAckReaction } from "assistant/plugin-sdk/channel-feedback";
-export { logAckFailure, logTypingFailure } from "assistant/plugin-sdk/channel-feedback";
-export { logInboundDrop } from "assistant/plugin-sdk/channel-inbound";
-export { mapAllowFromEntries } from "assistant/plugin-sdk/channel-config-helpers";
-export { createChannelPairingController } from "assistant/plugin-sdk/channel-pairing";
-export { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
+export { resolveAckReaction } from "zhushou/plugin-sdk/channel-feedback";
+export { logAckFailure, logTypingFailure } from "zhushou/plugin-sdk/channel-feedback";
+export { logInboundDrop } from "zhushou/plugin-sdk/channel-inbound";
+export { mapAllowFromEntries } from "zhushou/plugin-sdk/channel-config-helpers";
+export { createChannelPairingController } from "zhushou/plugin-sdk/channel-pairing";
+export { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
 export {
   DM_GROUP_ACCESS_REASON,
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
-} from "assistant/plugin-sdk/channel-policy";
-export { resolveControlCommandGate } from "assistant/plugin-sdk/command-auth";
-export { resolveChannelContextVisibilityMode } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-policy";
+export { resolveControlCommandGate } from "zhushou/plugin-sdk/command-auth";
+export { resolveChannelContextVisibilityMode } from "zhushou/plugin-sdk/config-runtime";
 export {
   evictOldHistoryKeys,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "assistant/plugin-sdk/reply-history";
-export { evaluateSupplementalContextVisibility } from "assistant/plugin-sdk/security-runtime";
-export { stripMarkdown } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/reply-history";
+export { evaluateSupplementalContextVisibility } from "zhushou/plugin-sdk/security-runtime";
+export { stripMarkdown } from "zhushou/plugin-sdk/text-runtime";

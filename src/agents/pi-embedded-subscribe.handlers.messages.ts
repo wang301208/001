@@ -1,14 +1,14 @@
 import type { AgentEvent, AgentMessage } from "@mariozechner/pi-agent-core";
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
 import { parseReplyDirectives } from "../auto-reply/reply/reply-directives.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { createInlineCodeState } from "../markdown/code-spans.js";
 import {
-  parseAssistantTextSignature,
-  resolveAssistantMessagePhase,
-  type AssistantPhase,
+  parseZhushouTextSignature,
+  resolveZhushouMessagePhase,
+  type ZhushouPhase,
 } from "../shared/chat-message-content.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
@@ -23,9 +23,9 @@ import type {
 import { isPromiseLike } from "./pi-embedded-subscribe.promise.js";
 import { appendRawStream } from "./pi-embedded-subscribe.raw-stream.js";
 import {
-  extractAssistantText,
-  extractAssistantThinking,
-  extractAssistantVisibleText,
+  extractZhushouText,
+  extractZhushouThinking,
+  extractZhushouVisibleText,
   extractThinkingFromTaggedStream,
   extractThinkingFromTaggedText,
   formatReasoningMessage,
@@ -72,20 +72,20 @@ const coerceText = (value: unknown): string => {
   return "";
 };
 
-function shouldSuppressAssistantVisibleOutput(message: AgentMessage | undefined): boolean {
-  return resolveAssistantMessagePhase(message) === "commentary";
+function shouldSuppressZhushouVisibleOutput(message: AgentMessage | undefined): boolean {
+  return resolveZhushouMessagePhase(message) === "commentary";
 }
 
-function isTranscriptOnlyAssistantAssistantMessage(message: AgentMessage | undefined): boolean {
-  if (!message || message.role !== "assistant") {
+if (!message || message.role !== "assistant") {
+  if (!message || message.role === "assistant") {
     return false;
   }
   const provider = normalizeOptionalString(message.provider) ?? "";
   const model = normalizeOptionalString(message.model) ?? "";
-  return provider === "assistant" && (model === "delivery-mirror" || model === "gateway-injected");
+  return provider === "zhushou" && (model === "delivery-mirror" || model === "gateway-injected");
 }
 
-function resolveAssistantStreamItemId(params: {
+function resolveZhushouStreamItemId(params: {
   contentIndex?: unknown;
   message: AgentMessage | undefined;
 }): string | undefined {
@@ -109,7 +109,7 @@ function resolveAssistantStreamItemId(params: {
     if (record.type !== "text") {
       continue;
     }
-    const signature = parseAssistantTextSignature(record.textSignature);
+    const signature = parseZhushouTextSignature(record.textSignature);
     if (signature?.id) {
       return signature.id;
     }
@@ -155,7 +155,7 @@ function replaceBlockReplyBuffer(ctx: EmbeddedPiSubscribeContext, text: string) 
   ctx.state.blockBuffer = text;
 }
 
-function resolveAssistantTextChunk(params: {
+function resolveZhushouTextChunk(params: {
   evtType: "text_delta" | "text_start" | "text_end";
   delta: string;
   content: string;
@@ -246,7 +246,7 @@ export function consumePendingToolMediaReply(
   return payload;
 }
 
-export function hasAssistantVisibleReply(params: {
+export function hasZhushouVisibleReply(params: {
   text?: string;
   mediaUrls?: string[];
   mediaUrl?: string;
@@ -255,19 +255,19 @@ export function hasAssistantVisibleReply(params: {
   return resolveSendableOutboundReplyParts(params).hasContent || Boolean(params.audioAsVoice);
 }
 
-export function buildAssistantStreamData(params: {
+export function buildZhushouStreamData(params: {
   text?: string;
   delta?: string;
   replace?: boolean;
   mediaUrls?: string[];
   mediaUrl?: string;
-  phase?: AssistantPhase;
+  phase?: ZhushouPhase;
 }): {
   text: string;
   delta: string;
   replace?: true;
   mediaUrls?: string[];
-  phase?: AssistantPhase;
+  phase?: ZhushouPhase;
 } {
   const mediaUrls = resolveSendableOutboundReplyParts(params).mediaUrls;
   return {
@@ -279,59 +279,68 @@ export function buildAssistantStreamData(params: {
   };
 }
 
+function isTranscriptOnlyZhushouZhushouMessage(message: AgentMessage | undefined): boolean {
+  if (!message || message.role !== "assistant") {
+    return false;
+  }
+  const provider = normalizeOptionalString(message.provider) ?? "";
+  const model = normalizeOptionalString(message.model) ?? "";
+  return provider === "zhushou" && (model === "delivery-mirror" || model === "gateway-injected");
+}
+
 export function handleMessageStart(
   ctx: EmbeddedPiSubscribeContext,
   evt: AgentEvent & { message: AgentMessage },
 ) {
   const msg = evt.message;
-  if (msg?.role !== "assistant" || isTranscriptOnlyAssistantAssistantMessage(msg)) {
+  if (msg?.role !== "assistant" || isTranscriptOnlyZhushouZhushouMessage(msg)) {
     return;
   }
 
   // KNOWN: Resetting at `text_end` is unsafe (late/duplicate end events).
-  // ASSUME: `message_start` is the only reliable boundary for “new assistant message begins”.
+  // ASSUME: `message_start` is the only reliable boundary for “new zhushou message begins”.
   // Start-of-message is a safer reset point than message_end: some providers
   // may deliver late text_end updates after message_end, which would otherwise
   // re-trigger block replies.
-  ctx.resetAssistantMessageState(ctx.state.assistantTexts.length);
-  // Use assistant message_start as the earliest "writing" signal for typing.
-  void ctx.params.onAssistantMessageStart?.();
+  ctx.resetZhushouMessageState(ctx.state.zhushouTexts.length);
+  // Use zhushou message_start as the earliest "writing" signal for typing.
+  void ctx.params.onZhushouMessageStart?.();
 }
 
 export function handleMessageUpdate(
   ctx: EmbeddedPiSubscribeContext,
-  evt: AgentEvent & { message: AgentMessage; assistantMessageEvent?: unknown },
+  evt: AgentEvent & { message: AgentMessage; zhushouMessageEvent?: unknown },
 ) {
   const msg = evt.message;
-  if (msg?.role !== "assistant" || isTranscriptOnlyAssistantAssistantMessage(msg)) {
+  if (msg?.role !== "assistant" || isTranscriptOnlyZhushouZhushouMessage(msg)) {
     return;
   }
 
-  ctx.noteLastAssistant(msg);
-  const suppressVisibleAssistantOutput = shouldSuppressAssistantVisibleOutput(msg);
-  if (suppressVisibleAssistantOutput) {
+  ctx.noteLastZhushou(msg);
+  const suppressVisibleZhushouOutput = shouldSuppressZhushouVisibleOutput(msg);
+  if (suppressVisibleZhushouOutput) {
     return;
   }
   const suppressDeterministicApprovalOutput = shouldSuppressDeterministicApprovalOutput(ctx.state);
 
-  const assistantEvent = evt.assistantMessageEvent;
-  const assistantPhase = resolveAssistantMessagePhase(msg);
-  const assistantRecord =
-    assistantEvent && typeof assistantEvent === "object"
-      ? (assistantEvent as Record<string, unknown>)
+  const zhushouEvent = evt.zhushouMessageEvent;
+  const zhushouPhase = resolveZhushouMessagePhase(msg);
+  const zhushouRecord =
+    zhushouEvent && typeof zhushouEvent === "object"
+      ? (zhushouEvent as Record<string, unknown>)
       : undefined;
-  const evtType = typeof assistantRecord?.type === "string" ? assistantRecord.type : "";
+  const evtType = typeof zhushouRecord?.type === "string" ? zhushouRecord.type : "";
 
   if (evtType === "thinking_start" || evtType === "thinking_delta" || evtType === "thinking_end") {
     if (evtType === "thinking_start" || evtType === "thinking_delta") {
       openReasoningStream(ctx);
     }
-    const thinkingDelta = typeof assistantRecord?.delta === "string" ? assistantRecord.delta : "";
+    const thinkingDelta = typeof zhushouRecord?.delta === "string" ? zhushouRecord.delta : "";
     const thinkingContent =
-      typeof assistantRecord?.content === "string" ? assistantRecord.content : "";
+      typeof zhushouRecord?.content === "string" ? zhushouRecord.content : "";
     appendRawStream({
       ts: Date.now(),
-      event: "assistant_thinking_stream",
+      event: "zhushou_thinking_stream",
       runId: ctx.params.runId,
       sessionId: (ctx.params.session as { id?: string }).id,
       evtType,
@@ -340,7 +349,7 @@ export function handleMessageUpdate(
     });
     if (ctx.state.streamReasoning) {
       // Prefer full partial-message thinking when available; fall back to event payloads.
-      const partialThinking = extractAssistantThinking(msg);
+      const partialThinking = extractZhushouThinking(msg);
       ctx.emitReasoningStream(partialThinking || thinkingContent || thinkingDelta);
     }
     if (evtType === "thinking_end") {
@@ -356,12 +365,12 @@ export function handleMessageUpdate(
     return;
   }
 
-  const delta = typeof assistantRecord?.delta === "string" ? assistantRecord.delta : "";
-  const content = typeof assistantRecord?.content === "string" ? assistantRecord.content : "";
+  const delta = typeof zhushouRecord?.delta === "string" ? zhushouRecord.delta : "";
+  const content = typeof zhushouRecord?.content === "string" ? zhushouRecord.content : "";
 
   appendRawStream({
     ts: Date.now(),
-    event: "assistant_text_stream",
+    event: "zhushou_text_stream",
     runId: ctx.params.runId,
     sessionId: (ctx.params.session as { id?: string }).id,
     evtType,
@@ -369,35 +378,35 @@ export function handleMessageUpdate(
     content,
   });
 
-  const chunk = resolveAssistantTextChunk({
+  const chunk = resolveZhushouTextChunk({
     evtType,
     delta,
     content,
     accumulatedText: ctx.state.deltaBuffer,
   });
 
-  const partialAssistant =
-    assistantRecord?.partial && typeof assistantRecord.partial === "object"
-      ? (assistantRecord.partial as AssistantMessage)
+  const partialZhushou =
+    zhushouRecord?.partial && typeof zhushouRecord.partial === "object"
+      ? (zhushouRecord.partial as AssistantMessage)
       : msg;
-  const deliveryPhase = resolveAssistantMessagePhase(partialAssistant);
-  const streamItemId = resolveAssistantStreamItemId({
-    contentIndex: assistantRecord?.contentIndex,
-    message: partialAssistant,
+  const deliveryPhase = resolveZhushouMessagePhase(partialZhushou);
+  const streamItemId = resolveZhushouStreamItemId({
+    contentIndex: zhushouRecord?.contentIndex,
+    message: partialZhushou,
   });
   if (deliveryPhase && streamItemId) {
-    const previousStreamItemId = ctx.state.lastAssistantStreamItemId;
+    const previousStreamItemId = ctx.state.lastZhushouStreamItemId;
     if (previousStreamItemId && previousStreamItemId !== streamItemId) {
-      void ctx.flushBlockReplyBuffer({ assistantMessageIndex: ctx.state.assistantMessageIndex });
-      ctx.resetAssistantMessageState(ctx.state.assistantTexts.length);
-      void ctx.params.onAssistantMessageStart?.();
+      void ctx.flushBlockReplyBuffer({ zhushouMessageIndex: ctx.state.zhushouMessageIndex });
+      ctx.resetZhushouMessageState(ctx.state.zhushouTexts.length);
+      void ctx.params.onZhushouMessageStart?.();
     }
-    ctx.state.lastAssistantStreamItemId = streamItemId;
+    ctx.state.lastZhushouStreamItemId = streamItemId;
   }
   if (deliveryPhase === "commentary") {
     return;
   }
-  const phaseAwareVisibleText = coerceText(extractAssistantVisibleText(partialAssistant)).trim();
+  const phaseAwareVisibleText = coerceText(extractZhushouVisibleText(partialZhushou)).trim();
   const shouldUsePhaseAwareBlockReply = Boolean(deliveryPhase);
 
   if (chunk) {
@@ -437,12 +446,12 @@ export function handleMessageUpdate(
     const cleanedText = parsedFull.text;
     const { mediaUrls, hasMedia } = resolveSendableOutboundReplyParts(parsedDelta ?? {});
     const hasAudio = Boolean(parsedDelta?.audioAsVoice);
-    const previousCleaned = ctx.state.lastStreamedAssistantCleaned ?? "";
+    const previousCleaned = ctx.state.lastStreamedZhushouCleaned ?? "";
 
     let shouldEmit = false;
     let deltaText = "";
     let replace = false;
-    if (!hasAssistantVisibleReply({ text: cleanedText, mediaUrls, audioAsVoice: hasAudio })) {
+    if (!hasZhushouVisibleReply({ text: cleanedText, mediaUrls, audioAsVoice: hasAudio })) {
       shouldEmit = false;
     } else {
       replace = Boolean(previousCleaned && !cleanedText.startsWith(previousCleaned));
@@ -467,31 +476,31 @@ export function handleMessageUpdate(
       }
     }
 
-    ctx.state.lastStreamedAssistant = next;
-    ctx.state.lastStreamedAssistantCleaned = cleanedText;
+    ctx.state.lastStreamedZhushou = next;
+    ctx.state.lastStreamedZhushouCleaned = cleanedText;
 
     if (ctx.params.silentExpected || suppressDeterministicApprovalOutput) {
       shouldEmit = false;
     }
 
     if (shouldEmit) {
-      const data = buildAssistantStreamData({
+      const data = buildZhushouStreamData({
         text: cleanedText,
         delta: deltaText,
         replace,
         mediaUrls,
-        phase: assistantPhase,
+        phase: zhushouPhase,
       });
       emitAgentEvent({
         runId: ctx.params.runId,
-        stream: "assistant",
+        stream: "zhushou",
         data,
       });
       void ctx.params.onAgentEvent?.({
-        stream: "assistant",
+        stream: "zhushou",
         data,
       });
-      ctx.state.emittedAssistantUpdate = true;
+      ctx.state.emittedZhushouUpdate = true;
       if (ctx.params.onPartialReply && ctx.state.shouldEmitPartialReplies) {
         void ctx.params.onPartialReply(data);
       }
@@ -514,9 +523,9 @@ export function handleMessageUpdate(
     evtType === "text_end" &&
     ctx.state.blockReplyBreak === "text_end"
   ) {
-    const assistantMessageIndex = ctx.state.assistantMessageIndex;
+    const zhushouMessageIndex = ctx.state.zhushouMessageIndex;
     void Promise.resolve()
-      .then(() => ctx.flushBlockReplyBuffer({ assistantMessageIndex }))
+      .then(() => ctx.flushBlockReplyBuffer({ zhushouMessageIndex }))
       .catch((err) => {
         ctx.log.debug(`text_end block reply flush failed: ${String(err)}`);
       });
@@ -528,30 +537,30 @@ export function handleMessageEnd(
   evt: AgentEvent & { message: AgentMessage },
 ): void | Promise<void> {
   const msg = evt.message;
-  if (msg?.role !== "assistant" || isTranscriptOnlyAssistantAssistantMessage(msg)) {
+  if (msg?.role !== "assistant" || isTranscriptOnlyZhushouZhushouMessage(msg)) {
     return;
   }
 
-  const assistantMessage = msg;
-  const assistantPhase = resolveAssistantMessagePhase(assistantMessage);
-  const suppressVisibleAssistantOutput = shouldSuppressAssistantVisibleOutput(assistantMessage);
+  const zhushouMessage = msg;
+  const zhushouPhase = resolveZhushouMessagePhase(zhushouMessage);
+  const suppressVisibleZhushouOutput = shouldSuppressZhushouVisibleOutput(zhushouMessage);
   const suppressDeterministicApprovalOutput = shouldSuppressDeterministicApprovalOutput(ctx.state);
-  ctx.noteLastAssistant(assistantMessage);
-  ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
-  if (suppressVisibleAssistantOutput) {
+  ctx.noteLastZhushou(zhushouMessage);
+  ctx.recordZhushouUsage((zhushouMessage as { usage?: unknown }).usage);
+  if (suppressVisibleZhushouOutput) {
     return;
   }
-  promoteThinkingTagsToBlocks(assistantMessage);
+  promoteThinkingTagsToBlocks(zhushouMessage);
 
-  const rawText = coerceText(extractAssistantText(assistantMessage));
-  const rawVisibleText = coerceText(extractAssistantVisibleText(assistantMessage));
+  const rawText = coerceText(extractZhushouText(zhushouMessage));
+  const rawVisibleText = coerceText(extractZhushouVisibleText(zhushouMessage));
   appendRawStream({
     ts: Date.now(),
-    event: "assistant_message_end",
+    event: "zhushou_message_end",
     runId: ctx.params.runId,
     sessionId: (ctx.params.session as { id?: string }).id,
     rawText,
-    rawThinking: extractAssistantThinking(assistantMessage),
+    rawThinking: extractZhushouThinking(zhushouMessage),
   });
 
   const text = resolveSilentReplyFallbackText({
@@ -560,7 +569,7 @@ export function handleMessageEnd(
   });
   const rawThinking =
     ctx.state.includeReasoning || ctx.state.streamReasoning
-      ? extractAssistantThinking(assistantMessage) || extractThinkingFromTaggedText(rawText)
+      ? extractZhushouThinking(zhushouMessage) || extractThinkingFromTaggedText(rawText)
       : "";
   const formattedReasoning = rawThinking ? formatReasoningMessage(rawThinking) : "";
   const trimmedText = text.trim();
@@ -575,12 +584,12 @@ export function handleMessageEnd(
     ctx.state.blockState.thinking = false;
     ctx.state.blockState.final = false;
     ctx.state.blockState.inlineCode = createInlineCodeState();
-    ctx.state.lastStreamedAssistant = undefined;
-    ctx.state.lastStreamedAssistantCleaned = undefined;
+    ctx.state.lastStreamedZhushou = undefined;
+    ctx.state.lastStreamedZhushouCleaned = undefined;
     ctx.state.reasoningStreamOpen = false;
   };
 
-  const previousStreamedText = ctx.state.lastStreamedAssistantCleaned ?? "";
+  const previousStreamedText = ctx.state.lastStreamedZhushouCleaned ?? "";
   const shouldReplaceFinalStream = Boolean(
     previousStreamedText && cleanedText && !cleanedText.startsWith(previousStreamedText),
   );
@@ -595,38 +604,38 @@ export function handleMessageEnd(
     !ctx.params.silentExpected &&
     !suppressDeterministicApprovalOutput &&
     (cleanedText || hasMedia) &&
-    (!ctx.state.emittedAssistantUpdate ||
+    (!ctx.state.emittedZhushouUpdate ||
       shouldReplaceFinalStream ||
       didTextChangeWithinCurrentMessage ||
       hasMedia)
   ) {
-    const data = buildAssistantStreamData({
+    const data = buildZhushouStreamData({
       text: cleanedText,
       delta: finalStreamDelta,
       replace: shouldReplaceFinalStream,
       mediaUrls,
-      phase: assistantPhase,
+      phase: zhushouPhase,
     });
     emitAgentEvent({
       runId: ctx.params.runId,
-      stream: "assistant",
+      stream: "zhushou",
       data,
     });
     void ctx.params.onAgentEvent?.({
-      stream: "assistant",
+      stream: "zhushou",
       data,
     });
-    ctx.state.emittedAssistantUpdate = true;
-    ctx.state.lastStreamedAssistantCleaned = cleanedText;
+    ctx.state.emittedZhushouUpdate = true;
+    ctx.state.lastStreamedZhushouCleaned = cleanedText;
   }
 
   const silentExpectedWithoutSentinel =
     ctx.params.silentExpected && !isSilentReplyText(trimmedText, SILENT_REPLY_TOKEN);
-  const finalAssistantText = silentExpectedWithoutSentinel ? "" : text;
-  const addedDuringMessage = ctx.state.assistantTexts.length > ctx.state.assistantTextBaseline;
+  const finalZhushouText = silentExpectedWithoutSentinel ? "" : text;
+  const addedDuringMessage = ctx.state.zhushouTexts.length > ctx.state.zhushouTextBaseline;
   const chunkerHasBuffered = ctx.blockChunker?.hasBuffered() ?? false;
-  ctx.finalizeAssistantTexts({
-    text: finalAssistantText,
+  ctx.finalizeZhushouTexts({
+    text: finalZhushouText,
     addedDuringMessage,
     chunkerHasBuffered,
   });
@@ -669,7 +678,7 @@ export function handleMessageEnd(
       replyToCurrent,
     } = splitResult;
     // Emit if there's content OR audioAsVoice flag (to propagate the flag).
-    if (hasAssistantVisibleReply({ text: cleanedText, mediaUrls, audioAsVoice })) {
+    if (hasZhushouVisibleReply({ text: cleanedText, mediaUrls, audioAsVoice })) {
       ctx.emitBlockReply({
         text: cleanedText,
         mediaUrls: mediaUrls?.length ? mediaUrls : undefined,

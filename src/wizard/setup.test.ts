@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { ProviderPlugin } from "assistant/plugin-sdk/provider-model-shared";
+import type { ProviderPlugin } from "zhushou/plugin-sdk/provider-model-shared";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createWizardPrompter as buildWizardPrompter } from "../../test/helpers/wizard-prompter.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { PluginCompatibilityNotice } from "../plugins/status.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter, WizardSelectParams } from "./prompts.js";
@@ -96,7 +96,7 @@ const healthCommand = vi.hoisted(() => vi.fn(async () => {}));
 const ensureWorkspaceAndSessions = vi.hoisted(() => vi.fn(async () => {}));
 const writeConfigFile = vi.hoisted(() => vi.fn(async () => {}));
 const createSnapshot = vi.hoisted(() =>
-  vi.fn((config: AssistantConfig, label: string) => ({
+  vi.fn((config: ZhushouConfig, label: string) => ({
     timestamp: 1,
     config: structuredClone(config),
     label,
@@ -105,14 +105,14 @@ const createSnapshot = vi.hoisted(() =>
 const saveConfigSnapshot = vi.hoisted(() => vi.fn(async () => "/tmp/config-snapshot.json"));
 const resolveGatewayPort = vi.hoisted(() =>
   vi.fn((_cfg?: unknown, env?: NodeJS.ProcessEnv) => {
-    const raw = env?.ASSISTANT_GATEWAY_PORT ?? process.env.ASSISTANT_GATEWAY_PORT;
+    const raw = env?.ZHUSHOU_GATEWAY_PORT ?? process.env.ZHUSHOU_GATEWAY_PORT;
     const port = raw ? Number.parseInt(raw, 10) : Number.NaN;
     return Number.isFinite(port) && port > 0 ? port : 18789;
   }),
 );
 const readConfigFileSnapshot = vi.hoisted(() =>
   vi.fn(async () => ({
-    path: "/tmp/.assistant/assistant.json",
+    path: "/tmp/.wang301208/zhushou.json",
     exists: false,
     raw: null as string | null,
     parsed: {},
@@ -197,7 +197,7 @@ vi.mock("../config/config.js", () => ({
 }));
 
 vi.mock("../commands/onboard-helpers.js", () => ({
-  DEFAULT_WORKSPACE: "/tmp/assistant-workspace",
+  DEFAULT_WORKSPACE: "/tmp/zhushou-workspace",
   applyWizardMetadata: (cfg: unknown) => cfg,
   summarizeExistingConfig: () => "summary",
   handleReset: async () => {},
@@ -286,7 +286,7 @@ describe("runSetupWizard", () => {
   let suiteCase = 0;
 
   beforeAll(async () => {
-    suiteRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-onboard-suite-"));
+    suiteRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-onboard-suite-"));
   });
 
   afterAll(async () => {
@@ -304,7 +304,7 @@ describe("runSetupWizard", () => {
   it("does not crash when preferred-provider lookup sees a provider without an id", async () => {
     setupChannels.mockClear();
     readConfigFileSnapshot.mockResolvedValueOnce({
-      path: "/tmp/.assistant/assistant.json",
+      path: "/tmp/.wang301208/zhushou.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -365,7 +365,7 @@ describe("runSetupWizard", () => {
 
   it("exits when config is invalid", async () => {
     readConfigFileSnapshot.mockResolvedValueOnce({
-      path: "/tmp/.assistant/assistant.json",
+      path: "/tmp/.wang301208/zhushou.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -408,7 +408,7 @@ describe("runSetupWizard", () => {
   it("exits when a valid snapshot reports source legacy issues", async () => {
     writeConfigFile.mockClear();
     readConfigFileSnapshot.mockResolvedValueOnce({
-      path: "/tmp/.assistant/assistant.json",
+      path: "/tmp/.wang301208/zhushou.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -456,11 +456,11 @@ describe("runSetupWizard", () => {
     createSnapshot.mockClear();
     saveConfigSnapshot.mockClear();
     writeConfigFile.mockClear();
-    const existingConfig: AssistantConfig = {
+    const existingConfig: ZhushouConfig = {
       gateway: { mode: "local", bind: "loopback", auth: { mode: "token" } },
-    } as AssistantConfig;
+    } as ZhushouConfig;
     readConfigFileSnapshot.mockResolvedValueOnce({
-      path: "/tmp/.assistant/assistant.json",
+      path: "/tmp/.wang301208/zhushou.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -691,7 +691,7 @@ describe("runSetupWizard", () => {
       },
     ]);
     readConfigFileSnapshot.mockResolvedValueOnce({
-      path: "/tmp/.assistant/assistant.json",
+      path: "/tmp/.wang301208/zhushou.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -742,11 +742,11 @@ describe("runSetupWizard", () => {
   });
 
   it("resolves gateway.auth.password SecretRef for local setup probe", async () => {
-    const previous = process.env.ASSISTANT_GATEWAY_PASSWORD;
-    process.env.ASSISTANT_GATEWAY_PASSWORD = "gateway-ref-password"; // pragma: allowlist secret
+    const previous = process.env.ZHUSHOU_GATEWAY_PASSWORD;
+    process.env.ZHUSHOU_GATEWAY_PASSWORD = "gateway-ref-password"; // pragma: allowlist secret
     probeGatewayReachable.mockClear();
     readConfigFileSnapshot.mockResolvedValueOnce({
-      path: "/tmp/.assistant/assistant.json",
+      path: "/tmp/.wang301208/zhushou.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -759,7 +759,7 @@ describe("runSetupWizard", () => {
             password: {
               source: "env",
               provider: "default",
-              id: "ASSISTANT_GATEWAY_PASSWORD",
+              id: "ZHUSHOU_GATEWAY_PASSWORD",
             },
           },
         },
@@ -796,9 +796,9 @@ describe("runSetupWizard", () => {
       );
     } finally {
       if (previous === undefined) {
-        delete process.env.ASSISTANT_GATEWAY_PASSWORD;
+        delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
       } else {
-        process.env.ASSISTANT_GATEWAY_PASSWORD = previous;
+        process.env.ZHUSHOU_GATEWAY_PASSWORD = previous;
       }
     }
 
@@ -841,8 +841,8 @@ describe("runSetupWizard", () => {
   });
 
   it("shows the resolved gateway port in quickstart for fresh envs", async () => {
-    const previousPort = process.env.ASSISTANT_GATEWAY_PORT;
-    process.env.ASSISTANT_GATEWAY_PORT = "18791";
+    const previousPort = process.env.ZHUSHOU_GATEWAY_PORT;
+    process.env.ZHUSHOU_GATEWAY_PORT = "18791";
     const note: WizardPrompter["note"] = vi.fn(async () => {});
     const prompter = buildWizardPrompter({ note });
     const runtime = createRuntime();
@@ -865,9 +865,9 @@ describe("runSetupWizard", () => {
       );
     } finally {
       if (previousPort === undefined) {
-        delete process.env.ASSISTANT_GATEWAY_PORT;
+        delete process.env.ZHUSHOU_GATEWAY_PORT;
       } else {
-        process.env.ASSISTANT_GATEWAY_PORT = previousPort;
+        process.env.ZHUSHOU_GATEWAY_PORT = previousPort;
       }
     }
 

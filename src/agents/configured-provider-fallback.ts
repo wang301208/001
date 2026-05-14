@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 
 export type ProviderModelRef = {
   provider: string;
@@ -6,7 +6,7 @@ export type ProviderModelRef = {
 };
 
 export function resolveConfiguredProviderFallback(params: {
-  cfg: Pick<AssistantConfig, "models">;
+  cfg: Pick<ZhushouConfig, "models">;
   defaultProvider: string;
   defaultModel?: string;
 }): ProviderModelRef | null {

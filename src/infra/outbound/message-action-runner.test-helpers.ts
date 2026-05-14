@@ -5,7 +5,7 @@ import type {
   ChannelOutboundAdapter,
   ChannelPlugin,
 } from "../../channels/plugins/types.public.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { createChannelTestPluginBase } from "../../test-utils/channel-plugins.js";
 import { runMessageAction } from "./message-action-runner.js";
 
@@ -16,7 +16,7 @@ export const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 export const whatsappConfig = {
   channels: {
@@ -24,12 +24,12 @@ export const whatsappConfig = {
       allowFrom: ["*"],
     },
   },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 export const directOutbound: ChannelOutboundAdapter = { deliveryMode: "direct" };
 
 export const runDryAction = (params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   action: ChannelMessageActionName;
   actionParams: Record<string, unknown>;
   toolContext?: Record<string, unknown>;
@@ -47,7 +47,7 @@ export const runDryAction = (params: {
   });
 
 export const runDrySend = (params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   actionParams: Record<string, unknown>;
   toolContext?: Record<string, unknown>;
   abortSignal?: AbortSignal;
@@ -83,7 +83,7 @@ export function normalizeSlackTarget(raw: string): string {
 
 export function createConfiguredTestPlugin(params: {
   id: "slack" | "telegram" | "whatsapp";
-  isConfigured: (cfg: AssistantConfig) => boolean;
+  isConfigured: (cfg: ZhushouConfig) => boolean;
   normalizeTarget: (raw: string) => string | undefined;
   resolveTarget: (input: string) => ResolvedTestTarget | null;
 }): ChannelPlugin {

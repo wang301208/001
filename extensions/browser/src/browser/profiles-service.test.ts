@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadConfig, writeConfigFile } from "../config/config.js";
-import { resolveAssistantUserDataDir } from "./chrome.js";
+import { resolveZhushouUserDataDir } from "./chrome.js";
 import type { BrowserRouteContext, BrowserServerState } from "./server-context.js";
 import { movePathToTrash } from "./trash.js";
 
@@ -20,7 +20,7 @@ vi.mock("./trash.js", () => ({
 }));
 
 vi.mock("./chrome.js", () => ({
-  resolveAssistantUserDataDir: vi.fn(() => "/tmp/assistant-test/assistant/user-data"),
+  resolveZhushouUserDataDir: vi.fn(() => "/tmp/zhushou-test/zhushou/user-data"),
 }));
 
 const [{ resolveBrowserConfig }, { createBrowserProfilesService }] = await Promise.all([
@@ -69,9 +69,9 @@ describe("BrowserProfilesService", () => {
       browserConfig: { profiles: {} },
     });
 
-    expect(result.cdpPort).toBe(18801);
+    expect(result.cdpPort).toBe(3012);
     expect(result.isRemote).toBe(false);
-    expect(state.resolved.profiles.work?.cdpPort).toBe(18801);
+    expect(state.resolved.profiles.work?.cdpPort).toBe(3012);
     expect(writeConfigFile).toHaveBeenCalled();
   });
 
@@ -220,7 +220,7 @@ describe("BrowserProfilesService", () => {
     const { ctx, state } = createCtx(resolved);
     vi.mocked(loadConfig).mockReturnValue({ browser: { profiles: {} } });
 
-    const tempDir = path.resolve(fs.mkdtempSync(path.join("/tmp", "assistant-profile-")));
+    const tempDir = path.resolve(fs.mkdtempSync(path.join("/tmp", "zhushou-profile-")));
     const userDataDir = path.resolve(tempDir, "BraveSoftware", "Brave-Browser");
     fs.mkdirSync(userDataDir, { recursive: true });
 
@@ -246,7 +246,7 @@ describe("BrowserProfilesService", () => {
     const { ctx } = createCtx(resolved);
     vi.mocked(loadConfig).mockReturnValue({ browser: { profiles: {} } });
 
-    const tempDir = fs.mkdtempSync(path.join("/tmp", "assistant-profile-"));
+    const tempDir = fs.mkdtempSync(path.join("/tmp", "zhushou-profile-"));
     const userDataDir = path.join(tempDir, "BraveSoftware", "Brave-Browser");
     fs.mkdirSync(userDataDir, { recursive: true });
 
@@ -270,9 +270,9 @@ describe("BrowserProfilesService", () => {
 
     vi.mocked(loadConfig).mockReturnValue({
       browser: {
-        defaultProfile: "assistant",
+        defaultProfile: "zhushou",
         profiles: {
-          assistant: { cdpPort: 18800, color: "#FF4500" },
+          zhushou: { cdpPort: 18800, color: "#FF4500" },
           remote: { cdpUrl: "http://10.0.0.42:9222", color: "#0066CC" },
         },
       },
@@ -296,18 +296,18 @@ describe("BrowserProfilesService", () => {
 
     vi.mocked(loadConfig).mockReturnValue({
       browser: {
-        defaultProfile: "assistant",
+        defaultProfile: "zhushou",
         profiles: {
-          assistant: { cdpPort: 18800, color: "#FF4500" },
+          zhushou: { cdpPort: 18800, color: "#FF4500" },
           work: { cdpPort: 18801, color: "#0066CC" },
         },
       },
     });
 
-    const tempDir = fs.mkdtempSync(path.join("/tmp", "assistant-profile-"));
+    const tempDir = fs.mkdtempSync(path.join("/tmp", "zhushou-profile-"));
     const userDataDir = path.join(tempDir, "work", "user-data");
     fs.mkdirSync(path.dirname(userDataDir), { recursive: true });
-    vi.mocked(resolveAssistantUserDataDir).mockReturnValue(userDataDir);
+    vi.mocked(resolveZhushouUserDataDir).mockReturnValue(userDataDir);
 
     const service = createBrowserProfilesService(ctx);
     const result = await service.deleteProfile("work");
@@ -331,9 +331,9 @@ describe("BrowserProfilesService", () => {
 
     vi.mocked(loadConfig).mockReturnValue({
       browser: {
-        defaultProfile: "assistant",
+        defaultProfile: "zhushou",
         profiles: {
-          assistant: { cdpPort: 18800, color: "#FF4500" },
+          zhushou: { cdpPort: 18800, color: "#FF4500" },
           "chrome-live": {
             cdpPort: 18801,
             color: "#0066CC",

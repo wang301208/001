@@ -180,7 +180,7 @@ body {
   color: var(--accent);
 }
 
-.tree-role-assistant {
+.tree-role-zhushou {
   color: var(--success);
 }
 
@@ -316,7 +316,7 @@ body {
   position: relative;
 }
 
-.assistant-message {
+.zhushou-message {
   padding: 0;
   position: relative;
 }
@@ -346,7 +346,7 @@ body {
 }
 
 .user-message:hover .copy-link-btn,
-.assistant-message:hover .copy-link-btn {
+.zhushou-message:hover .copy-link-btn {
   opacity: 1;
 }
 
@@ -364,7 +364,7 @@ body {
 
 /* Highlight effect for deep-linked messages */
 .user-message.highlight,
-.assistant-message.highlight {
+.zhushou-message.highlight {
   animation: highlight-pulse 2s ease-out;
 }
 
@@ -377,21 +377,21 @@ body {
   }
 }
 
-.assistant-message > .message-timestamp {
+.zhushou-message > .message-timestamp {
   padding-left: var(--line-height);
 }
 
-.assistant-text {
+.zhushou-text {
   padding: var(--line-height);
   padding-bottom: 0;
 }
 
-.message-timestamp + .assistant-text,
+.message-timestamp + .zhushou-text,
 .message-timestamp + .thinking-block {
   padding-top: 0;
 }
 
-.thinking-block + .assistant-text {
+.thinking-block + .zhushou-text {
   padding-top: 0;
 }
 
@@ -424,7 +424,7 @@ body {
   margin-top: var(--line-height);
 }
 
-.assistant-text + .tool-execution {
+.zhushou-text + .tool-execution {
   margin-top: var(--line-height);
 }
 

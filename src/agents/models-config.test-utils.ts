@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveAssistantAgentDir } from "./agent-paths.js";
+import { resolveZhushouAgentDir } from "./agent-paths.js";
 
 export async function readGeneratedModelsJson<T>(): Promise<T> {
-  const modelPath = path.join(resolveAssistantAgentDir(), "models.json");
+  const modelPath = path.join(resolveZhushouAgentDir(), "models.json");
   const raw = await fs.readFile(modelPath, "utf8");
   return JSON.parse(raw) as T;
 }

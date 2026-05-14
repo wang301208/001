@@ -4,22 +4,22 @@
  * Implements the ChannelPlugin interface following the LINE pattern.
  */
 
-import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
-import type { AssistantConfig } from "assistant/plugin-sdk/account-resolution";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/account-resolution";
 import {
   createHybridChannelConfigAdapter,
   createScopedDmSecurityResolver,
-} from "assistant/plugin-sdk/channel-config-helpers";
-import { createChatChannelPlugin, type ChannelPlugin } from "assistant/plugin-sdk/channel-core";
-import { waitUntilAbort } from "assistant/plugin-sdk/channel-lifecycle";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { createChatChannelPlugin, type ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+import { waitUntilAbort } from "zhushou/plugin-sdk/channel-lifecycle";
 import {
   composeWarningCollectors,
   createConditionalWarningCollector,
   projectAccountConfigWarningCollector,
   projectAccountWarningCollector,
-} from "assistant/plugin-sdk/channel-policy";
-import { attachChannelToResult } from "assistant/plugin-sdk/channel-send-result";
-import { createEmptyChannelDirectoryAdapter } from "assistant/plugin-sdk/directory-runtime";
+} from "zhushou/plugin-sdk/channel-policy";
+import { attachChannelToResult } from "zhushou/plugin-sdk/channel-send-result";
+import { createEmptyChannelDirectoryAdapter } from "zhushou/plugin-sdk/directory-runtime";
 import { listAccountIds, resolveAccount } from "./accounts.js";
 import { synologyChatApprovalAuth } from "./approval-auth.js";
 import { sendMessage, sendFileUrl } from "./client.js";
@@ -45,12 +45,12 @@ const resolveSynologyChatDmPolicy = createScopedDmSecurityResolver<ResolvedSynol
   resolveAllowFrom: (account) => account.allowedUserIds,
   policyPathSuffix: "dmPolicy",
   defaultPolicy: "allowlist",
-  approveHint: "assistant pairing approve synology-chat <code>",
+  approveHint: "zhushou pairing approve synology-chat <code>",
   normalizeEntry: (raw) => normalizeLowercaseStringOrEmpty(raw),
 });
 
 type SynologyChannelGatewayContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   abortSignal: AbortSignal;
   log?: {
@@ -60,7 +60,7 @@ type SynologyChannelGatewayContext = {
   };
 };
 type SynologyChannelOutboundContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   text?: string;
   mediaUrl?: string;
@@ -69,7 +69,7 @@ type SynologyChannelOutboundContext = {
 type SynologyChannelSendTextContext = SynologyChannelOutboundContext & { text: string };
 type _SynologyChannelSendMediaContext = SynologyChannelOutboundContext & { mediaUrl: string };
 type SynologySecurityWarningContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   account: ResolvedSynologyChatAccount;
 };
 
@@ -136,16 +136,16 @@ type SynologyChatPlugin = Omit<
   pairing: {
     idLabel: string;
     normalizeAllowEntry?: (entry: string) => string;
-    notifyApproval: (params: { cfg: AssistantConfig; id: string }) => Promise<void>;
+    notifyApproval: (params: { cfg: ZhushouConfig; id: string }) => Promise<void>;
   };
   security: {
-    resolveDmPolicy: (params: { cfg: AssistantConfig; account: ResolvedSynologyChatAccount }) => {
+    resolveDmPolicy: (params: { cfg: ZhushouConfig; account: ResolvedSynologyChatAccount }) => {
       policy: string | null | undefined;
       allowFrom?: Array<string | number>;
       normalizeEntry?: (raw: string) => string;
     } | null;
     collectWarnings: (params: {
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       account: ResolvedSynologyChatAccount;
     }) => string[];
   };
@@ -178,7 +178,7 @@ type SynologyChatPlugin = Omit<
 
 const collectSynologyChatRoutingWarnings = projectAccountConfigWarningCollector<
   ResolvedSynologyChatAccount,
-  AssistantConfig,
+  ZhushouConfig,
   SynologySecurityWarningContext
 >(
   (cfg) => cfg,
@@ -186,7 +186,7 @@ const collectSynologyChatRoutingWarnings = projectAccountConfigWarningCollector<
 );
 
 function resolveOutboundAccount(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId?: string | null,
 ): ResolvedSynologyChatAccount {
   return resolveAccount(cfg ?? {}, accountId);

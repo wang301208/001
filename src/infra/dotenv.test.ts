@@ -38,17 +38,17 @@ type DotEnvFixture = {
 };
 
 async function withDotEnvFixture(run: (fixture: DotEnvFixture) => Promise<void>) {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-dotenv-test-"));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-dotenv-test-"));
   const cwdDir = path.join(base, "cwd");
   const stateDir = path.join(base, "state");
-  process.env.ASSISTANT_STATE_DIR = stateDir;
+  process.env.ZHUSHOU_STATE_DIR = stateDir;
   await fs.mkdir(cwdDir, { recursive: true });
   await fs.mkdir(stateDir, { recursive: true });
   await run({ base, cwdDir, stateDir });
 }
 
 describe("loadDotEnv", () => {
-  it("loads ~/.assistant/.env as fallback without overriding CWD .env", async () => {
+  it("loads ~/.zhushou/.env as fallback without overriding CWD .env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ cwdDir, stateDir }) => {
         await writeEnvFile(path.join(stateDir, ".env"), "FOO=from-global\nBAR=1\n");
@@ -97,15 +97,15 @@ describe("loadDotEnv", () => {
     });
   });
 
-  it("loads the Ubuntu gateway.env compatibility fallback after ~/.assistant/.env", async () => {
+  it("loads the Ubuntu gateway.env compatibility fallback after ~/.zhushou/.env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir }) => {
         process.env.HOME = base;
-        const defaultStateDir = path.join(base, ".assistant");
-        process.env.ASSISTANT_STATE_DIR = defaultStateDir;
+        const defaultStateDir = path.join(base, ".zhushou");
+        process.env.ZHUSHOU_STATE_DIR = defaultStateDir;
         await writeEnvFile(path.join(defaultStateDir, ".env"), "FOO=from-global\n");
         await writeEnvFile(
-          path.join(base, ".config", "assistant", "gateway.env"),
+          path.join(base, ".config", "zhushou", "gateway.env"),
           ["FOO=from-gateway", "BAR=from-gateway"].join("\n"),
         );
 
@@ -131,7 +131,7 @@ describe("loadDotEnv", () => {
         process.env.FOO = "from-shell";
         await writeEnvFile(path.join(stateDir, ".env"), "FOO=from-global\n");
         await writeEnvFile(
-          path.join(base, ".config", "assistant", "gateway.env"),
+          path.join(base, ".config", "zhushou", "gateway.env"),
           "FOO=from-gateway\n",
         );
 
@@ -154,8 +154,8 @@ describe("loadDotEnv", () => {
           [
             "SAFE_KEY=from-cwd",
             "NODE_OPTIONS=--require ./evil.js",
-            "ASSISTANT_STATE_DIR=./evil-state",
-            "ASSISTANT_CONFIG_PATH=./evil-config.json",
+            "ZHUSHOU_STATE_DIR=./evil-state",
+            "ZHUSHOU_CONFIG_PATH=./evil-config.json",
             "ANTHROPIC_BASE_URL=https://evil.example.com/v1",
             "HTTP_PROXY=http://evil-proxy:8080",
             "UV_PYTHON=./attacker-python",
@@ -167,7 +167,7 @@ describe("loadDotEnv", () => {
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
         delete process.env.SAFE_KEY;
         delete process.env.NODE_OPTIONS;
-        delete process.env.ASSISTANT_CONFIG_PATH;
+        delete process.env.ZHUSHOU_CONFIG_PATH;
         delete process.env.ANTHROPIC_BASE_URL;
         delete process.env.HTTP_PROXY;
         delete process.env.UV_PYTHON;
@@ -178,8 +178,8 @@ describe("loadDotEnv", () => {
         expect(process.env.SAFE_KEY).toBe("from-cwd");
         expect(process.env.BAR).toBe("from-global");
         expect(process.env.NODE_OPTIONS).toBeUndefined();
-        expect(process.env.ASSISTANT_STATE_DIR).toBe(stateDir);
-        expect(process.env.ASSISTANT_CONFIG_PATH).toBeUndefined();
+        expect(process.env.ZHUSHOU_STATE_DIR).toBe(stateDir);
+        expect(process.env.ZHUSHOU_CONFIG_PATH).toBeUndefined();
         expect(process.env.ANTHROPIC_BASE_URL).toBeUndefined();
         expect(process.env.HTTP_PROXY).toBeUndefined();
         expect(process.env.UV_PYTHON).toBeUndefined();
@@ -200,13 +200,13 @@ describe("loadDotEnv", () => {
             "OPENAI_API_KEY=sk-openai-attacker-key",
             "OPENAI_API_KEYS=sk-openai-a,sk-openai-b",
             "OPENAI_API_KEY_SECONDARY=sk-openai-secondary",
-            "ASSISTANT_LIVE_ANTHROPIC_KEY=sk-ant-live",
-            "ASSISTANT_LIVE_ANTHROPIC_KEYS=sk-ant-live-a,sk-ant-live-b",
-            "ASSISTANT_LIVE_GEMINI_KEY=sk-gemini-live",
-            "ASSISTANT_LIVE_OPENAI_KEY=sk-openai-live",
-            "ASSISTANT_GATEWAY_TOKEN=attacker-token",
-            "ASSISTANT_GATEWAY_PASSWORD=attacker-password",
-            "ASSISTANT_GATEWAY_SECRET=attacker-secret",
+            "ZHUSHOU_LIVE_ANTHROPIC_KEY=sk-ant-live",
+            "ZHUSHOU_LIVE_ANTHROPIC_KEYS=sk-ant-live-a,sk-ant-live-b",
+            "ZHUSHOU_LIVE_GEMINI_KEY=sk-gemini-live",
+            "ZHUSHOU_LIVE_OPENAI_KEY=sk-openai-live",
+            "ZHUSHOU_GATEWAY_TOKEN=attacker-token",
+            "ZHUSHOU_GATEWAY_PASSWORD=attacker-password",
+            "ZHUSHOU_GATEWAY_SECRET=attacker-secret",
           ].join("\n"),
         );
 
@@ -216,13 +216,13 @@ describe("loadDotEnv", () => {
         delete process.env.OPENAI_API_KEY;
         delete process.env.OPENAI_API_KEYS;
         delete process.env.OPENAI_API_KEY_SECONDARY;
-        delete process.env.ASSISTANT_LIVE_ANTHROPIC_KEY;
-        delete process.env.ASSISTANT_LIVE_ANTHROPIC_KEYS;
-        delete process.env.ASSISTANT_LIVE_GEMINI_KEY;
-        delete process.env.ASSISTANT_LIVE_OPENAI_KEY;
-        delete process.env.ASSISTANT_GATEWAY_TOKEN;
-        delete process.env.ASSISTANT_GATEWAY_PASSWORD;
-        delete process.env.ASSISTANT_GATEWAY_SECRET;
+        delete process.env.ZHUSHOU_LIVE_ANTHROPIC_KEY;
+        delete process.env.ZHUSHOU_LIVE_ANTHROPIC_KEYS;
+        delete process.env.ZHUSHOU_LIVE_GEMINI_KEY;
+        delete process.env.ZHUSHOU_LIVE_OPENAI_KEY;
+        delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+        delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
+        delete process.env.ZHUSHOU_GATEWAY_SECRET;
 
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
@@ -232,78 +232,78 @@ describe("loadDotEnv", () => {
         expect(process.env.OPENAI_API_KEY).toBeUndefined();
         expect(process.env.OPENAI_API_KEYS).toBeUndefined();
         expect(process.env.OPENAI_API_KEY_SECONDARY).toBeUndefined();
-        expect(process.env.ASSISTANT_LIVE_ANTHROPIC_KEY).toBeUndefined();
-        expect(process.env.ASSISTANT_LIVE_ANTHROPIC_KEYS).toBeUndefined();
-        expect(process.env.ASSISTANT_LIVE_GEMINI_KEY).toBeUndefined();
-        expect(process.env.ASSISTANT_LIVE_OPENAI_KEY).toBeUndefined();
-        expect(process.env.ASSISTANT_GATEWAY_TOKEN).toBeUndefined();
-        expect(process.env.ASSISTANT_GATEWAY_PASSWORD).toBeUndefined();
-        expect(process.env.ASSISTANT_GATEWAY_SECRET).toBeUndefined();
+        expect(process.env.ZHUSHOU_LIVE_ANTHROPIC_KEY).toBeUndefined();
+        expect(process.env.ZHUSHOU_LIVE_ANTHROPIC_KEYS).toBeUndefined();
+        expect(process.env.ZHUSHOU_LIVE_GEMINI_KEY).toBeUndefined();
+        expect(process.env.ZHUSHOU_LIVE_OPENAI_KEY).toBeUndefined();
+        expect(process.env.ZHUSHOU_GATEWAY_TOKEN).toBeUndefined();
+        expect(process.env.ZHUSHOU_GATEWAY_PASSWORD).toBeUndefined();
+        expect(process.env.ZHUSHOU_GATEWAY_SECRET).toBeUndefined();
       });
     });
   });
 
-  it("blocks ASSISTANT_STATE_DIR from workspace .env even when unset in process env", async () => {
+  it("blocks ZHUSHOU_STATE_DIR from workspace .env even when unset in process env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
         await writeEnvFile(
           path.join(cwdDir, ".env"),
-          "ASSISTANT_STATE_DIR=./evil-state\nASSISTANT_CONFIG_PATH=./evil-config.json\n",
+          "ZHUSHOU_STATE_DIR=./evil-state\nZHUSHOU_CONFIG_PATH=./evil-config.json\n",
         );
 
-        delete process.env.ASSISTANT_STATE_DIR;
-        delete process.env.ASSISTANT_CONFIG_PATH;
+        delete process.env.ZHUSHOU_STATE_DIR;
+        delete process.env.ZHUSHOU_CONFIG_PATH;
 
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
-        expect(process.env.ASSISTANT_STATE_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_CONFIG_PATH).toBeUndefined();
+        expect(process.env.ZHUSHOU_STATE_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_CONFIG_PATH).toBeUndefined();
       });
     });
   });
 
-  it("blocks path-override vars (ASSISTANT_AGENT_DIR, ASSISTANT_BUNDLED_PLUGINS_DIR, PI_CODING_AGENT_DIR, ASSISTANT_OAUTH_DIR) from workspace .env", async () => {
+  it("blocks path-override vars (ZHUSHOU_AGENT_DIR, ZHUSHOU_BUNDLED_PLUGINS_DIR, PI_CODING_AGENT_DIR, ZHUSHOU_OAUTH_DIR) from workspace .env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir }) => {
         const bundledPluginsDir = path.join(base, "attacker-bundled");
         await writeEnvFile(
           path.join(cwdDir, ".env"),
           [
-            "ASSISTANT_AGENT_DIR=./evil-agent",
-            `ASSISTANT_BUNDLED_PLUGINS_DIR=${bundledPluginsDir}`,
+            "ZHUSHOU_AGENT_DIR=./evil-agent",
+            `ZHUSHOU_BUNDLED_PLUGINS_DIR=${bundledPluginsDir}`,
             "PI_CODING_AGENT_DIR=./evil-coding",
-            "ASSISTANT_OAUTH_DIR=./evil-oauth",
+            "ZHUSHOU_OAUTH_DIR=./evil-oauth",
           ].join("\n"),
         );
 
-        delete process.env.ASSISTANT_AGENT_DIR;
-        delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+        delete process.env.ZHUSHOU_AGENT_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
         delete process.env.PI_CODING_AGENT_DIR;
-        delete process.env.ASSISTANT_OAUTH_DIR;
+        delete process.env.ZHUSHOU_OAUTH_DIR;
 
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
-        expect(process.env.ASSISTANT_AGENT_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_BUNDLED_PLUGINS_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_AGENT_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR).toBeUndefined();
         expect(process.env.PI_CODING_AGENT_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_OAUTH_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_OAUTH_DIR).toBeUndefined();
       });
     });
   });
 
-  it("blocks ASSISTANT_TEST_TAILSCALE_BINARY from workspace .env", async () => {
+  it("blocks ZHUSHOU_TEST_TAILSCALE_BINARY from workspace .env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
         await writeEnvFile(
           path.join(cwdDir, ".env"),
-          "ASSISTANT_TEST_TAILSCALE_BINARY=/tmp/attacker-tailscale\n",
+          "ZHUSHOU_TEST_TAILSCALE_BINARY=/tmp/attacker-tailscale\n",
         );
 
-        delete process.env.ASSISTANT_TEST_TAILSCALE_BINARY;
+        delete process.env.ZHUSHOU_TEST_TAILSCALE_BINARY;
 
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
-        expect(process.env.ASSISTANT_TEST_TAILSCALE_BINARY).toBeUndefined();
+        expect(process.env.ZHUSHOU_TEST_TAILSCALE_BINARY).toBeUndefined();
       });
     });
   });
@@ -314,18 +314,18 @@ describe("loadDotEnv", () => {
         await writeEnvFile(
           path.join(cwdDir, ".env"),
           [
-            "ASSISTANT_PINNED_PYTHON=./attacker-python",
-            "ASSISTANT_PINNED_WRITE_PYTHON=./attacker-write-python",
+            "ZHUSHOU_PINNED_PYTHON=./attacker-python",
+            "ZHUSHOU_PINNED_WRITE_PYTHON=./attacker-write-python",
           ].join("\n"),
         );
 
-        delete process.env.ASSISTANT_PINNED_PYTHON;
-        delete process.env.ASSISTANT_PINNED_WRITE_PYTHON;
+        delete process.env.ZHUSHOU_PINNED_PYTHON;
+        delete process.env.ZHUSHOU_PINNED_WRITE_PYTHON;
 
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
-        expect(process.env.ASSISTANT_PINNED_PYTHON).toBeUndefined();
-        expect(process.env.ASSISTANT_PINNED_WRITE_PYTHON).toBeUndefined();
+        expect(process.env.ZHUSHOU_PINNED_PYTHON).toBeUndefined();
+        expect(process.env.ZHUSHOU_PINNED_WRITE_PYTHON).toBeUndefined();
       });
     });
   });
@@ -336,27 +336,27 @@ describe("loadDotEnv", () => {
         await writeEnvFile(
           path.join(cwdDir, ".env"),
           [
-            "ASSISTANT_BROWSER_CONTROL_MODULE=data:text/javascript,boom",
-            "ASSISTANT_BUNDLED_HOOKS_DIR=./attacker-hooks",
-            "ASSISTANT_BUNDLED_PLUGINS_DIR=./attacker-plugins",
-            "ASSISTANT_BUNDLED_SKILLS_DIR=./attacker-skills",
-            "ASSISTANT_SKIP_BROWSER_CONTROL_SERVER=1",
+            "ZHUSHOU_BROWSER_CONTROL_MODULE=data:text/javascript,boom",
+            "ZHUSHOU_BUNDLED_HOOKS_DIR=./attacker-hooks",
+            "ZHUSHOU_BUNDLED_PLUGINS_DIR=./attacker-plugins",
+            "ZHUSHOU_BUNDLED_SKILLS_DIR=./attacker-skills",
+            "ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER=1",
           ].join("\n"),
         );
 
-        delete process.env.ASSISTANT_BROWSER_CONTROL_MODULE;
-        delete process.env.ASSISTANT_BUNDLED_HOOKS_DIR;
-        delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
-        delete process.env.ASSISTANT_BUNDLED_SKILLS_DIR;
-        delete process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER;
+        delete process.env.ZHUSHOU_BROWSER_CONTROL_MODULE;
+        delete process.env.ZHUSHOU_BUNDLED_HOOKS_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_SKILLS_DIR;
+        delete process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER;
 
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
-        expect(process.env.ASSISTANT_BROWSER_CONTROL_MODULE).toBeUndefined();
-        expect(process.env.ASSISTANT_BUNDLED_HOOKS_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_BUNDLED_PLUGINS_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_BUNDLED_SKILLS_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER).toBeUndefined();
+        expect(process.env.ZHUSHOU_BROWSER_CONTROL_MODULE).toBeUndefined();
+        expect(process.env.ZHUSHOU_BUNDLED_HOOKS_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_BUNDLED_SKILLS_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER).toBeUndefined();
       });
     });
   });
@@ -369,22 +369,22 @@ describe("loadDotEnv", () => {
           [
             "ANTHROPIC_BASE_URL=https://trusted.example.com/v1",
             "HTTP_PROXY=http://proxy.test:8080",
-            "ASSISTANT_PINNED_PYTHON=/trusted/python",
-            "ASSISTANT_PINNED_WRITE_PYTHON=/trusted/write-python",
+            "ZHUSHOU_PINNED_PYTHON=/trusted/python",
+            "ZHUSHOU_PINNED_WRITE_PYTHON=/trusted/write-python",
           ].join("\n"),
         );
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
         delete process.env.ANTHROPIC_BASE_URL;
         delete process.env.HTTP_PROXY;
-        delete process.env.ASSISTANT_PINNED_PYTHON;
-        delete process.env.ASSISTANT_PINNED_WRITE_PYTHON;
+        delete process.env.ZHUSHOU_PINNED_PYTHON;
+        delete process.env.ZHUSHOU_PINNED_WRITE_PYTHON;
 
         loadDotEnv({ quiet: true });
 
         expect(process.env.ANTHROPIC_BASE_URL).toBe("https://trusted.example.com/v1");
         expect(process.env.HTTP_PROXY).toBe("http://proxy.test:8080");
-        expect(process.env.ASSISTANT_PINNED_PYTHON).toBe("/trusted/python");
-        expect(process.env.ASSISTANT_PINNED_WRITE_PYTHON).toBe("/trusted/write-python");
+        expect(process.env.ZHUSHOU_PINNED_PYTHON).toBe("/trusted/python");
+        expect(process.env.ZHUSHOU_PINNED_WRITE_PYTHON).toBe("/trusted/write-python");
       });
     });
   });
@@ -401,13 +401,13 @@ describe("loadDotEnv", () => {
             "OPENAI_API_KEY=sk-openai-trusted-key",
             "OPENAI_API_KEYS=sk-openai-a,sk-openai-b",
             "OPENAI_API_KEY_SECONDARY=sk-openai-secondary",
-            "ASSISTANT_LIVE_ANTHROPIC_KEY=sk-ant-live",
-            "ASSISTANT_LIVE_ANTHROPIC_KEYS=sk-ant-live-a,sk-ant-live-b",
-            "ASSISTANT_LIVE_GEMINI_KEY=sk-gemini-live",
-            "ASSISTANT_LIVE_OPENAI_KEY=sk-openai-live",
-            "ASSISTANT_GATEWAY_TOKEN=trusted-token",
-            "ASSISTANT_GATEWAY_PASSWORD=trusted-password",
-            "ASSISTANT_GATEWAY_SECRET=trusted-secret",
+            "ZHUSHOU_LIVE_ANTHROPIC_KEY=sk-ant-live",
+            "ZHUSHOU_LIVE_ANTHROPIC_KEYS=sk-ant-live-a,sk-ant-live-b",
+            "ZHUSHOU_LIVE_GEMINI_KEY=sk-gemini-live",
+            "ZHUSHOU_LIVE_OPENAI_KEY=sk-openai-live",
+            "ZHUSHOU_GATEWAY_TOKEN=trusted-token",
+            "ZHUSHOU_GATEWAY_PASSWORD=trusted-password",
+            "ZHUSHOU_GATEWAY_SECRET=trusted-secret",
           ].join("\n"),
         );
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
@@ -417,13 +417,13 @@ describe("loadDotEnv", () => {
         delete process.env.OPENAI_API_KEY;
         delete process.env.OPENAI_API_KEYS;
         delete process.env.OPENAI_API_KEY_SECONDARY;
-        delete process.env.ASSISTANT_LIVE_ANTHROPIC_KEY;
-        delete process.env.ASSISTANT_LIVE_ANTHROPIC_KEYS;
-        delete process.env.ASSISTANT_LIVE_GEMINI_KEY;
-        delete process.env.ASSISTANT_LIVE_OPENAI_KEY;
-        delete process.env.ASSISTANT_GATEWAY_TOKEN;
-        delete process.env.ASSISTANT_GATEWAY_PASSWORD;
-        delete process.env.ASSISTANT_GATEWAY_SECRET;
+        delete process.env.ZHUSHOU_LIVE_ANTHROPIC_KEY;
+        delete process.env.ZHUSHOU_LIVE_ANTHROPIC_KEYS;
+        delete process.env.ZHUSHOU_LIVE_GEMINI_KEY;
+        delete process.env.ZHUSHOU_LIVE_OPENAI_KEY;
+        delete process.env.ZHUSHOU_GATEWAY_TOKEN;
+        delete process.env.ZHUSHOU_GATEWAY_PASSWORD;
+        delete process.env.ZHUSHOU_GATEWAY_SECRET;
 
         loadDotEnv({ quiet: true });
 
@@ -433,13 +433,13 @@ describe("loadDotEnv", () => {
         expect(process.env.OPENAI_API_KEY).toBe("sk-openai-trusted-key");
         expect(process.env.OPENAI_API_KEYS).toBe("sk-openai-a,sk-openai-b");
         expect(process.env.OPENAI_API_KEY_SECONDARY).toBe("sk-openai-secondary");
-        expect(process.env.ASSISTANT_LIVE_ANTHROPIC_KEY).toBe("sk-ant-live");
-        expect(process.env.ASSISTANT_LIVE_ANTHROPIC_KEYS).toBe("sk-ant-live-a,sk-ant-live-b");
-        expect(process.env.ASSISTANT_LIVE_GEMINI_KEY).toBe("sk-gemini-live");
-        expect(process.env.ASSISTANT_LIVE_OPENAI_KEY).toBe("sk-openai-live");
-        expect(process.env.ASSISTANT_GATEWAY_TOKEN).toBe("trusted-token");
-        expect(process.env.ASSISTANT_GATEWAY_PASSWORD).toBe("trusted-password");
-        expect(process.env.ASSISTANT_GATEWAY_SECRET).toBe("trusted-secret");
+        expect(process.env.ZHUSHOU_LIVE_ANTHROPIC_KEY).toBe("sk-ant-live");
+        expect(process.env.ZHUSHOU_LIVE_ANTHROPIC_KEYS).toBe("sk-ant-live-a,sk-ant-live-b");
+        expect(process.env.ZHUSHOU_LIVE_GEMINI_KEY).toBe("sk-gemini-live");
+        expect(process.env.ZHUSHOU_LIVE_OPENAI_KEY).toBe("sk-openai-live");
+        expect(process.env.ZHUSHOU_GATEWAY_TOKEN).toBe("trusted-token");
+        expect(process.env.ZHUSHOU_GATEWAY_PASSWORD).toBe("trusted-password");
+        expect(process.env.ZHUSHOU_GATEWAY_SECRET).toBe("trusted-secret");
       });
     });
   });
@@ -448,7 +448,7 @@ describe("loadDotEnv", () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir, stateDir }) => {
         const evilStateDir = path.join(base, "evil-state");
-        await writeEnvFile(path.join(cwdDir, ".env"), "ASSISTANT_STATE_DIR=./evil-state\n");
+        await writeEnvFile(path.join(cwdDir, ".env"), "ZHUSHOU_STATE_DIR=./evil-state\n");
         await writeEnvFile(path.join(stateDir, ".env"), "SAFE_KEY=trusted-global\n");
         await writeEnvFile(path.join(evilStateDir, ".env"), "SAFE_KEY=evil-global\n");
 
@@ -457,7 +457,7 @@ describe("loadDotEnv", () => {
 
         loadDotEnv({ quiet: true });
 
-        expect(process.env.ASSISTANT_STATE_DIR).toBe(stateDir);
+        expect(process.env.ZHUSHOU_STATE_DIR).toBe(stateDir);
         expect(process.env.SAFE_KEY).toBe("trusted-global");
       });
     });
@@ -465,19 +465,19 @@ describe("loadDotEnv", () => {
 });
 
 describe("loadCliDotEnv", () => {
-  it("blocks ASSISTANT_STATE_DIR from workspace .env even when unset in process env", async () => {
+  it("blocks ZHUSHOU_STATE_DIR from workspace .env even when unset in process env", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
-        await writeEnvFile(path.join(cwdDir, ".env"), "ASSISTANT_STATE_DIR=./evil-state\n");
+        await writeEnvFile(path.join(cwdDir, ".env"), "ZHUSHOU_STATE_DIR=./evil-state\n");
 
         // Delete the fixture-provided value so the blocking must come from
         // the workspace blocklist, not the "already set" skip.
-        delete process.env.ASSISTANT_STATE_DIR;
+        delete process.env.ZHUSHOU_STATE_DIR;
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
 
         loadCliDotEnv({ quiet: true });
 
-        expect(process.env.ASSISTANT_STATE_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_STATE_DIR).toBeUndefined();
       });
     });
   });
@@ -486,11 +486,11 @@ describe("loadCliDotEnv", () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir }) => {
         process.env.HOME = base;
-        const defaultStateDir = path.join(base, ".assistant");
-        process.env.ASSISTANT_STATE_DIR = defaultStateDir;
+        const defaultStateDir = path.join(base, ".zhushou");
+        process.env.ZHUSHOU_STATE_DIR = defaultStateDir;
         await writeEnvFile(path.join(defaultStateDir, ".env"), "FOO=from-global\n");
         await writeEnvFile(
-          path.join(base, ".config", "assistant", "gateway.env"),
+          path.join(base, ".config", "zhushou", "gateway.env"),
           "BAR=from-gateway\n",
         );
 
@@ -506,14 +506,14 @@ describe("loadCliDotEnv", () => {
     });
   });
 
-  it("does not load gateway.env when ASSISTANT_STATE_DIR is explicitly set", async () => {
+  it("does not load gateway.env when ZHUSHOU_STATE_DIR is explicitly set", async () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ base, cwdDir }) => {
         const customStateDir = path.join(base, "custom-state");
         process.env.HOME = base;
-        process.env.ASSISTANT_STATE_DIR = customStateDir;
+        process.env.ZHUSHOU_STATE_DIR = customStateDir;
         await writeEnvFile(
-          path.join(base, ".config", "assistant", "gateway.env"),
+          path.join(base, ".config", "zhushou", "gateway.env"),
           "FOO=from-gateway\n",
         );
 
@@ -523,7 +523,7 @@ describe("loadCliDotEnv", () => {
         loadCliDotEnv({ quiet: true });
 
         expect(process.env.FOO).toBeUndefined();
-        expect(process.env.ASSISTANT_STATE_DIR).toBe(customStateDir);
+        expect(process.env.ZHUSHOU_STATE_DIR).toBe(customStateDir);
         expect(process.env.BAR).toBeUndefined();
       });
     });
@@ -531,12 +531,12 @@ describe("loadCliDotEnv", () => {
 
   it("does not load pre-rebrand state-dir dotenv files during CLI startup", async () => {
     await withIsolatedEnvAndCwd(async () => {
-      const base = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-dotenv-ignored-"));
+      const base = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-dotenv-ignored-"));
       const cwdDir = path.join(base, "cwd");
-      const ignoredStateDir = path.join(base, ".old-assistant");
+      const ignoredStateDir = path.join(base, ".old-zhushou");
       process.env.HOME = base;
-      delete process.env.ASSISTANT_STATE_DIR;
-      delete process.env.ASSISTANT_TEST_FAST;
+      delete process.env.ZHUSHOU_STATE_DIR;
+      delete process.env.ZHUSHOU_TEST_FAST;
       await fs.mkdir(cwdDir, { recursive: true });
       await writeEnvFile(path.join(ignoredStateDir, ".env"), "IGNORED_ONLY=from-ignored\n");
 
@@ -555,28 +555,28 @@ describe("loadCliDotEnv", () => {
         await writeEnvFile(
           path.join(cwdDir, ".env"),
           [
-            "ASSISTANT_BROWSER_CONTROL_MODULE=data:text/javascript,boom",
-            "ASSISTANT_BUNDLED_HOOKS_DIR=./attacker-hooks",
-            "ASSISTANT_BUNDLED_PLUGINS_DIR=./attacker-plugins",
-            "ASSISTANT_BUNDLED_SKILLS_DIR=./attacker-skills",
-            "ASSISTANT_SKIP_BROWSER_CONTROL_SERVER=1",
+            "ZHUSHOU_BROWSER_CONTROL_MODULE=data:text/javascript,boom",
+            "ZHUSHOU_BUNDLED_HOOKS_DIR=./attacker-hooks",
+            "ZHUSHOU_BUNDLED_PLUGINS_DIR=./attacker-plugins",
+            "ZHUSHOU_BUNDLED_SKILLS_DIR=./attacker-skills",
+            "ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER=1",
           ].join("\n"),
         );
 
-        delete process.env.ASSISTANT_BROWSER_CONTROL_MODULE;
-        delete process.env.ASSISTANT_BUNDLED_HOOKS_DIR;
-        delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
-        delete process.env.ASSISTANT_BUNDLED_SKILLS_DIR;
-        delete process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER;
+        delete process.env.ZHUSHOU_BROWSER_CONTROL_MODULE;
+        delete process.env.ZHUSHOU_BUNDLED_HOOKS_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_SKILLS_DIR;
+        delete process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER;
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
 
         loadCliDotEnv({ quiet: true });
 
-        expect(process.env.ASSISTANT_BROWSER_CONTROL_MODULE).toBeUndefined();
-        expect(process.env.ASSISTANT_BUNDLED_HOOKS_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_BUNDLED_PLUGINS_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_BUNDLED_SKILLS_DIR).toBeUndefined();
-        expect(process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER).toBeUndefined();
+        expect(process.env.ZHUSHOU_BROWSER_CONTROL_MODULE).toBeUndefined();
+        expect(process.env.ZHUSHOU_BUNDLED_HOOKS_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_BUNDLED_SKILLS_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER).toBeUndefined();
       });
     });
   });
@@ -589,9 +589,9 @@ describe("loadCliDotEnv", () => {
           path.join(cwdDir, ".env"),
           [
             "SAFE_KEY=from-cwd",
-            "ASSISTANT_STATE_DIR=./evil-state",
-            "ASSISTANT_CONFIG_PATH=./evil-config.json",
-            `ASSISTANT_BUNDLED_PLUGINS_DIR=${bundledPluginsDir}`,
+            "ZHUSHOU_STATE_DIR=./evil-state",
+            "ZHUSHOU_CONFIG_PATH=./evil-config.json",
+            `ZHUSHOU_BUNDLED_PLUGINS_DIR=${bundledPluginsDir}`,
             "NODE_OPTIONS=--require ./evil.js",
             "ANTHROPIC_BASE_URL=https://evil.example.com/v1",
             "UV_PYTHON=./attacker-python",
@@ -602,8 +602,8 @@ describe("loadCliDotEnv", () => {
 
         vi.spyOn(process, "cwd").mockReturnValue(cwdDir);
         delete process.env.SAFE_KEY;
-        delete process.env.ASSISTANT_CONFIG_PATH;
-        delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+        delete process.env.ZHUSHOU_CONFIG_PATH;
+        delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
         delete process.env.NODE_OPTIONS;
         delete process.env.ANTHROPIC_BASE_URL;
         delete process.env.UV_PYTHON;
@@ -614,9 +614,9 @@ describe("loadCliDotEnv", () => {
 
         expect(process.env.SAFE_KEY).toBe("from-cwd");
         expect(process.env.BAR).toBe("from-global");
-        expect(process.env.ASSISTANT_STATE_DIR).toBe(stateDir);
-        expect(process.env.ASSISTANT_CONFIG_PATH).toBeUndefined();
-        expect(process.env.ASSISTANT_BUNDLED_PLUGINS_DIR).toBeUndefined();
+        expect(process.env.ZHUSHOU_STATE_DIR).toBe(stateDir);
+        expect(process.env.ZHUSHOU_CONFIG_PATH).toBeUndefined();
+        expect(process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR).toBeUndefined();
         expect(process.env.NODE_OPTIONS).toBeUndefined();
         expect(process.env.ANTHROPIC_BASE_URL).toBeUndefined();
         expect(process.env.UV_PYTHON).toBeUndefined();
@@ -631,36 +631,36 @@ describe("workspace .env blocklist completeness", () => {
     await withIsolatedEnvAndCwd(async () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
         const runtimeControlKeys = [
-          "ASSISTANT_UPDATE_PACKAGE_SPEC",
-          "ASSISTANT_GATEWAY_PORT",
-          "ASSISTANT_GATEWAY_URL",
-          "ASSISTANT_CLAWHUB_URL",
+          "ZHUSHOU_UPDATE_PACKAGE_SPEC",
+          "ZHUSHOU_GATEWAY_PORT",
+          "ZHUSHOU_GATEWAY_URL",
+          "ZHUSHOU_CLAWHUB_URL",
           "CLAWHUB_URL",
-          "ASSISTANT_CLAWHUB_TOKEN",
+          "ZHUSHOU_CLAWHUB_TOKEN",
           "CLAWHUB_TOKEN",
           "CLAWHUB_AUTH_TOKEN",
           "CLAWHUB_CONFIG_PATH",
-          "ASSISTANT_DISABLE_BUNDLED_PLUGINS",
-          "ASSISTANT_ALLOW_INSECURE_PRIVATE_WS",
-          "ASSISTANT_BROWSER_EXECUTABLE_PATH",
+          "ZHUSHOU_DISABLE_BUNDLED_PLUGINS",
+          "ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS",
+          "ZHUSHOU_BROWSER_EXECUTABLE_PATH",
           "BROWSER_EXECUTABLE_PATH",
           "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH",
-          "ASSISTANT_SKIP_CHANNELS",
-          "ASSISTANT_SKIP_PROVIDERS",
-          "ASSISTANT_SKIP_CRON",
-          "ASSISTANT_RAW_STREAM",
-          "ASSISTANT_RAW_STREAM_PATH",
-          "ASSISTANT_CACHE_TRACE",
-          "ASSISTANT_CACHE_TRACE_FILE",
-          "ASSISTANT_CACHE_TRACE_MESSAGES",
-          "ASSISTANT_CACHE_TRACE_PROMPT",
-          "ASSISTANT_CACHE_TRACE_SYSTEM",
-          "ASSISTANT_SHOW_SECRETS",
-          "ASSISTANT_PLUGIN_CATALOG_PATHS",
-          "ASSISTANT_MPM_CATALOG_PATHS",
-          "ASSISTANT_NODE_EXEC_HOST",
-          "ASSISTANT_NODE_EXEC_FALLBACK",
-          "ASSISTANT_ALLOW_PROJECT_LOCAL_BIN",
+          "ZHUSHOU_SKIP_CHANNELS",
+          "ZHUSHOU_SKIP_PROVIDERS",
+          "ZHUSHOU_SKIP_CRON",
+          "ZHUSHOU_RAW_STREAM",
+          "ZHUSHOU_RAW_STREAM_PATH",
+          "ZHUSHOU_CACHE_TRACE",
+          "ZHUSHOU_CACHE_TRACE_FILE",
+          "ZHUSHOU_CACHE_TRACE_MESSAGES",
+          "ZHUSHOU_CACHE_TRACE_PROMPT",
+          "ZHUSHOU_CACHE_TRACE_SYSTEM",
+          "ZHUSHOU_SHOW_SECRETS",
+          "ZHUSHOU_PLUGIN_CATALOG_PATHS",
+          "ZHUSHOU_MPM_CATALOG_PATHS",
+          "ZHUSHOU_NODE_EXEC_HOST",
+          "ZHUSHOU_NODE_EXEC_FALLBACK",
+          "ZHUSHOU_ALLOW_PROJECT_LOCAL_BIN",
         ];
 
         await writeEnvFile(
@@ -686,7 +686,7 @@ describe("workspace .env blocklist completeness", () => {
       await withDotEnvFixture(async ({ cwdDir }) => {
         await writeEnvFile(
           path.join(cwdDir, ".env"),
-          "MY_APP_KEY=user-value\nAPP_GITHUB_REPO=assistant/assistant\nDATABASE_URL_CUSTOM=pg://localhost\n",
+          "MY_APP_KEY=user-value\nAPP_GITHUB_REPO=wang301208/zhushou\nDATABASE_URL_CUSTOM=pg://localhost\n",
         );
 
         delete process.env.MY_APP_KEY;
@@ -696,7 +696,7 @@ describe("workspace .env blocklist completeness", () => {
         loadWorkspaceDotEnvFile(path.join(cwdDir, ".env"), { quiet: true });
 
         expect(process.env.MY_APP_KEY).toBe("user-value");
-        expect(process.env.APP_GITHUB_REPO).toBe("assistant/assistant");
+        expect(process.env.APP_GITHUB_REPO).toBe("wang301208/zhushou");
         expect(process.env.DATABASE_URL_CUSTOM).toBe("pg://localhost");
       });
     });

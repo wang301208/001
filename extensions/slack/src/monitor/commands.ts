@@ -1,5 +1,5 @@
-import type { SlackSlashCommandConfig } from "assistant/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import type { SlackSlashCommandConfig } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 
 /**
  * Strip Slack mentions (<@U123>, <@U123|name>) so command detection works on
@@ -20,9 +20,9 @@ export function resolveSlackSlashCommandConfig(
   raw?: SlackSlashCommandConfig,
 ): Required<SlackSlashCommandConfig> {
   const normalizedName = normalizeSlackSlashCommandName(
-    normalizeOptionalString(raw?.name) ?? "assistant",
+    normalizeOptionalString(raw?.name) ?? "zhushou",
   );
-  const name = normalizedName || "assistant";
+  const name = normalizedName || "zhushou";
   return {
     enabled: raw?.enabled === true,
     name,

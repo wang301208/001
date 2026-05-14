@@ -40,11 +40,11 @@ describe("business task handlers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     stateDir = mkdtempSync(path.join(os.tmpdir(), "business-tasks-"));
-    process.env.ASSISTANT_STATE_DIR = stateDir;
+    process.env.ZHUSHOU_STATE_DIR = stateDir;
   });
 
   afterEach(() => {
-    delete process.env.ASSISTANT_STATE_DIR;
+    delete process.env.ZHUSHOU_STATE_DIR;
     rmSync(stateDir, { recursive: true, force: true });
   });
 

@@ -23,10 +23,10 @@ COPY --chown=appuser:appuser extensions ./extensions
 COPY --chown=appuser:appuser patches ./patches
 COPY --chown=appuser:appuser scripts/postinstall-bundled-plugins.mjs scripts/preinstall-package-manager-warning.mjs scripts/npm-runner.mjs scripts/windows-cmd-helpers.mjs ./scripts/
 
-RUN --mount=type=cache,id=assistant-pnpm-store,target=/home/appuser/.local/share/pnpm/store,sharing=locked \
+RUN --mount=type=cache,id=zhushou-pnpm-store,target=/home/appuser/.local/share/pnpm/store,sharing=locked \
     pnpm install --frozen-lockfile
 
-COPY --chown=appuser:appuser tsconfig.json tsconfig.plugin-sdk.dts.json tsdown.config.ts vitest.config.ts assistant.mjs ./
+COPY --chown=appuser:appuser tsconfig.json tsconfig.plugin-sdk.dts.json tsdown.config.ts vitest.config.ts zhushou.mjs ./
 COPY --chown=appuser:appuser src ./src
 COPY --chown=appuser:appuser test ./test
 COPY --chown=appuser:appuser scripts ./scripts

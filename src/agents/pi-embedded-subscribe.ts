@@ -72,7 +72,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
   const useMarkdown = toolResultFormat === "markdown";
   const initialPendingToolMediaUrls = collectPendingMediaFromInternalEvents(params.internalEvents);
   const state: EmbeddedPiSubscribeState = {
-    assistantTexts: [],
+    zhushouTexts: [],
     toolMetas: [],
     toolMetaById: new Map(),
     toolSummaryById: new Set(),
@@ -90,18 +90,18 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     // Track if a streamed chunk opened a <think> block (stateful across chunks).
     blockState: { thinking: false, final: false, inlineCode: createInlineCodeState() },
     partialBlockState: { thinking: false, final: false, inlineCode: createInlineCodeState() },
-    lastStreamedAssistant: undefined,
-    lastStreamedAssistantCleaned: undefined,
-    emittedAssistantUpdate: false,
+    lastStreamedZhushou: undefined,
+    lastStreamedZhushouCleaned: undefined,
+    emittedZhushouUpdate: false,
     lastStreamedReasoning: undefined,
     lastBlockReplyText: undefined,
     reasoningStreamOpen: false,
-    assistantMessageIndex: 0,
-    lastAssistantStreamItemId: undefined,
-    lastAssistantTextMessageIndex: -1,
-    lastAssistantTextNormalized: undefined,
-    lastAssistantTextTrimmed: undefined,
-    assistantTextBaseline: 0,
+    zhushouMessageIndex: 0,
+    lastZhushouStreamItemId: undefined,
+    lastZhushouTextMessageIndex: -1,
+    lastZhushouTextNormalized: undefined,
+    lastZhushouTextTrimmed: undefined,
+    zhushouTextBaseline: 0,
     suppressBlockChunks: false, // Avoid late chunk inserts after final text merge.
     lastReasoningSent: undefined,
     compactionInFlight: false,
@@ -135,7 +135,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
   };
   let compactionCount = 0;
 
-  const assistantTexts = state.assistantTexts;
+  const zhushouTexts = state.zhushouTexts;
   const toolMetas = state.toolMetas;
   const toolMetaById = state.toolMetaById;
   const toolSummaryById = state.toolSummaryById;
@@ -152,16 +152,16 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     Boolean(text && isSilentReplyText(text, SILENT_REPLY_TOKEN));
   const emitBlockReplySafely = (
     payload: Parameters<NonNullable<SubscribeEmbeddedPiSessionParams["onBlockReply"]>>[0],
-    options?: { assistantMessageIndex?: number },
+    options?: { zhushouMessageIndex?: number },
   ) => {
     if (!params.onBlockReply) {
       return;
     }
     try {
       const taggedPayload =
-        options?.assistantMessageIndex !== undefined
+        options?.zhushouMessageIndex !== undefined
           ? setReplyPayloadMetadata(payload, {
-              assistantMessageIndex: options.assistantMessageIndex,
+              zhushouMessageIndex: options.zhushouMessageIndex,
             })
           : payload;
       const maybeTask = params.onBlockReply(taggedPayload);
@@ -181,12 +181,12 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
   };
   const emitBlockReply = (
     payload: BlockReplyPayload,
-    options?: { assistantMessageIndex?: number },
+    options?: { zhushouMessageIndex?: number },
   ) => {
     emitBlockReplySafely(consumePendingToolMediaIntoReply(state, payload), options);
   };
 
-  const resetAssistantMessageState = (nextAssistantTextBaseline: number) => {
+  const resetZhushouMessageState = (nextZhushouTextBaseline: number) => {
     state.deltaBuffer = "";
     state.blockBuffer = "";
     blockChunker?.reset();
@@ -198,59 +198,59 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     state.partialBlockState.thinking = false;
     state.partialBlockState.final = false;
     state.partialBlockState.inlineCode = createInlineCodeState();
-    state.lastStreamedAssistant = undefined;
-    state.lastStreamedAssistantCleaned = undefined;
-    state.emittedAssistantUpdate = false;
+    state.lastStreamedZhushou = undefined;
+    state.lastStreamedZhushouCleaned = undefined;
+    state.emittedZhushouUpdate = false;
     state.lastBlockReplyText = undefined;
     state.lastStreamedReasoning = undefined;
     state.lastReasoningSent = undefined;
     state.reasoningStreamOpen = false;
     state.suppressBlockChunks = false;
-    state.assistantMessageIndex += 1;
-    state.lastAssistantStreamItemId = undefined;
-    state.lastAssistantTextMessageIndex = -1;
-    state.lastAssistantTextNormalized = undefined;
-    state.lastAssistantTextTrimmed = undefined;
-    state.assistantTextBaseline = nextAssistantTextBaseline;
+    state.zhushouMessageIndex += 1;
+    state.lastZhushouStreamItemId = undefined;
+    state.lastZhushouTextMessageIndex = -1;
+    state.lastZhushouTextNormalized = undefined;
+    state.lastZhushouTextTrimmed = undefined;
+    state.zhushouTextBaseline = nextZhushouTextBaseline;
   };
 
-  const rememberAssistantText = (text: string) => {
-    state.lastAssistantTextMessageIndex = state.assistantMessageIndex;
-    state.lastAssistantTextTrimmed = text.trimEnd();
+  const rememberZhushouText = (text: string) => {
+    state.lastZhushouTextMessageIndex = state.zhushouMessageIndex;
+    state.lastZhushouTextTrimmed = text.trimEnd();
     const normalized = normalizeTextForComparison(text);
-    state.lastAssistantTextNormalized = normalized.length > 0 ? normalized : undefined;
+    state.lastZhushouTextNormalized = normalized.length > 0 ? normalized : undefined;
   };
 
-  const shouldSkipAssistantText = (text: string) => {
-    if (state.lastAssistantTextMessageIndex !== state.assistantMessageIndex) {
+  const shouldSkipZhushouText = (text: string) => {
+    if (state.lastZhushouTextMessageIndex !== state.zhushouMessageIndex) {
       return false;
     }
     const trimmed = text.trimEnd();
-    if (trimmed && trimmed === state.lastAssistantTextTrimmed) {
+    if (trimmed && trimmed === state.lastZhushouTextTrimmed) {
       return true;
     }
     const normalized = normalizeTextForComparison(text);
-    if (normalized.length > 0 && normalized === state.lastAssistantTextNormalized) {
+    if (normalized.length > 0 && normalized === state.lastZhushouTextNormalized) {
       return true;
     }
     return false;
   };
 
-  const pushAssistantText = (text: string) => {
+  const pushZhushouText = (text: string) => {
     if (!text) {
       return;
     }
     if (params.silentExpected && !shouldAllowSilentTurnText(text)) {
       return;
     }
-    if (shouldSkipAssistantText(text)) {
+    if (shouldSkipZhushouText(text)) {
       return;
     }
-    assistantTexts.push(text);
-    rememberAssistantText(text);
+    zhushouTexts.push(text);
+    rememberZhushouText(text);
   };
 
-  const finalizeAssistantTexts = (args: {
+  const finalizeZhushouTexts = (args: {
     text: string;
     addedDuringMessage: boolean;
     chunkerHasBuffered: boolean;
@@ -260,24 +260,24 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     // If we're not streaming block replies, ensure the final payload includes
     // the final text even when interim streaming was enabled.
     if (state.includeReasoning && text && !params.onBlockReply) {
-      if (assistantTexts.length > state.assistantTextBaseline) {
-        assistantTexts.splice(
-          state.assistantTextBaseline,
-          assistantTexts.length - state.assistantTextBaseline,
+      if (zhushouTexts.length > state.zhushouTextBaseline) {
+        zhushouTexts.splice(
+          state.zhushouTextBaseline,
+          zhushouTexts.length - state.zhushouTextBaseline,
           text,
         );
-        rememberAssistantText(text);
+        rememberZhushouText(text);
       } else {
-        pushAssistantText(text);
+        pushZhushouText(text);
       }
       state.suppressBlockChunks = true;
     } else if (!addedDuringMessage && !chunkerHasBuffered && text) {
-      // Non-streaming models (no text_delta): ensure assistantTexts gets the final
+      // Non-streaming models (no text_delta): ensure zhushouTexts gets the final
       // text when the chunker has nothing buffered to drain.
-      pushAssistantText(text);
+      pushZhushouText(text);
     }
 
-    state.assistantTextBaseline = assistantTexts.length;
+    state.zhushouTextBaseline = zhushouTexts.length;
   };
 
   // ── Messaging tool duplicate detection ──────────────────────────────────────
@@ -345,7 +345,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
   const maybeResolveCompactionWait = () => {
     resolveCompactionPromiseIfIdle();
   };
-  const recordAssistantUsage = (usageLike: unknown) => {
+  const recordZhushouUsage = (usageLike: unknown) => {
     const usage = normalizeUsage((usageLike ?? undefined) as UsageLike | undefined);
     if (!hasNonzeroUsage(usage)) {
       return;
@@ -560,7 +560,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     return output;
   };
 
-  const emitBlockChunk = (text: string, options?: { assistantMessageIndex?: number }) => {
+  const emitBlockChunk = (text: string, options?: { zhushouMessageIndex?: number }) => {
     if (state.suppressBlockChunks || params.silentExpected) {
       return;
     }
@@ -582,12 +582,12 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       return;
     }
 
-    if (shouldSkipAssistantText(chunk)) {
+    if (shouldSkipZhushouText(chunk)) {
       return;
     }
 
     state.lastBlockReplyText = chunk;
-    pushAssistantText(chunk);
+    pushZhushouText(chunk);
     if (!params.onBlockReply) {
       return;
     }
@@ -617,7 +617,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
         replyToCurrent,
       },
       {
-        assistantMessageIndex: options?.assistantMessageIndex ?? state.assistantMessageIndex,
+        zhushouMessageIndex: options?.zhushouMessageIndex ?? state.zhushouMessageIndex,
       },
     );
   };
@@ -628,7 +628,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     partialReplyDirectiveAccumulator.consume(text, options);
 
   const flushBlockReplyBuffer = (options?: {
-    assistantMessageIndex?: number;
+    zhushouMessageIndex?: number;
   }): void | Promise<void> => {
     if (!params.onBlockReply) {
       return;
@@ -691,7 +691,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       messagingToolSentTexts.length > 0 ||
       messagingToolSentMediaUrls.length > 0 ||
       state.successfulCronAdds > 0;
-    assistantTexts.length = 0;
+    zhushouTexts.length = 0;
     toolMetas.length = 0;
     toolMetaById.clear();
     toolSummaryById.clear();
@@ -713,12 +713,12 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     state.deterministicApprovalPromptSent = false;
     state.replayState = mergeEmbeddedRunReplayState(state.replayState, params.initialReplayState);
     state.livenessState = "working";
-    resetAssistantMessageState(0);
+    resetZhushouMessageState(0);
   };
 
-  const noteLastAssistant = (msg: AgentMessage) => {
+  const noteLastZhushou = (msg: AgentMessage) => {
     if (msg?.role === "assistant") {
-      state.lastAssistant = msg;
+      state.lastZhushou = msg;
     }
   };
 
@@ -730,7 +730,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     blockChunker,
     hookRunner: params.hookRunner,
     builtinToolNames: params.builtinToolNames,
-    noteLastAssistant,
+    noteLastZhushou,
     shouldEmitToolResult,
     shouldEmitToolOutput,
     emitToolSummary,
@@ -742,15 +742,15 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     emitReasoningStream,
     consumeReplyDirectives,
     consumePartialReplyDirectives,
-    resetAssistantMessageState,
+    resetZhushouMessageState,
     resetForCompactionRetry,
-    finalizeAssistantTexts,
+    finalizeZhushouTexts,
     trimMessagingToolSent,
     ensureCompactionPromise,
     noteCompactionRetry,
     resolveCompactionRetry,
     maybeResolveCompactionWait,
-    recordAssistantUsage,
+    recordZhushouUsage,
     incrementCompactionCount,
     getUsageTotals,
     getCompactionCount: () => compactionCount,
@@ -792,7 +792,7 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
   };
 
   return {
-    assistantTexts,
+    zhushouTexts,
     toolMetas,
     unsubscribe,
     setTerminalLifecycleMeta: (meta: {

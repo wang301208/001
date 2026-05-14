@@ -20,44 +20,44 @@ describe("gateway handshake timeouts", () => {
     expect(clampConnectChallengeTimeoutMs(20_000)).toBe(MAX_CONNECT_CHALLENGE_TIMEOUT_MS);
   });
 
-  test("prefers ASSISTANT_HANDSHAKE_TIMEOUT_MS and falls back on the test-only env", () => {
+  test("prefers ZHUSHOU_HANDSHAKE_TIMEOUT_MS and falls back on the test-only env", () => {
     expect(
       getPreauthHandshakeTimeoutMsFromEnv({
-        ASSISTANT_HANDSHAKE_TIMEOUT_MS: "75",
-        ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS: "20",
+        ZHUSHOU_HANDSHAKE_TIMEOUT_MS: "75",
+        ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS: "20",
       }),
     ).toBe(75);
     expect(
       getPreauthHandshakeTimeoutMsFromEnv({
-        ASSISTANT_HANDSHAKE_TIMEOUT_MS: "",
-        ASSISTANT_TEST_HANDSHAKE_TIMEOUT_MS: "20",
+        ZHUSHOU_HANDSHAKE_TIMEOUT_MS: "",
+        ZHUSHOU_TEST_HANDSHAKE_TIMEOUT_MS: "20",
         VITEST: "1",
       }),
     ).toBe(20);
   });
 
-  test("getConnectChallengeTimeoutMsFromEnv reads ASSISTANT_CONNECT_CHALLENGE_TIMEOUT_MS", () => {
+  test("getConnectChallengeTimeoutMsFromEnv reads ZHUSHOU_CONNECT_CHALLENGE_TIMEOUT_MS", () => {
     expect(getConnectChallengeTimeoutMsFromEnv({})).toBeUndefined();
     expect(
-      getConnectChallengeTimeoutMsFromEnv({ ASSISTANT_CONNECT_CHALLENGE_TIMEOUT_MS: "15000" }),
+      getConnectChallengeTimeoutMsFromEnv({ ZHUSHOU_CONNECT_CHALLENGE_TIMEOUT_MS: "15000" }),
     ).toBe(15_000);
     expect(
-      getConnectChallengeTimeoutMsFromEnv({ ASSISTANT_CONNECT_CHALLENGE_TIMEOUT_MS: "garbage" }),
+      getConnectChallengeTimeoutMsFromEnv({ ZHUSHOU_CONNECT_CHALLENGE_TIMEOUT_MS: "garbage" }),
     ).toBeUndefined();
   });
 
   test("resolveConnectChallengeTimeoutMs falls back to env override", () => {
-    const original = process.env.ASSISTANT_CONNECT_CHALLENGE_TIMEOUT_MS;
+    const original = process.env.ZHUSHOU_CONNECT_CHALLENGE_TIMEOUT_MS;
     try {
-      process.env.ASSISTANT_CONNECT_CHALLENGE_TIMEOUT_MS = "5000";
+      process.env.ZHUSHOU_CONNECT_CHALLENGE_TIMEOUT_MS = "5000";
       expect(resolveConnectChallengeTimeoutMs()).toBe(5_000);
       // Explicit value still takes precedence over env
       expect(resolveConnectChallengeTimeoutMs(3_000)).toBe(3_000);
     } finally {
       if (original === undefined) {
-        delete process.env.ASSISTANT_CONNECT_CHALLENGE_TIMEOUT_MS;
+        delete process.env.ZHUSHOU_CONNECT_CHALLENGE_TIMEOUT_MS;
       } else {
-        process.env.ASSISTANT_CONNECT_CHALLENGE_TIMEOUT_MS = original;
+        process.env.ZHUSHOU_CONNECT_CHALLENGE_TIMEOUT_MS = original;
       }
     }
   });

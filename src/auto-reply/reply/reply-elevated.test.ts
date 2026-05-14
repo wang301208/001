@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
 import { resolveElevatedPermissions } from "./reply-elevated.js";
 
-function buildConfig(allowFrom: string[]): AssistantConfig {
+function buildConfig(allowFrom: string[]): ZhushouConfig {
   return {
     tools: {
       elevated: {
@@ -12,7 +12,7 @@ function buildConfig(allowFrom: string[]): AssistantConfig {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function buildContext(overrides?: Partial<MsgContext>): MsgContext {

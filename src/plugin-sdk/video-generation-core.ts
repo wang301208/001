@@ -17,7 +17,7 @@ export type {
   VideoGenerationSourceAsset,
   VideoGenerationTransformCapabilities,
 } from "../video-generation/types.js";
-export type { AssistantConfig } from "../config/types.assistant.js";
+export type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export { describeFailoverError, isFailoverError } from "../agents/failover-error.js";
 export {

@@ -33,7 +33,7 @@ export type PromptFailoverDecision = Extract<
   { action: "rotate_profile" | "fallback_model" | "surface_error" }
 >;
 
-export type AssistantFailoverDecision = Extract<
+export type ZhushouFailoverDecision = Extract<
   RunFailoverDecision,
   { action: "continue_normal" | "rotate_profile" | "fallback_model" | "surface_error" }
 >;
@@ -54,8 +54,8 @@ type PromptDecisionParams = {
   profileRotated: boolean;
 };
 
-type AssistantDecisionParams = {
-  stage: "assistant";
+type ZhushouDecisionParams = {
+  stage: "zhushou";
   aborted: boolean;
   externalAbort: boolean;
   fallbackConfigured: boolean;
@@ -69,7 +69,7 @@ type AssistantDecisionParams = {
 export type RunFailoverDecisionParams =
   | RetryLimitDecisionParams
   | PromptDecisionParams
-  | AssistantDecisionParams;
+  | ZhushouDecisionParams;
 
 function shouldEscalateRetryLimit(reason: FailoverReason | null): boolean {
   return Boolean(
@@ -85,7 +85,7 @@ function shouldRotatePrompt(params: PromptDecisionParams): boolean {
   return params.failoverFailure && params.failoverReason !== "timeout";
 }
 
-function shouldRotateAssistant(params: AssistantDecisionParams): boolean {
+function shouldRotateZhushou(params: ZhushouDecisionParams): boolean {
   return (
     (!params.aborted && (params.failoverFailure || params.failoverReason !== null)) ||
     (params.timedOut && !params.timedOutDuringCompaction)
@@ -105,8 +105,8 @@ export function resolveRunFailoverDecision(
 ): RetryLimitFailoverDecision;
 export function resolveRunFailoverDecision(params: PromptDecisionParams): PromptFailoverDecision;
 export function resolveRunFailoverDecision(
-  params: AssistantDecisionParams,
-): AssistantFailoverDecision;
+  params: ZhushouDecisionParams,
+): ZhushouFailoverDecision;
 export function resolveRunFailoverDecision(params: RunFailoverDecisionParams): RunFailoverDecision {
   if (params.stage === "retry_limit") {
     if (params.fallbackConfigured && shouldEscalateRetryLimit(params.failoverReason)) {
@@ -152,20 +152,20 @@ export function resolveRunFailoverDecision(params: RunFailoverDecisionParams): R
       reason: params.failoverReason,
     };
   }
-  const assistantShouldRotate = shouldRotateAssistant(params);
-  if (!params.profileRotated && assistantShouldRotate) {
+  const zhushouShouldRotate = shouldRotateZhushou(params);
+  if (!params.profileRotated && zhushouShouldRotate) {
     return {
       action: "rotate_profile",
       reason: params.failoverReason,
     };
   }
-  if (assistantShouldRotate && params.fallbackConfigured) {
+  if (zhushouShouldRotate && params.fallbackConfigured) {
     return {
       action: "fallback_model",
       reason: params.timedOut ? "timeout" : (params.failoverReason ?? "unknown"),
     };
   }
-  if (!assistantShouldRotate) {
+  if (!zhushouShouldRotate) {
     return {
       action: "continue_normal",
     };

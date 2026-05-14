@@ -120,19 +120,19 @@ export async function truncateSessionAfterCompaction(params: {
 
   for (let i = 0; i < branch.length - 1; i++) {
     const userEntry = branch[i];
-    const assistantEntry = branch[i + 1];
+    const zhushouEntry = branch[i + 1];
     if (
       userEntry.type === "message" &&
-      assistantEntry.type === "message" &&
+      zhushouEntry.type === "message" &&
       summarizedBranchIds.has(userEntry.id) &&
-      summarizedBranchIds.has(assistantEntry.id) &&
+      summarizedBranchIds.has(zhushouEntry.id) &&
       !removedIds.has(userEntry.id) &&
-      !removedIds.has(assistantEntry.id) &&
+      !removedIds.has(zhushouEntry.id) &&
       isHeartbeatUserMessage(userEntry.message, params.heartbeatPrompt) &&
-      isHeartbeatOkResponse(assistantEntry.message, params.ackMaxChars)
+      isHeartbeatOkResponse(zhushouEntry.message, params.ackMaxChars)
     ) {
       removedIds.add(userEntry.id);
-      removedIds.add(assistantEntry.id);
+      removedIds.add(zhushouEntry.id);
       i++;
     }
   }

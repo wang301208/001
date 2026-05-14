@@ -1,6 +1,6 @@
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveGatewayPort } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   resolveGatewayLaunchAgentLabel,
   resolveNodeLaunchAgentLabel,
@@ -87,7 +87,7 @@ async function maybeRepairLaunchAgentBootstrap(params: {
 }
 
 export async function maybeRepairGatewayDaemon(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   runtime: RuntimeEnv;
   prompter: DoctorPrompter;
   options: DoctorOptions;
@@ -121,7 +121,7 @@ export async function maybeRepairGatewayDaemon(params: {
     await maybeRepairLaunchAgentBootstrap({
       env: {
         ...process.env,
-        ASSISTANT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+        ZHUSHOU_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
       },
       title: "Node",
       runtime: params.runtime,
@@ -252,9 +252,9 @@ export async function maybeRepairGatewayDaemon(params: {
   }
 
   if (process.platform === "darwin") {
-    const label = resolveGatewayLaunchAgentLabel(process.env.ASSISTANT_PROFILE);
+    const label = resolveGatewayLaunchAgentLabel(process.env.ZHUSHOU_PROFILE);
     note(
-      `LaunchAgent loaded; stopping requires "${formatCliCommand("assistant gateway stop")}" or launchctl bootout gui/$UID/${label}.`,
+      `LaunchAgent loaded; stopping requires "${formatCliCommand("zhushou gateway stop")}" or launchctl bootout gui/$UID/${label}.`,
       "Gateway",
     );
   }

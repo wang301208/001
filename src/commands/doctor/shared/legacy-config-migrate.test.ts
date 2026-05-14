@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../../config/types.js";
+import type { ZhushouConfig } from "../../../config/types.js";
 import { LEGACY_CONFIG_MIGRATIONS } from "./legacy-config-migrations.js";
 
 function migrateLegacyConfigForTest(raw: unknown): {
-  config: AssistantConfig | null;
+  config: ZhushouConfig | null;
   changes: string[];
 } {
   if (!raw || typeof raw !== "object") {
@@ -16,7 +16,7 @@ function migrateLegacyConfigForTest(raw: unknown): {
   }
   return changes.length === 0
     ? { config: null, changes }
-    : { config: next as AssistantConfig, changes };
+    : { config: next as ZhushouConfig, changes };
 }
 
 describe("legacy migrate audio transcription", () => {
@@ -665,8 +665,8 @@ describe("legacy migrate controlUi.allowedOrigins seed (issue #29385)", () => {
       },
     });
     expect(res.config?.gateway?.controlUi?.allowedOrigins).toEqual([
-      "http://localhost:18789",
-      "http://127.0.0.1:18789",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
     ]);
     expect(res.changes.some((c) => c.includes("gateway.controlUi.allowedOrigins"))).toBe(true);
     expect(res.changes.some((c) => c.includes("bind=lan"))).toBe(true);
@@ -694,8 +694,8 @@ describe("legacy migrate controlUi.allowedOrigins seed (issue #29385)", () => {
         auth: { mode: "token", token: "tok" },
       },
     });
-    expect(res.config?.gateway?.controlUi?.allowedOrigins).toContain("http://192.168.1.100:18789");
-    expect(res.config?.gateway?.controlUi?.allowedOrigins).toContain("http://localhost:18789");
+    expect(res.config?.gateway?.controlUi?.allowedOrigins).toContain("http://192.168.1.100:3000");
+    expect(res.config?.gateway?.controlUi?.allowedOrigins).toContain("http://localhost:3000");
   });
 
   it("does not overwrite existing allowedOrigins — returns null (no migration needed)", () => {
@@ -733,8 +733,8 @@ describe("legacy migrate controlUi.allowedOrigins seed (issue #29385)", () => {
       },
     });
     expect(res.config?.gateway?.controlUi?.allowedOrigins).toEqual([
-      "http://localhost:18789",
-      "http://127.0.0.1:18789",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
     ]);
     expect(res.changes.some((c) => c.includes("gateway.controlUi.allowedOrigins"))).toBe(true);
   });
@@ -760,8 +760,8 @@ describe("legacy migrate controlUi.allowedOrigins seed (issue #29385)", () => {
     });
     expect(res.config?.gateway?.controlUi?.basePath).toBe("/app");
     expect(res.config?.gateway?.controlUi?.allowedOrigins).toEqual([
-      "http://localhost:18789",
-      "http://127.0.0.1:18789",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
     ]);
   });
 });

@@ -187,7 +187,7 @@ export async function agentsAddCommand(
 
   const prompter = createClackPrompter();
   try {
-    await prompter.intro("Add assistant agent");
+    await prompter.intro("Add zhushou agent");
     const name =
       nameInput ??
       (await prompter.text({
@@ -347,7 +347,7 @@ export async function agentsAddCommand(
         await prompter.note(
           [
             "Routing unchanged. Add bindings when you're ready.",
-            "Docs: https://docs.assistant.ai/concepts/multi-agent",
+            "Docs: https://docs.zhushou.ai/concepts/multi-agent",
           ].join("\n"),
           "Routing",
         );

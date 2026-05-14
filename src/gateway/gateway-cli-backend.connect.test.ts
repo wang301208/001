@@ -26,35 +26,35 @@ describe("gateway cli backend connect", () => {
     async () => {
       const envSnapshot = captureEnv([
         "HOME",
-        "ASSISTANT_STATE_DIR",
-        "ASSISTANT_CONFIG_PATH",
-        "ASSISTANT_GATEWAY_TOKEN",
-        "ASSISTANT_SKIP_CHANNELS",
-        "ASSISTANT_SKIP_PROVIDERS",
-        "ASSISTANT_SKIP_GMAIL_WATCHER",
-        "ASSISTANT_SKIP_CRON",
-        "ASSISTANT_SKIP_CANVAS_HOST",
-        "ASSISTANT_SKIP_BROWSER_CONTROL_SERVER",
-        "ASSISTANT_BUNDLED_PLUGINS_DIR",
-        "ASSISTANT_TEST_MINIMAL_GATEWAY",
+        "ZHUSHOU_STATE_DIR",
+        "ZHUSHOU_CONFIG_PATH",
+        "ZHUSHOU_GATEWAY_TOKEN",
+        "ZHUSHOU_SKIP_CHANNELS",
+        "ZHUSHOU_SKIP_PROVIDERS",
+        "ZHUSHOU_SKIP_GMAIL_WATCHER",
+        "ZHUSHOU_SKIP_CRON",
+        "ZHUSHOU_SKIP_CANVAS_HOST",
+        "ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER",
+        "ZHUSHOU_BUNDLED_PLUGINS_DIR",
+        "ZHUSHOU_TEST_MINIMAL_GATEWAY",
       ]);
 
-      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gateway-connect-home-"));
-      const configPath = path.join(tempHome, ".assistant", "assistant.json");
-      const bundledPluginsDir = path.join(tempHome, "assistant-test-no-bundled-extensions");
+      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gateway-connect-home-"));
+      const configPath = path.join(tempHome, ".zhushou", "zhushou.json");
+      const bundledPluginsDir = path.join(tempHome, "zhushou-test-no-bundled-extensions");
       const token = `test-${Date.now()}`;
       process.env.HOME = tempHome;
-      process.env.ASSISTANT_STATE_DIR = path.join(tempHome, ".assistant");
-      process.env.ASSISTANT_CONFIG_PATH = configPath;
-      process.env.ASSISTANT_GATEWAY_TOKEN = token;
-      process.env.ASSISTANT_SKIP_CHANNELS = "1";
-      process.env.ASSISTANT_SKIP_PROVIDERS = "1";
-      process.env.ASSISTANT_SKIP_GMAIL_WATCHER = "1";
-      process.env.ASSISTANT_SKIP_CRON = "1";
-      process.env.ASSISTANT_SKIP_CANVAS_HOST = "1";
-      process.env.ASSISTANT_SKIP_BROWSER_CONTROL_SERVER = "1";
-      process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = bundledPluginsDir;
-      process.env.ASSISTANT_TEST_MINIMAL_GATEWAY = "1";
+      process.env.ZHUSHOU_STATE_DIR = path.join(tempHome, ".zhushou");
+      process.env.ZHUSHOU_CONFIG_PATH = configPath;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
+      process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+      process.env.ZHUSHOU_SKIP_PROVIDERS = "1";
+      process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = "1";
+      process.env.ZHUSHOU_SKIP_CRON = "1";
+      process.env.ZHUSHOU_SKIP_CANVAS_HOST = "1";
+      process.env.ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER = "1";
+      process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = bundledPluginsDir;
+      process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY = "1";
       await fs.mkdir(path.dirname(configPath), { recursive: true });
       await fs.mkdir(bundledPluginsDir, { recursive: true });
       await fs.writeFile(

@@ -3,7 +3,7 @@ import type { EmbeddedPiExecutionContract } from "../../../config/types.agent-de
 import { normalizeLowercaseStringOrEmpty } from "../../../shared/string-coerce.js";
 import { isStrictAgenticSupportedProviderModel } from "../../execution-contract.js";
 import { isLikelyMutatingToolName } from "../../tool-mutation.js";
-import { assessLastAssistantMessage } from "../thinking.js";
+import { assessLastZhushouMessage } from "../thinking.js";
 import type { EmbeddedRunLivenessState } from "../types.js";
 import type { EmbeddedRunAttemptResult } from "./types.js";
 
@@ -14,13 +14,13 @@ type ReplayMetadataAttempt = Pick<
 
 type IncompleteTurnAttempt = Pick<
   EmbeddedRunAttemptResult,
-  | "assistantTexts"
+  | "zhushouTexts"
   | "clientToolCall"
-  | "currentAttemptAssistant"
+  | "currentAttemptZhushou"
   | "yieldDetected"
   | "didSendDeterministicApprovalPrompt"
   | "lastToolError"
-  | "lastAssistant"
+  | "lastZhushou"
   | "replayMetadata"
   | "promptErrorSource"
   | "timedOutDuringCompaction"
@@ -28,13 +28,13 @@ type IncompleteTurnAttempt = Pick<
 
 type PlanningOnlyAttempt = Pick<
   EmbeddedRunAttemptResult,
-  | "assistantTexts"
+  | "zhushouTexts"
   | "clientToolCall"
   | "yieldDetected"
   | "didSendDeterministicApprovalPrompt"
   | "didSendViaMessagingTool"
   | "lastToolError"
-  | "lastAssistant"
+  | "lastZhushou"
   | "itemLifecycle"
   | "replayMetadata"
   | "toolMetas"
@@ -42,14 +42,14 @@ type PlanningOnlyAttempt = Pick<
 
 type RunLivenessAttempt = Pick<
   EmbeddedRunAttemptResult,
-  "lastAssistant" | "promptErrorSource" | "replayMetadata" | "timedOutDuringCompaction"
+  "lastZhushou" | "promptErrorSource" | "replayMetadata" | "timedOutDuringCompaction"
 >;
 
-export function isIncompleteTerminalAssistantTurn(params: {
-  hasAssistantVisibleText: boolean;
-  lastAssistant?: { stopReason?: string } | null;
+export function isIncompleteTerminalZhushouTurn(params: {
+  hasZhushouVisibleText: boolean;
+  lastZhushou?: { stopReason?: string } | null;
 }): boolean {
-  return !params.hasAssistantVisibleText && params.lastAssistant?.stopReason === "toolUse";
+  return !params.hasZhushouVisibleText && params.lastZhushou?.stopReason === "toolUse";
 }
 
 const PLANNING_ONLY_PROMISE_RE =
@@ -128,9 +128,9 @@ const ACTIONABLE_PROMPT_REQUEST_RE =
   /\b(?:can|could|would|will)\s+you\b|\b(?:please|pls)\b|\b(?:help|explain|summari(?:s|z)e|analy(?:s|z)e|review|investigate|debug|fix|check|look(?:\s+into|\s+at)?|read|write|edit|update|run|search|find|implement|add|remove|refactor|show|tell me|walk me through)\b/i;
 
 export const PLANNING_ONLY_RETRY_INSTRUCTION =
-  "The previous assistant turn only described the plan. Do not restate the plan. Act now: take the first concrete tool action you can. If a real blocker prevents action, reply with the exact blocker in one sentence.";
+  "The previous zhushou turn only described the plan. Do not restate the plan. Act now: take the first concrete tool action you can. If a real blocker prevents action, reply with the exact blocker in one sentence.";
 export const REASONING_ONLY_RETRY_INSTRUCTION =
-  "The previous assistant turn recorded reasoning but did not produce a user-visible answer. Continue from that partial turn and produce the visible answer now. Do not restate the reasoning or restart from scratch.";
+  "The previous zhushou turn recorded reasoning but did not produce a user-visible answer. Continue from that partial turn and produce the visible answer now. Do not restate the reasoning or restart from scratch.";
 export const EMPTY_RESPONSE_RETRY_INSTRUCTION =
   "The previous attempt did not produce a user-visible answer. Continue from the current state and produce the visible answer now. Do not restart from scratch.";
 export const ACK_EXECUTION_FAST_PATH_INSTRUCTION =
@@ -173,22 +173,22 @@ export function resolveIncompleteTurnPayloadText(params: {
     return null;
   }
 
-  const stopReason = params.attempt.lastAssistant?.stopReason;
-  const incompleteTerminalAssistant = isIncompleteTerminalAssistantTurn({
-    hasAssistantVisibleText: params.payloadCount > 0,
-    lastAssistant: params.attempt.lastAssistant,
+  const stopReason = params.attempt.lastZhushou?.stopReason;
+  const incompleteTerminalZhushou = isIncompleteTerminalZhushouTurn({
+    hasZhushouVisibleText: params.payloadCount > 0,
+    lastZhushou: params.attempt.lastZhushou,
   });
-  const reasoningOnlyAssistant = isReasoningOnlyAssistantTurn(
-    params.attempt.currentAttemptAssistant ?? params.attempt.lastAssistant,
+  const reasoningOnlyZhushou = isReasoningOnlyZhushouTurn(
+    params.attempt.currentAttemptZhushou ?? params.attempt.lastZhushou,
   );
-  const emptyResponseAssistant = isEmptyResponseAssistantTurn({
+  const emptyResponseZhushou = isEmptyResponseZhushouTurn({
     payloadCount: params.payloadCount,
     attempt: params.attempt,
   });
   if (
-    !incompleteTerminalAssistant &&
-    !reasoningOnlyAssistant &&
-    !emptyResponseAssistant &&
+    !incompleteTerminalZhushou &&
+    !reasoningOnlyZhushou &&
+    !emptyResponseZhushou &&
     stopReason !== "error"
   ) {
     return null;
@@ -230,45 +230,45 @@ export function resolveRunLivenessState(params: {
   if ((params.aborted || params.timedOut) && params.payloadCount === 0) {
     return "blocked";
   }
-  if (params.attempt.lastAssistant?.stopReason === "error") {
+  if (params.attempt.lastZhushou?.stopReason === "error") {
     return "blocked";
   }
   return "working";
 }
 
-export function isReasoningOnlyAssistantTurn(message: unknown): boolean {
+export function isReasoningOnlyZhushouTurn(message: unknown): boolean {
   if (!message || typeof message !== "object") {
     return false;
   }
-  return assessLastAssistantMessage(message as AgentMessage) === "incomplete-text";
+  return assessLastZhushouMessage(message as AgentMessage) === "incomplete-text";
 }
 
-function isEmptyResponseAssistantTurn(params: {
+function isEmptyResponseZhushouTurn(params: {
   payloadCount: number;
   attempt: Pick<
     IncompleteTurnAttempt,
-    "assistantTexts" | "currentAttemptAssistant" | "lastAssistant"
+    "zhushouTexts" | "currentAttemptZhushou" | "lastZhushou"
   >;
 }): boolean {
   if (params.payloadCount !== 0) {
     return false;
   }
-  if (params.attempt.assistantTexts.join("\n\n").trim().length > 0) {
+  if (params.attempt.zhushouTexts.join("\n\n").trim().length > 0) {
     return false;
   }
-  const assistant = params.attempt.currentAttemptAssistant ?? params.attempt.lastAssistant;
-  if (!assistant) {
+  const zhushou = params.attempt.currentAttemptZhushou ?? params.attempt.lastZhushou;
+  if (!zhushou) {
     return true;
   }
-  if (assistant.stopReason === "error") {
+  if (zhushou.stopReason === "error") {
     return false;
   }
   if (
-    isIncompleteTerminalAssistantTurn({
-      hasAssistantVisibleText: false,
-      lastAssistant: assistant,
+    isIncompleteTerminalZhushouTurn({
+      hasZhushouVisibleText: false,
+      lastZhushou: zhushou,
     }) ||
-    isReasoningOnlyAssistantTurn(assistant)
+    isReasoningOnlyZhushouTurn(zhushou)
   ) {
     return false;
   }
@@ -303,14 +303,14 @@ export function resolveReasoningOnlyRetryInstruction(params: {
     return null;
   }
 
-  const assistant = params.attempt.currentAttemptAssistant ?? params.attempt.lastAssistant;
-  if (params.attempt.assistantTexts.join("\n\n").trim().length > 0) {
+  const zhushou = params.attempt.currentAttemptZhushou ?? params.attempt.lastZhushou;
+  if (params.attempt.zhushouTexts.join("\n\n").trim().length > 0) {
     return null;
   }
-  if (assistant?.stopReason === "error") {
+  if (zhushou?.stopReason === "error") {
     return null;
   }
-  if (!isReasoningOnlyAssistantTurn(assistant)) {
+  if (!isReasoningOnlyZhushouTurn(zhushou)) {
     return null;
   }
 
@@ -347,7 +347,7 @@ export function resolveEmptyResponseRetryInstruction(params: {
   }
 
   if (
-    !isEmptyResponseAssistantTurn({
+    !isEmptyResponseZhushouTurn({
       payloadCount: params.payloadCount,
       attempt: params.attempt,
     })
@@ -488,13 +488,13 @@ function hasSingleRetrySafeNonPlanTool(toolMetas: PlanningOnlyAttempt["toolMetas
  */
 function isSingleActionThenNarrativePattern(params: {
   toolMetas: PlanningOnlyAttempt["toolMetas"];
-  assistantTexts: readonly string[];
+  zhushouTexts: readonly string[];
 }): boolean {
   const nonPlanCount = countNonPlanToolCalls(params.toolMetas);
   if (nonPlanCount !== 1) {
     return false;
   }
-  const text = params.assistantTexts.join("\n\n").trim();
+  const text = params.zhushouTexts.join("\n\n").trim();
   if (!text || text.length > PLANNING_ONLY_MAX_VISIBLE_TEXT) {
     return false;
   }
@@ -526,7 +526,7 @@ export function resolvePlanningOnlyRetryInstruction(params: {
   const planOnlyToolMetaCount = countPlanOnlyToolMetas(params.attempt.toolMetas);
   const singleActionNarrative = isSingleActionThenNarrativePattern({
     toolMetas: params.attempt.toolMetas,
-    assistantTexts: params.attempt.assistantTexts,
+    zhushouTexts: params.attempt.zhushouTexts,
   });
   const allowSingleActionRetryBypass =
     singleActionNarrative && hasSingleRetrySafeNonPlanTool(params.attempt.toolMetas);
@@ -551,12 +551,12 @@ export function resolvePlanningOnlyRetryInstruction(params: {
     return null;
   }
 
-  const stopReason = params.attempt.lastAssistant?.stopReason;
+  const stopReason = params.attempt.lastZhushou?.stopReason;
   if (stopReason && stopReason !== "stop") {
     return null;
   }
 
-  const text = params.attempt.assistantTexts.join("\n\n").trim();
+  const text = params.attempt.zhushouTexts.join("\n\n").trim();
   if (!text || text.length > PLANNING_ONLY_MAX_VISIBLE_TEXT || text.includes("```")) {
     return null;
   }

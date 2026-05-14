@@ -1,12 +1,12 @@
 import { intro, note, outro, spinner } from "@clack/prompts";
-import { stylePromptTitle } from "assistant/plugin-sdk/cli-runtime";
-import { logConfigUpdated, updateConfig } from "assistant/plugin-sdk/config-runtime";
+import { stylePromptTitle } from "zhushou/plugin-sdk/cli-runtime";
+import { logConfigUpdated, updateConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   applyAuthProfileConfig,
   ensureAuthProfileStore,
   upsertAuthProfile,
-} from "assistant/plugin-sdk/provider-auth";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime";
+} from "zhushou/plugin-sdk/provider-auth";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
 
 const CLIENT_ID = "Iv1.b507a08c87ecfe98";
 const DEVICE_CODE_URL = "https://github.com/login/device/code";

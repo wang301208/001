@@ -8,7 +8,7 @@ vi.mock("./send.js", () => ({
   sendMessageSlack: (...args: unknown[]) => sendMessageSlackMock(...args),
 }));
 
-vi.mock("assistant/plugin-sdk/plugin-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/plugin-runtime", () => ({
   getGlobalHookRunner: () => ({
     hasHooks: (...args: unknown[]) => hasHooksMock(...args),
     runMessageSending: (...args: unknown[]) => runMessageSendingMock(...args),

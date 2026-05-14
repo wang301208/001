@@ -19,7 +19,7 @@ import {
 import { loadGatewayRuntimeConfigSchema } from "../../config/runtime-schema.js";
 import { lookupConfigSchema, type ConfigSchemaResponse } from "../../config/schema.js";
 import { extractDeliveryInfo } from "../../config/sessions.js";
-import type { ConfigValidationIssue, AssistantConfig } from "../../config/types.assistant.js";
+import type { ConfigValidationIssue, ZhushouConfig } from "../../config/types.zhushou.js";
 import { resetModelCatalogCache } from "../../agents/model-catalog.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import {
@@ -193,7 +193,7 @@ function parseValidateConfigFromRawOrRespond(
   requestName: string,
   snapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>,
   respond: RespondFn,
-): { config: AssistantConfig; schema: ConfigSchemaResponse } | null {
+): { config: ZhushouConfig; schema: ConfigSchemaResponse } | null {
   const rawValue = parseRawConfigOrRespond(params, requestName, respond);
   if (!rawValue) {
     return null;
@@ -227,7 +227,7 @@ function parseValidateConfigFromRawOrRespond(
   return { config: validated.config, schema };
 }
 
-function didSharedGatewayAuthChange(prev: AssistantConfig, next: AssistantConfig): boolean {
+function didSharedGatewayAuthChange(prev: ZhushouConfig, next: ZhushouConfig): boolean {
   const prevAuth = resolveEffectiveSharedGatewayAuth({
     authConfig: prev.gateway?.auth,
     env: process.env,
@@ -258,7 +258,7 @@ function queueSharedGatewayAuthDisconnect(
 
 function queueSharedGatewayAuthGenerationRefresh(
   shouldRefresh: boolean,
-  nextConfig: AssistantConfig,
+  nextConfig: ZhushouConfig,
   context?: GatewayRequestContext,
 ): void {
   if (!shouldRefresh) {
@@ -285,7 +285,7 @@ function summarizeConfigValidationIssues(issues: ReadonlyArray<ConfigValidationI
 
 function shouldScheduleDirectConfigRestart(params: {
   changedPaths: string[];
-  nextConfig: AssistantConfig;
+  nextConfig: ZhushouConfig;
 }): boolean {
   const reloadSettings = resolveGatewayReloadSettings(params.nextConfig);
   if (reloadSettings.mode === "off") {
@@ -305,7 +305,7 @@ function invalidateModelCatalogForChangedPaths(changedPaths: string[]) {
 }
 
 async function ensureResolvableSecretRefsOrRespond(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   respond: RespondFn;
 }): Promise<boolean> {
   try {
@@ -394,7 +394,7 @@ async function tryWriteRestartSentinelPayload(
 
 function loadSchemaWithPlugins(): ConfigSchemaResponse {
   // Note: We can't easily cache this, as there are no callback that can invalidate
-  // our cache. However, loadConfig() and loadAssistantPlugins() (called inside
+  // our cache. However, loadConfig() and loadZhushouPlugins() (called inside
   // loadGatewayRuntimeConfigSchema) already cache their results, and buildConfigSchema()
   // is just a cheap transformation.
   return loadGatewayRuntimeConfigSchema();

@@ -37,7 +37,7 @@ describe("gateway server chat", () => {
     dispatchInboundMessageMock.mockReset();
   });
 
-  const buildNoReplyHistoryFixture = (includeMixedAssistant = false) => [
+  const buildNoReplyHistoryFixture = (includeMixedZhushou = false) => [
     {
       role: "user",
       content: [{ type: "text", text: "hello" }],
@@ -64,7 +64,7 @@ describe("gateway server chat", () => {
       content: [{ type: "text", text: "NO_REPLY" }],
       timestamp: 5,
     },
-    ...(includeMixedAssistant
+    ...(includeMixedZhushou
       ? [
           {
             role: "assistant",
@@ -94,7 +94,7 @@ describe("gateway server chat", () => {
   };
 
   const withMainSessionStore = async <T>(run: (dir: string) => Promise<T>): Promise<T> => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-"));
     try {
       testState.sessionStorePath = path.join(dir, "sessions.json");
       await writeSessionStore({
@@ -196,7 +196,7 @@ describe("gateway server chat", () => {
   };
 
   test("sessions.send accepts dashboard messages for existing sessions", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-sessions-send-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sessions-send-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     try {
       await writeSessionStore({
@@ -223,7 +223,7 @@ describe("gateway server chat", () => {
   });
 
   test("sessions.steer accepts dashboard follow-up messages for existing sessions", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-sessions-steer-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sessions-steer-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     try {
       await writeSessionStore({
@@ -250,7 +250,7 @@ describe("gateway server chat", () => {
   });
 
   test("sessions.abort stops active dashboard runs", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-sessions-abort-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-sessions-abort-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     try {
       await writeSessionStore({
@@ -353,7 +353,7 @@ describe("gateway server chat", () => {
       expect(sessionRes.ok).toBe(true);
       expect(sessionRes.payload?.runId).toBe("idem-session-key-1");
 
-      const sendPolicyDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-"));
+      const sendPolicyDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-"));
       tempDirs.push(sendPolicyDir);
       testState.sessionStorePath = path.join(sendPolicyDir, "sessions.json");
       testState.sessionConfig = {
@@ -392,7 +392,7 @@ describe("gateway server chat", () => {
       testState.sessionStorePath = undefined;
       testState.sessionConfig = undefined;
 
-      const agentBlockedDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-"));
+      const agentBlockedDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-"));
       tempDirs.push(agentBlockedDir);
       testState.sessionStorePath = path.join(agentBlockedDir, "sessions.json");
       testState.sessionConfig = {
@@ -488,7 +488,7 @@ describe("gateway server chat", () => {
       expect(imgOnlyRes.ok).toBe(true);
       expect(imgOnlyRes.payload?.runId).toBeDefined();
 
-      const historyDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-"));
+      const historyDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-"));
       tempDirs.push(historyDir);
       testState.sessionStorePath = path.join(historyDir, "sessions.json");
       await writeSessionStore({
@@ -532,17 +532,17 @@ describe("gateway server chat", () => {
     }
   });
 
-  test("chat.history hides assistant NO_REPLY-only entries", async () => {
+  test("chat.history hides zhushou NO_REPLY-only entries", async () => {
     const historyMessages = await loadChatHistoryWithMessages(buildNoReplyHistoryFixture());
     const textValues = collectHistoryTextValues(historyMessages);
-    // The NO_REPLY assistant message (content block) should be dropped.
-    // The assistant with text="real text field reply" + content="NO_REPLY" stays
+    // The NO_REPLY zhushou message (content block) should be dropped.
+    // The zhushou with text="real text field reply" + content="NO_REPLY" stays
     // because entry.text takes precedence over entry.content for the silent check.
-    // The user message with NO_REPLY text is preserved (only assistant filtered).
+    // The user message with NO_REPLY text is preserved (only zhushou filtered).
     expect(textValues).toEqual(["hello", "real reply", "real text field reply", "NO_REPLY"]);
   });
 
-  test("chat.history hides commentary-only assistant entries", async () => {
+  test("chat.history hides commentary-only zhushou entries", async () => {
     const historyMessages = await loadChatHistoryWithMessages([
       {
         role: "user",
@@ -565,7 +565,7 @@ describe("gateway server chat", () => {
     expect(collectHistoryTextValues(historyMessages)).toEqual(["hello", "real reply"]);
   });
 
-  test("chat.history hides assistant announce/reply skip-only entries", async () => {
+  test("chat.history hides zhushou announce/reply skip-only entries", async () => {
     const historyMessages = await loadChatHistoryWithMessages([
       {
         role: "assistant",
@@ -607,7 +607,7 @@ describe("gateway server chat", () => {
       })
       .filter((entry) => entry !== "unknown:");
 
-    expect(roleAndText).toEqual(["assistant:real text field reply", "assistant:real reply"]);
+    expect(roleAndText).toEqual(["zhushou:real text field reply", "zhushou:real reply"]);
   });
   test("routes chat.send slash commands without agent runs", async () => {
     await withMainSessionStore(async () => {
@@ -790,7 +790,7 @@ describe("gateway server chat", () => {
     });
   });
 
-  test("chat.history hides assistant NO_REPLY-only entries and keeps mixed-content assistant entries", async () => {
+  test("chat.history hides zhushou NO_REPLY-only entries and keeps mixed-content zhushou entries", async () => {
     const historyMessages = await loadChatHistoryWithMessages(buildNoReplyHistoryFixture(true));
     const roleAndText = historyMessages
       .map((message) => {
@@ -812,10 +812,10 @@ describe("gateway server chat", () => {
 
     expect(roleAndText).toEqual([
       "user:hello",
-      "assistant:real reply",
-      "assistant:real text field reply",
+      "zhushou:real reply",
+      "zhushou:real text field reply",
       "user:NO_REPLY",
-      "assistant:NO_REPLY",
+      "zhushou:NO_REPLY",
     ]);
   });
 
@@ -910,7 +910,7 @@ describe("gateway server chat", () => {
   });
 
   test("agent.wait ignores stale chat dedupe when an agent run with the same runId is in flight", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-"));
     let resolveAgentRun: (() => void) | undefined;
     const blockedAgentRun = new Promise<void>((resolve) => {
       resolveAgentRun = resolve;
@@ -1039,7 +1039,7 @@ describe("gateway server chat", () => {
   });
 
   test("agent events include sessionKey and agent.wait covers lifecycle flows", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -1080,14 +1080,14 @@ describe("gateway server chat", () => {
 
         emitAgentEvent({
           runId: "run-tool-1",
-          stream: "assistant",
+          stream: "zhushou",
           data: { text: "hello" },
         });
 
         const evt = await agentEvtP;
         const payload = evt.payload && typeof evt.payload === "object" ? evt.payload : {};
         expect(payload.sessionKey).toBe("main");
-        expect(payload.stream).toBe("assistant");
+        expect(payload.stream).toBe("zhushou");
       }
 
       {

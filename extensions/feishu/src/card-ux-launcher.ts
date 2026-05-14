@@ -1,5 +1,5 @@
-﻿import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
-import type { AssistantConfig, RuntimeEnv } from "../runtime-api.js";
+﻿import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
+import type { ZhushouConfig, RuntimeEnv } from "../runtime-api.js";
 import { createFeishuCardInteractionEnvelope } from "./card-interaction.js";
 import { FEISHU_APPROVAL_REQUEST_ACTION } from "./card-ux-approval.js";
 import { buildFeishuCardButton, buildFeishuCardInteractionContext } from "./card-ux-shared.js";
@@ -85,7 +85,7 @@ export function createQuickActionLauncherCard(params: {
 }
 
 export async function maybeHandleFeishuQuickActionMenu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   eventKey: string;
   operatorOpenId: string;
   runtime?: RuntimeEnv;

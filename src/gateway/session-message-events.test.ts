@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "vitest";
-import { appendAssistantMessageToSessionTranscript } from "../config/sessions/transcript.js";
+import { appendZhushouMessageToSessionTranscript } from "../config/sessions/transcript.js";
 import { emitSessionLifecycleEvent } from "../sessions/session-lifecycle-events.js";
 import * as transcriptEvents from "../sessions/transcript-events.js";
 import { emitSessionTranscriptUpdate } from "../sessions/transcript-events.js";
@@ -26,8 +26,8 @@ let subscribedOperatorWs:
 let previousMinimalGateway: string | undefined;
 
 beforeAll(async () => {
-  previousMinimalGateway = process.env.ASSISTANT_TEST_MINIMAL_GATEWAY;
-  delete process.env.ASSISTANT_TEST_MINIMAL_GATEWAY;
+  previousMinimalGateway = process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY;
+  delete process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY;
   harness = await createGatewaySuiteHarness();
   subscribedOperatorWs = await harness.openWs();
   await connectOk(subscribedOperatorWs, { scopes: ["operator.read"] });
@@ -38,9 +38,9 @@ afterAll(async () => {
   subscribedOperatorWs?.close();
   await harness.close();
   if (previousMinimalGateway === undefined) {
-    delete process.env.ASSISTANT_TEST_MINIMAL_GATEWAY;
+    delete process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY;
   } else {
-    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY = previousMinimalGateway;
+    process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY = previousMinimalGateway;
   }
 });
 
@@ -51,7 +51,7 @@ afterEach(async () => {
 });
 
 async function createSessionStoreFile(): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-session-message-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-session-message-"));
   cleanupDirs.push(dir);
   const storePath = path.join(dir, "sessions.json");
   testState.sessionStorePath = storePath;
@@ -218,7 +218,7 @@ describe("session.message websocket events", () => {
           (message.payload as { sessionKey?: string } | undefined)?.sessionKey ===
             "agent:main:main",
       );
-      const appended = await appendAssistantMessageToSessionTranscript({
+      const appended = await appendZhushouMessageToSessionTranscript({
         sessionKey: "agent:main:main",
         text: "subscribed only",
         storePath,
@@ -262,7 +262,7 @@ describe("session.message websocket events", () => {
 
     const emitSpy = vi.spyOn(transcriptEvents, "emitSessionTranscriptUpdate");
     try {
-      const appended = await appendAssistantMessageToSessionTranscript({
+      const appended = await appendZhushouMessageToSessionTranscript({
         sessionKey: "agent:main:main",
         text: "live websocket message",
         storePath,
@@ -543,7 +543,7 @@ describe("session.message websocket events", () => {
 
       const mainEvent = waitForSessionMessageEvent(ws, "agent:main:main");
       const [mainAppend] = await Promise.all([
-        appendAssistantMessageToSessionTranscript({
+        appendZhushouMessageToSessionTranscript({
           sessionKey: "agent:main:main",
           text: "main only",
           storePath,
@@ -564,7 +564,7 @@ describe("session.message websocket events", () => {
             300,
           ),
         action: async () => {
-          const workerAppend = await appendAssistantMessageToSessionTranscript({
+          const workerAppend = await appendZhushouMessageToSessionTranscript({
             sessionKey: "agent:main:worker",
             text: "worker hidden",
             storePath,
@@ -591,7 +591,7 @@ describe("session.message websocket events", () => {
             300,
           ),
         action: async () => {
-          const hiddenAppend = await appendAssistantMessageToSessionTranscript({
+          const hiddenAppend = await appendZhushouMessageToSessionTranscript({
             sessionKey: "agent:main:main",
             text: "hidden after unsubscribe",
             storePath,

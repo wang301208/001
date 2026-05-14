@@ -1,5 +1,5 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveApiKeyForProvider } from "assistant/plugin-sdk/provider-auth-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   createProviderOperationDeadline,
@@ -7,12 +7,12 @@ import {
   resolveProviderOperationTimeoutMs,
   resolveProviderHttpRequestConfig,
   waitProviderOperationPollInterval,
-} from "assistant/plugin-sdk/provider-http";
+} from "zhushou/plugin-sdk/provider-http";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 export const DEFAULT_VYDRA_BASE_URL = "https://www.vydra.ai/api/v1";
 export const DEFAULT_VYDRA_IMAGE_MODEL = "grok-imagine";
@@ -88,7 +88,7 @@ export function resolveVydraBaseUrlFromConfig(cfg: unknown): string {
 }
 
 export async function resolveVydraRequestContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentDir?: string;
   authStore?: VydraAuthStore;
   capability: "image" | "video";

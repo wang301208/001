@@ -3,7 +3,7 @@ import { Type } from "@sinclair/typebox";
 import { describe, expect, it } from "vitest";
 import {
   createSingleUserPromptMessage,
-  extractNonEmptyAssistantText,
+  extractNonEmptyZhushouText,
   isLiveTestEnabled,
 } from "./live-test-helpers.js";
 import { applyExtraParamsToAgent } from "./pi-embedded-runner.js";
@@ -14,7 +14,7 @@ const LIVE = isLiveTestEnabled(["XAI_LIVE_TEST"]);
 
 const describeLive = LIVE && XAI_KEY ? describe : describe.skip;
 
-type AssistantLikeMessage = {
+type ZhushouLikeMessage = {
   content: Array<{
     type?: string;
     text?: string;
@@ -30,9 +30,9 @@ function resolveLiveXaiModel() {
 }
 
 async function collectDoneMessage(
-  stream: AsyncIterable<{ type: string; message?: AssistantLikeMessage }>,
-): Promise<AssistantLikeMessage> {
-  let doneMessage: AssistantLikeMessage | undefined;
+  stream: AsyncIterable<{ type: string; message?: ZhushouLikeMessage }>,
+): Promise<ZhushouLikeMessage> {
+  let doneMessage: ZhushouLikeMessage | undefined;
   for await (const event of stream) {
     if (event.type === "done") {
       doneMessage = event.message;
@@ -42,13 +42,13 @@ async function collectDoneMessage(
   return doneMessage!;
 }
 
-function extractFirstToolCallId(message: AssistantLikeMessage): string | undefined {
+function extractFirstToolCallId(message: ZhushouLikeMessage): string | undefined {
   const toolCall = message.content.find((block) => block.type === "toolCall");
   return toolCall?.id;
 }
 
 describeLive("xai live", () => {
-  it("returns assistant text for Grok 4.1 Fast Reasoning", async () => {
+  it("returns zhushou text for Grok 4.1 Fast Reasoning", async () => {
     const model = resolveLiveXaiModel();
     expect(model).toBeDefined();
     const res = await completeSimple(
@@ -63,7 +63,7 @@ describeLive("xai live", () => {
       },
     );
 
-    expect(extractNonEmptyAssistantText(res.content).length).toBeGreaterThan(0);
+    expect(extractNonEmptyZhushouText(res.content).length).toBeGreaterThan(0);
   }, 30_000);
 
   it("applies xAI tool wrappers on live tool calls", async () => {
@@ -84,7 +84,7 @@ describeLive("xai live", () => {
       "Return only a tool call for `noop` with {}.",
     ];
 
-    let doneMessage: AssistantLikeMessage | undefined;
+    let doneMessage: ZhushouLikeMessage | undefined;
     let capturedPayload: Record<string, unknown> | undefined;
 
     for (const prompt of prompts) {
@@ -106,7 +106,7 @@ describeLive("xai live", () => {
       );
 
       doneMessage = await collectDoneMessage(
-        stream as AsyncIterable<{ type: string; message?: AssistantLikeMessage }>,
+        stream as AsyncIterable<{ type: string; message?: ZhushouLikeMessage }>,
       );
       if (extractFirstToolCallId(doneMessage)) {
         break;

@@ -15,7 +15,7 @@ describe("development delivery pipeline assets", () => {
     expect(workflow).toContain("pnpm check");
     expect(workflow).toContain("pnpm build");
     expect(workflow).toContain("pnpm test");
-    expect(workflow).toContain("docker build -t assistant:ci .");
+    expect(workflow).toContain("docker build -t zhushou:ci .");
     expect(workflow).not.toContain("pnpm --dir web build");
     expect(workflow).not.toContain("web/Dockerfile");
   });
@@ -25,7 +25,7 @@ describe("development delivery pipeline assets", () => {
 
     expect(workflow).toContain("pnpm release:check");
     expect(workflow).toContain("docker/build-push-action");
-    expect(workflow).toContain("bash scripts/assistant-npm-publish.sh --publish");
+    expect(workflow).toContain("bash scripts/zhushou-npm-publish.sh --publish");
     expect(workflow).toContain("bash scripts/k8s/deploy.sh");
     expect(workflow).toContain("bash scripts/ci/post-deploy-feedback.sh");
   });
@@ -44,14 +44,14 @@ describe("development delivery pipeline assets", () => {
     expect(kustomization).toContain("monitoring/k8s/prometheus.yaml");
     expect(kustomization).toContain("monitoring/k8s/otel-collector.yaml");
     expect(kustomization).toContain("monitoring/k8s/grafana.yaml");
-    expect(deploy).toContain("kubectl set image deployment/assistant gateway=");
+    expect(deploy).toContain("kubectl set image deployment/zhushou gateway=");
     expect(feedback).toContain("kubectl logs");
     expect(feedback).toContain("/healthz");
     expect(feedback).toContain("/readyz");
-    expect(readRepoFile("src/gateway/server-http.ts")).toContain("assistant_gateway_up");
+    expect(readRepoFile("src/gateway/server-http.ts")).toContain("zhushou_gateway_up");
     expect(existsSync(join(repoRoot, "monitoring/prometheus/prometheus.yml"))).toBe(true);
-    expect(existsSync(join(repoRoot, "monitoring/prometheus/assistant-alerts.yml"))).toBe(true);
-    expect(existsSync(join(repoRoot, "monitoring/grafana/dashboards/assistant-overview.json"))).toBe(true);
+    expect(existsSync(join(repoRoot, "monitoring/prometheus/zhushou-alerts.yml"))).toBe(true);
+    expect(existsSync(join(repoRoot, "monitoring/grafana/dashboards/zhushou-overview.json"))).toBe(true);
     expect(existsSync(join(repoRoot, "monitoring/otel/otel-collector.yml"))).toBe(true);
   });
 });

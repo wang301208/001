@@ -32,12 +32,12 @@ export function resolveUserPathWithHome(input: string, home?: string): string {
 }
 
 export function resolveGatewayStateDir(env: Record<string, string | undefined>): string {
-  const override = normalizeOptionalString(env.ASSISTANT_STATE_DIR);
+  const override = normalizeOptionalString(env.ZHUSHOU_STATE_DIR);
   if (override) {
     const home = override.startsWith("~") ? resolveHomeDir(env) : undefined;
     return resolveUserPathWithHome(override, home);
   }
   const home = resolveHomeDir(env);
-  const suffix = resolveGatewayProfileSuffix(env.ASSISTANT_PROFILE);
-  return path.join(home, `.assistant${suffix}`);
+  const suffix = resolveGatewayProfileSuffix(env.ZHUSHOU_PROFILE);
+  return path.join(home, `.zhushou${suffix}`);
 }

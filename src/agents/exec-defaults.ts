@@ -1,5 +1,5 @@
 import type { SessionEntry } from "../config/sessions.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   loadExecApprovals,
   type ExecAsk,
@@ -19,12 +19,12 @@ type ResolvedExecConfig = {
 };
 
 function resolveExecConfigState(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
   sessionKey?: string;
 }): {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   host: ExecTarget;
   agentExec?: ResolvedExecConfig;
   globalExec?: ResolvedExecConfig;
@@ -54,7 +54,7 @@ function resolveExecConfigState(params: {
 }
 
 function resolveExecSandboxAvailability(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey?: string;
   sandboxAvailable?: boolean;
 }) {
@@ -70,7 +70,7 @@ function resolveExecSandboxAvailability(params: {
 }
 
 export function canExecRequestNode(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
   sessionKey?: string;
@@ -89,7 +89,7 @@ export function canExecRequestNode(params: {
 }
 
 export function resolveExecDefaults(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
   sessionKey?: string;

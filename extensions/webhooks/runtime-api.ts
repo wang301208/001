@@ -10,8 +10,8 @@ export {
   WEBHOOK_IN_FLIGHT_DEFAULTS,
   WEBHOOK_RATE_LIMIT_DEFAULTS,
   type WebhookInFlightLimiter,
-} from "assistant/plugin-sdk/webhook-ingress";
+} from "zhushou/plugin-sdk/webhook-ingress";
 export {
   resolveConfiguredSecretInputString,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/config-runtime";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/config-runtime";

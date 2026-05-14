@@ -5,7 +5,7 @@ import { createScopedVitestConfig } from "./vitest.scoped-config.ts";
 export function loadIncludePatternsFromEnv(
   env: Record<string, string | undefined> = process.env,
 ): string[] | null {
-  return loadPatternListFromEnv("ASSISTANT_VITEST_INCLUDE_FILE", env);
+  return loadPatternListFromEnv("ZHUSHOU_VITEST_INCLUDE_FILE", env);
 }
 
 export function createExtensionMattermostVitestConfig(

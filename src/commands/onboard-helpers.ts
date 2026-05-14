@@ -6,7 +6,7 @@ import { DEFAULT_AGENT_WORKSPACE_DIR, ensureAgentWorkspace } from "../agents/wor
 import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import { CONFIG_PATH } from "../config/paths.js";
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveGatewayLinks } from "../gateway/gateway-links.js";
 import { probeGateway } from "../gateway/probe.js";
 import {
@@ -22,7 +22,7 @@ import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
 import { CONFIG_DIR, shortenHomeInString, shortenHomePath, sleep } from "../utils.js";
 import { VERSION } from "../version.js";
-import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
+import { PRODUCT_NAME } from "../wizard/zhushou-constants.js";
 import type { NodeManagerChoice, OnboardMode, ResetScope } from "./onboard-types.js";
 export { randomToken } from "./random-token.js";
 
@@ -39,7 +39,7 @@ export function guardCancel<T>(value: T | symbol, runtime: RuntimeEnv): T {
   return value;
 }
 
-export function summarizeExistingConfig(config: AssistantConfig): string {
+export function summarizeExistingConfig(config: ZhushouConfig): string {
   const rows: string[] = [];
   const defaults = config.agents?.defaults;
   if (defaults?.workspace) {
@@ -108,9 +108,9 @@ export function printWizardHeader(runtime: RuntimeEnv) {
 }
 
 export function applyWizardMetadata(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params: { command: string; mode: OnboardMode },
-): AssistantConfig {
+): ZhushouConfig {
   const commit =
     normalizeOptionalString(process.env.GIT_COMMIT) ?? normalizeOptionalString(process.env.GIT_SHA);
   return {
@@ -135,9 +135,9 @@ export function formatGatewaySshHint(params: {
     "Remote terminal session detected. Forward the Gateway port if this machine is not local:",
     `ssh -N -L ${params.port}:127.0.0.1:${params.port} ${sshTarget}`,
     "Then connect with:",
-    `assistant tui --url ${localWsUrl}`,
+    `zhushou tui --url ${localWsUrl}`,
     "Docs:",
-    "https://docs.assistant.ai/gateway/remote",
+    "https://docs.zhushou.ai/gateway/remote",
   ]
     .filter(Boolean)
     .join("\n");

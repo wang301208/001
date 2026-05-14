@@ -1,18 +1,18 @@
-import type { AssistantAction } from "./assistant-actions.js";
+import type { ZhushouAction } from "./zhushou-actions.js";
 
-export type AssistantIntent = "chat" | "clarify" | "control" | "rpc" | "task" | "tool";
+export type ZhushouIntent = "chat" | "clarify" | "control" | "rpc" | "task" | "tool";
 
-export type AssistantIntentRoute =
+export type ZhushouIntentRoute =
   | {
       kind: "action";
-      intent: Extract<AssistantIntent, "control" | "rpc" | "tool">;
-      action: AssistantAction;
+      intent: Extract<ZhushouIntent, "control" | "rpc" | "tool">;
+      action: ZhushouAction;
       reason: string;
       confidence: number;
     }
   | {
       kind: "message";
-      intent: Extract<AssistantIntent, "chat" | "clarify" | "task">;
+      intent: Extract<ZhushouIntent, "chat" | "clarify" | "task">;
       message: string;
       reason: string;
       confidence: number;
@@ -36,7 +36,7 @@ function matchFirst(input: string, patterns: RegExp[]): RegExpMatchArray | null 
   return null;
 }
 
-function routeKnownChineseControl(text: string): AssistantIntentRoute | null {
+function routeKnownChineseControl(text: string): ZhushouIntentRoute | null {
   if (/^(打开|进入|显示|查看)?(系统)?设置$/.test(text)) {
     return {
       kind: "action",
@@ -325,10 +325,10 @@ function escapeJsonString(input: string): string {
 }
 
 function actionRoute(
-  action: AssistantAction,
+  action: ZhushouAction,
   reason: string,
-  intent: Extract<AssistantIntent, "control" | "rpc" | "tool"> = "control",
-): AssistantIntentRoute {
+  intent: Extract<ZhushouIntent, "control" | "rpc" | "tool"> = "control",
+): ZhushouIntentRoute {
   return {
     kind: "action",
     intent,
@@ -342,7 +342,7 @@ function operationRoute(
   operation: string,
   args: string | undefined,
   reason: string,
-): AssistantIntentRoute {
+): ZhushouIntentRoute {
   return actionRoute(
     {
       type: "tui.operation",
@@ -365,7 +365,7 @@ function parseJsonParams(raw: string): { parsed?: unknown; raw?: string } {
   }
 }
 
-function gatewayArgRoute(arg: string, reason: string): AssistantIntentRoute | null {
+function gatewayArgRoute(arg: string, reason: string): ZhushouIntentRoute | null {
   const [method = "", ...rest] = arg.trim().split(/\s+/);
   if (!method) {
     return null;
@@ -379,7 +379,7 @@ function gatewayActionRoute(
   params: unknown,
   reason: string,
   rawParams?: string,
-): AssistantIntentRoute {
+): ZhushouIntentRoute {
   return actionRoute(
     {
       type: "gateway.call",
@@ -392,7 +392,7 @@ function gatewayActionRoute(
   );
 }
 
-function mcpActionRoute(name: string, rawArguments: string | undefined, reason: string): AssistantIntentRoute {
+function mcpActionRoute(name: string, rawArguments: string | undefined, reason: string): ZhushouIntentRoute {
   const params = parseJsonParams(rawArguments ?? "");
   const args = params.parsed && typeof params.parsed === "object" && !Array.isArray(params.parsed)
     ? (params.parsed as Record<string, unknown>)
@@ -404,7 +404,7 @@ function mcpActionRoute(name: string, rawArguments: string | undefined, reason: 
   );
 }
 
-function routeGatewayCall(text: string): AssistantIntentRoute | null {
+function routeGatewayCall(text: string): ZhushouIntentRoute | null {
   const match = matchFirst(text, [
     /^(?:调用|执行|请求)(?:网关方法|网关接口|接口|方法|rpc|RPC)\s+([A-Za-z0-9_.:-]+(?:\s+.+)?)$/,
     /^(?:call|run|request)\s+(?:gateway\s+)?(?:method|rpc|api)\s+([A-Za-z0-9_.:-]+(?:\s+.+)?)$/i,
@@ -417,7 +417,7 @@ function routeGatewayCall(text: string): AssistantIntentRoute | null {
   return route ? { ...route, confidence: 0.95 } : null;
 }
 
-function routeToolInvocation(text: string): AssistantIntentRoute | null {
+function routeToolInvocation(text: string): ZhushouIntentRoute | null {
   const match = matchFirst(text, [
     /^(?:调用|使用|用)\s*([A-Za-z0-9_.:-]+)\s*(?:工具|能力)\s*(.+)$/,
     /^(?:调用|使用|用)\s*([A-Za-z0-9_.:-]+)\s+(.+)$/,
@@ -438,7 +438,7 @@ function routeToolInvocation(text: string): AssistantIntentRoute | null {
   };
 }
 
-function routeMcpToolInvocation(text: string): AssistantIntentRoute | null {
+function routeMcpToolInvocation(text: string): ZhushouIntentRoute | null {
   const match = text.match(/^(?:调用|执行|使用)MCP(?:工具)?\s+([A-Za-z0-9_.:-]+)(?:\s+([\s\S]+))?$/i);
   const name = match?.[1]?.trim();
   if (!name) {
@@ -448,7 +448,7 @@ function routeMcpToolInvocation(text: string): AssistantIntentRoute | null {
   return mcpActionRoute(name, args, "mcp-call");
 }
 
-function routeLocalShellInvocation(text: string): AssistantIntentRoute | null {
+function routeLocalShellInvocation(text: string): ZhushouIntentRoute | null {
   const match = text.match(/^(?:执行|运行|调用)?(?:本地|终端|shell|Shell|命令行)?命令\s+([\s\S]+)$/);
   const command = match?.[1]?.trim();
   if (!command) {
@@ -490,7 +490,7 @@ export function buildTaskExecutionMessage(goal: string): string {
   ].join("\n");
 }
 
-export function resolveAssistantIntentInput(input: string): AssistantIntentRoute | null {
+export function resolveZhushouIntentInput(input: string): ZhushouIntentRoute | null {
   const text = normalizeInput(input);
   const originalText = input.trim();
   if (!text || text.startsWith("/") || text.startsWith("!")) {

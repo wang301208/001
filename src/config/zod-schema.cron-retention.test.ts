@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { AssistantSchema } from "./zod-schema.js";
+import { ZhushouSchema } from "./zod-schema.js";
 
-describe("AssistantSchema cron retention and run-log validation", () => {
+describe("ZhushouSchema cron retention and run-log validation", () => {
   it("accepts valid cron.sessionRetention and runLog values", () => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         cron: {
           sessionRetention: "1h30m",
           runLog: {
@@ -18,7 +18,7 @@ describe("AssistantSchema cron retention and run-log validation", () => {
 
   it("rejects invalid cron.sessionRetention", () => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         cron: {
           sessionRetention: "abc",
         },
@@ -28,7 +28,7 @@ describe("AssistantSchema cron retention and run-log validation", () => {
 
   it("rejects invalid cron.runLog.maxBytes", () => {
     expect(() =>
-      AssistantSchema.parse({
+      ZhushouSchema.parse({
         cron: {
           runLog: {
             maxBytes: "wat",

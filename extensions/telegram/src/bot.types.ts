@@ -1,5 +1,5 @@
-import type { AssistantConfig, ReplyToMode } from "assistant/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import type { ZhushouConfig, ReplyToMode } from "zhushou/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import type { TelegramBotDeps } from "./bot-deps.js";
 import type { TelegramTransport } from "./fetch.js";
 
@@ -13,7 +13,7 @@ export type TelegramBotOptions = {
   mediaMaxMb?: number;
   replyToMode?: ReplyToMode;
   proxyFetch?: typeof fetch;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   /** Signal to abort in-flight Telegram API fetch requests (e.g. getUpdates) on shutdown. */
   fetchAbortSignal?: AbortSignal;
   updateOffset?: {

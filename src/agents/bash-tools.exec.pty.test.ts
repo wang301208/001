@@ -36,9 +36,9 @@ test("exec supports pty output", async () => {
   expect(result.aggregated).toContain("ok");
 });
 
-test("exec sets ASSISTANT_SHELL in pty mode", async () => {
+test("exec sets ZHUSHOU_SHELL in pty mode", async () => {
   const result = await runPtyCommand(
-    "node -e \"process.stdout.write(process.env.ASSISTANT_SHELL || '')\"",
+    "node -e \"process.stdout.write(process.env.ZHUSHOU_SHELL || '')\"",
   );
 
   expect(result.status).toBe("completed");

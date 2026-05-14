@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import { z } from "zod";
 
 const DEFAULT_ACQUIRE_TIMEOUT_MS = 90_000;
@@ -7,7 +7,7 @@ const DEFAULT_ENDPOINT_PREFIX = "/qa-credentials/v1";
 const DEFAULT_HEARTBEAT_INTERVAL_MS = 30_000;
 const DEFAULT_HTTP_TIMEOUT_MS = 15_000;
 const DEFAULT_LEASE_TTL_MS = 20 * 60 * 1_000;
-const ALLOW_INSECURE_HTTP_ENV_KEY = "ASSISTANT_QA_ALLOW_INSECURE_HTTP";
+const ALLOW_INSECURE_HTTP_ENV_KEY = "ZHUSHOU_QA_ALLOW_INSECURE_HTTP";
 const RETRY_BACKOFF_MS = [500, 1_000, 2_000, 4_000, 5_000] as const;
 const RETRYABLE_ACQUIRE_CODES = new Set(["POOL_EXHAUSTED", "NO_CREDENTIAL_AVAILABLE"]);
 
@@ -136,19 +136,19 @@ function normalizeConvexSiteUrl(raw: string, env: NodeJS.ProcessEnv): string {
   try {
     url = new URL(raw);
   } catch {
-    throw new Error(`ASSISTANT_QA_CONVEX_SITE_URL must be a valid URL, got "${raw || "<empty>"}".`);
+    throw new Error(`ZHUSHOU_QA_CONVEX_SITE_URL must be a valid URL, got "${raw || "<empty>"}".`);
   }
   if (url.protocol === "https:") {
     const text = url.toString();
     return text.endsWith("/") ? text.slice(0, -1) : text;
   }
   if (url.protocol !== "http:") {
-    throw new Error("ASSISTANT_QA_CONVEX_SITE_URL must use https://.");
+    throw new Error("ZHUSHOU_QA_CONVEX_SITE_URL must use https://.");
   }
   const allowInsecureHttp = isTruthyOptIn(env[ALLOW_INSECURE_HTTP_ENV_KEY]);
   if (!allowInsecureHttp || !isLoopbackHostname(url.hostname)) {
     throw new Error(
-      `ASSISTANT_QA_CONVEX_SITE_URL must use https://. http:// is only allowed for loopback hosts when ${ALLOW_INSECURE_HTTP_ENV_KEY}=1.`,
+      `ZHUSHOU_QA_CONVEX_SITE_URL must use https://. http:// is only allowed for loopback hosts when ${ALLOW_INSECURE_HTTP_ENV_KEY}=1.`,
     );
   }
   const text = url.toString();
@@ -164,12 +164,12 @@ function normalizeEndpointPrefix(value: string | undefined): string {
   const normalized = prefixed.endsWith("/") ? prefixed.slice(0, -1) : prefixed;
   if (!normalized.startsWith("/") || normalized.startsWith("//")) {
     throw new Error(
-      "ASSISTANT_QA_CONVEX_ENDPOINT_PREFIX must be an absolute path like /qa-credentials/v1.",
+      "ZHUSHOU_QA_CONVEX_ENDPOINT_PREFIX must be an absolute path like /qa-credentials/v1.",
     );
   }
   if (normalized.includes("\\") || normalized.split("/").some((segment) => segment === "..")) {
     throw new Error(
-      "ASSISTANT_QA_CONVEX_ENDPOINT_PREFIX must not contain backslashes or .. path segments.",
+      "ZHUSHOU_QA_CONVEX_ENDPOINT_PREFIX must not contain backslashes or .. path segments.",
     );
   }
   return normalized;
@@ -178,16 +178,16 @@ function normalizeEndpointPrefix(value: string | undefined): string {
 function resolveConvexAuthToken(env: NodeJS.ProcessEnv, role: QaCredentialRole): string {
   const roleToken =
     role === "ci"
-      ? env.ASSISTANT_QA_CONVEX_SECRET_CI?.trim()
-      : env.ASSISTANT_QA_CONVEX_SECRET_MAINTAINER?.trim();
+      ? env.ZHUSHOU_QA_CONVEX_SECRET_CI?.trim()
+      : env.ZHUSHOU_QA_CONVEX_SECRET_MAINTAINER?.trim();
   const token = roleToken;
   if (token) {
     return token;
   }
   if (role === "ci") {
-    throw new Error("Missing ASSISTANT_QA_CONVEX_SECRET_CI for CI credential access.");
+    throw new Error("Missing ZHUSHOU_QA_CONVEX_SECRET_CI for CI credential access.");
   }
-  throw new Error("Missing ASSISTANT_QA_CONVEX_SECRET_MAINTAINER for maintainer credential access.");
+  throw new Error("Missing ZHUSHOU_QA_CONVEX_SECRET_MAINTAINER for maintainer credential access.");
 }
 
 function joinConvexEndpoint(baseUrl: string, prefix: string, suffix: string): string {
@@ -204,15 +204,15 @@ function resolveConvexCredentialBrokerConfig(params: {
   ownerId?: string;
   role: QaCredentialRole;
 }): ConvexCredentialBrokerConfig {
-  const siteUrl = params.env.ASSISTANT_QA_CONVEX_SITE_URL?.trim();
+  const siteUrl = params.env.ZHUSHOU_QA_CONVEX_SITE_URL?.trim();
   if (!siteUrl) {
-    throw new Error("Missing ASSISTANT_QA_CONVEX_SITE_URL for --credential-source convex.");
+    throw new Error("Missing ZHUSHOU_QA_CONVEX_SITE_URL for --credential-source convex.");
   }
   const baseUrl = normalizeConvexSiteUrl(siteUrl, params.env);
-  const endpointPrefix = normalizeEndpointPrefix(params.env.ASSISTANT_QA_CONVEX_ENDPOINT_PREFIX);
+  const endpointPrefix = normalizeEndpointPrefix(params.env.ZHUSHOU_QA_CONVEX_ENDPOINT_PREFIX);
   const ownerId =
     params.ownerId?.trim() ||
-    params.env.ASSISTANT_QA_CREDENTIAL_OWNER_ID?.trim() ||
+    params.env.ZHUSHOU_QA_CREDENTIAL_OWNER_ID?.trim() ||
     `qa-lab-${params.role}-${process.pid}-${randomUUID().slice(0, 8)}`;
   return {
     role: params.role,
@@ -220,22 +220,22 @@ function resolveConvexCredentialBrokerConfig(params: {
     authToken: resolveConvexAuthToken(params.env, params.role),
     leaseTtlMs: parsePositiveIntegerEnv(
       params.env,
-      "ASSISTANT_QA_CREDENTIAL_LEASE_TTL_MS",
+      "ZHUSHOU_QA_CREDENTIAL_LEASE_TTL_MS",
       DEFAULT_LEASE_TTL_MS,
     ),
     heartbeatIntervalMs: parsePositiveIntegerEnv(
       params.env,
-      "ASSISTANT_QA_CREDENTIAL_HEARTBEAT_INTERVAL_MS",
+      "ZHUSHOU_QA_CREDENTIAL_HEARTBEAT_INTERVAL_MS",
       DEFAULT_HEARTBEAT_INTERVAL_MS,
     ),
     acquireTimeoutMs: parsePositiveIntegerEnv(
       params.env,
-      "ASSISTANT_QA_CREDENTIAL_ACQUIRE_TIMEOUT_MS",
+      "ZHUSHOU_QA_CREDENTIAL_ACQUIRE_TIMEOUT_MS",
       DEFAULT_ACQUIRE_TIMEOUT_MS,
     ),
     httpTimeoutMs: parsePositiveIntegerEnv(
       params.env,
-      "ASSISTANT_QA_CREDENTIAL_HTTP_TIMEOUT_MS",
+      "ZHUSHOU_QA_CREDENTIAL_HTTP_TIMEOUT_MS",
       DEFAULT_HTTP_TIMEOUT_MS,
     ),
     acquireUrl: joinConvexEndpoint(baseUrl, endpointPrefix, "acquire"),
@@ -337,7 +337,7 @@ export async function acquireQaCredentialLease<TPayload>(
   opts: AcquireQaCredentialLeaseOptions<TPayload>,
 ): Promise<QaCredentialLease<TPayload>> {
   const env = opts.env ?? process.env;
-  const source = normalizeQaCredentialSource(opts.source ?? env.ASSISTANT_QA_CREDENTIAL_SOURCE);
+  const source = normalizeQaCredentialSource(opts.source ?? env.ZHUSHOU_QA_CREDENTIAL_SOURCE);
   if (source === "env") {
     return {
       source: "env",
@@ -350,7 +350,7 @@ export async function acquireQaCredentialLease<TPayload>(
     };
   }
 
-  const role = normalizeQaCredentialRole(opts.role ?? env.ASSISTANT_QA_CREDENTIAL_ROLE);
+  const role = normalizeQaCredentialRole(opts.role ?? env.ZHUSHOU_QA_CREDENTIAL_ROLE);
   const config = resolveConvexCredentialBrokerConfig({
     env,
     role,

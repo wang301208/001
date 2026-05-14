@@ -10,11 +10,11 @@ describe("resolveActiveErrorContext", () => {
     expect(result).toEqual({ provider: "deepseek", model: "deepseek-chat" });
   });
 
-  it("prefers assistant provider/model when the failing attempt reports them", () => {
+  it("prefers zhushou provider/model when the failing attempt reports them", () => {
     const result = resolveActiveErrorContext({
       provider: "openai",
       model: "gpt-5.4",
-      assistant: {
+      zhushou: {
         provider: "openai",
         model: "gpt-5.4-codex",
       },

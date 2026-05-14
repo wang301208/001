@@ -10,6 +10,20 @@ export class CustomEditor extends Editor {
   onCtrlP?: () => void;
   onCtrlT?: () => void;
   onCtrlY?: () => void;
+  onCtrlA?: () => void;
+  onCtrlS?: () => void;
+  onCtrlF?: () => void;
+  onCtrlJ?: () => void;
+  onCtrlM?: () => void;
+  onCtrlW?: () => void;
+  onCtrlX?: () => void;
+  onCtrlE?: () => void;
+  onCtrlQ?: () => void;
+  onCtrlR?: () => void;
+  onCtrlU?: () => void;
+  onCtrl1?: () => void;
+  onCtrl2?: () => void;
+  onCtrl3?: () => void;
   onShiftTab?: () => void;
   onAltEnter?: () => void;
   onAltUp?: () => void;
@@ -64,6 +78,62 @@ export class CustomEditor extends Editor {
     }
     if (matchesKey(data, Key.ctrl("y")) && this.onCtrlY) {
       this.onCtrlY();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("a")) && this.onCtrlA) {
+      this.onCtrlA();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("s")) && this.onCtrlS) {
+      this.onCtrlS();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("f")) && this.onCtrlF) {
+      this.onCtrlF();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("j")) && this.onCtrlJ) {
+      this.onCtrlJ();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("m")) && this.onCtrlM) {
+      this.onCtrlM();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("w")) && this.onCtrlW) {
+      this.onCtrlW();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("x")) && this.onCtrlX) {
+      this.onCtrlX();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("e")) && this.onCtrlE) {
+      this.onCtrlE();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("q")) && this.onCtrlQ) {
+      this.onCtrlQ();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("r")) && this.onCtrlR) {
+      this.onCtrlR();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("u")) && this.onCtrlU) {
+      this.onCtrlU();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("1")) && this.onCtrl1) {
+      this.onCtrl1();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("2")) && this.onCtrl2) {
+      this.onCtrl2();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("3")) && this.onCtrl3) {
+      this.onCtrl3();
       return;
     }
     if (matchesKey(data, Key.shift("tab")) && this.onShiftTab) {

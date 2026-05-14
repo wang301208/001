@@ -1,19 +1,19 @@
-import type { ChannelOutboundAdapter } from "assistant/plugin-sdk/channel-send-result";
+import type { ChannelOutboundAdapter } from "zhushou/plugin-sdk/channel-send-result";
 import {
   attachChannelToResult,
   createAttachedChannelResultAdapter,
-} from "assistant/plugin-sdk/channel-send-result";
-import { resolveInteractiveTextFallback } from "assistant/plugin-sdk/interactive-runtime";
+} from "zhushou/plugin-sdk/channel-send-result";
+import { resolveInteractiveTextFallback } from "zhushou/plugin-sdk/interactive-runtime";
 import {
   resolveOutboundSendDep,
   sanitizeForPlainText,
   type OutboundSendDeps,
-} from "assistant/plugin-sdk/outbound-runtime";
+} from "zhushou/plugin-sdk/outbound-runtime";
 import {
   resolvePayloadMediaUrls,
   sendPayloadMediaSequenceOrFallback,
-} from "assistant/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+} from "zhushou/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
 import type { TelegramInlineButtons } from "./button-types.js";
 import { resolveTelegramInlineButtons } from "./button-types.js";
 import { markdownToTelegramHtmlChunks } from "./format.js";

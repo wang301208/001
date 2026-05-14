@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { listSupportedVideoGenerationModes } from "../../video-generation/capabilities.js";
 import { listRuntimeVideoGenerationProviders } from "../../video-generation/runtime.js";
 import {
@@ -78,7 +78,7 @@ function summarizeVideoGenerationCapabilities(
 }
 
 export function createVideoGenerateListActionResult(
-  config?: AssistantConfig,
+  config?: ZhushouConfig,
 ): VideoGenerateActionResult {
   const providers = listRuntimeVideoGenerationProviders({ config });
   return createMediaGenerateProviderListActionResult({

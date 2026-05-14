@@ -1,10 +1,10 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import { hasOutboundReplyContent } from "assistant/plugin-sdk/reply-payload";
+import { hasOutboundReplyContent } from "zhushou/plugin-sdk/reply-payload";
 import { parseReplyDirectives } from "../../../auto-reply/reply/reply-directives.js";
 import type { ReasoningLevel, VerboseLevel } from "../../../auto-reply/thinking.js";
 import { isSilentReplyPayloadText, SILENT_REPLY_TOKEN } from "../../../auto-reply/tokens.js";
 import { formatToolAggregate } from "../../../auto-reply/tool-meta.js";
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import { isCronSessionKey } from "../../../routing/session-key.js";
 import {
   normalizeOptionalLowercaseString,
@@ -12,16 +12,16 @@ import {
 } from "../../../shared/string-coerce.js";
 import {
   BILLING_ERROR_USER_MESSAGE,
-  formatAssistantErrorText,
-  formatRawAssistantErrorForUi,
+  formatZhushouErrorText,
+  formatRawZhushouErrorForUi,
   getApiErrorPayloadFingerprint,
   isRawApiErrorPayload,
   normalizeTextForComparison,
 } from "../../pi-embedded-helpers.js";
 import type { ToolResultFormat } from "../../pi-embedded-subscribe.shared-types.js";
 import {
-  extractAssistantThinking,
-  extractAssistantVisibleText,
+  extractZhushouThinking,
+  extractZhushouVisibleText,
   formatReasoningMessage,
 } from "../../pi-embedded-utils.js";
 import { isExecLikeToolName, type ToolErrorSummary } from "../../tool-error-summary.js";
@@ -106,11 +106,11 @@ function resolveToolErrorWarningPolicy(params: {
 }
 
 export function buildEmbeddedRunPayloads(params: {
-  assistantTexts: string[];
+  zhushouTexts: string[];
   toolMetas: ToolMetaEntry[];
-  lastAssistant: AssistantMessage | undefined;
+  lastZhushou: AssistantMessage | undefined;
   lastToolError?: ToolErrorSummary;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   isCronTrigger?: boolean;
   sessionKey: string;
   provider?: string;
@@ -145,27 +145,27 @@ export function buildEmbeddedRunPayloads(params: {
   }> = [];
 
   const useMarkdown = params.toolResultFormat === "markdown";
-  const suppressAssistantArtifacts = params.didSendDeterministicApprovalPrompt === true;
-  const lastAssistantErrored = params.lastAssistant?.stopReason === "error";
+  const suppressZhushouArtifacts = params.didSendDeterministicApprovalPrompt === true;
+  const lastZhushouErrored = params.lastZhushou?.stopReason === "error";
   const errorText =
-    params.lastAssistant && lastAssistantErrored
-      ? suppressAssistantArtifacts
+    params.lastZhushou && lastZhushouErrored
+      ? suppressZhushouArtifacts
         ? undefined
-        : formatAssistantErrorText(params.lastAssistant, {
+        : formatZhushouErrorText(params.lastZhushou, {
             cfg: params.config,
             sessionKey: params.sessionKey,
             provider: params.provider,
             model: params.model,
           })
       : undefined;
-  const rawErrorMessage = lastAssistantErrored
-    ? normalizeOptionalString(params.lastAssistant?.errorMessage)
+  const rawErrorMessage = lastZhushouErrored
+    ? normalizeOptionalString(params.lastZhushou?.errorMessage)
     : undefined;
   const rawErrorFingerprint = rawErrorMessage
     ? getApiErrorPayloadFingerprint(rawErrorMessage)
     : null;
   const formattedRawErrorMessage = rawErrorMessage
-    ? formatRawAssistantErrorForUi(rawErrorMessage)
+    ? formatRawZhushouErrorForUi(rawErrorMessage)
     : null;
   const normalizedFormattedRawErrorMessage = formattedRawErrorMessage
     ? normalizeTextForComparison(formattedRawErrorMessage)
@@ -208,20 +208,20 @@ export function buildEmbeddedRunPayloads(params: {
     }
   }
 
-  const reasoningText = suppressAssistantArtifacts
+  const reasoningText = suppressZhushouArtifacts
     ? ""
-    : params.lastAssistant && params.reasoningLevel === "on"
-      ? formatReasoningMessage(extractAssistantThinking(params.lastAssistant))
+    : params.lastZhushou && params.reasoningLevel === "on"
+      ? formatReasoningMessage(extractZhushouThinking(params.lastZhushou))
       : "";
   if (reasoningText) {
     replyItems.push({ text: reasoningText, isReasoning: true });
   }
 
-  const fallbackAnswerText = params.lastAssistant
-    ? extractAssistantVisibleText(params.lastAssistant)
+  const fallbackAnswerText = params.lastZhushou
+    ? extractZhushouVisibleText(params.lastZhushou)
     : "";
   const shouldSuppressRawErrorText = (text: string) => {
-    if (!lastAssistantErrored) {
+    if (!lastZhushouErrored) {
       return false;
     }
     const trimmed = text.trim();
@@ -270,16 +270,16 @@ export function buildEmbeddedRunPayloads(params: {
     }
     return isRawApiErrorPayload(trimmed);
   };
-  const answerTexts = suppressAssistantArtifacts
+  const answerTexts = suppressZhushouArtifacts
     ? []
-    : (params.assistantTexts.length
-        ? params.assistantTexts
+    : (params.zhushouTexts.length
+        ? params.zhushouTexts
         : fallbackAnswerText
           ? [fallbackAnswerText]
           : []
       ).filter((text) => !shouldSuppressRawErrorText(text));
 
-  let hasUserFacingAssistantReply = false;
+  let hasUserFacingZhushouReply = false;
   for (const text of answerTexts) {
     const {
       text: cleanedText,
@@ -300,13 +300,13 @@ export function buildEmbeddedRunPayloads(params: {
       replyToTag,
       replyToCurrent,
     });
-    hasUserFacingAssistantReply = true;
+    hasUserFacingZhushouReply = true;
   }
 
   if (params.lastToolError) {
     const warningPolicy = resolveToolErrorWarningPolicy({
       lastToolError: params.lastToolError,
-      hasUserFacingReply: hasUserFacingAssistantReply,
+      hasUserFacingReply: hasUserFacingZhushouReply,
       suppressToolErrors: Boolean(params.config?.messages?.suppressToolErrors),
       suppressToolErrorWarnings: params.suppressToolErrorWarnings,
       isCronTrigger: params.isCronTrigger,

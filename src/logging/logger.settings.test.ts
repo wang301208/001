@@ -4,10 +4,10 @@ import { __test__ } from "./logger.js";
 describe("shouldSkipMutatingLoggingConfigRead", () => {
   it("matches config schema and validate invocations", () => {
     expect(
-      __test__.shouldSkipMutatingLoggingConfigRead(["node", "assistant", "config", "schema"]),
+      __test__.shouldSkipMutatingLoggingConfigRead(["node", "zhushou", "config", "schema"]),
     ).toBe(true);
     expect(
-      __test__.shouldSkipMutatingLoggingConfigRead(["node", "assistant", "config", "validate"]),
+      __test__.shouldSkipMutatingLoggingConfigRead(["node", "zhushou", "config", "validate"]),
     ).toBe(true);
   });
 
@@ -15,7 +15,7 @@ describe("shouldSkipMutatingLoggingConfigRead", () => {
     expect(
       __test__.shouldSkipMutatingLoggingConfigRead([
         "node",
-        "assistant",
+        "zhushou",
         "--profile",
         "work",
         "--no-color",
@@ -28,9 +28,9 @@ describe("shouldSkipMutatingLoggingConfigRead", () => {
 
   it("does not match other commands", () => {
     expect(
-      __test__.shouldSkipMutatingLoggingConfigRead(["node", "assistant", "config", "get", "foo"]),
+      __test__.shouldSkipMutatingLoggingConfigRead(["node", "zhushou", "config", "get", "foo"]),
     ).toBe(false);
-    expect(__test__.shouldSkipMutatingLoggingConfigRead(["node", "assistant", "status"])).toBe(
+    expect(__test__.shouldSkipMutatingLoggingConfigRead(["node", "zhushou", "status"])).toBe(
       false,
     );
   });

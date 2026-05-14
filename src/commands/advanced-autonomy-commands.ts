@@ -211,10 +211,10 @@ export function registerAdvancedAutonomyCommands(program: Command, runtime: Runt
       console.log("✅ 战略规划引擎已启动");
       
       console.log("\n💡 提示: 使用以下命令监控系统状态:");
-      console.log("  assistant advanced-autonomy strategy list-plans");
-      console.log("  assistant advanced-autonomy resource stats");
-      console.log("  assistant advanced-autonomy learning stats");
-      console.log("  assistant advanced-autonomy collaboration stats");
+      console.log("  zhushou advanced-autonomy strategy list-plans");
+      console.log("  zhushou advanced-autonomy resource stats");
+      console.log("  zhushou advanced-autonomy learning stats");
+      console.log("  zhushou advanced-autonomy collaboration stats");
       console.log("\n按 Ctrl+C 停止\n");
       
       // 保持进程运行
@@ -263,9 +263,9 @@ export function registerAdvancedAutonomyCommands(program: Command, runtime: Runt
       
       console.log("\n" + "=".repeat(60));
       console.log("\n💡 提示: 使用子命令查看详细信息");
-      console.log("  assistant advanced-autonomy strategy --help");
-      console.log("  assistant advanced-autonomy resource --help");
-      console.log("  assistant advanced-autonomy learning --help");
-      console.log("  assistant advanced-autonomy collaboration --help\n");
+      console.log("  zhushou advanced-autonomy strategy --help");
+      console.log("  zhushou advanced-autonomy resource --help");
+      console.log("  zhushou advanced-autonomy learning --help");
+      console.log("  zhushou advanced-autonomy collaboration --help\n");
     });
 }

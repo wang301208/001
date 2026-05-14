@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 type DiffsPackageManifest = {
   dependencies?: Record<string, string>;
-  assistant?: {
+  zhushou?: {
     bundle?: {
       stageRuntimeDependencies?: boolean;
     };
@@ -17,6 +17,6 @@ describe("diffs package manifest", () => {
     ) as DiffsPackageManifest;
 
     expect(packageJson.dependencies?.["@pierre/diffs"]).toBeDefined();
-    expect(packageJson.assistant?.bundle?.stageRuntimeDependencies).toBe(true);
+    expect(packageJson.zhushou?.bundle?.stageRuntimeDependencies).toBe(true);
   });
 });

@@ -1,8 +1,8 @@
 import {
   createResolvedApproverActionAuthAdapter,
   resolveApprovalApprovers,
-} from "assistant/plugin-sdk/approval-auth-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/approval-auth-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { resolveMattermostAccount } from "./mattermost/accounts.js";
 
 const MATTERMOST_USER_ID_RE = /^[a-z0-9]{26}$/;

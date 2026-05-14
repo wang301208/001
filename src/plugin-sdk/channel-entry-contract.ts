@@ -12,10 +12,10 @@ import {
 } from "../plugins/jiti-loader-cache.js";
 import type { PluginRuntime } from "../plugins/runtime/types.js";
 import { resolveLoaderPackageRoot } from "../plugins/sdk-alias.js";
-import type { AnyAgentTool, AssistantPluginApi, PluginCommandContext } from "../plugins/types.js";
+import type { AnyAgentTool, ZhushouPluginApi, PluginCommandContext } from "../plugins/types.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
-export type { AnyAgentTool, AssistantPluginApi, PluginCommandContext };
+export type { AnyAgentTool, ZhushouPluginApi, PluginCommandContext };
 
 type ChannelEntryConfigSchema<TPlugin> =
   TPlugin extends ChannelPlugin<unknown>
@@ -38,8 +38,8 @@ type DefineBundledChannelEntryOptions<TPlugin = ChannelPlugin> = {
   runtime?: BundledEntryModuleRef;
   accountInspect?: BundledEntryModuleRef;
   features?: BundledChannelEntryFeatures;
-  registerCliMetadata?: (api: AssistantPluginApi) => void;
-  registerFull?: (api: AssistantPluginApi) => void;
+  registerCliMetadata?: (api: ZhushouPluginApi) => void;
+  registerFull?: (api: ZhushouPluginApi) => void;
 };
 
 type DefineBundledChannelSetupEntryOptions = {
@@ -66,7 +66,7 @@ export type BundledChannelEntryContract<TPlugin = ChannelPlugin> = {
   description: string;
   configSchema: ChannelEntryConfigSchema<TPlugin>;
   features?: BundledChannelEntryFeatures;
-  register: (api: AssistantPluginApi) => void;
+  register: (api: ZhushouPluginApi) => void;
   loadChannelPlugin: () => TPlugin;
   loadChannelSecrets?: () => ChannelPlugin["secrets"] | undefined;
   loadChannelAccountInspector?: () => NonNullable<ChannelPlugin["config"]["inspectAccount"]>;
@@ -84,7 +84,7 @@ export type BundledChannelSetupEntryContract<TPlugin = ChannelPlugin> = {
 const nodeRequire = createRequire(import.meta.url);
 const jitiLoaders: PluginJitiLoaderCache = new Map();
 const loadedModuleExports = new Map<string, unknown>();
-const disableBundledEntrySourceFallbackEnv = "ASSISTANT_DISABLE_BUNDLED_ENTRY_SOURCE_FALLBACK";
+const disableBundledEntrySourceFallbackEnv = "ZHUSHOU_DISABLE_BUNDLED_ENTRY_SOURCE_FALLBACK";
 
 function isTruthyEnvFlag(value: string | undefined): boolean {
   return value !== undefined && !/^(?:0|false)$/iu.test(value.trim());
@@ -379,7 +379,7 @@ export function defineBundledChannelEntry<TPlugin = ChannelPlugin>({
     ...(features || accountInspect
       ? { features: { ...features, ...(accountInspect ? { accountInspect: true } : {}) } }
       : {}),
-    register(api: AssistantPluginApi) {
+    register(api: ZhushouPluginApi) {
       if (api.registrationMode === "cli-metadata") {
         registerCliMetadata?.(api);
         return;

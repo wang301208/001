@@ -12,7 +12,7 @@ const resolveAgentIdFromSessionKeyMock = vi.fn((sessionKey: string) => {
 });
 const resolveStorePathMock = vi.fn((_store: unknown, _options: unknown) => "/tmp/sessions.json");
 const resolveMainSessionKeyMock = vi.fn((_cfg: unknown) => "agent:main:main");
-const readLatestAssistantReplyMock = vi.fn(async (_params?: unknown) => "raw subagent reply");
+const readLatestZhushouReplyMock = vi.fn(async (_params?: unknown) => "raw subagent reply");
 const isEmbeddedPiRunActiveMock = vi.fn((_sessionId: string) => false);
 const queueEmbeddedPiMessageMock = vi.fn((_sessionId: string, _text: string) => false);
 const waitForEmbeddedPiRunEndMock = vi.fn(async (_sessionId: string, _timeoutMs?: number) => true);
@@ -52,7 +52,7 @@ vi.mock("./subagent-announce.runtime.js", () => ({
 }));
 
 vi.mock("./tools/agent-step.js", () => ({
-  readLatestAssistantReply: (params?: unknown) => readLatestAssistantReplyMock(params),
+  readLatestZhushouReply: (params?: unknown) => readLatestZhushouReplyMock(params),
 }));
 
 vi.mock("./subagent-announce-delivery.runtime.js", () =>
@@ -198,7 +198,7 @@ describe("subagent announce seam flow", () => {
     resolveAgentIdFromSessionKeyMock.mockReset().mockImplementation(() => "main");
     resolveStorePathMock.mockReset().mockImplementation(() => "/tmp/sessions.json");
     resolveMainSessionKeyMock.mockReset().mockImplementation(() => "agent:main:main");
-    readLatestAssistantReplyMock.mockReset().mockResolvedValue("raw subagent reply");
+    readLatestZhushouReplyMock.mockReset().mockResolvedValue("raw subagent reply");
     isEmbeddedPiRunActiveMock.mockReset().mockReturnValue(false);
     queueEmbeddedPiMessageMock.mockReset().mockReturnValue(false);
     waitForEmbeddedPiRunEndMock.mockReset().mockResolvedValue(true);

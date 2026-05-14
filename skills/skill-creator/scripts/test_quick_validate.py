@@ -51,7 +51,7 @@ allowed-tools:
   - gh
 metadata: |
   {
-    "owners": ["team-assistant"]
+    "owners": ["team-zhushou"]
   }
 ---
 # Skill

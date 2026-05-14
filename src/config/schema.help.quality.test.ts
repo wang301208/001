@@ -340,7 +340,7 @@ const TARGET_KEYS = [
   "logging.redactPatterns",
   "update",
   "ui",
-  "ui.assistant",
+  "ui.zhushou",
   "plugins",
   "plugins.enabled",
   "plugins.allow",
@@ -425,7 +425,7 @@ const ENUM_EXPECTATIONS: Record<string, string[]> = {
   "gateway.bind": ['"auto"', '"lan"', '"loopback"', '"custom"', '"tailnet"'],
   "gateway.auth.mode": ['"none"', '"token"', '"password"', '"trusted-proxy"'],
   "gateway.tailscale.mode": ['"off"', '"serve"', '"funnel"'],
-  "browser.profiles.*.driver": ['"assistant"', '"existing-session"'],
+  "browser.profiles.*.driver": ['"zhushou"', '"existing-session"'],
   "discovery.mdns.mode": ['"off"', '"minimal"', '"full"'],
   "wizard.lastRunMode": ['"local"', '"remote"'],
   "diagnostics.otel.protocol": ['"http/protobuf"', '"grpc"'],
@@ -542,8 +542,8 @@ const FINAL_BACKLOG_TARGET_KEYS = [
   "gateway.remote.token",
   "skills.load.watch",
   "skills.load.watchDebounceMs",
-  "ui.assistant.avatar",
-  "ui.assistant.name",
+  "ui.zhushou.avatar",
+  "ui.zhushou.name",
   "ui.seamColor",
 ] as const;
 
@@ -629,7 +629,7 @@ describe("config help copy quality", () => {
     expect(FIELD_HELP["memory.qmd.update.interval"].includes("5m")).toBe(true);
     expect(FIELD_HELP["memory.qmd.update.embedInterval"].includes("60m")).toBe(true);
     expect(FIELD_HELP["agents.defaults.memorySearch.store.path"]).toContain(
-      "~/.assistant/memory/{agentId}.sqlite",
+      "~/.zhushou/memory/{agentId}.sqlite",
     );
   });
 

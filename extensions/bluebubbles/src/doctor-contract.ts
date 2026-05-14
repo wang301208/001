@@ -1,4 +1,4 @@
-import { createLegacyPrivateNetworkDoctorContract } from "assistant/plugin-sdk/ssrf-runtime";
+import { createLegacyPrivateNetworkDoctorContract } from "zhushou/plugin-sdk/ssrf-runtime";
 
 const contract = createLegacyPrivateNetworkDoctorContract({
   channelKey: "bluebubbles",

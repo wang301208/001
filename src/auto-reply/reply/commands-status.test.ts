@@ -7,7 +7,7 @@ import {
   addSubagentRunForTests,
   resetSubagentRegistryForTests,
 } from "../../agents/subagent-registry.js";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import {
   completeTaskRunByRunId,
   createQueuedTaskRun,
@@ -28,7 +28,7 @@ const baseCfg = {
   commands: { text: true },
   channels: { whatsapp: { allowFrom: ["*"] } },
   session: { mainKey: "main", scope: "per-sender" },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 async function buildStatusReplyForTest(params: { sessionKey?: string; verbose?: boolean }) {
   const commandParams = buildCommandTestParams("/status", baseCfg);
@@ -71,7 +71,7 @@ function writeTranscriptUsageLog(params: {
 }) {
   const logPath = path.join(
     params.dir,
-    ".assistant",
+    ".zhushou",
     "agents",
     params.agentId,
     "sessions",
@@ -489,7 +489,7 @@ describe("buildStatusReply subagent summary", () => {
         activeModelAuthOverride: "api-key",
       });
 
-      expect(normalizeTestText(text)).toContain("Context: 1.0k/32k");
+      expect(normalizeTestText(text)).toContain("Context: 1.0k/128k");
     });
   });
 });

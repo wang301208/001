@@ -1,5 +1,5 @@
-import { resolveProviderRequestCapabilities } from "assistant/plugin-sdk/provider-http";
-import { normalizeLowercaseStringOrEmpty, readStringValue } from "assistant/plugin-sdk/text-runtime";
+import { resolveProviderRequestCapabilities } from "zhushou/plugin-sdk/provider-http";
+import { normalizeLowercaseStringOrEmpty, readStringValue } from "zhushou/plugin-sdk/text-runtime";
 import { MISTRAL_MODEL_TRANSPORT_PATCH } from "./api.js";
 
 const MISTRAL_MODEL_HINTS = [

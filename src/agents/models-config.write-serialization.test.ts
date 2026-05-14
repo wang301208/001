@@ -8,21 +8,21 @@ import {
 } from "./models-config.e2e-harness.js";
 import { readGeneratedModelsJson } from "./models-config.test-utils.js";
 
-const planAssistantModelsJsonMock = vi.fn();
+const planZhushouModelsJsonMock = vi.fn();
 
 installModelsConfigTestHooks();
 
-let ensureAssistantModelsJson: typeof import("./models-config.js").ensureAssistantModelsJson;
+let ensureZhushouModelsJson: typeof import("./models-config.js").ensureZhushouModelsJson;
 
 beforeAll(async () => {
   vi.doMock("./models-config.plan.js", () => ({
-    planAssistantModelsJson: (...args: unknown[]) => planAssistantModelsJsonMock(...args),
+    planZhushouModelsJson: (...args: unknown[]) => planZhushouModelsJsonMock(...args),
   }));
-  ({ ensureAssistantModelsJson } = await import("./models-config.js"));
+  ({ ensureZhushouModelsJson } = await import("./models-config.js"));
 });
 
 beforeEach(() => {
-  planAssistantModelsJsonMock
+  planZhushouModelsJsonMock
     .mockReset()
     .mockImplementation(async (params: { cfg?: typeof CUSTOM_PROXY_MODELS_CONFIG }) => ({
       action: "write",
@@ -75,7 +75,7 @@ describe("models-config write serialization", () => {
       });
 
       try {
-        await Promise.all([ensureAssistantModelsJson(first), ensureAssistantModelsJson(second)]);
+        await Promise.all([ensureZhushouModelsJson(first), ensureZhushouModelsJson(second)]);
       } finally {
         writeSpy.mockRestore();
       }

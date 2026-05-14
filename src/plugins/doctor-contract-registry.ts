@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { LegacyConfigRule } from "../config/legacy.shared.js";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { asNullableRecord } from "../shared/record-coerce.js";
-import { discoverAssistantPlugins } from "./discovery.js";
+import { discoverZhushouPlugins } from "./discovery.js";
 import { getCachedPluginJitiLoader, type PluginJitiLoaderCache } from "./jiti-loader-cache.js";
 import { loadPluginManifestRegistry } from "./manifest-registry.js";
 import { resolvePluginCacheInputs, type PluginSourceRoots } from "./roots.js";
@@ -21,12 +21,12 @@ type PluginDoctorContractModule = {
 };
 
 type PluginDoctorCompatibilityMutation = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   changes: string[];
 };
 
 type PluginDoctorCompatibilityNormalizer = (params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
 }) => PluginDoctorCompatibilityMutation;
 
 type PluginDoctorContractEntry = {
@@ -276,7 +276,7 @@ function resolvePluginDoctorContracts(params?: {
     return [];
   }
 
-  const discovery = discoverAssistantPlugins({
+  const discovery = discoverZhushouPlugins({
     workspaceDir: params?.workspaceDir,
     env,
     cache: true,
@@ -325,14 +325,14 @@ export function listPluginDoctorLegacyConfigRules(params?: {
 }
 
 export function applyPluginDoctorCompatibilityMigrations(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   params?: {
     workspaceDir?: string;
     env?: NodeJS.ProcessEnv;
     pluginIds?: readonly string[];
   },
 ): {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   changes: string[];
 } {
   let nextCfg = cfg;

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   collectExposureMatrixFindings,
   collectLikelyMultiUserSetupFindings,
 } from "./audit-extra.sync.js";
 
-function audit(cfg: AssistantConfig) {
+function audit(cfg: ZhushouConfig) {
   return [...collectExposureMatrixFindings(cfg), ...collectLikelyMultiUserSetupFindings(cfg)];
 }
 
@@ -17,7 +17,7 @@ describe("security audit trust model findings", () => {
         cfg: {
           tools: { elevated: { enabled: true, allowFrom: { whatsapp: ["+1"] } } },
           channels: { whatsapp: { groupPolicy: "open" } },
-        } satisfies AssistantConfig,
+        } satisfies ZhushouConfig,
         assert: () => {
           const findings = audit(cases[0].cfg);
           expect(
@@ -34,7 +34,7 @@ describe("security audit trust model findings", () => {
         cfg: {
           channels: { whatsapp: { groupPolicy: "open" } },
           tools: { elevated: { enabled: false } },
-        } satisfies AssistantConfig,
+        } satisfies ZhushouConfig,
         assert: () => {
           const findings = audit(cases[1].cfg);
           expect(
@@ -59,7 +59,7 @@ describe("security audit trust model findings", () => {
               sandbox: { mode: "all" },
             },
           },
-        } satisfies AssistantConfig,
+        } satisfies ZhushouConfig,
         assert: () => {
           const findings = audit(cases[2].cfg);
           expect(
@@ -79,7 +79,7 @@ describe("security audit trust model findings", () => {
             deny: ["group:runtime"],
             fs: { workspaceOnly: true },
           },
-        } satisfies AssistantConfig,
+        } satisfies ZhushouConfig,
         assert: () => {
           const findings = audit(cases[3].cfg);
           expect(
@@ -105,7 +105,7 @@ describe("security audit trust model findings", () => {
             },
           },
           tools: { elevated: { enabled: false } },
-        } satisfies AssistantConfig,
+        } satisfies ZhushouConfig,
         assert: () => {
           const findings = audit(cases[4].cfg);
           const finding = findings.find(
@@ -115,7 +115,7 @@ describe("security audit trust model findings", () => {
           expect(finding?.detail).toContain(
             'channels.discord.groupPolicy="allowlist" with configured group targets',
           );
-          expect(finding?.detail).toContain("personal-assistant");
+          expect(finding?.detail).toContain("personal-zhushou");
           expect(finding?.remediation).toContain('agents.defaults.sandbox.mode="all"');
         },
       },
@@ -128,7 +128,7 @@ describe("security audit trust model findings", () => {
             },
           },
           tools: { elevated: { enabled: false } },
-        } satisfies AssistantConfig,
+        } satisfies ZhushouConfig,
         assert: () => {
           const findings = audit(cases[5].cfg);
           expect(

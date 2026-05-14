@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: assistant-home-pvc
+  name: zhushou-home-pvc
   labels:
-    app: assistant
+    app: zhushou
 spec:
   accessModes:
     - ReadWriteOnce

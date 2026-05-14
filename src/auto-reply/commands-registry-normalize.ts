@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -100,7 +100,7 @@ export function normalizeCommandBody(raw: string, options?: CommandNormalizeOpti
   return normalizedRest ? `${tokenSpec.canonical} ${normalizedRest}` : tokenSpec.canonical;
 }
 
-export function getCommandDetection(_cfg?: AssistantConfig): CommandDetection {
+export function getCommandDetection(_cfg?: ZhushouConfig): CommandDetection {
   const commands = getChatCommands();
   if (cachedDetection && cachedDetectionCommands === commands) {
     return cachedDetection;
@@ -133,7 +133,7 @@ export function getCommandDetection(_cfg?: AssistantConfig): CommandDetection {
   return cachedDetection;
 }
 
-export function maybeResolveTextAlias(raw: string, cfg?: AssistantConfig) {
+export function maybeResolveTextAlias(raw: string, cfg?: ZhushouConfig) {
   const trimmed = normalizeCommandBody(raw).trim();
   if (!trimmed.startsWith("/")) {
     return null;
@@ -156,7 +156,7 @@ export function maybeResolveTextAlias(raw: string, cfg?: AssistantConfig) {
 
 export function resolveTextCommand(
   raw: string,
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
 ): {
   command: ChatCommandDefinition;
   args?: string;

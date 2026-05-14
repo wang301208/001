@@ -2,9 +2,9 @@ import crypto from "node:crypto";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { loadConfig, writeConfigFile } from "../config/config.js";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { ensureGatewayStartupAuth } from "../gateway/startup-auth.js";
 
@@ -14,7 +14,7 @@ export type BrowserControlAuth = {
 };
 
 export function resolveBrowserControlAuth(
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): BrowserControlAuth {
   const auth = resolveGatewayAuth({
@@ -43,7 +43,7 @@ export function shouldAutoGenerateBrowserAuth(env: NodeJS.ProcessEnv): boolean {
 }
 
 function hasExplicitNonStringGatewayCredentialForMode(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   mode: "none" | "trusted-proxy";
 }): boolean {
   const { cfg, mode } = params;
@@ -62,14 +62,14 @@ function generateBrowserControlToken(): string {
 }
 
 async function generateAndPersistBrowserControlToken(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 }): Promise<{
   auth: BrowserControlAuth;
   generatedToken?: string;
 }> {
   const token = generateBrowserControlToken();
-  const nextCfg: AssistantConfig = {
+  const nextCfg: ZhushouConfig = {
     ...params.cfg,
     gateway: {
       ...params.cfg.gateway,
@@ -94,14 +94,14 @@ async function generateAndPersistBrowserControlToken(params: {
 }
 
 async function generateAndPersistBrowserControlPassword(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 }): Promise<{
   auth: BrowserControlAuth;
   generatedToken?: string;
 }> {
   const password = generateBrowserControlToken();
-  const nextCfg: AssistantConfig = {
+  const nextCfg: ZhushouConfig = {
     ...params.cfg,
     gateway: {
       ...params.cfg.gateway,
@@ -126,7 +126,7 @@ async function generateAndPersistBrowserControlPassword(params: {
 }
 
 export async function ensureBrowserControlAuth(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
 }): Promise<{
   auth: BrowserControlAuth;

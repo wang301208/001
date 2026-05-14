@@ -1,5 +1,5 @@
 import type { CliBackendConfig } from "../config/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export type PluginTextReplacement = {
   from: string | RegExp;
@@ -9,7 +9,7 @@ export type PluginTextReplacement = {
 export type PluginTextTransforms = {
   /** Rewrites applied to outbound prompt text before provider/CLI transport. */
   input?: PluginTextReplacement[];
-  /** Rewrites applied to inbound assistant text before 助手 consumes it. */
+  /** Rewrites applied to inbound zhushou text before 助手 consumes it. */
   output?: PluginTextReplacement[];
 };
 
@@ -69,7 +69,7 @@ export type CliBackendPlugin = {
    * the generic CLI runner or prompt builder.
    */
   transformSystemPrompt?: (ctx: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     workspaceDir?: string;
     provider: string;
     modelId: string;
@@ -81,7 +81,7 @@ export type CliBackendPlugin = {
    * Backend-owned bidirectional text replacements.
    *
    * `input` applies to the system prompt and user prompt passed to the CLI.
-   * `output` applies to parsed/streamed assistant text from the CLI.
+   * `output` applies to parsed/streamed zhushou text from the CLI.
    */
   textTransforms?: PluginTextTransforms;
 };

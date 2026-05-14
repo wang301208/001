@@ -1,14 +1,14 @@
 import { isIP } from "node:net";
-import { type AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { makeProxyFetch } from "assistant/plugin-sdk/infra-runtime";
-import { danger } from "assistant/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { type ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { makeProxyFetch } from "zhushou/plugin-sdk/infra-runtime";
+import { danger } from "zhushou/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import type { ResolvedDiscordAccount } from "./accounts.js";
 
 export function resolveDiscordProxyUrl(
   account: Pick<ResolvedDiscordAccount, "config">,
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
 ): string | undefined {
   const accountProxy = account.config.proxy?.trim();
   if (accountProxy) {
@@ -31,7 +31,7 @@ export function resolveDiscordProxyFetchByUrl(
 
 export function resolveDiscordProxyFetchForAccount(
   account: Pick<ResolvedDiscordAccount, "config">,
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
   runtime?: Pick<RuntimeEnv, "error">,
 ): typeof fetch | undefined {
   return resolveDiscordProxyFetchByUrl(resolveDiscordProxyUrl(account, cfg), runtime);

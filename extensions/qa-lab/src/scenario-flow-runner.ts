@@ -1,4 +1,4 @@
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import type { QaTransportState } from "./qa-transport.js";
 import type { QaScenarioFlow, QaSeedScenarioWithSource } from "./scenario-catalog.js";
 

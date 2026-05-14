@@ -2,27 +2,27 @@ import {
   isNativeCommandsExplicitlyDisabled,
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import {
   resolveThreadBindingIdleTimeoutMsForChannel,
   resolveThreadBindingMaxAgeMsForChannel,
   resolveThreadBindingSpawnPolicy,
-} from "assistant/plugin-sdk/conversation-runtime";
-import { formatErrorMessage, formatUncaughtError } from "assistant/plugin-sdk/error-runtime";
-import { resolveTextChunkLimit } from "assistant/plugin-sdk/reply-chunking";
-import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "assistant/plugin-sdk/reply-history";
-import { danger, logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
-import { getChildLogger } from "assistant/plugin-sdk/runtime-env";
-import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
-import { createNonExitingRuntime, type RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/conversation-runtime";
+import { formatErrorMessage, formatUncaughtError } from "zhushou/plugin-sdk/error-runtime";
+import { resolveTextChunkLimit } from "zhushou/plugin-sdk/reply-chunking";
+import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "zhushou/plugin-sdk/reply-history";
+import { danger, logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { getChildLogger } from "zhushou/plugin-sdk/runtime-env";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
+import { createNonExitingRuntime, type RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveTelegramAccount } from "./accounts.js";
 import { defaultTelegramBotDeps } from "./bot-deps.js";
 import { registerTelegramHandlers } from "./bot-handlers.runtime.js";

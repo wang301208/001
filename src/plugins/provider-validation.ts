@@ -123,13 +123,13 @@ function buildNormalizedWizardSetup(params: {
     ...(choiceId ? { choiceId } : {}),
     ...(choiceLabel ? { choiceLabel } : {}),
     ...(choiceHint ? { choiceHint } : {}),
-    ...(typeof params.setup.assistantPriority === "number" &&
-    Number.isFinite(params.setup.assistantPriority)
-      ? { assistantPriority: params.setup.assistantPriority }
+    ...(typeof params.setup.zhushouPriority === "number" &&
+    Number.isFinite(params.setup.zhushouPriority)
+      ? { zhushouPriority: params.setup.zhushouPriority }
       : {}),
-    ...(params.setup.assistantVisibility === "manual-only" ||
-    params.setup.assistantVisibility === "visible"
-      ? { assistantVisibility: params.setup.assistantVisibility }
+    ...(params.setup.zhushouVisibility === "manual-only" ||
+    params.setup.zhushouVisibility === "visible"
+      ? { zhushouVisibility: params.setup.zhushouVisibility }
       : {}),
     ...(groupId ? { groupId } : {}),
     ...(groupLabel ? { groupLabel } : {}),

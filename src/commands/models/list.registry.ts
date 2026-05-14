@@ -2,7 +2,7 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
 import type { AuthProfileStore } from "../../agents/auth-profiles/types.js";
 import { shouldSuppressBuiltInModel } from "../../agents/model-suppression.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   formatErrorWithStack,
   MODEL_AVAILABILITY_UNAVAILABLE_CODE,
@@ -16,14 +16,14 @@ import {
   listProfilesForProvider,
   resolveAwsSdkEnvVarName,
   resolveEnvApiKey,
-  resolveAssistantAgentDir,
+  resolveZhushouAgentDir,
 } from "./list.runtime.js";
 import type { ModelRow } from "./list.types.js";
 import { modelKey } from "./shared.js";
 
 const hasAuthForProvider = (
   provider: string,
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
   authStore?: AuthProfileStore,
 ) => {
   if (!cfg || !authStore) {
@@ -82,7 +82,7 @@ function validateAvailableModels(availableModels: unknown): Model<Api>[] {
   return availableModels as Model<Api>[];
 }
 
-function loadAvailableModels(registry: ModelRegistry, cfg: AssistantConfig): Model<Api>[] {
+function loadAvailableModels(registry: ModelRegistry, cfg: ZhushouConfig): Model<Api>[] {
   let availableModels: unknown;
   try {
     availableModels = registry.getAvailable();
@@ -105,10 +105,10 @@ function loadAvailableModels(registry: ModelRegistry, cfg: AssistantConfig): Mod
 }
 
 export async function loadModelRegistry(
-  cfg: AssistantConfig,
-  _opts?: { sourceConfig?: AssistantConfig },
+  cfg: ZhushouConfig,
+  _opts?: { sourceConfig?: ZhushouConfig },
 ) {
-  const agentDir = resolveAssistantAgentDir();
+  const agentDir = resolveZhushouAgentDir();
   const authStorage = discoverAuthStorage(agentDir);
   const registry = discoverModels(authStorage, agentDir);
   const models = registry.getAll().filter(

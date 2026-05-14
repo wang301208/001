@@ -12,7 +12,7 @@ import {
 } from "./profiles.js";
 
 describe("profile name validation", () => {
-  it.each(["assistant", "work", "my-profile", "test123", "a", "a-b-c-1-2-3", "1test"])(
+  it.each(["zhushou", "work", "my-profile", "test123", "a", "a-b-c-1-2-3", "1test"])(
     "accepts valid lowercase name: %s",
     (name) => {
       expect(isValidProfileName(name)).toBe(true);
@@ -100,7 +100,7 @@ describe("getUsedPorts", () => {
 
   it("extracts ports from profile configs", () => {
     const profiles = {
-      assistant: { cdpPort: 18792 },
+      zhushou: { cdpPort: 18792 },
       work: { cdpPort: 18793 },
       personal: { cdpPort: 18795 },
     };
@@ -137,10 +137,10 @@ describe("port collision prevention", () => {
     // Raw config shows empty - no ports used
     expect(usedFromRaw.size).toBe(0);
 
-    // But resolved config has implicit assistant at 18800
+    // But resolved config has an implicit zhushou profile on the derived CDP range.
     const resolved = resolveBrowserConfig({});
     const usedFromResolved = getUsedPorts(resolved.profiles);
-    expect(usedFromResolved.has(CDP_PORT_RANGE_START)).toBe(true);
+    expect(usedFromResolved.has(resolved.cdpPortRangeStart)).toBe(true);
   });
 
   it("create-profile must use resolved config to avoid port collision", () => {
@@ -156,15 +156,18 @@ describe("port collision prevention", () => {
     // Raw config: first allocation gets 18800
     expect(buggyAllocatedPort).toBe(CDP_PORT_RANGE_START);
 
-    // Resolved config: includes implicit assistant at 18800
+    // Resolved config: includes implicit zhushou at the derived CDP range start.
     const resolved = resolveBrowserConfig(
       rawConfig.browser as Parameters<typeof resolveBrowserConfig>[0],
     );
     const fixedUsedPorts = getUsedPorts(resolved.profiles);
-    const fixedAllocatedPort = allocateCdpPort(fixedUsedPorts);
+    const fixedAllocatedPort = allocateCdpPort(fixedUsedPorts, {
+      start: resolved.cdpPortRangeStart,
+      end: resolved.cdpPortRangeEnd,
+    });
 
-    // Resolved: first NEW profile gets 18801, avoiding collision
-    expect(fixedAllocatedPort).toBe(CDP_PORT_RANGE_START + 1);
+    // Resolved: first NEW profile gets the next derived CDP port, avoiding collision.
+    expect(fixedAllocatedPort).toBe(resolved.cdpPortRangeStart + 1);
   });
 });
 
@@ -227,7 +230,7 @@ describe("getUsedColors", () => {
 
   it("extracts and uppercases colors from profile configs", () => {
     const profiles = {
-      assistant: { color: "#ff4500" },
+      zhushou: { color: "#ff4500" },
       work: { color: "#0066CC" },
     };
     const used = getUsedColors(profiles);

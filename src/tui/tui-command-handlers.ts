@@ -9,8 +9,8 @@ import {
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 import { formatRelativeTimestamp } from "../infra/format-time/format-relative.ts";
 import { normalizeAgentId } from "../routing/session-key.js";
-import type { AssistantAction } from "./assistant-actions.js";
-import { ASSISTANT_HELP_TEXT } from "./assistant-style.js";
+import type { ZhushouAction } from "./zhushou-actions.js";
+import { ZHUSHOU_HELP_TEXT } from "./zhushou-style.js";
 import type { ChatLog } from "./components/chat-log.js";
 import {
   createFilterableSelectList,
@@ -65,6 +65,7 @@ type CommandHandlerContext = {
   forgetLocalBtwRunId?: (runId: string) => void;
   toggleGovernancePanel?: () => void;
   requestExit: () => void;
+  onUserMessage?: (text: string) => void;
 };
 
 function isBtwCommand(text: string): boolean {
@@ -170,7 +171,7 @@ function resolveRequestedToolName(requested: string, toolIds: string[]) {
   return { ok: false as const, reason: "missing", candidates: toolIds };
 }
 
-function parseGatewayActionParams(action: Extract<AssistantAction, { type: "gateway.call" }>):
+function parseGatewayActionParams(action: Extract<ZhushouAction, { type: "gateway.call" }>):
   | { ok: true; method: string; params?: unknown }
   | { ok: false; message: string } {
   if (!/^[a-zA-Z0-9_.:-]+$/.test(action.method)) {
@@ -290,7 +291,7 @@ function parseRemoteModelsArgs(args: string):
   };
 }
 
-function parseMcpActionParams(action: Extract<AssistantAction, { type: "mcp.call" }>):
+function parseMcpActionParams(action: Extract<ZhushouAction, { type: "mcp.call" }>):
   | { ok: true; params: GatewayMcpToolCallParams }
   | { ok: false; message: string } {
   const name = action.name.trim();
@@ -922,7 +923,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     }
   };
 
-  const callGatewayAction = async (action: Extract<AssistantAction, { type: "gateway.call" }>) => {
+  const callGatewayAction = async (action: Extract<ZhushouAction, { type: "gateway.call" }>) => {
     const parsed = parseGatewayActionParams(action);
     if (!parsed.ok) {
       chatLog.addSystem(parsed.message);
@@ -938,7 +939,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     }
   };
 
-  const callMcpAction = async (action: Extract<AssistantAction, { type: "mcp.call" }>) => {
+  const callMcpAction = async (action: Extract<ZhushouAction, { type: "mcp.call" }>) => {
     const parsed = parseMcpActionParams(action);
     if (!parsed.ok) {
       chatLog.addSystem(parsed.message);
@@ -952,7 +953,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     }
   };
 
-  const invokeToolAction = async (action: Extract<AssistantAction, { type: "tool.invoke" }>) => {
+  const invokeToolAction = async (action: Extract<ZhushouAction, { type: "tool.invoke" }>) => {
     const toolName = action.toolName.trim();
     const goal = action.goal.trim();
     if (!toolName || !goal) {
@@ -983,7 +984,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     }
   };
 
-  const handleAction = async (action: AssistantAction) => {
+  const handleAction = async (action: ZhushouAction) => {
     switch (action.type) {
       case "gateway.call":
         await callGatewayAction(action);
@@ -1014,7 +1015,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     }
     switch (name) {
       case "help":
-        chatLog.addSystem(ASSISTANT_HELP_TEXT);
+        chatLog.addSystem(ZHUSHOU_HELP_TEXT);
         break;
       case "voice": {
         if (args === "status") {
@@ -1837,6 +1838,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     const runId = randomUUID();
     try {
       if (!isBtw) {
+        context.onUserMessage?.(text);
         chatLog.addUser(text);
         state.pendingOptimisticUserMessage = true;
         state.activeChatRunId = runId;

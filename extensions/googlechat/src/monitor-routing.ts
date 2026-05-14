@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { createWebhookInFlightLimiter } from "assistant/plugin-sdk/webhook-request-guards";
-import { registerWebhookTargetWithPluginRoute } from "assistant/plugin-sdk/webhook-targets";
+import { createWebhookInFlightLimiter } from "zhushou/plugin-sdk/webhook-request-guards";
+import { registerWebhookTargetWithPluginRoute } from "zhushou/plugin-sdk/webhook-targets";
 import type { WebhookTarget } from "./monitor-types.js";
 import { createGoogleChatWebhookRequestHandler } from "./monitor-webhook.js";
 import type { GoogleChatEvent } from "./types.js";

@@ -14,30 +14,30 @@ type CommandOptions = Record<string, unknown>;
 
 const SANDBOX_EXAMPLES = {
   main: [
-    ["assistant sandbox list", "List all sandbox containers."],
-    ["assistant sandbox list --browser", "List only browser containers."],
-    ["assistant sandbox recreate --all", "Recreate all containers."],
-    ["assistant sandbox recreate --session main", "Recreate a specific session."],
-    ["assistant sandbox recreate --agent mybot", "Recreate agent containers."],
-    ["assistant sandbox explain", "Explain effective sandbox config."],
+    ["zhushou sandbox list", "List all sandbox containers."],
+    ["zhushou sandbox list --browser", "List only browser containers."],
+    ["zhushou sandbox recreate --all", "Recreate all containers."],
+    ["zhushou sandbox recreate --session main", "Recreate a specific session."],
+    ["zhushou sandbox recreate --agent mybot", "Recreate agent containers."],
+    ["zhushou sandbox explain", "Explain effective sandbox config."],
   ],
   list: [
-    ["assistant sandbox list", "List all sandbox containers."],
-    ["assistant sandbox list --browser", "List only browser containers."],
-    ["assistant sandbox list --json", "JSON output."],
+    ["zhushou sandbox list", "List all sandbox containers."],
+    ["zhushou sandbox list --browser", "List only browser containers."],
+    ["zhushou sandbox list --json", "JSON output."],
   ],
   recreate: [
-    ["assistant sandbox recreate --all", "Recreate all containers."],
-    ["assistant sandbox recreate --session main", "Recreate a specific session."],
-    ["assistant sandbox recreate --agent mybot", "Recreate a specific agent (includes sub-agents)."],
-    ["assistant sandbox recreate --browser --all", "Recreate only browser containers."],
-    ["assistant sandbox recreate --all --force", "Skip confirmation."],
+    ["zhushou sandbox recreate --all", "Recreate all containers."],
+    ["zhushou sandbox recreate --session main", "Recreate a specific session."],
+    ["zhushou sandbox recreate --agent mybot", "Recreate a specific agent (includes sub-agents)."],
+    ["zhushou sandbox recreate --browser --all", "Recreate only browser containers."],
+    ["zhushou sandbox recreate --all --force", "Skip confirmation."],
   ],
   explain: [
-    ["assistant sandbox explain", "Show effective sandbox config."],
-    ["assistant sandbox explain --session agent:main:main", "Explain a specific session."],
-    ["assistant sandbox explain --agent work", "Explain an agent sandbox."],
-    ["assistant sandbox explain --json", "JSON output."],
+    ["zhushou sandbox explain", "Show effective sandbox config."],
+    ["zhushou sandbox explain --session agent:main:main", "Explain a specific session."],
+    ["zhushou sandbox explain --agent work", "Explain an agent sandbox."],
+    ["zhushou sandbox explain --json", "JSON output."],
   ],
 } as const;
 
@@ -67,7 +67,7 @@ export function registerSandboxCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/sandbox", "docs.assistant.ai/cli/sandbox")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/sandbox", "docs.zhushou.ai/cli/sandbox")}\n`,
     )
     .action(() => {
       sandbox.help({ error: true });

@@ -21,7 +21,7 @@ description: |
 name: session-memory
 metadata:
   {
-    "assistant":
+    "zhushou":
       {
         "emoji": "disk",
         "events": ["command:new"],
@@ -33,17 +33,17 @@ metadata:
     expect(result.metadata).toBeDefined();
 
     const parsed = JSON5.parse(result.metadata ?? "");
-    expect(parsed.assistant?.emoji).toBe("disk");
+    expect(parsed.zhushou?.emoji).toBe("disk");
   });
 
   it("preserves inline JSON values", () => {
     const content = `---
 name: inline-json
-metadata: {"assistant": {"events": ["test"]}}
+metadata: {"zhushou": {"events": ["test"]}}
 ---
 `;
     const result = parseFrontmatterBlock(content);
-    expect(result.metadata).toBe('{"assistant": {"events": ["test"]}}');
+    expect(result.metadata).toBe('{"zhushou": {"events": ["test"]}}');
   });
 
   it("stringifies YAML objects and arrays", () => {
@@ -55,7 +55,7 @@ tags:
   - alpha
   - beta
 metadata:
-  assistant:
+  zhushou:
     events:
       - command:new
 ---
@@ -65,7 +65,7 @@ metadata:
     expect(result.retries).toBe("3");
     expect(JSON.parse(result.tags ?? "[]")).toEqual(["alpha", "beta"]);
     const parsed = JSON5.parse(result.metadata ?? "");
-    expect(parsed.assistant?.events).toEqual(["command:new"]);
+    expect(parsed.zhushou?.events).toEqual(["command:new"]);
   });
 
   it("preserves inline description values containing colons", () => {
@@ -91,10 +91,10 @@ description: |-
     const content = `---
 name: sample-skill
 metadata:
-  assistant: true
+  zhushou: true
 ---`;
     const result = parseFrontmatterBlock(content);
-    expect(result.metadata).toBe('{"assistant":true}');
+    expect(result.metadata).toBe('{"zhushou":true}');
   });
 
   it("returns empty when frontmatter is missing", () => {

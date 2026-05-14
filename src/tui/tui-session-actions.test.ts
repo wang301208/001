@@ -279,7 +279,7 @@ describe("tui session actions", () => {
       ],
     });
     const addUser = vi.fn();
-    const finalizeAssistant = vi.fn();
+    const finalizeZhushou = vi.fn();
     const state: TuiStateAccess = {
       agentDefaultId: "main",
       sessionMainKey: "agent:main:main",
@@ -317,7 +317,7 @@ describe("tui session actions", () => {
         addSystem: vi.fn(),
         addUser,
         clearAll: vi.fn(),
-        finalizeAssistant,
+        finalizeZhushou,
       } as unknown as import("./components/chat-log.js").ChatLog,
       btw: createBtwPresenter(),
       tui: { requestRender: vi.fn() } as unknown as import("@mariozechner/pi-tui").TUI,
@@ -337,10 +337,10 @@ describe("tui session actions", () => {
 
     expect(addUser).toHaveBeenCalledTimes(1);
     expect(addUser).toHaveBeenCalledWith("stdio smoke");
-    expect(finalizeAssistant).not.toHaveBeenCalled();
+    expect(finalizeZhushou).not.toHaveBeenCalled();
   });
 
-  it("suppresses assistant echo when it exactly repeats the user input", async () => {
+  it("suppresses zhushou echo when it exactly repeats the user input", async () => {
     const loadHistoryClient = vi.fn().mockResolvedValue({
       sessionId: "session-1",
       messages: [
@@ -349,7 +349,7 @@ describe("tui session actions", () => {
       ],
     });
     const addUser = vi.fn();
-    const finalizeAssistant = vi.fn();
+    const finalizeZhushou = vi.fn();
     const state: TuiStateAccess = {
       agentDefaultId: "main",
       sessionMainKey: "agent:main:main",
@@ -387,7 +387,7 @@ describe("tui session actions", () => {
         addSystem: vi.fn(),
         addUser,
         clearAll: vi.fn(),
-        finalizeAssistant,
+        finalizeZhushou,
       } as unknown as import("./components/chat-log.js").ChatLog,
       btw: createBtwPresenter(),
       tui: { requestRender: vi.fn() } as unknown as import("@mariozechner/pi-tui").TUI,
@@ -407,7 +407,7 @@ describe("tui session actions", () => {
 
     expect(addUser).toHaveBeenCalledTimes(1);
     expect(addUser).toHaveBeenCalledWith("stdio smoke");
-    expect(finalizeAssistant).not.toHaveBeenCalled();
+    expect(finalizeZhushou).not.toHaveBeenCalled();
   });
 
   it("accepts older session snapshots after switching session keys", async () => {

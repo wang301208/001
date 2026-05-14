@@ -1,6 +1,6 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
-import { ensureModelAllowlistEntry } from "assistant/plugin-sdk/provider-onboard";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
+import { ensureModelAllowlistEntry } from "zhushou/plugin-sdk/provider-onboard";
 import { BYTEPLUS_CODING_MODEL_CATALOG, BYTEPLUS_MODEL_CATALOG } from "./models.js";
 import { buildBytePlusCodingProvider, buildBytePlusProvider } from "./provider-catalog.js";
 import { buildBytePlusVideoGenerationProvider } from "./video-generation-provider.js";

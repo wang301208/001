@@ -1,4 +1,4 @@
-﻿import type { AssistantConfig } from "../runtime-api.js";
+﻿import type { ZhushouConfig } from "../runtime-api.js";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 
@@ -33,7 +33,7 @@ function normalizePin(pin: {
 }
 
 export async function createPinFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   messageId: string;
   accountId?: string;
 }): Promise<FeishuPin | null> {
@@ -53,7 +53,7 @@ export async function createPinFeishu(params: {
 }
 
 export async function removePinFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   messageId: string;
   accountId?: string;
 }): Promise<void> {
@@ -72,7 +72,7 @@ export async function removePinFeishu(params: {
 }
 
 export async function listPinsFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   chatId: string;
   startTime?: string;
   endTime?: string;

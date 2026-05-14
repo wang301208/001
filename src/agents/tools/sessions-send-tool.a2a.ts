@@ -4,7 +4,7 @@ import { formatErrorMessage } from "../../infra/errors.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 import { AGENT_LANE_NESTED } from "../lanes.js";
-import { readLatestAssistantReply, waitForAgentRun } from "../run-wait.js";
+import { readLatestZhushouReply, waitForAgentRun } from "../run-wait.js";
 import { runAgentStep } from "./agent-step.js";
 import { resolveAnnounceTarget } from "./sessions-announce-target.js";
 import {
@@ -51,7 +51,7 @@ export async function runSessionsSendA2AFlow(params: {
         callGateway: sessionsSendA2ADeps.callGateway,
       });
       if (wait.status === "ok") {
-        primaryReply = await readLatestAssistantReply({
+        primaryReply = await readLatestZhushouReply({
           sessionKey: params.targetSessionKey,
         });
         latestReply = primaryReply;

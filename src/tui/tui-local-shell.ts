@@ -151,7 +151,7 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
         // and is gated behind an explicit in-session approval prompt.
         shell: true,
         cwd,
-        env: { ...env, ASSISTANT_SHELL: "tui-local" },
+        env: { ...env, ZHUSHOU_SHELL: "tui-local" },
       });
 
       let stdout = "";

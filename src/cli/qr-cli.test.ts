@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DEFAULT_GATEWAY_PORT } from "../config/paths.js";
 import { encodePairingSetupCode } from "../pairing/setup-code.js";
 import { createCliRuntimeCapture, mockRuntimeModule } from "./test-runtime-capture.js";
 
@@ -155,7 +156,7 @@ describe("registerQrCli", () => {
   }
 
   function expectLoggedLocalSetupCode() {
-    expectLoggedSetupCode("ws://127.0.0.1:18789");
+    expectLoggedSetupCode(`ws://127.0.0.1:${DEFAULT_GATEWAY_PORT}`);
   }
 
   function mockTailscaleStatusLookup() {
@@ -169,8 +170,8 @@ describe("registerQrCli", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resetRuntimeCapture();
-    vi.stubEnv("ASSISTANT_GATEWAY_TOKEN", "");
-    vi.stubEnv("ASSISTANT_GATEWAY_PASSWORD", "");
+    vi.stubEnv("ZHUSHOU_GATEWAY_TOKEN", "");
+    vi.stubEnv("ZHUSHOU_GATEWAY_PASSWORD", "");
     runtimeExit.mockImplementation(() => {
       throw new Error("exit");
     });
@@ -192,7 +193,7 @@ describe("registerQrCli", () => {
     await runQr(["--setup-code-only"]);
 
     const expected = encodePairingSetupCode({
-      url: "ws://127.0.0.1:18789",
+      url: `ws://127.0.0.1:${DEFAULT_GATEWAY_PORT}`,
       bootstrapToken: "bootstrap-123",
     });
     expect(runtime.log).toHaveBeenCalledWith(expected);
@@ -216,7 +217,7 @@ describe("registerQrCli", () => {
     expect(output).toContain("Pairing QR");
     expect(output).toContain("ASCII-QR");
     expect(output).toContain("Gateway:");
-    expect(output).toContain("assistant devices approve <requestId>");
+    expect(output).toContain("zhushou devices approve <requestId>");
   });
 
   it("fails fast for insecure remote mobile pairing setup urls", async () => {
@@ -246,7 +247,7 @@ describe("registerQrCli", () => {
 
     await runQr(["--setup-code-only"]);
 
-    expectLoggedSetupCode("ws://gateway.local:18789");
+    expectLoggedSetupCode(`ws://gateway.local:${DEFAULT_GATEWAY_PORT}`);
   });
 
   it("allows android emulator cleartext override urls", async () => {
@@ -301,8 +302,8 @@ describe("registerQrCli", () => {
     expect(resolveCommandSecretRefsViaGateway).not.toHaveBeenCalled();
   });
 
-  it("uses ASSISTANT_GATEWAY_PASSWORD without resolving local password SecretRef", async () => {
-    vi.stubEnv("ASSISTANT_GATEWAY_PASSWORD", "password-from-env");
+  it("uses ZHUSHOU_GATEWAY_PASSWORD without resolving local password SecretRef", async () => {
+    vi.stubEnv("ZHUSHOU_GATEWAY_PASSWORD", "password-from-env");
     loadConfig.mockReturnValue(
       createLocalGatewayConfigWithAuth(
         createLocalGatewayPasswordRefAuth("MISSING_LOCAL_GATEWAY_PASSWORD"),

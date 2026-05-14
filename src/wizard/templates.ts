@@ -1,12 +1,12 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
-import { PRODUCT_NAME } from "./assistant-constants.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
+import { PRODUCT_NAME } from "./zhushou-constants.js";
 
 export type WizardTemplate = {
   id: string;
   name: string;
   description: string;
   /** Partial config that this template applies on top of a base config. */
-  config: Partial<AssistantConfig>;
+  config: Partial<ZhushouConfig>;
 };
 
 /**
@@ -21,7 +21,7 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     name: "最小化（本地回环）",
     description: "纯本地 loopback 网关，Token 认证，无 Tailscale。最低资源占用，适合单机个人使用。",
     config: {
-      ui: { assistant: { name: PRODUCT_NAME } },
+      ui: { zhushou: { name: PRODUCT_NAME } },
       gateway: {
         mode: "local",
         bind: "loopback",
@@ -35,7 +35,7 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     name: "局域网共享",
     description: "绑定至 0.0.0.0，局域网内可访问。强制 Token 认证以保护接入。",
     config: {
-      ui: { assistant: { name: PRODUCT_NAME } },
+      ui: { zhushou: { name: PRODUCT_NAME } },
       gateway: {
         mode: "local",
         bind: "lan",
@@ -50,7 +50,7 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     description:
       "通过 Tailscale Serve 将网关暴露至 Tailnet。需已安装并登录 Tailscale，gateway.bind 强制为 loopback。",
     config: {
-      ui: { assistant: { name: PRODUCT_NAME } },
+      ui: { zhushou: { name: PRODUCT_NAME } },
       gateway: {
         mode: "local",
         bind: "loopback",
@@ -65,7 +65,7 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     description:
       "通过 Tailscale Funnel 将网关公开至公网。必须使用密码认证（funnel 要求）。请确保了解安全风险。",
     config: {
-      ui: { assistant: { name: PRODUCT_NAME } },
+      ui: { zhushou: { name: PRODUCT_NAME } },
       gateway: {
         mode: "local",
         bind: "loopback",
@@ -79,7 +79,7 @@ export const WIZARD_TEMPLATES: readonly WizardTemplate[] = [
     name: "远程网关（仅客户端）",
     description: "本机作为远程网关的客户端，不在本地启动网关服务。",
     config: {
-      ui: { assistant: { name: PRODUCT_NAME } },
+      ui: { zhushou: { name: PRODUCT_NAME } },
       gateway: {
         mode: "remote",
       },
@@ -99,8 +99,8 @@ export function findTemplate(id: string): WizardTemplate | undefined {
  * Template values take precedence over existing base values for matching paths,
  * but do not delete unrelated keys.
  */
-export function applyTemplate(base: AssistantConfig, template: WizardTemplate): AssistantConfig {
-  return deepMerge(base, template.config) as AssistantConfig;
+export function applyTemplate(base: ZhushouConfig, template: WizardTemplate): ZhushouConfig {
+  return deepMerge(base, template.config) as ZhushouConfig;
 }
 
 function deepMerge(target: unknown, source: unknown): unknown {

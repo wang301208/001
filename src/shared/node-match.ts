@@ -42,9 +42,9 @@ function formatNodeCandidateLabel(node: NodeMatchCandidate): string {
   return `${label} [${details.join(", ")}]`;
 }
 
-function isCurrentAssistantClient(clientId: string | undefined): boolean {
+function isCurrentZhushouClient(clientId: string | undefined): boolean {
   const normalized = normalizeOptionalLowercaseString(clientId) ?? "";
-  return normalized.startsWith("assistant-");
+  return normalized.startsWith("zhushou-");
 }
 
 function resolveMatchScore(
@@ -73,7 +73,7 @@ function scoreNodeCandidate(node: NodeMatchCandidate, matchScore: number): numbe
   if (node.connected === true) {
     score += 100;
   }
-  if (isCurrentAssistantClient(node.clientId)) {
+  if (isCurrentZhushouClient(node.clientId)) {
     score += 10;
   }
   return score;

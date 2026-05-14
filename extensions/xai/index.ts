@@ -1,8 +1,8 @@
 import { Type } from "@sinclair/typebox";
-import { defineSingleProviderPluginEntry } from "assistant/plugin-sdk/provider-entry";
-import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "assistant/plugin-sdk/provider-model-shared";
-import { defaultToolStreamExtraParams } from "assistant/plugin-sdk/provider-stream-shared";
-import { jsonResult, readProviderEnvValue } from "assistant/plugin-sdk/provider-web-search";
+import { defineSingleProviderPluginEntry } from "zhushou/plugin-sdk/provider-entry";
+import { OPENAI_COMPATIBLE_REPLAY_HOOKS } from "zhushou/plugin-sdk/provider-model-shared";
+import { defaultToolStreamExtraParams } from "zhushou/plugin-sdk/provider-stream-shared";
+import { jsonResult, readProviderEnvValue } from "zhushou/plugin-sdk/provider-web-search";
 import {
   applyXaiModelCompat,
   normalizeXaiModelId,
@@ -99,7 +99,7 @@ function createLazyCodeExecutionTool(ctx: {
           error: "missing_xai_api_key",
           message:
             "code_execution needs an xAI API key. Set XAI_API_KEY in the Gateway environment, or configure plugins.entries.xai.config.webSearch.apiKey.",
-          docs: "https://docs.assistant.ai/tools/code-execution",
+          docs: "https://docs.zhushou.ai/tools/code-execution",
         });
       }
       return await tool.execute(toolCallId, args);

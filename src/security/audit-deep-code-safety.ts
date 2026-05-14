@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { SecurityAuditFinding } from "./audit.types.js";
 
 let auditDeepModulePromise: Promise<typeof import("./audit.deep.runtime.js")> | undefined;
@@ -9,7 +9,7 @@ async function loadAuditDeepModule() {
 }
 
 export async function collectDeepCodeSafetyFindings(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   stateDir: string;
   deep: boolean;
   summaryCache?: Map<string, Promise<unknown>>;

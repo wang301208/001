@@ -50,7 +50,7 @@ export function registerPairingCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/pairing", "docs.assistant.ai/cli/pairing")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/pairing", "docs.zhushou.ai/cli/pairing")}\n`,
     );
 
   pairing
@@ -128,12 +128,12 @@ export function registerPairingCli(program: Command) {
           : codeOrChannel;
       if (!channelRaw || !resolvedCode) {
         throw new Error(
-          `Usage: ${formatCliCommand("assistant pairing approve <channel> <code>")} (or: ${formatCliCommand("assistant pairing approve --channel <channel> <code>")})`,
+          `Usage: ${formatCliCommand("zhushou pairing approve <channel> <code>")} (or: ${formatCliCommand("zhushou pairing approve --channel <channel> <code>")})`,
         );
       }
       if (opts.channel && code != null) {
         throw new Error(
-          `Too many arguments. Use: ${formatCliCommand("assistant pairing approve --channel <channel> <code>")}`,
+          `Too many arguments. Use: ${formatCliCommand("zhushou pairing approve --channel <channel> <code>")}`,
         );
       }
       const channel = parseChannel(channelRaw, channels);

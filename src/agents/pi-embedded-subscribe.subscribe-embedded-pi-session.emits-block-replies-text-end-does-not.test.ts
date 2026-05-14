@@ -2,8 +2,8 @@ import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
 import {
   createTextEndBlockReplyHarness,
-  emitAssistantTextDelta,
-  emitAssistantTextEnd,
+  emitZhushouTextDelta,
+  emitZhushouTextEnd,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 import {
   createOpenAiResponsesTextBlock,
@@ -79,8 +79,8 @@ describe("subscribeEmbeddedPiSession", () => {
     const onBlockReply = vi.fn();
     const { emit, subscription } = createTextEndBlockReplyHarness({ onBlockReply });
 
-    emitAssistantTextDelta({ emit, delta: "Hello block" });
-    emitAssistantTextEnd({ emit });
+    emitZhushouTextDelta({ emit, delta: "Hello block" });
+    emitZhushouTextEnd({ emit });
     await Promise.resolve();
 
     await vi.waitFor(() => {
@@ -88,17 +88,17 @@ describe("subscribeEmbeddedPiSession", () => {
     });
     const payload = onBlockReply.mock.calls[0][0];
     expect(payload.text).toBe("Hello block");
-    expect(subscription.assistantTexts).toEqual(["Hello block"]);
+    expect(subscription.zhushouTexts).toEqual(["Hello block"]);
 
-    const assistantMessage = {
+    const zhushouMessage = {
       role: "assistant",
       content: [{ type: "text", text: "Hello block" }],
     } as AssistantMessage;
 
-    emit({ type: "message_end", message: assistantMessage });
+    emit({ type: "message_end", message: zhushouMessage });
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
-    expect(subscription.assistantTexts).toEqual(["Hello block"]);
+    expect(subscription.zhushouTexts).toEqual(["Hello block"]);
   });
 
   it("does not duplicate when message_end flushes and a late text_end arrives", async () => {
@@ -107,25 +107,25 @@ describe("subscribeEmbeddedPiSession", () => {
 
     emit({ type: "message_start", message: { role: "assistant" } });
 
-    emitAssistantTextDelta({ emit, delta: "Hello block" });
+    emitZhushouTextDelta({ emit, delta: "Hello block" });
 
-    const assistantMessage = {
+    const zhushouMessage = {
       role: "assistant",
       content: [{ type: "text", text: "Hello block" }],
     } as AssistantMessage;
 
     // Simulate a provider that ends the message without emitting text_end.
-    emit({ type: "message_end", message: assistantMessage });
+    emit({ type: "message_end", message: zhushouMessage });
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
-    expect(subscription.assistantTexts).toEqual(["Hello block"]);
+    expect(subscription.zhushouTexts).toEqual(["Hello block"]);
 
     // Some providers can still emit a late text_end; this must not re-emit.
-    emitAssistantTextEnd({ emit, content: "Hello block" });
+    emitZhushouTextEnd({ emit, content: "Hello block" });
     await Promise.resolve();
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
-    expect(subscription.assistantTexts).toEqual(["Hello block"]);
+    expect(subscription.zhushouTexts).toEqual(["Hello block"]);
   });
 
   it("emits legacy structured partials on text_end without waiting for message_end", async () => {
@@ -149,7 +149,7 @@ describe("subscribeEmbeddedPiSession", () => {
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
     expect(onBlockReply.mock.calls[0]?.[0]?.text).toBe("Legacy answer");
-    expect(subscription.assistantTexts).toEqual(["Legacy answer"]);
+    expect(subscription.zhushouTexts).toEqual(["Legacy answer"]);
 
     emit({
       type: "message_end",
@@ -160,7 +160,7 @@ describe("subscribeEmbeddedPiSession", () => {
     });
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
-    expect(subscription.assistantTexts).toEqual(["Legacy answer"]);
+    expect(subscription.zhushouTexts).toEqual(["Legacy answer"]);
   });
 
   it("suppresses commentary block replies until a final answer is available", async () => {
@@ -177,7 +177,7 @@ describe("subscribeEmbeddedPiSession", () => {
     await Promise.resolve();
 
     expect(onBlockReply).not.toHaveBeenCalled();
-    expect(subscription.assistantTexts).toEqual([]);
+    expect(subscription.zhushouTexts).toEqual([]);
 
     emitOpenAiResponsesTextDeltaAndEnd({
       emit,
@@ -191,7 +191,7 @@ describe("subscribeEmbeddedPiSession", () => {
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
     expect(onBlockReply.mock.calls[0]?.[0]?.text).toBe("Done.");
-    expect(subscription.assistantTexts).toEqual(["Done."]);
+    expect(subscription.zhushouTexts).toEqual(["Done."]);
   });
 
   it("emits the full final answer on text_end when it extends suppressed commentary", async () => {
@@ -220,7 +220,7 @@ describe("subscribeEmbeddedPiSession", () => {
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
     expect(onBlockReply.mock.calls[0]?.[0]?.text).toBe("Hello world");
-    expect(subscription.assistantTexts).toEqual(["Hello world"]);
+    expect(subscription.zhushouTexts).toEqual(["Hello world"]);
   });
 
   it("does not defer final_answer text_end when phase exists only in textSignature", async () => {
@@ -246,7 +246,7 @@ describe("subscribeEmbeddedPiSession", () => {
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
     expect(onBlockReply.mock.calls[0]?.[0]?.text).toBe("Done.");
-    expect(subscription.assistantTexts).toEqual(["Done."]);
+    expect(subscription.zhushouTexts).toEqual(["Done."]);
   });
 
   it("emits the final answer at message_end when commentary was streamed first", async () => {
@@ -266,6 +266,6 @@ describe("subscribeEmbeddedPiSession", () => {
 
     expect(onBlockReply).toHaveBeenCalledTimes(1);
     expect(onBlockReply.mock.calls[0]?.[0]?.text).toBe("Done.");
-    expect(subscription.assistantTexts).toEqual(["Done."]);
+    expect(subscription.zhushouTexts).toEqual(["Done."]);
   });
 });

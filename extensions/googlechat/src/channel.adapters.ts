@@ -1,20 +1,20 @@
-import { adaptScopedAccountAccessor } from "assistant/plugin-sdk/channel-config-helpers";
+import { adaptScopedAccountAccessor } from "zhushou/plugin-sdk/channel-config-helpers";
 import {
   composeAccountWarningCollectors,
   createAllowlistProviderOpenWarningCollector,
-} from "assistant/plugin-sdk/channel-policy";
+} from "zhushou/plugin-sdk/channel-policy";
 import {
   createChannelDirectoryAdapter,
   listResolvedDirectoryGroupEntriesFromMapKeys,
   listResolvedDirectoryUserEntriesFromAllowFrom,
-} from "assistant/plugin-sdk/directory-runtime";
-import { createLazyRuntimeNamedExport } from "assistant/plugin-sdk/lazy-runtime";
-import type { OutboundMediaLoadOptions } from "assistant/plugin-sdk/outbound-media";
-import { sanitizeForPlainText } from "assistant/plugin-sdk/outbound-runtime";
+} from "zhushou/plugin-sdk/directory-runtime";
+import { createLazyRuntimeNamedExport } from "zhushou/plugin-sdk/lazy-runtime";
+import type { OutboundMediaLoadOptions } from "zhushou/plugin-sdk/outbound-media";
+import { sanitizeForPlainText } from "zhushou/plugin-sdk/outbound-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   type ResolvedGoogleChatAccount,
   chunkTextForOutbound,
@@ -27,7 +27,7 @@ import {
   resolveChannelMediaMaxBytes,
   resolveGoogleChatAccount,
   resolveGoogleChatOutboundSpace,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "./channel.deps.runtime.js";
 import { resolveGoogleChatGroupRequireMention } from "./group-policy.js";
 
@@ -60,7 +60,7 @@ const collectGoogleChatGroupPolicyWarnings =
 const collectGoogleChatSecurityWarnings = composeAccountWarningCollectors<
   ResolvedGoogleChatAccount,
   {
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     account: ResolvedGoogleChatAccount;
   }
 >(
@@ -103,7 +103,7 @@ export const googlechatSecurityAdapter = {
 
 export const googlechatThreadingAdapter = {
   scopedAccountReplyToMode: {
-    resolveAccount: (cfg: AssistantConfig, accountId?: string | null) =>
+    resolveAccount: (cfg: ZhushouConfig, accountId?: string | null) =>
       resolveGoogleChatAccount({ cfg, accountId }),
     resolveReplyToMode: (account: ResolvedGoogleChatAccount, _chatType?: string | null) =>
       account.config.replyToMode,
@@ -121,7 +121,7 @@ export const googlechatPairingTextAdapter = {
     message,
     accountId,
   }: {
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     id: string;
     message: string;
     accountId?: string | null;
@@ -179,7 +179,7 @@ export const googlechatOutboundAdapter = {
       replyToId,
       threadId,
     }: {
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       to: string;
       text: string;
       accountId?: string | null;
@@ -217,7 +217,7 @@ export const googlechatOutboundAdapter = {
       replyToId,
       threadId,
     }: {
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       to: string;
       text?: string;
       mediaUrl?: string;

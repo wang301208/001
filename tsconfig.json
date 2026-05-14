@@ -19,14 +19,14 @@
     "types": ["node"],
     "useDefineForClassFields": false,
     "paths": {
-      "assistant/extension-api": ["./src/extensionAPI.ts"],
-      "assistant/plugin-sdk": ["./src/plugin-sdk/index.ts"],
-      "assistant/plugin-sdk/*": ["./src/plugin-sdk/*.ts"],
-      "@assistant/plugin-sdk": ["./src/plugin-sdk/index.ts"],
-      "@assistant/plugin-sdk/*": ["./src/plugin-sdk/*.ts"],
-      "assistant/plugin-sdk/account-id": ["./src/plugin-sdk/account-id.ts"],
-      "@assistant/lobster-runtime/*": ["./packages/lobster-runtime/src/*.ts"],
-      "@assistant/*": ["./extensions/*"]
+      "zhushou/extension-api": ["./src/extensionAPI.ts"],
+      "zhushou/plugin-sdk": ["./src/plugin-sdk/index.ts"],
+      "zhushou/plugin-sdk/*": ["./src/plugin-sdk/*.ts"],
+      "@zhushou/plugin-sdk": ["./src/plugin-sdk/index.ts"],
+      "@zhushou/plugin-sdk/*": ["./src/plugin-sdk/*.ts"],
+      "zhushou/plugin-sdk/account-id": ["./src/plugin-sdk/account-id.ts"],
+      "@zhushou/lobster-runtime/*": ["./packages/lobster-runtime/src/*.ts"],
+      "@zhushou/*": ["./extensions/*"]
     }
   },
   "include": ["src/**/*", "extensions/**/*", "packages/**/*"],

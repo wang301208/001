@@ -249,7 +249,7 @@ function slugifySkillName(value: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 48);
-  return slug || "assistant-skill";
+  return slug || "zhushou-skill";
 }
 
 function yamlQuote(value: string): string {

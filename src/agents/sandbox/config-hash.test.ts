@@ -5,8 +5,8 @@ import { SANDBOX_MOUNT_FORMAT_VERSION } from "./workspace-mounts.js";
 
 function createDockerConfig(overrides?: Partial<SandboxDockerConfig>): SandboxDockerConfig {
   return {
-    image: "assistant-sandbox:test",
-    containerPrefix: "assistant-sbx-",
+    image: "zhushou-sandbox:test",
+    containerPrefix: "zhushou-sbx-",
     workdir: "/workspace",
     readOnlyRoot: true,
     tmpfs: ["/tmp", "/var/tmp", "/run"],

@@ -1,11 +1,11 @@
 import type {
   ChannelAccountSnapshot,
   ChannelStatusIssue,
-} from "assistant/plugin-sdk/channel-contract";
+} from "zhushou/plugin-sdk/channel-contract";
 import {
   coerceStatusIssueAccountId,
   readStatusIssueFields,
-} from "assistant/plugin-sdk/extension-shared";
+} from "zhushou/plugin-sdk/extension-shared";
 
 const ZALO_STATUS_FIELDS = ["accountId", "enabled", "configured", "dmPolicy"] as const;
 

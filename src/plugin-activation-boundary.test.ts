@@ -30,17 +30,17 @@ const loadBundledPluginPublicSurfaceModuleSync = vi.hoisted(() =>
           cdpProtocol: "http",
           color: "#FF4500",
           controlPort: 9223,
-          defaultProfile: "assistant",
+          defaultProfile: "zhushou",
           enabled: true,
           evaluateEnabled: true,
           extraArgs: [],
           headless: true,
           noSandbox: false,
           profiles: {
-            assistant: {
+            zhushou: {
               color: "#FF4500",
-              driver: "assistant",
-              name: "assistant",
+              driver: "zhushou",
+              name: "zhushou",
             },
           },
           remoteCdpHandshakeTimeoutMs: 3000,
@@ -53,8 +53,8 @@ const loadBundledPluginPublicSurfaceModuleSync = vi.hoisted(() =>
           cdpPort: 9222,
           cdpUrl: "http://127.0.0.1:9222",
           color: "#FF4500",
-          driver: "assistant",
-          name: "assistant",
+          driver: "zhushou",
+          name: "zhushou",
         }),
       };
     }
@@ -115,8 +115,8 @@ describe("plugin activation boundary", () => {
     | Promise<{
         DEFAULT_AI_SNAPSHOT_MAX_CHARS: typeof import("./plugin-sdk/browser-config.js").DEFAULT_AI_SNAPSHOT_MAX_CHARS;
         DEFAULT_BROWSER_EVALUATE_ENABLED: typeof import("./plugin-sdk/browser-config.js").DEFAULT_BROWSER_EVALUATE_ENABLED;
-        DEFAULT_ASSISTANT_BROWSER_COLOR: typeof import("./plugin-sdk/browser-config.js").DEFAULT_ASSISTANT_BROWSER_COLOR;
-        DEFAULT_ASSISTANT_BROWSER_PROFILE_NAME: typeof import("./plugin-sdk/browser-config.js").DEFAULT_ASSISTANT_BROWSER_PROFILE_NAME;
+        DEFAULT_ZHUSHOU_BROWSER_COLOR: typeof import("./plugin-sdk/browser-config.js").DEFAULT_ZHUSHOU_BROWSER_COLOR;
+        DEFAULT_ZHUSHOU_BROWSER_PROFILE_NAME: typeof import("./plugin-sdk/browser-config.js").DEFAULT_ZHUSHOU_BROWSER_PROFILE_NAME;
         DEFAULT_UPLOAD_DIR: typeof import("./plugin-sdk/browser-config.js").DEFAULT_UPLOAD_DIR;
         closeTrackedBrowserTabsForSessions: typeof import("./plugin-sdk/browser-maintenance.js").closeTrackedBrowserTabsForSessions;
         parseBrowserMajorVersion: typeof import("./plugin-sdk/browser-host-inspection.js").parseBrowserMajorVersion;
@@ -152,8 +152,8 @@ describe("plugin activation boundary", () => {
     ]).then(([config, inspection, maintenance]) => ({
       DEFAULT_AI_SNAPSHOT_MAX_CHARS: config.DEFAULT_AI_SNAPSHOT_MAX_CHARS,
       DEFAULT_BROWSER_EVALUATE_ENABLED: config.DEFAULT_BROWSER_EVALUATE_ENABLED,
-      DEFAULT_ASSISTANT_BROWSER_COLOR: config.DEFAULT_ASSISTANT_BROWSER_COLOR,
-      DEFAULT_ASSISTANT_BROWSER_PROFILE_NAME: config.DEFAULT_ASSISTANT_BROWSER_PROFILE_NAME,
+      DEFAULT_ZHUSHOU_BROWSER_COLOR: config.DEFAULT_ZHUSHOU_BROWSER_COLOR,
+      DEFAULT_ZHUSHOU_BROWSER_PROFILE_NAME: config.DEFAULT_ZHUSHOU_BROWSER_PROFILE_NAME,
       DEFAULT_UPLOAD_DIR: config.DEFAULT_UPLOAD_DIR,
       closeTrackedBrowserTabsForSessions: maintenance.closeTrackedBrowserTabsForSessions,
       parseBrowserMajorVersion: inspection.parseBrowserMajorVersion,
@@ -183,7 +183,7 @@ describe("plugin activation boundary", () => {
     expect(
       isStaticallyChannelConfigured({}, "irc", {
         IRC_HOST: "irc.example.com",
-        IRC_NICK: "assistant",
+        IRC_NICK: "zhushou",
       }),
     ).toBe(true);
     expect(isStaticallyChannelConfigured({}, "whatsapp", {})).toBe(false);
@@ -202,8 +202,8 @@ describe("plugin activation boundary", () => {
 
     expect(browser.DEFAULT_AI_SNAPSHOT_MAX_CHARS).toBe(80_000);
     expect(browser.DEFAULT_BROWSER_EVALUATE_ENABLED).toBe(true);
-    expect(browser.DEFAULT_ASSISTANT_BROWSER_COLOR).toBe("#FF4500");
-    expect(browser.DEFAULT_ASSISTANT_BROWSER_PROFILE_NAME).toBe("assistant");
+    expect(browser.DEFAULT_ZHUSHOU_BROWSER_COLOR).toBe("#FF4500");
+    expect(browser.DEFAULT_ZHUSHOU_BROWSER_PROFILE_NAME).toBe("zhushou");
     expect(browser.DEFAULT_UPLOAD_DIR).toContain("uploads");
     expect(loadBundledPluginPublicSurfaceModuleSync).not.toHaveBeenCalled();
     expect(browser.parseBrowserMajorVersion("Google Chrome 144.0.7534.0")).toBe(144);
@@ -212,9 +212,9 @@ describe("plugin activation boundary", () => {
       password: undefined,
     });
     const resolved = browser.resolveBrowserConfig(undefined, {});
-    expect(browser.resolveProfile(resolved, "assistant")).toEqual(
+    expect(browser.resolveProfile(resolved, "zhushou")).toEqual(
       expect.objectContaining({
-        name: "assistant",
+        name: "zhushou",
         cdpHost: "127.0.0.1",
       }),
     );

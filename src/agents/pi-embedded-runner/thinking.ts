@@ -3,14 +3,14 @@ import { createAssistantMessageEventStream } from "@mariozechner/pi-ai";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { log } from "./logger.js";
 
-type AssistantContentBlock = Extract<AgentMessage, { role: "assistant" }>["content"][number];
+type ZhushouContentBlock = Extract<AgentMessage, { role: "assistant" }>["content"][number];
 type AssistantMessage = Extract<AgentMessage, { role: "assistant" }>;
 type RecoveryAssessment = "valid" | "incomplete-thinking" | "incomplete-text";
 type RecoverySessionMeta = { id: string; recoveredAnthropicThinking?: boolean };
 
 const THINKING_BLOCK_ERROR_PATTERN = /thinking or redacted_thinking blocks?.* cannot be modified/i;
 
-export function isAssistantMessageWithContent(message: AgentMessage): message is AssistantMessage {
+export function isZhushouMessageWithContent(message: AgentMessage): message is AssistantMessage {
   return (
     !!message &&
     typeof message === "object" &&
@@ -19,7 +19,7 @@ export function isAssistantMessageWithContent(message: AgentMessage): message is
   );
 }
 
-function isThinkingBlock(block: AssistantContentBlock): boolean {
+function isThinkingBlock(block: ZhushouContentBlock): boolean {
   return (
     !!block &&
     typeof block === "object" &&
@@ -28,7 +28,7 @@ function isThinkingBlock(block: AssistantContentBlock): boolean {
   );
 }
 
-function isSignedThinkingBlock(block: AssistantContentBlock): boolean {
+function isSignedThinkingBlock(block: ZhushouContentBlock): boolean {
   if (!isThinkingBlock(block)) {
     return false;
   }
@@ -46,7 +46,7 @@ function isSignedThinkingBlock(block: AssistantContentBlock): boolean {
   );
 }
 
-function hasMeaningfulText(block: AssistantContentBlock): boolean {
+function hasMeaningfulText(block: ZhushouContentBlock): boolean {
   if (!block || typeof block !== "object" || (block as { type?: unknown }).type !== "text") {
     return false;
   }
@@ -57,23 +57,23 @@ function hasMeaningfulText(block: AssistantContentBlock): boolean {
 
 /**
  * Strip `type: "thinking"` and `type: "redacted_thinking"` content blocks from
- * all assistant messages except the latest one.
+ * all zhushou messages except the latest one.
  *
- * Thinking blocks in the latest assistant turn are preserved verbatim so
+ * Thinking blocks in the latest zhushou turn are preserved verbatim so
  * providers that require replay signatures can continue the conversation.
  *
- * If a non-latest assistant message becomes empty after stripping, it is
+ * If a non-latest zhushou message becomes empty after stripping, it is
  * replaced with a synthetic `{ type: "text", text: "" }` block to preserve
- * turn structure (some providers require strict user/assistant alternation).
+ * turn structure (some providers require strict user/zhushou alternation).
  *
  * Returns the original array reference when nothing was changed (callers can
  * use reference equality to skip downstream work).
  */
 export function dropThinkingBlocks(messages: AgentMessage[]): AgentMessage[] {
-  let latestAssistantIndex = -1;
+  let latestZhushouIndex = -1;
   for (let i = messages.length - 1; i >= 0; i -= 1) {
-    if (isAssistantMessageWithContent(messages[i])) {
-      latestAssistantIndex = i;
+    if (isZhushouMessageWithContent(messages[i])) {
+      latestZhushouIndex = i;
       break;
     }
   }
@@ -82,15 +82,15 @@ export function dropThinkingBlocks(messages: AgentMessage[]): AgentMessage[] {
   const out: AgentMessage[] = [];
   for (let i = 0; i < messages.length; i += 1) {
     const msg = messages[i];
-    if (!isAssistantMessageWithContent(msg)) {
+    if (!isZhushouMessageWithContent(msg)) {
       out.push(msg);
       continue;
     }
-    if (i === latestAssistantIndex) {
+    if (i === latestZhushouIndex) {
       out.push(msg);
       continue;
     }
-    const nextContent: AssistantContentBlock[] = [];
+    const nextContent: ZhushouContentBlock[] = [];
     let changed = false;
     for (const block of msg.content) {
       if (isThinkingBlock(block)) {
@@ -104,9 +104,9 @@ export function dropThinkingBlocks(messages: AgentMessage[]): AgentMessage[] {
       out.push(msg);
       continue;
     }
-    // Preserve the assistant turn even if all blocks were thinking-only.
+    // Preserve the zhushou turn even if all blocks were thinking-only.
     const content =
-      nextContent.length > 0 ? nextContent : [{ type: "text", text: "" } as AssistantContentBlock];
+      nextContent.length > 0 ? nextContent : [{ type: "text", text: "" } as ZhushouContentBlock];
     out.push({ ...msg, content });
   }
   return touched ? out : messages;
@@ -116,7 +116,7 @@ function stripAllThinkingBlocks(messages: AgentMessage[]): AgentMessage[] {
   let touched = false;
   const out: AgentMessage[] = [];
   for (const message of messages) {
-    if (!isAssistantMessageWithContent(message)) {
+    if (!isZhushouMessageWithContent(message)) {
       out.push(message);
       continue;
     }
@@ -133,14 +133,14 @@ function stripAllThinkingBlocks(messages: AgentMessage[]): AgentMessage[] {
       content:
         nextContent.length > 0
           ? nextContent
-          : ([{ type: "text", text: "" }] as AssistantContentBlock[]),
+          : ([{ type: "text", text: "" }] as ZhushouContentBlock[]),
     });
   }
   return touched ? out : messages;
 }
 
-export function assessLastAssistantMessage(message: AgentMessage): RecoveryAssessment {
-  if (!isAssistantMessageWithContent(message)) {
+export function assessLastZhushouMessage(message: AgentMessage): RecoveryAssessment {
+  if (!isZhushouMessageWithContent(message)) {
     return "valid";
   }
   if (message.content.length === 0) {
@@ -190,18 +190,18 @@ export function sanitizeThinkingForRecovery(messages: AgentMessage[]): {
     return { messages, prefill: false };
   }
 
-  let lastAssistantIndex = -1;
+  let lastZhushouIndex = -1;
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     if ((messages[index] as { role?: unknown }).role === "assistant") {
-      lastAssistantIndex = index;
+      lastZhushouIndex = index;
       break;
     }
   }
-  if (lastAssistantIndex === -1) {
+  if (lastZhushouIndex === -1) {
     return { messages, prefill: false };
   }
 
-  const assessment = assessLastAssistantMessage(messages[lastAssistantIndex]);
+  const assessment = assessLastZhushouMessage(messages[lastZhushouIndex]);
   if (assessment === "valid") {
     return { messages, prefill: false };
   }
@@ -210,7 +210,7 @@ export function sanitizeThinkingForRecovery(messages: AgentMessage[]): {
   }
 
   return {
-    messages: [...messages.slice(0, lastAssistantIndex), ...messages.slice(lastAssistantIndex + 1)],
+    messages: [...messages.slice(0, lastZhushouIndex), ...messages.slice(lastZhushouIndex + 1)],
     prefill: false,
   };
 }

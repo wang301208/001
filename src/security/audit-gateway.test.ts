@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import { collectGatewayConfigFindings } from "./audit.js";
 
@@ -20,8 +20,8 @@ describe("security audit gateway config findings", () => {
     await Promise.all([
       withEnvAsync(
         {
-          ASSISTANT_GATEWAY_TOKEN: undefined,
-          ASSISTANT_GATEWAY_PASSWORD: undefined,
+          ZHUSHOU_GATEWAY_TOKEN: undefined,
+          ZHUSHOU_GATEWAY_PASSWORD: undefined,
         },
         async () => {
           const findings = collectGatewayConfigFindings(
@@ -43,14 +43,14 @@ describe("security audit gateway config findings", () => {
         },
       ),
       (async () => {
-        const cfg: AssistantConfig = {
+        const cfg: ZhushouConfig = {
           gateway: {
             bind: "lan",
             auth: {
               password: {
                 source: "env",
                 provider: "default",
-                id: "ASSISTANT_GATEWAY_PASSWORD",
+                id: "ZHUSHOU_GATEWAY_PASSWORD",
               },
             },
           },
@@ -59,14 +59,14 @@ describe("security audit gateway config findings", () => {
         expect(hasFinding("gateway.bind_no_auth", findings)).toBe(false);
       })(),
       (async () => {
-        const sourceConfig: AssistantConfig = {
+        const sourceConfig: ZhushouConfig = {
           gateway: {
             bind: "lan",
             auth: {
               token: {
                 source: "env",
                 provider: "default",
-                id: "ASSISTANT_GATEWAY_TOKEN",
+                id: "ZHUSHOU_GATEWAY_TOKEN",
               },
             },
           },
@@ -76,7 +76,7 @@ describe("security audit gateway config findings", () => {
             },
           },
         };
-        const resolvedConfig: AssistantConfig = {
+        const resolvedConfig: ZhushouConfig = {
           gateway: {
             bind: "lan",
             auth: {},
@@ -87,7 +87,7 @@ describe("security audit gateway config findings", () => {
         expect(hasFinding("gateway.bind_no_auth", findings)).toBe(false);
       })(),
       (async () => {
-        const cfg: AssistantConfig = {
+        const cfg: ZhushouConfig = {
           gateway: {
             bind: "lan",
             auth: { token: "secret" },
@@ -97,7 +97,7 @@ describe("security audit gateway config findings", () => {
         expect(hasFindingWithSeverity("gateway.auth_no_rate_limit", "warn", findings)).toBe(true);
       })(),
       (async () => {
-        const cfg: AssistantConfig = {
+        const cfg: ZhushouConfig = {
           gateway: {
             bind: "lan",
             auth: {

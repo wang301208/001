@@ -1,1 +1,1 @@
-export { resolvePreferredAssistantTmpDir } from "../../infra/tmp-assistant-dir.js";
+export { resolvePreferredZhushouTmpDir } from "../../infra/tmp-zhushou-dir.js";

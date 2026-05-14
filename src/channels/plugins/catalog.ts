@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { MANIFEST_KEY } from "../../project-name.js";
-import { resolveAssistantPackageRootSync } from "../../infra/assistant-root.js";
+import { resolveZhushouPackageRootSync } from "../../infra/zhushou-root.js";
 import { listChannelCatalogEntries } from "../../plugins/channel-catalog-registry.js";
-import type { AssistantPackageManifest } from "../../plugins/manifest.js";
+import type { ZhushouPackageManifest } from "../../plugins/manifest.js";
 import type { PluginPackageChannel, PluginPackageInstall } from "../../plugins/manifest.js";
 import type { PluginOrigin } from "../../plugins/plugin-origin.types.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
@@ -61,9 +61,9 @@ type ExternalCatalogEntry = {
   name?: string;
   version?: string;
   description?: string;
-} & Partial<Record<ManifestKey, AssistantPackageManifest>>;
+} & Partial<Record<ManifestKey, ZhushouPackageManifest>>;
 
-const ENV_CATALOG_PATHS = ["ASSISTANT_PLUGIN_CATALOG_PATHS", "ASSISTANT_MPM_CATALOG_PATHS"];
+const ENV_CATALOG_PATHS = ["ZHUSHOU_PLUGIN_CATALOG_PATHS", "ZHUSHOU_MPM_CATALOG_PATHS"];
 const OFFICIAL_CHANNEL_CATALOG_RELATIVE_PATH = path.join("dist", "channel-catalog.json");
 
 type ManifestKey = typeof MANIFEST_KEY;
@@ -146,8 +146,8 @@ function resolveOfficialCatalogPaths(options: CatalogOptions): string[] {
   }
 
   const packageRoots = [
-    resolveAssistantPackageRootSync({ cwd: process.cwd() }),
-    resolveAssistantPackageRootSync({ moduleUrl: import.meta.url }),
+    resolveZhushouPackageRootSync({ cwd: process.cwd() }),
+    resolveZhushouPackageRootSync({ moduleUrl: import.meta.url }),
   ].filter((entry, index, all): entry is string => Boolean(entry) && all.indexOf(entry) === index);
 
   const candidates = packageRoots.map((packageRoot) =>
@@ -170,7 +170,7 @@ function loadOfficialCatalogEntries(options: CatalogOptions): ChannelPluginCatal
 }
 
 function toChannelMeta(params: {
-  channel: NonNullable<AssistantPackageManifest["channel"]>;
+  channel: NonNullable<ZhushouPackageManifest["channel"]>;
   id: string;
 }): ChannelMeta | null {
   const label = params.channel.label?.trim();

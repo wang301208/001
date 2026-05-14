@@ -333,7 +333,7 @@ describe("config schema regressions", () => {
       discovery: {
         wideArea: {
           enabled: true,
-          domain: "assistant.internal",
+          domain: "zhushou.internal",
         },
       },
     });

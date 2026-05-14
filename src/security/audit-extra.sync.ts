@@ -19,7 +19,7 @@ import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
 } from "../config/model-input.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { resolveAllowedAgentIds } from "../gateway/hooks-policy.js";
@@ -75,7 +75,7 @@ function addModel(models: ModelRef[], raw: unknown, source: string) {
   models.push({ id, source });
 }
 
-function collectModels(cfg: AssistantConfig): ModelRef[] {
+function collectModels(cfg: ZhushouConfig): ModelRef[] {
   const out: ModelRef[] = [];
   addModel(
     out,
@@ -117,7 +117,7 @@ function collectModels(cfg: AssistantConfig): ModelRef[] {
   return out;
 }
 
-function isGatewayRemotelyExposed(cfg: AssistantConfig): boolean {
+function isGatewayRemotelyExposed(cfg: ZhushouConfig): boolean {
   const bind = typeof cfg.gateway?.bind === "string" ? cfg.gateway.bind : "loopback";
   if (bind !== "loopback") {
     return true;
@@ -172,8 +172,8 @@ function isWildcardEntry(value: unknown): boolean {
   return normalizeStringifiedOptionalString(value) === "*";
 }
 
-function listKnownNodeCommands(cfg: AssistantConfig): Set<string> {
-  const baseCfg: AssistantConfig = {
+function listKnownNodeCommands(cfg: ZhushouConfig): Set<string> {
+  const baseCfg: ZhushouConfig = {
     ...cfg,
     gateway: {
       ...cfg.gateway,
@@ -197,7 +197,7 @@ function listKnownNodeCommands(cfg: AssistantConfig): Set<string> {
 }
 
 function resolveToolPolicies(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentTools?: AgentToolsConfig;
   sandboxMode?: "off" | "non-main" | "all";
   agentId?: string | null;
@@ -299,7 +299,7 @@ function suggestKnownNodeCommands(unknown: string, known: Set<string>): string[]
     .map((r) => r.cmd);
 }
 
-function listGroupPolicyOpen(cfg: AssistantConfig): string[] {
+function listGroupPolicyOpen(cfg: ZhushouConfig): string[] {
   const out: string[] = [];
   const channels = cfg.channels as Record<string, unknown> | undefined;
   if (!channels || typeof channels !== "object") {
@@ -337,7 +337,7 @@ function hasConfiguredGroupTargets(section: Record<string, unknown>): boolean {
   });
 }
 
-function listPotentialMultiUserSignals(cfg: AssistantConfig): string[] {
+function listPotentialMultiUserSignals(cfg: ZhushouConfig): string[] {
   const out = new Set<string>();
   const channels = cfg.channels as Record<string, unknown> | undefined;
   if (!channels || typeof channels !== "object") {
@@ -405,7 +405,7 @@ function listPotentialMultiUserSignals(cfg: AssistantConfig): string[] {
   return Array.from(out);
 }
 
-function collectRiskyToolExposureContexts(cfg: AssistantConfig): {
+function collectRiskyToolExposureContexts(cfg: ZhushouConfig): {
   riskyContexts: string[];
   hasRuntimeRisk: boolean;
 } {
@@ -475,13 +475,13 @@ export function collectSyncedFolderFindings(params: {
       severity: "warn",
       title: "State/config path looks like a synced folder",
       detail: `stateDir=${params.stateDir}, configPath=${params.configPath}. Synced folders (iCloud/Dropbox/OneDrive/Google Drive) can leak tokens and transcripts onto other devices.`,
-      remediation: `Keep ASSISTANT_STATE_DIR on a local-only volume and re-run "${formatCliCommand("assistant security audit --fix")}".`,
+      remediation: `Keep ZHUSHOU_STATE_DIR on a local-only volume and re-run "${formatCliCommand("zhushou security audit --fix")}".`,
     });
   }
   return findings;
 }
 
-export function collectSecretsInConfigFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectSecretsInConfigFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const password = normalizeOptionalString(cfg.gateway?.auth?.password) ?? "";
   if (password && !looksLikeEnvRef(password)) {
@@ -492,7 +492,7 @@ export function collectSecretsInConfigFindings(cfg: AssistantConfig): SecurityAu
       detail:
         "gateway.auth.password is set in the config file; prefer environment variables for secrets when possible.",
       remediation:
-        "Prefer ASSISTANT_GATEWAY_PASSWORD (env) and remove gateway.auth.password from disk.",
+        "Prefer ZHUSHOU_GATEWAY_PASSWORD (env) and remove gateway.auth.password from disk.",
     });
   }
 
@@ -511,7 +511,7 @@ export function collectSecretsInConfigFindings(cfg: AssistantConfig): SecurityAu
 }
 
 export function collectHooksHardeningFindings(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
@@ -534,17 +534,17 @@ export function collectHooksHardeningFindings(
     tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
     env,
   });
-  const assistantGatewayToken =
-    typeof env.ASSISTANT_GATEWAY_TOKEN === "string" && env.ASSISTANT_GATEWAY_TOKEN.trim()
-      ? env.ASSISTANT_GATEWAY_TOKEN.trim()
+  const zhushouGatewayToken =
+    typeof env.ZHUSHOU_GATEWAY_TOKEN === "string" && env.ZHUSHOU_GATEWAY_TOKEN.trim()
+      ? env.ZHUSHOU_GATEWAY_TOKEN.trim()
       : null;
   const gatewayToken =
     gatewayAuth.mode === "token" &&
     typeof gatewayAuth.token === "string" &&
     gatewayAuth.token.trim()
       ? gatewayAuth.token.trim()
-      : assistantGatewayToken
-        ? assistantGatewayToken
+      : zhushouGatewayToken
+        ? zhushouGatewayToken
         : null;
   if (token && gatewayToken && token === gatewayToken) {
     findings.push({
@@ -629,7 +629,7 @@ export function collectHooksHardeningFindings(
 }
 
 export function collectGatewayHttpSessionKeyOverrideFindings(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const chatCompletionsEnabled = cfg.gateway?.http?.endpoints?.chatCompletions?.enabled === true;
@@ -648,7 +648,7 @@ export function collectGatewayHttpSessionKeyOverrideFindings(
     severity: "info",
     title: "HTTP API session-key override is enabled",
     detail:
-      `${enabledEndpoints.join(", ")} accept x-assistant-session-key for per-request session routing. ` +
+      `${enabledEndpoints.join(", ")} accept x-zhushou-session-key for per-request session routing. ` +
       "Treat API credential holders as trusted principals.",
   });
 
@@ -656,7 +656,7 @@ export function collectGatewayHttpSessionKeyOverrideFindings(
 }
 
 export function collectGatewayHttpNoAuthFindings(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   env: NodeJS.ProcessEnv,
 ): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
@@ -689,7 +689,7 @@ export function collectGatewayHttpNoAuthFindings(
   return findings;
 }
 
-export function collectSandboxDockerNoopFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectSandboxDockerNoopFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const configuredPaths: string[] = [];
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
@@ -739,7 +739,7 @@ export function collectSandboxDockerNoopFindings(cfg: AssistantConfig): Security
   return findings;
 }
 
-export function collectSandboxDangerousConfigFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectSandboxDangerousConfigFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
 
@@ -851,7 +851,7 @@ export function collectSandboxDangerousConfigFindings(cfg: AssistantConfig): Sec
   return findings;
 }
 
-export function collectNodeDenyCommandPatternFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectNodeDenyCommandPatternFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const denyListRaw = cfg.gateway?.nodes?.denyCommands;
   if (!Array.isArray(denyListRaw) || denyListRaw.length === 0) {
@@ -909,7 +909,7 @@ export function collectNodeDenyCommandPatternFindings(cfg: AssistantConfig): Sec
 }
 
 export function collectNodeDangerousAllowCommandFindings(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const allowRaw = cfg.gateway?.nodes?.allowCommands;
@@ -945,7 +945,7 @@ export function collectNodeDangerousAllowCommandFindings(
   return findings;
 }
 
-export function collectMinimalProfileOverrideFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectMinimalProfileOverrideFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   if (cfg.tools?.profile !== "minimal") {
     return findings;
@@ -981,7 +981,7 @@ export function collectMinimalProfileOverrideFindings(cfg: AssistantConfig): Sec
   return findings;
 }
 
-export function collectModelHygieneFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectModelHygieneFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const models = collectModels(cfg);
   if (models.length === 0) {
@@ -1066,7 +1066,7 @@ export function collectModelHygieneFindings(cfg: AssistantConfig): SecurityAudit
   return findings;
 }
 
-export function collectExposureMatrixFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectExposureMatrixFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const openGroups = listGroupPolicyOpen(cfg);
   if (openGroups.length === 0) {
@@ -1105,7 +1105,7 @@ export function collectExposureMatrixFindings(cfg: AssistantConfig): SecurityAud
   return findings;
 }
 
-export function collectLikelyMultiUserSetupFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectLikelyMultiUserSetupFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const signals = listPotentialMultiUserSignals(cfg);
   if (signals.length === 0) {
@@ -1124,12 +1124,12 @@ export function collectLikelyMultiUserSetupFindings(cfg: AssistantConfig): Secur
   findings.push({
     checkId: "security.trust_model.multi_user_heuristic",
     severity: "warn",
-    title: "Potential multi-user setup detected (personal-assistant model warning)",
+    title: "Potential multi-user setup detected (personal-zhushou model warning)",
     detail:
       "Heuristic signals indicate this gateway may be reachable by multiple users:\n" +
       signals.map((signal) => `- ${signal}`).join("\n") +
       `\n${impactLine}\n${riskyContextsDetail}\n` +
-      "助手's default security model is personal-assistant (one trusted operator boundary), not hostile multi-tenant isolation on one shared gateway.",
+      "助手's default security model is personal-zhushou (one trusted operator boundary), not hostile multi-tenant isolation on one shared gateway.",
     remediation:
       'If users may be mutually untrusted, split trust boundaries (separate gateways + credentials, ideally separate OS users/hosts). If you intentionally run shared-user access, set agents.defaults.sandbox.mode="all", keep tools.fs.workspaceOnly=true, deny runtime/fs/web tools unless required, and keep personal/private identities + credentials off that runtime.',
   });

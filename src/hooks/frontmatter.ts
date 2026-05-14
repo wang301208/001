@@ -1,18 +1,18 @@
 import { parseFrontmatterBlock } from "../markdown/frontmatter.js";
 import {
-  applyAssistantManifestInstallCommonFields,
+  applyZhushouManifestInstallCommonFields,
   getFrontmatterString,
   normalizeStringList,
-  parseAssistantManifestInstallBase,
+  parseZhushouManifestInstallBase,
   parseFrontmatterBool,
-  resolveAssistantManifestBlock,
-  resolveAssistantManifestInstall,
-  resolveAssistantManifestOs,
-  resolveAssistantManifestRequires,
+  resolveZhushouManifestBlock,
+  resolveZhushouManifestInstall,
+  resolveZhushouManifestOs,
+  resolveZhushouManifestRequires,
 } from "../shared/frontmatter.js";
 import { readStringValue } from "../shared/string-coerce.js";
 import type {
-  AssistantHookMetadata,
+  ZhushouHookMetadata,
   HookEntry,
   HookInstallSpec,
   HookInvocationPolicy,
@@ -24,12 +24,12 @@ export function parseFrontmatter(content: string): ParsedHookFrontmatter {
 }
 
 function parseInstallSpec(input: unknown): HookInstallSpec | undefined {
-  const parsed = parseAssistantManifestInstallBase(input, ["bundled", "npm", "git"]);
+  const parsed = parseZhushouManifestInstallBase(input, ["bundled", "npm", "git"]);
   if (!parsed) {
     return undefined;
   }
   const { raw } = parsed;
-  const spec = applyAssistantManifestInstallCommonFields<HookInstallSpec>(
+  const spec = applyZhushouManifestInstallCommonFields<HookInstallSpec>(
     {
       kind: parsed.kind as HookInstallSpec["kind"],
     },
@@ -45,16 +45,16 @@ function parseInstallSpec(input: unknown): HookInstallSpec | undefined {
   return spec;
 }
 
-export function resolveAssistantMetadata(
+export function resolveZhushouMetadata(
   frontmatter: ParsedHookFrontmatter,
-): AssistantHookMetadata | undefined {
-  const metadataObj = resolveAssistantManifestBlock({ frontmatter });
+): ZhushouHookMetadata | undefined {
+  const metadataObj = resolveZhushouManifestBlock({ frontmatter });
   if (!metadataObj) {
     return undefined;
   }
-  const requires = resolveAssistantManifestRequires(metadataObj);
-  const install = resolveAssistantManifestInstall(metadataObj, parseInstallSpec);
-  const osRaw = resolveAssistantManifestOs(metadataObj);
+  const requires = resolveZhushouManifestRequires(metadataObj);
+  const install = resolveZhushouManifestInstall(metadataObj, parseInstallSpec);
+  const osRaw = resolveZhushouManifestOs(metadataObj);
   const eventsRaw = normalizeStringList(metadataObj.events);
   return {
     always: typeof metadataObj.always === "boolean" ? metadataObj.always : undefined,

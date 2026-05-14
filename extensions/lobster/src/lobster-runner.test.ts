@@ -21,12 +21,12 @@ describe("createEmbeddedLobsterRunner", () => {
     vi.restoreAllMocks();
   });
 
-  it("uses the local assistant runtime by default", async () => {
+  it("uses the local zhushou runtime by default", async () => {
     const runner = createEmbeddedLobsterRunner();
 
     const envelope = await runner.run({
       action: "run",
-      pipeline: "echo assistant-lobster-runtime",
+      pipeline: "echo zhushou-lobster-runtime",
       cwd: process.cwd(),
       timeoutMs: 2000,
       maxStdoutBytes: 4096,
@@ -38,7 +38,7 @@ describe("createEmbeddedLobsterRunner", () => {
       output: [
         {
           exitCode: 0,
-          stdout: expect.stringContaining("assistant-lobster-runtime"),
+          stdout: expect.stringContaining("zhushou-lobster-runtime"),
           stderr: "",
         },
       ],
@@ -88,7 +88,7 @@ describe("createEmbeddedLobsterRunner", () => {
   });
 
   it("detects workflow files and parses argsJson", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-lobster-runner-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-lobster-runner-"));
     const workflowPath = path.join(tempDir, "workflow.lobster");
     await fs.writeFile(workflowPath, "steps: []\n", "utf8");
 
@@ -131,7 +131,7 @@ describe("createEmbeddedLobsterRunner", () => {
   });
 
   it("returns a parse error when workflow args are invalid JSON", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-lobster-runner-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-lobster-runner-"));
     const workflowPath = path.join(tempDir, "workflow.lobster");
     await fs.writeFile(workflowPath, "steps: []\n", "utf8");
 

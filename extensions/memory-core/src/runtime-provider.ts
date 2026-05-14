@@ -1,5 +1,5 @@
-import type { MemoryPluginRuntime } from "assistant/plugin-sdk/memory-core-host-runtime-core";
-import { resolveMemoryBackendConfig } from "assistant/plugin-sdk/memory-core-host-runtime-files";
+import type { MemoryPluginRuntime } from "zhushou/plugin-sdk/memory-core-host-runtime-core";
+import { resolveMemoryBackendConfig } from "zhushou/plugin-sdk/memory-core-host-runtime-files";
 import { closeAllMemorySearchManagers, getMemorySearchManager } from "./memory/index.js";
 
 export const memoryRuntime: MemoryPluginRuntime = {

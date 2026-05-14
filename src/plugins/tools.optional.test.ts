@@ -7,7 +7,7 @@ type MockRegistryToolEntry = {
   factory: (ctx: unknown) => unknown;
 };
 
-const loadAssistantPluginsMock = vi.fn();
+const loadZhushouPluginsMock = vi.fn();
 const resolveRuntimePluginRegistryMock = vi.fn();
 const applyPluginAutoEnableMock = vi.fn();
 
@@ -74,7 +74,7 @@ function setRegistry(entries: MockRegistryToolEntry[]) {
       message: string;
     }>,
   };
-  loadAssistantPluginsMock.mockReturnValue(registry);
+  loadZhushouPluginsMock.mockReturnValue(registry);
   return registry;
 }
 
@@ -164,7 +164,7 @@ function expectResolvedToolNames(
 }
 
 function expectLoaderCall(overrides: Record<string, unknown>) {
-  expect(loadAssistantPluginsMock).toHaveBeenCalledWith(expect.objectContaining(overrides));
+  expect(loadZhushouPluginsMock).toHaveBeenCalledWith(expect.objectContaining(overrides));
 }
 
 function expectSingleDiagnosticMessage(
@@ -199,10 +199,10 @@ describe("resolvePluginTools optional tools", () => {
   });
 
   beforeEach(() => {
-    loadAssistantPluginsMock.mockClear();
+    loadZhushouPluginsMock.mockClear();
     resolveRuntimePluginRegistryMock.mockReset();
     resolveRuntimePluginRegistryMock.mockImplementation((params) =>
-      loadAssistantPluginsMock(params),
+      loadZhushouPluginsMock(params),
     );
     applyPluginAutoEnableMock.mockReset();
     applyPluginAutoEnableMock.mockImplementation(({ config }: { config: unknown }) => ({
@@ -283,11 +283,11 @@ describe("resolvePluginTools optional tools", () => {
     {
       name: "forwards an explicit env to plugin loading",
       params: {
-        env: { ASSISTANT_HOME: "/srv/assistant-home" } as NodeJS.ProcessEnv,
+        env: { ZHUSHOU_HOME: "/srv/zhushou-home" } as NodeJS.ProcessEnv,
         toolAllowlist: ["optional_tool"],
       },
       expectedLoaderCall: {
-        env: { ASSISTANT_HOME: "/srv/assistant-home" },
+        env: { ZHUSHOU_HOME: "/srv/zhushou-home" },
       },
     },
     {
@@ -350,7 +350,7 @@ describe("resolvePluginTools optional tools", () => {
     );
 
     expectResolvedToolNames(tools, ["optional_tool"]);
-    expect(loadAssistantPluginsMock).not.toHaveBeenCalled();
+    expect(loadZhushouPluginsMock).not.toHaveBeenCalled();
   });
 
   it("reuses the active registry for gateway-bindable tool loads before reloading", () => {
@@ -367,7 +367,7 @@ describe("resolvePluginTools optional tools", () => {
 
     expectResolvedToolNames(tools, ["optional_tool"]);
     expect(resolveRuntimePluginRegistryMock).not.toHaveBeenCalled();
-    expect(loadAssistantPluginsMock).not.toHaveBeenCalled();
+    expect(loadZhushouPluginsMock).not.toHaveBeenCalled();
   });
 
   it("loads plugin tools when gateway-bindable tool loads have no active registry", () => {
@@ -405,7 +405,7 @@ describe("resolvePluginTools optional tools", () => {
       toolAllowlist: ["optional_tool"],
     });
 
-    expect(loadAssistantPluginsMock).toHaveBeenCalledWith(
+    expect(loadZhushouPluginsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         runtimeOptions: {
           allowGatewaySubagentBinding: true,

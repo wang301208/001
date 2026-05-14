@@ -1,1 +1,1 @@
-export { ensureAssistantModelsJson } from "./models-config.js";
+export { ensureZhushouModelsJson } from "./models-config.js";

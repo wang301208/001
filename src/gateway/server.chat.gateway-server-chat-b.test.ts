@@ -53,7 +53,7 @@ async function withGatewayChatHarness(
   const tempDirs: string[] = [];
   const ws = await harness.openWs();
   const createSessionDir = async () => {
-    const sessionDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-gw-"));
+    const sessionDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-gw-"));
     tempDirs.push(sessionDir);
     testState.sessionStorePath = path.join(sessionDir, "sessions.json");
     return sessionDir;
@@ -79,9 +79,9 @@ async function writeMainSessionStore() {
 }
 
 async function writeGatewayConfig(config: Record<string, unknown>) {
-  const configPath = process.env.ASSISTANT_CONFIG_PATH;
+  const configPath = process.env.ZHUSHOU_CONFIG_PATH;
   if (!configPath) {
-    throw new Error("ASSISTANT_CONFIG_PATH missing in gateway test environment");
+    throw new Error("ZHUSHOU_CONFIG_PATH missing in gateway test environment");
   }
   await fs.mkdir(path.dirname(configPath), { recursive: true });
   await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf-8");
@@ -149,12 +149,12 @@ describe("gateway server chat", () => {
             message: {
               role: "user",
               content:
-                'Sender (untrusted metadata):\n```json\n{"label":"assistant-control-ui"}\n```\n\n[Thu 2026-03-26 16:29 GMT] hi',
+                'Sender (untrusted metadata):\n```json\n{"label":"zhushou-control-ui"}\n```\n\n[Thu 2026-03-26 16:29 GMT] hi',
             },
           }),
           JSON.stringify({
-            type: "assistant",
-            uuid: "assistant-1",
+            type: "zhushou",
+            uuid: "zhushou-1",
             timestamp: "2026-03-26T16:29:55.500Z",
             message: {
               role: "assistant",
@@ -391,7 +391,7 @@ describe("gateway server chat", () => {
     });
   });
 
-  test("chat.history preserves usage and cost metadata for assistant messages", async () => {
+  test("chat.history preserves usage and cost metadata for zhushou messages", async () => {
     await withGatewayChatHarness(async ({ ws, createSessionDir }) => {
       await connectOk(ws);
 
@@ -557,7 +557,7 @@ describe("gateway server chat", () => {
     });
   });
 
-  test("chat.history still drops assistant NO_REPLY entries before truncation", async () => {
+  test("chat.history still drops zhushou NO_REPLY entries before truncation", async () => {
     await withGatewayChatHarness(async ({ ws, createSessionDir }) => {
       const sessionDir = await prepareMainHistoryHarness({ ws, createSessionDir });
       await writeMainSessionTranscript(sessionDir, [

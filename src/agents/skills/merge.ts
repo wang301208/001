@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { resolveSandboxPath } from "../sandbox-paths.js";
 import type { SkillEntry } from "./types.js";
 import { loadWorkspaceSkillEntries } from "./workspace.js";
@@ -33,7 +33,7 @@ export type SkillMergeParams = {
   description?: string;
   conflictStrategy?: SkillMergeConflictStrategy;
   overwrite?: boolean;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   managedSkillsDir?: string;
   bundledSkillsDir?: string;
 };
@@ -260,7 +260,7 @@ function buildMergedSkillMarkdown(params: {
 
 function resolveSourceSkills(params: {
   workspaceDir: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   managedSkillsDir?: string;
   bundledSkillsDir?: string;
   sourceSkillNames: string[];

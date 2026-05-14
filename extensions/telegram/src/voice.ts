@@ -1,4 +1,4 @@
-import { isTelegramVoiceCompatibleAudio } from "assistant/plugin-sdk/media-runtime";
+import { isTelegramVoiceCompatibleAudio } from "zhushou/plugin-sdk/media-runtime";
 
 export function resolveTelegramVoiceDecision(opts: {
   wantsVoice: boolean;

@@ -1,8 +1,8 @@
 import { getRuntimeConfigSnapshot } from "../../config/runtime-snapshot.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { coerceSecretRef } from "../../config/types.secrets.js";
 
-function hasConfiguredSkillApiKeyRef(config?: AssistantConfig): boolean {
+function hasConfiguredSkillApiKeyRef(config?: ZhushouConfig): boolean {
   const entries = config?.skills?.entries;
   if (!entries || typeof entries !== "object") {
     return false;
@@ -18,7 +18,7 @@ function hasConfiguredSkillApiKeyRef(config?: AssistantConfig): boolean {
   return false;
 }
 
-export function resolveSkillRuntimeConfig(config?: AssistantConfig): AssistantConfig | undefined {
+export function resolveSkillRuntimeConfig(config?: ZhushouConfig): ZhushouConfig | undefined {
   const runtimeConfig = getRuntimeConfigSnapshot();
   if (!runtimeConfig) {
     return config;

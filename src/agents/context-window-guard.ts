@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveProviderEndpoint } from "./provider-attribution.js";
 import { findNormalizedProviderValue } from "./provider-id.js";
 
@@ -25,7 +25,7 @@ function normalizePositiveInt(value: unknown): number | null {
 }
 
 export function resolveContextWindowInfo(params: {
-  cfg: AssistantConfig | undefined;
+  cfg: ZhushouConfig | undefined;
   provider: string;
   modelId: string;
   modelContextTokens?: number;
@@ -94,13 +94,13 @@ export function formatContextWindowWarningMessage(params: {
   }
   if (params.guard.source === "agentContextTokens") {
     return (
-      `${base}; the assistant is capped by agents.defaults.contextTokens, so raise that cap ` +
+      `${base}; the zhushou is capped by agents.defaults.contextTokens, so raise that cap ` +
       `if you want to use more of the model context window`
     );
   }
   if (params.guard.source === "modelsConfig") {
     return (
-      `${base}; the assistant is using the configured model context limit for this model, ` +
+      `${base}; the zhushou is using the configured model context limit for this model, ` +
       `so raise contextWindow/contextTokens if it is set too low`
     );
   }
@@ -122,18 +122,18 @@ export function formatContextWindowBlockMessage(params: {
     return base;
   }
   if (params.guard.source === "agentContextTokens") {
-    return `${base} The assistant is capped by agents.defaults.contextTokens. Raise that cap.`;
+    return `${base} The zhushou is capped by agents.defaults.contextTokens. Raise that cap.`;
   }
   if (params.guard.source === "modelsConfig") {
     return (
-      `${base} The assistant is using the configured model context limit for this model. ` +
+      `${base} The zhushou is using the configured model context limit for this model. ` +
       `Raise contextWindow/contextTokens or choose a larger model.`
     );
   }
   return (
     `${base} This looks like a local model endpoint. ` +
     `Raise the server/model context limit or choose a larger model. ` +
-    `Assistant local/self-hosted runs work best at ${CONTEXT_WINDOW_WARN_BELOW_TOKENS}+ tokens.`
+    `Zhushou local/self-hosted runs work best at ${CONTEXT_WINDOW_WARN_BELOW_TOKENS}+ tokens.`
   );
 }
 

@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { listChannelPlugins } from "./registry.js";
 
 type ChannelStartupLogger = {
@@ -7,7 +7,7 @@ type ChannelStartupLogger = {
 };
 
 export async function runChannelPluginStartupMaintenance(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   log: ChannelStartupLogger;
   trigger?: string;

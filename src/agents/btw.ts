@@ -16,7 +16,7 @@ import {
   resolveSessionFilePathOptions,
   type SessionEntry,
 } from "../config/sessions.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { diagnosticLogger as diag } from "../logging/diagnostic.js";
 import { prepareProviderRuntimeAuth } from "../plugins/provider-runtime.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
@@ -27,7 +27,7 @@ import {
   type ImageSanitizationLimits,
 } from "./image-sanitization.js";
 import { getApiKeyForModel, requireApiKey } from "./model-auth.js";
-import { ensureAssistantModelsJson } from "./models-config.js";
+import { ensureZhushouModelsJson } from "./models-config.js";
 import { EmbeddedBlockChunker, type BlockReplyChunking } from "./pi-embedded-block-chunker.js";
 import { resolveModelWithRegistry } from "./pi-embedded-runner/model.js";
 import { getActiveEmbeddedRunSnapshot } from "./pi-embedded-runner/runs.js";
@@ -161,7 +161,7 @@ async function sanitizeBtwUserMessage(params: {
   };
 }
 
-function sanitizeBtwAssistantMessage(
+function sanitizeBtwZhushouMessage(
   message: Extract<Message, { role: "assistant" }>,
 ): Extract<Message, { role: "assistant" }> | undefined {
   const rawContent = (message as { content?: unknown }).content;
@@ -215,7 +215,7 @@ async function toSimpleContextMessages(params: {
     }
     // BTW is a no-tools path, so keep only user-visible blocks from prior
     // messages and strip hidden reasoning/tool replay data.
-    const sanitizedMessage = sanitizeBtwAssistantMessage(
+    const sanitizedMessage = sanitizeBtwZhushouMessage(
       message as Extract<Message, { role: "assistant" }>,
     );
     if (sanitizedMessage) {
@@ -249,7 +249,7 @@ function resolveSessionTranscriptPath(params: {
 }
 
 async function resolveRuntimeModel(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   provider: string;
   model: string;
   agentDir: string;
@@ -263,7 +263,7 @@ async function resolveRuntimeModel(params: {
   authProfileId?: string;
   authProfileIdSource?: "auto" | "user";
 }> {
-  await ensureAssistantModelsJson(params.cfg, params.agentDir);
+  await ensureZhushouModelsJson(params.cfg, params.agentDir);
   const authStorage = discoverAuthStorage(params.agentDir);
   const modelRegistry = discoverModels(authStorage, params.agentDir);
   const model = resolveModelWithRegistry({
@@ -294,7 +294,7 @@ async function resolveRuntimeModel(params: {
 }
 
 type RunBtwSideQuestionParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentDir: string;
   provider: string;
   model: string;
@@ -440,7 +440,7 @@ export async function runBtwSideQuestion(
   let blockEmitChain: Promise<void> = Promise.resolve();
   let answerText = "";
   let reasoningText = "";
-  let assistantStarted = false;
+  let zhushouStarted = false;
   let sawTextEvent = false;
 
   const emitBlockChunk = async (text: string) => {
@@ -501,9 +501,9 @@ export async function runBtwSideQuestion(
   for await (const event of stream) {
     finalEvent = event.type === "done" || event.type === "error" ? event : finalEvent;
 
-    if (!assistantStarted && (event.type === "text_start" || event.type === "start")) {
-      assistantStarted = true;
-      await params.opts?.onAssistantMessageStart?.();
+    if (!zhushouStarted && (event.type === "text_start" || event.type === "start")) {
+      zhushouStarted = true;
+      await params.opts?.onZhushouMessageStart?.();
     }
 
     if (event.type === "text_delta") {

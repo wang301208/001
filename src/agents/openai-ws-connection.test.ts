@@ -242,9 +242,9 @@ describe("OpenAIWebSocketManager", () => {
       const sock = lastSocket();
       expect(sock.options).toMatchObject({
         headers: expect.objectContaining({
-          originator: "assistant",
+          originator: "zhushou",
           version: expect.any(String),
-          "User-Agent": expect.stringMatching(/^assistant\//),
+          "User-Agent": expect.stringMatching(/^zhushou\//),
         }),
       });
 
@@ -256,7 +256,7 @@ describe("OpenAIWebSocketManager", () => {
       const manager = buildManager({
         headers: {
           "x-client-request-id": "session-123",
-          "x-assistant-session-id": "session-123",
+          "x-zhushou-session-id": "session-123",
         },
       });
       const connectPromise = manager.connect("sk-test-key");
@@ -265,7 +265,7 @@ describe("OpenAIWebSocketManager", () => {
       expect(sock.options).toMatchObject({
         headers: expect.objectContaining({
           "x-client-request-id": "session-123",
-          "x-assistant-session-id": "session-123",
+          "x-zhushou-session-id": "session-123",
         }),
       });
 

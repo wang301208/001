@@ -67,7 +67,7 @@ describe("createSlackDraftStream", () => {
     expect(edit).toHaveBeenCalledTimes(0);
   });
 
-  it("supports forceNewMessage for subsequent assistant messages", async () => {
+  it("supports forceNewMessage for subsequent zhushou messages", async () => {
     const send = vi
       .fn<DraftSendFn>()
       .mockResolvedValueOnce({ channelId: "C123", messageId: "111.222" })

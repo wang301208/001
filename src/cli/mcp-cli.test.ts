@@ -19,27 +19,27 @@ const mocks = vi.hoisted(() => {
   };
   return {
     runtime,
-    serveAssistantChannelMcp: vi.fn(),
+    serveZhushouChannelMcp: vi.fn(),
   };
 });
 
 const defaultRuntime = mocks.runtime;
 const mockLog = defaultRuntime.log;
 const mockError = defaultRuntime.error;
-const serveAssistantChannelMcp = mocks.serveAssistantChannelMcp;
+const serveZhushouChannelMcp = mocks.serveZhushouChannelMcp;
 
 vi.mock("../runtime.js", () => ({
   defaultRuntime: mocks.runtime,
 }));
 
 vi.mock("../mcp/channel-server.js", () => ({
-  serveAssistantChannelMcp: mocks.serveAssistantChannelMcp,
+  serveZhushouChannelMcp: mocks.serveZhushouChannelMcp,
 }));
 
 const tempDirs: string[] = [];
 
 async function createWorkspace(): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-cli-mcp-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-cli-mcp-"));
   tempDirs.push(dir);
   return dir;
 }
@@ -69,7 +69,7 @@ describe("mcp cli", () => {
   });
 
   it("sets and shows a configured MCP server", async () => {
-    await withTempHome("assistant-cli-mcp-home-", async () => {
+    await withTempHome("zhushou-cli-mcp-home-", async () => {
       const workspaceDir = await createWorkspace();
       vi.spyOn(process, "cwd").mockReturnValue(workspaceDir);
 
@@ -83,7 +83,7 @@ describe("mcp cli", () => {
   });
 
   it("fails when removing an unknown MCP server", async () => {
-    await withTempHome("assistant-cli-mcp-home-", async () => {
+    await withTempHome("zhushou-cli-mcp-home-", async () => {
       const workspaceDir = await createWorkspace();
       vi.spyOn(process, "cwd").mockReturnValue(workspaceDir);
 
@@ -95,7 +95,7 @@ describe("mcp cli", () => {
   });
 
   it("starts the channel bridge with parsed serve options", async () => {
-    await withTempHome("assistant-cli-mcp-home-", async () => {
+    await withTempHome("zhushou-cli-mcp-home-", async () => {
       const workspaceDir = await createWorkspace();
       const tokenFile = path.join(workspaceDir, "gateway.token");
       vi.spyOn(process, "cwd").mockReturnValue(workspaceDir);
@@ -113,7 +113,7 @@ describe("mcp cli", () => {
         "--verbose",
       ]);
 
-      expect(serveAssistantChannelMcp).toHaveBeenCalledWith({
+      expect(serveZhushouChannelMcp).toHaveBeenCalledWith({
         gatewayUrl: "ws://127.0.0.1:18789",
         gatewayToken: "secret-token",
         gatewayPassword: undefined,

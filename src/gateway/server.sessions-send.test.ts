@@ -12,7 +12,7 @@ import {
   testState,
 } from "./test-helpers.js";
 
-const { createAssistantTools } = await import("../agents/assistant-tools.js");
+const { createZhushouTools } = await import("../agents/zhushou-tools.js");
 
 installGatewayTestHooks({ scope: "suite" });
 
@@ -21,7 +21,7 @@ let gatewayPort: number;
 const gatewayToken = "test-gateway-token-1234567890";
 let envSnapshot: ReturnType<typeof captureEnv>;
 
-type SessionSendTool = ReturnType<typeof createAssistantTools>[number];
+type SessionSendTool = ReturnType<typeof createZhushouTools>[number];
 const SESSION_SEND_E2E_TIMEOUT_MS = 10_000;
 let cachedSessionsSendTool: SessionSendTool | null = null;
 
@@ -29,7 +29,7 @@ function getSessionsSendTool(): SessionSendTool {
   if (cachedSessionsSendTool) {
     return cachedSessionsSendTool;
   }
-  const tool = createAssistantTools().find((candidate) => candidate.name === "sessions_send");
+  const tool = createZhushouTools().find((candidate) => candidate.name === "sessions_send");
   if (!tool) {
     throw new Error("missing sessions_send tool");
   }
@@ -37,7 +37,7 @@ function getSessionsSendTool(): SessionSendTool {
   return cachedSessionsSendTool;
 }
 
-async function emitLifecycleAssistantReply(params: {
+async function emitLifecycleZhushouReply(params: {
   opts: unknown;
   defaultSessionId: string;
   includeTimestamp?: boolean;
@@ -76,7 +76,7 @@ async function emitLifecycleAssistantReply(params: {
 }
 
 beforeAll(async () => {
-  envSnapshot = captureEnv(["ASSISTANT_GATEWAY_PORT", "ASSISTANT_GATEWAY_TOKEN"]);
+  envSnapshot = captureEnv(["ZHUSHOU_GATEWAY_PORT", "ZHUSHOU_GATEWAY_TOKEN"]);
   gatewayPort = await getFreePort();
   const { approveDevicePairing, requestDevicePairing } = await import("../infra/device-pairing.js");
   const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem } =
@@ -85,7 +85,7 @@ beforeAll(async () => {
   const pending = await requestDevicePairing({
     deviceId: identity.deviceId,
     publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
-    clientId: "assistant-cli",
+    clientId: "zhushou-cli",
     clientMode: "cli",
     role: "operator",
     scopes: ["operator.admin", "operator.read", "operator.write", "operator.approvals"],
@@ -95,15 +95,15 @@ beforeAll(async () => {
     callerScopes: pending.request.scopes ?? ["operator.admin"],
   });
   testState.gatewayAuth = { mode: "token", token: gatewayToken };
-  process.env.ASSISTANT_GATEWAY_PORT = String(gatewayPort);
-  process.env.ASSISTANT_GATEWAY_TOKEN = gatewayToken;
+  process.env.ZHUSHOU_GATEWAY_PORT = String(gatewayPort);
+  process.env.ZHUSHOU_GATEWAY_TOKEN = gatewayToken;
   server = await startGatewayServer(gatewayPort);
 });
 
 beforeEach(() => {
   testState.gatewayAuth = { mode: "token", token: gatewayToken };
-  process.env.ASSISTANT_GATEWAY_PORT = String(gatewayPort);
-  process.env.ASSISTANT_GATEWAY_TOKEN = gatewayToken;
+  process.env.ZHUSHOU_GATEWAY_PORT = String(gatewayPort);
+  process.env.ZHUSHOU_GATEWAY_TOKEN = gatewayToken;
 });
 
 afterAll(async () => {
@@ -115,7 +115,7 @@ describe("sessions_send gateway loopback", () => {
   it("returns reply when lifecycle ends before agent.wait", async () => {
     const spy = agentCommand as unknown as Mock<(opts: unknown) => Promise<void>>;
     spy.mockImplementation(async (opts: unknown) =>
-      emitLifecycleAssistantReply({
+      emitLifecycleZhushouReply({
         opts,
         defaultSessionId: "main",
         includeTimestamp: true,
@@ -164,9 +164,9 @@ describe("sessions_send label lookup", () => {
     { timeout: SESSION_SEND_E2E_TIMEOUT_MS },
     async () => {
       // This is an operator feature; enable broader session tool targeting for this test.
-      const configPath = process.env.ASSISTANT_CONFIG_PATH;
+      const configPath = process.env.ZHUSHOU_CONFIG_PATH;
       if (!configPath) {
-        throw new Error("ASSISTANT_CONFIG_PATH missing in gateway test environment");
+        throw new Error("ZHUSHOU_CONFIG_PATH missing in gateway test environment");
       }
       await fs.mkdir(path.dirname(configPath), { recursive: true });
       await fs.writeFile(
@@ -177,7 +177,7 @@ describe("sessions_send label lookup", () => {
 
       const spy = agentCommand as unknown as Mock<(opts: unknown) => Promise<void>>;
       spy.mockImplementation(async (opts: unknown) =>
-        emitLifecycleAssistantReply({
+        emitLifecycleZhushouReply({
           opts,
           defaultSessionId: "test-labeled",
           resolveText: () => "labeled response",
@@ -192,7 +192,7 @@ describe("sessions_send label lookup", () => {
         timeoutMs: 5000,
       });
 
-      const tool = createAssistantTools({
+      const tool = createZhushouTools({
         config: {
           tools: {
             sessions: {

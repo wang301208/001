@@ -110,5 +110,5 @@ export const pluginSdkDocEntrypoints = Object.keys(
 ) as PluginSdkDocEntrypoint[];
 
 export function resolvePluginSdkDocImportSpecifier(entrypoint: PluginSdkDocEntrypoint): string {
-  return entrypoint === "index" ? "assistant/plugin-sdk" : `assistant/plugin-sdk/${entrypoint}`;
+  return entrypoint === "index" ? "zhushou/plugin-sdk" : `zhushou/plugin-sdk/${entrypoint}`;
 }

@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../../../config/config.js";
+import type { ZhushouConfig } from "../../../config/config.js";
 import { writeWorkspaceFile } from "../../../test-helpers/workspace.js";
 import { createHookEvent } from "../../hooks.js";
 import {
@@ -29,7 +29,7 @@ async function createCaseWorkspace(prefix = "case"): Promise<string> {
 
 beforeAll(async () => {
   ({ default: handler } = await import("./handler.js"));
-  suiteWorkspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-session-memory-"));
+  suiteWorkspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-session-memory-"));
 });
 
 afterAll(async () => {
@@ -67,7 +67,7 @@ function createMockSessionContent(
 async function runNewWithPreviousSessionEntry(params: {
   tempDir: string;
   previousSessionEntry: { sessionId: string; sessionFile?: string };
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   action?: "new" | "reset";
   sessionKey?: string;
   workspaceDirOverride?: string;
@@ -81,7 +81,7 @@ async function runNewWithPreviousSessionEntry(params: {
         params.cfg ??
         ({
           agents: { defaults: { workspace: params.tempDir } },
-        } satisfies AssistantConfig),
+        } satisfies ZhushouConfig),
       previousSessionEntry: params.previousSessionEntry,
       ...(params.workspaceDirOverride ? { workspaceDir: params.workspaceDirOverride } : {}),
     },
@@ -98,7 +98,7 @@ async function runNewWithPreviousSessionEntry(params: {
 
 async function runNewWithPreviousSession(params: {
   sessionContent: string;
-  cfg?: (tempDir: string) => AssistantConfig;
+  cfg?: (tempDir: string) => ZhushouConfig;
   action?: "new" | "reset";
 }): Promise<{ tempDir: string; files: string[]; memoryContent: string }> {
   const tempDir = await createCaseWorkspace("workspace");
@@ -115,7 +115,7 @@ async function runNewWithPreviousSession(params: {
     params.cfg?.(tempDir) ??
     ({
       agents: { defaults: { workspace: tempDir } },
-    } satisfies AssistantConfig);
+    } satisfies ZhushouConfig);
 
   const { files, memoryContent } = await runNewWithPreviousSessionEntry({
     tempDir,
@@ -175,11 +175,11 @@ async function readSessionTranscript(params: {
 function expectMemoryConversation(params: {
   memoryContent: string;
   user: string;
-  assistant: string;
+  zhushou: string;
   absent?: string;
 }) {
   expect(params.memoryContent).toContain(`user: ${params.user}`);
-  expect(params.memoryContent).toContain(`assistant: ${params.assistant}`);
+  expect(params.memoryContent).toContain(`zhushou: ${params.zhushou}`);
   if (params.absent) {
     expect(params.memoryContent).not.toContain(params.absent);
   }
@@ -215,7 +215,7 @@ describe("session-memory hook", () => {
   });
 
   it("creates memory file with session content on /new command", async () => {
-    // Create a mock session file with user/assistant messages
+    // Create a mock session file with user/zhushou messages
     const sessionContent = createMockSessionContent([
       { role: "user", content: "Hello there" },
       { role: "assistant", content: "Hi! How can I help?" },
@@ -227,9 +227,9 @@ describe("session-memory hook", () => {
 
     // Read the memory file and verify content
     expect(memoryContent).toContain("user: Hello there");
-    expect(memoryContent).toContain("assistant: Hi! How can I help?");
+    expect(memoryContent).toContain("zhushou: Hi! How can I help?");
     expect(memoryContent).toContain("user: What is 2+2?");
-    expect(memoryContent).toContain("assistant: 2+2 equals 4");
+    expect(memoryContent).toContain("zhushou: 2+2 equals 4");
   });
 
   it("creates memory file with session content on /reset command", async () => {
@@ -244,7 +244,7 @@ describe("session-memory hook", () => {
 
     expect(files.length).toBe(1);
     expect(memoryContent).toContain("user: Please reset and keep notes");
-    expect(memoryContent).toContain("assistant: Captured before reset");
+    expect(memoryContent).toContain("zhushou: Captured before reset");
   });
 
   it("prefers workspaceDir from hook context when sessionKey points at main", async () => {
@@ -269,7 +269,7 @@ describe("session-memory hook", () => {
           defaults: { workspace: mainWorkspace },
           list: [{ id: "navi", workspace: naviWorkspace }],
         },
-      } satisfies AssistantConfig,
+      } satisfies ZhushouConfig,
       sessionKey: "agent:main:main",
       workspaceDirOverride: naviWorkspace,
       previousSessionEntry: {
@@ -280,7 +280,7 @@ describe("session-memory hook", () => {
 
     expect(files.length).toBe(1);
     expect(memoryContent).toContain("user: Remember this under Navi");
-    expect(memoryContent).toContain("assistant: Stored in the bound workspace");
+    expect(memoryContent).toContain("zhushou: Stored in the bound workspace");
     expect(memoryContent).toContain("- **Session Key**: agent:navi:main");
     await expect(fs.access(path.join(mainWorkspace, "memory"))).rejects.toThrow();
   });
@@ -296,7 +296,7 @@ describe("session-memory hook", () => {
     const memoryContent = await readSessionTranscript({ sessionContent });
 
     expect(memoryContent).toContain("user: Hello");
-    expect(memoryContent).toContain("assistant: World");
+    expect(memoryContent).toContain("zhushou: World");
     expect(memoryContent).toContain("user: Thanks");
     expect(memoryContent).not.toContain("tool_use");
     expect(memoryContent).not.toContain("tool_result");
@@ -325,7 +325,7 @@ describe("session-memory hook", () => {
     const memoryContent = await readSessionTranscript({ sessionContent });
 
     expect(memoryContent).not.toContain("Forwarded internal instruction");
-    expect(memoryContent).toContain("assistant: Acknowledged");
+    expect(memoryContent).toContain("zhushou: Acknowledged");
     expect(memoryContent).toContain("user: External follow-up");
   });
 
@@ -340,7 +340,7 @@ describe("session-memory hook", () => {
 
     expect(memoryContent).not.toContain("/help");
     expect(memoryContent).not.toContain("/new");
-    expect(memoryContent).toContain("assistant: Here is help info");
+    expect(memoryContent).toContain("zhushou: Here is help info");
     expect(memoryContent).toContain("user: Normal message");
   });
 
@@ -383,8 +383,8 @@ describe("session-memory hook", () => {
 
     expect(memoryContent).not.toContain("First message");
     expect(memoryContent).toContain("user: Third message");
-    expect(memoryContent).toContain("assistant: Second message");
-    expect(memoryContent).toContain("assistant: Fourth message");
+    expect(memoryContent).toContain("zhushou: Second message");
+    expect(memoryContent).toContain("zhushou: Fourth message");
   });
 
   it("falls back to latest .jsonl.reset.* transcript when active file is empty", async () => {
@@ -406,7 +406,7 @@ describe("session-memory hook", () => {
     const memoryContent = await getRecentSessionContentWithResetFallback(activeSessionFile!);
 
     expect(memoryContent).toContain("user: Message from rotated transcript");
-    expect(memoryContent).toContain("assistant: Recovered from reset fallback");
+    expect(memoryContent).toContain("zhushou: Recovered from reset fallback");
   });
 
   it("handles reset-path session pointers from previousSessionEntry", async () => {
@@ -431,7 +431,7 @@ describe("session-memory hook", () => {
 
     const memoryContent = await getRecentSessionContentWithResetFallback(resetSessionFile);
     expect(memoryContent).toContain("user: Message from reset pointer");
-    expect(memoryContent).toContain("assistant: Recovered directly from reset file");
+    expect(memoryContent).toContain("zhushou: Recovered directly from reset file");
   });
 
   it("recovers transcript when previousSessionEntry.sessionFile is missing", async () => {
@@ -460,7 +460,7 @@ describe("session-memory hook", () => {
 
     const memoryContent = await getRecentSessionContentWithResetFallback(previousSessionFile!);
     expect(memoryContent).toContain("user: Recovered with missing sessionFile pointer");
-    expect(memoryContent).toContain("assistant: Recovered by sessionId fallback");
+    expect(memoryContent).toContain("zhushou: Recovered by sessionId fallback");
   });
 
   it("prefers the newest reset transcript when multiple reset candidates exist", async () => {
@@ -491,7 +491,7 @@ describe("session-memory hook", () => {
     expectMemoryConversation({
       memoryContent: memoryContent!,
       user: "Newest rotated transcript",
-      assistant: "Newest summary",
+      zhushou: "Newest summary",
       absent: "Older rotated transcript",
     });
   });
@@ -522,7 +522,7 @@ describe("session-memory hook", () => {
     expectMemoryConversation({
       memoryContent: memoryContent!,
       user: "Active transcript message",
-      assistant: "Active transcript summary",
+      zhushou: "Active transcript summary",
       absent: "Reset fallback message",
     });
   });
@@ -560,7 +560,7 @@ describe("session-memory hook", () => {
           defaults: { workspace: defaultWorkspace },
           list: [{ id: "custom-agent", workspace: customAgentWorkspace }],
         },
-      } satisfies AssistantConfig,
+      } satisfies ZhushouConfig,
       sessionKey: "agent:main:main",
       workspaceDirOverride: customAgentWorkspace,
       previousSessionEntry: {
@@ -571,7 +571,7 @@ describe("session-memory hook", () => {
 
     expect(files.length).toBe(1);
     expect(memoryContent).toContain("user: Custom agent conversation");
-    expect(memoryContent).toContain("assistant: Stored in agent workspace");
+    expect(memoryContent).toContain("zhushou: Stored in agent workspace");
     // Verify memory did NOT leak to the default workspace
     await expect(fs.access(path.join(defaultWorkspace, "memory"))).rejects.toThrow();
   });
@@ -584,6 +584,6 @@ describe("session-memory hook", () => {
     const memoryContent = await readSessionTranscript({ sessionContent });
 
     expect(memoryContent).toContain("user: Only message 1");
-    expect(memoryContent).toContain("assistant: Only message 2");
+    expect(memoryContent).toContain("zhushou: Only message 2");
   });
 });

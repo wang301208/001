@@ -19,7 +19,7 @@ import type {
   ChannelResolveKind,
   ChannelResolveResult,
   ChannelStatusAdapter,
-  AssistantConfig,
+  ZhushouConfig,
   OutboundDeliveryResult,
   RuntimeEnv,
 } from "../runtime-api.js";
@@ -132,10 +132,10 @@ export type {
   OutboundDeliveryResult,
 };
 
-import type { z } from "assistant/plugin-sdk/zod";
+import type { z } from "zhushou/plugin-sdk/zod";
 // Import and re-export the schema type
 import type { TwitchConfigSchema } from "./config-schema.js";
 export type TwitchConfig = z.infer<typeof TwitchConfigSchema>;
 
-export type { AssistantConfig };
+export type { ZhushouConfig };
 export type { RuntimeEnv };

@@ -1,6 +1,6 @@
 import { stripLeadingInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
-import { formatRawAssistantErrorForUi } from "../shared/assistant-error-format.js";
-import { extractAssistantVisibleText } from "../shared/chat-message-content.js";
+import { formatRawZhushouErrorForUi } from "../shared/zhushou-error-format.js";
+import { extractZhushouVisibleText } from "../shared/chat-message-content.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { formatTokenCount } from "../utils/usage-format.js";
 
@@ -154,7 +154,7 @@ export function sanitizeRenderableText(text: string): string {
   return applyRtlIsolation(tokenSafe);
 }
 
-export function resolveFinalAssistantText(params: {
+export function resolveFinalZhushouText(params: {
   finalText?: string | null;
   streamedText?: string | null;
   errorMessage?: string | null;
@@ -169,7 +169,7 @@ export function resolveFinalAssistantText(params: {
   }
   const errorMessage = params.errorMessage ?? "";
   if (errorMessage.trim()) {
-    return formatRawAssistantErrorForUi(errorMessage);
+    return formatRawZhushouErrorForUi(errorMessage);
   }
   return "(无输出)";
 }
@@ -210,13 +210,13 @@ function resolveMessageRecord(
   return { record, content: record.content };
 }
 
-function formatAssistantErrorFromRecord(record: Record<string, unknown>): string {
+function formatZhushouErrorFromRecord(record: Record<string, unknown>): string {
   const stopReason = typeof record.stopReason === "string" ? record.stopReason : "";
   if (stopReason !== "error") {
     return "";
   }
   const errorMessage = typeof record.errorMessage === "string" ? record.errorMessage : "";
-  return formatRawAssistantErrorForUi(errorMessage);
+  return formatRawZhushouErrorForUi(errorMessage);
 }
 
 function collectSanitizedBlockStrings(params: {
@@ -277,7 +277,7 @@ export function extractContentFromMessage(message: unknown): string {
       return sanitizeRenderableText(content).trim();
     }
     if (Array.isArray(content)) {
-      return extractAssistantRenderableContent(record);
+      return extractZhushouRenderableContent(record);
     }
   }
 
@@ -293,15 +293,15 @@ export function extractContentFromMessage(message: unknown): string {
   if (parts.length > 0) {
     return parts.join("\n").trim();
   }
-  return formatAssistantErrorFromRecord(record);
+  return formatZhushouErrorFromRecord(record);
 }
 
-function extractAssistantRenderableContent(record: Record<string, unknown>): string {
-  const visible = sanitizeRenderableText(extractAssistantVisibleText(record) ?? "").trim();
+function extractZhushouRenderableContent(record: Record<string, unknown>): string {
+  const visible = sanitizeRenderableText(extractZhushouVisibleText(record) ?? "").trim();
   if (visible) {
     return visible;
   }
-  return formatAssistantErrorFromRecord(record);
+  return formatZhushouErrorFromRecord(record);
 }
 
 function extractTextBlocks(content: unknown, opts?: { includeThinking?: boolean }): string {
@@ -344,7 +344,7 @@ export function extractTextFromMessage(
   if (record.role === "assistant") {
     return composeThinkingAndContent({
       thinkingText: extractThinkingFromMessage(record),
-      contentText: extractAssistantRenderableContent(record),
+      contentText: extractZhushouRenderableContent(record),
       showThinking: opts?.includeThinking ?? false,
     });
   }
@@ -356,7 +356,7 @@ export function extractTextFromMessage(
     return text;
   }
 
-  const errorText = formatAssistantErrorFromRecord(record);
+  const errorText = formatZhushouErrorFromRecord(record);
   if (!errorText) {
     return "";
   }

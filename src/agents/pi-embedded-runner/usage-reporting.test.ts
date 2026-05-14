@@ -26,9 +26,9 @@ function makeAttemptResult(
     promptErrorSource: null,
     sessionIdUsed: "test-session",
     messagesSnapshot: [],
-    assistantTexts: [],
+    zhushouTexts: [],
     toolMetas,
-    lastAssistant: undefined,
+    lastZhushou: undefined,
     replayMetadata:
       overrides.replayMetadata ??
       buildAttemptReplayMetadata({
@@ -50,9 +50,9 @@ function makeAttemptResult(
   };
 }
 
-function makeAssistantMessage(
+function makeZhushouMessage(
   overrides: Partial<AssistantMessage> = {},
-): NonNullable<EmbeddedRunAttemptResult["lastAssistant"]> {
+): NonNullable<EmbeddedRunAttemptResult["lastZhushou"]> {
   return {
     role: "assistant",
     api: "openai-responses",
@@ -79,7 +79,7 @@ describe("runEmbeddedPiAgent usage reporting", () => {
   it("bootstraps runtime plugins with the resolved workspace before running", async () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: ["Response 1"],
+        zhushouTexts: ["Response 1"],
       }),
     );
 
@@ -102,7 +102,7 @@ describe("runEmbeddedPiAgent usage reporting", () => {
   it("forwards gateway subagent binding opt-in to runtime plugin bootstrap", async () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: ["Response 1"],
+        zhushouTexts: ["Response 1"],
       }),
     );
 
@@ -132,7 +132,7 @@ describe("runEmbeddedPiAgent usage reporting", () => {
   it("forwards sender identity fields into embedded attempts", async () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: ["Response 1"],
+        zhushouTexts: ["Response 1"],
       }),
     );
 
@@ -163,7 +163,7 @@ describe("runEmbeddedPiAgent usage reporting", () => {
   it("forwards memory flush write paths into memory-triggered attempts", async () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
+        zhushouTexts: [],
       }),
     );
 
@@ -197,7 +197,7 @@ describe("runEmbeddedPiAgent usage reporting", () => {
     // Output: 50 + 50 = 100
     // Total: 150 + 200 = 350
 
-    // The last assistant usage (lastAssistant.usage) will be Turn 2:
+    // The last zhushou usage (lastZhushou.usage) will be Turn 2:
     // Input: 150, Output 50, Total 200.
 
     // We expect result.meta.agentMeta.usage.total to be 200 (last turn total).
@@ -205,8 +205,8 @@ describe("runEmbeddedPiAgent usage reporting", () => {
 
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: ["Response 1", "Response 2"],
-        lastAssistant: makeAssistantMessage({
+        zhushouTexts: ["Response 1", "Response 2"],
+        lastZhushou: makeZhushouMessage({
           usage: { input: 150, output: 50, total: 200 } as unknown as AssistantMessage["usage"],
         }),
         attemptUsage: { input: 250, output: 100, total: 350 },

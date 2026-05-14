@@ -37,7 +37,7 @@ const sessionMocks = vi.hoisted(() => ({
   rememberRoleRefsForTarget: vi.fn(() => {}),
 }));
 const tmpDirMocks = vi.hoisted(() => ({
-  resolvePreferredAssistantTmpDir: vi.fn(() => "/tmp/assistant"),
+  resolvePreferredZhushouTmpDir: vi.fn(() => "/tmp/zhushou"),
 }));
 const chromeMocks = vi.hoisted(() => ({
   getChromeWebSocketUrl: vi.fn(async () => "ws://127.0.0.1/devtools/browser/mock"),
@@ -53,15 +53,15 @@ let mod: Pick<
   "downloadViaPlaywright" | "waitForDownloadViaPlaywright"
 > &
   Pick<typeof import("./pw-tools-core.responses.js"), "responseBodyViaPlaywright">;
-let tmpDirModule: typeof import("../infra/tmp-assistant-dir.js");
+let tmpDirModule: typeof import("../infra/tmp-zhushou-dir.js");
 
 describe("pw-tools-core", () => {
   beforeAll(async () => {
     vi.doMock("./pw-session.js", () => sessionMocks);
     vi.doMock("./chrome.js", () => chromeMocks);
-    tmpDirModule = await import("../infra/tmp-assistant-dir.js");
-    vi.spyOn(tmpDirModule, "resolvePreferredAssistantTmpDir").mockImplementation(
-      tmpDirMocks.resolvePreferredAssistantTmpDir,
+    tmpDirModule = await import("../infra/tmp-zhushou-dir.js");
+    vi.spyOn(tmpDirModule, "resolvePreferredZhushouTmpDir").mockImplementation(
+      tmpDirMocks.resolvePreferredZhushouTmpDir,
     );
     const [downloads, responses] = await Promise.all([
       import("./pw-tools-core.downloads.js"),
@@ -96,11 +96,11 @@ describe("pw-tools-core", () => {
     for (const fn of Object.values(clientFetchMocks)) {
       fn.mockClear();
     }
-    tmpDirMocks.resolvePreferredAssistantTmpDir.mockReturnValue("/tmp/assistant");
+    tmpDirMocks.resolvePreferredZhushouTmpDir.mockReturnValue("/tmp/zhushou");
   });
 
   async function withTempDir<T>(run: (tempDir: string) => Promise<T>): Promise<T> {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-browser-download-test-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-browser-download-test-"));
     try {
       return await run(tempDir);
     } finally {
@@ -169,7 +169,7 @@ describe("pw-tools-core", () => {
       fs.realpath(params.tempDir).catch(() => params.tempDir),
     ]);
     expect(savedDirReal).toBe(tempDirReal);
-    expect(path.basename(String(savedPath))).toContain(".assistant-output-");
+    expect(path.basename(String(savedPath))).toContain(".zhushou-output-");
     expect(path.basename(String(savedPath))).toContain(".part");
     expect(await fs.readFile(params.targetPath, "utf8")).toBe(params.content);
   }
@@ -277,35 +277,35 @@ describe("pw-tools-core", () => {
   );
 
   it("uses preferred tmp dir when waiting for download without explicit path", async () => {
-    tmpDirMocks.resolvePreferredAssistantTmpDir.mockReturnValue("/tmp/assistant-preferred");
+    tmpDirMocks.resolvePreferredZhushouTmpDir.mockReturnValue("/tmp/zhushou-preferred");
     const { res, outPath } = await waitForImplicitDownloadOutput({
       downloadUrl: "https://example.com/file.bin",
       suggestedFilename: "file.bin",
     });
     expect(typeof outPath).toBe("string");
     const expectedRootedDownloadsDir = path.resolve(
-      path.join(path.sep, "tmp", "assistant-preferred", "downloads"),
+      path.join(path.sep, "tmp", "zhushou-preferred", "downloads"),
     );
-    const expectedDownloadsTail = `${path.join("tmp", "assistant-preferred", "downloads")}${path.sep}`;
+    const expectedDownloadsTail = `${path.join("tmp", "zhushou-preferred", "downloads")}${path.sep}`;
     expect(path.dirname(outPath)).toBe(expectedRootedDownloadsDir);
     expect(path.basename(outPath)).toMatch(/-file\.bin$/);
     expect(path.normalize(res.path)).toContain(path.normalize(expectedDownloadsTail));
-    expect(tmpDirMocks.resolvePreferredAssistantTmpDir).toHaveBeenCalled();
+    expect(tmpDirMocks.resolvePreferredZhushouTmpDir).toHaveBeenCalled();
   });
 
   it("sanitizes suggested download filenames to prevent traversal escapes", async () => {
-    tmpDirMocks.resolvePreferredAssistantTmpDir.mockReturnValue("/tmp/assistant-preferred");
+    tmpDirMocks.resolvePreferredZhushouTmpDir.mockReturnValue("/tmp/zhushou-preferred");
     const { res, outPath } = await waitForImplicitDownloadOutput({
       downloadUrl: "https://example.com/evil",
       suggestedFilename: "../../../../etc/passwd",
     });
     expect(typeof outPath).toBe("string");
     expect(path.dirname(outPath)).toBe(
-      path.resolve(path.join(path.sep, "tmp", "assistant-preferred", "downloads")),
+      path.resolve(path.join(path.sep, "tmp", "zhushou-preferred", "downloads")),
     );
     expect(path.basename(outPath)).toMatch(/-passwd$/);
     expect(path.normalize(res.path)).toContain(
-      path.normalize(`${path.join("tmp", "assistant-preferred", "downloads")}${path.sep}`),
+      path.normalize(`${path.join("tmp", "zhushou-preferred", "downloads")}${path.sep}`),
     );
   });
   it("waits for a matching response and returns its body", async () => {

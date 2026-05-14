@@ -1,21 +1,21 @@
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import type {
-  AssistantPluginApi,
+  ZhushouPluginApi,
   ProviderAuthContext,
   ProviderAuthResult,
   ProviderCatalogContext,
-} from "assistant/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/plugin-entry";
 import {
   MINIMAX_OAUTH_MARKER,
   ensureAuthProfileStore,
   listProfilesForProvider,
-} from "assistant/plugin-sdk/provider-auth";
-import { buildOauthProviderAuthResult } from "assistant/plugin-sdk/provider-auth";
-import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
-import { buildProviderReplayFamilyHooks } from "assistant/plugin-sdk/provider-model-shared";
-import { MINIMAX_FAST_MODE_STREAM_HOOKS } from "assistant/plugin-sdk/provider-stream-family";
-import { fetchMinimaxUsage } from "assistant/plugin-sdk/provider-usage";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-auth";
+import { buildOauthProviderAuthResult } from "zhushou/plugin-sdk/provider-auth";
+import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
+import { buildProviderReplayFamilyHooks } from "zhushou/plugin-sdk/provider-model-shared";
+import { MINIMAX_FAST_MODE_STREAM_HOOKS } from "zhushou/plugin-sdk/provider-stream-family";
+import { fetchMinimaxUsage } from "zhushou/plugin-sdk/provider-usage";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { isMiniMaxModernModelId, MINIMAX_DEFAULT_MODEL_ID } from "./api.js";
 import type { MiniMaxRegion } from "./oauth.js";
 import { applyMinimaxApiConfig, applyMinimaxApiConfigCn } from "./onboard.js";
@@ -229,7 +229,7 @@ function createMinimaxOAuthMethod(region: MiniMaxRegion) {
   };
 }
 
-export function registerMinimaxProviders(api: AssistantPluginApi) {
+export function registerMinimaxProviders(api: ZhushouPluginApi) {
   api.registerProvider({
     id: API_PROVIDER_ID,
     label: PROVIDER_LABEL,

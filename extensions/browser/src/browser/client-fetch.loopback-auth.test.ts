@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { BrowserDispatchResponse } from "./routes/dispatcher.js";
 
-vi.mock("assistant/plugin-sdk/browser-security-runtime", async () => {
+vi.mock("zhushou/plugin-sdk/browser-security-runtime", async () => {
   const actual = await vi.importActual<
-    typeof import("assistant/plugin-sdk/browser-security-runtime")
-  >("assistant/plugin-sdk/browser-security-runtime");
+    typeof import("zhushou/plugin-sdk/browser-security-runtime")
+  >("zhushou/plugin-sdk/browser-security-runtime");
   const lookupFn = async (_hostname: string, options?: { all?: boolean }) => {
     const result = { address: "93.184.216.34", family: 4 };
     return options?.all === true ? [result] : result;
@@ -16,9 +16,9 @@ vi.mock("assistant/plugin-sdk/browser-security-runtime", async () => {
   };
 });
 
-vi.mock("assistant/plugin-sdk/ssrf-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/ssrf-runtime")>(
-    "assistant/plugin-sdk/ssrf-runtime",
+vi.mock("zhushou/plugin-sdk/ssrf-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/ssrf-runtime")>(
+    "zhushou/plugin-sdk/ssrf-runtime",
   );
   return {
     ...actual,
@@ -133,7 +133,7 @@ describe("fetchBrowserJson loopback auth", () => {
     ]) {
       vi.stubEnv(key, "");
     }
-    vi.stubEnv("ASSISTANT_GATEWAY_TOKEN", "loopback-token");
+    vi.stubEnv("ZHUSHOU_GATEWAY_TOKEN", "loopback-token");
     mocks.loadConfig.mockClear();
     mocks.loadConfig.mockReturnValue({
       gateway: {

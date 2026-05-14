@@ -12,17 +12,17 @@ import {
   resolveTtsConfig,
   resolveTtsPrefsPath,
   type ResolvedTtsConfig,
-} from "assistant/plugin-sdk/agent-runtime";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { DiscordAccountConfig, TtsConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
-import { logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
-import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { parseTtsDirectives } from "assistant/plugin-sdk/speech";
-import { formatErrorMessage } from "assistant/plugin-sdk/ssrf-runtime";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/agent-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { DiscordAccountConfig, TtsConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import { logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { parseTtsDirectives } from "zhushou/plugin-sdk/speech";
+import { formatErrorMessage } from "zhushou/plugin-sdk/ssrf-runtime";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { formatMention } from "../mentions.js";
 import { normalizeDiscordSlug, resolveDiscordOwnerAccess } from "../monitor/allow-list.js";
 import { formatDiscordUserTag } from "../monitor/format.js";
@@ -127,8 +127,8 @@ function mergeTtsConfig(base: TtsConfig, override?: TtsConfig): TtsConfig {
   };
 }
 
-function resolveVoiceTtsConfig(params: { cfg: AssistantConfig; override?: TtsConfig }): {
-  cfg: AssistantConfig;
+function resolveVoiceTtsConfig(params: { cfg: ZhushouConfig; override?: TtsConfig }): {
+  cfg: ZhushouConfig;
   resolved: ResolvedTtsConfig;
 } {
   if (!params.override) {
@@ -276,7 +276,7 @@ function estimateDurationSeconds(pcm: Buffer): number {
 }
 
 async function writeWavFile(pcm: Buffer): Promise<{ path: string; durationSeconds: number }> {
-  const tempDir = await fs.mkdtemp(path.join(resolvePreferredAssistantTmpDir(), "discord-voice-"));
+  const tempDir = await fs.mkdtemp(path.join(resolvePreferredZhushouTmpDir(), "discord-voice-"));
   const filePath = path.join(tempDir, `segment-${randomUUID()}.wav`);
   const wav = buildWavBuffer(pcm);
   await fs.writeFile(filePath, wav);
@@ -296,7 +296,7 @@ function scheduleTempCleanup(tempDir: string, delayMs: number = 30 * 60 * 1000):
 }
 
 async function transcribeAudio(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   filePath: string;
 }): Promise<string | undefined> {
@@ -330,7 +330,7 @@ export class DiscordVoiceManager {
   constructor(
     private params: {
       client: Client;
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       discordConfig: DiscordAccountConfig;
       accountId: string;
       runtime: RuntimeEnv;

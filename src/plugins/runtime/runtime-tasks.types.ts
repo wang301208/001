@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { TaskDeliveryState } from "../../tasks/task-registry.types.js";
-import type { AssistantPluginToolContext } from "../tool-types.js";
+import type { ZhushouPluginToolContext } from "../tool-types.js";
 import type { PluginRuntimeTaskFlow } from "./runtime-taskflow.types.js";
 import type {
   TaskFlowDetail,
@@ -26,7 +26,7 @@ export type BoundTaskRunsRuntime = {
   list: () => TaskRunView[];
   findLatest: () => TaskRunDetail | undefined;
   resolve: (token: string) => TaskRunDetail | undefined;
-  cancel: (params: { taskId: string; cfg: AssistantConfig }) => Promise<TaskRunCancelResult>;
+  cancel: (params: { taskId: string; cfg: ZhushouConfig }) => Promise<TaskRunCancelResult>;
 };
 
 export type PluginRuntimeTaskRuns = {
@@ -35,7 +35,7 @@ export type PluginRuntimeTaskRuns = {
     requesterOrigin?: TaskDeliveryState["requesterOrigin"];
   }) => BoundTaskRunsRuntime;
   fromToolContext: (
-    ctx: Pick<AssistantPluginToolContext, "sessionKey" | "deliveryContext">,
+    ctx: Pick<ZhushouPluginToolContext, "sessionKey" | "deliveryContext">,
   ) => BoundTaskRunsRuntime;
 };
 
@@ -55,7 +55,7 @@ export type PluginRuntimeTaskFlows = {
     requesterOrigin?: TaskDeliveryState["requesterOrigin"];
   }) => BoundTaskFlowsRuntime;
   fromToolContext: (
-    ctx: Pick<AssistantPluginToolContext, "sessionKey" | "deliveryContext">,
+    ctx: Pick<ZhushouPluginToolContext, "sessionKey" | "deliveryContext">,
   ) => BoundTaskFlowsRuntime;
 };
 

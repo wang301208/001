@@ -1,5 +1,5 @@
 // Manual facade. Keep loader boundary explicit.
-type FacadeModule = typeof import("@assistant/irc/api.js");
+type FacadeModule = typeof import("@zhushou/irc/api.js");
 import {
   createLazyFacadeObjectValue,
   loadBundledPluginPublicSurfaceModuleSync,

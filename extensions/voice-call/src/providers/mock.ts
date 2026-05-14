@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import type {
   EndReason,
   GetCallStatusInput,

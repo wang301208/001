@@ -150,7 +150,7 @@ export async function updateAuthProfileStoreWithLock(params: {
 }
 
 function shouldLogAuthStoreTiming(): boolean {
-  return process.env.ASSISTANT_DEBUG_INGRESS_TIMING === "1";
+  return process.env.ZHUSHOU_DEBUG_INGRESS_TIMING === "1";
 }
 
 function syncExternalCliCredentialsTimed(
@@ -264,7 +264,7 @@ function loadAuthProfileStoreForAgent(
   if (shouldSyncExternalCliCredentials(options)) {
     syncExternalCliCredentialsTimed(store, { log: !readOnly });
   }
-  const forceReadOnly = process.env.ASSISTANT_AUTH_STORE_READONLY === "1";
+  const forceReadOnly = process.env.ZHUSHOU_AUTH_STORE_READONLY === "1";
   const shouldWrite = !readOnly && !forceReadOnly && (legacy !== null || mergedOAuth);
   if (shouldWrite) {
     saveAuthProfileStore(store, agentDir);

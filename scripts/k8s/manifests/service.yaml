@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: assistant
+  name: zhushou
   labels:
-    app: assistant
+    app: zhushou
 spec:
   type: ClusterIP
   selector:
-    app: assistant
+    app: zhushou
   ports:
     - name: gateway
       port: 3000

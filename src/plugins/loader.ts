@@ -8,7 +8,7 @@ import {
 } from "../agents/harness/registry.js";
 import type { ChannelPlugin } from "../channels/plugins/types.plugin.js";
 import { isChannelConfigured } from "../config/channel-configured.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { PluginInstallRecord } from "../config/types.plugins.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
@@ -42,7 +42,7 @@ import {
   type NormalizedPluginsConfig,
   type PluginActivationState,
 } from "./config-state.js";
-import { discoverAssistantPlugins } from "./discovery.js";
+import { discoverZhushouPlugins } from "./discovery.js";
 import { initializeGlobalHookRunner } from "./hook-runner-global.js";
 import { clearPluginInteractiveHandlers } from "./interactive-registry.js";
 import { getCachedPluginJitiLoader, type PluginJitiLoaderCache } from "./jiti-loader-cache.js";
@@ -99,17 +99,17 @@ import {
 } from "./sdk-alias.js";
 import { hasKind, kindsEqual } from "./slots.js";
 import type {
-  AssistantPluginApi,
-  AssistantPluginDefinition,
-  AssistantPluginModule,
+  ZhushouPluginApi,
+  ZhushouPluginDefinition,
+  ZhushouPluginModule,
   PluginLogger,
 } from "./types.js";
 
 export type PluginLoadResult = PluginRegistry;
 
 export type PluginLoadOptions = {
-  config?: AssistantConfig;
-  activationSourceConfig?: AssistantConfig;
+  config?: ZhushouConfig;
+  activationSourceConfig?: ZhushouConfig;
   autoEnabledReasons?: Readonly<Record<string, string[]>>;
   workspaceDir?: string;
   // Allows callers to resolve plugin roots and load paths against an explicit env
@@ -141,7 +141,7 @@ const CLI_METADATA_ENTRY_BASENAMES = [
 ] as const;
 
 function resolveDreamingSidecarEngineId(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   memorySlot: string | null | undefined;
 }): string | null {
   const normalizedMemorySlot = normalizeLowercaseStringOrEmpty(params.memorySlot);
@@ -232,7 +232,7 @@ export function clearPluginLoaderCache(): void {
 const defaultLogger = () => createSubsystemLogger("plugins");
 
 function shouldProfilePluginLoader(): boolean {
-  return process.env.ASSISTANT_PLUGIN_LOAD_PROFILE === "1";
+  return process.env.ZHUSHOU_PLUGIN_LOAD_PROFILE === "1";
 }
 
 function profilePluginLoaderSync<T>(params: {
@@ -369,8 +369,8 @@ function restorePluginRegistry(registry: PluginRegistry, snapshot: PluginRegistr
   registry.gatewayMethodScopes = snapshot.gatewayMethodScopes;
 }
 
-function createGuardedPluginRegistrationApi(api: AssistantPluginApi): {
-  api: AssistantPluginApi;
+function createGuardedPluginRegistrationApi(api: ZhushouPluginApi): {
+  api: ZhushouPluginApi;
   close: () => void;
 } {
   let closed = false;
@@ -396,8 +396,8 @@ function createGuardedPluginRegistrationApi(api: AssistantPluginApi): {
 }
 
 function runPluginRegisterSync(
-  register: NonNullable<AssistantPluginDefinition["register"]>,
-  api: Parameters<NonNullable<AssistantPluginDefinition["register"]>>[0],
+  register: NonNullable<ZhushouPluginDefinition["register"]>,
+  api: Parameters<NonNullable<ZhushouPluginDefinition["register"]>>[0],
 ): void {
   const guarded = createGuardedPluginRegistrationApi(api);
   try {
@@ -734,12 +734,12 @@ export function resolveRuntimePluginRegistry(
     return compatible;
   }
   // Helper/runtime callers should not recurse into the same snapshot load while
-  // plugin registration is still in flight. Let direct loadAssistantPlugins(...)
+  // plugin registration is still in flight. Let direct loadZhushouPlugins(...)
   // callers surface the hard error instead.
   if (isPluginRegistryLoadInFlight(options)) {
     return undefined;
   }
-  return loadAssistantPlugins(options);
+  return loadZhushouPlugins(options);
 }
 
 export function resolvePluginRegistryLoadCacheKey(options: PluginLoadOptions = {}): string {
@@ -782,17 +782,17 @@ function validatePluginConfig(params: {
 }
 
 function resolvePluginModuleExport(moduleExport: unknown): {
-  definition?: AssistantPluginDefinition;
-  register?: AssistantPluginDefinition["register"];
+  definition?: ZhushouPluginDefinition;
+  register?: ZhushouPluginDefinition["register"];
 } {
   const resolved = unwrapDefaultModuleExport(moduleExport);
   if (typeof resolved === "function") {
     return {
-      register: resolved as AssistantPluginDefinition["register"],
+      register: resolved as ZhushouPluginDefinition["register"],
     };
   }
   if (resolved && typeof resolved === "object") {
-    const def = resolved as AssistantPluginDefinition;
+    const def = resolved as ZhushouPluginDefinition;
     const register = def.register ?? def.activate;
     return { definition: def, register };
   }
@@ -978,7 +978,7 @@ function shouldLoadChannelPluginInSetupRuntime(params: {
   manifestChannels: string[];
   setupSource?: string;
   startupDeferConfiguredChannelFullLoadUntilAfterListen?: boolean;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   preferSetupRuntimeForChannelPlugins?: boolean;
 }): boolean {
@@ -1018,7 +1018,7 @@ function createPluginRecord(params: {
     name: params.name ?? params.id,
     description: params.description,
     version: params.version,
-    format: params.format ?? "assistant",
+    format: params.format ?? "zhushou",
     bundleFormat: params.bundleFormat,
     bundleCapabilities: params.bundleCapabilities,
     source: params.source,
@@ -1089,7 +1089,7 @@ function recordPluginError(params: {
   diagnosticMessagePrefix: string;
 }) {
   const errorText =
-    process.env.ASSISTANT_PLUGIN_LOADER_DEBUG_STACKS === "1" &&
+    process.env.ZHUSHOU_PLUGIN_LOADER_DEBUG_STACKS === "1" &&
     params.error instanceof Error &&
     typeof params.error.stack === "string"
       ? params.error.stack
@@ -1196,7 +1196,7 @@ function matchesPathMatcher(matcher: PathMatcher, sourcePath: string): boolean {
 }
 
 function buildProvenanceIndex(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   normalizedLoadPaths: string[];
   env: NodeJS.ProcessEnv;
 }): PluginProvenanceIndex {
@@ -1262,7 +1262,7 @@ function matchesExplicitInstallRule(params: {
 }
 
 function resolveCandidateDuplicateRank(params: {
-  candidate: ReturnType<typeof discoverAssistantPlugins>["candidates"][number];
+  candidate: ReturnType<typeof discoverZhushouPlugins>["candidates"][number];
   manifestByRoot: Map<string, ReturnType<typeof loadPluginManifestRegistry>["plugins"][number]>;
   provenance: PluginProvenanceIndex;
   env: NodeJS.ProcessEnv;
@@ -1296,8 +1296,8 @@ function resolveCandidateDuplicateRank(params: {
 }
 
 function compareDuplicateCandidateOrder(params: {
-  left: ReturnType<typeof discoverAssistantPlugins>["candidates"][number];
-  right: ReturnType<typeof discoverAssistantPlugins>["candidates"][number];
+  left: ReturnType<typeof discoverZhushouPlugins>["candidates"][number];
+  right: ReturnType<typeof discoverZhushouPlugins>["candidates"][number];
   manifestByRoot: Map<string, ReturnType<typeof loadPluginManifestRegistry>["plugins"][number]>;
   provenance: PluginProvenanceIndex;
   env: NodeJS.ProcessEnv;
@@ -1410,12 +1410,12 @@ function activatePluginRegistry(
   initializeGlobalHookRunner(registry);
 }
 
-export function loadAssistantPlugins(options: PluginLoadOptions = {}): PluginRegistry {
+export function loadZhushouPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   // Snapshot (non-activating) loads must disable the cache to avoid storing a registry
   // whose commands were never globally registered.
   if (options.activate === false && options.cache !== false) {
     throw new Error(
-      "loadAssistantPlugins: activate:false requires cache:false to prevent command registry divergence",
+      "loadZhushouPlugins: activate:false requires cache:false to prevent command registry divergence",
     );
   }
   const {
@@ -1573,7 +1573,7 @@ export function loadAssistantPlugins(options: PluginLoadOptions = {}): PluginReg
       activateGlobalSideEffects: shouldActivate,
     });
 
-    const discovery = discoverAssistantPlugins({
+    const discovery = discoverZhushouPlugins({
       workspaceDir: options.workspaceDir,
       extraPaths: normalized.loadPaths,
       cache: options.cache,
@@ -1916,7 +1916,7 @@ export function loadAssistantPlugins(options: PluginLoadOptions = {}): PluginReg
       fs.closeSync(opened.fd);
       const safeImportSource = toSafeImportPath(safeSource);
 
-      let mod: AssistantPluginModule | null = null;
+      let mod: ZhushouPluginModule | null = null;
       try {
         // Track the plugin as imported once module evaluation begins. Top-level
         // code may have already executed even if evaluation later throws.
@@ -1925,7 +1925,7 @@ export function loadAssistantPlugins(options: PluginLoadOptions = {}): PluginReg
           phase: registrationMode,
           pluginId: record.id,
           source: safeSource,
-          run: () => getJiti(safeSource)(safeImportSource) as AssistantPluginModule,
+          run: () => getJiti(safeSource)(safeImportSource) as ZhushouPluginModule,
         });
       } catch (err) {
         recordPluginError({
@@ -1997,14 +1997,14 @@ export function loadAssistantPlugins(options: PluginLoadOptions = {}): PluginReg
             const safeRuntimeSource = runtimeOpened.path;
             fs.closeSync(runtimeOpened.fd);
             const safeRuntimeImportSource = toSafeImportPath(safeRuntimeSource);
-            let runtimeMod: AssistantPluginModule | null = null;
+            let runtimeMod: ZhushouPluginModule | null = null;
             try {
               runtimeMod = profilePluginLoaderSync({
                 phase: "load-setup-runtime-entry",
                 pluginId: record.id,
                 source: safeRuntimeSource,
                 run: () =>
-                  getJiti(safeRuntimeSource)(safeRuntimeImportSource) as AssistantPluginModule,
+                  getJiti(safeRuntimeSource)(safeRuntimeImportSource) as ZhushouPluginModule,
               });
             } catch (err) {
               recordPluginError({
@@ -2290,7 +2290,7 @@ export function loadAssistantPlugins(options: PluginLoadOptions = {}): PluginReg
         logger.warn(
           `[plugins] ${failedPlugins.length} plugin(s) failed to initialize (${formatPluginFailureSummary(
             failedPlugins,
-          )}). Run 'assistant plugins list' for details.`,
+          )}). Run 'zhushou plugins list' for details.`,
         );
       }
     }
@@ -2318,7 +2318,7 @@ export function loadAssistantPlugins(options: PluginLoadOptions = {}): PluginReg
   }
 }
 
-export async function loadAssistantPluginCliRegistry(
+export async function loadZhushouPluginCliRegistry(
   options: PluginLoadOptions = {},
 ): Promise<PluginRegistry> {
   const { env, cfg, normalized, activationSource, autoEnabledReasons, onlyPluginIds, cacheKey } =
@@ -2337,7 +2337,7 @@ export async function loadAssistantPluginCliRegistry(
     activateGlobalSideEffects: false,
   });
 
-  const discovery = discoverAssistantPlugins({
+  const discovery = discoverZhushouPlugins({
     workspaceDir: options.workspaceDir,
     extraPaths: normalized.loadPaths,
     cache: false,
@@ -2538,13 +2538,13 @@ export async function loadAssistantPluginCliRegistry(
     fs.closeSync(opened.fd);
     const safeImportSource = toSafeImportPath(safeSource);
 
-    let mod: AssistantPluginModule | null = null;
+    let mod: ZhushouPluginModule | null = null;
     try {
       mod = profilePluginLoaderSync({
         phase: "cli-metadata",
         pluginId: record.id,
         source: safeSource,
-        run: () => getJiti(safeSource)(safeImportSource) as AssistantPluginModule,
+        run: () => getJiti(safeSource)(safeImportSource) as ZhushouPluginModule,
       });
     } catch (err) {
       recordPluginError({

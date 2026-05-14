@@ -58,7 +58,7 @@ export const baseStatusOverviewScanFields = {
 export const baseStatusGatewayService = {
   label: "LaunchAgent",
   installed: true,
-  managedByAssistant: true,
+  managedByZhushou: true,
   loadedText: "loaded",
   runtimeShort: "running",
 };

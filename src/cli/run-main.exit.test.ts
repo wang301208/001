@@ -20,6 +20,7 @@ const registerCoreCliByNameMock = vi.hoisted(() => vi.fn());
 const registerSubCliByNameMock = vi.hoisted(() => vi.fn());
 const restoreTerminalStateMock = vi.hoisted(() => vi.fn());
 const runTuiMock = vi.hoisted(() => vi.fn(async () => {}));
+const runGatewayStdioBridgeMock = vi.hoisted(() => vi.fn(async () => {}));
 const maybeRunCliInContainerMock = vi.hoisted(() =>
   vi.fn<
     (argv: string[]) => { handled: true; exitCode: number } | { handled: false; argv: string[] }
@@ -44,7 +45,7 @@ vi.mock("../infra/env.js", () => ({
 }));
 
 vi.mock("../infra/path-env.js", () => ({
-  ensureAssistantCliOnPath: ensurePathMock,
+  ensureZhushouCliOnPath: ensurePathMock,
 }));
 
 vi.mock("../infra/runtime-guard.js", () => ({
@@ -99,6 +100,10 @@ vi.mock("../tui/tui.js", () => ({
   runTui: runTuiMock,
 }));
 
+vi.mock("../gateway/stdio-bridge.js", () => ({
+  runGatewayStdioBridge: runGatewayStdioBridgeMock,
+}));
+
 describe("runCli exit behavior", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -113,10 +118,10 @@ describe("runCli exit behavior", () => {
       throw new Error(`unexpected process.exit(${String(code)})`);
     }) as typeof process.exit);
 
-    await runCli(["node", "assistant", "status"]);
+    await runCli(["node", "zhushou", "status"]);
 
-    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "assistant", "status"]);
-    expect(tryRouteCliMock).toHaveBeenCalledWith(["node", "assistant", "status"]);
+    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "zhushou", "status"]);
+    expect(tryRouteCliMock).toHaveBeenCalledWith(["node", "zhushou", "status"]);
     expect(closeActiveMemorySearchManagersMock).not.toHaveBeenCalled();
     expect(ensureTaskRegistryReadyMock).not.toHaveBeenCalled();
     expect(startTaskRegistryMaintenanceMock).not.toHaveBeenCalled();
@@ -129,9 +134,9 @@ describe("runCli exit behavior", () => {
       throw new Error(`unexpected process.exit(${String(code)})`);
     }) as typeof process.exit);
 
-    await runCli(["node", "assistant", "--help"]);
+    await runCli(["node", "zhushou", "--help"]);
 
-    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "assistant", "--help"]);
+    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "zhushou", "--help"]);
     expect(tryRouteCliMock).not.toHaveBeenCalled();
     expect(outputPrecomputedRootHelpTextMock).toHaveBeenCalledTimes(1);
     expect(outputRootHelpMock).toHaveBeenCalledTimes(1);
@@ -146,9 +151,9 @@ describe("runCli exit behavior", () => {
       throw new Error(`unexpected process.exit(${String(code)})`);
     }) as typeof process.exit);
 
-    await runCli(["node", "assistant"]);
+    await runCli(["node", "zhushou"]);
 
-    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "assistant"]);
+    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "zhushou"]);
     expect(tryRouteCliMock).not.toHaveBeenCalled();
     expect(runTuiMock).toHaveBeenCalledWith({});
     expect(buildProgramMock).not.toHaveBeenCalled();
@@ -156,14 +161,14 @@ describe("runCli exit behavior", () => {
     exitSpy.mockRestore();
   });
 
-  it("opens the real TTY TUI for assistant --tui invocation", async () => {
+  it("opens the real TTY TUI for zhushou --tui invocation", async () => {
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
       throw new Error(`unexpected process.exit(${String(code)})`);
     }) as typeof process.exit);
 
-    await runCli(["node", "assistant", "--tui"]);
+    await runCli(["node", "zhushou", "--tui"]);
 
-    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "assistant", "--tui"]);
+    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith(["node", "zhushou", "--tui"]);
     expect(tryRouteCliMock).not.toHaveBeenCalled();
     expect(runTuiMock).toHaveBeenCalledWith({});
     expect(buildProgramMock).not.toHaveBeenCalled();
@@ -171,16 +176,16 @@ describe("runCli exit behavior", () => {
     exitSpy.mockRestore();
   });
 
-  it("opens explicit assistant tui through the fast path without route or full program registration", async () => {
+  it("opens explicit zhushou tui through the fast path without route or full program registration", async () => {
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
       throw new Error(`unexpected process.exit(${String(code)})`);
     }) as typeof process.exit);
 
-    await runCli(["node", "assistant", "tui", "--session", "work", "--timeout-ms", "45000"]);
+    await runCli(["node", "zhushou", "tui", "--session", "work", "--timeout-ms", "45000"]);
 
     expect(maybeRunCliInContainerMock).toHaveBeenCalledWith([
       "node",
-      "assistant",
+      "zhushou",
       "tui",
       "--session",
       "work",
@@ -196,11 +201,33 @@ describe("runCli exit behavior", () => {
     exitSpy.mockRestore();
   });
 
+  it("runs the internal stdio gateway through a dedicated fast path", async () => {
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`unexpected process.exit(${String(code)})`);
+    }) as typeof process.exit);
+
+    await runCli(["node", "zhushou", "stdio-gateway"]);
+
+    expect(maybeRunCliInContainerMock).toHaveBeenCalledWith([
+      "node",
+      "zhushou",
+      "stdio-gateway",
+    ]);
+    expect(runGatewayStdioBridgeMock).toHaveBeenCalledTimes(1);
+    expect(tryRouteCliMock).not.toHaveBeenCalled();
+    expect(loadDotEnvMock).not.toHaveBeenCalled();
+    expect(normalizeEnvMock).not.toHaveBeenCalled();
+    expect(ensurePathMock).not.toHaveBeenCalled();
+    expect(buildProgramMock).not.toHaveBeenCalled();
+    expect(exitSpy).not.toHaveBeenCalled();
+    exitSpy.mockRestore();
+  });
+
   it("closes memory managers when a runtime was registered", async () => {
     tryRouteCliMock.mockResolvedValueOnce(true);
     hasMemoryRuntimeMock.mockReturnValue(true);
 
-    await runCli(["node", "assistant", "status"]);
+    await runCli(["node", "zhushou", "status"]);
 
     expect(closeActiveMemorySearchManagersMock).toHaveBeenCalledTimes(1);
   });
@@ -208,11 +235,11 @@ describe("runCli exit behavior", () => {
   it("returns after a handled container-target invocation", async () => {
     maybeRunCliInContainerMock.mockReturnValueOnce({ handled: true, exitCode: 0 });
 
-    await runCli(["node", "assistant", "--container", "demo", "status"]);
+    await runCli(["node", "zhushou", "--container", "demo", "status"]);
 
     expect(maybeRunCliInContainerMock).toHaveBeenCalledWith([
       "node",
-      "assistant",
+      "zhushou",
       "--container",
       "demo",
       "status",
@@ -226,7 +253,7 @@ describe("runCli exit behavior", () => {
     const exitCode = process.exitCode;
     maybeRunCliInContainerMock.mockReturnValueOnce({ handled: true, exitCode: 7 });
 
-    await runCli(["node", "assistant", "--container", "demo", "status"]);
+    await runCli(["node", "zhushou", "--container", "demo", "status"]);
 
     expect(process.exitCode).toBe(7);
     process.exitCode = exitCode;
@@ -243,7 +270,7 @@ describe("runCli exit behavior", () => {
         ),
     });
 
-    await expect(runCli(["node", "assistant", "status"])).resolves.toBeUndefined();
+    await expect(runCli(["node", "zhushou", "status"])).resolves.toBeUndefined();
 
     expect(registerSubCliByNameMock).toHaveBeenCalledWith(expect.anything(), "status");
     expect(process.exitCode).toBe(1);
@@ -258,11 +285,11 @@ describe("runCli exit behavior", () => {
     const ctx = { programVersion: "0.0.0-test" };
     getProgramContextMock.mockReturnValueOnce(ctx as never);
 
-    await runCli(["node", "assistant", "doctor", "--help"]);
+    await runCli(["node", "zhushou", "doctor", "--help"]);
 
     expect(registerCoreCliByNameMock).toHaveBeenCalledWith(expect.anything(), ctx, "doctor", [
       "node",
-      "assistant",
+      "zhushou",
       "doctor",
       "--help",
     ]);
@@ -281,7 +308,7 @@ describe("runCli exit behavior", () => {
       throw new Error(`process.exit(${String(code)})`);
     }) as typeof process.exit);
 
-    await runCli(["node", "assistant", "status"]);
+    await runCli(["node", "zhushou", "status"]);
 
     const handler = processOnSpy.mock.calls.find(([event]) => event === "uncaughtException")?.[1];
     expect(typeof handler).toBe("function");
@@ -291,7 +318,7 @@ describe("runCli exit behavior", () => {
         "process.exit(1)",
       );
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[assistant] Uncaught exception:",
+        "[zhushou] Uncaught exception:",
         expect.stringContaining("boom"),
       );
       expect(restoreTerminalStateMock).toHaveBeenCalledWith("uncaught exception", {

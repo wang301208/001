@@ -10,11 +10,11 @@ vi.mock("./pw-ai.js", () => pwAiMocks);
 vi.mock("./chrome.js", () => ({
   isChromeCdpReady: vi.fn(async () => true),
   isChromeReachable: vi.fn(async () => true),
-  launchAssistantChrome: vi.fn(async () => {
+  launchZhushouChrome: vi.fn(async () => {
     throw new Error("unexpected launch");
   }),
-  resolveAssistantUserDataDir: vi.fn(() => "/tmp/assistant-test"),
-  stopAssistantChrome: vi.fn(async () => {}),
+  resolveZhushouUserDataDir: vi.fn(() => "/tmp/zhushou-test"),
+  stopZhushouChrome: vi.fn(async () => {}),
 }));
 vi.mock("./chrome-mcp.js", () => ({
   closeChromeMcpSession: vi.fn(async () => false),

@@ -1,7 +1,7 @@
-import { generateSecureUuid } from "assistant/plugin-sdk/core";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { resolveFetch } from "assistant/plugin-sdk/fetch-runtime";
-import { fetchWithTimeout } from "assistant/plugin-sdk/text-runtime";
+import { generateSecureUuid } from "zhushou/plugin-sdk/core";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { resolveFetch } from "zhushou/plugin-sdk/fetch-runtime";
+import { fetchWithTimeout } from "zhushou/plugin-sdk/text-runtime";
 
 export type SignalRpcOptions = {
   baseUrl: string;

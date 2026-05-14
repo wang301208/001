@@ -8,7 +8,7 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
   { name: "acp", description: "Agent Control Protocol tools", hasSubcommands: true },
   {
     name: "gateway",
-    description: "Run, inspect, and query the WebSocket Gateway",
+    description: "Run, inspect, and query the WebSocket network adapter",
     hasSubcommands: true,
   },
   { name: "daemon", description: "Gateway service (legacy alias)", hasSubcommands: true },
@@ -65,7 +65,12 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "tui",
-    description: "Open a terminal UI connected to the Gateway",
+    description: "Open the terminal UI connected to the embedded Node stdio main gateway",
+    hasSubcommands: false,
+  },
+  {
+    name: "stdio-gateway",
+    description: "Internal stdin/stdout JSON-RPC bridge for the single embedded Node main gateway",
     hasSubcommands: false,
   },
   {
@@ -80,7 +85,7 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "docs",
-    description: "Search the live assistant docs",
+    description: "Search the live zhushou docs",
     hasSubcommands: false,
   },
   {
@@ -90,7 +95,7 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "proxy",
-    description: "Run the assistant debug proxy and inspect captured traffic",
+    description: "Run the zhushou debug proxy and inspect captured traffic",
     hasSubcommands: true,
   },
   {
@@ -120,7 +125,7 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "plugins",
-    description: "Manage assistant plugins and extensions",
+    description: "Manage zhushou plugins and extensions",
     hasSubcommands: true,
   },
   {
@@ -150,7 +155,7 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "update",
-    description: "Update assistant and inspect update channel status",
+    description: "Update zhushou and inspect update channel status",
     hasSubcommands: true,
   },
   {

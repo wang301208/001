@@ -25,7 +25,7 @@ export type CanvasDocumentCreateInput = {
   preferredHeight?: number;
   entrypoint?: CanvasDocumentEntrypoint;
   assets?: CanvasDocumentAsset[];
-  surface?: "assistant_message" | "tool_card" | "sidebar";
+  surface?: "zhushou_message" | "tool_card" | "sidebar";
 };
 
 export type CanvasDocumentManifest = {
@@ -37,7 +37,7 @@ export type CanvasDocumentManifest = {
   entryUrl: string;
   localEntrypoint?: string;
   externalUrl?: string;
-  surface?: "assistant_message" | "tool_card" | "sidebar";
+  surface?: "zhushou_message" | "tool_card" | "sidebar";
   assets: Array<{
     logicalPath: string;
     contentType?: string;

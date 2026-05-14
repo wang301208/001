@@ -109,7 +109,7 @@ describe("filterHeartbeatPairs", () => {
     ]);
   });
 
-  it("keeps meaningful heartbeat results and non-text assistant turns", () => {
+  it("keeps meaningful heartbeat results and non-text zhushou turns", () => {
     const meaningfulMessages = [
       { role: "user", content: HEARTBEAT_PROMPT },
       { role: "assistant", content: "Status HEARTBEAT_OK due to watchdog failure" },

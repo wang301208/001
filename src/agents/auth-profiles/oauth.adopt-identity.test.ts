@@ -101,8 +101,8 @@ function storeWith(profileId: string, cred: OAuthCredential): AuthProfileStore {
 
 describe("OAuth credential adoption is identity-gated", () => {
   const envSnapshot = captureEnv([
-    "ASSISTANT_STATE_DIR",
-    "ASSISTANT_AGENT_DIR",
+    "ZHUSHOU_STATE_DIR",
+    "ZHUSHOU_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
   let tempRoot = "";
@@ -115,10 +115,10 @@ describe("OAuth credential adoption is identity-gated", () => {
     formatProviderAuthProfileApiKeyWithPluginMock.mockReset();
     formatProviderAuthProfileApiKeyWithPluginMock.mockReturnValue(undefined);
     clearRuntimeAuthProfileStoreSnapshots();
-    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-oauth-adopt-identity-"));
-    process.env.ASSISTANT_STATE_DIR = tempRoot;
+    tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-oauth-adopt-identity-"));
+    process.env.ZHUSHOU_STATE_DIR = tempRoot;
     mainAgentDir = path.join(tempRoot, "agents", "main", "agent");
-    process.env.ASSISTANT_AGENT_DIR = mainAgentDir;
+    process.env.ZHUSHOU_AGENT_DIR = mainAgentDir;
     process.env.PI_CODING_AGENT_DIR = mainAgentDir;
     await fs.mkdir(mainAgentDir, { recursive: true });
     await loadOAuthModuleForTest();

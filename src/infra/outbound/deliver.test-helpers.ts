@@ -5,7 +5,7 @@ import {
   signalOutbound,
   whatsappOutbound,
 } from "../../../test/helpers/infra/deliver-test-outbounds.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   releasePinnedPluginChannelRegistry,
   setActivePluginRegistry,
@@ -16,7 +16,7 @@ import type { DeliverOutboundPayloadsParams, OutboundDeliveryResult } from "./de
 
 type DeliverMockState = {
   sessions: {
-    appendAssistantMessageToSessionTranscript: (...args: unknown[]) => Promise<{
+    appendZhushouMessageToSessionTranscript: (...args: unknown[]) => Promise<{
       ok: boolean;
       sessionFile: string;
     }>;
@@ -43,7 +43,7 @@ type DeliverMockState = {
 
 export const deliverMocks: DeliverMockState = {
   sessions: {
-    appendAssistantMessageToSessionTranscript: async () => ({ ok: true, sessionFile: "x" }),
+    appendZhushouMessageToSessionTranscript: async () => ({ ok: true, sessionFile: "x" }),
   },
   hooks: {
     runner: {
@@ -66,8 +66,8 @@ export const deliverMocks: DeliverMockState = {
 };
 
 const _mocks = vi.hoisted(() => ({
-  appendAssistantMessageToSessionTranscript: vi.fn(async () =>
-    deliverMocks.sessions.appendAssistantMessageToSessionTranscript(),
+  appendZhushouMessageToSessionTranscript: vi.fn(async () =>
+    deliverMocks.sessions.appendZhushouMessageToSessionTranscript(),
   ),
 }));
 const _hookMocks = vi.hoisted(() => ({
@@ -109,7 +109,7 @@ vi.mock("../../config/sessions/transcript.runtime.js", async () => {
   >("../../config/sessions/transcript.runtime.js");
   return {
     ...actual,
-    appendAssistantMessageToSessionTranscript: _mocks.appendAssistantMessageToSessionTranscript,
+    appendZhushouMessageToSessionTranscript: _mocks.appendZhushouMessageToSessionTranscript,
   };
 });
 vi.mock("../../config/sessions/transcript.js", async () => {
@@ -118,7 +118,7 @@ vi.mock("../../config/sessions/transcript.js", async () => {
   );
   return {
     ...actual,
-    appendAssistantMessageToSessionTranscript: _mocks.appendAssistantMessageToSessionTranscript,
+    appendZhushouMessageToSessionTranscript: _mocks.appendZhushouMessageToSessionTranscript,
   };
 });
 vi.mock("../../plugins/hook-runner-global.js", () => ({
@@ -146,7 +146,7 @@ vi.mock("../../logging/subsystem.js", () => ({
   },
 }));
 
-export const whatsappChunkConfig: AssistantConfig = {
+export const whatsappChunkConfig: ZhushouConfig = {
   channels: { whatsapp: { textChunkLimit: 4000 } },
 };
 
@@ -187,7 +187,7 @@ export function resetDeliverTestState() {
   deliverMocks.queue.ackDelivery = async () => {};
   deliverMocks.queue.failDelivery = async () => {};
   deliverMocks.log.warn = () => {};
-  deliverMocks.sessions.appendAssistantMessageToSessionTranscript = async () => ({
+  deliverMocks.sessions.appendZhushouMessageToSessionTranscript = async () => ({
     ok: true,
     sessionFile: "x",
   });
@@ -208,7 +208,7 @@ export function resetDeliverTestMocks(params?: { includeSessionMocks?: boolean }
   queueMocks.failDelivery.mockClear();
   logMocks.warn.mockClear();
   if (params?.includeSessionMocks) {
-    mocks.appendAssistantMessageToSessionTranscript.mockClear();
+    mocks.appendZhushouMessageToSessionTranscript.mockClear();
   }
 }
 
@@ -224,7 +224,7 @@ export async function runChunkedWhatsAppDelivery(params: {
     >()
     .mockResolvedValueOnce({ messageId: "w1", toJid: "jid" })
     .mockResolvedValueOnce({ messageId: "w2", toJid: "jid" });
-  const cfg: AssistantConfig = {
+  const cfg: ZhushouConfig = {
     channels: { whatsapp: { textChunkLimit: 2 } },
   };
   const results = await params.deliverOutboundPayloads({

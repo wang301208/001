@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-logs.sh"
-IMAGE_NAME="assistant-plugins-e2e"
+IMAGE_NAME="zhushou-plugins-e2e"
 
 echo "Building Docker image..."
 run_logged plugins-build docker build -t "$IMAGE_NAME" -f "$ROOT_DIR/scripts/e2e/Dockerfile" "$ROOT_DIR"
@@ -17,20 +17,20 @@ if [[ -n "${OPENAI_BASE_URL:-}" && "${OPENAI_BASE_URL:-}" != "undefined" && "${O
 fi
 
 echo "Running plugins Docker E2E..."
-RUN_LOG="$(mktemp "${TMPDIR:-/tmp}/assistant-plugins-run.XXXXXX.log")"
+RUN_LOG="$(mktemp "${TMPDIR:-/tmp}/zhushou-plugins-run.XXXXXX.log")"
 if ! docker run --rm "${DOCKER_ENV_ARGS[@]}" -i "$IMAGE_NAME" bash -s >"$RUN_LOG" 2>&1 <<'EOF'
 set -euo pipefail
 
 if [ -f dist/index.mjs ]; then
-  ASSISTANT_ENTRY="dist/index.mjs"
+  ZHUSHOU_ENTRY="dist/index.mjs"
 elif [ -f dist/index.js ]; then
-  ASSISTANT_ENTRY="dist/index.js"
+  ZHUSHOU_ENTRY="dist/index.js"
 else
   echo "Missing dist/index.(m)js (build output):"
   ls -la dist || true
   exit 1
 fi
-export ASSISTANT_ENTRY
+export ZHUSHOU_ENTRY
 
 sanitize_env_string() {
   local value="${1:-}"
@@ -50,10 +50,10 @@ if [[ -z "$OPENAI_BASE_URL" ]]; then
   unset OPENAI_BASE_URL || true
 fi
 
-home_dir=$(mktemp -d "/tmp/assistant-plugins-e2e.XXXXXX")
+home_dir=$(mktemp -d "/tmp/zhushou-plugins-e2e.XXXXXX")
 export HOME="$home_dir"
 BUNDLED_PLUGIN_ROOT_DIR="extensions"
-ASSISTANT_PLUGIN_HOME="$HOME/.assistant/$BUNDLED_PLUGIN_ROOT_DIR"
+ZHUSHOU_PLUGIN_HOME="$HOME/.zhushou/$BUNDLED_PLUGIN_ROOT_DIR"
 
 gateway_pid=""
 
@@ -68,7 +68,7 @@ const path = require("node:path");
 const pluginId = process.argv[2];
 const pluginRoot = process.argv[3];
 const enabled = process.argv[4] === "1";
-const configPath = path.join(process.env.HOME, ".assistant", "assistant.json");
+const configPath = path.join(process.env.HOME, ".zhushou", "zhushou.json");
 const config = fs.existsSync(configPath)
   ? JSON.parse(fs.readFileSync(configPath, "utf8"))
   : {};
@@ -91,7 +91,7 @@ NODE
 run_logged() {
   local label="$1"
   shift
-  local log_file="/tmp/assistant-plugins-e2e-${label}.log"
+  local log_file="/tmp/zhushou-plugins-e2e-${label}.log"
   if ! "$@" >"$log_file" 2>&1; then
     cat "$log_file"
     exit 1
@@ -107,7 +107,7 @@ const path = require("node:path");
 
 const openaiApiKey = process.argv[2];
 const openaiBaseUrl = process.argv[3];
-const configPath = path.join(process.env.HOME, ".assistant", "assistant.json");
+const configPath = path.join(process.env.HOME, ".zhushou", "zhushou.json");
 const config = fs.existsSync(configPath)
   ? JSON.parse(fs.readFileSync(configPath, "utf8"))
   : {};
@@ -143,7 +143,7 @@ stop_gateway() {
 start_gateway() {
   local log_file="$1"
   : > "$log_file"
-  node "$ASSISTANT_ENTRY" gateway --port 18789 --bind loopback --allow-unconfigured \
+  node "$ZHUSHOU_ENTRY" gateway --port 18789 --bind loopback --allow-unconfigured \
     >"$log_file" 2>&1 &
   gateway_pid=$!
 
@@ -168,7 +168,7 @@ start_gateway() {
 
 wait_for_gateway_health() {
   for _ in $(seq 1 120); do
-    if node "$ASSISTANT_ENTRY" gateway health \
+    if node "$ZHUSHOU_ENTRY" gateway health \
       --url ws://127.0.0.1:18789 \
       --token plugin-e2e-token \
       --json >/dev/null 2>&1; then
@@ -186,7 +186,7 @@ run_gateway_chat_json() {
   local message="$2"
   local output_file="$3"
   local timeout_ms="${4:-45000}"
-  node - <<'NODE' "$ASSISTANT_ENTRY" "$session_key" "$message" "$output_file" "$timeout_ms"
+  node - <<'NODE' "$ZHUSHOU_ENTRY" "$session_key" "$message" "$output_file" "$timeout_ms"
 const { execFileSync } = require("node:child_process");
 const fs = require("node:fs");
 const { randomUUID } = require("node:crypto");
@@ -258,7 +258,7 @@ const extractText = (messageLike) => {
     .trim();
 };
 
-const findLatestAssistantText = (history) => {
+const findLatestZhushouText = (history) => {
   const messages = Array.isArray(history?.messages) ? history.messages : [];
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const candidate = messages[index];
@@ -318,16 +318,16 @@ async function main() {
     }
     lastGatewayError = null;
     const history = historyResult.value;
-    const latestAssistant = findLatestAssistantText(history);
-    if (latestAssistant) {
+    const latestZhushou = findLatestZhushouText(history);
+    if (latestZhushou) {
       fs.writeFileSync(
         outputFile,
         `${JSON.stringify(
           {
             sessionKey,
             runId,
-            text: latestAssistant.text,
-            message: latestAssistant.message,
+            text: latestZhushou.text,
+            message: latestZhushou.message,
             history,
           },
           null,
@@ -358,7 +358,7 @@ async function main() {
     "utf8",
   );
   const retrySummary = lastGatewayError ? `; last gateway error: ${lastGatewayError}` : "";
-  throw new Error(`timed out waiting for assistant reply for ${sessionKey}${retrySummary}`);
+  throw new Error(`timed out waiting for zhushou reply for ${sessionKey}${retrySummary}`);
 }
 
 main().catch((error) => {
@@ -380,9 +380,9 @@ write_fixture_plugin() {
   mkdir -p "$dir"
   cat > "$dir/package.json" <<JSON
 {
-  "name": "@assistant/$id",
+  "name": "@zhushou/$id",
   "version": "$version",
-  "assistant": { "extensions": ["./index.js"] }
+  "zhushou": { "extensions": ["./index.js"] }
 }
 JSON
   cat > "$dir/index.js" <<JS
@@ -394,7 +394,7 @@ module.exports = {
   },
 };
 JS
-  cat > "$dir/assistant.plugin.json" <<'JSON'
+  cat > "$dir/zhushou.plugin.json" <<'JSON'
 {
   "id": "placeholder",
   "configSchema": {
@@ -403,7 +403,7 @@ JS
   }
 }
 JSON
-  node - <<'NODE' "$dir/assistant.plugin.json" "$id"
+  node - <<'NODE' "$dir/zhushou.plugin.json" "$id"
 const fs = require("node:fs");
 const file = process.argv[2];
 const id = process.argv[3];
@@ -414,7 +414,7 @@ NODE
 }
 
 demo_plugin_id="demo-plugin"
-demo_plugin_root="$ASSISTANT_PLUGIN_HOME/$demo_plugin_id"
+demo_plugin_root="$ZHUSHOU_PLUGIN_HOME/$demo_plugin_id"
 mkdir -p "$demo_plugin_root"
 
 cat > "$demo_plugin_root/index.js" <<'JS'
@@ -430,7 +430,7 @@ module.exports = {
   },
 };
 JS
-cat > "$demo_plugin_root/assistant.plugin.json" <<'JSON'
+cat > "$demo_plugin_root/zhushou.plugin.json" <<'JSON'
 {
   "id": "demo-plugin",
   "configSchema": {
@@ -441,8 +441,8 @@ cat > "$demo_plugin_root/assistant.plugin.json" <<'JSON'
 JSON
 record_fixture_plugin_trust "$demo_plugin_id" "$demo_plugin_root" 1
 
-node "$ASSISTANT_ENTRY" plugins list --json > /tmp/plugins.json
-node "$ASSISTANT_ENTRY" plugins inspect demo-plugin --json > /tmp/plugins-inspect.json
+node "$ZHUSHOU_ENTRY" plugins list --json > /tmp/plugins.json
+node "$ZHUSHOU_ENTRY" plugins inspect demo-plugin --json > /tmp/plugins-inspect.json
 
 node - <<'NODE'
 const fs = require("node:fs");
@@ -478,13 +478,13 @@ console.log("ok");
 NODE
 
 echo "Testing tgz install flow..."
-pack_dir="$(mktemp -d "/tmp/assistant-plugin-pack.XXXXXX")"
+pack_dir="$(mktemp -d "/tmp/zhushou-plugin-pack.XXXXXX")"
 mkdir -p "$pack_dir/package"
 cat > "$pack_dir/package/package.json" <<'JSON'
 {
-  "name": "@assistant/demo-plugin-tgz",
+  "name": "@zhushou/demo-plugin-tgz",
   "version": "0.0.1",
-  "assistant": { "extensions": ["./index.js"] }
+  "zhushou": { "extensions": ["./index.js"] }
 }
 JSON
 cat > "$pack_dir/package/index.js" <<'JS'
@@ -496,7 +496,7 @@ module.exports = {
   },
 };
 JS
-cat > "$pack_dir/package/assistant.plugin.json" <<'JSON'
+cat > "$pack_dir/package/zhushou.plugin.json" <<'JSON'
 {
   "id": "demo-plugin-tgz",
   "configSchema": {
@@ -507,9 +507,9 @@ cat > "$pack_dir/package/assistant.plugin.json" <<'JSON'
 JSON
 tar -czf /tmp/demo-plugin-tgz.tgz -C "$pack_dir" package
 
-run_logged install-tgz node "$ASSISTANT_ENTRY" plugins install /tmp/demo-plugin-tgz.tgz
-node "$ASSISTANT_ENTRY" plugins list --json > /tmp/plugins2.json
-node "$ASSISTANT_ENTRY" plugins inspect demo-plugin-tgz --json > /tmp/plugins2-inspect.json
+run_logged install-tgz node "$ZHUSHOU_ENTRY" plugins install /tmp/demo-plugin-tgz.tgz
+node "$ZHUSHOU_ENTRY" plugins list --json > /tmp/plugins2.json
+node "$ZHUSHOU_ENTRY" plugins inspect demo-plugin-tgz --json > /tmp/plugins2-inspect.json
 
 node - <<'NODE'
 const fs = require("node:fs");
@@ -528,12 +528,12 @@ console.log("ok");
 NODE
 
 echo "Testing install from local folder (plugins.load.paths)..."
-dir_plugin="$(mktemp -d "/tmp/assistant-plugin-dir.XXXXXX")"
+dir_plugin="$(mktemp -d "/tmp/zhushou-plugin-dir.XXXXXX")"
 cat > "$dir_plugin/package.json" <<'JSON'
 {
-  "name": "@assistant/demo-plugin-dir",
+  "name": "@zhushou/demo-plugin-dir",
   "version": "0.0.1",
-  "assistant": { "extensions": ["./index.js"] }
+  "zhushou": { "extensions": ["./index.js"] }
 }
 JSON
 cat > "$dir_plugin/index.js" <<'JS'
@@ -545,7 +545,7 @@ module.exports = {
   },
 };
 JS
-cat > "$dir_plugin/assistant.plugin.json" <<'JSON'
+cat > "$dir_plugin/zhushou.plugin.json" <<'JSON'
 {
   "id": "demo-plugin-dir",
   "configSchema": {
@@ -555,9 +555,9 @@ cat > "$dir_plugin/assistant.plugin.json" <<'JSON'
 }
 JSON
 
-run_logged install-dir node "$ASSISTANT_ENTRY" plugins install "$dir_plugin"
-node "$ASSISTANT_ENTRY" plugins list --json > /tmp/plugins3.json
-node "$ASSISTANT_ENTRY" plugins inspect demo-plugin-dir --json > /tmp/plugins3-inspect.json
+run_logged install-dir node "$ZHUSHOU_ENTRY" plugins install "$dir_plugin"
+node "$ZHUSHOU_ENTRY" plugins list --json > /tmp/plugins3.json
+node "$ZHUSHOU_ENTRY" plugins inspect demo-plugin-dir --json > /tmp/plugins3-inspect.json
 
 node - <<'NODE'
 const fs = require("node:fs");
@@ -576,13 +576,13 @@ console.log("ok");
 NODE
 
 echo "Testing install from npm spec (file:)..."
-file_pack_dir="$(mktemp -d "/tmp/assistant-plugin-filepack.XXXXXX")"
+file_pack_dir="$(mktemp -d "/tmp/zhushou-plugin-filepack.XXXXXX")"
 mkdir -p "$file_pack_dir/package"
 cat > "$file_pack_dir/package/package.json" <<'JSON'
 {
-  "name": "@assistant/demo-plugin-file",
+  "name": "@zhushou/demo-plugin-file",
   "version": "0.0.1",
-  "assistant": { "extensions": ["./index.js"] }
+  "zhushou": { "extensions": ["./index.js"] }
 }
 JSON
 cat > "$file_pack_dir/package/index.js" <<'JS'
@@ -594,7 +594,7 @@ module.exports = {
   },
 };
 JS
-cat > "$file_pack_dir/package/assistant.plugin.json" <<'JSON'
+cat > "$file_pack_dir/package/zhushou.plugin.json" <<'JSON'
 {
   "id": "demo-plugin-file",
   "configSchema": {
@@ -604,9 +604,9 @@ cat > "$file_pack_dir/package/assistant.plugin.json" <<'JSON'
 }
 JSON
 
-run_logged install-file node "$ASSISTANT_ENTRY" plugins install "file:$file_pack_dir/package"
-node "$ASSISTANT_ENTRY" plugins list --json > /tmp/plugins4.json
-node "$ASSISTANT_ENTRY" plugins inspect demo-plugin-file --json > /tmp/plugins4-inspect.json
+run_logged install-file node "$ZHUSHOU_ENTRY" plugins install "file:$file_pack_dir/package"
+node "$ZHUSHOU_ENTRY" plugins list --json > /tmp/plugins4.json
+node "$ZHUSHOU_ENTRY" plugins inspect demo-plugin-file --json > /tmp/plugins4-inspect.json
 
 node - <<'NODE'
 const fs = require("node:fs");
@@ -626,7 +626,7 @@ NODE
 
 echo "Testing /plugin alias with Claude bundle restart semantics..."
 bundle_plugin_id="claude-bundle-e2e"
-bundle_root="$ASSISTANT_PLUGIN_HOME/$bundle_plugin_id"
+bundle_root="$ZHUSHOU_PLUGIN_HOME/$bundle_plugin_id"
 mkdir -p "$bundle_root/.claude-plugin" "$bundle_root/commands"
 cat > "$bundle_root/.claude-plugin/plugin.json" <<'JSON'
 {
@@ -648,7 +648,7 @@ node - <<'NODE'
 const fs = require("node:fs");
 const path = require("node:path");
 
-const configPath = path.join(process.env.HOME, ".assistant", "assistant.json");
+const configPath = path.join(process.env.HOME, ".zhushou", "zhushou.json");
 const config = fs.existsSync(configPath)
   ? JSON.parse(fs.readFileSync(configPath, "utf8"))
   : {};
@@ -682,17 +682,17 @@ if [ -n "${OPENAI_API_KEY:-}" ]; then
   seed_openai_provider_config "$OPENAI_API_KEY" "${OPENAI_BASE_URL:-}"
 fi
 
-gateway_log="/tmp/assistant-plugin-command-e2e.log"
+gateway_log="/tmp/zhushou-plugin-command-e2e.log"
 start_gateway "$gateway_log"
 wait_for_gateway_health
 
 echo "Testing /plugin install with auto-restart..."
-slash_install_dir="$(mktemp -d "/tmp/assistant-plugin-slash-install.XXXXXX")"
+slash_install_dir="$(mktemp -d "/tmp/zhushou-plugin-slash-install.XXXXXX")"
 cat > "$slash_install_dir/package.json" <<'JSON'
 {
-  "name": "@assistant/slash-install-plugin",
+  "name": "@zhushou/slash-install-plugin",
   "version": "0.0.1",
-  "assistant": { "extensions": ["./index.js"] }
+  "zhushou": { "extensions": ["./index.js"] }
 }
 JSON
 cat > "$slash_install_dir/index.js" <<'JS'
@@ -704,7 +704,7 @@ module.exports = {
   },
 };
 JS
-cat > "$slash_install_dir/assistant.plugin.json" <<'JSON'
+cat > "$slash_install_dir/zhushou.plugin.json" <<'JSON'
 {
   "id": "slash-install-plugin",
   "configSchema": {
@@ -867,13 +867,13 @@ cat > "$HOME/.claude/plugins/known_marketplaces.json" <<JSON
     "installLocation": "$marketplace_root",
     "source": {
       "type": "github",
-      "repo": "assistant/fixture-marketplace"
+      "repo": "zhushou/fixture-marketplace"
     }
   }
 }
 JSON
 
-node "$ASSISTANT_ENTRY" plugins marketplace list claude-fixtures --json > /tmp/marketplace-list.json
+node "$ZHUSHOU_ENTRY" plugins marketplace list claude-fixtures --json > /tmp/marketplace-list.json
 
 node - <<'NODE'
 const fs = require("node:fs");
@@ -889,11 +889,11 @@ if (!names.includes("marketplace-shortcut") || !names.includes("marketplace-dire
 console.log("ok");
 NODE
 
-run_logged install-marketplace-shortcut node "$ASSISTANT_ENTRY" plugins install marketplace-shortcut@claude-fixtures
-run_logged install-marketplace-direct node "$ASSISTANT_ENTRY" plugins install marketplace-direct --marketplace claude-fixtures
-node "$ASSISTANT_ENTRY" plugins list --json > /tmp/plugins-marketplace.json
-node "$ASSISTANT_ENTRY" plugins inspect marketplace-shortcut --json > /tmp/plugins-marketplace-shortcut-inspect.json
-node "$ASSISTANT_ENTRY" plugins inspect marketplace-direct --json > /tmp/plugins-marketplace-direct-inspect.json
+run_logged install-marketplace-shortcut node "$ZHUSHOU_ENTRY" plugins install marketplace-shortcut@claude-fixtures
+run_logged install-marketplace-direct node "$ZHUSHOU_ENTRY" plugins install marketplace-direct --marketplace claude-fixtures
+node "$ZHUSHOU_ENTRY" plugins list --json > /tmp/plugins-marketplace.json
+node "$ZHUSHOU_ENTRY" plugins inspect marketplace-shortcut --json > /tmp/plugins-marketplace-shortcut-inspect.json
+node "$ZHUSHOU_ENTRY" plugins inspect marketplace-direct --json > /tmp/plugins-marketplace-direct-inspect.json
 
 node - <<'NODE'
 const fs = require("node:fs");
@@ -935,7 +935,7 @@ node - <<'NODE'
 const fs = require("node:fs");
 const path = require("node:path");
 
-const configPath = path.join(process.env.HOME, ".assistant", "assistant.json");
+const configPath = path.join(process.env.HOME, ".zhushou", "zhushou.json");
 const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
 for (const id of ["marketplace-shortcut", "marketplace-direct"]) {
   const record = config.plugins?.installs?.[id];
@@ -959,10 +959,10 @@ write_fixture_plugin \
   "0.0.2" \
   "demo.marketplace.shortcut.v2" \
   "Marketplace Shortcut"
-run_logged update-marketplace-shortcut-dry-run node "$ASSISTANT_ENTRY" plugins update marketplace-shortcut --dry-run
-run_logged update-marketplace-shortcut node "$ASSISTANT_ENTRY" plugins update marketplace-shortcut
-node "$ASSISTANT_ENTRY" plugins list --json > /tmp/plugins-marketplace-updated.json
-node "$ASSISTANT_ENTRY" plugins inspect marketplace-shortcut --json > /tmp/plugins-marketplace-updated-inspect.json
+run_logged update-marketplace-shortcut-dry-run node "$ZHUSHOU_ENTRY" plugins update marketplace-shortcut --dry-run
+run_logged update-marketplace-shortcut node "$ZHUSHOU_ENTRY" plugins update marketplace-shortcut
+node "$ZHUSHOU_ENTRY" plugins list --json > /tmp/plugins-marketplace-updated.json
+node "$ZHUSHOU_ENTRY" plugins inspect marketplace-shortcut --json > /tmp/plugins-marketplace-updated-inspect.json
 
 node - <<'NODE'
 const fs = require("node:fs");

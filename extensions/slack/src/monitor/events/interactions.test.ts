@@ -167,8 +167,8 @@ function createContext(overrides?: {
 
 describe("registerSlackInteractionEvents", () => {
   beforeAll(async () => {
-    const channelRuntime = await import("assistant/plugin-sdk/infra-runtime");
-    const pluginRuntime = await import("assistant/plugin-sdk/plugin-runtime");
+    const channelRuntime = await import("zhushou/plugin-sdk/infra-runtime");
+    const pluginRuntime = await import("zhushou/plugin-sdk/plugin-runtime");
     const conversationBinding = await import("../../../../../src/plugins/conversation-binding.js");
     enqueueSystemEventSpy = vi
       .spyOn(channelRuntime, "enqueueSystemEvent")
@@ -249,14 +249,14 @@ describe("registerSlackInteractionEvents", () => {
             {
               type: "actions",
               block_id: "verify_block",
-              elements: [{ type: "button", action_id: "assistant:verify" }],
+              elements: [{ type: "button", action_id: "zhushou:verify" }],
             },
           ],
         },
       },
       action: {
         type: "button",
-        action_id: "assistant:verify",
+        action_id: "zhushou:verify",
         block_id: "verify_block",
         value: "approved",
         text: { type: "plain_text", text: "Approve" },
@@ -280,7 +280,7 @@ describe("registerSlackInteractionEvents", () => {
       threadTs?: string;
     };
     expect(payload).toMatchObject({
-      actionId: "assistant:verify",
+      actionId: "zhushou:verify",
       actionType: "button",
       value: "approved",
       userId: "U123",
@@ -305,7 +305,7 @@ describe("registerSlackInteractionEvents", () => {
 
     const matcher = getActionMatcher();
     expect(matcher).toBeTruthy();
-    expect(matcher?.test("assistant:verify")).toBe(true);
+    expect(matcher?.test("zhushou:verify")).toBe(true);
     expect(matcher?.test("codex")).toBe(true);
   });
 
@@ -419,14 +419,14 @@ describe("registerSlackInteractionEvents", () => {
             {
               type: "actions",
               block_id: "reply_actions",
-              elements: [{ type: "button", action_id: "assistant:reply_button" }],
+              elements: [{ type: "button", action_id: "zhushou:reply_button" }],
             },
           ],
         },
       },
       action: {
         type: "button",
-        action_id: "assistant:reply_button",
+        action_id: "zhushou:reply_button",
         block_id: "reply_actions",
         value: "codex",
         text: { type: "plain_text", text: "codex" },
@@ -436,7 +436,7 @@ describe("registerSlackInteractionEvents", () => {
     expect(ack).toHaveBeenCalled();
     expect(dispatchPluginInteractiveHandlerMock).not.toHaveBeenCalled();
     expect(enqueueSystemEventMock).toHaveBeenCalledWith(
-      expect.stringContaining('"actionId":"assistant:reply_button"'),
+      expect.stringContaining('"actionId":"zhushou:reply_button"'),
       expect.any(Object),
     );
     expect(app.client.chat.update).toHaveBeenCalledTimes(1);
@@ -559,14 +559,14 @@ describe("registerSlackInteractionEvents", () => {
             {
               type: "actions",
               block_id: "bind_actions",
-              elements: [{ type: "button", action_id: "assistant:reply_button" }],
+              elements: [{ type: "button", action_id: "zhushou:reply_button" }],
             },
           ],
         },
       },
       action: {
         type: "button",
-        action_id: "assistant:reply_button",
+        action_id: "zhushou:reply_button",
         block_id: "bind_actions",
         value: "pluginbind:approval-123:o",
         text: { type: "plain_text", text: "Allow once" },
@@ -623,7 +623,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "button",
-        action_id: "assistant:verify",
+        action_id: "zhushou:verify",
       },
     });
 
@@ -653,7 +653,7 @@ describe("registerSlackInteractionEvents", () => {
         team: { id: "T9" },
         view: {
           id: "V123",
-          callback_id: "assistant:deploy_form",
+          callback_id: "zhushou:deploy_form",
           private_metadata: JSON.stringify({ userId: "U123" }),
         },
       },
@@ -668,7 +668,7 @@ describe("registerSlackInteractionEvents", () => {
         team: { id: "T9" },
         view: {
           id: "V123",
-          callback_id: "assistant:deploy_form",
+          callback_id: "zhushou:deploy_form",
           private_metadata: JSON.stringify({ userId: "U123" }),
         },
       },
@@ -697,7 +697,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "static_select",
-        action_id: "assistant:pick",
+        action_id: "zhushou:pick",
         block_id: "select_block",
         selected_option: {
           text: { type: "plain_text", text: "Canary" },
@@ -758,7 +758,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "button",
-        action_id: "assistant:verify",
+        action_id: "zhushou:verify",
         block_id: "verify_block",
       },
     });
@@ -796,7 +796,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "button",
-        action_id: "assistant:verify",
+        action_id: "zhushou:verify",
         block_id: "verify_block",
       },
     });
@@ -837,7 +837,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "button",
-        action_id: "assistant:verify",
+        action_id: "zhushou:verify",
         block_id: "verify_block",
       },
     });
@@ -875,7 +875,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "button",
-        action_id: "assistant:verify",
+        action_id: "zhushou:verify",
         block_id: "verify_block",
       },
     });
@@ -911,7 +911,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "button",
-        action_id: "assistant:verify",
+        action_id: "zhushou:verify",
         block_id: "verify_block",
       },
     });
@@ -947,7 +947,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "button",
-        action_id: "assistant:verify",
+        action_id: "zhushou:verify",
         block_id: "verify_block",
       },
     });
@@ -981,7 +981,7 @@ describe("registerSlackInteractionEvents", () => {
             {
               type: "actions",
               block_id: "verify_block",
-              elements: [{ type: "button", action_id: "assistant:verify" }],
+              elements: [{ type: "button", action_id: "zhushou:verify" }],
             },
           ],
         },
@@ -1015,7 +1015,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "static_select",
-        action_id: "assistant:pick",
+        action_id: "zhushou:pick",
         block_id: "select_block",
         selected_option: {
           text: { type: "plain_text", text: "Canary_*`~<&>" },
@@ -1061,7 +1061,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "button",
-        action_id: "assistant:container",
+        action_id: "zhushou:container",
         block_id: "container_block",
         value: "ok",
         text: { type: "plain_text", text: "Container" },
@@ -1111,14 +1111,14 @@ describe("registerSlackInteractionEvents", () => {
             {
               type: "actions",
               block_id: "multi_block",
-              elements: [{ type: "multi_static_select", action_id: "assistant:multi" }],
+              elements: [{ type: "multi_static_select", action_id: "zhushou:multi" }],
             },
           ],
         },
       },
       action: {
         type: "multi_static_select",
-        action_id: "assistant:multi",
+        action_id: "zhushou:multi",
         block_id: "multi_block",
         selected_options: [
           { text: { type: "plain_text", text: "Alpha" }, value: "alpha" },
@@ -1170,24 +1170,24 @@ describe("registerSlackInteractionEvents", () => {
             {
               type: "actions",
               block_id: "date_block",
-              elements: [{ type: "datepicker", action_id: "assistant:date" }],
+              elements: [{ type: "datepicker", action_id: "zhushou:date" }],
             },
             {
               type: "actions",
               block_id: "time_block",
-              elements: [{ type: "timepicker", action_id: "assistant:time" }],
+              elements: [{ type: "timepicker", action_id: "zhushou:time" }],
             },
             {
               type: "actions",
               block_id: "datetime_block",
-              elements: [{ type: "datetimepicker", action_id: "assistant:datetime" }],
+              elements: [{ type: "datetimepicker", action_id: "zhushou:datetime" }],
             },
           ],
         },
       },
       action: {
         type: "datepicker",
-        action_id: "assistant:date",
+        action_id: "zhushou:date",
         block_id: "date_block",
         selected_date: "2026-02-16",
       },
@@ -1205,14 +1205,14 @@ describe("registerSlackInteractionEvents", () => {
             {
               type: "actions",
               block_id: "time_block",
-              elements: [{ type: "timepicker", action_id: "assistant:time" }],
+              elements: [{ type: "timepicker", action_id: "zhushou:time" }],
             },
           ],
         },
       },
       action: {
         type: "timepicker",
-        action_id: "assistant:time",
+        action_id: "zhushou:time",
         block_id: "time_block",
         selected_time: "14:30",
       },
@@ -1230,14 +1230,14 @@ describe("registerSlackInteractionEvents", () => {
             {
               type: "actions",
               block_id: "datetime_block",
-              elements: [{ type: "datetimepicker", action_id: "assistant:datetime" }],
+              elements: [{ type: "datetimepicker", action_id: "zhushou:datetime" }],
             },
           ],
         },
       },
       action: {
         type: "datetimepicker",
-        action_id: "assistant:datetime",
+        action_id: "zhushou:datetime",
         block_id: "datetime_block",
         selected_date_time: selectedDateTimeEpoch,
       },
@@ -1312,7 +1312,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "multi_conversations_select",
-        action_id: "assistant:route",
+        action_id: "zhushou:route",
         selected_user: "U777",
         selected_users: ["U777", "U888"],
         selected_channel: "C777",
@@ -1382,7 +1382,7 @@ describe("registerSlackInteractionEvents", () => {
       },
       action: {
         type: "workflow_button",
-        action_id: "assistant:workflow",
+        action_id: "zhushou:workflow",
         block_id: "workflow_block",
         text: { type: "plain_text", text: "Launch workflow" },
         workflow: {
@@ -1426,7 +1426,7 @@ describe("registerSlackInteractionEvents", () => {
         team: { id: "T1" },
         view: {
           id: "V123",
-          callback_id: "assistant:deploy_form",
+          callback_id: "zhushou:deploy_form",
           root_view_id: "VROOT",
           previous_view_id: "VPREV",
           external_id: "deploy-ext-1",
@@ -1491,8 +1491,8 @@ describe("registerSlackInteractionEvents", () => {
     };
     expect(payload).toMatchObject({
       interactionType: "view_submission",
-      actionId: "view:assistant:deploy_form",
-      callbackId: "assistant:deploy_form",
+      actionId: "view:zhushou:deploy_form",
+      callbackId: "zhushou:deploy_form",
       viewId: "V123",
       userId: "U777",
       routedChannelId: "D123",
@@ -1523,7 +1523,7 @@ describe("registerSlackInteractionEvents", () => {
       body: {
         user: { id: "U222" },
         view: {
-          callback_id: "assistant:deploy_form",
+          callback_id: "zhushou:deploy_form",
           private_metadata: JSON.stringify({
             channelId: "D123",
             channelType: "im",
@@ -1550,7 +1550,7 @@ describe("registerSlackInteractionEvents", () => {
       body: {
         user: { id: "U222" },
         view: {
-          callback_id: "assistant:deploy_form",
+          callback_id: "zhushou:deploy_form",
           private_metadata: JSON.stringify({
             channelId: "D123",
             channelType: "im",
@@ -1577,7 +1577,7 @@ describe("registerSlackInteractionEvents", () => {
         user: { id: "U444" },
         view: {
           id: "V444",
-          callback_id: "assistant:routing_form",
+          callback_id: "zhushou:routing_form",
           private_metadata: JSON.stringify({ userId: "U444" }),
           state: {
             values: {},
@@ -1604,7 +1604,7 @@ describe("registerSlackInteractionEvents", () => {
         user: { id: "U444" },
         view: {
           id: "V400",
-          callback_id: "assistant:routing_form",
+          callback_id: "zhushou:routing_form",
           private_metadata: JSON.stringify({ userId: "U444" }),
           state: {
             values: {
@@ -1680,13 +1680,13 @@ describe("registerSlackInteractionEvents", () => {
               email_block: {
                 email_input: {
                   type: "email_text_input",
-                  value: "team@assistant.ai",
+                  value: "team@zhushou.ai",
                 },
               },
               url_block: {
                 url_input: {
                   type: "url_text_input",
-                  value: "https://docs.assistant.ai",
+                  value: "https://docs.zhushou.ai",
                 },
               },
               richtext_block: {
@@ -1777,12 +1777,12 @@ describe("registerSlackInteractionEvents", () => {
         expect.objectContaining({
           actionId: "email_input",
           inputKind: "email",
-          inputEmail: "team@assistant.ai",
+          inputEmail: "team@zhushou.ai",
         }),
         expect.objectContaining({
           actionId: "url_input",
           inputKind: "url",
-          inputUrl: "https://docs.assistant.ai/",
+          inputUrl: "https://docs.zhushou.ai/",
         }),
         expect.objectContaining({
           actionId: "richtext_input",
@@ -1820,7 +1820,7 @@ describe("registerSlackInteractionEvents", () => {
         user: { id: "U555" },
         view: {
           id: "V555",
-          callback_id: "assistant:long_richtext",
+          callback_id: "zhushou:long_richtext",
           private_metadata: JSON.stringify({ userId: "U555" }),
           state: {
             values: {
@@ -1870,7 +1870,7 @@ describe("registerSlackInteractionEvents", () => {
         is_cleared: true,
         view: {
           id: "V900",
-          callback_id: "assistant:deploy_form",
+          callback_id: "zhushou:deploy_form",
           root_view_id: "VROOT900",
           previous_view_id: "VPREV900",
           external_id: "deploy-ext-900",
@@ -1920,8 +1920,8 @@ describe("registerSlackInteractionEvents", () => {
     };
     expect(payload).toMatchObject({
       interactionType: "view_closed",
-      actionId: "view:assistant:deploy_form",
-      callbackId: "assistant:deploy_form",
+      actionId: "view:zhushou:deploy_form",
+      callbackId: "zhushou:deploy_form",
       viewId: "V900",
       userId: "U900",
       isCleared: true,
@@ -1954,7 +1954,7 @@ describe("registerSlackInteractionEvents", () => {
         user: { id: "U901" },
         view: {
           id: "V901",
-          callback_id: "assistant:deploy_form",
+          callback_id: "zhushou:deploy_form",
           private_metadata: JSON.stringify({ userId: "U901" }),
         },
       },
@@ -2003,7 +2003,7 @@ describe("registerSlackInteractionEvents", () => {
         team: { id: "T1" },
         view: {
           id: "V915",
-          callback_id: "assistant:oversize",
+          callback_id: "zhushou:oversize",
           private_metadata: JSON.stringify({
             channelId: "D915",
             channelType: "im",

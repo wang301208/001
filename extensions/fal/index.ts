@@ -1,5 +1,5 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
-import { createProviderApiKeyAuthMethod } from "assistant/plugin-sdk/provider-auth-api-key";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { createProviderApiKeyAuthMethod } from "zhushou/plugin-sdk/provider-auth-api-key";
 import { buildFalImageGenerationProvider } from "./image-generation-provider.js";
 import { applyFalConfig, FAL_DEFAULT_IMAGE_MODEL_REF } from "./onboard.js";
 import { buildFalVideoGenerationProvider } from "./video-generation-provider.js";

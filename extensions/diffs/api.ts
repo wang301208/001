@@ -1,1 +1,1 @@
-export * from "assistant/plugin-sdk/diffs";
+export * from "zhushou/plugin-sdk/diffs";

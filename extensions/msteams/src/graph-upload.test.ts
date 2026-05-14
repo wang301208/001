@@ -1,4 +1,4 @@
-import { withFetchPreconnect } from "assistant/plugin-sdk/testing";
+﻿import { withFetchPreconnect } from "zhushou/plugin-sdk/testing";
 import { describe, expect, it, vi } from "vitest";
 import { buildTeamsFileInfoCard } from "./graph-chat.js";
 import { resolveGraphChatId, uploadToOneDrive, uploadToSharePoint } from "./graph-upload.js";
@@ -28,13 +28,13 @@ describe("graph upload helpers", () => {
     });
 
     expect(fetchFn).toHaveBeenCalledWith(
-      "https://graph.microsoft.com/v1.0/me/drive/root:/AssistantShared/a.txt:/content",
+      "https://graph.microsoft.com/v1.0/me/drive/root:/ZhushouShared/a.txt:/content",
       expect.objectContaining({
         method: "PUT",
         headers: expect.objectContaining({
           Authorization: "Bearer graph-token",
           "Content-Type": "application/octet-stream",
-          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ 助手\/.+$/),
+          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ zhushou\/.+$/),
         }),
       }),
     );
@@ -66,13 +66,13 @@ describe("graph upload helpers", () => {
     });
 
     expect(fetchFn).toHaveBeenCalledWith(
-      "https://graph.microsoft.com/v1.0/sites/site-123/drive/root:/AssistantShared/b.txt:/content",
+      "https://graph.microsoft.com/v1.0/sites/site-123/drive/root:/ZhushouShared/b.txt:/content",
       expect.objectContaining({
         method: "PUT",
         headers: expect.objectContaining({
           Authorization: "Bearer graph-token",
           "Content-Type": "application/octet-stream",
-          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ 助手\/.+$/),
+          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ zhushou\/.+$/),
         }),
       }),
     );
@@ -142,7 +142,7 @@ describe("resolveGraphChatId", () => {
       expect.objectContaining({
         headers: expect.objectContaining({
           Authorization: "Bearer graph-token",
-          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ 助手\/.+$/),
+          "User-Agent": expect.stringMatching(/^teams\.ts\[apps\]\/.+ zhushou\/.+$/),
         }),
       }),
     );

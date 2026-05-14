@@ -1,20 +1,20 @@
 import { validateRegistryNpmSpec } from "../../infra/npm-registry-spec.js";
 import { parseFrontmatterBlock } from "../../markdown/frontmatter.js";
 import {
-  applyAssistantManifestInstallCommonFields,
+  applyZhushouManifestInstallCommonFields,
   getFrontmatterString,
   normalizeStringList,
-  parseAssistantManifestInstallBase,
+  parseZhushouManifestInstallBase,
   parseFrontmatterBool,
-  resolveAssistantManifestBlock,
-  resolveAssistantManifestInstall,
-  resolveAssistantManifestOs,
-  resolveAssistantManifestRequires,
+  resolveZhushouManifestBlock,
+  resolveZhushouManifestInstall,
+  resolveZhushouManifestOs,
+  resolveZhushouManifestRequires,
 } from "../../shared/frontmatter.js";
 import { readStringValue } from "../../shared/string-coerce.js";
 import type { Skill } from "./skill-contract.js";
 import type {
-  AssistantSkillMetadata,
+  ZhushouSkillMetadata,
   ParsedSkillFrontmatter,
   SkillEntry,
   SkillInstallSpec,
@@ -110,12 +110,12 @@ function normalizeSafeDownloadUrl(raw: unknown): string | undefined {
 }
 
 function parseInstallSpec(input: unknown): SkillInstallSpec | undefined {
-  const parsed = parseAssistantManifestInstallBase(input, ["brew", "node", "go", "uv", "download"]);
+  const parsed = parseZhushouManifestInstallBase(input, ["brew", "node", "go", "uv", "download"]);
   if (!parsed) {
     return undefined;
   }
   const { raw } = parsed;
-  const spec = applyAssistantManifestInstallCommonFields<SkillInstallSpec>(
+  const spec = applyZhushouManifestInstallCommonFields<SkillInstallSpec>(
     {
       kind: parsed.kind as SkillInstallSpec["kind"],
     },
@@ -184,16 +184,16 @@ function parseInstallSpec(input: unknown): SkillInstallSpec | undefined {
   return spec;
 }
 
-export function resolveAssistantMetadata(
+export function resolveZhushouMetadata(
   frontmatter: ParsedSkillFrontmatter,
-): AssistantSkillMetadata | undefined {
-  const metadataObj = resolveAssistantManifestBlock({ frontmatter });
+): ZhushouSkillMetadata | undefined {
+  const metadataObj = resolveZhushouManifestBlock({ frontmatter });
   if (!metadataObj) {
     return undefined;
   }
-  const requires = resolveAssistantManifestRequires(metadataObj);
-  const install = resolveAssistantManifestInstall(metadataObj, parseInstallSpec);
-  const osRaw = resolveAssistantManifestOs(metadataObj);
+  const requires = resolveZhushouManifestRequires(metadataObj);
+  const install = resolveZhushouManifestInstall(metadataObj, parseInstallSpec);
+  const osRaw = resolveZhushouManifestOs(metadataObj);
   return {
     always: typeof metadataObj.always === "boolean" ? metadataObj.always : undefined,
     emoji: readStringValue(metadataObj.emoji),

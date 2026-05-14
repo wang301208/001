@@ -1,6 +1,6 @@
 ﻿export {
   createReplyPrefixContext,
-  type AssistantConfig,
+  type ZhushouConfig,
   type ReplyPayload,
   type RuntimeEnv,
 } from "../runtime-api.js";

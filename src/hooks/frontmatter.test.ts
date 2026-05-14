@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   parseFrontmatter,
-  resolveAssistantMetadata,
+  resolveZhushouMetadata,
   resolveHookInvocationPolicy,
 } from "./frontmatter.js";
 
@@ -41,7 +41,7 @@ name: session-memory
 description: "Save session context"
 metadata:
   {
-    "assistant": {
+    "zhushou": {
       "emoji": "💾",
       "events": ["command:new"]
     }
@@ -58,8 +58,8 @@ metadata:
 
     // Verify the metadata is valid JSON
     const parsed = JSON.parse(result.metadata);
-    expect(parsed.assistant.emoji).toBe("💾");
-    expect(parsed.assistant.events).toEqual(["command:new"]);
+    expect(parsed.zhushou.emoji).toBe("💾");
+    expect(parsed.zhushou.events).toEqual(["command:new"]);
   });
 
   it("parses multi-line metadata with complex nested structure", () => {
@@ -68,7 +68,7 @@ name: command-logger
 description: "Log all command events"
 metadata:
   {
-    "assistant":
+    "zhushou":
       {
         "emoji": "📝",
         "events": ["command"],
@@ -83,21 +83,21 @@ metadata:
     expect(result.metadata).toBeDefined();
 
     const parsed = JSON.parse(result.metadata);
-    expect(parsed.assistant.emoji).toBe("📝");
-    expect(parsed.assistant.events).toEqual(["command"]);
-    expect(parsed.assistant.requires.config).toEqual(["workspace.dir"]);
-    expect(parsed.assistant.install[0].kind).toBe("bundled");
+    expect(parsed.zhushou.emoji).toBe("📝");
+    expect(parsed.zhushou.events).toEqual(["command"]);
+    expect(parsed.zhushou.requires.config).toEqual(["workspace.dir"]);
+    expect(parsed.zhushou.install[0].kind).toBe("bundled");
   });
 
   it("handles single-line metadata (inline JSON)", () => {
     const content = `---
 name: simple-hook
-metadata: {"assistant": {"events": ["test"]}}
+metadata: {"zhushou": {"events": ["test"]}}
 ---
 `;
     const result = parseFrontmatter(content);
     expect(result.name).toBe("simple-hook");
-    expect(result.metadata).toBe('{"assistant": {"events": ["test"]}}');
+    expect(result.metadata).toBe('{"zhushou": {"events": ["test"]}}');
   });
 
   it("handles mixed single-line and multi-line values", () => {
@@ -107,7 +107,7 @@ description: "A hook with mixed values"
 homepage: https://example.com
 metadata:
   {
-    "assistant": {
+    "zhushou": {
       "events": ["command:new"]
     }
   }
@@ -148,12 +148,12 @@ description: 'single-quoted'
   });
 });
 
-describe("resolveAssistantMetadata", () => {
-  it("extracts assistant metadata from parsed frontmatter", () => {
+describe("resolveZhushouMetadata", () => {
+  it("extracts zhushou metadata from parsed frontmatter", () => {
     const frontmatter = {
       name: "test-hook",
       metadata: JSON.stringify({
-        assistant: {
+        zhushou: {
           emoji: "🔥",
           events: ["command:new", "command:reset"],
           requires: {
@@ -164,7 +164,7 @@ describe("resolveAssistantMetadata", () => {
       }),
     };
 
-    const result = resolveAssistantMetadata(frontmatter);
+    const result = resolveZhushouMetadata(frontmatter);
     expect(result).toBeDefined();
     expect(result?.emoji).toBe("🔥");
     expect(result?.events).toEqual(["command:new", "command:reset"]);
@@ -174,15 +174,15 @@ describe("resolveAssistantMetadata", () => {
 
   it("returns undefined when metadata is missing", () => {
     const frontmatter = { name: "no-metadata" };
-    const result = resolveAssistantMetadata(frontmatter);
+    const result = resolveZhushouMetadata(frontmatter);
     expect(result).toBeUndefined();
   });
 
-  it("returns undefined when assistant key is missing", () => {
+  it("returns undefined when zhushou key is missing", () => {
     const frontmatter = {
       metadata: JSON.stringify({ other: "data" }),
     };
-    const result = resolveAssistantMetadata(frontmatter);
+    const result = resolveZhushouMetadata(frontmatter);
     expect(result).toBeUndefined();
   });
 
@@ -190,41 +190,41 @@ describe("resolveAssistantMetadata", () => {
     const frontmatter = {
       metadata: "not valid json {",
     };
-    const result = resolveAssistantMetadata(frontmatter);
+    const result = resolveZhushouMetadata(frontmatter);
     expect(result).toBeUndefined();
   });
 
   it("handles install specs", () => {
     const frontmatter = {
       metadata: JSON.stringify({
-        assistant: {
+        zhushou: {
           events: ["command"],
           install: [
             { id: "bundled", kind: "bundled", label: "Bundled with 助手" },
-            { id: "npm", kind: "npm", package: "@assistant/hook" },
+            { id: "npm", kind: "npm", package: "@zhushou/hook" },
           ],
         },
       }),
     };
 
-    const result = resolveAssistantMetadata(frontmatter);
+    const result = resolveZhushouMetadata(frontmatter);
     expect(result?.install).toHaveLength(2);
     expect(result?.install?.[0].kind).toBe("bundled");
     expect(result?.install?.[1].kind).toBe("npm");
-    expect(result?.install?.[1].package).toBe("@assistant/hook");
+    expect(result?.install?.[1].package).toBe("@zhushou/hook");
   });
 
   it("handles os restrictions", () => {
     const frontmatter = {
       metadata: JSON.stringify({
-        assistant: {
+        zhushou: {
           events: ["command"],
           os: ["darwin", "linux"],
         },
       }),
     };
 
-    const result = resolveAssistantMetadata(frontmatter);
+    const result = resolveZhushouMetadata(frontmatter);
     expect(result?.os).toEqual(["darwin", "linux"]);
   });
 
@@ -233,10 +233,10 @@ describe("resolveAssistantMetadata", () => {
     const content = `---
 name: session-memory
 description: "Save session context to memory when /new or /reset command is issued"
-homepage: https://docs.assistant.ai/automation/hooks#session-memory
+homepage: https://docs.zhushou.ai/automation/hooks#session-memory
 metadata:
   {
-    "assistant":
+    "zhushou":
       {
         "emoji": "💾",
         "events": ["command:new", "command:reset"],
@@ -253,28 +253,28 @@ metadata:
     expect(frontmatter.name).toBe("session-memory");
     expect(frontmatter.metadata).toBeDefined();
 
-    const assistant = resolveAssistantMetadata(frontmatter);
-    expect(assistant).toBeDefined();
-    expect(assistant?.emoji).toBe("💾");
-    expect(assistant?.events).toEqual(["command:new", "command:reset"]);
-    expect(assistant?.requires?.config).toEqual(["workspace.dir"]);
-    expect(assistant?.install?.[0].kind).toBe("bundled");
+    const zhushou = resolveZhushouMetadata(frontmatter);
+    expect(zhushou).toBeDefined();
+    expect(zhushou?.emoji).toBe("💾");
+    expect(zhushou?.events).toEqual(["command:new", "command:reset"]);
+    expect(zhushou?.requires?.config).toEqual(["workspace.dir"]);
+    expect(zhushou?.install?.[0].kind).toBe("bundled");
   });
 
   it("parses YAML metadata map", () => {
     const content = `---
 name: yaml-metadata
 metadata:
-  assistant:
+  zhushou:
     emoji: disk
     events:
       - command:new
 ---
 `;
     const frontmatter = parseFrontmatter(content);
-    const assistant = resolveAssistantMetadata(frontmatter);
-    expect(assistant?.emoji).toBe("disk");
-    expect(assistant?.events).toEqual(["command:new"]);
+    const zhushou = resolveZhushouMetadata(frontmatter);
+    expect(zhushou?.emoji).toBe("disk");
+    expect(zhushou?.events).toEqual(["command:new"]);
   });
 });
 

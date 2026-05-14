@@ -8,19 +8,19 @@ import {
   resolveAccountEntry,
   resolveListedDefaultAccountId,
   resolveAccountWithDefaultFallback,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/account-core";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/account-core";
 import type {
   TelegramAccountConfig,
   TelegramActionConfig,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import {
   listBoundAccountIds,
   resolveDefaultAgentBoundAccountId,
-} from "assistant/plugin-sdk/routing";
-import { formatSetExplicitDefaultInstruction } from "assistant/plugin-sdk/routing";
-import { createSubsystemLogger, isTruthyEnvValue } from "assistant/plugin-sdk/runtime-env";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/routing";
+import { formatSetExplicitDefaultInstruction } from "zhushou/plugin-sdk/routing";
+import { createSubsystemLogger, isTruthyEnvValue } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import type { TelegramTransport } from "./fetch.js";
 import { resolveTelegramToken } from "./token.js";
 
@@ -44,7 +44,7 @@ function formatDebugArg(value: unknown): string {
 }
 
 const debugAccounts = (...args: unknown[]) => {
-  if (isTruthyEnvValue(process.env.ASSISTANT_DEBUG_TELEGRAM_ACCOUNTS)) {
+  if (isTruthyEnvValue(process.env.ZHUSHOU_DEBUG_TELEGRAM_ACCOUNTS)) {
     const parts = args.map((arg) => formatDebugArg(arg));
     getLog().warn(parts.join(" ").trim());
   }
@@ -67,7 +67,7 @@ export type TelegramMediaRuntimeOptions = {
   dangerouslyAllowPrivateNetwork?: boolean;
 };
 
-function listConfiguredAccountIds(cfg: AssistantConfig): string[] {
+function listConfiguredAccountIds(cfg: ZhushouConfig): string[] {
   const ids = new Set<string>();
   for (const key of Object.keys(cfg.channels?.telegram?.accounts ?? {})) {
     if (key) {
@@ -77,7 +77,7 @@ function listConfiguredAccountIds(cfg: AssistantConfig): string[] {
   return [...ids];
 }
 
-export function listTelegramAccountIds(cfg: AssistantConfig): string[] {
+export function listTelegramAccountIds(cfg: ZhushouConfig): string[] {
   const ids = listCombinedAccountIds({
     configuredAccountIds: listConfiguredAccountIds(cfg),
     additionalAccountIds: listBoundAccountIds(cfg, "telegram"),
@@ -94,7 +94,7 @@ export function resetMissingDefaultWarnFlag(): void {
   emittedMissingDefaultWarn = false;
 }
 
-export function resolveDefaultTelegramAccountId(cfg: AssistantConfig): string {
+export function resolveDefaultTelegramAccountId(cfg: ZhushouConfig): string {
   const boundDefault = resolveDefaultAgentBoundAccountId(cfg, "telegram");
   if (boundDefault) {
     return boundDefault;
@@ -118,7 +118,7 @@ export function resolveDefaultTelegramAccountId(cfg: AssistantConfig): string {
 }
 
 export function resolveTelegramAccountConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
 ): TelegramAccountConfig | undefined {
   const normalized = normalizeAccountId(accountId);
@@ -126,7 +126,7 @@ export function resolveTelegramAccountConfig(
 }
 
 export function mergeTelegramAccountConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
 ): TelegramAccountConfig {
   const {
@@ -146,7 +146,7 @@ export function mergeTelegramAccountConfig(
   // this failure disrupts message delivery for *all* accounts.
   // Single-account setups keep backward compat: channel-level groups still
   // applies when the account has no override.
-  // See: https://github.com/assistant/assistant/issues/30673
+  // See: https://github.com/wang301208/zhushou/issues/30673
   const configuredAccountIds = Object.keys(cfg.channels?.telegram?.accounts ?? {});
   const isMultiAccount = configuredAccountIds.length > 1;
   const groups = account.groups ?? (isMultiAccount ? undefined : channelGroups);
@@ -155,7 +155,7 @@ export function mergeTelegramAccountConfig(
 }
 
 export function createTelegramActionGate(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): (key: keyof TelegramActionConfig, defaultValue?: boolean) => boolean {
   const accountId = normalizeAccountId(
@@ -168,7 +168,7 @@ export function createTelegramActionGate(params: {
 }
 
 export function resolveTelegramMediaRuntimeOptions(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   token: string;
   transport?: TelegramTransport;
@@ -205,7 +205,7 @@ export function resolveTelegramPollActionGateState(
 }
 
 export function resolveTelegramAccount(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): ResolvedTelegramAccount {
   const baseEnabled = params.cfg.channels?.telegram?.enabled !== false;
@@ -242,7 +242,7 @@ export function resolveTelegramAccount(params: {
   });
 }
 
-export function listEnabledTelegramAccounts(cfg: AssistantConfig): ResolvedTelegramAccount[] {
+export function listEnabledTelegramAccounts(cfg: ZhushouConfig): ResolvedTelegramAccount[] {
   return listTelegramAccountIds(cfg)
     .map((accountId) => resolveTelegramAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

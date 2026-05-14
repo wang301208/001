@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ConfigFileSnapshot, AssistantConfig } from "../config/types.js";
+import type { ConfigFileSnapshot, ZhushouConfig } from "../config/types.js";
 import type { PreparedSecretsRuntimeSnapshot, SecretResolverWarning } from "../secrets/runtime.js";
 import {
   createRuntimeSecretsActivator,
@@ -7,7 +7,7 @@ import {
 } from "./server-startup-config.js";
 import { buildTestConfigSnapshot } from "./test-helpers.config-snapshots.js";
 
-function gatewayTokenConfig(config: AssistantConfig): AssistantConfig {
+function gatewayTokenConfig(config: ZhushouConfig): ZhushouConfig {
   return {
     ...config,
     gateway: {
@@ -21,14 +21,14 @@ function gatewayTokenConfig(config: AssistantConfig): AssistantConfig {
   };
 }
 
-function asConfig(value: unknown): AssistantConfig {
-  return value as AssistantConfig;
+function asConfig(value: unknown): ZhushouConfig {
+  return value as ZhushouConfig;
 }
 
-function buildSnapshot(config: AssistantConfig): ConfigFileSnapshot {
+function buildSnapshot(config: ZhushouConfig): ConfigFileSnapshot {
   const raw = `${JSON.stringify(config, null, 2)}\n`;
   return buildTestConfigSnapshot({
-    path: "/tmp/assistant-startup-secrets-test.json",
+    path: "/tmp/zhushou-startup-secrets-test.json",
     exists: true,
     raw,
     parsed: config,
@@ -39,7 +39,7 @@ function buildSnapshot(config: AssistantConfig): ConfigFileSnapshot {
   });
 }
 
-function preparedSnapshot(config: AssistantConfig): PreparedSecretsRuntimeSnapshot {
+function preparedSnapshot(config: ZhushouConfig): PreparedSecretsRuntimeSnapshot {
   return {
     sourceConfig: config,
     config,
@@ -60,19 +60,19 @@ function preparedSnapshot(config: AssistantConfig): PreparedSecretsRuntimeSnapsh
 }
 
 describe("gateway startup config secret preflight", () => {
-  const previousSkipChannels = process.env.ASSISTANT_SKIP_CHANNELS;
-  const previousSkipProviders = process.env.ASSISTANT_SKIP_PROVIDERS;
+  const previousSkipChannels = process.env.ZHUSHOU_SKIP_CHANNELS;
+  const previousSkipProviders = process.env.ZHUSHOU_SKIP_PROVIDERS;
 
   afterEach(() => {
     if (previousSkipChannels === undefined) {
-      delete process.env.ASSISTANT_SKIP_CHANNELS;
+      delete process.env.ZHUSHOU_SKIP_CHANNELS;
     } else {
-      process.env.ASSISTANT_SKIP_CHANNELS = previousSkipChannels;
+      process.env.ZHUSHOU_SKIP_CHANNELS = previousSkipChannels;
     }
     if (previousSkipProviders === undefined) {
-      delete process.env.ASSISTANT_SKIP_PROVIDERS;
+      delete process.env.ZHUSHOU_SKIP_PROVIDERS;
     } else {
-      process.env.ASSISTANT_SKIP_PROVIDERS = previousSkipProviders;
+      process.env.ZHUSHOU_SKIP_PROVIDERS = previousSkipProviders;
     }
   });
 
@@ -158,7 +158,7 @@ describe("gateway startup config secret preflight", () => {
   });
 
   it("prunes channel refs from startup secret preflight when channels are skipped", async () => {
-    process.env.ASSISTANT_SKIP_CHANNELS = "1";
+    process.env.ZHUSHOU_SKIP_CHANNELS = "1";
     const prepareRuntimeSecretsSnapshot = vi.fn(async ({ config }) => preparedSnapshot(config));
     const activateRuntimeSecrets = createRuntimeSecretsActivator({
       logSecrets: {

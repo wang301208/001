@@ -111,7 +111,7 @@ describe("buildGatewayAuthConfig", () => {
     const tokenRef = {
       source: "env",
       provider: "default",
-      id: "ASSISTANT_GATEWAY_TOKEN",
+      id: "ZHUSHOU_GATEWAY_TOKEN",
     } as const;
     const result = buildGatewayAuthConfig({
       mode: "token",

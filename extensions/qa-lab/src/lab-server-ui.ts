@@ -16,7 +16,7 @@ export function missingUiHtml() {
     <main>
       <h1>QA Lab browser UI removed</h1>
       <p>This project now uses the terminal TUI as its only frontend.</p>
-      <p>Use <code>assistant --tui</code> or QA Lab CLI/API commands instead.</p>
+      <p>Use <code>zhushou --tui</code> or QA Lab CLI/API commands instead.</p>
     </main>
   </body>
 </html>`;

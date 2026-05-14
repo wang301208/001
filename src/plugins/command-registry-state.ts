@@ -1,9 +1,9 @@
 import { getChannelPlugin } from "../channels/plugins/index.js";
 import { resolveGlobalSingleton } from "../shared/global-singleton.js";
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
-import type { AssistantPluginCommandDefinition } from "./types.js";
+import type { ZhushouPluginCommandDefinition } from "./types.js";
 
-export type RegisteredPluginCommand = AssistantPluginCommandDefinition & {
+export type RegisteredPluginCommand = ZhushouPluginCommandDefinition & {
   pluginId: string;
   pluginName?: string;
   pluginRoot?: string;
@@ -14,7 +14,7 @@ type PluginCommandState = {
   registryLocked: boolean;
 };
 
-const PLUGIN_COMMAND_STATE_KEY = Symbol.for("assistant.pluginCommandsState");
+const PLUGIN_COMMAND_STATE_KEY = Symbol.for("zhushou.pluginCommandsState");
 
 const getState = () =>
   resolveGlobalSingleton<PluginCommandState>(PLUGIN_COMMAND_STATE_KEY, () => ({
@@ -52,7 +52,7 @@ export function clearPluginCommandsForPlugin(pluginId: string): void {
 }
 
 function resolvePluginNativeName(
-  command: AssistantPluginCommandDefinition,
+  command: ZhushouPluginCommandDefinition,
   provider?: string,
 ): string {
   const providerName = normalizeOptionalLowercaseString(provider);

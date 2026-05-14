@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/plugin-entry";
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 import { isRecord } from "./src/record-shared.js";
 
 function listContainsBrowser(value: unknown): boolean {
@@ -16,7 +16,7 @@ function toolPolicyReferencesBrowser(value: unknown): boolean {
   );
 }
 
-function hasBrowserToolReference(config: AssistantConfig): boolean {
+function hasBrowserToolReference(config: ZhushouConfig): boolean {
   if (toolPolicyReferencesBrowser(config.tools)) {
     return true;
   }

@@ -1,8 +1,8 @@
 import type { MarkdownTableMode } from "./types.base.js";
-import type { AssistantConfig } from "./types.assistant.js";
+import type { ZhushouConfig } from "./types.zhushou.js";
 
 export type ResolveMarkdownTableModeParams = {
-  cfg?: Partial<AssistantConfig>;
+  cfg?: Partial<ZhushouConfig>;
   channel?: string | null;
   accountId?: string | null;
 };

@@ -1,1 +1,1 @@
-export { resolveRequestUrl } from "assistant/plugin-sdk/request-url";
+export { resolveRequestUrl } from "zhushou/plugin-sdk/request-url";

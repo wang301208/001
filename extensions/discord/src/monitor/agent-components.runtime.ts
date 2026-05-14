@@ -3,12 +3,12 @@ export {
   parsePluginBindingApprovalCustomId,
   recordInboundSession,
   resolvePluginConversationBindingApproval,
-} from "assistant/plugin-sdk/conversation-runtime";
-export { dispatchPluginInteractiveHandler } from "assistant/plugin-sdk/plugin-runtime";
+} from "zhushou/plugin-sdk/conversation-runtime";
+export { dispatchPluginInteractiveHandler } from "zhushou/plugin-sdk/plugin-runtime";
 export {
   createReplyReferencePlanner,
   dispatchReplyWithBufferedBlockDispatcher,
   finalizeInboundContext,
   resolveChunkMode,
   resolveTextChunkLimit,
-} from "assistant/plugin-sdk/reply-runtime";
+} from "zhushou/plugin-sdk/reply-runtime";

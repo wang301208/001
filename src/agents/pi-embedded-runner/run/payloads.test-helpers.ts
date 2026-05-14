@@ -6,9 +6,9 @@ type RunPayloads = ReturnType<typeof buildEmbeddedRunPayloads>;
 
 export function buildPayloads(overrides: Partial<BuildPayloadParams> = {}) {
   return buildEmbeddedRunPayloads({
-    assistantTexts: [],
+    zhushouTexts: [],
     toolMetas: [],
-    lastAssistant: undefined,
+    lastZhushou: undefined,
     isCronTrigger: false,
     sessionKey: "session:telegram",
     inlineToolResultsAllowed: false,

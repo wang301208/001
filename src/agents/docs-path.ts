@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-import { resolveAssistantPackageRoot } from "../infra/assistant-root.js";
+import { resolveZhushouPackageRoot } from "../infra/zhushou-root.js";
 
-export async function resolveAssistantDocsPath(params: {
+export async function resolveZhushouDocsPath(params: {
   workspaceDir?: string;
   argv1?: string;
   cwd?: string;
@@ -16,7 +16,7 @@ export async function resolveAssistantDocsPath(params: {
     }
   }
 
-  const packageRoot = await resolveAssistantPackageRoot({
+  const packageRoot = await resolveZhushouPackageRoot({
     cwd: params.cwd,
     argv1: params.argv1,
     moduleUrl: params.moduleUrl,

@@ -1,4 +1,4 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 import { registerMatrixCliMetadata } from "./src/cli-metadata.js";
 
 export { registerMatrixCliMetadata } from "./src/cli-metadata.js";

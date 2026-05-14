@@ -19,7 +19,7 @@ const model = {
   id: "test-model",
 } as Model<"openai-responses">;
 
-function makeAssistantMessage(text: string): AssistantMessage {
+function makeZhushouMessage(text: string): AssistantMessage {
   return {
     role: "assistant",
     content: [{ type: "text", text }],
@@ -104,7 +104,7 @@ describe("plugin text transforms", () => {
       capturedContext = context;
       const stream = createAssistantMessageEventStream();
       queueMicrotask(() => {
-        const partial = makeAssistantMessage("blue basket on the right shelf");
+        const partial = makeZhushouMessage("blue basket on the right shelf");
         stream.push({
           type: "text_delta",
           contentIndex: 0,
@@ -114,7 +114,7 @@ describe("plugin text transforms", () => {
         stream.push({
           type: "done",
           reason: "stop",
-          message: makeAssistantMessage("final blue basket on the right shelf"),
+          message: makeZhushouMessage("final blue basket on the right shelf"),
         });
         stream.end();
       });

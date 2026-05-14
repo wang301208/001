@@ -1,6 +1,6 @@
 // Focused self-hosted provider setup helpers for OpenAI-compatible backends.
 export type {
-  AssistantPluginApi,
+  ZhushouPluginApi,
   ProviderAuthContext,
   ProviderAuthMethodNonInteractiveContext,
   ProviderAuthResult,

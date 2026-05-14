@@ -1,4 +1,4 @@
-declare module "@assistant/lobster-runtime/core" {
+declare module "@zhushou/lobster-runtime/core" {
   type LobsterApprovalRequest = {
     type: "approval_request";
     prompt: string;

@@ -149,7 +149,7 @@ function createLoginShellEnvCacheKey(params: {
       ) {
         return true;
       }
-      return key.startsWith("XDG_") || key.startsWith("ASSISTANT_");
+      return key.startsWith("XDG_") || key.startsWith("ZHUSHOU_");
     })
     .toSorted(([left], [right]) => left.localeCompare(right));
   return JSON.stringify([
@@ -232,7 +232,7 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
     exec: opts.exec,
   });
   if (!probe.ok) {
-    logger.warn(`[assistant] shell env fallback failed: ${probe.error}`);
+    logger.warn(`[zhushou] shell env fallback failed: ${probe.error}`);
     lastAppliedKeys = [];
     return { ok: false, error: probe.error, applied: [] };
   }
@@ -255,15 +255,15 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
 }
 
 export function shouldEnableShellEnvFallback(env: NodeJS.ProcessEnv): boolean {
-  return isTruthyEnvValue(env.ASSISTANT_LOAD_SHELL_ENV);
+  return isTruthyEnvValue(env.ZHUSHOU_LOAD_SHELL_ENV);
 }
 
 export function shouldDeferShellEnvFallback(env: NodeJS.ProcessEnv): boolean {
-  return isTruthyEnvValue(env.ASSISTANT_DEFER_SHELL_ENV_FALLBACK);
+  return isTruthyEnvValue(env.ZHUSHOU_DEFER_SHELL_ENV_FALLBACK);
 }
 
 export function resolveShellEnvFallbackTimeoutMs(env: NodeJS.ProcessEnv): number {
-  const raw = env.ASSISTANT_SHELL_ENV_TIMEOUT_MS?.trim();
+  const raw = env.ZHUSHOU_SHELL_ENV_TIMEOUT_MS?.trim();
   if (!raw) {
     return DEFAULT_TIMEOUT_MS;
   }

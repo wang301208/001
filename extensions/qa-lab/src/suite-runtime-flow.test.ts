@@ -257,8 +257,8 @@ describe("qa suite runtime flow", () => {
       imageUnderstandingValidPngBase64: "valid",
     });
 
-    await call.deps.webOpenPage({ url: "https://assistant.ai" });
-    expect(webOpenPage).toHaveBeenCalledWith({ url: "https://assistant.ai" });
+    await call.deps.webOpenPage({ url: "https://zhushou.ai" });
+    expect(webOpenPage).toHaveBeenCalledWith({ url: "https://zhushou.ai" });
     expect(env.webSessionIds.has("page-1")).toBe(true);
   });
 });

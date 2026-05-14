@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 
 export type SignalAccountConfig = Omit<
-  Exclude<NonNullable<AssistantConfig["channels"]>["signal"], undefined>,
+  Exclude<NonNullable<ZhushouConfig["channels"]>["signal"], undefined>,
   "accounts"
 >;

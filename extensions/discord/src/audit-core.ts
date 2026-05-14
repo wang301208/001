@@ -1,9 +1,9 @@
 import type {
   DiscordGuildChannelConfig,
   DiscordGuildEntry,
-} from "assistant/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { isRecord, normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { isRecord, normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 
 export type DiscordChannelPermissionsAuditEntry = {
   channelId: string;

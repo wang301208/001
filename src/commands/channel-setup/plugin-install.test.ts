@@ -70,7 +70,7 @@ vi.mock("../../plugins/bundled-sources.js", () => ({
 }));
 
 vi.mock("../../plugins/loader.js", () => ({
-  loadAssistantPlugins: vi.fn(),
+  loadZhushouPlugins: vi.fn(),
 }));
 
 const clearPluginDiscoveryCache = vi.fn();
@@ -80,8 +80,8 @@ vi.mock("../../plugins/discovery.js", () => ({
 
 import fs from "node:fs";
 import type { ChannelPluginCatalogEntry } from "../../channels/plugins/catalog.js";
-import type { AssistantConfig } from "../../config/config.js";
-import { loadAssistantPlugins } from "../../plugins/loader.js";
+import type { ZhushouConfig } from "../../config/config.js";
+import { loadZhushouPlugins } from "../../plugins/loader.js";
 import { createEmptyPluginRegistry } from "../../plugins/registry.js";
 import {
   pinActivePluginChannelRegistry,
@@ -110,7 +110,7 @@ const baseEntry: ChannelPluginCatalogEntry = {
     blurb: "Test",
   },
   install: {
-    npmSpec: "@assistant/zalo",
+    npmSpec: "@zhushou/zalo",
     localPath: bundledPluginRoot("zalo"),
   },
 };
@@ -140,7 +140,7 @@ async function runInitialValueForChannel(channel: "dev" | "beta") {
   const runtime = makeRuntime();
   const select = vi.fn((async <T extends string>() => "skip" as T) as WizardPrompter["select"]);
   const prompter = makePrompter({ select: select as unknown as WizardPrompter["select"] });
-  const cfg: AssistantConfig = { update: { channel } };
+  const cfg: ZhushouConfig = { update: { channel } };
   mockRepoLocalPathExists();
 
   await ensureChannelSetupPluginInstalled({
@@ -168,7 +168,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
     const prompter = makePrompter({
       select: vi.fn(async () => "npm") as WizardPrompter["select"],
     });
-    const cfg: AssistantConfig = { plugins: { allow: ["other"] } };
+    const cfg: ZhushouConfig = { plugins: { allow: ["other"] } };
     vi.mocked(fs.existsSync).mockReturnValue(false);
     installPluginFromNpmSpec.mockResolvedValue({
       ok: true,
@@ -188,10 +188,10 @@ describe("ensureChannelSetupPluginInstalled", () => {
     expect(result.cfg.plugins?.entries?.zalo?.enabled).toBe(true);
     expect(result.cfg.plugins?.allow).toContain("zalo");
     expect(result.cfg.plugins?.installs?.zalo?.source).toBe("npm");
-    expect(result.cfg.plugins?.installs?.zalo?.spec).toBe("@assistant/zalo");
+    expect(result.cfg.plugins?.installs?.zalo?.spec).toBe("@zhushou/zalo");
     expect(result.cfg.plugins?.installs?.zalo?.installPath).toBe("/tmp/zalo");
     expect(installPluginFromNpmSpec).toHaveBeenCalledWith(
-      expect.objectContaining({ spec: "@assistant/zalo" }),
+      expect.objectContaining({ spec: "@zhushou/zalo" }),
     );
   });
 
@@ -200,7 +200,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
     const prompter = makePrompter({
       select: vi.fn(async () => "local") as WizardPrompter["select"],
     });
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     mockRepoLocalPathExists();
 
     const result = await ensureChannelSetupPluginInstalled({
@@ -219,7 +219,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
     const prompter = makePrompter({
       select: vi.fn(async () => "local") as WizardPrompter["select"],
     });
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     mockRepoLocalPathExists();
 
     const result = await ensureChannelSetupPluginInstalled({
@@ -227,15 +227,15 @@ describe("ensureChannelSetupPluginInstalled", () => {
       entry: {
         ...baseEntry,
         id: "teams",
-        pluginId: "@assistant/msteams-plugin",
+        pluginId: "@zhushou/msteams-plugin",
       },
       prompter,
       runtime,
     });
 
     expect(result.installed).toBe(true);
-    expect(result.pluginId).toBe("@assistant/msteams-plugin");
-    expect(result.cfg.plugins?.entries?.["@assistant/msteams-plugin"]?.enabled).toBe(true);
+    expect(result.pluginId).toBe("@zhushou/msteams-plugin");
+    expect(result.cfg.plugins?.entries?.["@zhushou/msteams-plugin"]?.enabled).toBe(true);
   });
 
   it("defaults to local on dev channel when local path exists", async () => {
@@ -250,7 +250,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
     const runtime = makeRuntime();
     const select = vi.fn((async <T extends string>() => "skip" as T) as WizardPrompter["select"]);
     const prompter = makePrompter({ select: select as unknown as WizardPrompter["select"] });
-    const cfg: AssistantConfig = { update: { channel: "beta" } };
+    const cfg: ZhushouConfig = { update: { channel: "beta" } };
     vi.mocked(fs.existsSync).mockReturnValue(false);
     resolveBundledPluginSources.mockReturnValue(
       new Map([
@@ -258,8 +258,8 @@ describe("ensureChannelSetupPluginInstalled", () => {
           "zalo",
           {
             pluginId: "zalo",
-            localPath: bundledPluginRootAt("/opt/assistant", "zalo"),
-            npmSpec: "@assistant/zalo",
+            localPath: bundledPluginRootAt("/opt/zhushou", "zalo"),
+            npmSpec: "@zhushou/zalo",
           },
         ],
       ]),
@@ -278,7 +278,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
         options: expect.arrayContaining([
           expect.objectContaining({
             value: "local",
-            hint: bundledPluginRootAt("/opt/assistant", "zalo"),
+            hint: bundledPluginRootAt("/opt/zhushou", "zalo"),
           }),
         ]),
       }),
@@ -289,7 +289,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
     const runtime = makeRuntime();
     const select = vi.fn((async <T extends string>() => "skip" as T) as WizardPrompter["select"]);
     const prompter = makePrompter({ select: select as unknown as WizardPrompter["select"] });
-    const cfg: AssistantConfig = { update: { channel: "beta" } };
+    const cfg: ZhushouConfig = { update: { channel: "beta" } };
     vi.mocked(fs.existsSync).mockReturnValue(false);
     resolveBundledPluginSources.mockReturnValue(
       new Map([
@@ -297,8 +297,8 @@ describe("ensureChannelSetupPluginInstalled", () => {
           "whatsapp",
           {
             pluginId: "whatsapp",
-            localPath: bundledPluginRootAt("/opt/assistant", "whatsapp"),
-            npmSpec: "@assistant/whatsapp",
+            localPath: bundledPluginRootAt("/opt/zhushou", "whatsapp"),
+            npmSpec: "@zhushou/whatsapp",
           },
         ],
       ]),
@@ -348,7 +348,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
       note,
       confirm,
     });
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     mockRepoLocalPathExists();
     installPluginFromNpmSpec.mockResolvedValue({
       ok: false,
@@ -369,33 +369,33 @@ describe("ensureChannelSetupPluginInstalled", () => {
 
   it("clears discovery cache before reloading the setup plugin registry", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
 
     reloadChannelSetupPluginRegistry({
       cfg,
       runtime,
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
     expect(clearPluginDiscoveryCache).toHaveBeenCalledTimes(1);
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: cfg,
         activationSourceConfig: cfg,
         autoEnabledReasons: {},
-        workspaceDir: "/tmp/assistant-workspace",
+        workspaceDir: "/tmp/zhushou-workspace",
         cache: false,
         includeSetupOnlyChannelPlugins: true,
       }),
     );
     expect(clearPluginDiscoveryCache.mock.invocationCallOrder[0]).toBeLessThan(
-      vi.mocked(loadAssistantPlugins).mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY,
+      vi.mocked(loadZhushouPlugins).mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY,
     );
   });
 
   it("loads the setup plugin registry from the auto-enabled config snapshot", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       plugins: {},
       channels: { telegram: { enabled: true } } as never,
     };
@@ -406,7 +406,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
           telegram: { enabled: true },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
     applyPluginAutoEnable.mockReturnValue({
       config: autoEnabledConfig,
       changes: [],
@@ -416,14 +416,14 @@ describe("ensureChannelSetupPluginInstalled", () => {
     reloadChannelSetupPluginRegistry({
       cfg,
       runtime,
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
     expect(applyPluginAutoEnable).toHaveBeenCalledWith({
       config: cfg,
       env: process.env,
     });
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: autoEnabledConfig,
         activationSourceConfig: cfg,
@@ -434,35 +434,35 @@ describe("ensureChannelSetupPluginInstalled", () => {
 
   it("scopes channel reloads when setup starts from an empty registry", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
-    getChannelPluginCatalogEntry.mockReturnValue({ pluginId: "@assistant/telegram-plugin" });
+    const cfg: ZhushouConfig = {};
+    getChannelPluginCatalogEntry.mockReturnValue({ pluginId: "@zhushou/telegram-plugin" });
 
     reloadChannelSetupPluginRegistryForChannel({
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: cfg,
         activationSourceConfig: cfg,
         autoEnabledReasons: {},
-        workspaceDir: "/tmp/assistant-workspace",
+        workspaceDir: "/tmp/zhushou-workspace",
         cache: false,
-        onlyPluginIds: ["@assistant/telegram-plugin"],
+        onlyPluginIds: ["@zhushou/telegram-plugin"],
         includeSetupOnlyChannelPlugins: true,
       }),
     );
     expect(getChannelPluginCatalogEntry).toHaveBeenCalledWith("telegram", {
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
   });
 
   it("keeps full reloads when the active plugin registry is already populated", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const registry = createEmptyPluginRegistry();
     registry.plugins.push(
       createPluginRecord({
@@ -479,10 +479,10 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.not.objectContaining({
         onlyPluginIds: expect.anything(),
       }),
@@ -491,8 +491,8 @@ describe("ensureChannelSetupPluginInstalled", () => {
 
   it("scopes channel reloads when the global registry is populated but the pinned channel registry is empty", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
-    getChannelPluginCatalogEntry.mockReturnValue({ pluginId: "@assistant/telegram-plugin" });
+    const cfg: ZhushouConfig = {};
+    getChannelPluginCatalogEntry.mockReturnValue({ pluginId: "@zhushou/telegram-plugin" });
     const activeRegistry = createEmptyPluginRegistry();
     activeRegistry.plugins.push(
       createPluginRecord({
@@ -511,81 +511,81 @@ describe("ensureChannelSetupPluginInstalled", () => {
         cfg,
         runtime,
         channel: "telegram",
-        workspaceDir: "/tmp/assistant-workspace",
+        workspaceDir: "/tmp/zhushou-workspace",
       });
     } finally {
       releasePinnedPluginChannelRegistry(pinnedChannelRegistry);
     }
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         activationSourceConfig: cfg,
         autoEnabledReasons: {},
-        onlyPluginIds: ["@assistant/telegram-plugin"],
+        onlyPluginIds: ["@zhushou/telegram-plugin"],
       }),
     );
   });
 
   it("can load a channel-scoped snapshot without activating the global registry", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
-    getChannelPluginCatalogEntry.mockReturnValue({ pluginId: "@assistant/telegram-plugin" });
+    const cfg: ZhushouConfig = {};
+    getChannelPluginCatalogEntry.mockReturnValue({ pluginId: "@zhushou/telegram-plugin" });
 
     loadChannelSetupPluginRegistrySnapshotForChannel({
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: cfg,
         activationSourceConfig: cfg,
         autoEnabledReasons: {},
-        workspaceDir: "/tmp/assistant-workspace",
+        workspaceDir: "/tmp/zhushou-workspace",
         cache: false,
-        onlyPluginIds: ["@assistant/telegram-plugin"],
+        onlyPluginIds: ["@zhushou/telegram-plugin"],
         includeSetupOnlyChannelPlugins: true,
         activate: false,
       }),
     );
     expect(getChannelPluginCatalogEntry).toHaveBeenCalledWith("telegram", {
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
   });
 
   it("falls back to the bundled plugin for untrusted workspace shadows", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     getChannelPluginCatalogEntry
       .mockReturnValueOnce({ pluginId: "evil-telegram-shadow", origin: "workspace" })
-      .mockReturnValueOnce({ pluginId: "@assistant/telegram-plugin", origin: "bundled" });
+      .mockReturnValueOnce({ pluginId: "@zhushou/telegram-plugin", origin: "bundled" });
 
     loadChannelSetupPluginRegistrySnapshotForChannel({
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
-        onlyPluginIds: ["@assistant/telegram-plugin"],
+        onlyPluginIds: ["@zhushou/telegram-plugin"],
       }),
     );
     expect(getChannelPluginCatalogEntry).toHaveBeenNthCalledWith(1, "telegram", {
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
     expect(getChannelPluginCatalogEntry).toHaveBeenNthCalledWith(2, "telegram", {
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
       excludeWorkspace: true,
     });
   });
 
   it("keeps trusted workspace overrides scoped during setup reloads", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       plugins: {
         enabled: true,
         allow: ["trusted-telegram-shadow"],
@@ -600,10 +600,10 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         onlyPluginIds: ["trusted-telegram-shadow"],
       }),
@@ -613,16 +613,16 @@ describe("ensureChannelSetupPluginInstalled", () => {
 
   it("does not scope by raw channel id when no trusted plugin mapping exists", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
 
     loadChannelSetupPluginRegistrySnapshotForChannel({
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.not.objectContaining({
         onlyPluginIds: expect.anything(),
       }),
@@ -631,7 +631,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
 
   it("scopes snapshots by a unique discovered manifest match when catalog mapping is missing", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     loadPluginManifestRegistry.mockReturnValue({
       plugins: [{ id: "custom-telegram-plugin", channels: ["telegram"] }],
       diagnostics: [],
@@ -641,15 +641,15 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: cfg,
         activationSourceConfig: cfg,
         autoEnabledReasons: {},
-        workspaceDir: "/tmp/assistant-workspace",
+        workspaceDir: "/tmp/zhushou-workspace",
         cache: false,
         onlyPluginIds: ["custom-telegram-plugin"],
         includeSetupOnlyChannelPlugins: true,
@@ -660,7 +660,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
 
   it("scopes snapshots by activation-declared channel ownership when direct channel lists are empty", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     loadPluginManifestRegistry.mockReturnValue({
       plugins: [
         {
@@ -678,10 +678,10 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         onlyPluginIds: ["custom-telegram-plugin"],
       }),
@@ -695,7 +695,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
 
   it("uses uncached manifest discovery for activation-declared setup scoping", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     loadPluginManifestRegistry.mockReturnValue({
       plugins: [
         {
@@ -713,7 +713,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
     expect(loadPluginManifestRegistry).toHaveBeenCalled();
@@ -726,7 +726,7 @@ describe("ensureChannelSetupPluginInstalled", () => {
 
   it("does not trust unconfigured workspace activation-only channel ownership during setup", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     loadPluginManifestRegistry.mockReturnValue({
       plugins: [
         {
@@ -745,23 +745,23 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.not.objectContaining({
         onlyPluginIds: ["evil-telegram-shadow"],
       }),
     );
     expect(
-      (vi.mocked(loadAssistantPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
+      (vi.mocked(loadZhushouPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
         .onlyPluginIds,
     ).toBeUndefined();
   });
 
   it("does not trust allowlist-excluded bundled activation-only channel ownership during setup", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       plugins: {
         allow: ["other-plugin"],
       },
@@ -784,23 +784,23 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.not.objectContaining({
         onlyPluginIds: ["custom-telegram-plugin"],
       }),
     );
     expect(
-      (vi.mocked(loadAssistantPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
+      (vi.mocked(loadZhushouPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
         .onlyPluginIds,
     ).toBeUndefined();
   });
 
   it("does not trust explicitly denied bundled activation-only channel ownership during setup", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       plugins: {
         deny: ["custom-telegram-plugin"],
       },
@@ -823,23 +823,23 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.not.objectContaining({
         onlyPluginIds: ["custom-telegram-plugin"],
       }),
     );
     expect(
-      (vi.mocked(loadAssistantPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
+      (vi.mocked(loadZhushouPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
         .onlyPluginIds,
     ).toBeUndefined();
   });
 
   it("does not trust explicitly disabled workspace activation-only channel ownership during setup", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       plugins: {
         enabled: true,
         allow: ["evil-telegram-shadow"],
@@ -866,23 +866,23 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.not.objectContaining({
         onlyPluginIds: ["evil-telegram-shadow"],
       }),
     );
     expect(
-      (vi.mocked(loadAssistantPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
+      (vi.mocked(loadZhushouPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
         .onlyPluginIds,
     ).toBeUndefined();
   });
 
   it("does not trust explicitly disabled bundled activation-only channel ownership during setup", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       plugins: {
         entries: {
           "custom-telegram-plugin": { enabled: false },
@@ -907,23 +907,23 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.not.objectContaining({
         onlyPluginIds: ["custom-telegram-plugin"],
       }),
     );
     expect(
-      (vi.mocked(loadAssistantPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
+      (vi.mocked(loadZhushouPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
         .onlyPluginIds,
     ).toBeUndefined();
   });
 
   it("does not trust unenabled global activation-only channel ownership during setup", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     loadPluginManifestRegistry.mockReturnValue({
       plugins: [
         {
@@ -942,40 +942,40 @@ describe("ensureChannelSetupPluginInstalled", () => {
       cfg,
       runtime,
       channel: "telegram",
-      workspaceDir: "/tmp/assistant-workspace",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.not.objectContaining({
         onlyPluginIds: ["custom-telegram-global"],
       }),
     );
     expect(
-      (vi.mocked(loadAssistantPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
+      (vi.mocked(loadZhushouPlugins).mock.calls[0]?.[0] as { onlyPluginIds?: string[] })
         .onlyPluginIds,
     ).toBeUndefined();
   });
 
   it("scopes snapshots by plugin id when channel and plugin ids differ", () => {
     const runtime = makeRuntime();
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
 
     loadChannelSetupPluginRegistrySnapshotForChannel({
       cfg,
       runtime,
       channel: "msteams",
-      pluginId: "@assistant/msteams-plugin",
-      workspaceDir: "/tmp/assistant-workspace",
+      pluginId: "@zhushou/msteams-plugin",
+      workspaceDir: "/tmp/zhushou-workspace",
     });
 
-    expect(loadAssistantPlugins).toHaveBeenCalledWith(
+    expect(loadZhushouPlugins).toHaveBeenCalledWith(
       expect.objectContaining({
         config: cfg,
         activationSourceConfig: cfg,
         autoEnabledReasons: {},
-        workspaceDir: "/tmp/assistant-workspace",
+        workspaceDir: "/tmp/zhushou-workspace",
         cache: false,
-        onlyPluginIds: ["@assistant/msteams-plugin"],
+        onlyPluginIds: ["@zhushou/msteams-plugin"],
         includeSetupOnlyChannelPlugins: true,
         activate: false,
       }),

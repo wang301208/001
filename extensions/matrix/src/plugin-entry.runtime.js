@@ -10,9 +10,9 @@ const require = createRequire(import.meta.url);
 const { createJiti } = require("jiti");
 
 const PLUGIN_ID = "matrix";
-const ASSISTANT_PLUGIN_SDK_PACKAGE_NAMES = [
-  ["assistant", "plugin-sdk"].join("/"),
-  ["@assistant", "plugin-sdk"].join("/"),
+const ZHUSHOU_PLUGIN_SDK_PACKAGE_NAMES = [
+  ["zhushou", "plugin-sdk"].join("/"),
+  ["@zhushou", "plugin-sdk"].join("/"),
 ];
 const PLUGIN_SDK_EXPORT_PREFIX = "./plugin-sdk/";
 const PLUGIN_SDK_SOURCE_EXTENSIONS = [".ts", ".mts", ".js", ".mjs", ".cts", ".cjs"];
@@ -42,27 +42,27 @@ function normalizeLowercaseStringOrEmpty(value) {
   return typeof value === "string" ? value.toLowerCase() : "";
 }
 
-function hasTrustedAssistantRootIndicator(packageRoot, packageJson) {
+function hasTrustedZhushouRootIndicator(packageRoot, packageJson) {
   const packageExports = packageJson?.exports ?? {};
   if (!Object.prototype.hasOwnProperty.call(packageExports, "./plugin-sdk")) {
     return false;
   }
   const hasCliEntryExport = Object.prototype.hasOwnProperty.call(packageExports, "./cli-entry");
-  const hasAssistantBin =
+  const hasZhushouBin =
     (typeof packageJson?.bin === "string" &&
-      normalizeLowercaseStringOrEmpty(packageJson.bin).includes("assistant")) ||
+      normalizeLowercaseStringOrEmpty(packageJson.bin).includes("zhushou")) ||
     (typeof packageJson?.bin === "object" &&
       packageJson.bin !== null &&
-      typeof packageJson.bin.assistant === "string");
-  const hasAssistantEntrypoint = fs.existsSync(path.join(packageRoot, "assistant.mjs"));
-  return hasCliEntryExport || hasAssistantBin || hasAssistantEntrypoint;
+      typeof packageJson.bin.zhushou === "string");
+  const hasZhushouEntrypoint = fs.existsSync(path.join(packageRoot, "zhushou.mjs"));
+  return hasCliEntryExport || hasZhushouBin || hasZhushouEntrypoint;
 }
 
-function findAssistantPackageRoot(startDir) {
+function findZhushouPackageRoot(startDir) {
   let cursor = path.resolve(startDir);
   for (let i = 0; i < 12; i += 1) {
     const pkg = readPackageJson(cursor);
-    if (pkg?.name === "assistant" && hasTrustedAssistantRootIndicator(cursor, pkg)) {
+    if (pkg?.name === "zhushou" && hasTrustedZhushouRootIndicator(cursor, pkg)) {
       return { packageRoot: cursor, packageJson: pkg };
     }
     const parent = path.dirname(cursor);
@@ -85,7 +85,7 @@ function resolveExistingFile(basePath, extensions) {
 }
 
 function buildPluginSdkAliasMap(moduleUrl) {
-  const location = findAssistantPackageRoot(path.dirname(fileURLToPath(moduleUrl)));
+  const location = findZhushouPackageRoot(path.dirname(fileURLToPath(moduleUrl)));
   if (!location) {
     return {};
   }
@@ -98,7 +98,7 @@ function buildPluginSdkAliasMap(moduleUrl) {
     resolveExistingFile(path.join(sourcePluginSdkDir, "root-alias"), [".cjs"]) ??
     resolveExistingFile(path.join(distPluginSdkDir, "root-alias"), [".cjs"]);
   if (rootAlias) {
-    for (const packageName of ASSISTANT_PLUGIN_SDK_PACKAGE_NAMES) {
+    for (const packageName of ZHUSHOU_PLUGIN_SDK_PACKAGE_NAMES) {
       aliasMap[packageName] = rootAlias;
     }
   }
@@ -115,7 +115,7 @@ function buildPluginSdkAliasMap(moduleUrl) {
       resolveExistingFile(path.join(sourcePluginSdkDir, subpath), PLUGIN_SDK_SOURCE_EXTENSIONS) ??
       resolveExistingFile(path.join(distPluginSdkDir, subpath), [".js"]);
     if (resolvedPath) {
-      for (const packageName of ASSISTANT_PLUGIN_SDK_PACKAGE_NAMES) {
+      for (const packageName of ZHUSHOU_PLUGIN_SDK_PACKAGE_NAMES) {
         aliasMap[`${packageName}/${subpath}`] = resolvedPath;
       }
     }
@@ -127,7 +127,7 @@ function buildPluginSdkAliasMap(moduleUrl) {
       PLUGIN_SDK_SOURCE_EXTENSIONS,
     ) ?? resolveExistingFile(path.join(packageRoot, "dist", "extensionAPI"), [".js"]);
   if (extensionApi) {
-    aliasMap["assistant/extension-api"] = extensionApi;
+    aliasMap["zhushou/extension-api"] = extensionApi;
   }
 
   return aliasMap;
@@ -148,7 +148,7 @@ function resolveBundledPluginRuntimeModulePath(moduleUrl, params) {
     }
   }
 
-  const location = findAssistantPackageRoot(moduleDir);
+  const location = findZhushouPackageRoot(moduleDir);
   if (location) {
     const { packageRoot } = location;
     const packageCandidates = [

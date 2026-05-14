@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { createEmptyPluginRegistry } from "../plugins/registry-empty.js";
 import type { SpeechProviderPlugin } from "../plugins/types.js";
 
@@ -86,7 +86,7 @@ describe("speech provider registry", () => {
       ],
     });
 
-    const cfg = {} as AssistantConfig;
+    const cfg = {} as ZhushouConfig;
 
     expect(listSpeechProviders(cfg).map((provider) => provider.id)).toEqual(["microsoft"]);
     expect(getSpeechProvider("edge", cfg)?.id).toBe("microsoft");
@@ -109,7 +109,7 @@ describe("speech provider registry", () => {
           },
     );
 
-    const cfg = {} as AssistantConfig;
+    const cfg = {} as ZhushouConfig;
 
     expect(listSpeechProviders(cfg).map((provider) => provider.id)).toEqual(["microsoft"]);
     expect(getSpeechProvider("edge", cfg)?.id).toBe("microsoft");

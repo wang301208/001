@@ -11,7 +11,7 @@ import { isRestartEnabled } from "../../config/commands.flags.js";
 import { logVerbose } from "../../globals.js";
 import { getSessionBindingService } from "../../infra/outbound/session-binding-service.js";
 import type { SessionBindingRecord } from "../../infra/outbound/session-binding-service.js";
-import { scheduleGatewaySigusr1Restart, triggerAssistantRestart } from "../../infra/restart.js";
+import { scheduleGatewaySigusr1Restart, triggerZhushouRestart } from "../../infra/restart.js";
 import { loadCostUsageSummary, loadSessionCostSummary } from "../../infra/session-cost-usage.js";
 import {
   normalizeLowercaseStringOrEmpty,
@@ -645,11 +645,11 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
     return {
       shouldContinue: false,
       reply: {
-        text: "⚙️ Restarting assistant in-process (SIGUSR1); back in a few seconds.",
+        text: "⚙️ Restarting zhushou in-process (SIGUSR1); back in a few seconds.",
       },
     };
   }
-  const restartMethod = triggerAssistantRestart();
+  const restartMethod = triggerZhushouRestart();
   if (!restartMethod.ok) {
     const detail = restartMethod.detail ? ` Details: ${restartMethod.detail}` : "";
     return {
@@ -662,7 +662,7 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
   return {
     shouldContinue: false,
     reply: {
-      text: `⚙️ Restarting assistant via ${restartMethod.method}; give me a few seconds to come back online.`,
+      text: `⚙️ Restarting zhushou via ${restartMethod.method}; give me a few seconds to come back online.`,
     },
   };
 };

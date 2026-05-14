@@ -1,6 +1,6 @@
 ﻿import { afterEach, describe, expect, it, vi } from "vitest";
 import { createNonExitingRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { monitorFeishuProvider, stopFeishuMonitor } from "./monitor.js";
 
 const probeFeishuMock = vi.hoisted(() => vi.fn());
@@ -18,7 +18,7 @@ vi.mock("./runtime.js", async () => {
   return createFeishuRuntimeMockModule();
 });
 
-function buildMultiAccountWebsocketConfig(accountIds: string[]): AssistantConfig {
+function buildMultiAccountWebsocketConfig(accountIds: string[]): ZhushouConfig {
   return {
     channels: {
       feishu: {
@@ -36,7 +36,7 @@ function buildMultiAccountWebsocketConfig(accountIds: string[]): AssistantConfig
         ),
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 async function waitForStartedAccount(started: string[], accountId: string) {

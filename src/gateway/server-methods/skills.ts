@@ -14,7 +14,7 @@ import { buildWorkspaceSkillStatus } from "../../agents/skills-status.js";
 import { loadWorkspaceSkillEntries, mergeWorkspaceSkills, type SkillEntry } from "../../agents/skills.js";
 import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { fetchClawHubSkillDetail } from "../../infra/clawhub.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
@@ -381,7 +381,7 @@ export const skillsHandlers: GatewayRequestHandlers = {
     }
     entries[p.skillKey] = current;
     skills.entries = entries;
-    const nextConfig: AssistantConfig = {
+    const nextConfig: ZhushouConfig = {
       ...cfg,
       skills,
     };

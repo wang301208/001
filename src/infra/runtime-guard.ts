@@ -111,11 +111,11 @@ export function assertSupportedRuntime(
 
   runtime.error(
     [
-      "assistant requires Node >=22.14.0.",
+      "zhushou requires Node >=22.14.0.",
       `Detected: ${runtimeLabel} (exec: ${execLabel}).`,
       `PATH searched: ${details.pathEnv}`,
       "Install Node: https://nodejs.org/en/download",
-      "Upgrade Node and re-run assistant.",
+      "Upgrade Node and re-run zhushou.",
     ].join("\n"),
   );
   runtime.exit(1);

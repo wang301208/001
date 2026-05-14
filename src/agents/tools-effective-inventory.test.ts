@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { createAssistantCodingTools } from "./pi-tools.js";
+import type { createZhushouCodingTools } from "./pi-tools.js";
 import type { AnyAgentTool } from "./tools/common.js";
 import type { AgentGovernanceRuntimeContract } from "../governance/runtime-contract.js";
 import type { AgentToolGovernanceSummary } from "../governance/tool-governance-summary.js";
@@ -76,7 +76,7 @@ const effectiveInventoryState = vi.hoisted(() => ({
   governance: createGovernanceSummary(),
   governanceContract: createGovernanceContract(),
   resolvedModelCompat: undefined as Record<string, unknown> | undefined,
-  createToolsMock: vi.fn<typeof createAssistantCodingTools>(
+  createToolsMock: vi.fn<typeof createZhushouCodingTools>(
     (_options) =>
       [
         mockTool({ name: "exec", label: "Exec", description: "Run shell commands" }),
@@ -96,7 +96,7 @@ vi.mock("./agent-scope.js", async () => {
 });
 
 vi.mock("./pi-tools.js", () => ({
-  createAssistantCodingTools: (options?: Parameters<typeof createAssistantCodingTools>[0]) =>
+  createZhushouCodingTools: (options?: Parameters<typeof createZhushouCodingTools>[0]) =>
     effectiveInventoryState.createToolsMock(options),
 }));
 
@@ -168,7 +168,7 @@ async function loadHarness(options?: {
   effectiveInventoryState.resolvedModelCompat = options?.resolvedModelCompat;
   effectiveInventoryState.createToolsMock =
     options?.createToolsMock ??
-    vi.fn<typeof createAssistantCodingTools>((_options) => effectiveInventoryState.tools);
+    vi.fn<typeof createZhushouCodingTools>((_options) => effectiveInventoryState.tools);
   return {
     resolveEffectiveToolInventory,
     createToolsMock: effectiveInventoryState.createToolsMock,
@@ -191,7 +191,7 @@ describe("resolveEffectiveToolInventory", () => {
     effectiveInventoryState.governance = createGovernanceSummary();
     effectiveInventoryState.governanceContract = createGovernanceContract();
     effectiveInventoryState.resolvedModelCompat = undefined;
-    effectiveInventoryState.createToolsMock = vi.fn<typeof createAssistantCodingTools>(
+    effectiveInventoryState.createToolsMock = vi.fn<typeof createZhushouCodingTools>(
       (_options) => effectiveInventoryState.tools,
     );
   });
@@ -412,7 +412,7 @@ describe("resolveEffectiveToolInventory", () => {
   });
 
   it("passes resolved model compat into effective tool creation", async () => {
-    const createToolsMock = vi.fn<typeof createAssistantCodingTools>(() => [
+    const createToolsMock = vi.fn<typeof createZhushouCodingTools>(() => [
       mockTool({ name: "exec", label: "Exec", description: "Run shell commands" }),
     ]);
     const { resolveEffectiveToolInventory } = await loadHarness({

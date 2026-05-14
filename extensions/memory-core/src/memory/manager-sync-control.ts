@@ -1,10 +1,10 @@
 import type { DatabaseSync } from "node:sqlite";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import {
   createSubsystemLogger,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/memory-core-host-engine-foundation";
-import type { MemorySyncProgressUpdate } from "assistant/plugin-sdk/memory-core-host-engine-storage";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/memory-core-host-engine-foundation";
+import type { MemorySyncProgressUpdate } from "zhushou/plugin-sdk/memory-core-host-engine-storage";
 
 const log = createSubsystemLogger("memory");
 
@@ -169,7 +169,7 @@ export function enqueueMemoryTargetedSessionSync(
 export function _createMemorySyncControlConfigForTests(
   workspaceDir: string,
   indexPath: string,
-): AssistantConfig {
+): ZhushouConfig {
   return {
     agents: {
       defaults: {
@@ -185,5 +185,5 @@ export function _createMemorySyncControlConfigForTests(
       },
       list: [{ id: "main", default: true }],
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }

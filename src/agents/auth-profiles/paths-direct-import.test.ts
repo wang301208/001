@@ -21,12 +21,12 @@ import { ensureAuthStoreFile } from "./paths.js";
 // isn't tested.
 
 describe("path-resolve helpers (direct-import coverage attribution)", () => {
-  const envSnapshot = captureEnv(["ASSISTANT_STATE_DIR"]);
+  const envSnapshot = captureEnv(["ZHUSHOU_STATE_DIR"]);
   let stateDir = "";
 
   beforeEach(async () => {
-    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-path-direct-"));
-    process.env.ASSISTANT_STATE_DIR = stateDir;
+    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-path-direct-"));
+    process.env.ZHUSHOU_STATE_DIR = stateDir;
   });
 
   afterEach(async () => {
@@ -41,9 +41,9 @@ describe("path-resolve helpers (direct-import coverage attribution)", () => {
     expect(path.basename(resolved)).toMatch(/auth-profiles/);
   });
 
-  it("resolveAuthStorePath falls back to resolveAssistantAgentDir when agentDir is omitted", () => {
-    // Omitting agentDir exercises the `agentDir ?? resolveAssistantAgentDir()`
-    // nullish branch. With ASSISTANT_STATE_DIR set to our tempdir, the
+  it("resolveAuthStorePath falls back to resolveZhushouAgentDir when agentDir is omitted", () => {
+    // Omitting agentDir exercises the `agentDir ?? resolveZhushouAgentDir()`
+    // nullish branch. With ZHUSHOU_STATE_DIR set to our tempdir, the
     // resolved path must live under it.
     const resolved = resolveAuthStorePath();
     expect(resolved.startsWith(stateDir)).toBe(true);
@@ -83,7 +83,7 @@ describe("path-resolve helpers (direct-import coverage attribution)", () => {
     // Exercises the `pathname.startsWith(\"~\")` branch. We use a contrived
     // agentDir that already starts with `~` so the resolver echoes the
     // tilde path back instead of expanding it via resolveUserPath.
-    const tildeAgentDir = "~fake-assistant-no-expand";
+    const tildeAgentDir = "~fake-zhushou-no-expand";
     const resolved = resolveAuthStorePathForDisplay(tildeAgentDir);
     // Either the path itself starts with `~`, or the display variant
     // happened to resolve through the user-path branch. Both branches are
@@ -102,12 +102,12 @@ describe("path-resolve helpers (direct-import coverage attribution)", () => {
 });
 
 describe("ensureAuthStoreFile (direct-import coverage attribution)", () => {
-  const envSnapshot = captureEnv(["ASSISTANT_STATE_DIR"]);
+  const envSnapshot = captureEnv(["ZHUSHOU_STATE_DIR"]);
   let stateDir = "";
 
   beforeEach(async () => {
-    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-path-ensure-"));
-    process.env.ASSISTANT_STATE_DIR = stateDir;
+    stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-path-ensure-"));
+    process.env.ZHUSHOU_STATE_DIR = stateDir;
   });
 
   afterEach(async () => {

@@ -26,7 +26,7 @@ vi.mock("../plugins/provider-hook-runtime.js", () =>
               sanitizeMode: "images-only",
               sanitizeToolCallIds: context?.modelApi === "openai-completions",
               ...(context?.modelApi === "openai-completions" ? { toolCallIdMode: "strict" } : {}),
-              applyAssistantFirstOrderingFix: false,
+              applyZhushouFirstOrderingFix: false,
               validateGeminiTurns: false,
               validateAnthropicTurns: false,
             }),
@@ -99,8 +99,8 @@ describe("sanitizeSessionHistory openai tool id preservation", () => {
       sessionId: "test-session",
     });
 
-    const assistant = result[0] as { content?: Array<{ type?: string; id?: string }> };
-    const toolCall = assistant.content?.find((block) => block.type === "toolCall");
+    const zhushou = result[0] as { content?: Array<{ type?: string; id?: string }> };
+    const toolCall = zhushou.content?.find((block) => block.type === "toolCall");
     expect(toolCall?.id).toBe(expectedToolId);
 
     const toolResult = result[1] as { toolCallId?: string };

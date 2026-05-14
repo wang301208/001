@@ -62,14 +62,14 @@ async function createDockerSetupSandbox(): Promise<DockerSetupSandbox> {
   await writeFile(dockerfilePath, "FROM scratch\n");
   await writeFile(
     composePath,
-    "services:\n  assistant-gateway:\n    image: noop\n  assistant-cli:\n    image: noop\n",
+    "services:\n  zhushou-gateway:\n    image: noop\n  zhushou-cli:\n    image: noop\n",
   );
   await writeDockerStub(binDir, logPath);
 
   return { rootDir, scriptPath, logPath, binDir };
 }
 
-const sandboxRootTracker = createSuiteTempRootTracker({ prefix: "assistant-docker-setup-" });
+const sandboxRootTracker = createSuiteTempRootTracker({ prefix: "zhushou-docker-setup-" });
 
 function createEnv(
   sandbox: DockerSetupSandbox,
@@ -82,9 +82,9 @@ function createEnv(
     LC_ALL: process.env.LC_ALL,
     TMPDIR: process.env.TMPDIR,
     DOCKER_STUB_LOG: sandbox.logPath,
-    ASSISTANT_GATEWAY_TOKEN: "test-token",
-    ASSISTANT_CONFIG_DIR: join(sandbox.rootDir, "config"),
-    ASSISTANT_WORKSPACE_DIR: join(sandbox.rootDir, "assistant"),
+    ZHUSHOU_GATEWAY_TOKEN: "test-token",
+    ZHUSHOU_CONFIG_DIR: join(sandbox.rootDir, "config"),
+    ZHUSHOU_WORKSPACE_DIR: join(sandbox.rootDir, "zhushou"),
   };
 
   for (const [key, value] of Object.entries(overrides)) {
@@ -129,7 +129,7 @@ async function readDockerLogLines(sandbox: DockerSetupSandbox) {
 }
 
 function isGatewayStartLine(line: string) {
-  return line.includes("compose") && line.includes(" up -d") && line.includes("assistant-gateway");
+  return line.includes("compose") && line.includes(" up -d") && line.includes("zhushou-gateway");
 }
 
 function findGatewayStartLineIndex(lines: string[]) {
@@ -147,9 +147,9 @@ async function runDockerSetupWithUnsetGatewayToken(
   await prepare?.(configDir);
 
   const result = runDockerSetup(sandbox, {
-    ASSISTANT_GATEWAY_TOKEN: undefined,
-    ASSISTANT_CONFIG_DIR: configDir,
-    ASSISTANT_WORKSPACE_DIR: workspaceDir,
+    ZHUSHOU_GATEWAY_TOKEN: undefined,
+    ZHUSHOU_CONFIG_DIR: configDir,
+    ZHUSHOU_WORKSPACE_DIR: workspaceDir,
   });
   const envFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
 
@@ -213,34 +213,34 @@ describe("scripts/docker/setup.sh", () => {
     const activeSandbox = requireSandbox(sandbox);
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
-      ASSISTANT_EXTRA_MOUNTS: undefined,
-      ASSISTANT_HOME_VOLUME: "assistant-home",
+      ZHUSHOU_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
+      ZHUSHOU_EXTRA_MOUNTS: undefined,
+      ZHUSHOU_HOME_VOLUME: "zhushou-home",
     });
     expect(result.status).toBe(0);
     const envFile = await readFile(join(activeSandbox.rootDir, ".env"), "utf8");
-    expect(envFile).toContain("ASSISTANT_DOCKER_APT_PACKAGES=ffmpeg build-essential");
-    expect(envFile).toContain("ASSISTANT_EXTRA_MOUNTS=");
-    expect(envFile).toContain("ASSISTANT_HOME_VOLUME=assistant-home"); // pragma: allowlist secret
+    expect(envFile).toContain("ZHUSHOU_DOCKER_APT_PACKAGES=ffmpeg build-essential");
+    expect(envFile).toContain("ZHUSHOU_EXTRA_MOUNTS=");
+    expect(envFile).toContain("ZHUSHOU_HOME_VOLUME=zhushou-home"); // pragma: allowlist secret
     const extraCompose = await readFile(
       join(activeSandbox.rootDir, "docker-compose.extra.yml"),
       "utf8",
     );
-    expect(extraCompose).toContain("assistant-home:/home/node");
+    expect(extraCompose).toContain("zhushou-home:/home/node");
     expect(extraCompose).toContain("volumes:");
-    expect(extraCompose).toContain("assistant-home:");
+    expect(extraCompose).toContain("zhushou-home:");
     const log = await readDockerLog(activeSandbox);
-    expect(log).toContain("--build-arg ASSISTANT_DOCKER_APT_PACKAGES=ffmpeg build-essential");
+    expect(log).toContain("--build-arg ZHUSHOU_DOCKER_APT_PACKAGES=ffmpeg build-essential");
     expect(log).toContain(
-      "run --rm --no-deps --entrypoint node assistant-gateway dist/index.js onboard --mode local --no-install-daemon",
+      "run --rm --no-deps --entrypoint node zhushou-gateway dist/index.js onboard --mode local --no-install-daemon",
     );
     expect(log).toContain(
-      'run --rm --no-deps --entrypoint node assistant-gateway dist/index.js config set --batch-json [{"path":"gateway.mode","value":"local"},{"path":"gateway.bind","value":"lan"},{"path":"gateway.controlUi.allowedOrigins","value":["http://localhost:18789","http://127.0.0.1:18789"]}]',
+      'run --rm --no-deps --entrypoint node zhushou-gateway dist/index.js config set --batch-json [{"path":"gateway.mode","value":"local"},{"path":"gateway.bind","value":"lan"},{"path":"gateway.controlUi.allowedOrigins","value":["http://localhost:18789","http://127.0.0.1:18789"]}]',
     );
-    expect(log).not.toContain("run --rm assistant-cli onboard --mode local --no-install-daemon");
+    expect(log).not.toContain("run --rm zhushou-cli onboard --mode local --no-install-daemon");
   });
 
-  it("avoids shared-network assistant-cli before the gateway is started", async () => {
+  it("avoids shared-network zhushou-cli before the gateway is started", async () => {
     const activeSandbox = requireSandbox(sandbox);
 
     await resetDockerLog(activeSandbox);
@@ -252,7 +252,7 @@ describe("scripts/docker/setup.sh", () => {
     expect(gatewayStartIdx).toBeGreaterThanOrEqual(0);
 
     const prestartLines = lines.slice(0, gatewayStartIdx);
-    expect(prestartLines.some((line) => /\bcompose\b.*\brun\b.*\bassistant-cli\b/.test(line))).toBe(
+    expect(prestartLines.some((line) => /\bcompose\b.*\brun\b.*\bzhushou-cli\b/.test(line))).toBe(
       false,
     );
   });
@@ -263,7 +263,7 @@ describe("scripts/docker/setup.sh", () => {
     await resetDockerLog(activeSandbox);
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_SANDBOX: "1",
+      ZHUSHOU_SANDBOX: "1",
     });
 
     expect(result.status).toBe(0);
@@ -280,8 +280,8 @@ describe("scripts/docker/setup.sh", () => {
     const workspaceDir = join(activeSandbox.rootDir, "workspace-identity");
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_CONFIG_DIR: configDir,
-      ASSISTANT_WORKSPACE_DIR: workspaceDir,
+      ZHUSHOU_CONFIG_DIR: configDir,
+      ZHUSHOU_WORKSPACE_DIR: workspaceDir,
     });
 
     expect(result.status).toBe(0);
@@ -289,16 +289,16 @@ describe("scripts/docker/setup.sh", () => {
     expect(identityDirStat.isDirectory()).toBe(true);
   });
 
-  it("writes ASSISTANT_TZ into .env when given a real IANA timezone", async () => {
+  it("writes ZHUSHOU_TZ into .env when given a real IANA timezone", async () => {
     const activeSandbox = requireSandbox(sandbox);
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_TZ: "Asia/Shanghai",
+      ZHUSHOU_TZ: "Asia/Shanghai",
     });
 
     expect(result.status).toBe(0);
     const envFile = await readFile(join(activeSandbox.rootDir, ".env"), "utf8");
-    expect(envFile).toContain("ASSISTANT_TZ=Asia/Shanghai");
+    expect(envFile).toContain("ZHUSHOU_TZ=Asia/Shanghai");
   });
 
   it("precreates agent data dirs to avoid EACCES in container", async () => {
@@ -307,8 +307,8 @@ describe("scripts/docker/setup.sh", () => {
     const workspaceDir = join(activeSandbox.rootDir, "workspace-agent-dirs");
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_CONFIG_DIR: configDir,
-      ASSISTANT_WORKSPACE_DIR: workspaceDir,
+      ZHUSHOU_CONFIG_DIR: configDir,
+      ZHUSHOU_WORKSPACE_DIR: workspaceDir,
     });
 
     expect(result.status).toBe(0);
@@ -323,31 +323,31 @@ describe("scripts/docker/setup.sh", () => {
     const onboardIdx = log.indexOf("onboard");
     expect(chownIdx).toBeGreaterThanOrEqual(0);
     expect(onboardIdx).toBeGreaterThan(chownIdx);
-    expect(log).toContain("run --rm --no-deps --user root --entrypoint sh assistant-gateway -c");
+    expect(log).toContain("run --rm --no-deps --user root --entrypoint sh zhushou-gateway -c");
   });
 
-  it("reuses existing config token when ASSISTANT_GATEWAY_TOKEN is unset", async () => {
+  it("reuses existing config token when ZHUSHOU_GATEWAY_TOKEN is unset", async () => {
     const activeSandbox = requireSandbox(sandbox);
     const { result, envFile } = await runDockerSetupWithUnsetGatewayToken(
       activeSandbox,
       "token-reuse",
       async (configDir) => {
         await writeFile(
-          join(configDir, "assistant.json"),
+          join(configDir, "zhushou.json"),
           JSON.stringify({ gateway: { auth: { mode: "token", token: "config-token-123" } } }),
         );
       },
     );
 
     expect(result.status).toBe(0);
-    expect(envFile).toContain("ASSISTANT_GATEWAY_TOKEN=config-token-123"); // pragma: allowlist secret
+    expect(envFile).toContain("ZHUSHOU_GATEWAY_TOKEN=config-token-123"); // pragma: allowlist secret
   });
 
-  it("reuses existing .env token when ASSISTANT_GATEWAY_TOKEN and config token are unset", async () => {
+  it("reuses existing .env token when ZHUSHOU_GATEWAY_TOKEN and config token are unset", async () => {
     const activeSandbox = requireSandbox(sandbox);
     await writeFile(
       join(activeSandbox.rootDir, ".env"),
-      "ASSISTANT_GATEWAY_TOKEN=dotenv-token-123\nASSISTANT_GATEWAY_PORT=18789\n", // pragma: allowlist secret
+      "ZHUSHOU_GATEWAY_TOKEN=dotenv-token-123\nZHUSHOU_GATEWAY_PORT=18789\n", // pragma: allowlist secret
     );
     const { result, envFile } = await runDockerSetupWithUnsetGatewayToken(
       activeSandbox,
@@ -355,7 +355,7 @@ describe("scripts/docker/setup.sh", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(envFile).toContain("ASSISTANT_GATEWAY_TOKEN=dotenv-token-123"); // pragma: allowlist secret
+    expect(envFile).toContain("ZHUSHOU_GATEWAY_TOKEN=dotenv-token-123"); // pragma: allowlist secret
     expect(result.stderr).toBe("");
   });
 
@@ -364,9 +364,9 @@ describe("scripts/docker/setup.sh", () => {
     await writeFile(
       join(activeSandbox.rootDir, ".env"),
       [
-        "ASSISTANT_GATEWAY_TOKEN=",
-        "ASSISTANT_GATEWAY_TOKEN=first-token",
-        "ASSISTANT_GATEWAY_TOKEN=last=token=value\r", // pragma: allowlist secret
+        "ZHUSHOU_GATEWAY_TOKEN=",
+        "ZHUSHOU_GATEWAY_TOKEN=first-token",
+        "ZHUSHOU_GATEWAY_TOKEN=last=token=value\r", // pragma: allowlist secret
       ].join("\n"),
     );
     const { result, envFile } = await runDockerSetupWithUnsetGatewayToken(
@@ -375,26 +375,26 @@ describe("scripts/docker/setup.sh", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(envFile).toContain("ASSISTANT_GATEWAY_TOKEN=last=token=value"); // pragma: allowlist secret
-    expect(envFile).not.toContain("ASSISTANT_GATEWAY_TOKEN=first-token");
+    expect(envFile).toContain("ZHUSHOU_GATEWAY_TOKEN=last=token=value"); // pragma: allowlist secret
+    expect(envFile).not.toContain("ZHUSHOU_GATEWAY_TOKEN=first-token");
     expect(envFile).not.toContain("\r");
   });
 
-  it("treats ASSISTANT_SANDBOX=0 as disabled", async () => {
+  it("treats ZHUSHOU_SANDBOX=0 as disabled", async () => {
     const activeSandbox = requireSandbox(sandbox);
     await resetDockerLog(activeSandbox);
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_SANDBOX: "0",
+      ZHUSHOU_SANDBOX: "0",
     });
 
     expect(result.status).toBe(0);
     const envFile = await readFile(join(activeSandbox.rootDir, ".env"), "utf8");
-    expect(envFile).toContain("ASSISTANT_SANDBOX=");
+    expect(envFile).toContain("ZHUSHOU_SANDBOX=");
 
     const log = await readDockerLog(activeSandbox);
-    expect(log).toContain("--build-arg ASSISTANT_INSTALL_DOCKER_CLI=");
-    expect(log).not.toContain("--build-arg ASSISTANT_INSTALL_DOCKER_CLI=1");
+    expect(log).toContain("--build-arg ZHUSHOU_INSTALL_DOCKER_CLI=");
+    expect(log).not.toContain("--build-arg ZHUSHOU_INSTALL_DOCKER_CLI=1");
     expect(log).toContain("config set agents.defaults.sandbox.mode off");
   });
 
@@ -403,12 +403,12 @@ describe("scripts/docker/setup.sh", () => {
     await resetDockerLog(activeSandbox);
     await writeFile(
       join(activeSandbox.rootDir, "docker-compose.sandbox.yml"),
-      "services:\n  assistant-gateway:\n    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock\n",
+      "services:\n  zhushou-gateway:\n    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock\n",
     );
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_SANDBOX: "1",
-      DOCKER_STUB_FAIL_MATCH: "--entrypoint docker assistant-gateway --version",
+      ZHUSHOU_SANDBOX: "1",
+      DOCKER_STUB_FAIL_MATCH: "--entrypoint docker zhushou-gateway --version",
     });
 
     expect(result.status).toBe(0);
@@ -425,8 +425,8 @@ describe("scripts/docker/setup.sh", () => {
 
     await withUnixSocket(socketPath, async () => {
       const result = runDockerSetup(activeSandbox, {
-        ASSISTANT_SANDBOX: "1",
-        ASSISTANT_DOCKER_SOCKET: socketPath,
+        ZHUSHOU_SANDBOX: "1",
+        ZHUSHOU_DOCKER_SOCKET: socketPath,
         DOCKER_STUB_FAIL_MATCH: "config set agents.defaults.sandbox.scope",
       });
 
@@ -440,12 +440,12 @@ describe("scripts/docker/setup.sh", () => {
       );
       expect(gatewayStarts).toHaveLength(2);
       expect(log).toContain(
-        "run --rm --no-deps assistant-cli config set agents.defaults.sandbox.mode non-main",
+        "run --rm --no-deps zhushou-cli config set agents.defaults.sandbox.mode non-main",
       );
       expect(log).toContain("config set agents.defaults.sandbox.mode off");
       const forceRecreateLine = log
         .split("\n")
-        .find((line) => line.includes("up -d --force-recreate assistant-gateway"));
+        .find((line) => line.includes("up -d --force-recreate zhushou-gateway"));
       expect(forceRecreateLine).toBeDefined();
       expect(forceRecreateLine).not.toContain("docker-compose.sandbox.yml");
       await expect(
@@ -454,48 +454,48 @@ describe("scripts/docker/setup.sh", () => {
     });
   });
 
-  it("rejects injected multiline ASSISTANT_EXTRA_MOUNTS values", async () => {
+  it("rejects injected multiline ZHUSHOU_EXTRA_MOUNTS values", async () => {
     const activeSandbox = requireSandbox(sandbox);
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_EXTRA_MOUNTS: "/tmp:/tmp\n  evil-service:\n    image: alpine",
+      ZHUSHOU_EXTRA_MOUNTS: "/tmp:/tmp\n  evil-service:\n    image: alpine",
     });
 
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("ASSISTANT_EXTRA_MOUNTS cannot contain control characters");
+    expect(result.stderr).toContain("ZHUSHOU_EXTRA_MOUNTS cannot contain control characters");
   });
 
-  it("rejects invalid ASSISTANT_EXTRA_MOUNTS mount format", async () => {
+  it("rejects invalid ZHUSHOU_EXTRA_MOUNTS mount format", async () => {
     const activeSandbox = requireSandbox(sandbox);
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_EXTRA_MOUNTS: "bad mount spec",
+      ZHUSHOU_EXTRA_MOUNTS: "bad mount spec",
     });
 
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("Invalid mount format");
   });
 
-  it("rejects invalid ASSISTANT_HOME_VOLUME names", async () => {
+  it("rejects invalid ZHUSHOU_HOME_VOLUME names", async () => {
     const activeSandbox = requireSandbox(sandbox);
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_HOME_VOLUME: "bad name",
+      ZHUSHOU_HOME_VOLUME: "bad name",
     });
 
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("ASSISTANT_HOME_VOLUME must match");
+    expect(result.stderr).toContain("ZHUSHOU_HOME_VOLUME must match");
   });
 
-  it("rejects ASSISTANT_TZ values that are not present in zoneinfo", async () => {
+  it("rejects ZHUSHOU_TZ values that are not present in zoneinfo", async () => {
     const activeSandbox = requireSandbox(sandbox);
 
     const result = runDockerSetup(activeSandbox, {
-      ASSISTANT_TZ: "Nope/Bad",
+      ZHUSHOU_TZ: "Nope/Bad",
     });
 
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("ASSISTANT_TZ must match a timezone in /usr/share/zoneinfo");
+    expect(result.stderr).toContain("ZHUSHOU_TZ must match a timezone in /usr/share/zoneinfo");
   });
 
   it("avoids associative arrays so the script remains Bash 3.2-compatible", async () => {
@@ -536,19 +536,19 @@ describe("scripts/docker/setup.sh", () => {
 
   it("keeps docker-compose CLI network namespace settings in sync", async () => {
     const compose = await readFile(join(repoRoot, "docker-compose.yml"), "utf8");
-    expect(compose).toContain('network_mode: "service:assistant-gateway"');
-    expect(compose).toContain("depends_on:\n      - assistant-gateway");
+    expect(compose).toContain('network_mode: "service:zhushou-gateway"');
+    expect(compose).toContain("depends_on:\n      - zhushou-gateway");
   });
 
   it("keeps docker-compose gateway token env defaults aligned across services", async () => {
     const compose = await readFile(join(repoRoot, "docker-compose.yml"), "utf8");
-    expect(compose.match(/ASSISTANT_GATEWAY_TOKEN: \$\{ASSISTANT_GATEWAY_TOKEN:-\}/g)).toHaveLength(
+    expect(compose.match(/ZHUSHOU_GATEWAY_TOKEN: \$\{ZHUSHOU_GATEWAY_TOKEN:-\}/g)).toHaveLength(
       2,
     );
   });
 
   it("keeps docker-compose timezone env defaults aligned across services", async () => {
     const compose = await readFile(join(repoRoot, "docker-compose.yml"), "utf8");
-    expect(compose.match(/TZ: \$\{ASSISTANT_TZ:-UTC\}/g)).toHaveLength(2);
+    expect(compose.match(/TZ: \$\{ZHUSHOU_TZ:-UTC\}/g)).toHaveLength(2);
   });
 });

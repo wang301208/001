@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export type SupportedGatewaySecretInputPath =
   | "gateway.auth.token"
@@ -20,7 +20,7 @@ export function isSupportedGatewaySecretInputPath(
 }
 
 export function readGatewaySecretInputValue(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   path: SupportedGatewaySecretInputPath,
 ): unknown {
   if (path === "gateway.auth.token") {
@@ -36,7 +36,7 @@ export function readGatewaySecretInputValue(
 }
 
 export function assignResolvedGatewaySecretInput(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   path: SupportedGatewaySecretInputPath;
   value: string | undefined;
 }): void {

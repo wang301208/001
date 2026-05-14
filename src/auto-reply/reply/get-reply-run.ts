@@ -12,7 +12,7 @@ import {
 } from "../../config/sessions/paths.js";
 import { resolveSessionStoreEntry } from "../../config/sessions/store.js";
 import type { SessionEntry } from "../../config/sessions/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { logVerbose } from "../../globals.js";
 import { clearCommandLane, getQueueSize } from "../../process/command-queue.js";
 import { isAcpSessionKey, isSubagentSessionKey, normalizeMainKey } from "../../routing/session-key.js";
@@ -52,7 +52,7 @@ import { resolveTypingMode } from "./typing-mode.js";
 import { resolveRunTypingPolicy } from "./typing-policy.js";
 import type { TypingController } from "./typing.js";
 
-type AgentDefaults = NonNullable<AssistantConfig["agents"]>["defaults"];
+type AgentDefaults = NonNullable<ZhushouConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
 
 export function buildExecOverridePromptHint(params: {
@@ -136,11 +136,11 @@ function stripPromptThinkingDirectives(body: string): string {
 type RunPreparedReplyParams = {
   ctx: MsgContext;
   sessionCtx: TemplateContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   agentDir: string;
   agentCfg: AgentDefaults;
-  sessionCfg: AssistantConfig["session"];
+  sessionCfg: ZhushouConfig["session"];
   commandAuthorized: boolean;
   command: ReturnType<typeof buildCommandContext>;
   commandSource?: string;
@@ -238,7 +238,7 @@ export async function runPreparedReply(
   } = params;
   const useFastReplyRuntime = shouldUseReplyFastTestRuntime({
     cfg,
-    isFastTestEnv: process.env.ASSISTANT_TEST_FAST === "1",
+    isFastTestEnv: process.env.ZHUSHOU_TEST_FAST === "1",
   });
   const fullAccessState = resolveEmbeddedFullAccessState({
     execElevated: {
@@ -453,7 +453,7 @@ export async function runPreparedReply(
     });
   };
   const skillResult =
-    process.env.ASSISTANT_TEST_FAST === "1"
+    process.env.ZHUSHOU_TEST_FAST === "1"
       ? {
           sessionEntry,
           skillsSnapshot: sessionEntry?.skillsSnapshot,

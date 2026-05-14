@@ -138,21 +138,21 @@ export function registerGatewayCli(program: Command) {
   const gateway = addGatewayRunCommand(
     program
       .command("gateway")
-      .description("Run, inspect, and query the WebSocket Gateway")
+      .description("Run, inspect, and query the network adapter for remote WebSocket clients")
       .addHelpText(
         "after",
         () =>
           `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-            ["assistant gateway run", "Run the gateway in the foreground."],
-            ["assistant gateway status", "Show service status and probe reachability."],
-            ["assistant gateway discover", "Find local and wide-area gateway beacons."],
-            ["assistant gateway call health", "Call a gateway RPC method directly."],
-          ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.assistant.ai/cli/gateway")}\n`,
+            ["zhushou gateway run", "Run the WebSocket network adapter in the foreground."],
+            ["zhushou gateway status", "Show adapter service status and probe reachability."],
+            ["zhushou gateway discover", "Find local and wide-area gateway beacons."],
+            ["zhushou gateway call health", "Call a gateway RPC method directly."],
+          ])}\n\n${theme.muted("Note:")} the embedded TUI uses the single Node stdio main gateway; this command exposes that capability over the network.\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.zhushou.ai/cli/gateway")}\n`,
       ),
   );
 
   addGatewayRunCommand(
-    gateway.command("run").description("Run the WebSocket Gateway (foreground)"),
+    gateway.command("run").description("Run the WebSocket network adapter (foreground)"),
   );
 
   addGatewayServiceCommands(gateway, {

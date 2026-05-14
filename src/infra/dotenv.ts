@@ -25,44 +25,44 @@ const BLOCKED_WORKSPACE_DOTENV_KEYS = new Set([
   "NO_PROXY",
   "OPENAI_API_KEY",
   "OPENAI_API_KEYS",
-  "ASSISTANT_AGENT_DIR",
-  "ASSISTANT_ALLOW_INSECURE_PRIVATE_WS",
-  "ASSISTANT_ALLOW_PROJECT_LOCAL_BIN",
-  "ASSISTANT_BROWSER_EXECUTABLE_PATH",
-  "ASSISTANT_BROWSER_CONTROL_MODULE",
-  "ASSISTANT_BUNDLED_HOOKS_DIR",
-  "ASSISTANT_BUNDLED_PLUGINS_DIR",
-  "ASSISTANT_BUNDLED_SKILLS_DIR",
-  "ASSISTANT_CACHE_TRACE",
-  "ASSISTANT_CACHE_TRACE_FILE",
-  "ASSISTANT_CACHE_TRACE_MESSAGES",
-  "ASSISTANT_CACHE_TRACE_PROMPT",
-  "ASSISTANT_CACHE_TRACE_SYSTEM",
-  "ASSISTANT_CONFIG_PATH",
-  "ASSISTANT_GATEWAY_PASSWORD",
-  "ASSISTANT_GATEWAY_PORT",
-  "ASSISTANT_GATEWAY_SECRET",
-  "ASSISTANT_GATEWAY_TOKEN",
-  "ASSISTANT_GATEWAY_URL",
-  "ASSISTANT_HOME",
-  "ASSISTANT_LIVE_ANTHROPIC_KEY",
-  "ASSISTANT_LIVE_ANTHROPIC_KEYS",
-  "ASSISTANT_LIVE_GEMINI_KEY",
-  "ASSISTANT_LIVE_OPENAI_KEY",
-  "ASSISTANT_MPM_CATALOG_PATHS",
-  "ASSISTANT_NODE_EXEC_FALLBACK",
-  "ASSISTANT_NODE_EXEC_HOST",
-  "ASSISTANT_OAUTH_DIR",
-  "ASSISTANT_PINNED_PYTHON",
-  "ASSISTANT_PINNED_WRITE_PYTHON",
-  "ASSISTANT_PLUGIN_CATALOG_PATHS",
-  "ASSISTANT_PROFILE",
-  "ASSISTANT_RAW_STREAM",
-  "ASSISTANT_RAW_STREAM_PATH",
-  "ASSISTANT_SHOW_SECRETS",
-  "ASSISTANT_SKIP_BROWSER_CONTROL_SERVER",
-  "ASSISTANT_STATE_DIR",
-  "ASSISTANT_TEST_TAILSCALE_BINARY",
+  "ZHUSHOU_AGENT_DIR",
+  "ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS",
+  "ZHUSHOU_ALLOW_PROJECT_LOCAL_BIN",
+  "ZHUSHOU_BROWSER_EXECUTABLE_PATH",
+  "ZHUSHOU_BROWSER_CONTROL_MODULE",
+  "ZHUSHOU_BUNDLED_HOOKS_DIR",
+  "ZHUSHOU_BUNDLED_PLUGINS_DIR",
+  "ZHUSHOU_BUNDLED_SKILLS_DIR",
+  "ZHUSHOU_CACHE_TRACE",
+  "ZHUSHOU_CACHE_TRACE_FILE",
+  "ZHUSHOU_CACHE_TRACE_MESSAGES",
+  "ZHUSHOU_CACHE_TRACE_PROMPT",
+  "ZHUSHOU_CACHE_TRACE_SYSTEM",
+  "ZHUSHOU_CONFIG_PATH",
+  "ZHUSHOU_GATEWAY_PASSWORD",
+  "ZHUSHOU_GATEWAY_PORT",
+  "ZHUSHOU_GATEWAY_SECRET",
+  "ZHUSHOU_GATEWAY_TOKEN",
+  "ZHUSHOU_GATEWAY_URL",
+  "ZHUSHOU_HOME",
+  "ZHUSHOU_LIVE_ANTHROPIC_KEY",
+  "ZHUSHOU_LIVE_ANTHROPIC_KEYS",
+  "ZHUSHOU_LIVE_GEMINI_KEY",
+  "ZHUSHOU_LIVE_OPENAI_KEY",
+  "ZHUSHOU_MPM_CATALOG_PATHS",
+  "ZHUSHOU_NODE_EXEC_FALLBACK",
+  "ZHUSHOU_NODE_EXEC_HOST",
+  "ZHUSHOU_OAUTH_DIR",
+  "ZHUSHOU_PINNED_PYTHON",
+  "ZHUSHOU_PINNED_WRITE_PYTHON",
+  "ZHUSHOU_PLUGIN_CATALOG_PATHS",
+  "ZHUSHOU_PROFILE",
+  "ZHUSHOU_RAW_STREAM",
+  "ZHUSHOU_RAW_STREAM_PATH",
+  "ZHUSHOU_SHOW_SECRETS",
+  "ZHUSHOU_SKIP_BROWSER_CONTROL_SERVER",
+  "ZHUSHOU_STATE_DIR",
+  "ZHUSHOU_TEST_TAILSCALE_BINARY",
   "PI_CODING_AGENT_DIR",
   "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH",
   "UV_PYTHON",
@@ -74,10 +74,10 @@ const BLOCKED_WORKSPACE_DOTENV_PREFIXES = [
   "ANTHROPIC_API_KEY_",
   "CLAWHUB_",
   "OPENAI_API_KEY_",
-  "ASSISTANT_CLAWHUB_",
-  "ASSISTANT_DISABLE_",
-  "ASSISTANT_SKIP_",
-  "ASSISTANT_UPDATE_",
+  "ZHUSHOU_CLAWHUB_",
+  "ZHUSHOU_DISABLE_",
+  "ZHUSHOU_SKIP_",
+  "ZHUSHOU_UPDATE_",
 ];
 
 function shouldBlockWorkspaceRuntimeDotEnvKey(key: string): boolean {
@@ -85,7 +85,7 @@ function shouldBlockWorkspaceRuntimeDotEnvKey(key: string): boolean {
 }
 
 function shouldBlockRuntimeDotEnvKey(key: string): boolean {
-  // The global ~/.assistant/.env (or ASSISTANT_STATE_DIR/.env) is a trusted
+  // The global ~/.zhushou/.env (or ZHUSHOU_STATE_DIR/.env) is a trusted
   // operator-controlled runtime surface. Workspace .env is untrusted and gets
   // the strict blocklist, but the trusted global fallback is allowed to set
   // runtime vars like proxy/base-url/auth values.
@@ -236,11 +236,11 @@ export function loadGlobalRuntimeDotEnvFiles(opts?: { quiet?: boolean; stateEnvP
   const stateEnvPath = opts?.stateEnvPath ?? path.join(resolveConfigDir(process.env), ".env");
   const defaultStateEnvPath = path.join(
     resolveRequiredHomeDir(process.env, os.homedir),
-    ".assistant",
+    ".zhushou",
     ".env",
   );
   const hasExplicitNonDefaultStateDir =
-    process.env.ASSISTANT_STATE_DIR?.trim() !== undefined &&
+    process.env.ZHUSHOU_STATE_DIR?.trim() !== undefined &&
     path.resolve(stateEnvPath) !== path.resolve(defaultStateEnvPath);
   const parsedFiles = [
     readDotEnvFile({
@@ -255,7 +255,7 @@ export function loadGlobalRuntimeDotEnvFiles(opts?: { quiet?: boolean; stateEnvP
         filePath: path.join(
           resolveRequiredHomeDir(process.env, os.homedir),
           ".config",
-          "assistant",
+          "zhushou",
           "gateway.env",
         ),
         shouldBlockKey: shouldBlockRuntimeDotEnvKey,
@@ -272,7 +272,7 @@ export function loadDotEnv(opts?: { quiet?: boolean }) {
   const cwdEnvPath = path.join(process.cwd(), ".env");
   loadWorkspaceDotEnvFile(cwdEnvPath, { quiet });
 
-  // Then load global fallback: ~/.assistant/.env (or ASSISTANT_STATE_DIR/.env),
+  // Then load global fallback: ~/.zhushou/.env (or ZHUSHOU_STATE_DIR/.env),
   // without overriding any env vars already present.
   loadGlobalRuntimeDotEnvFiles({ quiet });
 }

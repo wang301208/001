@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { createInlineCodeState } from "../markdown/code-spans.js";
 import {
-  buildAssistantStreamData,
+  buildZhushouStreamData,
   consumePendingToolMediaIntoReply,
   consumePendingToolMediaReply,
   handleMessageEnd,
   handleMessageUpdate,
-  hasAssistantVisibleReply,
+  hasZhushouVisibleReply,
   resolveSilentReplyFallbackText,
 } from "./pi-embedded-subscribe.handlers.messages.js";
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
@@ -21,7 +21,7 @@ function createMessageUpdateContext(
     onAgentEvent?: ReturnType<typeof vi.fn>;
     onPartialReply?: ReturnType<typeof vi.fn>;
     flushBlockReplyBuffer?: ReturnType<typeof vi.fn>;
-    resetAssistantMessageState?: ReturnType<typeof vi.fn>;
+    resetZhushouMessageState?: ReturnType<typeof vi.fn>;
     debug?: ReturnType<typeof vi.fn>;
     shouldEmitPartialReplies?: boolean;
   } = {},
@@ -45,22 +45,22 @@ function createMessageUpdateContext(
         final: false,
         inlineCode: createInlineCodeState(),
       },
-      lastStreamedAssistant: undefined,
-      lastStreamedAssistantCleaned: undefined,
-      emittedAssistantUpdate: false,
+      lastStreamedZhushou: undefined,
+      lastStreamedZhushouCleaned: undefined,
+      emittedZhushouUpdate: false,
       shouldEmitPartialReplies: params.shouldEmitPartialReplies ?? true,
       blockReplyBreak: "text_end",
-      assistantMessageIndex: 0,
-      lastAssistantStreamItemId: undefined,
-      assistantTexts: [],
+      zhushouMessageIndex: 0,
+      lastZhushouStreamItemId: undefined,
+      zhushouTexts: [],
     },
     log: { debug: params.debug ?? vi.fn() },
-    noteLastAssistant: vi.fn(),
+    noteLastZhushou: vi.fn(),
     stripBlockTags: (text: string) => text,
     consumePartialReplyDirectives: vi.fn(() => null),
     emitReasoningStream: vi.fn(),
     flushBlockReplyBuffer: params.flushBlockReplyBuffer ?? vi.fn(),
-    resetAssistantMessageState: params.resetAssistantMessageState ?? vi.fn(),
+    resetZhushouMessageState: params.resetZhushouMessageState ?? vi.fn(),
   } as unknown as EmbeddedPiSubscribeContext;
 }
 
@@ -69,7 +69,7 @@ function createMessageEndContext(
     onAgentEvent?: ReturnType<typeof vi.fn>;
     onBlockReply?: ReturnType<typeof vi.fn>;
     emitBlockReply?: ReturnType<typeof vi.fn>;
-    finalizeAssistantTexts?: ReturnType<typeof vi.fn>;
+    finalizeZhushouTexts?: ReturnType<typeof vi.fn>;
     consumeReplyDirectives?: ReturnType<typeof vi.fn>;
     state?: Record<string, unknown>;
   } = {},
@@ -82,9 +82,9 @@ function createMessageEndContext(
       ...(params.onBlockReply ? { onBlockReply: params.onBlockReply } : { onBlockReply: vi.fn() }),
     },
     state: {
-      assistantTexts: [],
-      assistantTextBaseline: 0,
-      emittedAssistantUpdate: false,
+      zhushouTexts: [],
+      zhushouTextBaseline: 0,
+      emittedZhushouUpdate: false,
       deterministicApprovalPromptPending: false,
       deterministicApprovalPromptSent: false,
       messagingToolSentTexts: [],
@@ -99,17 +99,17 @@ function createMessageEndContext(
         final: false,
         inlineCode: createInlineCodeState(),
       },
-      lastStreamedAssistant: undefined,
-      lastStreamedAssistantCleaned: undefined,
+      lastStreamedZhushou: undefined,
+      lastStreamedZhushouCleaned: undefined,
       lastReasoningSent: undefined,
       reasoningStreamOpen: false,
       ...params.state,
     },
-    noteLastAssistant: vi.fn(),
-    recordAssistantUsage: vi.fn(),
+    noteLastZhushou: vi.fn(),
+    recordZhushouUsage: vi.fn(),
     log: { debug: vi.fn(), warn: vi.fn() },
     stripBlockTags: (text: string) => text,
-    finalizeAssistantTexts: params.finalizeAssistantTexts ?? vi.fn(),
+    finalizeZhushouTexts: params.finalizeZhushouTexts ?? vi.fn(),
     emitBlockReply: params.emitBlockReply ?? vi.fn(),
     consumeReplyDirectives: params.consumeReplyDirectives ?? vi.fn(() => ({ text: "Need send." })),
     emitReasoningStream: vi.fn(),
@@ -131,10 +131,10 @@ describe("resolveSilentReplyFallbackText", () => {
   it("keeps original text when response is not NO_REPLY", () => {
     expect(
       resolveSilentReplyFallbackText({
-        text: "normal assistant reply",
+        text: "normal zhushou reply",
         messagingToolSentTexts: ["final delivered text"],
       }),
-    ).toBe("normal assistant reply");
+    ).toBe("normal zhushou reply");
   });
 
   it("keeps NO_REPLY when there is no messaging tool text to mirror", () => {
@@ -162,22 +162,22 @@ describe("resolveSilentReplyFallbackText", () => {
   });
 });
 
-describe("hasAssistantVisibleReply", () => {
+describe("hasZhushouVisibleReply", () => {
   it("treats audio-only payloads as visible", () => {
-    expect(hasAssistantVisibleReply({ audioAsVoice: true })).toBe(true);
+    expect(hasZhushouVisibleReply({ audioAsVoice: true })).toBe(true);
   });
 
   it("detects text or media visibility", () => {
-    expect(hasAssistantVisibleReply({ text: "hello" })).toBe(true);
-    expect(hasAssistantVisibleReply({ mediaUrls: ["https://example.com/a.png"] })).toBe(true);
-    expect(hasAssistantVisibleReply({})).toBe(false);
+    expect(hasZhushouVisibleReply({ text: "hello" })).toBe(true);
+    expect(hasZhushouVisibleReply({ mediaUrls: ["https://example.com/a.png"] })).toBe(true);
+    expect(hasZhushouVisibleReply({})).toBe(false);
   });
 });
 
-describe("buildAssistantStreamData", () => {
-  it("normalizes media payloads for assistant stream events", () => {
+describe("buildZhushouStreamData", () => {
+  it("normalizes media payloads for zhushou stream events", () => {
     expect(
-      buildAssistantStreamData({
+      buildZhushouStreamData({
         text: "hello",
         delta: "he",
         replace: true,
@@ -195,22 +195,22 @@ describe("buildAssistantStreamData", () => {
 });
 
 describe("handleMessageUpdate", () => {
-  it("treats phased textSignature item changes as assistant-message boundaries", () => {
+  it("treats phased textSignature item changes as zhushou-message boundaries", () => {
     const flushBlockReplyBuffer = vi.fn();
-    const resetAssistantMessageState = vi.fn();
-    const onAssistantMessageStart = vi.fn();
+    const resetZhushouMessageState = vi.fn();
+    const onZhushouMessageStart = vi.fn();
     const context = createMessageUpdateContext({
       flushBlockReplyBuffer,
-      resetAssistantMessageState,
+      resetZhushouMessageState,
     });
-    context.params.onAssistantMessageStart = onAssistantMessageStart;
-    context.state.lastAssistantStreamItemId = "item-1";
-    context.state.assistantMessageIndex = 7;
+    context.params.onZhushouMessageStart = onZhushouMessageStart;
+    context.state.lastZhushouStreamItemId = "item-1";
+    context.state.zhushouMessageIndex = 7;
 
     handleMessageUpdate(context, {
       type: "message_update",
       message: { role: "assistant", content: [] },
-      assistantMessageEvent: {
+      zhushouMessageEvent: {
         type: "text_delta",
         contentIndex: 1,
         delta: "Second block",
@@ -239,15 +239,15 @@ describe("handleMessageUpdate", () => {
       },
     } as never);
 
-    expect(flushBlockReplyBuffer).toHaveBeenCalledWith({ assistantMessageIndex: 7 });
-    expect(resetAssistantMessageState).toHaveBeenCalledWith(0);
-    expect(onAssistantMessageStart).toHaveBeenCalledTimes(1);
-    expect(context.state.lastAssistantStreamItemId).toBe("item-2");
+    expect(flushBlockReplyBuffer).toHaveBeenCalledWith({ zhushouMessageIndex: 7 });
+    expect(resetZhushouMessageState).toHaveBeenCalledWith(0);
+    expect(onZhushouMessageStart).toHaveBeenCalledTimes(1);
+    expect(context.state.lastZhushouStreamItemId).toBe("item-2");
   });
 });
 
 describe("consumePendingToolMediaIntoReply", () => {
-  it("attaches queued tool media to the next assistant reply", () => {
+  it("attaches queued tool media to the next zhushou reply", () => {
     const state = {
       pendingToolMediaUrls: ["/tmp/a.png", "/tmp/b.png"],
       pendingToolAudioAsVoice: false,
@@ -410,7 +410,7 @@ describe("handleMessageUpdate", () => {
 
     expect(onAgentEvent).toHaveBeenCalledTimes(1);
     expect(onAgentEvent.mock.calls[0]?.[0]).toMatchObject({
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         text: "Done.",
         delta: "Done.",
@@ -440,10 +440,10 @@ describe("handleMessageEnd", () => {
   it("suppresses commentary-phase replies from user-visible output", () => {
     const onAgentEvent = vi.fn();
     const emitBlockReply = vi.fn();
-    const finalizeAssistantTexts = vi.fn();
+    const finalizeZhushouTexts = vi.fn();
     const ctx = createMessageEndContext({
       onAgentEvent,
-      finalizeAssistantTexts,
+      finalizeZhushouTexts,
       emitBlockReply,
     });
 
@@ -459,16 +459,16 @@ describe("handleMessageEnd", () => {
 
     expect(onAgentEvent).not.toHaveBeenCalled();
     expect(emitBlockReply).not.toHaveBeenCalled();
-    expect(finalizeAssistantTexts).not.toHaveBeenCalled();
+    expect(finalizeZhushouTexts).not.toHaveBeenCalled();
   });
 
   it("suppresses commentary message_end when phase exists only in textSignature metadata", () => {
     const onAgentEvent = vi.fn();
     const emitBlockReply = vi.fn();
-    const finalizeAssistantTexts = vi.fn();
+    const finalizeZhushouTexts = vi.fn();
     const ctx = createMessageEndContext({
       onAgentEvent,
-      finalizeAssistantTexts,
+      finalizeZhushouTexts,
       emitBlockReply,
     });
 
@@ -489,7 +489,7 @@ describe("handleMessageEnd", () => {
 
     expect(onAgentEvent).not.toHaveBeenCalled();
     expect(emitBlockReply).not.toHaveBeenCalled();
-    expect(finalizeAssistantTexts).not.toHaveBeenCalled();
+    expect(finalizeZhushouTexts).not.toHaveBeenCalled();
   });
 
   it("does not duplicate block reply for text_end channels when text was already delivered", () => {
@@ -504,8 +504,8 @@ describe("handleMessageEnd", () => {
       emitBlockReply,
       consumeReplyDirectives,
       state: {
-        emittedAssistantUpdate: true,
-        lastStreamedAssistantCleaned: "Hello world",
+        emittedZhushouUpdate: true,
+        lastStreamedZhushouCleaned: "Hello world",
         blockReplyBreak: "text_end",
         // Simulate text_end already delivered this text through emitBlockChunk
         lastBlockReplyText: "Hello world",
@@ -539,8 +539,8 @@ describe("handleMessageEnd", () => {
       emitBlockReply,
       consumeReplyDirectives,
       state: {
-        emittedAssistantUpdate: true,
-        lastStreamedAssistantCleaned: "Hello world",
+        emittedZhushouUpdate: true,
+        lastStreamedZhushouCleaned: "Hello world",
         blockReplyBreak: "text_end",
         // text_end delivered via emitBlockChunk which uses different stripping
         lastBlockReplyText: "Hello world.",
@@ -565,13 +565,13 @@ describe("handleMessageEnd", () => {
     expect(emitBlockReply).not.toHaveBeenCalled();
   });
 
-  it("emits a replacement final assistant event when final_answer appears only at message_end", () => {
+  it("emits a replacement final zhushou event when final_answer appears only at message_end", () => {
     const onAgentEvent = vi.fn();
     const ctx = createMessageEndContext({
       onAgentEvent,
       state: {
-        emittedAssistantUpdate: true,
-        lastStreamedAssistantCleaned: "Working...",
+        emittedZhushouUpdate: true,
+        lastStreamedZhushouCleaned: "Working...",
         blockReplyBreak: "text_end",
         deltaBuffer: "",
         blockBuffer: "",
@@ -605,7 +605,7 @@ describe("handleMessageEnd", () => {
 
     expect(onAgentEvent).toHaveBeenCalledTimes(1);
     expect(onAgentEvent.mock.calls[0]?.[0]).toMatchObject({
-      stream: "assistant",
+      stream: "zhushou",
       data: {
         text: "Done.",
         delta: "",

@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 
-export function makeModelFallbackCfg(overrides: Partial<AssistantConfig> = {}): AssistantConfig {
+export function makeModelFallbackCfg(overrides: Partial<ZhushouConfig> = {}): ZhushouConfig {
   return {
     agents: {
       defaults: {
@@ -11,5 +11,5 @@ export function makeModelFallbackCfg(overrides: Partial<AssistantConfig> = {}): 
       },
     },
     ...overrides,
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }

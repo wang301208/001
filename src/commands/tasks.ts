@@ -620,7 +620,7 @@ export async function tasksMaintenanceCommand(
     );
   }
   if (!opts.apply) {
-    runtime.log("Dry run only. Re-run with `assistant tasks maintenance --apply` to write changes.");
+    runtime.log("Dry run only. Re-run with `zhushou tasks maintenance --apply` to write changes.");
   }
   */
   runtime.log(
@@ -641,6 +641,6 @@ export async function tasksMaintenanceCommand(
     );
   }
   if (!opts.apply) {
-    runtime.log("Dry run only. Re-run with `assistant tasks maintenance --apply` to write changes.");
+    runtime.log("Dry run only. Re-run with `zhushou tasks maintenance --apply` to write changes.");
   }
 }

@@ -3,11 +3,11 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { withEnv } from "../test-utils/env.js";
-import { resolveAssistantAgentDir } from "./agent-paths.js";
+import { resolveZhushouAgentDir } from "./agent-paths.js";
 
-describe("resolveAssistantAgentDir", () => {
+describe("resolveZhushouAgentDir", () => {
   const withTempStateDir = async (run: (stateDir: string) => void) => {
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-agent-"));
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-agent-"));
     try {
       run(stateDir);
     } finally {
@@ -19,64 +19,64 @@ describe("resolveAssistantAgentDir", () => {
     await withTempStateDir((stateDir) => {
       withEnv(
         {
-          ASSISTANT_STATE_DIR: stateDir,
-          ASSISTANT_AGENT_DIR: undefined,
+          ZHUSHOU_STATE_DIR: stateDir,
+          ZHUSHOU_AGENT_DIR: undefined,
           PI_CODING_AGENT_DIR: undefined,
         },
         () => {
-          const resolved = resolveAssistantAgentDir();
+          const resolved = resolveZhushouAgentDir();
           expect(resolved).toBe(path.join(stateDir, "agents", "main", "agent"));
         },
       );
     });
   });
 
-  it("honors ASSISTANT_AGENT_DIR overrides", async () => {
+  it("honors ZHUSHOU_AGENT_DIR overrides", async () => {
     await withTempStateDir((stateDir) => {
       const override = path.join(stateDir, "agent");
       withEnv(
         {
-          ASSISTANT_STATE_DIR: undefined,
-          ASSISTANT_AGENT_DIR: override,
+          ZHUSHOU_STATE_DIR: undefined,
+          ZHUSHOU_AGENT_DIR: override,
           PI_CODING_AGENT_DIR: undefined,
         },
         () => {
-          const resolved = resolveAssistantAgentDir();
+          const resolved = resolveZhushouAgentDir();
           expect(resolved).toBe(path.resolve(override));
         },
       );
     });
   });
 
-  it("honors PI_CODING_AGENT_DIR when ASSISTANT_AGENT_DIR is unset", async () => {
+  it("honors PI_CODING_AGENT_DIR when ZHUSHOU_AGENT_DIR is unset", async () => {
     await withTempStateDir((stateDir) => {
       const override = path.join(stateDir, "pi-agent");
       withEnv(
         {
-          ASSISTANT_STATE_DIR: undefined,
-          ASSISTANT_AGENT_DIR: undefined,
+          ZHUSHOU_STATE_DIR: undefined,
+          ZHUSHOU_AGENT_DIR: undefined,
           PI_CODING_AGENT_DIR: override,
         },
         () => {
-          const resolved = resolveAssistantAgentDir();
+          const resolved = resolveZhushouAgentDir();
           expect(resolved).toBe(path.resolve(override));
         },
       );
     });
   });
 
-  it("prefers ASSISTANT_AGENT_DIR over PI_CODING_AGENT_DIR when both are set", async () => {
+  it("prefers ZHUSHOU_AGENT_DIR over PI_CODING_AGENT_DIR when both are set", async () => {
     await withTempStateDir((stateDir) => {
       const primaryOverride = path.join(stateDir, "primary-agent");
       const fallbackOverride = path.join(stateDir, "fallback-agent");
       withEnv(
         {
-          ASSISTANT_STATE_DIR: undefined,
-          ASSISTANT_AGENT_DIR: primaryOverride,
+          ZHUSHOU_STATE_DIR: undefined,
+          ZHUSHOU_AGENT_DIR: primaryOverride,
           PI_CODING_AGENT_DIR: fallbackOverride,
         },
         () => {
-          const resolved = resolveAssistantAgentDir();
+          const resolved = resolveZhushouAgentDir();
           expect(resolved).toBe(path.resolve(primaryOverride));
         },
       );

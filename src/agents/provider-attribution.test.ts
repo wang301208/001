@@ -14,7 +14,7 @@ import {
 describe("provider attribution", () => {
   it("resolves the canonical 助手 product and runtime version", () => {
     const identity = resolveProviderAttributionIdentity({
-      ASSISTANT_VERSION: "2026.3.99",
+      ZHUSHOU_VERSION: "2026.3.99",
     });
 
     expect(identity).toEqual({
@@ -25,7 +25,7 @@ describe("provider attribution", () => {
 
   it("returns a documented OpenRouter attribution policy", () => {
     const policy = resolveProviderAttributionPolicy("openrouter", {
-      ASSISTANT_VERSION: "2026.3.22",
+      ZHUSHOU_VERSION: "2026.3.22",
     });
 
     expect(policy).toEqual({
@@ -38,7 +38,7 @@ describe("provider attribution", () => {
       product: "助手",
       version: "2026.3.22",
       headers: {
-        "HTTP-Referer": "https://assistant.ai",
+        "HTTP-Referer": "https://zhushou.ai",
         "X-OpenRouter-Title": "助手",
         "X-OpenRouter-Categories": "cli-agent",
       },
@@ -48,17 +48,17 @@ describe("provider attribution", () => {
   it("normalizes aliases when resolving provider headers", () => {
     expect(
       resolveProviderAttributionHeaders("OpenRouter", {
-        ASSISTANT_VERSION: "2026.3.22",
+        ZHUSHOU_VERSION: "2026.3.22",
       }),
     ).toEqual({
-      "HTTP-Referer": "https://assistant.ai",
+      "HTTP-Referer": "https://zhushou.ai",
       "X-OpenRouter-Title": "助手",
       "X-OpenRouter-Categories": "cli-agent",
     });
   });
 
   it("returns a hidden-spec OpenAI attribution policy", () => {
-    expect(resolveProviderAttributionPolicy("openai", { ASSISTANT_VERSION: "2026.3.22" })).toEqual({
+    expect(resolveProviderAttributionPolicy("openai", { ZHUSHOU_VERSION: "2026.3.22" })).toEqual({
       provider: "openai",
       enabledByDefault: true,
       verification: "vendor-hidden-api-spec",
@@ -68,21 +68,21 @@ describe("provider attribution", () => {
       product: "助手",
       version: "2026.3.22",
       headers: {
-        originator: "assistant",
+        originator: "zhushou",
         version: "2026.3.22",
-        "User-Agent": "assistant/2026.3.22",
+        "User-Agent": "zhushou/2026.3.22",
       },
     });
-    expect(resolveProviderAttributionHeaders("openai", { ASSISTANT_VERSION: "2026.3.22" })).toEqual({
-      originator: "assistant",
+    expect(resolveProviderAttributionHeaders("openai", { ZHUSHOU_VERSION: "2026.3.22" })).toEqual({
+      originator: "zhushou",
       version: "2026.3.22",
-      "User-Agent": "assistant/2026.3.22",
+      "User-Agent": "zhushou/2026.3.22",
     });
   });
 
   it("returns a hidden-spec OpenAI Codex attribution policy", () => {
     expect(
-      resolveProviderAttributionPolicy("openai-codex", { ASSISTANT_VERSION: "2026.3.22" }),
+      resolveProviderAttributionPolicy("openai-codex", { ZHUSHOU_VERSION: "2026.3.22" }),
     ).toEqual({
       provider: "openai-codex",
       enabledByDefault: true,
@@ -93,16 +93,16 @@ describe("provider attribution", () => {
       product: "助手",
       version: "2026.3.22",
       headers: {
-        originator: "assistant",
+        originator: "zhushou",
         version: "2026.3.22",
-        "User-Agent": "assistant/2026.3.22",
+        "User-Agent": "zhushou/2026.3.22",
       },
     });
   });
 
   it("lists the current attribution support matrix", () => {
     expect(
-      listProviderAttributionPolicies({ ASSISTANT_VERSION: "2026.3.22" }).map((policy) => [
+      listProviderAttributionPolicies({ ZHUSHOU_VERSION: "2026.3.22" }).map((policy) => [
         policy.provider,
         policy.enabledByDefault,
         policy.verification,
@@ -130,7 +130,7 @@ describe("provider attribution", () => {
           transport: "stream",
           capability: "llm",
         },
-        { ASSISTANT_VERSION: "2026.3.22" },
+        { ZHUSHOU_VERSION: "2026.3.22" },
       ),
     ).toMatchObject({
       endpointClass: "openai-public",
@@ -150,7 +150,7 @@ describe("provider attribution", () => {
           transport: "stream",
           capability: "llm",
         },
-        { ASSISTANT_VERSION: "2026.3.22" },
+        { ZHUSHOU_VERSION: "2026.3.22" },
       ),
     ).toMatchObject({
       endpointClass: "custom",

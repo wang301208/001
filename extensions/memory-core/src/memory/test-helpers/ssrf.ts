@@ -1,5 +1,5 @@
-import * as ssrf from "assistant/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import * as ssrf from "zhushou/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { vi } from "vitest";
 
 export function mockPublicPinnedHostname() {

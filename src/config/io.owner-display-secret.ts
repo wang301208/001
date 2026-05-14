@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "./types.assistant.js";
+import type { ZhushouConfig } from "./types.zhushou.js";
 
 export type OwnerDisplaySecretPersistState = {
   pendingByPath: Map<string, string>;
@@ -7,16 +7,16 @@ export type OwnerDisplaySecretPersistState = {
 };
 
 export function persistGeneratedOwnerDisplaySecret(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   configPath: string;
   generatedSecret?: string;
   logger: Pick<typeof console, "warn">;
   state: OwnerDisplaySecretPersistState;
   persistConfig: (
-    config: AssistantConfig,
+    config: ZhushouConfig,
     options: { expectedConfigPath: string },
   ) => Promise<unknown>;
-}): AssistantConfig {
+}): ZhushouConfig {
   const { config, configPath, generatedSecret, logger, state, persistConfig } = params;
   if (!generatedSecret) {
     state.pendingByPath.delete(configPath);

@@ -1,8 +1,8 @@
-import { normalizeAccountId } from "assistant/plugin-sdk/account-id";
+import { normalizeAccountId } from "zhushou/plugin-sdk/account-id";
 import {
   createResolvedDirectoryEntriesLister,
   type DirectoryConfigParams,
-} from "assistant/plugin-sdk/directory-runtime";
+} from "zhushou/plugin-sdk/directory-runtime";
 import { mergeDiscordAccountConfig, resolveDefaultDiscordAccountId } from "./accounts.js";
 
 function resolveDiscordDirectoryConfigAccount(

@@ -2,7 +2,7 @@ import {
   asNullableRecord,
   hasNonEmptyString as sharedHasNonEmptyString,
   isRecord,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 export { asNullableRecord as asRecord, isRecord };
 

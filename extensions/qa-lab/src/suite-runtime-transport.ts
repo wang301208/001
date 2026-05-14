@@ -112,7 +112,7 @@ function formatTransportTranscript(
   const messages = readTransportTranscript(state, params);
   return messages
     .map((message: QaBusMessage) => {
-      const direction = message.direction === "inbound" ? "user" : "assistant";
+      const direction = message.direction === "inbound" ? "user" : "zhushou";
       const speaker = message.senderName?.trim() || message.senderId;
       const attachmentSummary =
         message.attachments && message.attachments.length > 0

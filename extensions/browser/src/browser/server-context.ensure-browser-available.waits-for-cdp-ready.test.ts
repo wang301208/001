@@ -11,17 +11,17 @@ import { makeBrowserServerState, mockLaunchedChrome } from "./server-context.tes
 function setupEnsureBrowserAvailableHarness() {
   vi.useFakeTimers();
 
-  const launchAssistantChrome = vi.mocked(chromeModule.launchAssistantChrome);
-  const stopAssistantChrome = vi.mocked(chromeModule.stopAssistantChrome);
+  const launchZhushouChrome = vi.mocked(chromeModule.launchZhushouChrome);
+  const stopZhushouChrome = vi.mocked(chromeModule.stopZhushouChrome);
   const isChromeReachable = vi.mocked(chromeModule.isChromeReachable);
   const isChromeCdpReady = vi.mocked(chromeModule.isChromeCdpReady);
   isChromeReachable.mockResolvedValue(false);
 
   const state = makeBrowserServerState();
   const ctx = createBrowserRouteContext({ getState: () => state });
-  const profile = ctx.forProfile("assistant");
+  const profile = ctx.forProfile("zhushou");
 
-  return { launchAssistantChrome, stopAssistantChrome, isChromeCdpReady, profile, state };
+  return { launchZhushouChrome, stopZhushouChrome, isChromeCdpReady, profile, state };
 }
 
 afterEach(() => {
@@ -32,37 +32,37 @@ afterEach(() => {
 
 describe("browser server-context ensureBrowserAvailable", () => {
   it("waits for CDP readiness after launching to avoid follow-up PortInUseError races (#21149)", async () => {
-    const { launchAssistantChrome, stopAssistantChrome, isChromeCdpReady, profile } =
+    const { launchZhushouChrome, stopZhushouChrome, isChromeCdpReady, profile } =
       setupEnsureBrowserAvailableHarness();
     isChromeCdpReady.mockResolvedValueOnce(false).mockResolvedValue(true);
-    mockLaunchedChrome(launchAssistantChrome, 123);
+    mockLaunchedChrome(launchZhushouChrome, 123);
 
     const promise = profile.ensureBrowserAvailable();
     await vi.advanceTimersByTimeAsync(100);
     await expect(promise).resolves.toBeUndefined();
 
-    expect(launchAssistantChrome).toHaveBeenCalledTimes(1);
+    expect(launchZhushouChrome).toHaveBeenCalledTimes(1);
     expect(isChromeCdpReady).toHaveBeenCalled();
-    expect(stopAssistantChrome).not.toHaveBeenCalled();
+    expect(stopZhushouChrome).not.toHaveBeenCalled();
   });
 
   it("stops launched chrome when CDP readiness never arrives", async () => {
-    const { launchAssistantChrome, stopAssistantChrome, isChromeCdpReady, profile } =
+    const { launchZhushouChrome, stopZhushouChrome, isChromeCdpReady, profile } =
       setupEnsureBrowserAvailableHarness();
     isChromeCdpReady.mockResolvedValue(false);
-    mockLaunchedChrome(launchAssistantChrome, 321);
+    mockLaunchedChrome(launchZhushouChrome, 321);
 
     const promise = profile.ensureBrowserAvailable();
     const rejected = expect(promise).rejects.toThrow("not reachable after start");
     await vi.advanceTimersByTimeAsync(8100);
     await rejected;
 
-    expect(launchAssistantChrome).toHaveBeenCalledTimes(1);
-    expect(stopAssistantChrome).toHaveBeenCalledTimes(1);
+    expect(launchZhushouChrome).toHaveBeenCalledTimes(1);
+    expect(stopZhushouChrome).toHaveBeenCalledTimes(1);
   });
 
   it("reuses a pre-existing loopback browser after an initial short probe miss", async () => {
-    const { launchAssistantChrome, stopAssistantChrome, isChromeCdpReady, profile, state } =
+    const { launchZhushouChrome, stopZhushouChrome, isChromeCdpReady, profile, state } =
       setupEnsureBrowserAvailableHarness();
     const isChromeReachable = vi.mocked(chromeModule.isChromeReachable);
     state.resolved.ssrfPolicy = {};
@@ -84,22 +84,22 @@ describe("browser server-context ensureBrowserAvailable", () => {
       PROFILE_ATTACH_RETRY_TIMEOUT_MS,
       undefined,
     );
-    expect(launchAssistantChrome).not.toHaveBeenCalled();
-    expect(stopAssistantChrome).not.toHaveBeenCalled();
+    expect(launchZhushouChrome).not.toHaveBeenCalled();
+    expect(stopZhushouChrome).not.toHaveBeenCalled();
   });
 
   it("retries remote CDP websocket reachability once before failing", async () => {
-    const { launchAssistantChrome, stopAssistantChrome, isChromeCdpReady } =
+    const { launchZhushouChrome, stopZhushouChrome, isChromeCdpReady } =
       setupEnsureBrowserAvailableHarness();
     const isChromeReachable = vi.mocked(chromeModule.isChromeReachable);
 
     const state = makeBrowserServerState();
-    state.resolved.profiles.assistant = {
+    state.resolved.profiles.zhushou = {
       cdpUrl: "ws://browserless:3001",
       color: "#00AA00",
     };
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const profile = ctx.forProfile("assistant");
+    const profile = ctx.forProfile("zhushou");
     const expectedRemoteHttpTimeoutMs = state.resolved.remoteCdpTimeoutMs;
     const expectedRemoteWsTimeoutMs = state.resolved.remoteCdpHandshakeTimeoutMs;
 
@@ -128,12 +128,12 @@ describe("browser server-context ensureBrowserAvailable", () => {
         allowPrivateNetwork: true,
       },
     );
-    expect(launchAssistantChrome).not.toHaveBeenCalled();
-    expect(stopAssistantChrome).not.toHaveBeenCalled();
+    expect(launchZhushouChrome).not.toHaveBeenCalled();
+    expect(stopZhushouChrome).not.toHaveBeenCalled();
   });
 
   it("treats attachOnly loopback CDP as local control with remote-class probe timeouts", async () => {
-    const { launchAssistantChrome, stopAssistantChrome } = setupEnsureBrowserAvailableHarness();
+    const { launchZhushouChrome, stopZhushouChrome } = setupEnsureBrowserAvailableHarness();
     const isChromeReachable = vi.mocked(chromeModule.isChromeReachable);
     const isChromeCdpReady = vi.mocked(chromeModule.isChromeCdpReady);
 
@@ -145,7 +145,7 @@ describe("browser server-context ensureBrowserAvailable", () => {
         cdpIsLoopback: true,
         cdpPort: 9222,
         color: "#00AA00",
-        driver: "assistant",
+        driver: "zhushou",
         attachOnly: true,
       },
       resolvedOverrides: {
@@ -172,7 +172,7 @@ describe("browser server-context ensureBrowserAvailable", () => {
       state.resolved.remoteCdpHandshakeTimeoutMs,
       undefined,
     );
-    expect(launchAssistantChrome).not.toHaveBeenCalled();
-    expect(stopAssistantChrome).not.toHaveBeenCalled();
+    expect(launchZhushouChrome).not.toHaveBeenCalled();
+    expect(stopZhushouChrome).not.toHaveBeenCalled();
   });
 });

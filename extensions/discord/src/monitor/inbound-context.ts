@@ -1,7 +1,7 @@
 import {
   buildUntrustedChannelMetadata,
   wrapExternalContent,
-} from "assistant/plugin-sdk/security-runtime";
+} from "zhushou/plugin-sdk/security-runtime";
 import {
   resolveDiscordMemberAllowed,
   resolveDiscordOwnerAllowFrom,

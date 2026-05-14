@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   __resetDiscordDirectoryCacheForTest,
@@ -76,7 +76,7 @@ describe("resolveDiscordChannelId", () => {
 });
 
 describe("resolveDiscordTarget", () => {
-  const cfg = { channels: { discord: {} } } as AssistantConfig;
+  const cfg = { channels: { discord: {} } } as ZhushouConfig;
 
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -120,7 +120,7 @@ describe("resolveDiscordTarget", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     vi.spyOn(directoryLive, "listDiscordDirectoryPeersLive").mockResolvedValueOnce([
       { kind: "user", id: "user:999", name: "Jane" } as const,

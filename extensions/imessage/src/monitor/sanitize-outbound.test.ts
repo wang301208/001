@@ -36,16 +36,16 @@ describe("sanitizeOutboundText", () => {
     expect(sanitizeOutboundText(text)).not.toContain("+#+#");
   });
 
-  it("strips assistant to=final markers", () => {
-    const text = "Some text assistant to=final more text";
+  it("strips zhushou to=final markers", () => {
+    const text = "Some text zhushou to=final more text";
     const result = sanitizeOutboundText(text);
-    expect(result).not.toMatch(/assistant\s+to\s*=\s*final/i);
+    expect(result).not.toMatch(/zhushou\s+to\s*=\s*final/i);
   });
 
   it("strips trailing role turn markers", () => {
-    const text = "Hello\nassistant:\nuser:";
+    const text = "Hello\nzhushou:\nuser:";
     const result = sanitizeOutboundText(text);
-    expect(result).not.toMatch(/^assistant:$/m);
+    expect(result).not.toMatch(/^zhushou:$/m);
   });
 
   it("collapses excessive blank lines after stripping", () => {
@@ -54,11 +54,11 @@ describe("sanitizeOutboundText", () => {
   });
 
   it("handles combined internal markers in one message", () => {
-    const text = "<thinking>step 1</thinking>NO_REPLY +#+#+#+# assistant to=final\n\nActual reply";
+    const text = "<thinking>step 1</thinking>NO_REPLY +#+#+#+# zhushou to=final\n\nActual reply";
     const result = sanitizeOutboundText(text);
     expect(result).not.toContain("<thinking>");
     expect(result).not.toContain("+#+#");
-    expect(result).not.toMatch(/assistant to=final/i);
+    expect(result).not.toMatch(/zhushou to=final/i);
     expect(result).toContain("Actual reply");
   });
 });

@@ -19,7 +19,7 @@ export type {
   SshSandboxSession,
   SshSandboxSettings,
 } from "../agents/sandbox.js";
-export type { AssistantConfig } from "../config/config.js";
+export type { ZhushouConfig } from "../config/config.js";
 
 export {
   buildExecRemoteCommand,
@@ -47,4 +47,4 @@ export {
   type PluginCommandRunOptions,
   type PluginCommandRunResult,
 } from "./run-command.js";
-export { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
+export { resolvePreferredZhushouTmpDir } from "../infra/tmp-zhushou-dir.js";

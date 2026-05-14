@@ -1,10 +1,10 @@
-import { resolveMarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
-import { isPrivateNetworkOptInEnabled } from "assistant/plugin-sdk/ssrf-runtime";
+import { resolveMarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import { isPrivateNetworkOptInEnabled } from "zhushou/plugin-sdk/ssrf-runtime";
 import {
   convertMarkdownTables,
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { getMattermostRuntime } from "../runtime.js";
 import { resolveMattermostAccount } from "./accounts.js";
 import {
@@ -26,11 +26,11 @@ import {
   setInteractionSecret,
   type MattermostInteractiveButtonInput,
 } from "./interactions.js";
-import { loadOutboundMediaFromUrl, type AssistantConfig } from "./runtime-api.js";
+import { loadOutboundMediaFromUrl, type ZhushouConfig } from "./runtime-api.js";
 import { isMattermostId, resolveMattermostOpaqueTarget } from "./target-resolution.js";
 
 export type MattermostSendOpts = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   botToken?: string;
   baseUrl?: string;
   accountId?: string;
@@ -305,7 +305,7 @@ async function resolveTargetChannelId(params: ResolveTargetChannelIdParams): Pro
 }
 
 type MattermostSendContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   token: string;
   baseUrl: string;

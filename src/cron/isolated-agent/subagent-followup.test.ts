@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // vi.hoisted runs before module imports, ensuring FAST_TEST_MODE is picked up.
 vi.hoisted(() => {
-  process.env.ASSISTANT_TEST_FAST = "1";
+  process.env.ZHUSHOU_TEST_FAST = "1";
 });
 
 import { expectsSubagentFollowup, isLikelyInterimCronMessage } from "./subagent-followup-hints.js";
@@ -21,7 +21,7 @@ vi.mock("../../agents/run-wait.js", async () => {
   );
   return {
     ...actual,
-    readLatestAssistantReply: vi.fn().mockResolvedValue(undefined),
+    readLatestZhushouReply: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -30,7 +30,7 @@ vi.mock("../../gateway/call.js", () => ({
 }));
 
 const { listDescendantRunsForRequester } = await import("../../agents/subagent-registry-read.js");
-const { __testing: runWaitTesting, readLatestAssistantReply } =
+const { __testing: runWaitTesting, readLatestZhushouReply } =
   await import("../../agents/run-wait.js");
 const { callGateway } = await import("../../gateway/call.js");
 
@@ -115,7 +115,7 @@ describe("readDescendantSubagentFallbackReply", () => {
 
   it("reads reply from child session transcript", async () => {
     vi.mocked(listDescendantRunsForRequester).mockReturnValue([createDescendantRun()]);
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("child output text");
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("child output text");
     const result = await readDescendantSubagentFallbackReply({
       sessionKey: "test-session",
       runStartedAt,
@@ -130,7 +130,7 @@ describe("readDescendantSubagentFallbackReply", () => {
         frozenResultText: "frozen child output",
       }),
     ]);
-    vi.mocked(readLatestAssistantReply).mockResolvedValue(undefined);
+    vi.mocked(readLatestZhushouReply).mockResolvedValue(undefined);
     const result = await readDescendantSubagentFallbackReply({
       sessionKey: "test-session",
       runStartedAt,
@@ -142,7 +142,7 @@ describe("readDescendantSubagentFallbackReply", () => {
     vi.mocked(listDescendantRunsForRequester).mockReturnValue([
       createDescendantRun({ frozenResultText: "frozen text" }),
     ]);
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("live transcript text");
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("live transcript text");
     const result = await readDescendantSubagentFallbackReply({
       sessionKey: "test-session",
       runStartedAt,
@@ -161,7 +161,7 @@ describe("readDescendantSubagentFallbackReply", () => {
         frozenResultText: "second child output",
       }),
     ]);
-    vi.mocked(readLatestAssistantReply).mockResolvedValue(undefined);
+    vi.mocked(readLatestZhushouReply).mockResolvedValue(undefined);
     const result = await readDescendantSubagentFallbackReply({
       sessionKey: "test-session",
       runStartedAt,
@@ -180,7 +180,7 @@ describe("readDescendantSubagentFallbackReply", () => {
         frozenResultText: "useful output",
       }),
     ]);
-    vi.mocked(readLatestAssistantReply).mockImplementation(async (params) => {
+    vi.mocked(readLatestZhushouReply).mockImplementation(async (params) => {
       if (params.sessionKey === "child-1") {
         return "NO_REPLY";
       }
@@ -200,7 +200,7 @@ describe("readDescendantSubagentFallbackReply", () => {
         frozenResultText: null,
       }),
     ]);
-    vi.mocked(readLatestAssistantReply).mockResolvedValue(undefined);
+    vi.mocked(readLatestZhushouReply).mockResolvedValue(undefined);
     const result = await readDescendantSubagentFallbackReply({
       sessionKey: "test-session",
       runStartedAt,
@@ -222,7 +222,7 @@ describe("readDescendantSubagentFallbackReply", () => {
         frozenResultText: "stale output from previous run",
       },
     ]);
-    vi.mocked(readLatestAssistantReply).mockResolvedValue(undefined);
+    vi.mocked(readLatestZhushouReply).mockResolvedValue(undefined);
     const result = await readDescendantSubagentFallbackReply({
       sessionKey: "test-session",
       runStartedAt,
@@ -236,7 +236,7 @@ describe("waitForDescendantSubagentSummary", () => {
     vi.clearAllMocks();
     vi.useRealTimers();
     vi.mocked(listDescendantRunsForRequester).mockReturnValue([]);
-    vi.mocked(readLatestAssistantReply).mockResolvedValue(undefined);
+    vi.mocked(readLatestZhushouReply).mockResolvedValue(undefined);
     vi.mocked(callGateway).mockResolvedValue({ status: "ok" });
     runWaitTesting.setDepsForTest({
       callGateway: ((opts) => vi.mocked(callGateway)(opts as never)) as typeof callGateway,
@@ -278,7 +278,7 @@ describe("waitForDescendantSubagentSummary", () => {
       .mockReturnValue([]); // subsequent calls: all done
 
     vi.mocked(callGateway).mockResolvedValue({ status: "ok" });
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("Morning briefing complete!");
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("Morning briefing complete!");
 
     const result = await waitForDescendantSubagentSummary({
       sessionKey: "cron-session",
@@ -301,8 +301,8 @@ describe("waitForDescendantSubagentSummary", () => {
     vi.useFakeTimers();
     // No active runs at call time, but observedActiveDescendants=true (saw them before)
     vi.mocked(listDescendantRunsForRequester).mockReturnValue([]);
-    // readLatestAssistantReply keeps returning interim text
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("on it");
+    // readLatestZhushouReply keeps returning interim text
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("on it");
 
     const resultPromise = waitForDescendantSubagentSummary({
       sessionKey: "cron-session",
@@ -332,7 +332,7 @@ describe("waitForDescendantSubagentSummary", () => {
       .mockReturnValue([]);
 
     vi.mocked(callGateway).mockResolvedValue({ status: "ok" });
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("Report generated successfully.");
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("Report generated successfully.");
 
     const result = await waitForDescendantSubagentSummary({
       sessionKey: "cron-session",
@@ -369,7 +369,7 @@ describe("waitForDescendantSubagentSummary", () => {
       .mockReturnValue([]);
 
     vi.mocked(callGateway).mockResolvedValue({ status: "ok" });
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("All tasks complete.");
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("All tasks complete.");
 
     await waitForDescendantSubagentSummary({
       sessionKey: "cron-session",
@@ -415,7 +415,7 @@ describe("waitForDescendantSubagentSummary", () => {
       .mockReturnValue([]);
 
     vi.mocked(callGateway).mockResolvedValue({ status: "ok" });
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("Nested descendant work complete.");
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("Nested descendant work complete.");
 
     const result = await waitForDescendantSubagentSummary({
       sessionKey: "cron-session",
@@ -448,7 +448,7 @@ describe("waitForDescendantSubagentSummary", () => {
       .mockReturnValue([]);
 
     vi.mocked(callGateway).mockRejectedValue(new Error("gateway unavailable"));
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("Completed despite gateway error.");
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("Completed despite gateway error.");
 
     const result = await waitForDescendantSubagentSummary({
       sessionKey: "cron-session",
@@ -463,7 +463,7 @@ describe("waitForDescendantSubagentSummary", () => {
   it("skips NO_REPLY synthesis and returns undefined", async () => {
     vi.useFakeTimers();
     vi.mocked(listDescendantRunsForRequester).mockReturnValue([]);
-    vi.mocked(readLatestAssistantReply).mockResolvedValue("NO_REPLY");
+    vi.mocked(readLatestZhushouReply).mockResolvedValue("NO_REPLY");
 
     const resultPromise = waitForDescendantSubagentSummary({
       sessionKey: "cron-session",

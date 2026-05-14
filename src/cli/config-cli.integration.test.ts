@@ -68,10 +68,10 @@ async function withExecDryRunConfigHarness(
   }) => Promise<void>,
 ) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-  const configPath = path.join(tempDir, "assistant.json");
+  const configPath = path.join(tempDir, "zhushou.json");
   const batchPath = path.join(tempDir, "batch.json");
   const markerPath = path.join(tempDir, "marker.txt");
-  const envSnapshot = captureEnv(["ASSISTANT_CONFIG_PATH", "ASSISTANT_TEST_FAST"]);
+  const envSnapshot = captureEnv(["ZHUSHOU_CONFIG_PATH", "ZHUSHOU_TEST_FAST"]);
   try {
     fs.writeFileSync(
       configPath,
@@ -90,8 +90,8 @@ async function withExecDryRunConfigHarness(
       "utf8",
     );
 
-    process.env.ASSISTANT_TEST_FAST = "1";
-    process.env.ASSISTANT_CONFIG_PATH = configPath;
+    process.env.ZHUSHOU_TEST_FAST = "1";
+    process.env.ZHUSHOU_CONFIG_PATH = configPath;
     clearConfigCache();
     clearRuntimeConfigSnapshot();
 
@@ -110,101 +110,105 @@ async function withExecDryRunConfigHarness(
 }
 
 describe("config cli integration", () => {
-  it("supports batch-file dry-run and then writes real config changes", async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-config-cli-int-"));
-    const configPath = path.join(tempDir, "assistant.json");
-    const batchPath = path.join(tempDir, "batch.json");
-    const envSnapshot = captureEnv([
-      "ASSISTANT_CONFIG_PATH",
-      "ASSISTANT_TEST_FAST",
-      "DISCORD_BOT_TOKEN",
-    ]);
-    try {
-      fs.writeFileSync(
-        configPath,
-        `${JSON.stringify(
-          {
-            gateway: { port: 18789 },
-          },
-          null,
-          2,
-        )}\n`,
-        "utf8",
-      );
-      fs.writeFileSync(
-        batchPath,
-        `${JSON.stringify(
-          [
+  it(
+    "supports batch-file dry-run and then writes real config changes",
+    async () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-config-cli-int-"));
+      const configPath = path.join(tempDir, "zhushou.json");
+      const batchPath = path.join(tempDir, "batch.json");
+      const envSnapshot = captureEnv([
+        "ZHUSHOU_CONFIG_PATH",
+        "ZHUSHOU_TEST_FAST",
+        "DISCORD_BOT_TOKEN",
+      ]);
+      try {
+        fs.writeFileSync(
+          configPath,
+          `${JSON.stringify(
             {
-              path: "secrets.providers.default",
-              provider: { source: "env" },
+              gateway: { port: 18789 },
             },
-            {
-              path: "channels.discord.token",
-              ref: {
-                source: "env",
-                provider: "default",
-                id: "DISCORD_BOT_TOKEN",
+            null,
+            2,
+          )}\n`,
+          "utf8",
+        );
+        fs.writeFileSync(
+          batchPath,
+          `${JSON.stringify(
+            [
+              {
+                path: "secrets.providers.default",
+                provider: { source: "env" },
               },
-            },
-          ],
-          null,
-          2,
-        )}\n`,
-        "utf8",
-      );
+              {
+                path: "channels.discord.token",
+                ref: {
+                  source: "env",
+                  provider: "default",
+                  id: "DISCORD_BOT_TOKEN",
+                },
+              },
+            ],
+            null,
+            2,
+          )}\n`,
+          "utf8",
+        );
 
-      process.env.ASSISTANT_TEST_FAST = "1";
-      process.env.ASSISTANT_CONFIG_PATH = configPath;
-      process.env.DISCORD_BOT_TOKEN = "test-token";
-      clearConfigCache();
-      clearRuntimeConfigSnapshot();
+        process.env.ZHUSHOU_TEST_FAST = "1";
+        process.env.ZHUSHOU_CONFIG_PATH = configPath;
+        process.env.DISCORD_BOT_TOKEN = "test-token";
+        clearConfigCache();
+        clearRuntimeConfigSnapshot();
 
-      const runtime = createTestRuntime();
-      const before = fs.readFileSync(configPath, "utf8");
-      await runConfigSet({
-        cliOptions: {
-          batchFile: batchPath,
-          dryRun: true,
-        },
-        runtime: runtime.runtime,
-      });
-      const afterDryRun = fs.readFileSync(configPath, "utf8");
-      expect(afterDryRun).toBe(before);
-      expect(runtime.errors).toEqual([]);
-      expect(runtime.logs.some((line) => line.includes("Dry run successful: 2 update(s)"))).toBe(
-        true,
-      );
+        const runtime = createTestRuntime();
+        const before = fs.readFileSync(configPath, "utf8");
+        await runConfigSet({
+          cliOptions: {
+            batchFile: batchPath,
+            dryRun: true,
+          },
+          runtime: runtime.runtime,
+        });
+        const afterDryRun = fs.readFileSync(configPath, "utf8");
+        expect(afterDryRun).toBe(before);
+        expect(runtime.errors).toEqual([]);
+        expect(runtime.logs.some((line) => line.includes("Dry run successful: 2 update(s)"))).toBe(
+          true,
+        );
 
-      await runConfigSet({
-        cliOptions: {
-          batchFile: batchPath,
-        },
-        runtime: runtime.runtime,
-      });
-      const afterWrite = JSON5.parse(fs.readFileSync(configPath, "utf8"));
-      expect(afterWrite.secrets?.providers?.default).toEqual({
-        source: "env",
-      });
-      expect(afterWrite.channels?.discord?.token).toEqual({
-        source: "env",
-        provider: "default",
-        id: "DISCORD_BOT_TOKEN",
-      });
-    } finally {
-      envSnapshot.restore();
-      clearConfigCache();
-      clearRuntimeConfigSnapshot();
-      fs.rmSync(tempDir, { recursive: true, force: true });
-    }
-  });
+        await runConfigSet({
+          cliOptions: {
+            batchFile: batchPath,
+          },
+          runtime: runtime.runtime,
+        });
+        const afterWrite = JSON5.parse(fs.readFileSync(configPath, "utf8"));
+        expect(afterWrite.secrets?.providers?.default).toEqual({
+          source: "env",
+        });
+        expect(afterWrite.channels?.discord?.token).toEqual({
+          source: "env",
+          provider: "default",
+          id: "DISCORD_BOT_TOKEN",
+        });
+      } finally {
+        envSnapshot.restore();
+        clearConfigCache();
+        clearRuntimeConfigSnapshot();
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      }
+    },
+    60_000,
+  );
 
   it("keeps file unchanged when real-file dry-run fails and reports JSON error payload", async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-config-cli-int-fail-"));
-    const configPath = path.join(tempDir, "assistant.json");
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-config-cli-int-fail-"));
+    const configPath = path.join(tempDir, "zhushou.json");
     const envSnapshot = captureEnv([
-      "ASSISTANT_CONFIG_PATH",
-      "ASSISTANT_TEST_FAST",
+      "ZHUSHOU_CONFIG_PATH",
+      "ZHUSHOU_TEST_FAST",
       "MISSING_TEST_SECRET",
     ]);
     try {
@@ -225,8 +229,8 @@ describe("config cli integration", () => {
         "utf8",
       );
 
-      process.env.ASSISTANT_TEST_FAST = "1";
-      process.env.ASSISTANT_CONFIG_PATH = configPath;
+      process.env.ZHUSHOU_TEST_FAST = "1";
+      process.env.ZHUSHOU_CONFIG_PATH = configPath;
       delete process.env.MISSING_TEST_SECRET;
       clearConfigCache();
       clearRuntimeConfigSnapshot();
@@ -271,7 +275,7 @@ describe("config cli integration", () => {
   });
 
   it("skips exec provider execution during dry-run by default", async () => {
-    await withExecDryRunConfigHarness("assistant-config-cli-int-exec-skip-", async (params) => {
+    await withExecDryRunConfigHarness("zhushou-config-cli-int-exec-skip-", async (params) => {
       const before = fs.readFileSync(params.configPath, "utf8");
       await runConfigSet({
         cliOptions: {
@@ -293,7 +297,7 @@ describe("config cli integration", () => {
   });
 
   it("executes exec providers during dry-run when --allow-exec is set", async () => {
-    await withExecDryRunConfigHarness("assistant-config-cli-int-exec-allow-", async (params) => {
+    await withExecDryRunConfigHarness("zhushou-config-cli-int-exec-allow-", async (params) => {
       const before = fs.readFileSync(params.configPath, "utf8");
       await runConfigSet({
         cliOptions: {

@@ -18,11 +18,11 @@ const {
   })),
 }));
 
-vi.mock("assistant/plugin-sdk/provider-auth-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/provider-auth-runtime", () => ({
   resolveApiKeyForProvider: resolveApiKeyForProviderMock,
 }));
 
-vi.mock("assistant/plugin-sdk/provider-http", () => ({
+vi.mock("zhushou/plugin-sdk/provider-http", () => ({
   assertOkOrThrowHttpError: assertOkOrThrowHttpErrorMock,
   postJsonRequest: postJsonRequestMock,
   resolveProviderHttpRequestConfig: resolveProviderHttpRequestConfigMock,
@@ -128,7 +128,7 @@ describe("openai image generation provider", () => {
       },
       release: vi.fn(async () => {}),
     });
-    vi.stubEnv("ASSISTANT_QA_ALLOW_LOCAL_IMAGE_PROVIDER", "1");
+    vi.stubEnv("ZHUSHOU_QA_ALLOW_LOCAL_IMAGE_PROVIDER", "1");
 
     const provider = buildOpenAIImageGenerationProvider();
     const result = await provider.generateImage({

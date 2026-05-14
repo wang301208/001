@@ -21,7 +21,7 @@ function parsePositiveInt(value) {
 }
 
 export function resolveVitestNodeArgs(env = process.env) {
-  if (isTruthyEnvValue(env.ASSISTANT_VITEST_ENABLE_MAGLEV)) {
+  if (isTruthyEnvValue(env.ZHUSHOU_VITEST_ENABLE_MAGLEV)) {
     return [];
   }
 
@@ -34,7 +34,7 @@ export function resolveVitestCliEntry() {
 }
 
 export function resolveVitestNoOutputTimeoutMs(env = process.env) {
-  return parsePositiveInt(env.ASSISTANT_VITEST_NO_OUTPUT_TIMEOUT_MS);
+  return parsePositiveInt(env.ZHUSHOU_VITEST_NO_OUTPUT_TIMEOUT_MS);
 }
 
 export function resolveVitestSpawnParams(env = process.env, platform = process.platform) {

@@ -11,7 +11,7 @@ import {
   makeMockSessionManager,
   makeInMemorySessionManager,
   makeModelSnapshotEntry,
-  makeReasoningAssistantMessages,
+  makeReasoningZhushouMessages,
   makeSimpleUserMessages,
   sanitizeSnapshotChangedOpenAIReasoning,
   type SanitizeSessionHistoryHarness,
@@ -24,7 +24,7 @@ import {
   validateReplayTurns,
 } from "./pi-embedded-runner/replay-history.js";
 import { castAgentMessage, castAgentMessages } from "./test-helpers/agent-message-fixtures.js";
-import { extractToolCallsFromAssistant } from "./tool-call-id.js";
+import { extractToolCallsFromZhushou } from "./tool-call-id.js";
 import type { TranscriptPolicy } from "./transcript-policy.js";
 import { makeZeroUsageSnapshot } from "./usage.js";
 
@@ -48,7 +48,7 @@ vi.mock("../plugins/provider-hook-runtime.js", async () => ({
             const modelId = (context?.modelId ?? "").toLowerCase();
             if (provider === "openrouter") {
               return {
-                applyAssistantFirstOrderingFix: false,
+                applyZhushouFirstOrderingFix: false,
                 validateGeminiTurns: false,
                 validateAnthropicTurns: false,
                 ...(modelId.includes("gemini")
@@ -174,15 +174,15 @@ describe("sanitizeSessionHistory", () => {
       policy: params.policy,
     });
 
-  const getAssistantMessage = (messages: AgentMessage[]) => {
+  const getZhushouMessage = (messages: AgentMessage[]) => {
     expect(messages[1]?.role).toBe("assistant");
     return messages[1] as Extract<AgentMessage, { role: "assistant" }>;
   };
 
-  const getAssistantContentTypes = (messages: AgentMessage[]) =>
-    getAssistantMessage(messages).content.map((block: { type: string }) => block.type);
+  const getZhushouContentTypes = (messages: AgentMessage[]) =>
+    getZhushouMessage(messages).content.map((block: { type: string }) => block.type);
 
-  const makeThinkingAndTextAssistantMessages = (
+  const makeThinkingAndTextZhushouMessages = (
     thinkingSignature: string = "some_sig",
   ): AgentMessage[] => {
     const user: UserMessage = {
@@ -190,7 +190,7 @@ describe("sanitizeSessionHistory", () => {
       content: "hello",
       timestamp: nextTimestamp(),
     };
-    const assistant: AssistantMessage = {
+    const zhushou: AssistantMessage = {
       role: "assistant",
       content: [
         {
@@ -207,7 +207,7 @@ describe("sanitizeSessionHistory", () => {
       stopReason: "stop",
       timestamp: nextTimestamp(),
     };
-    return [user, assistant];
+    return [user, zhushou];
   };
 
   const makeUsage = (input: number, output: number, totalTokens: number): Usage => ({
@@ -219,7 +219,7 @@ describe("sanitizeSessionHistory", () => {
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
   });
 
-  const makeAssistantUsageMessage = (params: {
+  const makeZhushouUsageMessage = (params: {
     text: string;
     usage: ReturnType<typeof makeUsage>;
     timestamp?: number;
@@ -240,7 +240,7 @@ describe("sanitizeSessionHistory", () => {
     timestamp,
   });
 
-  const makeAssistantMessage = (
+  const makeZhushouMessage = (
     content: AssistantMessage["content"],
     params: {
       stopReason?: AssistantMessage["stopReason"];
@@ -285,12 +285,12 @@ describe("sanitizeSessionHistory", () => {
       ...overrides,
     });
 
-  const getAssistantMessages = (messages: AgentMessage[]) =>
+  const getZhushouMessages = (messages: AgentMessage[]) =>
     messages.filter((message) => message.role === "assistant") as Array<
       AgentMessage & { usage?: unknown; content?: unknown }
     >;
 
-  const getSingleAssistantUsage = async (messages: AgentMessage[]) => {
+  const getSingleZhushouUsage = async (messages: AgentMessage[]) => {
     vi.mocked(mockedHelpers.isGoogleModelApi).mockReturnValue(false);
     const result = await sanitizeOpenAIHistory(messages);
     return result.find((message) => message.role === "assistant") as
@@ -425,7 +425,7 @@ describe("sanitizeSessionHistory", () => {
     expect(result).toEqual(mockMessages);
   });
 
-  it("prepends a bootstrap user turn for strict OpenAI-compatible assistant-first history", async () => {
+  it("prepends a bootstrap user turn for strict OpenAI-compatible zhushou-first history", async () => {
     setNonGoogleModelApi();
     const sessionEntries: Array<{ type: string; customType: string; data: unknown }> = [];
     const sessionManager = makeInMemorySessionManager(sessionEntries);
@@ -783,7 +783,7 @@ describe("sanitizeSessionHistory", () => {
     const session = SessionManager.create(dir, dir);
     session.appendMessage({ role: "user", content: "old question", timestamp: 1 });
     session.appendMessage(
-      makeAssistantMessage([{ type: "text", text: "old answer" }], { timestamp: 2 }),
+      makeZhushouMessage([{ type: "text", text: "old answer" }], { timestamp: 2 }),
     );
     const firstKeptId = session.getBranch().at(-1)?.id;
     expect(firstKeptId).toBeTruthy();
@@ -834,12 +834,12 @@ describe("sanitizeSessionHistory", () => {
     expect(compactionSummary?.summary).not.toContain("Stale summary task status.");
   });
 
-  it("drops stale assistant usage snapshots kept before latest compaction summary", async () => {
+  it("drops stale zhushou usage snapshots kept before latest compaction summary", async () => {
     vi.mocked(mockedHelpers.isGoogleModelApi).mockReturnValue(false);
 
     const messages = castAgentMessages([
       { role: "user", content: "old context" },
-      makeAssistantUsageMessage({
+      makeZhushouUsageMessage({
         text: "old answer",
         usage: makeUsage(191_919, 2_000, 193_919),
       }),
@@ -848,24 +848,24 @@ describe("sanitizeSessionHistory", () => {
 
     const result = await sanitizeOpenAIHistory(messages);
 
-    const staleAssistant = result.find((message) => message.role === "assistant") as
+    const staleZhushou = result.find((message) => message.role === "assistant") as
       | (AgentMessage & { usage?: unknown })
       | undefined;
-    expect(staleAssistant).toBeDefined();
-    expect(staleAssistant?.usage).toEqual(makeZeroUsageSnapshot());
+    expect(staleZhushou).toBeDefined();
+    expect(staleZhushou?.usage).toEqual(makeZeroUsageSnapshot());
   });
 
-  it("preserves fresh assistant usage snapshots created after latest compaction summary", async () => {
+  it("preserves fresh zhushou usage snapshots created after latest compaction summary", async () => {
     vi.mocked(mockedHelpers.isGoogleModelApi).mockReturnValue(false);
 
     const messages = castAgentMessages([
-      makeAssistantUsageMessage({
+      makeZhushouUsageMessage({
         text: "pre-compaction answer",
         usage: makeUsage(120_000, 3_000, 123_000),
       }),
       makeCompactionSummaryMessage(123_000, new Date().toISOString()),
       { role: "user", content: "new question" },
-      makeAssistantUsageMessage({
+      makeZhushouUsageMessage({
         text: "fresh answer",
         usage: makeUsage(1_000, 250, 1_250),
       }),
@@ -873,14 +873,14 @@ describe("sanitizeSessionHistory", () => {
 
     const result = await sanitizeOpenAIHistory(messages);
 
-    const assistants = getAssistantMessages(result);
-    expect(assistants).toHaveLength(2);
-    expect(assistants[0]?.usage).toEqual(makeZeroUsageSnapshot());
-    expect(assistants[1]?.usage).toBeDefined();
+    const zhushous = getZhushouMessages(result);
+    expect(zhushous).toHaveLength(2);
+    expect(zhushous[0]?.usage).toEqual(makeZeroUsageSnapshot());
+    expect(zhushous[1]?.usage).toBeDefined();
   });
 
-  it("adds a zeroed assistant usage snapshot when usage is missing", async () => {
-    const assistant = await getSingleAssistantUsage(
+  it("adds a zeroed zhushou usage snapshot when usage is missing", async () => {
+    const zhushou = await getSingleZhushouUsage(
       castAgentMessages([
         { role: "user", content: "question" },
         {
@@ -890,11 +890,11 @@ describe("sanitizeSessionHistory", () => {
       ]),
     );
 
-    expect(assistant?.usage).toEqual(makeZeroUsageSnapshot());
+    expect(zhushou?.usage).toEqual(makeZeroUsageSnapshot());
   });
 
-  it("normalizes mixed partial assistant usage fields to numeric totals", async () => {
-    const assistant = await getSingleAssistantUsage(
+  it("normalizes mixed partial zhushou usage fields to numeric totals", async () => {
+    const zhushou = await getSingleZhushouUsage(
       castAgentMessages([
         { role: "user", content: "question" },
         {
@@ -908,7 +908,7 @@ describe("sanitizeSessionHistory", () => {
       ]),
     );
 
-    expect(assistant?.usage).toEqual({
+    expect(zhushou?.usage).toEqual({
       input: 0,
       output: 3,
       cacheRead: 9,
@@ -918,7 +918,7 @@ describe("sanitizeSessionHistory", () => {
   });
 
   it("preserves existing usage cost while normalizing token fields", async () => {
-    const assistant = await getSingleAssistantUsage(
+    const zhushou = await getSingleZhushouUsage(
       castAgentMessages([
         { role: "user", content: "question" },
         {
@@ -939,7 +939,7 @@ describe("sanitizeSessionHistory", () => {
       ]),
     );
 
-    expect(assistant?.usage).toEqual({
+    expect(zhushou?.usage).toEqual({
       ...makeZeroUsageSnapshot(),
       input: 0,
       output: 3,
@@ -957,7 +957,7 @@ describe("sanitizeSessionHistory", () => {
   });
 
   it("preserves unknown cost when token fields already match", async () => {
-    const assistant = await getSingleAssistantUsage(
+    const zhushou = await getSingleZhushouUsage(
       castAgentMessages([
         { role: "user", content: "question" },
         {
@@ -974,23 +974,23 @@ describe("sanitizeSessionHistory", () => {
       ]),
     );
 
-    expect(assistant?.usage).toEqual({
+    expect(zhushou?.usage).toEqual({
       input: 1,
       output: 2,
       cacheRead: 3,
       cacheWrite: 4,
       totalTokens: 10,
     });
-    expect((assistant?.usage as { cost?: unknown } | undefined)?.cost).toBeUndefined();
+    expect((zhushou?.usage as { cost?: unknown } | undefined)?.cost).toBeUndefined();
   });
 
-  it("drops stale usage when compaction summary appears before kept assistant messages", async () => {
+  it("drops stale usage when compaction summary appears before kept zhushou messages", async () => {
     vi.mocked(mockedHelpers.isGoogleModelApi).mockReturnValue(false);
 
     const compactionTs = Date.parse("2026-02-26T12:00:00.000Z");
     const messages = castAgentMessages([
       makeCompactionSummaryMessage(191_919, new Date(compactionTs).toISOString()),
-      makeAssistantUsageMessage({
+      makeZhushouUsageMessage({
         text: "kept pre-compaction answer",
         timestamp: compactionTs - 1_000,
         usage: makeUsage(191_919, 2_000, 193_919),
@@ -999,10 +999,10 @@ describe("sanitizeSessionHistory", () => {
 
     const result = await sanitizeOpenAIHistory(messages);
 
-    const assistant = result.find((message) => message.role === "assistant") as
+    const zhushou = result.find((message) => message.role === "assistant") as
       | (AgentMessage & { usage?: unknown })
       | undefined;
-    expect(assistant?.usage).toEqual(makeZeroUsageSnapshot());
+    expect(zhushou?.usage).toEqual(makeZeroUsageSnapshot());
   });
 
   it("keeps fresh usage after compaction timestamp in summary-first ordering", async () => {
@@ -1011,13 +1011,13 @@ describe("sanitizeSessionHistory", () => {
     const compactionTs = Date.parse("2026-02-26T12:00:00.000Z");
     const messages = castAgentMessages([
       makeCompactionSummaryMessage(123_000, new Date(compactionTs).toISOString()),
-      makeAssistantUsageMessage({
+      makeZhushouUsageMessage({
         text: "kept pre-compaction answer",
         timestamp: compactionTs - 2_000,
         usage: makeUsage(120_000, 3_000, 123_000),
       }),
       { role: "user", content: "new question", timestamp: compactionTs + 1_000 },
-      makeAssistantUsageMessage({
+      makeZhushouUsageMessage({
         text: "fresh answer",
         timestamp: compactionTs + 2_000,
         usage: makeUsage(1_000, 250, 1_250),
@@ -1026,23 +1026,23 @@ describe("sanitizeSessionHistory", () => {
 
     const result = await sanitizeOpenAIHistory(messages);
 
-    const assistants = getAssistantMessages(result);
-    const keptAssistant = assistants.find((message) =>
+    const zhushous = getZhushouMessages(result);
+    const keptZhushou = zhushous.find((message) =>
       JSON.stringify(message.content).includes("kept pre-compaction answer"),
     );
-    const freshAssistant = assistants.find((message) =>
+    const freshZhushou = zhushous.find((message) =>
       JSON.stringify(message.content).includes("fresh answer"),
     );
-    expect(keptAssistant?.usage).toEqual(makeZeroUsageSnapshot());
-    expect(freshAssistant?.usage).toBeDefined();
+    expect(keptZhushou?.usage).toEqual(makeZeroUsageSnapshot());
+    expect(freshZhushou?.usage).toBeDefined();
   });
 
-  it("keeps reasoning-only assistant messages for openai-responses", async () => {
+  it("keeps reasoning-only zhushou messages for openai-responses", async () => {
     setNonGoogleModelApi();
 
     const messages: AgentMessage[] = [
       makeUserMessage("hello"),
-      makeAssistantMessage(
+      makeZhushouMessage(
         [
           {
             type: "thinking",
@@ -1068,7 +1068,7 @@ describe("sanitizeSessionHistory", () => {
 
   it("synthesizes missing tool results for openai-responses after repair", async () => {
     const messages: AgentMessage[] = [
-      makeAssistantMessage([{ type: "toolCall", id: "call_1", name: "read", arguments: {} }], {
+      makeZhushouMessage([{ type: "toolCall", id: "call_1", name: "read", arguments: {} }], {
         stopReason: "toolUse",
       }),
     ];
@@ -1101,7 +1101,7 @@ describe("sanitizeSessionHistory", () => {
       name: "invalid or overlong names",
       makeMessages: () =>
         castAgentMessages([
-          makeAssistantMessage(
+          makeZhushouMessage(
             [
               {
                 type: "toolCall",
@@ -1129,7 +1129,7 @@ describe("sanitizeSessionHistory", () => {
 
   it("drops tool calls that are not in the allowed tool set", async () => {
     const messages: AgentMessage[] = [
-      makeAssistantMessage([{ type: "toolCall", id: "call_1", name: "write", arguments: {} }], {
+      makeZhushouMessage([{ type: "toolCall", id: "call_1", name: "write", arguments: {} }], {
         stopReason: "toolUse",
       }),
     ];
@@ -1150,7 +1150,7 @@ describe("sanitizeSessionHistory", () => {
       }),
     ];
     const sessionManager = makeInMemorySessionManager(sessionEntries);
-    const messages = makeReasoningAssistantMessages({ thinkingSignature: "json" });
+    const messages = makeReasoningZhushouMessages({ thinkingSignature: "json" });
 
     const result = await sanitizeWithOpenAIResponses({
       sanitizeSessionHistory,
@@ -1180,7 +1180,7 @@ describe("sanitizeSessionHistory", () => {
     ];
     const sessionManager = makeInMemorySessionManager(sessionEntries);
     const messages: AgentMessage[] = [
-      makeAssistantMessage([{ type: "toolCall", id: "tool_abc123", name: "read", arguments: {} }], {
+      makeZhushouMessage([{ type: "toolCall", id: "tool_abc123", name: "read", arguments: {} }], {
         stopReason: "toolUse",
       }),
       {
@@ -1225,7 +1225,7 @@ describe("sanitizeSessionHistory", () => {
     const sessionManager = makeMockSessionManager();
     const messages: AgentMessage[] = [
       makeUserMessage("Use the gateway"),
-      makeAssistantMessage(
+      makeZhushouMessage(
         [
           { type: "thinking", thinking: "internal", thinkingSignature: "sig_1" },
           { type: "toolCall", id: "toolu_legacy", name: "gateway", arguments: {} },
@@ -1261,8 +1261,8 @@ describe("sanitizeSessionHistory", () => {
     expect(sanitized.map((msg) => msg.role)).toEqual(["user", "assistant", "toolResult", "user"]);
     expect(validated.map((msg) => msg.role)).toEqual(["user", "assistant", "toolResult", "user"]);
 
-    const assistant = validated[1] as Extract<AgentMessage, { role: "assistant" }>;
-    expect(assistant.content).toEqual([
+    const zhushou = validated[1] as Extract<AgentMessage, { role: "assistant" }>;
+    expect(zhushou.content).toEqual([
       { type: "thinking", thinking: "internal", thinkingSignature: "sig_1" },
       { type: "toolCall", id: "toolu_legacy", name: "gateway", arguments: {} },
     ]);
@@ -1272,14 +1272,14 @@ describe("sanitizeSessionHistory", () => {
     expect(toolResult.isError).toBe(true);
   });
 
-  it("preserves latest assistant thinking blocks for github-copilot models", async () => {
+  it("preserves latest zhushou thinking blocks for github-copilot models", async () => {
     setNonGoogleModelApi();
 
-    const messages = makeThinkingAndTextAssistantMessages("reasoning_text");
+    const messages = makeThinkingAndTextZhushouMessages("reasoning_text");
 
     const result = await sanitizeGithubCopilotHistory({ messages });
-    const assistant = getAssistantMessage(result);
-    expect(assistant.content).toEqual([
+    const zhushou = getZhushouMessage(result);
+    expect(zhushou.content).toEqual([
       {
         type: "thinking",
         thinking: "internal",
@@ -1289,12 +1289,12 @@ describe("sanitizeSessionHistory", () => {
     ]);
   });
 
-  it("preserves latest assistant turn when all content is thinking blocks (github-copilot)", async () => {
+  it("preserves latest zhushou turn when all content is thinking blocks (github-copilot)", async () => {
     setNonGoogleModelApi();
 
     const messages: AgentMessage[] = [
       makeUserMessage("hello"),
-      makeAssistantMessage([
+      makeZhushouMessage([
         {
           type: "thinking",
           thinking: "some reasoning",
@@ -1307,8 +1307,8 @@ describe("sanitizeSessionHistory", () => {
     const result = await sanitizeGithubCopilotHistory({ messages });
 
     expect(result).toHaveLength(3);
-    const assistant = getAssistantMessage(result);
-    expect(assistant.content).toEqual([
+    const zhushou = getZhushouMessage(result);
+    expect(zhushou.content).toEqual([
       {
         type: "thinking",
         thinking: "some reasoning",
@@ -1317,12 +1317,12 @@ describe("sanitizeSessionHistory", () => {
     ]);
   });
 
-  it("preserves thinking blocks alongside tool_use blocks in latest assistant message (github-copilot)", async () => {
+  it("preserves thinking blocks alongside tool_use blocks in latest zhushou message (github-copilot)", async () => {
     setNonGoogleModelApi();
 
     const messages: AgentMessage[] = [
       makeUserMessage("read a file"),
-      makeAssistantMessage([
+      makeZhushouMessage([
         {
           type: "thinking",
           thinking: "I should use the read tool",
@@ -1334,21 +1334,21 @@ describe("sanitizeSessionHistory", () => {
     ];
 
     const result = await sanitizeGithubCopilotHistory({ messages });
-    const types = getAssistantContentTypes(result);
+    const types = getZhushouContentTypes(result);
     expect(types).toContain("thinking");
     expect(types).toContain("toolCall");
     expect(types).toContain("text");
   });
 
-  it("preserves latest assistant thinking blocks for anthropic replay", async () => {
+  it("preserves latest zhushou thinking blocks for anthropic replay", async () => {
     setNonGoogleModelApi();
 
-    const messages = makeThinkingAndTextAssistantMessages();
+    const messages = makeThinkingAndTextZhushouMessages();
 
     const result = await sanitizeAnthropicHistory({ messages });
 
-    const assistant = getAssistantMessage(result);
-    expect(assistant.content).toEqual([
+    const zhushou = getZhushouMessage(result);
+    expect(zhushou.content).toEqual([
       {
         type: "thinking",
         thinking: "internal",
@@ -1363,7 +1363,7 @@ describe("sanitizeSessionHistory", () => {
 
     const messages = castAgentMessages([
       makeUserMessage("retry"),
-      makeAssistantMessage([
+      makeZhushouMessage([
         {
           type: "thinking",
           thinking: "internal",
@@ -1405,7 +1405,7 @@ describe("sanitizeSessionHistory", () => {
 
     const messages = castAgentMessages([
       makeUserMessage("retry"),
-      makeAssistantMessage([
+      makeZhushouMessage([
         {
           type: "thinking",
           thinking: "internal",
@@ -1444,7 +1444,7 @@ describe("sanitizeSessionHistory", () => {
 
     const messages = castAgentMessages([
       makeUserMessage("retry"),
-      makeAssistantMessage([
+      makeZhushouMessage([
         {
           type: "thinking",
           thinking: "internal",
@@ -1484,7 +1484,7 @@ describe("sanitizeSessionHistory", () => {
     const sessionManager = makeMockSessionManager();
     const messages = castAgentMessages([
       makeUserMessage("first"),
-      makeAssistantMessage([{ type: "toolCall", id: "call_1", name: "read", arguments: {} }]),
+      makeZhushouMessage([{ type: "toolCall", id: "call_1", name: "read", arguments: {} }]),
       castAgentMessage({
         role: "toolResult",
         toolCallId: "call_1",
@@ -1493,7 +1493,7 @@ describe("sanitizeSessionHistory", () => {
         isError: false,
       }),
       makeUserMessage("second"),
-      makeAssistantMessage(
+      makeZhushouMessage(
         [
           { type: "thinking", thinking: "internal", thinkingSignature: "sig_1" },
           { type: "toolCall", id: "call1", name: "read", arguments: {} },
@@ -1526,10 +1526,10 @@ describe("sanitizeSessionHistory", () => {
       sessionId: TEST_SESSION_ID,
     });
 
-    const firstAssistant = sanitized[1] as Extract<AgentMessage, { role: "assistant" }>;
-    const secondAssistant = sanitized[4] as Extract<AgentMessage, { role: "assistant" }>;
-    const firstToolCall = firstAssistant.content[0] as { id?: string };
-    const secondToolCall = secondAssistant.content[1] as { id?: string };
+    const firstZhushou = sanitized[1] as Extract<AgentMessage, { role: "assistant" }>;
+    const secondZhushou = sanitized[4] as Extract<AgentMessage, { role: "assistant" }>;
+    const firstToolCall = firstZhushou.content[0] as { id?: string };
+    const secondToolCall = secondZhushou.content[1] as { id?: string };
     expect(firstToolCall.id).not.toBe("call1");
     expect(secondToolCall.id).toBe("call1");
     expect(firstToolCall.id).not.toBe(secondToolCall.id);
@@ -1550,7 +1550,7 @@ describe("sanitizeSessionHistory", () => {
 
     const messages = castAgentMessages([
       makeUserMessage("read a file"),
-      makeAssistantMessage([
+      makeZhushouMessage([
         {
           type: "thinking",
           thinking: "I should use the read tool",
@@ -1561,8 +1561,8 @@ describe("sanitizeSessionHistory", () => {
     ]);
 
     const result = await sanitizeGithubCopilotHistory({ messages });
-    const assistant = getAssistantMessage(result);
-    expect(assistant.content).toEqual([
+    const zhushou = getZhushouMessage(result);
+    expect(zhushou.content).toEqual([
       {
         type: "thinking",
         thinking: "I should use the read tool",
@@ -1578,7 +1578,7 @@ describe("sanitizeSessionHistory", () => {
     const sessionManager = makeMockSessionManager();
     const messages = castAgentMessages([
       makeUserMessage("first"),
-      makeAssistantMessage(
+      makeZhushouMessage(
         [
           { type: "thinking", thinking: "internal", thinkingSignature: "sig_1" },
           { type: "toolCall", id: "call1", name: "read", arguments: {} },
@@ -1593,7 +1593,7 @@ describe("sanitizeSessionHistory", () => {
         isError: false,
       }),
       makeUserMessage("second"),
-      makeAssistantMessage(
+      makeZhushouMessage(
         [
           { type: "thinking", thinking: "internal", thinkingSignature: "sig_2" },
           { type: "toolCall", id: "call1", name: "read", arguments: {} },
@@ -1632,7 +1632,7 @@ describe("sanitizeSessionHistory", () => {
           message &&
           typeof message === "object" &&
           message.role === "assistant" &&
-          extractToolCallsFromAssistant(message).length > 0,
+          extractToolCallsFromZhushou(message).length > 0,
       ),
     ).toHaveLength(1);
     expect(
@@ -1646,7 +1646,7 @@ describe("sanitizeSessionHistory", () => {
           message &&
           typeof message === "object" &&
           message.role === "assistant" &&
-          extractToolCallsFromAssistant(message).length > 0,
+          extractToolCallsFromZhushou(message).length > 0,
       ),
     ).toHaveLength(1);
     expect(
@@ -1679,7 +1679,7 @@ describe("sanitizeSessionHistory", () => {
     };
     const baseMessages = castAgentMessages([
       makeUserMessage("Read IDENTITY.md"),
-      makeAssistantMessage(
+      makeZhushouMessage(
         [
           { type: "toolUse", id: priorToolId, name: "read", input: { path: "IDENTITY.md" } },
         ] as unknown as AssistantMessage["content"],
@@ -1693,12 +1693,12 @@ describe("sanitizeSessionHistory", () => {
         content: [{ type: "text", text: "ok" }],
         isError: false,
       },
-      makeAssistantMessage([{ type: "text", text: "done" }]),
+      makeZhushouMessage([{ type: "text", text: "done" }]),
     ]);
     const withSubagentMessages = castAgentMessages([
       ...baseMessages,
       makeUserMessage("Ask a subagent for an emoji"),
-      makeAssistantMessage(
+      makeZhushouMessage(
         [
           { type: "toolUse", id: laterToolId, name: "subagent", input: { prompt: "emoji" } },
         ] as unknown as AssistantMessage["content"],
@@ -1712,7 +1712,7 @@ describe("sanitizeSessionHistory", () => {
         content: [{ type: "text", text: "😀" }],
         isError: false,
       },
-      makeAssistantMessage([{ type: "text", text: "it was 😀" }]),
+      makeZhushouMessage([{ type: "text", text: "it was 😀" }]),
     ]);
 
     const sanitizedBase = await sanitizeAnthropicHistory({
@@ -1734,10 +1734,10 @@ describe("sanitizeSessionHistory", () => {
     ).toBe(priorToolId);
   });
 
-  it("preserves latest assistant thinking blocks for amazon-bedrock replay", async () => {
+  it("preserves latest zhushou thinking blocks for amazon-bedrock replay", async () => {
     setNonGoogleModelApi();
 
-    const messages = makeThinkingAndTextAssistantMessages();
+    const messages = makeThinkingAndTextZhushouMessages();
 
     const result = await sanitizeAnthropicHistory({
       messages,
@@ -1745,8 +1745,8 @@ describe("sanitizeSessionHistory", () => {
       modelApi: "bedrock-converse-stream",
     });
 
-    const assistant = getAssistantMessage(result);
-    expect(assistant.content).toEqual([
+    const zhushou = getZhushouMessage(result);
+    expect(zhushou.content).toEqual([
       {
         type: "thinking",
         thinking: "internal",
@@ -1759,10 +1759,10 @@ describe("sanitizeSessionHistory", () => {
   it("does not drop thinking blocks for non-claude copilot models", async () => {
     setNonGoogleModelApi();
 
-    const messages = makeThinkingAndTextAssistantMessages();
+    const messages = makeThinkingAndTextZhushouMessages();
 
     const result = await sanitizeGithubCopilotHistory({ messages, modelId: "gpt-5.4" });
-    const types = getAssistantContentTypes(result);
+    const types = getZhushouContentTypes(result);
     expect(types).toContain("thinking");
   });
 });

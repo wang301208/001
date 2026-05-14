@@ -12,7 +12,7 @@ import {
   pluginCommands,
   type RegisteredPluginCommand,
 } from "./command-registry-state.js";
-import type { AssistantPluginCommandDefinition } from "./types.js";
+import type { ZhushouPluginCommandDefinition } from "./types.js";
 
 /**
  * Reserved command names that plugins cannot override (built-in commands).
@@ -89,7 +89,7 @@ export function validateCommandName(name: string): string | null {
  * Shared by both the global registration path and snapshot (non-activating) loads.
  */
 export function validatePluginCommandDefinition(
-  command: AssistantPluginCommandDefinition,
+  command: ZhushouPluginCommandDefinition,
 ): string | null {
   if (typeof command.handler !== "function") {
     return "Command handler must be a function";
@@ -127,7 +127,7 @@ export function validatePluginCommandDefinition(
   return null;
 }
 
-export function listPluginInvocationKeys(command: AssistantPluginCommandDefinition): string[] {
+export function listPluginInvocationKeys(command: ZhushouPluginCommandDefinition): string[] {
   const keys = new Set<string>();
   const push = (value: string | undefined) => {
     const normalized = normalizeOptionalLowercaseString(value);
@@ -149,7 +149,7 @@ export function listPluginInvocationKeys(command: AssistantPluginCommandDefiniti
 
 export function registerPluginCommand(
   pluginId: string,
-  command: AssistantPluginCommandDefinition,
+  command: ZhushouPluginCommandDefinition,
   opts?: { pluginName?: string; pluginRoot?: string },
 ): CommandRegistrationResult {
   // Prevent registration while commands are being processed

@@ -1,7 +1,7 @@
 ﻿import { randomUUID } from "node:crypto";
 import { expect, vi, type Mock } from "vitest";
 import { createPluginRuntimeMock } from "../../../../test/helpers/plugins/plugin-runtime-mock.js";
-import type { AssistantConfig, PluginRuntime, RuntimeEnv } from "../../runtime-api.js";
+import type { ZhushouConfig, PluginRuntime, RuntimeEnv } from "../../runtime-api.js";
 import { setFeishuRuntime } from "../runtime.js";
 import type { ResolvedFeishuAccount } from "../types.js";
 
@@ -44,15 +44,15 @@ type FeishuLifecycleReplyDispatcher = {
 };
 
 export function setFeishuLifecycleStateDir(prefix: string) {
-  process.env.ASSISTANT_STATE_DIR = `/tmp/${prefix}-${randomUUID()}`;
+  process.env.ZHUSHOU_STATE_DIR = `/tmp/${prefix}-${randomUUID()}`;
 }
 
 export function restoreFeishuLifecycleStateDir(originalStateDir: string | undefined) {
   if (originalStateDir === undefined) {
-    delete process.env.ASSISTANT_STATE_DIR;
+    delete process.env.ZHUSHOU_STATE_DIR;
     return;
   }
-  process.env.ASSISTANT_STATE_DIR = originalStateDir;
+  process.env.ZHUSHOU_STATE_DIR = originalStateDir;
 }
 
 export const FEISHU_PREFETCHED_BOT_OPEN_ID_SOURCE = {
@@ -190,7 +190,7 @@ export function createFeishuLifecycleConfig(params: {
   channelConfig?: Record<string, unknown>;
   accountConfig?: Record<string, unknown>;
   extraConfig?: Record<string, unknown>;
-}): AssistantConfig {
+}): ZhushouConfig {
   const extraConfig = params.extraConfig ?? {};
   return {
     ...extraConfig,
@@ -222,7 +222,7 @@ export function createFeishuLifecycleConfig(params: {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 export function createFeishuLifecycleFixture(params: {
@@ -420,7 +420,7 @@ export async function setupFeishuLifecycleHandler<T extends RuntimeEnv>(params: 
   };
   onRegister: (registered: Record<string, (data: unknown) => Promise<void>>) => void;
   runtime: T;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   account: ResolvedFeishuAccount;
   handlerKey: string;
   missingHandlerMessage: string;

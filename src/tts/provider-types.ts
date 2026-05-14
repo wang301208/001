@@ -1,5 +1,5 @@
 import type { TalkProviderConfig } from "../config/types.gateway.js";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 
 export type SpeechProviderId = string;
 
@@ -35,14 +35,14 @@ export type TtsDirectiveParseResult = {
 };
 
 export type SpeechProviderConfiguredContext = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   providerConfig: SpeechProviderConfig;
   timeoutMs: number;
 };
 
 export type SpeechSynthesisRequest = {
   text: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   providerConfig: SpeechProviderConfig;
   target: SpeechSynthesisTarget;
   providerOverrides?: SpeechProviderOverrides;
@@ -58,7 +58,7 @@ export type SpeechSynthesisResult = {
 
 export type SpeechTelephonySynthesisRequest = {
   text: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   providerConfig: SpeechProviderConfig;
   timeoutMs: number;
 };
@@ -80,14 +80,14 @@ export type SpeechVoiceOption = {
 };
 
 export type SpeechListVoicesRequest = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   providerConfig?: SpeechProviderConfig;
   apiKey?: string;
   baseUrl?: string;
 };
 
 export type SpeechProviderResolveConfigContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   rawConfig: Record<string, unknown>;
   timeoutMs: number;
 };
@@ -107,7 +107,7 @@ export type SpeechDirectiveTokenParseResult = {
 };
 
 export type SpeechProviderResolveTalkConfigContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   baseTtsConfig: Record<string, unknown>;
   talkProviderConfig: TalkProviderConfig;
   timeoutMs: number;

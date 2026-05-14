@@ -1,4 +1,4 @@
-import type { TelegramNetworkConfig } from "assistant/plugin-sdk/config-runtime";
+import type { TelegramNetworkConfig } from "zhushou/plugin-sdk/config-runtime";
 
 export type TelegramGroupMembershipAuditEntry = {
   chatId: string;

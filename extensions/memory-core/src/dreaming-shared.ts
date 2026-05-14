@@ -1,5 +1,5 @@
-export { asNullableRecord as asRecord } from "assistant/plugin-sdk/text-runtime";
-export { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+export { asNullableRecord as asRecord } from "zhushou/plugin-sdk/text-runtime";
+export { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 
 export function normalizeTrimmedString(value: unknown): string | undefined {
   if (typeof value !== "string") {

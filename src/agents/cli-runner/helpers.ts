@@ -4,11 +4,11 @@ import os from "node:os";
 import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
-import { KeyedAsyncQueue } from "assistant/plugin-sdk/keyed-async-queue";
+import { KeyedAsyncQueue } from "zhushou/plugin-sdk/keyed-async-queue";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { CliBackendConfig } from "../../config/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
-import { resolvePreferredAssistantTmpDir } from "../../infra/tmp-assistant-dir.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
+import { resolvePreferredZhushouTmpDir } from "../../infra/tmp-zhushou-dir.js";
 import { MAX_IMAGE_BYTES } from "../../media/constants.js";
 import { extensionForMime } from "../../media/mime.js";
 import {
@@ -65,7 +65,7 @@ export function resolveCliRunQueueKey(params: {
 
 export function buildSystemPrompt(params: {
   workspaceDir: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   defaultThinkLevel?: ThinkLevel;
   extraSystemPrompt?: string;
   ownerNumbers?: string[];
@@ -88,7 +88,7 @@ export function buildSystemPrompt(params: {
     workspaceDir: params.workspaceDir,
     cwd: process.cwd(),
     runtime: {
-      host: "assistant",
+      host: "zhushou",
       os: `${os.type()} ${os.release()}`,
       arch: os.arch(),
       node: process.version,
@@ -205,14 +205,14 @@ function resolveCliImagePath(image: ImageContent): string {
     .update("\0")
     .update(image.data)
     .digest("hex");
-  return path.join(resolvePreferredAssistantTmpDir(), "assistant-cli-images", `${digest}${ext}`);
+  return path.join(resolvePreferredZhushouTmpDir(), "zhushou-cli-images", `${digest}${ext}`);
 }
 
 function resolveCliImageRoot(params: { backend: CliBackendConfig; workspaceDir: string }): string {
   if (params.backend.imagePathScope === "workspace") {
-    return path.join(params.workspaceDir, ".assistant-cli-images");
+    return path.join(params.workspaceDir, ".zhushou-cli-images");
   }
-  return path.join(resolvePreferredAssistantTmpDir(), "assistant-cli-images");
+  return path.join(resolvePreferredZhushouTmpDir(), "zhushou-cli-images");
 }
 
 export function appendImagePathsToPrompt(prompt: string, paths: string[], prefix = ""): string {
@@ -294,7 +294,7 @@ export async function writeCliSystemPromptFile(params: {
     return { cleanup: async () => {} };
   }
   const tempDir = await fs.mkdtemp(
-    path.join(resolvePreferredAssistantTmpDir(), "assistant-cli-system-prompt-"),
+    path.join(resolvePreferredZhushouTmpDir(), "zhushou-cli-system-prompt-"),
   );
   const filePath = path.join(tempDir, "system-prompt.md");
   await fs.writeFile(filePath, stripSystemPromptCacheBoundary(params.systemPrompt), {

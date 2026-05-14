@@ -1,25 +1,25 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { loadConfig, type AssistantConfig } from "../config/config.js";
+import { loadConfig, type ZhushouConfig } from "../config/config.js";
 import { VERSION } from "../version.js";
-import { AssistantChannelBridge } from "./channel-bridge.js";
+import { ZhushouChannelBridge } from "./channel-bridge.js";
 import { ClaudePermissionRequestSchema, type ClaudeChannelMode } from "./channel-shared.js";
 import { getChannelMcpCapabilities, registerChannelMcpTools } from "./channel-tools.js";
 
-export { AssistantChannelBridge } from "./channel-bridge.js";
+export { ZhushouChannelBridge } from "./channel-bridge.js";
 
-export type AssistantMcpServeOptions = {
+export type ZhushouMcpServeOptions = {
   gatewayUrl?: string;
   gatewayToken?: string;
   gatewayPassword?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   claudeChannelMode?: ClaudeChannelMode;
   verbose?: boolean;
 };
 
-export async function createAssistantChannelMcpServer(opts: AssistantMcpServeOptions = {}): Promise<{
+export async function createZhushouChannelMcpServer(opts: ZhushouMcpServeOptions = {}): Promise<{
   server: McpServer;
-  bridge: AssistantChannelBridge;
+  bridge: ZhushouChannelBridge;
   start: () => Promise<void>;
   close: () => Promise<void>;
 }> {
@@ -27,10 +27,10 @@ export async function createAssistantChannelMcpServer(opts: AssistantMcpServeOpt
   const claudeChannelMode = opts.claudeChannelMode ?? "auto";
   const capabilities = getChannelMcpCapabilities(claudeChannelMode);
   const server = new McpServer(
-    { name: "assistant", version: VERSION },
+    { name: "zhushou", version: VERSION },
     capabilities ? { capabilities } : undefined,
   );
-  const bridge = new AssistantChannelBridge(cfg, {
+  const bridge = new ZhushouChannelBridge(cfg, {
     gatewayUrl: opts.gatewayUrl,
     gatewayToken: opts.gatewayToken,
     gatewayPassword: opts.gatewayPassword,
@@ -62,8 +62,8 @@ export async function createAssistantChannelMcpServer(opts: AssistantMcpServeOpt
   };
 }
 
-export async function serveAssistantChannelMcp(opts: AssistantMcpServeOptions = {}): Promise<void> {
-  const { server, start, close } = await createAssistantChannelMcpServer(opts);
+export async function serveZhushouChannelMcp(opts: ZhushouMcpServeOptions = {}): Promise<void> {
+  const { server, start, close } = await createZhushouChannelMcpServer(opts);
   const transport = new StdioServerTransport();
 
   let shuttingDown = false;

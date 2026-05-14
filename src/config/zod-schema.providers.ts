@@ -18,7 +18,7 @@ const ChannelModelByChannelSchema = z
   .optional();
 
 let directChannelRuntimeSchemasCache: ReadonlyMap<string, ChannelConfigRuntimeSchema> | undefined;
-const ASSISTANT_PACKAGE_ROOT =
+const ZHUSHOU_PACKAGE_ROOT =
   resolveLoaderPackageRoot({
     modulePath: fileURLToPath(import.meta.url),
     moduleUrl: import.meta.url,
@@ -50,7 +50,7 @@ function getDirectChannelRuntimeSchema(channelId: string): ChannelConfigRuntimeS
       continue;
     }
     const collectedChannelConfigs = collectBundledChannelConfigs({
-      pluginDir: path.resolve(ASSISTANT_PACKAGE_ROOT, "extensions", entry.dirName),
+      pluginDir: path.resolve(ZHUSHOU_PACKAGE_ROOT, "extensions", entry.dirName),
       manifest: entry.manifest,
       ...(entry.packageManifest ? { packageManifest: entry.packageManifest } : {}),
     });

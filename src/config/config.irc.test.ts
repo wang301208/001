@@ -21,13 +21,13 @@ describe("config irc", () => {
   it("accepts basic irc config", () => {
     const res = IrcConfigSchema.safeParse({
       host: "irc.libera.chat",
-      nick: "assistant-bot",
-      channels: ["#assistant"],
+      nick: "zhushou-bot",
+      channels: ["#zhushou"],
     });
 
     const config = expectValidConfig(res);
     expect(config.host).toBe("irc.libera.chat");
-    expect(config.nick).toBe("assistant-bot");
+    expect(config.nick).toBe("zhushou-bot");
   });
 
   it('rejects irc.dmPolicy="open" without allowFrom "*"', () => {

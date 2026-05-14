@@ -1,4 +1,4 @@
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
 import { isParentOwnedBackgroundAcpSession } from "../../acp/session-interaction-mode.js";
 import {
   resolveAgentConfig,
@@ -12,7 +12,7 @@ import {
 import { shouldSuppressLocalExecApprovalPrompt } from "../../channels/plugins/exec-approval-local.js";
 import { parseSessionThreadInfoFast } from "../../config/sessions/thread-info.js";
 import type { SessionEntry } from "../../config/sessions/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { logVerbose } from "../../globals.js";
 import { fireAndForgetHook } from "../../hooks/fire-and-forget.js";
 import {
@@ -152,7 +152,7 @@ const isInboundAudioContext = (ctx: FinalizedMsgContext): boolean => {
 
 const resolveSessionStoreLookup = (
   ctx: FinalizedMsgContext,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): {
   sessionKey?: string;
   storePath?: string;
@@ -966,10 +966,10 @@ export async function dispatchReplyFromConfig(
             // delivery drains asynchronously through the dispatcher.
             const payloadMetadata = getReplyPayloadMetadata(payload);
             const queuedContext =
-              payloadMetadata?.assistantMessageIndex !== undefined
+              payloadMetadata?.zhushouMessageIndex !== undefined
                 ? {
                     ...context,
-                    assistantMessageIndex: payloadMetadata.assistantMessageIndex,
+                    zhushouMessageIndex: payloadMetadata.zhushouMessageIndex,
                   }
                 : context;
             await params.replyOptions?.onBlockReplyQueued?.(payload, queuedContext);

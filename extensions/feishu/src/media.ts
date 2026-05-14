@@ -2,10 +2,10 @@
 import path from "path";
 import { Readable } from "stream";
 import type * as Lark from "@larksuiteoapi/node-sdk";
-import { mediaKindFromMime } from "assistant/plugin-sdk/media-runtime";
-import { withTempDownloadPath } from "assistant/plugin-sdk/temp-path";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
-import type { AssistantConfig } from "../runtime-api.js";
+import { mediaKindFromMime } from "zhushou/plugin-sdk/media-runtime";
+import { withTempDownloadPath } from "zhushou/plugin-sdk/temp-path";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { normalizeFeishuExternalKey } from "./external-keys.js";
@@ -26,7 +26,7 @@ export type DownloadMessageResourceResult = {
   fileName?: string;
 };
 
-function createConfiguredFeishuMediaClient(params: { cfg: AssistantConfig; accountId?: string }): {
+function createConfiguredFeishuMediaClient(params: { cfg: ZhushouConfig; accountId?: string }): {
   account: ReturnType<typeof resolveFeishuRuntimeAccount>;
   client: ReturnType<typeof createFeishuClient>;
 } {
@@ -245,7 +245,7 @@ async function readFeishuResponseBuffer(params: {
  * Used for downloading images sent in messages.
  */
 export async function downloadImageFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   imageKey: string;
   accountId?: string;
 }): Promise<DownloadImageResult> {
@@ -262,7 +262,7 @@ export async function downloadImageFeishu(params: {
 
   const buffer = await readFeishuResponseBuffer({
     response,
-    tmpDirPrefix: "assistant-feishu-img-",
+    tmpDirPrefix: "zhushou-feishu-img-",
     errorPrefix: "Feishu image download failed",
   });
   const meta = extractFeishuDownloadMetadata(response);
@@ -274,7 +274,7 @@ export async function downloadImageFeishu(params: {
  * Used for downloading files, audio, and video from messages.
  */
 export async function downloadMessageResourceFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   messageId: string;
   fileKey: string;
   type: "image" | "file";
@@ -294,7 +294,7 @@ export async function downloadMessageResourceFeishu(params: {
 
   const buffer = await readFeishuResponseBuffer({
     response,
-    tmpDirPrefix: "assistant-feishu-resource-",
+    tmpDirPrefix: "zhushou-feishu-resource-",
     errorPrefix: "Feishu message resource download failed",
   });
   return { buffer, ...extractFeishuDownloadMetadata(response) };
@@ -318,7 +318,7 @@ export type SendMediaResult = {
  * Supports: JPEG, PNG, WEBP, GIF, TIFF, BMP, ICO
  */
 export async function uploadImageFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   image: Buffer | string; // Buffer or file path
   imageType?: "message" | "avatar";
   accountId?: string;
@@ -365,7 +365,7 @@ export function sanitizeFileNameForUpload(fileName: string): string {
  * Max file size: 30MB
  */
 export async function uploadFileFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   file: Buffer | string; // Buffer or file path
   fileName: string;
   fileType: "opus" | "mp4" | "pdf" | "doc" | "xls" | "ppt" | "stream";
@@ -403,7 +403,7 @@ export async function uploadFileFeishu(params: {
  * Send an image message using an image_key
  */
 export async function sendImageFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   imageKey: string;
   replyToMessageId?: string;
@@ -447,7 +447,7 @@ export async function sendImageFeishu(params: {
  * Send a file message using a file_key
  */
 export async function sendFileFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   fileKey: string;
   /** Use "audio" for audio, "media" for video (mp4), "file" for documents */
@@ -574,7 +574,7 @@ function resolveFeishuOutboundMediaKind(params: { fileName: string; contentType?
  * must be passed so loadWebMedia allows the path (post CVE-2026-26321).
  */
 export async function sendMediaFeishu(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   to: string;
   mediaUrl?: string;
   mediaBuffer?: Buffer;

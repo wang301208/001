@@ -1,1 +1,1 @@
-export { resolveDefaultAgentId } from "assistant/plugin-sdk/agent-runtime";
+export { resolveDefaultAgentId } from "zhushou/plugin-sdk/agent-runtime";

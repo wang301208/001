@@ -26,7 +26,7 @@ describe("doctor startup channel maintenance", () => {
 
     await maybeRunDoctorStartupChannelMaintenance({
       cfg,
-      env: { ASSISTANT_TEST: "1" },
+      env: { ZHUSHOU_TEST: "1" },
       runtime,
       shouldRepair: true,
     });
@@ -35,7 +35,7 @@ describe("doctor startup channel maintenance", () => {
     expect(runChannelPluginStartupMaintenance).toHaveBeenCalledWith(
       expect.objectContaining({
         cfg,
-        env: { ASSISTANT_TEST: "1" },
+        env: { ZHUSHOU_TEST: "1" },
         trigger: "doctor-fix",
         logPrefix: "doctor",
         log: expect.objectContaining({

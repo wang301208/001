@@ -1,10 +1,10 @@
 {
-  "name": "@assistant/speech-core",
+  "name": "@zhushou/speech-core",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 speech runtime package",
   "type": "module",
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   }
 }

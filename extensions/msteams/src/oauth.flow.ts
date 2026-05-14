@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createServer } from "node:http";
-import { isWSL2Sync } from "assistant/plugin-sdk/runtime-env";
+import { isWSL2Sync } from "zhushou/plugin-sdk/runtime-env";
 import {
   MSTEAMS_DEFAULT_DELEGATED_SCOPES,
   MSTEAMS_OAUTH_CALLBACK_PATH,

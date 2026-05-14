@@ -1,5 +1,5 @@
 import type { ReplyToMode } from "../../config/types.base.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { ChannelThreadingAdapter } from "./types.core.js";
 
 type ReplyToModeResolver = NonNullable<ChannelThreadingAdapter["resolveReplyToMode"]>;
@@ -18,7 +18,7 @@ export function createTopLevelChannelReplyToModeResolver(channelId: string): Rep
 }
 
 export function createScopedAccountReplyToModeResolver<TAccount>(params: {
-  resolveAccount: (cfg: AssistantConfig, accountId?: string | null) => TAccount;
+  resolveAccount: (cfg: ZhushouConfig, accountId?: string | null) => TAccount;
   resolveReplyToMode: (
     account: TAccount,
     chatType?: string | null,

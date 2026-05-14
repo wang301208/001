@@ -12,16 +12,16 @@ const PRESERVE_RECENT_COMPLETED_TURNS = 3;
 function resolvePruneBeforeIndex(messages: AgentMessage[]): number {
   const completedTurnStarts: number[] = [];
   let currentTurnStart = -1;
-  let currentTurnHasAssistantReply = false;
+  let currentTurnHasZhushouReply = false;
 
   for (let i = 0; i < messages.length; i++) {
     const role = messages[i]?.role;
     if (role === "user") {
-      if (currentTurnStart >= 0 && currentTurnHasAssistantReply) {
+      if (currentTurnStart >= 0 && currentTurnHasZhushouReply) {
         completedTurnStarts.push(currentTurnStart);
       }
       currentTurnStart = i;
-      currentTurnHasAssistantReply = false;
+      currentTurnHasZhushouReply = false;
       continue;
     }
     if (role === "toolResult") {
@@ -31,11 +31,11 @@ function resolvePruneBeforeIndex(messages: AgentMessage[]): number {
       continue;
     }
     if (role === "assistant" && currentTurnStart >= 0) {
-      currentTurnHasAssistantReply = true;
+      currentTurnHasZhushouReply = true;
     }
   }
 
-  if (currentTurnStart >= 0 && currentTurnHasAssistantReply) {
+  if (currentTurnStart >= 0 && currentTurnHasZhushouReply) {
     completedTurnStarts.push(currentTurnStart);
   }
 

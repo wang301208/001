@@ -1,10 +1,10 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import {
   completeWithPreparedSimpleCompletionModel,
-  extractAssistantText,
+  extractZhushouText,
   prepareSimpleCompletionModelForAgent,
-} from "assistant/plugin-sdk/simple-completion-runtime";
+} from "zhushou/plugin-sdk/simple-completion-runtime";
 
 const DEFAULT_THREAD_TITLE_TIMEOUT_MS = 10_000;
 const MAX_THREAD_TITLE_SOURCE_CHARS = 600;
@@ -13,14 +13,14 @@ const MAX_THREAD_TITLE_CHANNEL_DESCRIPTION_CHARS = 320;
 // Budget generous enough to cover reasoning-model thinking tokens plus the
 // short text output. Lower values (e.g. 24) starve reasoning models of output
 // capacity: the entire budget is consumed by the thinking block before any
-// text is emitted, so extractAssistantText returns empty and the rename is
+// text is emitted, so extractZhushouText returns empty and the rename is
 // silently skipped.
 const DISCORD_THREAD_TITLE_MAX_TOKENS = 512;
 const DISCORD_THREAD_TITLE_SYSTEM_PROMPT =
   "Generate a concise Discord thread title (3-6 words). Return only the title. Use channel context when provided and avoid redundant channel-name words unless needed for clarity.";
 
 export async function generateThreadTitle(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   messageText: string;
   modelRef?: string;
@@ -61,7 +61,7 @@ export async function generateThreadTitle(params: {
       userMessage,
       timeoutMs,
     });
-    const generated = normalizeGeneratedThreadTitle(extractAssistantText(response));
+    const generated = normalizeGeneratedThreadTitle(extractZhushouText(response));
     return generated || null;
   } catch (err) {
     logVerbose(`thread-title: title generation failed for agent ${params.agentId}: ${String(err)}`);

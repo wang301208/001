@@ -5,6 +5,7 @@ import {
   resolveMissingPluginCommandMessage,
   resolveExplicitTuiFastPathOptions,
   shouldEnsureCliPath,
+  shouldRunStdioGateway,
   shouldRunTuiByDefault,
   shouldUseRootHelpFastPath,
 } from "./run-main.js";
@@ -21,7 +22,7 @@ const memoryWikiCommandAliasRegistry: PluginManifestRegistry = {
       origin: "bundled",
       rootDir: "/tmp/memory-wiki",
       source: "bundled",
-      manifestPath: "/tmp/memory-wiki/assistant.plugin.json",
+      manifestPath: "/tmp/memory-wiki/zhushou.plugin.json",
       commandAliases: [{ name: "wiki" }],
     },
   ],
@@ -64,50 +65,61 @@ describe("rewriteUpdateFlagArgv", () => {
 
 describe("shouldEnsureCliPath", () => {
   it("skips path bootstrap for help/version invocations", () => {
-    expect(shouldEnsureCliPath(["node", "assistant", "--help"])).toBe(false);
-    expect(shouldEnsureCliPath(["node", "assistant", "-V"])).toBe(false);
-    expect(shouldEnsureCliPath(["node", "assistant", "-v"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "zhushou", "--help"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "zhushou", "-V"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "zhushou", "-v"])).toBe(false);
   });
 
   it("skips path bootstrap for read-only fast paths", () => {
-    expect(shouldEnsureCliPath(["node", "assistant", "status"])).toBe(false);
-    expect(shouldEnsureCliPath(["node", "assistant", "--log-level", "debug", "status"])).toBe(false);
-    expect(shouldEnsureCliPath(["node", "assistant", "sessions", "--json"])).toBe(false);
-    expect(shouldEnsureCliPath(["node", "assistant", "config", "get", "update"])).toBe(false);
-    expect(shouldEnsureCliPath(["node", "assistant", "models", "status", "--json"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "zhushou", "status"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "zhushou", "--log-level", "debug", "status"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "zhushou", "sessions", "--json"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "zhushou", "config", "get", "update"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "zhushou", "models", "status", "--json"])).toBe(false);
   });
 
   it("keeps path bootstrap for mutating or unknown commands", () => {
-    expect(shouldEnsureCliPath(["node", "assistant", "message", "send"])).toBe(true);
-    expect(shouldEnsureCliPath(["node", "assistant", "voicecall", "status"])).toBe(true);
-    expect(shouldEnsureCliPath(["node", "assistant", "acp", "-v"])).toBe(true);
+    expect(shouldEnsureCliPath(["node", "zhushou", "message", "send"])).toBe(true);
+    expect(shouldEnsureCliPath(["node", "zhushou", "voicecall", "status"])).toBe(true);
+    expect(shouldEnsureCliPath(["node", "zhushou", "acp", "-v"])).toBe(true);
   });
 });
 
 describe("shouldUseRootHelpFastPath", () => {
   it("uses the fast path for root help only", () => {
-    expect(shouldUseRootHelpFastPath(["node", "assistant", "--help"])).toBe(true);
-    expect(shouldUseRootHelpFastPath(["node", "assistant", "--profile", "work", "-h"])).toBe(true);
-    expect(shouldUseRootHelpFastPath(["node", "assistant", "status", "--help"])).toBe(false);
-    expect(shouldUseRootHelpFastPath(["node", "assistant", "--help", "status"])).toBe(false);
+    expect(shouldUseRootHelpFastPath(["node", "zhushou", "--help"])).toBe(true);
+    expect(shouldUseRootHelpFastPath(["node", "zhushou", "--profile", "work", "-h"])).toBe(true);
+    expect(shouldUseRootHelpFastPath(["node", "zhushou", "status", "--help"])).toBe(false);
+    expect(shouldUseRootHelpFastPath(["node", "zhushou", "--help", "status"])).toBe(false);
   });
 });
 
 describe("shouldRunTuiByDefault", () => {
   it("uses the real terminal UI for bare root invocations", () => {
-    expect(shouldRunTuiByDefault(["node", "assistant"])).toBe(true);
-    expect(shouldRunTuiByDefault(["node", "assistant", "--profile", "work"])).toBe(true);
-    expect(shouldRunTuiByDefault(["node", "assistant", "--dev"])).toBe(true);
-    expect(shouldRunTuiByDefault(["node", "assistant", "--tui"])).toBe(true);
-    expect(shouldRunTuiByDefault(["node", "assistant", "--profile", "work", "--tui"])).toBe(true);
+    expect(shouldRunTuiByDefault(["node", "zhushou"])).toBe(true);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "--profile", "work"])).toBe(true);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "--dev"])).toBe(true);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "--tui"])).toBe(true);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "--profile", "work", "--tui"])).toBe(true);
   });
 
   it("preserves help, version, explicit commands, and legacy flags", () => {
-    expect(shouldRunTuiByDefault(["node", "assistant", "--help"])).toBe(false);
-    expect(shouldRunTuiByDefault(["node", "assistant", "--version"])).toBe(false);
-    expect(shouldRunTuiByDefault(["node", "assistant", "status"])).toBe(false);
-    expect(shouldRunTuiByDefault(["node", "assistant", "tui"])).toBe(false);
-    expect(shouldRunTuiByDefault(["node", "assistant", "--update"])).toBe(false);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "--help"])).toBe(false);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "--version"])).toBe(false);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "status"])).toBe(false);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "tui"])).toBe(false);
+    expect(shouldRunTuiByDefault(["node", "zhushou", "--update"])).toBe(false);
+  });
+});
+
+describe("shouldRunStdioGateway", () => {
+  it("uses a dedicated stdio gateway fast path for the internal bridge command", () => {
+    expect(shouldRunStdioGateway(["node", "zhushou", "stdio-gateway"])).toBe(true);
+    expect(shouldRunStdioGateway(["node", "zhushou", "--profile", "dev", "stdio-gateway"])).toBe(
+      true,
+    );
+    expect(shouldRunStdioGateway(["node", "zhushou", "stdio-gateway", "--help"])).toBe(false);
+    expect(shouldRunStdioGateway(["node", "zhushou", "gateway"])).toBe(false);
   });
 });
 
@@ -116,7 +128,7 @@ describe("resolveExplicitTuiFastPathOptions", () => {
     expect(
       resolveExplicitTuiFastPathOptions([
         "node",
-        "assistant",
+        "zhushou",
         "tui",
         "--session",
         "work",
@@ -137,8 +149,8 @@ describe("resolveExplicitTuiFastPathOptions", () => {
   });
 
   it("keeps tui help and unknown options on the normal Commander path", () => {
-    expect(resolveExplicitTuiFastPathOptions(["node", "assistant", "tui", "--help"])).toBeNull();
-    expect(resolveExplicitTuiFastPathOptions(["node", "assistant", "tui", "--unknown"])).toBeNull();
+    expect(resolveExplicitTuiFastPathOptions(["node", "zhushou", "tui", "--help"])).toBeNull();
+    expect(resolveExplicitTuiFastPathOptions(["node", "zhushou", "tui", "--unknown"])).toBeNull();
   });
 });
 
@@ -182,7 +194,7 @@ describe("resolveMissingPluginCommandMessage", () => {
     expect(message).toContain("runtime slash command");
     expect(message).toContain("/dreaming");
     expect(message).toContain("memory-core");
-    expect(message).toContain("assistant memory");
+    expect(message).toContain("zhushou memory");
   });
 
   it("returns the runtime command message even when plugins.allow is set", () => {

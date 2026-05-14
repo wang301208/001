@@ -1,1 +1,1 @@
-export { createDeferred } from "assistant/plugin-sdk/extension-shared";
+export { createDeferred } from "zhushou/plugin-sdk/extension-shared";

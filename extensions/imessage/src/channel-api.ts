@@ -1,20 +1,20 @@
-import { formatTrimmedAllowFromEntries } from "assistant/plugin-sdk/channel-config-helpers";
-import type { ChannelStatusIssue } from "assistant/plugin-sdk/channel-contract";
-import { PAIRING_APPROVED_MESSAGE } from "assistant/plugin-sdk/channel-status";
+import { formatTrimmedAllowFromEntries } from "zhushou/plugin-sdk/channel-config-helpers";
+import type { ChannelStatusIssue } from "zhushou/plugin-sdk/channel-contract";
+import { PAIRING_APPROVED_MESSAGE } from "zhushou/plugin-sdk/channel-status";
 import {
   DEFAULT_ACCOUNT_ID,
   getChatChannelMeta,
   type ChannelPlugin,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/core";
-import { resolveChannelMediaMaxBytes } from "assistant/plugin-sdk/media-runtime";
-import { collectStatusIssuesFromLastError } from "assistant/plugin-sdk/status-helpers";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/core";
+import { resolveChannelMediaMaxBytes } from "zhushou/plugin-sdk/media-runtime";
+import { collectStatusIssuesFromLastError } from "zhushou/plugin-sdk/status-helpers";
 import {
   resolveIMessageConfigAllowFrom,
   resolveIMessageConfigDefaultTo,
 } from "./config-accessors.js";
 import { looksLikeIMessageTargetId, normalizeIMessageMessagingTarget } from "./normalize.js";
-export { chunkTextForOutbound } from "assistant/plugin-sdk/text-chunking";
+export { chunkTextForOutbound } from "zhushou/plugin-sdk/text-chunking";
 
 export {
   collectStatusIssuesFromLastError,
@@ -29,4 +29,4 @@ export {
   resolveIMessageConfigDefaultTo,
 };
 
-export type { ChannelPlugin, ChannelStatusIssue, AssistantConfig };
+export type { ChannelPlugin, ChannelStatusIssue, ZhushouConfig };

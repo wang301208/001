@@ -31,7 +31,7 @@ describe("connect params client id validation", () => {
   );
 
   test("rejects unknown client ids", () => {
-    const ok = validateConnectParams(makeConnectParams("assistant-mobile"));
+    const ok = validateConnectParams(makeConnectParams("zhushou-mobile"));
     expect(ok).toBe(false);
   });
 });

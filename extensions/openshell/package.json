@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/openshell-sandbox",
+  "name": "@zhushou/openshell-sandbox",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 OpenShell sandbox backend",
@@ -8,9 +8,9 @@
     "openshell": "0.1.0"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

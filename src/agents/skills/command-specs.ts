@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { loadEnabledClaudeBundleCommands } from "../../plugins/bundle-commands.js";
 import {
@@ -60,7 +60,7 @@ function resolveUniqueSkillCommandName(base: string, used: Set<string>): string 
 export function buildWorkspaceSkillCommandSpecs(
   workspaceDir: string,
   opts?: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
     entries?: SkillEntry[];

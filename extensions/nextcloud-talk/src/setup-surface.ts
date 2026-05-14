@@ -1,11 +1,11 @@
-import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/routing";
-import { hasConfiguredSecretInput } from "assistant/plugin-sdk/secret-input";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/routing";
+import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input";
 import {
   createStandardChannelSetupStatus,
   formatDocsLink,
   setSetupChannelEnabled,
   type ChannelSetupWizard,
-} from "assistant/plugin-sdk/setup";
+} from "zhushou/plugin-sdk/setup";
 import { resolveNextcloudTalkAccount } from "./accounts.js";
 import {
   clearNextcloudTalkAccountFields,

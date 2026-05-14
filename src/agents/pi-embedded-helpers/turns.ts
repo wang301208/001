@@ -1,6 +1,6 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
-import { extractToolCallsFromAssistant, extractToolResultId } from "../tool-call-id.js";
+import { extractToolCallsFromZhushou, extractToolResultId } from "../tool-call-id.js";
 
 type AnthropicContentBlock = {
   type: "text" | "toolUse" | "toolCall" | "functionCall" | "toolResult" | "tool";
@@ -23,7 +23,7 @@ function isThinkingLikeBlock(block: unknown): boolean {
   return type === "thinking" || type === "redacted_thinking";
 }
 
-function isAbortedAssistantTurn(message: AgentMessage): boolean {
+function isAbortedZhushouTurn(message: AgentMessage): boolean {
   const stopReason = (message as { stopReason?: unknown }).stopReason;
   return stopReason === "aborted" || stopReason === "error";
 }
@@ -165,8 +165,8 @@ function collectFutureToolResultIds(messages: AgentMessage[], startIndex: number
 }
 
 /**
- * Strips dangling tool-call blocks from assistant messages when no later
- * tool-result span before the next assistant turn resolves them.
+ * Strips dangling tool-call blocks from zhushou messages when no later
+ * tool-result span before the next zhushou turn resolves them.
  * This fixes the "tool_use ids found without tool_result blocks" error from Anthropic.
  */
 function stripDanglingAnthropicToolUses(messages: AgentMessage[]): AgentMessage[] {
@@ -185,16 +185,16 @@ function stripDanglingAnthropicToolUses(messages: AgentMessage[]): AgentMessage[
       continue;
     }
 
-    const assistantMsg = msg as {
+    const zhushouMsg = msg as {
       content?: AnthropicContentBlock[];
     };
-    const originalContent = Array.isArray(assistantMsg.content) ? assistantMsg.content : [];
+    const originalContent = Array.isArray(zhushouMsg.content) ? zhushouMsg.content : [];
     if (originalContent.length === 0) {
       result.push(msg);
       continue;
     }
     if (
-      extractToolCallsFromAssistant(msg as Extract<AgentMessage, { role: "assistant" }>).length ===
+      extractToolCallsFromZhushou(msg as Extract<AgentMessage, { role: "assistant" }>).length ===
       0
     ) {
       result.push(msg);
@@ -224,8 +224,8 @@ function stripDanglingAnthropicToolUses(messages: AgentMessage[]): AgentMessage[
         result.push(msg);
       } else {
         result.push({
-          ...assistantMsg,
-          content: isAbortedAssistantTurn(msg)
+          ...zhushouMsg,
+          content: isAbortedZhushouTurn(msg)
             ? []
             : ([{ type: "text", text: "[tool calls omitted]" }] as AnthropicContentBlock[]),
         } as AgentMessage);
@@ -251,14 +251,14 @@ function stripDanglingAnthropicToolUses(messages: AgentMessage[]): AgentMessage[
 
     if (originalContent.length > 0 && filteredContent.length === 0) {
       result.push({
-        ...assistantMsg,
-        content: isAbortedAssistantTurn(msg)
+        ...zhushouMsg,
+        content: isAbortedZhushouTurn(msg)
           ? []
           : ([{ type: "text", text: "[tool calls omitted]" }] as AnthropicContentBlock[]),
       } as AgentMessage);
     } else {
       result.push({
-        ...assistantMsg,
+        ...zhushouMsg,
         content: filteredContent,
       } as AgentMessage);
     }
@@ -313,7 +313,7 @@ function validateTurnsWithConsecutiveMerge<TRole extends "assistant" | "user">(p
   return result;
 }
 
-function mergeConsecutiveAssistantTurns(
+function mergeConsecutiveZhushouTurns(
   previous: Extract<AgentMessage, { role: "assistant" }>,
   current: Extract<AgentMessage, { role: "assistant" }>,
 ): Extract<AgentMessage, { role: "assistant" }> {
@@ -334,14 +334,14 @@ function mergeConsecutiveAssistantTurns(
 
 /**
  * Validates and fixes conversation turn sequences for Gemini API.
- * Gemini requires strict alternating user→assistant→tool→user pattern.
- * Merges consecutive assistant messages together.
+ * Gemini requires strict alternating user→zhushou→tool→user pattern.
+ * Merges consecutive zhushou messages together.
  */
 export function validateGeminiTurns(messages: AgentMessage[]): AgentMessage[] {
   return validateTurnsWithConsecutiveMerge({
     messages,
     role: "assistant",
-    merge: mergeConsecutiveAssistantTurns,
+    merge: mergeConsecutiveZhushouTurns,
   });
 }
 
@@ -363,12 +363,12 @@ export function mergeConsecutiveUserTurns(
 
 /**
  * Validates and fixes conversation turn sequences for Anthropic API.
- * Anthropic requires strict alternating user→assistant pattern.
+ * Anthropic requires strict alternating user→zhushou pattern.
  * Merges consecutive user messages together.
  * Also strips dangling tool_use blocks that lack corresponding tool_result blocks.
  */
 export function validateAnthropicTurns(messages: AgentMessage[]): AgentMessage[] {
-  // First, strip dangling tool-call blocks from assistant messages.
+  // First, strip dangling tool-call blocks from zhushou messages.
   const stripped = stripDanglingAnthropicToolUses(messages);
 
   return validateTurnsWithConsecutiveMerge({

@@ -1,10 +1,10 @@
 import { completeSimple, type Api, type Model } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import { loadConfig } from "../config/config.js";
-import { resolveAssistantAgentDir } from "./agent-paths.js";
+import { resolveZhushouAgentDir } from "./agent-paths.js";
 import { isLiveProfileKeyModeEnabled, isLiveTestEnabled } from "./live-test-helpers.js";
 import { getApiKeyForModel, requireApiKey } from "./model-auth.js";
-import { ensureAssistantModelsJson } from "./models-config.js";
+import { ensureZhushouModelsJson } from "./models-config.js";
 import { discoverAuthStorage, discoverModels } from "./pi-model-discovery.js";
 
 const LIVE = isLiveTestEnabled();
@@ -12,7 +12,7 @@ const REQUIRE_PROFILE_KEYS = isLiveProfileKeyModeEnabled();
 const LIVE_CREDENTIAL_PRECEDENCE = REQUIRE_PROFILE_KEYS ? "profile-first" : "env-first";
 const DEFAULT_TARGET_MODEL_REF = "openai-codex/gpt-5.1-codex-mini";
 const TARGET_MODEL_REF =
-  process.env.ASSISTANT_LIVE_OPENAI_REASONING_COMPAT_MODEL?.trim() || DEFAULT_TARGET_MODEL_REF;
+  process.env.ZHUSHOU_LIVE_OPENAI_REASONING_COMPAT_MODEL?.trim() || DEFAULT_TARGET_MODEL_REF;
 const describeLive = LIVE ? describe : describe.skip;
 
 function logProgress(message: string): void {
@@ -57,7 +57,7 @@ async function completeReplyWithRetry(params: {
     const response = await completeSimpleWithTimeout(
       params.model,
       {
-        systemPrompt: "You are a concise assistant. Follow the user's instruction exactly.",
+        systemPrompt: "You are a concise zhushou. Follow the user's instruction exactly.",
         messages: [
           {
             role: "user",
@@ -106,7 +106,7 @@ function resolveTargetModelRef(): { provider: string; modelId: string } {
   const modelId = rest.join("/").trim();
   if (!provider?.trim() || !modelId) {
     throw new Error(
-      `Invalid ASSISTANT_LIVE_OPENAI_REASONING_COMPAT_MODEL: ${JSON.stringify(TARGET_MODEL_REF)}`,
+      `Invalid ZHUSHOU_LIVE_OPENAI_REASONING_COMPAT_MODEL: ${JSON.stringify(TARGET_MODEL_REF)}`,
     );
   }
   return {
@@ -121,9 +121,9 @@ describeLive("openai reasoning compat live", () => {
     async () => {
       const { provider, modelId } = resolveTargetModelRef();
       const cfg = loadConfig();
-      await ensureAssistantModelsJson(cfg);
+      await ensureZhushouModelsJson(cfg);
 
-      const agentDir = resolveAssistantAgentDir();
+      const agentDir = resolveZhushouAgentDir();
       const authStorage = discoverAuthStorage(agentDir);
       const modelRegistry = discoverModels(authStorage, agentDir);
       const model = modelRegistry.find(provider, modelId) as Model<Api> | null;

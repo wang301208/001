@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createParagraphChunkedBlockReplyHarness,
-  emitAssistantTextDeltaAndEnd,
+  emitZhushouTextDeltaAndEnd,
   extractTextPayloads,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 
@@ -18,7 +18,7 @@ describe("subscribeEmbeddedPiSession", () => {
 
     const text = "Intro\n\n  ```js\n  const x = 1;\n  ```\n\nOutro";
 
-    emitAssistantTextDeltaAndEnd({ emit, text });
+    emitZhushouTextDeltaAndEnd({ emit, text });
 
     expect(onBlockReply).toHaveBeenCalledTimes(3);
     expect(onBlockReply.mock.calls[1][0].text).toBe("  ```js\n  const x = 1;\n  ```");
@@ -35,7 +35,7 @@ describe("subscribeEmbeddedPiSession", () => {
 
     const text = "Intro\n\n````md\nline1\nline2\n````\n\nOutro";
 
-    emitAssistantTextDeltaAndEnd({ emit, text });
+    emitZhushouTextDeltaAndEnd({ emit, text });
 
     const payloadTexts = extractTextPayloads(onBlockReply.mock.calls);
     expect(payloadTexts.length).toBeGreaterThan(0);

@@ -1,7 +1,7 @@
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { approveDevicePairing, listDevicePairing } from "./api.js";
 import { formatPendingRequests } from "./notify.js";
 

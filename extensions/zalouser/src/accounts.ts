@@ -3,9 +3,9 @@ import {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
   resolveMergedAccountConfig,
-} from "assistant/plugin-sdk/account-resolution";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/account-resolution";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import type { ResolvedZalouserAccount, ZalouserAccountConfig, ZalouserConfig } from "./types.js";
 
 let zalouserAccountsRuntimePromise: Promise<typeof import("./accounts.runtime.js")> | undefined;
@@ -21,7 +21,7 @@ const {
 } = createAccountListHelpers("zalouser");
 export { listZalouserAccountIds, resolveDefaultZalouserAccountId };
 
-function mergeZalouserAccountConfig(cfg: AssistantConfig, accountId: string): ZalouserAccountConfig {
+function mergeZalouserAccountConfig(cfg: ZhushouConfig, accountId: string): ZalouserAccountConfig {
   const merged = resolveMergedAccountConfig<ZalouserAccountConfig>({
     channelConfig: cfg.channels?.zalouser as ZalouserAccountConfig | undefined,
     accounts: (cfg.channels?.zalouser as ZalouserConfig | undefined)?.accounts as
@@ -53,7 +53,7 @@ function resolveProfile(config: ZalouserAccountConfig, accountId: string): strin
   return "default";
 }
 
-function resolveZalouserAccountBase(params: { cfg: AssistantConfig; accountId?: string | null }) {
+function resolveZalouserAccountBase(params: { cfg: ZhushouConfig; accountId?: string | null }) {
   const accountId = normalizeAccountId(
     params.accountId ?? resolveDefaultZalouserAccountId(params.cfg),
   );
@@ -69,7 +69,7 @@ function resolveZalouserAccountBase(params: { cfg: AssistantConfig; accountId?: 
 }
 
 export async function resolveZalouserAccount(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): Promise<ResolvedZalouserAccount> {
   const { accountId, enabled, merged, profile } = resolveZalouserAccountBase(params);
@@ -86,7 +86,7 @@ export async function resolveZalouserAccount(params: {
 }
 
 export function resolveZalouserAccountSync(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): ResolvedZalouserAccount {
   const { accountId, enabled, merged, profile } = resolveZalouserAccountBase(params);
@@ -102,7 +102,7 @@ export function resolveZalouserAccountSync(params: {
 }
 
 export async function listEnabledZalouserAccounts(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): Promise<ResolvedZalouserAccount[]> {
   const ids = listZalouserAccountIds(cfg);
   const accounts = await Promise.all(

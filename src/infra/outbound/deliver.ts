@@ -1,4 +1,4 @@
-import { sendMediaWithLeadingCaption } from "assistant/plugin-sdk/reply-payload";
+import { sendMediaWithLeadingCaption } from "zhushou/plugin-sdk/reply-payload";
 import {
   chunkByParagraph,
   chunkMarkdownTextWithMode,
@@ -12,7 +12,7 @@ import type {
   ChannelOutboundContext,
 } from "../../channels/plugins/types.adapters.js";
 import { resolveMirroredTranscriptText } from "../../config/sessions/transcript-mirror.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { fireAndForgetHook } from "../../hooks/fire-and-forget.js";
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 import {
@@ -123,7 +123,7 @@ type ChannelHandler = {
 };
 
 type ChannelHandlerParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -269,7 +269,7 @@ function createChannelOutboundContextBase(
 const isAbortError = (err: unknown): boolean => err instanceof Error && err.name === "AbortError";
 
 type DeliverOutboundPayloadsCoreParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -791,8 +791,8 @@ async function deliverOutboundPayloadsCore(
       mediaUrls: params.mirror.mediaUrls,
     });
     if (mirrorText) {
-      const { appendAssistantMessageToSessionTranscript } = await loadTranscriptRuntime();
-      await appendAssistantMessageToSessionTranscript({
+      const { appendZhushouMessageToSessionTranscript } = await loadTranscriptRuntime();
+      await appendZhushouMessageToSessionTranscript({
         agentId: params.mirror.agentId,
         sessionKey: params.mirror.sessionKey,
         text: mirrorText,

@@ -1,8 +1,8 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import { streamSimple } from "@mariozechner/pi-ai";
-import { createSubsystemLogger } from "assistant/plugin-sdk/logging-core";
-import type { ProviderWrapStreamFnContext } from "assistant/plugin-sdk/plugin-entry";
-import type { SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/logging-core";
+import type { ProviderWrapStreamFnContext } from "zhushou/plugin-sdk/plugin-entry";
+import type { SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
 import { LMSTUDIO_PROVIDER_ID } from "./defaults.js";
 import { ensureLmstudioModelLoaded } from "./models.fetch.js";
 import { resolveLmstudioInferenceBase } from "./models.js";

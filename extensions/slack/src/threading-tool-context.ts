@@ -1,13 +1,13 @@
 import type {
   ChannelThreadingContext,
   ChannelThreadingToolContext,
-} from "assistant/plugin-sdk/channel-contract";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/channel-contract";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { resolveSlackAccount, resolveSlackReplyToMode } from "./accounts.js";
 
 export function buildSlackThreadingToolContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   context: ChannelThreadingContext;
   hasRepliedRef?: { value: boolean };

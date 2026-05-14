@@ -19,7 +19,7 @@ vi.mock("./model-fallback.js", () => ({
 vi.mock("./command/attempt-execution.runtime.js", () => ({
   buildAcpResult: vi.fn(),
   createAcpVisibleTextAccumulator: vi.fn(),
-  emitAcpAssistantDelta: vi.fn(),
+  emitAcpZhushouDelta: vi.fn(),
   emitAcpLifecycleEnd: vi.fn(),
   emitAcpLifecycleError: vi.fn(),
   emitAcpLifecycleStart: vi.fn(),

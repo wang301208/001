@@ -31,7 +31,7 @@ function resolveVoiceCommand(options: VoiceInputOptions = {}) {
   if (options.command?.trim()) {
     return { command: options.command.trim(), args: options.args ?? [] };
   }
-  const fromEnv = splitCommandLine(process.env.ASSISTANT_TUI_STT_COMMAND ?? "");
+  const fromEnv = splitCommandLine(process.env.ZHUSHOU_TUI_STT_COMMAND ?? "");
   if (fromEnv) {
     return fromEnv;
   }
@@ -41,8 +41,8 @@ function resolveVoiceCommand(options: VoiceInputOptions = {}) {
 export function getVoiceInputSetupHint(): string {
   return [
     "语音输入未配置。",
-    "设置 ASSISTANT_TUI_STT_COMMAND 为一个录音并输出转写文本的命令，例如：",
-    'ASSISTANT_TUI_STT_COMMAND="python scripts/local-stt-once.py"',
+    "设置 ZHUSHOU_TUI_STT_COMMAND 为一个录音并输出转写文本的命令，例如：",
+    'ZHUSHOU_TUI_STT_COMMAND="python scripts/local-stt-once.py"',
     "该命令应在 stdout 输出识别出的自然语言文本；助手会把它当作普通输入继续调用全部能力。",
   ].join("\n");
 }

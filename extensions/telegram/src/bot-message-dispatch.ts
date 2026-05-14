@@ -3,20 +3,20 @@ import {
   logAckFailure,
   logTypingFailure,
   removeAckReactionAfterReply,
-} from "assistant/plugin-sdk/channel-feedback";
-import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
-import { resolveChannelStreamingBlockEnabled } from "assistant/plugin-sdk/channel-streaming";
+} from "zhushou/plugin-sdk/channel-feedback";
+import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+import { resolveChannelStreamingBlockEnabled } from "zhushou/plugin-sdk/channel-streaming";
 import type {
-  AssistantConfig,
+  ZhushouConfig,
   ReplyToMode,
   TelegramAccountConfig,
-} from "assistant/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { clearHistoryEntriesIfEnabled } from "assistant/plugin-sdk/reply-history";
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { danger, logVerbose } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { clearHistoryEntriesIfEnabled } from "zhushou/plugin-sdk/reply-history";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { danger, logVerbose } from "zhushou/plugin-sdk/runtime-env";
 import { defaultTelegramBotDeps, type TelegramBotDeps } from "./bot-deps.js";
 import type { TelegramMessageContext } from "./bot-message-context.js";
 import {
@@ -69,7 +69,7 @@ const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
 /** Minimum chars before sending first streaming message (improves push notification UX) */
 const DRAFT_MIN_INITIAL_CHARS = 30;
 
-async function resolveStickerVisionSupport(cfg: AssistantConfig, agentId: string) {
+async function resolveStickerVisionSupport(cfg: ZhushouConfig, agentId: string) {
   try {
     const catalog = await loadModelCatalog({ config: cfg });
     const defaultModel = resolveDefaultModelForAgent({ cfg, agentId });
@@ -117,7 +117,7 @@ export function pruneStickerMediaFromContext(
 type DispatchTelegramMessageParams = {
   context: TelegramMessageContext;
   bot: Bot;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   runtime: RuntimeEnv;
   replyToMode: ReplyToMode;
   streamMode: TelegramStreamMode;
@@ -130,7 +130,7 @@ type DispatchTelegramMessageParams = {
 type TelegramReasoningLevel = "off" | "on" | "stream";
 
 function resolveTelegramReasoningLevel(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey?: string;
   agentId: string;
   telegramDeps: TelegramBotDeps;
@@ -280,7 +280,7 @@ export const dispatchTelegramMessage = async ({
   let splitReasoningOnNextStream = false;
   let skipNextAnswerMessageStartRotation = false;
   // If compaction interrupts a still-transient answer preview, keep the next
-  // assistant-message boundary on that same preview instead of materializing a
+  // zhushou-message boundary on that same preview instead of materializing a
   // duplicate retry message.
   let pendingCompactionReplayBoundary = false;
   let draftLaneEventQueue = Promise.resolve();
@@ -317,7 +317,7 @@ export const dispatchTelegramMessage = async ({
     lane.lastPartialText = "";
     lane.hasStreamedMessage = false;
   };
-  const rotateAnswerLaneForNewAssistantMessage = async () => {
+  const rotateAnswerLaneForNewZhushouMessage = async () => {
     let didForceNewMessage = false;
     if (answerLane.hasStreamedMessage) {
       // Materialize the current streamed draft into a permanent message
@@ -339,7 +339,7 @@ export const dispatchTelegramMessage = async ({
     }
     resetDraftLaneState(answerLane);
     if (didForceNewMessage) {
-      // New assistant message boundary: this lane now tracks a fresh preview lifecycle.
+      // New zhushou message boundary: this lane now tracks a fresh preview lifecycle.
       activePreviewLifecycleByLane.answer = "transient";
       retainPreviewOnCleanupByLane.answer = false;
     }
@@ -372,10 +372,10 @@ export const dispatchTelegramMessage = async ({
     const split = splitTextIntoLaneSegments(text);
     const hasAnswerSegment = split.segments.some((segment) => segment.lane === "answer");
     if (hasAnswerSegment && activePreviewLifecycleByLane.answer !== "transient") {
-      // Some providers can emit the first partial of a new assistant message before
-      // onAssistantMessageStart() arrives. Rotate preemptively so we do not edit
+      // Some providers can emit the first partial of a new zhushou message before
+      // onZhushouMessageStart() arrives. Rotate preemptively so we do not edit
       // the previously finalized preview message with the next message's text.
-      skipNextAnswerMessageStartRotation = await rotateAnswerLaneForNewAssistantMessage();
+      skipNextAnswerMessageStartRotation = await rotateAnswerLaneForNewZhushouMessage();
     }
     for (const segment of split.segments) {
       if (segment.lane === "reasoning") {
@@ -617,7 +617,7 @@ export const dispatchTelegramMessage = async ({
             hadErrorReplyFailureOrSkip = true;
           }
           if (info.kind === "final") {
-            // Assistant callbacks are fire-and-forget; ensure queued boundary
+            // Zhushou callbacks are fire-and-forget; ensure queued boundary
             // rotations/partials are applied before final delivery mapping.
             await enqueueDraftLaneEvent(async () => {});
           }
@@ -799,7 +799,7 @@ export const dispatchTelegramMessage = async ({
                 await ingestDraftLaneSegments(payload.text);
               })
           : undefined,
-        onAssistantMessageStart: answerLane.stream
+        onZhushouMessageStart: answerLane.stream
           ? () =>
               enqueueDraftLaneEvent(async () => {
                 reasoningStepState.resetForNextStep();
@@ -815,8 +815,8 @@ export const dispatchTelegramMessage = async ({
                   retainPreviewOnCleanupByLane.answer = false;
                   return;
                 }
-                await rotateAnswerLaneForNewAssistantMessage();
-                // Message-start is an explicit assistant-message boundary.
+                await rotateAnswerLaneForNewZhushouMessage();
+                // Message-start is an explicit zhushou-message boundary.
                 // Even when no forceNewMessage happened (e.g. prior answer had no
                 // streamed partials), the next partial belongs to a fresh lifecycle
                 // and must not trigger late pre-rotation mid-message.
@@ -866,7 +866,7 @@ export const dispatchTelegramMessage = async ({
     dispatchError = err;
     runtime.error?.(danger(`telegram dispatch failed: ${String(err)}`));
   } finally {
-    // Upstream assistant callbacks are fire-and-forget; drain queued lane work
+    // Upstream zhushou callbacks are fire-and-forget; drain queued lane work
     // before stream cleanup so boundary rotations/materialization complete first.
     await draftLaneEventQueue;
     // Must stop() first to flush debounced content before clear() wipes state.

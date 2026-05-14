@@ -1,9 +1,9 @@
 import {
   createAttachedChannelResultAdapter,
   createEmptyChannelResult,
-} from "assistant/plugin-sdk/channel-send-result";
-import { createLazyRuntimeModule } from "assistant/plugin-sdk/lazy-runtime";
-import { resolveOutboundMediaUrls } from "assistant/plugin-sdk/reply-payload";
+} from "zhushou/plugin-sdk/channel-send-result";
+import { createLazyRuntimeModule } from "zhushou/plugin-sdk/lazy-runtime";
+import { resolveOutboundMediaUrls } from "zhushou/plugin-sdk/reply-payload";
 import { type ChannelPlugin, type ResolvedLineAccount } from "./channel-api.js";
 import { resolveLineOutboundMedia, type LineOutboundMediaResolved } from "./outbound-media.js";
 import { getLineRuntime } from "./runtime.js";

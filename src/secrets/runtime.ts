@@ -1,4 +1,4 @@
-import { resolveAssistantAgentDir } from "../agents/agent-paths.js";
+import { resolveZhushouAgentDir } from "../agents/agent-paths.js";
 import {
   listAgentIds,
   resolveAgentDir,
@@ -15,7 +15,7 @@ import {
   clearRuntimeConfigSnapshot,
   setRuntimeConfigSnapshotRefreshHandler,
   setRuntimeConfigSnapshot,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "../config/config.js";
 import type { PluginOrigin } from "../plugins/plugin-origin.types.js";
 import { resolveUserPath } from "../utils.js";
@@ -30,8 +30,8 @@ import type { RuntimeWebToolsMetadata } from "./runtime-web-tools.js";
 export type { SecretResolverWarning } from "./runtime-shared.js";
 
 export type PreparedSecretsRuntimeSnapshot = {
-  sourceConfig: AssistantConfig;
-  config: AssistantConfig;
+  sourceConfig: ZhushouConfig;
+  config: ZhushouConfig;
   authStores: Array<{ agentDir: string; store: AuthProfileStore }>;
   warnings: SecretResolverWarning[];
   webTools: RuntimeWebToolsMetadata;
@@ -49,12 +49,12 @@ const RUNTIME_PATH_ENV_KEYS = [
   "USERPROFILE",
   "HOMEDRIVE",
   "HOMEPATH",
-  "ASSISTANT_HOME",
-  "ASSISTANT_STATE_DIR",
-  "ASSISTANT_CONFIG_PATH",
-  "ASSISTANT_AGENT_DIR",
+  "ZHUSHOU_HOME",
+  "ZHUSHOU_STATE_DIR",
+  "ZHUSHOU_CONFIG_PATH",
+  "ZHUSHOU_AGENT_DIR",
   "PI_CODING_AGENT_DIR",
-  "ASSISTANT_TEST_FAST",
+  "ZHUSHOU_TEST_FAST",
 ] as const;
 
 let activeSnapshot: PreparedSecretsRuntimeSnapshot | null = null;
@@ -108,11 +108,11 @@ function clearActiveSecretsRuntimeState(): void {
 }
 
 function collectCandidateAgentDirs(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {
   const dirs = new Set<string>();
-  dirs.add(resolveUserPath(resolveAssistantAgentDir(env), env));
+  dirs.add(resolveUserPath(resolveZhushouAgentDir(env), env));
   for (const agentId of listAgentIds(config)) {
     dirs.add(resolveUserPath(resolveAgentDir(config, agentId, env), env));
   }
@@ -120,7 +120,7 @@ function collectCandidateAgentDirs(
 }
 
 function resolveRefreshAgentDirs(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   context: SecretsRuntimeRefreshContext,
 ): string[] {
   const configDerived = collectCandidateAgentDirs(config, context.env);
@@ -131,7 +131,7 @@ function resolveRefreshAgentDirs(
 }
 
 async function resolveLoadablePluginOrigins(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
 }): Promise<ReadonlyMap<string, PluginOrigin>> {
   const workspaceDir = resolveAgentWorkspaceDir(
@@ -164,7 +164,7 @@ function mergeSecretsRuntimeEnv(
   return merged;
 }
 
-function hasConfiguredPluginEntries(config: AssistantConfig): boolean {
+function hasConfiguredPluginEntries(config: ZhushouConfig): boolean {
   const entries = config.plugins?.entries;
   return (
     !!entries &&
@@ -175,7 +175,7 @@ function hasConfiguredPluginEntries(config: AssistantConfig): boolean {
 }
 
 export async function prepareSecretsRuntimeSnapshot(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   agentDirs?: string[];
   includeAuthStoreRefs?: boolean;

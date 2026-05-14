@@ -45,11 +45,11 @@ describe("gateway ws log helpers", () => {
     expect(out).toContain("…");
   });
 
-  test("summarizeAgentEventForWsLog compacts assistant payloads", () => {
+  test("summarizeAgentEventForWsLog compacts zhushou payloads", () => {
     const summary = summarizeAgentEventForWsLog({
       runId: "12345678-1234-1234-1234-123456789abc",
       sessionKey: "agent:main:main",
-      stream: "assistant",
+      stream: "zhushou",
       seq: 2,
       data: {
         text: "hello\n\nworld ".repeat(20),
@@ -61,7 +61,7 @@ describe("gateway ws log helpers", () => {
       agent: "main",
       run: "12345678…9abc",
       session: "main",
-      stream: "assistant",
+      stream: "zhushou",
       aseq: 2,
       media: 2,
     });

@@ -10,8 +10,8 @@ import {
   ChannelType as DiscordChannelType,
   type APIApplicationCommandChannelOption,
 } from "discord-api-types/v10";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { DiscordAccountConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { DiscordAccountConfig } from "zhushou/plugin-sdk/config-runtime";
 import { formatMention } from "../mentions.js";
 import { normalizeDiscordSlug } from "../monitor/allow-list.js";
 import { resolveDiscordChannelInfo } from "../monitor/message-utils.js";
@@ -26,7 +26,7 @@ const VOICE_CHANNEL_TYPES: NonNullable<APIApplicationCommandChannelOption["chann
 ];
 
 type VoiceCommandContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   discordConfig: DiscordAccountConfig;
   accountId: string;
   groupPolicy: "open" | "disabled" | "allowlist";

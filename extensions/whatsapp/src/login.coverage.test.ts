@@ -12,16 +12,16 @@ import {
 
 const rmMock = vi.spyOn(fs, "rm");
 const testState = vi.hoisted(() => ({
-  authDir: `${(process.env.TMPDIR ?? "/tmp").replace(/\/+$/, "")}/assistant-wa-creds-${process.pid}-${Math.random().toString(16).slice(2)}`,
+  authDir: `${(process.env.TMPDIR ?? "/tmp").replace(/\/+$/, "")}/zhushou-wa-creds-${process.pid}-${Math.random().toString(16).slice(2)}`,
 }));
 
 function resolveTestAuthDir() {
   return path.resolve(testState.authDir);
 }
 
-vi.mock("assistant/plugin-sdk/config-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/config-runtime")>(
-    "assistant/plugin-sdk/config-runtime",
+vi.mock("zhushou/plugin-sdk/config-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/config-runtime")>(
+    "zhushou/plugin-sdk/config-runtime",
   );
   return {
     ...actual,

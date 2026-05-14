@@ -1,6 +1,6 @@
 import type { AuthProfileStore } from "../agents/auth-profiles/types.js";
 import type { FallbackAttempt } from "../agents/model-fallback.types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type {
   GeneratedVideoAsset,
   VideoGenerationIgnoredOverride,
@@ -11,7 +11,7 @@ import type {
 } from "./types.js";
 
 export type GenerateVideoParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   prompt: string;
   agentDir?: string;
   authStore?: AuthProfileStore;
@@ -40,7 +40,7 @@ export type GenerateVideoRuntimeResult = {
 };
 
 export type ListRuntimeVideoGenerationProvidersParams = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
 };
 
 export type RuntimeVideoGenerationProvider = VideoGenerationProvider;

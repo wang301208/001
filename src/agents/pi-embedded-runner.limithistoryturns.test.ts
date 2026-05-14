@@ -25,7 +25,7 @@ describe("limitHistoryTurns", () => {
       timestamp: Date.now(),
     }) as AgentMessage;
 
-  const assistantTextMessage = (text: string): AgentMessage =>
+  const zhushouTextMessage = (text: string): AgentMessage =>
     ({
       role: "assistant",
       content: [{ type: "text", text }],
@@ -37,7 +37,7 @@ describe("limitHistoryTurns", () => {
       timestamp: Date.now(),
     }) as AgentMessage;
 
-  const assistantToolCallMessage = (id: string): AgentMessage =>
+  const zhushouToolCallMessage = (id: string): AgentMessage =>
     ({
       role: "assistant",
       content: [{ type: "toolCall", id, name: "exec", arguments: {} }],
@@ -63,7 +63,7 @@ describe("limitHistoryTurns", () => {
 
   const makeMessages = (roles: ("user" | "assistant")[]): AgentMessage[] =>
     roles.map((role, i) =>
-      role === "user" ? userMessage(`message ${i}`) : assistantTextMessage(`message ${i}`),
+      role === "user" ? userMessage(`message ${i}`) : zhushouTextMessage(`message ${i}`),
     );
 
   it("returns all messages when limit is undefined", () => {
@@ -105,7 +105,7 @@ describe("limitHistoryTurns", () => {
     expect(firstText(limited[1])).toBe("message 5");
   });
 
-  it("handles messages with multiple assistant responses per user turn", () => {
+  it("handles messages with multiple zhushou responses per user turn", () => {
     const messages = makeMessages(["user", "assistant", "assistant", "user", "assistant"]);
     const limited = limitHistoryTurns(messages, 1);
     expect(limited.length).toBe(2);
@@ -116,9 +116,9 @@ describe("limitHistoryTurns", () => {
   it("preserves message content integrity", () => {
     const messages: AgentMessage[] = [
       userMessage("first"),
-      assistantToolCallMessage("1"),
+      zhushouToolCallMessage("1"),
       userMessage("second"),
-      assistantTextMessage("response"),
+      zhushouTextMessage("response"),
     ];
     const limited = limitHistoryTurns(messages, 1);
     expect(firstText(limited[0])).toBe("second");

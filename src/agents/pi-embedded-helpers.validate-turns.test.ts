@@ -10,7 +10,7 @@ function asMessages(messages: unknown[]): AgentMessage[] {
   return messages as AgentMessage[];
 }
 
-function makeDualToolUseAssistantContent() {
+function makeDualToolUseZhushouContent() {
   return [
     { type: "toolUse", id: "tool-1", name: "test1", arguments: {} },
     { type: "toolUse", id: "tool-2", name: "test2", arguments: {} },
@@ -23,7 +23,7 @@ function makeDualToolAnthropicTurns(nextUserContent: unknown[]) {
     { role: "user", content: [{ type: "text", text: "Use tools" }] },
     {
       role: "assistant",
-      content: makeDualToolUseAssistantContent(),
+      content: makeDualToolUseZhushouContent(),
     },
     {
       role: "user",
@@ -39,7 +39,7 @@ function makeSignedThinkingGatewayToolCall(toolId: string) {
   ];
 }
 
-function expectAssistantToolCallsOmitted(result: AgentMessage[], expectedLength: number) {
+function expectZhushouToolCallsOmitted(result: AgentMessage[], expectedLength: number) {
   expect(result).toHaveLength(expectedLength);
   expect((result[1] as { role?: unknown }).role).toBe("assistant");
   expect((result[1] as { content?: unknown[] }).content).toEqual([
@@ -72,7 +72,7 @@ describe("validate turn edge cases", () => {
 });
 
 describe("validateGeminiTurns", () => {
-  it("should leave alternating user/assistant unchanged", () => {
+  it("should leave alternating user/zhushou unchanged", () => {
     const msgs = asMessages([
       { role: "user", content: "Hello" },
       { role: "assistant", content: [{ type: "text", text: "Hi" }] },
@@ -84,7 +84,7 @@ describe("validateGeminiTurns", () => {
     expect(result).toEqual(msgs);
   });
 
-  it("should merge consecutive assistant messages", () => {
+  it("should merge consecutive zhushou messages", () => {
     const msgs = asMessages([
       { role: "user", content: "Hello" },
       {
@@ -158,7 +158,7 @@ describe("validateGeminiTurns", () => {
 
     const result = validateGeminiTurns(msgs);
 
-    // Should merge the consecutive assistants
+    // Should merge the consecutive zhushous
     expect(result[0].role).toBe("user");
     expect(result[1].role).toBe("assistant");
     expect(result[2].role).toBe("toolResult");
@@ -168,7 +168,7 @@ describe("validateGeminiTurns", () => {
 });
 
 describe("validateAnthropicTurns", () => {
-  it("should return alternating user/assistant unchanged", () => {
+  it("should return alternating user/zhushou unchanged", () => {
     const msgs = asMessages([
       { role: "user", content: [{ type: "text", text: "Question" }] },
       {
@@ -280,7 +280,7 @@ describe("validateAnthropicTurns", () => {
     ]);
   });
 
-  it("should not merge consecutive assistant messages", () => {
+  it("should not merge consecutive zhushou messages", () => {
     const msgs = asMessages([
       { role: "user", content: [{ type: "text", text: "Question" }] },
       {
@@ -295,12 +295,12 @@ describe("validateAnthropicTurns", () => {
 
     const result = validateAnthropicTurns(msgs);
 
-    // validateAnthropicTurns only merges user messages, not assistant
+    // validateAnthropicTurns only merges user messages, not zhushou
     expect(result).toHaveLength(3);
   });
 
   it("should handle mixed scenario with steering messages", () => {
-    // Simulates: user asks -> assistant errors -> steering user message injected
+    // Simulates: user asks -> zhushou errors -> steering user message injected
     const msgs = asMessages([
       { role: "user", content: [{ type: "text", text: "Original question" }] },
       {
@@ -376,7 +376,7 @@ describe("mergeConsecutiveUserTurns", () => {
 
 describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
   it("should strip tool_use blocks without matching tool_result", () => {
-    // Simulates: user asks -> assistant has tool_use -> user responds without tool_result
+    // Simulates: user asks -> zhushou has tool_use -> user responds without tool_result
     // This happens after compaction trims history
     const msgs = asMessages([
       { role: "user", content: [{ type: "text", text: "Use tool" }] },
@@ -394,8 +394,8 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
 
     expect(result).toHaveLength(3);
     // The dangling tool_use should be stripped, but text content preserved
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
-    expect(assistantContent).toEqual([{ type: "text", text: "I'll check that" }]);
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
+    expect(zhushouContent).toEqual([{ type: "text", text: "I'll check that" }]);
   });
 
   it("should preserve tool_use blocks with matching tool_result", () => {
@@ -421,8 +421,8 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
 
     expect(result).toHaveLength(3);
     // tool_use should be preserved because matching tool_result exists
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
-    expect(assistantContent).toEqual([
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
+    expect(zhushouContent).toEqual([
       { type: "toolUse", id: "tool-1", name: "test", arguments: {} },
       { type: "text", text: "Here's result" },
     ]);
@@ -442,11 +442,11 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
 
     expect(result).toHaveLength(3);
     // Should insert fallback text since all content would be removed
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
-    expect(assistantContent).toEqual([{ type: "text", text: "[tool calls omitted]" }]);
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
+    expect(zhushouContent).toEqual([{ type: "text", text: "[tool calls omitted]" }]);
   });
 
-  it("leaves aborted tool-only assistant turns empty instead of synthesizing fallback text", () => {
+  it("leaves aborted tool-only zhushou turns empty instead of synthesizing fallback text", () => {
     const msgs = asMessages([
       { role: "user", content: [{ type: "text", text: "Use tool" }] },
       {
@@ -469,9 +469,9 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
     const result = validateAnthropicTurns(msgs);
 
     expect(result).toHaveLength(3);
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
     // Only text content should remain
-    expect(assistantContent).toEqual([{ type: "text", text: "Done" }]);
+    expect(zhushouContent).toEqual([{ type: "text", text: "Done" }]);
   });
 
   it("should handle mixed tool_use with some having matching tool_result", () => {
@@ -488,14 +488,14 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
 
     expect(result).toHaveLength(3);
     // tool-1 should be preserved (has matching tool_result), tool-2 stripped, text preserved
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
-    expect(assistantContent).toEqual([
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
+    expect(zhushouContent).toEqual([
       { type: "toolUse", id: "tool-1", name: "test1", arguments: {} },
       { type: "text", text: "Done" },
     ]);
   });
 
-  it("matches standalone toolResult messages before the next assistant turn", () => {
+  it("matches standalone toolResult messages before the next zhushou turn", () => {
     const msgs = asMessages([
       { role: "user", content: [{ type: "text", text: "Use tool" }] },
       {
@@ -509,13 +509,13 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
     const result = validateAnthropicTurns(msgs);
 
     expect(result).toHaveLength(4);
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
-    expect(assistantContent).toEqual([
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
+    expect(zhushouContent).toEqual([
       { type: "toolCall", id: "tool-1", name: "test", arguments: {} },
     ]);
   });
 
-  it("matches tool result blocks across intermediate non-assistant messages", () => {
+  it("matches tool result blocks across intermediate non-zhushou messages", () => {
     const msgs = asMessages([
       { role: "user", content: [{ type: "text", text: "Use tool" }] },
       {
@@ -533,8 +533,8 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
     const result = validateAnthropicTurns(msgs);
 
     expect(result).toHaveLength(5);
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
-    expect(assistantContent).toEqual([
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
+    expect(zhushouContent).toEqual([
       { type: "functionCall", id: "tool-1", name: "test", arguments: {} },
       { type: "text", text: "Checking" },
     ]);
@@ -560,8 +560,8 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
     const result = validateAnthropicTurns(msgs);
 
     expect(result).toHaveLength(4);
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
-    expect(assistantContent).toEqual(makeSignedThinkingGatewayToolCall("tool-1"));
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
+    expect(zhushouContent).toEqual(makeSignedThinkingGatewayToolCall("tool-1"));
   });
 
   it("drops signed-thinking turns when the only matching tool result is embedded in user content", () => {
@@ -585,7 +585,7 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
 
     const result = validateAnthropicTurns(msgs);
 
-    expectAssistantToolCallsOmitted(result, 3);
+    expectZhushouToolCallsOmitted(result, 3);
   });
 
   it("preserves signed-thinking turns when a trusted tool result carries both stale and current id aliases", () => {
@@ -626,7 +626,7 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
 
     const result = validateAnthropicTurns(msgs);
 
-    expectAssistantToolCallsOmitted(result, 3);
+    expectZhushouToolCallsOmitted(result, 3);
   });
 
   it("does not trust future tool results with the right id but the wrong tool name", () => {
@@ -648,7 +648,7 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
 
     const result = validateAnthropicTurns(msgs);
 
-    expectAssistantToolCallsOmitted(result, 4);
+    expectZhushouToolCallsOmitted(result, 4);
   });
 
   it("drops redacted-thinking turns whose sibling tool calls are dangling", () => {
@@ -667,8 +667,8 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
     const result = validateAnthropicTurns(msgs);
 
     expect(result).toHaveLength(3);
-    const assistantContent = (result[1] as { content?: unknown[] }).content;
-    expect(assistantContent).toEqual([{ type: "text", text: "[tool calls omitted]" }]);
+    const zhushouContent = (result[1] as { content?: unknown[] }).content;
+    expect(zhushouContent).toEqual([{ type: "text", text: "[tool calls omitted]" }]);
   });
 
   it("is replay-safe across repeated validation passes", () => {
@@ -686,7 +686,7 @@ describe("validateAnthropicTurns strips dangling tool_use blocks", () => {
     expect(secondPass).toEqual(firstPass);
   });
 
-  it("does not crash when assistant content is non-array", () => {
+  it("does not crash when zhushou content is non-array", () => {
     const msgs = [
       { role: "user", content: [{ type: "text", text: "Use tool" }] },
       {

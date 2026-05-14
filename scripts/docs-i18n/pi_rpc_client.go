@@ -237,7 +237,7 @@ func extractTranslationResult(raw json.RawMessage) (string, error) {
 	}
 	for index := len(payload.Messages) - 1; index >= 0; index-- {
 		message := payload.Messages[index]
-		if message.Role != "assistant" {
+		if message.Role != "zhushou" {
 			continue
 		}
 		if message.ErrorMessage != "" || isTerminalPiStopReason(message.StopReason) {
@@ -250,7 +250,7 @@ func extractTranslationResult(raw json.RawMessage) (string, error) {
 		}
 		return text, nil
 	}
-	return "", errors.New("assistant message not found")
+	return "", errors.New("zhushou message not found")
 }
 
 func isTerminalPiStopReason(stopReason string) bool {
@@ -262,7 +262,7 @@ func isTerminalPiStopReason(stopReason string) bool {
 	}
 }
 
-func formatPiAgentError(message agentMessage, assistantText string) error {
+func formatPiAgentError(message agentMessage, zhushouText string) error {
 	parts := []string{}
 	if msg := strings.TrimSpace(message.ErrorMessage); msg != "" {
 		parts = append(parts, msg)
@@ -270,8 +270,8 @@ func formatPiAgentError(message agentMessage, assistantText string) error {
 	if stop := strings.TrimSpace(message.StopReason); stop != "" {
 		parts = append(parts, "stopReason="+stop)
 	}
-	if preview := previewPiAssistantText(assistantText); preview != "" {
-		parts = append(parts, "assistant="+preview)
+	if preview := previewPiZhushouText(zhushouText); preview != "" {
+		parts = append(parts, "zhushou="+preview)
 	}
 	if len(parts) == 0 {
 		parts = append(parts, "unknown error")
@@ -279,7 +279,7 @@ func formatPiAgentError(message agentMessage, assistantText string) error {
 	return fmt.Errorf("pi error: %s", strings.Join(parts, "; "))
 }
 
-func previewPiAssistantText(text string) string {
+func previewPiZhushouText(text string) string {
 	trimmed := strings.TrimSpace(text)
 	if trimmed == "" {
 		return ""
@@ -333,7 +333,7 @@ func getDocsPiAgentDir() (string, error) {
 	if err != nil {
 		cacheDir = os.TempDir()
 	}
-	dir := filepath.Join(cacheDir, "assistant", "docs-i18n", "agent")
+	dir := filepath.Join(cacheDir, "zhushou", "docs-i18n", "agent")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", err
 	}

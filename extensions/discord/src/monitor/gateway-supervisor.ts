@@ -1,7 +1,7 @@
 import type { EventEmitter } from "node:events";
-import { danger } from "assistant/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { formatErrorMessage } from "assistant/plugin-sdk/ssrf-runtime";
+import { danger } from "zhushou/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "zhushou/plugin-sdk/ssrf-runtime";
 
 export type DiscordGatewayEventType =
   | "disallowed-intents"

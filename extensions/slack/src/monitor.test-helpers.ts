@@ -40,7 +40,7 @@ type SlackClient = {
   users: {
     info: Mock<(...args: unknown[]) => Promise<{ user: { profile: { display_name: string } } }>>;
   };
-  assistant: {
+  zhushou: {
     threads: {
       setStatus: Mock<(...args: unknown[]) => Promise<{ ok: boolean }>>;
     };
@@ -81,7 +81,7 @@ function ensureSlackTestRuntime(): {
           user: { profile: { display_name: "Ada" } },
         }),
       },
-      assistant: {
+      zhushou: {
         threads: {
           setStatus: vi.fn().mockResolvedValue({ ok: true }),
         },
@@ -198,7 +198,7 @@ vi.mock("./monitor/config.runtime.js", async () => {
     loadConfig: () => slackTestState.config,
     readSessionUpdatedAt: vi.fn(() => undefined),
     recordSessionMetaFromInbound: vi.fn().mockResolvedValue(undefined),
-    resolveStorePath: vi.fn(() => "/tmp/assistant-sessions.json"),
+    resolveStorePath: vi.fn(() => "/tmp/zhushou-sessions.json"),
     updateLastRoute: (...args: unknown[]) => slackTestState.updateLastRouteMock(...args),
   };
 });

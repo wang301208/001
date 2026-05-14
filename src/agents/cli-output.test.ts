@@ -327,7 +327,7 @@ describe("parseCliJsonl", () => {
       [
         JSON.stringify({ type: "system", subtype: "init", session_id: "session-api-error" }),
         JSON.stringify({
-          type: "assistant",
+          type: "zhushou",
           message: {
             model: "<synthetic>",
             role: "assistant",
@@ -361,7 +361,7 @@ describe("createCliJsonlStreamingParser", () => {
         sessionIdFields: ["session_id"],
       },
       providerId: "local-cli",
-      onAssistantDelta: (delta) => deltas.push(delta),
+      onZhushouDelta: (delta) => deltas.push(delta),
     });
 
     parser.push(

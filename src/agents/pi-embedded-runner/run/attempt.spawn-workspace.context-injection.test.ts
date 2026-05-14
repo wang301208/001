@@ -59,7 +59,7 @@ describe("embedded attempt context injection", () => {
     expect(resolveBootstrapContextForRun).not.toHaveBeenCalled();
   });
 
-  it("still resolves bootstrap context when continuation-skip has no completed assistant turn yet", async () => {
+  it("still resolves bootstrap context when continuation-skip has no completed zhushou turn yet", async () => {
     const resolver = vi.fn(async () => ({
       bootstrapFiles: [{ name: "AGENTS.md" }],
       contextFiles: [{ path: "AGENTS.md" }],

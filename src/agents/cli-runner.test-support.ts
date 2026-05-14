@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import type { Mock } from "vitest";
 import { beforeEach, vi } from "vitest";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import type { enqueueSystemEvent } from "../infra/system-events.js";
 import type { CliBackendPlugin } from "../plugin-sdk/cli-backend.js";
@@ -69,7 +69,7 @@ setCliRunnerExecuteTestDeps({
 setCliRunnerPrepareTestDeps({
   makeBootstrapWarn: () => () => {},
   resolveBootstrapContextForRun: hoisted.resolveBootstrapContextForRunMock,
-  resolveAssistantDocsPath: async () => null,
+  resolveZhushouDocsPath: async () => null,
 });
 
 type MockRunExit = {
@@ -326,7 +326,7 @@ export const EXISTING_CODEX_CONFIG = {
       },
     },
   },
-} satisfies AssistantConfig;
+} satisfies ZhushouConfig;
 
 export async function setupCliRunnerTestModule() {
   setupCliRunnerTestRegistry();
@@ -379,7 +379,7 @@ export function restoreCliRunnerPrepareTestDeps() {
   setCliRunnerPrepareTestDeps({
     makeBootstrapWarn: () => () => {},
     resolveBootstrapContextForRun: hoisted.resolveBootstrapContextForRunMock,
-    resolveAssistantDocsPath: async () => null,
+    resolveZhushouDocsPath: async () => null,
   });
 }
 
@@ -400,7 +400,7 @@ export async function runCliAgentWithBackendConfig(params: {
           },
         },
       },
-    } satisfies AssistantConfig,
+    } satisfies ZhushouConfig,
     prompt: "hi",
     provider: "codex-cli",
     model: "gpt-5.4",

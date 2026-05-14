@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { stringEnum } from "assistant/plugin-sdk/channel-actions";
+import { stringEnum } from "zhushou/plugin-sdk/channel-actions";
 
 const discordComponentEmojiSchema = Type.Object({
   name: Type.String(),

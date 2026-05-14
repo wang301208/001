@@ -1,4 +1,4 @@
-import type { ModelProviderConfig } from "assistant/plugin-sdk/provider-model-types";
+import type { ModelProviderConfig } from "zhushou/plugin-sdk/provider-model-types";
 import { normalizeGoogleProviderConfig } from "./provider-policy.js";
 
 export function normalizeConfig(params: { provider: string; providerConfig: ModelProviderConfig }) {

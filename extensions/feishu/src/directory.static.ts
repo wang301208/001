@@ -1,8 +1,8 @@
 ﻿import {
   listDirectoryGroupEntriesFromMapKeysAndAllowFrom,
   listDirectoryUserEntriesFromAllowFromAndMapKeys,
-} from "assistant/plugin-sdk/directory-runtime";
-import type { AssistantConfig } from "../runtime-api.js";
+} from "zhushou/plugin-sdk/directory-runtime";
+import type { ZhushouConfig } from "../runtime-api.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { normalizeFeishuTarget } from "./targets.js";
 
@@ -27,7 +27,7 @@ function toFeishuDirectoryGroups(ids: string[]): FeishuDirectoryGroup[] {
 }
 
 export async function listFeishuDirectoryPeers(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   query?: string;
   limit?: number;
   accountId?: string;
@@ -45,7 +45,7 @@ export async function listFeishuDirectoryPeers(params: {
 }
 
 export async function listFeishuDirectoryGroups(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   query?: string;
   limit?: number;
   accountId?: string;

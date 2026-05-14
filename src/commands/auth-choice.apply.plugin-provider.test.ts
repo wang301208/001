@@ -38,9 +38,9 @@ vi.mock("../agents/workspace.js", () => ({
   resolveDefaultAgentWorkspaceDir,
 }));
 
-const resolveAssistantAgentDir = vi.hoisted(() => vi.fn(() => "/tmp/agent"));
+const resolveZhushouAgentDir = vi.hoisted(() => vi.fn(() => "/tmp/agent"));
 vi.mock("../agents/agent-paths.js", () => ({
-  resolveAssistantAgentDir,
+  resolveZhushouAgentDir,
 }));
 
 const applyAuthProfileConfig = vi.hoisted(() => vi.fn((config) => config));

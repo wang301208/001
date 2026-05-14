@@ -4,11 +4,11 @@ import {
   normalizeOptionalString,
   readStringValue,
 } from "../shared/string-coerce.js";
-import { extractToolCallsFromAssistant, extractToolResultId } from "./tool-call-id.js";
+import { extractToolCallsFromZhushou, extractToolResultId } from "./tool-call-id.js";
 
 const TOOL_CALL_NAME_MAX_CHARS = 64;
 const TOOL_CALL_NAME_RE = /^[A-Za-z0-9_:.-]+$/;
-const REDACTED_SESSIONS_SPAWN_ATTACHMENT_CONTENT = "__ASSISTANT_REDACTED__";
+const REDACTED_SESSIONS_SPAWN_ATTACHMENT_CONTENT = "__ZHUSHOU_REDACTED__";
 const SESSIONS_SPAWN_ATTACHMENT_METADATA_KEYS = ["name", "encoding", "mimeType"] as const;
 
 type RawToolCallBlock = {
@@ -196,7 +196,7 @@ function countRawToolCallBlocks(content: unknown[]): number {
   return count;
 }
 
-function isReplaySafeThinkingAssistantTurn(
+function isReplaySafeThinkingZhushouTurn(
   content: unknown[],
   allowedToolNames: Set<string> | null,
 ): boolean {
@@ -235,7 +235,7 @@ function makeMissingToolResult(params: {
     content: [
       {
         type: "text",
-        text: "[assistant] missing tool result in session history; inserted synthetic error result for transcript repair.",
+        text: "[zhushou] missing tool result in session history; inserted synthetic error result for transcript repair.",
       },
     ],
     isError: true,
@@ -272,7 +272,7 @@ export { makeMissingToolResult };
 export type ToolCallInputRepairReport = {
   messages: AgentMessage[];
   droppedToolCalls: number;
-  droppedAssistantMessages: number;
+  droppedZhushouMessages: number;
 };
 
 export type ToolCallInputRepairOptions = {
@@ -280,10 +280,10 @@ export type ToolCallInputRepairOptions = {
   allowProviderOwnedThinkingReplay?: boolean;
 };
 
-export type ErroredAssistantResultPolicy = "preserve" | "drop";
+export type ErroredZhushouResultPolicy = "preserve" | "drop";
 
 export type ToolUseResultPairingOptions = {
-  erroredAssistantResultPolicy?: ErroredAssistantResultPolicy;
+  erroredZhushouResultPolicy?: ErroredZhushouResultPolicy;
 };
 
 export function stripToolResultDetails(messages: AgentMessage[]): AgentMessage[] {
@@ -311,7 +311,7 @@ export function repairToolCallInputs(
   options?: ToolCallInputRepairOptions,
 ): ToolCallInputRepairReport {
   let droppedToolCalls = 0;
-  let droppedAssistantMessages = 0;
+  let droppedZhushouMessages = 0;
   let changed = false;
   const out: AgentMessage[] = [];
   const allowedToolNames = normalizeAllowedToolNames(options?.allowedToolNames);
@@ -337,10 +337,10 @@ export function repairToolCallInputs(
       // Signed Anthropic thinking blocks must remain byte-for-byte stable on
       // replay. Preserve the turn only if every sibling tool call is already
       // valid and requires no redaction or normalization. Otherwise drop the
-      // whole assistant turn rather than mutating provider-owned content.
-      const replaySafeToolCalls = extractToolCallsFromAssistant(msg);
+      // whole zhushou turn rather than mutating provider-owned content.
+      const replaySafeToolCalls = extractToolCallsFromZhushou(msg);
       if (
-        isReplaySafeThinkingAssistantTurn(msg.content, allowedToolNames) &&
+        isReplaySafeThinkingZhushouTurn(msg.content, allowedToolNames) &&
         replaySafeToolCalls.every((toolCall) => !claimedReplaySafeToolCallIds.has(toolCall.id))
       ) {
         for (const toolCall of replaySafeToolCalls) {
@@ -349,7 +349,7 @@ export function repairToolCallInputs(
         out.push(msg);
       } else {
         droppedToolCalls += countRawToolCallBlocks(msg.content);
-        droppedAssistantMessages += 1;
+        droppedZhushouMessages += 1;
         changed = true;
       }
       continue;
@@ -416,7 +416,7 @@ export function repairToolCallInputs(
 
     if (droppedInMessage > 0) {
       if (nextContent.length === 0) {
-        droppedAssistantMessages += 1;
+        droppedZhushouMessages += 1;
         changed = true;
         continue;
       }
@@ -435,7 +435,7 @@ export function repairToolCallInputs(
   return {
     messages: changed ? out : messages,
     droppedToolCalls,
-    droppedAssistantMessages,
+    droppedZhushouMessages,
   };
 }
 
@@ -461,18 +461,18 @@ export type ToolUseRepairReport = {
   moved: boolean;
 };
 
-function shouldDropErroredAssistantResults(options?: ToolUseResultPairingOptions): boolean {
-  return options?.erroredAssistantResultPolicy === "drop";
+function shouldDropErroredZhushouResults(options?: ToolUseResultPairingOptions): boolean {
+  return options?.erroredZhushouResultPolicy === "drop";
 }
 
 export function repairToolUseResultPairing(
   messages: AgentMessage[],
   options?: ToolUseResultPairingOptions,
 ): ToolUseRepairReport {
-  // Anthropic (and Cloud Code Assist) reject transcripts where assistant tool calls are not
+  // Anthropic (and Cloud Code Assist) reject transcripts where zhushou tool calls are not
   // immediately followed by matching tool results. Session files can end up with results
   // displaced (e.g. after user turns) or duplicated. Repair by:
-  // - moving matching toolResult messages directly after their assistant toolCall turn
+  // - moving matching toolResult messages directly after their zhushou toolCall turn
   // - inserting synthetic error toolResults for missing ids
   // - dropping duplicate toolResults for the same id (anywhere in the transcript)
   const out: AgentMessage[] = [];
@@ -504,8 +504,8 @@ export function repairToolUseResultPairing(
     }
 
     const role = (msg as { role?: unknown }).role;
-    if (role !== "assistant") {
-      // Tool results must only appear directly after the matching assistant tool call turn.
+    if (role === "assistant") {
+      // Tool results must only appear directly after the matching zhushou tool call turn.
       // Any "free-floating" toolResult entries in session history can make strict providers
       // (Anthropic-compatible APIs, MiniMax, Cloud Code Assist) reject the entire request.
       if (role !== "toolResult") {
@@ -517,9 +517,9 @@ export function repairToolUseResultPairing(
       continue;
     }
 
-    const assistant = msg as Extract<AgentMessage, { role: "assistant" }>;
+    const zhushou = msg as Extract<AgentMessage, { role: "assistant" }>;
 
-    const toolCalls = extractToolCallsFromAssistant(assistant);
+    const toolCalls = extractToolCallsFromZhushou(zhushou);
     if (toolCalls.length === 0) {
       out.push(msg);
       continue;
@@ -567,7 +567,7 @@ export function repairToolUseResultPairing(
         }
       }
 
-      // Drop tool results that don't match the current assistant tool calls.
+      // Drop tool results that don't match the current zhushou tool calls.
       if (nextRole !== "toolResult") {
         remainder.push(next);
       } else {
@@ -576,13 +576,13 @@ export function repairToolUseResultPairing(
       }
     }
 
-    // Aborted/errored assistant turns should never synthesize missing tool results, but
+    // Aborted/errored zhushou turns should never synthesize missing tool results, but
     // the replay sanitizer can still legitimately retain real tool results for surviving
     // tool calls in the same turn after malformed siblings are dropped.
-    const stopReason = (assistant as { stopReason?: string }).stopReason;
+    const stopReason = (zhushou as { stopReason?: string }).stopReason;
     if (stopReason === "error" || stopReason === "aborted") {
       out.push(msg);
-      if (!shouldDropErroredAssistantResults(options)) {
+      if (!shouldDropErroredZhushouResults(options)) {
         for (const toolCall of toolCalls) {
           const result = spanResultsById.get(toolCall.id);
           if (!result) {

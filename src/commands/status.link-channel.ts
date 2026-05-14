@@ -1,7 +1,7 @@
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelPlugin } from "../channels/plugins/types.plugin.js";
 import type { ChannelAccountSnapshot } from "../channels/plugins/types.public.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveDefaultChannelAccountContext } from "./channel-account-context.js";
 
 export type LinkChannelContext = {
@@ -13,7 +13,7 @@ export type LinkChannelContext = {
 };
 
 export async function resolveLinkChannelContext(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): Promise<LinkChannelContext | null> {
   for (const plugin of listChannelPlugins()) {
     const { defaultAccountId, account, enabled, configured } =

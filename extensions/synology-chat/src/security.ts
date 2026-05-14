@@ -2,11 +2,11 @@
  * Security module: token validation, rate limiting, input sanitization, user allowlist.
  */
 
-import { safeEqualSecret } from "assistant/plugin-sdk/browser-security-runtime";
+import { safeEqualSecret } from "zhushou/plugin-sdk/browser-security-runtime";
 import {
   createFixedWindowRateLimiter,
   type FixedWindowRateLimiter,
-} from "assistant/plugin-sdk/webhook-ingress";
+} from "zhushou/plugin-sdk/webhook-ingress";
 
 export type DmAuthorizationResult =
   | { allowed: true }

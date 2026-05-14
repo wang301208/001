@@ -208,7 +208,7 @@ describe("runCronIsolatedAgentTurn core-channel direct delivery", () => {
       });
     });
 
-    it(`preserves multi-payload text-only announce delivery for ${testCase.name} even when final assistant text exists`, async () => {
+    it(`preserves multi-payload text-only announce delivery for ${testCase.name} even when final zhushou text exists`, async () => {
       await withTempCronHome(async (home) => {
         const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
         const deps = createCliDeps();
@@ -216,7 +216,7 @@ describe("runCronIsolatedAgentTurn core-channel direct delivery", () => {
           meta: {
             durationMs: 5,
             agentMeta: { sessionId: "s", provider: "p", model: "m" },
-            finalAssistantVisibleText: "Final weather summary",
+            finalZhushouVisibleText: "Final weather summary",
           },
         });
 

@@ -1,18 +1,18 @@
-import { adaptScopedAccountAccessor } from "assistant/plugin-sdk/channel-config-helpers";
+import { adaptScopedAccountAccessor } from "zhushou/plugin-sdk/channel-config-helpers";
 import {
   noteChannelLookupFailure,
   noteChannelLookupSummary,
   resolveEntriesWithOptionalToken,
-  type AssistantConfig,
+  type ZhushouConfig,
   parseMentionOrPrefixedId,
   promptLegacyChannelAllowFromForAccount,
   type WizardPrompter,
-} from "assistant/plugin-sdk/setup-runtime";
+} from "zhushou/plugin-sdk/setup-runtime";
 import type {
   ChannelSetupWizard,
   ChannelSetupWizardAllowFromEntry,
-} from "assistant/plugin-sdk/setup-runtime";
-import { formatDocsLink } from "assistant/plugin-sdk/setup-tools";
+} from "zhushou/plugin-sdk/setup-runtime";
+import { formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
 import {
   resolveDefaultSlackAccountId,
   resolveSlackAccount,
@@ -50,10 +50,10 @@ async function resolveSlackAllowFromEntries(params: {
 }
 
 async function promptSlackAllowFrom(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   const parseId = (value: string) =>
     parseMentionOrPrefixedId({
       value,
@@ -101,7 +101,7 @@ async function promptSlackAllowFrom(params: {
 }
 
 async function resolveSlackGroupAllowlist(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   credentialValues: { botToken?: string };
   entries: string[];

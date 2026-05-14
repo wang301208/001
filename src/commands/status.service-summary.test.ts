@@ -18,14 +18,14 @@ describe("readServiceStatusSummary", () => {
     const summary = await readServiceStatusSummary(
       createService({
         isLoaded: vi.fn(async () => true),
-        readCommand: vi.fn(async () => ({ programArguments: ["assistant", "gateway", "run"] })),
+        readCommand: vi.fn(async () => ({ programArguments: ["zhushou", "gateway", "run"] })),
         readRuntime: vi.fn(async () => ({ status: "running" })),
       }),
       "Daemon",
     );
 
     expect(summary.installed).toBe(true);
-    expect(summary.managedByAssistant).toBe(true);
+    expect(summary.managedByZhushou).toBe(true);
     expect(summary.externallyManaged).toBe(false);
     expect(summary.loadedText).toBe("enabled");
   });
@@ -39,7 +39,7 @@ describe("readServiceStatusSummary", () => {
     );
 
     expect(summary.installed).toBe(true);
-    expect(summary.managedByAssistant).toBe(false);
+    expect(summary.managedByZhushou).toBe(false);
     expect(summary.externallyManaged).toBe(true);
     expect(summary.loadedText).toBe("running (externally managed)");
   });
@@ -48,25 +48,25 @@ describe("readServiceStatusSummary", () => {
     const summary = await readServiceStatusSummary(createService({}), "Daemon");
 
     expect(summary.installed).toBe(false);
-    expect(summary.managedByAssistant).toBe(false);
+    expect(summary.managedByZhushou).toBe(false);
     expect(summary.externallyManaged).toBe(false);
     expect(summary.loadedText).toBe("disabled");
   });
 
   it("passes command environment to runtime and loaded checks", async () => {
     const isLoaded = vi.fn(async ({ env }: GatewayServiceEnvArgs) => {
-      return env?.ASSISTANT_GATEWAY_PORT === "18789";
+      return env?.ZHUSHOU_GATEWAY_PORT === "18789";
     });
     const readRuntime = vi.fn(async (env?: NodeJS.ProcessEnv) => ({
-      status: env?.ASSISTANT_GATEWAY_PORT === "18789" ? ("running" as const) : ("unknown" as const),
+      status: env?.ZHUSHOU_GATEWAY_PORT === "18789" ? ("running" as const) : ("unknown" as const),
     }));
 
     const summary = await readServiceStatusSummary(
       createService({
         isLoaded,
         readCommand: vi.fn(async () => ({
-          programArguments: ["assistant", "gateway", "run", "--port", "18789"],
-          environment: { ASSISTANT_GATEWAY_PORT: "18789" },
+          programArguments: ["zhushou", "gateway", "run", "--port", "18789"],
+          environment: { ZHUSHOU_GATEWAY_PORT: "18789" },
         })),
         readRuntime,
       }),
@@ -76,13 +76,13 @@ describe("readServiceStatusSummary", () => {
     expect(isLoaded).toHaveBeenCalledWith(
       expect.objectContaining({
         env: expect.objectContaining({
-          ASSISTANT_GATEWAY_PORT: "18789",
+          ZHUSHOU_GATEWAY_PORT: "18789",
         }),
       }),
     );
     expect(readRuntime).toHaveBeenCalledWith(
       expect.objectContaining({
-        ASSISTANT_GATEWAY_PORT: "18789",
+        ZHUSHOU_GATEWAY_PORT: "18789",
       }),
     );
     expect(summary.installed).toBe(true);

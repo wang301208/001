@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildAssistantChromeLaunchArgs } from "./chrome.js";
+import { buildZhushouChromeLaunchArgs } from "./chrome.js";
 
 describe("browser chrome launch args", () => {
   it("does not force an about:blank tab at startup", () => {
-    const args = buildAssistantChromeLaunchArgs({
+    const args = buildZhushouChromeLaunchArgs({
       resolved: {
         enabled: true,
         controlPort: 18791,
@@ -21,26 +21,26 @@ describe("browser chrome launch args", () => {
         noSandbox: false,
         attachOnly: false,
         ssrfPolicy: { allowPrivateNetwork: true },
-        defaultProfile: "assistant",
+        defaultProfile: "zhushou",
         profiles: {
-          assistant: { cdpPort: 18800, color: "#FF4500" },
+          zhushou: { cdpPort: 18800, color: "#FF4500" },
         },
       },
       profile: {
-        name: "assistant",
+        name: "zhushou",
         cdpUrl: "http://127.0.0.1:18800",
         cdpPort: 18800,
         cdpHost: "127.0.0.1",
         cdpIsLoopback: true,
         color: "#FF4500",
-        driver: "assistant",
+        driver: "zhushou",
         attachOnly: false,
       },
-      userDataDir: "/tmp/assistant-test-user-data",
+      userDataDir: "/tmp/zhushou-test-user-data",
     });
 
     expect(args).not.toContain("about:blank");
     expect(args).toContain("--remote-debugging-port=18800");
-    expect(args).toContain("--user-data-dir=/tmp/assistant-test-user-data");
+    expect(args).toContain("--user-data-dir=/tmp/zhushou-test-user-data");
   });
 });

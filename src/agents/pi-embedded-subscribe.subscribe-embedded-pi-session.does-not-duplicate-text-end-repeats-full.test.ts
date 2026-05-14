@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createTextEndBlockReplyHarness,
-  emitAssistantTextDelta,
-  emitAssistantTextEnd,
+  emitZhushouTextDelta,
+  emitZhushouTextEnd,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 
 describe("subscribeEmbeddedPiSession", () => {
@@ -10,14 +10,14 @@ describe("subscribeEmbeddedPiSession", () => {
     const onBlockReply = vi.fn();
     const { emit, subscription } = createTextEndBlockReplyHarness({ onBlockReply });
 
-    emitAssistantTextDelta({ emit, delta: "Good morning!" });
-    emitAssistantTextEnd({ emit, content: "Good morning!" });
+    emitZhushouTextDelta({ emit, delta: "Good morning!" });
+    emitZhushouTextEnd({ emit, content: "Good morning!" });
     await Promise.resolve();
 
     await vi.waitFor(() => {
       expect(onBlockReply).toHaveBeenCalledTimes(1);
     });
-    expect(subscription.assistantTexts).toEqual(["Good morning!"]);
+    expect(subscription.zhushouTexts).toEqual(["Good morning!"]);
   });
   it("does not duplicate block chunks when text_end repeats full content", async () => {
     const onBlockReply = vi.fn();
@@ -32,13 +32,13 @@ describe("subscribeEmbeddedPiSession", () => {
 
     const fullText = "First line\nSecond line\nThird line\n";
 
-    emitAssistantTextDelta({ emit, delta: fullText });
+    emitZhushouTextDelta({ emit, delta: fullText });
     await Promise.resolve();
 
     const callsAfterDelta = onBlockReply.mock.calls.length;
     expect(callsAfterDelta).toBeGreaterThan(0);
 
-    emitAssistantTextEnd({ emit, content: fullText });
+    emitZhushouTextEnd({ emit, content: fullText });
     await Promise.resolve();
 
     expect(onBlockReply).toHaveBeenCalledTimes(callsAfterDelta);

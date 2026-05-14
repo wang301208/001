@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
 export type GatewayProbeTargetResolution = {
@@ -7,7 +7,7 @@ export type GatewayProbeTargetResolution = {
   remoteUrlMissing: boolean;
 };
 
-export function resolveGatewayProbeTarget(cfg: AssistantConfig): GatewayProbeTargetResolution {
+export function resolveGatewayProbeTarget(cfg: ZhushouConfig): GatewayProbeTargetResolution {
   const gatewayMode = cfg.gateway?.mode === "remote" ? "remote" : "local";
   const remoteUrlRaw = normalizeOptionalString(cfg.gateway?.remote?.url) ?? "";
   const remoteUrlMissing = gatewayMode === "remote" && !remoteUrlRaw;

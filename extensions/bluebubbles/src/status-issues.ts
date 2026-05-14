@@ -1,5 +1,5 @@
-import type { ChannelAccountSnapshot } from "assistant/plugin-sdk/channel-contract";
-import { collectIssuesForEnabledAccounts } from "assistant/plugin-sdk/status-helpers";
+import type { ChannelAccountSnapshot } from "zhushou/plugin-sdk/channel-contract";
+import { collectIssuesForEnabledAccounts } from "zhushou/plugin-sdk/status-helpers";
 import { asRecord } from "./monitor-normalize.js";
 
 type BlueBubblesAccountStatus = {
@@ -68,7 +68,7 @@ export function collectBlueBubblesStatusIssues(accounts: ChannelAccountSnapshot[
           accountId,
           kind: "config",
           message: "Not configured (missing serverUrl or password).",
-          fix: "Run: assistant channels add bluebubbles --http-url <server-url> --password <password>",
+          fix: "Run: zhushou channels add bluebubbles --http-url <server-url> --password <password>",
         });
         return;
       }

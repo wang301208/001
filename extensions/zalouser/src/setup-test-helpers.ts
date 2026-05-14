@@ -1,5 +1,5 @@
-import { createScopedDmSecurityResolver } from "assistant/plugin-sdk/channel-config-helpers";
-import type { AssistantConfig } from "../runtime-api.js";
+import { createScopedDmSecurityResolver } from "zhushou/plugin-sdk/channel-config-helpers";
+import type { ZhushouConfig } from "../runtime-api.js";
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
@@ -23,7 +23,7 @@ export const zalouserSetupPlugin = {
   config: {
     listAccountIds: (cfg: unknown) => listZalouserAccountIds(cfg as never),
     defaultAccountId: (cfg: unknown) => resolveDefaultZalouserAccountId(cfg as never),
-    resolveAccount: (cfg: AssistantConfig, accountId?: string | null) =>
+    resolveAccount: (cfg: ZhushouConfig, accountId?: string | null) =>
       resolveZalouserAccountSync({ cfg, accountId }),
   },
   security: {

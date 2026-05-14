@@ -30,7 +30,7 @@ type ConfigWritePayload = {
 };
 
 async function createIdentityWorkspace(subdir = "work") {
-  const root = await makeTempWorkspace("assistant-identity-");
+  const root = await makeTempWorkspace("zhushou-identity-");
   const workspace = path.join(root, subdir);
   await fs.mkdir(workspace, { recursive: true });
   return { root, workspace };
@@ -71,7 +71,7 @@ describe("agents set-identity command", () => {
       "- Name: 助手",
       "- Creature: helpful sloth",
       "- Emoji: :)",
-      "- Avatar: avatars/assistant.png",
+      "- Avatar: avatars/zhushou.png",
       "",
     ]);
 
@@ -94,7 +94,7 @@ describe("agents set-identity command", () => {
       name: "助手",
       theme: "helpful sloth",
       emoji: ":)",
-      avatar: "avatars/assistant.png",
+      avatar: "avatars/zhushou.png",
     });
   });
 
@@ -127,7 +127,7 @@ describe("agents set-identity command", () => {
       "- Name: 助手",
       "- Theme: space helper",
       "- Emoji: :)",
-      "- Avatar: avatars/assistant.png",
+      "- Avatar: avatars/zhushou.png",
       "",
     ]);
 

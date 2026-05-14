@@ -1,8 +1,8 @@
-import { resolveChannelGroupRequireMention } from "assistant/plugin-sdk/channel-policy";
-import type { AssistantConfig } from "assistant/plugin-sdk/core";
+import { resolveChannelGroupRequireMention } from "zhushou/plugin-sdk/channel-policy";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/core";
 
 type GoogleChatGroupContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   groupId?: string | null;
 };

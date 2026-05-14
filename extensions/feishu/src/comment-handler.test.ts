@@ -1,5 +1,5 @@
 ﻿import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig, PluginRuntime } from "../runtime-api.js";
+import type { ZhushouConfig, PluginRuntime } from "../runtime-api.js";
 import { handleFeishuCommentEvent } from "./comment-handler.js";
 import { setFeishuRuntime } from "./runtime.js";
 
@@ -29,7 +29,7 @@ vi.mock("./drive.js", () => ({
   deliverCommentThreadText: deliverCommentThreadTextMock,
 }));
 
-function buildConfig(overrides?: Partial<AssistantConfig>): AssistantConfig {
+function buildConfig(overrides?: Partial<ZhushouConfig>): ZhushouConfig {
   return {
     channels: {
       feishu: {
@@ -38,7 +38,7 @@ function buildConfig(overrides?: Partial<AssistantConfig>): AssistantConfig {
       },
     },
     ...overrides,
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function buildResolvedRoute(matchedBy: "binding.channel" | "default" = "binding.channel") {

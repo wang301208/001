@@ -1,8 +1,8 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 
 export function createPerSenderSessionConfig(
-  overrides: Partial<NonNullable<AssistantConfig["session"]>> = {},
-): NonNullable<AssistantConfig["session"]> {
+  overrides: Partial<NonNullable<ZhushouConfig["session"]>> = {},
+): NonNullable<ZhushouConfig["session"]> {
   return {
     mainKey: "main",
     scope: "per-sender",

@@ -3,7 +3,7 @@ import path from "node:path";
 import { resolveSandboxConfigForAgent } from "../agents/sandbox/config.js";
 import { hasPotentialConfiguredChannels } from "../channels/config-presence.js";
 import type { listChannelPlugins } from "../channels/plugins/index.js";
-import type { ConfigFileSnapshot, AssistantConfig } from "../config/config.js";
+import type { ConfigFileSnapshot, ZhushouConfig } from "../config/config.js";
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import { hasConfiguredSecretInput } from "../config/types.secrets.js";
@@ -57,8 +57,8 @@ export type {
 } from "./audit.types.js";
 
 export type SecurityAuditOptions = {
-  config: AssistantConfig;
-  sourceConfig?: AssistantConfig;
+  config: ZhushouConfig;
+  sourceConfig?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   platform?: NodeJS.Platform;
   deep?: boolean;
@@ -89,8 +89,8 @@ export type SecurityAuditOptions = {
 };
 
 type AuditExecutionContext = {
-  cfg: AssistantConfig;
-  sourceConfig: AssistantConfig;
+  cfg: ZhushouConfig;
+  sourceConfig: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   platform: NodeJS.Platform;
   includeFilesystem: boolean;
@@ -324,8 +324,8 @@ export async function collectFilesystemFindings(params: {
 }
 
 export function collectGatewayConfigFindings(
-  cfg: AssistantConfig,
-  sourceConfig: AssistantConfig,
+  cfg: ZhushouConfig,
+  sourceConfig: ZhushouConfig,
   env: NodeJS.ProcessEnv,
 ): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
@@ -344,8 +344,8 @@ export function collectGatewayConfigFindings(
     : [];
   const hasToken = typeof auth.token === "string" && auth.token.trim().length > 0;
   const hasPassword = typeof auth.password === "string" && auth.password.trim().length > 0;
-  const envTokenConfigured = hasNonEmptyString(env.ASSISTANT_GATEWAY_TOKEN);
-  const envPasswordConfigured = hasNonEmptyString(env.ASSISTANT_GATEWAY_PASSWORD);
+  const envTokenConfigured = hasNonEmptyString(env.ZHUSHOU_GATEWAY_TOKEN);
+  const envPasswordConfigured = hasNonEmptyString(env.ZHUSHOU_GATEWAY_PASSWORD);
   const tokenConfiguredFromConfig = hasConfiguredSecretInput(
     sourceConfig.gateway?.auth?.token,
     sourceConfig.secrets?.defaults,
@@ -758,7 +758,7 @@ async function collectPluginSecurityAuditFindings(
   return collectorResults.flat();
 }
 
-export function collectLoggingFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectLoggingFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const redact = cfg.logging?.redactSensitive;
   if (redact !== "off") {
     return [];
@@ -774,7 +774,7 @@ export function collectLoggingFindings(cfg: AssistantConfig): SecurityAuditFindi
   ];
 }
 
-export function collectElevatedFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectElevatedFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const enabled = cfg.tools?.elevated?.enabled;
   const allowFrom = cfg.tools?.elevated?.allowFrom ?? {};
@@ -809,7 +809,7 @@ export function collectElevatedFindings(cfg: AssistantConfig): SecurityAuditFind
   return findings;
 }
 
-export function collectExecRuntimeFindings(cfg: AssistantConfig): SecurityAuditFinding[] {
+export function collectExecRuntimeFindings(cfg: ZhushouConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const globalExecHost = cfg.tools?.exec?.host;
   const globalStrictInlineEval = cfg.tools?.exec?.strictInlineEval === true;
@@ -1118,7 +1118,7 @@ export function collectExecRuntimeFindings(cfg: AssistantConfig): SecurityAuditF
 }
 
 export function collectGovernanceCharterFindings(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   charterDir?: string;
 }): SecurityAuditFinding[] {
   const snapshot = loadGovernanceCharter({ charterDir: params.charterDir });
@@ -1251,7 +1251,7 @@ export function collectGovernanceCharterFindings(params: {
   return findings;
 }
 
-function collectOpenExecSurfacePaths(cfg: AssistantConfig): string[] {
+function collectOpenExecSurfacePaths(cfg: ZhushouConfig): string[] {
   const channels = asNullableRecord(cfg.channels);
   if (!channels) {
     return [];
@@ -1319,7 +1319,7 @@ function collectInterpreterAllowlistHits(params: {
 }
 
 async function maybeProbeGateway(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   timeoutMs: number;
   probe: ProbeGatewayFn;

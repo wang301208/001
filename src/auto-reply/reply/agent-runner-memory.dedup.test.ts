@@ -15,8 +15,8 @@ import { describe, expect, it } from "vitest";
 // package in test environments).  This mirrors the implementation in
 // src/auto-reply/reply/memory-flush.ts exactly.
 function computeContextHash(messages: Array<{ role?: string; content?: unknown }>): string {
-  const userAssistant = messages.filter((m) => m.role === "user" || m.role === "assistant");
-  const tail = userAssistant.slice(-3);
+  const userZhushou = messages.filter((m) => m.role === "user" || m.role === "assistant");
+  const tail = userZhushou.slice(-3);
   const payload = `${messages.length}:${tail.map((m, i) => `[${i}:${m.role ?? ""}]${typeof m.content === "string" ? m.content : JSON.stringify(m.content ?? "")}`).join("\x00")}`;
   const hash = crypto.createHash("sha256").update(payload).digest("hex");
   return hash.slice(0, 16);

@@ -22,16 +22,16 @@ export function clearActiveMcpLoopbackRuntime(token: string): void {
 export function createMcpLoopbackServerConfig(port: number) {
   return {
     mcpServers: {
-      assistant: {
+      zhushou: {
         type: "http",
         url: `http://127.0.0.1:${port}/mcp`,
         headers: {
-          Authorization: "Bearer ${ASSISTANT_MCP_TOKEN}",
-          "x-session-key": "${ASSISTANT_MCP_SESSION_KEY}",
-          "x-assistant-agent-id": "${ASSISTANT_MCP_AGENT_ID}",
-          "x-assistant-account-id": "${ASSISTANT_MCP_ACCOUNT_ID}",
-          "x-assistant-message-channel": "${ASSISTANT_MCP_MESSAGE_CHANNEL}",
-          "x-assistant-sender-is-owner": "${ASSISTANT_MCP_SENDER_IS_OWNER}",
+          Authorization: "Bearer ${ZHUSHOU_MCP_TOKEN}",
+          "x-session-key": "${ZHUSHOU_MCP_SESSION_KEY}",
+          "x-zhushou-agent-id": "${ZHUSHOU_MCP_AGENT_ID}",
+          "x-zhushou-account-id": "${ZHUSHOU_MCP_ACCOUNT_ID}",
+          "x-zhushou-message-channel": "${ZHUSHOU_MCP_MESSAGE_CHANNEL}",
+          "x-zhushou-sender-is-owner": "${ZHUSHOU_MCP_SENDER_IS_OWNER}",
         },
       },
     },

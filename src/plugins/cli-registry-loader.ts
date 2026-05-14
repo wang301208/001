@@ -1,8 +1,8 @@
 import { collectUniqueCommandDescriptors } from "../cli/program/command-descriptor-utils.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveManifestActivationPluginIds } from "./activation-planner.js";
 import type { PluginLoadOptions } from "./loader.js";
-import { loadAssistantPluginCliRegistry, loadAssistantPlugins } from "./loader.js";
+import { loadZhushouPluginCliRegistry, loadZhushouPlugins } from "./loader.js";
 import type { PluginRegistry } from "./registry.js";
 import {
   buildPluginRuntimeLoadOptions,
@@ -11,15 +11,15 @@ import {
   type PluginRuntimeLoadContext,
 } from "./runtime/load-context.js";
 import type {
-  AssistantPluginCliCommandDescriptor,
-  AssistantPluginCliContext,
+  ZhushouPluginCliCommandDescriptor,
+  ZhushouPluginCliContext,
   PluginLogger,
 } from "./types.js";
 
 export type PluginCliLoaderOptions = Pick<PluginLoadOptions, "pluginSdkResolution">;
 
 export type PluginCliPublicLoadParams = {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   loaderOptions?: PluginCliLoaderOptions;
   logger?: PluginLogger;
@@ -34,9 +34,9 @@ export type PluginCliRegistryLoadResult = PluginCliLoadContext & {
 
 export type PluginCliCommandGroupEntry = {
   pluginId: string;
-  placeholders: readonly AssistantPluginCliCommandDescriptor[];
+  placeholders: readonly ZhushouPluginCliCommandDescriptor[];
   names: readonly string[];
-  register: (program: AssistantPluginCliContext["program"]) => Promise<void>;
+  register: (program: ZhushouPluginCliContext["program"]) => Promise<void>;
 };
 
 export function createPluginCliLogger(): PluginLogger {
@@ -79,7 +79,7 @@ function resolvePrimaryCommandPluginIds(
 }
 
 export function resolvePluginCliLoadContext(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   logger: PluginLogger;
 }): PluginCliLoadContext {
@@ -97,7 +97,7 @@ export async function loadPluginCliMetadataRegistryWithContext(
 ): Promise<PluginCliRegistryLoadResult> {
   return {
     ...context,
-    registry: await loadAssistantPluginCliRegistry(
+    registry: await loadZhushouPluginCliRegistry(
       buildPluginCliLoaderParams(context, params, loaderOptions),
     ),
   };
@@ -110,7 +110,7 @@ export async function loadPluginCliCommandRegistryWithContext(params: {
 }): Promise<PluginCliRegistryLoadResult> {
   return {
     ...params.context,
-    registry: loadAssistantPlugins(
+    registry: loadZhushouPlugins(
       buildPluginCliLoaderParams(
         params.context,
         { primaryCommand: params.primaryCommand },
@@ -122,7 +122,7 @@ export async function loadPluginCliCommandRegistryWithContext(params: {
 
 function buildPluginCliCommandGroupEntries(params: {
   registry: PluginRegistry;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   workspaceDir: string | undefined;
   logger: PluginLogger;
 }): PluginCliCommandGroupEntry[] {
@@ -143,7 +143,7 @@ function buildPluginCliCommandGroupEntries(params: {
 
 export async function loadPluginCliDescriptors(
   params: PluginCliPublicLoadParams,
-): Promise<AssistantPluginCliCommandDescriptor[]> {
+): Promise<ZhushouPluginCliCommandDescriptor[]> {
   try {
     const logger = resolvePluginCliLogger(params.logger);
     const context = resolvePluginCliLoadContext({
@@ -165,7 +165,7 @@ export async function loadPluginCliDescriptors(
 }
 
 export async function loadPluginCliRegistrationEntries(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
   loaderOptions?: PluginCliLoaderOptions;
   logger?: PluginLogger;

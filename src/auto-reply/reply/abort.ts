@@ -18,7 +18,7 @@ import {
   type SessionEntry,
   updateSessionStore,
 } from "../../config/sessions.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { logVerbose } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
@@ -122,7 +122,7 @@ export function resolveSessionEntryForKey(
 }
 
 function normalizeRequesterSessionKey(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   key: string | undefined,
 ): string | undefined {
   const cleaned = normalizeOptionalString(key);
@@ -134,7 +134,7 @@ function normalizeRequesterSessionKey(
 }
 
 export function stopSubagentsForRequester(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   requesterSessionKey?: string;
 }): { stopped: number } {
   const requesterKey = normalizeRequesterSessionKey(params.cfg, params.requesterSessionKey);
@@ -224,7 +224,7 @@ export function stopSubagentsForRequester(params: {
 
 export async function tryFastAbortFromMessage(params: {
   ctx: FinalizedMsgContext;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
 }): Promise<{ handled: boolean; aborted: boolean; stoppedSubagents?: number }> {
   const { ctx, cfg } = params;
   const targetKey =

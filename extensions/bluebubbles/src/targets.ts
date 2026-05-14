@@ -1,15 +1,15 @@
-import { isAllowedParsedChatSender } from "assistant/plugin-sdk/allow-from";
+import { isAllowedParsedChatSender } from "zhushou/plugin-sdk/allow-from";
 import {
   parseChatAllowTargetPrefixes,
   parseChatTargetPrefixesOrThrow,
   type ParsedChatTarget,
   resolveServicePrefixedAllowTarget,
   resolveServicePrefixedTarget,
-} from "assistant/plugin-sdk/channel-targets";
+} from "zhushou/plugin-sdk/channel-targets";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 export type BlueBubblesService = "imessage" | "sms" | "auto";
 

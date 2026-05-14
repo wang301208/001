@@ -1,12 +1,12 @@
 import {
   parseAgentSessionKey,
   type MemoryCitationsMode,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/memory-core-host-runtime-core";
-import type { MemorySearchResult } from "assistant/plugin-sdk/memory-core-host-runtime-files";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/memory-core-host-runtime-core";
+import type { MemorySearchResult } from "zhushou/plugin-sdk/memory-core-host-runtime-files";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
-export function resolveMemoryCitationsMode(cfg: AssistantConfig): MemoryCitationsMode {
+export function resolveMemoryCitationsMode(cfg: ZhushouConfig): MemoryCitationsMode {
   const mode = cfg.memory?.citations;
   if (mode === "on" || mode === "off" || mode === "auto") {
     return mode;

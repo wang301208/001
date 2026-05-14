@@ -10,7 +10,7 @@ import * as modelSelectionModule from "../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import * as runtimeSnapshotModule from "../config/runtime-snapshot.js";
 import { clearSessionStoreCacheForTest } from "../config/sessions/store.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   emitAgentEvent,
   onAgentEvent,
@@ -56,7 +56,7 @@ vi.mock("../agents/command/attempt-execution.runtime.js", () => {
   return {
     buildAcpResult: vi.fn(),
     createAcpVisibleTextAccumulator: vi.fn(),
-    emitAcpAssistantDelta: vi.fn(),
+    emitAcpZhushouDelta: vi.fn(),
     emitAcpLifecycleEnd: vi.fn(),
     emitAcpLifecycleError: vi.fn(),
     emitAcpLifecycleStart: vi.fn(),
@@ -128,7 +128,7 @@ vi.mock("../agents/command/delivery.runtime.js", () => {
   return {
     deliverAgentCommandResult: vi.fn(
       async (params: {
-        cfg: AssistantConfig;
+        cfg: ZhushouConfig;
         deps: {
           sendMessageTelegram?: (
             to: string,
@@ -186,7 +186,7 @@ vi.mock("../config/sessions/transcript-resolve.runtime.js", () => {
       .join(separator);
   };
   const resolveSessionFile = (sessionId: string, agentId: string, sessionsDir?: string): string =>
-    joinPath(sessionsDir ?? ".assistant", "agents", agentId, "sessions", `${sessionId}.jsonl`);
+    joinPath(sessionsDir ?? ".zhushou", "agents", agentId, "sessions", `${sessionId}.jsonl`);
 
   return {
     resolveSessionTranscriptFile: vi.fn(
@@ -232,14 +232,14 @@ const runtime: RuntimeEnv = {
 };
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "assistant-agent-", skipSessionCleanup: true });
+  return withTempHomeBase(fn, { prefix: "zhushou-agent-", skipSessionCleanup: true });
 }
 
 function mockConfig(
   home: string,
   storePath: string,
-  agentOverrides?: Partial<NonNullable<NonNullable<AssistantConfig["agents"]>["defaults"]>>,
-  telegramOverrides?: Partial<NonNullable<NonNullable<AssistantConfig["channels"]>["telegram"]>>,
+  agentOverrides?: Partial<NonNullable<NonNullable<ZhushouConfig["agents"]>["defaults"]>>,
+  telegramOverrides?: Partial<NonNullable<NonNullable<ZhushouConfig["channels"]>["telegram"]>>,
   agentsList?: Array<{ id: string; default?: boolean }>,
 ) {
   const cfg = {
@@ -247,7 +247,7 @@ function mockConfig(
       defaults: {
         model: { primary: "anthropic/claude-opus-4-6" },
         models: { "anthropic/claude-opus-4-6": {} },
-        workspace: path.join(home, "assistant"),
+        workspace: path.join(home, "zhushou"),
         ...agentOverrides,
       },
       list: agentsList,
@@ -256,7 +256,7 @@ function mockConfig(
     channels: {
       telegram: telegramOverrides ? { ...telegramOverrides } : undefined,
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
   configIoMocks.loadConfig.mockReturnValue(cfg);
   return cfg;
 }
@@ -311,7 +311,7 @@ beforeEach(() => {
   vi.mocked(loadModelCatalog).mockResolvedValue([]);
   vi.mocked(modelSelectionModule.isCliProvider).mockImplementation(() => false);
   configIoMocks.readConfigFileSnapshotForWrite.mockResolvedValue({
-    snapshot: { valid: false, resolved: {} as AssistantConfig },
+    snapshot: { valid: false, resolved: {} as ZhushouConfig },
     writeOptions: {},
   });
 });
@@ -415,12 +415,12 @@ describe("agentCommand", () => {
       const store = path.join(home, "sessions.json");
       mockConfig(home, store);
 
-      const assistantEvents: Array<{ runId: string; text?: string }> = [];
+      const zhushouEvents: Array<{ runId: string; text?: string }> = [];
       const stop = onAgentEvent((evt) => {
         if (evt.stream !== "assistant") {
           return;
         }
-        assistantEvents.push({
+        zhushouEvents.push({
           runId: evt.runId,
           text: typeof evt.data?.text === "string" ? evt.data.text : undefined,
         });
@@ -433,8 +433,8 @@ describe("agentCommand", () => {
           params as {
             onAgentEvent?: (evt: { stream: string; data: Record<string, unknown> }) => void;
           }
-        ).onAgentEvent?.({ stream: "assistant", data });
-        emitAgentEvent({ runId, stream: "assistant", data });
+        ).onAgentEvent?.({ stream: "zhushou", data });
+        emitAgentEvent({ runId, stream: "zhushou", data });
         return {
           payloads: [{ text: "hello" }],
           meta: { agentMeta: { provider: "p", model: "m" } },
@@ -444,7 +444,7 @@ describe("agentCommand", () => {
       await agentCommand({ message: "hi", to: "+1555", thinking: "low" }, runtime);
       stop();
 
-      const matching = assistantEvents.filter((evt) => evt.text === "hello");
+      const matching = zhushouEvents.filter((evt) => evt.text === "hello");
       expect(matching).toHaveLength(1);
     });
   });

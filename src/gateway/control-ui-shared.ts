@@ -32,7 +32,7 @@ export function buildControlUiAvatarUrl(basePath: string, agentId: string): stri
     : `${CONTROL_UI_AVATAR_PREFIX}/${agentId}`;
 }
 
-export function resolveAssistantAvatarUrl(params: {
+export function resolveZhushouAvatarUrl(params: {
   avatar?: string | null;
   agentId?: string | null;
   basePath?: string;

@@ -1,8 +1,8 @@
-import { resolveAckReaction } from "assistant/plugin-sdk/agent-runtime";
+import { resolveAckReaction } from "zhushou/plugin-sdk/agent-runtime";
 import {
   shouldAckReaction as shouldAckReactionGate,
   type AckReactionScope,
-} from "assistant/plugin-sdk/channel-feedback";
+} from "zhushou/plugin-sdk/channel-feedback";
 import {
   buildMentionRegexes,
   formatInboundEnvelope,
@@ -11,24 +11,24 @@ import {
   matchesMentionWithExplicit,
   resolveEnvelopeFormatOptions,
   resolveInboundMentionDecision,
-} from "assistant/plugin-sdk/channel-inbound";
-import { resolveControlCommandGate } from "assistant/plugin-sdk/command-auth";
-import { hasControlCommand } from "assistant/plugin-sdk/command-auth";
-import { shouldHandleTextCommands } from "assistant/plugin-sdk/command-auth";
-import { enqueueSystemEvent } from "assistant/plugin-sdk/infra-runtime";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { resolveControlCommandGate } from "zhushou/plugin-sdk/command-auth";
+import { hasControlCommand } from "zhushou/plugin-sdk/command-auth";
+import { shouldHandleTextCommands } from "zhushou/plugin-sdk/command-auth";
+import { enqueueSystemEvent } from "zhushou/plugin-sdk/infra-runtime";
 import {
   buildPendingHistoryContextFromMap,
   recordPendingHistoryEntryIfEnabled,
-} from "assistant/plugin-sdk/reply-history";
-import type { FinalizedMsgContext } from "assistant/plugin-sdk/reply-runtime";
-import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
-import { resolveThreadSessionKeys } from "assistant/plugin-sdk/routing";
-import { logVerbose, shouldLogVerbose } from "assistant/plugin-sdk/runtime-env";
-import { resolvePinnedMainDmOwnerFromAllowlist } from "assistant/plugin-sdk/security-runtime";
+} from "zhushou/plugin-sdk/reply-history";
+import type { FinalizedMsgContext } from "zhushou/plugin-sdk/reply-runtime";
+import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import { resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
+import { logVerbose, shouldLogVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { resolvePinnedMainDmOwnerFromAllowlist } from "zhushou/plugin-sdk/security-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { resolveSlackReplyToMode, type ResolvedSlackAccount } from "../../accounts.js";
 import { reactSlackMessage } from "../../actions.js";
 import { hasSlackThreadParticipation } from "../../sent-thread-cache.js";

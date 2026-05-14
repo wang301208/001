@@ -36,45 +36,45 @@ function expectImageMessagePreserved(messages: AgentMessage[], errorMessage: str
 
 describe("pruneProcessedHistoryImages", () => {
   const image: ImageContent = { type: "image", data: "abc", mimeType: "image/png" };
-  const assistantTurn = () => castAgentMessage({ role: "assistant", content: "ack" });
+  const zhushouTurn = () => castAgentMessage({ role: "assistant", content: "ack" });
   const userText = () => castAgentMessage({ role: "user", content: "more" });
 
-  it("prunes image blocks from user messages older than 3 assistant turns", () => {
+  it("prunes image blocks from user messages older than 3 zhushou turns", () => {
     const messages: AgentMessage[] = [
       castAgentMessage({
         role: "user",
         content: [{ type: "text", text: "See /tmp/photo.png" }, { ...image }],
       }),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
     ];
 
     const content = expectPrunedImageMessage(messages, "expected user array content");
     expect(content[0]?.type).toBe("text");
   });
 
-  it("keeps image blocks that belong to the third-most-recent assistant turn", () => {
+  it("keeps image blocks that belong to the third-most-recent zhushou turn", () => {
     const messages: AgentMessage[] = [
       castAgentMessage({
         role: "user",
         content: [{ type: "text", text: "See /tmp/photo.png" }, { ...image }],
       }),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
     ];
 
     expectImageMessagePreserved(messages, "expected user array content");
   });
 
-  it("does not count multiple assistant messages from one tool loop as separate turns", () => {
+  it("does not count multiple zhushou messages from one tool loop as separate turns", () => {
     const messages: AgentMessage[] = [
       castAgentMessage({
         role: "user",
@@ -90,17 +90,17 @@ describe("pruneProcessedHistoryImages", () => {
         toolName: "read",
         content: [{ type: "text", text: "bytes" }],
       }),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
     ];
 
     expectImageMessagePreserved(messages, "expected user array content");
   });
 
-  it("does not prune latest user message when no assistant response exists yet", () => {
+  it("does not prune latest user message when no zhushou response exists yet", () => {
     const messages: AgentMessage[] = [
       castAgentMessage({
         role: "user",
@@ -116,20 +116,20 @@ describe("pruneProcessedHistoryImages", () => {
     expect(content[1]).toMatchObject({ type: "image", data: "abc" });
   });
 
-  it("prunes image blocks from toolResult messages older than 3 assistant turns", () => {
+  it("prunes image blocks from toolResult messages older than 3 zhushou turns", () => {
     const messages: AgentMessage[] = [
       castAgentMessage({
         role: "toolResult",
         toolName: "read",
         content: [{ type: "text", text: "screenshot bytes" }, { ...image }],
       }),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
     ];
 
     expectPrunedImageMessage(messages, "expected toolResult array content");
@@ -141,16 +141,16 @@ describe("pruneProcessedHistoryImages", () => {
         role: "user",
         content: [{ type: "text", text: "old" }, { ...image }],
       }),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
       userText(),
-      assistantTurn(),
+      zhushouTurn(),
       castAgentMessage({
         role: "user",
         content: [{ type: "text", text: "recent" }, { ...image }],
       }),
-      assistantTurn(),
+      zhushouTurn(),
     ];
 
     const didMutate = pruneProcessedHistoryImages(messages);
@@ -163,7 +163,7 @@ describe("pruneProcessedHistoryImages", () => {
     expect(recentContent[1]).toMatchObject({ type: "image", data: "abc" });
   });
 
-  it("does not change messages when no assistant turn exists", () => {
+  it("does not change messages when no zhushou turn exists", () => {
     const messages: AgentMessage[] = [
       castAgentMessage({
         role: "user",

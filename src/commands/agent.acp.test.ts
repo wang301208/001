@@ -7,7 +7,7 @@ import * as acpManagerModule from "../acp/control-plane/manager.js";
 import { AcpRuntimeError } from "../acp/runtime/errors.js";
 import * as embeddedModule from "../agents/pi-embedded.js";
 import * as configIoModule from "../config/io.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { agentCommand } from "./agent.js";
 
@@ -73,7 +73,7 @@ vi.mock("../agents/command/attempt-execution.runtime.js", () => {
     emitAcpLifecycleStart: attemptExecutionMocks.emitAcpLifecycleStart,
     emitAcpLifecycleEnd: attemptExecutionMocks.emitAcpLifecycleEnd,
     emitAcpLifecycleError: attemptExecutionMocks.emitAcpLifecycleError,
-    emitAcpAssistantDelta: ({
+    emitAcpZhushouDelta: ({
       runId,
       text,
       delta,
@@ -84,7 +84,7 @@ vi.mock("../agents/command/attempt-execution.runtime.js", () => {
     }) =>
       agentEventMocks.emitAgentEvent({
         runId,
-        stream: "assistant",
+        stream: "zhushou",
         data: { text, delta },
       }),
     buildAcpResult: ({
@@ -122,10 +122,10 @@ const runtime: RuntimeEnv = {
 };
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "assistant-agent-acp-" });
+  return withTempHomeBase(fn, { prefix: "zhushou-agent-acp-" });
 }
 
-function createAcpEnabledConfig(home: string, storePath: string): AssistantConfig {
+function createAcpEnabledConfig(home: string, storePath: string): ZhushouConfig {
   return {
     acp: {
       enabled: true,
@@ -137,7 +137,7 @@ function createAcpEnabledConfig(home: string, storePath: string): AssistantConfi
       defaults: {
         model: { primary: "openai/gpt-5.4" },
         models: { "openai/gpt-5.4": {} },
-        workspace: path.join(home, "assistant"),
+        workspace: path.join(home, "zhushou"),
       },
     },
     session: { store: storePath, mainKey: "main" },
@@ -151,7 +151,7 @@ function mockConfig(home: string, storePath: string) {
 function mockConfigWithAcpOverrides(
   home: string,
   storePath: string,
-  acpOverrides: Partial<NonNullable<AssistantConfig["acp"]>>,
+  acpOverrides: Partial<NonNullable<ZhushouConfig["acp"]>>,
 ) {
   const cfg = createAcpEnabledConfig(home, storePath);
   cfg.acp = {
@@ -204,7 +204,7 @@ function resolveReadySession(
 function mockAcpManager(params: {
   runTurn: (params: unknown) => Promise<void>;
   resolveSession?: (params: {
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     sessionKey: string;
   }) => ReturnType<ReturnType<typeof acpManagerModule.getAcpSessionManager>["resolveSession"]>;
 }) {
@@ -250,22 +250,22 @@ function createRunTurnFromTextDeltas(chunks: string[]) {
   });
 }
 
-function subscribeAssistantEvents() {
-  const assistantEvents: Array<{ text?: string; delta?: string }> = [];
+function subscribeZhushouEvents() {
+  const zhushouEvents: Array<{ text?: string; delta?: string }> = [];
   const stop = agentEventMocks.onAgentEvent((evt) => {
     if (evt.stream !== "assistant") {
       return;
     }
-    assistantEvents.push({
+    zhushouEvents.push({
       text: typeof evt.data?.text === "string" ? evt.data.text : undefined,
       delta: typeof evt.data?.delta === "string" ? evt.data.delta : undefined,
     });
   });
-  return { assistantEvents, stop };
+  return { zhushouEvents, stop };
 }
 
-async function runAcpTurnWithAssistantEvents(chunks: string[]) {
-  const { assistantEvents, stop } = subscribeAssistantEvents();
+async function runAcpTurnWithZhushouEvents(chunks: string[]) {
+  const { zhushouEvents, stop } = subscribeZhushouEvents();
   const runTurn = createRunTurnFromTextDeltas(chunks);
 
   mockAcpManager({
@@ -280,7 +280,7 @@ async function runAcpTurnWithAssistantEvents(chunks: string[]) {
   }
 
   const logLines = vi.mocked(runtime.log).mock.calls.map(([first]) => String(first));
-  return { assistantEvents, logLines };
+  return { zhushouEvents, logLines };
 }
 
 async function runAcpTurnWithTextDeltas(params: { message?: string; chunks: string[] }) {
@@ -298,17 +298,17 @@ async function runAcpTurnWithTextDeltas(params: { message?: string; chunks: stri
   return { runTurn };
 }
 
-function expectPersistedAcpTranscript(params: { userContent: string; assistantText: string }) {
+function expectPersistedAcpTranscript(params: { userContent: string; zhushouText: string }) {
   expect(attemptExecutionMocks.persistAcpTurnTranscript).toHaveBeenCalledWith(
     expect.objectContaining({
       body: params.userContent,
-      finalText: params.assistantText,
+      finalText: params.zhushouText,
     }),
   );
 }
 
 async function runAcpSessionWithPolicyOverrides(params: {
-  acpOverrides: Partial<NonNullable<AssistantConfig["acp"]>>;
+  acpOverrides: Partial<NonNullable<ZhushouConfig["acp"]>>;
   resolveSession?: Parameters<typeof mockAcpManager>[0]["resolveSession"];
 }) {
   await withTempHome(async (home) => {
@@ -363,16 +363,16 @@ describe("agentCommand ACP runtime routing", () => {
       expect(hasAckLog).toBe(true);
       expectPersistedAcpTranscript({
         userContent: "  ping\n",
-        assistantText: "  ACP_OK\n",
+        zhushouText: "  ACP_OK\n",
       });
     });
   });
 
   it("streams ACP visible text deltas", async () => {
     await withAcpSessionEnv(async () => {
-      const repeated = await runAcpTurnWithAssistantEvents(["bo", "ok"]);
+      const repeated = await runAcpTurnWithZhushouEvents(["bo", "ok"]);
 
-      expect(repeated.assistantEvents).toEqual([
+      expect(repeated.zhushouEvents).toEqual([
         { text: "bo", delta: "bo" },
         { text: "book", delta: "ok" },
       ]);
@@ -425,7 +425,7 @@ describe("agentCommand ACP runtime routing", () => {
     for (const acpOverrides of [
       { enabled: false },
       { dispatch: { enabled: false } },
-    ] satisfies Array<Partial<NonNullable<AssistantConfig["acp"]>>>) {
+    ] satisfies Array<Partial<NonNullable<ZhushouConfig["acp"]>>>) {
       await runAcpSessionWithPolicyOverrides({ acpOverrides });
     }
   });

@@ -1,21 +1,21 @@
 import type { App } from "@slack/bolt";
-import { formatAllowlistMatchMeta } from "assistant/plugin-sdk/allow-from";
+import { formatAllowlistMatchMeta } from "zhushou/plugin-sdk/allow-from";
 import type {
-  AssistantConfig,
+  ZhushouConfig,
   SlackReactionNotificationMode,
-} from "assistant/plugin-sdk/config-runtime";
-import type { SessionScope } from "assistant/plugin-sdk/config-runtime";
-import type { DmPolicy, GroupPolicy } from "assistant/plugin-sdk/config-runtime";
-import { createDedupeCache } from "assistant/plugin-sdk/infra-runtime";
-import type { HistoryEntry } from "assistant/plugin-sdk/reply-history";
-import { resolveAgentRoute } from "assistant/plugin-sdk/routing";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
-import { getChildLogger } from "assistant/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/config-runtime";
+import type { SessionScope } from "zhushou/plugin-sdk/config-runtime";
+import type { DmPolicy, GroupPolicy } from "zhushou/plugin-sdk/config-runtime";
+import { createDedupeCache } from "zhushou/plugin-sdk/infra-runtime";
+import type { HistoryEntry } from "zhushou/plugin-sdk/reply-history";
+import { resolveAgentRoute } from "zhushou/plugin-sdk/routing";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { getChildLogger } from "zhushou/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import type { SlackMessageEvent } from "../types.js";
 import { normalizeAllowList, normalizeAllowListLower, normalizeSlackSlug } from "./allow-list.js";
 import type { SlackChannelConfigEntries } from "./channel-config.js";
@@ -27,7 +27,7 @@ import { isSlackChannelAllowedByPolicy } from "./policy.js";
 export { inferSlackChannelType, normalizeSlackChannelType } from "./channel-type.js";
 
 export type SlackMonitorContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   botToken: string;
   app: App;
@@ -59,7 +59,7 @@ export type SlackMonitorContext = {
   threadHistoryScope: "thread" | "channel";
   threadInheritParent: boolean;
   threadRequireExplicitMention: boolean;
-  slashCommand: Required<import("assistant/plugin-sdk/config-runtime").SlackSlashCommandConfig>;
+  slashCommand: Required<import("zhushou/plugin-sdk/config-runtime").SlackSlashCommandConfig>;
   textLimit: number;
   ackReactionScope: string;
   typingReaction: string;
@@ -95,7 +95,7 @@ export type SlackMonitorContext = {
 };
 
 export function createSlackMonitorContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   botToken: string;
   app: App;

@@ -26,18 +26,18 @@ describe("shared/entry-status", () => {
       always: false,
       metadata: {
         emoji: "🦀",
-        homepage: "https://assistant.ai",
+        homepage: "https://zhushou.ai",
         requires: {
           bins: ["bun"],
           anyBins: ["ffmpeg", "sox"],
-          env: ["ASSISTANT_TOKEN"],
+          env: ["ZHUSHOU_TOKEN"],
           config: ["gateway.bind"],
         },
         os: ["darwin"],
       },
       frontmatter: {
         emoji: "🙂",
-        homepage: "https://docs.assistant.ai",
+        homepage: "https://docs.zhushou.ai",
       },
       hasLocalBin: (bin) => bin === "bun",
       localPlatform: "linux",
@@ -50,18 +50,18 @@ describe("shared/entry-status", () => {
 
     expect(result).toEqual({
       emoji: "🦀",
-      homepage: "https://assistant.ai",
+      homepage: "https://zhushou.ai",
       required: {
         bins: ["bun"],
         anyBins: ["ffmpeg", "sox"],
-        env: ["ASSISTANT_TOKEN"],
+        env: ["ZHUSHOU_TOKEN"],
         config: ["gateway.bind"],
         os: ["darwin"],
       },
       missing: {
         bins: [],
         anyBins: [],
-        env: ["ASSISTANT_TOKEN"],
+        env: ["ZHUSHOU_TOKEN"],
         config: [],
         os: ["darwin"],
       },
@@ -99,7 +99,7 @@ describe("shared/entry-status", () => {
           },
         },
         frontmatter: {
-          website: " https://docs.assistant.ai ",
+          website: " https://docs.zhushou.ai ",
           emoji: "🙂",
         },
       },
@@ -110,7 +110,7 @@ describe("shared/entry-status", () => {
 
     expect(result).toEqual({
       emoji: "🙂",
-      homepage: "https://docs.assistant.ai",
+      homepage: "https://docs.zhushou.ai",
       required: {
         bins: ["missing-bin"],
         anyBins: [],

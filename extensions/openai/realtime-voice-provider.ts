@@ -3,15 +3,15 @@ import {
   captureWsEvent,
   createDebugProxyWebSocketAgent,
   resolveDebugProxySettings,
-} from "assistant/plugin-sdk/proxy-capture";
+} from "zhushou/plugin-sdk/proxy-capture";
 import type {
   RealtimeVoiceBridge,
   RealtimeVoiceBridgeCreateRequest,
   RealtimeVoiceProviderConfig,
   RealtimeVoiceProviderPlugin,
   RealtimeVoiceTool,
-} from "assistant/plugin-sdk/realtime-voice";
-import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/realtime-voice";
+import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
 import WebSocket from "ws";
 import {
   asFiniteNumber,
@@ -129,7 +129,7 @@ class OpenAIRealtimeVoiceBridge implements RealtimeVoiceBridge {
   private markQueue: string[] = [];
   private responseStartTimestamp: number | null = null;
   private latestMediaTimestamp = 0;
-  private lastAssistantItemId: string | null = null;
+  private lastZhushouItemId: string | null = null;
   private toolCallBuffers = new Map<string, { name: string; callId: string; args: string }>();
   private readonly flowId = randomUUID();
 
@@ -201,7 +201,7 @@ class OpenAIRealtimeVoiceBridge implements RealtimeVoiceBridge {
     this.markQueue.shift();
     if (this.markQueue.length === 0) {
       this.responseStartTimestamp = null;
-      this.lastAssistantItemId = null;
+      this.lastZhushouItemId = null;
     }
   }
 
@@ -423,7 +423,7 @@ class OpenAIRealtimeVoiceBridge implements RealtimeVoiceBridge {
           this.responseStartTimestamp = this.latestMediaTimestamp;
         }
         if (event.item_id) {
-          this.lastAssistantItemId = event.item_id;
+          this.lastZhushouItemId = event.item_id;
         }
         this.sendMark();
         return;
@@ -509,17 +509,17 @@ class OpenAIRealtimeVoiceBridge implements RealtimeVoiceBridge {
   private handleBargeIn(): void {
     if (this.markQueue.length > 0 && this.responseStartTimestamp !== null) {
       const elapsedMs = this.latestMediaTimestamp - this.responseStartTimestamp;
-      if (this.lastAssistantItemId) {
+      if (this.lastZhushouItemId) {
         this.sendEvent({
           type: "conversation.item.truncate",
-          item_id: this.lastAssistantItemId,
+          item_id: this.lastZhushouItemId,
           content_index: 0,
           audio_end_ms: Math.max(0, elapsedMs),
         });
       }
       this.config.onClearAudio();
       this.markQueue = [];
-      this.lastAssistantItemId = null;
+      this.lastZhushouItemId = null;
       this.responseStartTimestamp = null;
       return;
     }

@@ -3,9 +3,9 @@ import { createWebSendApi } from "./send-api.js";
 
 const recordChannelActivity = vi.hoisted(() => vi.fn());
 
-vi.mock("assistant/plugin-sdk/infra-runtime", async () => {
-  const actual = await vi.importActual<typeof import("assistant/plugin-sdk/infra-runtime")>(
-    "assistant/plugin-sdk/infra-runtime",
+vi.mock("zhushou/plugin-sdk/infra-runtime", async () => {
+  const actual = await vi.importActual<typeof import("zhushou/plugin-sdk/infra-runtime")>(
+    "zhushou/plugin-sdk/infra-runtime",
   );
   return {
     ...actual,

@@ -1,11 +1,11 @@
 import {
   buildChannelOutboundSessionRoute,
   type ChannelOutboundSessionRouteParams,
-} from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 
 export function stripZalouserTargetPrefix(raw: string): string {
   return raw

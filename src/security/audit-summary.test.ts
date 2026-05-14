@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { collectAttackSurfaceSummaryFindings } from "./audit-extra.summary.js";
 
 describe("security audit attack surface summary", () => {
   it("includes an attack surface summary (info)", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: { whatsapp: { groupPolicy: "open" }, telegram: { groupPolicy: "allowlist" } },
       tools: { elevated: { enabled: true, allowFrom: { whatsapp: ["+1"] } } },
       hooks: { enabled: true },
@@ -19,6 +19,6 @@ describe("security audit attack surface summary", () => {
         expect.objectContaining({ checkId: "summary.attack_surface", severity: "info" }),
       ]),
     );
-    expect(summary?.detail).toContain("trust model: personal assistant");
+    expect(summary?.detail).toContain("trust model: personal zhushou");
   });
 });

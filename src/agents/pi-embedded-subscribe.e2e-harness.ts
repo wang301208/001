@@ -109,76 +109,76 @@ export function extractTextPayloads(calls: Array<unknown[]>): string[] {
     .filter((text): text is string => Boolean(text));
 }
 
-export function emitMessageStartAndEndForAssistantText(params: {
+export function emitMessageStartAndEndForZhushouText(params: {
   emit: (evt: unknown) => void;
   text: string;
 }): void {
-  const assistantMessage = {
+  const zhushouMessage = {
     role: "assistant",
     content: [{ type: "text", text: params.text }],
   } as AssistantMessage;
-  params.emit({ type: "message_start", message: assistantMessage });
-  params.emit({ type: "message_end", message: assistantMessage });
+  params.emit({ type: "message_start", message: zhushouMessage });
+  params.emit({ type: "message_end", message: zhushouMessage });
 }
 
-export function emitAssistantTextDeltaAndEnd(params: {
+export function emitZhushouTextDeltaAndEnd(params: {
   emit: (evt: unknown) => void;
   text: string;
 }): void {
   params.emit({
     type: "message_update",
     message: { role: "assistant" },
-    assistantMessageEvent: {
+    zhushouMessageEvent: {
       type: "text_delta",
       delta: params.text,
     },
   });
-  const assistantMessage = {
+  const zhushouMessage = {
     role: "assistant",
     content: [{ type: "text", text: params.text }],
   } as AssistantMessage;
-  params.emit({ type: "message_end", message: assistantMessage });
+  params.emit({ type: "message_end", message: zhushouMessage });
 }
 
-export function emitAssistantTextDelta(params: {
+export function emitZhushouTextDelta(params: {
   emit: (evt: unknown) => void;
   delta: string;
 }): void {
   params.emit({
     type: "message_update",
     message: { role: "assistant" },
-    assistantMessageEvent: { type: "text_delta", delta: params.delta },
+    zhushouMessageEvent: { type: "text_delta", delta: params.delta },
   });
 }
 
-export function emitAssistantTextEnd(params: {
+export function emitZhushouTextEnd(params: {
   emit: (evt: unknown) => void;
   content?: string;
 }): void {
   params.emit({
     type: "message_update",
     message: { role: "assistant" },
-    assistantMessageEvent:
+    zhushouMessageEvent:
       typeof params.content === "string"
         ? { type: "text_end", content: params.content }
         : { type: "text_end" },
   });
 }
 
-export function emitAssistantLifecycleErrorAndEnd(params: {
+export function emitZhushouLifecycleErrorAndEnd(params: {
   emit: (evt: unknown) => void;
   errorMessage: string;
   provider?: string;
   model?: string;
 }): void {
-  const assistantMessage = {
+  const zhushouMessage = {
     role: "assistant",
     stopReason: "error",
     errorMessage: params.errorMessage,
     ...(params.provider ? { provider: params.provider } : {}),
     ...(params.model ? { model: params.model } : {}),
   } as AssistantMessage;
-  params.emit({ type: "message_update", message: assistantMessage });
+  params.emit({ type: "message_update", message: zhushouMessage });
   params.emit({ type: "agent_end" });
 }
 

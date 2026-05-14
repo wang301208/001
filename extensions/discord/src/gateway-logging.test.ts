@@ -1,11 +1,11 @@
 import { EventEmitter } from "node:events";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("assistant/plugin-sdk/runtime-env", () => ({
+vi.mock("zhushou/plugin-sdk/runtime-env", () => ({
   logVerbose: vi.fn(),
 }));
 
-let logVerbose: typeof import("assistant/plugin-sdk/runtime-env").logVerbose;
+let logVerbose: typeof import("zhushou/plugin-sdk/runtime-env").logVerbose;
 let attachDiscordGatewayLogging: typeof import("./gateway-logging.js").attachDiscordGatewayLogging;
 
 const makeRuntime = () => ({
@@ -16,7 +16,7 @@ const makeRuntime = () => ({
 
 describe("attachDiscordGatewayLogging", () => {
   beforeAll(async () => {
-    ({ logVerbose } = await import("assistant/plugin-sdk/runtime-env"));
+    ({ logVerbose } = await import("zhushou/plugin-sdk/runtime-env"));
     ({ attachDiscordGatewayLogging } = await import("./gateway-logging.js"));
   });
 

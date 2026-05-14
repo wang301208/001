@@ -4,8 +4,8 @@ export function resolveDaemonContainerContext(
   env: Record<string, string | undefined> = process.env,
 ): string | null {
   return (
-    normalizeOptionalString(env.ASSISTANT_CONTAINER_HINT) ||
-    normalizeOptionalString(env.ASSISTANT_CONTAINER) ||
+    normalizeOptionalString(env.ZHUSHOU_CONTAINER_HINT) ||
+    normalizeOptionalString(env.ZHUSHOU_CONTAINER) ||
     null
   );
 }

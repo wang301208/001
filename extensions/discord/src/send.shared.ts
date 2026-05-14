@@ -9,17 +9,17 @@ import {
 import { PollLayoutType } from "discord-api-types/payloads/v10";
 import type { RESTAPIPoll } from "discord-api-types/rest/v10";
 import { Routes, type APIChannel, type APIEmbed } from "discord-api-types/v10";
-import { buildOutboundMediaLoadOptions } from "assistant/plugin-sdk/media-runtime";
-import { extensionForMime } from "assistant/plugin-sdk/media-runtime";
+import { buildOutboundMediaLoadOptions } from "zhushou/plugin-sdk/media-runtime";
+import { extensionForMime } from "zhushou/plugin-sdk/media-runtime";
 import {
   normalizePollDurationHours,
   normalizePollInput,
   type PollInput,
-} from "assistant/plugin-sdk/media-runtime";
-import type { ChunkMode } from "assistant/plugin-sdk/reply-chunking";
-import { resolveTextChunksWithFallback } from "assistant/plugin-sdk/reply-payload";
-import type { RetryRunner } from "assistant/plugin-sdk/retry-runtime";
-import { loadWebMedia } from "assistant/plugin-sdk/web-media";
+} from "zhushou/plugin-sdk/media-runtime";
+import type { ChunkMode } from "zhushou/plugin-sdk/reply-chunking";
+import { resolveTextChunksWithFallback } from "zhushou/plugin-sdk/reply-payload";
+import type { RetryRunner } from "zhushou/plugin-sdk/retry-runtime";
+import { loadWebMedia } from "zhushou/plugin-sdk/web-media";
 import { chunkDiscordTextWithMode } from "./chunk.js";
 import { createDiscordClient, resolveDiscordRest } from "./client.js";
 import { fetchChannelPermissionsDiscord, isThreadChannelType } from "./send.permissions.js";

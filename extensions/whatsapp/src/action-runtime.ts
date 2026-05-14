@@ -4,8 +4,8 @@ import {
   jsonResult,
   readReactionParams,
   readStringParam,
-} from "assistant/plugin-sdk/channel-actions";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-actions";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { resolveAuthorizedWhatsAppOutboundTarget } from "./action-runtime-target-auth.js";
 import { resolveWhatsAppReactionLevel } from "./reaction-level.js";
 import { sendReactionWhatsApp } from "./send.js";
@@ -17,7 +17,7 @@ export const whatsAppActionRuntime = {
 
 export async function handleWhatsAppAction(
   params: Record<string, unknown>,
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
   const whatsAppConfig = cfg.channels?.whatsapp;

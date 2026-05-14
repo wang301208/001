@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  extractAssistantTextForPhase,
-  extractAssistantVisibleText,
+  extractZhushouTextForPhase,
+  extractZhushouVisibleText,
   extractFirstTextBlock,
-  resolveAssistantMessagePhase,
+  resolveZhushouMessagePhase,
 } from "./chat-message-content.js";
 
 describe("shared/chat-message-content", () => {
@@ -53,10 +53,10 @@ describe("shared/chat-message-content", () => {
   });
 });
 
-describe("extractAssistantVisibleText", () => {
+describe("extractZhushouVisibleText", () => {
   it("preserves boundary spacing when joining adjacent final_answer text blocks", () => {
     expect(
-      extractAssistantTextForPhase(
+      extractZhushouTextForPhase(
         {
           role: "assistant",
           content: [
@@ -79,7 +79,7 @@ describe("extractAssistantVisibleText", () => {
 
   it("prefers final_answer text over commentary text", () => {
     expect(
-      extractAssistantVisibleText({
+      extractZhushouVisibleText({
         role: "assistant",
         content: [
           {
@@ -99,7 +99,7 @@ describe("extractAssistantVisibleText", () => {
 
   it("does not fall back to commentary-only text", () => {
     expect(
-      extractAssistantVisibleText({
+      extractZhushouVisibleText({
         role: "assistant",
         content: [
           {
@@ -114,7 +114,7 @@ describe("extractAssistantVisibleText", () => {
 
   it("does not fall back to unphased legacy text when final_answer is empty", () => {
     expect(
-      extractAssistantVisibleText({
+      extractZhushouVisibleText({
         role: "assistant",
         content: [
           { type: "text", text: "Legacy answer" },
@@ -130,7 +130,7 @@ describe("extractAssistantVisibleText", () => {
 
   it("falls back to unphased legacy text", () => {
     expect(
-      extractAssistantVisibleText({
+      extractZhushouVisibleText({
         role: "assistant",
         content: [{ type: "text", text: "Legacy answer" }],
       }),
@@ -139,7 +139,7 @@ describe("extractAssistantVisibleText", () => {
 
   it("does not mix unphased legacy text into final_answer output", () => {
     expect(
-      extractAssistantVisibleText({
+      extractZhushouVisibleText({
         role: "assistant",
         phase: "final_answer",
         content: [
@@ -155,16 +155,16 @@ describe("extractAssistantVisibleText", () => {
   });
 });
 
-describe("resolveAssistantMessagePhase", () => {
-  it("prefers the top-level assistant phase when present", () => {
-    expect(resolveAssistantMessagePhase({ role: "assistant", phase: "commentary" })).toBe(
+describe("resolveZhushouMessagePhase", () => {
+  it("prefers the top-level zhushou phase when present", () => {
+    expect(resolveZhushouMessagePhase({ role: "assistant", phase: "commentary" })).toBe(
       "commentary",
     );
   });
 
   it("resolves a single explicit phase from textSignature metadata", () => {
     expect(
-      resolveAssistantMessagePhase({
+      resolveZhushouMessagePhase({
         role: "assistant",
         content: [
           {
@@ -179,7 +179,7 @@ describe("resolveAssistantMessagePhase", () => {
 
   it("returns undefined when text blocks contain mixed explicit phases", () => {
     expect(
-      resolveAssistantMessagePhase({
+      resolveZhushouMessagePhase({
         role: "assistant",
         content: [
           {

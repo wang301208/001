@@ -10,7 +10,7 @@ describe("zalo runtime api", () => {
       loadRuntimeApiExportTypesViaJiti({
         modulePath: runtimeApiPath,
         exportNames: ["setZaloRuntime"],
-        realPluginSdkSpecifiers: ["assistant/plugin-sdk/runtime-store"],
+        realPluginSdkSpecifiers: ["zhushou/plugin-sdk/runtime-store"],
       }),
     ).toEqual({
       setZaloRuntime: "function",

@@ -1,16 +1,16 @@
 import {
   DEFAULT_ACCOUNT_ID,
   type ChannelSetupAdapter,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/setup";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/setup";
 import { resolveDefaultFeishuAccountId } from "./accounts.js";
 import type { FeishuConfig } from "./types.js";
 
 export function setFeishuNamedAccountEnabled(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   enabled: boolean,
-): AssistantConfig {
+): ZhushouConfig {
   const feishuCfg = cfg.channels?.feishu as FeishuConfig | undefined;
   return {
     ...cfg,

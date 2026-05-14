@@ -1,7 +1,7 @@
 import { StaticAuthProvider } from "@twurple/auth";
 import { ChatClient } from "@twurple/chat";
-import type { BaseProbeResult } from "assistant/plugin-sdk/channel-contract";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import type { BaseProbeResult } from "zhushou/plugin-sdk/channel-contract";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import type { TwitchAccountConfig } from "./types.js";
 import { normalizeToken } from "./utils/twitch.js";
 

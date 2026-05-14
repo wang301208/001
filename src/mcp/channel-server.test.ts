@@ -2,7 +2,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { describe, expect, test, vi } from "vitest";
 import { z } from "zod";
-import { createAssistantChannelMcpServer, AssistantChannelBridge } from "./channel-server.js";
+import { createZhushouChannelMcpServer, ZhushouChannelBridge } from "./channel-server.js";
 
 const ClaudeChannelNotificationSchema = z.object({
   method: z.literal("notifications/claude/channel"),
@@ -21,7 +21,7 @@ const ClaudePermissionNotificationSchema = z.object({
 });
 
 async function connectMcpWithoutGateway(params?: { claudeChannelMode?: "auto" | "on" | "off" }) {
-  const serverHarness = await createAssistantChannelMcpServer({
+  const serverHarness = await createZhushouChannelMcpServer({
     claudeChannelMode: params?.claudeChannelMode ?? "auto",
     verbose: false,
   });
@@ -39,7 +39,7 @@ async function connectMcpWithoutGateway(params?: { claudeChannelMode?: "auto" | 
   };
 }
 
-describe("assistant channel mcp server", () => {
+describe("zhushou channel mcp server", () => {
   describe("gateway-backed flows", () => {
     describe("gateway integration", () => {
       test("lists conversations and reads messages", async () => {
@@ -68,7 +68,7 @@ describe("assistant channel mcp server", () => {
                   content: [{ type: "text", text: "hello from transcript" }],
                 },
                 {
-                  __assistant: {
+                  __zhushou: {
                     id: "msg-attachment",
                   },
                   role: "assistant",
@@ -146,7 +146,7 @@ describe("assistant channel mcp server", () => {
             content: [{ type: "text", text: "hello from transcript" }],
           });
           expect(read.structuredContent?.messages?.[1]).toMatchObject({
-            __assistant: {
+            __zhushou: {
               id: "msg-attachment",
             },
           });
@@ -287,7 +287,7 @@ describe("assistant channel mcp server", () => {
     });
 
     test("sendMessage normalizes route metadata for gateway send", async () => {
-      const bridge = new AssistantChannelBridge({} as never, {
+      const bridge = new ZhushouChannelBridge({} as never, {
         claudeChannelMode: "off",
         verbose: false,
       });
@@ -342,7 +342,7 @@ describe("assistant channel mcp server", () => {
     });
 
     test("lists routed sessions that only expose modern channel fields", async () => {
-      const bridge = new AssistantChannelBridge({} as never, {
+      const bridge = new ZhushouChannelBridge({} as never, {
         claudeChannelMode: "off",
         verbose: false,
       });
@@ -408,7 +408,7 @@ describe("assistant channel mcp server", () => {
     });
 
     test("swallows notification send errors after channel replies are matched", async () => {
-      const bridge = new AssistantChannelBridge({} as never, {
+      const bridge = new ZhushouChannelBridge({} as never, {
         claudeChannelMode: "on",
         verbose: false,
       });

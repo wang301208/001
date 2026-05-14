@@ -53,8 +53,8 @@ describe("status.command-sections", () => {
     expect(lines).toContain("    critical detail");
     expect(lines).toContain("    muted(Fix: fix it)");
     expect(lines).toContain("muted(... +1 more)");
-    expect(lines.at(-2)).toBe("muted(Full report: cmd:assistant security audit)");
-    expect(lines.at(-1)).toBe("muted(Deep probe: cmd:assistant security audit --deep)");
+    expect(lines.at(-2)).toBe("muted(Full report: cmd:zhushou security audit)");
+    expect(lines.at(-1)).toBe("muted(Deep probe: cmd:zhushou security audit --deep)");
   });
 
   it("builds verbose sessions rows and empty fallback rows", () => {
@@ -150,14 +150,14 @@ describe("status.command-sections", () => {
         gatewayReachable: false,
       }),
     ).toEqual([
-      "FAQ: https://docs.assistant.ai/faq",
-      "Troubleshooting: https://docs.assistant.ai/troubleshooting",
+      "FAQ: https://docs.zhushou.ai/faq",
+      "Troubleshooting: https://docs.zhushou.ai/troubleshooting",
       "",
       "warn(upgrade ready)",
       "Next steps:",
-      "  Need to share?      cmd:assistant status --all",
-      "  Need to debug live? cmd:assistant logs --follow",
-      "  Fix reachability first: cmd:assistant gateway probe",
+      "  Need to share?      cmd:zhushou status --all",
+      "  Need to debug live? cmd:zhushou logs --follow",
+      "  Fix reachability first: cmd:zhushou gateway probe",
     ]);
   });
 
@@ -185,9 +185,9 @@ describe("status.command-sections", () => {
       }),
     ).toEqual([
       "warn(Gateway pairing approval required.)",
-      "muted(Recovery: cmd:assistant devices approve req-123)",
-      "muted(Fallback: cmd:assistant devices approve --latest)",
-      "muted(Inspect: cmd:assistant devices list)",
+      "muted(Recovery: cmd:zhushou devices approve req-123)",
+      "muted(Fallback: cmd:zhushou devices approve --latest)",
+      "muted(Inspect: cmd:zhushou devices list)",
     ]);
   });
 

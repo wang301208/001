@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   createBackspaceDeduper,
   drainAndStopTuiSafely,
   isIgnorableTuiStopError,
   resolveCtrlCAction,
-  resolveFinalAssistantText,
+  resolveFinalZhushouText,
   resolveGatewayDisconnectState,
   resolveInitialTuiSessionInfo,
   resolveInitialTuiAgentId,
@@ -13,14 +13,14 @@ import {
   stopTuiSafely,
 } from "./tui.js";
 
-describe("resolveFinalAssistantText", () => {
+describe("resolveFinalZhushouText", () => {
   it("falls back to streamed text when final text is empty", () => {
-    expect(resolveFinalAssistantText({ finalText: "", streamedText: "Hello" })).toBe("Hello");
+    expect(resolveFinalZhushouText({ finalText: "", streamedText: "Hello" })).toBe("Hello");
   });
 
   it("prefers the final text when present", () => {
     expect(
-      resolveFinalAssistantText({
+      resolveFinalZhushouText({
         finalText: "All done",
         streamedText: "partial",
       }),
@@ -29,7 +29,7 @@ describe("resolveFinalAssistantText", () => {
 
   it("falls back to formatted error text when final and streamed text are empty", () => {
     expect(
-      resolveFinalAssistantText({
+      resolveFinalZhushouText({
         finalText: "",
         streamedText: "",
         errorMessage: '401 {"error":{"message":"Missing scopes: model.request"}}',
@@ -92,11 +92,11 @@ describe("resolveTuiSessionKey", () => {
 });
 
 describe("resolveInitialTuiAgentId", () => {
-  const cfg: AssistantConfig = {
+  const cfg: ZhushouConfig = {
     agents: {
       list: [
-        { id: "main", workspace: "/tmp/assistant" },
-        { id: "ops", workspace: "/tmp/assistant/projects/ops" },
+        { id: "main", workspace: "/tmp/zhushou" },
+        { id: "ops", workspace: "/tmp/zhushou/projects/ops" },
       ],
     },
   };
@@ -107,7 +107,7 @@ describe("resolveInitialTuiAgentId", () => {
         cfg,
         fallbackAgentId: "main",
         initialSessionInput: "",
-        cwd: "/tmp/assistant/projects/ops/src",
+        cwd: "/tmp/zhushou/projects/ops/src",
       }),
     ).toBe("ops");
   });
@@ -118,7 +118,7 @@ describe("resolveInitialTuiAgentId", () => {
         cfg,
         fallbackAgentId: "main",
         initialSessionInput: "agent:main:incident",
-        cwd: "/tmp/assistant/projects/ops/src",
+        cwd: "/tmp/zhushou/projects/ops/src",
       }),
     ).toBe("main");
   });
@@ -167,8 +167,8 @@ describe("resolveGatewayDisconnectState", () => {
   it("returns pairing recovery guidance when disconnect reason requires pairing", () => {
     const state = resolveGatewayDisconnectState("gateway closed (1008): pairing required");
     expect(state.connectionStatus).toContain("pairing required");
-    expect(state.activityStatus).toBe("需要配对: 运行 assistant devices list");
-    expect(state.pairingHint).toContain("assistant devices list");
+    expect(state.activityStatus).toBe("需要配对: 运行 zhushou devices list");
+    expect(state.pairingHint).toContain("zhushou devices list");
   });
 
   it("falls back to idle for generic disconnect reasons", () => {

@@ -1,7 +1,7 @@
 import os from "node:os";
-import { resolveLoggerBackedRuntime } from "assistant/plugin-sdk/extension-shared";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { resolveLoggerBackedRuntime } from "zhushou/plugin-sdk/extension-shared";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { resolveNextcloudTalkAccount } from "./accounts.js";
 import { handleNextcloudTalkInbound } from "./inbound.js";
 import {

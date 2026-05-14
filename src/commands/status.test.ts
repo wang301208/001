@@ -7,8 +7,8 @@ import { captureEnv } from "../test-utils/env.js";
 let envSnapshot: ReturnType<typeof captureEnv>;
 
 beforeAll(() => {
-  envSnapshot = captureEnv(["ASSISTANT_PROFILE"]);
-  process.env.ASSISTANT_PROFILE = "isolated";
+  envSnapshot = captureEnv(["ZHUSHOU_PROFILE"]);
+  process.env.ZHUSHOU_PROFILE = "isolated";
 });
 
 afterAll(() => {
@@ -180,7 +180,7 @@ async function createStatusServiceSummary(
     label: service.label,
     installed: Boolean(command) || runtime?.status === "running",
     loaded,
-    managedByAssistant: Boolean(command),
+    managedByZhushou: Boolean(command),
     externallyManaged: !command && runtime?.status === "running",
     loadedText: service.loadedText,
     runtime,
@@ -312,11 +312,11 @@ async function createMockStatusScanResult(params: { includePluginCompatibility?:
     tailscaleDns: null,
     tailscaleHttpsUrl: null,
     update: {
-      root: "/tmp/assistant",
+      root: "/tmp/zhushou",
       installKind: "git",
       packageManager: "pnpm",
       git: {
-        root: "/tmp/assistant",
+        root: "/tmp/zhushou",
         branch: "main",
         upstream: "origin/main",
         dirty: false,
@@ -327,16 +327,16 @@ async function createMockStatusScanResult(params: { includePluginCompatibility?:
       deps: {
         manager: "pnpm",
         status: "ok",
-        lockfilePath: "/tmp/assistant/pnpm-lock.yaml",
-        markerPath: "/tmp/assistant/node_modules/.modules.yaml",
+        lockfilePath: "/tmp/zhushou/pnpm-lock.yaml",
+        markerPath: "/tmp/zhushou/node_modules/.modules.yaml",
       },
       registry: { latestVersion: "0.0.0" },
     },
     gatewayConnection: { url: "ws://127.0.0.1:18789" },
     remoteUrlMissing: false,
     gatewayMode: "local" as const,
-    gatewayProbeAuth: process.env.ASSISTANT_GATEWAY_TOKEN
-      ? { token: process.env.ASSISTANT_GATEWAY_TOKEN }
+    gatewayProbeAuth: process.env.ZHUSHOU_GATEWAY_TOKEN
+      ? { token: process.env.ZHUSHOU_GATEWAY_TOKEN }
       : {},
     gatewayProbeAuthWarning: gatewayAuthWarning,
     gatewayProbe,
@@ -543,7 +543,7 @@ const mocks = vi.hoisted(() => ({
     readRuntime: async () => ({ status: "running", pid: 1234 }),
     readCommand: async () => ({
       programArguments: ["node", "dist/entry.js", "gateway"],
-      sourcePath: "/tmp/Library/LaunchAgents/ai.assistant.gateway.plist",
+      sourcePath: "/tmp/Library/LaunchAgents/ai.zhushou.gateway.plist",
     }),
   }),
   resolveNodeService: vi.fn().mockReturnValue({
@@ -559,7 +559,7 @@ const mocks = vi.hoisted(() => ({
     readRuntime: async () => ({ status: "running", pid: 4321 }),
     readCommand: async () => ({
       programArguments: ["node", "dist/entry.js", "node-host"],
-      sourcePath: "/tmp/Library/LaunchAgents/ai.assistant.node.plist",
+      sourcePath: "/tmp/Library/LaunchAgents/ai.zhushou.node.plist",
     }),
   }),
 }));
@@ -582,7 +582,7 @@ vi.mock("../plugins/memory-runtime.js", () => ({
         files: 2,
         chunks: 3,
         dirty: false,
-        workspaceDir: "/tmp/assistant",
+        workspaceDir: "/tmp/zhushou",
         dbPath: "/tmp/memory.sqlite",
         provider: "openai",
         model: "text-embedding-3-small",
@@ -726,7 +726,7 @@ vi.mock("../gateway/call.js", () => ({
           path: "gateway.auth.token",
         });
       }
-      const envToken = process.env.ASSISTANT_GATEWAY_TOKEN?.trim();
+      const envToken = process.env.ZHUSHOU_GATEWAY_TOKEN?.trim();
       return envToken ? { token: envToken } : {};
     },
   ),
@@ -734,9 +734,9 @@ vi.mock("../gateway/call.js", () => ({
 vi.mock("../gateway/agent-list.js", () => ({
   listGatewayAgentsBasic: mocks.listGatewayAgentsBasic,
 }));
-vi.mock("../infra/assistant-root.js", () => ({
-  resolveAssistantPackageRoot: vi.fn().mockResolvedValue("/tmp/assistant"),
-  resolveAssistantPackageRootSync: vi.fn(() => "/tmp/assistant"),
+vi.mock("../infra/zhushou-root.js", () => ({
+  resolveZhushouPackageRoot: vi.fn().mockResolvedValue("/tmp/zhushou"),
+  resolveZhushouPackageRootSync: vi.fn(() => "/tmp/zhushou"),
 }));
 vi.mock("../infra/os-summary.js", () => ({
   resolveOsSummary: () => ({
@@ -748,11 +748,11 @@ vi.mock("../infra/os-summary.js", () => ({
 }));
 vi.mock("../infra/update-check.js", () => ({
   checkUpdateStatus: vi.fn().mockResolvedValue({
-    root: "/tmp/assistant",
+    root: "/tmp/zhushou",
     installKind: "git",
     packageManager: "pnpm",
     git: {
-      root: "/tmp/assistant",
+      root: "/tmp/zhushou",
       branch: "main",
       upstream: "origin/main",
       dirty: false,
@@ -763,8 +763,8 @@ vi.mock("../infra/update-check.js", () => ({
     deps: {
       manager: "pnpm",
       status: "ok",
-      lockfilePath: "/tmp/assistant/pnpm-lock.yaml",
-      markerPath: "/tmp/assistant/node_modules/.modules.yaml",
+      lockfilePath: "/tmp/zhushou/pnpm-lock.yaml",
+      markerPath: "/tmp/zhushou/node_modules/.modules.yaml",
     },
     registry: { latestVersion: "0.0.0" },
   }),
@@ -913,7 +913,7 @@ vi.mock("./status.daemon.js", () => ({
       label: service.label,
       installed: Boolean(command) || runtime?.status === "running",
       loaded,
-      managedByAssistant: Boolean(command),
+      managedByZhushou: Boolean(command),
       externallyManaged: !command && runtime?.status === "running",
       loadedText: loaded ? service.loadedText : service.notLoadedText,
       runtimeShort: runtime?.pid ? `pid ${runtime.pid}` : null,
@@ -928,7 +928,7 @@ vi.mock("./status.daemon.js", () => ({
       label: service.label,
       installed: Boolean(command) || runtime?.status === "running",
       loaded,
-      managedByAssistant: Boolean(command),
+      managedByZhushou: Boolean(command),
       externallyManaged: !command && runtime?.status === "running",
       loadedText: loaded ? service.loadedText : service.notLoadedText,
       runtimeShort: runtime?.pid ? `pid ${runtime.pid}` : null,
@@ -1018,7 +1018,7 @@ describe("statusCommand", () => {
       readRuntime: async () => ({ status: "running", pid: 1234 }),
       readCommand: async () => ({
         programArguments: ["node", "dist/entry.js", "gateway"],
-        sourcePath: "/tmp/Library/LaunchAgents/ai.assistant.gateway.plist",
+        sourcePath: "/tmp/Library/LaunchAgents/ai.zhushou.gateway.plist",
       }),
     });
     mocks.resolveNodeService.mockReset();
@@ -1035,7 +1035,7 @@ describe("statusCommand", () => {
       readRuntime: async () => ({ status: "running", pid: 4321 }),
       readCommand: async () => ({
         programArguments: ["node", "dist/entry.js", "node-host"],
-        sourcePath: "/tmp/Library/LaunchAgents/ai.assistant.node.plist",
+        sourcePath: "/tmp/Library/LaunchAgents/ai.zhushou.node.plist",
       }),
     });
     runtimeLogMock.mockClear();
@@ -1156,8 +1156,8 @@ describe("statusCommand", () => {
     expect(
       logs.some(
         (line) =>
-          line.includes("assistant status --all") ||
-          line.includes("assistant --profile isolated status --all"),
+          line.includes("zhushou status --all") ||
+          line.includes("zhushou --profile isolated status --all"),
       ),
     ).toBe(true);
     expect(logs.some((line) => line.includes("Cache"))).toBe(true);
@@ -1258,7 +1258,7 @@ describe("statusCommand", () => {
     const joined = await runStatusAndGetJoinedLogs();
     expect(joined).toContain("node → gateway.example.com:19000 · no local gateway");
     expect(joined).not.toContain("Gateway: local · ws://127.0.0.1:18789");
-    expect(joined).toContain("assistant --profile isolated node status");
+    expect(joined).toContain("zhushou --profile isolated node status");
     expect(joined).not.toContain("Fix reachability first");
   });
 
@@ -1267,7 +1267,7 @@ describe("statusCommand", () => {
       session: {},
       channels: { whatsapp: { allowFrom: ["*"] } },
     });
-    await withEnvVar("ASSISTANT_GATEWAY_TOKEN", "abcd1234", async () => {
+    await withEnvVar("ZHUSHOU_GATEWAY_TOKEN", "abcd1234", async () => {
       mockProbeGatewayResult({
         ok: true,
         connectLatencyMs: 123,

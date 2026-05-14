@@ -4,7 +4,7 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/ag
 import type { ChannelPluginCatalogEntry } from "../../channels/plugins/catalog.js";
 import { resolveBundledInstallPlanForCatalogEntry } from "../../cli/plugin-install-plan.js";
 import { applyPluginAutoEnable } from "../../config/plugin-auto-enable.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import {
   findBundledPluginSourceInMap,
@@ -15,7 +15,7 @@ import { clearPluginDiscoveryCache } from "../../plugins/discovery.js";
 import { enablePluginInConfig } from "../../plugins/enable.js";
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
 import { buildNpmResolutionInstallFields, recordPluginInstall } from "../../plugins/installs.js";
-import { loadAssistantPlugins } from "../../plugins/loader.js";
+import { loadZhushouPlugins } from "../../plugins/loader.js";
 import { createPluginLoaderLogger } from "../../plugins/logger.js";
 import type { PluginRegistry } from "../../plugins/registry.js";
 import { getActivePluginChannelRegistry } from "../../plugins/runtime.js";
@@ -26,7 +26,7 @@ import { getTrustedChannelPluginCatalogEntry } from "./trusted-catalog.js";
 type InstallChoice = "npm" | "local" | "skip";
 
 type InstallResult = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   installed: boolean;
   pluginId?: string;
 };
@@ -70,7 +70,7 @@ function resolveLocalPath(
   return null;
 }
 
-function addPluginLoadPath(cfg: AssistantConfig, pluginPath: string): AssistantConfig {
+function addPluginLoadPath(cfg: ZhushouConfig, pluginPath: string): ZhushouConfig {
   const existing = cfg.plugins?.load?.paths ?? [];
   const merged = Array.from(new Set([...existing, pluginPath]));
   return {
@@ -116,7 +116,7 @@ async function promptInstallChoice(params: {
 }
 
 function resolveInstallDefaultChoice(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   entry: ChannelPluginCatalogEntry;
   localPath?: string | null;
   bundledLocalPath?: string | null;
@@ -143,7 +143,7 @@ function resolveInstallDefaultChoice(params: {
 }
 
 export async function ensureChannelSetupPluginInstalled(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   entry: ChannelPluginCatalogEntry;
   prompter: WizardPrompter;
   runtime: RuntimeEnv;
@@ -229,7 +229,7 @@ export async function ensureChannelSetupPluginInstalled(params: {
 }
 
 export function reloadChannelSetupPluginRegistry(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   runtime: RuntimeEnv;
   workspaceDir?: string;
 }): void {
@@ -237,7 +237,7 @@ export function reloadChannelSetupPluginRegistry(params: {
 }
 
 function loadChannelSetupPluginRegistry(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   runtime: RuntimeEnv;
   workspaceDir?: string;
   onlyPluginIds?: string[];
@@ -250,7 +250,7 @@ function loadChannelSetupPluginRegistry(params: {
     params.workspaceDir ??
     resolveAgentWorkspaceDir(resolvedConfig, resolveDefaultAgentId(resolvedConfig));
   const log = createSubsystemLogger("plugins");
-  return loadAssistantPlugins({
+  return loadZhushouPlugins({
     config: resolvedConfig,
     activationSourceConfig: params.cfg,
     autoEnabledReasons: autoEnabled.autoEnabledReasons,
@@ -264,7 +264,7 @@ function loadChannelSetupPluginRegistry(params: {
 }
 
 function resolveScopedChannelPluginId(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel: string;
   pluginId?: string;
   workspaceDir?: string;
@@ -282,7 +282,7 @@ function resolveScopedChannelPluginId(params: {
 }
 
 function resolveUniqueManifestScopedChannelPluginId(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel: string;
   workspaceDir?: string;
 }): string | undefined {
@@ -297,7 +297,7 @@ function resolveUniqueManifestScopedChannelPluginId(params: {
 }
 
 export function reloadChannelSetupPluginRegistryForChannel(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   runtime: RuntimeEnv;
   channel: string;
   pluginId?: string;
@@ -322,7 +322,7 @@ export function reloadChannelSetupPluginRegistryForChannel(params: {
 }
 
 export function loadChannelSetupPluginRegistrySnapshotForChannel(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   runtime: RuntimeEnv;
   channel: string;
   pluginId?: string;

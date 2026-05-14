@@ -1,5 +1,5 @@
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/string-coerce-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/string-coerce-runtime";
 
 export function formatMatrixErrorMessage(err: unknown): string {
   return formatErrorMessage(err);

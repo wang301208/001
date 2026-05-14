@@ -97,7 +97,7 @@ describe("agent event handler", () => {
     };
   }
 
-  function emitRun1AssistantText(
+  function emitRun1ZhushouText(
     harness: ReturnType<typeof createHarness>,
     text: string,
   ): ReturnType<typeof createHarness> {
@@ -108,7 +108,7 @@ describe("agent event handler", () => {
     harness.handler({
       runId: "run-1",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text },
     });
@@ -183,8 +183,8 @@ describe("agent event handler", () => {
     return payload;
   }
 
-  it("emits chat delta for assistant text-only events", () => {
-    const { broadcast, nodeSendToSession, nowSpy } = emitRun1AssistantText(
+  it("emits chat delta for zhushou text-only events", () => {
+    const { broadcast, nodeSendToSession, nowSpy } = emitRun1ZhushouText(
       createHarness({ now: 1_000 }),
       "Hello world",
     );
@@ -200,8 +200,8 @@ describe("agent event handler", () => {
     nowSpy?.mockRestore();
   });
 
-  it("strips inline directives from assistant chat events", () => {
-    const { broadcast, nodeSendToSession, nowSpy } = emitRun1AssistantText(
+  it("strips inline directives from zhushou chat events", () => {
+    const { broadcast, nodeSendToSession, nowSpy } = emitRun1ZhushouText(
       createHarness({ now: 1_000 }),
       "Hello [[reply_to_current]] world [[audio_as_voice]]",
     );
@@ -218,7 +218,7 @@ describe("agent event handler", () => {
   it.each([" NO_REPLY  ", " ANNOUNCE_SKIP ", " REPLY_SKIP "])(
     "does not emit chat delta for suppressed control text %s",
     (replyText) => {
-      const { broadcast, nodeSendToSession, nowSpy } = emitRun1AssistantText(
+      const { broadcast, nodeSendToSession, nowSpy } = emitRun1ZhushouText(
         createHarness({ now: 1_000 }),
         replyText,
       );
@@ -239,7 +239,7 @@ describe("agent event handler", () => {
       handler({
         runId: "run-2",
         seq: 1,
-        stream: "assistant",
+        stream: "zhushou",
         ts: Date.now(),
         data: { text: replyText },
       });
@@ -262,7 +262,7 @@ describe("agent event handler", () => {
       handler({
         runId: "run-3",
         seq: 1,
-        stream: "assistant",
+        stream: "zhushou",
         ts: Date.now(),
         data: { text },
       });
@@ -293,7 +293,7 @@ describe("agent event handler", () => {
         handler({
           runId: "run-control",
           seq: 1,
-          stream: "assistant",
+          stream: "zhushou",
           ts: Date.now(),
           data: { text },
         });
@@ -316,7 +316,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-4",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "No" },
     });
@@ -339,14 +339,14 @@ describe("agent event handler", () => {
     handler({
       runId: "run-4b",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "NO_REPLYThe user" },
     });
     handler({
       runId: "run-4b",
       seq: 2,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "NO_REPLYThe user is saying hello" },
     });
@@ -382,7 +382,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-flush",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Hello" },
     });
@@ -391,7 +391,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-flush",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Hello world" },
     });
@@ -414,7 +414,7 @@ describe("agent event handler", () => {
     nowSpy.mockRestore();
   });
 
-  it("preserves pre-tool assistant text when later segments stream as non-prefix snapshots", () => {
+  it("preserves pre-tool zhushou text when later segments stream as non-prefix snapshots", () => {
     let now = 10_500;
     const nowSpy = vi.spyOn(Date, "now").mockImplementation(() => now);
     const { broadcast, nodeSendToSession, chatRunState, handler } = createHarness();
@@ -426,7 +426,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-segmented",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Before tool call", delta: "Before tool call" },
     });
@@ -435,7 +435,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-segmented",
       seq: 2,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "After tool call", delta: "\nAfter tool call" },
     });
@@ -472,7 +472,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-segmented-flush",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Before tool call", delta: "Before tool call" },
     });
@@ -481,7 +481,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-segmented-flush",
       seq: 2,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "After tool call", delta: "\nAfter tool call" },
     });
@@ -518,7 +518,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-no-dup-flush",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Hello" },
     });
@@ -527,7 +527,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-no-dup-flush",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Hello world" },
     });
@@ -555,7 +555,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-cleanup",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "done" },
     });
@@ -586,7 +586,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-stale-tail",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "done" },
     });
@@ -600,7 +600,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-stale-tail",
       seq: 3,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "late tail" },
     });
@@ -641,17 +641,17 @@ describe("agent event handler", () => {
     handler({
       runId: "run-tool-flush",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Before tool" },
     });
 
-    // Throttled assistant update (within 150ms window).
+    // Throttled zhushou update (within 150ms window).
     now = 12_050;
     handler({
       runId: "run-tool-flush",
       seq: 2,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Before tool expanded" },
     });
@@ -1165,7 +1165,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-fallback-retry",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "draft" },
     });
@@ -1226,7 +1226,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-terminal-error",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "partial" },
     });
@@ -1336,7 +1336,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-chat-send",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "partial" },
     });
@@ -1419,7 +1419,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-hidden",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: { text: "Reply from imessage" },
     });
@@ -1495,7 +1495,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-heartbeat",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: {
         text: "HEARTBEAT_OK Read HEARTBEAT.md if it exists (workspace context). Follow it strictly.",
@@ -1531,7 +1531,7 @@ describe("agent event handler", () => {
     handler({
       runId: "run-heartbeat-alert",
       seq: 1,
-      stream: "assistant",
+      stream: "zhushou",
       ts: Date.now(),
       data: {
         text: "HEARTBEAT_OK Disk usage crossed 95 percent on /data and needs cleanup now.",

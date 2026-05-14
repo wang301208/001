@@ -37,8 +37,8 @@ import {
 } from "../plugins/provider-runtime.js";
 import type { ProviderTransportTurnState } from "../plugins/types.js";
 import {
-  encodeAssistantTextSignature,
-  normalizeAssistantPhase,
+  encodeZhushouTextSignature,
+  normalizeZhushouPhase,
 } from "../shared/chat-message-content.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { resolveOpenAIStrictToolSetting } from "./openai-tool-schema.js";
@@ -46,11 +46,11 @@ import {
   getOpenAIWebSocketErrorDetails,
   OpenAIWebSocketManager,
   type FunctionToolDefinition,
-  type OpenAIResponsesAssistantPhase,
+  type OpenAIResponsesZhushouPhase,
   type OpenAIWebSocketManagerOptions,
 } from "./openai-ws-connection.js";
 import {
-  buildAssistantMessageFromResponse,
+  buildZhushouMessageFromResponse,
   convertMessagesToInputItems,
   convertTools,
   planTurnInput,
@@ -60,8 +60,8 @@ import { log } from "./pi-embedded-runner/logger.js";
 import { normalizeProviderId } from "./provider-id.js";
 import { createBoundaryAwareStreamFnForModel } from "./provider-transport-stream.js";
 import {
-  buildAssistantMessageWithZeroUsage,
-  buildStreamErrorAssistantMessage,
+  buildZhushouMessageWithZeroUsage,
+  buildStreamErrorZhushouMessage,
 } from "./stream-message-shared.js";
 import { stripSystemPromptCacheBoundary } from "./system-prompt-cache-boundary.js";
 import { mergeTransportMetadata } from "./transport-stream-shared.js";
@@ -107,7 +107,7 @@ type OpenAIWsStreamDeps = {
   streamSimple: typeof piAi.streamSimple;
 };
 
-type AssistantMessageWithPhase = AssistantMessage & { phase?: OpenAIResponsesAssistantPhase };
+type ZhushouMessageWithPhase = AssistantMessage & { phase?: OpenAIResponsesZhushouPhase };
 
 const defaultOpenAIWsStreamDeps: OpenAIWsStreamDeps = {
   createManager: (options) => new OpenAIWebSocketManager(options),
@@ -117,14 +117,14 @@ const defaultOpenAIWsStreamDeps: OpenAIWsStreamDeps = {
 
 let openAIWsStreamDeps: OpenAIWsStreamDeps = defaultOpenAIWsStreamDeps;
 
-type AssistantMessageEventStreamLike = {
+type ZhushouMessageEventStreamLike = {
   push(event: AssistantMessageEvent): void;
   end(result?: AssistantMessage): void;
   result(): Promise<AssistantMessage>;
   [Symbol.asyncIterator](): AsyncIterator<AssistantMessageEvent>;
 };
 
-class LocalAssistantMessageEventStream implements AssistantMessageEventStreamLike {
+class LocalZhushouMessageEventStream implements ZhushouMessageEventStreamLike {
   private readonly queue: AssistantMessageEvent[] = [];
   private readonly waiting: Array<(value: IteratorResult<AssistantMessageEvent>) => void> = [];
   private done = false;
@@ -194,7 +194,7 @@ class LocalAssistantMessageEventStream implements AssistantMessageEventStreamLik
 function createEventStream(): AssistantMessageEventStream {
   return typeof piAi.createAssistantMessageEventStream === "function"
     ? piAi.createAssistantMessageEventStream()
-    : (new LocalAssistantMessageEventStream() as unknown as AssistantMessageEventStream);
+    : (new LocalZhushouMessageEventStream() as unknown as AssistantMessageEventStream);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -226,7 +226,7 @@ export function hasWsSession(sessionId: string): boolean {
 }
 
 export {
-  buildAssistantMessageFromResponse,
+  buildZhushouMessageFromResponse,
   convertMessagesToInputItems,
   convertTools,
   planTurnInput,
@@ -438,7 +438,7 @@ function resolveNativeOpenAISessionHeaders(params: {
   }
   return {
     "x-client-request-id": sessionId,
-    "x-assistant-session-id": sessionId,
+    "x-zhushou-session-id": sessionId,
   };
 }
 
@@ -463,14 +463,14 @@ function resolveNativeOpenAITransportTurnState(params: {
   return {
     headers: {
       ...sessionHeaders,
-      "x-assistant-turn-id": turnId,
-      "x-assistant-turn-attempt": attempt,
+      "x-zhushou-turn-id": turnId,
+      "x-zhushou-turn-attempt": attempt,
     },
     metadata: {
-      assistant_session_id: sessionHeaders["x-assistant-session-id"] ?? "",
-      assistant_turn_id: turnId,
-      assistant_turn_attempt: attempt,
-      assistant_transport: params.transport,
+      zhushou_session_id: sessionHeaders["x-zhushou-session-id"] ?? "",
+      zhushou_turn_id: turnId,
+      zhushou_turn_attempt: attempt,
+      zhushou_transport: params.transport,
     },
   };
 }
@@ -942,7 +942,7 @@ export function createOpenAIWebSocketStreamFn(
         if (!emittedStart) {
           eventStream.push({
             type: "start",
-            partial: buildAssistantMessageWithZeroUsage({
+            partial: buildZhushouMessageWithZeroUsage({
               model,
               content: [],
               stopReason: "stop",
@@ -951,7 +951,7 @@ export function createOpenAIWebSocketStreamFn(
           emittedStart = true;
         }
 
-        const outputItemPhaseById = new Map<string, OpenAIResponsesAssistantPhase | undefined>();
+        const outputItemPhaseById = new Map<string, OpenAIResponsesZhushouPhase | undefined>();
         const outputTextByPart = new Map<string, string>();
         const emittedTextByPart = new Map<string, string>();
         const getOutputTextKey = (itemId: string, contentIndex: number) =>
@@ -965,9 +965,9 @@ export function createOpenAIWebSocketStreamFn(
           const resolvedItemId = params.itemId;
           const contentIndex = params.contentIndex ?? 0;
           const itemPhase = resolvedItemId
-            ? normalizeAssistantPhase(outputItemPhaseById.get(resolvedItemId))
+            ? normalizeZhushouPhase(outputItemPhaseById.get(resolvedItemId))
             : undefined;
-          const partialBase = buildAssistantMessageWithZeroUsage({
+          const partialBase = buildZhushouMessageWithZeroUsage({
             model,
             content: [
               {
@@ -975,7 +975,7 @@ export function createOpenAIWebSocketStreamFn(
                 text: params.fullText,
                 ...(resolvedItemId
                   ? {
-                      textSignature: encodeAssistantTextSignature({
+                      textSignature: encodeZhushouTextSignature({
                         id: resolvedItemId,
                         ...(itemPhase ? { phase: itemPhase } : {}),
                       }),
@@ -985,8 +985,8 @@ export function createOpenAIWebSocketStreamFn(
             ],
             stopReason: "stop",
           });
-          const partialMsg: AssistantMessageWithPhase = itemPhase
-            ? ({ ...partialBase, phase: itemPhase } as AssistantMessageWithPhase)
+          const partialMsg: ZhushouMessageWithPhase = itemPhase
+            ? ({ ...partialBase, phase: itemPhase } as ZhushouMessageWithPhase)
             : partialBase;
           eventStream.push({
             type: "text_delta",
@@ -1078,7 +1078,7 @@ export function createOpenAIWebSocketStreamFn(
                 if (typeof event.item.id === "string") {
                   const itemPhase =
                     event.item.type === "message"
-                      ? normalizeAssistantPhase((event.item as { phase?: unknown }).phase)
+                      ? normalizeZhushouPhase((event.item as { phase?: unknown }).phase)
                       : undefined;
                   outputItemPhaseById.set(event.item.id, itemPhase);
                   if (itemPhase !== undefined) {
@@ -1129,14 +1129,14 @@ export function createOpenAIWebSocketStreamFn(
                 emittedTextByPart.clear();
                 cleanup();
                 session.lastContextLength = capturedContextLength;
-                const assistantMsg = buildAssistantMessageFromResponse(event.response, {
+                const zhushouMsg = buildZhushouMessageFromResponse(event.response, {
                   api: model.api,
                   provider: model.provider,
                   id: model.id,
                 });
                 const reason: Extract<StopReason, "stop" | "length" | "toolUse"> =
-                  assistantMsg.stopReason === "toolUse" ? "toolUse" : "stop";
-                eventStream.push({ type: "done", reason, message: assistantMsg });
+                  zhushouMsg.stopReason === "toolUse" ? "toolUse" : "stop";
+                eventStream.push({ type: "done", reason, message: zhushouMsg });
                 resolve();
               } else if (event.type === "response.failed") {
                 outputItemPhaseById.clear();
@@ -1221,7 +1221,7 @@ export function createOpenAIWebSocketStreamFn(
         eventStream.push({
           type: "error",
           reason: "error",
-          error: buildStreamErrorAssistantMessage({
+          error: buildStreamErrorZhushouMessage({
             model,
             errorMessage,
           }),
@@ -1243,7 +1243,7 @@ async function fallbackToHttp(
   context: Parameters<StreamFn>[1],
   streamOptions: Parameters<StreamFn>[2],
   apiKey: string,
-  eventStream: AssistantMessageEventStreamLike,
+  eventStream: ZhushouMessageEventStreamLike,
   signal?: AbortSignal,
   fallbackOptions?: {
     suppressStart?: boolean;

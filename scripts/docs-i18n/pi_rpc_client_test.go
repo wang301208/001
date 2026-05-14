@@ -12,7 +12,7 @@ func TestExtractTranslationResultIncludesStopReasonAndPreview(t *testing.T) {
 		"type":"agent_end",
 		"messages":[
 			{
-				"role":"assistant",
+				ROLE_ZHUSHOU,
 				"stopReason":"terminated",
 				"content":[
 					{"type":"text","text":"provider disconnected while streaming the translation chunk"}
@@ -29,7 +29,7 @@ func TestExtractTranslationResultIncludesStopReasonAndPreview(t *testing.T) {
 	for _, want := range []string{
 		"pi error:",
 		"stopReason=terminated",
-		"assistant=provider disconnected while streaming the translation chunk",
+		"zhushou=provider disconnected while streaming the translation chunk",
 	} {
 		if !strings.Contains(message, want) {
 			t.Fatalf("expected %q in error, got %q", want, message)
@@ -37,11 +37,11 @@ func TestExtractTranslationResultIncludesStopReasonAndPreview(t *testing.T) {
 	}
 }
 
-func TestPreviewPiAssistantTextTruncatesAndFlattensWhitespace(t *testing.T) {
+func TestPreviewPiZhushouTextTruncatesAndFlattensWhitespace(t *testing.T) {
 	t.Parallel()
 
 	input := "line one\n\nline   two\tline three " + strings.Repeat("x", 200)
-	preview := previewPiAssistantText(input)
+	preview := previewPiZhushouText(input)
 	if strings.Contains(preview, "\n") {
 		t.Fatalf("expected flattened whitespace, got %q", preview)
 	}
@@ -60,7 +60,7 @@ func TestExtractTranslationResultReturnsPiErrorBeforeDecodingStructuredErrorCont
 		"type":"agent_end",
 		"messages":[
 			{
-				"role":"assistant",
+				ROLE_ZHUSHOU,
 				"stopReason":"terminated",
 				"content":{"type":"error","message":"provider disconnected"}
 			}

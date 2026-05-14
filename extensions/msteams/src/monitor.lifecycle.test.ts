@@ -1,7 +1,7 @@
 import { EventEmitter } from "node:events";
 import type { Request, Response } from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig, RuntimeEnv } from "../runtime-api.js";
+import type { ZhushouConfig, RuntimeEnv } from "../runtime-api.js";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 import type { MSTeamsPollStore } from "./polls.js";
 
@@ -153,7 +153,7 @@ vi.mock("./runtime.js", () => ({
 
 import { monitorMSTeamsProvider } from "./monitor.js";
 
-function createConfig(port: number): AssistantConfig {
+function createConfig(port: number): ZhushouConfig {
   return {
     channels: {
       msteams: {
@@ -167,7 +167,7 @@ function createConfig(port: number): AssistantConfig {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function createRuntime(): RuntimeEnv {

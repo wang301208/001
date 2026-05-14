@@ -1,6 +1,6 @@
 ﻿import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createRuntimeEnv } from "../../../test/helpers/plugins/runtime-env.js";
-import type { AssistantConfig, RuntimeEnv } from "../runtime-api.js";
+import type { ZhushouConfig, RuntimeEnv } from "../runtime-api.js";
 import {
   FeishuRetryableCardActionError,
   handleFeishuCardAction,
@@ -36,7 +36,7 @@ vi.mock("./send.js", () => ({
 import { handleFeishuMessage } from "./bot.js";
 
 describe("Feishu Card Action Handler", () => {
-  const cfg: AssistantConfig = {};
+  const cfg: ZhushouConfig = {};
   const runtime: RuntimeEnv = createRuntimeEnv();
 
   function createCardActionEvent(params: {

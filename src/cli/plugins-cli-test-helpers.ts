@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import type { Mock } from "vitest";
 import { vi } from "vitest";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { createCliRuntimeCapture } from "./test-runtime-capture.js";
 
 type UnknownMock = Mock<(...args: unknown[]) => unknown>;
@@ -19,13 +19,13 @@ function invokeMock<TArgs extends unknown[], TResult>(mock: unknown, ...args: TA
   return (mock as (...args: TArgs) => TResult)(...args);
 }
 
-export const loadConfig: Mock<LoadConfigFn> = vi.fn<LoadConfigFn>(() => ({}) as AssistantConfig);
+export const loadConfig: Mock<LoadConfigFn> = vi.fn<LoadConfigFn>(() => ({}) as ZhushouConfig);
 export const readConfigFileSnapshot: AsyncUnknownMock = vi.fn();
 export const writeConfigFile: AsyncUnknownMock = vi.fn(async () => undefined);
 export const replaceConfigFile: AsyncUnknownMock = vi.fn(
-  async (params: { nextConfig: AssistantConfig }) => await writeConfigFile(params.nextConfig),
+  async (params: { nextConfig: ZhushouConfig }) => await writeConfigFile(params.nextConfig),
 ) as AsyncUnknownMock;
-export const resolveStateDir: Mock<() => string> = vi.fn(() => "/tmp/assistant-state");
+export const resolveStateDir: Mock<() => string> = vi.fn(() => "/tmp/zhushou-state");
 export const installPluginFromMarketplace: Mock<InstallPluginFromMarketplaceFn> = vi.fn();
 export const listMarketplacePlugins: Mock<ListMarketplacePluginsFn> = vi.fn();
 export const resolveMarketplaceInstallShortcut: Mock<ResolveMarketplaceInstallShortcutFn> = vi.fn();
@@ -97,9 +97,9 @@ vi.mock("../config/config.js", () => ({
       readConfigFileSnapshot,
       ...args,
     )) as (typeof import("../config/config.js"))["readConfigFileSnapshot"],
-  writeConfigFile: ((config: AssistantConfig) =>
+  writeConfigFile: ((config: ZhushouConfig) =>
     invokeMock<
-      [AssistantConfig],
+      [ZhushouConfig],
       ReturnType<(typeof import("../config/config.js"))["writeConfigFile"]>
     >(writeConfigFile, config)) as (typeof import("../config/config.js"))["writeConfigFile"],
   replaceConfigFile: ((
@@ -125,8 +125,8 @@ vi.mock("../plugins/marketplace.js", () => ({
 }));
 
 vi.mock("../plugins/enable.js", () => ({
-  enablePluginInConfig: ((cfg: AssistantConfig, pluginId: string) =>
-    invokeMock<[AssistantConfig, string], unknown>(
+  enablePluginInConfig: ((cfg: ZhushouConfig, pluginId: string) =>
+    invokeMock<[ZhushouConfig, string], unknown>(
       enablePluginInConfig,
       cfg,
       pluginId,
@@ -387,11 +387,11 @@ export function resetPluginsCliTestState() {
   installHooksFromPath.mockReset();
   recordHookInstall.mockReset();
 
-  loadConfig.mockReturnValue({} as AssistantConfig);
+  loadConfig.mockReturnValue({} as ZhushouConfig);
   readConfigFileSnapshot.mockImplementation(async () => {
     const config = loadConfig();
     return {
-      path: "/tmp/assistant-config.json5",
+      path: "/tmp/zhushou-config.json5",
       exists: true,
       raw: "{}",
       parsed: config,
@@ -408,20 +408,20 @@ export function resetPluginsCliTestState() {
   });
   writeConfigFile.mockResolvedValue(undefined);
   replaceConfigFile.mockImplementation(
-    (async (params: { nextConfig: AssistantConfig }) =>
+    (async (params: { nextConfig: ZhushouConfig }) =>
       await writeConfigFile(params.nextConfig)) as (...args: unknown[]) => Promise<unknown>,
   );
-  resolveStateDir.mockReturnValue("/tmp/assistant-state");
+  resolveStateDir.mockReturnValue("/tmp/zhushou-state");
   resolveMarketplaceInstallShortcut.mockResolvedValue(null);
   installPluginFromMarketplace.mockResolvedValue({
     ok: false,
     error: "marketplace install failed",
   });
-  enablePluginInConfig.mockImplementation(((cfg: AssistantConfig) => ({ config: cfg })) as (
+  enablePluginInConfig.mockImplementation(((cfg: ZhushouConfig) => ({ config: cfg })) as (
     ...args: unknown[]
   ) => unknown);
   recordPluginInstall.mockImplementation(
-    ((cfg: AssistantConfig) => cfg) as (...args: unknown[]) => unknown,
+    ((cfg: ZhushouConfig) => cfg) as (...args: unknown[]) => unknown,
   );
   loadPluginManifestRegistry.mockReturnValue({
     plugins: [],
@@ -434,13 +434,13 @@ export function resetPluginsCliTestState() {
   buildPluginSnapshotReport.mockReturnValue(defaultPluginReport);
   buildPluginDiagnosticsReport.mockReturnValue(defaultPluginReport);
   buildPluginCompatibilityNotices.mockReturnValue([]);
-  applyExclusiveSlotSelection.mockImplementation((({ config }: { config: AssistantConfig }) => ({
+  applyExclusiveSlotSelection.mockImplementation((({ config }: { config: ZhushouConfig }) => ({
     config,
     warnings: [],
   })) as (...args: unknown[]) => unknown);
   uninstallPlugin.mockResolvedValue({
     ok: true,
-    config: {} as AssistantConfig,
+    config: {} as ZhushouConfig,
     warnings: [],
     actions: {
       entry: false,
@@ -454,12 +454,12 @@ export function resetPluginsCliTestState() {
   updateNpmInstalledPlugins.mockResolvedValue({
     outcomes: [],
     changed: false,
-    config: {} as AssistantConfig,
+    config: {} as ZhushouConfig,
   });
   updateNpmInstalledHookPacks.mockResolvedValue({
     outcomes: [],
     changed: false,
-    config: {} as AssistantConfig,
+    config: {} as ZhushouConfig,
   });
   promptYesNo.mockResolvedValue(true);
   installPluginFromPath.mockResolvedValue({ ok: false, error: "path install disabled in test" });
@@ -481,6 +481,6 @@ export function resetPluginsCliTestState() {
     error: "hook npm install disabled in test",
   });
   recordHookInstall.mockImplementation(
-    ((cfg: AssistantConfig) => cfg) as (...args: unknown[]) => unknown,
+    ((cfg: ZhushouConfig) => cfg) as (...args: unknown[]) => unknown,
   );
 }

@@ -4,8 +4,8 @@ import {
   normalizeAccountId,
   resolveAccountWithDefaultFallback,
   resolveMergedAccountConfig,
-} from "assistant/plugin-sdk/account-core";
-import { tryReadSecretFileSync } from "assistant/plugin-sdk/secret-file-runtime";
+} from "zhushou/plugin-sdk/account-core";
+import { tryReadSecretFileSync } from "zhushou/plugin-sdk/secret-file-runtime";
 import { normalizeResolvedSecretInputString } from "./secret-input.js";
 import type { CoreConfig, NextcloudTalkAccountConfig } from "./types.js";
 
@@ -27,7 +27,7 @@ function isTruthyEnvValue(value?: string): boolean {
 }
 
 const debugAccounts = (...args: unknown[]) => {
-  if (isTruthyEnvValue(process.env.ASSISTANT_DEBUG_NEXTCLOUD_TALK_ACCOUNTS)) {
+  if (isTruthyEnvValue(process.env.ZHUSHOU_DEBUG_NEXTCLOUD_TALK_ACCOUNTS)) {
     console.warn("[nextcloud-talk:accounts]", ...args);
   }
 };

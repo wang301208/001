@@ -4,26 +4,26 @@ import { afterEach, describe, expect, it } from "vitest";
 import { copyA2uiAssets } from "../../scripts/canvas-a2ui-copy.js";
 import { withTempDir } from "../test-utils/temp-dir.js";
 
-const ORIGINAL_SKIP_MISSING = process.env.ASSISTANT_A2UI_SKIP_MISSING;
-const ORIGINAL_SPARSE_PROFILE = process.env.ASSISTANT_SPARSE_PROFILE;
+const ORIGINAL_SKIP_MISSING = process.env.ZHUSHOU_A2UI_SKIP_MISSING;
+const ORIGINAL_SPARSE_PROFILE = process.env.ZHUSHOU_SPARSE_PROFILE;
 
 describe("canvas a2ui copy", () => {
   afterEach(() => {
     if (ORIGINAL_SKIP_MISSING === undefined) {
-      delete process.env.ASSISTANT_A2UI_SKIP_MISSING;
+      delete process.env.ZHUSHOU_A2UI_SKIP_MISSING;
     } else {
-      process.env.ASSISTANT_A2UI_SKIP_MISSING = ORIGINAL_SKIP_MISSING;
+      process.env.ZHUSHOU_A2UI_SKIP_MISSING = ORIGINAL_SKIP_MISSING;
     }
 
     if (ORIGINAL_SPARSE_PROFILE === undefined) {
-      delete process.env.ASSISTANT_SPARSE_PROFILE;
+      delete process.env.ZHUSHOU_SPARSE_PROFILE;
     } else {
-      process.env.ASSISTANT_SPARSE_PROFILE = ORIGINAL_SPARSE_PROFILE;
+      process.env.ZHUSHOU_SPARSE_PROFILE = ORIGINAL_SPARSE_PROFILE;
     }
   });
 
   async function withA2uiFixture(run: (dir: string) => Promise<void>) {
-    await withTempDir("assistant-a2ui-", run);
+    await withTempDir("zhushou-a2ui-", run);
   }
 
   it("throws a helpful error when assets are missing", async () => {
@@ -34,18 +34,18 @@ describe("canvas a2ui copy", () => {
     });
   });
 
-  it("skips missing assets when ASSISTANT_A2UI_SKIP_MISSING=1", async () => {
+  it("skips missing assets when ZHUSHOU_A2UI_SKIP_MISSING=1", async () => {
     await withA2uiFixture(async (dir) => {
-      process.env.ASSISTANT_A2UI_SKIP_MISSING = "1";
+      process.env.ZHUSHOU_A2UI_SKIP_MISSING = "1";
       await expect(
         copyA2uiAssets({ srcDir: dir, outDir: path.join(dir, "out") }),
       ).resolves.toBeUndefined();
     });
   });
 
-  it("skips missing assets when ASSISTANT_SPARSE_PROFILE is set", async () => {
+  it("skips missing assets when ZHUSHOU_SPARSE_PROFILE is set", async () => {
     await withA2uiFixture(async (dir) => {
-      process.env.ASSISTANT_SPARSE_PROFILE = "core";
+      process.env.ZHUSHOU_SPARSE_PROFILE = "core";
       await expect(
         copyA2uiAssets({ srcDir: dir, outDir: path.join(dir, "out") }),
       ).resolves.toBeUndefined();

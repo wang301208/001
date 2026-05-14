@@ -1,10 +1,10 @@
 {
-  "name": "@assistant/lmstudio-provider",
+  "name": "@zhushou/lmstudio-provider",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 LM Studio provider plugin",
   "type": "module",
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

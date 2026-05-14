@@ -1,7 +1,7 @@
 # WebSocket Connection Diagnostic Script
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Assistant WebSocket Connection Diagnostic Tool" -ForegroundColor Cyan
+Write-Host "  Zhushou WebSocket Connection Diagnostic Tool" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -16,7 +16,7 @@ if ($gatewayProcess) {
     Write-Host "     Start time: $($gatewayProcess.StartTime)" -ForegroundColor Gray
 } else {
     Write-Host "  [FAIL] Gateway service is not running" -ForegroundColor Red
-    Write-Host "     Please run: node assistant.mjs gateway --bind lan --port 3000 --allow-unconfigured" -ForegroundColor Yellow
+    Write-Host "     Please run: node zhushou.mjs gateway --bind lan --port 3000 --allow-unconfigured" -ForegroundColor Yellow
     exit 1
 }
 
@@ -117,11 +117,11 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 Write-Host "View real-time logs:" -ForegroundColor White
-Write-Host "Get-Content C:\tmp\assistant\assistant-*.log -Tail 50 -Wait" -ForegroundColor Yellow
+Write-Host "Get-Content C:\tmp\zhushou\zhushou-*.log -Tail 50 -Wait" -ForegroundColor Yellow
 Write-Host ""
 
 Write-Host "Find WebSocket related logs:" -ForegroundColor White
-Write-Host 'Get-Content C:\tmp\assistant\assistant-*.log -Tail 100 | Select-String "ws|websocket|handshake"' -ForegroundColor Yellow
+Write-Host 'Get-Content C:\tmp\zhushou\zhushou-*.log -Tail 100 | Select-String "ws|websocket|handshake"' -ForegroundColor Yellow
 Write-Host ""
 
 Write-Host "[OK] Diagnostic complete!" -ForegroundColor Green

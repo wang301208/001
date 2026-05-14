@@ -1,8 +1,8 @@
 import { createRequire } from "node:module";
 import os from "node:os";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { debugLog, debugError } from "./utils/debug-log.js";
 import { sanitizeFileName } from "./utils/platform.js";
 import { computeFileHash, getCachedFileInfo, setCachedFileInfo } from "./utils/upload-cache.js";

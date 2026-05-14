@@ -80,7 +80,7 @@ describe("status-overview-surface", () => {
       }),
     ).toEqual([
       { Item: "OS", Value: "macOS · node 22" },
-      { Item: "Terminal UI", Value: "assistant tui" },
+      { Item: "Terminal UI", Value: "zhushou tui" },
       { Item: "Tailscale", Value: "muted(off · box.tail.ts.net)" },
       { Item: "Channel", Value: "stable (config)" },
       { Item: "Git", Value: "main · tag v1.2.3" },

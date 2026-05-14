@@ -1,13 +1,13 @@
-export { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+export { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
 export {
   buildTokenChannelStatusSummary,
   PAIRING_APPROVED_MESSAGE,
   projectCredentialSnapshotFields,
   resolveConfiguredFromCredentialStatuses,
-} from "assistant/plugin-sdk/channel-status";
-export { createScopedChannelConfigAdapter } from "assistant/plugin-sdk/channel-config-helpers";
-export type { ChannelPlugin } from "assistant/plugin-sdk/channel-core";
-export type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-status";
+export { createScopedChannelConfigAdapter } from "zhushou/plugin-sdk/channel-config-helpers";
+export type { ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+export type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 
 const DISCORD_CHANNEL_META = {
   id: "discord",

@@ -1,17 +1,17 @@
-import { resolveApprovalApprovers } from "assistant/plugin-sdk/approval-auth-runtime";
+import { resolveApprovalApprovers } from "zhushou/plugin-sdk/approval-auth-runtime";
 import {
   createChannelExecApprovalProfile,
   getExecApprovalReplyMetadata,
   isChannelExecApprovalClientEnabledFromConfig,
   isChannelExecApprovalTargetRecipient,
   matchesApprovalRequestFilters,
-} from "assistant/plugin-sdk/approval-client-runtime";
-import { resolveApprovalRequestChannelAccountId } from "assistant/plugin-sdk/approval-native-runtime";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { ExecApprovalRequest, PluginApprovalRequest } from "assistant/plugin-sdk/infra-runtime";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
-import { normalizeAccountId } from "assistant/plugin-sdk/routing";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/string-coerce-runtime";
+} from "zhushou/plugin-sdk/approval-client-runtime";
+import { resolveApprovalRequestChannelAccountId } from "zhushou/plugin-sdk/approval-native-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { ExecApprovalRequest, PluginApprovalRequest } from "zhushou/plugin-sdk/infra-runtime";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import { normalizeAccountId } from "zhushou/plugin-sdk/routing";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/string-coerce-runtime";
 import { getMatrixApprovalAuthApprovers } from "./approval-auth.js";
 import { normalizeMatrixApproverId } from "./approval-ids.js";
 import { listMatrixAccountIds, resolveMatrixAccount } from "./matrix/accounts.js";
@@ -28,7 +28,7 @@ function normalizeMatrixExecApproverId(value: string | number): string | undefin
 }
 
 function resolveMatrixExecApprovalConfig(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }) {
   const account = resolveMatrixAccount(params);
@@ -43,7 +43,7 @@ function resolveMatrixExecApprovalConfig(params: {
 }
 
 function countMatrixExecApprovalEligibleAccounts(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   request: ApprovalRequest;
   approvalKind: ApprovalKind;
 }): number {
@@ -84,7 +84,7 @@ function countMatrixExecApprovalEligibleAccounts(params: {
 }
 
 function matchesMatrixRequestAccount(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   request: ApprovalRequest;
   approvalKind: ApprovalKind;
@@ -114,7 +114,7 @@ function matchesMatrixRequestAccount(params: {
 }
 
 export function getMatrixExecApprovalApprovers(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): string[] {
   const account = resolveMatrixAccount(params).config;
@@ -130,7 +130,7 @@ function resolveMatrixApprovalKind(request: ApprovalRequest): ApprovalKind {
 }
 
 export function getMatrixApprovalApprovers(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   approvalKind: ApprovalKind;
 }): string[] {
@@ -144,7 +144,7 @@ export function getMatrixApprovalApprovers(params: {
 }
 
 export function isMatrixExecApprovalTargetRecipient(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   senderId?: string | null;
   accountId?: string | null;
 }): boolean {
@@ -176,7 +176,7 @@ export const resolveMatrixExecApprovalTarget = matrixExecApprovalProfile.resolve
 export const shouldHandleMatrixExecApprovalRequest = matrixExecApprovalProfile.shouldHandleRequest;
 
 export function isMatrixApprovalClientEnabled(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   approvalKind: ApprovalKind;
 }): boolean {
@@ -191,7 +191,7 @@ export function isMatrixApprovalClientEnabled(params: {
 }
 
 export function isMatrixAnyApprovalClientEnabled(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): boolean {
   return (
@@ -207,7 +207,7 @@ export function isMatrixAnyApprovalClientEnabled(params: {
 }
 
 export function shouldHandleMatrixApprovalRequest(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   request: ApprovalRequest;
 }): boolean {
@@ -268,7 +268,7 @@ function buildFilterCheckRequest(params: {
 }
 
 export function shouldSuppressLocalMatrixExecApprovalPrompt(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   payload: ReplyPayload;
 }): boolean {

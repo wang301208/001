@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import { resolveNodeHostGatewayCredentials } from "./runner.js";
 
-function createRemoteGatewayTokenRefConfig(tokenId: string): AssistantConfig {
+function createRemoteGatewayTokenRefConfig(tokenId: string): ZhushouConfig {
   return {
     secrets: {
       providers: {
@@ -16,11 +16,11 @@ function createRemoteGatewayTokenRefConfig(tokenId: string): AssistantConfig {
         token: { source: "env", provider: "default", id: tokenId },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 async function expectNoGatewayCredentials(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   env: Record<string, string | undefined>,
 ) {
   await withEnvAsync(env, async () => {
@@ -37,11 +37,11 @@ describe("resolveNodeHostGatewayCredentials", () => {
         mode: "local",
         remote: { token: "remote-only-token" },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     await expectNoGatewayCredentials(config, {
-      ASSISTANT_GATEWAY_TOKEN: undefined,
-      ASSISTANT_GATEWAY_PASSWORD: undefined,
+      ZHUSHOU_GATEWAY_TOKEN: undefined,
+      ZHUSHOU_GATEWAY_PASSWORD: undefined,
     });
   });
 
@@ -58,11 +58,11 @@ describe("resolveNodeHostGatewayCredentials", () => {
           token: { source: "env", provider: "default", id: "MISSING_REMOTE_GATEWAY_TOKEN" },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     await expectNoGatewayCredentials(config, {
-      ASSISTANT_GATEWAY_TOKEN: undefined,
-      ASSISTANT_GATEWAY_PASSWORD: undefined,
+      ZHUSHOU_GATEWAY_TOKEN: undefined,
+      ZHUSHOU_GATEWAY_PASSWORD: undefined,
       MISSING_REMOTE_GATEWAY_TOKEN: undefined,
     });
   });
@@ -72,8 +72,8 @@ describe("resolveNodeHostGatewayCredentials", () => {
 
     await withEnvAsync(
       {
-        ASSISTANT_GATEWAY_TOKEN: undefined,
-        ASSISTANT_GATEWAY_PASSWORD: undefined,
+        ZHUSHOU_GATEWAY_TOKEN: undefined,
+        ZHUSHOU_GATEWAY_PASSWORD: undefined,
         REMOTE_GATEWAY_TOKEN: "token-from-ref",
       },
       async () => {
@@ -83,13 +83,13 @@ describe("resolveNodeHostGatewayCredentials", () => {
     );
   });
 
-  it("prefers ASSISTANT_GATEWAY_TOKEN over configured refs", async () => {
+  it("prefers ZHUSHOU_GATEWAY_TOKEN over configured refs", async () => {
     const config = createRemoteGatewayTokenRefConfig("REMOTE_GATEWAY_TOKEN");
 
     await withEnvAsync(
       {
-        ASSISTANT_GATEWAY_TOKEN: "token-from-env",
-        ASSISTANT_GATEWAY_PASSWORD: undefined,
+        ZHUSHOU_GATEWAY_TOKEN: "token-from-env",
+        ZHUSHOU_GATEWAY_PASSWORD: undefined,
         REMOTE_GATEWAY_TOKEN: "token-from-ref",
       },
       async () => {
@@ -104,8 +104,8 @@ describe("resolveNodeHostGatewayCredentials", () => {
 
     await withEnvAsync(
       {
-        ASSISTANT_GATEWAY_TOKEN: undefined,
-        ASSISTANT_GATEWAY_PASSWORD: undefined,
+        ZHUSHOU_GATEWAY_TOKEN: undefined,
+        ZHUSHOU_GATEWAY_PASSWORD: undefined,
         MISSING_REMOTE_GATEWAY_TOKEN: undefined,
       },
       async () => {
@@ -130,12 +130,12 @@ describe("resolveNodeHostGatewayCredentials", () => {
           password: { source: "env", provider: "default", id: "MISSING_REMOTE_GATEWAY_PASSWORD" },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     await withEnvAsync(
       {
-        ASSISTANT_GATEWAY_TOKEN: undefined,
-        ASSISTANT_GATEWAY_PASSWORD: undefined,
+        ZHUSHOU_GATEWAY_TOKEN: undefined,
+        ZHUSHOU_GATEWAY_PASSWORD: undefined,
         REMOTE_GATEWAY_TOKEN: "token-from-ref",
         MISSING_REMOTE_GATEWAY_PASSWORD: undefined,
       },

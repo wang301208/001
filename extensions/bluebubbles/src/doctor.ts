@@ -1,4 +1,4 @@
-import type { ChannelDoctorAdapter } from "assistant/plugin-sdk/channel-contract";
+import type { ChannelDoctorAdapter } from "zhushou/plugin-sdk/channel-contract";
 import {
   legacyConfigRules as BLUEBUBBLES_LEGACY_CONFIG_RULES,
   normalizeCompatibilityConfig as normalizeBlueBubblesCompatibilityConfig,

@@ -1,1 +1,1 @@
-export { renderQrPngBase64 } from "assistant/plugin-sdk/media-runtime";
+export { renderQrPngBase64 } from "zhushou/plugin-sdk/media-runtime";

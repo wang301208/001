@@ -41,7 +41,10 @@ import {
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
 import { assertValidParams } from "./validation.js";
-import { getGatewayBackendAutomationHistory } from "../server-runtime-services.js";
+import {
+  getGatewayAutomationRuntimeState,
+  getGatewayBackendAutomationHistory,
+} from "../server-runtime-services.js";
 
 export const experienceHandlers: GatewayRequestHandlers = {
   "experience.capture": ({ params, respond }) => {
@@ -179,6 +182,7 @@ export const experienceHandlers: GatewayRequestHandlers = {
           ...getSelfOverview(params),
           backendAutomation: {
             recentRuns: getGatewayBackendAutomationHistory({ limit: params.limit }),
+            runtime: getGatewayAutomationRuntimeState(),
           },
         },
       },

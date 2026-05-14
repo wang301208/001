@@ -1,17 +1,17 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { ensureModelAllowlistEntry } from "./model-allowlist.js";
 
 export async function applyDefaultModelChoice(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   setDefaultModel: boolean;
   defaultModel: string;
-  applyDefaultConfig: (config: AssistantConfig) => AssistantConfig;
-  applyProviderConfig: (config: AssistantConfig) => AssistantConfig;
+  applyDefaultConfig: (config: ZhushouConfig) => ZhushouConfig;
+  applyProviderConfig: (config: ZhushouConfig) => ZhushouConfig;
   noteDefault?: string;
   noteAgentModel: (model: string) => Promise<void>;
   prompter: WizardPrompter;
-}): Promise<{ config: AssistantConfig; agentModelOverride?: string }> {
+}): Promise<{ config: ZhushouConfig; agentModelOverride?: string }> {
   if (params.setDefaultModel) {
     const next = params.applyDefaultConfig(params.config);
     if (params.noteDefault) {

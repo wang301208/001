@@ -6,7 +6,7 @@ type PackageJson = {
   version?: string;
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
-  assistant?: {
+  zhushou?: {
     install?: {
       minHostVersion?: string;
     };
@@ -14,33 +14,33 @@ type PackageJson = {
       pluginApi?: string;
     };
     build?: {
-      assistantVersion?: string;
+      zhushouVersion?: string;
     };
   };
 };
 
-const ASSISTANT_VERSION_RANGE_RE = /^>=\d{4}\.\d{1,2}\.\d{1,2}(?:[-.][^"\s]+)?$/u;
+const ZHUSHOU_VERSION_RANGE_RE = /^>=\d{4}\.\d{1,2}\.\d{1,2}(?:[-.][^"\s]+)?$/u;
 
-function syncAssistantDependencyRange(
+function syncZhushouDependencyRange(
   deps: Record<string, string> | undefined,
   targetVersion: string,
 ): boolean {
-  const current = deps?.assistant;
-  if (!current || current === "workspace:*" || !ASSISTANT_VERSION_RANGE_RE.test(current)) {
+  const current = deps?.zhushou;
+  if (!current || current === "workspace:*" || !ZHUSHOU_VERSION_RANGE_RE.test(current)) {
     return false;
   }
   const next = `>=${targetVersion}`;
   if (current === next) {
     return false;
   }
-  deps.assistant = next;
+  deps.zhushou = next;
   return true;
 }
 
 function syncPluginApiVersion(pkg: PackageJson, targetVersion: string): boolean {
-  const compat = pkg.assistant?.compat;
+  const compat = pkg.zhushou?.compat;
   const current = compat?.pluginApi;
-  if (!current || !ASSISTANT_VERSION_RANGE_RE.test(current)) {
+  if (!current || !ZHUSHOU_VERSION_RANGE_RE.test(current)) {
     return false;
   }
   const next = `>=${targetVersion}`;
@@ -51,16 +51,16 @@ function syncPluginApiVersion(pkg: PackageJson, targetVersion: string): boolean 
   return true;
 }
 
-function syncBuildAssistantVersion(pkg: PackageJson, targetVersion: string): boolean {
-  const build = pkg.assistant?.build;
-  const current = build?.assistantVersion;
+function syncBuildZhushouVersion(pkg: PackageJson, targetVersion: string): boolean {
+  const build = pkg.zhushou?.build;
+  const current = build?.zhushouVersion;
   if (!current) {
     return false;
   }
   if (current === targetVersion) {
     return false;
   }
-  build.assistantVersion = targetVersion;
+  build.zhushouVersion = targetVersion;
   return true;
 }
 
@@ -120,18 +120,18 @@ export function syncPluginVersions(rootDir = resolve(".")) {
     }
 
     const versionChanged = pkg.version !== targetVersion;
-    const devDependencyChanged = syncAssistantDependencyRange(pkg.devDependencies, targetVersion);
-    const peerDependencyChanged = syncAssistantDependencyRange(pkg.peerDependencies, targetVersion);
+    const devDependencyChanged = syncZhushouDependencyRange(pkg.devDependencies, targetVersion);
+    const peerDependencyChanged = syncZhushouDependencyRange(pkg.peerDependencies, targetVersion);
     // minHostVersion is a compatibility floor, not release alignment metadata.
     // Keep it stable unless the owning plugin intentionally raises it.
     const pluginApiChanged = syncPluginApiVersion(pkg, targetVersion);
-    const buildAssistantVersionChanged = syncBuildAssistantVersion(pkg, targetVersion);
+    const buildZhushouVersionChanged = syncBuildZhushouVersion(pkg, targetVersion);
     const packageChanged =
       versionChanged ||
       devDependencyChanged ||
       peerDependencyChanged ||
       pluginApiChanged ||
-      buildAssistantVersionChanged;
+      buildZhushouVersionChanged;
     if (!packageChanged) {
       skipped.push(pkg.name);
       continue;

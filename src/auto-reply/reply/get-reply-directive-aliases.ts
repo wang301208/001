@@ -1,5 +1,5 @@
 import type { SkillCommandSpec } from "../../agents/skills.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -15,7 +15,7 @@ export function reserveSkillCommandNames(params: {
 }
 
 export function resolveConfiguredDirectiveAliases(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   commandTextHasSlash: boolean;
   reservedCommands: Set<string>;
 }) {

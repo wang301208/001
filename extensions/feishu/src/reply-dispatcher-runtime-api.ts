@@ -1,6 +1,6 @@
 ﻿export {
   createReplyPrefixContext,
-  type AssistantConfig,
+  type ZhushouConfig,
   type OutboundIdentity,
   type ReplyPayload,
   type RuntimeEnv,

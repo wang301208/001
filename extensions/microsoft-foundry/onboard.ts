@@ -1,10 +1,10 @@
-import type { ProviderAuthContext } from "assistant/plugin-sdk/core";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
+import type { ProviderAuthContext } from "zhushou/plugin-sdk/core";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
 import {
   normalizeOptionalString,
   normalizeStringifiedOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   azLoginDeviceCode,
   azLoginDeviceCodeWithOptions,

@@ -1,5 +1,5 @@
 export {
-  extractAssistantText,
+  extractZhushouText,
   sanitizeTextContent,
   stripToolMessages,
 } from "./chat-history-text.js";

@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { defaultRuntime } from "../../runtime.js";
 import {
@@ -81,14 +81,14 @@ describe("message action capability checks", () => {
   it("aggregates capabilities across plugins", () => {
     activateMessageActionTestRegistry();
 
-    expect(listChannelMessageCapabilities({} as AssistantConfig).toSorted()).toEqual([
+    expect(listChannelMessageCapabilities({} as ZhushouConfig).toSorted()).toEqual([
       "buttons",
       "cards",
       "interactive",
     ]);
-    expect(channelSupportsMessageCapability({} as AssistantConfig, "interactive")).toBe(true);
-    expect(channelSupportsMessageCapability({} as AssistantConfig, "buttons")).toBe(true);
-    expect(channelSupportsMessageCapability({} as AssistantConfig, "cards")).toBe(true);
+    expect(channelSupportsMessageCapability({} as ZhushouConfig, "interactive")).toBe(true);
+    expect(channelSupportsMessageCapability({} as ZhushouConfig, "buttons")).toBe(true);
+    expect(channelSupportsMessageCapability({} as ZhushouConfig, "cards")).toBe(true);
   });
 
   it("checks per-channel capabilities", () => {
@@ -96,47 +96,47 @@ describe("message action capability checks", () => {
 
     expect(
       listChannelMessageCapabilitiesForChannel({
-        cfg: {} as AssistantConfig,
+        cfg: {} as ZhushouConfig,
         channel: "demo-buttons",
       }),
     ).toEqual(["interactive", "buttons"]);
     expect(
       listChannelMessageCapabilitiesForChannel({
-        cfg: {} as AssistantConfig,
+        cfg: {} as ZhushouConfig,
         channel: "demo-cards",
       }),
     ).toEqual(["cards"]);
     expect(
       channelSupportsMessageCapabilityForChannel(
-        { cfg: {} as AssistantConfig, channel: "demo-buttons" },
+        { cfg: {} as ZhushouConfig, channel: "demo-buttons" },
         "interactive",
       ),
     ).toBe(true);
     expect(
       channelSupportsMessageCapabilityForChannel(
-        { cfg: {} as AssistantConfig, channel: "demo-cards" },
+        { cfg: {} as ZhushouConfig, channel: "demo-cards" },
         "interactive",
       ),
     ).toBe(false);
     expect(
       channelSupportsMessageCapabilityForChannel(
-        { cfg: {} as AssistantConfig, channel: "demo-buttons" },
+        { cfg: {} as ZhushouConfig, channel: "demo-buttons" },
         "buttons",
       ),
     ).toBe(true);
     expect(
       channelSupportsMessageCapabilityForChannel(
-        { cfg: {} as AssistantConfig, channel: "demo-cards" },
+        { cfg: {} as ZhushouConfig, channel: "demo-cards" },
         "buttons",
       ),
     ).toBe(false);
     expect(
       channelSupportsMessageCapabilityForChannel(
-        { cfg: {} as AssistantConfig, channel: "demo-cards" },
+        { cfg: {} as ZhushouConfig, channel: "demo-cards" },
         "cards",
       ),
     ).toBe(true);
-    expect(channelSupportsMessageCapabilityForChannel({ cfg: {} as AssistantConfig }, "cards")).toBe(
+    expect(channelSupportsMessageCapabilityForChannel({ cfg: {} as ZhushouConfig }, "cards")).toBe(
       false,
     );
   });
@@ -158,7 +158,7 @@ describe("message action capability checks", () => {
 
     expect(
       listChannelMessageCapabilitiesForChannel({
-        cfg: {} as AssistantConfig,
+        cfg: {} as ZhushouConfig,
         channel: "demo-cards-alias",
       }),
     ).toEqual(["cards"]);
@@ -190,11 +190,11 @@ describe("message action capability checks", () => {
       createTestRegistry([{ pluginId: "demo-unified", source: "test", plugin: unifiedPlugin }]),
     );
 
-    expect(listChannelMessageActions({} as AssistantConfig)).toEqual(["send", "broadcast", "react"]);
-    expect(listChannelMessageCapabilities({} as AssistantConfig)).toEqual(["interactive"]);
+    expect(listChannelMessageActions({} as ZhushouConfig)).toEqual(["send", "broadcast", "react"]);
+    expect(listChannelMessageCapabilities({} as ZhushouConfig)).toEqual(["interactive"]);
     expect(
       resolveChannelMessageToolSchemaProperties({
-        cfg: {} as AssistantConfig,
+        cfg: {} as ZhushouConfig,
         channel: "demo-unified",
       }),
     ).toHaveProperty("components");
@@ -232,14 +232,14 @@ describe("message action capability checks", () => {
 
     expect(
       resolveChannelMessageToolMediaSourceParamKeys({
-        cfg: {} as AssistantConfig,
+        cfg: {} as ZhushouConfig,
         action: "set-profile",
         channel: "demo-media",
       }),
     ).toEqual(["avatarUrl", "avatarPath"]);
     expect(
       resolveChannelMessageToolMediaSourceParamKeys({
-        cfg: {} as AssistantConfig,
+        cfg: {} as ZhushouConfig,
         action: "send",
         channel: "demo-media",
       }),
@@ -269,7 +269,7 @@ describe("message action capability checks", () => {
 
     expect(
       resolveChannelMessageToolMediaSourceParamKeys({
-        cfg: {} as AssistantConfig,
+        cfg: {} as ZhushouConfig,
         action: "set-profile",
         channel: "demo-media-flat",
       }),
@@ -296,12 +296,12 @@ describe("message action capability checks", () => {
       createTestRegistry([{ pluginId: "demo-crashing", source: "test", plugin: crashingPlugin }]),
     );
 
-    expect(listChannelMessageActions({} as AssistantConfig)).toEqual(["send", "broadcast"]);
-    expect(listChannelMessageCapabilities({} as AssistantConfig)).toEqual([]);
+    expect(listChannelMessageActions({} as ZhushouConfig)).toEqual(["send", "broadcast"]);
+    expect(listChannelMessageCapabilities({} as ZhushouConfig)).toEqual([]);
     expect(errorSpy).toHaveBeenCalledTimes(1);
 
-    expect(listChannelMessageActions({} as AssistantConfig)).toEqual(["send", "broadcast"]);
-    expect(listChannelMessageCapabilities({} as AssistantConfig)).toEqual([]);
+    expect(listChannelMessageActions({} as ZhushouConfig)).toEqual(["send", "broadcast"]);
+    expect(listChannelMessageCapabilities({} as ZhushouConfig)).toEqual([]);
     expect(errorSpy).toHaveBeenCalledTimes(1);
   });
 });

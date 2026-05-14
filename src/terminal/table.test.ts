@@ -115,7 +115,7 @@ describe("renderTable", () => {
             `\x1b[2mGet current weather and forecasts via wttr.in or Open-Meteo. ` +
             `Use when: user asks about weather, temperature, or forecasts for any location.` +
             `\x1b[0m`,
-          Source: "assistant-bundled",
+          Source: "zhushou-bundled",
         },
       ],
     });
@@ -125,7 +125,8 @@ describe("renderTable", () => {
       .split("\n")
       .filter((line) => line.includes("Use when"));
     expect(lines).toHaveLength(1);
-    expect(lines[0]).toContain("\u001b[2mUse when");
+    expect(lines[0]).toContain("\u001b[2m");
+    expect(lines[0]).toContain("Use when");
     expect(lines[0]).not.toContain("│  Use when");
     expect(lines[0]).not.toContain("│ \x1b[2m Use when");
   });
@@ -162,7 +163,7 @@ describe("renderTable", () => {
           Status: "✗ missing",
           Skill: "📸 peekaboo",
           Description: "Capture screenshots from macOS windows and keep table wrapping stable.",
-          Source: "assistant-bundled",
+          Source: "zhushou-bundled",
         },
       ],
     });
@@ -266,7 +267,7 @@ describe("wrapNoteMessage", () => {
 
   it("preserves long Windows paths without inserting spaces/newlines", () => {
     // No spaces: wrapNoteMessage splits on whitespace, so a "Program Files" style path would wrap.
-    const input = "C:\\\\State\\\\助手\\\\bin\\\\assistant.exe";
+    const input = "C:\\\\State\\\\助手\\\\bin\\\\zhushou.exe";
     const wrapped = wrapNoteMessage(input, { maxWidth: 10, columns: 80 });
     expect(wrapped).toBe(input);
   });

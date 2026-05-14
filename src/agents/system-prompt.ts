@@ -253,13 +253,13 @@ function buildTimeSection(params: { userTimezone?: string }) {
   return ["## Current Date & Time", `Time zone: ${params.userTimezone}`, ""];
 }
 
-function buildAssistantOutputDirectivesSection(isMinimal: boolean) {
+function buildZhushouOutputDirectivesSection(isMinimal: boolean) {
   if (isMinimal) {
     return [];
   }
   return [
-    "## Assistant Output Directives",
-    "Use these when you need delivery metadata in an assistant message:",
+    "## Zhushou Output Directives",
+    "Use these when you need delivery metadata in an zhushou message:",
     "- `MEDIA:<path-or-url>` on its own line requests attachment delivery. Operator clients strip supported MEDIA lines and render them inline; channels still decide actual delivery behavior.",
     "- `[[audio_as_voice]]` marks attached audio as a voice-note style delivery hint. Operator clients may show a voice-note badge when audio is present; channels still own delivery semantics.",
     "- To request a native reply/quote on supported surfaces, include one reply tag in your reply:",
@@ -283,16 +283,16 @@ function buildWebchatCanvasSection(params: {
   }
   return [
     "## Operator/Webchat Embed",
-    "Use `[embed ...]` only in operator/webchat sessions for inline rich rendering inside the assistant bubble.",
+    "Use `[embed ...]` only in operator/webchat sessions for inline rich rendering inside the zhushou bubble.",
     "- Do not use `[embed ...]` for non-web channels.",
     "- `[embed ...]` is separate from `MEDIA:`. Use `MEDIA:` for attachments; use `[embed ...]` for web-only rich rendering.",
     '- Use self-closing form for hosted embed documents: `[embed ref="cv_123" title="Status" height="320" /]`.',
-    '- You may also use an explicit hosted URL: `[embed url="/__assistant__/canvas/documents/cv_123/index.html" title="Status" height="320" /]`.',
-    '- Never use local filesystem paths or `file://...` URLs in `[embed ...]`. Hosted embeds must point at `/__assistant__/canvas/...` URLs or use `ref="..."`.',
+    '- You may also use an explicit hosted URL: `[embed url="/__zhushou__/canvas/documents/cv_123/index.html" title="Status" height="320" /]`.',
+    '- Never use local filesystem paths or `file://...` URLs in `[embed ...]`. Hosted embeds must point at `/__zhushou__/canvas/...` URLs or use `ref="..."`.',
     params.canvasRootDir
       ? `- The active hosted embed root for this session is: \`${sanitizeForPromptLiteral(params.canvasRootDir)}\`. If you manually stage a hosted embed file, write it there, not in the workspace.`
       : "- The active hosted embed root is profile-scoped, not workspace-scoped. If you manually stage a hosted embed file, write it under the active profile embed root, not in the workspace.",
-    "- Quote all attribute values. Prefer `ref` for hosted documents unless you already have the full `/__assistant__/canvas/documents/<id>/index.html` URL.",
+    "- Quote all attribute values. Prefer `ref` for hosted documents unless you already have the full `/__zhushou__/canvas/documents/<id>/index.html` URL.",
     "",
   ];
 }
@@ -346,7 +346,7 @@ function buildMessagingSection(params: {
     "- Reply in current session → automatically routes to the source channel (Signal, Telegram, etc.)",
     "- Cross-session messaging → use sessions_send(sessionKey, message)",
     "- Sub-agent orchestration → use subagents(action=list|steer|kill)",
-    `- Runtime-generated completion events may ask for a user update. Rewrite those in your normal assistant voice and send the update (do not forward raw internal metadata or default to ${SILENT_REPLY_TOKEN}).`,
+    `- Runtime-generated completion events may ask for a user update. Rewrite those in your normal zhushou voice and send the update (do not forward raw internal metadata or default to ${SILENT_REPLY_TOKEN}).`,
     "- Never use exec/curl for provider messaging; 助手 handles all routing internally.",
     params.availableTools.has("message")
       ? [
@@ -389,12 +389,12 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
   return [
     "## Documentation",
     `助手 docs: ${docsPath}`,
-    "Mirror: https://docs.assistant.ai",
-    "Source: https://github.com/assistant/assistant",
+    "Mirror: https://docs.zhushou.ai",
+    "Source: https://github.com/wang301208/zhushou",
     "Community: https://discord.com/invite/clawd",
     "Find new skills: https://clawhub.ai",
     "For 助手 behavior, commands, config, or architecture: consult local docs first.",
-    "When diagnosing issues, run `assistant status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
+    "When diagnosing issues, run `zhushou status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
     "",
   ];
 }
@@ -683,11 +683,11 @@ export function buildAgentSystemPrompt(params: {
 
   // For "none" mode, return just the basic identity line
   if (promptMode === "none") {
-    return "You are a personal assistant running inside 助手.";
+    return "You are a personal zhushou running inside 助手.";
   }
 
   const lines = [
-    "You are a personal assistant running inside 助手.",
+    "You are a personal zhushou running inside 助手.",
     "",
     "## Tooling",
     "Tool availability (filtered by policy):",
@@ -764,11 +764,11 @@ export function buildAgentSystemPrompt(params: {
     "## 助手 CLI Quick Reference",
     "助手 is controlled via subcommands. Do not invent commands.",
     "To manage the Gateway daemon service (start/stop/restart):",
-    "- assistant gateway status",
-    "- assistant gateway start",
-    "- assistant gateway stop",
-    "- assistant gateway restart",
-    "If unsure, ask the user to run `assistant help` (or `assistant gateway --help`) and paste the output.",
+    "- zhushou gateway status",
+    "- zhushou gateway start",
+    "- zhushou gateway stop",
+    "- zhushou gateway restart",
+    "If unsure, ask the user to run `zhushou help` (or `zhushou gateway --help`) and paste the output.",
     "",
     ...skillsSection,
     ...memorySection,
@@ -883,7 +883,7 @@ export function buildAgentSystemPrompt(params: {
     "## Workspace Files (injected)",
     "These user-editable files are loaded by 助手 and included below in Project Context.",
     "",
-    ...buildAssistantOutputDirectivesSection(isMinimal),
+    ...buildZhushouOutputDirectivesSection(isMinimal),
     ...buildWebchatCanvasSection({
       isMinimal,
       runtimeChannel,

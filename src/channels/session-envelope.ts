@@ -1,9 +1,9 @@
 import { resolveEnvelopeFormatOptions } from "../auto-reply/envelope.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../config/sessions.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export function resolveInboundSessionEnvelopeContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   sessionKey: string;
 }) {

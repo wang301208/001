@@ -1,4 +1,4 @@
-import { resolveAssistantAgentDir } from "../../agents/agent-paths.js";
+import { resolveZhushouAgentDir } from "../../agents/agent-paths.js";
 import {
   type AuthHealthSummary,
   type AuthProfileHealthStatus,
@@ -9,7 +9,7 @@ import {
 } from "../../agents/auth-health.js";
 import { ensureAuthProfileStore } from "../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../agents/provider-id.js";
-import { loadConfig, type AssistantConfig } from "../../config/config.js";
+import { loadConfig, type ZhushouConfig } from "../../config/config.js";
 import { isSecretRef } from "../../config/types.secrets.js";
 import { loadProviderUsageSummary } from "../../infra/provider-usage.load.js";
 import { PROVIDER_LABELS, resolveUsageProviderId } from "../../infra/provider-usage.shared.js";
@@ -196,7 +196,7 @@ function mapProvider(
  * for a working auth path. They can still show up with real status if the
  * profile store has an entry for them.
  */
-function resolveConfiguredProviders(cfg: AssistantConfig): {
+function resolveConfiguredProviders(cfg: ZhushouConfig): {
   providers: string[];
   expectsOAuth: Set<string>;
 } {
@@ -290,7 +290,7 @@ export const modelsAuthStatusHandlers: GatewayRequestHandlers = {
     }
     try {
       const cfg = loadConfig();
-      const agentDir = resolveAssistantAgentDir();
+      const agentDir = resolveZhushouAgentDir();
       const store = ensureAuthProfileStore(agentDir);
       const configured = resolveConfiguredProviders(cfg);
       const authHealth: AuthHealthSummary = buildAuthHealthSummary({

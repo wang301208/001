@@ -72,7 +72,7 @@ export function handleAutoCompactionEnd(
       ctx.state.livenessState = "working";
     }
     ctx.maybeResolveCompactionWait();
-    clearStaleAssistantUsageOnSessionMessages(ctx);
+    clearStaleZhushouUsageOnSessionMessages(ctx);
   }
   emitAgentEvent({
     runId: ctx.params.runId,
@@ -116,7 +116,7 @@ export async function reconcileSessionStoreCompactionCountAfterSuccess(params: {
   return reconcile(params);
 }
 
-function clearStaleAssistantUsageOnSessionMessages(ctx: EmbeddedPiSubscribeContext): void {
+function clearStaleZhushouUsageOnSessionMessages(ctx: EmbeddedPiSubscribeContext): void {
   const messages = ctx.params.session.messages;
   if (!Array.isArray(messages)) {
     return;
@@ -129,7 +129,7 @@ function clearStaleAssistantUsageOnSessionMessages(ctx: EmbeddedPiSubscribeConte
     if (candidate.role !== "assistant") {
       continue;
     }
-    // pi-coding-agent expects assistant usage to exist when computing context usage.
+    // pi-coding-agent expects zhushou usage to exist when computing context usage.
     // Reset stale snapshots to zeros instead of deleting the field.
     candidate.usage = makeZeroUsageSnapshot();
   }

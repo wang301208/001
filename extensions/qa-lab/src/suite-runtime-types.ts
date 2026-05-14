@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import type { QaProviderMode } from "./model-selection.js";
 import type { QaTransportActionName, QaTransportAdapter } from "./qa-transport.js";
 
@@ -28,7 +28,7 @@ export type QaSuiteRuntimeEnv = {
   mock: {
     baseUrl: string;
   } | null;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
 };
 
 export type QaSkillStatusEntry = {

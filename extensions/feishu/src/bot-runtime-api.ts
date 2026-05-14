@@ -1,7 +1,7 @@
 ﻿export {
   buildAgentMediaPayload,
   resolveChannelContextVisibilityMode,
-  type AssistantConfig,
+  type ZhushouConfig,
   type RuntimeEnv,
 } from "../runtime-api.js";
 export {

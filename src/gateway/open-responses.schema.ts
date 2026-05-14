@@ -91,15 +91,15 @@ export type ContentPart = z.infer<typeof ContentPartSchema>;
 export const MessageItemRoleSchema = z.enum(["system", "developer", "user", "assistant"]);
 
 export type MessageItemRole = z.infer<typeof MessageItemRoleSchema>;
-export const AssistantPhaseSchema = z.enum(["commentary", "final_answer"]);
-export type AssistantPhase = z.infer<typeof AssistantPhaseSchema>;
+export const ZhushouPhaseSchema = z.enum(["commentary", "final_answer"]);
+export type ZhushouPhase = z.infer<typeof ZhushouPhaseSchema>;
 
 export const MessageItemSchema = z
   .object({
     type: z.literal("message"),
     role: MessageItemRoleSchema,
     content: z.union([z.string(), z.array(ContentPartSchema)]),
-    phase: AssistantPhaseSchema.optional(),
+    phase: ZhushouPhaseSchema.optional(),
   })
   .strict()
   .superRefine((value, ctx) => {
@@ -107,7 +107,7 @@ export const MessageItemSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["phase"],
-        message: "`phase` is only valid on assistant messages.",
+        message: "`phase` is only valid on zhushou messages.",
       });
     }
   });
@@ -240,7 +240,7 @@ export const OutputItemSchema = z.discriminatedUnion("type", [
       id: z.string(),
       role: z.literal("assistant"),
       content: z.array(OutputTextContentPartSchema),
-      phase: AssistantPhaseSchema.optional(),
+      phase: ZhushouPhaseSchema.optional(),
       status: z.enum(["in_progress", "completed"]).optional(),
     })
     .strict(),

@@ -497,7 +497,7 @@ export function buildBuiltinChatCommands(): ChatCommandDefinition[] {
     defineChatCommand({
       key: "mcp",
       nativeName: "mcp",
-      description: "Show or set assistant MCP servers.",
+      description: "Show or set zhushou MCP servers.",
       textAlias: "/mcp",
       category: "management",
       tier: "power",
@@ -603,7 +603,7 @@ export function buildBuiltinChatCommands(): ChatCommandDefinition[] {
     defineChatCommand({
       key: "restart",
       nativeName: "restart",
-      description: "Restart assistant.",
+      description: "Restart zhushou.",
       textAlias: "/restart",
       category: "tools",
       tier: "power",

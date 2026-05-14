@@ -150,7 +150,7 @@ describe("minimax provider hooks", () => {
     ).toMatchObject({
       sanitizeToolCallIds: true,
       toolCallIdMode: "strict",
-      applyAssistantFirstOrderingFix: true,
+      applyZhushouFirstOrderingFix: true,
       validateGeminiTurns: true,
       validateAnthropicTurns: true,
     });

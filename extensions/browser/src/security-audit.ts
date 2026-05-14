@@ -1,8 +1,8 @@
-import type { AssistantPluginSecurityAuditContext } from "assistant/plugin-sdk/plugin-entry";
-import { hasConfiguredSecretInput } from "assistant/plugin-sdk/secret-input";
-import { formatCliCommand } from "assistant/plugin-sdk/setup-tools";
-import { isPrivateNetworkOptInEnabled, isPrivateIpAddress } from "assistant/plugin-sdk/ssrf-policy";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouPluginSecurityAuditContext } from "zhushou/plugin-sdk/plugin-entry";
+import { hasConfiguredSecretInput } from "zhushou/plugin-sdk/secret-input";
+import { formatCliCommand } from "zhushou/plugin-sdk/setup-tools";
+import { isPrivateNetworkOptInEnabled, isPrivateIpAddress } from "zhushou/plugin-sdk/ssrf-policy";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { redactCdpUrl, resolveBrowserConfig, resolveProfile } from "./browser/config.js";
 import { resolveBrowserControlAuth } from "./browser/control-auth.js";
 import { hasNonEmptyString } from "./record-shared.js";
@@ -18,7 +18,7 @@ function isTrustedPrivateHostname(hostname: string): boolean {
   return normalized.length > 0 && BLOCKED_HOSTNAMES.has(normalized);
 }
 
-export function collectBrowserSecurityAuditFindings(ctx: AssistantPluginSecurityAuditContext) {
+export function collectBrowserSecurityAuditFindings(ctx: ZhushouPluginSecurityAuditContext) {
   const findings: Array<{
     checkId: string;
     severity: "warn" | "critical";
@@ -36,7 +36,7 @@ export function collectBrowserSecurityAuditFindings(ctx: AssistantPluginSecurity
       severity: "warn" as const,
       title: "Browser control config looks invalid",
       detail: String(err),
-      remediation: `Fix browser.cdpUrl in ${ctx.configPath} and re-run "${formatCliCommand("assistant security audit --deep")}".`,
+      remediation: `Fix browser.cdpUrl in ${ctx.configPath} and re-run "${formatCliCommand("zhushou security audit --deep")}".`,
     });
     return findings;
   }
@@ -49,7 +49,7 @@ export function collectBrowserSecurityAuditFindings(ctx: AssistantPluginSecurity
   const explicitAuthMode = ctx.config.gateway?.auth?.mode;
   const tokenConfigured =
     Boolean(browserAuth.token) ||
-    hasNonEmptyString(ctx.env.ASSISTANT_GATEWAY_TOKEN) ||
+    hasNonEmptyString(ctx.env.ZHUSHOU_GATEWAY_TOKEN) ||
     hasConfiguredSecretInput(ctx.config.gateway?.auth?.token, ctx.config.secrets?.defaults);
   const passwordCanWin =
     explicitAuthMode === "password" ||
@@ -60,7 +60,7 @@ export function collectBrowserSecurityAuditFindings(ctx: AssistantPluginSecurity
   const passwordConfigured =
     Boolean(browserAuth.password) ||
     (passwordCanWin &&
-      (hasNonEmptyString(ctx.env.ASSISTANT_GATEWAY_PASSWORD) ||
+      (hasNonEmptyString(ctx.env.ZHUSHOU_GATEWAY_PASSWORD) ||
         hasConfiguredSecretInput(
           ctx.config.gateway?.auth?.password,
           ctx.config.secrets?.defaults,

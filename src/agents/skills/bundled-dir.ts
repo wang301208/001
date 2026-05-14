@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveAssistantPackageRootSync } from "../../infra/assistant-root.js";
+import { resolveZhushouPackageRootSync } from "../../infra/zhushou-root.js";
 
 const FALLBACK_SKILL_ASSET_DIRS = ["scripts", "bin"] as const;
 const FALLBACK_SKILL_SCRIPT_EXTENSIONS = new Set([
@@ -85,7 +85,7 @@ export function resolveBundledSkillsDir(
     return explicitDir;
   }
 
-  const override = process.env.ASSISTANT_BUNDLED_SKILLS_DIR?.trim();
+  const override = process.env.ZHUSHOU_BUNDLED_SKILLS_DIR?.trim();
   if (override) {
     return override;
   }
@@ -108,7 +108,7 @@ export function resolveBundledSkillsDir(
     const moduleDir = path.dirname(fileURLToPath(moduleUrl));
     const argv1 = opts.argv1 ?? process.argv[1];
     const cwd = opts.cwd ?? process.cwd();
-    const packageRoot = resolveAssistantPackageRootSync({
+    const packageRoot = resolveZhushouPackageRootSync({
       argv1,
       moduleUrl,
       cwd,

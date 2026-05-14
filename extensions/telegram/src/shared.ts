@@ -1,14 +1,14 @@
-import { resolveNormalizedAccountEntry } from "assistant/plugin-sdk/account-core";
-import { normalizeAccountId } from "assistant/plugin-sdk/account-id";
-import { formatAllowFromLowercase } from "assistant/plugin-sdk/allow-from";
+import { resolveNormalizedAccountEntry } from "zhushou/plugin-sdk/account-core";
+import { normalizeAccountId } from "zhushou/plugin-sdk/account-id";
+import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "assistant/plugin-sdk/channel-config-helpers";
-import { createChannelPluginBase, type ChannelPlugin } from "assistant/plugin-sdk/channel-core";
-import { getChatChannelMeta } from "assistant/plugin-sdk/channel-plugin-common";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/channel-config-helpers";
+import { createChannelPluginBase, type ChannelPlugin } from "zhushou/plugin-sdk/channel-core";
+import { getChatChannelMeta } from "zhushou/plugin-sdk/channel-plugin-common";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/routing";
 import { inspectTelegramAccount } from "./account-inspect.js";
 import {
   listTelegramAccountIds,
@@ -30,7 +30,7 @@ import { namedAccountPromotionKeys, singleAccountKeysToMove } from "./setup-cont
 export const TELEGRAM_CHANNEL = "telegram" as const;
 
 export function findTelegramTokenOwnerAccountId(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
 }): string | null {
   const normalizedAccountId = normalizeAccountId(params.accountId);
@@ -75,9 +75,9 @@ export function formatDuplicateTelegramTokenReason(params: {
  *   2. The config has an explicit `accounts` section with entries, AND
  *   3. The accountId is not found in that `accounts` section.
  *
- * See: https://github.com/assistant/assistant/issues/53876
+ * See: https://github.com/wang301208/zhushou/issues/53876
  */
-function isBlockedByMultiBotGuard(cfg: AssistantConfig, accountId: string): boolean {
+function isBlockedByMultiBotGuard(cfg: ZhushouConfig, accountId: string): boolean {
   if (normalizeAccountId(accountId) === DEFAULT_ACCOUNT_ID) {
     return false;
   }
@@ -162,7 +162,7 @@ export function createTelegramPluginBase(params: {
         // channel-level fallback paths not available in resolveTelegramAccount.
         // This ensures binding-created accountIds that inherit the channel-level
         // token are correctly detected as configured.
-        // See: https://github.com/assistant/assistant/issues/53876
+        // See: https://github.com/wang301208/zhushou/issues/53876
         if (isBlockedByMultiBotGuard(cfg, account.accountId)) {
           return false;
         }

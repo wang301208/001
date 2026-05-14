@@ -378,7 +378,7 @@ describe("gateway canvas host auth", () => {
           await expectWsRejected(`ws://${host}:${listener.port}${activeWsPath}`, {});
         },
       });
-    }, "assistant-canvas-auth-test-");
+    }, "zhushou-canvas-auth-test-");
   }, 60_000);
 
   test("denies canvas auth when trusted proxy omits forwarded client headers", async () => {

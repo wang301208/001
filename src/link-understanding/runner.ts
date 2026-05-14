@@ -1,6 +1,6 @@
 import type { MsgContext } from "../auto-reply/templating.js";
 import { applyTemplate } from "../auto-reply/templating.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { LinkModelConfig, LinkToolsConfig } from "../config/types.tools.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { CLI_OUTPUT_MAX_BUFFER } from "../media-understanding/defaults.js";
@@ -105,7 +105,7 @@ async function runLinkEntries(params: {
 }
 
 export async function runLinkUnderstanding(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   ctx: MsgContext;
   message?: string;
 }): Promise<LinkUnderstandingResult> {

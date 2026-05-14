@@ -1,9 +1,9 @@
-import type { MusicGenerationProvider } from "assistant/plugin-sdk/music-generation";
-import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
+import type { MusicGenerationProvider } from "zhushou/plugin-sdk/music-generation";
+import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
 import type {
   VideoGenerationProvider,
   VideoGenerationProviderConfiguredContext,
-} from "assistant/plugin-sdk/video-generation";
+} from "zhushou/plugin-sdk/video-generation";
 
 export const DEFAULT_GOOGLE_MUSIC_MODEL = "lyria-3-clip-preview";
 export const GOOGLE_PRO_MUSIC_MODEL = "lyria-3-pro-preview";

@@ -1,6 +1,6 @@
 import { Container, Spacer, Text } from "@mariozechner/pi-tui";
 import { theme } from "../theme/theme.js";
-import { AssistantMessageComponent } from "./assistant-message.js";
+import { ZhushouMessageComponent } from "./zhushou-message.js";
 
 type BtwInlineMessageParams = {
   question: string;
@@ -21,7 +21,7 @@ export class BtwInlineMessage extends Container {
     if (params.isError) {
       this.addChild(new Text(theme.error(params.text), 1, 0));
     } else {
-      this.addChild(new AssistantMessageComponent(params.text));
+      this.addChild(new ZhushouMessageComponent(params.text));
     }
     this.addChild(new Text(theme.dim("按 Enter 或 Esc 关闭"), 1, 0));
   }

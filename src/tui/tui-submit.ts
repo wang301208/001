@@ -1,5 +1,5 @@
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
-import type { AssistantAction } from "./assistant-actions.js";
+import type { ZhushouAction } from "./zhushou-actions.js";
 
 export function createEditorSubmitHandler(params: {
   editor: {
@@ -8,12 +8,12 @@ export function createEditorSubmitHandler(params: {
   };
   sendMessage: (value: string) => Promise<void> | void;
   handleBangLine: (value: string) => Promise<void> | void;
-  handleAction?: (action: AssistantAction) => Promise<void> | void;
+  handleAction?: (action: ZhushouAction) => Promise<void> | void;
   notifyUser?: (value: string) => void;
   resolveInput?: (
     value: string,
   ) =>
-    | { kind: "action"; action: AssistantAction; reason: string }
+    | { kind: "action"; action: ZhushouAction; reason: string }
     | { kind: "message"; message: string; reason: string }
     | null;
   enqueueMessage?: (value: string, mode: "steer" | "followUp") => void;

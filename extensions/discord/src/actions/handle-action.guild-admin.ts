@@ -4,9 +4,9 @@ import {
   readNumberParam,
   readStringArrayParam,
   readStringParam,
-} from "assistant/plugin-sdk/agent-runtime";
-import type { ChannelMessageActionContext } from "assistant/plugin-sdk/channel-contract";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/agent-runtime";
+import type { ChannelMessageActionContext } from "zhushou/plugin-sdk/channel-contract";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { handleDiscordAction } from "../../action-runtime-api.js";
 import {
   isDiscordModerationAction,

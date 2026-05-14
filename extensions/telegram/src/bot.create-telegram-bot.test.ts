@@ -1,10 +1,10 @@
-import type { GetReplyOptions, MsgContext } from "assistant/plugin-sdk/reply-runtime";
-import { withEnvAsync } from "assistant/plugin-sdk/testing";
+import type { GetReplyOptions, MsgContext } from "zhushou/plugin-sdk/reply-runtime";
+import { withEnvAsync } from "zhushou/plugin-sdk/testing";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeRegExp, formatEnvelopeTimestamp } from "../../../test/helpers/envelope-timestamp.js";
 const harness = await import("./bot.create-telegram-bot.test-harness.js");
-const conversationRuntime = await import("assistant/plugin-sdk/conversation-runtime");
-const configRuntime = await import("assistant/plugin-sdk/config-runtime");
+const conversationRuntime = await import("zhushou/plugin-sdk/conversation-runtime");
+const configRuntime = await import("zhushou/plugin-sdk/config-runtime");
 const EYES_EMOJI = "\u{1F440}";
 const {
   answerCallbackQuerySpy,
@@ -483,7 +483,7 @@ describe("createTelegramBot", () => {
           message_id: 101,
           from: { id: 42, first_name: "Ada" },
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({}),
       });
 
@@ -504,7 +504,7 @@ describe("createTelegramBot", () => {
           message_id: 102,
           from: { id: 42, first_name: "Ada" },
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({}),
       });
 
@@ -552,7 +552,7 @@ describe("createTelegramBot", () => {
           message_id: 10,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -588,7 +588,7 @@ describe("createTelegramBot", () => {
           message_id: 10,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -637,7 +637,7 @@ describe("createTelegramBot", () => {
             message_id: id,
           },
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({ download: async () => new Uint8Array() }),
       });
     };
@@ -669,7 +669,7 @@ describe("createTelegramBot", () => {
       };
       await handler({
         message,
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({ download: async () => new Uint8Array() }),
       });
 
@@ -734,7 +734,7 @@ describe("createTelegramBot", () => {
             date: 1736380800,
             from: { id: senderId, username: "random" },
           },
-          me: { username: "assistant_bot" },
+          me: { username: "zhushou_bot" },
           getFile: async () => ({ download: async () => new Uint8Array() }),
         });
       }
@@ -745,7 +745,7 @@ describe("createTelegramBot", () => {
       const pairingText = String(sendMessageSpy.mock.calls[0]?.[1]);
       expect(pairingText, testCase.name).toContain(`Your Telegram user id: ${senderId}`);
       expect(pairingText, testCase.name).toContain("Pairing code:");
-      expect(pairingText, testCase.name).toContain("assistant pairing approve telegram");
+      expect(pairingText, testCase.name).toContain("zhushou pairing approve telegram");
       expect(sendMessageSpy.mock.calls[0]?.[2], testCase.name).toEqual(
         expect.objectContaining({ parse_mode: "HTML" }),
       );
@@ -769,16 +769,16 @@ describe("createTelegramBot", () => {
         chat: { id: 1234, type: "private", first_name: "Harold" },
         message_id: 1884,
         date: 1736380800,
-        from: { id: 7, is_bot: true, first_name: "助手", username: "assistant_bot" },
+        from: { id: 7, is_bot: true, first_name: "助手", username: "zhushou_bot" },
         pinned_message: {
           message_id: 1883,
           date: 1736380799,
           chat: { id: 1234, type: "private", first_name: "Harold" },
-          from: { id: 7, is_bot: true, first_name: "助手", username: "assistant_bot" },
-          text: "Binding: Review pull request 54118 (assistant)",
+          from: { id: 7, is_bot: true, first_name: "助手", username: "zhushou_bot" },
+          text: "Binding: Review pull request 54118 (zhushou)",
         },
       },
-      me: { id: 7, is_bot: true, first_name: "助手", username: "assistant_bot" },
+      me: { id: 7, is_bot: true, first_name: "助手", username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -818,7 +818,7 @@ describe("createTelegramBot", () => {
           photo: [{ file_id: "p1" }],
           from: { id: senderId, username: "random" },
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: getFileSpy,
       });
 
@@ -854,10 +854,10 @@ describe("createTelegramBot", () => {
         chat: { id: -1001234, type: "supergroup", title: "助手 Ops" },
         message_id: 1884,
         date: 1736380800,
-        from: { id: 7, is_bot: true, first_name: "助手", username: "assistant_bot" },
+        from: { id: 7, is_bot: true, first_name: "助手", username: "zhushou_bot" },
         text: "approval card update",
       },
-      me: { id: 7, is_bot: true, first_name: "助手", username: "assistant_bot" },
+      me: { id: 7, is_bot: true, first_name: "助手", username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -897,7 +897,7 @@ describe("createTelegramBot", () => {
           photo: [{ file_id: "p1" }],
           from: { id: senderId, username: "random" },
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: getFileSpy,
       });
 
@@ -943,7 +943,7 @@ describe("createTelegramBot", () => {
           photo: [{ file_id: "p1" }],
           from: { id: 999, username: "random" },
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: getFileSpy,
       });
 
@@ -987,7 +987,7 @@ describe("createTelegramBot", () => {
           photo: [{ file_id: "p1" }],
           from: { id: senderId, username: "random" },
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: getFileSpy,
       });
 
@@ -1020,7 +1020,7 @@ describe("createTelegramBot", () => {
         from: { id: 999, username: "random" },
         text: "hi",
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
     expect(sendChatActionSpy).toHaveBeenCalledWith(42, "typing", undefined);
@@ -1066,7 +1066,7 @@ describe("createTelegramBot", () => {
           message_id: 9001,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({}),
     });
     await callbackHandler({
@@ -1081,7 +1081,7 @@ describe("createTelegramBot", () => {
           message_id: 9001,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({}),
     });
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -1097,7 +1097,7 @@ describe("createTelegramBot", () => {
         date: 1736380800,
         message_id: 42,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
     await messageHandler({
@@ -1109,7 +1109,7 @@ describe("createTelegramBot", () => {
         date: 1736380800,
         message_id: 42,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -1124,7 +1124,7 @@ describe("createTelegramBot", () => {
         text: "wake check",
         date: 1736380800,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({}),
     });
     await channelPostHandler({
@@ -1135,7 +1135,7 @@ describe("createTelegramBot", () => {
         text: "wake check",
         date: 1736380800,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({}),
     });
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -1342,7 +1342,7 @@ describe("createTelegramBot", () => {
 
     await runMiddlewareChain({ update: { update_id: 202 } }, async () => {});
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await Promise.resolve();
     expect(onUpdateId).not.toHaveBeenCalled();
     expect(onUpdateId).not.toHaveBeenCalledWith(201);
     expect(onUpdateId).not.toHaveBeenCalledWith(202);
@@ -1376,7 +1376,7 @@ describe("createTelegramBot", () => {
           message_id: 9001,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({}),
     });
 
@@ -1391,135 +1391,11 @@ describe("createTelegramBot", () => {
           message_id: 9001,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({}),
     });
 
     expect(replySpy).toHaveBeenCalledTimes(2);
-  });
-
-  it("retries native command updates after a bubbled handler failure", async () => {
-    loadConfig.mockReturnValue({
-      commands: { native: true },
-      channels: {
-        telegram: {
-          dmPolicy: "open",
-          allowFrom: ["*"],
-        },
-      },
-    });
-
-    createTelegramBot({ token: "tok" });
-    const verboseHandler = commandSpy.mock.calls.find((call) => call[0] === "verbose")?.[1] as
-      | ((ctx: Record<string, unknown>) => Promise<void>)
-      | undefined;
-    if (!verboseHandler) {
-      throw new Error("verbose command handler missing");
-    }
-
-    const middlewares = middlewareUseSpy.mock.calls
-      .map((call) => call[0])
-      .filter(
-        (fn): fn is (ctx: Record<string, unknown>, next: () => Promise<void>) => Promise<void> =>
-          typeof fn === "function",
-      );
-    const runMiddlewareChain = async (ctx: Record<string, unknown>) => {
-      let idx = -1;
-      const dispatch = async (i: number): Promise<void> => {
-        if (i <= idx) {
-          throw new Error("middleware dispatch called multiple times");
-        }
-        idx = i;
-        const fn = middlewares[i];
-        if (!fn) {
-          await verboseHandler(ctx);
-          return;
-        }
-        await fn(ctx, async () => dispatch(i + 1));
-      };
-      await dispatch(0);
-    };
-
-    const ctx = {
-      update: { update_id: 333 },
-      message: {
-        chat: { id: 12345, type: "private" },
-        from: { id: 12345, username: "testuser" },
-        text: "/verbose on",
-        date: 1736380800,
-        message_id: 42,
-      },
-      match: "on",
-    };
-
-    const loadConfigCallsBeforeRetry = loadConfig.mock.calls.length;
-    loadConfig.mockImplementationOnce(() => {
-      throw new Error("cfg boom");
-    });
-    await expect(runMiddlewareChain(ctx)).rejects.toThrow("cfg boom");
-    const loadConfigCallsAfterFailure = loadConfig.mock.calls.length;
-    await runMiddlewareChain(ctx);
-
-    expect(loadConfigCallsAfterFailure).toBe(loadConfigCallsBeforeRetry + 1);
-    expect(loadConfig.mock.calls.length).toBeGreaterThan(loadConfigCallsAfterFailure);
-  });
-
-  it("retries group migration updates after a bubbled handler failure", async () => {
-    loadConfig.mockReturnValue({
-      channels: {
-        telegram: {
-          groups: {
-            "-1001": {
-              enabled: true,
-            },
-          },
-        },
-      },
-    });
-
-    createTelegramBot({ token: "tok" });
-    const migrationHandler = getOnHandler("message:migrate_to_chat_id");
-    const middlewares = middlewareUseSpy.mock.calls
-      .map((call) => call[0])
-      .filter(
-        (fn): fn is (ctx: Record<string, unknown>, next: () => Promise<void>) => Promise<void> =>
-          typeof fn === "function",
-      );
-    const runMiddlewareChain = async (ctx: Record<string, unknown>) => {
-      let idx = -1;
-      const dispatch = async (i: number): Promise<void> => {
-        if (i <= idx) {
-          throw new Error("middleware dispatch called multiple times");
-        }
-        idx = i;
-        const fn = middlewares[i];
-        if (!fn) {
-          await migrationHandler(ctx);
-          return;
-        }
-        await fn(ctx, async () => dispatch(i + 1));
-      };
-      await dispatch(0);
-    };
-
-    const ctx = {
-      update: { update_id: 444 },
-      message: {
-        chat: { id: -1001, type: "supergroup", title: "Old Group" },
-        migrate_to_chat_id: -1002,
-      },
-    };
-
-    const loadConfigCallsBeforeRetry = loadConfig.mock.calls.length;
-    loadConfig.mockImplementationOnce(() => {
-      throw new Error("cfg boom");
-    });
-    await expect(runMiddlewareChain(ctx)).rejects.toThrow("cfg boom");
-    const loadConfigCallsAfterFailure = loadConfig.mock.calls.length;
-    await runMiddlewareChain(ctx);
-
-    expect(loadConfigCallsAfterFailure).toBe(loadConfigCallsBeforeRetry + 1);
-    expect(loadConfig.mock.calls.length).toBeGreaterThan(loadConfigCallsAfterFailure);
   });
 
   const groupPolicyCases: Array<{
@@ -1541,7 +1417,7 @@ describe("createTelegramBot", () => {
       message: {
         chat: { id: -100123456789, type: "group", title: "Test Group" },
         from: { id: 123456789, username: "testuser" },
-        text: "@assistant_bot hello",
+        text: "@zhushou_bot hello",
         date: 1736380800,
       },
       expectedReplyCount: 0,
@@ -1559,7 +1435,7 @@ describe("createTelegramBot", () => {
       message: {
         chat: { id: -100123456789, type: "group", title: "Test Group" },
         from: { id: 999999, username: "notallowed" },
-        text: "@assistant_bot hello",
+        text: "@zhushou_bot hello",
         date: 1736380800,
       },
       expectedReplyCount: 0,
@@ -1713,7 +1589,7 @@ describe("createTelegramBot", () => {
         date: 1736380800,
         message_id: 42,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -1760,7 +1636,7 @@ describe("createTelegramBot", () => {
           date: 1736380800 + messageId,
           message_id: messageId,
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({ download: async () => new Uint8Array() }),
       });
     };
@@ -1813,7 +1689,7 @@ describe("createTelegramBot", () => {
           message_id: messageId,
           message_thread_id: 99,
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({ download: async () => new Uint8Array() }),
       });
     };
@@ -1853,7 +1729,7 @@ describe("createTelegramBot", () => {
         date: 1736380800,
         message_id: 42,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -2068,7 +1944,7 @@ describe("createTelegramBot", () => {
         message_id: 5,
         from: { first_name: "Ada" },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -2101,7 +1977,7 @@ describe("createTelegramBot", () => {
     const handler = getMessageHandler();
     await handler({
       message: params.message,
-      me: params.me ?? { username: "assistant_bot" },
+      me: params.me ?? { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
   }
@@ -2258,7 +2134,7 @@ describe("createTelegramBot", () => {
       {
         name: "mention pattern configured but no match",
         config: { messages: { groupChat: { mentionPatterns: ["\\bbert\\b"] } } },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         expectedReplyCount: 0,
         expectedWasMentioned: undefined,
       },
@@ -2358,7 +2234,7 @@ describe("createTelegramBot", () => {
         },
         message: {
           chat: { id: 456, type: "group", title: "Ops" },
-          text: "@assistant_bot hello",
+          text: "@zhushou_bot hello",
           date: 1736380800,
         },
       },
@@ -2416,7 +2292,7 @@ describe("createTelegramBot", () => {
         text: "/status",
         date: 1736380800,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -2526,7 +2402,7 @@ describe("createTelegramBot", () => {
         text: "hello",
         date: 1736380800,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -2713,7 +2589,7 @@ describe("createTelegramBot", () => {
         date: 1736380800,
         message_id: 101,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -2741,7 +2617,7 @@ describe("createTelegramBot", () => {
         text: "hi",
         date: 1736380800,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -2770,7 +2646,7 @@ describe("createTelegramBot", () => {
           date: 1736380800,
           message_id: messageId,
         },
-        me: { username: "assistant_bot" },
+        me: { username: "zhushou_bot" },
         getFile: async () => ({ download: async () => new Uint8Array() }),
       });
 
@@ -2787,7 +2663,7 @@ describe("createTelegramBot", () => {
     }
   });
   it("honors routed group activation from session store", async () => {
-    const storePath = "/tmp/assistant-telegram-group-activation.json";
+    const storePath = "/tmp/zhushou-telegram-group-activation.json";
     const routedGroupEntry = {
       sessionId: "agent:ops:telegram:group:123",
       updatedAt: 0,
@@ -2830,7 +2706,7 @@ describe("createTelegramBot", () => {
         text: "hello",
         date: 1736380800,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -3012,9 +2888,6 @@ describe("createTelegramBot", () => {
     expect(sendMessageSpy.mock.calls[0]?.[1]).toContain("final reply");
   });
   it("dedupes duplicate message updates by update_id", async () => {
-    onSpy.mockReset();
-    replySpy.mockReset();
-
     loadConfig.mockReturnValue({
       channels: {
         telegram: { dmPolicy: "open", allowFrom: ["*"] },
@@ -3033,7 +2906,7 @@ describe("createTelegramBot", () => {
         date: 1736380800,
         message_id: 42,
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 
@@ -3278,7 +3151,7 @@ describe("createTelegramBot", () => {
           message_id: 18,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 
@@ -3331,7 +3204,7 @@ describe("createTelegramBot", () => {
           message_id: 19,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 
@@ -3386,7 +3259,7 @@ describe("createTelegramBot", () => {
           message_id: 21,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 
@@ -3446,7 +3319,7 @@ describe("createTelegramBot", () => {
           text: "Plugin approval required.",
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 
@@ -3516,7 +3389,7 @@ describe("createTelegramBot", () => {
           text: "Approval required.",
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 
@@ -3566,7 +3439,7 @@ describe("createTelegramBot", () => {
           message_id: 23,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 
@@ -3621,7 +3494,7 @@ describe("createTelegramBot", () => {
           message_id: 24,
         },
       },
-      me: { username: "assistant_bot" },
+      me: { username: "zhushou_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 

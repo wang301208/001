@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   normalizeSecretInputString,
   resolveSecretInputRef,
@@ -6,10 +6,10 @@ import {
 } from "../config/types.secrets.js";
 import { resolveSecretRefString } from "./resolve.js";
 
-type SecretDefaults = NonNullable<AssistantConfig["secrets"]>["defaults"];
+type SecretDefaults = NonNullable<ZhushouConfig["secrets"]>["defaults"];
 
 export async function resolveSecretInputString(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   value: unknown;
   env: NodeJS.ProcessEnv;
   defaults?: SecretDefaults;

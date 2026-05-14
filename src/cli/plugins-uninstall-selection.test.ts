@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { resolvePluginUninstallId } from "./plugins-uninstall-selection.js";
 
 describe("resolvePluginUninstallId", () => {
@@ -19,7 +19,7 @@ describe("resolvePluginUninstallId", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       plugins: [{ id: "linkmind-context", name: "linkmind-context" }],
     });
 
@@ -41,7 +41,7 @@ describe("resolvePluginUninstallId", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       plugins: [{ id: "linkmind-context", name: "linkmind-context" }],
     });
 

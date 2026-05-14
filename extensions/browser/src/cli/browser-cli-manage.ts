@@ -77,7 +77,7 @@ async function runBrowserToggle(
   if (printJsonResult(parent, status)) {
     return;
   }
-  const name = status.profile ?? "assistant";
+  const name = status.profile ?? "zhushou";
   defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}`));
 }
 
@@ -106,14 +106,14 @@ function logBrowserTabs(tabs: BrowserTab[], json?: boolean) {
 
 function usesChromeMcpTransport(params: {
   transport?: BrowserTransport;
-  driver?: "assistant" | "existing-session";
+  driver?: "zhushou" | "existing-session";
 }): boolean {
   return params.transport === "chrome-mcp" || params.driver === "existing-session";
 }
 
 function formatBrowserConnectionSummary(params: {
   transport?: BrowserTransport;
-  driver?: "assistant" | "existing-session";
+  driver?: "zhushou" | "existing-session";
   isRemote?: boolean;
   cdpPort?: number | null;
   cdpUrl?: string | null;
@@ -149,7 +149,7 @@ export function registerBrowserManageCommands(
         const detectedDisplay = detectedPath ? shortenHomePath(detectedPath) : "auto";
         defaultRuntime.log(
           [
-            `profile: ${status.profile ?? "assistant"}`,
+            `profile: ${status.profile ?? "zhushou"}`,
             `enabled: ${status.enabled}`,
             `running: ${status.running}`,
             `transport: ${
@@ -463,7 +463,7 @@ export function registerBrowserManageCommands(
     .option("--color <hex>", "Profile color (hex format, e.g. #0066CC)")
     .option("--cdp-url <url>", "CDP URL for remote Chrome (http/https)")
     .option("--user-data-dir <path>", "User data dir for existing-session Chromium attach")
-    .option("--driver <driver>", "Profile driver (assistant|existing-session). Default: assistant")
+    .option("--driver <driver>", "Profile driver (zhushou|existing-session). Default: zhushou")
     .action(
       async (
         opts: {

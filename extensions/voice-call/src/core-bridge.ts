@@ -1,4 +1,4 @@
-import type { AssistantPluginApi } from "../api.js";
+import type { ZhushouPluginApi } from "../api.js";
 import type { VoiceCallTtsConfig } from "./config.js";
 
 export type CoreConfig = {
@@ -11,4 +11,4 @@ export type CoreConfig = {
   [key: string]: unknown;
 };
 
-export type CoreAgentDeps = AssistantPluginApi["runtime"]["agent"];
+export type CoreAgentDeps = ZhushouPluginApi["runtime"]["agent"];

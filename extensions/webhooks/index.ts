@@ -1,8 +1,8 @@
-import { definePluginEntry, type AssistantPluginApi } from "./api.js";
+import { definePluginEntry, type ZhushouPluginApi } from "./api.js";
 import { resolveWebhooksPluginConfig } from "./src/config.js";
 import { createTaskFlowWebhookRequestHandler, type TaskFlowWebhookTarget } from "./src/http.js";
 
-function registerWebhookRoutes(api: AssistantPluginApi): void {
+function registerWebhookRoutes(api: ZhushouPluginApi): void {
   const routes = resolveWebhooksPluginConfig({
     pluginConfig: api.pluginConfig,
   });
@@ -47,7 +47,7 @@ export default definePluginEntry({
   name: "Webhooks",
   description:
     "Authenticated inbound webhooks that bind external automation to 助手 TaskFlows.",
-  register(api: AssistantPluginApi) {
+  register(api: ZhushouPluginApi) {
     registerWebhookRoutes(api);
   },
 });

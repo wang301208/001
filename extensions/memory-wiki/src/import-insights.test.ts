@@ -33,7 +33,7 @@ describe("listMemoryWikiImportInsights", () => {
           "",
           "## Auto Digest",
           "- User messages: 2",
-          "- Assistant messages: 2",
+          "- Zhushou messages: 2",
           "- First user line: how do i get receipts?",
           "- Last user line: that option does not exist",
           "- Preference signals:",
@@ -44,7 +44,7 @@ describe("listMemoryWikiImportInsights", () => {
           "",
           "how do i get receipts?",
           "",
-          "### Assistant",
+          "### Zhushou",
           "",
           "Try the BA receipt request flow first.",
           "",
@@ -81,7 +81,7 @@ describe("listMemoryWikiImportInsights", () => {
           "",
           "i have a migraine, pink or yellow?",
           "",
-          "### Assistant",
+          "### Zhushou",
           "",
           "You're right, let's reset and stick to safe dosing guidance.",
           "",
@@ -113,10 +113,10 @@ describe("listMemoryWikiImportInsights", () => {
       riskReasons: [],
       activeBranchMessages: 0,
       userMessageCount: 2,
-      assistantMessageCount: 2,
+      zhushouMessageCount: 2,
       firstUserLine: "how do i get receipts?",
       lastUserLine: "that option does not exist",
-      assistantOpener: "Try the BA receipt request flow first.",
+      zhushouOpener: "Try the BA receipt request flow first.",
       summary: "Try the BA receipt request flow first.",
       candidateSignals: ["prefers direct airline receipts"],
       correctionSignals: [],
@@ -133,10 +133,10 @@ describe("listMemoryWikiImportInsights", () => {
       correctionSignals: [],
       preferenceSignals: [],
       userMessageCount: 1,
-      assistantMessageCount: 1,
+      zhushouMessageCount: 1,
     });
     expect(healthItem?.firstUserLine).toBeUndefined();
     expect(healthItem?.lastUserLine).toBeUndefined();
-    expect(healthItem?.assistantOpener).toBeUndefined();
+    expect(healthItem?.zhushouOpener).toBeUndefined();
   });
 });

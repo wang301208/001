@@ -1,4 +1,4 @@
-import type { AgentHarness } from "assistant/plugin-sdk/agent-harness";
+import type { AgentHarness } from "zhushou/plugin-sdk/agent-harness";
 import { maybeCompactCodexAppServerSession } from "./src/app-server/compact.js";
 import { listCodexAppServerModels } from "./src/app-server/models.js";
 import type {

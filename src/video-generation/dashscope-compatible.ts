@@ -5,7 +5,7 @@ import {
   postJsonRequest,
   resolveProviderOperationTimeoutMs,
   waitProviderOperationPollInterval,
-} from "assistant/plugin-sdk/provider-http";
+} from "zhushou/plugin-sdk/provider-http";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import type {
   GeneratedVideoAsset,

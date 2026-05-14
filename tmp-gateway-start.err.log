@@ -1,7 +1,0 @@
-Debugger listening on ws://127.0.0.1:9229/5b7802ab-9be3-47a4-9a77-9aa6429f2741
-For help, see: https://nodejs.org/en/docs/inspector
-2026-05-08T13:14:20.989+08:00 [gateway] auth mode=none explicitly configured; all gateway connections are unauthenticated.
-2026-05-08T13:15:54.664+08:00 [gateway] security warning: dangerous config flags enabled: gateway.controlUi.allowInsecureAuth=true. Run `assistant security audit`.
-Debugger attached.
-Debugger ending on ws://127.0.0.1:9229/5b7802ab-9be3-47a4-9a77-9aa6429f2741
-For help, see: https://nodejs.org/en/docs/inspector

@@ -1,4 +1,4 @@
-import { formatRawAssistantErrorForUi } from "../agents/pi-embedded-helpers.js";
+import { formatRawZhushouErrorForUi } from "../agents/pi-embedded-helpers.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import type { FallbackNoticeState } from "../status/fallback-notice-state.js";
 import { formatProviderModelRef } from "./model-runtime.js";
@@ -32,7 +32,7 @@ function formatFallbackAttemptErrorPreview(attempt: RuntimeFallbackAttempt): str
   if (!TRANSIENT_ERROR_DETAIL_HINT_RE.test(rawError)) {
     return undefined;
   }
-  const formatted = formatRawAssistantErrorForUi(rawError)
+  const formatted = formatRawZhushouErrorForUi(rawError)
     .replace(/^⚠️\s*/, "")
     .replace(/\s+/g, " ")
     .trim();

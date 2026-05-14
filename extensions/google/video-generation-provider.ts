@@ -1,19 +1,19 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { GoogleGenAI } from "@google/genai";
-import { resolveApiKeyForProvider } from "assistant/plugin-sdk/provider-auth-runtime";
+import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
 import {
   createProviderOperationDeadline,
   resolveProviderOperationTimeoutMs,
   waitProviderOperationPollInterval,
-} from "assistant/plugin-sdk/provider-http";
-import { resolvePreferredAssistantTmpDir } from "assistant/plugin-sdk/temp-path";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-http";
+import { resolvePreferredZhushouTmpDir } from "zhushou/plugin-sdk/temp-path";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import type {
   GeneratedVideoAsset,
   VideoGenerationProvider,
   VideoGenerationRequest,
-} from "assistant/plugin-sdk/video-generation";
+} from "zhushou/plugin-sdk/video-generation";
 import { normalizeGoogleApiBaseUrl } from "./api.js";
 import {
   createGoogleVideoGenerationProviderMetadata,
@@ -131,7 +131,7 @@ async function downloadGeneratedVideo(params: {
   index: number;
 }): Promise<GeneratedVideoAsset> {
   const tempDir = await mkdtemp(
-    path.join(resolvePreferredAssistantTmpDir(), "assistant-google-video-"),
+    path.join(resolvePreferredZhushouTmpDir(), "zhushou-google-video-"),
   );
   const downloadPath = path.join(tempDir, `video-${params.index + 1}.mp4`);
   try {

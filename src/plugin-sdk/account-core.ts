@@ -1,4 +1,4 @@
-export type { AssistantConfig } from "../config/config.js";
+export type { ZhushouConfig } from "../config/config.js";
 
 export { createAccountActionGate } from "../channels/plugins/account-action-gate.js";
 export {

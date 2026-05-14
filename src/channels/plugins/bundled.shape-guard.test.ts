@@ -66,8 +66,8 @@ describe("bundled channel entry shape guards", () => {
   });
 
   it("uses the active bundled plugin root override for channel entry loading", async () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-bundled-override-"));
-    const previousBundledPluginsDir = process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-bundled-override-"));
+    const previousBundledPluginsDir = process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
     const pluginDir = path.join(tempRoot, "dist", "extensions", "alpha");
     fs.mkdirSync(pluginDir, { recursive: true });
     fs.writeFileSync(
@@ -126,7 +126,7 @@ describe("bundled channel entry shape guards", () => {
     }));
 
     try {
-      process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = path.join(tempRoot, "dist", "extensions");
+      process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = path.join(tempRoot, "dist", "extensions");
 
       const bundled = await importFreshModule<typeof import("./bundled.js")>(
         import.meta.url,
@@ -144,9 +144,9 @@ describe("bundled channel entry shape guards", () => {
       expect(bundled.requireBundledChannelPlugin("alpha").id).toBe("alpha");
     } finally {
       if (previousBundledPluginsDir === undefined) {
-        delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
       } else {
-        process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+        process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
       }
       fs.rmSync(tempRoot, { recursive: true, force: true });
       delete (globalThis as { __bundledOverrideRuntime?: unknown }).__bundledOverrideRuntime;
@@ -154,8 +154,8 @@ describe("bundled channel entry shape guards", () => {
   });
 
   it("treats direct bundled plugin-tree overrides as scan roots", async () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-bundled-direct-override-"));
-    const previousBundledPluginsDir = process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-bundled-direct-override-"));
+    const previousBundledPluginsDir = process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
     const pluginsRoot = path.join(tempRoot, "bundled-plugins");
     const pluginDir = path.join(pluginsRoot, "alpha");
     fs.mkdirSync(pluginDir, { recursive: true });
@@ -216,7 +216,7 @@ describe("bundled channel entry shape guards", () => {
     }));
 
     try {
-      process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = pluginsRoot;
+      process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = pluginsRoot;
 
       const bundled = await importFreshModule<typeof import("./bundled.js")>(
         import.meta.url,
@@ -235,9 +235,9 @@ describe("bundled channel entry shape guards", () => {
       expect(bundled.requireBundledChannelPlugin("alpha").id).toBe("alpha");
     } finally {
       if (previousBundledPluginsDir === undefined) {
-        delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
       } else {
-        process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+        process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
       }
       fs.rmSync(tempRoot, { recursive: true, force: true });
       delete (globalThis as { __bundledOverrideRuntime?: unknown }).__bundledOverrideRuntime;
@@ -245,9 +245,9 @@ describe("bundled channel entry shape guards", () => {
   });
 
   it("partitions bundled channel lazy caches by active bundled root without re-importing", async () => {
-    const rootA = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-bundled-root-a-"));
-    const rootB = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-bundled-root-b-"));
-    const previousBundledPluginsDir = process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+    const rootA = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-bundled-root-a-"));
+    const rootB = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-bundled-root-b-"));
+    const previousBundledPluginsDir = process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
     const testGlobal = globalThis as typeof globalThis & {
       __bundledRootRuntime?: unknown;
     };
@@ -350,7 +350,7 @@ describe("bundled channel entry shape guards", () => {
         "./bundled.js?scope=bundled-root-partition",
       );
 
-      process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = path.join(rootA, "dist", "extensions");
+      process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = path.join(rootA, "dist", "extensions");
       expect(bundled.requireBundledChannelPlugin("alpha").meta.label).toBe("Alpha A");
       expect(bundled.getBundledChannelSetupPlugin("alpha")?.meta.label).toBe("Setup A");
       expect(bundled.getBundledChannelSecrets("alpha")?.secretTargetRegistryEntries?.[0]?.id).toBe(
@@ -361,7 +361,7 @@ describe("bundled channel entry shape guards", () => {
       ).toBe("channels.alpha.A.setup-entry-token");
       bundled.setBundledChannelRuntime("alpha", { marker: "first" } as never);
 
-      process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = path.join(rootB, "dist", "extensions");
+      process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = path.join(rootB, "dist", "extensions");
       expect(bundled.requireBundledChannelPlugin("alpha").meta.label).toBe("Alpha B");
       expect(bundled.getBundledChannelSetupPlugin("alpha")?.meta.label).toBe("Setup B");
       expect(bundled.getBundledChannelSecrets("alpha")?.secretTargetRegistryEntries?.[0]?.id).toBe(
@@ -375,9 +375,9 @@ describe("bundled channel entry shape guards", () => {
       expect(testGlobal.__bundledRootRuntime).toEqual(["entry:A:first", "entry:B:second"]);
     } finally {
       if (previousBundledPluginsDir === undefined) {
-        delete process.env.ASSISTANT_BUNDLED_PLUGINS_DIR;
+        delete process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
       } else {
-        process.env.ASSISTANT_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+        process.env.ZHUSHOU_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
       }
       fs.rmSync(rootA, { recursive: true, force: true });
       fs.rmSync(rootB, { recursive: true, force: true });
@@ -402,9 +402,9 @@ describe("bundled channel entry shape guards", () => {
           continue;
         }
         if (
-          !source.includes('from "assistant/plugin-sdk/channel-entry-contract"') ||
-          source.includes('from "assistant/plugin-sdk/core"') ||
-          source.includes('from "assistant/plugin-sdk/channel-core"')
+          !source.includes('from "zhushou/plugin-sdk/channel-entry-contract"') ||
+          source.includes('from "zhushou/plugin-sdk/core"') ||
+          source.includes('from "zhushou/plugin-sdk/channel-core"')
         ) {
           offenders.push(path.relative(process.cwd(), filePath));
         }
@@ -452,7 +452,7 @@ describe("bundled channel entry shape guards", () => {
         if (!source.includes("createChatChannelPlugin")) {
           continue;
         }
-        if (source.includes('from "assistant/plugin-sdk/core"')) {
+        if (source.includes('from "zhushou/plugin-sdk/core"')) {
           offenders.push(path.relative(process.cwd(), filePath));
         }
       }
@@ -474,7 +474,7 @@ describe("bundled channel entry shape guards", () => {
       "extensions/irc/src/runtime-api.ts",
       "extensions/matrix/src/runtime-api.ts",
     ].filter((filePath) =>
-      fs.readFileSync(path.resolve(filePath), "utf8").includes("assistant/plugin-sdk/core"),
+      fs.readFileSync(path.resolve(filePath), "utf8").includes("zhushou/plugin-sdk/core"),
     );
 
     expect(offenders).toEqual([]);
@@ -515,14 +515,14 @@ describe("bundled channel entry shape guards", () => {
     ].filter((filePath) =>
       fs
         .readFileSync(path.resolve(filePath), "utf8")
-        .includes('from "assistant/plugin-sdk/runtime"'),
+        .includes('from "zhushou/plugin-sdk/runtime"'),
     );
 
     expect(offenders).toEqual([]);
   });
 
   it("breaks reentrant bundled channel discovery cycles with an empty fallback", async () => {
-    const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-bundled-reentrant-"));
+    const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-bundled-reentrant-"));
     const modulePath = path.join(pluginDir, "index.js");
     fs.writeFileSync(modulePath, "export {};\n", "utf8");
 

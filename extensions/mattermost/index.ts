@@ -1,11 +1,11 @@
 import {
   defineBundledChannelEntry,
   loadBundledEntryExportSync,
-} from "assistant/plugin-sdk/channel-entry-contract";
-import type { AssistantPluginApi } from "assistant/plugin-sdk/channel-entry-contract";
+} from "zhushou/plugin-sdk/channel-entry-contract";
+import type { ZhushouPluginApi } from "zhushou/plugin-sdk/channel-entry-contract";
 
-function registerSlashCommandRoute(api: AssistantPluginApi): void {
-  const register = loadBundledEntryExportSync<(api: AssistantPluginApi) => void>(import.meta.url, {
+function registerSlashCommandRoute(api: ZhushouPluginApi): void {
+  const register = loadBundledEntryExportSync<(api: ZhushouPluginApi) => void>(import.meta.url, {
     specifier: "./slash-route-api.js",
     exportName: "registerSlashCommandRoute",
   });

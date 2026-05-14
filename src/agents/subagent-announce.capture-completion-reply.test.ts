@@ -2,10 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import { captureSubagentCompletionReplyUsing } from "./subagent-announce-capture.js";
 
 describe("captureSubagentCompletionReply", () => {
-  it("returns immediate assistant output from history without polling", async () => {
+  it("returns immediate zhushou output from history without polling", async () => {
     const readSubagentOutput = vi
       .fn<(sessionKey: string) => Promise<string | undefined>>()
-      .mockResolvedValue("Immediate assistant completion");
+      .mockResolvedValue("Immediate zhushou completion");
 
     const result = await captureSubagentCompletionReplyUsing({
       sessionKey: "agent:main:subagent:child",
@@ -14,7 +14,7 @@ describe("captureSubagentCompletionReply", () => {
       readSubagentOutput,
     });
 
-    expect(result).toBe("Immediate assistant completion");
+    expect(result).toBe("Immediate zhushou completion");
     expect(readSubagentOutput).toHaveBeenCalledTimes(1);
   });
 
@@ -60,7 +60,7 @@ describe("captureSubagentCompletionReply", () => {
     vi.useRealTimers();
   });
 
-  it("returns partial assistant progress when the latest assistant turn is tool-only", async () => {
+  it("returns partial zhushou progress when the latest zhushou turn is tool-only", async () => {
     const readSubagentOutput = vi
       .fn<(sessionKey: string) => Promise<string | undefined>>()
       .mockResolvedValue("Mapped the modules.");

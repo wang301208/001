@@ -1,7 +1,7 @@
 /**
  * OpenResponses HTTP Handler
  *
- * Implements the OpenResponses `/v1/responses` endpoint for Assistant Gateway.
+ * Implements the OpenResponses `/v1/responses` endpoint for Zhushou Gateway.
  *
  * @see https://www.open-responses.com/
  */
@@ -32,7 +32,7 @@ import {
   type InputImageSource,
 } from "../media/input-files.js";
 import { defaultRuntime } from "../runtime.js";
-import { resolveAssistantStreamDeltaText } from "./agent-event-assistant-text.js";
+import { resolveZhushouStreamDeltaText } from "./agent-event-zhushou-text.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { ResolvedGatewayAuth } from "./auth.js";
 import { sendJson, setSseHeaders, watchClientDisconnect, writeDone } from "./http-common.js";
@@ -57,7 +57,7 @@ import {
 } from "./open-responses.schema.js";
 import { wrapUntrustedFileContent } from "./openresponses-file-content.js";
 import { buildAgentPrompt } from "./openresponses-prompt.js";
-import { createAssistantOutputItem, createFunctionCallOutputItem } from "./openresponses-shape.js";
+import { createZhushouOutputItem, createFunctionCallOutputItem } from "./openresponses-shape.js";
 
 type OpenResponsesHttpOptions = {
   auth: ResolvedGatewayAuth;
@@ -123,7 +123,7 @@ function createResponseSessionScope(params: {
   return normalizeResponseSessionScope({
     authSubject: resolveResponseSessionAuthSubject({ req: params.req, auth: params.auth }),
     agentId: params.agentId,
-    requestedSessionKey: getHeader(params.req, "x-assistant-session-key"),
+    requestedSessionKey: getHeader(params.req, "x-zhushou-session-key"),
   });
 }
 
@@ -705,12 +705,12 @@ export async function handleOpenResponsesHttpRequest(
       const meta = (result as { meta?: unknown } | null)?.meta;
       const { stopReason, pendingToolCalls } = resolveStopReasonAndPendingToolCalls(meta);
 
-      // If agent called a client tool, return function_call (and any assistant text) to caller
+      // If agent called a client tool, return function_call (and any zhushou text) to caller
       if (stopReason === "tool_calls" && pendingToolCalls && pendingToolCalls.length > 0) {
         const functionCall = pendingToolCalls[0];
         const functionCallItemId = `call_${randomUUID()}`;
 
-        const assistantText =
+        const zhushouText =
           Array.isArray(payloads) && payloads.length > 0
             ? payloads
                 .map((p) => (typeof p.text === "string" ? p.text : ""))
@@ -719,11 +719,11 @@ export async function handleOpenResponsesHttpRequest(
             : "";
 
         const output: OutputItem[] = [];
-        if (assistantText) {
+        if (zhushouText) {
           output.push(
-            createAssistantOutputItem({
+            createZhushouOutputItem({
               id: outputItemId,
-              text: assistantText,
+              text: zhushouText,
               phase: "commentary",
               status: "completed",
             }),
@@ -763,7 +763,7 @@ export async function handleOpenResponsesHttpRequest(
         model,
         status: "completed",
         output: [
-          createAssistantOutputItem({
+          createZhushouOutputItem({
             id: outputItemId,
             text: content,
             phase: "final_answer",
@@ -813,7 +813,7 @@ export async function handleOpenResponsesHttpRequest(
   setSseHeaders(res);
 
   let accumulatedText = "";
-  let sawAssistantDelta = false;
+  let sawZhushouDelta = false;
   let closed = false;
   let unsubscribe = () => {};
   let stopWatchingDisconnect = () => {};
@@ -852,7 +852,7 @@ export async function handleOpenResponsesHttpRequest(
       part: { type: "output_text", text: finalizeRequested.text },
     });
 
-    const completedItem = createAssistantOutputItem({
+    const completedItem = createZhushouOutputItem({
       id: outputItemId,
       text: finalizeRequested.text,
       phase: finalizeRequested.status === "completed" ? "final_answer" : "commentary",
@@ -899,7 +899,7 @@ export async function handleOpenResponsesHttpRequest(
   writeSseEvent(res, { type: "response.in_progress", response: initialResponse });
 
   // Add output item
-  const outputItem = createAssistantOutputItem({
+  const outputItem = createZhushouOutputItem({
     id: outputItemId,
     text: "",
     status: "in_progress",
@@ -928,18 +928,18 @@ export async function handleOpenResponsesHttpRequest(
       return;
     }
 
-    if (evt.stream === "assistant") {
+    if (evt.stream === "zhushou") {
       const text = evt.data?.text;
       const replace = evt.data?.replace === true;
       if (replace && typeof text === "string") {
         accumulatedText = text;
       }
-      const content = resolveAssistantStreamDeltaText(evt);
+      const content = resolveZhushouStreamDeltaText(evt);
       if (!content) {
         return;
       }
 
-      sawAssistantDelta = true;
+      sawZhushouDelta = true;
       accumulatedText += content;
 
       writeSseEvent(res, {
@@ -1024,7 +1024,7 @@ export async function handleOpenResponsesHttpRequest(
           part: { type: "output_text", text: finalText },
         });
 
-        const completedItem = createAssistantOutputItem({
+        const completedItem = createZhushouOutputItem({
           id: outputItemId,
           text: finalText,
           phase: "commentary",
@@ -1085,7 +1085,7 @@ export async function handleOpenResponsesHttpRequest(
       }
 
       // Fallback: if no streaming deltas were received, send the full response as text
-      if (!sawAssistantDelta) {
+      if (!sawZhushouDelta) {
         const payloads = resultAny.payloads;
         const content =
           Array.isArray(payloads) && payloads.length > 0
@@ -1096,7 +1096,7 @@ export async function handleOpenResponsesHttpRequest(
             : "No response from 助手.";
 
         accumulatedText = content;
-        sawAssistantDelta = true;
+        sawZhushouDelta = true;
 
         writeSseEvent(res, {
           type: "response.output_text.delta",

@@ -65,7 +65,7 @@ type GoogleTransportContentBlock =
   | { type: "thinking"; thinking: string; thinkingSignature?: string }
   | { type: "toolCall"; id: string; name: string; arguments: Record<string, unknown> };
 
-type MutableAssistantOutput = {
+type MutableZhushouOutput = {
   role: "assistant";
   content: Array<GoogleTransportContentBlock>;
   api: "google-generative-ai";
@@ -539,7 +539,7 @@ async function* parseGoogleSseChunks(
 }
 
 function updateUsage(
-  output: MutableAssistantOutput,
+  output: MutableZhushouOutput,
   model: GoogleTransportModel,
   chunk: GoogleSseChunk,
 ) {
@@ -562,7 +562,7 @@ function updateUsage(
 
 function pushTextBlockEnd(
   stream: WritableTransportStream,
-  output: MutableAssistantOutput,
+  output: MutableZhushouOutput,
   blockIndex: number,
 ) {
   const block = output.content[blockIndex];
@@ -594,7 +594,7 @@ export function createGoogleGenerativeAiTransportStreamFn(): StreamFn {
     const options = rawOptions as GoogleTransportOptions | undefined;
     const { eventStream, stream } = createWritableTransportEventStream();
     void (async () => {
-      const output: MutableAssistantOutput = {
+      const output: MutableZhushouOutput = {
         role: "assistant",
         content: [],
         api: "google-generative-ai",

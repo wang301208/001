@@ -7,13 +7,13 @@ afterEach(() => {
 });
 
 describe("DEFAULT_AGENT_WORKSPACE_DIR", () => {
-  it("uses ASSISTANT_HOME when resolving the default workspace dir", () => {
-    const home = path.join(path.sep, "srv", "assistant-home");
-    vi.stubEnv("ASSISTANT_HOME", home);
+  it("uses ZHUSHOU_HOME when resolving the default workspace dir", () => {
+    const home = path.join(path.sep, "srv", "zhushou-home");
+    vi.stubEnv("ZHUSHOU_HOME", home);
     vi.stubEnv("HOME", path.join(path.sep, "home", "other"));
 
     expect(resolveDefaultAgentWorkspaceDir()).toBe(
-      path.join(path.resolve(home), ".assistant", "workspace"),
+      path.join(path.resolve(home), ".zhushou", "workspace"),
     );
   });
 });

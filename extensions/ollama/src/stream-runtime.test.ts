@@ -4,7 +4,7 @@ const { fetchWithSsrFGuardMock } = vi.hoisted(() => ({
   fetchWithSsrFGuardMock: vi.fn(),
 }));
 
-vi.mock("assistant/plugin-sdk/ssrf-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: fetchWithSsrFGuardMock,
 }));
 
@@ -13,7 +13,7 @@ import {
   createConfiguredOllamaStreamFn,
   createOllamaStreamFn,
   convertToOllamaMessages,
-  buildAssistantMessage,
+  buildZhushouMessage,
   parseNdjsonStream,
   resolveOllamaBaseUrlForRun,
 } from "./stream.js";
@@ -85,7 +85,7 @@ describe("convertToOllamaMessages", () => {
     expect(result[1]).toEqual({ role: "user", content: "hello" });
   });
 
-  it("converts assistant messages with toolCall content blocks", () => {
+  it("converts zhushou messages with toolCall content blocks", () => {
     const messages = [
       {
         role: "assistant",
@@ -198,7 +198,7 @@ describe("convertToOllamaMessages", () => {
   });
 });
 
-describe("buildAssistantMessage", () => {
+describe("buildZhushouMessage", () => {
   const modelInfo = { api: "ollama", provider: "ollama", id: "qwen3:32b" };
 
   it("builds text-only response", () => {
@@ -210,7 +210,7 @@ describe("buildAssistantMessage", () => {
       prompt_eval_count: 10,
       eval_count: 5,
     };
-    const result = buildAssistantMessage(response, modelInfo);
+    const result = buildZhushouMessage(response, modelInfo);
     expect(result.role).toBe("assistant");
     expect(result.content).toEqual([{ type: "text", text: "Hello!" }]);
     expect(result.stopReason).toBe("stop");
@@ -230,7 +230,7 @@ describe("buildAssistantMessage", () => {
       },
       done: true,
     };
-    const result = buildAssistantMessage(response, modelInfo);
+    const result = buildZhushouMessage(response, modelInfo);
     expect(result.stopReason).toBe("stop");
     expect(result.content).toEqual([{ type: "thinking", thinking: "Thinking output" }]);
   });
@@ -246,7 +246,7 @@ describe("buildAssistantMessage", () => {
       },
       done: true,
     };
-    const result = buildAssistantMessage(response, modelInfo);
+    const result = buildZhushouMessage(response, modelInfo);
     expect(result.stopReason).toBe("stop");
     expect(result.content).toEqual([{ type: "thinking", thinking: "Reasoning output" }]);
   });
@@ -264,7 +264,7 @@ describe("buildAssistantMessage", () => {
       prompt_eval_count: 20,
       eval_count: 10,
     };
-    const result = buildAssistantMessage(response, modelInfo);
+    const result = buildZhushouMessage(response, modelInfo);
     expect(result.stopReason).toBe("toolUse");
     expect(result.content.length).toBe(1); // toolCall only (empty content is skipped)
     expect(result.content[0].type).toBe("toolCall");
@@ -286,7 +286,7 @@ describe("buildAssistantMessage", () => {
       message: { role: "assistant" as const, content: "ok" },
       done: true,
     };
-    const result = buildAssistantMessage(response, modelInfo);
+    const result = buildZhushouMessage(response, modelInfo);
     expect(result.usage.cost).toEqual({
       input: 0,
       output: 0,
@@ -333,9 +333,9 @@ async function expectDoneEventContent(lines: string[], expectedContent: unknown)
 describe("parseNdjsonStream", () => {
   it("parses text-only streaming chunks", async () => {
     const reader = mockNdjsonReader([
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":"Hello"},"done":false}',
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":" world"},"done":false}',
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":5,"eval_count":2}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":"Hello"},"done":false}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":" world"},"done":false}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":5,"eval_count":2}',
     ]);
     const chunks = [];
     for await (const chunk of parseNdjsonStream(reader)) {
@@ -350,8 +350,8 @@ describe("parseNdjsonStream", () => {
   it("parses tool_calls from intermediate chunk (not final)", async () => {
     // Ollama sends tool_calls in done:false chunk, final done:true has no tool_calls
     const reader = mockNdjsonReader([
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":10,"eval_count":5}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":10,"eval_count":5}',
     ]);
     const chunks = [];
     for await (const chunk of parseNdjsonStream(reader)) {
@@ -367,9 +367,9 @@ describe("parseNdjsonStream", () => {
 
   it("accumulates tool_calls across multiple intermediate chunks", async () => {
     const reader = mockNdjsonReader([
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","tool_calls":[{"function":{"name":"read","arguments":{"path":"/tmp/a"}}}]},"done":false}',
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":"","tool_calls":[{"function":{"name":"read","arguments":{"path":"/tmp/a"}}}]},"done":false}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true}',
     ]);
 
     // Simulate the accumulation logic from createOllamaStreamFn
@@ -392,7 +392,7 @@ describe("parseNdjsonStream", () => {
 
   it("preserves unsafe integer tool arguments as exact strings", async () => {
     const reader = mockNdjsonReader([
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","tool_calls":[{"function":{"name":"send","arguments":{"target":1234567890123456789,"nested":{"thread":9223372036854775807}}}}]},"done":false}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":"","tool_calls":[{"function":{"name":"send","arguments":{"target":1234567890123456789,"nested":{"thread":9223372036854775807}}}}]},"done":false}',
     ]);
 
     const chunks = [];
@@ -409,7 +409,7 @@ describe("parseNdjsonStream", () => {
 
   it("keeps safe integer tool arguments as numbers", async () => {
     const reader = mockNdjsonReader([
-      '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","tool_calls":[{"function":{"name":"send","arguments":{"retries":3,"delayMs":2500}}}]},"done":false}',
+      '{"model":"m","created_at":"t","message":{role: "assistant","content":"","tool_calls":[{"function":{"name":"send","arguments":{"retries":3,"delayMs":2500}}}]},"done":false}',
     ]);
 
     const chunks = [];
@@ -530,9 +530,9 @@ describe("createOllamaStreamFn streaming events", () => {
   it("emits start, text_start, text_delta, text_end, done for text responses", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"Hello"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":" world"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":5,"eval_count":2}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"Hello"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":" world"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":5,"eval_count":2}',
       ],
       async () => {
         const stream = await createOllamaTestStream({ baseUrl: "http://ollama-host:11434" });
@@ -580,8 +580,8 @@ describe("createOllamaStreamFn streaming events", () => {
   it("emits only done for tool-call-only responses (no text content)", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":10,"eval_count":5}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":10,"eval_count":5}',
       ],
       async () => {
         const stream = await createOllamaTestStream({ baseUrl: "http://ollama-host:11434" });
@@ -601,9 +601,9 @@ describe("createOllamaStreamFn streaming events", () => {
   it("emits text streaming events before done for mixed text + tool responses", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"Let me check."},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":10,"eval_count":5}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"Let me check."},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":10,"eval_count":5}',
       ],
       async () => {
         const stream = await createOllamaTestStream({ baseUrl: "http://ollama-host:11434" });
@@ -628,7 +628,7 @@ describe("createOllamaStreamFn streaming events", () => {
       const iterator = stream[Symbol.asyncIterator]();
 
       controlledFetch.pushLine(
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"Let me check."},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"Let me check."},"done":false}',
       );
 
       const startEvent = await nextEventWithin(iterator);
@@ -646,7 +646,7 @@ describe("createOllamaStreamFn streaming events", () => {
       });
 
       controlledFetch.pushLine(
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","tool_calls":[{"function":{"name":"bash","arguments":{"command":"ls"}}}]},"done":false}',
       );
 
       const textEndEvent = await nextEventWithin(iterator);
@@ -664,7 +664,7 @@ describe("createOllamaStreamFn streaming events", () => {
       });
 
       controlledFetch.pushLine(
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":10,"eval_count":5}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":10,"eval_count":5}',
       );
       controlledFetch.close();
 
@@ -692,7 +692,7 @@ describe("createOllamaStreamFn streaming events", () => {
     // The stream function throws "Ollama API stream ended without a final response".
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"partial"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"partial"},"done":false}',
       ],
       async () => {
         const stream = await createOllamaTestStream({ baseUrl: "http://ollama-host:11434" });
@@ -710,8 +710,8 @@ describe("createOllamaStreamFn streaming events", () => {
   it("emits a single text_delta for single-chunk responses", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"one shot"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"one shot"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
       ],
       async () => {
         const stream = await createOllamaTestStream({ baseUrl: "http://ollama-host:11434" });
@@ -731,8 +731,8 @@ describe("createOllamaStreamFn", () => {
   it("normalizes /v1 baseUrl and maps maxTokens + signal", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"ok"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"ok"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
       ],
       async (fetchMock) => {
         const signal = new AbortController().signal;
@@ -766,8 +766,8 @@ describe("createOllamaStreamFn", () => {
   it("uses the default loopback policy when baseUrl is empty", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"ok"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"ok"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
       ],
       async (fetchMock) => {
         const stream = await createOllamaTestStream({ baseUrl: "" });
@@ -788,8 +788,8 @@ describe("createOllamaStreamFn", () => {
   it("merges default headers and allows request headers to override them", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"ok"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"ok"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
       ],
       async (fetchMock) => {
         const stream = await createOllamaTestStream({
@@ -823,8 +823,8 @@ describe("createOllamaStreamFn", () => {
   it("preserves an explicit Authorization header when apiKey is a local marker", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"ok"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"ok"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
       ],
       async (fetchMock) => {
         const stream = await createOllamaTestStream({
@@ -852,8 +852,8 @@ describe("createOllamaStreamFn", () => {
   it("allows a real apiKey to override an explicit Authorization header", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"ok"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"ok"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
       ],
       async (fetchMock) => {
         const streamFn = createOllamaStreamFn("http://ollama-host:11434", {
@@ -912,9 +912,9 @@ describe("createOllamaStreamFn", () => {
   it("keeps thinking chunks when no final content is emitted", async () => {
     await expectDoneEventContent(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","thinking":"reasoned"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","thinking":" output"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","thinking":"reasoned"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","thinking":" output"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
       ],
       [{ type: "thinking", thinking: "reasoned output" }],
     );
@@ -923,10 +923,10 @@ describe("createOllamaStreamFn", () => {
   it("keeps streamed content after earlier thinking chunks", async () => {
     await expectDoneEventContent(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","thinking":"internal"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"final"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":" answer"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","thinking":"internal"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"final"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":" answer"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
       ],
       [
         { type: "thinking", thinking: "internal" },
@@ -938,9 +938,9 @@ describe("createOllamaStreamFn", () => {
   it("keeps reasoning chunks when no final content is emitted", async () => {
     await expectDoneEventContent(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","reasoning":"reasoned"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","reasoning":" output"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","reasoning":"reasoned"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","reasoning":" output"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
       ],
       [{ type: "thinking", thinking: "reasoned output" }],
     );
@@ -949,10 +949,10 @@ describe("createOllamaStreamFn", () => {
   it("keeps streamed content after earlier reasoning chunks", async () => {
     await expectDoneEventContent(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","reasoning":"internal"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"final"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":" answer"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"","reasoning":"internal"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"final"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":" answer"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
       ],
       [
         { type: "thinking", thinking: "internal" },
@@ -989,8 +989,8 @@ describe("createConfiguredOllamaStreamFn", () => {
   it("uses provider-level baseUrl when model baseUrl is absent", async () => {
     await withMockNdjsonFetch(
       [
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"ok"},"done":false}',
-        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":"ok"},"done":false}',
+        '{"model":"m","created_at":"t","message":{role: "assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":1}',
       ],
       async (fetchMock) => {
         const streamFn = createConfiguredOllamaStreamFn({

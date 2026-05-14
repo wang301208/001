@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   detectConfigConflicts,
   formatValidationResult,
@@ -9,8 +9,8 @@ import {
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-function cfg(overrides: Record<string, unknown> = {}): AssistantConfig {
-  return overrides as unknown as AssistantConfig;
+function cfg(overrides: Record<string, unknown> = {}): ZhushouConfig {
+  return overrides as unknown as ZhushouConfig;
 }
 
 // ─── validateWizardConfig ─────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ describe("validateWizardConfig", () => {
 
     it("does not warn about missing workspace when it is set", () => {
       const result = validateWizardConfig(
-        cfg({ agents: { defaults: { workspace: "/home/user/assistant" } } }),
+        cfg({ agents: { defaults: { workspace: "/home/user/zhushou" } } }),
       );
       expect(result.warnings.filter((w) => w.code === "missing-workspace")).toHaveLength(0);
     });

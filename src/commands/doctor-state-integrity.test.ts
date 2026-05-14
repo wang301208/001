@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   resolveStorePath,
   resolveSessionTranscriptsDirForAgent,
@@ -21,17 +21,17 @@ const noteMock = vi.fn();
 
 type EnvSnapshot = {
   HOME?: string;
-  ASSISTANT_HOME?: string;
-  ASSISTANT_STATE_DIR?: string;
-  ASSISTANT_OAUTH_DIR?: string;
+  ZHUSHOU_HOME?: string;
+  ZHUSHOU_STATE_DIR?: string;
+  ZHUSHOU_OAUTH_DIR?: string;
 };
 
 function captureEnv(): EnvSnapshot {
   return {
     HOME: process.env.HOME,
-    ASSISTANT_HOME: process.env.ASSISTANT_HOME,
-    ASSISTANT_STATE_DIR: process.env.ASSISTANT_STATE_DIR,
-    ASSISTANT_OAUTH_DIR: process.env.ASSISTANT_OAUTH_DIR,
+    ZHUSHOU_HOME: process.env.ZHUSHOU_HOME,
+    ZHUSHOU_STATE_DIR: process.env.ZHUSHOU_STATE_DIR,
+    ZHUSHOU_OAUTH_DIR: process.env.ZHUSHOU_OAUTH_DIR,
   };
 }
 
@@ -46,7 +46,7 @@ function restoreEnv(snapshot: EnvSnapshot) {
   }
 }
 
-function setupSessionState(cfg: AssistantConfig, env: NodeJS.ProcessEnv, homeDir: string) {
+function setupSessionState(cfg: ZhushouConfig, env: NodeJS.ProcessEnv, homeDir: string) {
   const agentId = "main";
   const sessionsDir = resolveSessionTranscriptsDirForAgent(agentId, env, () => homeDir);
   const storePath = resolveStorePath(cfg.session?.store, { agentId });
@@ -62,9 +62,9 @@ function stateIntegrityText(): string {
 }
 
 function createAgentDir(agentId: string, includeNestedAgentDir = true) {
-  const stateDir = process.env.ASSISTANT_STATE_DIR;
+  const stateDir = process.env.ZHUSHOU_STATE_DIR;
   if (!stateDir) {
-    throw new Error("ASSISTANT_STATE_DIR is not set");
+    throw new Error("ZHUSHOU_STATE_DIR is not set");
   }
   const targetDir = includeNestedAgentDir
     ? path.join(stateDir, "agents", agentId, "agent")
@@ -76,7 +76,7 @@ const OAUTH_PROMPT_MATCHER = expect.objectContaining({
   message: expect.stringContaining("Create OAuth dir at"),
 });
 
-async function runStateIntegrity(cfg: AssistantConfig) {
+async function runStateIntegrity(cfg: ZhushouConfig) {
   setupSessionState(cfg, process.env, process.env.HOME ?? "");
   const confirmRuntimeRepair = vi.fn(async () => false);
   await noteStateIntegrity(cfg, { confirmRuntimeRepair, note: noteMock });
@@ -84,7 +84,7 @@ async function runStateIntegrity(cfg: AssistantConfig) {
 }
 
 function writeSessionStore(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   sessions: Record<string, { sessionId: string; updatedAt: number }>,
 ) {
   setupSessionState(cfg, process.env, process.env.HOME ?? "");
@@ -92,13 +92,13 @@ function writeSessionStore(
   fs.writeFileSync(storePath, JSON.stringify(sessions, null, 2));
 }
 
-async function runStateIntegrityText(cfg: AssistantConfig): Promise<string> {
+async function runStateIntegrityText(cfg: ZhushouConfig): Promise<string> {
   await noteStateIntegrity(cfg, { confirmRuntimeRepair: vi.fn(async () => false), note: noteMock });
   return stateIntegrityText();
 }
 
 async function runOrphanTranscriptCheckWithQmdSessions(enabled: boolean, homeDir: string) {
-  const cfg: AssistantConfig = {
+  const cfg: ZhushouConfig = {
     memory: {
       backend: "qmd",
       qmd: {
@@ -120,12 +120,12 @@ describe("doctor state integrity oauth dir checks", () => {
 
   beforeEach(() => {
     envSnapshot = captureEnv();
-    tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-doctor-state-integrity-"));
+    tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-doctor-state-integrity-"));
     process.env.HOME = tempHome;
-    process.env.ASSISTANT_HOME = tempHome;
-    process.env.ASSISTANT_STATE_DIR = path.join(tempHome, ".assistant");
-    delete process.env.ASSISTANT_OAUTH_DIR;
-    fs.mkdirSync(process.env.ASSISTANT_STATE_DIR, { recursive: true, mode: 0o700 });
+    process.env.ZHUSHOU_HOME = tempHome;
+    process.env.ZHUSHOU_STATE_DIR = path.join(tempHome, ".zhushou");
+    delete process.env.ZHUSHOU_OAUTH_DIR;
+    fs.mkdirSync(process.env.ZHUSHOU_STATE_DIR, { recursive: true, mode: 0o700 });
     noteMock.mockClear();
   });
 
@@ -135,7 +135,7 @@ describe("doctor state integrity oauth dir checks", () => {
   });
 
   it("does not prompt for oauth dir when no whatsapp/pairing config is active", async () => {
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     const confirmRuntimeRepair = await runStateIntegrity(cfg);
     expect(confirmRuntimeRepair).not.toHaveBeenCalledWith(OAUTH_PROMPT_MATCHER);
     const text = stateIntegrityText();
@@ -144,7 +144,7 @@ describe("doctor state integrity oauth dir checks", () => {
   });
 
   it("does not prompt for oauth dir when whatsapp is configured without persisted auth state", async () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         whatsapp: {},
       },
@@ -156,7 +156,7 @@ describe("doctor state integrity oauth dir checks", () => {
   });
 
   it("prompts for oauth dir when a channel dmPolicy is pairing", async () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           dmPolicy: "pairing",
@@ -167,9 +167,9 @@ describe("doctor state integrity oauth dir checks", () => {
     expect(confirmRuntimeRepair).toHaveBeenCalledWith(OAUTH_PROMPT_MATCHER);
   });
 
-  it("prompts for oauth dir when ASSISTANT_OAUTH_DIR is explicitly configured", async () => {
-    process.env.ASSISTANT_OAUTH_DIR = path.join(tempHome, ".oauth");
-    const cfg: AssistantConfig = {};
+  it("prompts for oauth dir when ZHUSHOU_OAUTH_DIR is explicitly configured", async () => {
+    process.env.ZHUSHOU_OAUTH_DIR = path.join(tempHome, ".oauth");
+    const cfg: ZhushouConfig = {};
     const confirmRuntimeRepair = await runStateIntegrity(cfg);
     expect(confirmRuntimeRepair).toHaveBeenCalledWith(OAUTH_PROMPT_MATCHER);
     expect(stateIntegrityText()).toContain("CRITICAL: OAuth dir missing");
@@ -253,7 +253,7 @@ describe("doctor state integrity oauth dir checks", () => {
 
     const realpathNative = fs.realpathSync.native.bind(fs.realpathSync);
     const resolvedResearchAgentDir = realpathNative(
-      path.join(process.env.ASSISTANT_STATE_DIR ?? "", "agents", "Research", "agent"),
+      path.join(process.env.ZHUSHOU_STATE_DIR ?? "", "agents", "Research", "agent"),
     );
     const realpathSpy = vi
       .spyOn(fs.realpathSync, "native")
@@ -280,7 +280,7 @@ describe("doctor state integrity oauth dir checks", () => {
   });
 
   it("detects orphan transcripts and offers archival remediation", async () => {
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     setupSessionState(cfg, process.env, process.env.HOME ?? "");
     const sessionsDir = resolveSessionTranscriptsDirForAgent("main", process.env, () => tempHome);
     fs.writeFileSync(path.join(sessionsDir, "orphan-session.jsonl"), '{"type":"session"}\n');
@@ -319,8 +319,8 @@ describe("doctor state integrity oauth dir checks", () => {
     expect(confirmRuntimeRepair).toHaveBeenCalled();
   });
 
-  it("prints assistant-only verification hints when recent sessions are missing transcripts", async () => {
-    const cfg: AssistantConfig = {};
+  it("prints zhushou-only verification hints when recent sessions are missing transcripts", async () => {
+    const cfg: ZhushouConfig = {};
     writeSessionStore(cfg, {
       "agent:main:main": {
         sessionId: "missing-transcript",
@@ -329,17 +329,17 @@ describe("doctor state integrity oauth dir checks", () => {
     });
     const text = await runStateIntegrityText(cfg);
     expect(text).toContain("recent sessions are missing transcripts");
-    expect(text).toMatch(/assistant sessions --store ".*sessions\.json"/);
-    expect(text).toMatch(/assistant sessions cleanup --store ".*sessions\.json" --dry-run/);
+    expect(text).toMatch(/zhushou sessions --store ".*sessions\.json"/);
+    expect(text).toMatch(/zhushou sessions cleanup --store ".*sessions\.json" --dry-run/);
     expect(text).toMatch(
-      /assistant sessions cleanup --store ".*sessions\.json" --enforce --fix-missing/,
+      /zhushou sessions cleanup --store ".*sessions\.json" --enforce --fix-missing/,
     );
     expect(text).not.toContain("--active");
     expect(text).not.toContain(" ls ");
   });
 
   it("ignores slash-routing sessions for recent missing transcript warnings", async () => {
-    const cfg: AssistantConfig = {};
+    const cfg: ZhushouConfig = {};
     writeSessionStore(cfg, {
       "agent:main:telegram:slash:6790081233": {
         sessionId: "missing-slash-transcript",

@@ -2,7 +2,7 @@ import { completeSimple, type Model } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import {
   createSingleUserPromptMessage,
-  extractNonEmptyAssistantText,
+  extractNonEmptyZhushouText,
   isLiveTestEnabled,
 } from "./live-test-helpers.js";
 
@@ -23,12 +23,12 @@ async function runMinimaxTextProbe(model: Model<"anthropic-messages">, maxTokens
   );
   return {
     res,
-    text: extractNonEmptyAssistantText(res.content),
+    text: extractNonEmptyZhushouText(res.content),
   };
 }
 
 describeLive("minimax live", () => {
-  it("returns assistant text", async () => {
+  it("returns zhushou text", async () => {
     const model: Model<"anthropic-messages"> = {
       id: MINIMAX_MODEL,
       name: `MiniMax ${MINIMAX_MODEL}`,

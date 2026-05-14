@@ -7,14 +7,14 @@ vi.mock("../gateway/call.js", () => ({
 
 import {
   __testing,
-  readLatestAssistantReply,
-  readLatestAssistantReplySnapshot,
+  readLatestZhushouReply,
+  readLatestZhushouReplySnapshot,
   waitForAgentRun,
   waitForAgentRunsToDrain,
-  waitForAgentRunAndReadUpdatedAssistantReply,
+  waitForAgentRunAndReadUpdatedZhushouReply,
 } from "./run-wait.js";
 
-describe("readLatestAssistantReply", () => {
+describe("readLatestZhushouReply", () => {
   beforeEach(() => {
     callGatewayMock.mockClear();
     __testing.setDepsForTest({
@@ -22,7 +22,7 @@ describe("readLatestAssistantReply", () => {
     });
   });
 
-  it("returns the most recent assistant message when compaction markers trail history", async () => {
+  it("returns the most recent zhushou message when compaction markers trail history", async () => {
     callGatewayMock.mockResolvedValue({
       messages: [
         {
@@ -34,7 +34,7 @@ describe("readLatestAssistantReply", () => {
       ],
     });
 
-    const result = await readLatestAssistantReply({ sessionKey: "agent:main:child" });
+    const result = await readLatestZhushouReply({ sessionKey: "agent:main:child" });
 
     expect(result).toBe("All checks passed and changes were pushed.");
     expect(callGatewayMock).toHaveBeenCalledWith({
@@ -43,7 +43,7 @@ describe("readLatestAssistantReply", () => {
     });
   });
 
-  it("falls back to older assistant text when latest assistant has no text", async () => {
+  it("falls back to older zhushou text when latest zhushou has no text", async () => {
     callGatewayMock.mockResolvedValue({
       messages: [
         { role: "assistant", content: [{ type: "text", text: "older output" }] },
@@ -52,12 +52,12 @@ describe("readLatestAssistantReply", () => {
       ],
     });
 
-    const result = await readLatestAssistantReply({ sessionKey: "agent:main:child" });
+    const result = await readLatestZhushouReply({ sessionKey: "agent:main:child" });
 
     expect(result).toBe("older output");
   });
 
-  it("returns assistant fingerprints for delta comparisons", async () => {
+  it("returns zhushou fingerprints for delta comparisons", async () => {
     callGatewayMock.mockResolvedValue({
       messages: [
         {
@@ -68,13 +68,13 @@ describe("readLatestAssistantReply", () => {
       ],
     });
 
-    const result = await readLatestAssistantReplySnapshot({ sessionKey: "agent:main:child" });
+    const result = await readLatestZhushouReplySnapshot({ sessionKey: "agent:main:child" });
 
     expect(result.text).toBe("new output");
     expect(result.fingerprint).toContain('"timestamp":42');
   });
 
-  it("reads only final_answer text from phased assistant history", async () => {
+  it("reads only final_answer text from phased zhushou history", async () => {
     callGatewayMock.mockResolvedValue({
       messages: [
         {
@@ -95,7 +95,7 @@ describe("readLatestAssistantReply", () => {
       ],
     });
 
-    const result = await readLatestAssistantReply({ sessionKey: "agent:main:child" });
+    const result = await readLatestZhushouReply({ sessionKey: "agent:main:child" });
 
     expect(result).toBe("Fixed the quoting issue.");
   });
@@ -126,7 +126,7 @@ describe("readLatestAssistantReply", () => {
       ],
     });
 
-    const result = await readLatestAssistantReply({ sessionKey: "agent:main:child" });
+    const result = await readLatestZhushouReply({ sessionKey: "agent:main:child" });
 
     expect(result).toBe("Hi there");
   });
@@ -176,7 +176,7 @@ describe("waitForAgentRun", () => {
   });
 });
 
-describe("waitForAgentRunAndReadUpdatedAssistantReply", () => {
+describe("waitForAgentRunAndReadUpdatedZhushouReply", () => {
   beforeEach(() => {
     callGatewayMock.mockClear();
     __testing.setDepsForTest({
@@ -184,8 +184,8 @@ describe("waitForAgentRunAndReadUpdatedAssistantReply", () => {
     });
   });
 
-  it("returns undefined when the latest assistant fingerprint matches the baseline", async () => {
-    const assistantMessage = {
+  it("returns undefined when the latest zhushou fingerprint matches the baseline", async () => {
+    const zhushouMessage = {
       role: "assistant",
       content: [{ type: "text", text: "same reply" }],
       timestamp: 42,
@@ -195,16 +195,16 @@ describe("waitForAgentRunAndReadUpdatedAssistantReply", () => {
         status: "ok",
       })
       .mockResolvedValueOnce({
-        messages: [assistantMessage],
+        messages: [zhushouMessage],
       });
 
-    const result = await waitForAgentRunAndReadUpdatedAssistantReply({
+    const result = await waitForAgentRunAndReadUpdatedZhushouReply({
       runId: "run-1",
       sessionKey: "agent:main:child",
       timeoutMs: 1_000,
       baseline: {
         text: "same reply",
-        fingerprint: JSON.stringify(assistantMessage),
+        fingerprint: JSON.stringify(zhushouMessage),
       },
     });
 
@@ -214,7 +214,7 @@ describe("waitForAgentRunAndReadUpdatedAssistantReply", () => {
     });
   });
 
-  it("returns the new assistant text when the fingerprint changes", async () => {
+  it("returns the new zhushou text when the fingerprint changes", async () => {
     callGatewayMock
       .mockResolvedValueOnce({
         status: "ok",
@@ -229,7 +229,7 @@ describe("waitForAgentRunAndReadUpdatedAssistantReply", () => {
         ],
       });
 
-    const result = await waitForAgentRunAndReadUpdatedAssistantReply({
+    const result = await waitForAgentRunAndReadUpdatedZhushouReply({
       runId: "run-2",
       sessionKey: "agent:main:child",
       timeoutMs: 1_000,

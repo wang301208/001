@@ -8,6 +8,7 @@ import { isInvalidCronSessionTargetIdError } from "../../cron/session-target.js"
 import type { CronJobCreate, CronJobPatch } from "../../cron/types.js";
 import { validateScheduleTimestamp } from "../../cron/validate-timestamp.js";
 import { formatErrorMessage } from "../../infra/errors.js";
+import { getGatewayAutomationRuntimeState } from "../server-runtime-services.js";
 import {
   ErrorCodes,
   errorShape,
@@ -22,6 +23,42 @@ import {
   validateWakeParams,
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
+
+const CRON_STATUS_CONTROL_TIMEOUT_MS = 1_000;
+
+async function resolveCronStatusWithControlTimeout(context: Parameters<GatewayRequestHandlers[string]>[0]["context"]) {
+  const cronUnit = getGatewayAutomationRuntimeState().units.find((unit) => unit.id === "core.cron");
+  const degradedStatus = (reason: "cron-starting" | "cron-status-timeout") => ({
+    enabled: cronUnit?.enabled ?? true,
+    storePath: context.cronStorePath,
+    jobs: 0,
+    nextWakeAtMs: null,
+    degraded: true as const,
+    reason,
+  });
+  if (cronUnit?.status === "starting") {
+    return degradedStatus("cron-starting");
+  }
+  const statusPromise = Promise.resolve().then(() => context.cron.status());
+  let timeout: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      statusPromise,
+      new Promise<Awaited<ReturnType<typeof context.cron.status>> & { degraded?: true; reason?: string }>(
+        (resolve) => {
+          timeout = setTimeout(() => {
+            resolve(degradedStatus("cron-status-timeout"));
+          }, CRON_STATUS_CONTROL_TIMEOUT_MS);
+        },
+      ),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    statusPromise.catch(() => undefined);
+  }
+}
 
 export const cronHandlers: GatewayRequestHandlers = {
   wake: ({ params, respond, context }) => {
@@ -87,7 +124,7 @@ export const cronHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const status = await context.cron.status();
+    const status = await resolveCronStatusWithControlTimeout(context);
     respond(true, status, undefined);
   },
   "cron.add": async ({ params, respond, context }) => {

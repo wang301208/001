@@ -1,10 +1,10 @@
 const DEFAULT_MAX_PREAUTH_CONNECTIONS_PER_IP = 32;
-const UNKNOWN_CLIENT_IP_BUDGET_KEY = "__assistant_unknown_client_ip__";
+const UNKNOWN_CLIENT_IP_BUDGET_KEY = "__zhushou_unknown_client_ip__";
 
 export function getMaxPreauthConnectionsPerIpFromEnv(env: NodeJS.ProcessEnv = process.env): number {
   const configured =
-    env.ASSISTANT_MAX_PREAUTH_CONNECTIONS_PER_IP ||
-    (env.VITEST && env.ASSISTANT_TEST_MAX_PREAUTH_CONNECTIONS_PER_IP);
+    env.ZHUSHOU_MAX_PREAUTH_CONNECTIONS_PER_IP ||
+    (env.VITEST && env.ZHUSHOU_TEST_MAX_PREAUTH_CONNECTIONS_PER_IP);
   if (!configured) {
     return DEFAULT_MAX_PREAUTH_CONNECTIONS_PER_IP;
   }

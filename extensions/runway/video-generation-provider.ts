@@ -1,5 +1,5 @@
-import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
-import { resolveApiKeyForProvider } from "assistant/plugin-sdk/provider-auth-runtime";
+import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
+import { resolveApiKeyForProvider } from "zhushou/plugin-sdk/provider-auth-runtime";
 import {
   assertOkOrThrowHttpError,
   createProviderOperationDeadline,
@@ -8,18 +8,18 @@ import {
   resolveProviderOperationTimeoutMs,
   resolveProviderHttpRequestConfig,
   waitProviderOperationPollInterval,
-} from "assistant/plugin-sdk/provider-http";
+} from "zhushou/plugin-sdk/provider-http";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import type {
   GeneratedVideoAsset,
   VideoGenerationProvider,
   VideoGenerationRequest,
   VideoGenerationResult,
   VideoGenerationSourceAsset,
-} from "assistant/plugin-sdk/video-generation";
+} from "zhushou/plugin-sdk/video-generation";
 
 const DEFAULT_RUNWAY_BASE_URL = "https://api.dev.runwayml.com";
 const DEFAULT_RUNWAY_MODEL = "gen4.5";

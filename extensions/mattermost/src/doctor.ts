@@ -1,6 +1,6 @@
-import type { ChannelDoctorAdapter } from "assistant/plugin-sdk/channel-contract";
-import { createDangerousNameMatchingMutableAllowlistWarningCollector } from "assistant/plugin-sdk/channel-policy";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import type { ChannelDoctorAdapter } from "zhushou/plugin-sdk/channel-contract";
+import { createDangerousNameMatchingMutableAllowlistWarningCollector } from "zhushou/plugin-sdk/channel-policy";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import {
   legacyConfigRules as MATTERMOST_LEGACY_CONFIG_RULES,
   normalizeCompatibilityConfig as normalizeMattermostCompatibilityConfig,

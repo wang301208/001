@@ -76,9 +76,9 @@ async function main() {
     process.exit(1);
   }
 
-  const baseDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-zai-fallback-"));
+  const baseDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-zai-fallback-"));
   const stateDir = path.join(baseDir, "state");
-  const configPath = path.join(baseDir, "assistant.json");
+  const configPath = path.join(baseDir, "zhushou.json");
   await fs.mkdir(stateDir, { recursive: true });
 
   const config = {
@@ -98,12 +98,12 @@ async function main() {
   };
   await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf8");
 
-  const sessionId = process.env.ASSISTANT_ZAI_FALLBACK_SESSION_ID ?? randomUUID();
+  const sessionId = process.env.ZHUSHOU_ZAI_FALLBACK_SESSION_ID ?? randomUUID();
 
   const baseEnv: NodeJS.ProcessEnv = {
     ...process.env,
-    ASSISTANT_CONFIG_PATH: configPath,
-    ASSISTANT_STATE_DIR: stateDir,
+    ZHUSHOU_CONFIG_PATH: configPath,
+    ZHUSHOU_STATE_DIR: stateDir,
     ZAI_API_KEY: zaiKey,
     Z_AI_API_KEY: "",
   };
@@ -126,7 +126,7 @@ async function main() {
     "Then use the read tool to display the file contents. Reply with just the file contents.";
   const run1 = await runCommand(
     "run1",
-    ["assistant", "agent", "--local", "--session-id", sessionId, "--message", toolPrompt],
+    ["zhushou", "agent", "--local", "--session-id", sessionId, "--message", toolPrompt],
     envValidAnthropic,
   );
   if (run1.code !== 0) {
@@ -144,7 +144,7 @@ async function main() {
     "What is the content of zai-fallback-tool.txt? Reply with just the contents.";
   const run2 = await runCommand(
     "run2",
-    ["assistant", "agent", "--local", "--session-id", sessionId, "--message", followupPrompt],
+    ["zhushou", "agent", "--local", "--session-id", sessionId, "--message", followupPrompt],
     envInvalidAnthropic,
   );
 

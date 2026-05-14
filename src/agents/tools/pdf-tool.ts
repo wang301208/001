@@ -1,6 +1,6 @@
 import { type Context, complete } from "@mariozechner/pi-ai";
 import { Type } from "@sinclair/typebox";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { extractPdfContent, type PdfExtractedContent } from "../../media/pdf-extract.js";
 import { loadWebMediaRaw } from "../../media/web-media.js";
 import {
@@ -19,7 +19,7 @@ import {
 } from "./media-tool-shared.js";
 import { anthropicAnalyzePdf, geminiAnalyzePdf } from "./pdf-native-providers.js";
 import {
-  coercePdfAssistantText,
+  coercePdfZhushouText,
   coercePdfModelConfig,
   parsePageRange,
   providerSupportsNativePdf,
@@ -31,7 +31,7 @@ import {
   createSandboxBridgeReadFile,
   discoverAuthStorage,
   discoverModels,
-  ensureAssistantModelsJson,
+  ensureZhushouModelsJson,
   resolveSandboxedBridgeMediaPath,
   runWithImageModelFallback,
   type AnyAgentTool,
@@ -110,7 +110,7 @@ type PdfSandboxConfig = {
 };
 
 async function runPdfPrompt(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   agentDir: string;
   pdfModelConfig: ImageModelConfig;
   modelOverride?: string;
@@ -127,7 +127,7 @@ async function runPdfPrompt(params: {
 }> {
   const effectiveCfg = applyImageModelConfigDefaults(params.cfg, params.pdfModelConfig);
 
-  await ensureAssistantModelsJson(effectiveCfg, params.agentDir);
+  await ensureZhushouModelsJson(effectiveCfg, params.agentDir);
   const authStorage = discoverAuthStorage(params.agentDir);
   const modelRegistry = discoverModels(authStorage, params.agentDir);
 
@@ -205,7 +205,7 @@ async function runPdfPrompt(params: {
           apiKey,
           maxTokens: resolvePdfToolMaxTokens(model.maxTokens),
         });
-        const text = coercePdfAssistantText({ message, provider, model: modelId });
+        const text = coercePdfZhushouText({ message, provider, model: modelId });
         return { text, provider, model: modelId, native: false };
       }
 
@@ -214,7 +214,7 @@ async function runPdfPrompt(params: {
         apiKey,
         maxTokens: resolvePdfToolMaxTokens(model.maxTokens),
       });
-      const text = coercePdfAssistantText({ message, provider, model: modelId });
+      const text = coercePdfZhushouText({ message, provider, model: modelId });
       return { text, provider, model: modelId, native: false };
     },
   });
@@ -237,7 +237,7 @@ async function runPdfPrompt(params: {
 // ---------------------------------------------------------------------------
 
 export function createPdfTool(options?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   sandbox?: PdfSandboxConfig;

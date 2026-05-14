@@ -1,4 +1,4 @@
-import { resolveThreadSessionKeys } from "assistant/plugin-sdk/routing";
+import { resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
 import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 import { RelationType } from "./types.js";
 

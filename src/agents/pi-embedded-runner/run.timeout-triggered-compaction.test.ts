@@ -53,7 +53,7 @@ describe("timeout-triggered compaction", () => {
           },
           lastCacheTouchAt: 1_700_000_000_000,
         },
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 150000 },
         } as never,
       }),
@@ -107,7 +107,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 160000 },
         } as never,
       }),
@@ -135,7 +135,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 160000 },
         } as never,
       }),
@@ -182,7 +182,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 150000 },
         } as never,
       }),
@@ -208,7 +208,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 20000 },
         } as never,
       }),
@@ -227,7 +227,7 @@ describe("timeout-triggered compaction", () => {
       makeAttemptResult({
         timedOut: true,
         idleTimedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 20000 },
         } as never,
       }),
@@ -247,8 +247,8 @@ describe("timeout-triggered compaction", () => {
         makeAttemptResult({
           timedOut: true,
           idleTimedOut: true,
-          assistantTexts: [],
-          lastAssistant: {
+          zhushouTexts: [],
+          lastZhushou: {
             usage: { input: 20000 },
           } as never,
         }),
@@ -273,7 +273,7 @@ describe("timeout-triggered compaction", () => {
       .mockResolvedValueOnce(
         makeAttemptResult({
           timedOut: true,
-          lastAssistant: {
+          lastZhushou: {
             usage: { input: 20000 },
           } as never,
         }),
@@ -292,7 +292,7 @@ describe("timeout-triggered compaction", () => {
       makeAttemptResult({
         timedOut: true,
         aborted: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 180000 },
         } as never,
       }),
@@ -318,7 +318,7 @@ describe("timeout-triggered compaction", () => {
       makeAttemptResult({
         timedOut: true,
         timedOutDuringCompaction: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 180000 },
         } as never,
       }),
@@ -335,7 +335,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 150000 },
         } as never,
       }),
@@ -352,7 +352,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 140000 },
         } as never,
       }),
@@ -369,7 +369,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 130000 },
         } as never,
       }),
@@ -390,7 +390,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 150000 },
         } as never,
       }),
@@ -415,7 +415,7 @@ describe("timeout-triggered compaction", () => {
       .mockResolvedValueOnce(
         makeAttemptResult({
           timedOut: true,
-          lastAssistant: {
+          lastZhushou: {
             usage: { input: 160000 },
           } as never,
         }),
@@ -460,7 +460,7 @@ describe("timeout-triggered compaction", () => {
         makeAttemptResult({
           timedOut: true,
           aborted: true,
-          lastAssistant: {
+          lastZhushou: {
             usage: { input: 150000 },
           } as never,
         }),
@@ -470,7 +470,7 @@ describe("timeout-triggered compaction", () => {
         makeAttemptResult({
           timedOut: true,
           aborted: true,
-          lastAssistant: {
+          lastZhushou: {
             usage: { input: 150000 },
           } as never,
         }),
@@ -523,7 +523,7 @@ describe("timeout-triggered compaction", () => {
         makeAttemptResult({
           timedOut: true,
           aborted: true,
-          lastAssistant: {
+          lastZhushou: {
             usage: { input: 150000 },
           } as never,
         }),
@@ -533,7 +533,7 @@ describe("timeout-triggered compaction", () => {
         makeAttemptResult({
           timedOut: true,
           aborted: true,
-          lastAssistant: {
+          lastZhushou: {
             usage: { input: 150000 },
           } as never,
         }),
@@ -565,7 +565,7 @@ describe("timeout-triggered compaction", () => {
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
         timedOut: true,
-        lastAssistant: {
+        lastZhushou: {
           usage: { input: 20000, total: 150000 },
         } as never,
       }),

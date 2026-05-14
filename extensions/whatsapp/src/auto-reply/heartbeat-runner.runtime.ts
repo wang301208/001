@@ -1,4 +1,4 @@
-export { appendCronStyleCurrentTimeLine } from "assistant/plugin-sdk/agent-runtime";
+export { appendCronStyleCurrentTimeLine } from "zhushou/plugin-sdk/agent-runtime";
 export {
   canonicalizeMainSessionAlias,
   loadConfig,
@@ -6,16 +6,16 @@ export {
   resolveSessionKey,
   resolveStorePath,
   updateSessionStore,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 export {
   emitHeartbeatEvent,
   resolveHeartbeatVisibility,
   resolveIndicatorType,
-} from "assistant/plugin-sdk/infra-runtime";
+} from "zhushou/plugin-sdk/infra-runtime";
 export {
   hasOutboundReplyContent,
   resolveSendableOutboundReplyParts,
-} from "assistant/plugin-sdk/reply-payload";
+} from "zhushou/plugin-sdk/reply-payload";
 export {
   DEFAULT_HEARTBEAT_ACK_MAX_CHARS,
   HEARTBEAT_TOKEN,
@@ -23,10 +23,10 @@ export {
   resolveHeartbeatPrompt,
   resolveHeartbeatReplyPayload,
   stripHeartbeatToken,
-} from "assistant/plugin-sdk/reply-runtime";
-export { normalizeMainKey } from "assistant/plugin-sdk/routing";
-export { getChildLogger } from "assistant/plugin-sdk/runtime-env";
-export { redactIdentifier } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/reply-runtime";
+export { normalizeMainKey } from "zhushou/plugin-sdk/routing";
+export { getChildLogger } from "zhushou/plugin-sdk/runtime-env";
+export { redactIdentifier } from "zhushou/plugin-sdk/text-runtime";
 export { resolveWhatsAppHeartbeatRecipients } from "../runtime-api.js";
 export { sendMessageWhatsApp } from "../send.js";
 export { formatError } from "../session.js";

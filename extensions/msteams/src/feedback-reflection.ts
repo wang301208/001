@@ -10,10 +10,10 @@
  * 6. Optionally sends a proactive follow-up to the user
  */
 
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 import {
   dispatchReplyFromConfigWithSettledDispatcher,
-  type AssistantConfig,
+  type ZhushouConfig,
 } from "../runtime-api.js";
 import type { StoredConversationReference } from "./conversation-store.js";
 import { formatUnknownError } from "./errors.js";
@@ -66,7 +66,7 @@ export function buildFeedbackEvent(params: {
 }
 
 export type RunFeedbackReflectionParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   adapter: MSTeamsAdapter;
   appId: string;
   conversationRef: StoredConversationReference;
@@ -80,7 +80,7 @@ export type RunFeedbackReflectionParams = {
 };
 
 function buildReflectionContext(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   conversationId: string;
   sessionKey: string;
   reflectionPrompt: string;
@@ -118,7 +118,7 @@ function buildReflectionContext(params: {
 }
 
 function createReflectionCaptureDispatcher(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   log: MSTeamsMonitorLogger;
 }) {

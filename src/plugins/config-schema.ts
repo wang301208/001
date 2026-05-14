@@ -1,6 +1,6 @@
 import { z, type ZodTypeAny } from "zod";
 import type { PluginConfigUiHint } from "./manifest-types.js";
-import type { AssistantPluginConfigSchema } from "./types.js";
+import type { ZhushouPluginConfigSchema } from "./types.js";
 
 type Issue = { path: Array<string | number>; message: string };
 
@@ -14,7 +14,7 @@ type ZodSchemaWithToJsonSchema = ZodTypeAny & {
 
 type BuildPluginConfigSchemaOptions = {
   uiHints?: Record<string, PluginConfigUiHint>;
-  safeParse?: AssistantPluginConfigSchema["safeParse"];
+  safeParse?: ZhushouPluginConfigSchema["safeParse"];
 };
 
 function error(message: string): SafeParseResult {
@@ -79,7 +79,7 @@ function normalizeJsonSchema(schema: unknown): unknown {
 export function buildPluginConfigSchema(
   schema: ZodTypeAny,
   options?: BuildPluginConfigSchemaOptions,
-): AssistantPluginConfigSchema {
+): ZhushouPluginConfigSchema {
   const schemaWithJson = schema as ZodSchemaWithToJsonSchema;
   const safeParse = options?.safeParse ?? ((value) => safeParseRuntimeSchema(schema, value));
   if (typeof schemaWithJson.toJSONSchema === "function") {
@@ -106,7 +106,7 @@ export function buildPluginConfigSchema(
   };
 }
 
-export function emptyPluginConfigSchema(): AssistantPluginConfigSchema {
+export function emptyPluginConfigSchema(): ZhushouPluginConfigSchema {
   return {
     safeParse(value: unknown): SafeParseResult {
       if (value === undefined) {

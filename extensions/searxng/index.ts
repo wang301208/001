@@ -1,4 +1,4 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 import { createSearxngWebSearchProvider } from "./src/searxng-search-provider.js";
 
 export default definePluginEntry({

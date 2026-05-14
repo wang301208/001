@@ -1,6 +1,6 @@
-export { getChatChannelMeta, type ChannelPlugin } from "assistant/plugin-sdk/core";
+export { getChatChannelMeta, type ChannelPlugin } from "zhushou/plugin-sdk/core";
 export { buildChannelConfigSchema, WhatsAppConfigSchema } from "../config-api.js";
-export { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+export { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
 export {
   formatWhatsAppConfigAllowFromEntries,
   resolveWhatsAppConfigAllowFrom,
@@ -12,12 +12,12 @@ export {
   readReactionParams,
   readStringParam,
   ToolAuthorizationError,
-} from "assistant/plugin-sdk/channel-actions";
-export { normalizeE164 } from "assistant/plugin-sdk/account-resolution";
-export type { DmPolicy, GroupPolicy } from "assistant/plugin-sdk/config-runtime";
-import type { AssistantConfig as RuntimeAssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-actions";
+export { normalizeE164 } from "zhushou/plugin-sdk/account-resolution";
+export type { DmPolicy, GroupPolicy } from "zhushou/plugin-sdk/config-runtime";
+import type { ZhushouConfig as RuntimeZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 
-export { type ChannelMessageActionName } from "assistant/plugin-sdk/channel-contract";
+export { type ChannelMessageActionName } from "zhushou/plugin-sdk/channel-contract";
 export { loadOutboundMediaFromUrl } from "./outbound-media.runtime.js";
 export {
   resolveWhatsAppGroupRequireMention,
@@ -40,7 +40,7 @@ export {
 export { resolveWhatsAppOutboundTarget } from "./resolve-outbound-target.js";
 export { resolveWhatsAppReactionLevel } from "./reaction-level.js";
 
-export type AssistantConfig = RuntimeAssistantConfig;
+export type ZhushouConfig = RuntimeZhushouConfig;
 export type { WhatsAppAccountConfig } from "./account-types.js";
 
 type MonitorWebChannel = typeof import("./channel.runtime.js").monitorWebChannel;

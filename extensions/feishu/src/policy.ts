@@ -1,10 +1,10 @@
 import {
   normalizeAccountId,
   resolveMergedAccountConfig,
-} from "assistant/plugin-sdk/account-resolution";
-import type { AssistantConfig } from "assistant/plugin-sdk/core";
-import { evaluateSenderGroupAccessForPolicy } from "assistant/plugin-sdk/group-access";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/account-resolution";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/core";
+import { evaluateSenderGroupAccessForPolicy } from "zhushou/plugin-sdk/group-access";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 import type { AllowlistMatch, ChannelGroupContext } from "../runtime-api.js";
 import { detectIdType } from "./targets.js";
 import type { FeishuConfig } from "./types.js";
@@ -179,7 +179,7 @@ export function isFeishuGroupAllowed(params: {
 
 export function resolveFeishuReplyPolicy(params: {
   isDirectMessage: boolean;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   groupId?: string | null;
   /**

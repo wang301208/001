@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import {
   resolveAccountEntry,
   resolveNormalizedAccountEntry,
@@ -18,7 +18,7 @@ export function createAccountListHelpers(
     allowUnlistedDefaultAccount?: boolean;
   },
 ) {
-  function resolveConfiguredDefaultAccountId(cfg: AssistantConfig): string | undefined {
+  function resolveConfiguredDefaultAccountId(cfg: ZhushouConfig): string | undefined {
     const channel = cfg.channels?.[channelKey] as Record<string, unknown> | undefined;
     const preferred = normalizeOptionalAccountId(
       typeof channel?.defaultAccount === "string" ? channel.defaultAccount : undefined,
@@ -36,7 +36,7 @@ export function createAccountListHelpers(
     return undefined;
   }
 
-  function listConfiguredAccountIds(cfg: AssistantConfig): string[] {
+  function listConfiguredAccountIds(cfg: ZhushouConfig): string[] {
     const channel = cfg.channels?.[channelKey];
     const accounts = (channel as Record<string, unknown> | undefined)?.accounts;
     if (!accounts || typeof accounts !== "object") {
@@ -50,14 +50,14 @@ export function createAccountListHelpers(
     return [...new Set(ids.map((id) => normalizeConfiguredAccountId(id)).filter(Boolean))];
   }
 
-  function listAccountIds(cfg: AssistantConfig): string[] {
+  function listAccountIds(cfg: ZhushouConfig): string[] {
     return listCombinedAccountIds({
       configuredAccountIds: listConfiguredAccountIds(cfg),
       fallbackAccountIdWhenEmpty: DEFAULT_ACCOUNT_ID,
     });
   }
 
-  function resolveDefaultAccountId(cfg: AssistantConfig): string {
+  function resolveDefaultAccountId(cfg: ZhushouConfig): string {
     return resolveListedDefaultAccountId({
       accountIds: listAccountIds(cfg),
       configuredDefaultAccountId: resolveConfiguredDefaultAccountId(cfg),

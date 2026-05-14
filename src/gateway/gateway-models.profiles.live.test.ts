@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import type { Api, Model } from "@mariozechner/pi-ai";
 import { afterEach, describe, expect, it } from "vitest";
-import { resolveAssistantAgentDir } from "../agents/agent-paths.js";
+import { resolveZhushouAgentDir } from "../agents/agent-paths.js";
 import { resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import type { AuthProfileStore } from "../agents/auth-profiles.js";
 import {
@@ -26,14 +26,14 @@ import { isLiveProfileKeyModeEnabled, isLiveTestEnabled } from "../agents/live-t
 import { getApiKeyForModel, resolveEnvApiKey } from "../agents/model-auth.js";
 import { normalizeProviderId } from "../agents/model-selection.js";
 import { shouldSuppressBuiltInModel } from "../agents/model-suppression.js";
-import { ensureAssistantModelsJson } from "../agents/models-config.js";
+import { ensureZhushouModelsJson } from "../agents/models-config.js";
 import { isRateLimitErrorMessage } from "../agents/pi-embedded-helpers/errors.js";
 import { discoverAuthStorage, discoverModels } from "../agents/pi-model-discovery.js";
-import type { ModelsConfig, AssistantConfig, ModelProviderConfig } from "../config/types.js";
+import type { ModelsConfig, ZhushouConfig, ModelProviderConfig } from "../config/types.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { normalizeGoogleModelId } from "../plugin-sdk/google-model-id.js";
 import { DEFAULT_AGENT_ID } from "../routing/session-key.js";
-import { stripAssistantInternalScaffolding } from "../shared/text/assistant-visible-text.js";
+import { stripZhushouInternalScaffolding } from "../shared/text/zhushou-visible-text.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { GatewayClient } from "./client.js";
 import { renderCatNoncePngBase64 } from "./live-image-probe.js";
@@ -46,11 +46,11 @@ import {
 import { startGatewayServer } from "./server.js";
 import { loadSessionEntry, readSessionMessages } from "./session-utils.js";
 
-const ZAI_FALLBACK = isTruthyEnvValue(process.env.ASSISTANT_LIVE_GATEWAY_ZAI_FALLBACK);
+const ZAI_FALLBACK = isTruthyEnvValue(process.env.ZHUSHOU_LIVE_GATEWAY_ZAI_FALLBACK);
 const REQUIRE_PROFILE_KEYS = isLiveProfileKeyModeEnabled();
 const LIVE_CREDENTIAL_PRECEDENCE = REQUIRE_PROFILE_KEYS ? "profile-first" : "env-first";
-const PROVIDERS = parseFilter(process.env.ASSISTANT_LIVE_GATEWAY_PROVIDERS);
-const GATEWAY_LIVE_SMOKE = isTruthyEnvValue(process.env.ASSISTANT_LIVE_GATEWAY_SMOKE);
+const PROVIDERS = parseFilter(process.env.ZHUSHOU_LIVE_GATEWAY_PROVIDERS);
+const GATEWAY_LIVE_SMOKE = isTruthyEnvValue(process.env.ZHUSHOU_LIVE_GATEWAY_SMOKE);
 const THINKING_LEVEL = GATEWAY_LIVE_SMOKE ? "low" : "high";
 const ENABLE_EXTRA_TOOL_PROBES = !GATEWAY_LIVE_SMOKE;
 const ENABLE_EXTRA_IMAGE_PROBES = !GATEWAY_LIVE_SMOKE;
@@ -62,12 +62,12 @@ const GATEWAY_LIVE_UNBOUNDED_TIMEOUT_MS = 60 * 60 * 1000;
 const GATEWAY_LIVE_MAX_TIMEOUT_MS = 2 * 60 * 60 * 1000;
 const GATEWAY_LIVE_PROBE_TIMEOUT_MS = Math.max(
   30_000,
-  toInt(process.env.ASSISTANT_LIVE_GATEWAY_STEP_TIMEOUT_MS, 90_000),
+  toInt(process.env.ZHUSHOU_LIVE_GATEWAY_STEP_TIMEOUT_MS, 90_000),
 );
 const GATEWAY_LIVE_MODEL_TIMEOUT_MS = resolveGatewayLiveModelTimeoutMs();
 const GATEWAY_LIVE_HEARTBEAT_MS = Math.max(
   1_000,
-  toInt(process.env.ASSISTANT_LIVE_GATEWAY_HEARTBEAT_MS, 30_000),
+  toInt(process.env.ZHUSHOU_LIVE_GATEWAY_HEARTBEAT_MS, 30_000),
 );
 const GATEWAY_LIVE_STRIP_SCAFFOLDING_MODEL_KEYS = new Set([
   "google/gemini-3-flash-preview",
@@ -83,9 +83,9 @@ const GATEWAY_LIVE_EXEC_READ_NONCE_MISS_SKIP_MODEL_KEYS = new Set([
 const GATEWAY_LIVE_TOOL_NONCE_MISS_SKIP_MODEL_KEYS = new Set(["google/gemini-3-flash-preview"]);
 const GATEWAY_LIVE_MAX_MODELS = resolveGatewayLiveMaxModels();
 const GATEWAY_LIVE_SUITE_TIMEOUT_MS = resolveGatewayLiveSuiteTimeoutMs(GATEWAY_LIVE_MAX_MODELS);
-const QUIET_LIVE_LOGS = process.env.ASSISTANT_LIVE_TEST_QUIET !== "0";
+const QUIET_LIVE_LOGS = process.env.ZHUSHOU_LIVE_TEST_QUIET !== "0";
 
-const describeLive = isLiveTestEnabled(["ASSISTANT_LIVE_GATEWAY"]) ? describe : describe.skip;
+const describeLive = isLiveTestEnabled(["ZHUSHOU_LIVE_GATEWAY"]) ? describe : describe.skip;
 
 function parseFilter(raw?: string): Set<string> | null {
   const trimmed = raw?.trim();
@@ -131,14 +131,14 @@ function toInt(value: string | undefined, fallback: number): number {
 }
 
 function resolveGatewayLiveMaxModels(): number {
-  const gatewayRaw = process.env.ASSISTANT_LIVE_GATEWAY_MAX_MODELS?.trim();
+  const gatewayRaw = process.env.ZHUSHOU_LIVE_GATEWAY_MAX_MODELS?.trim();
   if (gatewayRaw) {
     return Math.max(0, toInt(gatewayRaw, 0));
   }
-  const rawModels = process.env.ASSISTANT_LIVE_GATEWAY_MODELS?.trim();
+  const rawModels = process.env.ZHUSHOU_LIVE_GATEWAY_MODELS?.trim();
   const useExplicitModels = Boolean(rawModels) && rawModels !== "modern" && rawModels !== "all";
   return resolveHighSignalLiveModelLimit({
-    rawMaxModels: process.env.ASSISTANT_LIVE_MAX_MODELS,
+    rawMaxModels: process.env.ZHUSHOU_LIVE_MAX_MODELS,
     useExplicitModels,
     defaultLimit: DEFAULT_HIGH_SIGNAL_LIVE_MODEL_LIMIT,
   });
@@ -157,8 +157,8 @@ function resolveGatewayLiveSuiteTimeoutMs(maxModels: number): number {
 }
 
 function resolveGatewayLiveModelTimeoutMs(
-  gatewayModelTimeoutRaw = process.env.ASSISTANT_LIVE_GATEWAY_MODEL_TIMEOUT_MS,
-  liveModelTimeoutRaw = process.env.ASSISTANT_LIVE_MODEL_TIMEOUT_MS,
+  gatewayModelTimeoutRaw = process.env.ZHUSHOU_LIVE_GATEWAY_MODEL_TIMEOUT_MS,
+  liveModelTimeoutRaw = process.env.ZHUSHOU_LIVE_MODEL_TIMEOUT_MS,
   stepTimeoutMs = GATEWAY_LIVE_PROBE_TIMEOUT_MS,
 ): number {
   const requested = toInt(gatewayModelTimeoutRaw, toInt(liveModelTimeoutRaw, 120_000));
@@ -328,7 +328,7 @@ function isMeaningful(text: string): boolean {
   return true;
 }
 
-function shouldStripAssistantScaffoldingForLiveModel(modelKey?: string): boolean {
+function shouldStripZhushouScaffoldingForLiveModel(modelKey?: string): boolean {
   if (!modelKey) {
     return false;
   }
@@ -350,11 +350,11 @@ function shouldStripAssistantScaffoldingForLiveModel(modelKey?: string): boolean
   return GATEWAY_LIVE_STRIP_SCAFFOLDING_MODEL_KEYS.has(normalizedKey);
 }
 
-function maybeStripAssistantScaffoldingForLiveModel(text: string, modelKey?: string): string {
-  if (!shouldStripAssistantScaffoldingForLiveModel(modelKey)) {
+function maybeStripZhushouScaffoldingForLiveModel(text: string, modelKey?: string): string {
+  if (!shouldStripZhushouScaffoldingForLiveModel(modelKey)) {
     return text;
   }
-  return stripAssistantInternalScaffolding(text).trim();
+  return stripZhushouInternalScaffolding(text).trim();
 }
 
 function shouldSkipExecReadNonceMissForLiveModel(modelKey?: string): boolean {
@@ -396,34 +396,34 @@ function shouldSkipEmptyResponseForLiveModel(params: {
   );
 }
 
-describe("maybeStripAssistantScaffoldingForLiveModel", () => {
+describe("maybeStripZhushouScaffoldingForLiveModel", () => {
   it("strips scaffolding for Gemini preview models with known transcript wrappers", () => {
     expect(
-      maybeStripAssistantScaffoldingForLiveModel(
+      maybeStripZhushouScaffoldingForLiveModel(
         "<final>Visible</final>",
         "google/gemini-3-flash-preview",
       ),
     ).toBe("Visible");
     expect(
-      maybeStripAssistantScaffoldingForLiveModel(
+      maybeStripZhushouScaffoldingForLiveModel(
         "<think>hidden</think>Visible",
         "google/gemini-3.1-flash-preview",
       ),
     ).toBe("Visible");
     expect(
-      maybeStripAssistantScaffoldingForLiveModel(
+      maybeStripZhushouScaffoldingForLiveModel(
         "<think>hidden</think>Visible",
         "google/gemini-3.1-flash-lite-preview",
       ),
     ).toBe("Visible");
     expect(
-      maybeStripAssistantScaffoldingForLiveModel(
+      maybeStripZhushouScaffoldingForLiveModel(
         "<think>hidden</think>Visible",
         "google/gemini-3.1-pro-preview",
       ),
     ).toBe("Visible");
     expect(
-      maybeStripAssistantScaffoldingForLiveModel(
+      maybeStripZhushouScaffoldingForLiveModel(
         "<think>hidden</think>Visible",
         "google/gemini-3.1-pro-preview-customtools",
       ),
@@ -432,28 +432,28 @@ describe("maybeStripAssistantScaffoldingForLiveModel", () => {
 
   it("strips scaffolding for known OpenAI transcript wrappers", () => {
     expect(
-      maybeStripAssistantScaffoldingForLiveModel("<final>Visible</final>", "openai/gpt-5.4-pro"),
+      maybeStripZhushouScaffoldingForLiveModel("<final>Visible</final>", "openai/gpt-5.4-pro"),
     ).toBe("Visible");
     expect(
-      maybeStripAssistantScaffoldingForLiveModel("<final>Visible</final>", "openai/gpt-5.4"),
+      maybeStripZhushouScaffoldingForLiveModel("<final>Visible</final>", "openai/gpt-5.4"),
     ).toBe("<final>Visible</final>");
   });
 
   it("strips scaffolding for MiniMax transcript wrappers", () => {
     expect(
-      maybeStripAssistantScaffoldingForLiveModel(
+      maybeStripZhushouScaffoldingForLiveModel(
         "<final>Visible</final>",
         "minimax/MiniMax-M2.5-highspeed",
       ),
     ).toBe("Visible");
     expect(
-      maybeStripAssistantScaffoldingForLiveModel(
+      maybeStripZhushouScaffoldingForLiveModel(
         "<final>Visible</final>",
         "minimax-portal/MiniMax-M2.7-highspeed",
       ),
     ).toBe("Visible");
     expect(
-      maybeStripAssistantScaffoldingForLiveModel("<final>Visible</final>", "minimax/MiniMax-M2.7"),
+      maybeStripZhushouScaffoldingForLiveModel("<final>Visible</final>", "minimax/MiniMax-M2.7"),
     ).toBe("Visible");
   });
 });
@@ -483,9 +483,9 @@ describe("resolveGatewayLiveModelTimeoutMs", () => {
 });
 
 describe("resolveGatewayLiveMaxModels", () => {
-  const originalGatewayModels = process.env.ASSISTANT_LIVE_GATEWAY_MODELS;
-  const originalGatewayMax = process.env.ASSISTANT_LIVE_GATEWAY_MAX_MODELS;
-  const originalSharedMax = process.env.ASSISTANT_LIVE_MAX_MODELS;
+  const originalGatewayModels = process.env.ZHUSHOU_LIVE_GATEWAY_MODELS;
+  const originalGatewayMax = process.env.ZHUSHOU_LIVE_GATEWAY_MAX_MODELS;
+  const originalSharedMax = process.env.ZHUSHOU_LIVE_MAX_MODELS;
   function restoreEnvValue(name: string, value: string | undefined): void {
     if (value === undefined) {
       delete process.env[name];
@@ -495,27 +495,27 @@ describe("resolveGatewayLiveMaxModels", () => {
   }
 
   afterEach(() => {
-    restoreEnvValue("ASSISTANT_LIVE_GATEWAY_MODELS", originalGatewayModels);
-    restoreEnvValue("ASSISTANT_LIVE_GATEWAY_MAX_MODELS", originalGatewayMax);
-    restoreEnvValue("ASSISTANT_LIVE_MAX_MODELS", originalSharedMax);
+    restoreEnvValue("ZHUSHOU_LIVE_GATEWAY_MODELS", originalGatewayModels);
+    restoreEnvValue("ZHUSHOU_LIVE_GATEWAY_MAX_MODELS", originalGatewayMax);
+    restoreEnvValue("ZHUSHOU_LIVE_MAX_MODELS", originalSharedMax);
   });
 
   it("defaults modern gateway sweeps to the curated high-signal cap", () => {
-    delete process.env.ASSISTANT_LIVE_GATEWAY_MODELS;
-    delete process.env.ASSISTANT_LIVE_GATEWAY_MAX_MODELS;
-    delete process.env.ASSISTANT_LIVE_MAX_MODELS;
+    delete process.env.ZHUSHOU_LIVE_GATEWAY_MODELS;
+    delete process.env.ZHUSHOU_LIVE_GATEWAY_MAX_MODELS;
+    delete process.env.ZHUSHOU_LIVE_MAX_MODELS;
 
     expect(resolveGatewayLiveMaxModels()).toBe(DEFAULT_HIGH_SIGNAL_LIVE_MODEL_LIMIT);
   });
 
   it("keeps explicit gateway model lists uncapped unless a cap is provided", () => {
-    process.env.ASSISTANT_LIVE_GATEWAY_MODELS = "openai/gpt-5.4,anthropic/claude-opus-4-6";
-    delete process.env.ASSISTANT_LIVE_GATEWAY_MAX_MODELS;
-    delete process.env.ASSISTANT_LIVE_MAX_MODELS;
+    process.env.ZHUSHOU_LIVE_GATEWAY_MODELS = "openai/gpt-5.4,anthropic/claude-opus-4-6";
+    delete process.env.ZHUSHOU_LIVE_GATEWAY_MAX_MODELS;
+    delete process.env.ZHUSHOU_LIVE_MAX_MODELS;
 
     expect(resolveGatewayLiveMaxModels()).toBe(0);
 
-    process.env.ASSISTANT_LIVE_GATEWAY_MAX_MODELS = "2";
+    process.env.ZHUSHOU_LIVE_GATEWAY_MAX_MODELS = "2";
     expect(resolveGatewayLiveMaxModels()).toBe(2);
   });
 });
@@ -1092,13 +1092,13 @@ function extractTranscriptMessageText(message: unknown): string {
     .trim();
 }
 
-function readSessionAssistantTexts(sessionKey: string, modelKey?: string): string[] {
+function readSessionZhushouTexts(sessionKey: string, modelKey?: string): string[] {
   const { storePath, entry } = loadSessionEntry(sessionKey);
   if (!entry?.sessionId) {
     return [];
   }
   const messages = readSessionMessages(entry.sessionId, storePath, entry.sessionFile);
-  const assistantTexts: string[] = [];
+  const zhushouTexts: string[] = [];
   for (const message of messages) {
     if (!message || typeof message !== "object") {
       continue;
@@ -1107,16 +1107,16 @@ function readSessionAssistantTexts(sessionKey: string, modelKey?: string): strin
     if (role !== "assistant") {
       continue;
     }
-    assistantTexts.push(
-      maybeStripAssistantScaffoldingForLiveModel(extractTranscriptMessageText(message), modelKey),
+    zhushouTexts.push(
+      maybeStripZhushouScaffoldingForLiveModel(extractTranscriptMessageText(message), modelKey),
     );
   }
-  return assistantTexts;
+  return zhushouTexts;
 }
 
-async function waitForSessionAssistantText(params: {
+async function waitForSessionZhushouText(params: {
   sessionKey: string;
-  baselineAssistantCount: number;
+  baselineZhushouCount: number;
   context: string;
   modelKey?: string;
 }) {
@@ -1124,10 +1124,10 @@ async function waitForSessionAssistantText(params: {
   let lastHeartbeatAt = startedAt;
   let delayMs = 50;
   while (Date.now() - startedAt < GATEWAY_LIVE_PROBE_TIMEOUT_MS) {
-    const assistantTexts = readSessionAssistantTexts(params.sessionKey, params.modelKey);
-    if (assistantTexts.length > params.baselineAssistantCount) {
-      const freshText = assistantTexts
-        .slice(params.baselineAssistantCount)
+    const zhushouTexts = readSessionZhushouTexts(params.sessionKey, params.modelKey);
+    if (zhushouTexts.length > params.baselineZhushouCount) {
+      const freshText = zhushouTexts
+        .slice(params.baselineZhushouCount)
         .map((text) => text.trim())
         .findLast((text) => text.length > 0);
       if (freshText) {
@@ -1160,7 +1160,7 @@ async function requestGatewayAgentText(params: {
     content: string;
   }>;
 }) {
-  const baselineAssistantCount = readSessionAssistantTexts(
+  const baselineZhushouCount = readSessionZhushouTexts(
     params.sessionKey,
     params.modelKey,
   ).length;
@@ -1178,9 +1178,9 @@ async function requestGatewayAgentText(params: {
   if (accepted?.status !== "accepted") {
     throw new Error(`agent status=${String(accepted?.status)}`);
   }
-  return await waitForSessionAssistantText({
+  return await waitForSessionZhushouText({
     sessionKey: params.sessionKey,
-    baselineAssistantCount,
+    baselineZhushouCount,
     context: `${params.context}: transcript-final`,
     modelKey: params.modelKey,
   });
@@ -1188,7 +1188,7 @@ async function requestGatewayAgentText(params: {
 
 type GatewayModelSuiteParams = {
   label: string;
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   candidates: Array<Model<Api>>;
   allowNotFoundSkip: boolean;
   extraToolProbes: boolean;
@@ -1198,10 +1198,10 @@ type GatewayModelSuiteParams = {
 };
 
 function buildLiveGatewayConfig(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   candidates: Array<Model<Api>>;
   providerOverrides?: Record<string, ModelProviderConfig>;
-}): AssistantConfig {
+}): ZhushouConfig {
   const providerOverrides = params.providerOverrides ?? {};
   const lmstudioProvider = params.cfg.models?.providers?.lmstudio;
   const baseProviders = params.cfg.models?.providers ?? {};
@@ -1243,9 +1243,9 @@ function buildLiveGatewayConfig(params: {
 }
 
 async function sanitizeAuthConfig(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentDir: string;
-}): Promise<AssistantConfig["auth"] | undefined> {
+}): Promise<ZhushouConfig["auth"] | undefined> {
   const auth = params.cfg.auth;
   if (!auth) {
     return auth;
@@ -1255,7 +1255,7 @@ async function sanitizeAuthConfig(params: {
     allowKeychainPrompt: false,
   });
 
-  let profiles: NonNullable<AssistantConfig["auth"]>["profiles"] | undefined;
+  let profiles: NonNullable<ZhushouConfig["auth"]>["profiles"] | undefined;
   if (auth.profiles) {
     profiles = {};
     for (const [profileId, profile] of Object.entries(auth.profiles)) {
@@ -1295,7 +1295,7 @@ async function sanitizeAuthConfig(params: {
 }
 
 function buildMinimaxProviderOverride(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   api: "openai-completions" | "anthropic-messages";
   baseUrl: string;
 }): ModelProviderConfig | null {
@@ -1314,35 +1314,35 @@ async function runGatewayModelSuite(params: GatewayModelSuiteParams) {
   (await getGatewayConfigModule()).clearRuntimeConfigSnapshot();
   const runtimeEnv = enterProductionEnvForLiveRun();
   const previous = {
-    configPath: process.env.ASSISTANT_CONFIG_PATH,
-    token: process.env.ASSISTANT_GATEWAY_TOKEN,
-    skipChannels: process.env.ASSISTANT_SKIP_CHANNELS,
-    skipGmail: process.env.ASSISTANT_SKIP_GMAIL_WATCHER,
-    skipCron: process.env.ASSISTANT_SKIP_CRON,
-    skipCanvas: process.env.ASSISTANT_SKIP_CANVAS_HOST,
-    disableBonjour: process.env.ASSISTANT_DISABLE_BONJOUR,
-    logLevel: process.env.ASSISTANT_LOG_LEVEL,
-    agentDir: process.env.ASSISTANT_AGENT_DIR,
+    configPath: process.env.ZHUSHOU_CONFIG_PATH,
+    token: process.env.ZHUSHOU_GATEWAY_TOKEN,
+    skipChannels: process.env.ZHUSHOU_SKIP_CHANNELS,
+    skipGmail: process.env.ZHUSHOU_SKIP_GMAIL_WATCHER,
+    skipCron: process.env.ZHUSHOU_SKIP_CRON,
+    skipCanvas: process.env.ZHUSHOU_SKIP_CANVAS_HOST,
+    disableBonjour: process.env.ZHUSHOU_DISABLE_BONJOUR,
+    logLevel: process.env.ZHUSHOU_LOG_LEVEL,
+    agentDir: process.env.ZHUSHOU_AGENT_DIR,
     piAgentDir: process.env.PI_CODING_AGENT_DIR,
-    stateDir: process.env.ASSISTANT_STATE_DIR,
+    stateDir: process.env.ZHUSHOU_STATE_DIR,
   };
   let tempAgentDir: string | undefined;
   let tempStateDir: string | undefined;
 
-  process.env.ASSISTANT_SKIP_CHANNELS = "1";
-  process.env.ASSISTANT_SKIP_GMAIL_WATCHER = "1";
-  process.env.ASSISTANT_SKIP_CRON = "1";
-  process.env.ASSISTANT_SKIP_CANVAS_HOST = "1";
+  process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+  process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = "1";
+  process.env.ZHUSHOU_SKIP_CRON = "1";
+  process.env.ZHUSHOU_SKIP_CANVAS_HOST = "1";
   if (QUIET_LIVE_LOGS) {
-    process.env.ASSISTANT_DISABLE_BONJOUR = "1";
-    process.env.ASSISTANT_LOG_LEVEL = "silent";
+    process.env.ZHUSHOU_DISABLE_BONJOUR = "1";
+    process.env.ZHUSHOU_LOG_LEVEL = "silent";
   }
 
   const token = `test-${randomUUID()}`;
-  process.env.ASSISTANT_GATEWAY_TOKEN = token;
+  process.env.ZHUSHOU_GATEWAY_TOKEN = token;
   const agentId = "dev";
 
-  const hostAgentDir = resolveAssistantAgentDir();
+  const hostAgentDir = resolveZhushouAgentDir();
   const { ensureAuthProfileStore, saveAuthProfileStore } = await getAuthProfilesModule();
   const hostStore = ensureAuthProfileStore(hostAgentDir, {
     allowKeychainPrompt: false,
@@ -1356,26 +1356,26 @@ async function runGatewayModelSuite(params: GatewayModelSuiteParams) {
     lastGood: hostStore.lastGood ? { ...hostStore.lastGood } : undefined,
     usageStats: hostStore.usageStats ? { ...hostStore.usageStats } : undefined,
   });
-  tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-live-state-"));
-  process.env.ASSISTANT_STATE_DIR = tempStateDir;
+  tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-live-state-"));
+  process.env.ZHUSHOU_STATE_DIR = tempStateDir;
   tempAgentDir = path.join(tempStateDir, "agents", DEFAULT_AGENT_ID, "agent");
   saveAuthProfileStore(sanitizedStore, tempAgentDir);
   const tempSessionAgentDir = path.join(tempStateDir, "agents", agentId, "agent");
   if (tempSessionAgentDir !== tempAgentDir) {
     saveAuthProfileStore(sanitizedStore, tempSessionAgentDir);
   }
-  process.env.ASSISTANT_AGENT_DIR = tempAgentDir;
+  process.env.ZHUSHOU_AGENT_DIR = tempAgentDir;
   process.env.PI_CODING_AGENT_DIR = tempAgentDir;
 
   const workspaceDir = resolveAgentWorkspaceDir(params.cfg, agentId);
   await fs.mkdir(workspaceDir, { recursive: true });
   const nonceA = randomUUID();
   const nonceB = randomUUID();
-  const toolProbePath = path.join(workspaceDir, `.assistant-live-tool-probe.${nonceA}.txt`);
+  const toolProbePath = path.join(workspaceDir, `.zhushou-live-tool-probe.${nonceA}.txt`);
   await fs.writeFile(toolProbePath, `nonceA=${nonceA}\nnonceB=${nonceB}\n`);
 
-  const agentDir = resolveAssistantAgentDir();
-  const sanitizedCfg: AssistantConfig = {
+  const agentDir = resolveZhushouAgentDir();
+  const sanitizedCfg: ZhushouConfig = {
     ...params.cfg,
     auth: await sanitizeAuthConfig({ cfg: params.cfg, agentDir }),
   };
@@ -1384,10 +1384,10 @@ async function runGatewayModelSuite(params: GatewayModelSuiteParams) {
     candidates: params.candidates,
     providerOverrides: params.providerOverrides,
   });
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-live-"));
-  const tempConfigPath = path.join(tempDir, "assistant.json");
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-live-"));
+  const tempConfigPath = path.join(tempDir, "zhushou.json");
   await fs.writeFile(tempConfigPath, `${JSON.stringify(nextCfg, null, 2)}\n`);
-  process.env.ASSISTANT_CONFIG_PATH = tempConfigPath;
+  process.env.ZHUSHOU_CONFIG_PATH = tempConfigPath;
 
   const liveProviders = nextCfg.models?.providers;
   if (liveProviders && Object.keys(liveProviders).length > 0) {
@@ -2021,17 +2021,17 @@ async function runGatewayModelSuite(params: GatewayModelSuiteParams) {
       await fs.rm(tempStateDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
     }
 
-    process.env.ASSISTANT_CONFIG_PATH = previous.configPath;
-    process.env.ASSISTANT_GATEWAY_TOKEN = previous.token;
-    process.env.ASSISTANT_SKIP_CHANNELS = previous.skipChannels;
-    process.env.ASSISTANT_SKIP_GMAIL_WATCHER = previous.skipGmail;
-    process.env.ASSISTANT_SKIP_CRON = previous.skipCron;
-    process.env.ASSISTANT_SKIP_CANVAS_HOST = previous.skipCanvas;
-    process.env.ASSISTANT_DISABLE_BONJOUR = previous.disableBonjour;
-    process.env.ASSISTANT_LOG_LEVEL = previous.logLevel;
-    process.env.ASSISTANT_AGENT_DIR = previous.agentDir;
+    process.env.ZHUSHOU_CONFIG_PATH = previous.configPath;
+    process.env.ZHUSHOU_GATEWAY_TOKEN = previous.token;
+    process.env.ZHUSHOU_SKIP_CHANNELS = previous.skipChannels;
+    process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = previous.skipGmail;
+    process.env.ZHUSHOU_SKIP_CRON = previous.skipCron;
+    process.env.ZHUSHOU_SKIP_CANVAS_HOST = previous.skipCanvas;
+    process.env.ZHUSHOU_DISABLE_BONJOUR = previous.disableBonjour;
+    process.env.ZHUSHOU_LOG_LEVEL = previous.logLevel;
+    process.env.ZHUSHOU_AGENT_DIR = previous.agentDir;
     process.env.PI_CODING_AGENT_DIR = previous.piAgentDir;
-    process.env.ASSISTANT_STATE_DIR = previous.stateDir;
+    process.env.ZHUSHOU_STATE_DIR = previous.stateDir;
   }
 }
 
@@ -2043,14 +2043,14 @@ describeLive("gateway live (dev agent, profile keys)", () => {
         const { loadConfig } = await getGatewayConfigModule();
         (await getGatewayConfigModule()).clearRuntimeConfigSnapshot();
         const cfg = loadConfig();
-        await ensureAssistantModelsJson(cfg);
+        await ensureZhushouModelsJson(cfg);
 
-        const agentDir = resolveAssistantAgentDir();
+        const agentDir = resolveZhushouAgentDir();
         const authStorage = discoverAuthStorage(agentDir);
         const modelRegistry = discoverModels(authStorage, agentDir);
         const all = modelRegistry.getAll();
 
-        const rawModels = process.env.ASSISTANT_LIVE_GATEWAY_MODELS?.trim();
+        const rawModels = process.env.ZHUSHOU_LIVE_GATEWAY_MODELS?.trim();
         const useModern = !rawModels || rawModels === "modern" || rawModels === "all";
         const useExplicit = Boolean(rawModels) && !useModern;
         const filter = useExplicit ? parseFilter(rawModels) : null;
@@ -2112,7 +2112,7 @@ describeLive("gateway live (dev agent, profile keys)", () => {
         logProgress(`[all-models] selection=${useExplicit ? "explicit" : "high-signal"}`);
         if (selectedCandidates.length < candidates.length) {
           logProgress(
-            `[all-models] capped to ${selectedCandidates.length}/${candidates.length} via ASSISTANT_LIVE_GATEWAY_MAX_MODELS=${maxModels}`,
+            `[all-models] capped to ${selectedCandidates.length}/${candidates.length} via ZHUSHOU_LIVE_GATEWAY_MAX_MODELS=${maxModels}`,
           );
         }
         const imageCandidates = selectedCandidates.filter((m) => m.input?.includes("image"));
@@ -2168,26 +2168,26 @@ describeLive("gateway live (dev agent, profile keys)", () => {
     (await getGatewayConfigModule()).clearRuntimeConfigSnapshot();
     const runtimeEnv = enterProductionEnvForLiveRun();
     const previous = {
-      configPath: process.env.ASSISTANT_CONFIG_PATH,
-      token: process.env.ASSISTANT_GATEWAY_TOKEN,
-      skipChannels: process.env.ASSISTANT_SKIP_CHANNELS,
-      skipGmail: process.env.ASSISTANT_SKIP_GMAIL_WATCHER,
-      skipCron: process.env.ASSISTANT_SKIP_CRON,
-      skipCanvas: process.env.ASSISTANT_SKIP_CANVAS_HOST,
+      configPath: process.env.ZHUSHOU_CONFIG_PATH,
+      token: process.env.ZHUSHOU_GATEWAY_TOKEN,
+      skipChannels: process.env.ZHUSHOU_SKIP_CHANNELS,
+      skipGmail: process.env.ZHUSHOU_SKIP_GMAIL_WATCHER,
+      skipCron: process.env.ZHUSHOU_SKIP_CRON,
+      skipCanvas: process.env.ZHUSHOU_SKIP_CANVAS_HOST,
     };
 
-    process.env.ASSISTANT_SKIP_CHANNELS = "1";
-    process.env.ASSISTANT_SKIP_GMAIL_WATCHER = "1";
-    process.env.ASSISTANT_SKIP_CRON = "1";
-    process.env.ASSISTANT_SKIP_CANVAS_HOST = "1";
+    process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+    process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = "1";
+    process.env.ZHUSHOU_SKIP_CRON = "1";
+    process.env.ZHUSHOU_SKIP_CANVAS_HOST = "1";
 
     const token = `test-${randomUUID()}`;
-    process.env.ASSISTANT_GATEWAY_TOKEN = token;
+    process.env.ZHUSHOU_GATEWAY_TOKEN = token;
 
     const cfg = loadConfig();
-    await ensureAssistantModelsJson(cfg);
+    await ensureZhushouModelsJson(cfg);
 
-    const agentDir = resolveAssistantAgentDir();
+    const agentDir = resolveZhushouAgentDir();
     const authStorage = discoverAuthStorage(agentDir);
     const modelRegistry = discoverModels(authStorage, agentDir);
     const anthropic = modelRegistry.find("anthropic", "claude-opus-4-6") as Model<Api> | null;
@@ -2216,7 +2216,7 @@ describeLive("gateway live (dev agent, profile keys)", () => {
     await fs.mkdir(workspaceDir, { recursive: true });
     const nonceA = randomUUID();
     const nonceB = randomUUID();
-    const toolProbePath = path.join(workspaceDir, `.assistant-live-zai-fallback.${nonceA}.txt`);
+    const toolProbePath = path.join(workspaceDir, `.zhushou-live-zai-fallback.${nonceA}.txt`);
     await fs.writeFile(toolProbePath, `nonceA=${nonceA}\nnonceB=${nonceB}\n`);
 
     let server: Awaited<ReturnType<typeof startGatewayServer>> | undefined;
@@ -2332,12 +2332,12 @@ describeLive("gateway live (dev agent, profile keys)", () => {
       await server.close({ reason: "live test complete" });
       await fs.rm(toolProbePath, { force: true });
 
-      process.env.ASSISTANT_CONFIG_PATH = previous.configPath;
-      process.env.ASSISTANT_GATEWAY_TOKEN = previous.token;
-      process.env.ASSISTANT_SKIP_CHANNELS = previous.skipChannels;
-      process.env.ASSISTANT_SKIP_GMAIL_WATCHER = previous.skipGmail;
-      process.env.ASSISTANT_SKIP_CRON = previous.skipCron;
-      process.env.ASSISTANT_SKIP_CANVAS_HOST = previous.skipCanvas;
+      process.env.ZHUSHOU_CONFIG_PATH = previous.configPath;
+      process.env.ZHUSHOU_GATEWAY_TOKEN = previous.token;
+      process.env.ZHUSHOU_SKIP_CHANNELS = previous.skipChannels;
+      process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = previous.skipGmail;
+      process.env.ZHUSHOU_SKIP_CRON = previous.skipCron;
+      process.env.ZHUSHOU_SKIP_CANVAS_HOST = previous.skipCanvas;
     }
   }, 180_000);
 });

@@ -16,7 +16,7 @@ import {
   resolveSessionTranscriptsDirForAgent,
 } from "../config/sessions/paths.js";
 import type { SessionEntry } from "../config/sessions/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { stripEnvelope, stripMessageIdHints } from "../shared/chat-envelope.js";
 import { asFiniteNumber } from "../shared/number-coercion.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
@@ -240,7 +240,7 @@ async function* readJsonlRecords(filePath: string): AsyncGenerator<Record<string
 
 async function scanTranscriptFile(params: {
   filePath: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   onEntry: (entry: ParsedTranscriptEntry) => void;
 }): Promise<void> {
   for await (const parsed of readJsonlRecords(params.filePath)) {
@@ -264,7 +264,7 @@ async function scanTranscriptFile(params: {
 
 async function scanUsageFile(params: {
   filePath: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   onEntry: (entry: ParsedUsageEntry) => void;
 }): Promise<void> {
   await scanTranscriptFile({
@@ -353,7 +353,7 @@ export async function loadCostUsageSummary(params?: {
   startMs?: number;
   endMs?: number;
   days?: number; // Deprecated, for backwards compatibility
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentId?: string;
 }): Promise<CostUsageSummary> {
   const now = new Date();
@@ -545,7 +545,7 @@ export async function loadSessionCostSummary(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentId?: string;
   startMs?: number;
   endMs?: number;
@@ -566,7 +566,7 @@ export async function loadSessionCostSummary(params: {
   const messageCounts: SessionMessageCounts = {
     total: 0,
     user: 0,
-    assistant: 0,
+    zhushou: 0,
     toolCalls: 0,
     toolResults: 0,
     errors: 0,
@@ -609,7 +609,7 @@ export async function loadSessionCostSummary(params: {
         }
       }
       if (entry.role === "assistant") {
-        messageCounts.assistant += 1;
+        messageCounts.zhushou += 1;
         messageCounts.total += 1;
         const ts = entry.timestamp?.getTime();
         if (ts !== undefined) {
@@ -653,7 +653,7 @@ export async function loadSessionCostSummary(params: {
           date: dayKey,
           total: 0,
           user: 0,
-          assistant: 0,
+          zhushou: 0,
           toolCalls: 0,
           toolResults: 0,
           errors: 0,
@@ -662,7 +662,7 @@ export async function loadSessionCostSummary(params: {
         if (entry.role === "user") {
           daily.user += 1;
         } else if (entry.role === "assistant") {
-          daily.assistant += 1;
+          daily.zhushou += 1;
         }
         daily.toolCalls += entry.toolNames.length;
         daily.toolResults += entry.toolResultCounts.total;
@@ -817,7 +817,7 @@ export async function loadSessionUsageTimeSeries(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentId?: string;
   maxPoints?: number;
 }): Promise<SessionUsageTimeSeries | null> {
@@ -920,7 +920,7 @@ export async function loadSessionLogs(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentId?: string;
   limit?: number;
 }): Promise<SessionLogEntry[] | null> {
@@ -1028,7 +1028,7 @@ export async function loadSessionLogs(params: {
         timestamp = message.timestamp;
       }
 
-      // Get usage for assistant messages
+      // Get usage for zhushou messages
       let tokens: number | undefined;
       let cost: number | undefined;
       if (role === "assistant") {

@@ -18,7 +18,7 @@ const hoisted = vi.hoisted(() => {
     resolveAgentWorkspaceDir: vi.fn((_cfg: unknown, agentId: string) => `/workspace/${agentId}`),
     buildWorkspaceSkillStatus: vi.fn((workspaceDir: string) => ({
       workspaceDir,
-      managedSkillsDir: `${workspaceDir}/.assistant/skills`,
+      managedSkillsDir: `${workspaceDir}/.zhushou/skills`,
       skills: [{ eligible: true }, { eligible: false }],
     })),
     sweepTaskRegistry: vi.fn(async () => ({
@@ -53,6 +53,62 @@ const hoisted = vi.hoisted(() => {
     })),
     repairDreamingArtifacts: vi.fn(async () => ({ changed: true, warnings: [] })),
     dedupeDreamDiaryEntries: vi.fn(async () => ({ removed: 2, kept: 5 })),
+    summarizeExperience: vi.fn(() => ({
+      counts: { events: 3, skillCandidates: 2, selfModelFacts: 1 },
+      recentEvents: [],
+      recentSkillCandidates: [],
+      selfModel: {
+        strengths: [],
+        weaknesses: [],
+        preferences: [],
+        learnedPatterns: [],
+        nextGrowthAreas: [],
+        evidenceEventIds: [],
+        updatedAt: 0,
+      },
+    })),
+    listDueStrategicPushes: vi.fn(() => [
+      {
+        id: "strategy_1",
+        title: "Strategy push",
+        prompt: "Strategic push: improve self loops",
+        cadence: "daily",
+        nextPushAt: 1,
+        evidenceEventIds: [],
+        tags: ["self"],
+      },
+    ]),
+    advanceStrategicMemoryPush: vi.fn(() => ({
+      id: "strategy_1",
+      title: "Strategy push",
+      objective: "improve self loops",
+      cadence: "daily",
+      nextPushAt: 86_401_000,
+      lastPushedAt: 1_000,
+      evidenceEventIds: [],
+      tags: ["self"],
+      createdAt: 1,
+      updatedAt: 1_000,
+    })),
+    listSkillCandidates: vi.fn(() => [{ id: "skill_candidate_1" }, { id: "skill_candidate_2" }]),
+    getSelfModel: vi.fn(() => ({
+      strengths: [],
+      weaknesses: [],
+      preferences: [],
+      learnedPatterns: [],
+      nextGrowthAreas: [],
+      evidenceEventIds: [],
+      updatedAt: 0,
+    })),
+    updateSelfModel: vi.fn((params: Record<string, unknown>) => ({
+      strengths: [],
+      weaknesses: [],
+      preferences: [],
+      learnedPatterns: params.learnedPatterns ?? [],
+      nextGrowthAreas: params.nextGrowthAreas ?? [],
+      evidenceEventIds: [],
+      updatedAt: 1,
+    })),
     advanceSelfRoadmap: vi.fn(() => ({ createdStrategicMemories: 1, advancedGoalIds: ["skill_reuse"] })),
     getSelfRoadmap: vi.fn(() => ({
       observedAt: 1,
@@ -197,6 +253,14 @@ const hoisted = vi.hoisted(() => {
     bindAutonomySession: vi.fn(),
     createRuntimeAutonomy: vi.fn(),
     createRuntimeTaskFlow: vi.fn(() => ({ kind: "taskflow-runtime" })),
+    startAutonomousMonitoring: vi.fn(),
+    startAutonomousHealthMonitoring: vi.fn(),
+    startTaskProcessing: vi.fn(),
+    startCreativeProblemSolving: vi.fn(),
+    stopAutonomousMonitoring: vi.fn(),
+    stopAutonomousHealthMonitoring: vi.fn(),
+    stopTaskProcessing: vi.fn(),
+    stopCreativeProblemSolving: vi.fn(),
   };
 });
 
@@ -259,6 +323,12 @@ vi.mock("./server-methods/doctor.memory-core-runtime.js", () => ({
 }));
 
 vi.mock("../experience/experience-store.js", () => ({
+  summarizeExperience: hoisted.summarizeExperience,
+  listDueStrategicPushes: hoisted.listDueStrategicPushes,
+  advanceStrategicMemoryPush: hoisted.advanceStrategicMemoryPush,
+  listSkillCandidates: hoisted.listSkillCandidates,
+  getSelfModel: hoisted.getSelfModel,
+  updateSelfModel: hoisted.updateSelfModel,
   advanceSelfRoadmap: hoisted.advanceSelfRoadmap,
   getSelfRoadmap: hoisted.getSelfRoadmap,
 }));
@@ -277,9 +347,30 @@ vi.mock("../plugins/runtime/runtime-autonomy.js", () => ({
   createRuntimeAutonomy: hoisted.createRuntimeAutonomy,
 }));
 
+vi.mock("../governance/level5-autonomy.js", () => ({
+  autonomousStrategyAdjuster: {
+    startAutonomousMonitoring: hoisted.startAutonomousMonitoring,
+    stopAutonomousMonitoring: hoisted.stopAutonomousMonitoring,
+  },
+  enhancedSelfHealingEngine: {
+    startAutonomousHealthMonitoring: hoisted.startAutonomousHealthMonitoring,
+    stopAutonomousHealthMonitoring: hoisted.stopAutonomousHealthMonitoring,
+  },
+  crossSystemCoordinator: {
+    startTaskProcessing: hoisted.startTaskProcessing,
+    stopTaskProcessing: hoisted.stopTaskProcessing,
+  },
+  creativeProblemSolver: {
+    startCreativeProblemSolving: hoisted.startCreativeProblemSolving,
+    stopCreativeProblemSolving: hoisted.stopCreativeProblemSolving,
+  },
+}));
+
 const {
   activateGatewayScheduledServices,
+  getGatewayAutomationRuntimeState,
   getGatewayBackendAutomationHistory,
+  resetGatewayAutomationRuntimeState,
   startGatewayRuntimeServices,
 } =
   await import("./server-runtime-services.js");
@@ -287,17 +378,18 @@ const {
 describe("server-runtime-services", () => {
   beforeEach(() => {
     vi.useRealTimers();
-    delete process.env.ASSISTANT_SKIP_CRON;
-    delete process.env.ASSISTANT_SKIP_AUTONOMY_RECONCILE;
-    delete process.env.ASSISTANT_SKIP_AUTONOMY_FLOW_HEAL;
-    delete process.env.ASSISTANT_SKIP_AUTONOMY_SUPERVISOR;
-    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INTERVAL_MS;
-    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_MODE;
-    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE;
-    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY;
-    delete process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN;
-    delete process.env.ASSISTANT_SKIP_BACKEND_AUTOMATION;
-    delete process.env.ASSISTANT_BACKEND_AUTOMATION_INTERVAL_MS;
+    delete process.env.ZHUSHOU_SKIP_CRON;
+    delete process.env.ZHUSHOU_SKIP_AUTONOMY_RECONCILE;
+    delete process.env.ZHUSHOU_SKIP_AUTONOMY_FLOW_HEAL;
+    delete process.env.ZHUSHOU_SKIP_AUTONOMY_SUPERVISOR;
+    delete process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_INTERVAL_MS;
+    delete process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_MODE;
+    delete process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE;
+    delete process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY;
+    delete process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN;
+    delete process.env.ZHUSHOU_SKIP_BACKEND_AUTOMATION;
+    delete process.env.ZHUSHOU_BACKEND_AUTOMATION_INTERVAL_MS;
+    resetGatewayAutomationRuntimeState();
     hoisted.heartbeatRunner.stop.mockClear();
     hoisted.heartbeatRunner.updateConfig.mockClear();
     hoisted.startHeartbeatRunner.mockClear();
@@ -319,6 +411,12 @@ describe("server-runtime-services", () => {
     hoisted.getGovernanceGenesisPlan.mockClear();
     hoisted.repairDreamingArtifacts.mockClear();
     hoisted.dedupeDreamDiaryEntries.mockClear();
+    hoisted.summarizeExperience.mockClear();
+    hoisted.listDueStrategicPushes.mockClear();
+    hoisted.advanceStrategicMemoryPush.mockClear();
+    hoisted.listSkillCandidates.mockClear();
+    hoisted.getSelfModel.mockClear();
+    hoisted.updateSelfModel.mockClear();
     hoisted.advanceSelfRoadmap.mockClear();
     hoisted.getSelfRoadmap.mockClear();
     hoisted.businessTasks.length = 0;
@@ -338,6 +436,14 @@ describe("server-runtime-services", () => {
     hoisted.bindAutonomySession.mockClear();
     hoisted.createRuntimeAutonomy.mockReset();
     hoisted.createRuntimeTaskFlow.mockClear();
+    hoisted.startAutonomousMonitoring.mockClear();
+    hoisted.startAutonomousHealthMonitoring.mockClear();
+    hoisted.startTaskProcessing.mockClear();
+    hoisted.startCreativeProblemSolving.mockClear();
+    hoisted.stopAutonomousMonitoring.mockClear();
+    hoisted.stopAutonomousHealthMonitoring.mockClear();
+    hoisted.stopTaskProcessing.mockClear();
+    hoisted.stopCreativeProblemSolving.mockClear();
     hoisted.bindAutonomySession.mockReturnValue({
       reconcileLoopJobs: hoisted.reconcileLoopJobs,
       healFleet: hoisted.healFleet,
@@ -347,6 +453,37 @@ describe("server-runtime-services", () => {
     hoisted.createRuntimeAutonomy.mockReturnValue({
       bindSession: hoisted.bindAutonomySession,
     });
+  });
+
+  it("starts level 5 self-autonomy loops with scheduled services", async () => {
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await vi.dynamicImportSettled();
+
+    expect(hoisted.startAutonomousMonitoring).toHaveBeenCalledTimes(1);
+    expect(hoisted.startAutonomousHealthMonitoring).toHaveBeenCalledTimes(1);
+    expect(hoisted.startTaskProcessing).toHaveBeenCalledTimes(1);
+    expect(hoisted.startCreativeProblemSolving).toHaveBeenCalledTimes(1);
+    expect(getGatewayAutomationRuntimeState().units).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "self.level5.strategy-monitor", started: true }),
+      expect.objectContaining({ id: "self.level5.health-monitor", started: true }),
+      expect.objectContaining({ id: "self.level5.cross-system", started: true }),
+      expect.objectContaining({ id: "self.level5.creative-solver", started: true }),
+    ]));
   });
 
   it("keeps scheduled services inert during initial runtime setup", () => {
@@ -460,7 +597,92 @@ describe("server-runtime-services", () => {
       workspaceDir: "/workspace/ops",
     });
     expect(hoisted.dedupeDreamDiaryEntries).toHaveBeenCalledTimes(2);
+    expect(hoisted.summarizeExperience).toHaveBeenCalledWith({ limit: 20 });
+    expect(hoisted.listDueStrategicPushes).toHaveBeenCalledWith({ limit: 20 });
+    expect(hoisted.advanceStrategicMemoryPush).toHaveBeenCalledWith({ id: "strategy_1" });
+    expect(hoisted.listSkillCandidates).toHaveBeenCalledWith({ limit: 100 });
+    expect(hoisted.getSelfModel).toHaveBeenCalledTimes(1);
+    expect(hoisted.updateSelfModel).toHaveBeenCalledWith(expect.objectContaining({
+      learnedPatterns: expect.arrayContaining([
+        expect.stringContaining("Startup automation continuously reconciles"),
+      ]),
+      nextGrowthAreas: expect.arrayContaining([
+        expect.stringContaining("unified automation runtime state"),
+      ]),
+    }));
     expect(hoisted.advanceSelfRoadmap).toHaveBeenCalledTimes(1);
+  });
+
+  it("exposes every startup self-automation unit through the runtime state", async () => {
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await vi.dynamicImportSettled();
+
+    const runtime = getGatewayAutomationRuntimeState();
+    expect(runtime.summary.enabled).toBeGreaterThanOrEqual(14);
+    expect(runtime.units).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "core.heartbeat", status: "idle", started: true }),
+      expect.objectContaining({ id: "core.cron", status: "idle", started: true }),
+      expect.objectContaining({ id: "autonomy.supervisor", started: true }),
+      expect.objectContaining({ id: "backend.supervisor", started: true }),
+      expect.objectContaining({ id: "autonomy.startup-maintenance", lastOk: true }),
+      expect.objectContaining({ id: "backend.startup-automation", lastOk: true }),
+      expect.objectContaining({ id: "self.experience-summary", lastOk: true }),
+      expect.objectContaining({ id: "self.strategic-pushes", lastOk: true }),
+      expect.objectContaining({ id: "self.skill-candidate-scan", lastOk: true }),
+      expect.objectContaining({ id: "self.self-model-calibration", lastOk: true }),
+      expect.objectContaining({ id: "self.roadmap", lastOk: true }),
+      expect.objectContaining({ id: "self.roadmap-tasks", lastOk: true }),
+      expect.objectContaining({ id: "autonomy.business-task-recovery", lastOk: true }),
+    ]));
+  });
+
+  it("starts persistent supervisors before slow startup automation finishes", async () => {
+    let releaseCatalog!: () => void;
+    hoisted.loadModelCatalog.mockReturnValueOnce(new Promise((resolve) => {
+      releaseCatalog = () => resolve([{ id: "model-1" }]);
+    }));
+    const cron = {
+      start: vi.fn(async () => undefined),
+      list: vi.fn(async () => []),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    activateGatewayScheduledServices({
+      minimalTestGateway: false,
+      cfgAtStart: {} as never,
+      cron,
+      logCron: { error: vi.fn() },
+      log: createLog(),
+    });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(getGatewayAutomationRuntimeState().units).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "autonomy.supervisor", started: true }),
+      expect.objectContaining({ id: "backend.supervisor", started: true }),
+      expect.objectContaining({ id: "backend.startup-automation", running: true }),
+    ]));
+
+    releaseCatalog();
+    await vi.dynamicImportSettled();
   });
 
   it("recovers active business tasks through backend automation on startup", async () => {
@@ -655,7 +877,7 @@ describe("server-runtime-services", () => {
 
   it("keeps backend automation running on an interval until stopped", async () => {
     vi.useFakeTimers();
-    process.env.ASSISTANT_BACKEND_AUTOMATION_INTERVAL_MS = "1000";
+    process.env.ZHUSHOU_BACKEND_AUTOMATION_INTERVAL_MS = "1000";
     const cron = {
       start: vi.fn(async () => undefined),
       list: vi.fn(async () => []),
@@ -755,7 +977,7 @@ describe("server-runtime-services", () => {
       remove: vi.fn(),
     };
     const log = createLog();
-    process.env.ASSISTANT_SKIP_AUTONOMY_FLOW_HEAL = "1";
+    process.env.ZHUSHOU_SKIP_AUTONOMY_FLOW_HEAL = "1";
 
     try {
       activateGatewayScheduledServices({
@@ -773,13 +995,13 @@ describe("server-runtime-services", () => {
       expect(hoisted.healFleet).not.toHaveBeenCalled();
       expect(hoisted.superviseFleet).not.toHaveBeenCalled();
     } finally {
-      delete process.env.ASSISTANT_SKIP_AUTONOMY_FLOW_HEAL;
+      delete process.env.ZHUSHOU_SKIP_AUTONOMY_FLOW_HEAL;
     }
   });
 
   it("keeps supervising autonomy continuity on an interval until stopped", async () => {
     vi.useFakeTimers();
-    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INTERVAL_MS = "1000";
+    process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_INTERVAL_MS = "1000";
     const cron = {
       start: vi.fn(async () => undefined),
       list: vi.fn(async () => []),
@@ -829,7 +1051,7 @@ describe("server-runtime-services", () => {
   });
 
   it("supports explicit heal mode override for gateway autonomy maintenance", async () => {
-    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_MODE = "heal";
+    process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_MODE = "heal";
     const cron = {
       start: vi.fn(async () => undefined),
       list: vi.fn(async () => []),
@@ -855,9 +1077,9 @@ describe("server-runtime-services", () => {
   });
 
   it("supports supervise env overrides for governance and inventory planning", async () => {
-    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE = "force_apply_all";
-    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY = "0";
-    process.env.ASSISTANT_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN = "false";
+    process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_GOVERNANCE_MODE = "force_apply_all";
+    process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_INCLUDE_CAPABILITY_INVENTORY = "0";
+    process.env.ZHUSHOU_AUTONOMY_SUPERVISOR_INCLUDE_GENESIS_PLAN = "false";
     const cron = {
       start: vi.fn(async () => undefined),
       list: vi.fn(async () => []),

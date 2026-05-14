@@ -42,7 +42,7 @@ const resolveAgentScopedOutboundMediaAccessMock = vi.hoisted(() =>
     }),
   })),
 );
-const appendAssistantMessageToSessionTranscriptMock = vi.hoisted(() =>
+const appendZhushouMessageToSessionTranscriptMock = vi.hoisted(() =>
   vi.fn(async () => ({ ok: true, sessionFile: "x" })),
 );
 
@@ -54,7 +54,7 @@ const mocks = {
   getAgentScopedMediaLocalRootsForSources: getAgentScopedMediaLocalRootsForSourcesMock,
   createAgentScopedHostMediaReadFile: createAgentScopedHostMediaReadFileMock,
   resolveAgentScopedOutboundMediaAccess: resolveAgentScopedOutboundMediaAccessMock,
-  appendAssistantMessageToSessionTranscript: appendAssistantMessageToSessionTranscriptMock,
+  appendZhushouMessageToSessionTranscript: appendZhushouMessageToSessionTranscriptMock,
 };
 
 vi.mock("../../channels/plugins/message-action-dispatch.js", () => ({
@@ -83,7 +83,7 @@ vi.mock("../../media/local-roots.js", async () => {
 });
 
 vi.mock("../../config/sessions.js", () => ({
-  appendAssistantMessageToSessionTranscript: mocks.appendAssistantMessageToSessionTranscript,
+  appendZhushouMessageToSessionTranscript: mocks.appendZhushouMessageToSessionTranscript,
 }));
 
 type OutboundSendServiceModule = typeof import("./outbound-send-service.js");
@@ -113,7 +113,7 @@ describe("executeSendAction", () => {
       mediaUrls: string[];
     }>,
   ) {
-    expect(mocks.appendAssistantMessageToSessionTranscript).toHaveBeenCalledWith(
+    expect(mocks.appendZhushouMessageToSessionTranscript).toHaveBeenCalledWith(
       expect.objectContaining(expected),
     );
   }
@@ -155,7 +155,7 @@ describe("executeSendAction", () => {
     mocks.getAgentScopedMediaLocalRootsForSources.mockClear();
     mocks.createAgentScopedHostMediaReadFile.mockClear();
     mocks.resolveAgentScopedOutboundMediaAccess.mockClear();
-    mocks.appendAssistantMessageToSessionTranscript.mockClear();
+    mocks.appendZhushouMessageToSessionTranscript.mockClear();
   });
 
   it("forwards ctx.agentId to sendMessage on core outbound path", async () => {

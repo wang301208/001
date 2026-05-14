@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bundledDistPluginFile } from "../../test/helpers/bundled-plugin-paths.js";
-import { clearPluginDiscoveryCache, discoverAssistantPlugins } from "./discovery.js";
+import { clearPluginDiscoveryCache, discoverZhushouPlugins } from "./discovery.js";
 import {
   cleanupTrackedTempDirs,
   makeTrackedTempDir,
@@ -12,7 +12,7 @@ import {
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  return makeTrackedTempDir("assistant-plugins", tempDirs);
+  return makeTrackedTempDir("zhushou-plugins", tempDirs);
 }
 
 const mkdirSafe = mkdirSafeDir;
@@ -36,9 +36,9 @@ function hasDiagnosticSourceSuffix(
 
 function buildDiscoveryEnv(stateDir: string): NodeJS.ProcessEnv {
   return {
-    ASSISTANT_STATE_DIR: stateDir,
-    ASSISTANT_HOME: undefined,
-    ASSISTANT_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+    ZHUSHOU_STATE_DIR: stateDir,
+    ZHUSHOU_HOME: undefined,
+    ZHUSHOU_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
   };
 }
 
@@ -48,20 +48,20 @@ function buildCachedDiscoveryEnv(
 ): NodeJS.ProcessEnv {
   return {
     ...buildDiscoveryEnv(stateDir),
-    ASSISTANT_PLUGIN_DISCOVERY_CACHE_MS: "5000",
+    ZHUSHOU_PLUGIN_DISCOVERY_CACHE_MS: "5000",
     ...overrides,
   };
 }
 
 async function discoverWithStateDir(
   stateDir: string,
-  params: Parameters<typeof discoverAssistantPlugins>[0],
+  params: Parameters<typeof discoverZhushouPlugins>[0],
 ) {
-  return discoverAssistantPlugins({ ...params, env: buildDiscoveryEnv(stateDir) });
+  return discoverZhushouPlugins({ ...params, env: buildDiscoveryEnv(stateDir) });
 }
 
-function discoverWithCachedEnv(params: Parameters<typeof discoverAssistantPlugins>[0]) {
-  return discoverAssistantPlugins(params);
+function discoverWithCachedEnv(params: Parameters<typeof discoverZhushouPlugins>[0]) {
+  return discoverZhushouPlugins(params);
 }
 
 function writePluginPackageManifest(params: {
@@ -73,7 +73,7 @@ function writePluginPackageManifest(params: {
     path.join(params.packageDir, "package.json"),
     JSON.stringify({
       name: params.packageName,
-      assistant: { extensions: params.extensions },
+      zhushou: { extensions: params.extensions },
     }),
     "utf-8",
   );
@@ -81,7 +81,7 @@ function writePluginPackageManifest(params: {
 
 function writePluginManifest(params: { pluginDir: string; id: string }) {
   fs.writeFileSync(
-    path.join(params.pluginDir, "assistant.plugin.json"),
+    path.join(params.pluginDir, "zhushou.plugin.json"),
     JSON.stringify({
       id: params.id,
       configSchema: { type: "object" },
@@ -174,7 +174,7 @@ function expectEscapesPackageDiagnostic(diagnostics: Array<{ message: string }>)
 }
 
 function expectCandidatePresence(
-  result: Awaited<ReturnType<typeof discoverAssistantPlugins>>,
+  result: Awaited<ReturnType<typeof discoverZhushouPlugins>>,
   params: { present?: readonly string[]; absent?: readonly string[] },
 ) {
   const ids = result.candidates.map((candidate) => candidate.idHint);
@@ -263,7 +263,7 @@ afterEach(() => {
   cleanupTrackedTempDirs(tempDirs);
 });
 
-describe("discoverAssistantPlugins", () => {
+describe("discoverZhushouPlugins", () => {
   it("discovers global and workspace extensions", async () => {
     const stateDir = makeTempDir();
     const workspaceDir = path.join(stateDir, "workspace");
@@ -272,7 +272,7 @@ describe("discoverAssistantPlugins", () => {
     mkdirSafe(globalExt);
     fs.writeFileSync(path.join(globalExt, "alpha.ts"), "export default function () {}", "utf-8");
 
-    const workspaceExt = path.join(workspaceDir, ".assistant", "extensions");
+    const workspaceExt = path.join(workspaceDir, ".zhushou", "extensions");
     mkdirSafe(workspaceExt);
     fs.writeFileSync(path.join(workspaceExt, "beta.ts"), "export default function () {}", "utf-8");
 
@@ -283,22 +283,22 @@ describe("discoverAssistantPlugins", () => {
   it("does not recurse arbitrary workspace directories for plugin auto-discovery", () => {
     const stateDir = makeTempDir();
     const workspaceDir = path.join(stateDir, "workspace");
-    const workspaceExt = path.join(workspaceDir, ".assistant", "extensions");
+    const workspaceExt = path.join(workspaceDir, ".zhushou", "extensions");
 
     const expectedWorkspacePluginDir = path.join(workspaceExt, "workspace-plugin");
     createPackagePluginWithEntry({
       packageDir: expectedWorkspacePluginDir,
-      packageName: "@assistant/workspace-plugin",
+      packageName: "@zhushou/workspace-plugin",
       pluginId: "workspace-plugin",
     });
 
     const unrelatedWorkspaceDir = path.join(workspaceDir, "lobster-integrations", "bin");
     createPackagePluginWithEntry({
       packageDir: unrelatedWorkspaceDir,
-      packageName: "@assistant/stray-workspace-plugin",
+      packageName: "@zhushou/stray-workspace-plugin",
     });
 
-    const result = discoverAssistantPlugins({
+    const result = discoverZhushouPlugins({
       workspaceDir,
       env: buildDiscoveryEnv(stateDir),
     });
@@ -314,11 +314,11 @@ describe("discoverAssistantPlugins", () => {
     const stateDir = makeTempDir();
     const homeDir = makeTempDir();
     const workspaceRoot = path.join(homeDir, "workspace");
-    const workspaceExt = path.join(workspaceRoot, ".assistant", "extensions");
+    const workspaceExt = path.join(workspaceRoot, ".zhushou", "extensions");
     mkdirSafe(workspaceExt);
     fs.writeFileSync(path.join(workspaceExt, "tilde-workspace.ts"), "export default {}", "utf-8");
 
-    const result = discoverAssistantPlugins({
+    const result = discoverZhushouPlugins({
       workspaceDir: "~/workspace",
       env: {
         ...buildDiscoveryEnv(stateDir),
@@ -372,10 +372,10 @@ describe("discoverAssistantPlugins", () => {
     );
     writeStandalonePlugin(path.join(bundledDir, "real-plugin.ts"), "export default {}");
 
-    const { candidates, diagnostics } = discoverAssistantPlugins({
+    const { candidates, diagnostics } = discoverZhushouPlugins({
       env: {
         ...buildDiscoveryEnv(stateDir),
-        ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
+        ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledDir,
       },
     });
 
@@ -402,11 +402,11 @@ describe("discoverAssistantPlugins", () => {
 
   it("does not discover nested node_modules copies under installed plugins", async () => {
     const stateDir = makeTempDir();
-    const pluginDir = path.join(stateDir, "extensions", "opik-assistant");
+    const pluginDir = path.join(stateDir, "extensions", "opik-zhushou");
     const nestedDiffsDir = path.join(
       pluginDir,
       "node_modules",
-      "assistant",
+      "zhushou",
       "dist",
       "extensions",
       "diffs",
@@ -416,10 +416,10 @@ describe("discoverAssistantPlugins", () => {
 
     writePluginPackageManifest({
       packageDir: pluginDir,
-      packageName: "@opik/opik-assistant",
+      packageName: "@opik/opik-zhushou",
       extensions: ["./src/index.ts"],
     });
-    writePluginManifest({ pluginDir, id: "opik-assistant" });
+    writePluginManifest({ pluginDir, id: "opik-zhushou" });
     fs.writeFileSync(
       path.join(pluginDir, "src", "index.ts"),
       "export default function () {}",
@@ -427,8 +427,8 @@ describe("discoverAssistantPlugins", () => {
     );
 
     writePluginPackageManifest({
-      packageDir: path.join(pluginDir, "node_modules", "assistant"),
-      packageName: "assistant",
+      packageDir: path.join(pluginDir, "node_modules", "zhushou"),
+      packageName: "zhushou",
       extensions: [`./${bundledDistPluginFile("diffs", "index.js")}`],
     });
     writePluginManifest({ pluginDir: nestedDiffsDir, id: "diffs" });
@@ -439,15 +439,15 @@ describe("discoverAssistantPlugins", () => {
     );
 
     const { candidates } = await discoverWithStateDir(stateDir, {});
-    expectCandidateOrder(candidates, ["opik-assistant"]);
+    expectCandidateOrder(candidates, ["opik-zhushou"]);
   });
 
   it("skips dependency and build directories while scanning workspace roots", () => {
     const stateDir = makeTempDir();
     const workspaceDir = path.join(stateDir, "workspace");
-    const workspaceRoot = path.join(workspaceDir, ".assistant", "extensions");
+    const workspaceRoot = path.join(workspaceDir, ".zhushou", "extensions");
     const workspacePluginDir = path.join(workspaceRoot, "workspace-plugin");
-    const nestedNodeModulesDir = path.join(workspaceRoot, "node_modules", "assistant");
+    const nestedNodeModulesDir = path.join(workspaceRoot, "node_modules", "zhushou");
     const nestedDistDir = path.join(workspaceRoot, "dist", "extensions", "diffs");
     mkdirSafe(path.join(workspacePluginDir, "src"));
     mkdirSafe(path.join(nestedNodeModulesDir, "src"));
@@ -455,13 +455,13 @@ describe("discoverAssistantPlugins", () => {
 
     createPackagePluginWithEntry({
       packageDir: workspacePluginDir,
-      packageName: "@assistant/workspace-plugin",
+      packageName: "@zhushou/workspace-plugin",
       pluginId: "workspace-plugin",
     });
 
     createPackagePluginWithEntry({
       packageDir: nestedNodeModulesDir,
-      packageName: "assistant",
+      packageName: "zhushou",
       pluginId: "node-modules-copy",
     });
 
@@ -472,7 +472,7 @@ describe("discoverAssistantPlugins", () => {
       "utf-8",
     );
 
-    const { candidates } = discoverAssistantPlugins({
+    const { candidates } = discoverZhushouPlugins({
       workspaceDir,
       env: buildDiscoveryEnv(stateDir),
     });
@@ -487,7 +487,7 @@ describe("discoverAssistantPlugins", () => {
         const packageDir = path.join(stateDir, "extensions", "voice-call-pack");
         createPackagePluginWithEntry({
           packageDir,
-          packageName: "@assistant/voice-call",
+          packageName: "@zhushou/voice-call",
           entryPath: "src/index.ts",
         });
         return {};
@@ -500,7 +500,7 @@ describe("discoverAssistantPlugins", () => {
         const packageDir = path.join(stateDir, "extensions", "ollama-provider-pack");
         createPackagePluginWithEntry({
           packageDir,
-          packageName: "@assistant/ollama-provider",
+          packageName: "@zhushou/ollama-provider",
           pluginId: "ollama",
           entryPath: "src/index.ts",
         });
@@ -513,8 +513,8 @@ describe("discoverAssistantPlugins", () => {
       name: "normalizes bundled speech package ids to canonical plugin ids",
       setup: (stateDir: string) => {
         for (const [dirName, packageName, pluginId] of [
-          ["elevenlabs-speech-pack", "@assistant/elevenlabs-speech", "elevenlabs"],
-          ["microsoft-speech-pack", "@assistant/microsoft-speech", "microsoft"],
+          ["elevenlabs-speech-pack", "@zhushou/elevenlabs-speech", "elevenlabs"],
+          ["microsoft-speech-pack", "@zhushou/microsoft-speech", "microsoft"],
         ] as const) {
           const packageDir = path.join(stateDir, "extensions", dirName);
           createPackagePluginWithEntry({
@@ -535,7 +535,7 @@ describe("discoverAssistantPlugins", () => {
         const packageDir = path.join(stateDir, "packs", "demo-plugin-dir");
         createPackagePluginWithEntry({
           packageDir,
-          packageName: "@assistant/demo-plugin-dir",
+          packageName: "@zhushou/demo-plugin-dir",
           entryPath: "index.js",
         });
         return { extraPaths: [packageDir] };
@@ -635,7 +635,7 @@ describe("discoverAssistantPlugins", () => {
     const result = await discoverWithStateDir(stateDir, setup(stateDir));
     const legacy = findCandidateById(result.candidates, "legacy-with-bad-bundle");
 
-    expect(legacy?.format).toBe("assistant");
+    expect(legacy?.format).toBe("zhushou");
     expect(hasDiagnosticSourceSuffix(result.diagnostics, bundleMarker)).toBe(true);
   });
 
@@ -649,7 +649,7 @@ describe("discoverAssistantPlugins", () => {
         mkdirSafe(globalExt);
         writePluginPackageManifest({
           packageDir: globalExt,
-          packageName: "@assistant/escape-pack",
+          packageName: "@zhushou/escape-pack",
           extensions: ["../../outside.js"],
         });
         fs.writeFileSync(outside, "export default function () {}", "utf-8");
@@ -663,7 +663,7 @@ describe("discoverAssistantPlugins", () => {
         mkdirSafe(globalExt);
         writePluginPackageManifest({
           packageDir: globalExt,
-          packageName: "@assistant/missing-entry-pack",
+          packageName: "@zhushou/missing-entry-pack",
           extensions: ["./missing.ts"],
         });
         return true;
@@ -687,7 +687,7 @@ describe("discoverAssistantPlugins", () => {
         }
         writePluginPackageManifest({
           packageDir: globalExt,
-          packageName: "@assistant/pack",
+          packageName: "@zhushou/pack",
           extensions: ["./linked/escape.ts"],
         });
         return true;
@@ -718,7 +718,7 @@ describe("discoverAssistantPlugins", () => {
         }
         writePluginPackageManifest({
           packageDir: globalExt,
-          packageName: "@assistant/pack",
+          packageName: "@zhushou/pack",
           extensions: ["./escape.ts"],
         });
         return true;
@@ -749,8 +749,8 @@ describe("discoverAssistantPlugins", () => {
     fs.writeFileSync(
       outsideManifest,
       JSON.stringify({
-        name: "@assistant/pack",
-        assistant: { extensions: ["./entry.ts"] },
+        name: "@zhushou/pack",
+        zhushou: { extensions: ["./entry.ts"] },
       }),
       "utf-8",
     );
@@ -794,12 +794,12 @@ describe("discoverAssistantPlugins", () => {
       fs.writeFileSync(path.join(packDir, "index.ts"), "export default function () {}", "utf-8");
       fs.chmodSync(packDir, 0o777);
 
-      const result = discoverAssistantPlugins({
+      const result = discoverZhushouPlugins({
         env: {
           ...process.env,
-          ASSISTANT_DISABLE_BUNDLED_PLUGINS: undefined,
-          ASSISTANT_STATE_DIR: stateDir,
-          ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
+          ZHUSHOU_DISABLE_BUNDLED_PLUGINS: undefined,
+          ZHUSHOU_STATE_DIR: stateDir,
+          ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledDir,
         },
       });
 
@@ -866,27 +866,27 @@ describe("discoverAssistantPlugins", () => {
 
     createPackagePluginWithEntry({
       packageDir: path.join(bundledDir, "bundled-plugin"),
-      packageName: "@assistant/bundled-plugin",
+      packageName: "@zhushou/bundled-plugin",
       pluginId: "bundled-plugin",
     });
     createPackagePluginWithEntry({
       packageDir: path.join(globalExt, "global-plugin"),
-      packageName: "@assistant/global-plugin",
+      packageName: "@zhushou/global-plugin",
       pluginId: "global-plugin",
     });
     createPackagePluginWithEntry({
-      packageDir: path.join(workspaceA, ".assistant", "extensions", "workspace-a-plugin"),
-      packageName: "@assistant/workspace-a-plugin",
+      packageDir: path.join(workspaceA, ".zhushou", "extensions", "workspace-a-plugin"),
+      packageName: "@zhushou/workspace-a-plugin",
       pluginId: "workspace-a-plugin",
     });
     createPackagePluginWithEntry({
-      packageDir: path.join(workspaceB, ".assistant", "extensions", "workspace-b-plugin"),
-      packageName: "@assistant/workspace-b-plugin",
+      packageDir: path.join(workspaceB, ".zhushou", "extensions", "workspace-b-plugin"),
+      packageName: "@zhushou/workspace-b-plugin",
       pluginId: "workspace-b-plugin",
     });
 
     const env = buildCachedDiscoveryEnv(stateDir, {
-      ASSISTANT_BUNDLED_PLUGINS_DIR: bundledDir,
+      ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledDir,
     });
     const readdirSync = vi.spyOn(fs, "readdirSync");
     const countSharedRootReads = () =>

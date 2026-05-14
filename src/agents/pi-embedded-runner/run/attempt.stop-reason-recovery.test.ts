@@ -10,7 +10,7 @@ const anthropicModel = {
 } as Model<"anthropic-messages">;
 
 describe("wrapStreamFnHandleSensitiveStopReason", () => {
-  it("rewrites unhandled stop-reason errors into structured assistant errors", async () => {
+  it("rewrites unhandled stop-reason errors into structured zhushou errors", async () => {
     const baseStreamFn: StreamFn = () => {
       const stream = createAssistantMessageEventStream();
       queueMicrotask(() => {

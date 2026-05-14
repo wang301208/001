@@ -78,7 +78,7 @@ describe("createBlockReplyPipeline dedup with threading", () => {
     expect(pipeline.hasSentPayload({ text: "response text", replyToId: "other-id" })).toBe(true);
   });
 
-  it("does not coalesce logical assistant blocks across assistantMessageIndex boundaries", async () => {
+  it("does not coalesce logical zhushou blocks across zhushouMessageIndex boundaries", async () => {
     const sent: string[] = [];
     const pipeline = createBlockReplyPipeline({
       onBlockReply: async (payload) => {
@@ -93,8 +93,8 @@ describe("createBlockReplyPipeline dedup with threading", () => {
       },
     });
 
-    pipeline.enqueue(setReplyPayloadMetadata({ text: "Alpha" }, { assistantMessageIndex: 0 }));
-    pipeline.enqueue(setReplyPayloadMetadata({ text: "Beta" }, { assistantMessageIndex: 1 }));
+    pipeline.enqueue(setReplyPayloadMetadata({ text: "Alpha" }, { zhushouMessageIndex: 0 }));
+    pipeline.enqueue(setReplyPayloadMetadata({ text: "Beta" }, { zhushouMessageIndex: 1 }));
     await pipeline.flush({ force: true });
 
     expect(sent).toEqual(["Alpha", "Beta"]);

@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/codex",
+  "name": "@zhushou/codex",
   "version": "2026.4.16",
   "description": "助手 Codex harness and model provider plugin",
   "type": "module",
@@ -9,9 +9,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

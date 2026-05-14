@@ -1,11 +1,11 @@
-import { isProviderApiKeyConfigured } from "assistant/plugin-sdk/provider-auth";
+import { isProviderApiKeyConfigured } from "zhushou/plugin-sdk/provider-auth";
 import {
   assertOkOrThrowHttpError,
   createProviderOperationDeadline,
   postJsonRequest,
   resolveProviderOperationTimeoutMs,
-} from "assistant/plugin-sdk/provider-http";
-import type { VideoGenerationProvider } from "assistant/plugin-sdk/video-generation";
+} from "zhushou/plugin-sdk/provider-http";
+import type { VideoGenerationProvider } from "zhushou/plugin-sdk/video-generation";
 import {
   DEFAULT_VYDRA_VIDEO_MODEL,
   downloadVydraAsset,

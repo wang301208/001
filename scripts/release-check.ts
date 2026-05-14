@@ -200,7 +200,7 @@ function resolveGlobalRoot(prefixDir: string, cwd: string): string {
 }
 
 function runPackedBundledChannelEntrySmoke(): void {
-  const tmpRoot = mkdtempSync(join(tmpdir(), "assistant-release-pack-smoke-"));
+  const tmpRoot = mkdtempSync(join(tmpdir(), "zhushou-release-pack-smoke-"));
   try {
     const packDir = join(tmpRoot, "pack");
     mkdirSync(packDir);
@@ -210,7 +210,7 @@ function runPackedBundledChannelEntrySmoke(): void {
     const prefixDir = join(tmpRoot, "prefix");
     installPackedTarball(prefixDir, tarballPath, tmpRoot);
 
-    const packageRoot = join(resolveGlobalRoot(prefixDir, tmpRoot), "assistant");
+    const packageRoot = join(resolveGlobalRoot(prefixDir, tmpRoot), "zhushou");
     execFileSync(
       process.execPath,
       [
@@ -222,7 +222,7 @@ function runPackedBundledChannelEntrySmoke(): void {
         stdio: "inherit",
         env: {
           ...process.env,
-          ASSISTANT_DISABLE_BUNDLED_ENTRY_SOURCE_FALLBACK: "1",
+          ZHUSHOU_DISABLE_BUNDLED_ENTRY_SOURCE_FALLBACK: "1",
         },
       },
     );
@@ -232,16 +232,16 @@ function runPackedBundledChannelEntrySmoke(): void {
     mkdirSync(homeDir, { recursive: true });
     execFileSync(
       process.execPath,
-      [join(packageRoot, "assistant.mjs"), "completion", "--write-state"],
+      [join(packageRoot, "zhushou.mjs"), "completion", "--write-state"],
       {
         cwd: packageRoot,
         stdio: "inherit",
         env: {
           ...process.env,
           HOME: homeDir,
-          ASSISTANT_STATE_DIR: stateDir,
-          ASSISTANT_SUPPRESS_NOTES: "1",
-          ASSISTANT_DISABLE_BUNDLED_ENTRY_SOURCE_FALLBACK: "1",
+          ZHUSHOU_STATE_DIR: stateDir,
+          ZHUSHOU_SUPPRESS_NOTES: "1",
+          ZHUSHOU_DISABLE_BUNDLED_ENTRY_SOURCE_FALLBACK: "1",
         },
       },
     );
@@ -308,7 +308,7 @@ export function collectForbiddenPackContentPaths(
 
 export { collectPackUnpackedSizeErrors } from "./lib/npm-pack-budget.mjs";
 
-// Critical functions that channel extension plugins import from assistant/plugin-sdk.
+// Critical functions that channel extension plugins import from zhushou/plugin-sdk.
 // If any are missing from the compiled output, plugins crash at runtime (#27569).
 const requiredPluginSdkExports = [
   "isDangerousNameMatchingEnabled",

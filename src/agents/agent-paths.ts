@@ -3,8 +3,8 @@ import { resolveStateDir } from "../config/paths.js";
 import { DEFAULT_AGENT_ID } from "../routing/session-key.js";
 import { resolveUserPath } from "../utils.js";
 
-export function resolveAssistantAgentDir(env: NodeJS.ProcessEnv = process.env): string {
-  const override = env.ASSISTANT_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim();
+export function resolveZhushouAgentDir(env: NodeJS.ProcessEnv = process.env): string {
+  const override = env.ZHUSHOU_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim();
   if (override) {
     return resolveUserPath(override, env);
   }
@@ -12,10 +12,10 @@ export function resolveAssistantAgentDir(env: NodeJS.ProcessEnv = process.env): 
   return resolveUserPath(defaultAgentDir, env);
 }
 
-export function ensureAssistantAgentEnv(): string {
-  const dir = resolveAssistantAgentDir();
-  if (!process.env.ASSISTANT_AGENT_DIR) {
-    process.env.ASSISTANT_AGENT_DIR = dir;
+export function ensureZhushouAgentEnv(): string {
+  const dir = resolveZhushouAgentDir();
+  if (!process.env.ZHUSHOU_AGENT_DIR) {
+    process.env.ZHUSHOU_AGENT_DIR = dir;
   }
   if (!process.env.PI_CODING_AGENT_DIR) {
     process.env.PI_CODING_AGENT_DIR = dir;

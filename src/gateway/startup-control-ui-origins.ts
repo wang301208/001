@@ -2,14 +2,14 @@ import {
   ensureControlUiAllowedOriginsForNonLoopbackBind,
   type GatewayNonLoopbackBindMode,
 } from "../config/gateway-control-ui-origins.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isContainerEnvironment } from "./net.js";
 
 export async function maybeSeedControlUiAllowedOriginsAtStartup(params: {
-  config: AssistantConfig;
-  writeConfig: (config: AssistantConfig) => Promise<void>;
+  config: ZhushouConfig;
+  writeConfig: (config: ZhushouConfig) => Promise<void>;
   log: { info: (msg: string) => void; warn: (msg: string) => void };
-}): Promise<{ config: AssistantConfig; persistedAllowedOriginsSeed: boolean }> {
+}): Promise<{ config: ZhushouConfig; persistedAllowedOriginsSeed: boolean }> {
   const seeded = ensureControlUiAllowedOriginsForNonLoopbackBind(params.config, {
     isContainerEnvironment,
   });

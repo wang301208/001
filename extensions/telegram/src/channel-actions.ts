@@ -3,16 +3,16 @@ import {
   createUnionActionGate,
   listTokenSourcedAccounts,
   resolveReactionMessageId,
-} from "assistant/plugin-sdk/channel-actions";
+} from "zhushou/plugin-sdk/channel-actions";
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
   ChannelMessageToolDiscovery,
   ChannelMessageToolSchemaContribution,
-} from "assistant/plugin-sdk/channel-contract";
-import type { TelegramActionConfig } from "assistant/plugin-sdk/config-runtime";
-import { readStringValue } from "assistant/plugin-sdk/text-runtime";
-import { extractToolSend } from "assistant/plugin-sdk/tool-send";
+} from "zhushou/plugin-sdk/channel-contract";
+import type { TelegramActionConfig } from "zhushou/plugin-sdk/config-runtime";
+import { readStringValue } from "zhushou/plugin-sdk/text-runtime";
+import { extractToolSend } from "zhushou/plugin-sdk/tool-send";
 import {
   createTelegramActionGate,
   listEnabledTelegramAccounts,

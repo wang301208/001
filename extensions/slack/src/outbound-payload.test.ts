@@ -1,4 +1,4 @@
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
 import { describe, expect, it } from "vitest";
 import { createSlackOutboundPayloadHarness } from "../test-api.js";
 

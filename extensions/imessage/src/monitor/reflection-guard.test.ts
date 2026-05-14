@@ -13,15 +13,15 @@ describe("detectReflectedContent", () => {
   });
 
   it("detects +#+#+#+# separator pattern", () => {
-    const result = detectReflectedContent("NO_REPLY +#+#+#+#+#+assistant to=final");
+    const result = detectReflectedContent("NO_REPLY +#+#+#+#+#+zhushou to=final");
     expect(result.isReflection).toBe(true);
     expect(result.matchedLabels).toContain("internal-separator");
   });
 
-  it("detects assistant to=final marker", () => {
-    const result = detectReflectedContent("some text assistant to=final rest");
+  it("detects zhushou to=final marker", () => {
+    const result = detectReflectedContent("some text zhushou to=final rest");
     expect(result.isReflection).toBe(true);
-    expect(result.matchedLabels).toContain("assistant-role-marker");
+    expect(result.matchedLabels).toContain("zhushou-role-marker");
   });
 
   it("detects <thinking> tags", () => {
@@ -49,7 +49,7 @@ describe("detectReflectedContent", () => {
   });
 
   it("returns multiple matched labels for combined markers", () => {
-    const text = "NO_REPLY +#+#+#+# <thinking>step</thinking> assistant to=final";
+    const text = "NO_REPLY +#+#+#+# <thinking>step</thinking> zhushou to=final";
     const result = detectReflectedContent(text);
     expect(result.isReflection).toBe(true);
     expect(result.matchedLabels.length).toBeGreaterThanOrEqual(3);
@@ -69,7 +69,7 @@ describe("detectReflectedContent", () => {
         "User pasted a repro snippet:",
         "```xml",
         "<relevant_memories>cached</relevant_memories>",
-        "assistant to=final",
+        "zhushou to=final",
         "```",
       ].join("\n"),
     );
@@ -79,10 +79,10 @@ describe("detectReflectedContent", () => {
 
   it("still flags markers that appear outside code blocks", () => {
     const result = detectReflectedContent(
-      ["```xml", "<thinking>inside code</thinking>", "```", "", "assistant to=final"].join("\n"),
+      ["```xml", "<thinking>inside code</thinking>", "```", "", "zhushou to=final"].join("\n"),
     );
     expect(result.isReflection).toBe(true);
-    expect(result.matchedLabels).toContain("assistant-role-marker");
+    expect(result.matchedLabels).toContain("zhushou-role-marker");
   });
 
   it("does not flag normal code discussion about thinking", () => {

@@ -36,6 +36,48 @@ function resolveGoogleVertexEnvApiKey(env: NodeJS.ProcessEnv): string | undefine
     : undefined;
 }
 
+function resolveAnthropicVertexDefaultAdcPath(env: NodeJS.ProcessEnv): string {
+  if (os.platform() === "win32") {
+    return path.join(
+      env.APPDATA ?? path.join(os.homedir(), "AppData", "Roaming"),
+      "gcloud",
+      "application_default_credentials.json",
+    );
+  }
+  const homeDir = normalizeOptionalSecretInput(env.HOME) ?? os.homedir();
+  return path.join(homeDir, ".config", "gcloud", "application_default_credentials.json");
+}
+
+function resolveAnthropicVertexAdcCredentialsPathCandidate(
+  env: NodeJS.ProcessEnv,
+): string | undefined {
+  const explicit = normalizeOptionalSecretInput(env.GOOGLE_APPLICATION_CREDENTIALS);
+  if (explicit) {
+    return explicit;
+  }
+  if (env !== process.env) {
+    return undefined;
+  }
+  return resolveAnthropicVertexDefaultAdcPath(env);
+}
+
+function hasAnthropicVertexMetadataServerAdc(env: NodeJS.ProcessEnv): boolean {
+  const explicit = normalizeOptionalSecretInput(env.ANTHROPIC_VERTEX_USE_GCP_METADATA);
+  const normalized = explicit?.toLowerCase();
+  return explicit === "1" || normalized === "true";
+}
+
+function hasAnthropicVertexAdcCredentials(env: NodeJS.ProcessEnv): boolean {
+  const credentialsPath = resolveAnthropicVertexAdcCredentialsPathCandidate(env);
+  return Boolean(credentialsPath && fs.existsSync(credentialsPath));
+}
+
+function resolveAnthropicVertexEnvApiKey(env: NodeJS.ProcessEnv): string | undefined {
+  return hasAnthropicVertexMetadataServerAdc(env) || hasAnthropicVertexAdcCredentials(env)
+    ? GCP_VERTEX_CREDENTIALS_MARKER
+    : undefined;
+}
+
 export function resolveEnvApiKey(
   provider: string,
   env: NodeJS.ProcessEnv = process.env,
@@ -65,6 +107,14 @@ export function resolveEnvApiKey(
 
   if (normalized === "google-vertex") {
     const envKey = resolveGoogleVertexEnvApiKey(env);
+    if (!envKey) {
+      return null;
+    }
+    return { apiKey: envKey, source: "gcloud adc" };
+  }
+
+  if (normalized === "anthropic-vertex") {
+    const envKey = resolveAnthropicVertexEnvApiKey(env);
     if (!envKey) {
       return null;
     }

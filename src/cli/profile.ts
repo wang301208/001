@@ -88,7 +88,7 @@ function resolveProfileStateDir(
   homedir: () => string,
 ): string {
   const suffix = normalizeLowercaseStringOrEmpty(profile) === "default" ? "" : `-${profile}`;
-  return path.join(resolveRequiredHomeDir(env as NodeJS.ProcessEnv, homedir), `.assistant${suffix}`);
+  return path.join(resolveRequiredHomeDir(env as NodeJS.ProcessEnv, homedir), `.zhushou${suffix}`);
 }
 
 export function applyCliProfileEnv(params: {
@@ -104,19 +104,19 @@ export function applyCliProfileEnv(params: {
   }
 
   // Convenience only: fill defaults, never override explicit env values.
-  env.ASSISTANT_PROFILE = profile;
+  env.ZHUSHOU_PROFILE = profile;
 
-  const existingStateDir = normalizeOptionalString(env.ASSISTANT_STATE_DIR);
+  const existingStateDir = normalizeOptionalString(env.ZHUSHOU_STATE_DIR);
   const stateDir = existingStateDir || resolveProfileStateDir(profile, env, homedir);
   if (!existingStateDir) {
-    env.ASSISTANT_STATE_DIR = stateDir;
+    env.ZHUSHOU_STATE_DIR = stateDir;
   }
 
-  if (!normalizeOptionalString(env.ASSISTANT_CONFIG_PATH)) {
-    env.ASSISTANT_CONFIG_PATH = path.join(stateDir, "assistant.json");
+  if (!normalizeOptionalString(env.ZHUSHOU_CONFIG_PATH)) {
+    env.ZHUSHOU_CONFIG_PATH = path.join(stateDir, "zhushou.json");
   }
 
-  if (profile === "dev" && !env.ASSISTANT_GATEWAY_PORT?.trim()) {
-    env.ASSISTANT_GATEWAY_PORT = "19001";
+  if (profile === "dev" && !env.ZHUSHOU_GATEWAY_PORT?.trim()) {
+    env.ZHUSHOU_GATEWAY_PORT = "19001";
   }
 }

@@ -4,9 +4,9 @@ import { withPathResolutionEnv } from "../test-utils/env.js";
 import { formatPluginSourceForTable, resolvePluginSourceRoots } from "./source-display.js";
 
 const PLUGIN_SOURCE_ROOTS = {
-  stock: path.resolve(path.sep, "opt", "homebrew", "lib", "node_modules", "assistant", "extensions"),
-  global: path.resolve(path.sep, "Users", "x", ".assistant", "extensions"),
-  workspace: path.resolve(path.sep, "Users", "x", "ws", ".assistant", "extensions"),
+  stock: path.resolve(path.sep, "opt", "homebrew", "lib", "node_modules", "zhushou", "extensions"),
+  global: path.resolve(path.sep, "Users", "x", ".zhushou", "extensions"),
+  workspace: path.resolve(path.sep, "Users", "x", "ws", ".zhushou", "extensions"),
 };
 
 function expectFormattedSource(params: {
@@ -72,18 +72,18 @@ describe("formatPluginSourceForTable", () => {
   ])("shortens $origin sources under the $sourceKey root", expectFormattedSourceCase);
 
   it("resolves source roots from an explicit env override", () => {
-    const homeDir = path.resolve(path.sep, "tmp", "assistant-home");
+    const homeDir = path.resolve(path.sep, "tmp", "zhushou-home");
     expectResolvedSourceRoots({
       homeDir,
       env: {
-        ASSISTANT_BUNDLED_PLUGINS_DIR: "~/bundled",
-        ASSISTANT_STATE_DIR: "~/state",
+        ZHUSHOU_BUNDLED_PLUGINS_DIR: "~/bundled",
+        ZHUSHOU_STATE_DIR: "~/state",
       } as NodeJS.ProcessEnv,
       workspaceDir: "~/ws",
       expected: {
         stock: path.join(homeDir, "bundled"),
         global: path.join(homeDir, "state", "extensions"),
-        workspace: path.join(homeDir, "ws", ".assistant", "extensions"),
+        workspace: path.join(homeDir, "ws", ".zhushou", "extensions"),
       },
     });
   });

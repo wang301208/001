@@ -49,7 +49,7 @@ beforeAll(async () => {
 
 let timestamp = 1;
 
-function makeAssistantHistory(text: string): AgentMessage {
+function makeZhushouHistory(text: string): AgentMessage {
   return {
     role: "assistant",
     content: [{ type: "text", text }],
@@ -83,12 +83,12 @@ describe("preemptive-compaction", () => {
 
   it("raises the estimate as prompt-side content grows", () => {
     const smaller = estimatePrePromptTokens({
-      messages: [makeAssistantHistory(verboseHistory)],
+      messages: [makeZhushouHistory(verboseHistory)],
       systemPrompt: "sys",
       prompt: "hello",
     });
     const larger = estimatePrePromptTokens({
-      messages: [makeAssistantHistory(verboseHistory)],
+      messages: [makeZhushouHistory(verboseHistory)],
       systemPrompt: verboseSystem,
       prompt: verbosePrompt,
     });
@@ -98,7 +98,7 @@ describe("preemptive-compaction", () => {
 
   it("requests preemptive compaction when the reserve-based prompt budget would be exceeded", () => {
     const result = shouldPreemptivelyCompactBeforePrompt({
-      messages: [makeAssistantHistory(verboseHistory)],
+      messages: [makeZhushouHistory(verboseHistory)],
       systemPrompt: verboseSystem,
       prompt: verbosePrompt,
       contextTokenBudget: 500,
@@ -112,7 +112,7 @@ describe("preemptive-compaction", () => {
 
   it("does not request preemptive compaction when the reserve-based prompt budget still fits", () => {
     const result = shouldPreemptivelyCompactBeforePrompt({
-      messages: [makeAssistantHistory("short history")],
+      messages: [makeZhushouHistory("short history")],
       systemPrompt: "sys",
       prompt: "hello",
       contextTokenBudget: 10_000,
@@ -126,7 +126,7 @@ describe("preemptive-compaction", () => {
 
   it("caps reserve tokens so small context models keep usable prompt budget", () => {
     const result = shouldPreemptivelyCompactBeforePrompt({
-      messages: [makeAssistantHistory("short history")],
+      messages: [makeZhushouHistory("short history")],
       systemPrompt: "sys",
       prompt: "hello",
       contextTokenBudget: 16_000,
@@ -141,7 +141,7 @@ describe("preemptive-compaction", () => {
 
   it("keeps the requested reserve when it leaves enough prompt budget", () => {
     const result = shouldPreemptivelyCompactBeforePrompt({
-      messages: [makeAssistantHistory("short history")],
+      messages: [makeZhushouHistory("short history")],
       systemPrompt: "sys",
       prompt: "hello",
       contextTokenBudget: 32_000,
@@ -156,7 +156,7 @@ describe("preemptive-compaction", () => {
   it("routes to direct tool-result truncation when recent tool tails can clearly absorb the overflow", () => {
     const medium = "alpha beta gamma delta epsilon ".repeat(2200);
     const messages: AgentMessage[] = [
-      makeAssistantHistory("short history"),
+      makeZhushouHistory("short history"),
       makeToolResultMessage(medium, medium, medium, medium),
     ];
     const reserveTokens = 2_000;
@@ -189,7 +189,7 @@ describe("preemptive-compaction", () => {
       5000,
     );
     const messages = [
-      makeAssistantHistory(longHistory),
+      makeZhushouHistory(longHistory),
       makeToolResultMessage(medium),
       makeToolResultMessage(medium),
       makeToolResultMessage(medium),
@@ -213,7 +213,7 @@ describe("preemptive-compaction", () => {
     const oversized = "x".repeat(45_000);
     const medium = "alpha beta gamma delta epsilon ".repeat(500);
     const messages: AgentMessage[] = [
-      makeAssistantHistory("short history"),
+      makeZhushouHistory("short history"),
       makeToolResultMessage(oversized),
       makeToolResultMessage(medium),
       makeToolResultMessage(medium),

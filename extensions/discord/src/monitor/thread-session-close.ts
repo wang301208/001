@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { resolveStorePath, updateSessionStore } from "assistant/plugin-sdk/config-runtime";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { resolveStorePath, updateSessionStore } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 
 /**
  * Marks every session entry in the store whose key contains {@link threadId}
@@ -12,7 +12,7 @@ import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runt
  * any on-disk transcript history.
  */
 export async function closeDiscordThreadSessions(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   threadId: string;
 }): Promise<number> {

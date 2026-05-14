@@ -3,4 +3,4 @@ export {
   buildImageResizeSideGrid,
   getImageMetadata,
   resizeToJpeg,
-} from "assistant/plugin-sdk/browser-setup-tools";
+} from "zhushou/plugin-sdk/browser-setup-tools";

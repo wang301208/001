@@ -531,7 +531,7 @@ describe("downgradeOpenAIFunctionCallReasoningPairs", () => {
     toolName: "read",
     content: [{ type: "text", text }],
   });
-  const makeReasoningAssistantTurn = (id: string) => ({
+  const makeReasoningZhushouTurn = (id: string) => ({
     role: "assistant",
     content: [
       {
@@ -542,44 +542,44 @@ describe("downgradeOpenAIFunctionCallReasoningPairs", () => {
       makeToolCall(id),
     ],
   });
-  const makePlainAssistantTurn = (id: string) => ({
+  const makePlainZhushouTurn = (id: string) => ({
     role: "assistant",
     content: [makeToolCall(id)],
   });
 
   it("strips fc ids when reasoning cannot be replayed", () => {
     const input = [
-      makePlainAssistantTurn(callIdWithReasoning),
+      makePlainZhushouTurn(callIdWithReasoning),
       makeToolResult(callIdWithReasoning, "ok"),
     ];
 
     expect(downgradeOpenAIFunctionCallReasoningPairs(input as any)).toEqual([
-      makePlainAssistantTurn(callIdWithoutReasoning),
+      makePlainZhushouTurn(callIdWithoutReasoning),
       makeToolResult(callIdWithoutReasoning, "ok"),
     ]);
   });
 
   it("keeps fc ids when replayable reasoning is present", () => {
     const input = [
-      makeReasoningAssistantTurn(callIdWithReasoning),
+      makeReasoningZhushouTurn(callIdWithReasoning),
       makeToolResult(callIdWithReasoning, "ok"),
     ];
 
     expect(downgradeOpenAIFunctionCallReasoningPairs(input as any)).toEqual(input);
   });
 
-  it("only rewrites tool results paired to the downgraded assistant turn", () => {
+  it("only rewrites tool results paired to the downgraded zhushou turn", () => {
     const input = [
-      makePlainAssistantTurn(callIdWithReasoning),
+      makePlainZhushouTurn(callIdWithReasoning),
       makeToolResult(callIdWithReasoning, "turn1"),
-      makeReasoningAssistantTurn(callIdWithReasoning),
+      makeReasoningZhushouTurn(callIdWithReasoning),
       makeToolResult(callIdWithReasoning, "turn2"),
     ];
 
     expect(downgradeOpenAIFunctionCallReasoningPairs(input as any)).toEqual([
-      makePlainAssistantTurn(callIdWithoutReasoning),
+      makePlainZhushouTurn(callIdWithoutReasoning),
       makeToolResult(callIdWithoutReasoning, "turn1"),
-      makeReasoningAssistantTurn(callIdWithReasoning),
+      makeReasoningZhushouTurn(callIdWithReasoning),
       makeToolResult(callIdWithReasoning, "turn2"),
     ]);
   });

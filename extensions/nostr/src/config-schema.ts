@@ -3,9 +3,9 @@ import {
   buildChannelConfigSchema,
   DmPolicySchema,
   MarkdownConfigSchema,
-} from "assistant/plugin-sdk/channel-config-primitives";
-import { buildSecretInputSchema } from "assistant/plugin-sdk/secret-input";
-import { z } from "assistant/plugin-sdk/zod";
+} from "zhushou/plugin-sdk/channel-config-primitives";
+import { buildSecretInputSchema } from "zhushou/plugin-sdk/secret-input";
+import { z } from "zhushou/plugin-sdk/zod";
 
 /**
  * Validates https:// URLs only (no javascript:, data:, file:, etc.)

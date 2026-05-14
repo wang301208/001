@@ -84,7 +84,7 @@ export const sessionMessages: unknown[] = [
   },
 ];
 export const sessionAbortCompactionMock: Mock<(reason?: unknown) => void> = vi.fn();
-export const createAssistantCodingToolsMock = vi.fn(() => []);
+export const createZhushouCodingToolsMock = vi.fn(() => []);
 export const resolveEmbeddedAgentStreamFnMock: Mock<
   (params?: unknown) => MockEmbeddedAgentStreamFn
 > = vi.fn((_params?: unknown) => vi.fn());
@@ -185,8 +185,8 @@ export function resetCompactHooksHarnessMocks(): void {
 
   triggerInternalHook.mockReset();
   resetCompactSessionStateMocks();
-  createAssistantCodingToolsMock.mockReset();
-  createAssistantCodingToolsMock.mockReturnValue([]);
+  createZhushouCodingToolsMock.mockReset();
+  createZhushouCodingToolsMock.mockReturnValue([]);
 }
 
 export async function loadCompactHooksHarness(): Promise<{
@@ -299,7 +299,7 @@ export async function loadCompactHooksHarness(): Promise<{
   }));
 
   vi.doMock("../models-config.js", () => ({
-    ensureAssistantModelsJson: vi.fn(async () => {}),
+    ensureZhushouModelsJson: vi.fn(async () => {}),
   }));
 
   vi.doMock("../model-auth.js", () => ({
@@ -365,7 +365,7 @@ export async function loadCompactHooksHarness(): Promise<{
   }));
 
   vi.doMock("../docs-path.js", () => ({
-    resolveAssistantDocsPath: vi.fn(async () => undefined),
+    resolveZhushouDocsPath: vi.fn(async () => undefined),
   }));
 
   vi.doMock("../channel-tools.js", () => ({
@@ -374,7 +374,7 @@ export async function loadCompactHooksHarness(): Promise<{
   }));
 
   vi.doMock("../pi-tools.js", () => ({
-    createAssistantCodingTools: createAssistantCodingToolsMock,
+    createZhushouCodingTools: createZhushouCodingToolsMock,
   }));
 
   vi.doMock("./replay-history.js", () => ({
@@ -472,7 +472,7 @@ export async function loadCompactHooksHarness(): Promise<{
   }));
 
   vi.doMock("../agent-paths.js", () => ({
-    resolveAssistantAgentDir: vi.fn(() => "/tmp"),
+    resolveZhushouAgentDir: vi.fn(() => "/tmp"),
   }));
 
   vi.doMock("../agent-scope.js", () => ({

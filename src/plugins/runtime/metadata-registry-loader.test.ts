@@ -2,7 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const loadConfigMock = vi.fn();
 const applyPluginAutoEnableMock = vi.fn();
-const loadAssistantPluginsMock = vi.fn();
+const loadZhushouPluginsMock = vi.fn();
 
 let loadPluginMetadataRegistrySnapshot: typeof import("./metadata-registry-loader.js").loadPluginMetadataRegistrySnapshot;
 
@@ -15,7 +15,7 @@ vi.mock("../../config/plugin-auto-enable.js", () => ({
 }));
 
 vi.mock("../loader.js", () => ({
-  loadAssistantPlugins: (...args: unknown[]) => loadAssistantPluginsMock(...args),
+  loadZhushouPlugins: (...args: unknown[]) => loadZhushouPluginsMock(...args),
 }));
 
 vi.mock("../../agents/agent-scope.js", () => ({
@@ -31,31 +31,31 @@ describe("loadPluginMetadataRegistrySnapshot", () => {
   beforeEach(() => {
     loadConfigMock.mockReset();
     applyPluginAutoEnableMock.mockReset();
-    loadAssistantPluginsMock.mockReset();
+    loadZhushouPluginsMock.mockReset();
     loadConfigMock.mockReturnValue({ plugins: {} });
     applyPluginAutoEnableMock.mockImplementation((params: { config: unknown }) => ({
       config: params.config,
       changes: [],
       autoEnabledReasons: {},
     }));
-    loadAssistantPluginsMock.mockReturnValue({ plugins: [], diagnostics: [] });
+    loadZhushouPluginsMock.mockReturnValue({ plugins: [], diagnostics: [] });
   });
 
   it("defaults to a non-activating validate snapshot", () => {
     loadPluginMetadataRegistrySnapshot({
       config: { plugins: {} },
       activationSourceConfig: { plugins: { allow: ["demo"] } },
-      env: { HOME: "/tmp/assistant-home" } as NodeJS.ProcessEnv,
+      env: { HOME: "/tmp/zhushou-home" } as NodeJS.ProcessEnv,
       workspaceDir: "/workspace",
       onlyPluginIds: ["demo"],
     });
 
-    expect(loadAssistantPluginsMock).toHaveBeenCalledWith(
+    expect(loadZhushouPluginsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         config: { plugins: {} },
         activationSourceConfig: { plugins: { allow: ["demo"] } },
         workspaceDir: "/workspace",
-        env: { HOME: "/tmp/assistant-home" },
+        env: { HOME: "/tmp/zhushou-home" },
         onlyPluginIds: ["demo"],
         cache: false,
         activate: false,
@@ -71,7 +71,7 @@ describe("loadPluginMetadataRegistrySnapshot", () => {
       loadModules: false,
     });
 
-    expect(loadAssistantPluginsMock).toHaveBeenCalledWith(
+    expect(loadZhushouPluginsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         loadModules: false,
         mode: "validate",
@@ -85,7 +85,7 @@ describe("loadPluginMetadataRegistrySnapshot", () => {
       onlyPluginIds: [],
     });
 
-    expect(loadAssistantPluginsMock).toHaveBeenCalledWith(
+    expect(loadZhushouPluginsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         onlyPluginIds: [],
         mode: "validate",

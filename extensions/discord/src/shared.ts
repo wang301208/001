@@ -1,8 +1,8 @@
-import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
-import { formatAllowFromLowercase } from "assistant/plugin-sdk/allow-from";
-import { adaptScopedAccountAccessor } from "assistant/plugin-sdk/channel-config-helpers";
-import { createScopedChannelConfigAdapter } from "assistant/plugin-sdk/channel-config-helpers";
-import type { ChannelDoctorAdapter } from "assistant/plugin-sdk/channel-contract";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
+import { formatAllowFromLowercase } from "zhushou/plugin-sdk/allow-from";
+import { adaptScopedAccountAccessor } from "zhushou/plugin-sdk/channel-config-helpers";
+import { createScopedChannelConfigAdapter } from "zhushou/plugin-sdk/channel-config-helpers";
+import type { ChannelDoctorAdapter } from "zhushou/plugin-sdk/channel-contract";
 import { inspectDiscordAccount } from "./account-inspect.js";
 import {
   listDiscordAccountIds,

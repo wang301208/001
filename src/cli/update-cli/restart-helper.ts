@@ -27,27 +27,27 @@ function isBatchSafe(value: string): boolean {
 }
 
 function resolveSystemdUnit(env: NodeJS.ProcessEnv): string {
-  const override = normalizeOptionalString(env.ASSISTANT_SYSTEMD_UNIT);
+  const override = normalizeOptionalString(env.ZHUSHOU_SYSTEMD_UNIT);
   if (override) {
     return override.endsWith(".service") ? override : `${override}.service`;
   }
-  return `${resolveGatewaySystemdServiceName(env.ASSISTANT_PROFILE)}.service`;
+  return `${resolveGatewaySystemdServiceName(env.ZHUSHOU_PROFILE)}.service`;
 }
 
 function resolveLaunchdLabel(env: NodeJS.ProcessEnv): string {
-  const override = normalizeOptionalString(env.ASSISTANT_LAUNCHD_LABEL);
+  const override = normalizeOptionalString(env.ZHUSHOU_LAUNCHD_LABEL);
   if (override) {
     return override;
   }
-  return resolveGatewayLaunchAgentLabel(env.ASSISTANT_PROFILE);
+  return resolveGatewayLaunchAgentLabel(env.ZHUSHOU_PROFILE);
 }
 
 function resolveWindowsTaskName(env: NodeJS.ProcessEnv): string {
-  const override = env.ASSISTANT_WINDOWS_TASK_NAME?.trim();
+  const override = env.ZHUSHOU_WINDOWS_TASK_NAME?.trim();
   if (override) {
     return override;
   }
-  return resolveGatewayWindowsTaskName(env.ASSISTANT_PROFILE);
+  return resolveGatewayWindowsTaskName(env.ZHUSHOU_PROFILE);
 }
 
 /**
@@ -71,7 +71,7 @@ export async function prepareRestartScript(
     if (platform === "linux") {
       const unitName = resolveSystemdUnit(env);
       const escaped = shellEscape(unitName);
-      filename = `assistant-restart-${timestamp}.sh`;
+      filename = `zhushou-restart-${timestamp}.sh`;
       scriptContent = `#!/bin/sh
 # Standalone restart script — survives parent process termination.
 # Wait briefly to ensure file locks are released after update.
@@ -90,7 +90,7 @@ rm -f "$0"
       const home = normalizeOptionalString(env.HOME) || process.env.HOME || os.homedir();
       const plistPath = path.join(home, "Library", "LaunchAgents", `${label}.plist`);
       const escapedPlistPath = shellEscape(plistPath);
-      filename = `assistant-restart-${timestamp}.sh`;
+      filename = `zhushou-restart-${timestamp}.sh`;
       scriptContent = `#!/bin/sh
 # Standalone restart script — survives parent process termination.
 # Wait briefly to ensure file locks are released after update.
@@ -113,7 +113,7 @@ rm -f "$0"
       }
       const port =
         Number.isFinite(gatewayPort) && gatewayPort > 0 ? gatewayPort : DEFAULT_GATEWAY_PORT;
-      filename = `assistant-restart-${timestamp}.bat`;
+      filename = `zhushou-restart-${timestamp}.bat`;
       scriptContent = `@echo off
 REM Standalone restart script — survives parent process termination.
 REM Wait briefly to ensure file locks are released after update.

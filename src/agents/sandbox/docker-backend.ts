@@ -14,7 +14,7 @@ import {
 } from "./docker.js";
 
 function resolveConfiguredDockerRuntimeImage(params: {
-  config: CreateSandboxBackendParams["cfg"] | import("../../config/config.js").AssistantConfig;
+  config: CreateSandboxBackendParams["cfg"] | import("../../config/config.js").ZhushouConfig;
   agentId?: string;
   configLabelKind?: string;
 }): string {
@@ -100,7 +100,7 @@ export function runDockerSandboxShellCommand(
     "sh",
     "-c",
     params.script,
-    "assistant-sandbox-fs",
+    "zhushou-sandbox-fs",
   ];
   if (params.args?.length) {
     dockerArgs.push(...params.args);

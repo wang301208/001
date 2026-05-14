@@ -1,8 +1,8 @@
 import {
   coerceSecretRef,
   resolveNonEnvSecretRefApiKeyMarker,
-} from "assistant/plugin-sdk/provider-auth";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-auth";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   buildCloudflareAiGatewayModelDefinition,
   resolveCloudflareAiGatewayBaseUrl,

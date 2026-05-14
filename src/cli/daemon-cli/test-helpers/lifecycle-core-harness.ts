@@ -52,6 +52,6 @@ export function resetLifecycleServiceMocks() {
 
 export function stubEmptyGatewayEnv() {
   vi.unstubAllEnvs();
-  vi.stubEnv("ASSISTANT_GATEWAY_TOKEN", "");
-  vi.stubEnv("ASSISTANT_GATEWAY_URL", "");
+  vi.stubEnv("ZHUSHOU_GATEWAY_TOKEN", "");
+  vi.stubEnv("ZHUSHOU_GATEWAY_URL", "");
 }

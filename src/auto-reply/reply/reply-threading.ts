@@ -1,7 +1,7 @@
 import type { ChannelThreadingAdapter } from "../../channels/plugins/types.core.js";
 import { normalizeAnyChannelId } from "../../channels/registry.js";
 import type { ReplyToMode } from "../../config/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { normalizeOptionalLowercaseString } from "../../shared/string-coerce.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload, ReplyThreadingPolicy } from "../types.js";
@@ -24,7 +24,7 @@ function normalizeReplyToModeChatType(
 }
 
 export function resolveConfiguredReplyToMode(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   channel?: OriginatingChannelType,
   chatType?: string | null,
 ): ReplyToMode {
@@ -52,7 +52,7 @@ export function resolveConfiguredReplyToMode(
 }
 
 export function resolveReplyToModeWithThreading(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   threading: ChannelThreadingAdapter | undefined,
   params: {
     channel?: OriginatingChannelType;
@@ -69,7 +69,7 @@ export function resolveReplyToModeWithThreading(
 }
 
 export function resolveReplyToMode(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   channel?: OriginatingChannelType,
   accountId?: string | null,
   chatType?: string | null,
@@ -92,7 +92,7 @@ export function createReplyToModeFilter(
       // Compaction notices must never be threaded when replyToMode=off — even
       // if they carry explicit reply tags (replyToCurrent).  Honouring the
       // explicit tag here would make status notices appear in-thread while
-      // normal assistant replies stay off-thread, contradicting the off-mode
+      // normal zhushou replies stay off-thread, contradicting the off-mode
       // expectation.  Strip replyToId unconditionally for compaction payloads.
       if (opts.allowExplicitReplyTagsWhenOff && isExplicit && !payload.isCompactionNotice) {
         return payload;
@@ -104,7 +104,7 @@ export function createReplyToModeFilter(
     }
     if (isSingleUseReplyToMode(mode) && hasThreaded) {
       // Compaction notices are transient status messages that should always
-      // appear in-thread, even after the first assistant block has already
+      // appear in-thread, even after the first zhushou block has already
       // consumed the "first" slot.  Let them keep their replyToId.
       if (payload.isCompactionNotice) {
         return payload;
@@ -114,7 +114,7 @@ export function createReplyToModeFilter(
     // Compaction notices are transient status messages — they should be
     // threaded (so they appear in-context), but they must not consume the
     // "first" slot of the replyToMode=first|batched filter.  Skip advancing
-    // hasThreaded so the real assistant reply still gets replyToId.
+    // hasThreaded so the real zhushou reply still gets replyToId.
     if (isSingleUseReplyToMode(mode) && !payload.isCompactionNotice) {
       hasThreaded = true;
     }

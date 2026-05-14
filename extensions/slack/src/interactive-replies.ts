@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { resolveDefaultSlackAccountId, resolveSlackAccount } from "./accounts.js";
 
 const SLACK_BUTTON_MAX_ITEMS = 5;
@@ -162,7 +162,7 @@ function resolveInteractiveRepliesFromCapabilities(capabilities: unknown): boole
 }
 
 export function isSlackInteractiveRepliesEnabled(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): boolean {
   const account = resolveSlackAccount({

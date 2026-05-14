@@ -9,11 +9,11 @@ fi
 # shellcheck source=../install-sh-common/version-parse.sh
 source "$VERIFY_HELPER_PATH"
 
-INSTALL_URL="${ASSISTANT_INSTALL_URL:-https://assistant.bot/install.sh}"
-MODELS_MODE="${ASSISTANT_E2E_MODELS:-both}" # both|openai|anthropic
-INSTALL_TAG="${ASSISTANT_INSTALL_TAG:-latest}"
-E2E_PREVIOUS_VERSION="${ASSISTANT_INSTALL_E2E_PREVIOUS:-}"
-SKIP_PREVIOUS="${ASSISTANT_INSTALL_E2E_SKIP_PREVIOUS:-0}"
+INSTALL_URL="${ZHUSHOU_INSTALL_URL:-https://zhushou.bot/install.sh}"
+MODELS_MODE="${ZHUSHOU_E2E_MODELS:-both}" # both|openai|anthropic
+INSTALL_TAG="${ZHUSHOU_INSTALL_TAG:-latest}"
+E2E_PREVIOUS_VERSION="${ZHUSHOU_INSTALL_E2E_PREVIOUS:-}"
+SKIP_PREVIOUS="${ZHUSHOU_INSTALL_E2E_SKIP_PREVIOUS:-0}"
 OPENAI_API_KEY="${OPENAI_API_KEY:-}"
 ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}"
 ANTHROPIC_API_TOKEN="${ANTHROPIC_API_TOKEN:-}"
@@ -25,37 +25,37 @@ mkdir -p "$NPM_CONFIG_PREFIX"
 export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
 
 if [[ "$MODELS_MODE" != "both" && "$MODELS_MODE" != "openai" && "$MODELS_MODE" != "anthropic" ]]; then
-  echo "ERROR: ASSISTANT_E2E_MODELS must be one of: both|openai|anthropic" >&2
+  echo "ERROR: ZHUSHOU_E2E_MODELS must be one of: both|openai|anthropic" >&2
   exit 2
 fi
 
 if [[ "$MODELS_MODE" == "both" ]]; then
   if [[ -z "$OPENAI_API_KEY" ]]; then
-    echo "ERROR: ASSISTANT_E2E_MODELS=both requires OPENAI_API_KEY." >&2
+    echo "ERROR: ZHUSHOU_E2E_MODELS=both requires OPENAI_API_KEY." >&2
     exit 2
   fi
   if [[ -z "$ANTHROPIC_API_TOKEN" && -z "$ANTHROPIC_API_KEY" ]]; then
-    echo "ERROR: ASSISTANT_E2E_MODELS=both requires ANTHROPIC_API_TOKEN or ANTHROPIC_API_KEY." >&2
+    echo "ERROR: ZHUSHOU_E2E_MODELS=both requires ANTHROPIC_API_TOKEN or ANTHROPIC_API_KEY." >&2
     exit 2
   fi
 elif [[ "$MODELS_MODE" == "openai" && -z "$OPENAI_API_KEY" ]]; then
-  echo "ERROR: ASSISTANT_E2E_MODELS=openai requires OPENAI_API_KEY." >&2
+  echo "ERROR: ZHUSHOU_E2E_MODELS=openai requires OPENAI_API_KEY." >&2
   exit 2
 elif [[ "$MODELS_MODE" == "anthropic" && -z "$ANTHROPIC_API_TOKEN" && -z "$ANTHROPIC_API_KEY" ]]; then
-  echo "ERROR: ASSISTANT_E2E_MODELS=anthropic requires ANTHROPIC_API_TOKEN or ANTHROPIC_API_KEY." >&2
+  echo "ERROR: ZHUSHOU_E2E_MODELS=anthropic requires ANTHROPIC_API_TOKEN or ANTHROPIC_API_KEY." >&2
   exit 2
 fi
 
 echo "==> Resolve npm versions"
-EXPECTED_VERSION="$(quiet_npm view "assistant@${INSTALL_TAG}" version)"
+EXPECTED_VERSION="$(quiet_npm view "zhushou@${INSTALL_TAG}" version)"
 if [[ -z "$EXPECTED_VERSION" || "$EXPECTED_VERSION" == "undefined" || "$EXPECTED_VERSION" == "null" ]]; then
-  echo "ERROR: unable to resolve assistant@${INSTALL_TAG} version" >&2
+  echo "ERROR: unable to resolve zhushou@${INSTALL_TAG} version" >&2
   exit 2
 fi
 if [[ -n "$E2E_PREVIOUS_VERSION" ]]; then
   PREVIOUS_VERSION="$E2E_PREVIOUS_VERSION"
 else
-  PREVIOUS_VERSION="$(VERSIONS_JSON="$(quiet_npm view assistant versions --json)" node - <<'NODE'
+  PREVIOUS_VERSION="$(VERSIONS_JSON="$(quiet_npm view zhushou versions --json)" node - <<'NODE'
 const versions = JSON.parse(process.env.VERSIONS_JSON || "[]");
 if (!Array.isArray(versions) || versions.length === 0) process.exit(1);
 process.stdout.write(versions.length >= 2 ? versions[versions.length - 2] : versions[0]);
@@ -65,27 +65,27 @@ fi
 echo "expected=$EXPECTED_VERSION previous=$PREVIOUS_VERSION"
 
 if [[ "$SKIP_PREVIOUS" == "1" ]]; then
-  echo "==> Skip preinstall previous (ASSISTANT_INSTALL_E2E_SKIP_PREVIOUS=1)"
+  echo "==> Skip preinstall previous (ZHUSHOU_INSTALL_E2E_SKIP_PREVIOUS=1)"
 else
   echo "==> Preinstall previous (forces installer upgrade path; avoids read() prompt)"
-  quiet_npm install -g "assistant@${PREVIOUS_VERSION}"
+  quiet_npm install -g "zhushou@${PREVIOUS_VERSION}"
 fi
 
 echo "==> Run official installer one-liner"
 if [[ "$INSTALL_TAG" == "beta" ]]; then
-  ASSISTANT_BETA=1 curl -fsSL "$INSTALL_URL" | bash
+  ZHUSHOU_BETA=1 curl -fsSL "$INSTALL_URL" | bash
 elif [[ "$INSTALL_TAG" != "latest" ]]; then
-  ASSISTANT_VERSION="$INSTALL_TAG" curl -fsSL "$INSTALL_URL" | bash
+  ZHUSHOU_VERSION="$INSTALL_TAG" curl -fsSL "$INSTALL_URL" | bash
 else
   curl -fsSL "$INSTALL_URL" | bash
 fi
 
 echo "==> Verify installed version"
-INSTALLED_VERSION="$(assistant --version 2>/dev/null | head -n 1 | tr -d '\r')"
-INSTALLED_VERSION="$(extract_assistant_semver "$INSTALLED_VERSION")"
+INSTALLED_VERSION="$(zhushou --version 2>/dev/null | head -n 1 | tr -d '\r')"
+INSTALLED_VERSION="$(extract_zhushou_semver "$INSTALLED_VERSION")"
 echo "installed=$INSTALLED_VERSION expected=$EXPECTED_VERSION"
 if [[ "$INSTALLED_VERSION" != "$EXPECTED_VERSION" ]]; then
-  echo "ERROR: expected assistant@$EXPECTED_VERSION, got assistant@$INSTALLED_VERSION" >&2
+  echo "ERROR: expected zhushou@$EXPECTED_VERSION, got zhushou@$INSTALLED_VERSION" >&2
   exit 1
 fi
 
@@ -94,7 +94,7 @@ set_image_model() {
   shift
   local candidate
   for candidate in "$@"; do
-    if assistant --profile "$profile" models set-image "$candidate" >/dev/null 2>&1; then
+    if zhushou --profile "$profile" models set-image "$candidate" >/dev/null 2>&1; then
       echo "$candidate"
       return 0
     fi
@@ -108,7 +108,7 @@ set_agent_model() {
   local candidate
   shift
   for candidate in "$@"; do
-    if assistant --profile "$profile" models set "$candidate" >/dev/null 2>&1; then
+    if zhushou --profile "$profile" models set "$candidate" >/dev/null 2>&1; then
       echo "$candidate"
       return 0
     fi
@@ -194,7 +194,7 @@ run_agent_turn() {
   # Installer E2E validates install + onboard + embedded agent tooling. It does
   # not need a paired Gateway control-plane hop, which is flaky/non-deterministic
   # in the isolated container and already covered by gateway-specific lanes.
-  assistant --profile "$profile" agent \
+  zhushou --profile "$profile" agent \
     --local \
     --session-id "$session_id" \
     --message "$prompt" \
@@ -388,7 +388,7 @@ run_profile() {
 
 	  echo "==> Onboard ($profile)"
 	  if [[ "$agent_model_provider" == "openai" ]]; then
-	    assistant --profile "$profile" onboard \
+	    zhushou --profile "$profile" onboard \
 	      --non-interactive \
 	      --accept-risk \
 	      --flow quickstart \
@@ -400,7 +400,7 @@ run_profile() {
       --workspace "$workspace" \
       --skip-health
 	  elif [[ -n "$ANTHROPIC_API_KEY" ]]; then
-	    assistant --profile "$profile" onboard \
+	    zhushou --profile "$profile" onboard \
 	      --non-interactive \
 	      --accept-risk \
 	      --flow quickstart \
@@ -412,7 +412,7 @@ run_profile() {
       --workspace "$workspace" \
       --skip-health
 	  elif [[ -n "$ANTHROPIC_API_TOKEN" ]]; then
-	    assistant --profile "$profile" onboard \
+	    zhushou --profile "$profile" onboard \
 	      --non-interactive \
 	      --accept-risk \
 	      --flow quickstart \
@@ -425,7 +425,7 @@ run_profile() {
       --workspace "$workspace" \
       --skip-health
 	  else
-	    assistant --profile "$profile" onboard \
+	    zhushou --profile "$profile" onboard \
 	      --non-interactive \
 	      --accept-risk \
 	      --flow quickstart \
@@ -474,7 +474,7 @@ run_profile() {
   IMAGE_PNG="$workspace/proof.png"
   IMAGE_TXT="$workspace/image.txt"
   SESSION_ID="e2e-tools-${profile}"
-  SESSION_JSONL="$HOME/.assistant-${profile}/agents/main/sessions/${SESSION_ID}.jsonl"
+  SESSION_JSONL="$HOME/.zhushou-${profile}/agents/main/sessions/${SESSION_ID}.jsonl"
 
   PROOF_VALUE="$(node -e 'console.log(require("node:crypto").randomBytes(16).toString("hex"))')"
   echo -n "$PROOF_VALUE" >"$PROOF_TXT"
@@ -483,7 +483,7 @@ run_profile() {
 
   echo "==> Start gateway ($profile)"
   GATEWAY_LOG="$workspace/gateway.log"
-  assistant --profile "$profile" gateway --port "$port" --bind loopback >"$GATEWAY_LOG" 2>&1 &
+  zhushou --profile "$profile" gateway --port "$port" --bind loopback >"$GATEWAY_LOG" 2>&1 &
   GATEWAY_PID="$!"
   cleanup_profile() {
     if kill -0 "$GATEWAY_PID" 2>/dev/null; then
@@ -495,12 +495,12 @@ run_profile() {
 
   echo "==> Wait for health ($profile)"
   for _ in $(seq 1 240); do
-    if assistant --profile "$profile" health --timeout 5000 --json >/dev/null 2>&1; then
+    if zhushou --profile "$profile" health --timeout 5000 --json >/dev/null 2>&1; then
       break
     fi
     sleep 0.25
   done
-  assistant --profile "$profile" health --timeout 60000 --json >/dev/null
+  zhushou --profile "$profile" health --timeout 60000 --json >/dev/null
 
   echo "==> Agent turns ($profile)"
   TURN1_JSON="/tmp/agent-${profile}-1.json"
@@ -587,7 +587,7 @@ run_profile() {
   sleep 1
   if [[ ! -f "$SESSION_JSONL" ]]; then
     echo "ERROR: missing session transcript ($profile): $SESSION_JSONL" >&2
-    ls -la "$HOME/.assistant-${profile}/agents/main/sessions" >&2 || true
+    ls -la "$HOME/.zhushou-${profile}/agents/main/sessions" >&2 || true
     exit 1
   fi
   assert_session_used_tools "$SESSION_JSONL" read write exec image
@@ -597,11 +597,11 @@ run_profile() {
 }
 
 if [[ "$MODELS_MODE" == "openai" || "$MODELS_MODE" == "both" ]]; then
-  run_profile "e2e-openai" "18789" "/tmp/assistant-e2e-openai" "openai"
+  run_profile "e2e-openai" "18789" "/tmp/zhushou-e2e-openai" "openai"
 fi
 
 if [[ "$MODELS_MODE" == "anthropic" || "$MODELS_MODE" == "both" ]]; then
-  run_profile "e2e-anthropic" "18799" "/tmp/assistant-e2e-anthropic" "anthropic"
+  run_profile "e2e-anthropic" "18799" "/tmp/zhushou-e2e-anthropic" "anthropic"
 fi
 
 echo "OK"

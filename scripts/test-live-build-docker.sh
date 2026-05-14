@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/docker-e2e-logs.sh"
-IMAGE_NAME="${ASSISTANT_IMAGE:-assistant:local}"
-LIVE_IMAGE_NAME="${ASSISTANT_LIVE_IMAGE:-${IMAGE_NAME}-live}"
-DOCKER_BUILD_EXTENSIONS="${ASSISTANT_DOCKER_BUILD_EXTENSIONS:-${ASSISTANT_EXTENSIONS:-}}"
+IMAGE_NAME="${ZHUSHOU_IMAGE:-zhushou:local}"
+LIVE_IMAGE_NAME="${ZHUSHOU_LIVE_IMAGE:-${IMAGE_NAME}-live}"
+DOCKER_BUILD_EXTENSIONS="${ZHUSHOU_DOCKER_BUILD_EXTENSIONS:-${ZHUSHOU_EXTENSIONS:-}}"
 
 case " ${DOCKER_BUILD_EXTENSIONS} " in
   *" matrix "*)
@@ -17,10 +17,10 @@ esac
 
 DOCKER_BUILD_ARGS=()
 if [[ -n "${DOCKER_BUILD_EXTENSIONS}" ]]; then
-  DOCKER_BUILD_ARGS+=(--build-arg "ASSISTANT_EXTENSIONS=${DOCKER_BUILD_EXTENSIONS}")
+  DOCKER_BUILD_ARGS+=(--build-arg "ZHUSHOU_EXTENSIONS=${DOCKER_BUILD_EXTENSIONS}")
 fi
 
-if [[ "${ASSISTANT_SKIP_DOCKER_BUILD:-}" == "1" ]]; then
+if [[ "${ZHUSHOU_SKIP_DOCKER_BUILD:-}" == "1" ]]; then
   echo "==> Reuse live-test image: $LIVE_IMAGE_NAME"
   exit 0
 fi

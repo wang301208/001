@@ -8,7 +8,7 @@ vi.mock("../infra/agent-events.js", () => ({
 }));
 
 function createContext(
-  lastAssistant: unknown,
+  lastZhushou: unknown,
   overrides?: {
     onAgentEvent?: (event: unknown) => void;
     onBlockReplyFlush?: () => void | Promise<void>;
@@ -25,7 +25,7 @@ function createContext(
       onBlockReplyFlush: overrides?.onBlockReplyFlush,
     },
     state: {
-      lastAssistant: lastAssistant as EmbeddedPiSubscribeContext["state"]["lastAssistant"],
+      lastZhushou: lastZhushou as EmbeddedPiSubscribeContext["state"]["lastZhushou"],
       pendingCompactionRetry: 0,
       pendingToolMediaUrls: [],
       pendingToolAudioAsVoice: false,
@@ -57,7 +57,7 @@ async function handleAgentEndAndReadWarnMeta(ctx: EmbeddedPiSubscribeContext) {
 }
 
 describe("handleAgentEnd", () => {
-  it("logs the resolved error message when run ends with assistant error", async () => {
+  it("logs the resolved error message when run ends with zhushou error", async () => {
     const onAgentEvent = vi.fn();
     const ctx = createContext(
       {
@@ -218,7 +218,7 @@ describe("handleAgentEnd", () => {
     const ctx = createContext(undefined, { onAgentEvent });
     ctx.state.replayState = { ...ctx.state.replayState, replayInvalid: true };
     ctx.state.livenessState = "working";
-    ctx.state.assistantTexts = [];
+    ctx.state.zhushouTexts = [];
     ctx.state.messagingToolSentTexts = [];
     ctx.state.messagingToolSentMediaUrls = [];
     ctx.state.successfulCronAdds = 0;
@@ -246,7 +246,7 @@ describe("handleAgentEnd", () => {
       { onAgentEvent },
     );
     ctx.state.livenessState = "working";
-    ctx.state.assistantTexts = [];
+    ctx.state.zhushouTexts = [];
 
     await handleAgentEnd(ctx);
 
@@ -265,7 +265,7 @@ describe("handleAgentEnd", () => {
     const ctx = createContext(undefined, { onAgentEvent });
     ctx.state.replayState = { ...ctx.state.replayState, replayInvalid: true };
     ctx.state.livenessState = "working";
-    ctx.state.assistantTexts = [];
+    ctx.state.zhushouTexts = [];
     ctx.state.hadDeterministicSideEffect = true;
 
     await handleAgentEnd(ctx);

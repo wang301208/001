@@ -46,7 +46,7 @@ function normalizedLogHaystack(log: { message?: string; id?: string; importer?: 
 }
 
 function buildInputOptions(options: InputOptionsArg): InputOptionsReturn {
-  if (process.env.ASSISTANT_BUILD_VERBOSE === "1") {
+  if (process.env.ZHUSHOU_BUILD_VERBOSE === "1") {
     return undefined;
   }
 
@@ -99,7 +99,7 @@ function nodeBuildConfig(config: UserConfig): UserConfig {
 
 const bundledPluginBuildEntries = collectBundledPluginBuildEntries({ cwd: PROJECT_ROOT });
 const bundledPluginRuntimeDependencies = listBundledPluginRuntimeDependencies();
-const shouldBuildPrivateQaEntries = process.env.ASSISTANT_BUILD_PRIVATE_QA === "1";
+const shouldBuildPrivateQaEntries = process.env.ZHUSHOU_BUILD_PRIVATE_QA === "1";
 
 function buildBundledHookEntries(): Record<string, string> {
   const hooksRoot = path.join(PROJECT_ROOT, "src", "hooks", "bundled");
@@ -147,7 +147,7 @@ function shouldStageBundledPluginRuntimeDependencies(packageJson: unknown): bool
   return (
     typeof packageJson === "object" &&
     packageJson !== null &&
-    (packageJson as { assistant?: { bundle?: { stageRuntimeDependencies?: boolean } } }).assistant
+    (packageJson as { zhushou?: { bundle?: { stageRuntimeDependencies?: boolean } } }).zhushou
       ?.bundle?.stageRuntimeDependencies === true
   );
 }
@@ -179,10 +179,10 @@ function normalizeBundledPluginOutEntry(entry: string): string {
 
 function isPluginSdkSelfReference(id: string): boolean {
   return (
-    id === "assistant/plugin-sdk" ||
-    id.startsWith("assistant/plugin-sdk/") ||
-    id === "@assistant/plugin-sdk" ||
-    id.startsWith("@assistant/plugin-sdk/")
+    id === "zhushou/plugin-sdk" ||
+    id.startsWith("zhushou/plugin-sdk/") ||
+    id === "@zhushou/plugin-sdk" ||
+    id.startsWith("@zhushou/plugin-sdk/")
   );
 }
 

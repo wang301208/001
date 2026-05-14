@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import type { AssistantConfig } from "assistant/plugin-sdk/provider-onboard";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/provider-onboard";
 import {
   buildSearchCacheKey,
   buildUnsupportedSearchFilterResponse,
@@ -25,8 +25,8 @@ import {
   withTrustedWebSearchEndpoint,
   wrapWebContent,
   writeCachedSearchPayload,
-} from "assistant/plugin-sdk/provider-web-search";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-web-search";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   isNativeMoonshotBaseUrl,
   MOONSHOT_BASE_URL,
@@ -101,13 +101,13 @@ function trimTrailingSlashes(url: string): string {
   return url.replace(/\/+$/, "");
 }
 
-function resolveKimiBaseUrl(kimi?: KimiConfig, assistantConfig?: AssistantConfig): string {
+function resolveKimiBaseUrl(kimi?: KimiConfig, zhushouConfig?: ZhushouConfig): string {
   const explicitBaseUrl = normalizeOptionalString(kimi?.baseUrl) ?? "";
   if (explicitBaseUrl) {
     return trimTrailingSlashes(explicitBaseUrl) || DEFAULT_KIMI_BASE_URL;
   }
 
-  const moonshotBaseUrl = assistantConfig?.models?.providers?.moonshot?.baseUrl;
+  const moonshotBaseUrl = zhushouConfig?.models?.providers?.moonshot?.baseUrl;
   if (typeof moonshotBaseUrl === "string") {
     const normalizedMoonshotBaseUrl = trimTrailingSlashes(moonshotBaseUrl.trim());
     if (normalizedMoonshotBaseUrl && isNativeMoonshotBaseUrl(normalizedMoonshotBaseUrl)) {
@@ -280,7 +280,7 @@ function createKimiSchema() {
 
 function createKimiToolDefinition(
   searchConfig: SearchConfigRecord | undefined,
-  assistantConfig: AssistantConfig | undefined,
+  zhushouConfig: ZhushouConfig | undefined,
 ): WebSearchProviderToolDefinition {
   return {
     description:
@@ -300,7 +300,7 @@ function createKimiToolDefinition(
           error: "missing_kimi_api_key",
           message:
             "web_search (kimi) needs a Moonshot API key. Set KIMI_API_KEY or MOONSHOT_API_KEY in the Gateway environment, or configure tools.web.search.kimi.apiKey.",
-          docs: "https://docs.assistant.ai/tools/web",
+          docs: "https://docs.zhushou.ai/tools/web",
         };
       }
 
@@ -310,7 +310,7 @@ function createKimiToolDefinition(
         searchConfig?.maxResults ??
         undefined;
       const model = resolveKimiModel(kimiConfig);
-      const baseUrl = resolveKimiBaseUrl(kimiConfig, assistantConfig);
+      const baseUrl = resolveKimiBaseUrl(kimiConfig, zhushouConfig);
       const cacheKey = buildSearchCacheKey([
         "kimi",
         query,
@@ -444,7 +444,7 @@ export function createKimiWebSearchProvider(): WebSearchProviderPlugin {
     envVars: ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
     placeholder: "sk-...",
     signupUrl: "https://platform.moonshot.cn/",
-    docsUrl: "https://docs.assistant.ai/tools/web",
+    docsUrl: "https://docs.zhushou.ai/tools/web",
     autoDetectOrder: 40,
     credentialPath: "plugins.entries.moonshot.config.webSearch.apiKey",
     inactiveSecretPaths: ["plugins.entries.moonshot.config.webSearch.apiKey"],

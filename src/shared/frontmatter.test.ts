@@ -2,15 +2,15 @@ import { describe, expect, it, test } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import {
-  applyAssistantManifestInstallCommonFields,
+  applyZhushouManifestInstallCommonFields,
   getFrontmatterString,
   normalizeStringList,
   parseFrontmatterBool,
-  parseAssistantManifestInstallBase,
-  resolveAssistantManifestBlock,
-  resolveAssistantManifestInstall,
-  resolveAssistantManifestOs,
-  resolveAssistantManifestRequires,
+  parseZhushouManifestInstallBase,
+  resolveZhushouManifestBlock,
+  resolveZhushouManifestInstall,
+  resolveZhushouManifestOs,
+  resolveZhushouManifestRequires,
 } from "./frontmatter.js";
 
 describe("shared/frontmatter", () => {
@@ -32,34 +32,34 @@ describe("shared/frontmatter", () => {
     expect(parseFrontmatterBool("maybe", false)).toBe(false);
   });
 
-  test("resolveAssistantManifestBlock reads current manifest keys and custom metadata fields", () => {
+  test("resolveZhushouManifestBlock reads current manifest keys and custom metadata fields", () => {
     expect(
-      resolveAssistantManifestBlock({
+      resolveZhushouManifestBlock({
         frontmatter: {
-          metadata: "{ assistant: { foo: 1, bar: 'baz' } }",
+          metadata: "{ zhushou: { foo: 1, bar: 'baz' } }",
         },
       }),
     ).toEqual({ foo: 1, bar: "baz" });
 
     expect(
-      resolveAssistantManifestBlock({
+      resolveZhushouManifestBlock({
         frontmatter: {
-          pluginMeta: "{ assistant: { foo: 2 } }",
+          pluginMeta: "{ zhushou: { foo: 2 } }",
         },
         key: "pluginMeta",
       }),
     ).toEqual({ foo: 2 });
   });
 
-  test("resolveAssistantManifestBlock returns undefined for invalid input", () => {
-    expect(resolveAssistantManifestBlock({ frontmatter: {} })).toBeUndefined();
+  test("resolveZhushouManifestBlock returns undefined for invalid input", () => {
+    expect(resolveZhushouManifestBlock({ frontmatter: {} })).toBeUndefined();
     expect(
-      resolveAssistantManifestBlock({ frontmatter: { metadata: "not-json5" } }),
+      resolveZhushouManifestBlock({ frontmatter: { metadata: "not-json5" } }),
     ).toBeUndefined();
-    expect(resolveAssistantManifestBlock({ frontmatter: { metadata: "123" } })).toBeUndefined();
-    expect(resolveAssistantManifestBlock({ frontmatter: { metadata: "[]" } })).toBeUndefined();
+    expect(resolveZhushouManifestBlock({ frontmatter: { metadata: "123" } })).toBeUndefined();
+    expect(resolveZhushouManifestBlock({ frontmatter: { metadata: "[]" } })).toBeUndefined();
     expect(
-      resolveAssistantManifestBlock({ frontmatter: { metadata: "{ nope: { a: 1 } }" } }),
+      resolveZhushouManifestBlock({ frontmatter: { metadata: "{ nope: { a: 1 } }" } }),
     ).toBeUndefined();
   });
 
@@ -68,14 +68,14 @@ describe("shared/frontmatter", () => {
       false,
     );
     expect(
-      resolveAssistantManifestBlock({
+      resolveZhushouManifestBlock({
         frontmatter: {
           metadata: "{ unknownManifest: { foo: 1 } }",
         },
       }),
     ).toBeUndefined();
     expect(
-      resolveAssistantManifestBlock({
+      resolveZhushouManifestBlock({
         frontmatter: {
           metadata: "{ legacyManifest: { foo: 1 } }",
         },
@@ -85,29 +85,29 @@ describe("shared/frontmatter", () => {
 
   it("normalizes manifest requirement and os lists", () => {
     expect(
-      resolveAssistantManifestRequires({
+      resolveZhushouManifestRequires({
         requires: {
           bins: "bun, node",
           anyBins: [" ffmpeg ", ""],
-          env: ["ASSISTANT_TOKEN", " ASSISTANT_URL "],
+          env: ["ZHUSHOU_TOKEN", " ZHUSHOU_URL "],
           config: null,
         },
       }),
     ).toEqual({
       bins: ["bun", "node"],
       anyBins: ["ffmpeg"],
-      env: ["ASSISTANT_TOKEN", "ASSISTANT_URL"],
+      env: ["ZHUSHOU_TOKEN", "ZHUSHOU_URL"],
       config: [],
     });
-    expect(resolveAssistantManifestRequires({})).toBeUndefined();
-    expect(resolveAssistantManifestOs({ os: [" darwin ", "linux", ""] })).toEqual([
+    expect(resolveZhushouManifestRequires({})).toBeUndefined();
+    expect(resolveZhushouManifestOs({ os: [" darwin ", "linux", ""] })).toEqual([
       "darwin",
       "linux",
     ]);
   });
 
   it("parses and applies install common fields", () => {
-    const parsed = parseAssistantManifestInstallBase(
+    const parsed = parseZhushouManifestInstallBase(
       {
         type: " Brew ",
         id: "brew.git",
@@ -129,9 +129,9 @@ describe("shared/frontmatter", () => {
       label: "Git",
       bins: ["git", "git"],
     });
-    expect(parseAssistantManifestInstallBase({ kind: "bad" }, ["brew"])).toBeUndefined();
+    expect(parseZhushouManifestInstallBase({ kind: "bad" }, ["brew"])).toBeUndefined();
     expect(
-      applyAssistantManifestInstallCommonFields<{
+      applyZhushouManifestInstallCommonFields<{
         extra: boolean;
         id?: string;
         label?: string;
@@ -146,7 +146,7 @@ describe("shared/frontmatter", () => {
   });
 
   it("prefers explicit kind, ignores invalid common fields, and leaves missing ones untouched", () => {
-    const parsed = parseAssistantManifestInstallBase(
+    const parsed = parseZhushouManifestInstallBase(
       {
         kind: " npm ",
         type: "brew",
@@ -168,7 +168,7 @@ describe("shared/frontmatter", () => {
       kind: "npm",
     });
     expect(
-      applyAssistantManifestInstallCommonFields(
+      applyZhushouManifestInstallCommonFields(
         { id: "keep", label: "Keep", bins: ["bun"] },
         parsed!,
       ),
@@ -181,7 +181,7 @@ describe("shared/frontmatter", () => {
 
   it("maps install entries through the parser and filters rejected specs", () => {
     expect(
-      resolveAssistantManifestInstall(
+      resolveZhushouManifestInstall(
         {
           install: [{ id: "keep" }, { id: "drop" }, "bad"],
         },

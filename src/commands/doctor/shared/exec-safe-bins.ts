@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import { resolveCommandResolutionFromArgv } from "../../../infra/exec-command-resolution.js";
 import {
   listInterpreterLikeSafeBins,
@@ -58,7 +58,7 @@ function normalizeConfiguredTrustedSafeBinDirs(entries: unknown): string[] {
   );
 }
 
-function collectExecSafeBinScopes(cfg: AssistantConfig): ExecSafeBinScopeRef[] {
+function collectExecSafeBinScopes(cfg: ZhushouConfig): ExecSafeBinScopeRef[] {
   const scopes: ExecSafeBinScopeRef[] = [];
   const globalExec = asObjectRecord(cfg.tools?.exec);
   const globalTrustedDirs = normalizeConfiguredTrustedSafeBinDirs(globalExec?.safeBinTrustedDirs);
@@ -112,7 +112,7 @@ function collectExecSafeBinScopes(cfg: AssistantConfig): ExecSafeBinScopeRef[] {
   return scopes;
 }
 
-export function scanExecSafeBinCoverage(cfg: AssistantConfig): ExecSafeBinCoverageHit[] {
+export function scanExecSafeBinCoverage(cfg: ZhushouConfig): ExecSafeBinCoverageHit[] {
   const hits: ExecSafeBinCoverageHit[] = [];
   for (const scope of collectExecSafeBinScopes(cfg)) {
     const interpreterBins = new Set(listInterpreterLikeSafeBins(scope.safeBins));
@@ -140,7 +140,7 @@ export function scanExecSafeBinCoverage(cfg: AssistantConfig): ExecSafeBinCovera
 }
 
 export function scanExecSafeBinTrustedDirHints(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): ExecSafeBinTrustedDirHintHit[] {
   const hits: ExecSafeBinTrustedDirHintHit[] = [];
   for (const scope of collectExecSafeBinScopes(cfg)) {
@@ -243,8 +243,8 @@ export function collectExecSafeBinTrustedDirHintWarnings(
   return lines;
 }
 
-export function maybeRepairExecSafeBinProfiles(cfg: AssistantConfig): {
-  config: AssistantConfig;
+export function maybeRepairExecSafeBinProfiles(cfg: ZhushouConfig): {
+  config: ZhushouConfig;
   changes: string[];
   warnings: string[];
 } {

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { collectSmallModelRiskFindings } from "./audit-extra.summary.js";
 
 describe("security audit small-model risk findings", () => {
   it("scores small-model risk by tool/sandbox exposure", () => {
     const cases: Array<{
       name: string;
-      cfg: AssistantConfig;
+      cfg: ZhushouConfig;
       expectedSeverity: "info" | "critical";
       detailIncludes: string[];
     }> = [

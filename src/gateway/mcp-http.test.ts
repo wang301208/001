@@ -93,8 +93,8 @@ describe("mcp loopback server", () => {
       headers: {
         "content-type": "application/json",
         "x-session-key": "agent:main:telegram:group:chat123",
-        "x-assistant-account-id": "work",
-        "x-assistant-message-channel": "telegram",
+        "x-zhushou-account-id": "work",
+        "x-zhushou-message-channel": "telegram",
       },
       body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
     });
@@ -123,8 +123,8 @@ describe("mcp loopback server", () => {
         headers: {
           "content-type": "application/json",
           "x-session-key": "agent:main:matrix:dm:test",
-          "x-assistant-message-channel": "matrix",
-          "x-assistant-sender-is-owner": senderIsOwner,
+          "x-zhushou-message-channel": "matrix",
+          "x-zhushou-sender-is-owner": senderIsOwner,
         },
         body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
       });
@@ -290,15 +290,15 @@ describe("createMcpLoopbackServerConfig", () => {
     const config = createMcpLoopbackServerConfig(23119) as {
       mcpServers?: Record<string, { url?: string; headers?: Record<string, string> }>;
     };
-    expect(config.mcpServers?.assistant?.url).toBe("http://127.0.0.1:23119/mcp");
-    expect(config.mcpServers?.assistant?.headers?.Authorization).toBe(
-      "Bearer ${ASSISTANT_MCP_TOKEN}",
+    expect(config.mcpServers?.zhushou?.url).toBe("http://127.0.0.1:23119/mcp");
+    expect(config.mcpServers?.zhushou?.headers?.Authorization).toBe(
+      "Bearer ${ZHUSHOU_MCP_TOKEN}",
     );
-    expect(config.mcpServers?.assistant?.headers?.["x-assistant-message-channel"]).toBe(
-      "${ASSISTANT_MCP_MESSAGE_CHANNEL}",
+    expect(config.mcpServers?.zhushou?.headers?.["x-zhushou-message-channel"]).toBe(
+      "${ZHUSHOU_MCP_MESSAGE_CHANNEL}",
     );
-    expect(config.mcpServers?.assistant?.headers?.["x-assistant-sender-is-owner"]).toBe(
-      "${ASSISTANT_MCP_SENDER_IS_OWNER}",
+    expect(config.mcpServers?.zhushou?.headers?.["x-zhushou-sender-is-owner"]).toBe(
+      "${ZHUSHOU_MCP_SENDER_IS_OWNER}",
     );
   });
 });

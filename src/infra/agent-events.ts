@@ -7,7 +7,7 @@ import { publishLocalEventBusEvent } from "./local-event-bus.js";
 export type AgentEventStream =
   | "lifecycle"
   | "tool"
-  | "assistant"
+  | "zhushou"
   | "error"
   | "item"
   | "plan"
@@ -129,7 +129,7 @@ type AgentEventState = {
   runContextById: Map<string, AgentRunContext>;
 };
 
-const AGENT_EVENT_STATE_KEY = Symbol.for("assistant.agentEvents.state");
+const AGENT_EVENT_STATE_KEY = Symbol.for("zhushou.agentEvents.state");
 
 function getAgentEventState(): AgentEventState {
   return resolveGlobalSingleton<AgentEventState>(AGENT_EVENT_STATE_KEY, () => ({

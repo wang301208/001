@@ -39,9 +39,9 @@ const prepareDeps = {
   getActiveMcpLoopbackRuntime,
   ensureMcpLoopbackServer,
   createMcpLoopbackServerConfig,
-  resolveAssistantDocsPath: async (
-    params: Parameters<typeof import("../docs-path.js").resolveAssistantDocsPath>[0],
-  ) => (await import("../docs-path.js")).resolveAssistantDocsPath(params),
+  resolveZhushouDocsPath: async (
+    params: Parameters<typeof import("../docs-path.js").resolveZhushouDocsPath>[0],
+  ) => (await import("../docs-path.js")).resolveZhushouDocsPath(params),
 };
 
 export function setCliRunnerPrepareTestDeps(overrides: Partial<typeof prepareDeps>): void {
@@ -139,12 +139,12 @@ export async function prepareCliRunContext(
       : undefined,
     env: mcpLoopbackRuntime
       ? {
-          ASSISTANT_MCP_TOKEN: mcpLoopbackRuntime.token,
-          ASSISTANT_MCP_AGENT_ID: sessionAgentId ?? "",
-          ASSISTANT_MCP_ACCOUNT_ID: params.agentAccountId ?? "",
-          ASSISTANT_MCP_SESSION_KEY: params.sessionKey ?? "",
-          ASSISTANT_MCP_MESSAGE_CHANNEL: params.messageProvider ?? "",
-          ASSISTANT_MCP_SENDER_IS_OWNER: params.senderIsOwner === true ? "true" : "false",
+          ZHUSHOU_MCP_TOKEN: mcpLoopbackRuntime.token,
+          ZHUSHOU_MCP_AGENT_ID: sessionAgentId ?? "",
+          ZHUSHOU_MCP_ACCOUNT_ID: params.agentAccountId ?? "",
+          ZHUSHOU_MCP_SESSION_KEY: params.sessionKey ?? "",
+          ZHUSHOU_MCP_MESSAGE_CHANNEL: params.messageProvider ?? "",
+          ZHUSHOU_MCP_SENDER_IS_OWNER: params.senderIsOwner === true ? "true" : "false",
         }
       : undefined,
     warn: (message) => cliBackendLog.warn(message),
@@ -170,7 +170,7 @@ export async function prepareCliRunContext(
     agentId: sessionAgentId,
     defaultAgentId,
   });
-  const docsPath = await prepareDeps.resolveAssistantDocsPath({
+  const docsPath = await prepareDeps.resolveZhushouDocsPath({
     workspaceDir,
     argv1: process.argv[1],
     cwd: process.cwd(),

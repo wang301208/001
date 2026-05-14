@@ -10,7 +10,7 @@ minimumReleaseAgeExclude:
   - "axios"
   - "basic-ftp"
   - "hono"
-  - "assistant"
+  - "zhushou"
   - "protobufjs"
   - "@buape/carbon"
   - "vite"

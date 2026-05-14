@@ -15,17 +15,17 @@ async function expectPackageMeta(params: {
 
 describe("package-json helpers", () => {
   it("reads package version and trims package name", async () => {
-    await withTempDir({ prefix: "assistant-package-json-" }, async (root) => {
+    await withTempDir({ prefix: "zhushou-package-json-" }, async (root) => {
       await fs.writeFile(
         path.join(root, "package.json"),
-        JSON.stringify({ version: " 1.2.3 ", name: "  @assistant/demo  " }),
+        JSON.stringify({ version: " 1.2.3 ", name: "  @zhushou/demo  " }),
         "utf8",
       );
 
       await expectPackageMeta({
         root,
         expectedVersion: "1.2.3",
-        expectedName: "@assistant/demo",
+        expectedName: "@zhushou/demo",
       });
     });
   });
@@ -62,17 +62,17 @@ describe("package-json helpers", () => {
       writePackageJson: async (root: string) => {
         await fs.writeFile(
           path.join(root, "package.json"),
-          JSON.stringify({ version: "   ", name: "@assistant/demo" }),
+          JSON.stringify({ version: "   ", name: "@zhushou/demo" }),
           "utf8",
         );
       },
       expectedVersion: null,
-      expectedName: "@assistant/demo",
+      expectedName: "@zhushou/demo",
     },
   ])(
     "returns normalized nulls for $name",
     async ({ writePackageJson, expectedVersion, expectedName }) => {
-      await withTempDir({ prefix: "assistant-package-json-" }, async (root) => {
+      await withTempDir({ prefix: "zhushou-package-json-" }, async (root) => {
         await writePackageJson(root);
         await expectPackageMeta({
           root,

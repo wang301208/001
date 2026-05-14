@@ -4,12 +4,12 @@ import {
 } from "../../../src/test-utils/bundled-plugin-public-surface.js";
 
 type DiscordSecurityAuditSurface =
-  typeof import("@assistant/discord/security-audit-contract-api.js");
-type FeishuSecuritySurface = typeof import("@assistant/feishu/security-contract-api.js");
-type SlackSecuritySurface = typeof import("@assistant/slack/security-contract-api.js");
-type SynologyChatSecuritySurface = typeof import("@assistant/synology-chat/contract-api.js");
-type TelegramSecuritySurface = typeof import("@assistant/telegram/security-audit-contract-api.js");
-type ZalouserSecuritySurface = typeof import("@assistant/zalouser/contract-api.js");
+  typeof import("@zhushou/discord/security-audit-contract-api.js");
+type FeishuSecuritySurface = typeof import("@zhushou/feishu/security-contract-api.js");
+type SlackSecuritySurface = typeof import("@zhushou/slack/security-contract-api.js");
+type SynologyChatSecuritySurface = typeof import("@zhushou/synology-chat/contract-api.js");
+type TelegramSecuritySurface = typeof import("@zhushou/telegram/security-audit-contract-api.js");
+type ZalouserSecuritySurface = typeof import("@zhushou/zalouser/contract-api.js");
 
 const discordSecurityAuditModuleId = resolveRelativeBundledPluginPublicModuleId({
   fromModuleUrl: import.meta.url,

@@ -1,14 +1,14 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { makeAssistantMessageFixture } from "../test-helpers/assistant-message-fixtures.js";
+import { makeZhushouMessageFixture } from "../test-helpers/zhushou-message-fixtures.js";
 import { makeModelFallbackCfg } from "../test-helpers/model-fallback-config-fixture.js";
 import { makeAttemptResult } from "./run.overflow-compaction.fixture.js";
 import {
   loadRunOverflowCompactionHarness,
   MockedFailoverError,
-  mockedFormatAssistantErrorText,
+  mockedFormatZhushouErrorText,
   mockedGlobalHookRunner,
-  mockedIsFailoverAssistantError,
-  mockedIsRateLimitAssistantError,
+  mockedIsFailoverZhushouError,
+  mockedIsRateLimitZhushouError,
   mockedRunEmbeddedAttempt,
   overflowBaseRunParams,
   resetRunOverflowCompactionHarnessMocks,
@@ -17,15 +17,15 @@ import type { EmbeddedRunAttemptResult } from "./run/types.js";
 
 let runEmbeddedPiAgent: typeof import("./run.js").runEmbeddedPiAgent;
 const DEEPSEEK_ERROR_MESSAGE = "429 deepseek rate limit";
-const DEEPSEEK_ASSISTANT_MATCHER = expect.objectContaining({
+const DEEPSEEK_ZHUSHOU_MATCHER = expect.objectContaining({
   provider: "deepseek",
   model: "deepseek-chat",
   errorMessage: DEEPSEEK_ERROR_MESSAGE,
 });
 
-function isCurrentAttemptAssistant(
+function isCurrentAttemptZhushou(
   value: unknown,
-): value is NonNullable<EmbeddedRunAttemptResult["currentAttemptAssistant"]> {
+): value is NonNullable<EmbeddedRunAttemptResult["currentAttemptZhushou"]> {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -36,26 +36,26 @@ function isCurrentAttemptAssistant(
 }
 
 function setupDeepseekFallbackErrorMatchers() {
-  mockedIsFailoverAssistantError.mockImplementation((...args: unknown[]) => {
-    const assistant = args[0];
-    return isCurrentAttemptAssistant(assistant) && assistant.provider === "deepseek";
+  mockedIsFailoverZhushouError.mockImplementation((...args: unknown[]) => {
+    const zhushou = args[0];
+    return isCurrentAttemptZhushou(zhushou) && zhushou.provider === "deepseek";
   });
-  mockedIsRateLimitAssistantError.mockImplementation((...args: unknown[]) => {
-    const assistant = args[0];
-    return isCurrentAttemptAssistant(assistant) && assistant.provider === "deepseek";
+  mockedIsRateLimitZhushouError.mockImplementation((...args: unknown[]) => {
+    const zhushou = args[0];
+    return isCurrentAttemptZhushou(zhushou) && zhushou.provider === "deepseek";
   });
 }
 
-function captureFormattedAssistant() {
-  let lastFormattedAssistant: unknown;
-  mockedFormatAssistantErrorText.mockImplementation((...args: unknown[]) => {
-    lastFormattedAssistant = args[0];
-    if (!isCurrentAttemptAssistant(lastFormattedAssistant)) {
-      return String(lastFormattedAssistant);
+function captureFormattedZhushou() {
+  let lastFormattedZhushou: unknown;
+  mockedFormatZhushouErrorText.mockImplementation((...args: unknown[]) => {
+    lastFormattedZhushou = args[0];
+    if (!isCurrentAttemptZhushou(lastFormattedZhushou)) {
+      return String(lastFormattedZhushou);
     }
-    return `${lastFormattedAssistant.provider}/${lastFormattedAssistant.model}: ${lastFormattedAssistant.errorMessage}`;
+    return `${lastFormattedZhushou.provider}/${lastFormattedZhushou.model}: ${lastFormattedZhushou.errorMessage}`;
   });
-  return () => lastFormattedAssistant;
+  return () => lastFormattedZhushou;
 }
 
 function makeCrossProviderFallbackConfig() {
@@ -73,12 +73,12 @@ function makeCrossProviderFallbackConfig() {
 
 async function expectDeepseekFallbackError(
   promise: Promise<unknown>,
-  getLastFormattedAssistant: () => unknown,
+  getLastFormattedZhushou: () => unknown,
 ) {
   await expect(promise).rejects.toBeInstanceOf(MockedFailoverError);
   await expect(promise).rejects.toThrow(`deepseek/deepseek-chat: ${DEEPSEEK_ERROR_MESSAGE}`);
-  expect(mockedIsRateLimitAssistantError).toHaveBeenCalledWith(DEEPSEEK_ASSISTANT_MATCHER);
-  expect(getLastFormattedAssistant()).toEqual(DEEPSEEK_ASSISTANT_MATCHER);
+  expect(mockedIsRateLimitZhushouError).toHaveBeenCalledWith(DEEPSEEK_ZHUSHOU_MATCHER);
+  expect(getLastFormattedZhushou()).toEqual(DEEPSEEK_ZHUSHOU_MATCHER);
 }
 
 describe("runEmbeddedPiAgent cross-provider fallback error handling", () => {
@@ -91,20 +91,20 @@ describe("runEmbeddedPiAgent cross-provider fallback error handling", () => {
     mockedGlobalHookRunner.hasHooks.mockImplementation(() => false);
   });
 
-  it("uses the current attempt assistant for fallback errors instead of stale session history", async () => {
+  it("uses the current attempt zhushou for fallback errors instead of stale session history", async () => {
     setupDeepseekFallbackErrorMatchers();
-    const getLastFormattedAssistant = captureFormattedAssistant();
+    const getLastFormattedZhushou = captureFormattedZhushou();
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: makeAssistantMessageFixture({
+        zhushouTexts: [],
+        lastZhushou: makeZhushouMessageFixture({
           stopReason: "error",
           errorMessage: "You have hit your ChatGPT usage limit (plus plan).",
           provider: "openai-codex",
           model: "gpt-5.4",
           content: [],
         }),
-        currentAttemptAssistant: makeAssistantMessageFixture({
+        currentAttemptZhushou: makeZhushouMessageFixture({
           stopReason: "error",
           errorMessage: DEEPSEEK_ERROR_MESSAGE,
           provider: "deepseek",
@@ -120,23 +120,23 @@ describe("runEmbeddedPiAgent cross-provider fallback error handling", () => {
       config: makeCrossProviderFallbackConfig(),
     });
 
-    await expectDeepseekFallbackError(promise, getLastFormattedAssistant);
+    await expectDeepseekFallbackError(promise, getLastFormattedZhushou);
   });
 
-  it("falls back to the session assistant when compaction removes the current attempt slice", async () => {
+  it("falls back to the session zhushou when compaction removes the current attempt slice", async () => {
     setupDeepseekFallbackErrorMatchers();
-    const getLastFormattedAssistant = captureFormattedAssistant();
+    const getLastFormattedZhushou = captureFormattedZhushou();
     mockedRunEmbeddedAttempt.mockResolvedValueOnce(
       makeAttemptResult({
-        assistantTexts: [],
-        lastAssistant: makeAssistantMessageFixture({
+        zhushouTexts: [],
+        lastZhushou: makeZhushouMessageFixture({
           stopReason: "error",
           errorMessage: DEEPSEEK_ERROR_MESSAGE,
           provider: "deepseek",
           model: "deepseek-chat",
           content: [],
         }),
-        currentAttemptAssistant: undefined,
+        currentAttemptZhushou: undefined,
       }),
     );
 
@@ -146,6 +146,6 @@ describe("runEmbeddedPiAgent cross-provider fallback error handling", () => {
       config: makeCrossProviderFallbackConfig(),
     });
 
-    await expectDeepseekFallbackError(promise, getLastFormattedAssistant);
+    await expectDeepseekFallbackError(promise, getLastFormattedZhushou);
   });
 });

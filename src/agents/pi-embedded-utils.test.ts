@@ -1,14 +1,14 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import {
-  extractAssistantText,
-  extractAssistantVisibleText,
+  extractZhushouText,
+  extractZhushouVisibleText,
   formatReasoningMessage,
   promoteThinkingTagsToBlocks,
   stripDowngradedToolCallText,
 } from "./pi-embedded-utils.js";
 
-function makeAssistantMessage(
+function makeZhushouMessage(
   message: Omit<AssistantMessage, "api" | "provider" | "model" | "usage" | "stopReason"> &
     Partial<Pick<AssistantMessage, "api" | "provider" | "model" | "usage" | "stopReason">> & {
       phase?: "commentary" | "final_answer";
@@ -31,7 +31,7 @@ function makeAssistantMessage(
   };
 }
 
-describe("extractAssistantText", () => {
+describe("extractZhushouText", () => {
   it("strips tool-only Minimax invocation XML from text", () => {
     const cases = [
       `<invoke name="Bash">
@@ -44,17 +44,17 @@ describe("extractAssistantText", () => {
 </minimax:tool_call>`,
     ];
     for (const text of cases) {
-      const msg = makeAssistantMessage({
+      const msg = makeZhushouMessage({
         role: "assistant",
         content: [{ type: "text", text }],
         timestamp: Date.now(),
       });
-      expect(extractAssistantText(msg)).toBe("");
+      expect(extractZhushouText(msg)).toBe("");
     }
   });
 
   it("strips multiple tool invocations", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -68,12 +68,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("Let me check that.");
   });
 
   it("keeps invoke snippets without Minimax markers", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -84,14 +84,14 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe(
       `Example:\n<invoke name="Bash">\n<parameter name="command">ls</parameter>\n</invoke>`,
     );
   });
 
   it("preserves normal text without tool invocations", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -102,12 +102,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("This is a normal response without any tool calls.");
   });
 
   it("sanitizes HTTP-ish error text only when stopReason is error", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       stopReason: "error",
       errorMessage: "500 Internal Server Error",
@@ -115,12 +115,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("HTTP 500: Internal Server Error");
   });
 
   it("does not rewrite normal text that references billing plans", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -131,7 +131,7 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe(
       "Firebase downgraded Chore Champ to the Spark plan; confirm whether billing should be re-enabled.",
     );
@@ -139,7 +139,7 @@ describe("extractAssistantText", () => {
 
   it("preserves response when errorMessage set from background failure (#13935)", () => {
     const responseText = "Handle payment required errors in your API.";
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       errorMessage: "insufficient credits for embedding model",
       stopReason: "stop",
@@ -147,12 +147,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe(responseText);
   });
 
   it("strips Minimax tool invocations with extra attributes", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -163,12 +163,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("Before\nAfter");
   });
 
   it("strips minimax tool_call open and close tags", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -179,12 +179,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("StartInnerEnd");
   });
 
   it("ignores invoke blocks without minimax markers", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -195,12 +195,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("Before<invoke>Keep</invoke>After");
   });
 
   it("strips invoke blocks when minimax markers are present elsewhere", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -211,12 +211,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("BeforeAfter");
   });
 
   it("strips invoke blocks with nested tags", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -227,12 +227,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("AB");
   });
 
   it("strips tool XML mixed with regular content", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -246,12 +246,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("I'll help you with that.\nHere are the results.");
   });
 
   it("handles multiple invoke blocks in one message", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -268,12 +268,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("First check.\nSecond check.\nDone.");
   });
 
   it("handles stray closing tags without opening tags", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -284,12 +284,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("Some text here.More text.");
   });
 
   it("handles multiple text blocks", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -311,12 +311,12 @@ describe("extractAssistantText", () => {
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("First block.\nThird block.");
   });
 
   it("strips downgraded Gemini tool call text representations", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -328,12 +328,12 @@ Arguments: { "command": "git status", "timeout": 120000 }`,
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("");
   });
 
   it("strips multiple downgraded tool calls", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -347,12 +347,12 @@ Arguments: { "command": "ls -la" }`,
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("");
   });
 
   it("strips tool results for downgraded calls", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -364,12 +364,12 @@ Arguments: { "command": "ls -la" }`,
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("");
   });
 
   it("preserves text around downgraded tool calls", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -382,12 +382,12 @@ Arguments: { "action": "act", "request": "click button" }`,
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("Let me check that for you.");
   });
 
   it("preserves trailing text after downgraded tool call blocks", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -403,12 +403,12 @@ Back to the user.`,
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("Intro text.\nBack to the user.");
   });
 
   it("handles multiple text blocks with tool calls and results", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -433,12 +433,12 @@ File contents here`,
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     expect(result).toBe("Here's what I found:\nDone checking.");
   });
 
-  it("strips raw <tool_call> XML blocks from assistant text", () => {
-    const msg = makeAssistantMessage({
+  it("strips raw <tool_call> XML blocks from zhushou text", () => {
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -449,11 +449,11 @@ File contents here`,
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantText(msg)).toBe("Let me check.\n\n Done.");
+    expect(extractZhushouText(msg)).toBe("Let me check.\n\n Done.");
   });
 
-  it("strips raw <tool_result> XML blocks from assistant text", () => {
-    const msg = makeAssistantMessage({
+  it("strips raw <tool_result> XML blocks from zhushou text", () => {
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -464,11 +464,11 @@ File contents here`,
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantText(msg)).toBe("Prefix\n\nSuffix");
+    expect(extractZhushouText(msg)).toBe("Prefix\n\nSuffix");
   });
 
   it("strips dangling <tool_call> XML content to end-of-string", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -479,11 +479,11 @@ File contents here`,
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantText(msg)).toBe("Let me run.");
+    expect(extractZhushouText(msg)).toBe("Let me run.");
   });
 
-  it("strips mixed <tool_call> and <tool_result> XML blocks from assistant text", () => {
-    const msg = makeAssistantMessage({
+  it("strips mixed <tool_call> and <tool_result> XML blocks from zhushou text", () => {
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -499,14 +499,14 @@ File contents here`,
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantText(msg)).toBe(
+    expect(extractZhushouText(msg)).toBe(
       "I will read the file.\n\n\nThe file contains: hello world",
     );
   });
 
   it("strips <tool_result> closed with mismatched </tool_call> tag and preserves trailing text", () => {
     // Issue #61688: gateway sometimes emits <tool_result>...</tool_call>
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -517,7 +517,7 @@ File contents here`,
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     // The mismatched closing tag should still exit the block, stripping the
     // tool XML while preserving legitimate trailing prose.
     expect(result).not.toContain("<tool_result>");
@@ -527,7 +527,7 @@ File contents here`,
   });
 
   it("does not let </tool_result> close a <tool_call> block (prevents payload leak)", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -538,7 +538,7 @@ File contents here`,
       timestamp: Date.now(),
     });
 
-    const result = extractAssistantText(msg);
+    const result = extractZhushouText(msg);
     // </tool_result> must NOT exit a <tool_call> block; the block should
     // continue until the matching </tool_call>, preventing payload leaks.
     expect(result).not.toContain("LEAK");
@@ -597,12 +597,12 @@ File contents here`,
     ] as const;
 
     for (const testCase of cases) {
-      const msg = makeAssistantMessage({
+      const msg = makeZhushouMessage({
         role: "assistant",
         content: [{ type: "text", text: testCase.text }],
         timestamp: Date.now(),
       });
-      expect(extractAssistantText(msg), testCase.name).toBe(testCase.expected);
+      expect(extractZhushouText(msg), testCase.name).toBe(testCase.expected);
     }
   });
 });
@@ -682,9 +682,9 @@ describe("stripDowngradedToolCallText", () => {
   });
 });
 
-describe("extractAssistantVisibleText", () => {
+describe("extractZhushouVisibleText", () => {
   it("prefers non-empty final_answer text over commentary", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -701,11 +701,11 @@ describe("extractAssistantVisibleText", () => {
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantVisibleText(msg)).toBe("Done.");
+    expect(extractZhushouVisibleText(msg)).toBe("Done.");
   });
 
   it("does not fall back to commentary when final_answer is empty", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         {
@@ -722,11 +722,11 @@ describe("extractAssistantVisibleText", () => {
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantVisibleText(msg)).toBe("");
+    expect(extractZhushouVisibleText(msg)).toBe("");
   });
 
   it("does not fall back to unphased legacy text when an empty final_answer block exists", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [
         { type: "text", text: "Legacy answer" },
@@ -739,21 +739,21 @@ describe("extractAssistantVisibleText", () => {
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantVisibleText(msg)).toBe("");
+    expect(extractZhushouVisibleText(msg)).toBe("");
   });
 
   it("falls back to legacy unphased text when phased text is absent", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [{ type: "text", text: "Legacy answer" }],
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantVisibleText(msg)).toBe("Legacy answer");
+    expect(extractZhushouVisibleText(msg)).toBe("Legacy answer");
   });
 
   it("does not pull unphased legacy text into final_answer extraction when phased blocks are present", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       phase: "final_answer",
       content: [
@@ -767,13 +767,13 @@ describe("extractAssistantVisibleText", () => {
       timestamp: Date.now(),
     });
 
-    expect(extractAssistantVisibleText(msg)).toBe("Done.");
+    expect(extractZhushouVisibleText(msg)).toBe("Done.");
   });
 });
 
 describe("promoteThinkingTagsToBlocks", () => {
   it("does not crash on malformed null content entries", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [null as never, { type: "text", text: "<thinking>hello</thinking>ok" }],
       timestamp: Date.now(),
@@ -785,7 +785,7 @@ describe("promoteThinkingTagsToBlocks", () => {
   });
 
   it("does not crash on undefined content entries", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [undefined as never, { type: "text", text: "no tags here" }],
       timestamp: Date.now(),
@@ -794,7 +794,7 @@ describe("promoteThinkingTagsToBlocks", () => {
   });
 
   it("passes through well-formed content unchanged when no thinking tags", () => {
-    const msg = makeAssistantMessage({
+    const msg = makeZhushouMessage({
       role: "assistant",
       content: [{ type: "text", text: "hello world" }],
       timestamp: Date.now(),

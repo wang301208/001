@@ -23,13 +23,13 @@ import {
   assertLiveImageProbeReply,
   buildLiveCronProbeMessage,
   createLiveCronProbeSpec,
-  runAssistantCliJson,
+  runZhushouCliJson,
 } from "./live-agent-probes.js";
 import { renderCatFacePngBase64 } from "./live-image-probe.js";
 import { startGatewayServer } from "./server.js";
 
 const LIVE = isLiveTestEnabled();
-const ACP_BIND_LIVE = isTruthyEnvValue(process.env.ASSISTANT_LIVE_ACP_BIND);
+const ACP_BIND_LIVE = isTruthyEnvValue(process.env.ZHUSHOU_LIVE_ACP_BIND);
 const describeLive = LIVE && ACP_BIND_LIVE ? describe : describe.skip;
 
 const CONNECT_TIMEOUT_MS = 90_000;
@@ -75,7 +75,7 @@ function normalizeAcpAgent(raw: string | undefined): LiveAcpAgent {
   return "claude";
 }
 
-function extractAssistantTexts(messages: unknown[]): string[] {
+function extractZhushouTexts(messages: unknown[]): string[] {
   return messages
     .map((entry) => {
       if (!entry || typeof entry !== "object") {
@@ -92,9 +92,9 @@ function extractAssistantTexts(messages: unknown[]): string[] {
 
 function createAcpRecallPrompt(liveAgent: LiveAcpAgent): string {
   if (liveAgent !== "claude") {
-    return "Please include the exact token from your immediately previous assistant reply.";
+    return "Please include the exact token from your immediately previous zhushou reply.";
   }
-  return "Reply with exactly the token from your immediately previous assistant reply and nothing else.";
+  return "Reply with exactly the token from your immediately previous zhushou reply and nothing else.";
 }
 
 function createAcpMarkerPrompt(liveAgent: LiveAcpAgent, memoryNonce: string): string {
@@ -252,7 +252,7 @@ function isRetryableAcpBindWarmupText(texts: string[]): boolean {
   );
 }
 
-function formatAssistantTextPreview(texts: string[], maxChars = 600): string {
+function formatZhushouTextPreview(texts: string[], maxChars = 600): string {
   const combined = texts.join("\n\n").trim();
   if (!combined) {
     return "<empty>";
@@ -263,7 +263,7 @@ function formatAssistantTextPreview(texts: string[], maxChars = 600): string {
   return combined.slice(-maxChars);
 }
 
-function findAssistantTextContaining(texts: string[], needle: string): string | null {
+function findZhushouTextContaining(texts: string[], needle: string): string | null {
   for (let i = texts.length - 1; i >= 0; i -= 1) {
     const text = texts[i];
     if (text?.includes(needle)) {
@@ -281,7 +281,7 @@ async function bindConversationAndWait(params: {
   originatingTo: string;
   originatingAccountId: string;
   timeoutMs?: number;
-}): Promise<{ mainAssistantTexts: string[]; spawnedSessionKey: string }> {
+}): Promise<{ mainZhushouTexts: string[]; spawnedSessionKey: string }> {
   const timeoutMs = params.timeoutMs ?? 90_000;
   const startedAt = Date.now();
   let attempt = 0;
@@ -313,17 +313,17 @@ async function bindConversationAndWait(params: {
       sessionKey: params.sessionKey,
       limit: 16,
     });
-    const mainAssistantTexts = extractAssistantTexts(mainHistory.messages ?? []);
-    const spawnedSessionKey = extractSpawnedAcpSessionKey(mainAssistantTexts);
+    const mainZhushouTexts = extractZhushouTexts(mainHistory.messages ?? []);
+    const spawnedSessionKey = extractSpawnedAcpSessionKey(mainZhushouTexts);
     if (
-      mainAssistantTexts.join("\n\n").includes("Bound this conversation to") &&
+      mainZhushouTexts.join("\n\n").includes("Bound this conversation to") &&
       spawnedSessionKey
     ) {
-      return { mainAssistantTexts, spawnedSessionKey };
+      return { mainZhushouTexts, spawnedSessionKey };
     }
-    if (!isRetryableAcpBindWarmupText(mainAssistantTexts)) {
+    if (!isRetryableAcpBindWarmupText(mainZhushouTexts)) {
       throw new Error(
-        `bind command did not produce an ACP session: ${formatAssistantTextPreview(mainAssistantTexts)}`,
+        `bind command did not produce an ACP session: ${formatZhushouTextPreview(mainZhushouTexts)}`,
       );
     }
     logLiveStep(`acpx backend still warming up; retrying bind (${attempt})`);
@@ -382,13 +382,13 @@ async function sendChatAndWait(params: {
   await waitForAgentRunOk(params.client, started.runId);
 }
 
-async function waitForAssistantText(params: {
+async function waitForZhushouText(params: {
   client: GatewayClient;
   sessionKey: string;
   contains: string;
-  minAssistantCount?: number;
+  minZhushouCount?: number;
   timeoutMs?: number;
-}): Promise<{ messages: unknown[]; lastAssistantText: string; matchedAssistantText: string }> {
+}): Promise<{ messages: unknown[]; lastZhushouText: string; matchedZhushouText: string }> {
   const timeoutMs = params.timeoutMs ?? 30_000;
   const startedAt = Date.now();
 
@@ -398,11 +398,11 @@ async function waitForAssistantText(params: {
       limit: 16,
     });
     const messages = history.messages ?? [];
-    const assistantTexts = extractAssistantTexts(messages);
-    const lastAssistantText = assistantTexts.at(-1) ?? "";
-    const matchedAssistantText = findAssistantTextContaining(assistantTexts, params.contains);
-    if (assistantTexts.length >= (params.minAssistantCount ?? 1) && matchedAssistantText) {
-      return { messages, lastAssistantText, matchedAssistantText };
+    const zhushouTexts = extractZhushouTexts(messages);
+    const lastZhushouText = zhushouTexts.at(-1) ?? "";
+    const matchedZhushouText = findZhushouTextContaining(zhushouTexts, params.contains);
+    if (zhushouTexts.length >= (params.minZhushouCount ?? 1) && matchedZhushouText) {
+      return { messages, lastZhushouText, matchedZhushouText };
     }
     await sleep(500);
   }
@@ -412,18 +412,18 @@ async function waitForAssistantText(params: {
     limit: 16,
   });
   throw new Error(
-    `timed out waiting for assistant text containing ${params.contains}: ${formatAssistantTextPreview(
-      extractAssistantTexts(finalHistory.messages ?? []),
+    `timed out waiting for zhushou text containing ${params.contains}: ${formatZhushouTextPreview(
+      extractZhushouTexts(finalHistory.messages ?? []),
     )}`,
   );
 }
 
-async function waitForAssistantTurn(params: {
+async function waitForZhushouTurn(params: {
   client: GatewayClient;
   sessionKey: string;
-  minAssistantCount: number;
+  minZhushouCount: number;
   timeoutMs?: number;
-}): Promise<{ messages: unknown[]; lastAssistantText: string }> {
+}): Promise<{ messages: unknown[]; lastZhushouText: string }> {
   const timeoutMs = params.timeoutMs ?? 30_000;
   const startedAt = Date.now();
 
@@ -433,10 +433,10 @@ async function waitForAssistantTurn(params: {
       limit: 16,
     });
     const messages = history.messages ?? [];
-    const assistantTexts = extractAssistantTexts(messages);
-    const lastAssistantText = assistantTexts.at(-1) ?? null;
-    if (assistantTexts.length >= params.minAssistantCount && lastAssistantText) {
-      return { messages, lastAssistantText };
+    const zhushouTexts = extractZhushouTexts(messages);
+    const lastZhushouText = zhushouTexts.at(-1) ?? null;
+    if (zhushouTexts.length >= params.minZhushouCount && lastZhushouText) {
+      return { messages, lastZhushouText };
     }
     await sleep(500);
   }
@@ -446,8 +446,8 @@ async function waitForAssistantTurn(params: {
     limit: 16,
   });
   throw new Error(
-    `timed out waiting for assistant turn ${String(params.minAssistantCount)}: ${formatAssistantTextPreview(
-      extractAssistantTexts(finalHistory.messages ?? []),
+    `timed out waiting for zhushou turn ${String(params.minZhushouCount)}: ${formatZhushouTextPreview(
+      extractZhushouTexts(finalHistory.messages ?? []),
     )}`,
   );
 }
@@ -457,21 +457,21 @@ describeLive("gateway live (ACP bind)", () => {
     "binds a synthetic Slack DM conversation to a live ACP session and reroutes the next turn",
     async () => {
       const previous = {
-        configPath: process.env.ASSISTANT_CONFIG_PATH,
-        stateDir: process.env.ASSISTANT_STATE_DIR,
-        token: process.env.ASSISTANT_GATEWAY_TOKEN,
-        port: process.env.ASSISTANT_GATEWAY_PORT,
-        skipChannels: process.env.ASSISTANT_SKIP_CHANNELS,
-        skipGmail: process.env.ASSISTANT_SKIP_GMAIL_WATCHER,
-        skipCron: process.env.ASSISTANT_SKIP_CRON,
-        skipCanvas: process.env.ASSISTANT_SKIP_CANVAS_HOST,
+        configPath: process.env.ZHUSHOU_CONFIG_PATH,
+        stateDir: process.env.ZHUSHOU_STATE_DIR,
+        token: process.env.ZHUSHOU_GATEWAY_TOKEN,
+        port: process.env.ZHUSHOU_GATEWAY_PORT,
+        skipChannels: process.env.ZHUSHOU_SKIP_CHANNELS,
+        skipGmail: process.env.ZHUSHOU_SKIP_GMAIL_WATCHER,
+        skipCron: process.env.ZHUSHOU_SKIP_CRON,
+        skipCanvas: process.env.ZHUSHOU_SKIP_CANVAS_HOST,
       };
-      const liveAgent = normalizeAcpAgent(process.env.ASSISTANT_LIVE_ACP_BIND_AGENT);
+      const liveAgent = normalizeAcpAgent(process.env.ZHUSHOU_LIVE_ACP_BIND_AGENT);
       const agentCommandOverride =
-        process.env.ASSISTANT_LIVE_ACP_BIND_AGENT_COMMAND?.trim() || undefined;
-      const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-live-acp-bind-"));
+        process.env.ZHUSHOU_LIVE_ACP_BIND_AGENT_COMMAND?.trim() || undefined;
+      const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-live-acp-bind-"));
       const tempStateDir = path.join(tempRoot, "state");
-      const tempConfigPath = path.join(tempRoot, "assistant.json");
+      const tempConfigPath = path.join(tempRoot, "zhushou.json");
       const port = await getFreeGatewayPort();
       const token = `test-${randomUUID()}`;
       const originalSessionKey = "main";
@@ -482,13 +482,13 @@ describeLive("gateway live (ACP bind)", () => {
       const memoryNonce = randomBytes(4).toString("hex").toUpperCase();
 
       clearRuntimeConfigSnapshot();
-      process.env.ASSISTANT_STATE_DIR = tempStateDir;
-      process.env.ASSISTANT_SKIP_CHANNELS = "1";
-      process.env.ASSISTANT_SKIP_GMAIL_WATCHER = "1";
-      process.env.ASSISTANT_SKIP_CRON = "0";
-      process.env.ASSISTANT_SKIP_CANVAS_HOST = "1";
-      process.env.ASSISTANT_GATEWAY_TOKEN = token;
-      process.env.ASSISTANT_GATEWAY_PORT = String(port);
+      process.env.ZHUSHOU_STATE_DIR = tempStateDir;
+      process.env.ZHUSHOU_SKIP_CHANNELS = "1";
+      process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = "1";
+      process.env.ZHUSHOU_SKIP_CRON = "0";
+      process.env.ZHUSHOU_SKIP_CANVAS_HOST = "1";
+      process.env.ZHUSHOU_GATEWAY_TOKEN = token;
+      process.env.ZHUSHOU_GATEWAY_PORT = String(port);
 
       const cfg = loadConfig();
       const acpxEntry = cfg.plugins?.entries?.acpx;
@@ -550,7 +550,7 @@ describeLive("gateway live (ACP bind)", () => {
         },
       };
       await fs.writeFile(tempConfigPath, `${JSON.stringify(nextCfg, null, 2)}\n`);
-      process.env.ASSISTANT_CONFIG_PATH = tempConfigPath;
+      process.env.ZHUSHOU_CONFIG_PATH = tempConfigPath;
 
       logLiveStep(`starting gateway on port ${String(port)}`);
       const server = await startGatewayServer(port, {
@@ -571,7 +571,7 @@ describeLive("gateway live (ACP bind)", () => {
       pinActivePluginChannelRegistry(channelRegistry);
 
       try {
-        const { mainAssistantTexts, spawnedSessionKey } = await bindConversationAndWait({
+        const { mainZhushouTexts, spawnedSessionKey } = await bindConversationAndWait({
           client,
           sessionKey: originalSessionKey,
           liveAgent,
@@ -580,12 +580,12 @@ describeLive("gateway live (ACP bind)", () => {
           originatingAccountId: accountId,
         });
         logLiveStep("bind command completed");
-        expect(mainAssistantTexts.join("\n\n")).toContain("Bound this conversation to");
+        expect(mainZhushouTexts.join("\n\n")).toContain("Bound this conversation to");
         expect(spawnedSessionKey).toMatch(new RegExp(`^agent:${liveAgent}:acp:`));
         logLiveStep(`binding announced for session ${spawnedSessionKey ?? "missing"}`);
 
         const followupToken = `ACP-BIND-${followupNonce}`;
-        let firstBoundHistory: Awaited<ReturnType<typeof waitForAssistantText>> | null = null;
+        let firstBoundHistory: Awaited<ReturnType<typeof waitForZhushouText>> | null = null;
         for (let attempt = 0; attempt < 3 && !firstBoundHistory; attempt += 1) {
           await sendChatAndWait({
             client,
@@ -598,7 +598,7 @@ describeLive("gateway live (ACP bind)", () => {
           });
           logLiveStep(`follow-up turn completed (attempt ${String(attempt + 1)})`);
           try {
-            firstBoundHistory = await waitForAssistantText({
+            firstBoundHistory = await waitForZhushouText({
               client,
               sessionKey: spawnedSessionKey,
               contains: followupToken,
@@ -614,10 +614,10 @@ describeLive("gateway live (ACP bind)", () => {
         if (!firstBoundHistory) {
           throw new Error(`bound follow-up token missing after retries (${followupToken})`);
         }
-        const firstAssistantCount = extractAssistantTexts(firstBoundHistory.messages).length;
+        const firstZhushouCount = extractZhushouTexts(firstBoundHistory.messages).length;
 
-        let recallHistory: Awaited<ReturnType<typeof waitForAssistantText>> | null = null;
-        const expectedRecallAssistantCount = firstAssistantCount + 1;
+        let recallHistory: Awaited<ReturnType<typeof waitForZhushouText>> | null = null;
+        const expectedRecallZhushouCount = firstZhushouCount + 1;
         for (let attempt = 0; attempt < 3 && !recallHistory; attempt += 1) {
           await sendChatAndWait({
             client,
@@ -631,11 +631,11 @@ describeLive("gateway live (ACP bind)", () => {
           logLiveStep(`memory recall turn completed (attempt ${String(attempt + 1)})`);
 
           try {
-            recallHistory = await waitForAssistantText({
+            recallHistory = await waitForZhushouText({
               client,
               sessionKey: spawnedSessionKey,
               contains: followupToken,
-              minAssistantCount: expectedRecallAssistantCount,
+              minZhushouCount: expectedRecallZhushouCount,
               timeoutMs: 60_000,
             });
           } catch (error) {
@@ -650,16 +650,16 @@ describeLive("gateway live (ACP bind)", () => {
         }
         if (!recallHistory) {
           if (liveAgent === "claude") {
-            const recallTurn = await waitForAssistantTurn({
+            const recallTurn = await waitForZhushouTurn({
               client,
               sessionKey: spawnedSessionKey,
-              minAssistantCount: expectedRecallAssistantCount,
+              minZhushouCount: expectedRecallZhushouCount,
               timeoutMs: 60_000,
             });
             recallHistory = {
               messages: recallTurn.messages,
-              lastAssistantText: recallTurn.lastAssistantText,
-              matchedAssistantText: recallTurn.lastAssistantText,
+              lastZhushouText: recallTurn.lastZhushouText,
+              matchedZhushouText: recallTurn.lastZhushouText,
             };
             logLiveStep(
               "bound memory recall response did not repeat token; using turn progression",
@@ -674,14 +674,14 @@ describeLive("gateway live (ACP bind)", () => {
             );
           }
         }
-        const recallAssistantText = recallHistory.matchedAssistantText;
+        const recallZhushouText = recallHistory.matchedZhushouText;
         if (liveAgent === "claude") {
-          expect(recallAssistantText).toContain(followupToken);
+          expect(recallZhushouText).toContain(followupToken);
         }
         logLiveStep("bound session transcript retained the previous token");
-        const recallAssistantCount = extractAssistantTexts(recallHistory.messages).length;
+        const recallZhushouCount = extractZhushouTexts(recallHistory.messages).length;
 
-        let boundHistory: Awaited<ReturnType<typeof waitForAssistantText>> | null = null;
+        let boundHistory: Awaited<ReturnType<typeof waitForZhushouText>> | null = null;
         for (let attempt = 0; attempt < 3 && !boundHistory; attempt += 1) {
           await sendChatAndWait({
             client,
@@ -694,11 +694,11 @@ describeLive("gateway live (ACP bind)", () => {
           });
           logLiveStep(`memory marker turn completed (attempt ${String(attempt + 1)})`);
           try {
-            boundHistory = await waitForAssistantText({
+            boundHistory = await waitForZhushouText({
               client,
               sessionKey: spawnedSessionKey,
               contains: `ACP-BIND-MEMORY-${memoryNonce}`,
-              minAssistantCount: recallAssistantCount + 1,
+              minZhushouCount: recallZhushouCount + 1,
             });
           } catch (error) {
             if (attempt === 2) {
@@ -712,13 +712,13 @@ describeLive("gateway live (ACP bind)", () => {
             `timed out waiting for bound marker token ACP-BIND-MEMORY-${memoryNonce}`,
           );
         }
-        const assistantTexts = extractAssistantTexts(boundHistory.messages);
-        expect(assistantTexts.join("\n\n")).toContain(followupToken);
-        expect(boundHistory.matchedAssistantText).toContain(`ACP-BIND-MEMORY-${memoryNonce}`);
+        const zhushouTexts = extractZhushouTexts(boundHistory.messages);
+        expect(zhushouTexts.join("\n\n")).toContain(followupToken);
+        expect(boundHistory.matchedZhushouText).toContain(`ACP-BIND-MEMORY-${memoryNonce}`);
         logLiveStep("bound session transcript contains the final marker token");
 
-        const markerAssistantCount = assistantTexts.length;
-        let imageHistory: Awaited<ReturnType<typeof waitForAssistantTurn>> | null = null;
+        const markerZhushouCount = zhushouTexts.length;
+        let imageHistory: Awaited<ReturnType<typeof waitForZhushouTurn>> | null = null;
         for (let attempt = 0; attempt < 2 && !imageHistory; attempt += 1) {
           await sendChatAndWait({
             client,
@@ -741,10 +741,10 @@ describeLive("gateway live (ACP bind)", () => {
           logLiveStep(`image turn completed (attempt ${String(attempt + 1)})`);
 
           try {
-            imageHistory = await waitForAssistantTurn({
+            imageHistory = await waitForZhushouTurn({
               client,
               sessionKey: spawnedSessionKey,
-              minAssistantCount: markerAssistantCount + 1,
+              minZhushouCount: markerZhushouCount + 1,
               timeoutMs: liveAgent === "claude" ? 60_000 : 45_000,
             });
           } catch (error) {
@@ -761,16 +761,16 @@ describeLive("gateway live (ACP bind)", () => {
           }
         }
         if (imageHistory) {
-          assertLiveImageProbeReply(imageHistory.lastAssistantText);
+          assertLiveImageProbeReply(imageHistory.lastZhushouText);
           logLiveStep("bound session classified the probe image");
         }
 
-        const imageAssistantCount = imageHistory
-          ? extractAssistantTexts(imageHistory.messages).length
-          : markerAssistantCount;
+        const imageZhushouCount = imageHistory
+          ? extractZhushouTexts(imageHistory.messages).length
+          : markerZhushouCount;
         const cronProbe = createLiveCronProbeSpec();
         let cronJobId: string | undefined;
-        let lastCronAssistantText = "";
+        let lastCronZhushouText = "";
         for (let attempt = 0; attempt < 2; attempt += 1) {
           await sendChatAndWait({
             client,
@@ -788,28 +788,28 @@ describeLive("gateway live (ACP bind)", () => {
           });
           logLiveStep(`cron mcp turn completed (attempt ${String(attempt + 1)})`);
 
-          let cronHistory: Awaited<ReturnType<typeof waitForAssistantTurn>> | null = null;
+          let cronHistory: Awaited<ReturnType<typeof waitForZhushouTurn>> | null = null;
           if (liveAgent === "claude") {
-            cronHistory = await waitForAssistantTurn({
+            cronHistory = await waitForZhushouTurn({
               client,
               sessionKey: spawnedSessionKey,
-              minAssistantCount: imageAssistantCount + 1,
+              minZhushouCount: imageZhushouCount + 1,
               timeoutMs: 90_000,
             });
           } else {
             try {
-              cronHistory = await waitForAssistantTurn({
+              cronHistory = await waitForZhushouTurn({
                 client,
                 sessionKey: spawnedSessionKey,
-                minAssistantCount: imageAssistantCount + 1,
+                minZhushouCount: imageZhushouCount + 1,
                 timeoutMs: 45_000,
               });
             } catch {
-              logLiveStep("cron assistant reply not observed yet; relying on CLI verification");
+              logLiveStep("cron zhushou reply not observed yet; relying on CLI verification");
             }
           }
           if (cronHistory) {
-            lastCronAssistantText = cronHistory.lastAssistantText;
+            lastCronZhushouText = cronHistory.lastZhushouText;
           }
           const createdJob = await assertCronJobVisibleViaCli({
             port,
@@ -828,14 +828,14 @@ describeLive("gateway live (ACP bind)", () => {
             });
             cronJobId = createdJob.id;
             if (cronHistory) {
-              expect(cronHistory.lastAssistantText.trim().length).toBeGreaterThan(0);
+              expect(cronHistory.lastZhushouText.trim().length).toBeGreaterThan(0);
             }
             break;
           }
           if (attempt === 1) {
             throw new Error(
               `acp cron cli verify could not find job ${cronProbe.name}: reply=${JSON.stringify(
-                lastCronAssistantText,
+                lastCronZhushouText,
               )}`,
             );
           }
@@ -843,7 +843,7 @@ describeLive("gateway live (ACP bind)", () => {
         if (!cronJobId) {
           throw new Error(`acp cron cli verify did not create job ${cronProbe.name}`);
         }
-        await runAssistantCliJson(
+        await runZhushouCliJson(
           ["cron", "rm", cronJobId, "--json", "--url", `ws://127.0.0.1:${port}`, "--token", token],
           process.env,
         );
@@ -855,44 +855,44 @@ describeLive("gateway live (ACP bind)", () => {
         await server.close();
         await fs.rm(tempRoot, { recursive: true, force: true });
         if (previous.configPath === undefined) {
-          delete process.env.ASSISTANT_CONFIG_PATH;
+          delete process.env.ZHUSHOU_CONFIG_PATH;
         } else {
-          process.env.ASSISTANT_CONFIG_PATH = previous.configPath;
+          process.env.ZHUSHOU_CONFIG_PATH = previous.configPath;
         }
         if (previous.stateDir === undefined) {
-          delete process.env.ASSISTANT_STATE_DIR;
+          delete process.env.ZHUSHOU_STATE_DIR;
         } else {
-          process.env.ASSISTANT_STATE_DIR = previous.stateDir;
+          process.env.ZHUSHOU_STATE_DIR = previous.stateDir;
         }
         if (previous.token === undefined) {
-          delete process.env.ASSISTANT_GATEWAY_TOKEN;
+          delete process.env.ZHUSHOU_GATEWAY_TOKEN;
         } else {
-          process.env.ASSISTANT_GATEWAY_TOKEN = previous.token;
+          process.env.ZHUSHOU_GATEWAY_TOKEN = previous.token;
         }
         if (previous.port === undefined) {
-          delete process.env.ASSISTANT_GATEWAY_PORT;
+          delete process.env.ZHUSHOU_GATEWAY_PORT;
         } else {
-          process.env.ASSISTANT_GATEWAY_PORT = previous.port;
+          process.env.ZHUSHOU_GATEWAY_PORT = previous.port;
         }
         if (previous.skipChannels === undefined) {
-          delete process.env.ASSISTANT_SKIP_CHANNELS;
+          delete process.env.ZHUSHOU_SKIP_CHANNELS;
         } else {
-          process.env.ASSISTANT_SKIP_CHANNELS = previous.skipChannels;
+          process.env.ZHUSHOU_SKIP_CHANNELS = previous.skipChannels;
         }
         if (previous.skipGmail === undefined) {
-          delete process.env.ASSISTANT_SKIP_GMAIL_WATCHER;
+          delete process.env.ZHUSHOU_SKIP_GMAIL_WATCHER;
         } else {
-          process.env.ASSISTANT_SKIP_GMAIL_WATCHER = previous.skipGmail;
+          process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = previous.skipGmail;
         }
         if (previous.skipCron === undefined) {
-          delete process.env.ASSISTANT_SKIP_CRON;
+          delete process.env.ZHUSHOU_SKIP_CRON;
         } else {
-          process.env.ASSISTANT_SKIP_CRON = previous.skipCron;
+          process.env.ZHUSHOU_SKIP_CRON = previous.skipCron;
         }
         if (previous.skipCanvas === undefined) {
-          delete process.env.ASSISTANT_SKIP_CANVAS_HOST;
+          delete process.env.ZHUSHOU_SKIP_CANVAS_HOST;
         } else {
-          process.env.ASSISTANT_SKIP_CANVAS_HOST = previous.skipCanvas;
+          process.env.ZHUSHOU_SKIP_CANVAS_HOST = previous.skipCanvas;
         }
       }
     },

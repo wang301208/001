@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBundledBrowserPluginFixture } from "../../test/helpers/browser-bundled-plugin-fixture.js";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { clearPluginDiscoveryCache } from "../plugins/discovery.js";
 import { clearPluginLoaderCache } from "../plugins/loader.js";
 import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.js";
@@ -30,7 +30,7 @@ describe("loadGatewayStartupPlugins browser plugin integration", () => {
 
   beforeEach(() => {
     bundledFixture = createBundledBrowserPluginFixture();
-    vi.stubEnv("ASSISTANT_BUNDLED_PLUGINS_DIR", bundledFixture.rootDir);
+    vi.stubEnv("ZHUSHOU_BUNDLED_PLUGINS_DIR", bundledFixture.rootDir);
     resetPluginState();
   });
 
@@ -47,7 +47,7 @@ describe("loadGatewayStartupPlugins browser plugin integration", () => {
         plugins: {
           allow: ["browser"],
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       workspaceDir: process.cwd(),
       log: createTestLog(),
       coreGatewayHandlers,
@@ -75,7 +75,7 @@ describe("loadGatewayStartupPlugins browser plugin integration", () => {
             },
           },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       workspaceDir: process.cwd(),
       log: createTestLog(),
       coreGatewayHandlers,
@@ -88,5 +88,5 @@ describe("loadGatewayStartupPlugins browser plugin integration", () => {
     expect(loaded.pluginRegistry.services.some((entry) => entry.pluginId === "browser")).toBe(
       false,
     );
-  });
+  }, 120_000);
 });

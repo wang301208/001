@@ -16,7 +16,7 @@ import {
 } from "./test-helpers/console-snapshot.js";
 
 let snapshot: ConsoleSnapshot;
-const logPathTracker = createSuiteLogPathTracker("assistant-log-");
+const logPathTracker = createSuiteLogPathTracker("zhushou-log-");
 
 beforeAll(async () => {
   await logPathTracker.setup();

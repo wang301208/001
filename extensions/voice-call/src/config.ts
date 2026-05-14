@@ -1,4 +1,4 @@
-import { z } from "assistant/plugin-sdk/zod";
+import { z } from "zhushou/plugin-sdk/zod";
 import { TtsAutoSchema, TtsConfigSchema, TtsModeSchema, TtsProviderSchema } from "../api.js";
 import { deepMergeDefined } from "./deep-merge.js";
 

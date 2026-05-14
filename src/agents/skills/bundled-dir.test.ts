@@ -11,24 +11,24 @@ describe("resolveBundledSkillsDir", () => {
   let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
-    envSnapshot = captureEnv(["ASSISTANT_BUNDLED_SKILLS_DIR"]);
+    envSnapshot = captureEnv(["ZHUSHOU_BUNDLED_SKILLS_DIR"]);
   });
 
   afterEach(() => {
     envSnapshot.restore();
   });
 
-  it("returns ASSISTANT_BUNDLED_SKILLS_DIR override when set", async () => {
-    const overrideDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-bundled-override-"));
-    process.env.ASSISTANT_BUNDLED_SKILLS_DIR = ` ${overrideDir} `;
+  it("returns ZHUSHOU_BUNDLED_SKILLS_DIR override when set", async () => {
+    const overrideDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-bundled-override-"));
+    process.env.ZHUSHOU_BUNDLED_SKILLS_DIR = ` ${overrideDir} `;
     expect(resolveBundledSkillsDir()).toBe(overrideDir);
   });
 
   it("resolves bundled skills under a flattened dist layout", async () => {
-    delete process.env.ASSISTANT_BUNDLED_SKILLS_DIR;
+    delete process.env.ZHUSHOU_BUNDLED_SKILLS_DIR;
 
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-bundled-"));
-    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "assistant" }));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-bundled-"));
+    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "zhushou" }));
 
     await writeSkill({
       dir: path.join(root, "skills", "peekaboo"),
@@ -56,10 +56,10 @@ describe("resolveBundledSkillsDir", () => {
   });
 
   it("resolves bundled skills when skill directories only contain executable assets", async () => {
-    delete process.env.ASSISTANT_BUNDLED_SKILLS_DIR;
+    delete process.env.ZHUSHOU_BUNDLED_SKILLS_DIR;
 
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-bundled-script-"));
-    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "assistant" }));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-bundled-script-"));
+    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "zhushou" }));
     const scriptDir = path.join(root, "skills", "script-backed-skill", "scripts");
     await fs.mkdir(scriptDir, { recursive: true });
     await fs.writeFile(path.join(scriptDir, "run.py"), "print('ok')\n", "utf-8");

@@ -104,12 +104,12 @@ describe("before_agent_start hook merger", () => {
     [
       "systemPrompt merges correctly alongside model overrides",
       {
-        systemPrompt: "You are a helpful assistant",
+        systemPrompt: "You are a helpful zhushou",
         modelOverride: "llama3.3:8b",
         providerOverride: "ollama",
       },
       {
-        systemPrompt: "You are a helpful assistant",
+        systemPrompt: "You are a helpful zhushou",
         modelOverride: "llama3.3:8b",
         providerOverride: "ollama",
       },

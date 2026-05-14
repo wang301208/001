@@ -8,10 +8,10 @@ import { installProcessWarningFilter } from "./process-warning-filter.mjs";
 
 installProcessWarningFilter();
 
-process.env.ASSISTANT_DISABLE_BUNDLED_ENTRY_SOURCE_FALLBACK ??= "1";
+process.env.ZHUSHOU_DISABLE_BUNDLED_ENTRY_SOURCE_FALLBACK ??= "1";
 
 function parseArgs(argv) {
-  let packageRoot = process.env.ASSISTANT_BUNDLED_CHANNEL_SMOKE_ROOT;
+  let packageRoot = process.env.ZHUSHOU_BUNDLED_CHANNEL_SMOKE_ROOT;
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--package-root") {
@@ -34,10 +34,10 @@ function parseArgs(argv) {
 
 const { packageRoot } = parseArgs(process.argv.slice(2));
 const distExtensionsRoot = path.join(packageRoot, "dist", "extensions");
-const installedLayoutEnv = "ASSISTANT_BUNDLED_CHANNEL_SMOKE_INSTALLED_LAYOUT";
+const installedLayoutEnv = "ZHUSHOU_BUNDLED_CHANNEL_SMOKE_INSTALLED_LAYOUT";
 
 function packageRootLooksInstalled(root) {
-  return root.replaceAll("\\", "/").endsWith("/node_modules/assistant");
+  return root.replaceAll("\\", "/").endsWith("/node_modules/zhushou");
 }
 
 function smokeInInstalledLayoutIfNeeded() {
@@ -45,9 +45,9 @@ function smokeInInstalledLayoutIfNeeded() {
     return;
   }
 
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-channel-entry-smoke-"));
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-channel-entry-smoke-"));
   const nodeModulesRoot = path.join(tempRoot, "node_modules");
-  const installedPackageRoot = path.join(nodeModulesRoot, "assistant");
+  const installedPackageRoot = path.join(nodeModulesRoot, "zhushou");
   fs.mkdirSync(nodeModulesRoot, { recursive: true });
   fs.symlinkSync(packageRoot, installedPackageRoot, "dir");
 
@@ -97,13 +97,13 @@ function collectBundledChannelEntryFiles() {
       continue;
     }
     const packageJson = readJson(packageJsonPath);
-    if (!packageJson.assistant?.channel) {
+    if (!packageJson.zhushou?.channel) {
       continue;
     }
 
     const extensionEntries =
-      Array.isArray(packageJson.assistant.extensions) && packageJson.assistant.extensions.length > 0
-        ? packageJson.assistant.extensions
+      Array.isArray(packageJson.zhushou.extensions) && packageJson.zhushou.extensions.length > 0
+        ? packageJson.zhushou.extensions
         : ["./index.ts"];
     for (const entry of extensionEntries) {
       if (typeof entry !== "string" || entry.trim().length === 0) {
@@ -116,7 +116,7 @@ function collectBundledChannelEntryFiles() {
       });
     }
 
-    const setupEntry = packageJson.assistant.setupEntry;
+    const setupEntry = packageJson.zhushou.setupEntry;
     if (typeof setupEntry === "string" && setupEntry.trim().length > 0) {
       files.push({
         id: dirent.name,

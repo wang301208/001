@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import {
   buildAccountScopedDmSecurityPolicy,
   formatPairingApproveHint,
   parseOptionalDelimitedEntries,
 } from "./helpers.js";
 
-function cfgWithChannel(channelKey: string, accounts?: Record<string, unknown>): AssistantConfig {
+function cfgWithChannel(channelKey: string, accounts?: Record<string, unknown>): ZhushouConfig {
   return {
     channels: {
       [channelKey]: accounts ? { accounts } : {},
     },
-  } as unknown as AssistantConfig;
+  } as unknown as ZhushouConfig;
 }
 
 describe("buildAccountScopedDmSecurityPolicy", () => {
@@ -83,14 +83,14 @@ describe("buildAccountScopedDmSecurityPolicy", () => {
         allowFrom: ["user-1"],
         defaultPolicy: "allowlist",
         policyPathSuffix: "dmPolicy",
-        approveHint: "assistant pairing approve demo-default <code>",
+        approveHint: "zhushou pairing approve demo-default <code>",
       },
       expected: {
         policy: "allowlist",
         allowFrom: ["user-1"],
         policyPath: "channels.demo-default.dmPolicy",
         allowFromPath: "channels.demo-default.",
-        approveHint: "assistant pairing approve demo-default <code>",
+        approveHint: "zhushou pairing approve demo-default <code>",
         normalizeEntry: undefined,
       },
     },

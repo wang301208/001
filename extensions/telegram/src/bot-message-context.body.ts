@@ -6,29 +6,29 @@ import {
   matchesMentionWithExplicit,
   resolveInboundMentionDecision,
   type NormalizedLocation,
-} from "assistant/plugin-sdk/channel-inbound";
-import { resolveControlCommandGate } from "assistant/plugin-sdk/command-auth-native";
-import { hasControlCommand } from "assistant/plugin-sdk/command-detection";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { resolveControlCommandGate } from "zhushou/plugin-sdk/command-auth-native";
+import { hasControlCommand } from "zhushou/plugin-sdk/command-detection";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import type {
   TelegramDirectConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
-} from "assistant/plugin-sdk/config-runtime";
-import { resolveChannelGroupPolicy } from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
+import { resolveChannelGroupPolicy } from "zhushou/plugin-sdk/config-runtime";
 import {
   createInternalHookEvent,
   fireAndForgetHook,
   toInternalMessageReceivedContext,
   triggerInternalHook,
-} from "assistant/plugin-sdk/hook-runtime";
+} from "zhushou/plugin-sdk/hook-runtime";
 import {
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "assistant/plugin-sdk/reply-history";
-import type { MsgContext } from "assistant/plugin-sdk/reply-runtime";
-import { logVerbose } from "assistant/plugin-sdk/runtime-env";
-import { normalizeOptionalLowercaseString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/reply-history";
+import type { MsgContext } from "zhushou/plugin-sdk/reply-runtime";
+import { logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeOptionalLowercaseString } from "zhushou/plugin-sdk/text-runtime";
 import type { NormalizedAllowFrom } from "./bot-access.js";
 import { isSenderAllowed } from "./bot-access.js";
 import type {
@@ -62,7 +62,7 @@ export type TelegramInboundBodyResult = {
 };
 
 async function resolveStickerVisionSupport(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId?: string;
 }): Promise<boolean> {
   try {
@@ -74,7 +74,7 @@ async function resolveStickerVisionSupport(params: {
 }
 
 export async function resolveTelegramInboundBody(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   primaryCtx: TelegramContext;
   msg: TelegramContext["message"];
   allMedia: TelegramMediaRef[];

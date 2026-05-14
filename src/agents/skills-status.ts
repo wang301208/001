@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { evaluateEntryRequirementsForCurrentPlatform } from "../shared/entry-status.js";
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import { CONFIG_DIR } from "../utils.js";
@@ -169,7 +169,7 @@ function normalizeInstallOptions(
 
 function buildSkillStatus(
   entry: SkillEntry,
-  config?: AssistantConfig,
+  config?: ZhushouConfig,
   prefs?: SkillsInstallPreferences,
   eligibility?: SkillEligibilityContext,
   bundledNames?: Set<string>,
@@ -189,7 +189,7 @@ function buildSkillStatus(
   const isConfigSatisfied = (pathStr: string) => isConfigPathTruthy(config, pathStr);
   const skillSource = resolveSkillSource(entry.skill);
   const bundled =
-    skillSource === "assistant-bundled" ||
+    skillSource === "zhushou-bundled" ||
     (skillSource === "unknown" && bundledNames?.has(entry.skill.name) === true);
 
   const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
@@ -228,7 +228,7 @@ function buildSkillStatus(
 export function buildWorkspaceSkillStatus(
   workspaceDir: string,
   opts?: {
-    config?: AssistantConfig;
+    config?: ZhushouConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
     entries?: SkillEntry[];

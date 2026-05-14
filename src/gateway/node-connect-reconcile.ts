@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type {
   NodePairingPairedNode,
   NodePairingPendingRequest,
@@ -52,7 +52,7 @@ function buildNodePairingRequestInput(params: {
 }
 
 export async function reconcileNodePairingOnConnect(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   connectParams: ConnectParams;
   pairedNode: NodePairingPairedNode | null;
   reportedClientIp?: string;

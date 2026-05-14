@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { installProcessWarningFilter, shouldIgnoreWarning } from "./warning-filter.js";
 
-const warningFilterKey = Symbol.for("assistant.warning-filter");
+const warningFilterKey = Symbol.for("zhushou.warning-filter");
 const baseEmitWarning = process.emitWarning.bind(process);
 
 function resetWarningFilterInstallState(): void {
@@ -118,17 +118,17 @@ describe("warning filter", () => {
         ),
       ).toBeUndefined();
 
-      emitWarning("Visible warning", { type: "Warning", code: "ASSISTANT_TEST_WARNING" });
+      emitWarning("Visible warning", { type: "Warning", code: "ZHUSHOU_TEST_WARNING" });
       emitWarning(
         Object.assign(new Error("The punycode module is deprecated."), {
           name: "DeprecationWarning",
           code: "DEP0040",
         }),
-        { type: "Warning", code: "ASSISTANT_VISIBLE_OVERRIDE" },
+        { type: "Warning", code: "ZHUSHOU_VISIBLE_OVERRIDE" },
       );
       await flushWarnings();
       expect(
-        seenWarnings.find((warning) => warning.code === "ASSISTANT_TEST_WARNING"),
+        seenWarnings.find((warning) => warning.code === "ZHUSHOU_TEST_WARNING"),
       ).toBeDefined();
       expect(
         seenWarnings.find((warning) => warning.message === "The punycode module is deprecated."),

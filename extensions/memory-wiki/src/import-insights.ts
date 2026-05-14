@@ -13,10 +13,10 @@ export type MemoryWikiImportInsightItem = {
   digestStatus: "available" | "withheld";
   activeBranchMessages: number;
   userMessageCount: number;
-  assistantMessageCount: number;
+  zhushouMessageCount: number;
   firstUserLine?: string;
   lastUserLine?: string;
-  assistantOpener?: string;
+  zhushouOpener?: string;
   summary: string;
   candidateSignals: string[];
   correctionSignals: string[];
@@ -181,7 +181,7 @@ function parseTranscriptTurns(body: string): TranscriptTurn[] {
       currentRole = "user";
       continue;
     }
-    if (line.trim() === "### Assistant") {
+    if (line.trim() === "### Zhushou") {
       flush();
       currentRole = "assistant";
       continue;
@@ -258,7 +258,7 @@ function deriveCandidateSignals(params: {
 function deriveSummary(params: {
   title: string;
   digestStatus: "available" | "withheld";
-  assistantOpener?: string;
+  zhushouOpener?: string;
   firstUserLine?: string;
   riskReasons: string[];
   topicLabel: string;
@@ -269,8 +269,8 @@ function deriveSummary(params: {
     }
     return `Sensitive ${params.topicLabel.toLowerCase()} chat withheld from durable-memory extraction pending review.`;
   }
-  if (params.assistantOpener) {
-    return shortenSentence(params.assistantOpener, 180);
+  if (params.zhushouOpener) {
+    return shortenSentence(params.zhushouOpener, 180);
   }
   if (params.firstUserLine) {
     return shortenSentence(params.firstUserLine, 180);
@@ -326,9 +326,9 @@ export async function listMemoryWikiImportInsights(
         : "available";
       const exposeImportContent = shouldExposeImportContent(digestStatus);
       const userTurns = transcriptTurns.filter((turn) => turn.role === "user");
-      const assistantTurns = transcriptTurns.filter((turn) => turn.role === "assistant");
-      const assistantOpener = exposeImportContent
-        ? firstParagraph(assistantTurns[0]?.text ?? "")
+      const zhushouTurns = transcriptTurns.filter((turn) => turn.role === "assistant");
+      const zhushouOpener = exposeImportContent
+        ? firstParagraph(zhushouTurns[0]?.text ?? "")
         : undefined;
       const correctionSignals = exposeImportContent
         ? extractCorrectionSignals(transcriptTurns)
@@ -361,17 +361,17 @@ export async function listMemoryWikiImportInsights(
             extractIntegerField(digestLines, "User messages"),
             userTurns.length,
           ),
-          assistantMessageCount: Math.max(
-            extractIntegerField(digestLines, "Assistant messages"),
-            assistantTurns.length,
+          zhushouMessageCount: Math.max(
+            extractIntegerField(digestLines, "Zhushou messages"),
+            zhushouTurns.length,
           ),
           ...(firstUserLine ? { firstUserLine } : {}),
           ...(lastUserLine ? { lastUserLine } : {}),
-          ...(assistantOpener ? { assistantOpener } : {}),
+          ...(zhushouOpener ? { zhushouOpener } : {}),
           summary: deriveSummary({
             title: page.title.replace(/^ChatGPT Export:\s*/i, ""),
             digestStatus,
-            ...(assistantOpener ? { assistantOpener } : {}),
+            ...(zhushouOpener ? { zhushouOpener } : {}),
             ...(firstUserLine ? { firstUserLine } : {}),
             riskReasons: normalizeStringArray(parsed.frontmatter.riskReasons),
             topicLabel: topic.label,

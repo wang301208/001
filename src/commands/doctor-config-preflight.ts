@@ -1,12 +1,12 @@
 import { readConfigFileSnapshot } from "../config/io.js";
 import { formatConfigIssueLines } from "../config/issue-format.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { note } from "../terminal/note.js";
 import { noteIncludeConfinementWarning } from "./doctor-config-analysis.js";
 
 export type DoctorConfigPreflightResult = {
   snapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>;
-  baseConfig: AssistantConfig;
+  baseConfig: ZhushouConfig;
 };
 
 export async function runDoctorConfigPreflight(

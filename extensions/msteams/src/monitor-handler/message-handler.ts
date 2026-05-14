@@ -1,5 +1,5 @@
-import { resolveInboundMentionDecision } from "assistant/plugin-sdk/channel-inbound";
-import { resolveThreadSessionKeys } from "assistant/plugin-sdk/routing";
+import { resolveInboundMentionDecision } from "zhushou/plugin-sdk/channel-inbound";
+import { resolveThreadSessionKeys } from "zhushou/plugin-sdk/routing";
 import {
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,

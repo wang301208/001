@@ -5,20 +5,20 @@ describe("buildVitestCapabilityShimAliasMap", () => {
   it("keeps scoped and unscoped capability shim aliases aligned", () => {
     const aliasMap = buildVitestCapabilityShimAliasMap();
 
-    expect(aliasMap["assistant/plugin-sdk/llm-task"]).toBe(
-      aliasMap["@assistant/plugin-sdk/llm-task"],
+    expect(aliasMap["zhushou/plugin-sdk/llm-task"]).toBe(
+      aliasMap["@zhushou/plugin-sdk/llm-task"],
     );
-    expect(aliasMap["assistant/plugin-sdk/config-runtime"]).toBe(
-      aliasMap["@assistant/plugin-sdk/config-runtime"],
+    expect(aliasMap["zhushou/plugin-sdk/config-runtime"]).toBe(
+      aliasMap["@zhushou/plugin-sdk/config-runtime"],
     );
-    expect(aliasMap["assistant/plugin-sdk/media-runtime"]).toBe(
-      aliasMap["@assistant/plugin-sdk/media-runtime"],
+    expect(aliasMap["zhushou/plugin-sdk/media-runtime"]).toBe(
+      aliasMap["@zhushou/plugin-sdk/media-runtime"],
     );
-    expect(aliasMap["assistant/plugin-sdk/provider-onboard"]).toBe(
-      aliasMap["@assistant/plugin-sdk/provider-onboard"],
+    expect(aliasMap["zhushou/plugin-sdk/provider-onboard"]).toBe(
+      aliasMap["@zhushou/plugin-sdk/provider-onboard"],
     );
-    expect(aliasMap["assistant/plugin-sdk/speech-core"]).toBe(
-      aliasMap["@assistant/plugin-sdk/speech-core"],
+    expect(aliasMap["zhushou/plugin-sdk/speech-core"]).toBe(
+      aliasMap["@zhushou/plugin-sdk/speech-core"],
     );
   });
 });

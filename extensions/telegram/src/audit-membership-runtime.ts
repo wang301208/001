@@ -1,6 +1,6 @@
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { isRecord } from "assistant/plugin-sdk/text-runtime";
-import { fetchWithTimeout } from "assistant/plugin-sdk/text-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { isRecord } from "zhushou/plugin-sdk/text-runtime";
+import { fetchWithTimeout } from "zhushou/plugin-sdk/text-runtime";
 import type {
   AuditTelegramGroupMembershipParams,
   TelegramGroupMembershipAudit,

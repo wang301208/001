@@ -6,8 +6,8 @@ import type { TypingController } from "./reply/typing.js";
 export type BlockReplyContext = {
   abortSignal?: AbortSignal;
   timeoutMs?: number;
-  /** Source assistant message index from the upstream stream, when available. */
-  assistantMessageIndex?: number;
+  /** Source zhushou message index from the upstream stream, when available. */
+  zhushouMessageIndex?: number;
 };
 
 /** Context passed to onModelSelected callback with actual model used. */
@@ -59,8 +59,8 @@ export type GetReplyOptions = {
   onReasoningStream?: (payload: ReplyPayload) => Promise<void> | void;
   /** Called when a thinking/reasoning block ends. */
   onReasoningEnd?: () => Promise<void> | void;
-  /** Called when a new assistant message starts (e.g., after tool call or thinking block). */
-  onAssistantMessageStart?: () => Promise<void> | void;
+  /** Called when a new zhushou message starts (e.g., after tool call or thinking block). */
+  onZhushouMessageStart?: () => Promise<void> | void;
   /** Called synchronously when a block reply is logically emitted, before async
    * delivery drains. Useful for channels that need to rotate preview state at
    * block boundaries without waiting for transport acks. */

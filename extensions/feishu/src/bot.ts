@@ -1,25 +1,25 @@
-﻿import { createChannelPairingController } from "assistant/plugin-sdk/channel-pairing";
+﻿import { createChannelPairingController } from "zhushou/plugin-sdk/channel-pairing";
 import {
   ensureConfiguredBindingRouteReady,
   resolveConfiguredBindingRoute,
-} from "assistant/plugin-sdk/conversation-runtime";
-import { getSessionBindingService } from "assistant/plugin-sdk/conversation-runtime";
-import { resolveAgentOutboundIdentity } from "assistant/plugin-sdk/outbound-runtime";
+} from "zhushou/plugin-sdk/conversation-runtime";
+import { getSessionBindingService } from "zhushou/plugin-sdk/conversation-runtime";
+import { resolveAgentOutboundIdentity } from "zhushou/plugin-sdk/outbound-runtime";
 import {
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
   DEFAULT_GROUP_HISTORY_LIMIT,
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
-} from "assistant/plugin-sdk/reply-history";
-import { deriveLastRoutePolicy } from "assistant/plugin-sdk/routing";
-import { resolveAgentIdFromSessionKey } from "assistant/plugin-sdk/routing";
+} from "zhushou/plugin-sdk/reply-history";
+import { deriveLastRoutePolicy } from "zhushou/plugin-sdk/routing";
+import { resolveAgentIdFromSessionKey } from "zhushou/plugin-sdk/routing";
 import {
   resolveDefaultGroupPolicy,
   resolveOpenProviderRuntimeGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "assistant/plugin-sdk/runtime-group-policy";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/runtime-group-policy";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import {
   checkBotMentioned,
@@ -38,7 +38,7 @@ import {
   normalizeAgentId,
   resolveChannelContextVisibilityMode,
 } from "./bot-runtime-api.js";
-import type { AssistantConfig, RuntimeEnv } from "./bot-runtime-api.js";
+import type { ZhushouConfig, RuntimeEnv } from "./bot-runtime-api.js";
 import { type FeishuPermissionError, resolveFeishuSenderName } from "./bot-sender-name.js";
 import { createFeishuClient } from "./client.js";
 import { finalizeFeishuMessageProcessing, tryRecordMessagePersistent } from "./dedup.js";
@@ -69,7 +69,7 @@ const PERMISSION_ERROR_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
 // --- Broadcast support ---
 // Resolve broadcast agent list for a given peer (group) ID.
 // Returns null if no broadcast config exists or the peer is not in the broadcast list.
-export function resolveBroadcastAgents(cfg: AssistantConfig, peerId: string): string[] | null {
+export function resolveBroadcastAgents(cfg: ZhushouConfig, peerId: string): string[] | null {
   const broadcast = (cfg as Record<string, unknown>).broadcast;
   if (!broadcast || typeof broadcast !== "object") {
     return null;
@@ -261,7 +261,7 @@ function filterFetchedGroupContextMessages<
 }
 
 export async function handleFeishuMessage(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   event: FeishuMessageEvent;
   botOpenId?: string;
   botName?: string;

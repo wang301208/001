@@ -1,13 +1,13 @@
-import { resolveControlCommandGate } from "assistant/plugin-sdk/command-gating";
+import { resolveControlCommandGate } from "zhushou/plugin-sdk/command-gating";
 import {
   evaluateSupplementalContextVisibility,
   resolveChannelContextVisibilityMode,
-} from "assistant/plugin-sdk/context-visibility-runtime";
+} from "zhushou/plugin-sdk/context-visibility-runtime";
 import {
   loadSessionStore,
   resolveSessionStoreEntry,
-} from "assistant/plugin-sdk/session-store-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/string-coerce-runtime";
+} from "zhushou/plugin-sdk/session-store-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/string-coerce-runtime";
 import type {
   CoreConfig,
   MatrixRoomConfig,
@@ -31,7 +31,7 @@ import {
   parsePollStartContent,
 } from "../poll-types.js";
 import type { LocationMessageEventContent, MatrixClient } from "../sdk.js";
-import { MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY } from "../send/types.js";
+import { MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY } from "../send/types.js";
 import { resolveMatrixStoredSessionMeta } from "../session-store-metadata.js";
 import { resolveMatrixMonitorAccessState } from "./access-state.js";
 import { resolveMatrixAckReactionConfig } from "./ack-config.js";
@@ -73,10 +73,10 @@ const ALLOW_FROM_STORE_CACHE_TTL_MS = 30_000;
 const PAIRING_REPLY_COOLDOWN_MS = 5 * 60_000;
 let matrixSendModulePromise: Promise<typeof import("../send.js")> | undefined;
 let acpBindingRuntimePromise:
-  | Promise<typeof import("assistant/plugin-sdk/acp-binding-runtime")>
+  | Promise<typeof import("zhushou/plugin-sdk/acp-binding-runtime")>
   | undefined;
 let sessionBindingRuntimePromise:
-  | Promise<typeof import("assistant/plugin-sdk/session-binding-runtime")>
+  | Promise<typeof import("zhushou/plugin-sdk/session-binding-runtime")>
   | undefined;
 
 function loadMatrixSendModule(): Promise<typeof import("../send.js")> {
@@ -85,16 +85,16 @@ function loadMatrixSendModule(): Promise<typeof import("../send.js")> {
 }
 
 function loadAcpBindingRuntime(): Promise<
-  typeof import("assistant/plugin-sdk/acp-binding-runtime")
+  typeof import("zhushou/plugin-sdk/acp-binding-runtime")
 > {
-  acpBindingRuntimePromise ??= import("assistant/plugin-sdk/acp-binding-runtime");
+  acpBindingRuntimePromise ??= import("zhushou/plugin-sdk/acp-binding-runtime");
   return acpBindingRuntimePromise;
 }
 
 function loadSessionBindingRuntime(): Promise<
-  typeof import("assistant/plugin-sdk/session-binding-runtime")
+  typeof import("zhushou/plugin-sdk/session-binding-runtime")
 > {
-  sessionBindingRuntimePromise ??= import("assistant/plugin-sdk/session-binding-runtime");
+  sessionBindingRuntimePromise ??= import("zhushou/plugin-sdk/session-binding-runtime");
   return sessionBindingRuntimePromise;
 }
 const MAX_TRACKED_PAIRING_REPLY_SENDERS = 512;
@@ -126,7 +126,7 @@ async function redactMatrixDraftEvent(
 }
 
 function buildMatrixFinalizedPreviewContent(): Record<string, unknown> {
-  return { [MATRIX_ASSISTANT_FINALIZED_PREVIEW_KEY]: true };
+  return { [MATRIX_ZHUSHOU_FINALIZED_PREVIEW_KEY]: true };
 }
 
 export type MatrixMonitorHandlerParams = {
@@ -1416,7 +1416,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
 
       const queueDraftBlockBoundary = (payload: ReplyPayload, context?: BlockReplyContext) => {
         const payloadTextLength = payload.text?.length ?? 0;
-        const messageGeneration = context?.assistantMessageIndex ?? currentDraftMessageGeneration;
+        const messageGeneration = context?.zhushouMessageIndex ?? currentDraftMessageGeneration;
         const lastQueuedDraftBoundaryOffset =
           latestQueuedDraftBoundaryOffsets.get(messageGeneration) ?? 0;
         // Logical block boundaries must follow emitted block text, not whichever
@@ -1667,7 +1667,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
                 skillFilter: roomConfig?.skills,
                 // Keep block streaming enabled when explicitly requested, even
                 // with draft previews on. The draft remains the live preview
-                // for the current assistant block, while block deliveries
+                // for the current zhushou block, while block deliveries
                 // finalize completed blocks into their own preserved events.
                 disableBlockStreaming: !blockStreamingEnabled,
                 onPartialReply: draftStream
@@ -1684,10 +1684,10 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
                       queueDraftBlockBoundary(payload, context);
                     }
                   : undefined,
-                // Reset draft boundary bookkeeping on assistant message
+                // Reset draft boundary bookkeeping on zhushou message
                 // boundaries so post-tool blocks stream from a fresh
                 // cumulative payload (payload.text resets upstream).
-                onAssistantMessageStart: draftStream
+                onZhushouMessageStart: draftStream
                   ? () => {
                       resetDraftBlockOffsets();
                     }

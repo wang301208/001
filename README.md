@@ -15,7 +15,7 @@ pnpm quickstart:smoke
 初始化配置：
 
 ```bash
-assistant onboard --flow quickstart
+zhushou onboard --flow quickstart
 ```
 
 如果从源码仓库运行，也可以使用：
@@ -27,13 +27,13 @@ pnpm start -- onboard --flow quickstart
 开始第一次对话：
 
 ```bash
-assistant tui
+zhushou tui
 ```
 
 或直接发送第一条消息：
 
 ```bash
-assistant tui --message "你好，介绍一下你能做什么"
+zhushou tui --message "你好，介绍一下你能做什么"
 ```
 
 源码运行等价命令：
@@ -45,14 +45,14 @@ pnpm start -- tui --message "你好，介绍一下你能做什么"
 ## 常用命令
 
 ```bash
-assistant --help
-assistant onboard --flow quickstart
-assistant configure
-assistant models status
-assistant models list --all
-assistant tui
-assistant sessions
-assistant doctor
+zhushou --help
+zhushou onboard --flow quickstart
+zhushou configure
+zhushou models status
+zhushou models list --all
+zhushou tui
+zhushou sessions
+zhushou doctor
 ```
 
 ## 文档
@@ -64,11 +64,11 @@ assistant doctor
 
 ## 配置位置
 
-默认状态目录是 `~/.assistant`，默认配置文件是 `~/.assistant/assistant.json`。
+默认状态目录是 `~/.zhushou`，默认配置文件是 `~/.wang301208/zhushou.json`。
 
 可用环境变量覆盖：
 
 ```bash
-ASSISTANT_STATE_DIR=/path/to/state
-ASSISTANT_CONFIG_PATH=/path/to/assistant.json
+ZHUSHOU_STATE_DIR=/path/to/state
+ZHUSHOU_CONFIG_PATH=/path/to/zhushou.json
 ```

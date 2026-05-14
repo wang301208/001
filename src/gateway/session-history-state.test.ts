@@ -8,7 +8,7 @@ describe("SessionHistorySseState", () => {
       {
         role: "assistant",
         content: [{ type: "text", text: "stale disk message" }],
-        __assistant: { seq: 1 },
+        __zhushou: { seq: 1 },
       },
     ]);
     try {
@@ -18,7 +18,7 @@ describe("SessionHistorySseState", () => {
           {
             role: "assistant",
             content: [{ type: "text", text: "fresh snapshot message" }],
-            __assistant: { seq: 2 },
+            __zhushou: { seq: 2 },
           },
         ],
       });
@@ -28,16 +28,16 @@ describe("SessionHistorySseState", () => {
         (
           state.snapshot().messages[0] as {
             content?: Array<{ text?: string }>;
-            __assistant?: { seq?: number };
+            __zhushou?: { seq?: number };
           }
         ).content?.[0]?.text,
       ).toBe("fresh snapshot message");
       expect(
         (
           state.snapshot().messages[0] as {
-            __assistant?: { seq?: number };
+            __zhushou?: { seq?: number };
           }
-        ).__assistant?.seq,
+        ).__zhushou?.seq,
       ).toBe(2);
 
       const appended = state.appendInlineMessage({
@@ -60,19 +60,19 @@ describe("SessionHistorySseState", () => {
         {
           role: "assistant",
           content: [{ type: "text", text: "first" }],
-          __assistant: { seq: 1 },
+          __zhushou: { seq: 1 },
         },
         {
           role: "assistant",
           content: [{ type: "text", text: "second" }],
-          __assistant: { seq: 2 },
+          __zhushou: { seq: 2 },
         },
       ],
       limit: 1,
     });
 
     expect(snapshot.history.items).toBe(snapshot.history.messages);
-    expect(snapshot.history.messages[0]?.__assistant?.seq).toBe(2);
+    expect(snapshot.history.messages[0]?.__zhushou?.seq).toBe(2);
     expect(snapshot.rawTranscriptSeq).toBe(2);
   });
 });

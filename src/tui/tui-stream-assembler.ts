@@ -2,7 +2,7 @@ import {
   composeThinkingAndContent,
   extractContentFromMessage,
   extractThinkingFromMessage,
-  resolveFinalAssistantText,
+  resolveFinalZhushouText,
 } from "./tui-formatters.js";
 
 type RunStreamState = {
@@ -189,7 +189,7 @@ export class TuiStreamAssembler {
         streamedTextBlocks,
         finalTextBlocks: state.contentBlocks,
       });
-    const finalText = resolveFinalAssistantText({
+    const finalText = resolveFinalZhushouText({
       finalText: shouldKeepStreamedText ? streamedDisplayText : finalComposed,
       streamedText: streamedDisplayText,
       errorMessage,

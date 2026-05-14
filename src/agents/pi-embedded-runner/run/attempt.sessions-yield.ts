@@ -1,9 +1,9 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { log } from "../logger.js";
 
-const SESSIONS_YIELD_INTERRUPT_CUSTOM_TYPE = "assistant.sessions_yield_interrupt";
-const SESSIONS_YIELD_CONTEXT_CUSTOM_TYPE = "assistant.sessions_yield";
-const SESSIONS_YIELD_ABORT_SETTLE_TIMEOUT_MS = process.env.ASSISTANT_TEST_FAST === "1" ? 250 : 2_000;
+const SESSIONS_YIELD_INTERRUPT_CUSTOM_TYPE = "zhushou.sessions_yield_interrupt";
+const SESSIONS_YIELD_CONTEXT_CUSTOM_TYPE = "zhushou.sessions_yield";
+const SESSIONS_YIELD_ABORT_SETTLE_TIMEOUT_MS = process.env.ZHUSHOU_TEST_FAST === "1" ? 250 : 2_000;
 
 // Persist a hidden context reminder so the next turn knows why the runner stopped.
 export function buildSessionsYieldContextMessage(message: string): string {
@@ -104,7 +104,7 @@ export function createYieldAbortedResponse(model: {
 }
 
 // Queue a hidden steering message so pi-agent-core injects it before the next
-// LLM call once the current assistant turn finishes executing its tool calls.
+// LLM call once the current zhushou turn finishes executing its tool calls.
 export function queueSessionsYieldInterruptMessage(activeSession: {
   agent: { steer: (message: AgentMessage) => void };
 }) {
@@ -144,7 +144,7 @@ export async function persistSessionsYieldContextMessage(
   );
 }
 
-// Remove the synthetic yield interrupt + aborted assistant entry from the live transcript.
+// Remove the synthetic yield interrupt + aborted zhushou entry from the live transcript.
 export function stripSessionsYieldArtifacts(activeSession: {
   messages: AgentMessage[];
   agent: { state: { messages: AgentMessage[] } };
@@ -199,13 +199,13 @@ export function stripSessionsYieldArtifacts(activeSession: {
     if (!last || last.type === "session") {
       break;
     }
-    const isYieldAbortAssistant =
+    const isYieldAbortZhushou =
       last.type === "message" &&
       last.message?.role === "assistant" &&
       last.message?.stopReason === "aborted";
     const isYieldInterruptMessage =
       last.type === "custom_message" && last.customType === SESSIONS_YIELD_INTERRUPT_CUSTOM_TYPE;
-    if (!isYieldAbortAssistant && !isYieldInterruptMessage) {
+    if (!isYieldAbortZhushou && !isYieldInterruptMessage) {
       break;
     }
     fileEntries.pop();

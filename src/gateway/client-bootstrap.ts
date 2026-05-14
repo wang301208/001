@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveGatewayConnectionAuth } from "./connection-auth.js";
 import { buildGatewayConnectionDetailsWithResolvers } from "./connection-details.js";
 import type { ExplicitGatewayAuth } from "./credentials.js";
@@ -7,14 +7,14 @@ export function resolveGatewayUrlOverrideSource(urlSource: string): "cli" | "env
   if (urlSource === "cli --url") {
     return "cli";
   }
-  if (urlSource === "env ASSISTANT_GATEWAY_URL") {
+  if (urlSource === "env ZHUSHOU_GATEWAY_URL") {
     return "env";
   }
   return undefined;
 }
 
 export async function resolveGatewayClientBootstrap(params: {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   gatewayUrl?: string;
   explicitAuth?: ExplicitGatewayAuth;
   env?: NodeJS.ProcessEnv;

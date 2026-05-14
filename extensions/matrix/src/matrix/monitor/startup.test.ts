@@ -78,8 +78,8 @@ function createDeps(
     maybeRestoreLegacyMatrixBackup: vi.fn(async () => createLegacyCryptoRestoreResult()),
     summarizeMatrixDeviceHealth: vi.fn(() => ({
       currentDeviceId: null,
-      staleAssistantDevices: [] as MatrixManagedDeviceInfo[],
-      currentAssistantDevices: [] as MatrixManagedDeviceInfo[],
+      staleZhushouDevices: [] as MatrixManagedDeviceInfo[],
+      currentZhushouDevices: [] as MatrixManagedDeviceInfo[],
     })),
     syncMatrixOwnProfile: vi.fn(async () => createProfileSyncResult()),
     ensureMatrixStartupVerification: vi.fn(async () =>
@@ -176,10 +176,10 @@ describe("runMatrixStartupMaintenance", () => {
     params.auth.encryption = true;
     vi.mocked(deps.summarizeMatrixDeviceHealth).mockReturnValue({
       currentDeviceId: null,
-      staleAssistantDevices: [
+      staleZhushouDevices: [
         { deviceId: "DEV123", displayName: "助手 Device", current: false },
       ],
-      currentAssistantDevices: [],
+      currentZhushouDevices: [],
     });
     vi.mocked(deps.ensureMatrixStartupVerification).mockResolvedValue(
       createStartupVerificationOutcome("pending"),
@@ -196,10 +196,10 @@ describe("runMatrixStartupMaintenance", () => {
     await runMatrixStartupMaintenance(params, deps);
 
     expect(params.logger.warn).toHaveBeenCalledWith(
-      "matrix: stale 助手 devices detected for @bot:example.org: DEV123. Run 'assistant matrix devices prune-stale --account ops' to keep encrypted-room trust healthy.",
+      "matrix: stale 助手 devices detected for @bot:example.org: DEV123. Run 'zhushou matrix devices prune-stale --account ops' to keep encrypted-room trust healthy.",
     );
     expect(params.logger.info).toHaveBeenCalledWith(
-      "matrix: device not verified — run 'assistant matrix verify device <key>' to enable E2EE",
+      "matrix: device not verified — run 'zhushou matrix verify device <key>' to enable E2EE",
     );
     expect(params.logger.info).toHaveBeenCalledWith(
       "matrix: startup verification request is already pending; finish it in another Matrix client",

@@ -1,6 +1,6 @@
 import { normalizeChatChannelId } from "../../../channels/ids.js";
 import { listRouteBindings } from "../../../config/bindings.js";
-import type { AssistantConfig } from "../../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../../config/types.zhushou.js";
 import {
   formatChannelAccountsDefaultPath,
   formatSetExplicitDefaultInstruction,
@@ -32,7 +32,7 @@ function normalizeBindingChannelKey(raw?: string | null): string {
 }
 
 function collectChannelsMissingDefaultAccount(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
 ): ChannelMissingDefaultAccountContext[] {
   const channels = asObjectRecord(cfg.channels);
   if (!channels) {
@@ -65,7 +65,7 @@ function collectChannelsMissingDefaultAccount(
   return contexts;
 }
 
-export function collectMissingDefaultAccountBindingWarnings(cfg: AssistantConfig): string[] {
+export function collectMissingDefaultAccountBindingWarnings(cfg: ZhushouConfig): string[] {
   const bindings = listRouteBindings(cfg);
   const warnings: string[] = [];
 
@@ -130,7 +130,7 @@ export function collectMissingDefaultAccountBindingWarnings(cfg: AssistantConfig
   return warnings;
 }
 
-export function collectMissingExplicitDefaultAccountWarnings(cfg: AssistantConfig): string[] {
+export function collectMissingExplicitDefaultAccountWarnings(cfg: ZhushouConfig): string[] {
   const warnings: string[] = [];
   for (const { channelKey, channel, normalizedAccountIds } of collectChannelsMissingDefaultAccount(
     cfg,

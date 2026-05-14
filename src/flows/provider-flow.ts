@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import {
   resolveProviderModelPickerEntries,
   resolveProviderWizardOptions,
@@ -45,7 +45,7 @@ function includesProviderFlowScope(
 }
 
 function resolveProviderDocsById(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): Map<string, string> {
@@ -64,7 +64,7 @@ function resolveProviderDocsById(params?: {
 }
 
 export function resolveProviderSetupFlowOptions(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   scope?: ProviderFlowScope;
@@ -73,7 +73,7 @@ export function resolveProviderSetupFlowOptions(params?: {
 }
 
 export function resolveProviderSetupFlowContributions(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   scope?: ProviderFlowScope;
@@ -92,11 +92,11 @@ export function resolveProviderSetupFlowContributions(params?: {
           value: option.value,
           label: option.label,
           ...(option.hint ? { hint: option.hint } : {}),
-          ...(option.assistantPriority !== undefined
-            ? { assistantPriority: option.assistantPriority }
+          ...(option.zhushouPriority !== undefined
+            ? { zhushouPriority: option.zhushouPriority }
             : {}),
-          ...(option.assistantVisibility
-            ? { assistantVisibility: option.assistantVisibility }
+          ...(option.zhushouVisibility
+            ? { zhushouVisibility: option.zhushouVisibility }
             : {}),
           group: {
             id: option.groupId,
@@ -114,7 +114,7 @@ export function resolveProviderSetupFlowContributions(params?: {
 }
 
 export function resolveProviderModelPickerFlowEntries(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ProviderModelPickerFlowEntry[] {
@@ -124,7 +124,7 @@ export function resolveProviderModelPickerFlowEntries(params?: {
 }
 
 export function resolveProviderModelPickerFlowContributions(params?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
 }): ProviderModelPickerFlowContribution[] {

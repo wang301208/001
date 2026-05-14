@@ -22,103 +22,103 @@ describe("Nix integration (U3, U5, U9)", () => {
   });
 
   describe("U3: isNixMode env var detection", () => {
-    it("isNixMode is false when ASSISTANT_NIX_MODE is not set", () => {
-      expect(resolveIsNixMode(envWith({ ASSISTANT_NIX_MODE: undefined }))).toBe(false);
+    it("isNixMode is false when ZHUSHOU_NIX_MODE is not set", () => {
+      expect(resolveIsNixMode(envWith({ ZHUSHOU_NIX_MODE: undefined }))).toBe(false);
     });
 
-    it("isNixMode is false when ASSISTANT_NIX_MODE is empty", () => {
-      expect(resolveIsNixMode(envWith({ ASSISTANT_NIX_MODE: "" }))).toBe(false);
+    it("isNixMode is false when ZHUSHOU_NIX_MODE is empty", () => {
+      expect(resolveIsNixMode(envWith({ ZHUSHOU_NIX_MODE: "" }))).toBe(false);
     });
 
-    it("isNixMode is false when ASSISTANT_NIX_MODE is not '1'", () => {
-      expect(resolveIsNixMode(envWith({ ASSISTANT_NIX_MODE: "true" }))).toBe(false);
+    it("isNixMode is false when ZHUSHOU_NIX_MODE is not '1'", () => {
+      expect(resolveIsNixMode(envWith({ ZHUSHOU_NIX_MODE: "true" }))).toBe(false);
     });
 
-    it("isNixMode is true when ASSISTANT_NIX_MODE=1", () => {
-      expect(resolveIsNixMode(envWith({ ASSISTANT_NIX_MODE: "1" }))).toBe(true);
+    it("isNixMode is true when ZHUSHOU_NIX_MODE=1", () => {
+      expect(resolveIsNixMode(envWith({ ZHUSHOU_NIX_MODE: "1" }))).toBe(true);
     });
   });
 
   describe("U5: CONFIG_PATH and STATE_DIR env var overrides", () => {
-    it("STATE_DIR defaults to ~/.assistant when env not set", () => {
-      expect(resolveStateDir(envWith({ ASSISTANT_STATE_DIR: undefined }))).toMatch(/\.assistant$/);
+    it("STATE_DIR defaults to ~/.zhushou when env not set", () => {
+      expect(resolveStateDir(envWith({ ZHUSHOU_STATE_DIR: undefined }))).toMatch(/\.zhushou$/);
     });
 
-    it("STATE_DIR respects ASSISTANT_STATE_DIR override", () => {
-      expect(resolveStateDir(envWith({ ASSISTANT_STATE_DIR: "/custom/state/dir" }))).toBe(
+    it("STATE_DIR respects ZHUSHOU_STATE_DIR override", () => {
+      expect(resolveStateDir(envWith({ ZHUSHOU_STATE_DIR: "/custom/state/dir" }))).toBe(
         path.resolve("/custom/state/dir"),
       );
     });
 
-    it("STATE_DIR respects ASSISTANT_HOME when state override is unset", () => {
+    it("STATE_DIR respects ZHUSHOU_HOME when state override is unset", () => {
       const customHome = path.join(path.sep, "custom", "home");
       expect(
-        resolveStateDir(envWith({ ASSISTANT_HOME: customHome, ASSISTANT_STATE_DIR: undefined })),
-      ).toBe(path.join(path.resolve(customHome), ".assistant"));
+        resolveStateDir(envWith({ ZHUSHOU_HOME: customHome, ZHUSHOU_STATE_DIR: undefined })),
+      ).toBe(path.join(path.resolve(customHome), ".zhushou"));
     });
 
-    it("CONFIG_PATH defaults to ASSISTANT_HOME/.assistant/assistant.json", () => {
+    it("CONFIG_PATH defaults to ZHUSHOU_HOME/.wang301208/zhushou.json", () => {
       const customHome = path.join(path.sep, "custom", "home");
       expect(
         resolveConfigPathCandidate(
           envWith({
-            ASSISTANT_HOME: customHome,
-            ASSISTANT_CONFIG_PATH: undefined,
-            ASSISTANT_STATE_DIR: undefined,
+            ZHUSHOU_HOME: customHome,
+            ZHUSHOU_CONFIG_PATH: undefined,
+            ZHUSHOU_STATE_DIR: undefined,
           }),
         ),
-      ).toBe(path.join(path.resolve(customHome), ".assistant", "assistant.json"));
+      ).toBe(path.join(path.resolve(customHome), ".zhushou", "zhushou.json"));
     });
 
-    it("CONFIG_PATH defaults to ~/.assistant/assistant.json when env not set", () => {
+    it("CONFIG_PATH defaults to ~/.wang301208/zhushou.json when env not set", () => {
       expect(
         resolveConfigPathCandidate(
-          envWith({ ASSISTANT_CONFIG_PATH: undefined, ASSISTANT_STATE_DIR: undefined }),
+          envWith({ ZHUSHOU_CONFIG_PATH: undefined, ZHUSHOU_STATE_DIR: undefined }),
         ),
-      ).toMatch(/\.assistant[\\/]assistant\.json$/);
+      ).toMatch(/\.zhushou[\\/]zhushou\.json$/);
     });
 
-    it("CONFIG_PATH respects ASSISTANT_CONFIG_PATH override", () => {
+    it("CONFIG_PATH respects ZHUSHOU_CONFIG_PATH override", () => {
       expect(
         resolveConfigPathCandidate(
-          envWith({ ASSISTANT_CONFIG_PATH: "/nix/store/abc/assistant.json" }),
+          envWith({ ZHUSHOU_CONFIG_PATH: "/nix/store/abc/zhushou.json" }),
         ),
-      ).toBe(path.resolve("/nix/store/abc/assistant.json"));
+      ).toBe(path.resolve("/nix/store/abc/zhushou.json"));
     });
 
-    it("CONFIG_PATH expands ~ in ASSISTANT_CONFIG_PATH override", async () => {
+    it("CONFIG_PATH expands ~ in ZHUSHOU_CONFIG_PATH override", async () => {
       await withTempHome(async (home) => {
         expect(
           resolveConfigPathCandidate(
-            envWith({ ASSISTANT_HOME: home, ASSISTANT_CONFIG_PATH: "~/.assistant/custom.json" }),
+            envWith({ ZHUSHOU_HOME: home, ZHUSHOU_CONFIG_PATH: "~/.zhushou/custom.json" }),
             () => home,
           ),
-        ).toBe(path.join(home, ".assistant", "custom.json"));
+        ).toBe(path.join(home, ".zhushou", "custom.json"));
       });
     });
 
     it("CONFIG_PATH uses STATE_DIR when only state dir is overridden", () => {
       expect(
         resolveConfigPathCandidate(
-          envWith({ ASSISTANT_STATE_DIR: "/custom/state", ASSISTANT_TEST_FAST: "1" }),
-          () => path.join(path.sep, "tmp", "assistant-config-home"),
+          envWith({ ZHUSHOU_STATE_DIR: "/custom/state", ZHUSHOU_TEST_FAST: "1" }),
+          () => path.join(path.sep, "tmp", "zhushou-config-home"),
         ),
-      ).toBe(path.join(path.resolve("/custom/state"), "assistant.json"));
+      ).toBe(path.join(path.resolve("/custom/state"), "zhushou.json"));
     });
   });
 
   describe("U6: gateway port resolution", () => {
     it("uses default when env and config are unset", () => {
-      expect(resolveGatewayPort({}, envWith({ ASSISTANT_GATEWAY_PORT: undefined }))).toBe(
+      expect(resolveGatewayPort({}, envWith({ ZHUSHOU_GATEWAY_PORT: undefined }))).toBe(
         DEFAULT_GATEWAY_PORT,
       );
     });
 
-    it("prefers ASSISTANT_GATEWAY_PORT over config", () => {
+    it("prefers ZHUSHOU_GATEWAY_PORT over config", () => {
       expect(
         resolveGatewayPort(
           { gateway: { port: 19002 } },
-          envWith({ ASSISTANT_GATEWAY_PORT: "19001" }),
+          envWith({ ZHUSHOU_GATEWAY_PORT: "19001" }),
         ),
       ).toBe(19001);
     });
@@ -127,7 +127,7 @@ describe("Nix integration (U3, U5, U9)", () => {
       expect(
         resolveGatewayPort(
           { gateway: { port: 19003 } },
-          envWith({ ASSISTANT_GATEWAY_PORT: "nope" }),
+          envWith({ ZHUSHOU_GATEWAY_PORT: "nope" }),
         ),
       ).toBe(19003);
     });

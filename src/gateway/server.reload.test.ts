@@ -244,18 +244,18 @@ describe("gateway hot reload", () => {
   let prevAllowScheduledServicesInMinimalGateway: string | undefined;
 
   beforeEach(() => {
-    prevSkipChannels = process.env.ASSISTANT_SKIP_CHANNELS;
-    prevSkipGmail = process.env.ASSISTANT_SKIP_GMAIL_WATCHER;
-    prevSkipProviders = process.env.ASSISTANT_SKIP_PROVIDERS;
+    prevSkipChannels = process.env.ZHUSHOU_SKIP_CHANNELS;
+    prevSkipGmail = process.env.ZHUSHOU_SKIP_GMAIL_WATCHER;
+    prevSkipProviders = process.env.ZHUSHOU_SKIP_PROVIDERS;
     prevOpenAiApiKey = process.env.OPENAI_API_KEY;
-    prevAllowReloadInMinimalGateway = process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD;
+    prevAllowReloadInMinimalGateway = process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD;
     prevAllowScheduledServicesInMinimalGateway =
-      process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
-    process.env.ASSISTANT_SKIP_CHANNELS = "0";
-    delete process.env.ASSISTANT_SKIP_GMAIL_WATCHER;
-    delete process.env.ASSISTANT_SKIP_PROVIDERS;
-    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD = "1";
-    process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES = "1";
+      process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
+    process.env.ZHUSHOU_SKIP_CHANNELS = "0";
+    delete process.env.ZHUSHOU_SKIP_GMAIL_WATCHER;
+    delete process.env.ZHUSHOU_SKIP_PROVIDERS;
+    process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD = "1";
+    process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES = "1";
     hoisted.activeEmbeddedRunCount.value = 0;
     hoisted.totalPendingReplies.value = 0;
     hoisted.totalQueueSize.value = 0;
@@ -264,19 +264,19 @@ describe("gateway hot reload", () => {
 
   afterEach(() => {
     if (prevSkipChannels === undefined) {
-      delete process.env.ASSISTANT_SKIP_CHANNELS;
+      delete process.env.ZHUSHOU_SKIP_CHANNELS;
     } else {
-      process.env.ASSISTANT_SKIP_CHANNELS = prevSkipChannels;
+      process.env.ZHUSHOU_SKIP_CHANNELS = prevSkipChannels;
     }
     if (prevSkipGmail === undefined) {
-      delete process.env.ASSISTANT_SKIP_GMAIL_WATCHER;
+      delete process.env.ZHUSHOU_SKIP_GMAIL_WATCHER;
     } else {
-      process.env.ASSISTANT_SKIP_GMAIL_WATCHER = prevSkipGmail;
+      process.env.ZHUSHOU_SKIP_GMAIL_WATCHER = prevSkipGmail;
     }
     if (prevSkipProviders === undefined) {
-      delete process.env.ASSISTANT_SKIP_PROVIDERS;
+      delete process.env.ZHUSHOU_SKIP_PROVIDERS;
     } else {
-      process.env.ASSISTANT_SKIP_PROVIDERS = prevSkipProviders;
+      process.env.ZHUSHOU_SKIP_PROVIDERS = prevSkipProviders;
     }
     if (prevOpenAiApiKey === undefined) {
       delete process.env.OPENAI_API_KEY;
@@ -284,14 +284,14 @@ describe("gateway hot reload", () => {
       process.env.OPENAI_API_KEY = prevOpenAiApiKey;
     }
     if (prevAllowReloadInMinimalGateway === undefined) {
-      delete process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD;
+      delete process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD;
     } else {
-      process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD = prevAllowReloadInMinimalGateway;
+      process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_RELOAD = prevAllowReloadInMinimalGateway;
     }
     if (prevAllowScheduledServicesInMinimalGateway === undefined) {
-      delete process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
+      delete process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES;
     } else {
-      process.env.ASSISTANT_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES =
+      process.env.ZHUSHOU_TEST_MINIMAL_GATEWAY_ALLOW_SCHEDULED_SERVICES =
         prevAllowScheduledServicesInMinimalGateway;
     }
   });
@@ -311,9 +311,9 @@ describe("gateway hot reload", () => {
   }
 
   async function writeConfigFile(config: unknown) {
-    const configPath = process.env.ASSISTANT_CONFIG_PATH;
+    const configPath = process.env.ZHUSHOU_CONFIG_PATH;
     if (!configPath) {
-      throw new Error("ASSISTANT_CONFIG_PATH is not set");
+      throw new Error("ZHUSHOU_CONFIG_PATH is not set");
     }
     await fs.writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
   }
@@ -598,9 +598,9 @@ describe("gateway hot reload", () => {
   });
 
   it("keeps last-known-good auth snapshot active when gateway auth token exec reload fails", async () => {
-    const stateDir = process.env.ASSISTANT_STATE_DIR;
+    const stateDir = process.env.ZHUSHOU_STATE_DIR;
     if (!stateDir) {
-      throw new Error("ASSISTANT_STATE_DIR is not set");
+      throw new Error("ZHUSHOU_STATE_DIR is not set");
     }
     const resolverScriptPath = path.join(stateDir, "gateway-auth-token-resolver.cjs");
     const modePath = path.join(stateDir, "gateway-auth-token-resolver.mode");
@@ -652,11 +652,11 @@ process.stdin.on("end", () => {
     });
 
     const previousGatewayAuth = testState.gatewayAuth;
-    const previousGatewayTokenEnv = process.env.ASSISTANT_GATEWAY_TOKEN;
+    const previousGatewayTokenEnv = process.env.ZHUSHOU_GATEWAY_TOKEN;
     let started: Awaited<ReturnType<typeof startServerWithClient>> | undefined;
     try {
       testState.gatewayAuth = undefined;
-      delete process.env.ASSISTANT_GATEWAY_TOKEN;
+      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
 
       started = await startServerWithClient();
       const { ws } = started;
@@ -691,9 +691,9 @@ process.stdin.on("end", () => {
     } finally {
       testState.gatewayAuth = previousGatewayAuth;
       if (previousGatewayTokenEnv === undefined) {
-        delete process.env.ASSISTANT_GATEWAY_TOKEN;
+        delete process.env.ZHUSHOU_GATEWAY_TOKEN;
       } else {
-        process.env.ASSISTANT_GATEWAY_TOKEN = previousGatewayTokenEnv;
+        process.env.ZHUSHOU_GATEWAY_TOKEN = previousGatewayTokenEnv;
       }
       started?.envSnapshot.restore();
       started?.ws.close();
@@ -702,9 +702,9 @@ process.stdin.on("end", () => {
   });
 
   it("uses refreshed gateway auth for new websocket connects after secrets reload", async () => {
-    const stateDir = process.env.ASSISTANT_STATE_DIR;
+    const stateDir = process.env.ZHUSHOU_STATE_DIR;
     if (!stateDir) {
-      throw new Error("ASSISTANT_STATE_DIR is not set");
+      throw new Error("ZHUSHOU_STATE_DIR is not set");
     }
     const resolverScriptPath = path.join(stateDir, "gateway-auth-refresh-resolver.cjs");
     const tokenPath = path.join(stateDir, "gateway-auth-refresh-token.txt");
@@ -757,11 +757,11 @@ process.stdin.on("end", () => {
     });
 
     const previousGatewayAuth = testState.gatewayAuth;
-    const previousGatewayTokenEnv = process.env.ASSISTANT_GATEWAY_TOKEN;
+    const previousGatewayTokenEnv = process.env.ZHUSHOU_GATEWAY_TOKEN;
     let started: Awaited<ReturnType<typeof startServerWithClient>> | undefined;
     try {
       testState.gatewayAuth = undefined;
-      delete process.env.ASSISTANT_GATEWAY_TOKEN;
+      delete process.env.ZHUSHOU_GATEWAY_TOKEN;
 
       started = await startServerWithClient();
       const { ws, port } = started;
@@ -807,9 +807,9 @@ process.stdin.on("end", () => {
     } finally {
       testState.gatewayAuth = previousGatewayAuth;
       if (previousGatewayTokenEnv === undefined) {
-        delete process.env.ASSISTANT_GATEWAY_TOKEN;
+        delete process.env.ZHUSHOU_GATEWAY_TOKEN;
       } else {
-        process.env.ASSISTANT_GATEWAY_TOKEN = previousGatewayTokenEnv;
+        process.env.ZHUSHOU_GATEWAY_TOKEN = previousGatewayTokenEnv;
       }
       started?.envSnapshot.restore();
       started?.ws.close();

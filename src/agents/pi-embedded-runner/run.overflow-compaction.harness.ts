@@ -139,11 +139,11 @@ export const mockedExtractObservedOverflowTokenCount = vi.fn((msg?: string) => {
   const match = msg?.match(/prompt is too long:\s*([\d,]+)\s+tokens\s*>\s*[\d,]+\s+maximum/i);
   return match?.[1] ? Number(match[1].replaceAll(",", "")) : undefined;
 });
-export const mockedFormatAssistantErrorText = vi.fn(() => "");
-export const mockedIsAuthAssistantError = vi.fn(() => false);
-export const mockedIsBillingAssistantError = vi.fn(() => false);
+export const mockedFormatZhushouErrorText = vi.fn(() => "");
+export const mockedIsAuthZhushouError = vi.fn(() => false);
+export const mockedIsBillingZhushouError = vi.fn(() => false);
 export const mockedIsCompactionFailureError = vi.fn(() => false);
-export const mockedIsFailoverAssistantError = vi.fn(() => false);
+export const mockedIsFailoverZhushouError = vi.fn(() => false);
 export const mockedIsFailoverErrorMessage = vi.fn(() => false);
 export const mockedIsLikelyContextOverflowError = vi.fn((msg?: string) => {
   const lower = normalizeLowercaseStringOrEmpty(msg ?? "");
@@ -155,7 +155,7 @@ export const mockedIsLikelyContextOverflowError = vi.fn((msg?: string) => {
 });
 export const mockedParseImageSizeError = vi.fn(() => null);
 export const mockedParseImageDimensionError = vi.fn(() => null);
-export const mockedIsRateLimitAssistantError = vi.fn(() => false);
+export const mockedIsRateLimitZhushouError = vi.fn(() => false);
 export const mockedIsTimeoutErrorMessage = vi.fn(() => false);
 export const mockedPickFallbackThinkingLevel = vi.fn<(params?: unknown) => ThinkLevel | null>(
   () => null,
@@ -263,12 +263,12 @@ export function resetRunOverflowCompactionHarnessMocks(): void {
   mockedClassifyFailoverReason.mockReturnValue(null);
   mockedFormatBillingErrorMessage.mockReset();
   mockedFormatBillingErrorMessage.mockReturnValue("");
-  mockedFormatAssistantErrorText.mockReset();
-  mockedFormatAssistantErrorText.mockReturnValue("");
-  mockedIsAuthAssistantError.mockReset();
-  mockedIsAuthAssistantError.mockReturnValue(false);
-  mockedIsBillingAssistantError.mockReset();
-  mockedIsBillingAssistantError.mockReturnValue(false);
+  mockedFormatZhushouErrorText.mockReset();
+  mockedFormatZhushouErrorText.mockReturnValue("");
+  mockedIsAuthZhushouError.mockReset();
+  mockedIsAuthZhushouError.mockReturnValue(false);
+  mockedIsBillingZhushouError.mockReset();
+  mockedIsBillingZhushouError.mockReturnValue(false);
   mockedExtractObservedOverflowTokenCount.mockReset();
   mockedExtractObservedOverflowTokenCount.mockImplementation((msg?: string) => {
     const match = msg?.match(/prompt is too long:\s*([\d,]+)\s+tokens\s*>\s*[\d,]+\s+maximum/i);
@@ -276,8 +276,8 @@ export function resetRunOverflowCompactionHarnessMocks(): void {
   });
   mockedIsCompactionFailureError.mockReset();
   mockedIsCompactionFailureError.mockReturnValue(false);
-  mockedIsFailoverAssistantError.mockReset();
-  mockedIsFailoverAssistantError.mockReturnValue(false);
+  mockedIsFailoverZhushouError.mockReset();
+  mockedIsFailoverZhushouError.mockReturnValue(false);
   mockedIsFailoverErrorMessage.mockReset();
   mockedIsFailoverErrorMessage.mockReturnValue(false);
   mockedIsLikelyContextOverflowError.mockReset();
@@ -293,8 +293,8 @@ export function resetRunOverflowCompactionHarnessMocks(): void {
   mockedParseImageSizeError.mockReturnValue(null);
   mockedParseImageDimensionError.mockReset();
   mockedParseImageDimensionError.mockReturnValue(null);
-  mockedIsRateLimitAssistantError.mockReset();
-  mockedIsRateLimitAssistantError.mockReturnValue(false);
+  mockedIsRateLimitZhushouError.mockReset();
+  mockedIsRateLimitZhushouError.mockReturnValue(false);
   mockedIsTimeoutErrorMessage.mockReset();
   mockedIsTimeoutErrorMessage.mockReturnValue(false);
   mockedPickFallbackThinkingLevel.mockReset();
@@ -403,16 +403,16 @@ export async function loadRunOverflowCompactionHarness(): Promise<{
     formatBillingErrorMessage: mockedFormatBillingErrorMessage,
     classifyFailoverReason: mockedClassifyFailoverReason,
     extractObservedOverflowTokenCount: mockedExtractObservedOverflowTokenCount,
-    formatAssistantErrorText: mockedFormatAssistantErrorText,
-    isAuthAssistantError: mockedIsAuthAssistantError,
-    isBillingAssistantError: mockedIsBillingAssistantError,
+    formatZhushouErrorText: mockedFormatZhushouErrorText,
+    isAuthZhushouError: mockedIsAuthZhushouError,
+    isBillingZhushouError: mockedIsBillingZhushouError,
     isCompactionFailureError: mockedIsCompactionFailureError,
     isLikelyContextOverflowError: mockedIsLikelyContextOverflowError,
-    isFailoverAssistantError: mockedIsFailoverAssistantError,
+    isFailoverZhushouError: mockedIsFailoverZhushouError,
     isFailoverErrorMessage: mockedIsFailoverErrorMessage,
     parseImageSizeError: mockedParseImageSizeError,
     parseImageDimensionError: mockedParseImageDimensionError,
-    isRateLimitAssistantError: mockedIsRateLimitAssistantError,
+    isRateLimitZhushouError: mockedIsRateLimitZhushouError,
     isTimeoutErrorMessage: mockedIsTimeoutErrorMessage,
     pickFallbackThinkingLevel: mockedPickFallbackThinkingLevel,
     sanitizeUserFacingText: vi.fn((text: unknown) => (typeof text === "string" ? text : "")),
@@ -458,7 +458,7 @@ export async function loadRunOverflowCompactionHarness(): Promise<{
   }));
 
   vi.doMock("../models-config.js", () => ({
-    ensureAssistantModelsJson: vi.fn(async () => {}),
+    ensureZhushouModelsJson: vi.fn(async () => {}),
   }));
 
   vi.doMock("../context-window-guard.js", () => ({
@@ -479,7 +479,7 @@ export async function loadRunOverflowCompactionHarness(): Promise<{
   }));
 
   vi.doMock("../agent-paths.js", () => ({
-    resolveAssistantAgentDir: vi.fn(() => "/tmp/agent-dir"),
+    resolveZhushouAgentDir: vi.fn(() => "/tmp/agent-dir"),
   }));
 
   vi.doMock("../defaults.js", () => ({

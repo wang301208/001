@@ -24,7 +24,7 @@ describe("sanitizeReplayToolCallIdsForStream", () => {
     ).toEqual([]);
   });
 
-  it("keeps matched assistant and tool-result ids aligned", () => {
+  it("keeps matched zhushou and tool-result ids aligned", () => {
     const rawId = "call_function_av7cbkigmk7x1";
     const messages: AgentMessage[] = [
       {
@@ -61,7 +61,7 @@ describe("sanitizeReplayToolCallIdsForStream", () => {
     ]);
   });
 
-  it("keeps real tool results for aborted assistant spans", () => {
+  it("keeps real tool results for aborted zhushou spans", () => {
     const rawId = "call_function_av7cbkigmk7x1";
     const out = sanitizeReplayToolCallIdsForStream({
       messages: [

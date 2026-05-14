@@ -1,4 +1,4 @@
-import { defineSingleProviderPluginEntry } from "assistant/plugin-sdk/provider-entry";
+import { defineSingleProviderPluginEntry } from "zhushou/plugin-sdk/provider-entry";
 import { buildNvidiaProvider } from "./provider-catalog.js";
 
 const PROVIDER_ID = "nvidia";

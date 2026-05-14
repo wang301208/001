@@ -89,7 +89,7 @@ describe("ports helpers", () => {
     };
 
     await handlePortError(
-      new PortInUseError(18789, "node dist/index.js assistant gateway"),
+      new PortInUseError(18789, "node dist/index.js zhushou gateway"),
       18789,
       "gateway start",
       runtime,
@@ -148,7 +148,7 @@ describeUnix("inspectPortUsage", () => {
       if (command === "ps") {
         if (argv.includes("command=")) {
           return {
-            stdout: "node /tmp/assistant/dist/index.js gateway --port 18789\n",
+            stdout: "node /tmp/zhushou/dist/index.js gateway --port 18789\n",
             stderr: "",
             code: 0,
           };
@@ -176,7 +176,7 @@ describeUnix("inspectPortUsage", () => {
       expect(result.status).toBe("busy");
       expect(result.listeners.length).toBeGreaterThan(0);
       expect(result.listeners[0]?.pid).toBe(process.pid);
-      expect(result.listeners[0]?.commandLine).toContain("assistant");
+      expect(result.listeners[0]?.commandLine).toContain("zhushou");
       expect(result.errors).toBeUndefined();
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));

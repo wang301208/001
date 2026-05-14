@@ -1,4 +1,4 @@
-import { createDangerousNameMatchingMutableAllowlistWarningCollector } from "assistant/plugin-sdk/channel-policy";
+import { createDangerousNameMatchingMutableAllowlistWarningCollector } from "zhushou/plugin-sdk/channel-policy";
 
 function isMSTeamsMutableAllowEntry(raw: string): boolean {
   const text = raw.trim();

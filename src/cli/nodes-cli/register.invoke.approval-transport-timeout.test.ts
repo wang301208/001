@@ -75,12 +75,12 @@ describe("exec approval transport timeout (#12098)", () => {
   it("fix: user-specified timeout larger than approval is preserved", async () => {
     const approvalTimeoutMs = DEFAULT_EXEC_APPROVAL_TIMEOUT_MS;
     const userTimeout = 200_000;
-    // Mirror the production code: parseTimeoutMs preserves valid large values
+    // Mirror the production code: valid user timeouts above the approval floor are preserved.
     const transportTimeoutMs = Math.max(
       parseTimeoutMs(String(userTimeout)) ?? 0,
       approvalTransportFloorMs,
     );
-    expect(transportTimeoutMs).toBe(approvalTransportFloorMs);
+    expect(transportTimeoutMs).toBe(userTimeout);
 
     await callGatewayCli(
       "exec.approval.request",
@@ -90,7 +90,7 @@ describe("exec approval transport timeout (#12098)", () => {
     );
 
     const callOpts = callGatewaySpy.mock.calls[0][0];
-    expect(callOpts.timeoutMs).toBe(approvalTransportFloorMs);
+    expect(callOpts.timeoutMs).toBe(userTimeout);
   });
 
   it("fix: non-numeric timeout falls back to approval floor", async () => {

@@ -251,7 +251,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 type: "string",
                 title: "Cache Trace File Path",
                 description:
-                  "JSONL output path for cache trace logs (default: $ASSISTANT_STATE_DIR/logs/cache-trace.jsonl).",
+                  "JSONL output path for cache trace logs (default: $ZHUSHOU_STATE_DIR/logs/cache-trace.jsonl).",
               },
               includeMessages: {
                 type: "boolean",
@@ -677,7 +677,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                   anyOf: [
                     {
                       type: "string",
-                      const: "assistant",
+                      const: "zhushou",
                     },
                     {
                       type: "string",
@@ -686,7 +686,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                   ],
                   title: "Browser Profile Driver",
                   description:
-                    'Per-profile browser driver mode. Use "assistant" for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
+                    'Per-profile browser driver mode. Use "zhushou" for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
                 },
                 attachOnly: {
                   type: "boolean",
@@ -731,34 +731,34 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
             description:
               "Primary accent color used by UI surfaces for emphasis, badges, and visual identity cues. Use high-contrast values that remain readable across light/dark themes.",
           },
-          assistant: {
+          zhushou: {
             type: "object",
             properties: {
               name: {
                 type: "string",
                 maxLength: 50,
-                title: "Assistant Name",
+                title: "Zhushou Name",
                 description:
-                  "Display name shown for the assistant in UI views, chat chrome, and status contexts. Keep this stable so operators can reliably identify which assistant persona is active.",
+                  "Display name shown for the zhushou in UI views, chat chrome, and status contexts. Keep this stable so operators can reliably identify which zhushou persona is active.",
               },
               avatar: {
                 type: "string",
                 maxLength: 200,
-                title: "Assistant Avatar",
+                title: "Zhushou Avatar",
                 description:
-                  "Assistant avatar image source used in UI surfaces (URL, path, or data URI depending on runtime support). Use trusted assets and consistent branding dimensions for clean rendering.",
+                  "Zhushou avatar image source used in UI surfaces (URL, path, or data URI depending on runtime support). Use trusted assets and consistent branding dimensions for clean rendering.",
               },
             },
             additionalProperties: false,
-            title: "Assistant Appearance",
+            title: "Zhushou Appearance",
             description:
-              "Assistant display identity settings for name and avatar shown in UI surfaces. Keep these values aligned with your operator-facing persona and support expectations.",
+              "Zhushou display identity settings for name and avatar shown in UI surfaces. Keep these values aligned with your operator-facing persona and support expectations.",
           },
         },
         additionalProperties: false,
         title: "UI",
         description:
-          "UI presentation settings for accenting and assistant identity shown in control surfaces. Use this for branding and readability customization without changing runtime behavior.",
+          "UI presentation settings for accenting and zhushou identity shown in control surfaces. Use this for branding and readability customization without changing runtime behavior.",
       },
       secrets: {
         type: "object",
@@ -1191,7 +1191,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 ],
                 title: "ACP Stream Hidden Boundary Separator",
                 description:
-                  "Separator inserted before next visible assistant text when hidden ACP tool lifecycle events occurred (none|space|newline|paragraph). Default: paragraph.",
+                  "Separator inserted before next visible zhushou text when hidden ACP tool lifecycle events occurred (none|space|newline|paragraph). Default: paragraph.",
               },
               maxOutputChars: {
                 type: "integer",
@@ -1199,7 +1199,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 maximum: 9007199254740991,
                 title: "ACP Stream Max Output Chars",
                 description:
-                  "Maximum assistant output characters projected per ACP turn before truncation notice is emitted.",
+                  "Maximum zhushou output characters projected per ACP turn before truncation notice is emitted.",
               },
               maxSessionUpdateChars: {
                 type: "integer",
@@ -3224,7 +3224,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 ],
                 title: "Context Injection",
                 description:
-                  'Controls when workspace bootstrap files are injected into the system prompt: "always" (default) or "continuation-skip" for safe continuation turns after a completed assistant response.',
+                  'Controls when workspace bootstrap files are injected into the system prompt: "always" (default) or "continuation-skip" for safe continuation turns after a completed zhushou response.',
               },
               bootstrapMaxChars: {
                 type: "integer",
@@ -4023,7 +4023,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                         type: "string",
                         title: "Memory Search Index Path",
                         description:
-                          "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.assistant/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
+                          "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.zhushou/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
                       },
                       fts: {
                         type: "object",
@@ -4293,7 +4293,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                   ttl: {
                     type: "string",
                   },
-                  keepLastAssistants: {
+                  keepLastZhushous: {
                     type: "integer",
                     minimum: 0,
                     maximum: 9007199254740991,
@@ -4470,7 +4470,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                     maximum: 12,
                     title: "Compaction Preserve Recent Turns",
                     description:
-                      "Number of most recent user/assistant turns kept verbatim outside safeguard summarization (default: 3). Raise this to preserve exact recent dialogue context, or lower it to maximize compaction savings.",
+                      "Number of most recent user/zhushou turns kept verbatim outside safeguard summarization (default: 3). Raise this to preserve exact recent dialogue context, or lower it to maximize compaction savings.",
                   },
                   qualityGuard: {
                     type: "object",
@@ -5487,7 +5487,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                         type: "string",
                         title: "Sandbox Browser Network",
                         description:
-                          "Docker network for sandbox browser containers (default: assistant-sandbox-browser). Avoid bridge if you need stricter isolation.",
+                          "Docker network for sandbox browser containers (default: zhushou-sandbox-browser). Avoid bridge if you need stricter isolation.",
                       },
                       cdpPort: {
                         type: "integer",
@@ -7266,7 +7266,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                               type: "string",
                               title: "Agent ACP Harness Agent",
                               description:
-                                "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, assistant).",
+                                "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, zhushou).",
                             },
                             backend: {
                               type: "string",
@@ -17877,7 +17877,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
             type: "string",
             title: "Outbound Response Prefix",
             description:
-              "Prefix text prepended to outbound assistant replies before sending to channels. Use for lightweight branding/context tags and avoid long prefixes that reduce content density.",
+              "Prefix text prepended to outbound zhushou replies before sending to channels. Use for lightweight branding/context tags and avoid long prefixes that reduce content density.",
           },
           groupChat: {
             type: "object",
@@ -20520,7 +20520,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 type: "string",
                 title: "Wide-area Discovery Domain",
                 description:
-                  "Optional unicast DNS-SD domain for wide-area discovery, such as assistant.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
+                  "Optional unicast DNS-SD domain for wide-area discovery, such as zhushou.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
               },
             },
             additionalProperties: false,
@@ -20682,7 +20682,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
             type: "boolean",
             title: "Talk Interrupt on Speech",
             description:
-              "If true (default), stop assistant speech when the user starts speaking in Talk mode. Keep enabled for conversational turn-taking.",
+              "If true (default), stop zhushou speech when the user starts speaking in Talk mode. Keep enabled for conversational turn-taking.",
           },
           silenceTimeoutMs: {
             type: "integer",
@@ -20795,7 +20795,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 type: "boolean",
                 title: "Allow External Operator Embed URLs",
                 description:
-                  "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__assistant__/canvas and /__assistant__/a2ui documents do not need it.",
+                  "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__zhushou__/canvas and /__zhushou__/a2ui documents do not need it.",
               },
               allowedOrigins: {
                 type: "array",
@@ -21768,7 +21768,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
                 },
                 title: "Gateway Node Allowlist (Extra Commands)",
                 description:
-                  "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `assistant security audit`.",
+                  "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `zhushou security audit`.",
               },
               denyCommands: {
                 type: "array",
@@ -22695,7 +22695,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
             },
             title: "Plugin Install Records",
             description:
-              "CLI-managed install metadata (used by `assistant plugins update` to locate install sources).",
+              "CLI-managed install metadata (used by `zhushou plugins update` to locate install sources).",
           },
         },
         additionalProperties: false,
@@ -22706,7 +22706,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     required: ["commands"],
     additionalProperties: false,
-    title: "AssistantConfig",
+    title: "ZhushouConfig",
   },
   uiHints: {
     wizard: {
@@ -22832,7 +22832,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
       label: "UI",
       group: "UI",
       order: 120,
-      help: "UI presentation settings for accenting and assistant identity shown in control surfaces. Use this for branding and readability customization without changing runtime behavior.",
+      help: "UI presentation settings for accenting and zhushou identity shown in control surfaces. Use this for branding and readability customization without changing runtime behavior.",
       tags: ["advanced"],
     },
     browser: {
@@ -23105,7 +23105,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "diagnostics.cacheTrace.filePath": {
       label: "Cache Trace File Path",
-      help: "JSONL output path for cache trace logs (default: $ASSISTANT_STATE_DIR/logs/cache-trace.jsonl).",
+      help: "JSONL output path for cache trace logs (default: $ZHUSHOU_STATE_DIR/logs/cache-trace.jsonl).",
       tags: ["observability", "storage"],
     },
     "diagnostics.cacheTrace.includeMessages": {
@@ -23150,7 +23150,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "agents.list[].runtime.acp.agent": {
       label: "Agent ACP Harness Agent",
-      help: "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, assistant).",
+      help: "Optional ACP harness agent id to use for this 助手 agent (for example codex, claude, cursor, gemini, zhushou).",
       tags: ["advanced"],
     },
     "agents.list[].runtime.acp.backend": {
@@ -23572,7 +23572,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "browser.profiles.*.driver": {
       label: "Browser Profile Driver",
-      help: 'Per-profile browser driver mode. Use "assistant" for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
+      help: 'Per-profile browser driver mode. Use "zhushou" for CDP-based profiles, or use "existing-session" for host-local Chrome DevTools MCP attachment.',
       tags: ["storage"],
     },
     "browser.profiles.*.attachOnly": {
@@ -24340,7 +24340,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     "gateway.controlUi.basePath": {
       label: "Operator Client Base Path",
       help: "Legacy URL prefix retained for status and Tailscale compatibility. No browser assets are served.",
-      placeholder: "/assistant",
+      placeholder: "/zhushou",
       tags: ["network", "storage"],
     },
     "gateway.controlUi.embedSandbox": {
@@ -24350,7 +24350,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "gateway.controlUi.allowExternalEmbedUrls": {
       label: "Allow External Operator Embed URLs",
-      help: "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__assistant__/canvas and /__assistant__/a2ui documents do not need it.",
+      help: "DANGEROUS toggle that allows hosted embeds to load absolute external http(s) URLs. Keep this off unless your operator client intentionally embeds trusted third-party pages; hosted /__zhushou__/canvas and /__zhushou__/a2ui documents do not need it.",
       tags: ["security", "access", "network", "advanced"],
     },
     "gateway.controlUi.allowedOrigins": {
@@ -24482,7 +24482,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "gateway.nodes.allowCommands": {
       label: "Gateway Node Allowlist (Extra Commands)",
-      help: "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `assistant security audit`.",
+      help: "Extra node.invoke commands to allow beyond the gateway defaults (array of command strings). Enabling dangerous commands here is a security-sensitive override and is flagged by `zhushou security audit`.",
       tags: ["access", "network"],
     },
     "gateway.nodes.denyCommands": {
@@ -24662,7 +24662,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "agents.defaults.contextInjection": {
       label: "Context Injection",
-      help: 'Controls when workspace bootstrap files are injected into the system prompt: "always" (default) or "continuation-skip" for safe continuation turns after a completed assistant response.',
+      help: 'Controls when workspace bootstrap files are injected into the system prompt: "always" (default) or "continuation-skip" for safe continuation turns after a completed zhushou response.',
       tags: ["advanced"],
     },
     "agents.defaults.bootstrapMaxChars": {
@@ -24878,7 +24878,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "agents.defaults.memorySearch.store.path": {
       label: "Memory Search Index Path",
-      help: "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.assistant/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
+      help: "Sets where the SQLite memory index is stored on disk for each agent. Keep the default `~/.zhushou/memory/{agentId}.sqlite` unless you need custom storage placement or backup policy alignment.",
       tags: ["storage"],
     },
     "agents.defaults.memorySearch.store.vector.enabled": {
@@ -25233,12 +25233,12 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "acp.stream.hiddenBoundarySeparator": {
       label: "ACP Stream Hidden Boundary Separator",
-      help: "Separator inserted before next visible assistant text when hidden ACP tool lifecycle events occurred (none|space|newline|paragraph). Default: paragraph.",
+      help: "Separator inserted before next visible zhushou text when hidden ACP tool lifecycle events occurred (none|space|newline|paragraph). Default: paragraph.",
       tags: ["advanced"],
     },
     "acp.stream.maxOutputChars": {
       label: "ACP Stream Max Output Chars",
-      help: "Maximum assistant output characters projected per ACP turn before truncation notice is emitted.",
+      help: "Maximum zhushou output characters projected per ACP turn before truncation notice is emitted.",
       tags: ["performance"],
     },
     "acp.stream.maxSessionUpdateChars": {
@@ -25649,7 +25649,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "agents.defaults.compaction.recentTurnsPreserve": {
       label: "Compaction Preserve Recent Turns",
-      help: "Number of most recent user/assistant turns kept verbatim outside safeguard summarization (default: 3). Raise this to preserve exact recent dialogue context, or lower it to maximize compaction savings.",
+      help: "Number of most recent user/zhushou turns kept verbatim outside safeguard summarization (default: 3). Raise this to preserve exact recent dialogue context, or lower it to maximize compaction savings.",
       tags: ["advanced"],
     },
     "agents.defaults.compaction.qualityGuard": {
@@ -25792,7 +25792,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "agents.defaults.sandbox.browser.network": {
       label: "Sandbox Browser Network",
-      help: "Docker network for sandbox browser containers (default: assistant-sandbox-browser). Avoid bridge if you need stricter isolation.",
+      help: "Docker network for sandbox browser containers (default: zhushou-sandbox-browser). Avoid bridge if you need stricter isolation.",
       tags: ["storage"],
     },
     "agents.defaults.sandbox.browser.cdpSourceRange": {
@@ -25896,19 +25896,19 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
       help: "Primary accent color used by UI surfaces for emphasis, badges, and visual identity cues. Use high-contrast values that remain readable across light/dark themes.",
       tags: ["advanced"],
     },
-    "ui.assistant": {
-      label: "Assistant Appearance",
-      help: "Assistant display identity settings for name and avatar shown in UI surfaces. Keep these values aligned with your operator-facing persona and support expectations.",
+    "ui.zhushou": {
+      label: "Zhushou Appearance",
+      help: "Zhushou display identity settings for name and avatar shown in UI surfaces. Keep these values aligned with your operator-facing persona and support expectations.",
       tags: ["advanced"],
     },
-    "ui.assistant.name": {
-      label: "Assistant Name",
-      help: "Display name shown for the assistant in UI views, chat chrome, and status contexts. Keep this stable so operators can reliably identify which assistant persona is active.",
+    "ui.zhushou.name": {
+      label: "Zhushou Name",
+      help: "Display name shown for the zhushou in UI views, chat chrome, and status contexts. Keep this stable so operators can reliably identify which zhushou persona is active.",
       tags: ["advanced"],
     },
-    "ui.assistant.avatar": {
-      label: "Assistant Avatar",
-      help: "Assistant avatar image source used in UI surfaces (URL, path, or data URI depending on runtime support). Use trusted assets and consistent branding dimensions for clean rendering.",
+    "ui.zhushou.avatar": {
+      label: "Zhushou Avatar",
+      help: "Zhushou avatar image source used in UI surfaces (URL, path, or data URI depending on runtime support). Use trusted assets and consistent branding dimensions for clean rendering.",
       tags: ["advanced"],
     },
     "browser.evaluateEnabled": {
@@ -26597,7 +26597,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "discovery.wideArea.domain": {
       label: "Wide-area Discovery Domain",
-      help: "Optional unicast DNS-SD domain for wide-area discovery, such as assistant.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
+      help: "Optional unicast DNS-SD domain for wide-area discovery, such as zhushou.internal. Use this when you intentionally publish gateway discovery beyond local mDNS scopes.",
       tags: ["network"],
     },
     "discovery.mdns": {
@@ -26632,7 +26632,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "talk.interruptOnSpeech": {
       label: "Talk Interrupt on Speech",
-      help: "If true (default), stop assistant speech when the user starts speaking in Talk mode. Keep enabled for conversational turn-taking.",
+      help: "If true (default), stop zhushou speech when the user starts speaking in Talk mode. Keep enabled for conversational turn-taking.",
       tags: ["media"],
     },
     "talk.silenceTimeoutMs": {
@@ -26647,7 +26647,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "messages.responsePrefix": {
       label: "Outbound Response Prefix",
-      help: "Prefix text prepended to outbound assistant replies before sending to channels. Use for lightweight branding/context tags and avoid long prefixes that reduce content density.",
+      help: "Prefix text prepended to outbound zhushou replies before sending to channels. Use for lightweight branding/context tags and avoid long prefixes that reduce content density.",
       tags: ["advanced"],
     },
     "messages.groupChat": {
@@ -26845,7 +26845,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     "agents.list[].identity.avatar": {
       label: "Agent Avatar",
       help: "Avatar image path (relative to the agent workspace only) or a remote URL/data URL.",
-      placeholder: "avatars/assistant.png",
+      placeholder: "avatars/zhushou.png",
       tags: ["advanced"],
     },
     "agents.list[].heartbeat.suppressToolErrorWarnings": {
@@ -26970,7 +26970,7 @@ export const GENERATED_BASE_CONFIG_SCHEMA: BaseConfigSchemaResponse = {
     },
     "plugins.installs": {
       label: "Plugin Install Records",
-      help: "CLI-managed install metadata (used by `assistant plugins update` to locate install sources).",
+      help: "CLI-managed install metadata (used by `zhushou plugins update` to locate install sources).",
       tags: ["advanced"],
     },
     "plugins.installs.*.source": {

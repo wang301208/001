@@ -75,10 +75,10 @@ export type EmbeddedRunAttemptResult = {
   systemPromptReport?: SessionSystemPromptReport;
   finalPromptText?: string;
   messagesSnapshot: AgentMessage[];
-  assistantTexts: string[];
+  zhushouTexts: string[];
   toolMetas: Array<{ toolName: string; meta?: string }>;
-  lastAssistant: AssistantMessage | undefined;
-  currentAttemptAssistant?: AssistantMessage | undefined;
+  lastZhushou: AssistantMessage | undefined;
+  currentAttemptZhushou?: AssistantMessage | undefined;
   lastToolError?: ToolErrorSummary;
   didSendViaMessagingTool: boolean;
   didSendDeterministicApprovalPrompt?: boolean;

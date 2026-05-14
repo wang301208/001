@@ -27,7 +27,7 @@ function addBeforeInstallHook(
 }
 
 const stubCtx: PluginHookBeforeInstallContext = {
-  origin: "assistant-workspace",
+  origin: "zhushou-workspace",
   targetType: "skill",
   requestKind: "skill-install",
 };
@@ -37,7 +37,7 @@ const stubEvent: PluginHookBeforeInstallEvent = {
   targetType: "skill",
   sourcePath: "/tmp/demo-skill",
   sourcePathKind: "directory",
-  origin: "assistant-workspace",
+  origin: "zhushou-workspace",
   request: {
     kind: "skill-install",
     mode: "install",

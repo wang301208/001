@@ -1,5 +1,5 @@
-import type { ChannelDoctorAdapter } from "assistant/plugin-sdk/channel-contract";
-import { createDangerousNameMatchingMutableAllowlistWarningCollector } from "assistant/plugin-sdk/channel-policy";
+import type { ChannelDoctorAdapter } from "zhushou/plugin-sdk/channel-contract";
+import { createDangerousNameMatchingMutableAllowlistWarningCollector } from "zhushou/plugin-sdk/channel-policy";
 import { legacyConfigRules, normalizeCompatibilityConfig } from "./doctor-contract.js";
 import { isZalouserMutableGroupEntry } from "./security-audit.js";
 

@@ -1,5 +1,5 @@
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import WebSocket from "ws";
 import { isLoopbackHost } from "../gateway/net.js";
 import {

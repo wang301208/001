@@ -115,7 +115,7 @@ describe("kimi tool-call markup wrapper", () => {
     });
   });
 
-  it("leaves normal assistant text unchanged", async () => {
+  it("leaves normal zhushou text unchanged", async () => {
     const finalMessage = {
       role: "assistant",
       content: [{ type: "text", text: "normal response" }],

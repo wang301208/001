@@ -124,12 +124,12 @@ describe("augmentChatHistoryWithCanvasBlocks", () => {
       view: {
         backend: "canvas",
         id: "cv_user_text",
-        url: "/__assistant__/canvas/documents/cv_user_text/index.html",
+        url: "/__zhushou__/canvas/documents/cv_user_text/index.html",
         title: "User pasted preview",
         preferred_height: 240,
       },
       presentation: {
-        target: "assistant_message",
+        target: "zhushou_message",
       },
     });
 
@@ -141,7 +141,7 @@ describe("augmentChatHistoryWithCanvasBlocks", () => {
       },
       {
         role: "assistant",
-        content: "Plain assistant reply",
+        content: "Plain zhushou reply",
         timestamp: 2,
       },
     ];
@@ -263,7 +263,7 @@ describe("injectTimestamp", () => {
 });
 
 describe("sanitizeChatHistoryMessages", () => {
-  it("drops commentary-only assistant entries when phase exists only in textSignature", () => {
+  it("drops commentary-only zhushou entries when phase exists only in textSignature", () => {
     const result = sanitizeChatHistoryMessages([
       {
         role: "user",
@@ -424,7 +424,7 @@ describe("gateway chat transcript writes (guardrail)", () => {
     const helperSrc = fs.readFileSync(helperTs, "utf-8");
 
     expect(chatSrc.includes("fs.appendFileSync(transcriptPath")).toBe(false);
-    expect(chatSrc).toContain("appendInjectedAssistantMessageToTranscript(");
+    expect(chatSrc).toContain("appendInjectedZhushouMessageToTranscript(");
 
     expect(helperSrc.includes("fs.appendFileSync(params.transcriptPath")).toBe(false);
     expect(helperSrc).toContain("SessionManager.open(params.transcriptPath)");
@@ -729,7 +729,8 @@ describe("exec approval handlers", () => {
 
   it("uses a 30 second default countdown for exec approval requests", async () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-05-08T00:00:00.000Z"));
+    const nowMs = new Date("2026-05-08T00:00:00.000Z").getTime();
+    vi.setSystemTime(nowMs);
     try {
       const { handlers, broadcasts, respond, context } = createExecApprovalFixture();
 
@@ -744,6 +745,7 @@ describe("exec approval handlers", () => {
           commandArgv: ["echo", "ok"],
           systemRunPlan: undefined,
           nodeId: undefined,
+          timeoutMs: undefined,
         },
       });
 
@@ -757,7 +759,7 @@ describe("exec approval handlers", () => {
 
       const requested = broadcasts.find((entry) => entry.event === "exec.approval.requested");
       expect((requested?.payload as { expiresAtMs?: number })?.expiresAtMs).toBe(
-        Date.now() + 30_000,
+        nowMs + 30_000,
       );
 
       const id = (requested?.payload as { id?: string })?.id ?? "";
@@ -1379,25 +1381,40 @@ describe("exec approval handlers", () => {
     }
   });
 
-  it("fast-fails approvals when no approver clients and no forwarding targets", async () => {
+  it("defaults approvals to allow-once after countdown when no approver clients and no forwarding targets", async () => {
+    vi.useFakeTimers();
     const { manager, handlers, forwarder, respond, context } =
       createForwardingExecApprovalFixture();
     const expireSpy = vi.spyOn(manager, "expire");
+    try {
+      const requestPromise = requestExecApproval({
+        handlers,
+        respond,
+        context,
+        params: { timeoutMs: 60_000, id: "approval-no-approver", host: "gateway" },
+      });
+      await drainApprovalRequestTicks();
 
-    await requestExecApproval({
-      handlers,
-      respond,
-      context,
-      params: { timeoutMs: 60_000, id: "approval-no-approver", host: "gateway" },
-    });
+      expect(forwarder.handleRequested).toHaveBeenCalledTimes(1);
+      expect(expireSpy).not.toHaveBeenCalledWith("approval-no-approver", "no-approval-route");
+      expect(respond).not.toHaveBeenCalledWith(
+        true,
+        expect.objectContaining({ id: "approval-no-approver", decision: "allow-once" }),
+        undefined,
+      );
 
-    expect(forwarder.handleRequested).toHaveBeenCalledTimes(1);
-    expect(expireSpy).toHaveBeenCalledWith("approval-no-approver", "no-approval-route");
-    expect(respond).toHaveBeenCalledWith(
-      true,
-      expect.objectContaining({ id: "approval-no-approver", decision: null }),
-      undefined,
-    );
+      await vi.advanceTimersByTimeAsync(60_000);
+      await requestPromise;
+
+      expect(expireSpy).toHaveBeenCalledWith("approval-no-approver");
+      expect(respond).toHaveBeenCalledWith(
+        true,
+        expect.objectContaining({ id: "approval-no-approver", decision: "allow-once" }),
+        undefined,
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("keeps approvals pending when iOS push delivery accepted the request", async () => {
@@ -1473,7 +1490,7 @@ describe("exec approval handlers", () => {
     });
   });
 
-  it("sends iOS cleanup delivery on expiration", async () => {
+  it("sends iOS cleanup delivery when countdown auto-approves", async () => {
     vi.useFakeTimers();
     try {
       const iosPushDelivery = {
@@ -1501,10 +1518,15 @@ describe("exec approval handlers", () => {
       await requestPromise;
 
       await vi.waitFor(() => {
-        expect(iosPushDelivery.handleExpired).toHaveBeenCalledWith(
-          expect.objectContaining({ id: "approval-ios-expire" }),
+        expect(iosPushDelivery.handleResolved).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: "approval-ios-expire",
+            decision: "allow-once",
+            resolvedBy: "approval-timeout",
+          }),
         );
       });
+      expect(iosPushDelivery.handleExpired).not.toHaveBeenCalled();
     } finally {
       vi.useRealTimers();
     }
@@ -1635,16 +1657,16 @@ describe("logs.tail", () => {
   });
 
   it("falls back to latest rolling log file when today is missing", async () => {
-    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "assistant-logs-"));
-    const older = path.join(tempDir, "assistant-2026-01-20.log");
-    const newer = path.join(tempDir, "assistant-2026-01-21.log");
+    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "zhushou-logs-"));
+    const older = path.join(tempDir, "zhushou-2026-01-20.log");
+    const newer = path.join(tempDir, "zhushou-2026-01-21.log");
 
     await fsPromises.writeFile(older, '{"msg":"old"}\n');
     await fsPromises.writeFile(newer, '{"msg":"new"}\n');
     await fsPromises.utimes(older, new Date(0), new Date(0));
     await fsPromises.utimes(newer, new Date(), new Date());
 
-    setLoggerOverride({ file: path.join(tempDir, "assistant-2026-01-22.log") });
+    setLoggerOverride({ file: path.join(tempDir, "zhushou-2026-01-22.log") });
 
     const respond = vi.fn();
     await logsHandlers["logs.tail"]({
@@ -1669,8 +1691,8 @@ describe("logs.tail", () => {
   });
 
   it("redacts sensitive CLI tokens from returned lines", async () => {
-    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "assistant-logs-"));
-    const file = path.join(tempDir, "assistant-2026-01-22.log");
+    const tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), "zhushou-logs-"));
+    const file = path.join(tempDir, "zhushou-2026-01-22.log");
 
     await fsPromises.writeFile(
       file,

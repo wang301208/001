@@ -130,8 +130,8 @@ export { toText };
 export function resolveMessageId(entry: Record<string, unknown>): string | undefined {
   return (
     toText(entry.id) ??
-    (entry.__assistant && typeof entry.__assistant === "object"
-      ? toText((entry.__assistant as { id?: unknown }).id)
+    (entry.__zhushou && typeof entry.__zhushou === "object"
+      ? toText((entry.__zhushou as { id?: unknown }).id)
       : undefined)
   );
 }

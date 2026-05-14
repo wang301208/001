@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-assistant_live_stage_source_tree() {
+zhushou_live_stage_source_tree() {
   local dest_dir="${1:?destination directory required}"
 
   set +e
@@ -16,7 +16,7 @@ assistant_live_stage_source_tree() {
     --exclude=.tmp \
     --exclude=.tmp-precommit-venv \
     --exclude=.worktrees \
-    --exclude=__assistant_vitest__ \
+    --exclude=__zhushou_vitest__ \
     --exclude=relay.sock \
     --exclude='*.sock' \
     --exclude='*/*.sock' \
@@ -32,21 +32,21 @@ assistant_live_stage_source_tree() {
   fi
 }
 
-assistant_live_link_runtime_tree() {
+zhushou_live_link_runtime_tree() {
   local dest_dir="${1:?destination directory required}"
 
   ln -s /app/node_modules "$dest_dir/node_modules"
   ln -s /app/dist "$dest_dir/dist"
   if [ -d /app/dist-runtime/extensions ]; then
-    export ASSISTANT_BUNDLED_PLUGINS_DIR=/app/dist-runtime/extensions
+    export ZHUSHOU_BUNDLED_PLUGINS_DIR=/app/dist-runtime/extensions
   elif [ -d /app/dist/extensions ]; then
-    export ASSISTANT_BUNDLED_PLUGINS_DIR=/app/dist/extensions
+    export ZHUSHOU_BUNDLED_PLUGINS_DIR=/app/dist/extensions
   fi
 }
 
-assistant_live_stage_state_dir() {
+zhushou_live_stage_state_dir() {
   local dest_dir="${1:?destination directory required}"
-  local source_dir="${HOME}/.assistant"
+  local source_dir="${HOME}/.zhushou"
 
   mkdir -p "$dest_dir"
   if [ -d "$source_dir" ]; then
@@ -74,12 +74,12 @@ assistant_live_stage_state_dir() {
     fi
   fi
 
-  export ASSISTANT_STATE_DIR="$dest_dir"
-  export ASSISTANT_CONFIG_PATH="$dest_dir/assistant.json"
+  export ZHUSHOU_STATE_DIR="$dest_dir"
+  export ZHUSHOU_CONFIG_PATH="$dest_dir/zhushou.json"
 }
 
-assistant_live_prepare_staged_config() {
-  if [ ! -f "${ASSISTANT_CONFIG_PATH:-}" ]; then
+zhushou_live_prepare_staged_config() {
+  if [ ! -f "${ZHUSHOU_CONFIG_PATH:-}" ]; then
     return 0
   fi
 

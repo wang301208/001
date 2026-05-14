@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { ChannelApprovalNativePlannedTarget } from "./approval-native-delivery.js";
 import type { PreparedChannelNativeApprovalTarget } from "./approval-native-runtime.js";
 import type { ChannelApprovalKind } from "./approval-types.js";
@@ -17,7 +17,7 @@ export type ApprovalRequest = ExecApprovalRequest | PluginApprovalRequest;
 export type ApprovalResolved = ExecApprovalResolved | PluginApprovalResolved;
 
 export type ChannelApprovalCapabilityHandlerContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   gatewayUrl?: string;
   context?: unknown;

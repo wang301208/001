@@ -5,20 +5,20 @@ import { describe, expect, it, vi } from "vitest";
 import { createTestPluginApi } from "../../test/helpers/plugins/plugin-api.js";
 import registerPhoneControl from "./index.js";
 import type {
-  AssistantPluginApi,
-  AssistantPluginCommandDefinition,
+  ZhushouPluginApi,
+  ZhushouPluginCommandDefinition,
   PluginCommandContext,
 } from "./runtime-api.js";
 
-const PHONE_CONTROL_STATE_PREFIX = "assistant-phone-control-test-";
+const PHONE_CONTROL_STATE_PREFIX = "zhushou-phone-control-test-";
 const WRITE_COMMANDS = ["calendar.add", "contacts.add", "reminders.add", "sms.send"] as const;
 
 function createApi(params: {
   stateDir: string;
   getConfig: () => Record<string, unknown>;
   writeConfig: (next: Record<string, unknown>) => Promise<void>;
-  registerCommand: (command: AssistantPluginCommandDefinition) => void;
-}): AssistantPluginApi {
+  registerCommand: (command: ZhushouPluginCommandDefinition) => void;
+}): ZhushouPluginApi {
   return createTestPluginApi({
     id: "phone-control",
     name: "phone-control",
@@ -33,7 +33,7 @@ function createApi(params: {
         loadConfig: () => params.getConfig(),
         writeConfigFile: (next: Record<string, unknown>) => params.writeConfig(next),
       },
-    } as AssistantPluginApi["runtime"],
+    } as ZhushouPluginApi["runtime"],
     registerCommand: params.registerCommand,
   });
 }
@@ -67,7 +67,7 @@ function createPhoneControlConfig(): Record<string, unknown> {
 
 async function withRegisteredPhoneControl(
   run: (params: {
-    command: AssistantPluginCommandDefinition;
+    command: ZhushouPluginCommandDefinition;
     writeConfigFile: ReturnType<typeof vi.fn>;
     getConfig: () => Record<string, unknown>;
   }) => Promise<void>,
@@ -79,7 +79,7 @@ async function withRegisteredPhoneControl(
       config = next;
     });
 
-    let command: AssistantPluginCommandDefinition | undefined;
+    let command: ZhushouPluginCommandDefinition | undefined;
     registerPhoneControl.register(
       createApi({
         stateDir,

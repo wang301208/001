@@ -1,10 +1,10 @@
-﻿import type { ResolvedAgentRoute } from "assistant/plugin-sdk/routing";
+﻿import type { ResolvedAgentRoute } from "zhushou/plugin-sdk/routing";
 import { resolveFeishuRuntimeAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { createFeishuCommentReplyDispatcher } from "./comment-dispatcher.js";
 import {
   createChannelPairingController,
-  type AssistantConfig,
+  type ZhushouConfig,
   type RuntimeEnv,
 } from "./comment-handler-runtime-api.js";
 import { buildFeishuCommentTarget } from "./comment-target.js";
@@ -19,7 +19,7 @@ import { getFeishuRuntime } from "./runtime.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
 
 type HandleFeishuCommentEventParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   runtime?: RuntimeEnv;
   event: FeishuDriveCommentNoticeEvent;

@@ -85,7 +85,7 @@ import {
   type RuntimeConfigWriteNotification,
 } from "./runtime-snapshot.js";
 import { resolveShellEnvExpectedKeys } from "./shell-env-expected-keys.js";
-import type { AssistantConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
+import type { ZhushouConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
 import {
   validateConfigObjectRawWithPlugins,
   validateConfigObjectWithPlugins,
@@ -226,11 +226,11 @@ export function resolveConfigSnapshotHash(snapshot: {
   return hashConfigRaw(snapshot.raw);
 }
 
-function coerceConfig(value: unknown): AssistantConfig {
+function coerceConfig(value: unknown): ZhushouConfig {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }
-  return value as AssistantConfig;
+  return value as ZhushouConfig;
 }
 
 function hasConfigMeta(value: unknown): boolean {
@@ -854,7 +854,7 @@ function warnOnConfigMiskeys(raw: unknown, logger: Pick<typeof console, "warn">)
   }
 }
 
-function stampConfigVersion(cfg: AssistantConfig): AssistantConfig {
+function stampConfigVersion(cfg: ZhushouConfig): ZhushouConfig {
   const now = new Date().toISOString();
   return {
     ...cfg,
@@ -866,7 +866,7 @@ function stampConfigVersion(cfg: AssistantConfig): AssistantConfig {
   };
 }
 
-function warnIfConfigFromFuture(cfg: AssistantConfig, logger: Pick<typeof console, "warn">): void {
+function warnIfConfigFromFuture(cfg: ZhushouConfig, logger: Pick<typeof console, "warn">): void {
   const touched = cfg.meta?.lastTouchedVersion;
   if (!touched) {
     return;
@@ -952,7 +952,7 @@ function resolveConfigForRead(
 ): ConfigReadResolution {
   // Apply config.env to process.env BEFORE substitution so ${VAR} can reference config-defined vars.
   if (resolvedIncludes && typeof resolvedIncludes === "object" && "env" in resolvedIncludes) {
-    applyConfigEnvVars(resolvedIncludes as AssistantConfig, env);
+    applyConfigEnvVars(resolvedIncludes as ZhushouConfig, env);
   }
 
   // Collect missing env var references as warnings instead of throwing,
@@ -998,9 +998,9 @@ function createConfigFileSnapshot(params: {
   exists: boolean;
   raw: string | null;
   parsed: unknown;
-  sourceConfig: AssistantConfig;
+  sourceConfig: ZhushouConfig;
   valid: boolean;
-  runtimeConfig: AssistantConfig;
+  runtimeConfig: ZhushouConfig;
   hash?: string;
   issues: ConfigFileSnapshot["issues"];
   warnings: ConfigFileSnapshot["warnings"];
@@ -1042,7 +1042,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     return snapshot;
   }
 
-  function finalizeLoadedRuntimeConfig(cfg: AssistantConfig): AssistantConfig {
+  function finalizeLoadedRuntimeConfig(cfg: ZhushouConfig): ZhushouConfig {
     const duplicates = findDuplicateAgentDirs(cfg, {
       env: deps.env,
       homedir: deps.homedir,
@@ -1085,7 +1085,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     return applyConfigOverrides(cfgWithOwnerDisplaySecret);
   }
 
-  function loadConfig(): AssistantConfig {
+  function loadConfig(): ZhushouConfig {
     try {
       maybeLoadDotEnvForConfig(deps.env);
       if (!deps.fs.existsSync(configPath)) {
@@ -1142,7 +1142,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         });
         return {};
       }
-      const preValidationDuplicates = findDuplicateAgentDirs(effectiveConfigRaw as AssistantConfig, {
+      const preValidationDuplicates = findDuplicateAgentDirs(effectiveConfigRaw as ZhushouConfig, {
         env: deps.env,
         homedir: deps.homedir,
       });
@@ -1404,7 +1404,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     };
   }
 
-  async function readBestEffortConfig(): Promise<AssistantConfig> {
+  async function readBestEffortConfig(): Promise<ZhushouConfig> {
     const result = await readConfigFileSnapshotInternal();
     if (!result.snapshot.valid) {
       return result.snapshot.config;
@@ -1414,7 +1414,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     );
   }
 
-  async function readSourceConfigBestEffort(): Promise<AssistantConfig> {
+  async function readSourceConfigBestEffort(): Promise<ZhushouConfig> {
     maybeLoadDotEnvForConfig(deps.env);
     const exists = deps.fs.existsSync(configPath);
     if (!exists) {
@@ -1454,7 +1454,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
   }
 
   async function writeConfigFile(
-    cfg: AssistantConfig,
+    cfg: ZhushouConfig,
     options: ConfigWriteOptions = {},
   ): Promise<{ persistedHash: string }> {
     clearConfigCache();
@@ -1519,7 +1519,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     // persisted to disk (issue #56772).
     // Apply legacy web-search normalization so that migration results are still
     // persisted even though we bypass validated.config.
-    let cfgToWrite = persistCandidate as AssistantConfig;
+    let cfgToWrite = persistCandidate as ZhushouConfig;
     try {
       if (deps.fs.existsSync(configPath)) {
         const currentRaw = await deps.fs.promises.readFile(configPath, "utf-8");
@@ -1533,7 +1533,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
             cfgToWrite,
             parsedRes.parsed,
             envForRestore,
-          ) as AssistantConfig;
+          ) as ZhushouConfig;
         }
       }
     } catch {
@@ -1550,7 +1550,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     });
     const outputConfigBase =
       envRefMap && changedPaths
-        ? (restoreEnvRefsFromMap(cfgToWrite, "", envRefMap, changedPaths) as AssistantConfig)
+        ? (restoreEnvRefsFromMap(cfgToWrite, "", envRefMap, changedPaths) as ZhushouConfig)
         : cfgToWrite;
     let outputConfig = structuredClone(outputConfigBase);
     pruneInactiveGatewayAuthCredentials(outputConfig as Record<string, unknown>);
@@ -1595,7 +1595,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         return;
       }
       const isVitest = deps.env.VITEST === "true";
-      const shouldLogInVitest = deps.env.ASSISTANT_TEST_CONFIG_OVERWRITE_LOG === "1";
+      const shouldLogInVitest = deps.env.ZHUSHOU_TEST_CONFIG_OVERWRITE_LOG === "1";
       if (isVitest && !shouldLogInVitest) {
         return;
       }
@@ -1614,7 +1614,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       }
       // Tests often write minimal configs (missing meta, etc); keep output quiet unless requested.
       const isVitest = deps.env.VITEST === "true";
-      const shouldLogInVitest = deps.env.ASSISTANT_TEST_CONFIG_WRITE_ANOMALY_LOG === "1";
+      const shouldLogInVitest = deps.env.ZHUSHOU_TEST_CONFIG_WRITE_ANOMALY_LOG === "1";
       if (isVitest && !shouldLogInVitest) {
         return;
       }
@@ -1723,7 +1723,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 }
 
 // NOTE: These wrappers intentionally do *not* cache the resolved config path at
-// module scope. `ASSISTANT_CONFIG_PATH` (and friends) are expected to work even
+// module scope. `ZHUSHOU_CONFIG_PATH` (and friends) are expected to work even
 // when set after the module has been imported (tests, one-off scripts, etc.).
 const AUTO_OWNER_DISPLAY_SECRET_BY_PATH = new Map<string, string>();
 const AUTO_OWNER_DISPLAY_SECRET_PERSIST_IN_FLIGHT = new Set<string>();
@@ -1739,8 +1739,8 @@ export function registerConfigWriteListener(
 }
 
 function isCompatibleTopLevelRuntimeProjectionShape(params: {
-  runtimeSnapshot: AssistantConfig;
-  candidate: AssistantConfig;
+  runtimeSnapshot: ZhushouConfig;
+  candidate: ZhushouConfig;
 }): boolean {
   const runtime = params.runtimeSnapshot as Record<string, unknown>;
   const candidate = params.candidate as Record<string, unknown>;
@@ -1767,7 +1767,7 @@ function isCompatibleTopLevelRuntimeProjectionShape(params: {
   return true;
 }
 
-export function projectConfigOntoRuntimeSourceSnapshot(config: AssistantConfig): AssistantConfig {
+export function projectConfigOntoRuntimeSourceSnapshot(config: ZhushouConfig): ZhushouConfig {
   const runtimeConfigSnapshot = getRuntimeConfigSnapshotState();
   const runtimeConfigSourceSnapshot = getRuntimeConfigSourceSnapshotState();
   if (!runtimeConfigSnapshot || !runtimeConfigSourceSnapshot) {
@@ -1795,22 +1795,22 @@ export function projectConfigOntoRuntimeSourceSnapshot(config: AssistantConfig):
   return coerceConfig(applyMergePatch(projectedSource, runtimePatch));
 }
 
-export function loadConfig(): AssistantConfig {
+export function loadConfig(): ZhushouConfig {
   // First successful load becomes the process snapshot. Long-lived runtimes
   // should swap this snapshot via explicit reload/watcher paths instead of
-  // reparsing assistant.json on hot code paths.
+  // reparsing zhushou.json on hot code paths.
   return loadPinnedRuntimeConfig(() => createConfigIO().loadConfig());
 }
 
-export function getRuntimeConfig(): AssistantConfig {
+export function getRuntimeConfig(): ZhushouConfig {
   return loadConfig();
 }
 
-export async function readBestEffortConfig(): Promise<AssistantConfig> {
+export async function readBestEffortConfig(): Promise<ZhushouConfig> {
   return await createConfigIO().readBestEffortConfig();
 }
 
-export async function readSourceConfigBestEffort(): Promise<AssistantConfig> {
+export async function readSourceConfigBestEffort(): Promise<ZhushouConfig> {
   return await createConfigIO().readSourceConfigBestEffort();
 }
 
@@ -1831,7 +1831,7 @@ export async function readSourceConfigSnapshotForWrite(): Promise<ReadConfigFile
 }
 
 export async function writeConfigFile(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   options: ConfigWriteOptions = {},
 ): Promise<void> {
   const io = createConfigIO();

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-profile_path="${1:-${RUNNER_TEMP:-/tmp}/assistant-live.profile}"
+profile_path="${1:-${RUNNER_TEMP:-/tmp}/zhushou-live.profile}"
 
 mkdir -p "$(dirname "$profile_path")"
 : >"$profile_path"
@@ -45,11 +45,11 @@ for env_key in \
   MINIMAX_API_KEY \
   OPENCODE_API_KEY \
   OPENCODE_ZEN_API_KEY \
-  ASSISTANT_LIVE_BROWSER_CDP_URL \
-  ASSISTANT_LIVE_SETUP_TOKEN \
-  ASSISTANT_LIVE_SETUP_TOKEN_MODEL \
-  ASSISTANT_LIVE_SETUP_TOKEN_PROFILE \
-  ASSISTANT_LIVE_SETUP_TOKEN_VALUE \
+  ZHUSHOU_LIVE_BROWSER_CDP_URL \
+  ZHUSHOU_LIVE_SETUP_TOKEN \
+  ZHUSHOU_LIVE_SETUP_TOKEN_MODEL \
+  ZHUSHOU_LIVE_SETUP_TOKEN_PROFILE \
+  ZHUSHOU_LIVE_SETUP_TOKEN_VALUE \
   GEMINI_API_KEY \
   GOOGLE_API_KEY \
   OPENROUTER_API_KEY \
@@ -69,16 +69,16 @@ do
   append_profile_env "$env_key"
 done
 
-write_secret_file "$HOME/.codex/auth.json" ASSISTANT_CODEX_AUTH_JSON
-write_secret_file "$HOME/.codex/config.toml" ASSISTANT_CODEX_CONFIG_TOML
-write_secret_file "$HOME/.claude.json" ASSISTANT_CLAUDE_JSON
-write_secret_file "$HOME/.claude/.credentials.json" ASSISTANT_CLAUDE_CREDENTIALS_JSON
-write_secret_file "$HOME/.claude/settings.json" ASSISTANT_CLAUDE_SETTINGS_JSON
-write_secret_file "$HOME/.claude/settings.local.json" ASSISTANT_CLAUDE_SETTINGS_LOCAL_JSON
-write_secret_file "$HOME/.gemini/settings.json" ASSISTANT_GEMINI_SETTINGS_JSON
+write_secret_file "$HOME/.codex/auth.json" ZHUSHOU_CODEX_AUTH_JSON
+write_secret_file "$HOME/.codex/config.toml" ZHUSHOU_CODEX_CONFIG_TOML
+write_secret_file "$HOME/.claude.json" ZHUSHOU_CLAUDE_JSON
+write_secret_file "$HOME/.claude/.credentials.json" ZHUSHOU_CLAUDE_CREDENTIALS_JSON
+write_secret_file "$HOME/.claude/settings.json" ZHUSHOU_CLAUDE_SETTINGS_JSON
+write_secret_file "$HOME/.claude/settings.local.json" ZHUSHOU_CLAUDE_SETTINGS_LOCAL_JSON
+write_secret_file "$HOME/.gemini/settings.json" ZHUSHOU_GEMINI_SETTINGS_JSON
 
 if [[ -n "${GITHUB_ENV:-}" ]]; then
   {
-    echo "ASSISTANT_PROFILE_FILE=$profile_path"
+    echo "ZHUSHOU_PROFILE_FILE=$profile_path"
   } >>"$GITHUB_ENV"
 fi

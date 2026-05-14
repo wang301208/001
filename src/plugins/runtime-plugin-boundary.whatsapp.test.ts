@@ -26,14 +26,14 @@ function writeRuntimeFixtureText(rootDir: string, relativePath: string, value: s
 }
 
 function createBundledWhatsAppRuntimeFixture() {
-  const rootDir = makeTrackedTempDir("assistant-whatsapp-boundary", tempDirs);
+  const rootDir = makeTrackedTempDir("zhushou-whatsapp-boundary", tempDirs);
   for (const [relativePath, value] of Object.entries({
     "package.json": JSON.stringify(
       {
-        name: "assistant",
+        name: "zhushou",
         type: "module",
         bin: {
-          assistant: "assistant.mjs",
+          zhushou: "zhushou.mjs",
         },
         exports: {
           "./plugin-sdk": {
@@ -44,14 +44,14 @@ function createBundledWhatsAppRuntimeFixture() {
       null,
       2,
     ),
-    "assistant.mjs": "export {};\n",
+    "zhushou.mjs": "export {};\n",
     [bundledDistPluginFile("whatsapp", "index.js")]: "export default {};\n",
     [bundledDistPluginFile("whatsapp", "light-runtime-api.js")]:
       'export { getActiveWebListener } from "../../active-listener.js";\n',
     [bundledDistPluginFile("whatsapp", "runtime-api.js")]:
       'export { registerControllerForTest } from "../../connection-controller-registry.js";\n',
     "dist/connection-controller-registry.js": [
-      'const key = Symbol.for("assistant.whatsapp.connectionControllerRegistry");',
+      'const key = Symbol.for("zhushou.whatsapp.connectionControllerRegistry");',
       "const g = globalThis;",
       "if (!g[key]) {",
       "  g[key] = { controllers: new Map() };",

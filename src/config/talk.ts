@@ -6,7 +6,7 @@ import type {
   TalkConfigResponse,
   TalkProviderConfig,
 } from "./types.gateway.js";
-import type { AssistantConfig } from "./types.assistant.js";
+import type { ZhushouConfig } from "./types.zhushou.js";
 import { coerceSecretRef } from "./types.secrets.js";
 
 function normalizeTalkSecretInput(value: unknown): TalkProviderConfig["apiKey"] | undefined {
@@ -124,7 +124,7 @@ export function normalizeTalkSection(value: TalkConfig | undefined): TalkConfig 
   return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
-export function normalizeTalkConfig(config: AssistantConfig): AssistantConfig {
+export function normalizeTalkConfig(config: ZhushouConfig): ZhushouConfig {
   if (!config.talk) {
     return config;
   }

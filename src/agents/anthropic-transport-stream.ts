@@ -79,7 +79,7 @@ type TransportContentBlock =
       index?: number;
     };
 
-type MutableAssistantOutput = {
+type MutableZhushouOutput = {
   role: "assistant";
   content: Array<TransportContentBlock>;
   api: "anthropic-messages";
@@ -648,7 +648,7 @@ export function createAnthropicMessagesTransportStreamFn(): StreamFn {
     const options = rawOptions as AnthropicTransportOptions | undefined;
     const { eventStream, stream } = createWritableTransportEventStream();
     void (async () => {
-      const output: MutableAssistantOutput = {
+      const output: MutableZhushouOutput = {
         role: "assistant",
         content: [],
         api: "anthropic-messages",

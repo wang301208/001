@@ -6,8 +6,8 @@ import {
   ToolPolicySchema,
   buildChannelConfigSchema,
   requireOpenAllowFrom,
-} from "assistant/plugin-sdk/channel-config-schema";
-import { z } from "assistant/plugin-sdk/zod";
+} from "zhushou/plugin-sdk/channel-config-schema";
+import { z } from "zhushou/plugin-sdk/zod";
 import { ircChannelConfigUiHints } from "./config-ui-hints.js";
 
 const IrcGroupSchema = z

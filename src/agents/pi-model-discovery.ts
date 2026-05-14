@@ -132,7 +132,7 @@ function instantiatePiModelRegistry(
   return new Registry(authStorage, modelsJsonPath);
 }
 
-function createAssistantModelRegistry(
+function createZhushouModelRegistry(
   authStorage: PiAuthStorage,
   modelsJsonPath: string,
   agentDir: string,
@@ -153,7 +153,7 @@ function createAssistantModelRegistry(
 }
 
 export function scrubLegacyStaticAuthJsonEntriesForDiscovery(pathname: string): void {
-  if (process.env.ASSISTANT_AUTH_STORE_READONLY === "1") {
+  if (process.env.ZHUSHOU_AUTH_STORE_READONLY === "1") {
     return;
   }
   if (!fs.existsSync(pathname)) {
@@ -300,5 +300,5 @@ export function discoverAuthStorage(agentDir: string): PiAuthStorage {
 }
 
 export function discoverModels(authStorage: PiAuthStorage, agentDir: string): PiModelRegistry {
-  return createAssistantModelRegistry(authStorage, path.join(agentDir, "models.json"), agentDir);
+  return createZhushouModelRegistry(authStorage, path.join(agentDir, "models.json"), agentDir);
 }

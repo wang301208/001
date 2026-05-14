@@ -20,7 +20,7 @@ function createScan() {
     sourceConfig: { gateway: {} },
     summary: { ok: true },
     update: {
-      root: "/tmp/assistant",
+      root: "/tmp/zhushou",
       installKind: "package",
       packageManager: "npm",
     },

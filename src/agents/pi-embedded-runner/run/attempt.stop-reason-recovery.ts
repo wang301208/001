@@ -1,7 +1,7 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import { createAssistantMessageEventStream, streamSimple } from "@mariozechner/pi-ai";
 import { formatErrorMessage } from "../../../infra/errors.js";
-import { buildStreamErrorAssistantMessage } from "../../stream-message-shared.js";
+import { buildStreamErrorZhushouMessage } from "../../stream-message-shared.js";
 
 const UNHANDLED_STOP_REASON_RE = /^Unhandled stop reason:\s*(.+)$/i;
 
@@ -21,19 +21,19 @@ function normalizeUnhandledStopReasonMessage(message: unknown): string | undefin
   return formatUnhandledStopReasonErrorMessage(stopReason);
 }
 
-function patchUnhandledStopReasonInAssistantMessage(message: unknown): void {
+function patchUnhandledStopReasonInZhushouMessage(message: unknown): void {
   if (!message || typeof message !== "object") {
     return;
   }
 
-  const assistant = message as { errorMessage?: unknown; stopReason?: unknown };
-  const normalizedMessage = normalizeUnhandledStopReasonMessage(assistant.errorMessage);
+  const zhushou = message as { errorMessage?: unknown; stopReason?: unknown };
+  const normalizedMessage = normalizeUnhandledStopReasonMessage(zhushou.errorMessage);
   if (!normalizedMessage) {
     return;
   }
 
-  assistant.stopReason = "error";
-  assistant.errorMessage = normalizedMessage;
+  zhushou.stopReason = "error";
+  zhushou.errorMessage = normalizedMessage;
 }
 
 function buildUnhandledStopReasonErrorStream(
@@ -45,7 +45,7 @@ function buildUnhandledStopReasonErrorStream(
     stream.push({
       type: "error",
       reason: "error",
-      error: buildStreamErrorAssistantMessage({
+      error: buildStreamErrorZhushouMessage({
         model: {
           api: model.api,
           provider: model.provider,
@@ -67,14 +67,14 @@ function wrapStreamHandleUnhandledStopReason(
   stream.result = async () => {
     try {
       const message = await originalResult();
-      patchUnhandledStopReasonInAssistantMessage(message);
+      patchUnhandledStopReasonInZhushouMessage(message);
       return message;
     } catch (err) {
       const normalizedMessage = normalizeUnhandledStopReasonMessage(formatErrorMessage(err));
       if (!normalizedMessage) {
         throw err;
       }
-      return buildStreamErrorAssistantMessage({
+      return buildStreamErrorZhushouMessage({
         model: {
           api: model.api,
           provider: model.provider,
@@ -100,7 +100,7 @@ function wrapStreamHandleUnhandledStopReason(
             const result = await iterator.next();
             if (!result.done && result.value && typeof result.value === "object") {
               const event = result.value as { error?: unknown };
-              patchUnhandledStopReasonInAssistantMessage(event.error);
+              patchUnhandledStopReasonInZhushouMessage(event.error);
             }
             return result;
           } catch (err) {
@@ -114,7 +114,7 @@ function wrapStreamHandleUnhandledStopReason(
               value: {
                 type: "error" as const,
                 reason: "error" as const,
-                error: buildStreamErrorAssistantMessage({
+                error: buildStreamErrorZhushouMessage({
                   model: {
                     api: model.api,
                     provider: model.provider,

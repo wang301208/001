@@ -10,8 +10,8 @@ import {
   type ChannelSetupDmPolicy,
   type ChannelSetupWizard,
   type DmPolicy,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/setup";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/setup";
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
@@ -43,11 +43,11 @@ function parseZalouserEntries(raw: string): string[] {
 }
 
 function setZalouserAccountScopedConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   defaultPatch: Record<string, unknown>,
   accountPatch: Record<string, unknown> = defaultPatch,
-): AssistantConfig {
+): ZhushouConfig {
   return patchScopedAccountConfig({
     cfg,
     channelKey: channel,
@@ -58,10 +58,10 @@ function setZalouserAccountScopedConfig(
 }
 
 function setZalouserDmPolicy(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   policy: DmPolicy,
-): AssistantConfig {
+): ZhushouConfig {
   const resolvedAccountId = normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID;
   const resolved = resolveZalouserAccountSync({ cfg, accountId: resolvedAccountId });
   return setZalouserAccountScopedConfig(
@@ -79,20 +79,20 @@ function setZalouserDmPolicy(
 }
 
 function setZalouserGroupPolicy(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
-): AssistantConfig {
+): ZhushouConfig {
   return setZalouserAccountScopedConfig(cfg, accountId, {
     groupPolicy,
   });
 }
 
 function setZalouserGroupAllowlist(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId: string,
   groupKeys: string[],
-): AssistantConfig {
+): ZhushouConfig {
   const groups = Object.fromEntries(
     groupKeys.map((key) => [key, { enabled: true, requireMention: true }]),
   );
@@ -101,8 +101,8 @@ function setZalouserGroupAllowlist(
   });
 }
 
-function ensureZalouserPluginEnabled(cfg: AssistantConfig): AssistantConfig {
-  const next: AssistantConfig = {
+function ensureZalouserPluginEnabled(cfg: ZhushouConfig): ZhushouConfig {
+  const next: ZhushouConfig = {
     ...cfg,
     plugins: {
       ...cfg.plugins,
@@ -144,10 +144,10 @@ async function noteZalouserHelp(
 }
 
 async function promptZalouserAllowFrom(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   prompter: Parameters<NonNullable<ChannelSetupDmPolicy["promptAllowFrom"]>>[0]["prompter"];
   accountId: string;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   const { cfg, prompter, accountId } = params;
   const resolved = resolveZalouserAccountSync({ cfg, accountId });
   const existingAllowFrom = resolved.config.allowFrom ?? [];
@@ -164,7 +164,7 @@ async function promptZalouserAllowFrom(params: {
         [
           "No DM allowlist entries added yet.",
           "Direct chats will stay blocked until you add people later.",
-          `Tip: use \`${formatCliCommand("assistant directory peers list --channel zalouser")}\` to look up people after onboarding.`,
+          `Tip: use \`${formatCliCommand("zhushou directory peers list --channel zalouser")}\` to look up people after onboarding.`,
         ].join("\n"),
         ZALOUSER_ALLOWLIST_TITLE,
       );
@@ -242,10 +242,10 @@ const zalouserDmPolicy: ChannelSetupDmPolicy = {
 };
 
 async function promptZalouserQuickstartDmPolicy(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   prompter: Parameters<NonNullable<ChannelSetupWizard["prepare"]>>[0]["prompter"];
   accountId: string;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   const { cfg, prompter, accountId } = params;
   const resolved = resolveZalouserAccountSync({ cfg, accountId });
   const existingPolicy = resolved.config.dmPolicy ?? "pairing";
@@ -418,7 +418,7 @@ export const zalouserSetupWizard: ChannelSetupWizard = {
           [
             "No group allowlist entries added yet.",
             "Group chats will stay blocked until you add groups later.",
-            `Tip: use \`${formatCliCommand("assistant directory groups list --channel zalouser")}\` after onboarding to find group IDs.`,
+            `Tip: use \`${formatCliCommand("zhushou directory groups list --channel zalouser")}\` after onboarding to find group IDs.`,
             "Mention requirement stays on by default for groups you allow later.",
           ].join("\n"),
           ZALOUSER_GROUPS_TITLE,

@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { resolveSendableOutboundReplyParts } from "assistant/plugin-sdk/reply-payload";
+import { resolveSendableOutboundReplyParts } from "zhushou/plugin-sdk/reply-payload";
 import { isVerbose } from "../globals.js";
 import { shouldLogSubsystemToConsole } from "../logging/console.js";
 import { getDefaultRedactPatterns, redactSensitiveText } from "../logging/redact.js";
@@ -201,7 +201,7 @@ export function summarizeAgentEventForWsLog(payload: unknown): Record<string, un
     return extra;
   }
 
-  if (stream === "assistant") {
+  if (stream === "zhushou") {
     const text = readStringValue(data.text);
     if (text?.trim()) {
       extra.text = compactPreview(text);

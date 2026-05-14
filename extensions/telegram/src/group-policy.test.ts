@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { describe, expect, it } from "vitest";
 import {
   resolveTelegramGroupRequireMention,
@@ -24,7 +24,7 @@ describe("resolveTelegramGroupRequireMention", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     expect(
       resolveTelegramGroupRequireMention({
@@ -48,7 +48,7 @@ describe("resolveTelegramGroupToolPolicy", () => {
           },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     expect(
       resolveTelegramGroupToolPolicy({

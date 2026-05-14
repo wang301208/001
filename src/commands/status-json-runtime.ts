@@ -1,12 +1,12 @@
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import type { UpdateCheckResult } from "../infra/update-check.js";
 import { buildStatusJsonPayload } from "./status-json-payload.ts";
 import { buildStatusOverviewSurfaceFromScan } from "./status-overview-surface.ts";
 import { resolveStatusRuntimeSnapshot } from "./status-runtime-shared.ts";
 
 type StatusJsonScanLike = {
-  cfg: AssistantConfig;
-  sourceConfig: AssistantConfig;
+  cfg: ZhushouConfig;
+  sourceConfig: ZhushouConfig;
   summary: Record<string, unknown>;
   update: UpdateCheckResult;
   osSummary: unknown;

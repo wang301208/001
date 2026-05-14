@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { resolveTelegramReactionLevel } from "./reaction-level.js";
 
@@ -53,7 +53,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("defaults to minimal level when reactionLevel is not set", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: { telegram: {} },
     };
 
@@ -62,7 +62,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("returns off level with no reactions enabled", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: { telegram: { reactionLevel: "off" } },
     };
 
@@ -75,7 +75,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("returns ack level with only ackEnabled", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: { telegram: { reactionLevel: "ack" } },
     };
 
@@ -88,7 +88,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("returns minimal level with agent reactions enabled and minimal guidance", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: { telegram: { reactionLevel: "minimal" } },
     };
 
@@ -97,7 +97,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("returns extensive level with agent reactions enabled and extensive guidance", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: { telegram: { reactionLevel: "extensive" } },
     };
 
@@ -106,7 +106,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("resolves reaction level from a specific account", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           reactionLevel: "ack",
@@ -122,7 +122,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("falls back to global level when account has no reactionLevel", () => {
-    const cfg: AssistantConfig = {
+    const cfg: ZhushouConfig = {
       channels: {
         telegram: {
           reactionLevel: "minimal",

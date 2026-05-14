@@ -1,1 +1,1 @@
-export { resolveRequestClientIp } from "assistant/plugin-sdk/webhook-ingress";
+export { resolveRequestClientIp } from "zhushou/plugin-sdk/webhook-ingress";

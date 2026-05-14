@@ -1,14 +1,14 @@
 import type { ToolFsPolicy } from "../agents/tool-fs-policy.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { HookEntry } from "../hooks/types.js";
 import type { DeliveryContext } from "../utils/delivery-context.types.js";
 
 /** Trusted execution context passed to plugin-owned agent tool factories. */
-export type AssistantPluginToolContext = {
-  config?: AssistantConfig;
+export type ZhushouPluginToolContext = {
+  config?: ZhushouConfig;
   /** Active runtime-resolved config snapshot when one is available. */
-  runtimeConfig?: AssistantConfig;
+  runtimeConfig?: ZhushouConfig;
   /** Effective filesystem policy for the active tool run. */
   fsPolicy?: ToolFsPolicy;
   workspaceDir?: string;
@@ -32,17 +32,17 @@ export type AssistantPluginToolContext = {
   sandboxed?: boolean;
 };
 
-export type AssistantPluginToolFactory = (
-  ctx: AssistantPluginToolContext,
+export type ZhushouPluginToolFactory = (
+  ctx: ZhushouPluginToolContext,
 ) => AnyAgentTool | AnyAgentTool[] | null | undefined;
 
-export type AssistantPluginToolOptions = {
+export type ZhushouPluginToolOptions = {
   name?: string;
   names?: string[];
   optional?: boolean;
 };
 
-export type AssistantPluginHookOptions = {
+export type ZhushouPluginHookOptions = {
   entry?: HookEntry;
   name?: string;
   description?: string;

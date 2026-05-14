@@ -1,24 +1,24 @@
 import type { webhook } from "@line/bot-sdk";
-import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   dispatchReplyWithBufferedBlockDispatcher,
   chunkMarkdownText,
-} from "assistant/plugin-sdk/reply-runtime";
+} from "zhushou/plugin-sdk/reply-runtime";
 import {
   danger,
   logVerbose,
   waitForAbortSignal,
   type RuntimeEnv,
-} from "assistant/plugin-sdk/runtime-env";
+} from "zhushou/plugin-sdk/runtime-env";
 import {
   normalizePluginHttpPath,
   registerPluginHttpRoute,
-} from "assistant/plugin-sdk/webhook-ingress";
+} from "zhushou/plugin-sdk/webhook-ingress";
 import {
   beginWebhookRequestPipelineOrReject,
   createWebhookInFlightLimiter,
-} from "assistant/plugin-sdk/webhook-request-guards";
+} from "zhushou/plugin-sdk/webhook-request-guards";
 import { resolveDefaultLineAccountId } from "./accounts.js";
 import { deliverLineAutoReply } from "./auto-reply-delivery.js";
 import { createLineBot } from "./bot.js";
@@ -45,7 +45,7 @@ export interface MonitorLineProviderOptions {
   channelAccessToken: string;
   channelSecret: string;
   accountId?: string;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   runtime: RuntimeEnv;
   abortSignal?: AbortSignal;
   webhookUrl?: string;

@@ -71,7 +71,7 @@ export type ApnsPushAlertResult = ApnsPushResult;
 export type ApnsPushWakeResult = ApnsPushResult;
 
 const EXEC_APPROVAL_GENERIC_ALERT_BODY = "Open 助手 to review this request.";
-const EXEC_APPROVAL_NOTIFICATION_CATEGORY = "assistant.exec-approval";
+const EXEC_APPROVAL_NOTIFICATION_CATEGORY = "zhushou.exec-approval";
 
 type ApnsPushType = "alert" | "background";
 
@@ -593,18 +593,18 @@ export function shouldClearStoredApnsRegistration(params: {
 export async function resolveApnsAuthConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<ApnsAuthConfigResolution> {
-  const teamId = normalizeNonEmptyString(env.ASSISTANT_APNS_TEAM_ID);
-  const keyId = normalizeNonEmptyString(env.ASSISTANT_APNS_KEY_ID);
+  const teamId = normalizeNonEmptyString(env.ZHUSHOU_APNS_TEAM_ID);
+  const keyId = normalizeNonEmptyString(env.ZHUSHOU_APNS_KEY_ID);
   if (!teamId || !keyId) {
     return {
       ok: false,
-      error: "APNs auth missing: set ASSISTANT_APNS_TEAM_ID and ASSISTANT_APNS_KEY_ID",
+      error: "APNs auth missing: set ZHUSHOU_APNS_TEAM_ID and ZHUSHOU_APNS_KEY_ID",
     };
   }
 
   const inlineKeyRaw =
-    normalizeNonEmptyString(env.ASSISTANT_APNS_PRIVATE_KEY_P8) ??
-    normalizeNonEmptyString(env.ASSISTANT_APNS_PRIVATE_KEY);
+    normalizeNonEmptyString(env.ZHUSHOU_APNS_PRIVATE_KEY_P8) ??
+    normalizeNonEmptyString(env.ZHUSHOU_APNS_PRIVATE_KEY);
   if (inlineKeyRaw) {
     return {
       ok: true,
@@ -616,12 +616,12 @@ export async function resolveApnsAuthConfigFromEnv(
     };
   }
 
-  const keyPath = normalizeNonEmptyString(env.ASSISTANT_APNS_PRIVATE_KEY_PATH);
+  const keyPath = normalizeNonEmptyString(env.ZHUSHOU_APNS_PRIVATE_KEY_PATH);
   if (!keyPath) {
     return {
       ok: false,
       error:
-        "APNs private key missing: set ASSISTANT_APNS_PRIVATE_KEY_P8 or ASSISTANT_APNS_PRIVATE_KEY_PATH",
+        "APNs private key missing: set ZHUSHOU_APNS_PRIVATE_KEY_P8 or ZHUSHOU_APNS_PRIVATE_KEY_PATH",
     };
   }
   try {
@@ -638,7 +638,7 @@ export async function resolveApnsAuthConfigFromEnv(
     const message = formatErrorMessage(err);
     return {
       ok: false,
-      error: `failed reading ASSISTANT_APNS_PRIVATE_KEY_PATH (${keyPath}): ${message}`,
+      error: `failed reading ZHUSHOU_APNS_PRIVATE_KEY_PATH (${keyPath}): ${message}`,
     };
   }
 }
@@ -877,7 +877,7 @@ function createAlertPayload(params: { nodeId: string; title: string; body: strin
       },
       sound: "default",
     },
-    assistant: toPushMetadata({
+    zhushou: toPushMetadata({
       kind: "push.test",
       nodeId: params.nodeId,
     }),
@@ -889,7 +889,7 @@ function createBackgroundPayload(params: { nodeId: string; wakeReason?: string }
     aps: {
       "content-available": 1,
     },
-    assistant: toPushMetadata({
+    zhushou: toPushMetadata({
       kind: "node.wake",
       reason: params.wakeReason ?? "node.invoke",
       nodeId: params.nodeId,
@@ -912,7 +912,7 @@ function createExecApprovalAlertPayload(params: { nodeId: string; approvalId: st
       category: EXEC_APPROVAL_NOTIFICATION_CATEGORY,
       "content-available": 1,
     },
-    assistant: {
+    zhushou: {
       kind: "exec.approval.requested",
       approvalId: params.approvalId,
       ts: Date.now(),
@@ -925,7 +925,7 @@ function createExecApprovalResolvedPayload(params: { nodeId: string; approvalId:
     aps: {
       "content-available": 1,
     },
-    assistant: {
+    zhushou: {
       kind: "exec.approval.resolved",
       approvalId: params.approvalId,
       ts: Date.now(),

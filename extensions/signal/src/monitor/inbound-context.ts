@@ -1,9 +1,9 @@
-import { resolveChannelContextVisibilityMode } from "assistant/plugin-sdk/config-runtime";
+import { resolveChannelContextVisibilityMode } from "zhushou/plugin-sdk/config-runtime";
 import {
   evaluateSupplementalContextVisibility,
   type ContextVisibilityDecision,
-} from "assistant/plugin-sdk/security-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/security-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import {
   formatSignalSenderDisplay,
   isSignalSenderAllowed,

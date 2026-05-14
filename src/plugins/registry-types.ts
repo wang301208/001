@@ -19,18 +19,18 @@ import type {
   ImageGenerationProviderPlugin,
   MediaUnderstandingProviderPlugin,
   MusicGenerationProviderPlugin,
-  AssistantPluginChannelRegistration,
-  AssistantPluginCliCommandDescriptor,
-  AssistantPluginCliRegistrar,
-  AssistantPluginCommandDefinition,
-  AssistantPluginGatewayRuntimeScopeSurface,
-  AssistantPluginHttpRouteAuth,
-  AssistantPluginHttpRouteHandler,
-  AssistantPluginHttpRouteMatch,
-  AssistantPluginReloadRegistration,
-  AssistantPluginSecurityAuditCollector,
-  AssistantPluginService,
-  AssistantPluginToolFactory,
+  ZhushouPluginChannelRegistration,
+  ZhushouPluginCliCommandDescriptor,
+  ZhushouPluginCliRegistrar,
+  ZhushouPluginCommandDefinition,
+  ZhushouPluginGatewayRuntimeScopeSurface,
+  ZhushouPluginHttpRouteAuth,
+  ZhushouPluginHttpRouteHandler,
+  ZhushouPluginHttpRouteMatch,
+  ZhushouPluginReloadRegistration,
+  ZhushouPluginSecurityAuditCollector,
+  ZhushouPluginService,
+  ZhushouPluginToolFactory,
   PluginConversationBindingResolvedEvent,
   PluginHookRegistration as TypedPluginHookRegistration,
   PluginLogger,
@@ -48,7 +48,7 @@ import type {
 export type PluginToolRegistration = {
   pluginId: string;
   pluginName?: string;
-  factory: AssistantPluginToolFactory;
+  factory: ZhushouPluginToolFactory;
   names: string[];
   optional: boolean;
   source: string;
@@ -58,9 +58,9 @@ export type PluginToolRegistration = {
 export type PluginCliRegistration = {
   pluginId: string;
   pluginName?: string;
-  register: AssistantPluginCliRegistrar;
+  register: ZhushouPluginCliRegistrar;
   commands: string[];
-  descriptors: AssistantPluginCliCommandDescriptor[];
+  descriptors: ZhushouPluginCliCommandDescriptor[];
   source: string;
   rootDir?: string;
 };
@@ -68,10 +68,10 @@ export type PluginCliRegistration = {
 export type PluginHttpRouteRegistration = {
   pluginId?: string;
   path: string;
-  handler: AssistantPluginHttpRouteHandler;
-  auth: AssistantPluginHttpRouteAuth;
-  match: AssistantPluginHttpRouteMatch;
-  gatewayRuntimeScopeSurface?: AssistantPluginGatewayRuntimeScopeSurface;
+  handler: ZhushouPluginHttpRouteHandler;
+  auth: ZhushouPluginHttpRouteAuth;
+  match: ZhushouPluginHttpRouteMatch;
+  gatewayRuntimeScopeSurface?: ZhushouPluginGatewayRuntimeScopeSurface;
   source?: string;
 };
 
@@ -163,7 +163,7 @@ export type PluginHookRegistration = {
 export type PluginServiceRegistration = {
   pluginId: string;
   pluginName?: string;
-  service: AssistantPluginService;
+  service: ZhushouPluginService;
   source: string;
   rootDir?: string;
 };
@@ -171,7 +171,7 @@ export type PluginServiceRegistration = {
 export type PluginReloadRegistration = {
   pluginId: string;
   pluginName?: string;
-  registration: AssistantPluginReloadRegistration;
+  registration: ZhushouPluginReloadRegistration;
   source: string;
   rootDir?: string;
 };
@@ -179,7 +179,7 @@ export type PluginReloadRegistration = {
 export type PluginNodeHostCommandRegistration = {
   pluginId: string;
   pluginName?: string;
-  command: import("./types.js").AssistantPluginNodeHostCommand;
+  command: import("./types.js").ZhushouPluginNodeHostCommand;
   source: string;
   rootDir?: string;
 };
@@ -187,7 +187,7 @@ export type PluginNodeHostCommandRegistration = {
 export type PluginSecurityAuditCollectorRegistration = {
   pluginId: string;
   pluginName?: string;
-  collector: AssistantPluginSecurityAuditCollector;
+  collector: ZhushouPluginSecurityAuditCollector;
   source: string;
   rootDir?: string;
 };
@@ -195,7 +195,7 @@ export type PluginSecurityAuditCollectorRegistration = {
 export type PluginCommandRegistration = {
   pluginId: string;
   pluginName?: string;
-  command: AssistantPluginCommandDefinition;
+  command: ZhushouPluginCommandDefinition;
   source: string;
   rootDir?: string;
 };
@@ -304,11 +304,11 @@ export type PluginRegistryParams = {
 };
 
 export type PluginRegistrationMode = import("./types.js").PluginRegistrationMode;
-export type AssistantPluginNodeHostCommand = import("./types.js").AssistantPluginNodeHostCommand;
-export type AssistantPluginToolContext = import("./types.js").AssistantPluginToolContext;
-export type AssistantPluginHttpRouteParams = import("./types.js").AssistantPluginHttpRouteParams;
-export type AssistantPluginHookOptions = import("./types.js").AssistantPluginHookOptions;
+export type ZhushouPluginNodeHostCommand = import("./types.js").ZhushouPluginNodeHostCommand;
+export type ZhushouPluginToolContext = import("./types.js").ZhushouPluginToolContext;
+export type ZhushouPluginHttpRouteParams = import("./types.js").ZhushouPluginHttpRouteParams;
+export type ZhushouPluginHookOptions = import("./types.js").ZhushouPluginHookOptions;
 export type PluginHookHandlerMap = import("./types.js").PluginHookHandlerMap;
-export type AssistantPluginApi = import("./types.js").AssistantPluginApi;
+export type ZhushouPluginApi = import("./types.js").ZhushouPluginApi;
 export type TypedPluginHook = TypedPluginHookRegistration;
-export type AssistantPluginChannelReg = AssistantPluginChannelRegistration;
+export type ZhushouPluginChannelReg = ZhushouPluginChannelRegistration;

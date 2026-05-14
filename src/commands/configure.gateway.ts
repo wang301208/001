@@ -1,5 +1,5 @@
 import { resolveGatewayPort } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { isValidEnvSecretRefId, type SecretInput } from "../config/types.secrets.js";
 import {
   maybeAddTailnetOriginToControlUiAllowedOrigins,
@@ -27,10 +27,10 @@ type GatewayAuthChoice = "token" | "password" | "trusted-proxy";
 type GatewayTokenInputMode = "plaintext" | "ref";
 
 export async function promptGatewayConfig(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   runtime: RuntimeEnv,
 ): Promise<{
-  config: AssistantConfig;
+  config: ZhushouConfig;
   port: number;
   token?: string;
 }> {
@@ -192,12 +192,12 @@ export async function promptGatewayConfig(
       const envVar = guardCancel(
         await text({
           message: "Gateway token env var",
-          initialValue: "ASSISTANT_GATEWAY_TOKEN",
-          placeholder: "ASSISTANT_GATEWAY_TOKEN",
+          initialValue: "ZHUSHOU_GATEWAY_TOKEN",
+          placeholder: "ZHUSHOU_GATEWAY_TOKEN",
           validate: (value) => {
             const candidate = normalizeOptionalString(value) ?? "";
             if (!isValidEnvSecretRefId(candidate)) {
-              return "Use an env var name like ASSISTANT_GATEWAY_TOKEN.";
+              return "Use an env var name like ZHUSHOU_GATEWAY_TOKEN.";
             }
             const resolved = process.env[candidate]?.trim();
             if (!resolved) {
@@ -216,7 +216,7 @@ export async function promptGatewayConfig(
         }),
         id: envVarName,
       };
-      note(`Validated ${envVarName}. The assistant will store a token SecretRef.`, "Gateway token");
+      note(`Validated ${envVarName}. The zhushou will store a token SecretRef.`, "Gateway token");
     } else {
       const tokenInput = guardCancel(
         await text({
@@ -244,12 +244,12 @@ export async function promptGatewayConfig(
   if (authMode === "trusted-proxy") {
     note(
       [
-        "Trusted proxy mode: the assistant trusts user identity from a reverse proxy.",
+        "Trusted proxy mode: the zhushou trusts user identity from a reverse proxy.",
         "The proxy must authenticate users and pass identity via headers.",
         "Only requests from specified proxy IPs will be trusted.",
         "",
         "Common use cases: Pomerium, Caddy + OAuth, Traefik + forward auth",
-        "Docs: https://docs.assistant.ai/gateway/trusted-proxy-auth",
+        "Docs: https://docs.zhushou.ai/gateway/trusted-proxy-auth",
       ].join("\n"),
       "Trusted Proxy Auth",
     );

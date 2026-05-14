@@ -13,7 +13,7 @@ function resolveTeamsSdkVersion(): string {
   }
 }
 
-function resolveAssistantVersion(): string {
+function resolveZhushouVersion(): string {
   try {
     return getMSTeamsRuntime().version;
   } catch {
@@ -23,10 +23,10 @@ function resolveAssistantVersion(): string {
 
 /**
  * Build a combined User-Agent string that preserves the Teams SDK identity
- * and appends the 助手 version.
+ * and appends the ASCII protocol product token/version.
  *
- * Format: "teams.ts[apps]/<sdk-version> 助手/<assistant-version>"
- * Example: "teams.ts[apps]/2.0.5 助手/2026.3.22"
+ * HTTP User-Agent is a ByteString in Node's Headers implementation. Keep the
+ * product token ASCII even when the UI brand is localized.
  *
  * This lets the Teams backend track SDK usage while also identifying the
  * host application.
@@ -40,7 +40,7 @@ export function buildUserAgent(): string {
   if (cachedUserAgent) {
     return cachedUserAgent;
   }
-  cachedUserAgent = `teams.ts[apps]/${resolveTeamsSdkVersion()} 助手/${resolveAssistantVersion()}`;
+  cachedUserAgent = `teams.ts[apps]/${resolveTeamsSdkVersion()} zhushou/${resolveZhushouVersion()}`;
   return cachedUserAgent;
 }
 

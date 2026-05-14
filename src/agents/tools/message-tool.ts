@@ -13,7 +13,7 @@ import { resolveCommandSecretRefsViaGateway } from "../../cli/command-secret-gat
 import { getScopedChannelsCommandSecretTargets } from "../../cli/command-secret-targets.js";
 import { resolveMessageSecretScope } from "../../cli/message-secret-scope.js";
 import { loadConfig } from "../../config/config.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "../../gateway/protocol/client-info.js";
 import { getToolResult, runMessageAction } from "../../infra/outbound/message-action-runner.js";
 import { POLL_CREATION_PARAM_DEFS, SHARED_POLL_CREATION_PARAM_NAMES } from "../../poll-params.js";
@@ -396,8 +396,8 @@ type MessageToolOptions = {
   agentAccountId?: string;
   agentSessionKey?: string;
   sessionId?: string;
-  config?: AssistantConfig;
-  loadConfig?: () => AssistantConfig;
+  config?: ZhushouConfig;
+  loadConfig?: () => ZhushouConfig;
   getScopedChannelsCommandSecretTargets?: typeof getScopedChannelsCommandSecretTargets;
   resolveCommandSecretRefsViaGateway?: typeof resolveCommandSecretRefsViaGateway;
   runMessageAction?: typeof runMessageAction;
@@ -414,7 +414,7 @@ type MessageToolOptions = {
 };
 
 type MessageToolDiscoveryParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   currentChannelProvider?: string;
   currentChannelId?: string;
   currentThreadTs?: string;
@@ -428,7 +428,7 @@ type MessageToolDiscoveryParams = {
 };
 
 type MessageActionDiscoveryInput = Omit<ChannelMessageActionDiscoveryInput, "cfg" | "channel"> & {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel?: string;
 };
 
@@ -522,7 +522,7 @@ function resolveAgentAccountId(value?: string): string | undefined {
 }
 
 function buildMessageToolDescription(options?: {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   currentChannel?: string;
   currentChannelId?: string;
   currentThreadTs?: string;

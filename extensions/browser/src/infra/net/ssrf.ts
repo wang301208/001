@@ -4,4 +4,4 @@ export {
   resolvePinnedHostnameWithPolicy,
   type LookupFn,
   type SsrFPolicy,
-} from "assistant/plugin-sdk/browser-security-runtime";
+} from "zhushou/plugin-sdk/browser-security-runtime";

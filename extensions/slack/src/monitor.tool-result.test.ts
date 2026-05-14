@@ -19,7 +19,7 @@ const [
   { CURRENT_MESSAGE_MARKER },
   { monitorSlackProvider },
 ] = await Promise.all([
-  import("assistant/plugin-sdk/reply-runtime"),
+  import("zhushou/plugin-sdk/reply-runtime"),
   import("../../../src/auto-reply/reply/history.js"),
   import("../../../src/auto-reply/reply/mentions.js"),
   import("./monitor/provider.js"),
@@ -421,7 +421,7 @@ describe("monitorSlackProvider tool results", () => {
     expect(capturedCtx[1]?.Body).not.toContain("thread-a-two");
   });
 
-  it("updates assistant thread status when replies start", async () => {
+  it("updates zhushou thread status when replies start", async () => {
     replyMock.mockImplementation(async (...args: unknown[]) => {
       const opts = (args[1] ?? {}) as { onReplyStart?: () => Promise<void> | void };
       await opts?.onReplyStart?.();
@@ -434,9 +434,9 @@ describe("monitorSlackProvider tool results", () => {
     });
 
     const client = getSlackClient() as {
-      assistant?: { threads?: { setStatus?: ReturnType<typeof vi.fn> } };
+      zhushou?: { threads?: { setStatus?: ReturnType<typeof vi.fn> } };
     };
-    const setStatus = client.assistant?.threads?.setStatus;
+    const setStatus = client.zhushou?.threads?.setStatus;
     expect(setStatus).toHaveBeenCalledTimes(2);
     expect(setStatus).toHaveBeenNthCalledWith(1, {
       token: "bot-token",
@@ -453,7 +453,7 @@ describe("monitorSlackProvider tool results", () => {
   });
 
   async function expectMentionPatternMessageAccepted(text: string): Promise<void> {
-    setRequireMentionChannelConfig(["\\bassistant\\b"]);
+    setRequireMentionChannelConfig(["\\bzhushou\\b"]);
     replyMock.mockResolvedValue({ text: "hi" });
 
     await runSlackMessageOnce(monitorSlackProvider, {
@@ -468,11 +468,11 @@ describe("monitorSlackProvider tool results", () => {
   }
 
   it("accepts channel messages when mentionPatterns match", async () => {
-    await expectMentionPatternMessageAccepted("assistant: hello");
+    await expectMentionPatternMessageAccepted("zhushou: hello");
   });
 
   it("accepts channel messages when mentionPatterns match even if another user is mentioned", async () => {
-    await expectMentionPatternMessageAccepted("assistant: hello <@U2>");
+    await expectMentionPatternMessageAccepted("zhushou: hello <@U2>");
   });
 
   it("treats replies to bot threads as implicit mentions", async () => {

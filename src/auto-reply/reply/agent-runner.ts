@@ -733,7 +733,7 @@ function formatRawTraceSummaryLine(params: {
 function buildInlineRawTracePayload(params: {
   entry: SessionEntry | undefined;
   rawUserText?: string;
-  rawAssistantText?: string;
+  rawZhushouText?: string;
   sessionUsage?: {
     input?: number;
     output?: number;
@@ -814,7 +814,7 @@ function buildInlineRawTracePayload(params: {
     text: [
       ...usageBlocks,
       formatRawTraceBlock("Model Input (User Role)", params.rawUserText),
-      formatRawTraceBlock("Model Output (Assistant Role)", params.rawAssistantText),
+      formatRawTraceBlock("Model Output (Zhushou Role)", params.rawZhushouText),
       formatRawTraceSummaryLine({
         executionTrace: params.executionTrace,
         completion: params.completion,
@@ -1584,8 +1584,8 @@ export async function runReplyAgent(params: {
       sessionCtx.RawBody ??
       sessionCtx.BodyForAgent ??
       sessionCtx.Body;
-    const rawAssistantText =
-      runResult.meta?.finalAssistantRawText ?? runResult.meta?.finalAssistantVisibleText;
+    const rawZhushouText =
+      runResult.meta?.finalZhushouRawText ?? runResult.meta?.finalZhushouVisibleText;
     const traceAuthorized = followupRun.run.traceAuthorized === true;
     const executionTrace = mergeExecutionTrace({
       fallbackAttempts,
@@ -1685,7 +1685,7 @@ export async function runReplyAgent(params: {
           ? buildInlineRawTracePayload({
               entry: activeSessionEntry,
               rawUserText,
-              rawAssistantText,
+              rawZhushouText,
               sessionUsage,
               usage: runResult.meta?.agentMeta?.usage,
               lastCallUsage: runResult.meta?.agentMeta?.lastCallUsage,

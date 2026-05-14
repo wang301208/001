@@ -28,16 +28,16 @@ function requireIncludes(relativePath, needles) {
   }
 }
 
-requireIncludes("README.md", ["pnpm install", "pnpm build", "assistant onboard", "assistant tui"]);
+requireIncludes("README.md", ["pnpm install", "pnpm build", "zhushou onboard", "zhushou tui"]);
 requireIncludes("docs/quickstart.md", [
   "pnpm install",
   "pnpm build",
-  "assistant onboard",
-  "assistant tui --message",
+  "zhushou onboard",
+  "zhushou tui --message",
 ]);
 requireIncludes("docs/cli.md", ["Ctrl+L", "Ctrl+G", "Ctrl+P", "自然语言直达", "切换模型"]);
 requireIncludes("docs/configuration.md", [
-  "~/.assistant/assistant.json",
+  "~/.wang301208/zhushou.json",
   "models.providers",
   "agents.defaults.model",
   "openai-responses",
@@ -46,18 +46,18 @@ requireIncludes("docs/configuration.md", [
   "ollama",
 ]);
 
-const help = spawnSync(process.execPath, [path.join(root, "assistant.mjs"), "--help"], {
+const help = spawnSync(process.execPath, [path.join(root, "zhushou.mjs"), "--help"], {
   cwd: root,
   encoding: "utf8",
 });
 
 if (help.status !== 0) {
-  fail(`assistant.mjs --help failed:\n${help.stderr || help.stdout}`);
+  fail(`zhushou.mjs --help failed:\n${help.stderr || help.stdout}`);
 }
 
 const helpText = `${help.stdout}\n${help.stderr}`;
-if (!helpText.includes("Usage: assistant")) {
-  fail("assistant.mjs --help missing Usage: assistant");
+if (!helpText.includes("Usage: zhushou")) {
+  fail("zhushou.mjs --help missing Usage: zhushou");
 }
 
 const hasSourceFallbackHelp =
@@ -69,7 +69,7 @@ const hasBuiltCliHelp =
   helpText.includes("configure");
 
 if (!hasSourceFallbackHelp && !hasBuiltCliHelp) {
-  fail("assistant.mjs --help did not look like source fallback help or built CLI help");
+  fail("zhushou.mjs --help did not look like source fallback help or built CLI help");
 }
 
 process.stdout.write("[quickstart-smoke] ok\n");

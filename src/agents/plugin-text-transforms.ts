@@ -88,7 +88,7 @@ export function transformStreamContextText(
   } as Parameters<StreamFn>[1];
 }
 
-function transformAssistantEventText(
+function transformZhushouEventText(
   event: unknown,
   replacements?: PluginTextReplacement[],
 ): AssistantMessageEvent {
@@ -135,7 +135,7 @@ function wrapStreamTextTransforms(
             ? result
             : {
                 done: false as const,
-                value: transformAssistantEventText(result.value, replacements),
+                value: transformZhushouEventText(result.value, replacements),
               };
         },
         async return(value?: unknown) {

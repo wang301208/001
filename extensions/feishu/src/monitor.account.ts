@@ -1,6 +1,6 @@
 ﻿import * as crypto from "crypto";
 import * as Lark from "@larksuiteoapi/node-sdk";
-import type { AssistantConfig, RuntimeEnv, HistoryEntry } from "../runtime-api.js";
+import type { ZhushouConfig, RuntimeEnv, HistoryEntry } from "../runtime-api.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { raceWithTimeoutAndAbort } from "./async.js";
 import {
@@ -71,7 +71,7 @@ export type FeishuReactionDeletedEvent = FeishuReactionCreatedEvent & {
 };
 
 type ResolveReactionSyntheticEventParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   event: FeishuReactionCreatedEvent;
   botOpenId?: string;
@@ -181,7 +181,7 @@ function normalizeFeishuChatType(value: unknown): FeishuChatType | undefined {
 }
 
 type RegisterEventHandlersContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   runtime?: RuntimeEnv;
   chatHistories: Map<string, HistoryEntry[]>;
@@ -861,7 +861,7 @@ export type BotOpenIdSource =
   | { kind: "fetch" };
 
 export type MonitorSingleAccountParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   account: ResolvedFeishuAccount;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;

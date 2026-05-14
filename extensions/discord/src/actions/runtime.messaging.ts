@@ -12,7 +12,7 @@ import {
   readStringParam,
   resolvePollMaxSelections,
   type DiscordActionConfig,
-  type AssistantConfig,
+  type ZhushouConfig,
   withNormalizedTimestamp,
   readBooleanParam,
 } from "../runtime-api.js";
@@ -100,7 +100,7 @@ export async function handleDiscordMessagingAction(
     mediaLocalRoots?: readonly string[];
     mediaReadFile?: (filePath: string) => Promise<Buffer>;
   },
-  cfg?: AssistantConfig,
+  cfg?: ZhushouConfig,
 ): Promise<AgentToolResult<unknown>> {
   const resolveChannelId = () =>
     discordMessagingActionRuntime.resolveDiscordChannelId(

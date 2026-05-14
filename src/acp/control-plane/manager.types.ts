@@ -4,7 +4,7 @@ import type {
   SessionAcpMeta,
   SessionEntry,
 } from "../../config/sessions/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { AcpRuntimeError } from "../runtime/errors.js";
 import { getAcpRuntimeBackend, requireAcpRuntimeBackend } from "../runtime/registry.js";
 import {
@@ -39,7 +39,7 @@ export type AcpSessionResolution =
     };
 
 export type AcpInitializeSessionInput = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   agent: string;
   mode: AcpRuntimeSessionMode;
@@ -54,7 +54,7 @@ export type AcpTurnAttachment = {
 };
 
 export type AcpRunTurnInput = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   text: string;
   attachments?: AcpTurnAttachment[];
@@ -65,7 +65,7 @@ export type AcpRunTurnInput = {
 };
 
 export type AcpCloseSessionInput = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   reason: string;
   discardPersistentState?: boolean;

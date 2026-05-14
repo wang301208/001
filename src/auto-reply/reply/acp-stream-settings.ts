@@ -1,5 +1,5 @@
 import type { AcpSessionUpdateTag } from "../../acp/runtime/types.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { clampPositiveInteger, resolveEffectiveBlockStreamingConfig } from "./block-streaming.js";
 
 const DEFAULT_ACP_STREAM_COALESCE_IDLE_MS = 350;
@@ -57,7 +57,7 @@ function resolveAcpHiddenBoundarySeparator(
   return fallback;
 }
 
-function resolveAcpStreamCoalesceIdleMs(cfg: AssistantConfig): number {
+function resolveAcpStreamCoalesceIdleMs(cfg: ZhushouConfig): number {
   return clampPositiveInteger(
     cfg.acp?.stream?.coalesceIdleMs,
     DEFAULT_ACP_STREAM_COALESCE_IDLE_MS,
@@ -68,14 +68,14 @@ function resolveAcpStreamCoalesceIdleMs(cfg: AssistantConfig): number {
   );
 }
 
-function resolveAcpStreamMaxChunkChars(cfg: AssistantConfig): number {
+function resolveAcpStreamMaxChunkChars(cfg: ZhushouConfig): number {
   return clampPositiveInteger(cfg.acp?.stream?.maxChunkChars, DEFAULT_ACP_STREAM_MAX_CHUNK_CHARS, {
     min: 50,
     max: 4_000,
   });
 }
 
-export function resolveAcpProjectionSettings(cfg: AssistantConfig): AcpProjectionSettings {
+export function resolveAcpProjectionSettings(cfg: ZhushouConfig): AcpProjectionSettings {
   const stream = cfg.acp?.stream;
   const deliveryMode = resolveAcpDeliveryMode(stream?.deliveryMode);
   const hiddenBoundaryFallback: AcpHiddenBoundarySeparator =
@@ -106,7 +106,7 @@ export function resolveAcpProjectionSettings(cfg: AssistantConfig): AcpProjectio
 }
 
 export function resolveAcpStreamingConfig(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   provider?: string;
   accountId?: string;
   deliveryMode?: AcpDeliveryMode;

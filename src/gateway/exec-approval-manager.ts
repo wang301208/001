@@ -137,9 +137,9 @@ export class ExecApprovalManager<TPayload = ExecApprovalRequestPayload> {
     }
     clearTimeout(pending.timer);
     pending.record.resolvedAtMs = Date.now();
-    const decision = resolvedBy === "no-approval-route" ? null : DEFAULT_TIMEOUT_DECISION;
+    const decision = DEFAULT_TIMEOUT_DECISION;
     pending.record.decision = decision ?? undefined;
-    pending.record.resolvedBy = resolvedBy ?? null;
+    pending.record.resolvedBy = resolvedBy ?? "approval-timeout";
     pending.resolve(decision);
     setTimeout(() => {
       if (this.pending.get(recordId) === pending) {

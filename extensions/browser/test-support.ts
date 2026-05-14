@@ -10,5 +10,5 @@ export {
   withEnvAsync,
   withFetchPreconnect,
   isLiveTestEnabled,
-  type AssistantConfig,
-} from "assistant/plugin-sdk/testing";
+  type ZhushouConfig,
+} from "zhushou/plugin-sdk/testing";

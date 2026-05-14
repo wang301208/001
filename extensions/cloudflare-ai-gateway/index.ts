@@ -1,4 +1,4 @@
-import { definePluginEntry } from "assistant/plugin-sdk/plugin-entry";
+import { definePluginEntry } from "zhushou/plugin-sdk/plugin-entry";
 import {
   applyAuthProfileConfig,
   buildApiKeyCredential,
@@ -9,8 +9,8 @@ import {
   normalizeOptionalSecretInput,
   upsertAuthProfile,
   validateApiKeyInput,
-} from "assistant/plugin-sdk/provider-auth";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/provider-auth";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { buildCloudflareAiGatewayCatalogProvider } from "./catalog-provider.js";
 import { CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF } from "./models.js";
 import { applyCloudflareAiGatewayConfig, buildCloudflareAiGatewayConfigPatch } from "./onboard.js";

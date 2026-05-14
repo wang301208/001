@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import { setLoggerOverride } from "../logging/logger.js";
 import { loggingState } from "../logging/state.js";
 import { stripAnsi } from "../terminal/ansi.js";
@@ -24,7 +24,7 @@ describe("loader", () => {
   let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-hooks-loader-"));
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-hooks-loader-"));
   });
 
   beforeEach(async () => {
@@ -35,8 +35,8 @@ describe("loader", () => {
     await fs.mkdir(tmpDir, { recursive: true });
 
     // Disable bundled hooks during tests by setting env var to non-existent directory
-    envSnapshot = captureEnv(["ASSISTANT_BUNDLED_HOOKS_DIR"]);
-    process.env.ASSISTANT_BUNDLED_HOOKS_DIR = "/nonexistent/bundled/hooks";
+    envSnapshot = captureEnv(["ZHUSHOU_BUNDLED_HOOKS_DIR"]);
+    process.env.ZHUSHOU_BUNDLED_HOOKS_DIR = "/nonexistent/bundled/hooks";
     setLoggerOverride({ level: "silent", consoleLevel: "error" });
     loggingState.rawConsole = {
       log: vi.fn(),
@@ -60,7 +60,7 @@ describe("loader", () => {
         "---",
         `name: ${params.hookName}`,
         `description: ${params.hookName} test hook`,
-        'metadata: {"assistant":{"events":["command:new"]}}',
+        'metadata: {"zhushou":{"events":["command:new"]}}',
         "---",
         "",
         `# ${params.hookName}`,
@@ -86,9 +86,9 @@ describe("loader", () => {
   }
 
   function withLegacyInternalHookHandlers(
-    config: AssistantConfig,
+    config: ZhushouConfig,
     handlers?: Array<{ event: string; module: string; export?: string }>,
-  ): AssistantConfig {
+  ): ZhushouConfig {
     if (!handlers) {
       return config;
     }
@@ -101,12 +101,12 @@ describe("loader", () => {
           handlers,
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
   }
 
   function createEnabledHooksConfig(
     handlers?: Array<{ event: string; module: string; export?: string }>,
-  ): AssistantConfig {
+  ): ZhushouConfig {
     return withLegacyInternalHookHandlers(
       {
         hooks: {
@@ -141,7 +141,7 @@ describe("loader", () => {
         },
       ]);
 
-    const expectNoCommandHookRegistration = async (cfg: AssistantConfig) => {
+    const expectNoCommandHookRegistration = async (cfg: ZhushouConfig) => {
       const count = await loadInternalHooks(cfg, tmpDir);
       expect(count).toBe(0);
       expect(getRegisteredEventKeys()).not.toContain("command:new");
@@ -155,7 +155,7 @@ describe("loader", () => {
               enabled: false,
             },
           },
-        } satisfies AssistantConfig,
+        } satisfies ZhushouConfig,
         withLegacyInternalHookHandlers(
           {
             hooks: {
@@ -163,7 +163,7 @@ describe("loader", () => {
                 enabled: false,
               },
             },
-          } satisfies AssistantConfig,
+          } satisfies ZhushouConfig,
           [],
         ),
       ]) {
@@ -177,9 +177,9 @@ describe("loader", () => {
       // With no discoverable hooks in the temp dir (bundled dir is overridden
       // to /nonexistent), this returns 0 but does NOT bail at the guard.
       for (const cfg of [
-        {} satisfies AssistantConfig,
-        { hooks: {} } satisfies AssistantConfig,
-        { hooks: { internal: {} } } satisfies AssistantConfig,
+        {} satisfies ZhushouConfig,
+        { hooks: {} } satisfies ZhushouConfig,
+        { hooks: { internal: {} } } satisfies ZhushouConfig,
       ]) {
         const count = await loadInternalHooks(cfg, tmpDir);
         expect(count).toBe(0);
@@ -397,7 +397,7 @@ describe("loader", () => {
           "---",
           "name: symlink-hook",
           "description: symlink test",
-          'metadata: {"assistant":{"events":["command:new"]}}',
+          'metadata: {"zhushou":{"events":["command:new"]}}',
           "---",
           "",
           "# Symlink Hook",
@@ -442,7 +442,7 @@ describe("loader", () => {
           "---",
           "name: hardlink-hook",
           "description: hardlink test",
-          'metadata: {"assistant":{"events":["command:new"]}}',
+          'metadata: {"zhushou":{"events":["command:new"]}}',
           "---",
           "",
           "# Hardlink Hook",

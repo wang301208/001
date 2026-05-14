@@ -1,7 +1,7 @@
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 
 export function buildEmbeddedMessageActionDiscoveryInput(params: {
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   channel: string;
   currentChannelId?: string | null;
   currentThreadTs?: string | null;

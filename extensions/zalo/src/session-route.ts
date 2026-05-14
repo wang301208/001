@@ -3,8 +3,8 @@ import {
   stripChannelTargetPrefix,
   stripTargetKindPrefix,
   type ChannelOutboundSessionRouteParams,
-} from "assistant/plugin-sdk/core";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/core";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 export function resolveZaloOutboundSessionRoute(params: ChannelOutboundSessionRouteParams) {
   const trimmed = stripChannelTargetPrefix(params.target, "zalo", "zl");

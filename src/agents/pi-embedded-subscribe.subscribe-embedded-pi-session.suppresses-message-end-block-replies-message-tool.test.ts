@@ -2,8 +2,8 @@ import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
 import {
   createStubSessionHarness,
-  emitAssistantTextDelta,
-  emitAssistantTextEnd,
+  emitZhushouTextDelta,
+  emitZhushouTextEnd,
 } from "./pi-embedded-subscribe.e2e-harness.js";
 import { subscribeEmbeddedPiSession } from "./pi-embedded-subscribe.js";
 
@@ -42,23 +42,23 @@ async function emitMessageToolLifecycle(params: {
   });
 }
 
-function emitAssistantMessageEnd(
+function emitZhushouMessageEnd(
   emit: (evt: unknown) => void,
   text: string,
   overrides?: Partial<AssistantMessage>,
 ) {
-  const assistantMessage = {
+  const zhushouMessage = {
     role: "assistant",
     content: [{ type: "text", text }],
     ...overrides,
   } as AssistantMessage;
-  emit({ type: "message_end", message: assistantMessage });
+  emit({ type: "message_end", message: zhushouMessage });
 }
 
-function emitAssistantTextEndBlock(emit: (evt: unknown) => void, text: string) {
+function emitZhushouTextEndBlock(emit: (evt: unknown) => void, text: string) {
   emit({ type: "message_start", message: { role: "assistant" } });
-  emitAssistantTextDelta({ emit, delta: text });
-  emitAssistantTextEnd({ emit });
+  emitZhushouTextDelta({ emit, delta: text });
+  emitZhushouTextEnd({ emit });
 }
 
 describe("subscribeEmbeddedPiSession", () => {
@@ -72,7 +72,7 @@ describe("subscribeEmbeddedPiSession", () => {
       message: messageText,
       result: "ok",
     });
-    emitAssistantMessageEnd(emit, messageText);
+    emitZhushouMessageEnd(emit, messageText);
     await Promise.resolve();
 
     expect(onBlockReply).not.toHaveBeenCalled();
@@ -87,17 +87,17 @@ describe("subscribeEmbeddedPiSession", () => {
       message: messageText,
       result: { details: { status: "error" } },
     });
-    emitAssistantMessageEnd(emit, messageText);
+    emitZhushouMessageEnd(emit, messageText);
     await vi.waitFor(() => {
       expect(onBlockReply).toHaveBeenCalledTimes(1);
     });
   });
 
-  it("ignores delivery-mirror assistant messages", async () => {
+  it("ignores delivery-mirror zhushou messages", async () => {
     const { emit, onBlockReply } = createBlockReplyHarness("message_end");
 
-    emitAssistantMessageEnd(emit, "Mirrored transcript text", {
-      provider: "assistant",
+    emitZhushouMessageEnd(emit, "Mirrored transcript text", {
+      provider: "zhushou",
       model: "delivery-mirror",
     });
     await Promise.resolve();
@@ -105,11 +105,11 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(onBlockReply).not.toHaveBeenCalled();
   });
 
-  it("ignores gateway-injected assistant messages", async () => {
+  it("ignores gateway-injected zhushou messages", async () => {
     const { emit, onBlockReply } = createBlockReplyHarness("message_end");
 
-    emitAssistantMessageEnd(emit, "Injected transcript text", {
-      provider: "assistant",
+    emitZhushouMessageEnd(emit, "Injected transcript text", {
+      provider: "zhushou",
       model: "gateway-injected",
     });
     await Promise.resolve();
@@ -119,12 +119,12 @@ describe("subscribeEmbeddedPiSession", () => {
 
   it("clears block reply state on message_start", async () => {
     const { emit, onBlockReply } = createBlockReplyHarness("text_end");
-    emitAssistantTextEndBlock(emit, "OK");
+    emitZhushouTextEndBlock(emit, "OK");
     await Promise.resolve();
     expect(onBlockReply).toHaveBeenCalledTimes(1);
 
-    // New assistant message with identical output should still emit.
-    emitAssistantTextEndBlock(emit, "OK");
+    // New zhushou message with identical output should still emit.
+    emitZhushouTextEndBlock(emit, "OK");
     await Promise.resolve();
     expect(onBlockReply).toHaveBeenCalledTimes(2);
   });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveAssistantMetadata, resolveSkillInvocationPolicy } from "./frontmatter.js";
+import { resolveZhushouMetadata, resolveSkillInvocationPolicy } from "./frontmatter.js";
 
 describe("resolveSkillInvocationPolicy", () => {
   it("defaults to enabled behaviors", () => {
@@ -18,15 +18,15 @@ describe("resolveSkillInvocationPolicy", () => {
   });
 });
 
-describe("resolveAssistantMetadata install validation", () => {
+describe("resolveZhushouMetadata install validation", () => {
   function resolveInstall(frontmatter: Record<string, string>) {
-    return resolveAssistantMetadata(frontmatter)?.install;
+    return resolveZhushouMetadata(frontmatter)?.install;
   }
 
   it("accepts safe install specs", () => {
     const install = resolveInstall({
       metadata:
-        '{"assistant":{"install":[{"kind":"brew","formula":"python@3.12"},{"kind":"node","package":"@scope/pkg@1.2.3"},{"kind":"go","module":"example.com/tool/cmd@v1.2.3"},{"kind":"uv","package":"uvicorn[standard]==0.31.0"},{"kind":"download","url":"https://example.com/tool.tar.gz"}]}}',
+        '{"zhushou":{"install":[{"kind":"brew","formula":"python@3.12"},{"kind":"node","package":"@scope/pkg@1.2.3"},{"kind":"go","module":"example.com/tool/cmd@v1.2.3"},{"kind":"uv","package":"uvicorn[standard]==0.31.0"},{"kind":"download","url":"https://example.com/tool.tar.gz"}]}}',
     });
     expect(install).toEqual([
       { kind: "brew", formula: "python@3.12" },
@@ -39,28 +39,28 @@ describe("resolveAssistantMetadata install validation", () => {
 
   it("drops unsafe brew formula values", () => {
     const install = resolveInstall({
-      metadata: '{"assistant":{"install":[{"kind":"brew","formula":"wget --HEAD"}]}}',
+      metadata: '{"zhushou":{"install":[{"kind":"brew","formula":"wget --HEAD"}]}}',
     });
     expect(install).toBeUndefined();
   });
 
   it("drops unsafe npm package specs for node installers", () => {
     const install = resolveInstall({
-      metadata: '{"assistant":{"install":[{"kind":"node","package":"file:../malicious"}]}}',
+      metadata: '{"zhushou":{"install":[{"kind":"node","package":"file:../malicious"}]}}',
     });
     expect(install).toBeUndefined();
   });
 
   it("drops unsafe go module specs", () => {
     const install = resolveInstall({
-      metadata: '{"assistant":{"install":[{"kind":"go","module":"https://evil.example/mod"}]}}',
+      metadata: '{"zhushou":{"install":[{"kind":"go","module":"https://evil.example/mod"}]}}',
     });
     expect(install).toBeUndefined();
   });
 
   it("drops unsafe download urls", () => {
     const install = resolveInstall({
-      metadata: '{"assistant":{"install":[{"kind":"download","url":"file:///tmp/payload.tgz"}]}}',
+      metadata: '{"zhushou":{"install":[{"kind":"download","url":"file:///tmp/payload.tgz"}]}}',
     });
     expect(install).toBeUndefined();
   });

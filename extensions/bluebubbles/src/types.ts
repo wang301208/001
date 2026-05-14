@@ -1,8 +1,8 @@
-import type { DmPolicy, GroupPolicy } from "assistant/plugin-sdk/setup";
-import { fetchWithSsrFGuard, type SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
+import type { DmPolicy, GroupPolicy } from "zhushou/plugin-sdk/setup";
+import { fetchWithSsrFGuard, type SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
 
-export type { SsrFPolicy } from "assistant/plugin-sdk/ssrf-runtime";
-export type { DmPolicy, GroupPolicy } from "assistant/plugin-sdk/setup";
+export type { SsrFPolicy } from "zhushou/plugin-sdk/ssrf-runtime";
+export type { DmPolicy, GroupPolicy } from "zhushou/plugin-sdk/setup";
 
 export type BlueBubblesGroupConfig = {
   /** If true, only respond in this group when mentioned. */

@@ -1,9 +1,9 @@
 import {
   type ChannelSetupWizard,
-  type AssistantConfig,
+  type ZhushouConfig,
   type WizardPrompter,
-} from "assistant/plugin-sdk/setup-runtime";
-import { formatDocsLink } from "assistant/plugin-sdk/setup-tools";
+} from "zhushou/plugin-sdk/setup-runtime";
+import { formatDocsLink } from "zhushou/plugin-sdk/setup-tools";
 import { resolveDiscordChannelAllowlist } from "./resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "./resolve-users.js";
 import {
@@ -43,10 +43,10 @@ async function resolveDiscordAllowFromEntries(params: { token?: string; entries:
 }
 
 async function promptDiscordAllowFrom(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   return await promptLegacyChannelAllowFromForAccount({
     cfg: params.cfg,
     channel,
@@ -89,7 +89,7 @@ async function promptDiscordAllowFrom(params: {
 }
 
 async function resolveDiscordGroupAllowlist(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId: string;
   credentialValues: { token?: string };
   entries: string[];

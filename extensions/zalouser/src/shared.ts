@@ -1,8 +1,8 @@
-import { describeAccountSnapshot } from "assistant/plugin-sdk/account-helpers";
+import { describeAccountSnapshot } from "zhushou/plugin-sdk/account-helpers";
 import {
   adaptScopedAccountAccessor,
   createScopedChannelConfigAdapter,
-} from "assistant/plugin-sdk/channel-config-helpers";
+} from "zhushou/plugin-sdk/channel-config-helpers";
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,

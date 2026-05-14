@@ -5,14 +5,14 @@ import { Type } from "@sinclair/typebox";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { jsonResult } from "../../agents/tools/common.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 import { loadWebMedia } from "../../media/web-media.js";
 import { getActivePluginRegistry, setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createChannelTestPluginBase,
   createTestRegistry,
 } from "../../test-utils/channel-plugins.js";
-import { resolvePreferredAssistantTmpDir } from "../tmp-assistant-dir.js";
+import { resolvePreferredZhushouTmpDir } from "../tmp-zhushou-dir.js";
 import { runMessageAction } from "./message-action-runner.js";
 
 const onePixelPng = Buffer.from(
@@ -64,7 +64,7 @@ const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 async function withSandbox(test: (sandboxDir: string) => Promise<void>) {
   const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
@@ -76,7 +76,7 @@ async function withSandbox(test: (sandboxDir: string) => Promise<void>) {
 }
 
 const runDrySend = (params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   actionParams: Record<string, unknown>;
   sandboxRoot?: string;
 }) =>
@@ -213,7 +213,7 @@ describe("runMessageAction media behavior", () => {
           password: "test-password",
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
     const attachmentPlugin: ChannelPlugin = {
       id: "bluebubbles",
       meta: {
@@ -275,7 +275,7 @@ describe("runMessageAction media behavior", () => {
     }
 
     async function expectRejectsLocalAbsolutePathWithoutSandbox(params: {
-      cfg?: AssistantConfig;
+      cfg?: ZhushouConfig;
       action: "sendAttachment" | "setGroupIcon";
       target: string;
       mediaField?: "media" | "mediaUrl" | "fileUrl";
@@ -586,7 +586,7 @@ describe("runMessageAction media behavior", () => {
     it("rewrites plugin-owned sandbox media params and preserves mxc URLs", async () => {
       await withSandbox(async (sandboxDir) => {
         const result = await runMessageAction({
-          cfg: {} as AssistantConfig,
+          cfg: {} as ZhushouConfig,
           action: "set-profile",
           params: {
             channel: "profile-demo",
@@ -614,7 +614,7 @@ describe("runMessageAction media behavior", () => {
         const result = await runMessageAction({
           cfg: {
             tools: { fs: { workspaceOnly: false } },
-          } as AssistantConfig,
+          } as ZhushouConfig,
           action: "set-profile",
           params: {
             channel: "profile-demo",
@@ -635,7 +635,7 @@ describe("runMessageAction media behavior", () => {
       await withSandbox(async (sandboxDir) => {
         const avatarUrl = "data:text/plain;base64,SGVsbG8=";
         const result = await runMessageAction({
-          cfg: {} as AssistantConfig,
+          cfg: {} as ZhushouConfig,
           action: "send",
           dryRun: true,
           params: {
@@ -830,7 +830,7 @@ describe("runMessageAction media behavior", () => {
     );
 
     it("allows media paths under preferred 助手 tmp root", async () => {
-      const tmpRoot = resolvePreferredAssistantTmpDir();
+      const tmpRoot = resolvePreferredZhushouTmpDir();
       await fs.mkdir(tmpRoot, { recursive: true });
       const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
       try {
@@ -853,7 +853,7 @@ describe("runMessageAction media behavior", () => {
           throw new Error("expected send result");
         }
         expect(result.sendResult?.mediaUrl).toBe(path.resolve(tmpFile));
-        const hostTmpOutsideAssistant = path.join(os.tmpdir(), "outside-assistant", "test-media.png");
+        const hostTmpOutsideZhushou = path.join(os.tmpdir(), "outside-zhushou", "test-media.png");
         await expect(
           runMessageAction({
             cfg: slackConfig,
@@ -861,7 +861,7 @@ describe("runMessageAction media behavior", () => {
             params: {
               channel: "slack",
               target: "#C12345678",
-              media: hostTmpOutsideAssistant,
+              media: hostTmpOutsideZhushou,
               message: "",
             },
             sandboxRoot: sandboxDir,

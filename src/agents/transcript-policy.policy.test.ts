@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 
 vi.mock("../plugins/provider-hook-runtime.js", () => ({
   resolveProviderRuntimePlugin: vi.fn(({ provider }: { provider?: string }) =>
@@ -21,19 +21,19 @@ const MISTRAL_PLUGIN_CONFIG = {
       mistral: { enabled: true },
     },
   },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 function createProviderRuntimeSmokeContext(): {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   env: NodeJS.ProcessEnv;
   workspaceDir: string;
 } {
   const env = { ...process.env };
-  delete env.ASSISTANT_BUNDLED_PLUGINS_DIR;
-  delete env.ASSISTANT_SKIP_PROVIDERS;
-  delete env.ASSISTANT_SKIP_CHANNELS;
-  delete env.ASSISTANT_SKIP_CRON;
-  delete env.ASSISTANT_TEST_MINIMAL_GATEWAY;
+  delete env.ZHUSHOU_BUNDLED_PLUGINS_DIR;
+  delete env.ZHUSHOU_SKIP_PROVIDERS;
+  delete env.ZHUSHOU_SKIP_CHANNELS;
+  delete env.ZHUSHOU_SKIP_CRON;
+  delete env.ZHUSHOU_TEST_MINIMAL_GATEWAY;
   return {
     config: {},
     env,

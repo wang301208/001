@@ -39,7 +39,7 @@ export function createWizardPrompter(
 }
 
 export async function setupAuthTestEnv(
-  prefix = "assistant-auth-",
+  prefix = "zhushou-auth-",
   options?: { agentSubdir?: string },
 ): Promise<{
   stateDir: string;
@@ -47,8 +47,8 @@ export async function setupAuthTestEnv(
 }> {
   const stateDir = await makeTempWorkspace(prefix);
   const agentDir = path.join(stateDir, options?.agentSubdir ?? "agent");
-  process.env.ASSISTANT_STATE_DIR = stateDir;
-  process.env.ASSISTANT_AGENT_DIR = agentDir;
+  process.env.ZHUSHOU_STATE_DIR = stateDir;
+  process.env.ZHUSHOU_AGENT_DIR = agentDir;
   process.env.PI_CODING_AGENT_DIR = agentDir;
   await fs.mkdir(agentDir, { recursive: true });
   return { stateDir, agentDir };
@@ -76,10 +76,10 @@ export function createAuthTestLifecycle(envKeys: string[]): AuthTestLifecycle {
   };
 }
 
-export function requireAssistantAgentDir(): string {
-  const agentDir = process.env.ASSISTANT_AGENT_DIR;
+export function requireZhushouAgentDir(): string {
+  const agentDir = process.env.ZHUSHOU_AGENT_DIR;
   if (!agentDir) {
-    throw new Error("ASSISTANT_AGENT_DIR not set");
+    throw new Error("ZHUSHOU_AGENT_DIR not set");
   }
   return agentDir;
 }

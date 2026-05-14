@@ -1,6 +1,6 @@
-import type { ChannelRuntimeSurface } from "assistant/plugin-sdk/channel-contract";
-import type { AssistantConfig, SlackSlashCommandConfig } from "assistant/plugin-sdk/config-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import type { ChannelRuntimeSurface } from "zhushou/plugin-sdk/channel-contract";
+import type { ZhushouConfig, SlackSlashCommandConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import type { SlackFile, SlackMessageEvent } from "../types.js";
 
 export type MonitorSlackOpts = {
@@ -8,7 +8,7 @@ export type MonitorSlackOpts = {
   appToken?: string;
   accountId?: string;
   mode?: "socket" | "http";
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   runtime?: RuntimeEnv;
   channelRuntime?: ChannelRuntimeSurface;
   abortSignal?: AbortSignal;

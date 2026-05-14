@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import { createEditorSubmitHandler } from "./tui-submit.js";
-import type { AssistantAction } from "./assistant-actions.js";
+import type { ZhushouAction } from "./zhushou-actions.js";
 
 type MockFn = ReturnType<typeof vi.fn>;
 
@@ -22,7 +22,7 @@ export function createSubmitHarness(params?: {
   resolveInput?: (
     value: string,
   ) =>
-    | { kind: "action"; action: AssistantAction; reason: string }
+    | { kind: "action"; action: ZhushouAction; reason: string }
     | { kind: "message"; message: string; reason: string }
     | null;
 }): SubmitHarness {

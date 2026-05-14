@@ -1,7 +1,7 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import type { SlackChannelConfig } from "assistant/plugin-sdk/config-runtime";
-import { normalizeAccountId } from "assistant/plugin-sdk/routing";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import type { SlackChannelConfig } from "zhushou/plugin-sdk/config-runtime";
+import { normalizeAccountId } from "zhushou/plugin-sdk/routing";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 
 type SlackChannels = Record<string, SlackChannelConfig>;
 
@@ -14,7 +14,7 @@ export type SlackChannelMigrationResult = {
 };
 
 function resolveAccountChannels(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   accountId?: string | null,
 ): { channels?: SlackChannels } {
   if (!accountId) {
@@ -58,7 +58,7 @@ export function migrateSlackChannelsInPlace(
 }
 
 export function migrateSlackChannelConfig(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   oldChannelId: string;
   newChannelId: string;

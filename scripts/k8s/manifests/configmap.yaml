@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: assistant-config
+  name: zhushou-config
   labels:
-    app: assistant
+    app: zhushou
 data:
-  assistant.json: |
+  zhushou.json: |
     {
       "gateway": {
         "mode": "local",
@@ -20,19 +20,19 @@ data:
       },
       "agents": {
         "defaults": {
-          "workspace": "~/.assistant/workspace"
+          "workspace": "~/.zhushou/workspace"
         },
         "list": [
           {
             "id": "default",
-            "name": "助手 Assistant",
-            "workspace": "~/.assistant/workspace"
+            "name": "助手 Zhushou",
+            "workspace": "~/.zhushou/workspace"
           }
         ]
       },
       "cron": { "enabled": false }
     }
   AGENTS.md: |
-    # 助手 Assistant
+    # 助手 Zhushou
 
-    You are a helpful AI assistant running in Kubernetes.
+    You are a helpful AI zhushou running in Kubernetes.

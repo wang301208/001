@@ -6,11 +6,11 @@ import { resolveDefaultModel } from "../auto-reply/reply/directive-handling.defa
 import { resolveCurrentDirectiveLevels } from "../auto-reply/reply/directive-handling.levels.js";
 import { createModelSelectionState } from "../auto-reply/reply/model-selection.js";
 import type { ReplyPayload } from "../auto-reply/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { loadSessionEntry } from "../gateway/session-utils.js";
 
 export type ResolveDirectStatusReplyForSessionParams = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   sessionKey: string;
   channel: string;
   senderId?: string;

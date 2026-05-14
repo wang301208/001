@@ -1,4 +1,4 @@
-import { stopAssistantChrome } from "./chrome.js";
+import { stopZhushouChrome } from "./chrome.js";
 import type { ResolvedBrowserConfig } from "./config.js";
 import {
   type BrowserServerState,
@@ -32,7 +32,7 @@ export async function stopKnownBrowserProfiles(params: {
       try {
         const runtime = current.profiles.get(name);
         if (runtime?.running) {
-          await stopAssistantChrome(runtime.running);
+          await stopZhushouChrome(runtime.running);
           runtime.running = null;
           continue;
         }
@@ -42,6 +42,6 @@ export async function stopKnownBrowserProfiles(params: {
       }
     }
   } catch (err) {
-    params.onWarn(`assistant browser stop failed: ${String(err)}`);
+    params.onWarn(`zhushou browser stop failed: ${String(err)}`);
   }
 }

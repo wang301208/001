@@ -2,10 +2,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type {
-  AssistantConfig,
+  ZhushouConfig,
   TelegramAccountConfig,
   TelegramExecApprovalConfig,
-} from "assistant/plugin-sdk/config-runtime";
+} from "zhushou/plugin-sdk/config-runtime";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   getTelegramExecApprovalApprovers,
@@ -32,15 +32,15 @@ afterEach(() => {
 });
 
 function createTempDir(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "assistant-telegram-exec-approvals-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "zhushou-telegram-exec-approvals-"));
   tempDirs.push(dir);
   return dir;
 }
 
 function buildConfig(
-  execApprovals?: NonNullable<NonNullable<AssistantConfig["channels"]>["telegram"]>["execApprovals"],
-  channelOverrides?: Partial<NonNullable<NonNullable<AssistantConfig["channels"]>["telegram"]>>,
-): AssistantConfig {
+  execApprovals?: NonNullable<NonNullable<ZhushouConfig["channels"]>["telegram"]>["execApprovals"],
+  channelOverrides?: Partial<NonNullable<NonNullable<ZhushouConfig["channels"]>["telegram"]>>,
+): ZhushouConfig {
   return {
     channels: {
       telegram: {
@@ -49,7 +49,7 @@ function buildConfig(
         execApprovals,
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function telegramAccount(
@@ -70,7 +70,7 @@ function buildMultiAccountTelegramConfig(params: {
   opsExecApprovals?: TelegramExecApprovalConfig;
   defaultOverrides?: Partial<TelegramAccountConfig>;
   opsOverrides?: Partial<TelegramAccountConfig>;
-}): AssistantConfig {
+}): ZhushouConfig {
   return {
     ...(params.sessionStorePath ? { session: { store: params.sessionStorePath } } : {}),
     channels: {
@@ -89,7 +89,7 @@ function buildMultiAccountTelegramConfig(params: {
         },
       },
     },
-  } as AssistantConfig;
+  } as ZhushouConfig;
 }
 
 function makeForeignChannelApprovalRequest(params: {
@@ -341,7 +341,7 @@ describe("telegram exec approvals", () => {
           execApprovals: { enabled: true, approvers: ["123"], target: "dm" },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     expect(shouldEnableTelegramExecApprovalButtons({ cfg, to: "123" })).toBe(true);
   });
@@ -355,7 +355,7 @@ describe("telegram exec approvals", () => {
           execApprovals: { enabled: true, approvers: ["123"], target: "dm" },
         },
       },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     expect(shouldEnableTelegramExecApprovalButtons({ cfg, to: "123" })).toBe(false);
   });
@@ -363,11 +363,11 @@ describe("telegram exec approvals", () => {
   describe("isTelegramExecApprovalTargetRecipient", () => {
     function buildTargetConfig(
       targets: Array<{ channel: string; to: string; accountId?: string }>,
-    ): AssistantConfig {
+    ): ZhushouConfig {
       return {
         channels: { telegram: { botToken: "tok" } },
         approvals: { exec: { enabled: true, mode: "targets", targets } },
-      } as AssistantConfig;
+      } as ZhushouConfig;
     }
 
     it("accepts sender who is a DM target", () => {
@@ -444,7 +444,7 @@ describe("telegram exec approvals", () => {
             targets: [{ channel: "telegram", to: "12345" }],
           },
         },
-      } as AssistantConfig;
+      } as ZhushouConfig;
       expect(isTelegramExecApprovalTargetRecipient({ cfg, senderId: "12345" })).toBe(false);
     });
 
@@ -482,7 +482,7 @@ describe("telegram exec approvals", () => {
             targets: [{ channel: "telegram", to: "12345" }],
           },
         },
-      } as AssistantConfig;
+      } as ZhushouConfig;
       expect(isTelegramExecApprovalAuthorizedSender({ cfg, senderId: "12345" })).toBe(true);
     });
   });

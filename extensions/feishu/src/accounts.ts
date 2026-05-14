@@ -1,12 +1,12 @@
 ﻿import {
   DEFAULT_ACCOUNT_ID,
-  type AssistantConfig,
+  type ZhushouConfig,
   createAccountListHelpers,
   normalizeAccountId,
   normalizeOptionalAccountId,
   resolveMergedAccountConfig,
-} from "assistant/plugin-sdk/account-resolution";
-import { coerceSecretRef } from "assistant/plugin-sdk/provider-auth";
+} from "zhushou/plugin-sdk/account-resolution";
+import { coerceSecretRef } from "zhushou/plugin-sdk/provider-auth";
 import { normalizeString } from "./comment-shared.js";
 import type {
   FeishuConfig,
@@ -141,7 +141,7 @@ function resolveFeishuEventSecrets(
 /**
  * Resolve the default account selection and its source.
  */
-export function resolveDefaultFeishuAccountSelection(cfg: AssistantConfig): {
+export function resolveDefaultFeishuAccountSelection(cfg: ZhushouConfig): {
   accountId: string;
   source: FeishuDefaultAccountSelectionSource;
 } {
@@ -170,7 +170,7 @@ export function resolveDefaultFeishuAccountSelection(cfg: AssistantConfig): {
 /**
  * Resolve the default account ID.
  */
-export function resolveDefaultFeishuAccountId(cfg: AssistantConfig): string {
+export function resolveDefaultFeishuAccountId(cfg: ZhushouConfig): string {
   return resolveDefaultAccountId(cfg);
 }
 
@@ -178,7 +178,7 @@ export function resolveDefaultFeishuAccountId(cfg: AssistantConfig): string {
  * Merge top-level config with account-specific config.
  * Account-specific fields override top-level fields.
  */
-function mergeFeishuAccountConfig(cfg: AssistantConfig, accountId: string): FeishuConfig {
+function mergeFeishuAccountConfig(cfg: ZhushouConfig, accountId: string): FeishuConfig {
   const feishuCfg = cfg.channels?.feishu as FeishuConfig | undefined;
   return resolveMergedAccountConfig<FeishuConfig>({
     channelConfig: feishuCfg,
@@ -242,7 +242,7 @@ export function inspectFeishuCredentials(cfg?: FeishuConfig) {
 }
 
 function buildResolvedFeishuAccount(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   baseMode: FeishuCredentialResolutionMode;
   eventSecretMode: FeishuCredentialResolutionMode;
@@ -288,7 +288,7 @@ function buildResolvedFeishuAccount(params: {
  * Unresolved SecretRefs are treated as unavailable instead of throwing.
  */
 export function resolveFeishuAccount(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
 }): ResolvedFeishuAccount {
   return buildResolvedFeishuAccount({
@@ -304,7 +304,7 @@ export function resolveFeishuAccount(params: {
  */
 export function resolveFeishuRuntimeAccount(
   params: {
-    cfg: AssistantConfig;
+    cfg: ZhushouConfig;
     accountId?: string | null;
   },
   options?: { requireEventSecrets?: boolean },
@@ -319,7 +319,7 @@ export function resolveFeishuRuntimeAccount(
 /**
  * List all enabled and configured accounts.
  */
-export function listEnabledFeishuAccounts(cfg: AssistantConfig): ResolvedFeishuAccount[] {
+export function listEnabledFeishuAccounts(cfg: ZhushouConfig): ResolvedFeishuAccount[] {
   return listFeishuAccountIds(cfg)
     .map((accountId) => resolveFeishuAccount({ cfg, accountId }))
     .filter((account) => account.enabled && account.configured);

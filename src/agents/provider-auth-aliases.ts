@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { loadPluginManifestRegistry } from "../plugins/manifest-registry.js";
 import type { PluginManifestRecord } from "../plugins/manifest-registry.js";
 import type { PluginOrigin } from "../plugins/plugin-origin.types.js";
@@ -6,7 +6,7 @@ import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { normalizeProviderId } from "./provider-id.js";
 
 export type ProviderAuthAliasLookupParams = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   includeUntrustedWorkspacePlugins?: boolean;
@@ -17,7 +17,7 @@ type ProviderAuthAliasCandidate = {
   target: string;
 };
 
-type PluginEntriesConfig = NonNullable<NonNullable<AssistantConfig["plugins"]>["entries"]>;
+type PluginEntriesConfig = NonNullable<NonNullable<ZhushouConfig["plugins"]>["entries"]>;
 
 const PROVIDER_AUTH_ALIAS_ORIGIN_PRIORITY: Readonly<Record<PluginOrigin, number>> = {
   config: 0,
@@ -61,7 +61,7 @@ function findPluginEntry(
 
 function isWorkspacePluginTrustedForAuthAliases(
   plugin: PluginManifestRecord,
-  config: AssistantConfig | undefined,
+  config: ZhushouConfig | undefined,
 ): boolean {
   const pluginsConfig = config?.plugins;
   if (pluginsConfig?.enabled === false) {

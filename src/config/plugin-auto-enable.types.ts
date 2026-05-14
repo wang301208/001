@@ -1,4 +1,4 @@
-import type { AssistantConfig } from "./types.assistant.js";
+import type { ZhushouConfig } from "./types.zhushou.js";
 
 export type PluginAutoEnableCandidate =
   | {
@@ -45,7 +45,7 @@ export type PluginAutoEnableCandidate =
     };
 
 export type PluginAutoEnableResult = {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   changes: string[];
   autoEnabledReasons: Record<string, string[]>;
 };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ResponseObject } from "./openai-ws-connection.js";
-import { buildAssistantMessageFromResponse } from "./openai-ws-message-conversion.js";
+import { buildZhushouMessageFromResponse } from "./openai-ws-message-conversion.js";
 
 describe("openai ws message conversion", () => {
   it("preserves cached token usage from responses usage details", () => {
@@ -27,7 +27,7 @@ describe("openai ws message conversion", () => {
       },
     };
 
-    const message = buildAssistantMessageFromResponse(response, {
+    const message = buildZhushouMessageFromResponse(response, {
       api: "openai-responses",
       provider: "openai",
       id: "gpt-5",
@@ -65,7 +65,7 @@ describe("openai ws message conversion", () => {
       },
     };
 
-    const message = buildAssistantMessageFromResponse(response, {
+    const message = buildZhushouMessageFromResponse(response, {
       api: "openai-responses",
       provider: "openai",
       id: "gpt-5",

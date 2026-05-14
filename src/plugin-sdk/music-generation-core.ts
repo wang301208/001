@@ -2,7 +2,7 @@
 
 export type { AuthProfileStore } from "../agents/auth-profiles/types.js";
 export type { FallbackAttempt } from "../agents/model-fallback.types.js";
-export type { AssistantConfig } from "../config/types.assistant.js";
+export type { ZhushouConfig } from "../config/types.zhushou.js";
 export type { MusicGenerationProviderPlugin } from "../plugins/types.js";
 export type {
   GeneratedMusicAsset,

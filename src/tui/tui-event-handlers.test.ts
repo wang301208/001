@@ -7,9 +7,9 @@ type HandlerChatLog = {
   startTool: (...args: unknown[]) => void;
   updateToolResult: (...args: unknown[]) => void;
   addSystem: (...args: unknown[]) => void;
-  updateAssistant: (...args: unknown[]) => void;
-  finalizeAssistant: (...args: unknown[]) => void;
-  dropAssistant: (...args: unknown[]) => void;
+  updateZhushou: (...args: unknown[]) => void;
+  finalizeZhushou: (...args: unknown[]) => void;
+  dropZhushou: (...args: unknown[]) => void;
 };
 type HandlerBtwPresenter = {
   showResult: (...args: unknown[]) => void;
@@ -20,9 +20,9 @@ type MockChatLog = {
   startTool: MockFn;
   updateToolResult: MockFn;
   addSystem: MockFn;
-  updateAssistant: MockFn;
-  finalizeAssistant: MockFn;
-  dropAssistant: MockFn;
+  updateZhushou: MockFn;
+  finalizeZhushou: MockFn;
+  dropZhushou: MockFn;
 };
 type MockBtwPresenter = {
   showResult: MockFn;
@@ -35,9 +35,9 @@ function createMockChatLog(): MockChatLog & HandlerChatLog {
     startTool: vi.fn(),
     updateToolResult: vi.fn(),
     addSystem: vi.fn(),
-    updateAssistant: vi.fn(),
-    finalizeAssistant: vi.fn(),
-    dropAssistant: vi.fn(),
+    updateZhushou: vi.fn(),
+    finalizeZhushou: vi.fn(),
+    dropZhushou: vi.fn(),
   } as unknown as MockChatLog & HandlerChatLog;
 }
 
@@ -245,7 +245,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     });
 
     expect(state.activeChatRunId).toBe("run-alias");
-    expect(chatLog.updateAssistant).toHaveBeenCalledWith("hello", "run-alias");
+    expect(chatLog.updateZhushou).toHaveBeenCalledWith("hello", "run-alias");
   });
 
   it("renders BTW results separately without disturbing the active run", () => {
@@ -320,7 +320,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       message: { content: "should be ignored" },
     });
 
-    expect(chatLog.updateAssistant).not.toHaveBeenCalled();
+    expect(chatLog.updateZhushou).not.toHaveBeenCalled();
   });
 
   it("clears run mapping when the session changes", () => {
@@ -557,7 +557,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       message: { content: "continued" },
     });
 
-    expect(chatLog.updateAssistant).toHaveBeenLastCalledWith("continued", "run-active");
+    expect(chatLog.updateZhushou).toHaveBeenLastCalledWith("continued", "run-active");
   });
 
   it("suppresses non-local empty final placeholders during concurrent runs", () => {
@@ -565,8 +565,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       createConcurrentRunHarness("local stream");
 
     loadHistory.mockClear();
-    chatLog.finalizeAssistant.mockClear();
-    chatLog.dropAssistant.mockClear();
+    chatLog.finalizeZhushou.mockClear();
+    chatLog.dropZhushou.mockClear();
 
     handleChatEvent({
       runId: "run-other",
@@ -575,8 +575,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       message: { content: [] },
     });
 
-    expect(chatLog.finalizeAssistant).not.toHaveBeenCalledWith("(无输出)", "run-other");
-    expect(chatLog.dropAssistant).toHaveBeenCalledWith("run-other");
+    expect(chatLog.finalizeZhushou).not.toHaveBeenCalledWith("(无输出)", "run-other");
+    expect(chatLog.dropZhushou).toHaveBeenCalledWith("run-other");
     expect(loadHistory).not.toHaveBeenCalled();
     expect(state.activeChatRunId).toBe("run-active");
   });
@@ -594,14 +594,14 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       errorMessage: '401 {"error":{"message":"Missing scopes: model.request"}}',
     });
 
-    expect(chatLog.finalizeAssistant).toHaveBeenCalledTimes(1);
-    const [rendered] = chatLog.finalizeAssistant.mock.calls[0] ?? [];
+    expect(chatLog.finalizeZhushou).toHaveBeenCalledTimes(1);
+    const [rendered] = chatLog.finalizeZhushou.mock.calls[0] ?? [];
     expect(String(rendered)).toContain("HTTP 401");
     expect(String(rendered)).toContain("Missing scopes: model.request");
-    expect(chatLog.dropAssistant).not.toHaveBeenCalledWith("run-error-envelope");
+    expect(chatLog.dropZhushou).not.toHaveBeenCalledWith("run-error-envelope");
   });
 
-  it("drops streaming assistant when chat final has no message", () => {
+  it("drops streaming zhushou when chat final has no message", () => {
     const { state, chatLog, handleChatEvent } = createHandlersHarness({
       state: { activeChatRunId: null },
     });
@@ -612,8 +612,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       state: "delta",
       message: { content: "hello" },
     });
-    chatLog.dropAssistant.mockClear();
-    chatLog.finalizeAssistant.mockClear();
+    chatLog.dropZhushou.mockClear();
+    chatLog.finalizeZhushou.mockClear();
 
     handleChatEvent({
       runId: "run-silent",
@@ -621,8 +621,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       state: "final",
     });
 
-    expect(chatLog.dropAssistant).toHaveBeenCalledWith("run-silent");
-    expect(chatLog.finalizeAssistant).not.toHaveBeenCalled();
+    expect(chatLog.dropZhushou).toHaveBeenCalledWith("run-silent");
+    expect(chatLog.finalizeZhushou).not.toHaveBeenCalled();
   });
 
   it("reloads history when a local run ends without a displayable final message", () => {

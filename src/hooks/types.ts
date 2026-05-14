@@ -7,7 +7,7 @@ export type HookInstallSpec = {
   bins?: string[];
 };
 
-export type AssistantHookMetadata = {
+export type ZhushouHookMetadata = {
   always?: boolean;
   hookKey?: string;
   emoji?: string;
@@ -35,7 +35,7 @@ export type ParsedHookFrontmatter = Record<string, string>;
 export type Hook = {
   name: string;
   description: string;
-  source: "assistant-bundled" | "assistant-managed" | "assistant-workspace" | "assistant-plugin";
+  source: "zhushou-bundled" | "zhushou-managed" | "zhushou-workspace" | "zhushou-plugin";
   pluginId?: string;
   filePath: string; // Path to HOOK.md
   baseDir: string; // Directory containing hook
@@ -47,7 +47,7 @@ export type HookSource = Hook["source"];
 export type HookEntry = {
   hook: Hook;
   frontmatter: ParsedHookFrontmatter;
-  metadata?: AssistantHookMetadata;
+  metadata?: ZhushouHookMetadata;
   invocation?: HookInvocationPolicy;
 };
 

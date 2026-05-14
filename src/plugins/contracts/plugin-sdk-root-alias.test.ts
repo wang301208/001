@@ -278,12 +278,12 @@ describe("plugin-sdk root alias", () => {
 
     expect((lazyModule.moduleExports.slowHelper as () => string)()).toBe("loaded");
     expect(lazyModule.createJitiOptions.at(-1)?.alias).toMatchObject({
-      "assistant/plugin-sdk": rootAliasPath,
-      "@assistant/plugin-sdk": rootAliasPath,
-      "assistant/plugin-sdk/group-access": expect.stringContaining(
+      "zhushou/plugin-sdk": rootAliasPath,
+      "@zhushou/plugin-sdk": rootAliasPath,
+      "zhushou/plugin-sdk/group-access": expect.stringContaining(
         path.join("src", "plugin-sdk", "group-access.ts"),
       ),
-      "@assistant/plugin-sdk/group-access": expect.stringContaining(
+      "@zhushou/plugin-sdk/group-access": expect.stringContaining(
         path.join("src", "plugin-sdk", "group-access.ts"),
       ),
     });
@@ -307,21 +307,21 @@ describe("plugin-sdk root alias", () => {
       (lazyModule.createJitiOptions.at(-1)?.alias ?? {}) as Record<string, string>,
     );
     expect(aliasKeys).toEqual([
-      "assistant/plugin-sdk/alpha",
-      "@assistant/plugin-sdk/alpha",
-      "assistant/plugin-sdk/group-access",
-      "@assistant/plugin-sdk/group-access",
-      "assistant/plugin-sdk/zeta",
-      "@assistant/plugin-sdk/zeta",
-      "assistant/plugin-sdk",
-      "@assistant/plugin-sdk",
+      "zhushou/plugin-sdk/alpha",
+      "@zhushou/plugin-sdk/alpha",
+      "zhushou/plugin-sdk/group-access",
+      "@zhushou/plugin-sdk/group-access",
+      "zhushou/plugin-sdk/zeta",
+      "@zhushou/plugin-sdk/zeta",
+      "zhushou/plugin-sdk",
+      "@zhushou/plugin-sdk",
     ]);
   });
 
   it("ignores unsafe private local-only plugin-sdk subpaths in the CJS root alias", () => {
     const packageRoot = path.dirname(path.dirname(path.dirname(rootAliasPath)));
     const lazyModule = loadRootAliasWithStubs({
-      env: { ASSISTANT_ENABLE_PRIVATE_QA_CLI: "1" },
+      env: { ZHUSHOU_ENABLE_PRIVATE_QA_CLI: "1" },
       privateLocalOnlySubpaths: ["qa-lab", "../escape", "nested/path"],
       existingPaths: [path.join(packageRoot, "src", "plugin-sdk", "qa-lab.ts")],
       monolithicExports: {
@@ -331,14 +331,14 @@ describe("plugin-sdk root alias", () => {
 
     expect((lazyModule.moduleExports.slowHelper as () => string)()).toBe("loaded");
     const aliasMap = (lazyModule.createJitiOptions.at(-1)?.alias ?? {}) as Record<string, string>;
-    expect(aliasMap["assistant/plugin-sdk/qa-lab"]).toBe(
+    expect(aliasMap["zhushou/plugin-sdk/qa-lab"]).toBe(
       path.join(packageRoot, "src", "plugin-sdk", "qa-lab.ts"),
     );
-    expect(aliasMap["@assistant/plugin-sdk/qa-lab"]).toBe(
+    expect(aliasMap["@zhushou/plugin-sdk/qa-lab"]).toBe(
       path.join(packageRoot, "src", "plugin-sdk", "qa-lab.ts"),
     );
-    expect(aliasMap).not.toHaveProperty("assistant/plugin-sdk/../escape");
-    expect(aliasMap).not.toHaveProperty("assistant/plugin-sdk/nested/path");
+    expect(aliasMap).not.toHaveProperty("zhushou/plugin-sdk/../escape");
+    expect(aliasMap).not.toHaveProperty("zhushou/plugin-sdk/nested/path");
   });
 
   it("builds source plugin-sdk subpath aliases through the wider source extension family", () => {
@@ -355,13 +355,13 @@ describe("plugin-sdk root alias", () => {
 
     expect((lazyModule.moduleExports.slowHelper as () => string)()).toBe("loaded");
     expect(lazyModule.createJitiOptions.at(-1)?.alias).toMatchObject({
-      "assistant/plugin-sdk/channel-runtime": path.join(
+      "zhushou/plugin-sdk/channel-runtime": path.join(
         packageRoot,
         "src",
         "plugin-sdk",
         "channel-runtime.mts",
       ),
-      "@assistant/plugin-sdk/channel-runtime": path.join(
+      "@zhushou/plugin-sdk/channel-runtime": path.join(
         packageRoot,
         "src",
         "plugin-sdk",

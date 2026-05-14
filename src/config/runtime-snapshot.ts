@@ -1,7 +1,7 @@
-import type { AssistantConfig } from "./types.js";
+import type { ZhushouConfig } from "./types.js";
 
 export type RuntimeConfigSnapshotRefreshParams = {
-  sourceConfig: AssistantConfig;
+  sourceConfig: ZhushouConfig;
 };
 
 export type RuntimeConfigSnapshotRefreshHandler = {
@@ -11,20 +11,20 @@ export type RuntimeConfigSnapshotRefreshHandler = {
 
 export type RuntimeConfigWriteNotification = {
   configPath: string;
-  sourceConfig: AssistantConfig;
-  runtimeConfig: AssistantConfig;
+  sourceConfig: ZhushouConfig;
+  runtimeConfig: ZhushouConfig;
   persistedHash: string;
   writtenAtMs: number;
 };
 
-let runtimeConfigSnapshot: AssistantConfig | null = null;
-let runtimeConfigSourceSnapshot: AssistantConfig | null = null;
+let runtimeConfigSnapshot: ZhushouConfig | null = null;
+let runtimeConfigSourceSnapshot: ZhushouConfig | null = null;
 let runtimeConfigSnapshotRefreshHandler: RuntimeConfigSnapshotRefreshHandler | null = null;
 const runtimeConfigWriteListeners = new Set<(event: RuntimeConfigWriteNotification) => void>();
 
 export function setRuntimeConfigSnapshot(
-  config: AssistantConfig,
-  sourceConfig?: AssistantConfig,
+  config: ZhushouConfig,
+  sourceConfig?: ZhushouConfig,
 ): void {
   runtimeConfigSnapshot = config;
   runtimeConfigSourceSnapshot = sourceConfig ?? null;
@@ -39,11 +39,11 @@ export function clearRuntimeConfigSnapshot(): void {
   resetConfigRuntimeState();
 }
 
-export function getRuntimeConfigSnapshot(): AssistantConfig | null {
+export function getRuntimeConfigSnapshot(): ZhushouConfig | null {
   return runtimeConfigSnapshot;
 }
 
-export function getRuntimeConfigSourceSnapshot(): AssistantConfig | null {
+export function getRuntimeConfigSourceSnapshot(): ZhushouConfig | null {
   return runtimeConfigSourceSnapshot;
 }
 
@@ -76,7 +76,7 @@ export function notifyRuntimeConfigWriteListeners(event: RuntimeConfigWriteNotif
   }
 }
 
-export function loadPinnedRuntimeConfig(loadFresh: () => AssistantConfig): AssistantConfig {
+export function loadPinnedRuntimeConfig(loadFresh: () => ZhushouConfig): ZhushouConfig {
   if (runtimeConfigSnapshot) {
     return runtimeConfigSnapshot;
   }
@@ -86,10 +86,10 @@ export function loadPinnedRuntimeConfig(loadFresh: () => AssistantConfig): Assis
 }
 
 export async function finalizeRuntimeSnapshotWrite(params: {
-  nextSourceConfig: AssistantConfig;
+  nextSourceConfig: ZhushouConfig;
   hadRuntimeSnapshot: boolean;
   hadBothSnapshots: boolean;
-  loadFreshConfig: () => AssistantConfig;
+  loadFreshConfig: () => ZhushouConfig;
   notifyCommittedWrite: () => void;
   createRefreshError: (detail: string, cause: unknown) => Error;
   formatRefreshError: (error: unknown) => string;

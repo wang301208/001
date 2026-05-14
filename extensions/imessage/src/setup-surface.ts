@@ -2,8 +2,8 @@ import {
   createDetectedBinaryStatus,
   setSetupChannelEnabled,
   type ChannelSetupWizard,
-} from "assistant/plugin-sdk/setup";
-import { detectBinary } from "assistant/plugin-sdk/setup-tools";
+} from "zhushou/plugin-sdk/setup";
+import { detectBinary } from "zhushou/plugin-sdk/setup-tools";
 import { resolveIMessageAccount } from "./accounts.js";
 import {
   createIMessageCliPathTextInput,

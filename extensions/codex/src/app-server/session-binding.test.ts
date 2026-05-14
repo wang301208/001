@@ -13,7 +13,7 @@ let tempDir: string;
 
 describe("codex app-server session binding", () => {
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-codex-binding-"));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-codex-binding-"));
   });
 
   afterEach(async () => {

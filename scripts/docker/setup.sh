@@ -4,13 +4,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 COMPOSE_FILE="$ROOT_DIR/docker-compose.yml"
 EXTRA_COMPOSE_FILE="$ROOT_DIR/docker-compose.extra.yml"
-IMAGE_NAME="${ASSISTANT_IMAGE:-assistant:local}"
-EXTRA_MOUNTS="${ASSISTANT_EXTRA_MOUNTS:-}"
-HOME_VOLUME_NAME="${ASSISTANT_HOME_VOLUME:-}"
-RAW_SANDBOX_SETTING="${ASSISTANT_SANDBOX:-}"
+IMAGE_NAME="${ZHUSHOU_IMAGE:-zhushou:local}"
+EXTRA_MOUNTS="${ZHUSHOU_EXTRA_MOUNTS:-}"
+HOME_VOLUME_NAME="${ZHUSHOU_HOME_VOLUME:-}"
+RAW_SANDBOX_SETTING="${ZHUSHOU_SANDBOX:-}"
 SANDBOX_ENABLED=""
-DOCKER_SOCKET_PATH="${ASSISTANT_DOCKER_SOCKET:-}"
-TIMEZONE="${ASSISTANT_TZ:-}"
+DOCKER_SOCKET_PATH="${ZHUSHOU_DOCKER_SOCKET:-}"
+TIMEZONE="${ZHUSHOU_TZ:-}"
 
 fail() {
   echo "ERROR: $*" >&2
@@ -40,7 +40,7 @@ is_truthy_value() {
 }
 
 read_config_gateway_token() {
-  local config_path="$ASSISTANT_CONFIG_DIR/assistant.json"
+  local config_path="$ZHUSHOU_CONFIG_DIR/zhushou.json"
   if [[ ! -f "$config_path" ]]; then
     return 0
   fi
@@ -96,8 +96,8 @@ read_env_gateway_token() {
   fi
   while IFS= read -r line || [[ -n "$line" ]]; do
     line="${line%$'\r'}"
-    if [[ "$line" == ASSISTANT_GATEWAY_TOKEN=* ]]; then
-      token="${line#ASSISTANT_GATEWAY_TOKEN=}"
+    if [[ "$line" == ZHUSHOU_GATEWAY_TOKEN=* ]]; then
+      token="${line#ZHUSHOU_GATEWAY_TOKEN=}"
     fi
   done <"$env_path"
   if [[ -n "$token" ]]; then
@@ -110,15 +110,15 @@ sync_gateway_config() {
   local current_allowed_origins=""
   local batch_json=""
 
-  if [[ "${ASSISTANT_GATEWAY_BIND}" != "loopback" ]]; then
-    allowed_origin_json="$(printf '["http://localhost:%s","http://127.0.0.1:%s"]' "$ASSISTANT_GATEWAY_PORT" "$ASSISTANT_GATEWAY_PORT")"
+  if [[ "${ZHUSHOU_GATEWAY_BIND}" != "loopback" ]]; then
+    allowed_origin_json="$(printf '["http://localhost:%s","http://127.0.0.1:%s"]' "$ZHUSHOU_GATEWAY_PORT" "$ZHUSHOU_GATEWAY_PORT")"
     current_allowed_origins="$(
       run_prestart_cli config get gateway.controlUi.allowedOrigins 2>/dev/null || true
     )"
     current_allowed_origins="${current_allowed_origins//$'\r'/}"
   fi
 
-  batch_json="$(printf '[{"path":"gateway.mode","value":"local"},{"path":"gateway.bind","value":"%s"}' "$ASSISTANT_GATEWAY_BIND")"
+  batch_json="$(printf '[{"path":"gateway.mode","value":"local"},{"path":"gateway.bind","value":"%s"}' "$ZHUSHOU_GATEWAY_BIND")"
   if [[ -n "$allowed_origin_json" ]]; then
     if [[ -n "$current_allowed_origins" && "$current_allowed_origins" != "null" && "$current_allowed_origins" != "[]" ]]; then
       echo "Operator client allowlist already configured; leaving gateway.controlUi.allowedOrigins unchanged."
@@ -129,7 +129,7 @@ sync_gateway_config() {
   batch_json+="]"
 
   run_prestart_cli config set --batch-json "$batch_json" >/dev/null
-  echo "Pinned gateway.mode=local and gateway.bind=$ASSISTANT_GATEWAY_BIND for Docker setup."
+  echo "Pinned gateway.mode=local and gateway.bind=$ZHUSHOU_GATEWAY_BIND for Docker setup."
   if [[ -n "$allowed_origin_json" ]]; then
     if [[ -z "$current_allowed_origins" || "$current_allowed_origins" == "null" || "$current_allowed_origins" == "[]" ]]; then
       echo "Set gateway.controlUi.allowedOrigins to $allowed_origin_json for non-loopback bind."
@@ -142,11 +142,11 @@ run_prestart_gateway() {
 }
 
 run_prestart_cli() {
-  # During setup, avoid the shared-network assistant-cli service because it
+  # During setup, avoid the shared-network zhushou-cli service because it
   # requires the gateway container's network namespace to already exist. That
   # creates a circular dependency for config writes that are needed before the
   # gateway can start cleanly.
-  run_prestart_gateway --entrypoint node assistant-gateway \
+  run_prestart_gateway --entrypoint node zhushou-gateway \
     dist/index.js "$@"
 }
 
@@ -170,7 +170,7 @@ run_runtime_cli() {
     *) fail "Unknown runtime CLI deps mode: $deps_mode" ;;
   esac
 
-  docker compose "${compose_args[@]}" "${run_args[@]}" assistant-cli "$@"
+  docker compose "${compose_args[@]}" "${run_args[@]}" zhushou-cli "$@"
 }
 
 contains_disallowed_chars() {
@@ -200,14 +200,14 @@ validate_mount_path_value() {
 validate_named_volume() {
   local value="$1"
   if [[ ! "$value" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]]; then
-    fail "ASSISTANT_HOME_VOLUME must match [A-Za-z0-9][A-Za-z0-9_.-]* when using a named volume."
+    fail "ZHUSHOU_HOME_VOLUME must match [A-Za-z0-9][A-Za-z0-9_.-]* when using a named volume."
   fi
 }
 
 validate_mount_spec() {
   local mount="$1"
   if contains_disallowed_chars "$mount"; then
-    fail "ASSISTANT_EXTRA_MOUNTS entries cannot contain control characters."
+    fail "ZHUSHOU_EXTRA_MOUNTS entries cannot contain control characters."
   fi
   # Keep mount specs strict to avoid YAML structure injection.
   # Expected format: source:target[:options]
@@ -232,58 +232,58 @@ if is_truthy_value "$RAW_SANDBOX_SETTING"; then
   SANDBOX_ENABLED="1"
 fi
 
-ASSISTANT_CONFIG_DIR="${ASSISTANT_CONFIG_DIR:-$HOME/.assistant}"
-ASSISTANT_WORKSPACE_DIR="${ASSISTANT_WORKSPACE_DIR:-$HOME/.assistant/workspace}"
+ZHUSHOU_CONFIG_DIR="${ZHUSHOU_CONFIG_DIR:-$HOME/.zhushou}"
+ZHUSHOU_WORKSPACE_DIR="${ZHUSHOU_WORKSPACE_DIR:-$HOME/.zhushou/workspace}"
 
-validate_mount_path_value "ASSISTANT_CONFIG_DIR" "$ASSISTANT_CONFIG_DIR"
-validate_mount_path_value "ASSISTANT_WORKSPACE_DIR" "$ASSISTANT_WORKSPACE_DIR"
+validate_mount_path_value "ZHUSHOU_CONFIG_DIR" "$ZHUSHOU_CONFIG_DIR"
+validate_mount_path_value "ZHUSHOU_WORKSPACE_DIR" "$ZHUSHOU_WORKSPACE_DIR"
 if [[ -n "$HOME_VOLUME_NAME" ]]; then
   if [[ "$HOME_VOLUME_NAME" == *"/"* ]]; then
-    validate_mount_path_value "ASSISTANT_HOME_VOLUME" "$HOME_VOLUME_NAME"
+    validate_mount_path_value "ZHUSHOU_HOME_VOLUME" "$HOME_VOLUME_NAME"
   else
     validate_named_volume "$HOME_VOLUME_NAME"
   fi
 fi
 if contains_disallowed_chars "$EXTRA_MOUNTS"; then
-  fail "ASSISTANT_EXTRA_MOUNTS cannot contain control characters."
+  fail "ZHUSHOU_EXTRA_MOUNTS cannot contain control characters."
 fi
 if [[ -n "$SANDBOX_ENABLED" ]]; then
-  validate_mount_path_value "ASSISTANT_DOCKER_SOCKET" "$DOCKER_SOCKET_PATH"
+  validate_mount_path_value "ZHUSHOU_DOCKER_SOCKET" "$DOCKER_SOCKET_PATH"
 fi
 if [[ -n "$TIMEZONE" ]]; then
   if contains_disallowed_chars "$TIMEZONE"; then
-    fail "ASSISTANT_TZ contains unsupported control characters."
+    fail "ZHUSHOU_TZ contains unsupported control characters."
   fi
   if [[ ! "$TIMEZONE" =~ ^[A-Za-z0-9/_+\-]+$ ]]; then
-    fail "ASSISTANT_TZ must be a valid IANA timezone string (e.g. Asia/Shanghai)."
+    fail "ZHUSHOU_TZ must be a valid IANA timezone string (e.g. Asia/Shanghai)."
   fi
   if ! is_valid_timezone "$TIMEZONE"; then
-    fail "ASSISTANT_TZ must match a timezone in /usr/share/zoneinfo (e.g. Asia/Shanghai)."
+    fail "ZHUSHOU_TZ must match a timezone in /usr/share/zoneinfo (e.g. Asia/Shanghai)."
   fi
 fi
 
-mkdir -p "$ASSISTANT_CONFIG_DIR"
-mkdir -p "$ASSISTANT_WORKSPACE_DIR"
+mkdir -p "$ZHUSHOU_CONFIG_DIR"
+mkdir -p "$ZHUSHOU_WORKSPACE_DIR"
 # Seed directory tree eagerly so bind mounts work even on Docker Desktop/Windows
 # where the container (even as root) cannot create new host subdirectories.
-mkdir -p "$ASSISTANT_CONFIG_DIR/identity"
-mkdir -p "$ASSISTANT_CONFIG_DIR/agents/main/agent"
-mkdir -p "$ASSISTANT_CONFIG_DIR/agents/main/sessions"
+mkdir -p "$ZHUSHOU_CONFIG_DIR/identity"
+mkdir -p "$ZHUSHOU_CONFIG_DIR/agents/main/agent"
+mkdir -p "$ZHUSHOU_CONFIG_DIR/agents/main/sessions"
 
-export ASSISTANT_CONFIG_DIR
-export ASSISTANT_WORKSPACE_DIR
-export ASSISTANT_GATEWAY_PORT="${ASSISTANT_GATEWAY_PORT:-18789}"
-export ASSISTANT_BRIDGE_PORT="${ASSISTANT_BRIDGE_PORT:-18790}"
-export ASSISTANT_GATEWAY_BIND="${ASSISTANT_GATEWAY_BIND:-lan}"
-export ASSISTANT_IMAGE="$IMAGE_NAME"
-export ASSISTANT_DOCKER_APT_PACKAGES="${ASSISTANT_DOCKER_APT_PACKAGES:-}"
-export ASSISTANT_EXTENSIONS="${ASSISTANT_EXTENSIONS:-}"
-export ASSISTANT_EXTRA_MOUNTS="$EXTRA_MOUNTS"
-export ASSISTANT_HOME_VOLUME="$HOME_VOLUME_NAME"
-export ASSISTANT_ALLOW_INSECURE_PRIVATE_WS="${ASSISTANT_ALLOW_INSECURE_PRIVATE_WS:-}"
-export ASSISTANT_SANDBOX="$SANDBOX_ENABLED"
-export ASSISTANT_DOCKER_SOCKET="$DOCKER_SOCKET_PATH"
-export ASSISTANT_TZ="$TIMEZONE"
+export ZHUSHOU_CONFIG_DIR
+export ZHUSHOU_WORKSPACE_DIR
+export ZHUSHOU_GATEWAY_PORT="${ZHUSHOU_GATEWAY_PORT:-18789}"
+export ZHUSHOU_BRIDGE_PORT="${ZHUSHOU_BRIDGE_PORT:-18790}"
+export ZHUSHOU_GATEWAY_BIND="${ZHUSHOU_GATEWAY_BIND:-lan}"
+export ZHUSHOU_IMAGE="$IMAGE_NAME"
+export ZHUSHOU_DOCKER_APT_PACKAGES="${ZHUSHOU_DOCKER_APT_PACKAGES:-}"
+export ZHUSHOU_EXTENSIONS="${ZHUSHOU_EXTENSIONS:-}"
+export ZHUSHOU_EXTRA_MOUNTS="$EXTRA_MOUNTS"
+export ZHUSHOU_HOME_VOLUME="$HOME_VOLUME_NAME"
+export ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS="${ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS:-}"
+export ZHUSHOU_SANDBOX="$SANDBOX_ENABLED"
+export ZHUSHOU_DOCKER_SOCKET="$DOCKER_SOCKET_PATH"
+export ZHUSHOU_TZ="$TIMEZONE"
 
 # Detect Docker socket GID for sandbox group_add.
 DOCKER_GID=""
@@ -292,20 +292,20 @@ if [[ -n "$SANDBOX_ENABLED" && -S "$DOCKER_SOCKET_PATH" ]]; then
 fi
 export DOCKER_GID
 
-if [[ -z "${ASSISTANT_GATEWAY_TOKEN:-}" ]]; then
+if [[ -z "${ZHUSHOU_GATEWAY_TOKEN:-}" ]]; then
   EXISTING_CONFIG_TOKEN="$(read_config_gateway_token || true)"
   if [[ -n "$EXISTING_CONFIG_TOKEN" ]]; then
-    ASSISTANT_GATEWAY_TOKEN="$EXISTING_CONFIG_TOKEN"
-    echo "Reusing gateway token from $ASSISTANT_CONFIG_DIR/assistant.json"
+    ZHUSHOU_GATEWAY_TOKEN="$EXISTING_CONFIG_TOKEN"
+    echo "Reusing gateway token from $ZHUSHOU_CONFIG_DIR/zhushou.json"
   else
     DOTENV_GATEWAY_TOKEN="$(read_env_gateway_token "$ROOT_DIR/.env" || true)"
     if [[ -n "$DOTENV_GATEWAY_TOKEN" ]]; then
-      ASSISTANT_GATEWAY_TOKEN="$DOTENV_GATEWAY_TOKEN"
+      ZHUSHOU_GATEWAY_TOKEN="$DOTENV_GATEWAY_TOKEN"
       echo "Reusing gateway token from $ROOT_DIR/.env"
     elif command -v openssl >/dev/null 2>&1; then
-      ASSISTANT_GATEWAY_TOKEN="$(openssl rand -hex 32)"
+      ZHUSHOU_GATEWAY_TOKEN="$(openssl rand -hex 32)"
     else
-      ASSISTANT_GATEWAY_TOKEN="$(python3 - <<'PY'
+      ZHUSHOU_GATEWAY_TOKEN="$(python3 - <<'PY'
 import secrets
 print(secrets.token_hex(32))
 PY
@@ -313,7 +313,7 @@ PY
     fi
   fi
 fi
-export ASSISTANT_GATEWAY_TOKEN
+export ZHUSHOU_GATEWAY_TOKEN
 
 COMPOSE_FILES=("$COMPOSE_FILE")
 COMPOSE_ARGS=()
@@ -328,14 +328,14 @@ write_extra_compose() {
 
   cat >"$EXTRA_COMPOSE_FILE" <<'YAML'
 services:
-  assistant-gateway:
+  zhushou-gateway:
     volumes:
 YAML
 
   if [[ -n "$home_volume" ]]; then
     gateway_home_mount="${home_volume}:/home/node"
-    gateway_config_mount="${ASSISTANT_CONFIG_DIR}:/home/node/.assistant"
-    gateway_workspace_mount="${ASSISTANT_WORKSPACE_DIR}:/home/node/.assistant/workspace"
+    gateway_config_mount="${ZHUSHOU_CONFIG_DIR}:/home/node/.zhushou"
+    gateway_workspace_mount="${ZHUSHOU_WORKSPACE_DIR}:/home/node/.zhushou/workspace"
     validate_mount_spec "$gateway_home_mount"
     validate_mount_spec "$gateway_config_mount"
     validate_mount_spec "$gateway_workspace_mount"
@@ -350,7 +350,7 @@ YAML
   done
 
   cat >>"$EXTRA_COMPOSE_FILE" <<'YAML'
-  assistant-cli:
+  zhushou-cli:
     volumes:
 YAML
 
@@ -377,8 +377,8 @@ YAML
 # When sandbox is requested, ensure Docker CLI build arg is set for local builds.
 # Docker socket mount is deferred until sandbox prerequisites are verified.
 if [[ -n "$SANDBOX_ENABLED" ]]; then
-  if [[ -z "${ASSISTANT_INSTALL_DOCKER_CLI:-}" ]]; then
-    export ASSISTANT_INSTALL_DOCKER_CLI=1
+  if [[ -z "${ZHUSHOU_INSTALL_DOCKER_CLI:-}" ]]; then
+    export ZHUSHOU_INSTALL_DOCKER_CLI=1
   fi
 fi
 
@@ -453,30 +453,30 @@ upsert_env() {
 }
 
 upsert_env "$ENV_FILE" \
-  ASSISTANT_CONFIG_DIR \
-  ASSISTANT_WORKSPACE_DIR \
-  ASSISTANT_GATEWAY_PORT \
-  ASSISTANT_BRIDGE_PORT \
-  ASSISTANT_GATEWAY_BIND \
-  ASSISTANT_GATEWAY_TOKEN \
-  ASSISTANT_IMAGE \
-  ASSISTANT_EXTRA_MOUNTS \
-  ASSISTANT_HOME_VOLUME \
-  ASSISTANT_DOCKER_APT_PACKAGES \
-  ASSISTANT_EXTENSIONS \
-  ASSISTANT_SANDBOX \
-  ASSISTANT_DOCKER_SOCKET \
+  ZHUSHOU_CONFIG_DIR \
+  ZHUSHOU_WORKSPACE_DIR \
+  ZHUSHOU_GATEWAY_PORT \
+  ZHUSHOU_BRIDGE_PORT \
+  ZHUSHOU_GATEWAY_BIND \
+  ZHUSHOU_GATEWAY_TOKEN \
+  ZHUSHOU_IMAGE \
+  ZHUSHOU_EXTRA_MOUNTS \
+  ZHUSHOU_HOME_VOLUME \
+  ZHUSHOU_DOCKER_APT_PACKAGES \
+  ZHUSHOU_EXTENSIONS \
+  ZHUSHOU_SANDBOX \
+  ZHUSHOU_DOCKER_SOCKET \
   DOCKER_GID \
-  ASSISTANT_INSTALL_DOCKER_CLI \
-  ASSISTANT_ALLOW_INSECURE_PRIVATE_WS \
-  ASSISTANT_TZ
+  ZHUSHOU_INSTALL_DOCKER_CLI \
+  ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS \
+  ZHUSHOU_TZ
 
-if [[ "$IMAGE_NAME" == "assistant:local" ]]; then
+if [[ "$IMAGE_NAME" == "zhushou:local" ]]; then
   echo "==> Building Docker image: $IMAGE_NAME"
   run_docker_build \
-    --build-arg "ASSISTANT_DOCKER_APT_PACKAGES=${ASSISTANT_DOCKER_APT_PACKAGES}" \
-    --build-arg "ASSISTANT_EXTENSIONS=${ASSISTANT_EXTENSIONS}" \
-    --build-arg "ASSISTANT_INSTALL_DOCKER_CLI=${ASSISTANT_INSTALL_DOCKER_CLI:-}" \
+    --build-arg "ZHUSHOU_DOCKER_APT_PACKAGES=${ZHUSHOU_DOCKER_APT_PACKAGES}" \
+    --build-arg "ZHUSHOU_EXTENSIONS=${ZHUSHOU_EXTENSIONS}" \
+    --build-arg "ZHUSHOU_INSTALL_DOCKER_CLI=${ZHUSHOU_INSTALL_DOCKER_CLI:-}" \
     -t "$IMAGE_NAME" \
     -f "$ROOT_DIR/Dockerfile" \
     "$ROOT_DIR"
@@ -498,18 +498,18 @@ echo "==> Fixing data-directory permissions"
 # Use -xdev to restrict chown to the config-dir mount only — without it,
 # the recursive chown would cross into the workspace bind mount and rewrite
 # ownership of all user project files on Linux hosts.
-# After fixing the config dir, only the Assistant metadata subdirectory
-# (.assistant/) inside the workspace gets chowned, not the user's project files.
-run_prestart_gateway --user root --entrypoint sh assistant-gateway -c \
-  'find /home/node/.assistant -xdev -exec chown node:node {} +; \
-   [ -d /home/node/.assistant/workspace/.assistant ] && chown -R node:node /home/node/.assistant/workspace/.assistant || true'
+# After fixing the config dir, only the Zhushou metadata subdirectory
+# (.zhushou/) inside the workspace gets chowned, not the user's project files.
+run_prestart_gateway --user root --entrypoint sh zhushou-gateway -c \
+  'find /home/node/.zhushou -xdev -exec chown node:node {} +; \
+   [ -d /home/node/.zhushou/workspace/.zhushou ] && chown -R node:node /home/node/.zhushou/workspace/.zhushou || true'
 
 echo ""
 echo "==> Onboarding (interactive)"
 echo "Docker setup pins Gateway mode to local."
-echo "Gateway runtime bind comes from ASSISTANT_GATEWAY_BIND (default: lan)."
-echo "Current runtime bind: $ASSISTANT_GATEWAY_BIND"
-echo "Gateway token: $ASSISTANT_GATEWAY_TOKEN"
+echo "Gateway runtime bind comes from ZHUSHOU_GATEWAY_BIND (default: lan)."
+echo "Current runtime bind: $ZHUSHOU_GATEWAY_BIND"
+echo "Gateway token: $ZHUSHOU_GATEWAY_TOKEN"
 echo "Tailscale exposure: Off (use host-level tailnet/Tailscale setup separately)."
 echo "Install Gateway daemon: No (managed by Docker Compose)"
 echo ""
@@ -522,27 +522,27 @@ sync_gateway_config
 echo ""
 echo "==> Provider setup (optional)"
 echo "WhatsApp (QR):"
-echo "  ${COMPOSE_HINT} run --rm assistant-cli channels login"
+echo "  ${COMPOSE_HINT} run --rm zhushou-cli channels login"
 echo "Telegram (bot token):"
-echo "  ${COMPOSE_HINT} run --rm assistant-cli channels add --channel telegram --token <token>"
+echo "  ${COMPOSE_HINT} run --rm zhushou-cli channels add --channel telegram --token <token>"
 echo "Discord (bot token):"
-echo "  ${COMPOSE_HINT} run --rm assistant-cli channels add --channel discord --token <token>"
-echo "Docs: https://docs.assistant.ai/channels"
+echo "  ${COMPOSE_HINT} run --rm zhushou-cli channels add --channel discord --token <token>"
+echo "Docs: https://docs.zhushou.ai/channels"
 
 echo ""
 echo "==> Starting gateway"
-docker compose "${COMPOSE_ARGS[@]}" up -d assistant-gateway
+docker compose "${COMPOSE_ARGS[@]}" up -d zhushou-gateway
 
-# --- Sandbox setup (opt-in via ASSISTANT_SANDBOX=1) ---
+# --- Sandbox setup (opt-in via ZHUSHOU_SANDBOX=1) ---
 if [[ -n "$SANDBOX_ENABLED" ]]; then
   echo ""
   echo "==> Sandbox setup"
 
   # Build sandbox image if Dockerfile.sandbox exists.
   if [[ -f "$ROOT_DIR/Dockerfile.sandbox" ]]; then
-    echo "Building sandbox image: assistant-sandbox:bookworm-slim"
+    echo "Building sandbox image: zhushou-sandbox:bookworm-slim"
     run_docker_build \
-      -t "assistant-sandbox:bookworm-slim" \
+      -t "zhushou-sandbox:bookworm-slim" \
       -f "$ROOT_DIR/Dockerfile.sandbox" \
       "$ROOT_DIR"
   else
@@ -554,10 +554,10 @@ if [[ -n "$SANDBOX_ENABLED" ]]; then
   # Defense-in-depth: verify Docker CLI in the running image before enabling
   # sandbox. This avoids claiming sandbox is enabled when the image cannot
   # launch sandbox containers.
-  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --entrypoint docker assistant-gateway --version >/dev/null 2>&1; then
+  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --entrypoint docker zhushou-gateway --version >/dev/null 2>&1; then
     echo "WARNING: Docker CLI not found inside the container image." >&2
-    echo "  Sandbox requires Docker CLI. Rebuild with --build-arg ASSISTANT_INSTALL_DOCKER_CLI=1" >&2
-    echo "  or use a local build (ASSISTANT_IMAGE=assistant:local). Skipping sandbox setup." >&2
+    echo "  Sandbox requires Docker CLI. Rebuild with --build-arg ZHUSHOU_INSTALL_DOCKER_CLI=1" >&2
+    echo "  or use a local build (ZHUSHOU_IMAGE=zhushou:local). Skipping sandbox setup." >&2
     SANDBOX_ENABLED=""
   fi
 fi
@@ -571,7 +571,7 @@ if [[ -n "$SANDBOX_ENABLED" ]]; then
     SANDBOX_COMPOSE_FILE="$ROOT_DIR/docker-compose.sandbox.yml"
     cat >"$SANDBOX_COMPOSE_FILE" <<YAML
 services:
-  assistant-gateway:
+  zhushou-gateway:
     volumes:
       - ${DOCKER_SOCKET_PATH}:/var/run/docker.sock
 YAML
@@ -584,14 +584,14 @@ YAML
     COMPOSE_ARGS+=("-f" "$SANDBOX_COMPOSE_FILE")
     echo "==> Sandbox: added Docker socket mount"
   else
-    echo "WARNING: ASSISTANT_SANDBOX enabled but Docker socket not found at $DOCKER_SOCKET_PATH." >&2
+    echo "WARNING: ZHUSHOU_SANDBOX enabled but Docker socket not found at $DOCKER_SOCKET_PATH." >&2
     echo "  Sandbox requires Docker socket access. Skipping sandbox setup." >&2
     SANDBOX_ENABLED=""
   fi
 fi
 
 if [[ -n "$SANDBOX_ENABLED" ]]; then
-  # Enable sandbox in Assistant config.
+  # Enable sandbox in Zhushou config.
   sandbox_config_ok=true
   if ! run_runtime_cli current no-deps \
     config set agents.defaults.sandbox.mode "non-main" >/dev/null; then
@@ -611,9 +611,9 @@ if [[ -n "$SANDBOX_ENABLED" ]]; then
 
   if [[ "$sandbox_config_ok" == true ]]; then
     echo "Sandbox enabled: mode=non-main, scope=agent, workspaceAccess=none"
-    echo "Docs: https://docs.assistant.ai/gateway/sandboxing"
+    echo "Docs: https://docs.zhushou.ai/gateway/sandboxing"
     # Restart gateway with sandbox compose overlay to pick up socket mount + config.
-    docker compose "${COMPOSE_ARGS[@]}" up -d assistant-gateway
+    docker compose "${COMPOSE_ARGS[@]}" up -d zhushou-gateway
   else
     echo "WARNING: Sandbox config was partially applied. Check errors above." >&2
     echo "  Skipping gateway restart to avoid exposing Docker socket without a full sandbox policy." >&2
@@ -627,7 +627,7 @@ if [[ -n "$SANDBOX_ENABLED" ]]; then
       rm -f "$SANDBOX_COMPOSE_FILE"
     fi
     # Ensure gateway service definition is reset without sandbox overlay mount.
-    docker compose "${BASE_COMPOSE_ARGS[@]}" up -d --force-recreate assistant-gateway
+    docker compose "${BASE_COMPOSE_ARGS[@]}" up -d --force-recreate zhushou-gateway
   fi
 else
   # Keep reruns deterministic: if sandbox is not active for this run, reset
@@ -645,10 +645,10 @@ fi
 echo ""
 echo "Gateway running with host port mapping."
 echo "Access from tailnet devices via the host's tailnet IP."
-echo "Config: $ASSISTANT_CONFIG_DIR"
-echo "Workspace: $ASSISTANT_WORKSPACE_DIR"
-echo "Token: $ASSISTANT_GATEWAY_TOKEN"
+echo "Config: $ZHUSHOU_CONFIG_DIR"
+echo "Workspace: $ZHUSHOU_WORKSPACE_DIR"
+echo "Token: $ZHUSHOU_GATEWAY_TOKEN"
 echo ""
 echo "Commands:"
-echo "  ${COMPOSE_HINT} logs -f assistant-gateway"
-echo "  ${COMPOSE_HINT} exec assistant-gateway node dist/index.js health --token \"$ASSISTANT_GATEWAY_TOKEN\""
+echo "  ${COMPOSE_HINT} logs -f zhushou-gateway"
+echo "  ${COMPOSE_HINT} exec zhushou-gateway node dist/index.js health --token \"$ZHUSHOU_GATEWAY_TOKEN\""

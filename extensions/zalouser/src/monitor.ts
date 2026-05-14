@@ -1,46 +1,46 @@
-import { mergeAllowlist, summarizeMapping } from "assistant/plugin-sdk/allow-from";
+import { mergeAllowlist, summarizeMapping } from "zhushou/plugin-sdk/allow-from";
 import {
   implicitMentionKindWhen,
   resolveInboundMentionDecision,
-} from "assistant/plugin-sdk/channel-inbound";
-import { createChannelPairingController } from "assistant/plugin-sdk/channel-pairing";
+} from "zhushou/plugin-sdk/channel-inbound";
+import { createChannelPairingController } from "zhushou/plugin-sdk/channel-pairing";
 import {
   DM_GROUP_ACCESS_REASON,
   resolveDmGroupAccessWithLists,
-} from "assistant/plugin-sdk/channel-policy";
-import { createChannelReplyPipeline } from "assistant/plugin-sdk/channel-reply-pipeline";
-import { resolveSenderCommandAuthorization } from "assistant/plugin-sdk/command-auth";
+} from "zhushou/plugin-sdk/channel-policy";
+import { createChannelReplyPipeline } from "zhushou/plugin-sdk/channel-reply-pipeline";
+import { resolveSenderCommandAuthorization } from "zhushou/plugin-sdk/command-auth";
 import {
   isDangerousNameMatchingEnabled,
   resolveDefaultGroupPolicy,
   resolveOpenProviderRuntimeGroupPolicy,
   type MarkdownTableMode,
-  type AssistantConfig,
+  type ZhushouConfig,
   warnMissingProviderGroupPolicyFallbackOnce,
-} from "assistant/plugin-sdk/config-runtime";
-import { KeyedAsyncQueue } from "assistant/plugin-sdk/core";
-import { createDeferred } from "assistant/plugin-sdk/extension-shared";
+} from "zhushou/plugin-sdk/config-runtime";
+import { KeyedAsyncQueue } from "zhushou/plugin-sdk/core";
+import { createDeferred } from "zhushou/plugin-sdk/extension-shared";
 import {
   evaluateGroupRouteAccessForPolicy,
   resolveSenderScopedGroupPolicy,
-} from "assistant/plugin-sdk/group-access";
+} from "zhushou/plugin-sdk/group-access";
 import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
   recordPendingHistoryEntryIfEnabled,
-} from "assistant/plugin-sdk/reply-history";
+} from "zhushou/plugin-sdk/reply-history";
 import {
   deliverTextOrMediaReply,
   resolveSendableOutboundReplyParts,
   type OutboundReplyPayload,
-} from "assistant/plugin-sdk/reply-payload";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime";
+} from "zhushou/plugin-sdk/reply-payload";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   buildZalouserGroupCandidates,
   findZalouserGroupEntry,
@@ -64,7 +64,7 @@ import {
 
 export type ZalouserMonitorOptions = {
   account: ResolvedZalouserAccount;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   runtime: RuntimeEnv;
   abortSignal: AbortSignal;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -139,14 +139,14 @@ function resolveInboundQueueKey(message: ZaloInboundMessage): string {
   return `direct:${senderId || threadId}`;
 }
 
-function resolveZalouserDmSessionScope(config: AssistantConfig) {
+function resolveZalouserDmSessionScope(config: ZhushouConfig) {
   const configured = config.session?.dmScope;
   return configured === "main" || !configured ? "per-channel-peer" : configured;
 }
 
 function resolveZalouserInboundSessionKey(params: {
   core: ZalouserCoreRuntime;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   route: { agentId: string; accountId: string; sessionKey: string };
   storePath: string;
   isGroup: boolean;
@@ -252,7 +252,7 @@ async function sendZalouserDeliveryAcks(params: {
 async function processMessage(
   message: ZaloInboundMessage,
   account: ResolvedZalouserAccount,
-  config: AssistantConfig,
+  config: ZhushouConfig,
   core: ZalouserCoreRuntime,
   runtime: RuntimeEnv,
   historyState: ZalouserGroupHistoryState,
@@ -710,7 +710,7 @@ async function deliverZalouserReply(params: {
   isGroup: boolean;
   runtime: RuntimeEnv;
   core: ZalouserCoreRuntime;
-  config: AssistantConfig;
+  config: ZhushouConfig;
   accountId?: string;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
   tableMode?: MarkdownTableMode;
@@ -975,7 +975,7 @@ export const __testing = {
   processMessage: async (params: {
     message: ZaloInboundMessage;
     account: ResolvedZalouserAccount;
-    config: AssistantConfig;
+    config: ZhushouConfig;
     runtime: RuntimeEnv;
     historyState?: {
       historyLimit?: number;

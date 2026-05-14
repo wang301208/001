@@ -22,15 +22,15 @@ const configMocks = vi.hoisted(() => ({
 const browserConfigMocks = vi.hoisted(() => ({
   resolveBrowserConfig: vi.fn(() => ({
     enabled: true,
-    defaultProfile: "assistant",
+    defaultProfile: "zhushou",
   })),
 }));
 
-vi.mock("assistant/plugin-sdk/browser-config-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/browser-config-runtime", () => ({
   loadConfig: configMocks.loadConfig,
 }));
 
-vi.mock("assistant/plugin-sdk/browser-node-runtime", () => ({
+vi.mock("zhushou/plugin-sdk/browser-node-runtime", () => ({
   withTimeout: vi.fn(
     async (
       run: (signal: AbortSignal | undefined) => Promise<unknown>,
@@ -65,7 +65,7 @@ vi.mock("assistant/plugin-sdk/browser-node-runtime", () => ({
   ),
 }));
 
-vi.mock("assistant/plugin-sdk/browser-setup-tools", () => ({
+vi.mock("zhushou/plugin-sdk/browser-setup-tools", () => ({
   detectMime: vi.fn(async () => "image/png"),
 }));
 
@@ -155,7 +155,7 @@ describe("runBrowserProxyCommand", () => {
     });
     browserConfigMocks.resolveBrowserConfig.mockReset().mockReturnValue({
       enabled: true,
-      defaultProfile: "assistant",
+      defaultProfile: "zhushou",
     });
     configMocks.loadConfig.mockReturnValue({
       browser: {},
@@ -163,7 +163,7 @@ describe("runBrowserProxyCommand", () => {
     });
     browserConfigMocks.resolveBrowserConfig.mockReturnValue({
       enabled: true,
-      defaultProfile: "assistant",
+      defaultProfile: "zhushou",
     });
     controlServiceMocks.startBrowserControlServiceFromConfig.mockResolvedValue(true);
   });
@@ -189,12 +189,12 @@ describe("runBrowserProxyCommand", () => {
         JSON.stringify({
           method: "GET",
           path: "/snapshot",
-          profile: "assistant",
+          profile: "zhushou",
           timeoutMs: 5,
         }),
       ),
     ).rejects.toThrow(
-      /browser proxy timed out for GET \/snapshot after 5ms; ws-backed browser action; profile=assistant; status\(running=true, cdpHttp=true, cdpReady=false, cdpUrl=http:\/\/127\.0\.0\.1:18792\)/,
+      /browser proxy timed out for GET \/snapshot after 5ms; ws-backed browser action; profile=zhushou; status\(running=true, cdpHttp=true, cdpReady=false, cdpUrl=http:\/\/127\.0\.0\.1:18792\)/,
     );
     await vi.advanceTimersByTimeAsync(10);
     await result;
@@ -277,7 +277,7 @@ describe("runBrowserProxyCommand", () => {
         JSON.stringify({
           method: "POST",
           path: "/act",
-          profile: "assistant",
+          profile: "zhushou",
           timeoutMs: 50,
         }),
       ),
@@ -287,7 +287,7 @@ describe("runBrowserProxyCommand", () => {
   it("rejects unauthorized query.profile when allowProfiles is configured", async () => {
     configMocks.loadConfig.mockReturnValue({
       browser: {},
-      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["assistant"] } },
+      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["zhushou"] } },
     });
 
     await expect(
@@ -306,7 +306,7 @@ describe("runBrowserProxyCommand", () => {
   it("rejects unauthorized body.profile when allowProfiles is configured", async () => {
     configMocks.loadConfig.mockReturnValue({
       browser: {},
-      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["assistant"] } },
+      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["zhushou"] } },
     });
 
     await expect(
@@ -325,7 +325,7 @@ describe("runBrowserProxyCommand", () => {
   it("rejects persistent profile creation when allowProfiles is configured", async () => {
     configMocks.loadConfig.mockReturnValue({
       browser: {},
-      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["assistant"] } },
+      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["zhushou"] } },
     });
 
     await expect(
@@ -344,7 +344,7 @@ describe("runBrowserProxyCommand", () => {
   it("rejects persistent profile deletion when allowProfiles is configured", async () => {
     configMocks.loadConfig.mockReturnValue({
       browser: {},
-      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["assistant"] } },
+      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["zhushou"] } },
     });
 
     await expect(
@@ -362,7 +362,7 @@ describe("runBrowserProxyCommand", () => {
   it("rejects persistent profile reset when allowProfiles is configured", async () => {
     configMocks.loadConfig.mockReturnValue({
       browser: {},
-      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["assistant"] } },
+      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["zhushou"] } },
     });
 
     await expect(
@@ -370,7 +370,7 @@ describe("runBrowserProxyCommand", () => {
         JSON.stringify({
           method: "POST",
           path: "/reset-profile",
-          body: { profile: "assistant", name: "assistant" },
+          body: { profile: "zhushou", name: "zhushou" },
           timeoutMs: 50,
         }),
       ),
@@ -381,7 +381,7 @@ describe("runBrowserProxyCommand", () => {
   it("canonicalizes an allowlisted body profile into the dispatched query", async () => {
     configMocks.loadConfig.mockReturnValue({
       browser: {},
-      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["assistant"] } },
+      nodeHost: { browserProxy: { enabled: true, allowProfiles: ["zhushou"] } },
     });
     dispatcherMocks.dispatch.mockResolvedValue({
       status: 200,
@@ -392,7 +392,7 @@ describe("runBrowserProxyCommand", () => {
       JSON.stringify({
         method: "POST",
         path: "/stop",
-        body: { profile: "assistant" },
+        body: { profile: "zhushou" },
         timeoutMs: 50,
       }),
     );
@@ -400,7 +400,7 @@ describe("runBrowserProxyCommand", () => {
     expect(dispatcherMocks.dispatch).toHaveBeenCalledWith(
       expect.objectContaining({
         path: "/stop",
-        query: { profile: "assistant" },
+        query: { profile: "zhushou" },
       }),
     );
   });

@@ -3,7 +3,7 @@ import path from "node:path";
 import { afterEach, beforeEach, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import { clearConfigCache, clearRuntimeConfigSnapshot } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { resolveBundledPluginsDir } from "../plugins/bundled-dir.js";
 import { resetPluginLoaderTestStateForTest } from "../plugins/loader.test-fixtures.js";
 import { resetProviderRuntimeHookCacheForTest } from "../plugins/provider-runtime.js";
@@ -16,7 +16,7 @@ export function withModelsTempHome<T>(fn: (home: string) => Promise<T>): Promise
   // Models-config tests do not exercise session persistence; skip draining
   // unrelated session lock state during temp-home teardown.
   return withTempHomeBase(fn, {
-    prefix: "assistant-models-",
+    prefix: "zhushou-models-",
     skipSessionCleanup: true,
   });
 }
@@ -27,7 +27,7 @@ export function installModelsConfigTestHooks(opts?: {
   resetProviderRuntimeHookCache?: boolean;
 }) {
   let previousHome: string | undefined;
-  let previousAssistantAgentDir: string | undefined;
+  let previousZhushouAgentDir: string | undefined;
   let previousPiCodingAgentDir: string | undefined;
   const originalFetch = globalThis.fetch;
   const shouldResetPluginLoaderState = opts?.resetPluginLoaderState !== false;
@@ -35,9 +35,9 @@ export function installModelsConfigTestHooks(opts?: {
 
   beforeEach(() => {
     previousHome = process.env.HOME;
-    previousAssistantAgentDir = process.env.ASSISTANT_AGENT_DIR;
+    previousZhushouAgentDir = process.env.ZHUSHOU_AGENT_DIR;
     previousPiCodingAgentDir = process.env.PI_CODING_AGENT_DIR;
-    delete process.env.ASSISTANT_AGENT_DIR;
+    delete process.env.ZHUSHOU_AGENT_DIR;
     delete process.env.PI_CODING_AGENT_DIR;
     clearRuntimeConfigSnapshot();
     clearConfigCache();
@@ -52,10 +52,10 @@ export function installModelsConfigTestHooks(opts?: {
 
   afterEach(() => {
     process.env.HOME = previousHome;
-    if (previousAssistantAgentDir === undefined) {
-      delete process.env.ASSISTANT_AGENT_DIR;
+    if (previousZhushouAgentDir === undefined) {
+      delete process.env.ZHUSHOU_AGENT_DIR;
     } else {
-      process.env.ASSISTANT_AGENT_DIR = previousAssistantAgentDir;
+      process.env.ZHUSHOU_AGENT_DIR = previousZhushouAgentDir;
     }
     if (previousPiCodingAgentDir === undefined) {
       delete process.env.PI_CODING_AGENT_DIR;
@@ -106,13 +106,13 @@ export function unsetEnv(vars: string[]) {
 export const COPILOT_TOKEN_ENV_VARS = ["COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"];
 const COPILOT_DISCOVERY_ENV_VARS = [
   ...COPILOT_TOKEN_ENV_VARS,
-  "ASSISTANT_TEST_ONLY_PROVIDER_PLUGIN_IDS",
+  "ZHUSHOU_TEST_ONLY_PROVIDER_PLUGIN_IDS",
 ];
 
 export async function withUnsetCopilotTokenEnv<T>(fn: () => Promise<T>): Promise<T> {
   return withTempEnv(COPILOT_DISCOVERY_ENV_VARS, async () => {
     unsetEnv(COPILOT_TOKEN_ENV_VARS);
-    process.env.ASSISTANT_TEST_ONLY_PROVIDER_PLUGIN_IDS = "github-copilot";
+    process.env.ZHUSHOU_TEST_ONLY_PROVIDER_PLUGIN_IDS = "github-copilot";
     return fn();
   });
 }
@@ -138,14 +138,14 @@ export async function withCopilotGithubToken<T>(
     process.env.COPILOT_GITHUB_TOKEN = token;
     delete process.env.GH_TOKEN;
     delete process.env.GITHUB_TOKEN;
-    process.env.ASSISTANT_TEST_ONLY_PROVIDER_PLUGIN_IDS = "github-copilot";
+    process.env.ZHUSHOU_TEST_ONLY_PROVIDER_PLUGIN_IDS = "github-copilot";
     const fetchMock = mockCopilotTokenExchangeSuccess();
     return fn(fetchMock);
   });
 }
 
 export const MODELS_CONFIG_IMPLICIT_ENV_VARS = [
-  "ASSISTANT_TEST_ONLY_PROVIDER_PLUGIN_IDS",
+  "ZHUSHOU_TEST_ONLY_PROVIDER_PLUGIN_IDS",
   "VITEST",
   "NODE_ENV",
   "AI_GATEWAY_API_KEY",
@@ -161,7 +161,7 @@ export const MODELS_CONFIG_IMPLICIT_ENV_VARS = [
   "MOONSHOT_API_KEY",
   "NVIDIA_API_KEY",
   "OLLAMA_API_KEY",
-  "ASSISTANT_AGENT_DIR",
+  "ZHUSHOU_AGENT_DIR",
   "OPENAI_API_KEY",
   "OPENROUTER_API_KEY",
   "PI_CODING_AGENT_DIR",
@@ -179,7 +179,7 @@ export const MODELS_CONFIG_IMPLICIT_ENV_VARS = [
   "KIMI_API_KEY",
   "KIMICODE_API_KEY",
   "GEMINI_API_KEY",
-  "ASSISTANT_BUNDLED_PLUGINS_DIR",
+  "ZHUSHOU_BUNDLED_PLUGINS_DIR",
   "GOOGLE_APPLICATION_CREDENTIALS",
   "GOOGLE_CLOUD_LOCATION",
   "GOOGLE_CLOUD_PROJECT",
@@ -267,7 +267,7 @@ export function snapshotImplicitProviderEnv(env?: NodeJS.ProcessEnv): NodeJS.Pro
   // so those tests do not fall back to potentially stale dist-runtime wrappers.
   snapshot.VITEST ??= process.env.VITEST;
   snapshot.NODE_ENV ??= process.env.NODE_ENV;
-  snapshot.ASSISTANT_BUNDLED_PLUGINS_DIR ??=
+  snapshot.ZHUSHOU_BUNDLED_PLUGINS_DIR ??=
     resolveBundledPluginsDir({ VITEST: "true" } as NodeJS.ProcessEnv) ?? undefined;
 
   return snapshot;
@@ -303,7 +303,7 @@ async function inferAuthProfileProviderIds(agentDir?: string): Promise<string[]>
 
 async function inferImplicitProviderTestPluginIds(params: {
   agentDir?: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   explicitProviders?: Record<string, unknown> | null;
   env: NodeJS.ProcessEnv;
   workspaceDir?: string;
@@ -385,7 +385,7 @@ export async function resolveImplicitProvidersForTest(
     workspaceDir: params.workspaceDir,
   });
   if (inferredPluginIds.length > 0) {
-    env.ASSISTANT_TEST_ONLY_PROVIDER_PLUGIN_IDS = inferredPluginIds.join(",");
+    env.ZHUSHOU_TEST_ONLY_PROVIDER_PLUGIN_IDS = inferredPluginIds.join(",");
   }
   return resolveImplicitProviders({
     ...params,
@@ -393,7 +393,7 @@ export async function resolveImplicitProvidersForTest(
   });
 }
 
-export const CUSTOM_PROXY_MODELS_CONFIG: AssistantConfig = {
+export const CUSTOM_PROXY_MODELS_CONFIG: ZhushouConfig = {
   models: {
     providers: {
       "custom-proxy": {

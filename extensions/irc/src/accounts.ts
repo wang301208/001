@@ -1,15 +1,15 @@
-import { createAccountListHelpers } from "assistant/plugin-sdk/account-helpers";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
-import { resolveMergedAccountConfig } from "assistant/plugin-sdk/account-resolution";
+import { createAccountListHelpers } from "zhushou/plugin-sdk/account-helpers";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
+import { resolveMergedAccountConfig } from "zhushou/plugin-sdk/account-resolution";
 import {
   parseOptionalDelimitedEntries,
   tryReadSecretFileSync,
-} from "assistant/plugin-sdk/channel-core";
-import { normalizeResolvedSecretInputString } from "assistant/plugin-sdk/secret-input";
+} from "zhushou/plugin-sdk/channel-core";
+import { normalizeResolvedSecretInputString } from "zhushou/plugin-sdk/secret-input";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import type { CoreConfig, IrcAccountConfig, IrcNickServConfig } from "./types.js";
 
 const TRUTHY_ENV = new Set(["true", "1", "yes", "on"]);
@@ -164,7 +164,7 @@ export function resolveIrcAccount(params: {
       merged.username?.trim() ||
       (accountId === DEFAULT_ACCOUNT_ID ? process.env.IRC_USERNAME?.trim() : "") ||
       nick ||
-      "assistant"
+      "zhushou"
     ).trim();
     const realname = (
       merged.realname?.trim() ||

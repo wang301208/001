@@ -112,11 +112,11 @@ describe("test-projects args", () => {
   });
 
   it("routes boundary targets to the boundary config", () => {
-    expect(buildVitestRunPlans(["src/infra/assistant-root.test.ts"])).toEqual([
+    expect(buildVitestRunPlans(["src/infra/zhushou-root.test.ts"])).toEqual([
       {
         config: "test/vitest/vitest.boundary.config.ts",
         forwardedArgs: [],
-        includePatterns: ["src/infra/assistant-root.test.ts"],
+        includePatterns: ["src/infra/zhushou-root.test.ts"],
         watchMode: false,
       },
     ]);
@@ -400,11 +400,11 @@ describe("test-projects args", () => {
   });
 
   it("routes infra targets to the infra config", () => {
-    expect(buildVitestRunPlans(["src/infra/assistant-root.test.ts"])).toEqual([
+    expect(buildVitestRunPlans(["src/infra/zhushou-root.test.ts"])).toEqual([
       {
         config: "test/vitest/vitest.boundary.config.ts",
         forwardedArgs: [],
-        includePatterns: ["src/infra/assistant-root.test.ts"],
+        includePatterns: ["src/infra/zhushou-root.test.ts"],
         watchMode: false,
       },
     ]);
@@ -433,27 +433,27 @@ describe("test-projects args", () => {
   it("caps project-level parallelism when the Vitest worker budget is conservative", () => {
     expect(
       resolveParallelFullSuiteConcurrency(58, {
-        ASSISTANT_VITEST_MAX_WORKERS: "1",
+        ZHUSHOU_VITEST_MAX_WORKERS: "1",
       }),
     ).toBe(1);
 
     expect(
       resolveParallelFullSuiteConcurrency(58, {
-        ASSISTANT_TEST_WORKERS: "1",
+        ZHUSHOU_TEST_WORKERS: "1",
       }),
     ).toBe(1);
   });
 
   it("keeps conservative full-suite runs on aggregate shards", () => {
-    const originalVitestMaxWorkers = process.env.ASSISTANT_VITEST_MAX_WORKERS;
-    const originalTestWorkers = process.env.ASSISTANT_TEST_WORKERS;
-    const originalProjectParallel = process.env.ASSISTANT_TEST_PROJECTS_PARALLEL;
-    const originalLeafShards = process.env.ASSISTANT_TEST_PROJECTS_LEAF_SHARDS;
+    const originalVitestMaxWorkers = process.env.ZHUSHOU_VITEST_MAX_WORKERS;
+    const originalTestWorkers = process.env.ZHUSHOU_TEST_WORKERS;
+    const originalProjectParallel = process.env.ZHUSHOU_TEST_PROJECTS_PARALLEL;
+    const originalLeafShards = process.env.ZHUSHOU_TEST_PROJECTS_LEAF_SHARDS;
     try {
-      process.env.ASSISTANT_VITEST_MAX_WORKERS = "1";
-      delete process.env.ASSISTANT_TEST_WORKERS;
-      delete process.env.ASSISTANT_TEST_PROJECTS_PARALLEL;
-      delete process.env.ASSISTANT_TEST_PROJECTS_LEAF_SHARDS;
+      process.env.ZHUSHOU_VITEST_MAX_WORKERS = "1";
+      delete process.env.ZHUSHOU_TEST_WORKERS;
+      delete process.env.ZHUSHOU_TEST_PROJECTS_PARALLEL;
+      delete process.env.ZHUSHOU_TEST_PROJECTS_LEAF_SHARDS;
 
       const configs = buildFullSuiteVitestRunPlans([]).map((plan) => plan.config);
 
@@ -461,24 +461,24 @@ describe("test-projects args", () => {
       expect(configs).not.toContain("test/vitest/vitest.plugins.config.ts");
     } finally {
       if (originalVitestMaxWorkers === undefined) {
-        delete process.env.ASSISTANT_VITEST_MAX_WORKERS;
+        delete process.env.ZHUSHOU_VITEST_MAX_WORKERS;
       } else {
-        process.env.ASSISTANT_VITEST_MAX_WORKERS = originalVitestMaxWorkers;
+        process.env.ZHUSHOU_VITEST_MAX_WORKERS = originalVitestMaxWorkers;
       }
       if (originalTestWorkers === undefined) {
-        delete process.env.ASSISTANT_TEST_WORKERS;
+        delete process.env.ZHUSHOU_TEST_WORKERS;
       } else {
-        process.env.ASSISTANT_TEST_WORKERS = originalTestWorkers;
+        process.env.ZHUSHOU_TEST_WORKERS = originalTestWorkers;
       }
       if (originalProjectParallel === undefined) {
-        delete process.env.ASSISTANT_TEST_PROJECTS_PARALLEL;
+        delete process.env.ZHUSHOU_TEST_PROJECTS_PARALLEL;
       } else {
-        process.env.ASSISTANT_TEST_PROJECTS_PARALLEL = originalProjectParallel;
+        process.env.ZHUSHOU_TEST_PROJECTS_PARALLEL = originalProjectParallel;
       }
       if (originalLeafShards === undefined) {
-        delete process.env.ASSISTANT_TEST_PROJECTS_LEAF_SHARDS;
+        delete process.env.ZHUSHOU_TEST_PROJECTS_LEAF_SHARDS;
       } else {
-        process.env.ASSISTANT_TEST_PROJECTS_LEAF_SHARDS = originalLeafShards;
+        process.env.ZHUSHOU_TEST_PROJECTS_LEAF_SHARDS = originalLeafShards;
       }
     }
   });
@@ -487,8 +487,8 @@ describe("test-projects args", () => {
     expect(
       resolveParallelFullSuiteConcurrency(58, {
         GITHUB_ACTIONS: "true",
-        ASSISTANT_TEST_PROJECTS_PARALLEL: "3",
-        ASSISTANT_VITEST_MAX_WORKERS: "1",
+        ZHUSHOU_TEST_PROJECTS_PARALLEL: "3",
+        ZHUSHOU_VITEST_MAX_WORKERS: "1",
       }),
     ).toBe(3);
   });
@@ -498,7 +498,7 @@ describe("test-projects args", () => {
       resolveParallelFullSuiteConcurrency(
         58,
         {
-          ASSISTANT_TEST_PROJECTS_LEAF_SHARDS: "1",
+          ZHUSHOU_TEST_PROJECTS_LEAF_SHARDS: "1",
         },
         {
           cpuCount: 8,
@@ -529,7 +529,7 @@ describe("test-projects args", () => {
 
     expect(specs[0]?.env).toMatchObject({
       KEEP_ME: "1",
-      ASSISTANT_VITEST_FS_MODULE_CACHE_PATH:
+      ZHUSHOU_VITEST_FS_MODULE_CACHE_PATH:
         path.join(
           "/repo",
           "node_modules",
@@ -537,7 +537,7 @@ describe("test-projects args", () => {
           "0-test-vitest-vitest.gateway.config.ts",
         ),
     });
-    expect(specs[1]?.env.ASSISTANT_VITEST_FS_MODULE_CACHE_PATH).toBe(
+    expect(specs[1]?.env.ZHUSHOU_VITEST_FS_MODULE_CACHE_PATH).toBe(
       path.join(
         "/repo",
         "node_modules",
@@ -559,7 +559,7 @@ describe("test-projects args", () => {
       applyParallelVitestCachePaths(specs, {
         cwd: "/repo",
         env: {
-          ASSISTANT_VITEST_FS_MODULE_CACHE_PATH: "/tmp/cache",
+          ZHUSHOU_VITEST_FS_MODULE_CACHE_PATH: "/tmp/cache",
         },
       }),
     ).toBe(specs);
@@ -897,8 +897,8 @@ describe("test-projects args", () => {
     expect(spec?.includePatterns).toEqual([
       "extensions/discord/src/monitor/message-handler.preflight.test.ts",
     ]);
-    expect(spec?.includeFilePath).toContain("assistant-vitest-include-");
-    expect(spec?.env.ASSISTANT_VITEST_INCLUDE_FILE).toBe(spec?.includeFilePath);
+    expect(spec?.includeFilePath).toContain("zhushou-vitest-include-");
+    expect(spec?.env.ZHUSHOU_VITEST_INCLUDE_FILE).toBe(spec?.includeFilePath);
   });
 
   it("rejects watch mode when a command spans multiple suites", () => {

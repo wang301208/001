@@ -1,20 +1,20 @@
 import { randomUUID } from "node:crypto";
 import * as dns from "node:dns";
-import type { TelegramNetworkConfig } from "assistant/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
+import type { TelegramNetworkConfig } from "zhushou/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
 import {
   createPinnedLookup,
   hasEnvHttpProxyConfigured,
   resolveFetch,
   type PinnedDispatcherPolicy,
-} from "assistant/plugin-sdk/fetch-runtime";
+} from "zhushou/plugin-sdk/fetch-runtime";
 import {
   captureHttpExchange,
   resolveEffectiveDebugProxyUrl,
-} from "assistant/plugin-sdk/proxy-capture";
-import { resolveRequestUrl } from "assistant/plugin-sdk/request-url";
-import { createSubsystemLogger } from "assistant/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/proxy-capture";
+import { resolveRequestUrl } from "zhushou/plugin-sdk/request-url";
+import { createSubsystemLogger } from "zhushou/plugin-sdk/runtime-env";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { Agent, EnvHttpProxyAgent, ProxyAgent, fetch as undiciFetch } from "undici";
 import {
   resolveTelegramAutoSelectFamilyDecision,

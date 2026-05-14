@@ -2,11 +2,11 @@ import type { AssistantMessage, Tool } from "@mariozechner/pi-ai";
 import { Type } from "@sinclair/typebox";
 import { describe, expect, it } from "vitest";
 import {
-  buildAssistantHistoryTurn,
+  buildZhushouHistoryTurn,
   buildStableCachePrefix,
   completeSimpleWithLiveTimeout,
   computeCacheHitRate,
-  extractAssistantText,
+  extractZhushouText,
   LIVE_CACHE_TEST_ENABLED,
   logLiveCache,
   resolveLiveDirectModel,
@@ -73,7 +73,7 @@ async function runToolOnlyTurn(params: {
   );
 
   let toolCall = extractFirstToolCall(response);
-  let text = extractAssistantText(response);
+  let text = extractZhushouText(response);
   for (let attempt = 0; attempt < 2 && (!toolCall || text.length > 0); attempt += 1) {
     prompt = `Return only a tool call for \`${MCP_TOOL.name}\` with {}. No text.`;
     response = await completeSimpleWithLiveTimeout(
@@ -95,7 +95,7 @@ async function runToolOnlyTurn(params: {
       OPENAI_TIMEOUT_MS,
     );
     toolCall = extractFirstToolCall(response);
-    text = extractAssistantText(response);
+    text = extractZhushouText(response);
   }
 
   expect(toolCall).toBeTruthy();
@@ -125,13 +125,13 @@ async function runOpenAiMcpStyleCacheProbe(params: {
         { role: "user", content: toolTurn.prompt, timestamp: Date.now() },
         toolTurn.response,
         buildToolResultMessage(toolTurn.toolCall.id),
-        buildAssistantHistoryTurn("MCP TOOL HISTORY ACKNOWLEDGED", params.model),
+        buildZhushouHistoryTurn("MCP TOOL HISTORY ACKNOWLEDGED", params.model),
         {
           role: "user",
           content: "Keep the MCP tool output stable in history.",
           timestamp: Date.now(),
         },
-        buildAssistantHistoryTurn("MCP TOOL HISTORY PRESERVED", params.model),
+        buildZhushouHistoryTurn("MCP TOOL HISTORY PRESERVED", params.model),
         {
           role: "user",
           content: `Reply with exactly CACHE-OK ${params.suffix}.`,
@@ -151,7 +151,7 @@ async function runOpenAiMcpStyleCacheProbe(params: {
     `openai mcp-style cache probe ${params.suffix}`,
     OPENAI_TIMEOUT_MS,
   );
-  const text = extractAssistantText(response);
+  const text = extractZhushouText(response);
   expect(text.toLowerCase()).toContain(params.suffix.toLowerCase());
   return {
     suffix: params.suffix,
@@ -168,7 +168,7 @@ describeCacheLive("MCP-style prompt caching (live)", () => {
       const fixture = await resolveLiveDirectModel({
         provider: "openai",
         api: "openai-responses",
-        envVar: "ASSISTANT_LIVE_OPENAI_CACHE_MODEL",
+        envVar: "ZHUSHOU_LIVE_OPENAI_CACHE_MODEL",
         preferredModelIds: ["gpt-5.4-mini", "gpt-5.4", "gpt-5.4"],
       });
       logLiveCache(`openai mcp-style model=${fixture.model.provider}/${fixture.model.id}`);

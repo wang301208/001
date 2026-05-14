@@ -1,10 +1,10 @@
 import { ChannelType } from "discord-api-types/v10";
-import * as commandRegistryModule from "assistant/plugin-sdk/command-auth";
-import type { ChatCommandDefinition, CommandArgsParsing } from "assistant/plugin-sdk/command-auth";
-import type { ModelsProviderData } from "assistant/plugin-sdk/command-auth";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import * as globalsModule from "assistant/plugin-sdk/runtime-env";
-import * as commandTextModule from "assistant/plugin-sdk/text-runtime";
+import * as commandRegistryModule from "zhushou/plugin-sdk/command-auth";
+import type { ChatCommandDefinition, CommandArgsParsing } from "zhushou/plugin-sdk/command-auth";
+import type { ModelsProviderData } from "zhushou/plugin-sdk/command-auth";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import * as globalsModule from "zhushou/plugin-sdk/runtime-env";
+import * as commandTextModule from "zhushou/plugin-sdk/text-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as modelPickerPreferencesModule from "./model-picker-preferences.js";
 import * as modelPickerModule from "./model-picker.js";
@@ -67,7 +67,7 @@ function createModelPickerContext(): ModelPickerContext {
         },
       },
     },
-  } as unknown as AssistantConfig;
+  } as unknown as ZhushouConfig;
 
   return {
     cfg,

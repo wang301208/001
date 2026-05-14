@@ -2,7 +2,7 @@ import { Container, Separator, TextDisplay } from "@buape/carbon";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { vi } from "vitest";
 import type { ChannelMessageActionName } from "../../channels/plugins/types.js";
-import type { AssistantConfig } from "../../config/config.js";
+import type { ZhushouConfig } from "../../config/config.js";
 
 let applyCrossContextDecoration: typeof import("./outbound-policy.js").applyCrossContextDecoration;
 let buildCrossContextDecoration: typeof import("./outbound-policy.js").buildCrossContextDecoration;
@@ -73,16 +73,16 @@ const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 const discordConfig = {
   channels: {
     discord: {},
   },
-} as AssistantConfig;
+} as ZhushouConfig;
 
 function expectCrossContextPolicyResult(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   channel: string;
   action: "send" | "upload-file";
   to: string;
@@ -129,7 +129,7 @@ describe("outbound policy helpers", () => {
         tools: {
           message: { crossContext: { allowAcrossProviders: true } },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       channel: "telegram",
       action: "send" as const,
       to: "telegram:@ops",
@@ -152,7 +152,7 @@ describe("outbound policy helpers", () => {
         tools: {
           message: { crossContext: { allowWithinProvider: false } },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       channel: "slack",
       action: "send" as const,
       to: "C999",
@@ -166,7 +166,7 @@ describe("outbound policy helpers", () => {
         tools: {
           message: { crossContext: { allowWithinProvider: false } },
         },
-      } as AssistantConfig,
+      } as ZhushouConfig,
       channel: "slack",
       action: "upload-file" as const,
       to: "C999",

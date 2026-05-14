@@ -1,9 +1,9 @@
 import type { AuthProfileStore, OAuthCredential } from "../agents/auth-profiles/types.js";
 import type { ModelProviderAuthMode, ModelProviderConfig } from "../config/types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 
 export type ProviderResolveSyntheticAuthContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   provider: string;
   providerConfig?: ModelProviderConfig;
 };
@@ -15,7 +15,7 @@ export type ProviderSyntheticAuthResult = {
 };
 
 export type ProviderResolveExternalOAuthProfilesContext = {
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   agentDir?: string;
   workspaceDir?: string;
   env: NodeJS.ProcessEnv;

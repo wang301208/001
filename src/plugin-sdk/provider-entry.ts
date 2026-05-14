@@ -8,9 +8,9 @@ import type {
 } from "../plugins/types.js";
 import { definePluginEntry } from "./plugin-entry.js";
 import type {
-  AssistantPluginApi,
-  AssistantPluginConfigSchema,
-  AssistantPluginDefinition,
+  ZhushouPluginApi,
+  ZhushouPluginConfigSchema,
+  ZhushouPluginDefinition,
 } from "./plugin-entry.js";
 import { buildSingleProviderApiKeyCatalog } from "./provider-catalog-shared.js";
 
@@ -42,8 +42,8 @@ export type SingleProviderPluginOptions = {
   id: string;
   name: string;
   description: string;
-  kind?: AssistantPluginDefinition["kind"];
-  configSchema?: AssistantPluginConfigSchema | (() => AssistantPluginConfigSchema);
+  kind?: ZhushouPluginDefinition["kind"];
+  configSchema?: ZhushouPluginConfigSchema | (() => ZhushouPluginConfigSchema);
   provider?: {
     id?: string;
     label: string;
@@ -56,7 +56,7 @@ export type SingleProviderPluginOptions = {
     ProviderPlugin,
     "id" | "label" | "docsPath" | "aliases" | "envVars" | "auth" | "catalog"
   >;
-  register?: (api: AssistantPluginApi) => void;
+  register?: (api: ZhushouPluginApi) => void;
 };
 
 function resolveWizardSetup(params: {

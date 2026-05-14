@@ -1,12 +1,12 @@
-import { isPrivateNetworkOptInEnabled } from "assistant/plugin-sdk/ssrf-runtime";
-import { normalizeOptionalString } from "assistant/plugin-sdk/text-runtime";
+import { isPrivateNetworkOptInEnabled } from "zhushou/plugin-sdk/ssrf-runtime";
+import { normalizeOptionalString } from "zhushou/plugin-sdk/text-runtime";
 import { resolveMattermostAccount } from "./accounts.js";
 import {
   createMattermostClient,
   fetchMattermostUser,
   normalizeMattermostBaseUrl,
 } from "./client.js";
-import type { AssistantConfig } from "./runtime-api.js";
+import type { ZhushouConfig } from "./runtime-api.js";
 
 export type MattermostOpaqueTargetResolution = {
   kind: "user" | "channel";
@@ -52,7 +52,7 @@ export function parseMattermostApiStatus(err: unknown): number | undefined {
 
 export async function resolveMattermostOpaqueTarget(params: {
   input: string;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   accountId?: string | null;
   token?: string;
   baseUrl?: string;

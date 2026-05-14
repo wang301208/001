@@ -1,5 +1,5 @@
 import { HOST_ENV_SECURITY_POLICY } from "./host-env-security-policy.js";
-import { markAssistantExecEnv } from "./assistant-exec-env.js";
+import { markZhushouExecEnv } from "./zhushou-exec-env.js";
 
 const PORTABLE_ENV_VAR_KEY = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const WINDOWS_COMPAT_OVERRIDE_ENV_VAR_KEY = /^[A-Za-z_][A-Za-z0-9_()]*$/;
@@ -232,7 +232,7 @@ export function sanitizeHostExecEnvWithDiagnostics(params?: {
   }
 
   return {
-    env: markAssistantExecEnv(merged),
+    env: markZhushouExecEnv(merged),
     rejectedOverrideBlockedKeys: overrideResult.rejectedOverrideBlockedKeys,
     rejectedOverrideInvalidKeys: overrideResult.rejectedOverrideInvalidKeys,
   };

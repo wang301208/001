@@ -6,15 +6,15 @@ export {
   listDevicePairing,
   revokeDeviceBootstrapToken,
   type DeviceBootstrapProfile,
-} from "assistant/plugin-sdk/device-bootstrap";
-export { definePluginEntry, type AssistantPluginApi } from "assistant/plugin-sdk/plugin-entry";
+} from "zhushou/plugin-sdk/device-bootstrap";
+export { definePluginEntry, type ZhushouPluginApi } from "zhushou/plugin-sdk/plugin-entry";
 export {
   resolveGatewayBindUrl,
   resolveGatewayPort,
   resolveTailnetHostWithRunner,
-} from "assistant/plugin-sdk/core";
+} from "zhushou/plugin-sdk/core";
 export {
-  resolvePreferredAssistantTmpDir,
+  resolvePreferredZhushouTmpDir,
   runPluginCommandWithTimeout,
-} from "assistant/plugin-sdk/sandbox";
+} from "zhushou/plugin-sdk/sandbox";
 export { renderQrPngBase64 } from "./qr-image.js";

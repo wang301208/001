@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/zalo",
+  "name": "@zhushou/zalo",
   "version": "2026.4.16",
   "description": "助手 Zalo channel plugin",
   "type": "module",
@@ -7,18 +7,18 @@
     "undici": "8.0.2"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*",
-    "assistant": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "assistant": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "assistant": {
+    "zhushou": {
       "optional": true
     }
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -37,7 +37,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@assistant/zalo",
+      "npmSpec": "@zhushou/zalo",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10"
     },
@@ -45,7 +45,7 @@
       "pluginApi": ">=2026.4.16"
     },
     "build": {
-      "assistantVersion": "2026.4.16"
+      "zhushouVersion": "2026.4.16"
     },
     "release": {
       "publishToClawHub": true,

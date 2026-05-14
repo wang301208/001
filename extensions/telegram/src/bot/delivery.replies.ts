@@ -1,23 +1,23 @@
 import { type Bot, GrammyError, InputFile } from "grammy";
-import type { ReplyToMode } from "assistant/plugin-sdk/config-runtime";
-import type { MarkdownTableMode } from "assistant/plugin-sdk/config-runtime";
-import { fireAndForgetHook } from "assistant/plugin-sdk/hook-runtime";
-import { createInternalHookEvent, triggerInternalHook } from "assistant/plugin-sdk/hook-runtime";
+import type { ReplyToMode } from "zhushou/plugin-sdk/config-runtime";
+import type { MarkdownTableMode } from "zhushou/plugin-sdk/config-runtime";
+import { fireAndForgetHook } from "zhushou/plugin-sdk/hook-runtime";
+import { createInternalHookEvent, triggerInternalHook } from "zhushou/plugin-sdk/hook-runtime";
 import {
   buildCanonicalSentMessageHookContext,
   toInternalMessageSentContext,
   toPluginMessageContext,
   toPluginMessageSentEvent,
-} from "assistant/plugin-sdk/hook-runtime";
-import { buildOutboundMediaLoadOptions } from "assistant/plugin-sdk/media-runtime";
-import { isGifMedia, kindFromMime } from "assistant/plugin-sdk/media-runtime";
-import { getGlobalHookRunner } from "assistant/plugin-sdk/plugin-runtime";
-import type { ReplyPayload } from "assistant/plugin-sdk/reply-runtime";
-import { chunkMarkdownTextWithMode, type ChunkMode } from "assistant/plugin-sdk/reply-runtime";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
-import { danger, logVerbose } from "assistant/plugin-sdk/runtime-env";
-import { formatErrorMessage } from "assistant/plugin-sdk/ssrf-runtime";
-import { loadWebMedia } from "assistant/plugin-sdk/web-media";
+} from "zhushou/plugin-sdk/hook-runtime";
+import { buildOutboundMediaLoadOptions } from "zhushou/plugin-sdk/media-runtime";
+import { isGifMedia, kindFromMime } from "zhushou/plugin-sdk/media-runtime";
+import { getGlobalHookRunner } from "zhushou/plugin-sdk/plugin-runtime";
+import type { ReplyPayload } from "zhushou/plugin-sdk/reply-runtime";
+import { chunkMarkdownTextWithMode, type ChunkMode } from "zhushou/plugin-sdk/reply-runtime";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
+import { danger, logVerbose } from "zhushou/plugin-sdk/runtime-env";
+import { formatErrorMessage } from "zhushou/plugin-sdk/ssrf-runtime";
+import { loadWebMedia } from "zhushou/plugin-sdk/web-media";
 import type { TelegramInlineButtons } from "../button-types.js";
 import { splitTelegramCaption } from "../caption.js";
 import {

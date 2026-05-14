@@ -2,7 +2,7 @@ import type {
   ContextVisibilityMode,
   DmPolicy,
   GroupPolicy,
-  AssistantConfig,
+  ZhushouConfig,
   SecretInput,
 } from "./runtime-api.js";
 export type { ContextVisibilityMode, DmPolicy, GroupPolicy };
@@ -191,12 +191,12 @@ export type MatrixConfig = {
   /**
    * Streaming mode for Matrix replies.
    * - `"partial"`: edit a single draft message in place for the current
-   *   assistant block as the model generates text using normal Matrix text
+   *   zhushou block as the model generates text using normal Matrix text
    *   messages. This preserves legacy preview-first notification behavior.
    * - `"quiet"`: edit a single quiet draft notice in place for the current
-   *   assistant block as the model generates text.
+   *   zhushou block as the model generates text.
    * - `"off"`: deliver the full reply once the model finishes.
-   * - Use `blockStreaming: true` when you want completed assistant blocks to
+   * - Use `blockStreaming: true` when you want completed zhushou blocks to
    *   stay visible as separate progress messages. When combined with
    *   preview streaming, Matrix keeps a live draft for the current block and
    *   preserves completed blocks as separate messages.
@@ -225,6 +225,6 @@ export type CoreConfig = {
     ackReaction?: string;
     ackReactionScope?: "group-mentions" | "group-all" | "direct" | "all" | "none" | "off";
   };
-  secrets?: AssistantConfig["secrets"];
+  secrets?: ZhushouConfig["secrets"];
   [key: string]: unknown;
 };

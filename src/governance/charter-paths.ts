@@ -1,5 +1,5 @@
 import path from "node:path";
-import { resolveAssistantPackageRootSync } from "../infra/assistant-root.js";
+import { resolveZhushouPackageRootSync } from "../infra/zhushou-root.js";
 
 export function resolveGovernanceCharterDir(options: {
   charterDir?: string;
@@ -11,7 +11,7 @@ export function resolveGovernanceCharterDir(options: {
     return path.resolve(options.charterDir);
   }
 
-  const packageRoot = resolveAssistantPackageRootSync({
+  const packageRoot = resolveZhushouPackageRootSync({
     moduleUrl: options.moduleUrl ?? import.meta.url,
     argv1: options.argv1 ?? process.argv[1],
     cwd: options.cwd ?? process.cwd(),

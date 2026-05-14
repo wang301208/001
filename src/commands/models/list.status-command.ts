@@ -1,5 +1,5 @@
 import path from "node:path";
-import { resolveAssistantAgentDir } from "../../agents/agent-paths.js";
+import { resolveZhushouAgentDir } from "../../agents/agent-paths.js";
 import {
   resolveAgentDir,
   resolveAgentExplicitModelPrimary,
@@ -76,7 +76,7 @@ export async function modelsStatusCommand(
   const configPath = createConfigIO().configPath;
   const cfg = await loadModelsConfig({ commandName: "models status", runtime });
   const agentId = resolveKnownAgentId({ cfg, rawAgentId: opts.agent });
-  const agentDir = agentId ? resolveAgentDir(cfg, agentId) : resolveAssistantAgentDir();
+  const agentDir = agentId ? resolveAgentDir(cfg, agentId) : resolveZhushouAgentDir();
   const agentModelPrimary = agentId ? resolveAgentExplicitModelPrimary(cfg, agentId) : undefined;
   const agentFallbacksOverride = agentId
     ? resolveAgentModelFallbacksOverride(cfg, agentId)

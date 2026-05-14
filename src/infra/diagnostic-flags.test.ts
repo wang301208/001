@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { AssistantConfig } from "../config/config.js";
+import type { ZhushouConfig } from "../config/config.js";
 import {
   isDiagnosticFlagEnabled,
   matchesDiagnosticFlag,
@@ -10,9 +10,9 @@ describe("resolveDiagnosticFlags", () => {
   it("normalizes and dedupes config and env flags", () => {
     const cfg = {
       diagnostics: { flags: [" Telegram.Http ", "cache.*", "CACHE.*"] },
-    } as AssistantConfig;
+    } as ZhushouConfig;
     const env = {
-      ASSISTANT_DIAGNOSTICS: " foo, Cache.*  telegram.http  ",
+      ZHUSHOU_DIAGNOSTICS: " foo, Cache.*  telegram.http  ",
     } as NodeJS.ProcessEnv;
 
     expect(resolveDiagnosticFlags(cfg, env)).toEqual(["telegram.http", "cache.*", "foo"]);
@@ -21,12 +21,12 @@ describe("resolveDiagnosticFlags", () => {
   it("treats false-like env values as no extra flags", () => {
     const cfg = {
       diagnostics: { flags: ["telegram.http"] },
-    } as AssistantConfig;
+    } as ZhushouConfig;
 
     for (const raw of ["0", "false", "off", "none", "   "]) {
       expect(
         resolveDiagnosticFlags(cfg, {
-          ASSISTANT_DIAGNOSTICS: raw,
+          ZHUSHOU_DIAGNOSTICS: raw,
         } as NodeJS.ProcessEnv),
       ).toEqual(["telegram.http"]);
     }
@@ -53,9 +53,9 @@ describe("isDiagnosticFlagEnabled", () => {
   it("resolves config and env together before matching", () => {
     const cfg = {
       diagnostics: { flags: ["gateway.*"] },
-    } as AssistantConfig;
+    } as ZhushouConfig;
     const env = {
-      ASSISTANT_DIAGNOSTICS: "telegram.http",
+      ZHUSHOU_DIAGNOSTICS: "telegram.http",
     } as NodeJS.ProcessEnv;
 
     expect(isDiagnosticFlagEnabled("gateway.ws", cfg, env)).toBe(true);

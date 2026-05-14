@@ -1,6 +1,6 @@
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "assistant/plugin-sdk/account-id";
-import { coerceSecretRef } from "assistant/plugin-sdk/secret-ref-runtime";
-import { normalizeSecretInputString } from "assistant/plugin-sdk/setup";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "zhushou/plugin-sdk/account-id";
+import { coerceSecretRef } from "zhushou/plugin-sdk/secret-ref-runtime";
+import { normalizeSecretInputString } from "zhushou/plugin-sdk/setup";
 import type { CoreConfig, MatrixConfig } from "../types.js";
 import { findMatrixAccountConfig } from "./account-config.js";
 import {

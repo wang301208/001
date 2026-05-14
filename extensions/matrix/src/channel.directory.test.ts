@@ -71,7 +71,7 @@ describe("matrix directory", () => {
         matrix: {
           replyToMode: "off",
           accounts: {
-            Assistant: {
+            Zhushou: {
               replyToMode: "all",
             },
           },
@@ -83,7 +83,7 @@ describe("matrix directory", () => {
     expect(
       matrixPlugin.threading?.resolveReplyToMode?.({
         cfg,
-        accountId: "assistant",
+        accountId: "zhushou",
         chatType: "direct",
       }),
     ).toBe("all");
@@ -176,7 +176,7 @@ describe("matrix directory", () => {
             "!room:example.org": { requireMention: true },
           },
           accounts: {
-            Assistant: {
+            Zhushou: {
               groups: {
                 "!room:example.org": { requireMention: false },
               },
@@ -192,7 +192,7 @@ describe("matrix directory", () => {
     expect(
       matrixPlugin.groups!.resolveRequireMention!({
         cfg,
-        accountId: "assistant",
+        accountId: "zhushou",
         groupId: "!room:example.org",
       }),
     ).toBe(false);
@@ -200,7 +200,7 @@ describe("matrix directory", () => {
     expect(
       matrixPlugin.groups!.resolveRequireMention!({
         cfg,
-        accountId: "assistant",
+        accountId: "zhushou",
         groupId: "matrix:room:!room:example.org",
       }),
     ).toBe(false);
@@ -256,9 +256,9 @@ describe("matrix directory", () => {
         cfg: {
           channels: {
             matrix: {
-              defaultAccount: "assistant",
+              defaultAccount: "zhushou",
               accounts: {
-                assistant: {
+                zhushou: {
                   groupPolicy: "open",
                 },
               },
@@ -269,20 +269,20 @@ describe("matrix directory", () => {
           cfg: {
             channels: {
               matrix: {
-                defaultAccount: "assistant",
+                defaultAccount: "zhushou",
                 accounts: {
-                  assistant: {
+                  zhushou: {
                     groupPolicy: "open",
                   },
                 },
               },
             },
           } as CoreConfig,
-          accountId: "assistant",
+          accountId: "zhushou",
         }),
       }),
     ).toEqual([
-      '- Matrix rooms: groupPolicy="open" allows any room to trigger (mention-gated). Set channels.matrix.accounts.assistant.groupPolicy="allowlist" + channels.matrix.accounts.assistant.groups (and optionally channels.matrix.accounts.assistant.groupAllowFrom) to restrict rooms.',
+      '- Matrix rooms: groupPolicy="open" allows any room to trigger (mention-gated). Set channels.matrix.accounts.zhushou.groupPolicy="allowlist" + channels.matrix.accounts.zhushou.groups (and optionally channels.matrix.accounts.zhushou.groupAllowFrom) to restrict rooms.',
     ]);
   });
 

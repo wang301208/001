@@ -2,7 +2,7 @@
 import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 
 const sendMediaFeishuMock = vi.hoisted(() => vi.fn());
 const sendMessageFeishuMock = vi.hoisted(() => vi.fn());
@@ -45,8 +45,8 @@ vi.mock("./comment-reaction.js", () => ({
 
 import { feishuOutbound } from "./outbound.js";
 const sendText = feishuOutbound.sendText!;
-const emptyConfig: AssistantConfig = {};
-const cardRenderConfig: AssistantConfig = {
+const emptyConfig: ZhushouConfig = {};
+const cardRenderConfig: ZhushouConfig = {
   channels: {
     feishu: {
       renderMode: "card",
@@ -83,7 +83,7 @@ describe("feishuOutbound.sendText local-image auto-convert", () => {
   });
 
   async function createTmpImage(ext = ".png"): Promise<{ dir: string; file: string }> {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-feishu-outbound-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-feishu-outbound-"));
     const file = path.join(dir, `sample${ext}`);
     await fs.writeFile(file, "image-data");
     return { dir, file };

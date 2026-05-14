@@ -31,7 +31,7 @@ describe("stripEnvelopeFromMessage", () => {
     expect(result.content).toBe("I typed [message_id: 123] on purpose");
   });
 
-  test("does not strip assistant messages", () => {
+  test("does not strip zhushou messages", () => {
     const input = {
       role: "assistant",
       content: "note\n[message_id: 123]",
@@ -44,10 +44,10 @@ describe("stripEnvelopeFromMessage", () => {
     const input = {
       role: "assistant",
       content:
-        'Conversation info (untrusted metadata):\n```json\n{"message_id":"123"}\n```\n\nAssistant body',
+        'Conversation info (untrusted metadata):\n```json\n{"message_id":"123"}\n```\n\nZhushou body',
     };
     const result = stripEnvelopeFromMessage(input) as { content?: string };
-    expect(result.content).toBe("Assistant body");
+    expect(result.content).toBe("Zhushou body");
   });
 
   test("removes inbound un-bracketed conversation info blocks from user messages", () => {

@@ -1,15 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   applyAuthProfileConfig,
   upsertAuthProfile,
   validateAnthropicSetupToken,
-} from "assistant/plugin-sdk/provider-auth";
+} from "zhushou/plugin-sdk/provider-auth";
 
-export const QA_LIVE_ANTHROPIC_SETUP_TOKEN_ENV = "ASSISTANT_QA_LIVE_ANTHROPIC_SETUP_TOKEN";
-export const QA_LIVE_SETUP_TOKEN_VALUE_ENV = "ASSISTANT_LIVE_SETUP_TOKEN_VALUE";
-const QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE_ENV = "ASSISTANT_QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE";
+export const QA_LIVE_ANTHROPIC_SETUP_TOKEN_ENV = "ZHUSHOU_QA_LIVE_ANTHROPIC_SETUP_TOKEN";
+export const QA_LIVE_SETUP_TOKEN_VALUE_ENV = "ZHUSHOU_LIVE_SETUP_TOKEN_VALUE";
+const QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE_ENV = "ZHUSHOU_QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE";
 const QA_LIVE_ANTHROPIC_SETUP_TOKEN_PROFILE_ID = "anthropic:qa-setup-token";
 
 function resolveQaLiveAnthropicSetupToken(env: NodeJS.ProcessEnv = process.env) {
@@ -32,10 +32,10 @@ function resolveQaLiveAnthropicSetupToken(env: NodeJS.ProcessEnv = process.env) 
 }
 
 export async function stageQaLiveAnthropicSetupToken(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   stateDir: string;
   env?: NodeJS.ProcessEnv;
-}): Promise<AssistantConfig> {
+}): Promise<ZhushouConfig> {
   const resolved = resolveQaLiveAnthropicSetupToken(params.env);
   if (!resolved) {
     return params.cfg;

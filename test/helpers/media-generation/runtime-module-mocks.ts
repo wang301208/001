@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { AssistantConfig } from "../../../src/config/config.js";
+import type { ZhushouConfig } from "../../../src/config/config.js";
 import type { ImageGenerationProvider } from "../../../src/image-generation/types.js";
 import type { MusicGenerationProvider } from "../../../src/music-generation/types.js";
 import type { VideoGenerationProvider } from "../../../src/video-generation/types.js";
@@ -28,23 +28,23 @@ const mediaRuntimeMocks = vi.hoisted(() => {
     createSubsystemLogger: vi.fn(() => ({ debug, warn: vi.fn() })),
     describeFailoverError: vi.fn(),
     getImageGenerationProvider: vi.fn<
-      (providerId: string, config?: AssistantConfig) => ImageGenerationProvider | undefined
+      (providerId: string, config?: ZhushouConfig) => ImageGenerationProvider | undefined
     >(() => undefined),
     getMusicGenerationProvider: vi.fn<
-      (providerId: string, config?: AssistantConfig) => MusicGenerationProvider | undefined
+      (providerId: string, config?: ZhushouConfig) => MusicGenerationProvider | undefined
     >(() => undefined),
     getProviderEnvVars: vi.fn<(providerId: string) => string[]>(() => []),
     getVideoGenerationProvider: vi.fn<
-      (providerId: string, config?: AssistantConfig) => VideoGenerationProvider | undefined
+      (providerId: string, config?: ZhushouConfig) => VideoGenerationProvider | undefined
     >(() => undefined),
     isFailoverError: vi.fn<(err: unknown) => boolean>(() => false),
-    listImageGenerationProviders: vi.fn<(config?: AssistantConfig) => ImageGenerationProvider[]>(
+    listImageGenerationProviders: vi.fn<(config?: ZhushouConfig) => ImageGenerationProvider[]>(
       () => [],
     ),
-    listMusicGenerationProviders: vi.fn<(config?: AssistantConfig) => MusicGenerationProvider[]>(
+    listMusicGenerationProviders: vi.fn<(config?: ZhushouConfig) => MusicGenerationProvider[]>(
       () => [],
     ),
-    listVideoGenerationProviders: vi.fn<(config?: AssistantConfig) => VideoGenerationProvider[]>(
+    listVideoGenerationProviders: vi.fn<(config?: ZhushouConfig) => VideoGenerationProvider[]>(
       () => [],
     ),
     parseImageGenerationModelRef:

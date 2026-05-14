@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/openai-provider",
+  "name": "@zhushou/openai-provider",
   "version": "2026.4.16",
   "private": true,
   "description": "助手 OpenAI provider plugins",
@@ -8,9 +8,9 @@
     "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*"
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ]

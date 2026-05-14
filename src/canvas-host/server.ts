@@ -114,14 +114,14 @@ function defaultIndexHTML() {
     !!(
       window.webkit &&
       window.webkit.messageHandlers &&
-      window.webkit.messageHandlers.assistantCanvasA2UIAction
+      window.webkit.messageHandlers.zhushouCanvasA2UIAction
     );
   const hasAndroid = () =>
     !!(
-      (window.assistantCanvasA2UIAction &&
-        typeof window.assistantCanvasA2UIAction.postMessage === "function")
+      (window.zhushouCanvasA2UIAction &&
+        typeof window.zhushouCanvasA2UIAction.postMessage === "function")
     );
-  const hasHelper = () => typeof window.assistantSendUserAction === "function";
+  const hasHelper = () => typeof window.zhushouSendUserAction === "function";
   const helperReady = hasHelper();
   statusEl.textContent = "";
   statusEl.appendChild(document.createTextNode("Bridge: "));
@@ -139,16 +139,16 @@ function defaultIndexHTML() {
     const d = ev && ev.detail || {};
     log("Action status: id=" + (d.id || "?") + " ok=" + String(!!d.ok) + (d.error ? (" error=" + d.error) : ""));
   };
-  window.addEventListener("assistant:a2ui-action-status", onStatus);
+  window.addEventListener("zhushou:a2ui-action-status", onStatus);
 
   function send(name, sourceComponentId) {
     if (!hasHelper()) {
-      log("No action bridge found. Ensure you're viewing this on an iOS/Android assistant node canvas.");
+      log("No action bridge found. Ensure you're viewing this on an iOS/Android zhushou node canvas.");
       return;
     }
     const sendUserAction =
-      typeof window.assistantSendUserAction === "function"
-        ? window.assistantSendUserAction
+      typeof window.zhushouSendUserAction === "function"
+        ? window.zhushouSendUserAction
         : undefined;
     const ok = sendUserAction({
       name,
@@ -169,10 +169,10 @@ function defaultIndexHTML() {
 }
 
 function isDisabledByEnv() {
-  if (isTruthyEnvValue(process.env.ASSISTANT_SKIP_CANVAS_HOST)) {
+  if (isTruthyEnvValue(process.env.ZHUSHOU_SKIP_CANVAS_HOST)) {
     return true;
   }
-  if (isTruthyEnvValue(process.env.ASSISTANT_SKIP_CANVAS_HOST)) {
+  if (isTruthyEnvValue(process.env.ZHUSHOU_SKIP_CANVAS_HOST)) {
     return true;
   }
   if (process.env.NODE_ENV === "test") {

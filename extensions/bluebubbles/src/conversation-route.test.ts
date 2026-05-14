@@ -1,8 +1,8 @@
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
 import {
   __testing as sessionBindingTesting,
   registerSessionBindingAdapter,
-} from "assistant/plugin-sdk/conversation-runtime";
+} from "zhushou/plugin-sdk/conversation-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveBlueBubblesConversationRoute } from "./conversation-route.js";
 
@@ -11,7 +11,7 @@ const baseCfg = {
   agents: {
     list: [{ id: "main" }, { id: "codex" }],
   },
-} satisfies AssistantConfig;
+} satisfies ZhushouConfig;
 
 describe("resolveBlueBubblesConversationRoute", () => {
   beforeEach(() => {

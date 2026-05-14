@@ -1,5 +1,5 @@
 {
-  "name": "@assistant/matrix",
+  "name": "@zhushou/matrix",
   "version": "2026.4.16",
   "description": "助手 Matrix channel plugin",
   "type": "module",
@@ -12,18 +12,18 @@
     "music-metadata": "^11.12.3"
   },
   "devDependencies": {
-    "@assistant/plugin-sdk": "workspace:*",
-    "assistant": "workspace:*"
+    "@zhushou/plugin-sdk": "workspace:*",
+    "zhushou": "workspace:*"
   },
   "peerDependencies": {
-    "assistant": ">=2026.4.16"
+    "zhushou": ">=2026.4.16"
   },
   "peerDependenciesMeta": {
-    "assistant": {
+    "zhushou": {
       "optional": true
     }
   },
-  "assistant": {
+  "zhushou": {
     "extensions": [
       "./index.ts"
     ],
@@ -43,7 +43,7 @@
       }
     },
     "install": {
-      "npmSpec": "@assistant/matrix",
+      "npmSpec": "@zhushou/matrix",
       "defaultChoice": "npm",
       "minHostVersion": ">=2026.4.10",
       "allowInvalidConfigRecovery": true

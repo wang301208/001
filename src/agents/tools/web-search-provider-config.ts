@@ -1,11 +1,11 @@
 import { resolvePluginWebSearchConfig } from "../../config/plugin-web-search-config.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 
 type ConfiguredWebSearchProvider = NonNullable<
-  NonNullable<NonNullable<AssistantConfig["tools"]>["web"]>["search"]
+  NonNullable<NonNullable<ZhushouConfig["tools"]>["web"]>["search"]
 >["provider"];
 
-export type WebSearchConfig = NonNullable<AssistantConfig["tools"]>["web"] extends infer Web
+export type WebSearchConfig = NonNullable<ZhushouConfig["tools"]>["web"] extends infer Web
   ? Web extends { search?: infer Search }
     ? Search
     : undefined
@@ -20,9 +20,9 @@ function cloneWithDescriptors<T extends object>(value: T | undefined): T {
 }
 
 export function withForcedProvider(
-  config: AssistantConfig | undefined,
+  config: ZhushouConfig | undefined,
   provider: ConfiguredWebSearchProvider,
-): AssistantConfig {
+): ZhushouConfig {
   const next = cloneWithDescriptors(config ?? {});
   const tools = cloneWithDescriptors(next.tools ?? {});
   const web = cloneWithDescriptors(tools.web ?? {});
@@ -102,7 +102,7 @@ export function mergeScopedSearchConfig(
   return next;
 }
 
-export function resolveSearchConfig(cfg?: AssistantConfig): WebSearchConfig {
+export function resolveSearchConfig(cfg?: ZhushouConfig): WebSearchConfig {
   const search = cfg?.tools?.web?.search;
   if (!search || typeof search !== "object") {
     return undefined;
@@ -111,7 +111,7 @@ export function resolveSearchConfig(cfg?: AssistantConfig): WebSearchConfig {
 }
 
 export function resolveProviderWebSearchPluginConfig(
-  config: AssistantConfig | undefined,
+  config: ZhushouConfig | undefined,
   pluginId: string,
 ): Record<string, unknown> | undefined {
   return resolvePluginWebSearchConfig(config, pluginId);
@@ -128,7 +128,7 @@ function ensureObject(target: Record<string, unknown>, key: string): Record<stri
 }
 
 export function setProviderWebSearchPluginConfigValue(
-  configTarget: AssistantConfig,
+  configTarget: ZhushouConfig,
   pluginId: string,
   key: string,
   value: unknown,

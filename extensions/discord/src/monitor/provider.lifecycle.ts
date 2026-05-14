@@ -1,6 +1,6 @@
-import { createConnectedChannelStatusPatch } from "assistant/plugin-sdk/gateway-runtime";
-import { danger } from "assistant/plugin-sdk/runtime-env";
-import type { RuntimeEnv } from "assistant/plugin-sdk/runtime-env";
+import { createConnectedChannelStatusPatch } from "zhushou/plugin-sdk/gateway-runtime";
+import { danger } from "zhushou/plugin-sdk/runtime-env";
+import type { RuntimeEnv } from "zhushou/plugin-sdk/runtime-env";
 import { attachDiscordGatewayLogging } from "../gateway-logging.js";
 import { getDiscordGatewayEmitter, waitForDiscordGatewayStop } from "../monitor.gateway.js";
 import type { DiscordVoiceManager } from "../voice/manager.js";

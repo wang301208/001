@@ -1,16 +1,16 @@
 import type { Guild, User } from "@buape/carbon";
-import type { AllowlistMatch } from "assistant/plugin-sdk/allow-from";
+import type { AllowlistMatch } from "zhushou/plugin-sdk/allow-from";
 import {
   buildChannelKeyCandidates,
   resolveChannelEntryMatchWithFallback,
   resolveChannelMatchConfig,
   type ChannelMatchSource,
-} from "assistant/plugin-sdk/channel-targets";
-import { evaluateGroupRouteAccessForPolicy } from "assistant/plugin-sdk/group-access";
+} from "zhushou/plugin-sdk/channel-targets";
+import { evaluateGroupRouteAccessForPolicy } from "zhushou/plugin-sdk/group-access";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import { formatDiscordUserTag } from "./format.js";
 
 export type DiscordAllowList = {

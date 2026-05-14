@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { RootHelpRenderOptions } from "../src/cli/program/root-help.js";
-import type { AssistantConfig } from "../src/config/config.js";
+import type { ZhushouConfig } from "../src/config/config.js";
 
 function dedupe(values: string[]): string[] {
   const seen = new Set<string>();
@@ -84,7 +84,7 @@ export function readBundledChannelCatalog(
       const raw = readFileSync(packageJsonPath, "utf8");
       signature.update(`${dirEntry.name}\0${raw}\0`);
       const parsed = JSON.parse(raw) as {
-        assistant?: {
+        zhushou?: {
           channel?: {
             id?: unknown;
             order?: unknown;
@@ -92,12 +92,12 @@ export function readBundledChannelCatalog(
           };
         };
       };
-      const id = parsed.assistant?.channel?.id;
+      const id = parsed.zhushou?.channel?.id;
       if (typeof id !== "string" || !id.trim()) {
         continue;
       }
-      const orderRaw = parsed.assistant?.channel?.order;
-      const labelRaw = parsed.assistant?.channel?.label;
+      const orderRaw = parsed.zhushou?.channel?.order;
+      const labelRaw = parsed.zhushou?.channel?.label;
       entries.push({
         id: id.trim(),
         order: typeof orderRaw === "number" ? orderRaw : 999,
@@ -126,28 +126,28 @@ export function readBundledChannelCatalogIds(
 function createIsolatedRootHelpRenderContext(
   bundledPluginsDir: string = extensionsDir,
 ): RootHelpRenderContext {
-  const stateDir = path.join(rootDir, ".assistant-build-root-help");
+  const stateDir = path.join(rootDir, ".zhushou-build-root-help");
   const workspaceDir = path.join(stateDir, "workspace");
   const homeDir = path.join(stateDir, "home");
   const env: NodeJS.ProcessEnv = {
     HOME: homeDir,
-    LOGNAME: process.env.LOGNAME ?? process.env.USER ?? "assistant-build",
-    USER: process.env.USER ?? process.env.LOGNAME ?? "assistant-build",
+    LOGNAME: process.env.LOGNAME ?? process.env.USER ?? "zhushou-build",
+    USER: process.env.USER ?? process.env.LOGNAME ?? "zhushou-build",
     PATH: process.env.PATH ?? "",
     TMPDIR: process.env.TMPDIR ?? "/tmp",
     LANG: process.env.LANG ?? "C.UTF-8",
     LC_ALL: process.env.LC_ALL ?? "C.UTF-8",
     TERM: process.env.TERM ?? "dumb",
     NO_COLOR: "1",
-    ASSISTANT_BUNDLED_PLUGINS_DIR: bundledPluginsDir,
-    ASSISTANT_DISABLE_BUNDLED_PLUGINS: "",
-    ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
-    ASSISTANT_DISABLE_PLUGIN_MANIFEST_CACHE: "1",
-    ASSISTANT_PLUGIN_DISCOVERY_CACHE_MS: "0",
-    ASSISTANT_PLUGIN_MANIFEST_CACHE_MS: "0",
-    ASSISTANT_STATE_DIR: stateDir,
+    ZHUSHOU_BUNDLED_PLUGINS_DIR: bundledPluginsDir,
+    ZHUSHOU_DISABLE_BUNDLED_PLUGINS: "",
+    ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
+    ZHUSHOU_DISABLE_PLUGIN_MANIFEST_CACHE: "1",
+    ZHUSHOU_PLUGIN_DISCOVERY_CACHE_MS: "0",
+    ZHUSHOU_PLUGIN_MANIFEST_CACHE_MS: "0",
+    ZHUSHOU_STATE_DIR: stateDir,
   };
-  const config: AssistantConfig = {
+  const config: ZhushouConfig = {
     agents: {
       defaults: {
         workspace: workspaceDir,

@@ -315,11 +315,19 @@ export function createExecApprovalHandlers(
           })();
         },
         afterDecision: async (decision) => {
-          if (decision === null) {
-            await opts?.iosPushDelivery?.handleExpired?.(requestEvent);
+          if (decision !== null) {
+            await opts?.iosPushDelivery?.handleResolved?.({
+              id: record.id,
+              decision,
+              resolvedBy: record.resolvedBy,
+              ts: record.resolvedAtMs ?? Date.now(),
+              request: record.request,
+            });
+            return;
           }
+          await opts?.iosPushDelivery?.handleExpired?.(requestEvent);
         },
-        afterDecisionErrorLabel: "exec approvals: iOS push expire failed",
+        afterDecisionErrorLabel: "exec approvals: iOS push cleanup failed",
       });
     },
     "exec.approval.waitDecision": async ({ params, respond }) => {

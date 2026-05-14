@@ -11,7 +11,7 @@ import { A2UI_PATH, CANVAS_WS_PATH, handleA2uiHttpRequest } from "../canvas-host
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 import { resolveBundledChannelGatewayAuthBypassPaths } from "../channels/plugins/gateway-auth-bypass.js";
 import { loadConfig } from "../config/config.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveHookExternalContentSource as resolveHookExternalContentSourceFromSession } from "../security/external-content.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
@@ -169,12 +169,12 @@ const GATEWAY_PROBE_STATUS_BY_PATH = new Map<string, "live" | "ready">([
 ]);
 const PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8";
 const pluginGatewayAuthBypassPathsCache = new WeakMap<
-  AssistantConfig,
+  ZhushouConfig,
   Promise<ReadonlySet<string>>
 >();
 
 async function resolvePluginGatewayAuthBypassPaths(
-  configSnapshot: AssistantConfig,
+  configSnapshot: ZhushouConfig,
 ): Promise<Set<string>> {
   const paths = new Set<string>();
   const configuredChannels = configSnapshot.channels;
@@ -193,7 +193,7 @@ async function resolvePluginGatewayAuthBypassPaths(
 }
 
 function getCachedPluginGatewayAuthBypassPaths(
-  configSnapshot: AssistantConfig,
+  configSnapshot: ZhushouConfig,
 ): Promise<ReadonlySet<string>> {
   const cached = pluginGatewayAuthBypassPathsCache.get(configSnapshot);
   if (cached) {
@@ -384,33 +384,33 @@ function handleGatewayMetricsRequest(
 
   writePrometheusGauge({
     lines,
-    name: "assistant_gateway_up",
-    help: "Whether the assistant gateway HTTP server is responding.",
+    name: "zhushou_gateway_up",
+    help: "Whether the zhushou gateway HTTP server is responding.",
     value: 1,
   });
   writePrometheusGauge({
     lines,
-    name: "assistant_gateway_ready",
-    help: "Whether the assistant gateway reports readiness.",
+    name: "zhushou_gateway_ready",
+    help: "Whether the zhushou gateway reports readiness.",
     value: ready,
   });
   writePrometheusGauge({
     lines,
-    name: "assistant_gateway_uptime_seconds",
-    help: "Assistant gateway uptime in seconds.",
+    name: "zhushou_gateway_uptime_seconds",
+    help: "Zhushou gateway uptime in seconds.",
     value: Math.max(0, uptimeMs / 1000),
   });
   writePrometheusGauge({
     lines,
-    name: "assistant_gateway_failing_dependencies",
+    name: "zhushou_gateway_failing_dependencies",
     help: "Number of dependencies failing readiness checks.",
     value: failing.length,
   });
   for (const dependency of failing) {
     writePrometheusGauge({
       lines,
-      name: "assistant_gateway_dependency_ready",
-      help: "Readiness of a named assistant gateway dependency.",
+      name: "zhushou_gateway_dependency_ready",
+      help: "Readiness of a named zhushou gateway dependency.",
       labels: { dependency },
       value: 0,
     });
@@ -979,21 +979,26 @@ export function createGatewayHttpServer(opts: {
 
     try {
       const requestPath = new URL(req.url ?? "/", "http://localhost").pathname;
-      if (
-        await handleGatewayProbeRequest(
-          req,
-          res,
-          requestPath,
-          resolvedAuth,
-          [],
-          false,
-          getReadiness,
-        )
-      ) {
-        return;
-      }
-      if (handleGatewayMetricsRequest(req, res, requestPath, getReadiness)) {
-        return;
+      if (!handlePluginRequest) {
+        const fastProbeStatus = GATEWAY_PROBE_STATUS_BY_PATH.get(requestPath);
+        if (fastProbeStatus === "live") {
+          if (
+            await handleGatewayProbeRequest(
+              req,
+              res,
+              requestPath,
+              resolvedAuth,
+              [],
+              false,
+              getReadiness,
+            )
+          ) {
+            return;
+          }
+        }
+        if (handleGatewayMetricsRequest(req, res, requestPath, getReadiness)) {
+          return;
+        }
       }
       const runtimeResolvedAuth = getResolvedAuth();
       const configSnapshot = loadConfig();
@@ -1007,8 +1012,9 @@ export function createGatewayHttpServer(opts: {
       if (scopedCanvas.rewrittenUrl) {
         req.url = scopedCanvas.rewrittenUrl;
       }
+      const effectiveRequestPath = scopedCanvas.rewrittenUrl ? scopedCanvas.pathname : requestPath;
       const pluginPathContext = handlePluginRequest
-        ? resolvePluginRoutePathContext(requestPath)
+        ? resolvePluginRoutePathContext(effectiveRequestPath)
         : null;
       const requestStages: GatewayHttpRequestStage[] = [
         {
@@ -1016,7 +1022,7 @@ export function createGatewayHttpServer(opts: {
           run: () => handleHooksRequest(req, res),
         },
       ];
-      if (openAiCompatEnabled && isOpenAiModelsPath(requestPath)) {
+      if (openAiCompatEnabled && isOpenAiModelsPath(effectiveRequestPath)) {
         requestStages.push({
           name: "models",
           run: async () =>
@@ -1028,7 +1034,7 @@ export function createGatewayHttpServer(opts: {
             }),
         });
       }
-      if (openAiCompatEnabled && isEmbeddingsPath(requestPath)) {
+      if (openAiCompatEnabled && isEmbeddingsPath(effectiveRequestPath)) {
         requestStages.push({
           name: "embeddings",
           run: async () =>
@@ -1040,7 +1046,7 @@ export function createGatewayHttpServer(opts: {
             }),
         });
       }
-      if (isToolsInvokePath(requestPath)) {
+      if (isToolsInvokePath(effectiveRequestPath)) {
         requestStages.push({
           name: "tools-invoke",
           run: async () =>
@@ -1052,7 +1058,7 @@ export function createGatewayHttpServer(opts: {
             }),
         });
       }
-      if (isSessionKillPath(requestPath)) {
+      if (isSessionKillPath(effectiveRequestPath)) {
         requestStages.push({
           name: "sessions-kill",
           run: async () =>
@@ -1064,7 +1070,7 @@ export function createGatewayHttpServer(opts: {
             }),
         });
       }
-      if (isSessionHistoryPath(requestPath)) {
+      if (isSessionHistoryPath(effectiveRequestPath)) {
         requestStages.push({
           name: "sessions-history",
           run: async () =>
@@ -1076,7 +1082,7 @@ export function createGatewayHttpServer(opts: {
             }),
         });
       }
-      if (openResponsesEnabled && isOpenResponsesPath(requestPath)) {
+      if (openResponsesEnabled && isOpenResponsesPath(effectiveRequestPath)) {
         requestStages.push({
           name: "openresponses",
           run: async () =>
@@ -1089,7 +1095,7 @@ export function createGatewayHttpServer(opts: {
             }),
         });
       }
-      if (openAiChatCompletionsEnabled && isOpenAiChatCompletionsPath(requestPath)) {
+      if (openAiChatCompletionsEnabled && isOpenAiChatCompletionsPath(effectiveRequestPath)) {
         requestStages.push({
           name: "openai",
           run: async () =>
@@ -1106,7 +1112,7 @@ export function createGatewayHttpServer(opts: {
         requestStages.push({
           name: "canvas-auth",
           run: async () => {
-            if (!isCanvasPath(requestPath)) {
+            if (!isCanvasPath(effectiveRequestPath)) {
               return false;
             }
             const ok = await authorizeCanvasRequest({
@@ -1128,7 +1134,7 @@ export function createGatewayHttpServer(opts: {
         });
         requestStages.push({
           name: "a2ui",
-          run: () => (isA2uiPath(requestPath) ? handleA2uiHttpRequest(req, res) : false),
+          run: () => (isA2uiPath(effectiveRequestPath) ? handleA2uiHttpRequest(req, res) : false),
         });
         requestStages.push({
           name: "canvas-http",
@@ -1142,7 +1148,7 @@ export function createGatewayHttpServer(opts: {
         ...buildPluginRequestStages({
           req,
           res,
-          requestPath,
+          requestPath: effectiveRequestPath,
           getGatewayAuthBypassPaths: () => getCachedPluginGatewayAuthBypassPaths(configSnapshot),
           pluginPathContext,
           handlePluginRequest,
@@ -1153,6 +1159,23 @@ export function createGatewayHttpServer(opts: {
           rateLimiter,
         }),
       );
+      requestStages.push({
+        name: "gateway-probe",
+        run: () =>
+          handleGatewayProbeRequest(
+            req,
+            res,
+            effectiveRequestPath,
+            runtimeResolvedAuth,
+            trustedProxies,
+            allowRealIpFallback,
+            getReadiness,
+          ),
+      });
+      requestStages.push({
+        name: "gateway-metrics",
+        run: () => handleGatewayMetricsRequest(req, res, effectiveRequestPath, getReadiness),
+      });
       if (await runGatewayHttpRequestStages(requestStages)) {
         return;
       }
@@ -1270,17 +1293,17 @@ export function attachGatewayUpgradeHandler(opts: {
         wss.handleUpgrade(req, socket, head, (ws) => {
           (
             ws as unknown as import("ws").WebSocket & {
-              __assistantPreauthBudgetClaimed?: boolean;
-              __assistantPreauthBudgetKey?: string;
+              __zhushouPreauthBudgetClaimed?: boolean;
+              __zhushouPreauthBudgetKey?: string;
             }
-          ).__assistantPreauthBudgetKey = preauthBudgetKey;
+          ).__zhushouPreauthBudgetKey = preauthBudgetKey;
           wss.emit("connection", ws, req);
           const budgetClaimed = Boolean(
             (
               ws as unknown as import("ws").WebSocket & {
-                __assistantPreauthBudgetClaimed?: boolean;
+                __zhushouPreauthBudgetClaimed?: boolean;
               }
-            ).__assistantPreauthBudgetClaimed,
+            ).__zhushouPreauthBudgetClaimed,
           );
           if (budgetClaimed) {
             budgetTransferred = true;

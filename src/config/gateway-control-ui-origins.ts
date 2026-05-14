@@ -1,5 +1,5 @@
 import { DEFAULT_GATEWAY_PORT } from "./paths.js";
-import type { AssistantConfig } from "./types.assistant.js";
+import type { ZhushouConfig } from "./types.zhushou.js";
 
 export type GatewayNonLoopbackBindMode = "lan" | "tailnet" | "custom" | "auto";
 
@@ -44,7 +44,7 @@ export function buildDefaultControlUiAllowedOrigins(params: {
 }
 
 export function ensureControlUiAllowedOriginsForNonLoopbackBind(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   opts?: {
     defaultPort?: number;
     requireControlUiEnabled?: boolean;
@@ -56,7 +56,7 @@ export function ensureControlUiAllowedOriginsForNonLoopbackBind(
     isContainerEnvironment?: () => boolean;
   },
 ): {
-  config: AssistantConfig;
+  config: ZhushouConfig;
   seededOrigins: string[] | null;
   bind: GatewayNonLoopbackBindMode | null;
 } {

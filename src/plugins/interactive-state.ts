@@ -14,13 +14,13 @@ type InteractiveState = {
   inflightCallbackDedupe: Set<string>;
 };
 
-const PLUGIN_INTERACTIVE_STATE_KEY = Symbol.for("assistant.pluginInteractiveState");
+const PLUGIN_INTERACTIVE_STATE_KEY = Symbol.for("zhushou.pluginInteractiveState");
 
 function getState() {
   return resolveGlobalSingleton<InteractiveState>(PLUGIN_INTERACTIVE_STATE_KEY, () => ({
     interactiveHandlers: new Map<string, RegisteredInteractiveHandler>(),
     callbackDedupe: resolveGlobalDedupeCache(
-      Symbol.for("assistant.pluginInteractiveCallbackDedupe"),
+      Symbol.for("zhushou.pluginInteractiveCallbackDedupe"),
       {
         ttlMs: 5 * 60_000,
         maxSize: 4096,

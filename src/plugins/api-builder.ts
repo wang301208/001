@@ -1,6 +1,6 @@
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import type { PluginRuntime } from "./runtime/types.js";
-import type { AssistantPluginApi, PluginLogger } from "./types.js";
+import type { ZhushouPluginApi, PluginLogger } from "./types.js";
 
 export type BuildPluginApiParams = {
   id: string;
@@ -9,15 +9,15 @@ export type BuildPluginApiParams = {
   description?: string;
   source: string;
   rootDir?: string;
-  registrationMode: AssistantPluginApi["registrationMode"];
-  config: AssistantConfig;
+  registrationMode: ZhushouPluginApi["registrationMode"];
+  config: ZhushouConfig;
   pluginConfig?: Record<string, unknown>;
   runtime: PluginRuntime;
   logger: PluginLogger;
   resolvePath: (input: string) => string;
   handlers?: Partial<
     Pick<
-      AssistantPluginApi,
+      ZhushouPluginApi,
       | "registerTool"
       | "registerHook"
       | "registerHttpRoute"
@@ -60,57 +60,57 @@ export type BuildPluginApiParams = {
   >;
 };
 
-const noopRegisterTool: AssistantPluginApi["registerTool"] = () => {};
-const noopRegisterHook: AssistantPluginApi["registerHook"] = () => {};
-const noopRegisterHttpRoute: AssistantPluginApi["registerHttpRoute"] = () => {};
-const noopRegisterChannel: AssistantPluginApi["registerChannel"] = () => {};
-const noopRegisterGatewayMethod: AssistantPluginApi["registerGatewayMethod"] = () => {};
-const noopRegisterCli: AssistantPluginApi["registerCli"] = () => {};
-const noopRegisterReload: AssistantPluginApi["registerReload"] = () => {};
-const noopRegisterNodeHostCommand: AssistantPluginApi["registerNodeHostCommand"] = () => {};
-const noopRegisterSecurityAuditCollector: AssistantPluginApi["registerSecurityAuditCollector"] =
+const noopRegisterTool: ZhushouPluginApi["registerTool"] = () => {};
+const noopRegisterHook: ZhushouPluginApi["registerHook"] = () => {};
+const noopRegisterHttpRoute: ZhushouPluginApi["registerHttpRoute"] = () => {};
+const noopRegisterChannel: ZhushouPluginApi["registerChannel"] = () => {};
+const noopRegisterGatewayMethod: ZhushouPluginApi["registerGatewayMethod"] = () => {};
+const noopRegisterCli: ZhushouPluginApi["registerCli"] = () => {};
+const noopRegisterReload: ZhushouPluginApi["registerReload"] = () => {};
+const noopRegisterNodeHostCommand: ZhushouPluginApi["registerNodeHostCommand"] = () => {};
+const noopRegisterSecurityAuditCollector: ZhushouPluginApi["registerSecurityAuditCollector"] =
   () => {};
-const noopRegisterService: AssistantPluginApi["registerService"] = () => {};
-const noopRegisterCliBackend: AssistantPluginApi["registerCliBackend"] = () => {};
-const noopRegisterTextTransforms: AssistantPluginApi["registerTextTransforms"] = () => {};
-const noopRegisterConfigMigration: AssistantPluginApi["registerConfigMigration"] = () => {};
-const noopRegisterAutoEnableProbe: AssistantPluginApi["registerAutoEnableProbe"] = () => {};
-const noopRegisterProvider: AssistantPluginApi["registerProvider"] = () => {};
-const noopRegisterSpeechProvider: AssistantPluginApi["registerSpeechProvider"] = () => {};
-const noopRegisterRealtimeTranscriptionProvider: AssistantPluginApi["registerRealtimeTranscriptionProvider"] =
+const noopRegisterService: ZhushouPluginApi["registerService"] = () => {};
+const noopRegisterCliBackend: ZhushouPluginApi["registerCliBackend"] = () => {};
+const noopRegisterTextTransforms: ZhushouPluginApi["registerTextTransforms"] = () => {};
+const noopRegisterConfigMigration: ZhushouPluginApi["registerConfigMigration"] = () => {};
+const noopRegisterAutoEnableProbe: ZhushouPluginApi["registerAutoEnableProbe"] = () => {};
+const noopRegisterProvider: ZhushouPluginApi["registerProvider"] = () => {};
+const noopRegisterSpeechProvider: ZhushouPluginApi["registerSpeechProvider"] = () => {};
+const noopRegisterRealtimeTranscriptionProvider: ZhushouPluginApi["registerRealtimeTranscriptionProvider"] =
   () => {};
-const noopRegisterRealtimeVoiceProvider: AssistantPluginApi["registerRealtimeVoiceProvider"] =
+const noopRegisterRealtimeVoiceProvider: ZhushouPluginApi["registerRealtimeVoiceProvider"] =
   () => {};
-const noopRegisterMediaUnderstandingProvider: AssistantPluginApi["registerMediaUnderstandingProvider"] =
+const noopRegisterMediaUnderstandingProvider: ZhushouPluginApi["registerMediaUnderstandingProvider"] =
   () => {};
-const noopRegisterImageGenerationProvider: AssistantPluginApi["registerImageGenerationProvider"] =
+const noopRegisterImageGenerationProvider: ZhushouPluginApi["registerImageGenerationProvider"] =
   () => {};
-const noopRegisterVideoGenerationProvider: AssistantPluginApi["registerVideoGenerationProvider"] =
+const noopRegisterVideoGenerationProvider: ZhushouPluginApi["registerVideoGenerationProvider"] =
   () => {};
-const noopRegisterMusicGenerationProvider: AssistantPluginApi["registerMusicGenerationProvider"] =
+const noopRegisterMusicGenerationProvider: ZhushouPluginApi["registerMusicGenerationProvider"] =
   () => {};
-const noopRegisterWebFetchProvider: AssistantPluginApi["registerWebFetchProvider"] = () => {};
-const noopRegisterWebSearchProvider: AssistantPluginApi["registerWebSearchProvider"] = () => {};
-const noopRegisterInteractiveHandler: AssistantPluginApi["registerInteractiveHandler"] = () => {};
-const noopOnConversationBindingResolved: AssistantPluginApi["onConversationBindingResolved"] =
+const noopRegisterWebFetchProvider: ZhushouPluginApi["registerWebFetchProvider"] = () => {};
+const noopRegisterWebSearchProvider: ZhushouPluginApi["registerWebSearchProvider"] = () => {};
+const noopRegisterInteractiveHandler: ZhushouPluginApi["registerInteractiveHandler"] = () => {};
+const noopOnConversationBindingResolved: ZhushouPluginApi["onConversationBindingResolved"] =
   () => {};
-const noopRegisterCommand: AssistantPluginApi["registerCommand"] = () => {};
-const noopRegisterContextEngine: AssistantPluginApi["registerContextEngine"] = () => {};
-const noopRegisterCompactionProvider: AssistantPluginApi["registerCompactionProvider"] = () => {};
-const noopRegisterAgentHarness: AssistantPluginApi["registerAgentHarness"] = () => {};
-const noopRegisterMemoryCapability: AssistantPluginApi["registerMemoryCapability"] = () => {};
-const noopRegisterMemoryPromptSection: AssistantPluginApi["registerMemoryPromptSection"] = () => {};
-const noopRegisterMemoryPromptSupplement: AssistantPluginApi["registerMemoryPromptSupplement"] =
+const noopRegisterCommand: ZhushouPluginApi["registerCommand"] = () => {};
+const noopRegisterContextEngine: ZhushouPluginApi["registerContextEngine"] = () => {};
+const noopRegisterCompactionProvider: ZhushouPluginApi["registerCompactionProvider"] = () => {};
+const noopRegisterAgentHarness: ZhushouPluginApi["registerAgentHarness"] = () => {};
+const noopRegisterMemoryCapability: ZhushouPluginApi["registerMemoryCapability"] = () => {};
+const noopRegisterMemoryPromptSection: ZhushouPluginApi["registerMemoryPromptSection"] = () => {};
+const noopRegisterMemoryPromptSupplement: ZhushouPluginApi["registerMemoryPromptSupplement"] =
   () => {};
-const noopRegisterMemoryCorpusSupplement: AssistantPluginApi["registerMemoryCorpusSupplement"] =
+const noopRegisterMemoryCorpusSupplement: ZhushouPluginApi["registerMemoryCorpusSupplement"] =
   () => {};
-const noopRegisterMemoryFlushPlan: AssistantPluginApi["registerMemoryFlushPlan"] = () => {};
-const noopRegisterMemoryRuntime: AssistantPluginApi["registerMemoryRuntime"] = () => {};
-const noopRegisterMemoryEmbeddingProvider: AssistantPluginApi["registerMemoryEmbeddingProvider"] =
+const noopRegisterMemoryFlushPlan: ZhushouPluginApi["registerMemoryFlushPlan"] = () => {};
+const noopRegisterMemoryRuntime: ZhushouPluginApi["registerMemoryRuntime"] = () => {};
+const noopRegisterMemoryEmbeddingProvider: ZhushouPluginApi["registerMemoryEmbeddingProvider"] =
   () => {};
-const noopOn: AssistantPluginApi["on"] = () => {};
+const noopOn: ZhushouPluginApi["on"] = () => {};
 
-export function buildPluginApi(params: BuildPluginApiParams): AssistantPluginApi {
+export function buildPluginApi(params: BuildPluginApiParams): ZhushouPluginApi {
   const handlers = params.handlers ?? {};
   return {
     id: params.id,

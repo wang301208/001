@@ -1,31 +1,31 @@
-name: assistant
+name: zhushou
 
 services:
-  assistant-gateway:
-    image: ${ASSISTANT_IMAGE:-assistant:local}
+  zhushou-gateway:
+    image: ${ZHUSHOU_IMAGE:-zhushou:local}
     environment:
       HOME: /home/node
       TERM: xterm-256color
-      ASSISTANT_GATEWAY_TOKEN: ${ASSISTANT_GATEWAY_TOKEN:-}
-      ASSISTANT_ALLOW_INSECURE_PRIVATE_WS: ${ASSISTANT_ALLOW_INSECURE_PRIVATE_WS:-}
+      ZHUSHOU_GATEWAY_TOKEN: ${ZHUSHOU_GATEWAY_TOKEN:-}
+      ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS: ${ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS:-}
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY:-}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
-      TZ: ${ASSISTANT_TZ:-UTC}
+      TZ: ${ZHUSHOU_TZ:-UTC}
     volumes:
-      - ${ASSISTANT_CONFIG_DIR:-./.assistant}:/home/node/.assistant
-      - ${ASSISTANT_WORKSPACE_DIR:-./workspace}:/home/node/.assistant/workspace
+      - ${ZHUSHOU_CONFIG_DIR:-./.zhushou}:/home/node/.zhushou
+      - ${ZHUSHOU_WORKSPACE_DIR:-./workspace}:/home/node/.zhushou/workspace
       ## Uncomment the lines below to enable sandbox isolation
       ## (agents.defaults.sandbox). Requires Docker CLI in the image
-      ## (build with --build-arg ASSISTANT_INSTALL_DOCKER_CLI=1) or use
-      ## scripts/docker/setup.sh with ASSISTANT_SANDBOX=1 for automated setup.
+      ## (build with --build-arg ZHUSHOU_INSTALL_DOCKER_CLI=1) or use
+      ## scripts/docker/setup.sh with ZHUSHOU_SANDBOX=1 for automated setup.
       ## Set DOCKER_GID to the host's docker group GID (run: stat -c '%g' /var/run/docker.sock).
       # - /var/run/docker.sock:/var/run/docker.sock
     # group_add:
     #   - "${DOCKER_GID:-999}"
     ports:
-      - "${ASSISTANT_GATEWAY_PORT:-3000}:3000"
-      - "${ASSISTANT_BRIDGE_PORT:-18790}:18790"
+      - "${ZHUSHOU_GATEWAY_PORT:-3000}:3000"
+      - "${ZHUSHOU_BRIDGE_PORT:-18790}:18790"
     init: true
     restart: unless-stopped
     command:
@@ -34,7 +34,7 @@ services:
         "dist/index.js",
         "gateway",
         "--bind",
-        "${ASSISTANT_GATEWAY_BIND:-lan}",
+        "${ZHUSHOU_GATEWAY_BIND:-lan}",
         "--port",
         "3000",
       ]
@@ -51,9 +51,9 @@ services:
       retries: 5
       start_period: 20s
 
-  assistant-cli:
-    image: ${ASSISTANT_IMAGE:-assistant:local}
-    network_mode: "service:assistant-gateway"
+  zhushou-cli:
+    image: ${ZHUSHOU_IMAGE:-zhushou:local}
+    network_mode: "service:zhushou-gateway"
     cap_drop:
       - NET_RAW
       - NET_ADMIN
@@ -62,19 +62,19 @@ services:
     environment:
       HOME: /home/node
       TERM: xterm-256color
-      ASSISTANT_GATEWAY_TOKEN: ${ASSISTANT_GATEWAY_TOKEN:-}
-      ASSISTANT_ALLOW_INSECURE_PRIVATE_WS: ${ASSISTANT_ALLOW_INSECURE_PRIVATE_WS:-}
+      ZHUSHOU_GATEWAY_TOKEN: ${ZHUSHOU_GATEWAY_TOKEN:-}
+      ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS: ${ZHUSHOU_ALLOW_INSECURE_PRIVATE_WS:-}
       BROWSER: echo
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY:-}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
-      TZ: ${ASSISTANT_TZ:-UTC}
+      TZ: ${ZHUSHOU_TZ:-UTC}
     volumes:
-      - ${ASSISTANT_CONFIG_DIR:-./.assistant}:/home/node/.assistant
-      - ${ASSISTANT_WORKSPACE_DIR:-./workspace}:/home/node/.assistant/workspace
+      - ${ZHUSHOU_CONFIG_DIR:-./.zhushou}:/home/node/.zhushou
+      - ${ZHUSHOU_WORKSPACE_DIR:-./workspace}:/home/node/.zhushou/workspace
     stdin_open: true
     tty: true
     init: true
     entrypoint: ["node", "dist/index.js"]
     depends_on:
-      - assistant-gateway
+      - zhushou-gateway

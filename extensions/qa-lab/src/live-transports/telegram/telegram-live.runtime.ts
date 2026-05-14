@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { AssistantConfig } from "assistant/plugin-sdk/config-runtime";
-import { formatErrorMessage } from "assistant/plugin-sdk/error-runtime";
-import { fetchWithSsrFGuard } from "assistant/plugin-sdk/ssrf-runtime";
+import type { ZhushouConfig } from "zhushou/plugin-sdk/config-runtime";
+import { formatErrorMessage } from "zhushou/plugin-sdk/error-runtime";
+import { fetchWithSsrFGuard } from "zhushou/plugin-sdk/ssrf-runtime";
 import { z } from "zod";
 import { startQaGatewayChild } from "../../gateway-child.js";
 import { DEFAULT_QA_LIVE_PROVIDER_MODE } from "../../providers/index.js";
@@ -275,9 +275,9 @@ export const TELEGRAM_QA_STANDARD_SCENARIO_IDS = collectLiveTransportStandardSce
 });
 
 const TELEGRAM_QA_ENV_KEYS = [
-  "ASSISTANT_QA_TELEGRAM_GROUP_ID",
-  "ASSISTANT_QA_TELEGRAM_DRIVER_BOT_TOKEN",
-  "ASSISTANT_QA_TELEGRAM_SUT_BOT_TOKEN",
+  "ZHUSHOU_QA_TELEGRAM_GROUP_ID",
+  "ZHUSHOU_QA_TELEGRAM_DRIVER_BOT_TOKEN",
+  "ZHUSHOU_QA_TELEGRAM_SUT_BOT_TOKEN",
 ] as const;
 
 const telegramQaCredentialPayloadSchema = z.object({
@@ -297,14 +297,14 @@ function resolveEnvValue(env: NodeJS.ProcessEnv, key: (typeof TELEGRAM_QA_ENV_KE
 export function resolveTelegramQaRuntimeEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): TelegramQaRuntimeEnv {
-  const groupId = resolveEnvValue(env, "ASSISTANT_QA_TELEGRAM_GROUP_ID");
+  const groupId = resolveEnvValue(env, "ZHUSHOU_QA_TELEGRAM_GROUP_ID");
   if (!/^-?\d+$/u.test(groupId)) {
-    throw new Error("ASSISTANT_QA_TELEGRAM_GROUP_ID must be a numeric Telegram chat id.");
+    throw new Error("ZHUSHOU_QA_TELEGRAM_GROUP_ID must be a numeric Telegram chat id.");
   }
   return {
     groupId,
-    driverToken: resolveEnvValue(env, "ASSISTANT_QA_TELEGRAM_DRIVER_BOT_TOKEN"),
-    sutToken: resolveEnvValue(env, "ASSISTANT_QA_TELEGRAM_SUT_BOT_TOKEN"),
+    driverToken: resolveEnvValue(env, "ZHUSHOU_QA_TELEGRAM_DRIVER_BOT_TOKEN"),
+    sutToken: resolveEnvValue(env, "ZHUSHOU_QA_TELEGRAM_SUT_BOT_TOKEN"),
   };
 }
 
@@ -374,14 +374,14 @@ export function normalizeTelegramObservedMessage(
 }
 
 function buildTelegramQaConfig(
-  baseCfg: AssistantConfig,
+  baseCfg: ZhushouConfig,
   params: {
     groupId: string;
     sutToken: string;
     driverBotId: number;
     sutAccountId: string;
   },
-): AssistantConfig {
+): ZhushouConfig {
   const pluginAllow = [...new Set([...(baseCfg.plugins?.allow ?? []), "telegram"])];
   const pluginEntries = {
     ...baseCfg.plugins?.entries,
@@ -867,7 +867,7 @@ export async function runTelegramQaLive(params: {
   const sutAccountId = params.sutAccountId?.trim() || "sut";
   const scenarios = findScenario(params.scenarioIds);
   const observedMessages: TelegramObservedMessage[] = [];
-  const includeObservedMessageContent = process.env.ASSISTANT_QA_TELEGRAM_CAPTURE_CONTENT === "1";
+  const includeObservedMessageContent = process.env.ZHUSHOU_QA_TELEGRAM_CAPTURE_CONTENT === "1";
   const startedAt = new Date().toISOString();
   const scenarioResults: TelegramQaScenarioResult[] = [];
   const cleanupIssues: string[] = [];

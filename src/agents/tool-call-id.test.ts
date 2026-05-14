@@ -81,9 +81,9 @@ function expectCollisionIdsRemainDistinct(
   out: AgentMessage[],
   mode: "strict" | "strict9",
 ): { aId: string; bId: string } {
-  const assistant = out[0] as Extract<AgentMessage, { role: "assistant" }>;
-  const a = assistant.content?.[0] as { id?: string };
-  const b = assistant.content?.[1] as { id?: string };
+  const zhushou = out[0] as Extract<AgentMessage, { role: "assistant" }>;
+  const a = zhushou.content?.[0] as { id?: string };
+  const b = zhushou.content?.[1] as { id?: string };
   expect(typeof a.id).toBe("string");
   expect(typeof b.id).toBe("string");
   expect(a.id).not.toBe(b.id);
@@ -102,8 +102,8 @@ function expectSingleToolCallRewrite(
   expectedId: string,
   mode: "strict" | "strict9",
 ): void {
-  const assistant = out[0] as Extract<AgentMessage, { role: "assistant" }>;
-  const toolCall = assistant.content?.[0] as { id?: string };
+  const zhushou = out[0] as Extract<AgentMessage, { role: "assistant" }>;
+  const toolCall = zhushou.content?.[0] as { id?: string };
   expect(toolCall.id).toBe(expectedId);
   expect(isValidCloudCodeAssistToolId(toolCall.id as string, mode)).toBe(true);
 
@@ -122,10 +122,10 @@ function expectReplaySafeSignedTurnOwnership(params: {
   });
 
   expect(out).not.toBe(params.input);
-  const firstAssistant = out[0] as Extract<AgentMessage, { role: "assistant" }>;
-  const secondAssistant = out[2] as Extract<AgentMessage, { role: "assistant" }>;
-  const firstToolCall = firstAssistant.content?.[params.firstToolCallIndex] as { id?: string };
-  const secondToolCall = secondAssistant.content?.[1] as { id?: string };
+  const firstZhushou = out[0] as Extract<AgentMessage, { role: "assistant" }>;
+  const secondZhushou = out[2] as Extract<AgentMessage, { role: "assistant" }>;
+  const firstToolCall = firstZhushou.content?.[params.firstToolCallIndex] as { id?: string };
+  const secondToolCall = secondZhushou.content?.[1] as { id?: string };
 
   if (params.preservedTurn === "first") {
     expect(firstToolCall.id).toBe("call1");
@@ -391,8 +391,8 @@ describe("sanitizeToolCallIdsForCloudCodeAssist", () => {
       });
 
       expect(out).not.toBe(input);
-      const firstAssistant = out[0] as Extract<AgentMessage, { role: "assistant" }>;
-      const firstToolCall = firstAssistant.content?.[0] as { id?: string };
+      const firstZhushou = out[0] as Extract<AgentMessage, { role: "assistant" }>;
+      const firstToolCall = firstZhushou.content?.[0] as { id?: string };
       expect(firstToolCall.id).not.toBe("call1");
 
       expectReplaySafeSignedTurnOwnership({

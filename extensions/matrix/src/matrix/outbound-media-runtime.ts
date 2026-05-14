@@ -1,1 +1,1 @@
-export { loadOutboundMediaFromUrl } from "assistant/plugin-sdk/outbound-media";
+export { loadOutboundMediaFromUrl } from "zhushou/plugin-sdk/outbound-media";

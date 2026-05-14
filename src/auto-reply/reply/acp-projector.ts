@@ -1,7 +1,7 @@
 import type { AcpRuntimeEvent, AcpSessionUpdateTag } from "../../acp/runtime/types.js";
 import { EmbeddedBlockChunker } from "../../agents/pi-embedded-block-chunker.js";
 import { formatToolSummary, resolveToolDisplay } from "../../agents/tool-display.js";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import { prefixSystemMessage } from "../../infra/system-message.js";
 import {
   normalizeOptionalLowercaseString,
@@ -166,7 +166,7 @@ export type AcpReplyProjector = {
 };
 
 export function createAcpReplyProjector(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   shouldSendToolSummaries: boolean;
   deliver: (
     kind: ReplyDispatchKind,

@@ -5,11 +5,11 @@ import { createSuiteTempRootTracker } from "../test-helpers/temp-dir.js";
 import { captureEnv } from "../test-utils/env.js";
 import type { UpdateCheckResult } from "./update-check.js";
 
-vi.mock("./assistant-root.js", async () => {
-  const actual = await vi.importActual<typeof import("./assistant-root.js")>("./assistant-root.js");
+vi.mock("./zhushou-root.js", async () => {
+  const actual = await vi.importActual<typeof import("./zhushou-root.js")>("./zhushou-root.js");
   return {
     ...actual,
-    resolveAssistantPackageRoot: vi.fn(),
+    resolveZhushouPackageRoot: vi.fn(),
   };
 });
 
@@ -44,11 +44,11 @@ vi.mock("../process/exec.js", () => ({
 }));
 
 describe("update-startup", () => {
-  const suiteRootTracker = createSuiteTempRootTracker({ prefix: "assistant-update-check-suite-" });
+  const suiteRootTracker = createSuiteTempRootTracker({ prefix: "zhushou-update-check-suite-" });
   let tempDir: string;
   let envSnapshot: ReturnType<typeof captureEnv>;
 
-  let resolveAssistantPackageRoot: (typeof import("./assistant-root.js"))["resolveAssistantPackageRoot"];
+  let resolveZhushouPackageRoot: (typeof import("./zhushou-root.js"))["resolveZhushouPackageRoot"];
   let checkUpdateStatus: (typeof import("./update-check.js"))["checkUpdateStatus"];
   let resolveNpmChannelTag: (typeof import("./update-check.js"))["resolveNpmChannelTag"];
   let runCommandWithTimeout: (typeof import("../process/exec.js"))["runCommandWithTimeout"];
@@ -66,8 +66,8 @@ describe("update-startup", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-01-17T10:00:00Z"));
     tempDir = await suiteRootTracker.make("case");
-    envSnapshot = captureEnv(["ASSISTANT_STATE_DIR", "NODE_ENV", "VITEST"]);
-    process.env.ASSISTANT_STATE_DIR = tempDir;
+    envSnapshot = captureEnv(["ZHUSHOU_STATE_DIR", "NODE_ENV", "VITEST"]);
+    process.env.ZHUSHOU_STATE_DIR = tempDir;
 
     process.env.NODE_ENV = "test";
 
@@ -76,7 +76,7 @@ describe("update-startup", () => {
 
     // Perf: load mocked modules once (after timers/env are set up).
     if (!loaded) {
-      ({ resolveAssistantPackageRoot } = await import("./assistant-root.js"));
+      ({ resolveZhushouPackageRoot } = await import("./zhushou-root.js"));
       ({ checkUpdateStatus, resolveNpmChannelTag } = await import("./update-check.js"));
       ({ runCommandWithTimeout } = await import("../process/exec.js"));
       ({
@@ -87,7 +87,7 @@ describe("update-startup", () => {
       } = await import("./update-startup.js"));
       loaded = true;
     }
-    vi.mocked(resolveAssistantPackageRoot).mockClear();
+    vi.mocked(resolveZhushouPackageRoot).mockClear();
     vi.mocked(checkUpdateStatus).mockClear();
     vi.mocked(resolveNpmChannelTag).mockClear();
     vi.mocked(runCommandWithTimeout).mockClear();
@@ -110,9 +110,9 @@ describe("update-startup", () => {
   }
 
   function mockPackageInstallStatus() {
-    vi.mocked(resolveAssistantPackageRoot).mockResolvedValue("/opt/assistant");
+    vi.mocked(resolveZhushouPackageRoot).mockResolvedValue("/opt/zhushou");
     vi.mocked(checkUpdateStatus).mockResolvedValue({
-      root: "/opt/assistant",
+      root: "/opt/zhushou",
       installKind: "package",
       packageManager: "npm",
     } satisfies UpdateCheckResult);
@@ -333,7 +333,7 @@ describe("update-startup", () => {
     expect(runAutoUpdate).toHaveBeenCalledWith({
       channel: "stable",
       timeoutMs: 45 * 60 * 1000,
-      root: "/opt/assistant",
+      root: "/opt/zhushou",
     });
   });
 
@@ -350,7 +350,7 @@ describe("update-startup", () => {
     expect(runAutoUpdate).toHaveBeenCalledWith({
       channel: "beta",
       timeoutMs: 45 * 60 * 1000,
-      root: "/opt/assistant",
+      root: "/opt/zhushou",
     });
   });
 
@@ -379,7 +379,7 @@ describe("update-startup", () => {
     });
 
     const originalArgv = process.argv.slice();
-    process.argv = [process.execPath, "/opt/assistant/dist/entry.js"];
+    process.argv = [process.execPath, "/opt/zhushou/dist/entry.js"];
     try {
       await runAutoUpdateCheckWithDefaults({
         cfg: createBetaAutoUpdateConfig(),
@@ -391,7 +391,7 @@ describe("update-startup", () => {
     expect(runCommandWithTimeout).toHaveBeenCalledWith(
       [
         process.execPath,
-        "/opt/assistant/dist/entry.js",
+        "/opt/zhushou/dist/entry.js",
         "update",
         "--yes",
         "--channel",
@@ -401,7 +401,7 @@ describe("update-startup", () => {
       expect.objectContaining({
         timeoutMs: 45 * 60 * 1000,
         env: expect.objectContaining({
-          ASSISTANT_AUTO_UPDATE: "1",
+          ZHUSHOU_AUTO_UPDATE: "1",
         }),
       }),
     );

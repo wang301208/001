@@ -32,15 +32,15 @@ describe("resetCommand", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resolveCleanupPlanFromDisk.mockReturnValue({
-      stateDir: "/tmp/.assistant",
-      configPath: "/tmp/.assistant/assistant.json",
-      oauthDir: "/tmp/.assistant/credentials",
+      stateDir: "/tmp/.zhushou",
+      configPath: "/tmp/.wang301208/zhushou.json",
+      oauthDir: "/tmp/.zhushou/credentials",
       configInsideState: true,
       oauthInsideState: true,
-      workspaceDirs: ["/tmp/.assistant/workspace"],
+      workspaceDirs: ["/tmp/.zhushou/workspace"],
     });
     removePath.mockResolvedValue({ ok: true });
-    listAgentSessionDirs.mockResolvedValue(["/tmp/.assistant/agents/main/sessions"]);
+    listAgentSessionDirs.mockResolvedValue(["/tmp/.zhushou/agents/main/sessions"]);
     removeStateAndLinkedPaths.mockResolvedValue(undefined);
     removeWorkspaceDirs.mockResolvedValue(undefined);
     vi.spyOn(runtime, "log").mockImplementation(() => {});
@@ -55,7 +55,7 @@ describe("resetCommand", () => {
       dryRun: true,
     });
 
-    expect(runtime.log).toHaveBeenCalledWith(expect.stringContaining("assistant backup create"));
+    expect(runtime.log).toHaveBeenCalledWith(expect.stringContaining("zhushou backup create"));
   });
 
   it("does not recommend backup for config-only reset", async () => {
@@ -66,6 +66,6 @@ describe("resetCommand", () => {
       dryRun: true,
     });
 
-    expect(runtime.log).not.toHaveBeenCalledWith(expect.stringContaining("assistant backup create"));
+    expect(runtime.log).not.toHaveBeenCalledWith(expect.stringContaining("zhushou backup create"));
   });
 });

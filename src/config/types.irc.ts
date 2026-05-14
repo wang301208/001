@@ -33,7 +33,7 @@ export type IrcAccountConfig = CommonChannelMessagingConfig & {
     /** Email used with NickServ REGISTER. */
     registerEmail?: string;
   };
-  /** Auto-join channel list at connect (example: ["#assistant"]). */
+  /** Auto-join channel list at connect (example: ["#zhushou"]). */
   channels?: string[];
   /** Outbound text chunk size (chars). Default: 350. */
   textChunkLimit?: number;

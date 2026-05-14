@@ -37,7 +37,7 @@ describe("matrix directory live", () => {
   beforeEach(() => {
     vi.mocked(resolveMatrixAuth).mockReset();
     vi.mocked(resolveMatrixAuth).mockResolvedValue({
-      accountId: "assistant",
+      accountId: "zhushou",
       homeserver: "https://matrix.example.org",
       userId: "@bot:example.org",
       accessToken: "test-token",
@@ -50,28 +50,28 @@ describe("matrix directory live", () => {
   it("passes accountId to peer directory auth resolution", async () => {
     await listMatrixDirectoryPeersLive({
       cfg,
-      accountId: "assistant",
+      accountId: "zhushou",
       query: "alice",
       limit: 10,
     });
 
-    expect(resolveMatrixAuth).toHaveBeenCalledWith({ cfg, accountId: "assistant" });
+    expect(resolveMatrixAuth).toHaveBeenCalledWith({ cfg, accountId: "zhushou" });
   });
 
   it("passes accountId to group directory auth resolution", async () => {
     await listMatrixDirectoryGroupsLive({
       cfg,
-      accountId: "assistant",
+      accountId: "zhushou",
       query: "channel:#room:example.org",
       limit: 10,
     });
 
-    expect(resolveMatrixAuth).toHaveBeenCalledWith({ cfg, accountId: "assistant" });
+    expect(resolveMatrixAuth).toHaveBeenCalledWith({ cfg, accountId: "zhushou" });
   });
 
   it("passes dispatcherPolicy through to the live directory client", async () => {
     vi.mocked(resolveMatrixAuth).mockResolvedValue({
-      accountId: "assistant",
+      accountId: "zhushou",
       homeserver: "https://matrix.example.org",
       userId: "@bot:example.org",
       accessToken: "test-token",
@@ -83,7 +83,7 @@ describe("matrix directory live", () => {
 
     await listMatrixDirectoryPeersLive({
       cfg,
-      accountId: "assistant",
+      accountId: "zhushou",
       query: "alice",
     });
 

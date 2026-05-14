@@ -1,6 +1,6 @@
-import { DEFAULT_ACCOUNT_ID } from "assistant/plugin-sdk/account-id";
+import { DEFAULT_ACCOUNT_ID } from "zhushou/plugin-sdk/account-id";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AssistantConfig } from "../runtime-api.js";
+import type { ZhushouConfig } from "../runtime-api.js";
 import {
   getZcaUserInfo,
   listEnabledZalouserAccounts,
@@ -19,8 +19,8 @@ vi.mock("./zalo-js.js", () => ({
 const mockCheckAuthenticated = vi.mocked(checkZaloAuthenticated);
 const mockGetUserInfo = vi.mocked(getZaloUserInfo);
 
-function asConfig(value: unknown): AssistantConfig {
-  return value as AssistantConfig;
+function asConfig(value: unknown): ZhushouConfig {
+  return value as ZhushouConfig;
 }
 
 describe("zalouser account resolution", () => {

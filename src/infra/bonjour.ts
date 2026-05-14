@@ -1,6 +1,6 @@
 import { logDebug, logWarn } from "../logger.js";
 import { getLogger } from "../logging.js";
-import { PRODUCT_NAME } from "../wizard/assistant-constants.js";
+import { PRODUCT_NAME } from "../wizard/zhushou-constants.js";
 import { classifyCiaoUnhandledRejection } from "./bonjour-ciao.js";
 import { formatBonjourError } from "./bonjour-errors.js";
 import { isTruthyEnvValue } from "./env.js";
@@ -27,7 +27,7 @@ export type GatewayBonjourAdvertiseOpts = {
 };
 
 function isDisabledByEnv() {
-  if (isTruthyEnvValue(process.env.ASSISTANT_DISABLE_BONJOUR)) {
+  if (isTruthyEnvValue(process.env.ZHUSHOU_DISABLE_BONJOUR)) {
     return true;
   }
   if (process.env.NODE_ENV === "test") {
@@ -153,12 +153,12 @@ export async function startGatewayBonjourAdvertiser(
     // mDNS service instance names are single DNS labels; dots in hostnames (like
     // `Mac.localdomain`) can confuse some resolvers/browsers and break discovery.
     // Keep only the first label and normalize away a trailing `.local`.
-    const hostnameRaw = process.env.ASSISTANT_MDNS_HOSTNAME?.trim() || "assistant";
+    const hostnameRaw = process.env.ZHUSHOU_MDNS_HOSTNAME?.trim() || "zhushou";
     const hostname =
       hostnameRaw
         .replace(/\.local$/i, "")
         .split(".")[0]
-        .trim() || "assistant";
+        .trim() || "zhushou";
     const instanceName =
       typeof opts.instanceName === "string" && opts.instanceName.trim()
         ? opts.instanceName.trim()
@@ -205,7 +205,7 @@ export async function startGatewayBonjourAdvertiser(
 
       const gateway = responder.createService({
         name: safeServiceName(instanceName),
-        type: "assistant-gw",
+        type: "zhushou-gw",
         protocol: Protocol.TCP,
         port: opts.gatewayPort,
         domain: "local",

@@ -1,6 +1,6 @@
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { TSchema } from "@sinclair/typebox";
-import type { AssistantConfig } from "../../config/types.assistant.js";
+import type { ZhushouConfig } from "../../config/types.zhushou.js";
 import type { ProviderRuntimeModel } from "../../plugins/provider-runtime-model.types.js";
 import {
   inspectProviderToolSchemasWithPlugin,
@@ -13,7 +13,7 @@ import { log } from "./logger.js";
 type ProviderToolSchemaParams<TSchemaType extends TSchema = TSchema, TResult = unknown> = {
   tools: AgentTool<TSchemaType, TResult>[];
   provider: string;
-  config?: AssistantConfig;
+  config?: ZhushouConfig;
   workspaceDir?: string;
   env?: NodeJS.ProcessEnv;
   modelId?: string;

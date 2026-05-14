@@ -39,7 +39,7 @@ async function writePluginFixture(params: {
     manifest.channels = params.channels;
   }
   await fs.writeFile(
-    path.join(params.dir, "assistant.plugin.json"),
+    path.join(params.dir, "zhushou.plugin.json"),
     JSON.stringify(manifest, null, 2),
     "utf-8",
   );
@@ -106,12 +106,12 @@ describe("config plugin validation", () => {
   const suiteEnv = () =>
     ({
       HOME: suiteHome,
-      ASSISTANT_HOME: undefined,
-      ASSISTANT_STATE_DIR: path.join(suiteHome, ".assistant"),
-      ASSISTANT_PLUGIN_MANIFEST_CACHE_MS: "10000",
-      ASSISTANT_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
-      ASSISTANT_BUNDLED_PLUGINS_DIR: undefined,
-      ASSISTANT_VERSION: undefined,
+      ZHUSHOU_HOME: undefined,
+      ZHUSHOU_STATE_DIR: path.join(suiteHome, ".zhushou"),
+      ZHUSHOU_PLUGIN_MANIFEST_CACHE_MS: "10000",
+      ZHUSHOU_DISABLE_PLUGIN_DISCOVERY_CACHE: "1",
+      ZHUSHOU_BUNDLED_PLUGINS_DIR: undefined,
+      ZHUSHOU_VERSION: undefined,
       VITEST: "true",
     }) satisfies NodeJS.ProcessEnv;
 
@@ -131,7 +131,7 @@ describe("config plugin validation", () => {
     });
 
   beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-config-plugin-validation-"));
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-config-plugin-validation-"));
     await chmodSafeDir(fixtureRoot);
     suiteHome = path.join(fixtureRoot, "home");
     await mkdirSafe(suiteHome);
@@ -196,7 +196,7 @@ describe("config plugin validation", () => {
       process.cwd(),
       "extensions",
       "voice-call",
-      "assistant.plugin.json",
+      "zhushou.plugin.json",
     );
     const voiceCallManifest = JSON.parse(await fs.readFile(voiceCallManifestPath, "utf-8")) as {
       configSchema?: Record<string, unknown>;
@@ -318,7 +318,7 @@ describe("config plugin validation", () => {
       {
         env: {
           ...suiteEnv(),
-          ASSISTANT_BUNDLED_PLUGINS_DIR: path.join(suiteHome, "missing-bundled-plugins"),
+          ZHUSHOU_BUNDLED_PLUGINS_DIR: path.join(suiteHome, "missing-bundled-plugins"),
         },
       },
     );

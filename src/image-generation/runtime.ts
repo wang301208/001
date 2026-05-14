@@ -1,6 +1,6 @@
 import { describeFailoverError, isFailoverError } from "../agents/failover-error.js";
 import type { FallbackAttempt } from "../agents/model-fallback.types.js";
-import type { AssistantConfig } from "../config/types.assistant.js";
+import type { ZhushouConfig } from "../config/types.zhushou.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
@@ -19,7 +19,7 @@ const log = createSubsystemLogger("image-generation");
 
 export type { GenerateImageParams, GenerateImageRuntimeResult } from "./runtime-types.js";
 
-function buildNoImageGenerationModelConfiguredMessage(cfg: AssistantConfig): string {
+function buildNoImageGenerationModelConfiguredMessage(cfg: ZhushouConfig): string {
   return buildNoCapabilityModelConfiguredMessage({
     capabilityLabel: "image-generation",
     modelConfigKey: "imageGenerationModel",
@@ -27,7 +27,7 @@ function buildNoImageGenerationModelConfiguredMessage(cfg: AssistantConfig): str
   });
 }
 
-export function listRuntimeImageGenerationProviders(params?: { config?: AssistantConfig }) {
+export function listRuntimeImageGenerationProviders(params?: { config?: ZhushouConfig }) {
   return listImageGenerationProviders(params?.config);
 }
 

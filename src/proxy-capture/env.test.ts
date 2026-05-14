@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  ASSISTANT_DEBUG_PROXY_ENABLED,
-  ASSISTANT_DEBUG_PROXY_SESSION_ID,
+  ZHUSHOU_DEBUG_PROXY_ENABLED,
+  ZHUSHOU_DEBUG_PROXY_SESSION_ID,
   resolveDebugProxySettings,
 } from "./env.js";
 
@@ -13,7 +13,7 @@ describe("resolveDebugProxySettings", () => {
   it("keeps an implicit debug proxy session id stable within one process", async () => {
     const mod = await import("./env.js");
     const env = {
-      [ASSISTANT_DEBUG_PROXY_ENABLED]: "1",
+      [ZHUSHOU_DEBUG_PROXY_ENABLED]: "1",
     } satisfies NodeJS.ProcessEnv;
 
     const first = mod.resolveDebugProxySettings(env);
@@ -24,8 +24,8 @@ describe("resolveDebugProxySettings", () => {
 
   it("prefers an explicit session id from the environment", () => {
     const settings = resolveDebugProxySettings({
-      [ASSISTANT_DEBUG_PROXY_ENABLED]: "1",
-      [ASSISTANT_DEBUG_PROXY_SESSION_ID]: "session-explicit",
+      [ZHUSHOU_DEBUG_PROXY_ENABLED]: "1",
+      [ZHUSHOU_DEBUG_PROXY_SESSION_ID]: "session-explicit",
     });
 
     expect(settings.sessionId).toBe("session-explicit");

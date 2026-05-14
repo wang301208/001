@@ -1,8 +1,8 @@
-import { resolveChannelGroupRequireMention } from "assistant/plugin-sdk/channel-policy";
-import { resolveExactLineGroupConfigKey, type AssistantConfig } from "./channel-api.js";
+import { resolveChannelGroupRequireMention } from "zhushou/plugin-sdk/channel-policy";
+import { resolveExactLineGroupConfigKey, type ZhushouConfig } from "./channel-api.js";
 
 type LineGroupContext = {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   accountId?: string | null;
   groupId?: string | null;
 };

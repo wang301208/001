@@ -1,5 +1,5 @@
-import { createEnvPatchedAccountSetupAdapter } from "assistant/plugin-sdk/setup-adapter-runtime";
-import type { ChannelSetupAdapter } from "assistant/plugin-sdk/setup-runtime";
+import { createEnvPatchedAccountSetupAdapter } from "zhushou/plugin-sdk/setup-adapter-runtime";
+import type { ChannelSetupAdapter } from "zhushou/plugin-sdk/setup-runtime";
 
 const channel = "discord" as const;
 

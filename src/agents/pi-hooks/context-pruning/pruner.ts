@@ -184,16 +184,16 @@ function estimateContextChars(messages: AgentMessage[]): number {
   return messages.reduce((sum, m) => sum + estimateMessageChars(m), 0);
 }
 
-function findAssistantCutoffIndex(
+function findZhushouCutoffIndex(
   messages: AgentMessage[],
-  keepLastAssistants: number,
+  keepLastZhushous: number,
 ): number | null {
-  // keepLastAssistants <= 0 => everything is potentially prunable.
-  if (keepLastAssistants <= 0) {
+  // keepLastZhushous <= 0 => everything is potentially prunable.
+  if (keepLastZhushous <= 0) {
     return messages.length;
   }
 
-  let remaining = keepLastAssistants;
+  let remaining = keepLastZhushous;
   for (let i = messages.length - 1; i >= 0; i--) {
     if (messages[i]?.role !== "assistant") {
       continue;
@@ -204,7 +204,7 @@ function findAssistantCutoffIndex(
     }
   }
 
-  // Not enough assistant messages to establish a protected tail.
+  // Not enough zhushou messages to establish a protected tail.
   return null;
 }
 
@@ -280,7 +280,7 @@ export function pruneContextMessages(params: {
     return messages;
   }
 
-  const cutoffIndex = findAssistantCutoffIndex(messages, settings.keepLastAssistants);
+  const cutoffIndex = findZhushouCutoffIndex(messages, settings.keepLastZhushous);
   if (cutoffIndex === null) {
     return messages;
   }

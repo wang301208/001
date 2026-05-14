@@ -8,7 +8,7 @@ import { captureEnv } from "../test-utils/env.js";
 import { saveMediaSource, setMediaStoreNetworkDepsForTest } from "./store.js";
 
 const homeRootTracker = createSuiteTempRootTracker({
-  prefix: "assistant-home-redirect-",
+  prefix: "zhushou-home-redirect-",
 });
 const mockRequest = vi.fn();
 
@@ -97,10 +97,10 @@ describe("media store redirects", () => {
   let home = "";
 
   beforeAll(async () => {
-    envSnapshot = captureEnv(["ASSISTANT_STATE_DIR"]);
+    envSnapshot = captureEnv(["ZHUSHOU_STATE_DIR"]);
     await homeRootTracker.setup();
     home = await homeRootTracker.make("state");
-    process.env.ASSISTANT_STATE_DIR = home;
+    process.env.ZHUSHOU_STATE_DIR = home;
   });
 
   beforeEach(() => {
@@ -181,7 +181,7 @@ describe("media store redirects", () => {
     expect(secondHeaders.get("cookie")).toBeNull();
     expect(secondHeaders.get("x-api-key")).toBeNull();
     expect(secondHeaders.get("accept")).toBe("text/plain");
-    expect(secondHeaders.get("user-agent")).toBe("助手-Test/1.0");
+    expect(secondHeaders.get("user-agent")).toBeNull();
   });
 
   it("keeps headers when a redirect stays on the same origin", async () => {

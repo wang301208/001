@@ -28,7 +28,7 @@ function createLifecycleContext(params: {
       onAgentEvent: undefined,
     },
     state: {
-      assistantTexts: [],
+      zhushouTexts: [],
       toolMetas: [],
       toolMetaById: new Map(),
       toolSummaryById: new Set(),
@@ -36,14 +36,14 @@ function createLifecycleContext(params: {
       blockBuffer: "",
       blockState: { thinking: false, final: false, inlineCode: {} as never },
       partialBlockState: { thinking: false, final: false, inlineCode: {} as never },
-      emittedAssistantUpdate: false,
+      emittedZhushouUpdate: false,
       reasoningMode: "off",
       includeReasoning: false,
       shouldEmitPartialReplies: true,
       streamReasoning: false,
-      assistantMessageIndex: 0,
-      lastAssistantTextMessageIndex: -1,
-      assistantTextBaseline: 0,
+      zhushouMessageIndex: 0,
+      lastZhushouTextMessageIndex: -1,
+      zhushouTextBaseline: 0,
       suppressBlockChunks: false,
       compactionInFlight: false,
       pendingCompactionRetry: 0,
@@ -65,7 +65,7 @@ function createLifecycleContext(params: {
       warn: vi.fn(),
     },
     blockChunker: null,
-    noteLastAssistant: vi.fn(),
+    noteLastZhushou: vi.fn(),
     shouldEmitToolResult: () => false,
     shouldEmitToolOutput: () => false,
     emitToolSummary: vi.fn(),
@@ -76,15 +76,15 @@ function createLifecycleContext(params: {
     emitReasoningStream: vi.fn(),
     consumeReplyDirectives: vi.fn(),
     consumePartialReplyDirectives: vi.fn(),
-    resetAssistantMessageState: vi.fn(),
+    resetZhushouMessageState: vi.fn(),
     resetForCompactionRetry: vi.fn(),
-    finalizeAssistantTexts: vi.fn(),
+    finalizeZhushouTexts: vi.fn(),
     trimMessagingToolSent: vi.fn(),
     ensureCompactionPromise: vi.fn(),
     noteCompactionRetry: vi.fn(),
     resolveCompactionRetry: vi.fn(),
     maybeResolveCompactionWait: vi.fn(),
-    recordAssistantUsage: vi.fn(),
+    recordZhushouUsage: vi.fn(),
     incrementCompactionCount: () => {
       compactionCount += 1;
     },
@@ -95,7 +95,7 @@ function createLifecycleContext(params: {
 
 describe("createEmbeddedPiSessionEventHandler compaction reconciliation", () => {
   it("reconciles sessions.json on routed auto_compaction_end success", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "assistant-lifecycle-compaction-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "zhushou-lifecycle-compaction-"));
     const storePath = path.join(tmp, "sessions.json");
     const sessionKey = "main";
     await seedSessionStore({

@@ -2,7 +2,7 @@ import {
   firstDefined,
   isSenderIdAllowed,
   mergeDmAllowFromSources,
-} from "assistant/plugin-sdk/allow-from";
+} from "zhushou/plugin-sdk/allow-from";
 
 export type NormalizedAllowFrom = {
   entries: string[];

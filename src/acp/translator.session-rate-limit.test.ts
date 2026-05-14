@@ -242,7 +242,7 @@ describe("acp session UX bridge behavior", () => {
     sessionStore.clearAllSessionsForTest();
   });
 
-  it("replays user text, assistant text, and hidden assistant thinking on loadSession", async () => {
+  it("replays user text, zhushou text, and hidden zhushou thinking on loadSession", async () => {
     const sessionStore = createInMemorySessionStore();
     const connection = createAcpConnection();
     const sessionUpdate = connection.__sessionUpdateMock;

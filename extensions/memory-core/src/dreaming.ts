@@ -1,5 +1,5 @@
-import { peekSystemEventEntries } from "assistant/plugin-sdk/infra-runtime";
-import type { AssistantConfig, AssistantPluginApi } from "assistant/plugin-sdk/memory-core";
+import { peekSystemEventEntries } from "zhushou/plugin-sdk/infra-runtime";
+import type { ZhushouConfig, ZhushouPluginApi } from "zhushou/plugin-sdk/memory-core";
 import {
   DEFAULT_MEMORY_DREAMING_FREQUENCY as DEFAULT_MEMORY_DREAMING_CRON_EXPR,
   DEFAULT_MEMORY_DEEP_DREAMING_LIMIT as DEFAULT_MEMORY_DREAMING_LIMIT,
@@ -10,8 +10,8 @@ import {
   resolveMemoryCorePluginConfig,
   resolveMemoryDeepDreamingConfig,
   resolveMemoryDreamingWorkspaces,
-} from "assistant/plugin-sdk/memory-core-host-status";
-import { normalizeLowercaseStringOrEmpty } from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/memory-core-host-status";
+import { normalizeLowercaseStringOrEmpty } from "zhushou/plugin-sdk/text-runtime";
 import { writeDeepDreamingReport } from "./dreaming-markdown.js";
 import { generateAndAppendDreamNarrative, type NarrativePhaseData } from "./dreaming-narrative.js";
 import { runDreamingSweepPhases } from "./dreaming-phases.js";
@@ -29,17 +29,17 @@ import {
 
 const MANAGED_DREAMING_CRON_NAME = "Memory Dreaming Promotion";
 const MANAGED_DREAMING_CRON_TAG = "[managed-by=memory-core.short-term-promotion]";
-const DREAMING_SYSTEM_EVENT_TEXT = "__assistant_memory_core_short_term_promotion_dream__";
+const DREAMING_SYSTEM_EVENT_TEXT = "__zhushou_memory_core_short_term_promotion_dream__";
 const LEGACY_LIGHT_SLEEP_CRON_NAME = "Memory Light Dreaming";
 const LEGACY_LIGHT_SLEEP_CRON_TAG = "[managed-by=memory-core.dreaming.light]";
-const LEGACY_LIGHT_SLEEP_EVENT_TEXT = "__assistant_memory_core_light_sleep__";
+const LEGACY_LIGHT_SLEEP_EVENT_TEXT = "__zhushou_memory_core_light_sleep__";
 const LEGACY_REM_SLEEP_CRON_NAME = "Memory REM Dreaming";
 const LEGACY_REM_SLEEP_CRON_TAG = "[managed-by=memory-core.dreaming.rem]";
-const LEGACY_REM_SLEEP_EVENT_TEXT = "__assistant_memory_core_rem_sleep__";
+const LEGACY_REM_SLEEP_EVENT_TEXT = "__zhushou_memory_core_rem_sleep__";
 const RUNTIME_CRON_RECONCILE_INTERVAL_MS = 60_000;
 const HEARTBEAT_ISOLATED_SESSION_SUFFIX = ":heartbeat";
 
-type Logger = Pick<AssistantPluginApi["logger"], "info" | "warn" | "error">;
+type Logger = Pick<ZhushouPluginApi["logger"], "info" | "warn" | "error">;
 
 type CronSchedule = { kind: "cron"; expr: string; tz?: string };
 type CronPayload = { kind: "systemEvent"; text: string };
@@ -336,14 +336,14 @@ function resolveCronServiceFromStartupEvent(event: unknown): CronServiceLike | n
   return resolveCronServiceFromStartupSource(resolveStartupCronSourceFromEvent(event));
 }
 
-function resolveStartupConfigFromEvent(event: unknown, fallback: AssistantConfig): AssistantConfig {
+function resolveStartupConfigFromEvent(event: unknown, fallback: ZhushouConfig): ZhushouConfig {
   const startupEvent = asRecord(event);
   const startupContext = asRecord(startupEvent?.context);
   const startupCfg = asRecord(startupContext?.cfg);
   if (!startupCfg) {
     return fallback;
   }
-  return startupCfg as AssistantConfig;
+  return startupCfg as ZhushouConfig;
 }
 
 function resolveDreamingTriggerSessionKeys(sessionKey?: string): string[] {
@@ -377,7 +377,7 @@ function hasPendingManagedDreamingCronEvent(sessionKey?: string): boolean {
 
 export function resolveShortTermPromotionDreamingConfig(params: {
   pluginConfig?: Record<string, unknown>;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
 }): ShortTermPromotionDreamingConfig {
   const resolved = resolveMemoryDeepDreamingConfig(params);
   return {
@@ -484,7 +484,7 @@ export async function runShortTermDreamingPromotionIfTriggered(params: {
   cleanedBody: string;
   trigger?: string;
   workspaceDir?: string;
-  cfg?: AssistantConfig;
+  cfg?: ZhushouConfig;
   config: ShortTermPromotionDreamingConfig;
   logger: Logger;
   subagent?: Parameters<typeof generateAndAppendDreamNarrative>[0]["subagent"];
@@ -647,7 +647,7 @@ export async function runShortTermDreamingPromotionIfTriggered(params: {
   return { handled: true, reason: "memory-core: short-term dreaming processed" };
 }
 
-export function registerShortTermPromotionDreaming(api: AssistantPluginApi): void {
+export function registerShortTermPromotionDreaming(api: ZhushouPluginApi): void {
   let startupCronSource: StartupCronSourceRefs | null = null;
   let unavailableCronWarningEmitted = false;
   let lastRuntimeReconcileAtMs = 0;

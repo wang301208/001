@@ -88,13 +88,13 @@ describe("gateway auth", () => {
     expect(res.user).toBe(params.expected.user);
   }
 
-  it("resolves token/password from ASSISTANT gateway env vars", () => {
+  it("resolves token/password from ZHUSHOU gateway env vars", () => {
     expect(
       resolveGatewayAuth({
         authConfig: {},
         env: {
-          ASSISTANT_GATEWAY_TOKEN: "env-token",
-          ASSISTANT_GATEWAY_PASSWORD: "env-password",
+          ZHUSHOU_GATEWAY_TOKEN: "env-token",
+          ZHUSHOU_GATEWAY_PASSWORD: "env-password",
         } as NodeJS.ProcessEnv,
       }),
     ).toMatchObject({
@@ -163,8 +163,8 @@ describe("gateway auth", () => {
           password: "config-password", // pragma: allowlist secret
         },
         env: {
-          ASSISTANT_GATEWAY_TOKEN: "env-token",
-          ASSISTANT_GATEWAY_PASSWORD: "env-password",
+          ZHUSHOU_GATEWAY_TOKEN: "env-token",
+          ZHUSHOU_GATEWAY_PASSWORD: "env-password",
         } as NodeJS.ProcessEnv,
       }),
     ).toMatchObject({
@@ -177,12 +177,12 @@ describe("gateway auth", () => {
     expect(
       resolveGatewayAuth({
         authConfig: {
-          token: "${ASSISTANT_GATEWAY_TOKEN}",
-          password: "${ASSISTANT_GATEWAY_PASSWORD}",
+          token: "${ZHUSHOU_GATEWAY_TOKEN}",
+          password: "${ZHUSHOU_GATEWAY_PASSWORD}",
         },
         env: {
-          ASSISTANT_GATEWAY_TOKEN: "env-token",
-          ASSISTANT_GATEWAY_PASSWORD: "env-password",
+          ZHUSHOU_GATEWAY_TOKEN: "env-token",
+          ZHUSHOU_GATEWAY_PASSWORD: "env-password",
         } as NodeJS.ProcessEnv,
       }),
     ).toMatchObject({
@@ -509,7 +509,7 @@ describe("gateway auth", () => {
     ).toThrow(/provider reference object/);
   });
 
-  it("accepts password mode when env provides ASSISTANT_GATEWAY_PASSWORD", () => {
+  it("accepts password mode when env provides ZHUSHOU_GATEWAY_PASSWORD", () => {
     const rawPasswordRef = { source: "exec", provider: "op", id: "pw" } as never;
     const auth = resolveGatewayAuth({
       authConfig: {
@@ -517,7 +517,7 @@ describe("gateway auth", () => {
         password: rawPasswordRef,
       },
       env: {
-        ASSISTANT_GATEWAY_PASSWORD: "env-password",
+        ZHUSHOU_GATEWAY_PASSWORD: "env-password",
       } as NodeJS.ProcessEnv,
     });
 
@@ -798,7 +798,7 @@ describe("trusted-proxy auth", () => {
         },
       },
       env: {
-        ASSISTANT_GATEWAY_TOKEN: "shared-secret",
+        ZHUSHOU_GATEWAY_TOKEN: "shared-secret",
       } as NodeJS.ProcessEnv,
     },
   ])("rejects trusted-proxy mode when shared token comes from $name", ({ authConfig, env }) => {

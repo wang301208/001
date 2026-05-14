@@ -2,13 +2,13 @@ import {
   resolveOutboundMediaUrls,
   resolveTextChunksWithFallback,
   sendMediaWithLeadingCaption,
-} from "assistant/plugin-sdk/reply-payload";
-import { isPrivateNetworkOptInEnabled } from "assistant/plugin-sdk/ssrf-runtime";
+} from "zhushou/plugin-sdk/reply-payload";
+import { isPrivateNetworkOptInEnabled } from "zhushou/plugin-sdk/ssrf-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
-} from "assistant/plugin-sdk/text-runtime";
+} from "zhushou/plugin-sdk/text-runtime";
 import {
   downloadBlueBubblesAttachment,
   fetchBlueBubblesMessageAttachments,
@@ -70,7 +70,7 @@ import type {
 import { enrichBlueBubblesParticipantsWithContactNames } from "./participant-contact-names.js";
 import { isBlueBubblesPrivateApiEnabled } from "./probe.js";
 import { normalizeBlueBubblesReactionInput, sendBlueBubblesReaction } from "./reactions.js";
-import type { AssistantConfig } from "./runtime-api.js";
+import type { ZhushouConfig } from "./runtime-api.js";
 import { normalizeSecretInputString } from "./secret-input.js";
 import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
 import {
@@ -390,7 +390,7 @@ function logGroupAllowlistHint(params: {
 }
 
 function resolveBlueBubblesAckReaction(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId: string;
   core: BlueBubblesCoreRuntime;
   runtime: BlueBubblesRuntimeEnv;
@@ -798,10 +798,10 @@ async function processMessageAfterDedupe(
   if (message.fromMe) {
     // Cache from-me messages so reply context can resolve sender/body.
     cacheInboundMessage();
-    const confirmedAssistantOutbound =
+    const confirmedZhushouOutbound =
       confirmedOutboundCacheEntry?.senderLabel === "me" &&
       normalizeSnippet(confirmedOutboundCacheEntry.body ?? "") === normalizeSnippet(rawBody);
-    if (isSelfChatMessage && confirmedAssistantOutbound) {
+    if (isSelfChatMessage && confirmedZhushouOutbound) {
       rememberBlueBubblesSelfChatCopy(selfChatLookup);
     }
     if (cacheMessageId) {
@@ -818,7 +818,7 @@ async function processMessageAfterDedupe(
         const preview = previewSource
           ? ` "${previewSource.slice(0, 12)}${previewSource.length > 12 ? "…" : ""}"`
           : "";
-        core.system.enqueueSystemEvent(`Assistant sent${preview} [message_id:${displayId}]`, {
+        core.system.enqueueSystemEvent(`Zhushou sent${preview} [message_id:${displayId}]`, {
           sessionKey: pending.sessionKey,
           contextKey: `bluebubbles:outbound:${pending.outboundTarget}:${cacheMessageId}`,
         });
@@ -1381,7 +1381,7 @@ async function processMessageAfterDedupe(
     });
     const displayId = cacheEntry.shortId || trimmed;
     const preview = snippet ? ` "${snippet.slice(0, 12)}${snippet.length > 12 ? "…" : ""}"` : "";
-    core.system.enqueueSystemEvent(`Assistant sent${preview} [message_id:${displayId}]`, {
+    core.system.enqueueSystemEvent(`Zhushou sent${preview} [message_id:${displayId}]`, {
       sessionKey: route.sessionKey,
       contextKey: `bluebubbles:outbound:${outboundTarget}:${trimmed}`,
     });

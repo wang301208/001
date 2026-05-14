@@ -5,9 +5,9 @@ import {
   resolveEffectiveToolFsWorkspaceOnly,
 } from "../agents/tool-fs-policy.js";
 import { resolveStateDir } from "../config/paths.js";
-import type { AssistantConfig } from "../config/types.js";
+import type { ZhushouConfig } from "../config/types.js";
 import { safeFileURLToPath } from "../infra/local-file-access.js";
-import { resolvePreferredAssistantTmpDir } from "../infra/tmp-assistant-dir.js";
+import { resolvePreferredZhushouTmpDir } from "../infra/tmp-zhushou-dir.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { resolveConfigDir, resolveUserPath } from "../utils.js";
 import { isPassThroughRemoteMediaSource } from "./media-source-url.js";
@@ -22,7 +22,7 @@ const WINDOWS_DRIVE_RE = /^[A-Za-z]:[\\/]/;
 
 function resolveCachedPreferredTmpDir(): string {
   if (!cachedPreferredTmpDir) {
-    cachedPreferredTmpDir = resolvePreferredAssistantTmpDir();
+    cachedPreferredTmpDir = resolvePreferredZhushouTmpDir();
   }
   return cachedPreferredTmpDir;
 }
@@ -52,7 +52,7 @@ export function getDefaultMediaLocalRoots(): readonly string[] {
 }
 
 export function getAgentScopedMediaLocalRoots(
-  cfg: AssistantConfig,
+  cfg: ZhushouConfig,
   agentId?: string,
 ): readonly string[] {
   const roots = buildMediaLocalRoots(resolveStateDir(), resolveConfigDir());
@@ -115,7 +115,7 @@ export function appendLocalMediaParentRoots(
 }
 
 export function getAgentScopedMediaLocalRootsForSources(params: {
-  cfg: AssistantConfig;
+  cfg: ZhushouConfig;
   agentId?: string;
   mediaSources?: readonly string[];
 }): readonly string[] {

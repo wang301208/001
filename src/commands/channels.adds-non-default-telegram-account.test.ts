@@ -650,7 +650,7 @@ describe("channels command", () => {
       patterns: [
         /Warnings:/,
         /Message Content Intent is disabled/i,
-        /Run: (?:assistant|assistant)( --profile isolated)? doctor/,
+        /Run: (?:zhushou|zhushou)( --profile isolated)? doctor/,
       ],
     },
     {
@@ -704,11 +704,11 @@ describe("channels command", () => {
           accountId: "default",
           enabled: true,
           configured: true,
-          probe: { ok: true, bot: { username: "assistant_bot" } },
+          probe: { ok: true, bot: { username: "zhushou_bot" } },
         },
       ],
     });
-    expect(joined).toMatch(/bot:@assistant_bot/);
+    expect(joined).toMatch(/bot:@zhushou_bot/);
   });
 
   it("surfaces Telegram group membership audit issues in channels status output", () => {

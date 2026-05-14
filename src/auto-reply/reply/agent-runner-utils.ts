@@ -11,7 +11,7 @@ import {
   getScopedChannelsCommandSecretTargets,
 } from "../../cli/command-secret-targets.js";
 import { resolveMessageSecretScope } from "../../cli/message-secret-scope.js";
-import { getRuntimeConfigSnapshot, type AssistantConfig } from "../../config/config.js";
+import { getRuntimeConfigSnapshot, type ZhushouConfig } from "../../config/config.js";
 import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -28,21 +28,21 @@ import type { FollowupRun } from "./queue.js";
 
 const BUN_FETCH_SOCKET_ERROR_RE = /socket connection was closed unexpectedly/i;
 
-export function resolveQueuedReplyRuntimeConfig(config: AssistantConfig): AssistantConfig {
+export function resolveQueuedReplyRuntimeConfig(config: ZhushouConfig): ZhushouConfig {
   return (
     (typeof getRuntimeConfigSnapshot === "function" ? getRuntimeConfigSnapshot() : null) ?? config
   );
 }
 
 export async function resolveQueuedReplyExecutionConfig(
-  config: AssistantConfig,
+  config: ZhushouConfig,
   params?: {
     originatingChannel?: string;
     messageProvider?: string;
     originatingAccountId?: string;
     agentAccountId?: string;
   },
-): Promise<AssistantConfig> {
+): Promise<ZhushouConfig> {
   const runtimeConfig = resolveQueuedReplyRuntimeConfig(config);
   const { resolvedConfig } = await resolveCommandSecretRefsViaGateway({
     config: runtimeConfig,
@@ -84,7 +84,7 @@ export async function resolveQueuedReplyExecutionConfig(
  */
 export function buildThreadingToolContext(params: {
   sessionCtx: TemplateContext;
-  config: AssistantConfig | undefined;
+  config: ZhushouConfig | undefined;
   hasRepliedRef: { value: boolean } | undefined;
 }): ChannelThreadingToolContext {
   const { sessionCtx, config, hasRepliedRef } = params;
